@@ -1,0 +1,51 @@
+/* Ported from design-reference/Portal Team Hub.dc.html (invite dialog) and the locked-preview
+   overlay in design-reference/Amplified Impact LMS.dc.html. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ai-fade 160ms ease-out;
+}
+.overlay[data-pad='20'] {
+  padding: 20px;
+}
+.overlay[data-pad='24'] {
+  padding: 24px;
+}
+
+.dialog {
+  width: min(var(--modal-w, 460px), 100%);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-default);
+  box-shadow: var(--shadow-pop);
+  animation: ai-pop 200ms ease-out;
+  outline: none;
+}
+.dialog[data-radius='14'] {
+  border-radius: 14px;
+}
+.dialog[data-radius='16'] {
+  border-radius: 16px;
+}
+.dialog[data-variant='surface'] {
+  background: var(--bg-surface);
+  border-color: var(--line-strong);
+}
+
+/* `chrome={false}`: the overlay only, for a child that draws its own dialog. */
+.bare {
+  width: min(var(--modal-w, 460px), 100%);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .dialog {
+    animation: none;
+  }
+}

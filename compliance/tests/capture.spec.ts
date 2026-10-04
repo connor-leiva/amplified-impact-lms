@@ -18,8 +18,11 @@ for (const s of SCENARIOS) {
       const png = sel
         ? await page.locator(sel).first().screenshot({ animations: 'disabled', mask, maskColor: '#FF00FF' })
         : await page.screenshot({ animations: 'disabled', mask, maskColor: '#FF00FF' });
-      await fs.writeFile(new URL(`${s.id}.${r}.png`, OUT), png);
-      await fs.writeFile(new URL(`${s.id}.${r}.json`, OUT), JSON.stringify(await fingerprint(page, sel), null, 1));
+      // Hyphen, never a dot: Playwright's toMatchSnapshot sanitizes `.` inside the snapshot name,
+      // so a dotted golden would be written here and looked for under a different name in
+      // parity.spec.ts. See goldenName() — both sides must agree.
+      await fs.writeFile(new URL(`${s.id}-${r}.png`, OUT), png);
+      await fs.writeFile(new URL(`${s.id}-${r}.json`, OUT), JSON.stringify(await fingerprint(page, sel), null, 1));
     }
     await ctx.close();
   });

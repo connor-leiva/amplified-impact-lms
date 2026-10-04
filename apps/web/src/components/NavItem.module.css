@@ -1,0 +1,173 @@
+/* Ported from design-reference/Nav Item.dc.html. Every value is the reference's.
+   The reference computes `bg`, `sh`, `fg`, `ifg`, `fw`, `pad`, `jc` and `--hov` per render; those
+   branches are expressed here as data-attribute selectors in the reference's own precedence order. */
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  justify-content: flex-start;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  box-shadow: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  outline: none;
+  transition: background 120ms;
+}
+
+/* depth 1 is an AI Employee child row. Collapsed is the 64px icon rail and outranks depth,
+   exactly as `pad: collapsed ? '0' : depth ? … : …` does. */
+.root[data-depth='1'] {
+  padding: 0 10px 0 24px;
+}
+.root[data-collapsed='true'] {
+  padding: 0;
+  justify-content: center;
+}
+
+/* Hover is the parent aside's --nav-hover (reference `hov`). A disabled row stays transparent and
+   an active row stays on --nav-active; active outranks disabled. */
+.root:hover,
+.root[data-force='hover'] {
+  background: var(--nav-hover, var(--bg-hover));
+}
+.root[data-disabled='true']:hover,
+.root[data-disabled='true'][data-force='hover'] {
+  background: transparent;
+}
+
+.root[data-active='true'] {
+  background: var(--nav-active, var(--bg-surface));
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--line-default), var(--shadow-xs);
+}
+.root[data-active='true']:hover,
+.root[data-active='true'][data-force='hover'] {
+  background: var(--nav-active, var(--bg-surface));
+}
+
+/* The reference's `muted` (locked or disabled) outranks active for text and icon colour. */
+.root[data-muted='true'] {
+  color: var(--text-disabled);
+}
+.root[data-disabled='true'] {
+  cursor: not-allowed;
+}
+
+/* Nav rows take a 2px focus ring, not the 3px the other controls use. When a row is both active
+   and focused the reference joins the two shadows, comma separated, in this order. */
+.root:focus-visible,
+.root[data-force='focus'] {
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+.root[data-active='true']:focus-visible,
+.root[data-active='true'][data-force='focus'] {
+  box-shadow: 0 0 0 1px var(--line-default), var(--shadow-xs), 0 0 0 2px var(--focus-ring);
+}
+
+/* <Icon> sets `stroke: currentColor` inline, so the row's icon colour is just `color` here. */
+.icon {
+  color: var(--text-tertiary);
+}
+.root[data-active='true'] .icon {
+  color: var(--action-primary);
+}
+.root[data-muted='true'] .icon {
+  color: var(--text-disabled);
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The lock is a 13px 16-viewBox glyph (the same path Status Token draws for `lock`), not a
+   24-grid ICON. */
+.lock {
+  display: flex;
+  flex: none;
+  color: var(--text-disabled);
+}
+.lockGlyph {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.badge {
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--line-default);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.chev {
+  color: var(--text-tertiary);
+  transform: rotate(0deg);
+  transition: transform 150ms;
+}
+.chevClosed {
+  transform: rotate(-90deg);
+}
+
+.spin {
+  color: var(--text-tertiary);
+  animation: ai-spin 900ms linear infinite;
+}
+
+/* Loading is a 32px-high skeleton row. Its padding follows the same rule as the real row. */
+.skel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding: 0 10px;
+}
+.skel[data-depth='1'] {
+  padding: 0 10px 0 24px;
+}
+.skel[data-collapsed='true'] {
+  padding: 0;
+}
+
+.skelIcon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 5px;
+  background: var(--bg-hover);
+  animation: ai-skeleton 1.4s ease-in-out infinite;
+}
+.skelBar {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--bg-hover);
+  animation: ai-skeleton 1.4s ease-in-out infinite;
+}

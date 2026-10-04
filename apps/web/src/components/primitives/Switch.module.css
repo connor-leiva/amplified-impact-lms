@@ -1,0 +1,97 @@
+/* Ported from design-reference/Admin Vault.dc.html and Admin Announcements.dc.html. */
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+
+.track {
+  position: relative;
+  flex: none;
+  border-radius: 999px;
+  background: var(--line-strong);
+  transition: background 150ms;
+}
+.track[data-on='true'] {
+  background: var(--status-success);
+}
+
+.root[data-size='sm'] .track {
+  width: 30px;
+  height: 18px;
+}
+.root[data-size='md'] .track {
+  width: 34px;
+  height: 20px;
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  border-radius: 50%;
+  background: var(--paper);
+  transition: left 150ms;
+}
+.root[data-size='sm'] .knob {
+  width: 14px;
+  height: 14px;
+}
+.root[data-size='md'] .knob {
+  width: 16px;
+  height: 16px;
+}
+.root[data-size='sm'] .track[data-on='true'] .knob {
+  left: 14px;
+}
+.root[data-size='md'] .track[data-on='true'] .knob {
+  left: 16px;
+}
+
+/* The reference draws no focus ring because the whole row is the control; a standalone switch needs
+   one (CLAUDE.md › Accessibility). There is no hover state, so `force="hover"` is a no-op. */
+.root:focus-visible .track,
+.root[data-force='focus'] .track {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.root[aria-disabled='true'],
+.root[data-force='disabled'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.skeleton {
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--bg-hover);
+  animation: ai-skeleton 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+.skeleton[data-size='sm'] {
+  width: 30px;
+  height: 18px;
+}
+.skeleton[data-size='md'] {
+  width: 34px;
+  height: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .knob {
+    transition: none;
+  }
+  .skeleton {
+    animation: none;
+  }
+}

@@ -1,0 +1,248 @@
+/* Ported from design-reference/Employee Card.dc.html. Every value is the reference's. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--line-default);
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms,
+    transform 150ms;
+}
+
+.root:hover,
+.root[data-force='hover'] {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+}
+.root:focus-visible,
+.root[data-force='focus'] {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Disabled is 55% opacity with no hover lift — the reference zeroes --hov-bd/-sh/-tf. */
+.root[data-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.root[data-disabled='true']:hover,
+.root[data-disabled='true'][data-force='hover'] {
+  border-color: var(--line-default);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Top row: the 38 px icon tile and the status token. */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tile {
+  --tile-bg: var(--action-primary-tint);
+  --tile-line: var(--action-primary-line);
+  --tile-fg: var(--action-primary);
+
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tile-bg);
+  border: 1px solid var(--tile-line);
+  color: var(--tile-fg);
+}
+.tile[data-tone='locked'] {
+  --tile-bg: var(--access-locked-bg);
+  --tile-line: var(--access-locked-line);
+  --tile-fg: var(--access-locked-text);
+}
+.tile[data-tone='built'] {
+  --tile-bg: var(--status-success-bg);
+  --tile-line: var(--status-success-line);
+  --tile-fg: var(--status-success-text);
+}
+
+.tileGlyph {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Name and outcome. */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.root[data-locked='true'] .name,
+.root[data-disabled='true'] .name {
+  color: var(--text-secondary);
+}
+
+.outcome {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-wrap: pretty;
+}
+
+/* Everything below is pushed to the bottom of the card. */
+.bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.segs {
+  display: flex;
+  gap: 3px;
+}
+
+/* A segment is done-and-built, done-and-in-progress, or empty. The tone comes from the card's
+   build state, not from the segment, exactly as the reference computes `segC` once. */
+.seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--track);
+}
+.seg[data-on='true'] {
+  background: var(--status-progress);
+}
+.segs[data-built='true'] .seg[data-on='true'] {
+  background: var(--status-success);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.ctaRow {
+  padding-top: 12px;
+  border-top: 1px solid var(--line-subtle);
+}
+
+.cta {
+  --cta-hover: var(--action-secondary-hover);
+
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--action-secondary-line);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.cta[data-variant='primary'] {
+  --cta-hover: var(--action-primary-hover);
+
+  border-color: transparent;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.cta:hover {
+  background: var(--cta-hover);
+}
+.root[data-disabled='true'] .cta {
+  --cta-hover: var(--action-secondary);
+
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+/* Loading: the reference's five-block skeleton at the card's own padding and radius. */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  min-height: 236px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--line-default);
+}
+
+.skRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.sk {
+  background: var(--bg-hover);
+  animation: ai-skeleton 1.4s ease-in-out infinite;
+}
+
+.skTile {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+}
+.skToken {
+  width: 70px;
+  height: 22px;
+  border-radius: 999px;
+}
+.skName {
+  width: 70%;
+  height: 14px;
+  border-radius: 6px;
+}
+.skLineA {
+  width: 95%;
+  height: 10px;
+  border-radius: 6px;
+}
+.skLineB {
+  width: 80%;
+  height: 10px;
+  border-radius: 6px;
+}
+.skCta {
+  margin-top: auto;
+  width: 120px;
+  height: 34px;
+  border-radius: 8px;
+}

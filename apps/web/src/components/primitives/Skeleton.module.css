@@ -1,0 +1,10 @@
+/* SCREENS § 1.9. The animation is `ai-skeleton`, declared in styles/global.css. */
+
+.sk {
+  display: block;
+  width: var(--sk-w);
+  height: var(--sk-h);
+  border-radius: var(--sk-r);
+  background: var(--bg-hover);
+  animation: ai-skeleton 1.4s ease-in-out infinite;
+}

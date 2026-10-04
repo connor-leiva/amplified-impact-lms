@@ -7,6 +7,7 @@ const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 
 export const router = createBrowserRouter([
   ...(devRoutes
     ? [
+        { path: '/__states', lazy: () => import('./routes/__states') },
         { path: '/__tokens', lazy: () => import('./routes/__tokens') },
         { path: '*', element: <Navigate to="/__tokens" replace /> },
       ]

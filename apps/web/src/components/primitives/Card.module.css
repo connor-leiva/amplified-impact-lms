@@ -1,0 +1,48 @@
+/* SCREENS § 1.2. Every value is the reference's (Admin Module Builder, Portal Dashboard,
+   Portal Sessions, Admin Overview, Portal Team Hub). */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+}
+.card[data-radius='12'] {
+  border-radius: 12px;
+}
+.card[data-radius='14'] {
+  border-radius: 14px;
+}
+
+.card[data-pad='default'] {
+  padding: 18px 20px;
+}
+.card[data-pad='aside'] {
+  padding: 16px;
+}
+/* List cards: the rows inside carry their own 8px padding. */
+.card[data-pad='list'] {
+  padding: 16px 10px 10px;
+}
+.card[data-pad='none'] {
+  padding: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--card-title-gap);
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+/* An aside card's title is one step down. SCREENS § 1.2. */
+.card[data-pad='aside'] .title {
+  font-size: 14px;
+}

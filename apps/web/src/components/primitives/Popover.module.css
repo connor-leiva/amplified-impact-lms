@@ -1,0 +1,50 @@
+/* Ported from design-reference/Session Card.dc.html (calendar menu) and
+   Amplified Impact LMS.dc.html (profile menu, demo-controls panel). */
+
+.panel {
+  width: var(--pop-w, max-content);
+  padding: var(--pop-pad, 6px);
+  border-radius: var(--pop-radius, 12px);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-default);
+  box-shadow: var(--shadow-pop);
+  animation: ai-pop 140ms ease-out;
+}
+
+/* Anchored: offset from the nearest positioned ancestor, 6px clear of the trigger edge. */
+.panel[data-mode='anchored'] {
+  position: absolute;
+  z-index: 30;
+}
+.panel[data-mode='anchored'][data-placement='bottom-start'] {
+  left: 0;
+  top: calc(100% + 6px);
+}
+.panel[data-mode='anchored'][data-placement='bottom-end'] {
+  right: 0;
+  top: calc(100% + 6px);
+}
+.panel[data-mode='anchored'][data-placement='top-start'] {
+  left: 0;
+  bottom: calc(100% + 6px);
+}
+.panel[data-mode='anchored'][data-placement='top-end'] {
+  right: 0;
+  bottom: calc(100% + 6px);
+}
+
+/* Fixed: the shell's profile menu and demo panel, pinned to the viewport. */
+.panel[data-mode='fixed'] {
+  position: fixed;
+  z-index: 80;
+  top: var(--pop-top, auto);
+  right: var(--pop-right, auto);
+  bottom: var(--pop-bottom, auto);
+  left: var(--pop-left, auto);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}

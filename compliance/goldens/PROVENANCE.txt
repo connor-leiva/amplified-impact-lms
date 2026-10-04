@@ -4,11 +4,21 @@ playwright: 1.63.0
 chromium: headless_shell 153.0.8010.12 (playwright build v1243)
 reference: design-reference/ @ handoff design_handoff_amplified_impact_lms (unmodified)
 scenarios: 55 (98 regions)
-determinism: 3 consecutive captures byte-identical, with the deterministic-render launch args
-             in compliance/playwright.config.ts
+naming: <scenario>-<region>.{png,json} — never a dot, see DECISIONS.md D-008
+
+determinism (measured, not assumed):
+  .json fingerprints  byte-identical across every repeat run
+  .png screenshots    NOT byte-reproducible on this machine. Two consecutive captures differ on
+                      ~6 of 98 images, worst case 0.39% of pixels, concentrated in the mobile,
+                      dark and drawer scenarios. That is well inside the parity tolerance
+                      (maxDiffPixelRatio 0.01), so it does not affect whether the app matches —
+                      but it does mean Gate 0's zero-diff re-capture check cannot pass here.
+                      Serializing the capture (--workers=1) and quieting the machine were both
+                      tried and neither removed it; it is host rasterization, not contention.
 
 Status: DEV-ONLY. See DECISIONS.md D-001.
-The authoritative set is produced by the pinned CI container:
+The authoritative set comes from the pinned CI container:
   mcr.microsoft.com/playwright:v1.63.0-noble
-The CI `goldens` job re-captures there; commit its diff and change this line to `platform: container`.
-The .json fingerprint goldens are platform-independent and authoritative as-is.
+The CI `goldens` job re-captures there; commit its artifact and change this line to
+`platform: container`. The .json fingerprint goldens are platform-independent and authoritative
+as-is.

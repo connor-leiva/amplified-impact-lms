@@ -1,0 +1,110 @@
+/* Ported from the form fields in design-reference/Admin *.dc.html, Portal Team Hub.dc.html and
+   Portal Workspace.dc.html. Every value is the reference's. */
+
+/* The reference's `<label>` wrapper: a column with gap 6. Label, helper, control and error are each
+   a row of that stack, because a flex column wraps its bare text runs in anonymous flex items. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.helper {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.error {
+  font-size: 13px;
+  color: var(--access-locked-text);
+}
+
+/* Shared chrome. `surface` is the canonical field; `sunken` is what the older admin screens draw. */
+.input,
+.textarea,
+.select {
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  outline: none;
+}
+.input[data-variant='sunken'],
+.textarea[data-variant='sunken'],
+.select[data-variant='sunken'] {
+  border-color: var(--line-default);
+  background: var(--bg-sunken);
+}
+
+.input {
+  height: 36px;
+  padding: 0 11px;
+  font-size: 14px;
+}
+
+.textarea {
+  min-height: 90px;
+  resize: vertical;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.select {
+  height: 36px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+/* The sunken selects are the 13px admin ones. */
+.select[data-variant='sunken'] {
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+/* The reference has no hover state on a field; `force="hover"` is therefore a no-op here. */
+.input:focus-visible,
+.input[data-force='focus'],
+.textarea:focus-visible,
+.textarea[data-force='focus'],
+.select:focus-visible,
+.select[data-force='focus'] {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.input:disabled,
+.input[data-force='disabled'],
+.textarea:disabled,
+.textarea[data-force='disabled'],
+.select:disabled,
+.select[data-force='disabled'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* `force="loading"` replaces the control with a skeleton at the control's own height. */
+.skeleton {
+  display: block;
+  border-radius: 8px;
+  background: var(--bg-hover);
+  animation: ai-skeleton 1.4s ease-in-out infinite;
+}
+.skeleton[data-kind='input'] {
+  height: 36px;
+}
+.skeleton[data-kind='textarea'] {
+  height: 90px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

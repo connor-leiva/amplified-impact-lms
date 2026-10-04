@@ -1,0 +1,86 @@
+/* Ported from design-reference/Join Button.dc.html. */
+
+.wrap {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 10px;
+}
+.wrap[data-stack='true'] {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  box-shadow: none;
+  outline: none;
+  transition: background 120ms;
+}
+.btn[data-size='lg'] {
+  height: 40px;
+  padding: 0 16px;
+}
+
+.btn:hover,
+.btn[data-force='hover'] {
+  background: var(--action-primary-hover);
+}
+.btn:focus-visible,
+.btn[data-force='focus'] {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Disabled is the closed join window: it explains itself through the hint, never by colour alone. */
+.btn[data-mode='disabled'] {
+  background: var(--action-secondary);
+  color: var(--text-disabled);
+  border-color: var(--line-default);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn[data-mode='disabled']:hover,
+.btn[data-mode='disabled'][data-force='hover'] {
+  background: var(--action-secondary);
+}
+
+.btn[data-mode='loading'] {
+  pointer-events: none;
+}
+
+/* On the video poster the button sits on --bg-poster, where no surface token applies. These three
+   translucent whites are the reference's own values for that context; the design system has no
+   token for them. See design-reference/Join Button.dc.html (`onDark`). */
+.btn[data-dark='true'][data-mode='disabled'] {
+  background: oklch(1 0 0 / 0.06);
+  color: oklch(1 0 0 / 0.45);
+  border-color: oklch(1 0 0 / 0.14);
+}
+.btn[data-dark='true'][data-mode='disabled']:hover,
+.btn[data-dark='true'][data-mode='disabled'][data-force='hover'] {
+  background: oklch(1 0 0 / 0.06);
+}
+
+.spin {
+  animation: ai-spin 900ms linear infinite;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}

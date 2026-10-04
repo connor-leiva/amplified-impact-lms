@@ -1,0 +1,30 @@
+/* SCREENS § 1.9. Every value is the reference's (Portal Team Hub, Admin Learners, Admin Staff,
+   Amplified Impact LMS). The fill itself is `--av-fill`, set inline from `avatarColor(id)`. */
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--av-size);
+  height: var(--av-size);
+  border-radius: 50%;
+  background: var(--av-fill);
+  color: var(--ink-900);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* The reference steps the initials up only at 36 and 40. */
+.avatar[data-size='36'] {
+  font-size: 13px;
+}
+.avatar[data-size='40'] {
+  font-size: 14px;
+}
+
+.avatar[data-invited='true'] {
+  background: transparent;
+  border: 1.5px dashed var(--access-locked);
+}

@@ -1,0 +1,48 @@
+/* Ported from the asset chip in design-reference/Portal Workspace.dc.html. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-sunken);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  outline: none;
+  transition: border-color 120ms;
+}
+button.chip {
+  cursor: pointer;
+}
+
+.chip[data-r='6'] {
+  border-radius: 6px;
+}
+.chip[data-r='7'] {
+  border-radius: 7px;
+}
+.chip[data-r='999'] {
+  border-radius: 999px;
+  padding: 0 9px;
+}
+
+button.chip:hover,
+button.chip[data-force='hover'] {
+  border-color: var(--line-strong);
+}
+button.chip:focus-visible,
+button.chip[data-force='focus'] {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.disabled,
+button.disabled:hover,
+button.disabled[data-force='hover'] {
+  border-color: var(--line-default);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}

@@ -8,7 +8,9 @@ for (const f of globSync('apps/web/src/**/*.module.css')) {
     .split('\n')
     .forEach((line, i) => {
       if (
-        /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|\b(white|black|red|blue|gray|grey)\b/i.test(line) &&
+        // A named colour must stand alone as a value: `\b` alone also matched the `white` in
+        // `white-space: nowrap`, which every card and button in the reference uses.
+        /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|(?<![-\w])(white|black|red|blue|gray|grey)(?![-\w])/i.test(line) &&
         !/var\(--/.test(line)
       )
         bad.push(`${f}:${i + 1}  ${line.trim()}`);

@@ -1,0 +1,125 @@
+/* Ported from design-reference/Status Token.dc.html. Every value is the reference's. */
+
+/* Tone resolves to the four status custom properties the design system defines.
+   The reference's `ic` (icon colour) always equals `fg`, so the glyph uses currentColor. */
+.pill {
+  --tk-fg: var(--text-secondary);
+  --tk-bg: var(--status-neutral-bg);
+  --tk-line: var(--status-neutral-line);
+
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+  color: var(--tk-fg);
+  background: var(--tk-bg);
+  border: 1px solid var(--tk-line);
+}
+
+.pill[data-tone='success'],
+.pill[data-tone='live'] {
+  --tk-fg: var(--status-success-text);
+  --tk-bg: var(--status-success-bg);
+  --tk-line: var(--status-success-line);
+}
+.pill[data-tone='progress'] {
+  --tk-fg: var(--status-progress-text);
+  --tk-bg: var(--status-progress-bg);
+  --tk-line: var(--status-progress-line);
+}
+.pill[data-tone='neutral'] {
+  --tk-fg: var(--status-neutral-text);
+  --tk-bg: var(--status-neutral-bg);
+  --tk-line: var(--status-neutral-line);
+}
+.pill[data-tone='attention'] {
+  --tk-fg: var(--status-attention-text);
+  --tk-bg: var(--status-attention-bg);
+  --tk-line: var(--status-attention-line);
+}
+.pill[data-tone='locked'] {
+  --tk-fg: var(--access-locked-text);
+  --tk-bg: var(--access-locked-bg);
+  --tk-line: var(--access-locked-line);
+}
+.pill[data-tone='accent'] {
+  --tk-fg: var(--text-link);
+  --tk-bg: var(--action-primary-tint);
+  --tk-line: var(--action-primary-line);
+}
+
+/* Sizes. sm is the default pill; md is the detail header; compact is the sidebar row. */
+.pill[data-size='sm'] {
+  height: 22px;
+  padding: 0 8px 0 6px;
+  gap: 5px;
+  font-size: 12px;
+}
+.pill[data-size='md'] {
+  height: 26px;
+  padding: 0 10px 0 8px;
+  gap: 5px;
+  font-size: 13px;
+}
+.pill[data-compact='true'] {
+  height: 16px;
+  padding: 0;
+  gap: 4px;
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+}
+/* A compact neutral token drops to tertiary text — it is a sidebar annotation, not a pill. */
+.pill[data-compact='true'][data-tone='neutral'] {
+  --tk-fg: var(--text-tertiary);
+}
+
+.glyph {
+  flex: none;
+  overflow: visible;
+  color: currentColor;
+}
+.pill[data-size='sm'] .glyph,
+.pill[data-compact='true'] .glyph {
+  width: 13px;
+  height: 13px;
+}
+.pill[data-size='md'] .glyph {
+  width: 14px;
+  height: 14px;
+}
+
+.stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* The `live` tone replaces the glyph with a pulsing dot. */
+.pulse {
+  width: 7px;
+  height: 7px;
+  margin: 0 2px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--status-success);
+  animation: ai-pulse 1.6s infinite;
+}
+
+.skeleton {
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--bg-hover);
+  animation: ai-skeleton 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}

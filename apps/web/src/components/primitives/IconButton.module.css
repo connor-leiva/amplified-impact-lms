@@ -1,0 +1,70 @@
+/* Values from the reference's icon buttons (Admin Cohorts/Learners/Vault/Staff, Portal Team Hub,
+   Portal Workspace, Admin Curriculum, Admin Module Builder, Locked Employee Preview). */
+
+.btn {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background 120ms,
+    border-color 120ms,
+    color 120ms;
+}
+.btn[data-size='30'] {
+  width: 30px;
+  height: 30px;
+}
+.btn[data-size='32'] {
+  width: 32px;
+  height: 32px;
+}
+.btn[data-radius='7'] {
+  border-radius: 7px;
+}
+.btn[data-radius='8'] {
+  border-radius: 8px;
+}
+.btn:focus-visible,
+.btn[data-force='focus'] {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.ghost {
+  color: var(--text-tertiary);
+}
+.ghost:hover,
+.ghost[data-force='hover'] {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.secondary {
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-secondary);
+}
+.secondary:hover,
+.secondary[data-force='hover'] {
+  background: var(--action-secondary-hover);
+  color: var(--text-primary);
+}
+
+.disabled,
+.disabled:hover,
+.disabled[data-force='hover'] {
+  background: transparent;
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+.secondary.disabled,
+.secondary.disabled:hover,
+.secondary.disabled[data-force='hover'] {
+  background: var(--action-secondary);
+  border-color: var(--line-default);
+  color: var(--text-disabled);
+}

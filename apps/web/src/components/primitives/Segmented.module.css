@@ -1,0 +1,75 @@
+/* SCREENS § 1.4. Every value is the reference's. */
+
+.track {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--seg-track);
+  border: 1px solid var(--line-default);
+  width: max-content;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition: background 120ms;
+}
+.opt[data-h='26'] {
+  height: 26px;
+}
+.opt[data-h='28'] {
+  height: 28px;
+}
+.opt[data-h='30'] {
+  height: 30px;
+}
+.opt[data-pad='8'] {
+  padding: 0 8px;
+}
+.opt[data-pad='10'] {
+  padding: 0 10px;
+}
+.opt[data-pad='12'] {
+  padding: 0 12px;
+}
+.opt[data-r='6'] {
+  border-radius: 6px;
+}
+.opt[data-r='7'] {
+  border-radius: 7px;
+}
+.opt[data-fill='true'] {
+  flex: 1;
+}
+
+.opt[data-on='true'] {
+  background: var(--seg-active);
+  box-shadow: var(--shadow-xs);
+  color: var(--text-primary);
+}
+
+/* The reference's segmented options carry no hover style, so there is deliberately no hover rule
+   here and force="hover" renders the default state. Focus is required by CLAUDE.md. */
+.opt:focus-visible,
+.opt[data-force='focus'] {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.disabled,
+.disabled:hover,
+.disabled[data-force='hover'] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}

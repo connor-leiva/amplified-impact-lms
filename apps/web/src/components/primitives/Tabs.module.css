@@ -1,0 +1,61 @@
+/* Ported from design-reference/Portal Vault.dc.html. */
+
+.list {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--line-default);
+}
+
+/* --tab-underline carries the active inset so the focus ring can sit alongside it. */
+.tab {
+  --tab-underline: inset 0 -2px 0 transparent;
+
+  height: 42px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--tab-underline);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  outline: none;
+}
+
+.tab[aria-selected='true'] {
+  --tab-underline: inset 0 -2px 0 var(--action-primary);
+  color: var(--text-primary);
+}
+
+.tab:hover,
+.tab[data-force='hover'] {
+  color: var(--text-primary);
+}
+
+/* The reference has no focus style here; a tab needs one (CLAUDE.md › Accessibility). */
+.tab:focus-visible,
+.tab[data-force='focus'] {
+  box-shadow: var(--tab-underline), 0 0 0 3px var(--focus-ring);
+}
+
+.lock {
+  color: var(--access-locked-text);
+}
+
+.count {
+  height: 18px;
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--action-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}

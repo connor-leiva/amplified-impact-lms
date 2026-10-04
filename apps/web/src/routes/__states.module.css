@@ -1,0 +1,218 @@
+/* Ported from design-reference/States.dc.html. The contract sheet for every component state.
+   Phase 03's parity gate compares this route to that file in light and dark. */
+
+.sheet {
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-width: max-content;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1600px;
+}
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 760px;
+}
+.h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.lede {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.themeTrack {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--seg-track);
+  border: 1px solid var(--line-default);
+}
+.themeBtn {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.themeBtn[aria-pressed='true'] {
+  background: var(--seg-active);
+  box-shadow: var(--shadow-xs);
+  color: var(--text-primary);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.sectionNote {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* Session card variants */
+.variantRow {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.variant {
+  width: 520px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.variantHead {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.variantId {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+.variantRule {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Components × States */
+.grid {
+  display: grid;
+  grid-template-columns: 150px repeat(5, 300px);
+  gap: 20px 20px;
+  align-items: start;
+}
+.colHead {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+.rowLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* A sidebar swatch: NavItem reads --nav-hover / --nav-active from its container. */
+.navHost {
+  --nav-hover: color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar));
+  --nav-active: var(--bg-surface);
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--line-default);
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cellStart {
+  align-items: flex-start;
+}
+.tooltip {
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-size: 12px;
+  box-shadow: var(--shadow-pop);
+}
+.note {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.noteWide {
+  max-width: 260px;
+}
+
+/* Nav item variants */
+.navVariantRow {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.navVariant {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Status token catalog */
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.catalogRow {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 20px;
+  align-items: center;
+}
+.catalogLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.catalogItems {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.catalogItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+.bannerSection {
+  width: 900px;
+}
