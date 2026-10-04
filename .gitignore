@@ -2,6 +2,12 @@ node_modules/
 dist/
 dist-fixture/
 *.tsbuildinfo
+# Stray TS emit next to sources. Nothing in src/ is authored as .js, so anything here is an
+# accident (a stray  without --noEmit) and must never be committed.
+apps/*/src/**/*.js
+apps/*/src/**/*.js.map
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
 .env
 .env.*
 !.env.example

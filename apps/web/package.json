@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b --noEmit false --emitDeclarationOnly false || true && vite build",
+    "build": "vite build",
     "build:fixture": "vite build --mode fixture --outDir dist-fixture",
     "preview:fixture": "pnpm build:fixture && vite preview --outDir dist-fixture",
     "typecheck": "tsc --noEmit",
