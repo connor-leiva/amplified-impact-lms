@@ -1,0 +1,45 @@
+/* Every value is the reference's (Amplified Impact LMS.dc.html, brand row).
+   The mark fills with --bg-surface; the wordmark, as in the reference, does not — it is only the
+   dashed outline and the 12px caption over the sidebar. */
+
+.slot {
+  flex: none;
+  border: 1px dashed var(--line-strong);
+}
+
+.slot[data-kind='mark'] {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--bg-surface);
+}
+
+.slot[data-kind='wordmark'] {
+  display: flex;
+  align-items: center;
+  width: 132px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* A configured asset replaces the placeholder at exactly the placeholder's size. */
+.img {
+  display: block;
+  flex: none;
+  object-fit: contain;
+}
+
+.img[data-kind='mark'] {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+}
+
+.img[data-kind='wordmark'] {
+  width: 132px;
+  height: 22px;
+  border-radius: 5px;
+}

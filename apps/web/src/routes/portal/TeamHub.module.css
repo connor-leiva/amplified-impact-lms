@@ -1,0 +1,838 @@
+/* Portal Team Hub. Every value is copied from the inline styles in
+   design-reference/Portal Team Hub.dc.html. SCREENS § 1.1, § 1.8 and § 3.4.
+
+   Where the reference computes a colour per render it becomes a `[data-…]` rule here; the two
+   genuinely per-instance values stay inline custom properties: `--av` (a seeded avatar fill from
+   `avatarColor`) and `--w` (a progress bar's width). */
+
+/* ---- Page shell (SCREENS § 1.1: Team Hub is max-width 1360, gap 20) ------------------------- */
+.page {
+  padding: var(--page-pad-top) var(--page-pad-x) 56px;
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.headActions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---- Header buttons. The reference draws them at 13px, not the 14px of the Button primitive. -- */
+.export,
+.invite {
+  height: 36px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  outline: none;
+}
+.export {
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.export:hover {
+  background: var(--action-secondary-hover);
+}
+.invite {
+  padding: 0 14px;
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-weight: 600;
+}
+/* SCREENS § 1.3: a Primary button hovers to --action-primary-hover. */
+.invite:hover {
+  background: var(--action-primary-hover);
+  border-color: var(--action-primary-hover);
+}
+.export:focus-visible,
+.invite:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---- The three summary cards --------------------------------------------------------------- */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+}
+.card[data-card='seats'] {
+  gap: 14px;
+}
+.card[data-card='deployments'],
+.card[data-card='remind'] {
+  gap: 12px;
+}
+/* The border turns amber while anyone is behind on an earlier build. */
+.card[data-behind='true'] {
+  border-color: var(--access-locked-line);
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.big {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.bigNum {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.bigLabel {
+  color: var(--text-secondary);
+}
+
+/* ---- Seat Allocation: seven 34px slots ----------------------------------------------------- */
+.slots {
+  display: flex;
+  gap: 6px;
+}
+
+.slot {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--av);
+  border: 1.5px solid var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+}
+/* An open seat: dashed, a `+`, and it opens the invite modal. */
+.slot[data-kind='open'] {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--line-strong);
+  color: var(--text-tertiary);
+}
+/* An invited seat: dashed amber, because the person has not accepted yet. */
+.slot[data-kind='invited'] {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--access-locked);
+}
+.slot:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.breakdown {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* ---- Team Deployments: one row per AI Employee ---------------------------------------------- */
+.depRows {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.depRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.depLabel {
+  width: 76px;
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.depTrack {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.depFill {
+  height: 100%;
+  width: var(--w);
+  background: var(--status-success);
+  border-radius: 3px;
+}
+
+.depValue {
+  width: 34px;
+  text-align: right;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Before {Session N · date} -------------------------------------------------------------- */
+.remHeadline {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.remPeople {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.remPerson {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.remName {
+  color: var(--text-primary);
+}
+
+.remGap {
+  color: var(--text-tertiary);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.remind {
+  margin-top: auto;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  outline: none;
+}
+.remind:hover {
+  background: var(--action-secondary-hover);
+}
+.remind:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---- Team Activity table (SCREENS § 1.8, § 3.4) -------------------------------------------- */
+.activity {
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.activityHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-default);
+}
+
+.activityTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.activityNote {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 920px;
+}
+
+.headRow,
+.row {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) 140px 110px 170px minmax(200px, 2fr) 100px 40px;
+  gap: 12px;
+  border-bottom: 1px solid var(--line-default);
+}
+
+.headRow {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.row {
+  align-items: center;
+  padding: 12px 18px;
+  cursor: pointer;
+  outline: none;
+}
+.row:hover {
+  background: var(--bg-hover);
+}
+/* The row is the control, so its focus ring sits inside the card rather than over its neighbour. */
+.row:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--focus-ring);
+}
+
+.nameCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nameStack {
+  min-width: 0;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.you {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.email {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.joined {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.builtCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dots {
+  display: flex;
+  gap: 3px;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+}
+.dot[data-state='verified'] {
+  background: var(--status-success);
+  border-color: var(--status-success);
+}
+.dot[data-state='in_progress'] {
+  background: color-mix(in oklch, var(--status-progress) 45%, transparent);
+  border-color: var(--status-progress);
+}
+
+.count {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.statusCell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.statusText {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusCell[data-tone='locked'] .statusDot {
+  background: var(--access-locked);
+}
+.statusCell[data-tone='locked'] .statusText {
+  color: var(--access-locked-text);
+}
+.statusCell[data-tone='attention'] .statusDot {
+  background: var(--status-attention);
+}
+.statusCell[data-tone='attention'] .statusText {
+  color: var(--status-attention-text);
+}
+.statusCell[data-tone='success'] .statusDot {
+  background: var(--status-success);
+}
+.statusCell[data-tone='success'] .statusText {
+  color: var(--status-success-text);
+}
+.statusCell[data-tone='progress'] .statusDot {
+  background: var(--action-primary);
+}
+.statusCell[data-tone='progress'] .statusText {
+  color: var(--status-progress-text);
+}
+.statusCell[data-tone='none'] .statusDot {
+  background: var(--text-disabled);
+}
+.statusCell[data-tone='none'] .statusText {
+  color: var(--text-tertiary);
+}
+
+.last {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* The reference puts a bare 16px chevron in the 40px column. The wrapper exists only to carry
+   `role="cell"` for the grid table, so it must not add a line box of its own. */
+.chevCell {
+  display: flex;
+  align-items: center;
+}
+
+/* ---- Invite modal (460) -------------------------------------------------------------------- */
+.invHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 20px 0;
+}
+
+.invTitles {
+  flex: 1;
+}
+
+.invTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.invNote {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 3px;
+}
+
+.close {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+.close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.close:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.invBody {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* The reference's implicit <label> IS the field stack (SCREENS § 1.5). */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.optional {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.input {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-sunken);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.roleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.roleLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.roleCards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.roleCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-sunken);
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  outline: none;
+}
+.roleCard[data-on='true'] {
+  border-color: var(--action-primary);
+  background: var(--action-primary-tint);
+}
+.roleCard:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.roleRing {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.roleCard[data-on='true'] .roleRing {
+  border-color: var(--action-primary);
+}
+
+.roleDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+}
+.roleCard[data-on='true'] .roleDot {
+  background: var(--action-primary);
+}
+
+.roleText {
+  flex: 1;
+}
+
+.roleName {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.roleSub {
+  display: block;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.roleCap {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.roleCap[data-full='true'] {
+  color: var(--access-locked-text);
+}
+
+.invError {
+  font-size: 13px;
+  color: var(--access-locked-text);
+}
+
+.invFoot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line-default);
+}
+
+.cancel {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  outline: none;
+}
+.cancel:hover {
+  background: var(--action-secondary-hover);
+}
+
+.send {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  outline: none;
+}
+/* Every seat is assigned: the reference spends the button's fill rather than disabling it, so the
+   four invite errors still render when it is pressed. */
+.send[data-full='true'] {
+  border-color: var(--line-strong);
+  background: var(--seg-active);
+  color: var(--text-tertiary);
+}
+
+.cancel:focus-visible,
+.send:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---- Member drawer (440) -------------------------------------------------------------------- */
+/* The <Drawer> body stacks at gap 14; the Team Hub drawer stacks at 18, so one child owns it. */
+.dwBody {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.fact {
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line-default);
+}
+
+.factLabel {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.factValue {
+  font-size: 14px;
+  margin-top: 3px;
+}
+
+.select {
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-sunken);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+.select:focus-visible {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.select:disabled {
+  cursor: not-allowed;
+}
+
+.dwModsLabel {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.dwMods {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-default);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dwMod {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+.dwMod + .dwMod {
+  border-top: 1px solid var(--line-subtle);
+}
+
+.dwModName {
+  flex: 1;
+  font-size: 13px;
+}
+
+.remove {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--status-attention-text);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  outline: none;
+}
+.remove:hover {
+  background: var(--status-attention-bg);
+}
+
+.nudge {
+  margin-left: auto;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  outline: none;
+}
+.nudge:hover {
+  background: var(--action-primary-hover);
+  border-color: var(--action-primary-hover);
+}
+
+.remove:focus-visible,
+.nudge:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Block host for the drawer row's tokens — see the comment at its call site in TeamHub.tsx.
+   Reproduces the line box the prototype's component wrapper establishes, so rows measure 43.55px. */
+.dwTokenHost {
+  display: block;
+  flex: none;
+}

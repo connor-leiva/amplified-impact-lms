@@ -1,0 +1,113 @@
+/* Ported from the `demoInline` block and the `demoOpen` panel in
+   design-reference/Amplified Impact LMS.dc.html. Every value is the reference's. */
+
+/* ---- Inline, at >= 1360 -------------------------------------------------- */
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+/* `View As` and `Timeline`, in both layouts. */
+.label {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+/* The reference nudges only the second inline label away from the track before it. */
+.label[data-indent='true'] {
+  margin-left: 4px;
+}
+
+.reset {
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+}
+.reset:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.reset:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---- Compact, below 1360 ------------------------------------------------- */
+
+.trigger {
+  height: 32px;
+  padding: 0 12px;
+  flex: none;
+  border-radius: 8px;
+  border: 1px solid var(--action-secondary-line);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+}
+.trigger:hover {
+  background: var(--action-secondary-hover);
+}
+.trigger:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Transparent, full-screen, one layer under the panel's 80. */
+.catcher {
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+}
+
+/* The surface, radius, shadow and `ai-pop` come from <Popover mode="fixed">; the panel only adds
+   the reference's own column. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Segmented's track is `width: max-content`, which is right everywhere it sits in a row but would
+   stop it stretching inside this column. The selector is doubled so it outranks `.track`
+   regardless of the order the two CSS modules land in the bundle. */
+.fill.fill {
+  width: auto;
+}
+
+/* No font-weight: the reference leaves this one at the body's 400, unlike the inline Reset Demo. */
+.resetData {
+  align-self: flex-start;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--action-secondary-line);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+.resetData:hover {
+  background: var(--action-secondary-hover);
+}
+.resetData:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}

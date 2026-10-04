@@ -1,0 +1,353 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { blankModule, phaseNow, seed, setViewerZone } from '@ai/core';
+import type { Db, Learner } from '@ai/core';
+import { adminNav, portalNav, type NavEntry, type NavGroup } from './navModel';
+
+// Week 2 of the December 2026 Cohort — the instant the goldens were captured in.
+const NOW = phaseNow('live');
+
+const learner = (db: Db, id: string): Learner => db.users.find((u) => u.id === id)!;
+const keys = (g: NavGroup): string[] => g.items.map((i) => i.key);
+const row = (g: NavGroup, key: string): NavEntry => g.items.find((i) => i.key === key)!;
+
+describe('navModel @g4', () => {
+  // `fmt.date` reads the viewer zone, so pin it: `Dec 14` must not depend on the test machine.
+  beforeAll(() => setViewerZone('America/Chicago'));
+  afterAll(() => setViewerZone(null));
+
+  describe('portalNav · Jamie Ortiz (Agent tier, Week 2)', () => {
+    const db = seed('live');
+    const jamie = learner(db, 'u_jamie');
+    const nav = portalNav(db, jamie, { pathname: '/' }, NOW, false, true);
+    const g = nav[0]!;
+
+    it('is one group with no label, in reading order and without Team Hub', () => {
+      expect(nav).toHaveLength(1);
+      expect(g.showLabel).toBe(false);
+      expect(g.label).toBeUndefined();
+      expect(keys(g)).toEqual([
+        'dashboard',
+        'sessions',
+        'emp',
+        'marketing',
+        'sales',
+        'database',
+        'meetings',
+        'finance',
+        'operations',
+        'vault',
+      ]);
+      expect(g.items.map((i) => i.label)).toEqual([
+        'Dashboard',
+        'Sessions',
+        'AI Employees',
+        'Marketing',
+        'Sales',
+        'Database',
+        'Meetings',
+        'Finance',
+        'Operations',
+        'Resource Vault',
+      ]);
+    });
+
+    it('routes the top-level rows to the app paths and marks Dashboard active', () => {
+      expect(row(g, 'dashboard')).toMatchObject({ icon: 'grid', depth: 0, active: true, action: { to: '/' } });
+      expect(row(g, 'sessions')).toMatchObject({ icon: 'radio', active: false, action: { to: '/sessions' } });
+      expect(row(g, 'vault')).toMatchObject({ icon: 'archive', active: false, action: { to: '/vault' } });
+      expect(row(g, 'dashboard').title).toBe('Dashboard');
+      expect(row(g, 'vault').title).toBe('Resource Vault');
+    });
+
+    it('counts 3 AI Employees included in the Agent tier on the group header', () => {
+      expect(row(g, 'emp')).toMatchObject({
+        label: 'AI Employees',
+        icon: 'bot',
+        depth: 0,
+        active: false,
+        locked: false,
+        token: null,
+        badge: '3',
+        badgeTitle: '3 included in your tier',
+        chev: 'open',
+        title: 'AI Employees',
+        action: { toggleEmployees: true },
+      });
+    });
+
+    it('gives each child the employee short label, its own icon and depth 1', () => {
+      expect(g.items.slice(3, 9).map((i) => i.depth)).toEqual([1, 1, 1, 1, 1, 1]);
+      expect(g.items.slice(3, 9).map((i) => i.icon)).toEqual([
+        'megaphone',
+        'zap',
+        'database',
+        'mic',
+        'dollar',
+        'workflow',
+      ]);
+    });
+
+    it('shows the build token and build tooltip on the three accessible employees', () => {
+      expect(row(g, 'marketing').token).toEqual({ kind: 'build', state: 'verified', n: 6, total: 6 });
+      expect(row(g, 'marketing').title).toBe('Marketing AI Employee · Built');
+
+      expect(row(g, 'sales').token).toEqual({ kind: 'build', state: 'in_progress', n: 3, total: 6 });
+      expect(row(g, 'sales').title).toBe('Sales AI Employee · 3 of 6 steps verified');
+
+      expect(row(g, 'database').token).toEqual({ kind: 'build', state: 'not_started', n: 0, total: 6 });
+      expect(row(g, 'database').title).toBe('Database AI Employee · Not started');
+    });
+
+    it('locks the three Team-tier employees: no token, Team tier tooltip, never navigates', () => {
+      for (const id of ['meetings', 'finance', 'operations']) {
+        const e = row(g, id);
+        expect(e.locked).toBe(true);
+        expect(e.token).toBeNull();
+        expect(e.action).toEqual({ openLocked: id });
+        expect('to' in e.action).toBe(false);
+      }
+      expect(row(g, 'meetings').title).toBe('Meetings AI Employee · Team tier');
+      expect(row(g, 'finance').title).toBe('Finance AI Employee · Team tier');
+      // Locked outranks scheduled: Operations never shows an Opens token to an Agent-tier learner.
+      expect(row(g, 'operations').title).toBe('Operations AI Employee · Team tier');
+    });
+
+    it('activates the child the viewer is on, not Dashboard', () => {
+      const [only] = portalNav(db, jamie, { pathname: '/employees/sales', employeeId: 'sales' }, NOW, false, true);
+      expect(row(only!, 'sales').active).toBe(true);
+      expect(row(only!, 'marketing').active).toBe(false);
+      expect(row(only!, 'dashboard').active).toBe(false);
+    });
+
+    it('hides the children and closes the chevron when the group is collapsed', () => {
+      const [closed] = portalNav(db, jamie, { pathname: '/' }, NOW, false, false);
+      expect(keys(closed!)).toEqual(['dashboard', 'sessions', 'emp', 'vault']);
+      expect(row(closed!, 'emp').chev).toBe('closed');
+    });
+  });
+
+  describe('portalNav · Alex Morgan (Team owner, Week 2)', () => {
+    const db = seed('live');
+    const alex = learner(db, 'u_alex');
+    const nav = portalNav(db, alex, { pathname: '/' }, NOW, false, true);
+    const g = nav[0]!;
+
+    it('adds Team Hub before Resource Vault and counts all 6 as included', () => {
+      expect(keys(g)).toEqual([
+        'dashboard',
+        'sessions',
+        'emp',
+        'marketing',
+        'sales',
+        'database',
+        'meetings',
+        'finance',
+        'operations',
+        'team',
+        'vault',
+      ]);
+      expect(row(g, 'team')).toMatchObject({ label: 'Team Hub', icon: 'users', action: { to: '/team' } });
+      expect(row(g, 'emp').badge).toBe('6');
+      expect(row(g, 'emp').badgeTitle).toBe('6 included in your tier');
+    });
+
+    it('unlocks every employee, so each child navigates to its own page', () => {
+      for (const e of g.items.slice(3, 9)) {
+        expect(e.locked).toBe(false);
+        expect(e.action).toEqual({ to: `/employees/${e.key}` });
+      }
+    });
+
+    it('shows build tokens for the published employees Alex can reach', () => {
+      expect(row(g, 'marketing').token).toEqual({ kind: 'build', state: 'verified', n: 6, total: 6 });
+      expect(row(g, 'sales').token).toEqual({ kind: 'build', state: 'verified', n: 6, total: 6 });
+      expect(row(g, 'database').token).toEqual({ kind: 'build', state: 'in_progress', n: 2, total: 6 });
+      expect(row(g, 'database').title).toBe('Database AI Employee · 2 of 6 steps verified');
+      expect(row(g, 'meetings').token).toEqual({ kind: 'build', state: 'not_started', n: 0, total: 6 });
+      expect(row(g, 'meetings').title).toBe('Meetings AI Employee · Not started');
+    });
+
+    it('shows a neutral clock token for Operations, which opens Dec 14', () => {
+      expect(row(g, 'operations').token).toEqual({
+        kind: 'custom',
+        tone: 'neutral',
+        icon: 'clock',
+        label: 'Dec 14',
+      });
+      expect(row(g, 'operations').title).toBe('Operations AI Employee · Opens Dec 14');
+      expect(row(g, 'operations').locked).toBe(false);
+    });
+
+    it('falls back to Soon when a scheduled employee has no open date', () => {
+      const d = seed('live');
+      const ops = d.modules.find((m) => m.id === 'operations')!;
+      ops.opens = null;
+      const [only] = portalNav(d, learner(d, 'u_alex'), { pathname: '/' }, NOW, false, true);
+      expect(row(only!, 'operations').token).toMatchObject({ label: 'Soon' });
+      expect(row(only!, 'operations').title).toBe('Operations AI Employee · Opens soon');
+    });
+  });
+
+  describe('portalNav · collapsed (rail)', () => {
+    const db = seed('live');
+    const alex = learner(db, 'u_alex');
+    const nav = portalNav(db, alex, { pathname: '/' }, NOW, true, true);
+
+    it('returns three unlabelled groups: main, children, tail', () => {
+      expect(nav).toHaveLength(3);
+      expect(nav.map((x) => x.showLabel)).toEqual([false, false, false]);
+      expect(nav.map((x) => x.label)).toEqual([undefined, undefined, undefined]);
+      expect(keys(nav[0]!)).toEqual(['dashboard', 'sessions']);
+      expect(keys(nav[1]!)).toEqual(['marketing', 'sales', 'database', 'meetings', 'finance', 'operations']);
+      expect(keys(nav[2]!)).toEqual(['team', 'vault']);
+    });
+
+    it('drops the group header and flattens the children to depth 0', () => {
+      expect(nav.flatMap(keys)).not.toContain('emp');
+      expect(nav[1]!.items.map((i) => i.depth)).toEqual([0, 0, 0, 0, 0, 0]);
+    });
+
+    it('still shows the children when the group is toggled closed, because the header is gone', () => {
+      const closed = portalNav(db, alex, { pathname: '/' }, NOW, true, false);
+      expect(keys(closed[1]!)).toHaveLength(6);
+    });
+  });
+
+  describe('adminNav', () => {
+    const db = seed('live');
+
+    it('builds the five groups with their labels and rows', () => {
+      const nav = adminNav(db, { pathname: '/admin' }, false);
+      expect(nav.map((x) => x.label)).toEqual(['Insights', 'Content', 'Delivery', 'People', 'Revenue']);
+      expect(nav.map((x) => x.showLabel)).toEqual([true, true, true, true, true]);
+      expect(nav.map(keys)).toEqual([
+        ['overview'],
+        ['curriculum', 'builder', 'avault'],
+        ['cohorts', 'announce'],
+        ['learners', 'staff'],
+        ['tiers'],
+      ]);
+      expect(nav.flatMap((x) => x.items).map((i) => i.label)).toEqual([
+        'Overview',
+        'Curriculum',
+        'Module Builder',
+        'Resource Vault',
+        'Cohorts & Sessions',
+        'Announcements',
+        'Learners & Teams',
+        'Staff & Roles',
+        'Tiers & Upgrades',
+      ]);
+      expect(nav.flatMap((x) => x.items).map((i) => i.icon)).toEqual([
+        'chart',
+        'layers',
+        'pencil',
+        'archive',
+        'calendar',
+        'send',
+        'users',
+        'shield',
+        'card',
+      ]);
+    });
+
+    it('routes every row to its admin path', () => {
+      const all = adminNav(db, { pathname: '/admin' }, false).flatMap((x) => x.items);
+      expect(Object.fromEntries(all.map((i) => [i.key, i.action]))).toEqual({
+        overview: { to: '/admin' },
+        curriculum: { to: '/admin/curriculum' },
+        builder: { to: '/admin/curriculum/new' },
+        avault: { to: '/admin/vault' },
+        cohorts: { to: '/admin/cohorts' },
+        announce: { to: '/admin/announcements' },
+        learners: { to: '/admin/learners' },
+        staff: { to: '/admin/staff' },
+        tiers: { to: '/admin/tiers' },
+      });
+    });
+
+    it('keeps the labels but hides them when collapsed', () => {
+      const nav = adminNav(db, { pathname: '/admin' }, true);
+      expect(nav.map((x) => x.label)).toEqual(['Insights', 'Content', 'Delivery', 'People', 'Revenue']);
+      expect(nav.map((x) => x.showLabel)).toEqual([false, false, false, false, false]);
+      expect(nav.map(keys)).toEqual([
+        ['overview'],
+        ['curriculum', 'builder', 'avault'],
+        ['cohorts', 'announce'],
+        ['learners', 'staff'],
+        ['tiers'],
+      ]);
+    });
+
+    const active = (pathname: string): string[] =>
+      adminNav(db, { pathname }, false)
+        .flatMap((x) => x.items)
+        .filter((i) => i.active)
+        .map((i) => i.key);
+
+    it('marks exactly one row active per admin path', () => {
+      expect(active('/admin')).toEqual(['overview']);
+      expect(active('/admin/curriculum')).toEqual(['curriculum']);
+      expect(active('/admin/cohorts')).toEqual(['cohorts']);
+      expect(active('/admin/vault')).toEqual(['avault']);
+      expect(active('/admin/tiers')).toEqual(['tiers']);
+    });
+
+    it('keeps Module Builder active for a new and for an existing AI Employee', () => {
+      expect(active('/admin/curriculum/new')).toEqual(['builder']);
+      expect(active('/admin/curriculum/marketing')).toEqual(['builder']);
+    });
+
+    it('has no Curriculum badge at Week 2, where nothing is a draft', () => {
+      const content = adminNav(db, { pathname: '/admin' }, false)[1]!;
+      expect(row(content, 'curriculum').badge).toBeUndefined();
+      expect(row(content, 'curriculum').badgeTitle).toBeUndefined();
+    });
+
+    it('badges Curriculum with the draft count, singular then plural', () => {
+      const one = seed('live');
+      one.modules.push(blankModule(7, NOW));
+      const c1 = adminNav(one, { pathname: '/admin' }, false)[1]!;
+      expect(row(c1, 'curriculum').badge).toBe('1 Draft');
+      expect(row(c1, 'curriculum').badgeTitle).toBe('1 draft AI Employee');
+
+      const two = seed('live');
+      two.modules.push(blankModule(7, NOW), blankModule(8, NOW + 1));
+      const c2 = adminNav(two, { pathname: '/admin' }, false)[1]!;
+      expect(row(c2, 'curriculum').badge).toBe('2 Draft');
+      expect(row(c2, 'curriculum').badgeTitle).toBe('2 draft AI Employees');
+    });
+
+    it('badges Tiers & Upgrades with the count of new requests only, singular then plural', () => {
+      const revenue = adminNav(db, { pathname: '/admin' }, false)[4]!;
+      // Week 2 seeds one `new` request; `contacted` and `converted` do not count.
+      expect(row(revenue, 'tiers').badge).toBe('1');
+      expect(row(revenue, 'tiers').badgeTitle).toBe('1 new upgrade request');
+
+      const two = seed('live');
+      two.requests[1]!.status = 'new';
+      const r2 = adminNav(two, { pathname: '/admin' }, false)[4]!;
+      expect(row(r2, 'tiers').badge).toBe('2');
+      expect(row(r2, 'tiers').badgeTitle).toBe('2 new upgrade requests');
+    });
+
+    it('drops the Tiers badge when no request is new', () => {
+      const none = seed('live');
+      none.requests.forEach((q) => {
+        if (q.status === 'new') q.status = 'contacted';
+      });
+      const revenue = adminNav(none, { pathname: '/admin' }, false)[4]!;
+      expect(row(revenue, 'tiers').badge).toBeUndefined();
+      expect(row(revenue, 'tiers').badgeTitle).toBeUndefined();
+    });
+  });
+
+  it('is pure: two calls with the same arguments are deeply equal', () => {
+    const db = seed('live');
+    const jamie = learner(db, 'u_jamie');
+    expect(portalNav(db, jamie, { pathname: '/' }, NOW, false, true)).toEqual(
+      portalNav(db, jamie, { pathname: '/' }, NOW, false, true),
+    );
+    expect(adminNav(db, { pathname: '/admin' }, false)).toEqual(adminNav(db, { pathname: '/admin' }, false));
+  });
+});

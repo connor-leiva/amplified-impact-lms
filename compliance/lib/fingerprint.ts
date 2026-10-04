@@ -5,16 +5,21 @@ import type { Page } from '@playwright/test';
  * in, plus every form field. Compared exactly, so it catches wrong copy, wrong case, wrong size,
  * weight, line-height, letter-spacing, text-transform or colour, and missing or extra text.
  *
- * Text runs are collected per text NODE and then merged with their neighbours when they share both
- * the same typography and the same nearest block-level ancestor. That makes the fingerprint
- * invariant to how a renderer happens to split text across elements, while losing none of the
- * signal above.
+ * Text runs are collected per text NODE in document order and merged with their neighbours whenever
+ * they share the same typography. That makes the fingerprint invariant to how a renderer happens to
+ * split text across elements, while losing none of the signal above: changed copy, changed case, a
+ * dropped or added string, or any typography difference still shows up, because the merged sequence
+ * changes.
  *
- * This matters because the reference prototype's template engine wraps every `{{ }}` binding in a
- * `<span class="sc-interp">`, so `Session {n} · {title}` arrives as three sibling text runs, while
- * React emits one. Without merging, every interpolation in the app would have to be wrapped in a
- * meaningless span purely to imitate a prototyping runtime's DOM. Layout differences are not this
- * function's job — the pixel diff covers those.
+ * This matters because the prototype's template engine wraps every `{{ }}` binding in a
+ * `<span class="sc-interp">` AND every imported component in a block-level host. So
+ * `Session {n} · {title}` arrives as three runs and `Replay · {speed}` straddles a block boundary,
+ * where React emits one run each. Matching that would mean scattering meaningless spans and
+ * wrappers through every screen purely to imitate a prototyping runtime's DOM.
+ *
+ * Merging is deliberately NOT limited to a shared block ancestor: the prototype's wrappers are
+ * exactly the block boundaries we must ignore. Layout is not this function's job — the pixel diff
+ * covers that, and it is the half of the comparison that would catch text moving on screen.
  */
 export async function fingerprint(page: Page, selector: string | null): Promise<string[]> {
   return page.evaluate((sel) => {
@@ -32,15 +37,6 @@ export async function fingerprint(page: Page, selector: string | null): Promise<
       return r.width > 0 && r.height > 0 && r.right > 0 && r.left < vw;
     };
 
-    /** The nearest ancestor that establishes its own line box, so runs never merge across rows. */
-    const blockOf = (el: Element): Element => {
-      for (let e: Element | null = el; e; e = e.parentElement) {
-        const d = getComputedStyle(e).display;
-        if (d !== 'inline' && d !== 'contents') return e;
-      }
-      return document.body;
-    };
-
     const styleOf = (el: Element) => {
       const cs = getComputedStyle(el);
       return [
@@ -54,7 +50,7 @@ export async function fingerprint(page: Page, selector: string | null): Promise<
       ].join(' | ');
     };
 
-    const runs: { text: string; style: string; block: Element }[] = [];
+    const runs: { text: string; style: string }[] = [];
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
       const raw = n.textContent ?? '';
@@ -62,10 +58,9 @@ export async function fingerprint(page: Page, selector: string | null): Promise<
       const parent = n.parentElement;
       if (!parent || !visible(parent)) continue;
       const style = styleOf(parent);
-      const block = blockOf(parent);
       const prev = runs[runs.length - 1];
-      if (prev && prev.style === style && prev.block === block) prev.text += raw;
-      else runs.push({ text: raw, style, block });
+      if (prev && prev.style === style) prev.text += ' ' + raw;
+      else runs.push({ text: raw, style });
     }
 
     const rows = runs.map((r) => `${r.text.replace(/\s+/g, ' ').trim()} | ${r.style}`).filter((r) => !r.startsWith(' |'));

@@ -1,0 +1,259 @@
+/* Ported from design-reference/Portal Upgrade.dc.html. Every value is the reference's inline style. */
+
+.page {
+  padding: var(--page-pad-top) var(--page-pad-x) 56px;
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 640px;
+}
+.h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* ---- left column: What You Add, then Compare Tiers ------------------------------------------ */
+
+.left {
+  flex: 1.6 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.add {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  flex-wrap: wrap;
+}
+
+.tile {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--access-locked-bg);
+  border: 1px solid var(--access-locked-line);
+}
+/* <Icon> strokes with currentColor, so the locked tone is set as `color` on the glyph. */
+.tileGlyph {
+  color: var(--access-locked-text);
+}
+
+.addBody {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.addHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.addName {
+  font-size: 16px;
+  font-weight: 600;
+}
+.addSess {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+.addHeadline {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.outputs {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+.output {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.check {
+  margin-top: 2px;
+  color: var(--status-success);
+}
+
+.compare {
+  border-radius: 14px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+.compareHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 96px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--line-subtle);
+}
+.colHead {
+  text-align: center;
+}
+
+/* The reference gives every row a bottom border, the last one included. */
+.compareRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 96px;
+  align-items: center;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--line-subtle);
+  font-size: 14px;
+}
+.rowLabel {
+  color: var(--text-primary);
+}
+.agentCell {
+  text-align: center;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.agentCell[data-muted='true'] {
+  color: var(--text-disabled);
+}
+.teamCell {
+  text-align: center;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- right column: the sticky price card ---------------------------------------------------- */
+
+.aside {
+  flex: 1 1 320px;
+  min-width: 0;
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.price {
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.priceValue {
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.priceUnit {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.feature {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.cta {
+  height: 42px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  outline: none;
+}
+.cta:hover {
+  background: var(--action-primary-hover);
+}
+.cta:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+/* Requested: success-tinted, and the hover fill is the same tint — it is a state, not an action. */
+.cta[data-state='requested'] {
+  border-color: var(--status-success-line);
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+}
+.cta[data-state='requested']:hover {
+  background: var(--status-success-bg);
+}
+
+.note {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-align: center;
+}

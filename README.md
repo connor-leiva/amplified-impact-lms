@@ -65,7 +65,7 @@ header to switch persona and cohort phase. `States.dc.html` shows every componen
 A phase ships only when `pnpm gate <n>` is green locally **and** in CI.
 
 ```bash
-pnpm gate 2          # lint + typecheck + tests + the parity/e2e scenarios up to phase 2
+pnpm gate 5          # lint + typecheck + tests + every parity/e2e scenario up to phase 5
 pnpm goldens:check   # proves capturing twice is byte-identical
 ```
 
@@ -89,7 +89,7 @@ this app — so a stray `vite preview` from another project can never be tested 
 holds a port, pick another:
 
 ```bash
-APP_PORT=4273 pnpm gate 2      # also REF_PORT for the reference server
+APP_PORT=4273 pnpm gate 5      # also REF_PORT for the reference server
 ```
 
 ### Pixel goldens
@@ -119,9 +119,9 @@ The repository is initialized on `main` with no remote, so GitHub Desktop will o
 
 | Job | Expected |
 |---|---|
-| `quality` | ✅ lint, typecheck, 331 tests |
+| `quality` | ✅ lint, typecheck, 552 tests |
 | `harness` | ✅ the reference drives cleanly in all 55 scenarios |
-| `compliance` | ✅ the `@g1` token-parity suite (`.phase` is 2, so no pixel scenarios yet) |
+| `compliance` | ✅ 38 parity scenarios and 16 e2e behaviours (`.phase` is 5) |
 | `goldens` | ❌ **expected on the first push only** |
 
 `goldens` re-captures inside the pinned Linux container. The committed PNGs were captured on
@@ -141,9 +141,9 @@ that commit, so protection is not blocked by the known first-run diff.
 | 00 | Monorepo, CI, Railway IaC, compliance harness, goldens | ✅ shipped |
 | 01 | Tokens, fonts, theme / accent / typeface, Icon | ✅ shipped |
 | 02 | `packages/core`: types, seed, status, time, view-models, 37 mutations, permissions | ✅ shipped |
-| 03 | Primitives + 7 product components + `/__states` | — |
-| 04 | Router, sidebar, header, profile menu, data layer | — |
-| 05 | Portal: Dashboard, Employee detail, Sessions, Team Hub, Vault, Team Tier | — |
+| 03 | Primitives + 7 product components + `/__states` | ✅ shipped |
+| 04 | Router, sidebar, header, profile menu, data layer | ✅ shipped |
+| 05 | Portal: Dashboard, Employee detail, Sessions, Team Hub, Vault, Team Tier | ✅ shipped |
 | 06 | Admin: Overview, Curriculum, Module Builder, Cohorts, Learners, Vault, Announcements, Tiers, Staff | — |
 | 07 | Postgres schema, magic-link auth, scoped snapshot, mutation API | — |
 | 08 | Email, file storage, HLS replays, Zoom join window, scheduler | — |

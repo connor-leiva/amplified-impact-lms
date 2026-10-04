@@ -32,6 +32,13 @@ const KNOWN_CONTRAST_DEFECTS: KnownContrastDefect[] = [
     why: 'Locked nav row, light theme. Fixing it means changing --text-disabled or --bg-sidebar.',
   },
   {
+    fg: '#a6a4a0', // --text-disabled (ink-400)
+    bg: '#fbfaf8', // --bg-sunken (ink-50) — the code viewer's inset
+    ratio: 2.38,
+    decision: 'D-010',
+    why: 'Line numbers in the prompt/skill-file viewer, which SCREENS § 3.2 specifies as --text-disabled.',
+  },
+  {
     fg: '#6e6b67', // --text-disabled (ink-500)
     bg: '#0c0b08', // --bg-sidebar, dark theme
     ratio: 3.71,

@@ -1,0 +1,54 @@
+/* Every value is the reference's (Amplified Impact LMS.dc.html, header). The reference computes
+   `fg`, `fw` and `flex` per crumb; the last crumb is the only one that differs, so it is one
+   `[data-last]` branch here. */
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  font-size: 14px;
+}
+
+.sep {
+  color: var(--text-disabled);
+}
+
+.crumb {
+  flex: 0 0 auto;
+  min-width: 0;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  outline: none;
+  /* The reference draws no radius here; it only rounds the focus ring, which the reference's own
+     buttons get from SCREENS § 1.3 and the prototype omits. */
+  border-radius: 4px;
+}
+
+/* The page you are on: it alone may shrink and ellipsize. */
+.crumb[data-last='true'] {
+  flex: 0 1 auto;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.crumb:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Below 768px only the last crumb shows (SCREENS § 2.2). The reference slices the list in JS at
+   `vw < 768`; the breakpoint is written as 767.98 so the two agree at every fractional width.
+   Hiding rather than slicing also hides the separator that precedes the last crumb. */
+@media (max-width: 767.98px) {
+  .root > *:not(:last-child) {
+    display: none;
+  }
+}

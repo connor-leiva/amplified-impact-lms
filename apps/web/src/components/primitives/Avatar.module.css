@@ -13,7 +13,7 @@
   color: var(--ink-900);
   font-size: 12px;
   font-weight: 600;
-  line-height: 1;
+  /* No explicit line-height: the reference inherits the body 1.45, and the fingerprint compares it. */
 }
 
 /* The reference steps the initials up only at 36 and 40. */

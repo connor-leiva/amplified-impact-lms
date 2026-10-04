@@ -23,7 +23,12 @@ export async function open(browser: Browser, s: Scenario, target: Target) {
   const page = await ctx.newPage();
   await page.clock.setFixedTime(new Date(PHASE_NOW[s.phase ?? 'live']));
   const prefs = { phase: s.phase ?? 'live', theme: s.theme ?? 'light', tz: null, sidebar: s.sidebar ?? 'full' };
-  await page.addInitScript((p) => localStorage.setItem('ai-lms-prefs', JSON.stringify(p)), prefs);
+  // Seed preferences as a DEFAULT, not an override. addInitScript re-runs on every navigation, so
+  // writing unconditionally would wipe whatever the page had just saved and make a reload look as
+  // though nothing persisted — which is precisely what the persistence e2e tests assert.
+  await page.addInitScript((p) => {
+    if (!localStorage.getItem('ai-lms-prefs')) localStorage.setItem('ai-lms-prefs', JSON.stringify(p));
+  }, prefs);
 
   const url =
     target === 'reference'

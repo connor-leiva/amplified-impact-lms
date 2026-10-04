@@ -1,0 +1,199 @@
+/* Ported from the `profileOpen` block of design-reference/Amplified Impact LMS.dc.html
+   (SCREENS § 2.3). Every value is the reference's. The panel chrome itself — fixed offsets, width
+   min(300px, 100vw - 24px), padding 6, radius 12, --bg-raised on --line-default, --shadow-pop and
+   `ai-pop 140ms ease-out` — comes from <Popover mode="fixed">. */
+
+/* z-index 79, one below the panel: it swallows the click that closes the menu, including a second
+   click on the trigger, exactly as the reference does. */
+.catcher {
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 12px;
+}
+
+/* 36px menu avatar. The fill is per-instance (`avatarColor(id)`, resolved by the caller). */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--pm-av);
+  color: var(--ink-900);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.who {
+  min-width: 0;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.email {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.divider {
+  height: 1px;
+  margin: 0 4px;
+  background: var(--line-subtle);
+}
+
+.zone {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px;
+}
+
+.zoneRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.zoneLabel {
+  color: var(--text-secondary);
+}
+
+.zoneValue {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* `Change` / `Done`. The reference leaves the focus ring to the UA here, so there is no
+   `outline: none` and no custom ring. */
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.link:hover {
+  color: var(--text-link-hover);
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 2px -4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line-subtle);
+  max-height: 210px;
+  overflow: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.option[data-on='true'] {
+  background: var(--bg-selected);
+}
+
+/* The reference's hover rules are injected with !important, so hover wins over the selected fill.
+   Declared after the selected rule to keep that order. */
+.option:hover {
+  background: var(--bg-hover);
+}
+
+.ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.option[data-on='true'] .ring {
+  border-color: var(--action-primary);
+}
+
+.option[data-on='true'] .dot {
+  background: var(--action-primary);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 10px;
+}
+
+.themeLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.signOut {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 34px;
+  margin-top: 4px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+.signOut:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}

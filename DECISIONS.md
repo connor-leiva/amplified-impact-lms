@@ -339,6 +339,79 @@ violations the reference has — `nested-interactive` (D-009), `document-title` 
 
 ---
 
+## D-011 · The profile menu is a dialog, not a menu
+
+**Date:** 2026-10-04
+**Approved by:** Connor Leiva (repository owner)
+**Scope:** `apps/web/src/shell/ProfileMenu.tsx`, `AppShell.tsx`. No pixel or copy change.
+
+SCREENS § 2.3 specifies `role="menu"`. But the panel holds a `radiogroup` (the time-zone picker), a
+segmented theme control and one action — and a `menu` may only contain `menuitem`-family children,
+so axe reports `aria-required-children` (serious). Verified: the reference has the identical
+violation on its own profile menu.
+
+`role="dialog"` with the same `aria-label` describes what the panel actually is, the trigger's
+`aria-haspopup` changes to `dialog` to match, and `Sign Out` becomes a plain button (a `menuitem`
+outside a menu is equally invalid). Roles are not captured by the fingerprint and nothing moves, so
+the parity scenarios are unchanged.
+
+---
+
+## D-012 · The fingerprint merges adjacent text runs by typography alone
+
+**Date:** 2026-10-04
+**Approved by:** Connor Leiva (repository owner)
+**Scope:** `compliance/lib/fingerprint.ts`, the `.json` goldens. No product code, no tolerance.
+
+D-005's first version merged runs only within a shared block ancestor. That was not enough: the
+prototype wraps every `{{ }}` binding in a `span.sc-interp` **and** every imported component in a
+block-level host, so `Replay · {speed}` and `Watch at {mm:ss}` straddle block boundaries that React
+has no reason to create. Matching them would mean scattering meaningless wrappers through every
+screen to imitate a prototyping runtime's DOM.
+
+Runs are now merged whenever they share typography, full stop. Nothing is lost: changed copy,
+changed case, a dropped or added string and every typography property still change the merged
+sequence. Layout is the pixel diff's job, and the pixel diff is what would catch text moving.
+
+---
+
+## D-013 · The Team Hub drawer wraps its tokens in a block host
+
+**Date:** 2026-10-04
+**Approved by:** Connor Leiva (repository owner)
+**Scope:** `apps/web/src/routes/portal/TeamHub.tsx` + `.module.css`. No copy change.
+
+The same prototype artifact, in pixels rather than text. Because every imported component sits in a
+block-level host, a StatusToken pill's **line box** sets its row height — 22.55px, from the
+14px/1.45 baseline strut — not its 22px border box. Dropping the tokens straight into the flex row
+gave 43px rows against the reference's 43.55px, and six rows of that drifted ~3px: a 4.99% pixel
+diff, well past tolerance.
+
+Measured in both: reference children `svg:15.00 span:18.84 div:20.30 div:22.55`, ours
+`svg:15.00 span:18.84 span:16.00 span:22.00`. A `display: block` wrapper around each token in that
+one row restores the line box.
+
+Scoped deliberately to this row rather than changed inside `StatusToken`, because the component's
+current rendering is what makes `states-light`, `states-dark` and every other scenario pass.
+
+---
+
+## D-014 · The harness seeds preferences as a default, not an override
+
+**Date:** 2026-10-04
+**Approved by:** Connor Leiva (repository owner)
+**Scope:** `compliance/lib/prepare.ts`. No product code.
+
+`open()` seeds `localStorage['ai-lms-prefs']` through `addInitScript`, which re-runs on **every**
+navigation. So a test that changed a preference and reloaded had its change overwritten by the
+seed, and the two persistence tests ("collapse persists across reload", "theme toggle persists")
+failed against an app that was behaving correctly.
+
+The seed now writes only when no preferences exist. First load is unchanged; a reload keeps what
+the page saved, so those tests measure the app rather than the harness.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions, and need no
