@@ -1,0 +1,103 @@
+/* /sign-in — net-new (phase 07 § 7.5). There is no reference file for this screen, so the values
+   here are the ones § 7.5 names (400 wide, padding 32, radius 16, --shadow-card, a 1px
+   --line-default border, brand gap 10, H1 26/32, sub 14 secondary, a full-width 40px primary) and
+   nothing else. The 6/16/24 stack gaps are the house values the portal screens already use.
+
+   The card is hand-rolled rather than `<Card>`: that primitive only offers radius 12 or 14 and the
+   reference's padding presets, and NEVER normalise a size the spec states. Dark mode and the focus
+   ring come entirely from tokens.css — there is not a colour in this file. */
+
+.page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: var(--bg-canvas);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 400px;
+  max-width: 100%;
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* `overflow-wrap` because the success sub carries an address the viewer typed, which can be longer
+   than the 400px card. */
+.sub {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Matches `Field`'s own error row (13px, --access-locked-text); this one is a live region instead.
+   It is always mounted so a screen reader announces the insertion, and `:empty` keeps it out of
+   the field's 6px stack until there is something to say. */
+.error {
+  font-size: 13px;
+  color: var(--access-locked-text);
+}
+.error:empty {
+  display: none;
+}
+
+.submit {
+  width: 100%;
+}
+
+.again {
+  align-self: flex-start;
+}
+
+.pending {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.spin {
+  color: var(--text-tertiary);
+  animation: ai-spin 900ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}

@@ -2,8 +2,13 @@ import { createBrowserRouter, Navigate } from 'react-router';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
-// Phase 07 adds /sign-in and /invite/:token. Only routes that exist are mounted, so there is never
-// placeholder UI; the shell's own guards handle role and tier redirects (SCREENS § 2, phase 04 §4.1).
+// Phase 07 mounts /sign-in and /invite/:token. Both screens are already built — see routes/auth/ —
+// but they post to /api/auth/request and /api/auth/verify, which do not exist yet, so mounting them
+// now would ship two routes that visibly do nothing. They stay unmounted, covered by their own
+// vitest suites, until the endpoints land in the same phase.
+//
+// Only routes that work are mounted, so there is never placeholder UI; the shell's own guards
+// handle role and tier redirects (SCREENS § 2, phase 04 § 4.1).
 export const router = createBrowserRouter([
   ...(devRoutes
     ? [

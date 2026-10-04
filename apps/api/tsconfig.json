@@ -1,8 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    // Module resolution stays "Bundler" (from tsconfig.base.json), matching apps/web and
+    // packages/core. The API is bundled by build.mjs, which inlines `@ai/core` TypeScript source,
+    // so extensionless relative and workspace specifiers are correct here. NodeNext would demand
+    // explicit .js extensions and make `@ai/core` unresolvable from this package.
     "types": ["node", "vitest/globals"],
     "lib": ["ES2023"],
     "paths": {

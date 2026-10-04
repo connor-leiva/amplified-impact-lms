@@ -13,5 +13,6 @@ export * from './files';
 export * from './tiers';
 export * from './seed';
 export * from './can';
+export * from './scope';
 export { MutationError } from './mutations';
 export type { Ctx, Actor, Effect, Outcome } from './mutations';

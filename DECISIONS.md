@@ -452,6 +452,28 @@ reconciled with the reference, these are the three lines to revisit.
 
 ---
 
+## D-017 · `announcements.opens_pct` stores whole percent; the snapshot codec converts
+
+**Date:** 2026-10-04
+**Approved by:** the column name in `docs/phases/07-backend.md` § 7.2 itself.
+**Scope:** `apps/api/src/db/schema.ts`, and the `loadDb`/`persistDiff` codec in § 7.3
+
+`Announcement.opens` is a fraction in the reference data (`0.71`, `0.64`, `null`) and is rendered
+through `fmt.pct`, which multiplies by 100. § 7.2 declares the column as `integer('opens_pct')`,
+which would round `0.71` to `1` and make the admin Announcements history read `100%` for every sent
+announcement — if the column held the same unit as the field. It does not: the name says `_pct`, so
+the column holds whole percent and the field holds the fraction. The conversion belongs in the
+snapshot codec — `Math.round(v * 100)` on write, `v / 100` on read.
+
+This is the one place in the schema where a stored unit differs from its domain field, so it is
+pinned by a test rather than a comment: `schema.test.ts` › *"declares a codec for every column whose
+stored unit differs from its field"* walks the real seed, finds every fractional value that would
+land in an `integer` column, and requires each one to have a declared codec whose round trip renders
+the identical `fmt.pct` string. A second integer column that starts rounding a seeded value fails
+that test until someone decides which it is.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:
