@@ -5,6 +5,7 @@ import { open } from '../lib/prepare';
 import { REGION, MASKS } from '../lib/regions';
 import { fingerprint } from '../lib/fingerprint';
 import { expectAccessible } from '../lib/a11y';
+import { PLATFORM, jsonPath, pngPath, snapshotName } from '../lib/goldens';
 
 const GATE = Number(process.env.GATE ?? 99);
 
@@ -33,11 +34,11 @@ for (const s of SCENARIOS.filter((x) => x.gate <= GATE)) {
 
       // A missing golden must fail loudly. Letting Playwright create it from the app would golden
       // the very thing under test.
-      const pngGolden = new URL(`../goldens/${stem}.png`, import.meta.url);
-      const jsonGolden = new URL(`../goldens/${stem}.json`, import.meta.url);
+      const pngGolden = pngPath(stem);
+      const jsonGolden = jsonPath(stem);
       expect(
         await exists(pngGolden),
-        `${stem}.png is missing from compliance/goldens. Run \`pnpm compliance:capture\` against the reference — never let this be written from the app.`,
+        `${stem}.png is missing from compliance/goldens/${PLATFORM}. Run \`pnpm compliance:capture\` against the reference — never let this be written from the app. If you are on a platform with no committed set, capture one or run the Linux set in the container (\`pnpm compliance:docker\`).`,
       ).toBe(true);
       expect(await exists(jsonGolden), `${stem}.json is missing from compliance/goldens. Run \`pnpm compliance:capture\`.`).toBe(true);
 
@@ -45,7 +46,7 @@ for (const s of SCENARIOS.filter((x) => x.gate <= GATE)) {
       const png = sel
         ? await page.locator(sel).first().screenshot({ animations: 'disabled', mask, maskColor: '#FF00FF' })
         : await page.screenshot({ animations: 'disabled', mask, maskColor: '#FF00FF' });
-      expect.soft(png, `${s.id} ${r} pixels`).toMatchSnapshot(`${stem}.png`);
+      expect.soft(png, `${s.id} ${r} pixels`).toMatchSnapshot(snapshotName(stem));
 
       const ref = JSON.parse(await fs.readFile(jsonGolden, 'utf8'));
       expect.soft(await fingerprint(page, sel), `${s.id} ${r} copy + typography`).toEqual(ref);

@@ -28,7 +28,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: corepack enable && pnpm i --frozen-lockfile
+      # Pinned, not inferred: a runner that moved to another OS would otherwise capture into a
+      # different platform directory, leave the authoritative Linux set untouched, and still pass
+      # its own diff check.
       - run: pnpm compliance:capture
+        env:
+          GOLDEN_PLATFORM: linux
       - name: Goldens must be reproducible from the reference
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -36,18 +41,25 @@ jobs:
             echo "Goldens reproduce exactly from design-reference/."
             exit 0
           fi
-          echo "::error::compliance/goldens does not match what the reference renders in this container."
+          echo "::error::compliance/goldens does not reproduce from the reference in this container."
           echo ""
-          echo "Two possible causes:"
-          echo "  1. The committed set was captured on another platform. Chromium rasterizes text"
-          echo "     slightly differently per OS, so a developer's Windows or macOS capture will not"
-          echo "     byte-match this Linux container. See DECISIONS.md D-001."
-          echo "     Fix: download the 'goldens-from-container' artifact below, replace"
-          echo "     compliance/goldens with it, set PROVENANCE.txt to 'platform: container',"
-          echo "     and commit. That set is then authoritative."
-          echo "  2. Someone edited compliance/goldens by hand, or design-reference/ changed."
-          echo "     Hand-edited goldens are never allowed (CLAUDE.md). If the reference really"
-          echo "     changed, re-capture and commit it in the same PR as that change."
+          echo "Screenshots are per platform and fingerprints are shared (compliance/lib/goldens.ts"
+          echo "explains why, with the measurements), so read WHICH files differ before anything else:"
+          echo ""
+          echo "  compliance/goldens/*.json differ  ->  the COPY or TYPOGRAPHY moved. Fingerprints are"
+          echo "     platform-independent, so this is a real change to design-reference/ or a"
+          echo "     hand-edited golden. Hand-editing is never allowed (CLAUDE.md). If the reference"
+          echo "     genuinely changed, re-capture and commit it in the same PR as that change."
+          echo ""
+          echo "  compliance/goldens/linux/*.png differ  ->  the authoritative screenshots no longer"
+          echo "     reproduce. Either design-reference/ changed, or someone edited them by hand, or"
+          echo "     the container image moved. Download the 'goldens-from-container' artifact below,"
+          echo "     check the .json files in it are unchanged first, then replace"
+          echo "     compliance/goldens/linux/ with it and commit."
+          echo ""
+          echo "  compliance/goldens/win32/*.png differ  ->  should be impossible: this job pins"
+          echo "     GOLDEN_PLATFORM=linux and never writes that directory. If it happens, the"
+          echo "     capture is ignoring the platform setting."
           echo ""
           echo "Files that differ:"
           git diff --stat -- compliance/goldens

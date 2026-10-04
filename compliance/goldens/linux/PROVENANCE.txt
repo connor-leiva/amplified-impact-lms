@@ -1,0 +1,36 @@
+platform: container
+captured-on: linux (mcr.microsoft.com/playwright:v1.63.0-noble, x64)
+captured-by: the CI `goldens` job, run #2 of .github/workflows/ci.yml
+playwright: 1.63.0
+reference: design-reference/ @ handoff design_handoff_amplified_impact_lms (unmodified)
+scenarios: 55 (98 regions)
+naming: <scenario>-<region>.png — never a dot, see DECISIONS.md D-008
+
+Status: AUTHORITATIVE. This is the set CI re-captures and diffs on every push, in the pinned
+container, and it is what decides whether the app matches the reference. See DECISIONS.md D-020.
+
+HOW THESE GOT HERE, and why that is not "editing goldens by hand":
+They were not captured on a developer's machine. The CI `goldens` job runs `pnpm compliance:capture`
+against the unmodified design-reference/ inside the pinned container and uploads its output as the
+`goldens-from-container` artifact when the committed set does not match. That artifact is the source
+of these files, copied verbatim. D-001 planned for exactly this handover.
+
+PROVENANCE, verified rather than trusted:
+The artifact ships with the committed PROVENANCE.txt and README.md, because the capture job
+overwrites images and not those files — so the artifact could not vouch for itself. What proves it
+is the fingerprints: all 98 `.json` files in the artifact are BYTE-IDENTICAL to the committed ones.
+Those fingerprints carry every string, font size, weight, line height and colour on each screen, and
+they are platform-independent. Identical fingerprints therefore mean the container rendered the same
+unmodified reference, and the only thing that differs is how its Chromium rasterizes glyphs.
+
+MEASURED DIVERGENCE from the win32 set (Playwright's own threshold, 0.15 => ±38/255 per channel):
+  98 of 98 images differ
+  60 of 98 differ by more than the 1% maxDiffPixelRatio
+  median 1.19%, worst 2.99% (shell-locked-preview-dialog)
+Every diff is under 3% and no fingerprint moved, which is what distinguishes rasterization from a
+regression: a real layout or copy change moves a fingerprint, or moves far more than 3% of pixels.
+Confirmed in practice, not just arithmetic — putting this set in win32/'s place makes
+shell-locked-preview fail the local gate.
+
+To re-capture this set, run the capture inside the container, never on a host:
+  GOLDEN_PLATFORM=linux pnpm compliance:docker compliance:capture

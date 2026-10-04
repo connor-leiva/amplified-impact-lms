@@ -1,17 +1,28 @@
 // Gate 0: capturing twice must produce byte-identical goldens.
 // Run after `pnpm compliance:capture` in a clean tree; it is what the CI `goldens` job proves
-// with `git diff --exit-code -- compliance/goldens`.
+// with `git diff --exit-code -- compliance/goldens`, where GOLDEN_PLATFORM=linux.
 import { execSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
-const DIR = 'compliance/goldens';
+// Fingerprints are shared; screenshots are per platform (compliance/lib/goldens.ts explains why,
+// with the measurements). Both are hashed, so this proves determinism of everything a capture on
+// THIS platform writes — and nothing it does not, which is the point: another platform's
+// screenshots are not reproducible here and are not this check's business.
+const ROOT = 'compliance/goldens';
+const PLATFORM = process.env.GOLDEN_PLATFORM ?? process.platform;
+const PNG_DIR = `${ROOT}/${PLATFORM}`;
+
+const hashDir = (dir, pattern, prefix) =>
+  readdirSync(dir)
+    .filter((f) => pattern.test(f))
+    .map((f) => [prefix + f, createHash('sha256').update(readFileSync(`${dir}/${f}`)).digest('hex')]);
+
 const hash = () =>
-  Object.fromEntries(
-    readdirSync(DIR)
-      .filter((f) => /\.(png|json)$/.test(f))
-      .map((f) => [f, createHash('sha256').update(readFileSync(`${DIR}/${f}`)).digest('hex')]),
-  );
+  Object.fromEntries([
+    ...hashDir(ROOT, /\.json$/, ''),
+    ...hashDir(PNG_DIR, /\.png$/, `${PLATFORM}/`),
+  ]);
 
 console.log('▶ capture #1');
 execSync('pnpm compliance:capture', { stdio: 'inherit' });

@@ -16,9 +16,16 @@ determinism (measured, not assumed):
                       Serializing the capture (--workers=1) and quieting the machine were both
                       tried and neither removed it; it is host rasterization, not contention.
 
-Status: DEV-ONLY. See DECISIONS.md D-001.
-The authoritative set comes from the pinned CI container:
-  mcr.microsoft.com/playwright:v1.63.0-noble
-The CI `goldens` job re-captures there; commit its artifact and change this line to
-`platform: container`. The .json fingerprint goldens are platform-independent and authoritative
-as-is.
+Status: DEVELOPMENT CONVENIENCE, not authority. See DECISIONS.md D-001 and D-020.
+The authoritative screenshots are ../linux/, captured in the pinned CI container
+(mcr.microsoft.com/playwright:v1.63.0-noble) and diffed by the CI `goldens` job on every push.
+This set exists so `pnpm gate <n>` can run on a Windows machine with no Docker. When the two sets
+disagree about whether the app matches the reference, CI is right.
+
+The .json fingerprints are shared, live one directory up, and are platform-independent BY
+MEASUREMENT: all 98 are byte-identical to the container's. They carry the copy and the typography,
+which is what CLAUDE.md's "copy is exact" rule actually rides on.
+
+Divergence from the container set, measured at Playwright's own threshold: 98 of 98 images differ,
+60 of them by more than the 1% maxDiffPixelRatio; median 1.19%, worst 2.99%. All under 3% and no
+fingerprint moved, which is what separates rasterization from a regression.

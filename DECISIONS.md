@@ -533,6 +533,132 @@ redeploy does.
 
 ---
 
+## D-020 · Screenshots are scoped by platform; fingerprints stay shared
+
+**Date:** 2026-10-04
+**Approved by:** the user, choosing this over replacing the set or making the CI job non-blocking.
+**Scope:** `compliance/lib/goldens.ts`, `compliance/goldens/{win32,linux}/`, `capture.spec.ts`,
+`parity.spec.ts`, `scripts/goldens-check.mjs`, `.github/workflows/ci.yml`
+**Supersedes:** D-001's plan to replace the committed set with the container's.
+
+D-001 recorded that the committed goldens were Windows-captured and dev-only, and that the CI
+`goldens` job would hand over a container-captured set. That handover has happened — but replacing
+the set outright would have broken the local gate, because the divergence is not small.
+
+**Measured**, against the container's capture of the same unmodified `design-reference/`, at
+Playwright's own threshold (0.15, i.e. ±38/255 per channel):
+
+| | result |
+|---|---|
+| `.json` fingerprints | **98 of 98 byte-identical** |
+| `.png` screenshots | 98 of 98 differ; **60 over the 1% `maxDiffPixelRatio`** |
+| | median 1.19%, worst 2.99% (`shell-locked-preview-dialog`) |
+
+So one shared PNG set fails 60 of 98 scenarios on whichever platform did not capture it, and the
+failures are indistinguishable from a regression. Confirmed in practice, not just arithmetic:
+putting the Linux image in `win32/`'s place makes `shell-locked-preview` fail the local gate.
+
+Every diff is under 3% and **no fingerprint moved**, which is the evidence that this is glyph
+rasterization and not layout. A real layout or copy change moves a fingerprint, or moves far more
+than 3% of pixels. That is also why the fingerprints are shared rather than duplicated: they are
+platform-independent by measurement, and they are what CLAUDE.md's "copy is exact" rule rides on.
+
+**Authority is not symmetric.** `compliance/goldens/linux/` is authoritative — CI re-captures and
+diffs it in the pinned container on every push. `win32/` exists so `pnpm gate <n>` can run on a
+Windows machine with no Docker. When the two disagree about whether the app matches the reference,
+CI is right.
+
+Two things this deliberately does NOT do. It does not raise a tolerance and adds no mask —
+`maxDiffPixelRatio` is still 0.01 and `threshold` still 0.15. And it does not weaken the
+hand-editing guard: the CI job still fails on any drift, and its message now routes by which files
+moved, because a changed `.json` means copy or typography (platform-independent, so always real)
+while a changed `linux/*.png` means the authoritative screenshots stopped reproducing.
+
+`GOLDEN_PLATFORM` overrides the host and CI pins it to `linux` rather than inferring: a runner that
+moved to another OS would otherwise capture into a different directory, leave the authoritative set
+untouched, and still pass its own diff check.
+
+**On D-008.** Splitting the path risked re-opening the bug where Playwright's snapshot resolution
+and the harness's disagree — which does not fail, it writes the app's own render as the expected
+image and compares the app against itself forever. Two guards: `parity.spec.ts` still asserts the
+golden exists before comparing, and the resolution was verified empirically — a different screen's
+image placed at `win32/states-light-page.png` failed the run and printed
+`Snapshot: win32\states-light-page.png`, which is exactly the file `pngPath()` returns.
+
+---
+
+## D-021 · Email templates use inline hex, the one sanctioned exception to the token rule
+
+**Date:** 2026-10-04
+**Approved by:** `docs/phases/08-integrations.md` § 8.1, which mandates it.
+**Scope:** `apps/api/src/email/**`, `scripts/email-tokens.mjs`, `apps/api/src/email/tokens.ts`
+
+CLAUDE.md's non-negotiables say styling uses tokens — `var(--token)` only, no hex, rgb or named
+colours. The email templates are wall-to-wall inline hex, because mail clients resolve neither CSS
+custom properties nor `oklch()`, and § 8.1 says so explicitly: build them "with the same tokens as
+**inline hex values**, resolved from `tokens.css` light mode".
+
+What makes this a recorded deviation and not a hole:
+
+- The values are **generated**, never hand-typed. `scripts/email-tokens.mjs` resolves `:root`'s 77
+  custom properties — following `var()` chains, evaluating `oklch()` and `color-mix(in oklch, …)`,
+  and converting OKLab → linear sRGB → gamma — into `apps/api/src/email/tokens.ts`. A test asserts
+  the committed file is byte-identical to a fresh run, so a `tokens.css` change cannot leave the
+  emails on stale colours.
+- The maths is checked against a **browser**, not trusted. A `@g8` Playwright test paints each token
+  in the reference prototype and compares Chromium's own sRGB bytes to the script's hex.
+- Nine tests assert that no `var(--` and no `oklch(` reaches the rendered HTML — the leak that would
+  render an email black-on-black in Outlook.
+- 63 of the 77 tokens are colours and are exported. Two carrying alpha (`--bg-overlay`,
+  `--focus-ring`) are omitted rather than flattened, because `#rrggbbaa` is not understood by
+  Outlook or Gmail's web client and both describe something an email does not have. Six are outside
+  sRGB and are clamped the way Chromium clamps them, measured in the browser rather than assumed.
+
+`scripts/check-css-colors.mjs` does not police this either way: it globs only
+`apps/web/src/**/*.module.css`. That is the right scope — but it means nothing mechanical stops a
+future reader "fixing" the emails back to `var(--token)`, which is why this entry exists.
+
+---
+
+## D-022 · §8.2's `storageKey` and §8.3's `publishReplay` arguments are deferred with the routes
+
+**Date:** 2026-10-04
+**Approved by:** the phase-08 sprint scope — build only what can be verified without a database.
+**Scope:** `packages/core/src/mutations.ts`, `packages/core/src/types.ts`,
+`apps/api/src/routes/schemas.ts`
+
+§ 8.2 wants `uploadResource` to carry a `storageKey`; § 8.3 wants `publishReplay` to take
+`{ playbackUrl, durationSec, transcriptVtt? }`. Neither change was made. `packages/core` is ported
+from the prototype and covered by differential tests, so a mutation signature change risks parity
+for no gain while the routes that would consume it do not exist.
+
+The change touches **three** files, not the two that are obvious:
+
+1. `packages/core/src/mutations.ts` — `publishReplay`, `uploadResource`
+2. `packages/core/src/types.ts` — `AIEmployee` needs `playbackUrl`; `Resource`/`ModuleResource` need
+   a stable key
+3. `apps/api/src/routes/schemas.ts` — both are `z.strictObject`, which **rejects** an unknown key.
+   Adding the field to core without editing the schema turns it into a 400 at the boundary rather
+   than a harmlessly ignored extra.
+
+Three consequences that are live today and are not bugs:
+
+- `HlsEngine` is built and tested but unreachable: the engine choice needs a playback URL, and
+  `replayUrl()` reads a field `AIEmployee` does not declare, so it returns `''` and `TickerEngine`
+  is always chosen — in http mode too. A test pins exactly that.
+- `parseVtt` has no caller. It is correct, tested, and waiting for `publishReplay`.
+- The upload route has no way to hand its minted key to the mutation. The codec already excludes
+  `resources.storage_key` from `COLUMNS_OWNED` (see `codec.ts`'s header), which is what will let the
+  route write that column without a later snapshot write clobbering it.
+
+**Open, and it needs deciding before the route is written:** the per-employee resource key.
+`EmployeeDetail.vm.ts` derives `:fileName` from the admin-typed title, and that derivation is not
+injective — "Session 1 Slides" and "Session 1: Slides" both give `session-1-slides.pdf` — while
+`storage.uploadKey` mints `uploads/YYYY/MM/<uuid>.<ext>`. `ModuleResource` has no key field, so the
+two namespaces cannot be reconciled on the web side alone.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:
