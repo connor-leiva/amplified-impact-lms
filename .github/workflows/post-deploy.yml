@@ -72,3 +72,25 @@ jobs:
           name: post-deploy-staging-report
           path: compliance/report
           retention-days: 14
+
+  budgets:
+    # § 9.4's performance budgets, and Gate 9's "Lighthouse CI budgets pass" line. Measured against
+    # the deployed demo environment on purpose: a budget measured on a developer's laptop measures
+    # the laptop. Thresholds and the reasoning behind each live in lighthouserc.json.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm i --frozen-lockfile
+      - name: Lighthouse CI against the live demo environment
+        # The dashboard is the page the budgets are about: it is the first screen after sign-in and
+        # the heaviest, with the schedule rail, the six AI Employee cards and the session card.
+        run: pnpm dlx @lhci/cli@0.15.x autorun --collect.url=https://demo.amplifiedimpact.io/
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: .lighthouseci
+          retention-days: 14
