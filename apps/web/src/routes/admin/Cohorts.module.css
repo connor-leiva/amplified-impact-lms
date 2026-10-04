@@ -1,0 +1,464 @@
+/* Ported from design-reference/Admin Cohorts.dc.html. Every value is the reference's inline style;
+   SCREENS § 1.1 and § 4.4.
+
+   The reference computes four things per instance: the selected card's border and tint, the next
+   row's background, each pill's status colours, and each primary button's fill. The first two are
+   `data-selected` / `data-next`, the pills are `data-tone`, and the buttons are `data-variant`.
+   The only inline value left is the enrollment bar's width, which is a genuine per-instance
+   number and arrives as `--w`. */
+
+.page {
+  padding: var(--page-pad-top) var(--page-pad-x) 56px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Header actions sit right and wrap under the title on narrow widths (SCREENS § 1.1). */
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ---- Cohort cards ------------------------------------------------------------------------- */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.card[data-selected='true'] {
+  border-color: var(--action-primary);
+  background: var(--action-primary-tint);
+}
+.card:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardName {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cardMeta {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.track {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: var(--w);
+  background: var(--action-primary);
+}
+
+.count {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.newCohort {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 112px;
+  border-radius: 12px;
+  border: 1px dashed var(--line-strong);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+}
+.newCohort:hover {
+  border-color: var(--action-primary);
+  color: var(--text-primary);
+}
+.newCohort:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---- Status pill -------------------------------------------------------------------------- */
+/* The reference draws this pill inline rather than importing the Status Token component: it is
+   600 weight with a 6px dot, where the component is 500 with a 13px glyph. Keep it local. */
+
+.token {
+  --tk-fg: var(--status-neutral-text);
+  --tk-bg: var(--status-neutral-bg);
+  --tk-line: var(--status-neutral-line);
+  --tk-dot: var(--status-neutral);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--tk-bg);
+  color: var(--tk-fg);
+  border: 1px solid var(--tk-line);
+}
+.token[data-tone='success'] {
+  --tk-fg: var(--status-success-text);
+  --tk-bg: var(--status-success-bg);
+  --tk-line: var(--status-success-line);
+  --tk-dot: var(--status-success);
+}
+.token[data-tone='progress'] {
+  --tk-fg: var(--status-progress-text);
+  --tk-bg: var(--status-progress-bg);
+  --tk-line: var(--status-progress-line);
+  --tk-dot: var(--status-progress);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--tk-dot);
+}
+.dot[data-pulse='true'] {
+  animation: ai-pulse 1.6s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot[data-pulse='true'] {
+    animation: none;
+  }
+}
+
+/* ---- Schedule card ------------------------------------------------------------------------ */
+
+.panel {
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-default);
+  flex-wrap: wrap;
+}
+
+.panelTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.panelNote {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.openEnrollment {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 7px;
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.openEnrollment:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.scroller {
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 1060px;
+}
+
+/* One shared grid for the header row and every body row, so the columns cannot drift. */
+.tHead,
+.row {
+  display: grid;
+  grid-template-columns: 40px minmax(240px, 2fr) 170px minmax(170px, 1.2fr) 150px 110px 230px;
+  gap: 12px;
+  border-bottom: 1px solid var(--line-default);
+}
+
+.tHead {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.tHeadActions {
+  text-align: right;
+}
+
+.row {
+  align-items: center;
+  padding: 13px 18px;
+  background: transparent;
+}
+.row[data-next='true'] {
+  background: var(--action-primary-tint);
+}
+
+.n {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.sessionCell {
+  min-width: 0;
+}
+
+.sessionTitle {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sessionModule {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.whenCell {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.whenTime {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--text-link);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+.zoom:hover {
+  color: var(--status-progress-text);
+}
+.zoom:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  border-radius: 4px;
+}
+
+.zoomText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowToken {
+  width: max-content;
+}
+
+.att {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.primary {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.primary[data-variant='success'] {
+  border: 1px solid var(--status-success);
+  background: var(--status-success);
+  color: var(--status-success-on);
+}
+.primary[data-variant='outline'] {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text-primary);
+}
+.primary[data-variant='primary'] {
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.primary:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.edit {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.edit:hover {
+  background: var(--action-secondary-hover);
+}
+.edit:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---- Edit drawer -------------------------------------------------------------------------- */
+/* The panel, its header, its 18px body stack and its footer come from the Drawer primitive, which
+   is itself ported from this screen. Only the field overrides and the info box live here. */
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* The reference's date and time inputs are the 13px pair, not the 14px text fields, and its Zoom
+   field is mono. Both override `Input`'s own single-class rule, so the selector is doubled: equal
+   specificity would leave the winner to the bundle's source order. */
+.stamp.stamp {
+  padding: 0 10px;
+  font-size: 13px;
+  color-scheme: dark;
+}
+
+.mono.mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.info {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line-default);
+  font-size: 13px;
+  color: var(--text-tertiary);
+  line-height: 1.55;
+}
+
+.cancel {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cancel:hover {
+  background: var(--action-secondary-hover);
+}
+.cancel:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.save {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.save:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.error {
+  font-size: 13px;
+  color: var(--access-locked-text);
+}

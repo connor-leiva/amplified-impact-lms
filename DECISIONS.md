@@ -412,11 +412,50 @@ the page saved, so those tests measure the app rather than the harness.
 
 ---
 
+## D-015 · The Module Builder asks before discarding unsaved changes
+
+**Date:** 2026-10-04
+**Approved by:** the handoff itself — phase 06 § 6.3 calls for it and says to record it here.
+**Scope:** `apps/web/src/routes/admin/ModuleBuilder.tsx`
+
+Leaving the builder with an unsaved draft asks `Discard unsaved changes?` through React Router's
+`useBlocker`. This is UI the mockup does not have: the prototype keeps its draft in component state
+and simply loses it on navigation.
+
+It is one of the three additions `CLAUDE.md` permits, and it protects the one screen where a user
+can lose real work — a six-step build with a system prompt and skill files. The prompt appears only
+when the draft actually differs from what is saved, so an untouched builder navigates away silently.
+
+**Not affected.** No parity scenario navigates away from the builder, so pixels and fingerprints are
+unchanged.
+
+---
+
+## D-016 · Three places where the Curriculum screen follows the reference over SCREENS.md
+
+**Date:** 2026-10-04
+**Approved by:** the precedence rule in `CLAUDE.md` — *"If the sources disagree on a pixel or a
+string, the reference wins."* Recorded here so the divergence is not mistaken for a bug.
+**Scope:** `apps/web/src/routes/admin/Curriculum.tsx` + `.module.css`
+
+1. **`Replay ready`, not `Replay Ready`.** SCREENS § 4.2 gives Title Case; the reference renders
+   sentence case and the captured golden contains `Replay ready` twice. Verified in both.
+2. **The Tier Access control is hand-rolled, not the `Segmented` primitive.** The reference draws it
+   inline on this screen with its own metrics (2px padding, radius 8, no gap, 12px options, an amber
+   active state for Team Only), which § 1.4 does not describe.
+3. **The Status pill is hand-rolled, not `StatusToken`.** The reference draws it inline at 12/600
+   with a 6px dot; `StatusToken` is 500 weight with a 13px glyph, and the golden fingerprint
+   confirms 600.
+
+Each was confirmed against the captured golden before being built that way. If SCREENS.md is ever
+reconciled with the reference, these are the three lines to revisit.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
-These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions, and need no
-entry here beyond the record that they are expected:
+These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:
 
 - Sign-in and invite-accept screens (phase 07, spec in `docs/phases/07-backend.md` § 7.5)
-- The unsaved-changes prompt in the Module Builder (phase 06, § 6.3)
+- The unsaved-changes prompt in the Module Builder (phase 06 § 6.3) — recorded above as D-015
 - Production integrations (phase 08)

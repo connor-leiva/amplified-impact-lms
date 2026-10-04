@@ -1,0 +1,558 @@
+/* Ported from design-reference/Admin Overview.dc.html. Every length, radius and token below is the
+   reference's own inline style; contract SCREENS § 1.1 and § 4.1.
+
+   The reference computes a handful of colours per row (a feed dot's tone, a KPI sub, a held
+   attendance bar, a nudged button). Those are expressed here as rules keyed off data attributes.
+   The only inline values left are the genuinely per-instance ones — a bar's width, a bar's height —
+   which arrive as the custom properties `--w` and `--h`. */
+
+.page {
+  padding: var(--page-pad-top) var(--page-pad-x) 56px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- page header ---------- */
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.headActions {
+  display: flex;
+  gap: 8px;
+}
+
+.export {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.export:hover {
+  background: var(--action-secondary-hover);
+}
+
+.create {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+/* The reference gives this one no hover; the house primary (Button § 1.3) does, and hover is not
+   something parity captures. */
+.create:hover {
+  background: var(--action-primary-hover);
+}
+
+/* The reference has no focus ring; CLAUDE.md requires one on every interactive element. */
+.export:focus-visible,
+.create:focus-visible,
+.nudgeAll:focus-visible,
+.nudge:focus-visible,
+.feedScroll:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---------- KPI grid ---------- */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.kpi {
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+}
+
+.kpiLabel {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.kpiValue {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 6px;
+  line-height: 1.1;
+}
+
+.kpiSub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+.kpiSub[data-tone='success'] {
+  color: var(--status-success-text);
+}
+.kpiSub[data-tone='locked'] {
+  color: var(--access-locked-text);
+}
+
+/* ---------- rows 2 and 3 ---------- */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.wide {
+  flex: 2 1 560px;
+  min-width: 0;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.narrow {
+  flex: 1 1 320px;
+  min-width: 0;
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cardSub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* ---------- deployment chart ---------- */
+
+.chartCard {
+  gap: 12px;
+}
+
+.chartHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.delta {
+  font-size: 13px;
+  color: var(--status-success-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart {
+  width: 100%;
+  height: 200px;
+  display: block;
+  overflow: visible;
+}
+
+.grid {
+  stroke: var(--line-default);
+  stroke-width: 1;
+}
+
+.area {
+  fill: var(--action-primary-tint);
+  stroke: none;
+}
+
+/* The reference strokes the line in --text-link, not --action-primary. */
+.line {
+  fill: none;
+  stroke: var(--text-link);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chartLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Live Activity feed ---------- */
+
+.feedCard {
+  padding: 18px 12px 10px;
+}
+
+.feedTitle {
+  padding: 0 8px 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.feedScroll {
+  flex: 1;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.feedRow {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+.dot[data-tone='success'] {
+  background: var(--status-success);
+}
+.dot[data-tone='warn'] {
+  background: var(--access-locked);
+}
+.dot[data-tone='info'] {
+  background: var(--action-primary);
+}
+
+.feedText {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.who {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ago {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* ---------- Build Funnel ---------- */
+
+.funnelCard {
+  gap: 14px;
+}
+
+.funnelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+.swatch[data-seg='deployed'] {
+  background: var(--status-success);
+}
+.swatch[data-seg='progress'] {
+  background: var(--status-progress);
+}
+.swatch[data-seg='none'] {
+  background: var(--line-strong);
+}
+
+.funnelRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.funnelLabel {
+  width: 170px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.funnelName {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.teamTag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--access-locked-text);
+}
+
+.bar {
+  flex: 1;
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--track);
+  gap: 2px;
+}
+
+.segDeployed {
+  width: var(--w);
+  background: var(--status-success);
+}
+
+.segProgress {
+  width: var(--w);
+  background: var(--status-progress);
+}
+
+.segRest {
+  flex: 1;
+  background: var(--track);
+}
+
+.funnelMeta {
+  width: 110px;
+  flex: none;
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pct {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ---------- Live Attendance ---------- */
+
+.attCard {
+  padding: 18px 20px;
+  gap: 12px;
+}
+
+.attBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 150px;
+  padding-top: 8px;
+}
+
+.attCol {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.attLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.attBar {
+  width: 100%;
+  max-width: 36px;
+  height: var(--h);
+  border-radius: 6px 6px 2px 2px;
+  background: transparent;
+  border: 1px dashed var(--line-strong);
+}
+.attBar[data-held='true'] {
+  background: var(--action-primary);
+  border: 0;
+}
+
+.attAxis {
+  display: flex;
+  gap: 10px;
+}
+
+.attTick {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.attFoot {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  border-top: 1px solid var(--line-default);
+  padding-top: 10px;
+}
+
+/* ---------- Needs Attention ---------- */
+
+.riskCard {
+  border-radius: 12px;
+  border: 1px solid var(--line-default);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.riskHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-default);
+  flex-wrap: wrap;
+}
+
+.nudgeAll {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 7px;
+  border: 1px solid var(--line-strong);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.nudgeAll:hover {
+  background: var(--action-secondary-hover);
+}
+
+.riskEmpty {
+  padding: 18px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.riskRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line-subtle);
+  flex-wrap: wrap;
+}
+.riskRow[data-first='true'] {
+  border-top: 0;
+}
+
+.riskMid {
+  flex: 1;
+  min-width: 180px;
+}
+
+.riskName {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.riskSub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.riskReason {
+  font-size: 13px;
+  color: var(--access-locked-text);
+}
+
+.nudge {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.nudge[data-nudged='true'] {
+  color: var(--text-tertiary);
+}
+.nudge:hover {
+  background: var(--bg-hover);
+}

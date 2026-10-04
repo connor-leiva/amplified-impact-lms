@@ -21,11 +21,16 @@ export const router = createBrowserRouter([
       { path: 'team', lazy: () => import('./routes/portal/TeamHub') },
       { path: 'vault', lazy: () => import('./routes/portal/Vault') },
       { path: 'team-tier', lazy: () => import('./routes/portal/TeamTier') },
-      // Phase 06 replaces this with the nine admin screens. Until then the paths must still
-      // RESOLVE, because the shell renders the admin sidebar and breadcrumbs from the route and
-      // the `shell-admin` parity scenario checks that Overview reads as the active row. Falling
-      // through to `*` would redirect to `/` and leave nothing active.
-      { path: 'admin/*', element: null },
+      { path: 'admin', lazy: () => import('./routes/admin/Overview') },
+      { path: 'admin/curriculum', lazy: () => import('./routes/admin/Curriculum') },
+      // One route for both: `new` is the blank draft, anything else edits that AI Employee.
+      { path: 'admin/curriculum/:employeeId', lazy: () => import('./routes/admin/ModuleBuilder') },
+      { path: 'admin/cohorts', lazy: () => import('./routes/admin/Cohorts') },
+      { path: 'admin/learners', lazy: () => import('./routes/admin/Learners') },
+      { path: 'admin/vault', lazy: () => import('./routes/admin/VaultManager') },
+      { path: 'admin/announcements', lazy: () => import('./routes/admin/Announcements') },
+      { path: 'admin/tiers', lazy: () => import('./routes/admin/Tiers') },
+      { path: 'admin/staff', lazy: () => import('./routes/admin/Staff') },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },

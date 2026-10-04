@@ -1,0 +1,139 @@
+import { test, expect, type Browser, type Page } from '@playwright/test';
+import { APP_BASE } from '../../lib/prepare';
+
+/**
+ * Phase 06's real contract: the two surfaces are one system. An admin change must reach the
+ * learner's portal, and learner progress must reach admin.
+ *
+ * Both pages live in ONE browser context so they share localStorage — that is the channel the
+ * fixture repository broadcasts over (a `storage` event), the same way the http repository will
+ * broadcast over SSE in phase 07. Nothing here reloads to observe a change.
+ */
+const NOW = '2026-12-07T10:42:00-06:00';
+
+async function pair(browser: Browser): Promise<{ admin: Page; learner: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({ timezoneId: 'America/Chicago', viewport: { width: 1440, height: 900 } });
+  const admin = await ctx.newPage();
+  const learner = await ctx.newPage();
+  for (const p of [admin, learner]) {
+    await p.clock.setFixedTime(new Date(NOW));
+    await p.addInitScript(() => {
+      if (!localStorage.getItem('ai-lms-prefs'))
+        localStorage.setItem('ai-lms-prefs', JSON.stringify({ phase: 'live', theme: 'light', tz: null, sidebar: 'full' }));
+    });
+  }
+  return { admin, learner, close: () => ctx.close() };
+}
+
+const open = async (page: Page, path: string) => {
+  await page.goto(`${APP_BASE}${path}`);
+  await page.locator('[data-app-ready="true"]').waitFor();
+};
+
+test('publishing a new AI Employee appears in the portal without a reload @g6', async ({ browser }) => {
+  const { admin, learner, close } = await pair(browser);
+  await open(learner, '/?as=agent');
+  await open(admin, '/admin/curriculum/new?as=admin');
+
+  await admin.getByLabel('Name', { exact: true }).fill('Listing Coordinator AI Employee');
+  await admin.getByLabel(/Outcome Line/).fill('Paste a listing → a coordinator checklist.');
+  for (const [i, v] of ['Checklist', 'Vendor emails', 'Timeline'].entries())
+    await admin.getByPlaceholder('What it produces').nth(i).fill(v);
+  for (let i = 0; i < 6; i++) await admin.getByRole('textbox', { name: `Step ${i + 1} title` }).fill(`Step ${i + 1}`);
+  await admin.getByRole('button', { name: 'Publish', exact: true }).click();
+
+  await expect(admin.getByText('Listing Coordinator AI Employee is live in the learner portal')).toBeVisible();
+  await expect(learner.getByText('Listing Coordinator AI Employee').first()).toBeVisible();
+  await close();
+});
+
+test('the builder blocks an incomplete draft with the exact messages @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
+  await open(admin, '/admin/curriculum/new?as=admin');
+  await admin.getByRole('button', { name: 'Publish', exact: true }).click();
+  for (const msg of ['Add the outcome line. Learners see it under the title.', 'Add all three outputs.'])
+    await expect(admin.getByText(msg)).toBeVisible();
+  await close();
+});
+
+test('gating an AI Employee to Team only locks it for agents @g6', async ({ browser }) => {
+  const { admin, learner, close } = await pair(browser);
+  await open(learner, '/?as=agent');
+  await open(admin, '/admin/curriculum?as=admin');
+
+  await admin.getByRole('button', { name: 'Team Only' }).nth(2).click(); // the Database row
+  await expect(
+    learner.locator('aside[aria-label="Primary"]').getByRole('button', { name: /Database/ }).getByTitle('Team tier'),
+  ).toBeVisible();
+  await close();
+});
+
+test('learner progress shows up in admin @g6', async ({ browser }) => {
+  const { admin, learner, close } = await pair(browser);
+  await open(admin, '/admin?as=admin');
+  await open(learner, '/employees/sales?as=agent');
+
+  while (await learner.getByRole('button', { name: 'Mark Verified' }).count())
+    await learner.getByRole('button', { name: 'Mark Verified' }).first().click();
+
+  await expect(admin.getByText(/Jamie Ortiz\s*built Sales AI Employee/)).toBeVisible();
+  await close();
+});
+
+test('go live, end, publish replay flows through to the portal @g6', async ({ browser }) => {
+  const { admin, learner, close } = await pair(browser);
+  await open(learner, '/?as=agent');
+  await open(admin, '/admin/cohorts?as=admin');
+
+  await admin.getByRole('button', { name: 'Go Live' }).click();
+  await expect(learner.getByText('Live Now').first()).toBeVisible();
+  await admin.getByRole('button', { name: 'End Session' }).click();
+  await admin.getByRole('button', { name: 'Publish Replay' }).click();
+  await expect(admin.getByText('Session 3 replay published to learners')).toBeVisible();
+  await close();
+});
+
+test('editing a session time moves the learner countdown @g6', async ({ browser }) => {
+  const { admin, learner, close } = await pair(browser);
+  await open(learner, '/?as=agent');
+  await open(admin, '/admin/cohorts?as=admin');
+
+  await admin.getByRole('button', { name: 'Edit' }).nth(2).click();
+  await admin.getByLabel('Start Time (CT)').fill('15:00');
+  await admin.getByRole('button', { name: 'Save Session' }).click();
+  await expect(learner.getByText(/Wed, Dec 9 · 3:00 PM CT/).first()).toBeVisible();
+  await close();
+});
+
+test('a warning announcement reaches the learner as an alert banner @g6', async ({ browser }) => {
+  const { admin, learner, close } = await pair(browser);
+  await open(learner, '/?as=agent');
+  await open(admin, '/admin/announcements?as=admin');
+
+  await admin.getByLabel('Title').fill('Office hours moved to 2:00 PM');
+  await admin.getByLabel('Message').fill('Same link as always.');
+  await admin.getByRole('button', { name: 'Warning' }).click();
+  // 'Send Now' names two controls: the When segmented option and the submit button. Only the
+  // segmented option carries aria-pressed, which is the semantic difference between them.
+  await admin.locator('button:not([aria-pressed])').filter({ hasText: 'Send Now' }).click();
+
+  await expect(learner.getByRole('alert').getByText('Office hours moved to 2:00 PM')).toBeVisible();
+  await close();
+});
+
+test('converting an upgrade request unlocks the team employees for that learner @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
+  await open(admin, '/admin/tiers?as=admin');
+  await admin.getByRole('button', { name: 'Convert to Team' }).first().click();
+  await expect(admin.getByText(/is on Team Tier\. All six AI Employees are unlocked in their portal\./)).toBeVisible();
+  await close();
+});
+
+test('the Owner permission column is fixed @g6', async ({ browser }) => {
+  const { admin, close } = await pair(browser);
+  await open(admin, '/admin/staff?as=admin');
+  const ownerCell = admin.getByRole('row', { name: /Publish modules/ }).getByRole('checkbox').first();
+  await ownerCell.click();
+  await expect(ownerCell).toBeChecked();
+  await close();
+});
