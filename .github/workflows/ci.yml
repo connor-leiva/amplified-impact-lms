@@ -84,4 +84,33 @@ jobs:
       - if: failure()
         uses: actions/upload-artifact@v4
         with: { name: compliance-report, path: compliance/report }
-# Phase 07 adds an `api` job with a Postgres service.
+  api: # Gate 7: the migration and (later) the oracle tests, against a real Postgres
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_lms_test
+        ports: ['5432:5432']
+        # Without this the first migrate can reach the container before Postgres accepts
+        # connections, which fails the job for a reason that has nothing to do with the code.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/ai_lms_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm i --frozen-lockfile
+      # The migration is generated from schema.ts and cannot be verified without a server, so this
+      # is the only place that proves it applies. Running it twice proves it is idempotent, which
+      # is what a redeploy does.
+      - run: pnpm --filter @ai/api db:migrate
+      - run: pnpm --filter @ai/api db:migrate
+      - run: pnpm --filter @ai/api test
