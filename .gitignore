@@ -5,6 +5,9 @@ dist-fixture/
 .env
 .env.*
 !.env.example
+# .env.fixture is build configuration, not a secret: it is how the compliance suite's
+# prototype-identical build is selected, so CI needs it in the clone.
+!.env.fixture
 
 # Playwright / compliance output (goldens ARE committed)
 compliance/report/
