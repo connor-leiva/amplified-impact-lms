@@ -24,9 +24,14 @@ feedback while building, but will not byte-match the Linux container because Chr
 rasterization differs by platform. `compliance/goldens/PROVENANCE.txt` records which platform
 produced the current set.
 
-**Resolution.** The CI `goldens` job re-captures in the container on the first push and its diff is
-the authoritative set. Commit that diff, after which `PROVENANCE.txt` reads `container`. The
-fingerprint JSON goldens are platform-independent and authoritative from the start.
+**Resolution.** The CI `goldens` job re-captures in the container on the first push. It will fail
+once, by design, and uploads the container's capture as the `goldens-from-container` artifact
+(its log says exactly this). Replace `compliance/goldens` with that artifact, set
+`PROVENANCE.txt` to `platform: container`, and commit — the set is then authoritative and the job
+stays green. The fingerprint JSON goldens are platform-independent and authoritative from the start.
+
+Verified locally in the meantime: four consecutive full captures on this machine are byte-identical,
+and a fresh `git clone` re-captures with zero `git diff`, which is the check the CI job performs.
 
 **Not affected.** Tolerances are unchanged (`maxDiffPixelRatio: 0.01`, `threshold: 0.15`) and no
 masks were added.

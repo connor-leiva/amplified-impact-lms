@@ -104,6 +104,36 @@ pnpm compliance:docker compliance:capture
 `compliance/goldens/PROVENANCE.txt` records which platform produced the current set. See
 DECISIONS.md D-001.
 
+## Publishing to GitHub
+
+The repository is initialized on `main` with no remote, so GitHub Desktop will offer
+**Publish repository**.
+
+1. GitHub Desktop → **Add** → **Add Existing Repository** → this folder.
+2. **Publish repository**. Keep **Keep this code private** checked — the handoff specifies a
+   private repo.
+3. Install the **Railway GitHub app** on it when you set up the Railway project (phase 00 § 0.8),
+   and put the real `owner/repo` into `.railway/railway.ts` in place of `YOUR_ORG`.
+
+### What the first CI run will do
+
+| Job | Expected |
+|---|---|
+| `quality` | ✅ lint, typecheck, 331 tests |
+| `harness` | ✅ the reference drives cleanly in all 55 scenarios |
+| `compliance` | ✅ the `@g1` token-parity suite (`.phase` is 2, so no pixel scenarios yet) |
+| `goldens` | ❌ **expected on the first push only** |
+
+`goldens` re-captures inside the pinned Linux container. The committed PNGs were captured on
+Windows, and Chromium rasterizes text slightly differently per platform, so they will not
+byte-match. The job explains this in its log and uploads the container's set as the
+`goldens-from-container` artifact. Download it, replace `compliance/goldens`, change
+`PROVENANCE.txt` to `platform: container`, and commit — that set is then authoritative and the job
+stays green. See DECISIONS.md D-001.
+
+Add `quality`, `goldens`, `harness` and `compliance` as required status checks on `main` **after**
+that commit, so protection is not blocked by the known first-run diff.
+
 ## Progress
 
 | Phase | Delivers | State |
