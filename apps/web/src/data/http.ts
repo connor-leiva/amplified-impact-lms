@@ -1,5 +1,13 @@
 import type { Db } from '@ai/core';
-import type { LmsRepository, MutationArgs, MutationName, MutationResult, Viewer } from './repository';
+import type {
+  JoinTicket,
+  LmsRepository,
+  MutationArgs,
+  MutationName,
+  MutationResult,
+  StoredFileRef,
+  Viewer,
+} from './repository';
 
 /**
  * The production data source. Phase 07 builds the API behind it; the interface is already fixed,
@@ -26,6 +34,18 @@ async function parse(res: Response): Promise<unknown> {
   if (!res.ok && res.status !== 422) throw new Error(body.error ?? `HTTP ${res.status}`);
   return body;
 }
+
+/**
+ * Phase 08 § 8.2's two download routes.
+ *
+ * Every segment is percent-encoded. A resource id is opaque and a skill file is named by the admin
+ * who uploaded it, so neither can be trusted to be path-safe: an un-encoded `/` or `..` in a file
+ * name would silently address a different route.
+ */
+const fileRoute = (ref: StoredFileRef): string =>
+  ref.kind === 'resource'
+    ? `/api/files/resource/${encodeURIComponent(ref.id)}`
+    : `/api/files/module/${encodeURIComponent(ref.moduleId)}/${encodeURIComponent(ref.fileName)}`;
 
 export function createHttpRepository(): LmsRepository {
   const listeners = new Set<() => void>();
@@ -55,6 +75,23 @@ export function createHttpRepository(): LmsRepository {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(args),
       }).then(parse) as Promise<MutationResult>,
+    // § 8.2: the browser navigates here and the route 302-redirects to a presigned GET. The URL is
+    // returned rather than fetched, because the redirect has to be followed by the browser itself
+    // for the download to land in the downloads tray.
+    fileUrl: fileRoute,
+    async joinTicket(sessionId: string): Promise<JoinTicket> {
+      const res = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/join`, {
+        credentials: 'include',
+      });
+      // A 409 is not a failure. § 8.4 returns it whenever `joinMode(session, now) === 'disabled'`,
+      // which is the ordinary state of every session until 15 minutes before it starts — so it must
+      // resolve, like a 422 does, instead of throwing a crash the button has nowhere to put.
+      if (res.status === 409) return { kind: 'shut' };
+      const body = (await parse(res)) as { url?: string };
+      // A 200 with no URL would be a server bug; treating it as shut keeps the viewer from being
+      // handed `window.open(undefined)`, which opens a blank tab on this origin.
+      return body.url ? { kind: 'open', url: body.url } : { kind: 'shut' };
+    },
     subscribe(f) {
       ensureStream();
       listeners.add(f);

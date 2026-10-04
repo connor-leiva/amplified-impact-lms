@@ -30,6 +30,10 @@ const DRAWER_ROLES: readonly LearnerRole[] = ['Team Owner', 'Operations Lead', '
  * `act.download` in the prototype: a Blob behind a transient anchor. The object URL is revoked on
  * the reference's 1500 ms delay, not immediately — revoking inside the click can abort the save
  * before the browser has read the blob.
+ *
+ * Phase 08 § 8.2 does not touch this. Export CSV is GENERATED: `csv()` renders the team's rows out
+ * of the snapshot the viewer is already looking at, so there is no object in the bucket to presign
+ * and no route that could produce it.
  */
 function downloadText(name: string, text: string, mime: string): void {
   const url = URL.createObjectURL(new Blob([text], { type: mime }));

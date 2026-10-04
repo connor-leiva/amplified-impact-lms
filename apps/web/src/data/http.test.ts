@@ -201,3 +201,84 @@ describe('HttpRepository @g7', () => {
     expect(live()).toHaveLength(0);
   });
 });
+
+// Phase 08. The two routes the repository gained, written down before they exist for the same
+// reason the suite above was: every assertion here is a requirement on the server.
+
+describe('HttpRepository · stored files (§ 8.2) @g8', () => {
+  it('names the two download routes', () => {
+    const repo = createHttpRepository();
+
+    expect(repo.fileUrl({ kind: 'resource', id: 'r4' })).toBe('/api/files/resource/r4');
+    expect(
+      repo.fileUrl({ kind: 'moduleFile', moduleId: 'marketing', fileName: 'fair-housing-check.skill.yaml' }),
+    ).toBe('/api/files/module/marketing/fair-housing-check.skill.yaml');
+  });
+
+  it('is a URL, not a fetch', () => {
+    // The redirect has to be followed by the BROWSER for the download to land in the downloads
+    // tray, so the repository hands back a URL to navigate to and makes no request of its own.
+    const repo = createHttpRepository();
+
+    repo.fileUrl({ kind: 'resource', id: 'r4' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('percent-encodes every segment', () => {
+    // An admin names the skill file. An un-encoded '/' addresses a different route entirely.
+    const repo = createHttpRepository();
+
+    expect(repo.fileUrl({ kind: 'moduleFile', moduleId: 'm 1', fileName: '../key.json' })).toBe(
+      '/api/files/module/m%201/..%2Fkey.json',
+    );
+  });
+});
+
+describe('HttpRepository · the join window (§ 8.4) @g8', () => {
+  it('reads the URL out of the session join route', async () => {
+    fetchMock.mockImplementation(async () => json(200, { url: 'https://zoom.us/j/8841200610' }));
+
+    await expect(createHttpRepository().joinTicket('dec26-s3')).resolves.toEqual({
+      kind: 'open',
+      url: 'https://zoom.us/j/8841200610',
+    });
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/sessions/dec26-s3/join');
+    expect(optionsOf(0)?.credentials).toBe('include');
+  });
+
+  it('a 409 resolves as shut, rather than throwing', async () => {
+    // § 8.4 returns 409 whenever `joinMode(session, now) === 'disabled'`, which is the ordinary
+    // state of every session until 15 minutes before it starts. A throw here would surface as a
+    // crash on the most-clicked button in the portal.
+    fetchMock.mockImplementation(async () => json(409, { error: 'Join opens 15 min before' }));
+
+    await expect(createHttpRepository().joinTicket('dec26-s3')).resolves.toEqual({ kind: 'shut' });
+  });
+
+  it('a 200 with no URL is shut, not an open tab on this origin', async () => {
+    fetchMock.mockImplementation(async () => json(200, {}));
+
+    await expect(createHttpRepository().joinTicket('dec26-s3')).resolves.toEqual({ kind: 'shut' });
+  });
+
+  it('a 403 still throws: this learner may not reach the session at all', async () => {
+    fetchMock.mockImplementation(async () => json(403, { error: 'Team tier required' }));
+
+    await expect(createHttpRepository().joinTicket('dec26-s4')).rejects.toThrow('Team tier required');
+  });
+
+  it('a 401 sends the viewer to sign in', async () => {
+    const assign = vi.spyOn(navigation, 'toSignIn').mockImplementation(() => {});
+    fetchMock.mockImplementation(async () => json(401, { error: 'Not signed in' }));
+
+    await expect(createHttpRepository().joinTicket('dec26-s3')).rejects.toThrow('Not signed in');
+    expect(assign).toHaveBeenCalledTimes(1);
+  });
+
+  it('percent-encodes the session id', async () => {
+    fetchMock.mockImplementation(async () => json(200, { url: 'https://zoom.us/j/1' }));
+
+    await createHttpRepository().joinTicket('dec26/s3');
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/sessions/dec26%2Fs3/join');
+  });
+});

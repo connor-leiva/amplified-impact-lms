@@ -78,6 +78,19 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase): LmsRep
       const { db: _next, ...rest } = out;
       return rest;
     },
+    // Phase 08 § 8.2. The prototype has no bucket and never did: its Download buttons serialise a
+    // Blob in the browser. Answering `null` is what keeps that true — every parity scenario and
+    // every e2e behaviour runs here, so a stored-file path appearing in fixture mode would be a
+    // regression against the captured golden, not a feature.
+    fileUrl() {
+      return null;
+    },
+    // Phase 08 § 8.4. There is no `/api/sessions/:id/join` to ask, and the prototype's Zoom URL is
+    // already in the snapshot, so the screen keeps the `Opening Zoom · …` toast the reference
+    // shows. Async only because the interface is; it settles on the next microtask.
+    async joinTicket() {
+      return { kind: 'simulated' };
+    },
     subscribe(f) {
       listeners.add(f);
       return () => {

@@ -22,6 +22,9 @@ import {
   skillPreview,
 } from '@ai/core';
 import type { AIEmployee, Db, IconName, Learner, RuntimeState, Session, SkillFile } from '@ai/core';
+// Type-only: the shape of a stored file is the repository seam's, and nothing in `data/` is
+// imported at runtime, so this file stays pure.
+import type { StoredFileRef } from '../../data/repository';
 
 // ---------------------------------------------------------------------------
 // Screen state
@@ -91,6 +94,9 @@ export const moduleReset = (m: AIEmployee, t = 0): Partial<EmployeeDetailUi> => 
  * Phase 08 § 8.3. The screen drives playback only through this, so phase 08 can swap `TickerEngine`
  * for `HlsEngine` (a hidden `<video>` behind hls.js) without touching the poster, the controls, the
  * captions or the chapter rail — that chrome stays ours (SCREENS § 3.2).
+ *
+ * `HlsEngine` lives in `HlsEngine.ts` and is chosen by `createVideoEngine`, because it is all DOM
+ * and this file is pure.
  */
 export interface VideoEngine {
   play(): void;
@@ -99,6 +105,12 @@ export interface VideoEngine {
   setRate(r: Speed): void;
   onTime(cb: (t: number) => void): () => void;
   onEnded(cb: () => void): () => void;
+  /**
+   * Release anything the engine holds outside itself. Optional because `TickerEngine` holds
+   * nothing: the screen already clears its interval with `pause()` and drops its subscriptions.
+   * `HlsEngine` has MSE buffers, a segment loader and element listeners to let go of (§ 8.3).
+   */
+  destroy?(): void;
 }
 
 /** The reference's `setInterval(() => this.tick(), 250)` and its `s.t + 0.25 * s.speed`. */
@@ -182,7 +194,26 @@ export class TickerEngine implements VideoEngine {
 // ---------------------------------------------------------------------------
 
 export type VmAction =
-  | { kind: 'download'; name: string; content: string; mime: string; toast: string }
+  | {
+      kind: 'download';
+      name: string;
+      content: string;
+      mime: string;
+      toast: string;
+      /**
+       * Phase 08 § 8.2. Set only when the file is an OBJECT IN THE BUCKET — a build-kit skill file
+       * or a per-employee resource. `content` stays the prototype's generated body, because that is
+       * what fixture mode saves and what the parity run measures; in http mode the screen navigates
+       * to the stored file instead and never serialises it.
+       *
+       * Absent on the session `.ics` and on the System Prompt download, and that is the point of
+       * the field: neither has an object in the bucket. The calendar file is built by `ics()` here
+       * in the browser, and the prompt is a column on the AI Employee. Routing either one would ask
+       * `/api/files/...` for something nobody ever uploaded, which answers 404 — a working
+       * Add to Calendar button turned into a broken one.
+       */
+      stored?: StoredFileRef;
+    }
   | { kind: 'copy'; text: string; toast: string }
   | { kind: 'toast'; msg: string; tone: 'success' | 'info' | 'warn' };
 
@@ -233,6 +264,13 @@ export interface PlayerVM {
   showCal: boolean;
   joinMode: 'disabled' | 'ready' | 'live';
   zoom: string;
+  /**
+   * The session the Join Button asks about, or `''` when there is none.
+   *
+   * Phase 08 § 8.4: in http mode `zoom` is blanked by `scopeSnapshot` and the URL comes from
+   * `GET /api/sessions/:id/join` at click time, so the screen needs the id rather than the URL.
+   */
+  sessionId: string;
   /** The toast the Join Button fires. The URL leaves the VM only here (SCREENS § 5.3). */
   join: VmAction;
   /** The session `.ics`, or null when there is no session to add. */
@@ -416,11 +454,37 @@ const ext = (f: SkillFile): string => (f.type === 'Notion' ? '.md' : '');
 
 const fileMime = (f: SkillFile): string => (f.type === 'JSON' ? 'application/json' : 'text/yaml');
 
+/**
+ * § 8.3's HLS manifest for this replay, or `''` when there is none.
+ *
+ * The manifest is stored by `publishReplay({ playbackUrl, durationSec, transcriptVtt? })`. That
+ * signature change belongs with the admin route that calls it and is deferred, so no `AIEmployee`
+ * carries a `playbackUrl` yet and this answers `''` everywhere today — and permanently in fixture
+ * mode, where the prototype has no video host at all. Read through a widening cast rather than by
+ * adding the field to `packages/core/src/types.ts`, which keeps this sprint additive: the HLS path
+ * goes live the moment the column exists, with no further change on the web side.
+ */
+export const replayUrl = (m: AIEmployee): string => {
+  const url = (m as AIEmployee & { playbackUrl?: unknown }).playbackUrl;
+  return typeof url === 'string' ? url : '';
+};
+
 /** The reference's `getFile`: a Notion template opens, everything else downloads. */
 function getFile(f: SkillFile, m: AIEmployee): VmAction {
   if (f.type === 'Notion') return { kind: 'toast', msg: `Opening “${f.name}” in Notion`, tone: 'info' };
   const name = f.name + ext(f);
-  return { kind: 'download', name, content: skillPreview(f, m), mime: fileMime(f), toast: `Downloaded ${name}` };
+  return {
+    kind: 'download',
+    name,
+    content: skillPreview(f, m),
+    mime: fileMime(f),
+    toast: `Downloaded ${name}`,
+    // § 8.2's `GET /api/files/module/:moduleId/:fileName`. `name` is the `:fileName` segment — the
+    // file's own name, the same one the browser saves it under. `ext(f)` is '' on every branch that
+    // reaches here (only a Notion template gets the `.md` suffix, and that returned above), so this
+    // is `f.name` unchanged.
+    stored: { kind: 'moduleFile', moduleId: m.id, fileName: name },
+  };
 }
 
 /** The reference's `hl`: `#` headings in `--text-link`, `{{VARS}}` in `--access-locked-text`. */
@@ -504,6 +568,7 @@ export function employeeDetailVM(
     showCal: !!sess && sst === 'upcoming',
     joinMode: jm,
     zoom: sess ? sess.zoom : '',
+    sessionId: sess ? sess.id : '',
     join: { kind: 'toast', msg: `Opening Zoom · ${sess ? sess.zoom : ''}`, tone: 'info' },
     cal: sess
       ? {
@@ -577,6 +642,9 @@ export function employeeDetailVM(
 
   const resources: KitResourceVM[] = m.resources.map((r) => {
     const pending = /posted after/i.test(r.size);
+    // The reference's slug, and from § 8.2 also the bucket's `:fileName`: `r.name` is a title
+    // ("Session 1 Slides"), this is the filename ("session-1-slides.pdf").
+    const fileName = `${r.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.${r.type.toLowerCase()}`;
     return {
       name: r.name,
       type: r.type,
@@ -586,10 +654,13 @@ export function employeeDetailVM(
         ? null
         : {
             kind: 'download',
-            name: `${r.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.${r.type.toLowerCase()}`,
+            name: fileName,
             content: `${r.name}\n\nPlaceholder file from the Amplified Impact prototype.`,
             mime: 'text/plain',
             toast: `Downloaded ${r.name}`,
+            // A per-employee resource is a real upload in production — the `content` above is the
+            // prototype's placeholder, which is exactly why it must not be what http mode saves.
+            stored: { kind: 'moduleFile', moduleId: m.id, fileName },
           },
     };
   });

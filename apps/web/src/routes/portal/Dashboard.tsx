@@ -9,6 +9,7 @@ import { SessionCard } from '../../components/SessionCard';
 import { StatusToken } from '../../components/StatusToken';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useMutate, useNow, useViewer } from '../../data/hooks';
+import { useJoin } from '../../data/join';
 import { useShell } from '../../shell/ShellContext';
 import { cardAction, dashboardVM } from './Dashboard.vm';
 import type { DashAction, DownloadSpec } from './Dashboard.vm';
@@ -21,7 +22,15 @@ import s from './Dashboard.module.css';
 // nothing here reads the clock, recomputes status or decides where a row goes. A locked AI Employee
 // can only ever yield a `locked` action, so this screen cannot navigate to one (SCREENS § 2.4).
 
-/** The reference's `act.download`: a Blob, a synthetic anchor click, then the toast. */
+/**
+ * The reference's `act.download`: a Blob, a synthetic anchor click, then the toast.
+ *
+ * Phase 08 § 8.2 moves STORED files to `GET /api/files/...`. Nothing this screen downloads is
+ * stored: all three payloads are `.ics` calendar files — the Session Card's Apple or Other option,
+ * the moved-session banner's updated invite and the Office Hours quick link — and every one of them
+ * is serialised in the browser by `ics()` from the snapshot. There is no object in the bucket to
+ * presign, so this stays a Blob in both modes; routing it would answer 404.
+ */
 function saveFile(file: DownloadSpec): void {
   try {
     const url = URL.createObjectURL(new Blob([file.content], { type: file.mime }));
@@ -60,6 +69,7 @@ function Dashboard() {
   const mutate = useMutate();
   const { toast } = useToaster();
   const { openLocked } = useShell();
+  const openJoin = useJoin();
 
   const run = useCallback(
     (action: DashAction) => {
@@ -109,8 +119,10 @@ function Dashboard() {
       {session ? (
         <SessionCard
           vm={session}
+          // § 8.4: http mode resolves the Zoom URL from `GET /api/sessions/:id/join` and opens it;
+          // fixture mode runs `join`, the prototype's `Opening Zoom · …` toast.
           onJoin={() => {
-            if (join) run(join);
+            if (join) void openJoin(session.sessionId, () => run(join));
           }}
           onCal={(kind) => {
             if (!cal) return;

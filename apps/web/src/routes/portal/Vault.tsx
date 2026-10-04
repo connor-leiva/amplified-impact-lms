@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { Input, Select } from '../../components/primitives/Field';
+import { saveStoredFile } from '../../data/files';
 import { useDb, useMutate, useNow, useViewer } from '../../data/hooks';
 import { vaultVM } from './Vault.vm';
 import type { VaultRow, VaultTabId } from './Vault.vm';
@@ -9,6 +10,10 @@ import s from './Vault.module.css';
 
 // Resource & Compliance Vault — SCREENS § 3.5, reference `Portal Vault.dc.html`.
 // Markup only: every string, count, order and tone comes from `vaultVM`.
+//
+// Phase 08 § 8.2: a vault row IS an object in the bucket, so in http mode the Download button goes
+// to `GET /api/files/resource/:id` instead of serialising `r.file`, whose body is only the
+// prototype's generated stand-in. Fixture mode keeps the Blob, unchanged.
 
 /** The reference's `act.download`: a Blob, a synthetic anchor click, then a delayed revoke. */
 function saveFile(name: string, body: string, mime: string): void {
@@ -64,12 +69,15 @@ export function Component() {
         if (out.error) setError(out.error);
         return;
       }
+      // The mutation is what raises the toast, counts the download and refuses a Team-tier
+      // resource inline, so it runs on both paths; only where the bytes come from changes.
       const out = await mutate('downloadResource', { id: r.id });
       if (out.error) {
         setError(out.error);
         return;
       }
-      if (!r.notion) saveFile(r.file.name, r.file.body, r.file.mime);
+      if (r.notion) return; // a Notion template opens in Notion; there is no file either way
+      if (!saveStoredFile({ kind: 'resource', id: r.id })) saveFile(r.file.name, r.file.body, r.file.mime);
     },
     [mutate],
   );

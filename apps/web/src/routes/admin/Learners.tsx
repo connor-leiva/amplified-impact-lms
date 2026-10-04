@@ -26,6 +26,9 @@ import s from './Learners.module.css';
  * `act.download` in the prototype: a Blob behind a transient anchor. The object URL is revoked on
  * the reference's 1500 ms delay, not immediately — revoking inside the click can abort the save
  * before the browser has read the blob.
+ *
+ * Phase 08 § 8.2 does not touch this. Export Roster is GENERATED from the snapshot by `csv()`; it
+ * has no object in the bucket, so there is nothing to presign.
  */
 function downloadText(name: string, text: string, mime: string): void {
   const url = URL.createObjectURL(new Blob([text], { type: mime }));

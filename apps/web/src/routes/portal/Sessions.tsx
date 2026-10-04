@@ -9,6 +9,7 @@ import { JoinButton } from '../../components/JoinButton';
 import { StatusToken } from '../../components/StatusToken';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
+import { useJoin } from '../../data/join';
 import { useShell } from '../../shell/ShellContext';
 import { sessionsVM, type IcsDownload, type SessionsRowAction } from './Sessions.vm';
 import s from './Sessions.module.css';
@@ -17,6 +18,10 @@ import s from './Sessions.module.css';
 //
 // MARKUP ONLY: every string, state and calendar payload comes from `sessionsVM`. The screen's own
 // jobs are the three things a pure model cannot do — write a Blob, raise a toast, and navigate.
+//
+// Phase 08 § 8.2 leaves every download here alone: all four — Add All Sessions to Calendar, each
+// row's Add to Calendar and both upcoming office hours — are `.ics` files this browser serialises
+// from the snapshot, with no object in the bucket to presign. § 8.4 does change Join.
 
 /** The reference re-renders on a 15-second interval; the join window flips with it. */
 const TICK_MS = 15000;
@@ -28,6 +33,7 @@ export function Component() {
   const navigate = useNavigate();
   const { toast } = useToaster();
   const { openLocked } = useShell();
+  const openJoin = useJoin();
 
   const actor = viewer.actor;
   const user: Learner | null =
@@ -119,7 +125,9 @@ export function Component() {
                       hint={join.hint}
                       url={join.url}
                       stack
-                      onJoin={() => toast(join.toast, 'info')}
+                      // § 8.4: http mode resolves the URL from the server at click time; fixture
+                      // mode keeps the prototype's `Opening Zoom · …` toast.
+                      onJoin={() => void openJoin(r.id, () => toast(join.toast, 'info'))}
                     />
                   ) : null}
                   {r.actions.map((a) => (

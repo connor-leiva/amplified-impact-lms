@@ -21,7 +21,12 @@ import s from './Overview.module.css';
 // through the `nudgeLearners` mutation rather than touching the snapshot, so the activity log, the
 // toast and the learner portal all see them.
 
-/** The reference's `act.download`: a Blob, a synthetic anchor click, then the toast. */
+/**
+ * The reference's `act.download`: a Blob, a synthetic anchor click, then the toast.
+ *
+ * Phase 08 § 8.2 does not touch this. Export Report is GENERATED — `overviewVM` renders it from the
+ * snapshot — so there is no object in the bucket to presign.
+ */
 function saveFile(file: OverviewReport): void {
   try {
     const url = URL.createObjectURL(new Blob([file.content], { type: file.mime }));

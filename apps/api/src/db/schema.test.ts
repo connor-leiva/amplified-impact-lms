@@ -52,10 +52,11 @@ const columnsOf = (t: PgTable): Record<string, ColumnShape> =>
 const propsOf = (t: PgTable): Set<string> => new Set(Object.keys(columnsOf(t)));
 
 // ---------------------------------------------------------------------------
-// 1. The tables and columns phase 07 § 7.2 specifies, by database name.
+// 1. The tables and columns the phase files specify, by database name.
+//    Phase 07 § 7.2, plus phase 08 § 8.5's `job_runs` (`gate: 8`).
 // ---------------------------------------------------------------------------
 
-const EXPECTED: Record<string, { table: string; columns: string[] }> = {
+const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 }> = {
   users: { table: 'users', columns: ['cohort_id', 'email', 'id', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'staff_role', 'status', 'team_id', 'tier'] },
   teams: { table: 'teams', columns: ['id', 'name', 'owner_id', 'seats'] },
   cohorts: { table: 'cohorts', columns: ['cadence', 'capacity', 'end', 'id', 'name', 'start', 'status', 'weeks'] },
@@ -72,6 +73,10 @@ const EXPECTED: Record<string, { table: string; columns: string[] }> = {
   activity: { table: 'activity', columns: ['id', 't', 'tone', 'what', 'who'] },
   authTokens: { table: 'auth_tokens', columns: ['email', 'expires_at', 'purpose', 'token_hash', 'used_at'] },
   authSessions: { table: 'auth_sessions', columns: ['expires_at', 'id', 'impersonating', 'user_id'] },
+  // § 8.5: "Record sends in a `job_runs(job, key, sent_at)` table with a unique `(job, key)`."
+  // Three columns and no more. An `id` here would be a second way to identify a row that the
+  // unique pair already identifies, and anything else would be duplicating the key's own segments.
+  jobRuns: { table: 'job_runs', columns: ['job', 'key', 'sent_at'], gate: 8 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -86,7 +91,7 @@ describe('§7.2 schema shape @g7', () => {
   });
 
   for (const [name, expected] of Object.entries(EXPECTED)) {
-    it(`${expected.table} has exactly the specified columns @g7`, () => {
+    it(`${expected.table} has exactly the specified columns @g${expected.gate ?? 7}`, () => {
       const actual = Object.values(columnsOf(tableOf(name)))
         .map((c) => c.name)
         .sort();
@@ -229,10 +234,51 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['announcements', 'at'],
   ['requests', 'at'],
   ['activity', 't'],
+  // § 8.5. Not a `Db` column, but the same unit for the same reason: the scheduler writes
+  // `clock.now()` here and `dueWork(db, now, …)` compares every window against that number.
+  ['jobRuns', 'sentAt'],
 ];
 
-/** The only tables allowed a `timestamp`: auth internals whose values never cross into core. */
-const AUTH_TABLES = ['authTokens', 'authSessions'];
+/**
+ * Which unit each table stores its instants in, and why — the rule the assertion below states.
+ *
+ * It used to read "timestamp only in the auth tables", which named the symptom. The rule is about
+ * the READER, not the table: an instant that `@ai/core` does arithmetic on must be a plain
+ * epoch-ms number, because that is the only type `fmt.*`, `sessionState`, `isOpen` and
+ * `dueWork` can be handed. A `timestamp` column returns a `Date` and a plain `bigint` returns a
+ * `BigInt`, and either one poisons that arithmetic silently.
+ *
+ * So `timestamp` is allowed exactly where no domain record is persisted and no value crosses into
+ * core: the two auth tables, whose instants are compared only against each other. Every table has
+ * to declare which side of the line it is on, which is what stops the next table added from
+ * inheriting an answer nobody chose — phase 08's `job_runs` is the first one to have to choose.
+ *
+ * (Tables with no instant column at all still declare `epoch-ms`: it is the default, and saying so
+ * costs a line and means the map can be checked for completeness.)
+ */
+const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string }> = {
+  users: { unit: 'epoch-ms', why: 'Learner.joined/last/reminded/nudged, read by fmt.ago and the admin Learners screen' },
+  teams: { unit: 'epoch-ms', why: 'no instant' },
+  cohorts: { unit: 'epoch-ms', why: 'Cohort.start/end, read by cohortWeek and cohortLine' },
+  sessions: { unit: 'epoch-ms', why: 'Session.start/movedFrom, read by sessionState, joinMode and the scheduler' },
+  modules: { unit: 'epoch-ms', why: 'AIEmployee.opens, read by isOpen' },
+  progress: { unit: 'epoch-ms', why: 'Progress.builtAt/deployedAt, read by statusOf and runtimeOf' },
+  resources: { unit: 'epoch-ms', why: 'Resource.updated, read by fmt.date' },
+  announcements: { unit: 'epoch-ms', why: 'Announcement.at, read by the banner and by scheduledAnnouncements' },
+  dismissals: { unit: 'epoch-ms', why: 'no instant' },
+  reminders: { unit: 'epoch-ms', why: 'no instant' },
+  tiers: { unit: 'epoch-ms', why: 'no instant' },
+  requests: { unit: 'epoch-ms', why: 'UpgradeRequest.at, read by fmt.ago' },
+  permissions: { unit: 'epoch-ms', why: 'no instant' },
+  activity: { unit: 'epoch-ms', why: 'ActivityEvent.t, read by fmt.ago' },
+  authTokens: { unit: 'timestamp', why: '§7.5 internals: expires_at/used_at are compared with now() and never reach core' },
+  authSessions: { unit: 'timestamp', why: '§7.5 internals: expires_at is compared with now() and never reaches core' },
+  jobRuns: { unit: 'epoch-ms', why: '§8.5: sent_at is the scheduler clock dueWork compares its windows against' },
+};
+
+const timestampTables = Object.entries(INSTANT_UNIT)
+  .filter(([, v]) => v.unit === 'timestamp')
+  .map(([t]) => t);
 
 describe('§7.2 epoch-ms columns @g7', () => {
   it('declares every instant as bigint with mode: number @g7', () => {
@@ -252,15 +298,32 @@ describe('§7.2 epoch-ms columns @g7', () => {
     expect(stray).toEqual([]);
   });
 
-  it('uses timestamp only in the auth tables @g7', () => {
+  it('makes every table declare which unit its instants are in @g7 @g8', () => {
+    // A new table cannot quietly inherit either answer: it has to appear in INSTANT_UNIT with a
+    // reason, and a table that is removed cannot leave a stale entry behind.
+    expect(Object.keys(INSTANT_UNIT).sort()).toEqual(tables.map(([name]) => name).sort());
+    expect(Object.entries(INSTANT_UNIT).filter(([, v]) => !v.why).map(([t]) => t)).toEqual([]);
+  });
+
+  it('allows a timestamp only where no domain record is stored @g7 @g8', () => {
+    // The rule, in the only form that can be checked mechanically: a `timestamp` may appear only in
+    // a table that persists no `@ai/core` record, because a record's instants are read by core.
+    // ENTITIES above is that list of records, derived from a real `seed('live')` snapshot.
+    const persistsRecords = new Set(Object.values(ENTITIES).map((m) => m.table));
+    expect(timestampTables.filter((t) => persistsRecords.has(t))).toEqual([]);
+
+    // And the classification has to match the schema both ways round: no epoch-ms table carrying a
+    // Date, and no timestamp table that has stopped having one (which would leave the allowance
+    // sitting there for the next column that lands in it).
+    const dateLike = (t: string): string[] =>
+      Object.entries(columnsOf(tableOf(t)))
+        .filter(([, c]) => c.columnType.startsWith('PgTimestamp') || c.columnType.startsWith('PgDate'))
+        .map(([p]) => `${t}.${p}`);
     const stray = tables
-      .filter(([t]) => !AUTH_TABLES.includes(t))
-      .flatMap(([t, table]) =>
-        Object.entries(columnsOf(table))
-          .filter(([, c]) => c.columnType.startsWith('PgTimestamp') || c.columnType.startsWith('PgDate'))
-          .map(([p, c]) => `${t}.${p} is ${c.columnType}`),
-      );
+      .filter(([t]) => INSTANT_UNIT[t]?.unit === 'epoch-ms')
+      .flatMap(([t]) => dateLike(t));
     expect(stray).toEqual([]);
+    expect(timestampTables.filter((t) => dateLike(t).length === 0)).toEqual([]);
   });
 
   it('routes every epoch-ms value in the seed into a bigint column @g7', () => {
@@ -356,6 +419,13 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   progress: ['user_id', 'module_id'],
   dismissals: ['user_id', 'announcement_id'],
   permissions: ['role', 'perm'],
+  // § 8.5 asks for "a unique `(job, key)`" on job_runs. The pair IS the primary key rather than a
+  // separate unique index over a surrogate id: the scheduler's write is an `on conflict do
+  // nothing` on exactly this pair, which is what makes two replicas racing one tick harmless, and
+  // a nullable or duplicated surrogate id would be a second identity for a row that already has
+  // one. The test below (`no single-column primaryKey`) is the one that matters here: a primary key
+  // on `job` alone would record the first send of a job and suppress every later one.
+  jobRuns: ['job', 'key'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {

@@ -5,6 +5,7 @@ import {
   employeeDetailVM,
   initialUi,
   moduleReset,
+  replayUrl,
   SPEEDS,
   TickerEngine,
   type EmployeeDetailUi,
@@ -174,6 +175,10 @@ describe('employeeDetailVM · Week 2 · Jamie (agent) · Marketing, deployed', (
       content: 'Test Listing: 1418 Alder Ct\n\nPlaceholder file from the Amplified Impact prototype.',
       mime: 'text/plain',
       toast: 'Downloaded Test Listing: 1418 Alder Ct',
+      // Phase 08 § 8.2: a per-employee resource is a real upload, so http mode fetches it from the
+      // bucket. `content` stays the prototype's placeholder — which is what fixture mode saves, and
+      // exactly why the real bytes have to come from somewhere else.
+      stored: { kind: 'moduleFile', moduleId: 'marketing', fileName: 'test-listing-1418-alder-ct.pdf' },
     });
   });
 
@@ -367,6 +372,7 @@ describe('employeeDetailVM · After Cohort', () => {
           content: 'Session 3 Slides\n\nPlaceholder file from the Amplified Impact prototype.',
           mime: 'text/plain',
           toast: 'Downloaded Session 3 Slides',
+          stored: { kind: 'moduleFile', moduleId: 'database', fileName: 'session-3-slides.pdf' },
         },
       },
     ]);
@@ -659,5 +665,107 @@ describe('TickerEngine · the fixture player (phase 05 § 5.2, phase 08 § 8.3)'
     off();
     vi.advanceTimersByTime(250);
     expect(seen).toEqual([0.25]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 08
+// ---------------------------------------------------------------------------
+
+describe('employeeDetailVM · which downloads are stored files (§ 8.2) @g8', () => {
+  it('marks every build-kit skill file as an object in the bucket', () => {
+    const r = vm('live', 'u_jamie', 'marketing');
+
+    // `GET /api/files/module/:moduleId/:fileName`, and `:fileName` is the file's own name.
+    expect(r.files.map((f) => (f.get.kind === 'download' ? f.get.stored : f.get.kind))).toEqual([
+      { kind: 'moduleFile', moduleId: 'marketing', fileName: 'listing-launch-packet.skill.json' },
+      { kind: 'moduleFile', moduleId: 'marketing', fileName: 'fair-housing-check.skill.yaml' },
+      // The Notion template is not a download at all: it opens in Notion.
+      'toast',
+    ]);
+  });
+
+  it('marks every per-employee resource too', () => {
+    const r = vm('live', 'u_jamie', 'marketing');
+
+    expect(r.resources.map((x) => (x.get?.kind === 'download' ? x.get.stored?.kind : null))).toEqual([
+      'moduleFile',
+      'moduleFile',
+      'moduleFile',
+    ]);
+  });
+
+  it('leaves the session .ics unstored, because the browser writes it', () => {
+    // THE distinction § 8.2 turns on. `ics()` serialises this file here, from the snapshot; there
+    // is no object in the bucket to presign. Giving it a `stored` ref would send Add to Calendar to
+    // `/api/files/module/marketing/session-1.ics`, which answers 404 — a working calendar button
+    // broken by a production "upgrade".
+    const r = vm('week0', 'u_jamie', 'marketing');
+
+    expect(r.v.cal?.kind).toBe('download');
+    expect(r.v.cal?.kind === 'download' && r.v.cal.stored).toBeUndefined();
+  });
+
+  it('leaves the System Prompt unstored, because it is a column not a file', () => {
+    const r = vm('live', 'u_jamie', 'marketing', { drawer: { kind: 'prompt' } });
+
+    expect(r.dr.get.kind).toBe('download');
+    expect(r.dr.get.kind === 'download' && r.dr.get.name).toBe('marketing-system-prompt.md');
+    expect(r.dr.get.kind === 'download' && r.dr.get.stored).toBeUndefined();
+  });
+
+  it('the drawer and the kit row agree on a skill file', () => {
+    // The same file is downloadable from three places — the kit row, the checklist's chip and the
+    // preview drawer's footer — and all three go through `getFile`, so they cannot disagree.
+    const r = vm('live', 'u_jamie', 'marketing', { drawer: { kind: 'file', i: 1 } });
+
+    expect(r.dr.get).toEqual(r.files[1]!.get);
+    expect(r.dr.get.kind === 'download' && r.dr.get.stored).toEqual({
+      kind: 'moduleFile',
+      moduleId: 'marketing',
+      fileName: 'fair-housing-check.skill.yaml',
+    });
+  });
+});
+
+describe('employeeDetailVM · the join window (§ 8.4) @g8', () => {
+  it('carries the session id, so the URL can be asked for at click time', () => {
+    // In http mode `scopeSnapshot` blanks `session.zoom`, so `v.zoom` is empty and the id is the
+    // only thing the Join Button can work with.
+    const r = vm('week0', 'u_jamie', 'marketing');
+
+    expect(r.v.showJoin).toBe(true);
+    expect(r.v.sessionId).toBe('dec26-s1');
+  });
+
+  it('still names the session once it is over, but hides the button', () => {
+    // Every published AI Employee in the seed maps to a session, so `sessionId` stays populated
+    // after the cohort ends; it is `showJoin` that takes the Join Button away. The '' fallback is
+    // only reachable for a draft AI Employee (`session: null`), which no learner can open.
+    const r = vm('post', 'u_jamie', 'marketing');
+
+    expect(r.v.showJoin).toBe(false);
+    expect(r.v.sessionId).toBe('dec26-s1');
+  });
+});
+
+describe('replayUrl · the HLS manifest (§ 8.3) @g8', () => {
+  it('is empty for every seeded AI Employee', () => {
+    // `publishReplay({ playbackUrl, … })` is deferred with the admin route that calls it, so no AI
+    // Employee carries one yet — which is what keeps `createVideoEngine` on `TickerEngine` and the
+    // replay screen behaving exactly as the prototype does.
+    const db = seed('live');
+
+    expect(db.modules.map((m) => replayUrl(m))).toEqual(db.modules.map(() => ''));
+  });
+
+  it('reads the field the moment it exists', () => {
+    const db = seed('live');
+    const m = mod(db, 'marketing');
+    const url = 'https://stream.example.com/replay/dec26-s1.m3u8';
+
+    expect(replayUrl({ ...m, playbackUrl: url } as AIEmployee)).toBe(url);
+    // Anything that is not a string is no manifest: a half-migrated row must not reach hls.js.
+    expect(replayUrl({ ...m, playbackUrl: null } as AIEmployee)).toBe('');
   });
 });

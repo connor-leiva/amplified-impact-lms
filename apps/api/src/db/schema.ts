@@ -12,6 +12,8 @@
 //   - `Db.dismissed`       lives in the `dismissals` table; § 7.3 rebuilds it as "userId:annId"
 // `Db.v`, `Db.phase` and `Db.base` are snapshot-level metadata, not persisted rows: the API always
 // returns `base: ZERO_BASE`.
+// Three tables are the other way round — rows with no `Db` field at all: `auth_tokens` and
+// `auth_sessions` (§ 7.5) and `job_runs` (§ 8.5, the scheduler's idempotence ledger).
 import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint } from 'drizzle-orm/pg-core';
 
 export const tier = pgEnum('tier', ['agent', 'team']);
@@ -54,3 +56,29 @@ export const permissions = pgTable('permissions', { role: text('role').notNull()
 export const activity = pgTable('activity', { id: text('id').primaryKey(), t: ts('t').notNull(), who: text('who').notNull(), what: text('what').notNull(), tone: text('tone').notNull() });
 export const authTokens = pgTable('auth_tokens', { tokenHash: text('token_hash').primaryKey(), email: text('email').notNull(), purpose: text('purpose', { enum: ['sign_in', 'invite'] }).notNull(), expiresAt: timestamp('expires_at').notNull(), usedAt: timestamp('used_at') });
 export const authSessions = pgTable('auth_sessions', { id: text('id').primaryKey(), userId: text('user_id').notNull(), expiresAt: timestamp('expires_at').notNull(), impersonating: text('impersonating') });
+
+// The scheduler's idempotence ledger — phase 08 § 8.5: "Record sends in a `job_runs(job, key,
+// sent_at)` table with a unique `(job, key)`. For example, the key `session-24h:dec26-s3:u_jamie`
+// is sent once."
+//
+// Not part of a `Db` and deliberately not in the snapshot codec: a row here records that one email
+// left the building, which is a fact about the outside world, not program state a learner can see.
+// A snapshot write must never be able to clobber it — see `codec.ts`'s header on `COLUMNS_OWNED`.
+//
+// The unique (job, key) IS the composite primary key, so the scheduler's insert is a plain
+// `on conflict do nothing` and two replicas racing the same tick cannot double-send. `key` already
+// starts with `job:` (§ 8.5's own example does), so the `job` column is redundant for uniqueness —
+// it is kept because § 8.5 specifies it, because "how many session-1h went out this week" should
+// not require parsing a string, and because it is the natural partition for pruning old rows.
+// `jobs/keys.ts` builds both halves in one function and its test pins them consistent.
+//
+// `sent_at` is epoch ms (`ts()`), not a `timestamp` like the two auth tables above. The unit
+// follows whoever reads the value, not which table it sits in: the scheduler writes `clock.now()`
+// here — the same number `dueWork(db, now, …)` compares every window against — so a driver-level
+// `Date` would land one `Date` in the middle of arithmetic that is otherwise all plain numbers.
+// The auth tables are the opposite case: their instants are compared only against each other and
+// never cross into `@ai/core`. `schema.test.ts` states that rule and makes every table declare
+// which side of it it is on.
+export const jobRuns = pgTable('job_runs', {
+  job: text('job').notNull(), key: text('key').notNull(), sentAt: ts('sent_at').notNull(),
+}, (t) => [primaryKey({ columns: [t.job, t.key] })]);

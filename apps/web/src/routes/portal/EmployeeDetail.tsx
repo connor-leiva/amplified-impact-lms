@@ -10,19 +10,26 @@ import { StatusToken } from '../../components/StatusToken';
 import { Avatar } from '../../components/primitives/Avatar';
 import { Drawer } from '../../components/primitives/Drawer';
 import { useToaster } from '../../components/primitives/Toaster';
+import { saveStoredFile } from '../../data/files';
 import { useDb, useMutate, useNow, useViewer } from '../../data/hooks';
-import { employeeDetailVM, initialUi, moduleReset, SPEEDS, TickerEngine } from './EmployeeDetail.vm';
+import { useJoin } from '../../data/join';
+import { employeeDetailVM, initialUi, moduleReset, replayUrl, SPEEDS } from './EmployeeDetail.vm';
 import type { AssetVM, DrawerRef, EmployeeDetailUi, Speed, VideoEngine, VmAction } from './EmployeeDetail.vm';
+import { createVideoEngine } from './HlsEngine';
 import s from './EmployeeDetail.module.css';
 
 // Employee detail `/employees/:employeeId`. Ported from design-reference/Portal Workspace.dc.html.
 // Contract: SCREENS § 3.2, phase 05 § 5.2.
 //
-// MARKUP ONLY plus the wiring the browser owns: the ticker engine, the clipboard, the Blob
-// download, the two timers and `localStorage`. Every string, tone, icon, download payload and
-// navigation target comes from `employeeDetailVM`; nothing here reads the clock or recomputes
-// status, and no business rule lives in this file — `toggleStep`, `markDeployed`, `setRuntime` and
-// `recordRun` are @ai/core mutations run through `useMutate`.
+// MARKUP ONLY plus the wiring the browser owns: the video engine, the clipboard, the Blob download,
+// the two timers and `localStorage`. Every string, tone, icon, download payload and navigation
+// target comes from `employeeDetailVM`; nothing here reads the clock or recomputes status, and no
+// business rule lives in this file — `toggleStep`, `markDeployed`, `setRuntime` and `recordRun` are
+// @ai/core mutations run through `useMutate`.
+//
+// Phase 08 adds three production swaps, all of them behind the repository seam so that fixture mode
+// is untouched: the engine comes from `createVideoEngine` (§ 8.3), a stored file is fetched from the
+// bucket rather than serialised (§ 8.2), and Join resolves its URL from the server (§ 8.4).
 
 /** `localStorage['ai-lms-pos-' + id]`, the prototype's playback position (SCREENS § 3.2). */
 const posKey = (id: string) => `ai-lms-pos-${id}`;
@@ -70,6 +77,9 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
   const navigate = useNavigate();
   const mutate = useMutate();
   const { toast } = useToaster();
+  const openJoin = useJoin();
+  // '' until § 8.3's `publishReplay({ playbackUrl })` lands, and '' forever in fixture mode.
+  const src = replayUrl(m);
 
   const [st, setSt] = useState(() => ({ mid: m.id, ui: initialUi(m, loadPos(m.id)) }));
 
@@ -85,9 +95,13 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
     setSt((prev) => ({ ...prev, ui: { ...prev.ui, ...p } }));
   }, []);
 
-  // ---- the stubbed player (phase 05 § 5.2) ----------------------------------------------------
+  // ---- the player (phase 05 § 5.2, phase 08 § 8.3) --------------------------------------------
+  // `createVideoEngine` picks the implementation by data source: `TickerEngine` in fixture mode,
+  // where this screen must behave exactly as the prototype does, and `HlsEngine` in http mode once
+  // there is a manifest to stream. Everything below is written against `VideoEngine` and cannot
+  // tell them apart.
   useEffect(() => {
-    const e = new TickerEngine(m.dur, pos.current.t);
+    const e = createVideoEngine({ dur: m.dur, t: pos.current.t, src });
     engine.current = e;
     ticks.current = 0;
     const offTime = e.onTime((t) => {
@@ -101,9 +115,11 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
       e.pause();
       offTime();
       offEnded();
+      // `TickerEngine` has no `destroy`; `HlsEngine` uses it to tear down hls.js and its listeners.
+      e.destroy?.();
       engine.current = null;
     };
-  }, [m.id, m.dur, patch]);
+  }, [m.id, m.dur, src, patch]);
 
   useEffect(() => {
     engine.current?.setRate(st.ui.speed);
@@ -140,7 +156,11 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
         }
         toast(a.toast, 'success');
       } else {
-        saveFile(a.name, a.content, a.mime);
+        // § 8.2. A file that exists in the bucket is fetched from it; everything this browser
+        // generates — the session `.ics`, the system prompt — is still written to a Blob.
+        // `saveStoredFile` answers false in fixture mode, where there is no bucket, so the
+        // prototype's path is the one that runs under the compliance suite.
+        if (!(a.stored && saveStoredFile(a.stored))) saveFile(a.name, a.content, a.mime);
         toast(a.toast, 'success');
       }
     },
@@ -325,7 +345,15 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
                     <span className={s.noneWhen}>{v.noneWhen}</span>
                     <div className={s.noneRow}>
                       {v.showJoin ? (
-                        <JoinButton mode={v.joinMode} hint="" url={v.zoom} onDark onJoin={() => act(v.join)} />
+                        <JoinButton
+                          mode={v.joinMode}
+                          hint=""
+                          url={v.zoom}
+                          onDark
+                          // § 8.4: http mode asks the server for the URL and opens it; fixture mode
+                          // runs the prototype's `Opening Zoom · …` toast, which is `v.join`.
+                          onJoin={() => void openJoin(v.sessionId, () => act(v.join))}
+                        />
                       ) : null}
                       {v.showCal ? (
                         <button
