@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Learners &amp; Teams</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">December 2026 Cohort · seat and progress data syncs from the portal</p>
+    </div>
+    <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export Roster</button>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px">
+    <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+      <section style="padding:14px 16px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface)">
+        <div style="font-size:13px; color:var(--text-tertiary)">{{ s.label }}</div>
+        <div style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin-top:4px; color:{{ s.fg }}">{{ s.value }}</div>
+      </section>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+    <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default)">
+      <sc-for list="{{ tabs }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
+    </div>
+    <sc-if value="{{ isLearners }}">
+      <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default)">
+        <sc-for list="{{ tierF }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:13px; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
+      </div>
+      <div style="position:relative; margin-left:auto; width:min(300px, 100%)">
+        <svg viewBox="0 0 24 24" style="position:absolute; left:10px; top:9px; width:15px; height:15px; fill:none; stroke:var(--text-tertiary); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.search }}"></path></svg>
+        <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search name, email or team" style="width:100%; height:34px; padding:0 10px 0 32px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ isLearners }}">
+    <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+      <div style="overflow-x:auto">
+        <div style="min-width:1000px">
+          <div style="display:grid; grid-template-columns:minmax(240px,2fr) 110px minmax(160px,1.3fr) 170px 120px 120px 30px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+            <span>Learner</span><span>Tier</span><span>Team · Role</span><span>AI Employees</span><span>Last Active</span><span>Status</span><span></span>
+          </div>
+          <sc-for list="{{ rows }}" as="u" hint-placeholder-count="10">
+            <div onClick="{{ u.open }}" style="display:grid; grid-template-columns:minmax(240px,2fr) 110px minmax(160px,1.3fr) 170px 120px 120px 30px; gap:12px; align-items:center; padding:11px 18px; border-bottom:1px solid var(--line-default); cursor:pointer; background:{{ u.bg }}" style-hover="background:var(--bg-hover)">
+              <div style="display:flex; align-items:center; gap:10px; min-width:0">
+                <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ u.av }}; border:{{ u.avBd }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ u.ini }}</span>
+                <div style="min-width:0"><div style="font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.name }}</div><div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.email }}</div></div>
+              </div>
+              <span style="height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; width:max-content; background:{{ u.tBg }}; color:{{ u.tFg }}">{{ u.tier }}</span>
+              <div style="font-size:13px; color:var(--text-secondary); line-height:1.4; min-width:0">{{ u.team }}<div style="color:var(--text-tertiary); font-size:12px">{{ u.role }}</div></div>
+              <div style="display:flex; align-items:center; gap:8px">
+                <div style="display:flex; gap:3px"><sc-for list="{{ u.dots }}" as="d"><span title="{{ d.t }}" style="width:13px; height:13px; border-radius:4px; background:{{ d.c }}; border:1px solid {{ d.bd }}"></span></sc-for></div>
+                <span style="font-size:12px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ u.count }}</span>
+              </div>
+              <span style="font-size:13px; color:var(--text-tertiary)">{{ u.last }}</span>
+              <span style="display:flex; align-items:center; gap:6px; font-size:13px; color:{{ u.sFg }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ u.sDot }}"></span>{{ u.status }}</span>
+              <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding:12px 18px; font-size:13px; color:var(--text-tertiary)">{{ footNote }}</div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isTeams }}">
+    <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+      <div style="overflow-x:auto">
+        <div style="min-width:860px">
+          <div style="display:grid; grid-template-columns:minmax(220px,2fr) minmax(160px,1.4fr) 200px 140px 120px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+            <span>Team</span><span>Owner</span><span>Seats</span><span>Deployed</span><span>Pending Invites</span>
+          </div>
+          <sc-for list="{{ teams }}" as="t" hint-placeholder-count="3">
+            <div style="display:grid; grid-template-columns:minmax(220px,2fr) minmax(160px,1.4fr) 200px 140px 120px; gap:12px; align-items:center; padding:13px 18px; border-bottom:1px solid var(--line-default)">
+              <div style="font-size:14px; font-weight:500">{{ t.name }}</div>
+              <div style="font-size:13px; color:var(--text-secondary)">{{ t.owner }}</div>
+              <div style="display:flex; align-items:center; gap:10px"><div style="flex:1; height:6px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ t.fill }}; background:var(--action-primary)"></div></div><span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ t.seats }}</span></div>
+              <span style="font-size:13px; color:var(--status-success-text); font-variant-numeric:tabular-nums">{{ t.deployed }}</span>
+              <span style="font-size:13px; color:{{ t.invFg }}">{{ t.invites }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding:12px 18px; font-size:13px; color:var(--text-tertiary)">{{ teamsNote }}</div>
+    </section>
+  </sc-if>
+</div>
+
+<div onClick="{{ close }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
+<aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(440px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
+  <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
+    <span style="width:40px; height:40px; flex:none; border-radius:50%; background:{{ dw.av }}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--ink-900)">{{ dw.ini }}</span>
+    <div style="flex:1; min-width:0"><div style="font-size:16px; font-weight:600">{{ dw.name }}</div><div style="font-size:13px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ dw.email }}</div></div>
+    <button onClick="{{ close }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+  </div>
+  <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:16px">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+      <sc-for list="{{ dw.facts }}" as="fa"><div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:12px; color:var(--text-tertiary); font-weight:500">{{ fa.k }}</div><div style="font-size:13px; margin-top:3px">{{ fa.v }}</div></div></sc-for>
+    </div>
+    <div>
+      <div style="font-size:12px; color:var(--text-tertiary); font-weight:500; margin-bottom:8px">Build Progress</div>
+      <div style="display:flex; flex-direction:column; border:1px solid var(--line-default); border-radius:10px; overflow:hidden">
+        <sc-for list="{{ dw.mods }}" as="dm">
+          <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:{{ dm.bt }}">
+            <span style="flex:1; font-size:13px; color:{{ dm.fg }}">{{ dm.name }}</span>
+            <sc-if value="{{ dm.ok }}"><dc-import name="Status Token" kind="build" state="{{ dm.b.state }}" n="{{ dm.b.n }}" total="{{ dm.b.total }}" compact="{{ true }}" hint-size="40px,16px"></dc-import><dc-import name="Status Token" kind="runtime" state="{{ dm.rt }}" hint-size="90px,22px"></dc-import></sc-if><sc-if value="{{ dm.no }}"><dc-import name="Status Token" kind="access" state="locked" hint-size="80px,22px"></dc-import></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default); flex-wrap:wrap">
+    <button onClick="{{ dw.tierAct }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ dw.tierBd }}; background:{{ dw.tierBg }}; color:{{ dw.tierFg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">{{ dw.tierLabel }}</button>
+    <button onClick="{{ dw.nudge }}" style="margin-left:auto; height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer" style-hover="background:var(--action-secondary-hover)">{{ dw.nudgeLabel }}</button>
+  </div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "admin", {"s":"learners"})); }
+  componentDidMount() { this.bootStandalone(); }
+  state = { tab: 'learners', tier: '', q: '', sel: null };
+  renderVals() {
+    const c = this.cx; if (!c || !c.db) return {};
+    const { db, lib, ic, act, staff } = c;
+    const F = lib.fmt, S = lib.STATUS, B = db.base, now = act.now();
+    const mods = lib.visibleModules(db);
+    const teamOf = u => u.teamId ? db.teams.find(t => t.id === u.teamId) : null;
+    const active = db.users.filter(u => u.status !== 'invited');
+    const invited = db.users.filter(u => u.status === 'invited');
+    const stats = [
+      { label: 'Total Learners', value: F.num(B.learners + active.length), fg: 'var(--text-primary)'},
+      { label: 'Agent Tier', value: F.num(B.agent + active.filter(u => u.tier === 'agent').length), fg: 'var(--text-primary)'},
+      { label: 'Team Tier Seats', value: F.num(B.teamSeats + active.filter(u => u.tier === 'team').length), fg: 'var(--text-primary)'},
+      { label: 'Pending Invites', value: String(invited.length), fg: invited.length ? 'var(--access-locked-text)' : 'var(--text-primary)'},
+    ];
+    const seg = on => ({ bg: on ? 'var(--seg-active)' : 'transparent', fg: on ? 'var(--text-primary)' : 'var(--text-tertiary)'});
+    const { tab, tier, q } = this.state;
+    const ql = q.trim().toLowerCase();
+    const personas = { u_jamie: 'Demo: Agent Tier', u_alex: 'Demo: Team Owner' };
+    const list = db.users.filter(u => (!tier || u.tier === tier) && (!ql || (u.name + u.email + ((teamOf(u) || {}).name || '')).toLowerCase().includes(ql)))
+      .sort((a, b) => (b.last || b.joined) - (a.last || a.joined));
+    const rows = list.map(u => {
+      const inv = u.status === 'invited', team = teamOf(u);
+      const acc = mods.filter(m => lib.canAccess(u, m));
+      const any = Object.values(u.progress || {}).some(p => p.steps.length);
+      const risk = !inv && (!any || now - (u.last || 0) > 5 * 86400000);
+      const [status, sFg, sDot] = inv ? ['Invited', 'var(--access-locked-text)', 'var(--access-locked)'] : risk ? ['At Risk', 'var(--access-locked-text)', 'var(--access-locked)'] : ['Active', 'var(--status-success-text)', 'var(--status-success)'];
+      return {
+        name: u.name, email: u.email, ini: F.initials(u.name), av: inv ? 'transparent' : lib.avatarColor(u.id), avBd: inv ? '1.5px dashed var(--access-locked)' : '0',
+        tier: u.tier === 'team' ? 'Team' : 'Agent', tBg: u.tier === 'team' ? 'var(--action-primary-tint)' : 'var(--status-neutral-bg)', tFg: u.tier === 'team' ? 'var(--status-progress-text)' : 'var(--text-secondary)',
+        team: team ? team.name : 'Individual', role: personas[u.id] ? `${u.role} · ${personas[u.id]}` : u.role,
+        dots: mods.map(m => { const ok = lib.canAccess(u, m), st = lib.statusOf(u, m); return { t: `${m.short}: ${ok ? S[st].label: 'Not in Tier'}`, c: !ok ? 'transparent' : st === 'deployed' ? 'var(--status-success)' : st === 'progress' ? 'color-mix(in oklch, var(--status-progress) 45%, transparent)' : 'transparent', bd: !ok ? 'var(--line-default)' : st === 'deployed' ? 'var(--status-success)' : st === 'progress' ? 'var(--status-progress)' : 'var(--line-strong)'}; }),
+        count: `${acc.filter(m => lib.statusOf(u, m) === 'deployed').length}/${acc.length}`,
+        last: inv ? 'Invited ' + F.ago(u.joined, now) : u.last ? F.ago(u.last, now) : '—', status, sFg, sDot,
+        bg: personas[u.id] ? 'var(--action-primary-tint)' : 'transparent', open: () => this.setState({ sel: u.id }),
+      };
+    });
+    const teams = db.teams.map(t => {
+      const mem = db.users.filter(u => u.teamId === t.id), act_ = mem.filter(u => u.status !== 'invited');
+      const owner = db.users.find(u => u.id === t.ownerId);
+      const dep = act_.reduce((a, u) => a + mods.filter(m => lib.statusOf(u, m) === 'deployed').length, 0);
+      const inv = mem.length - act_.length;
+      return { name: t.name, owner: owner ? owner.name : '—', seats: `${mem.length} of ${t.seats}`, fill: Math.round((mem.length / t.seats) * 100) + '%', deployed: `${dep} deployed`, invites: inv ? `${inv} pending` : 'None', invFg: inv ? 'var(--access-locked-text)' : 'var(--text-tertiary)'};
+    });
+
+    const su = db.users.find(u => u.id === this.state.sel);
+    if (su) this.last = su;
+    const du = su || this.last;
+    const dw = { op: su ? 1 : 0, pe: su ? 'auto' : 'none', tf: su ? 'translateX(0)' : 'translateX(105%)' };
+    if (du) {
+      const team = teamOf(du), isTeam = du.tier === 'team', inv = du.status === 'invited';
+      Object.assign(dw, {
+        name: du.name, email: du.email, ini: F.initials(du.name), av: lib.avatarColor(du.id),
+        facts: [{ k: 'Tier', v: isTeam ? 'Team' : 'Agent' }, { k: 'Team', v: team ? team.name : 'Individual' }, { k: 'Joined', v: inv ? 'Invite pending' : F.day(du.joined) }, { k: 'Last active', v: du.last ? F.ago(du.last, now) : '—' }],
+        mods: mods.map((m, i) => { const ok = lib.canAccess(du, m), st = lib.statusOf(du, m), p = lib.progressOf(du, m); return { ok, no: !ok, b: lib.buildOf(du, m), rt: lib.runtimeOf(du, m), name: m.name, fg: ok ? 'var(--text-primary)' : 'var(--text-tertiary)', steps: ok && st !== 'deployed' ? `${p.steps.length}/${m.checklist.length}` : '', st: ok ? S[st] : { ...S.locked, label: 'Not in Tier'}, bt: i ? '1px solid var(--line-subtle)' : '0' }; }),
+        tierLabel: isTeam ? 'Move to Agent Tier' : 'Upgrade to Team Tier',
+        tierBg: isTeam ? 'transparent' : 'var(--access-locked)', tierFg: isTeam ? 'var(--text-secondary)' : 'var(--access-locked-on)', tierBd: isTeam ? 'var(--line-strong)' : 'var(--access-locked)',
+        tierAct: () => act.mutate(d => { const t = act.now(); if (isTeam) lib.downgradeUser(d, du.id); else lib.upgradeUser(d, du.id); lib.log(d, t, staff.name, `${isTeam ? 'moved' : 'upgraded'} ${du.name} to ${isTeam ? 'Agent' : 'Team'} Tier`, isTeam ? 'info' : 'success'); }, isTeam ? `${du.name} moved to Agent Tier` : `${du.name} upgraded. Team modules unlocked in their portal.`),
+        nudgeLabel: inv ? 'Resend Invite' : 'Send Nudge',
+        nudge: () => act.toast(inv ? `Invite resent to ${du.email}` : `Nudge sent to ${du.name}`),
+      });
+    }
+    return {
+      ic, stats, q, rows, teams, dw, isLearners: tab === 'learners', isTeams: tab === 'teams',
+      tabs: [['learners', 'Learners'], ['teams', 'Teams']].map(([k, label]) => ({ label, ...seg(tab === k), go: () => this.setState({ tab: k }) })),
+      tierF: [['', 'All Tiers'], ['agent', 'Agent'], ['team', 'Team']].map(([k, label]) => ({ label, ...seg(tier === k), go: () => this.setState({ tier: k }) })),
+      setQ: e => this.setState({ q: e.target.value }), close: () => this.setState({ sel: null }),
+      footNote: `Showing ${rows.length} of ${F.num(B.learners + db.users.length)} learners. Highlighted rows are the demo personas.`,
+      teamsNote: `Showing ${teams.length} of ${B.teams + db.teams.length} teams.`,
+      exportCsv: () => act.download('learners-dec-2026.csv', lib.csv([['Name', 'Email', 'Tier', 'Team', 'Role', 'Deployed', 'Status'], ...list.map((u, i) => [u.name, u.email, rows[i].tier, rows[i].team, u.role, rows[i].count, rows[i].status])]), 'text/csv', 'Roster exported'),
+    };
+  }
+}
+</script>
+</body>
+</html>

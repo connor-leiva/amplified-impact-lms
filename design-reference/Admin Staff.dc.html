@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1300px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Staff &amp; Roles</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">Who can build, publish and manage the program.</p>
+    </div>
+  </div>
+
+  <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+    <div style="display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
+      <div style="font-size:14px; font-weight:600; flex:1">Team Members</div>
+      <input value="{{ email }}" onChange="{{ setEmail }}" placeholder="name@amplifiedimpact.com" style="width:240px; height:34px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)">
+      <select value="{{ newRole }}" onChange="{{ setNewRole }}" style="height:34px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+        <option value="Admin">Admin</option>
+        <option value="Instructor">Instructor</option>
+        <option value="Content Editor">Content Editor</option>
+        <option value="Support">Support</option>
+      </select>
+      <button onClick="{{ invite }}" style="height:34px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.userPlus }}"></path></svg>Invite Staff</button>
+    </div>
+    <sc-if value="{{ err }}"><div style="padding:8px 18px 0; font-size:13px; color:var(--access-locked-text)">{{ err }}</div></sc-if>
+    <sc-for list="{{ staff }}" as="s" hint-placeholder-count="4">
+      <div style="display:flex; align-items:center; gap:12px; padding:12px 18px; border-top:{{ s.bt }}; flex-wrap:wrap">
+        <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ s.av }}; border:{{ s.avBd }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ s.ini }}</span>
+        <div style="flex:1; min-width:200px"><div style="font-size:14px; font-weight:500">{{ s.name }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ s.email }}</div></div>
+        <span style="font-size:13px; color:var(--text-tertiary); width:120px">{{ s.last }}</span>
+        <select value="{{ s.role }}" onChange="{{ s.setRole }}" disabled="{{ s.isOwner }}" style="height:32px; width:150px; padding:0 8px; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+          <option value="Owner">Owner</option>
+          <option value="Admin">Admin</option>
+          <option value="Instructor">Instructor</option>
+          <option value="Content Editor">Content Editor</option>
+          <option value="Support">Support</option>
+        </select>
+        <button onClick="{{ s.remove }}" title="Remove" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:{{ s.rmFg }}; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--status-attention-bg)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg></button>
+      </div>
+    </sc-for>
+  </section>
+
+  <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+    <div style="padding:14px 18px; border-bottom:1px solid var(--line-default)"><div style="font-size:14px; font-weight:600">Permissions</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">Owner Permissions Are Fixed</div></div>
+    <div style="overflow-x:auto">
+      <div style="min-width:760px">
+        <div style="display:grid; grid-template-columns:minmax(220px,1.6fr) repeat(5, 1fr); padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+          <span>Permission</span><sc-for list="{{ roles }}" as="r"><span style="text-align:center">{{ r }}</span></sc-for>
+        </div>
+        <sc-for list="{{ perms }}" as="p" hint-placeholder-count="8">
+          <div style="display:grid; grid-template-columns:minmax(220px,1.6fr) repeat(5, 1fr); align-items:center; padding:9px 18px; border-bottom:1px solid var(--line-default)">
+            <span style="font-size:13px; color:var(--text-secondary)">{{ p.label }}</span>
+            <sc-for list="{{ p.cells }}" as="cl">
+              <div style="display:flex; justify-content:center">
+                <button onClick="{{ cl.go }}" style="width:22px; height:22px; border-radius:6px; border:1.5px solid {{ cl.bd }}; background:{{ cl.bg }}; cursor:{{ cl.cursor }}; display:flex; align-items:center; justify-content:center; padding:0; opacity:{{ cl.op }}">
+                  <sc-if value="{{ cl.on }}"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:var(--action-on-primary); stroke-width:3; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></sc-if>
+                </button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "admin", {"s":"staff"})); }
+  componentDidMount() { this.bootStandalone(); }
+  state = { email: '', newRole: 'Instructor', err: '' };
+  renderVals() {
+    const c = this.cx; if (!c || !c.db) return {};
+    const { db, lib, ic, act } = c;
+    const F = lib.fmt, now = act.now();
+    const staff = db.staff.map((s, i) => {
+      const inv = !s.last, owner = s.role === 'Owner';
+      return {
+        name: s.name + (i === 0 ? ' (you)' : ''), email: s.email, role: s.role, isOwner: owner, ini: F.initials(s.name), av: inv ? 'transparent' : lib.avatarColor(s.id), avBd: inv ? '1.5px dashed var(--access-locked)' : '0',
+        last: inv ? 'Invite pending' : 'Active ' + F.agoInline(s.last, now), bt: i ? '1px solid var(--line-subtle)' : '0', rmFg: owner ? 'var(--text-disabled)' : 'var(--text-tertiary)',
+        setRole: e => { const v = e.target.value; act.mutate(d => { d.staff.find(x => x.id === s.id).role = v; }, `${s.name} is now ${v}`); },
+        remove: () => owner ? act.toast('The owner can’t be removed', 'info') : act.mutate(d => { d.staff = d.staff.filter(x => x.id !== s.id); }, `${s.name} removed`),
+      };
+    });
+    const roles = lib.STAFF_ROLES;
+    const perms = lib.PERMS.map(([k, label]) => ({ label, cells: roles.map(r => {
+      const on = !!(db.perms[r] || {})[k], fixed = r === 'Owner';
+      return { on, bd: on ? 'var(--action-primary)' : 'var(--line-strong)', bg: on ? 'var(--action-primary)' : 'transparent', cursor: fixed ? 'default' : 'pointer', op: fixed ? 0.6 : 1,
+        go: () => !fixed && act.mutate(d => { d.perms[r] = d.perms[r] || {}; d.perms[r][k] = on ? 0 : 1; }, `${r}: ${label} ${on ? 'off' : 'on'}`, 'info') };
+    }) }));
+    const { email, newRole, err } = this.state;
+    return {
+      ic, staff, roles, perms, email, newRole, err,
+      setEmail: e => this.setState({ email: e.target.value, err: '' }), setNewRole: e => this.setState({ newRole: e.target.value }),
+      invite: () => {
+        const em = email.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return this.setState({ err: 'Enter a valid email address.' });
+        if (db.staff.some(s => s.email.toLowerCase() === em.toLowerCase())) return this.setState({ err: 'That person is already on staff.' });
+        const nm = em.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+        act.mutate(d => { d.staff.push({ id: 'st' + act.now().toString(36), name: nm, email: em, role: newRole, last: null }); }, `Invite sent to ${em}`);
+        this.setState({ email: '' });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

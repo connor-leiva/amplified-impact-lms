@@ -1,0 +1,58 @@
+name: ci
+# Railway's "Wait for CI" only sees workflows that run on `push`, so `push: main` is required.
+on:
+  push: { branches: [main] }
+  pull_request:
+concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  goldens: # proves goldens are exactly what the reference renders
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable && pnpm i --frozen-lockfile
+      - run: pnpm compliance:capture
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git diff --exit-code -- compliance/goldens
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: goldens-drift, path: compliance/goldens }
+
+  harness: # Gate 0: the reference drives cleanly under frozen conditions
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable && pnpm i --frozen-lockfile
+      - run: pnpm harness
+
+  compliance:
+    needs: quality
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable && pnpm i --frozen-lockfile
+      # .phase records the highest shipped phase. Parity runs every scenario at or below it,
+      # so CI is green per phase and turns red the moment a shipped phase regresses.
+      - id: phase
+        run: echo "gate=$(cat .phase)" >> "$GITHUB_OUTPUT"
+      - run: pnpm compliance && pnpm e2e
+        env:
+          GATE: ${{ steps.phase.outputs.gate }}
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: compliance-report, path: compliance/report }
+# Phase 07 adds an `api` job with a Postgres service.

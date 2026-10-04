@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 0; max-width:1440px; margin:0 auto; display:flex; flex-direction:column; gap:20px">
+  <header style="display:flex; align-items:flex-start; gap:16px">
+    <div style="width:46px; height:46px; flex:none; border-radius:12px; display:flex; align-items:center; justify-content:center; background:{{ hd.tileBg }}; border:1px solid {{ hd.tileBd }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width:22px; height:22px; fill:none; stroke:{{ hd.tileFg }}; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round"><path d="{{ hd.icon }}"></path></svg>
+    </div>
+    <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:6px">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">{{ m.name }}</h1>
+        <dc-import name="Status Token" kind="runtime" state="{{ hd.runtime }}" size="md" title="{{ hd.runtimeTip }}" hint-size="100px,26px"></dc-import>
+      </div>
+      <p style="margin:0; font-size:16px; line-height:24px; color:var(--text-primary); text-wrap:pretty">{{ m.outcome }}</p>
+      <p style="margin:0; font-size:13px; color:var(--text-tertiary); display:flex; flex-wrap:wrap; gap:2px 6px">
+        <sc-if value="{{ meta.hasSession }}"><span>From Session {{ meta.n }}</span><span aria-hidden="true">·</span><a href="#" onClick="{{ meta.goSession }}" style="color:var(--text-link); font-weight:500">{{ meta.title }}</a><span aria-hidden="true">·</span></sc-if>
+        <sc-if value="{{ meta.selfPaced }}"><span>Self-Paced</span><span aria-hidden="true">·</span></sc-if>
+        <span>{{ m.build }} Min Build</span><span aria-hidden="true">·</span><span>For {{ m.forWho }}</span>
+      </p>
+    </div>
+  </header>
+
+  <sc-if value="{{ soon }}">
+    <div style="display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); font-size:14px; color:var(--text-secondary)">
+      <dc-import name="Status Token" kind="custom" tone="neutral" icon="clock" label="{{ soon.label }}" hint-size="90px,22px"></dc-import>{{ soon.text }}
+    </div>
+  </sc-if>
+
+  <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start">
+    <div style="flex:1.7 1 560px; min-width:0; display:flex; flex-direction:column; gap:16px">
+      <section aria-label="Session replay" style="border-radius:14px; overflow:hidden; border:1px solid var(--line-default); background:var(--bg-surface)">
+        <div onClick="{{ v.posterClick }}" style="position:relative; aspect-ratio:16/9; background:var(--bg-poster); cursor:{{ v.posterCursor }}; overflow:hidden">
+          <div style="position:absolute; inset:0; padding:6% 7%; display:flex; flex-direction:column; justify-content:flex-end; gap:10px">
+            <div style="font-family:var(--font-mono); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-400)">Amplified Impact · Session {{ v.n }}</div>
+            <div style="font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em; color:var(--ink-50); max-width:80%">{{ v.title }}</div>
+            <div style="font-size:14px; color:var(--ink-400)">{{ v.sub }}</div>
+          </div>
+          <sc-if value="{{ v.has }}">
+            <span style="position:absolute; top:14px; left:14px; height:22px; padding:0 8px; border-radius:6px; background:oklch(0 0 0 / 0.5); color:var(--ink-100); font-size:12px; font-weight:500; display:flex; align-items:center">Replay · {{ v.speedLabel }}</span>
+          </sc-if>
+          <sc-if value="{{ v.showBigPlay }}">
+            <div style="position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); width:64px; height:64px; border-radius:50%; background:var(--ink-50); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 32px oklch(0 0 0 / 0.4)">
+              <svg viewBox="0 0 24 24" aria-hidden="true" style="width:24px; height:24px; margin-left:3px; fill:var(--ink-900); stroke:none"><path d="M8 5.3v13.4a1 1 0 0 0 1.5.86l10.9-6.7a1 1 0 0 0 0-1.72L9.5 4.44A1 1 0 0 0 8 5.3z"></path></svg>
+            </div>
+          </sc-if>
+          <sc-if value="{{ v.caption }}">
+            <div style="position:absolute; left:50%; bottom:16px; transform:translateX(-50%); width:max-content; max-width:84%; padding:6px 12px; border-radius:6px; background:oklch(0 0 0 / 0.72); color:var(--ink-50); font-size:14px; line-height:1.4; text-align:center">{{ v.caption }}</div>
+          </sc-if>
+          <sc-if value="{{ v.none }}">
+            <div onClick="{{ stopProp }}" style="position:absolute; top:6%; right:6%; display:flex; flex-direction:column; align-items:flex-end; gap:10px; cursor:default">
+              <span style="font-size:13px; color:var(--ink-300)">{{ v.noneWhen }}</span>
+              <div style="display:flex; gap:8px; align-items:center">
+                <sc-if value="{{ v.showJoin }}"><dc-import name="Join Button" mode="{{ v.joinMode }}" hint="" url="{{ v.zoom }}" on-dark="{{ true }}" on-join="{{ v.join }}" hint-size="130px,36px"></dc-import></sc-if>
+                <sc-if value="{{ v.showCal }}"><button onClick="{{ v.cal }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid oklch(1 0 0 / 0.2); background:oklch(1 0 0 / 0.08); color:var(--ink-50); font-size:14px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:oklch(1 0 0 / 0.14)">Add to Calendar</button></sc-if>
+              </div>
+              <span style="font-size:12px; color:var(--ink-400)">{{ v.noneNote }}</span>
+            </div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ v.has }}">
+          <div style="padding:10px 14px 4px; display:flex; flex-direction:column; gap:6px">
+            <div onClick="{{ v.seekBar }}" role="slider" aria-label="Seek" aria-valuemin="0" aria-valuemax="{{ m.dur }}" aria-valuenow="{{ v.tNow }}" style="position:relative; height:16px; cursor:pointer">
+              <div style="position:absolute; left:0; right:0; top:6px; height:4px; border-radius:2px; background:var(--track)"></div>
+              <div style="position:absolute; left:0; top:6px; width:{{ v.pct }}; height:4px; border-radius:2px; background:var(--action-primary)"></div>
+              <sc-for list="{{ rail }}" as="mk"><div title="{{ mk.label }}" style="position:absolute; left:{{ mk.left }}; top:4px; width:2px; height:8px; margin-left:-1px; border-radius:1px; background:{{ mk.markC }}"></div></sc-for>
+              <div style="position:absolute; left:{{ v.pct }}; top:2px; width:12px; height:12px; margin-left:-6px; border-radius:50%; background:var(--bg-surface); border:2px solid var(--action-primary)"></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px">
+              <button onClick="{{ v.toggle }}" aria-label="{{ v.playTitle }}" style="width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:currentColor; stroke:none"><path d="{{ v.playIcon }}"></path></svg></button>
+              <button onClick="{{ v.back }}" aria-label="Back 10 seconds" style="width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.reset }}"></path></svg></button>
+              <span style="font-family:var(--font-mono); font-size:13px; color:var(--text-primary); font-variant-numeric:tabular-nums; padding:0 6px; white-space:nowrap">{{ v.time }} <span style="color:var(--text-tertiary)">/ {{ v.total }}</span></span>
+              <span style="flex:1; min-width:0; color:var(--text-tertiary); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ v.chapter }}</span>
+              <button onClick="{{ v.cycleSpeed }}" aria-label="Playback speed" style="height:28px; min-width:44px; padding:0 8px; border:1px solid var(--line-default); border-radius:7px; background:var(--bg-surface); color:var(--text-primary); cursor:pointer; font-family:var(--font-mono); font-size:12px" style-hover="background:var(--bg-hover)">{{ v.speedLabel }}</button>
+              <button onClick="{{ v.toggleCc }}" aria-pressed="{{ v.ccOn }}" aria-label="Captions" style="width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:{{ v.ccFg }}; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.cc }}"></path></svg></button>
+              <button onClick="{{ toggleTranscript }}" aria-pressed="{{ trOn }}" style="height:28px; padding:0 9px; border:1px solid {{ trBd }}; border-radius:7px; background:{{ trBg }}; color:var(--text-primary); cursor:pointer; font-size:13px; display:flex; align-items:center; gap:6px; white-space:nowrap" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round"><path d="{{ ic.lines }}"></path></svg>Transcript</button>
+            </div>
+          </div>
+        </sc-if>
+        <div style="border-top:1px solid var(--line-subtle); padding:10px 10px 12px; overflow-x:auto">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; padding:0 4px 8px"><span style="font-size:14px; font-weight:600">{{ railTitle }}</span><span style="font-size:12px; color:var(--text-tertiary)">Chapters Follow the 6 Build Steps</span></div>
+          <div style="display:grid; grid-template-columns:repeat(6, minmax(112px, 1fr)); gap:6px">
+            <sc-for list="{{ rail }}" as="ch" hint-placeholder-count="6">
+              <button onClick="{{ ch.go }}" aria-current="{{ ch.cur }}" title="{{ ch.tip }}" style="display:flex; flex-direction:column; gap:4px; padding:8px 10px; border-radius:9px; border:1px solid {{ ch.bd }}; background:{{ ch.bg }}; text-align:left; cursor:{{ ch.cursor }}; min-width:0" style-hover="border-color:var(--line-strong)">
+                <span style="display:flex; align-items:center; justify-content:space-between; gap:6px; font-size:12px; color:var(--text-tertiary); font-variant-numeric:tabular-nums"><span>Step {{ ch.n }} · {{ ch.t }}</span><sc-if value="{{ ch.done }}"><svg viewBox="0 0 24 24" aria-label="Verified" style="width:13px; height:13px; fill:none; stroke:var(--status-success); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"><path d="M5 12.6l4.4 4.4L19 7.4"></path></svg></sc-if></span>
+                <span style="font-size:13px; font-weight:500; color:{{ ch.fg }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ ch.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <sc-if value="{{ trOpen }}">
+        <section aria-label="Transcript" style="border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); padding:12px">
+          <div style="display:flex; align-items:center; gap:10px; padding-bottom:8px">
+            <div style="flex:1; position:relative">
+              <svg viewBox="0 0 24 24" aria-hidden="true" style="position:absolute; left:10px; top:9px; width:15px; height:15px; fill:none; stroke:var(--text-tertiary); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.search }}"></path></svg>
+              <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search the transcript" aria-label="Search the transcript" style="width:100%; height:34px; padding:0 10px 0 32px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+            </div>
+            <span style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; font-variant-numeric:tabular-nums">{{ qCount }}</span>
+          </div>
+          <sc-if value="{{ noTranscript }}"><div style="padding:12px 8px; color:var(--text-tertiary); font-size:13px">{{ noTranscriptMsg }}</div></sc-if>
+          <div style="max-height:300px; overflow-y:auto">
+            <sc-for list="{{ lines }}" as="ln">
+              <button onClick="{{ ln.go }}" style="display:flex; gap:14px; width:100%; padding:8px; border:0; border-radius:8px; background:{{ ln.bg }}; text-align:left; cursor:pointer" style-hover="background:var(--bg-hover)">
+                <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-link); width:46px; flex:none; padding-top:1px; font-variant-numeric:tabular-nums">{{ ln.t }}</span>
+                <span style="flex:1; font-size:14px; color:var(--text-secondary); line-height:1.5"><sc-for list="{{ ln.parts }}" as="pt"><span style="background:{{ pt.bg }}; color:{{ pt.fg }}; border-radius:3px">{{ pt.s }}</span></sc-for></span>
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <section aria-label="Build checklist" style="border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface)">
+        <div style="padding:18px 20px 14px; display:flex; flex-direction:column; gap:12px; border-bottom:1px solid var(--line-subtle)">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
+            <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap">
+              <h2 style="margin:0; font-size:16px; font-weight:600">Build Checklist</h2>
+              <span style="font-size:14px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ ck.done }} of {{ ck.total }} Steps Verified</span>
+            </div>
+            <dc-import name="Status Token" kind="build" state="{{ ck.state }}" n="{{ ck.done }}" total="{{ ck.total }}" title="{{ ck.tip }}" hint-size="80px,22px"></dc-import>
+          </div>
+          <div role="img" aria-label="{{ ck.done }} of {{ ck.total }} steps verified" style="display:flex; gap:4px">
+            <sc-for list="{{ ck.segs }}" as="sg"><span style="flex:1; height:6px; border-radius:3px; background:{{ sg }}"></span></sc-for>
+          </div>
+        </div>
+        <ol style="list-style:none; margin:0; padding:6px 8px 8px">
+          <sc-for list="{{ ck.items }}" as="st" hint-placeholder-count="6">
+            <li style="display:flex; align-items:flex-start; gap:12px; padding:12px; border-radius:10px; background:{{ st.rowBg }}; flex-wrap:wrap">
+              <span style="width:24px; height:24px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:12px; border:1.5px solid {{ st.numBd }}; background:{{ st.numBg }}; color:{{ st.numFg }}">{{ st.n }}</span>
+              <div style="flex:1 1 260px; min-width:0; display:flex; flex-direction:column; gap:4px">
+                <span style="font-size:14px; font-weight:500; line-height:1.4; color:{{ st.fg }}; text-wrap:pretty">{{ st.text }}</span>
+                <sc-if value="{{ st.hint }}"><span style="font-size:13px; color:var(--text-tertiary); text-wrap:pretty">{{ st.hint }}</span></sc-if>
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-top:2px; font-size:12px; color:var(--text-tertiary)">
+                  <span>About {{ st.mins }} Min</span>
+                  <sc-if value="{{ st.watch }}"><button onClick="{{ st.watch }}" style="border:0; background:none; padding:0; color:var(--text-link); font-size:12px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:4px" style-hover="color:var(--text-link-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:10px; height:10px; fill:currentColor"><path d="M8 5.3v13.4a1 1 0 0 0 1.5.86l10.9-6.7a1 1 0 0 0 0-1.72L9.5 4.44A1 1 0 0 0 8 5.3z"></path></svg>Watch at {{ st.t }}</button></sc-if>
+                  <sc-for list="{{ st.assets }}" as="as"><button onClick="{{ as.go }}" style="height:24px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:12px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:5px; white-space:nowrap" style-hover="border-color:var(--line-strong)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ as.icon }}"></path></svg>{{ as.label }}</button></sc-for>
+                </div>
+              </div>
+              <div style="flex:none; display:flex; align-items:center; min-height:28px">
+                <sc-if value="{{ st.on }}"><button onClick="{{ st.toggle }}" title="{{ st.undoTip }}" style="border:0; background:none; padding:0; cursor:pointer; display:flex"><dc-import name="Status Token" kind="step" state="verified" hint-size="76px,22px"></dc-import></button></sc-if>
+                <sc-if value="{{ st.off }}"><button onClick="{{ st.toggle }}" style="--b-hov:{{ st.btnHov }}; height:30px; padding:0 12px; border-radius:8px; border:1px solid {{ st.btnBd }}; background:{{ st.btnBg }}; color:{{ st.btnFg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; outline:none" style-hover="background:var(--b-hov)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">Mark Verified</button></sc-if>
+              </div>
+            </li>
+          </sc-for>
+        </ol>
+      </section>
+    </div>
+
+    <aside style="flex:1 1 340px; min-width:0; display:flex; flex-direction:column; gap:16px">
+      <section aria-label="Your deployment" style="border-radius:14px; border:1px solid {{ dp.bd }}; background:var(--bg-surface); padding:18px; display:flex; flex-direction:column; gap:14px">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+          <h2 style="margin:0; font-size:16px; font-weight:600">Your Deployment</h2>
+          <dc-import name="Status Token" kind="runtime" state="{{ hd.runtime }}" title="{{ hd.runtimeTip }}" hint-size="90px,22px"></dc-import>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-subtle)">
+          <span style="width:30px; height:30px; flex:none; border-radius:8px; background:var(--bg-surface); border:1px solid var(--line-default); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:var(--text-secondary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.bot }}"></path></svg></span>
+          <div style="flex:1; min-width:0"><div style="font-size:12px; color:var(--text-tertiary)">Platform</div><div style="font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ m.platform }}</div></div>
+          <sc-if value="{{ dp.canOpen }}"><a href="#" onClick="{{ dp.open }}" style="font-size:13px; font-weight:500; white-space:nowrap; display:flex; align-items:center; gap:4px">Open<svg viewBox="0 0 24 24" aria-hidden="true" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 6.5h9.5V16M17.5 6.5 6.5 17.5"></path></svg></a></sc-if>
+        </div>
+        <sc-if value="{{ dp.when }}"><div title="{{ dp.whenAbs }}" style="font-size:13px; color:var(--text-secondary)">{{ dp.when }}</div></sc-if>
+        <sc-if value="{{ dp.issue }}"><div style="display:flex; gap:8px; padding:10px 12px; border-radius:10px; background:var(--status-attention-bg); border:1px solid var(--status-attention-line); font-size:13px; color:var(--status-attention-text)">{{ dp.issue }}</div></sc-if>
+        <sc-if value="{{ dp.last }}">
+          <div style="display:flex; flex-direction:column; gap:6px">
+            <div style="display:flex; justify-content:space-between; gap:10px; font-size:12px; color:var(--text-tertiary)"><span>Last Output</span><span title="{{ dp.last.abs }}">{{ dp.last.ago }}</span></div>
+            <div style="padding:12px; border-radius:10px; border:1px solid var(--line-default); background:var(--bg-sunken); display:flex; flex-direction:column; gap:4px">
+              <span style="font-size:13px; font-weight:600">{{ dp.last.title }}</span>
+              <span style="font-size:13px; line-height:1.5; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden">{{ dp.last.preview }}</span>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ dp.note }}"><div style="font-size:13px; line-height:1.5; color:var(--text-tertiary)">{{ dp.note }}</div></sc-if>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button onClick="{{ dp.primary.go }}" aria-disabled="{{ dp.primary.dis }}" style="--b-hov:{{ dp.primary.hov }}; flex:1; height:38px; padding:0 14px; border-radius:8px; border:1px solid {{ dp.primary.bd }}; background:{{ dp.primary.bg }}; color:{{ dp.primary.fg }}; font-size:14px; font-weight:600; cursor:{{ dp.primary.cursor }}; display:flex; align-items:center; justify-content:center; gap:8px; white-space:nowrap; outline:none" style-hover="background:var(--b-hov)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ dp.primary.icon }}"></path></svg>{{ dp.primary.label }}</button>
+          <sc-if value="{{ dp.secondary }}"><button onClick="{{ dp.secondary.go }}" style="height:38px; padding:0 14px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:14px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">{{ dp.secondary.label }}</button></sc-if>
+        </div>
+      </section>
+
+      <section aria-label="Build kit" style="border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); padding:16px 10px 10px">
+        <div style="padding:0 8px 10px; display:flex; justify-content:space-between; align-items:baseline"><h2 style="margin:0; font-size:16px; font-weight:600">Build Kit</h2><span style="font-size:12px; color:var(--text-tertiary)">{{ kitNote }}</span></div>
+        <div style="margin:0 6px 8px; padding:12px; border-radius:10px; border:1px solid var(--line-default); background:var(--bg-sunken); display:flex; flex-direction:column; gap:10px">
+          <div style="display:flex; align-items:center; gap:10px">
+            <div style="flex:1; min-width:0"><div style="font-size:14px; font-weight:600">System Prompt</div><div style="font-size:12px; color:var(--text-tertiary)">{{ promptStats }}</div></div>
+            <button onClick="{{ viewPrompt }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer" style-hover="background:var(--action-secondary-hover)">View</button>
+            <button onClick="{{ copyPrompt }}" style="--b-hov:{{ cp.hov }}; height:30px; padding:0 10px; border-radius:7px; border:1px solid {{ cp.bd }}; background:{{ cp.bg }}; color:{{ cp.fg }}; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap" style-hover="background:var(--b-hov)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ cp.icon }}"></path></svg>{{ cp.label }}</button>
+          </div>
+          <sc-if value="{{ vars.length }}"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; color:var(--text-tertiary)">Fill In<sc-for list="{{ vars }}" as="vv"><span style="font-family:var(--font-mono); font-size:11.5px; color:var(--access-locked-text); background:var(--access-locked-bg); padding:1px 6px; border-radius:4px">{{ vv }}</span></sc-for></div></sc-if>
+        </div>
+        <sc-for list="{{ files }}" as="f" hint-placeholder-count="3">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:9px" style-hover="background:var(--bg-hover)">
+            <span style="width:44px; flex:none; height:22px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:500; background:var(--bg-sunken); border:1px solid var(--line-default); color:var(--text-secondary)">{{ f.type }}</span>
+            <div style="flex:1; min-width:0"><div style="font-size:13px; font-weight:500; font-family:{{ f.font }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</div><div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.desc }}</div></div>
+            <button onClick="{{ f.preview }}" aria-label="Preview {{ f.name }}" style="width:30px; height:30px; flex:none; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--text-primary); border-color:var(--line-strong)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.eye }}"></path></svg></button>
+            <button onClick="{{ f.get }}" aria-label="{{ f.getLabel }}" title="{{ f.getLabel }}" style="width:30px; height:30px; flex:none; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--text-primary); border-color:var(--line-strong)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ f.getIcon }}"></path></svg></button>
+          </div>
+        </sc-for>
+        <sc-for list="{{ resources }}" as="rs">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px">
+            <span style="width:44px; flex:none; height:22px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:500; background:var(--bg-sunken); border:1px solid var(--line-default); color:var(--text-secondary)">{{ rs.type }}</span>
+            <div style="flex:1; min-width:0"><div style="font-size:13px; font-weight:500">{{ rs.name }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ rs.size }}</div></div>
+            <button onClick="{{ rs.go }}" aria-disabled="{{ rs.dis }}" aria-label="Download {{ rs.name }}" style="width:30px; height:30px; flex:none; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-surface); color:{{ rs.fg }}; cursor:{{ rs.cursor }}; display:flex; align-items:center; justify-content:center" style-hover="border-color:var(--line-strong)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg></button>
+          </div>
+        </sc-for>
+      </section>
+
+      <section aria-label="Instructor notes" style="border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); padding:16px 18px; display:flex; gap:12px">
+        <span style="width:34px; height:34px; flex:none; border-radius:50%; background:{{ insAv }}; color:var(--ink-900); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600">{{ insIni }}</span>
+        <div style="flex:1; min-width:0">
+          <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap"><span style="font-weight:600; font-size:14px">Instructor Notes</span><span style="color:var(--text-tertiary); font-size:12px">{{ m.instructor }}</span></div>
+          <p style="margin:6px 0 0; color:var(--text-secondary); font-size:14px; line-height:1.6; text-wrap:pretty">{{ m.notes }}</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <footer style="display:flex; justify-content:flex-end; padding:20px 0 40px; border-top:1px solid var(--line-default)">
+    <button onClick="{{ nextUp.go }}" style="height:40px; padding:0 16px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:10px; white-space:nowrap; outline:none" style-hover="background:var(--action-secondary-hover)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">{{ nextUp.label }}<svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M4.5 12h14.5M13.5 6.5 19 12l-5.5 5.5"></path></svg></button>
+  </footer>
+</div>
+
+<div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dr.op }}; pointer-events:{{ dr.pe }}; transition:opacity 200ms"></div>
+<aside aria-label="{{ dr.name }}" style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(560px, 100vw); background:var(--bg-raised); border-left:1px solid var(--line-default); box-shadow:var(--shadow-drawer); transform:{{ dr.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
+  <div style="display:flex; align-items:center; gap:12px; padding:16px 18px; border-bottom:1px solid var(--line-default)">
+    <div style="flex:1; min-width:0">
+      <div style="font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ dr.name }}</div>
+      <div style="font-size:13px; color:var(--text-tertiary)">{{ dr.desc }}</div>
+    </div>
+    <button onClick="{{ closeDrawer }}" aria-label="Close" style="width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button>
+  </div>
+  <sc-if value="{{ dr.isRun }}">
+    <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:14px">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">{{ run.inputLabel }}
+        <textarea value="{{ run.text }}" onChange="{{ run.setText }}" style="min-height:110px; resize:vertical; padding:10px 12px; border-radius:9px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; line-height:1.5; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
+      </label>
+      <sc-if value="{{ run.running }}"><div style="display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:var(--action-primary); stroke-width:2.2; stroke-linecap:round; animation:ai-spin 900ms linear infinite"><path d="M20.5 12A8.5 8.5 0 1 1 14.91 4.01"></path></svg>{{ m.short }} AI Employee Is Working…</div></sc-if>
+      <sc-for list="{{ run.out }}" as="o">
+        <div style="padding:12px 14px; border-radius:10px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:6px; animation:ai-pop 220ms ease-out">
+          <span style="font-size:13px; font-weight:600; color:var(--text-secondary)">{{ o.label }}</span>
+          <span style="font-size:14px; line-height:1.55; white-space:pre-wrap; text-wrap:pretty">{{ o.body }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; padding:14px 18px; border-top:1px solid var(--line-default)">
+      <sc-if value="{{ run.done }}"><button onClick="{{ run.copy }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:14px; cursor:pointer" style-hover="background:var(--action-secondary-hover)">Copy All</button></sc-if>
+      <button onClick="{{ run.go }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid transparent; background:var(--action-primary); color:var(--action-on-primary); font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px" style-hover="background:var(--action-primary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:currentColor"><path d="M8 5.3v13.4a1 1 0 0 0 1.5.86l10.9-6.7a1 1 0 0 0 0-1.72L9.5 4.44A1 1 0 0 0 8 5.3z"></path></svg>{{ run.btn }}</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ dr.isCode }}">
+    <div style="flex:1; overflow:auto; background:var(--bg-sunken); padding:14px 0; font-family:var(--font-mono); font-size:12.5px; line-height:1.7">
+      <sc-for list="{{ dr.lines }}" as="pl">
+        <div style="display:flex"><span style="width:44px; flex:none; padding-right:12px; text-align:right; color:var(--text-disabled); user-select:none; font-variant-numeric:tabular-nums">{{ pl.n }}</span><span style="flex:1; min-width:0; padding-right:18px; white-space:pre-wrap; word-break:break-word"><sc-for list="{{ pl.parts }}" as="pp"><span style="color:{{ pp.c }}; font-weight:{{ pp.w }}">{{ pp.t }}</span></sc-for></span></div>
+      </sc-for>
+    </div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; padding:14px 18px; border-top:1px solid var(--line-default)">
+      <button onClick="{{ dr.copy }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:14px; cursor:pointer; display:flex; align-items:center; gap:7px" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.copy }}"></path></svg>Copy</button>
+      <button onClick="{{ dr.get }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid transparent; background:var(--action-primary); color:var(--action-on-primary); font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px" style-hover="background:var(--action-primary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ dr.getIcon }}"></path></svg>{{ dr.getLabel }}</button>
+    </div>
+  </sc-if>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { mid: null, playing: false, t: 0, speed: 1, cc: true, tr: false, q: '', drawer: null, copied: false, runText: '', runState: 'idle' };
+  ticks = 0;
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, 'agent', { s: 'workspace', id: 'marketing' })); }
+  componentDidMount() { this.bootStandalone(); this.sync(); this.iv = setInterval(() => this.tick(), 250); }
+  componentDidUpdate() { this.sync(); }
+  componentWillUnmount() { clearInterval(this.iv); clearTimeout(this.ct); clearTimeout(this.rt); this.savePos(); }
+  mod() { const c = this.cx; return c ? c.db.modules.find(m => m.id === c.route.id) : null; }
+  sync() {
+    const m = this.mod();
+    if (m && m.id !== this.state.mid) {
+      this.savePos();
+      let t = 0; try { t = +localStorage.getItem('ai-lms-pos-' + m.id) || 0; } catch (e) {}
+      this.setState({ mid: m.id, t: Math.min(t, m.dur || 0), playing: false, q: '', drawer: null, tr: false, runState: 'idle', runText: (m.runDemo && m.runDemo.input) || '' });
+    }
+  }
+  savePos() { const { mid, t } = this.state; try { if (mid) localStorage.setItem('ai-lms-pos-' + mid, String(Math.floor(t))); } catch (e) {} }
+  tick() {
+    if (!this.state.playing) return;
+    const m = this.mod(); if (!m || !m.dur) return;
+    this.setState(s => { const t = Math.min(m.dur, s.t + 0.25 * s.speed); return { t, playing: t < m.dur }; });
+    if (++this.ticks % 20 === 0) this.savePos();
+  }
+  seek(t, play) {
+    const m = this.mod(); if (!m || !m.dur) return;
+    this.setState({ t: Math.max(0, Math.min(m.dur, t)), ...(play ? { playing: true } : {}) });
+    const main = document.querySelector('main'); if (play && main && main.scrollTop > 120) main.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  setProgress(m, fn, msg) {
+    const { user, act } = this.cx;
+    act.mutate(d => { const u = d.users.find(x => x.id === user.id); u.progress = u.progress || {}; const pr = u.progress[m.id] || { steps: [], builtAt: null, deployedAt: null, runtime: null }; fn(pr, d, u); u.progress[m.id] = pr; u.last = act.now(); }, msg);
+  }
+  toggleStep(m, sid) {
+    const { user, act, lib } = this.cx, p = lib.progressOf(user, m);
+    if (p.deployedAt && p.steps.includes(sid)) return act.toast('This AI Employee is deployed, so its checklist is locked.', 'info');
+    const willBuild = !p.steps.includes(sid) && p.steps.length + 1 >= m.checklist.length;
+    this.setProgress(m, (pr, d) => {
+      pr.steps = pr.steps.includes(sid) ? pr.steps.filter(x => x !== sid) : [...pr.steps, sid];
+      const t = act.now();
+      if (pr.steps.length >= m.checklist.length) { if (!pr.builtAt) { pr.builtAt = t; lib.log(d, t, user.name, 'built ' + m.name, 'success'); } } else pr.builtAt = null;
+    }, willBuild ? `${m.name} is built. Deploy it from the card on the right.` : '');
+    if (willBuild) act.celebrate();
+  }
+  renderVals() {
+    const c = this.cx; if (!c || !c.user) return {};
+    const { db, user, lib, ic, act, isTeam } = c;
+    const m = this.mod(); if (!m) return { ic };
+    const F = lib.fmt, now = act.now();
+    const p = lib.progressOf(user, m), b = lib.buildOf(user, m), rt = lib.runtimeOf(user, m), soonM = !lib.isOpen(m, now);
+    const tile = b.state === 'verified' ? ['var(--status-success-bg)', 'var(--status-success-line)', 'var(--status-success-text)'] : ['var(--action-primary-tint)', 'var(--action-primary-line)', 'var(--action-primary)'];
+    const hd = { icon: ic[m.icon] || ic.bot, tileBg: tile[0], tileBd: tile[1], tileFg: tile[2], runtime: rt,
+      runtimeTip: p.deployedAt ? `Deployed ${F.agoInline(p.deployedAt, now)} · ${F.abs(p.deployedAt)}` : b.state === 'verified' ? 'Built, not deployed yet' : 'Deploys after all 6 steps are verified' };
+    const sess = m.session ? lib.sessionFor(db, user.cohortId, m.session) : null;
+    const sst = sess ? lib.sessionState(sess, now) : 'none';
+    const meta = { hasSession: !!sess, selfPaced: !sess, n: sess ? sess.n : '', title: sess ? sess.title : '', goSession: e => { e && e.preventDefault && e.preventDefault(); act.nav('sessions'); } };
+
+    const { t, playing, speed, cc, tr, q, copied } = this.state;
+    const hasVid = !!m.dur && (sst === 'replay' || (!sess && !!m.dur));
+    const steps = m.checklist;
+    const cur = steps.filter(s => s.t <= t).pop();
+    const capLine = (m.transcript || []).filter(x => x[0] <= t && t - x[0] < 30).pop();
+    const joinMode = sess ? lib.joinMode(sess, now) : 'disabled';
+    const v = {
+      has: hasVid, none: !hasVid, n: sess ? sess.n : '–', title: sess ? sess.title : m.name, sub: `${m.name} · with ${m.instructor}`,
+      pct: hasVid ? ((t / m.dur) * 100).toFixed(2) + '%' : '0%', tNow: Math.floor(t), time: F.clock(t), total: F.clock(m.dur || 0),
+      chapter: hasVid && cur ? `Step ${steps.indexOf(cur) + 1} · ${cur.ch}` : '', playIcon: playing ? ic.pause : ic.play, playTitle: playing ? 'Pause' : 'Play',
+      showBigPlay: hasVid && !playing, caption: cc && playing && capLine ? capLine[1] : '', ccFg: cc ? 'var(--action-primary)' : 'var(--text-tertiary)', ccOn: cc ? 'true' : 'false', speedLabel: speed + '×',
+      posterClick: () => hasVid && this.setState(s => ({ playing: !s.playing, t: s.t >= (m.dur || 0) ? 0 : s.t })), posterCursor: hasVid ? 'pointer' : 'default',
+      toggle: () => this.setState(s => ({ playing: !s.playing, t: s.t >= (m.dur || 0) ? 0 : s.t })), back: () => this.seek(t - 10),
+      toggleCc: () => this.setState(s => ({ cc: !s.cc })), cycleSpeed: () => this.setState(s => { const L = [1, 1.25, 1.5, 2]; return { speed: L[(L.indexOf(s.speed) + 1) % L.length] }; }),
+      seekBar: e => { const r = e.currentTarget.getBoundingClientRect(); this.seek(((e.clientX - r.left) / r.width) * m.dur); },
+      noneWhen: sess ? (sst === 'live' ? 'Live now' : sst === 'processing' ? 'Replay processing · usually within 2 hours' : F.when(sess.start)) : 'Walkthrough video coming soon',
+      noneNote: sess && sst === 'upcoming' ? (joinMode === 'ready' ? '' : 'Join opens 15 min before') : '',
+      showJoin: !!sess && (sst === 'upcoming' || sst === 'live'), showCal: !!sess && sst === 'upcoming', joinMode, zoom: sess ? sess.zoom : '',
+      join: () => act.toast('Opening Zoom · ' + sess.zoom, 'info'),
+      cal: () => sess && act.download(`session-${sess.n}.ics`, lib.ics([lib.sessionEvent(sess)]), 'text/calendar', 'Calendar invite downloaded'),
+    };
+    const rail = steps.map((s, i) => {
+      const done = p.steps.includes(s.id), active = hasVid && cur && cur.id === s.id;
+      return { n: i + 1, t: F.clock(s.t), label: s.ch, done, left: ((s.t / (m.dur || 1)) * 100).toFixed(2) + '%', markC: done ? 'var(--status-success)' : 'var(--text-tertiary)',
+        bd: active ? 'var(--action-primary-line)' : 'var(--line-default)', bg: active ? 'var(--action-primary-tint)' : 'var(--bg-surface)', fg: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+        cur: active ? 'step' : undefined, cursor: hasVid ? 'pointer' : 'default', tip: hasVid ? `Jump to ${F.clock(s.t)} · ${s.text}` : s.text, go: () => hasVid && this.seek(s.t, true) };
+    });
+
+    const esc = q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = esc ? new RegExp('(' + esc + ')', 'ig') : null, reT = esc ? new RegExp(esc, 'i') : null;
+    let hits = 0;
+    const lines = (m.transcript || []).filter(x => !reT || reT.test(x[1])).map(x => {
+      const parts = re ? x[1].split(re).filter(Boolean).map(s => { const hit = s.toLowerCase() === q.trim().toLowerCase(); if (hit) hits++; return { s, bg: hit ? 'var(--access-locked-bg)' : 'transparent', fg: hit ? 'var(--text-primary)' : 'var(--text-secondary)' }; }) : [{ s: x[1], bg: 'transparent', fg: 'var(--text-secondary)' }];
+      return { t: F.clock(x[0]), parts, bg: hasVid && capLine && capLine[0] === x[0] ? 'var(--action-primary-tint)' : 'transparent', go: () => this.seek(x[0], true) };
+    });
+
+    const hl = txt => txt.split('\n').map((ln, i) => { const head = /^#/.test(ln); const parts = ln.split(/(\{\{[A-Z_]+\}\})/).filter(Boolean).map(x => /^\{\{/.test(x) ? { t: x, c: 'var(--access-locked-text)', w: 500 } : { t: x, c: head ? 'var(--text-link)' : 'var(--text-secondary)', w: head ? 600 : 400 }); return { n: i + 1, parts: parts.length ? parts : [{ t: ' ', c: 'inherit', w: 400 }] }; });
+    const vars = [...new Set((m.prompt.match(/\{\{[A-Z_]+\}\}/g) || []).map(x => x.replace(/[{}]/g, '')))];
+    const copyPrompt = () => { act.copy(m.prompt, 'System prompt copied'); this.setState({ copied: true }); clearTimeout(this.ct); this.ct = setTimeout(() => this.setState({ copied: false }), 2000); };
+    const cp = copied ? { label: 'Copied', icon: ic.check, bg: 'var(--status-success-bg)', fg: 'var(--status-success-text)', bd: 'var(--status-success-line)', hov: 'var(--status-success-bg)' } : { label: 'Copy', icon: ic.copy, bg: 'var(--action-primary)', fg: 'var(--action-on-primary)', bd: 'transparent', hov: 'var(--action-primary-hover)' };
+    const ext = f => (f.type === 'Notion' ? '.md' : '');
+    const getFile = f => (f.type === 'Notion' ? act.toast(`Opening “${f.name}” in Notion`, 'info') : act.download(f.name + ext(f), lib.skillPreview(f, m), f.type === 'JSON' ? 'application/json' : 'text/yaml'));
+    const files = m.files.map((f, i) => ({ ...f, font: f.type === 'Notion' ? 'inherit' : 'var(--font-mono)', preview: () => this.setState({ drawer: { kind: 'file', i } }), get: () => getFile(f), getIcon: f.type === 'Notion' ? ic.ext : ic.download, getLabel: f.type === 'Notion' ? 'Duplicate to Notion' : 'Download'}));
+    const resources = m.resources.map(r => { const pending = /posted after/i.test(r.size); return { ...r, dis: pending ? 'true' : undefined, fg: pending ? 'var(--text-disabled)' : 'var(--text-secondary)', cursor: pending ? 'not-allowed' : 'pointer', go: () => !pending && act.download(r.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.' + r.type.toLowerCase(), `${r.name}\n\nPlaceholder file from the Amplified Impact prototype.`, 'text/plain', `Downloaded ${r.name}`) }; });
+
+    const locked = !!p.deployedAt;
+    const nextIdx = steps.findIndex(s => !p.steps.includes(s.id));
+    const ck = {
+      done: b.n, total: b.total, state: b.state, tip: p.builtAt ? `Built ${F.agoInline(p.builtAt, now)} · ${F.abs(p.builtAt)}` : '',
+      segs: steps.map(s => (p.steps.includes(s.id) ? (b.state === 'verified' ? 'var(--status-success)' : 'var(--status-progress)') : 'var(--track)')),
+      items: steps.map((s, i) => {
+        const on = p.steps.includes(s.id), isNext = i === nextIdx && !soonM;
+        const assets = [];
+        if (/system prompt/i.test(s.text)) assets.push({ label: 'Copy Prompt', icon: ic.copy, go: copyPrompt }, { label: 'View', icon: ic.eye, go: () => this.setState({ drawer: { kind: 'prompt' } }) });
+        if (/skill file/i.test(s.text)) m.files.filter(f => f.type !== 'Notion').forEach((f, k) => assets.push({ label: f.name.replace(/\.skill\.(json|ya?ml)$/i, ''), icon: ic.download, go: () => getFile(f) }));
+        return {
+          n: i + 1, text: s.text, hint: s.hint, mins: s.mins, t: F.clock(s.t), on, off: !on, watch: hasVid ? () => this.seek(s.t, true) : null, assets,
+          rowBg: isNext ? 'var(--bg-sunken)' : 'transparent', fg: on ? 'var(--text-secondary)' : 'var(--text-primary)',
+          numBd: on ? 'var(--status-success)' : isNext ? 'var(--action-primary)' : 'var(--line-strong)', numBg: on ? 'var(--status-success-bg)' : 'transparent', numFg: on ? 'var(--status-success-text)' : isNext ? 'var(--action-primary)' : 'var(--text-tertiary)',
+          btnBg: isNext ? 'var(--action-primary)' : 'var(--action-secondary)', btnFg: isNext ? 'var(--action-on-primary)' : 'var(--text-primary)', btnBd: isNext ? 'transparent' : 'var(--action-secondary-line)', btnHov: isNext ? 'var(--action-primary-hover)' : 'var(--action-secondary-hover)',
+          undoTip: locked ? 'Deployed AI Employees keep their checklist' : 'Verified · click to undo',
+          toggle: () => (soonM ? act.toast(`${m.name} opens ${F.day(m.opens)}.`, 'info') : this.toggleStep(m, s.id)),
+        };
+      }),
+    };
+
+    const btn = (label, icon, go, primary = true, disabled = false) => ({ label, icon, go: disabled ? () => {} : go, dis: disabled ? 'true' : undefined,
+      bg: disabled ? 'var(--action-secondary)' : primary ? 'var(--action-primary)' : 'var(--action-secondary)', fg: disabled ? 'var(--text-disabled)' : primary ? 'var(--action-on-primary)' : 'var(--text-primary)',
+      bd: disabled ? 'var(--line-default)' : primary ? 'transparent' : 'var(--action-secondary-line)', hov: disabled ? 'var(--action-secondary)' : primary ? 'var(--action-primary-hover)' : 'var(--action-secondary-hover)', cursor: disabled ? 'not-allowed' : 'pointer' });
+    const openRun = () => this.setState({ drawer: { kind: 'run' }, runState: 'idle' });
+    const setRt = (r, msg) => this.setProgress(m, pr => { pr.runtime = r; if (r === 'deployed') delete pr.issue; }, msg);
+    let dp;
+    if (rt === 'deployed') dp = { primary: btn(m.runLabel || 'Run it', ic.play, openRun), secondary: { label: 'Pause', go: () => setRt('paused', `${m.name} paused`) } };
+    else if (rt === 'paused') dp = { primary: btn('Resume', ic.play, () => setRt('deployed', `${m.name} resumed`)), note: 'Paused. It won’t pick up new work until you resume it.' };
+    else if (rt === 'needs_attention') dp = { primary: btn('Reconnect', ic.reset, () => setRt('deployed', 'Reconnected. Test run passed.')), issue: p.issue || 'Something stopped working.' };
+    else if (b.state === 'verified') dp = { primary: btn('Mark as Deployed', ic.rocket, () => this.setProgress(m, (pr, d) => { const tt = act.now(); pr.deployedAt = tt; pr.runtime = 'deployed'; lib.log(d, tt, user.name, 'deployed ' + m.name, 'success'); }, `${m.name} deployed`)), note: 'All 6 steps are verified. Mark it deployed once it’s running in your tools.' };
+    else dp = { primary: btn('Mark as Deployed', ic.rocket, null, true, true), note: `Finish all ${b.total} steps to deploy. ${b.total - b.n} to go.` };
+    dp.bd = rt === 'needs_attention' ? 'var(--status-attention-line)' : 'var(--line-default)';
+    dp.canOpen = !!p.deployedAt; dp.open = e => { e && e.preventDefault && e.preventDefault(); act.toast(`Opening “${m.name}” in Claude`, 'info'); };
+    dp.when = p.deployedAt ? `Deployed ${F.agoInline(p.deployedAt, now)}` : p.builtAt ? `Built ${F.agoInline(p.builtAt, now)}` : '';
+    dp.whenAbs = p.deployedAt ? F.abs(p.deployedAt) : p.builtAt ? F.abs(p.builtAt) : '';
+    dp.last = p.deployedAt && p.lastRun ? { title: p.lastRun.title, preview: p.lastRun.preview, ago: F.ago(p.lastRun.at, now), abs: F.abs(p.lastRun.at) } : null;
+    dp.secondary = dp.secondary || null; dp.issue = dp.issue || ''; dp.note = dp.note || '';
+
+    const demo = m.runDemo || { input: '', sections: (m.outputs || []).filter(Boolean).map(o => [o, 'Drafted from your input. Review it, then send or file it.']) };
+    const { runState, runText } = this.state;
+    const run = {
+      inputLabel: (m.runLabel || 'Run it').replace(/^Run on /, 'Paste ').replace(/^a /, 'a '), text: runText, setText: e => this.setState({ runText: e.target.value }),
+      running: runState === 'running', done: runState === 'done', btn: runState === 'done' ? 'Run Again' : 'Run',
+      out: runState === 'done' ? demo.sections.map(([label, body]) => ({ label, body })) : [],
+      go: () => {
+        this.setState({ runState: 'running' }); clearTimeout(this.rt);
+        this.rt = setTimeout(() => {
+          this.setState({ runState: 'done' });
+          const first = demo.sections[0] || ['Output', ''], main = demo.sections[1] || first;
+          const title = (m.runLabel || 'Run').replace(/^Run on (a |an |your )?/, '').replace(/^\w/, ch => ch.toUpperCase());
+          this.setProgress(m, pr => { pr.lastRun = { at: act.now(), title: `${main[0]} · ${(runText.split('\n')[0] || title).slice(0, 40)}`, preview: main[1] }; });
+        }, 1400);
+      },
+      copy: () => act.copy(demo.sections.map(([l, x]) => `${l}\n${x}`).join('\n\n'), 'Output copied'),
+    };
+    if (run.inputLabel === (m.runLabel || 'Run it')) run.inputLabel = 'Input';
+
+    const dw = this.state.drawer; if (dw) this.lastDrawer = dw;
+    const dd = dw || this.lastDrawer || { kind: 'prompt' };
+    const df = dd.kind === 'file' ? m.files[dd.i] : null;
+    const dr = {
+      tf: dw ? 'translateX(0)' : 'translateX(105%)', op: dw ? 1 : 0, pe: dw ? 'auto' : 'none', isRun: dd.kind === 'run', isCode: dd.kind !== 'run',
+      name: dd.kind === 'run' ? (m.runLabel || 'Run') : df ? df.name : 'System Prompt', desc: dd.kind === 'run' ? `${m.name} · ${m.platform}` : df ? `${df.desc} · ${df.size}` : `${m.name} · paste into Claude → Project → Instructions`,
+      lines: dd.kind === 'run' ? [] : hl(df ? lib.skillPreview(df, m) : m.prompt),
+      copy: () => act.copy(df ? lib.skillPreview(df, m) : m.prompt, df ? 'File contents copied' : 'System prompt copied'),
+      get: () => (df ? getFile(df) : act.download(m.short.toLowerCase() + '-system-prompt.md', m.prompt, 'text/markdown')),
+      getLabel: df && df.type === 'Notion' ? 'Duplicate to Notion' : 'Download', getIcon: df && df.type === 'Notion' ? ic.ext : ic.download,
+    };
+    const nx = lib.nextIncluded(db, user, m.id, now);
+    const soon = soonM ? { label: m.opens ? 'Opens ' + F.date(m.opens) : 'Opens Soon', text: `The live build is Session ${sess ? sess.n : ''}. Everything here unlocks ${m.opens ? F.day(m.opens) : 'soon'} at ${m.opens ? F.time(m.opens) : '9:00 AM CT'}.` } : null;
+    return {
+      ic, m, hd, meta, soon, v, rail, railTitle: hasVid ? 'Chapters' : 'Session Agenda',
+      trOpen: tr && hasVid, trOn: tr ? 'true' : 'false', trBg: tr ? 'var(--bg-selected)' : 'var(--bg-surface)', trBd: tr ? 'var(--line-strong)' : 'var(--line-default)',
+      toggleTranscript: () => this.setState(s => ({ tr: !s.tr })),
+      lines, q, setQ: e => this.setState({ q: e.target.value }), qCount: re ? `${hits} match${hits === 1 ? '' : 'es'}` : `${(m.transcript || []).length} lines`,
+      noTranscript: !(m.transcript || []).length || (!!re && !lines.length), noTranscriptMsg: (m.transcript || []).length ? 'No matches in this transcript.' : 'The searchable transcript posts with the replay.',
+      ck, dp, run, dr, files, resources, vars, cp, copyPrompt, viewPrompt: () => this.setState({ drawer: { kind: 'prompt' } }),
+      promptStats: `${m.prompt.split('\n').length} lines · about ${Math.round(m.prompt.length / 4)} tokens`, kitNote: `${m.files.length + 1} items`,
+      insIni: F.initials(m.instructor), insAv: lib.avatarColor(m.instructor),
+      closeDrawer: () => this.setState({ drawer: null }), stopProp: e => e.stopPropagation(),
+      nextUp: nx ? { label: `Next: ${nx.name}`, go: () => act.nav('workspace', nx.id) } : { label: 'Back to Dashboard', go: () => act.nav('dashboard') },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2727 @@
+{
+  "v": 3,
+  "cohorts": [
+    {
+      "id": "dec26",
+      "name": "December 2026",
+      "start": 1796151600000,
+      "end": 1799449200000,
+      "weeks": 6,
+      "status": "completed",
+      "capacity": 200,
+      "enrolled": 148,
+      "cadence": "Tue & Thu · 1:00 PM CT"
+    },
+    {
+      "id": "feb27",
+      "name": "February 2027",
+      "start": 1801594800000,
+      "end": 1804892400000,
+      "weeks": 6,
+      "status": "enrolling",
+      "capacity": 200,
+      "enrolled": 112,
+      "cadence": "Tue & Thu · 1:00 PM CT"
+    },
+    {
+      "id": "apr27",
+      "name": "April 2027",
+      "start": 1807038000000,
+      "end": 1810335600000,
+      "weeks": 6,
+      "status": "draft",
+      "capacity": 200,
+      "enrolled": 0,
+      "cadence": "Tue & Thu · 1:00 PM CT"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "dec26-s1",
+      "cohortId": "dec26",
+      "n": 1,
+      "title": "The Autonomous Agent",
+      "start": 1796151600000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841200610",
+      "live": false,
+      "attended": 121,
+      "replay": "ready",
+      "views": 402
+    },
+    {
+      "id": "dec26-s2",
+      "cohortId": "dec26",
+      "n": 2,
+      "title": "Speed to Lead",
+      "start": 1796324400000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841201981",
+      "live": false,
+      "attended": 109,
+      "replay": "ready",
+      "views": 311
+    },
+    {
+      "id": "dec26-s3",
+      "cohortId": "dec26",
+      "n": 3,
+      "title": "The Living Database",
+      "start": 1796842800000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841203352",
+      "live": false,
+      "attended": 116,
+      "replay": "ready",
+      "views": 287,
+      "movedFrom": 1796756400000
+    },
+    {
+      "id": "dec26-s4",
+      "cohortId": "dec26",
+      "n": 4,
+      "title": "The Meeting That Runs Itself",
+      "start": 1796929200000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841204723",
+      "live": false,
+      "attended": 98,
+      "replay": "ready",
+      "views": 164
+    },
+    {
+      "id": "dec26-s5",
+      "cohortId": "dec26",
+      "n": 5,
+      "title": "Numbers on Autopilot",
+      "start": 1797361200000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841206094",
+      "live": false,
+      "attended": 92,
+      "replay": "ready",
+      "views": 151
+    },
+    {
+      "id": "dec26-s6",
+      "cohortId": "dec26",
+      "n": 6,
+      "title": "Contract to Close",
+      "start": 1797534000000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841207465",
+      "live": false,
+      "attended": 104,
+      "replay": "ready",
+      "views": 173
+    },
+    {
+      "id": "feb27-s1",
+      "cohortId": "feb27",
+      "n": 1,
+      "title": "The Autonomous Agent",
+      "start": 1801594800000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841200707",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "feb27-s2",
+      "cohortId": "feb27",
+      "n": 2,
+      "title": "Speed to Lead",
+      "start": 1801767600000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841202078",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "feb27-s3",
+      "cohortId": "feb27",
+      "n": 3,
+      "title": "The Living Database",
+      "start": 1802199600000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841203449",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "feb27-s4",
+      "cohortId": "feb27",
+      "n": 4,
+      "title": "The Meeting That Runs Itself",
+      "start": 1802372400000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841204820",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "feb27-s5",
+      "cohortId": "feb27",
+      "n": 5,
+      "title": "Numbers on Autopilot",
+      "start": 1802804400000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841206191",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "feb27-s6",
+      "cohortId": "feb27",
+      "n": 6,
+      "title": "Contract to Close",
+      "start": 1802977200000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841207562",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "apr27-s1",
+      "cohortId": "apr27",
+      "n": 1,
+      "title": "The Autonomous Agent",
+      "start": 1807038000000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841200804",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "apr27-s2",
+      "cohortId": "apr27",
+      "n": 2,
+      "title": "Speed to Lead",
+      "start": 1807210800000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841202175",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "apr27-s3",
+      "cohortId": "apr27",
+      "n": 3,
+      "title": "The Living Database",
+      "start": 1807642800000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841203546",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "apr27-s4",
+      "cohortId": "apr27",
+      "n": 4,
+      "title": "The Meeting That Runs Itself",
+      "start": 1807815600000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841204917",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "apr27-s5",
+      "cohortId": "apr27",
+      "n": 5,
+      "title": "Numbers on Autopilot",
+      "start": 1808247600000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841206288",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    },
+    {
+      "id": "apr27-s6",
+      "cohortId": "apr27",
+      "n": 6,
+      "title": "Contract to Close",
+      "start": 1808420400000,
+      "mins": 75,
+      "zoom": "https://zoom.us/j/8841207659",
+      "live": false,
+      "attended": null,
+      "replay": null,
+      "views": 0
+    }
+  ],
+  "modules": [
+    {
+      "id": "marketing",
+      "name": "Marketing AI Employee",
+      "short": "Marketing",
+      "tier": "agent",
+      "icon": "megaphone",
+      "forWho": "listing agents & marketing coordinators",
+      "headline": "Launch every listing in minutes, compliant on every channel.",
+      "outcome": "Paste an MLS listing → Fair-Housing-checked description, 5 social posts, 1 email.",
+      "outputs": [
+        "Fair-Housing-checked MLS description",
+        "5 social posts in your brand voice",
+        "1 just-listed email"
+      ],
+      "platform": "Claude Project",
+      "runLabel": "Run on a Listing",
+      "build": 45,
+      "session": 1,
+      "status": "published",
+      "opens": null,
+      "order": 1,
+      "dur": 3504,
+      "instructor": "Jordan Hale",
+      "transcript": [
+        [
+          12,
+          "Welcome in. Today we're hiring your first AI employee, and by the end of this session it will be working for you."
+        ],
+        [
+          95,
+          "An AI employee is three things: a job description, a set of skills, and a way to check its work."
+        ],
+        [
+          300,
+          "Start by creating a Claude Project. Name it after the job, not the tool."
+        ],
+        [
+          390,
+          "The system prompt is the job description. It tells Claude who it works for, what good looks like, and what it must never do."
+        ],
+        [
+          512,
+          "Notice the compliance section sits at the top. Fair housing rules are not optional, so they come before style."
+        ],
+        [
+          1120,
+          "Upload your last three listing descriptions so it learns your brand voice instead of sounding generic."
+        ],
+        [
+          1402,
+          "The skill files teach it repeatable jobs: the launch packet and the compliance check."
+        ],
+        [
+          1935,
+          "Now paste the test listing. The packet comes back as an MLS description, five social posts and one email."
+        ],
+        [
+          2440,
+          "The compliance check flags steering language, like describing a neighborhood as perfect for young families."
+        ],
+        [
+          2610,
+          "If it flags something, it explains which rule applies and suggests a compliant rewrite."
+        ],
+        [
+          2990,
+          "Your checklist is on the page. Don't mark the last step verified until the test listing passes the compliance check."
+        ],
+        [
+          3260,
+          "Question from the chat: can this post directly to Instagram? Not yet. That comes in the Operations module."
+        ]
+      ],
+      "notes": "Run the compliance check on every public-facing output, including social captions. Keep your brand voice file under 2,000 words; longer files dilute the style signal. If your MLS has a character limit, add it to the Output rules section before you test.",
+      "prompt": "# Role\nYou are the Marketing AI Employee for {{TEAM_NAME}}, a real estate team in {{MARKET}}.\nYou produce listing marketing that is accurate, on-brand and compliant.\n\n# Compliance (always first)\n- Follow the Fair Housing Act. Describe the property and amenities, never people.\n- Flag steering language (e.g. \"perfect for young families\", \"safe neighborhood\").\n- Follow MLS rules: no contact info in public remarks; stay under {{MLS_CHAR_LIMIT}} characters.\n\n# Inputs\n- Listing details: address, price, beds/baths, square footage, features\n- Brand voice file: three past listing descriptions\n- Weekly market snapshot: inventory, days on market, price changes\n\n# Outputs\n1. MLS description that passes the compliance check\n2. 5 social posts in the brand voice\n3. 1 just-listed email\n\n# Output rules\n- Lead with the strongest feature. No exclamation marks.\n- Run the compliance check before returning anything. List any flags first.",
+      "files": [
+        {
+          "name": "listing-launch-packet.skill.json",
+          "type": "JSON",
+          "size": "4 KB",
+          "desc": "MLS copy, social posts and email from one listing",
+          "steps": [
+            "Extract property facts",
+            "Draft MLS public remarks",
+            "Draft 5 social posts",
+            "Draft just-listed email",
+            "Run fair-housing-check"
+          ]
+        },
+        {
+          "name": "fair-housing-check.skill.yaml",
+          "type": "YAML",
+          "size": "2 KB",
+          "desc": "Flags steering language and suggests rewrites",
+          "steps": [
+            "Scan for protected-class references",
+            "Flag steering phrases",
+            "Cite the rule",
+            "Suggest a compliant rewrite"
+          ]
+        },
+        {
+          "name": "Brand Voice Intake",
+          "type": "Notion",
+          "size": "Template",
+          "desc": "Tone, phrases to use and phrases to avoid",
+          "steps": [
+            "Paste 3 past listing descriptions",
+            "List 5 words that sound like you",
+            "List phrases you never use"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Session 1 Slides",
+          "type": "PDF",
+          "size": "4.2 MB"
+        },
+        {
+          "name": "Test Listing: 1418 Alder Ct",
+          "type": "PDF",
+          "size": "180 KB"
+        },
+        {
+          "name": "Fair Housing Quick Reference",
+          "type": "PDF",
+          "size": "320 KB"
+        }
+      ],
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Create a Claude Project named “Marketing AI Employee”",
+          "ch": "Create the Project",
+          "mins": 5,
+          "t": 300,
+          "hint": "Projects keep the prompt and skill files together."
+        },
+        {
+          "id": "c2",
+          "text": "Paste the system prompt into Project Instructions",
+          "ch": "Add the System Prompt",
+          "mins": 8,
+          "t": 390,
+          "hint": "Replace {{TEAM_NAME}}, {{MARKET}} and {{MLS_CHAR_LIMIT}} first."
+        },
+        {
+          "id": "c3",
+          "text": "Upload your last 3 listing descriptions",
+          "ch": "Teach It Your Voice",
+          "mins": 8,
+          "t": 1120,
+          "hint": "This becomes the brand voice file."
+        },
+        {
+          "id": "c4",
+          "text": "Add both skill files to the project knowledge",
+          "ch": "Add the Skills",
+          "mins": 6,
+          "t": 1402,
+          "hint": ""
+        },
+        {
+          "id": "c5",
+          "text": "Run the test prompt with the sample listing",
+          "ch": "Run the Test Listing",
+          "mins": 10,
+          "t": 1935,
+          "hint": "Test listing: 1418 Alder Ct, in the build kit."
+        },
+        {
+          "id": "c6",
+          "text": "Confirm the compliance check flags the test phrase",
+          "ch": "Check Compliance",
+          "mins": 8,
+          "t": 2440,
+          "hint": "Expect a flag on “perfect for young families.”"
+        }
+      ],
+      "runDemo": {
+        "input": "1418 Alder Ct · $649,000 · 4 bd · 3 ba · 2,380 sq ft\nUpdated kitchen with quartz counters, vaulted living room, fenced yard backing to the greenbelt. Walk to the Alder Creek trail. Perfect for young families.",
+        "sections": [
+          [
+            "Compliance check",
+            "1 flag fixed. “Perfect for young families” describes people, not the property (Fair Housing Act, familial status). Rewritten as “Room to spread out, with a fenced yard.”"
+          ],
+          [
+            "MLS description",
+            "Vaulted ceilings and a quartz kitchen open onto a fenced yard that backs to the greenbelt. Four bedrooms and three baths across 2,380 sq ft, with room to spread out and a short walk to the Alder Creek trail."
+          ],
+          [
+            "5 social posts",
+            "1. Just listed: 1418 Alder Ct. Vaulted ceilings, quartz kitchen, greenbelt views.\n2. Morning coffee, trail access, nobody behind you. 1418 Alder Ct is live.\n3. 4 bd · 3 ba · 2,380 sq ft. Fenced yard on the greenbelt. Tour this weekend.\n4. The kitchen was redone top to bottom: quartz, new cabinetry, room for a crowd.\n5. Open house Saturday 11–2 at 1418 Alder Ct. Bring your questions."
+          ],
+          [
+            "1 email",
+            "Subject: Just listed: 1418 Alder Ct\nA greenbelt lot, a renovated kitchen and room to spread out. Reply to book a private tour before Saturday’s open house."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "sales",
+      "name": "Sales AI Employee",
+      "short": "Sales",
+      "tier": "agent",
+      "icon": "zap",
+      "forWho": "buyer & listing agents",
+      "headline": "Answer every new lead in under five minutes.",
+      "outcome": "Paste a new lead → a first reply in your voice, 2 objection responses, a consult brief.",
+      "outputs": [
+        "First reply drafted within 5 minutes",
+        "Two objection responses: empathetic and direct",
+        "One-page consultation brief"
+      ],
+      "platform": "Claude Project + CRM webhook",
+      "runLabel": "Run on a Lead",
+      "build": 30,
+      "session": 2,
+      "status": "published",
+      "opens": null,
+      "order": 2,
+      "dur": 3390,
+      "instructor": "Jordan Hale",
+      "transcript": [
+        [
+          18,
+          "The first agent to reply usually gets the conversation. Today we make five minutes your default."
+        ],
+        [
+          430,
+          "The responder prompt has one job: a short, human first reply that asks a single question."
+        ],
+        [
+          702,
+          "Match the channel. If they texted, you text. If they came through the portal, reply in the portal."
+        ],
+        [
+          1130,
+          "Paste an objection and you get two replies back: one empathetic, one direct."
+        ],
+        [
+          1865,
+          "Consultation prep pulls the lead's activity into a one-page brief with three questions to ask."
+        ],
+        [
+          2630,
+          "The webhook is what makes this automatic. Your CRM sends the new lead and Claude drafts the reply."
+        ]
+      ],
+      "notes": "Most CRMs can send a webhook when a lead is created; the setup guide for each platform is in the Resource Vault. Keep the first reply to one question. Longer first replies get fewer responses.",
+      "prompt": "# Role\nYou are the Sales AI Employee for {{AGENT_NAME}} at {{TEAM_NAME}}.\nYou respond to new leads fast and help the agent win the consultation.\n\n# Speed to lead\n- Draft a first response within 5 minutes of a new lead notification.\n- Match the channel the lead used (text, email or portal message).\n- Ask one qualifying question: timeline, financing or location.\n\n# Objection handling\n- When the agent pastes an objection, return 2 replies: one empathetic, one direct.\n- Never promise pricing, timelines or outcomes.\n\n# Consultation prep\n- Summarize the lead's activity, likely needs and 3 questions to ask.\n\n# Guardrails\n- Fair housing applies to every message. Never reference protected classes.\n- Hand off to the agent if the lead asks for legal or lending advice.",
+      "files": [
+        {
+          "name": "speed-to-lead.skill.json",
+          "type": "JSON",
+          "size": "3 KB",
+          "desc": "First-reply drafts by channel, under 5 minutes",
+          "steps": [
+            "Read lead source and channel",
+            "Draft first reply",
+            "Ask one qualifying question",
+            "Log reply time"
+          ]
+        },
+        {
+          "name": "objection-library.skill.yaml",
+          "type": "YAML",
+          "size": "6 KB",
+          "desc": "24 common objections with two reply styles",
+          "steps": [
+            "Match objection type",
+            "Draft empathetic reply",
+            "Draft direct reply"
+          ]
+        },
+        {
+          "name": "Buyer Consult Prep",
+          "type": "Notion",
+          "size": "Template",
+          "desc": "One-page pre-call brief",
+          "steps": [
+            "Lead summary",
+            "Likely needs",
+            "3 questions to ask"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Session 2 Slides",
+          "type": "PDF",
+          "size": "3.8 MB"
+        },
+        {
+          "name": "Lead Webhook Payload Sample",
+          "type": "JSON",
+          "size": "1 KB"
+        }
+      ],
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Create the “Sales AI Employee” Claude Project",
+          "ch": "Create the Project",
+          "mins": 3,
+          "t": 240,
+          "hint": ""
+        },
+        {
+          "id": "c2",
+          "text": "Paste the system prompt and set your name and team",
+          "ch": "Add the System Prompt",
+          "mins": 5,
+          "t": 430,
+          "hint": ""
+        },
+        {
+          "id": "c3",
+          "text": "Upload your buyer consultation deck",
+          "ch": "Add Your Consult Deck",
+          "mins": 4,
+          "t": 980,
+          "hint": ""
+        },
+        {
+          "id": "c4",
+          "text": "Add the objection library skill file",
+          "ch": "Objection Handling",
+          "mins": 4,
+          "t": 1130,
+          "hint": ""
+        },
+        {
+          "id": "c5",
+          "text": "Connect the new-lead webhook from your CRM",
+          "ch": "Connect the Webhook",
+          "mins": 8,
+          "t": 2630,
+          "hint": "Guide: CRM New-Lead Webhook Setup, in the Resource Vault."
+        },
+        {
+          "id": "c6",
+          "text": "Send a test lead and get a reply in under 5 minutes",
+          "ch": "Test Speed to Lead",
+          "mins": 6,
+          "t": 2900,
+          "hint": ""
+        }
+      ],
+      "runDemo": {
+        "input": "New lead · Zillow · Maya Reyes\n“Is 1418 Alder Ct still available? We’d want to see it this week.”",
+        "sections": [
+          [
+            "First reply",
+            "Hi Maya, it’s Alex with Northline. 1418 Alder Ct is available and I can show it Thursday or Saturday. Which works better?"
+          ],
+          [
+            "2 objection responses",
+            "If “We’re not ready to talk to an agent yet”:\nEmpathetic: Totally fair. I can send the disclosures and recent sales nearby so you can look on your own time.\nDirect: Happy to keep it light. A 15-minute tour is the fastest way to know if it’s worth a second look."
+          ],
+          [
+            "Consult brief",
+            "Viewed 4 listings in Alder Creek this week, all 4 bd under $675k. Likely needs: a yard and trail access. Ask about timeline, pre-approval and must-haves."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "database",
+      "name": "Database AI Employee",
+      "short": "Database",
+      "tier": "agent",
+      "icon": "database",
+      "forWho": "agents with a sphere of 200+ contacts",
+      "headline": "Keep your sphere warm without sounding automated.",
+      "outcome": "Upload your contact export → 10 weekly check-ins, a 3-touch reactivation sequence, anniversary notes.",
+      "outputs": [
+        "10 personal check-ins every week",
+        "3-touch reactivation for quiet contacts",
+        "Home anniversary notes on schedule"
+      ],
+      "platform": "Claude Project",
+      "runLabel": "Run on Your Contacts",
+      "build": 40,
+      "session": 3,
+      "status": "published",
+      "opens": null,
+      "order": 3,
+      "dur": 3420,
+      "instructor": "Jordan Hale",
+      "transcript": [],
+      "notes": "Clean your export before the session: remove duplicates and contacts without a close date or last-touch date. The prompt ranks check-ins by time since last touch, so missing dates push contacts to the bottom.",
+      "prompt": "# Role\nYou are the Database AI Employee for {{AGENT_NAME}}.\nYou keep past clients and sphere contacts engaged without sounding automated.\n\n# Inputs\n- Contact export (CSV): name, address, close date, last touch, tags\n- Personal notes the agent keeps for each contact\n\n# Workflows\n1. Reactivation: 3-touch sequence for contacts with no touch in 12+ months\n2. Check-ins: 10 personal check-in messages per week, ranked by priority\n3. Anniversaries: home anniversary note that offers a value update\n\n# Rules\n- Reference one specific detail from the notes in every message.\n- Never mention a contact's home value unless they asked for it.\n- Output a table: contact, channel, message, send date.",
+      "files": [
+        {
+          "name": "reactivation-sequence.skill.json",
+          "type": "JSON",
+          "size": "5 KB",
+          "desc": "3-touch sequence for contacts quiet 12+ months",
+          "steps": [
+            "Filter contacts by last touch",
+            "Draft touch 1",
+            "Draft touch 2",
+            "Draft touch 3"
+          ]
+        },
+        {
+          "name": "anniversary-workflow.skill.yaml",
+          "type": "YAML",
+          "size": "3 KB",
+          "desc": "Home anniversary notes scheduled by close date",
+          "steps": [
+            "Find anniversaries in the next 30 days",
+            "Draft note",
+            "Schedule send date"
+          ]
+        },
+        {
+          "name": "Sphere Segmentation SOP",
+          "type": "Notion",
+          "size": "Template",
+          "desc": "Tagging rules for A, B and C contacts",
+          "steps": [
+            "Define A/B/C criteria",
+            "Tag contacts",
+            "Set touch cadence"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Session 3 Slides",
+          "type": "PDF",
+          "size": "3.6 MB"
+        }
+      ],
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Export your contacts from your CRM as CSV",
+          "ch": "Export Your Contacts",
+          "mins": 6,
+          "t": 240,
+          "hint": "Include close date and last-touch date."
+        },
+        {
+          "id": "c2",
+          "text": "Create the “Database AI Employee” Claude Project",
+          "ch": "Create the Project",
+          "mins": 3,
+          "t": 600,
+          "hint": ""
+        },
+        {
+          "id": "c3",
+          "text": "Paste the system prompt",
+          "ch": "Add the System Prompt",
+          "mins": 5,
+          "t": 840,
+          "hint": ""
+        },
+        {
+          "id": "c4",
+          "text": "Upload your contact export and personal notes",
+          "ch": "Load Your Sphere",
+          "mins": 8,
+          "t": 1500,
+          "hint": ""
+        },
+        {
+          "id": "c5",
+          "text": "Add the reactivation and anniversary skill files",
+          "ch": "Add the Skills",
+          "mins": 6,
+          "t": 2100,
+          "hint": ""
+        },
+        {
+          "id": "c6",
+          "text": "Generate this week's 10 check-ins and send 2",
+          "ch": "Send your first check-ins",
+          "mins": 12,
+          "t": 2700,
+          "hint": ""
+        }
+      ]
+    },
+    {
+      "id": "meetings",
+      "name": "Meetings AI Employee",
+      "short": "Meetings",
+      "tier": "team",
+      "icon": "mic",
+      "forWho": "team leaders & ops leads",
+      "headline": "Every leadership meeting ends with decisions, owners and next week’s agenda.",
+      "outcome": "Paste a meeting transcript → decisions, owners and due dates, next week’s agenda.",
+      "outputs": [
+        "Decisions, risks and open questions from any transcript",
+        "Action items with an owner and due date",
+        "Next week’s agenda, built from open items"
+      ],
+      "platform": "Claude Project",
+      "runLabel": "Run on a Transcript",
+      "build": 35,
+      "session": 4,
+      "status": "published",
+      "opens": null,
+      "order": 4,
+      "dur": 3180,
+      "instructor": "Jordan Hale",
+      "transcript": [],
+      "notes": "Bring one real leadership meeting transcript to the session. Recorded team meetings work too.",
+      "prompt": "# Role\nYou are the Meetings AI Employee for the leadership team at {{TEAM_NAME}}.\n\n# Inputs\n- Meeting transcript (any recorder's text export)\n- Last week's scorecard and open action items\n\n# Outputs\n1. Atomized summary: decisions, open questions, risks\n2. Action items: owner, due date, definition of done\n3. Next week's agenda, built from open items and scorecard misses\n\n# Rules\n- Quote the transcript when recording a decision.\n- If an action item has no owner, list it under \"Needs an owner\".",
+      "files": [
+        {
+          "name": "transcript-atomizer.skill.json",
+          "type": "JSON",
+          "size": "4 KB",
+          "desc": "Decisions, risks and questions from any transcript",
+          "steps": [
+            "Split transcript by topic",
+            "Extract decisions",
+            "Extract open questions",
+            "Extract risks"
+          ]
+        },
+        {
+          "name": "leadership-agenda.skill.yaml",
+          "type": "YAML",
+          "size": "2 KB",
+          "desc": "Builds next week’s agenda from open items",
+          "steps": [
+            "Pull open action items",
+            "Add scorecard misses",
+            "Time-box agenda"
+          ]
+        },
+        {
+          "name": "Weekly Leadership Meeting",
+          "type": "Notion",
+          "size": "Template",
+          "desc": "Agenda, scorecard and issues list",
+          "steps": [
+            "Scorecard",
+            "Issues",
+            "Decisions",
+            "Action items"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Session 4 Slides",
+          "type": "PDF",
+          "size": "3.6 MB"
+        }
+      ],
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Create the “Meetings AI Employee” Claude Project",
+          "ch": "Create the Project",
+          "mins": 3,
+          "t": 240,
+          "hint": ""
+        },
+        {
+          "id": "c2",
+          "text": "Paste the system prompt",
+          "ch": "Add the System Prompt",
+          "mins": 5,
+          "t": 600,
+          "hint": ""
+        },
+        {
+          "id": "c3",
+          "text": "Add the transcript atomizer and agenda skill files",
+          "ch": "Add the Skills",
+          "mins": 5,
+          "t": 1100,
+          "hint": ""
+        },
+        {
+          "id": "c4",
+          "text": "Upload last week's meeting transcript",
+          "ch": "Load a real meeting",
+          "mins": 6,
+          "t": 1500,
+          "hint": ""
+        },
+        {
+          "id": "c5",
+          "text": "Review decisions and action items against your notes",
+          "ch": "Check the Summary",
+          "mins": 8,
+          "t": 2200,
+          "hint": ""
+        },
+        {
+          "id": "c6",
+          "text": "Generate next week's agenda and share it with your team",
+          "ch": "Ship the agenda",
+          "mins": 8,
+          "t": 2800,
+          "hint": ""
+        }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "Finance AI Employee",
+      "short": "Finance",
+      "tier": "team",
+      "icon": "dollar",
+      "forWho": "team owners & finance leads",
+      "headline": "Know your net commission and margin on every deal.",
+      "outcome": "Upload a Sisu export → net commission by agent, categorized expenses, margin flags.",
+      "outputs": [
+        "Gross and net commission by agent, month to date",
+        "Expenses mapped to your P&L categories",
+        "Flags on any deal under your margin threshold"
+      ],
+      "platform": "Claude Project + Sisu export",
+      "runLabel": "Run on a Sisu Export",
+      "build": 50,
+      "session": 5,
+      "status": "published",
+      "opens": null,
+      "order": 5,
+      "dur": 3600,
+      "instructor": "Jordan Hale",
+      "transcript": [],
+      "notes": "Export closed deals from Sisu for the last 90 days before the session. Have your P&L category list ready.",
+      "prompt": "# Role\nYou are the Finance AI Employee for {{TEAM_NAME}}.\n\n# Inputs\n- Sisu closed-deal export: agent, side, price, commission, splits\n- Monthly expense export from your bookkeeping software\n\n# Outputs\n1. Commission tracker: gross and net commission by agent, month to date\n2. Expense categorization mapped to your P&L categories\n3. Deal margin report: flag any deal under {{MIN_MARGIN}}% net margin\n\n# Rules\n- Show your math for every total.\n- Never change source numbers. Flag mismatches instead.",
+      "files": [
+        {
+          "name": "sisu-commission-tracker.skill.json",
+          "type": "JSON",
+          "size": "6 KB",
+          "desc": "Gross and net commission by agent",
+          "steps": [
+            "Load Sisu export",
+            "Apply splits",
+            "Summarize by agent"
+          ]
+        },
+        {
+          "name": "pnl-categories.skill.yaml",
+          "type": "YAML",
+          "size": "3 KB",
+          "desc": "Maps expenses to your P&L categories",
+          "steps": [
+            "Load expense export",
+            "Match categories",
+            "Flag unknowns"
+          ]
+        },
+        {
+          "name": "Monthly Close Checklist",
+          "type": "Notion",
+          "size": "Template",
+          "desc": "Month-end close for real estate teams",
+          "steps": [
+            "Reconcile commissions",
+            "Categorize expenses",
+            "Review margins"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Session 5 Slides",
+          "type": "PDF",
+          "size": "3.6 MB"
+        }
+      ],
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Export closed deals from Sisu (last 90 days)",
+          "ch": "Export from Sisu",
+          "mins": 6,
+          "t": 240,
+          "hint": ""
+        },
+        {
+          "id": "c2",
+          "text": "Create the “Finance AI Employee” Claude Project",
+          "ch": "Create the Project",
+          "mins": 3,
+          "t": 600,
+          "hint": ""
+        },
+        {
+          "id": "c3",
+          "text": "Paste the system prompt and set your margin threshold",
+          "ch": "Add the System Prompt",
+          "mins": 6,
+          "t": 900,
+          "hint": ""
+        },
+        {
+          "id": "c4",
+          "text": "Upload your P&L category list and expense export",
+          "ch": "Load Your Books",
+          "mins": 10,
+          "t": 1500,
+          "hint": ""
+        },
+        {
+          "id": "c5",
+          "text": "Reconcile last month's commissions against Sisu",
+          "ch": "Reconcile commissions",
+          "mins": 15,
+          "t": 2200,
+          "hint": ""
+        },
+        {
+          "id": "c6",
+          "text": "Review the deal margin report and flag 1 deal",
+          "ch": "Review Margins",
+          "mins": 10,
+          "t": 2900,
+          "hint": ""
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "name": "Operations AI Employee",
+      "short": "Operations",
+      "tier": "team",
+      "icon": "workflow",
+      "forWho": "ops leads & transaction coordinators",
+      "headline": "Nothing slips between contract and close.",
+      "outcome": "Upload an executed contract → a deadline timeline, milestone emails, a 30-day onboarding plan.",
+      "outputs": [
+        "Contract-to-close timeline with every contingency",
+        "Milestone emails for lender, title and client",
+        "30-day onboarding plan for new agents"
+      ],
+      "platform": "Claude Project",
+      "runLabel": "Run on a Contract",
+      "build": 45,
+      "session": 6,
+      "status": "published",
+      "opens": null,
+      "order": 6,
+      "dur": 3300,
+      "instructor": "Jordan Hale",
+      "transcript": [],
+      "notes": "Bring one executed purchase contract with personal details redacted.",
+      "prompt": "# Role\nYou are the Operations AI Employee for {{TEAM_NAME}}.\n\n# Inputs\n- Executed purchase contract (PDF)\n- Team transaction checklist and vendor list\n\n# Outputs\n1. Contract-to-close timeline with every contingency deadline\n2. TC emails for each milestone: lender, title, inspector, client\n3. New agent onboarding checklist for the first 30 days\n\n# Rules\n- Take dates only from the contract. If a date is missing, ask.\n- Cite the contract section for every deadline.",
+      "files": [
+        {
+          "name": "c2c-timeline.skill.json",
+          "type": "JSON",
+          "size": "5 KB",
+          "desc": "Deadline calendar from an executed contract",
+          "steps": [
+            "Extract contract dates",
+            "Build contingency timeline",
+            "Cite sections"
+          ]
+        },
+        {
+          "name": "tc-email-templates.skill.yaml",
+          "type": "YAML",
+          "size": "4 KB",
+          "desc": "Milestone emails for every party",
+          "steps": [
+            "Lender update",
+            "Title order",
+            "Inspection scheduling",
+            "Client update"
+          ]
+        },
+        {
+          "name": "Agent Onboarding (30 days)",
+          "type": "Notion",
+          "size": "Template",
+          "desc": "First-month plan for new agents",
+          "steps": [
+            "Week 1 setup",
+            "Week 2 shadowing",
+            "Week 3–4 first leads"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Session 6 Slides",
+          "type": "PDF",
+          "size": "3.6 MB"
+        }
+      ],
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Create the “Operations AI Employee” Claude Project",
+          "ch": "Create the Project",
+          "mins": 3,
+          "t": 240,
+          "hint": ""
+        },
+        {
+          "id": "c2",
+          "text": "Paste the system prompt",
+          "ch": "Add the System Prompt",
+          "mins": 5,
+          "t": 600,
+          "hint": ""
+        },
+        {
+          "id": "c3",
+          "text": "Upload your transaction checklist and vendor list",
+          "ch": "Load Your Checklist",
+          "mins": 7,
+          "t": 1100,
+          "hint": ""
+        },
+        {
+          "id": "c4",
+          "text": "Add the timeline and TC email skill files",
+          "ch": "Add the Skills",
+          "mins": 5,
+          "t": 1500,
+          "hint": ""
+        },
+        {
+          "id": "c5",
+          "text": "Generate a timeline from a recent contract",
+          "ch": "Build a Timeline",
+          "mins": 15,
+          "t": 2200,
+          "hint": ""
+        },
+        {
+          "id": "c6",
+          "text": "Send the first TC milestone email from the draft",
+          "ch": "Send a Milestone Email",
+          "mins": 10,
+          "t": 2800,
+          "hint": ""
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "u_jamie",
+      "name": "Jamie Ortiz",
+      "email": "jamie@ortizhomes.com",
+      "tier": "agent",
+      "role": "Agent",
+      "teamId": null,
+      "cohortId": "dec26",
+      "joined": 1795014000000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796245500000,
+          "deployedAt": 1796246400000,
+          "runtime": "deployed",
+          "lastRun": {
+            "at": 1796508600000,
+            "title": "Listing Launch Packet · 1418 Alder Ct",
+            "preview": "Vaulted ceilings and a quartz kitchen open onto a fenced yard that backs to the greenbelt. Four bedrooms and three baths across 2,380 sq ft…"
+          }
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_alex",
+      "name": "Alex Morgan",
+      "email": "alex@northlinerealty.com",
+      "tier": "team",
+      "role": "Team Owner",
+      "teamId": "northline",
+      "cohortId": "dec26",
+      "joined": 1794499200000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796165400000,
+          "deployedAt": 1796166300000,
+          "runtime": "deployed",
+          "lastRun": {
+            "at": 1796571000000,
+            "title": "Listing Launch Packet · 3307 Juniper Ln",
+            "preview": "A corner lot with mature oaks, a chef’s kitchen and a primary suite on the main floor. Five bedrooms across 3,140 sq ft…"
+          }
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796404800000,
+          "deployedAt": 1796406000000,
+          "runtime": "deployed",
+          "lastRun": {
+            "at": 1796652720000,
+            "title": "First Reply · Zillow Lead, Maya R.",
+            "preview": "Hi Maya, it’s Alex with Northline. 1418 Alder Ct is available and I can show it Thursday or Saturday. Which works better?"
+          }
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797048000000,
+          "deployedAt": 1797048000000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_priya",
+      "name": "Priya Shah",
+      "email": "priya@northlinerealty.com",
+      "tier": "team",
+      "role": "Operations Lead",
+      "teamId": "northline",
+      "cohortId": "dec26",
+      "joined": 1794585600000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796227200000,
+          "deployedAt": 1796228100000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797048000000,
+          "deployedAt": 1797048000000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_sarah",
+      "name": "Sarah Collins",
+      "email": "sarah@northlinerealty.com",
+      "tier": "team",
+      "role": "Sales Agent",
+      "teamId": "northline",
+      "cohortId": "dec26",
+      "joined": 1794672000000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796238600000,
+          "deployedAt": 1796239800000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796658600000,
+          "deployedAt": 1796659440000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797048000000,
+          "deployedAt": 1797048000000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_michael",
+      "name": "Michael Grant",
+      "email": "michael@northlinerealty.com",
+      "tier": "team",
+      "role": "Sales Agent",
+      "teamId": "northline",
+      "cohortId": "dec26",
+      "joined": 1794672000000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796270400000,
+          "deployedAt": 1796270400000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797048000000,
+          "deployedAt": 1797048000000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_devon",
+      "name": "Devon Price",
+      "email": "devon@northlinerealty.com",
+      "tier": "team",
+      "role": "Sales Agent",
+      "teamId": "northline",
+      "cohortId": "dec26",
+      "joined": 1794844800000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796176200000,
+          "deployedAt": 1796177400000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796607000000,
+          "deployedAt": 1796607900000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797048000000,
+          "deployedAt": 1797048000000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_lena",
+      "name": "Lena Brooks",
+      "email": "lena@northlinerealty.com",
+      "tier": "team",
+      "role": "Sales Agent",
+      "teamId": "northline",
+      "cohortId": "dec26",
+      "joined": 1795190400000,
+      "last": 1795975200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5"
+          ],
+          "builtAt": null,
+          "deployedAt": null,
+          "runtime": null
+        }
+      }
+    },
+    {
+      "id": "u_rosa",
+      "name": "Rosa Delgado",
+      "email": "rosa@delgadorealty.com",
+      "tier": "agent",
+      "role": "Agent",
+      "teamId": null,
+      "cohortId": "dec26",
+      "joined": 1794758400000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796161200000,
+          "deployedAt": 1796162400000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796341200000,
+          "deployedAt": 1796342400000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796653200000,
+          "deployedAt": 1796654400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_kenji",
+      "name": "Kenji Watanabe",
+      "email": "kenji@watanaberealty.com",
+      "tier": "agent",
+      "role": "Agent",
+      "teamId": null,
+      "cohortId": "dec26",
+      "joined": 1795276800000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796310000000,
+          "deployedAt": 1796311200000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_natasha",
+      "name": "Natasha Reed",
+      "email": "natasha@harborpine.com",
+      "tier": "team",
+      "role": "Team Owner",
+      "teamId": "harbor",
+      "cohortId": "dec26",
+      "joined": 1794326400000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796159400000,
+          "deployedAt": 1796160600000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796338200000,
+          "deployedAt": 1796339400000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796575200000,
+          "deployedAt": 1796576400000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796650800000,
+          "deployedAt": 1796651700000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_claire",
+      "name": "Claire Dubois",
+      "email": "claire@harborpine.com",
+      "tier": "team",
+      "role": "Operations Lead",
+      "teamId": "harbor",
+      "cohortId": "dec26",
+      "joined": 1794412800000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796222400000,
+          "deployedAt": 1796223600000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796587800000,
+          "deployedAt": 1796589000000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_omar",
+      "name": "Omar Haddad",
+      "email": "omar@haddadhomes.com",
+      "tier": "agent",
+      "role": "Agent",
+      "teamId": null,
+      "cohortId": "dec26",
+      "joined": 1795536000000,
+      "last": 1795716000000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2"
+          ],
+          "builtAt": null,
+          "deployedAt": null,
+          "runtime": null
+        }
+      }
+    },
+    {
+      "id": "u_ben",
+      "name": "Ben Foster",
+      "email": "ben@fosterproperties.com",
+      "tier": "agent",
+      "role": "Agent",
+      "teamId": null,
+      "cohortId": "dec26",
+      "joined": 1795622400000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796270400000,
+          "deployedAt": 1796270400000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        }
+      }
+    },
+    {
+      "id": "u_marcus",
+      "name": "Marcus Lee",
+      "email": "marcus@keystonecollective.com",
+      "tier": "team",
+      "role": "Team Owner",
+      "teamId": "keystone",
+      "cohortId": "dec26",
+      "joined": 1795104000000,
+      "last": 1799701200000,
+      "status": "active",
+      "progress": {
+        "marketing": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796254800000,
+          "deployedAt": 1796256000000,
+          "runtime": "deployed"
+        },
+        "sales": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796529600000,
+          "deployedAt": 1796529600000,
+          "runtime": "deployed"
+        },
+        "database": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1796788800000,
+          "deployedAt": 1796788800000,
+          "runtime": "deployed"
+        },
+        "meetings": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797048000000,
+          "deployedAt": 1797048000000,
+          "runtime": "deployed"
+        },
+        "finance": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797307200000,
+          "deployedAt": 1797307200000,
+          "runtime": "deployed"
+        },
+        "operations": {
+          "steps": [
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6"
+          ],
+          "builtAt": 1797566400000,
+          "deployedAt": 1797566400000,
+          "runtime": "deployed"
+        }
+      }
+    }
+  ],
+  "teams": [
+    {
+      "id": "northline",
+      "name": "Northline Realty Team",
+      "ownerId": "u_alex",
+      "seats": 7
+    },
+    {
+      "id": "harbor",
+      "name": "Harbor & Pine Group",
+      "ownerId": "u_natasha",
+      "seats": 7
+    },
+    {
+      "id": "keystone",
+      "name": "Keystone Collective",
+      "ownerId": "u_marcus",
+      "seats": 7
+    }
+  ],
+  "resources": [
+    {
+      "id": "r1",
+      "title": "Fair Housing Language Checker",
+      "desc": "Claude Project that flags steering language before anything goes public.",
+      "cat": "MLS & Fair Housing Compliance",
+      "type": "Claude Project",
+      "tier": "agent",
+      "size": "18 KB",
+      "dl": 412,
+      "updated": 1796137200000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r2",
+      "title": "MLS Public Remarks Rules",
+      "desc": "Character limits and prohibited content for 14 major MLS boards.",
+      "cat": "MLS & Fair Housing Compliance",
+      "type": "PDF guide",
+      "tier": "agent",
+      "size": "1.2 MB",
+      "dl": 287,
+      "updated": 1795878000000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r3",
+      "title": "Steering Language Reference",
+      "desc": "Phrases to avoid, why each one is a risk, and compliant rewrites.",
+      "cat": "MLS & Fair Housing Compliance",
+      "type": "PDF guide",
+      "tier": "agent",
+      "size": "640 KB",
+      "dl": 356,
+      "updated": 1795878000000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r4",
+      "title": "Expired & FSBO Outreach Scripts",
+      "desc": "Call, text and letter scripts with a follow-up cadence.",
+      "cat": "Lead Generation Scripts",
+      "type": "Prompt pack",
+      "tier": "agent",
+      "size": "24 KB",
+      "dl": 198,
+      "updated": 1796310000000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r5",
+      "title": "Open House Follow-up Sequence",
+      "desc": "5-touch workflow triggered by sign-in sheet entries.",
+      "cat": "Lead Generation Scripts",
+      "type": "Workflow JSON",
+      "tier": "agent",
+      "size": "9 KB",
+      "dl": 164,
+      "updated": 1796310000000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r6",
+      "title": "Speed-to-Lead Text Library",
+      "desc": "First replies for portal, website and sign-call leads.",
+      "cat": "Lead Generation Scripts",
+      "type": "Prompt pack",
+      "tier": "agent",
+      "size": "12 KB",
+      "dl": 241,
+      "updated": 1796310000000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r7",
+      "title": "Sphere Reactivation Scripts",
+      "desc": "Openers for contacts you have not spoken to in a year or more.",
+      "cat": "Lead Generation Scripts",
+      "type": "Prompt pack",
+      "tier": "agent",
+      "size": "15 KB",
+      "dl": 133,
+      "updated": 1796482800000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r8",
+      "title": "CRM New-Lead Webhook Setup",
+      "desc": "Step-by-step webhook setup for the most common real estate CRMs.",
+      "cat": "Sisu & CRM Webhook Guides",
+      "type": "PDF guide",
+      "tier": "agent",
+      "size": "2.1 MB",
+      "dl": 219,
+      "updated": 1796223600000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r9",
+      "title": "Sisu Closed-Deal Export to Claude",
+      "desc": "Workflow that sends closed deals to the Finance AI Employee.",
+      "cat": "Sisu & CRM Webhook Guides",
+      "type": "Workflow JSON",
+      "tier": "team",
+      "size": "7 KB",
+      "dl": 61,
+      "updated": 1796396400000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r10",
+      "title": "Sisu Scorecard Webhook",
+      "desc": "Pushes weekly agent scorecards into your leadership agenda.",
+      "cat": "Sisu & CRM Webhook Guides",
+      "type": "Workflow JSON",
+      "tier": "team",
+      "size": "6 KB",
+      "dl": 48,
+      "updated": 1796396400000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r11",
+      "title": "Contract-to-Close Timeline Template",
+      "desc": "Claude Project that builds a deadline calendar from a contract.",
+      "cat": "TC Automation Workflows",
+      "type": "Claude Project",
+      "tier": "team",
+      "size": "21 KB",
+      "dl": 39,
+      "updated": 1796482800000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r12",
+      "title": "TC Milestone Email Pack",
+      "desc": "Emails for lender, title, inspector and client at each milestone.",
+      "cat": "TC Automation Workflows",
+      "type": "Prompt pack",
+      "tier": "agent",
+      "size": "18 KB",
+      "dl": 174,
+      "updated": 1796482800000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "r13",
+      "title": "Inspection Deadline Tracker",
+      "desc": "Workflow that alerts the TC 48 hours before each contingency.",
+      "cat": "TC Automation Workflows",
+      "type": "Workflow JSON",
+      "tier": "team",
+      "size": "8 KB",
+      "dl": 27,
+      "updated": 1796569200000,
+      "exec": false,
+      "status": "published"
+    },
+    {
+      "id": "x1",
+      "title": "Team Operating System SOP",
+      "desc": "How the team runs: roles, scorecards and meeting cadence.",
+      "cat": "Organizational SOPs",
+      "type": "Notion template",
+      "tier": "team",
+      "size": "Template",
+      "dl": 44,
+      "updated": 1796137200000,
+      "exec": true,
+      "status": "published"
+    },
+    {
+      "id": "x2",
+      "title": "Agent Accountability SOP",
+      "desc": "Weekly 1:1 structure built on leading indicators.",
+      "cat": "Organizational SOPs",
+      "type": "Notion template",
+      "tier": "team",
+      "size": "Template",
+      "dl": 31,
+      "updated": 1796137200000,
+      "exec": true,
+      "status": "published"
+    },
+    {
+      "id": "x3",
+      "title": "Weekly Leadership Meeting Framework",
+      "desc": "60-minute agenda: scorecard, issues, decisions.",
+      "cat": "Leadership Meeting Frameworks",
+      "type": "Notion template",
+      "tier": "team",
+      "size": "Template",
+      "dl": 52,
+      "updated": 1796223600000,
+      "exec": true,
+      "status": "published"
+    },
+    {
+      "id": "x4",
+      "title": "Quarterly Planning Agenda",
+      "desc": "Half-day planning session with pre-work prompts.",
+      "cat": "Leadership Meeting Frameworks",
+      "type": "PDF guide",
+      "tier": "team",
+      "size": "820 KB",
+      "dl": 23,
+      "updated": 1796223600000,
+      "exec": true,
+      "status": "published"
+    },
+    {
+      "id": "x5",
+      "title": "Sisu to Sheets P&L Sync",
+      "desc": "Workflow that keeps your P&L sheet current from Sisu.",
+      "cat": "Finance Tracker Integrations",
+      "type": "Workflow JSON",
+      "tier": "team",
+      "size": "11 KB",
+      "dl": 36,
+      "updated": 1796396400000,
+      "exec": true,
+      "status": "published"
+    },
+    {
+      "id": "x6",
+      "title": "Commission Split Calculator",
+      "desc": "Claude Project for split, cap and fee scenarios.",
+      "cat": "Finance Tracker Integrations",
+      "type": "Claude Project",
+      "tier": "team",
+      "size": "16 KB",
+      "dl": 41,
+      "updated": 1796396400000,
+      "exec": true,
+      "status": "published"
+    }
+  ],
+  "announcements": [
+    {
+      "id": "a2",
+      "title": "Replay is up: Session 2 · Speed to Lead",
+      "body": "The replay, chapters and transcript are on the Sales AI Employee page.",
+      "severity": "info",
+      "action": null,
+      "actionLabel": "",
+      "audience": "all",
+      "channels": [
+        "email"
+      ],
+      "status": "sent",
+      "at": 1796340600000,
+      "opens": 0.64
+    },
+    {
+      "id": "a3",
+      "title": "Weekly team progress digest",
+      "body": "Who has built, who is stuck, and what to review before Thursday.",
+      "severity": "info",
+      "action": null,
+      "actionLabel": "",
+      "audience": "owners",
+      "channels": [
+        "email"
+      ],
+      "status": "sent",
+      "at": 1796997600000,
+      "opens": 0.58
+    }
+  ],
+  "dismissed": {},
+  "reminders": [
+    {
+      "id": "rm1",
+      "label": "24 hours before each live session",
+      "channel": "Email",
+      "on": true
+    },
+    {
+      "id": "rm2",
+      "label": "1 hour before each live session",
+      "channel": "Email + SMS",
+      "on": true
+    },
+    {
+      "id": "rm3",
+      "label": "Replay is ready",
+      "channel": "Email",
+      "on": true
+    },
+    {
+      "id": "rm4",
+      "label": "Build not finished 48 hours after its session",
+      "channel": "Email",
+      "on": true
+    },
+    {
+      "id": "rm5",
+      "label": "Weekly progress digest for team owners",
+      "channel": "Email",
+      "on": false
+    }
+  ],
+  "tiers": [
+    {
+      "id": "agent",
+      "name": "Agent",
+      "price": 995,
+      "seats": 1,
+      "blurb": "For individual agents building their own AI Employees.",
+      "features": [
+        "Marketing, Sales and Database AI Employees",
+        "Live sessions and replays",
+        "System prompts, skill files and checklists",
+        "Resource & Compliance Vault"
+      ]
+    },
+    {
+      "id": "team",
+      "name": "Team",
+      "price": 4995,
+      "seats": 7,
+      "blurb": "For teams that want every seat building, plus the leadership AI Employees.",
+      "features": [
+        "All 6 AI Employees",
+        "7 seats: owner, ops lead and up to 5 agents",
+        "Team Hub with progress tracking",
+        "Executive Build Vault"
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "id": "ur1",
+      "userId": "u_kenji",
+      "name": "Kenji Watanabe",
+      "email": "kenji@watanaberealty.com",
+      "source": "Team tier page",
+      "at": 1796595120000,
+      "status": "new"
+    },
+    {
+      "id": "ur2",
+      "userId": "u_rosa",
+      "name": "Rosa Delgado",
+      "email": "rosa@delgadorealty.com",
+      "source": "Executive Build Vault",
+      "at": 1796484600000,
+      "status": "contacted"
+    },
+    {
+      "id": "ur3",
+      "userId": null,
+      "name": "Amara Okafor",
+      "email": "amara@okaforhomegroup.com",
+      "source": "Sales call",
+      "at": 1796230800000,
+      "status": "converted"
+    }
+  ],
+  "staff": [
+    {
+      "id": "st1",
+      "name": "Casey Lin",
+      "email": "casey@amplifiedimpact.com",
+      "role": "Owner",
+      "last": 1796661600000
+    },
+    {
+      "id": "st2",
+      "name": "Jordan Hale",
+      "email": "jordan@amplifiedimpact.com",
+      "role": "Instructor",
+      "last": 1796656500000
+    },
+    {
+      "id": "st3",
+      "name": "Maya Chen",
+      "email": "maya@amplifiedimpact.com",
+      "role": "Content Editor",
+      "last": 1796599200000
+    },
+    {
+      "id": "st4",
+      "name": "Luis Romero",
+      "email": "luis@amplifiedimpact.com",
+      "role": "Support",
+      "last": 1796652300000
+    }
+  ],
+  "perms": {
+    "Owner": {
+      "curriculum": 1,
+      "publish": 1,
+      "cohorts": 1,
+      "viewLearners": 1,
+      "seats": 1,
+      "announce": 1,
+      "billing": 1,
+      "staff": 1
+    },
+    "Admin": {
+      "curriculum": 1,
+      "publish": 1,
+      "cohorts": 1,
+      "viewLearners": 1,
+      "seats": 1,
+      "announce": 1,
+      "billing": 1,
+      "staff": 0
+    },
+    "Instructor": {
+      "curriculum": 1,
+      "publish": 0,
+      "cohorts": 1,
+      "viewLearners": 1,
+      "seats": 0,
+      "announce": 1,
+      "billing": 0,
+      "staff": 0
+    },
+    "Content Editor": {
+      "curriculum": 1,
+      "publish": 0,
+      "cohorts": 0,
+      "viewLearners": 1,
+      "seats": 0,
+      "announce": 0,
+      "billing": 0,
+      "staff": 0
+    },
+    "Support": {
+      "curriculum": 0,
+      "publish": 0,
+      "cohorts": 0,
+      "viewLearners": 1,
+      "seats": 1,
+      "announce": 0,
+      "billing": 0,
+      "staff": 0
+    }
+  },
+  "base": {
+    "learners": 134,
+    "agent": 99,
+    "teamSeats": 35,
+    "teams": 4,
+    "mod": {
+      "marketing": [
+        118,
+        8,
+        8
+      ],
+      "sales": [
+        101,
+        17,
+        16
+      ],
+      "database": [
+        92,
+        22,
+        20
+      ],
+      "meetings": [
+        28,
+        4,
+        3
+      ],
+      "finance": [
+        25,
+        6,
+        4
+      ],
+      "operations": [
+        22,
+        8,
+        5
+      ]
+    },
+    "daily": [
+      0,
+      41,
+      77,
+      109,
+      139,
+      165,
+      188,
+      209,
+      227,
+      244,
+      259,
+      272,
+      284,
+      295,
+      305,
+      313,
+      321,
+      328,
+      334,
+      339,
+      344,
+      349,
+      353,
+      356,
+      359,
+      362,
+      365,
+      367,
+      369,
+      371,
+      372,
+      374,
+      375,
+      376,
+      377,
+      378,
+      379,
+      380,
+      380,
+      381,
+      381,
+      382,
+      382
+    ]
+  },
+  "activity": [
+    {
+      "id": "p1",
+      "t": 1799768400000,
+      "who": "Jamie Ortiz",
+      "what": "ran Marketing AI Employee on a listing",
+      "tone": "info"
+    },
+    {
+      "id": "p2",
+      "t": 1799701200000,
+      "who": "Natasha Reed",
+      "what": "resumed Meetings AI Employee",
+      "tone": "success"
+    },
+    {
+      "id": "p3",
+      "t": 1799449200000,
+      "who": "Casey Lin",
+      "what": "closed the December 2026 Cohort",
+      "tone": "info"
+    },
+    {
+      "id": "p4",
+      "t": 1799254800000,
+      "who": "Alex Morgan",
+      "what": "deployed Operations AI Employee",
+      "tone": "success"
+    }
+  ],
+  "phase": "post"
+}

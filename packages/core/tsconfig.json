@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // No rootDir: the differential tests import the oracle from outside this package.
+    // tsconfig.build.json sets its own rootDir for the declaration emit.
+    "types": ["vitest/globals"],
+    // The reference prototype is plain ES-module JavaScript with no declarations. allowJs lets
+    // the differential tests resolve it; checkJs:false means its own code is never type-checked.
+    // test/oracle.ts widens it once (its inferred shapes are looser than the domain types).
+    // It is never emitted: tsconfig.build.json includes only src/, which does not import it.
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": ["src/**/*", "test/**/*"]
+}

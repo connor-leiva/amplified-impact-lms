@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div role="{{ role }}" style="display:flex; align-items:flex-start; gap:12px; padding:12px 12px 12px 14px; border-radius:12px; border:1px solid {{ bd }}; background:{{ bg }}">
+  <svg viewBox="0 0 24 24" aria-hidden="true" style="width:17px; height:17px; flex:none; margin-top:2px; fill:none; stroke:{{ ic }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ icon }}"></path></svg>
+  <div style="flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 10px; padding-top:1px">
+    <span style="font-size:14px; font-weight:600; color:var(--text-primary); text-wrap:pretty">{{ title }}</span>
+    <span title="{{ abs }}" style="font-size:12px; color:var(--text-tertiary); white-space:nowrap">{{ when }}</span>
+    <sc-if value="{{ body }}"><div style="flex-basis:100%; font-size:13px; color:var(--text-secondary); text-wrap:pretty">{{ body }}</div></sc-if>
+  </div>
+  <sc-if value="{{ actionLabel }}">
+    <button onClick="{{ act }}" style="height:30px; padding:0 12px; flex:none; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; outline:none" style-hover="background:var(--action-secondary-hover)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">{{ actionLabel }}</button>
+  </sc-if>
+  <sc-if value="{{ canDismiss }}">
+    <button onClick="{{ dismiss }}" aria-label="Dismiss" title="Dismiss" style="width:30px; height:30px; flex:none; border:0; border-radius:8px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center; outline:none" style-hover="background:var(--bg-hover); color:var(--text-primary)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:70},&quot;severity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;info&quot;,&quot;warning&quot;],&quot;default&quot;:&quot;warning&quot;,&quot;tsType&quot;:&quot;'info'|'warning'&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Session 3 moved to Wed Dec 9 · 2:00 PM ET (1:00 PM CT)&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;body&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;when&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Yesterday&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;abs&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;actionLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Update calendar&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onAction&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onDismiss&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props, warn = p.severity === 'warning';
+    return {
+      role: warn ? 'alert' : 'status', title: p.title || '', body: p.body || '', when: p.when || '', abs: p.abs || '',
+      actionLabel: p.actionLabel || '', canDismiss: !!p.onDismiss,
+      bg: warn ? 'var(--status-attention-bg)' : 'var(--bg-surface)', bd: warn ? 'var(--status-attention-line)' : 'var(--line-default)',
+      ic: warn ? 'var(--status-attention)' : 'var(--action-primary)',
+      icon: warn ? 'M10.4 4.4 2.9 17.6A1.9 1.9 0 0 0 4.5 20.5h15a1.9 1.9 0 0 0 1.6-2.9L13.6 4.4a1.85 1.85 0 0 0-3.2 0z M12 9.5v4 M12 16.9h.01' : 'M3.5 10.2v3.6a1.7 1.7 0 0 0 1.7 1.7h2.3l7 4V4.5l-7 4H5.2a1.7 1.7 0 0 0-1.7 1.7z M8 15.5l1.2 4.2 M17.19 9.31A3.8 3.8 0 0 1 17.19 14.69 M19.91 8.21A6.6 6.6 0 0 1 19.91 15.79',
+      act: () => p.onAction && p.onAction(), dismiss: () => p.onDismiss && p.onDismiss(),
+    };
+  }
+}
+</script>
+</body>
+</html>

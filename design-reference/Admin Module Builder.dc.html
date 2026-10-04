@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="display:flex; flex-direction:column; min-height:100%">
+  <div style="position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; padding:12px var(--page-pad-x); background:color-mix(in oklch, var(--bg-canvas) 92%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--line-default); flex-wrap:wrap">
+    <button onClick="{{ back }}" aria-label="Back to curriculum" style="width:32px; height:32px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="border-color:var(--line-strong)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M14.5 6l-6 6 6 6"></path></svg></button>
+    <div style="flex:1; min-width:200px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+      <span style="font-size:16px; font-weight:600; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ title }}</span>
+      <dc-import name="Status Token" kind="custom" tone="{{ pill.tone }}" icon="{{ pill.icon }}" label="{{ pill.label }}" hint-size="80px,22px"></dc-import>
+      <span style="font-size:12px; color:{{ saveFg }}">{{ saveNote }}</span>
+    </div>
+    <sc-if value="{{ canDelete }}"><button onClick="{{ remove }}" style="height:34px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background:transparent; color:var(--status-attention-text); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--status-attention-bg)">Delete Draft</button></sc-if>
+    <button onClick="{{ saveDraft }}" style="height:34px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">{{ saveLabel }}</button>
+    <button onClick="{{ publish }}" style="height:34px; padding:0 14px; border-radius:8px; border:1px solid transparent; background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-primary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.rocket }}"></path></svg>{{ publishLabel }}</button>
+  </div>
+
+  <div style="padding:20px var(--page-pad-x) 56px; max-width:1480px; width:100%; margin:0 auto; display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start">
+    <div style="flex:1.2 1 560px; min-width:0; display:flex; flex-direction:column; gap:14px">
+      <sc-if value="{{ errors.length }}">
+        <div role="alert" style="padding:12px 14px; border-radius:12px; border:1px solid var(--status-attention-line); background:var(--status-attention-bg); font-size:13px; color:var(--status-attention-text); display:flex; flex-direction:column; gap:4px">
+          <sc-for list="{{ errors }}" as="er"><div>{{ er }}</div></sc-for>
+        </div>
+      </sc-if>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
+        <h2 style="margin:0; font-size:16px; font-weight:600">Basics</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px">
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Name
+            <input value="{{ d.name }}" onChange="{{ set.name }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          </label>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Sidebar Label
+            <input value="{{ d.short }}" onChange="{{ set.short }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          </label>
+        </div>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Outcome Line <span style="font-weight:400; color:var(--text-tertiary)">Input → outputs. Shown under the title and on the card.</span>
+          <input value="{{ d.outcome }}" onChange="{{ set.outcome }}" placeholder="Paste an MLS listing → Fair-Housing-checked description, 5 social posts, 1 email." style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        </label>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Outcome Headline <span style="font-weight:400; color:var(--text-tertiary)">Used in the locked preview and on the Team tier page.</span>
+          <input value="{{ d.headline }}" onChange="{{ set.headline }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        </label>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">For <span style="font-weight:400; color:var(--text-tertiary)">Completes “For …” in the metadata line.</span>
+          <input value="{{ d.forWho }}" onChange="{{ set.forWho }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        </label>
+        <div style="display:flex; flex-wrap:wrap; gap:18px">
+          <div style="display:flex; flex-direction:column; gap:6px">
+            <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Icon</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; max-width:330px">
+              <sc-for list="{{ icons }}" as="io"><button onClick="{{ io.pick }}" aria-pressed="{{ io.on }}" style="width:34px; height:34px; border-radius:8px; border:1px solid {{ io.bd }}; background:{{ io.bg }}; cursor:pointer; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:{{ io.fg }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ io.d }}"></path></svg></button></sc-for>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px">
+            <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Tier Access</span>
+            <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default); width:max-content">
+              <sc-for list="{{ tiers }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:28px; padding:0 12px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+            </div>
+            <span style="font-size:12px; color:var(--text-tertiary)">{{ tierNote }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">Outputs</h2><span style="font-size:12px; color:var(--text-tertiary)">Three bullets for the locked preview and Team tier page</span></div>
+        <sc-for list="{{ outputs }}" as="o" hint-placeholder-count="3">
+          <div style="display:flex; align-items:center; gap:10px"><span style="width:20px; font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary)">{{ o.n }}.</span><input value="{{ o.v }}" onChange="{{ o.set }}" placeholder="What it produces" style="flex:1; height:34px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></div>
+        </sc-for>
+      </section>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
+        <h2 style="margin:0; font-size:16px; font-weight:600">Live Session &amp; Replay</h2>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Linked Session (Applies to Every Cohort)
+          <select value="{{ d.sessionStr }}" onChange="{{ setSession }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none">
+            <option value="">Self-Paced (No Live Session)</option>
+            <option value="1">Session 1 · The Autonomous Agent</option>
+            <option value="2">Session 2 · Speed to Lead</option>
+            <option value="3">Session 3 · The Living Database</option>
+            <option value="4">Session 4 · The Meeting That Runs Itself</option>
+            <option value="5">Session 5 · Numbers on Autopilot</option>
+            <option value="6">Session 6 · Contract to Close</option>
+          </select>
+        </label>
+        <sc-if value="{{ sessWarn }}"><div style="font-size:13px; color:var(--access-locked-text)">{{ sessWarn }}</div></sc-if>
+        <div style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:10px; border:1px dashed var(--line-strong); background:var(--bg-sunken)">
+          <span style="width:36px; height:36px; flex:none; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:17px; height:17px; fill:none; stroke:{{ replay.fg }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ replay.icon }}"></path></svg></span>
+          <div style="flex:1; min-width:0"><div style="font-size:14px; font-weight:500">{{ replay.title }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ replay.sub }}</div></div>
+          <button onClick="{{ uploadReplay }}" style="height:32px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>{{ replay.btn }}</button>
+        </div>
+      </section>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">Build Steps</h2><span style="font-size:12px; color:var(--text-tertiary)">Six steps · each one is a chapter in the replay · {{ totalMins }} min total</span></div>
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="6">
+          <div style="display:flex; align-items:flex-start; gap:8px; padding:10px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-subtle)">
+            <div style="display:flex; flex-direction:column; padding-top:4px">
+              <button onClick="{{ s.up }}" aria-label="Move step up" style="width:22px; height:16px; border:0; background:transparent; color:{{ s.upFg }}; cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M6 14.5l6-6 6 6"></path></svg></button>
+              <button onClick="{{ s.down }}" aria-label="Move step down" style="width:22px; height:16px; border:0; background:transparent; color:{{ s.downFg }}; cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+            </div>
+            <span style="width:22px; padding-top:9px; font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary)">{{ s.n }}.</span>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:6px">
+              <input value="{{ s.text }}" onChange="{{ s.setText }}" placeholder="What the learner does" aria-label="Step {{ s.n }} title" style="height:32px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+              <input value="{{ s.hint }}" onChange="{{ s.setHint }}" placeholder="Optional hint" aria-label="Step {{ s.n }} hint" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)">
+              <div style="display:flex; gap:8px; flex-wrap:wrap">
+                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-tertiary)">Chapter<input value="{{ s.ch }}" onChange="{{ s.setCh }}" style="width:170px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)"></label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-tertiary)">Replay At<input value="{{ s.t }}" onChange="{{ s.setT }}" style="width:72px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-family:var(--font-mono); font-size:12px; outline:none" style-focus="border-color:var(--action-primary)"></label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-tertiary)">Minutes<input type="number" min="1" value="{{ s.mins }}" onChange="{{ s.setMins }}" style="width:64px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none; font-variant-numeric:tabular-nums" style-focus="border-color:var(--action-primary)"></label>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">System Prompt</h2><span style="font-size:12px; color:var(--text-tertiary)">{{ promptStats }}</span></div>
+        <textarea value="{{ d.prompt }}" onChange="{{ set.prompt }}" spellcheck="false" aria-label="System prompt" style="min-height:280px; resize:vertical; padding:12px 14px; border-radius:10px; border:1px solid var(--line-strong); background:var(--bg-sunken); color:var(--text-primary); font-family:var(--font-mono); font-size:13px; line-height:1.65; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; color:var(--text-tertiary)">Variables Learners Fill In:
+          <sc-for list="{{ vars }}" as="vv"><span style="font-family:var(--font-mono); font-size:12px; color:var(--access-locked-text); background:var(--access-locked-bg); padding:1px 6px; border-radius:4px">{{ vv }}</span></sc-for>
+          <sc-if value="{{ noVars }}"><span>None yet. Wrap a placeholder in double braces, like {{ example }}.</span></sc-if>
+        </div>
+      </section>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
+        <h2 style="margin:0; font-size:16px; font-weight:600">Skill Files &amp; Assets</h2>
+        <sc-for list="{{ files }}" as="f">
+          <div style="display:flex; align-items:center; gap:12px; padding:9px 10px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-subtle)">
+            <span style="width:44px; flex:none; height:22px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:500; background:var(--bg-surface); border:1px solid var(--line-default); color:var(--text-secondary)">{{ f.type }}</span>
+            <div style="flex:1; min-width:0"><div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ f.desc }} · {{ f.size }}</div></div>
+            <button onClick="{{ f.remove }}" aria-label="Remove {{ f.name }}" style="width:28px; height:28px; border:0; border-radius:6px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--status-attention-text); background:var(--status-attention-bg)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg></button>
+          </div>
+        </sc-for>
+        <button onClick="{{ addFile }}" style="display:flex; align-items:center; justify-content:center; gap:10px; height:60px; border-radius:10px; border:1px dashed var(--line-strong); background:transparent; color:var(--text-tertiary); font-size:13px; cursor:pointer" style-hover="border-color:var(--action-primary); color:var(--text-primary); background:var(--action-primary-tint)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Drop JSON or YAML skill files, or a Notion export</button>
+      </section>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
+        <h2 style="margin:0; font-size:16px; font-weight:600">Deployment</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px">
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Platform
+            <input value="{{ d.platform }}" onChange="{{ set.platform }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          </label>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Run Button Label
+            <input value="{{ d.runLabel }}" onChange="{{ set.runLabel }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          </label>
+        </div>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Instructor Notes
+          <textarea value="{{ d.notes }}" onChange="{{ set.notes }}" placeholder="Tips learners see next to the checklist" style="min-height:84px; resize:vertical; padding:10px 12px; border-radius:9px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; line-height:1.55; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
+        </label>
+      </section>
+
+      <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
+        <h2 style="margin:0; font-size:16px; font-weight:600">Publishing</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:8px">
+          <sc-for list="{{ statuses }}" as="so"><button onClick="{{ so.pick }}" aria-pressed="{{ so.on }}" style="display:flex; flex-direction:column; gap:3px; padding:12px; border-radius:10px; border:1px solid {{ so.bd }}; background:{{ so.bg }}; text-align:left; cursor:pointer; color:var(--text-primary)"><span style="font-size:14px; font-weight:600">{{ so.label }}</span><span style="font-size:12px; color:var(--text-tertiary)">{{ so.sub }}</span></button></sc-for>
+        </div>
+        <sc-if value="{{ isScheduled }}">
+          <label style="display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-secondary); flex-wrap:wrap">Opens On
+            <input type="date" value="{{ opensDate }}" onChange="{{ setOpens }}" style="height:34px; padding:0 10px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none">
+            <span style="color:var(--text-tertiary)">at 9:00 AM CT</span>
+          </label>
+        </sc-if>
+      </section>
+    </div>
+
+    <div style="flex:1 1 380px; min-width:0; position:sticky; top:76px; display:flex; flex-direction:column; gap:12px">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap">
+        <span style="font-size:14px; font-weight:600; color:var(--text-secondary)">Live Learner Preview</span>
+        <div style="display:flex; gap:6px; flex-wrap:wrap">
+          <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+            <sc-for list="{{ pvTabs }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+          </div>
+          <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+            <sc-for list="{{ pvTiers }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:12px; font-weight:500; cursor:pointer">{{ o.label }}</button></sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="padding:20px; border-radius:16px; border:1px solid var(--line-default); background:var(--bg-sunken); background-image:radial-gradient(var(--line-default) 1px, transparent 1px); background-size:16px 16px">
+        <sc-if value="{{ pvCard }}"><div style="max-width:320px; margin:0 auto"><dc-import name="Employee Card" card="{{ card }}" hint-size="100%,250px"></dc-import></div></sc-if>
+        <sc-if value="{{ pvLocked }}"><dc-import name="Locked Employee Preview" items="{{ lockedItems }}" index="{{ zero }}" hint-size="100%,420px"></dc-import></sc-if>
+        <sc-if value="{{ pvHeader }}">
+          <div style="padding:18px; border-radius:14px; background:var(--bg-surface); border:1px solid var(--line-default); display:flex; flex-direction:column; gap:6px">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap"><span style="font-size:20px; font-weight:600; letter-spacing:-0.015em">{{ d.name }}</span><dc-import name="Status Token" kind="runtime" state="not_deployed" hint-size="90px,22px"></dc-import></div>
+            <div style="font-size:14px; color:var(--text-primary)">{{ outcomeOrHint }}</div>
+            <div style="font-size:12px; color:var(--text-tertiary)">{{ metaLine }}</div>
+          </div>
+        </sc-if>
+      </div>
+      <button onClick="{{ openPortal }}" style="align-self:flex-start; border:0; background:none; padding:0; color:var(--text-link); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px" style-hover="color:var(--text-link-hover)">Open in Learner Portal<svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 6.5h9.5V16M17.5 6.5 6.5 17.5"></path></svg></button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { src: undefined, d: null, dirty: false, pv: 'card', pvTier: 'agent', errors: [], savedAt: null };
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, 'admin', { s: 'builder', id: 'marketing' })); }
+  componentDidMount() { this.bootStandalone(); this.sync(); }
+  componentDidUpdate() { this.sync(); }
+  sync() {
+    const c = this.cx; if (!c) return;
+    const id = c.route.id || null;
+    if (id === this.state.src && this.state.d) return;
+    const m = id ? c.db.modules.find(x => x.id === id) : null;
+    const order = Math.max(0, ...c.db.modules.map(x => x.order)) + 1;
+    const d = m ? JSON.parse(JSON.stringify(m)) : c.lib.blankModule(order);
+    d.outputs = [0, 1, 2].map(i => (d.outputs || [])[i] || '');
+    this.setState({ src: id, d, dirty: false, errors: [], savedAt: null, pvTier: d.tier === 'team' ? 'team' : 'agent' });
+  }
+  up(fn) { this.setState(s => { const d = JSON.parse(JSON.stringify(s.d)); fn(d); return { d, dirty: true, errors: [] }; }); }
+  validate(d, publishing) {
+    const e = [];
+    if (!d.name.trim()) e.push('Give the AI Employee a name.');
+    if (publishing) {
+      if (!(d.outcome || '').trim()) e.push('Add the outcome line. Learners see it under the title.');
+      if (d.outputs.filter(o => o.trim()).length < 3) e.push('Add all three outputs.');
+      if (d.prompt.trim().length < 40) e.push('The system prompt is too short to publish.');
+      if (d.checklist.filter(s => s.text.trim()).length < 6) e.push('Give all six build steps a title.');
+    }
+    return e;
+  }
+  save(status) {
+    const { act, lib, staff } = this.cx;
+    const d = JSON.parse(JSON.stringify(this.state.d));
+    const publishing = status === 'published' || (status === undefined && d.status !== 'draft');
+    const errors = this.validate(d, publishing);
+    if (errors.length) return this.setState({ errors });
+    if (status) d.status = status;
+    if (d.status === 'published') d.opens = null;
+    d.checklist = d.checklist.map((s, i) => ({ ...s, id: 'c' + (i + 1) }));
+    d.build = d.checklist.reduce((a, s) => a + (+s.mins || 0), 0);
+    d.short = d.short.trim() || d.name.replace(/ AI Employee$/, '');
+    const isNew = !this.state.src;
+    act.mutate(db => {
+      const i = db.modules.findIndex(x => x.id === d.id);
+      if (i >= 0) db.modules[i] = d; else db.modules.push(d);
+      if (status === 'published') lib.log(db, act.now(), staff.name, `published ${d.name}`, 'info');
+    }, status === 'published' ? `${d.name} is live in the learner portal` : `${d.name} saved`);
+    this.setState({ d, dirty: false, savedAt: act.now(), src: d.id });
+    if (isNew) act.nav('builder', d.id);
+  }
+  renderVals() {
+    const c = this.cx, d = this.state.d;
+    if (!c || !d) return {};
+    const { db, lib, ic, act } = c;
+    const F = lib.fmt, now = act.now();
+    const setF = k => e => { const v = e.target.value; this.up(x => { x[k] = v; }); };
+    const set = Object.fromEntries(['name', 'short', 'outcome', 'headline', 'forWho', 'prompt', 'notes', 'platform', 'runLabel'].map(k => [k, setF(k)]));
+    const team = d.tier === 'team';
+    const seg = (on, go, label) => ({ label, go, on: on ? 'true' : 'false', bg: on ? 'var(--seg-active)' : 'transparent', sh: on ? 'var(--shadow-xs)' : 'none', fg: on ? 'var(--text-primary)' : 'var(--text-secondary)' });
+    const sess = d.session ? lib.sessionFor(db, 'dec26', d.session) : null;
+    const clash = d.session ? db.modules.find(x => x.id !== d.id && x.session === d.session) : null;
+    const sst = sess ? lib.sessionState(sess, now) : 'none';
+    const replay = !sess ? { icon: ic.video, fg: 'var(--text-tertiary)', title: 'Walkthrough video', sub: 'Optional for self-paced AI Employees', btn: 'Upload Video'}
+      : sst === 'replay' && d.dur ? { icon: ic.checkCircle, fg: 'var(--status-success)', title: `Session ${sess.n} replay attached`, sub: `${F.clock(d.dur)} · 6 chapters from the build steps · transcript indexed`, btn: 'Replace'}
+      : { icon: ic.clock, fg: 'var(--text-tertiary)', title: `Replay posts after Session ${sess.n}`, sub: `${F.day(sess.start)} · Zoom cloud recording imports automatically`, btn: 'Upload Manually'};
+    const parseT = s => { const p = String(s).split(':').map(n => parseInt(n, 10) || 0); return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : p[0]; };
+    const steps = d.checklist.map((s, i) => ({
+      n: i + 1, text: s.text, hint: s.hint, ch: s.ch, t: F.clock(s.t), mins: s.mins,
+      upFg: i ? 'var(--text-tertiary)' : 'var(--text-disabled)', downFg: i < d.checklist.length - 1 ? 'var(--text-tertiary)' : 'var(--text-disabled)',
+      up: () => i && this.up(x => { [x.checklist[i - 1], x.checklist[i]] = [x.checklist[i], x.checklist[i - 1]]; }),
+      down: () => i < d.checklist.length - 1 && this.up(x => { [x.checklist[i + 1], x.checklist[i]] = [x.checklist[i], x.checklist[i + 1]]; }),
+      setText: e => { const v = e.target.value; this.up(x => { x.checklist[i].text = v; }); }, setHint: e => { const v = e.target.value; this.up(x => { x.checklist[i].hint = v; }); },
+      setCh: e => { const v = e.target.value; this.up(x => { x.checklist[i].ch = v; }); }, setT: e => { const v = parseT(e.target.value); this.up(x => { x.checklist[i].t = v; }); },
+      setMins: e => { const v = Math.max(1, parseInt(e.target.value, 10) || 1); this.up(x => { x.checklist[i].mins = v; }); },
+    }));
+    const totalMins = d.checklist.reduce((a, s) => a + (+s.mins || 0), 0);
+    const vars = [...new Set((d.prompt.match(/\{\{[A-Z_]+\}\}/g) || []).map(x => x.replace(/[{}]/g, '')))];
+    const files = d.files.map((f, i) => ({ ...f, remove: () => this.up(x => { x.files.splice(i, 1); }) }));
+    const demoFiles = [['JSON', 'skill.json', '3 KB'], ['YAML', 'skill.yaml', '2 KB'], ['Notion', '', 'Template']];
+    const addFile = () => this.up(x => { const k = x.files.length % 3, [type, ext, size] = demoFiles[k]; const slug = (x.short || 'new').toLowerCase().replace(/\W+/g, '-'); x.files.push({ name: type === 'Notion' ? `${x.short || 'New'} SOP` : `${slug}-${x.files.length + 1}.${ext}`, type, size, desc: 'Uploaded just now', steps: x.outputs.filter(Boolean) }); });
+    const stDefs = [['draft', 'Draft', 'Hidden from learners'], ['scheduled', 'Scheduled', 'Visible as “Opens …”'], ['published', 'Published', 'Available now']];
+    const statuses = stDefs.map(([k, label, sub]) => ({ label, sub, on: d.status === k ? 'true' : 'false', bd: d.status === k ? 'var(--action-primary)' : 'var(--line-default)', bg: d.status === k ? 'var(--action-primary-tint)' : 'var(--bg-surface)', pick: () => this.up(x => { x.status = k; if (k === 'scheduled' && !x.opens) x.opens = Date.parse('2026-12-21T09:00:00-06:00'); }) }));
+    const P = { published: ['success', 'check', 'Published'], scheduled: ['progress', 'clock', 'Scheduled'], draft: ['neutral', 'ring', 'Draft'] }[d.status];
+    const saved = db.modules.find(x => x.id === d.id), live = saved && saved.status === 'published';
+    const { pv, pvTier } = this.state;
+    const pm = { ...d, build: totalMins };
+    const card = lib.cardVM(db, { tier: pvTier, progress: {}, cohortId: 'dec26' }, pm, now);
+    const lockedItems = [{ id: d.id, name: d.name, short: d.short || d.name, icon: ic[d.icon] || ic.bot, headline: d.headline || d.outcome || 'Add an outcome headline', outputs: d.outputs.map((o, i) => o || `Output ${i + 1}`), sessLine: sess ? `Session ${sess.n} · ${F.day(sess.start)}` : 'Self-paced' }];
+    return {
+      ic, d: { ...d, sessionStr: d.session ? String(d.session) : '' }, set, errors: this.state.errors,
+      title: d.name || 'Untitled AI Employee', pill: { tone: P[0], icon: P[1], label: P[2]},
+      saveNote: this.state.dirty ? 'Unsaved changes' : this.state.savedAt ? 'Saved ' + F.agoInline(this.state.savedAt, now) : saved ? 'All changes saved' : 'Not saved yet',
+      saveFg: this.state.dirty ? 'var(--access-locked-text)' : 'var(--text-tertiary)',
+      saveLabel: d.status === 'draft' ? 'Save Draft' : 'Save', publishLabel: live ? 'Update Live Module' : 'Publish',
+      saveDraft: () => this.save(undefined), publish: () => this.save('published'),
+      canDelete: !!saved && saved.status === 'draft',
+      remove: () => { act.mutate(x => { x.modules = x.modules.filter(m => m.id !== d.id); }, `${d.name} deleted`); act.nav('curriculum'); },
+      back: () => act.nav('curriculum'),
+      icons: lib.MODULE_ICONS.map(k => ({ d: ic[k], on: d.icon === k ? 'true' : 'false', bd: d.icon === k ? 'var(--action-primary)' : 'var(--line-default)', bg: d.icon === k ? 'var(--action-primary-tint)' : 'var(--bg-surface)', fg: d.icon === k ? 'var(--action-primary)' : 'var(--text-tertiary)', pick: () => this.up(x => { x.icon = k; }) })),
+      tiers: [seg(!team, () => this.up(x => { x.tier = 'agent'; }), 'Agent + Team'), seg(team, () => this.up(x => { x.tier = 'team'; }), 'Team Only')],
+      tierNote: team ? 'Agent tier learners see the locked preview' : 'Included in both tiers',
+      outputs: d.outputs.map((o, i) => ({ n: i + 1, v: o, set: e => { const v = e.target.value; this.up(x => { x.outputs[i] = v; }); } })),
+      setSession: e => { const v = e.target.value; this.up(x => { x.session = v ? parseInt(v, 10) : null; }); },
+      sessWarn: clash ? `${clash.name} is also linked to Session ${d.session}. Both will share that live build.` : '',
+      replay, uploadReplay: () => act.toast(sess && sst !== 'replay' ? 'The replay imports from Zoom when the session ends' : 'Upload started. Processing takes about 10 minutes.', 'info'),
+      steps, totalMins, vars, noVars: !vars.length, example: '{{TEAM_NAME}}', promptStats: `${d.prompt.split('\n').length} lines · about ${Math.round(d.prompt.length / 4)} tokens`,
+      files, addFile, statuses, isScheduled: d.status === 'scheduled', opensDate: d.opens ? F.isoDate(d.opens) : '',
+      setOpens: e => { const v = e.target.value; this.up(x => { x.opens = v ? F.fromCT(v, '09:00') : null; }); },
+      pvTabs: [['card', 'Card'], ['locked', 'Locked Preview'], ['header', 'Detail Header']].map(([k, l]) => seg(pv === k, () => this.setState({ pv: k }), l)),
+      pvTiers: [['agent', 'Agent'], ['team', 'Team']].map(([k, l]) => seg(pvTier === k, () => this.setState({ pvTier: k }), l)),
+      pvCard: pv === 'card', pvLocked: pv === 'locked', pvHeader: pv === 'header', card, lockedItems, zero: 0,
+      outcomeOrHint: d.outcome || 'Add an outcome line', metaLine: `${sess ? `From Session ${sess.n} · ${sess.title}` : 'Self-paced'} · ${totalMins} min build · For ${d.forWho || '…'}`,
+      openPortal: () => { if (!live) return act.toast('Publish first. Drafts are hidden from learners.', 'info'); act.setRole(team ? 'owner' : 'agent'); act.nav('workspace', d.id); },
+    };
+  }
+}
+</script>
+</body>
+</html>

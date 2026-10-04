@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Cohorts &amp; Sessions</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">Each cohort runs the same six live builds on its own schedule and roster.</p>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px">
+    <sc-for list="{{ cohorts }}" as="co" hint-placeholder-count="3">
+      <button onClick="{{ co.pick }}" style="display:flex; flex-direction:column; gap:10px; padding:16px 18px; border-radius:12px; border:1px solid {{ co.bd }}; background:{{ co.bg }}; text-align:left; cursor:pointer; color:var(--text-primary)">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px">
+          <span style="font-size:16px; font-weight:600">{{ co.name }}</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; background:{{ co.st.bg }}; color:{{ co.st.fg }}; border:1px solid {{ co.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ co.st.dot }}"></span>{{ co.st.label }}</span>
+        </div>
+        <div style="font-size:13px; color:var(--text-tertiary)">{{ co.range }} · {{ co.cadence }}</div>
+        <div style="display:flex; align-items:center; gap:10px">
+          <div style="flex:1; height:5px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ co.fill }}; background:var(--action-primary)"></div></div>
+          <span style="font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums; white-space:nowrap">{{ co.enrolled }} / {{ co.capacity }}</span>
+        </div>
+      </button>
+    </sc-for>
+    <button onClick="{{ addCohort }}" style="display:flex; align-items:center; justify-content:center; gap:8px; min-height:112px; border-radius:12px; border:1px dashed var(--line-strong); background:transparent; color:var(--text-tertiary); font-size:13px; cursor:pointer" style-hover="border-color:var(--action-primary); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>New Cohort</button>
+  </div>
+
+  <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
+      <div><div style="font-size:14px; font-weight:600">{{ sel.name }} Schedule</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">{{ sel.note }}</div></div>
+      <sc-if value="{{ sel.canOpen }}"><button onClick="{{ sel.open }}" style="height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">Open Enrollment</button></sc-if>
+    </div>
+    <div style="overflow-x:auto">
+      <div style="min-width:1060px">
+        <div style="display:grid; grid-template-columns:40px minmax(240px,2fr) 170px minmax(170px,1.2fr) 150px 110px 230px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+          <span>#</span><span>Session</span><span>Date &amp; Time</span><span>Zoom</span><span>Status</span><span>Attendance</span><span style="text-align:right">Actions</span>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+          <div style="display:grid; grid-template-columns:40px minmax(240px,2fr) 170px minmax(170px,1.2fr) 150px 110px 230px; gap:12px; align-items:center; padding:13px 18px; border-bottom:1px solid var(--line-default); background:{{ r.bg }}">
+            <span style="font-family:var(--font-mono); font-size:13px; color:var(--text-tertiary)">{{ r.n }}</span>
+            <div style="min-width:0"><div style="font-size:14px; font-weight:500">{{ r.title }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ r.module }}</div></div>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.4">{{ r.day }}<div style="color:var(--text-tertiary); font-size:12px">{{ r.time }}</div></div>
+            <button onClick="{{ r.copyZoom }}" title="Copy Zoom link" style="display:flex; align-items:center; gap:6px; min-width:0; border:0; background:none; padding:0; color:var(--text-link); font-family:var(--font-mono); font-size:12px; cursor:pointer; text-align:left" style-hover="color:var(--status-progress-text)"><span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.zoom }}</span><svg viewBox="0 0 24 24" style="width:12px; height:12px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.copy }}"></path></svg></button>
+            <span style="display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; width:max-content; background:{{ r.st.bg }}; color:{{ r.st.fg }}; border:1px solid {{ r.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ r.st.dot }}; animation:{{ r.pulse }}"></span>{{ r.st.label }}</span>
+            <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ r.att }}</span>
+            <div style="display:flex; justify-content:flex-end; gap:6px">
+              <sc-if value="{{ r.primary }}"><button onClick="{{ r.primary.go }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid {{ r.primary.bd }}; background:{{ r.primary.bg }}; color:{{ r.primary.fg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">{{ r.primary.label }}</button></sc-if>
+              <button onClick="{{ r.edit }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.pencil }}"></path></svg>Edit</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div onClick="{{ close }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
+<aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(440px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
+  <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
+    <div style="flex:1"><div style="font-size:16px; font-weight:600">Edit Session {{ dw.n }}</div><div style="font-size:13px; color:var(--text-tertiary)">{{ dw.cohort }} · Changes Appear in the Portal Immediately</div></div>
+    <button onClick="{{ close }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+  </div>
+  <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:14px">
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Title
+      <input value="{{ f.title }}" onChange="{{ f.setTitle }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    </label>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Date
+        <input type="date" value="{{ f.date }}" onChange="{{ f.setDate }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none; color-scheme:dark">
+      </label>
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Start Time (CT)
+        <input type="time" value="{{ f.time }}" onChange="{{ f.setTime }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none; color-scheme:dark">
+      </label>
+    </div>
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Duration (Minutes)
+      <input type="number" min="15" step="15" value="{{ f.mins }}" onChange="{{ f.setMins }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    </label>
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Zoom Link
+      <input value="{{ f.zoom }}" onChange="{{ f.setZoom }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-family:var(--font-mono); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)">
+    </label>
+    <div style="padding:12px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-default); font-size:13px; color:var(--text-tertiary); line-height:1.55">Learners with reminders on get the updated time and link automatically. The dashboard countdown updates as soon as you save.</div>
+  </div>
+  <div style="display:flex; justify-content:flex-end; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default)">
+    <button onClick="{{ close }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
+    <button onClick="{{ saveSession }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">Save Session</button>
+  </div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "admin", {"s":"cohorts"})); }
+  componentDidMount() { this.bootStandalone(); }
+  state = { sel: 'dec26', edit: null, form: null };
+  openEdit(s) { const F = this.cx.lib.fmt; this.setState({ edit: s.id, form: { title: s.title, date: F.isoDate(s.start), time: F.isoTime(s.start), mins: s.mins, zoom: s.zoom } }); }
+  renderVals() {
+    const c = this.cx; if (!c || !c.db) return {};
+    const { db, lib, ic, act, staff, forceLive } = c;
+    const F = lib.fmt, now = act.now();
+    const stC = { completed: { label: 'Completed', fg: 'var(--status-neutral-text)', bg: 'var(--status-neutral-bg)', bd: 'var(--status-neutral-line)', dot: 'var(--status-neutral)' }, live: { label: 'Live', fg: 'var(--status-success-text)', bg: 'var(--status-success-bg)', bd: 'var(--status-success-line)', dot: 'var(--status-success)'}, enrolling: { label: 'Enrolling', fg: 'var(--status-progress-text)', bg: 'var(--status-progress-bg)', bd: 'var(--status-progress-line)', dot: 'var(--status-progress)' }, draft: { ...lib.STATUS.none, label: 'Draft'} };
+    const cohorts = db.cohorts.map(co => ({
+      name: co.name, st: stC[co.status], range: `${F.date(co.start)} – ${F.date(co.end)}`, cadence: co.cadence, enrolled: co.enrolled, capacity: co.capacity,
+      fill: Math.round((co.enrolled / co.capacity) * 100) + '%', bd: this.state.sel === co.id ? 'var(--action-primary)' : 'var(--line-default)', bg: this.state.sel === co.id ? 'var(--action-primary-tint)' : 'var(--bg-surface)',
+      pick: () => this.setState({ sel: co.id }),
+    }));
+    const co = db.cohorts.find(x => x.id === this.state.sel) || db.cohorts[0];
+    const list = db.sessions.filter(s => s.cohortId === co.id).sort((a, b) => a.start - b.start);
+    const learners = db.base.learners + db.users.filter(u => u.status !== 'invited').length;
+    const nextId = co.status === 'live' ? (list.find(s => s.live || s.start + s.mins * 60000 > now) || {}).id : null;
+    const patchS = (id, fn, msg) => act.mutate(d => { const s = d.sessions.find(x => x.id === id); fn(s, d); }, msg);
+    const rows = list.map(s => {
+      const m = lib.moduleForSession(db, s), st = lib.sessionState(s, now, forceLive && s.id === nextId);
+      const isNext = s.id === nextId;
+      let status, primary = null;
+      if (st === 'live') {
+        status = { label: 'Live Now', fg: 'var(--status-success-text)', bg: 'var(--status-success-bg)', bd: 'var(--status-success-line)', dot: 'var(--status-success)'};
+        primary = { label: 'End Session', bg: 'transparent', fg: 'var(--text-primary)', bd: 'var(--line-strong)', go: () => patchS(s.id, (x, d) => { x.live = false; x.start = Math.min(x.start, act.now() - x.mins * 60000); x.attended = Math.round(learners * 0.78); x.replay = 'processing'; lib.log(d, act.now(), staff.name, `ended Session ${x.n} · ${x.title}`, 'info'); }, `Session ${s.n} ended. Replay is processing.`) };
+      } else if (st === 'replay') {
+        status = { label: 'Replay Ready', fg: 'var(--status-success-text)', bg: 'var(--status-success-bg)', bd: 'var(--status-success-line)', dot: 'var(--status-success)'};
+      } else if (st === 'processing') {
+        status = { label: 'Replay Processing', ...lib.STATUS.soon };
+        primary = { label: 'Publish Replay', bg: 'var(--action-primary)', fg: 'var(--action-on-primary)', bd: 'var(--action-primary)', go: () => patchS(s.id, (x, d) => { x.replay = 'ready'; x.views = 0; const mm = d.modules.find(y => y.session === x.n); if (mm && !mm.dur) { mm.dur = x.mins * 60 - 300; mm.chapters = [[0, 'Welcome and goals'], [480, 'Live build walkthrough'], [Math.round(mm.dur * 0.7), 'Q&A']]; } lib.log(d, act.now(), staff.name, `published the Session ${x.n} replay`, 'info'); }, `Session ${s.n} replay published to learners`) };
+      } else {
+        status = isNext ? { label: 'Next Up', fg: 'var(--status-progress-text)', bg: 'var(--status-progress-bg)', bd: 'var(--status-progress-line)', dot: 'var(--status-progress)' } : { ...lib.STATUS.none, label: 'Scheduled'};
+        if (isNext) primary = { label: 'Go Live', bg: 'var(--status-success)', fg: 'var(--status-success-on)', bd: 'var(--status-success)', go: () => patchS(s.id, (x, d) => { x.live = true; lib.log(d, act.now(), staff.name, `started Session ${x.n} · ${x.title}`, 'success'); }, `Session ${s.n} is live. Learners see “Join now.”`) };
+      }
+      return {
+        n: s.n, title: s.title, module: m ? m.name + (m.tier === 'team' ? ' · Team Tier' : '') : 'No AI Employee linked', day: F.day(s.start), time: `${F.time(s.start)} · ${s.mins} min`,
+        zoom: s.zoom.replace('https://', ''), st: status, pulse: st === 'live' ? 'ai-pulse 1.6s infinite' : 'none', att: s.attended ? `${s.attended} · ${F.pct(s.attended / learners)}` : '—',
+        bg: isNext ? 'var(--action-primary-tint)' : 'transparent', primary, edit: () => this.openEdit(s), copyZoom: () => act.copy(s.zoom, 'Zoom link copied'),
+      };
+    });
+    const nextCohortMonth = () => { const last = db.cohorts.slice().sort((a, b) => b.start - a.start)[0]; const d = new Date(last.start + 63 * 86400000); return d; };
+    const fm = this.state.form, es = db.sessions.find(x => x.id === this.state.edit);
+    const upF = k => e => { const v = e.target.value; this.setState(s => ({ form: { ...s.form, [k]: v } })); };
+    return {
+      ic, cohorts, rows,
+      sel: { name: co.name, note: co.status === 'live' ? `In progress · ${learners} learners · ${co.cadence}` : co.status === 'enrolling' ? `${co.enrolled} enrolled · starts ${F.day(co.start)}` : 'Draft · not visible on the sales page', canOpen: co.status === 'draft', open: () => act.mutate(d => { d.cohorts.find(x => x.id === co.id).status = 'enrolling'; }, `${co.name} is open for enrollment`) },
+      addCohort: () => { const last0 = db.cohorts.slice().sort((a, b) => b.start - a.start)[0]; let t0 = last0.start + 63 * 86400000; while (new Date(t0 - 6 * 3600e3).getUTCDay() !== 2) t0 += 86400000; const newId = 'c' + t0.toString(36); act.mutate(d => {
+        const t = t0;
+        const id = newId, name = new Date(t).toLocaleDateString('en-US', { timeZone: 'America/Chicago', month: 'long', year: 'numeric' });
+        const offs = [0, 2, 7, 9, 14, 16];
+        d.cohorts.push({ id, name, start: t, end: t + 16 * 86400000 + 75 * 60000, status: 'draft', capacity: 200, enrolled: 0, cadence: 'Tue & Thu · 1:00 PM CT' });
+        const titles = ['The Autonomous Agent', 'Speed to Lead', 'The Living Database', 'The Meeting That Runs Itself', 'Numbers on Autopilot', 'Contract to Close'];
+        offs.forEach((o, i) => d.sessions.push({ id: `${id}-s${i + 1}`, cohortId: id, n: i + 1, title: titles[i], start: t + o * 86400000, mins: 75, zoom: `https://zoom.us/j/${8841200610 + i * 1371 + d.cohorts.length * 97}`, live: false, attended: null, replay: null, views: 0 }));
+      }, 'Draft cohort created with 6 sessions'); this.setState({ sel: newId }); },
+      dw: { op: fm ? 1 : 0, pe: fm ? 'auto' : 'none', tf: fm ? 'translateX(0)' : 'translateX(105%)', n: es ? es.n : '', cohort: co.name },
+      f: { ...(fm || {}), setTitle: upF('title'), setDate: upF('date'), setTime: upF('time'), setMins: upF('mins'), setZoom: upF('zoom') },
+      close: () => this.setState({ form: null, edit: null }),
+      saveSession: () => {
+        if (!fm || !es) return;
+        const start = F.fromCT(fm.date, fm.time);
+        patchS(es.id, (x, d) => { x.title = fm.title; x.start = isNaN(start) ? x.start : start; x.mins = parseInt(fm.mins, 10) || x.mins; x.zoom = fm.zoom; lib.log(d, act.now(), staff.name, `updated Session ${x.n} · ${x.title}`, 'info'); }, `Session ${es.n} updated. Learners will be notified.`);
+        this.setState({ form: null, edit: null });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

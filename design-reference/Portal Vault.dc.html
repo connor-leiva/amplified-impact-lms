@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1280px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Resource &amp; Compliance Vault</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">Templates, workflows and compliance guides for real estate AI. One click to download.</p>
+    </div>
+    <div style="position:relative; width:min(340px, 100%)">
+      <svg viewBox="0 0 24 24" style="position:absolute; left:11px; top:10px; width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.search }}"></path></svg>
+      <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search templates, scripts, workflows" style="width:100%; height:36px; padding:0 12px 0 34px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+    </div>
+  </div>
+
+  <div style="display:flex; gap:2px; border-bottom:1px solid var(--line-default)">
+    <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="2">
+      <button onClick="{{ tb.go }}" style="height:42px; padding:0 14px; border:0; background:transparent; color:{{ tb.fg }}; font-size:14px; font-weight:500; cursor:pointer; box-shadow:{{ tb.sh }}; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="color:var(--text-primary)">
+        <sc-if value="{{ tb.lock }}"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:var(--access-locked-text); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg></sc-if>
+        {{ tb.label }}<span style="height:18px; min-width:18px; padding:0 6px; border-radius:999px; background: var(--action-secondary); color:var(--text-secondary); font-size:12px; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums">{{ tb.count }}</span>
+      </button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ showList }}">
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+      <sc-for list="{{ chips }}" as="ch" hint-placeholder-count="5">
+        <button onClick="{{ ch.go }}" style="height:30px; padding:0 12px; border-radius:999px; border:1px solid {{ ch.bd }}; background:{{ ch.bg }}; color:{{ ch.fg }}; font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap">{{ ch.label }}<span style="color:{{ ch.cFg }}; font-variant-numeric:tabular-nums">{{ ch.count }}</span></button>
+      </sc-for>
+      <select value="{{ type }}" onChange="{{ setType }}" style="margin-left:auto; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); font-size:13px; outline:none">
+        <option value="">All File Types</option>
+        <option value="Claude Project">Claude Project</option>
+        <option value="Workflow JSON">Workflow JSON</option>
+        <option value="Prompt pack">Prompt Pack</option>
+        <option value="PDF guide">PDF Guide</option>
+        <option value="Notion template">Notion Template</option>
+      </select>
+    </div>
+
+    <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+      <sc-if value="{{ empty }}"><div style="padding:36px; text-align:center; color:var(--text-tertiary); font-size:14px">No resources match. Try a different search or category.</div></sc-if>
+      <sc-for list="{{ items }}" as="r" hint-placeholder-count="8">
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 18px; border-top:{{ r.bt }}; flex-wrap:wrap" style-hover="background:var(--bg-hover)">
+          <div style="width:38px; height:38px; flex:none; border-radius:9px; background:{{ r.tBg }}; border:1px solid {{ r.tBd }}; display:flex; align-items:center; justify-content:center">
+            <svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:none; stroke:{{ r.tFg }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ r.icon }}"></path></svg>
+          </div>
+          <div style="flex:1; min-width:240px">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              <span style="font-size:14px; font-weight:500">{{ r.title }}</span>
+              <sc-if value="{{ r.isNew }}"><span style="height:18px; padding:0 7px; border-radius:999px; background:var(--action-primary-tint); color:var(--status-progress-text); font-size:12px; font-weight:600; display:flex; align-items:center">New</span></sc-if>
+              <sc-if value="{{ r.teamOnly }}"><span style="height:18px; white-space:nowrap; padding:0 7px; border-radius:999px; background:var(--access-locked-bg); color:var(--access-locked-text); border:1px solid var(--access-locked-line); font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px">Team Tier</span></sc-if>
+            </div>
+            <div style="font-size:13px; color:var(--text-tertiary); margin-top:2px">{{ r.desc }}</div>
+          </div>
+          <div style="width:200px; font-size:13px; color:var(--text-secondary)">{{ r.cat }}</div>
+          <div style="width:130px; font-size:12px; color:var(--text-tertiary); line-height:1.4">{{ r.type }}<br>{{ r.size }} · {{ r.updated }}</div>
+          <button onClick="{{ r.go }}" style="height:32px; min-width:118px; padding:0 12px; border-radius:7px; border:1px solid {{ r.bBd }}; background:{{ r.bBg }}; color:{{ r.bFg }}; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; white-space:nowrap">
+            <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ r.bIcon }}"></path></svg>{{ r.bLabel }}
+          </button>
+        </div>
+      </sc-for>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ execLocked }}">
+    <section style="display:flex; flex-wrap:wrap; gap:24px; padding:24px; border-radius:12px; border:1px solid var(--access-locked-line); background:var(--bg-surface)">
+      <div style="flex:1 1 320px; display:flex; flex-direction:column; gap:12px">
+        <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:var(--text-secondary)"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg>Team Tier</div>
+        <div style="font-size:20px; font-weight:600; letter-spacing:-0.015em">Executive Build Vault</div>
+        <div style="color:var(--text-secondary); font-size:14px; line-height:1.6; max-width:460px">Organizational SOPs, leadership meeting frameworks and finance tracker integrations for team owners and operations leads.</div>
+        <button onClick="{{ request }}" style="align-self:flex-start; margin-top:6px; height:38px; padding:0 16px; border-radius:8px; border:1px solid {{ up.bd }}; background:{{ up.bg }}; color:{{ up.fg }}; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ up.icon }}"></path></svg>{{ up.label }}</button>
+      </div>
+      <div style="flex:1 1 320px; display:flex; flex-direction:column; gap:8px">
+        <sc-for list="{{ execPreview }}" as="x">
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)">
+            <svg viewBox="0 0 24 24" style="width:15px; height:15px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg>
+            <div style="flex:1; min-width:0"><div style="font-size:13px; color:var(--text-secondary)">{{ x.title }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ x.cat }} · {{ x.type }}</div></div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "owner", {"s":"vault"})); }
+  componentDidMount() { this.bootStandalone(); }
+  state = { tab: 'library', q: '', cat: '', type: '' };
+  requestUpgrade(source) {
+    const { db, user, act, lib } = this.cx;
+    if (db.requests.some(q => q.userId === user.id && (q.status === 'new' || q.status === 'contacted'))) return act.toast('Your consultation request is in. We’ll reach out within 1 business day.', 'info');
+    act.mutate(d => { const t = act.now(); d.requests.unshift({ id: 'ur' + t, userId: user.id, name: user.name, email: user.email, source, at: t, status: 'new' }); lib.log(d, t, user.name, 'requested a Team Tier upgrade', 'warn'); }, 'Consultation requested. Our team will reach out within 1 business day.');
+  }
+  renderVals() {
+    const c = this.cx; if (!c || !c.user) return {};
+    const { db, user, lib, ic, act, isTeam } = c;
+    const F = lib.fmt, now = act.now();
+    const { tab, q, cat, type } = this.state;
+    const pub = db.resources.filter(r => r.status === 'published');
+    const lib_ = pub.filter(r => !r.exec), exec = pub.filter(r => r.exec);
+    const tabs = [['library', 'Library', lib_.length, false], ['exec', 'Executive Build Vault', exec.length, !isTeam]].map(([k, label, count, lock]) => ({
+      label, count, lock, fg: tab === k ? 'var(--text-primary)' : 'var(--text-tertiary)', sh: tab === k ? 'inset 0 -2px 0 var(--action-primary)' : 'none', go: () => this.setState({ tab: k, cat: '' }),
+    }));
+    const pool = tab === 'exec' ? exec : lib_;
+    const cats = tab === 'exec' ? lib.EXEC_CATEGORIES : lib.CATEGORIES;
+    const ql = q.trim().toLowerCase();
+    const matchQT = r => (!ql || (r.title + ' ' + r.desc + ' ' + r.cat + ' ' + r.type).toLowerCase().includes(ql)) && (!type || r.type === type);
+    const chips = [['', 'All'], ...cats.map(x => [x, x])].map(([k, label]) => {
+      const on = cat === k, count = pool.filter(r => (!k || r.cat === k) && matchQT(r)).length;
+      return { label, count, bg: on ? 'var(--action-primary-tint)' : 'var(--bg-surface)', bd: on ? 'var(--action-primary-line)' : 'var(--line-default)', fg: on ? 'var(--text-primary)' : 'var(--text-secondary)', cFg: on ? 'var(--status-progress-text)' : 'var(--text-tertiary)', go: () => this.setState({ cat: k }) };
+    });
+    const typeIcon = { 'Claude Project': ic.bot, 'Workflow JSON': ic.fileCode, 'Prompt pack': ic.chat, 'PDF guide': ic.file, 'Notion template': ic.book };
+    const list = pool.filter(r => (!cat || r.cat === cat) && matchQT(r)).sort((a, b) => b.updated - a.updated);
+    const items = list.map((r, i) => {
+      const locked = r.tier === 'team' && !isTeam;
+      const ext = r.type === 'Workflow JSON' || r.type === 'Claude Project' ? '.json' : r.type === 'PDF guide' ? '.pdf' : '.md';
+      const fname = r.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + ext;
+      const body = ext === '.json' ? JSON.stringify({ name: r.title, type: r.type, category: r.cat, version: '1.0.0', source: 'Amplified Impact Resource Vault' }, null, 2) : `# ${r.title}\n\n${r.desc}\n\nCategory: ${r.cat}\n`;
+      return {
+        title: r.title, desc: r.desc, cat: r.cat, type: r.type, size: r.size, updated: 'Updated ' + F.date(r.updated), isNew: now - r.updated < 3 * 86400000, teamOnly: r.tier === 'team' && !isTeam,
+        icon: typeIcon[r.type] || ic.file, tBg: locked ? 'var(--access-locked-bg)' : 'var(--action-primary-tint)', tBd: locked ? 'var(--access-locked-line)' : 'var(--action-primary-tint)', tFg: locked ? 'var(--access-locked-text)' : 'var(--text-link)',
+        bt: i ? '1px solid var(--line-subtle)' : '0',
+        bLabel: locked ? 'Upgrade' : r.type === 'Notion Template' ? 'Duplicate' : 'Download', bIcon: locked ? ic.lock : r.type === 'Notion template' ? ic.ext : ic.download,
+        bBg: locked ? 'var(--access-locked-bg)' : 'var(--seg-active)', bFg: locked ? 'var(--access-locked-text)' : 'var(--text-primary)', bBd: locked ? 'var(--access-locked-line)' : 'var(--line-strong)',
+        go: () => {
+          if (locked) return this.requestUpgrade('Resource Vault · ' + r.title);
+          act.mutate(d => { const x = d.resources.find(y => y.id === r.id); if (x) x.dl++; });
+          if (r.type === 'Notion template') act.toast(`Opening “${r.title}” in Notion`, 'info'); else act.download(fname, body, ext === '.json' ? 'application/json' : 'text/plain', `Downloaded ${r.title}`);
+        },
+      };
+    });
+    const requested = db.requests.some(x => x.userId === user.id && (x.status === 'new' || x.status === 'contacted'));
+    const execLocked = tab === 'exec' && !isTeam;
+    return {
+      ic, q, type, tabs, chips, items, empty: !items.length, types: lib.TYPES, showList: !execLocked, execLocked,
+      execPreview: exec.map(r => ({ title: r.title, cat: r.cat, type: r.type })),
+      up: requested ? { label: 'Consultation Requested', icon: ic.check, bg: 'var(--access-locked-bg)', fg: 'var(--access-locked-text)', bd: 'var(--access-locked-line)'} : { label: 'Book Upgrade Consultation', icon: ic.calendar, bg: 'var(--access-locked)', fg: 'var(--access-locked-on)', bd: 'var(--access-locked)'},
+      request: () => this.requestUpgrade('Executive Build Vault'),
+      setQ: e => this.setState({ q: e.target.value }), setType: e => this.setState({ type: e.target.value }),
+    };
+  }
+}
+</script>
+</body>
+</html>

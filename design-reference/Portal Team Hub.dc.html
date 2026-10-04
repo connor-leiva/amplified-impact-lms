@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1360px; margin:0 auto; display:flex; flex-direction:column; gap:20px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Team Hub</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ teamName }} · Team Tier · December 2026 Cohort</p>
+    </div>
+    <div style="display:flex; gap:8px">
+      <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">
+        <svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export CSV
+      </button>
+      <button onClick="{{ openInvite }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap">
+        <svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.userPlus }}"></path></svg>Invite Member
+      </button>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:14px">
+    <section style="padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
+      <div style="font-size:14px; font-weight:600; color:var(--text-secondary)">Seat Allocation</div>
+      <div style="display:flex; align-items:baseline; gap:8px"><span style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; line-height:1">{{ seats.used }} of {{ seats.total }}</span><span style="color:var(--text-secondary)">Seats Assigned</span></div>
+      <div style="display:flex; gap:6px">
+        <sc-for list="{{ seats.slots }}" as="sl" hint-placeholder-count="7">
+          <div title="{{ sl.title }}" onClick="{{ sl.go }}" style="width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; background:{{ sl.bg }}; border:1.5px {{ sl.bs }} {{ sl.bd }}; color:{{ sl.fg }}; cursor:pointer">{{ sl.ini }}</div>
+        </sc-for>
+      </div>
+      <div style="font-size:13px; color:var(--text-tertiary)">{{ seats.breakdown }}</div>
+    </section>
+
+    <section style="padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
+      <div style="font-size:14px; font-weight:600; color:var(--text-secondary)">Team Deployments</div>
+      <div style="display:flex; align-items:baseline; gap:8px"><span style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; line-height:1">{{ dep.total }}</span><span style="color:var(--text-secondary)">AI Employees Deployed Across the Team</span></div>
+      <div style="display:flex; flex-direction:column; gap:7px">
+        <sc-for list="{{ dep.rows }}" as="dr" hint-placeholder-count="6">
+          <div style="display:flex; align-items:center; gap:10px; font-size:13px">
+            <span style="width:76px; flex:none; color:var(--text-secondary)">{{ dr.label }}</span>
+            <div style="flex:1; height:6px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ dr.w }}; background:var(--status-success); border-radius:3px"></div></div>
+            <span style="width:34px; text-align:right; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ dr.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="padding:18px 20px; border-radius:12px; border:1px solid {{ rem.bd }}; background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
+      <div style="font-size:14px; font-weight:600; color:var(--text-secondary)">Before {{ rem.session }}</div>
+      <div style="font-size:16px; font-weight:600; line-height:1.35">{{ rem.headline }}</div>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <sc-for list="{{ rem.people }}" as="p">
+          <div style="display:flex; align-items:center; gap:8px; font-size:13px">
+            <span style="width:22px; height:22px; border-radius:50%; background:{{ p.av }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex:none; color:var(--ink-900)">{{ p.ini }}</span>
+            <span style="color:var(--text-primary)">{{ p.name }}</span><span style="color:var(--text-tertiary); margin-left:auto; white-space:nowrap">{{ p.gap }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ rem.any }}">
+        <button onClick="{{ remind }}" style="margin-top:auto; height:34px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px" style-hover="background:var(--action-secondary-hover)">
+          <svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.bell }}"></path></svg>{{ rem.btn }}
+        </button>
+      </sc-if>
+    </section>
+  </div>
+
+  <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default)">
+      <div style="font-size:14px; font-weight:600">Team Activity</div>
+      <span style="font-size:13px; color:var(--text-tertiary)">{{ members.length }} Members · Click a Row to Manage</span>
+    </div>
+    <div style="overflow-x:auto">
+      <div style="min-width:920px">
+        <div style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+          <span>Name</span><span>Role</span><span>Date Joined</span><span>AI Employees Built</span><span>Deployment Status</span><span>Last Active</span><span></span>
+        </div>
+        <sc-for list="{{ members }}" as="u" hint-placeholder-count="6">
+          <div onClick="{{ u.open }}" style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line-default); cursor:pointer" style-hover="background:var(--bg-hover)">
+            <div style="display:flex; align-items:center; gap:10px; min-width:0">
+              <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ u.av }}; border:{{ u.avBd }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ u.ini }}</span>
+              <div style="min-width:0">
+                <div style="font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.name }}<sc-if value="{{ u.isMe }}"><span style="color:var(--text-tertiary); font-weight:400"> (You)</span></sc-if></div>
+                <div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.email }}</div>
+              </div>
+            </div>
+            <span style="font-size:13px; color:var(--text-secondary)">{{ u.role }}</span>
+            <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ u.joined }}</span>
+            <div style="display:flex; align-items:center; gap:8px">
+              <div style="display:flex; gap:3px">
+                <sc-for list="{{ u.dots }}" as="d"><span title="{{ d.t }}" style="width:14px; height:14px; border-radius:4px; background:{{ d.c }}; border:1px solid {{ d.bd }}"></span></sc-for>
+              </div>
+              <span style="font-size:13px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ u.count }}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:7px; min-width:0">
+              <span style="width:7px; height:7px; flex:none; border-radius:50%; background:{{ u.stDot }}"></span>
+              <span style="font-size:13px; color:{{ u.stFg }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.status }}</span>
+            </div>
+            <span style="font-size:13px; color:var(--text-tertiary)">{{ u.last }}</span>
+            <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+</div>
+
+<sc-if value="{{ inv.open }}">
+  <div onClick="{{ closeInvite }}" style="position:fixed; inset:0; z-index:70; background:var(--bg-overlay); display:flex; align-items:center; justify-content:center; padding:24px; animation:ai-fade 160ms ease-out">
+    <div onClick="{{ stopProp }}" style="width:min(460px, 100%); border-radius:14px; background:var(--bg-surface); border:1px solid var(--line-strong); box-shadow: var(--shadow-pop); animation:ai-pop 200ms ease-out">
+      <div style="display:flex; align-items:flex-start; gap:12px; padding:20px 20px 0">
+        <div style="flex:1">
+          <div style="font-size:16px; font-weight:600">Invite a Team Member</div>
+          <div style="font-size:13px; color:var(--text-tertiary); margin-top:3px">{{ inv.seatsNote }}</div>
+        </div>
+        <button onClick="{{ closeInvite }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+      </div>
+      <div style="padding:18px 20px; display:flex; flex-direction:column; gap:14px">
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Work Email
+          <input value="{{ inv.email }}" onChange="{{ setEmail }}" placeholder="name@yourteam.com" style="height:38px; padding:0 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        </label>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Full Name <span style="color:var(--text-tertiary); font-weight:400">Optional</span>
+          <input value="{{ inv.name }}" onChange="{{ setName }}" placeholder="Jordan Smith" style="height:38px; padding:0 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        </label>
+        <div style="display:flex; flex-direction:column; gap:6px">
+          <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Role</span>
+          <div style="display:flex; flex-direction:column; gap:6px">
+            <sc-for list="{{ inv.roles }}" as="ro">
+              <button onClick="{{ ro.pick }}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:9px; border:1px solid {{ ro.bd }}; background:{{ ro.bg }}; text-align:left; cursor:pointer; color:var(--text-primary)">
+                <span style="width:16px; height:16px; flex:none; border-radius:50%; border:1.5px solid {{ ro.ring }}; display:flex; align-items:center; justify-content:center"><span style="width:8px; height:8px; border-radius:50%; background:{{ ro.dot }}"></span></span>
+                <span style="flex:1"><span style="display:block; font-size:14px; font-weight:500">{{ ro.label }}</span><span style="display:block; font-size:12px; color:var(--text-tertiary)">{{ ro.sub }}</span></span>
+                <span style="font-size:12px; color:{{ ro.capFg }}; white-space:nowrap">{{ ro.cap }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ inv.err }}"><div style="font-size:13px; color:var(--access-locked-text)">{{ inv.err }}</div></sc-if>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px; padding:14px 20px; border-top:1px solid var(--line-default)">
+        <button onClick="{{ closeInvite }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
+        <button onClick="{{ sendInvite }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid {{ inv.btnBd }}; background:{{ inv.btnBg }}; color:{{ inv.btnFg }}; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.send }}"></path></svg>Send Invite</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
+<aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(440px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
+  <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
+    <span style="width:40px; height:40px; flex:none; border-radius:50%; background:{{ dw.av }}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--ink-900)">{{ dw.ini }}</span>
+    <div style="flex:1; min-width:0">
+      <div style="font-size:16px; font-weight:600">{{ dw.name }}</div>
+      <div style="font-size:13px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ dw.email }}</div>
+    </div>
+    <button onClick="{{ closeDrawer }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+  </div>
+  <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:18px">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+      <div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:12px; color:var(--text-tertiary); font-weight:500">Joined</div><div style="font-size:14px; margin-top:3px">{{ dw.joined }}</div></div>
+      <div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:12px; color:var(--text-tertiary); font-weight:500">Last Active</div><div style="font-size:14px; margin-top:3px">{{ dw.last }}</div></div>
+    </div>
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Role
+      <select value="{{ dw.role }}" onChange="{{ dw.setRole }}" disabled="{{ dw.isOwner }}" style="height:38px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none">
+        <option value="Team Owner">Team Owner</option>
+        <option value="Operations Lead">Operations Lead</option>
+        <option value="Sales Agent">Sales Agent</option>
+      </select>
+    </label>
+    <div>
+      <div style="font-size:12px; color:var(--text-tertiary); font-weight:500; margin-bottom:8px">AI Employees</div>
+      <div style="display:flex; flex-direction:column; border:1px solid var(--line-default); border-radius:10px; overflow:hidden">
+        <sc-for list="{{ dw.mods }}" as="dm">
+          <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:{{ dm.bt }}">
+            <svg viewBox="0 0 24 24" style="width:15px; height:15px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ dm.icon }}"></path></svg>
+            <span style="flex:1; font-size:13px">{{ dm.name }}</span>
+            <dc-import name="Status Token" kind="build" state="{{ dm.b.state }}" n="{{ dm.b.n }}" total="{{ dm.b.total }}" compact="{{ true }}" hint-size="40px,16px"></dc-import><dc-import name="Status Token" kind="runtime" state="{{ dm.rt }}" hint-size="90px,22px"></dc-import>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default)">
+    <sc-if value="{{ dw.canRemove }}">
+      <button onClick="{{ dw.remove }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background:transparent; color:var(--status-attention-text); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--status-attention-bg)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg>Remove Seat</button>
+    </sc-if>
+    <button onClick="{{ dw.nudge }}" style="margin-left:auto; height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ dw.nudgeIcon }}"></path></svg>{{ dw.nudgeLabel }}</button>
+  </div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "owner", {"s":"team"})); }
+  componentDidMount() { this.bootStandalone(); }
+  state = { invite: false, email: '', name: '', role: 'Sales Agent', err: '', sel: null };
+
+  members() { const { db, team } = this.cx; return db.users.filter(u => u.teamId === team.id); }
+  sendInvite() {
+    const { act, lib, team, user } = this.cx;
+    const { email, name, role } = this.state;
+    const mem = this.members();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return this.setState({ err: 'Enter a valid email address.' });
+    if (mem.some(u => u.email.toLowerCase() === email.trim().toLowerCase())) return this.setState({ err: 'That person is already on your team.' });
+    if (mem.length >= team.seats) return this.setState({ err: 'All seats are assigned. Remove a seat or contact us to add more.' });
+    const caps = { 'Operations Lead': 1, 'Sales Agent': 5, 'Team Owner': 1 };
+    if (mem.filter(u => u.role === role).length >= caps[role]) return this.setState({ err: `Your plan includes ${caps[role]} ${role}${caps[role] > 1 ? 's' : ''}.` });
+    const nm = name.trim() || email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+    act.mutate(d => {
+      const t = act.now();
+      d.users.push({ id: 'u' + t.toString(36), name: nm, email: email.trim(), tier: 'team', role, teamId: team.id, cohortId: 'dec26', joined: t, last: null, status: 'invited', progress: {} });
+      lib.log(d, t, user.name, `invited ${nm} to ${team.name}`, 'info');
+    }, `Invite sent to ${email.trim()}`);
+    this.setState({ invite: false, email: '', name: '', err: '' });
+  }
+  remind(people) {
+    const { act, lib, user } = this.cx;
+    act.mutate(d => { const t = act.now(); people.forEach(p => { const u = d.users.find(x => x.id === p.id); if (u) u.reminded = t; }); lib.log(d, t, user.name, `sent build reminders to ${people.length} team member${people.length === 1 ? '' : 's'}`, 'info'); }, `Reminder sent to ${people.length} member${people.length === 1 ? '' : 's'} by email and in-app`);
+  }
+
+  renderVals() {
+    const c = this.cx; if (!c || !c.user || !c.team) return {};
+    const { db, user, team, lib, ic, act } = c;
+    const F = lib.fmt, S = lib.STATUS, now = act.now();
+    const mods = lib.visibleModules(db);
+    const order = { 'Team Owner': 0, 'Operations Lead': 1, 'Sales Agent': 2 };
+    const mem = this.members().sort((a, b) => (order[a.role] ?? 3) - (order[b.role] ?? 3) || a.joined - b.joined);
+
+    const summary = u => {
+      if (u.status === 'invited') return ['Invite Sent · Awaiting Acceptance', 'var(--access-locked-text)', 'var(--access-locked)'];
+      const att = mods.filter(m => lib.runtimeOf(u, m) === 'needs_attention').map(m => m.short);
+      if (att.length) return [att.join(', ') + ' Needs Attention', 'var(--status-attention-text)', 'var(--status-attention)'];
+      const dep = mods.filter(m => lib.statusOf(u, m) === 'deployed').map(m => m.short);
+      const wip = mods.filter(m => lib.statusOf(u, m) === 'progress').map(m => m.short);
+      if (dep.length) return [dep.join(', ') + ' Deployed' + (wip.length ? ` · ${wip.join(', ')} In Progress` : ''), 'var(--status-success-text)', 'var(--status-success)'];
+      if (wip.length) return ['In Progress: ' + wip.join(', '), 'var(--status-progress-text)', 'var(--action-primary)'];
+      return ['Not Started', 'var(--text-tertiary)', 'var(--text-disabled)'];
+    };
+    const members = mem.map(u => {
+      const invited = u.status === 'invited';
+      const dots = mods.map(m => { const b = lib.buildOf(u, m); return { t: `${m.short}: ${b.state === 'verified' ? 'Built' : b.state === 'in_progress' ? b.n + ' of ' + b.total + ' steps' : 'Not started'}`, c: b.state === 'verified' ? 'var(--status-success)' : b.state === 'in_progress' ? 'color-mix(in oklch, var(--status-progress) 45%, transparent)' : 'transparent', bd: b.state === 'verified' ? 'var(--status-success)' : b.state === 'in_progress' ? 'var(--status-progress)' : 'var(--line-strong)' }; });
+      const [status, stFg, stDot] = summary(u);
+      return {
+        name: u.name, email: u.email, role: u.role, isMe: u.id === user.id, ini: F.initials(u.name), av: invited ? 'transparent' : lib.avatarColor(u.id), avBd: invited ? '1.5px dashed var(--access-locked)' : '0',
+        joined: invited ? '—' : F.date(u.joined), last: invited ? 'Invited ' + F.ago(u.joined, now) : u.last ? F.ago(u.last, now) : '—',
+        dots, count: `${mods.filter(m => lib.buildOf(u, m).state === 'verified').length}/${mods.length}`, status, stFg, stDot,
+        open: () => this.setState({ sel: u.id }),
+      };
+    });
+
+    const slots = Array.from({ length: team.seats }, (_, i) => {
+      const u = mem[i];
+      if (!u) return { ini: '+', title: 'Open seat · invite someone', bg: 'transparent', bs: 'dashed', bd: 'var(--line-strong)', fg: 'var(--text-tertiary)', go: () => this.setState({ invite: true, err: '' }) };
+      const inv = u.status === 'invited';
+      return { ini: F.initials(u.name), title: `${u.name} · ${u.role}${inv ? ' (invited)' : ''}`, bg: inv ? 'transparent' : lib.avatarColor(u.id), bs: inv ? 'dashed' : 'solid', bd: inv ? 'var(--access-locked)' : 'var(--bg-surface)', fg: 'var(--text-primary)', go: () => this.setState({ sel: u.id }) };
+    });
+    const cnt = r => mem.filter(u => u.role === r).length;
+    const seats = { used: mem.length, total: team.seats, slots, breakdown: `Owner ${cnt('Team Owner')} · Operations Lead ${cnt('Operations Lead')} · Agents ${cnt('Sales Agent')} of 5` };
+
+    const active = mem.filter(u => u.status !== 'invited');
+    const depRows = mods.map(m => { const n = active.filter(u => lib.statusOf(u, m) === 'deployed').length; return { label: m.short, v: `${n}/${active.length}`, w: active.length ? Math.round((n / active.length) * 100) + '%' : '0%' }; });
+    const dep = { total: active.reduce((a, u) => a + mods.filter(m => lib.statusOf(u, m) === 'deployed').length, 0), rows: depRows };
+
+    const next = lib.nextSession(db, user, now);
+    const held = mods.filter(m => { const s = m.session && lib.sessionFor(db, 'dec26', m.session); return s && s.start < now && m.tier === 'agent'; });
+    const behind = active.filter(u => held.some(m => lib.statusOf(u, m) !== 'deployed')).map(u => {
+      const miss = held.filter(m => lib.statusOf(u, m) !== 'deployed').map(m => m.short);
+      return { id: u.id, name: u.name + (u.id === user.id ? ' (you)' : ''), ini: F.initials(u.name), av: lib.avatarColor(u.id), gap: u.reminded ? 'Reminded ' + F.ago(u.reminded, now) : miss.join(', ') + ' not deployed' };
+    });
+    const rem = {
+      session: next ? `Session ${next.n} · ${F.day(next.start)}` : 'the next session', any: behind.length > 0, people: behind.slice(0, 4),
+      headline: behind.length ? `${behind.length} member${behind.length === 1 ? ' hasn’t' : 's haven’t'} finished earlier builds` : 'Everyone is caught up on earlier builds',
+      btn: `Remind ${behind.length} Member${behind.length === 1 ? '' : 's'}`, bd: behind.length ? 'var(--access-locked-line)' : 'var(--line-default)',
+    };
+
+    const { email, name, role, err } = this.state;
+    const left = team.seats - mem.length;
+    const roleDefs = [['Operations Lead', 'Runs the build schedule and the executive modules', 1], ['Sales Agent', 'Builds Marketing, Sales and Database AI Employees', 5], ['Team Owner', 'Full access, billing and seat management', 1]];
+    const inv = {
+      open: this.state.invite, email, name, err,
+      seatsNote: left > 0 ? `${left} of ${team.seats} seats available` : 'All seats are assigned',
+      roles: roleDefs.map(([label, sub, cap]) => { const on = role === label, used = cnt(label); return { label, sub, cap: `${used} of ${cap} used`, capFg: used >= cap ? 'var(--access-locked-text)' : 'var(--text-tertiary)', bd: on ? 'var(--action-primary)' : 'var(--line-default)', bg: on ? 'var(--action-primary-tint)' : 'var(--bg-sunken)', ring: on ? 'var(--action-primary)' : 'var(--line-strong)', dot: on ? 'var(--action-primary)' : 'transparent', pick: () => this.setState({ role: label, err: '' }) }; }),
+      btnBg: left > 0 ? 'var(--action-primary)' : 'var(--seg-active)', btnFg: left > 0 ? 'var(--action-on-primary)' : 'var(--text-tertiary)', btnBd: left > 0 ? 'var(--action-primary)' : 'var(--line-strong)',
+    };
+
+    const su = mem.find(u => u.id === this.state.sel);
+    if (su) this.lastSel = su;
+    const du = su || this.lastSel;
+    const dw = { op: su ? 1 : 0, pe: su ? 'auto' : 'none', tf: su ? 'translateX(0)' : 'translateX(105%)' };
+    if (du) {
+      const invited = du.status === 'invited';
+      Object.assign(dw, {
+        name: du.name, email: du.email, ini: F.initials(du.name), av: lib.avatarColor(du.id), role: du.role, isOwner: du.role === 'Team Owner',
+        joined: invited ? 'Invite pending' : F.day(du.joined), last: du.last ? F.ago(du.last, now) : '—', canRemove: du.id !== user.id,
+        mods: mods.map((m, i) => { const st = lib.statusOf(du, m), p = lib.progressOf(du, m); return { name: m.name, icon: ic[m.icon], st: S[st], b: lib.buildOf(du, m), rt: lib.runtimeOf(du, m), steps: st === 'deployed' ? '' : `${p.steps.length}/${m.checklist.length}`, bt: i ? '1px solid var(--line-subtle)' : '0' }; }),
+        setRole: e => { const v = e.target.value; act.mutate(d => { const u = d.users.find(x => x.id === du.id); if (u) u.role = v; }, `${du.name} is now ${v}`); },
+        remove: () => { act.mutate(d => { d.users = d.users.filter(x => x.id !== du.id); lib.log(d, act.now(), user.name, `removed ${du.name} from ${team.name}`, 'info'); }, `${du.name} removed. 1 seat freed.`); this.setState({ sel: null }); },
+        nudgeLabel: invited ? 'Resend Invite' : 'Send Reminder', nudgeIcon: invited ? ic.send : ic.bell,
+        nudge: () => invited ? act.toast(`Invite resent to ${du.email}`) : this.remind([du]),
+      });
+    }
+
+    return {
+      ic, teamName: team.name, members, seats, dep, rem, inv, dw,
+      remind: () => this.remind(behind),
+      exportCsv: () => act.download(team.name.replace(/\W+/g, '-').toLowerCase() + '-progress.csv', lib.csv([['Name', 'Email', 'Role', 'Date Joined', 'AI Employees Built', 'Deployment Status', 'Last Active'], ...mem.map((u, i) => [u.name, u.email, u.role, u.status === 'invited' ? 'Invited' : F.date(u.joined), members[i].count, members[i].status, members[i].last])]), 'text/csv', 'Team progress exported'),
+      openInvite: () => this.setState({ invite: true, err: '' }), closeInvite: () => this.setState({ invite: false }),
+      setEmail: e => this.setState({ email: e.target.value, err: '' }), setName: e => this.setState({ name: e.target.value }),
+      sendInvite: () => this.sendInvite(), stopProp: e => e.stopPropagation(), closeDrawer: () => this.setState({ sel: null }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amplified Impact</title>
+    <!-- Pre-paint theme script (handoff-starter/index.head.html). Reads localStorage['ai-lms-prefs']
+         and sets data-theme / data-accent / data-font before first paint, so there is no theme flash. -->
+    <script>
+      try {
+        var p = JSON.parse(localStorage.getItem('ai-lms-prefs') || '{}'),
+          d = document.documentElement;
+        d.dataset.theme = p.theme === 'dark' ? 'dark' : 'light';
+        if (p.accent && p.accent !== 'pine') d.dataset.accent = p.accent;
+        if (p.font && p.font !== 'hanken') d.dataset.font = p.font;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

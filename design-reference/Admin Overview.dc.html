@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Overview</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ cohortLine }} · Updated Live from Learner Activity</p>
+    </div>
+    <div style="display:flex; gap:8px">
+      <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export Report</button>
+      <button onClick="{{ goBuilder }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px">
+    <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+      <section style="padding:16px 18px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface)">
+        <div style="font-size:13px; color:var(--text-tertiary)">{{ k.label }}</div>
+        <div style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin-top:6px; line-height:1.1">{{ k.value }}</div>
+        <div style="font-size:12px; color:{{ k.subFg }}; margin-top:6px">{{ k.sub }}</div>
+      </section>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:stretch">
+    <section style="flex:2 1 560px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
+        <div><div style="font-size:14px; font-weight:600">AI Employees Deployed</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">Cumulative, All Learners</div></div>
+        <span style="font-size:13px; color:var(--status-success-text); font-variant-numeric:tabular-nums">{{ chart.delta }}</span>
+      </div>
+      <svg viewBox="0 0 600 200" preserveAspectRatio="none" style="width:100%; height:200px; display:block; overflow:visible">
+        <sc-for list="{{ chart.grid }}" as="gl"><line x1="0" x2="600" y1="{{ gl.y }}" y2="{{ gl.y }}" style="stroke:var(--line-default); stroke-width:1"></line></sc-for>
+        <path d="{{ chart.area }}" style="fill:var(--action-primary-tint); stroke:none"></path>
+        <path d="{{ chart.line }}" style="fill:none; stroke:var(--text-link); stroke-width:2; stroke-linejoin:round; vector-effect:non-scaling-stroke"></path>
+      </svg>
+      <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">
+        <sc-for list="{{ chart.labels }}" as="cl"><span>{{ cl }}</span></sc-for>
+      </div>
+    </section>
+
+    <section style="flex:1 1 320px; min-width:0; padding:18px 12px 10px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column">
+      <div style="padding:0 8px 10px; font-size:14px; font-weight:600">Live Activity</div>
+      <div style="flex:1; max-height:280px; overflow-y:auto">
+        <sc-for list="{{ feed }}" as="e" hint-placeholder-count="6">
+          <div style="display:flex; gap:10px; padding:8px; border-radius:8px">
+            <span style="width:7px; height:7px; flex:none; margin-top:6px; border-radius:50%; background:{{ e.dot }}"></span>
+            <div style="flex:1; min-width:0; font-size:13px; line-height:1.45; color:var(--text-secondary)"><span style="color:var(--text-primary); font-weight:500">{{ e.who }}</span> {{ e.what }}</div>
+            <span style="font-size:12px; color:var(--text-tertiary); white-space:nowrap">{{ e.ago }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:stretch">
+    <section style="flex:2 1 560px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap">
+        <div style="font-size:14px; font-weight:600">Build Funnel by AI Employee</div>
+        <div style="display:flex; gap:14px; font-size:12px; color:var(--text-tertiary)">
+          <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--status-success)"></span>Deployed</span>
+          <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--status-progress)"></span>In Progress</span>
+          <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--line-strong)"></span>Not Started</span>
+        </div>
+      </div>
+      <sc-for list="{{ funnel }}" as="f" hint-placeholder-count="6">
+        <div style="display:flex; align-items:center; gap:14px">
+          <div style="width:170px; flex:none; display:flex; align-items:center; gap:8px; min-width:0">
+            <svg viewBox="0 0 24 24" style="width:15px; height:15px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ f.icon }}"></path></svg>
+            <span style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</span>
+            <sc-if value="{{ f.team }}"><span style="font-size:12px; font-weight:600; color:var(--access-locked-text); ">Team</span></sc-if>
+          </div>
+          <div style="flex:1; display:flex; height:10px; border-radius:5px; overflow:hidden; background: var(--track); gap:2px">
+            <div title="Deployed" style="width:{{ f.wd }}; background:var(--status-success)"></div>
+            <div title="In progress" style="width:{{ f.wp }}; background:var(--status-progress)"></div>
+            <div style="flex:1; background:var(--track)"></div>
+          </div>
+          <span style="width:110px; flex:none; text-align:right; font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums"><span style="color:var(--text-primary); font-weight:600">{{ f.pct }}</span> · {{ f.d }} of {{ f.n }}</span>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="flex:1 1 320px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
+      <div style="font-size:14px; font-weight:600">Live Attendance</div>
+      <div style="display:flex; align-items:flex-end; gap:10px; height:150px; padding-top:8px">
+        <sc-for list="{{ att }}" as="a" hint-placeholder-count="6">
+          <div title="{{ a.title }}" style="flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:6px">
+            <span style="font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ a.label }}</span>
+            <div style="width:100%; max-width:36px; height:{{ a.h }}; border-radius:6px 6px 2px 2px; background:{{ a.bg }}; border:{{ a.bd }}"></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex; gap:10px">
+        <sc-for list="{{ att }}" as="a"><span style="flex:1; text-align:center; font-size:12px; color:var(--text-tertiary)">S{{ a.n }}</span></sc-for>
+      </div>
+      <div style="font-size:12px; color:var(--text-tertiary); border-top:1px solid var(--line-default); padding-top:10px">Replay Views: {{ replayViews }}</div>
+    </section>
+  </div>
+
+  <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
+      <div><div style="font-size:14px; font-weight:600">Needs Attention</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">No build progress or inactive for 5+ days</div></div>
+      <sc-if value="{{ risk.length }}">
+        <button onClick="{{ nudgeAll }}" style="height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.bell }}"></path></svg>Nudge All</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ noRisk }}"><div style="padding:18px; color:var(--text-tertiary); font-size:13px">Everyone is moving. Nice.</div></sc-if>
+    <sc-for list="{{ risk }}" as="r">
+      <div style="display:flex; align-items:center; gap:12px; padding:12px 18px; border-top:{{ r.bt }}; flex-wrap:wrap">
+        <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ r.av }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ r.ini }}</span>
+        <div style="flex:1; min-width:180px"><div style="font-size:14px; font-weight:500">{{ r.name }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ r.sub }}</div></div>
+        <span style="font-size:13px; color:var(--access-locked-text)">{{ r.reason }}</span>
+        <button onClick="{{ r.nudge }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background:transparent; color:{{ r.btnFg }}; font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background: var(--bg-hover)">{{ r.btn }}</button>
+      </div>
+    </sc-for>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "admin", {"s":"overview"})); }
+  componentDidMount() { this.bootStandalone(); }
+  renderVals() {
+    const c = this.cx; if (!c || !c.db) return {};
+    const { db, lib, ic, act } = c;
+    const F = lib.fmt, now = act.now(), B = db.base;
+    const users = db.users.filter(u => u.status !== 'invited');
+    const mods = lib.sortedModules(db).filter(m => m.status !== 'draft');
+    const teamSeats = B.teamSeats + users.filter(u => u.tier === 'team').length;
+    const learners = B.learners + users.length;
+    const funnelRaw = mods.map(m => {
+      const b = B.mod[m.id] || [0, 0, m.tier === 'team' ? B.teamSeats : B.learners];
+      const pool = users.filter(u => lib.canAccess(u, m));
+      const d = b[0] + pool.filter(u => lib.statusOf(u, m) === 'deployed').length;
+      const p = b[1] + pool.filter(u => lib.statusOf(u, m) === 'progress').length;
+      const n = b[0] + b[1] + b[2] + pool.length;
+      return { m, d, p, n };
+    });
+    const deployed = funnelRaw.reduce((a, f) => a + f.d, 0);
+    const possible = funnelRaw.reduce((a, f) => a + f.n, 0);
+    const funnel = funnelRaw.map(f => ({ name: f.m.short, icon: ic[f.m.icon], team: f.m.tier === 'team', d: F.num(f.d), n: F.num(f.n), pct: F.pct(f.n ? f.d / f.n : 0), wd: (f.n ? (f.d / f.n) * 100 : 0) + '%', wp: (f.n ? (f.p / f.n) * 100 : 0) + '%' }));
+
+    const sess = db.sessions.filter(s => s.cohortId === 'dec26').sort((a, b) => a.start - b.start);
+    const lastHeld = sess.filter(s => s.attended).pop();
+    const pipe = db.requests.filter(q => q.status === 'new' || q.status === 'contacted');
+    const tiers = Object.fromEntries(db.tiers.map(t => [t.id, t]));
+    const upliftEach = tiers.team.price - tiers.agent.price;
+    const deployedToday = users.reduce((a, u) => a + Object.values(u.progress || {}).filter(p => p.deployedAt && now - p.deployedAt < 86400000).length, 0);
+    const kpis = [
+      { label: 'Active Learners', value: F.num(learners), sub: `${B.agent + users.filter(u => u.tier === 'agent').length} Agent · ${teamSeats} Team seats`, subFg: 'var(--text-tertiary)'},
+      { label: 'AI Employees Deployed', value: F.num(deployed), sub: `+${deployedToday} in the last 24 hours`, subFg: 'var(--status-success-text)'},
+      { label: 'Build Completion', value: F.pct(possible ? deployed / possible : 0), sub: 'Deployed ÷ builds available', subFg: 'var(--text-tertiary)'},
+      { label: 'Live Attendance', value: lastHeld ? F.pct(lastHeld.attended / learners) : '—', sub: lastHeld ? `Session ${lastHeld.n} · ${lastHeld.attended} attended` : 'No sessions yet', subFg: 'var(--text-tertiary)'},
+      { label: 'Upgrade Pipeline', value: F.money(pipe.length * upliftEach), sub: `${pipe.length} open request${pipe.length === 1 ? '' : 's'} · Agent → Team`, subFg: pipe.length ? 'var(--access-locked-text)' : 'var(--text-tertiary)'},
+    ];
+
+    // Cumulative deployments chart: Dec 1 → today
+    const day0 = Date.parse('2026-12-01T00:00:00-06:00');
+    const days = Math.max(7, Math.floor((now - day0) / 86400000) + 1);
+    const pts = Array.from({ length: days }, (_, i) => {
+      const end = day0 + (i + 1) * 86400000;
+      const baseV = B.daily[Math.min(i, B.daily.length - 1)];
+      const extra = users.reduce((a, u) => a + Object.values(u.progress || {}).filter(p => p.deployedAt && p.deployedAt < Math.min(end, now + 1)).length, 0);
+      return baseV + extra;
+    });
+    const max = Math.ceil(Math.max(...pts, 10) / 50) * 50;
+    const X = i => (i / (days - 1)) * 600, Y = v => 200 - (v / max) * 190;
+    const line = pts.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+    const chart = {
+      line, area: `${line} L600 200 L0 200 Z`, grid: [0.25, 0.5, 0.75].map(f => ({ y: 200 - f * 190 })),
+      labels: Array.from({ length: days }, (_, i) => F.date(day0 + i * 86400000 + 43200000)),
+      delta: `${F.num(pts[pts.length - 1])} total`,
+    };
+
+    const tones = { success: 'var(--status-success)', warn: 'var(--access-locked)', info: 'var(--action-primary)'};
+    const feed = db.activity.slice(0, 14).map(e => ({ who: e.who, what: e.what, ago: F.ago(e.t, now), dot: tones[e.tone] || 'var(--text-tertiary)'}));
+
+    const att = sess.map(s => {
+      const held = !!s.attended;
+      return { n: s.n, label: held ? F.pct(s.attended / learners) : F.date(s.start), title: `Session ${s.n} · ${s.title}`, h: held ? Math.round((s.attended / learners) * 100) + '%' : '18%', bg: held ? 'var(--action-primary)' : 'transparent', bd: held ? '0' : '1px dashed var(--line-strong)' };
+    });
+    const replayViews = sess.filter(s => s.views).map(s => `S${s.n} ${F.num(s.views)}`).join(' · ') || '—';
+
+    const risk = users.filter(u => {
+      const any = Object.values(u.progress || {}).some(p => p.steps.length);
+      return !any || now - (u.last || 0) > 5 * 86400000;
+    }).map((u, i) => {
+      const any = Object.values(u.progress || {}).some(p => p.steps.length);
+      const team = u.teamId ? db.teams.find(t => t.id === u.teamId) : null;
+      return {
+        name: u.name, ini: F.initials(u.name), av: lib.avatarColor(u.id), sub: `${u.tier === 'team' ? 'Team' : 'Agent'} Tier${team ? ' · ' + team.name : ''} · last active ${u.last ? F.ago(u.last, now) : 'never'}`,
+        reason: any ? 'Inactive 5+ days' : 'No build started', bt: i ? '1px solid var(--line-subtle)' : '0',
+        btn: u.nudged ? 'Nudged ' + F.ago(u.nudged, now) : 'Send nudge', btnFg: u.nudged ? 'var(--text-tertiary)' : 'var(--text-primary)',
+        nudge: () => act.mutate(d => { const x = d.users.find(y => y.id === u.id); x.nudged = act.now(); }, `Nudge sent to ${u.name}`),
+      };
+    });
+
+    return {
+      cohortLine: lib.cohortLine(db.cohorts[0], now), ic, kpis, chart, feed, funnel, att, replayViews, risk, noRisk: !risk.length,
+      nudgeAll: () => act.mutate(d => { const t = act.now(); risk.forEach((r, i) => {}); d.users.forEach(x => { if (risk.some(r => r.name === x.name)) x.nudged = t; }); lib.log(d, t, c.staff.name, `nudged ${risk.length} inactive learners`, 'info'); }, `Nudge sent to ${risk.length} learners`),
+      goBuilder: () => act.nav('builder', null),
+      exportCsv: () => act.download('cohort-report-dec-2026.csv', lib.csv([['AI Employee', 'Deployed', 'In progress', 'Eligible learners'], ...funnelRaw.map(f => [f.m.name, f.d, f.p, f.n])]), 'text/csv', 'Cohort report exported'),
+    };
+  }
+}
+</script>
+</body>
+</html>

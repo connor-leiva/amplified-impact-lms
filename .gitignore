@@ -1,0 +1,23 @@
+node_modules/
+dist/
+dist-fixture/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Playwright / compliance output (goldens ARE committed)
+compliance/report/
+compliance/test-results/
+compliance/goldens/**/*-actual.png
+compliance/goldens/**/*-diff.png
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

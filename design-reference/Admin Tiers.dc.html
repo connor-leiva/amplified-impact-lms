@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Tiers &amp; Upgrades</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ summary }}</p>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:14px">
+    <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="2">
+      <section style="padding:20px; border-radius:12px; border:1px solid {{ t.bd }}; background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px 10px; flex-wrap:wrap">
+          <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap"><span style="font-size:16px; font-weight:600; white-space:nowrap">{{ t.name }} Tier</span><span style="font-size:12px; color:var(--text-tertiary)">{{ t.seatsLabel }}</span></div>
+          <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ t.licenses }}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px">
+          <div style="position:relative">
+            <span style="position:absolute; left:10px; top:7px; font-size:20px; font-weight:600; color:var(--text-tertiary)">$</span>
+            <input type="number" value="{{ t.price }}" onChange="{{ t.setPrice }}" style="width:150px; height:44px; padding:0 10px 0 26px; border-radius:9px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:26px; font-weight:600; font-variant-numeric:tabular-nums; outline:none" style-focus="border-color:var(--action-primary)">
+          </div>
+          <span style="font-size:13px; color:var(--text-tertiary)">{{ t.per }}</span>
+        </div>
+        <div style="font-size:13px; color:var(--text-secondary)">{{ t.blurb }}</div>
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <sc-for list="{{ t.features }}" as="ft"><div style="display:flex; gap:8px; font-size:13px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; flex:none; margin-top:2px; fill:none; stroke:var(--status-success-text); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>{{ ft }}</div></sc-for>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding-top:12px; border-top:1px solid var(--line-default); font-size:13px; color:var(--text-tertiary)"><span>Cohort Revenue</span><span style="color:var(--text-primary); font-weight:600; font-variant-numeric:tabular-nums">{{ t.revenue }}</span></div>
+      </section>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start">
+    <section style="flex:1 1 420px; min-width:0; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+      <div style="padding:14px 18px; border-bottom:1px solid var(--line-default)"><div style="font-size:14px; font-weight:600">Access Matrix</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">Click an Agent cell to include or gate a module</div></div>
+      <div style="display:grid; grid-template-columns:minmax(0,1fr) 90px 90px; padding:9px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)"><span>Included</span><span style="text-align:center">Agent</span><span style="text-align:center">Team</span></div>
+      <sc-for list="{{ matrix }}" as="mx" hint-placeholder-count="9">
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) 90px 90px; align-items:center; padding:9px 18px; border-bottom:1px solid var(--line-default)">
+          <span style="font-size:13px; color:var(--text-secondary)">{{ mx.label }}</span>
+          <div style="display:flex; justify-content:center"><button onClick="{{ mx.toggle }}" title="{{ mx.title }}" style="width:28px; height:28px; border-radius:7px; border:1px solid {{ mx.aBd }}; background:{{ mx.aBg }}; cursor:{{ mx.cursor }}; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:{{ mx.aFg }}; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"><path d="{{ mx.aIcon }}"></path></svg></button></div>
+          <div style="display:flex; justify-content:center"><span style="width:28px; height:28px; border-radius:7px; background:var(--status-success-bg); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:var(--status-success-text); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span></div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="flex:1.6 1 560px; min-width:0; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
+        <div><div style="font-size:14px; font-weight:600">Upgrade Requests</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">From locked modules and the Executive Vault in the portal</div></div>
+        <span style="font-size:13px; color:var(--access-locked-text)">{{ pipeline }}</span>
+      </div>
+      <sc-if value="{{ noReq }}"><div style="padding:18px; color:var(--text-tertiary); font-size:13px">No requests yet.</div></sc-if>
+      <sc-for list="{{ reqs }}" as="q" hint-placeholder-count="3">
+        <div style="display:flex; align-items:center; gap:12px; padding:13px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap; background:{{ q.bg }}">
+          <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ q.av }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ q.ini }}</span>
+          <div style="flex:1; min-width:200px">
+            <div style="display:flex; align-items:center; gap:8px"><span style="font-size:14px; font-weight:500">{{ q.name }}</span><span style="font-size:12px; color:var(--text-tertiary)">{{ q.ago }}</span></div>
+            <div style="font-size:12px; color:var(--text-tertiary)">{{ q.email }} · {{ q.source }}</div>
+          </div>
+          <span style="display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; background:{{ q.st.bg }}; color:{{ q.st.fg }}; border:1px solid {{ q.st.bd }}">{{ q.st.label }}</span>
+          <div style="display:flex; gap:6px">
+            <sc-for list="{{ q.actions }}" as="a"><button onClick="{{ a.go }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid {{ a.bd }}; background:{{ a.bg }}; color:{{ a.fg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">{{ a.label }}</button></sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "admin", {"s":"tiers"})); }
+  componentDidMount() { this.bootStandalone(); }
+  renderVals() {
+    const c = this.cx; if (!c || !c.db) return {};
+    const { db, lib, ic, act, staff } = c;
+    const F = lib.fmt, B = db.base, now = act.now();
+    const users = db.users.filter(u => u.status !== 'invited');
+    const agentN = B.agent + users.filter(u => u.tier === 'agent').length, teamN = B.teams + db.teams.length;
+    const T = Object.fromEntries(db.tiers.map(t => [t.id, t]));
+    const tiers = db.tiers.map(t => {
+      const isTeam = t.id === 'team', n = isTeam ? teamN : agentN;
+      return {
+        name: t.name, price: t.price, blurb: t.blurb, features: t.features, seatsLabel: isTeam ? `${t.seats} seats` : '1 seat',
+        per: isTeam ? 'per team, per cohort' : 'per agent, per cohort', licenses: `${n} ${isTeam ? 'teams' : 'licenses'}`, revenue: F.money(n * t.price), bd: isTeam ? 'var(--action-primary-line)' : 'var(--line-default)',
+        setPrice: e => { const v = parseInt(e.target.value, 10); if (v > 0) act.mutate(d => { d.tiers.find(x => x.id === t.id).price = v; }); },
+      };
+    });
+    const mods = lib.sortedModules(db).filter(m => m.status !== 'draft');
+    const matrix = [
+      ...mods.map(m => { const on = m.tier === 'agent'; return { label: m.name, title: on ? 'Gate to Team only' : 'Include in Agent Tier', aIcon: on ? ic.check : ic.lock, aFg: on ? 'var(--status-success-text)' : 'var(--access-locked-text)', aBg: on ? 'var(--status-success-bg)' : 'var(--access-locked-bg)', aBd: on ? 'transparent' : 'var(--access-locked-line)', cursor: 'pointer',
+        toggle: () => act.mutate(d => { d.modules.find(x => x.id === m.id).tier = on ? 'team' : 'agent'; }, on ? `${m.name} is now Team only` : `${m.name} added to Agent Tier`) }; }),
+      ...[['Live sessions, replays & transcripts', true], ['Resource & Compliance Vault', true], ['Team Hub & progress tracking', false], ['Executive Build Vault', false], ['Team seats (up to 7)', false]].map(([label, on]) => ({ label, title: '', aIcon: on ? ic.check : ic.x, aFg: on ? 'var(--status-success-text)' : 'var(--text-disabled)', aBg: on ? 'var(--status-success-bg)' : 'transparent', aBd: on ? 'transparent' : 'var(--line-default)', cursor: 'default', toggle: () => {} })),
+    ];
+    const stM = { new: { label: 'New', fg: 'var(--access-locked-text)', bg: 'var(--access-locked-bg)', bd: 'var(--access-locked-line)'}, contacted: { label: 'Contacted', fg: 'var(--status-progress-text)', bg: 'var(--status-progress-bg)', bd: 'var(--status-progress-line)' }, converted: { label: 'Converted', fg: 'var(--status-success-text)', bg: 'var(--status-success-bg)', bd: 'var(--status-success-line)'}, closed: { label: 'Closed', ...lib.STATUS.none } };
+    const setQ = (id, fn, msg) => act.mutate(d => { const q = d.requests.find(x => x.id === id); fn(q, d); }, msg);
+    const order = { new: 0, contacted: 1, converted: 2, closed: 3 };
+    const reqs = db.requests.slice().sort((a, b) => order[a.status] - order[b.status] || b.at - a.at).map(q => {
+      const open = q.status === 'new' || q.status === 'contacted';
+      const actions = [];
+      if (q.status === 'new') actions.push({ label: 'Mark Contacted', bg: 'var(--seg-active)', fg: 'var(--text-primary)', bd: 'var(--line-strong)', go: () => setQ(q.id, x => { x.status = 'contacted'; }, `${q.name} marked as contacted`) });
+      if (open && q.userId) actions.push({ label: 'Convert to Team', bg: 'var(--access-locked)', fg: 'var(--access-locked-on)', bd: 'var(--access-locked)', go: () => setQ(q.id, (x, d) => { x.status = 'converted'; lib.upgradeUser(d, q.userId); lib.log(d, act.now(), staff.name, `upgraded ${q.name} to Team Tier`, 'success'); }, `${q.name} is on Team Tier. All six AI Employees are unlocked in their portal.`) });
+      if (open) actions.push({ label: 'Close', bg: 'transparent', fg: 'var(--text-tertiary)', bd: 'var(--line-strong)', go: () => setQ(q.id, x => { x.status = 'closed'; }, 'Request closed', 'info') });
+      return { name: q.name, email: q.email, source: q.source, ago: F.ago(q.at, now), st: stM[q.status], ini: F.initials(q.name), av: lib.avatarColor(q.userId || q.id), actions, bg: q.status === 'new' ? 'var(--access-locked-bg)' : 'transparent'};
+    });
+    const openN = db.requests.filter(q => q.status === 'new' || q.status === 'contacted').length;
+    const total = agentN * T.agent.price + teamN * T.team.price;
+    return {
+      ic, tiers, matrix, reqs, noReq: !reqs.length,
+      summary: `December 2026 Cohort revenue ${F.money(total)} · ${agentN} Agent licenses · ${teamN} teams`,
+      pipeline: openN ? `${openN} open · ${F.money(openN * (T.team.price - T.agent.price))} potential` : '',
+    };
+  }
+}
+</script>
+</body>
+</html>

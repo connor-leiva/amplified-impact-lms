@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<sc-if value="{{ loading }}">
+  <span aria-hidden="true" style="display:inline-block; width:{{ skW }}; height:{{ h }}; border-radius:999px; background:var(--bg-hover); animation:ai-skeleton 1.4s ease-in-out infinite; vertical-align:middle"></span>
+</sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+  <span title="{{ tip }}" style="display:inline-flex; align-items:center; gap:{{ gap }}; height:{{ h }}; padding:{{ pad }}; border-radius:999px; background:{{ bg }}; border:{{ bd }}; color:{{ fg }}; font-size:{{ fs }}; font-weight:500; line-height:1; white-space:nowrap; font-variant-numeric:tabular-nums; vertical-align:middle">
+    <sc-if value="{{ pulse }}"><span aria-hidden="true" style="width:7px; height:7px; margin:0 2px; flex:none; border-radius:50%; background:var(--status-success); animation:ai-pulse 1.6s infinite"></span></sc-if>
+    <sc-if value="{{ svg }}"><svg viewBox="0 0 16 16" aria-hidden="true" style="width:{{ is }}; height:{{ is }}; flex:none; overflow:visible; color:{{ ic }}"><path d="{{ sp }}" style="fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round"></path><path d="{{ fp }}" style="fill:currentColor; stroke:none"></path></svg></sc-if>
+    <span>{{ label }}</span>
+  </span>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;auto&quot;,&quot;height&quot;:40},&quot;kind&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;access&quot;,&quot;build&quot;,&quot;runtime&quot;,&quot;step&quot;,&quot;custom&quot;],&quot;default&quot;:&quot;build&quot;,&quot;tsType&quot;:&quot;'access'|'build'|'runtime'|'step'|'custom'&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;in_progress&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;n&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;},&quot;total&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;},&quot;compact&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sm&quot;,&quot;md&quot;],&quot;default&quot;:&quot;sm&quot;,&quot;tsType&quot;:&quot;'sm'|'md'&quot;},&quot;label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;success&quot;,&quot;progress&quot;,&quot;neutral&quot;,&quot;attention&quot;,&quot;locked&quot;,&quot;accent&quot;,&quot;live&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;icon&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;force&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;loading&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const kind = p.kind || 'custom', state = p.state || '', n = +p.n || 0, total = +p.total || 6;
+    const compact = !!p.compact, md = p.size === 'md';
+    const O = 'M8 1.75a6.25 6.25 0 1 0 0 12.5a6.25 6.25 0 1 0 0-12.5';
+    const pie = () => {
+      if (n >= total) return 'M8 4.4a3.6 3.6 0 1 0 0 7.2a3.6 3.6 0 1 0 0-7.2';
+      const a = (2 * Math.PI * n) / total, x = (8 + 3.6 * Math.sin(a)).toFixed(2), y = (8 - 3.6 * Math.cos(a)).toFixed(2);
+      return n ? `M8 8L8 4.4A3.6 3.6 0 ${a > Math.PI ? 1 : 0} 1 ${x} ${y}Z` : '';
+    };
+    const IC = {
+      check: [O + 'M5.4 8.3l1.8 1.8 3.5-3.7', ''],
+      ring: [O, ''],
+      pie: [O, pie()],
+      lock: ['M4.5 7.5h7a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1zM5.75 7.5V5.6a2.25 2.25 0 0 1 4.5 0v1.9', ''],
+      signal: ['M4.3 4.3a5.2 5.2 0 0 0 0 7.4M11.7 4.3a5.2 5.2 0 0 1 0 7.4', 'M8 5.8a2.2 2.2 0 1 0 0 4.4a2.2 2.2 0 1 0 0-4.4'],
+      pause: [O + 'M6.6 5.9v4.2M9.4 5.9v4.2', ''],
+      alert: ['M8 2.2l6.2 11H1.8zM8 6.4v3.1', 'M8 10.5a.85.85 0 1 0 0 1.7a.85.85 0 1 0 0-1.7'],
+      minus: [O + 'M5.5 8h5', ''],
+      clock: [O + 'M8 4.9V8l2.1 1.4', ''],
+      dot: ['', 'M8 4.8a3.2 3.2 0 1 0 0 6.4a3.2 3.2 0 1 0 0-6.4'],
+      info: [O + 'M8 7.4v3.6', 'M8 4.6a.85.85 0 1 0 0 1.7a.85.85 0 1 0 0-1.7'],
+    };
+    let tone = 'neutral', icon = 'ring', label = '', short = '', tip = '';
+    if (kind === 'access') {
+      if (state === 'locked') { tone = 'locked'; icon = 'lock'; label = short = 'Team Tier'; tip = 'Included in Team tier'; }
+      else { tone = 'neutral'; icon = 'check'; label = short = 'Included'; tip = 'Included in your tier'; }
+    } else if (kind === 'build') {
+      if (state === 'verified') { tone = 'success'; icon = 'check'; label = short = 'Built'; tip = `Built · all ${total} steps verified`; }
+      else if (state === 'in_progress') { tone = 'progress'; icon = 'pie'; label = `${n} of ${total} Steps`; short = `${n}/${total}`; tip = `In progress · ${n} of ${total} steps verified`; }
+      else { tone = 'neutral'; icon = 'ring'; label = 'Not Started'; short = `0/${total}`; tip = `Not started · 0 of ${total} steps verified`; }
+    } else if (kind === 'runtime') {
+      const R = { deployed: ['success', 'signal', 'Deployed'], paused: ['neutral', 'pause', 'Paused'], needs_attention: ['attention', 'alert', 'Needs Attention'], not_deployed: ['neutral', 'minus', 'Not Deployed'] };
+      [tone, icon, label] = R[state] || R.not_deployed; short = label; tip = label;
+    } else if (kind === 'step') {
+      if (state === 'verified') { tone = 'success'; icon = 'check'; label = short = 'Verified'; } else { tone = 'neutral'; icon = 'ring'; label = short = 'Not Verified'; }
+      tip = label;
+    } else { tone = p.tone || 'neutral'; icon = p.icon || 'dot'; label = short = p.label || ''; tip = p.label || ''; }
+    if (p.label && kind !== 'custom') label = p.label;
+    if (p.tone && kind !== 'custom') tone = p.tone;
+    const T = {
+      success: ['--status-success-text', '--status-success-bg', '--status-success-line', '--status-success'],
+      progress: ['--status-progress-text', '--status-progress-bg', '--status-progress-line', '--status-progress'],
+      neutral: ['--status-neutral-text', '--status-neutral-bg', '--status-neutral-line', '--status-neutral'],
+      attention: ['--status-attention-text', '--status-attention-bg', '--status-attention-line', '--status-attention'],
+      locked: ['--access-locked-text', '--access-locked-bg', '--access-locked-line', '--access-locked-text'],
+      accent: ['--text-link', '--action-primary-tint', '--action-primary-line', '--action-primary'],
+      live: ['--status-success-text', '--status-success-bg', '--status-success-line', '--status-success'],
+    }[tone] || ['--text-secondary', '--status-neutral-bg', '--status-neutral-line', '--text-tertiary'];
+    const [sp, fp] = IC[icon] || IC.dot;
+    const v = x => `var(${x})`;
+    const fg = compact && tone === 'neutral' ? 'var(--text-tertiary)' : v(T[0]);
+    return {
+      loading: p.force === 'loading', ready: p.force !== 'loading', skW: compact ? '36px' : md ? '96px' : '76px',
+      label: compact ? short : label, tip: p.title || tip, pulse: tone === 'live', svg: tone !== 'live',
+      sp, fp, fg, ic: compact ? fg : v(T[3] === '--access-locked-text' ? T[0] : T[0]),
+      bg: compact ? 'transparent' : v(T[1]), bd: compact ? '0' : `1px solid ${v(T[2])}`,
+      h: compact ? '16px' : md ? '26px' : '22px', pad: compact ? '0' : md ? '0 10px 0 8px' : '0 8px 0 6px',
+      gap: compact ? '4px' : '5px', fs: md ? '13px' : '12px', is: compact ? '13px' : md ? '14px' : '13px',
+    };
+  }
+}
+</script>
+</body>
+</html>

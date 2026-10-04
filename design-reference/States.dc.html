@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:48px; display:flex; flex-direction:column; gap:56px; background:var(--bg-canvas); color:var(--text-primary); font-family:var(--font-sans); min-width:max-content">
+  <header style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; max-width:1600px">
+    <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">States</h1>
+      <p style="margin:0; font-size:14px; color:var(--text-secondary); text-wrap:pretty">Component states for the Implementation Hub. Every component on this sheet is the same file the app imports, rendered with forced states.</p>
+    </div>
+    <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+      <sc-for list="{{ themes }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:28px; padding:0 12px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer">{{ o.label }}</button></sc-for>
+    </div>
+  </header>
+
+  <section style="display:flex; flex-direction:column; gap:14px">
+    <div style="display:flex; flex-direction:column; gap:4px">
+      <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Next Live Session · Five Variants</h2>
+      <p style="margin:0; font-size:13px; color:var(--text-tertiary)">Seconds hide when more than an hour remains. The Join button is the only link to the session. The countdown is a timer region that announces at hour, 10-minute and 1-minute boundaries.</p>
+    </div>
+    <div style="display:flex; gap:20px; align-items:flex-start">
+      <sc-for list="{{ variants }}" as="v" hint-placeholder-count="5">
+        <div style="width:520px; flex:none; display:flex; flex-direction:column; gap:8px">
+          <div style="display:flex; gap:8px; align-items:baseline"><span style="font-family:var(--font-mono); font-size:12px; color:var(--text-primary)">{{ v.id }}</span><span style="font-size:12px; color:var(--text-tertiary)">{{ v.rule }}</span></div>
+          <dc-import name="Session Card" vm="{{ v.vm }}" hint-size="100%,170px"></dc-import>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex; flex-direction:column; gap:14px">
+    <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Components × States</h2>
+    <div style="display:grid; grid-template-columns:150px repeat(5, 300px); gap:20px 20px; align-items:start">
+      <span></span>
+      <sc-for list="{{ cols }}" as="c" hint-placeholder-count="5"><span style="font-size:13px; font-weight:500; color:var(--text-tertiary)">{{ c }}</span></sc-for>
+
+      <span style="font-size:14px; font-weight:600; padding-top:10px">Nav Item</span>
+      <sc-for list="{{ navStates }}" as="n" hint-placeholder-count="5">
+        <div style="--nav-hover:color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar)); --nav-active:var(--bg-surface); width:248px; padding:10px; border-radius:12px; background:var(--bg-sidebar); border:1px solid var(--line-default)">
+          <dc-import name="Nav Item" label="Sessions" icon="{{ ic.radio }}" force="{{ n.force }}" hint-size="100%,32px"></dc-import>
+        </div>
+      </sc-for>
+
+      <span style="font-size:14px; font-weight:600; padding-top:4px">Status Token</span>
+      <sc-for list="{{ tokenStates }}" as="t" hint-placeholder-count="5">
+        <div style="display:flex; flex-direction:column; align-items:flex-start; gap:8px">
+          <dc-import name="Status Token" kind="{{ t.kind }}" state="{{ t.state }}" n="{{ t.n }}" total="{{ six }}" force="{{ t.force }}" hint-size="100px,22px"></dc-import>
+          <sc-if value="{{ t.tip }}"><span style="padding:6px 9px; border-radius:7px; background:var(--bg-inverse); color:var(--text-inverse); font-size:12px; box-shadow:var(--shadow-pop)">{{ t.tip }}</span></sc-if>
+          <span style="font-size:12px; color:var(--text-tertiary); max-width:260px">{{ t.note }}</span>
+        </div>
+      </sc-for>
+
+      <span style="font-size:14px; font-weight:600; padding-top:8px">Join Button</span>
+      <sc-for list="{{ joinStates }}" as="j" hint-placeholder-count="5">
+        <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-start">
+          <dc-import name="Join Button" mode="{{ j.mode }}" hint="{{ j.hint }}" stack="{{ true }}" force="{{ j.force }}" hint-size="140px,36px"></dc-import>
+          <span style="font-size:12px; color:var(--text-tertiary)">{{ j.note }}</span>
+        </div>
+      </sc-for>
+
+      <span style="font-size:14px; font-weight:600; padding-top:8px">Employee Card</span>
+      <sc-for list="{{ cardStates }}" as="k" hint-placeholder-count="5">
+        <div style="width:290px"><dc-import name="Employee Card" card="{{ card }}" force="{{ k.force }}" hint-size="100%,250px"></dc-import></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex; flex-direction:column; gap:14px">
+    <div style="display:flex; flex-direction:column; gap:4px">
+      <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Nav Item Variants</h2>
+      <p style="margin:0; font-size:13px; color:var(--text-tertiary)">Sidebar rows show access and build. Locked rows use text.disabled, open the locked preview on click and show “Team tier” on the lock tooltip.</p>
+    </div>
+    <div style="display:flex; gap:20px; align-items:flex-start">
+      <sc-for list="{{ navVariants }}" as="n" hint-placeholder-count="6">
+        <div style="display:flex; flex-direction:column; gap:8px">
+          <span style="font-size:12px; color:var(--text-tertiary)">{{ n.note }}</span>
+          <div style="--nav-hover:color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar)); --nav-active:var(--bg-surface); width:{{ n.w }}; padding:10px; border-radius:12px; background:var(--bg-sidebar); border:1px solid var(--line-default)">
+            <dc-import name="Nav Item" label="{{ n.label }}" icon="{{ n.icon }}" active="{{ n.active }}" locked="{{ n.locked }}" depth="{{ n.depth }}" collapsed="{{ n.collapsed }}" token="{{ n.token }}" badge="{{ n.badge }}" chev="{{ n.chev }}" title="{{ n.title }}" hint-size="100%,32px"></dc-import>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex; flex-direction:column; gap:14px">
+    <div style="display:flex; flex-direction:column; gap:4px">
+      <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Status Token Catalog</h2>
+      <p style="margin:0; font-size:13px; color:var(--text-tertiary)">Icon plus text label, never color alone. Access and build show in the sidebar; runtime shows in the detail header.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <sc-for list="{{ catalog }}" as="row" hint-placeholder-count="4">
+        <div style="display:grid; grid-template-columns:150px 1fr; gap:20px; align-items:center">
+          <span style="font-size:13px; font-weight:500; color:var(--text-secondary)">{{ row.label }}</span>
+          <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap">
+            <sc-for list="{{ row.items }}" as="t">
+              <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start">
+                <dc-import name="Status Token" kind="{{ t.kind }}" state="{{ t.state }}" n="{{ t.n }}" total="{{ six }}" compact="{{ t.compact }}" size="{{ t.size }}" label="{{ t.label }}" hint-size="90px,22px"></dc-import>
+                <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--text-tertiary)">{{ t.code }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex; flex-direction:column; gap:14px; width:900px">
+    <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Announcement Banner</h2>
+    <dc-import name="Announcement Banner" severity="warning" title="{{ banner.title }}" when="Yesterday" action-label="Update calendar" on-dismiss="{{ noop }}" hint-size="100%,56px"></dc-import>
+    <dc-import name="Announcement Banner" severity="info" title="Replay is up: Session 2 · Speed to Lead" body="The replay, chapters and transcript are on the Sales AI Employee page." when="4 days ago" on-dismiss="{{ noop }}" hint-size="100%,70px"></dc-import>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lib: null, theme: 'light' };
+  anchor = Date.now();
+  componentDidMount() {
+    import(new URL('./lms-data.js', document.baseURI).href).then(lib => { const p = lib.loadPrefs(); lib.applyPrefs(p); this.setState({ lib, db: lib.seed('live'), theme: p.theme || 'light' }); });
+    this.t = setInterval(() => this.forceUpdate(), 1000);
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const { lib, db, theme } = this.state;
+    const seg = (on, go, label) => ({ label, go, on: on ? 'true' : 'false', bg: on ? 'var(--seg-active)' : 'transparent', sh: on ? 'var(--shadow-xs)' : 'none', fg: on ? 'var(--text-primary)' : 'var(--text-secondary)' });
+    const themes = [['light', 'Light'], ['dark', 'Dark']].map(([k, l]) => seg(theme === k, () => { lib && lib.savePrefs({ theme: k }); this.setState({ theme: k }); }, l));
+    const cols = ['Default', 'Hover', 'Focus', 'Disabled', 'Loading'];
+    if (!lib || !db) return { themes, cols, ic: {}, variants: [], navStates: [], tokenStates: [], joinStates: [], cardStates: [], navVariants: [], catalog: [], banner: { title: '' }, six: 6, noop: () => {} };
+    const ic = lib.ICONS, tick = Date.now() - this.anchor, s = db.sessions.find(x => x.id === 'dec26-s3');
+    const rules = { scheduled: '> 24 h · Add to calendar primary, Join disabled', starting_soon: '< 15 min · Join primary', live: 'LIVE badge · elapsed time', ended_processing: 'Replay processing note', replay_ready: 'Watch replay primary' };
+    const variants = lib.VARIANTS.map(([id]) => ({ id, rule: rules[id], vm: lib.sessionVM(db, s, id, lib.variantNow(s, id, tick)) }));
+    const forces = ['', 'hover', 'focus', 'disabled', 'loading'];
+    const navStates = forces.map(force => ({ force }));
+    const tokenStates = [
+      { kind: 'build', state: 'in_progress', n: 3, force: '', tip: '', note: 'build · in_progress' },
+      { kind: 'build', state: 'in_progress', n: 3, force: '', tip: 'In progress · 3 of 6 steps verified', note: 'Hover shows the full label as a tooltip' },
+      { kind: 'build', state: 'in_progress', n: 3, force: '', tip: '', note: 'Static. Tokens are not focusable; the parent row or button takes focus.' },
+      { kind: 'runtime', state: 'not_deployed', n: 0, force: '', tip: '', note: 'Inactive states use status.neutral' },
+      { kind: 'build', state: 'in_progress', n: 3, force: 'loading', tip: '', note: 'Skeleton pill at the same height' },
+    ];
+    const joinStates = [
+      { mode: 'ready', hint: '', force: '', note: 'Under 15 minutes to start' },
+      { mode: 'ready', hint: '', force: 'hover', note: 'action.primary-hover' },
+      { mode: 'ready', hint: '', force: 'focus', note: 'Focus ring' },
+      { mode: 'disabled', hint: 'Opens 15 Min Before', force: '', note: 'More than 15 minutes out' },
+      { mode: 'ready', hint: '', force: 'loading', note: 'Opening Zoom' },
+    ];
+    const jamie = db.users.find(u => u.id === 'u_jamie');
+    const card = lib.cardVM(db, jamie, db.modules.find(m => m.id === 'sales'), lib.phaseNow('live'));
+    const cardStates = forces.map(force => ({ force }));
+    const navVariants = [
+      { note: 'Active', label: 'Dashboard', icon: ic.grid, active: true, w: '248px' },
+      { note: 'Group with included count', label: 'AI Employees', icon: ic.bot, badge: '3', chev: 'open', w: '248px' },
+      { note: 'Child · in progress', label: 'Sales', depth: 1, token: { kind: 'build', state: 'in_progress', n: 3, total: 6 }, title: 'Sales AI Employee · 3 of 6 steps verified', w: '248px' },
+      { note: 'Child · built', label: 'Marketing', depth: 1, token: { kind: 'build', state: 'verified', n: 6, total: 6 }, title: 'Marketing AI Employee · Built', w: '248px' },
+      { note: 'Child · locked', label: 'Meetings', depth: 1, locked: true, title: 'Meetings AI Employee · Team tier', w: '248px' },
+      { note: 'Icon rail (collapsed)', label: 'Marketing', icon: ic.megaphone, collapsed: true, title: 'Marketing · Built', w: '64px' },
+    ].map(n => ({ depth: 0, active: false, locked: false, collapsed: false, token: null, badge: '', chev: '', title: n.label, icon: '', ...n }));
+    const T = (kind, state, n = 0, extra = {}) => ({ kind, state, n, compact: false, size: 'sm', label: '', code: `${kind}.${state}${kind === 'build' && state === 'in_progress' ? ` (${n}/6)` : ''}`, ...extra });
+    const catalog = [
+      { label: 'Access', items: [T('access', 'included'), T('access', 'locked'), T('access', 'locked', 0, { label: 'Included in Team Tier', code: 'access.locked · preview label' })] },
+      { label: 'Build', items: [T('build', 'not_started'), T('build', 'in_progress', 1), T('build', 'in_progress', 3), T('build', 'in_progress', 5), T('build', 'verified', 6)] },
+      { label: 'Build · Compact', items: [T('build', 'not_started', 0, { compact: true }), T('build', 'in_progress', 3, { compact: true }), T('build', 'verified', 6, { compact: true })] },
+      { label: 'Runtime', items: [T('runtime', 'deployed'), T('runtime', 'paused'), T('runtime', 'needs_attention'), T('runtime', 'not_deployed'), T('runtime', 'deployed', 0, { size: 'md', code: 'runtime.deployed · md (header)' })] },
+      { label: 'Step', items: [T('step', 'verified'), T('step', 'pending')] },
+    ];
+    lib.setViewerZone(lib.loadPrefs().tz || null);
+    return { themes, cols, ic, variants, navStates, tokenStates, joinStates, card, cardStates, navVariants, catalog, six: 6, noop: () => {}, banner: { title: `Session 3 moved to ${lib.fmt.dayPlain(s.start)} · ${lib.fmt.time(s.start)}` } };
+  }
+}
+</script>
+</body>
+</html>

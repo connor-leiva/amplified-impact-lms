@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Resource Vault</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ summary }}</p>
+    </div>
+    <button onClick="{{ openUpload }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Upload Resource</button>
+  </div>
+  <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default); width:max-content">
+    <sc-for list="{{ tabs }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
+  </div>
+  <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+    <div style="overflow-x:auto">
+      <div style="min-width:1080px">
+        <div style="display:grid; grid-template-columns:minmax(280px,2.4fr) minmax(170px,1.2fr) 130px 130px 100px 100px 110px 80px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+          <span>Resource</span><span>Category</span><span>Type</span><span>Access</span><span>Downloads</span><span>Updated</span><span>Status</span><span></span>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+          <div style="display:grid; grid-template-columns:minmax(280px,2.4fr) minmax(170px,1.2fr) 130px 130px 100px 100px 110px 80px; gap:12px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line-default); opacity:{{ r.op }}" style-hover="background:var(--bg-hover)">
+            <div style="min-width:0"><div style="font-size:14px; font-weight:500">{{ r.title }}</div><div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.desc }}</div></div>
+            <span style="font-size:13px; color:var(--text-secondary)">{{ r.cat }}</span>
+            <span style="font-size:13px; color:var(--text-secondary)">{{ r.type }}</span>
+            <button onClick="{{ r.toggleTier }}" title="Change access" style="height:24px; padding:0 9px; border-radius:999px; border:1px solid {{ r.aBd }}; background:{{ r.aBg }}; color:{{ r.aFg }}; font-size:12px; font-weight:600; cursor:pointer; width:max-content; white-space:nowrap">{{ r.access }}</button>
+            <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ r.dl }}</span>
+            <span style="font-size:13px; color:var(--text-tertiary)">{{ r.updated }}</span>
+            <button onClick="{{ r.toggle }}" style="display:flex; align-items:center; gap:8px; border:0; background:none; padding:0; cursor:pointer; color:{{ r.sFg }}; font-size:13px">
+              <span style="width:30px; height:18px; border-radius:999px; background:{{ r.trackBg }}; position:relative; transition:background 150ms"><span style="position:absolute; top:2px; left:{{ r.knobL }}; width:14px; height:14px; border-radius:50%; background:var(--paper); transition:left 150ms"></span></span>{{ r.status }}
+            </button>
+            <div style="display:flex; justify-content:flex-end">
+              <button onClick="{{ r.remove }}" title="Delete" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--status-attention-text); background:var(--status-attention-bg)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg></button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div onClick="{{ close }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
+<aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(460px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
+  <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
+    <div style="flex:1"><div style="font-size:16px; font-weight:600">Upload Resource</div><div style="font-size:13px; color:var(--text-tertiary)">Appears in the learner vault as soon as you publish</div></div>
+    <button onClick="{{ close }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+  </div>
+  <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:14px">
+    <button onClick="{{ pickFile }}" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; height:110px; border-radius:10px; border:1px dashed {{ fz.bd }}; background:{{ fz.bg }}; color:var(--text-secondary); font-size:13px; cursor:pointer">
+      <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:{{ fz.ic }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ fz.icon }}"></path></svg>
+      <span>{{ fz.label }}</span><span style="font-size:12px; color:var(--text-tertiary)">{{ fz.sub }}</span>
+    </button>
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Title
+      <input value="{{ f.title }}" onChange="{{ f.setTitle }}" placeholder="e.g. Listing Appointment Prep Prompt" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    </label>
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Description
+      <input value="{{ f.desc }}" onChange="{{ f.setDesc }}" placeholder="One line learners see under the title" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    </label>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Category
+        <select value="{{ f.cat }}" onChange="{{ f.setCat }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+          <option value="MLS &amp; Fair Housing Compliance">MLS &amp; Fair Housing Compliance</option>
+          <option value="Lead Generation Scripts">Lead Generation Scripts</option>
+          <option value="Sisu &amp; CRM Webhook Guides">Sisu &amp; CRM Webhook Guides</option>
+          <option value="TC Automation Workflows">TC Automation Workflows</option>
+          <option value="Organizational SOPs">Exec · Organizational SOPs</option>
+          <option value="Leadership Meeting Frameworks">Exec · Leadership Meeting Frameworks</option>
+          <option value="Finance Tracker Integrations">Exec · Finance Tracker Integrations</option>
+        </select>
+      </label>
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Type
+        <select value="{{ f.type }}" onChange="{{ f.setType }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+          <option value="Claude Project">Claude Project</option>
+          <option value="Workflow JSON">Workflow JSON</option>
+          <option value="Prompt pack">Prompt Pack</option>
+          <option value="PDF guide">PDF Guide</option>
+          <option value="Notion template">Notion Template</option>
+        </select>
+      </label>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Access</span>
+      <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default); width:max-content">
+        <button onClick="{{ f.setAgent }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ f.aBg }}; color:{{ f.aFg }}; font-size:13px; cursor:pointer; white-space:nowrap">Agent + Team</button>
+        <button onClick="{{ f.setTeam }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ f.tBg }}; color:{{ f.tFg }}; font-size:13px; cursor:pointer; white-space:nowrap">Team Only</button>
+      </div>
+      <sc-if value="{{ f.execNote }}"><span style="font-size:12px; color:var(--text-tertiary)">Executive categories are always Team only.</span></sc-if>
+    </div>
+    <sc-if value="{{ f.err }}"><div style="font-size:13px; color:var(--access-locked-text)">{{ f.err }}</div></sc-if>
+  </div>
+  <div style="display:flex; justify-content:flex-end; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default)">
+    <button onClick="{{ close }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
+    <button onClick="{{ publish }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">Publish to Vault</button>
+  </div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "admin", {"s":"avault"})); }
+  componentDidMount() { this.bootStandalone(); }
+  state = { tab: 'all', open: false, f: null, err: '' };
+  blank() { return { title: '', desc: '', cat: 'Lead Generation Scripts', type: 'Prompt pack', tier: 'agent', file: null }; }
+  renderVals() {
+    const c = this.cx; if (!c || !c.db) return {};
+    const { db, lib, ic, act, staff } = c;
+    const F = lib.fmt, now = act.now();
+    const seg = on => ({ bg: on ? 'var(--seg-active)' : 'transparent', fg: on ? 'var(--text-primary)' : 'var(--text-tertiary)'});
+    const { tab } = this.state;
+    const list = db.resources.filter(r => tab === 'all' || (tab === 'exec' ? r.exec : !r.exec)).sort((a, b) => b.updated - a.updated);
+    const patch = (id, fn, msg) => act.mutate(d => { const r = d.resources.find(x => x.id === id); fn(r); }, msg);
+    const rows = list.map(r => {
+      const pub = r.status === 'published', team = r.tier === 'team';
+      return {
+        title: r.title, desc: r.desc, cat: r.cat, type: r.type, dl: F.num(r.dl), updated: F.date(r.updated), op: pub ? 1 : 0.55,
+        access: team ? 'Team only' : 'Agent + Team', aBg: team ? 'var(--access-locked-bg)' : 'var(--seg-active)', aFg: team ? 'var(--access-locked-text)' : 'var(--text-secondary)', aBd: team ? 'var(--access-locked-line)' : 'var(--line-strong)',
+        toggleTier: () => r.exec ? act.toast('Executive Vault items are Team only', 'info') : patch(r.id, x => { x.tier = team ? 'agent' : 'team'; }, `${r.title}: ${team ? 'Agent + Team' : 'Team only'}`),
+        status: pub ? 'Published' : 'Hidden', sFg: pub ? 'var(--status-success-text)' : 'var(--text-tertiary)', trackBg: pub ? 'var(--status-success)' : 'var(--line-strong)', knobL: pub ? '14px' : '2px',
+        toggle: () => patch(r.id, x => { x.status = pub ? 'hidden' : 'published'; }, pub ? `${r.title} hidden from learners` : `${r.title} published`),
+        remove: () => act.mutate(d => { d.resources = d.resources.filter(x => x.id !== r.id); }, `${r.title} deleted`),
+      };
+    });
+    const f = this.state.f || this.blank();
+    const exec = lib.EXEC_CATEGORIES.includes(f.cat);
+    const tierEff = exec ? 'team' : f.tier;
+    const upF = k => e => { const v = e.target.value; this.setState(s => ({ f: { ...(s.f || this.blank()), [k]: v }, err: '' })); };
+    const setTier = t => () => this.setState(s => ({ f: { ...(s.f || this.blank()), tier: t } }));
+    const exts = { 'Claude Project': 'json', 'Workflow JSON': 'json', 'Prompt pack': 'md', 'PDF guide': 'pdf', 'Notion template': 'zip' };
+    const op = this.state.open;
+    return {
+      ic, rows,
+      summary: `${db.resources.filter(r => r.status === 'published').length} published · ${db.resources.filter(r => r.exec).length} in the Executive Build Vault · ${F.num(db.resources.reduce((a, r) => a + r.dl, 0))} downloads`,
+      tabs: [['all', 'All'], ['library', 'Library'], ['exec', 'Executive Vault']].map(([k, label]) => ({ label, ...seg(tab === k), go: () => this.setState({ tab: k }) })),
+      dw: { op: op ? 1 : 0, pe: op ? 'auto' : 'none', tf: op ? 'translateX(0)' : 'translateX(105%)' },
+      openUpload: () => this.setState({ open: true, f: this.blank(), err: '' }), close: () => this.setState({ open: false }),
+      fz: f.file ? { label: f.file, sub: 'Ready to publish · click to replace', icon: ic.checkCircle, ic: 'var(--status-success-text)', bd: 'var(--status-success-line)', bg: 'var(--status-success-bg)'} : { label: 'Drop a File or Click to Browse', sub: 'JSON, PDF, Markdown or Notion export · up to 25 MB', icon: ic.upload, ic: 'var(--text-tertiary)', bd: 'var(--line-strong)', bg: 'var(--bg-sunken)'},
+      pickFile: () => this.setState(s => { const ff = s.f || this.blank(); const slug = (ff.title || 'new-resource').toLowerCase().replace(/[^a-z0-9]+/g, '-'); return { f: { ...ff, file: `${slug}.${exts[ff.type]}` } }; }),
+      f: { ...f, err: this.state.err, execNote: exec, setTitle: upF('title'), setDesc: upF('desc'), setCat: upF('cat'), setType: upF('type'), setAgent: setTier('agent'), setTeam: setTier('team'),
+        aBg: tierEff === 'agent' ? 'var(--seg-active)' : 'transparent', aFg: tierEff === 'agent' ? 'var(--text-primary)' : 'var(--text-tertiary)', tBg: tierEff === 'team' ? 'var(--access-locked-bg)' : 'transparent', tFg: tierEff === 'team' ? 'var(--access-locked-text)' : 'var(--text-tertiary)'},
+      publish: () => {
+        if (!f.title.trim()) return this.setState({ err: 'Add a title.' });
+        if (!f.file) return this.setState({ err: 'Attach a file first.' });
+        const t = act.now();
+        act.mutate(d => { d.resources.unshift({ id: 'r' + t.toString(36), title: f.title.trim(), desc: f.desc.trim() || 'New resource', cat: f.cat, type: f.type, tier: tierEff, size: f.type === 'PDF guide' ? '1.1 MB' : '12 KB', dl: 0, updated: t, exec, status: 'published' }); lib.log(d, t, staff.name, `added “${f.title.trim()}” to the Resource Vault`, 'info'); }, `${f.title.trim()} published to the vault`);
+        this.setState({ open: false, f: null });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

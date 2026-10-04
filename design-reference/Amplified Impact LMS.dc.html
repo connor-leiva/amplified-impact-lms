@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="display:flex; height:100vh; min-height:480px; background:var(--bg-canvas); color:var(--text-primary); font-family:var(--font-sans); font-size:14px; line-height:1.45; overflow:hidden">
+  <sc-if value="{{ drawerScrim }}"><div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; z-index:69; background:var(--bg-overlay); animation:ai-fade 160ms ease-out"></div></sc-if>
+  <aside aria-label="Primary" style="--nav-hover:color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar)); --nav-active:var(--bg-surface); position:{{ sb.pos }}; top:0; left:0; bottom:0; z-index:{{ sb.z }}; transform:{{ sb.tf }}; transition:transform 220ms cubic-bezier(.2,.8,.2,1), width 180ms ease; flex:none; width:{{ sb.w }}; height:100%; display:flex; flex-direction:column; background:var(--bg-sidebar); border-right:1px solid var(--line-default); box-shadow:{{ sb.sh }}; overflow:hidden">
+    <div style="height:56px; flex:none; display:flex; align-items:center; gap:10px; padding:0 {{ sb.headPad }}; border-bottom:1px solid var(--line-default)">
+      <div title="Logo slot · drop your logo here" style="position:relative; width:28px; height:28px; flex:none"><div aria-hidden="true" style="position:absolute; inset:0; border-radius:7px; border:1px dashed var(--line-strong); background:var(--bg-surface)"></div><image-slot id="ai-logo-mark" shape="rounded" radius="7" placeholder="Logo" style="position:absolute; inset:0; width:100%; height:100%; display:block; color:transparent"></image-slot></div>
+      <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+        <div title="Wordmark slot · drop your wordmark here" style="position:relative; width:132px; height:22px; flex:none"><div aria-hidden="true" style="position:absolute; inset:0; border-radius:5px; border:1px dashed var(--line-strong); display:flex; align-items:center; padding:0 8px; font-size:12px; color:var(--text-tertiary)">Wordmark</div><image-slot id="ai-logo-wordmark" shape="rounded" radius="5" placeholder="Wordmark" style="position:absolute; inset:0; width:100%; height:100%; display:block; color:transparent"></image-slot></div>
+      </sc-if>
+      <sc-if value="{{ drawer }}">
+        <button onClick="{{ closeDrawer }}" aria-label="Close menu" style="margin-left:auto; width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--nav-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ showContext }}">
+      <div style="flex:none; padding:14px 20px 0; font-size:13px; line-height:1.4; color:var(--text-tertiary)">{{ contextLine }}</div>
+    </sc-if>
+    <nav aria-label="Main" style="flex:1; overflow-y:auto; overflow-x:hidden; padding:10px; display:flex; flex-direction:column; gap:14px">
+      <sc-for list="{{ nav }}" as="g" hint-placeholder-count="1">
+        <div style="display:flex; flex-direction:column; gap:2px">
+          <sc-if value="{{ g.showLabel }}"><div style="padding:4px 10px; font-size:14px; font-weight:600; color:var(--text-tertiary); white-space:nowrap">{{ g.label }}</div></sc-if>
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="5">
+            <dc-import name="Nav Item" label="{{ it.label }}" icon="{{ it.icon }}" active="{{ it.active }}" locked="{{ it.locked }}" depth="{{ it.depth }}" collapsed="{{ collapsed }}" token="{{ it.token }}" badge="{{ it.badge }}" badge-title="{{ it.badgeTitle }}" chev="{{ it.chev }}" title="{{ it.title }}" on-click="{{ it.go }}" hint-size="100%,32px"></dc-import>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="flex:none; border-top:1px solid var(--line-default); padding:10px; display:flex; flex-direction:column; gap:4px">
+      <sc-if value="{{ canCollapse }}"><dc-import name="Nav Item" label="{{ sbToggleLabel }}" icon="{{ ic.panel }}" collapsed="{{ collapsed }}" title="{{ sbToggleLabel }}" on-click="{{ toggleSb }}" hint-size="100%,32px"></dc-import></sc-if>
+      <button onClick="{{ toggleProfile }}" aria-haspopup="menu" aria-expanded="{{ profileOpenStr }}" title="{{ me.name }} · profile and settings" style="display:flex; align-items:center; gap:10px; width:100%; padding:6px; border:0; border-radius:10px; background:transparent; color:var(--text-primary); cursor:pointer; text-align:left; white-space:nowrap; overflow:hidden; justify-content:{{ profJc }}; outline:none" style-hover="background:var(--nav-hover)" style-focus="box-shadow:0 0 0 2px var(--focus-ring)">
+        <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ me.av }}; color:var(--ink-900); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600">{{ me.ini }}</span>
+        <sc-if value="{{ expanded }}">
+          <span style="flex:1; min-width:0; display:flex; flex-direction:column; gap:1px">
+            <span style="font-size:14px; font-weight:500; overflow:hidden; text-overflow:ellipsis">{{ me.name }}</span>
+            <span style="font-size:12px; color:var(--text-tertiary); overflow:hidden; text-overflow:ellipsis">{{ me.tag }}</span>
+          </span>
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M7.5 9.5 12 5l4.5 4.5M7.5 14.5 12 19l4.5-4.5"></path></svg>
+        </sc-if>
+      </button>
+    </div>
+  </aside>
+
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column">
+    <header style="height:56px; flex:none; display:flex; align-items:center; gap:12px; padding:0 var(--page-pad-x); border-bottom:1px solid var(--line-default); background:var(--bg-canvas)">
+      <sc-if value="{{ drawer }}">
+        <button onClick="{{ openDrawer }}" aria-label="Open menu" style="width:34px; height:34px; flex:none; margin-left:-6px; border:0; border-radius:8px; background:transparent; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></button>
+      </sc-if>
+      <nav aria-label="Breadcrumb" style="display:flex; align-items:center; gap:8px; min-width:0; flex:1; font-size:14px">
+        <sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="1">
+          <sc-if value="{{ c.sep }}"><span aria-hidden="true" style="color:var(--text-disabled)">/</span></sc-if>
+          <button onClick="{{ c.go }}" style="flex:{{ c.flex }}; min-width:0; border:0; background:none; padding:0; color:{{ c.fg }}; font-weight:{{ c.fw }}; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ c.label }}</button>
+        </sc-for>
+      </nav>
+      <sc-if value="{{ demoInline }}" hint-placeholder-val="{{ true }}">
+        <div role="group" aria-label="Demo controls" style="display:flex; align-items:center; gap:10px; flex:none">
+          <span style="font-size:13px; color:var(--text-tertiary)">View As</span>
+          <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+            <sc-for list="{{ roles }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+          </div>
+          <span style="font-size:13px; color:var(--text-tertiary); margin-left:4px">Timeline</span>
+          <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+            <sc-for list="{{ phases }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+          </div>
+          <button onClick="{{ resetDemo }}" style="height:32px; padding:0 10px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--bg-hover); color:var(--text-primary)">Reset Demo</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ demoCompact }}">
+        <button onClick="{{ toggleDemo }}" aria-expanded="{{ demoOpenStr }}" style="height:32px; padding:0 12px; flex:none; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Demo: {{ demoSummary }}</button>
+      </sc-if>
+    </header>
+
+    <main ref="{{ mainRef }}" style="flex:1; min-height:0; overflow:auto; position:relative">
+      <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:32px; color:var(--text-tertiary); font-size:14px">Loading…</div>
+      </sc-if>
+      <sc-if value="{{ r.dashboard }}"><dc-import name="Portal Dashboard" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.sessions }}"><dc-import name="Portal Sessions" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.workspace }}"><dc-import name="Portal Workspace" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.team }}"><dc-import name="Portal Team Hub" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.vault }}"><dc-import name="Portal Vault" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.upgrade }}"><dc-import name="Portal Upgrade" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.overview }}"><dc-import name="Admin Overview" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.curriculum }}"><dc-import name="Admin Curriculum" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.builder }}"><dc-import name="Admin Module Builder" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.cohorts }}"><dc-import name="Admin Cohorts" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.learners }}"><dc-import name="Admin Learners" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.avault }}"><dc-import name="Admin Vault" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.announce }}"><dc-import name="Admin Announcements" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.tiers }}"><dc-import name="Admin Tiers" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+      <sc-if value="{{ r.staff }}"><dc-import name="Admin Staff" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ profileOpen }}">
+    <div onClick="{{ closeMenus }}" style="position:fixed; inset:0; z-index:79"></div>
+    <div role="menu" aria-label="Profile and settings" style="position:fixed; left:{{ pm.left }}; bottom:{{ pm.bottom }}; z-index:80; width:min(300px, calc(100vw - 24px)); padding:6px; border-radius:12px; background:var(--bg-raised); border:1px solid var(--line-default); box-shadow:var(--shadow-pop); animation:ai-pop 140ms ease-out">
+      <div style="display:flex; align-items:center; gap:10px; padding:8px 8px 12px">
+        <span style="width:36px; height:36px; flex:none; border-radius:50%; background:{{ me.av }}; color:var(--ink-900); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600">{{ me.ini }}</span>
+        <div style="min-width:0"><div style="font-size:14px; font-weight:600">{{ me.name }}</div><div style="font-size:12px; color:var(--text-tertiary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ me.email }}</div></div>
+      </div>
+      <div style="height:1px; background:var(--line-subtle); margin:0 4px"></div>
+      <div style="padding:10px 8px; display:flex; flex-direction:column; gap:6px">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px">
+          <span style="color:var(--text-secondary)">Time Zone: <span style="color:var(--text-primary); font-weight:500">{{ tz.label }}</span></span>
+          <button onClick="{{ toggleTz }}" style="border:0; background:none; padding:0; color:var(--text-link); font-size:13px; font-weight:500; cursor:pointer" style-hover="color:var(--text-link-hover)">{{ tz.btn }}</button>
+        </div>
+        <sc-if value="{{ tzOpen }}">
+          <div role="radiogroup" aria-label="Time zone" style="display:flex; flex-direction:column; gap:1px; margin:2px -4px; padding:4px; border-radius:8px; background:var(--bg-sunken); border:1px solid var(--line-subtle); max-height:210px; overflow:auto">
+            <sc-for list="{{ tz.list }}" as="z">
+              <button role="radio" aria-checked="{{ z.on }}" onClick="{{ z.go }}" style="display:flex; align-items:center; gap:8px; height:30px; padding:0 8px; border:0; border-radius:6px; background:{{ z.bg }}; color:var(--text-primary); font-size:13px; cursor:pointer; text-align:left" style-hover="background:var(--bg-hover)">
+                <span style="width:14px; height:14px; flex:none; border-radius:50%; border:1.5px solid {{ z.ring }}; display:flex; align-items:center; justify-content:center"><span style="width:6px; height:6px; border-radius:50%; background:{{ z.dot }}"></span></span>{{ z.label }}
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="font-size:12px; color:var(--text-tertiary)">Session Times Show as {{ tz.example }}</div>
+      </div>
+      <div style="padding:6px 8px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px">
+        <span style="font-size:13px; color:var(--text-secondary)">Theme</span>
+        <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+          <sc-for list="{{ themes }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ o.icon }}"></path></svg>{{ o.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="height:1px; background:var(--line-subtle); margin:0 4px"></div>
+      <button role="menuitem" onClick="{{ signOut }}" style="display:flex; align-items:center; gap:10px; width:100%; height:34px; margin-top:4px; padding:0 8px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:13px; cursor:pointer; text-align:left" style-hover="background:var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.logout }}"></path></svg>Sign Out</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ demoOpen }}">
+    <div onClick="{{ closeMenus }}" style="position:fixed; inset:0; z-index:79"></div>
+    <div role="dialog" aria-label="Demo controls" style="position:fixed; top:52px; right:12px; z-index:80; width:min(330px, calc(100vw - 24px)); padding:14px; border-radius:12px; background:var(--bg-raised); border:1px solid var(--line-default); box-shadow:var(--shadow-pop); display:flex; flex-direction:column; gap:12px; animation:ai-pop 140ms ease-out">
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-size:13px; color:var(--text-tertiary)">View As</span>
+        <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+          <sc-for list="{{ roles }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="flex:1; height:28px; padding:0 8px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-size:13px; color:var(--text-tertiary)">Timeline</span>
+        <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
+          <sc-for list="{{ phases }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="flex:1; height:28px; padding:0 8px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+        </div>
+      </div>
+      <button onClick="{{ resetDemo }}" style="align-self:flex-start; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer" style-hover="background:var(--action-secondary-hover)">Reset Demo Data</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ lockedOpen }}">
+    <div onClick="{{ closeLocked }}" style="position:fixed; inset:0; z-index:75; background:var(--bg-overlay); display:flex; align-items:center; justify-content:center; padding:20px; animation:ai-fade 160ms ease-out">
+      <div onClick="{{ stop }}" style="width:min(520px, 100%)">
+        <dc-import name="Locked Employee Preview" items="{{ lockedItems }}" index="{{ lockedIndex }}" on-index="{{ setLockedIndex }}" on-cta="{{ lockedCta }}" on-close="{{ closeLocked }}" hint-size="100%,420px"></dc-import>
+      </div>
+    </div>
+  </sc-if>
+  {{ toastsEl }}
+  {{ confettiEl }}
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;typeface&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Hanken Grotesk&quot;,&quot;Instrument Sans&quot;,&quot;Schibsted Grotesk&quot;],&quot;default&quot;:&quot;Hanken Grotesk&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Brand&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Pine&quot;,&quot;Indigo&quot;,&quot;Plum&quot;],&quot;default&quot;:&quot;Pine&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Brand&quot;},&quot;sessionCard&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Auto&quot;,&quot;Scheduled&quot;,&quot;Starting Soon&quot;,&quot;Live&quot;,&quot;Ended · Processing&quot;,&quot;Replay Ready&quot;],&quot;default&quot;:&quot;Auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;showDemoControls&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+class Component extends DCLogic {
+  state = { db: null, role: 'agent', routes: { agent: { s: 'dashboard' }, owner: { s: 'dashboard' }, admin: { s: 'overview' } }, collapsedPref: false, empOpen: true, toasts: [], burst: 0, vw: window.innerWidth, drawerOpen: false, profileOpen: false, tzOpen: false, demoOpen: false, locked: null, phase: 'live', prefs: {} };
+  mainRef = React.createRef();
+
+  componentDidMount() {
+    let role = null, routes = null;
+    try { role = sessionStorage.getItem('ai-lms-role'); routes = JSON.parse(sessionStorage.getItem('ai-lms-routes') || 'null'); } catch (e) {}
+    const parts = (location.hash || '').slice(1).split('/').filter(Boolean).map(decodeURIComponent);
+    this.hashMode = false;
+    if (['agent', 'owner', 'admin'].includes(parts[0])) {
+      role = parts[0];
+      if (parts[1]) { this.hashMode = true; routes = { ...(routes && routes.agent ? routes : this.state.routes), [role]: { s: parts[1], id: parts[2] || null } }; }
+    }
+    const patch = {};
+    if (['agent', 'owner', 'admin'].includes(role)) patch.role = role;
+    if (routes && routes.agent && routes.owner && routes.admin) patch.routes = routes;
+    if (Object.keys(patch).length) this.setState(patch);
+    this.realStart = Date.now();
+    this.onResize = () => { const w = window.innerWidth; if (w !== this.state.vw) this.setState({ vw: w }); };
+    this.onKey = e => { if (e.key === 'Escape') this.setState({ profileOpen: false, demoOpen: false, locked: null, drawerOpen: false }); };
+    window.addEventListener('resize', this.onResize);
+    this.onResize(); requestAnimationFrame(this.onResize);
+    try { this.ro = new ResizeObserver(this.onResize); this.ro.observe(document.documentElement); } catch (e) {}
+    window.addEventListener('keydown', this.onKey);
+    import(new URL('./lms-data.js', document.baseURI).href).then(lib => {
+      this.lib = lib;
+      const prefs = lib.loadPrefs(), phase = prefs.phase || 'live';
+      lib.applyPrefs(prefs);
+      this.setState({ prefs, phase, db: lib.loadDb(phase) }, () => this.applyTweaks());
+    }).catch(err => console.error('lms-data failed to load', err));
+    this.onStorage = e => {
+      const lib = this.lib; if (!lib) return;
+      if (e.key === lib.dbKey(this.state.phase) && e.newValue) { try { this.setState({ db: JSON.parse(e.newValue) }); } catch (x) {} }
+      if (e.key === lib.PREFS_KEY) {
+        const p = lib.loadPrefs(), phase = p.phase || 'live'; lib.applyPrefs(p);
+        if (phase !== this.state.phase) { this.realStart = Date.now(); this.setState({ prefs: p, phase, db: lib.loadDb(phase) }); } else this.setState({ prefs: p });
+      }
+    };
+    window.addEventListener('storage', this.onStorage);
+  }
+  componentDidUpdate(prev) { if (this.lib && (prev.typeface !== this.props.typeface || prev.accent !== this.props.accent)) this.applyTweaks(); }
+  componentWillUnmount() { window.removeEventListener('storage', this.onStorage); window.removeEventListener('resize', this.onResize); window.removeEventListener('keydown', this.onKey); if (this.ro) this.ro.disconnect(); clearTimeout(this.burstT); }
+
+  applyTweaks() {
+    const lib = this.lib, prefs = lib.loadPrefs(), patch = {};
+    const F = { 'Hanken Grotesk': 'hanken', 'Instrument Sans': 'instrument', 'Schibsted Grotesk': 'schibsted' }, A = { Pine: 'pine', Indigo: 'indigo', Plum: 'plum' };
+    if (this.props.typeface && F[this.props.typeface] && F[this.props.typeface] !== prefs.font) patch.font = F[this.props.typeface];
+    if (this.props.accent && A[this.props.accent] && A[this.props.accent] !== prefs.accent) patch.accent = A[this.props.accent];
+    if (Object.keys(patch).length) this.setState({ prefs: lib.savePrefs(patch) });
+  }
+  setPrefs(patch) { this.setState({ prefs: this.lib.savePrefs(patch) }); }
+  setPhase(phase) {
+    if (phase === this.state.phase) return;
+    this.lib.savePrefs({ phase }); this.realStart = Date.now();
+    this.setState({ phase, prefs: this.lib.loadPrefs(), db: this.lib.loadDb(phase), locked: null });
+    const label = (this.lib.PHASES.find(p => p.id === phase) || {}).label;
+    this.toast(`Timeline: ${label}`, 'info');
+  }
+  userFor(role, db) { return role === 'admin' ? null : db.users.find(u => u.id === (role === 'agent' ? 'u_jamie' : 'u_alex')); }
+  lockedList() { const { db, role } = this.state; if (!db || role === 'admin') return []; const u = this.userFor(role, db); return this.lib.visibleModules(db).filter(m => !this.lib.canAccess(u, m)); }
+  persistNav(role, routes) { if (this.hashMode) return; try { sessionStorage.setItem('ai-lms-role', role); sessionStorage.setItem('ai-lms-routes', JSON.stringify(routes)); } catch (e) {} }
+  nav(s, id) {
+    const st = this.state, lib = this.lib;
+    if (s === 'live') s = 'sessions';
+    if (s === 'workspace' && lib && st.db && st.role !== 'admin') {
+      const m = st.db.modules.find(x => x.id === id);
+      if (m && !lib.canAccess(this.userFor(st.role, st.db), m)) return this.openLocked(id);
+    }
+    this.setState(s2 => { const routes = { ...s2.routes, [s2.role]: { s, id: id || null } }; this.persistNav(s2.role, routes); return { routes, drawerOpen: false, locked: null }; });
+    if (this.mainRef.current) this.mainRef.current.scrollTop = 0;
+  }
+  openLocked(id) { const items = this.lockedList(); this.setState({ locked: Math.max(0, items.findIndex(m => m.id === id)), drawerOpen: false }); }
+  setRole(role) { this.setState(st => { this.persistNav(role, st.routes); return { role, locked: null, profileOpen: false }; }); if (this.mainRef.current) this.mainRef.current.scrollTop = 0; }
+  save(db) { this.lib.saveDb(this.state.phase, db); }
+  mutate(fn, msg, tone) {
+    this.setState(st => { const db = JSON.parse(JSON.stringify(st.db)); fn(db); this.save(db); return { db }; });
+    if (msg) this.toast(msg, tone);
+  }
+  toast(msg, tone = 'success') {
+    const id = Math.random().toString(36).slice(2);
+    this.setState(s => ({ toasts: [...s.toasts, { id, msg, tone }].slice(-4) }));
+    setTimeout(() => this.setState(s => ({ toasts: s.toasts.filter(t => t.id !== id) })), 2800);
+  }
+  copy(text, msg) {
+    const ok = () => this.toast(msg || 'Copied to clipboard', 'success');
+    const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;left:-9999px'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove(); ok(); };
+    try { if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok, fallback); else fallback(); } catch (e) { fallback(); }
+  }
+  download(name, content, type, msg) {
+    try { const url = URL.createObjectURL(new Blob([content], { type: type || 'text/plain' })); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1500); } catch (e) {}
+    this.toast(msg || `Downloaded ${name}`, 'success');
+  }
+  celebrate() { clearTimeout(this.burstT); this.setState({ burst: Date.now() }); this.burstT = setTimeout(() => this.setState({ burst: 0 }), 2800); }
+  reset() { const db = this.lib.seed(this.state.phase); this.save(db); this.setState({ db, demoOpen: false }); this.toast('Demo data reset', 'info'); }
+
+  getAct() {
+    if (this._act) return this._act;
+    const s = this;
+    this._act = {
+      now: () => s.lib.phaseNow(s.state.phase) + (Date.now() - s.realStart),
+      nav: (screen, id) => s.nav(screen, id), mutate: (fn, msg, tone) => s.mutate(fn, msg, tone), toast: (m, t) => s.toast(m, t),
+      copy: (text, m) => s.copy(text, m), download: (name, content, type, m) => s.download(name, content, type, m),
+      celebrate: () => s.celebrate(), setRole: r => s.setRole(r), openLocked: id => s.openLocked(id), setPrefs: p => s.setPrefs(p),
+    };
+    return this._act;
+  }
+
+  toastsEl() {
+    const h = React.createElement, ic = this.lib ? this.lib.ICONS : {};
+    const tones = { success: ['var(--status-success)', ic.checkCircle], info: ['var(--text-inverse)', ic.info], warn: ['var(--access-locked)', ic.alert] };
+    return h('div', { role: 'status', 'aria-live': 'polite', style: { position: 'fixed', right: 20, bottom: 20, zIndex: 90, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end', pointerEvents: 'none' } },
+      this.state.toasts.map(t => {
+        const [c, d] = tones[t.tone] || tones.info;
+        return h('div', { key: t.id, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-inverse)', borderRadius: 10, boxShadow: 'var(--shadow-pop)', color: 'var(--text-inverse)', fontSize: 13, fontWeight: 500, animation: 'ai-toast-in 200ms ease-out', maxWidth: 'min(420px, calc(100vw - 40px))' } },
+          h('svg', { viewBox: '0 0 24 24', style: { width: 16, height: 16, flex: 'none', fill: 'none', stroke: c, strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' } }, h('path', { d })), t.msg);
+      }));
+  }
+  confettiEl() {
+    const b = this.state.burst; if (!b) return null;
+    const h = React.createElement, cols = ['var(--action-primary)', 'var(--status-success)', 'var(--access-locked)', 'var(--status-progress)', 'var(--ink-300)'];
+    let sd = b % 9973; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+    const pieces = Array.from({ length: 110 }, (_, i) => h('span', { key: i, style: {
+      position: 'absolute', left: (38 + rnd() * 24) + '%', bottom: '70px', width: (5 + rnd() * 6) + 'px', height: (3 + rnd() * 5) + 'px',
+      background: cols[i % cols.length], borderRadius: rnd() > 0.7 ? '50%' : '1px',
+      '--dx': ((rnd() - 0.5) * 90) + 'vw', '--dy': (-(35 + rnd() * 50)) + 'vh', '--r': ((rnd() - 0.5) * 1440) + 'deg',
+      animation: `ai-confetti ${1500 + rnd() * 1100}ms cubic-bezier(.15,.6,.35,1) ${Math.round(rnd() * 140)}ms forwards`, opacity: 0,
+    } }));
+    return h('div', { key: b, 'aria-hidden': true, style: { position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 85, overflow: 'hidden' } }, pieces);
+  }
+
+  renderVals() {
+    const { db, role, routes, collapsedPref, empOpen, drawerOpen, prefs, phase } = this.state;
+    const vw = window.innerWidth || this.state.vw;
+    const lib = this.lib, ic = lib ? lib.ICONS : {};
+    const showDemo = this.props.showDemoControls ?? true;
+    const mode = vw < 768 ? 'drawer' : prefs.sidebar === 'rail' ? 'rail' : 'full';
+    const expanded = mode !== 'rail', collapsed = !expanded, drawer = mode === 'drawer';
+    const sb = drawer
+      ? { pos: 'fixed', z: 70, tf: drawerOpen ? 'none' : 'translateX(-105%)', w: '280px', sh: drawerOpen ? 'var(--shadow-pop)' : 'none', headPad: '16px' }
+      : { pos: 'relative', z: 1, tf: 'none', w: mode === 'rail' ? '64px' : '248px', sh: 'none', headPad: mode === 'rail' ? '18px' : '16px' };
+    const seg = (on, go, label, extra = {}) => ({ label, on: on ? 'true' : 'false', go, bg: on ? 'var(--seg-active)' : 'transparent', sh: on ? 'var(--shadow-xs)' : 'none', fg: on ? 'var(--text-primary)' : 'var(--text-secondary)', ...extra });
+    const roles = [['agent', 'Agent Tier'], ['owner', 'Team Owner'], ['admin', 'Admin']].map(([k, l]) => seg(role === k, () => this.setRole(k), l));
+    const phases = (lib ? lib.PHASES : [{ id: 'week0', label: 'Week 0'}, { id: 'live', label: 'Week 2'}, { id: 'post', label: 'After Cohort'}]).map(p => seg(phase === p.id, () => this.lib && this.setPhase(p.id), p.label));
+    const base = {
+      ic, roles, phases, expanded, collapsed, drawer, sb, drawerScrim: drawer && drawerOpen,
+      demoInline: showDemo && vw >= 1360, demoCompact: showDemo && vw < 1360, demoOpen: this.state.demoOpen && showDemo, demoOpenStr: this.state.demoOpen ? 'true' : 'false',
+      demoSummary: `${(roles.find(r => r.on === 'true') || {}).label} · ${(phases.find(p => p.on === 'true') || {}).label}`,
+      toggleDemo: () => this.setState(s => ({ demoOpen: !s.demoOpen, profileOpen: false })),
+      canCollapse: mode !== 'drawer', sbToggleLabel: collapsed ? 'Expand Sidebar' : 'Collapse Sidebar',
+      toggleSb: () => this.lib && this.setPrefs({ sidebar: this.state.prefs.sidebar === 'rail' ? 'full' : 'rail' }),
+      openDrawer: () => this.setState({ drawerOpen: true }), closeDrawer: () => this.setState({ drawerOpen: false }),
+      resetDemo: () => this.lib && this.reset(), closeMenus: () => this.setState({ profileOpen: false, demoOpen: false }),
+      stop: e => e.stopPropagation(), mainRef: this.mainRef, toastsEl: this.toastsEl(), confettiEl: this.confettiEl(),
+      profJc: expanded ? 'flex-start' : 'center',
+    };
+    if (!db || !lib) return { ...base, loading: true, r: {}, nav: [], crumbs: [], me: { name: '', ini: '', tag: '', av: 'var(--bg-hover)' }, showContext: false, profileOpen: false, lockedOpen: false };
+
+    const act = this.getAct(), now = act.now(), isAdmin = role === 'admin', F = lib.fmt;
+    const user = this.userFor(role, db), staff = db.staff[0];
+    const isTeam = !!user && user.tier === 'team';
+    const team = user && user.teamId ? db.teams.find(t => t.id === user.teamId) : null;
+    const mods = lib.visibleModules(db);
+
+    let route = routes[role] || {};
+    if (route.s === 'live') route = { s: 'sessions' };
+    const portalScreens = ['dashboard', 'sessions', 'workspace', 'team', 'vault', 'upgrade'];
+    const adminScreens = ['overview', 'curriculum', 'builder', 'cohorts', 'learners', 'avault', 'announce', 'tiers', 'staff'];
+    if (isAdmin && !adminScreens.includes(route.s)) route = { s: 'overview' };
+    if (!isAdmin && !portalScreens.includes(route.s)) route = { s: 'dashboard' };
+    if (!isAdmin && route.s === 'team' && !isTeam) route = { s: 'dashboard' };
+    if (!isAdmin && route.s === 'upgrade' && isTeam) route = { s: 'dashboard' };
+    if (!isAdmin && route.s === 'workspace') {
+      const m = mods.find(x => x.id === route.id);
+      if (!m || !lib.canAccess(user, m)) { const f = mods.find(x => lib.canAccess(user, x)); route = f ? { s: 'workspace', id: f.id } : { s: 'dashboard' }; }
+    }
+    const r = {}; r[route.s] = true;
+
+    const item = (k, label, icon, extra = {}) => ({ label, icon, depth: 0, locked: false, token: null, badge: '', chev: '', title: label, active: route.s === k && !extra.noActive, go: () => this.nav(k, extra.id), ...extra });
+    let nav;
+    if (!isAdmin) {
+      const kids = mods.map(m => {
+        const locked = !lib.canAccess(user, m), soon = !locked && !lib.isOpen(m, now), b = lib.buildOf(user, m);
+        const token = soon ? { kind: 'custom', tone: 'neutral', icon: 'clock', label: m.opens ? F.date(m.opens) : 'Soon'} : { kind: 'build', state: b.state, n: b.n, total: b.total };
+        const tip = locked ? `${m.name} · Team tier` : soon ? `${m.name} · Opens ${m.opens ? F.date(m.opens) : 'soon'}` : `${m.name} · ${b.state === 'verified' ? 'Built' : b.state === 'in_progress' ? `${b.n} of ${b.total} steps verified` : 'Not started'}`;
+        return { label: m.short, icon: ic[m.icon] || ic.bot, depth: collapsed ? 0 : 1, locked, token: locked ? null : token, badge: '', chev: '', title: tip, active: route.s === 'workspace' && route.id === m.id, go: () => (locked ? this.openLocked(m.id) : this.nav('workspace', m.id)) };
+      });
+      const included = mods.filter(m => lib.canAccess(user, m)).length;
+      const empHead = { label: 'AI Employees', icon: ic.bot, depth: 0, locked: false, token: null, badge: String(included), badgeTitle: `${included} included in your tier`, chev: empOpen ? 'open' : 'closed', title: 'AI Employees', active: false, go: () => this.setState(s => ({ empOpen: !s.empOpen })) };
+      const main = [item('dashboard', 'Dashboard', ic.grid), item('sessions', 'Sessions', ic.radio)];
+      const tail = [...(isTeam ? [item('team', 'Team Hub', ic.users)] : []), item('vault', 'Resource Vault', ic.archive)];
+      nav = collapsed
+        ? [{ showLabel: false, items: main }, { showLabel: false, items: kids }, { showLabel: false, items: tail }]
+        : [{ showLabel: false, items: [...main, empHead, ...(empOpen ? kids : []), ...tail] }];
+    } else {
+      const newReq = db.requests.filter(q => q.status === 'new').length, drafts = db.modules.filter(m => m.status === 'draft').length;
+      const g = (label, items) => ({ label, showLabel: !collapsed, items });
+      nav = [
+        g('Insights', [item('overview', 'Overview', ic.chart)]),
+        g('Content', [item('curriculum', 'Curriculum', ic.layers, drafts ? { badge: `${drafts} Draft`, badgeTitle: `${drafts} draft AI Employee${drafts === 1 ? '' : 's'}` } : {}), item('builder', 'Module Builder', ic.pencil), item('avault', 'Resource Vault', ic.archive)]),
+        g('Delivery', [item('cohorts', 'Cohorts & Sessions', ic.calendar), item('announce', 'Announcements', ic.send)]),
+        g('People', [item('learners', 'Learners & Teams', ic.users), item('staff', 'Staff & Roles', ic.shield)]),
+        g('Revenue', [item('tiers', 'Tiers & Upgrades', ic.card, newReq ? { badge: String(newReq), badgeTitle: `${newReq} new upgrade request${newReq === 1 ? '' : 's'}` } : {})]),
+      ];
+    }
+
+    const crumbMap = { dashboard: 'Dashboard', sessions: 'Sessions', team: 'Team Hub', vault: 'Resource Vault', upgrade: 'Team Tier', overview: 'Overview', curriculum: 'Curriculum', cohorts: 'Cohorts & Sessions', learners: 'Learners & Teams', avault: 'Resource Vault', announce: 'Announcements', tiers: 'Tiers & Upgrades', staff: 'Staff & Roles' };
+    let crumbList;
+    if (route.s === 'workspace') { const m = mods.find(x => x.id === route.id); crumbList = [['AI Employees', () => this.nav('dashboard')], [m ? m.name : '']]; }
+    else if (route.s === 'builder') { const m = db.modules.find(x => x.id === route.id); crumbList = [['Curriculum', () => this.nav('curriculum')], [m ? m.name : 'New AI Employee']]; }
+    else crumbList = [[crumbMap[route.s] || '']];
+    if (isAdmin) crumbList.unshift(['Admin', () => this.nav('overview')]);
+    if (vw < 768 && crumbList.length > 1) crumbList = crumbList.slice(-1);
+    const crumbs = crumbList.map(([label, go], i) => { const last = i === crumbList.length - 1; return { label, go: go || (() => {}), sep: i > 0, fg: last ? 'var(--text-primary)' : 'var(--text-tertiary)', fw: last ? 600 : 400, flex: last ? '0 1 auto' : '0 0 auto' }; });
+
+    const me = isAdmin
+      ? { name: staff.name, email: staff.email, ini: F.initials(staff.name), av: lib.avatarColor(staff.id), tag: 'Owner · Admin Console'}
+      : { name: user.name, email: user.email, ini: F.initials(user.name), av: lib.avatarColor(user.id), tag: isTeam ? `${user.role} · Team Tier` : 'Agent Tier' };
+
+    const co = db.cohorts.find(c => c.id === ((user && user.cohortId) || 'dec26')) || db.cohorts[0];
+    const contextLine = isAdmin ? `Admin Console · ${co.name} Cohort` : lib.cohortLine(co, now);
+
+    const pz = prefs.tz || '', auto = lib.autoZone();
+    const sample = (lib.nextSession(db, user, now) || db.sessions[2]).start;
+    const tz = {
+      label: pz ? lib.zoneLabel(pz) : `Auto (${lib.zoneLabel(auto) || auto})`, btn: this.state.tzOpen ? 'Done' : 'Change', example: F.time(sample),
+      list: lib.ZONES.map(([z, label]) => { const on = pz === z; return { label: z ? `${label} · ${lib.zoneAbbr(z, sample)}` : `Auto · ${lib.zoneLabel(auto) || auto}`, on: on ? 'true' : 'false', bg: on ? 'var(--bg-selected)' : 'transparent', ring: on ? 'var(--action-primary)' : 'var(--line-strong)', dot: on ? 'var(--action-primary)' : 'transparent', go: () => this.setPrefs({ tz: z || null }) }; }),
+    };
+    const themes = [['light', 'Light', ic.sun], ['dark', 'Dark', ic.moon]].map(([k, l, icon]) => seg((prefs.theme || 'light') === k, () => this.setPrefs({ theme: k }), l, { icon }));
+    const pm = drawer ? { left: '12px', bottom: '76px' } : expanded ? { left: '10px', bottom: '64px' } : { left: '72px', bottom: '12px' };
+
+    const lockedMods = this.lockedList();
+    const lockedItems = lockedMods.map(m => { const sess = m.session ? lib.sessionFor(db, (user && user.cohortId) || 'dec26', m.session) : null; return { id: m.id, name: m.name, short: m.short, icon: ic[m.icon] || ic.bot, headline: m.headline || m.outcome, outputs: (m.outputs || []).filter(Boolean).slice(0, 3), sessLine: sess ? `Session ${sess.n} · ${F.day(sess.start)}` : 'Self-paced' }; });
+    const VAR = { 'Scheduled': 'scheduled', 'Starting Soon': 'starting_soon', 'Live': 'live', 'Ended · Processing': 'ended_processing', 'Replay Ready': 'replay_ready' };
+    const ctx = { db, user, staff, team, isTeam, isAdmin, role, route, act, lib, ic, now, phase, vw, compact: vw < 768, forceVariant: VAR[this.props.sessionCard] || null, prefs };
+
+    return {
+      ...base, loading: false, r, nav, crumbs, me, ctx, showContext: expanded, contextLine,
+      profileOpen: this.state.profileOpen, profileOpenStr: this.state.profileOpen ? 'true' : 'false',
+      toggleProfile: () => this.setState(s => ({ profileOpen: !s.profileOpen, demoOpen: false, tzOpen: false })),
+      tzOpen: this.state.tzOpen, toggleTz: () => this.setState(s => ({ tzOpen: !s.tzOpen })), tz, themes, pm,
+      signOut: () => { this.setState({ profileOpen: false }); this.toast('Signed out (demo)', 'info'); },
+      lockedOpen: this.state.locked != null && lockedItems.length > 0, lockedItems, lockedIndex: this.state.locked || 0,
+      setLockedIndex: i => this.setState({ locked: i }), closeLocked: () => this.setState({ locked: null }),
+      lockedCta: () => { this.setState({ locked: null }); this.nav('upgrade'); },
+    };
+  }
+}
+</script>
+</body>
+</html>

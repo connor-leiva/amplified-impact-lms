@@ -1,0 +1,14 @@
+platform: local
+captured-on: win32 (Windows 11, x64)
+playwright: 1.63.0
+chromium: headless_shell 153.0.8010.12 (playwright build v1243)
+reference: design-reference/ @ handoff design_handoff_amplified_impact_lms (unmodified)
+scenarios: 55 (98 regions)
+determinism: 3 consecutive captures byte-identical, with the deterministic-render launch args
+             in compliance/playwright.config.ts
+
+Status: DEV-ONLY. See DECISIONS.md D-001.
+The authoritative set is produced by the pinned CI container:
+  mcr.microsoft.com/playwright:v1.63.0-noble
+The CI `goldens` job re-captures there; commit its diff and change this line to `platform: container`.
+The .json fingerprint goldens are platform-independent and authoritative as-is.

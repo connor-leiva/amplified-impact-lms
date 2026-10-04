@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<style>
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;--font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);--ink-100:oklch(0.962 0.004 85);--ink-200:oklch(0.925 0.005 85);--ink-300:oklch(0.865 0.006 85);--ink-400:oklch(0.72 0.007 85);--ink-500:oklch(0.53 0.008 85);--ink-600:oklch(0.42 0.008 85);--ink-700:oklch(0.30 0.008 85);--ink-800:oklch(0.225 0.007 85);--ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);--accent-h:192;--accent-c:0.08;--progress-h:258;--progress-c:0.14;
+--bg-canvas:var(--ink-50);--bg-sidebar:var(--ink-100);--bg-surface:var(--paper);--bg-sunken:var(--ink-50);--bg-raised:var(--paper);--bg-hover:var(--ink-100);--bg-selected:var(--ink-100);--bg-inverse:var(--ink-900);--bg-overlay:oklch(0.17 0.006 85 / 0.32);--bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));--line-default:var(--ink-200);--line-strong:var(--ink-300);
+--text-primary:var(--ink-900);--text-secondary:var(--ink-600);--text-tertiary:var(--ink-500);--text-disabled:var(--ink-400);--text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));--action-on-primary:var(--paper);--action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));--action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);--action-secondary-hover:var(--ink-100);--action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);--seg-active:var(--paper);--track:var(--ink-200);--focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);--status-success-text:oklch(0.47 0.11 145);--status-success-bg:oklch(0.958 0.03 145);--status-success-line:oklch(0.86 0.07 145);--status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));--status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));--status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);--status-neutral-text:var(--ink-600);--status-neutral-bg:var(--ink-100);--status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);--status-attention-text:oklch(0.5 0.15 32);--status-attention-bg:oklch(0.962 0.022 32);--status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);--access-locked-text:oklch(0.5 0.1 65);--access-locked-bg:oklch(0.966 0.032 85);--access-locked-line:oklch(0.87 0.08 80);--access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);--shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);--shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);--shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;--page-pad-top:32px}
+:root[data-accent="indigo"]{--accent-h:275;--accent-c:0.15;--progress-h:212;--progress-c:0.09}
+:root[data-accent="plum"]{--accent-h:340;--accent-c:0.12}
+:root[data-font="instrument"]{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{--font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);--bg-sidebar:oklch(0.15 0.006 85);--bg-surface:var(--ink-800);--bg-sunken:oklch(0.19 0.006 85);--bg-raised:oklch(0.25 0.007 85);--bg-hover:oklch(0.26 0.007 85);--bg-selected:oklch(0.27 0.007 85);--bg-inverse:var(--ink-50);--bg-overlay:oklch(0 0 0 / 0.55);--bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);--line-default:var(--ink-700);--line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);--text-secondary:var(--ink-300);--text-tertiary:var(--ink-400);--text-disabled:var(--ink-500);--text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));--action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));--action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);--action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));--text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);--action-secondary-hover:oklch(0.29 0.007 85);--action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);--seg-active:oklch(0.29 0.007 85);--track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);--status-success-text:oklch(0.8 0.12 145);--status-success-bg:oklch(0.7 0.14 145 / 0.14);--status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));--status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));--status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);--status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);--status-neutral-text:var(--ink-300);--status-neutral-bg:oklch(0.3 0.008 85 / 0.6);--status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);--status-attention-text:oklch(0.8 0.11 32);--status-attention-bg:oklch(0.68 0.16 32 / 0.14);--status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);--access-locked-text:oklch(0.85 0.12 80);--access-locked-bg:oklch(0.79 0.14 75 / 0.12);--access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;--shadow-card:0 8px 24px oklch(0 0 0 / 0.35);--shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);--shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{--page-pad-x:24px}}
+@media (max-width:767px){:root{--page-pad-x:16px;--page-pad-top:24px}}
+html,body{margin:0;min-height:100%;background:var(--bg-canvas);color:var(--text-primary);font-family:var(--font-sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--text-link);text-decoration:none}a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
+::selection{background:var(--action-primary-tint)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+@keyframes ai-confetti{0%{transform:translate(0,0) rotate(0deg);opacity:1}40%{transform:translate(calc(var(--dx) * .55),var(--dy)) rotate(calc(var(--r) * .45));opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 90vh)) rotate(var(--r));opacity:0}}
+@keyframes ai-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ai-pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--status-success) 55%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ai-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ai-fade{from{opacity:0}to{opacity:1}}
+@keyframes ai-skeleton{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes ai-spin{to{transform:rotate(360deg)}}
+@keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
+</style>
+</helmet>
+<div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
+    <div>
+      <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Curriculum</h1>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ summary }}</p>
+    </div>
+    <button onClick="{{ create }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
+  </div>
+
+  <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
+    <div style="overflow-x:auto">
+      <div style="min-width:1080px">
+        <div style="display:grid; grid-template-columns:64px minmax(260px,2.4fr) 190px 180px 150px 120px 200px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+          <span>Order</span><span>AI Employee</span><span>Tier Access</span><span>Live Session</span><span>Status</span><span>Deployed</span><span style="text-align:right">Actions</span>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+          <div style="display:grid; grid-template-columns:64px minmax(260px,2.4fr) 190px 180px 150px 120px 200px; gap:12px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line-default)" style-hover="background:var(--bg-hover)">
+            <div style="display:flex; align-items:center; gap:4px">
+              <span style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary); width:16px">{{ r.order }}</span>
+              <div style="display:flex; flex-direction:column">
+                <button onClick="{{ r.up }}" title="Move up" style="width:22px; height:16px; border:0; background:transparent; color:{{ r.upFg }}; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevU }}"></path></svg></button>
+                <button onClick="{{ r.down }}" title="Move down" style="width:22px; height:16px; border:0; background:transparent; color:{{ r.downFg }}; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevD }}"></path></svg></button>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-width:0">
+              <div style="width:36px; height:36px; flex:none; border-radius:9px; background:var(--action-primary-tint); border:1px solid var(--action-primary-line); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:none; stroke:var(--text-link); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ r.icon }}"></path></svg></div>
+              <div style="min-width:0">
+                <div style="font-size:14px; font-weight:500">{{ r.name }}</div>
+                <div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.sub }}</div>
+              </div>
+            </div>
+            <div style="display:flex; padding:2px; border-radius:8px; background:var(--bg-sunken); border:1px solid var(--line-default); width:max-content">
+              <button onClick="{{ r.setAgent }}" style="height:26px; padding:0 9px; border:0; border-radius:6px; background:{{ r.aBg }}; color:{{ r.aFg }}; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap">Agent + Team</button>
+              <button onClick="{{ r.setTeam }}" style="height:26px; padding:0 9px; border:0; border-radius:6px; background:{{ r.tBg }}; color:{{ r.tFg }}; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap">Team Only</button>
+            </div>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.4">{{ r.sess }}<div style="color:var(--text-tertiary); font-size:12px">{{ r.sessSub }}</div></div>
+            <div style="display:flex; flex-direction:column; gap:3px; align-items:flex-start">
+              <span style="display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; background:{{ r.st.bg }}; color:{{ r.st.fg }}; border:1px solid {{ r.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ r.st.dot }}"></span>{{ r.st.label }}</span>
+              <span style="font-size:12px; color:var(--text-tertiary)">{{ r.stSub }}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px">
+              <div style="flex:1; height:5px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ r.dep }}; background:var(--status-success)"></div></div>
+              <span style="font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums; width:34px; text-align:right">{{ r.dep }}</span>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:6px">
+              <button onClick="{{ r.preview }}" title="Preview as learner" style="width:30px; height:30px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--text-primary); background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.eye }}"></path></svg></button>
+              <button onClick="{{ r.edit }}" title="Edit in builder" style="width:30px; height:30px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--text-primary); background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.pencil }}"></path></svg></button>
+              <button onClick="{{ r.act }}" style="height:30px; min-width:92px; padding:0 10px; border-radius:7px; border:1px solid {{ r.actBd }}; background:{{ r.actBg }}; color:{{ r.actFg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">{{ r.actLabel }}</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+  <p style="margin:0; font-size:13px; color:var(--text-tertiary)">Tier access and publish status update the learner portal immediately. Open the portal in a second tab to watch it change.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  get cx() { return this.props.ctx || (this.state && this.state.sctx) || null; }
+  bootStandalone() { if (this.props.ctx || this._sa) return; this._sa = 1; import(new URL('./lms-data.js', document.baseURI).href).then(lib => lib.standalone(this, lib, "admin", {"s":"curriculum"})); }
+  componentDidMount() { this.bootStandalone(); }
+  renderVals() {
+    const c = this.cx; if (!c || !c.db) return {};
+    const { db, lib, ic, act, staff } = c;
+    const F = lib.fmt, S = lib.STATUS, B = db.base, now = act.now();
+    const mods = lib.sortedModules(db);
+    const users = db.users.filter(u => u.status !== 'invited');
+    const move = (id, dir) => act.mutate(d => {
+      const list = d.modules.slice().sort((a, b) => a.order - b.order);
+      const i = list.findIndex(m => m.id === id), j = i + dir;
+      if (j < 0 || j >= list.length) return;
+      [list[i], list[j]] = [list[j], list[i]];
+      list.forEach((m, k) => { m.order = k + 1; });
+    });
+    const setM = (id, patch, msg) => act.mutate(d => { const m = d.modules.find(x => x.id === id); Object.assign(m, patch); if (patch.status === 'published') lib.log(d, act.now(), staff.name, `published ${m.name}`, 'info'); }, msg);
+    const rows = mods.map((m, i) => {
+      const sess = m.session ? lib.sessionFor(db, 'dec26', m.session) : null;
+      const b = B.mod[m.id] || [0, 0, 0];
+      const pool = users.filter(u => lib.canAccess(u, m));
+      const n = b[0] + b[1] + b[2] + pool.length, d = b[0] + pool.filter(u => lib.statusOf(u, m) === 'deployed').length;
+      const stMap = { published: { label: 'Published', fg: 'var(--status-success-text)', bg: 'var(--status-success-bg)', bd: 'var(--status-success-line)', dot: 'var(--status-success)'}, scheduled: { label: 'Scheduled', fg: 'var(--status-progress-text)', bg: 'var(--status-progress-bg)', bd: 'var(--status-progress-line)', dot: 'var(--status-progress)' }, draft: { ...S.none, label: 'Draft'} };
+      const team = m.tier === 'team';
+      const act_ = m.status === 'published'
+        ? { actLabel: 'Unpublish', actBg: 'transparent', actFg: 'var(--text-secondary)', actBd: 'var(--line-strong)', act: () => setM(m.id, { status: 'draft' }, `${m.name} unpublished. Learners no longer see it.`) }
+        : { actLabel: m.status === 'scheduled' ? 'Publish Now' : 'Publish', actBg: 'var(--action-primary)', actFg: 'var(--action-on-primary)', actBd: 'var(--action-primary)', act: () => setM(m.id, { status: 'published', opens: null }, `${m.name} is live in the learner portal`) };
+      return {
+        order: i + 1, name: m.name, sub: m.outcome || 'No outcome line yet', icon: ic[m.icon] || ic.bot,
+        upFg: i ? 'var(--text-tertiary)' : 'var(--text-disabled)', downFg: i < mods.length - 1 ? 'var(--text-tertiary)' : 'var(--text-disabled)', up: () => move(m.id, -1), down: () => move(m.id, 1),
+        aBg: !team ? 'var(--seg-active)' : 'transparent', aFg: !team ? 'var(--text-primary)' : 'var(--text-tertiary)', tBg: team ? 'var(--access-locked-bg)' : 'transparent', tFg: team ? 'var(--access-locked-text)' : 'var(--text-tertiary)',
+        setAgent: () => team && setM(m.id, { tier: 'agent' }, `${m.name} now included in Agent Tier`),
+        setTeam: () => !team && setM(m.id, { tier: 'team' }, `${m.name} is now Team Tier only`),
+        sess: sess ? `Session ${sess.n} · ${sess.title}` : 'Self-paced', sessSub: sess ? `${F.day(sess.start)} · ${lib.sessionState(sess, now) === 'replay' ? 'Replay ready' : F.time(sess.start)}` : 'No live session',
+        st: stMap[m.status], stSub: m.status === 'scheduled' && m.opens ? 'Opens ' + F.date(m.opens) : m.status === 'draft' ? 'Hidden from learners' : `${m.checklist.length} steps · ${m.files.length} files`,
+        dep: m.status === 'draft' || !n ? '—' : F.pct(d / n), ...act_,
+        edit: () => act.nav('builder', m.id),
+        preview: () => { act.setRole(m.tier === 'team' ? 'owner' : 'agent'); act.nav('workspace', m.id); },
+      };
+    });
+    const drafts = mods.filter(m => m.status === 'draft').length;
+    return {
+      ic, rows, summary: `${mods.length} AI Employees · ${mods.filter(m => m.tier === 'agent').length} in Agent Tier, all in Team Tier${drafts ? ` · ${drafts} draft` : ''}`,
+      create: () => act.nav('builder', null),
+    };
+  }
+}
+</script>
+</body>
+</html>

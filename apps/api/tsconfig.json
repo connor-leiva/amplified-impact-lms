@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node", "vitest/globals"],
+    "lib": ["ES2023"],
+    "paths": {
+      "@ai/core": ["../../packages/core/src/index.ts"],
+      "@ai/core/*": ["../../packages/core/src/*"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*"]
+}

@@ -1,0 +1,151 @@
+/* GENERATED verbatim from reference/*.dc.html <helmet><style>. Do not hand-edit values. */
+:root{color-scheme:light;
+--font-sans:'Hanken Grotesk',ui-sans-serif,system-ui,sans-serif;
+  --font-mono:'DM Mono',ui-monospace,monospace;
+--ink-50:oklch(0.985 0.003 85);
+  --ink-100:oklch(0.962 0.004 85);
+  --ink-200:oklch(0.925 0.005 85);
+  --ink-300:oklch(0.865 0.006 85);
+  --ink-400:oklch(0.72 0.007 85);
+  --ink-500:oklch(0.53 0.008 85);
+  --ink-600:oklch(0.42 0.008 85);
+  --ink-700:oklch(0.30 0.008 85);
+  --ink-800:oklch(0.225 0.007 85);
+  --ink-900:oklch(0.17 0.006 85);
+--paper:oklch(1 0 0);
+  --accent-h:192;
+  --accent-c:0.08;
+  --progress-h:258;
+  --progress-c:0.14;
+--bg-canvas:var(--ink-50);
+  --bg-sidebar:var(--ink-100);
+  --bg-surface:var(--paper);
+  --bg-sunken:var(--ink-50);
+  --bg-raised:var(--paper);
+  --bg-hover:var(--ink-100);
+  --bg-selected:var(--ink-100);
+  --bg-inverse:var(--ink-900);
+  --bg-overlay:oklch(0.17 0.006 85 / 0.32);
+  --bg-poster:var(--ink-900);
+--line-subtle:color-mix(in oklch,var(--ink-200) 60%,var(--ink-100));
+  --line-default:var(--ink-200);
+  --line-strong:var(--ink-300);
+--text-primary:var(--ink-900);
+  --text-secondary:var(--ink-600);
+  --text-tertiary:var(--ink-500);
+  --text-disabled:var(--ink-400);
+  --text-inverse:var(--paper);
+--action-primary:oklch(0.46 var(--accent-c) var(--accent-h));
+  --action-primary-hover:oklch(0.40 var(--accent-c) var(--accent-h));
+  --action-on-primary:var(--paper);
+  --action-primary-tint:oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h));
+  --action-primary-line:oklch(0.84 calc(var(--accent-c) * 0.6) var(--accent-h));
+--text-link:oklch(0.44 var(--accent-c) var(--accent-h));
+  --text-link-hover:oklch(0.36 var(--accent-c) var(--accent-h));
+--action-secondary:var(--paper);
+  --action-secondary-hover:var(--ink-100);
+  --action-secondary-line:var(--ink-300);
+--seg-track:var(--ink-100);
+  --seg-active:var(--paper);
+  --track:var(--ink-200);
+  --focus-ring:color-mix(in oklch,var(--action-primary) 32%,transparent);
+--status-success:oklch(0.6 0.14 145);
+  --status-success-text:oklch(0.47 0.11 145);
+  --status-success-bg:oklch(0.958 0.03 145);
+  --status-success-line:oklch(0.86 0.07 145);
+  --status-success-on:var(--ink-900);
+--status-progress:oklch(0.56 var(--progress-c) var(--progress-h));
+  --status-progress-text:oklch(0.48 var(--progress-c) var(--progress-h));
+  --status-progress-bg:oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));
+  --status-progress-line:oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+--status-neutral:var(--ink-400);
+  --status-neutral-text:var(--ink-600);
+  --status-neutral-bg:var(--ink-100);
+  --status-neutral-line:var(--ink-200);
+--status-attention:oklch(0.6 0.17 32);
+  --status-attention-text:oklch(0.5 0.15 32);
+  --status-attention-bg:oklch(0.962 0.022 32);
+  --status-attention-line:oklch(0.87 0.06 32);
+--access-locked:oklch(0.77 0.14 75);
+  --access-locked-text:oklch(0.5 0.1 65);
+  --access-locked-bg:oklch(0.966 0.032 85);
+  --access-locked-line:oklch(0.87 0.08 80);
+  --access-locked-on:var(--ink-900);
+--shadow-xs:0 1px 2px oklch(0.17 0.006 85 / 0.06);
+  --shadow-card:0 1px 2px oklch(0.17 0.006 85 / 0.04),0 8px 24px oklch(0.17 0.006 85 / 0.07);
+  --shadow-pop:0 2px 6px oklch(0.17 0.006 85 / 0.06),0 16px 40px oklch(0.17 0.006 85 / 0.12);
+  --shadow-drawer:-16px 0 48px oklch(0.17 0.006 85 / 0.12);
+--page-pad-x:32px;
+  --page-pad-top:32px}
+:root[data-accent="indigo"]{
+  --accent-h:275;
+  --accent-c:0.15;
+  --progress-h:212;
+  --progress-c:0.09}
+:root[data-accent="plum"]{
+  --accent-h:340;
+  --accent-c:0.12}
+:root[data-font="instrument"]{
+  --font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif}
+:root[data-font="schibsted"]{
+  --font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+--bg-canvas:var(--ink-900);
+  --bg-sidebar:oklch(0.15 0.006 85);
+  --bg-surface:var(--ink-800);
+  --bg-sunken:oklch(0.19 0.006 85);
+  --bg-raised:oklch(0.25 0.007 85);
+  --bg-hover:oklch(0.26 0.007 85);
+  --bg-selected:oklch(0.27 0.007 85);
+  --bg-inverse:var(--ink-50);
+  --bg-overlay:oklch(0 0 0 / 0.55);
+  --bg-poster:oklch(0.13 0.005 85);
+--line-subtle:oklch(0.26 0.007 85);
+  --line-default:var(--ink-700);
+  --line-strong:oklch(0.36 0.008 85);
+--text-primary:var(--ink-50);
+  --text-secondary:var(--ink-300);
+  --text-tertiary:var(--ink-400);
+  --text-disabled:var(--ink-500);
+  --text-inverse:var(--ink-900);
+--action-primary:oklch(0.56 var(--accent-c) var(--accent-h));
+  --action-primary-hover:oklch(0.62 var(--accent-c) var(--accent-h));
+  --action-primary-tint:oklch(0.6 var(--accent-c) var(--accent-h) / 0.16);
+  --action-primary-line:oklch(0.6 var(--accent-c) var(--accent-h) / 0.45);
+--text-link:oklch(0.78 var(--accent-c) var(--accent-h));
+  --text-link-hover:oklch(0.86 var(--accent-c) var(--accent-h));
+--action-secondary:oklch(0.25 0.007 85);
+  --action-secondary-hover:oklch(0.29 0.007 85);
+  --action-secondary-line:oklch(0.36 0.008 85);
+--seg-track:oklch(0.19 0.006 85);
+  --seg-active:oklch(0.29 0.007 85);
+  --track:oklch(0.3 0.008 85);
+--status-success:oklch(0.7 0.14 145);
+  --status-success-text:oklch(0.8 0.12 145);
+  --status-success-bg:oklch(0.7 0.14 145 / 0.14);
+  --status-success-line:oklch(0.7 0.14 145 / 0.38);
+--status-progress:oklch(0.68 var(--progress-c) var(--progress-h));
+  --status-progress-text:oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));
+  --status-progress-bg:oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);
+  --status-progress-line:oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+--status-neutral:var(--ink-500);
+  --status-neutral-text:var(--ink-300);
+  --status-neutral-bg:oklch(0.3 0.008 85 / 0.6);
+  --status-neutral-line:var(--ink-700);
+--status-attention:oklch(0.68 0.16 32);
+  --status-attention-text:oklch(0.8 0.11 32);
+  --status-attention-bg:oklch(0.68 0.16 32 / 0.14);
+  --status-attention-line:oklch(0.68 0.16 32 / 0.4);
+--access-locked:oklch(0.79 0.14 75);
+  --access-locked-text:oklch(0.85 0.12 80);
+  --access-locked-bg:oklch(0.79 0.14 75 / 0.12);
+  --access-locked-line:oklch(0.79 0.14 75 / 0.36);
+--shadow-xs:none;
+  --shadow-card:0 8px 24px oklch(0 0 0 / 0.35);
+  --shadow-pop:0 16px 40px oklch(0 0 0 / 0.5);
+  --shadow-drawer:-16px 0 48px oklch(0 0 0 / 0.45)}
+@media (max-width:1279px){:root{
+  --page-pad-x:24px}}
+@media (max-width:767px){:root{
+  --page-pad-x:16px;
+  --page-pad-top:24px}}
