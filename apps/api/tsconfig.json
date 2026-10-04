@@ -6,7 +6,11 @@
     // so extensionless relative and workspace specifiers are correct here. NodeNext would demand
     // explicit .js extensions and make `@ai/core` unresolvable from this package.
     "types": ["node", "vitest/globals"],
-    "lib": ["ES2023"],
+    // The email templates are React Email components (phase 08 section 8.1), so this package
+    // compiles .tsx. "dom" is in `lib` for the same reason: @react-email/render renders to an HTML
+    // string and its types reach for DOM element interfaces, though nothing here touches a document.
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM"],
     "paths": {
       "@ai/core": ["../../packages/core/src/index.ts"],
       "@ai/core/*": ["../../packages/core/src/*"]

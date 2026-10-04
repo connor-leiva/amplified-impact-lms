@@ -19,6 +19,7 @@
     "@fontsource/schibsted-grotesk": "^5.2.8",
     "@tanstack/react-query": "^5.104.1",
     "clsx": "^2.1.1",
+    "hls.js": "^1.7.3",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0"
