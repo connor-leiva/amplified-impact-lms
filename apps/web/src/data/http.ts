@@ -8,9 +8,18 @@ import type { LmsRepository, MutationArgs, MutationName, MutationResult, Viewer 
  * A 422 carries a validation message the form renders inline, exactly like the fixture path, so
  * `{ error }` is returned rather than thrown. Any other non-OK status is a real failure.
  */
+/**
+ * The 401 redirect, behind one indirection so `http.test.ts` can observe that it happens: in jsdom
+ * `location.assign` is an unforgeable own property that cannot be spied on or replaced. A full page
+ * load is deliberate — it discards every cached snapshot belonging to the session that just ended.
+ */
+export const navigation = {
+  toSignIn: () => location.assign('/sign-in'),
+};
+
 async function parse(res: Response): Promise<unknown> {
   if (res.status === 401) {
-    location.assign('/sign-in');
+    navigation.toSignIn();
     throw new Error('Not signed in');
   }
   const body = (await res.json().catch(() => ({}))) as { error?: string };

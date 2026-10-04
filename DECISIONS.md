@@ -474,6 +474,37 @@ that test until someone decides which it is.
 
 ---
 
+## D-018 · In http mode a cohort's enrolment is the row count, so the admin numbers change
+
+**Date:** 2026-10-04
+**Approved by:** `docs/phases/07-backend.md` § 7.2, which stores no `enrolled` column, and the Gate 7
+checklist, which runs **portal** parity in http mode and leaves admin parity on the fixture.
+**Scope:** `apps/api/src/db/codec.ts`, `apps/web/src/routes/admin/Cohorts.*`
+
+The fixture's December cohort reads `enrolled: 148` while the seed models 14 learners individually;
+the other 134 are `db.base`, the aggregate that makes the demo's analytics look like a real cohort.
+§ 7.2 has no column for `enrolled`, so `loadDb` recounts it from the user rows — and § 7.4 returns
+`base: ZERO_BASE` — which means a database seeded from `seed('live')` shows **14 / 200**, not
+148 / 200, and the admin Overview analytics shrink to the modelled learners too.
+
+This is correct, not a regression: in production every learner is a row, so the count is the whole
+truth, and a stored copy could only ever drift from it. It is recorded because the two numbers look
+like a bug side by side.
+
+It does not put Gate 7 at risk. No portal screen reads `base` or `enrolled` — verified by grep
+across `routes/portal` and `packages/core` — and Gate 7 runs only the portal scenarios in http mode
+against the same goldens, with admin covered by fixture parity plus the API oracle tests. The two
+readers of `db.base` inside `mutations.ts` (`learnerCount`, and the admin analytics) see the same
+zero baseline on both sides of the oracle comparison, so they agree.
+
+**Open:** the Gate 7 checklist's *Parity in http mode* note mentions seeding the test database "including the `base` aggregates
+(test env only, via `SEED_WITH_BASELINE=1`)". There is no table for `base`, so that flag can only
+mean materialising the 134 as real `users` and `progress` rows. Nothing portal-visible needs it, so
+it is deferred rather than guessed at: if admin parity is ever wanted in http mode, that is the
+thing to build.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:

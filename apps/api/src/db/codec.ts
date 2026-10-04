@@ -1,0 +1,672 @@
+// Snapshot ⇄ rows, phase 07 § 7.3 — the pure half.
+//
+// `loadDb(tx)` and `persistDiff(tx, before, after)` are two thin wrappers over the three functions
+// here, which touch no database and can therefore be tested exhaustively:
+//
+//   toRows(db)                 a `Db` as the rows that represent it
+//   fromRows(rows)             those rows back as a `Db`
+//   diffRows(before, after)    the upserts and deletes that turn one set of rows into the other
+//
+// `fromRows(toRows(db))` must equal `db` for every snapshot core can produce. That round trip is
+// the whole guard against the failure § 7.3 exists to prevent: a field that every screen renders
+// from the fixture and that silently never survives a write.
+//
+// Three columns are deliberately NOT produced by `toRows`, which is what keeps a snapshot write
+// from clobbering them:
+//   - `users.prefs`           the viewer's own timezone and theme. `Db` does not model it at all;
+//                             § 7.5 reads and writes it through /api/me and /api/me/prefs.
+//   - `resources.storage_key` the object-store key. § 7.4 strips it from every snapshot, so a
+//                             snapshot is by definition not where it comes from.
+//   - the auth tables         `auth_tokens` and `auth_sessions` are not in `Db` either.
+// An upsert must therefore set only the keys a row from `toRows` actually carries. Nothing here
+// can enforce that for the caller, so `COLUMNS_OWNED` states it and `codec.test.ts` pins it.
+//
+// `Db.v`, `Db.phase` and `Db.base` are snapshot metadata, not rows. `fromRows` returns `v: DB_V`
+// and `base: ZERO_BASE`, and no `phase` at all — `phase` is the sales demo's time machine, and a
+// real cohort moves through its dates on its own. `Dashboard.vm.ts` already reads an absent phase
+// as `'live'`, which is the correct answer for production.
+
+import { DB_V, ZERO_BASE } from '@ai/core';
+import type {
+  AIEmployee,
+  ActivityEvent,
+  Announcement,
+  Cohort,
+  Db,
+  Learner,
+  PermKey,
+  Progress,
+  Reminder,
+  Resource,
+  Session,
+  Staff,
+  StaffRole,
+  Team,
+  TierDef,
+  UpgradeRequest,
+} from '@ai/core';
+
+/** One row, keyed by the Drizzle property names in `schema.ts` — not the database column names. */
+export type Row = Record<string, unknown>;
+
+export type TableName =
+  | 'users'
+  | 'teams'
+  | 'cohorts'
+  | 'sessions'
+  | 'modules'
+  | 'progress'
+  | 'resources'
+  | 'announcements'
+  | 'dismissals'
+  | 'reminders'
+  | 'tiers'
+  | 'requests'
+  | 'permissions'
+  | 'activity';
+
+export type Rows = Record<TableName, Row[]>;
+
+/** The primary key of each table, as `schema.ts` declares it. `diffRows` matches rows by it. */
+export const KEYS: Record<TableName, readonly string[]> = {
+  users: ['id'],
+  teams: ['id'],
+  cohorts: ['id'],
+  sessions: ['id'],
+  modules: ['id'],
+  progress: ['userId', 'moduleId'],
+  resources: ['id'],
+  announcements: ['id'],
+  dismissals: ['userId', 'announcementId'],
+  reminders: ['id'],
+  tiers: ['id'],
+  requests: ['id'],
+  permissions: ['role', 'perm'],
+  activity: ['id'],
+};
+
+/**
+ * What `loadDb` must ORDER BY, per table.
+ *
+ * Array order reaches the screens: the Curriculum list is in `order`, the session rail is in `n`,
+ * and the activity feed is newest first. Postgres returns rows in no particular order, so without
+ * this the same database would render differently from one request to the next.
+ */
+export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc' }[]> = {
+  users: [{ by: 'id', dir: 'asc' }],
+  teams: [{ by: 'id', dir: 'asc' }],
+  cohorts: [{ by: 'start', dir: 'asc' }],
+  sessions: [{ by: 'n', dir: 'asc' }],
+  modules: [{ by: 'order', dir: 'asc' }],
+  progress: [
+    { by: 'userId', dir: 'asc' },
+    { by: 'moduleId', dir: 'asc' },
+  ],
+  resources: [{ by: 'id', dir: 'asc' }],
+  announcements: [{ by: 'at', dir: 'desc' }],
+  dismissals: [
+    { by: 'userId', dir: 'asc' },
+    { by: 'announcementId', dir: 'asc' },
+  ],
+  reminders: [{ by: 'id', dir: 'asc' }],
+  tiers: [{ by: 'id', dir: 'asc' }],
+  requests: [{ by: 'at', dir: 'desc' }],
+  permissions: [
+    { by: 'role', dir: 'asc' },
+    { by: 'perm', dir: 'asc' },
+  ],
+  activity: [{ by: 't', dir: 'desc' }],
+};
+
+/**
+ * The columns a snapshot owns, per table. An upsert built from `toRows` must set exactly these and
+ * nothing else; any column of the table not listed here holds data a snapshot never carries.
+ */
+export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
+  users: [
+    'id',
+    'email',
+    'name',
+    'kind',
+    'tier',
+    'role',
+    'teamId',
+    'cohortId',
+    'joined',
+    'last',
+    'status',
+    'reminded',
+    'nudged',
+    'staffRole',
+  ],
+  teams: ['id', 'name', 'ownerId', 'seats'],
+  cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence'],
+  sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom'],
+  modules: [
+    'id',
+    'name',
+    'short',
+    'tier',
+    'icon',
+    'forWho',
+    'headline',
+    'outcome',
+    'outputs',
+    'platform',
+    'runLabel',
+    'build',
+    'session',
+    'status',
+    'opens',
+    'order',
+    'dur',
+    'instructor',
+    'transcript',
+    'notes',
+    'prompt',
+    'files',
+    'resources',
+    'checklist',
+    'runDemo',
+  ],
+  progress: ['userId', 'moduleId', 'steps', 'builtAt', 'deployedAt', 'runtime', 'issue', 'lastRun'],
+  resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status'],
+  announcements: [
+    'id',
+    'sessionId',
+    'title',
+    'body',
+    'severity',
+    'action',
+    'actionLabel',
+    'audience',
+    'channels',
+    'status',
+    'at',
+    'opens',
+  ],
+  dismissals: ['userId', 'announcementId'],
+  reminders: ['id', 'label', 'channel', 'on'],
+  tiers: ['id', 'name', 'price', 'seats', 'blurb', 'features'],
+  requests: ['id', 'userId', 'name', 'email', 'source', 'at', 'status'],
+  permissions: ['role', 'perm', 'allowed'],
+  activity: ['id', 't', 'who', 'what', 'tone'],
+};
+
+// ---------------------------------------------------------------------------
+// Optionality
+// ---------------------------------------------------------------------------
+
+/** An absent optional field becomes an explicit null column. */
+const col = <T>(v: T | undefined): T | null => (v === undefined ? null : v);
+
+/**
+ * A null column becomes an ABSENT key, never a key holding `undefined`.
+ *
+ * The distinction is real: `Learner.reminded` is `reminded?: number`, and the fixture snapshots
+ * carry no such key until something sets one. Writing `reminded: undefined` instead would differ
+ * from the fixture under `JSON.stringify`, which is how the repository broadcasts and how the
+ * oracle tests compare.
+ */
+function withOptional<T>(base: T, optional: Record<string, unknown>): T {
+  const out = base as Record<string, unknown>;
+  for (const [k, v] of Object.entries(optional)) if (v !== null && v !== undefined) out[k] = v;
+  return out as T;
+}
+
+/** `Db.dismissed` is keyed `"userId:announcementId"`; ids never contain a colon. */
+const splitDismissal = (key: string): [string, string] | null => {
+  const at = key.indexOf(':');
+  return at <= 0 || at === key.length - 1 ? null : [key.slice(0, at), key.slice(at + 1)];
+};
+
+// ---------------------------------------------------------------------------
+// Db → rows
+// ---------------------------------------------------------------------------
+
+const learnerRow = (u: Learner): Row => ({
+  id: u.id,
+  email: u.email,
+  name: u.name,
+  kind: 'learner',
+  tier: u.tier,
+  role: u.role,
+  teamId: u.teamId,
+  cohortId: u.cohortId,
+  joined: u.joined,
+  last: u.last,
+  status: u.status,
+  reminded: col(u.reminded),
+  nudged: col(u.nudged),
+  staffRole: null,
+});
+
+/** Staff share the `users` table, discriminated by `kind`; every learner-only column is null. */
+const staffRow = (s: Staff): Row => ({
+  id: s.id,
+  email: s.email,
+  name: s.name,
+  kind: 'staff',
+  tier: null,
+  role: null,
+  teamId: null,
+  cohortId: null,
+  joined: null,
+  last: s.last,
+  status: null,
+  reminded: null,
+  nudged: null,
+  staffRole: s.role,
+});
+
+const progressRow = (userId: string, moduleId: string, p: Progress): Row => ({
+  userId,
+  moduleId,
+  steps: p.steps,
+  builtAt: p.builtAt,
+  deployedAt: p.deployedAt,
+  runtime: p.runtime,
+  issue: col(p.issue),
+  lastRun: col(p.lastRun),
+});
+
+/** `enrolled` is derived, never stored: a stored copy could only ever disagree with the seat math. */
+const cohortRow = (c: Cohort): Row => ({
+  id: c.id,
+  name: c.name,
+  start: c.start,
+  end: c.end,
+  weeks: col(c.weeks),
+  status: c.status,
+  capacity: c.capacity,
+  cadence: c.cadence,
+});
+
+const sessionRow = (s: Session): Row => ({
+  id: s.id,
+  cohortId: s.cohortId,
+  n: s.n,
+  title: s.title,
+  start: s.start,
+  mins: s.mins,
+  zoom: s.zoom,
+  live: s.live,
+  attended: s.attended,
+  replay: s.replay,
+  views: s.views,
+  movedFrom: col(s.movedFrom),
+});
+
+const moduleRow = (m: AIEmployee): Row => ({
+  id: m.id,
+  name: m.name,
+  short: m.short,
+  tier: m.tier,
+  icon: m.icon,
+  forWho: m.forWho,
+  headline: m.headline,
+  outcome: m.outcome,
+  outputs: m.outputs,
+  platform: m.platform,
+  runLabel: m.runLabel,
+  build: m.build,
+  session: m.session,
+  status: m.status,
+  opens: m.opens,
+  order: m.order,
+  dur: m.dur,
+  instructor: m.instructor,
+  transcript: m.transcript,
+  notes: m.notes,
+  prompt: m.prompt,
+  files: m.files,
+  resources: m.resources,
+  checklist: m.checklist,
+  runDemo: col(m.runDemo),
+});
+
+/** `storageKey` is absent on purpose — see the header. */
+const resourceRow = (r: Resource): Row => ({
+  id: r.id,
+  title: r.title,
+  desc: r.desc,
+  cat: r.cat,
+  type: r.type,
+  tier: r.tier,
+  size: r.size,
+  dl: r.dl,
+  updated: r.updated,
+  exec: r.exec,
+  status: r.status,
+});
+
+/**
+ * `opens_pct` holds whole percent; `Announcement.opens` holds the fraction `fmt.pct` renders.
+ * D-017. The conversion lives here, in both directions, and nowhere else.
+ */
+const announcementRow = (a: Announcement): Row => ({
+  id: a.id,
+  sessionId: col(a.sessionId),
+  title: a.title,
+  body: a.body,
+  severity: a.severity,
+  action: a.action,
+  actionLabel: a.actionLabel,
+  audience: a.audience,
+  channels: a.channels,
+  status: a.status,
+  at: a.at,
+  opens: a.opens === null ? null : Math.round(a.opens * 100),
+});
+
+export function toRows(db: Db): Rows {
+  const progress: Row[] = [];
+  for (const u of db.users) {
+    for (const [moduleId, p] of Object.entries(u.progress)) progress.push(progressRow(u.id, moduleId, p));
+  }
+
+  const dismissals: Row[] = [];
+  for (const key of Object.keys(db.dismissed ?? {})) {
+    const pair = splitDismissal(key);
+    if (pair) dismissals.push({ userId: pair[0], announcementId: pair[1] });
+  }
+
+  const permissions: Row[] = [];
+  for (const [role, byPerm] of Object.entries(db.perms ?? {})) {
+    for (const [perm, allowed] of Object.entries(byPerm ?? {})) {
+      permissions.push({ role, perm, allowed: allowed === 1 });
+    }
+  }
+
+  return {
+    users: [...db.users.map(learnerRow), ...db.staff.map(staffRow)],
+    teams: db.teams.map((t) => ({ id: t.id, name: t.name, ownerId: t.ownerId, seats: t.seats })),
+    cohorts: db.cohorts.map(cohortRow),
+    sessions: db.sessions.map(sessionRow),
+    modules: db.modules.map(moduleRow),
+    progress,
+    resources: db.resources.map(resourceRow),
+    announcements: db.announcements.map(announcementRow),
+    dismissals,
+    reminders: db.reminders.map((r) => ({ id: r.id, label: r.label, channel: r.channel, on: r.on })),
+    tiers: db.tiers.map((t) => ({
+      id: t.id,
+      name: t.name,
+      price: t.price,
+      seats: t.seats,
+      blurb: t.blurb,
+      features: t.features,
+    })),
+    requests: db.requests.map((q) => ({
+      id: q.id,
+      userId: q.userId,
+      name: q.name,
+      email: q.email,
+      source: q.source,
+      at: q.at,
+      status: q.status,
+    })),
+    permissions,
+    activity: db.activity.map((e) => ({ id: e.id, t: e.t, who: e.who, what: e.what, tone: e.tone })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// rows → Db
+// ---------------------------------------------------------------------------
+
+/** Rows arrive from the driver as `unknown`; every read below is one of these three casts. */
+const str = (v: unknown): string => v as string;
+const num = (v: unknown): number => v as number;
+
+export function fromRows(rows: Rows): Db {
+  const progressByUser = new Map<string, Record<string, Progress>>();
+  for (const r of rows.progress) {
+    const forUser = progressByUser.get(str(r.userId)) ?? {};
+    forUser[str(r.moduleId)] = withOptional<Progress>(
+      {
+        steps: r.steps as string[],
+        builtAt: r.builtAt as number | null,
+        deployedAt: r.deployedAt as number | null,
+        runtime: r.runtime as Progress['runtime'],
+      },
+      { issue: r.issue, lastRun: r.lastRun },
+    );
+    progressByUser.set(str(r.userId), forUser);
+  }
+
+  const users: Learner[] = rows.users
+    .filter((r) => r.kind === 'learner')
+    .map((r) =>
+      withOptional<Learner>(
+        {
+          id: str(r.id),
+          name: str(r.name),
+          email: str(r.email),
+          tier: r.tier as Learner['tier'],
+          role: r.role as Learner['role'],
+          teamId: r.teamId as string | null,
+          cohortId: str(r.cohortId),
+          joined: num(r.joined),
+          last: r.last as number | null,
+          status: r.status as Learner['status'],
+          progress: progressByUser.get(str(r.id)) ?? {},
+        },
+        { reminded: r.reminded, nudged: r.nudged },
+      ),
+    );
+
+  const staff: Staff[] = rows.users
+    .filter((r) => r.kind === 'staff')
+    .map((r) => ({
+      id: str(r.id),
+      name: str(r.name),
+      email: str(r.email),
+      role: r.staffRole as StaffRole,
+      last: r.last as number | null,
+    }));
+
+  // Derived, per § 7.2: the number of learners whose cohort it is.
+  const enrolled = new Map<string, number>();
+  for (const u of users) enrolled.set(u.cohortId, (enrolled.get(u.cohortId) ?? 0) + 1);
+
+  const dismissed: Record<string, 1> = {};
+  for (const r of rows.dismissals) dismissed[`${str(r.userId)}:${str(r.announcementId)}`] = 1;
+
+  const perms = {} as Db['perms'];
+  for (const r of rows.permissions) {
+    const role = r.role as StaffRole;
+    const byPerm = (perms[role] ?? {}) as Record<PermKey, 0 | 1>;
+    byPerm[r.perm as PermKey] = r.allowed ? 1 : 0;
+    perms[role] = byPerm;
+  }
+
+  return {
+    v: DB_V,
+    cohorts: rows.cohorts.map((r) =>
+      withOptional<Cohort>(
+        {
+          id: str(r.id),
+          name: str(r.name),
+          start: num(r.start),
+          end: num(r.end),
+          status: r.status as Cohort['status'],
+          capacity: num(r.capacity),
+          enrolled: enrolled.get(str(r.id)) ?? 0,
+          cadence: str(r.cadence),
+        },
+        { weeks: r.weeks },
+      ),
+    ),
+    sessions: rows.sessions.map((r) =>
+      withOptional<Session>(
+        {
+          id: str(r.id),
+          cohortId: str(r.cohortId),
+          n: num(r.n),
+          title: str(r.title),
+          start: num(r.start),
+          mins: num(r.mins),
+          zoom: str(r.zoom),
+          live: r.live as boolean,
+          attended: r.attended as number | null,
+          replay: r.replay as Session['replay'],
+          views: num(r.views),
+        },
+        { movedFrom: r.movedFrom },
+      ),
+    ),
+    modules: rows.modules.map((r) =>
+      withOptional<AIEmployee>(
+        {
+          id: str(r.id),
+          name: str(r.name),
+          short: str(r.short),
+          tier: r.tier as AIEmployee['tier'],
+          icon: r.icon as AIEmployee['icon'],
+          forWho: str(r.forWho),
+          headline: str(r.headline),
+          outcome: str(r.outcome),
+          outputs: r.outputs as string[],
+          platform: str(r.platform),
+          runLabel: str(r.runLabel),
+          build: num(r.build),
+          session: r.session as number | null,
+          status: r.status as AIEmployee['status'],
+          opens: r.opens as number | null,
+          order: num(r.order),
+          dur: num(r.dur),
+          instructor: str(r.instructor),
+          transcript: r.transcript as AIEmployee['transcript'],
+          notes: str(r.notes),
+          prompt: str(r.prompt),
+          files: r.files as AIEmployee['files'],
+          resources: r.resources as AIEmployee['resources'],
+          checklist: r.checklist as AIEmployee['checklist'],
+        },
+        { runDemo: r.runDemo },
+      ),
+    ),
+    users,
+    teams: rows.teams.map(
+      (r): Team => ({ id: str(r.id), name: str(r.name), ownerId: str(r.ownerId), seats: num(r.seats) }),
+    ),
+    resources: rows.resources.map(
+      (r): Resource => ({
+        id: str(r.id),
+        title: str(r.title),
+        desc: str(r.desc),
+        cat: str(r.cat),
+        type: str(r.type),
+        tier: r.tier as Resource['tier'],
+        size: str(r.size),
+        dl: num(r.dl),
+        updated: num(r.updated),
+        exec: r.exec as boolean,
+        status: r.status as Resource['status'],
+      }),
+    ),
+    announcements: rows.announcements.map((r) =>
+      withOptional<Announcement>(
+        {
+          id: str(r.id),
+          title: str(r.title),
+          body: str(r.body),
+          severity: r.severity as Announcement['severity'],
+          action: r.action as Announcement['action'],
+          actionLabel: str(r.actionLabel),
+          audience: r.audience as Announcement['audience'],
+          channels: r.channels as Announcement['channels'],
+          status: r.status as Announcement['status'],
+          at: num(r.at),
+          opens: r.opens === null || r.opens === undefined ? null : num(r.opens) / 100,
+        },
+        { sessionId: r.sessionId },
+      ),
+    ),
+    dismissed,
+    reminders: rows.reminders.map(
+      (r): Reminder => ({ id: str(r.id), label: str(r.label), channel: str(r.channel), on: r.on as boolean }),
+    ),
+    tiers: rows.tiers.map(
+      (r): TierDef => ({
+        id: r.id as TierDef['id'],
+        name: str(r.name),
+        price: num(r.price),
+        seats: num(r.seats),
+        blurb: str(r.blurb),
+        features: r.features as string[],
+      }),
+    ),
+    requests: rows.requests.map(
+      (r): UpgradeRequest => ({
+        id: str(r.id),
+        userId: r.userId as string | null,
+        name: str(r.name),
+        email: str(r.email),
+        source: str(r.source),
+        at: num(r.at),
+        status: r.status as UpgradeRequest['status'],
+      }),
+    ),
+    staff,
+    perms,
+    base: structuredClone(ZERO_BASE),
+    activity: rows.activity.map(
+      (r): ActivityEvent => ({
+        id: str(r.id),
+        t: num(r.t),
+        who: str(r.who),
+        what: str(r.what),
+        tone: r.tone as ActivityEvent['tone'],
+      }),
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// The diff
+// ---------------------------------------------------------------------------
+
+export interface Change {
+  table: TableName;
+  op: 'upsert' | 'delete';
+  /** The primary key, always. For a delete this is the whole instruction. */
+  key: Row;
+  /** The full row to write. Present on an upsert only. */
+  row?: Row;
+}
+
+const keyOf = (table: TableName, row: Row): Row =>
+  Object.fromEntries(KEYS[table].map((k) => [k, row[k]])) as Row;
+
+/** Stable regardless of key order, so a re-encoded identical row never reads as a change. */
+const identity = (row: Row): string =>
+  JSON.stringify(Object.keys(row).sort().map((k) => [k, row[k]]));
+
+/**
+ * Only what changed. Order is stable and deletes come last per table, so applying the result is
+ * deterministic and a row re-created under the same key is an upsert, not a delete-then-insert.
+ */
+export function diffRows(before: Rows, after: Rows): Change[] {
+  const out: Change[] = [];
+  for (const table of Object.keys(KEYS) as TableName[]) {
+    const old = new Map<string, Row>();
+    for (const row of before[table]) old.set(identity(keyOf(table, row)), row);
+
+    const seen = new Set<string>();
+    for (const row of after[table]) {
+      const k = identity(keyOf(table, row));
+      seen.add(k);
+      const was = old.get(k);
+      if (!was || identity(was) !== identity(row)) out.push({ table, op: 'upsert', key: keyOf(table, row), row });
+    }
+    for (const [k, row] of old) {
+      if (!seen.has(k)) out.push({ table, op: 'delete', key: keyOf(table, row) });
+    }
+  }
+  return out;
+}
+
+/** What `persistDiff` does, minus the transaction: the changes between two snapshots. */
+export const diffSnapshot = (before: Db, after: Db): Change[] => diffRows(toRows(before), toRows(after));
