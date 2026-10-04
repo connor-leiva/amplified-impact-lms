@@ -1,0 +1,74 @@
+name: post-deploy
+# Phase 09 § 9.3, step 7. The compliance suite is normally proof that a COMMIT matches the
+# reference; this runs the same suite against what is actually deployed, which is a different
+# question and the one that catches an environment problem — a missing variable, a stale build, a
+# bucket with the wrong credentials, a certificate that expired.
+#
+# It runs against `demo` rather than production for a deliberate reason: the demo environment is
+# the fixture data source, so it renders the prototype's own seed and the committed goldens apply
+# to it directly. Production holds real learners, whose dashboards no golden could ever match.
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 14 * * *' # 08:00 CT, give or take DST — see DECISIONS.md's open DST question
+
+concurrency:
+  group: post-deploy
+  cancel-in-progress: true
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    # Pinned to the same image as the `goldens` and `compliance` jobs in ci.yml. It must stay in
+    # lockstep: the authoritative screenshots are captured in this exact container, and a different
+    # Chromium rasterizes text differently enough to fail 60 of 98 images (D-020).
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    env:
+      APP_URL: https://demo.amplifiedimpact.io
+      # Explicit, never inferred. This job runs in the Linux container, so it must compare against
+      # the authoritative Linux screenshots (D-020).
+      GOLDEN_PLATFORM: linux
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable && pnpm i --frozen-lockfile
+      # `.phase` records the highest shipped phase; parity runs every scenario at or below it, so
+      # this stays honest as the build advances instead of silently checking an old subset.
+      - id: phase
+        run: echo "gate=$(cat .phase)" >> "$GITHUB_OUTPUT"
+      - name: Full compliance suite against the live demo environment
+        # compliance/playwright.config.ts starts a local app server only when APP_URL is unset, so
+        # setting it points every scenario at the deployed site. The reference server still runs
+        # locally — it is the oracle and is served from the repository.
+        run: pnpm compliance && pnpm e2e
+        env:
+          GATE: ${{ steps.phase.outputs.gate }}
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deploy-demo-report
+          path: compliance/report
+          retention-days: 14
+
+  staging:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    env:
+      APP_URL: https://staging.amplifiedimpact.io
+      GOLDEN_PLATFORM: linux
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable && pnpm i --frozen-lockfile
+      # Staging runs the http data source against its own Postgres, so its content is whatever is
+      # in that database and no golden applies. What IS checkable is that the deployment is alive
+      # and its public surface is sound: health, the sign-in page, and axe. Hence @smoke rather
+      # than the parity suite.
+      - name: Staging smoke — health, the sign-in page, and accessibility
+        run: pnpm e2e --grep @smoke
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deploy-staging-report
+          path: compliance/report
+          retention-days: 14

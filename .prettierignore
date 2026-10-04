@@ -4,3 +4,5 @@ compliance/goldens/
 pnpm-lock.yaml
 apps/web/src/styles/tokens.css
 apps/web/src/styles/global.css
+# Generated: a reformat would break the byte-for-byte test in tokens.test.ts (D-021).
+apps/api/src/email/tokens.ts

@@ -12,6 +12,7 @@ export * from './cards';
 export * from './files';
 export * from './tiers';
 export * from './seed';
+export * from './seed-production';
 export * from './can';
 export * from './scope';
 export * from './vtt';
