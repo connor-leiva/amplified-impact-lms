@@ -505,6 +505,34 @@ thing to build.
 
 ---
 
+## D-019 · The dev and test database is `ai_lms_dev`, a second database in the same Railway instance
+
+**Date:** 2026-10-04
+**Approved by:** the user, who provisioned the Postgres service and supplied its public URL for
+this purpose.
+**Scope:** `apps/api/.env` (gitignored), the Gate 7 oracle tests, `.github/workflows/ci.yml`
+
+Gate 7's oracle tests call `resetDatabase(seedForDatabase('live'))` in a `beforeEach` — once per
+mutation, 37 times per run — which truncates every table. Aimed at the database the deployed Web
+service reads, that is a data-loss bug waiting for the first run against a populated environment.
+
+So development and tests use a **separate database inside the same instance**: `ai_lms_dev`. The
+Web service reads `DATABASE_URL` as a Railway reference to the Postgres service's own internal URL,
+which resolves to the `railway` database; nothing in the repository or in any developer's `.env`
+points there. Local credentials live only in `apps/api/.env`, which `.gitignore` line 15 excludes.
+
+**PostgreSQL 18.6, not 16.** `docs/phases/07-backend.md` § 7.1 names Postgres 16 and the CI job was
+pinned to `postgres:16`. Railway provisioned 18.6, so CI now runs `postgres:18`: a CI database on a
+different major version from production tests the wrong thing. Nothing the schema uses —
+`bigint`, `jsonb`, `pgEnum`, composite primary keys, advisory locks — differs between the two.
+
+The first migration is applied and verified against the live database: 16 tables, `tier` and
+`module_status` with their values in order, and composite primary keys on `dismissals`,
+`permissions` and `progress`. Running `db:migrate` a second time is a no-op, which is what a
+redeploy does.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:
