@@ -1,4 +1,4 @@
-import type { Db, Outcome } from '@ai/core';
+import type { Db, MutationArgs, MutationName, Outcome } from '@ai/core';
 import type { Actor } from '@ai/core/mutations';
 import * as M from '@ai/core/mutations';
 
@@ -9,12 +9,10 @@ import * as M from '@ai/core/mutations';
  * and the sales demo; `HttpRepository` (phase 07) talks to the API. Screens never know which.
  */
 
-/** Every exported mutation name. `MutationError` is a class, not a mutation, so it is excluded. */
-export type MutationName = {
-  [K in keyof typeof M]: (typeof M)[K] extends (...args: never[]) => unknown ? K : never;
-}[keyof typeof M];
-
-export type MutationArgs<K extends MutationName> = Parameters<(typeof M)[K]>[2];
+// The catalog types live in `@ai/core/catalog` so that these screens and the API's request schemas
+// derive them from the same `mutations.ts`; re-exported here because this is where the screens
+// import the rest of the seam from.
+export type { MutationArgs, MutationName };
 
 /** What a mutation hands back to the UI. The new Db is applied by the repository, not the caller. */
 export type MutationResult = Omit<Outcome, 'db'>;

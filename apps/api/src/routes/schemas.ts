@@ -1,0 +1,204 @@
+// Request validation for POST /api/mutate/:name, phase 07 § 7.3.
+//
+// One schema per mutation in the phase 02 catalog. The registry's type is the point:
+//
+//   const SCHEMAS: { [K in MutationName]: z.ZodType<MutationArgs<K>> }
+//
+// so `tsc` proves every mutation has a schema AND that each schema's output is exactly the
+// argument type that mutation declares. A field added to a mutation's args in `@ai/core` fails the
+// typecheck here until the schema catches up — which is the only reason to keep the schemas in one
+// file rather than beside each route.
+//
+// Every object is strict: an unexpected key is a 400, not something silently dropped. The client
+// is our own view-models, so an unknown key means the two have drifted and the loud answer is the
+// useful one.
+//
+// What these schemas do NOT do is authorize. They decide whether a payload is well formed; whether
+// this actor may send it is `can()` and `requirePerm()` inside the mutation, and the oracle and
+// authorization-matrix tests in Gate 7 cover that.
+import { z } from 'zod';
+import { ICONS, PERMS, STAFF_ROLES } from '@ai/core';
+import type { IconName, PermKey, StaffRole } from '@ai/core';
+import type { MutationArgs, MutationName } from '@ai/core';
+
+// --- shared leaves ---------------------------------------------------------
+
+/** An id the client echoes back from a snapshot. Non-empty is all the shape there is. */
+const id = z.string().min(1);
+const tier = z.enum(['agent', 'team']);
+const moduleStatus = z.enum(['draft', 'scheduled', 'published']);
+const runtime = z.enum(['deployed', 'paused', 'needs_attention']);
+const learnerRole = z.enum(['Agent', 'Team Owner', 'Operations Lead', 'Sales Agent']);
+/** Only these three can be handed out by an invite; `Agent` is what an unteamed learner already is. */
+const invitableRole = z.enum(['Operations Lead', 'Sales Agent', 'Team Owner']);
+/**
+ * These three are checked against the real exports rather than against a copy of their values, so
+ * adding a staff role, a permission or an icon to `@ai/core` cannot leave a stale list behind here.
+ * `z.enum` would need a literal tuple and would be exactly such a copy.
+ */
+const staffRole = z.custom<StaffRole>(
+  (v) => typeof v === 'string' && (STAFF_ROLES as readonly string[]).includes(v),
+  'Unknown staff role',
+);
+const permKey = z.custom<PermKey>(
+  (v) => typeof v === 'string' && PERMS.some(([k]) => k === v),
+  'Unknown permission',
+);
+/** The only icon set that exists; CLAUDE.md allows no icon library to add to it. */
+const iconName = z.custom<IconName>(
+  (v) => typeof v === 'string' && Object.prototype.hasOwnProperty.call(ICONS, v),
+  'Unknown icon',
+);
+
+/** A date and a time as the session form sends them; `updateSession` parses them in PROGRAM_TZ. */
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD');
+const isoTime = z.string().regex(/^\d{2}:\d{2}$/, 'Expected HH:MM');
+
+const step = z.strictObject({
+  id: z.string(),
+  text: z.string(),
+  ch: z.string(),
+  mins: z.number(),
+  t: z.number(),
+  hint: z.string(),
+});
+
+const skillFile = z.strictObject({
+  name: z.string(),
+  type: z.enum(['JSON', 'YAML', 'Notion']),
+  size: z.string(),
+  desc: z.string(),
+  steps: z.array(z.string()),
+});
+
+const moduleResource = z.strictObject({ name: z.string(), type: z.string(), size: z.string() });
+
+/** `[seconds, line]`, the replay transcript shape. */
+const transcriptLine = z.tuple([z.number(), z.string()]);
+
+/** The whole AI Employee, because the Module Builder saves the draft it holds, not a patch. */
+const draft = z.strictObject({
+  id: z.string(),
+  name: z.string(),
+  short: z.string(),
+  tier,
+  icon: iconName,
+  forWho: z.string(),
+  headline: z.string(),
+  outcome: z.string(),
+  outputs: z.array(z.string()),
+  platform: z.string(),
+  runLabel: z.string(),
+  build: z.number(),
+  session: z.number().nullable(),
+  status: moduleStatus,
+  opens: z.number().nullable(),
+  order: z.number(),
+  dur: z.number(),
+  instructor: z.string(),
+  transcript: z.array(transcriptLine),
+  notes: z.string(),
+  prompt: z.string(),
+  files: z.array(skillFile),
+  resources: z.array(moduleResource),
+  checklist: z.array(step),
+  runDemo: z
+    .strictObject({ input: z.string(), sections: z.array(z.tuple([z.string(), z.string()])) })
+    .optional(),
+});
+
+// --- the registry ----------------------------------------------------------
+
+/**
+ * Every mutation, in the order `mutations.ts` declares them. `z.ZodType<MutationArgs<K>>` is what
+ * makes this a contract rather than a list: the schema's output type has to BE the argument type.
+ */
+export const SCHEMAS: { [K in MutationName]: z.ZodType<MutationArgs<K>> } = {
+  // Learner
+  dismissAnnouncement: z.strictObject({ id }),
+  toggleStep: z.strictObject({ moduleId: id, stepId: id }),
+  markDeployed: z.strictObject({ moduleId: id }),
+  setRuntime: z.strictObject({ moduleId: id, runtime }),
+  recordRun: z.strictObject({ moduleId: id, title: z.string(), preview: z.string() }),
+  requestUpgrade: z.strictObject({ source: z.string() }),
+  downloadResource: z.strictObject({ id }),
+
+  // Team owner
+  inviteMember: z.strictObject({ email: z.string(), name: z.string().optional(), role: invitableRole }),
+  remindMembers: z.strictObject({ userIds: z.array(id) }),
+  setMemberRole: z.strictObject({ userId: id, role: learnerRole }),
+  removeMember: z.strictObject({ userId: id }),
+
+  // Staff · learners
+  nudgeLearners: z.strictObject({ userIds: z.array(id) }),
+  setLearnerTier: z.strictObject({ userId: id, tier }),
+
+  // Staff · curriculum
+  moveModule: z.strictObject({ id, dir: z.number() }),
+  setModuleTier: z.strictObject({ id, tier }),
+  publishModule: z.strictObject({ id }),
+  unpublishModule: z.strictObject({ id }),
+  saveModule: z.strictObject({ draft, status: moduleStatus.optional() }),
+  deleteModule: z.strictObject({ id }),
+
+  // Staff · cohorts and sessions
+  createCohort: z.strictObject({}),
+  openEnrollment: z.strictObject({ cohortId: id }),
+  goLive: z.strictObject({ sessionId: id }),
+  endSession: z.strictObject({ sessionId: id }),
+  publishReplay: z.strictObject({ sessionId: id, durationSec: z.number().optional() }),
+  updateSession: z.strictObject({
+    id,
+    title: z.string(),
+    date: isoDate,
+    time: isoTime,
+    // The form sends what the number input holds, which is a string; core coerces it, and a
+    // schema that coerced it first would hide an empty field from core's own validation.
+    mins: z.union([z.number(), z.string()]),
+    zoom: z.string(),
+  }),
+
+  // Staff · vault
+  uploadResource: z.strictObject({
+    title: z.string(),
+    desc: z.string().optional(),
+    cat: z.string(),
+    type: z.string(),
+    tier,
+    file: z.string().nullable().optional(),
+  }),
+  setResourceTier: z.strictObject({ id }),
+  setResourceStatus: z.strictObject({ id }),
+  deleteResource: z.strictObject({ id }),
+
+  // Staff · announcements
+  sendAnnouncement: z.strictObject({
+    title: z.string(),
+    body: z.string(),
+    audience: z.enum(['all', 'agent', 'team', 'owners']),
+    inapp: z.boolean(),
+    email: z.boolean(),
+    when: z.enum(['now', 'later']),
+    at: z.string().optional(),
+    severity: z.enum(['info', 'warning']).optional(),
+    // `''` is what the form's "no action" option sends.
+    action: z.union([z.enum(['calendar', 'sessions']), z.literal(''), z.null()]).optional(),
+  }),
+  toggleReminder: z.strictObject({ id }),
+
+  // Staff · tiers and upgrades
+  setTierPrice: z.strictObject({ tierId: id, price: z.number() }),
+  setRequestStatus: z.strictObject({ id, status: z.enum(['new', 'contacted', 'converted', 'closed']) }),
+
+  // Staff · staff and roles
+  inviteStaff: z.strictObject({ email: z.string(), role: staffRole }),
+  setStaffRole: z.strictObject({ id, role: staffRole }),
+  removeStaff: z.strictObject({ id }),
+  togglePermission: z.strictObject({ role: staffRole, perm: permKey }),
+};
+
+/** `POST /api/mutate/:name` for a name that is not a mutation is a 404, decided here. */
+export const schemaFor = (name: string): z.ZodType<unknown> | null =>
+  Object.prototype.hasOwnProperty.call(SCHEMAS, name) ? (SCHEMAS as Record<string, z.ZodType<unknown>>)[name]! : null;
+
+export type { MutationName };
