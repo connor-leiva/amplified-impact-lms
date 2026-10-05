@@ -201,7 +201,6 @@ export function parseSeedArgs(argv: readonly string[]): { mode: 'live' } | { mod
 }
 
 async function main(): Promise<void> {
-  const parsed = parseSeedArgs(process.argv.slice(2));
   await runSeed(process.argv.slice(2));
 }
 
