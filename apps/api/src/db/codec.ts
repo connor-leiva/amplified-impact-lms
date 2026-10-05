@@ -96,7 +96,13 @@ export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc'
   users: [{ by: 'id', dir: 'asc' }],
   teams: [{ by: 'id', dir: 'asc' }],
   cohorts: [{ by: 'start', dir: 'asc' }],
-  sessions: [{ by: 'n', dir: 'asc' }],
+  // `start`, not `n`: `n` is the number WITHIN a cohort, so the live seed's 18 sessions across three
+  // cohorts share only six values of it and every one is a three-way tie. Postgres then chooses the
+  // interleaving, two identical requests can disagree, and the Gate 7 oracle's `toEqual` fails
+  // intermittently. `start` is NOT NULL and distinct for all 18, and ordering by it reproduces the
+  // fixture's own order exactly — cohort by cohort, chronologically — because a cohort's sessions
+  // all precede the next cohort's.
+  sessions: [{ by: 'start', dir: 'asc' }],
   modules: [{ by: 'order', dir: 'asc' }],
   progress: [
     { by: 'userId', dir: 'asc' },

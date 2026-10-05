@@ -13,6 +13,17 @@ export default defineConfig({
       { find: '@ai/core', replacement: fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)) },
     ],
   },
-  // .tsx is included for the React Email template tests (phase 08 section 8.1).
-  test: { globals: true, environment: 'node', include: ['test/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'] },
+  test: {
+    globals: true,
+    environment: 'node',
+    // .tsx is included for the React Email template tests (phase 08 section 8.1).
+    include: ['test/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+    // Phase 07's suites talk to a real Postgres over Railway's TCP proxy, and the first test in a
+    // cold slot pays for CREATE DATABASE plus the migration — measured at 1.1s + 3.8s, which blows
+    // vitest's 5000ms default and was reproduced on 6 of 6 cold runs. A Gate 7 oracle body costs
+    // ~3.5s on its own (loadDb is 14 round trips, and the route under test does its own), so the
+    // default leaves no headroom either. These are network-bound integration tests, not unit tests.
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
+  },
 });
