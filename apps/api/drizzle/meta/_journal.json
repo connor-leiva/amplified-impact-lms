@@ -15,6 +15,13 @@
       "when": 1791144944807,
       "tag": "0001_tiresome_killraven",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791199395684,
+      "tag": "0002_sad_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

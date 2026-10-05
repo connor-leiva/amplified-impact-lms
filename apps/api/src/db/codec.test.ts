@@ -325,14 +325,56 @@ describe('§7.3 diffRows @g7', () => {
     expect(changes[0]).toMatchObject({ table: 'activity', op: 'upsert', key: { id: 'ev_new' } });
   });
 
-  it('reordering an array alone changes nothing @g7', () => {
-    // Order lives in `ORDER`, not in the rows: moving a row within the snapshot array is not a
-    // write, and a diff that reported one would rewrite the whole table on every request.
+  it('reordering an array writes the order and nothing else @g7', () => {
+    // This test used to assert the opposite — that reordering changed nothing — because order was
+    // not persisted. It is now, in `seq`, because `Db.resources` is an ORDERED array whose order
+    // reaches the Vault list (`Vault.vm.ts` only filters) and no existing column reproduced it.
+    //
+    // So reordering IS a write, and the thing worth pinning is that it is ONLY a write of the
+    // order: every change is an upsert on `resources`, every row's `seq` is its new index, and no
+    // other field moves. The churn is real and bounded — removing the first of N rows reindexes
+    // the remaining N-1 — which is affordable for hundreds of rows in one transaction on a rare
+    // admin action, and is what buys a snapshot that renders identically through the API.
     const before = seedForDatabase('live');
     const after = structuredClone(before);
     after.resources.reverse();
 
-    expect(diffSnapshot(before, after)).toEqual([]);
+    // Exactly the rows whose index MOVED — reversing an odd-length array leaves the middle element
+    // where it was, so this is derived rather than assumed to be every row.
+    const movedIds = after.resources
+      .map((r, i) => [r.id, i] as const)
+      .filter(([id, i]) => before.resources.findIndex((b) => b.id === id) !== i)
+      .map(([id]) => id);
+    expect(movedIds.length).toBe(after.resources.length - 1);
+
+    const changes = diffSnapshot(before, after);
+    expect(changes.map((c) => c.key.id).sort()).toEqual([...movedIds].sort());
+    expect([...new Set(changes.map((c) => c.table))]).toEqual(['resources']);
+    expect(changes.every((c) => c.op === 'upsert')).toBe(true);
+    // Each changed row carries its NEW index, which is the whole point.
+    for (const [i, r] of after.resources.entries()) {
+      const change = changes.find((c) => c.key.id === r.id);
+      if (change) expect(change.row?.seq, r.id).toBe(i);
+    }
+    // And nothing but `seq` differs on any of them: same id, same title, same download count.
+    const beforeRows = new Map(toRows(before).resources.map((r) => [r.id as string, r]));
+    for (const c of changes) {
+      const was = beforeRows.get(c.key.id as string)!;
+      const moved = Object.keys(c.row!).filter((k) => JSON.stringify(c.row![k]) !== JSON.stringify(was[k]));
+      expect(moved, c.key.id as string).toEqual(['seq']);
+    }
+  });
+
+  it('a round trip through rows preserves array order, so a reload is not a write @g7', () => {
+    // The consequence that makes the churn above safe: `loadDb` returns rows in `seq` order, so
+    // `fromRows(toRows(db))` has the same array order as `db` and diffing the two is empty. If that
+    // did not hold, every request would rewrite three tables.
+    const db = seedForDatabase('live');
+    const reloaded = fromRows(toRows(db));
+    expect(reloaded.resources.map((r) => r.id)).toEqual(db.resources.map((r) => r.id));
+    expect(reloaded.users.map((u) => u.id)).toEqual(db.users.map((u) => u.id));
+    expect(reloaded.teams.map((t) => t.id)).toEqual(db.teams.map((t) => t.id));
+    expect(diffSnapshot(db, reloaded)).toEqual([]);
   });
 
   it('a nested progress change touches the progress table and nothing else @g7', () => {

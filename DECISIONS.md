@@ -659,6 +659,58 @@ two namespaces cannot be reconciled on the web side alone.
 
 ---
 
+## D-023 · Array order is persisted in a `seq` column, because the screens render it
+
+**Date:** 2026-10-05
+**Approved by:** the Gate 7 requirement that the portal scenarios pass in http mode **against the
+same goldens**, which is the thing that proves the backend is invisible to the user.
+**Scope:** `apps/api/src/db/schema.ts` (users, teams, resources), `apps/api/src/db/codec.ts`,
+migration `0002_sad_johnny_storm.sql`
+
+`Db.users`, `Db.teams` and `Db.resources` are **ordered arrays and the screens render them in that
+order**: `Vault.vm.ts` only filters, and `Learners.vm.ts` and `TeamHub.vm.ts` map. So the array
+order is data, and a database that does not store it cannot reproduce it.
+
+It was not stored, and `ORDER` fell back to `id asc`. Three http-mode scenarios failed —
+`team-owner`, `team-owner-invite` and `vault-agent` — with the **fingerprints failing alongside the
+pixels**, which is what identified it as ordering rather than styling.
+
+**Measured before choosing a fix**, against every plausible existing column:
+
+| array | candidate | result |
+|---|---|---|
+| `resources` | natural id sort | **matches** (`r1…r13, x1…x6`; `id asc` gives `r1, r10, r11, r12, r13, r2…`) |
+| `resources` | `id asc`, `updated asc` | no |
+| `users` | `id asc`, `joined asc`, `name asc` | **none match** |
+| `teams` | `id asc`, `name asc`, `ownerId asc`, owner's `joined asc` | **none match** |
+
+So `users` and `teams` genuinely need a persisted order. One mechanism for all three beats two, so
+all three get `seq`.
+
+**`seq` is not part of any `@ai/core` type.** `toRows` fills it from the array index and `fromRows`
+drops it. `Db` is unchanged, the differential tests against the prototype are unaffected, and
+fixture parity cannot move — which is what made this safe to attempt at all: the goldens are the
+oracle, so getting it wrong fails parity rather than shipping.
+
+**The alternative, and why it was rejected.** Sorting in the view-models is simpler and needs no
+column — but the fixture's order *is* what the reference prototype renders, so any sort that changed
+it would mean moving a golden to make a test pass. CLAUDE.md forbids exactly that, and the reference
+is the oracle.
+
+**The cost, stated plainly.** Reordering an array is now a write. Removing the first of N rows
+reindexes the remaining N−1, because the index is dense rather than sparse. That is affordable —
+one UPDATE per row inside one transaction, on a rare admin action, for hundreds of rows — and a
+fractional or gapped index would be more machinery than the problem deserves at this scale. Two
+tests pin the consequences: reordering produces upserts whose **only** changed field is `seq`, and a
+round trip preserves array order so a reload is not a write. Without that second property every
+request would rewrite three tables.
+
+The migration is three `ADD COLUMN … DEFAULT 0 NOT NULL` statements, which satisfies § 9.3's rule
+that a migration stay backward-compatible for one release: the column is added before anything
+reads it.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:

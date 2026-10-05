@@ -93,8 +93,15 @@ export const KEYS: Record<TableName, readonly string[]> = {
  * this the same database would render differently from one request to the next.
  */
 export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc' }[]> = {
-  users: [{ by: 'id', dir: 'asc' }],
-  teams: [{ by: 'id', dir: 'asc' }],
+  // `seq`, not `id`. These are ORDERED arrays whose order reaches a screen, and nothing already in
+  // the row reproduces it — measured against id, `joined`, name and the owner's join date, none of
+  // which match the fixture. `id` second so a tie is still deterministic: the users table holds
+  // learners AND staff, which `fromRows` separates afterwards, so the two kinds can share a `seq`.
+  users: [
+    { by: 'seq', dir: 'asc' },
+    { by: 'id', dir: 'asc' },
+  ],
+  teams: [{ by: 'seq', dir: 'asc' }],
   cohorts: [{ by: 'start', dir: 'asc' }],
   // `start`, not `n`: `n` is the number WITHIN a cohort, so the live seed's 18 sessions across three
   // cohorts share only six values of it and every one is a three-way tie. Postgres then chooses the
@@ -108,7 +115,7 @@ export const ORDER: Record<TableName, readonly { by: string; dir: 'asc' | 'desc'
     { by: 'userId', dir: 'asc' },
     { by: 'moduleId', dir: 'asc' },
   ],
-  resources: [{ by: 'id', dir: 'asc' }],
+  resources: [{ by: 'seq', dir: 'asc' }],
   announcements: [{ by: 'at', dir: 'desc' }],
   dismissals: [
     { by: 'userId', dir: 'asc' },
@@ -144,8 +151,9 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'reminded',
     'nudged',
     'staffRole',
+    'seq',
   ],
-  teams: ['id', 'name', 'ownerId', 'seats'],
+  teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
   cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence'],
   sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom'],
   modules: [
@@ -176,7 +184,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'runDemo',
   ],
   progress: ['userId', 'moduleId', 'steps', 'builtAt', 'deployedAt', 'runtime', 'issue', 'lastRun'],
-  resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status'],
+  resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status', 'seq'],
   announcements: [
     'id',
     'sessionId',
@@ -230,7 +238,7 @@ const splitDismissal = (key: string): [string, string] | null => {
 // Db → rows
 // ---------------------------------------------------------------------------
 
-const learnerRow = (u: Learner): Row => ({
+const learnerRow = (u: Learner, seq: number): Row => ({
   id: u.id,
   email: u.email,
   name: u.name,
@@ -245,10 +253,11 @@ const learnerRow = (u: Learner): Row => ({
   reminded: col(u.reminded),
   nudged: col(u.nudged),
   staffRole: null,
+  seq,
 });
 
 /** Staff share the `users` table, discriminated by `kind`; every learner-only column is null. */
-const staffRow = (s: Staff): Row => ({
+const staffRow = (s: Staff, seq: number): Row => ({
   id: s.id,
   email: s.email,
   name: s.name,
@@ -263,6 +272,7 @@ const staffRow = (s: Staff): Row => ({
   reminded: null,
   nudged: null,
   staffRole: s.role,
+  seq,
 });
 
 const progressRow = (userId: string, moduleId: string, p: Progress): Row => ({
@@ -332,7 +342,7 @@ const moduleRow = (m: AIEmployee): Row => ({
 });
 
 /** `storageKey` is absent on purpose — see the header. */
-const resourceRow = (r: Resource): Row => ({
+const resourceRow = (r: Resource, seq: number): Row => ({
   id: r.id,
   title: r.title,
   desc: r.desc,
@@ -344,6 +354,7 @@ const resourceRow = (r: Resource): Row => ({
   updated: r.updated,
   exec: r.exec,
   status: r.status,
+  seq,
 });
 
 /**
@@ -386,7 +397,7 @@ export function toRows(db: Db): Rows {
 
   return {
     users: [...db.users.map(learnerRow), ...db.staff.map(staffRow)],
-    teams: db.teams.map((t) => ({ id: t.id, name: t.name, ownerId: t.ownerId, seats: t.seats })),
+    teams: db.teams.map((t, seq) => ({ id: t.id, name: t.name, ownerId: t.ownerId, seats: t.seats, seq })),
     cohorts: db.cohorts.map(cohortRow),
     sessions: db.sessions.map(sessionRow),
     modules: db.modules.map(moduleRow),

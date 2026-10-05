@@ -16,6 +16,19 @@
 // `auth_sessions` (§ 7.5) and `job_runs` (§ 8.5, the scheduler's idempotence ledger).
 import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint } from 'drizzle-orm/pg-core';
 
+// ONE COLUMN THAT IS NOT IN `Db`: `seq`, on users, teams and resources.
+//
+// `Db.users`, `Db.teams` and `Db.resources` are ORDERED arrays and the screens render them in that
+// order — `Vault.vm.ts` only filters, and `Learners.vm.ts` and `TeamHub.vm.ts` map. So the array
+// order is data, and a database that does not store it cannot reproduce it. Measured against every
+// plausible existing column: nothing reproduces the fixture's order for users or teams (not id, not
+// `joined`, not name, not the owner's join date), which is why a column is needed rather than a
+// cleverer ORDER BY.
+//
+// It is NOT part of any `@ai/core` type. `toRows` fills it from the array index and `fromRows`
+// drops it, so `Db` is unchanged, the differential tests are unaffected, and fixture parity cannot
+// move. See codec.ts's ORDER table and DECISIONS.md D-023.
+
 export const tier = pgEnum('tier', ['agent', 'team']);
 export const moduleStatus = pgEnum('module_status', ['draft', 'scheduled', 'published']);
 const ts = (n: string) => bigint(n, { mode: 'number' }); // epoch ms, same as core
@@ -30,8 +43,9 @@ export const users = pgTable('users', {
   // staff fields
   staffRole: text('staff_role', { enum: ['Owner', 'Admin', 'Instructor', 'Content Editor', 'Support'] }),
   prefs: jsonb('prefs').$type<{ tz?: string | null; theme?: 'light' | 'dark' }>().default({}),
+  seq: integer('seq').notNull().default(0),
 });
-export const teams = pgTable('teams', { id: text('id').primaryKey(), name: text('name').notNull(), ownerId: text('owner_id').notNull(), seats: integer('seats').notNull().default(7) });
+export const teams = pgTable('teams', { id: text('id').primaryKey(), name: text('name').notNull(), ownerId: text('owner_id').notNull(), seats: integer('seats').notNull().default(7), seq: integer('seq').notNull().default(0) });
 export const cohorts = pgTable('cohorts', { id: text('id').primaryKey(), name: text('name').notNull(), start: ts('start').notNull(), end: ts('end').notNull(), weeks: integer('weeks'), status: text('status').notNull(), capacity: integer('capacity').notNull(), cadence: text('cadence').notNull() });
 export const sessions = pgTable('sessions', { id: text('id').primaryKey(), cohortId: text('cohort_id').notNull(), n: integer('n').notNull(), title: text('title').notNull(), start: ts('start').notNull(), mins: integer('mins').notNull(), zoom: text('zoom').notNull(), live: boolean('live').notNull().default(false), attended: integer('attended'), replay: text('replay'), views: integer('views').notNull().default(0), movedFrom: ts('moved_from') });
 export const modules = pgTable('modules', {
@@ -46,7 +60,7 @@ export const progress = pgTable('progress', {
   userId: text('user_id').notNull(), moduleId: text('module_id').notNull(),
   steps: jsonb('steps').$type<string[]>().notNull(), builtAt: ts('built_at'), deployedAt: ts('deployed_at'), runtime: text('runtime'), issue: text('issue'), lastRun: jsonb('last_run'),
 }, (t) => [primaryKey({ columns: [t.userId, t.moduleId] })]);
-export const resources = pgTable('resources', { id: text('id').primaryKey(), title: text('title').notNull(), desc: text('desc').notNull(), cat: text('cat').notNull(), type: text('type').notNull(), tier: tier('tier').notNull(), size: text('size').notNull(), dl: integer('dl').notNull().default(0), updated: ts('updated').notNull(), exec: boolean('exec').notNull(), status: text('status').notNull(), storageKey: text('storage_key') });
+export const resources = pgTable('resources', { id: text('id').primaryKey(), title: text('title').notNull(), desc: text('desc').notNull(), cat: text('cat').notNull(), type: text('type').notNull(), tier: tier('tier').notNull(), size: text('size').notNull(), dl: integer('dl').notNull().default(0), updated: ts('updated').notNull(), exec: boolean('exec').notNull(), status: text('status').notNull(), storageKey: text('storage_key'), seq: integer('seq').notNull().default(0) });
 export const announcements = pgTable('announcements', { id: text('id').primaryKey(), sessionId: text('session_id'), title: text('title').notNull(), body: text('body').notNull(), severity: text('severity').notNull(), action: text('action'), actionLabel: text('action_label').notNull(), audience: text('audience').notNull(), channels: jsonb('channels').$type<string[]>().notNull(), status: text('status').notNull(), at: ts('at').notNull(), opens: integer('opens_pct') });
 export const dismissals = pgTable('dismissals', { userId: text('user_id').notNull(), announcementId: text('announcement_id').notNull() }, (t) => [primaryKey({ columns: [t.userId, t.announcementId] })]);
 export const reminders = pgTable('reminders', { id: text('id').primaryKey(), label: text('label').notNull(), channel: text('channel').notNull(), on: boolean('on').notNull() });
