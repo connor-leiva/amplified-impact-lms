@@ -121,10 +121,11 @@ export const seedLive = (db: Database, env: NodeJS.ProcessEnv = process.env): Pr
  * is three lines because there is nothing different about writing it. Same guard, same transaction,
  * same loader.
  *
- * Deliberately NOT wired to the CLI below. § 9.5's first step takes a real person's name and
- * address — the only account that can sign in to the console — and inventing environment variables
- * to carry them is the kind of thing that ends with `owner@example.com` holding the only Owner seat
- * in production. See the handoff notes.
+ * Reachable from the CLI below, but ONLY through explicit flags. § 9.5's first step takes a real
+ * person's name and address — the only account that can sign in to the console — and carrying them
+ * in environment variables is the kind of thing that ends with `owner@example.com` holding the
+ * Owner seat in production. A flag cannot be inherited from a shell, a `.env` or a Railway
+ * variable; it has to be typed, which is the whole reason it is a flag.
  */
 export const seedForLaunch = (
   db: Database,
@@ -143,15 +144,119 @@ export const seedForLaunch = (
  * backslashes and `import.meta.url` is a `file://` URL; string-comparing the two never matches on
  * this machine, which would make `tsx src/db/seed.ts` a silent no-op.
  */
+const USAGE = [
+  'Usage:',
+  '  tsx src/db/seed.ts                  load the demo seed (seedForDatabase("live"))',
+  '  tsx src/db/seed.ts --launch --owner-name "Full Name" --owner-email name@example.com',
+  '                                      [--instructor "Full Name"] [--cohort <cohortId>]',
+  '',
+  '  --launch loads § 9.5\'s launch seed: the curriculum, the price list, the reminder toggles,',
+  '  the permission matrix, ONE Owner and ONE cohort. No demo learners, teams, requests or',
+  '  activity.',
+  '',
+  '  The owner flags have no defaults and are never read from the environment. They name the only',
+  '  account that can sign in to the console, and a value inherited from a shell, a .env or a',
+  '  Railway variable is how production ends up owned by owner@example.com.',
+].join('\n');
+
+/**
+ * The CLI's arguments.
+ *
+ * Exported because the thing worth testing here is not the writing — it is that `--launch` cannot
+ * proceed without a real owner, which needs no database to check.
+ */
+export function parseSeedArgs(argv: readonly string[]): { mode: 'live' } | { mode: 'launch'; opts: ProductionSeedOptions } {
+  const flag = (name: string): string | undefined => {
+    const i = argv.indexOf(`--${name}`);
+    if (i === -1) return undefined;
+    const value = argv[i + 1];
+    // A flag followed by another flag means its value was omitted. Failing here is what stops
+    // `--owner-name --owner-email x@y.z` from seeding an Owner literally called `--owner-email`.
+    if (value === undefined || value.startsWith('--')) throw new Error(`--${name} needs a value\n\n${USAGE}`);
+    return value;
+  };
+
+  if (!argv.includes('--launch')) return { mode: 'live' };
+
+  const name = flag('owner-name');
+  const email = flag('owner-email');
+  const missing = [name === undefined ? '--owner-name' : null, email === undefined ? '--owner-email' : null].filter(
+    (x): x is string => x !== null,
+  );
+  if (missing.length > 0) throw new Error(`--launch requires ${missing.join(' and ')}\n\n${USAGE}`);
+
+  const instructor = flag('instructor');
+  const cohortId = flag('cohort');
+  // The name and the address are validated by `seedProduction` itself, which throws on an owner it
+  // could not mail. That is the right place for it: the rule has to hold for every caller of the
+  // function, not only for the one that came through this CLI.
+  return {
+    mode: 'launch',
+    opts: {
+      owner: { name: name as string, email: email as string },
+      ...(instructor === undefined ? {} : { instructor }),
+      ...(cohortId === undefined ? {} : { cohortId }),
+    },
+  };
+}
+
 async function main(): Promise<void> {
-  const url = readDatabaseUrl();
-  const name = databaseNameOf(url);
-  const db = getDb();
+  const parsed = parseSeedArgs(process.argv.slice(2));
+  await runSeed(process.argv.slice(2));
+}
+
+/**
+ * Everything `main` does except reading `process.argv` and owning the connection.
+ *
+ * Split out, and taking its collaborators as arguments, for one reason: the bug this file actually
+ * shipped was not in the parser, it was in the WIRING. `main` called the seeder directly and never
+ * consulted `process.argv` at all, so `db:seed:prod` passed `--launch` and loaded the DEMO seed —
+ * fourteen invented learners with plausible addresses, one `remindMembers` click from being mailed.
+ * A test of `parseSeedArgs` alone cannot see that, and did not: the suite stayed green with the
+ * defect reintroduced.
+ *
+ * So the routing is testable here, without a database. `deps` exists to be substituted, not to be
+ * configurable.
+ */
+export interface SeedDeps {
+  db: () => Database;
+  live: (db: Database) => Promise<number>;
+  launch: (db: Database, opts: ProductionSeedOptions) => Promise<number>;
+  close: () => Promise<void>;
+  name: () => string;
+  write: (line: string) => void;
+}
+
+const REAL: SeedDeps = {
+  db: getDb,
+  live: (db) => seedLive(db),
+  launch: (db, opts) => seedForLaunch(db, opts),
+  close,
+  name: () => databaseNameOf(readDatabaseUrl()),
+  write: (line) => process.stdout.write(line),
+};
+
+export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): Promise<void> {
+  // Parsed BEFORE anything connects, so a usage error costs nothing and cannot half-write.
+  const parsed = parseSeedArgs(argv);
+  const name = deps.name();
+  const db = deps.db();
   try {
-    const rows = await seedLive(db);
-    process.stdout.write(`Seeded ${rows} rows into ${name} from seedForDatabase('live').\n`);
+    if (parsed.mode === 'launch') {
+      // Named out loud before anything is written. This is the one command here whose target being
+      // wrong is unrecoverable, and the database name is the only thing distinguishing production
+      // from development.
+      deps.write(`Loading the LAUNCH seed into ${name}, owned by ${parsed.opts.owner.email}.\n`);
+      const rows = await deps.launch(db, parsed.opts);
+      deps.write(
+        `Seeded ${rows} rows. Next, § 9.5 steps 2 and 3: upload resources through the Vault, then invite staff and learners.\n`,
+      );
+      return;
+    }
+    const rows = await deps.live(db);
+    deps.write(`Seeded ${rows} rows into ${name} from seedForDatabase('live').\n`);
   } finally {
-    await close();
+    await deps.close();
   }
 }
 
