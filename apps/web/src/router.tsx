@@ -2,13 +2,31 @@ import { createBrowserRouter, Navigate } from 'react-router';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
-// Phase 07 mounts /sign-in and /invite/:token. Both screens are already built — see routes/auth/ —
-// but they post to /api/auth/request and /api/auth/verify, which do not exist yet, so mounting them
-// now would ship two routes that visibly do nothing. They stay unmounted, covered by their own
-// vitest suites, until the endpoints land in the same phase.
+// /sign-in and /invite/:token are MOUNTED now, which is the one thing that was missing: both
+// screens were built in phase 07 and left unmounted because they post to /api/auth/request and
+// /api/auth/verify, "which do not exist yet". They exist — `apps/api/src/routes/auth.ts` § 7.5 —
+// so a route that visibly does nothing is no longer what mounting them would ship.
 //
-// Only routes that work are mounted, so there is never placeholder UI; the shell's own guards
-// handle role and tier redirects (SCREENS § 2, phase 04 § 4.1).
+// THEY ARE SIBLINGS OF `/`, NOT CHILDREN OF IT, AND THAT IS THE WHOLE TRICK.
+//
+// Two reasons, either of which alone would be enough:
+//
+//   1. `AppShell` calls `useDb()`/`useViewer()`, which suspend on `/api/snapshot` and `/api/me`.
+//      Both answer 401 before there is a session, and `data/http.ts` turns a 401 into
+//      `location.assign('/sign-in')`. A /sign-in nested inside the shell would therefore reload
+//      itself forever. Both screens' own headers say they must render outside the shell; this is
+//      the line that keeps that true.
+//   2. The shell's children end with `{ path: '*' }` → `<Navigate to="/" replace />`. Nested, a
+//      magic link would be swallowed by that splat and bounce to `/` with the token unspent —
+//      which looks exactly like an expired link and is unfixable from the screen's side. React
+//      Router ranks a static `/sign-in` above a splat, so as a sibling it wins.
+//
+// FIXTURE MODE IS UNCHANGED. Neither screen touches `useDb`, `useViewer`, `repo` or `clock`, so
+// nothing about the fixture build's behaviour moves: /sign-in there POSTs to an endpoint the
+// `vite preview` server does not have, `requestSignInLink` swallows the failure by design
+// (§ 7.5's "does not reveal whether an account exists" holds end to end only if the UI refuses to
+// branch), and the viewer sees "Check Your Email". That is what makes the smoke checks in
+// compliance/tests/e2e/signin.spec.ts meaningful against a deployment with no fixture data.
 export const router = createBrowserRouter([
   ...(devRoutes
     ? [
@@ -16,6 +34,8 @@ export const router = createBrowserRouter([
         { path: '/__tokens', lazy: () => import('./routes/__tokens') },
       ]
     : []),
+  { path: '/sign-in', lazy: () => import('./routes/auth/SignIn') },
+  { path: '/invite/:token', lazy: () => import('./routes/auth/AcceptInvite') },
   {
     path: '/',
     lazy: () => import('./shell/AppShell'),

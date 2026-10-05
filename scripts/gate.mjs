@@ -20,6 +20,11 @@ run('pnpm test');
 if (n === 0) run('pnpm harness');
 // Parity scenarios start at phase 03: /__states is the first UI there is to compare.
 if (n >= 3) run(`pnpm compliance --grep "@g[0-${Math.min(n, 9)}]\b"`, { GATE: String(n) });
+// Phase 07 section 7.3: the portal scenarios re-run against the real API, against the SAME
+// goldens, which is what proves the backend is invisible to the user. Its own step rather than a
+// dependency of `parity`: Playwright SKIPS a project whose dependency failed, so coupling them let
+// three http-mode diffs suppress all 55 fixture scenarios and report `55 did not run`.
+if (n >= 7) run(`pnpm compliance:http --grep "@g[0-${Math.min(n, 9)}]\b"`, { GATE: String(n) });
 // The e2e project runs from phase 01, not 04. Gate 1's token-parity suite lives in
 // compliance/tests/e2e and is tagged @g1, so a `gate 1` or `gate 2` that skipped e2e would not
 // actually check its own gate.

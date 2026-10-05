@@ -20,7 +20,8 @@
     "harness": "node scripts/with-env.mjs REFERENCE_ONLY=1 playwright test -c compliance/playwright.config.ts --project=harness",
     "compliance:docker": "docker run --rm --network host -v $PWD:/work -w /work mcr.microsoft.com/playwright:v$(node -p \"require('@playwright/test/package.json').version\")-noble bash -lc 'corepack enable && pnpm i --frozen-lockfile && pnpm \"$@\"' --",
     "gate": "node scripts/gate.mjs",
-    "goldens:check": "node scripts/goldens-check.mjs"
+    "goldens:check": "node scripts/goldens-check.mjs",
+    "compliance:http": "playwright test -c compliance/playwright.config.ts --project=parity-http"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.1",
