@@ -21,6 +21,7 @@ If the sources disagree on a pixel or a string, the reference wins. If they disa
 ## Non-negotiables
 - **Never ship a phase without its gate.** Run `pnpm gate <n>` (screenshots in Docker: `pnpm compliance:docker gate <n>`). A phase is done only when it is green locally and in CI.
 - **Never edit `compliance/goldens/` by hand**, and never regenerate them to make a failing test pass. Goldens come only from `pnpm compliance:capture` against the unmodified `design-reference/`. CI proves this.
+  Screenshots are scoped by platform (`goldens/linux/` is authoritative and CI-enforced, `goldens/win32/` is the local dev set) and the `.json` fingerprints are shared, because they are platform-independent by measurement. See D-020.
 - **Never raise the tolerance** (`maxDiffPixelRatio: 0.01`, `threshold: 0.15`) and never add masks, except a narrowly scoped one with a DECISIONS.md entry.
 - **Never add features, screens, copy or UI the mockup doesn't have.** The only exceptions are the explicitly listed net-new pieces: sign-in and invite-accept screens (phase 07), the unsaved-changes prompt (phase 06), and production integrations (phase 08). If something seems missing, ask.
 - **Copy is exact.** Labels are Title Case and descriptions are sentence case, as rendered in the reference. Do not paraphrase, shorten or "improve" text.
@@ -54,6 +55,8 @@ If the sources disagree on a pixel or a string, the reference wins. If they disa
 | `pnpm reference` | serves `design-reference/` at :4400 |
 | `pnpm --filter @ai/web preview:fixture` | the app in fixture mode at :4173 (what parity runs against) |
 | `pnpm compliance:capture` | regenerates goldens from the reference (only when the reference changes) |
-| `pnpm compliance` / `pnpm e2e` | parity / behavior suites |
+| `pnpm compliance` / `pnpm e2e` | parity / behavior suites, in fixture mode |
+| `pnpm compliance:http` | the portal scenarios against the real API, against the SAME goldens (phase 07 § 7.3). Its own step, never a dependency of `parity` — Playwright skips a project whose dependency failed, which once let three http diffs suppress all 55 fixture scenarios |
+| `pnpm --filter @ai/api db:migrate` / `db:seed` / `db:seed:prod` | apply migrations, load the demo seed, load § 9.5's launch seed |
 | `pnpm gate <n>` | everything required to ship phase n |
 | `railway config plan` / `apply` | infrastructure changes (reviewed in the PR) |
