@@ -13,7 +13,11 @@
 //   1. @fastify/cookie     — must precede rate-limit, whose key generator reads `req.cookies`
 //   2. @fastify/helmet     — § 9.4's CSP and the rest of the security headers
 //   3. @fastify/rate-limit — § 9.4's 100/minute; `createRateLimit` is used by routes/auth.ts
-//   4. the routes          — auth, snapshot, mutate, events, and in test mode only, test
+//   4. the routes          — auth, snapshot, mutate, events (§ 7), the two file downloads plus
+//                            upload-url and the join window (§ 8), and in test mode only, test.
+//                            `authz.test.ts` holds the authoritative inventory and checks it
+//                            against the real router, so a route registered here without a guard
+//                            classification fails that test — which is what caught phase 08's four.
 //
 // Fastify runs same-type hooks in registration order, so "cookie before rate-limit" is a real
 // dependency rather than a preference: the limiter's key is derived from the session cookie
