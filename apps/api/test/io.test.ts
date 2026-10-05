@@ -34,7 +34,7 @@ import { clock, deterministicIds, newIds } from '../src/lib/clock';
 import { assertOwned, loadDb as loadDbFrom, persistDiff } from '../src/db/io';
 import { toRows } from '../src/db/codec';
 import * as schema from '../src/db/schema';
-import { TEST_DATABASE_NAME, WORKER_SLOT, loadDb, resetDatabase, testDatabase } from './helpers';
+import { TEST_DATABASE_NAME, TEST_RUN_ID, WORKER_SLOT, loadDb, resetDatabase, testDatabase } from './helpers';
 
 /** The Gate 7 oracle's instant, and `PHASES.live.now`: 2026-12-07 10:42 Central. */
 const NOW = Date.parse('2026-12-07T10:42:00-06:00');
@@ -173,13 +173,24 @@ describe('§7.1 DATABASE_URL is required, not defaulted @g7', () => {
 // ---------------------------------------------------------------------------
 
 describe('§7.3 the harness is pointed at its own database @g7', () => {
-  it('is a per-slot database, and never the one the deployed site reads @g7', () => {
+  it('is scoped by RUN as well as slot, and is never the one the deployed site reads @g7', () => {
     // D-019. `railway` is what the deployed Web service reads; this suite truncates every table it
     // touches, 37 times per oracle run, so the name is the only thing standing between a green run
     // and a data-loss bug. `helpers.ts` throws at import if either name is wrong; this states it.
     expect(TEST_DATABASE_NAME).not.toBe('railway');
-    expect(TEST_DATABASE_NAME).toBe(`ai_lms_dev_t${WORKER_SLOT}`);
+    expect(TEST_DATABASE_NAME).not.toBe('ai_lms_dev');
+
+    // The RUN id is the part that was missing. `VITEST_POOL_ID` restarts at 1 in every invocation,
+    // so two concurrent `vitest run` PROCESSES both took slot 1 and truncated each other's rows
+    // mid-test. Not hypothetical: three agents hit it and each worked around it privately by
+    // swapping the database name, and it then hung a full-suite run of mine for three hours against
+    // a database another process kept emptying underneath it.
+    expect(TEST_DATABASE_NAME).toBe(`ai_lms_dev_r${TEST_RUN_ID}_t${WORKER_SLOT}`);
+    expect(TEST_RUN_ID).toMatch(/^[0-9a-z]{1,6}$/);
     expect(WORKER_SLOT).toMatch(/^[0-9a-z]+$/i);
+    // Postgres truncates an identifier at 63 bytes SILENTLY, and a truncated name is how two
+    // distinct runs would collide on one database again.
+    expect(TEST_DATABASE_NAME.length).toBeLessThanOrEqual(63);
   });
 
   it('really redirected the connection, rather than reading the development database @g7', async () => {

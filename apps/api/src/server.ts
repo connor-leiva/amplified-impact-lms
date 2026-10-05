@@ -41,6 +41,7 @@ import fastifyStatic from '@fastify/static';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { build, inlineScriptHashes, installShutdown } from './app';
+import { startScheduler } from './jobs/scheduler';
 
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
@@ -80,5 +81,29 @@ if (existsSync(webDist)) {
 // run, and a suite that emitted the signal would take the whole run down with it. `app.ts` carries
 // the order the drain has to happen in.
 installShutdown(app);
+
+// § 8.5: "Run the scheduler in-process in the API service, guarded by a Postgres advisory lock so
+// only one replica executes jobs."
+//
+// HERE AND NOT IN `build()`, for the two reasons this file already gives about `installShutdown`
+// one line up, plus one of its own:
+//   - `build()` runs once per test — Gate 7's oracle calls it 37 times — so an interval and two
+//     signal listeners per built app would leak across a run, and a suite that fired the signal
+//     would take the whole run down. `scheduler.test.ts` drives `runScheduledJobs` and
+//     `startScheduler` directly instead, which is also the only way to test the lock and the loop.
+//   - THE FIXTURE GUARD IS HERE. `fixtureOnly` is already computed above for `build()`, and the
+//     demo environment has no `DATABASE_URL` at all — an armed scheduler there would throw
+//     `DatabaseConfigError` every 60 seconds on the deploy serving the live sales demo. Passing the
+//     flag rather than re-reading `VITE_DATA_SOURCE` inside the scheduler keeps one reading of that
+//     variable in the process, which is the point of the comment at line 60.
+//
+// `app.log` so a tick's lines land in § 9.4's JSON log with its redaction, rather than on a bare
+// console the deploy does not collect.
+//
+// After `installShutdown` and before `listen`, and neither position is load-bearing: both SIGTERM
+// handlers run in the same synchronous dispatch (Node calls listeners in registration order) and
+// `shutdown()`'s first `await`, inside `settleEmails()`, yields before the interval could fire
+// again — and the first tick is 60 s out, so it cannot precede Railway's first healthcheck either.
+startScheduler({ fixtureOnly, log: app.log });
 
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 3000) });

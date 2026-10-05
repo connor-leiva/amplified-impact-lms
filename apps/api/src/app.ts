@@ -66,6 +66,8 @@ import { clock } from './lib/clock';
 import { registerAuthRoutes } from './routes/auth';
 import { registerEventsRoute } from './routes/events';
 import type { EventHub } from './routes/events';
+import { registerFilesRoutes } from './routes/files';
+import { registerJoinRoute } from './routes/join';
 import { registerMutateRoute } from './routes/mutate';
 import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
@@ -361,6 +363,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     const broadcast = (): void => events?.broadcast();
     registerAuthRoutes(app, { broadcast });
     registerSnapshotRoute(app);
+    registerJoinRoute(app);
+    registerFilesRoutes(app);
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

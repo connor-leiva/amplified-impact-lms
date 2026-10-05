@@ -498,6 +498,15 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/me/prefs', methods: 'PATCH', guard: 'session' },
   { path: '/api/mutate/:name', methods: 'POST', guard: 'session' },
   { path: '/api/snapshot', methods: 'GET, HEAD', guard: 'session' },
+  // Phase 08's four. All session-guarded, and every one hands out something a learner must not get
+  // for free: a presigned object URL (§ 8.2) or a Zoom link (§ 8.4). This table is why they could
+  // not be added without being classified — `the router serves exactly the routes this file knows
+  // about` failed the moment they were registered, which is the test working rather than the test
+  // being in the way.
+  { path: '/api/files/resource/:id', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/files/module/:moduleId/:fileName', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/files/upload-url', methods: 'POST', guard: 'session' },
+  { path: '/api/sessions/:id/join', methods: 'GET, HEAD', guard: 'session' },
   // § 7.7's harness. See the header: exempt because they do not exist outside `NODE_ENV=test`,
   // which `test/routes.test.ts` is what proves.
   { path: '/api/test/session', methods: 'POST', guard: 'test-only' },
@@ -878,6 +887,21 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/mutate/:name': () =>
             app.inject({ method: 'POST', url: '/api/mutate/toggleStep', payload: { moduleId: 'sales', stepId: 'c4' } }),
           '/api/snapshot': () => app.inject({ method: 'GET', url: '/api/snapshot' }),
+          // Phase 08's four. Each hands out something a learner must not get for free — a presigned
+          // object URL (§ 8.2) or a Zoom link (§ 8.4) — so the 401 matters more here than anywhere
+          // else in this table. Real ids from the fixture, because a 404 on a made-up id would
+          // answer before the guard and pass this test for the wrong reason.
+          '/api/files/resource/:id': () => app.inject({ method: 'GET', url: '/api/files/resource/r1' }),
+          '/api/files/module/:moduleId/:fileName': () =>
+            app.inject({ method: 'GET', url: '/api/files/module/marketing/listing-audit-prompt-pack.json' }),
+          '/api/files/upload-url': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/files/upload-url',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { contentType: 'application/pdf', size: 1024 },
+            }),
+          '/api/sessions/:id/join': () => app.inject({ method: 'GET', url: '/api/sessions/dec26-s3/join' }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -972,9 +996,12 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     expect(EXECUTED.learnerDenied).toBe(10);
     expect(EXECUTED.learnerAllowed).toBe(11);
     expect(EXECUTED.staffOnLearner).toBe(11);
-    expect(EXECUTED.unauthenticated).toBe(7);
+    // 11, not 7: phase 08 added four session-guarded routes (the two file downloads, upload-url and
+    // the join window) and each one is probed cold. The route-inventory test is what forced them to
+    // be classified here rather than shipping unguarded.
+    expect(EXECUTED.unauthenticated).toBe(11);
     expect(EXECUTED.exempt).toBe(6);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(180);
+    expect(total).toBe(184);
   });
 });

@@ -711,6 +711,124 @@ reads it.
 
 ---
 
+## D-024 · The download route presigns and checks; the CLIENT keeps the `downloadResource` write
+
+**Date:** 2026-10-05
+**Approved by:** the recommendation already on record when the conflict was first found, now
+implemented.
+**Scope:** `apps/api/src/routes/files.ts`, `apps/web/src/routes/portal/Vault.tsx`
+
+§ 8.2 says `GET /api/files/resource/:id` "runs `downloadResource`". It does not, deliberately:
+`Vault.tsx` posts that same mutation on the same click, and `mutations.ts` does `x.dl++`, so doing
+both would count every download **twice**. The client cannot stop posting it — the fixture-mode Blob
+path shares the call, and the success toast and the inline 403 both come from it.
+
+So the route presigns and performs its own access check, and the write stays with the client. The
+spec's sentence is not satisfiable as written while the prototype's click does what it does.
+
+**Access is `@ai/core`'s `canAccess`**, not a reimplementation: both `Resource` and `AIEmployee`
+carry a `tier`, so one function answers for both routes, and the 403 body carries core's own
+message. A staff viewer is refused on both download routes — tier is a learner concept,
+`downloadResource` itself refuses staff, and no admin screen downloads a vault row.
+
+**403 where the object is visible, 404 where it is not.** Gate 8 requires the tier refusal to be
+403, which leaks nothing: the row is in Jamie's snapshot and the Vault draws it with a lock. A
+*hidden* resource and a *draft* module are in no learner snapshot at all, so both answer 404 — a 403
+would confirm the thing exists.
+
+**Still open (D-022):** the upload route has no caller. It mints a key and nothing can hand that key
+to `uploadResource`, because that mutation takes no `storageKey`. And the 25 MB cap does not bind
+the PUT: SigV4 does not sign `Content-Length`, so the cap guards the *request for a URL* and not the
+upload. Closing that needs a bucket policy, not code.
+
+---
+
+## D-025 · The scheduler writes its ledger before it sends, and loses rather than repeats
+
+**Date:** 2026-10-05
+**Approved by:** § 8.5's "every job is idempotent", which forces a choice between two failure modes.
+**Scope:** `apps/api/src/jobs/scheduler.ts`
+
+`job_runs` has a unique `(job, key)`, so a send is recorded once. But there is no ordering of "write
+the ledger" and "send the mail" that survives a crash between them, and pretending otherwise is the
+bug:
+
+- **Mail first** — a crash before the ledger commits means the next tick sends again. A learner gets
+  the same reminder two, five, twenty times.
+- **Ledger first** — a crash after the commit means that one email is never sent, and nothing
+  retries it.
+
+**Ledger first was chosen**, written inside the transaction and dispatched after the commit. A lost
+reminder is a reminder; a mail loop is an incident, and the recipient cannot opt out of it. The
+trade is stated in the file header and beside the code rather than hidden.
+
+**The scheduler takes lock 4242 only**, as § 8.5 specifies — which answers "which replica runs
+jobs", a different question from § 7.3's lock 42 ("serialize writes"). So the announcement flip
+happens outside the write lock. It is a conditional update (`scheduled` → `sent` only), which is
+what keeps that safe.
+
+**`APP_URL` is load-bearing for every scheduled send, and its absence fails silently in the worst
+way.** Measured: with the real templates registered and `APP_URL` unset, every send throws because
+`links.ts` refuses a relative CTA — so the scheduler commits its ledger rows and delivers *nothing*,
+and the ledger then suppresses the retry. Every environment that sends mail must set it.
+`.railway/railway.ts` does, for all three.
+
+---
+
+## D-026 · The join route answers four statuses § 8.4 does not name
+
+**Date:** 2026-10-05
+**Approved by:** § 8.4 names only the 200 and the 409; the rest follow from not leaking the schedule.
+**Scope:** `apps/api/src/routes/join.ts`
+
+§ 8.4 specifies `{ url }` when the window is open and `409 { error: 'Join opens 15 min before' }`
+otherwise. Four other cases exist and each is decided against disclosure:
+
+- **404, not 409 or 403, for a session in another cohort** as well as for an unknown id — so one
+  valid cookie cannot enumerate the programme's schedule. A test asserts the two responses are
+  indistinguishable.
+- **403 for a session whose AI Employee the learner's tier does not reach** (Gate 8 requires it for
+  `dec26-s4`).
+- **An unaccepted invite is refused**, and that case is *reachable*: `POST /api/auth/request` does
+  not read `users.status`, and only an `invite`-purpose token flips the row to active — so an
+  invited seat can request an ordinary sign-in link and get a session.
+- **`cache-control: no-store` on the 200.** The body is the one field § 7.4 withholds from every
+  learner snapshot, and the window closes. A cached 200 — bfcache, or any proxy ever put in front —
+  would re-serve a URL the server cannot recall after `endSession`. helmet sets no `cache-control`.
+
+The route reads the **unscoped** db and never calls `scopeSnapshot`, deliberately: its whole purpose
+is to serve the field `scope.ts` blanks. One test proves the pairing in a single body — Jamie's
+`GET /api/snapshot` has `zoom === ''` on every session, and this route is the only way he gets one.
+
+---
+
+## D-027 · The test database is scoped by RUN as well as by worker slot
+
+**Date:** 2026-10-05
+**Approved by:** three independent agents hitting the same collision, and a three-hour hang.
+**Scope:** `apps/api/test/helpers.ts`
+
+`VITEST_POOL_ID` is vitest's concurrency **slot**, and it restarts at 1 in every separate
+`vitest run` (vitest also overrides an externally supplied value — measured). So two concurrent
+runs both took `ai_lms_dev_t1` and truncated each other's rows mid-test.
+
+This was not theoretical. All three phase-08 agents hit it and each worked around it privately by
+swapping the database name — `ai_lms_dev_authz`, `ai_lms_dev_sched` and their slots were left behind
+— and it then hung a full-suite run of mine for three hours against a database another process kept
+emptying underneath it. None of the three reported it as a shared defect, because each had already
+solved it for itself.
+
+The name is now `<base>_r<run>_t<slot>`, where the run id defaults to the process group — every
+worker of one invocation shares a parent, so they agree, while a second invocation does not.
+
+**And each run sweeps on its way in**, because scoping by run would otherwise leak N databases per
+run onto a shared instance: any sibling `<base>_*` with no live connection is reclaimed. That also
+cleans up the older slot-only names and the agents' private ones. Failures in the sweep are
+swallowed — it is housekeeping, and a run that cannot drop someone else's leftovers should still
+run.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:

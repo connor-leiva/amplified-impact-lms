@@ -75,6 +75,27 @@ export const WORKER_SLOT = (process.env.VITEST_POOL_ID ?? process.env.VITEST_WOR
   '',
 );
 
+/**
+ * Which vitest RUN this is, as well as which slot within it.
+ *
+ * `VITEST_POOL_ID` is unique within one invocation and starts again at 1 in the next, so two
+ * concurrent `vitest run` PROCESSES both get slot 1 and truncate each other's rows mid-test. That
+ * is not hypothetical: three separate agents hit it and each worked around it privately, and it
+ * then hung a full-suite run of mine for three hours against a database another process kept
+ * emptying underneath it.
+ *
+ * `TEST_RUN_ID` closes it. It defaults to the process group — every worker of one `vitest run`
+ * shares a parent, so they agree on it while a second invocation does not — and can be set
+ * explicitly when something outside vitest needs a private database.
+ *
+ * Kept SHORT because Postgres truncates an identifier at 63 bytes silently, which would reintroduce
+ * the very collision this fixes. Base 36 of the ppid is at most five characters.
+ */
+export const TEST_RUN_ID = (process.env.TEST_RUN_ID ?? (process.ppid || process.pid).toString(36))
+  .replace(/[^0-9a-z]/gi, '')
+  .slice(0, 6)
+  .toLowerCase();
+
 const BASE_URL = readDatabaseUrl();
 const BASE_NAME = databaseNameOf(BASE_URL);
 
@@ -94,7 +115,7 @@ if (BASE_NAME === DEPLOYED_DATABASE) {
  * server-side, which would make two slots collide on the same database and reintroduce the exact
  * cross-truncation this file prevents.
  */
-export const TEST_DATABASE_NAME = `${BASE_NAME}_t${WORKER_SLOT}`.slice(0, 63);
+export const TEST_DATABASE_NAME = `${BASE_NAME}_r${TEST_RUN_ID}_t${WORKER_SLOT}`.slice(0, 63);
 
 if (TEST_DATABASE_NAME === DEPLOYED_DATABASE || !/^[a-z0-9_]+$/.test(TEST_DATABASE_NAME)) {
   throw new Error(
@@ -135,9 +156,55 @@ let ready: Promise<Database> | null = null;
  * development one named by `DATABASE_URL`. That connection only reads `pg_database` and issues the
  * create; it never writes a row.
  */
+/**
+ * Databases left behind by runs that are over.
+ *
+ * Scoping the name by run (see `TEST_RUN_ID`) is what stops two concurrent `vitest run` processes
+ * truncating each other — but it also means every run mints its own set, and a set that is never
+ * reclaimed grows without bound on a shared Postgres instance. `DROP_TEST_DB=1` cannot reclaim them
+ * either: it only knows the database the importing file happened to land in.
+ *
+ * So each run sweeps on its way in, which is the one moment a process can be sure what is stale:
+ * any `<base>_r*_t*` that is NOT this run's and has no live connection. `datconnlimit = -2` marks a
+ * database already being dropped by someone else; `WITH (FORCE)` is not used, because a database
+ * with a live connection belongs to a run that is still going.
+ *
+ * Failures here are swallowed deliberately. This is housekeeping, and a test run that cannot drop
+ * somebody else's leftovers should still run.
+ */
+async function reclaimStale(admin: postgres.Sql): Promise<void> {
+  try {
+    // `<base>_%` rather than `<base>_r%`, so the sweep also reclaims databases from the earlier
+    // slot-only naming (`ai_lms_dev_t3`) and from any private suffix someone used to dodge the
+    // collision this run-scoping fixes. The underscore makes the pattern strictly longer than
+    // `<base>`, so the development database itself can never match.
+    const stale = await admin<{ datname: string }[]>`
+      select d.datname
+      from pg_database d
+      where d.datname like ${`${BASE_NAME}\\_%`}
+        and d.datname <> ${TEST_DATABASE_NAME}
+        and d.datname not like ${`${BASE_NAME}\\_r${TEST_RUN_ID}\\_%`}
+        and d.datconnlimit <> -2
+        and not exists (select 1 from pg_stat_activity a where a.datname = d.datname)`;
+    for (const { datname } of stale) {
+      // Asserted against the same `^[a-z0-9_]+$` shape the name of this run's database is, and
+      // bounded by the `like` above, so it cannot address `railway` or the development database.
+      if (!/^[a-z0-9_]+$/.test(datname) || datname === DEPLOYED_DATABASE || datname === BASE_NAME) continue;
+      try {
+        await admin.unsafe(`drop database if exists "${datname}"`);
+      } catch {
+        /* another run is dropping it, or it acquired a connection between the select and here */
+      }
+    }
+  } catch {
+    /* housekeeping: never fail a test run over it */
+  }
+}
+
 async function createIfMissing(): Promise<void> {
   const admin = postgres(BASE_URL, { max: 1, onnotice: () => {} });
   try {
+    await reclaimStale(admin);
     const found = await admin`select 1 from pg_database where datname = ${TEST_DATABASE_NAME}`;
     if (found.length > 0) return;
     // The name is asserted `^[a-z0-9_]+$` above, so it is safe to interpolate — `unsafe` is here
