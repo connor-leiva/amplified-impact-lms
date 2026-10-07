@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amplified Impact</title>
+    <meta name="description" content="Amplified Impact — site under construction." />
+    <!--
+      A placeholder for www, served by `apps/api/src/routes/marketing.ts` while the real marketing
+      page is designed.
+
+      SELF-CONTAINED ON PURPOSE. No script, no stylesheet, no font file, no image file — the whole
+      page is one response. Three reasons, each of which has already cost something elsewhere in
+      this repository:
+
+        1. § 9.4's CSP is `default-src 'self'` with `script-src` restricted to hashed inline
+           scripts. A placeholder with a script would need its hash threaded through
+           `cspScriptHashes`, and a hash that drifted from the bytes fails SILENTLY — the script
+           just does not run. No script, no hash, nothing to drift.
+        2. `font-src 'self'` and the brand font's filenames are build-generated hashes. Pointing a
+           hand-written file at them couples it to vite's output, which is the kind of link that
+           breaks on an unrelated build. A system stack costs a placeholder nothing.
+        3. `style-src` does carry `'unsafe-inline'`, and `app.ts`'s header explains why (51 call
+           sites set CSS custom properties through `style={{}}`), so the inline <style> below is
+           allowed rather than a special case made for this page.
+
+      It deliberately does NOT reuse tokens.css. That file is GENERATED and verbatim from the
+      reference prototype, and a placeholder outside the product is not the place to take a
+      dependency on it. The few colours here are chosen to sit beside it, not to be it — when the
+      real marketing page is built it should use the design system properly.
+    -->
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f4f2ef;
+        --surface: #ffffff;
+        --line: #e4e0da;
+        --ink: #1a1815;
+        --muted: #6e6b67;
+        --accent: #006663;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #15130f;
+          --surface: #1d1a16;
+          --line: #302c26;
+          --ink: #f4f2ef;
+          --muted: #a6a4a0;
+          --accent: #4db6b1;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        /* `100dvh`, not `100%`: a percentage height resolves against the parent, and with no height
+           on `html` that chain never reaches the viewport — so `place-items: center` centred the
+           card inside a box exactly as tall as the card, and it sat at the top. `dvh` also accounts
+           for a mobile browser's collapsing address bar, which `vh` does not. */
+        min-height: 100dvh;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          400 16px/24px 'Hanken Grotesk',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          'Helvetica Neue',
+          Arial,
+          sans-serif;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        width: 100%;
+        max-width: 440px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 40px 32px;
+        text-align: center;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.06);
+      }
+      h1 {
+        font-size: 26px;
+        line-height: 32px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin: 20px 0 8px;
+      }
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 20px;
+      }
+      .sub {
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+      }
+      a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      a:hover,
+      a:focus-visible {
+        text-decoration: underline;
+      }
+      a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+      svg {
+        display: block;
+        margin: 0 auto;
+      }
+      /* The one moving part, and it stops for anyone who asked it to — CLAUDE.md's
+         `prefers-reduced-motion` rule applies here as much as to the app's confetti. */
+      .pulse {
+        animation: pulse 2.4s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.35;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pulse {
+          animation: none;
+          opacity: 0.8;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!-- A house still going up: the roof is dashed because it is not finished, and the three
+           blocks rise to meet it. `aria-hidden` with a `role="img"` label would be redundant — the
+           heading already says what the page says, so the graphic is decorative. -->
+      <svg width="88" height="88" viewBox="0 0 88 88" fill="none" aria-hidden="true">
+        <path
+          d="M14 42 44 18l30 24"
+          stroke="var(--accent)"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-dasharray="7 6"
+        />
+        <path
+          d="M22 44v24a2 2 0 0 0 2 2h40a2 2 0 0 0 2-2V44"
+          stroke="var(--line)"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <rect class="pulse" x="30" y="58" width="12" height="12" rx="2" fill="var(--accent)" />
+        <rect
+          class="pulse"
+          x="46"
+          y="58"
+          width="12"
+          height="12"
+          rx="2"
+          fill="var(--accent)"
+          style="animation-delay: 0.4s"
+        />
+        <rect
+          class="pulse"
+          x="38"
+          y="44"
+          width="12"
+          height="12"
+          rx="2"
+          fill="var(--accent)"
+          style="animation-delay: 0.8s"
+        />
+      </svg>
+
+      <h1>Under construction</h1>
+      <p>We&rsquo;re building something here. Check back soon.</p>
+
+      <div class="sub">
+        <p>
+          Looking for the eXpCon AI kit?
+          <a href="/ai101">It&rsquo;s right here &rarr;</a>
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

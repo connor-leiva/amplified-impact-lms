@@ -55,8 +55,16 @@ export default defineRailway((ctx) => {
     ...(demo ? {} : { preDeploy: 'pnpm --filter @ai/api db:migrate' }),
     healthcheck: '/api/health',
     healthcheckTimeout: 60,
+    // Production answers to TWO names on this one service, told apart by `Host` inside the process
+    // (`apps/api/src/routes/marketing.ts`) rather than by running a second service. `www` is the
+    // public marketing site, `learn` is the LMS behind sign-in. Both must stay listed here: a
+    // `config apply` against a list missing one would REMOVE that domain from the service.
     domains:
-      env === 'production' ? [`learn.${DOMAIN}`] : demo ? [`demo.${DOMAIN}`] : [`staging.${DOMAIN}`],
+      env === 'production'
+        ? [`learn.${DOMAIN}`, `www.${DOMAIN}`]
+        : demo
+          ? [`demo.${DOMAIN}`]
+          : [`staging.${DOMAIN}`],
     env: {
       // Exactly 'production'. The email transport selects Resend on this string and nothing else,
       // so a missing or misspelled value means every invite goes silently to a log file while the
@@ -70,6 +78,11 @@ export default defineRailway((ctx) => {
           : demo
             ? `https://demo.${DOMAIN}`
             : `https://staging.${DOMAIN}`,
+      // The www/learn split (`apps/api/src/routes/marketing.ts`). One service answers both names:
+      // on this host it serves the placeholder and keeps the app off it, everywhere else it serves
+      // the product. Production only — staging and demo have no marketing host, and the setting is
+      // inert when unset, so they serve the app at every name they are pointed at.
+      ...(env === 'production' ? { MARKETING_HOST: `www.${DOMAIN}` } : {}),
       VITE_DATA_SOURCE: demo ? 'fixture' : 'http',
       VITE_DEMO_MODE: demo ? 'true' : 'false',
       // The /__states and /__tokens specimen routes: a debugging aid, not a feature. Off in

@@ -59,6 +59,10 @@ import { startScheduler } from './jobs/scheduler';
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
 const ai101Html = fileURLToPath(new URL('../../web/dist/ai101.html', import.meta.url));
+// The marketing host's placeholder. It ships in `public/`, so the SPA's own build copies it
+// into `dist/` verbatim — it needs no build step of its own, because it carries no script and
+// no import. `routes/marketing.ts` serves it on MARKETING_HOST and nowhere else.
+const holdingHtml = fileURLToPath(new URL('../../web/dist/holding.html', import.meta.url));
 
 /** A built page's contents, or `null` when it has not been built or cannot be read. */
 function readBuilt(path: string): string | null {
@@ -105,6 +109,7 @@ const app = await build({
   fixtureOnly,
   inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page]),
   ai101Page,
+  marketingPage: readBuilt(holdingHtml),
   waitlist: databaseConfigured(),
 });
 

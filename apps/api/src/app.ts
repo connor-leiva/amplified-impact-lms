@@ -70,6 +70,7 @@ import { renderTemplate } from './email/templates';
 import { setRenderer } from './email/transport';
 import { clock } from './lib/clock';
 import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
+import { registerMarketingHost } from './routes/marketing';
 import { registerAuthRoutes } from './routes/auth';
 import { registerEventsRoute } from './routes/events';
 import type { EventHub } from './routes/events';
@@ -118,6 +119,13 @@ export interface BuildOptions {
    * SAME string to `cspScriptHashes`, so the bytes served and the bytes hashed cannot differ.
    */
   ai101Page?: string | null;
+  /**
+   * The built placeholder for the marketing host, `apps/web/dist/holding.html`, served on
+   * `MARKETING_HOST` only. `null` when it has not been built, which makes `/` there a 404
+   * rather than a redirect loop. Inert unless `MARKETING_HOST` is set — see
+   * `routes/marketing.ts`, which is the whole www/learn split.
+   */
+  marketingPage?: string | null;
   /**
    * Whether `POST /api/ai101/waitlist` exists. Defaults to `!fixtureOnly`, the API's usual "is
    * there a database" answer.
@@ -330,6 +338,11 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // through a presigned PUT, so they never pass through here.)
     bodyLimit: 1024 * 1024,
   }) as unknown as App;
+
+  // The www/learn split, before anything else: on the marketing host this answers with a static
+  // page or a redirect and needs neither a parsed cookie nor a rate-limit bucket. Inert unless
+  // MARKETING_HOST is set, so on the app host and in every test it costs one string compare.
+  registerMarketingHost(app, { page: options.marketingPage ?? null });
 
   // --- § 9.4's hardening -------------------------------------------------------------------------
 
