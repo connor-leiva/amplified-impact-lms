@@ -103,6 +103,13 @@
 //      not in the checklist's exemption list, which predates them. They are exempted here with
 //      that reasoning stated; `test/routes.test.ts` is what proves they do not exist outside
 //      `NODE_ENV=test`, which is the property that makes the exemption safe.
+//   3. `POST /api/ai101/waitlist` is unauthenticated BY DESIGN too (DECISIONS.md D-028): it is the
+//      December waitlist on the public /ai101 page, which the spec says needs "no login, no
+//      account". It is exempted here as `open`, with a same-origin check, a honeypot and its own
+//      rate limit standing in for the session — `routes/ai101.ts` carries that argument and
+//      `test/ai101.test.ts` measures each piece. The page and its three redirects are not under
+//      `/api/` at all, so the checklist's sentence never reached them; they are classified `page`
+//      so the inventory stays complete, and the sweep below asserts they stay outside `/api/`.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { can, MutationError, PERMS, seedForDatabase, STAFF_ROLES } from '@ai/core';
@@ -474,7 +481,7 @@ const EXPECTED_PERMISSIONS: Record<string, PermKey[]> = {
 // The route table
 // ================================================================================================
 
-type Guard = 'open' | 'open-stream' | 'session' | 'test-only';
+type Guard = 'open' | 'open-stream' | 'session' | 'test-only' | 'page';
 
 /**
  * Every route the API registers, and whether the checklist's 401 applies to it.
@@ -511,6 +518,15 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // which `test/routes.test.ts` is what proves.
   { path: '/api/test/session', methods: 'POST', guard: 'test-only' },
   { path: '/api/test/outbox', methods: 'GET, HEAD', guard: 'test-only' },
+  // D-028's public waitlist: an `/api/*` route that answers without a session on purpose. See the
+  // header, point 3. Registered whenever a database is configured, which `build()` defaults to here.
+  { path: '/api/ai101/waitlist', methods: 'POST', guard: 'open' },
+  // D-028's public page and the spec's three redirects to it. Not `/api/*`, so outside the
+  // checklist's 401 rule by construction; `page` says so, and the sweep asserts the prefix.
+  { path: '/ai101', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/ai101/', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/AI101', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/ai-101', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -968,6 +984,16 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // § 7.7's harness, exempt for the reason in the header.
           ['/api/test/session', app.inject({ method: 'POST', url: '/api/test/session', payload: {} })],
           ['/api/test/outbox', app.inject({ method: 'GET', url: '/api/test/outbox' })],
+          // D-028's waitlist, exempt for the reason in the header (point 3). A filled honeypot, so
+          // the probe is answered exactly as a sign-up would be and writes no row.
+          [
+            '/api/ai101/waitlist',
+            app.inject({
+              method: 'POST',
+              url: '/api/ai101/waitlist',
+              payload: { firstName: 'Probe', email: 'probe@example.test', website: 'x' },
+            }),
+          ],
         ];
 
         for (const [path, pending] of probes) {
@@ -975,6 +1001,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           EXECUTED.exempt += 1;
           expect(res.statusCode, `${path} must not be behind the session guard`).not.toBe(401);
         }
+
+        // The `page` routes are exempt by being outside `/api/` — the checklist's sentence is about
+        // `/api/*` and nothing else — so that is the property asserted. A page route that moved
+        // under `/api/` would have to be reclassified, and argued for, like the waitlist was.
+        const pages = ROUTES.filter((r) => r.guard === 'page');
+        expect(pages.map((r) => r.path).sort()).toEqual(['/AI101', '/ai-101', '/ai101', '/ai101/']);
+        expect(pages.filter((r) => r.path.startsWith('/api/'))).toEqual([]);
 
         // `/api/events` is exempt too and is NOT injected: an SSE response never ends, and
         // `inject` buffers until it does, so this would hang for the whole hook timeout.
@@ -1000,8 +1033,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     expect(EXECUTED.unauthenticated).toBe(11);
-    expect(EXECUTED.exempt).toBe(6);
+    // 7, not 6: D-028's public waitlist joined the exemptions, and is probed like the others.
+    expect(EXECUTED.exempt).toBe(7);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(184);
+    expect(total).toBe(185);
   });
 });

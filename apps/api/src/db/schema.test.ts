@@ -53,10 +53,11 @@ const propsOf = (t: PgTable): Set<string> => new Set(Object.keys(columnsOf(t)));
 
 // ---------------------------------------------------------------------------
 // 1. The tables and columns the phase files specify, by database name.
-//    Phase 07 § 7.2, plus phase 08 § 8.5's `job_runs` (`gate: 8`).
+//    Phase 07 § 7.2, plus phase 08 § 8.5's `job_runs` (`gate: 8`) and the /ai101 page's waitlist
+//    (`gate: 9`, DECISIONS.md D-028).
 // ---------------------------------------------------------------------------
 
-const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 }> = {
+const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 | 9 }> = {
   users: { table: 'users', columns: ['cohort_id', 'email', 'id', 'joined', 'kind', 'last', 'name', 'nudged', 'prefs', 'reminded', 'role', 'seq', 'staff_role', 'status', 'team_id', 'tier'] },
   teams: { table: 'teams', columns: ['id', 'name', 'owner_id', 'seats', 'seq'] },
   cohorts: { table: 'cohorts', columns: ['cadence', 'capacity', 'end', 'id', 'name', 'start', 'status', 'weeks'] },
@@ -77,6 +78,13 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // Three columns and no more. An `id` here would be a second way to identify a row that the
   // unique pair already identifies, and anything else would be duplicating the key's own segments.
   jobRuns: { table: 'job_runs', columns: ['job', 'key', 'sent_at'], gate: 8 },
+  // D-028: the public /ai101 page's December waitlist. Not a `Db` record, so it appears in none of
+  // the coverage maps below — only here, in the instant-unit map, and in the unique-index check.
+  ai101Waitlist: {
+    table: 'ai101_waitlist',
+    columns: ['brokerage', 'created_at', 'email', 'first_name', 'id', 'source', 'src'],
+    gate: 9,
+  },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -237,6 +245,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   // § 8.5. Not a `Db` column, but the same unit for the same reason: the scheduler writes
   // `clock.now()` here and `dueWork(db, now, …)` compares every window against that number.
   ['jobRuns', 'sentAt'],
+  // D-028. Not a `Db` column either; see INSTANT_UNIT below for why it is epoch ms anyway.
+  ['ai101Waitlist', 'createdAt'],
 ];
 
 /**
@@ -274,6 +284,10 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   authTokens: { unit: 'timestamp', why: '§7.5 internals: expires_at/used_at are compared with now() and never reach core' },
   authSessions: { unit: 'timestamp', why: '§7.5 internals: expires_at is compared with now() and never reaches core' },
   jobRuns: { unit: 'epoch-ms', why: '§8.5: sent_at is the scheduler clock dueWork compares its windows against' },
+  // Nothing in core reads `created_at`, so `timestamp` would have been allowed here. It is epoch ms
+  // because that is what `clock.now()` returns — the route writes it with no conversion, and a test
+  // under FIXED_NOW can compare the stored value to the pinned instant with `toBe`.
+  ai101Waitlist: { unit: 'epoch-ms', why: 'D-028: created_at is clock.now() as written by routes/ai101.ts; no reader converts it' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -452,5 +466,44 @@ describe('§7.2 composite primary keys @g7', () => {
       .filter(([, t]) => !Object.values(columnsOf(t)).some((c) => c.primary))
       .map(([n]) => n);
     expect(unkeyed).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 5. Unique indexes.
+// ---------------------------------------------------------------------------
+
+/**
+ * Tables whose uniqueness lives in an index rather than in the primary key, with the columns in
+ * order. `users.email`'s column-level `.unique()` is a constraint, not an index, and is not listed.
+ *
+ * The waitlist is the one entry, and the index is not decoration: `routes/ai101.ts` inserts with
+ * `on conflict (email, source) do nothing`, and Postgres REJECTS that statement outright — every
+ * sign-up a 500 — if no unique index or constraint matches the conflict target. So the pair, its
+ * order and its uniqueness are pinned here, next to the schema, rather than discovered at a venue.
+ */
+const UNIQUE_INDEXES: Record<string, { name: string; columns: string[] }> = {
+  ai101Waitlist: { name: 'ai101_waitlist_email_source_idx', columns: ['email', 'source'] },
+};
+
+describe('unique indexes @g9', () => {
+  /** Every index on a table, as plain data. A column expression is a `PgColumn`, which has a name. */
+  const indexesOf = (t: PgTable) =>
+    getTableConfig(t).indexes.map((i) => ({
+      name: i.config.name,
+      unique: i.config.unique,
+      columns: i.config.columns.map((c) => (c as unknown as { name: string }).name),
+    }));
+
+  for (const [name, expected] of Object.entries(UNIQUE_INDEXES)) {
+    it(`${name} is unique on (${expected.columns.join(', ')}) @g9`, () => {
+      expect(indexesOf(tableOf(name))).toEqual([{ name: expected.name, unique: true, columns: expected.columns }]);
+    });
+  }
+
+  it('finds no other table carrying an index @g9', () => {
+    // A new index is a new rule about which rows may coexist, which is worth a line here.
+    const indexed = tables.filter(([, t]) => getTableConfig(t).indexes.length > 0).map(([n]) => n);
+    expect(indexed.sort()).toEqual(Object.keys(UNIQUE_INDEXES).sort());
   });
 });

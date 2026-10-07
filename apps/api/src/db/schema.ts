@@ -12,9 +12,10 @@
 //   - `Db.dismissed`       lives in the `dismissals` table; § 7.3 rebuilds it as "userId:annId"
 // `Db.v`, `Db.phase` and `Db.base` are snapshot-level metadata, not persisted rows: the API always
 // returns `base: ZERO_BASE`.
-// Three tables are the other way round — rows with no `Db` field at all: `auth_tokens` and
-// `auth_sessions` (§ 7.5) and `job_runs` (§ 8.5, the scheduler's idempotence ledger).
-import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint } from 'drizzle-orm/pg-core';
+// Four tables are the other way round — rows with no `Db` field at all: `auth_tokens` and
+// `auth_sessions` (§ 7.5), `job_runs` (§ 8.5, the scheduler's idempotence ledger) and
+// `ai101_waitlist` (the public /ai101 page's sign-ups, DECISIONS.md D-028).
+import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, uniqueIndex } from 'drizzle-orm/pg-core';
 
 // ONE COLUMN THAT IS NOT IN `Db`: `seq`, on users, teams and resources.
 //
@@ -96,3 +97,29 @@ export const authSessions = pgTable('auth_sessions', { id: text('id').primaryKey
 export const jobRuns = pgTable('job_runs', {
   job: text('job').notNull(), key: text('key').notNull(), sentAt: ts('sent_at').notNull(),
 }, (t) => [primaryKey({ columns: [t.job, t.key] })]);
+
+// The December waitlist on the public /ai101 page — the eXpCon 2026 kit page, DECISIONS.md D-028.
+// The spec's order of preference for where sign-ups go is "the site's existing email/CRM
+// integration" and then "the site's existing database"; this repository has no CRM, so it is a
+// table. `routes/ai101.ts` is the only writer, and nothing in the app reads it yet: it is exported
+// by hand (SQL or `drizzle-kit studio`) when the December track opens.
+//
+// Not part of a `Db` and deliberately not in the snapshot codec, for the same reason as `job_runs`:
+// these are strangers who filled in a form, not program state, and a snapshot write must never be
+// able to touch them. No learner or staff screen shows them.
+//
+// `source` is a server constant (`expcon-2026-ai101`), never read from the request, so the unique
+// (email, source) index is what makes a second submission from the same address a no-op: the
+// insert is `on conflict do nothing` on exactly this pair, and a later event with its own source can
+// hold the same address again. `email` is stored lower-cased and trimmed, which is what makes the
+// index mean "the same person" rather than "the same keystrokes". `src` is the `?src=` attribution
+// tag (`qr` from the printed code), already filtered to a short slug or null.
+//
+// `created_at` is epoch ms (`ts()`) rather than a `timestamp`. Nothing in `@ai/core` reads it, so
+// either unit would be defensible under `schema.test.ts`'s rule; epoch ms is the default every table
+// declares unless it has a reason not to, and `clock.now()` — which § 7.7's FIXED_NOW pins in a test
+// — hands back exactly that number.
+export const ai101Waitlist = pgTable('ai101_waitlist', {
+  id: text('id').primaryKey(), firstName: text('first_name').notNull(), email: text('email').notNull(),
+  brokerage: text('brokerage'), source: text('source').notNull(), src: text('src'), createdAt: ts('created_at').notNull(),
+}, (t) => [uniqueIndex('ai101_waitlist_email_source_idx').on(t.email, t.source)]);

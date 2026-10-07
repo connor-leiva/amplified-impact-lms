@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
+import { ai101Render } from './src/ai101/vite-plugin.ts';
 
 // `--mode fixture` builds the prototype-identical fixture app the compliance suite runs against.
 export default defineConfig(({ mode }) => ({
-  plugins: [react()],
+  // `ai101Render` only so `pnpm dev` serves /ai101 with its content. It leaves `index.html` alone;
+  // the page's real build is vite.ai101.config.ts (see src/ai101/vite-plugin.ts for why).
+  plugins: [react(), ai101Render()],
   resolve: {
     // The subpath alias must come first: '@ai/core/mutations' resolves to the module file, while
     // bare '@ai/core' resolves to the barrel.

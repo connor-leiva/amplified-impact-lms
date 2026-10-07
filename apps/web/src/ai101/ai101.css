@@ -1,0 +1,650 @@
+/* /ai101, the eXpCon 2026 kit page. DECISIONS.md D-028.
+
+   Net-new and public: there is no reference file for this page, so nothing here is a port. Every
+   value is one the app already draws somewhere — the card (Card.module.css, radius 14), the H1
+   (SignIn's 26/32), the secondary and primary buttons (Button.module.css), the field
+   (Field.module.css), the 22px checkbox (Staff.module.css) and the visually-hidden rule
+   (SessionCard.module.css) — at the sizes the build contract names. There is not a colour in this
+   file: every one is a token, so `scripts/check-css-colors.mjs` scans it like a module.
+
+   Light theme only. The SPA's pre-paint theme script reads the signed-in viewer's preference, and
+   this page has no viewer; the tokens' defaults are the light theme.
+
+   Mobile first: the base rules are the 375px phone that scans the QR code, and the one breakpoint,
+   640px, is where the layers table has room to be a table again. Nothing on the page may scroll
+   sideways at 375px — the prompts wrap (`pre-wrap` plus `overflow-wrap: anywhere`) and the table
+   stacks.
+
+   This file is inlined into the page's <style> at build time (vite-plugin.ts), @imports included.
+   Only the four font files it can ask for are separate requests, and the browser asks only for the
+   subsets the page's characters fall in: latin, for every glyph on the page. */
+
+@import '@fontsource/hanken-grotesk/400.css';
+@import '@fontsource/hanken-grotesk/500.css';
+@import '@fontsource/hanken-grotesk/600.css';
+@import '@fontsource/dm-mono/400.css';
+@import '../styles/tokens.css';
+@import '../styles/global.css';
+
+/* --- Page ------------------------------------------------------------------------------------ */
+
+/* A 720px content column; the padding is the shell's own page padding, which the tokens already
+   step down to 24/16 under 768px. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: calc(720px + 2 * var(--page-pad-x));
+  margin: 0 auto;
+  padding: var(--page-pad-top) var(--page-pad-x) 56px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.page p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.page h1,
+.page h2,
+.page h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* --- Header ---------------------------------------------------------------------------------- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+/* Sentence case and the sans face, as the contract asks: not the mono uppercase eyebrow. */
+.eyebrow {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.hero h1 {
+  font-size: 26px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.subhead {
+  color: var(--text-secondary);
+}
+
+/* The jump links wrap as a row. Each link is 32px tall so it is a real tap target on a phone. */
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.jump a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border-radius: 4px;
+}
+.sep {
+  color: var(--text-tertiary);
+}
+
+a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* --- Section cards ---------------------------------------------------------------------------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 14px;
+  background: var(--bg-surface);
+  scroll-margin-top: 16px;
+}
+@media (min-width: 640px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+.card h2 {
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.015em;
+}
+
+.page h3 {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.lede {
+  color: var(--text-secondary);
+}
+
+/* An <h3> and what it heads. */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- Numbered lists: the 24px step circles ---------------------------------------------------- */
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.steps > li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 12px;
+  counter-increment: step;
+}
+.steps > li::before {
+  content: counter(step);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+/* --- Prompt blocks ---------------------------------------------------------------------------- */
+
+.prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-margin-top: 16px;
+}
+
+/* Label left, button right; on a phone the button drops under the label rather than squeezing it. */
+.prompt-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.prompt pre {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 10px;
+  background: var(--bg-sunken);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The highlight is drawn, not typed: the brackets are the prompt's own characters, and the copied
+   text is the <pre>'s textContent, which a <mark> adds nothing to. `clone` keeps the rounded tint
+   on every line of a placeholder that wraps. */
+.placeholder {
+  padding: 0 2px;
+  border-radius: 4px;
+  background: var(--action-primary-tint);
+  color: var(--text-primary);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Button.module.css's secondary `md`. The min-width holds the button at its "Copy prompt" width
+   while it says "Copied", so the swap never moves the layout around it. */
+.copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 140px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--action-secondary-line);
+  border-radius: 8px;
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition: background 120ms;
+}
+.copy:hover {
+  background: var(--action-secondary-hover);
+}
+.copy:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.copy svg {
+  flex: none;
+}
+.copy .icon-check,
+.copy[data-copied] .icon-copy {
+  display: none;
+}
+.copy[data-copied] .icon-check {
+  display: block;
+  color: var(--status-success-text);
+}
+
+/* --- The layers table ------------------------------------------------------------------------- */
+
+/* Phone: one stacked card per row. render.ts spells out every ARIA role, so the change of `display`
+   does not cost the table its semantics. The column headers stay in the accessibility tree
+   (visually hidden, not `display: none`), and each cell draws its column name above itself. */
+.layers,
+.layers tbody,
+.layers tr,
+.layers th,
+.layers td {
+  display: block;
+}
+.layers {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 22px;
+}
+.layers thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.layers tbody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.layers tbody tr {
+  padding: 12px 14px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 10px;
+  background: var(--bg-sunken);
+}
+.layers th,
+.layers td {
+  padding: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.layers tbody th {
+  font-weight: 600;
+}
+.layers td::before {
+  content: attr(data-label);
+  /* Empty alt text: the column header already names the cell to a screen reader. A browser that
+     does not know the alt syntax ignores this line and keeps the one above. */
+  content: attr(data-label) / '';
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 640px) {
+  .layers {
+    display: table;
+  }
+  .layers thead {
+    display: table-header-group;
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+  .layers tbody {
+    display: table-row-group;
+  }
+  .layers tr,
+  .layers tbody tr {
+    display: table-row;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .layers th,
+  .layers td {
+    display: table-cell;
+    padding: 12px 12px 12px 0;
+    border-top: 1px solid var(--line-default);
+    vertical-align: top;
+  }
+  .layers th:last-child,
+  .layers td:last-child {
+    padding-right: 0;
+  }
+  /* "1. The brand" on one line: the auto layout would otherwise give the shortest column the least. */
+  .layers tbody th {
+    white-space: nowrap;
+  }
+  .layers thead th {
+    padding-top: 0;
+    padding-bottom: 8px;
+    border-top: 0;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .layers td::before {
+    content: none;
+  }
+}
+
+/* --- Setup checklist -------------------------------------------------------------------------- */
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.checklist label {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+/* The native checkbox, transparent, exactly over the drawn box: it is still the control that is
+   clicked, focused and announced. */
+.checklist input {
+  position: absolute;
+  top: 9px;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Staff.module.css's `.check`. 1px down so the 22px box centres on the first 24px line. */
+.box {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 6px;
+  color: var(--action-on-primary);
+}
+.box svg {
+  visibility: hidden;
+}
+.checklist input:checked + .box {
+  border-color: var(--action-primary);
+  background: var(--action-primary);
+}
+.checklist input:checked + .box svg {
+  visibility: visible;
+}
+.checklist input:focus-visible + .box {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* --- The sprint ------------------------------------------------------------------------------- */
+
+.weeks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .weeks {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.weeks li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 10px;
+  background: var(--bg-sunken);
+}
+.week {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.pillar {
+  font-weight: 600;
+}
+
+/* --- Waitlist --------------------------------------------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 440px;
+}
+
+/* Field.module.css's stack, label and error. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.optional {
+  margin-left: 4px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+/* Field.module.css's `.input`, at 16px and 40px rather than 14px and 36px: iOS zooms the page into
+   any focused input whose text is under 16px, and this form is filled in on a phone. */
+.field input {
+  width: 100%;
+  height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 16px;
+  outline: none;
+}
+.field input:focus-visible {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.field-error {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--access-locked-text);
+}
+.field-error:empty {
+  display: none;
+}
+
+/* Off-screen, not `display: none` — see render.ts. A negative offset never widens the page. */
+.field-website {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Hidden until there is something to say: `:target` is the no-JavaScript path (the API's 303 to
+   `#waitlist-error`), `[data-shown]` is main.ts. */
+.form-error {
+  display: none;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--access-locked-text);
+}
+.form-error:target,
+.form-error[data-shown] {
+  display: block;
+}
+
+/* Button.module.css's primary `lg`. Full width under a thumb; its own width from 640px. */
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition: background 120ms;
+}
+@media (min-width: 640px) {
+  .submit {
+    width: auto;
+    align-self: flex-start;
+  }
+}
+.submit:hover {
+  background: var(--action-primary-hover);
+}
+.submit:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.submit[aria-disabled='true'] {
+  cursor: progress;
+}
+
+.consent {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+/* "You're on the list." in the shape of a success status token. Shown by the no-JavaScript 303 to
+   `#waitlist-joined`, or by main.ts setting `data-state="joined"`; the form goes away with it.
+   The `:has()` rule is progressive: a browser without it shows the message above the form. */
+.success {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--status-success-line);
+  border-radius: 10px;
+  background: var(--status-success-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.success svg {
+  flex: none;
+  color: var(--status-success-text);
+}
+.success:focus {
+  outline: none;
+}
+.success:target,
+.waitlist[data-state='joined'] .success {
+  display: flex;
+}
+.waitlist[data-state='joined'] .form,
+.waitlist:has(.success:target) .form {
+  display: none;
+}
+
+/* --- Utilities -------------------------------------------------------------------------------- */
+
+/* SessionCard.module.css's visually-hidden rule, verbatim. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* main.ts's fallback copy buffer: a readonly <textarea> that exists for one synchronous moment. 16px
+   so iOS does not zoom to it, fixed at the top left so selecting it cannot scroll the page. */
+.copy-buffer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  font-size: 16px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy,
+  .submit {
+    transition: none;
+  }
+}

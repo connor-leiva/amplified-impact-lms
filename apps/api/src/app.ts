@@ -15,7 +15,9 @@
 //   3. @fastify/rate-limit — § 9.4's 100/minute; `createRateLimit` is used by routes/auth.ts
 //   4. the routes          — auth, snapshot, mutate, events (§ 7), the two file downloads plus
 //                            upload-url and the join window (§ 8), and in test mode only, test.
-//                            `authz.test.ts` holds the authoritative inventory and checks it
+//                            Plus the public /ai101 page, its three redirects and its waitlist
+//                            (D-028), which sit OUTSIDE the fixture guard; `routes/ai101.ts` says
+//                            why. `authz.test.ts` holds the authoritative inventory and checks it
 //                            against the real router, so a route registered here without a guard
 //                            classification fails that test — which is what caught phase 08's four.
 //
@@ -67,6 +69,7 @@ import { close as closeDatabase, getDb } from './db/client';
 import { renderTemplate } from './email/templates';
 import { setRenderer } from './email/transport';
 import { clock } from './lib/clock';
+import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
 import { registerAuthRoutes } from './routes/auth';
 import { registerEventsRoute } from './routes/events';
 import type { EventHub } from './routes/events';
@@ -98,14 +101,33 @@ export interface BuildOptions {
   /**
    * § 7.1's demo guard, as `server.ts` reads it from `VITE_DATA_SOURCE === 'fixture'`.
    *
-   * True registers the hardening and `/api/health` and NOTHING else: no auth, no snapshot, no
-   * mutations, no events, no test routes, and therefore no database. The demo environment runs the
-   * SPA against its own in-browser fixture, so an API that cannot reach a database is correct
-   * there rather than merely tolerable.
+   * True registers the hardening, `/api/health` and the public /ai101 page with its redirects, and
+   * none of the app's data routes: no auth, no snapshot, no mutations, no events, no test routes.
+   * The SPA runs against its own in-browser fixture there, so an API with no data routes is correct
+   * rather than merely tolerable. It says nothing about whether a database EXISTS — production runs
+   * fixture mode with one — which is why the waitlist has a flag of its own, below.
    */
   fixtureOnly?: boolean;
   /** `'sha256-…'` entries for `script-src`. See the header; `server.ts` computes them. */
   inlineScriptHashes?: readonly string[];
+  /**
+   * The built /ai101 page, `apps/web/dist/ai101.html`, which `GET /ai101` serves from memory.
+   *
+   * `null` or absent — a checkout nobody has built, and every test that does not pass one — leaves
+   * the route registered and answering a JSON 404. `server.ts` reads the file once and passes the
+   * SAME string to `cspScriptHashes`, so the bytes served and the bytes hashed cannot differ.
+   */
+  ai101Page?: string | null;
+  /**
+   * Whether `POST /api/ai101/waitlist` exists. Defaults to `!fixtureOnly`, the API's usual "is
+   * there a database" answer.
+   *
+   * `server.ts` sets it from whether a `DATABASE_URL` is configured, independently of
+   * `fixtureOnly`, because the two disagree in production: fixture mode WITH a database. The demo
+   * deploy is fixture mode with none, and there the route must not exist at all — a 404, never a
+   * `DatabaseConfigError` on the first sign-up. `routes/ai101.ts` carries the argument.
+   */
+  waitlist?: boolean;
 }
 
 /** § 7.7's `build()`, with the two things Gate 7's snippet calls on the result. */
@@ -143,6 +165,24 @@ export function inlineScriptHashes(html: string): string[] {
     hashes.push(`'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`);
   }
   return hashes;
+}
+
+/**
+ * The `script-src` hashes for every page this process serves, de-duplicated.
+ *
+ * Two pages today: the SPA's `index.html` (the pre-paint theme script) and the /ai101 page (its one
+ * `<script type="module">`, inlined by its build so a visitor on venue Wi-Fi makes one request
+ * rather than three). The CSP is one policy for every response, so it has to allow both scripts —
+ * which widens nothing: a hash admits exactly the bytes it was computed from, on any page. A page
+ * that is `null` (not built) contributes nothing.
+ */
+export function cspScriptHashes(pages: readonly (string | null | undefined)[]): string[] {
+  const out = new Set<string>();
+  for (const html of pages) {
+    if (html === null || html === undefined) continue;
+    for (const hash of inlineScriptHashes(html)) out.add(hash);
+  }
+  return [...out];
 }
 
 /**
@@ -350,6 +390,15 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   // (`.railway/railway.ts`: `healthcheck: '/api/health'`), and it deliberately touches nothing:
   // a health check that queried the database would fail a deploy over a transient connection.
   app.get('/api/health', async () => ({ ok: true, version: process.env.RAILWAY_GIT_COMMIT_SHA ?? 'dev' }));
+
+  // The public /ai101 page and its redirects (D-028), in BOTH modes: a string in memory and three
+  // 301s, with no database and no session behind any of them. Outside the fixture guard because
+  // production runs fixture mode and the page has to be there.
+  registerAi101Page(app, options.ai101Page ?? null);
+
+  // Its waitlist, by its own flag rather than the fixture guard — the one route here that needs a
+  // database and nothing else. See `BuildOptions.waitlist` and `routes/ai101.ts`.
+  if (options.waitlist ?? !fixtureOnly) await registerAi101Waitlist(app);
 
   let events: EventHub | null = null;
 

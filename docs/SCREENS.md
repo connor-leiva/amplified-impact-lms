@@ -768,3 +768,17 @@ Components accept a `force` prop (`'hover'|'focus'|'disabled'|'loading'`) that r
   - The viewer's zone comes first and the program zone (CT) follows in parentheses, e.g. `2:00 PM ET (1:00 PM CT)`. CT viewers see only `1:00 PM CT`.
   - Past events use relative time (`fmt.ago`, or `fmt.agoInline` mid-sentence) with the absolute time (`fmt.abs`) in a `title` attribute.
 - **Money**: `fmt.money` gives `$4,995`. **Numbers**: `fmt.num`, with tabular numerals wherever digits update.
+
+---
+
+## 8. Public pages (outside the reference)
+
+Pages a human approved after the handoff, recorded in `DECISIONS.md`. They are not in `reference/`, so no parity scenario or golden covers them; their copy source and their tests are named here instead. They use the same tokens, type scale and patterns as §1.
+
+### 8.1 AI 101 kit page `/ai101`
+Approved in D-028. Copy and both prompts: `apps/web/src/ai101/content.ts`, the only file to edit when they change. Tests: `apps/web/src/ai101/{render,main}.test.ts` and `apps/api/test/ai101.test.ts`.
+
+- **Route.** Public, no session, served by the API as one self-contained HTML response at `https://learn.amplifiedimpact.io/ai101`. `/AI101`, `/ai-101` and `/ai101/` answer 301 to `/ai101` with the query string kept. `?src=` is attribution only and never changes the page.
+- **Outside the app shell.** Of the required landmarks only `main` exists, holding a `nav[aria-label="On this page"]` for the jump links: no `aside[aria-label="Primary"]`, no header breadcrumb, no demo controls. `body[data-app-ready="true"]` is static. One `h1`; sections are `h2`, sub-blocks `h3`. Light theme only.
+- **Order.** Header (eyebrow, H1, subhead, jump links) → `#voice-profile` → `#carousel-creator` → `#four-things` → `#sprint` → `#waitlist`.
+- **Behaviour.** Each prompt block's `Copy prompt` button copies the plain prompt and reads `Copied` for 2 s, announced in a polite live region; `[placeholders]` are highlighted on screen only. The setup checklist persists in `localStorage` under `ai101-checklist`. The waitlist form posts to `POST /api/ai101/waitlist` and shows `You're on the list.` inline. Everything except copying and the checklist's persistence works without JavaScript.

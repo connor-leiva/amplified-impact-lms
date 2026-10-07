@@ -829,6 +829,136 @@ run.
 
 ---
 
+## D-028 · /ai101, the eXpCon 2026 kit page: a public page outside the reference
+
+**Date:** 2026-10-06
+**Approved by:** the user, in chat on 2026-10-06, supplying the spec `AI 101 Kit Page Spec.md` and
+asking for the page to be built. The spec is not in the repository; its copy is, verbatim, in
+`apps/web/src/ai101/content.ts`.
+**Scope:** `apps/web/ai101.html`, `apps/web/vite.ai101.config.ts`, `apps/web/src/ai101/**`,
+`apps/web/public/ai101-qr.svg`, `apps/web/{package.json,tsconfig.json,vite.config.ts}`,
+`apps/api/src/routes/ai101.ts`, `apps/api/src/{app,server}.ts`, `apps/api/src/db/schema.ts`, the
+generated migration `apps/api/drizzle/0003_pale_victor_mancha.sql`, their tests
+(`apps/web/src/ai101/*.test.ts`, `apps/api/test/{ai101,authz,routes}.test.ts`,
+`apps/api/src/db/schema.test.ts`) and `scripts/check-css-colors.mjs`
+
+CLAUDE.md allows no screen the mockup does not have beyond the handoff's own list, and this is a new
+one: a public page for attendees of the eXpCon 2026 session "Sounds Like You, Looks Like You: AI 101
+for Agents" — two prompts to copy, a setup checklist, a December waitlist. It is opened from a QR
+code, mid-session, on a phone, on conference Wi-Fi, with no account.
+
+**No parity scenario, by construction.** The page is not in `design-reference/`, so there is no
+golden to compare it with, and capturing one from our own build is the self-comparison D-008 exists
+to prevent. Its contract is the spec instead: the copy in `content.ts`, the behaviour in
+`apps/web/src/ai101/{render,main}.test.ts` and `apps/api/test/ai101.test.ts`. There is no compliance
+e2e spec for it yet; the browser behaviour (copy, checklist, form, 375 px, no-JS) was checked by hand
+against a production-shaped build before launch. It reuses the system's
+tokens, type scale, card, button and field patterns and `ICONS`, under the usual rules;
+`check-css-colors.mjs` now scans `apps/web/src/ai101/**/*.css` as well.
+
+**The URL is `learn.amplifiedimpact.io/ai101`, not the spec's `amplifiedimpact.io/ai101`.** The apex
+is parked at GoDaddy, and GoDaddy DNS cannot point an apex at Railway: Railway attaches a custom
+domain by CNAME, DNS forbids a CNAME at a zone apex, and GoDaddy has no flattening record to stand in
+for one. `learn.` is already production's domain (`.railway/railway.ts`), and the user chose it. The
+QR code encodes it, and the Instagram keyword DM, configured outside this repository, must link to
+it too.
+
+**A separate Vite build.** `vite build -c vite.ai101.config.ts` runs after the SPA's build, into the
+same `dist/` with `emptyOutDir: false`. A second input in the main config would let Rolldown hoist
+shared chunks (CSS, the modulepreload polyfill) out of the SPA's entry, which changes the gated
+SPA's `index.html`. Built apart, `dist/index.html` is byte-identical to `vite build` alone. The main
+config gains only the render plugin, a no-op for `index.html`, so `pnpm dev` serves the page too.
+
+**One self-contained HTML response, exempt from the rate limit.** The global limit is 100 a minute
+per session or IP (§ 9.4, `GLOBAL_RATE_MAX`), and a session room behind venue NAT is one IP: a
+hundred phones scanning the code in the same minute would 429 each other on the page and on every
+asset it loads. So the build inlines the stylesheet and the module script into `ai101.html`,
+`<link rel="icon" href="data:,">` saves a favicon request per visitor, and `GET /ai101` and its
+three 301s (`/AI101`, `/ai-101`, `/ai101/`, query string kept) are `rateLimit: false`. It is served
+`no-cache` with a strong ETag, so a reload is a 304. The font files are ordinary static assets and
+still count; a 429 on one falls back to the system face (`font-display: swap`), not a broken page.
+
+**The waitlist POST is public: a new exemption to Gate 7's 401 rule.** Gate 7 says an
+unauthenticated call to any `/api/*` route except `/api/health`, `/api/auth/*` and `/api/events`
+returns 401. `POST /api/ai101/waitlist` joins that list, and `test/authz.test.ts` carries it. Its
+own guards stand in for a session: the Origin check (`originIsAllowed`: absent passes, foreign or
+`null` is 403), a honeypot field that answers exactly like success and stores nothing, its own limit
+of 300 a minute per key, length caps on every field, and a `source` that is a server constant, never
+read from the request. Neither the name nor the email is logged.
+
+**Registered when a database is configured, not when the build is non-fixture.** Production runs
+`VITE_DATA_SOURCE=fixture` *with* a `DATABASE_URL` (LAUNCH.md § 2), so `server.ts` computes
+`fixtureOnly = true` there and nothing inside `build()`'s `!fixtureOnly` block exists in
+production. The route is keyed on whether a database is configured instead: `server.ts` asks
+`readDatabaseUrl()`, the same function `getDb()` resolves the URL with, so the answer cannot
+disagree with the connection. In the demo
+environment (fixture, no database) the page still serves and the POST is a plain 404, which the
+form shows as its generic error.
+
+**`Referrer-Policy: same-origin` on the page.** helmet sets `no-referrer` everywhere, and under
+`no-referrer` a native form POST sends `Origin: null`, which `originIsAllowed` correctly treats as
+foreign, so every no-JS submit would be refused. The `/ai101` response overrides the policy to
+`same-origin`: our own POST carries the real origin, and nothing is sent off-site. The script's
+`fetch` is unaffected either way, because Fetch keeps the origin on a `cors`-mode request.
+
+**The no-JS fallback, without `@fastify/formbody`.** The spec requires the page to stay usable
+when JavaScript fails, and a native form posts `application/x-www-form-urlencoded`, which Fastify does not
+parse. Rather than add a dependency, the route's encapsulated plugin registers a parser for that one
+type, on `URLSearchParams` with a small body limit, so no other route accepts a form body. That is
+also a departure from § 9.4's CSRF rule ("every mutation requires `content-type:
+application/json`"), confined to this route and safe for the reason it can be public at all: the
+route reads no cookie, so a forged cross-site submission can do nothing a direct `curl` cannot. The
+no-JS submit answers `303` to `/ai101#waitlist-joined` or `/ai101#waitlist-error`, and CSS `:target`
+shows the message. The spec's "no page redirect" holds whenever the script runs.
+
+**Smaller choices.**
+- Light theme only. A public page has no viewer preference to honour, so it renders `tokens.css`'s
+  default `:root` and needs no pre-paint theme script, which would be one more inline hash in the CSP.
+- Inputs are 16 px against `Field`'s 14 px, because iOS Safari zooms the page when a smaller input
+  takes focus.
+- Submissions go to a new table, `ai101_waitlist`, tagged `source = 'expcon-2026-ai101'`, with the
+  optional `?src=` attribution in its own `src` column. A unique `(email, source)` makes a repeat a
+  no-op that still reports success. The spec prefers an existing email or CRM integration and there
+  is none, so the database is its second choice. The table is not part of the snapshot codec.
+- No analytics events. The spec fires them only if analytics is already installed, and none is.
+
+**Production must run the migration.** The live service's pre-deploy command was null, although
+`.railway/railway.ts` declares `pnpm --filter @ai/api db:migrate` for every non-demo environment.
+It was set to that command on 2026-10-07, with the user's approval, through Railway's API, as a
+single setting: not `railway config apply`, which would also flip production from `fixture` to
+`http`. This migration, and every later one, now reaches production before the new build serves.
+
+**Shipped past a red CI, once, with the user's approval.** Railway's "Wait for CI" had skipped
+every deploy since `dbf9c48`: the `quality` job runs `pnpm test` with no database, and
+`apps/api/test/helpers.ts` throws on import without `DATABASE_URL`, so the check suite has failed
+since phase 07. With the session two days out, the user chose to deploy this commit directly
+(`serviceInstanceDeployV2`) rather than fix CI first. That also put phases 07–09 in production for
+the first time; in fixture mode they are dormant. CI is still red, so later pushes will keep being
+skipped until `quality` stops running the API package without a database.
+
+**The QR code**, `apps/web/public/ai101-qr.svg` (served at `/ai101-qr.svg`), encodes
+`https://learn.amplifiedimpact.io/ai101?src=qr`: 45 bytes in one byte-mode segment, error correction
+Q, which is version 4 (33 × 33 modules, mask 2) plus a 4-module quiet zone, so
+`viewBox="0 0 41 41"`. Version 4 holds 46 bytes at Q and M would also need version 4, so Q's extra
+damage tolerance costs no density; H would need version 6. It is black on white rather than tokens:
+a print and projection asset read by cameras, never styled by the app. It was generated once, with
+node-qrcode installed in a scratch directory outside the repository's dependencies
+(`npm i qrcode@1.5.4`), in bash:
+
+```bash
+node -e 'require("qrcode").toString("https://learn.amplifiedimpact.io/ai101?src=qr", {type: "svg", errorCorrectionLevel: "Q", margin: 4, width: 1025}).then((svg) => process.stdout.write(svg.replace("crispEdges\">", "crispEdges\"><title>QR code for https://learn.amplifiedimpact.io/ai101</title>")))' > ai101-qr.svg
+```
+
+`width: 1025` is 41 modules × 25 px, so at its natural size every module is whole pixels.
+**Verified** independently of the generator: rendered in the repository's Playwright Chromium and
+decoded with jsQR 1.4.0, it reads back exactly the URL as an inline SVG at 1025, 600, 300, 150 and
+100 px, as an `<img>`, and as a 600 px render resampled to 150 and 120 px to stand in for distance.
+The format bits, read straight from the SVG's modules, say Q and mask 2. **Not verified:** the
+spec's scan from about 3 m off a laptop screen, which needs a phone and a room. Show the code as
+large as the screen allows.
+
+---
+
 ## Net-new UI approved by the handoff itself
 
 These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additions:
@@ -836,3 +966,6 @@ These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additi
 - Sign-in and invite-accept screens (phase 07, spec in `docs/phases/07-backend.md` § 7.5)
 - The unsaved-changes prompt in the Module Builder (phase 06 § 6.3) — recorded above as D-015
 - Production integrations (phase 08)
+
+Net-new UI approved later, by a human, is recorded as its own entry rather than added here:
+`/ai101` is D-028.

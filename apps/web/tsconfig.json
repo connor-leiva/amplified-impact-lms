@@ -2,10 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
+    "allowImportingTsExtensions": true,
     "paths": {
       "@ai/core": ["../../packages/core/src/index.ts"],
       "@ai/core/*": ["../../packages/core/src/*"]
     }
   },
-  "include": ["src/**/*", "vite.config.ts", "vitest.config.ts"]
+  "include": ["src/**/*", "vite.config.ts", "vite.ai101.config.ts", "vitest.config.ts"]
 }

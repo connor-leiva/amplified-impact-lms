@@ -27,7 +27,7 @@ import { get as httpGet } from 'node:http';
 import type { IncomingMessage } from 'node:http';
 import { scopeSnapshot, seedForDatabase } from '@ai/core';
 import type { Db } from '@ai/core';
-import { build, cspDirectives, inlineScriptHashes, scrubUrl, shutdown } from '../src/app';
+import { build, cspDirectives, cspScriptHashes, inlineScriptHashes, scrubUrl, shutdown } from '../src/app';
 import type { App } from '../src/app';
 import { INVITE_TTL_MS, hashToken, sessionCookieOptions } from '../src/auth';
 import { authTokens } from '../src/db/schema';
@@ -110,22 +110,36 @@ describe('/api/health @g7', () => {
 });
 
 describe('the fixture guard @g7', () => {
-  it('registers the hardening and /api/health, and no data routes at all', async () => {
+  it('registers the hardening, /api/health and the public /ai101 page, and no data routes at all', async () => {
     // The demo environment runs on this (`VITE_DATA_SOURCE: 'fixture'`, no DATABASE_URL). If the
     // routes were registered and merely unused, the first crawler to hit `/api/snapshot` would get
     // a `DatabaseConfigError`; CLAUDE.md's rule is that real data must be unreachable there.
-    const demo = await build({ logger: false, fixtureOnly: true });
+    //
+    // The /ai101 page and its redirects (D-028) are the one addition, and they need neither a
+    // database nor a session: a string in memory and three 301s. The waitlist beside them needs a
+    // database, so with `waitlist` left to its default (`!fixtureOnly`) it must not exist here —
+    // a 404, not a route that throws on the first sign-up. `test/ai101.test.ts` covers the other
+    // half: fixture mode WITH a database, which is what production runs.
+    const demo = await build({ logger: false, fixtureOnly: true, ai101Page: '<!doctype html><title>AI 101</title>' });
     try {
       expect((await demo.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(200);
       // § 9.4's headers survive the guard: the demo site serves the SPA and still wants a CSP.
       expect((await demo.inject({ method: 'GET', url: '/api/health' })).headers['content-security-policy']).toContain(
         "default-src 'self'",
       );
+      expect((await demo.inject({ method: 'GET', url: '/ai101' })).statusCode).toBe(200);
+      expect((await demo.inject({ method: 'GET', url: '/AI101' })).statusCode).toBe(301);
 
       for (const url of ['/api/snapshot', '/api/me', '/api/events', '/api/test/outbox']) {
         expect((await demo.inject({ method: 'GET', url })).statusCode, url).toBe(404);
       }
-      for (const url of ['/api/auth/request', '/api/auth/verify', '/api/mutate/toggleStep', '/api/test/session']) {
+      for (const url of [
+        '/api/auth/request',
+        '/api/auth/verify',
+        '/api/mutate/toggleStep',
+        '/api/test/session',
+        '/api/ai101/waitlist',
+      ]) {
         expect((await demo.inject({ method: 'POST', url, payload: {} })).statusCode, url).toBe(404);
       }
       expect(demo.events).toBeNull();
@@ -635,6 +649,41 @@ describe('§ 9.4 · the Content-Security-Policy @g7', () => {
     expect(inlineScriptHashes('<script></script>')).toEqual([]);
     expect(inlineScriptHashes('<p>no scripts here</p>')).toEqual([]);
     expect(inlineScriptHashes('<script>a</script><script>b</script>')).toHaveLength(2);
+  });
+
+  it('hashes an inline MODULE script, which is how the /ai101 page ships its code', () => {
+    // D-028: the page's build inlines its one `<script type="module">` so a visitor on venue Wi-Fi
+    // makes one request. CSP hashes apply to module scripts exactly as to classic ones, so the
+    // attribute must not be mistaken for a `src` — only a `src` makes a script not inline.
+    const body = 'import.meta;document.body.dataset.ready="1";';
+    const expected = `'sha256-${createHash('sha256').update(body).digest('base64')}'`;
+    expect(inlineScriptHashes(`<script type="module">${body}</script>`)).toEqual([expected]);
+    expect(inlineScriptHashes(`<script type="module" crossorigin>${body}</script>`)).toEqual([expected]);
+  });
+
+  it('allows BOTH pages’ inline scripts under the one policy every response carries', async () => {
+    // `server.ts` passes `cspScriptHashes([index.html, ai101.html])`. The CSP is one header for the
+    // whole app, so the SPA's theme script and the /ai101 page's module script must both be in
+    // it, from whichever page — and a page that has not been built contributes nothing.
+    const spa = '<html><head><script>document.documentElement.dataset.theme = "dark";</script></head></html>';
+    const ai101 = '<html><body><main></main><script type="module">console.log("ai101")</script></body></html>';
+    const both = cspScriptHashes([spa, ai101]);
+    expect(both).toEqual([...inlineScriptHashes(spa), ...inlineScriptHashes(ai101)]);
+    expect(both).toHaveLength(2);
+    // De-duplicated, and tolerant of a page that is not there.
+    expect(cspScriptHashes([spa, spa, null, undefined])).toEqual(inlineScriptHashes(spa));
+    expect(cspScriptHashes([null, null])).toEqual([]);
+
+    const served = await build({ logger: false, inlineScriptHashes: both, ai101Page: ai101 });
+    try {
+      for (const url of ['/api/health', '/ai101']) {
+        const csp = String((await served.inject({ method: 'GET', url })).headers['content-security-policy']);
+        for (const hash of both) expect(csp, url).toContain(hash);
+        expect(csp, url).not.toMatch(/script-src[^;]*'unsafe-inline'/);
+      }
+    } finally {
+      await served.close();
+    }
   });
 
   it('keeps the video host out of the policy until one is configured', () => {
