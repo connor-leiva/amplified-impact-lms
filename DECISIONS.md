@@ -969,3 +969,97 @@ These are listed in `CLAUDE.md` › Non-negotiables as the only permitted additi
 
 Net-new UI approved later, by a human, is recorded as its own entry rather than added here:
 `/ai101` is D-028.
+
+## D-029 · www and learn are one service, split by Host
+
+**Date:** 2026-10-07
+**Approved by:** the user, in chat on 2026-10-07: "The learn.amplifiedimpact.io url needs a login.
+www.amplifiedimpact.io should be a basic marketing site. The real reason for the cutover is I don't
+want people accessing the LMS right now as it's still under development. But I want the
+www.amplifiedimpact.io/ai101 landing page to render to anyone." Placeholder content approved in the
+same thread: "I'm fine with the marketing site literally just being a cute little graphic saying
+under construction, check back in - as a placeholder."
+**Scope:** `apps/api/src/routes/marketing.ts`, `apps/api/src/{app,server}.ts`,
+`apps/web/public/holding.html`, `apps/api/test/marketing.test.ts`, `.railway/railway.ts`
+
+Two public names, one Railway service, told apart inside the process by the `Host` header. `learn`
+is the LMS behind invite-only sign-in; `www` is public and currently serves a placeholder.
+
+**A hook, not a route.** Registering `GET /` would claim that path for every host, and on the app
+host `/` belongs to `@fastify/static`'s index. Fastify gives a route handler no clean way to decline
+and fall through to the static plugin, so a route would have meant the placeholder winning on
+`learn` as well — the most expensive failure available to this feature. An `onRequest` hook can
+answer or stand aside. It also leaves the route table untouched, so `authz.test.ts`'s inventory,
+which is checked against the real router, keeps meaning what it says.
+
+**`/ai101` and `/api/` stay live on both hosts.** The first is public by design (D-028) and is
+reached with no session. The second carries Railway's healthcheck, which arrives with its own
+`Host`; a redirect there fails the check and rolls back a deploy that was perfectly healthy.
+
+**302, not 301,** for every other path on the marketing host. These paths will mean something once
+`www` has a real site, and a 301 is cached by browsers more or less forever.
+
+**Inert unless `MARKETING_HOST` is set, with no default.** A wrong default replaces the product with
+an "under construction" page. Staging and demo set nothing and are unaffected.
+
+**The one thing the tests cannot see.** `server.ts` reads the page from `apps/web/dist/holding.html`,
+which gets there because vite copies `public/` verbatim; the tests inject the page directly, by
+design, so they cannot detect a build that stopped copying it. The boot logs an error for that case
+instead of 404ing in silence. The copy was verified empirically by deleting the file and rebuilding.
+
+**The apex is still not served.** `amplifiedimpact.io` with no `www` does not resolve, for the reason
+D-028 records: DNS forbids a CNAME at a zone apex and GoDaddy has no flattening record. Railway also
+reports this plan at its custom-domain limit with `learn` and `www` attached, so a third name is not
+available without an upgrade. GoDaddy domain forwarding to `https://www.…` is the remaining option
+and is not enabled.
+
+## D-030 · CI's quality job runs no database suite, and CI runs no http parity
+
+**Date:** 2026-10-07
+**Approved by:** not a product decision — a defect fix. Reported by the user on 2026-10-07 relaying
+Railway: deploys were being skipped because "Wait for CI" was on and CI had been red since the first
+push.
+**Scope:** `.github/workflows/ci.yml`, `apps/web/vitest.config.ts`
+
+CI had never been green, and the reason given in the deploy history — Windows-captured screenshots
+against a Linux runner — was stale. D-020's platform-scoped goldens had already fixed that. Three
+real defects were found instead, two of them in CI's own definition.
+
+**1. `quality` ran the api suite with no Postgres.** Its step was `pnpm test`, which is
+`pnpm -r test` and includes `@ai/api`. `apps/api/test/helpers.ts:99` resolves `DATABASE_URL` at
+MODULE scope, so 16 of that package's 31 test files throw `DatabaseConfigError` during collection on
+a runner with no database. `apps/api/.env` is gitignored, so the local `loadEnvFileOnce()` fallback
+that hides this on a developer's machine does not exist in CI. The job now runs
+`pnpm --filter @ai/core --filter @ai/web test`; the api suite keeps its own job, which has a real
+`postgres:18`.
+
+Deliberately NOT fixed by making those tests skip without a database. A suite that skips when
+`DATABASE_URL` goes missing reports green while testing nothing, and the `api` job losing its
+service is precisely the case that has to stay loud.
+
+**2. `compliance` would have failed too, and had never been observed.** It takes `GATE` from
+`.phase`, now 9, and `GATE >= 7` switches on `HTTP_PARITY` (`compliance/lib/prepare.ts`), which
+starts a second server and makes `global-setup.ts:186` truncate and re-seed a Postgres. That job has
+no database either. It was invisible because `needs: quality` meant the job was skipped rather than
+run — fixing only defect 1 would have turned one red job into a different red job.
+
+The job now sets `HTTP_PARITY: '0'`, `prepare.ts`'s own documented override, which also makes the
+`@g7` sign-in e2e specs skip themselves because `LIVE_API_BASE` becomes null.
+
+**Accepted coverage gap.** The 24 http-mode parity scenarios now run only in the local gate.
+Restoring them in CI needs a job with a postgres service INSIDE the playwright container, where the
+service is addressed as `postgres:5432` and not `localhost:5432` as the `api` job does, because a
+container job reaches services over the Docker network. That is a change that cannot be verified
+locally — there is no Docker on the development machine — so it was not bundled into a fix whose
+purpose was to unblock deploys.
+
+**3. A load-sensitive web test, found by simulating CI rather than by reading it.** Running the
+fixed `quality` job locally with `apps/api/.env` hidden surfaced
+`SignIn.test.tsx > rejects an invalid address` timing out at vitest's 5000ms default, while passing
+3/3 in isolation. `userEvent.type()` dispatches a full keyboard sequence per character through jsdom
+and React, and this suite runs 29 jsdom environments in parallel. `apps/web/vitest.config.ts` now
+sets `testTimeout: 20_000`. GitHub's runners have fewer vCPUs than the development machine, so a
+margin already thin locally would have been thinner there.
+
+This one is the argument for simulating a CI job instead of reasoning about it: four agents read
+`ci.yml` against the repository and none of them could have found it.

@@ -20,7 +20,16 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      # NOT `pnpm test`. That is `pnpm -r test`, which includes apps/api — and apps/api's suite
+      # resolves DATABASE_URL at IMPORT time (test/helpers.ts:99 is module scope, not a hook), so
+      # 16 of its 31 files throw DatabaseConfigError during collection on a runner with no
+      # Postgres. This job deliberately has no infrastructure; the api suite has its own job below
+      # with a real postgres:18 service, and running it here as well only duplicated that work.
+      #
+      # Deliberately NOT fixed by making those tests skip without a database: a suite that skips
+      # when DATABASE_URL goes missing is a suite that reports green while testing nothing, and
+      # the `api` job losing its service is exactly the case that has to stay loud.
+      - run: pnpm --filter @ai/core --filter @ai/web test
 
   goldens: # proves the goldens are exactly what the reference renders, and nothing else
     runs-on: ubuntu-latest
@@ -93,6 +102,22 @@ jobs:
       - run: pnpm compliance && pnpm e2e
         env:
           GATE: ${{ steps.phase.outputs.gate }}
+          # `.phase` is 9, and GATE >= 7 turns http parity ON (compliance/lib/prepare.ts) — which
+          # starts a second server and makes global-setup truncate and re-seed a Postgres. This
+          # job has no `services:` block and no DATABASE_URL, so global-setup would throw before
+          # the first test ran. It has never been observed because `needs: quality` meant this job
+          # was skipped, not run.
+          #
+          # '0' is prepare.ts's documented hard override, and it also makes the @g7 sign-in e2e
+          # specs skip themselves rather than fail, because LIVE_API_BASE becomes null.
+          #
+          # COVERAGE GAP, on purpose and temporarily: the 24 http-mode parity scenarios now run
+          # only in the local gate. Restoring them in CI needs a job with a postgres service
+          # inside this container — where the service is reached as `postgres:5432`, NOT
+          # `localhost:5432` as the `api` job does, because a container job talks to services over
+          # the Docker network. That is a change worth making on its own, not bundled into a fix
+          # whose job is to unblock deploys.
+          HTTP_PARITY: '0'
       - if: failure()
         uses: actions/upload-artifact@v4
         with: { name: compliance-report, path: compliance/report }

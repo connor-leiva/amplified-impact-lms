@@ -22,5 +22,17 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     // A package with nothing to test yet must not fail the gate (Gate 0: 'empty test suites are allowed').
     passWithNoTests: true,
+    // Not a unit-test timeout — a jsdom-under-load one. `userEvent.type()` dispatches a full
+    // keyboard event sequence per character through jsdom and React, and this suite runs 29 jsdom
+    // environments in parallel (vitest reports ~78s of environment setup across workers). On this
+    // machine SignIn.test.tsx's 18-character address took over vitest's 5000ms DEFAULT exactly
+    // once in a full run while passing 3/3 in isolation, which is the signature of contention
+    // rather than a hang. GitHub's runners have 2-4 vCPU against this machine's, so a margin that
+    // is already thin locally is thinner there.
+    //
+    // Raised rather than worked around: making the tests type faster would mean not testing what a
+    // real keystroke does, and lowering parallelism would slow every run to hide one. A test that
+    // genuinely hangs still fails here, just 20 seconds later.
+    testTimeout: 20_000,
   },
 });
