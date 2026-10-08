@@ -1263,7 +1263,7 @@ API route, supplied the location id, approved the proposed tags with "Tags appro
 build it", and created a Private Integration token — to be set in Railway as `GHL_TOKEN`, and never
 pasted into chat.
 **Scope:** `apps/api/src/integrations/ghl.ts`, `apps/api/src/jobs/ghl-sync.ts`, `apps/api/src/server.ts`,
-`apps/api/src/db/schema.ts` and the generated migration `apps/api/drizzle/0004_skinny_roland_deschain.sql`,
+`apps/api/src/db/schema.ts` and the generated migration `apps/api/drizzle/0004_jittery_lord_hawal.sql`,
 `.railway/railway.ts`, their tests (`src/integrations/ghl.test.ts`, `test/ghl-sync.test.ts`,
 `src/db/schema.test.ts`).
 
@@ -1324,6 +1324,23 @@ database migrates through `0004`, so the migration applies), and five deliberate
 caught by a test — tags in the upsert, no union, no allow-list, systemic failures spending attempts,
 and a claim that ignored `ghl_synced_at`.
 
+**Consent columns, for D-034, in this same migration.** The /ai101 session is redesigning the form
+for consent (D-034, recording the user's decisions of 2026-10-08: an optional mobile number; joining
+is email consent plus agreeing to the Terms and Privacy policy; a separate, unchecked, optional SMS
+box). It asked for the columns here so the two branches share ONE migration: `phone` (E.164),
+`sms_consent` (boolean, default false), `sms_consent_at` (epoch ms, like every instant in this
+schema, rather than the `timestamptz` first proposed), `sms_consent_text` (the exact wording shown)
+and `terms_version`. A CHECK constraint, `ai101_waitlist_sms_consent_proof`, refuses SMS consent
+without its number, time and wording: a "yes" to texts with no evidence is the record carrier rules
+(10DLC) make dangerous to hold. The form, the validation and the wording are D-034's.
+
+**A phone number reaches GHL only with SMS consent.** GHL can text any contact with a number — a
+workflow, a bulk send, a mis-built filter — so the guarantee that someone who did not tick the box is
+never texted is made by GHL never having their number. A number given without consent stays in the
+row. With consent, the number is in the upsert and the contact gets one more tag, `sms-consent`,
+which every SMS workflow should filter on. Email consent comes with every row. Ignoring the consent
+check fails five tests across both suites.
+
 **The consent line** on the page reads "We'll email you about the December agent track. Unsubscribe
 anytime." Mail sent from GHL to this list should stay within that promise, or the line should change
-first. Not changed here.
+first; D-034 is rewriting it.

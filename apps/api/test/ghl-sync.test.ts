@@ -38,19 +38,23 @@ const row = async (id: string) => (await (await testDatabase()).select().from(ai
  */
 function fakeGhl(failFor: Record<string, number> = {}) {
   const order: string[] = [];
+  const upserts: Record<string, Record<string, unknown>> = {};
+  const tagsSent: string[][] = [];
   let n = 0;
   const fetch = (async (url: string | URL | Request, init?: RequestInit) => {
     const u = String(url);
     const body = JSON.parse(String(init?.body ?? '{}')) as { email?: string; tags?: string[] };
     if (u.endsWith('/contacts/upsert')) {
       order.push(body.email!);
+      upserts[body.email!] = body;
       const status = failFor[body.email!];
       if (status) return new Response(JSON.stringify({ message: `bad ${body.email}` }), { status });
       return new Response(JSON.stringify({ new: true, contact: { id: `c-${++n}`, tags: [] } }), { status: 200 });
     }
+    tagsSent.push(body.tags ?? []);
     return new Response(JSON.stringify({ tags: body.tags }), { status: 201 });
   }) as Fetch;
-  return { fetch, order };
+  return { fetch, order, upserts, tagsSent };
 }
 
 /** Collects every log line, so a test can assert none of them carries a visitor. */
@@ -196,6 +200,36 @@ describe('the GHL sync job @g9', () => {
     expect((await claimDueRows(db, NOW + LEASE_MS)).map((r) => r.id)).toEqual(['wl1']);
   });
 
+  it('puts a number in the CRM only for the sign-ups that consented to texts (D-034)', async () => {
+    await insert(
+      signUp('wl1', 'yes@example.com', NOW - 2000, { phone: '+18605550001', smsConsent: true, smsConsentAt: NOW - 2000, smsConsentText: 'I agree to receive texts.' }),
+      signUp('wl2', 'no@example.com', NOW - 1000, { phone: '+18605550002' }),
+    );
+    const ghl = fakeGhl();
+    await runGhlSync({ db: await testDatabase(), config, fetch: ghl.fetch, log: capture() });
+
+    expect(ghl.upserts['yes@example.com']!.phone).toBe('+18605550001');
+    expect(ghl.upserts['no@example.com']).not.toHaveProperty('phone');
+    expect(ghl.tagsSent[0]).toContain('sms-consent');
+    expect(ghl.tagsSent[1]).not.toContain('sms-consent');
+  });
+
+  it('refuses, in the database, SMS consent without its proof', async () => {
+    // Consent needs the number, the time and the exact words, or the row is not written at all.
+    const db = await testDatabase();
+    for (const missing of [{ phone: null }, { smsConsentAt: null }, { smsConsentText: null }]) {
+      await expect(
+        db.insert(ai101Waitlist).values(
+          signUp(`wlx${Object.keys(missing)[0]}`, `x-${Object.keys(missing)[0]}@example.com`, NOW, {
+            phone: '+18605550003', smsConsent: true, smsConsentAt: NOW, smsConsentText: 'I agree.', ...missing,
+          }),
+        ),
+      ).rejects.toThrow();
+    }
+    // Without consent, a number alone is fine.
+    await expect(db.insert(ai101Waitlist).values(signUp('wlok', 'ok@example.com', NOW, { phone: '+18605550004' }))).resolves.toBeDefined();
+  });
+
   it('claims at most a batch per tick', async () => {
     await insert(...Array.from({ length: 5 }, (_, i) => signUp(`wl${i}`, `p${i}@example.com`, NOW - 5000 + i)));
     expect(await claimDueRows(await testDatabase(), NOW, 3)).toHaveLength(3);
@@ -203,7 +237,7 @@ describe('the GHL sync job @g9', () => {
 
   it('never logs a visitor’s name or address, on any path', async () => {
     await insert(
-      signUp('wl1', 'refused@example.com', NOW - 3000, { firstName: 'Zelda', brokerage: 'Hyrule Realty' }),
+      signUp('wl1', 'refused@example.com', NOW - 3000, { firstName: 'Zelda', brokerage: 'Hyrule Realty', phone: '+18605559999', smsConsent: true, smsConsentAt: NOW, smsConsentText: 'I agree.' }),
       signUp('wl2', 'fine@example.com', NOW - 2000, { firstName: 'Link' }),
     );
     const db = await testDatabase();
@@ -214,7 +248,7 @@ describe('the GHL sync job @g9', () => {
 
     expect(log.lines.length).toBeGreaterThan(0);
     for (const line of log.lines)
-      for (const pii of ['refused@example.com', 'fine@example.com', 'Zelda', 'Link', 'Hyrule', 'pit-test-token-123']) expect(line).not.toContain(pii);
+      for (const pii of ['refused@example.com', 'fine@example.com', 'Zelda', 'Link', 'Hyrule', 'pit-test-token-123', '8605559999']) expect(line).not.toContain(pii);
   });
 
   it('only arms the loop when there is a waitlist AND both variables', async () => {

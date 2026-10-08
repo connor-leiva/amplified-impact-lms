@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   GHL_API_VERSION,
   GHL_BASE_URL,
+  isTextable,
   readGhlConfig,
   srcTag,
   syncWaitlistContact,
@@ -12,7 +13,8 @@ import type { Fetch, GhlConfig, WaitlistContact } from './ghl';
 // The GoHighLevel client (D-033), against a fake fetch. Nothing here reaches the network.
 
 const config: GhlConfig = { token: 'pit-test-token-123', locationId: 'loc-abc' };
-const pat: WaitlistContact = { firstName: 'Pat', email: 'pat@example.com', brokerage: 'Northline Realty', src: 'qr' };
+// A phone number but NO SMS consent: the case that must never put a number in the CRM.
+const pat: WaitlistContact = { firstName: 'Pat', email: 'pat@example.com', brokerage: 'Northline Realty', src: 'qr', phone: '+18605551234', smsConsent: false };
 
 interface Seen {
   url: string;
@@ -106,6 +108,29 @@ describe('syncWaitlistContact @g9', () => {
     expect(ghl.seen[0]!.body).not.toHaveProperty('source');
   });
 
+  it('never sends a phone number to GHL without SMS consent', async () => {
+    // GHL can text any contact with a number. The only sure way nobody unconsented is texted is that
+    // GHL never has their number. (The exact-body test above already has no `phone`, with one given.)
+    const ghl = fakeGhl([upserted('c1'), tagged([])]);
+    await syncWaitlistContact(pat, { config, fetch: ghl.fetch });
+    expect(ghl.seen[0]!.body).not.toHaveProperty('phone');
+    expect(ghl.seen[1]!.body.tags).not.toContain('sms-consent');
+  });
+
+  it('sends the number and the sms-consent tag when the visitor ticked the box', async () => {
+    const ghl = fakeGhl([upserted('c1'), tagged([])]);
+    await syncWaitlistContact({ ...pat, smsConsent: true }, { config, fetch: ghl.fetch });
+    expect(ghl.seen[0]!.body.phone).toBe('+18605551234');
+    expect(ghl.seen[1]!.body).toEqual({ tags: ['ai101-waitlist', 'event-expcon-2026', 'src-qr', 'sms-consent'] });
+  });
+
+  it('treats consent with no number as not textable, rather than trusting the database alone', () => {
+    expect(isTextable({ phone: '+18605551234', smsConsent: true })).toBe(true);
+    expect(isTextable({ phone: null, smsConsent: true })).toBe(false);
+    expect(isTextable({ phone: '  ', smsConsent: true })).toBe(false);
+    expect(isTextable({ phone: '+18605551234', smsConsent: false })).toBe(false);
+  });
+
   it('leaves the company alone when no brokerage was given', async () => {
     // An empty companyName would blank an existing contact's company.
     for (const brokerage of [null, '', '  ']) {
@@ -185,7 +210,7 @@ describe('syncWaitlistContact @g9', () => {
     for (const step of [{ status: 422, body: { message: 'Pat pat@example.com pit-test-token-123' } }, { throw: new TypeError('pat@example.com') }]) {
       const ghl = fakeGhl([step]);
       const text = JSON.stringify(await syncWaitlistContact(pat, { config, fetch: ghl.fetch }));
-      for (const secret of ['Pat', 'pat@example.com', 'pit-test-token-123', 'Northline']) expect(text).not.toContain(secret);
+      for (const secret of ['Pat', 'pat@example.com', 'pit-test-token-123', 'Northline', '8605551234']) expect(text).not.toContain(secret);
     }
   });
 });

@@ -1,5 +1,5 @@
 {
-  "id": "9601350b-1955-4493-bae0-32f05268b483",
+  "id": "5ef68262-97e6-44d8-ae31-5d5190f70fe6",
   "prevId": "703ab24a-aca4-47cc-813a-e0afc0730803",
   "version": "7",
   "dialect": "postgresql",
@@ -123,6 +123,37 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sms_consent": {
+          "name": "sms_consent",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "sms_consent_at": {
+          "name": "sms_consent_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sms_consent_text": {
+          "name": "sms_consent_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "terms_version": {
+          "name": "terms_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -152,7 +183,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "ai101_waitlist_sms_consent_proof": {
+          "name": "ai101_waitlist_sms_consent_proof",
+          "value": "not \"ai101_waitlist\".\"sms_consent\" or (\"ai101_waitlist\".\"phone\" is not null and \"ai101_waitlist\".\"sms_consent_at\" is not null and \"ai101_waitlist\".\"sms_consent_text\" is not null)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.announcements": {

@@ -23,8 +23,16 @@
 // ATTRIBUTION IS IN TAGS, NOT THE `source` FIELD. Tags only ever accumulate; `source` holds one
 // value, and an upsert would overwrite an existing client's original lead source with this page.
 //
-// PRIVACY. Nothing this file returns or throws contains the visitor's name or address, the token, or
-// a response body (which can echo both). Failures are reported as a kind and a status code.
+// SMS (D-034). A phone number reaches GHL ONLY with SMS consent. GHL can text any contact that has a
+// number — a workflow, a bulk send, a mis-built filter — so the guarantee that someone who did not
+// tick the box is never texted is made here, by GHL never having their number at all. A number given
+// without consent stays in the waitlist row. With consent, the number goes in the upsert and the
+// contact gets `sms-consent`, the tag every SMS workflow should filter on. Email consent comes with
+// every sign-up, so there is nothing to gate for email. The consent's proof (when, and the exact
+// wording) stays in the row, where the database enforces it; GHL gets the fact, not the evidence.
+//
+// PRIVACY. Nothing this file returns or throws contains the visitor's name, address or phone, the
+// token, or a response body (which can echo them). Failures are reported as a kind and a status.
 
 /** The API host for v2. */
 export const GHL_BASE_URL = 'https://services.leadconnectorhq.com';
@@ -54,10 +62,17 @@ export function srcTag(src: string | null | undefined): string {
   return SRC_TAGS[src.trim().toLowerCase()] ?? 'src-other';
 }
 
+/** On a contact who consented to texts, and only then. SMS workflows filter on it. */
+export const SMS_CONSENT_TAG = 'sms-consent';
+
 /** Every tag one sign-up should carry in GHL. HighLevel stores tags lowercase; these already are. */
-export function waitlistTags(src: string | null | undefined): string[] {
-  return [...WAITLIST_TAGS, srcTag(src)];
+export function waitlistTags(src: string | null | undefined, textable = false): string[] {
+  return [...WAITLIST_TAGS, srcTag(src), ...(textable ? [SMS_CONSENT_TAG] : [])];
 }
+
+/** Consented AND has a number. The database refuses consent without one; this does not trust that. */
+export const isTextable = (c: Pick<WaitlistContact, 'phone' | 'smsConsent'>): boolean =>
+  c.smsConsent === true && typeof c.phone === 'string' && c.phone.trim() !== '';
 
 export interface GhlConfig {
   token: string;
@@ -83,6 +98,9 @@ export interface WaitlistContact {
   email: string;
   brokerage: string | null;
   src: string | null;
+  /** E.164, or null. Sent to GHL only when `smsConsent` is true. */
+  phone: string | null;
+  smsConsent: boolean;
 }
 
 /** Why a sync did not happen. A kind and a status, never a body. */
@@ -172,6 +190,9 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
   };
   // Only when the visitor gave one: an empty value would blank an existing contact's company.
   if (contact.brokerage && contact.brokerage.trim() !== '') upsertBody.companyName = contact.brokerage.trim();
+  // See the header: no consent, no number in the CRM.
+  const textable = isTextable(contact);
+  if (textable) upsertBody.phone = contact.phone!.trim();
 
   const upserted = await call('/contacts/upsert', upsertBody, options);
   if (!upserted.ok) return { ok: false, kind: upserted.kind, step: 'upsert', ...statusOf(upserted) };
@@ -183,7 +204,7 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
   const created = body?.new === true;
   const before = asTags(record?.tags);
 
-  const ours = waitlistTags(contact.src);
+  const ours = waitlistTags(contact.src, textable);
   const union = [...new Set([...before, ...ours])];
   const tagged = await call(`/contacts/${encodeURIComponent(contactId)}/tags`, { tags: union }, options);
   if (!tagged.ok) return { ok: false, kind: tagged.kind, step: 'tags', ...statusOf(tagged) };

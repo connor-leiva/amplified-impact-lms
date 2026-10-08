@@ -15,7 +15,8 @@
 // Four tables are the other way round — rows with no `Db` field at all: `auth_tokens` and
 // `auth_sessions` (§ 7.5), `job_runs` (§ 8.5, the scheduler's idempotence ledger) and
 // `ai101_waitlist` (the public /ai101 page's sign-ups, DECISIONS.md D-028).
-import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, uniqueIndex, check } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // ONE COLUMN THAT IS NOT IN `Db`: `seq`, on users, teams and resources.
 //
@@ -130,4 +131,20 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
   ghlContactId: text('ghl_contact_id'), ghlSyncedAt: ts('ghl_synced_at'),
   ghlAttempts: integer('ghl_attempts').notNull().default(0), ghlNextAttemptAt: ts('ghl_next_attempt_at'),
   ghlError: text('ghl_error'),
-}, (t) => [uniqueIndex('ai101_waitlist_email_source_idx').on(t.email, t.source)]);
+  // Consent (D-034, the /ai101 redesign). Added in the same migration as the GHL columns so the two
+  // branches share one. Joining IS email consent plus agreeing to the Terms and Privacy policy, so
+  // every row carries those; `terms_version` records WHICH version (null for the sign-ups that
+  // predate the pages). SMS is separate, optional and unchecked by default: `sms_consent` with its
+  // proof — when (`sms_consent_at`, epoch ms like every instant here) and the exact checkbox wording
+  // the visitor saw (`sms_consent_text`). `phone` is E.164, null when not given.
+  phone: text('phone'), smsConsent: boolean('sms_consent').notNull().default(false),
+  smsConsentAt: ts('sms_consent_at'), smsConsentText: text('sms_consent_text'), termsVersion: text('terms_version'),
+}, (t) => [
+  uniqueIndex('ai101_waitlist_email_source_idx').on(t.email, t.source),
+  // A "yes" to texts with no evidence behind it is the one record carrier rules (10DLC) make
+  // dangerous to hold, so the database refuses it: consent needs the number, the time and the words.
+  check(
+    'ai101_waitlist_sms_consent_proof',
+    sql`not ${t.smsConsent} or (${t.phone} is not null and ${t.smsConsentAt} is not null and ${t.smsConsentText} is not null)`,
+  ),
+]);
