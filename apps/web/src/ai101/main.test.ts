@@ -91,7 +91,17 @@ const marks = (el: Element) => Array.from(el.querySelectorAll('mark')).map((m) =
 let scrollTo: ReturnType<typeof vi.fn>;
 let scrolledIntoView: Element[];
 
+/**
+ * The clock the footer's double-tap guard reads. Each `Date.now()` is a second after the last, so
+ * the tests' back-to-back clicks are separate taps; the double-tap tests set it by hand.
+ */
+let clockMs = 0;
+let clockStep = 1000;
+
 beforeEach(() => {
+  clockMs = 1_000_000;
+  clockStep = 1000;
+  vi.spyOn(Date, 'now').mockImplementation(() => (clockMs += clockStep));
   try {
     localStorage.clear();
   } catch {
@@ -315,6 +325,40 @@ describe('boot and resilience', () => {
 });
 
 describe('the step-through', () => {
+  describe('one move per tap', () => {
+    it('a double tap on Next moves one screen, not two', async () => {
+      await boot();
+      clockStep = 100; // two clicks 100 ms apart
+      nextButton().click();
+      nextButton().click();
+      expect(current()).toEqual(['voice-profile']);
+      clockStep = 1000; // a deliberate second tap
+      nextButton().click();
+      expect(current()).toEqual(['voice-profile-copy']);
+    });
+
+    it('a double tap on "Last Thing" lands on the waitlist, not back on Welcome via Start Over', async () => {
+      save({ i: 10 });
+      await boot();
+      expect(current()).toEqual(['carousel-creator-week']);
+      clockStep = 120;
+      nextButton().click();
+      // Start Over now sits where Next was; the second click of the double tap lands on it.
+      restartButton().click();
+      expect(current()).toEqual(['waitlist']);
+      expect(saved()).toMatchObject({ i: 11 });
+    });
+
+    it('a double tap on Back moves one screen back', async () => {
+      save({ i: 5 });
+      await boot();
+      clockStep = 100;
+      backButton().click();
+      backButton().click();
+      expect(current()).toEqual(['voice-profile-test']);
+    });
+  });
+
   it('has the twelve screens, in order', async () => {
     await boot();
     expect($$('section[data-screen]').map((s) => s.id)).toEqual(SCREENS.map((s) => s.anchor));

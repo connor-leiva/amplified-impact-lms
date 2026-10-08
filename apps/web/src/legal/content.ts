@@ -31,6 +31,13 @@ export const DRAFT: boolean = true;
 export const SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring, and Connor';
 
 /**
+ * Who a mobile number is shared with, said ONCE so the Terms and the Privacy Policy cannot disagree
+ * (they did, in the first draft: "anyone" on one page, "any other third party or affiliate" on the
+ * other). Whether one texting campaign can cover every named sender is D-035's open question.
+ */
+export const SMS_SHARING = `Your consent covers texts from ${SENDERS}. We share your mobile number and your consent among those senders only so they can send the texts you agreed to, and with the service providers that deliver them. We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.`;
+
+/**
  * The waitlist form's consent wording, VERBATIM. Another file renders the form; these pages quote
  * it so a reader can see exactly what they agreed to. If the form's wording changes, change it here
  * in the same commit. `render.test.ts` holds both strings to literals typed out in the test.
@@ -39,7 +46,7 @@ export const CONSENT = {
   /** The label of the optional, unchecked SMS checkbox. */
   sms:
     `Text me about the December agent track and other programs from ${SENDERS} at the number above. ` +
-    `Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. ` +
+    `Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. ` +
     `Msg & data rates may apply. Reply STOP to opt out or HELP for help.`,
   /** The line under the Join button. */
   join:
@@ -248,7 +255,7 @@ export const TERMS: LegalDoc = {
           p: [
             'We handle mobile numbers as our ',
             { link: 'Privacy Policy', href: '/privacy#text-messages' },
-            ' says. We never share your mobile number or your text consent with anyone for their own marketing.',
+            ` says. ${SMS_SHARING}`,
           ],
         },
       ],
@@ -382,7 +389,7 @@ export const PRIVACY: LegalDoc = {
           p: 'We use your mobile number only to send the texts you agreed to and to keep a record of that agreement. If you give a number but do not check the SMS box, we keep it with your sign-up and never text it. We never sell or rent mobile numbers.',
         },
         {
-          p: `Your consent covers texts from ${SENDERS}. We share your mobile number and your consent among those senders only so they can send the texts you agreed to, and with the service providers that deliver them. We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.`,
+          p: SMS_SHARING,
         },
         {
           p: [

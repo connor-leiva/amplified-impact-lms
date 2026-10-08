@@ -43,6 +43,8 @@ const ARMED_MS = 10000;
 const ANNOUNCE_DELAY_MS = 100;
 /** The sign-in screen's rule (SignIn.tsx), which the API applies too. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+/** After a Next, Back or Start Over, how long the footer ignores another tap: a double tap's second. */
+const NAV_GUARD_MS = 600;
 
 /** Runs one feature's setup; a throw is reported, not propagated. */
 function guard(setup: () => void): void {
@@ -517,15 +519,28 @@ function initSteps(doc: Document, state: State, save: () => void): void {
   if (fromHash >= 0) show(fromHash, false, doc.getElementById(hash));
   else show(state.i <= last ? state.i : 0, false);
 
+  // One move per tap. A double tap (Chrome on Android does not zoom on one here, so it delivers both
+  // clicks) would otherwise skip a screen, and on "Your Week" its second click lands on Start Over,
+  // which takes Next's place in the footer, and sends the visitor back to Welcome past the waitlist.
+  let lastMove = 0;
+  const tooSoon = () => {
+    const now = Date.now();
+    if (now - lastMove < NAV_GUARD_MS) return true;
+    lastMove = now;
+    return false;
+  };
   next.addEventListener('click', () => {
+    if (tooSoon()) return;
     clearHash();
     show(current + 1, true);
   });
   back.addEventListener('click', () => {
+    if (tooSoon()) return;
     clearHash();
     show(current - 1, true);
   });
   restart.addEventListener('click', () => {
+    if (tooSoon()) return;
     clearHash();
     show(0, true);
   });

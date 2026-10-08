@@ -163,7 +163,7 @@ const SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring
 
 /** The SMS box's label, word for word: the API stores exactly this as the proof of consent. */
 const SMS_CONSENT =
-  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
 
 /** The line under the button: joining is the Terms, the Privacy Policy and the email consent. */
 const LEGAL_LINE =
@@ -1012,7 +1012,7 @@ describe('the waitlist form', () => {
       'Spring,',
       'Connor',
       'automated technology',
-      "Consent isn't required to join.",
+      "Consent isn't required to join or to buy anything.",
       'Message frequency varies.',
       'Msg & data rates may apply',
       'Reply STOP to opt out',

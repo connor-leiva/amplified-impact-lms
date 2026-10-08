@@ -80,6 +80,13 @@ h2[tabindex='-1']:focus {
 
 /* --- The column --------------------------------------------------------------------------------- */
 
+/* The sticky header and the fixed footer are taken off whatever the browser scrolls into view: a
+   focused field, the line being typed, a link's target ("#carousel-creator" from the laptop email). */
+html.steps-on {
+  scroll-padding-top: 82px;
+  scroll-padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
 .page {
   display: flex;
   flex-direction: column;
@@ -106,6 +113,16 @@ h2[tabindex='-1']:focus {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+#welcome {
+  gap: 22px;
+}
+#carousel-creator-about {
+  gap: 18px;
+}
+#voice-profile-copy .card {
+  gap: 10px;
+  padding: 18px 20px;
 }
 /* With the script, one screen at a time. */
 .steps-on .screen:not([data-current]) {
@@ -300,8 +317,10 @@ html:not(.steps-on) .screen + .screen {
   border-radius: 50%;
   background: var(--ai101-mint);
 }
-.nav-next:hover {
-  background: var(--action-primary-hover);
+@media (hover: hover) {
+  .nav-next:hover {
+    background: var(--action-primary-hover);
+  }
 }
 
 /* --- Buttons ------------------------------------------------------------------------------------ */
@@ -329,18 +348,24 @@ html:not(.steps-on) .screen + .screen {
   background: var(--action-primary);
   color: var(--action-on-primary);
 }
-.btn-primary:hover {
-  background: var(--action-primary-hover);
-  color: var(--action-on-primary);
+@media (hover: hover) {
+  .btn-primary:hover {
+    background: var(--action-primary-hover);
+    color: var(--action-on-primary);
+  }
 }
 .btn-outline {
+  /* The design's 56px is inside its 2px border. */
+  min-height: 60px;
   border: 2px solid var(--action-primary);
   background: transparent;
   color: var(--action-primary);
 }
-.btn-outline:hover {
-  background: var(--action-primary-tint);
-  color: var(--action-primary);
+@media (hover: hover) {
+  .btn-outline:hover {
+    background: var(--action-primary-tint);
+    color: var(--action-primary);
+  }
 }
 
 /* Buttons side by side where they fit, each at least 160px: "Get ChatGPT" and "Get Claude". */
@@ -420,10 +445,8 @@ html:not(.steps-on) .screen + .screen {
 .callout::before {
   content: '';
   flex: none;
-  align-self: flex-start;
   width: 10px;
   height: 10px;
-  margin-top: 9px;
   border-radius: 50%;
 }
 .callout-tip {
@@ -448,7 +471,6 @@ html:not(.steps-on) .screen + .screen {
 .callout-tip.callout-strong::before {
   width: 12px;
   height: 12px;
-  margin-top: 9px;
 }
 
 /* "Then, in the new chat: 1 Paste. 2 … 3 Send." The numbers in mono, in forest. */
@@ -584,6 +606,8 @@ html:not(.steps-on) .screen + .screen {
   font-weight: 700;
 }
 .field-hint {
+  display: block;
+  margin-top: 6px;
   font-weight: 400;
   color: color-mix(in oklch, var(--text-primary) 65%, transparent);
 }
@@ -598,6 +622,9 @@ html:not(.steps-on) .screen + .screen {
   color: var(--text-primary);
   font-size: 19px;
   font-weight: 400;
+}
+#field-profile {
+  min-height: 142px;
 }
 .field textarea {
   resize: vertical;
@@ -704,8 +731,10 @@ html:not(.steps-on) .screen + .screen {
   text-align: left;
   cursor: pointer;
 }
-.starter:hover {
-  border-color: var(--action-primary);
+@media (hover: hover) {
+  .starter:hover {
+    border-color: var(--action-primary);
+  }
 }
 .starter-tag {
   flex: none;
@@ -761,8 +790,14 @@ html:not(.steps-on) .screen + .screen {
 }
 .week {
   gap: 2px;
-  padding: 12px;
+  padding: 12px 8px;
   border-radius: 12px;
+}
+/* The smallest phones (an iPhone SE at 320): two weeks a row, so "Method" stays inside its card. */
+@media (max-width: 359px) {
+  .weeks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .week-label {
   font-family: var(--font-mono);
@@ -775,7 +810,7 @@ html:not(.steps-on) .screen + .screen {
   font-weight: 800;
 }
 .sprint .btn {
-  min-height: 54px;
+  min-height: 58px;
   padding: 0 18px;
   font-size: 18px;
 }
@@ -866,8 +901,10 @@ html:not(.steps-on) .waitlist {
   background: var(--bg-canvas);
   color: var(--action-primary);
 }
-.btn-cream:hover {
-  background: var(--bg-surface);
+@media (hover: hover) {
+  .btn-cream:hover {
+    background: var(--bg-surface);
+  }
 }
 .btn-cream[aria-disabled='true'] {
   opacity: 0.7;
@@ -915,7 +952,10 @@ html:not(.steps-on) .waitlist {
 .waitlist[data-state='joined'] .wl-success {
   display: block;
 }
-.waitlist[data-state='joined'] .wl-form,
+.waitlist[data-state='joined'] .wl-form {
+  display: none;
+}
+/* Separate: in one selector list, a browser without :has() would drop the rule above too. */
 .waitlist:has(.wl-success:target) .wl-form {
   display: none;
 }
@@ -959,7 +999,15 @@ html:not(.steps-on) .waitlist {
   border-radius: 50%;
   background: var(--ai101-mint);
 }
+/* Empty: invisible, but never `display: none`, which takes a live region out of the accessibility
+   tree and can cost the next "Copied" its announcement. */
 .toast:empty {
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: none;
+}
+.toast:empty::before {
   display: none;
 }
 /* Without the footer there is nothing to sit above. */
@@ -998,5 +1046,45 @@ html:not(.steps-on) .toast {
 @media (prefers-reduced-motion: reduce) {
   .bar-fill {
     transition: none;
+  }
+}
+
+/* Without color-mix() (iOS 15.4 to 16.1, and the in-app browsers on them), every tint above is
+   invalid where it is used, and borders, focus rings, callout backgrounds and placeholder colours
+   would vanish, leaving placeholders that look like typed answers. Plain tokens instead: close, if not
+   the design's exact tints. `currentColor` in the test, not a named colour, for check-css-colors. */
+@supports not (color: color-mix(in oklch, currentColor 50%, transparent)) {
+  :root {
+    --ai101-line: var(--line-default);
+    --ai101-rule: var(--line-default);
+    --ai101-field-line: var(--line-strong);
+    --ai101-text-80: var(--text-secondary);
+    --ai101-text-70: var(--text-secondary);
+    --ai101-text-60: var(--text-tertiary);
+    --ai101-track: var(--track);
+    --ai101-seg: var(--line-default);
+    --ai101-tip-bg: var(--status-success-bg);
+    --ai101-warn-bg: var(--status-attention-bg);
+    --ai101-on-dark-85: var(--action-on-primary);
+    --ai101-on-dark-75: var(--action-on-primary);
+    --ai101-focus: var(--action-primary-line);
+    --ai101-shadow: var(--shadow-pop);
+  }
+  .lede,
+  .note,
+  .own .muted {
+    color: var(--text-secondary);
+  }
+  .field-hint,
+  .field input::placeholder,
+  .field textarea::placeholder,
+  .wl-field input::placeholder {
+    color: var(--text-tertiary);
+  }
+  .starter {
+    border: 1px solid var(--line-strong);
+  }
+  .wl-success {
+    background: var(--action-primary-hover);
   }
 }

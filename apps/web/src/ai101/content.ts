@@ -454,9 +454,11 @@ Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.
     },
     // SMS consent: separate, unchecked, optional (Connor's choice, 2026-10-08). The wording carries
     // what US carriers look for: who sends, what about, automated, not required, frequency, rates,
-    // STOP and HELP. The API stores it, word for word, with the sign-up (it holds its own copy; a
-    // test holds the two equal).
-    sms: `Text me about the December agent track and other programs from ${SENDERS} at the number above. Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.`,
+    // STOP and HELP, and that agreeing is not a condition of joining or of any purchase (TCPA's prior
+    // express written consent). The API stores it, word for word, with the sign-up (it holds its own
+    // copy; a test holds the two equal). Do not change it while visitors may have the page open: a
+    // tab loaded before the change would submit, and be stored with, the new words.
+    sms: `Text me about the December agent track and other programs from ${SENDERS} at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.`,
     button: 'Join the Waitlist',
     // Joining is the email consent and the agreement to the Terms (Connor, 2026-10-08). In place of
     // the design's "We'll email you about the December agent track. Unsubscribe anytime."

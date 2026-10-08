@@ -60,7 +60,7 @@ const read = (path: string) => readFileSync(resolve(HERE, path), 'utf8');
 // --- The form's words, typed out: the oracle `CONSENT` is held to -----------------------------------
 
 const SMS_LABEL =
-  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
 const JOIN_LINE =
   'By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor. Unsubscribe anytime.';
 
@@ -272,7 +272,7 @@ describe('what the pages promise, against the waitlist form', () => {
       'We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.',
     );
     expect(termsText).toContain(
-      'We never share your mobile number or your text consent with anyone for their own marketing.',
+      'We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.',
     );
   });
 

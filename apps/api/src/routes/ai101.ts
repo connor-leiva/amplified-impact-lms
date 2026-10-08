@@ -172,7 +172,7 @@ export type WaitlistField = keyof typeof WAITLIST_ERRORS;
  * so an edit to one without the other fails the build rather than storing words nobody saw.
  */
 export const SMS_CONSENT_TEXT =
-  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
 
 /**
  * The version of the Terms of Service and Privacy Policy a sign-up agrees to by joining: their

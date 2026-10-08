@@ -562,7 +562,7 @@ describe('the waitlist never logs a name or an address (D-028) @g9', () => {
  * every "yes", and the page's `PAGE.waitlist.sms`, which the visitor reads) are held to.
  */
 const SMS_WORDS =
-  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
 
 describe('the waitlist records consent (D-034) @g9', () => {
   beforeEach(async () => {

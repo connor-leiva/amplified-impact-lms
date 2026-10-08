@@ -1562,6 +1562,35 @@ Amends D-028 and D-032.
 Real phones (app switching, the share sheet, store links, the toast over the keyboard), and every
 Claude Design behaviour D-032 lists. The deploy also carries D-033's sync and migration 0004.
 
+### The review before deploy (2026-10-08)
+
+Three adversarial lenses (the step-through and old browsers; consent and the legal pages; fidelity
+to the design), each finding re-checked by a second reviewer. Fixed:
+
+- **A double tap on Next moved two screens**, and on "Your Week" its second click landed on Start
+  Over (which takes Next's place) and sent the visitor back to Welcome, past the waitlist. The
+  footer now ignores a second tap within 600 ms.
+- **The SMS label lacked TCPA's "not a condition of purchase"**: it now reads "Consent isn't required
+  to join or to buy anything." in all seven copies (page, API, Terms, tests).
+- **The Terms and the Privacy Policy disagreed** on who a mobile number is shared with; both now say
+  it with one constant (`SMS_SHARING`).
+- **Without color-mix()** (iOS 15.4 to 16.1 and their in-app browsers) field borders, card borders,
+  focus rings and callout tints vanished and placeholders looked like typed answers. An
+  `@supports not` block falls back to plain tokens.
+- **The sticky header and fixed footer covered** the focused field, the line being typed, and a
+  linked section ("#carousel-creator" from the laptop email): `scroll-padding` on the page.
+- **The toast left the accessibility tree when empty** (`display: none`), which can cost the next
+  announcement; it is now invisible instead. The joined-state rule no longer shares a selector list
+  with `:has()`; the week tiles go two a row under 360px; hover colours apply only where there is
+  hover; field hints sit on their own line; the profile box keeps four rows; callout dots are
+  centred and a few sizes match the design's measurements.
+
+Accepted, not fixed today: without JavaScript a phone mistake lands on the generic error line, and a
+few lines of copy ("Tap one to copy it") assume the script; the stored SMS wording is the server's
+current constant, so it must not change while visitors have the page open (said at the constant);
+the Terms and Privacy pages are drafts, and the sign-up line points at them (Connor's call, below).
+
+
 ## D-035 · /terms and /privacy: draft legal pages for the /ai101 waitlist's consent
 
 **Date:** 2026-10-08
