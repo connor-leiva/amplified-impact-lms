@@ -326,7 +326,7 @@ export const PRIVACY: LegalDoc = {
       id: 'what-we-collect',
       heading: 'What we collect',
       blocks: [
-        { p: 'We collect only what you give us when you join the December waitlist:' },
+        { p: 'When you join the December waitlist, we collect what you give us:' },
         {
           ul: [
             'Your first name.',
@@ -335,7 +335,7 @@ export const PRIVACY: LegalDoc = {
             'Your mobile number, if you add it.',
             'If you check the SMS box, a record of your consent: the exact words shown next to the box, and the date and time you agreed.',
             'A short tag from the link you used, if it had one. For example, the QR code at the session adds one, so we know you came from there.',
-            'The date and time you joined.',
+            'The date and time you joined, and the version of our Terms of Service and this policy that you agreed to.',
           ],
         },
         {
@@ -349,7 +349,7 @@ export const PRIVACY: LegalDoc = {
       blocks: [
         {
           ul: [
-            'Your “About you” answers and your checklist ticks are saved in your own browser’s storage, so they are there when you come back. They are never sent to us. Clearing your browser’s data for the site removes them.',
+            'What you type into the fields that fill in the prompts, like your “About you” answers, and your progress on the page are saved in your own browser’s storage, so they are there when you come back. They are never sent to us. Clearing your browser’s data for the site removes them.',
             'When you copy a prompt, it goes to your device’s clipboard, not to us.',
             'The page loads nothing from other companies. It has no analytics, no tracking cookies, no ad pixels, and no outside fonts.',
           ],
@@ -379,7 +379,7 @@ export const PRIVACY: LegalDoc = {
       heading: 'Text messages',
       blocks: [
         {
-          p: 'We use your mobile number only to send the texts you agreed to and to keep a record of that agreement. We never sell or rent mobile numbers.',
+          p: 'We use your mobile number only to send the texts you agreed to and to keep a record of that agreement. If you give a number but do not check the SMS box, we keep it with your sign-up and never text it. We never sell or rent mobile numbers.',
         },
         {
           p: `Your consent covers texts from ${SENDERS}. We share your mobile number and your consent among those senders only so they can send the texts you agreed to, and with the service providers that deliver them. We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.`,

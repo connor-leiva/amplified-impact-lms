@@ -1376,7 +1376,7 @@ Amends D-028 (the page itself). Everything below is the brief's, except where it
 Page weight: one response, 67 KB (18 KB gzipped) as first built and 76 KB (21 KB gzipped) after the
 review changes, and still exactly five requests on load (the page and its four font files).
 
-## D-034 · /terms and /privacy: draft legal pages for the /ai101 waitlist's consent
+## D-035 · /terms and /privacy: draft legal pages for the /ai101 waitlist's consent
 
 **Date:** 2026-10-08
 **Requested by:** the user, in chat on 2026-10-08: "We also need a checkbox where they agree to our
@@ -1394,6 +1394,9 @@ and their tests (`apps/web/src/legal/render.test.ts`, `apps/api/test/{legal,auth
 Net-new UI outside the reference, like /ai101 (D-028), so there is no parity scenario: the contract
 is `content.ts` and the two test files.
 
+Numbered D-035 because D-034, on the `ai101-step-through` branch, is the redesigned /ai101 page
+whose waitlist form links here and stores the consent these pages describe.
+
 **What the pages say.** Plain-English Terms of Service and Privacy Policy for the /ai101 page, its
 waitlist and the emails and texts that follow. The Terms carry the SMS program terms US carriers
 look for (program name "Amplified Impact updates", what is sent, "Message frequency varies", "Msg &
@@ -1401,12 +1404,13 @@ data rates may apply", STOP and HELP, "Carriers are not liable for delayed or un
 consent not a condition of joining or of any purchase). Both pages quote the waitlist form's two
 consent lines verbatim (`CONSENT` in `content.ts`, held to literals in the test), so the form and
 the pages cannot quietly disagree: a change to the form's wording must change `content.ts` too.
-The privacy claims were checked against the code: the page's "About you" answers and checklist
-ticks live in `localStorage` and are never sent (`apps/web/src/ai101/main.ts`), the page loads
-nothing from another origin (the CSP's `default-src 'self'`, self-hosted fonts), and the server log
-does record the IP address and URL of each request (`productionLogger`), which the policy says.
-GoHighLevel is named only as an example of the CRM category: its sync (D-033 on the `ghl-waitlist`
-branch) is not in this branch.
+The privacy claims were checked against the code: what a visitor types to fill the prompts, and
+their progress, live in `localStorage` and are never sent; the only request the script makes is the
+waitlist POST of the form's own fields (`apps/web/src/ai101/main.ts`, here and on D-034's branch);
+the page loads nothing from another origin (the CSP's `default-src 'self'`, self-hosted fonts); and
+the server log does record the IP address and URL of each request (`productionLogger`), which the
+policy says. GoHighLevel is named only as an example of the CRM category: its sync (D-033) is on
+the `ghl-waitlist` and `ai101-step-through` branches, not this one.
 
 **Every unknown fact is a `[bracketed placeholder]`,** highlighted on the page: legal entity names
 and how each is formed, Spring's and Connor's full names, a contact email, a privacy contact email,
@@ -1434,7 +1438,10 @@ ignores `terms.html` and `privacy.html` so each page has one URL. `marketing.ts`
   third parties *or affiliates*. The policy says it is shared only among the named senders and the
   providers that deliver the texts. Whether one registered campaign can cover every sender is a
   question for the texting provider and a lawyer.
-- The policy says the waitlist keeps the exact SMS consent wording and the time it was given. The
-  form and its route (another session's work) must actually store both, or the policy must change.
+- The policy says the waitlist keeps the exact SMS consent wording, the time it was given and the
+  terms version agreed to, and that a number given without the box is never texted. That is what
+  D-034's route does on `ai101-step-through` (`SMS_CONSENT_TEXT`, `terms_version = '2026-10-08'`,
+  D-033's CHECK), checked by reading that branch; this branch alone does not have it. If either
+  side changes, change the other.
 - The opt-out words listed (STOP, CANCEL, END, QUIT, UNSUBSCRIBE, REVOKE, OPT OUT) must be honored by
   whatever sends the texts.
