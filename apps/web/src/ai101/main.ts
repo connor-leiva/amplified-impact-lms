@@ -1,54 +1,48 @@
-// /ai101's only script: the copy buttons and "Copy & open" links, the starter chips, "About you",
-// the checklist's memory, the app-store links, "Send this to my laptop", and the waitlist form.
-// DECISIONS.md D-028 and D-032.
+// /ai101's only script. DECISIONS.md D-028, D-032 and D-034.
+//
+// It turns the page into the design's step-through: one screen at a time, a progress header, a Back
+// / Next footer, and the visitor's place remembered. It also fills the prompts from the fields as
+// they are typed, copies (Copy & Open, the starter ideas), shows the toast, switches the Save screen
+// between Claude and ChatGPT, swaps in the app-store links, opens the share sheet, and sends the
+// waitlist form.
 //
 // It is inlined into the page as one `<script type="module">` (vite-plugin.ts), so it is part of the
 // first response and can never fail to load on its own. Everything it touches is already in the
-// markup `render.ts` produced; with JavaScript off the page still reads, the prompts still select,
-// the checkboxes still tick and the form still posts — this file only makes each of those better.
+// markup `render.ts` produced; with JavaScript off every screen shows in order, the links still open
+// the apps, the prompts still select and the form still posts. This file only makes each of those
+// better.
 //
 // WRITTEN FOR THE OLDEST BROWSER IN THE ROOM
 // People open this from a QR code, which often means Instagram's or LinkedIn's in-app WebView, not
 // a current Safari. So:
-//   - `vite.ai101.config.ts` builds it for es2019 / Safari 13, and nothing here needs more than that
-//     (no `Element.toggleAttribute`, `Promise.prototype.finally`, `Object.fromEntries` and friends).
-//   - Each feature boots inside `guard()`, so one that throws cannot take the other two down, and
-//     nothing throws at load. The error is rethrown on a timer, which still reports it to the
-//     console without unwinding `boot()`.
+//   - `vite.ai101.config.ts` builds it for es2019 / Safari 13, and nothing here needs more than that.
+//   - Each feature boots inside `guard()`, so one that throws cannot take the others down. The error
+//     is rethrown on a timer, which still reports it without unwinding `boot()`.
 //   - Every storage access is wrapped: reading `window.localStorage` itself throws in some WebViews
 //     and with site data blocked, and `setItem` throws when storage is full or in old private modes.
 //
-// It imports `UI` and nothing else. `PAGE` — every prompt and paragraph — is already in the HTML,
-// and rolldown drops it from this bundle because nothing here reads it.
+// It imports `UI` and nothing else. `PAGE` is already in the HTML.
 
 import { UI } from './content';
 
-/** `localStorage` key for the checklist: a JSON array of the `data-check-id`s that are ticked. */
-const CHECKLIST_KEY = 'ai101-checklist';
-/** `localStorage` key for "About you": a JSON object of the five fields, as typed. */
-const ABOUT_KEY = 'ai101-about-you';
+/** `localStorage` key for the visitor's place and fields (the design's own key). */
+const STATE_KEY = 'ai101-v2';
 /**
- * Taps per "Copy & open" link. 1: the tap copies AND opens. 2: the first tap copies and the link then
- * reads "Copied. Open ChatGPT"; the second opens. One tap is the brief's goal, but it has not been
- * proven on every phone (the app can take focus before an async clipboard write lands), so two is a
- * one-character fallback here — or `data-copy-open-taps="2"` on <main>, which the tests use.
+ * Taps per "Copy & Open". 1: the tap copies AND opens. 2: the first tap copies and the button then
+ * reads "Copied. Open ChatGPT"; the second opens. One tap is the goal, but it has not been proven on
+ * every phone (the app can take focus before an async clipboard write lands), so two is a
+ * one-character fallback here, or `data-copy-open-taps="2"` on <main>, which the tests use (D-032).
  */
 const COPY_OPEN_TAPS: 1 | 2 = 1;
-/** How long a two-tap link stays armed before it goes back to "Copy & open". */
+/** How long a two-tap button stays armed before it goes back to "Copy & Open". */
 const ARMED_MS = 10000;
-/** How long a button says "Copied" (the spec's "for 2 seconds"). */
-const COPIED_MS = 2000;
 /**
- * The live region is emptied, then refilled after this beat. Replacing text with the same text in
- * one task is not a change to most screen readers, so a second copy of one prompt would be silent.
+ * The toast is emptied, then refilled after this beat. Replacing text with the same text in one
+ * task is not a change to most screen readers, so a second copy of one prompt would be silent.
  */
 const ANNOUNCE_DELAY_MS = 100;
 /** The sign-in screen's rule (SignIn.tsx), which the API applies too. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-const FIELDS = ['firstName', 'email', 'brokerage'] as const;
-type Field = (typeof FIELDS)[number];
-type Values = Record<Field, string>;
 
 /** Runs one feature's setup; a throw is reported, not propagated. */
 function guard(setup: () => void): void {
@@ -61,34 +55,92 @@ function guard(setup: () => void): void {
   }
 }
 
-// --- Live region --------------------------------------------------------------------------------
+// --- State ----------------------------------------------------------------------------------------
 
-function announcer(region: HTMLElement | null): (message: string) => void {
-  let timer: ReturnType<typeof setTimeout> | undefined;
+const FIELD_NAMES = ['market', 'clients', 'niche', 'hoods', 'questions', 'brokerage', 'profile'] as const;
+type FieldName = (typeof FIELD_NAMES)[number];
+
+/** What is remembered between visits: the screen, the app picked on Save, and every field. */
+export interface State extends Record<FieldName, string> {
+  i: number;
+  app: 'claude' | 'chatgpt';
+}
+
+const EMPTY: State = {
+  i: 0,
+  app: 'claude',
+  market: '',
+  clients: '',
+  niche: '',
+  hoods: '',
+  questions: '',
+  brokerage: '',
+  profile: '',
+};
+
+function storage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** The saved state. Anything unreadable (no storage, bad JSON, the wrong shape) reads as empty. */
+function loadState(): State {
+  const out: State = { ...EMPTY };
+  try {
+    const raw = storage()?.getItem(STATE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== 'object') return out;
+    const p = parsed as Record<string, unknown>;
+    if (typeof p.i === 'number' && Number.isInteger(p.i) && p.i >= 0) out.i = p.i;
+    if (p.app === 'chatgpt' || p.app === 'claude') out.app = p.app;
+    for (const key of FIELD_NAMES) if (typeof p[key] === 'string') out[key] = p[key] as string;
+  } catch {
+    // Read as empty.
+  }
+  return out;
+}
+
+function saveState(state: State): void {
+  try {
+    storage()?.setItem(STATE_KEY, JSON.stringify(state));
+  } catch {
+    // Full or blocked: everything still works for this visit.
+  }
+}
+
+// --- The toast ------------------------------------------------------------------------------------
+
+/** The live region, drawn as the design's toast: shown while it has text, emptied after `toastMs`. */
+function toaster(region: HTMLElement | null): (message: string) => void {
+  let show: ReturnType<typeof setTimeout> | undefined;
+  let hide: ReturnType<typeof setTimeout> | undefined;
   return (message) => {
     if (!region) return;
     region.textContent = '';
-    clearTimeout(timer);
-    timer = setTimeout(() => {
+    clearTimeout(show);
+    clearTimeout(hide);
+    show = setTimeout(() => {
       region.textContent = message;
+      hide = setTimeout(() => {
+        region.textContent = '';
+      }, UI.toastMs);
     }, ANNOUNCE_DELAY_MS);
   };
 }
 
-// --- Copy ---------------------------------------------------------------------------------------
+// --- Copy -----------------------------------------------------------------------------------------
 
 /**
- * The fallback for browsers without a usable Clipboard API — older iOS Safari, in-app WebViews, and
- * any browser that rejects `writeText` (a permissions policy, an insecure context). A readonly
- * textarea, so iOS does not raise the keyboard; selected both ways, because iOS ignores `select()`
- * alone; removed in the same task; and focus handed straight back to the button that was pressed.
+ * The fallback for browsers without a usable Clipboard API: older iOS Safari, in-app WebViews, and
+ * any browser that rejects `writeText`. A readonly textarea, so iOS does not raise the keyboard;
+ * selected both ways, because iOS ignores `select()` alone; removed in the same task; and focus
+ * handed back to where it was, ring and all.
  */
 function legacyCopy(text: string, button: HTMLElement): boolean {
   const doc = button.ownerDocument;
-  // Where focus was, and whether it showed a ring, so it goes back exactly as it was. Focusing the
-  // buffer and then the button would otherwise draw a :focus-visible ring after a MOUSE click (a
-  // programmatic focus that follows a focused textarea counts as "visible"), and with Copy & open
-  // this path runs on every click, not only on the rare fallback.
   const active = doc.activeElement;
   const prev = active instanceof HTMLElement && active !== doc.body ? active : null;
   const hadRing = prev !== null && showsFocusRing(prev);
@@ -109,8 +161,6 @@ function legacyCopy(text: string, button: HTMLElement): boolean {
     ok = false;
   }
   doc.body.removeChild(buffer);
-  // Removing the focused buffer leaves focus on <body>, which is where it was if `prev` is null
-  // (Safari does not focus a button or link on click).
   if (prev) prev.focus({ preventScroll: true, focusVisible: hadRing } as FocusOptions);
   return ok;
 }
@@ -124,10 +174,7 @@ function showsFocusRing(el: HTMLElement): boolean {
   }
 }
 
-/**
- * Copies `text`, resolving whether it worked. `writeText` is called synchronously inside the click,
- * which is what Safari requires of it; only when it is missing or refuses does the legacy path run.
- */
+/** Copies `text`, resolving whether it worked; `writeText` first, synchronously inside the click. */
 function copyText(text: string, button: HTMLElement): Promise<boolean> {
   const clipboard = navigator.clipboard as Clipboard | undefined;
   if (clipboard && typeof clipboard.writeText === 'function' && window.isSecureContext) {
@@ -144,11 +191,10 @@ function copyText(text: string, button: HTMLElement): Promise<boolean> {
 }
 
 /**
- * Copies `text` before the page can lose focus — for a link that is about to open an app. Both paths
+ * Copies `text` before the page can lose focus, for a link that is about to open an app. Both paths
  * start inside the click: the legacy one FINISHES before this returns, so the clipboard is written
  * before the browser follows the link even where `writeText` would still be pending when the app
- * takes over; `writeText` covers the browsers where `execCommand` is a no-op. They write the same text,
- * so whichever lands, the clipboard holds the prompt.
+ * takes over (D-032).
  */
 function copyBeforeLeaving(text: string, el: HTMLElement): { done: boolean; pending: Promise<boolean> | null } {
   const done = legacyCopy(text, el);
@@ -161,32 +207,13 @@ function copyBeforeLeaving(text: string, el: HTMLElement): { done: boolean; pend
         () => false,
       );
     } catch {
-      // A WebView whose `writeText` throws: only the legacy path's answer counts.
+      // Only the legacy path's answer counts.
     }
   }
-  // `done` is known now; `pending` only later — possibly after the app has opened.
   return { done, pending };
 }
 
-/** Shows "Copied" in `labelEl` for COPIED_MS, then puts `original` back. Returns the restart. */
-function flashCopied(el: HTMLElement, labelEl: Element, original: string): () => void {
-  let reset: ReturnType<typeof setTimeout> | undefined;
-  return () => {
-    // Held at its own width while the shorter "Copied" shows, so a button beside it in a row does not
-    // slide under the pointer and take a second click meant for this one.
-    if (!el.hasAttribute('data-copied')) el.style.minWidth = `${el.getBoundingClientRect().width}px`;
-    el.setAttribute('data-copied', '');
-    labelEl.textContent = UI.copied;
-    clearTimeout(reset);
-    reset = setTimeout(() => {
-      el.removeAttribute('data-copied');
-      labelEl.textContent = original;
-      el.style.minWidth = '';
-    }, COPIED_MS);
-  };
-}
-
-/** When nothing could write to the clipboard, select the prompt so the device's own Copy works. */
+/** When nothing could write to the clipboard, select the text so the device's own Copy works. */
 function selectContents(node: Node): void {
   const selection = window.getSelection();
   if (!selection) return;
@@ -197,58 +224,21 @@ function selectContents(node: Node): void {
   selection.addRange(range);
 }
 
-function initCopy(doc: Document, announce: (message: string) => void): void {
-  const buttons = Array.from(doc.querySelectorAll<HTMLButtonElement>('[data-copy]'));
-  for (const button of buttons) {
-    const block = button.closest('[data-prompt]');
-    const pre = block?.querySelector('pre[data-prompt-text]');
-    const labelEl = button.querySelector('[data-copy-label]');
-    if (!block || !pre || !labelEl) continue;
-    // The prompt's own name, for the announcement: "Voice profile prompt copied".
-    const name = (block.querySelector('h3, h4')?.textContent ?? '').trim();
-    let reset: ReturnType<typeof setTimeout> | undefined;
-
-    button.addEventListener('click', () => {
-      // `textContent`, which is exactly the prompt: the placeholder <mark>s add no characters.
-      const text = pre.textContent ?? '';
-      void copyText(text, button).then((ok) => {
-        if (!ok) {
-          selectContents(pre);
-          announce(UI.copyFailedAnnouncement(name));
-          return;
-        }
-        button.setAttribute('data-copied', '');
-        labelEl.textContent = UI.copied;
-        clearTimeout(reset);
-        reset = setTimeout(() => {
-          button.removeAttribute('data-copied');
-          labelEl.textContent = UI.copy;
-        }, COPIED_MS);
-        announce(UI.copiedAnnouncement);
-      });
-    });
-  }
+/** The prompt text a "Copy & Open" copies: its block's <pre>, as filled in right now. */
+function promptPre(doc: Document, blockId: string): HTMLElement | null {
+  return doc.getElementById(blockId)?.querySelector<HTMLElement>('pre[data-prompt-text]') ?? null;
 }
 
-/** The prompt text a "Copy & open" link copies: its block's <pre>, as assembled right now. */
-function promptTextFor(doc: Document, blockId: string): string | null {
-  const pre = doc.getElementById(blockId)?.querySelector('pre[data-prompt-text]');
-  return pre ? (pre.textContent ?? '') : null;
-}
-
-function initCopyOpen(doc: Document, announce: (message: string) => void): void {
+function initCopyOpen(doc: Document, toast: (message: string) => void): void {
   const main = doc.querySelector('main');
   const taps = main?.getAttribute('data-copy-open-taps') === '2' ? 2 : COPY_OPEN_TAPS;
-  const links = Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[data-copy-open]'));
-  for (const link of links) {
+  for (const link of Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[data-copy-open]'))) {
     const blockId = link.getAttribute('data-copy-open') ?? '';
     const labelEl = link.querySelector('[data-copy-label]');
-    if (!labelEl || promptTextFor(doc, blockId) === null) continue;
+    if (!labelEl || promptPre(doc, blockId) === null) continue;
     const original = labelEl.textContent ?? '';
     const app = link.getAttribute('data-app') ?? '';
-    // The prompt's own name, for the failure message: "Voice profile prompt is selected…".
-    const promptName = (doc.getElementById(blockId)?.querySelector('h3, h4')?.textContent ?? '').trim();
-    const flash = flashCopied(link, labelEl, original);
+    const copied = link.getAttribute('data-toast') ?? '';
     let armed = false;
     let disarm: ReturnType<typeof setTimeout> | undefined;
     const reset = () => {
@@ -264,47 +254,43 @@ function initCopyOpen(doc: Document, announce: (message: string) => void): void 
       clearTimeout(disarm);
       disarm = setTimeout(reset, ARMED_MS);
     };
-    /** Nothing could copy: select the prompt, so the device's own Copy works, and say so. */
+    /** Nothing could copy: open "See the full prompt", select it, and say so. */
     const failed = () => {
-      const pre = doc.getElementById(blockId)?.querySelector('pre[data-prompt-text]');
+      const pre = promptPre(doc, blockId);
+      const details = pre?.closest('details');
+      if (details) details.open = true;
       if (pre) selectContents(pre);
-      announce(UI.copyFailedAnnouncement(promptName));
+      toast(UI.copyFailed);
     };
 
     link.addEventListener('click', (event) => {
-      // An armed link is just the link. That is the two-tap mode's second tap, and also the tap after
-      // a copy that could not be made — a failed copy must never leave the visitor without the app.
+      // An armed link is just the link: the two-tap mode's second tap, and also the tap after a copy
+      // that could not be made. A failed copy must never leave the visitor without the app.
       if (armed) {
         reset();
         return;
       }
-      const text = promptTextFor(doc, blockId) ?? '';
+      const text = promptPre(doc, blockId)?.textContent ?? '';
       if (taps === 1) {
         const { done, pending } = copyBeforeLeaving(text, link);
         if (done) {
-          flash();
-          announce(UI.copiedAnnouncement);
+          toast(copied);
           return; // and the link opens
         }
         if (pending) {
-          // Only "Copied" once it is true. The link opens either way; on a phone the app may already
-          // be in front when this resolves, and then there is nothing left to show.
+          // Only "Copied" once it is true. The link opens either way.
           void pending.then((ok) => {
-            if (!ok) return;
-            flash();
-            announce(UI.copiedAnnouncement);
+            if (ok) toast(copied);
           });
           return;
         }
-        // Nothing on this device can write the clipboard. Stay, select the prompt so it can be
-        // copied by hand, and let the next tap open the app.
+        // Nothing on this device can write the clipboard. Stay, select the prompt so it can be copied
+        // by hand, and let the next tap open the app.
         event.preventDefault();
         failed();
         arm();
         return;
       }
-      // Two taps. Armed at once, so a quick second tap opens even before the copy settles; the label
-      // says what happened once it has.
       event.preventDefault();
       arm();
       void copyText(text, link).then((ok) => {
@@ -314,43 +300,36 @@ function initCopyOpen(doc: Document, announce: (message: string) => void): void 
           return;
         }
         labelEl.textContent = UI.copiedThenOpen(app);
-        announce(UI.copiedAnnouncement);
+        toast(copied);
       });
     });
   }
 }
 
-/** The starter ideas: each chip copies its own words. */
-function initChips(doc: Document, announce: (message: string) => void): void {
-  const chips = Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-copy-chip]'));
-  for (const chip of chips) {
+/** The starter ideas: each one copies its own words. */
+function initChips(doc: Document, toast: (message: string) => void): void {
+  for (const chip of Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-copy-chip]'))) {
     const labelEl = chip.querySelector('[data-copy-label]');
     if (!labelEl) continue;
-    const original = labelEl.textContent ?? '';
-    const flash = flashCopied(chip, labelEl, original);
+    const words = labelEl.textContent ?? '';
+    const copied = chip.getAttribute('data-toast') ?? '';
     chip.addEventListener('click', () => {
-      void copyText(original, chip).then((ok) => {
+      void copyText(words, chip).then((ok) => {
         if (!ok) {
           selectContents(labelEl);
-          announce(UI.copyFailedAnnouncement(original));
+          toast(UI.chipCopyFailed);
           return;
         }
-        flash();
-        announce(UI.copiedAnnouncement);
+        toast(copied);
       });
     });
   }
 }
 
-// --- About you ------------------------------------------------------------------------------------
+// --- Filling the prompts ----------------------------------------------------------------------------
 
-const ABOUT_FIELDS = ['niche', 'neighborhoods', 'questions', 'brokerage', 'voice'] as const;
-type AboutField = (typeof ABOUT_FIELDS)[number];
-type About = Record<AboutField, string>;
-const EMPTY_ABOUT: About = { niche: '', neighborhoods: '', questions: '', brokerage: '', voice: '' };
-
-/** One piece of the assembled prompt: text, or a placeholder drawn as a <mark>. */
-interface Piece {
+/** One piece of a filled prompt: text, or a placeholder drawn as a <mark>. */
+export interface Piece {
   text: string;
   mark: boolean;
 }
@@ -371,51 +350,39 @@ function bracketed(text: string): Piece[] {
 }
 
 /**
- * The Carousel Creator instructions with "About you" written in (D-032):
- *   - all of niche, neighborhoods, questions and brokerage empty → the original last line, untouched;
- *   - any of them filled → that line becomes a list, each empty field keeping its own bracket;
- *   - a voice profile → appended after a blank line, under "My voice profile:".
- * What a visitor TYPES is never a placeholder, so a bracket they type stays plain text.
- * Exported for the tests.
+ * A prompt with its placeholders filled from `values` (D-034). Each placeholder named in `slots`
+ * becomes its field's value, trimmed, or stays a placeholder while the field is empty; placeholders
+ * not in `slots` ("[paste 10 to 15 samples]") always stay. Questions, one per line, become a list
+ * under their label. What a visitor TYPES is never a placeholder. Exported for the tests.
  */
-export function assembleCarousel(base: string, about: About): Piece[] {
-  const cut = base.lastIndexOf('\n') + 1;
-  const head = base.slice(0, cut);
-  const last = base.slice(cut);
-  const a = UI.aboutYou;
-  const value = (s: string) => s.trim();
-  const questions = about.questions
-    .split(/\r?\n/)
-    .map((q) => q.trim())
-    .filter(Boolean)
-    .join(a.questionJoin);
-  const vals = {
-    niche: value(about.niche),
-    neighborhoods: value(about.neighborhoods),
-    questions,
-    brokerage: value(about.brokerage),
-  };
-  const pieces = bracketed(head);
-  if (!vals.niche && !vals.neighborhoods && !vals.questions && !vals.brokerage) {
-    pieces.push(...bracketed(last));
-  } else {
-    const line = (key: keyof typeof vals, newline: boolean) => {
-      pieces.push({ text: a.lines[key], mark: false });
-      pieces.push(vals[key] ? { text: vals[key], mark: false } : { text: a.placeholders[key], mark: true });
-      if (newline) pieces.push({ text: '\n', mark: false });
-    };
-    pieces.push({ text: `${a.aboutMe}\n`, mark: false });
-    line('niche', true);
-    line('neighborhoods', true);
-    line('questions', true);
-    line('brokerage', false);
+export function fillPrompt(template: string, slots: Record<string, FieldName>, values: Partial<Record<FieldName, string>>): Piece[] {
+  const out: Piece[] = [];
+  for (const piece of bracketed(template)) {
+    const field = piece.mark ? slots[piece.text] : undefined;
+    if (!field) {
+      out.push(piece);
+      continue;
+    }
+    const raw = values[field] ?? '';
+    let value = raw.trim();
+    if (field === 'questions') {
+      const lines = raw
+        .split(/\r?\n/)
+        .map((q) => q.trim())
+        .filter(Boolean);
+      if (lines.length) {
+        value = UI.questionItem + lines.join(UI.questionItem);
+        // "most: " then a new line would leave a trailing space on the label's line.
+        const prev = out[out.length - 1];
+        if (prev && !prev.mark && prev.text.endsWith(' ')) prev.text = prev.text.slice(0, -1);
+      }
+    }
+    out.push(value ? { text: value, mark: false } : piece);
   }
-  const voice = value(about.voice);
-  if (voice) pieces.push({ text: `\n\n${a.voiceHeading}\n`, mark: false }, { text: voice, mark: false });
-  return pieces;
+  return out;
 }
 
-/** Writes pieces into the <pre> through text nodes and <mark>s — never through innerHTML. */
+/** Writes pieces into the <pre> through text nodes and <mark>s, never through innerHTML. */
 function paint(pre: Element, pieces: Piece[]): void {
   const doc = pre.ownerDocument;
   while (pre.firstChild) pre.removeChild(pre.firstChild);
@@ -431,73 +398,152 @@ function paint(pre: Element, pieces: Piece[]): void {
   }
 }
 
-function loadAbout(): About {
-  try {
-    const raw = storage()?.getItem(ABOUT_KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : null;
-    const out: About = { ...EMPTY_ABOUT };
-    if (parsed && typeof parsed === 'object') {
-      for (const key of ABOUT_FIELDS) {
-        const v = (parsed as Record<string, unknown>)[key];
-        if (typeof v === 'string') out[key] = v;
-      }
-    }
-    return out;
-  } catch {
-    return { ...EMPTY_ABOUT };
+function initFill(doc: Document, state: State, save: () => void): void {
+  // Every prompt with slots, painted from its template as rendered.
+  const prompts: Array<{ pre: Element; template: string; slots: Record<string, FieldName> }> = [];
+  for (const block of Array.from(doc.querySelectorAll('[data-prompt]'))) {
+    const slots = UI.slots[block.getAttribute('data-prompt') ?? ''];
+    const pre = block.querySelector('pre[data-prompt-text]');
+    if (slots && pre) prompts.push({ pre, template: pre.textContent ?? '', slots });
   }
-}
-
-function saveAbout(about: About | null): void {
-  try {
-    if (about === null) storage()?.removeItem(ABOUT_KEY);
-    else storage()?.setItem(ABOUT_KEY, JSON.stringify(about));
-  } catch {
-    // Full or blocked: the fields still fill the instructions for this visit.
-  }
-}
-
-function initAboutYou(doc: Document): void {
-  const panel = doc.querySelector<HTMLElement>('[data-about]');
-  const pre = doc.querySelector('[data-prompt="carousel_creator"] pre[data-prompt-text]');
-  if (!panel || !pre) return;
-  const base = pre.textContent ?? '';
-  // The rules replace the instructions' LAST line, so it has to be the "About me" line it was
-  // written for. If the prompt is ever edited so it is not, leave everything as rendered.
-  if (!base.slice(base.lastIndexOf('\n') + 1).startsWith(UI.aboutYou.aboutMe)) return;
-
-  const inputs = new Map<AboutField, HTMLInputElement | HTMLTextAreaElement>();
-  for (const key of ABOUT_FIELDS) {
-    const el = panel.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[data-about-field="${key}"]`);
-    if (el) inputs.set(key, el);
-  }
-  const read = (): About => {
-    const about: About = { ...EMPTY_ABOUT };
-    for (const [key, el] of inputs) about[key] = el.value;
-    return about;
+  const repaint = () => {
+    for (const p of prompts) paint(p.pre, fillPrompt(p.template, p.slots, state));
   };
-  const render = () => paint(pre, assembleCarousel(base, read()));
-
-  const saved = loadAbout();
-  for (const [key, el] of inputs) if (saved[key]) el.value = saved[key];
-  panel.hidden = false;
-  render();
-
-  for (const el of inputs.values()) {
+  for (const el of Array.from(doc.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-field]'))) {
+    const name = el.getAttribute('data-field') as FieldName;
+    if (FIELD_NAMES.indexOf(name) === -1) continue;
+    el.value = state[name];
     el.addEventListener('input', () => {
-      render();
-      saveAbout(read());
+      state[name] = el.value;
+      save();
+      repaint();
     });
   }
-  panel.querySelector('[data-about-clear]')?.addEventListener('click', () => {
-    for (const el of inputs.values()) el.value = '';
-    saveAbout(null);
-    render();
-    // Focus stays on Clear. Moving it into a field would raise a phone's keyboard for nothing.
+  repaint();
+}
+
+// --- Save it: Claude or ChatGPT ------------------------------------------------------------------------
+
+function initPicker(doc: Document, state: State, save: () => void): void {
+  const buttons = Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-pick]'));
+  const panels = Array.from(doc.querySelectorAll<HTMLElement>('[data-pick-panel]'));
+  if (buttons.length === 0 || panels.length === 0) return;
+  const apply = () => {
+    for (const b of buttons) b.setAttribute('aria-pressed', String(b.getAttribute('data-pick') === state.app));
+    for (const p of panels) p.hidden = p.getAttribute('data-pick-panel') !== state.app;
+  };
+  for (const b of buttons) {
+    b.addEventListener('click', () => {
+      state.app = b.getAttribute('data-pick') === 'chatgpt' ? 'chatgpt' : 'claude';
+      save();
+      apply();
+    });
+  }
+  apply();
+}
+
+// --- The step-through -----------------------------------------------------------------------------
+
+/** Removes `#…` from the address without a history entry, so a refresh resumes where the visitor is. */
+function clearHash(): void {
+  try {
+    if (window.location.hash) window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  } catch {
+    // Some WebViews refuse; the hash simply stays.
+  }
+}
+
+function initSteps(doc: Document, state: State, save: () => void): void {
+  const screens = Array.from(doc.querySelectorAll<HTMLElement>('section[data-screen]'));
+  const stage = doc.querySelector('[data-stage-label]');
+  const count = doc.querySelector('[data-count-label]');
+  const bar = doc.querySelector<HTMLElement>('[data-bar]');
+  const back = doc.querySelector<HTMLButtonElement>('button[data-back]');
+  const next = doc.querySelector<HTMLButtonElement>('button[data-next]');
+  const nextLabel = doc.querySelector('[data-next-label]');
+  const restart = doc.querySelector<HTMLButtonElement>('button[data-restart]');
+  if (screens.length === 0 || !stage || !count || !bar || !back || !next || !nextLabel || !restart) return;
+  const last = screens.length - 1;
+  let current = -1;
+
+  /** Which screen holds the element with this id, or -1. */
+  const screenOf = (id: string): number => {
+    if (!id) return -1;
+    const el = doc.getElementById(id);
+    const section = el?.closest('section[data-screen]');
+    return section ? screens.indexOf(section as HTMLElement) : -1;
+  };
+
+  /**
+   * Shows screen `i`. `focus` moves focus to its heading (after Next, Back, or a link): a screen
+   * reader then reads the new screen's name, and a keyboard user starts from its top. `target` is an
+   * element inside it to scroll to, for a link to one part of a screen.
+   */
+  const show = (i: number, focus: boolean, target: HTMLElement | null = null) => {
+    current = Math.max(0, Math.min(last, i));
+    screens.forEach((s, k) => {
+      if (k === current) s.setAttribute('data-current', '');
+      else s.removeAttribute('data-current');
+    });
+    const s = screens[current]!;
+    stage.textContent = s.getAttribute('data-stage') ?? '';
+    count.textContent = s.getAttribute('data-count') ?? '';
+    bar.style.width = `${Math.round((current / last) * 100)}%`;
+    back.hidden = current === 0;
+    next.hidden = current === last;
+    restart.hidden = current !== last;
+    nextLabel.textContent = s.getAttribute('data-next') ?? '';
+    state.i = current;
+    save();
+    if (target && target !== s) target.scrollIntoView();
+    else window.scrollTo(0, 0);
+    if (focus) s.querySelector<HTMLElement>('h1, h2')?.focus({ preventScroll: true });
+  };
+
+  doc.documentElement.classList.add('steps-on');
+  // The header and footer, only now: shown any earlier, a failure above would leave buttons that do nothing.
+  for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[data-steps-chrome]'))) el.hidden = false;
+
+  // Where to start: a link to a part of the page wins (a QR code, an email, the waitlist's own
+  // redirect), then the visitor's saved place, then the start.
+  const hash = decodeURIComponent(window.location.hash.slice(1));
+  const fromHash = screenOf(hash);
+  if (fromHash >= 0) show(fromHash, false, doc.getElementById(hash));
+  else show(state.i <= last ? state.i : 0, false);
+
+  next.addEventListener('click', () => {
+    clearHash();
+    show(current + 1, true);
+  });
+  back.addEventListener('click', () => {
+    clearHash();
+    show(current - 1, true);
+  });
+  restart.addEventListener('click', () => {
+    clearHash();
+    show(0, true);
+  });
+
+  // A link to another part of the page ("Skip to Step 2") goes to that screen. Handled on click,
+  // because a link to the hash already in the address fires no `hashchange`.
+  doc.addEventListener('click', (event) => {
+    const a = (event.target as Element | null)?.closest?.('a[href^="#"]');
+    if (!a) return;
+    const id = decodeURIComponent((a.getAttribute('href') ?? '').slice(1));
+    const i = screenOf(id);
+    if (i < 0) return;
+    event.preventDefault();
+    clearHash();
+    show(i, true, doc.getElementById(id));
+  });
+  window.addEventListener('hashchange', () => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    const i = screenOf(id);
+    if (i >= 0) show(i, true, doc.getElementById(id));
   });
 }
 
-// --- Get the app, and Send this to my laptop -----------------------------------------------------------
+// --- Get the app, and Send This to My Laptop ----------------------------------------------------------
 
 /** iPhone, iPad or Android, from the user agent. iPadOS can report a Mac, so a Mac with touch is an iPad. */
 function platform(): 'ios' | 'android' | null {
@@ -546,58 +592,32 @@ function revealScripted(doc: Document): void {
   for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[data-js-only]'))) el.hidden = false;
 }
 
-// --- Checklist ----------------------------------------------------------------------------------
+// --- Waitlist -----------------------------------------------------------------------------------------
 
-function storage(): Storage | null {
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
+const WL_FIELDS = ['firstName', 'email', 'phone', 'brokerage'] as const;
+type WlField = (typeof WL_FIELDS)[number];
+
+/**
+ * A US or international mobile number as E.164 ("+18605551234"), or null when it is not one. Ten
+ * digits are a US number; anything else needs its country code. The API applies the same rule.
+ * Exported for the tests.
+ */
+export function normalizePhone(input: string): string | null {
+  const trimmed = input.trim();
+  const digits = trimmed.replace(/\D/g, '');
+  if (trimmed.startsWith('+')) return digits.length >= 8 && digits.length <= 15 ? `+${digits}` : null;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits[0] === '1') return `+${digits}`;
+  return null;
 }
-
-/** The saved ids. Anything unreadable — no storage, bad JSON, the wrong shape — reads as none. */
-function loadChecked(): string[] {
-  try {
-    const raw = storage()?.getItem(CHECKLIST_KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveChecked(ids: string[]): void {
-  try {
-    storage()?.setItem(CHECKLIST_KEY, JSON.stringify(ids));
-  } catch {
-    // Full, or blocked. The ticks still work for this visit; they just will not survive a refresh.
-  }
-}
-
-function initChecklist(doc: Document): void {
-  const boxes = Array.from(doc.querySelectorAll<HTMLInputElement>('input[data-check-id]'));
-  if (boxes.length === 0) return;
-  const idOf = (box: HTMLInputElement) => box.getAttribute('data-check-id') ?? '';
-  // Restore only ever ticks. A box that is not in the saved list is left as the browser has it, so a
-  // back-navigation's own form restore is not undone when storage is unavailable. A saved id that no
-  // longer exists (a renamed item) matches nothing, and drops out at the next save.
-  const saved = loadChecked();
-  for (const box of boxes) if (saved.indexOf(idOf(box)) !== -1) box.checked = true;
-  // The whole list is written each time, read back from the DOM, so it can never drift from it.
-  const save = () => saveChecked(boxes.filter((box) => box.checked).map(idOf));
-  for (const box of boxes) box.addEventListener('change', save);
-}
-
-// --- Waitlist -----------------------------------------------------------------------------------
 
 /** The API's rules, client-side, with the same messages. */
-function validate(values: Values): Partial<Record<Field, string>> {
-  const errors: Partial<Record<Field, string>> = {};
+function validate(values: Record<WlField, string>, sms: boolean): Partial<Record<WlField, string>> {
+  const errors: Partial<Record<WlField, string>> = {};
   if (values.firstName.length < 1 || values.firstName.length > 80) errors.firstName = UI.errors.firstName;
   if (values.email.length > 254 || !EMAIL.test(values.email)) errors.email = UI.errors.email;
-  // Brokerage is optional, and `maxlength="120"` already stops it running long; the API still checks
-  // and answers with its own message if anything gets past.
+  if (values.phone !== '' && normalizePhone(values.phone) === null) errors.phone = UI.errors.phone;
+  else if (sms && values.phone === '') errors.phone = UI.errors.phoneForTexts;
   return errors;
 }
 
@@ -611,10 +631,10 @@ function readSrc(): string | null {
 }
 
 /** A 400's `{ error, field }`, when it names one of this form's fields. */
-function fieldError(body: unknown): { field: Field; message: string } | null {
+function fieldError(body: unknown): { field: WlField; message: string } | null {
   if (!body || typeof body !== 'object') return null;
   const { field, error } = body as { field?: unknown; error?: unknown };
-  const match = FIELDS.filter((name) => name === field)[0];
+  const match = WL_FIELDS.filter((name) => name === field)[0];
   if (!match) return null;
   const fallback = match === 'brokerage' ? UI.errors.generic : UI.errors[match];
   return { field: match, message: typeof error === 'string' && error ? error : fallback };
@@ -626,8 +646,8 @@ function initWaitlist(doc: Document): void {
   const joined = doc.getElementById('waitlist-joined');
   const formError = doc.getElementById('waitlist-error');
   const submit = form?.querySelector('button[type="submit"]');
-  // Without any one of these — or without `fetch` — leave the form alone: it still posts natively,
-  // and the API's 303 brings the visitor back to the right line of this page.
+  // Without any one of these, or without `fetch`, leave the form alone: it still posts natively, and
+  // the API's 303 brings the visitor back to the right line of this page.
   if (!form || !section || !joined || !formError || !submit || typeof fetch !== 'function') return;
 
   const input = (name: string): HTMLInputElement | null => {
@@ -639,7 +659,7 @@ function initWaitlist(doc: Document): void {
   // The page validates now, with the API's messages, so the browser's own bubbles stand down.
   form.noValidate = true;
 
-  const setFieldError = (name: Field, message: string) => {
+  const setFieldError = (name: WlField, message: string) => {
     const el = input(name);
     const line = doc.getElementById(`${name}-error`);
     if (!el || !line) return;
@@ -654,7 +674,7 @@ function initWaitlist(doc: Document): void {
   };
 
   // `role="alert"` announces a change of content, not of visibility, so the text is emptied and put
-  // back a beat later, exactly as the live region does it.
+  // back a beat later.
   const showFormError = () => {
     formError.setAttribute('data-shown', '');
     formError.textContent = '';
@@ -664,8 +684,10 @@ function initWaitlist(doc: Document): void {
   };
   const hideFormError = () => formError.removeAttribute('data-shown');
 
-  // An error clears as soon as its field is edited; the next submit re-checks everything.
-  for (const name of FIELDS) input(name)?.addEventListener('input', () => setFieldError(name, ''));
+  // An error clears as soon as its field is edited; the next submit re-checks everything. Ticking or
+  // unticking the SMS box re-opens the phone question.
+  for (const name of WL_FIELDS) input(name)?.addEventListener('input', () => setFieldError(name, ''));
+  input('smsConsent')?.addEventListener('change', () => setFieldError('phone', ''));
 
   let busy = false;
 
@@ -674,14 +696,16 @@ function initWaitlist(doc: Document): void {
     if (busy) return;
     hideFormError();
 
-    const values: Values = {
+    const values = {
       firstName: value('firstName').trim(),
       email: value('email').trim(),
+      phone: value('phone').trim(),
       brokerage: value('brokerage').trim(),
     };
-    const errors = validate(values);
-    for (const name of FIELDS) setFieldError(name, errors[name] ?? '');
-    const firstInvalid = FIELDS.filter((name) => errors[name])[0];
+    const sms = input('smsConsent')?.checked === true;
+    const errors = validate(values, sms);
+    for (const name of WL_FIELDS) setFieldError(name, errors[name] ?? '');
+    const firstInvalid = WL_FIELDS.filter((name) => errors[name])[0];
     if (firstInvalid) {
       input(firstInvalid)?.focus();
       return;
@@ -702,9 +726,11 @@ function initWaitlist(doc: Document): void {
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({
         ...values,
+        // Omitted rather than empty when there is none: the API decides what an empty one means.
+        phone: values.phone === '' ? undefined : values.phone,
+        smsConsent: sms,
         // The honeypot goes up as typed: the API, not the page, decides what a filled one means.
         website: value('website'),
-        // Omitted rather than null when absent. `src` never changes what the page shows.
         src: src === null ? undefined : src,
       }),
     })
@@ -726,20 +752,23 @@ function initWaitlist(doc: Document): void {
   });
 }
 
-// --- Boot ---------------------------------------------------------------------------------------
+// --- Boot -----------------------------------------------------------------------------------------
 
 function boot(doc: Document): void {
-  const announce = announcer(doc.getElementById('ai101-live'));
-  // About you first: it rewrites the Carousel Creator <pre>, which the copy buttons read on click.
-  guard(() => initAboutYou(doc));
-  guard(() => initCopy(doc, announce));
-  guard(() => initCopyOpen(doc, announce));
-  guard(() => initChips(doc, announce));
-  guard(() => initChecklist(doc));
+  const toast = toaster(doc.getElementById('ai101-live'));
+  const state = loadState();
+  const save = () => saveState(state);
+  // The fields first: they fill the <pre>s that Copy & Open reads on click.
+  guard(() => initFill(doc, state, save));
+  guard(() => initCopyOpen(doc, toast));
+  guard(() => initChips(doc, toast));
+  guard(() => initPicker(doc, state, save));
   guard(() => initGetApp(doc));
   guard(() => initShare(doc));
   guard(() => revealScripted(doc));
   guard(() => initWaitlist(doc));
+  // Last: it hides every screen but one, so everything above has already found what it needs.
+  guard(() => initSteps(doc, state, save));
 }
 
 // A module script runs once the document is parsed, so every element above is already there.

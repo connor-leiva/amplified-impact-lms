@@ -1,218 +1,559 @@
-/* /ai101, the eXpCon 2026 kit page. DECISIONS.md D-028.
+/* /ai101, the eXpCon 2026 workshop page. DECISIONS.md D-028, D-032 and D-034.
 
-   Net-new and public: there is no reference file for this page, so nothing here is a port. Every
-   value is one the app already draws somewhere — the card (Card.module.css, radius 14), the H1
-   (SignIn's 26/32), the secondary and primary buttons (Button.module.css), the field
-   (Field.module.css), the 22px checkbox (Staff.module.css) and the visually-hidden rule
-   (SessionCard.module.css) — at the sizes the build contract names. There is not a colour in this
-   file: every one is a token, so `scripts/check-css-colors.mjs` scans it like a module.
+   The look is Connor's workshop design ("AI 101 for Agents - Workshop", Claude Design, 2026-10-08):
+   a step-through on the brand's cream, forest and ink, sized for a phone held in one hand. Sizes,
+   radii and spacing are the design's own, copied as literal px.
 
-   Light theme only. The SPA's pre-paint theme script reads the signed-in viewer's preference, and
-   this page has no viewer; the tokens' defaults are the light theme.
+   COLOURS. Cream, ink and forest are exactly tokens (--bg-canvas, --text-primary, --action-primary;
+   measured in OKLCH, they match to three decimals). Every tint is one of those, mixed toward
+   transparent. Three accents are not tokens: the brand mark's green (the dot on its "i"), its mint
+   (the favicon's dot, which the tokens only carry as the DARK theme's primary) and a terracotta for
+   "do this on a laptop". They are defined ONCE, below, as page variables with the design's exact
+   values, and used only through them (D-034). `scripts/check-css-colors.mjs` scans this file.
 
-   Mobile first: the base rules are the 375px phone that scans the QR code, and the one breakpoint,
-   640px, is where the layers table has room to be a table again. Nothing on the page may scroll
-   sideways at 375px — the prompts wrap (`pre-wrap` plus `overflow-wrap: anywhere`) and the table
-   stacks.
+   Mobile first: the base rules are the 375px phone that scans the QR code. Nothing may scroll
+   sideways at 375px: the prompts wrap (`pre-wrap` plus `overflow-wrap: anywhere`).
 
    This file is inlined into the page's <style> at build time (vite-plugin.ts), @imports included.
-   Only the four font files it can ask for are separate requests, and the browser asks only for the
-   subsets the page's characters fall in: latin, for every glyph on the page. */
+   Only the four font files are separate requests, the same four-request budget as before: Hanken
+   Grotesk 400, 700 and 800 and DM Mono 400 (the design's one DM Mono 500 is drawn at 400). */
 
 @import '@fontsource/hanken-grotesk/400.css';
-@import '@fontsource/hanken-grotesk/500.css';
-@import '@fontsource/hanken-grotesk/600.css';
+@import '@fontsource/hanken-grotesk/700.css';
+@import '@fontsource/hanken-grotesk/800.css';
 @import '@fontsource/dm-mono/400.css';
 @import '../styles/tokens.css';
 @import '../styles/global.css';
 
-/* --- Page ------------------------------------------------------------------------------------ */
+:root {
+  /* The three accents (see the header). */
+  --ai101-green: oklch(0.563 0.118 159);
+  --ai101-mint: oklch(0.793 0.116 162);
+  --ai101-terracotta: oklch(0.579 0.129 41);
 
-/* A 720px content column; the padding is the shell's own page padding, which the tokens already
-   step down to 24/16 under 768px. */
+  /* The design's ink at its opacities, from the token. */
+  --ai101-line: color-mix(in oklch, var(--text-primary) 15%, transparent);
+  --ai101-rule: color-mix(in oklch, var(--text-primary) 12%, transparent);
+  --ai101-field-line: color-mix(in oklch, var(--text-primary) 30%, transparent);
+  --ai101-text-80: color-mix(in oklch, var(--text-primary) 80%, transparent);
+  --ai101-text-70: color-mix(in oklch, var(--text-primary) 70%, transparent);
+  --ai101-text-60: color-mix(in oklch, var(--text-primary) 60%, transparent);
+  --ai101-track: color-mix(in oklch, var(--text-primary) 10%, transparent);
+  --ai101-seg: color-mix(in oklch, var(--text-primary) 7%, transparent);
+  --ai101-tip-bg: color-mix(in oklch, var(--ai101-mint) 22%, transparent);
+  --ai101-warn-bg: color-mix(in oklch, var(--ai101-terracotta) 12%, transparent);
+  --ai101-on-dark-85: color-mix(in oklch, var(--action-on-primary) 85%, transparent);
+  --ai101-on-dark-75: color-mix(in oklch, var(--action-on-primary) 75%, transparent);
+  --ai101-focus: color-mix(in oklch, var(--action-primary) 45%, transparent);
+  --ai101-shadow: 0 8px 24px color-mix(in oklch, var(--text-primary) 25%, transparent);
+}
+
+/* `hidden` wins over every `display` below: the parts main.ts reveals are hidden markup. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--action-primary);
+}
+a:hover {
+  color: var(--ai101-green);
+}
+
+:focus-visible {
+  outline: 3px solid var(--ai101-focus);
+  outline-offset: 2px;
+}
+/* A heading takes focus only from the script, when its screen is entered; it shows no ring. */
+h1[tabindex='-1']:focus,
+h2[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* --- The column --------------------------------------------------------------------------------- */
+
 .page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-width: calc(720px + 2 * var(--page-pad-x));
+  gap: 24px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: var(--page-pad-top) var(--page-pad-x) 56px;
-  font-size: 16px;
-  line-height: 24px;
+  padding: 32px 20px 56px;
+}
+/* Room for the fixed footer. */
+.steps-on .page {
+  padding-bottom: 140px;
 }
 
-.page p {
-  margin: 0;
-  text-wrap: pretty;
-}
-
+.page p,
 .page h1,
 .page h2,
-.page h3 {
+.page h3,
+.page ol,
+.page ul {
   margin: 0;
-  font-weight: 600;
 }
 
-/* --- Header ---------------------------------------------------------------------------------- */
-
-.hero {
+.screen {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px 0;
+  gap: 20px;
+}
+/* With the script, one screen at a time. */
+.steps-on .screen:not([data-current]) {
+  display: none;
+}
+/* Without it, every screen in order, each set off from the last. */
+html:not(.steps-on) .screen + .screen {
+  padding-top: 32px;
+  border-top: 1px solid var(--ai101-rule);
 }
 
-/* Sentence case and the sans face, as the contract asks: not the mono uppercase eyebrow. */
-.eyebrow {
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.hero h1 {
-  font-size: 26px;
-  line-height: 32px;
+.page h1 {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  text-wrap: balance;
+  text-wrap: pretty;
+}
+.page h2 {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  text-wrap: pretty;
+}
+.page strong {
+  font-weight: 700;
 }
 
-.subhead {
-  color: var(--text-secondary);
+.lede {
+  color: color-mix(in oklch, var(--text-primary) 85%, transparent);
+  text-wrap: pretty;
+}
+#welcome .lede {
+  font-size: 21px;
+  color: var(--ai101-text-80);
+}
+.muted {
+  font-size: 18px;
+  color: var(--ai101-text-80);
+}
+.small {
+  font-size: 16px;
+}
+.small.muted {
+  color: var(--ai101-text-70);
+}
+.note {
+  font-size: 17px;
+  color: color-mix(in oklch, var(--text-primary) 75%, transparent);
 }
 
-/* The jump links wrap as a row. Each link is 32px tall so it is a real tap target on a phone. */
-.jump {
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--action-primary);
+}
+
+.logo {
+  display: block;
+  width: 260px;
+  max-width: 100%;
+  height: auto;
+  margin: 8px 0 18px;
+}
+
+/* --- The progress header ---------------------------------------------------------------------------- */
+
+.steps-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--ai101-rule);
+}
+.steps-head-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 14px 20px 12px;
+}
+.steps-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+}
+.stage,
+.count {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+.stage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--action-primary);
+}
+.stage::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ai101-green);
+}
+.count {
+  color: var(--ai101-text-70);
+}
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ai101-track);
+  overflow: hidden;
+}
+.bar-fill {
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--action-primary);
+  transition: width 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* --- The footer ------------------------------------------------------------------------------- */
+
+.steps-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  background: var(--bg-canvas);
+  border-top: 1px solid var(--ai101-rule);
+}
+.steps-nav-inner {
+  display: flex;
+  gap: 10px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+}
+.nav-back,
+.nav-next,
+.nav-restart {
+  min-height: 60px;
+  padding: 0 22px;
+  border-radius: 14px;
+  font-size: 19px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.nav-back,
+.nav-restart {
+  border: 2px solid var(--action-primary);
+  background: transparent;
+  color: var(--action-primary);
+}
+.nav-back {
+  flex: 0 0 auto;
+}
+.nav-restart {
+  flex: 1;
+}
+.nav-next {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 20px;
+}
+.nav-next::after {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ai101-mint);
+}
+.nav-next:hover {
+  background: var(--action-primary-hover);
+}
+
+/* --- Buttons ------------------------------------------------------------------------------------ */
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover {
+  text-decoration: none;
+}
+.btn-primary {
+  min-height: 58px;
+  border: 0;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.btn-primary:hover {
+  background: var(--action-primary-hover);
+  color: var(--action-on-primary);
+}
+.btn-outline {
+  border: 2px solid var(--action-primary);
+  background: transparent;
+  color: var(--action-primary);
+}
+.btn-outline:hover {
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+}
+
+/* Buttons side by side where they fit, each at least 160px: "Get ChatGPT" and "Get Claude". */
+.row {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  column-gap: 8px;
-  margin-top: 4px;
-  font-size: 15px;
-  font-weight: 500;
+  gap: 10px;
 }
-.jump a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  border-radius: 4px;
+.row > .btn {
+  flex: 1 1 160px;
+  /* A label never wraps inside its button: the row wraps instead, one button per line on a phone. */
+  white-space: nowrap;
 }
-.sep {
-  color: var(--text-tertiary);
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-a:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* --- Section cards ---------------------------------------------------------------------------- */
+/* --- Cards and callouts ------------------------------------------------------------------------------ */
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px 16px;
-  border: 1px solid var(--line-default);
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--ai101-line);
   border-radius: 14px;
   background: var(--bg-surface);
-  scroll-margin-top: 16px;
 }
-@media (min-width: 640px) {
-  .card {
-    padding: 24px;
-  }
+.card-roomy {
+  gap: 14px;
+  padding: 22px;
+  border-radius: 16px;
 }
-
-.card h2 {
+.card-accent {
+  border: 2px solid var(--action-primary);
+}
+.card-title {
+  font-weight: 800;
+}
+.card-title-lg {
   font-size: 20px;
-  line-height: 28px;
-  letter-spacing: -0.015em;
+}
+#welcome .card-title-lg {
+  font-size: 22px;
 }
 
-.page h3 {
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.lede {
-  color: var(--text-secondary);
-}
-
-/* An <h3> and what it heads. */
-.block {
+.tiles {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+.tile {
+  gap: 4px;
+  padding: 18px 20px;
+  font-weight: 700;
+}
+.tile .muted {
+  font-size: 17px;
+  font-weight: 400;
+}
+.tile strong {
+  font-weight: 800;
 }
 
-/* --- Numbered lists: the 24px step circles ---------------------------------------------------- */
+.callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+.callout::before {
+  content: '';
+  flex: none;
+  align-self: flex-start;
+  width: 10px;
+  height: 10px;
+  margin-top: 9px;
+  border-radius: 50%;
+}
+.callout-tip {
+  background: var(--ai101-tip-bg);
+}
+.callout-tip::before {
+  background: var(--ai101-green);
+}
+.callout-warn {
+  background: var(--ai101-warn-bg);
+}
+.callout-warn::before {
+  background: var(--ai101-terracotta);
+}
+.callout-strong {
+  font-weight: 700;
+}
+.callout-tip.callout-strong {
+  padding: 18px;
+  font-size: 20px;
+}
+.callout-tip.callout-strong::before {
+  width: 12px;
+  height: 12px;
+  margin-top: 9px;
+}
 
-.steps {
+/* "Then, in the new chat: 1 Paste. 2 … 3 Send." The numbers in mono, in forest. */
+.numbered {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 0;
   padding: 0;
   list-style: none;
   counter-reset: step;
 }
-.steps > li {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  column-gap: 12px;
+.numbered li {
+  display: flex;
+  gap: 12px;
   counter-increment: step;
 }
-.steps > li::before {
+.numbered li::before {
   content: counter(step);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: 1.5px solid var(--line-strong);
-  border-radius: 50%;
+  flex: none;
   font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1;
-  color: var(--text-secondary);
+  color: var(--action-primary);
 }
 
-/* --- Prompt blocks ---------------------------------------------------------------------------- */
-
-.prompt {
+/* Steps in forest circles. */
+.circled {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.circled li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  counter-increment: step;
+}
+.circled li::before {
+  content: counter(step);
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 16px;
+  font-weight: 800;
+}
+.circled li > span {
+  padding-top: 2px;
+}
+.builds {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  scroll-margin-top: 16px;
+}
+.builds-lead {
+  font-size: 18px;
+  font-weight: 700;
+}
+.builds .circled {
+  gap: 10px;
 }
 
-/* Label left, button right; on a phone the button drops under the label rather than squeezing it. */
-.prompt-head {
+.skip {
+  align-self: flex-start;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px 12px;
+  justify-content: center;
+  min-height: 44px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: underline;
 }
 
-.prompt pre {
+/* --- Prompts -------------------------------------------------------------------------------------- */
+
+.disclosure {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.disclosure summary {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 20px;
+  font-weight: 700;
+  color: var(--action-primary);
+  cursor: pointer;
+}
+.disclosure pre {
   margin: 0;
-  padding: 14px 16px;
-  border: 1px solid var(--line-subtle);
-  border-radius: 10px;
-  background: var(--bg-sunken);
-  color: var(--text-primary);
+  padding: 4px 20px 20px;
   font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  color: var(--text-primary);
 }
 
 /* The highlight is drawn, not typed: the brackets are the prompt's own characters, and the copied
-   text is the <pre>'s textContent, which a <mark> adds nothing to. `clone` keeps the rounded tint
-   on every line of a placeholder that wraps. */
+   text is the <pre>'s textContent, which a <mark> adds nothing to. */
 .placeholder {
   padding: 0 2px;
   border-radius: 4px;
@@ -222,320 +563,357 @@ a:focus-visible {
   box-decoration-break: clone;
 }
 
-/* Button.module.css's secondary `md`. The min-width holds the button at its "Copy prompt" width
-   while it says "Copied", so the swap never moves the layout around it. */
-.copy {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 140px;
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--action-secondary-line);
-  border-radius: 8px;
-  background: var(--action-secondary);
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  outline: none;
-  transition: background 120ms;
-}
-.copy:hover {
-  background: var(--action-secondary-hover);
-}
-.copy:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-.copy svg {
-  flex: none;
-}
-.copy .icon-check,
-.copy[data-copied] .icon-copy {
-  display: none;
-}
-.copy[data-copied] .icon-check {
-  display: block;
-  color: var(--status-success-text);
-}
-/* 36px only with a mouse. A phone held sideways and every iPad are wider than 640px and still a
-   finger, so they keep the 44px target. */
-@media (min-width: 640px) and (pointer: fine) {
-  .copy {
-    height: 36px;
-  }
-}
+/* --- Fields --------------------------------------------------------------------------------------- */
 
-/* The voice profile prompt has three buttons, so its label gets a line of its own and the buttons a
-   row under it (`.actions`, which stacks on a phone). */
-.prompt-head.stacked {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-/* --- The layers table ------------------------------------------------------------------------- */
-
-/* Phone: one stacked card per row. render.ts spells out every ARIA role, so the change of `display`
-   does not cost the table its semantics. The column headers stay in the accessibility tree
-   (visually hidden, not `display: none`), and each cell draws its column name above itself. */
-.layers,
-.layers tbody,
-.layers tr,
-.layers th,
-.layers td {
-  display: block;
-}
-.layers {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
-  line-height: 22px;
-}
-.layers thead {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-.layers tbody {
+.fields {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 18px;
 }
-.layers tbody tr {
-  padding: 12px 14px;
-  border: 1px solid var(--line-subtle);
-  border-radius: 10px;
-  background: var(--bg-sunken);
-}
-.layers th,
-.layers td {
-  padding: 0;
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-.layers tbody th {
-  font-weight: 600;
-}
-.layers td::before {
-  content: attr(data-label);
-  /* Empty alt text: the column header already names the cell to a screen reader. A browser that
-     does not know the alt syntax ignores this line and keeps the one above. */
-  content: attr(data-label) / '';
-  display: block;
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 18px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-@media (min-width: 640px) {
-  .layers {
-    display: table;
-  }
-  .layers thead {
-    display: table-header-group;
-    position: static;
-    width: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
-  }
-  .layers tbody {
-    display: table-row-group;
-  }
-  .layers tr,
-  .layers tbody tr {
-    display: table-row;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: none;
-  }
-  .layers th,
-  .layers td {
-    display: table-cell;
-    padding: 12px 12px 12px 0;
-    border-top: 1px solid var(--line-default);
-    vertical-align: top;
-  }
-  .layers th:last-child,
-  .layers td:last-child {
-    padding-right: 0;
-  }
-  /* "1. The brand" on one line: the auto layout would otherwise give the shortest column the least. */
-  .layers tbody th {
-    white-space: nowrap;
-  }
-  .layers thead th {
-    padding-top: 0;
-    padding-bottom: 8px;
-    border-top: 0;
-    font-size: 13px;
-    line-height: 18px;
-    font-weight: 500;
-    color: var(--text-secondary);
-  }
-  .layers td::before {
-    content: none;
-  }
-}
-
-/* --- Setup checklist -------------------------------------------------------------------------- */
-
-.checklist {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.checklist label {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 8px 0;
-  cursor: pointer;
-}
-
-/* The native checkbox, transparent, exactly over the drawn box: it is still the control that is
-   clicked, focused and announced. */
-.checklist input {
-  position: absolute;
-  top: 9px;
-  left: 0;
-  width: 22px;
-  height: 22px;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-/* Staff.module.css's `.check`. 1px down so the 22px box centres on the first 24px line. */
-.box {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  margin-top: 1px;
-  border: 1.5px solid var(--line-strong);
-  border-radius: 6px;
-  color: var(--action-on-primary);
-}
-.box svg {
-  visibility: hidden;
-}
-.checklist input:checked + .box {
-  border-color: var(--action-primary);
-  background: var(--action-primary);
-}
-.checklist input:checked + .box svg {
-  visibility: visible;
-}
-.checklist input:focus-visible + .box {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* --- The sprint ------------------------------------------------------------------------------- */
-
-.weeks {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-@media (min-width: 640px) {
-  .weeks {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-.weeks li {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 12px 14px;
-  border: 1px solid var(--line-subtle);
-  border-radius: 10px;
-  background: var(--bg-sunken);
-}
-.week {
-  font-size: 13px;
-  line-height: 18px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-.pillar {
-  font-weight: 600;
-}
-
-/* --- Waitlist --------------------------------------------------------------------------------- */
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 440px;
-}
-
-/* Field.module.css's stack, label and error. */
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 .field label {
-  font-size: 13px;
-  line-height: 18px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-size: 17px;
+  font-weight: 700;
 }
-.optional {
-  margin-left: 4px;
+.field-hint {
   font-weight: 400;
-  color: var(--text-tertiary);
+  color: color-mix(in oklch, var(--text-primary) 65%, transparent);
 }
-
-/* Field.module.css's `.input`, at 16px and 40px rather than 14px and 36px: iOS zooms the page into
-   any focused input whose text is under 16px, and this form is filled in on a phone. */
-.field input {
+.field input,
+.field textarea {
   width: 100%;
-  height: 40px;
-  padding: 0 11px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  min-height: 56px;
+  padding: 12px 16px;
+  border: 2px solid var(--ai101-field-line);
+  border-radius: 12px;
   background: var(--bg-surface);
   color: var(--text-primary);
-  font-size: 16px;
-  outline: none;
+  font-size: 19px;
+  font-weight: 400;
 }
-.field input:focus-visible {
+.field textarea {
+  resize: vertical;
+}
+.field input::placeholder,
+.field textarea::placeholder,
+.wl-field input::placeholder {
+  color: color-mix(in oklch, var(--text-primary) 45%, transparent);
+}
+.field input:focus-visible,
+.field textarea:focus-visible {
   border-color: var(--action-primary);
-  box-shadow: 0 0 0 3px var(--focus-ring);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ai101-focus);
 }
 
-.field-error {
+/* --- Save it: Claude or ChatGPT ------------------------------------------------------------------ */
+
+.picker {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--ai101-seg);
+}
+.picker button {
+  flex: 1;
+  min-height: 52px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--action-primary);
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.picker button[aria-pressed='true'] {
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+/* Each panel's app name shows only without the script, when both panels show at once. */
+.steps-on .pick-title {
+  display: none;
+}
+.pick-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* --- Test it --------------------------------------------------------------------------------------- */
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pair-card {
+  gap: 6px;
+  padding: 18px;
+}
+.pair-label {
+  font-family: var(--font-mono);
   font-size: 13px;
-  line-height: 18px;
-  color: var(--access-locked-text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ai101-text-60);
+}
+.pair-after {
+  border-color: var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.pair-after .pair-label {
+  color: var(--ai101-mint);
+}
+
+/* --- Send your first idea ----------------------------------------------------------------------------- */
+
+.starters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+.starter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 14px 18px;
+  border: 1px solid color-mix(in oklch, var(--text-primary) 20%, transparent);
+  border-radius: 14px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.starter:hover {
+  border-color: var(--action-primary);
+}
+.starter-tag {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--action-primary);
+}
+
+/* --- Your week ----------------------------------------------------------------------------------------- */
+
+#carousel-creator-week {
+  gap: 22px;
+}
+.own .muted {
+  font-size: 17px;
+  color: color-mix(in oklch, var(--text-primary) 75%, transparent);
+}
+.dotted {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.dotted li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 18px;
+}
+.dotted li::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-top: 10px;
+  border-radius: 50%;
+  background: var(--ai101-terracotta);
+}
+.sprint {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.weeks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+.week {
+  gap: 2px;
+  padding: 12px;
+  border-radius: 12px;
+}
+.week-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--action-primary);
+}
+.week-pillar {
+  font-size: 17px;
+  font-weight: 800;
+}
+.sprint .btn {
+  min-height: 54px;
+  padding: 0 18px;
+  font-size: 18px;
+}
+
+/* --- The waitlist ------------------------------------------------------------------------------------- */
+
+.waitlist {
+  gap: 18px;
+  padding: 28px 22px;
+  border-radius: 18px;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+html:not(.steps-on) .waitlist {
+  border-top: 0;
+}
+.logo-reversed {
+  width: 240px;
+  margin: 4px 0 14px;
+}
+.eyebrow-mint {
+  color: var(--ai101-mint);
+}
+.waitlist h2 {
+  font-size: 36px;
+}
+.wl-body {
+  color: var(--ai101-on-dark-85);
+}
+.wl-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wl-field input {
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-size: 19px;
+}
+.wl-field input:focus-visible {
+  outline: 3px solid var(--ai101-mint);
+  outline-offset: 2px;
+}
+/* An error line under its field, in mint so it reads on forest; empty takes no room. */
+.field-error {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ai101-mint);
 }
 .field-error:empty {
   display: none;
 }
+.wl-field input[aria-invalid='true'] {
+  box-shadow: 0 0 0 3px var(--ai101-mint);
+}
+.wl-sms {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ai101-on-dark-85);
+}
+.wl-sms input {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--ai101-mint);
+  cursor: pointer;
+}
+.wl-sms label {
+  cursor: pointer;
+}
+.btn-cream {
+  min-height: 58px;
+  border: 0;
+  background: var(--bg-canvas);
+  color: var(--action-primary);
+}
+.btn-cream:hover {
+  background: var(--bg-surface);
+}
+.btn-cream[aria-disabled='true'] {
+  opacity: 0.7;
+  cursor: progress;
+}
+.wl-legal {
+  font-size: 15px;
+  color: var(--ai101-on-dark-75);
+}
+.wl-legal a {
+  color: var(--action-on-primary);
+  text-decoration: underline;
+}
+.wl-legal a:hover {
+  color: var(--ai101-mint);
+}
 
-/* Off-screen, not `display: none` — see render.ts. A negative offset never widens the page. */
+/* Hidden until there is something to say: `:target` is the no-JavaScript path (the API's 303 to
+   `#waitlist-error`), `[data-shown]` is main.ts. */
+.form-error {
+  display: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ai101-mint);
+}
+.form-error:target,
+.form-error[data-shown] {
+  display: block;
+}
+
+/* "You're on the list." Shown by the no-JavaScript 303 to `#waitlist-joined`, or by main.ts setting
+   `data-state="joined"`; the form goes away with it. The `:has()` rule is progressive: a browser
+   without it shows the message above the form. */
+.wl-success {
+  display: none;
+  padding: 18px;
+  border-radius: 12px;
+  background: color-mix(in oklch, var(--ai101-mint) 20%, transparent);
+  font-weight: 700;
+}
+.wl-success:focus {
+  outline: none;
+}
+.wl-success:target,
+.waitlist[data-state='joined'] .wl-success {
+  display: block;
+}
+.waitlist[data-state='joined'] .wl-form,
+.waitlist:has(.wl-success:target) .wl-form {
+  display: none;
+}
+
+/* Off-screen, not `display: none`: see render.ts. A negative offset never widens the page. */
 .field-website {
   position: absolute;
   left: -10000px;
@@ -544,400 +922,45 @@ a:focus-visible {
   overflow: hidden;
 }
 
-/* Hidden until there is something to say: `:target` is the no-JavaScript path (the API's 303 to
-   `#waitlist-error`), `[data-shown]` is main.ts. */
-.form-error {
-  display: none;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--access-locked-text);
-}
-.form-error:target,
-.form-error[data-shown] {
-  display: block;
-}
+/* --- The toast (the live region) ---------------------------------------------------------------- */
 
-/* Button.module.css's primary `lg`. Full width under a thumb; its own width from 640px. */
-.submit {
-  display: inline-flex;
+.toast {
+  position: fixed;
+  bottom: 104px;
+  left: 50%;
+  z-index: 10;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 40px;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: var(--action-primary);
-  color: var(--action-on-primary);
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  outline: none;
-  transition: background 120ms;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 16px 22px;
+  border-radius: 12px;
+  background: var(--text-primary);
+  color: var(--bg-canvas);
+  box-shadow: var(--ai101-shadow);
+  font-size: 18px;
+  font-weight: 700;
+  transform: translateX(-50%);
 }
-@media (min-width: 640px) {
-  .submit {
-    width: auto;
-    align-self: flex-start;
-  }
-}
-.submit:hover {
-  background: var(--action-primary-hover);
-}
-.submit:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-.submit[aria-disabled='true'] {
-  cursor: progress;
-}
-
-.consent {
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--text-secondary);
-}
-
-/* "You're on the list." in the shape of a success status token. Shown by the no-JavaScript 303 to
-   `#waitlist-joined`, or by main.ts setting `data-state="joined"`; the form goes away with it.
-   The `:has()` rule is progressive: a browser without it shows the message above the form. */
-.success {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border: 1px solid var(--status-success-line);
-  border-radius: 10px;
-  background: var(--status-success-bg);
-  color: var(--text-primary);
-  font-weight: 600;
-}
-.success svg {
+.toast::before {
+  content: '';
   flex: none;
-  color: var(--status-success-text);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ai101-mint);
 }
-.success:focus {
-  outline: none;
-}
-.success:target,
-.waitlist[data-state='joined'] .success {
-  display: flex;
-}
-.waitlist[data-state='joined'] .form,
-.waitlist:has(.success:target) .form {
+.toast:empty {
   display: none;
 }
-
-/* --- Click-path additions (D-032) ------------------------------------------------------------ */
-
-/* Bold at the weight the page loads. 700 is not loaded, and a browser would fake it. */
-.page strong {
-  font-weight: 600;
+/* Without the footer there is nothing to sit above. */
+html:not(.steps-on) .toast {
+  bottom: 24px;
 }
 
-/* `hidden` has to win over every `display` below: the panels main.ts reveals are hidden markup, and
-   a rule that sets `display` would otherwise show them to a visitor with no JavaScript. */
-.page [hidden] {
-  display: none !important;
-}
-
-/* A link drawn as Button.module.css's secondary button: a 44px tap target on a phone, 36px from
-   640px. The global `a:hover` underline and link colour are not for buttons. */
-.action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--action-secondary-line);
-  border-radius: 8px;
-  background: var(--action-secondary);
-  color: var(--text-primary);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  text-align: center;
-  text-decoration: none;
-  vertical-align: middle;
-  cursor: pointer;
-  outline: none;
-  transition: background 120ms;
-}
-.action:hover {
-  background: var(--action-secondary-hover);
-  color: var(--text-primary);
-  text-decoration: none;
-}
-.action:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-@media (min-width: 640px) and (pointer: fine) {
-  .action {
-    min-height: 36px;
-  }
-}
-
-/* The ChatGPT and Claude marks on the buttons that open those apps (logos.ts). */
-.action .logo {
-  flex: none;
-}
-
-/* The marks' definitions: drawn nowhere, so out of the flow. */
-.logo-sprite {
-  position: absolute;
-  overflow: hidden;
-}
-
-/* A row of buttons: stacked and full width under a thumb, a wrapping row from 640px. */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.actions > * {
-  width: 100%;
-}
-@media (min-width: 640px) {
-  .actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .actions > * {
-    width: auto;
-  }
-}
-
-/* Helper lines under buttons, and "All fields are optional." */
-.hint {
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--text-secondary);
-}
-
-/* "Phone or laptop · Free": the top of a step card. The card's 16px gap is pulled in under it so the
-   badge reads as the heading's, not as a line of its own. */
-.badge {
-  align-self: flex-start;
-  padding: 2px 10px;
-  border-radius: 999px;
-  background: var(--action-primary-tint);
-  color: var(--action-primary);
-  font-size: 13px;
-  line-height: 18px;
-  font-weight: 600;
-}
-.badge + h2 {
-  margin-top: -8px;
-}
-
-/* "Before we start", between the jump links and Step 1. */
-.get-app {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid var(--line-default);
-  border-radius: 14px;
-  background: var(--bg-surface);
-}
-@media (min-width: 640px) {
-  .get-app {
-    padding: 20px 24px;
-  }
-}
-
-/* Step 1 item 4: a lead line and its bulleted options, each with a button inside the sentence. */
-.step-rich {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 0;
-  padding-left: 18px;
-}
-/* A button inside a sentence ("[Open Claude Projects] Click New project, top right.") gets a line of
-   its own, and the sentence carries on under it: inline, a 44px button splits the words around it
-   across lines. Full width under a thumb, its own width from 640px. */
-.options .action,
-.check-detail .action {
-  display: flex;
-  width: 100%;
-  margin: 6px 0;
-}
-@media (min-width: 640px) {
-  .options .action,
-  .check-detail .action {
-    width: fit-content;
-  }
-}
-
-/* On a phone (a coarse pointer or a narrow screen), the ChatGPT settings link is replaced by the path
-   to the same screen in the app: the link is only verified on desktop web. */
-.phone-only {
-  display: none;
-}
-@media (pointer: coarse), (max-width: 639px) {
-  .desktop-only {
-    display: none;
-  }
-  /* In the button's place: its own line, so it reads as the step it replaces. */
-  .phone-only {
-    display: block;
-    margin: 6px 0;
-  }
-}
-
-/* What to do for a checklist item, under its label and aligned with its text (22px box + 12px). */
-.check-detail {
-  margin: 0 0 8px 34px;
-  font-size: 15px;
-  line-height: 22px;
-}
-/* Item 1: paragraphs around the brand prompt, spaced like the prompt block's own parts. */
-.check-detail.stack {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.check-detail.stack p {
-  margin: 0;
-}
-/* In the prompt's row of buttons the in-sentence rule above does not apply: no extra margin. */
-.check-detail .actions .action {
-  margin: 0;
-}
-/* The brand prompt's label: an h4 under "Setup checklist", drawn like the other prompt labels. */
-.page .prompt h4 {
-  margin: 0;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
-}
-.starters {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* The tap-to-copy starter ideas. */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.chip {
-  min-height: 44px;
-  padding: 8px 14px;
-  border: 1px solid var(--action-secondary-line);
-  border-radius: 22px;
-  background: var(--action-secondary);
-  color: var(--text-primary);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  outline: none;
-  transition: background 120ms;
-}
-.chip:hover {
-  background: var(--action-secondary-hover);
-}
-.chip:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-.chip[data-copied] {
-  border-color: var(--status-success-line);
-}
-
-/* "Send this to my laptop": one button, full width under a thumb. */
-.send .action {
-  width: 100%;
-}
-@media (min-width: 640px) {
-  .send .action {
-    width: auto;
-  }
-}
-
-/* About you: optional fields that write themselves into the instructions below. */
-.about {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid var(--line-subtle);
-  border-radius: 10px;
-  background: var(--bg-sunken);
-}
-.about-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.text-button {
-  min-height: 44px;
-  padding: 0 4px;
-  border: 0;
-  border-radius: 4px;
-  background: none;
-  color: var(--text-link);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  outline: none;
-}
-.text-button:hover {
-  color: var(--text-link-hover);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.text-button:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* The waitlist field's look, for a textarea. 16px for the same iOS zoom reason. */
-.field textarea {
-  width: 100%;
-  padding: 8px 11px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 16px;
-  line-height: 24px;
-  resize: vertical;
-  outline: none;
-}
-.field textarea:focus-visible {
-  border-color: var(--action-primary);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* About you's text fields at the 44px tap target. The waitlist's keep the 40px Field.module.css has. */
-.about .field input {
-  height: 44px;
-}
-
-/* "Add the sprint to your calendar". */
-.calendar {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* --- Utilities -------------------------------------------------------------------------------- */
+/* --- Utilities ------------------------------------------------------------------------------------- */
 
 /* SessionCard.module.css's visually-hidden rule, verbatim. */
 .visually-hidden {
@@ -966,10 +989,7 @@ a:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .copy,
-  .submit,
-  .action,
-  .chip {
+  .bar-fill {
     transition: none;
   }
 }

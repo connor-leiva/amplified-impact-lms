@@ -1,33 +1,36 @@
-// /ai101's markup, as one string, from `content.ts` and `ICONS`. DECISIONS.md D-028.
+// /ai101's markup, as one string, from `content.ts`. DECISIONS.md D-028, D-032 and D-034.
 //
 // WHY A STRING RENDERER AND NOT A REACT ROUTE
 // ------------------------------------------------------------------------------------------------
 // The page is opened from a QR code on conference Wi-Fi, by a room of people behind one venue NAT,
 // and the spec's acceptance list includes "usable with JavaScript disabled". So the whole page is
 // ONE self-contained HTML response: every word of it in the initial bytes, an inline <style>, and
-// one small inline <script> for the copy buttons, the checklist and the form. The SPA's bundle is
-// ~350 KB of JS before it renders a word, and as a separate request per file it would also spend the
-// shared per-IP rate limit (`@fastify/rate-limit`, 100/min) that a whole session room shares.
+// one small inline <script>. The SPA's bundle is ~350 KB of JS before it renders a word, and as a
+// separate request per file it would also spend the shared per-IP rate limit (`@fastify/rate-limit`,
+// 100/min) that a whole session room shares.
 //
 // `vite-plugin.ts` calls these functions at build time (and per request in `pnpm dev`) and pours the
 // result into `apps/web/ai101.html`. Nothing here runs in the browser.
 //
+// A STEP-THROUGH, PROGRESSIVELY (D-034)
+// Every screen is a <section data-screen> in the markup, in order, each carrying its own header
+// label, count and Next label as data attributes. Without JavaScript they all show, one after the
+// other: a long page that still reads top to bottom, with links that work. `main.ts` turns the same
+// markup into the design's one-screen-at-a-time flow: it shows the progress header and the Back /
+// Next footer (both `hidden` here) and hides every screen but the current one.
+//
 // ESCAPING
-// Every string from `content.ts` goes through `esc()`, the ones that are plain today included: the
-// prompts are still being edited, and a `<` typed into one must arrive on the page as a `<`, not as
-// a tag. `render.test.ts` proves it by rendering a copy of `PAGE` with markup in every string.
+// Every string from `content.ts` goes through `esc()`. `render.test.ts` proves it by rendering a
+// copy of `PAGE` with markup in every string.
 //
 // THE <pre> CONTRACT
-// The copy button copies `pre[data-prompt-text].textContent`, so that text IS the prompt: the
-// template adds nothing inside the <pre> — no leading newline (the HTML parser silently drops one
-// after `<pre>`), no indentation, and placeholder <mark>s that add no characters of their own.
-// `render.test.ts` parses the output and compares the text to `content.ts` exactly.
+// Copying reads `pre[data-prompt-text].textContent`, so that text IS the prompt: the template adds
+// nothing inside the <pre> (no leading newline, which the parser drops, no indentation), and the
+// placeholder <mark>s add no characters of their own.
 
-// The `icons` subpath rather than the barrel: rendering a page of text should not evaluate all of
-// `@ai/core` (seeds, mutations, immer) just to read two SVG paths.
-import { ICONS, type IconName } from '@ai/core/icons';
-import { PAGE, UI, type ChecklistItem, type CopyOpen, type Inline, type Prompt, type Step } from './content';
-import { LOGOS, logoFor, type LogoName } from './logos';
+import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
+import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
+import { PAGE, UI, type CopyOpen, type FillField, type Inline, type LinkButton, type Prompt } from './content';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
@@ -37,27 +40,9 @@ export function esc(value: string): string {
 }
 
 /**
- * `<Icon>` as a string: the same 24 viewBox, fill none, stroke currentColor, stroke-width 1.8 (unless
- * a call site asks otherwise, as `<Icon strokeWidth>` does), round caps and joins, and hidden from
- * assistive tech because every icon on this page sits next to a text label that says the same thing.
- *
- * Presentation attributes rather than `<Icon>`'s inline `style`: they render identically, and a page
- * with no `style=""` attributes keeps working under a CSP that later drops `'unsafe-inline'`.
- */
-export function icon(name: IconName, opts: { size?: number; strokeWidth?: number; className?: string } = {}): string {
-  const { size = 16, strokeWidth = 1.8, className } = opts;
-  const cls = className ? ` class="${esc(className)}"` : '';
-  return (
-    `<svg${cls} viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true" fill="none" ` +
-    `stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round">` +
-    `<path d="${ICONS[name]}"/></svg>`
-  );
-}
-
-/**
  * A prompt's text with each `[bracketed placeholder]` wrapped in a <mark>. Escaped FIRST, then
  * wrapped: `esc()` never touches a bracket, so the pattern matches the same spans either way, and the
- * brackets stay inside the mark — they are part of what the visitor copies and fills in.
+ * brackets stay inside the mark. They are part of what the visitor copies and fills in.
  */
 export function highlightPlaceholders(text: string): string {
   return esc(text).replace(/\[[^\]\n]*\]/g, (span) => `<mark class="placeholder">${span}</mark>`);
@@ -66,65 +51,30 @@ export function highlightPlaceholders(text: string): string {
 /** Every link that leaves the site opens in a new tab, and gives the new page no handle on this one. */
 const NEW_TAB = 'target="_blank" rel="noopener"';
 
-const logoId = (name: LogoName) => `ai101-logo-${name}`;
-
-/**
- * The ChatGPT or Claude mark for a button that opens that app, or nothing for any other link. A
- * `<use>` of the page's one sprite (`logoSprite`), so each path is in the page once however many
- * buttons show it. Hidden from assistive tech: the button's words already say which app it opens.
- */
-function logo(href: string): string {
-  const name = logoFor(href);
-  if (!name) return '';
-  return (
-    `<svg class="logo" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" ` +
-    `fill="currentColor"><use href="#${logoId(name)}"/></svg>`
-  );
-}
-
-/**
- * The marks `logo()` points at, defined once. Not `hidden`: the UA's `[hidden]` rule only reaches
- * HTML elements, so the sprite is a 0 by 0 SVG the CSS takes out of the flow instead.
- */
-function logoSprite(): string {
-  const symbols = (Object.keys(LOGOS) as LogoName[])
-    .map((name) => `<symbol id="${logoId(name)}" viewBox="0 0 24 24"><path d="${esc(LOGOS[name])}"/></symbol>`)
-    .join('');
-  return `<svg class="logo-sprite" width="0" height="0" aria-hidden="true" focusable="false">${symbols}</svg>`;
-}
-
 /**
  * One run of inline copy (`content.ts`'s `Inline`). Every string is escaped here, so the only tags on
- * the page are the ones this function writes — never one that came from the copy.
- *
- * A `{ button, phone }` renders BOTH and lets the CSS choose: `.desktop-only` and `.phone-only` switch
- * on a coarse pointer or a narrow viewport, which needs no JavaScript and cannot flash.
+ * the page are the ones this function writes, never one that came from the copy.
  */
 export function inline(segments: readonly Inline[]): string {
   return segments
     .map((seg) => {
       if (typeof seg === 'string') return esc(seg);
       if ('strong' in seg) return `<strong>${esc(seg.strong)}</strong>`;
-      if ('link' in seg) return `<a href="${esc(seg.href)}" ${NEW_TAB}>${esc(seg.link)}</a>`;
-      const button = `<a class="action" href="${esc(seg.href)}" ${NEW_TAB}>${logo(seg.href)}${esc(seg.button)}</a>`;
-      if (!seg.phone) return button;
-      return `<span class="desktop-only">${button}</span><span class="phone-only">${esc(seg.phone)}</span>`;
+      return `<a href="${esc(seg.href)}"${seg.sameTab ? '' : ` ${NEW_TAB}`}>${esc(seg.link)}</a>`;
     })
     .join('');
 }
 
 /**
- * A "Copy & open" link. A real `<a>`, so with JavaScript off it is still a link that opens the app;
- * with it, `main.ts` copies the prompt in `data-copy-open`'s block first. `data-app` names the app
- * for the two-tap fallback's "Copied. Open {app}". Described by its prompt's label, like the Copy
- * prompt buttons: two of these are "Copy & open Claude", for different prompts.
+ * A brand logo, inlined: no request (the page promised none beyond its fonts). The files are the
+ * brand's own (`design-reference/brand`, held byte-identical by `scripts/reference-tokens.mjs`); here
+ * they lose their fixed size, so the CSS sizes them, and gain an accessible name.
  */
-function copyOpenLink(open: CopyOpen, promptBlockId: string): string {
-  return (
-    `<a class="action" href="${esc(open.href)}" ${NEW_TAB} data-copy-open="${esc(promptBlockId)}" ` +
-    `aria-describedby="${esc(promptBlockId)}-label" ` +
-    `data-app="${esc(open.app)}">${logo(open.href)}<span data-copy-label>${esc(open.label)}</span></a>`
-  );
+function logo(svg: string, alt: string, className: string): string {
+  return svg
+    .trim()
+    .replace(/\swidth="[^"]*"\s+height="[^"]*"/, '')
+    .replace('<svg ', `<svg class="${esc(className)}" role="img" aria-label="${esc(alt)}" focusable="false" `);
 }
 
 /**
@@ -148,355 +98,395 @@ export function renderAi101Head(): string {
   ].join('\n    ');
 }
 
-/**
- * A numbered list drawn with the 24px step circles. `role="list"` is not redundant here: WebKit
- * drops list semantics from a list styled `list-style: none`, which this one is so the circles can
- * replace the markers, and VoiceOver would then stop saying "1 of 5".
- */
-const numbered = (items: readonly Step[]) =>
-  `<ol class="steps" role="list">${items.map((item) => `<li>${stepBody(item)}</li>`).join('')}</ol>`;
+// --- Building blocks ------------------------------------------------------------------------------
 
-/** A step's content: its text, or its lead line and a bulleted list of the options under it. */
-function stepBody(item: Step): string {
-  if (typeof item === 'string') return `<span>${esc(item)}</span>`;
-  const options = item.options.map((option) => `<li>${inline(option)}</li>`).join('');
-  return `<div class="step-rich"><span>${esc(item.lead)}</span><ul class="options">${options}</ul></div>`;
-}
-
-/** A titled sub-block inside a section card: an <h3> and whatever it heads. */
-const block = (id: string, heading: string, body: string) =>
-  `<div class="block">\n<h3 id="${esc(id)}">${esc(heading)}</h3>\n${body}\n</div>`;
-
-/**
- * A section card. The <h2> names the landmark, so a screen reader's region list reads the page. A
- * badge ("Phone or laptop · Free") sits above the heading, at the top of the card.
- */
-function section(anchor: string, heading: string, body: string[], className = 'card', badge?: string): string {
-  const headingId = `${anchor}-heading`;
-  return [
-    `<section id="${esc(anchor)}" class="${className}" aria-labelledby="${esc(headingId)}">`,
-    ...(badge ? [`<p class="badge">${esc(badge)}</p>`] : []),
-    `<h2 id="${esc(headingId)}">${esc(heading)}</h2>`,
-    ...body,
-    `</section>`,
-  ].join('\n');
+/** A link drawn as a button: `primary` (filled forest) or `outline`. */
+function linkButton(button: LinkButton, kind: 'primary' | 'outline', extra = ''): string {
+  return `<a class="btn btn-${kind}" href="${esc(button.href)}" ${NEW_TAB}${extra}>${esc(button.label)}</a>`;
 }
 
 /**
- * One prompt: its label, the copy button and the text.
- *
- * The button's visible label is exactly "Copy prompt" (and "Copied" for two seconds after a copy,
- * which `main.ts` swaps in `[data-copy-label]`). Two buttons with that one name would be ambiguous in
- * a screen reader's button list, so `aria-describedby` points at the <h3>: "Copy prompt, Voice
- * profile prompt". Both icons are always in the markup; `[data-copied]` decides which one shows.
+ * A "Copy & Open" button. A real `<a>`, so with JavaScript off it is still a link that opens the app;
+ * with it, `main.ts` copies the prompt in `data-copy-open`'s block first and shows `data-toast`.
+ * Described by its prompt's (visually hidden) label: two of them are "Copy & Open Claude".
  */
-function promptBlock(
-  prompt: Prompt,
-  anchor: string,
-  open: readonly CopyOpen[] = [],
-  hint?: string,
-  /** 4 inside the checklist, whose own heading is an h3. */
-  level: 3 | 4 = 3,
-): string {
-  const id = `${anchor}-prompt`;
-  const labelId = `${id}-label`;
-  const copy =
-    `<button type="button" class="copy" data-copy aria-describedby="${esc(labelId)}">` +
-    icon('copy', { className: 'icon-copy' }) +
-    icon('check', { className: 'icon-check' }) +
-    `<span data-copy-label>${esc(UI.copy)}</span></button>`;
-  // With Copy & open links the buttons get a row of their own under the label, which stacks on a
-  // phone; without, "Copy prompt" sits beside the label as it always has.
-  const actions = open.length
-    ? [`<div class="actions">${copy}${open.map((o) => copyOpenLink(o, id)).join('')}</div>`]
-    : [copy];
+function copyOpenButton(open: CopyOpen, promptBlockId: string): string {
+  return (
+    `<a class="btn btn-primary" href="${esc(open.href)}" ${NEW_TAB} data-copy-open="${esc(promptBlockId)}" ` +
+    `aria-describedby="${esc(promptBlockId)}-label" data-app="${esc(open.app)}" data-toast="${esc(open.toast)}">` +
+    `<span data-copy-label>${esc(open.label)}</span></a>`
+  );
+}
+
+/**
+ * A prompt, collapsed under "See the full prompt" as the design has it. The block's id is the anchor
+ * a link can point at; its label is visually hidden (it names the prompt for the buttons that copy
+ * it). See THE <pre> CONTRACT above.
+ */
+function promptBlock(prompt: Prompt, id: string, summary: string): string {
   return [
     `<div class="prompt" id="${esc(id)}" data-prompt="${esc(prompt.id)}">`,
-    `<div class="prompt-head${open.length ? ' stacked' : ''}">`,
-    `<h${level} id="${esc(labelId)}">${esc(prompt.label)}</h${level}>`,
-    ...actions,
-    `</div>`,
-    ...(hint ? [`<p class="hint">${esc(hint)}</p>`] : []),
-    // Nothing between the tags but the prompt. See THE <pre> CONTRACT at the top of this file.
+    `<p class="visually-hidden" id="${esc(id)}-label">${esc(prompt.label)}</p>`,
+    `<details class="card disclosure">`,
+    `<summary>${esc(summary)}</summary>`,
     `<pre data-prompt-text>${highlightPlaceholders(prompt.text)}</pre>`,
+    `</details>`,
     `</div>`,
   ].join('\n');
 }
 
-/**
- * The three-layer table. A real <table> with column and row headers, and with each role spelled out:
- * under 640px the CSS restyles it into one stacked card per row (three columns of sentences cannot
- * fit 375px without a horizontal scroll), and browsers drop a table's semantics as soon as its
- * `display` changes. The explicit roles keep it a table to assistive tech at every width.
- *
- * `data-label` carries the column name for the stacked layout's per-cell caption, which the CSS
- * draws with `content: attr(data-label) / ""` — empty alt text, so the caption is not read twice
- * next to the column header the table already announces.
- */
-function layersTable(): string {
-  const { columns, rows } = PAGE.carouselCreator.layers;
-  const head = columns.map((c) => `<th scope="col" role="columnheader">${esc(c)}</th>`).join('');
-  const body = rows
-    .map(
-      (row) =>
-        `<tr role="row">` +
-        row
-          .map((cell, i) => {
-            const content = typeof cell === 'string' ? esc(cell) : inline(cell);
-            return i === 0
-              ? `<th scope="row" role="rowheader">${content}</th>`
-              : `<td role="cell" data-label="${esc(columns[i] ?? '')}">${content}</td>`;
-          })
-          .join('') +
-        `</tr>`,
-    )
-    .join('\n');
-  return [
-    `<table class="layers" role="table">`,
-    `<thead role="rowgroup"><tr role="row">${head}</tr></thead>`,
-    `<tbody role="rowgroup">`,
-    body,
-    `</tbody>`,
-    `</table>`,
-  ].join('\n');
-}
+/** A white card. */
+const card = (inner: string, extra = '') => `<div class="card${extra ? ` ${extra}` : ''}">${inner}</div>`;
 
 /**
- * The setup checklist. Native checkboxes, so it works with JavaScript off; `main.ts` only adds the
- * persistence (`localStorage['ai101-checklist']`, keyed by `data-check-id`). The real input sits
- * transparent over the drawn `.box`, which is what makes the box itself the tap target.
+ * A callout with a colored dot: `tip` (green) or `warn` (terracotta). The words are one <span>, so
+ * bold runs inside them stay in the sentence instead of becoming columns of the flex row.
  */
-function checklist(labelledBy: string): string {
-  const cc = PAGE.carouselCreator;
-  const promptId = `${cc.anchor}-prompt`;
-  const items = cc.checklist.map((item: ChecklistItem) => {
-    const { id, title, detail } = item;
-    const label =
-      `<label><input type="checkbox" name="ai101-check" value="${esc(id)}" data-check-id="${esc(id)}"> ` +
-      `<span class="box" aria-hidden="true">${icon('check', { size: 13, strokeWidth: 3 })}</span> ` +
-      `<span>${inline(title)}</span></label>`;
-    // The detail sits OUTSIDE the <label>: a link or button inside one would also become part of the
-    // checkbox's accessible name, and the whole paragraph would be read as the box's label.
-    const parts: string[] = [];
-    if (id === 'create-project') parts.push(copyOpenLink(cc.projectOpen, promptId));
-    if (detail) parts.push(inline(detail));
-    let body = parts.length ? `<div class="check-detail">${parts.join('')}</div>` : '';
-    // Item 1: what to do, the brand prompt to send, then what to check. A stack of paragraphs around
-    // a prompt block, so the prompt sits at the item's indent with its own Copy and Copy & open.
-    if (id === 'design-system') {
-      body = [
-        `<div class="check-detail stack">`,
-        ...(detail ? [`<p>${inline(detail)}</p>`] : []),
-        promptBlock(cc.brandPrompt, `${cc.anchor}-brand`, cc.brandPromptOpen, undefined, 4),
-        ...(item.after ? [`<p>${inline(item.after)}</p>`] : []),
-        `</div>`,
-      ].join('');
-    }
-    const starters = id === 'first-idea' ? startersBlock() : '';
-    return `<li>${label}${body}${starters}</li>`;
-  });
-  return `<ul class="checklist" role="list" aria-labelledby="${esc(labelledBy)}">\n${items.join('\n')}\n</ul>`;
+const callout = (inner: string, tone: 'tip' | 'warn', strong = false) =>
+  `<p class="callout callout-${tone}${strong ? ' callout-strong' : ''}"><span>${inner}</span></p>`;
+
+/** A card of numbered steps, the numbers in mono: "Then, in the new chat: 1 Paste. 2 … 3 Send." */
+function stepsCard(heading: string | null, steps: readonly (readonly Inline[])[]): string {
+  // One <span> per step, for the same reason as `callout`'s.
+  const items = steps.map((s) => `<li><span>${inline(s)}</span></li>`).join('');
+  const head = heading ? `<p class="card-title">${esc(heading)}</p>` : '';
+  return card(`${head}<ol class="numbered" role="list">${items}</ol>`);
 }
 
-/**
- * The tap-to-copy starter ideas under the checklist's last item. Each chip copies its own text. The
- * hint says "Tap one to copy it", which is only true with JavaScript, so it is `hidden` until
- * `main.ts` has wired the chips; the chips themselves stay readable either way.
- */
-function startersBlock(): string {
-  const { starters, startersHint } = PAGE.carouselCreator;
-  const chips = starters
-    .map((s) => `<li><button type="button" class="chip" data-copy-chip><span data-copy-label>${esc(s)}</span></button></li>`)
-    .join('');
-  return `<div class="check-detail starters"><ul class="chips" role="list">${chips}</ul><p class="hint" data-js-only hidden>${esc(startersHint)}</p></div>`;
-}
+/** Steps in forest circles: "Today you'll build two things" and "How a week works". */
+const circled = (items: string[]) => `<ol class="circled" role="list">${items.map((i) => `<li>${i}</li>`).join('')}</ol>`;
 
 /**
- * "About you": optional fields that `main.ts` writes into the Carousel Creator instructions' last
- * line as they are typed. `hidden` in the markup and shown by `main.ts`, because without JavaScript
- * the fields would do nothing at all. Field names are scoped by `data-about-field`; the ids carry an
- * `about-` prefix so none collides with the waitlist's.
+ * Fields that fill a prompt's placeholders as they are typed. `hidden data-js-only`: without the
+ * script nothing would read them, and a field that does nothing is worse than none.
  */
-function aboutYou(anchor: string): string {
-  const a = PAGE.carouselCreator.aboutYou;
-  const headingId = `${anchor}-about-heading`;
-  const fields = a.fields.map((f) => {
-    const id = `about-${f.name}`;
-    const placeholder = 'placeholder' in f && f.placeholder ? ` placeholder="${esc(f.placeholder)}"` : '';
+function fillFields(fields: readonly FillField[]): string {
+  const rows = fields.map((f) => {
+    const id = `field-${f.name}`;
+    const hint = f.hint ? ` <span class="field-hint">${esc(f.hint)}</span>` : '';
     const control =
-      f.kind === 'textarea'
-        ? `<textarea id="${id}" name="${esc(f.name)}" rows="${f.rows}"${placeholder} data-about-field="${esc(f.name)}"></textarea>`
-        : `<input id="${id}" name="${esc(f.name)}" type="text"${placeholder} autocomplete="off" data-about-field="${esc(f.name)}">`;
-    return `<div class="field">\n<label for="${id}">${esc(f.label)}</label>\n${control}\n</div>`;
+      f.rows !== undefined
+        ? `<textarea id="${id}" name="${esc(f.name)}" rows="${f.rows}" placeholder="${esc(f.placeholder)}" data-field="${esc(f.name)}"></textarea>`
+        : `<input id="${id}" name="${esc(f.name)}" type="text" placeholder="${esc(f.placeholder)}" autocomplete="off" data-field="${esc(f.name)}">`;
+    return `<div class="field"><label for="${id}">${esc(f.label)}${hint}</label>${control}</div>`;
   });
-  return [
-    `<div class="about" id="${esc(anchor)}-about" role="group" aria-labelledby="${esc(headingId)}" data-about hidden>`,
-    `<div class="about-head"><h3 id="${esc(headingId)}">${esc(a.heading)}</h3>` +
-      `<button type="button" class="text-button" data-about-clear>${esc(a.clear)}</button></div>`,
-    `<p class="hint">${esc(a.intro)}</p>`,
-    ...fields,
-    `</div>`,
-  ].join('\n');
+  return `<div class="fields" hidden data-js-only>${rows.join('')}</div>`;
 }
 
-/** "Before we start": the two app links, with each platform's store link for `main.ts` to swap in. */
-function getApp(): string {
-  const { lead, apps } = PAGE.getApp;
-  const links = apps
+/**
+ * One screen. `data-stage`, `data-count` and `data-next` carry what the header and footer show while
+ * it is current, so the script needs nothing from `content.ts`. The heading takes focus when the
+ * screen is entered (`tabindex="-1"`), which is what a screen reader then reads.
+ */
+function screen(index: number, body: string[], className = ''): string {
+  const s = PAGE.screens[index]!;
+  const attrs =
+    ` data-screen="${index}" data-stage="${esc(s.stage)}"` +
+    (s.count ? ` data-count="${esc(s.count)}"` : '') +
+    (s.next ? ` data-next="${esc(s.next)}"` : '');
+  const cls = `screen${className ? ` ${className}` : ''}`;
+  return [`<section id="${esc(s.anchor)}" class="${cls}" aria-labelledby="${esc(s.anchor)}-heading"${attrs}>`, ...body, `</section>`].join(
+    '\n',
+  );
+}
+
+const h2 = (anchor: string, text: string) => `<h2 id="${esc(anchor)}-heading" tabindex="-1">${esc(text)}</h2>`;
+const anchorOf = (index: number) => PAGE.screens[index]!.anchor;
+
+// --- The screens ----------------------------------------------------------------------------------
+
+function welcome(): string {
+  const w = PAGE.welcome;
+  const apps = w.getApp.apps
     .map(
       ({ label, href }) =>
-        `<a class="action" href="${esc(href.web)}" ${NEW_TAB} data-ios="${esc(href.ios)}" ` +
-        `data-android="${esc(href.android)}" data-get-app>${logo(href.web)}${esc(label)}</a>`,
+        `<a class="btn btn-outline" href="${esc(href.web)}" ${NEW_TAB} data-ios="${esc(href.ios)}" ` +
+        `data-android="${esc(href.android)}" data-get-app>${esc(label)}</a>`,
     )
     .join('');
-  return `<div class="get-app">\n<p><strong>${esc(lead)}</strong></p>\n<div class="actions">${links}</div>\n</div>`;
+  return screen(0, [
+    logo(signatureSvg, w.logoAlt, 'logo'),
+    `<p class="eyebrow">${esc(w.eyebrow)}</p>`,
+    `<h1 id="${anchorOf(0)}-heading" tabindex="-1">${esc(w.title)}</h1>`,
+    `<p class="lede">${esc(w.intro)}</p>`,
+    card(
+      `<p class="card-title card-title-lg">${esc(w.getApp.heading)}</p><p class="muted">${esc(w.getApp.body)}</p><div class="row">${apps}</div>`,
+      'card-roomy',
+    ),
+    `<div class="builds"><p class="builds-lead">${esc(w.buildsLead)}</p>` +
+      circled(w.builds.map((b) => `<span><strong>${esc(b.name)}</strong>${esc(b.detail)}</span>`)) +
+      `</div>`,
+    `<a class="skip" href="${esc(w.skip.href)}">${esc(w.skip.label)}</a>`,
+  ]);
 }
 
-/** The sprint's two calendar links. The .ics stays in this tab, where iOS offers "Add to Calendar". */
-function calendarLinks(): string {
-  const { lead, apple, google } = PAGE.sprint.calendar;
-  return (
-    `<div class="calendar"><p>${esc(lead)}</p><div class="actions">` +
-    `<a class="action" href="${esc(apple.href)}">${esc(apple.label)}</a>` +
-    `<a class="action" href="${esc(google.href)}" ${NEW_TAB}>${esc(google.label)}</a>` +
-    `</div></div>`
-  );
+function samples(): string {
+  const s = PAGE.samples;
+  return screen(1, [
+    h2(anchorOf(1), s.heading),
+    `<p class="lede">${esc(s.intro)}</p>`,
+    `<ul class="tiles" role="list">${s.items.map((i) => `<li class="card tile">${esc(i)}</li>`).join('')}</ul>`,
+    callout(esc(s.tip), 'tip'),
+  ]);
+}
+
+function voiceCopy(): string {
+  const v = PAGE.voiceCopy;
+  const id = `${PAGE.screens[1]!.anchor}-prompt`; // "voice-profile-prompt", the anchor the slides use
+  return screen(2, [
+    h2(anchorOf(2), v.heading),
+    fillFields(v.fields),
+    `<div class="stack">${v.open.map((o) => copyOpenButton(o, id)).join('')}</div>`,
+    stepsCard(v.thenHeading, v.then),
+    promptBlock(PAGE.voicePrompt, id, v.showPrompt),
+    `<p class="note">${esc(v.note)}</p>`,
+  ]);
 }
 
 /**
- * The sprint's four weeks as tiles. The colon is visually hidden (each tile draws the week above
- * its pillar) but kept in the text, so a screen reader — and `textContent` — reads "Week 1: Market".
+ * Save it: a Claude / ChatGPT switch over two panels. Without the script both panels show, each
+ * under its app's name; with it, the switch (hidden until then) shows one.
  */
-function sprintWeeks(): string {
-  const items = PAGE.sprint.weeks.map(
-    ({ week, pillar }) =>
-      `<li><span class="week">${esc(week)}<span class="visually-hidden">:</span></span> ` +
-      `<span class="pillar">${esc(pillar)}</span></li>`,
-  );
-  return `<ul class="weeks" role="list">\n${items.join('\n')}\n</ul>`;
+function save(): string {
+  const s = PAGE.save;
+  const panel = (key: 'claude' | 'chatgpt') => {
+    const p = s[key];
+    return (
+      `<div class="card pick-panel" data-pick-panel="${key}">` +
+      `<h3 class="pick-title">${esc(p.tab)}</h3>` +
+      `<ol class="numbered" role="list">${p.steps.map((st) => `<li><span>${inline(st)}</span></li>`).join('')}</ol>` +
+      linkButton(p.button, 'primary') +
+      `<p class="small muted">${esc(p.note)}</p></div>`
+    );
+  };
+  const pick = (key: 'claude' | 'chatgpt', pressed: boolean) =>
+    `<button type="button" data-pick="${key}" aria-pressed="${pressed}">${esc(s[key].tab)}</button>`;
+  return screen(3, [
+    h2(anchorOf(3), s.heading),
+    `<p class="lede">${esc(s.intro)}</p>`,
+    `<div class="picker" role="group" aria-label="${esc(s.pickLabel)}" hidden data-js-only>${pick('claude', true)}${pick('chatgpt', false)}</div>`,
+    panel('claude'),
+    panel('chatgpt'),
+  ]);
 }
 
-/** A labelled input plus its (empty until `main.ts` fills it) error line. */
-function field(name: 'firstName' | 'email' | 'brokerage', label: string, attrs: string, optional?: string): string {
+function test(): string {
+  const t = PAGE.test;
+  return screen(4, [
+    h2(anchorOf(4), t.heading),
+    `<p class="lede">${esc(t.intro)}</p>`,
+    `<div class="pair">` +
+      `<div class="card pair-card"><span class="pair-label">${esc(t.before.label)}</span><strong>${esc(t.before.text)}</strong></div>` +
+      `<div class="card pair-card pair-after"><span class="pair-label">${esc(t.after.label)}</span><strong>${esc(t.after.text)}</strong></div>` +
+      `</div>`,
+    callout(esc(t.done), 'tip', true),
+    card(
+      `<p class="card-title card-title-lg">${esc(t.phone.heading)}</p><p class="muted">${esc(t.phone.body)}</p>` +
+        // A share sheet with JavaScript (main.ts), an email to yourself without it.
+        `<a class="btn btn-outline" href="${esc(t.phone.button.href)}" data-share>${esc(t.phone.button.label)}</a>`,
+      'card-accent',
+    ),
+  ]);
+}
+
+function step2(): string {
+  const s = PAGE.step2;
+  return screen(5, [
+    h2(anchorOf(5), s.heading),
+    `<p class="lede">${esc(s.intro)}</p>`,
+    `<ul class="tiles" role="list">${s.layers
+      .map((l) => `<li class="card tile"><strong>${esc(l.title)}</strong><span class="muted">${esc(l.body)}</span></li>`)
+      .join('')}</ul>`,
+    callout(esc(s.warning), 'warn', true),
+  ]);
+}
+
+function brand(): string {
+  const b = PAGE.brand;
+  const id = `${PAGE.screens[5]!.anchor}-brand-prompt`; // "carousel-creator-brand-prompt" (D-032)
+  return screen(6, [
+    h2(anchorOf(6), b.heading),
+    copyOpenButton(b.open, id),
+    stepsCard(b.thenHeading, b.then),
+    `<p class="muted">${esc(b.tip)}</p>`,
+    promptBlock(PAGE.brandPrompt, id, b.showPrompt),
+    callout(inline(b.lastClick), 'warn'),
+    linkButton(b.check, 'outline'),
+    `<p class="small muted">${inline(b.capabilities)}</p>`,
+  ]);
+}
+
+function about(): string {
+  const a = PAGE.about;
+  return screen(7, [h2(anchorOf(7), a.heading), `<p class="lede">${esc(a.intro)}</p>`, fillFields(a.fields)]);
+}
+
+function project(): string {
+  const p = PAGE.project;
+  const id = `${PAGE.screens[5]!.anchor}-prompt`; // "carousel-creator-prompt", the anchor the slides use
+  return screen(8, [
+    h2(anchorOf(8), p.heading),
+    copyOpenButton(p.open, id),
+    stepsCard(p.thenHeading, p.then),
+    promptBlock(PAGE.carouselPrompt, id, p.showPrompt),
+  ]);
+}
+
+/** The starter ideas: each one copies its own words (`data-copy-chip`). */
+function firstIdea(): string {
+  const f = PAGE.firstIdea;
+  const chips = f.starters
+    .map(
+      (s) =>
+        `<li><button type="button" class="starter" data-copy-chip data-toast="${esc(f.toast)}">` +
+        `<span data-copy-label>${esc(s)}</span><span class="starter-tag" aria-hidden="true">${esc(f.chipTag)}</span></button></li>`,
+    )
+    .join('');
+  return screen(9, [
+    h2(anchorOf(9), f.heading),
+    `<p class="lede">${esc(f.intro)}</p>`,
+    `<ul class="starters" role="list">${chips}</ul>`,
+    callout(esc(f.done), 'tip', true),
+  ]);
+}
+
+function week(): string {
+  const { week: w, ownership: o, sprint: s } = PAGE;
+  const weeks = s.weeks
+    .map(
+      ({ week: wk, pillar }) =>
+        `<li class="card week"><span class="week-label">${esc(wk)}<span class="visually-hidden">:</span></span> ` +
+        `<span class="week-pillar">${esc(pillar)}</span></li>`,
+    )
+    .join('');
+  return screen(10, [
+    h2(anchorOf(10), w.heading),
+    circled(w.steps.map((st) => `<span>${esc(st)}</span>`)),
+    `<div class="card own" id="${esc(o.anchor)}">` +
+      `<h3 class="card-title card-title-lg">${esc(o.heading)}</h3><p class="muted small">${esc(o.intro)}</p>` +
+      `<ul class="dotted" role="list">${o.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></div>`,
+    `<div class="sprint" id="${esc(s.anchor)}">` +
+      `<h3 class="card-title card-title-lg">${esc(s.heading)}</h3><p class="muted">${esc(s.body)}</p>` +
+      `<ul class="weeks" role="list">${weeks}</ul>` +
+      // The .ics stays in this tab, where iOS offers "Add to Calendar".
+      `<div class="row"><a class="btn btn-outline" href="${esc(s.calendar.apple.href)}">${esc(s.calendar.apple.label)}</a>` +
+      linkButton(s.calendar.google, 'outline') +
+      `</div></div>`,
+  ]);
+}
+
+/** A waitlist input with a visually hidden label (the design shows the placeholder) and its error line. */
+function waitlistField(name: 'firstName' | 'email' | 'phone' | 'brokerage', placeholder: string, attrs: string): string {
   const id = `waitlist-${name}`;
-  const marker = optional ? ` <span class="optional">${esc(optional)}</span>` : '';
-  return [
-    `<div class="field">`,
-    `<label for="${id}">${esc(label)}${marker}</label>`,
-    `<input id="${id}" name="${name}" ${attrs}>`,
-    `<p class="field-error" id="${name}-error"></p>`,
-    `</div>`,
-  ].join('\n');
+  return (
+    `<div class="wl-field"><label class="visually-hidden" for="${id}">${esc(placeholder)}</label>` +
+    `<input id="${id}" name="${name}" placeholder="${esc(placeholder)}" ${attrs}>` +
+    `<p class="field-error" id="${name}-error"></p></div>`
+  );
 }
 
 /**
- * The December waitlist.
+ * The December waitlist, on the design's dark card.
  *
  * Without JavaScript this is a plain form POST: native `required`/`type=email` validation (there is
- * deliberately no `novalidate` in the markup — `main.ts` sets `noValidate` at runtime, once it is
+ * deliberately no `novalidate` in the markup; `main.ts` sets `noValidate` at runtime, once it is
  * there to validate instead), then the API answers 303 to `/ai101#waitlist-joined` or
  * `/ai101#waitlist-error`, and `:target` in the CSS shows the matching line. That is why the
- * form-level error carries its text in the markup: on that path nothing else could put it there.
+ * form-level error carries its text in the markup.
  *
- * The honeypot is off-screen rather than `display: none`, which form-filling bots know to skip, and
- * `aria-hidden` with `tabindex="-1"` so no person, sighted or not, ever lands in it.
+ * The SMS box is unchecked and optional, and its label is the consent itself, stored word for word
+ * by the API (D-034). The honeypot is off-screen rather than `display: none`, which form-filling
+ * bots know to skip, and `aria-hidden` with `tabindex="-1"` so no person ever lands in it.
  */
 function waitlist(): string {
   const w = PAGE.waitlist;
+  const f = w.fields;
   const form = [
-    `<form id="waitlist-form" class="form" method="post" action="/api/ai101/waitlist">`,
-    field('firstName', w.fields.firstName.label, 'type="text" required autocomplete="given-name" maxlength="80"'),
-    field(
-      'email',
-      w.fields.email.label,
-      'type="email" required autocomplete="email" maxlength="254" inputmode="email"',
-    ),
-    field(
-      'brokerage',
-      w.fields.brokerage.label,
-      'type="text" autocomplete="organization" maxlength="120"',
-      w.fields.brokerage.optional,
-    ),
+    `<form id="waitlist-form" class="wl-form" method="post" action="/api/ai101/waitlist">`,
+    waitlistField('firstName', f.firstName, 'type="text" required autocomplete="given-name" maxlength="80"'),
+    waitlistField('email', f.email, 'type="email" required autocomplete="email" maxlength="254" inputmode="email"'),
+    waitlistField('phone', f.phone, 'type="tel" autocomplete="tel" maxlength="24" inputmode="tel"'),
+    waitlistField('brokerage', f.brokerage, 'type="text" autocomplete="organization" maxlength="120"'),
+    `<div class="wl-sms"><input id="waitlist-sms" name="smsConsent" type="checkbox" value="on">` +
+      `<label for="waitlist-sms">${esc(w.sms)}</label></div>`,
     `<div class="field-website" aria-hidden="true">`,
     `<label for="waitlist-website">${esc(HONEYPOT_LABEL)}</label>`,
     `<input id="waitlist-website" name="website" type="text" tabindex="-1" autocomplete="off">`,
     `</div>`,
     `<p class="form-error" id="waitlist-error" role="alert">${esc(UI.errors.generic)}</p>`,
-    `<button type="submit" class="submit">${esc(w.button)}</button>`,
-    `<p class="consent">${esc(w.consent)}</p>`,
+    `<button type="submit" class="btn btn-cream">${esc(w.button)}</button>`,
+    `<p class="wl-legal">${inline(w.legal)}</p>`,
     `</form>`,
   ].join('\n');
-  const joined =
-    `<p id="waitlist-joined" class="success" tabindex="-1">` +
-    `${icon('checkCircle', { size: 18 })}<span>${esc(w.success)}</span></p>`;
-  return section(w.anchor, w.heading, [`<p>${esc(w.body)}</p>`, form, joined], 'card waitlist');
+  return screen(
+    11,
+    [
+      logo(signatureReversedSvg, w.logoAlt, 'logo logo-reversed'),
+      `<p class="eyebrow eyebrow-mint">${esc(w.eyebrow)}</p>`,
+      h2(anchorOf(11), w.heading),
+      `<p class="wl-body">${esc(w.body)}</p>`,
+      `<p id="waitlist-joined" class="wl-success" tabindex="-1">${esc(w.success)}</p>`,
+      form,
+    ],
+    'waitlist',
+  );
 }
 
-/** Everything inside <body>, in the spec's section order. */
-export function renderAi101Body(): string {
-  const { header, voiceProfile: vp, carouselCreator: cc, ownership, sprint } = PAGE;
+// --- The page ---------------------------------------------------------------------------------------
 
-  const jump = header.jumpLinks
-    .map(({ label, target }) => `<a href="#${esc(target)}">${esc(label)}</a>`)
-    .join('<span class="sep" aria-hidden="true"> · </span>');
-
-  const hero = [
-    `<header class="hero">`,
-    `<p class="eyebrow">${esc(header.eyebrow)}</p>`,
-    `<h1>${esc(header.title)}</h1>`,
-    `<p class="subhead">${esc(header.subhead)}</p>`,
-    `<nav class="jump" aria-label="${esc(header.jumpLinksLabel)}">${jump}</nav>`,
+/**
+ * The sticky progress header. Filled and shown by `main.ts` once the step-through is running
+ * (`data-steps-chrome`), never before: without it there is no "current" screen to report.
+ */
+function stepsHeader(): string {
+  const first = PAGE.screens[0]!;
+  return [
+    `<header class="steps-head" hidden data-steps-chrome>`,
+    `<div class="steps-head-inner">`,
+    `<div class="steps-head-row"><p class="stage" data-stage-label>${esc(first.stage)}</p><p class="count" data-count-label></p></div>`,
+    `<div class="bar" aria-hidden="true"><div class="bar-fill" data-bar></div></div>`,
+    `</div>`,
     `</header>`,
   ].join('\n');
+}
 
-  const checklistId = `${cc.anchor}-checklist`;
-
+/** The fixed footer: Back, the big green Next (its label is the screen's), and Start Over on the last. */
+function stepsNav(): string {
+  const n = PAGE.nav;
+  const first = PAGE.screens[0]!;
   return [
-    logoSprite(),
-    `<main class="page">`,
-    hero,
-    getApp(),
-    section(
-      vp.anchor,
-      vp.heading,
-      [
-        `<p class="lede">${esc(vp.intro)}</p>`,
-        numbered(vp.steps),
-        promptBlock(vp.prompt, vp.anchor, vp.promptOpen, vp.promptHint),
-      ],
-      'card',
-      vp.badge,
-    ),
-    section(
-      cc.anchor,
-      cc.heading,
-      [
-        `<p class="lede">${esc(cc.intro)}</p>`,
-        // A share sheet with JavaScript (main.ts), an email to yourself without it.
-        `<p class="send"><a class="action" href="${esc(cc.sendToLaptop.href)}" data-share>${esc(cc.sendToLaptop.label)}</a></p>`,
-        layersTable(),
-        block(checklistId, cc.checklistHeading, checklist(checklistId)),
-        aboutYou(cc.anchor),
-        promptBlock(cc.prompt, cc.anchor),
-        block(`${cc.anchor}-week`, cc.weekHeading, numbered(cc.week)),
-      ],
-      'card',
-      cc.badge,
-    ),
-    section(ownership.anchor, ownership.heading, [
-      `<p class="lede">${esc(ownership.intro)}</p>`,
-      numbered(ownership.items),
-    ]),
-    section(sprint.anchor, sprint.heading, [
-      `<p class="lede">${esc(sprint.intro)}</p>`,
-      sprintWeeks(),
-      `<p>${esc(sprint.outro)}</p>`,
-      calendarLinks(),
-    ]),
+    `<nav class="steps-nav" aria-label="${esc(n.label)}" hidden data-steps-chrome>`,
+    `<div class="steps-nav-inner">`,
+    `<button type="button" class="nav-back" data-back hidden>${esc(n.back)}</button>`,
+    `<button type="button" class="nav-next" data-next><span data-next-label>${esc(first.next ?? '')}</span></button>`,
+    `<button type="button" class="nav-restart" data-restart hidden>${esc(n.restart)}</button>`,
+    `</div>`,
+    `</nav>`,
+  ].join('\n');
+}
+
+/** Everything inside <body>: the header, every screen in order, the footer, and the toast. */
+export function renderAi101Body(): string {
+  return [
+    stepsHeader(),
+    `<main class="page" data-steps>`,
+    welcome(),
+    samples(),
+    voiceCopy(),
+    save(),
+    test(),
+    step2(),
+    brand(),
+    about(),
+    project(),
+    firstIdea(),
+    week(),
     waitlist(),
-    // The one polite live region: "Copied to clipboard." Empty in the markup; `main.ts`
-    // clears and refills it so a second copy of the same prompt is announced again.
-    `<p id="ai101-live" class="visually-hidden" aria-live="polite"></p>`,
     `</main>`,
+    stepsNav(),
+    // The one polite live region, drawn as the design's toast: "Copied. Paste it into the new
+    // ChatGPT chat." Empty in the markup; `main.ts` clears and refills it so a second copy of the
+    // same prompt is announced again, and empties it when the toast's time is up.
+    `<p id="ai101-live" class="toast" role="status" aria-live="polite"></p>`,
   ].join('\n');
 }
