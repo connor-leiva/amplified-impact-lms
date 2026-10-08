@@ -108,8 +108,8 @@ describe('checklist', () => {
       localStorage.setItem(KEY, raw);
       await boot();
       expect(checkedIds()).toEqual([]);
-      $<HTMLInputElement>('input[data-check-id="add-voice-profile"]').click();
-      expect(JSON.parse(localStorage.getItem(KEY)!)).toEqual(['add-voice-profile']);
+      $<HTMLInputElement>('input[data-check-id="about-you"]').click();
+      expect(JSON.parse(localStorage.getItem(KEY)!)).toEqual(['about-you']);
     },
   );
 
@@ -201,15 +201,15 @@ describe('copy', () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(live()).toBe('');
     await vi.advanceTimersByTimeAsync(100);
-    expect(live()).toBe(`${CAROUSEL.label} copied`);
-    expect(live()).toBe(UI.copiedAnnouncement(CAROUSEL.label));
+    expect(live()).toBe('Copied to clipboard.');
+    expect(live()).toBe(UI.copiedAnnouncement);
 
     // The same message again is emptied first, so assistive tech hears a change.
     copyButton('carousel_creator').click();
     await vi.advanceTimersByTimeAsync(0);
     expect(live()).toBe('');
     await vi.advanceTimersByTimeAsync(100);
-    expect(live()).toBe(UI.copiedAnnouncement(CAROUSEL.label));
+    expect(live()).toBe(UI.copiedAnnouncement);
   });
 
   it('falls back to a readonly textarea and execCommand when writeText rejects', async () => {
@@ -222,11 +222,11 @@ describe('copy', () => {
     expect(execCommand).toHaveBeenCalledWith('copy');
     expect(buffered).toEqual({ value: VOICE.text, readonly: true });
     // Gone again, and focus is back on the button.
-    expect(document.querySelector('textarea')).toBeNull();
+    expect(document.querySelector('textarea.copy-buffer')).toBeNull();
     expect(document.activeElement).toBe(button);
     expect(copyLabel('voice_profile')).toBe(UI.copied);
     await vi.advanceTimersByTimeAsync(100);
-    expect(live()).toBe(UI.copiedAnnouncement(VOICE.label));
+    expect(live()).toBe(UI.copiedAnnouncement);
   });
 
   it('falls back when there is no Clipboard API at all', async () => {
@@ -264,7 +264,7 @@ describe('copy', () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(copyLabel('voice_profile')).toBe(UI.copy);
     expect(copyButton('voice_profile').hasAttribute('data-copied')).toBe(false);
-    expect(document.querySelector('textarea')).toBeNull();
+    expect(document.querySelector('textarea.copy-buffer')).toBeNull();
     const selection = window.getSelection()!;
     expect(selection.rangeCount).toBe(1);
     expect(selection.getRangeAt(0).toString()).toBe(VOICE.text);
@@ -472,5 +472,394 @@ describe('waitlist form', () => {
     submit();
     expect(formError().hasAttribute('data-shown')).toBe(false);
     await vi.waitFor(() => expect($('#waitlist').getAttribute('data-state')).toBe('joined'));
+  });
+});
+
+// ================================================================================================
+// The click paths (D-032)
+// ================================================================================================
+
+/** The clipboard as the tests see it: `writeText` and the legacy `execCommand` path, both recorded. */
+function stubClipboard(writeText: (text: string) => Promise<void> = () => Promise.resolve()) {
+  stubValue(window, 'isSecureContext', true);
+  const written = vi.fn(writeText);
+  stubValue(navigator, 'clipboard', { writeText: written });
+  const legacy: string[] = [];
+  const execCommand = vi.fn(() => {
+    const ta = document.querySelector<HTMLTextAreaElement>('textarea.copy-buffer');
+    if (ta) legacy.push(ta.value);
+    return true;
+  });
+  stubValue(document, 'execCommand', execCommand);
+  return { written, legacy, execCommand };
+}
+
+/** A real click, reporting whether the default action (following the link) was left to happen. */
+function click(el: Element): { followed: boolean } {
+  const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+  el.dispatchEvent(event);
+  return { followed: !event.defaultPrevented };
+}
+
+const carouselPre = () => $('[data-prompt="carousel_creator"] pre[data-prompt-text]');
+const field = (name: string) => $<HTMLInputElement | HTMLTextAreaElement>(`[data-about-field="${name}"]`);
+const type = (name: string, value: string) => {
+  const el = field(name);
+  el.value = value;
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+};
+const marks = () => Array.from(carouselPre().querySelectorAll('mark.placeholder')).map((m) => m.textContent);
+
+const ORIGINAL_LAST = 'About me: [niche, neighborhoods, and the questions clients ask me most]. My brokerage: [brokerage name].';
+const CAROUSEL_HEAD = CAROUSEL.text.slice(0, CAROUSEL.text.lastIndexOf('\n') + 1);
+
+describe('About you (D-032)', () => {
+  it('shows itself once the script runs; the instructions start exactly as written', async () => {
+    await boot();
+    expect($('[data-about]').hidden).toBe(false);
+    expect(carouselPre().textContent).toBe(CAROUSEL.text);
+    expect(CAROUSEL.text.endsWith(ORIGINAL_LAST)).toBe(true);
+    // The highlight is unchanged too: the two original placeholders.
+    expect(marks()).toEqual(['[niche, neighborhoods, and the questions clients ask me most]', '[brokerage name]']);
+  });
+
+  it('leaves the last line untouched while the first four fields are empty', async () => {
+    await boot();
+    type('niche', '   ');
+    expect(carouselPre().textContent).toBe(CAROUSEL.text);
+  });
+
+  it('writes a partial About me, keeping a bracket for each empty field', async () => {
+    await boot();
+    type('niche', ' first-time buyers ');
+    type('questions', 'Should I wait for rates?\n\n  Can I buy with 3% down?  \n');
+    expect(carouselPre().textContent).toBe(
+      CAROUSEL_HEAD +
+        'About me:\n' +
+        '- Niche: first-time buyers\n' +
+        '- Neighborhoods: [your neighborhoods]\n' +
+        '- Questions clients ask me most: Should I wait for rates?; Can I buy with 3% down?\n' +
+        'My brokerage: [brokerage name]',
+    );
+    expect(marks()).toEqual(['[your neighborhoods]', '[brokerage name]']);
+  });
+
+  it('writes the full block, then the voice profile after a blank line', async () => {
+    await boot();
+    type('niche', 'relocation');
+    type('neighborhoods', 'Highlands, Wash Park');
+    type('questions', 'What do closing costs look like?');
+    type('brokerage', 'Northline Realty, LLC');
+    type('voice', '\nWrite as me.\nShort sentences.\n');
+    expect(carouselPre().textContent).toBe(
+      CAROUSEL_HEAD +
+        'About me:\n' +
+        '- Niche: relocation\n' +
+        '- Neighborhoods: Highlands, Wash Park\n' +
+        '- Questions clients ask me most: What do closing costs look like?\n' +
+        'My brokerage: Northline Realty, LLC\n' +
+        '\n' +
+        'My voice profile:\n' +
+        'Write as me.\nShort sentences.',
+    );
+    expect(marks()).toEqual([]);
+  });
+
+  it('appends a voice profile to the ORIGINAL line when the first four are empty', async () => {
+    await boot();
+    type('voice', 'Write as me.');
+    expect(carouselPre().textContent).toBe(`${CAROUSEL.text}\n\nMy voice profile:\nWrite as me.`);
+  });
+
+  it('never treats a bracket the visitor typed as a placeholder', async () => {
+    await boot();
+    type('niche', '[luxury]');
+    expect(marks()).toEqual(['[your neighborhoods]', '[top client questions]', '[brokerage name]']);
+    expect(carouselPre().textContent).toContain('- Niche: [luxury]\n');
+  });
+
+  it('copies exactly what is shown, through both Copy prompt and Copy & open Claude Projects', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const { written } = stubClipboard();
+    await boot();
+    type('brokerage', 'Northline Realty');
+    copyButton('carousel_creator').click();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(written).toHaveBeenLastCalledWith(carouselPre().textContent);
+    click($('a[data-copy-open="carousel-creator-prompt"]'));
+    expect(written).toHaveBeenLastCalledWith(carouselPre().textContent);
+    expect(carouselPre().textContent).toContain('My brokerage: Northline Realty');
+  });
+
+  it('remembers the fields across a reload', async () => {
+    await boot();
+    type('niche', 'luxury');
+    type('voice', 'Write as me.');
+    await boot();
+    expect(field('niche').value).toBe('luxury');
+    expect(carouselPre().textContent).toContain('- Niche: luxury\n');
+    expect(carouselPre().textContent).toContain('My voice profile:\nWrite as me.');
+  });
+
+  it('Clear empties the fields and storage and restores the original instructions', async () => {
+    await boot();
+    type('niche', 'luxury');
+    type('brokerage', 'Northline');
+    $<HTMLButtonElement>('[data-about-clear]').click();
+    expect(field('niche').value).toBe('');
+    expect(field('brokerage').value).toBe('');
+    expect(carouselPre().textContent).toBe(CAROUSEL.text);
+    expect(localStorage.getItem('ai101-about-you')).toBeNull();
+    await boot();
+    expect(carouselPre().textContent).toBe(CAROUSEL.text);
+  });
+
+  it('still assembles when storage refuses to read or write', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('denied', 'SecurityError');
+    });
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('full', 'QuotaExceededError');
+    });
+    await boot();
+    expect(() => type('niche', 'luxury')).not.toThrow();
+    expect(carouselPre().textContent).toContain('- Niche: luxury\n');
+  });
+
+  it('reads corrupt storage as empty', async () => {
+    localStorage.setItem('ai101-about-you', '{not json');
+    await boot();
+    expect(field('niche').value).toBe('');
+    expect(carouselPre().textContent).toBe(CAROUSEL.text);
+  });
+});
+
+describe('Copy & open (D-032)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  });
+
+  it('copies the prompt in the SAME tap, before the link opens, and lets the link open', async () => {
+    const { written, legacy } = stubClipboard();
+    await boot();
+    const link = $('a[data-copy-open][data-app="ChatGPT"]');
+    const { followed } = click(link);
+    expect(followed).toBe(true);
+    // Both writes started inside the click: the synchronous one has already finished.
+    expect(legacy).toEqual([VOICE.text]);
+    expect(written).toHaveBeenCalledWith(VOICE.text);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copied');
+    await vi.advanceTimersByTimeAsync(100);
+    expect(live()).toBe('Copied to clipboard.');
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copy & open ChatGPT');
+  });
+
+  it('opens a blank Claude chat after copying the voice profile prompt', async () => {
+    const { written } = stubClipboard();
+    await boot();
+    const link = $<HTMLAnchorElement>('a[data-copy-open][data-app="Claude"]');
+    expect(click(link).followed).toBe(true);
+    expect(written).toHaveBeenCalledWith(VOICE.text);
+    expect(link.getAttribute('href')).toBe('https://claude.ai/new');
+  });
+
+  it('two-tap mode: the first tap copies and says "Copied. Open ChatGPT", the second opens', async () => {
+    const { written } = stubClipboard();
+    window.history.replaceState(null, '', '/ai101');
+    document.body.innerHTML = renderAi101Body();
+    $('main').setAttribute('data-copy-open-taps', '2');
+    vi.resetModules();
+    await import('./main');
+    const link = $('a[data-copy-open][data-app="ChatGPT"]');
+    expect(click(link).followed).toBe(false);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(written).toHaveBeenCalledWith(VOICE.text);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copied. Open ChatGPT');
+    expect(click(link).followed).toBe(true);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copy & open ChatGPT');
+  });
+
+  it('two-tap mode disarms after a while, so a late tap copies again rather than opening', async () => {
+    stubClipboard();
+    window.history.replaceState(null, '', '/ai101');
+    document.body.innerHTML = renderAi101Body();
+    $('main').setAttribute('data-copy-open-taps', '2');
+    vi.resetModules();
+    await import('./main');
+    const link = $('a[data-copy-open][data-app="Claude"]');
+    click(link);
+    await vi.advanceTimersByTimeAsync(10000);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copy & open Claude');
+    expect(click(link).followed).toBe(false);
+  });
+
+  it('with no clipboard at all, the first tap stays and selects the prompt; the next tap opens', async () => {
+    stubValue(window, 'isSecureContext', true);
+    stubValue(navigator, 'clipboard', undefined);
+    stubValue(document, 'execCommand', vi.fn(() => false));
+    await boot();
+    const link = $('a[data-copy-open][data-app="ChatGPT"]');
+    expect(click(link).followed).toBe(false);
+    expect(window.getSelection()?.toString()).toBe(VOICE.text);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(live()).toBe(UI.copyFailedAnnouncement(VOICE.label));
+    // Never "Copied" when nothing was.
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copy & open ChatGPT');
+    // The visitor is never left without the app.
+    expect(click(link).followed).toBe(true);
+  });
+
+  it('when only writeText can copy, the link opens at once and says Copied once the write lands', async () => {
+    const { written, execCommand } = stubClipboard();
+    execCommand.mockImplementation(() => false);
+    await boot();
+    const link = $('a[data-copy-open][data-app="Claude"]');
+    expect(click(link).followed).toBe(true);
+    expect(written).toHaveBeenCalledWith(VOICE.text);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copy & open Claude');
+    await vi.advanceTimersByTimeAsync(100);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copied');
+    expect(live()).toBe('Copied to clipboard.');
+  });
+
+  it('when both writes fail after the link has opened, it never claims Copied', async () => {
+    const { execCommand } = stubClipboard(() => Promise.reject(new DOMException('denied', 'NotAllowedError')));
+    execCommand.mockImplementation(() => false);
+    await boot();
+    const link = $('a[data-copy-open][data-app="Claude"]');
+    expect(click(link).followed).toBe(true);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(link.querySelector('[data-copy-label]')!.textContent).toBe('Copy & open Claude');
+    expect(live()).toBe('');
+  });
+
+  it('hands focus back to where it was: the link if it had it, the page if not', async () => {
+    stubClipboard();
+    await boot();
+    const link = $<HTMLAnchorElement>('a[data-copy-open][data-app="ChatGPT"]');
+    link.focus();
+    click(link);
+    expect(document.activeElement).toBe(link);
+    link.blur();
+    click($('a[data-copy-open][data-app="Claude"]'));
+    expect(document.activeElement).toBe(document.body);
+    // The buffer is gone either way.
+    expect(document.querySelector('textarea.copy-buffer')).toBeNull();
+  });
+
+  it('holds its width while "Copied" shows, so the button beside it does not slide under the pointer', async () => {
+    stubClipboard();
+    await boot();
+    const link = $('a[data-copy-open][data-app="ChatGPT"]');
+    vi.spyOn(link, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 187.5, 44));
+    click(link);
+    expect(link.style.minWidth).toBe('187.5px');
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(link.style.minWidth).toBe('');
+  });
+
+  it('two-tap mode: a failed copy selects the prompt, and the second tap still opens', async () => {
+    stubValue(window, 'isSecureContext', true);
+    stubValue(navigator, 'clipboard', undefined);
+    stubValue(document, 'execCommand', vi.fn(() => false));
+    window.history.replaceState(null, '', '/ai101');
+    document.body.innerHTML = renderAi101Body();
+    $('main').setAttribute('data-copy-open-taps', '2');
+    vi.resetModules();
+    await import('./main');
+    const link = $('a[data-copy-open][data-app="ChatGPT"]');
+    expect(click(link).followed).toBe(false);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(window.getSelection()?.toString()).toBe(VOICE.text);
+    expect(live()).toBe(UI.copyFailedAnnouncement(VOICE.label));
+    expect(click(link).followed).toBe(true);
+  });
+});
+
+describe('starter chips (D-032)', () => {
+  it('copies the chip’s own words, says Copied, and reveals the hint', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const { written } = stubClipboard();
+    await boot();
+    expect($('.starters .hint').hidden).toBe(false);
+    const chip = document.querySelectorAll<HTMLButtonElement>('button[data-copy-chip]')[0]!;
+    chip.click();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(written).toHaveBeenCalledWith('A buyer asked if they should wait for rates to drop.');
+    expect(chip.textContent).toBe('Copied');
+    await vi.advanceTimersByTimeAsync(100);
+    expect(live()).toBe('Copied to clipboard.');
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(chip.textContent).toBe('A buyer asked if they should wait for rates to drop.');
+  });
+});
+
+describe('Get the app (D-032)', () => {
+  const hrefs = () =>
+    Array.from(document.querySelectorAll<HTMLAnchorElement>('a[data-get-app]')).map((a) => a.getAttribute('href'));
+  const as = (userAgent: string, maxTouchPoints = 0) => {
+    stubValue(navigator, 'userAgent', userAgent);
+    stubValue(navigator, 'maxTouchPoints', maxTouchPoints);
+  };
+
+  it('sends an iPhone to the App Store', async () => {
+    as('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148', 5);
+    await boot();
+    expect(hrefs()).toEqual([
+      'https://apps.apple.com/app/chatgpt/id6448311069',
+      'https://apps.apple.com/us/app/claude-by-anthropic/id6473753684',
+    ]);
+  });
+
+  it('treats a "Macintosh" with touch as the iPad it is', async () => {
+    as('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', 5);
+    await boot();
+    expect(hrefs()[0]).toBe('https://apps.apple.com/app/chatgpt/id6448311069');
+  });
+
+  it('sends Android to Google Play', async () => {
+    as('Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36', 5);
+    await boot();
+    expect(hrefs()).toEqual([
+      'https://play.google.com/store/apps/details?id=com.openai.chatgpt',
+      'https://play.google.com/store/apps/details?id=com.anthropic.claude',
+    ]);
+  });
+
+  it('leaves the download pages on a desktop, including a Mac with no touch', async () => {
+    as('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', 0);
+    await boot();
+    expect(hrefs()).toEqual(['https://chatgpt.com/download', 'https://claude.com/download']);
+  });
+});
+
+describe('Send this to my laptop (D-032)', () => {
+  it('opens the share sheet with the page’s Step 2 link', async () => {
+    const share = vi.fn(() => Promise.resolve());
+    stubValue(navigator, 'share', share);
+    await boot();
+    expect(click($('a[data-share]')).followed).toBe(false);
+    expect(share).toHaveBeenCalledWith({
+      title: 'AI 101 for Agents: Carousel Creator setup',
+      url: 'https://www.amplifiedimpact.io/ai101#carousel-creator',
+    });
+  });
+
+  it('ignores the AbortError of a closed share sheet', async () => {
+    const share = vi.fn(() => Promise.reject(new DOMException('closed', 'AbortError')));
+    stubValue(navigator, 'share', share);
+    await boot();
+    const before = window.location.href;
+    click($('a[data-share]'));
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(window.location.href).toBe(before);
+  });
+
+  it('leaves the mailto: link alone where there is no share sheet', async () => {
+    stubValue(navigator, 'share', undefined);
+    await boot();
+    expect(click($('a[data-share]')).followed).toBe(true);
   });
 });

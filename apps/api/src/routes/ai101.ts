@@ -94,6 +94,7 @@ import { isJsonContentType, JSON_CONTENT_TYPE, requireSameOrigin } from '../auth
 import { getDb } from '../db/client';
 import { ai101Waitlist } from '../db/schema';
 import { clock, randomIds } from '../lib/clock';
+import { SPRINT_ICS, SPRINT_ICS_PATH } from './ai101-calendar';
 
 /** The page's one URL. */
 export const AI101_PATH = '/ai101';
@@ -296,6 +297,17 @@ export function registerAi101Page(app: FastifyInstance, page: string | null): vo
       reply.redirect(ai101Location(req.url), 301),
     );
   }
+
+  // The sprint's calendar file (D-032), as a real `text/calendar` response so iOS offers "Add to
+  // Calendar". Exempt from the global limit for the page's reason: a room behind one venue NAT may
+  // tap it in the same minute. A constant string, so there is nothing to limit.
+  app.get(SPRINT_ICS_PATH, { config: { rateLimit: false } }, async (_req, reply): Promise<FastifyReply> =>
+    reply
+      .code(200)
+      .type('text/calendar; charset=utf-8')
+      .header('cache-control', 'public, max-age=3600')
+      .send(SPRINT_ICS),
+  );
 }
 
 // --- the waitlist --------------------------------------------------------------------------------

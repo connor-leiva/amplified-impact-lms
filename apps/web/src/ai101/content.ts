@@ -21,10 +21,40 @@ export interface Prompt {
   text: string;
 }
 
+/**
+ * A run of inline copy. A plain string is text; each object is one of the few kinds of markup the
+ * page makes, and `render.ts` escapes every string inside it. Copy is STRUCTURED rather than written
+ * as HTML so that a `<` typed into this file always arrives on the page as a `<`.
+ *
+ *   { strong }  bold text (weight 600; the page loads no 700)
+ *   { link }    an inline text link, opening in a new tab
+ *   { button }  a link drawn as a secondary button, opening in a new tab. With `phone`, phones
+ *               (a coarse pointer or a narrow viewport) see that text in place of the button.
+ */
+export type Inline =
+  | string
+  | { strong: string }
+  | { link: string; href: string }
+  | { button: string; href: string; phone?: string };
+
+/** A numbered step: plain text, or a lead line with a bulleted list of options under it. */
+export type Step = string | { lead: string; options: readonly (readonly Inline[])[] };
+
 export interface ChecklistItem {
   /** Persisted in localStorage under `ai101-checklist`. Rename one and its saved tick is dropped. */
   id: string;
-  text: string;
+  /** The checkbox's label: the sentence a visitor ticks off. */
+  title: readonly Inline[];
+  /** What to do, under the label and OUTSIDE it, so tapping a link here never ticks the box. */
+  detail?: readonly Inline[];
+}
+
+/** A "Copy & open" button: copies a prompt, then opens `href` in a new tab. */
+export interface CopyOpen {
+  label: string;
+  /** The app's name, for the two-tap fallback's "Copied. Open {app}". */
+  app: string;
+  href: string;
 }
 
 export const PAGE = {
@@ -47,17 +77,67 @@ export const PAGE = {
     ],
   },
 
+  // Below the jump links, above Step 1. Each `web` href is the desktop and no-JavaScript default;
+  // `main.ts` swaps in the platform's store link on iPhone, iPad and Android.
+  getApp: {
+    lead: 'Before we start: get the app and sign in.',
+    apps: [
+      {
+        label: 'Get ChatGPT',
+        href: {
+          web: 'https://chatgpt.com/download',
+          ios: 'https://apps.apple.com/app/chatgpt/id6448311069',
+          android: 'https://play.google.com/store/apps/details?id=com.openai.chatgpt',
+        },
+      },
+      {
+        label: 'Get Claude',
+        href: {
+          web: 'https://claude.com/download',
+          ios: 'https://apps.apple.com/us/app/claude-by-anthropic/id6473753684',
+          android: 'https://play.google.com/store/apps/details?id=com.anthropic.claude',
+        },
+      },
+    ],
+  },
+
   voiceProfile: {
     anchor: 'voice-profile',
     heading: 'Step 1: Your AI voice profile',
+    badge: 'Phone or laptop · Free',
     intro: 'Works in free ChatGPT or Claude, on a phone or a laptop. Voice memos count as samples.',
+    // Items 1, 2, 3 and 5 are the presenters' words and are not edited (D-032). Item 4 names where
+    // each app keeps instructions and links straight to it. "Custom GPT" is gone on purpose: free
+    // ChatGPT cannot create one, and this step promises free.
     steps: [
       'Collect 10 to 15 samples of you: captions you actually wrote, emails, or a transcript of you talking about your market.',
       'Paste them in with the voice profile prompt below. It maps your tone, sentence length, go-to phrases, and how you open and close.',
       `Add a never list: the lines that make every agent's feed sound the same, like "In today's market," "Let's dive in," and "Thinking of buying or selling?"`,
-      `Save it where your AI keeps instructions: a Claude Project, a custom GPT, or ChatGPT's custom instructions.`,
+      {
+        lead: 'Save it where your AI keeps instructions:',
+        options: [
+          [
+            { strong: 'Claude (free or paid):' },
+            ` make a Project and paste it into the Project's Instructions. `,
+            { button: 'Open Claude Projects', href: 'https://claude.ai/projects' },
+            ' Click New project, top right.',
+          ],
+          [
+            { strong: 'ChatGPT:' },
+            ' paste it into Custom instructions. ',
+            {
+              button: 'Open ChatGPT settings',
+              // Lands on Custom instructions itself, so there is no "scroll down and click" step (Connor,
+              // 2026-10-07). A web settings route, so phones get the app's path instead.
+              href: 'https://chatgpt.com/settings/personalization?instructions=chatgpt',
+              phone: 'In the app: Settings, then Personalization, then Custom instructions.',
+            },
+            ' Free plans hold about 1,500 characters there, so if your profile is longer, use a Claude Project.',
+          ],
+        ],
+      },
       'Test it: the same post about a client question, from generic AI and from your profile, side by side.',
-    ],
+    ] satisfies Step[],
     prompt: {
       id: 'voice_profile',
       label: 'Voice profile prompt',
@@ -74,19 +154,33 @@ I'm a real estate agent in [city or market]. My clients are mostly [buyers, sell
 My samples:
 [paste 10 to 15 samples]`,
     } satisfies Prompt,
+    // Copy, then open a BLANK chat. Never a `?q=` prefill: ChatGPT's sends the prompt before the
+    // brackets are filled in, and Claude's shows a "Use caution" banner (D-032).
+    promptOpen: [
+      { label: 'Copy & open ChatGPT', app: 'ChatGPT', href: 'https://chatgpt.com/' },
+      { label: 'Copy & open Claude', app: 'Claude', href: 'https://claude.ai/new' },
+    ] satisfies CopyOpen[],
+    promptHint: 'Paste it into a new chat, fill in the brackets, add your samples, then send.',
   },
 
   carouselCreator: {
     anchor: 'carousel-creator',
     heading: 'Step 2: Your Carousel Creator',
+    badge: 'Laptop · Claude Pro or higher',
     intro:
       'Needs a laptop and a paid Claude plan (Pro or higher). An AI employee is three layers: a brain, a brand, and a job. Build the first two once, and every carousel after that starts with one message.',
+    // A phone-to-laptop handoff. `href` is the no-JavaScript fallback; `main.ts` uses the share sheet
+    // where there is one.
+    sendToLaptop: {
+      label: 'Send this to my laptop',
+      href: 'mailto:?subject=AI%20101%20Carousel%20Creator%20setup&body=https%3A%2F%2Fwww.amplifiedimpact.io%2Fai101%23carousel-creator',
+    },
     layers: {
       columns: ['Layer', 'Where it lives', 'What goes in'],
       rows: [
         [
           '1. The brand',
-          'A design system in Claude Design, set up once at claude.ai/design',
+          ['A design system in Claude Design, set up once at ', { link: 'claude.ai/design', href: 'https://claude.ai/design' }],
           'Logo, headshot, brand colors, fonts, two or three posts you love, and your brokerage name',
         ],
         [
@@ -102,20 +196,79 @@ My samples:
       ],
     },
     checklistHeading: 'Setup checklist',
+    // Four steps, each ending in one tap or one paste (D-032). The ids that kept their meaning kept
+    // their id, so a tick saved before the change survives it.
     checklist: [
       {
         id: 'design-system',
-        text: 'Set up your design system at claude.ai/design with your logo, headshot, brand colors, fonts, two or three posts you love, and your brokerage name.',
+        title: [{ strong: 'Set up your brand in Claude Design.' }],
+        detail: [
+          { button: 'Open Claude Design', href: 'https://claude.ai/design' },
+          ` Upload your logo, your headshot, and screenshots of two or three posts you love, and add your brokerage name. Don't know your color codes or fonts? Skip them. Claude builds your palette and type from what you upload. Review it, then turn on `,
+          { strong: 'Published' },
+          `, or new designs won't use it.`,
+        ],
       },
-      { id: 'create-project', text: 'Create a Claude Project called Carousel Creator.' },
       {
-        id: 'paste-instructions',
-        text: `Paste the Carousel Creator instructions below into the Project's instructions and fill in the bracketed parts.`,
+        id: 'about-you',
+        title: [{ strong: 'Fill in About you below' }, ' and paste in your voice profile from Step 1.'],
+        detail: ['Did Step 1 on your phone? The same chat is in your history on your laptop.'],
       },
-      { id: 'add-voice-profile', text: 'Add your voice profile to the Project.' },
-      { id: 'add-niche-file', text: 'Add a short file with your niche, neighborhoods, and top client questions.' },
-      { id: 'first-idea', text: 'Start a new conversation in the Project and send one idea.' },
+      {
+        id: 'create-project',
+        title: [{ strong: 'Copy the instructions and make the Project.' }],
+        // render.ts draws `projectOpen` at the start of this detail.
+        detail: [
+          ' Click New project (top right), name it Carousel Creator, and click Create project. Then open Instructions on the right side of the Project and paste.',
+        ],
+      },
+      // render.ts draws `starters` under this one.
+      { id: 'first-idea', title: [{ strong: 'Start a new chat in the Project and send one idea.' }] },
     ] satisfies ChecklistItem[],
+    projectOpen: {
+      label: 'Copy & open Claude Projects',
+      app: 'Claude Projects',
+      href: 'https://claude.ai/projects',
+    } satisfies CopyOpen,
+    // Under checklist item 4. Tap one to copy it, then paste it into the Project's chat.
+    starters: [
+      'A buyer asked if they should wait for rates to drop.',
+      `Here's a market stat I want to explain:`,
+      'A lesson from my week:',
+      'My take on this industry news:',
+    ],
+    startersHint: 'Tap one to copy it, paste it into the Project chat, and finish the thought.',
+    // Directly above the instructions. Every field is optional; what is typed is written into the
+    // instructions' last line, live, so what a visitor sees is what they copy.
+    aboutYou: {
+      heading: 'About you',
+      intro: 'All fields are optional.',
+      fields: [
+        { name: 'niche', label: 'Your niche', kind: 'text', placeholder: 'e.g., first-time buyers, relocation, luxury' },
+        {
+          name: 'neighborhoods',
+          label: 'Neighborhoods you know best',
+          kind: 'text',
+          placeholder: 'e.g., the three or four areas you sell most',
+        },
+        {
+          name: 'questions',
+          label: 'Questions clients ask you most',
+          kind: 'textarea',
+          rows: 3,
+          placeholder: 'One per line',
+        },
+        { name: 'brokerage', label: 'Brokerage name, exactly as it must appear in ads', kind: 'text' },
+        {
+          name: 'voice',
+          label: 'Your voice profile from Step 1',
+          kind: 'textarea',
+          rows: 6,
+          placeholder: 'Paste the profile that starts with "Write as me."',
+        },
+      ],
+      clear: 'Clear',
+    },
     prompt: {
       id: 'carousel_creator',
       label: 'Carousel Creator instructions',
@@ -167,6 +320,16 @@ About me: [niche, neighborhoods, and the questions clients ask me most]. My brok
       { week: 'Week 4', pillar: 'Market' },
     ],
     outro: 'Track conversations started, not likes.',
+    // A real file for Apple and Outlook, served as text/calendar by the API (D-032), and one
+    // recurring Google event, whose link cannot change the title week to week.
+    calendar: {
+      lead: 'Add the sprint to your calendar:',
+      apple: { label: 'Apple or Outlook', href: '/ai101/carousel-sprint.ics' },
+      google: {
+        label: 'Google Calendar',
+        href: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Carousel%20Creator%3A%20weekly%20approval%20block&dates=20261012T090000/20261012T093000&recur=RRULE%3AFREQ%3DWEEKLY%3BCOUNT%3D4&details=Week%201%20Market%2C%20Week%202%20Method%2C%20Week%203%20Me%2C%20Week%204%20Market.%20Open%20your%20Carousel%20Creator%20Project%20at%20https%3A%2F%2Fclaude.ai%2Fprojects%20and%20send%20one%20idea%20from%20this%20week%27s%20pillar.%20Track%20conversations%20started%2C%20not%20likes.',
+      },
+    },
   },
 
   waitlist: {
@@ -191,10 +354,39 @@ About me: [niche, neighborhoods, and the questions clients ask me most]. My brok
 export const UI = {
   copy: 'Copy prompt',
   copied: 'Copied',
-  /** Announced through the polite live region, e.g. "Voice profile prompt copied". */
-  copiedAnnouncement: (label: string) => `${label} copied`,
+  /** Announced through the polite live region after any copy. */
+  copiedAnnouncement: 'Copied to clipboard.',
+  /** The two-tap fallback's armed label: the first tap copied, the second opens. */
+  copiedThenOpen: (app: string) => `Copied. Open ${app}`,
   /** When neither the Clipboard API nor execCommand works: the text is selected instead. */
   copyFailedAnnouncement: (label: string) => `${label} is selected. Copy it from your device's menu.`,
+  /** `navigator.share`'s payload for "Send this to my laptop". */
+  share: {
+    title: 'AI 101 for Agents: Carousel Creator setup',
+    url: 'https://www.amplifiedimpact.io/ai101#carousel-creator',
+  },
+  /**
+   * How "About you" is written into the Carousel Creator instructions' last line. Each `[bracket]`
+   * stays until its field has a value; the original line stays untouched until any of the first
+   * four fields has one.
+   */
+  aboutYou: {
+    aboutMe: 'About me:',
+    lines: {
+      niche: '- Niche: ',
+      neighborhoods: '- Neighborhoods: ',
+      questions: '- Questions clients ask me most: ',
+      brokerage: 'My brokerage: ',
+    },
+    placeholders: {
+      niche: '[your niche]',
+      neighborhoods: '[your neighborhoods]',
+      questions: '[top client questions]',
+      brokerage: '[brokerage name]',
+    },
+    questionJoin: '; ',
+    voiceHeading: 'My voice profile:',
+  },
   errors: {
     firstName: 'Enter your first name.',
     // The sign-in screen's wording, so the product says this one thing one way.

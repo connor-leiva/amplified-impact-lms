@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ICONS } from '@ai/core';
-import { PAGE, UI } from './content';
+import { PAGE, UI, type Inline, type Step } from './content';
 import type * as Content from './content';
 import { esc, highlightPlaceholders, icon, renderAi101Body, renderAi101Head } from './render';
 
@@ -19,7 +19,24 @@ const all = (root: ParentNode, selector: string) => Array.from(root.querySelecto
 const text = (el: Element | null | undefined) => el?.textContent ?? '';
 
 /** Keys whose values are identifiers or URLs, not words anybody reads. */
-const NOT_COPY = new Set(['id', 'anchor', 'target', 'url']);
+const NOT_COPY = new Set(['id', 'anchor', 'target', 'url', 'href', 'kind', 'name']);
+
+/** Copy that is rendered into an attribute rather than as text: labels and field placeholders. */
+const attributeCopy = (doc: Document) =>
+  all(doc.body, '[aria-label], [placeholder]').flatMap((el) =>
+    [el.getAttribute('aria-label'), el.getAttribute('placeholder')].filter((v): v is string => v !== null),
+  );
+
+/** What one run of inline copy contributes to `textContent`: a phone-only line is in the DOM too. */
+const inlineText = (segments: readonly Inline[]) =>
+  segments
+    .map((s) =>
+      typeof s === 'string' ? s : 'strong' in s ? s.strong : 'link' in s ? s.link : s.button + (s.phone ?? ''),
+    )
+    .join('');
+
+const stepText = (step: Step) =>
+  typeof step === 'string' ? step : step.lead + step.options.map((o) => inlineText(o)).join('');
 
 /** Every readable string in `PAGE` (except `meta`, which lives in <head> and is checked there). */
 function copyStrings(value: unknown, key = ''): string[] {
@@ -47,10 +64,11 @@ describe('/ai101 document outline', () => {
     const levels = all(doc.body, 'h1, h2, h3, h4, h5, h6').map((h) => Number(h.tagName[1]));
     expect(levels[0]).toBe(1);
     for (let i = 1; i < levels.length; i++) expect(levels[i]!).toBeLessThanOrEqual(levels[i - 1]! + 1);
-    // The sub-blocks are h3s: both prompt labels, "Setup checklist" and "How a week works".
+    // The sub-blocks are h3s: both prompt labels, "Setup checklist", "About you" and "How a week works".
     expect(all(doc, 'h3').map(text)).toEqual([
       PAGE.voiceProfile.prompt.label,
       PAGE.carouselCreator.checklistHeading,
+      PAGE.carouselCreator.aboutYou.heading,
       PAGE.carouselCreator.prompt.label,
       PAGE.carouselCreator.weekHeading,
     ]);
@@ -182,7 +200,7 @@ describe('/ai101 content', () => {
 
   it('renders every string in PAGE', () => {
     const visible = doc.body.textContent ?? '';
-    const labels = all(doc.body, '[aria-label]').map((el) => el.getAttribute('aria-label'));
+    const labels = attributeCopy(doc);
     const missing = copyStrings(PAGE).filter((s) => !visible.includes(s) && !labels.includes(s));
     expect(missing).toEqual([]);
   });
@@ -194,7 +212,7 @@ describe('/ai101 content', () => {
     const bodyRows = all(table, 'tbody tr');
     expect(bodyRows).toHaveLength(rows.length);
     bodyRows.forEach((tr, i) => {
-      expect(all(tr, 'th, td').map(text)).toEqual([...rows[i]!]);
+      expect(all(tr, 'th, td').map(text)).toEqual(rows[i]!.map((c) => (typeof c === 'string' ? c : inlineText(c))));
       expect(tr.querySelector('th')?.getAttribute('scope')).toBe('row');
       // The stacked phone layout captions each cell with its column; the table still names it.
       expect(all(tr, 'td').map((td) => td.getAttribute('data-label'))).toEqual(columns.slice(1));
@@ -212,7 +230,7 @@ describe('/ai101 content', () => {
     expect(doc.getElementById(list.getAttribute('aria-labelledby')!)?.textContent).toBe(
       PAGE.carouselCreator.checklistHeading,
     );
-    const items = all(list, 'li');
+    const items = all(list, ':scope > li');
     expect(items).toHaveLength(ids.length);
     items.forEach((li, i) => {
       const item = PAGE.carouselCreator.checklist[i]!;
@@ -223,13 +241,20 @@ describe('/ai101 content', () => {
       expect(input.getAttribute('data-check-id')).toBe(item.id);
       expect(input.hasAttribute('checked')).toBe(false);
       expect(li.querySelector('.box')?.getAttribute('aria-hidden')).toBe('true');
-      expect(text(li).trim()).toBe(item.text);
+      // The label is the title alone; the detail sits outside it, so its links never tick the box
+      // and never join the checkbox's accessible name (D-032).
+      expect(text(li.querySelector('label')).trim()).toBe(inlineText(item.title));
+      expect(li.querySelector('label a, label button')).toBeNull();
     });
   });
 
   it('renders the numbered lists as <ol> and the sprint weeks as a <ul>', () => {
-    const lists = all(doc, 'ol.steps').map((ol) => all(ol, 'li').map(text));
-    expect(lists).toEqual([[...PAGE.voiceProfile.steps], [...PAGE.carouselCreator.week], [...PAGE.ownership.items]]);
+    const lists = all(doc, 'ol.steps').map((ol) => all(ol, ':scope > li').map(text));
+    expect(lists).toEqual([
+      PAGE.voiceProfile.steps.map((s) => stepText(s)),
+      [...PAGE.carouselCreator.week],
+      [...PAGE.ownership.items],
+    ]);
     expect(all(doc, '#sprint ul.weeks li').map(text)).toEqual([
       'Week 1: Market',
       'Week 2: Method',
@@ -371,7 +396,7 @@ describe('escaping', () => {
       expect(doc.querySelector(`[data-prompt="${prompt.id}"] pre`)?.textContent).toBe(prompt.text);
     }
     const visible = doc.body.textContent ?? '';
-    const labels = all(doc.body, '[aria-label]').map((el) => el.getAttribute('aria-label'));
+    const labels = attributeCopy(doc);
     expect(copyStrings(content.PAGE).filter((s) => !visible.includes(s) && !labels.includes(s))).toEqual([]);
   });
 });
@@ -388,5 +413,206 @@ describe('icon()', () => {
     expect(svg.getAttribute('stroke-linecap')).toBe('round');
     expect(svg.getAttribute('stroke-linejoin')).toBe('round');
     expect(svg.querySelector('path')?.getAttribute('d')).toBe(ICONS.copy);
+  });
+});
+
+// ================================================================================================
+// The click paths (D-032): every step ends in one tap or one paste
+// ================================================================================================
+
+describe('/ai101 click paths (D-032)', () => {
+  const doc = parse();
+
+  /**
+   * Every URL the brief names, typed out here as the oracle rather than read from content.ts.
+   * Acceptance check 3: "Every new link points to the exact URL in this brief."
+   */
+  const BRIEF_URLS = new Set([
+    'https://chatgpt.com/download',
+    'https://claude.com/download',
+    'https://chatgpt.com/',
+    'https://claude.ai/new',
+    'https://claude.ai/projects',
+    'https://chatgpt.com/settings/personalization?instructions=chatgpt',
+    'https://claude.ai/design',
+    'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Carousel%20Creator%3A%20weekly%20approval%20block&dates=20261012T090000/20261012T093000&recur=RRULE%3AFREQ%3DWEEKLY%3BCOUNT%3D4&details=Week%201%20Market%2C%20Week%202%20Method%2C%20Week%203%20Me%2C%20Week%204%20Market.%20Open%20your%20Carousel%20Creator%20Project%20at%20https%3A%2F%2Fclaude.ai%2Fprojects%20and%20send%20one%20idea%20from%20this%20week%27s%20pillar.%20Track%20conversations%20started%2C%20not%20likes.',
+  ]);
+
+  it('puts "Before we start" after the jump links and before Step 1, with each store link', () => {
+    const main = doc.querySelector('main')!;
+    const strip = doc.querySelector('.get-app')!;
+    expect(strip.previousElementSibling?.tagName).toBe('HEADER');
+    expect(strip.nextElementSibling?.id).toBe('voice-profile');
+    expect(text(strip.querySelector('strong'))).toBe('Before we start: get the app and sign in.');
+    const links = all(strip, 'a[data-get-app]');
+    expect(links.map((a) => [text(a), a.getAttribute('href'), a.getAttribute('data-ios'), a.getAttribute('data-android')])).toEqual([
+      [
+        'Get ChatGPT',
+        'https://chatgpt.com/download',
+        'https://apps.apple.com/app/chatgpt/id6448311069',
+        'https://play.google.com/store/apps/details?id=com.openai.chatgpt',
+      ],
+      [
+        'Get Claude',
+        'https://claude.com/download',
+        'https://apps.apple.com/us/app/claude-by-anthropic/id6473753684',
+        'https://play.google.com/store/apps/details?id=com.anthropic.claude',
+      ],
+    ]);
+    expect(main.contains(strip)).toBe(true);
+  });
+
+  it('badges the two step cards at the top', () => {
+    expect(text(doc.querySelector('#voice-profile > .badge'))).toBe('Phone or laptop · Free');
+    expect(text(doc.querySelector('#carousel-creator > .badge'))).toBe('Laptop · Claude Pro or higher');
+    for (const id of ['voice-profile', 'carousel-creator']) {
+      expect(doc.querySelector(`#${id}`)!.firstElementChild?.className).toBe('badge');
+    }
+  });
+
+  it('opens every off-site link in a new tab with noopener, at a URL the brief names', () => {
+    const external = all(doc, 'a[href^="http"]');
+    expect(external.length).toBeGreaterThan(0);
+    for (const a of external) {
+      expect(a.getAttribute('target'), a.getAttribute('href')!).toBe('_blank');
+      expect(a.getAttribute('rel'), a.getAttribute('href')!).toBe('noopener');
+      expect(BRIEF_URLS.has(a.getAttribute('href')!), a.getAttribute('href')!).toBe(true);
+    }
+    // ...and every URL the brief names is on the page.
+    const hrefs = new Set(external.map((a) => a.getAttribute('href')));
+    expect([...BRIEF_URLS].filter((u) => !hrefs.has(u))).toEqual([]);
+  });
+
+  it('never uses a ?q= prefill link', () => {
+    for (const a of all(doc, 'a[href]')) expect(a.getAttribute('href')).not.toMatch(/[?&]q=/);
+  });
+
+  it('draws each Copy & open as a real link to a blank chat, wired to a prompt that exists', () => {
+    const links = all(doc, 'a[data-copy-open]');
+    expect(links.map((a) => [text(a), a.getAttribute('href'), a.getAttribute('data-copy-open')])).toEqual([
+      ['Copy & open ChatGPT', 'https://chatgpt.com/', 'voice-profile-prompt'],
+      ['Copy & open Claude', 'https://claude.ai/new', 'voice-profile-prompt'],
+      ['Copy & open Claude Projects', 'https://claude.ai/projects', 'carousel-creator-prompt'],
+    ]);
+    for (const a of links) {
+      expect(doc.getElementById(a.getAttribute('data-copy-open')!)?.querySelector('pre[data-prompt-text]')).not.toBeNull();
+    }
+    // Next to "Copy prompt", with the hint under the buttons.
+    const head = doc.querySelector('#voice-profile-prompt .prompt-head')!;
+    expect(all(head, '.actions > *').map(text)).toEqual(['Copy prompt', 'Copy & open ChatGPT', 'Copy & open Claude']);
+    expect(text(head.nextElementSibling)).toBe('Paste it into a new chat, fill in the brackets, add your samples, then send.');
+  });
+
+  it('gives Step 1 item 4 its two options, with the phone path in the settings button’s place', () => {
+    const item = all(doc, '#voice-profile ol.steps > li')[3]!;
+    expect(text(item.querySelector('.step-rich > span'))).toBe('Save it where your AI keeps instructions:');
+    const options = all(item, 'ul.options > li');
+    expect(options).toHaveLength(2);
+    expect(text(options[0]!.querySelector('strong'))).toBe('Claude (free or paid):');
+    expect(options[0]!.querySelector('a')?.getAttribute('href')).toBe('https://claude.ai/projects');
+    expect(text(options[1]!.querySelector('strong'))).toBe('ChatGPT:');
+    expect(options[1]!.querySelector('.desktop-only a')?.getAttribute('href')).toBe('https://chatgpt.com/settings/personalization?instructions=chatgpt');
+    expect(text(options[1]!.querySelector('.phone-only'))).toBe(
+      'In the app: Settings, then Personalization, then Custom instructions.',
+    );
+    // The deep link lands on Custom instructions, so the page no longer says to scroll there.
+    expect(text(options[1])).not.toMatch(/scroll/i);
+    // "Custom GPT" is gone: free ChatGPT cannot create one.
+    expect(text(item)).not.toMatch(/custom GPT/i);
+  });
+
+  it('links claude.ai/design in the layers table', () => {
+    const a = doc.querySelector('table.layers tbody tr td a')!;
+    expect(text(a)).toBe('claude.ai/design');
+    expect(a.getAttribute('href')).toBe('https://claude.ai/design');
+  });
+
+  it('puts Send this to my laptop right after Step 2’s intro, as a mailto: without JavaScript', () => {
+    const send = doc.querySelector('#carousel-creator .lede')!.nextElementSibling!;
+    const a = send.querySelector('a[data-share]')!;
+    expect(text(a)).toBe('Send this to my laptop');
+    expect(a.getAttribute('href')).toBe(
+      'mailto:?subject=AI%20101%20Carousel%20Creator%20setup&body=https%3A%2F%2Fwww.amplifiedimpact.io%2Fai101%23carousel-creator',
+    );
+  });
+
+  it('has the four checklist items, the chips under the last, and the hint hidden until the script runs', () => {
+    expect(all(doc, '.checklist > li label').map((l) => text(l).trim())).toEqual([
+      'Set up your brand in Claude Design.',
+      'Fill in About you below and paste in your voice profile from Step 1.',
+      'Copy the instructions and make the Project.',
+      'Start a new chat in the Project and send one idea.',
+    ]);
+    const last = all(doc, '.checklist > li').slice(-1)[0]!;
+    expect(all(last, 'button[data-copy-chip]').map(text)).toEqual([
+      'A buyer asked if they should wait for rates to drop.',
+      `Here's a market stat I want to explain:`,
+      'A lesson from my week:',
+      'My take on this industry news:',
+    ]);
+    const hint = last.querySelector('.hint')!;
+    expect(text(hint)).toBe('Tap one to copy it, paste it into the Project chat, and finish the thought.');
+    expect(hint.hasAttribute('hidden')).toBe(true);
+  });
+
+  it('puts About you directly above the instructions, hidden until the script can make it work', () => {
+    const about = doc.querySelector('[data-about]')!;
+    expect(about.hasAttribute('hidden')).toBe(true);
+    expect(about.nextElementSibling?.id).toBe('carousel-creator-prompt');
+    const fields = all(about, '[data-about-field]');
+    expect(fields.map((f) => [f.tagName, f.getAttribute('data-about-field'), f.getAttribute('placeholder')])).toEqual([
+      ['INPUT', 'niche', 'e.g., first-time buyers, relocation, luxury'],
+      ['INPUT', 'neighborhoods', 'e.g., the three or four areas you sell most'],
+      ['TEXTAREA', 'questions', 'One per line'],
+      ['INPUT', 'brokerage', null],
+      ['TEXTAREA', 'voice', 'Paste the profile that starts with "Write as me."'],
+    ]);
+    expect(fields.map((f) => f.getAttribute('rows'))).toEqual([null, null, '3', null, '6']);
+    // Optional, every one, and each labelled.
+    for (const f of fields) {
+      expect(f.hasAttribute('required')).toBe(false);
+      expect(text(doc.querySelector(`label[for="${f.id}"]`)).length).toBeGreaterThan(0);
+    }
+    expect(text(about.querySelector('[data-about-clear]'))).toBe('Clear');
+  });
+
+  it('adds the sprint’s calendar links after its last line: the .ics in this tab, Google in a new one', () => {
+    const cal = doc.querySelector('#sprint .calendar')!;
+    expect(text(cal.previousElementSibling)).toBe('Track conversations started, not likes.');
+    expect(text(cal.querySelector('p'))).toBe('Add the sprint to your calendar:');
+    const [apple, google] = all(cal, 'a');
+    expect([text(apple), apple!.getAttribute('href')]).toEqual(['Apple or Outlook', '/ai101/carousel-sprint.ics']);
+    // No `download`, so iOS offers "Add to Calendar" instead of saving a file.
+    expect(apple!.hasAttribute('download')).toBe(false);
+    expect(apple!.hasAttribute('target')).toBe(false);
+    expect(text(google)).toBe('Google Calendar');
+  });
+
+  it('keeps every anchor the page had, for the QR codes and slides that point at them', () => {
+    for (const id of [
+      'voice-profile',
+      'voice-profile-prompt',
+      'carousel-creator',
+      'carousel-creator-prompt',
+      'carousel-creator-checklist',
+      'carousel-creator-week',
+      'four-things',
+      'sprint',
+      'waitlist',
+      'waitlist-form',
+      'waitlist-joined',
+      'waitlist-error',
+      'ai101-live',
+    ]) {
+      expect(doc.getElementById(id), id).not.toBeNull();
+    }
+    const ids = all(doc, '[id]').map((el) => el.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('has no em dash anywhere in the page copy', () => {
+    const strings = [...copyStrings(PAGE), ...copyStrings(UI)].filter((s) => typeof s === 'string');
+    expect(strings.filter((s) => s.includes('—'))).toEqual([]);
+    expect(doc.body.textContent).not.toContain('—');
   });
 });

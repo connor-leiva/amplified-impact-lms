@@ -527,6 +527,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/ai101/', methods: 'GET, HEAD', guard: 'page' },
   { path: '/AI101', methods: 'GET, HEAD', guard: 'page' },
   { path: '/ai-101', methods: 'GET, HEAD', guard: 'page' },
+  // D-032's calendar file for the page's sprint: public, like the page it belongs to.
+  { path: '/ai101/carousel-sprint.ics', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -1006,7 +1008,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
         // `/api/*` and nothing else — so that is the property asserted. A page route that moved
         // under `/api/` would have to be reclassified, and argued for, like the waitlist was.
         const pages = ROUTES.filter((r) => r.guard === 'page');
-        expect(pages.map((r) => r.path).sort()).toEqual(['/AI101', '/ai-101', '/ai101', '/ai101/']);
+        expect(pages.map((r) => r.path).sort()).toEqual([
+          '/AI101',
+          '/ai-101',
+          '/ai101',
+          '/ai101/',
+          '/ai101/carousel-sprint.ics',
+        ]);
         expect(pages.filter((r) => r.path.startsWith('/api/'))).toEqual([]);
 
         // `/api/events` is exempt too and is NOT injected: an SSE response never ends, and

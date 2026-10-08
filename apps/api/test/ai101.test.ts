@@ -29,6 +29,7 @@ import { build, cspScriptHashes } from '../src/app';
 import type { App, BuildOptions } from '../src/app';
 import { ai101Waitlist } from '../src/db/schema';
 import { ai101Location, etagMatches, pageEtag, validateWaitlist } from '../src/routes/ai101';
+import { foldLine, SPRINT_ICS } from '../src/routes/ai101-calendar';
 import { resetDatabase, testDatabase } from './helpers';
 
 /** § 7.7's pinned instant, so `created_at` can be compared with `toBe`. */
@@ -620,5 +621,148 @@ describe('validateWaitlist and etagMatches (D-028) @g9', () => {
     expect(etagMatches('*', '"a"')).toBe(true);
     expect(etagMatches('"b"', '"a"')).toBe(false);
     expect(etagMatches('"ab"', '"a"')).toBe(false);
+  });
+});
+
+// ================================================================================================
+// The sprint's calendar file (D-032)
+// ================================================================================================
+
+/**
+ * The brief's logical content, typed out here rather than imported: this is the oracle the generator
+ * in `routes/ai101-calendar.ts` is held to, so it must not come from that file.
+ */
+const SPRINT_LOGICAL = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Amplified Impact//AI 101 Carousel Sprint//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:ai101-sprint-week1-2026@amplifiedimpact.io
+DTSTAMP:20261007T120000Z
+DTSTART:20261012T090000
+DTEND:20261012T093000
+SUMMARY:Carousel Creator: Market week
+DESCRIPTION:30-minute approval block. Open your Carousel Creator Project at https://claude.ai/projects\\, send one Market idea\\, approve the slide copy\\, then post. Track conversations started\\, not likes.
+END:VEVENT
+BEGIN:VEVENT
+UID:ai101-sprint-week2-2026@amplifiedimpact.io
+DTSTAMP:20261007T120000Z
+DTSTART:20261019T090000
+DTEND:20261019T093000
+SUMMARY:Carousel Creator: Method week
+DESCRIPTION:30-minute approval block. Open your Carousel Creator Project at https://claude.ai/projects\\, send one Method idea\\, approve the slide copy\\, then post. Track conversations started\\, not likes.
+END:VEVENT
+BEGIN:VEVENT
+UID:ai101-sprint-week3-2026@amplifiedimpact.io
+DTSTAMP:20261007T120000Z
+DTSTART:20261026T090000
+DTEND:20261026T093000
+SUMMARY:Carousel Creator: Me week
+DESCRIPTION:30-minute approval block. Open your Carousel Creator Project at https://claude.ai/projects\\, send one Me idea\\, approve the slide copy\\, then post. Track conversations started\\, not likes.
+END:VEVENT
+BEGIN:VEVENT
+UID:ai101-sprint-week4-2026@amplifiedimpact.io
+DTSTAMP:20261007T120000Z
+DTSTART:20261102T090000
+DTEND:20261102T093000
+SUMMARY:Carousel Creator: Market week
+DESCRIPTION:30-minute approval block. Open your Carousel Creator Project at https://claude.ai/projects\\, send one Market idea\\, approve the slide copy\\, then post. Track conversations started\\, not likes.
+END:VEVENT
+END:VCALENDAR`;
+
+/** RFC 5545 § 3.1 unfolding: a CRLF followed by one space or tab is removed. */
+const unfold = (ics: string) => ics.replace(/\r\n[ \t]/g, '');
+
+describe('GET /ai101/carousel-sprint.ics · the sprint calendar (D-032) @g9', () => {
+  const get = () => app.inject({ method: 'GET', url: '/ai101/carousel-sprint.ics' });
+
+  it('is served as text/calendar in UTF-8, so iOS offers "Add to Calendar" @g9', async () => {
+    await fresh();
+    const res = await get();
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toBe('text/calendar; charset=utf-8');
+    // Not an attachment: no Content-Disposition, which on iOS would mean "download", not "add".
+    expect(res.headers['content-disposition']).toBeUndefined();
+  });
+
+  it('exists without a database too, as the page does @g9', async () => {
+    await fresh({ waitlist: false });
+    expect((await get()).statusCode).toBe(200);
+  });
+
+  it('uses CRLF after every line, and nothing but CRLF @g9', async () => {
+    await fresh();
+    const body = (await get()).body;
+    expect(body.endsWith('\r\n')).toBe(true);
+    // Every LF is part of a CRLF, and every CR is followed by an LF.
+    expect(body.replace(/\r\n/g, '')).not.toMatch(/[\r\n]/);
+  });
+
+  it('folds every physical line to 75 octets or fewer @g9', async () => {
+    await fresh();
+    const lines = (await get()).body.split('\r\n').slice(0, -1);
+    const tooLong = lines.filter((l) => Buffer.byteLength(l, 'utf8') > 75);
+    expect(tooLong).toEqual([]);
+    // The DESCRIPTION lines are long enough that folding actually happened.
+    expect(lines.some((l) => l.startsWith(' '))).toBe(true);
+  });
+
+  it('unfolds to exactly the brief\'s calendar, line for line @g9', async () => {
+    await fresh();
+    const logical = unfold((await get()).body).split('\r\n').slice(0, -1);
+    expect(logical).toEqual(SPRINT_LOGICAL.split('\n'));
+  });
+
+  it('holds four 9:00-9:30 events on Mondays, in floating local time @g9', async () => {
+    await fresh();
+    const logical = unfold((await get()).body).split('\r\n');
+    expect(logical.filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(4);
+    const starts = logical.filter((l) => l.startsWith('DTSTART'));
+    const ends = logical.filter((l) => l.startsWith('DTEND'));
+    // No `Z` and no TZID: 9 AM wherever the agent is, across the November 1 clock change.
+    for (const l of [...starts, ...ends]) expect(l).toMatch(/^DT(START|END):\d{8}T\d{6}$/);
+    expect(starts.every((l) => l.endsWith('T090000'))).toBe(true);
+    expect(ends.every((l) => l.endsWith('T093000'))).toBe(true);
+    for (const l of starts) {
+      const [, y, m, d] = /(\d{4})(\d{2})(\d{2})/.exec(l)!;
+      expect(new Date(Date.UTC(+y!, +m! - 1, +d!)).getUTCDay(), l).toBe(1);
+    }
+    expect(new Set(logical.filter((l) => l.startsWith('UID:'))).size).toBe(4);
+  });
+
+  it('is exempt from § 9.4\'s global limit, like the page: a room can tap it at once @g9', async () => {
+    await fresh();
+    const venue = { 'x-forwarded-for': '198.51.100.23' };
+    const codes: number[] = [];
+    for (let i = 0; i < 120; i++) {
+      codes.push((await app.inject({ method: 'GET', url: '/ai101/carousel-sprint.ics', headers: venue })).statusCode);
+    }
+    expect(codes.filter((c) => c !== 200)).toEqual([]);
+  });
+});
+
+describe('foldLine (D-032)', () => {
+  it('leaves a short line alone and folds a long one with a leading space @g9', () => {
+    expect(foldLine('SUMMARY:short')).toBe('SUMMARY:short');
+    const long = `DESCRIPTION:${'x'.repeat(200)}`;
+    const physical = foldLine(long).split('\r\n');
+    expect(physical[0]).toHaveLength(75);
+    for (const p of physical.slice(1)) {
+      expect(p.startsWith(' ')).toBe(true);
+      expect(p.length).toBeLessThanOrEqual(75);
+    }
+    expect(unfold(foldLine(long))).toBe(long);
+  });
+
+  it('counts octets, never splitting a multi-byte character @g9', () => {
+    const line = `SUMMARY:${'é'.repeat(80)}`;
+    const physical = foldLine(line).split('\r\n');
+    for (const p of physical) expect(Buffer.byteLength(p, 'utf8')).toBeLessThanOrEqual(75);
+    expect(unfold(foldLine(line))).toBe(line);
+  });
+
+  it('serves exactly what the module builds @g9', () => {
+    expect(unfold(SPRINT_ICS).split('\r\n').slice(0, -1)).toEqual(SPRINT_LOGICAL.split('\n'));
   });
 });

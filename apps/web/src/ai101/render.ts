@@ -26,7 +26,7 @@
 // The `icons` subpath rather than the barrel: rendering a page of text should not evaluate all of
 // `@ai/core` (seeds, mutations, immer) just to read two SVG paths.
 import { ICONS, type IconName } from '@ai/core/icons';
-import { PAGE, UI, type Prompt } from './content';
+import { PAGE, UI, type ChecklistItem, type CopyOpen, type Inline, type Prompt, type Step } from './content';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
@@ -62,6 +62,41 @@ export function highlightPlaceholders(text: string): string {
   return esc(text).replace(/\[[^\]\n]*\]/g, (span) => `<mark class="placeholder">${span}</mark>`);
 }
 
+/** Every link that leaves the site opens in a new tab, and gives the new page no handle on this one. */
+const NEW_TAB = 'target="_blank" rel="noopener"';
+
+/**
+ * One run of inline copy (`content.ts`'s `Inline`). Every string is escaped here, so the only tags on
+ * the page are the ones this function writes — never one that came from the copy.
+ *
+ * A `{ button, phone }` renders BOTH and lets the CSS choose: `.desktop-only` and `.phone-only` switch
+ * on a coarse pointer or a narrow viewport, which needs no JavaScript and cannot flash.
+ */
+export function inline(segments: readonly Inline[]): string {
+  return segments
+    .map((seg) => {
+      if (typeof seg === 'string') return esc(seg);
+      if ('strong' in seg) return `<strong>${esc(seg.strong)}</strong>`;
+      if ('link' in seg) return `<a href="${esc(seg.href)}" ${NEW_TAB}>${esc(seg.link)}</a>`;
+      const button = `<a class="action" href="${esc(seg.href)}" ${NEW_TAB}>${esc(seg.button)}</a>`;
+      if (!seg.phone) return button;
+      return `<span class="desktop-only">${button}</span><span class="phone-only">${esc(seg.phone)}</span>`;
+    })
+    .join('');
+}
+
+/**
+ * A "Copy & open" link. A real `<a>`, so with JavaScript off it is still a link that opens the app;
+ * with it, `main.ts` copies the prompt in `data-copy-open`'s block first. `data-app` names the app
+ * for the two-tap fallback's "Copied. Open {app}".
+ */
+function copyOpenLink(open: CopyOpen, promptBlockId: string): string {
+  return (
+    `<a class="action" href="${esc(open.href)}" ${NEW_TAB} data-copy-open="${esc(promptBlockId)}" ` +
+    `data-app="${esc(open.app)}"><span data-copy-label>${esc(open.label)}</span></a>`
+  );
+}
+
 /**
  * The honeypot's label. The one string on the page that is not in `content.ts`, because no person
  * ever sees it: the field is off-screen and `aria-hidden`, so only a form-filling bot reads it.
@@ -88,18 +123,29 @@ export function renderAi101Head(): string {
  * drops list semantics from a list styled `list-style: none`, which this one is so the circles can
  * replace the markers, and VoiceOver would then stop saying "1 of 5".
  */
-const numbered = (items: readonly string[]) =>
-  `<ol class="steps" role="list">${items.map((item) => `<li><span>${esc(item)}</span></li>`).join('')}</ol>`;
+const numbered = (items: readonly Step[]) =>
+  `<ol class="steps" role="list">${items.map((item) => `<li>${stepBody(item)}</li>`).join('')}</ol>`;
+
+/** A step's content: its text, or its lead line and a bulleted list of the options under it. */
+function stepBody(item: Step): string {
+  if (typeof item === 'string') return `<span>${esc(item)}</span>`;
+  const options = item.options.map((option) => `<li>${inline(option)}</li>`).join('');
+  return `<div class="step-rich"><span>${esc(item.lead)}</span><ul class="options">${options}</ul></div>`;
+}
 
 /** A titled sub-block inside a section card: an <h3> and whatever it heads. */
 const block = (id: string, heading: string, body: string) =>
   `<div class="block">\n<h3 id="${esc(id)}">${esc(heading)}</h3>\n${body}\n</div>`;
 
-/** A section card. The <h2> names the landmark, so a screen reader's region list reads the page. */
-function section(anchor: string, heading: string, body: string[], className = 'card'): string {
+/**
+ * A section card. The <h2> names the landmark, so a screen reader's region list reads the page. A
+ * badge ("Phone or laptop · Free") sits above the heading, at the top of the card.
+ */
+function section(anchor: string, heading: string, body: string[], className = 'card', badge?: string): string {
   const headingId = `${anchor}-heading`;
   return [
     `<section id="${esc(anchor)}" class="${className}" aria-labelledby="${esc(headingId)}">`,
+    ...(badge ? [`<p class="badge">${esc(badge)}</p>`] : []),
     `<h2 id="${esc(headingId)}">${esc(heading)}</h2>`,
     ...body,
     `</section>`,
@@ -114,18 +160,26 @@ function section(anchor: string, heading: string, body: string[], className = 'c
  * a screen reader's button list, so `aria-describedby` points at the <h3>: "Copy prompt, Voice
  * profile prompt". Both icons are always in the markup; `[data-copied]` decides which one shows.
  */
-function promptBlock(prompt: Prompt, anchor: string): string {
+function promptBlock(prompt: Prompt, anchor: string, open: readonly CopyOpen[] = [], hint?: string): string {
   const id = `${anchor}-prompt`;
   const labelId = `${id}-label`;
+  const copy =
+    `<button type="button" class="copy" data-copy aria-describedby="${esc(labelId)}">` +
+    icon('copy', { className: 'icon-copy' }) +
+    icon('check', { className: 'icon-check' }) +
+    `<span data-copy-label>${esc(UI.copy)}</span></button>`;
+  // With Copy & open links the buttons get a row of their own under the label, which stacks on a
+  // phone; without, "Copy prompt" sits beside the label as it always has.
+  const actions = open.length
+    ? [`<div class="actions">${copy}${open.map((o) => copyOpenLink(o, id)).join('')}</div>`]
+    : [copy];
   return [
     `<div class="prompt" id="${esc(id)}" data-prompt="${esc(prompt.id)}">`,
-    `<div class="prompt-head">`,
+    `<div class="prompt-head${open.length ? ' stacked' : ''}">`,
     `<h3 id="${esc(labelId)}">${esc(prompt.label)}</h3>`,
-    `<button type="button" class="copy" data-copy aria-describedby="${esc(labelId)}">` +
-      icon('copy', { className: 'icon-copy' }) +
-      icon('check', { className: 'icon-check' }) +
-      `<span data-copy-label>${esc(UI.copy)}</span></button>`,
+    ...actions,
     `</div>`,
+    ...(hint ? [`<p class="hint">${esc(hint)}</p>`] : []),
     // Nothing between the tags but the prompt. See THE <pre> CONTRACT at the top of this file.
     `<pre data-prompt-text>${highlightPlaceholders(prompt.text)}</pre>`,
     `</div>`,
@@ -150,11 +204,12 @@ function layersTable(): string {
       (row) =>
         `<tr role="row">` +
         row
-          .map((cell, i) =>
-            i === 0
-              ? `<th scope="row" role="rowheader">${esc(cell)}</th>`
-              : `<td role="cell" data-label="${esc(columns[i] ?? '')}">${esc(cell)}</td>`,
-          )
+          .map((cell, i) => {
+            const content = typeof cell === 'string' ? esc(cell) : inline(cell);
+            return i === 0
+              ? `<th scope="row" role="rowheader">${content}</th>`
+              : `<td role="cell" data-label="${esc(columns[i] ?? '')}">${content}</td>`;
+          })
           .join('') +
         `</tr>`,
     )
@@ -175,13 +230,89 @@ function layersTable(): string {
  * transparent over the drawn `.box`, which is what makes the box itself the tap target.
  */
 function checklist(labelledBy: string): string {
-  const items = PAGE.carouselCreator.checklist.map(
-    ({ id, text }) =>
-      `<li><label><input type="checkbox" name="ai101-check" value="${esc(id)}" data-check-id="${esc(id)}"> ` +
+  const cc = PAGE.carouselCreator;
+  const promptId = `${cc.anchor}-prompt`;
+  const items = cc.checklist.map((item: ChecklistItem) => {
+    const { id, title, detail } = item;
+    const label =
+      `<label><input type="checkbox" name="ai101-check" value="${esc(id)}" data-check-id="${esc(id)}"> ` +
       `<span class="box" aria-hidden="true">${icon('check', { size: 13, strokeWidth: 3 })}</span> ` +
-      `<span>${esc(text)}</span></label></li>`,
-  );
+      `<span>${inline(title)}</span></label>`;
+    // The detail sits OUTSIDE the <label>: a link or button inside one would also become part of the
+    // checkbox's accessible name, and the whole paragraph would be read as the box's label.
+    const parts: string[] = [];
+    if (id === 'create-project') parts.push(copyOpenLink(cc.projectOpen, promptId));
+    if (detail) parts.push(inline(detail));
+    const body = parts.length ? `<div class="check-detail">${parts.join('')}</div>` : '';
+    const starters = id === 'first-idea' ? startersBlock() : '';
+    return `<li>${label}${body}${starters}</li>`;
+  });
   return `<ul class="checklist" role="list" aria-labelledby="${esc(labelledBy)}">\n${items.join('\n')}\n</ul>`;
+}
+
+/**
+ * The tap-to-copy starter ideas under the checklist's last item. Each chip copies its own text. The
+ * hint says "Tap one to copy it", which is only true with JavaScript, so it is `hidden` until
+ * `main.ts` has wired the chips; the chips themselves stay readable either way.
+ */
+function startersBlock(): string {
+  const { starters, startersHint } = PAGE.carouselCreator;
+  const chips = starters
+    .map((s) => `<li><button type="button" class="chip" data-copy-chip><span data-copy-label>${esc(s)}</span></button></li>`)
+    .join('');
+  return `<div class="check-detail starters"><ul class="chips" role="list">${chips}</ul><p class="hint" data-js-only hidden>${esc(startersHint)}</p></div>`;
+}
+
+/**
+ * "About you": optional fields that `main.ts` writes into the Carousel Creator instructions' last
+ * line as they are typed. `hidden` in the markup and shown by `main.ts`, because without JavaScript
+ * the fields would do nothing at all. Field names are scoped by `data-about-field`; the ids carry an
+ * `about-` prefix so none collides with the waitlist's.
+ */
+function aboutYou(anchor: string): string {
+  const a = PAGE.carouselCreator.aboutYou;
+  const headingId = `${anchor}-about-heading`;
+  const fields = a.fields.map((f) => {
+    const id = `about-${f.name}`;
+    const placeholder = 'placeholder' in f && f.placeholder ? ` placeholder="${esc(f.placeholder)}"` : '';
+    const control =
+      f.kind === 'textarea'
+        ? `<textarea id="${id}" name="${esc(f.name)}" rows="${f.rows}"${placeholder} data-about-field="${esc(f.name)}"></textarea>`
+        : `<input id="${id}" name="${esc(f.name)}" type="text"${placeholder} autocomplete="off" data-about-field="${esc(f.name)}">`;
+    return `<div class="field">\n<label for="${id}">${esc(f.label)}</label>\n${control}\n</div>`;
+  });
+  return [
+    `<div class="about" id="${esc(anchor)}-about" role="group" aria-labelledby="${esc(headingId)}" data-about hidden>`,
+    `<div class="about-head"><h3 id="${esc(headingId)}">${esc(a.heading)}</h3>` +
+      `<button type="button" class="text-button" data-about-clear>${esc(a.clear)}</button></div>`,
+    `<p class="hint">${esc(a.intro)}</p>`,
+    ...fields,
+    `</div>`,
+  ].join('\n');
+}
+
+/** "Before we start": the two app links, with each platform's store link for `main.ts` to swap in. */
+function getApp(): string {
+  const { lead, apps } = PAGE.getApp;
+  const links = apps
+    .map(
+      ({ label, href }) =>
+        `<a class="action" href="${esc(href.web)}" ${NEW_TAB} data-ios="${esc(href.ios)}" ` +
+        `data-android="${esc(href.android)}" data-get-app>${esc(label)}</a>`,
+    )
+    .join('');
+  return `<div class="get-app">\n<p><strong>${esc(lead)}</strong></p>\n<div class="actions">${links}</div>\n</div>`;
+}
+
+/** The sprint's two calendar links. The .ics stays in this tab, where iOS offers "Add to Calendar". */
+function calendarLinks(): string {
+  const { lead, apple, google } = PAGE.sprint.calendar;
+  return (
+    `<div class="calendar"><p>${esc(lead)}</p><div class="actions">` +
+    `<a class="action" href="${esc(apple.href)}">${esc(apple.label)}</a>` +
+    `<a class="action" href="${esc(google.href)}" ${NEW_TAB}>${esc(google.label)}</a>` +
+    `</div></div>`
+  );
 }
 
 /**
@@ -275,18 +406,34 @@ export function renderAi101Body(): string {
   return [
     `<main class="page">`,
     hero,
-    section(vp.anchor, vp.heading, [
-      `<p class="lede">${esc(vp.intro)}</p>`,
-      numbered(vp.steps),
-      promptBlock(vp.prompt, vp.anchor),
-    ]),
-    section(cc.anchor, cc.heading, [
-      `<p class="lede">${esc(cc.intro)}</p>`,
-      layersTable(),
-      block(checklistId, cc.checklistHeading, checklist(checklistId)),
-      promptBlock(cc.prompt, cc.anchor),
-      block(`${cc.anchor}-week`, cc.weekHeading, numbered(cc.week)),
-    ]),
+    getApp(),
+    section(
+      vp.anchor,
+      vp.heading,
+      [
+        `<p class="lede">${esc(vp.intro)}</p>`,
+        numbered(vp.steps),
+        promptBlock(vp.prompt, vp.anchor, vp.promptOpen, vp.promptHint),
+      ],
+      'card',
+      vp.badge,
+    ),
+    section(
+      cc.anchor,
+      cc.heading,
+      [
+        `<p class="lede">${esc(cc.intro)}</p>`,
+        // A share sheet with JavaScript (main.ts), an email to yourself without it.
+        `<p class="send"><a class="action" href="${esc(cc.sendToLaptop.href)}" data-share>${esc(cc.sendToLaptop.label)}</a></p>`,
+        layersTable(),
+        block(checklistId, cc.checklistHeading, checklist(checklistId)),
+        aboutYou(cc.anchor),
+        promptBlock(cc.prompt, cc.anchor),
+        block(`${cc.anchor}-week`, cc.weekHeading, numbered(cc.week)),
+      ],
+      'card',
+      cc.badge,
+    ),
     section(ownership.anchor, ownership.heading, [
       `<p class="lede">${esc(ownership.intro)}</p>`,
       numbered(ownership.items),
@@ -295,9 +442,10 @@ export function renderAi101Body(): string {
       `<p class="lede">${esc(sprint.intro)}</p>`,
       sprintWeeks(),
       `<p>${esc(sprint.outro)}</p>`,
+      calendarLinks(),
     ]),
     waitlist(),
-    // The one polite live region: "Voice profile prompt copied". Empty in the markup; `main.ts`
+    // The one polite live region: "Copied to clipboard." Empty in the markup; `main.ts`
     // clears and refills it so a second copy of the same prompt is announced again.
     `<p id="ai101-live" class="visually-hidden" aria-live="polite"></p>`,
     `</main>`,

@@ -1253,3 +1253,80 @@ ring or shadow; inactive rows are Ink (`--text-primary`) for label and icon, whe
   new pin against the guide's hex), `a11y.ts`, `signin.spec.ts` (one brand slot), `prefs.test.ts`,
   and the new `brand.spec.ts`.
 - `handoff-starter/` is frozen as the historical handoff and is not updated.
+
+## D-032 · /ai101 click paths: every setup step ends in one tap or one paste
+
+**Date:** 2026-10-07
+**Approved by:** Connor Leiva, in chat on 2026-10-07, supplying the brief "Handoff: AI 101 Setup Page,
+Click-Path Updates" for the eXpCon session on Thursday, October 8, 2026. The brief is not in the
+repository; its copy is in `apps/web/src/ai101/content.ts`, and its URLs are typed out as the oracle in
+`render.test.ts`. Its rule 8 — work on a branch, do not deploy until the preview is reviewed — is how
+this landed.
+**Scope:** `apps/web/src/ai101/{content,render,main,ai101.css}.ts|css`, their tests, the new
+`apps/api/src/routes/ai101-calendar.ts`, `apps/api/src/routes/ai101.ts` (one route), and
+`apps/api/test/{ai101,authz}.test.ts`.
+
+Amends D-028 (the page itself). Everything below is the brief's, except where it says otherwise.
+
+### What the page gained
+
+- **"Before we start: get the app and sign in."** between the jump links and Step 1. The links default
+  to the download pages; the script swaps in the App Store or Google Play by platform, treating a
+  "Macintosh" with touch as the iPad it is.
+- **Device badges** at the top of both step cards.
+- **Copy & open ChatGPT / Copy & open Claude** beside "Copy prompt", opening a BLANK chat. Never a
+  `?q=` prefill: ChatGPT's sends the prompt before its brackets are filled, Claude's shows a caution
+  banner. A test asserts no `?q=` anywhere on the page.
+- **Step 1 item 4** names where each app keeps instructions and links straight there; "custom GPT"
+  is gone, because free ChatGPT cannot create one and this step promises free. ChatGPT's link is
+  `chatgpt.com/settings/personalization?instructions=chatgpt`, which Connor supplied after the brief
+  (2026-10-07): it lands on Custom instructions itself, so the brief's "Scroll to Custom instructions
+  and click ChatGPT." is gone too, and the test oracle carries this URL in place of the brief's
+  `#settings/Personalization`. Phones still get the app's menu path instead. Items 1, 2, 3 and 5,
+  the voice profile prompt, and the Carousel Creator instructions are byte-for-byte unchanged
+  (checked against the pre-change file).
+- **Step 2:** `claude.ai/design` linked in the table; "Send this to my laptop" (the share sheet, or a
+  mailto: without one); the six-item checklist replaced by the brief's four; tap-to-copy starter
+  chips; and **About you**, whose fields are written live into the instructions' last line under the
+  brief's assembly rules, so what a visitor sees is what they copy. Saved in localStorage, every
+  access guarded.
+- **Sprint calendar:** "Apple or Outlook" and "Google Calendar".
+- After any copy the control reads "Copied" for two seconds and the live region says "Copied to
+  clipboard." (it said "{prompt} copied").
+
+### Calls made inside the brief
+
+- **Copy & open, one tap.** On a phone the app can take focus before an async `writeText` resolves,
+  and a rejected promise's fallback would then run too late. So the click starts BOTH writes: the
+  hidden-textarea `execCommand('copy')`, which finishes before the handler returns and so before the
+  link is followed, and `writeText`. They write the same text. This is unproven on real phones, so
+  the brief's two-tap fallback ("Copied. Open ChatGPT", then open) is built and tested too, behind a
+  one-character switch (`COPY_OPEN_TAPS` in `main.ts`).
+- **The checklist's links sit OUTSIDE each `<label>`.** The brief keeps the checkbox markup; the bold
+  title is the label, and the instructions, buttons and chips follow it. Inside the label, tapping
+  "Open Claude Design" would be part of the box's accessible name, and the whole paragraph would be
+  read as the checkbox.
+- **A button inside a sentence gets its own line.** Inline, a 44 px button split "Click New project,
+  top right." across lines on a phone. The phone path that replaces "Open ChatGPT settings" sits in
+  the same place.
+- **The .ics is a route, not a static file.** A static file counts against the global per-IP limit,
+  which a room behind one venue NAT shares — the reason D-028 exempted the page. The route serves
+  the same bytes at the same URL as `text/calendar; charset=utf-8`, CRLF, folded at 75 octets, and
+  is exempt. Its test holds it line for line to the brief's calendar, typed out in the test.
+- **Panels that only work with JavaScript render `hidden`** (About you, the chips' hint) and the
+  script reveals them; a visitor with scripting off sees prompts and plain links that work, and no
+  fields that do nothing.
+- **Section 8 (waitlist email) is a no-op:** the handler stores the sign-up and sends nothing, so
+  the form is unchanged, as the brief says for that case.
+
+### Not done, and why
+
+- **The jump links stay 32 px tall.** The brief's 44 px rule is in its button list; the jump links
+  are existing navigation it does not mention.
+- **No third-party iCalendar parse.** None is installed, and adding one is a download that needs the
+  owner's approval. The file is checked structurally against RFC 5545 and against the brief's text.
+- **Real-device behaviour** (app switching, store links, the share sheet, Add to Calendar) cannot be
+  tested from here. The brief's phone test list is the check, before deploy.
+
+Page weight: one response, 67 KB (18 KB gzipped), and still exactly five requests on load (the page
+and its four font files), measured before and after.

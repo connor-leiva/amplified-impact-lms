@@ -1,5 +1,6 @@
-// /ai101's only script: the two copy buttons, the checklist's memory, and the waitlist form.
-// DECISIONS.md D-028.
+// /ai101's only script: the copy buttons and "Copy & open" links, the starter chips, "About you",
+// the checklist's memory, the app-store links, "Send this to my laptop", and the waitlist form.
+// DECISIONS.md D-028 and D-032.
 //
 // It is inlined into the page as one `<script type="module">` (vite-plugin.ts), so it is part of the
 // first response and can never fail to load on its own. Everything it touches is already in the
@@ -24,6 +25,17 @@ import { UI } from './content';
 
 /** `localStorage` key for the checklist: a JSON array of the `data-check-id`s that are ticked. */
 const CHECKLIST_KEY = 'ai101-checklist';
+/** `localStorage` key for "About you": a JSON object of the five fields, as typed. */
+const ABOUT_KEY = 'ai101-about-you';
+/**
+ * Taps per "Copy & open" link. 1: the tap copies AND opens. 2: the first tap copies and the link then
+ * reads "Copied. Open ChatGPT"; the second opens. One tap is the brief's goal, but it has not been
+ * proven on every phone (the app can take focus before an async clipboard write lands), so two is a
+ * one-character fallback here — or `data-copy-open-taps="2"` on <main>, which the tests use.
+ */
+const COPY_OPEN_TAPS: 1 | 2 = 1;
+/** How long a two-tap link stays armed before it goes back to "Copy & open". */
+const ARMED_MS = 10000;
 /** How long a button says "Copied" (the spec's "for 2 seconds"). */
 const COPIED_MS = 2000;
 /**
@@ -73,6 +85,13 @@ function announcer(region: HTMLElement | null): (message: string) => void {
  */
 function legacyCopy(text: string, button: HTMLElement): boolean {
   const doc = button.ownerDocument;
+  // Where focus was, and whether it showed a ring, so it goes back exactly as it was. Focusing the
+  // buffer and then the button would otherwise draw a :focus-visible ring after a MOUSE click (a
+  // programmatic focus that follows a focused textarea counts as "visible"), and with Copy & open
+  // this path runs on every click, not only on the rare fallback.
+  const active = doc.activeElement;
+  const prev = active instanceof HTMLElement && active !== doc.body ? active : null;
+  const hadRing = prev !== null && showsFocusRing(prev);
   const buffer = doc.createElement('textarea');
   buffer.value = text;
   buffer.setAttribute('readonly', '');
@@ -90,8 +109,19 @@ function legacyCopy(text: string, button: HTMLElement): boolean {
     ok = false;
   }
   doc.body.removeChild(buffer);
-  button.focus({ preventScroll: true });
+  // Removing the focused buffer leaves focus on <body>, which is where it was if `prev` is null
+  // (Safari does not focus a button or link on click).
+  if (prev) prev.focus({ preventScroll: true, focusVisible: hadRing } as FocusOptions);
   return ok;
+}
+
+/** `:focus-visible`, where the browser knows it (Safari 15.4+); otherwise "no ring". */
+function showsFocusRing(el: HTMLElement): boolean {
+  try {
+    return el.matches(':focus-visible');
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -111,6 +141,49 @@ function copyText(text: string, button: HTMLElement): Promise<boolean> {
     }
   }
   return Promise.resolve(legacyCopy(text, button));
+}
+
+/**
+ * Copies `text` before the page can lose focus — for a link that is about to open an app. Both paths
+ * start inside the click: the legacy one FINISHES before this returns, so the clipboard is written
+ * before the browser follows the link even where `writeText` would still be pending when the app
+ * takes over; `writeText` covers the browsers where `execCommand` is a no-op. They write the same text,
+ * so whichever lands, the clipboard holds the prompt.
+ */
+function copyBeforeLeaving(text: string, el: HTMLElement): { done: boolean; pending: Promise<boolean> | null } {
+  const done = legacyCopy(text, el);
+  const clipboard = navigator.clipboard as Clipboard | undefined;
+  let pending: Promise<boolean> | null = null;
+  if (clipboard && typeof clipboard.writeText === 'function' && window.isSecureContext) {
+    try {
+      pending = clipboard.writeText(text).then(
+        () => true,
+        () => false,
+      );
+    } catch {
+      // A WebView whose `writeText` throws: only the legacy path's answer counts.
+    }
+  }
+  // `done` is known now; `pending` only later — possibly after the app has opened.
+  return { done, pending };
+}
+
+/** Shows "Copied" in `labelEl` for COPIED_MS, then puts `original` back. Returns the restart. */
+function flashCopied(el: HTMLElement, labelEl: Element, original: string): () => void {
+  let reset: ReturnType<typeof setTimeout> | undefined;
+  return () => {
+    // Held at its own width while the shorter "Copied" shows, so a button beside it in a row does not
+    // slide under the pointer and take a second click meant for this one.
+    if (!el.hasAttribute('data-copied')) el.style.minWidth = `${el.getBoundingClientRect().width}px`;
+    el.setAttribute('data-copied', '');
+    labelEl.textContent = UI.copied;
+    clearTimeout(reset);
+    reset = setTimeout(() => {
+      el.removeAttribute('data-copied');
+      labelEl.textContent = original;
+      el.style.minWidth = '';
+    }, COPIED_MS);
+  };
 }
 
 /** When nothing could write to the clipboard, select the prompt so the device's own Copy works. */
@@ -151,10 +224,326 @@ function initCopy(doc: Document, announce: (message: string) => void): void {
           button.removeAttribute('data-copied');
           labelEl.textContent = UI.copy;
         }, COPIED_MS);
-        announce(UI.copiedAnnouncement(name));
+        announce(UI.copiedAnnouncement);
       });
     });
   }
+}
+
+/** The prompt text a "Copy & open" link copies: its block's <pre>, as assembled right now. */
+function promptTextFor(doc: Document, blockId: string): string | null {
+  const pre = doc.getElementById(blockId)?.querySelector('pre[data-prompt-text]');
+  return pre ? (pre.textContent ?? '') : null;
+}
+
+function initCopyOpen(doc: Document, announce: (message: string) => void): void {
+  const main = doc.querySelector('main');
+  const taps = main?.getAttribute('data-copy-open-taps') === '2' ? 2 : COPY_OPEN_TAPS;
+  const links = Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[data-copy-open]'));
+  for (const link of links) {
+    const blockId = link.getAttribute('data-copy-open') ?? '';
+    const labelEl = link.querySelector('[data-copy-label]');
+    if (!labelEl || promptTextFor(doc, blockId) === null) continue;
+    const original = labelEl.textContent ?? '';
+    const app = link.getAttribute('data-app') ?? '';
+    // The prompt's own name, for the failure message: "Voice profile prompt is selected…".
+    const promptName = (doc.getElementById(blockId)?.querySelector('h3')?.textContent ?? '').trim();
+    const flash = flashCopied(link, labelEl, original);
+    let armed = false;
+    let disarm: ReturnType<typeof setTimeout> | undefined;
+    const reset = () => {
+      armed = false;
+      clearTimeout(disarm);
+      link.removeAttribute('data-armed');
+      labelEl.textContent = original;
+    };
+    /** From here until ARMED_MS passes, the next tap is the plain link: it opens the app. */
+    const arm = () => {
+      armed = true;
+      link.setAttribute('data-armed', '');
+      clearTimeout(disarm);
+      disarm = setTimeout(reset, ARMED_MS);
+    };
+    /** Nothing could copy: select the prompt, so the device's own Copy works, and say so. */
+    const failed = () => {
+      const pre = doc.getElementById(blockId)?.querySelector('pre[data-prompt-text]');
+      if (pre) selectContents(pre);
+      announce(UI.copyFailedAnnouncement(promptName));
+    };
+
+    link.addEventListener('click', (event) => {
+      // An armed link is just the link. That is the two-tap mode's second tap, and also the tap after
+      // a copy that could not be made — a failed copy must never leave the visitor without the app.
+      if (armed) {
+        reset();
+        return;
+      }
+      const text = promptTextFor(doc, blockId) ?? '';
+      if (taps === 1) {
+        const { done, pending } = copyBeforeLeaving(text, link);
+        if (done) {
+          flash();
+          announce(UI.copiedAnnouncement);
+          return; // and the link opens
+        }
+        if (pending) {
+          // Only "Copied" once it is true. The link opens either way; on a phone the app may already
+          // be in front when this resolves, and then there is nothing left to show.
+          void pending.then((ok) => {
+            if (!ok) return;
+            flash();
+            announce(UI.copiedAnnouncement);
+          });
+          return;
+        }
+        // Nothing on this device can write the clipboard. Stay, select the prompt so it can be
+        // copied by hand, and let the next tap open the app.
+        event.preventDefault();
+        failed();
+        arm();
+        return;
+      }
+      // Two taps. Armed at once, so a quick second tap opens even before the copy settles; the label
+      // says what happened once it has.
+      event.preventDefault();
+      arm();
+      void copyText(text, link).then((ok) => {
+        if (!armed) return; // already opened, or timed out
+        if (!ok) {
+          failed();
+          return;
+        }
+        labelEl.textContent = UI.copiedThenOpen(app);
+        announce(UI.copiedAnnouncement);
+      });
+    });
+  }
+}
+
+/** The starter ideas: each chip copies its own words. */
+function initChips(doc: Document, announce: (message: string) => void): void {
+  const chips = Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-copy-chip]'));
+  for (const chip of chips) {
+    const labelEl = chip.querySelector('[data-copy-label]');
+    if (!labelEl) continue;
+    const original = labelEl.textContent ?? '';
+    const flash = flashCopied(chip, labelEl, original);
+    chip.addEventListener('click', () => {
+      void copyText(original, chip).then((ok) => {
+        if (!ok) {
+          selectContents(labelEl);
+          announce(UI.copyFailedAnnouncement(original));
+          return;
+        }
+        flash();
+        announce(UI.copiedAnnouncement);
+      });
+    });
+  }
+}
+
+// --- About you ------------------------------------------------------------------------------------
+
+const ABOUT_FIELDS = ['niche', 'neighborhoods', 'questions', 'brokerage', 'voice'] as const;
+type AboutField = (typeof ABOUT_FIELDS)[number];
+type About = Record<AboutField, string>;
+const EMPTY_ABOUT: About = { niche: '', neighborhoods: '', questions: '', brokerage: '', voice: '' };
+
+/** One piece of the assembled prompt: text, or a placeholder drawn as a <mark>. */
+interface Piece {
+  text: string;
+  mark: boolean;
+}
+
+/** Splits template text into plain runs and its `[bracketed placeholders]`. */
+function bracketed(text: string): Piece[] {
+  const pieces: Piece[] = [];
+  const re = /\[[^\]\n]*\]/g;
+  let at = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    if (m.index > at) pieces.push({ text: text.slice(at, m.index), mark: false });
+    pieces.push({ text: m[0], mark: true });
+    at = m.index + m[0].length;
+  }
+  if (at < text.length) pieces.push({ text: text.slice(at), mark: false });
+  return pieces;
+}
+
+/**
+ * The Carousel Creator instructions with "About you" written in (D-032):
+ *   - all of niche, neighborhoods, questions and brokerage empty → the original last line, untouched;
+ *   - any of them filled → that line becomes a list, each empty field keeping its own bracket;
+ *   - a voice profile → appended after a blank line, under "My voice profile:".
+ * What a visitor TYPES is never a placeholder, so a bracket they type stays plain text.
+ * Exported for the tests.
+ */
+export function assembleCarousel(base: string, about: About): Piece[] {
+  const cut = base.lastIndexOf('\n') + 1;
+  const head = base.slice(0, cut);
+  const last = base.slice(cut);
+  const a = UI.aboutYou;
+  const value = (s: string) => s.trim();
+  const questions = about.questions
+    .split(/\r?\n/)
+    .map((q) => q.trim())
+    .filter(Boolean)
+    .join(a.questionJoin);
+  const vals = {
+    niche: value(about.niche),
+    neighborhoods: value(about.neighborhoods),
+    questions,
+    brokerage: value(about.brokerage),
+  };
+  const pieces = bracketed(head);
+  if (!vals.niche && !vals.neighborhoods && !vals.questions && !vals.brokerage) {
+    pieces.push(...bracketed(last));
+  } else {
+    const line = (key: keyof typeof vals, newline: boolean) => {
+      pieces.push({ text: a.lines[key], mark: false });
+      pieces.push(vals[key] ? { text: vals[key], mark: false } : { text: a.placeholders[key], mark: true });
+      if (newline) pieces.push({ text: '\n', mark: false });
+    };
+    pieces.push({ text: `${a.aboutMe}\n`, mark: false });
+    line('niche', true);
+    line('neighborhoods', true);
+    line('questions', true);
+    line('brokerage', false);
+  }
+  const voice = value(about.voice);
+  if (voice) pieces.push({ text: `\n\n${a.voiceHeading}\n`, mark: false }, { text: voice, mark: false });
+  return pieces;
+}
+
+/** Writes pieces into the <pre> through text nodes and <mark>s — never through innerHTML. */
+function paint(pre: Element, pieces: Piece[]): void {
+  const doc = pre.ownerDocument;
+  while (pre.firstChild) pre.removeChild(pre.firstChild);
+  for (const piece of pieces) {
+    if (!piece.mark) {
+      pre.appendChild(doc.createTextNode(piece.text));
+      continue;
+    }
+    const mark = doc.createElement('mark');
+    mark.className = 'placeholder';
+    mark.textContent = piece.text;
+    pre.appendChild(mark);
+  }
+}
+
+function loadAbout(): About {
+  try {
+    const raw = storage()?.getItem(ABOUT_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    const out: About = { ...EMPTY_ABOUT };
+    if (parsed && typeof parsed === 'object') {
+      for (const key of ABOUT_FIELDS) {
+        const v = (parsed as Record<string, unknown>)[key];
+        if (typeof v === 'string') out[key] = v;
+      }
+    }
+    return out;
+  } catch {
+    return { ...EMPTY_ABOUT };
+  }
+}
+
+function saveAbout(about: About | null): void {
+  try {
+    if (about === null) storage()?.removeItem(ABOUT_KEY);
+    else storage()?.setItem(ABOUT_KEY, JSON.stringify(about));
+  } catch {
+    // Full or blocked: the fields still fill the instructions for this visit.
+  }
+}
+
+function initAboutYou(doc: Document): void {
+  const panel = doc.querySelector<HTMLElement>('[data-about]');
+  const pre = doc.querySelector('[data-prompt="carousel_creator"] pre[data-prompt-text]');
+  if (!panel || !pre) return;
+  const base = pre.textContent ?? '';
+  // The rules replace the instructions' LAST line, so it has to be the "About me" line it was
+  // written for. If the prompt is ever edited so it is not, leave everything as rendered.
+  if (!base.slice(base.lastIndexOf('\n') + 1).startsWith(UI.aboutYou.aboutMe)) return;
+
+  const inputs = new Map<AboutField, HTMLInputElement | HTMLTextAreaElement>();
+  for (const key of ABOUT_FIELDS) {
+    const el = panel.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[data-about-field="${key}"]`);
+    if (el) inputs.set(key, el);
+  }
+  const read = (): About => {
+    const about: About = { ...EMPTY_ABOUT };
+    for (const [key, el] of inputs) about[key] = el.value;
+    return about;
+  };
+  const render = () => paint(pre, assembleCarousel(base, read()));
+
+  const saved = loadAbout();
+  for (const [key, el] of inputs) if (saved[key]) el.value = saved[key];
+  panel.hidden = false;
+  render();
+
+  for (const el of inputs.values()) {
+    el.addEventListener('input', () => {
+      render();
+      saveAbout(read());
+    });
+  }
+  panel.querySelector('[data-about-clear]')?.addEventListener('click', () => {
+    for (const el of inputs.values()) el.value = '';
+    saveAbout(null);
+    render();
+    // Focus stays on Clear. Moving it into a field would raise a phone's keyboard for nothing.
+  });
+}
+
+// --- Get the app, and Send this to my laptop -----------------------------------------------------------
+
+/** iPhone, iPad or Android, from the user agent. iPadOS can report a Mac, so a Mac with touch is an iPad. */
+function platform(): 'ios' | 'android' | null {
+  const ua = navigator.userAgent || '';
+  if (/Android/i.test(ua)) return 'android';
+  if (/iPhone|iPad|iPod/.test(ua)) return 'ios';
+  if (/Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1) return 'ios';
+  return null;
+}
+
+function initGetApp(doc: Document): void {
+  const os = platform();
+  if (!os) return;
+  for (const link of Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[data-get-app]'))) {
+    const store = link.getAttribute(`data-${os}`);
+    if (store) link.setAttribute('href', store);
+  }
+}
+
+function initShare(doc: Document): void {
+  const link = doc.querySelector<HTMLAnchorElement>('a[data-share]');
+  if (!link) return;
+  link.addEventListener('click', (event) => {
+    if (typeof navigator.share !== 'function') return; // the mailto: link, as written
+    event.preventDefault();
+    const toMail = () => {
+      window.location.href = link.href;
+    };
+    try {
+      navigator.share({ title: UI.share.title, url: UI.share.url }).then(
+        () => undefined,
+        (err: unknown) => {
+          // Closing the share sheet is not a failure.
+          if (err && typeof err === 'object' && (err as { name?: unknown }).name === 'AbortError') return;
+          toMail();
+        },
+      );
+    } catch {
+      toMail();
+    }
+  });
+}
+
+/** Elements that only make sense once this script is running carry `hidden data-js-only`. */
+function revealScripted(doc: Document): void {
+  for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[data-js-only]'))) el.hidden = false;
 }
 
 // --- Checklist ----------------------------------------------------------------------------------
@@ -341,8 +730,15 @@ function initWaitlist(doc: Document): void {
 
 function boot(doc: Document): void {
   const announce = announcer(doc.getElementById('ai101-live'));
+  // About you first: it rewrites the Carousel Creator <pre>, which the copy buttons read on click.
+  guard(() => initAboutYou(doc));
   guard(() => initCopy(doc, announce));
+  guard(() => initCopyOpen(doc, announce));
+  guard(() => initChips(doc, announce));
   guard(() => initChecklist(doc));
+  guard(() => initGetApp(doc));
+  guard(() => initShare(doc));
+  guard(() => revealScripted(doc));
   guard(() => initWaitlist(doc));
 }
 

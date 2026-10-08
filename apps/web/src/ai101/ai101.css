@@ -230,7 +230,7 @@ a:focus-visible {
   justify-content: center;
   gap: 8px;
   min-width: 140px;
-  height: 36px;
+  height: 44px;
   padding: 0 14px;
   border: 1px solid var(--action-secondary-line);
   border-radius: 8px;
@@ -259,6 +259,20 @@ a:focus-visible {
 .copy[data-copied] .icon-check {
   display: block;
   color: var(--status-success-text);
+}
+/* 36px only with a mouse. A phone held sideways and every iPad are wider than 640px and still a
+   finger, so they keep the 44px target. */
+@media (min-width: 640px) and (pointer: fine) {
+  .copy {
+    height: 36px;
+  }
+}
+
+/* The voice profile prompt has three buttons, so its label gets a line of its own and the buttons a
+   row under it (`.actions`, which stacks on a phone). */
+.prompt-head.stacked {
+  flex-direction: column;
+  align-items: stretch;
 }
 
 /* --- The layers table ------------------------------------------------------------------------- */
@@ -614,6 +628,284 @@ a:focus-visible {
   display: none;
 }
 
+/* --- Click-path additions (D-032) ------------------------------------------------------------ */
+
+/* Bold at the weight the page loads. 700 is not loaded, and a browser would fake it. */
+.page strong {
+  font-weight: 600;
+}
+
+/* `hidden` has to win over every `display` below: the panels main.ts reveals are hidden markup, and
+   a rule that sets `display` would otherwise show them to a visitor with no JavaScript. */
+.page [hidden] {
+  display: none !important;
+}
+
+/* A link drawn as Button.module.css's secondary button: a 44px tap target on a phone, 36px from
+   640px. The global `a:hover` underline and link colour are not for buttons. */
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--action-secondary-line);
+  border-radius: 8px;
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  outline: none;
+  transition: background 120ms;
+}
+.action:hover {
+  background: var(--action-secondary-hover);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.action:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+@media (min-width: 640px) and (pointer: fine) {
+  .action {
+    min-height: 36px;
+  }
+}
+
+/* A row of buttons: stacked and full width under a thumb, a wrapping row from 640px. */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.actions > * {
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .actions > * {
+    width: auto;
+  }
+}
+
+/* Helper lines under buttons, and "All fields are optional." */
+.hint {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+/* "Phone or laptop · Free": the top of a step card. The card's 16px gap is pulled in under it so the
+   badge reads as the heading's, not as a line of its own. */
+.badge {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+.badge + h2 {
+  margin-top: -8px;
+}
+
+/* "Before we start", between the jump links and Step 1. */
+.get-app {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 14px;
+  background: var(--bg-surface);
+}
+@media (min-width: 640px) {
+  .get-app {
+    padding: 20px 24px;
+  }
+}
+
+/* Step 1 item 4: a lead line and its bulleted options, each with a button inside the sentence. */
+.step-rich {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+}
+/* A button inside a sentence ("[Open Claude Projects] Click New project, top right.") gets a line of
+   its own, and the sentence carries on under it: inline, a 44px button splits the words around it
+   across lines. Full width under a thumb, its own width from 640px. */
+.options .action,
+.check-detail .action {
+  display: flex;
+  width: 100%;
+  margin: 6px 0;
+}
+@media (min-width: 640px) {
+  .options .action,
+  .check-detail .action {
+    width: fit-content;
+  }
+}
+
+/* On a phone (a coarse pointer or a narrow screen), the ChatGPT settings link is replaced by the path
+   to the same screen in the app: the link is only verified on desktop web. */
+.phone-only {
+  display: none;
+}
+@media (pointer: coarse), (max-width: 639px) {
+  .desktop-only {
+    display: none;
+  }
+  /* In the button's place: its own line, so it reads as the step it replaces. */
+  .phone-only {
+    display: block;
+    margin: 6px 0;
+  }
+}
+
+/* What to do for a checklist item, under its label and aligned with its text (22px box + 12px). */
+.check-detail {
+  margin: 0 0 8px 34px;
+  font-size: 15px;
+  line-height: 22px;
+}
+.starters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* The tap-to-copy starter ideas. */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chip {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--action-secondary-line);
+  border-radius: 22px;
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: background 120ms;
+}
+.chip:hover {
+  background: var(--action-secondary-hover);
+}
+.chip:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.chip[data-copied] {
+  border-color: var(--status-success-line);
+}
+
+/* "Send this to my laptop": one button, full width under a thumb. */
+.send .action {
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .send .action {
+    width: auto;
+  }
+}
+
+/* About you: optional fields that write themselves into the instructions below. */
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 10px;
+  background: var(--bg-sunken);
+}
+.about-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.text-button {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--text-link);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+}
+.text-button:hover {
+  color: var(--text-link-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.text-button:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* The waitlist field's look, for a textarea. 16px for the same iOS zoom reason. */
+.field textarea {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  resize: vertical;
+  outline: none;
+}
+.field textarea:focus-visible {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* About you's text fields at the 44px tap target. The waitlist's keep the 40px Field.module.css has. */
+.about .field input {
+  height: 44px;
+}
+
+/* "Add the sprint to your calendar". */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* --- Utilities -------------------------------------------------------------------------------- */
 
 /* SessionCard.module.css's visually-hidden rule, verbatim. */
@@ -644,7 +936,9 @@ a:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .copy,
-  .submit {
+  .submit,
+  .action,
+  .chip {
     transition: none;
   }
 }
