@@ -28,7 +28,18 @@ import { sql } from 'drizzle-orm';
 import { build, cspScriptHashes } from '../src/app';
 import type { App, BuildOptions } from '../src/app';
 import { ai101Waitlist } from '../src/db/schema';
-import { ai101Location, etagMatches, pageEtag, validateWaitlist } from '../src/routes/ai101';
+import {
+  ai101Location,
+  etagMatches,
+  normalizePhone,
+  pageEtag,
+  SMS_CONSENT_TEXT,
+  TERMS_VERSION,
+  validateWaitlist,
+} from '../src/routes/ai101';
+// The page's own copy, for the one test that holds the API's stored consent wording to it. Test-only:
+// `src/` never imports the web app.
+import { PAGE as WEB_PAGE } from '../../web/src/ai101/content';
 import { foldLine, SPRINT_ICS } from '../src/routes/ai101-calendar';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -499,7 +510,7 @@ describe('the waitlist never logs a name or an address (D-028) @g9', () => {
   it('not on success, a duplicate or a honeypot @g9', async () => {
     const lines: string[] = [];
     await logged(lines);
-    const body = { ...valid, firstName: NAME, email: ADDRESS };
+    const body = { ...valid, firstName: NAME, email: ADDRESS, phone: '(860) 555-0199', smsConsent: true };
     expect((await postJson(body)).statusCode).toBe(201);
     expect((await postJson(body)).statusCode).toBe(201);
     expect((await postJson({ ...body, website: 'x' })).statusCode).toBe(201);
@@ -509,6 +520,9 @@ describe('the waitlist never logs a name or an address (D-028) @g9', () => {
     expect(log).toContain('honeypot filled');
     expect(log.toLowerCase()).not.toContain(ADDRESS);
     expect(log).not.toContain(NAME);
+    // Nor the number (D-034): only whether texts were agreed to.
+    expect(log).not.toMatch(/555.?0199/);
+    expect(log).toContain('"sms":true');
   });
 
   it('not when the insert fails, where drizzle puts every parameter in the message @g9', async () => {
@@ -536,6 +550,115 @@ describe('the waitlist never logs a name or an address (D-028) @g9', () => {
     expect(log).toContain('42P01');
     expect(log.toLowerCase()).not.toContain(ADDRESS);
     expect(log).not.toContain(NAME);
+  });
+});
+
+// ================================================================================================
+// Consent (D-034)
+// ================================================================================================
+
+/**
+ * The SMS box's label, typed out: the oracle both copies (the API's `SMS_CONSENT_TEXT`, stored with
+ * every "yes", and the page's `PAGE.waitlist.sms`, which the visitor reads) are held to.
+ */
+const SMS_WORDS =
+  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+
+describe('the waitlist records consent (D-034) @g9', () => {
+  beforeEach(async () => {
+    await resetDatabase();
+    await fresh();
+  });
+
+  it('stores the words a visitor sees on the page, exactly @g9', () => {
+    expect(SMS_CONSENT_TEXT).toBe(SMS_WORDS);
+    expect(WEB_PAGE.waitlist.sms).toBe(SMS_WORDS);
+    expect(TERMS_VERSION).toBe('2026-10-08');
+  });
+
+  it('a ticked box with a number stores the consent and its proof: the number, the time, the words @g9', async () => {
+    const res = await postJson({ ...valid, phone: '(860) 555-1234', smsConsent: true });
+    expect(res.statusCode).toBe(201);
+    expect(await rows()).toEqual([
+      expect.objectContaining({
+        email: 'pat@example.com',
+        phone: '+18605551234',
+        smsConsent: true,
+        smsConsentAt: NOW,
+        smsConsentText: SMS_WORDS,
+        termsVersion: '2026-10-08',
+      }),
+    ]);
+  });
+
+  it('a number without the box is kept, with no consent and no proof @g9', async () => {
+    expect((await postJson({ ...valid, phone: '860-555-1234' })).statusCode).toBe(201);
+    expect(await rows()).toEqual([
+      expect.objectContaining({
+        phone: '+18605551234',
+        smsConsent: false,
+        smsConsentAt: null,
+        smsConsentText: null,
+        termsVersion: '2026-10-08',
+      }),
+    ]);
+  });
+
+  it('no number and no box: email consent and the Terms only @g9', async () => {
+    expect((await postJson({ ...valid, phone: '', smsConsent: false })).statusCode).toBe(201);
+    expect(await rows()).toEqual([
+      expect.objectContaining({ phone: null, smsConsent: false, smsConsentAt: null, smsConsentText: null, termsVersion: '2026-10-08' }),
+    ]);
+  });
+
+  it("refuses the phone field in the page's words, in form order, and stores nothing @g9", async () => {
+    const forTexts = { error: 'Add your mobile number to get texts.', field: 'phone' };
+    const invalid = { error: 'Enter a valid mobile number.', field: 'phone' };
+    const cases: [Record<string, unknown>, object][] = [
+      [{ ...valid, smsConsent: true }, forTexts],
+      [{ ...valid, phone: '   ', smsConsent: true }, forTexts],
+      [{ ...valid, phone: '555-1234' }, invalid],
+      [{ ...valid, phone: '555-1234', smsConsent: true }, invalid],
+      [{ ...valid, phone: '8'.repeat(25) }, invalid],
+      // Form order: name, email, phone, brokerage.
+      [{ ...valid, email: 'nope', phone: '555-1234' }, { error: 'Enter a valid email address.', field: 'email' }],
+      [{ ...valid, phone: '555-1234', brokerage: 'b'.repeat(121) }, invalid],
+    ];
+    for (const [body, expected] of cases) {
+      const res = await postJson(body);
+      expect(res.statusCode, JSON.stringify(body).slice(0, 80)).toBe(400);
+      expect(res.json(), JSON.stringify(body).slice(0, 80)).toEqual(expected);
+    }
+    expect(await rows()).toEqual([]);
+  });
+
+  it('the no-JS form: a ticked box posts "on" and is stored; ticked with no number goes back to the error line @g9', async () => {
+    const ok = await postForm({ ...valid, phone: '+1 860 555 1234', smsConsent: 'on' });
+    expect(ok.statusCode).toBe(303);
+    expect(ok.headers.location).toBe('/ai101#waitlist-joined');
+    const bad = await postForm({ ...valid, email: 'other@example.com', smsConsent: 'on' });
+    expect(bad.headers.location).toBe('/ai101#waitlist-error');
+    expect(await rows()).toEqual([
+      expect.objectContaining({ email: 'pat@example.com', phone: '+18605551234', smsConsent: true, smsConsentText: SMS_WORDS }),
+    ]);
+  });
+
+  it('the database itself refuses a "yes" without its proof @g9', async () => {
+    // The CHECK the GHL migration added (`ai101_waitlist_sms_consent_proof`): the route can never
+    // store one, and neither can anything else that writes to the table.
+    const db = await testDatabase();
+    await expect(
+      db.insert(ai101Waitlist).values({
+        id: 'wl-check',
+        firstName: 'Pat',
+        email: 'pat@example.com',
+        source: 'expcon-2026-ai101',
+        createdAt: NOW,
+        smsConsent: true,
+        phone: '+18605551234',
+      }),
+    ).rejects.toThrow();
+    expect(await rows()).toEqual([]);
   });
 });
 
@@ -602,8 +725,31 @@ describe('validateWaitlist and etagMatches (D-028) @g9', () => {
   it('normalizes a valid sign-up @g9', () => {
     expect(validateWaitlist({ firstName: ' Pat ', email: ' PAT@Example.com ', brokerage: '  ', src: ' qr ' })).toEqual({
       kind: 'valid',
-      entry: { firstName: 'Pat', email: 'pat@example.com', brokerage: null, src: 'qr' },
+      entry: { firstName: 'Pat', email: 'pat@example.com', phone: null, brokerage: null, smsConsent: false, src: 'qr' },
     });
+  });
+
+  it('normalizes a mobile number to E.164, or refuses it @g9', () => {
+    expect(normalizePhone('(860) 555-1234')).toBe('+18605551234');
+    expect(normalizePhone('860.555.1234')).toBe('+18605551234');
+    expect(normalizePhone('1 860 555 1234')).toBe('+18605551234');
+    expect(normalizePhone('+1 (860) 555-1234')).toBe('+18605551234');
+    expect(normalizePhone('+44 20 7946 0958')).toBe('+442079460958');
+    for (const bad of ['555-1234', '2 860 555 1234', '+12', '+1234567890123456', 'call me', '']) {
+      expect(normalizePhone(bad), bad).toBeNull();
+    }
+  });
+
+  it('counts the SMS box as ticked only for true, "on" or "true" @g9', () => {
+    const sms = (smsConsent: unknown) => {
+      const v = validateWaitlist({ ...valid, phone: '8605551234', smsConsent: smsConsent as never });
+      return v.kind === 'valid' ? v.entry.smsConsent : v;
+    };
+    expect(sms(true)).toBe(true);
+    expect(sms('on')).toBe(true);
+    expect(sms(' ON ')).toBe(true);
+    expect(sms('true')).toBe(true);
+    for (const no of [false, 'off', 'false', '', 'yes', '1', null, undefined]) expect(sms(no), String(no)).toBe(false);
   });
 
   it('checks the honeypot before anything else @g9', () => {

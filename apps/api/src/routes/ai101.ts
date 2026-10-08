@@ -1,5 +1,5 @@
 // The public /ai101 page and its December waitlist — the eXpCon 2026 kit page for "Sounds Like You,
-// Looks Like You: AI 101 for Agents". DECISIONS.md D-028.
+// Looks Like You: AI 101 for Agents". DECISIONS.md D-028, and D-034 for the consent it records.
 //
 //   GET  /ai101                     → the built page, from memory; 304 on a matching ETag
 //   GET  /AI101, /ai-101, /ai101/   → 301 to /ai101, query string kept byte for byte
@@ -85,7 +85,19 @@
 // the honeypot line carries nothing. A failed insert is the trap: drizzle wraps a driver error in a
 // `DrizzleQueryError` whose MESSAGE is "Failed query: … params: <every bound value>", so letting it
 // reach `app.ts`'s error handler would write the visitor's email and name into the 5xx log line.
-// The handler catches it and logs the Postgres error code instead.
+// The handler catches it and logs the Postgres error code instead. The phone number is never logged
+// either.
+//
+// ================================================================================================
+// CONSENT (D-034)
+// ================================================================================================
+// Joining is email consent and agreement to the Terms of Service and Privacy Policy, so every row
+// records WHICH version of those it agreed to (`terms_version`). Texts are separate: the page's SMS
+// box is unchecked and optional, and only a ticked box with a valid mobile number records
+// `sms_consent`, together with its proof: the time and the exact words the visitor saw
+// (`SMS_CONSENT_TEXT`, a copy of the page's label that a test holds equal). The database refuses a
+// "yes" without all three (`ai101_waitlist_sms_consent_proof`). A number given without the box is
+// kept, but never texted: the GoHighLevel sync sends a number only with consent (D-033).
 
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
@@ -117,9 +129,9 @@ export const WAITLIST_RATE_WINDOW = '1 minute';
 /**
  * The largest waitlist body accepted, JSON or form.
  *
- * The form's own `maxlength`s are 80 + 254 + 120 characters, and the worst a browser can make of
- * that is every character a three-byte UTF-8 sequence percent-encoded as nine bytes: about 4 KiB
- * with the field names. 8 KiB holds that with room, and keeps the one unauthenticated POST in the
+ * The form's own `maxlength`s are 80 + 254 + 24 + 120 characters (the phone's since D-034), and the
+ * worst a browser can make of that is every character a three-byte UTF-8 sequence percent-encoded as
+ * nine bytes: about 4.3 KiB with the field names and the SMS box's `on`. 8 KiB holds that with room, and keeps the one unauthenticated POST in the
  * API from being a way to buy the app-wide 1 MiB of parsing per request.
  */
 export const WAITLIST_BODY_LIMIT = 8 * 1024;
@@ -144,10 +156,29 @@ export const WAITLIST_ERROR_LOCATION = `${AI101_PATH}#waitlist-error`;
 export const WAITLIST_ERRORS = {
   firstName: 'Enter your first name.',
   email: 'Enter a valid email address.',
+  phone: 'Enter a valid mobile number.',
   brokerage: 'Enter a brokerage name under 120 characters.',
 } as const;
 
+/** The SMS box ticked with no number: refused against the phone field, in the page's words. */
+export const WAITLIST_PHONE_FOR_TEXTS = 'Add your mobile number to get texts.';
+
 export type WaitlistField = keyof typeof WAITLIST_ERRORS;
+
+/**
+ * The SMS checkbox's label, word for word: what a visitor who ticks it agreed to, stored with the
+ * sign-up as the proof carriers ask for. A second copy of `PAGE.waitlist.sms` in the web app's
+ * `content.ts` (the API cannot import the web app's source); `test/ai101.test.ts` holds them equal,
+ * so an edit to one without the other fails the build rather than storing words nobody saw.
+ */
+export const SMS_CONSENT_TEXT =
+  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+
+/**
+ * The version of the Terms of Service and Privacy Policy a sign-up agrees to by joining: their
+ * effective date. Change it when either page changes in substance.
+ */
+export const TERMS_VERSION = '2026-10-08';
 
 /** The sign-in screen's rule (`apps/web/src/routes/auth/SignIn.tsx`), so the product has one. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -171,7 +202,20 @@ const BROKERAGE_MAX = 120;
  * reasonable thing for a client to send, and refusing it would be refusing a sign-up over a type.
  */
 const text = z.string().nullish();
-const waitlistBody = z.object({ firstName: text, email: text, brokerage: text, website: text, src: text });
+/**
+ * The SMS box: `true` from the page's script, `"on"` from a plain form post (a checkbox's value),
+ * absent when unticked. Anything else is a "no": consent is never inferred.
+ */
+const consent = z.union([z.boolean(), z.string()]).nullish();
+const waitlistBody = z.object({
+  firstName: text,
+  email: text,
+  phone: text,
+  brokerage: text,
+  smsConsent: consent,
+  website: text,
+  src: text,
+});
 
 export type WaitlistInput = z.infer<typeof waitlistBody>;
 
@@ -179,9 +223,36 @@ export type WaitlistInput = z.infer<typeof waitlistBody>;
 export interface WaitlistEntry {
   firstName: string;
   email: string;
+  /** E.164, or null when none was given. */
+  phone: string | null;
   brokerage: string | null;
+  /** True only for a ticked box WITH a valid number. */
+  smsConsent: boolean;
   src: string | null;
 }
+
+/**
+ * A US or international mobile number as E.164 ("+18605551234"), or null when it is not one. Ten
+ * digits are a US number; anything else needs its country code. The page applies the same rule
+ * (`normalizePhone` in `apps/web/src/ai101/main.ts`), so a number it let through is not refused here.
+ */
+export function normalizePhone(input: string): string | null {
+  const trimmed = input.trim();
+  const digits = trimmed.replace(/\D/g, '');
+  if (trimmed.startsWith('+')) return digits.length >= 8 && digits.length <= 15 ? `+${digits}` : null;
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits[0] === '1') return `+${digits}`;
+  return null;
+}
+
+/** Whether the SMS box was ticked: `true`, or a form's `"on"` (or `"true"`). Nothing else. */
+function ticked(value: boolean | string | null | undefined): boolean {
+  if (value === true) return true;
+  return typeof value === 'string' && ['on', 'true'].indexOf(value.trim().toLowerCase()) !== -1;
+}
+
+/** The longest phone the field takes (its `maxlength`): room for spaces, dashes and a country code. */
+const PHONE_MAX = 24;
 
 export type WaitlistVerdict =
   | { kind: 'valid'; entry: WaitlistEntry }
@@ -214,6 +285,17 @@ export function validateWaitlist(input: WaitlistInput): WaitlistVerdict {
     return { kind: 'invalid', field: 'email', error: WAITLIST_ERRORS.email };
   }
 
+  // Optional; when given it must be a real number. The SMS box needs one.
+  const rawPhone = (input.phone ?? '').trim();
+  const phone = rawPhone === '' ? null : rawPhone.length > PHONE_MAX ? null : normalizePhone(rawPhone);
+  if (rawPhone !== '' && phone === null) {
+    return { kind: 'invalid', field: 'phone', error: WAITLIST_ERRORS.phone };
+  }
+  const smsConsent = ticked(input.smsConsent);
+  if (smsConsent && phone === null) {
+    return { kind: 'invalid', field: 'phone', error: WAITLIST_PHONE_FOR_TEXTS };
+  }
+
   const brokerage = (input.brokerage ?? '').trim();
   if (brokerage.length > BROKERAGE_MAX) {
     return { kind: 'invalid', field: 'brokerage', error: WAITLIST_ERRORS.brokerage };
@@ -225,7 +307,14 @@ export function validateWaitlist(input: WaitlistInput): WaitlistVerdict {
 
   return {
     kind: 'valid',
-    entry: { firstName, email, brokerage: brokerage === '' ? null : brokerage, src: SRC.test(src) ? src : null },
+    entry: {
+      firstName,
+      email,
+      phone,
+      brokerage: brokerage === '' ? null : brokerage,
+      smsConsent,
+      src: SRC.test(src) ? src : null,
+    },
   };
 }
 
@@ -329,9 +418,19 @@ function bodyKind(contentType: string | undefined): 'json' | 'form' | null {
  * under one) would turn the second sign-up into a primary-key violation.
  */
 async function insertSignUp(entry: WaitlistEntry): Promise<{ duplicate: boolean }> {
+  const now = clock.now();
   const inserted = await getDb()
     .insert(ai101Waitlist)
-    .values({ id: randomIds()('wl'), ...entry, source: WAITLIST_SOURCE, createdAt: clock.now() })
+    .values({
+      id: randomIds()('wl'),
+      ...entry,
+      // The SMS proof, all of it or none of it (the table's CHECK refuses a "yes" without it).
+      smsConsentAt: entry.smsConsent ? now : null,
+      smsConsentText: entry.smsConsent ? SMS_CONSENT_TEXT : null,
+      termsVersion: TERMS_VERSION,
+      source: WAITLIST_SOURCE,
+      createdAt: now,
+    })
     // The pair the unique index is on, named rather than left bare: a bare `do nothing` would also
     // swallow a primary-key collision, which is a bug to hear about rather than a duplicate.
     .onConflictDoNothing({ target: [ai101Waitlist.email, ai101Waitlist.source] })
@@ -385,7 +484,9 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
         // Only reachable as JSON — a form body is all strings by construction — and only by a
         // client that is not the page's own script, so there is no field to point at.
         if (!parsed.success) {
-          return reply.code(400).send({ error: 'Expected a JSON body of { firstName, email, brokerage?, website?, src? }.' });
+          return reply
+            .code(400)
+            .send({ error: 'Expected a JSON body of { firstName, email, phone?, brokerage?, smsConsent?, website?, src? }.' });
         }
 
         const verdict = validateWaitlist(parsed.data);
@@ -397,7 +498,8 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
 
         try {
           const { duplicate } = await insertSignUp(verdict.entry);
-          req.log.info({ src: verdict.entry.src, duplicate }, 'ai101 waitlist: sign-up recorded');
+          // Whether texts were agreed to, never the number itself.
+          req.log.info({ src: verdict.entry.src, duplicate, sms: verdict.entry.smsConsent }, 'ai101 waitlist: sign-up recorded');
         } catch (err: unknown) {
           // NOT rethrown to `app.ts`'s handler, which would log the error whole — and drizzle's
           // message carries every bound parameter, i.e. this visitor's email and name. See the
