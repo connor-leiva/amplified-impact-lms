@@ -1588,7 +1588,8 @@ to the design), each finding re-checked by a second reviewer. Fixed:
 Accepted, not fixed today: without JavaScript a phone mistake lands on the generic error line, and a
 few lines of copy ("Tap one to copy it") assume the script; the stored SMS wording is the server's
 current constant, so it must not change while visitors have the page open (said at the constant);
-the Terms and Privacy pages are drafts, and the sign-up line points at them (Connor's call, below).
+the Terms and Privacy pages were drafts when the review ran; Connor supplied their facts the same night
+(D-035) and they went live with this page.
 
 
 ## D-035 · /terms and /privacy: draft legal pages for the /ai101 waitlist's consent
@@ -1647,7 +1648,16 @@ ignores `terms.html` and `privacy.html` so each page has one URL. `marketing.ts`
 `/terms-old` still go to the placeholder. Both routes are in `authz.test.ts`'s inventory as `page`.
 
 **Open, and Connor's (or a lawyer's) call before launch:**
-- Fill every placeholder, have the words reviewed, then set `DRAFT = false`.
+- ~~Fill every placeholder, have the words reviewed, then set `DRAFT = false`.~~ **Done 2026-10-08:**
+  Connor supplied the facts (Amplified Impact, LLC; SB Coaching, LLC for Spring B; Spring Bengtzen
+  and Connor Leiva; admin@amplifiedimpact.io for contact and privacy; 1173 N Shepard Crk Pkwy Ste A,
+  Farmington, UT 84025; Utah law, Davis County; the $100 cap) and asked for recommended retention
+  periods, which are now the standard: the waitlist while someone is on it and up to two years after
+  the last contact; consent and opt-out records five years after they are given or withdrawn (TCPA
+  claims can be brought for four); technical logs up to 30 days (Railway's log retention, as the
+  plan in use keeps them). Neither LLC's state of formation was given, so the entity sentences name
+  the company only; the venue is the Davis County state courts or the District of Utah, since no
+  federal court sits in Davis County. `DRAFT = false`. A lawyer's read is still recommended.
 - The consent names several senders, including "Spring B and its affiliated companies". 10DLC
   campaign vetting commonly expects a privacy policy to say mobile opt-in data is not shared with
   third parties *or affiliates*. The policy says it is shared only among the named senders and the

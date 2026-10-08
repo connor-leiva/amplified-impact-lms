@@ -1,10 +1,10 @@
 // Every word on /terms and /privacy, the public legal pages behind the /ai101 waitlist.
 //
-// DRAFTS. Connor asked for these as drafts, for him or a lawyer to review before anyone signs up.
-// They were written by an AI assistant, not a lawyer. Every fact the author did not know is a
-// [bracketed placeholder], and the page highlights each one. `DRAFT` below keeps a "Draft for
-// review" notice and a `noindex` on both pages until someone turns it off, and `render.test.ts`
-// refuses to let it be turned off while any placeholder is left.
+// Drafted by an AI assistant, not a lawyer, for Connor's review; he supplied every fact the draft had
+// left as a [bracketed placeholder] on 2026-10-08 (the entities, names, contact, address, governing
+// law and the liability cap) and asked for recommended retention periods, which became the standard
+// below. A lawyer's read is still recommended. `DRAFT` turns the "Draft for review" notice and the
+// `noindex` back on, and `render.test.ts` refuses to turn it off while any placeholder is left.
 //
 // THIS IS THE ONLY FILE TO EDIT WHEN THE WORDS CHANGE. `render.ts` turns it into HTML at build
 // time. Nothing here is markup: copy is structured (`Inline`, `Block`) so that a `<` typed into this
@@ -25,7 +25,7 @@ export const EFFECTIVE = { iso: '2026-10-08', label: 'October 8, 2026' } as cons
  * True until a person has reviewed the pages and filled every placeholder. While true, both pages
  * say they are a draft and ask search engines not to index them.
  */
-export const DRAFT: boolean = true;
+export const DRAFT: boolean = false;
 
 /** Who sends the emails and texts, exactly as the waitlist form names them. */
 export const SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring, and Connor';
@@ -57,25 +57,27 @@ export const CONSENT = {
 /** The SMS program's name, as carriers see it registered. */
 export const SMS_PROGRAM = 'Amplified Impact updates';
 
-// --- Placeholders --------------------------------------------------------------------------------
-// One constant per unknown fact, so the same fact reads the same everywhere it appears.
+// --- The facts ------------------------------------------------------------------------------------
+// One constant per fact, so the same fact reads the same everywhere it appears. Supplied by Connor on
+// 2026-10-08, except the three retention periods, which he asked to be recommended and made the
+// standard: the waitlist while someone is on it and two years after the last contact; consent and
+// opt-out records for five years (TCPA claims can be brought for four); logs for up to 30 days.
+// Neither LLC's state of formation was given, so the entity sentences name the company only.
 
 const P = {
-  aiName: '[Amplified Impact legal entity name]',
-  aiForm: '[state of formation and entity type]',
-  sbName: '[Spring B legal entity name]',
-  sbForm: '[state of formation and entity type]',
-  spring: "[Spring's full name]",
-  connor: "[Connor's full name]",
-  contactEmail: '[contact email]',
-  privacyEmail: '[privacy contact email]',
-  address: '[mailing address]',
-  lawState: '[governing-law state]',
-  venue: '[county and state for court cases]',
-  liabilityCap: '[one hundred dollars ($100)]',
-  retention: '[how long you keep waitlist information]',
-  consentRetention: '[how long you keep consent and opt-out records]',
-  logRetention: '[how long technical logs are kept]',
+  aiName: 'Amplified Impact, LLC',
+  sbName: 'SB Coaching, LLC',
+  spring: 'Spring Bengtzen',
+  connor: 'Connor Leiva',
+  contactEmail: 'admin@amplifiedimpact.io',
+  privacyEmail: 'admin@amplifiedimpact.io',
+  address: '1173 N Shepard Crk Pkwy Ste A, Farmington, UT 84025',
+  lawState: 'the State of Utah',
+  venue: 'the state courts in Davis County, Utah, or the federal court for the District of Utah',
+  liabilityCap: 'one hundred dollars ($100)',
+  retention: 'as long as you stay on the list and up to two years after we last hear from you',
+  consentRetention: 'five years after you give or withdraw them',
+  logRetention: 'up to 30 days',
 } as const;
 
 // --- Types ---------------------------------------------------------------------------------------
@@ -147,10 +149,10 @@ export const TERMS: LegalDoc = {
       id: 'who-we-are',
       heading: 'Who we are',
       blocks: [
-        { p: `“Amplified Impact” means ${P.aiName}, a ${P.aiForm}.` },
+        { p: `“Amplified Impact” means ${P.aiName}.` },
         {
           p:
-            `“Spring B” means ${P.sbName}, a ${P.sbForm}. Its “affiliated companies” are the companies that ` +
+            `“Spring B” means ${P.sbName}. Its “affiliated companies” are the companies that ` +
             'control Spring B, are controlled by Spring B, or are under common control with it.',
         },
         { p: `“Spring” means ${P.spring}. “Connor” means ${P.connor}. They host the AI 101 session.` },
@@ -295,7 +297,7 @@ export const TERMS: LegalDoc = {
       heading: 'Governing law',
       blocks: [
         {
-          p: `The laws of ${P.lawState} govern these terms, without regard to its conflict of law rules. Any dispute goes to the state or federal courts in ${P.venue}, unless the law where you live gives you another choice.`,
+          p: `The laws of ${P.lawState} govern these terms, without regard to its conflict of law rules. Any dispute goes to ${P.venue}, unless the law where you live gives you another choice.`,
         },
       ],
     },
