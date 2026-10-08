@@ -59,6 +59,9 @@ import { startScheduler } from './jobs/scheduler';
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
 const ai101Html = fileURLToPath(new URL('../../web/dist/ai101.html', import.meta.url));
+// The public legal pages the /ai101 waitlist links to, built beside it (`routes/legal.ts`).
+const termsHtml = fileURLToPath(new URL('../../web/dist/terms.html', import.meta.url));
+const privacyHtml = fileURLToPath(new URL('../../web/dist/privacy.html', import.meta.url));
 // The marketing host's placeholder. It ships in `public/`, so the SPA's own build copies it
 // into `dist/` verbatim — it needs no build step of its own, because it carries no script and
 // no import. `routes/marketing.ts` serves it on MARKETING_HOST and nowhere else.
@@ -107,8 +110,11 @@ const ai101Page = readBuilt(ai101Html);
 const app = await build({
   logger: true,
   fixtureOnly,
+  // Not the legal pages: they carry no script (`apps/web/src/legal/render.test.ts` holds them to
+  // that), so they have nothing to hash, and a script added to one later stays blocked.
   inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page]),
   ai101Page,
+  legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml) },
   marketingPage: readBuilt(holdingHtml),
   waitlist: databaseConfigured(),
 });
@@ -121,7 +127,8 @@ if (existsSync(webDist)) {
     // page a second time at `/ai101.html` — under § 9.4's global limit and helmet's `no-referrer`,
     // i.e. without the two things `routes/ai101.ts` serves it with (its no-JS form would 403 from
     // there). One URL for the page; `/ai101.html` falls through to the SPA like any unknown path.
-    globIgnore: ['ai101.html'],
+    // The legal pages likewise: one URL each, `/terms` and `/privacy` (`routes/legal.ts`).
+    globIgnore: ['ai101.html', 'terms.html', 'privacy.html'],
   });
   // Every non-API path is a client route — `/sign-in`, `/invite/:token`, `/employees/:id` — so it
   // gets `index.html` and the router takes over. An unknown `/api/` path stays a JSON 404, because

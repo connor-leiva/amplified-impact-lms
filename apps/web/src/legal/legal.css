@@ -1,0 +1,272 @@
+/* /terms and /privacy, the legal pages behind the /ai101 waitlist.
+
+   The same rules as /ai101's stylesheet: no colour in this file that is not a token from
+   tokens.css (scripts/check-css-colors.mjs scans it), no style attributes in the markup, and the
+   whole file inlined into each page's <style> at build time by src/ai101/vite-plugin.ts.
+
+   Light theme only, like /ai101: a public page has no stored viewer preference, and the tokens'
+   default :root is the light theme.
+
+   Mobile first. The base rules are a 375px phone; nothing may scroll sideways there, so long words
+   and placeholders wrap (overflow-wrap). One breakpoint, 640px, gives the card more padding.
+
+   Two font files at most: Hanken Grotesk 400 for text and 700 for headings and bold, latin subset.
+   No DM Mono: nothing on these pages is code. */
+
+@import '@fontsource/hanken-grotesk/400.css';
+@import '@fontsource/hanken-grotesk/700.css';
+@import '../styles/tokens.css';
+@import '../styles/global.css';
+
+body {
+  font-size: 16px;
+  line-height: 26px;
+  overflow-wrap: break-word;
+}
+
+/* One 720px column for the header, the document and the footer, padded like the app's pages (the
+   tokens step the padding down to 24px and then 16px on narrow screens). */
+.inner,
+.page {
+  max-width: calc(720px + 2 * var(--page-pad-x));
+  margin: 0 auto;
+  padding-left: var(--page-pad-x);
+  padding-right: var(--page-pad-x);
+}
+
+a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:focus-visible {
+  outline: none;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* --- Header: the signature logo, linking to /ai101 --------------------------------------------- */
+
+.site-head .inner {
+  padding-top: 20px;
+  padding-bottom: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  padding: 6px 0;
+}
+
+/* The drawing is 736 by 112. At 28px tall it is 184px wide, clear of the brand guide's minimums and
+   narrow enough for a 320px screen. */
+.brand-logo {
+  display: block;
+  width: 184px;
+  height: 28px;
+}
+
+/* --- The document card ------------------------------------------------------------------------- */
+
+.page {
+  padding-bottom: 32px;
+}
+
+.doc {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 24px 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 14px;
+  background: var(--bg-surface);
+}
+@media (min-width: 640px) {
+  .doc {
+    padding: 32px;
+  }
+}
+
+.doc p,
+.doc ul,
+.doc ol,
+.doc figure,
+.doc blockquote {
+  margin: 0;
+}
+
+.doc h1,
+.doc h2 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.doc h1 {
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+}
+
+.doc h2 {
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+}
+
+.doc strong {
+  font-weight: 700;
+}
+
+.doc-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meta {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+.sep {
+  color: var(--text-tertiary);
+}
+
+.lede {
+  color: var(--text-secondary);
+}
+
+/* "Draft for review": the amber of the app's locked state, which says "not yet" without saying
+   "error". */
+.draft {
+  padding: 10px 14px;
+  border: 1px solid var(--access-locked-line);
+  border-radius: 10px;
+  background: var(--access-locked-bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* A fact still to be supplied, highlighted for review. The brackets stay in the text. */
+.placeholder {
+  padding: 0 2px;
+  border-radius: 4px;
+  background: var(--access-locked-bg);
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--access-locked-line);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* --- Table of contents ------------------------------------------------------------------------- */
+
+.toc {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--bg-sunken);
+}
+
+.toc-title {
+  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.toc ol {
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+/* Each entry is a real tap target on a phone. */
+.toc li a {
+  display: inline-block;
+  padding: 4px 0;
+}
+
+/* --- Sections ---------------------------------------------------------------------------------- */
+
+.doc section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-subtle);
+  scroll-margin-top: 16px;
+}
+
+.doc ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 22px;
+}
+
+.doc li::marker {
+  color: var(--text-tertiary);
+}
+
+/* The waitlist form's own words, quoted. */
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--action-primary-line);
+  border-radius: 0 10px 10px 0;
+  background: var(--bg-sunken);
+}
+
+.quote figcaption {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.quote blockquote {
+  font-size: 15px;
+  line-height: 24px;
+}
+
+/* --- Footer ------------------------------------------------------------------------------------ */
+
+.site-foot .inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  padding-bottom: 40px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+.site-foot p {
+  margin: 0;
+}
+
+.foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.foot-links a {
+  display: inline-block;
+  padding: 6px 0;
+}
+
+/* The page you are on reads as text, not as a link to itself. */
+.foot-links a[aria-current='page'] {
+  color: var(--text-primary);
+  font-weight: 700;
+  text-decoration: none;
+}

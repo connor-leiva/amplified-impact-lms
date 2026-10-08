@@ -3,9 +3,12 @@
 import { globSync, readFileSync } from 'node:fs';
 
 // The CSS Modules, plus /ai101's plain stylesheet (DECISIONS.md D-028): that page is not a React
-// route, so its styles are one global file rather than modules, under the same rule. A Set, so a
-// file both patterns match is scanned once.
-const files = [...new Set(globSync(['apps/web/src/**/*.module.css', 'apps/web/src/ai101/**/*.css']))];
+// route, so its styles are one global file rather than modules, under the same rule. The same goes
+// for /terms and /privacy, whose one stylesheet is in apps/web/src/legal/. A Set, so a file more
+// than one pattern matches is scanned once.
+const files = [
+  ...new Set(globSync(['apps/web/src/**/*.module.css', 'apps/web/src/ai101/**/*.css', 'apps/web/src/legal/**/*.css'])),
+];
 
 const bad = [];
 for (const f of files) {
