@@ -55,6 +55,7 @@ import { fileURLToPath } from 'node:url';
 import { build, cspScriptHashes, installShutdown } from './app';
 import { readDatabaseUrl } from './db/client';
 import { startScheduler } from './jobs/scheduler';
+import { startGhlSync } from './jobs/ghl-sync';
 
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
@@ -165,5 +166,10 @@ installShutdown(app);
 // `shutdown()`'s first `await`, inside `settleEmails()`, yields before the interval could fire
 // again — and the first tick is 60 s out, so it cannot precede Railway's first healthcheck either.
 startScheduler({ fixtureOnly, log: app.log });
+
+// The /ai101 waitlist's copy into GoHighLevel (D-033). Its own loop, armed by the WAITLIST — a
+// database — and both GHL variables, not by `fixtureOnly`: it is about this page, not about the
+// program's emails, which is the distinction the comment above draws. Off and saying so otherwise.
+startGhlSync({ waitlist: databaseConfigured(), log: app.log });
 
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 3000) });

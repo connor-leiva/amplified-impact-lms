@@ -1253,3 +1253,77 @@ ring or shadow; inactive rows are Ink (`--text-primary`) for label and icon, whe
   new pin against the guide's hex), `a11y.ts`, `signin.spec.ts` (one brand slot), `prefs.test.ts`,
   and the new `brand.spec.ts`.
 - `handoff-starter/` is frozen as the historical handoff and is not updated.
+
+## D-033 · The /ai101 waitlist is copied into GoHighLevel, by a loop of its own
+
+**Date:** 2026-10-07
+**Approved by:** the user, in chat on 2026-10-07. Asked how to get the waitlist into their GHL CRM
+("not sure if [GHL forms are] the best way to go or if we just leverage an API key"), they chose the
+API route, supplied the location id, approved the proposed tags with "Tags approved, add src-ig,
+build it", and created a Private Integration token — to be set in Railway as `GHL_TOKEN`, and never
+pasted into chat.
+**Scope:** `apps/api/src/integrations/ghl.ts`, `apps/api/src/jobs/ghl-sync.ts`, `apps/api/src/server.ts`,
+`apps/api/src/db/schema.ts` and the generated migration `apps/api/drizzle/0004_skinny_roland_deschain.sql`,
+`.railway/railway.ts`, their tests (`src/integrations/ghl.test.ts`, `test/ghl-sync.test.ts`,
+`src/db/schema.test.ts`).
+
+**Not a GHL form embed.** The page's CSP is `default-src 'self'` with hashed scripts only, so a GHL
+iframe and its `form_embed.js` would be blocked unless the policy were opened to GHL's domains; and
+the page exists to work on a phone on conference Wi-Fi as one small response, with no JavaScript
+required, its own honeypot and rate limit, and the `?src=` attribution. A third-party embed would
+cost all of that. The existing form stays exactly as it is.
+
+**The row is the system of record; GHL is a copy.** The route still stores the sign-up and answers
+the visitor; nothing in this change touches `routes/ai101.ts`. A separate loop copies stored rows
+into GHL afterwards, so GHL being slow, down or misconfigured can never refuse, delay or lose a
+sign-up, and a sign-up made in any of those states is copied once it is back. The rows that predate
+this change have `ghl_synced_at` null, so the first tick IS the backfill.
+
+**Its own loop, not a scheduler job.** `server.ts` explains that the email scheduler follows
+`fixtureOnly` because arming it "is a decision about the program's emails". This is about the
+waitlist, which exists whenever a database does, so it is armed by the database and BOTH of
+`GHL_TOKEN` and `GHL_LOCATION_ID`, and off (saying so in the log) otherwise. A GHL outage cannot
+delay a reminder email, nor the reverse. Production only: `.railway/railway.ts` gives staging no GHL
+variables, so its test sign-ups can never reach the real CRM.
+
+**One tick:** claim up to 25 due rows in ONE statement (`FOR UPDATE SKIP LOCKED`, each given an
+attempt and a 15-minute lease), commit, then call GHL outside any transaction, then record each
+outcome. A process that dies mid-sync leaves the lease to expire; a second replica skips locked rows.
+
+**Two calls, because of a real GHL pitfall.** HighLevel's `POST /contacts/upsert` REPLACES every tag a
+contact has when it is sent `tags`. An existing client joining the waitlist would silently lose
+every tag marketing ever gave them. So the upsert carries no tags, and a second call,
+`POST /contacts/{id}/tags`, adds them — sent the UNION of the contact's existing tags (from the upsert
+response) and ours. GHL's docs do not say whether that call appends or replaces; with the union it
+is correct either way. A tag that still goes missing is logged by name.
+
+**Attribution lives in tags, never in GHL's `source` field.** Tags accumulate; `source` is one value,
+and an upsert would overwrite an existing client's original lead source with this page.
+
+**The tags,** as approved: `ai101-waitlist` (every sign-up; the tag GHL workflows trigger on),
+`event-expcon-2026` (every sign-up from this page), and one channel tag — `src-qr` (the printed
+code), `src-ig` (the Instagram link), `src-direct` (no `?src=`). `?src=` is in a public URL anyone can
+edit, so it is an ALLOW-LIST: any other value becomes `src-other`, and the raw value stays in the row.
+Brokerage goes to the contact's Company Name, only when given (an empty value would blank an existing
+contact's). Workflow-state tags (`ai101-welcome-sent` and so on) are GHL's to set, not the site's.
+
+**Two kinds of failure, so an outage cannot spend the list's retries.** A ROW failure (GHL refused
+this contact: 400/422, or an unreadable answer) counts an attempt and backs off — 1 min, 5, 15, then
+1 h, 3, 6, 12, 24 — and after the eighth it stops, leaving the row unsynced with the reason in
+`ghl_error` (reset `ghl_attempts` to 0 to retry it). A SYSTEMIC failure (401/403, 429, 5xx, timeout,
+no network) is nothing to do with the row: the tick stops, the attempt is handed back to that row
+and every row not yet tried, and they all pause — 15 minutes for a rejected token, 2 otherwise. A
+revoked token therefore never exhausts anyone's retries; fixing it in Railway resumes the sync.
+
+**Privacy.** Log lines carry row ids, counts, status codes and tag names; never a name, an address,
+the token or a GHL response body (which can echo the request). `ghl_error` stores a step, a kind and
+a status, never a body. A test sweeps every log line of both failure paths for the visitor's details.
+
+**Verified:** 23 client tests against a fake GHL, 12 sync tests against a real Postgres (the test
+database migrates through `0004`, so the migration applies), and five deliberate sabotages each
+caught by a test — tags in the upsert, no union, no allow-list, systemic failures spending attempts,
+and a claim that ignored `ghl_synced_at`.
+
+**The consent line** on the page reads "We'll email you about the December agent track. Unsubscribe
+anytime." Mail sent from GHL to this list should stay within that promise, or the line should change
+first. Not changed here.

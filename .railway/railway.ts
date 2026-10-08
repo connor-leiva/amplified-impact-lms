@@ -83,6 +83,10 @@ export default defineRailway((ctx) => {
       // the product. Production only — staging and demo have no marketing host, and the setting is
       // inert when unset, so they serve the app at every name they are pointed at.
       ...(env === 'production' ? { MARKETING_HOST: `www.${DOMAIN}` } : {}),
+      // The /ai101 waitlist's copy into GoHighLevel (D-033). PRODUCTION ONLY: staging has its own
+      // waitlist rows (test sign-ups) and must never write them into the real CRM. The location id
+      // is not a secret (it is in every GHL URL); the token is, and is set in the dashboard.
+      ...(env === 'production' ? { GHL_LOCATION_ID: '4l4e5c7LuLR87EdUv2QK', GHL_TOKEN: preserve() } : {}),
       VITE_DATA_SOURCE: demo ? 'fixture' : 'http',
       VITE_DEMO_MODE: demo ? 'true' : 'false',
       // The /__states and /__tokens specimen routes: a debugging aid, not a feature. Off in

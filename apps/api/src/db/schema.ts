@@ -122,4 +122,12 @@ export const jobRuns = pgTable('job_runs', {
 export const ai101Waitlist = pgTable('ai101_waitlist', {
   id: text('id').primaryKey(), firstName: text('first_name').notNull(), email: text('email').notNull(),
   brokerage: text('brokerage'), source: text('source').notNull(), src: text('src'), createdAt: ts('created_at').notNull(),
+  // The GoHighLevel sync (DECISIONS.md D-033, jobs/ghl-sync.ts). The row is the system of record and
+  // GHL is a copy, so these only describe the copy: a sign-up is never refused or delayed by them.
+  // `ghl_synced_at` null means "not in the CRM yet"; `ghl_attempts` and `ghl_next_attempt_at` are the
+  // backoff, and the latter doubles as the claim lease. `ghl_error` holds a status code or a failure
+  // KIND, never a response body — a body can echo the visitor's name and address back.
+  ghlContactId: text('ghl_contact_id'), ghlSyncedAt: ts('ghl_synced_at'),
+  ghlAttempts: integer('ghl_attempts').notNull().default(0), ghlNextAttemptAt: ts('ghl_next_attempt_at'),
+  ghlError: text('ghl_error'),
 }, (t) => [uniqueIndex('ai101_waitlist_email_source_idx').on(t.email, t.source)]);
