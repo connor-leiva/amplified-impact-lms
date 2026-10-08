@@ -2,13 +2,17 @@ platform: local
 captured-on: win32 (Windows 11, x64)
 playwright: 1.63.0
 chromium: headless_shell 153.0.8010.12 (playwright build v1243)
-reference: design-reference/ @ handoff design_handoff_amplified_impact_lms (unmodified)
+reference: design-reference/ as rebranded by DECISIONS.md D-031 (token block md5 76d26ec2c1ac)
+captured: 2026-10-07, from the rebranded reference, before the change was committed
 scenarios: 55 (98 regions)
 naming: <scenario>-<region>.{png,json} — never a dot, see DECISIONS.md D-008
 
 determinism (measured, not assumed):
-  .json fingerprints  byte-identical across every repeat run
-  .png screenshots    NOT byte-reproducible on this machine. Two consecutive captures differ on
+  .json fingerprints  byte-identical across every repeat run. Re-measured on the rebranded reference
+                      (D-031): two consecutive captures, 0 of 98 fingerprints changed.
+  .png screenshots    NOT byte-reproducible on this machine. (The figures below were measured on the
+                      pre-rebrand reference and have not been re-measured; the cause is host
+                      rasterization, which the palette does not affect.) Two consecutive captures differ on
                       ~6 of 98 images, worst case 0.39% of pixels, concentrated in the mobile,
                       dark and drawer scenarios. That is well inside the parity tolerance
                       (maxDiffPixelRatio 0.01), so it does not affect whether the app matches —
@@ -26,6 +30,7 @@ The .json fingerprints are shared, live one directory up, and are platform-indep
 MEASUREMENT: all 98 are byte-identical to the container's. They carry the copy and the typography,
 which is what CLAUDE.md's "copy is exact" rule actually rides on.
 
-Divergence from the container set, measured at Playwright's own threshold: 98 of 98 images differ,
+Divergence from the container set — MEASURED ON THE PRE-REBRAND REFERENCE, to be re-measured once
+the rebranded linux set lands from the CI artifact — at Playwright's own threshold: 98 of 98 images differ,
 60 of them by more than the 1% maxDiffPixelRatio; median 1.19%, worst 2.99%. All under 3% and no
 fingerprint moved, which is what separates rasterization from a regression.

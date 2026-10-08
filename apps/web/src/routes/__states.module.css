@@ -135,7 +135,7 @@
 /* A sidebar swatch: NavItem reads --nav-hover / --nav-active from its container. */
 .navHost {
   --nav-hover: color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar));
-  --nav-active: var(--bg-surface);
+  --nav-active: var(--action-primary-tint);
   padding: 10px;
   border-radius: 12px;
   background: var(--bg-sidebar);

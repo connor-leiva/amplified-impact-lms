@@ -41,7 +41,7 @@ const DEFAULT_COHORT = 'dec26';
 /** The reference's `--nav-hover` / `--nav-active`, set on the aside and consumed by NavItem. */
 const NAV_VARS = {
   '--nav-hover': 'color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar))',
-  '--nav-active': 'var(--bg-surface)',
+  '--nav-active': 'var(--action-primary-tint)',
 } as React.CSSProperties;
 
 type SidebarMode = 'full' | 'rail' | 'drawer';
@@ -299,8 +299,7 @@ function Shell() {
           style={NAV_VARS}
         >
           <div className={s.brand}>
-            <BrandSlot kind="mark" />
-            {expanded ? <BrandSlot kind="wordmark" /> : null}
+            <BrandSlot kind={expanded ? 'lockup' : 'mark'} />
             {drawer ? (
               <button type="button" className={s.close} aria-label="Close menu" onClick={() => setDrawerOpen(false)}>
                 <Icon name="x" size={16} strokeWidth={2} />

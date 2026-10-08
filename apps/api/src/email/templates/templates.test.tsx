@@ -147,8 +147,8 @@ const unescapeAttr = (s: string): string => s.replace(/&#x27;/g, "'").replace(/&
  *
  * WHY EVERY COLOUR AND WIDTH ASSERTION BELOW GOES THROUGH THIS. `toContain` on the raw attribute
  * string is a SUBSTRING test, and a CSS declaration list is full of strings that contain each
- * other: `max-width:560px` contains `width:560px`, and `background-color:#110f0c` contains
- * `color:#110f0c`. An assertion written against the raw string therefore passes when the
+ * other: `max-width:560px` contains `width:560px`, and `background-color:#15211d` contains
+ * `color:#15211d`. An assertion written against the raw string therefore passes when the
  * declaration it names has been deleted and a longer one happens to end with it — which is exactly
  * how `expect(column).toContain('width:560px')` went on passing with `layout.ts`'s explicit
  * `width` removed. Comparing whole declarations makes `toContain` an equality test per item, so it
@@ -329,7 +329,7 @@ describe('email templates · what would break in a real inbox @g8', () => {
       //
       // This half used to be `expect(html).toContain(EMAIL_TOKENS['text-primary'])` and the same
       // for `bg-surface`, anywhere in the document. Both are satisfied by hexes other elements
-      // contribute: `text-primary` (#110f0c) is also the H1's colour and `bg-surface` (#ffffff) is
+      // contribute: `text-primary` (#15211d) is also the H1's colour and `bg-surface` (#ffffff) is
       // also `action-on-primary` on the button. So the two declarations that actually prevent
       // black-on-black — the page box's own `color` and the card's own `background-color` — could
       // be deleted from `layout.tsx` and the suite stayed green. A token that LEAKED was caught; a

@@ -1,7 +1,8 @@
 # compliance/goldens
 
-These files are the **test oracle**. They are captured from the unmodified `design-reference/`
-prototype by `pnpm compliance:capture` and nothing else.
+These files are the **test oracle**. They are captured from the committed `design-reference/`
+prototype (changed only through a DECISIONS entry, D-031) by `pnpm compliance:capture` and nothing
+else.
 
 - `<scenario>.<region>.png` — the pixels the reference renders
 - `<scenario>.<region>.json` — the copy + typography fingerprint (compared exactly)

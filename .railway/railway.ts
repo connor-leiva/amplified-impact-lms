@@ -88,8 +88,6 @@ export default defineRailway((ctx) => {
       // The /__states and /__tokens specimen routes: a debugging aid, not a feature. Off in
       // production.
       VITE_ENABLE_STATES: env === 'production' ? 'false' : 'true',
-      VITE_BRAND_LOGO_URL: preserve(),
-      VITE_BRAND_WORDMARK_URL: preserve(),
       ...(db ? { DATABASE_URL: db.env.DATABASE_URL } : {}),
       ...(demo
         ? {}

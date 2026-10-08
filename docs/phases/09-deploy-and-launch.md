@@ -45,7 +45,7 @@ export default defineRailway((ctx) => {
       VITE_DATA_SOURCE: demo ? 'fixture' : 'http',
       VITE_DEMO_MODE: demo ? 'true' : 'false',
       VITE_ENABLE_STATES: env === 'production' ? 'false' : 'true',
-      VITE_BRAND_LOGO_URL: preserve(), VITE_BRAND_WORDMARK_URL: preserve(),
+      // VITE_BRAND_LOGO_URL / VITE_BRAND_WORDMARK_URL are retired (D-031): the logo is committed.
       ...(db ? { DATABASE_URL: db.env.DATABASE_URL } : {}),
       ...(demo ? {} : {
         SESSION_SECRET: preserve(), RESEND_API_KEY: preserve(), EMAIL_FROM: preserve(),
@@ -142,6 +142,6 @@ Automated:
 Manual sign-off (product owner), comparing production side by side with `design-reference/` and the demo:
 - [ ] Each screen in SCREENS §3 and §4 is reviewed at 1440, 1024 and 390, in light and dark.
 - [ ] Time zones are correct for an ET, CT and PT viewer.
-- [ ] Brand logo and wordmark are dropped into `VITE_BRAND_*`, and the brand-slot mask is still the only masked region.
+- [ ] The committed `ai academy` lockup shows in the sidebar, drawer, sign-in and invite-accept (reversed in dark theme), the favicon drawing shows in the collapsed rail, and no region is masked in parity (`MASKS` is empty since D-031).
 - [ ] Backup restore has been tested.
 - [ ] DECISIONS.md lists every approved deviation from the mockup, and there are no others.

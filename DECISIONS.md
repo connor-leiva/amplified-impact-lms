@@ -87,6 +87,11 @@ the original, and it now also catches a *truncated* `tokens.css`, which `> 80` w
 verbatim. The `app` vs `ref` deep-equality assertion, which is the real contract, is unchanged.
 If a token is ever legitimately added to the reference, update this number in the same PR.
 
+**Amended by D-031 (2026-10-07): the count is 75.** The rebrand removed `--accent-h` and
+`--accent-c`, which existed only to parametrise the retired accent tweak. All three pins moved in the
+same change, as this entry requires: `tokens.spec.ts`, `scripts/email-tokens.mjs` and
+`apps/api/src/email/tokens.test.ts`.
+
 ---
 
 ## D-004 · Four injected-time signatures in `packages/core`
@@ -306,6 +311,14 @@ is one serious violation cleaner than the prototype.
 
 **Raised:** 2026-10-03 · **Status: needs a product decision**
 **Referenced by the harness as D-010.**
+
+**Update, D-031 (2026-10-07):** the rebrand closed two of the five allowances — the dark theme's
+white-on-Pine button (4.48) and its hover (3.49) are now Ink on Energy Bright, 9.10 and 10.94. Three
+remain, all disabled text, re-measured with axe on the rebranded reference and each better than the
+value it replaces: `#8a968f` on `#ffffff` 3.07 (locked nav row, light), `#8a968f` on `#f4f2ec` 2.74
+(code-viewer line numbers) and `#78837d` on `#111c18` 4.43 (locked nav row, dark). The table below
+is the pre-rebrand measurement, kept as the record; `compliance/lib/a11y.ts` has the current pairs.
+The question itself is unchanged: disabled text is low-contrast by intent.
 
 Gate 3 requires zero serious axe violations. The reference's own palette produces four, and the app
 reproduces them exactly, because the tokens are generated verbatim and the reference is the pixel
@@ -1063,3 +1076,180 @@ margin already thin locally would have been thinner there.
 
 This one is the argument for simulating a CI job instead of reasoning about it: four agents read
 `ci.yml` against the repository and none of them could have found it.
+
+## D-031 · The rebrand: the reference itself is reskinned to the finished brand
+
+**Date:** 2026-10-07
+**Approved by:** the user, in chat on 2026-10-07: "Can you use these finalized branding assets to
+reskin the entire website?", supplying the brand package `Logo design discovery for Amplified
+Impact/` (Brand Guide.dc.html, logo/svg/, logo/source/build.js). Asked whether the accent and
+typeface pickers survive a fixed brand, the user answered: "Remove the pickers, lock it to the
+brand."
+**Scope:** all 25 `design-reference/*.dc.html` and `design-reference/lms-data.js`, the new
+`design-reference/brand/`, `apps/web/src/styles/{tokens,global}.css` (regenerated), the new
+`scripts/reference-tokens.mjs`, `apps/web/src/assets/brand/`, `BrandSlot`, `AppShell`, `NavItem`,
+`__states`, `SignIn`, `AcceptInvite`, `prefs.ts`, `fonts.ts`, `index.html`, `ai101.html`,
+`public/holding.html`, the email palette, `.railway/railway.ts`, and the tests and goldens listed
+below.
+
+### Why the REFERENCE changed, not just the app
+
+CLAUDE.md makes `design-reference/` the oracle: the reference wins any disagreement, `tokens.css` is
+generated from it verbatim, and goldens come only from capturing it. Reskinning the app alone would
+have broken all three and failed every parity scenario on colour. So the reference was rebranded
+first, the app's tokens were regenerated from it, and the goldens were recaptured from it — after
+which parity proves the app carries the brand on every screen. The reference is no longer "the
+handoff, unmodified": it is the committed reference, and it changes only through an entry like this.
+
+Because `.gitattributes` marks `design-reference/**` as `-diff`, a reviewer cannot read this change
+in the PR. This entry is the record of it.
+
+### Sources, by hash
+
+Brand package (sha256, first 16 hex): `Brand Guide.dc.html` 36a964a9bd3679ea ·
+`logo/source/build.js` 0555493ab799eebe · `academy-app.svg` 28ac2dc4d23ecfaa · `favicon.svg`
+838f67a39bb39920 · `signature.svg` 8e5aab2f5d9bfe84 · `signature-reversed.svg` 04649e8c0d65cd6a.
+
+Committed copies in `design-reference/brand/` (and, byte-identical, `apps/web/src/assets/brand/`):
+`academy-app.svg` 2fabb723dec6e06e · `academy-app-reversed.svg` fb9036a0e1a531cb ·
+`favicon.svg` 9178f7868cf92116 · `signature.svg` 35686ed328e06e04 · `signature-reversed.svg`
+ce828d06aff69d30. Each is the official drawing with only its ~7.7 KB C2PA provenance `<metadata>`
+block removed. That is lossless, and was proven: `build.js`, run under a shim that redirects its
+writes, reproduces all 11 official exports byte-for-byte once that block is set aside.
+
+The package ships no reversed APP lockup, which the dark sidebar needs. It was generated with the
+package's own `build.js` at `tone=dark;layout=app` — a combination the source already supports and
+the guide itself draws on its LMS page — not drawn by hand. The guide says "edit the source, not the
+exports"; this is the source's output.
+
+Reference token block after the change: md5 `76d26ec2c1ac` (all 25 copies identical).
+
+### The palette
+
+Every brand colour is authored in `oklch()` (the email generator cannot read hex) and round-trips to
+the brand guide's exact hex — verified three ways that agree on all twelve tokens checked: the
+generator, Chromium's own painted pixels (canvas readback on the reference), and the guide's table.
+
+| Token | Before | After | Brand role |
+|---|---|---|---|
+| `--ink-900`, `--text-primary` | `#110f0c` | `#15211d` | Ink |
+| `--ink-100`, `--bg-canvas` (light) | `#f4f2ef` / canvas `#fbfaf8` | `#f4f2ec` | Cream |
+| `--action-primary`, `--text-link` (light) | `#006663` (teal, sRGB-clamped) | `#1f4d40` | Forest |
+| `--text-link-hover` (light) | teal | `#15211d` | Ink |
+| `--action-on-primary` (light) | `#ffffff` | `#f4f2ec` | Cream letters, 8.55:1 |
+| `--action-primary-tint` (light) | `#dff6f4` | `#e3efe8` | the guide's active-row tint |
+| `--action-primary`, `--text-link` (dark) | teal | `#6fd3a5` | Energy Bright |
+| `--action-on-primary` (dark) | white (inherited) | `#15211d` | Ink letters, 9.10:1 (new dark override) |
+| `--bg-canvas` (dark) | `#0c0b08`-ish | `#15211d` | Ink |
+| `--bg-sidebar` (light) | `--ink-100` | `--paper` | white sidebar on Cream, as the guide draws it |
+
+The ink ramp is SPLIT, because the guide's own working greys are: grounds and lines warm (50-300,
+hue 89-91, the Cream family), text greys green (400-900, hue 160-172, the Ink family). It reproduces
+all of the guide's unlisted greys exactly — `#3e4a45` (ink-600, secondary text), `#5b6762` (ink-500,
+tertiary), `#8a968f` (ink-400, disabled), `#d9d5ca` (ink-300, strong line), `#e9e5db` (ink-200,
+line). A uniform green ramp was rejected: it turns Cream into mint, against "Cream default ground".
+
+**Dark mode is an interpretation, not a transcription.** The guide's rule is "Primary buttons are
+Forest", but Forest on Ink is 1.73:1, and `--action-primary` is also a foreground (focus borders,
+the active nav icon, tab underlines). So dark mode uses the guide's own "Reversed" treatment —
+Energy Bright on Ink — for buttons and links, with Ink letters. Light mode keeps Forest buttons.
+
+**Three contrast regressions were found and fixed before anything was committed.** Making
+`--ink-900` brand Ink (lighter than the old near-black) lifted every dark ground, and the guide's
+disabled grey pulled `--ink-400` darker. Measured against the pre-rebrand palette:
+`--status-success-on` fell 5.12 → 4.43 (now a literal near-black, 5.08); dark `--text-tertiary` fell
+to 3.87 on some grounds (now a literal, 5.99-8.80, against the old 6.06-7.91); dark `--text-disabled`
+fell to 2.01 (now a literal, 3.02-4.44, against the old 2.85-3.71). Light-mode tertiary and disabled
+text both IMPROVED.
+
+Unchanged: the status colours (success, progress, attention, locked), the avatar palette, every
+radius, spacing value and type size, all copy and navigation, and the QR code.
+
+**A brand-guide error, for the brand owner:** the guide gives Energy `#1F8A5C` as "4.3:1 on Cream".
+It is 3.87:1 on Cream; 4.33:1 is the figure on white. Energy fails AA as text on either, so it
+appears only in the logo artwork — never as a link, label or focus colour.
+
+### The pickers
+
+The accent (Pine/Indigo/Plum) and typeface (Hanken/Instrument Sans/Schibsted Grotesk) tweaks were
+documented as "a tweak while the brand is undecided". They are removed from the reference
+(`data-props`, `applyTweaks`, the `[data-accent]`/`[data-font]` rules, the pre-paint clauses, the
+Google Fonts URL) and from the app (`prefs.ts` `Accent`/`Typeface`/`brandConfig`, `fonts.ts`
+`loadAltFont`, two `@fontsource` packages, `VITE_BRAND_ACCENT`/`VITE_BRAND_FONT`). The light/dark
+THEME picker stays: the guide defines a reversed treatment, so dark mode is on-brand. A stale
+`accent` or `font` left in a browser's `localStorage` is ignored, and a test proves it.
+
+`--accent-h` and `--accent-c` existed only to parametrise the tweaks, so they are gone: the `:root`
+count is **75**, not 77 (D-003 amended). `--progress-h`/`--progress-c` stay.
+
+### The logo
+
+The two dashed placeholder slots (a 28×28 mark and a 132×22 wordmark, to be filled through
+`VITE_BRAND_LOGO_URL`/`VITE_BRAND_WORDMARK_URL`) are replaced by committed artwork, following the
+guide's rule — "use the app lockup in the LMS sidebar, on login screens and in emails", minimum
+160 px — and its fallback, "below each minimum, switch to the next drawing down":
+
+- expanded sidebar, drawer, sign-in and invite-accept: the `ai academy` app lockup at 161×34 (the
+  guide's own sidebar size), reversed in dark theme;
+- the 64 px collapsed rail: the favicon drawing at 28×28 (the guide sizes it for 16-32 px).
+
+The lockup at 161×34 has about 11 px of vertical clear space in the 56 px brand row, short of the
+guide's one-x-height (15.2 px). The guide's own sidebar sample makes the same trade, and keeping the
+row at 56 px keeps it aligned with the 56 px page header. Accepted, deliberately.
+
+The theme switch keys on `:root[data-theme]`, never on `prefers-color-scheme`: the app's theme is a
+stored preference, and a dark app can run on a light OS. In the app the files are imported, and at
+400-970 bytes Vite inlines them as `data:` URIs — allowed by the CSP's `img-src 'self' data:`, and
+costing no request against the per-IP rate limit. `scripts/reference-tokens.mjs --check` fails lint
+if the app's copies drift from the reference's.
+
+**The brand row is no longer masked.** It was masked because both builds drew placeholders and the
+real logo was meant to arrive later; now both sides draw the same files at the same size, so parity
+compares them. `MASKS` is empty — there is no masked region at all. Removing a mask only tightens the
+harness. Because a pixel diff cannot reliably see the wrong theme VARIANT (Ink letters for Cream on a
+161×34 logo is well under 1% of the sidebar), `compliance/tests/e2e/brand.spec.ts` asserts it.
+
+### The nav rows
+
+Following the guide's LMS sidebar exactly: the active row is the `#e3efe8` tint
+(`--nav-active: var(--action-primary-tint)`), with a Forest label and icon at weight 600 and no
+ring or shadow; inactive rows are Ink (`--text-primary`) for label and icon, where they were
+`--text-secondary`/`--text-tertiary`. Colours only — row geometry is the reference's.
+
+### Favicon and the other surfaces
+
+- The brand's favicon drawing, inlined as a `data:` URI in `index.html`, `ai101.html` and
+  `holding.html`: zero requests, which keeps D-028's no-request property on `/ai101`.
+- `/ai101` follows `tokens.css`, so it carries the new palette automatically.
+- The www placeholder (`holding.html`, D-029) is rebranded: brand hex (it deliberately does not load
+  `tokens.css`), the signature logo, and the guide's one-time 0.9 s intro — the dot lands with an
+  overshoot, the ring expands, one echo fades — in CSS only, since that page's scripts are not
+  CSP-hashed, and skipped under reduced motion.
+- Emails take the new palette through the regenerated `EMAIL_TOKENS`. The lockup in emails (which
+  the guide asks for) is NOT done: it needs a hosted raster and cannot be tested until email sends.
+
+### Not done, deliberately
+
+- **Icons.** The guide's icon rules (1.75 stroke, a separate filled 4-5 px dot, Energy on the active
+  icon) need the dot as its own element, which the single-path `ICONS` model cannot express, and the
+  guide supplies only 12 drawings for an 81-icon set. Swapping in those 12 would mix two styles in
+  one sidebar column. Icons are recoloured through tokens only; a designer-exported set is the
+  follow-up.
+- **The guide's LMS login mock** has a password field, "Forgot Password?" and new taglines. The
+  product signs in by magic link and its copy is exact (§ 7.5), so only the logo was adopted.
+- **The apex domain and the email lockup**, as above.
+
+### What this moved
+
+- Goldens: all 98 `.json` fingerprints and all 98 `win32/` PNGs recaptured from the rebranded
+  reference. The authoritative `linux/` set comes from the CI goldens job's container artifact.
+- Measured on win32 before commit: fixture parity 55 of 55 on pixels and fingerprints; the only
+  failures were D-010's contrast allowances, re-keyed below.
+- D-010: the rebrand closed two of its five allowances (dark white-on-Pine 4.48 and its hover 3.49,
+  now 9.10 and 10.94). Three remain, re-measured with axe on the reference: `#8a968f` on `#ffffff`
+  3.07, `#8a968f` on `#f4f2ec` 2.74, `#78837d` on `#111c18` 4.43 — each better than before.
+- Tests: `tokens.spec.ts` (75; theme combos only — the accent/font combos would have passed
+  vacuously), `email-tokens.mjs` and `email/tokens.test.ts` (75; pins re-measured in Chromium, and a
+  new pin against the guide's hex), `a11y.ts`, `signin.spec.ts` (one brand slot), `prefs.test.ts`,
+  and the new `brand.spec.ts`.
+- `handoff-starter/` is frozen as the historical handoff and is not updated.

@@ -1,44 +1,43 @@
+import lockup from '../assets/brand/amplified-impact-academy-app.svg';
+import lockupReversed from '../assets/brand/amplified-impact-academy-app-reversed.svg';
+import mark from '../assets/brand/favicon.svg';
 import s from './BrandSlot.module.css';
 
-// Ported from the two brand placeholders in the brand row of
-// design-reference/Amplified Impact LMS.dc.html. SCREENS § 2.1 (Brand row), phase 04 § 4.3.
+// The brand row's logo, ported from design-reference/Amplified Impact LMS.dc.html (D-031).
 //
-// The prototype holds each slot open with an `<image-slot>` custom element the designer can drop a
-// file onto. The app has no such runtime: the real assets arrive as build configuration, so the
-// placeholder renders until `VITE_BRAND_LOGO_URL` / `VITE_BRAND_WORDMARK_URL` are set, and an
-// `<img>` of the same size takes over when they are.
+// The Brand Guide's rule is "use the app lockup in the LMS sidebar, on login screens and in emails",
+// with a 160 px minimum, and "below each minimum, switch to the next drawing down". So the expanded
+// sidebar, the drawer and the auth card show the `ai academy` app lockup at 161×34 (the guide's own
+// sidebar size), and the 64 px rail — which has room for 28 px — shows the favicon drawing, which
+// the guide sizes for 16-32 px.
 //
-// Both placeholders carry `data-brand-slot`, which is a required landmark (CLAUDE.md): the
-// compliance harness masks it, so a dropped logo can never fail a pixel test. Both are also
-// `aria-hidden`, as the reference's dashed boxes are — that is what keeps the word `Wordmark` out
-// of the copy fingerprint on both sides.
-
-/** The reference's `title` strings, including the `·` separator. */
-const TITLE = {
-  mark: 'Logo slot · drop your logo here',
-  wordmark: 'Wordmark slot · drop your wordmark here',
-} as const;
-
-const URL_FOR = {
-  mark: import.meta.env.VITE_BRAND_LOGO_URL as string | undefined,
-  wordmark: import.meta.env.VITE_BRAND_WORDMARK_URL as string | undefined,
-} as const;
+// The files are the brand package's own drawings with only their C2PA provenance block removed;
+// scripts/reference-tokens.mjs --check asserts they are byte-identical to design-reference/brand/.
+// They are imported rather than served: at 400-970 bytes Vite inlines them as data: URIs, which the
+// CSP's `img-src 'self' data:` allows and which costs no request against the per-IP rate limit.
+//
+// Light and dark are both rendered and one is hidden by `:root[data-theme]`, NOT by
+// prefers-color-scheme: the app's theme is a stored preference, and a viewer can run a dark app on
+// a light OS. The reference swaps one <img>'s src on the same preference; the pixels are the same.
+// `data-brand-slot` stays on the wrapper — one per logo — as the CLAUDE.md landmark.
 
 export interface BrandSlotProps {
-  /** `mark` is the 28×28 logo; `wordmark` is the 132×22 name, which the rail hides. */
-  kind: 'mark' | 'wordmark';
+  /** `lockup` is the 161×34 app lockup; `mark` is the 28×28 favicon drawing for the rail. */
+  kind: 'lockup' | 'mark';
 }
 
 export function BrandSlot({ kind }: BrandSlotProps) {
-  const src = URL_FOR[kind];
-
-  if (src) {
-    return <img className={s.img} data-kind={kind} data-brand-slot={kind} src={src} alt="" aria-hidden="true" />;
+  if (kind === 'mark') {
+    return (
+      <span className={s.slot} data-kind="mark" data-brand-slot="mark">
+        <img className={s.img} src={mark} alt="" />
+      </span>
+    );
   }
-
   return (
-    <div className={s.slot} data-kind={kind} data-brand-slot={kind} title={TITLE[kind]} aria-hidden="true">
-      {kind === 'wordmark' ? 'Wordmark' : null}
-    </div>
+    <span className={s.slot} data-kind="lockup" data-brand-slot="lockup">
+      <img className={`${s.img} ${s.light}`} src={lockup} alt="" />
+      <img className={`${s.img} ${s.dark}`} src={lockupReversed} alt="" />
+    </span>
   );
 }

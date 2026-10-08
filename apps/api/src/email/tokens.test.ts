@@ -22,14 +22,12 @@ const SCRIPT = fileURLToPath(new URL('../../../../scripts/email-tokens.mjs', imp
 const GENERATED = fileURLToPath(new URL('./tokens.ts', import.meta.url));
 const TOKENS_CSS = fileURLToPath(new URL('../../../web/src/styles/tokens.css', import.meta.url));
 
-// 77 `:root` custom properties (DECISIONS.md D-003), less the 12 that are not colours, less the 2
-// that carry alpha and therefore have no hex. Stated as the arithmetic rather than as a bare 63 so
-// a future change says which of the three it is.
+// 75 `:root` custom properties (DECISIONS.md D-003, D-031), less the 10 that are not colours, less
+// the 2 that carry alpha and therefore have no hex. Stated as the arithmetic rather than as a bare
+// 63 so a future change says which of the three it is.
 const NON_COLOUR_TOKENS = [
   'font-sans',
   'font-mono',
-  'accent-h',
-  'accent-c',
   'progress-h',
   'progress-c',
   'shadow-xs',
@@ -39,7 +37,7 @@ const NON_COLOUR_TOKENS = [
   'page-pad-x',
   'page-pad-top',
 ];
-const EXPECTED_COUNT = 77 - NON_COLOUR_TOKENS.length - OMITTED_ALPHA_TOKENS.length;
+const EXPECTED_COUNT = 75 - NON_COLOUR_TOKENS.length - OMITTED_ALPHA_TOKENS.length;
 
 describe('email tokens', () => {
   it('is exactly what scripts/email-tokens.mjs produces today @g8', () => {
@@ -51,33 +49,44 @@ describe('email tokens', () => {
     expect(committed.replace(/\r\n/g, '\n')).toBe(fresh.replace(/\r\n/g, '\n'));
   });
 
-  it('matches the four token colours a browser measured for D-010 @g8', () => {
-    // DECISIONS.md D-010 recorded these from axe-core running in Chromium against the reference —
-    // measured, not derived, and written down before this generator existed. If the OKLab matrices
-    // or the sRGB transfer function below were wrong, these are the values that would move.
-    expect(EMAIL_TOKENS['text-disabled']).toBe('#a6a4a0'); // --ink-400, light
-    expect(EMAIL_TOKENS['bg-sidebar']).toBe('#f4f2ef'); // --ink-100, light
-    expect(EMAIL_TOKENS['action-on-primary']).toBe('#ffffff'); // --paper
-    expect(EMAIL_TOKENS['ink-500']).toBe('#6e6b67'); // the dark theme's --text-disabled
+  it('matches the token colours Chromium actually paints on the reference @g8', () => {
+    // MEASURED, not derived: each token resolved through a probe element on the rebranded
+    // reference (Status Token.dc.html, light), painted to a 1×1 canvas and read back as sRGB bytes
+    // (2026-10-07, D-031). That is what the browser shows, independently of this generator's own
+    // OKLab matrices and transfer function — which is the point: if those were wrong, these move.
+    // (Until the rebrand these were D-010's axe-core measurements of the handed-off palette.)
+    expect(EMAIL_TOKENS['text-disabled']).toBe('#8a968f'); // --ink-400, a green grey
+    expect(EMAIL_TOKENS['ink-500']).toBe('#5b6762'); // --text-tertiary, hue 169
+    expect(EMAIL_TOKENS['bg-canvas']).toBe('#f4f2ec'); // --ink-100, a warm ground at hue 91
+    expect(EMAIL_TOKENS['action-on-primary']).toBe('#f4f2ec'); // Cream, via --ink-100
+  });
+
+  it('resolves the brand palette to the exact hex the brand guide publishes @g8', () => {
+    // The second independent oracle: the brand guide's published colour table (D-031). These are
+    // the values an email must show, written down by the designer, not computed here.
+    expect(EMAIL_TOKENS['text-primary']).toBe('#15211d'); // Ink: "all text and letters on light grounds"
+    expect(EMAIL_TOKENS['bg-canvas']).toBe('#f4f2ec'); // Cream: "default light ground"
+    expect(EMAIL_TOKENS['action-primary']).toBe('#1f4d40'); // Forest: "buttons"
+    expect(EMAIL_TOKENS['text-link']).toBe('#1f4d40'); // Forest; Energy fails AA as text (3.87:1)
+    expect(EMAIL_TOKENS['action-on-primary']).toBe('#f4f2ec'); // Cream letters on Forest, 8.55:1
   });
 
   it('follows var() chains rather than copying them @g8', () => {
-    // --bg-canvas -> --ink-50 -> oklch(0.985 0.003 85): two hops, and the deepest chain in the file.
-    expect(EMAIL_TOKENS['bg-canvas']).toBe(EMAIL_TOKENS['ink-50']);
+    // --bg-canvas -> --ink-100 -> oklch(0.961 0.008 91): two hops, and the deepest chain in the file.
+    expect(EMAIL_TOKENS['bg-canvas']).toBe(EMAIL_TOKENS['ink-100']);
     expect(EMAIL_TOKENS['text-primary']).toBe(EMAIL_TOKENS['ink-900']);
-    expect(EMAIL_TOKENS['text-inverse']).toBe(EMAIL_TOKENS['paper']);
+    expect(EMAIL_TOKENS['text-inverse']).toBe(EMAIL_TOKENS['ink-100']);
     expect(EMAIL_TOKENS['status-neutral-bg']).toBe(EMAIL_TOKENS['ink-100']);
-    // ...and resolves them to a real colour, not to the string 'var(--ink-50)'.
-    expect(EMAIL_TOKENS['bg-canvas']).toBe('#fbfaf8');
+    // ...and resolves them to a real colour, not to the string 'var(--ink-100)'.
+    expect(EMAIL_TOKENS['bg-canvas']).toBe('#f4f2ec');
   });
 
   it('evaluates calc() inside oklch() @g8', () => {
-    // --action-primary-tint: oklch(0.955 calc(var(--accent-c) * 0.3) var(--accent-h))
-    //   = oklch(0.955 0.024 192). A resolver that ignored the calc and used --accent-c whole (0.08)
-    // would give #d9f7f4 — close enough to look right in review, which is why it is pinned.
-    expect(EMAIL_TOKENS['action-primary-tint']).toBe('#dff6f4');
-    expect(EMAIL_TOKENS['action-primary-line']).toBe('#a7d5d2');
-    // --status-progress-bg uses the same shape on a different pair of channels.
+    // --status-progress-bg: oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h))
+    //   = oklch(0.958 0.028 258). A resolver that ignored the calc and used --progress-c whole
+    // (0.14) would paint a saturated blue where a pale tint belongs. The accent tokens used to carry
+    // this shape too; the brand made them literals (D-031), so the progress pair is now its subject.
+    // Measured in Chromium (see above), not taken from the generator.
     expect(EMAIL_TOKENS['status-progress-bg']).toBe('#e6f2ff');
   });
 
@@ -86,7 +95,7 @@ describe('email tokens', () => {
     // between its two endpoints on every channel — a sign that the weights are the right way round
     // (60% of the DARKER token, so the mix is nearer --ink-200 than --ink-100).
     const mix = EMAIL_TOKENS['line-subtle'];
-    expect(mix).toBe('#ecebe8');
+    expect(mix).toBe('#edeae2'); // measured: Chromium mixes in OKLCH natively and paints this
     const byte = (hex: string, i: number) => parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16);
     for (let i = 0; i < 3; i++) {
       expect(byte(mix, i)).toBeGreaterThan(byte(EMAIL_TOKENS['ink-200'], i));
@@ -103,20 +112,13 @@ describe('email tokens', () => {
   });
 
   it('names every token it had to clamp into sRGB @g8', () => {
-    // These six ask for a channel outside sRGB — the teal accents want a slightly negative red, and
-    // the two tinted backgrounds want a channel just over 1. Chromium clamps per channel (measured:
-    // it applies no CSS Color 4 § 13 gamut mapping) and so does the generator, but a clamp is a lie
-    // about the authored colour, so each one is listed.
-    expect([...GAMUT_CLAMPED_TOKENS]).toEqual([
-      'action-primary',
-      'action-primary-hover',
-      'text-link',
-      'text-link-hover',
-      'status-progress-bg',
-      'status-attention-bg',
-    ]);
+    // These two tinted backgrounds want a channel just over 1. Chromium clamps per channel
+    // (measured: it applies no CSS Color 4 § 13 gamut mapping) and so does the generator, but a
+    // clamp is a lie about the authored colour, so each one is listed. The handed-off teal accent
+    // added four more (it wanted a slightly negative red); every brand colour is inside sRGB, which
+    // is why the brand's Forest round-trips to its published hex exactly (D-031).
+    expect([...GAMUT_CLAMPED_TOKENS]).toEqual(['status-progress-bg', 'status-attention-bg']);
     // A clamped channel lands exactly on the rail, which is what makes it visible here.
-    expect(EMAIL_TOKENS['action-primary']).toBe('#006663');
     expect(EMAIL_TOKENS['status-attention-bg']).toBe('#ffeee9');
     for (const name of GAMUT_CLAMPED_TOKENS) expect(EMAIL_TOKENS).toHaveProperty(name);
   });
@@ -152,7 +154,7 @@ describe('email tokens', () => {
     expect(() => {
       mutable['text-primary'] = '#ff0000';
     }).toThrow(TypeError);
-    expect(EMAIL_TOKENS['text-primary']).toBe('#110f0c');
+    expect(EMAIL_TOKENS['text-primary']).toBe('#15211d');
   });
 
   it('leads the font stack with tokens.css own first family @g8', () => {

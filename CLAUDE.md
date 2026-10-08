@@ -20,7 +20,7 @@ If the sources disagree on a pixel or a string, the reference wins. If they disa
 
 ## Non-negotiables
 - **Never ship a phase without its gate.** Run `pnpm gate <n>` (screenshots in Docker: `pnpm compliance:docker gate <n>`). A phase is done only when it is green locally and in CI.
-- **Never edit `compliance/goldens/` by hand**, and never regenerate them to make a failing test pass. Goldens come only from `pnpm compliance:capture` against the unmodified `design-reference/`. CI proves this.
+- **Never edit `compliance/goldens/` by hand**, and never regenerate them to make a failing test pass. Goldens come only from `pnpm compliance:capture` against the committed `design-reference/`, which itself changes only through a DECISIONS.md entry (D-031, the rebrand). CI proves this.
   Screenshots are scoped by platform (`goldens/linux/` is authoritative and CI-enforced, `goldens/win32/` is the local dev set) and the `.json` fingerprints are shared, because they are platform-independent by measurement. See D-020.
 - **Never raise the tolerance** (`maxDiffPixelRatio: 0.01`, `threshold: 0.15`) and never add masks, except a narrowly scoped one with a DECISIONS.md entry.
 - **Never add features, screens, copy or UI the mockup doesn't have.** The only exceptions are the explicitly listed net-new pieces: sign-in and invite-accept screens (phase 07), the unsaved-changes prompt (phase 06), and production integrations (phase 08). If something seems missing, ask.
@@ -35,7 +35,7 @@ If the sources disagree on a pixel or a string, the reference wins. If they disa
   - `main`
   - `[role="dialog"]` for modals
   - `data-drawer="open"` on open drawers
-  - `data-brand-slot` on brand placeholders
+  - `data-brand-slot` on the brand logo
   - `body[data-app-ready="true"]` once loaded
 - **Demo controls** (View As, Timeline, Reset Demo) and the `?as=`, `?phase=` and `?now=` params exist **only** in fixture mode. They must be impossible in `http` mode.
 - **Accessibility:** zero serious or critical axe violations, visible focus on every interactive element, tokens that pair an icon with a text label (never color alone), and `prefers-reduced-motion` honored for confetti.

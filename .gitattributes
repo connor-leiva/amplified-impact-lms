@@ -16,7 +16,8 @@
 *.otf binary
 *.pdf binary
 
-# The prototype is the oracle. Keep it byte-for-byte as handed off.
+# The prototype is the oracle. Keep it byte-for-byte as committed; it changes only through a
+# DECISIONS entry (D-031).
 design-reference/** -text -diff
 handoff-starter/** -text
 

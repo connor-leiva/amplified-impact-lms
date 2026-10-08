@@ -10,8 +10,8 @@ import { expect, type Page } from '@playwright/test';
  * colours, still fails the gate. Each allowance names a DECISIONS.md entry and is printed on every
  * run so it stays visible rather than fading into the background.
  *
- * Verified against the unmodified prototype: both pairs below reproduce on
- * design-reference/States.dc.html with identical ratios. The app additionally FIXES three
+ * Verified against the reference: every pair below reproduces on design-reference/ with identical
+ * ratios (re-measured after the rebrand, D-031). The app additionally FIXES three
  * violations the reference has — `nested-interactive` on the Employee Card, plus `document-title`
  * and `html-has-lang`.
  */
@@ -24,40 +24,32 @@ interface KnownContrastDefect {
 }
 
 const KNOWN_CONTRAST_DEFECTS: KnownContrastDefect[] = [
+  // Re-measured with axe ON THE REBRANDED REFERENCE (States, the agent shell and the prompt viewer,
+  // light and dark), 2026-10-07, D-031. The rebrand CLOSED two of D-010's five: the dark theme's
+  // white-on-Pine button (4.48) and its hover (3.49) are now Ink on Energy Bright, 9.10 and 10.94.
+  // The three below are the same two defect classes as before — disabled text is low contrast by
+  // intent, and the brand guide's own disabled grey (#8A968F) is what the light theme uses — and
+  // each one is BETTER than the value it replaces (2.22 → 3.07, 2.38 → 2.74, 3.71 → 4.43).
   {
-    fg: '#a6a4a0', // --text-disabled (ink-400)
-    bg: '#f4f2ef', // --bg-sidebar (ink-100)
-    ratio: 2.22,
+    fg: '#8a968f', // --text-disabled (ink-400, the brand guide's disabled grey)
+    bg: '#ffffff', // --bg-sidebar (paper)
+    ratio: 3.07,
     decision: 'D-010',
     why: 'Locked nav row, light theme. Fixing it means changing --text-disabled or --bg-sidebar.',
   },
   {
-    fg: '#a6a4a0', // --text-disabled (ink-400)
-    bg: '#fbfaf8', // --bg-sunken (ink-50) — the code viewer's inset
-    ratio: 2.38,
+    fg: '#8a968f', // --text-disabled (ink-400)
+    bg: '#f4f2ec', // --bg-sunken (Cream) — the code viewer's inset
+    ratio: 2.74,
     decision: 'D-010',
     why: 'Line numbers in the prompt/skill-file viewer, which SCREENS § 3.2 specifies as --text-disabled.',
   },
   {
-    fg: '#6e6b67', // --text-disabled (ink-500)
-    bg: '#0c0b08', // --bg-sidebar, dark theme
-    ratio: 3.71,
+    fg: '#78837d', // --text-disabled, dark theme
+    bg: '#111c18', // --bg-sidebar, dark theme
+    ratio: 4.43,
     decision: 'D-010',
-    why: 'Locked nav row, dark theme. Same token pair as above, dark mapping.',
-  },
-  {
-    fg: '#ffffff', // --action-on-primary
-    bg: '#2f8380', // --action-primary, dark theme
-    ratio: 4.48,
-    decision: 'D-010',
-    why: 'White on the Pine accent, dark theme: 4.48:1, 0.02 short of AA. Fixing it means changing the brand accent.',
-  },
-  {
-    fg: '#ffffff', // --action-on-primary
-    bg: '#439692', // --action-primary-hover, dark theme
-    ratio: 3.49,
-    decision: 'D-010',
-    why: 'White on the hovered Pine accent, dark theme. The hover step lightens the background, so it falls further than the resting state.',
+    why: 'Locked nav row, dark theme. Same token pair as above, dark mapping; 0.07 short of AA.',
   },
 ];
 

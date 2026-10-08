@@ -126,8 +126,8 @@ Product-owner judgement, comparing production side by side with `design-referenc
 
 - [ ] Every screen in SCREENS §3 and §4 at 1440, 1024 and 390, in light and dark
 - [ ] Times correct for an ET, CT and PT viewer
-- [ ] Brand logo and wordmark in `VITE_BRAND_LOGO_URL` / `VITE_BRAND_WORDMARK_URL`, and the
-      brand-slot mask still the only masked region
+- [ ] Brand: the "ai academy" lockup (reversed in dark theme) and the collapsed-rail favicon, and
+      no masked region in parity (D-031)
 - [ ] Backup restore tested
 - [ ] `DECISIONS.md` lists every approved deviation and there are no others
 

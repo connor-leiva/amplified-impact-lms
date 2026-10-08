@@ -28,12 +28,13 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const TOKENS_CSS = new URL('../apps/web/src/styles/tokens.css', import.meta.url);
 const GENERATED = new URL('../apps/api/src/email/tokens.ts', import.meta.url);
 
-// The unmodified reference declares exactly 77 `:root` custom properties — measured three ways and
-// recorded in DECISIONS.md D-003, which also pins the number in the Gate 1 token-parity test. It is
+// The reference declares exactly 75 `:root` custom properties — the handed-off 77 (measured three
+// ways, DECISIONS.md D-003) less --accent-h and --accent-c, which the rebrand retired (D-031). D-003
+// also pins the number in the Gate 1 token-parity test. It is
 // asserted here so a truncated or half-written tokens.css fails loudly instead of quietly shipping
 // emails built from the first dozen colours it managed to parse. If a token is ever legitimately
 // added to the reference, this number and D-003's move together, in the same PR.
-const EXPECTED_ROOT_DECLARATIONS = 77;
+const EXPECTED_ROOT_DECLARATIONS = 75;
 
 // Section 8.1: "Hanken Grotesk with a system-sans fallback". tokens.css falls back through
 // `ui-sans-serif, system-ui`, which no mail client resolves (Outlook renders through Word, and
@@ -49,9 +50,9 @@ const SYSTEM_SANS_FALLBACK = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Rob
 /**
  * The custom properties of the top-level `:root{…}` block, in source order.
  *
- * Only that one block. `:root[data-accent="indigo"]`, `:root[data-theme="dark"]` and the two
- * `@media` blocks are deliberately ignored: emails are sent in one fixed skin — the default accent
- * in light mode — because there is no viewer preference to read at send time. The regex matches a
+ * Only that one block. `:root[data-theme="dark"]` and the two `@media` blocks are deliberately
+ * ignored: emails are sent in one fixed skin — the brand's light mode (D-031) — because there is no
+ * viewer preference to read at send time. The regex matches a
  * bare `:root{`, so the `[data-…]` variants cannot match it at all; the `@media` blocks do contain
  * a bare `:root{` but appear after it, and only redefine the `--page-pad-*` lengths.
  */
@@ -363,13 +364,13 @@ export function encodeSrgb(c) {
 /**
  * An OKLCH colour as `#rrggbb`, plus whether sRGB could actually hold it.
  *
- * GAMUT. Six light-mode tokens are outside sRGB — the teal accents at these lightnesses ask for a
- * slightly negative red, and two tinted backgrounds ask for a channel just over 1. They must not be
- * silently mangled, so this reports `clamped` and the generated module names them.
+ * GAMUT. Two light-mode tokens are outside sRGB — two tinted backgrounds ask for a channel just
+ * over 1. (The handed-off teal accent added four more; every brand colour is inside sRGB, D-031.)
+ * They must not be silently mangled, so this reports `clamped` and the generated module names them.
  *
  * The clamp is per channel, after encoding, which is what Chromium itself does: measured against
- * Chromium 153 by painting each value into a canvas and reading the pixel back, all six agree to
- * the byte with the clamp below (`#006663`, `#005553`, `#00605e`, `#004a48`, `#e6f2ff`, `#ffeee9`).
+ * Chromium 153 by painting each value into a canvas and reading the pixel back, the clamped tokens
+ * agree to the byte with the clamp below (`#e6f2ff`, `#ffeee9`; re-measured after the rebrand).
  * It does NOT apply CSS Color 4 § 13's chroma-reduction gamut mapping, so neither does this. The
  * e2e oracle re-measures that agreement on every run, in the browser, rather than trusting it.
  */

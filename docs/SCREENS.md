@@ -117,11 +117,11 @@ The shell is a full-height flex row, `100vh`, min-height 480, with `overflow: hi
 
 **Frame.** Background `--bg-sidebar`, border-right `1px solid var(--line-default)`, width transition 180ms ease. Two CSS variables are set on the `aside` and consumed by NavItem:
 - `--nav-hover: color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar))`
-- `--nav-active: var(--bg-surface)`
+- `--nav-active: var(--action-primary-tint)` (D-031)
 
-**Brand row.** Height 56, padding `0 16` (rail `0 18`), border-bottom, gap 10. It holds two `BrandSlot` placeholders until real assets exist:
-- Mark: 28×28, radius 7, `1px dashed var(--line-strong)` on `--bg-surface`, `title="Logo slot · drop your logo here"`.
-- Wordmark (full mode only): 132×22, radius 5, dashed, with the text `Wordmark` at 12 `--text-tertiary` and padding 0 8.
+**Brand row.** Height 56, padding `0 16` (rail `0 18`), border-bottom, gap 10. It holds one `BrandSlot` logo (D-031; it replaces the two dashed placeholder slots): a `data-brand-slot` wrapper (`flex: none; display: flex`) around the logo image (`alt=""`).
+- Full and drawer: the `ai academy` app lockup at 161×34 (`brand/amplified-impact-academy-app.svg`), switching to the reversed lockup (`brand/amplified-impact-academy-app-reversed.svg`) in dark theme. The switch is keyed on `:root[data-theme]`, not `prefers-color-scheme`.
+- Rail: the favicon drawing (`brand/favicon.svg`) at 28×28.
 
 In drawer mode a 32 px close icon button sits at the right (`aria-label="Close menu"`).
 
@@ -154,8 +154,8 @@ In rail mode the group header disappears. The groups render as `[Dashboard, Sess
 - Row: height 32, radius 8, gap 10, padding `0 10` (depth 1: `0 10 0 24`; rail: 0, centered), 14px.
 - Weight: 500, or 600 when active.
 - Colors:
-  - Idle: text `--text-secondary`, icon `--text-tertiary`.
-  - Active: background `var(--nav-active)` with `box-shadow: 0 0 0 1px var(--line-default), var(--shadow-xs)`, text `--text-primary`, icon `--action-primary`, `aria-current="page"`.
+  - Idle: text and icon `--text-primary` (D-031).
+  - Active: background `var(--nav-active)` with no ring or shadow, text and icon `--action-primary`, `aria-current="page"` (D-031).
   - Hover: `var(--nav-hover)`.
   - Locked or disabled: text and icon `--text-disabled`.
 - Badge: height 20, min-width 20, radius 999, `--bg-surface`, border `--line-default`, 12/500 `--text-secondary`.

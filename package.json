@@ -10,7 +10,7 @@
     "dev": "pnpm --parallel --filter @ai/web --filter @ai/api dev",
     "build": "pnpm --filter @ai/core build && pnpm --filter @ai/web build && pnpm --filter @ai/api build",
     "start": "pnpm --filter @ai/api start",
-    "lint": "eslint . --max-warnings 0 && node scripts/check-css-colors.mjs && node scripts/check-no-icon-libs.mjs && node scripts/check-control-chars.mjs && node scripts/email-tokens.mjs --check",
+    "lint": "eslint . --max-warnings 0 && node scripts/check-css-colors.mjs && node scripts/check-no-icon-libs.mjs && node scripts/check-control-chars.mjs && node scripts/reference-tokens.mjs --check && node scripts/email-tokens.mjs --check",
     "typecheck": "pnpm -r typecheck && tsc -p compliance/tsconfig.json",
     "test": "pnpm -r test",
     "reference": "node scripts/serve-reference.mjs",

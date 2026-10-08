@@ -131,7 +131,7 @@ Login is invite-only. There is no public sign-up, because the business sells sea
 
 Reuse the existing patterns exactly:
 - A centered card 400 px wide on `--bg-canvas`, with padding 32, radius 16, `--shadow-card` and a border.
-- `BrandSlot` mark and wordmark at the top (gap 10), then the H1 `Sign In` 26/32.
+- `BrandSlot` app lockup at the top (161×34, the reversed lockup in dark theme; it replaced the mark and wordmark placeholders in D-031), then the H1 `Sign In` 26/32.
 - Sub 14 secondary: `We’ll email you a secure sign-in link.`
 - `Work Email` input (canonical), then the full-width 40 px primary button `Email Me a Sign-In Link`.
 - Success state: H1 `Check Your Email` and the sub `We sent a link to {email}. It expires in 15 minutes.`, with a link button `Use a Different Email`.

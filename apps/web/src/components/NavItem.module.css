@@ -13,7 +13,7 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   box-shadow: none;
   cursor: pointer;
   text-align: left;
@@ -47,9 +47,8 @@
 
 .root[data-active='true'] {
   background: var(--nav-active, var(--bg-surface));
-  color: var(--text-primary);
+  color: var(--action-primary);
   font-weight: 600;
-  box-shadow: 0 0 0 1px var(--line-default), var(--shadow-xs);
 }
 .root[data-active='true']:hover,
 .root[data-active='true'][data-force='hover'] {
@@ -64,20 +63,16 @@
   cursor: not-allowed;
 }
 
-/* Nav rows take a 2px focus ring, not the 3px the other controls use. When a row is both active
-   and focused the reference joins the two shadows, comma separated, in this order. */
+/* Nav rows take a 2px focus ring, not the 3px the other controls use. The active row carries no
+   ring of its own any more (D-031: the brand's active row is a tint), so focus is the only shadow. */
 .root:focus-visible,
 .root[data-force='focus'] {
   box-shadow: 0 0 0 2px var(--focus-ring);
 }
-.root[data-active='true']:focus-visible,
-.root[data-active='true'][data-force='focus'] {
-  box-shadow: 0 0 0 1px var(--line-default), var(--shadow-xs), 0 0 0 2px var(--focus-ring);
-}
 
 /* <Icon> sets `stroke: currentColor` inline, so the row's icon colour is just `color` here. */
 .icon {
-  color: var(--text-tertiary);
+  color: var(--text-primary);
 }
 .root[data-active='true'] .icon {
   color: var(--action-primary);

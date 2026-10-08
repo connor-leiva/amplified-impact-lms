@@ -32,42 +32,46 @@ Progress bars fill by steps verified out of 6, never by employee count.
 
 ### Ink ramp (neutral)
 
-A 10-step warm neutral ramp. Light mode reads it top-down, dark mode bottom-up.
+A 10-step neutral ramp, split since D-031 (it was one warm hue, 85). ink-50 to ink-300 are warm (hue 89 to 91, the Cream family) and, in light mode, used for grounds and lines. ink-400 to ink-900 are green (hue 160 to 172) and, in light mode, used for text. Light mode reads it top-down, dark mode bottom-up.
 
 | Step | OKLCH |
 |---|---|
-| ink-50 | 0.985 0.003 85 |
-| ink-100 | 0.962 0.004 85 |
-| ink-200 | 0.925 0.005 85 |
-| ink-300 | 0.865 0.006 85 |
-| ink-400 | 0.72 0.007 85 |
-| ink-500 | 0.53 0.008 85 |
-| ink-600 | 0.42 0.008 85 |
-| ink-700 | 0.30 0.008 85 |
-| ink-800 | 0.225 0.007 85 |
-| ink-900 | 0.17 0.006 85 |
+| ink-50 | 0.985 0.004 91 |
+| ink-100 | 0.961 0.008 91 |
+| ink-200 | 0.922 0.014 89 |
+| ink-300 | 0.873 0.0155 90 |
+| ink-400 | 0.661 0.017 160 |
+| ink-500 | 0.502 0.017 169 |
+| ink-600 | 0.397 0.0175 168 |
+| ink-700 | 0.365 0.018 170 |
+| ink-800 | 0.29 0.019 171 |
+| ink-900 | 0.235 0.019 172 |
 
-`paper` is pure white and is used only for raised surfaces in light mode.
+The ramp reproduces the brand guide exactly: ink-900 is Ink `#15211D`, ink-100 is Cream `#F4F2EC`, and the working greys are ink-600 `#3E4A45`, ink-500 `#5B6762`, ink-400 `#8A968F`, ink-300 `#D9D5CA` and ink-200 `#E9E5DB`.
+
+`paper` is pure white and is used only for raised surfaces and, since D-031, the sidebar in light mode.
 
 ### Semantic tokens
 
+Mappings as of D-031.
+
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| bg.canvas | ink-50 | ink-900 | Page background |
-| bg.sidebar | ink-100 | below ink-900 | Sidebar |
+| bg.canvas | ink-100 (Cream) | ink-900 (Ink) | Page background |
+| bg.sidebar | paper | below ink-900 | Sidebar |
 | bg.surface | paper | ink-800 | Cards, panels |
-| bg.sunken | ink-50 | between ink-900 and ink-800 | Code blocks, inset rows, segmented tracks |
+| bg.sunken | ink-100 | between ink-900 and ink-800 | Code blocks, inset rows, segmented tracks |
 | bg.raised | paper | above ink-800 | Menus, drawers, dialogs |
 | bg.hover / bg.selected | ink-100 | above ink-800 | Row and item states |
 | bg.inverse | ink-900 | ink-50 | Toasts, tooltips |
 | bg.poster | ink-900 | below ink-900 | Video poster. Flat, no glow. |
 | line.subtle / line.default / line.strong | ink-200 → ink-300 | ink-700 range | Dividers, card borders, control borders |
-| text.primary | ink-900 | ink-50 | Headings, body |
+| text.primary | ink-900 | ink-100 | Headings, body |
 | text.secondary | ink-600 | ink-300 | Supporting copy |
-| text.tertiary | ink-500 | ink-400 | Meta, captions, placeholders |
-| text.disabled | ink-400 | ink-500 | Disabled controls, locked nav items |
-| text.link | accent, darker | accent, lighter | Inline links |
-| action.primary | accent | accent, lighter | Primary buttons, focus, active nav icon |
+| text.tertiary | ink-500 | between ink-400 and ink-300 | Meta, captions, placeholders |
+| text.disabled | ink-400 | between ink-500 and ink-400 | Disabled controls, locked nav items |
+| text.link | Forest, hover Ink | Energy Bright | Inline links |
+| action.primary | Forest, Cream letters | Energy Bright, Ink letters | Primary buttons, focus, active nav label and icon |
 | action.secondary | paper + line.strong | raised surface | Secondary buttons |
 | focus.ring | action.primary at 32% | same | Focus outline on every interactive element |
 | status.success | green 145° | lighter | Built, Deployed, Verified, Replay ready, Live |
@@ -78,15 +82,20 @@ A 10-step warm neutral ramp. Light mode reads it top-down, dark mode bottom-up.
 
 Each status token has four parts: the solid (`status.success`), `-text`, `-bg` and `-line`.
 
-### Brand accent
+### Brand palette
 
-The accent is a tweak while the brand is undecided. It must never be generic Tailwind blue.
+The accent tweak (Pine, Indigo, Plum) was removed in D-031. The palette is the brand guide's. The tokens are authored in OKLCH, and each round-trips to the guide's exact hex.
 
-| Option | Hue | status.progress pairs with |
-|---|---|---|
-| Pine (default) | 192°, chroma 0.08 | Cobalt 258° |
-| Indigo | 275°, chroma 0.15 | Teal 212° |
-| Plum | 340°, chroma 0.12 | Cobalt 258° |
+| Color | Hex | Token | Use |
+|---|---|---|---|
+| Ink | `#15211D` | ink-900 | text.primary (light), bg.canvas (dark), letters on Energy Bright buttons |
+| Cream | `#F4F2EC` | ink-100 | bg.canvas (light), text.primary (dark), letters on Forest buttons |
+| Forest | `#1F4D40` | action.primary, text.link (light) | Primary buttons (8.55:1 with Cream letters), links, active nav label and icon |
+| Energy Bright | `#6FD3A5` | action.primary, text.link (dark) | Primary buttons (9.10:1 with Ink letters), links, active nav label and icon |
+| Active tint | `#E3EFE8` | action.primary-tint (light) | Active nav row background |
+| Energy | `#1F8A5C` | none | Logo artwork only |
+
+Forest cannot be the dark primary: it is 1.73:1 on Ink. Energy is 3.87:1 on Cream (the guide's 4.3:1 is the figure on white), so it is never text or a link. Terracotta is not used in the product UI. status.progress stays Cobalt 258°.
 
 ## Theme
 
@@ -94,7 +103,7 @@ Light mode is the default. Dark mode is a toggle in the profile menu (Theme: Lig
 
 ## Type
 
-Typeface: **Hanken Grotesk** (tweak: Instrument Sans, Schibsted Grotesk). Mono: **DM Mono** for timestamps, countdown digits, code and file names.
+Typeface: **Hanken Grotesk** (the Instrument Sans and Schibsted Grotesk tweaks were removed in D-031). Mono: **DM Mono** for timestamps, countdown digits, code and file names.
 
 Six-step scale:
 
@@ -149,7 +158,7 @@ All components are separate files the app imports, so the States sheet renders t
 - The sidebar is expanded (248 px) on desktop by default and shows an icon with every item, including each AI Employee. The Collapse Sidebar toggle switches to a 64 px icon rail, and the choice is remembered. Below 768 px it becomes a drawer.
 - Page padding is 32 px, then 24 px below 1280, then 16 px below 768. Top padding is at least 24 px so the H1 clears the header.
 - On the detail page, the header sits above a main column (player, chapter rail, build checklist) and an aside (Your deployment, build kit, instructor notes). The footer has a single “Next: …” link that skips locked AI Employees.
-- Logo and wordmark slots are reserved in the sidebar header as drop targets. No mark is generated.
+- The expanded sidebar header shows the “ai academy” app lockup at 161 × 34 px, as do the drawer, sign-in and invite accept. Dark theme switches it to the reversed lockup. The collapsed rail shows the favicon drawing at 28 × 28 px. These replaced the logo and wordmark drop-target slots (D-031).
 
 ## Files
 
@@ -157,3 +166,4 @@ All components are separate files the app imports, so the States sheet renders t
 - `States.dc.html`: component states and the five session card variants.
 - `Responsive.dc.html`: live frames at 1024 px and 390 px.
 - `lms-data.js`: demo data, the status model, time-zone formatting and session-card logic.
+- `brand/`: the app lockup and its reversed version, the signature logo and its reversed version, and the favicon (D-031).

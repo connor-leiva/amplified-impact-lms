@@ -164,7 +164,7 @@ Set `data-app-ready="true"` on `<body>` once the first `snapshot()` has resolved
 <div className={s.shell}>                                  {/* flex, 100vh, overflow hidden */}
   {drawer && drawerOpen && <div className={s.scrim} onClick={closeDrawer} />}
   <aside aria-label="Primary" className={s.sidebar} data-mode={mode}
-         style={{ '--nav-hover': 'color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar))', '--nav-active': 'var(--bg-surface)' } as CSSProperties}>
+         style={{ '--nav-hover': 'color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar))', '--nav-active': 'var(--action-primary-tint)' } as CSSProperties}>
     <BrandRow />  <ContextLine />  <Nav groups={navModel} collapsed={mode === 'rail'} />  <SidebarFooter />
   </aside>
   <div className={s.column}>
@@ -183,7 +183,8 @@ Set `data-app-ready="true"` on `<body>` once the first `snapshot()` has resolved
 - `mode = vw < 768 ? 'drawer' : prefs.sidebar === 'rail' ? 'rail' : 'full'`. Read `vw` with a `ResizeObserver` on `document.documentElement` **and** `window.innerWidth` on every render. The prototype once got stuck in drawer mode when it started hidden.
 - Esc closes the profile menu, the demo popover, the Locked Preview and the drawer.
 - Navigation scrolls `main` to the top and closes the drawer.
-- `BrandSlot` renders the dashed placeholders with `data-brand-slot` and the `title` attributes from SCREENS §2.1. When `VITE_BRAND_LOGO_URL` / `VITE_BRAND_WORDMARK_URL` are set, it renders `<img>` instead, at the same size.
+- `--nav-active` is `var(--action-primary-tint)` (D-031; was `var(--bg-surface)`). The active row is that tint with an `--action-primary` label and icon at weight 600 and no ring or shadow; inactive rows use `--text-primary` for label and icon.
+- `BrandSlot` renders the committed logo, with `data-brand-slot` on its wrapper (one per logo): the `ai academy` app lockup at 161×34 in the expanded sidebar and the drawer, switching to the reversed lockup in dark theme (keyed on `:root[data-theme]`, not `prefers-color-scheme`), and the favicon drawing at 28×28 in the collapsed rail. This replaced the dashed 28×28 mark and 132×22 wordmark placeholders and retired `VITE_BRAND_LOGO_URL` / `VITE_BRAND_WORDMARK_URL` (D-031). The brand row is not masked in parity; `compliance/tests/e2e/brand.spec.ts` asserts the right variant per theme.
 
 ### Nav model (port of the prototype shell's `renderVals`)
 

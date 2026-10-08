@@ -1,23 +1,8 @@
-// Self-hosted through @fontsource. Same families the reference loads from Google.
+// Self-hosted through @fontsource. Same families and weights the reference loads from Google:
+// Hanken Grotesk 400-700 and DM Mono 400/500 — the brand's two typefaces (D-031).
 import '@fontsource/hanken-grotesk/400.css';
 import '@fontsource/hanken-grotesk/500.css';
 import '@fontsource/hanken-grotesk/600.css';
 import '@fontsource/hanken-grotesk/700.css';
 import '@fontsource/dm-mono/400.css';
 import '@fontsource/dm-mono/500.css';
-
-// Alternate typefaces are loaded only when chosen (see lib/prefs.ts).
-export const loadAltFont = (font: 'instrument' | 'schibsted') =>
-  font === 'instrument'
-    ? Promise.all([
-        import('@fontsource/instrument-sans/400.css'),
-        import('@fontsource/instrument-sans/500.css'),
-        import('@fontsource/instrument-sans/600.css'),
-        import('@fontsource/instrument-sans/700.css'),
-      ])
-    : Promise.all([
-        import('@fontsource/schibsted-grotesk/400.css'),
-        import('@fontsource/schibsted-grotesk/500.css'),
-        import('@fontsource/schibsted-grotesk/600.css'),
-        import('@fontsource/schibsted-grotesk/700.css'),
-      ]);

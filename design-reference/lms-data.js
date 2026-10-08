@@ -122,8 +122,6 @@ export function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREFS
 export function applyPrefs(p) {
   const d = document.documentElement;
   d.dataset.theme = p.theme === 'dark' ? 'dark' : 'light';
-  if (p.accent && p.accent !== 'pine') d.dataset.accent = p.accent; else delete d.dataset.accent;
-  if (p.font && p.font !== 'hanken') d.dataset.font = p.font; else delete d.dataset.font;
   setViewerZone(p.tz || null);
 }
 export function savePrefs(patch) { const p = { ...loadPrefs(), ...patch }; try { localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch (e) {} applyPrefs(p); return p; }

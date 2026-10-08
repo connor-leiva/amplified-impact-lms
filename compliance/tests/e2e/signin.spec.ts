@@ -254,9 +254,10 @@ test('/sign-in renders § 7.5s card @g7 @smoke', async () => {
   await expect(page.getByLabel(COPY.label)).toBeVisible();
   await expect(page.getByRole('button', { name: COPY.submit })).toBeEnabled();
 
-  // CLAUDE.md's required landmark for the brand placeholders — the mark and the wordmark, § 7.5's
-  // "`BrandSlot` mark and wordmark at the top".
-  await expect(page.locator('[data-brand-slot]')).toHaveCount(2);
+  // CLAUDE.md's brand landmark. § 7.5 had a mark and a wordmark at the top; the brand guide puts the
+  // single `ai academy` app lockup on login screens (D-031), so there is one. tests/e2e/brand.spec.ts
+  // checks that the variant shown matches the theme.
+  await expect(page.locator('[data-brand-slot]')).toHaveCount(1);
   await page.close();
 });
 

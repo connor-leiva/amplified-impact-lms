@@ -37,7 +37,7 @@ apps/web/          Vite + React 19 + TypeScript SPA (portal + admin)
 apps/api/          Fastify 5 + Postgres (serves /api and the built SPA)
 packages/core/     TypeScript port of lms-data.js: types, seed, status, time, view-models,
                    mutations, permissions — shared by the web app and the API
-design-reference/  the prototype (read-only, never edited)
+design-reference/  the prototype (changed only through a DECISIONS entry, D-031)
 compliance/        the parity harness: scenarios, fingerprints, goldens, e2e
 docs/              DESIGN.md, SCREENS.md, phases/
 ```
@@ -71,7 +71,7 @@ pnpm goldens:check   # proves capturing twice is byte-identical
 
 | Script | What it does |
 |---|---|
-| `pnpm lint` | eslint, the raw-colour guard, the no-icon-library guard |
+| `pnpm lint` | eslint, the raw-colour guard, the no-icon-library guard, the control-character guard, the reference-token and brand-SVG check (D-031), the email-token check |
 | `pnpm typecheck` | every workspace package plus the compliance harness |
 | `pnpm test` | unit and differential suites |
 | `pnpm harness` | Gate 0: the reference drives cleanly in all 55 scenarios |
@@ -94,8 +94,8 @@ APP_PORT=4273 pnpm gate 6      # also REF_PORT for the reference server
 
 ### Pixel goldens
 
-`compliance/goldens/` is captured only by `pnpm compliance:capture` against the unmodified
-reference. The authoritative set comes from the pinned container:
+`compliance/goldens/` is captured only by `pnpm compliance:capture` against the committed
+reference (D-031). The authoritative set comes from the pinned container:
 
 ```bash
 pnpm compliance:docker compliance:capture
@@ -129,7 +129,10 @@ Windows, and Chromium rasterizes text slightly differently per platform, so they
 byte-match. The job explains this in its log and uploads the container's set as the
 `goldens-from-container` artifact. Download it, replace `compliance/goldens`, change
 `PROVENANCE.txt` to `platform: container`, and commit — that set is then authoritative and the job
-stays green. See DECISIONS.md D-001.
+stays green. See DECISIONS.md D-001. The D-031 rebrand repeats this: it recaptured the win32 PNGs
+and the shared `.json`, not the linux set, so its push fails `goldens` until the container set from
+that run is committed to `compliance/goldens/linux/`. Until then CI's `compliance` parity also
+compares against the pre-rebrand linux PNGs.
 
 Add `quality`, `goldens`, `harness` and `compliance` as required status checks on `main` **after**
 that commit, so protection is not blocked by the known first-run diff.
@@ -139,7 +142,7 @@ that commit, so protection is not blocked by the known first-run diff.
 | Phase | Delivers | State |
 |---|---|---|
 | 00 | Monorepo, CI, Railway IaC, compliance harness, goldens | ✅ shipped |
-| 01 | Tokens, fonts, theme / accent / typeface, Icon | ✅ shipped |
+| 01 | Tokens, fonts, theme / accent / typeface (accent and typeface superseded by D-031), Icon | ✅ shipped |
 | 02 | `packages/core`: types, seed, status, time, view-models, 37 mutations, permissions | ✅ shipped |
 | 03 | Primitives + 7 product components + `/__states` | ✅ shipped |
 | 04 | Router, sidebar, header, profile menu, data layer | ✅ shipped |
@@ -154,8 +157,8 @@ that commit, so protection is not blocked by the known first-run diff.
 - **Production domain.** The docs use `learn.YOUR_DOMAIN` and `demo.YOUR_DOMAIN` as placeholders.
 - **Video host for replays.** Any HLS provider works behind the `VideoEngine` interface.
 - **Email sender domain** for Resend.
-- **Brand assets.** Logo and wordmark slots are reserved and no mark is designed; supply
-  `VITE_BRAND_LOGO_URL` and `VITE_BRAND_WORDMARK_URL` when they are ready.
+- **Brand assets.** Settled by D-031 — the committed "ai academy" lockup and favicon replace the
+  logo and wordmark slots, and `VITE_BRAND_LOGO_URL` / `VITE_BRAND_WORDMARK_URL` are retired.
 
 ## Open question needing a product decision
 

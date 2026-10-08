@@ -171,8 +171,10 @@ const cta: CSSProperties = {
 };
 
 // The style objects above are deliberately NOT exported. `templates.test.tsx` asserts the rendered
-// HTML against written-out literals (`font-size:26px`, `height:40px`, `#006663`), because a test
-// that compared the output to the same object that produced it would pass whatever this file said.
+// HTML against written-out literals (`font-size:26px`, `height:40px`) and colours read from
+// `EMAIL_TOKENS` — which tokens.test.ts pins independently, against what Chromium paints and against
+// the brand guide's published hex (D-031) — because a test that compared the output to the same
+// object that produced it would pass whatever this file said.
 // `CONTENT_WIDTH` is the one exception: the test uses it AND asserts it is 560.
 
 export interface EmailLayoutProps {
@@ -206,10 +208,12 @@ export function Para({ children }: { children: ReactNode }) {
  *
  * Note what is NOT here: no brand row, no footer, no "if the button does not work" link, no
  * unsubscribe. § 8.1 names a column, a font, two type sizes and one button, and CLAUDE.md forbids
- * adding copy or UI the product does not have. The app's brand marks are `BrandSlot`
- * placeholders driven by `VITE_BRAND_*` build config with no committed asset, so there is nothing
- * to put at the top of an email that would not be invented. When real brand assets and a
- * compliance footer arrive, they belong here — in one place.
+ * adding copy or UI the product does not have. The brand guide does ask for the `ai academy` app
+ * lockup in emails, and since D-031 the app commits that artwork — but an email needs it as a
+ * HOSTED RASTER (mail clients drop SVG and data: images), served cross-origin and exempt from the
+ * rate limit, and none of that can be tested until email actually sends. So it is deferred, and
+ * recorded as such in D-031. When it and a compliance footer arrive, they belong here — in one
+ * place.
  */
 export function EmailLayout({ subject, cta: action, children }: EmailLayoutProps) {
   return (

@@ -1,6 +1,6 @@
 # Phase 01: Design Foundations
 
-**Goal.** Tokens, fonts, theme, accent, typeface, global CSS and the custom icon set are identical to the reference. Nothing product-specific is built yet.
+**Goal.** Tokens, fonts, theme, global CSS and the custom icon set are identical to the reference (the accent and typeface tweaks were removed by D-031). Nothing product-specific is built yet.
 
 **Ships when:** `pnpm gate 1` is green. That means the token parity and icon parity tests below pass, plus Gate 0.
 
@@ -14,8 +14,8 @@
 
 ```
 apps/web/src/styles/
-  tokens.css      ← handoff-starter/tokens.css (verbatim, generated)
-  global.css      ← handoff-starter/global.css (resets + keyframes, verbatim)
+  tokens.css      ← generated from design-reference/ by scripts/reference-tokens.mjs (D-031)
+  global.css      ← generated the same way (resets + keyframes)
   fonts.ts        ← @fontsource imports
 ```
 
@@ -26,12 +26,13 @@ cp handoff-starter/tokens.css  apps/web/src/styles/tokens.css
 cp handoff-starter/global.css  apps/web/src/styles/global.css
 cp handoff-starter/icons.ts    packages/core/src/icons.ts
 ```
+> **Superseded by D-031 for `tokens.css` and `global.css`.** They are now generated from `design-reference/` by `node scripts/reference-tokens.mjs`; do not hand-edit or re-copy them. Its `--check` runs in `pnpm lint` and asserts that all 25 reference token blocks are byte-identical, that `tokens.css` and `global.css` are current, and that `apps/web/src/assets/brand/*.svg` are byte-identical to `design-reference/brand/*.svg`.
 
 `tokens.css` defines:
 - `:root` (light) and `:root[data-theme="dark"]`
-- the accent overrides `:root[data-accent="indigo" | "plum"]`
-- the typeface overrides `:root[data-font="instrument" | "schibsted"]`
 - the responsive `--page-pad-x` / `--page-pad-top` media queries
+
+The handoff's accent overrides (`:root[data-accent="indigo" | "plum"]`) and typeface overrides (`:root[data-font="instrument" | "schibsted"]`) are not in the generated `tokens.css`: D-031 removed them from `design-reference/`, along with `--accent-h` and `--accent-c` (`handoff-starter/tokens.css` still has them). `:root` now defines 75 custom properties (was 77).
 
 `global.css` holds the body reset, link colors, scrollbar styling and the keyframes: `ai-confetti`, `ai-toast-in`, `ai-pulse`, `ai-pop`, `ai-fade`, `ai-skeleton`, `ai-spin`, `ai-drawer-in`.
 
@@ -40,7 +41,7 @@ Do not rename a single custom property. The parity test compares them by name.
 ## 1.3 Fonts (self-hosted, same families)
 
 ```bash
-pnpm --filter @ai/web add @fontsource/hanken-grotesk @fontsource/dm-mono @fontsource/instrument-sans @fontsource/schibsted-grotesk
+pnpm --filter @ai/web add @fontsource/hanken-grotesk @fontsource/dm-mono
 ```
 
 `apps/web/src/styles/fonts.ts`
@@ -51,12 +52,8 @@ import '@fontsource/hanken-grotesk/600.css';
 import '@fontsource/hanken-grotesk/700.css';
 import '@fontsource/dm-mono/400.css';
 import '@fontsource/dm-mono/500.css';
-// Alternate typefaces are loaded only when chosen (see prefs.ts)
-export const loadAltFont = (font: 'instrument' | 'schibsted') =>
-  font === 'instrument'
-    ? Promise.all([400, 500, 600, 700].map((w) => import(`@fontsource/instrument-sans/${w}.css`)))
-    : Promise.all([400, 500, 600, 700].map((w) => import(`@fontsource/schibsted-grotesk/${w}.css`)));
 ```
+Hanken Grotesk 400–700 and DM Mono 400/500 are the only families. The alternate typefaces (`@fontsource/instrument-sans`, `@fontsource/schibsted-grotesk`) and `loadAltFont` were removed with the typeface tweak (D-031).
 
 `apps/web/src/main.tsx` (imports, in this order):
 ```ts
@@ -67,9 +64,9 @@ import './styles/global.css';
 
 ## 1.4 Pre-paint theme script
 
-Paste the snippet from `handoff-starter/index.head.html` into `apps/web/index.html` `<head>`, before the module script. It reads `localStorage['ai-lms-prefs']` and sets `data-theme`, `data-accent` and `data-font` on `<html>` before first paint, so there is no theme flash.
+Paste the snippet from `handoff-starter/index.head.html` into `apps/web/index.html` `<head>`, before the module script, without its `data-accent` and `data-font` clauses (removed by D-031). It reads `localStorage['ai-lms-prefs']` and sets `data-theme` on `<html>` before first paint, so there is no theme flash.
 ```html
-<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';if(p.accent&&p.accent!=='pine')d.dataset.accent=p.accent;if(p.font&&p.font!=='hanken')d.dataset.font=p.font;}catch(e){}</script>
+<script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 ```
 
 ## 1.5 Preferences module (port of `loadPrefs` / `savePrefs` / `applyPrefs`)
@@ -77,15 +74,12 @@ Paste the snippet from `handoff-starter/index.head.html` into `apps/web/index.ht
 `apps/web/src/lib/prefs.ts`
 ```ts
 import { setViewerZone } from '@ai/core';
-import { loadAltFont } from '../styles/fonts';
 
 export const PREFS_KEY = 'ai-lms-prefs';
 export type Prefs = {
   theme?: 'light' | 'dark';
   tz?: string | null;            // null/undefined = Auto
   sidebar?: 'full' | 'rail';
-  accent?: 'pine' | 'indigo' | 'plum';
-  font?: 'hanken' | 'instrument' | 'schibsted';
   phase?: 'week0' | 'live' | 'post'; // fixture/demo only
 };
 
@@ -94,8 +88,6 @@ export const loadPrefs = (): Prefs => { try { return JSON.parse(localStorage.get
 export function applyPrefs(p: Prefs) {
   const d = document.documentElement;
   d.dataset.theme = p.theme === 'dark' ? 'dark' : 'light';
-  if (p.accent && p.accent !== 'pine') d.dataset.accent = p.accent; else delete d.dataset.accent;
-  if (p.font && p.font !== 'hanken') { d.dataset.font = p.font; void loadAltFont(p.font); } else delete d.dataset.font;
   setViewerZone(p.tz ?? null);
 }
 
@@ -107,7 +99,7 @@ export function savePrefs(patch: Partial<Prefs>): Prefs {
   return next;
 }
 ```
-Brand configuration (accent and typeface) is product configuration, not a user preference. Read it from `VITE_BRAND_ACCENT` and `VITE_BRAND_FONT` at boot and pass it to `applyPrefs`. The **default is `pine` + `hanken`**, which matches the reference.
+There is no brand configuration (superseded by D-031). The accent (Pine/Indigo/Plum) and typeface (Hanken/Instrument Sans/Schibsted Grotesk) tweaks were removed from the reference and the app once the brand was decided, and `VITE_BRAND_ACCENT` / `VITE_BRAND_FONT` with them from the app. Theme (light/dark) is the only appearance picker that remains.
 
 ## 1.6 Lint guard against raw colors
 
@@ -154,16 +146,12 @@ Add `/__tokens`, which renders the six type steps and every semantic swatch. It 
 
 ## Gate 1: Ship Checklist
 
-**Token parity** (`compliance/tests/e2e/tokens.spec.ts`). Every custom property resolves to the same computed value in the reference and in the app, for each theme × accent × typeface combination that ships.
+**Token parity** (`compliance/tests/e2e/tokens.spec.ts`). Every custom property resolves to the same computed value in the reference and in the app, for each theme that ships: light and dark (the accent and typeface combinations went with the tweaks, D-031).
 ```ts
 import { test, expect } from '@playwright/test';
 import { REF_BASE, APP_BASE } from '../../lib/prepare';
 
-const COMBOS = [
-  { theme: 'light' }, { theme: 'dark' },
-  { theme: 'light', accent: 'indigo' }, { theme: 'light', accent: 'plum' },
-  { theme: 'dark', accent: 'indigo' }, { theme: 'light', font: 'schibsted' },
-];
+const COMBOS = [{ theme: 'light' }, { theme: 'dark' }];
 
 async function readTokens(page, url, prefs) {
   await page.addInitScript((p) => localStorage.setItem('ai-lms-prefs', JSON.stringify(p)), prefs);
@@ -186,7 +174,7 @@ for (const prefs of COMBOS) test(`tokens match reference ${JSON.stringify(prefs)
   const b = await (await browser.newContext()).newPage();
   const ref = await readTokens(a, `${REF_BASE}/${encodeURIComponent('Status Token.dc.html')}`, prefs);
   const app = await readTokens(b, `${APP_BASE}/__tokens`, prefs);
-  expect(Object.keys(ref).length).toBeGreaterThan(80);
+  expect(Object.keys(ref).length).toBe(75); // the handed-off 77, less --accent-h and --accent-c (D-031)
   expect(app).toEqual(ref);
 });
 ```

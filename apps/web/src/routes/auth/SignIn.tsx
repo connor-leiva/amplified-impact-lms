@@ -177,8 +177,7 @@ export function Component() {
     <main className={s.page}>
       <div className={s.card}>
         <div className={s.brand}>
-          <BrandSlot kind="mark" />
-          <BrandSlot kind="wordmark" />
+          <BrandSlot kind="lockup" />
         </div>
 
         <div className={s.head}>

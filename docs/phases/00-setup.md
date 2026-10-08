@@ -22,7 +22,7 @@ amplified-impact-lms/
 │  └─ api/                 Fastify 5 + Drizzle + Postgres (serves /api and the built SPA)
 ├─ packages/
 │  └─ core/                TypeScript port of design-reference/lms-data.js (shared)
-├─ design-reference/       COPY of handoff /reference (read-only, never edited)
+├─ design-reference/       The handoff /reference, rebranded (D-031); changed only through a DECISIONS.md entry
 ├─ compliance/
 │  ├─ playwright.config.ts
 │  ├─ lib/                 scenarios.ts, prepare.ts, fingerprint.ts, regions.ts, a11y.ts
@@ -36,7 +36,7 @@ amplified-impact-lms/
 ```
 
 Copy the handoff folders in now:
-- `reference/` → `design-reference/`
+- `reference/` → `design-reference/` (superseded by D-031: it now holds the rebranded reference, changed only through a DECISIONS.md entry)
 - `starter/` → keep at `handoff-starter/`; later phases move its files into place.
 - `DESIGN.md` and `SCREENS.md` → `docs/`.
 
@@ -256,11 +256,10 @@ export const REGION = {
   drawer: '[data-drawer="open"], aside:not([aria-label="Primary"])[style*="translateX(0"]',
 } as const;
 
-// The brand slots render placeholders in both builds. Mask them so a dropped logo never fails a test.
-export const MASKS = {
-  reference: ['aside [title^="Logo slot"]', 'aside [title^="Wordmark slot"]'],
-  app: ['[data-brand-slot]'],
-} as const;
+// No region is masked (D-031). Until the rebrand both builds drew placeholder brand slots, masked as
+// reference ['aside [title^="Logo slot"]', 'aside [title^="Wordmark slot"]'] and app ['[data-brand-slot]'].
+// Both now draw the same committed logo, so the brand row is compared like any other pixel.
+export const MASKS: { reference: string[]; app: string[] } = { reference: [], app: [] };
 
 // Prototype-only chrome that never exists in the app's fixture build.
 export const REFERENCE_HIDE_CSS = `

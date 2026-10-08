@@ -2,23 +2,18 @@ import { test, expect, type Page } from '@playwright/test';
 import { REF_BASE, APP_BASE } from '../../lib/prepare';
 
 // Every custom property must resolve to the same computed value in the reference and in the app,
-// for each theme × accent × typeface combination that ships.
-const COMBOS: Record<string, string>[] = [
-  { theme: 'light' },
-  { theme: 'dark' },
-  { theme: 'light', accent: 'indigo' },
-  { theme: 'light', accent: 'plum' },
-  { theme: 'dark', accent: 'indigo' },
-  { theme: 'light', font: 'schibsted' },
-];
+// in each theme that ships. The accent and typeface combinations went with the Brand tweaks (D-031):
+// with no rule left to match `data-accent` or `data-font` on either side, keeping them would have
+// passed vacuously while still claiming coverage.
+const COMBOS: Record<string, string>[] = [{ theme: 'light' }, { theme: 'dark' }];
 
 // The reference renders tokens on every page; Status Token.dc.html is the smallest one that does.
 const REF_URL = `${REF_BASE}/${encodeURIComponent('Status Token.dc.html')}`;
 
-// The unmodified reference defines exactly 77 :root custom properties (verified in-browser against
-// design-reference/Status Token.dc.html). The count is asserted so an accidentally-truncated
-// tokens.css fails loudly instead of comparing two near-empty objects.
-const TOKEN_COUNT = 77;
+// The reference defines exactly 75 :root custom properties: the handed-off 77, less --accent-h and
+// --accent-c, which the brand made vestigial (D-003, D-031). The count is asserted so an
+// accidentally-truncated tokens.css fails loudly instead of comparing two near-empty objects.
+const TOKEN_COUNT = 75;
 
 async function readTokens(page: Page, url: string, prefs: Record<string, string>) {
   await page.addInitScript((p) => localStorage.setItem('ai-lms-prefs', JSON.stringify(p)), prefs);
