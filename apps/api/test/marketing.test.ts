@@ -80,6 +80,24 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
 
     // And with a query string, which is how a QR code carrying a campaign tag arrives.
     expect((await get(a, '/ai101?src=qr', WWW)).statusCode).toBe(200);
+
+    // The spellings the slides and the room type reach the page's own 301 on www too, query intact,
+    // not the placeholder (they once went to `/` on www only).
+    for (const [url, location] of [
+      ['/AI101', '/ai101'],
+      ['/ai-101', '/ai101'],
+      ['/AI101?src=slide', '/ai101?src=slide'],
+    ] as const) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(301);
+      expect(res.headers.location, url).toBe(location);
+    }
+    // Lookalikes still go to the placeholder.
+    for (const url of ['/Ai101', '/ai101x', '/ai-1010']) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(302);
+      expect(res.headers.location, url).toBe('/');
+    }
   });
 
   it('NEVER redirects /api/health, because that would roll back a healthy deploy @g9', async () => {

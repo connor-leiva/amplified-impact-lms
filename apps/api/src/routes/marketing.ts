@@ -29,13 +29,16 @@ import type { App } from '../app';
 /**
  * Paths that reach their real handler on the marketing host rather than the placeholder.
  *
- * `/ai101` because it is public by design. `/terms` and `/privacy` because the waitlist on it links
+ * `/ai101` because it is public by design, and its two other spellings, `/AI101` and `/ai-101`, because
+ * the slides and the room type them: `routes/ai101.ts` answers each with its own 301 to `/ai101`, and
+ * without them here www sent a typed `/AI101` to the placeholder instead (found after the 2026-10-08
+ * deploy; learn was always right). `/terms` and `/privacy` because the waitlist on it links
  * to them, and a visitor on www must land on the page, not on the placeholder (`routes/legal.ts`);
  * those two match exactly, with or without a query string, so `/terms-old` still goes to `/`.
  * `/api/` because the health check lives there — Railway's probe arrives with its own `Host` and a
  * redirect would fail a deploy that is perfectly healthy — and so does the waitlist the page posts to.
  */
-const PUBLIC_PREFIX = /^\/(ai101(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
+const PUBLIC_PREFIX = /^\/((ai101|AI101|ai-101)(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
 
 /** The placeholder's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);
