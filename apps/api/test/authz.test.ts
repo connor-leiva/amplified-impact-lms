@@ -109,7 +109,8 @@
 //      rate limit standing in for the session — `routes/ai101.ts` carries that argument and
 //      `test/ai101.test.ts` measures each piece. The page and its three redirects are not under
 //      `/api/` at all, so the checklist's sentence never reached them; they are classified `page`
-//      so the inventory stays complete, and the sweep below asserts they stay outside `/api/`.
+//      so the inventory stays complete, and the sweep below asserts they stay outside `/api/`. The
+//      public /terms and /privacy pages (`routes/legal.ts`) are classified the same way.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { can, MutationError, PERMS, seedForDatabase, STAFF_ROLES } from '@ai/core';
@@ -529,6 +530,10 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/ai-101', methods: 'GET, HEAD', guard: 'page' },
   // D-032's calendar file for the page's sprint: public, like the page it belongs to.
   { path: '/ai101/carousel-sprint.ics', methods: 'GET, HEAD', guard: 'page' },
+  // The Terms of Service and Privacy Policy the waitlist links to (`routes/legal.ts`): public
+  // pages, served like /ai101, and outside `/api/` like it.
+  { path: '/terms', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/privacy', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -1014,6 +1019,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/ai101',
           '/ai101/',
           '/ai101/carousel-sprint.ics',
+          '/privacy',
+          '/terms',
         ]);
         expect(pages.filter((r) => r.path.startsWith('/api/'))).toEqual([]);
 

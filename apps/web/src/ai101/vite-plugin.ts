@@ -11,6 +11,9 @@
 // matters is in `render.ts`'s header (venue NAT, a shared per-IP rate limit, bad Wi-Fi); the short
 // version is that the only other requests the page can make are its four font files.
 //
+// The same build also makes /terms and /privacy (`src/legal/`), which `ai101Inline` treats the
+// same way, and whose renderer is loaded through `ssrLoadForBuild` below and filled with `fill`.
+//
 // WHY THE PAGE HAS ITS OWN BUILD
 // A second `input` in the SPA's config would let Rolldown share chunks between the two entries — a
 // CSS file, a helper — and any shared chunk renames the SPA's own assets and rewrites its gated
@@ -44,10 +47,15 @@ const BODY_MARKER = '<!--ai101:body-->';
 
 const isAi101 = (filename: string) => filename.replace(/\\/g, '/').endsWith(`/${AI101_HTML}`);
 
-/** Replaces one marker, and fails loudly if it is gone: a shell without it would ship blank. */
-function fill(html: string, marker: string, content: string): string {
+/**
+ * Replaces one marker, and fails loudly if it is gone: a shell without it would ship blank.
+ *
+ * Exported, with `page` to name the shell in the error, for the /terms and /privacy shells
+ * (`src/legal/vite-plugin.ts`), which are filled the same way.
+ */
+export function fill(html: string, marker: string, content: string, page: string = AI101_HTML): string {
   const at = html.indexOf(marker);
-  if (at === -1) throw new Error(`${AI101_HTML}: the ${marker} marker is missing.`);
+  if (at === -1) throw new Error(`${page}: the ${marker} marker is missing.`);
   // Spliced rather than `String.replace`d: a replacement STRING gives `$&`, `$'` and `$1` special
   // meanings, and the prompts are free text that may one day contain a dollar sign.
   return html.slice(0, at) + content + html.slice(at + marker.length);
@@ -57,6 +65,14 @@ const load = async (server: ViteDevServer) => (await server.ssrLoadModule(RENDER
 
 /** The page build has no server of its own: start one for the one module, and close it again. */
 async function loadForBuild(config: ResolvedConfig): Promise<typeof Render> {
+  return ssrLoadForBuild<typeof Render>(config, RENDER_URL);
+}
+
+/**
+ * `loadForBuild` for any module. Exported for `src/legal/vite-plugin.ts`, whose renderer has the
+ * same reasons (this file's header) never to be imported by a config file.
+ */
+export async function ssrLoadForBuild<T>(config: ResolvedConfig, url: string): Promise<T> {
   const server = await createServer({
     configFile: false,
     root: config.root,
@@ -67,7 +83,7 @@ async function loadForBuild(config: ResolvedConfig): Promise<typeof Render> {
     optimizeDeps: { noDiscovery: true },
   });
   try {
-    return await load(server);
+    return (await server.ssrLoadModule(url)) as T;
   } finally {
     await server.close();
   }
@@ -100,7 +116,12 @@ export function ai101Render(): Plugin {
 const UNSAFE_IN_SCRIPT = /<\/script|<!--|<script/i;
 const UNSAFE_IN_STYLE = /<\/style/i;
 
-export function ai101Inline(): Plugin {
+/**
+ * `pages` are the HTML entries to make self-contained. /ai101 alone by default; the page build
+ * (`vite.ai101.config.ts`) also passes the /terms and /privacy shells, which are built in the same
+ * run and get the same treatment: their stylesheet inlined, and nothing left to load but fonts.
+ */
+export function ai101Inline(pages: readonly string[] = [AI101_HTML]): Plugin {
   let base = '/';
   return {
     name: 'ai101-inline',
@@ -111,44 +132,51 @@ export function ai101Inline(): Plugin {
       base = config.base;
     },
     generateBundle(_options, bundle) {
-      const page = bundle[AI101_HTML];
-      if (!page || page.type !== 'asset') return this.error(`${AI101_HTML} is not in the bundle.`);
-      let html = typeof page.source === 'string' ? page.source : new TextDecoder().decode(page.source);
-
       // The tags Vite wrote reference `${base}assets/…`; the bundle keys are `assets/…`.
       const fileOf = (url: string) => (url.startsWith(base) ? url.slice(base.length) : url);
+      // Removed from the bundle only after every page is done: /terms and /privacy share one
+      // stylesheet, and each of them gets its own inline copy of it.
+      const inlined = new Set<string>();
 
-      // <script type="module" crossorigin src="/assets/ai101-[hash].js"></script> → inline.
-      html = html.replace(/<script\b[^>]*\ssrc="([^"]+)"[^>]*><\/script>/g, (tag, url: string) => {
-        const chunk = bundle[fileOf(url)];
-        if (!chunk || chunk.type !== 'chunk') return tag;
-        if (UNSAFE_IN_SCRIPT.test(chunk.code)) this.error(`${chunk.fileName} contains text that cannot be inlined.`);
-        delete bundle[chunk.fileName];
-        // `.trimEnd()` only: the API hashes these exact bytes for its CSP (`inlineScriptHashes`), so
-        // what is inlined here is precisely what is served.
-        return `<script type="module">${chunk.code.trimEnd()}</script>`;
-      });
+      for (const name of pages) {
+        const page = bundle[name];
+        if (!page || page.type !== 'asset') return this.error(`${name} is not in the bundle.`);
+        let html = typeof page.source === 'string' ? page.source : new TextDecoder().decode(page.source);
 
-      // <link rel="stylesheet" crossorigin href="/assets/ai101-[hash].css"> → <style>.
-      html = html.replace(/<link\b[^>]*\srel="stylesheet"[^>]*>/g, (tag) => {
-        const url = /\shref="([^"]+)"/.exec(tag)?.[1];
-        const asset = url ? bundle[fileOf(url)] : undefined;
-        if (!asset || asset.type !== 'asset') return tag;
-        const css = typeof asset.source === 'string' ? asset.source : new TextDecoder().decode(asset.source);
-        if (UNSAFE_IN_STYLE.test(css)) this.error(`${asset.fileName} contains text that cannot be inlined.`);
-        delete bundle[asset.fileName];
-        return `<style>${css.trimEnd()}</style>`;
-      });
+        // <script type="module" crossorigin src="/assets/ai101-[hash].js"></script> → inline.
+        html = html.replace(/<script\b[^>]*\ssrc="([^"]+)"[^>]*><\/script>/g, (tag, url: string) => {
+          const chunk = bundle[fileOf(url)];
+          if (!chunk || chunk.type !== 'chunk') return tag;
+          if (UNSAFE_IN_SCRIPT.test(chunk.code)) this.error(`${chunk.fileName} contains text that cannot be inlined.`);
+          inlined.add(chunk.fileName);
+          // `.trimEnd()` only: the API hashes these exact bytes for its CSP (`inlineScriptHashes`), so
+          // what is inlined here is precisely what is served.
+          return `<script type="module">${chunk.code.trimEnd()}</script>`;
+        });
+
+        // <link rel="stylesheet" crossorigin href="/assets/ai101-[hash].css"> → <style>.
+        html = html.replace(/<link\b[^>]*\srel="stylesheet"[^>]*>/g, (tag) => {
+          const url = /\shref="([^"]+)"/.exec(tag)?.[1];
+          const asset = url ? bundle[fileOf(url)] : undefined;
+          if (!asset || asset.type !== 'asset') return tag;
+          const css = typeof asset.source === 'string' ? asset.source : new TextDecoder().decode(asset.source);
+          if (UNSAFE_IN_STYLE.test(css)) this.error(`${asset.fileName} contains text that cannot be inlined.`);
+          inlined.add(asset.fileName);
+          return `<style>${css.trimEnd()}</style>`;
+        });
+
+        if (/\b(?:src|href)="[^"]*\.(?:m?js|css)"/.test(html)) {
+          this.error(`${name} still references a script or stylesheet after inlining.`);
+        }
+
+        page.source = html;
+      }
+      for (const file of inlined) delete bundle[file];
 
       // Whatever is left must not be a script or a stylesheet: one would be a second request (a
-      // dynamic import, a shared chunk, a preload) that this page promised not to make.
-      const leftover = Object.keys(bundle).filter((name) => /\.(?:m?js|css)$/.test(name));
-      if (leftover.length) this.error(`${AI101_HTML} would load more than itself: ${leftover.join(', ')}`);
-      if (/\b(?:src|href)="[^"]*\.(?:m?js|css)"/.test(html)) {
-        this.error(`${AI101_HTML} still references a script or stylesheet after inlining.`);
-      }
-
-      page.source = html;
+      // dynamic import, a shared chunk, a preload) that these pages promised not to make.
+      const leftover = Object.keys(bundle).filter((file) => /\.(?:m?js|css)$/.test(file));
+      if (leftover.length) this.error(`${pages.join(', ')} would load more than itself: ${leftover.join(', ')}`);
     },
   };
 }

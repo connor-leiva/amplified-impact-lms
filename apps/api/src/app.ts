@@ -17,7 +17,8 @@
 //                            upload-url and the join window (§ 8), and in test mode only, test.
 //                            Plus the public /ai101 page, its three redirects and its waitlist
 //                            (D-028), which sit OUTSIDE the fixture guard; `routes/ai101.ts` says
-//                            why. `authz.test.ts` holds the authoritative inventory and checks it
+//                            why. And the public /terms and /privacy pages, beside it.
+//                            `authz.test.ts` holds the authoritative inventory and checks it
 //                            against the real router, so a route registered here without a guard
 //                            classification fails that test — which is what caught phase 08's four.
 //
@@ -70,6 +71,8 @@ import { renderTemplate } from './email/templates';
 import { setRenderer } from './email/transport';
 import { clock } from './lib/clock';
 import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
+import { registerLegalPages } from './routes/legal';
+import type { LegalPages } from './routes/legal';
 import { registerMarketingHost } from './routes/marketing';
 import { registerAuthRoutes } from './routes/auth';
 import { registerEventsRoute } from './routes/events';
@@ -102,11 +105,12 @@ export interface BuildOptions {
   /**
    * § 7.1's demo guard, as `server.ts` reads it from `VITE_DATA_SOURCE === 'fixture'`.
    *
-   * True registers the hardening, `/api/health` and the public /ai101 page with its redirects, and
-   * none of the app's data routes: no auth, no snapshot, no mutations, no events, no test routes.
-   * The SPA runs against its own in-browser fixture there, so an API with no data routes is correct
-   * rather than merely tolerable. It says nothing about whether a database EXISTS — production runs
-   * fixture mode with one — which is why the waitlist has a flag of its own, below.
+   * True registers the hardening, `/api/health`, the public /ai101 page with its redirects and the
+   * public /terms and /privacy pages, and none of the app's data routes: no auth, no snapshot, no
+   * mutations, no events, no test routes. The SPA runs against its own in-browser fixture there, so
+   * an API with no data routes is correct rather than merely tolerable. It says nothing about
+   * whether a database EXISTS — production runs fixture mode with one — which is why the waitlist
+   * has a flag of its own, below.
    */
   fixtureOnly?: boolean;
   /** `'sha256-…'` entries for `script-src`. See the header; `server.ts` computes them. */
@@ -119,6 +123,12 @@ export interface BuildOptions {
    * SAME string to `cspScriptHashes`, so the bytes served and the bytes hashed cannot differ.
    */
   ai101Page?: string | null;
+  /**
+   * The built legal pages, `apps/web/dist/terms.html` and `privacy.html`, which `GET /terms` and
+   * `GET /privacy` serve from memory. A page that is `null` or absent answers a JSON 404, as
+   * `ai101Page` does. They carry no script, so they add nothing to the CSP. `routes/legal.ts`.
+   */
+  legalPages?: LegalPages;
   /**
    * The built placeholder for the marketing host, `apps/web/dist/holding.html`, served on
    * `MARKETING_HOST` only. `null` when it has not been built, which makes `/` there a 404
@@ -412,6 +422,10 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   // Its waitlist, by its own flag rather than the fixture guard — the one route here that needs a
   // database and nothing else. See `BuildOptions.waitlist` and `routes/ai101.ts`.
   if (options.waitlist ?? !fixtureOnly) await registerAi101Waitlist(app);
+
+  // The Terms of Service and Privacy Policy the /ai101 waitlist links to, served the same way and
+  // for the same reasons, in both modes. `routes/legal.ts`.
+  registerLegalPages(app, options.legalPages);
 
   let events: EventHub | null = null;
 

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
-import { ai101Inline, ai101Render } from './src/ai101/vite-plugin.ts';
+import { AI101_HTML, ai101Inline, ai101Render } from './src/ai101/vite-plugin.ts';
+import { LEGAL_HTML, legalRender } from './src/legal/vite-plugin.ts';
 
 // The /ai101 page's own build (DECISIONS.md D-028), run after the SPA's by `pnpm build` into the
 // same `dist/` (or `dist-fixture/`, from `--outDir`). Its own config and not a second input to
@@ -10,8 +11,12 @@ import { ai101Inline, ai101Render } from './src/ai101/vite-plugin.ts';
 // The output is one file, `ai101.html`, with the stylesheet and the script inlined; the only other
 // files written are the font files the stylesheet points at, which the SPA's build has already
 // written under the same names with the same bytes.
+//
+// The same run also builds the legal pages, `terms.html` and `privacy.html` (src/legal/), each one
+// self-contained the same way: its stylesheet inlined, and no script at all. They share no module
+// with /ai101 (their stylesheet is their own file), so adding them leaves `ai101.html` byte-identical.
 export default defineConfig({
-  plugins: [ai101Render(), ai101Inline()],
+  plugins: [ai101Render(), legalRender(), ai101Inline([AI101_HTML, ...LEGAL_HTML])],
   resolve: {
     // vite.config.ts's aliases, verbatim. The subpath alias must come first: '@ai/core/mutations'
     // resolves to the module file, while bare '@ai/core' resolves to the barrel.
@@ -43,7 +48,10 @@ export default defineConfig({
     // browser. es2019 still has optional catch binding and object spread; Safari 13 is iOS 13.
     target: ['es2019', 'safari13'],
     rolldownOptions: {
-      input: fileURLToPath(new URL('./ai101.html', import.meta.url)),
+      input: [
+        fileURLToPath(new URL('./ai101.html', import.meta.url)),
+        ...LEGAL_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
+      ],
     },
   },
 });

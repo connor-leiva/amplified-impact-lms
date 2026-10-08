@@ -15,9 +15,9 @@
 //
 // WHAT STAYS PUBLIC ON BOTH HOSTS. `/ai101` and its waitlist (D-028) are the one piece of the
 // product that is public by design, and they are reachable on the marketing host as well as the app
-// host. That is the point of putting www on this service at all rather than parking it elsewhere:
-// `www.amplifiedimpact.io/ai101` is the URL on the printed QR code's successor, and it has to work
-// without a session.
+// host, with the `/terms` and `/privacy` pages the waitlist links to. That is the point of putting
+// www on this service at all rather than parking it elsewhere: `www.amplifiedimpact.io/ai101` is the
+// URL on the printed QR code's successor, and it has to work without a session.
 //
 // OFF UNLESS `MARKETING_HOST` IS SET. No default. A wrong default would serve a placeholder in
 // place of the product, which is the most expensive possible failure for this file, so it does
@@ -29,11 +29,13 @@ import type { App } from '../app';
 /**
  * Paths that reach their real handler on the marketing host rather than the placeholder.
  *
- * `/ai101` because it is public by design. `/api/` because the health check lives there — Railway's
- * probe arrives with its own `Host` and a redirect would fail a deploy that is perfectly
- * healthy — and so does the waitlist the page posts to.
+ * `/ai101` because it is public by design. `/terms` and `/privacy` because the waitlist on it links
+ * to them, and a visitor on www must land on the page, not on the placeholder (`routes/legal.ts`);
+ * those two match exactly, with or without a query string, so `/terms-old` still goes to `/`.
+ * `/api/` because the health check lives there — Railway's probe arrives with its own `Host` and a
+ * redirect would fail a deploy that is perfectly healthy — and so does the waitlist the page posts to.
  */
-const PUBLIC_PREFIX = /^\/(ai101(\/|$|\?)|api\/)/;
+const PUBLIC_PREFIX = /^\/(ai101(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
 
 /** The placeholder's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);

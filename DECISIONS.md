@@ -1561,3 +1561,73 @@ Amends D-028 and D-032.
 
 Real phones (app switching, the share sheet, store links, the toast over the keyboard), and every
 Claude Design behaviour D-032 lists. The deploy also carries D-033's sync and migration 0004.
+
+## D-035 · /terms and /privacy: draft legal pages for the /ai101 waitlist's consent
+
+**Date:** 2026-10-08
+**Requested by:** the user, in chat on 2026-10-08: "We also need a checkbox where they agree to our
+terms of service (so we can sms and email them from Spring, Connor, Amplified Impact or any Spring B
+companies." A consent line has to link to real pages, so these are those pages. They are **drafts**,
+written by an AI assistant and not a lawyer, for Connor or a lawyer to review before anyone signs
+up. This entry records how they are built and served, not approval of their words.
+**Scope:** `apps/web/{terms,privacy}.html`, `apps/web/src/legal/**`,
+`apps/web/src/assets/brand/amplified-impact-signature.svg` (a byte copy of the brand file),
+`apps/web/{vite.ai101.config.ts,vite.config.ts}`, `apps/web/src/ai101/vite-plugin.ts` (helpers
+exported, the inliner takes a list of pages), `scripts/check-css-colors.mjs`, the new
+`apps/api/src/routes/legal.ts`, `apps/api/src/{app,server}.ts`, `apps/api/src/routes/marketing.ts`,
+and their tests (`apps/web/src/legal/render.test.ts`, `apps/api/test/{legal,authz}.test.ts`).
+
+Net-new UI outside the reference, like /ai101 (D-028), so there is no parity scenario: the contract
+is `content.ts` and the two test files.
+
+Numbered D-035 because D-034, on the `ai101-step-through` branch, is the redesigned /ai101 page
+whose waitlist form links here and stores the consent these pages describe.
+
+**What the pages say.** Plain-English Terms of Service and Privacy Policy for the /ai101 page, its
+waitlist and the emails and texts that follow. The Terms carry the SMS program terms US carriers
+look for (program name "Amplified Impact updates", what is sent, "Message frequency varies", "Msg &
+data rates may apply", STOP and HELP, "Carriers are not liable for delayed or undelivered messages",
+consent not a condition of joining or of any purchase). Both pages quote the waitlist form's two
+consent lines verbatim (`CONSENT` in `content.ts`, held to literals in the test), so the form and
+the pages cannot quietly disagree: a change to the form's wording must change `content.ts` too.
+The privacy claims were checked against the code: what a visitor types to fill the prompts, and
+their progress, live in `localStorage` and are never sent; the only request the script makes is the
+waitlist POST of the form's own fields (`apps/web/src/ai101/main.ts`, here and on D-034's branch);
+the page loads nothing from another origin (the CSP's `default-src 'self'`, self-hosted fonts); and
+the server log does record the IP address and URL of each request (`productionLogger`), which the
+policy says. GoHighLevel is named only as an example of the CRM category: its sync (D-033) is on
+the `ghl-waitlist` and `ai101-step-through` branches, not this one.
+
+**Every unknown fact is a `[bracketed placeholder]`,** highlighted on the page: legal entity names
+and how each is formed, Spring's and Connor's full names, a contact email, a privacy contact email,
+a mailing address, the governing-law state and court venue, the liability cap, and three retention
+periods. `DRAFT = true` in `content.ts` puts a "Draft for review" note at the top of both pages and
+a `noindex` in their heads; the test fails if `DRAFT` is turned off while any placeholder is left.
+
+**Built with /ai101, not by a new pipeline.** `vite.ai101.config.ts` now has three HTML inputs;
+`legalRender()` fills the two new shells, and `ai101Inline` inlines each page's stylesheet. The two
+legal pages share one stylesheet, which Rolldown emits once, so the inliner now removes an inlined
+file only after every page has its copy. `dist/ai101.html` and `dist/index.html` were compared with
+a build of the parent commit: byte-identical. Each legal page is one response with no script: on
+load it makes exactly three requests (the page and two font files, Hanken Grotesk 400 and 700).
+
+**Served like /ai101** (`routes/legal.ts`): from memory, rate-limit exempt, `no-cache` with a strong
+ETag, `Referrer-Policy: same-origin`, a JSON 404 when not built, in both modes. `@fastify/static`
+ignores `terms.html` and `privacy.html` so each page has one URL. `marketing.ts` lets exactly
+`/terms` and `/privacy` (with or without a query) through on the marketing host; lookalikes such as
+`/terms-old` still go to the placeholder. Both routes are in `authz.test.ts`'s inventory as `page`.
+
+**Open, and Connor's (or a lawyer's) call before launch:**
+- Fill every placeholder, have the words reviewed, then set `DRAFT = false`.
+- The consent names several senders, including "Spring B and its affiliated companies". 10DLC
+  campaign vetting commonly expects a privacy policy to say mobile opt-in data is not shared with
+  third parties *or affiliates*. The policy says it is shared only among the named senders and the
+  providers that deliver the texts. Whether one registered campaign can cover every sender is a
+  question for the texting provider and a lawyer.
+- The policy says the waitlist keeps the exact SMS consent wording, the time it was given and the
+  terms version agreed to, and that a number given without the box is never texted. That is what
+  D-034's route does on `ai101-step-through` (`SMS_CONSENT_TEXT`, `terms_version = '2026-10-08'`,
+  D-033's CHECK), checked by reading that branch; this branch alone does not have it. If either
+  side changes, change the other.
+- The opt-out words listed (STOP, CANCEL, END, QUIT, UNSUBSCRIBE, REVOKE, OPT OUT) must be honored by
+  whatever sends the texts.
