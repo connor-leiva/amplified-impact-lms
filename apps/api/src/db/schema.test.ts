@@ -82,7 +82,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // the coverage maps below — only here, in the instant-unit map, and in the unique-index check.
   ai101Waitlist: {
     table: 'ai101_waitlist',
-    columns: ['brokerage', 'created_at', 'email', 'first_name', 'id', 'source', 'src'],
+    columns: ['brokerage', 'created_at', 'email', 'first_name', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_next_attempt_at', 'ghl_synced_at', 'id', 'phone', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'source', 'src', 'terms_version'],
     gate: 9,
   },
 };
@@ -247,6 +247,11 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['jobRuns', 'sentAt'],
   // D-028. Not a `Db` column either; see INSTANT_UNIT below for why it is epoch ms anyway.
   ['ai101Waitlist', 'createdAt'],
+  // The GHL sync's bookkeeping (D-033): when the copy was made, and when the row is next due.
+  ['ai101Waitlist', 'ghlSyncedAt'],
+  ['ai101Waitlist', 'ghlNextAttemptAt'],
+  // D-034: when the visitor ticked the SMS box.
+  ['ai101Waitlist', 'smsConsentAt'],
 ];
 
 /**
