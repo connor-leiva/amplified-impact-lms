@@ -355,14 +355,30 @@ function bracketed(text: string): Piece[] {
  * A prompt with its placeholders filled from `values` (D-034). Each placeholder named in `slots`
  * becomes its field's value, trimmed, or stays a placeholder while the field is empty; placeholders
  * not in `slots` ("[paste 10 to 15 samples]") always stay. Questions, one per line, become a list
- * under their label. What a visitor TYPES is never a placeholder. Exported for the tests.
+ * under their label. A line named in `lineSlots` ("My clients are mostly:") gets its field's value
+ * after it (D-036). What a visitor TYPES is never a placeholder. Exported for the tests.
  */
-export function fillPrompt(template: string, slots: Record<string, FieldName>, values: Partial<Record<FieldName, string>>): Piece[] {
+export function fillPrompt(
+  template: string,
+  slots: Record<string, FieldName>,
+  values: Partial<Record<FieldName, string>>,
+  lineSlots: Record<string, FieldName> = {},
+): Piece[] {
+  return fillPieces(bracketed(template), slots, values, lineSlots);
+}
+
+/** `fillPrompt` over pieces already split, as the page's <pre> holds them. */
+function fillPieces(
+  pieces: Piece[],
+  slots: Record<string, FieldName>,
+  values: Partial<Record<FieldName, string>>,
+  lineSlots: Record<string, FieldName>,
+): Piece[] {
   const out: Piece[] = [];
-  for (const piece of bracketed(template)) {
+  for (const piece of pieces) {
     const field = piece.mark ? slots[piece.text] : undefined;
     if (!field) {
-      out.push(piece);
+      out.push(piece.mark ? { ...piece } : { text: fillLines(piece.text, lineSlots, values), mark: false });
       continue;
     }
     const raw = values[field] ?? '';
@@ -384,6 +400,19 @@ export function fillPrompt(template: string, slots: Record<string, FieldName>, v
   return out;
 }
 
+/** Each whole line named in `lineSlots`, followed by its field's trimmed value when there is one. */
+function fillLines(text: string, lineSlots: Record<string, FieldName>, values: Partial<Record<FieldName, string>>): string {
+  if (Object.keys(lineSlots).length === 0) return text;
+  return text
+    .split('\n')
+    .map((line) => {
+      const field = lineSlots[line];
+      const value = field ? (values[field] ?? '').trim() : '';
+      return value ? `${line} ${value}` : line;
+    })
+    .join('\n');
+}
+
 /** Writes pieces into the <pre> through text nodes and <mark>s, never through innerHTML. */
 function paint(pre: Element, pieces: Piece[]): void {
   const doc = pre.ownerDocument;
@@ -401,15 +430,20 @@ function paint(pre: Element, pieces: Piece[]): void {
 }
 
 function initFill(doc: Document, state: State, save: () => void): void {
-  // Every prompt with slots, painted from its template as rendered.
-  const prompts: Array<{ pre: Element; template: string; slots: Record<string, FieldName> }> = [];
+  // Every prompt with slots, painted from its template AS RENDERED: its text nodes and <mark>s, so
+  // what render.ts drew as a placeholder (and only that) is one here too.
+  const prompts: Array<{ pre: Element; pieces: Piece[]; slots: Record<string, FieldName>; lineSlots: Record<string, FieldName> }> = [];
   for (const block of Array.from(doc.querySelectorAll('[data-prompt]'))) {
-    const slots = UI.slots[block.getAttribute('data-prompt') ?? ''];
+    const id = block.getAttribute('data-prompt') ?? '';
+    const slots = UI.slots[id];
+    const lineSlots = UI.lineSlots[id] ?? {};
     const pre = block.querySelector('pre[data-prompt-text]');
-    if (slots && pre) prompts.push({ pre, template: pre.textContent ?? '', slots });
+    if (!slots || !pre) continue;
+    const pieces = Array.from(pre.childNodes).map((node) => ({ text: node.textContent ?? '', mark: node.nodeName === 'MARK' }));
+    prompts.push({ pre, pieces, slots, lineSlots });
   }
   const repaint = () => {
-    for (const p of prompts) paint(p.pre, fillPrompt(p.template, p.slots, state));
+    for (const p of prompts) paint(p.pre, fillPieces(p.pieces, p.slots, state, p.lineSlots));
   };
   for (const el of Array.from(doc.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-field]'))) {
     const name = el.getAttribute('data-field') as FieldName;

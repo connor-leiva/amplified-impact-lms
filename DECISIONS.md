@@ -1670,3 +1670,29 @@ ignores `terms.html` and `privacy.html` so each page has one URL. `marketing.ts`
   side changes, change the other.
 - The opt-out words listed (STOP, CANCEL, END, QUIT, UNSUBSCRIBE, REVOKE, OPT OUT) must be honored by
   whatever sends the texts.
+
+## D-036 · The voice profile prompt becomes Connor's forensic-linguist prompt
+
+**Date:** 2026-10-08
+**Approved by:** Connor Leiva, in chat on 2026-10-08: "I want to update the voice profile prompt. It's
+way too generic right now. Here's what I want instead," with the full text.
+**Scope:** `apps/web/src/ai101/{content,render,main}.ts` and their tests. Amends D-034.
+
+- **The prompt is his, word for word** (8,409 characters; a test and a browser check hold the
+  copied text equal to it): samples sorted and set aside with reasons, every rule rated and cited,
+  a QUICK CARD under 1,500 characters, the never list, channels, beliefs, stories, the draft rules
+  and self-check, and ABOUT ME lines at the end.
+- **The two fields on "Fill in two blanks" now fill ABOUT ME lines**: "Your city or market" after
+  "My market, and what I'm known for:", "Your clients are mostly" after "My clients are mostly:"
+  (`UI.lineSlots`). The old prompt's `[city or market]` and `[buyers, sellers, or both]` are gone.
+- **Its `[VERIFY: what's needed]` and `[VERIFY]` are the prompt's own words**, not blanks, so they
+  are listed in the prompt's `literal` and drawn as plain text, and `main.ts` now repaints from the
+  pieces `render.ts` drew rather than re-finding brackets.
+- **Copy changed to keep the screens true** (the design's words otherwise):
+  "Then, in the new chat": "Replace the last line with your samples" became "Finish the ABOUT ME
+  lines at the bottom." and "Paste your samples under them, then send." (the last line is now
+  "Phrases I can't stand:"). "Save it": copy only what is between the START OF PROFILE and END OF
+  PROFILE lines (the answer carries set-aside notes, gaps and questions after it), and for ChatGPT
+  paste the QUICK CARD, which the prompt writes to fit Custom instructions' ~1,500 characters. The
+  About you profile field's hint says the same START/END. The Carousel Creator instructions are
+  unchanged.

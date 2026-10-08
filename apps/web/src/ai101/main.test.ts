@@ -194,7 +194,7 @@ describe('boot and resilience', () => {
     await boot();
     expect(current()).toEqual(['welcome']);
     type('market', 'Hartford, CT');
-    expect(voicePre().textContent).toContain("I'm a real estate agent in Hartford, CT. My clients");
+    expect(voicePre().textContent).toContain(`${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS}`);
     nextButton().click();
     expect(current()).toEqual(['voice-profile']);
     nextButton().click();
@@ -275,7 +275,7 @@ describe('boot and resilience', () => {
     expect($('[data-pick-panel="chatgpt"]').hidden).toBe(false);
     if (broken !== 'fill') {
       type('market', 'Hartford, CT');
-      expect(voicePre().textContent).toContain('agent in Hartford, CT.');
+      expect(voicePre().textContent).toContain(`${VOICE_MARKET} Hartford, CT\n`);
     }
     if (broken !== 'waitlist') expect($<HTMLFormElement>('#waitlist-form').noValidate).toBe(true);
   }
@@ -590,7 +590,11 @@ describe('the step-through', () => {
 // Filling the prompts (D-034)
 // ================================================================================================
 
-const VOICE_LINE = "I'm a real estate agent in [city or market]. My clients are mostly [buyers, sellers, or both].";
+/** The voice prompt's ABOUT ME lines that market and clients fill (D-036). */
+const VOICE_MARKET = "My market, and what I'm known for:";
+const VOICE_CLIENTS = 'My clients are mostly:';
+/** The prompt's own bracketed words: instructions to the AI, never blanks. */
+const VOICE_LITERAL = ["[VERIFY: what's needed]", '[VERIFY]'];
 const ABOUT_EMPTY =
   'About me:\n' +
   '- Niche: [your niche]\n' +
@@ -606,14 +610,16 @@ const BRAND_LINE = 'My brokerage is [brokerage name]. Every design must show it 
 describe('filling the prompts', () => {
   it('starts with every prompt exactly as written, each placeholder marked', async () => {
     // The oracles above describe the templates the script starts from.
-    expect(VOICE).toContain(VOICE_LINE);
+    expect(VOICE).toContain(`\n${VOICE_MARKET}\n${VOICE_CLIENTS}\n`);
+    for (const span of VOICE_LITERAL) expect(VOICE).toContain(span);
     expect(CAROUSEL.endsWith(ABOUT_EMPTY)).toBe(true);
     expect(BRAND).toContain(BRAND_LINE);
     await boot();
     expect(voicePre().textContent).toBe(VOICE);
     expect(carouselPre().textContent).toBe(CAROUSEL);
     expect(brandPre().textContent).toBe(BRAND);
-    expect(marks(voicePre())).toEqual(['[city or market]', '[buyers, sellers, or both]', '[paste 10 to 15 samples]']);
+    // No blanks drawn in the voice prompt: its blanks are lines, and its [VERIFY]s are its own words.
+    expect(marks(voicePre())).toEqual([]);
     expect(marks(carouselPre())).toEqual([
       '[your niche]',
       '[neighborhoods]',
@@ -630,33 +636,38 @@ describe('filling the prompts', () => {
     expect($$('.fields').map((el) => el.hidden)).toEqual([false, false]);
   });
 
-  it('fills the voice prompt live from market and clients, as plain text', async () => {
+  it('fills the voice prompt live from market and clients, after their ABOUT ME lines, as plain text', async () => {
     await boot();
     type('market', 'Farmington, CT');
-    expect(voicePre().textContent).toContain(
-      "I'm a real estate agent in Farmington, CT. My clients are mostly [buyers, sellers, or both].",
-    );
-    expect(marks(voicePre())).toEqual(['[buyers, sellers, or both]', '[paste 10 to 15 samples]']);
-    // Text, not a highlighted placeholder.
-    const filled = Array.from(voicePre().childNodes).filter((n) => n.textContent === 'Farmington, CT');
-    expect(filled.map((n) => n.nodeType)).toEqual([Node.TEXT_NODE]);
+    expect(voicePre().textContent).toContain(`\n${VOICE_MARKET} Farmington, CT\n${VOICE_CLIENTS}\n`);
+    // Only that line changed: the rest of the prompt is exactly as written.
+    expect(voicePre().textContent).toBe(VOICE.replace(`\n${VOICE_MARKET}\n`, `\n${VOICE_MARKET} Farmington, CT\n`));
+    expect(marks(voicePre())).toEqual([]);
 
     type('clients', 'buyers');
-    expect(voicePre().textContent).toContain("I'm a real estate agent in Farmington, CT. My clients are mostly buyers.");
-    expect(marks(voicePre())).toEqual(['[paste 10 to 15 samples]']);
+    expect(voicePre().textContent).toContain(`\n${VOICE_MARKET} Farmington, CT\n${VOICE_CLIENTS} buyers\n`);
+    expect(marks(voicePre())).toEqual([]);
   });
 
-  it('trims what is typed, and puts the placeholder mark back when a field is blank or cleared', async () => {
+  it('trims what is typed, and leaves the line as written when a field is blank or cleared', async () => {
     await boot();
     type('market', '   Hartford  ');
-    expect(voicePre().textContent).toContain('agent in Hartford. My clients');
+    expect(voicePre().textContent).toContain(`\n${VOICE_MARKET} Hartford\n`);
     type('market', '   ');
-    expect(voicePre().textContent).toContain(VOICE_LINE);
-    expect(marks(voicePre())).toEqual(['[city or market]', '[buyers, sellers, or both]', '[paste 10 to 15 samples]']);
+    expect(voicePre().textContent).toBe(VOICE);
     type('market', 'Hartford');
     type('market', '');
     expect(voicePre().textContent).toBe(VOICE);
-    expect(marks(voicePre())).toEqual(['[city or market]', '[buyers, sellers, or both]', '[paste 10 to 15 samples]']);
+    expect(marks(voicePre())).toEqual([]);
+  });
+
+  it("never marks or fills the prompt's own [VERIFY] brackets", async () => {
+    await boot();
+    for (const name of FIELDS) type(name, 'x');
+    const text = voicePre().textContent ?? '';
+    for (const span of VOICE_LITERAL) expect(text).toContain(span);
+    expect(marks(voicePre())).toEqual([]);
+    expect(text).toContain("Write [VERIFY: what's needed] and list each one under the draft.");
   });
 
   it('fills the Carousel Creator instructions from About you', async () => {
@@ -716,11 +727,18 @@ describe('filling the prompts', () => {
     expect(carouselPre().textContent).toContain('\nMy brokerage: eXp Realty\n');
   });
 
-  it('always keeps [paste 10 to 15 samples] a placeholder', async () => {
+  it('fills only the two ABOUT ME lines it names, and only when the whole line matches', async () => {
     await boot();
     for (const name of FIELDS) type(name, 'x');
-    expect(marks(voicePre())).toEqual(['[paste 10 to 15 samples]']);
-    expect(voicePre().textContent).toContain('My samples:\n[paste 10 to 15 samples]');
+    const lines = (voicePre().textContent ?? '').split('\n');
+    expect(lines.slice(-6)).toEqual([
+      'My name, as I sign it:',
+      `${VOICE_MARKET} x`,
+      `${VOICE_CLIENTS} x`,
+      'Where I post or write most:',
+      'Who else writes under my name (an assistant, my team, my brokerage, a marketing company, AI), or nobody:',
+      "Phrases I can't stand:",
+    ]);
   });
 
   it('never treats a bracket the visitor types as a placeholder, even one that matches', async () => {
@@ -766,13 +784,22 @@ describe('filling the prompts', () => {
     expect(field('market').value).toBe('  Hartford, CT ');
     expect(field('questions').value).toBe('Should I wait?\nWhat will it cost?');
     expect(field('brokerage').value).toBe('eXp Realty');
-    expect(voicePre().textContent).toContain('agent in Hartford, CT. My clients are mostly [buyers, sellers, or both].');
+    expect(voicePre().textContent).toContain(`\n${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS}\n`);
     expect(carouselPre().textContent).toContain('most:\n  - Should I wait?\n  - What will it cost?\nMy brokerage: eXp Realty\n');
     expect(brandPre().textContent).toContain('My brokerage is eXp Realty.');
   });
 });
 
 describe('fillPrompt', () => {
+  it('appends a field to a whole line named in lineSlots, trimmed, and leaves the line alone when empty', () => {
+    const lineSlots = { 'Market:': 'market', 'Clients:': 'clients' } as const;
+    const template = 'Top\nMarket:\nClients:\nNot Market: here\nMarket: already';
+    expect(fillPrompt(template, {}, { market: ' Hartford ', clients: '' }, lineSlots)).toEqual([
+      { text: 'Top\nMarket: Hartford\nClients:\nNot Market: here\nMarket: already', mark: false },
+    ]);
+    expect(fillPrompt(template, {}, {}, lineSlots)).toEqual([{ text: template, mark: false }]);
+  });
+
   it('fills the placeholders named in slots, trimmed, and keeps the rest', () => {
     expect(fillPrompt('in [a] and [b] and [c].', { '[a]': 'market', '[b]': 'clients' }, { market: ' Hartford ', clients: '' })).toEqual([
       { text: 'in ', mark: false },
@@ -890,8 +917,8 @@ describe('Copy & Open', () => {
   });
 
   it.each([
-    [CHATGPT, 'voice-profile-prompt', 'Copy & Open ChatGPT', 'Copied. Paste it into the new ChatGPT chat.', 'agent in Hartford, CT. My clients are mostly buyers.'],
-    [CLAUDE, 'voice-profile-prompt', 'Copy & Open Claude', 'Copied. Paste it into the new Claude chat.', 'agent in Hartford, CT. My clients are mostly buyers.'],
+    [CHATGPT, 'voice-profile-prompt', 'Copy & Open ChatGPT', 'Copied. Paste it into the new ChatGPT chat.', `${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS} buyers\n`],
+    [CLAUDE, 'voice-profile-prompt', 'Copy & Open Claude', 'Copied. Paste it into the new Claude chat.', `${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS} buyers\n`],
     [BRAND_LINK, 'carousel-creator-brand-prompt', 'Copy & Open Claude', 'Copied. Paste it into the new Claude chat.', 'My brokerage is eXp Realty.'],
     [PROJECT_LINK, 'carousel-creator-prompt', 'Copy Instructions & Open Claude', 'Copied. Make the Project, then paste into Instructions.', '- Niche: Luxury\n'],
   ])('%s copies its prompt as filled in right now, both ways, in one tap, and lets the link open', async (selector, block, name, toast, filled) => {
@@ -1028,7 +1055,7 @@ describe('Copy & Open', () => {
     expect(selection.rangeCount).toBe(1);
     expect(selection.getRangeAt(0).commonAncestorContainer).toBe(voicePre());
     expect(selected()).toBe(voicePre().textContent);
-    expect(selected()).toContain('agent in Hartford, CT.');
+    expect(selected()).toContain(`${VOICE_MARKET} Hartford, CT\n`);
     await vi.advanceTimersByTimeAsync(100);
     expect(live()).toBe("Couldn't copy automatically. The prompt is selected below: copy it, then tap again.");
     // Never "Copied" when nothing was.

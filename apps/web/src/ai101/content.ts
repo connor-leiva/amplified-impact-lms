@@ -17,13 +17,16 @@
 // trailing whitespace.
 //
 // [Square brackets] in a prompt are highlighted on the page as placeholders; the copied text stays
-// plain. Square brackets are not used for anything else in the prompts.
+// plain. A bracketed span that is part of the prompt's own wording ("[VERIFY]") is listed in that
+// prompt's `literal` and drawn as plain text.
 
 export interface Prompt {
   /** The analytics name from the spec, and the DOM id stem. */
   id: 'voice_profile' | 'carousel_creator' | 'brand_system';
   label: string;
   text: string;
+  /** Bracketed spans that are the prompt's own words, not blanks to fill: drawn as plain text. */
+  literal?: readonly string[];
 }
 
 /**
@@ -208,31 +211,130 @@ export const PAGE = {
       },
     ] satisfies CopyOpen[],
     thenHeading: 'Then, in the new chat:',
-    then: [['Paste.'], ['Replace the last line with your samples.'], ['Send.']] as Inline[][],
+    // The design's "Replace the last line with your samples" no longer fits: the prompt now ends with
+    // ABOUT ME lines, and the samples go under them (D-036).
+    then: [['Paste.'], ['Finish the ABOUT ME lines at the bottom.'], ['Paste your samples under them, then send.']] as Inline[][],
     showPrompt: 'See the full prompt',
     note: `It already bans lines like "In today's market," "Let's dive in," and "Thinking of buying or selling?" Add any others you're tired of.`,
   },
 
+  // Connor's prompt (2026-10-08, D-036), word for word: a forensic-linguist profile with a QUICK CARD
+  // short enough for ChatGPT's Custom instructions, and ABOUT ME lines at the end that the two fields
+  // on this screen fill (`UI.lineSlots`). Its two [VERIFY] brackets are instructions to the AI, not
+  // blanks for the visitor, so they are drawn as plain text (`literal`).
   voicePrompt: {
     id: 'voice_profile',
     label: 'Voice profile prompt',
-    text: `Below are samples of how I write and talk. Study them and build my voice profile.
+    text: `I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually write. Build it from my samples at the bottom, working like a forensic linguist. Every rule needs evidence from my samples. Sounding like me matters more than sounding polished.
 
-Describe my tone, sentence length, go-to phrases, how I open and close a post, how I use emoji and punctuation, and words I never use.
+If I haven't pasted any samples or spoken answers below yet, don't build anything. Reply "Ready, send your samples" and wait. Otherwise, don't ask me anything first. Build the whole thing from what's here, mark what you can't tell, and save your questions for the end. If you run out of room, stop at the end of a section and tell me to type "continue."
 
-Add a NEVER list that includes: "In today's market," "Thinking of buying or selling?" "Let's dive in," "game-changer," and anything that sounds like every other agent's feed.
+STEP 1. SORT THE SAMPLES
+Number them S1, S2, S3 and so on, in the order I pasted them. Set aside anything that isn't really my voice:
+- anything I said someone else wrote or edited
+- brokerage, franchise, or vendor boilerplate, and listing descriptions
+- anything that reads like a template or AI: lines that could describe anyone where my other samples give a specific detail, tidy lists of three, smooth sentences with no rough edges, round or dramatic numbers, lines that belong on a mug, telling the reader what to feel, hooks like "Thinking of buying or selling?"
+If only a line or two of a sample is off, keep the sample and ignore those lines. A phrase showing up in my samples doesn't make it mine if someone else wrote it.
+VOICE samples (voice memos, video transcripts) show how I talk. Learn words, rhythm, beliefs, and stories from them. Don't learn punctuation or paragraphs from them, because the app chose those, and don't treat a misheard word as my vocabulary unless it repeats.
 
-Write the profile as instructions I can save and reuse, starting with "Write as me."
+STEP 2. FIND THE PATTERNS
+Patterns, not adjectives. "Warm and approachable" is useless. "Opens with what a client said, in quotes, then answers in one line" is useful. For every rule, quote a few words from my samples, cite the samples (S2, S7), and rate it:
+STRONG: in most samples. Always follow it.
+MEDIUM: in at least three. Follow it by default.
+LOW: once or twice. Optional, never stated as a rule.
+If my samples contradict each other, don't average them and don't pick one. List the conflict under GAPS.
 
-I'm a real estate agent in [city or market]. My clients are mostly [buyers, sellers, or both].
+STEP 3. WRITE THE PROFILE
+Plain text, short headings in capitals, no tables, so it pastes anywhere. Keep it to about 1,200 words, not counting the reference samples. Put it between a line reading ===== START OF PROFILE ===== and a line reading ===== END OF PROFILE =====. Where a section has no evidence, write NOT ENOUGH SAMPLES instead of guessing. Sections, in this order:
 
-My samples:
-[paste 10 to 15 samples]`,
+QUICK CARD
+Under 1,500 characters. It has to work alone, because I'll paste it into tools with short instruction boxes. Start it with "Write as me." and one line on who I am. Then my 8 strongest rules, the top of the never list, and the facts rule.
+
+BUILT FROM
+One line: how many samples of each kind, and how many you set aside.
+
+NEVER LIST
+This outranks everything else in the profile.
+Always banned, even if they show up in my samples: "In today's market," "Thinking of buying or selling?" "Let's dive in," "game-changer," and every phrase I said I can't stand.
+Banned unless my own writing clearly uses them: dream home, nestled, boasts, won't last long, don't miss out, hidden gem, your real estate journey, "whether you're a first-time buyer or a seasoned investor," navigate, unlock, elevate, seamless, landscape, buckle up, let that sink in, at the end of the day, thrilled to announce, hope this finds you well, don't hesitate to reach out.
+Banned constructions, unless my samples use them:
+- balanced contrasts like "It's not X, it's Y." If both halves are about the same length, or the line would work as a slide title, rewrite it.
+- setups that delay the point: "Here's the thing," "The best part?" "The result?" If the next sentence builds suspense instead of delivering, cut the setup.
+- opening with a question ("Did you know...?")
+- tidy lists of three, or three short commands in a row
+- lines that sound like a quote on a graphic
+- explaining what a story means right after telling it
+- drumbeat fragments ("Period." "Every. Single. Time.")
+- em dashes, semicolons, bold words, emoji bullets, hashtag walls
+- ending on a moral, a summary, or a question just to get comments
+SWAPS: words AI would reach for on my topics, each next to what I say instead (house or home, clients or buyers, y'all or you guys, $450K or $450,000).
+MINE, KEEP: words that look generic but really are mine, and how often they show up.
+
+HOW I SOUND
+Ratings, short quotes, and sample numbers for each:
+- sentences: length, how I mix long and short, fragments, how my paragraphs change as a post goes on
+- lists: how many items I usually use
+- phrases and habits I repeat, each with a cap per piece so drafts don't turn me into a caricature
+- numbers and money: exact or rounded, numerals or words
+- openers and closers, quoted exactly
+- typography: capitals, punctuation, exclamation points, line breaks, emoji (which, where, how many), hashtags
+- moves: how I explain, tell a story, give an opinion, handle an objection, deliver bad news, use humor, and earn credibility without bragging
+
+CHANNELS
+One block per channel I gave you samples for: how I open, length in words, paragraph style, emoji, sign-off, how I ask for a reply, and how strong the evidence is. If I sound different in two channels, keep them different.
+A channel with no samples gets: NO SAMPLES. Ask me for one before writing here.
+If there are VOICE samples, add TALKING VS. TYPING: what carries from how I talk into how I write, what stays spoken-only (fine for video scripts, wrong for anything I type), and roughly how much shorter my written version of a point is.
+
+WHAT I BELIEVE
+The opinions I actually state, numbered, each with a quote and a rating. Every opinion in a draft has to trace to one of these. Don't stretch any of them into a bigger claim than I made.
+
+MY STORIES AND NUMBERS
+The stories, client situations, and figures I mention, as I told them, with client details stripped. Drafts can reuse these. Nothing else counts as a story I've told.
+
+RULES FOR EVERY DRAFT
+Copy these into the profile word for word:
+- A line that's correct but doesn't sound like me is wrong. Keep my quirks. Don't copy obvious typos.
+- Never invent anything I could be quoted on: a price, rate, date, stat, quote, review, or client story. Write [VERIFY: what's needed] and list each one under the draft. Never inflate a result.
+- Don't give me opinions I haven't given you. If a post needs a new take, ask me for it.
+- Never use a client's story or details unless I tell you they said yes.
+- Flag any line about neighborhoods, schools, safety, or who a place is right for, so I can check it for fair housing. Keep the source on any market stat I give you.
+- For anything bigger than one post, like a series or an email sequence, ask your questions in one batch first, then write one piece for my approval before the rest.
+- My edits beat this profile. After I edit a draft, tell me in one line what rule my edit suggests, so I can add it here.
+
+SELF-CHECK BEFORE SHOWING ANY DRAFT
+Copy these into the profile word for word:
+1. Anything from the never list, including a balanced "It's not X, it's Y"?
+2. A line that could sit on a graphic next to any agent's face?
+3. A story explained after it's told, or the reader told what to feel?
+4. A tidy list of three, or a habit past its cap?
+5. Anything invented: a fact, number, story, or opinion?
+6. Would this read the same over any other agent's name?
+Two or more yeses: rewrite from scratch instead of patching. Then match length, opener, sign-off, and emoji to the channel. Show me the draft, then any [VERIFY] items and fair housing flags, and skip the commentary.
+
+REFERENCE SAMPLES
+My BEST samples word for word, each labeled with its channel. If I didn't mark any, use the 3 most typical. Leave out client names, phone numbers, and addresses.
+
+STEP 4. AFTER THE END LINE
+Outside the profile, give me:
+SET ASIDE: each sample or line you didn't learn from, and why, one line each.
+GAPS: the 3 things you're least sure of, any conflicts between samples, and which samples would settle each.
+QUESTIONS: up to 3, most useful first.
+
+ABOUT ME
+My name, as I sign it:
+My market, and what I'm known for:
+My clients are mostly:
+Where I post or write most:
+Who else writes under my name (an assistant, my team, my brokerage, a marketing company, AI), or nobody:
+Phrases I can't stand:`,
+    literal: ["[VERIFY: what's needed]", '[VERIFY]'],
   } satisfies Prompt,
 
   save: {
     heading: 'Save your profile so the AI remembers it',
-    intro: 'Copy the answer the AI gave you (it starts with "Write as me."). Then pick the app you used.',
+    // The answer now carries notes after the profile (set aside, gaps, questions) that are not for
+    // saving, so the screen says where the profile starts and stops (D-036).
+    intro: 'Copy your profile from the answer: everything between the START OF PROFILE and END OF PROFILE lines. Then pick the app you used.',
     pickLabel: 'The app you used',
     claude: {
       tab: 'Claude',
@@ -246,11 +348,16 @@ My samples:
     },
     chatgpt: {
       tab: 'ChatGPT',
-      steps: [['Open ChatGPT settings.'], ['Paste your profile into ', { strong: 'Custom instructions' }, '.']] as Inline[][],
+      steps: [
+        ['Open ChatGPT settings.'],
+        ['Paste the ', { strong: 'QUICK CARD' }, ' from your profile into ', { strong: 'Custom instructions' }, '.'],
+      ] as Inline[][],
       // Connor's deep link (2026-10-07): it lands on Custom instructions itself. The design's
       // `#settings/Personalization` stops one screen short.
       button: { label: 'Open ChatGPT Settings', href: 'https://chatgpt.com/settings/personalization?instructions=chatgpt' },
-      note: 'Free plans hold about 1,500 characters there. If your profile is longer, use a Claude Project.',
+      // The full profile runs well past Custom instructions' limit; the prompt writes the QUICK CARD
+      // to fit under it (D-036).
+      note: 'Custom instructions hold about 1,500 characters, and the QUICK CARD is written to fit. For the full profile, use a Claude Project.',
     },
   },
 
@@ -350,7 +457,7 @@ Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.
       {
         name: 'profile',
         label: 'Your voice profile from Step 1',
-        hint: 'Starts with "Write as me." Did Step 1 on your phone? The same chat is in your history on your laptop.',
+        hint: 'Everything between the START OF PROFILE and END OF PROFILE lines. Did Step 1 on your phone? The same chat is in your history on your laptop.',
         placeholder: 'Write as me. …',
         rows: 4,
       },
@@ -497,7 +604,8 @@ export const UI = {
    * `questions` is one per line, written as a list under its label.
    */
   slots: {
-    voice_profile: { '[city or market]': 'market', '[buyers, sellers, or both]': 'clients' },
+    // None: the voice profile prompt's blanks are ABOUT ME lines (`lineSlots`), not brackets.
+    voice_profile: {},
     carousel_creator: {
       '[your niche]': 'niche',
       '[neighborhoods]': 'hoods',
@@ -506,6 +614,13 @@ export const UI = {
       '[paste the profile that starts with "Write as me."]': 'profile',
     },
     brand_system: { '[brokerage name]': 'brokerage' },
+  } as Record<string, Record<string, 'market' | 'clients' | 'niche' | 'hoods' | 'questions' | 'brokerage' | 'profile'>>,
+  /**
+   * Lines that end in a colon and are filled by appending the field's value after it, per prompt: the
+   * voice profile prompt's ABOUT ME lines. An empty field leaves the line as written.
+   */
+  lineSlots: {
+    voice_profile: { "My market, and what I'm known for:": 'market', 'My clients are mostly:': 'clients' },
   } as Record<string, Record<string, 'market' | 'clients' | 'niche' | 'hoods' | 'questions' | 'brokerage' | 'profile'>>,
   /** How a list of questions is written in place of its placeholder. */
   questionItem: '\n  - ',

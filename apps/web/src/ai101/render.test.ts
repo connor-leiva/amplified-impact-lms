@@ -35,7 +35,7 @@ const inlineText = (segments: readonly Inline[]) =>
 // --- Walking PAGE ---------------------------------------------------------------------------------
 
 /** Keys whose values (and everything under them) are identifiers or URLs, not words anybody reads. */
-const IDENTIFIER_KEYS = new Set(['id', 'anchor', 'href', 'url']);
+const IDENTIFIER_KEYS = new Set(['id', 'anchor', 'href', 'url', 'literal']);
 /** `name` is an identifier inside `fields` (a fill field's key), and copy elsewhere ("Your AI voice profile."). */
 const isIdentifier = (path: readonly string[]) =>
   path.some((k) => IDENTIFIER_KEYS.has(k)) || (path[path.length - 1] === 'name' && path.includes('fields'));
@@ -99,10 +99,14 @@ const PROMPTS = [
     screen: 'voice-profile-copy',
     label: 'Voice profile prompt',
     summary: 'See the full prompt',
-    placeholders: ['[city or market]', '[buyers, sellers, or both]', '[paste 10 to 15 samples]'],
-    firstLine: 'Below are samples of how I write and talk. Study them and build my voice profile.',
-    // "Replace the last line with your samples": the last line is the placeholder for them.
-    lastLine: '[paste 10 to 15 samples]',
+    // Connor's prompt (D-036) has no bracketed blanks: its blanks are the ABOUT ME lines at the end,
+    // which the two fields fill. Its [VERIFY] brackets are instructions to the AI, drawn as text.
+    placeholders: [] as string[],
+    literal: ["[VERIFY: what's needed]", '[VERIFY]'],
+    firstLine:
+      "I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually write. Build it from my samples at the bottom, working like a forensic linguist. Every rule needs evidence from my samples. Sounding like me matters more than sounding polished.",
+    // "Finish the ABOUT ME lines at the bottom": the last of them.
+    lastLine: "Phrases I can't stand:",
     text: PAGE.voicePrompt.text,
   },
   {
@@ -112,6 +116,7 @@ const PROMPTS = [
     label: 'Brand prompt',
     summary: 'See the full prompt',
     placeholders: ['[brokerage name]'],
+    literal: [] as string[],
     firstLine:
       'Build a reusable design system for my real estate brand from the files I attached: my logo, my headshot, and screenshots of posts I like.',
     lastLine: 'Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.',
@@ -130,11 +135,19 @@ const PROMPTS = [
       '[brokerage name]',
       '[paste the profile that starts with "Write as me."]',
     ],
+    literal: [] as string[],
     firstLine: "You're my Carousel Creator. Write as me, using my voice profile.",
     lastLine: '[paste the profile that starts with "Write as me."]',
     text: PAGE.carouselPrompt.text,
   },
 ];
+
+/** Which PAGE key holds each prompt block's prompt. */
+const PROMPT_KEY: Record<string, 'voicePrompt' | 'carouselPrompt' | 'brandPrompt'> = {
+  'voice-profile-prompt': 'voicePrompt',
+  'carousel-creator-prompt': 'carouselPrompt',
+  'carousel-creator-brand-prompt': 'brandPrompt',
+};
 
 /** The exact Google Calendar link: Mondays from October 12, 2026, 9:00 to 9:30, four weeks. */
 const GOOGLE_CALENDAR =
@@ -338,18 +351,22 @@ describe('THE <pre> CONTRACT: what is copied is exactly the prompt', () => {
     expect(lines[lines.length - 1]).toBe(lastLine);
   });
 
-  it.each(PROMPTS)('$id: the <pre> textContent is the prompt, character for character', ({ block, text: prompt }) => {
+  it.each(PROMPTS)('$id: the <pre> textContent is the prompt, character for character', ({ block, text: prompt, literal }) => {
     const pre = doc.querySelector(`#${block} pre[data-prompt-text]`)!;
     expect(pre.textContent).toBe(prompt);
     expect(pre.textContent).toBe(pre.textContent!.trim());
     // In the bytes: the template adds nothing between the tags, not even the newline the parser
     // would have hidden.
-    expect(body).toContain(`<pre data-prompt-text>${highlightPlaceholders(prompt)}</pre>`);
+    expect(body).toContain(`<pre data-prompt-text>${highlightPlaceholders(prompt, literal)}</pre>`);
   });
 
-  it.each(PROMPTS)('$id: every [placeholder] is a <mark class="placeholder">, and nothing else is', ({ block, text: prompt, placeholders }) => {
+  it.each(PROMPTS)('$id: every [placeholder] is a <mark class="placeholder">, and nothing else is', ({ block, text: prompt, placeholders, literal }) => {
     const pre = doc.querySelector(`#${block} pre[data-prompt-text]`)!;
-    expect(prompt.match(/\[[^\]\n]*\]/g)).toEqual(placeholders);
+    const brackets = prompt.match(/\[[^\]\n]*\]/g) ?? [];
+    expect(brackets.filter((b) => !literal.includes(b))).toEqual(placeholders);
+    // The prompt's own bracketed words are in it, and stay plain text.
+    for (const span of literal) expect(brackets, span).toContain(span);
+    expect(literal).toEqual([...(PAGE[PROMPT_KEY[block]!] as { literal?: readonly string[] }).literal ?? []]);
     expect(all(pre, 'mark').map(text)).toEqual(placeholders);
     for (const mark of all(pre, 'mark')) {
       expect(mark.className).toBe('placeholder');
@@ -395,14 +412,24 @@ describe('THE <pre> CONTRACT: what is copied is exactly the prompt', () => {
   });
 
   it('agrees with main.ts on what a placeholder is', async () => {
-    // main.ts repaints each <pre> from its own textContent; with no values it must draw the same marks.
-    vi.resetModules();
-    const { fillPrompt } = await import('./main');
-    for (const { text: prompt, placeholders } of PROMPTS) {
-      const pieces = fillPrompt(prompt, {}, {});
-      expect(pieces.map((p) => p.text).join('')).toBe(prompt);
-      expect(pieces.filter((p) => p.mark).map((p) => p.text)).toEqual(placeholders);
+    // main.ts repaints each <pre> from the pieces render.ts drew (its text nodes and <mark>s); with no
+    // values it must leave every prompt exactly as drawn: the same text, the same marks, and the
+    // [VERIFY] brackets still plain.
+    document.body.innerHTML = renderAi101Body();
+    try {
+      localStorage.clear();
+    } catch {
+      /* no storage: main.ts reads it as empty */
     }
+    vi.resetModules();
+    await import('./main');
+    for (const { block, text: prompt, placeholders } of PROMPTS) {
+      const pre = document.querySelector(`#${block} pre[data-prompt-text]`)!;
+      expect(pre.textContent, block).toBe(prompt);
+      expect(all(pre, 'mark').map(text), block).toEqual(placeholders);
+    }
+    document.body.innerHTML = '';
+    document.documentElement.classList.remove('steps-on');
   });
 });
 
@@ -669,7 +696,7 @@ describe('the parts that need the script', () => {
         'carousel-creator-about',
         'TEXTAREA',
         'profile',
-        'Your voice profile from Step 1 Starts with "Write as me." Did Step 1 on your phone? The same chat is in your history on your laptop.',
+        'Your voice profile from Step 1 Everything between the START OF PROFILE and END OF PROFILE lines. Did Step 1 on your phone? The same chat is in your history on your laptop.',
         'Write as me. …',
         '4',
       ],
@@ -688,11 +715,17 @@ describe('the parts that need the script', () => {
     // The hint is lighter text inside the label.
     expect(all(doc, 'label .field-hint').map(text)).toEqual([
       'One per line',
-      'Starts with "Write as me." Did Step 1 on your phone? The same chat is in your history on your laptop.',
+      'Everything between the START OF PROFILE and END OF PROFILE lines. Did Step 1 on your phone? The same chat is in your history on your laptop.',
     ]);
-    // Every field fills a placeholder, and every placeholder main.ts fills has its field.
-    const slotFields = new Set(Object.values(UI.slots).flatMap((s) => Object.values(s)));
+    // Every field fills a placeholder or an ABOUT ME line, and every one main.ts fills has its field.
+    const slotFields = new Set(
+      [...Object.values(UI.slots), ...Object.values(UI.lineSlots)].flatMap((s) => Object.values(s)),
+    );
     expect(new Set(fields.map((f) => attr(f, 'data-field')))).toEqual(slotFields);
+    // The two lines market and clients fill are in the voice prompt, each a whole line of its own.
+    const lines = PAGE.voicePrompt.text.split('\n');
+    expect(UI.lineSlots.voice_profile).toEqual({ "My market, and what I'm known for:": 'market', 'My clients are mostly:': 'clients' });
+    for (const line of Object.keys(UI.lineSlots.voice_profile!)) expect(lines, line).toContain(line);
   });
 
   it('draws both save panels without the script, each under its app’s name; the picker chooses one with it', () => {
@@ -729,7 +762,7 @@ describe('the parts that need the script', () => {
         false,
         'H3',
         'ChatGPT',
-        ['Open ChatGPT settings.', 'Paste your profile into Custom instructions.'],
+        ['Open ChatGPT settings.', 'Paste the QUICK CARD from your profile into Custom instructions.'],
         'Open ChatGPT Settings',
         'https://chatgpt.com/settings/personalization?instructions=chatgpt',
       ],
@@ -1199,8 +1232,8 @@ describe('the copy', () => {
   it('renders the numbered steps as lists, each step one item', () => {
     expect(all(doc, '#voice-profile-copy ol.numbered > li').map(text)).toEqual([
       'Paste.',
-      'Replace the last line with your samples.',
-      'Send.',
+      'Finish the ABOUT ME lines at the bottom.',
+      'Paste your samples under them, then send.',
     ]);
     expect(all(doc, '#carousel-creator-project ol.numbered > li').map(text)).toEqual([
       'Click New project, top right.',

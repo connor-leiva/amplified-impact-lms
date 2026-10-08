@@ -42,10 +42,12 @@ export function esc(value: string): string {
 /**
  * A prompt's text with each `[bracketed placeholder]` wrapped in a <mark>. Escaped FIRST, then
  * wrapped: `esc()` never touches a bracket, so the pattern matches the same spans either way, and the
- * brackets stay inside the mark. They are part of what the visitor copies and fills in.
+ * brackets stay inside the mark. They are part of what the visitor copies and fills in. A span in
+ * `literal` is the prompt's own wording ("[VERIFY]") and stays plain text.
  */
-export function highlightPlaceholders(text: string): string {
-  return esc(text).replace(/\[[^\]\n]*\]/g, (span) => `<mark class="placeholder">${span}</mark>`);
+export function highlightPlaceholders(text: string, literal: readonly string[] = []): string {
+  const plain = new Set(literal.map(esc));
+  return esc(text).replace(/\[[^\]\n]*\]/g, (span) => (plain.has(span) ? span : `<mark class="placeholder">${span}</mark>`));
 }
 
 /** Every link that leaves the site opens in a new tab, and gives the new page no handle on this one. */
@@ -129,7 +131,7 @@ function promptBlock(prompt: Prompt, id: string, summary: string): string {
     `<p class="visually-hidden" id="${esc(id)}-label">${esc(prompt.label)}</p>`,
     `<details class="card disclosure">`,
     `<summary>${esc(summary)}</summary>`,
-    `<pre data-prompt-text>${highlightPlaceholders(prompt.text)}</pre>`,
+    `<pre data-prompt-text>${highlightPlaceholders(prompt.text, prompt.literal)}</pre>`,
     `</details>`,
     `</div>`,
   ].join('\n');
