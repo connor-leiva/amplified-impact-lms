@@ -162,7 +162,7 @@ const circled = (items: string[]) => `<ol class="circled" role="list">${items.ma
  */
 function fillFields(fields: readonly FillField[]): string {
   const rows = fields.map((f) => {
-    const id = `field-${f.name}`;
+    const id = `field-${esc(f.name)}`;
     const hint = f.hint ? ` <span class="field-hint">${esc(f.hint)}</span>` : '';
     const control =
       f.rows !== undefined
@@ -207,7 +207,7 @@ function welcome(): string {
   return screen(0, [
     logo(signatureSvg, w.logoAlt, 'logo'),
     `<p class="eyebrow">${esc(w.eyebrow)}</p>`,
-    `<h1 id="${anchorOf(0)}-heading" tabindex="-1">${esc(w.title)}</h1>`,
+    `<h1 id="${esc(anchorOf(0))}-heading" tabindex="-1">${esc(w.title)}</h1>`,
     `<p class="lede">${esc(w.intro)}</p>`,
     card(
       `<p class="card-title card-title-lg">${esc(w.getApp.heading)}</p><p class="muted">${esc(w.getApp.body)}</p><div class="row">${apps}</div>`,

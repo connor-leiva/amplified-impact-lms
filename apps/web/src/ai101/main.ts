@@ -444,6 +444,15 @@ function initPicker(doc: Document, state: State, save: () => void): void {
 
 // --- The step-through -----------------------------------------------------------------------------
 
+/** The id a `#…` names, or '' for none, or for one that is not valid percent-encoding ("#100%"). */
+function idOf(hash: string): string {
+  try {
+    return decodeURIComponent(hash.replace(/^#/, ''));
+  } catch {
+    return '';
+  }
+}
+
 /** Removes `#…` from the address without a history entry, so a refresh resumes where the visitor is. */
 function clearHash(): void {
   try {
@@ -500,13 +509,10 @@ function initSteps(doc: Document, state: State, save: () => void): void {
     if (focus) s.querySelector<HTMLElement>('h1, h2')?.focus({ preventScroll: true });
   };
 
-  doc.documentElement.classList.add('steps-on');
-  // The header and footer, only now: shown any earlier, a failure above would leave buttons that do nothing.
-  for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[data-steps-chrome]'))) el.hidden = false;
-
   // Where to start: a link to a part of the page wins (a QR code, an email, the waitlist's own
-  // redirect), then the visitor's saved place, then the start.
-  const hash = decodeURIComponent(window.location.hash.slice(1));
+  // redirect), then the visitor's saved place, then the start. Worked out, shown and wired BEFORE the
+  // page becomes one screen at a time: anything that fails before that leaves the whole page showing.
+  const hash = idOf(window.location.hash);
   const fromHash = screenOf(hash);
   if (fromHash >= 0) show(fromHash, false, doc.getElementById(hash));
   else show(state.i <= last ? state.i : 0, false);
@@ -529,7 +535,7 @@ function initSteps(doc: Document, state: State, save: () => void): void {
   doc.addEventListener('click', (event) => {
     const a = (event.target as Element | null)?.closest?.('a[href^="#"]');
     if (!a) return;
-    const id = decodeURIComponent((a.getAttribute('href') ?? '').slice(1));
+    const id = idOf(a.getAttribute('href') ?? '');
     const i = screenOf(id);
     if (i < 0) return;
     event.preventDefault();
@@ -537,10 +543,15 @@ function initSteps(doc: Document, state: State, save: () => void): void {
     show(i, true, doc.getElementById(id));
   });
   window.addEventListener('hashchange', () => {
-    const id = decodeURIComponent(window.location.hash.slice(1));
+    const id = idOf(window.location.hash);
     const i = screenOf(id);
     if (i >= 0) show(i, true, doc.getElementById(id));
   });
+
+  // Only now, with a screen current and every button wired: one screen at a time, and the header
+  // and footer. Shown any earlier, a failure above would leave buttons that do nothing.
+  doc.documentElement.classList.add('steps-on');
+  for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[data-steps-chrome]'))) el.hidden = false;
 }
 
 // --- Get the app, and Send This to My Laptop ----------------------------------------------------------

@@ -136,7 +136,6 @@ export const PAGE = {
     label: 'Steps',
     back: 'Back',
     restart: 'Start Over',
-    progressLabel: 'Progress',
   },
 
   welcome: {

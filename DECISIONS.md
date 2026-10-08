@@ -1466,3 +1466,98 @@ check fails five tests across both suites.
 **The consent line** on the page reads "We'll email you about the December agent track. Unsubscribe
 anytime." Mail sent from GHL to this list should stay within that promise, or the line should change
 first; D-034 is rewriting it.
+
+## D-034 · /ai101 becomes the workshop design's step-through, and the waitlist records consent
+
+**Date:** 2026-10-08
+**Approved by:** Connor Leiva, in chat on 2026-10-08: "I want to redo this landing page. It needs to be
+a step-through workflow so people can more easily follow along," supplying the design "AI 101 for
+Agents - Workshop" (a Claude Design export, not in the repository); then "We also need a checkbox
+where they agree to our terms of service (so we can sms and email them from Spring, Connor, Amplified
+Impact or any Spring B companies)". Asked, he chose: an optional phone field with a SEPARATE optional
+SMS box (joining covers email); drafted Terms and Privacy pages for his review; the senders "Amplified
+Impact, Spring B and its affiliated companies, Spring, and Connor"; and the corrected brand step in
+the design's look.
+**Scope:** `apps/web/src/ai101/*`, two brand files copied into `apps/web/src/assets/brand/`, and the
+waitlist's validation and insert in `apps/api/src/routes/ai101.ts` with their tests. The consent
+COLUMNS are D-033's migration (one migration for both branches).
+
+Amends D-028 and D-032.
+
+### The page
+
+- **Twelve screens, one at a time**: Welcome; Step 1 in four (collect samples, fill two blanks and
+  copy, save it, test it); Step 2 in five (overview, brand, about you, make the Project, first idea);
+  your week; the December waitlist. A sticky header carries the stage, "n of N" and a progress bar; a
+  fixed footer carries Back, the design's per-screen Next label, and Start Over on the last screen.
+  The words are the design's, verbatim, except as listed below.
+- **Progressive, as D-028 requires.** Every screen is a `<section data-screen>` in the one HTML
+  response. Without JavaScript they all show in order, each set off by a rule, with links that work;
+  the header and footer exist only once the script is running (`data-steps-chrome`), so a failure can
+  never leave buttons that do nothing. The fields that fill prompts and the Claude/ChatGPT switch are
+  hidden without the script; both Save panels show, each under its app's name.
+- **The visitor's place is remembered** (the design's `localStorage` key, `ai101-v2`: the screen,
+  the app picked, every field), every access guarded. A link to any id on the page wins over the
+  saved place, so `#carousel-creator` (the "Send This to My Laptop" link and "Skip to Step 2"),
+  `#waitlist`, the waitlist's own `#waitlist-joined` / `#waitlist-error` and every anchor the slides
+  and QR codes use still land on the screen that holds them. Next and Back move focus to the new
+  screen's heading.
+- **The fields fill the prompts as typed**, as the design does: the city and client mix into the
+  voice profile prompt; About you into the Carousel Creator instructions' "About me" block and "My
+  voice profile" slot (questions one per line, as a list); the brokerage also into the brand prompt.
+  An empty field keeps its highlighted placeholder; what a visitor types is never a placeholder.
+- **Copying keeps D-032's machinery** (both writes inside the tap, the two-tap fallback switch, a
+  failed copy that selects the prompt and leaves the next tap to open the app), with the design's
+  toast in place of the "Copied" label. The toast IS the polite live region (`#ai101-live`).
+
+### Where the build differs from the design file, and why
+
+- **The brand screen** keeps D-032's corrected flow (Connor's choice): Copy & Open Claude with the
+  brand prompt, paste then attach, "See My Design Systems"; Next reads "My Brand Is Saved" for "Brand
+  Is Published". The design's claude.ai/design + "Published" steps do not save a brand that a Project
+  chat can use.
+- **Links**: "Open ChatGPT Settings" is Connor's deep link (D-032), not the design's
+  `#settings/Personalization`; "Get ChatGPT" / "Get Claude" keep D-032's download pages with the
+  platform's store swapped in, where the design links the web apps; the calendar keeps D-032's served
+  `.ics` (iOS's "Add to Calendar") and fixed sprint dates, where the design builds a `data:` file for
+  "next Monday" in the browser.
+- **The waitlist form shows.** In the design file it never renders (its condition is never set);
+  it is built here as the design draws it, plus the consent below.
+- **Fixed from the design's own measurements**: the toast no longer spills off a 375px screen; the
+  header and footer columns line up with the content at desktop; long Next labels fit at 375 (16px
+  side padding, not 22); the questions box grows with its text where the browser can.
+- **Fonts: four files, as before** (Hanken Grotesk 400, 700, 800; DM Mono 400). The design's one DM
+  Mono 500 (step numerals) is drawn at 400. Every font file counts against the venue's shared per-IP
+  limit (D-028).
+- **Colours.** Cream, ink and forest are exactly tokens. Three accents are not: the brand mark's green
+  and mint and a terracotta. They are page variables in `ai101.css` with the design's exact values,
+  defined once and used only through those names, and every tint is a token mixed toward
+  transparent. This is the one place the page goes beyond `tokens.css`; the alternative was the
+  nearest status tokens, which would not be the design.
+- **No app logos.** The design has none, so the ChatGPT/Claude marks added on 2026-10-07 are gone
+  (`logos.ts` deleted), which also settles their brand-guideline question.
+- **The brand logos** are the repository's own signature files, inlined, not the design's 16 KB
+  traced copies of the same mark.
+
+### Consent
+
+- **Joining is email consent and agreement to the Terms of Service and Privacy Policy**, said under
+  the button with links to `/terms` and `/privacy`, and recorded on every new row as
+  `terms_version` (`'2026-10-08'`).
+- **Texts are separate**: an optional mobile number and an unchecked, optional SMS box whose label is
+  the consent itself (senders, purpose, automated, not required, frequency, rates, STOP, HELP). Only a
+  ticked box with a valid number records `sms_consent`, with the time and the exact wording
+  (`SMS_CONSENT_TEXT`, held equal to the page's label by a test); D-033's CHECK refuses a "yes"
+  without all three. Ticked with no number is refused against the phone field. A number without the
+  box is kept and never texted. Numbers are normalized to E.164 on both sides with one rule, and
+  never logged.
+- **A duplicate sign-up stays a no-op**, as D-028 has it, so someone who joined without the SMS box
+  and comes back to tick it is not upgraded. Changing that touches D-033's sync and is left for
+  after the session.
+- **The Terms and Privacy pages are drafts** for Connor or counsel to review before anyone signs up;
+  their open facts are bracketed placeholders.
+
+### Not verifiable from here
+
+Real phones (app switching, the share sheet, store links, the toast over the keyboard), and every
+Claude Design behaviour D-032 lists. The deploy also carries D-033's sync and migration 0004.
