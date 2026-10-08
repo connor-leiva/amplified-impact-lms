@@ -92,8 +92,13 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       expect(res.statusCode, url).toBe(301);
       expect(res.headers.location, url).toBe(location);
     }
+    // The short link to the waitlist screen (D-037) reaches its own 302 on www too.
+    const wl = await get(a, '/waitlist?src=waitlist-qr', WWW);
+    expect(wl.statusCode).toBe(302);
+    expect(wl.headers.location).toBe('/ai101?src=waitlist-qr#waitlist');
+
     // Lookalikes still go to the placeholder.
-    for (const url of ['/Ai101', '/ai101x', '/ai-1010']) {
+    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(302);
       expect(res.headers.location, url).toBe('/');

@@ -234,6 +234,32 @@ describe('GET /ai101 · the page (D-028) @g9', () => {
 // The redirects
 // ================================================================================================
 
+describe('/waitlist, the short link to the waitlist screen (D-037) @g9', () => {
+  it('sends a visitor to the page, opened on the waitlist screen, tagged src=waitlist @g9', async () => {
+    await fresh();
+    for (const url of ['/waitlist', '/waitlist/', '/waitlist?']) {
+      const res = await app.inject({ method: 'GET', url });
+      // 302: the QR code is printed, and a cached 301 would outlive any move of the screen.
+      expect(res.statusCode, url).toBe(302);
+      expect(res.headers.location, url).toBe('/ai101?src=waitlist#waitlist');
+    }
+  });
+
+  it("keeps a link's own tag, byte for byte, in place of the default @g9", async () => {
+    await fresh();
+    const res = await app.inject({ method: 'GET', url: '/waitlist?src=waitlist-qr' });
+    expect(res.headers.location).toBe('/ai101?src=waitlist-qr#waitlist');
+  });
+
+  it('is exempt from the global limit, like the page it points at @g9', async () => {
+    await fresh();
+    const venue = { 'x-forwarded-for': '198.51.100.40' };
+    const codes: number[] = [];
+    for (let i = 0; i < 120; i++) codes.push((await app.inject({ method: 'GET', url: '/waitlist', headers: venue })).statusCode);
+    expect(codes.filter((c) => c !== 302)).toEqual([]);
+  });
+});
+
 describe('the /ai101 redirects (D-028) @g9', () => {
   it('sends /AI101, /ai-101 and /ai101/ to /ai101 with a 301 @g9', async () => {
     await fresh();

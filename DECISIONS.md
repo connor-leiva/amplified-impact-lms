@@ -1696,3 +1696,36 @@ way too generic right now. Here's what I want instead," with the full text.
   paste the QUICK CARD, which the prompt writes to fit Custom instructions' ~1,500 characters. The
   About you profile field's hint says the same START/END. The Carousel Creator instructions are
   unchanged.
+
+## D-037 · Part I and Part II, desktop web links, clearer Projects, a named design system, and a direct link to the waitlist
+
+**Date:** 2026-10-08
+**Approved by:** Connor Leiva, in chat on 2026-10-08 (the morning of the session).
+**Scope:** `apps/web/src/ai101/content.ts` and the page's tests; `apps/api/src/routes/{ai101,marketing}.ts`
+and their tests; `apps/web/public/waitlist-qr.svg`. Amends D-034 and D-036.
+
+- **Part I and Part II.** The two halves are "Part I · Voice Profile" and "Part II · Carousel
+  Creator" everywhere they were "Step 1" and "Step 2" (header, Next labels, Skip, the done lines, the
+  laptop handoff, the About you field); the screens inside each stay steps, "1 of 4".
+- **"Get ChatGPT" and "Get Claude" open the web apps on a desktop** (`chatgpt.com`, `claude.ai`), not
+  the download pages: a laptop on hotel Wi-Fi signs in in the browser. Phones still get the App
+  Store or Google Play (D-032's swap).
+- **Both Projects say what to do with Claude's New project box**, which asks for a name and a
+  description first: name it ("My Voice" for Part I's profile, Connor's question answered with that
+  recommendation; "Carousel Creator" for Part II), leave the description blank, and paste into
+  Instructions on the right, not the description.
+- **The Carousel Creator instructions name the design system.** Their one design line was "Use my
+  design system for colors, fonts, logo, and headshot"; it now says to build the slides in Claude
+  Design with "My Carousel Brand" (the name the brand prompt gives it) and to say so before designing
+  if it cannot. D-032's research found a design may ignore the system unless it is named.
+- **A direct link to the waitlist**, for the pitch at the end of the session: `/waitlist` (both hosts;
+  let through on www) answers 302 to `/ai101?src=waitlist#waitlist`, which opens the page on the
+  waitlist screen with no steps before it; a link with its own `?src=` keeps it. 302 rather than 301
+  because the QR code is printed and a cached 301 would outlive any move. Rate-limit exempt, like
+  the page. `#waitlist` itself always worked, and still does.
+- **Its QR code**, `apps/web/public/waitlist-qr.svg`, encodes
+  `https://www.amplifiedimpact.io/waitlist?src=waitlist-qr` (55 bytes, byte mode, error correction Q:
+  version 5, 37 by 37 modules, mask 6, a 4-module quiet zone, 25 px a module), made with node-qrcode
+  1.5.4 as D-028's was, from a copy already installed on the machine. Verified independently:
+  rendered in Chromium and decoded with jsQR 1.4.0 back to exactly that URL at 1125, 600, 300, 150,
+  110 and 90 px.

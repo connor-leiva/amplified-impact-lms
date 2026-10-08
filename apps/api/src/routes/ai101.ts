@@ -3,6 +3,8 @@
 //
 //   GET  /ai101                     → the built page, from memory; 304 on a matching ETag
 //   GET  /AI101, /ai-101, /ai101/   → 301 to /ai101, query string kept byte for byte
+//   GET  /waitlist, /waitlist/      → 302 to /ai101?src=waitlist#waitlist (D-037): the waitlist screen
+//                                     directly, for the slide and QR code at the end of the session
 //   POST /api/ai101/waitlist        → JSON: 201 { ok: true } or 400 { error, field }
 //                                     a no-JS form: 303 to /ai101#waitlist-joined or #waitlist-error
 //
@@ -113,6 +115,26 @@ export const AI101_PATH = '/ai101';
 
 /** The spec's redirects: "Redirect `/AI101`, `/ai-101`, and `/ai101/` to `/ai101`." */
 export const AI101_ALIASES = ['/AI101', '/ai-101', '/ai101/'] as const;
+
+/**
+ * The short link to the waitlist (D-037), for the pitch at the end of the session: it lands on the
+ * waitlist screen without the steps before it. With no `?src=` of its own it tags the sign-up
+ * `waitlist`, so the pitch's sign-ups can be told from the rest; a link that carries one (the QR
+ * code's `?src=waitlist-qr`) keeps it.
+ */
+export const WAITLIST_SHORT_PATHS = ['/waitlist', '/waitlist/'] as const;
+export const WAITLIST_SHORT_SRC = 'waitlist';
+
+/**
+ * Where `/waitlist` sends a visitor: the page, its query (or `?src=waitlist`), and `#waitlist`, the
+ * screen's own anchor, which the page opens on. A 302, not a 301: the QR code is printed, and the
+ * screen it points at may move; a 301 would be cached by every phone that ever scanned it.
+ */
+export function waitlistLocation(rawUrl: string): string {
+  const q = rawUrl.indexOf('?');
+  const query = q < 0 || q === rawUrl.length - 1 ? `?src=${WAITLIST_SHORT_SRC}` : rawUrl.slice(q);
+  return `${AI101_PATH}${query}#waitlist`;
+}
 
 export const WAITLIST_PATH = '/api/ai101/waitlist';
 
@@ -384,6 +406,14 @@ export function registerAi101Page(app: FastifyInstance, page: string | null): vo
   for (const alias of AI101_ALIASES) {
     app.get(alias, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> =>
       reply.redirect(ai101Location(req.url), 301),
+    );
+  }
+
+  // The short link to the waitlist screen (D-037). Exempt for the page's reason: the whole room scans
+  // the same QR code in the same minute.
+  for (const path of WAITLIST_SHORT_PATHS) {
+    app.get(path, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> =>
+      reply.redirect(waitlistLocation(req.url), 302),
     );
   }
 

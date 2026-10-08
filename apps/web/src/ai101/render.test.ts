@@ -74,16 +74,16 @@ const rendered = (doc: Document, s: string) => (doc.body.textContent ?? '').incl
 
 /** The design's twelve screens: id, header stage, count, Next label, heading tag and heading. */
 const SCREENS: Array<[id: string, stage: string, count: string | null, next: string | null, tag: 'H1' | 'H2', heading: string]> = [
-  ['welcome', 'Welcome', null, 'Start Step 1', 'H1', 'Sounds Like You, Looks Like You'],
-  ['voice-profile', 'Step 1 · Voice Profile', '1 of 4', 'I Have My Samples', 'H2', 'Collect 10 to 15 samples of you'],
-  ['voice-profile-copy', 'Step 1 · Voice Profile', '2 of 4', 'I Have My Profile', 'H2', 'Fill in two blanks, then copy'],
-  ['voice-profile-save', 'Step 1 · Voice Profile', '3 of 4', 'Saved It', 'H2', 'Save your profile so the AI remembers it'],
-  ['voice-profile-test', 'Step 1 · Voice Profile', '4 of 4', 'Start Step 2', 'H2', 'Test it'],
-  ['carousel-creator', 'Step 2 · Carousel Creator', '1 of 5', "I'm on My Laptop", 'H2', 'Build your Carousel Creator'],
-  ['carousel-creator-checklist', 'Step 2 · Carousel Creator', '2 of 5', 'My Brand Is Saved', 'H2', 'Set up your brand'],
-  ['carousel-creator-about', 'Step 2 · Carousel Creator', '3 of 5', 'Next', 'H2', 'Tell it about you'],
-  ['carousel-creator-project', 'Step 2 · Carousel Creator', '4 of 5', 'Project Is Made', 'H2', 'Make the Project'],
-  ['carousel-creator-first-idea', 'Step 2 · Carousel Creator', '5 of 5', 'How a Week Works', 'H2', 'Send your first idea'],
+  ['welcome', 'Welcome', null, 'Start Part I', 'H1', 'Sounds Like You, Looks Like You'],
+  ['voice-profile', 'Part I · Voice Profile', '1 of 4', 'I Have My Samples', 'H2', 'Collect 10 to 15 samples of you'],
+  ['voice-profile-copy', 'Part I · Voice Profile', '2 of 4', 'I Have My Profile', 'H2', 'Fill in two blanks, then copy'],
+  ['voice-profile-save', 'Part I · Voice Profile', '3 of 4', 'Saved It', 'H2', 'Save your profile so the AI remembers it'],
+  ['voice-profile-test', 'Part I · Voice Profile', '4 of 4', 'Start Part II', 'H2', 'Test it'],
+  ['carousel-creator', 'Part II · Carousel Creator', '1 of 5', "I'm on My Laptop", 'H2', 'Build your Carousel Creator'],
+  ['carousel-creator-checklist', 'Part II · Carousel Creator', '2 of 5', 'My Brand Is Saved', 'H2', 'Set up your brand'],
+  ['carousel-creator-about', 'Part II · Carousel Creator', '3 of 5', 'Next', 'H2', 'Tell it about you'],
+  ['carousel-creator-project', 'Part II · Carousel Creator', '4 of 5', 'Project Is Made', 'H2', 'Make the Project'],
+  ['carousel-creator-first-idea', 'Part II · Carousel Creator', '5 of 5', 'How a Week Works', 'H2', 'Send your first idea'],
   ['carousel-creator-week', 'Your Week', null, 'Last Thing', 'H2', 'How a week works'],
   ['waitlist', 'December Waitlist', null, null, 'H2', 'Join the December waitlist'],
 ];
@@ -155,12 +155,12 @@ const GOOGLE_CALENDAR =
 
 /** "Send This to My Laptop" without JavaScript: an email to yourself that lands on Step 2. */
 const SHARE_MAILTO =
-  'mailto:?subject=AI%20101%20for%20Agents%3A%20Step%202%20(do%20this%20on%20your%20laptop)&body=Open%20this%20on%20your%20laptop%3A%0Ahttps%3A%2F%2Fwww.amplifiedimpact.io%2Fai101%23carousel-creator';
+  'mailto:?subject=AI%20101%20for%20Agents%3A%20Part%20II%20(do%20this%20on%20your%20laptop)&body=Open%20this%20on%20your%20laptop%3A%0Ahttps%3A%2F%2Fwww.amplifiedimpact.io%2Fai101%23carousel-creator';
 
 /** Every off-site URL the page may link to. Nothing else leaves the site, and each of these is used. */
 const OFF_SITE_URLS = new Set([
-  'https://chatgpt.com/download',
-  'https://claude.com/download',
+  'https://chatgpt.com/',
+  'https://claude.ai/',
   'https://chatgpt.com/',
   'https://claude.ai/new',
   'https://claude.ai/projects',
@@ -601,7 +601,7 @@ describe('the step-through chrome', () => {
       ]),
     ).toEqual([
       ['data-back', 'button', true, 'Back'],
-      ['data-next', 'button', false, 'Start Step 1'],
+      ['data-next', 'button', false, 'Start Part I'],
       ['data-restart', 'button', true, 'Start Over'],
     ]);
     const nextLabel = all(doc, '[data-next-label]');
@@ -696,7 +696,7 @@ describe('the parts that need the script', () => {
         'carousel-creator-about',
         'TEXTAREA',
         'profile',
-        'Your voice profile from Step 1 Everything between the START OF PROFILE and END OF PROFILE lines. Did Step 1 on your phone? The same chat is in your history on your laptop.',
+        'Your voice profile from Part I Everything between the START OF PROFILE and END OF PROFILE lines. Did Part I on your phone? The same chat is in your history on your laptop.',
         'Write as me. …',
         '4',
       ],
@@ -715,7 +715,7 @@ describe('the parts that need the script', () => {
     // The hint is lighter text inside the label.
     expect(all(doc, 'label .field-hint').map(text)).toEqual([
       'One per line',
-      'Everything between the START OF PROFILE and END OF PROFILE lines. Did Step 1 on your phone? The same chat is in your history on your laptop.',
+      'Everything between the START OF PROFILE and END OF PROFILE lines. Did Part I on your phone? The same chat is in your history on your laptop.',
     ]);
     // Every field fills a placeholder or an ABOUT ME line, and every one main.ts fills has its field.
     const slotFields = new Set(
@@ -753,7 +753,7 @@ describe('the parts that need the script', () => {
         false,
         'H3',
         'Claude',
-        ['Open Claude Projects.', 'Click New project, top right.', "Paste your profile into the Project's Instructions."],
+        ['Open Claude Projects.', 'Click New project, top right. Name it My Voice.', 'Leave the description blank and click Create project.', 'Paste your profile into Instructions on the right side, not the description.'],
         'Open Claude Projects',
         'https://claude.ai/projects',
       ],
@@ -779,9 +779,9 @@ describe('links', () => {
 
   it('is every link on the page, in order, where it goes and whether it opens a new tab', () => {
     expect(links.map((a) => [text(a), attr(a, 'href'), attr(a, 'target')])).toEqual([
-      ['Get ChatGPT', 'https://chatgpt.com/download', '_blank'],
-      ['Get Claude', 'https://claude.com/download', '_blank'],
-      ['Already have a voice profile? Skip to Step 2', '#carousel-creator', null],
+      ['Get ChatGPT', 'https://chatgpt.com/', '_blank'],
+      ['Get Claude', 'https://claude.ai/', '_blank'],
+      ['Already have a voice profile? Skip to Part II', '#carousel-creator', null],
       ['Copy & Open ChatGPT', 'https://chatgpt.com/', '_blank'],
       ['Copy & Open Claude', 'https://claude.ai/new', '_blank'],
       ['Open Claude Projects', 'https://claude.ai/projects', '_blank'],
@@ -823,13 +823,13 @@ describe('links', () => {
     ).toEqual([
       [
         'Get ChatGPT',
-        'https://chatgpt.com/download',
+        'https://chatgpt.com/',
         'https://apps.apple.com/app/chatgpt/id6448311069',
         'https://play.google.com/store/apps/details?id=com.openai.chatgpt',
       ],
       [
         'Get Claude',
-        'https://claude.com/download',
+        'https://claude.ai/',
         'https://apps.apple.com/us/app/claude-by-anthropic/id6473753684',
         'https://play.google.com/store/apps/details?id=com.anthropic.claude',
       ],
@@ -843,7 +843,7 @@ describe('links', () => {
     expect(doc.getElementById('carousel-creator')?.matches('section[data-screen]')).toBe(true);
   });
 
-  it('sends Step 2 to the laptop as a mailto: whose body is the link to Step 2', () => {
+  it('sends Part II to the laptop as a mailto: whose body is the link to Part II', () => {
     const share = doc.querySelector('a[data-share]')!;
     expect(share.closest('section')?.id).toBe('voice-profile-test');
     const href = attr(share, 'href')!;
@@ -1237,8 +1237,8 @@ describe('the copy', () => {
     ]);
     expect(all(doc, '#carousel-creator-project ol.numbered > li').map(text)).toEqual([
       'Click New project, top right.',
-      'Name it Carousel Creator. Click Create project.',
-      'Open Instructions on the right side and paste.',
+      'Name it Carousel Creator. Leave the description blank and click Create project.',
+      'Open Instructions on the right side and paste there, not in the description.',
     ]);
     // Bold runs stay inside the step's one <span>, so they read as part of the sentence.
     for (const li of all(doc, 'ol.numbered > li')) {

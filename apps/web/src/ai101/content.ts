@@ -59,7 +59,7 @@ export interface LinkButton {
 export interface Screen {
   /** The screen's id: an anchor a QR code, a slide or an email can point at. */
   anchor: string;
-  /** The header's stage label: "Step 1 · Voice Profile". */
+  /** The header's stage label: "Part I · Voice Profile". */
   stage: string;
   /** "1 of 4", or nothing. */
   count?: string;
@@ -92,7 +92,7 @@ When I give you one idea (a client question, a market stat, a lesson from my wee
 - Slides 2 to 5: one idea per slide, 25 words max, moving from the problem, to what most people get wrong, to what I'd do instead
 - Slide 6: the proof, using only a stat or story I gave you
 - Slide 7: an invitation to comment or DM me, plus my brokerage name per my state's advertising rules
-- Use my design system for colors, fonts, logo, and headshot
+- Build the slides in Claude Design with my design system, My Carousel Brand, for colors, fonts, logo, and headshot. If you can't use it in this chat, tell me before you design anything
 
 Show me the slide copy for approval before you design anything. Flag anything about neighborhoods, schools, or who a place is right for, since that can raise fair housing concerns. Never invent a stat, a quote, or a client story.
 
@@ -118,19 +118,21 @@ export const PAGE = {
 
   /** The step-through's screens, in order. Each anchor is the id of that screen's <section>. */
   screens: [
-    { anchor: 'welcome', stage: 'Welcome', next: 'Start Step 1' },
-    { anchor: 'voice-profile', stage: 'Step 1 · Voice Profile', count: '1 of 4', next: 'I Have My Samples' },
-    { anchor: 'voice-profile-copy', stage: 'Step 1 · Voice Profile', count: '2 of 4', next: 'I Have My Profile' },
-    { anchor: 'voice-profile-save', stage: 'Step 1 · Voice Profile', count: '3 of 4', next: 'Saved It' },
-    { anchor: 'voice-profile-test', stage: 'Step 1 · Voice Profile', count: '4 of 4', next: 'Start Step 2' },
-    { anchor: 'carousel-creator', stage: 'Step 2 · Carousel Creator', count: '1 of 5', next: "I'm on My Laptop" },
+    // The two halves are Part I and Part II; the screens inside each are its steps, "1 of 4" (Connor,
+    // 2026-10-08, D-037).
+    { anchor: 'welcome', stage: 'Welcome', next: 'Start Part I' },
+    { anchor: 'voice-profile', stage: 'Part I · Voice Profile', count: '1 of 4', next: 'I Have My Samples' },
+    { anchor: 'voice-profile-copy', stage: 'Part I · Voice Profile', count: '2 of 4', next: 'I Have My Profile' },
+    { anchor: 'voice-profile-save', stage: 'Part I · Voice Profile', count: '3 of 4', next: 'Saved It' },
+    { anchor: 'voice-profile-test', stage: 'Part I · Voice Profile', count: '4 of 4', next: 'Start Part II' },
+    { anchor: 'carousel-creator', stage: 'Part II · Carousel Creator', count: '1 of 5', next: "I'm on My Laptop" },
     // The design's "Brand Is Published": the brand is now built from a chat and saved, not published
     // (D-032's research; Connor chose the corrected flow on 2026-10-08). The id is the old checklist's,
     // whose first item this screen is, so a link to it still lands somewhere that makes sense.
-    { anchor: 'carousel-creator-checklist', stage: 'Step 2 · Carousel Creator', count: '2 of 5', next: 'My Brand Is Saved' },
-    { anchor: 'carousel-creator-about', stage: 'Step 2 · Carousel Creator', count: '3 of 5', next: 'Next' },
-    { anchor: 'carousel-creator-project', stage: 'Step 2 · Carousel Creator', count: '4 of 5', next: 'Project Is Made' },
-    { anchor: 'carousel-creator-first-idea', stage: 'Step 2 · Carousel Creator', count: '5 of 5', next: 'How a Week Works' },
+    { anchor: 'carousel-creator-checklist', stage: 'Part II · Carousel Creator', count: '2 of 5', next: 'My Brand Is Saved' },
+    { anchor: 'carousel-creator-about', stage: 'Part II · Carousel Creator', count: '3 of 5', next: 'Next' },
+    { anchor: 'carousel-creator-project', stage: 'Part II · Carousel Creator', count: '4 of 5', next: 'Project Is Made' },
+    { anchor: 'carousel-creator-first-idea', stage: 'Part II · Carousel Creator', count: '5 of 5', next: 'How a Week Works' },
     { anchor: 'carousel-creator-week', stage: 'Your Week', next: 'Last Thing' },
     { anchor: 'waitlist', stage: 'December Waitlist' },
   ] satisfies Screen[],
@@ -150,14 +152,15 @@ export const PAGE = {
     getApp: {
       heading: 'First: get the app and sign in',
       body: 'Either one works. Phone or laptop. Free.',
-      // Each `web` href is the desktop and no-JavaScript default; `main.ts` swaps in the platform's
-      // store link on iPhone, iPad and Android (D-032). The design links the web apps; the store
-      // links are what "get the app" means on the phones in the room.
+      // Each `web` href is the desktop and no-JavaScript default: the web app itself, as the design
+      // has it, so a laptop on hotel Wi-Fi signs in in the browser instead of downloading an app
+      // (Connor, 2026-10-08, D-037). `main.ts` swaps in the platform's store link on iPhone, iPad and
+      // Android (D-032), where "get the app" means the app.
       apps: [
         {
           label: 'Get ChatGPT',
           href: {
-            web: 'https://chatgpt.com/download',
+            web: 'https://chatgpt.com/',
             ios: 'https://apps.apple.com/app/chatgpt/id6448311069',
             android: 'https://play.google.com/store/apps/details?id=com.openai.chatgpt',
           },
@@ -165,7 +168,7 @@ export const PAGE = {
         {
           label: 'Get Claude',
           href: {
-            web: 'https://claude.com/download',
+            web: 'https://claude.ai/',
             ios: 'https://apps.apple.com/us/app/claude-by-anthropic/id6473753684',
             android: 'https://play.google.com/store/apps/details?id=com.anthropic.claude',
           },
@@ -177,8 +180,8 @@ export const PAGE = {
       { name: 'Your AI voice profile.', detail: ' Phone or laptop, free.' },
       { name: 'Your Carousel Creator.', detail: ' Laptop, Claude Pro or higher.' },
     ],
-    // A real link to Step 2's screen, so it works without JavaScript too.
-    skip: { label: 'Already have a voice profile? Skip to Step 2', href: '#carousel-creator' },
+    // A real link to Part II's first screen, so it works without JavaScript too.
+    skip: { label: 'Already have a voice profile? Skip to Part II', href: '#carousel-creator' },
   },
 
   samples: {
@@ -338,10 +341,13 @@ Phrases I can't stand:`,
     pickLabel: 'The app you used',
     claude: {
       tab: 'Claude',
+      // Claude's New project box asks for a name and a description first, and the description is where
+      // a profile pasted too early lands. So: name it, skip the description, then Instructions (D-037).
       steps: [
         ['Open Claude Projects.'],
-        ['Click ', { strong: 'New project' }, ', top right.'],
-        ["Paste your profile into the Project's ", { strong: 'Instructions' }, '.'],
+        ['Click ', { strong: 'New project' }, ', top right. Name it ', { strong: 'My Voice' }, '.'],
+        ['Leave the description blank and click ', { strong: 'Create project' }, '.'],
+        ['Paste your profile into ', { strong: 'Instructions' }, ' on the right side, not the description.'],
       ] as Inline[][],
       button: { label: 'Open Claude Projects', href: 'https://claude.ai/projects' },
       note: 'Works on free or paid Claude.',
@@ -367,15 +373,15 @@ Phrases I can't stand:`,
       'Ask for the same post about a client question twice: once in a plain chat, once with your profile. Put them side by side.',
     before: { label: 'Before', text: 'Generic AI' },
     after: { label: 'After', text: 'Sounds like you' },
-    done: "Step 1 done. That's all you need in the room today.",
+    done: "Part I done. That's all you need in the room today.",
     phone: {
       heading: 'On your phone?',
-      body: 'Step 2 needs a laptop and Claude Pro or higher. Email yourself this page and finish tonight.',
-      // A phone-to-laptop handoff that lands on Step 2. `href` is the no-JavaScript fallback;
+      body: 'Part II needs a laptop and Claude Pro or higher. Email yourself this page and finish tonight.',
+      // A phone-to-laptop handoff that lands on Part II. `href` is the no-JavaScript fallback;
       // `main.ts` uses the share sheet where there is one (D-032).
       button: {
         label: 'Send This to My Laptop',
-        href: 'mailto:?subject=AI%20101%20for%20Agents%3A%20Step%202%20(do%20this%20on%20your%20laptop)&body=Open%20this%20on%20your%20laptop%3A%0Ahttps%3A%2F%2Fwww.amplifiedimpact.io%2Fai101%23carousel-creator',
+        href: 'mailto:?subject=AI%20101%20for%20Agents%3A%20Part%20II%20(do%20this%20on%20your%20laptop)&body=Open%20this%20on%20your%20laptop%3A%0Ahttps%3A%2F%2Fwww.amplifiedimpact.io%2Fai101%23carousel-creator',
       },
     },
   },
@@ -456,8 +462,8 @@ Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.
       { name: 'brokerage', label: 'Brokerage name, exactly as it must appear in ads', placeholder: 'eXp Realty' },
       {
         name: 'profile',
-        label: 'Your voice profile from Step 1',
-        hint: 'Everything between the START OF PROFILE and END OF PROFILE lines. Did Step 1 on your phone? The same chat is in your history on your laptop.',
+        label: 'Your voice profile from Part I',
+        hint: 'Everything between the START OF PROFILE and END OF PROFILE lines. Did Part I on your phone? The same chat is in your history on your laptop.',
         placeholder: 'Write as me. …',
         rows: 4,
       },
@@ -475,8 +481,8 @@ Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.
     thenHeading: 'Then, in Claude:',
     then: [
       ['Click ', { strong: 'New project' }, ', top right.'],
-      ['Name it ', { strong: 'Carousel Creator' }, '. Click ', { strong: 'Create project' }, '.'],
-      ['Open ', { strong: 'Instructions' }, ' on the right side and paste.'],
+      ['Name it ', { strong: 'Carousel Creator' }, '. Leave the description blank and click ', { strong: 'Create project' }, '.'],
+      ['Open ', { strong: 'Instructions' }, ' on the right side and paste there, not in the description.'],
     ] as Inline[][],
     showPrompt: 'See the full instructions',
   },
@@ -498,7 +504,7 @@ Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.
     ],
     chipTag: 'Copy',
     toast: 'Copied. Paste it into the Project chat and finish the thought.',
-    done: 'Step 2 done. Your Carousel Creator is built.',
+    done: 'Part II done. Your Carousel Creator is built.',
   },
 
   week: {
@@ -595,7 +601,7 @@ export const UI = {
   toastMs: 3200,
   /** `navigator.share`'s payload for "Send This to My Laptop". */
   share: {
-    title: 'AI 101 for Agents: Step 2 (do this on your laptop)',
+    title: 'AI 101 for Agents: Part II (do this on your laptop)',
     url: 'https://www.amplifiedimpact.io/ai101#carousel-creator',
   },
   /**

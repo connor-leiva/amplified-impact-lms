@@ -530,6 +530,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/ai-101', methods: 'GET, HEAD', guard: 'page' },
   // D-032's calendar file for the page's sprint: public, like the page it belongs to.
   { path: '/ai101/carousel-sprint.ics', methods: 'GET, HEAD', guard: 'page' },
+  // D-037's short link to the page's waitlist screen: a redirect to the page, public like it.
+  { path: '/waitlist', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/waitlist/', methods: 'GET, HEAD', guard: 'page' },
   // The Terms of Service and Privacy Policy the waitlist links to (`routes/legal.ts`): public
   // pages, served like /ai101, and outside `/api/` like it.
   { path: '/terms', methods: 'GET, HEAD', guard: 'page' },
@@ -1021,6 +1024,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/ai101/carousel-sprint.ics',
           '/privacy',
           '/terms',
+          '/waitlist',
+          '/waitlist/',
         ]);
         expect(pages.filter((r) => r.path.startsWith('/api/'))).toEqual([]);
 

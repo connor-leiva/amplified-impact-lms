@@ -135,16 +135,16 @@ afterEach(() => {
 
 /** Every screen in order, as the header and footer must show it. Typed out: this IS the flow. */
 const SCREENS = [
-  { anchor: 'welcome', stage: 'Welcome', count: '', next: 'Start Step 1', bar: '0%' },
-  { anchor: 'voice-profile', stage: 'Step 1 · Voice Profile', count: '1 of 4', next: 'I Have My Samples', bar: '9%' },
-  { anchor: 'voice-profile-copy', stage: 'Step 1 · Voice Profile', count: '2 of 4', next: 'I Have My Profile', bar: '18%' },
-  { anchor: 'voice-profile-save', stage: 'Step 1 · Voice Profile', count: '3 of 4', next: 'Saved It', bar: '27%' },
-  { anchor: 'voice-profile-test', stage: 'Step 1 · Voice Profile', count: '4 of 4', next: 'Start Step 2', bar: '36%' },
-  { anchor: 'carousel-creator', stage: 'Step 2 · Carousel Creator', count: '1 of 5', next: "I'm on My Laptop", bar: '45%' },
-  { anchor: 'carousel-creator-checklist', stage: 'Step 2 · Carousel Creator', count: '2 of 5', next: 'My Brand Is Saved', bar: '55%' },
-  { anchor: 'carousel-creator-about', stage: 'Step 2 · Carousel Creator', count: '3 of 5', next: 'Next', bar: '64%' },
-  { anchor: 'carousel-creator-project', stage: 'Step 2 · Carousel Creator', count: '4 of 5', next: 'Project Is Made', bar: '73%' },
-  { anchor: 'carousel-creator-first-idea', stage: 'Step 2 · Carousel Creator', count: '5 of 5', next: 'How a Week Works', bar: '82%' },
+  { anchor: 'welcome', stage: 'Welcome', count: '', next: 'Start Part I', bar: '0%' },
+  { anchor: 'voice-profile', stage: 'Part I · Voice Profile', count: '1 of 4', next: 'I Have My Samples', bar: '9%' },
+  { anchor: 'voice-profile-copy', stage: 'Part I · Voice Profile', count: '2 of 4', next: 'I Have My Profile', bar: '18%' },
+  { anchor: 'voice-profile-save', stage: 'Part I · Voice Profile', count: '3 of 4', next: 'Saved It', bar: '27%' },
+  { anchor: 'voice-profile-test', stage: 'Part I · Voice Profile', count: '4 of 4', next: 'Start Part II', bar: '36%' },
+  { anchor: 'carousel-creator', stage: 'Part II · Carousel Creator', count: '1 of 5', next: "I'm on My Laptop", bar: '45%' },
+  { anchor: 'carousel-creator-checklist', stage: 'Part II · Carousel Creator', count: '2 of 5', next: 'My Brand Is Saved', bar: '55%' },
+  { anchor: 'carousel-creator-about', stage: 'Part II · Carousel Creator', count: '3 of 5', next: 'Next', bar: '64%' },
+  { anchor: 'carousel-creator-project', stage: 'Part II · Carousel Creator', count: '4 of 5', next: 'Project Is Made', bar: '73%' },
+  { anchor: 'carousel-creator-first-idea', stage: 'Part II · Carousel Creator', count: '5 of 5', next: 'How a Week Works', bar: '82%' },
   { anchor: 'carousel-creator-week', stage: 'Your Week', count: '', next: 'Last Thing', bar: '91%' },
   { anchor: 'waitlist', stage: 'December Waitlist', count: '', next: '', bar: '100%' },
 ] as const;
@@ -373,7 +373,7 @@ describe('the step-through', () => {
     expect(stage()).toBe('Welcome');
     expect(count()).toBe('');
     expect(bar()).toBe('0%');
-    expect(nextLabel()).toBe('Start Step 1');
+    expect(nextLabel()).toBe('Start Part I');
     expect(backButton().hidden).toBe(true);
     expect(nextButton().hidden).toBe(false);
     expect(restartButton().hidden).toBe(true);
@@ -407,7 +407,7 @@ describe('the step-through', () => {
     await boot();
     backButton().click();
     expect(current()).toEqual(['voice-profile-save']);
-    expect(stage()).toBe('Step 1 · Voice Profile');
+    expect(stage()).toBe('Part I · Voice Profile');
     expect(count()).toBe('3 of 4');
     expect(nextLabel()).toBe('Saved It');
     expect(document.activeElement).toBe(heading('voice-profile-save'));
@@ -436,7 +436,7 @@ describe('the step-through', () => {
     expect(saved()).toMatchObject({ i: 0 });
     expect(nextButton().hidden).toBe(false);
     expect(restartButton().hidden).toBe(true);
-    expect(nextLabel()).toBe('Start Step 1');
+    expect(nextLabel()).toBe('Start Part I');
     expect(bar()).toBe('0%');
   });
 
@@ -444,7 +444,7 @@ describe('the step-through', () => {
     save({ i: 7 });
     await boot();
     expect(current()).toEqual(['carousel-creator-about']);
-    expect(stage()).toBe('Step 2 · Carousel Creator');
+    expect(stage()).toBe('Part II · Carousel Creator');
     expect(count()).toBe('3 of 5');
     expect(bar()).toBe('64%');
     expect(nextLabel()).toBe('Next');
@@ -509,15 +509,15 @@ describe('the step-through', () => {
       expect(current()).toEqual(['voice-profile-test']);
     });
 
-    it('"Skip to Step 2" goes to Step 2 in this tab and focuses its heading', async () => {
+    it('"Skip to Part II" goes to Part II in this tab and focuses its heading', async () => {
       await boot();
       const skip = $<HTMLAnchorElement>('a[href="#carousel-creator"]');
-      expect(skip.textContent).toBe('Already have a voice profile? Skip to Step 2');
+      expect(skip.textContent).toBe('Already have a voice profile? Skip to Part II');
       expect(click(skip).followed).toBe(false);
       expect(current()).toEqual(['carousel-creator']);
       expect(document.activeElement).toBe(heading('carousel-creator'));
       expect(saved()).toMatchObject({ i: 5 });
-      expect(stage()).toBe('Step 2 · Carousel Creator');
+      expect(stage()).toBe('Part II · Carousel Creator');
     });
 
     it('a link to an id the screens do not have is left to the browser', async () => {
@@ -1301,10 +1301,10 @@ describe('Get the app', () => {
   it.each([
     ['a Mac with no touch', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', 0],
     ['Windows', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36', 10],
-  ])('leaves the download pages on a desktop: %s', async (_what, ua, touch) => {
+  ])('leaves the web apps on a desktop: %s', async (_what, ua, touch) => {
     as(ua, touch);
     await boot();
-    expect(hrefs()).toEqual(['https://chatgpt.com/download', 'https://claude.com/download']);
+    expect(hrefs()).toEqual(['https://chatgpt.com/', 'https://claude.ai/']);
   });
 });
 
@@ -1336,14 +1336,14 @@ describe('Send This to My Laptop', () => {
   const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
   const shareLink = () => $<HTMLAnchorElement>('a[data-share]');
 
-  it('opens the share sheet with the Step 2 link, in place of the email', async () => {
+  it('opens the share sheet with the Part II link, in place of the email', async () => {
     const share = vi.fn(() => Promise.resolve());
     stubValue(navigator, 'share', share);
     await boot();
     const assigned = watchNavigation();
     expect(click(shareLink()).followed).toBe(false);
     expect(share).toHaveBeenCalledWith({
-      title: 'AI 101 for Agents: Step 2 (do this on your laptop)',
+      title: 'AI 101 for Agents: Part II (do this on your laptop)',
       url: 'https://www.amplifiedimpact.io/ai101#carousel-creator',
     });
     await flush();
