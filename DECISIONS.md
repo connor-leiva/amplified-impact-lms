@@ -1319,6 +1319,51 @@ Amends D-028 (the page itself). Everything below is the brief's, except where it
 - **Section 8 (waitlist email) is a no-op:** the handler stores the sign-up and sends nothing, so
   the form is unchanged, as the brief says for that case.
 
+### After Connor's review of the preview (2026-10-07 and 08)
+
+- **The ChatGPT deep link** (above, under Step 1 item 4).
+- **App marks on the buttons.** Every button that opens ChatGPT or Claude carries that app's mark, so
+  a visitor can tell them apart at a glance (Connor asked). One 0 by 0 sprite of two `<symbol>`s and
+  a `<use>` per button, in `currentColor`, `aria-hidden`; the button's words still name the app. The
+  path data is simple-icons' (OpenAI's from 15.22.0, the last release that has it; Claude's from
+  16.32.0), copied by script into `logos.ts`. **Open before deploy, and Connor's call:** OpenAI's
+  brand page allows its mark only as OpenAI's own file, unmodified, black or white, with no implied
+  endorsement; Anthropic's trademark guidelines allow the Claude mark only in materials Anthropic
+  approves beforehand, with no change of color; simple-icons dropped OpenAI in 16.0.0 because no one
+  obtained OpenAI's permission, and its Claude icon is a community trace. Taking the marks off is
+  `logo()` returning `''`.
+- **About you says what it does:** "What you type here fills in the instructions below, ready to
+  copy. It stays on this device. All fields are optional." (Below: the panel sits directly above the
+  instructions.)
+- **Checklist item 1 builds the brand from a chat, and brings the ask.** Connor's question: the
+  button opened a new Claude Design project, and nothing told it to make a design system. Anthropic's
+  Help Center (setup article and "Get started", both updated late September 2026) bears that out:
+  since September 16, 2026 Claude Design runs inside any Claude chat; a design system is made there
+  by ASKING for one ("From a chat") and is kept in Settings > Design systems, where any chat can use
+  it; files dropped into a new design are reference for that design only. The standalone app at
+  claude.ai/design builds a system through its own onboarding, and its "Published" toggle covers
+  only projects started from its home screen; no source says such a system reaches a Project chat
+  without a migration step. So item 1 now brings a **Brand prompt** (ours: Anthropic publishes
+  none), with Copy prompt and Copy & open Claude like the page's other prompts. The visitor pastes
+  it into the new chat FIRST, adds any brand colors or fonts they know, and only then attaches the
+  logo, headshot and posts: a screenshot taken or attached through the clipboard would replace the
+  prompt Copy & open had just put there. Then "See my design systems"
+  (`claude.ai/settings/design-systems`, the URL the Help Center links) to check it was saved, what
+  to say if it was not, and a link to Settings > Capabilities for the switch artifacts need
+  (`claude.ai/settings/capabilities`, also the Help Center's). The prompt names the system "My
+  Carousel Brand" so the weekly chat can be pointed at it. The layers row links the same settings
+  page, and the brief's `claude.ai/design` is no longer on the page. Two links are now "Copy & open
+  Claude", so each Copy & open is described by its prompt's label, as the Copy prompt buttons are.
+  The checklist id stays `design-system`, so a saved tick survives. An adversarial review (three
+  lenses, each finding re-checked) found the paste order, the missing "not listed?" step and the
+  unlinked Capabilities hint; all are fixed.
+- **Not verifiable from here, so on the phone-and-laptop test list before the session:** that the
+  settings URL loads for a signed-in Pro account; that the prompt saves a design system rather than
+  making one design; that a design made in a Carousel Creator Project chat uses it; that accounts
+  not yet on the new combined Claude (rolling out in stages) can do the same; and the protected
+  "How a week works" step 4, since the Help Center lists no PNG export and Canva documents only
+  slide decks as converting cleanly.
+
 ### Not done, and why
 
 - **The jump links stay 32 px tall.** The brief's 44 px rule is in its button list; the jump links
@@ -1328,5 +1373,5 @@ Amends D-028 (the page itself). Everything below is the brief's, except where it
 - **Real-device behaviour** (app switching, store links, the share sheet, Add to Calendar) cannot be
   tested from here. The brief's phone test list is the check, before deploy.
 
-Page weight: one response, 67 KB (18 KB gzipped), and still exactly five requests on load (the page
-and its four font files), measured before and after.
+Page weight: one response, 67 KB (18 KB gzipped) as first built and 76 KB (21 KB gzipped) after the
+review changes, and still exactly five requests on load (the page and its four font files).

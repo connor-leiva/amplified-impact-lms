@@ -777,6 +777,53 @@ describe('Copy & open (D-032)', () => {
   });
 });
 
+describe('the brand prompt (D-032)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  });
+
+  it('Copy prompt copies the brand prompt exactly', async () => {
+    const { written } = stubClipboard();
+    await boot();
+    $('[data-prompt="brand_system"] button[data-copy]').click();
+    expect(written).toHaveBeenCalledWith(PAGE.carouselCreator.brandPrompt.text);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(live()).toBe('Copied to clipboard.');
+  });
+
+  it('Copy & open Claude copies the brand prompt, not the voice profile prompt, and opens a new chat', async () => {
+    const { written, legacy } = stubClipboard();
+    await boot();
+    const link = $('a[data-copy-open="carousel-creator-brand-prompt"]');
+    expect(click(link).followed).toBe(true);
+    expect(legacy).toEqual([PAGE.carouselCreator.brandPrompt.text]);
+    expect(written).toHaveBeenCalledWith(PAGE.carouselCreator.brandPrompt.text);
+    expect(link.getAttribute('href')).toBe('https://claude.ai/new');
+  });
+
+  it('Copy prompt names it when nothing can copy (its label is an h4, not an h3)', async () => {
+    stubValue(window, 'isSecureContext', true);
+    stubValue(navigator, 'clipboard', undefined);
+    stubValue(document, 'execCommand', vi.fn(() => false));
+    await boot();
+    $('[data-prompt="brand_system"] button[data-copy]').click();
+    await vi.advanceTimersByTimeAsync(100);
+    expect(live()).toBe(UI.copyFailedAnnouncement('Brand prompt'));
+    expect(window.getSelection()?.toString()).toBe(PAGE.carouselCreator.brandPrompt.text);
+  });
+
+  it('names itself when nothing can copy (its label is an h4, not an h3)', async () => {
+    stubValue(window, 'isSecureContext', true);
+    stubValue(navigator, 'clipboard', undefined);
+    stubValue(document, 'execCommand', vi.fn(() => false));
+    await boot();
+    expect(click($('a[data-copy-open="carousel-creator-brand-prompt"]')).followed).toBe(false);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(live()).toBe(UI.copyFailedAnnouncement('Brand prompt'));
+    expect(window.getSelection()?.toString()).toBe(PAGE.carouselCreator.brandPrompt.text);
+  });
+});
+
 describe('starter chips (D-032)', () => {
   it('copies the chip’s own words, says Copied, and reveals the hint', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });

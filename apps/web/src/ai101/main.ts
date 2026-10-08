@@ -205,7 +205,7 @@ function initCopy(doc: Document, announce: (message: string) => void): void {
     const labelEl = button.querySelector('[data-copy-label]');
     if (!block || !pre || !labelEl) continue;
     // The prompt's own name, for the announcement: "Voice profile prompt copied".
-    const name = (block.querySelector('h3')?.textContent ?? '').trim();
+    const name = (block.querySelector('h3, h4')?.textContent ?? '').trim();
     let reset: ReturnType<typeof setTimeout> | undefined;
 
     button.addEventListener('click', () => {
@@ -247,7 +247,7 @@ function initCopyOpen(doc: Document, announce: (message: string) => void): void 
     const original = labelEl.textContent ?? '';
     const app = link.getAttribute('data-app') ?? '';
     // The prompt's own name, for the failure message: "Voice profile prompt is selected…".
-    const promptName = (doc.getElementById(blockId)?.querySelector('h3')?.textContent ?? '').trim();
+    const promptName = (doc.getElementById(blockId)?.querySelector('h3, h4')?.textContent ?? '').trim();
     const flash = flashCopied(link, labelEl, original);
     let armed = false;
     let disarm: ReturnType<typeof setTimeout> | undefined;

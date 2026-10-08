@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ICONS } from '@ai/core';
 import { PAGE, UI, type Inline, type Step } from './content';
 import type * as Content from './content';
+import { LOGOS } from './logos';
 import { esc, highlightPlaceholders, icon, renderAi101Body, renderAi101Head } from './render';
 
 // /ai101's markup contract (DECISIONS.md D-028), checked on the parsed DOM rather than on the string:
@@ -50,6 +51,8 @@ function copyStrings(value: unknown, key = ''): string[] {
 const PROMPTS = [
   { anchor: PAGE.voiceProfile.anchor, prompt: PAGE.voiceProfile.prompt },
   { anchor: PAGE.carouselCreator.anchor, prompt: PAGE.carouselCreator.prompt },
+  // Checklist item 1's, inside the checklist, so its label is an h4 (D-032).
+  { anchor: `${PAGE.carouselCreator.anchor}-brand`, prompt: PAGE.carouselCreator.brandPrompt },
 ];
 
 describe('/ai101 document outline', () => {
@@ -174,7 +177,7 @@ describe('/ai101 prompts', () => {
     '$prompt.id: a real copy button, labelled "Copy prompt" and described by the label',
     ({ anchor, prompt }) => {
       const block = doc.getElementById(`${anchor}-prompt`)!;
-      const h3 = block.querySelector('h3')!;
+      const h3 = block.querySelector('h3, h4')!;
       expect(text(h3)).toBe(prompt.label);
       const button = block.querySelector('button[data-copy]')!;
       expect(button.getAttribute('type')).toBe('button');
@@ -433,8 +436,13 @@ describe('/ai101 click paths (D-032)', () => {
     'https://chatgpt.com/',
     'https://claude.ai/new',
     'https://claude.ai/projects',
+    // Connor's deep link, after the brief (2026-10-07).
     'https://chatgpt.com/settings/personalization?instructions=chatgpt',
-    'https://claude.ai/design',
+    // In place of the brief's claude.ai/design, after Connor asked how a new design would know to
+    // build a design system (2026-10-08): the brand is built from a chat and kept here, and designs
+    // need the artifacts switch on Capabilities. Both URLs are the ones Anthropic's Help Center links.
+    'https://claude.ai/settings/design-systems',
+    'https://claude.ai/settings/capabilities',
     'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Carousel%20Creator%3A%20weekly%20approval%20block&dates=20261012T090000/20261012T093000&recur=RRULE%3AFREQ%3DWEEKLY%3BCOUNT%3D4&details=Week%201%20Market%2C%20Week%202%20Method%2C%20Week%203%20Me%2C%20Week%204%20Market.%20Open%20your%20Carousel%20Creator%20Project%20at%20https%3A%2F%2Fclaude.ai%2Fprojects%20and%20send%20one%20idea%20from%20this%20week%27s%20pillar.%20Track%20conversations%20started%2C%20not%20likes.',
   ]);
 
@@ -492,10 +500,15 @@ describe('/ai101 click paths (D-032)', () => {
     expect(links.map((a) => [text(a), a.getAttribute('href'), a.getAttribute('data-copy-open')])).toEqual([
       ['Copy & open ChatGPT', 'https://chatgpt.com/', 'voice-profile-prompt'],
       ['Copy & open Claude', 'https://claude.ai/new', 'voice-profile-prompt'],
+      ['Copy & open Claude', 'https://claude.ai/new', 'carousel-creator-brand-prompt'],
       ['Copy & open Claude Projects', 'https://claude.ai/projects', 'carousel-creator-prompt'],
     ]);
     for (const a of links) {
       expect(doc.getElementById(a.getAttribute('data-copy-open')!)?.querySelector('pre[data-prompt-text]')).not.toBeNull();
+      // Described by its own prompt's label: two of them are "Copy & open Claude".
+      const label = doc.getElementById(a.getAttribute('aria-describedby')!)!;
+      expect(label.tagName).toMatch(/^H[34]$/);
+      expect(label.closest('.prompt')?.id).toBe(a.getAttribute('data-copy-open'));
     }
     // Next to "Copy prompt", with the hint under the buttons.
     const head = doc.querySelector('#voice-profile-prompt .prompt-head')!;
@@ -521,10 +534,48 @@ describe('/ai101 click paths (D-032)', () => {
     expect(text(item)).not.toMatch(/custom GPT/i);
   });
 
-  it('links claude.ai/design in the layers table', () => {
+  it('links the design systems page in the layers table', () => {
     const a = doc.querySelector('table.layers tbody tr td a')!;
-    expect(text(a)).toBe('claude.ai/design');
-    expect(a.getAttribute('href')).toBe('https://claude.ai/design');
+    expect(text(a)).toBe('design systems');
+    expect(a.getAttribute('href')).toBe('https://claude.ai/settings/design-systems');
+    expect(text(a.closest('td'))).toBe('A design system in Claude Design, built once from a Claude chat and kept in your design systems');
+  });
+
+  it('builds the brand from a chat: item 1 brings the prompt that asks for a design system', () => {
+    const item = all(doc, '.checklist > li')[0]!;
+    expect(text(item.querySelector('label')).trim()).toBe('Set up your brand in Claude Design.');
+    const stack = item.querySelector('.check-detail.stack')!;
+    const parts = Array.from(stack.children);
+    // What to do, the prompt, then what to check.
+    expect(parts.map((el) => el.tagName + (el.className ? `.${el.className}` : ''))).toEqual(['P', 'DIV.prompt', 'P']);
+    expect(text(parts[0])).toBe(
+      "Tap Copy & open Claude below, paste the prompt into the new chat, and put in your brokerage name. Know your brand colors or fonts? Add them at the end. Don't know them? Skip it. Then attach your logo, your headshot, and screenshots of two or three posts you love, and send it.",
+    );
+    // Paste before attaching: a screenshot through the clipboard would replace the prompt.
+    expect(text(parts[0]).indexOf('paste the prompt')).toBeLessThan(text(parts[0]).indexOf('attach'));
+    const block = parts[1]!;
+    expect(block.id).toBe('carousel-creator-brand-prompt');
+    expect(text(block.querySelector('h4'))).toBe('Brand prompt');
+    expect(all(block, '.actions > *').map(text)).toEqual(['Copy prompt', 'Copy & open Claude']);
+    const prompt = text(block.querySelector('pre[data-prompt-text]'));
+    // It asks for a SAVED system, by name, and fills the gaps an agent without a style guide has.
+    expect(prompt).toMatch(/^Build a reusable design system/);
+    expect(prompt).toContain('Name it My Carousel Brand.');
+    expect(prompt).toContain('pick a simple palette and font pairing');
+    expect(prompt).toContain('If I list brand colors or fonts at the end of this message, use them exactly.');
+    expect(prompt).toContain('4:5 (1080 x 1350)');
+    expect(all(block, 'mark').map(text)).toEqual(['[brokerage name]']);
+    const check = parts[2]!;
+    expect(check.querySelector('a.action')?.getAttribute('href')).toBe('https://claude.ai/settings/design-systems');
+    expect(text(check.querySelector('a.action'))).toBe('See my design systems');
+    expect(text(check)).toContain('It should be listed as My Carousel Brand.');
+    expect(text(check)).toContain('Not listed? In the same chat, say: Save this as a design system called My Carousel Brand.');
+    expect(text(check)).toContain('turn on Cloud code execution and file creation in Settings, then Capabilities.');
+    const caps = check.querySelector('a:not(.action)')!;
+    expect([text(caps), caps.getAttribute('href')]).toEqual(['Settings, then Capabilities', 'https://claude.ai/settings/capabilities']);
+    // The standalone app's toggle and link are gone: neither applies to a brand built in a chat.
+    expect(text(item)).not.toMatch(/Published/);
+    expect(item.querySelector('a[href="https://claude.ai/design"]')).toBeNull();
   });
 
   it('puts Send this to my laptop right after Step 2’s intro, as a mailto: without JavaScript', () => {
@@ -574,6 +625,66 @@ describe('/ai101 click paths (D-032)', () => {
       expect(text(doc.querySelector(`label[for="${f.id}"]`)).length).toBeGreaterThan(0);
     }
     expect(text(about.querySelector('[data-about-clear]'))).toBe('Clear');
+    // It says what it does, and the instructions it fills in really are below it.
+    expect(text(about.querySelector('p.hint'))).toBe(
+      'What you type here fills in the instructions below, ready to copy. It stays on this device. All fields are optional.',
+    );
+  });
+
+  it('marks every button that opens ChatGPT or Claude with that app’s logo, and no other link', () => {
+    const marked = (a: Element) => a.querySelector('svg.logo use')?.getAttribute('href') ?? null;
+    const buttons = all(doc, 'a.action');
+    const byLogo = buttons.map((a) => [text(a), marked(a)]);
+    expect(byLogo).toEqual([
+      ['Get ChatGPT', '#ai101-logo-chatgpt'],
+      ['Get Claude', '#ai101-logo-claude'],
+      ['Open Claude Projects', '#ai101-logo-claude'],
+      ['Open ChatGPT settings', '#ai101-logo-chatgpt'],
+      ['Copy & open ChatGPT', '#ai101-logo-chatgpt'],
+      ['Copy & open Claude', '#ai101-logo-claude'],
+      ['Send this to my laptop', null],
+      ['Copy & open Claude', '#ai101-logo-claude'],
+      ['See my design systems', '#ai101-logo-claude'],
+      ['Copy & open Claude Projects', '#ai101-logo-claude'],
+      ['Apple or Outlook', null],
+      ['Google Calendar', null],
+    ]);
+    // The text link in the layers table stays a plain link.
+    expect(doc.querySelector('table.layers a svg')).toBeNull();
+    for (const svg of all(doc, 'svg.logo')) {
+      // Decoration: the button's words already name the app.
+      expect(svg.getAttribute('aria-hidden')).toBe('true');
+      expect(svg.getAttribute('focusable')).toBe('false');
+      expect(svg.getAttribute('fill')).toBe('currentColor');
+    }
+    // Copy & open's logo sits outside the label the script swaps for "Copied".
+    for (const a of all(doc, 'a[data-copy-open]')) {
+      expect(a.querySelector('[data-copy-label] svg')).toBeNull();
+      expect(a.firstElementChild?.matches('svg.logo')).toBe(true);
+    }
+  });
+
+  it('defines each logo once, in a sprite outside <main> that takes no space', () => {
+    const sprite = doc.querySelector('svg.logo-sprite')!;
+    expect(sprite.parentElement).toBe(doc.body);
+    expect(sprite.nextElementSibling?.tagName).toBe('MAIN');
+    expect([sprite.getAttribute('width'), sprite.getAttribute('height'), sprite.getAttribute('aria-hidden')]).toEqual(['0', '0', 'true']);
+    expect(all(sprite, 'symbol').map((s) => [s.id, s.getAttribute('viewBox')])).toEqual([
+      ['ai101-logo-chatgpt', '0 0 24 24'],
+      ['ai101-logo-claude', '0 0 24 24'],
+    ]);
+    for (const s of all(sprite, 'symbol')) expect(s.querySelectorAll('path')).toHaveLength(1);
+    for (const [name, d] of Object.entries(LOGOS)) {
+      expect(d.length).toBeGreaterThan(1000);
+      expect(doc.querySelector(`#ai101-logo-${name} path`)?.getAttribute('d')).toBe(d);
+    }
+    // And not swapped: the OpenAI mark's path opens with its own first point, Claude's with its own.
+    expect(LOGOS.chatgpt.startsWith('M22.2819 9.8211')).toBe(true);
+    expect(LOGOS.claude.startsWith('m4.7144 15.9555')).toBe(true);
+    // Every <use> points at a symbol that is there.
+    for (const use of all(doc, 'svg.logo use')) {
+      expect(doc.getElementById(use.getAttribute('href')!.slice(1))?.tagName.toLowerCase()).toBe('symbol');
+    }
   });
 
   it('adds the sprint’s calendar links after its last line: the .ics in this tab, Google in a new one', () => {

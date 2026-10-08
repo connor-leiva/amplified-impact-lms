@@ -16,7 +16,7 @@
 
 export interface Prompt {
   /** The analytics name from the spec, and the DOM id stem. */
-  id: 'voice_profile' | 'carousel_creator';
+  id: 'voice_profile' | 'carousel_creator' | 'brand_system';
   label: string;
   text: string;
 }
@@ -47,6 +47,8 @@ export interface ChecklistItem {
   title: readonly Inline[];
   /** What to do, under the label and OUTSIDE it, so tapping a link here never ticks the box. */
   detail?: readonly Inline[];
+  /** More of the same, under a block render.ts puts after `detail` (item 1's brand prompt). */
+  after?: readonly Inline[];
 }
 
 /** A "Copy & open" button: copies a prompt, then opens `href` in a new tab. */
@@ -180,8 +182,12 @@ My samples:
       rows: [
         [
           '1. The brand',
-          ['A design system in Claude Design, set up once at ', { link: 'claude.ai/design', href: 'https://claude.ai/design' }],
-          'Logo, headshot, brand colors, fonts, two or three posts you love, and your brokerage name',
+          // Built from a chat and kept in Settings > Design systems, where every chat can use it (D-032).
+          [
+            'A design system in Claude Design, built once from a Claude chat and kept in your ',
+            { link: 'design systems', href: 'https://claude.ai/settings/design-systems' },
+          ],
+          'Logo, headshot, two or three posts you love, and your brokerage name. Colors and fonts only if you have them.',
         ],
         [
           '2. The brain',
@@ -202,11 +208,24 @@ My samples:
       {
         id: 'design-system',
         title: [{ strong: 'Set up your brand in Claude Design.' }],
+        // Since Sept 16, 2026 Claude Design runs inside a regular Claude chat, and it builds a saved
+        // design system only when asked to (Anthropic's setup article, "From a chat"). Files dropped
+        // into a new design are reference for that one design. So the step brings the ask: render.ts
+        // draws `brandPrompt` between `detail` and `after`. The standalone app's "Published" toggle is
+        // gone from the copy: it covers only projects started at claude.ai/design (D-032).
+        // Paste FIRST, then attach: a screenshot taken or attached through the clipboard would replace
+        // the prompt that Copy & open just put there.
         detail: [
-          { button: 'Open Claude Design', href: 'https://claude.ai/design' },
-          ` Upload your logo, your headshot, and screenshots of two or three posts you love, and add your brokerage name. Don't know your color codes or fonts? Skip them. Claude builds your palette and type from what you upload. Review it, then turn on `,
-          { strong: 'Published' },
-          `, or new designs won't use it.`,
+          `Tap Copy & open Claude below, paste the prompt into the new chat, and put in your brokerage name. Know your brand colors or fonts? Add them at the end. Don't know them? Skip it. Then attach your logo, your headshot, and screenshots of two or three posts you love, and send it.`,
+        ],
+        // What a saved brand looks like, and what to say when it is not there: whether the prompt
+        // saves a system every time is not something the Help Center promises (D-032).
+        after: [
+          `Claude pulls your palette and type from what you upload. Look over what it shows you and say what to change in plain English. Then check that your brand is saved. It should be listed as My Carousel Brand. `,
+          { button: 'See my design systems', href: 'https://claude.ai/settings/design-systems' },
+          ` Not listed? In the same chat, say: Save this as a design system called My Carousel Brand. If Claude says it can't make designs, turn on Cloud code execution and file creation in `,
+          { link: 'Settings, then Capabilities', href: 'https://claude.ai/settings/capabilities' },
+          '.',
         ],
       },
       {
@@ -225,6 +244,20 @@ My samples:
       // render.ts draws `starters` under this one.
       { id: 'first-idea', title: [{ strong: 'Start a new chat in the Project and send one idea.' }] },
     ] satisfies ChecklistItem[],
+    // Checklist item 1's ask. Anthropic publishes no prompt for building a design system from a chat,
+    // so this one is ours, from its setup article's inputs and tips (D-032).
+    brandPrompt: {
+      id: 'brand_system',
+      label: 'Brand prompt',
+      text: `Build a reusable design system for my real estate brand from the files I attached: my logo, my headshot, and screenshots of posts I like.
+
+If I list brand colors or fonts at the end of this message, use them exactly. Otherwise, pull my colors and fonts from these files, and if they don't show clear colors or fonts, pick a simple palette and font pairing that fits my logo and the look of those posts. Save my logo and headshot as brand assets and use them exactly as they are.
+
+Set it up for Instagram carousels at 4:5 (1080 x 1350) and LinkedIn PDF carousels. My brokerage is [brokerage name]. Every design must show it clearly, as real estate advertising rules require.
+
+Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.`,
+    } satisfies Prompt,
+    brandPromptOpen: [{ label: 'Copy & open Claude', app: 'Claude', href: 'https://claude.ai/new' }] satisfies CopyOpen[],
     projectOpen: {
       label: 'Copy & open Claude Projects',
       app: 'Claude Projects',
@@ -242,7 +275,8 @@ My samples:
     // instructions' last line, live, so what a visitor sees is what they copy.
     aboutYou: {
       heading: 'About you',
-      intro: 'All fields are optional.',
+      // Says what the panel does: Connor asked what it was for, so a visitor would too (2026-10-07).
+      intro: 'What you type here fills in the instructions below, ready to copy. It stays on this device. All fields are optional.',
       fields: [
         { name: 'niche', label: 'Your niche', kind: 'text', placeholder: 'e.g., first-time buyers, relocation, luxury' },
         {

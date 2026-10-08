@@ -27,6 +27,7 @@
 // `@ai/core` (seeds, mutations, immer) just to read two SVG paths.
 import { ICONS, type IconName } from '@ai/core/icons';
 import { PAGE, UI, type ChecklistItem, type CopyOpen, type Inline, type Prompt, type Step } from './content';
+import { LOGOS, logoFor, type LogoName } from './logos';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
@@ -65,6 +66,33 @@ export function highlightPlaceholders(text: string): string {
 /** Every link that leaves the site opens in a new tab, and gives the new page no handle on this one. */
 const NEW_TAB = 'target="_blank" rel="noopener"';
 
+const logoId = (name: LogoName) => `ai101-logo-${name}`;
+
+/**
+ * The ChatGPT or Claude mark for a button that opens that app, or nothing for any other link. A
+ * `<use>` of the page's one sprite (`logoSprite`), so each path is in the page once however many
+ * buttons show it. Hidden from assistive tech: the button's words already say which app it opens.
+ */
+function logo(href: string): string {
+  const name = logoFor(href);
+  if (!name) return '';
+  return (
+    `<svg class="logo" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" ` +
+    `fill="currentColor"><use href="#${logoId(name)}"/></svg>`
+  );
+}
+
+/**
+ * The marks `logo()` points at, defined once. Not `hidden`: the UA's `[hidden]` rule only reaches
+ * HTML elements, so the sprite is a 0 by 0 SVG the CSS takes out of the flow instead.
+ */
+function logoSprite(): string {
+  const symbols = (Object.keys(LOGOS) as LogoName[])
+    .map((name) => `<symbol id="${logoId(name)}" viewBox="0 0 24 24"><path d="${esc(LOGOS[name])}"/></symbol>`)
+    .join('');
+  return `<svg class="logo-sprite" width="0" height="0" aria-hidden="true" focusable="false">${symbols}</svg>`;
+}
+
 /**
  * One run of inline copy (`content.ts`'s `Inline`). Every string is escaped here, so the only tags on
  * the page are the ones this function writes — never one that came from the copy.
@@ -78,7 +106,7 @@ export function inline(segments: readonly Inline[]): string {
       if (typeof seg === 'string') return esc(seg);
       if ('strong' in seg) return `<strong>${esc(seg.strong)}</strong>`;
       if ('link' in seg) return `<a href="${esc(seg.href)}" ${NEW_TAB}>${esc(seg.link)}</a>`;
-      const button = `<a class="action" href="${esc(seg.href)}" ${NEW_TAB}>${esc(seg.button)}</a>`;
+      const button = `<a class="action" href="${esc(seg.href)}" ${NEW_TAB}>${logo(seg.href)}${esc(seg.button)}</a>`;
       if (!seg.phone) return button;
       return `<span class="desktop-only">${button}</span><span class="phone-only">${esc(seg.phone)}</span>`;
     })
@@ -88,12 +116,14 @@ export function inline(segments: readonly Inline[]): string {
 /**
  * A "Copy & open" link. A real `<a>`, so with JavaScript off it is still a link that opens the app;
  * with it, `main.ts` copies the prompt in `data-copy-open`'s block first. `data-app` names the app
- * for the two-tap fallback's "Copied. Open {app}".
+ * for the two-tap fallback's "Copied. Open {app}". Described by its prompt's label, like the Copy
+ * prompt buttons: two of these are "Copy & open Claude", for different prompts.
  */
 function copyOpenLink(open: CopyOpen, promptBlockId: string): string {
   return (
     `<a class="action" href="${esc(open.href)}" ${NEW_TAB} data-copy-open="${esc(promptBlockId)}" ` +
-    `data-app="${esc(open.app)}"><span data-copy-label>${esc(open.label)}</span></a>`
+    `aria-describedby="${esc(promptBlockId)}-label" ` +
+    `data-app="${esc(open.app)}">${logo(open.href)}<span data-copy-label>${esc(open.label)}</span></a>`
   );
 }
 
@@ -160,7 +190,14 @@ function section(anchor: string, heading: string, body: string[], className = 'c
  * a screen reader's button list, so `aria-describedby` points at the <h3>: "Copy prompt, Voice
  * profile prompt". Both icons are always in the markup; `[data-copied]` decides which one shows.
  */
-function promptBlock(prompt: Prompt, anchor: string, open: readonly CopyOpen[] = [], hint?: string): string {
+function promptBlock(
+  prompt: Prompt,
+  anchor: string,
+  open: readonly CopyOpen[] = [],
+  hint?: string,
+  /** 4 inside the checklist, whose own heading is an h3. */
+  level: 3 | 4 = 3,
+): string {
   const id = `${anchor}-prompt`;
   const labelId = `${id}-label`;
   const copy =
@@ -176,7 +213,7 @@ function promptBlock(prompt: Prompt, anchor: string, open: readonly CopyOpen[] =
   return [
     `<div class="prompt" id="${esc(id)}" data-prompt="${esc(prompt.id)}">`,
     `<div class="prompt-head${open.length ? ' stacked' : ''}">`,
-    `<h3 id="${esc(labelId)}">${esc(prompt.label)}</h3>`,
+    `<h${level} id="${esc(labelId)}">${esc(prompt.label)}</h${level}>`,
     ...actions,
     `</div>`,
     ...(hint ? [`<p class="hint">${esc(hint)}</p>`] : []),
@@ -243,7 +280,18 @@ function checklist(labelledBy: string): string {
     const parts: string[] = [];
     if (id === 'create-project') parts.push(copyOpenLink(cc.projectOpen, promptId));
     if (detail) parts.push(inline(detail));
-    const body = parts.length ? `<div class="check-detail">${parts.join('')}</div>` : '';
+    let body = parts.length ? `<div class="check-detail">${parts.join('')}</div>` : '';
+    // Item 1: what to do, the brand prompt to send, then what to check. A stack of paragraphs around
+    // a prompt block, so the prompt sits at the item's indent with its own Copy and Copy & open.
+    if (id === 'design-system') {
+      body = [
+        `<div class="check-detail stack">`,
+        ...(detail ? [`<p>${inline(detail)}</p>`] : []),
+        promptBlock(cc.brandPrompt, `${cc.anchor}-brand`, cc.brandPromptOpen, undefined, 4),
+        ...(item.after ? [`<p>${inline(item.after)}</p>`] : []),
+        `</div>`,
+      ].join('');
+    }
     const starters = id === 'first-idea' ? startersBlock() : '';
     return `<li>${label}${body}${starters}</li>`;
   });
@@ -298,7 +346,7 @@ function getApp(): string {
     .map(
       ({ label, href }) =>
         `<a class="action" href="${esc(href.web)}" ${NEW_TAB} data-ios="${esc(href.ios)}" ` +
-        `data-android="${esc(href.android)}" data-get-app>${esc(label)}</a>`,
+        `data-android="${esc(href.android)}" data-get-app>${logo(href.web)}${esc(label)}</a>`,
     )
     .join('');
   return `<div class="get-app">\n<p><strong>${esc(lead)}</strong></p>\n<div class="actions">${links}</div>\n</div>`;
@@ -404,6 +452,7 @@ export function renderAi101Body(): string {
   const checklistId = `${cc.anchor}-checklist`;
 
   return [
+    logoSprite(),
     `<main class="page">`,
     hero,
     getApp(),

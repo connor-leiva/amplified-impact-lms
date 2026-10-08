@@ -678,6 +678,17 @@ a:focus-visible {
   }
 }
 
+/* The ChatGPT and Claude marks on the buttons that open those apps (logos.ts). */
+.action .logo {
+  flex: none;
+}
+
+/* The marks' definitions: drawn nowhere, so out of the flow. */
+.logo-sprite {
+  position: absolute;
+  overflow: hidden;
+}
+
 /* A row of buttons: stacked and full width under a thumb, a wrapping row from 640px. */
 .actions {
   display: flex;
@@ -787,6 +798,26 @@ a:focus-visible {
   margin: 0 0 8px 34px;
   font-size: 15px;
   line-height: 22px;
+}
+/* Item 1: paragraphs around the brand prompt, spaced like the prompt block's own parts. */
+.check-detail.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.check-detail.stack p {
+  margin: 0;
+}
+/* In the prompt's row of buttons the in-sentence rule above does not apply: no extra margin. */
+.check-detail .actions .action {
+  margin: 0;
+}
+/* The brand prompt's label: an h4 under "Setup checklist", drawn like the other prompt labels. */
+.page .prompt h4 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
 }
 .starters {
   display: flex;
