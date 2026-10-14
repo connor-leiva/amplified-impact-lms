@@ -7,6 +7,8 @@
 //                                     directly, for the slide and QR code at the end of the session
 //   POST /api/ai101/waitlist        → JSON: 201 { ok: true } or 400 { error, field }
 //                                     a no-JS form: 303 to /ai101#waitlist-joined or #waitlist-error
+//   POST /api/task-sync-starter     → the same route for the Task Sync Starter Kit's opt-in (D-038):
+//                                     its own source, no SMS, and its own landing spots
 //
 // The page itself is built by `apps/web` (`vite.ai101.config.ts`) into ONE self-contained file,
 // `dist/ai101.html`: its stylesheet and its one module script are inlined, and only the fonts are
@@ -144,6 +146,17 @@ export const WAITLIST_PATH = '/api/ai101/waitlist';
  */
 export const WAITLIST_SOURCE = 'expcon-2026-ai101';
 
+/**
+ * The Task Sync Starter Kit's opt-in (D-038): the same table and the same rules as the waitlist, under
+ * its own `source` (so the GoHighLevel sync tags it as the kit, not the waitlist, and one person may
+ * be on both), with no SMS box on its page, and landing back on that page.
+ */
+export const TSS_SIGNUP_PATH = '/api/task-sync-starter';
+export const TSS_SOURCE = 'task-sync-starter';
+export const TSS_PAGE_PATH = '/task-sync-starter';
+export const TSS_JOINED_LOCATION = `${TSS_PAGE_PATH}#download`;
+export const TSS_ERROR_LOCATION = `${TSS_PAGE_PATH}#tss-error`;
+
 /** The waitlist's own limit, in place of § 9.4's global 100. See the header for the sizing. */
 export const WAITLIST_RATE_MAX = 300;
 export const WAITLIST_RATE_WINDOW = '1 minute';
@@ -164,6 +177,38 @@ export const FORM_CONTENT_TYPE = 'application/x-www-form-urlencoded';
 /** Where a no-JS form post lands. The page styles both fragments with `:target`. */
 export const WAITLIST_JOINED_LOCATION = `${AI101_PATH}#waitlist-joined`;
 export const WAITLIST_ERROR_LOCATION = `${AI101_PATH}#waitlist-error`;
+
+/** One form that posts a sign-up. */
+interface SignUpForm {
+  path: string;
+  /** Stored on the row; never read from the request. */
+  source: string;
+  joined: string;
+  error: string;
+  /** Whether the page shows the SMS box. A form that does not cannot record SMS consent. */
+  sms: boolean;
+  /** For log lines. */
+  label: string;
+}
+
+const SIGN_UP_FORMS: readonly SignUpForm[] = [
+  {
+    path: WAITLIST_PATH,
+    source: WAITLIST_SOURCE,
+    joined: WAITLIST_JOINED_LOCATION,
+    error: WAITLIST_ERROR_LOCATION,
+    sms: true,
+    label: 'ai101 waitlist',
+  },
+  {
+    path: TSS_SIGNUP_PATH,
+    source: TSS_SOURCE,
+    joined: TSS_JOINED_LOCATION,
+    error: TSS_ERROR_LOCATION,
+    sms: false,
+    label: 'task-sync-starter',
+  },
+];
 
 /**
  * The 400 messages, verbatim from the page's own copy.
@@ -200,7 +245,7 @@ export const SMS_CONSENT_TEXT =
  * The version of the Terms of Service and Privacy Policy a sign-up agrees to by joining: their
  * effective date. Change it when either page changes in substance.
  */
-export const TERMS_VERSION = '2026-10-08';
+export const TERMS_VERSION = '2026-10-13';
 
 /** The sign-in screen's rule (`apps/web/src/routes/auth/SignIn.tsx`), so the product has one. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -447,7 +492,7 @@ function bodyKind(contentType: string | undefined): 'json' | 'form' | null {
  * first id, `wl<now>0`. Nothing compares these ids, and a pinned clock (the http-mode suites run
  * under one) would turn the second sign-up into a primary-key violation.
  */
-async function insertSignUp(entry: WaitlistEntry): Promise<{ duplicate: boolean }> {
+async function insertSignUp(entry: WaitlistEntry, source: string): Promise<{ duplicate: boolean }> {
   const now = clock.now();
   const inserted = await getDb()
     .insert(ai101Waitlist)
@@ -458,7 +503,7 @@ async function insertSignUp(entry: WaitlistEntry): Promise<{ duplicate: boolean 
       smsConsentAt: entry.smsConsent ? now : null,
       smsConsentText: entry.smsConsent ? SMS_CONSENT_TEXT : null,
       termsVersion: TERMS_VERSION,
-      source: WAITLIST_SOURCE,
+      source,
       createdAt: now,
     })
     // The pair the unique index is on, named rather than left bare: a bare `do nothing` would also
@@ -489,60 +534,70 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
       },
     );
 
-    scope.post(
-      WAITLIST_PATH,
-      {
-        bodyLimit: WAITLIST_BODY_LIMIT,
-        // Origin only, not `requireJsonSameOrigin`: this route takes a form post on purpose. An
-        // absent Origin passes (curl, `app.inject`); a foreign one or `null` is 403.
-        preHandler: requireSameOrigin,
-        config: { rateLimit: { max: WAITLIST_RATE_MAX, timeWindow: WAITLIST_RATE_WINDOW } },
-      },
-      async (req, reply): Promise<FastifyReply> => {
-        const kind = bodyKind(req.headers['content-type']);
-        if (kind === null) {
-          return reply.code(415).send({ error: `The waitlist takes ${JSON_CONTENT_TYPE} or ${FORM_CONTENT_TYPE}.` });
-        }
+    for (const signUp of SIGN_UP_FORMS) {
+      scope.post(
+        signUp.path,
+        {
+          bodyLimit: WAITLIST_BODY_LIMIT,
+          // Origin only, not `requireJsonSameOrigin`: this route takes a form post on purpose. An
+          // absent Origin passes (curl, `app.inject`); a foreign one or `null` is 403.
+          preHandler: requireSameOrigin,
+          config: { rateLimit: { max: WAITLIST_RATE_MAX, timeWindow: WAITLIST_RATE_WINDOW } },
+        },
+        async (req, reply): Promise<FastifyReply> => {
+          const kind = bodyKind(req.headers['content-type']);
+          if (kind === null) {
+            return reply.code(415).send({ error: `The waitlist takes ${JSON_CONTENT_TYPE} or ${FORM_CONTENT_TYPE}.` });
+          }
 
-        // The one place the two kinds answer differently: a form post always lands back on the page.
-        const accepted = (): FastifyReply =>
-          kind === 'form' ? reply.redirect(WAITLIST_JOINED_LOCATION, 303) : reply.code(201).send({ ok: true });
-        const refused = (field: WaitlistField, error: string): FastifyReply =>
-          kind === 'form' ? reply.redirect(WAITLIST_ERROR_LOCATION, 303) : reply.code(400).send({ error, field });
+          // The one place the two kinds answer differently: a form post always lands back on the page.
+          const accepted = (): FastifyReply =>
+            kind === 'form' ? reply.redirect(signUp.joined, 303) : reply.code(201).send({ ok: true });
+          const refused = (field: WaitlistField, error: string): FastifyReply =>
+            kind === 'form' ? reply.redirect(signUp.error, 303) : reply.code(400).send({ error, field });
 
-        const parsed = waitlistBody.safeParse(req.body ?? {});
-        // Only reachable as JSON — a form body is all strings by construction — and only by a
-        // client that is not the page's own script, so there is no field to point at.
-        if (!parsed.success) {
-          return reply
-            .code(400)
-            .send({ error: 'Expected a JSON body of { firstName, email, phone?, brokerage?, smsConsent?, website?, src? }.' });
-        }
+          const parsed = waitlistBody.safeParse(req.body ?? {});
+          // Only reachable as JSON — a form body is all strings by construction — and only by a
+          // client that is not the page's own script, so there is no field to point at.
+          if (!parsed.success) {
+            return reply
+              .code(400)
+              .send({
+                error: 'Expected a JSON body of { firstName, email, phone?, brokerage?, smsConsent?, website?, src? }.',
+              });
+          }
 
-        const verdict = validateWaitlist(parsed.data);
-        if (verdict.kind === 'spam') {
-          req.log.info('ai101 waitlist: honeypot filled; answered as a success and stored nothing');
+          // A page with no SMS box cannot record SMS consent or a number, whatever the request says: the
+          // stored consent would be words that visitor never saw (D-038).
+          const input = signUp.sms ? parsed.data : { ...parsed.data, phone: undefined, smsConsent: undefined };
+          const verdict = validateWaitlist(input);
+          if (verdict.kind === 'spam') {
+            req.log.info(`${signUp.label}: honeypot filled; answered as a success and stored nothing`);
+            return accepted();
+          }
+          if (verdict.kind === 'invalid') return refused(verdict.field, verdict.error);
+
+          try {
+            const { duplicate } = await insertSignUp(verdict.entry, signUp.source);
+            // Whether texts were agreed to, never the number itself.
+            req.log.info(
+              { src: verdict.entry.src, duplicate, sms: verdict.entry.smsConsent },
+              `${signUp.label}: sign-up recorded`,
+            );
+          } catch (err: unknown) {
+            // NOT rethrown to `app.ts`'s handler, which would log the error whole — and drizzle's
+            // message carries every bound parameter, i.e. this visitor's email and name. See the
+            // header. The Postgres code (on the driver error drizzle wraps) is enough to diagnose.
+            const cause = (err as { cause?: { code?: unknown } }).cause;
+            const code = (err as { code?: unknown }).code ?? cause?.code;
+            req.log.error({ code: typeof code === 'string' ? code : undefined }, `${signUp.label}: insert failed`);
+            return kind === 'form'
+              ? reply.redirect(signUp.error, 303)
+              : reply.code(500).send({ error: 'Something went wrong.' });
+          }
           return accepted();
-        }
-        if (verdict.kind === 'invalid') return refused(verdict.field, verdict.error);
-
-        try {
-          const { duplicate } = await insertSignUp(verdict.entry);
-          // Whether texts were agreed to, never the number itself.
-          req.log.info({ src: verdict.entry.src, duplicate, sms: verdict.entry.smsConsent }, 'ai101 waitlist: sign-up recorded');
-        } catch (err: unknown) {
-          // NOT rethrown to `app.ts`'s handler, which would log the error whole — and drizzle's
-          // message carries every bound parameter, i.e. this visitor's email and name. See the
-          // header. The Postgres code (on the driver error drizzle wraps) is enough to diagnose.
-          const cause = (err as { cause?: { code?: unknown } }).cause;
-          const code = (err as { code?: unknown }).code ?? cause?.code;
-          req.log.error({ code: typeof code === 'string' ? code : undefined }, 'ai101 waitlist: insert failed');
-          return kind === 'form'
-            ? reply.redirect(WAITLIST_ERROR_LOCATION, 303)
-            : reply.code(500).send({ error: 'Something went wrong.' });
-        }
-        return accepted();
-      },
-    );
+        },
+      );
+    }
   });
 }

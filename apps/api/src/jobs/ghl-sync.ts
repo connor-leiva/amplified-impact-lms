@@ -104,6 +104,8 @@ interface ClaimedRow {
   ghl_attempts: number;
   phone: string | null;
   sms_consent: boolean;
+  /** Which form (D-038): it picks the contact's tags. */
+  source: string;
   /** bigint: postgres-js hands raw int8 back as a string. */
   created_at: string | number;
 }
@@ -122,7 +124,7 @@ export async function claimDueRows(db: Database, now: number, batch: number = BA
         order by created_at, id
         limit ${batch}
         for update skip locked)
-    returning id, first_name, email, brokerage, src, ghl_attempts, phone, sms_consent, created_at`)) as unknown as ClaimedRow[];
+    returning id, first_name, email, brokerage, src, ghl_attempts, phone, sms_consent, source, created_at`)) as unknown as ClaimedRow[];
   // `returning` does not keep the subquery's order, and ids are random, so sort on the sign-up time:
   // the backfill goes oldest first.
   return [...rows].sort((a, b) => Number(a.created_at) - Number(b.created_at) || (a.id < b.id ? -1 : 1));
@@ -146,7 +148,15 @@ export async function runGhlSync(options: GhlSyncOptions = {}): Promise<GhlSyncR
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]!;
     const result = await syncWaitlistContact(
-      { firstName: row.first_name, email: row.email, brokerage: row.brokerage, src: row.src, phone: row.phone, smsConsent: row.sms_consent },
+      {
+        firstName: row.first_name,
+        email: row.email,
+        brokerage: row.brokerage,
+        src: row.src,
+        phone: row.phone,
+        smsConsent: row.sms_consent,
+        source: row.source,
+      },
       { config, ...(options.fetch ? { fetch: options.fetch } : {}) },
     );
     const now = clock.now();
@@ -183,7 +193,11 @@ export async function runGhlSync(options: GhlSyncOptions = {}): Promise<GhlSyncR
           })
           .where(eq(ai101Waitlist.id, id));
       }
-      run.paused = { kind: result.kind, ...(result.status === undefined ? {} : { status: result.status }), rowsDeferred: deferred.length };
+      run.paused = {
+        kind: result.kind,
+        ...(result.status === undefined ? {} : { status: result.status }),
+        rowsDeferred: deferred.length,
+      };
       log[result.kind === 'unauthorized' ? 'error' : 'warn'](
         { kind: result.kind, status: result.status, step: result.step, deferred: deferred.length, pauseMs: pause },
         result.kind === 'unauthorized'

@@ -1729,3 +1729,53 @@ and their tests; `apps/web/public/waitlist-qr.svg`. Amends D-034 and D-036.
   1.5.4 as D-028's was, from a copy already installed on the machine. Verified independently:
   rendered in Chromium and decoded with jsQR 1.4.0 back to exactly that URL at 1125, 600, 300, 150,
   110 and 90 px.
+
+## D-038 · /task-sync-starter: a gated landing page for the Task Sync Starter Kit
+
+**Date:** 2026-10-13
+**Approved by:** Connor Leiva, in chat on 2026-10-13: "build a new landing page at
+www.amplifiedimpact.io/task-sync-starter and host this PDF on the site and have a 'Download Here'
+option ... Let's have this gated so they opt in to comms with their email and have them routed to GHL
+and tagged as something." For the ManyChat automation on his new Reel.
+**Scope:** `apps/web/src/tss/*`, `apps/web/task-sync-starter.html`,
+`apps/web/public/downloads/task-sync-starter-kit.pdf`; `apps/api/src/routes/{ai101,task-sync-starter,marketing}.ts`,
+`apps/api/src/{app,server}.ts`, `apps/api/src/integrations/ghl.ts`, `apps/api/src/jobs/ghl-sync.ts`;
+`apps/web/src/legal/content.ts`. Amends D-028, D-033, D-034 and D-035.
+
+- **The page** is built and served exactly as /ai101 is (D-028): string-rendered from `content.ts`
+  at build time, its CSS and script inlined into one response, read into memory at boot, `no-cache`
+  with a strong ETag, exempt from the global limit, `Referrer-Policy: same-origin`, its inline
+  script hashed into the CSP. `/task-sync-starter/` is a 301 to it, query kept. www lets the path
+  through (`PUBLIC_PREFIX`). The look is the kit's cover: forest hero, cream page, the brand's mint
+  and green, mobile first for the Instagram in-app browser a ManyChat DM opens.
+- **The words are the kit's own** (cover, page 2, its three steps), so the page promises what the PDF
+  delivers. No em dashes.
+- **The gate is soft, as lead magnets are.** The opt-in (first name, email) and the "Download Here"
+  link are both in the markup; the link shows once the API has stored the sign-up (script), or via
+  the no-JS form's 303 to `#download` (CSS `:target`). A device that opted in sees the download on
+  every later visit (`localStorage` `tss-unlocked`). The PDF itself is a plain static file at
+  `/downloads/task-sync-starter-kit.pdf`, sent with `X-Robots-Tag: noindex` so it stays out of search,
+  and saved as "Task Sync Starter Kit - Amplified Impact.pdf". In Instagram's and Facebook's in-app
+  browsers a line says how to open it in the real browser to save it.
+- **The opt-in is the waitlist's route under a second path**, `POST /api/task-sync-starter`, with the
+  same validation, honeypot, origin check, body limit and its own 300/min limit, writing to the same
+  `ai101_waitlist` table under `source = 'task-sync-starter'`. No migration: the table already had
+  `source` and a unique (email, source), so someone on the waitlist and the kit is two rows.
+- **The kit's route never records SMS consent.** Its page has no phone field or SMS box, so the route
+  drops `phone` and `smsConsent` before validating; a hand-made request cannot store a "yes" to words
+  the visitor never saw. Joining is email consent plus the Terms and Privacy Policy, in the words
+  under the button: "By getting the kit, you agree to our Terms of Service and Privacy Policy and to
+  emails from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor.
+  Unsubscribe anytime." (`CONSENT.kit`, quoted on the Terms page; a test holds the two equal).
+- **GoHighLevel tags by source** (amends D-033). The sync job now reads each row's `source`:
+  `expcon-2026-ai101` keeps `ai101-waitlist` and `event-expcon-2026`; `task-sync-starter` gets
+  `task-sync-starter`, plus the channel tag as before (ManyChat's link carries `?src=ig`, so
+  `src-ig`). A source with no entry gets no form tag at all, never the waitlist's, so a kit sign-up
+  can never trigger the waitlist's workflow.
+- **The Terms and Privacy Policy now cover the kit** (amends D-035): a "Task Sync Starter Kit"
+  section in the Terms, what the kit's opt-in collects and the browser note in the Privacy Policy,
+  and "our pages" where they said "the page". Version and effective date 2026-10-13, and
+  `TERMS_VERSION` with them, so sign-ups from today record the version that names the kit.
+- **Open:** page 8 of the PDF as supplied still has two placeholders, "[December event name, dates
+  and link]" and "[Book a call link]". Replace `apps/web/public/downloads/task-sync-starter-kit.pdf`
+  with the final file under the same name; nothing else changes.

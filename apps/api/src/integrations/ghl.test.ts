@@ -64,6 +64,15 @@ describe('tags @g9', () => {
     expect(waitlistTags('qr')).toEqual(['ai101-waitlist', 'event-expcon-2026', 'src-qr']);
     expect(waitlistTags(null)).toEqual(['ai101-waitlist', 'event-expcon-2026', 'src-direct']);
   });
+
+  it('tags by the form the sign-up came from: the Task Sync Starter Kit is never the waitlist (D-038)', () => {
+    expect(waitlistTags('qr', false, 'expcon-2026-ai101')).toEqual(['ai101-waitlist', 'event-expcon-2026', 'src-qr']);
+    // ManyChat's link carries `?src=ig`.
+    expect(waitlistTags('ig', false, 'task-sync-starter')).toEqual(['task-sync-starter', 'src-ig']);
+    expect(waitlistTags(null, false, 'task-sync-starter')).toEqual(['task-sync-starter', 'src-direct']);
+    // A source nobody mapped gets no form tag, so it can trigger no workflow, the waitlist's least of all.
+    expect(waitlistTags('qr', false, 'some-new-form')).toEqual(['src-qr']);
+  });
 });
 
 describe('configuration @g9', () => {
@@ -115,6 +124,15 @@ describe('syncWaitlistContact @g9', () => {
     await syncWaitlistContact(pat, { config, fetch: ghl.fetch });
     expect(ghl.seen[0]!.body).not.toHaveProperty('phone');
     expect(ghl.seen[1]!.body.tags).not.toContain('sms-consent');
+  });
+
+  it("tags a kit sign-up with the kit's tag and not the waitlist's (D-038)", async () => {
+    const ghl = fakeGhl([upserted('c1'), tagged(['task-sync-starter', 'src-ig'])]);
+    const kit = { ...pat, brokerage: null, phone: null, src: 'ig', source: 'task-sync-starter' };
+    expect(await syncWaitlistContact(kit, { config, fetch: ghl.fetch })).toMatchObject({ ok: true, tagsDropped: [] });
+    expect(ghl.seen[1]!.body).toEqual({ tags: ['task-sync-starter', 'src-ig'] });
+    // Which form it was picks the tags; it is never sent as a field of the contact.
+    expect(ghl.seen[0]!.body).not.toHaveProperty('source');
   });
 
   it('sends the number and the sms-consent tag when the visitor ticked the box', async () => {

@@ -214,6 +214,21 @@ describe('the GHL sync job @g9', () => {
     expect(ghl.tagsSent[1]).not.toContain('sms-consent');
   });
 
+  it("tags each row by its form: the kit's sign-ups get the kit's tag, never the waitlist's (D-038)", async () => {
+    await insert(
+      signUp('wl1', 'list@example.com', NOW - 2000),
+      signUp('wl2', 'kit@example.com', NOW - 1000, { source: 'task-sync-starter', src: 'ig' }),
+    );
+    const ghl = fakeGhl();
+    await runGhlSync({ db: await testDatabase(), config, fetch: ghl.fetch, log: capture() });
+    expect(ghl.order).toEqual(['list@example.com', 'kit@example.com']);
+    expect(ghl.tagsSent).toEqual([
+      ['ai101-waitlist', 'event-expcon-2026', 'src-qr'],
+      ['task-sync-starter', 'src-ig'],
+    ]);
+    expect((await row('wl2')).ghlSyncedAt).toBe(NOW);
+  });
+
   it('refuses, in the database, SMS consent without its proof', async () => {
     // Consent needs the number, the time and the exact words, or the row is not written at all.
     const db = await testDatabase();

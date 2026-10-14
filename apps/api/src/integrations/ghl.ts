@@ -47,6 +47,17 @@ export const GHL_TIMEOUT_MS = 10_000;
 export const WAITLIST_TAGS = ['ai101-waitlist', 'event-expcon-2026'] as const;
 
 /**
+ * The tags each kind of sign-up carries, by the row's `source` (D-038). One table holds every form's
+ * sign-ups, so the source decides which GHL workflow a contact enters: the waitlist's, or the Task Sync
+ * Starter Kit's (`task-sync-starter`). A source with no entry gets no form tag at all, never the
+ * waitlist's: a new form must be added here before its contacts can trigger anything.
+ */
+export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
+  'expcon-2026-ai101': WAITLIST_TAGS,
+  'task-sync-starter': ['task-sync-starter'],
+};
+
+/**
  * The `?src=` values that may become a CRM tag.
  *
  * `src` arrives in a public URL anyone can edit, already reduced to a short slug by
@@ -65,9 +76,12 @@ export function srcTag(src: string | null | undefined): string {
 /** On a contact who consented to texts, and only then. SMS workflows filter on it. */
 export const SMS_CONSENT_TAG = 'sms-consent';
 
-/** Every tag one sign-up should carry in GHL. HighLevel stores tags lowercase; these already are. */
-export function waitlistTags(src: string | null | undefined, textable = false): string[] {
-  return [...WAITLIST_TAGS, srcTag(src), ...(textable ? [SMS_CONSENT_TAG] : [])];
+/**
+ * Every tag one sign-up should carry in GHL. HighLevel stores tags lowercase; these already are.
+ * `source` defaults to the waitlist's, which every row had before D-038.
+ */
+export function waitlistTags(src: string | null | undefined, textable = false, source = 'expcon-2026-ai101'): string[] {
+  return [...(SOURCE_TAGS[source] ?? []), srcTag(src), ...(textable ? [SMS_CONSENT_TAG] : [])];
 }
 
 /** Consented AND has a number. The database refuses consent without one; this does not trust that. */
@@ -101,6 +115,8 @@ export interface WaitlistContact {
   /** E.164, or null. Sent to GHL only when `smsConsent` is true. */
   phone: string | null;
   smsConsent: boolean;
+  /** Which form the sign-up came from (the row's `source`): it picks the tags. Waitlist by default. */
+  source?: string;
 }
 
 /** Why a sync did not happen. A kind and a status, never a body. */
@@ -204,7 +220,7 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
   const created = body?.new === true;
   const before = asTags(record?.tags);
 
-  const ours = waitlistTags(contact.src, textable);
+  const ours = waitlistTags(contact.src, textable, contact.source);
   const union = [...new Set([...before, ...ours])];
   const tagged = await call(`/contacts/${encodeURIComponent(contactId)}/tags`, { tags: union }, options);
   if (!tagged.ok) return { ok: false, kind: tagged.kind, step: 'tags', ...statusOf(tagged) };

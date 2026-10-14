@@ -1,4 +1,5 @@
-// Every word on /terms and /privacy, the public legal pages behind the /ai101 waitlist.
+// Every word on /terms and /privacy, the public legal pages behind the /ai101 waitlist and, since
+// 2026-10-13, the Task Sync Starter Kit's opt-in at /task-sync-starter (D-038).
 //
 // Drafted by an AI assistant, not a lawyer, for Connor's review; he supplied every fact the draft had
 // left as a [bracketed placeholder] on 2026-10-08 (the entities, names, contact, address, governing
@@ -16,10 +17,10 @@
 // too. The waitlist can record the version a visitor agreed to.
 
 /** The version string shown on both pages. A date, so a record of "agreed to 2026-10-08" reads. */
-export const LEGAL_VERSION = '2026-10-08';
+export const LEGAL_VERSION = '2026-10-13';
 
 /** When these words take effect, as a machine date and as the page shows it. */
-export const EFFECTIVE = { iso: '2026-10-08', label: 'October 8, 2026' } as const;
+export const EFFECTIVE = { iso: '2026-10-13', label: 'October 13, 2026' } as const;
 
 /**
  * True until a person has reviewed the pages and filled every placeholder. While true, both pages
@@ -52,6 +53,8 @@ export const CONSENT = {
   join:
     `By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December ` +
     `agent track and other programs from ${SENDERS}. Unsubscribe anytime.`,
+  /** The line under the Task Sync Starter Kit's button (D-038). That page has no SMS box. */
+  kit: `By getting the kit, you agree to our Terms of Service and Privacy Policy and to emails from ${SENDERS}. Unsubscribe anytime.`,
 } as const;
 
 /** The SMS program's name, as carriers see it registered. */
@@ -137,10 +140,11 @@ export const CHROME = {
 export const TERMS: LegalDoc = {
   path: '/terms',
   title: 'Terms of Service | Amplified Impact',
-  description: 'The terms for the AI 101 workshop page, the December waitlist, and the emails and texts that follow.',
+  description:
+    'The terms for the AI 101 workshop page, the December waitlist, the Task Sync Starter Kit, and the emails and texts that follow.',
   heading: 'Terms of Service',
   intro: [
-    'These terms cover the free AI 101 workshop page at /ai101, its December waitlist, and the emails and text messages we send to people on the list. When you join the waitlist, you agree to them. Our ',
+    'These terms cover the free AI 101 workshop page at /ai101, its December waitlist, the free Task Sync Starter Kit at /task-sync-starter, and the emails and text messages we send to people on our lists. When you join the waitlist or get the kit, you agree to them. Our ',
     { link: 'Privacy Policy', href: '/privacy' },
     ' explains what we collect and how we use it.',
   ],
@@ -160,7 +164,7 @@ export const TERMS: LegalDoc = {
           p:
             '“We,” “us,” and “our” mean Amplified Impact and Spring B and its affiliated companies. When Spring or ' +
             'Connor email or text you about our programs, these terms apply to those messages too. “You” means the ' +
-            'person using the page or joining the waitlist.',
+            'person using our pages, joining the waitlist, or getting the kit.',
         },
       ],
     },
@@ -208,6 +212,25 @@ export const TERMS: LegalDoc = {
             'We will share program details, dates, and prices later. We may change or cancel a program.',
             'Please use your real name and an email address that is yours.',
             'You can leave at any time. See Emails and Text messages below.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'starter-kit',
+      heading: 'The Task Sync Starter Kit',
+      blocks: [
+        {
+          p: `The kit is a free PDF. When you get it, you agree to these terms and our Privacy Policy. You also agree to get emails from ${SENDERS}.`,
+        },
+        { quote: CONSENT.kit, label: 'The words under the Get the Kit button' },
+        {
+          ul: [
+            'Getting the kit is free. It does not enroll you in a program or commit you to buy anything.',
+            'The kit is for education only. What these terms say about the workshop page applies to the kit too: we do not promise any result, AI tools make mistakes, you are responsible for what you send and publish, and nothing in it is legal, tax, financial, or compliance advice.',
+            'You may use and change the kit for your own business. Please do not sell it, or publish it as your own.',
+            'The kit’s page has no SMS box. Getting the kit never signs you up for texts.',
+            'You can stop our emails at any time. See Emails below.',
           ],
         },
       ],
@@ -267,7 +290,7 @@ export const TERMS: LegalDoc = {
       heading: 'Disclaimers',
       blocks: [
         {
-          p: 'We provide the page, the prompts, and our messages “as is” and “as available.” To the fullest extent the law allows, we make no promises of any kind, stated or implied. That includes any promise that the page is accurate, free of errors, always available, or right for your purpose.',
+          p: 'We provide our pages, the prompts, the kit, and our messages “as is” and “as available.” To the fullest extent the law allows, we make no promises of any kind, stated or implied. That includes any promise that any of them is accurate, free of errors, always available, or right for your purpose.',
         },
       ],
     },
@@ -276,7 +299,7 @@ export const TERMS: LegalDoc = {
       heading: 'Limits on our liability',
       blocks: [
         {
-          p: 'To the fullest extent the law allows, we are not liable for any indirect, incidental, special, consequential, or punitive damages, or for lost profits, revenue, data, or business, that come from the page, the prompts, the waitlist, or our messages.',
+          p: 'To the fullest extent the law allows, we are not liable for any indirect, incidental, special, consequential, or punitive damages, or for lost profits, revenue, data, or business, that come from our pages, the prompts, the kit, the waitlist, or our messages.',
         },
         { p: `Our total liability for any claim about these things is limited to ${P.liabilityCap}.` },
         { p: 'Some places do not allow these limits. If you live in one, some of them may not apply to you.' },
@@ -306,7 +329,7 @@ export const TERMS: LegalDoc = {
       heading: 'General',
       blocks: [
         {
-          p: 'If a court finds part of these terms cannot be enforced, the rest still applies. These terms and our Privacy Policy are the whole agreement between you and us about the page and the waitlist.',
+          p: 'If a court finds part of these terms cannot be enforced, the rest still applies. These terms and our Privacy Policy are the whole agreement between you and us about our pages, the kit, and the waitlist.',
         },
       ],
     },
@@ -323,10 +346,11 @@ export const TERMS: LegalDoc = {
 export const PRIVACY: LegalDoc = {
   path: '/privacy',
   title: 'Privacy Policy | Amplified Impact',
-  description: 'What the AI 101 workshop page collects, how we use it, who we share it with, and your choices.',
+  description:
+    'What the AI 101 workshop page and the Task Sync Starter Kit page collect, how we use it, who we share it with, and your choices.',
   heading: 'Privacy Policy',
   intro: [
-    'This policy explains what we collect on the AI 101 workshop page at /ai101, how we use it, who we share it with, and your choices. It covers the page, its December waitlist, and the emails and texts we send to people on the list. “We,” “us,” and “our” mean Amplified Impact and Spring B and its affiliated companies, as our ',
+    'This policy explains what we collect on the AI 101 workshop page at /ai101 and the Task Sync Starter Kit page at /task-sync-starter, how we use it, who we share it with, and your choices. It covers those pages, the December waitlist, the kit, and the emails and texts we send to people on our lists. “We,” “us,” and “our” mean Amplified Impact and Spring B and its affiliated companies, as our ',
     { link: 'Terms of Service', href: '/terms#who-we-are' },
     ' define them.',
   ],
@@ -347,6 +371,16 @@ export const PRIVACY: LegalDoc = {
             'The date and time you joined, and the version of our Terms of Service and this policy that you agreed to.',
           ],
         },
+        { p: 'When you get the Task Sync Starter Kit, we collect:' },
+        {
+          ul: [
+            'Your first name.',
+            'Your email address.',
+            'A short tag from the link you used, if it had one. For example, the link we send in Instagram messages adds one.',
+            'The date and time you got the kit, and the version of our Terms of Service and this policy that you agreed to.',
+          ],
+        },
+        { p: 'The kit’s page does not ask for a mobile number.' },
         {
           p: 'Like most websites, our servers and our hosting provider keep basic technical logs of each request. These include your IP address, the page you asked for, and the time. We use them to run the site and keep it secure, not for marketing.',
         },
@@ -360,11 +394,12 @@ export const PRIVACY: LegalDoc = {
           ul: [
             'What you type into the fields that fill in the prompts, like your “About you” answers, and your progress on the page are saved in your own browser’s storage, so they are there when you come back. They are never sent to us. Clearing your browser’s data for the site removes them.',
             'When you copy a prompt, it goes to your device’s clipboard, not to us.',
-            'The page loads nothing from other companies. It has no analytics, no tracking cookies, no ad pixels, and no outside fonts.',
+            'On the kit’s page, your browser remembers that you got the kit, so the download is there when you come back. That note stays in your browser and is never sent to us.',
+            'Our pages load nothing from other companies. They have no analytics, no tracking cookies, no ad pixels, and no outside fonts.',
           ],
         },
         {
-          p: 'The page links to other sites, like ChatGPT, Claude, Canva, and the app stores. When you follow a link, that site’s own privacy policy applies.',
+          p: 'Our pages link to other sites, like ChatGPT, Claude, Canva, and the app stores. When you follow a link, that site’s own privacy policy applies.',
         },
       ],
     },
@@ -375,9 +410,10 @@ export const PRIVACY: LegalDoc = {
         {
           ul: [
             `To email you about the December agent track and other programs from ${SENDERS}.`,
+            `If you got the kit, to email you about it and about our other programs and resources from ${SENDERS}.`,
             'To text you about the same programs, but only if you checked the SMS box.',
             'To keep a record of your consent and your opt-outs, so we can honor them.',
-            'To learn which links and events bring people to the list, using the link tag.',
+            'To learn which links and events bring people to our lists, using the link tag.',
             'To run and secure the site, and to follow the law.',
           ],
         },
@@ -421,7 +457,9 @@ export const PRIVACY: LegalDoc = {
       id: 'retention',
       heading: 'How long we keep it',
       blocks: [
-        { p: `We keep your waitlist information for ${P.retention}, or until you ask us to delete it.` },
+        {
+          p: `We keep your waitlist and kit sign-up information for ${P.retention}, or until you ask us to delete it.`,
+        },
         {
           p: `We keep records of your consent and your opt-outs for ${P.consentRetention}, even after you leave the list, so we can show that we honored them.`,
         },
@@ -459,7 +497,7 @@ export const PRIVACY: LegalDoc = {
       heading: 'Children',
       blocks: [
         {
-          p: `The page and the waitlist are for adults. They are not meant for anyone under 18, and we do not knowingly collect information from anyone under 18. If you think a child gave us information, email ${P.privacyEmail} and we will delete it.`,
+          p: `Our pages, the kit, and the waitlist are for adults. They are not meant for anyone under 18, and we do not knowingly collect information from anyone under 18. If you think a child gave us information, email ${P.privacyEmail} and we will delete it.`,
         },
       ],
     },

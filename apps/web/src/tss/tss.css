@@ -1,0 +1,491 @@
+/* /task-sync-starter, the Task Sync Starter Kit's landing page. DECISIONS.md D-038.
+
+   The kit's own look: its forest cover as the hero, then cream with paper-coloured cards, as on /ai101
+   (D-034). Mobile first, for the phone a ManyChat DM opens it on; one breakpoint at 640px.
+
+   COLOURS. Cream, ink, forest and paper are tokens. The two accents are the brand mark's mint and
+   green, page variables with /ai101's exact values (D-034). Softer text is the same colour at a lower
+   opacity, never color-mix(), so iOS 15 draws it as written. `scripts/check-css-colors.mjs` scans it.
+
+   Inlined into the page at build time (vite-plugin.ts). The fonts are the same four files /ai101 loads. */
+
+@import '@fontsource/hanken-grotesk/400.css';
+@import '@fontsource/hanken-grotesk/700.css';
+@import '@fontsource/hanken-grotesk/800.css';
+@import '@fontsource/dm-mono/400.css';
+@import '../styles/tokens.css';
+@import '../styles/global.css';
+
+:root {
+  --tss-mint: oklch(0.793 0.116 162);
+  --tss-green: oklch(0.563 0.118 159);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--action-primary);
+}
+
+:focus-visible {
+  outline: 3px solid var(--action-primary-line);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+p,
+ol,
+ul,
+dl,
+dd,
+figure,
+blockquote {
+  margin: 0;
+}
+
+/* --- Hero: the kit's cover ------------------------------------------------------------------------
+   Compact on a phone, so the opt-in starts on the first screen a DM link opens: the steps are one line
+   each there, their bodies shown from 640px. */
+
+.hero {
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.wrap,
+.page,
+.foot {
+  max-width: 640px;
+  margin: 0 auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.hero .wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 22px;
+  padding-bottom: 34px;
+}
+.logo {
+  display: block;
+  width: 168px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tss-mint);
+}
+.eyebrow-dark {
+  color: var(--action-primary);
+}
+.hero h1 {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.lede {
+  font-size: 19px;
+  opacity: 0.88;
+  text-wrap: pretty;
+}
+.steps {
+  display: grid;
+  gap: 0;
+  margin-top: 6px;
+  padding: 0;
+  list-style: none;
+}
+.steps li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid var(--tss-mint);
+}
+.step-n {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--tss-mint);
+}
+.steps strong {
+  font-size: 17px;
+  font-weight: 700;
+}
+.step-body {
+  display: none;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+/* --- The column ------------------------------------------------------------------------------------ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-top: 0;
+  padding-bottom: 48px;
+}
+
+.card {
+  padding: 22px;
+  border: 1px solid var(--line-default);
+  border-radius: 16px;
+  background: var(--bg-surface);
+}
+
+.page h2 {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+/* --- The opt-in, pulled up over the hero's edge ---------------------------------------------------- */
+
+.optin {
+  position: relative;
+  margin-top: -18px;
+  box-shadow: var(--shadow-card);
+  scroll-margin-top: 16px;
+}
+.locked,
+.unlocked {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field label {
+  font-size: 16px;
+  font-weight: 700;
+}
+.field input {
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 19px;
+}
+.field input:focus-visible {
+  border-color: var(--action-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--action-primary-line);
+}
+.field input[aria-invalid='true'] {
+  border-color: var(--status-attention);
+}
+.field-error {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--status-attention-text);
+}
+.field-error:empty {
+  display: none;
+}
+.legal {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.legal a {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+/* Hidden until there is something to say: `:target` is the no-JavaScript path (the API's 303 to
+   `#tss-error`), `[data-shown]` is main.ts. */
+.form-error {
+  display: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--status-attention-text);
+}
+.form-error:target,
+.form-error[data-shown] {
+  display: block;
+}
+
+/* The gate. The download shows once the visitor has opted in: main.ts sets `data-state`, and the
+   no-JavaScript 303 lands on `#download`. The form goes away with it. The `:has()` rule is on its own,
+   so a browser without `:has()` still applies the first one. */
+.unlocked {
+  display: none;
+}
+.optin[data-state='unlocked'] .unlocked,
+.unlocked:target {
+  display: flex;
+}
+.optin[data-state='unlocked'] .locked {
+  display: none;
+}
+.optin:has(.unlocked:target) .locked {
+  display: none;
+}
+.unlocked {
+  scroll-margin-top: 40px;
+}
+.unlocked:focus {
+  outline: none;
+}
+.in-app {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.honeypot,
+.field-website {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* --- Buttons ------------------------------------------------------------------------------------- */
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  padding: 0 22px;
+  border-radius: 12px;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-primary {
+  border: 0;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.btn-primary[aria-disabled='true'] {
+  opacity: 0.7;
+  cursor: progress;
+}
+.btn-outline {
+  border: 2px solid var(--action-primary);
+  background: transparent;
+  color: var(--action-primary);
+}
+@media (hover: hover) {
+  .btn-primary:hover {
+    background: var(--action-primary-hover);
+    color: var(--action-on-primary);
+  }
+  .btn-outline:hover {
+    background: var(--action-primary-tint);
+  }
+}
+
+/* --- What the kit does ---------------------------------------------------------------------------- */
+
+.example {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.lede-dark {
+  color: var(--text-secondary);
+}
+.quote {
+  padding-left: 16px;
+  border-left: 4px solid var(--tss-green);
+}
+.quote blockquote {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.quote figcaption {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+.task-title {
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+.task .row {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line-default);
+  font-size: 16px;
+}
+.task dt {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* --- What's inside, and what you need --------------------------------------------------------------- */
+
+.inside,
+.need {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  list-style: none;
+}
+.list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 0 14px 26px;
+  border-top: 1px solid var(--line-default);
+  position: relative;
+}
+.list li::before {
+  content: '';
+  position: absolute;
+  top: 23px;
+  left: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tss-green);
+}
+.list span,
+.tiles span {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+.need-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+.note {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+.tiles {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+.tiles li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* --- Footer ------------------------------------------------------------------------------------- */
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 28px;
+  padding-bottom: 40px;
+  border-top: 1px solid var(--line-default);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.logo-foot {
+  width: 150px;
+  margin-bottom: 6px;
+}
+.foot-links a {
+  color: var(--text-secondary);
+}
+
+@media (min-width: 640px) {
+  .hero .wrap {
+    gap: 18px;
+    padding-top: 40px;
+    padding-bottom: 48px;
+  }
+  .logo {
+    width: 210px;
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-size: 64px;
+  }
+  .lede {
+    font-size: 21px;
+  }
+  .steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+  }
+  .steps li {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 14px 0 0;
+  }
+  .steps strong {
+    font-size: 19px;
+  }
+  .step-body {
+    display: block;
+  }
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .optin .btn {
+    align-self: flex-start;
+  }
+}
+
+/* SessionCard.module.css's visually-hidden rule. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

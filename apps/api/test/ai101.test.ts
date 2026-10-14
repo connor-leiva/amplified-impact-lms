@@ -599,7 +599,7 @@ describe('the waitlist records consent (D-034) @g9', () => {
   it('stores the words a visitor sees on the page, exactly @g9', () => {
     expect(SMS_CONSENT_TEXT).toBe(SMS_WORDS);
     expect(WEB_PAGE.waitlist.sms).toBe(SMS_WORDS);
-    expect(TERMS_VERSION).toBe('2026-10-08');
+    expect(TERMS_VERSION).toBe('2026-10-13');
   });
 
   it('a ticked box with a number stores the consent and its proof: the number, the time, the words @g9', async () => {
@@ -612,7 +612,7 @@ describe('the waitlist records consent (D-034) @g9', () => {
         smsConsent: true,
         smsConsentAt: NOW,
         smsConsentText: SMS_WORDS,
-        termsVersion: '2026-10-08',
+        termsVersion: '2026-10-13',
       }),
     ]);
   });
@@ -625,7 +625,7 @@ describe('the waitlist records consent (D-034) @g9', () => {
         smsConsent: false,
         smsConsentAt: null,
         smsConsentText: null,
-        termsVersion: '2026-10-08',
+        termsVersion: '2026-10-13',
       }),
     ]);
   });
@@ -633,7 +633,7 @@ describe('the waitlist records consent (D-034) @g9', () => {
   it('no number and no box: email consent and the Terms only @g9', async () => {
     expect((await postJson({ ...valid, phone: '', smsConsent: false })).statusCode).toBe(201);
     expect(await rows()).toEqual([
-      expect.objectContaining({ phone: null, smsConsent: false, smsConsentAt: null, smsConsentText: null, termsVersion: '2026-10-08' }),
+      expect.objectContaining({ phone: null, smsConsent: false, smsConsentAt: null, smsConsentText: null, termsVersion: '2026-10-13' }),
     ]);
   });
 

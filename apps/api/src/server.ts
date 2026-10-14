@@ -63,6 +63,8 @@ const ai101Html = fileURLToPath(new URL('../../web/dist/ai101.html', import.meta
 // The public legal pages the /ai101 waitlist links to, built beside it (`routes/legal.ts`).
 const termsHtml = fileURLToPath(new URL('../../web/dist/terms.html', import.meta.url));
 const privacyHtml = fileURLToPath(new URL('../../web/dist/privacy.html', import.meta.url));
+// The Task Sync Starter Kit's landing page (D-038), built beside them. It has an inline script.
+const tssHtml = fileURLToPath(new URL('../../web/dist/task-sync-starter.html', import.meta.url));
 // The marketing host's placeholder. It ships in `public/`, so the SPA's own build copies it
 // into `dist/` verbatim — it needs no build step of its own, because it carries no script and
 // no import. `routes/marketing.ts` serves it on MARKETING_HOST and nowhere else.
@@ -107,14 +109,16 @@ const fixtureOnly = process.env.VITE_DATA_SOURCE === 'fixture';
 // `cspScriptHashes` hashes it, so a rebuild on disk while this process runs cannot leave the page
 // served under a hash computed from different bytes.
 const ai101Page = readBuilt(ai101Html);
+const taskSyncStarterPage = readBuilt(tssHtml);
 
 const app = await build({
   logger: true,
   fixtureOnly,
   // Not the legal pages: they carry no script (`apps/web/src/legal/render.test.ts` holds them to
   // that), so they have nothing to hash, and a script added to one later stays blocked.
-  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page]),
+  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, taskSyncStarterPage]),
   ai101Page,
+  taskSyncStarterPage,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml) },
   marketingPage: readBuilt(holdingHtml),
   waitlist: databaseConfigured(),
@@ -129,7 +133,12 @@ if (existsSync(webDist)) {
     // i.e. without the two things `routes/ai101.ts` serves it with (its no-JS form would 403 from
     // there). One URL for the page; `/ai101.html` falls through to the SPA like any unknown path.
     // The legal pages likewise: one URL each, `/terms` and `/privacy` (`routes/legal.ts`).
-    globIgnore: ['ai101.html', 'terms.html', 'privacy.html'],
+    // And /task-sync-starter (D-038), whose route sets the Referrer-Policy its no-JS opt-in needs.
+    globIgnore: ['ai101.html', 'terms.html', 'privacy.html', 'task-sync-starter.html'],
+    // The kit's PDF (D-038) is a lead magnet behind an opt-in: kept out of search results.
+    setHeaders: (res, path) => {
+      if (path.replace(/\\/g, '/').includes('/downloads/')) res.setHeader('x-robots-tag', 'noindex');
+    },
   });
   // Every non-API path is a client route — `/sign-in`, `/invite/:token`, `/employees/:id` — so it
   // gets `index.html` and the router takes over. An unknown `/api/` path stays a JSON 404, because

@@ -32,7 +32,13 @@ async function serve(marketingHost: string | undefined, page: string | null = PA
   if (marketingHost === undefined) delete process.env.MARKETING_HOST;
   else process.env.MARKETING_HOST = marketingHost;
   // `fixtureOnly` so no database is needed; the /ai101 page is registered in both modes.
-  app = await build({ fixtureOnly: true, logger: false, ai101Page: '<title>AI 101</title>', marketingPage: page });
+  app = await build({
+    fixtureOnly: true,
+    logger: false,
+    ai101Page: '<title>AI 101</title>',
+    taskSyncStarterPage: '<title>Task Sync Starter Kit</title>',
+    marketingPage: page,
+  });
   await app.ready();
   return app;
 }
@@ -97,8 +103,18 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     expect(wl.statusCode).toBe(302);
     expect(wl.headers.location).toBe('/ai101?src=waitlist-qr#waitlist');
 
+    // The Task Sync Starter Kit's page (D-038), where ManyChat sends people, with its `?src=` tag.
+    for (const url of ['/task-sync-starter', '/task-sync-starter?src=ig']) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(200);
+      expect(res.body, url).toContain('Task Sync Starter Kit');
+    }
+    const kitSlash = await get(a, '/task-sync-starter/?src=ig', WWW);
+    expect(kitSlash.statusCode).toBe(301);
+    expect(kitSlash.headers.location).toBe('/task-sync-starter?src=ig');
+
     // Lookalikes still go to the placeholder.
-    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx']) {
+    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(302);
       expect(res.headers.location, url).toBe('/');

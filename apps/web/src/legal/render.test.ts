@@ -94,9 +94,9 @@ describe.each(DOCS.map((doc) => [doc.path, doc] as const))('%s · outline and la
 
   it('shows the effective date and the version at the top', () => {
     const time = page.querySelector('.doc-head time');
-    expect(time?.getAttribute('datetime')).toBe('2026-10-08');
-    expect(text(time)).toBe('October 8, 2026');
-    expect(text(page.querySelector('.doc-head .meta'))).toBe('Effective October 8, 2026 · Version 2026-10-08');
+    expect(time?.getAttribute('datetime')).toBe('2026-10-13');
+    expect(text(time)).toBe('October 13, 2026');
+    expect(text(page.querySelector('.doc-head .meta'))).toBe('Effective October 13, 2026 · Version 2026-10-13');
     expect(EFFECTIVE.iso).toBe(LEGAL_VERSION);
   });
 
