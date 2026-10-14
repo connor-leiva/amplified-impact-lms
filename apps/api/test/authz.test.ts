@@ -522,9 +522,10 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // D-028's public waitlist: an `/api/*` route that answers without a session on purpose. See the
   // header, point 3. Registered whenever a database is configured, which `build()` defaults to here.
   { path: '/api/ai101/waitlist', methods: 'POST', guard: 'open' },
-  // D-038's Task Sync Starter Kit opt-in: the waitlist's route under a second path, open for the
-  // same reasons, and refusing what it does not show (phone, SMS) for its own.
+  // The free guides' opt-ins (D-038, D-039): the waitlist's route under each guide's path, open for
+  // the same reasons, and refusing what their pages do not show (phone, SMS).
   { path: '/api/task-sync-starter', methods: 'POST', guard: 'open' },
+  { path: '/api/ops-time-audit', methods: 'POST', guard: 'open' },
   // D-028's public page and the spec's three redirects to it. Not `/api/*`, so outside the
   // checklist's 401 rule by construction; `page` says so, and the sweep asserts the prefix.
   { path: '/ai101', methods: 'GET, HEAD', guard: 'page' },
@@ -540,9 +541,11 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // pages, served like /ai101, and outside `/api/` like it.
   { path: '/terms', methods: 'GET, HEAD', guard: 'page' },
   { path: '/privacy', methods: 'GET, HEAD', guard: 'page' },
-  // D-038's landing page for the kit, served like /ai101.
+  // The free guides' landing pages (D-038, D-039), served like /ai101.
   { path: '/task-sync-starter', methods: 'GET, HEAD', guard: 'page' },
   { path: '/task-sync-starter/', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/ops-time-audit', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/ops-time-audit/', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -1010,15 +1013,15 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               payload: { firstName: 'Probe', email: 'probe@example.test', website: 'x' },
             }),
           ],
-          // D-038's kit opt-in, the same way: a filled honeypot writes no row.
-          [
-            '/api/task-sync-starter',
+          // The guides' opt-ins (D-038, D-039), the same way: a filled honeypot writes no row.
+          ...['/api/task-sync-starter', '/api/ops-time-audit'].map((url): [string, Promise<{ statusCode: number }>] => [
+            url,
             app.inject({
               method: 'POST',
-              url: '/api/task-sync-starter',
+              url,
               payload: { firstName: 'Probe', email: 'probe@example.test', website: 'x' },
             }),
-          ],
+          ]),
         ];
 
         for (const [path, pending] of probes) {
@@ -1037,6 +1040,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/ai101',
           '/ai101/',
           '/ai101/carousel-sprint.ics',
+          '/ops-time-audit',
+          '/ops-time-audit/',
           '/privacy',
           '/task-sync-starter',
           '/task-sync-starter/',
@@ -1070,10 +1075,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     expect(EXECUTED.unauthenticated).toBe(11);
-    // 8, not 6: D-028's public waitlist joined the exemptions, then D-038's kit opt-in, each probed
-    // like the others.
-    expect(EXECUTED.exempt).toBe(8);
+    // 9, not 6: D-028's public waitlist joined the exemptions, then the two guides' opt-ins (D-038,
+    // D-039), each probed like the others.
+    expect(EXECUTED.exempt).toBe(9);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(186);
+    expect(total).toBe(187);
   });
 });

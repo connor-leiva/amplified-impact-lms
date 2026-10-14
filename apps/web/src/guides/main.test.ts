@@ -1,16 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { validate } from './main';
-import { renderTssBody } from './render';
+import { guideFor, renderGuideBody } from './render';
 
-// /task-sync-starter's script (D-038), against the real markup in jsdom. `main.ts` boots on import,
-// so each test renders the body and then imports a fresh copy (`vi.resetModules()`). What jsdom
-// cannot show (`:target`, a real download, the in-app browser itself) is for the browser check.
+// The free guides' one script (D-038, D-039), against the real markup in jsdom. `main.ts` boots on
+// import, so each test renders a guide's body and then imports a fresh copy (`vi.resetModules()`).
+// What jsdom cannot show (`:target`, a real download, the in-app browser itself) is for the browser
+// check. Most tests use the Task Sync Starter Kit; the last group shows the script takes what differs
+// (the route, the unlock key) from the page, so The Ops Time Audit works the same.
 
-const KEY = 'tss-unlocked';
-
-async function boot(url = '/task-sync-starter', before?: () => void): Promise<void> {
+async function boot(url = '/task-sync-starter', before?: () => void, slug = 'task-sync-starter'): Promise<void> {
   window.history.replaceState(null, '', url);
-  document.body.innerHTML = renderTssBody();
+  document.body.innerHTML = renderGuideBody(guideFor(slug));
   before?.();
   vi.resetModules();
   await import('./main');
@@ -21,14 +21,14 @@ const $ = <T extends HTMLElement = HTMLElement>(selector: string) => {
   if (!el) throw new Error(`Nothing matches ${selector}`);
   return el;
 };
-const card = () => $('#get-the-kit');
+const card = () => $('[data-unlock-key]');
 const unlocked = () => card().getAttribute('data-state') === 'unlocked';
 
 function fill(firstName: string, email: string) {
-  $<HTMLInputElement>('#tss-firstName').value = firstName;
-  $<HTMLInputElement>('#tss-email').value = email;
+  $<HTMLInputElement>('#guide-firstName').value = firstName;
+  $<HTMLInputElement>('#guide-email').value = email;
 }
-const submit = () => $('#tss-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+const submit = () => $('#guide-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 /** Lets the fetch chain's promises settle. */
 const settle = () => new Promise((r) => setTimeout(r, 0));
 
@@ -75,7 +75,7 @@ describe('validate', () => {
 describe('the opt-in', () => {
   it('takes over validation from the browser once it runs', async () => {
     await boot();
-    expect($<HTMLFormElement>('#tss-form').noValidate).toBe(true);
+    expect($<HTMLFormElement>('#guide-form').noValidate).toBe(true);
     expect(unlocked()).toBe(false);
   });
 
@@ -86,14 +86,14 @@ describe('the opt-in', () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect($('#firstName-error').textContent).toBe('Enter your first name.');
     expect($('#email-error').textContent).toBe('Enter a valid email address.');
-    expect($('#tss-firstName').getAttribute('aria-invalid')).toBe('true');
-    expect($('#tss-firstName').getAttribute('aria-describedby')).toBe('firstName-error');
-    expect(document.activeElement).toBe($('#tss-firstName'));
+    expect($('#guide-firstName').getAttribute('aria-invalid')).toBe('true');
+    expect($('#guide-firstName').getAttribute('aria-describedby')).toBe('firstName-error');
+    expect(document.activeElement).toBe($('#guide-firstName'));
 
     // Typing clears that field's error.
-    $('#tss-firstName').dispatchEvent(new Event('input'));
+    $('#guide-firstName').dispatchEvent(new Event('input'));
     expect($('#firstName-error').textContent).toBe('');
-    expect($('#tss-firstName').hasAttribute('aria-invalid')).toBe(false);
+    expect($('#guide-firstName').hasAttribute('aria-invalid')).toBe(false);
   });
 
   it('posts JSON with the trimmed fields and the link tag, then unlocks the download and remembers', async () => {
@@ -117,7 +117,7 @@ describe('the opt-in', () => {
 
     expect(unlocked()).toBe(true);
     expect(document.activeElement).toBe($('#download'));
-    expect(localStorage.getItem(KEY)).toBe('1');
+    expect(localStorage.getItem('tss-unlocked')).toBe('1');
   });
 
   it('sends no src at all when the link had none', async () => {
@@ -141,9 +141,9 @@ describe('the opt-in', () => {
     await settle();
     await settle();
     expect($('#email-error').textContent).toBe('Enter a valid email address.');
-    expect(document.activeElement).toBe($('#tss-email'));
+    expect(document.activeElement).toBe($('#guide-email'));
     expect(unlocked()).toBe(false);
-    expect(localStorage.getItem(KEY)).toBeNull();
+    expect(localStorage.getItem('tss-unlocked')).toBeNull();
   });
 
   it('shows the general error on a server error or a dropped connection, and can be tried again', async () => {
@@ -153,20 +153,20 @@ describe('the opt-in', () => {
     fill('Pat', 'pat@example.com');
     submit();
     await vi.runAllTimersAsync();
-    expect($('#tss-error').hasAttribute('data-shown')).toBe(true);
-    expect($('#tss-error').textContent).toBe('Something went wrong. Try again.');
+    expect($('#guide-error').hasAttribute('data-shown')).toBe(true);
+    expect($('#guide-error').textContent).toBe('Something went wrong. Try again.');
     expect(unlocked()).toBe(false);
 
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
     submit();
     await vi.runAllTimersAsync();
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect($('#tss-error').textContent).toBe('Something went wrong. Try again.');
+    expect($('#guide-error').textContent).toBe('Something went wrong. Try again.');
 
     respond(201, { ok: true });
     submit();
     await vi.runAllTimersAsync();
-    expect($('#tss-error').hasAttribute('data-shown')).toBe(false);
+    expect($('#guide-error').hasAttribute('data-shown')).toBe(false);
     expect(unlocked()).toBe(true);
   });
 
@@ -178,16 +178,16 @@ describe('the opt-in', () => {
     submit();
     submit();
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect($('#tss-form button').getAttribute('aria-disabled')).toBe('true');
+    expect($('#guide-form button').getAttribute('aria-disabled')).toBe('true');
     finish(new Response('{"ok":true}', { status: 201 }));
     await settle();
-    expect($('#tss-form button').hasAttribute('aria-disabled')).toBe(false);
+    expect($('#guide-form button').hasAttribute('aria-disabled')).toBe(false);
   });
 });
 
 describe('a returning visitor', () => {
   it('sees the download straight away, without focus moving', async () => {
-    await boot('/task-sync-starter', () => localStorage.setItem(KEY, '1'));
+    await boot('/task-sync-starter', () => localStorage.setItem('tss-unlocked', '1'));
     expect(unlocked()).toBe(true);
     expect(document.activeElement).not.toBe($('#download'));
   });
@@ -208,6 +208,25 @@ describe('a returning visitor', () => {
     submit();
     await settle();
     expect(unlocked()).toBe(true);
+  });
+});
+
+describe('The Ops Time Audit, through the same script (D-039)', () => {
+  it("posts to its own route and remembers under its own key, which the other guide's never opens", async () => {
+    await boot('/ops-time-audit?src=ig', undefined, 'ops-time-audit');
+    respond(201, { ok: true });
+    fill('Pat', 'pat@example.com');
+    submit();
+    await settle();
+    expect((fetchMock.mock.calls[0] as [string])[0]).toBe('/api/ops-time-audit');
+    expect(unlocked()).toBe(true);
+    expect(localStorage.getItem('ota-unlocked')).toBe('1');
+    expect(localStorage.getItem('tss-unlocked')).toBeNull();
+  });
+
+  it('stays locked for a visitor who only got the other guide', async () => {
+    await boot('/ops-time-audit', () => localStorage.setItem('tss-unlocked', '1'), 'ops-time-audit');
+    expect(unlocked()).toBe(false);
   });
 });
 

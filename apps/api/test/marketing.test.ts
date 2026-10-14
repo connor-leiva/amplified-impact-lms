@@ -11,6 +11,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { build } from '../src/app';
 import type { App } from '../src/app';
+import { GUIDE_SLUGS } from '../src/routes/guide-list';
 
 const WWW = 'www.amplifiedimpact.io';
 const APP = 'learn.amplifiedimpact.io';
@@ -36,7 +37,7 @@ async function serve(marketingHost: string | undefined, page: string | null = PA
     fixtureOnly: true,
     logger: false,
     ai101Page: '<title>AI 101</title>',
-    taskSyncStarterPage: '<title>Task Sync Starter Kit</title>',
+    guidePages: Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, `<title>Guide ${slug}</title>`])),
     marketingPage: page,
   });
   await app.ready();
@@ -103,18 +104,22 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     expect(wl.statusCode).toBe(302);
     expect(wl.headers.location).toBe('/ai101?src=waitlist-qr#waitlist');
 
-    // The Task Sync Starter Kit's page (D-038), where ManyChat sends people, with its `?src=` tag.
-    for (const url of ['/task-sync-starter', '/task-sync-starter?src=ig']) {
-      const res = await get(a, url, WWW);
-      expect(res.statusCode, url).toBe(200);
-      expect(res.body, url).toContain('Task Sync Starter Kit');
+    // Every free guide's page (D-038, D-039), where ManyChat sends people, with its `?src=` tag. Driven
+    // by the API's own list, so a guide added there and forgotten in `PUBLIC_PREFIX` fails here.
+    expect(GUIDE_SLUGS).toContain('ops-time-audit');
+    for (const slug of GUIDE_SLUGS) {
+      for (const url of [`/${slug}`, `/${slug}?src=ig`]) {
+        const res = await get(a, url, WWW);
+        expect(res.statusCode, url).toBe(200);
+        expect(res.body, url).toContain(`Guide ${slug}`);
+      }
+      const slash = await get(a, `/${slug}/?src=ig`, WWW);
+      expect(slash.statusCode, slug).toBe(301);
+      expect(slash.headers.location, slug).toBe(`/${slug}?src=ig`);
     }
-    const kitSlash = await get(a, '/task-sync-starter/?src=ig', WWW);
-    expect(kitSlash.statusCode).toBe(301);
-    expect(kitSlash.headers.location).toBe('/task-sync-starter?src=ig');
 
     // Lookalikes still go to the placeholder.
-    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync']) {
+    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync', '/ops-time-auditx', '/ops']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(302);
       expect(res.headers.location, url).toBe('/');

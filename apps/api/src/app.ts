@@ -72,7 +72,7 @@ import { setRenderer } from './email/transport';
 import { clock } from './lib/clock';
 import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
 import { registerLegalPages } from './routes/legal';
-import { registerTaskSyncStarterPage } from './routes/task-sync-starter';
+import { registerGuidePages, type GuidePages } from './routes/guides';
 import type { LegalPages } from './routes/legal';
 import { registerMarketingHost } from './routes/marketing';
 import { registerAuthRoutes } from './routes/auth';
@@ -131,10 +131,10 @@ export interface BuildOptions {
    */
   legalPages?: LegalPages;
   /**
-   * The built `apps/web/dist/task-sync-starter.html` (D-038), or null when it has not been built.
-   * Its inline script must be in `inlineScriptHashes`, as /ai101's is. `routes/task-sync-starter.ts`.
+   * Each free guide's built `apps/web/dist/<slug>.html` (D-038, D-039), by slug; a missing one is a
+   * 404. Their inline script must be in `inlineScriptHashes`, as /ai101's is. `routes/guides.ts`.
    */
-  taskSyncStarterPage?: string | null;
+  guidePages?: GuidePages;
   /**
    * The built placeholder for the marketing host, `apps/web/dist/holding.html`, served on
    * `MARKETING_HOST` only. `null` when it has not been built, which makes `/` there a 404
@@ -432,7 +432,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   // The Terms of Service and Privacy Policy the /ai101 waitlist links to, served the same way and
   // for the same reasons, in both modes. `routes/legal.ts`.
   registerLegalPages(app, options.legalPages);
-  registerTaskSyncStarterPage(app, options.taskSyncStarterPage ?? null);
+  registerGuidePages(app, options.guidePages);
 
   let events: EventHub | null = null;
 

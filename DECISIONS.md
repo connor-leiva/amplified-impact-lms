@@ -1779,3 +1779,39 @@ and tagged as something." For the ManyChat automation on his new Reel.
 - **Open:** page 8 of the PDF as supplied still has two placeholders, "[December event name, dates
   and link]" and "[Book a call link]". Replace `apps/web/public/downloads/task-sync-starter-kit.pdf`
   with the final file under the same name; nothing else changes.
+
+## D-039 · /ops-time-audit, one page system for every free guide, and no Spring on the guide pages
+
+**Date:** 2026-10-14
+**Approved by:** Connor Leiva, in chat on 2026-10-14: "Similar to what you did for the other page, I
+need a new one for this new lead magnet. Still gated on email. Remove any reference to Spring on this
+page and the other one."
+**Scope:** `apps/web/src/guides/*` (was `src/tss`), `apps/web/{task-sync-starter,ops-time-audit}.html`,
+`apps/web/public/downloads/ops-time-audit.pdf`; `apps/api/src/routes/{guide-list,guides,ai101,marketing}.ts`,
+`apps/api/src/{app,server}.ts`, `apps/api/src/integrations/ghl.ts`; `apps/web/src/legal/content.ts`.
+Amends D-038.
+
+- **/ops-time-audit** is the landing page for The Ops Time Audit (8 pages, Version 1.0, October 2026),
+  built exactly as /task-sync-starter is (D-038): served from memory, an email opt-in that unlocks
+  "Download Here", the PDF at `/downloads/ops-time-audit.pdf` sent `noindex`, the no-JS 303s, and
+  `?src=` attribution. Its words are the guide's own: the cover and three steps, page 2's example
+  report as a real table (each row a small block on a phone), page 3's three doors, "What You Need",
+  and page 8's pointer to the Task Sync Starter Kit, linked in the same tab.
+- **One page system for every guide.** `src/tss` became `src/guides`: one renderer, one stylesheet,
+  one script, a content file per guide (`task-sync-starter.ts`, `ops-time-audit.ts`), and a shell
+  per guide. The script reads what differs from the page (the form's route, the card's
+  `data-unlock-key`), so each guide's unlock is remembered on its own: getting one never opens the
+  other. The API keeps one list, `GUIDE_SLUGS` (`routes/guide-list.ts`): each slug is a page
+  (`/<slug>` and its `/<slug>/` 301), an opt-in (`POST /api/<slug>`, the waitlist route with SMS
+  stripped, D-038) and the `source` its rows are stored under. Ids on the page became `guide-*`, and
+  the no-JS error landing `#guide-error` (was `#tss-error`), both sides in the same deploy.
+- **GoHighLevel:** `ops-time-audit` sign-ups are tagged `ops-time-audit`, plus the channel tag.
+- **No Spring on the guide pages.** A guide's opt-in now agrees to emails from Amplified Impact and
+  Connor only: "By signing up, you agree to our Terms of Service and Privacy Policy and to emails from
+  Amplified Impact and Connor. Unsubscribe anytime." "Any reference to Spring" was read to include
+  Spring B, Spring's company. A test fails if "Spring" appears anywhere in a guide page. Sign-ups to
+  the Task Sync Starter Kit before this deploy agreed to the earlier, longer list.
+- **Terms and Privacy** (amends D-035, D-038): the kit section became "Free guides", naming both and
+  saying only Amplified Impact and Connor email because of a guide; the Privacy Policy collects
+  "which guide you got" and names the guide senders apart from the waitlist's. Version and effective
+  date 2026-10-14, and `TERMS_VERSION` with them.

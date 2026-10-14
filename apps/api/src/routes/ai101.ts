@@ -7,7 +7,7 @@
 //                                     directly, for the slide and QR code at the end of the session
 //   POST /api/ai101/waitlist        → JSON: 201 { ok: true } or 400 { error, field }
 //                                     a no-JS form: 303 to /ai101#waitlist-joined or #waitlist-error
-//   POST /api/task-sync-starter     → the same route for the Task Sync Starter Kit's opt-in (D-038):
+//   POST /api/<guide slug>          → the same route for each free guide's opt-in (D-038, D-039):
 //                                     its own source, no SMS, and its own landing spots
 //
 // The page itself is built by `apps/web` (`vite.ai101.config.ts`) into ONE self-contained file,
@@ -105,6 +105,7 @@
 
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
+import { GUIDE_SLUGS, guideErrorLocation, guideJoinedLocation, guideSignUpPath } from './guide-list';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { isJsonContentType, JSON_CONTENT_TYPE, requireSameOrigin } from '../auth';
 import { getDb } from '../db/client';
@@ -145,17 +146,6 @@ export const WAITLIST_PATH = '/api/ai101/waitlist';
  * from the request, so a client cannot file itself under a different event.
  */
 export const WAITLIST_SOURCE = 'expcon-2026-ai101';
-
-/**
- * The Task Sync Starter Kit's opt-in (D-038): the same table and the same rules as the waitlist, under
- * its own `source` (so the GoHighLevel sync tags it as the kit, not the waitlist, and one person may
- * be on both), with no SMS box on its page, and landing back on that page.
- */
-export const TSS_SIGNUP_PATH = '/api/task-sync-starter';
-export const TSS_SOURCE = 'task-sync-starter';
-export const TSS_PAGE_PATH = '/task-sync-starter';
-export const TSS_JOINED_LOCATION = `${TSS_PAGE_PATH}#download`;
-export const TSS_ERROR_LOCATION = `${TSS_PAGE_PATH}#tss-error`;
 
 /** The waitlist's own limit, in place of § 9.4's global 100. See the header for the sizing. */
 export const WAITLIST_RATE_MAX = 300;
@@ -200,14 +190,17 @@ const SIGN_UP_FORMS: readonly SignUpForm[] = [
     sms: true,
     label: 'ai101 waitlist',
   },
-  {
-    path: TSS_SIGNUP_PATH,
-    source: TSS_SOURCE,
-    joined: TSS_JOINED_LOCATION,
-    error: TSS_ERROR_LOCATION,
+  // Each free guide's opt-in (D-038, D-039): the same table and the same rules as the waitlist, under
+  // the guide's own `source` (so the GoHighLevel sync tags it as that guide, not the waitlist, and
+  // one person may be on several), with no SMS box on its page, and landing back on that page.
+  ...GUIDE_SLUGS.map((slug) => ({
+    path: guideSignUpPath(slug),
+    source: slug,
+    joined: guideJoinedLocation(slug),
+    error: guideErrorLocation(slug),
     sms: false,
-    label: 'task-sync-starter',
-  },
+    label: slug,
+  })),
 ];
 
 /**
@@ -245,7 +238,7 @@ export const SMS_CONSENT_TEXT =
  * The version of the Terms of Service and Privacy Policy a sign-up agrees to by joining: their
  * effective date. Change it when either page changes in substance.
  */
-export const TERMS_VERSION = '2026-10-13';
+export const TERMS_VERSION = '2026-10-14';
 
 /** The sign-in screen's rule (`apps/web/src/routes/auth/SignIn.tsx`), so the product has one. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -560,11 +553,9 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
           // Only reachable as JSON — a form body is all strings by construction — and only by a
           // client that is not the page's own script, so there is no field to point at.
           if (!parsed.success) {
-            return reply
-              .code(400)
-              .send({
-                error: 'Expected a JSON body of { firstName, email, phone?, brokerage?, smsConsent?, website?, src? }.',
-              });
+            return reply.code(400).send({
+              error: 'Expected a JSON body of { firstName, email, phone?, brokerage?, smsConsent?, website?, src? }.',
+            });
           }
 
           // A page with no SMS box cannot record SMS consent or a number, whatever the request says: the

@@ -1,8 +1,9 @@
-// /task-sync-starter's only script. DECISIONS.md D-038.
+// Every guide page's only script (/task-sync-starter, /ops-time-audit). DECISIONS.md D-038, D-039.
 //
-// Inlined into the page (vite-plugin.ts), so it cannot fail to load on its own. It makes three things
-// better, and the page works without it: the form still posts, and the API's 303 still shows the
-// download.
+// Inlined into each page (vite-plugin.ts), so it cannot fail to load on its own. It reads what differs
+// between guides from the page itself (the form's `action`, the card's `data-unlock-key`), so one
+// script serves them all. It makes three things better, and the page works without it: the form
+// still posts, and the API's 303 still shows the download.
 //   1. The opt-in posts JSON, shows errors in place, and on success unlocks the download.
 //   2. A device that has opted in before sees the download straight away (localStorage, guarded).
 //   3. In Instagram's or Facebook's in-app browser, a line on how to save the PDF.
@@ -10,7 +11,7 @@
 // Written for the in-app WebViews that ManyChat's DM links open in: built for es2019 / Safari 13,
 // every feature in `guard()`, every storage access wrapped.
 
-import { UI } from './content';
+import { UI } from './ui';
 
 /** The sign-in screen's rule, which the API applies too. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -40,17 +41,22 @@ function storage(): Storage | null {
   }
 }
 
-function wasUnlocked(): boolean {
+/** The opt-in card, which names the key this guide's unlock is remembered under. */
+function card(doc: Document): HTMLElement | null {
+  return doc.querySelector<HTMLElement>('[data-unlock-key]');
+}
+
+function wasUnlocked(key: string): boolean {
   try {
-    return storage()?.getItem(UI.unlockedKey) === '1';
+    return storage()?.getItem(key) === '1';
   } catch {
     return false;
   }
 }
 
-function rememberUnlocked(): void {
+function rememberUnlocked(key: string): void {
   try {
-    storage()?.setItem(UI.unlockedKey, '1');
+    storage()?.setItem(key, '1');
   } catch {
     // Full or blocked: the download still shows for this visit.
   }
@@ -58,10 +64,10 @@ function rememberUnlocked(): void {
 
 /** Shows the download in place of the form. `focus` moves focus to it, after a sign-up. */
 function unlock(doc: Document, focus: boolean): void {
-  const card = doc.getElementById('get-the-kit');
+  const el = card(doc);
   const download = doc.getElementById('download');
-  if (!card || !download) return;
-  card.setAttribute('data-state', 'unlocked');
+  if (!el || !download) return;
+  el.setAttribute('data-state', 'unlocked');
   if (focus) download.focus();
 }
 
@@ -92,11 +98,13 @@ function fieldError(body: unknown): { field: Field; message: string } | null {
 }
 
 function initForm(doc: Document): void {
-  const form = doc.getElementById('tss-form') as HTMLFormElement | null;
-  const formError = doc.getElementById('tss-error');
+  const form = doc.getElementById('guide-form') as HTMLFormElement | null;
+  const formError = doc.getElementById('guide-error');
   const submit = form?.querySelector('button[type="submit"]');
+  const key = card(doc)?.getAttribute('data-unlock-key');
+  const action = form?.getAttribute('action');
   // Without any of these, or without `fetch`, the form posts natively and the API's 303 answers.
-  if (!form || !formError || !submit || typeof fetch !== 'function') return;
+  if (!form || !formError || !submit || !key || !action || typeof fetch !== 'function') return;
 
   const input = (name: string): HTMLInputElement | null => {
     const el = form.elements.namedItem(name);
@@ -149,7 +157,7 @@ function initForm(doc: Document): void {
       submit.removeAttribute('aria-disabled');
     };
     const src = readSrc();
-    fetch(form.getAttribute('action') ?? '/api/task-sync-starter', {
+    fetch(action, {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
@@ -157,7 +165,7 @@ function initForm(doc: Document): void {
     })
       .then((res) => {
         if (res.ok) {
-          rememberUnlocked();
+          rememberUnlocked(key);
           unlock(doc, true);
           return;
         }
@@ -175,7 +183,8 @@ function initForm(doc: Document): void {
 
 function boot(doc: Document): void {
   guard(() => {
-    if (wasUnlocked()) unlock(doc, false);
+    const key = card(doc)?.getAttribute('data-unlock-key');
+    if (key && wasUnlocked(key)) unlock(doc, false);
   });
   guard(() => {
     if (IN_APP.test(navigator.userAgent || '')) {

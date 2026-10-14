@@ -48,13 +48,15 @@ export const WAITLIST_TAGS = ['ai101-waitlist', 'event-expcon-2026'] as const;
 
 /**
  * The tags each kind of sign-up carries, by the row's `source` (D-038). One table holds every form's
- * sign-ups, so the source decides which GHL workflow a contact enters: the waitlist's, or the Task Sync
- * Starter Kit's (`task-sync-starter`). A source with no entry gets no form tag at all, never the
- * waitlist's: a new form must be added here before its contacts can trigger anything.
+ * sign-ups, so the source decides which GHL workflow a contact enters: the waitlist's, or a free
+ * guide's (its slug: `task-sync-starter`, D-038; `ops-time-audit`, D-039). A source with no entry gets
+ * no form tag at all, never the waitlist's: a new form must be added here before its contacts can
+ * trigger anything.
  */
 export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
   'expcon-2026-ai101': WAITLIST_TAGS,
   'task-sync-starter': ['task-sync-starter'],
+  'ops-time-audit': ['ops-time-audit'],
 };
 
 /**

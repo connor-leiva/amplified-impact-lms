@@ -33,15 +33,17 @@ import type { App } from '../app';
  * the slides and the room type them: `routes/ai101.ts` answers each with its own 301 to `/ai101`, and
  * without them here www sent a typed `/AI101` to the placeholder instead (found after the 2026-10-08
  * deploy; learn was always right). `/waitlist`, the short link to the page's waitlist screen
- * (D-037), for the same reason. `/task-sync-starter`, the Task Sync Starter Kit's landing page
- * (D-038), which ManyChat sends people to. Its PDF, under `/downloads/`, is a file, so it passes on
- * its own. `/terms` and `/privacy` because the waitlist on it links
+ * (D-037), for the same reason. The free guides' landing pages, which ManyChat sends people to:
+ * `/task-sync-starter` (D-038) and `/ops-time-audit` (D-039), every slug in `routes/guide-list.ts`
+ * (a test holds the two together). Their PDFs, under `/downloads/`, are files, so they pass on their
+ * own. `/terms` and `/privacy` because the waitlist on it links
  * to them, and a visitor on www must land on the page, not on the placeholder (`routes/legal.ts`);
  * those two match exactly, with or without a query string, so `/terms-old` still goes to `/`.
  * `/api/` because the health check lives there — Railway's probe arrives with its own `Host` and a
  * redirect would fail a deploy that is perfectly healthy — and so does the waitlist the page posts to.
  */
-const PUBLIC_PREFIX = /^\/((ai101|AI101|ai-101|waitlist|task-sync-starter)(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
+const PUBLIC_PREFIX =
+  /^\/((ai101|AI101|ai-101|waitlist|task-sync-starter|ops-time-audit)(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
 
 /** The placeholder's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);

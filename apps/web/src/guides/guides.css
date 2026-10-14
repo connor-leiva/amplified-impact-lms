@@ -1,6 +1,6 @@
-/* /task-sync-starter, the Task Sync Starter Kit's landing page. DECISIONS.md D-038.
+/* Every free guide's landing page (/task-sync-starter, /ops-time-audit). DECISIONS.md D-038, D-039.
 
-   The kit's own look: its forest cover as the hero, then cream with paper-coloured cards, as on /ai101
+   The guides' own look: their forest cover as the hero, then cream with paper-coloured cards, as on /ai101
    (D-034). Mobile first, for the phone a ManyChat DM opens it on; one breakpoint at 640px.
 
    COLOURS. Cream, ink, forest and paper are tokens. The two accents are the brand mark's mint and
@@ -417,6 +417,125 @@ blockquote {
   flex-direction: column;
   gap: 4px;
 }
+.tile-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--action-primary);
+}
+.tiles .tile-tag {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* --- The report a guide produces (The Ops Time Audit) ----------------------------------------------
+   A real table. Under 640px each row is a small block: category and hours on one line, the evidence
+   under them, then the tag and "AI-ready:". From 640px it is the table the PDF shows. */
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.report-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+}
+.report-title {
+  font-weight: 800;
+}
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+.report-table thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.report-table tr {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'cat hrs'
+    'ev ev'
+    'tag ready';
+  gap: 4px 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line-default);
+}
+.report-table th,
+.report-table td {
+  padding: 0;
+  text-align: left;
+  font-weight: 400;
+}
+.report-table .cat {
+  grid-area: cat;
+  font-weight: 700;
+}
+.report-table .hrs {
+  grid-area: hrs;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  white-space: nowrap;
+}
+.report-table .ev {
+  grid-area: ev;
+  color: var(--text-secondary);
+}
+.report-table .tag-cell {
+  grid-area: tag;
+}
+.report-table .ready {
+  grid-area: ready;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.tag-run {
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.tag-draft {
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+}
+.tag-own {
+  border: 1px solid var(--line-strong);
+  color: var(--text-secondary);
+}
+.verdict {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--action-primary-tint);
+  font-size: 16px;
+}
+
+/* A pointer to another guide. */
+.crosslink {
+  font-size: 17px;
+  color: var(--text-secondary);
+}
+.crosslink a {
+  font-weight: 700;
+}
 
 /* --- Footer ------------------------------------------------------------------------------------- */
 
@@ -476,6 +595,42 @@ blockquote {
   }
   .optin .btn {
     align-self: flex-start;
+  }
+  .report-table thead {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+  .report-table thead th {
+    padding-bottom: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    vertical-align: bottom;
+  }
+  .report-table tr {
+    display: table-row;
+  }
+  .report-table th,
+  .report-table td {
+    padding: 10px 12px 10px 0;
+    vertical-align: top;
+  }
+  .report-table tbody th,
+  .report-table tbody td {
+    border-top: 1px solid var(--line-default);
+  }
+  .report-table .unit,
+  .report-table .ready-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 

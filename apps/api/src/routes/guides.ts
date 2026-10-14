@@ -1,0 +1,44 @@
+// The free guides' landing pages (DECISIONS.md D-038, D-039), one per slug in `guide-list.ts`.
+//
+//   GET /<slug>    → the built page, from memory; 304 on a matching ETag
+//   GET /<slug>/   → 301 to /<slug>, query string kept (ManyChat's `?src=`)
+//
+// Served exactly as /ai101 is (routes/ai101.ts): from memory, exempt from the global limit, `no-cache`
+// with a strong ETag, and `Referrer-Policy: same-origin`, which the no-JS opt-in needs for the same
+// reason the waitlist does (a plain form POST must carry a real `Origin`). Each opt-in posts to
+// `POST /api/<slug>`, registered with the waitlist in routes/ai101.ts. The PDFs are static files under
+// `/downloads/` (apps/web/public), served by server.ts.
+
+import type { FastifyInstance, FastifyReply } from 'fastify';
+import { etagMatches, pageEtag } from './ai101';
+import { GUIDE_SLUGS, guidePagePath, type GuideSlug } from './guide-list';
+
+/** Each guide's built HTML, by slug; a missing or null one answers a JSON 404. */
+export type GuidePages = Partial<Record<GuideSlug, string | null>>;
+
+/** A path plus the request's own query string, exactly as it arrived. */
+export function withQuery(path: string, rawUrl: string): string {
+  const q = rawUrl.indexOf('?');
+  return q < 0 ? path : `${path}${rawUrl.slice(q)}`;
+}
+
+export function registerGuidePages(app: FastifyInstance, pages: GuidePages = {}): void {
+  for (const slug of GUIDE_SLUGS) {
+    const path = guidePagePath(slug);
+    const page = pages[slug] ?? null;
+    const etag = page === null ? null : pageEtag(page);
+
+    app.get(path, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
+      if (page === null || etag === null) return reply.code(404).send({ error: 'Not found' });
+      reply.header('cache-control', 'no-cache');
+      reply.header('etag', etag);
+      reply.header('referrer-policy', 'same-origin');
+      if (etagMatches(req.headers['if-none-match'], etag)) return reply.code(304).send();
+      return reply.code(200).type('text/html; charset=utf-8').send(page);
+    });
+
+    app.get(`${path}/`, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> =>
+      reply.redirect(withQuery(path, req.url), 301),
+    );
+  }
+}

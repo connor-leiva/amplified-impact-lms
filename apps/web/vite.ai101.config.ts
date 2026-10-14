@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { AI101_HTML, ai101Inline, ai101Render } from './src/ai101/vite-plugin.ts';
 import { LEGAL_HTML, legalRender } from './src/legal/vite-plugin.ts';
-import { TSS_HTML, tssRender } from './src/tss/vite-plugin.ts';
+import { GUIDE_HTML, guideRender } from './src/guides/vite-plugin.ts';
 
 // The /ai101 page's own build (DECISIONS.md D-028), run after the SPA's by `pnpm build` into the
 // same `dist/` (or `dist-fixture/`, from `--outDir`). Its own config and not a second input to
@@ -17,8 +17,8 @@ import { TSS_HTML, tssRender } from './src/tss/vite-plugin.ts';
 // self-contained the same way: its stylesheet inlined, and no script at all. They share no module
 // with /ai101 (their stylesheet is their own file), so adding them leaves `ai101.html` byte-identical.
 export default defineConfig({
-  // And /task-sync-starter (D-038), the kit's landing page, built and inlined the same way.
-  plugins: [ai101Render(), legalRender(), tssRender(), ai101Inline([AI101_HTML, ...LEGAL_HTML, TSS_HTML])],
+  // And the free guides' landing pages (D-038, D-039), built and inlined the same way.
+  plugins: [ai101Render(), legalRender(), guideRender(), ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML])],
   resolve: {
     // vite.config.ts's aliases, verbatim. The subpath alias must come first: '@ai/core/mutations'
     // resolves to the module file, while bare '@ai/core' resolves to the barrel.
@@ -53,7 +53,7 @@ export default defineConfig({
       input: [
         fileURLToPath(new URL('./ai101.html', import.meta.url)),
         ...LEGAL_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
-        fileURLToPath(new URL(`./${TSS_HTML}`, import.meta.url)),
+        ...GUIDE_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
       ],
     },
   },

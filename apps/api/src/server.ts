@@ -56,6 +56,7 @@ import { build, cspScriptHashes, installShutdown } from './app';
 import { readDatabaseUrl } from './db/client';
 import { startScheduler } from './jobs/scheduler';
 import { startGhlSync } from './jobs/ghl-sync';
+import { GUIDE_SLUGS } from './routes/guide-list';
 
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
@@ -63,8 +64,9 @@ const ai101Html = fileURLToPath(new URL('../../web/dist/ai101.html', import.meta
 // The public legal pages the /ai101 waitlist links to, built beside it (`routes/legal.ts`).
 const termsHtml = fileURLToPath(new URL('../../web/dist/terms.html', import.meta.url));
 const privacyHtml = fileURLToPath(new URL('../../web/dist/privacy.html', import.meta.url));
-// The Task Sync Starter Kit's landing page (D-038), built beside them. It has an inline script.
-const tssHtml = fileURLToPath(new URL('../../web/dist/task-sync-starter.html', import.meta.url));
+// The free guides' landing pages (D-038, D-039), built beside them, one per slug. Each has an inline
+// script (the same one).
+const guideHtml = (slug: string) => fileURLToPath(new URL(`../../web/dist/${slug}.html`, import.meta.url));
 // The marketing host's placeholder. It ships in `public/`, so the SPA's own build copies it
 // into `dist/` verbatim — it needs no build step of its own, because it carries no script and
 // no import. `routes/marketing.ts` serves it on MARKETING_HOST and nowhere else.
@@ -109,16 +111,16 @@ const fixtureOnly = process.env.VITE_DATA_SOURCE === 'fixture';
 // `cspScriptHashes` hashes it, so a rebuild on disk while this process runs cannot leave the page
 // served under a hash computed from different bytes.
 const ai101Page = readBuilt(ai101Html);
-const taskSyncStarterPage = readBuilt(tssHtml);
+const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readBuilt(guideHtml(slug))]));
 
 const app = await build({
   logger: true,
   fixtureOnly,
   // Not the legal pages: they carry no script (`apps/web/src/legal/render.test.ts` holds them to
   // that), so they have nothing to hash, and a script added to one later stays blocked.
-  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, taskSyncStarterPage]),
+  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(guidePages)]),
   ai101Page,
-  taskSyncStarterPage,
+  guidePages,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml) },
   marketingPage: readBuilt(holdingHtml),
   waitlist: databaseConfigured(),
@@ -133,9 +135,9 @@ if (existsSync(webDist)) {
     // i.e. without the two things `routes/ai101.ts` serves it with (its no-JS form would 403 from
     // there). One URL for the page; `/ai101.html` falls through to the SPA like any unknown path.
     // The legal pages likewise: one URL each, `/terms` and `/privacy` (`routes/legal.ts`).
-    // And /task-sync-starter (D-038), whose route sets the Referrer-Policy its no-JS opt-in needs.
-    globIgnore: ['ai101.html', 'terms.html', 'privacy.html', 'task-sync-starter.html'],
-    // The kit's PDF (D-038) is a lead magnet behind an opt-in: kept out of search results.
+    // And the free guides (D-038, D-039), whose route sets the Referrer-Policy their no-JS opt-in needs.
+    globIgnore: ['ai101.html', 'terms.html', 'privacy.html', ...GUIDE_SLUGS.map((slug) => `${slug}.html`)],
+    // The guides' PDFs (D-038, D-039) are lead magnets behind an opt-in: kept out of search results.
     setHeaders: (res, path) => {
       if (path.replace(/\\/g, '/').includes('/downloads/')) res.setHeader('x-robots-tag', 'noindex');
     },

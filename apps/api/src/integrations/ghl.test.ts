@@ -70,6 +70,8 @@ describe('tags @g9', () => {
     // ManyChat's link carries `?src=ig`.
     expect(waitlistTags('ig', false, 'task-sync-starter')).toEqual(['task-sync-starter', 'src-ig']);
     expect(waitlistTags(null, false, 'task-sync-starter')).toEqual(['task-sync-starter', 'src-direct']);
+    // The Ops Time Audit (D-039): its own tag, so its own workflow.
+    expect(waitlistTags('ig', false, 'ops-time-audit')).toEqual(['ops-time-audit', 'src-ig']);
     // A source nobody mapped gets no form tag, so it can trigger no workflow, the waitlist's least of all.
     expect(waitlistTags('qr', false, 'some-new-form')).toEqual(['src-qr']);
   });
