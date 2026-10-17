@@ -57,6 +57,8 @@ export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
   'expcon-2026-ai101': WAITLIST_TAGS,
   'task-sync-starter': ['task-sync-starter'],
   'ops-time-audit': ['ops-time-audit'],
+  // The voice profile setup, Spring's lead magnet (D-040).
+  'voice-profile': ['voice-profile'],
 };
 
 /**

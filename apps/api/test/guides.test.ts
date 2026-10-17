@@ -8,7 +8,8 @@
 //      that guide and not the waitlist, and someone on two lists is two rows, not a duplicate.
 //   2. IT NEVER RECORDS SMS CONSENT. Guide pages have no SMS box, so a phone number or a "yes" sent to
 //      one by hand is dropped, never stored as consent that visitor never saw.
-//   3. THE NO-JS FORM LANDS ON THE GUIDE'S OWN PAGE: `#download` or `#guide-error`, never /ai101.
+//   3. THE NO-JS FORM LANDS ON THE GUIDE'S OWN PAGE: its download (or, for the voice profile setup,
+//      its gated steps, `#unlocked`) or `#guide-error`, never /ai101.
 //   4. THE PAGE IS SERVED LIKE /ai101: from memory, exempt from the global limit, revalidated, with
 //      `Referrer-Policy: same-origin` (which the no-JS post needs) and its inline script in the CSP.
 
@@ -81,8 +82,15 @@ afterEach(async () => {
   await app?.close();
 });
 
-it('serves the two guides there are, by slug', () => {
-  expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit']);
+/** Where each guide's no-JS success lands: what its page shows with `:target`. */
+const JOINED: Record<GuideSlug, string> = {
+  'task-sync-starter': '#download',
+  'ops-time-audit': '#download',
+  'voice-profile': '#unlocked',
+};
+
+it('serves the three guides there are, by slug', () => {
+  expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile']);
 });
 
 describe.each(GUIDE_SLUGS)('/%s · the page (D-038, D-039) @g9', (slug) => {
@@ -165,7 +173,7 @@ describe.each(GUIDE_SLUGS)('POST /api/%s · the opt-in (D-038, D-039) @g9', (slu
       createdAt: NOW,
       ghlSyncedAt: null,
     });
-    expect(TERMS_VERSION).toBe('2026-10-14');
+    expect(TERMS_VERSION).toBe('2026-10-17');
   });
 
   it('never records a phone number or SMS consent, whatever the request says @g9', async () => {
@@ -219,10 +227,10 @@ describe.each(GUIDE_SLUGS)('POST /api/%s · the opt-in (D-038, D-039) @g9', (slu
     expect(await rows()).toEqual([]);
   });
 
-  it("the no-JS form: stores the sign-up and lands on the guide's download with a 303 @g9", async () => {
+  it("the no-JS form: stores the sign-up and lands where its page shows it, with a 303 @g9", async () => {
     const res = await postForm(URL, { firstName: 'Pat', email: 'pat@example.com', website: '' });
     expect(res.statusCode).toBe(303);
-    expect(res.headers.location).toBe(`/${slug}#download`);
+    expect(res.headers.location).toBe(`/${slug}${JOINED[slug]}`);
     expect(await rows()).toHaveLength(1);
   });
 

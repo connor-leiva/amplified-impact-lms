@@ -1815,3 +1815,45 @@ Amends D-038.
   saying only Amplified Impact and Connor email because of a guide; the Privacy Policy collects
   "which guide you got" and names the guide senders apart from the waitlist's. Version and effective
   date 2026-10-14, and `TERMS_VERSION` with them.
+
+## D-040 · /voice-profile: the voice profile setup on its own, gated, for Spring to post
+
+**Date:** 2026-10-17
+**Approved by:** Connor Leiva, in chat on 2026-10-17: "Can you create a new site that replicates the
+voice profile setup workflow from the ai 101 experience, but remove the portions of the guide/flow that
+are related to the carousel creator? And then this needs to be gated as well as it's a lead magnet
+that Spring is going to post."
+**Scope:** `apps/web/src/voice/*`, `apps/web/voice-profile.html`; `apps/web/src/ai101/{main,render,vite-plugin}.ts`;
+`apps/api/src/routes/{guide-list,marketing}.ts`, `apps/api/src/integrations/ghl.ts`;
+`apps/web/src/legal/content.ts`. Amends D-034, D-038 and D-039.
+
+- **/voice-profile is /ai101's Part I and nothing else**: a welcome screen with the gate, "First: get
+  the app and sign in" as a step of its own, then the four voice profile steps (samples, the prompt and
+  its two blanks, saving it in a Claude Project or ChatGPT, testing it). No Carousel Creator, brand,
+  Project, week, sprint, waitlist, or Part II laptop handoff; the last screen ends "Done. Your voice
+  profile is set up." and Start Over.
+- **One source for the steps.** `src/voice/content.ts` imports /ai101's samples, prompt, copy and save
+  content rather than copying them, so the voice prompt cannot drift between the pages, and
+  `src/voice/render.ts` is built from /ai101's own building blocks (now exported from its renderer).
+  It runs /ai101's own script; its place is kept under its own key (`voice-profile-v1`, named on
+  `<main data-state-key>`), apart from /ai101's.
+- **The gate**, in /ai101's script and inert on any page without one: a screen marked `data-gate`
+  holds an email opt-in on /ai101's dark waitlist card. Until this device signs up, no screen after it
+  shows (not by Next, a link, a saved place or the address) and its Next is hidden; on success the
+  next screen opens and the device is remembered (`vp-unlocked`), so a return visit says "You're in"
+  and Start goes on. Its form is sent by /ai101's own waitlist sender, made generic (`initSignUp`).
+  Without the script, the screens after the gate sit in `#unlocked`, hidden until the form's 303
+  lands there. A soft gate, as the guides' are.
+- **Server:** `voice-profile` joins `GUIDE_SLUGS`: the page and its `/voice-profile/` 301, `POST
+  /api/voice-profile` (SMS stripped, D-038), source `voice-profile`, GoHighLevel tag `voice-profile`
+  plus the channel tag, let through on www. Its no-JS success lands on `#unlocked`, not `#download`.
+- **Senders: the waitlist's, Spring among them**, because Spring posts it: "By signing up, you agree
+  to our Terms of Service and Privacy Policy and to emails from Amplified Impact, Spring B and its
+  affiliated companies, Spring, and Connor. Unsubscribe anytime." (`CONSENT.voice`). The PDF guides
+  keep Amplified Impact and Connor only (D-039). The Terms' "Free guides" section quotes both lines
+  and says which senders go with which guide, and the Privacy Policy says the same. Version and
+  effective date 2026-10-17, and `TERMS_VERSION` with them.
+- **Found in building it:** a module shared by two pages' scripts (the first draft gave the guides
+  and the gate one opt-in module) is split into a chunk of its own, which an inlined script imports
+  by a URL that does not exist: every page's script broke in that build. Nothing shipped, and
+  `ai101Inline` now refuses to build a page whose script imports anything.

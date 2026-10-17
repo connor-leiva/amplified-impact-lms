@@ -72,6 +72,8 @@ describe('tags @g9', () => {
     expect(waitlistTags(null, false, 'task-sync-starter')).toEqual(['task-sync-starter', 'src-direct']);
     // The Ops Time Audit (D-039): its own tag, so its own workflow.
     expect(waitlistTags('ig', false, 'ops-time-audit')).toEqual(['ops-time-audit', 'src-ig']);
+    // The voice profile setup (D-040), Spring's: its own tag too.
+    expect(waitlistTags('ig', false, 'voice-profile')).toEqual(['voice-profile', 'src-ig']);
     // A source nobody mapped gets no form tag, so it can trigger no workflow, the waitlist's least of all.
     expect(waitlistTags('qr', false, 'some-new-form')).toEqual(['src-qr']);
   });

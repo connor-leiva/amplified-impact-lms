@@ -148,6 +148,13 @@ export function ai101Inline(pages: readonly string[] = [AI101_HTML]): Plugin {
           const chunk = bundle[fileOf(url)];
           if (!chunk || chunk.type !== 'chunk') return tag;
           if (UNSAFE_IN_SCRIPT.test(chunk.code)) this.error(`${chunk.fileName} contains text that cannot be inlined.`);
+          // A chunk that imports another (a module two pages' scripts share, split out by the bundler)
+          // would ask for a file this page does not have once inlined. Caught here, not in production.
+          if (chunk.imports.length || chunk.dynamicImports.length) {
+            this.error(
+              `${chunk.fileName} imports ${[...chunk.imports, ...chunk.dynamicImports].join(', ')}; an inlined script cannot.`,
+            );
+          }
           inlined.add(chunk.fileName);
           // `.trimEnd()` only: the API hashes these exact bytes for its CSP (`inlineScriptHashes`), so
           // what is inlined here is precisely what is served.

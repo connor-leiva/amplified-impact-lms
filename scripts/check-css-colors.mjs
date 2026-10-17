@@ -7,7 +7,7 @@ import { globSync, readFileSync } from 'node:fs';
 // for /terms and /privacy, whose one stylesheet is in apps/web/src/legal/. A Set, so a file more
 // than one pattern matches is scanned once.
 const files = [
-  ...new Set(globSync(['apps/web/src/**/*.module.css', 'apps/web/src/ai101/**/*.css', 'apps/web/src/legal/**/*.css', 'apps/web/src/guides/**/*.css'])),
+  ...new Set(globSync(['apps/web/src/**/*.module.css', 'apps/web/src/ai101/**/*.css', 'apps/web/src/legal/**/*.css', 'apps/web/src/guides/**/*.css', 'apps/web/src/voice/**/*.css'])),
 ];
 
 const bad = [];

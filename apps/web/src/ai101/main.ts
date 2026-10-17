@@ -1,10 +1,12 @@
-// /ai101's only script. DECISIONS.md D-028, D-032 and D-034.
+// /ai101's only script, and /voice-profile's (D-040). DECISIONS.md D-028, D-032 and D-034.
 //
 // It turns the page into the design's step-through: one screen at a time, a progress header, a Back
 // / Next footer, and the visitor's place remembered. It also fills the prompts from the fields as
 // they are typed, copies (Copy & Open, the starter ideas), shows the toast, switches the Save screen
 // between Claude and ChatGPT, swaps in the app-store links, opens the share sheet, and sends the
-// waitlist form.
+// waitlist form. On a page with a gate (/voice-profile), it keeps every screen past the gate out of
+// reach until the visitor has opted in (`initSteps`), and sends the gate's form the way it sends the
+// waitlist's (`initSignUp`).
 //
 // It is inlined into the page as one `<script type="module">` (vite-plugin.ts), so it is part of the
 // first response and can never fail to load on its own. Everything it touches is already in the
@@ -21,11 +23,16 @@
 //   - Every storage access is wrapped: reading `window.localStorage` itself throws in some WebViews
 //     and with site data blocked, and `setItem` throws when storage is full or in old private modes.
 //
-// It imports `UI` and nothing else. `PAGE` is already in the HTML.
+// It imports `UI` and nothing else. `PAGE` is already in the HTML. Nothing else, on purpose: a module
+// this script shared with another page's script would be split into a chunk of its own, which an
+// inlined script cannot load (`ai101Inline` in vite-plugin.ts refuses to build one).
 
 import { UI } from './content';
 
-/** `localStorage` key for the visitor's place and fields (the design's own key). */
+/**
+ * `localStorage` key for the visitor's place and fields (the design's own key). A page that shares
+ * this script names its own on <main data-state-key>, so its place never lands on /ai101's.
+ */
 const STATE_KEY = 'ai101-v2';
 /**
  * Taps per "Copy & Open". 1: the tap copies AND opens. 2: the first tap copies and the button then
@@ -89,10 +96,10 @@ function storage(): Storage | null {
 }
 
 /** The saved state. Anything unreadable (no storage, bad JSON, the wrong shape) reads as empty. */
-function loadState(): State {
+function loadState(key: string): State {
   const out: State = { ...EMPTY };
   try {
-    const raw = storage()?.getItem(STATE_KEY);
+    const raw = storage()?.getItem(key);
     const parsed: unknown = raw ? JSON.parse(raw) : null;
     if (!parsed || typeof parsed !== 'object') return out;
     const p = parsed as Record<string, unknown>;
@@ -105,11 +112,28 @@ function loadState(): State {
   return out;
 }
 
-function saveState(state: State): void {
+function saveState(key: string, state: State): void {
   try {
-    storage()?.setItem(STATE_KEY, JSON.stringify(state));
+    storage()?.setItem(key, JSON.stringify(state));
   } catch {
     // Full or blocked: everything still works for this visit.
+  }
+}
+
+/** Whether this device has signed up through a page's gate before (D-040). */
+function wasUnlocked(key: string): boolean {
+  try {
+    return storage()?.getItem(key) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function rememberUnlocked(key: string): void {
+  try {
+    storage()?.setItem(key, '1');
+  } catch {
+    // Full or blocked: the steps still open for this visit.
   }
 }
 
@@ -401,7 +425,11 @@ function fillPieces(
 }
 
 /** Each whole line named in `lineSlots`, followed by its field's trimmed value when there is one. */
-function fillLines(text: string, lineSlots: Record<string, FieldName>, values: Partial<Record<FieldName, string>>): string {
+function fillLines(
+  text: string,
+  lineSlots: Record<string, FieldName>,
+  values: Partial<Record<FieldName, string>>,
+): string {
   if (Object.keys(lineSlots).length === 0) return text;
   return text
     .split('\n')
@@ -432,14 +460,22 @@ function paint(pre: Element, pieces: Piece[]): void {
 function initFill(doc: Document, state: State, save: () => void): void {
   // Every prompt with slots, painted from its template AS RENDERED: its text nodes and <mark>s, so
   // what render.ts drew as a placeholder (and only that) is one here too.
-  const prompts: Array<{ pre: Element; pieces: Piece[]; slots: Record<string, FieldName>; lineSlots: Record<string, FieldName> }> = [];
+  const prompts: Array<{
+    pre: Element;
+    pieces: Piece[];
+    slots: Record<string, FieldName>;
+    lineSlots: Record<string, FieldName>;
+  }> = [];
   for (const block of Array.from(doc.querySelectorAll('[data-prompt]'))) {
     const id = block.getAttribute('data-prompt') ?? '';
     const slots = UI.slots[id];
     const lineSlots = UI.lineSlots[id] ?? {};
     const pre = block.querySelector('pre[data-prompt-text]');
     if (!slots || !pre) continue;
-    const pieces = Array.from(pre.childNodes).map((node) => ({ text: node.textContent ?? '', mark: node.nodeName === 'MARK' }));
+    const pieces = Array.from(pre.childNodes).map((node) => ({
+      text: node.textContent ?? '',
+      mark: node.nodeName === 'MARK',
+    }));
     prompts.push({ pre, pieces, slots, lineSlots });
   }
   const repaint = () => {
@@ -511,6 +547,15 @@ function initSteps(doc: Document, state: State, save: () => void): void {
   const last = screens.length - 1;
   let current = -1;
 
+  // THE GATE (D-040). A screen marked `data-gate` holds an opt-in; until this device has signed up,
+  // no screen after it can be shown (not by Next, a link, a saved place, or the address), and its own
+  // Next is hidden, so the form's button is the way on. /ai101 has none, and none of this applies.
+  const gate = doc.querySelector<HTMLElement>('section[data-screen][data-gate]');
+  const gateAt = gate ? screens.indexOf(gate) : -1;
+  const unlockKey = gate?.getAttribute('data-unlock-key') ?? '';
+  let locked = gateAt >= 0 && !wasUnlocked(unlockKey);
+  if (gate && !locked) gate.setAttribute('data-state', 'unlocked');
+
   /** Which screen holds the element with this id, or -1. */
   const screenOf = (id: string): number => {
     if (!id) return -1;
@@ -525,7 +570,10 @@ function initSteps(doc: Document, state: State, save: () => void): void {
    * element inside it to scroll to, for a link to one part of a screen.
    */
   const show = (i: number, focus: boolean, target: HTMLElement | null = null) => {
-    current = Math.max(0, Math.min(last, i));
+    const wanted = Math.max(0, Math.min(last, i));
+    current = locked ? Math.min(wanted, gateAt) : wanted;
+    // Held at the gate: whatever was linked to is on a screen that is not showing.
+    if (current !== wanted) target = null;
     screens.forEach((s, k) => {
       if (k === current) s.setAttribute('data-current', '');
       else s.removeAttribute('data-current');
@@ -535,7 +583,7 @@ function initSteps(doc: Document, state: State, save: () => void): void {
     count.textContent = s.getAttribute('data-count') ?? '';
     bar.style.width = `${Math.round((current / last) * 100)}%`;
     back.hidden = current === 0;
-    next.hidden = current === last;
+    next.hidden = current === last || (locked && current === gateAt);
     restart.hidden = current !== last;
     nextLabel.textContent = s.getAttribute('data-next') ?? '';
     state.i = current;
@@ -596,6 +644,18 @@ function initSteps(doc: Document, state: State, save: () => void): void {
     const i = screenOf(id);
     if (i >= 0) show(i, true, doc.getElementById(id));
   });
+
+  // The gate's form. Once the API has stored the sign-up: remembered on this device, the gate
+  // shows "You're in", and the next screen opens. If it cannot be wired, it posts natively and the
+  // API's 303 lands on the gated steps, which the CSS shows with `:target`.
+  if (gate) {
+    initSignUp(doc, 'gate-form', 'guide-error', () => {
+      rememberUnlocked(unlockKey);
+      locked = false;
+      gate.setAttribute('data-state', 'unlocked');
+      show(gateAt + 1, true);
+    });
+  }
 
   // Only now, with a screen current and every button wired: one screen at a time, and the header
   // and footer. Shown any earlier, a failure above would leave buttons that do nothing.
@@ -701,14 +761,27 @@ function fieldError(body: unknown): { field: WlField; message: string } | null {
 }
 
 function initWaitlist(doc: Document): void {
-  const form = doc.getElementById('waitlist-form') as HTMLFormElement | null;
   const section = doc.getElementById('waitlist');
   const joined = doc.getElementById('waitlist-joined');
-  const formError = doc.getElementById('waitlist-error');
+  if (!section || !joined) return;
+  initSignUp(doc, 'waitlist-form', 'waitlist-error', () => {
+    section.setAttribute('data-state', 'joined');
+    joined.focus();
+  });
+}
+
+/**
+ * Sends a sign-up form: the waitlist, or a gate's opt-in (D-040), whose form has only the name and
+ * email fields (the others read as empty, and its route ignores a phone or SMS answer anyway).
+ * `onJoined` runs once the API has stored the sign-up.
+ */
+function initSignUp(doc: Document, formId: string, errorId: string, onJoined: () => void): void {
+  const form = doc.getElementById(formId) as HTMLFormElement | null;
+  const formError = doc.getElementById(errorId);
   const submit = form?.querySelector('button[type="submit"]');
   // Without any one of these, or without `fetch`, leave the form alone: it still posts natively, and
   // the API's 303 brings the visitor back to the right line of this page.
-  if (!form || !section || !joined || !formError || !submit || typeof fetch !== 'function') return;
+  if (!form || !formError || !submit || typeof fetch !== 'function') return;
 
   const input = (name: string): HTMLInputElement | null => {
     const el = form.elements.namedItem(name);
@@ -796,8 +869,7 @@ function initWaitlist(doc: Document): void {
     })
       .then((res) => {
         if (res.ok) {
-          section.setAttribute('data-state', 'joined');
-          joined.focus();
+          onJoined();
           return;
         }
         if (res.status !== 400) return failed();
@@ -816,8 +888,9 @@ function initWaitlist(doc: Document): void {
 
 function boot(doc: Document): void {
   const toast = toaster(doc.getElementById('ai101-live'));
-  const state = loadState();
-  const save = () => saveState(state);
+  const key = doc.querySelector('main')?.getAttribute('data-state-key') || STATE_KEY;
+  const state = loadState(key);
+  const save = () => saveState(key, state);
   // The fields first: they fill the <pre>s that Copy & Open reads on click.
   guard(() => initFill(doc, state, save));
   guard(() => initCopyOpen(doc, toast));

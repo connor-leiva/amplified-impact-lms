@@ -526,6 +526,7 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // the same reasons, and refusing what their pages do not show (phone, SMS).
   { path: '/api/task-sync-starter', methods: 'POST', guard: 'open' },
   { path: '/api/ops-time-audit', methods: 'POST', guard: 'open' },
+  { path: '/api/voice-profile', methods: 'POST', guard: 'open' },
   // D-028's public page and the spec's three redirects to it. Not `/api/*`, so outside the
   // checklist's 401 rule by construction; `page` says so, and the sweep asserts the prefix.
   { path: '/ai101', methods: 'GET, HEAD', guard: 'page' },
@@ -546,6 +547,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/task-sync-starter/', methods: 'GET, HEAD', guard: 'page' },
   { path: '/ops-time-audit', methods: 'GET, HEAD', guard: 'page' },
   { path: '/ops-time-audit/', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/voice-profile', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/voice-profile/', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -1014,7 +1017,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             }),
           ],
           // The guides' opt-ins (D-038, D-039), the same way: a filled honeypot writes no row.
-          ...['/api/task-sync-starter', '/api/ops-time-audit'].map((url): [string, Promise<{ statusCode: number }>] => [
+          ...['/api/task-sync-starter', '/api/ops-time-audit', '/api/voice-profile'].map((url): [string, Promise<{ statusCode: number }>] => [
             url,
             app.inject({
               method: 'POST',
@@ -1046,6 +1049,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/task-sync-starter',
           '/task-sync-starter/',
           '/terms',
+          '/voice-profile',
+          '/voice-profile/',
           '/waitlist',
           '/waitlist/',
         ]);
@@ -1075,10 +1080,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     expect(EXECUTED.unauthenticated).toBe(11);
-    // 9, not 6: D-028's public waitlist joined the exemptions, then the two guides' opt-ins (D-038,
-    // D-039), each probed like the others.
-    expect(EXECUTED.exempt).toBe(9);
+    // 10, not 6: D-028's public waitlist joined the exemptions, then the three guides' opt-ins
+    // (D-038, D-039, D-040), each probed like the others.
+    expect(EXECUTED.exempt).toBe(10);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(187);
+    expect(total).toBe(188);
   });
 });

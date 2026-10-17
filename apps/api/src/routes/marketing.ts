@@ -34,7 +34,8 @@ import type { App } from '../app';
  * without them here www sent a typed `/AI101` to the placeholder instead (found after the 2026-10-08
  * deploy; learn was always right). `/waitlist`, the short link to the page's waitlist screen
  * (D-037), for the same reason. The free guides' landing pages, which ManyChat sends people to:
- * `/task-sync-starter` (D-038) and `/ops-time-audit` (D-039), every slug in `routes/guide-list.ts`
+ * `/task-sync-starter` (D-038), `/ops-time-audit` (D-039) and `/voice-profile` (D-040), every slug in
+ * `routes/guide-list.ts`
  * (a test holds the two together). Their PDFs, under `/downloads/`, are files, so they pass on their
  * own. `/terms` and `/privacy` because the waitlist on it links
  * to them, and a visitor on www must land on the page, not on the placeholder (`routes/legal.ts`);
@@ -43,7 +44,7 @@ import type { App } from '../app';
  * redirect would fail a deploy that is perfectly healthy — and so does the waitlist the page posts to.
  */
 const PUBLIC_PREFIX =
-  /^\/((ai101|AI101|ai-101|waitlist|task-sync-starter|ops-time-audit)(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
+  /^\/((ai101|AI101|ai-101|waitlist|task-sync-starter|ops-time-audit|voice-profile)(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
 
 /** The placeholder's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);

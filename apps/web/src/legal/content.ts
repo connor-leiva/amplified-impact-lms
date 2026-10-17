@@ -1,5 +1,6 @@
 // Every word on /terms and /privacy, the public legal pages behind the /ai101 waitlist and, since
-// 2026-10-13, the free guides' opt-ins (/task-sync-starter, D-038; /ops-time-audit, D-039).
+// 2026-10-13, the free guides' opt-ins (/task-sync-starter, D-038; /ops-time-audit, D-039;
+// /voice-profile, D-040).
 //
 // Drafted by an AI assistant, not a lawyer, for Connor's review; he supplied every fact the draft had
 // left as a [bracketed placeholder] on 2026-10-08 (the entities, names, contact, address, governing
@@ -17,10 +18,10 @@
 // too. The waitlist can record the version a visitor agreed to.
 
 /** The version string shown on both pages. A date, so a record of "agreed to 2026-10-08" reads. */
-export const LEGAL_VERSION = '2026-10-14';
+export const LEGAL_VERSION = '2026-10-17';
 
 /** When these words take effect, as a machine date and as the page shows it. */
-export const EFFECTIVE = { iso: '2026-10-14', label: 'October 14, 2026' } as const;
+export const EFFECTIVE = { iso: '2026-10-17', label: 'October 17, 2026' } as const;
 
 /**
  * True until a person has reviewed the pages and filled every placeholder. While true, both pages
@@ -32,14 +33,18 @@ export const DRAFT: boolean = false;
 export const SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring, and Connor';
 
 /**
- * Who a free guide's opt-in agrees to hear from (D-039): fewer senders than the waitlist, because
- * the guides are Connor's own. Exactly as the guide pages name them (`GUIDE_SENDERS` in
- * `src/guides/content.ts`, held equal by a test).
+ * Who the two PDF guides' opt-ins agree to hear from (D-039): fewer senders than the waitlist,
+ * because those guides are Connor's own. Exactly as their pages name them (`GUIDE_SENDERS` in
+ * `src/guides/content.ts`, held equal by a test). The AI Voice Profile Setup, which Spring posts,
+ * names the waitlist's senders, `SENDERS` (D-040).
  */
 export const GUIDE_SENDERS = 'Amplified Impact and Connor';
 
-/** The free guides, as these pages name them. */
-const GUIDE_NAMES = 'the Task Sync Starter Kit at /task-sync-starter and The Ops Time Audit at /ops-time-audit';
+/** The two PDF guides, and then every free guide, as these pages name them. */
+const PDF_GUIDES = 'the Task Sync Starter Kit and The Ops Time Audit';
+const VOICE_GUIDE = 'the AI Voice Profile Setup';
+const GUIDE_NAMES =
+  'the Task Sync Starter Kit at /task-sync-starter, The Ops Time Audit at /ops-time-audit, and the AI Voice Profile Setup at /voice-profile';
 
 /**
  * Who a mobile number is shared with, said ONCE so the Terms and the Privacy Policy cannot disagree
@@ -63,8 +68,10 @@ export const CONSENT = {
   join:
     `By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December ` +
     `agent track and other programs from ${SENDERS}. Unsubscribe anytime.`,
-  /** The line under every free guide's button (D-038, D-039). Those pages have no SMS box. */
+  /** The line under the PDF guides' button (D-038, D-039). Those pages have no SMS box. */
   guides: `By signing up, you agree to our Terms of Service and Privacy Policy and to emails from ${GUIDE_SENDERS}. Unsubscribe anytime.`,
+  /** The line under the AI Voice Profile Setup's button (D-040). No SMS box there either. */
+  voice: `By signing up, you agree to our Terms of Service and Privacy Policy and to emails from ${SENDERS}. Unsubscribe anytime.`,
 } as const;
 
 /** The SMS program's name, as carriers see it registered. */
@@ -231,15 +238,19 @@ export const TERMS: LegalDoc = {
       heading: 'Free guides',
       blocks: [
         {
-          p: `Our free guides are PDFs: ${GUIDE_NAMES}. When you get one, you agree to these terms and our Privacy Policy. You also agree to get emails from ${GUIDE_SENDERS}.`,
+          p: `Our free guides are ${GUIDE_NAMES}. When you get one, you agree to these terms and our Privacy Policy. You also agree to get emails from the senders named under its button.`,
         },
-        { quote: CONSENT.guides, label: 'The words under the button on each guide’s page' },
+        {
+          quote: CONSENT.guides,
+          label: 'The words under the button for the Task Sync Starter Kit and The Ops Time Audit',
+        },
+        { quote: CONSENT.voice, label: 'The words under the button for the AI Voice Profile Setup' },
         {
           ul: [
             'Getting a guide is free. It does not enroll you in a program or commit you to buy anything.',
             'The guides are for education only. What these terms say about the workshop page applies to them too: we do not promise any result, AI tools make mistakes, you are responsible for what you send and publish, and nothing in them is legal, tax, financial, or compliance advice.',
             'You may use and change a guide for your own business. Please do not sell it, or publish it as your own.',
-            `Only ${GUIDE_SENDERS} email you because you got a guide.`,
+            `For ${PDF_GUIDES}, only ${GUIDE_SENDERS} email you because you got one. For ${VOICE_GUIDE}, ${SENDERS} may.`,
             'The guide pages have no SMS box. Getting a guide never signs you up for texts.',
             'You can stop our emails at any time. See Emails below.',
           ],
@@ -361,7 +372,7 @@ export const PRIVACY: LegalDoc = {
     'What the AI 101 workshop page and our free guide pages collect, how we use it, who we share it with, and your choices.',
   heading: 'Privacy Policy',
   intro: [
-    'This policy explains what we collect on the AI 101 workshop page at /ai101 and the pages for our free guides (/task-sync-starter and /ops-time-audit), how we use it, who we share it with, and your choices. It covers those pages, the December waitlist, the guides, and the emails and texts we send to people on our lists. “We,” “us,” and “our” mean Amplified Impact and Spring B and its affiliated companies, as our ',
+    'This policy explains what we collect on the AI 101 workshop page at /ai101 and the pages for our free guides (/task-sync-starter, /ops-time-audit and /voice-profile), how we use it, who we share it with, and your choices. It covers those pages, the December waitlist, the guides, and the emails and texts we send to people on our lists. “We,” “us,” and “our” mean Amplified Impact and Spring B and its affiliated companies, as our ',
     { link: 'Terms of Service', href: '/terms#who-we-are' },
     ' define them.',
   ],
@@ -406,7 +417,7 @@ export const PRIVACY: LegalDoc = {
           ul: [
             'What you type into the fields that fill in the prompts, like your “About you” answers, and your progress on the page are saved in your own browser’s storage, so they are there when you come back. They are never sent to us. Clearing your browser’s data for the site removes them.',
             'When you copy a prompt, it goes to your device’s clipboard, not to us.',
-            'On a guide’s page, your browser remembers that you got the guide, so the download is there when you come back. That note stays in your browser and is never sent to us.',
+            'On a guide’s page, your browser remembers that you got the guide, so what it opened is there when you come back. That note stays in your browser and is never sent to us.',
             'Our pages load nothing from other companies. They have no analytics, no tracking cookies, no ad pixels, and no outside fonts.',
           ],
         },
@@ -422,7 +433,7 @@ export const PRIVACY: LegalDoc = {
         {
           ul: [
             `To email you about the December agent track and other programs from ${SENDERS}.`,
-            `If you got a guide, to email you about it and about our other programs and resources from ${GUIDE_SENDERS}.`,
+            `If you got a guide, to email you about it and about our other programs and resources: from ${GUIDE_SENDERS} for ${PDF_GUIDES}, and from ${SENDERS} for ${VOICE_GUIDE}.`,
             'To text you about the same programs, but only if you checked the SMS box.',
             'To keep a record of your consent and your opt-outs, so we can honor them.',
             'To learn which links and events bring people to our lists, using the link tag.',
@@ -456,7 +467,7 @@ export const PRIVACY: LegalDoc = {
       blocks: [
         {
           ul: [
-            `The senders you agreed to hear from. For the waitlist, that is ${SENDERS}. For a free guide, it is ${GUIDE_SENDERS}.`,
+            `The senders you agreed to hear from. For the waitlist and ${VOICE_GUIDE}, that is ${SENDERS}. For ${PDF_GUIDES}, it is ${GUIDE_SENDERS}.`,
             'Service providers that do work for us. They host the site and its database (for example, Railway), deliver email (for example, Resend), and keep our contact list and send our emails and texts (a customer relationship tool, for example GoHighLevel). We give them only what they need for that work.',
             'Others, when the law requires it, or to protect our rights or anyone’s safety.',
             'A buyer or successor, if a sender’s business is sold or merged. This policy would still apply to your information.',

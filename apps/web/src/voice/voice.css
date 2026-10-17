@@ -1,0 +1,64 @@
+/* /voice-profile, the voice profile setup on its own. DECISIONS.md D-040.
+
+   /ai101's stylesheet whole, because the screens are /ai101's own (src/voice/render.ts builds them
+   from its parts), plus the two things this page adds: the gate, drawn as /ai101's dark waitlist card
+   inside the welcome screen, and `.gated`, the steps the gate keeps back.
+
+   Inlined into the page at build time (vite-plugin.ts), @imports included.
+   `scripts/check-css-colors.mjs` scans it. */
+
+@import '../ai101/ai101.css';
+
+/* --- The gate ------------------------------------------------------------------------------------ */
+
+.gate {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 22px;
+  border-radius: 18px;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.gate-title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Signed up: main.ts sets `data-state` on the welcome screen. "You're in" takes the form's place,
+   and the footer's Start takes over. */
+.screen[data-state='unlocked'] .gate .wl-success {
+  display: block;
+}
+.screen[data-state='unlocked'] .gate .wl-form {
+  display: none;
+}
+
+/* --- The steps the gate keeps back ---------------------------------------------------------------- */
+
+/* Without the script they stay hidden until the form's 303 lands on `#unlocked`; with it, main.ts
+   shows one screen at a time and never one past the gate before the visitor signs up. A box, not
+   `display: contents`, so the browser can scroll to the target. */
+.gated {
+  display: none;
+  flex-direction: column;
+  gap: 24px;
+}
+.gated:target,
+.steps-on .gated {
+  display: flex;
+}
+/* Set off from the welcome screen, as every screen after the first is on /ai101 without the script. */
+html:not(.steps-on) .gated > .screen:first-child {
+  padding-top: 32px;
+  border-top: 1px solid var(--ai101-rule);
+}
+/* No script, after the 303: the gate says so. Separate, so a browser without :has() keeps the rest. */
+.page:has(.gated:target) .gate .wl-success {
+  display: block;
+}
+.page:has(.gated:target) .gate .wl-form {
+  display: none;
+}

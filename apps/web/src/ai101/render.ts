@@ -27,10 +27,23 @@
 // Copying reads `pre[data-prompt-text].textContent`, so that text IS the prompt: the template adds
 // nothing inside the <pre> (no leading newline, which the parser drops, no indentation), and the
 // placeholder <mark>s add no characters of their own.
+//
+// SHARED WITH /voice-profile (D-040). The building blocks below are exported, and the screen,
+// header and footer helpers take the screen list, so `src/voice/render.ts` composes the voice profile
+// setup from the same parts, and `main.ts` runs it the same way.
 
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
-import { PAGE, UI, type CopyOpen, type FillField, type Inline, type LinkButton, type Prompt } from './content';
+import {
+  PAGE,
+  UI,
+  type CopyOpen,
+  type FillField,
+  type Inline,
+  type LinkButton,
+  type Prompt,
+  type Screen,
+} from './content';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
@@ -47,11 +60,13 @@ export function esc(value: string): string {
  */
 export function highlightPlaceholders(text: string, literal: readonly string[] = []): string {
   const plain = new Set(literal.map(esc));
-  return esc(text).replace(/\[[^\]\n]*\]/g, (span) => (plain.has(span) ? span : `<mark class="placeholder">${span}</mark>`));
+  return esc(text).replace(/\[[^\]\n]*\]/g, (span) =>
+    plain.has(span) ? span : `<mark class="placeholder">${span}</mark>`,
+  );
 }
 
 /** Every link that leaves the site opens in a new tab, and gives the new page no handle on this one. */
-const NEW_TAB = 'target="_blank" rel="noopener"';
+export const NEW_TAB = 'target="_blank" rel="noopener"';
 
 /**
  * One run of inline copy (`content.ts`'s `Inline`). Every string is escaped here, so the only tags on
@@ -72,7 +87,7 @@ export function inline(segments: readonly Inline[]): string {
  * brand's own (`design-reference/brand`, held byte-identical by `scripts/reference-tokens.mjs`); here
  * they lose their fixed size, so the CSS sizes them, and gain an accessible name.
  */
-function logo(svg: string, alt: string, className: string): string {
+export function logo(svg: string, alt: string, className: string): string {
   return svg
     .trim()
     .replace(/\swidth="[^"]*"\s+height="[^"]*"/, '')
@@ -83,7 +98,7 @@ function logo(svg: string, alt: string, className: string): string {
  * The honeypot's label. The one string on the page that is not in `content.ts`, because no person
  * ever sees it: the field is off-screen and `aria-hidden`, so only a form-filling bot reads it.
  */
-const HONEYPOT_LABEL = 'Leave this field empty';
+export const HONEYPOT_LABEL = 'Leave this field empty';
 
 /** The <head> lines that come from `content.ts`: the title and the link-preview metadata. */
 export function renderAi101Head(): string {
@@ -103,7 +118,7 @@ export function renderAi101Head(): string {
 // --- Building blocks ------------------------------------------------------------------------------
 
 /** A link drawn as a button: `primary` (filled forest) or `outline`. */
-function linkButton(button: LinkButton, kind: 'primary' | 'outline', extra = ''): string {
+export function linkButton(button: LinkButton, kind: 'primary' | 'outline', extra = ''): string {
   return `<a class="btn btn-${kind}" href="${esc(button.href)}" ${NEW_TAB}${extra}>${esc(button.label)}</a>`;
 }
 
@@ -112,7 +127,7 @@ function linkButton(button: LinkButton, kind: 'primary' | 'outline', extra = '')
  * with it, `main.ts` copies the prompt in `data-copy-open`'s block first and shows `data-toast`.
  * Described by its prompt's (visually hidden) label: two of them are "Copy & Open Claude".
  */
-function copyOpenButton(open: CopyOpen, promptBlockId: string): string {
+export function copyOpenButton(open: CopyOpen, promptBlockId: string): string {
   return (
     `<a class="btn btn-primary" href="${esc(open.href)}" ${NEW_TAB} data-copy-open="${esc(promptBlockId)}" ` +
     `aria-describedby="${esc(promptBlockId)}-label" data-app="${esc(open.app)}" data-toast="${esc(open.toast)}">` +
@@ -125,7 +140,7 @@ function copyOpenButton(open: CopyOpen, promptBlockId: string): string {
  * a link can point at; its label is visually hidden (it names the prompt for the buttons that copy
  * it). See THE <pre> CONTRACT above.
  */
-function promptBlock(prompt: Prompt, id: string, summary: string): string {
+export function promptBlock(prompt: Prompt, id: string, summary: string): string {
   return [
     `<div class="prompt" id="${esc(id)}" data-prompt="${esc(prompt.id)}">`,
     `<p class="visually-hidden" id="${esc(id)}-label">${esc(prompt.label)}</p>`,
@@ -138,17 +153,17 @@ function promptBlock(prompt: Prompt, id: string, summary: string): string {
 }
 
 /** A white card. */
-const card = (inner: string, extra = '') => `<div class="card${extra ? ` ${extra}` : ''}">${inner}</div>`;
+export const card = (inner: string, extra = '') => `<div class="card${extra ? ` ${extra}` : ''}">${inner}</div>`;
 
 /**
  * A callout with a colored dot: `tip` (green) or `warn` (terracotta). The words are one <span>, so
  * bold runs inside them stay in the sentence instead of becoming columns of the flex row.
  */
-const callout = (inner: string, tone: 'tip' | 'warn', strong = false) =>
+export const callout = (inner: string, tone: 'tip' | 'warn', strong = false) =>
   `<p class="callout callout-${tone}${strong ? ' callout-strong' : ''}"><span>${inner}</span></p>`;
 
 /** A card of numbered steps, the numbers in mono: "Then, in the new chat: 1 Paste. 2 … 3 Send." */
-function stepsCard(heading: string | null, steps: readonly (readonly Inline[])[]): string {
+export function stepsCard(heading: string | null, steps: readonly (readonly Inline[])[]): string {
   // One <span> per step, for the same reason as `callout`'s.
   const items = steps.map((s) => `<li><span>${inline(s)}</span></li>`).join('');
   const head = heading ? `<p class="card-title">${esc(heading)}</p>` : '';
@@ -156,13 +171,14 @@ function stepsCard(heading: string | null, steps: readonly (readonly Inline[])[]
 }
 
 /** Steps in forest circles: "Today you'll build two things" and "How a week works". */
-const circled = (items: string[]) => `<ol class="circled" role="list">${items.map((i) => `<li>${i}</li>`).join('')}</ol>`;
+export const circled = (items: string[]) =>
+  `<ol class="circled" role="list">${items.map((i) => `<li>${i}</li>`).join('')}</ol>`;
 
 /**
  * Fields that fill a prompt's placeholders as they are typed. `hidden data-js-only`: without the
  * script nothing would read them, and a field that does nothing is worse than none.
  */
-function fillFields(fields: readonly FillField[]): string {
+export function fillFields(fields: readonly FillField[]): string {
   const rows = fields.map((f) => {
     const id = `field-${esc(f.name)}`;
     const hint = f.hint ? ` <span class="field-hint">${esc(f.hint)}</span>` : '';
@@ -180,19 +196,25 @@ function fillFields(fields: readonly FillField[]): string {
  * it is current, so the script needs nothing from `content.ts`. The heading takes focus when the
  * screen is entered (`tabindex="-1"`), which is what a screen reader then reads.
  */
-function screen(index: number, body: string[], className = ''): string {
-  const s = PAGE.screens[index]!;
+export function screenSection(s: Screen, index: number, body: string[], className = '', extraAttrs = ''): string {
   const attrs =
     ` data-screen="${index}" data-stage="${esc(s.stage)}"` +
     (s.count ? ` data-count="${esc(s.count)}"` : '') +
-    (s.next ? ` data-next="${esc(s.next)}"` : '');
+    (s.next ? ` data-next="${esc(s.next)}"` : '') +
+    extraAttrs;
   const cls = `screen${className ? ` ${className}` : ''}`;
-  return [`<section id="${esc(s.anchor)}" class="${cls}" aria-labelledby="${esc(s.anchor)}-heading"${attrs}>`, ...body, `</section>`].join(
-    '\n',
-  );
+  return [
+    `<section id="${esc(s.anchor)}" class="${cls}" aria-labelledby="${esc(s.anchor)}-heading"${attrs}>`,
+    ...body,
+    `</section>`,
+  ].join('\n');
 }
 
-const h2 = (anchor: string, text: string) => `<h2 id="${esc(anchor)}-heading" tabindex="-1">${esc(text)}</h2>`;
+/** One of this page's screens, by its place in `PAGE.screens`. */
+const screen = (index: number, body: string[], className = '') =>
+  screenSection(PAGE.screens[index]!, index, body, className);
+
+export const h2 = (anchor: string, text: string) => `<h2 id="${esc(anchor)}-heading" tabindex="-1">${esc(text)}</h2>`;
 const anchorOf = (index: number) => PAGE.screens[index]!.anchor;
 
 // --- The screens ----------------------------------------------------------------------------------
@@ -297,7 +319,9 @@ function step2(): string {
     h2(anchorOf(5), s.heading),
     `<p class="lede">${esc(s.intro)}</p>`,
     `<ul class="tiles" role="list">${s.layers
-      .map((l) => `<li class="card tile"><strong>${esc(l.title)}</strong><span class="muted">${esc(l.body)}</span></li>`)
+      .map(
+        (l) => `<li class="card tile"><strong>${esc(l.title)}</strong><span class="muted">${esc(l.body)}</span></li>`,
+      )
       .join('')}</ul>`,
     callout(esc(s.warning), 'warn', true),
   ]);
@@ -378,7 +402,11 @@ function week(): string {
 }
 
 /** A waitlist input with a visually hidden label (the design shows the placeholder) and its error line. */
-function waitlistField(name: 'firstName' | 'email' | 'phone' | 'brokerage', placeholder: string, attrs: string): string {
+function waitlistField(
+  name: 'firstName' | 'email' | 'phone' | 'brokerage',
+  placeholder: string,
+  attrs: string,
+): string {
   const id = `waitlist-${name}`;
   return (
     `<div class="wl-field"><label class="visually-hidden" for="${id}">${esc(placeholder)}</label>` +
@@ -440,8 +468,8 @@ function waitlist(): string {
  * The sticky progress header. Filled and shown by `main.ts` once the step-through is running
  * (`data-steps-chrome`), never before: without it there is no "current" screen to report.
  */
-function stepsHeader(): string {
-  const first = PAGE.screens[0]!;
+export function stepsHeader(screens: readonly Screen[] = PAGE.screens): string {
+  const first = screens[0]!;
   return [
     `<header class="steps-head" hidden data-steps-chrome>`,
     `<div class="steps-head-inner">`,
@@ -453,9 +481,8 @@ function stepsHeader(): string {
 }
 
 /** The fixed footer: Back, the big green Next (its label is the screen's), and Start Over on the last. */
-function stepsNav(): string {
-  const n = PAGE.nav;
-  const first = PAGE.screens[0]!;
+export function stepsNav(screens: readonly Screen[] = PAGE.screens, n: typeof PAGE.nav = PAGE.nav): string {
+  const first = screens[0]!;
   return [
     `<nav class="steps-nav" aria-label="${esc(n.label)}" hidden data-steps-chrome>`,
     `<div class="steps-nav-inner">`,
