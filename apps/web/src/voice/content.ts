@@ -51,7 +51,7 @@ export const VOICE = {
     eyebrow: 'Free Guide · AI 101 for Agents',
     title: 'Sounds Like You',
     intro:
-      'Teach ChatGPT or Claude to write the way you actually write. This is the voice profile setup from AI 101 for Agents with Spring and Connor, one screen at a time. Phone or laptop, free.',
+      'Teach ChatGPT or Claude your voice once, and every post, email and caption it drafts starts out sounding like you. One step at a time, on your phone or laptop. Free.',
   },
 
   /** The opt-in, on the welcome screen. Every screen after it opens once the visitor signs up. */
