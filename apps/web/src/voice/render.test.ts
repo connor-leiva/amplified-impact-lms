@@ -136,11 +136,11 @@ describe('the gate', () => {
     expect($$('input[name="phone"], input[name="smsConsent"], input[type="tel"], input[type="checkbox"]')).toEqual([]);
   });
 
-  it('names Spring among the senders, because Spring posts it, exactly as the Terms quote (D-040)', () => {
+  it('names Amplified Impact, LLC alone, exactly as the Terms quote (D-041)', () => {
     expect(text($('#gate-form .wl-legal'))).toBe(
-      'By signing up, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor. Unsubscribe anytime.',
+      'By signing up, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime.',
     );
-    expect(text($('#gate-form .wl-legal'))).toBe(CONSENT.voice);
+    expect(text($('#gate-form .wl-legal'))).toBe(CONSENT.guides);
     expect(VOICE_SENDERS).toBe(SENDERS);
     expect($$('#gate-form .wl-legal a').map((a) => [a.getAttribute('href'), a.getAttribute('target')])).toEqual([
       ['/terms', '_blank'],

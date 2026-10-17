@@ -60,9 +60,9 @@ const read = (path: string) => readFileSync(resolve(HERE, path), 'utf8');
 // --- The form's words, typed out: the oracle `CONSENT` is held to -----------------------------------
 
 const SMS_LABEL =
-  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+  "Text me about the December agent track and other programs from Amplified Impact, LLC at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
 const JOIN_LINE =
-  'By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor. Unsubscribe anytime.';
+  'By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December agent track and other programs from Amplified Impact, LLC. Unsubscribe anytime.';
 
 describe.each(DOCS.map((doc) => [doc.path, doc] as const))('%s · outline and landmarks', (_path, doc) => {
   const page = parse(doc);
@@ -220,7 +220,7 @@ describe('what the pages promise, against the waitlist form', () => {
   const privacyText = privacy.body.textContent ?? '';
 
   it('quotes the form’s consent wording exactly', () => {
-    expect(SENDERS).toBe('Amplified Impact, Spring B and its affiliated companies, Spring, and Connor');
+    expect(SENDERS).toBe('Amplified Impact, LLC');
     expect(CONSENT.sms).toBe(SMS_LABEL);
     expect(CONSENT.join).toBe(JOIN_LINE);
     const quotes = all(terms, 'figure.quote blockquote').map(text);

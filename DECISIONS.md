@@ -1847,7 +1847,8 @@ that Spring is going to post."
 - **Server:** `voice-profile` joins `GUIDE_SLUGS`: the page and its `/voice-profile/` 301, `POST
   /api/voice-profile` (SMS stripped, D-038), source `voice-profile`, GoHighLevel tag `voice-profile`
   plus the channel tag, let through on www. Its no-JS success lands on `#unlocked`, not `#download`.
-- **Senders: the waitlist's, Spring among them**, because Spring posts it: "By signing up, you agree
+- **Senders** (superseded the same day, before it shipped, by D-041: Amplified Impact, LLC alone):
+  the waitlist's, Spring among them, because Spring posts it: "By signing up, you agree
   to our Terms of Service and Privacy Policy and to emails from Amplified Impact, Spring B and its
   affiliated companies, Spring, and Connor. Unsubscribe anytime." (`CONSENT.voice`). The PDF guides
   keep Amplified Impact and Connor only (D-039). The Terms' "Free guides" section quotes both lines
@@ -1857,3 +1858,31 @@ that Spring is going to post."
   and the gate one opt-in module) is split into a chunk of its own, which an inlined script imports
   by a URL that does not exist: every page's script broke in that build. Nothing shipped, and
   `ai101Inline` now refuses to build a page whose script imports anything.
+
+## D-041 · Every sign-up names Amplified Impact, LLC alone
+
+**Date:** 2026-10-17
+**Approved by:** Connor Leiva, in chat on 2026-10-17, with the draft of the new Privacy Policy: "the
+sign-up agrees to hear from items all need updated to remove specific references to Spring and Conor.
+It should be Amplified Impact, LLC."
+**Scope:** the sender strings in `apps/web/src/{ai101,guides,voice,legal}/content.ts` and
+`SMS_CONSENT_TEXT` in `apps/api/src/routes/ai101.ts`, and their tests. Amends D-034, D-035, D-039 and
+D-040.
+
+- **One sender everywhere a visitor agrees to hear from us:** the /ai101 waitlist's line under Join,
+  its SMS box (and the API's stored copy of those words), and every free guide's line (/task-sync-starter,
+  /ops-time-audit, /voice-profile), which are now one identical line: "By signing up, you agree to our
+  Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime."
+  Before: the waitlist named Amplified Impact, Spring B and its affiliated companies, Spring, and
+  Connor; the PDF guides, Amplified Impact and Connor.
+- **The current Terms and Privacy Policy say the same**, and nothing that contradicts it: their quotes
+  of the lines, one guide sender in place of two lists, the SMS sharing sentence for one sender, and
+  the "Spring" and "Connor" definitions and the sentence that named them as senders removed. Their
+  "we" (Amplified Impact and Spring B and its affiliated companies) is left for the new Privacy Policy
+  Connor is drafting, which defines "we" as Amplified Impact, LLC and covers marketing from its
+  Affiliated Companies. Version 2026-10-17, unchanged: nothing dated 2026-10-17 had shipped.
+- **Not changed:** copy that describes rather than consents (/ai101's and /voice-profile's "with
+  Spring and Connor", the guides' "By Connor Leiva").
+- **The SMS words changed while the waitlist form is live**, which D-034 warns against: a tab opened
+  before the deploy and submitted after it is stored with the new words. The waitlist is past its
+  event and the box is optional, so the risk is a handful of sign-ups at most.

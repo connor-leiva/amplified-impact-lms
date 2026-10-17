@@ -29,29 +29,24 @@ export const EFFECTIVE = { iso: '2026-10-17', label: 'October 17, 2026' } as con
  */
 export const DRAFT: boolean = false;
 
-/** Who sends the emails and texts, exactly as the waitlist form names them. */
-export const SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring, and Connor';
-
 /**
- * Who the two PDF guides' opt-ins agree to hear from (D-039): fewer senders than the waitlist,
- * because those guides are Connor's own. Exactly as their pages name them (`GUIDE_SENDERS` in
- * `src/guides/content.ts`, held equal by a test). The AI Voice Profile Setup, which Spring posts,
- * names the waitlist's senders, `SENDERS` (D-040).
+ * Who sends the emails and texts, exactly as every sign-up names it: the waitlist, its SMS box and
+ * every free guide (D-041). Amplified Impact, LLC alone; until 2026-10-17 the waitlist named Spring B
+ * and its affiliated companies, Spring and Connor too, and the PDF guides Amplified Impact and Connor.
+ * The pages hold their own copies (`src/ai101`, `src/guides`, `src/voice`), and tests hold them equal.
  */
-export const GUIDE_SENDERS = 'Amplified Impact and Connor';
+export const SENDERS = 'Amplified Impact, LLC';
 
-/** The two PDF guides, and then every free guide, as these pages name them. */
-const PDF_GUIDES = 'the Task Sync Starter Kit and The Ops Time Audit';
-const VOICE_GUIDE = 'the AI Voice Profile Setup';
+/** Every free guide, as these pages name them. */
 const GUIDE_NAMES =
   'the Task Sync Starter Kit at /task-sync-starter, The Ops Time Audit at /ops-time-audit, and the AI Voice Profile Setup at /voice-profile';
 
 /**
  * Who a mobile number is shared with, said ONCE so the Terms and the Privacy Policy cannot disagree
  * (they did, in the first draft: "anyone" on one page, "any other third party or affiliate" on the
- * other). Whether one texting campaign can cover every named sender is D-035's open question.
+ * other). One sender since D-041, which settles D-035's question of one campaign for several.
  */
-export const SMS_SHARING = `Your consent covers texts from ${SENDERS}. We share your mobile number and your consent among those senders only so they can send the texts you agreed to, and with the service providers that deliver them. We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.`;
+export const SMS_SHARING = `Your consent covers texts from ${SENDERS}. We use your mobile number and your consent only to send the texts you agreed to, and share them only with the service providers that deliver our texts. We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.`;
 
 /**
  * The waitlist form's consent wording, VERBATIM. Another file renders the form; these pages quote
@@ -68,10 +63,8 @@ export const CONSENT = {
   join:
     `By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December ` +
     `agent track and other programs from ${SENDERS}. Unsubscribe anytime.`,
-  /** The line under the PDF guides' button (D-038, D-039). Those pages have no SMS box. */
-  guides: `By signing up, you agree to our Terms of Service and Privacy Policy and to emails from ${GUIDE_SENDERS}. Unsubscribe anytime.`,
-  /** The line under the AI Voice Profile Setup's button (D-040). No SMS box there either. */
-  voice: `By signing up, you agree to our Terms of Service and Privacy Policy and to emails from ${SENDERS}. Unsubscribe anytime.`,
+  /** The line under every free guide's button (D-038, D-039, D-040). Those pages have no SMS box. */
+  guides: `By signing up, you agree to our Terms of Service and Privacy Policy and to emails from ${SENDERS}. Unsubscribe anytime.`,
 } as const;
 
 /** The SMS program's name, as carriers see it registered. */
@@ -87,8 +80,6 @@ export const SMS_PROGRAM = 'Amplified Impact updates';
 const P = {
   aiName: 'Amplified Impact, LLC',
   sbName: 'SB Coaching, LLC',
-  spring: 'Spring Bengtzen',
-  connor: 'Connor Leiva',
   contactEmail: 'admin@amplifiedimpact.io',
   privacyEmail: 'admin@amplifiedimpact.io',
   address: '1173 N Shepard Crk Pkwy Ste A, Farmington, UT 84025',
@@ -176,11 +167,10 @@ export const TERMS: LegalDoc = {
             `“Spring B” means ${P.sbName}. Its “affiliated companies” are the companies that ` +
             'control Spring B, are controlled by Spring B, or are under common control with it.',
         },
-        { p: `“Spring” means ${P.spring}. “Connor” means ${P.connor}. They host the AI 101 session.` },
         {
           p:
-            '“We,” “us,” and “our” mean Amplified Impact and Spring B and its affiliated companies. When Spring or ' +
-            'Connor email or text you about our programs, these terms apply to those messages too. “You” means the ' +
+            '“We,” “us,” and “our” mean Amplified Impact and Spring B and its affiliated companies. When we ' +
+            'email or text you about our programs, these terms apply to those messages too. “You” means the ' +
             'person using our pages, joining the waitlist, or getting a guide.',
         },
       ],
@@ -238,19 +228,14 @@ export const TERMS: LegalDoc = {
       heading: 'Free guides',
       blocks: [
         {
-          p: `Our free guides are ${GUIDE_NAMES}. When you get one, you agree to these terms and our Privacy Policy. You also agree to get emails from the senders named under its button.`,
+          p: `Our free guides are ${GUIDE_NAMES}. When you get one, you agree to these terms and our Privacy Policy. You also agree to get emails from ${SENDERS}.`,
         },
-        {
-          quote: CONSENT.guides,
-          label: 'The words under the button for the Task Sync Starter Kit and The Ops Time Audit',
-        },
-        { quote: CONSENT.voice, label: 'The words under the button for the AI Voice Profile Setup' },
+        { quote: CONSENT.guides, label: 'The words under the button on each guide’s page' },
         {
           ul: [
             'Getting a guide is free. It does not enroll you in a program or commit you to buy anything.',
             'The guides are for education only. What these terms say about the workshop page applies to them too: we do not promise any result, AI tools make mistakes, you are responsible for what you send and publish, and nothing in them is legal, tax, financial, or compliance advice.',
             'You may use and change a guide for your own business. Please do not sell it, or publish it as your own.',
-            `For ${PDF_GUIDES}, only ${GUIDE_SENDERS} email you because you got one. For ${VOICE_GUIDE}, ${SENDERS} may.`,
             'The guide pages have no SMS box. Getting a guide never signs you up for texts.',
             'You can stop our emails at any time. See Emails below.',
           ],
@@ -433,7 +418,7 @@ export const PRIVACY: LegalDoc = {
         {
           ul: [
             `To email you about the December agent track and other programs from ${SENDERS}.`,
-            `If you got a guide, to email you about it and about our other programs and resources: from ${GUIDE_SENDERS} for ${PDF_GUIDES}, and from ${SENDERS} for ${VOICE_GUIDE}.`,
+            `If you got a guide, to email you about it and about our other programs and resources from ${SENDERS}.`,
             'To text you about the same programs, but only if you checked the SMS box.',
             'To keep a record of your consent and your opt-outs, so we can honor them.',
             'To learn which links and events bring people to our lists, using the link tag.',
@@ -467,10 +452,9 @@ export const PRIVACY: LegalDoc = {
       blocks: [
         {
           ul: [
-            `The senders you agreed to hear from. For the waitlist and ${VOICE_GUIDE}, that is ${SENDERS}. For ${PDF_GUIDES}, it is ${GUIDE_SENDERS}.`,
             'Service providers that do work for us. They host the site and its database (for example, Railway), deliver email (for example, Resend), and keep our contact list and send our emails and texts (a customer relationship tool, for example GoHighLevel). We give them only what they need for that work.',
             'Others, when the law requires it, or to protect our rights or anyone’s safety.',
-            'A buyer or successor, if a sender’s business is sold or merged. This policy would still apply to your information.',
+            'A buyer or successor, if our business is sold or merged. This policy would still apply to your information.',
           ],
         },
         { p: 'We do not sell your personal information, and we do not share it for targeted advertising.' },

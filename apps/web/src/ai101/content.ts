@@ -105,8 +105,11 @@ My brokerage: [brokerage name]
 My voice profile:
 [paste the profile that starts with "Write as me."]`;
 
-/** The senders the waitlist's consent names (Connor, 2026-10-08). One string, so it never drifts. */
-const SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring, and Connor';
+/**
+ * The sender the waitlist's consent names: Amplified Impact, LLC alone (Connor, 2026-10-17, D-041; it
+ * named Spring B, Spring and Connor too before). One string, so it never drifts.
+ */
+const SENDERS = 'Amplified Impact, LLC';
 
 export const PAGE = {
   meta: {

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CONSENT, GUIDE_SENDERS as LEGAL_GUIDE_SENDERS } from '../legal/content';
+import { CONSENT, SENDERS } from '../legal/content';
 import { GUIDE_SENDERS, GUIDES, type Guide } from './content';
 import { esc, guideFor, renderGuideBody, renderGuideHead } from './render';
 import { GUIDE_HTML } from './vite-plugin';
@@ -113,9 +113,9 @@ describe.each(Object.keys(EXPECTED) as Array<keyof typeof EXPECTED>)('/%s', (slu
     expect(trap.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 
-  it('says, under the button, exactly what the Terms quote, naming only Amplified Impact and Connor (D-039)', () => {
+  it('says, under the button, exactly what the Terms quote, naming only Amplified Impact, LLC (D-041)', () => {
     expect(text($('#guide-form .legal'))).toBe(
-      'By signing up, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact and Connor. Unsubscribe anytime.',
+      'By signing up, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime.',
     );
     expect(text($('#guide-form .legal'))).toBe(CONSENT.guides);
     const links = $$('#guide-form .legal a').map((a) => [text(a), a.getAttribute('href'), a.getAttribute('target')]);
@@ -226,10 +226,10 @@ describe('The Ops Time Audit, its own parts (D-039)', () => {
   });
 });
 
-describe('who a guide sign-up hears from (D-039)', () => {
-  it('is one list, the same on the guide pages and in the legal pages', () => {
-    expect(GUIDE_SENDERS).toBe('Amplified Impact and Connor');
-    expect(LEGAL_GUIDE_SENDERS).toBe(GUIDE_SENDERS);
+describe('who a guide sign-up hears from (D-041)', () => {
+  it('is Amplified Impact, LLC, the same on the guide pages and in the legal pages', () => {
+    expect(GUIDE_SENDERS).toBe('Amplified Impact, LLC');
+    expect(SENDERS).toBe(GUIDE_SENDERS);
   });
 });
 

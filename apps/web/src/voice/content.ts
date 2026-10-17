@@ -12,11 +12,11 @@
 import { PAGE as AI101, type Inline, type Screen } from '../ai101/content';
 
 /**
- * Who the opt-in agrees to hear from: the /ai101 waitlist's senders, Spring among them, because Spring
- * posts this one (D-040). The free guides name fewer (D-039). `CONSENT.voice` in
- * `src/legal/content.ts` quotes the line built from this, and a test holds the two equal.
+ * Who the opt-in agrees to hear from: Amplified Impact, LLC, as on every sign-up (D-041), though Spring
+ * posts this one. `CONSENT.guides` in `src/legal/content.ts` quotes the line built from this, and a
+ * test holds the two equal.
  */
-export const VOICE_SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring, and Connor';
+export const VOICE_SENDERS = 'Amplified Impact, LLC';
 
 export const VOICE = {
   slug: 'voice-profile',

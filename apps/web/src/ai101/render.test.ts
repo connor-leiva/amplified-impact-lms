@@ -172,15 +172,15 @@ const OFF_SITE_URLS = new Set([
 ]);
 
 /** Who the waitlist's consent names (Connor, 2026-10-08): the email line and the SMS box both. */
-const SENDERS = 'Amplified Impact, Spring B and its affiliated companies, Spring, and Connor';
+const SENDERS = 'Amplified Impact, LLC';
 
 /** The SMS box's label, word for word: the API stores exactly this as the proof of consent. */
 const SMS_CONSENT =
-  "Text me about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
+  "Text me about the December agent track and other programs from Amplified Impact, LLC at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
 
 /** The line under the button: joining is the Terms, the Privacy Policy and the email consent. */
 const LEGAL_LINE =
-  'By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December agent track and other programs from Amplified Impact, Spring B and its affiliated companies, Spring, and Connor. Unsubscribe anytime.';
+  'By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December agent track and other programs from Amplified Impact, LLC. Unsubscribe anytime.';
 
 // ================================================================================================
 
@@ -1037,13 +1037,12 @@ describe('the waitlist form', () => {
     expect(label.children).toHaveLength(0);
   });
 
-  it('names everyone who may text, and says what carriers require', () => {
+  it('names who may text, and says what carriers require', () => {
     const consent = text(labelOf(form.querySelector('input[name="smsConsent"]')!));
+    // Amplified Impact, LLC alone (D-041): no person, and no other company.
+    expect(consent).not.toMatch(/Spring|Connor/);
     for (const words of [
-      'Amplified Impact',
-      'Spring B and its affiliated companies',
-      'Spring,',
-      'Connor',
+      'Amplified Impact, LLC',
       'automated technology',
       "Consent isn't required to join or to buy anything.",
       'Message frequency varies.',

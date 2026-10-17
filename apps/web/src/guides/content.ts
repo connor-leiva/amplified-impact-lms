@@ -90,11 +90,11 @@ export const GUIDES: Readonly<Record<string, Guide>> = {
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;
 
 /**
- * Who a guide's opt-in agrees to hear from (D-039): Amplified Impact and Connor, nobody else. The
- * /ai101 waitlist names more senders; the guides are Connor's own. `CONSENT.guides` in
- * `src/legal/content.ts` quotes the line built from this, and a test holds the two equal.
+ * Who a guide's opt-in agrees to hear from: Amplified Impact, LLC, as on every sign-up (D-041; it was
+ * Amplified Impact and Connor under D-039). `CONSENT.guides` in `src/legal/content.ts` quotes the
+ * line built from this, and a test holds the two equal.
  */
-export const GUIDE_SENDERS = 'Amplified Impact and Connor';
+export const GUIDE_SENDERS = 'Amplified Impact, LLC';
 
 /** What every guide page says the same way. */
 export const SHARED = {
