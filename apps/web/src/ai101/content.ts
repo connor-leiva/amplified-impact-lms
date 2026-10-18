@@ -234,7 +234,7 @@ export const PAGE = {
         "It asks one question at a time about your story, who you serve, how you talk, and what's off limits. About 30 minutes.",
       items: [
         "Five things you've already written: texts to clients, emails, or captions. Real ones, not your best ones.",
-        'A two minute voice memo answering "Is now a good time to buy?" like you would on the phone. No transcript? Answer it with the mic in the chat.',
+        'A two minute voice memo answering the question customers ask you most, like you would on the phone. No transcript? Answer it with the mic in the chat.',
       ],
       tip: 'Talk your answers out loud with the mic. You sound more like you when you talk than when you type.',
     },
@@ -275,7 +275,7 @@ export const PAGE = {
         ['Paste your samples under them, then send.'],
       ] as Inline[][],
       showPrompt: 'See the full prompt',
-      note: `It already bans lines like "In today's market," "Let's dive in," and "Thinking of buying or selling?" Add any others you're tired of.`,
+      note: `It already bans lines like "In today's market," "Let's dive in," and "game-changer." Add any others you're tired of.`,
     },
     interview: {
       tab: 'Interview Me',
@@ -312,15 +312,15 @@ export const PAGE = {
   voicePrompt: {
     id: 'voice_profile',
     label: 'Voice profile prompt',
-    text: `I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually write. Build it from my samples at the bottom, working like a forensic linguist. Every rule needs evidence from my samples. Sounding like me matters more than sounding polished.
+    text: `I run a small business, and I want a voice profile: instructions that make AI write the way I actually write. Build it from my samples at the bottom, working like a forensic linguist. Every rule needs evidence from my samples. Sounding like me matters more than sounding polished.
 
 If I haven't pasted any samples or spoken answers below yet, don't build anything. Reply "Ready, send your samples" and wait. Otherwise, don't ask me anything first. Build the whole thing from what's here, mark what you can't tell, and save your questions for the end. If you run out of room, stop at the end of a section and tell me to type "continue."
 
 STEP 1. SORT THE SAMPLES
 Number them S1, S2, S3 and so on, in the order I pasted them. Set aside anything that isn't really my voice:
 - anything I said someone else wrote or edited
-- brokerage, franchise, or vendor boilerplate, and listing descriptions
-- anything that reads like a template or AI: lines that could describe anyone where my other samples give a specific detail, tidy lists of three, smooth sentences with no rough edges, round or dramatic numbers, lines that belong on a mug, telling the reader what to feel, hooks like "Thinking of buying or selling?"
+- company, franchise, or vendor boilerplate, and product or listing descriptions
+- anything that reads like a template or AI: lines that could describe anyone where my other samples give a specific detail, tidy lists of three, smooth sentences with no rough edges, round or dramatic numbers, lines that belong on a mug, telling the reader what to feel, stock hooks like a real estate agent's "Thinking of buying or selling?"
 If only a line or two of a sample is off, keep the sample and ignore those lines. A phrase showing up in my samples doesn't make it mine if someone else wrote it.
 VOICE samples (voice memos, video transcripts) show how I talk. Learn words, rhythm, beliefs, and stories from them. Don't learn punctuation or paragraphs from them, because the app chose those, and don't treat a misheard word as my vocabulary unless it repeats.
 
@@ -342,8 +342,8 @@ One line: how many samples of each kind, and how many you set aside.
 
 NEVER LIST
 This outranks everything else in the profile.
-Always banned, even if they show up in my samples: "In today's market," "Thinking of buying or selling?" "Let's dive in," "game-changer," and every phrase I said I can't stand.
-Banned unless my own writing clearly uses them: dream home, nestled, boasts, won't last long, don't miss out, hidden gem, your real estate journey, "whether you're a first-time buyer or a seasoned investor," navigate, unlock, elevate, seamless, landscape, buckle up, let that sink in, at the end of the day, thrilled to announce, hope this finds you well, don't hesitate to reach out.
+Always banned, even if they show up in my samples: "In today's market," "Let's dive in," "game-changer," my industry's stock hooks (for a real estate agent, "Thinking of buying or selling?"), and every phrase I said I can't stand.
+Banned unless my own writing clearly uses them: don't miss out, hidden gem, navigate, unlock, elevate, seamless, landscape, buckle up, let that sink in, at the end of the day, thrilled to announce, hope this finds you well, don't hesitate to reach out, and my industry's cliches (for a real estate agent: dream home, nestled, boasts, won't last long, your real estate journey, "whether you're a first-time buyer or a seasoned investor").
 Banned constructions, unless my samples use them:
 - balanced contrasts like "It's not X, it's Y." If both halves are about the same length, or the line would work as a slide title, rewrite it.
 - setups that delay the point: "Here's the thing," "The best part?" "The result?" If the next sentence builds suspense instead of delivering, cut the setup.
@@ -384,18 +384,18 @@ Copy these into the profile word for word:
 - Never invent anything I could be quoted on: a price, rate, date, stat, quote, review, or client story. Write [VERIFY: what's needed] and list each one under the draft. Never inflate a result.
 - Don't give me opinions I haven't given you. If a post needs a new take, ask me for it.
 - Never use a client's story or details unless I tell you they said yes.
-- Flag any line about neighborhoods, schools, safety, or who a place is right for, so I can check it for fair housing. Keep the source on any market stat I give you.
+- Flag any line my industry's rules cover, so I can check it (for a real estate agent, anything about neighborhoods, schools, safety, or who a place is right for, under fair housing). Keep the source on any stat I give you.
 - For anything bigger than one post, like a series or an email sequence, ask your questions in one batch first, then write one piece for my approval before the rest.
 - My edits beat this profile. After I edit a draft, tell me in one line what rule my edit suggests, so I can add it here.
 
 SELF-CHECK BEFORE SHOWING ANY DRAFT
 Copy these into the profile word for word:
 1. Anything from the never list, including a balanced "It's not X, it's Y"?
-2. A line that could sit on a graphic next to any agent's face?
+2. A line that could sit on a graphic next to anyone's face?
 3. A story explained after it's told, or the reader told what to feel?
 4. A tidy list of three, or a habit past its cap?
 5. Anything invented: a fact, number, story, or opinion?
-6. Would this read the same over any other agent's name?
+6. Would this read the same over a competitor's name?
 Two or more yeses: rewrite from scratch instead of patching. Then match length, opener, sign-off, and emoji to the channel. Show me the draft, then any [VERIFY] items and fair housing flags, and skip the commentary.
 
 REFERENCE SAMPLES
@@ -409,10 +409,11 @@ QUESTIONS: up to 3, most useful first.
 
 ABOUT ME
 My name, as I sign it:
+What I do:
 My market, and what I'm known for:
 My clients are mostly:
 Where I post or write most:
-Who else writes under my name (an assistant, my team, my brokerage, a marketing company, AI), or nobody:
+Who else writes under my name (an assistant, my team, my brokerage or company, a marketing company, AI), or nobody:
 Phrases I can't stand:`,
     literal: ["[VERIFY: what's needed]", '[VERIFY]'],
   } satisfies Prompt,
@@ -426,7 +427,7 @@ Phrases I can't stand:`,
   interviewPrompt: {
     id: 'voice_interview',
     label: 'Voice interview prompt',
-    text: `You're my Voice Builder. I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually talk. Build it by interviewing me.
+    text: `You're my Voice Builder. I run a small business, and I want a voice profile: instructions that make AI write the way I actually talk. Build it by interviewing me.
 
 HOW TO RUN THE INTERVIEW
 Ask me the questions below one at a time, in order, in the words they're written in. Wait for my answer before you ask the next one.
@@ -437,9 +438,9 @@ Don't write anything else until all four parts are done.
 
 PART 1: YOUR STORY
 People hire people they feel they know. Your story is what makes a stranger feel like they know you.
-1. Why did you get into real estate? Tell the real reason, not the polished one.
+1. Why did you get into your line of work? Tell the real reason, not the polished one.
 2. What did you do before this, and what did it teach you that helps your clients now?
-3. Tell me about a moment in your life that changed how you see home.
+3. Tell me about a moment in your life that changed how you see your work. (For a real estate agent, how they see home.)
 4. What's a hard thing you've walked through that your clients might be walking through too?
 5. Who are the people you're doing this for?
 6. What do you love about where you live? Name real places, like a park, a taco spot, or a trail.
@@ -447,20 +448,20 @@ People hire people they feel they know. Your story is what makes a stranger feel
 8. Tell me about the client story you're proudest of. What happened, and why did it matter?
 
 PART 2: WHO YOU SERVE
-You can't talk to everyone. The agents who win pick a person and talk to them every day.
+You can't talk to everyone. The businesses that win pick a person and talk to them every day.
 9. Think of your three favorite clients. What do they have in common?
-10. What stage of life are the people you love working with? First home, growing family, moving up, downsizing, or investing?
-11. What areas do you know better than anyone? Name the cities, neighborhoods, or zip codes.
-12. What keeps your ideal client up at night about buying or selling?
+10. What stage of life or business are the people you love working with? (For a real estate agent: first home, growing family, moving up, downsizing, or investing.)
+11. What do you know better than anyone? Name the places, specialties, or kinds of customers. (A real estate agent might name cities, neighborhoods, or zip codes.)
+12. What keeps your ideal client up at night about the problem you solve? (For a real estate agent, buying or selling.)
 13. What do they want that they're scared to say out loud?
-14. What do people always thank you for at closing?
+14. What do people always thank you for when the work is done? (For a real estate agent, at closing.)
 15. What's the one thing you want to be known for in your market?
 
 PART 3: HOW YOU TALK
 This is the part that makes it sound like you. Don't skip the samples. They teach the AI more than any answer you give.
 First, ask me for these two samples:
 16. Five things you've already written. Texts to clients, emails, or captions you liked. Real ones, not your best ones.
-17. A two minute voice memo. Pretend a buyer just asked you, "Is now a good time to buy?" Answer like you would on the phone, then paste in the transcript.
+17. A two minute voice memo. Pretend a customer just asked you the question you hear most. (A real estate agent might get "Is now a good time to buy?") Answer like you would on the phone, then paste in the transcript.
 If I don't have a transcript, I can answer question 17 right here with the mic instead.
 Then ask:
 18. How would your best friend describe the way you talk?
@@ -471,11 +472,11 @@ Then ask:
 
 PART 4: YOUR BOUNDARIES
 Knowing what isn't you matters just as much as knowing what is.
-23. What words or phrases make you cringe when other agents use them?
-24. What kind of real estate content do you never want to post?
+23. What words or phrases make you cringe when others in your industry use them?
+24. What kind of content about your work do you never want to post?
 25. What parts of your life are off limits online? Think kids, faith, health, money, or past relationships.
-26. Are there topics you want to stay out of, like politics or rate predictions?
-27. Is there anything about how agents market that you think is fake?
+26. Are there topics you want to stay out of, like politics or market predictions?
+27. Is there anything about how people in your industry market that you think is fake?
 
 WHEN THE INTERVIEW IS DONE
 Write my Voice Profile: one page that tells any AI tool exactly how to sound like me. Use only what I told you and pasted. Never invent a story, a client, a number, or an opinion. Learn my words, rhythm, and beliefs from everything I gave you, but learn punctuation and emoji only from what I typed or pasted, not from what I said out loud.
@@ -491,7 +492,7 @@ MY STORY
 My why in three short sentences.
 
 WHO I SERVE
-My ideal client, their stage of life, and my areas.
+My ideal client, their stage of life or business, and my areas or specialties.
 
 WHAT THEY NEED
 Their biggest worry and what they really want.
@@ -515,7 +516,7 @@ SAMPLE POST
 A short caption written in my voice.
 
 SAMPLE EMAIL
-A short sphere email opener in my voice.
+A short email opener to people I know, in my voice.
 
 SAMPLE TEXT
 A check in text to a past client in my voice.`,

@@ -129,7 +129,7 @@ const PROMPTS = [
     placeholders: [] as string[],
     literal: ["[VERIFY: what's needed]", '[VERIFY]'],
     firstLine:
-      "I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually write. Build it from my samples at the bottom, working like a forensic linguist. Every rule needs evidence from my samples. Sounding like me matters more than sounding polished.",
+      'I run a small business, and I want a voice profile: instructions that make AI write the way I actually write. Build it from my samples at the bottom, working like a forensic linguist. Every rule needs evidence from my samples. Sounding like me matters more than sounding polished.',
     // "Finish the ABOUT ME lines at the bottom": the last of them.
     lastLine: "Phrases I can't stand:",
     text: PAGE.voicePrompt.text,
@@ -144,7 +144,7 @@ const PROMPTS = [
     placeholders: [] as string[],
     literal: [] as string[],
     firstLine:
-      "You're my Voice Builder. I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually talk. Build it by interviewing me.",
+      "You're my Voice Builder. I run a small business, and I want a voice profile: instructions that make AI write the way I actually talk. Build it by interviewing me.",
     lastLine: 'A check in text to a past client in my voice.',
     text: PAGE.interviewPrompt.text,
   },
@@ -907,7 +907,7 @@ describe('the parts that need the script', () => {
         'Let it interview you',
         [
           "Five things you've already written: texts to clients, emails, or captions. Real ones, not your best ones.",
-          'A two minute voice memo answering "Is now a good time to buy?" like you would on the phone. No transcript? Answer it with the mic in the chat.',
+          'A two minute voice memo answering the question customers ask you most, like you would on the phone. No transcript? Answer it with the mic in the chat.',
         ],
         'Talk your answers out loud with the mic. You sound more like you when you talk than when you type.',
       ],

@@ -1956,3 +1956,27 @@ renderer (D-040). Amends D-034, D-036 and D-040.
 - **One renderer.** /ai101's step 1, step 2, Save and the sign-in links are now shared builders
   (`samplesBody`, `voiceCopyBody`, `saveBody`, `getAppLinks`), and /voice-profile calls them, so the
   two pages cannot drift. `initPicker` became `initChoice`, which runs both switches.
+
+## D-044 · /voice-profile: no sign-in step, and generic rather than real estate
+
+**Date:** 2026-10-18
+**Approved by:** Connor Leiva, in chat on 2026-10-18, from Spring Bengtzen's feedback.
+**Scope:** `apps/web/src/voice/*`, the two voice prompts and two lines of shared copy in
+`apps/web/src/ai101/content.ts`, and their tests. Amends D-040 and D-043.
+
+- **No sign-in step on /voice-profile.** Its Open ChatGPT and Open Claude buttons sent people to a new
+  tab with nothing to do there yet. Visitors are assumed to use one of them: the sign-up opens step 1,
+  and ChatGPT or Claude first opens from step 2's Copy & Open, with a prompt to paste. /ai101's welcome
+  card, on the agent workshop page, is unchanged.
+- **"AI 101", not "AI 101 for Agents"**, on /voice-profile (its eyebrow and link-preview description).
+- **Both prompts are for a small business, with a real estate agent as the example**, where a line was
+  agent-only. Connor's (D-036): "I run a small business", company or listing boilerplate, the industry's
+  stock hooks and cliches with real estate's as the example, the regulated-claims flag with fair
+  housing as the example, "anyone's face", "a competitor's name", and a "What I do:" ABOUT ME line.
+  Spring's (D-043): her questions generalized the same way (your line of work, the problem you solve,
+  when the work is done, others in your industry, market predictions, an email opener to people you
+  know), each agent-specific one keeping its real estate version as the example. Shared with /ai101,
+  where they still read naturally for agents.
+- **Two lines of copy around them**: the voice memo is "the question customers ask you most", and step
+  2's note no longer quotes "Thinking of buying or selling?". The fill fields' example placeholders
+  ("Farmington, CT", "buyers, sellers, or both") are left as examples.

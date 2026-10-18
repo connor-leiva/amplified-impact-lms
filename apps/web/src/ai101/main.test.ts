@@ -776,12 +776,13 @@ describe('filling the prompts', () => {
     await boot();
     for (const name of FIELDS) type(name, 'x');
     const lines = (voicePre().textContent ?? '').split('\n');
-    expect(lines.slice(-6)).toEqual([
+    expect(lines.slice(-7)).toEqual([
       'My name, as I sign it:',
+      'What I do:',
       `${VOICE_MARKET} x`,
       `${VOICE_CLIENTS} x`,
       'Where I post or write most:',
-      'Who else writes under my name (an assistant, my team, my brokerage, a marketing company, AI), or nobody:',
+      'Who else writes under my name (an assistant, my team, my brokerage or company, a marketing company, AI), or nobody:',
       "Phrases I can't stand:",
     ]);
   });

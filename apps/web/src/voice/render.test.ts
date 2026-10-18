@@ -31,7 +31,7 @@ describe('the head', () => {
 });
 
 describe('the step-through', () => {
-  it("is /ai101's Part I with no Part II: the gate, the app, then the four steps", () => {
+  it("is /ai101's Part I with no Part II: the gate, then the four steps", () => {
     const screens = $$('section[data-screen]').map((s) => [
       s.id,
       s.getAttribute('data-stage'),
@@ -40,20 +40,12 @@ describe('the step-through', () => {
     ]);
     expect(screens).toEqual([
       ['welcome', 'Welcome', null, 'Start'],
-      ['get-the-app', 'Before You Start', null, "I'm Signed In"],
       ['voice-profile', 'Voice Profile', '1 of 4', "I'm Ready"],
       ['voice-profile-copy', 'Voice Profile', '2 of 4', 'I Have My Profile'],
       ['voice-profile-save', 'Voice Profile', '3 of 4', 'Saved It'],
       ['voice-profile-test', 'Voice Profile', '4 of 4', null],
     ]);
-    expect($$('section[data-screen]').map((s) => s.getAttribute('data-screen'))).toEqual([
-      '0',
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-    ]);
+    expect($$('section[data-screen]').map((s) => s.getAttribute('data-screen'))).toEqual(['0', '1', '2', '3', '4']);
   });
 
   it('keeps its place apart from /ai101, under its own key', () => {
@@ -108,7 +100,6 @@ describe('the gate', () => {
     const gated = $('#unlocked')!;
     expect(gated.classList.contains('gated')).toBe(true);
     expect(Array.from(gated.querySelectorAll('section[data-screen]')).map((s) => s.id)).toEqual([
-      'get-the-app',
       'voice-profile',
       'voice-profile-copy',
       'voice-profile-save',
@@ -171,17 +162,34 @@ describe("the steps, /ai101's own", () => {
     ]);
   });
 
-  it('signs in first, then offers the store links the script swaps in on a phone (D-043)', () => {
-    expect(text($('#get-the-app-heading'))).toBe('First: sign in to ChatGPT or Claude');
-    expect($$('#get-the-app .row a.btn').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Open ChatGPT', 'https://chatgpt.com/'],
-      ['Open Claude', 'https://claude.ai/'],
+  it('has no sign-in step: ChatGPT and Claude open only from step 2 and Save, with something to do (D-044)', () => {
+    expect($('#get-the-app')).toBeNull();
+    expect($$('a[data-get-app], .get-app')).toEqual([]);
+    const opens = $$('a[href^="https://chatgpt.com"], a[href^="https://claude.ai"]').map((a) => [
+      a.closest('section')?.id,
+      a.getAttribute('href'),
     ]);
-    expect(text($('#get-the-app .get-app'))).toBe("Don't have the app yet? Get ChatGPT or Get Claude.");
-    expect($$('#get-the-app a[data-get-app]').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Get ChatGPT', 'https://chatgpt.com/'],
-      ['Get Claude', 'https://claude.ai/'],
+    expect(opens).toEqual([
+      ['voice-profile-copy', 'https://chatgpt.com/'],
+      ['voice-profile-copy', 'https://claude.ai/new'],
+      ['voice-profile-copy', 'https://chatgpt.com/'],
+      ['voice-profile-copy', 'https://claude.ai/new'],
+      ['voice-profile-save', 'https://claude.ai/projects'],
+      ['voice-profile-save', 'https://chatgpt.com/settings/personalization?instructions=chatgpt'],
     ]);
+  });
+
+  it('says "AI 101", not "AI 101 for Agents", and names no industry outside the prompts (D-044)', () => {
+    expect(text($('#welcome .eyebrow'))).toBe('Free Guide · AI 101');
+    expect($('meta[name="description"]')?.getAttribute('content')).toBe(
+      'Teach ChatGPT or Claude to write the way you actually write. The voice profile setup from AI 101, free, one screen at a time.',
+    );
+    // The prompts use a real estate agent as their one example; everything around them is generic.
+    const outsidePrompts = Array.from(doc.body.querySelectorAll('*'))
+      .filter((el) => !el.closest('pre') && el.children.length === 0)
+      .map((el) => el.textContent ?? '')
+      .join(' ');
+    expect(outsidePrompts).not.toMatch(/real estate|\bagents?\b|brokerage|buyers?\b|sellers?\b|for Agents/i);
   });
 
   it("offers Spring's interview beside the samples, with her prompt, word for word (D-043)", () => {

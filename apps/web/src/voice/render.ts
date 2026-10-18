@@ -18,7 +18,6 @@ import {
   HONEYPOT_LABEL,
   callout,
   esc,
-  getAppLinks,
   h2,
   inline,
   logo,
@@ -107,21 +106,15 @@ function welcome(): string {
   );
 }
 
-/** /ai101's "Sign in first" card, as this page's first step after the gate (D-043). */
-function getApp(): string {
-  const g = VOICE.getApp;
-  return screen(1, [h2(anchorOf(1), g.heading), `<p class="lede">${esc(g.body)}</p>`, getAppLinks()]);
-}
-
 /** Step 1, step 2 and Save are /ai101's own, built by its renderer (D-040, D-043). */
-const samples = () => screen(2, samplesBody(anchorOf(2)));
-const voiceCopy = () => screen(3, voiceCopyBody(anchorOf(3), anchorOf(2)));
-const save = () => screen(4, saveBody(anchorOf(4)));
+const samples = () => screen(1, samplesBody(anchorOf(1)));
+const voiceCopy = () => screen(2, voiceCopyBody(anchorOf(2), anchorOf(1)));
+const save = () => screen(3, saveBody(anchorOf(3)));
 
 function test(): string {
   const t = VOICE.test;
-  return screen(5, [
-    h2(anchorOf(5), t.heading),
+  return screen(4, [
+    h2(anchorOf(4), t.heading),
     `<p class="lede">${esc(t.intro)}</p>`,
     `<div class="pair">` +
       `<div class="card pair-card"><span class="pair-label">${esc(t.before.label)}</span><strong>${esc(t.before.text)}</strong></div>` +
@@ -138,7 +131,6 @@ export function renderVoiceBody(): string {
     `<main class="page" data-steps data-state-key="${esc(VOICE.stateKey)}">`,
     welcome(),
     `<div id="${esc(VOICE.gate.unlockedAnchor)}" class="gated">`,
-    getApp(),
     samples(),
     voiceCopy(),
     save(),

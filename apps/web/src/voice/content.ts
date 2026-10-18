@@ -24,7 +24,7 @@ export const VOICE = {
   meta: {
     title: 'Sounds Like You: Your AI Voice Profile · Amplified Impact',
     description:
-      'Teach ChatGPT or Claude to write the way you actually write. The voice profile setup from AI 101 for Agents, free, one screen at a time.',
+      'Teach ChatGPT or Claude to write the way you actually write. The voice profile setup from AI 101, free, one screen at a time.',
     url: 'https://www.amplifiedimpact.io/voice-profile',
     siteName: 'Amplified Impact',
   },
@@ -35,8 +35,10 @@ export const VOICE = {
   unlockKey: 'vp-unlocked',
 
   screens: [
+    // No "sign in to ChatGPT or Claude" step (Spring's notes, 2026-10-18, D-044): its Open buttons
+    // took people to a new tab with nothing to do there yet. Visitors are assumed to use one, and the
+    // first time this page opens it is step 2's Copy & Open, with a prompt to paste.
     { anchor: 'welcome', stage: 'Welcome', next: 'Start' },
-    { anchor: 'get-the-app', stage: 'Before You Start', next: "I'm Signed In" },
     { anchor: 'voice-profile', stage: 'Voice Profile', count: '1 of 4', next: "I'm Ready" },
     { anchor: 'voice-profile-copy', stage: 'Voice Profile', count: '2 of 4', next: 'I Have My Profile' },
     { anchor: 'voice-profile-save', stage: 'Voice Profile', count: '3 of 4', next: 'Saved It' },
@@ -48,7 +50,7 @@ export const VOICE = {
 
   welcome: {
     logoAlt: 'Amplified Impact',
-    eyebrow: 'Free Guide · AI 101 for Agents',
+    eyebrow: 'Free Guide · AI 101',
     title: 'Sounds Like You',
     intro:
       'Teach ChatGPT or Claude your voice once, and every post, email and caption it drafts starts out sounding like you. One step at a time, on your phone or laptop. Free.',
@@ -72,9 +74,6 @@ export const VOICE = {
     /** The id the no-JavaScript 303 lands on: the steps, which the CSS then shows with `:target`. */
     unlockedAnchor: 'unlocked',
   },
-
-  /** /ai101's welcome card, as a screen of its own after the gate. */
-  getApp: AI101.welcome.getApp,
 
   samples: AI101.samples,
   voiceCopy: AI101.voiceCopy,

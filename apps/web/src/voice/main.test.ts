@@ -145,11 +145,12 @@ describe('signing up', () => {
       src: 'ig',
     });
 
-    expect(current()).toEqual(['get-the-app']);
-    expect(document.activeElement).toBe($('#get-the-app-heading'));
-    expect(stage()).toBe('Before You Start');
+    // Straight to step 1: there is no sign-in step (D-044).
+    expect(current()).toEqual(['voice-profile']);
+    expect(document.activeElement).toBe($('#voice-profile-heading'));
+    expect(stage()).toBe('Voice Profile');
     expect(nextButton().hidden).toBe(false);
-    expect(nextLabel()).toBe("I'm Signed In");
+    expect(nextLabel()).toBe("I'm Ready");
     expect(localStorage.getItem('vp-unlocked')).toBe('1');
     expect($('#welcome').getAttribute('data-state')).toBe('unlocked');
   });
@@ -161,7 +162,7 @@ describe('signing up', () => {
     submit();
     await settle();
     clickNext();
-    expect(current()).toEqual(['voice-profile']);
+    expect(current()).toEqual(['voice-profile-copy']);
     expect(JSON.parse(localStorage.getItem('voice-profile-v1') ?? '{}').i).toBe(2);
     expect(localStorage.getItem('ai101-v2')).toBeNull();
   });
@@ -177,7 +178,7 @@ describe('a visitor who has signed up before', () => {
     expect(nextButton().hidden).toBe(false);
     expect(nextLabel()).toBe('Start');
     clickNext();
-    expect(current()).toEqual(['get-the-app']);
+    expect(current()).toEqual(['voice-profile']);
   });
 
   it('goes straight to a linked screen, or the saved place', async () => {
@@ -188,7 +189,7 @@ describe('a visitor who has signed up before', () => {
   it("walks the four steps to the test, where Start Over takes Next's place", async () => {
     await boot('/voice-profile', () => {
       unlocked();
-      localStorage.setItem('voice-profile-v1', JSON.stringify({ i: 2 }));
+      localStorage.setItem('voice-profile-v1', JSON.stringify({ i: 1 }));
     });
     expect(current()).toEqual(['voice-profile']);
     for (const [anchor, label] of [
