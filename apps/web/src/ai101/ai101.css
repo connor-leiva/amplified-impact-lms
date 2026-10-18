@@ -673,6 +673,37 @@ html:not(.steps-on) .screen + .screen {
 .steps-on .pick-title {
   display: none;
 }
+
+/* Step 1's samples-or-interview panels, and step 2's prompt for each (D-043). */
+.path-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.path-title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.path-lead {
+  font-size: 19px;
+  font-weight: 700;
+}
+/* Without the script both paths show: the second is set off from the first. */
+html:not(.steps-on) .path-panel + .path-panel {
+  padding-top: 20px;
+  border-top: 1px solid var(--ai101-rule);
+}
+
+/* "Don't have the app yet? Get ChatGPT or Get Claude." under the sign-in buttons (D-043). */
+.get-app {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+.get-app a {
+  color: var(--action-primary);
+  font-weight: 700;
+}
 .pick-title {
   font-size: 20px;
   font-weight: 800;

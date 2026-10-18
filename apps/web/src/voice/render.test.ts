@@ -41,7 +41,7 @@ describe('the step-through', () => {
     expect(screens).toEqual([
       ['welcome', 'Welcome', null, 'Start'],
       ['get-the-app', 'Before You Start', null, "I'm Signed In"],
-      ['voice-profile', 'Voice Profile', '1 of 4', 'I Have My Samples'],
+      ['voice-profile', 'Voice Profile', '1 of 4', "I'm Ready"],
       ['voice-profile-copy', 'Voice Profile', '2 of 4', 'I Have My Profile'],
       ['voice-profile-save', 'Voice Profile', '3 of 4', 'Saved It'],
       ['voice-profile-test', 'Voice Profile', '4 of 4', null],
@@ -166,15 +166,31 @@ describe("the steps, /ai101's own", () => {
     ).toEqual([
       ['Copy & Open ChatGPT', 'https://chatgpt.com/', 'voice-profile-prompt'],
       ['Copy & Open Claude', 'https://claude.ai/new', 'voice-profile-prompt'],
+      ['Copy & Open ChatGPT', 'https://chatgpt.com/', 'voice-interview-prompt'],
+      ['Copy & Open Claude', 'https://claude.ai/new', 'voice-interview-prompt'],
     ]);
   });
 
-  it('gets the app first, with the store links the script swaps in on a phone', () => {
-    expect(text($('#get-the-app-heading'))).toBe('First: get the app and sign in');
+  it('signs in first, then offers the store links the script swaps in on a phone (D-043)', () => {
+    expect(text($('#get-the-app-heading'))).toBe('First: sign in to ChatGPT or Claude');
+    expect($$('#get-the-app .row a.btn').map((a) => [text(a), a.getAttribute('href')])).toEqual([
+      ['Open ChatGPT', 'https://chatgpt.com/'],
+      ['Open Claude', 'https://claude.ai/'],
+    ]);
+    expect(text($('#get-the-app .get-app'))).toBe("Don't have the app yet? Get ChatGPT or Get Claude.");
     expect($$('#get-the-app a[data-get-app]').map((a) => [text(a), a.getAttribute('href')])).toEqual([
       ['Get ChatGPT', 'https://chatgpt.com/'],
       ['Get Claude', 'https://claude.ai/'],
     ]);
+  });
+
+  it("offers Spring's interview beside the samples, with her prompt, word for word (D-043)", () => {
+    expect($$('#voice-profile button[data-path]').map((b) => text(b))).toEqual(['I Have Samples', 'Interview Me']);
+    expect($('#voice-interview-prompt pre[data-prompt-text]')?.textContent).toBe(AI101.interviewPrompt.text);
+    expect($('#voice-interview-prompt')?.closest('[data-path-panel]')?.getAttribute('data-path-panel')).toBe(
+      'interview',
+    );
+    expect($('#voice-profile-prompt')?.closest('[data-path-panel]')?.getAttribute('data-path-panel')).toBe('samples');
   });
 
   it('saves it in a Claude Project or ChatGPT Custom instructions, as /ai101 says', () => {

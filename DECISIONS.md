@@ -1920,3 +1920,39 @@ test titles in `apps/web/src/{guides,voice}/render.test.ts`; `TERMS_VERSION` in
   pages, and the program name is `SMS_PROGRAM`, now "Amplified Impact Updates" as the Terms give it.
 - **Version and effective date 2026-10-18**, and `TERMS_VERSION` with them, so sign-ups from the
   deploy record the version with these pages.
+
+## D-043 · The voice profile setup: sign in first, and an interview for agents with no samples
+
+**Date:** 2026-10-18
+**Approved by:** Connor Leiva, in chat on 2026-10-18 ("I like your outline and agree with your
+decisions. Please build."), from Spring Bengtzen's voice note on /voice-profile, with her "Voice
+Builder" document as the interview.
+**Scope:** `apps/web/src/ai101/{content,render,main}.ts`, `ai101.css` and their tests;
+`apps/web/src/voice/*`. Both pages: /voice-profile, and /ai101's Part I, which share the content and the
+renderer (D-040). Amends D-034, D-036 and D-040.
+
+- **Sign in first.** "First: get the app and sign in", whose buttons went to the app stores on a phone,
+  is now "First: sign in to ChatGPT or Claude", with Open ChatGPT and Open Claude (the web apps, which
+  a phone with the app may open in the app), then "Don't have the app yet? Get ChatGPT or Get Claude."
+  as the store links, swapped in on a phone as before (D-032).
+- **Step 1 is a choice: "I Have Samples" or "Interview Me".** Spring's point: most agents have no
+  recordings of themselves, and the prompt alone answered them "Ready, send your samples" and stopped.
+  The samples path names meeting transcripts (Zoom, Granola, Fathom, Otter) and says to copy only the
+  agent's own parts. The interview path says what to have ready: five things they wrote, and a two
+  minute voice memo (or the mic). A switch over two panels, like Save's: remembered (`state.path`,
+  `samples` by default), and it picks step 2's prompt too. Without the script both paths show, each
+  under its name. Step 1's Next is now "I'm Ready"; step 2 is "Copy your prompt".
+- **Two prompts, one per path.** The samples path keeps Connor's forensic-linguist prompt, unchanged
+  (D-036). The interview path is Spring's Voice Builder (`interviewPrompt`, id `voice_interview`):
+  her questions, part names and lines, and her profile's sections, word for word. Merging it into
+  Connor's would have lost her profile's shape. Added so it runs in a chat and fits step 3: the
+  interview's rules (one question at a time, the mic, one follow-up, nothing written until the end),
+  the mic in place of a voice memo transcript, "use only what I gave you, never invent", punctuation
+  learned only from what was typed, plain text between the same START and END lines, and a QUICK
+  CARD first, under 1,500 characters and starting "Write as me.", so step 3's ChatGPT instruction and
+  /ai101's Carousel Creator ("the profile that starts with 'Write as me.'") work for either profile.
+  Left out of her document: its program framing (the brand name, "week one of the 30 Day AI Launch",
+  "once a quarter") and "name the project with your name" (step 3 says "My Voice").
+- **One renderer.** /ai101's step 1, step 2, Save and the sign-in links are now shared builders
+  (`samplesBody`, `voiceCopyBody`, `saveBody`, `getAppLinks`), and /voice-profile calls them, so the
+  two pages cannot drift. `initPicker` became `initChoice`, which runs both switches.

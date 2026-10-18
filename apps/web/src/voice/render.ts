@@ -16,20 +16,18 @@
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
 import {
   HONEYPOT_LABEL,
-  NEW_TAB,
   callout,
-  copyOpenButton,
   esc,
-  fillFields,
+  getAppLinks,
   h2,
   inline,
-  linkButton,
   logo,
-  promptBlock,
+  samplesBody,
+  saveBody,
   screenSection,
-  stepsCard,
   stepsHeader,
   stepsNav,
+  voiceCopyBody,
 } from '../ai101/render';
 import { UI } from '../ai101/content';
 import { VOICE } from './content';
@@ -109,69 +107,16 @@ function welcome(): string {
   );
 }
 
-/** /ai101's "First: get the app and sign in" card, as this page's first step after the gate. */
+/** /ai101's "Sign in first" card, as this page's first step after the gate (D-043). */
 function getApp(): string {
   const g = VOICE.getApp;
-  const apps = g.apps
-    .map(
-      ({ label, href }) =>
-        `<a class="btn btn-outline" href="${esc(href.web)}" ${NEW_TAB} data-ios="${esc(href.ios)}" ` +
-        `data-android="${esc(href.android)}" data-get-app>${esc(label)}</a>`,
-    )
-    .join('');
-  return screen(1, [
-    h2(anchorOf(1), g.heading),
-    `<p class="lede">${esc(g.body)}</p>`,
-    `<div class="row">${apps}</div>`,
-  ]);
+  return screen(1, [h2(anchorOf(1), g.heading), `<p class="lede">${esc(g.body)}</p>`, getAppLinks()]);
 }
 
-function samples(): string {
-  const s = VOICE.samples;
-  return screen(2, [
-    h2(anchorOf(2), s.heading),
-    `<p class="lede">${esc(s.intro)}</p>`,
-    `<ul class="tiles" role="list">${s.items.map((i) => `<li class="card tile">${esc(i)}</li>`).join('')}</ul>`,
-    callout(esc(s.tip), 'tip'),
-  ]);
-}
-
-function voiceCopy(): string {
-  const v = VOICE.voiceCopy;
-  const id = `${anchorOf(2)}-prompt`; // "voice-profile-prompt", as on /ai101
-  return screen(3, [
-    h2(anchorOf(3), v.heading),
-    fillFields(v.fields),
-    `<div class="stack">${v.open.map((o) => copyOpenButton(o, id)).join('')}</div>`,
-    stepsCard(v.thenHeading, v.then),
-    promptBlock(VOICE.voicePrompt, id, v.showPrompt),
-    `<p class="note">${esc(v.note)}</p>`,
-  ]);
-}
-
-/** Save it: /ai101's Claude / ChatGPT switch over two panels. */
-function save(): string {
-  const s = VOICE.save;
-  const panel = (key: 'claude' | 'chatgpt') => {
-    const p = s[key];
-    return (
-      `<div class="card pick-panel" data-pick-panel="${key}">` +
-      `<h3 class="pick-title">${esc(p.tab)}</h3>` +
-      `<ol class="numbered" role="list">${p.steps.map((st) => `<li><span>${inline(st)}</span></li>`).join('')}</ol>` +
-      linkButton(p.button, 'primary') +
-      `<p class="small muted">${esc(p.note)}</p></div>`
-    );
-  };
-  const pick = (key: 'claude' | 'chatgpt', pressed: boolean) =>
-    `<button type="button" data-pick="${key}" aria-pressed="${pressed}">${esc(s[key].tab)}</button>`;
-  return screen(4, [
-    h2(anchorOf(4), s.heading),
-    `<p class="lede">${esc(s.intro)}</p>`,
-    `<div class="picker" role="group" aria-label="${esc(s.pickLabel)}" hidden data-js-only>${pick('claude', true)}${pick('chatgpt', false)}</div>`,
-    panel('claude'),
-    panel('chatgpt'),
-  ]);
-}
+/** Step 1, step 2 and Save are /ai101's own, built by its renderer (D-040, D-043). */
+const samples = () => screen(2, samplesBody(anchorOf(2)));
+const voiceCopy = () => screen(3, voiceCopyBody(anchorOf(3), anchorOf(2)));
+const save = () => screen(4, saveBody(anchorOf(4)));
 
 function test(): string {
   const t = VOICE.test;

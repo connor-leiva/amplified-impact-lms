@@ -22,7 +22,7 @@
 
 export interface Prompt {
   /** The analytics name from the spec, and the DOM id stem. */
-  id: 'voice_profile' | 'carousel_creator' | 'brand_system';
+  id: 'voice_profile' | 'voice_interview' | 'carousel_creator' | 'brand_system';
   label: string;
   text: string;
   /** Bracketed spans that are the prompt's own words, not blanks to fill: drawn as plain text. */
@@ -124,7 +124,7 @@ export const PAGE = {
     // The two halves are Part I and Part II; the screens inside each are its steps, "1 of 4" (Connor,
     // 2026-10-08, D-037).
     { anchor: 'welcome', stage: 'Welcome', next: 'Start Part I' },
-    { anchor: 'voice-profile', stage: 'Part I · Voice Profile', count: '1 of 4', next: 'I Have My Samples' },
+    { anchor: 'voice-profile', stage: 'Part I · Voice Profile', count: '1 of 4', next: "I'm Ready" },
     { anchor: 'voice-profile-copy', stage: 'Part I · Voice Profile', count: '2 of 4', next: 'I Have My Profile' },
     { anchor: 'voice-profile-save', stage: 'Part I · Voice Profile', count: '3 of 4', next: 'Saved It' },
     { anchor: 'voice-profile-test', stage: 'Part I · Voice Profile', count: '4 of 4', next: 'Start Part II' },
@@ -132,10 +132,25 @@ export const PAGE = {
     // The design's "Brand Is Published": the brand is now built from a chat and saved, not published
     // (D-032's research; Connor chose the corrected flow on 2026-10-08). The id is the old checklist's,
     // whose first item this screen is, so a link to it still lands somewhere that makes sense.
-    { anchor: 'carousel-creator-checklist', stage: 'Part II · Carousel Creator', count: '2 of 5', next: 'My Brand Is Saved' },
+    {
+      anchor: 'carousel-creator-checklist',
+      stage: 'Part II · Carousel Creator',
+      count: '2 of 5',
+      next: 'My Brand Is Saved',
+    },
     { anchor: 'carousel-creator-about', stage: 'Part II · Carousel Creator', count: '3 of 5', next: 'Next' },
-    { anchor: 'carousel-creator-project', stage: 'Part II · Carousel Creator', count: '4 of 5', next: 'Project Is Made' },
-    { anchor: 'carousel-creator-first-idea', stage: 'Part II · Carousel Creator', count: '5 of 5', next: 'How a Week Works' },
+    {
+      anchor: 'carousel-creator-project',
+      stage: 'Part II · Carousel Creator',
+      count: '4 of 5',
+      next: 'Project Is Made',
+    },
+    {
+      anchor: 'carousel-creator-first-idea',
+      stage: 'Part II · Carousel Creator',
+      count: '5 of 5',
+      next: 'How a Week Works',
+    },
     { anchor: 'carousel-creator-week', stage: 'Your Week', next: 'Last Thing' },
     { anchor: 'waitlist', stage: 'December Waitlist' },
   ] satisfies Screen[],
@@ -152,9 +167,16 @@ export const PAGE = {
     title: 'Sounds Like You, Looks Like You',
     intro:
       "The prompts and setup from the session with Spring and Connor. One screen at a time. Tap the big green button when you're ready for the next one.",
+    // Sign in first, and only then "don't have it?" (Spring's notes, 2026-10-18, D-043). The Open
+    // buttons are the web apps, which a phone with the app installed may open in the app instead.
     getApp: {
-      heading: 'First: get the app and sign in',
+      heading: 'First: sign in to ChatGPT or Claude',
       body: 'Either one works. Phone or laptop. Free.',
+      open: [
+        { label: 'Open ChatGPT', href: 'https://chatgpt.com/' },
+        { label: 'Open Claude', href: 'https://claude.ai/' },
+      ] satisfies LinkButton[],
+      download: "Don't have the app yet?",
       // Each `web` href is the desktop and no-JavaScript default: the web app itself, as the design
       // has it, so a laptop on hotel Wi-Fi signs in in the browser instead of downloading an app
       // (Connor, 2026-10-08, D-037). `main.ts` swaps in the platform's store link on iPhone, iPad and
@@ -187,41 +209,100 @@ export const PAGE = {
     skip: { label: 'Already have a voice profile? Skip to Part II', href: '#carousel-creator' },
   },
 
+  // Step 1 is a choice (Spring's notes, 2026-10-18, D-043): samples you already have, or an interview
+  // for the many agents who have none. The choice is remembered and picks step 2's prompt.
   samples: {
-    heading: 'Collect 10 to 15 samples of you',
-    intro: 'Things you actually wrote or said. Put them in a note on your phone for now.',
-    items: ['Captions you wrote yourself', 'Emails to clients', 'A transcript of you talking about your market'],
-    tip: 'Voice memos count as samples.',
+    heading: 'Pick how it learns your voice',
+    intro: 'Have things you wrote or said? Use them. No samples? Do the interview instead.',
+    pickLabel: 'How it learns your voice',
+    samples: {
+      tab: 'I Have Samples',
+      title: 'Collect 10 to 15 samples of you',
+      intro: 'Things you actually wrote or said. Put them in a note on your phone for now.',
+      items: [
+        'Captions you wrote yourself',
+        'Emails and texts to clients',
+        'Meeting transcripts from Zoom, Granola, Fathom or Otter',
+        'Voice memos, or a transcript of you talking about your market',
+      ],
+      tip: 'From a meeting transcript, copy only the parts where you are the one talking.',
+    },
+    interview: {
+      tab: 'Interview Me',
+      title: 'Let it interview you',
+      intro:
+        "It asks one question at a time about your story, who you serve, how you talk, and what's off limits. About 30 minutes.",
+      items: [
+        "Five things you've already written: texts to clients, emails, or captions. Real ones, not your best ones.",
+        'A two minute voice memo answering "Is now a good time to buy?" like you would on the phone. No transcript? Answer it with the mic in the chat.',
+      ],
+      tip: 'Talk your answers out loud with the mic. You sound more like you when you talk than when you type.',
+    },
   },
 
+  // Step 2: the prompt for the path picked on step 1, each in its own panel.
   voiceCopy: {
-    heading: 'Fill in two blanks, then copy',
-    fields: [
-      { name: 'market', label: 'Your city or market', placeholder: 'Farmington, CT' },
-      { name: 'clients', label: 'Your clients are mostly', placeholder: 'buyers, sellers, or both' },
-    ] satisfies FillField[],
-    // Copy, then open a BLANK chat. Never a `?q=` prefill: ChatGPT's sends the prompt before the
-    // brackets are filled in, and Claude's shows a "Use caution" banner (D-032).
-    open: [
-      {
-        label: 'Copy & Open ChatGPT',
-        app: 'ChatGPT',
-        href: 'https://chatgpt.com/',
-        toast: 'Copied. Paste it into the new ChatGPT chat.',
-      },
-      {
-        label: 'Copy & Open Claude',
-        app: 'Claude',
-        href: 'https://claude.ai/new',
-        toast: 'Copied. Paste it into the new Claude chat.',
-      },
-    ] satisfies CopyOpen[],
-    thenHeading: 'Then, in the new chat:',
-    // The design's "Replace the last line with your samples" no longer fits: the prompt now ends with
-    // ABOUT ME lines, and the samples go under them (D-036).
-    then: [['Paste.'], ['Finish the ABOUT ME lines at the bottom.'], ['Paste your samples under them, then send.']] as Inline[][],
-    showPrompt: 'See the full prompt',
-    note: `It already bans lines like "In today's market," "Let's dive in," and "Thinking of buying or selling?" Add any others you're tired of.`,
+    heading: 'Copy your prompt',
+    samples: {
+      tab: 'I Have Samples',
+      lead: 'Fill in two blanks, then copy.',
+      fields: [
+        { name: 'market', label: 'Your city or market', placeholder: 'Farmington, CT' },
+        { name: 'clients', label: 'Your clients are mostly', placeholder: 'buyers, sellers, or both' },
+      ] satisfies FillField[],
+      // Copy, then open a BLANK chat. Never a `?q=` prefill: ChatGPT's sends the prompt before the
+      // brackets are filled in, and Claude's shows a "Use caution" banner (D-032).
+      open: [
+        {
+          label: 'Copy & Open ChatGPT',
+          app: 'ChatGPT',
+          href: 'https://chatgpt.com/',
+          toast: 'Copied. Paste it into the new ChatGPT chat.',
+        },
+        {
+          label: 'Copy & Open Claude',
+          app: 'Claude',
+          href: 'https://claude.ai/new',
+          toast: 'Copied. Paste it into the new Claude chat.',
+        },
+      ] satisfies CopyOpen[],
+      thenHeading: 'Then, in the new chat:',
+      // The design's "Replace the last line with your samples" no longer fits: the prompt now ends with
+      // ABOUT ME lines, and the samples go under them (D-036).
+      then: [
+        ['Paste.'],
+        ['Finish the ABOUT ME lines at the bottom.'],
+        ['Paste your samples under them, then send.'],
+      ] as Inline[][],
+      showPrompt: 'See the full prompt',
+      note: `It already bans lines like "In today's market," "Let's dive in," and "Thinking of buying or selling?" Add any others you're tired of.`,
+    },
+    interview: {
+      tab: 'Interview Me',
+      lead: 'Copy it, then answer one question at a time.',
+      open: [
+        {
+          label: 'Copy & Open ChatGPT',
+          app: 'ChatGPT',
+          href: 'https://chatgpt.com/',
+          toast: 'Copied. Paste it into the new ChatGPT chat.',
+        },
+        {
+          label: 'Copy & Open Claude',
+          app: 'Claude',
+          href: 'https://claude.ai/new',
+          toast: 'Copied. Paste it into the new Claude chat.',
+        },
+      ] satisfies CopyOpen[],
+      thenHeading: 'Then, in the new chat:',
+      then: [
+        ['Paste it and send.'],
+        ['Answer each question out loud. Tap the mic and talk.'],
+        ['When it asks, paste your five written pieces and your voice memo.'],
+        ['At the end it writes your Voice Profile.'],
+      ] as Inline[][],
+      showPrompt: 'See the full prompt',
+    },
   },
 
   // Connor's prompt (2026-10-08, D-036), word for word: a forensic-linguist profile with a QUICK CARD
@@ -336,11 +417,116 @@ Phrases I can't stand:`,
     literal: ["[VERIFY: what's needed]", '[VERIFY]'],
   } satisfies Prompt,
 
+  // Spring's Voice Builder (2026-10-18, D-043): the interview for agents with no samples. Her questions,
+  // part names and the lines under them, and her profile's sections, word for word, from her
+  // "Voice Builder" document. Ours, so it runs in a chat and fits step 3: the interview's rules (one
+  // question at a time, the mic, a follow-up), the mic as a stand-in for the voice memo's transcript,
+  // "use only what I gave you", the START and END lines, and a QUICK CARD for ChatGPT's 1,500
+  // characters, first, starting "Write as me." as the other profile does.
+  interviewPrompt: {
+    id: 'voice_interview',
+    label: 'Voice interview prompt',
+    text: `You're my Voice Builder. I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually talk. Build it by interviewing me.
+
+HOW TO RUN THE INTERVIEW
+Ask me the questions below one at a time, in order, in the words they're written in. Wait for my answer before you ask the next one.
+At the start, tell me once to talk my answers out loud with the mic if I can, because I sound more like me when I talk than when I type.
+Start each part by telling me its name and the line under it.
+If an answer is thin, ask one short follow-up, then move on.
+Don't write anything else until all four parts are done.
+
+PART 1: YOUR STORY
+People hire people they feel they know. Your story is what makes a stranger feel like they know you.
+1. Why did you get into real estate? Tell the real reason, not the polished one.
+2. What did you do before this, and what did it teach you that helps your clients now?
+3. Tell me about a moment in your life that changed how you see home.
+4. What's a hard thing you've walked through that your clients might be walking through too?
+5. Who are the people you're doing this for?
+6. What do you love about where you live? Name real places, like a park, a taco spot, or a trail.
+7. What do you do when you're not working?
+8. Tell me about the client story you're proudest of. What happened, and why did it matter?
+
+PART 2: WHO YOU SERVE
+You can't talk to everyone. The agents who win pick a person and talk to them every day.
+9. Think of your three favorite clients. What do they have in common?
+10. What stage of life are the people you love working with? First home, growing family, moving up, downsizing, or investing?
+11. What areas do you know better than anyone? Name the cities, neighborhoods, or zip codes.
+12. What keeps your ideal client up at night about buying or selling?
+13. What do they want that they're scared to say out loud?
+14. What do people always thank you for at closing?
+15. What's the one thing you want to be known for in your market?
+
+PART 3: HOW YOU TALK
+This is the part that makes it sound like you. Don't skip the samples. They teach the AI more than any answer you give.
+First, ask me for these two samples:
+16. Five things you've already written. Texts to clients, emails, or captions you liked. Real ones, not your best ones.
+17. A two minute voice memo. Pretend a buyer just asked you, "Is now a good time to buy?" Answer like you would on the phone, then paste in the transcript.
+If I don't have a transcript, I can answer question 17 right here with the mic instead.
+Then ask:
+18. How would your best friend describe the way you talk?
+19. Are you more funny, calm, direct, warm, or high energy? Pick two.
+20. What words or sayings do you use all the time?
+21. Do you use emojis? Which ones feel like you?
+22. When you post, do you want people to feel inspired, informed, entertained, or cared for?
+
+PART 4: YOUR BOUNDARIES
+Knowing what isn't you matters just as much as knowing what is.
+23. What words or phrases make you cringe when other agents use them?
+24. What kind of real estate content do you never want to post?
+25. What parts of your life are off limits online? Think kids, faith, health, money, or past relationships.
+26. Are there topics you want to stay out of, like politics or rate predictions?
+27. Is there anything about how agents market that you think is fake?
+
+WHEN THE INTERVIEW IS DONE
+Write my Voice Profile: one page that tells any AI tool exactly how to sound like me. Use only what I told you and pasted. Never invent a story, a client, a number, or an opinion. Learn my words, rhythm, and beliefs from everything I gave you, but learn punctuation and emoji only from what I typed or pasted, not from what I said out loud.
+Plain text, short headings in capitals, no tables, so it pastes anywhere. Put it between a line reading ===== START OF PROFILE ===== and a line reading ===== END OF PROFILE =====. Sections, in this order:
+
+QUICK CARD
+Under 1,500 characters, because I'll paste it into tools with short instruction boxes. Start it with "Write as me." Then my one line, how I sound, the words I use, the words I never use, and what's off limits.
+
+MY ONE LINE
+Who I help, where, and how, in one sentence.
+
+MY STORY
+My why in three short sentences.
+
+WHO I SERVE
+My ideal client, their stage of life, and my areas.
+
+WHAT THEY NEED
+Their biggest worry and what they really want.
+
+MY THREE CONTENT PILLARS
+The three topics I'll post about every week.
+
+HOW I SOUND
+My two tone words, plus how long my sentences run.
+
+WORDS I USE
+Sayings and phrases that are mine.
+
+WORDS I NEVER USE
+Phrases that aren't me.
+
+OFF LIMITS
+Topics and parts of my life I keep private.
+
+SAMPLE POST
+A short caption written in my voice.
+
+SAMPLE EMAIL
+A short sphere email opener in my voice.
+
+SAMPLE TEXT
+A check in text to a past client in my voice.`,
+  } satisfies Prompt,
+
   save: {
     heading: 'Save your profile so the AI remembers it',
     // The answer now carries notes after the profile (set aside, gaps, questions) that are not for
     // saving, so the screen says where the profile starts and stops (D-036).
-    intro: 'Copy your profile from the answer: everything between the START OF PROFILE and END OF PROFILE lines. Then pick the app you used.',
+    intro:
+      'Copy your profile from the answer: everything between the START OF PROFILE and END OF PROFILE lines. Then pick the app you used.',
     pickLabel: 'The app you used',
     claude: {
       tab: 'Claude',
@@ -363,7 +549,10 @@ Phrases I can't stand:`,
       ] as Inline[][],
       // Connor's deep link (2026-10-07): it lands on Custom instructions itself. The design's
       // `#settings/Personalization` stops one screen short.
-      button: { label: 'Open ChatGPT Settings', href: 'https://chatgpt.com/settings/personalization?instructions=chatgpt' },
+      button: {
+        label: 'Open ChatGPT Settings',
+        href: 'https://chatgpt.com/settings/personalization?instructions=chatgpt',
+      },
       // The full profile runs well past Custom instructions' limit; the prompt writes the QUICK CARD
       // to fit under it (D-036).
       note: 'Custom instructions hold about 1,500 characters, and the QUICK CARD is written to fit. For the full profile, use a Claude Project.',
@@ -395,7 +584,10 @@ Phrases I can't stand:`,
       'An AI employee is three layers: a brain, a brand, and a job. Build the first two once, and every carousel after that starts with one message.',
     layers: [
       { title: '1. The brand', body: 'Your logo, headshot, colors and fonts, set up once in Claude Design.' },
-      { title: '2. The brain', body: 'A Claude Project called Carousel Creator with your voice profile and instructions.' },
+      {
+        title: '2. The brain',
+        body: 'A Claude Project called Carousel Creator with your voice profile and instructions.',
+      },
       { title: '3. The job', body: 'Once a week, send it one idea.' },
     ],
     warning: 'Do this on a laptop, with Claude Pro or higher.',
@@ -484,7 +676,13 @@ Name it My Carousel Brand. Then show me the colors, fonts, and one sample slide.
     thenHeading: 'Then, in Claude:',
     then: [
       ['Click ', { strong: 'New project' }, ', top right.'],
-      ['Name it ', { strong: 'Carousel Creator' }, '. Leave the description blank and click ', { strong: 'Create project' }, '.'],
+      [
+        'Name it ',
+        { strong: 'Carousel Creator' },
+        '. Leave the description blank and click ',
+        { strong: 'Create project' },
+        '.',
+      ],
       ['Open ', { strong: 'Instructions' }, ' on the right side and paste there, not in the description.'],
     ] as Inline[][],
     showPrompt: 'See the full instructions',
@@ -615,6 +813,7 @@ export const UI = {
   slots: {
     // None: the voice profile prompt's blanks are ABOUT ME lines (`lineSlots`), not brackets.
     voice_profile: {},
+    voice_interview: {},
     carousel_creator: {
       '[your niche]': 'niche',
       '[neighborhoods]': 'hoods',

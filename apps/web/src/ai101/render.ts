@@ -219,22 +219,32 @@ const anchorOf = (index: number) => PAGE.screens[index]!.anchor;
 
 // --- The screens ----------------------------------------------------------------------------------
 
-function welcome(): string {
-  const w = PAGE.welcome;
-  const apps = w.getApp.apps
+/**
+ * "Sign in first" (D-043): the Open buttons, then the app-store links for anyone who does not have the
+ * app yet. Shared with /voice-profile, whose "Get the app" screen is this card's words.
+ */
+export function getAppLinks(): string {
+  const g = PAGE.welcome.getApp;
+  const open = g.open.map((o) => linkButton(o, 'outline')).join('');
+  const stores = g.apps
     .map(
       ({ label, href }) =>
-        `<a class="btn btn-outline" href="${esc(href.web)}" ${NEW_TAB} data-ios="${esc(href.ios)}" ` +
+        `<a href="${esc(href.web)}" ${NEW_TAB} data-ios="${esc(href.ios)}" ` +
         `data-android="${esc(href.android)}" data-get-app>${esc(label)}</a>`,
     )
-    .join('');
+    .join(' or ');
+  return `<div class="row">${open}</div><p class="get-app">${esc(g.download)} ${stores}.</p>`;
+}
+
+function welcome(): string {
+  const w = PAGE.welcome;
   return screen(0, [
     logo(signatureSvg, w.logoAlt, 'logo'),
     `<p class="eyebrow">${esc(w.eyebrow)}</p>`,
     `<h1 id="${esc(anchorOf(0))}-heading" tabindex="-1">${esc(w.title)}</h1>`,
     `<p class="lede">${esc(w.intro)}</p>`,
     card(
-      `<p class="card-title card-title-lg">${esc(w.getApp.heading)}</p><p class="muted">${esc(w.getApp.body)}</p><div class="row">${apps}</div>`,
+      `<p class="card-title card-title-lg">${esc(w.getApp.heading)}</p><p class="muted">${esc(w.getApp.body)}</p>${getAppLinks()}`,
       'card-roomy',
     ),
     `<div class="builds"><p class="builds-lead">${esc(w.buildsLead)}</p>` +
@@ -244,34 +254,92 @@ function welcome(): string {
   ]);
 }
 
-function samples(): string {
+/** A switch over two panels; see `save()` and `samplesBody()`. Hidden until the script runs. */
+function switchOf(attr: string, label: string, options: ReadonlyArray<readonly [string, string]>): string {
+  const buttons = options
+    .map(
+      ([key, tab], i) => `<button type="button" ${attr}="${esc(key)}" aria-pressed="${i === 0}">${esc(tab)}</button>`,
+    )
+    .join('');
+  return `<div class="picker" role="group" aria-label="${esc(label)}" hidden data-js-only>${buttons}</div>`;
+}
+
+/**
+ * Step 1 (D-043): a choice of how it learns your voice, from samples you have or an interview. A
+ * switch over two panels, like Save's: without the script both panels show, each under its name;
+ * with it, the one picked, which `main.ts` remembers and which also picks step 2's prompt.
+ */
+export function samplesBody(anchor: string): string[] {
   const s = PAGE.samples;
-  return screen(1, [
-    h2(anchorOf(1), s.heading),
+  const panel = (key: 'samples' | 'interview') => {
+    const p = s[key];
+    return [
+      `<div class="path-panel" data-path-panel="${key}">`,
+      `<h3 class="pick-title">${esc(p.tab)}</h3>`,
+      `<p class="path-title">${esc(p.title)}</p>`,
+      `<p class="lede">${esc(p.intro)}</p>`,
+      `<ul class="tiles" role="list">${p.items.map((i) => `<li class="card tile">${esc(i)}</li>`).join('')}</ul>`,
+      callout(esc(p.tip), 'tip'),
+      `</div>`,
+    ].join('\n');
+  };
+  return [
+    h2(anchor, s.heading),
     `<p class="lede">${esc(s.intro)}</p>`,
-    `<ul class="tiles" role="list">${s.items.map((i) => `<li class="card tile">${esc(i)}</li>`).join('')}</ul>`,
-    callout(esc(s.tip), 'tip'),
-  ]);
+    switchOf('data-path', s.pickLabel, [
+      ['samples', s.samples.tab],
+      ['interview', s.interview.tab],
+    ]),
+    panel('samples'),
+    panel('interview'),
+  ];
+}
+
+/**
+ * Step 2: the prompt for the path picked on step 1, each in its own panel. The samples prompt keeps
+ * its block id, `voice-profile-prompt`, the anchor the slides use; the interview's is
+ * `voice-interview-prompt`.
+ */
+export function voiceCopyBody(anchor: string, samplesAnchor: string): string[] {
+  const v = PAGE.voiceCopy;
+  const samplesId = `${samplesAnchor}-prompt`;
+  const interviewId = 'voice-interview-prompt';
+  const s = v.samples;
+  const i = v.interview;
+  return [
+    h2(anchor, v.heading),
+    `<div class="path-panel" data-path-panel="samples">`,
+    `<h3 class="pick-title">${esc(s.tab)}</h3>`,
+    `<p class="path-lead">${esc(s.lead)}</p>`,
+    fillFields(s.fields),
+    `<div class="stack">${s.open.map((o) => copyOpenButton(o, samplesId)).join('')}</div>`,
+    stepsCard(s.thenHeading, s.then),
+    promptBlock(PAGE.voicePrompt, samplesId, s.showPrompt),
+    `<p class="note">${esc(s.note)}</p>`,
+    `</div>`,
+    `<div class="path-panel" data-path-panel="interview">`,
+    `<h3 class="pick-title">${esc(i.tab)}</h3>`,
+    `<p class="path-lead">${esc(i.lead)}</p>`,
+    `<div class="stack">${i.open.map((o) => copyOpenButton(o, interviewId)).join('')}</div>`,
+    stepsCard(i.thenHeading, i.then),
+    promptBlock(PAGE.interviewPrompt, interviewId, i.showPrompt),
+    `</div>`,
+  ];
+}
+
+function samples(): string {
+  return screen(1, samplesBody(anchorOf(1)));
 }
 
 function voiceCopy(): string {
-  const v = PAGE.voiceCopy;
-  const id = `${PAGE.screens[1]!.anchor}-prompt`; // "voice-profile-prompt", the anchor the slides use
-  return screen(2, [
-    h2(anchorOf(2), v.heading),
-    fillFields(v.fields),
-    `<div class="stack">${v.open.map((o) => copyOpenButton(o, id)).join('')}</div>`,
-    stepsCard(v.thenHeading, v.then),
-    promptBlock(PAGE.voicePrompt, id, v.showPrompt),
-    `<p class="note">${esc(v.note)}</p>`,
-  ]);
+  return screen(2, voiceCopyBody(anchorOf(2), anchorOf(1)));
 }
 
 /**
  * Save it: a Claude / ChatGPT switch over two panels. Without the script both panels show, each
- * under its app's name; with it, the switch (hidden until then) shows one.
+ * under its app's name; with it, the switch (hidden until then) shows one. Shared with /voice-profile.
  */
-function save(): string {
+export function saveBody(anchor: string): string[] {
   const s = PAGE.save;
   const panel = (key: 'claude' | 'chatgpt') => {
     const p = s[key];
@@ -283,15 +351,20 @@ function save(): string {
       `<p class="small muted">${esc(p.note)}</p></div>`
     );
   };
-  const pick = (key: 'claude' | 'chatgpt', pressed: boolean) =>
-    `<button type="button" data-pick="${key}" aria-pressed="${pressed}">${esc(s[key].tab)}</button>`;
-  return screen(3, [
-    h2(anchorOf(3), s.heading),
+  return [
+    h2(anchor, s.heading),
     `<p class="lede">${esc(s.intro)}</p>`,
-    `<div class="picker" role="group" aria-label="${esc(s.pickLabel)}" hidden data-js-only>${pick('claude', true)}${pick('chatgpt', false)}</div>`,
+    switchOf('data-pick', s.pickLabel, [
+      ['claude', s.claude.tab],
+      ['chatgpt', s.chatgpt.tab],
+    ]),
     panel('claude'),
     panel('chatgpt'),
-  ]);
+  ];
+}
+
+function save(): string {
+  return screen(3, saveBody(anchorOf(3)));
 }
 
 function test(): string {

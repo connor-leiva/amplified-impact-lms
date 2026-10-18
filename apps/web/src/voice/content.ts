@@ -37,7 +37,7 @@ export const VOICE = {
   screens: [
     { anchor: 'welcome', stage: 'Welcome', next: 'Start' },
     { anchor: 'get-the-app', stage: 'Before You Start', next: "I'm Signed In" },
-    { anchor: 'voice-profile', stage: 'Voice Profile', count: '1 of 4', next: 'I Have My Samples' },
+    { anchor: 'voice-profile', stage: 'Voice Profile', count: '1 of 4', next: "I'm Ready" },
     { anchor: 'voice-profile-copy', stage: 'Voice Profile', count: '2 of 4', next: 'I Have My Profile' },
     { anchor: 'voice-profile-save', stage: 'Voice Profile', count: '3 of 4', next: 'Saved It' },
     // The last screen: no Next, so the footer shows Start Over.
@@ -79,6 +79,7 @@ export const VOICE = {
   samples: AI101.samples,
   voiceCopy: AI101.voiceCopy,
   voicePrompt: AI101.voicePrompt,
+  interviewPrompt: AI101.interviewPrompt,
   save: AI101.save,
 
   test: {

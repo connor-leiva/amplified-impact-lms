@@ -69,15 +69,20 @@ function guard(setup: () => void): void {
 const FIELD_NAMES = ['market', 'clients', 'niche', 'hoods', 'questions', 'brokerage', 'profile'] as const;
 type FieldName = (typeof FIELD_NAMES)[number];
 
-/** What is remembered between visits: the screen, the app picked on Save, and every field. */
+/**
+ * What is remembered between visits: the screen, the app picked on Save, the way in picked on step 1
+ * (D-043), and every field.
+ */
 export interface State extends Record<FieldName, string> {
   i: number;
   app: 'claude' | 'chatgpt';
+  path: 'samples' | 'interview';
 }
 
 const EMPTY: State = {
   i: 0,
   app: 'claude',
+  path: 'samples',
   market: '',
   clients: '',
   niche: '',
@@ -105,6 +110,7 @@ function loadState(key: string): State {
     const p = parsed as Record<string, unknown>;
     if (typeof p.i === 'number' && Number.isInteger(p.i) && p.i >= 0) out.i = p.i;
     if (p.app === 'chatgpt' || p.app === 'claude') out.app = p.app;
+    if (p.path === 'samples' || p.path === 'interview') out.path = p.path;
     for (const key of FIELD_NAMES) if (typeof p[key] === 'string') out[key] = p[key] as string;
   } catch {
     // Read as empty.
@@ -496,17 +502,31 @@ function initFill(doc: Document, state: State, save: () => void): void {
 
 // --- Save it: Claude or ChatGPT ------------------------------------------------------------------------
 
-function initPicker(doc: Document, state: State, save: () => void): void {
-  const buttons = Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-pick]'));
-  const panels = Array.from(doc.querySelectorAll<HTMLElement>('[data-pick-panel]'));
+/**
+ * A two-way switch over panels, remembered: Save's Claude / ChatGPT (`data-pick`, `state.app`), and
+ * step 1's samples or interview (`data-path`, `state.path`, D-043), which also picks step 2's prompt,
+ * since that screen's panels carry the same `data-path-panel`. Buttons are `button[<attr>]`, panels
+ * `[<attr>-panel]`; a value it does not know reads as the first.
+ */
+function initChoice<K extends 'app' | 'path'>(
+  doc: Document,
+  state: State,
+  save: () => void,
+  key: K,
+  attr: string,
+  values: readonly State[K][],
+): void {
+  const buttons = Array.from(doc.querySelectorAll<HTMLButtonElement>(`button[${attr}]`));
+  const panels = Array.from(doc.querySelectorAll<HTMLElement>(`[${attr}-panel]`));
   if (buttons.length === 0 || panels.length === 0) return;
   const apply = () => {
-    for (const b of buttons) b.setAttribute('aria-pressed', String(b.getAttribute('data-pick') === state.app));
-    for (const p of panels) p.hidden = p.getAttribute('data-pick-panel') !== state.app;
+    for (const b of buttons) b.setAttribute('aria-pressed', String(b.getAttribute(attr) === state[key]));
+    for (const p of panels) p.hidden = p.getAttribute(`${attr}-panel`) !== state[key];
   };
   for (const b of buttons) {
     b.addEventListener('click', () => {
-      state.app = b.getAttribute('data-pick') === 'chatgpt' ? 'chatgpt' : 'claude';
+      const picked = b.getAttribute(attr) as State[K];
+      state[key] = values.indexOf(picked) >= 0 ? picked : values[0]!;
       save();
       apply();
     });
@@ -895,7 +915,8 @@ function boot(doc: Document): void {
   guard(() => initFill(doc, state, save));
   guard(() => initCopyOpen(doc, toast));
   guard(() => initChips(doc, toast));
-  guard(() => initPicker(doc, state, save));
+  guard(() => initChoice(doc, state, save, 'app', 'data-pick', ['claude', 'chatgpt']));
+  guard(() => initChoice(doc, state, save, 'path', 'data-path', ['samples', 'interview']));
   guard(() => initGetApp(doc));
   guard(() => initShare(doc));
   guard(() => revealScripted(doc));

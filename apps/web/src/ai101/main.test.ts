@@ -136,15 +136,45 @@ afterEach(() => {
 /** Every screen in order, as the header and footer must show it. Typed out: this IS the flow. */
 const SCREENS = [
   { anchor: 'welcome', stage: 'Welcome', count: '', next: 'Start Part I', bar: '0%' },
-  { anchor: 'voice-profile', stage: 'Part I · Voice Profile', count: '1 of 4', next: 'I Have My Samples', bar: '9%' },
-  { anchor: 'voice-profile-copy', stage: 'Part I · Voice Profile', count: '2 of 4', next: 'I Have My Profile', bar: '18%' },
+  { anchor: 'voice-profile', stage: 'Part I · Voice Profile', count: '1 of 4', next: "I'm Ready", bar: '9%' },
+  {
+    anchor: 'voice-profile-copy',
+    stage: 'Part I · Voice Profile',
+    count: '2 of 4',
+    next: 'I Have My Profile',
+    bar: '18%',
+  },
   { anchor: 'voice-profile-save', stage: 'Part I · Voice Profile', count: '3 of 4', next: 'Saved It', bar: '27%' },
   { anchor: 'voice-profile-test', stage: 'Part I · Voice Profile', count: '4 of 4', next: 'Start Part II', bar: '36%' },
-  { anchor: 'carousel-creator', stage: 'Part II · Carousel Creator', count: '1 of 5', next: "I'm on My Laptop", bar: '45%' },
-  { anchor: 'carousel-creator-checklist', stage: 'Part II · Carousel Creator', count: '2 of 5', next: 'My Brand Is Saved', bar: '55%' },
+  {
+    anchor: 'carousel-creator',
+    stage: 'Part II · Carousel Creator',
+    count: '1 of 5',
+    next: "I'm on My Laptop",
+    bar: '45%',
+  },
+  {
+    anchor: 'carousel-creator-checklist',
+    stage: 'Part II · Carousel Creator',
+    count: '2 of 5',
+    next: 'My Brand Is Saved',
+    bar: '55%',
+  },
   { anchor: 'carousel-creator-about', stage: 'Part II · Carousel Creator', count: '3 of 5', next: 'Next', bar: '64%' },
-  { anchor: 'carousel-creator-project', stage: 'Part II · Carousel Creator', count: '4 of 5', next: 'Project Is Made', bar: '73%' },
-  { anchor: 'carousel-creator-first-idea', stage: 'Part II · Carousel Creator', count: '5 of 5', next: 'How a Week Works', bar: '82%' },
+  {
+    anchor: 'carousel-creator-project',
+    stage: 'Part II · Carousel Creator',
+    count: '4 of 5',
+    next: 'Project Is Made',
+    bar: '73%',
+  },
+  {
+    anchor: 'carousel-creator-first-idea',
+    stage: 'Part II · Carousel Creator',
+    count: '5 of 5',
+    next: 'How a Week Works',
+    bar: '82%',
+  },
   { anchor: 'carousel-creator-week', stage: 'Your Week', count: '', next: 'Last Thing', bar: '91%' },
   { anchor: 'waitlist', stage: 'December Waitlist', count: '', next: '', bar: '100%' },
 ] as const;
@@ -245,6 +275,7 @@ describe('boot and resilience', () => {
     expect(saved()).toEqual({
       i: 0,
       app: 'claude',
+      path: 'samples',
       market: '',
       clients: '',
       niche: '',
@@ -315,13 +346,16 @@ describe('boot and resilience', () => {
         }),
       'form broke',
     ],
-  ])('when the %s feature throws, the others still start and the error is reported on a timer', async (what, breakIt, message) => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-    await boot('/ai101', breakIt);
-    expectTheRestWorks(what);
-    // Not swallowed: rethrown outside boot(), where the browser reports it.
-    expect(() => vi.runOnlyPendingTimers()).toThrow(message);
-  });
+  ])(
+    'when the %s feature throws, the others still start and the error is reported on a timer',
+    async (what, breakIt, message) => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      await boot('/ai101', breakIt);
+      expectTheRestWorks(what);
+      // Not swallowed: rethrown outside boot(), where the browser reports it.
+      expect(() => vi.runOnlyPendingTimers()).toThrow(message);
+    },
+  );
 });
 
 describe('the step-through', () => {
@@ -492,12 +526,15 @@ describe('the step-through', () => {
       expect(current()).toEqual(['carousel-creator-week']);
     });
 
-    it.each(['#nope', '#ai101-live', '#'])('a hash (%s) that names no part of any screen falls back to the saved place', async (hash) => {
-      save({ i: 3 });
-      await boot(`/ai101${hash}`);
-      expect(current()).toEqual(['voice-profile-save']);
-      expect(scrolledIntoView).toEqual([]);
-    });
+    it.each(['#nope', '#ai101-live', '#'])(
+      'a hash (%s) that names no part of any screen falls back to the saved place',
+      async (hash) => {
+        save({ i: 3 });
+        await boot(`/ai101${hash}`);
+        expect(current()).toEqual(['voice-profile-save']);
+        expect(scrolledIntoView).toEqual([]);
+      },
+    );
 
     // A malformed escape in the address once threw after the page had gone one-screen-at-a-time,
     // leaving every screen hidden under a Next button that did nothing.
@@ -555,7 +592,12 @@ describe('the step-through', () => {
       ['Next', '/ai101?src=qr#voice-profile-prompt', () => nextButton().click(), 'voice-profile-save'],
       ['Back', '/ai101?src=qr#voice-profile-prompt', () => backButton().click(), 'voice-profile'],
       ['Start Over', '/ai101?src=qr#waitlist-joined', () => restartButton().click(), 'welcome'],
-      ['a link', '/ai101?src=qr#voice-profile-prompt', () => click($('a[href="#carousel-creator"]')), 'carousel-creator'],
+      [
+        'a link',
+        '/ai101?src=qr#voice-profile-prompt',
+        () => click($('a[href="#carousel-creator"]')),
+        'carousel-creator',
+      ],
     ])('%s replaces the address without the hash, keeping ?src', async (_what, url, act, anchor) => {
       await boot(url);
       const replaceState = vi.spyOn(window.history, 'replaceState');
@@ -605,7 +647,8 @@ const ABOUT_EMPTY =
   'My voice profile:\n' +
   '[paste the profile that starts with "Write as me."]';
 const CAROUSEL_HEAD = CAROUSEL.slice(0, CAROUSEL.length - ABOUT_EMPTY.length);
-const BRAND_LINE = 'My brokerage is [brokerage name]. Every design must show it clearly, as real estate advertising rules require.';
+const BRAND_LINE =
+  'My brokerage is [brokerage name]. Every design must show it clearly, as real estate advertising rules require.';
 
 describe('filling the prompts', () => {
   it('starts with every prompt exactly as written, each placeholder marked', async () => {
@@ -707,7 +750,9 @@ describe('filling the prompts', () => {
   it('writes a single question as a one-item list', async () => {
     await boot();
     type('questions', 'Should I wait for rates to drop?');
-    expect(carouselPre().textContent).toContain('- Questions clients ask me most:\n  - Should I wait for rates to drop?\nMy brokerage:');
+    expect(carouselPre().textContent).toContain(
+      '- Questions clients ask me most:\n  - Should I wait for rates to drop?\nMy brokerage:',
+    );
   });
 
   it('keeps the questions placeholder, and the space before it, while the questions are blank', async () => {
@@ -771,6 +816,7 @@ describe('filling the prompts', () => {
     expect(saved()).toEqual({
       i: 0,
       app: 'claude',
+      path: 'samples',
       market: '  Hartford, CT ',
       clients: '',
       niche: '',
@@ -785,7 +831,9 @@ describe('filling the prompts', () => {
     expect(field('questions').value).toBe('Should I wait?\nWhat will it cost?');
     expect(field('brokerage').value).toBe('eXp Realty');
     expect(voicePre().textContent).toContain(`\n${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS}\n`);
-    expect(carouselPre().textContent).toContain('most:\n  - Should I wait?\n  - What will it cost?\nMy brokerage: eXp Realty\n');
+    expect(carouselPre().textContent).toContain(
+      'most:\n  - Should I wait?\n  - What will it cost?\nMy brokerage: eXp Realty\n',
+    );
     expect(brandPre().textContent).toContain('My brokerage is eXp Realty.');
   });
 });
@@ -801,7 +849,13 @@ describe('fillPrompt', () => {
   });
 
   it('fills the placeholders named in slots, trimmed, and keeps the rest', () => {
-    expect(fillPrompt('in [a] and [b] and [c].', { '[a]': 'market', '[b]': 'clients' }, { market: ' Hartford ', clients: '' })).toEqual([
+    expect(
+      fillPrompt(
+        'in [a] and [b] and [c].',
+        { '[a]': 'market', '[b]': 'clients' },
+        { market: ' Hartford ', clients: '' },
+      ),
+    ).toEqual([
       { text: 'in ', mark: false },
       { text: 'Hartford', mark: false },
       { text: ' and ', mark: false },
@@ -917,32 +971,73 @@ describe('Copy & Open', () => {
   });
 
   it.each([
-    [CHATGPT, 'voice-profile-prompt', 'Copy & Open ChatGPT', 'Copied. Paste it into the new ChatGPT chat.', `${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS} buyers\n`],
-    [CLAUDE, 'voice-profile-prompt', 'Copy & Open Claude', 'Copied. Paste it into the new Claude chat.', `${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS} buyers\n`],
-    [BRAND_LINK, 'carousel-creator-brand-prompt', 'Copy & Open Claude', 'Copied. Paste it into the new Claude chat.', 'My brokerage is eXp Realty.'],
-    [PROJECT_LINK, 'carousel-creator-prompt', 'Copy Instructions & Open Claude', 'Copied. Make the Project, then paste into Instructions.', '- Niche: Luxury\n'],
-  ])('%s copies its prompt as filled in right now, both ways, in one tap, and lets the link open', async (selector, block, name, toast, filled) => {
+    [
+      CHATGPT,
+      'voice-profile-prompt',
+      'Copy & Open ChatGPT',
+      'Copied. Paste it into the new ChatGPT chat.',
+      `${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS} buyers\n`,
+    ],
+    [
+      CLAUDE,
+      'voice-profile-prompt',
+      'Copy & Open Claude',
+      'Copied. Paste it into the new Claude chat.',
+      `${VOICE_MARKET} Hartford, CT\n${VOICE_CLIENTS} buyers\n`,
+    ],
+    [
+      BRAND_LINK,
+      'carousel-creator-brand-prompt',
+      'Copy & Open Claude',
+      'Copied. Paste it into the new Claude chat.',
+      'My brokerage is eXp Realty.',
+    ],
+    [
+      PROJECT_LINK,
+      'carousel-creator-prompt',
+      'Copy Instructions & Open Claude',
+      'Copied. Make the Project, then paste into Instructions.',
+      '- Niche: Luxury\n',
+    ],
+  ])(
+    '%s copies its prompt as filled in right now, both ways, in one tap, and lets the link open',
+    async (selector, block, name, toast, filled) => {
+      const { written, legacy } = stubClipboard();
+      await boot();
+      type('market', 'Hartford, CT');
+      type('clients', 'buyers');
+      type('brokerage', 'eXp Realty');
+      type('niche', 'Luxury');
+      const link = $(selector);
+      expect(label(selector)).toBe(name);
+      expect(click(link).followed).toBe(true);
+      const text = pre(block).textContent ?? '';
+      expect(text).toContain(filled);
+      // Both writes started inside the click: the synchronous one has already finished.
+      expect(legacy).toEqual([text]);
+      expect(written).toHaveBeenCalledTimes(1);
+      expect(written).toHaveBeenCalledWith(text);
+      expect(document.querySelector('textarea.copy-buffer')).toBeNull();
+      await vi.advanceTimersByTimeAsync(100);
+      expect(live()).toBe(toast);
+      // One tap never relabels the link.
+      expect(label(selector)).toBe(name);
+      expect(link.hasAttribute('data-armed')).toBe(false);
+    },
+  );
+
+  it("copies Spring's interview prompt, word for word, from the interview's Copy & Open (D-043)", async () => {
     const { written, legacy } = stubClipboard();
     await boot();
-    type('market', 'Hartford, CT');
-    type('clients', 'buyers');
-    type('brokerage', 'eXp Realty');
-    type('niche', 'Luxury');
-    const link = $(selector);
-    expect(label(selector)).toBe(name);
-    expect(click(link).followed).toBe(true);
-    const text = pre(block).textContent ?? '';
-    expect(text).toContain(filled);
-    // Both writes started inside the click: the synchronous one has already finished.
-    expect(legacy).toEqual([text]);
-    expect(written).toHaveBeenCalledTimes(1);
-    expect(written).toHaveBeenCalledWith(text);
-    expect(document.querySelector('textarea.copy-buffer')).toBeNull();
-    await vi.advanceTimersByTimeAsync(100);
-    expect(live()).toBe(toast);
-    // One tap never relabels the link.
-    expect(label(selector)).toBe(name);
-    expect(link.hasAttribute('data-armed')).toBe(false);
+    $('button[data-path="interview"]').click();
+    for (const app of ['ChatGPT', 'Claude']) {
+      const link = $$('a[data-copy-open="voice-interview-prompt"]').find(
+        (a) => a.textContent === `Copy & Open ${app}`,
+      )!;
+      expect(click(link).followed).toBe(true);
+    }
+    expect(legacy).toEqual([PAGE.interviewPrompt.text, PAGE.interviewPrompt.text]);
+    expect(written).toHaveBeenCalledWith(PAGE.interviewPrompt.text);
   });
 
   it('copies the template exactly, placeholders and all, when nothing is filled in', async () => {
@@ -1041,33 +1136,36 @@ describe('Copy & Open', () => {
           throw new TypeError('not supported');
         }, false),
     ],
-  ])('when %s: the first tap stays, opens and selects the prompt and says so; the next tap opens', async (_how, setup) => {
-    setup();
-    await boot();
-    type('market', 'Hartford, CT');
-    const link = $(CHATGPT);
-    const details = voicePre().closest('details')!;
-    expect(details.open).toBe(false);
+  ])(
+    'when %s: the first tap stays, opens and selects the prompt and says so; the next tap opens',
+    async (_how, setup) => {
+      setup();
+      await boot();
+      type('market', 'Hartford, CT');
+      const link = $(CHATGPT);
+      const details = voicePre().closest('details')!;
+      expect(details.open).toBe(false);
 
-    expect(click(link).followed).toBe(false);
-    expect(details.open).toBe(true);
-    const selection = window.getSelection()!;
-    expect(selection.rangeCount).toBe(1);
-    expect(selection.getRangeAt(0).commonAncestorContainer).toBe(voicePre());
-    expect(selected()).toBe(voicePre().textContent);
-    expect(selected()).toContain(`${VOICE_MARKET} Hartford, CT\n`);
-    await vi.advanceTimersByTimeAsync(100);
-    expect(live()).toBe("Couldn't copy automatically. The prompt is selected below: copy it, then tap again.");
-    // Never "Copied" when nothing was.
-    expect(label(CHATGPT)).toBe('Copy & Open ChatGPT');
-    expect(link.hasAttribute('data-armed')).toBe(true);
+      expect(click(link).followed).toBe(false);
+      expect(details.open).toBe(true);
+      const selection = window.getSelection()!;
+      expect(selection.rangeCount).toBe(1);
+      expect(selection.getRangeAt(0).commonAncestorContainer).toBe(voicePre());
+      expect(selected()).toBe(voicePre().textContent);
+      expect(selected()).toContain(`${VOICE_MARKET} Hartford, CT\n`);
+      await vi.advanceTimersByTimeAsync(100);
+      expect(live()).toBe("Couldn't copy automatically. The prompt is selected below: copy it, then tap again.");
+      // Never "Copied" when nothing was.
+      expect(label(CHATGPT)).toBe('Copy & Open ChatGPT');
+      expect(link.hasAttribute('data-armed')).toBe(true);
 
-    // The visitor is never left without the app.
-    expect(click(link).followed).toBe(true);
-    expect(link.hasAttribute('data-armed')).toBe(false);
-    // And the tap after that tries to copy again.
-    expect(click(link).followed).toBe(false);
-  });
+      // The visitor is never left without the app.
+      expect(click(link).followed).toBe(true);
+      expect(link.hasAttribute('data-armed')).toBe(false);
+      // And the tap after that tries to copy again.
+      expect(click(link).followed).toBe(false);
+    },
+  );
 
   it('a failed copy stays ready to open for 10 s, then tries to copy again', async () => {
     noClipboard();
@@ -1233,8 +1331,12 @@ describe('starter ideas', () => {
 // ================================================================================================
 
 describe('Save it: Claude or ChatGPT', () => {
-  const pressed = () => $$('button[data-pick]').map((b) => [b.getAttribute('data-pick'), b.getAttribute('aria-pressed')]);
-  const shown = () => $$('[data-pick-panel]').filter((p) => !p.hidden).map((p) => p.getAttribute('data-pick-panel'));
+  const pressed = () =>
+    $$('button[data-pick]').map((b) => [b.getAttribute('data-pick'), b.getAttribute('aria-pressed')]);
+  const shown = () =>
+    $$('[data-pick-panel]')
+      .filter((p) => !p.hidden)
+      .map((p) => p.getAttribute('data-pick-panel'));
 
   it('shows the switch, set to Claude, with only the Claude panel', async () => {
     await boot();
@@ -1269,13 +1371,62 @@ describe('Save it: Claude or ChatGPT', () => {
   });
 });
 
+describe('Samples or interview (D-043)', () => {
+  const shownPaths = () =>
+    $$('[data-path-panel]')
+      .filter((p) => !p.hidden)
+      .map((p) => `${p.closest('section')?.id}:${p.getAttribute('data-path-panel')}`);
+  const pressedPath = () =>
+    $$('button[data-path]').map((b) => [b.getAttribute('data-path'), b.getAttribute('aria-pressed')]);
+
+  it('starts on samples: step 1 shows what to gather, step 2 the samples prompt and its blanks', async () => {
+    await boot();
+    expect(pressedPath()).toEqual([
+      ['samples', 'true'],
+      ['interview', 'false'],
+    ]);
+    expect(shownPaths()).toEqual(['voice-profile:samples', 'voice-profile-copy:samples']);
+  });
+
+  it('switches both steps to the interview, remembers it, and switches back', async () => {
+    await boot();
+    $('button[data-path="interview"]').click();
+    expect(pressedPath()).toEqual([
+      ['samples', 'false'],
+      ['interview', 'true'],
+    ]);
+    expect(shownPaths()).toEqual(['voice-profile:interview', 'voice-profile-copy:interview']);
+    expect(saved()).toMatchObject({ path: 'interview' });
+    // Step 2 then offers the interview prompt, and the samples prompt's blanks are out of sight.
+    expect($('#voice-interview-prompt').closest('[data-path-panel]')?.hasAttribute('hidden')).toBe(false);
+    expect($('#voice-profile-prompt').closest('[data-path-panel]')?.hasAttribute('hidden')).toBe(true);
+
+    await boot();
+    expect(shownPaths()).toEqual(['voice-profile:interview', 'voice-profile-copy:interview']);
+
+    $('button[data-path="samples"]').click();
+    expect(shownPaths()).toEqual(['voice-profile:samples', 'voice-profile-copy:samples']);
+    expect(saved()).toMatchObject({ path: 'samples' });
+  });
+
+  it("reads a path it does not know as samples, and leaves Save's switch alone", async () => {
+    save({ i: 0, app: 'chatgpt', path: 'podcast' });
+    await boot();
+    expect(shownPaths()).toEqual(['voice-profile:samples', 'voice-profile-copy:samples']);
+    expect($('[data-pick-panel="chatgpt"]').hidden).toBe(false);
+  });
+});
+
 describe('Get the app', () => {
   const hrefs = () => $$<HTMLAnchorElement>('a[data-get-app]').map((a) => a.getAttribute('href'));
   const as = (userAgent: string, maxTouchPoints = 0) => {
     stubValue(navigator, 'userAgent', userAgent);
     stubValue(navigator, 'maxTouchPoints', maxTouchPoints);
   };
-  const APP_STORE = ['https://apps.apple.com/app/chatgpt/id6448311069', 'https://apps.apple.com/us/app/claude-by-anthropic/id6473753684'];
+  const APP_STORE = [
+    'https://apps.apple.com/app/chatgpt/id6448311069',
+    'https://apps.apple.com/us/app/claude-by-anthropic/id6473753684',
+  ];
 
   it('sends Android to Google Play', async () => {
     as('Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36', 5);
@@ -1299,7 +1450,11 @@ describe('Get the app', () => {
   });
 
   it.each([
-    ['a Mac with no touch', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', 0],
+    [
+      'a Mac with no touch',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15',
+      0,
+    ],
     ['Windows', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36', 10],
   ])('leaves the web apps on a desktop: %s', async (_what, ua, touch) => {
     as(ua, touch);
@@ -1351,7 +1506,11 @@ describe('Send This to My Laptop', () => {
   });
 
   it('ignores the AbortError of a share sheet that was closed', async () => {
-    stubValue(navigator, 'share', vi.fn(() => Promise.reject(new DOMException('closed', 'AbortError'))));
+    stubValue(
+      navigator,
+      'share',
+      vi.fn(() => Promise.reject(new DOMException('closed', 'AbortError'))),
+    );
     await boot();
     const assigned = watchNavigation();
     click(shareLink());
@@ -1411,7 +1570,8 @@ describe('the waitlist', () => {
       return Promise.resolve({
         ok: reply.status >= 200 && reply.status < 300,
         status: reply.status,
-        json: () => (reply.body === undefined ? Promise.reject(new SyntaxError('no body')) : Promise.resolve(reply.body)),
+        json: () =>
+          reply.body === undefined ? Promise.reject(new SyntaxError('no body')) : Promise.resolve(reply.body),
       });
     });
     vi.stubGlobal('fetch', fetch);
@@ -1426,7 +1586,8 @@ describe('the waitlist', () => {
   };
   const submitButton = () => $<HTMLButtonElement>('#waitlist-form button[type="submit"]');
   const submit = () => submitButton().click();
-  const sent = (fetch: ReturnType<typeof api>, call = 0) => JSON.parse(String(fetch.mock.calls[call]![1].body)) as Record<string, unknown>;
+  const sent = (fetch: ReturnType<typeof api>, call = 0) =>
+    JSON.parse(String(fetch.mock.calls[call]![1].body)) as Record<string, unknown>;
   const formError = () => $('#waitlist-error');
   const edit = (name: string, value: string) => {
     input(name).value = value;
@@ -1605,7 +1766,9 @@ describe('the waitlist', () => {
     submit();
     await vi.waitFor(() => expect($('#waitlist').getAttribute('data-state')).toBe('joined'));
     expect(document.activeElement).toBe($('#waitlist-joined'));
-    expect($('#waitlist-joined').textContent).toBe("You're on the list. We'll email you about the December agent track.");
+    expect($('#waitlist-joined').textContent).toBe(
+      "You're on the list. We'll email you about the December agent track.",
+    );
     expect(formError().hasAttribute('data-shown')).toBe(false);
   });
 
@@ -1638,7 +1801,10 @@ describe('the waitlist', () => {
 
   it.each<[string, Reply]>([
     ['a 400 that names no field', { status: 400, body: { error: 'Bad Request' } }],
-    ['a 400 that names a field the form does not show', { status: 400, body: { error: 'Bad Request', field: 'smsConsent' } }],
+    [
+      'a 400 that names a field the form does not show',
+      { status: 400, body: { error: 'Bad Request', field: 'smsConsent' } },
+    ],
     ['a 400 whose body is not JSON', { status: 400 }],
     ['a 500', { status: 500, body: { error: 'Internal Server Error' } }],
     ['a 429', { status: 429, body: { error: 'Too Many Requests' } }],

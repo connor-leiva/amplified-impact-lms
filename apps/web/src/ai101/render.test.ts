@@ -57,7 +57,8 @@ function copyStrings(value: unknown, path: string[] = []): CopyString[] {
     if (isInlineRun(value)) return [{ path: path.join('.'), value: inlineText(value as Inline[]) }];
     return value.flatMap((v, i) => copyStrings(v, [...path, String(i)]));
   }
-  if (value && typeof value === 'object') return Object.entries(value).flatMap(([k, v]) => copyStrings(v, [...path, k]));
+  if (value && typeof value === 'object')
+    return Object.entries(value).flatMap(([k, v]) => copyStrings(v, [...path, k]));
   return [];
 }
 
@@ -68,28 +69,52 @@ function copyStrings(value: unknown, path: string[] = []): CopyString[] {
 const KNOWN_UNRENDERED = new Set<string>();
 
 /** Is `s` somewhere a person or a screen reader meets it: the body's text, or an attribute value. */
-const rendered = (doc: Document, s: string) => (doc.body.textContent ?? '').includes(s) || attributeValues(doc.body).includes(s);
+const rendered = (doc: Document, s: string) =>
+  (doc.body.textContent ?? '').includes(s) || attributeValues(doc.body).includes(s);
 
 // --- Oracles ----------------------------------------------------------------------------------------
 
 /** The design's twelve screens: id, header stage, count, Next label, heading tag and heading. */
-const SCREENS: Array<[id: string, stage: string, count: string | null, next: string | null, tag: 'H1' | 'H2', heading: string]> = [
+const SCREENS: Array<
+  [id: string, stage: string, count: string | null, next: string | null, tag: 'H1' | 'H2', heading: string]
+> = [
   ['welcome', 'Welcome', null, 'Start Part I', 'H1', 'Sounds Like You, Looks Like You'],
-  ['voice-profile', 'Part I · Voice Profile', '1 of 4', 'I Have My Samples', 'H2', 'Collect 10 to 15 samples of you'],
-  ['voice-profile-copy', 'Part I · Voice Profile', '2 of 4', 'I Have My Profile', 'H2', 'Fill in two blanks, then copy'],
-  ['voice-profile-save', 'Part I · Voice Profile', '3 of 4', 'Saved It', 'H2', 'Save your profile so the AI remembers it'],
+  ['voice-profile', 'Part I · Voice Profile', '1 of 4', "I'm Ready", 'H2', 'Pick how it learns your voice'],
+  ['voice-profile-copy', 'Part I · Voice Profile', '2 of 4', 'I Have My Profile', 'H2', 'Copy your prompt'],
+  [
+    'voice-profile-save',
+    'Part I · Voice Profile',
+    '3 of 4',
+    'Saved It',
+    'H2',
+    'Save your profile so the AI remembers it',
+  ],
   ['voice-profile-test', 'Part I · Voice Profile', '4 of 4', 'Start Part II', 'H2', 'Test it'],
   ['carousel-creator', 'Part II · Carousel Creator', '1 of 5', "I'm on My Laptop", 'H2', 'Build your Carousel Creator'],
-  ['carousel-creator-checklist', 'Part II · Carousel Creator', '2 of 5', 'My Brand Is Saved', 'H2', 'Set up your brand'],
+  [
+    'carousel-creator-checklist',
+    'Part II · Carousel Creator',
+    '2 of 5',
+    'My Brand Is Saved',
+    'H2',
+    'Set up your brand',
+  ],
   ['carousel-creator-about', 'Part II · Carousel Creator', '3 of 5', 'Next', 'H2', 'Tell it about you'],
   ['carousel-creator-project', 'Part II · Carousel Creator', '4 of 5', 'Project Is Made', 'H2', 'Make the Project'],
-  ['carousel-creator-first-idea', 'Part II · Carousel Creator', '5 of 5', 'How a Week Works', 'H2', 'Send your first idea'],
+  [
+    'carousel-creator-first-idea',
+    'Part II · Carousel Creator',
+    '5 of 5',
+    'How a Week Works',
+    'H2',
+    'Send your first idea',
+  ],
   ['carousel-creator-week', 'Your Week', null, 'Last Thing', 'H2', 'How a week works'],
   ['waitlist', 'December Waitlist', null, null, 'H2', 'Join the December waitlist'],
 ];
 
 /**
- * The three prompts. `text` is the one value read from `content.ts`, because the <pre> contract IS
+ * The four prompts. `text` is the one value read from `content.ts`, because the <pre> contract IS
  * "the <pre> holds content.ts's text"; the rest is typed out.
  */
 const PROMPTS = [
@@ -108,6 +133,20 @@ const PROMPTS = [
     // "Finish the ABOUT ME lines at the bottom": the last of them.
     lastLine: "Phrases I can't stand:",
     text: PAGE.voicePrompt.text,
+  },
+  {
+    // Spring's Voice Builder (D-043): the interview, for agents with no samples. No blanks: it asks.
+    block: 'voice-interview-prompt',
+    id: 'voice_interview',
+    screen: 'voice-profile-copy',
+    label: 'Voice interview prompt',
+    summary: 'See the full prompt',
+    placeholders: [] as string[],
+    literal: [] as string[],
+    firstLine:
+      "You're my Voice Builder. I'm a real estate agent, and I want a voice profile: instructions that make AI write the way I actually talk. Build it by interviewing me.",
+    lastLine: 'A check in text to a past client in my voice.',
+    text: PAGE.interviewPrompt.text,
   },
   {
     block: 'carousel-creator-brand-prompt',
@@ -143,8 +182,9 @@ const PROMPTS = [
 ];
 
 /** Which PAGE key holds each prompt block's prompt. */
-const PROMPT_KEY: Record<string, 'voicePrompt' | 'carouselPrompt' | 'brandPrompt'> = {
+const PROMPT_KEY: Record<string, 'voicePrompt' | 'interviewPrompt' | 'carouselPrompt' | 'brandPrompt'> = {
   'voice-profile-prompt': 'voicePrompt',
+  'voice-interview-prompt': 'interviewPrompt',
   'carousel-creator-prompt': 'carouselPrompt',
   'carousel-creator-brand-prompt': 'brandPrompt',
 };
@@ -203,7 +243,9 @@ describe('escaping', () => {
     expect(highlightPlaceholders('a <b> [x & y] "c"')).toBe(
       'a &lt;b&gt; <mark class="placeholder">[x &amp; y]</mark> &quot;c&quot;',
     );
-    expect(highlightPlaceholders('[a][b]')).toBe('<mark class="placeholder">[a]</mark><mark class="placeholder">[b]</mark>');
+    expect(highlightPlaceholders('[a][b]')).toBe(
+      '<mark class="placeholder">[a]</mark><mark class="placeholder">[b]</mark>',
+    );
   });
 
   it('highlightPlaceholders() marks nothing that is not a closed bracket on one line', () => {
@@ -272,7 +314,7 @@ describe('escaping', () => {
     expect(doc.head.querySelector('meta[name="description"]')?.getAttribute('content')).toBe(page.meta.description);
     expect(text(doc.querySelector('h1'))).toBe(page.welcome.title);
     for (const { block, placeholders } of PROMPTS) {
-      const key = block === 'voice-profile-prompt' ? 'voicePrompt' : block === 'carousel-creator-prompt' ? 'carouselPrompt' : 'brandPrompt';
+      const key = PROMPT_KEY[block]!;
       const pre = doc.querySelector(`#${block} pre[data-prompt-text]`)!;
       expect(pre.textContent).toBe(page[key].text);
       expect(all(pre, 'mark').map(text)).toEqual(placeholders);
@@ -281,7 +323,13 @@ describe('escaping', () => {
     const sections = all(doc, 'section[data-screen]');
     sections.forEach((s, i) => expect(attr(s, 'data-stage')).toBe(page.screens[i]!.stage));
     expect(attr(doc.querySelector('[data-pick]')?.parentElement, 'aria-label')).toBe(page.save.pickLabel);
-    const opens = [...page.voiceCopy.open, page.brand.open, page.project.open];
+    expect(attr(doc.querySelector('[data-path]')?.parentElement, 'aria-label')).toBe(page.samples.pickLabel);
+    const opens = [
+      ...page.voiceCopy.samples.open,
+      ...page.voiceCopy.interview.open,
+      page.brand.open,
+      page.project.open,
+    ];
     expect(all(doc, 'a[data-copy-open]').map((a) => [attr(a, 'data-app'), attr(a, 'data-toast')])).toEqual(
       opens.map((o) => [o.app, o.toast]),
     );
@@ -309,7 +357,7 @@ describe('escaping', () => {
       expect(heading?.getAttribute('tabindex')).toBe('-1');
     }
     // Every fill field is still one control, with its label and its data-field.
-    const fields = [...page.voiceCopy.fields, ...page.about.fields];
+    const fields = [...page.voiceCopy.samples.fields, ...page.about.fields];
     expect(all(doc, '[data-field]').map((f) => attr(f, 'data-field'))).toEqual(fields.map((f) => f.name));
     for (const f of all(doc, '[data-field]')) {
       expect(all(doc, 'label[for]').filter((l) => attr(l, 'for') === f.id)).toHaveLength(1);
@@ -329,70 +377,85 @@ describe('THE <pre> CONTRACT: what is copied is exactly the prompt', () => {
   const body = renderAi101Body();
   const doc = parse(body);
 
-  it('has the three prompt blocks, in this order, and no other <pre>', () => {
+  it('has the four prompt blocks, in this order, and no other <pre>', () => {
     expect(all(doc, '[data-prompt]').map((b) => [b.id, attr(b, 'data-prompt')])).toEqual(
       PROMPTS.map((p) => [p.block, p.id]),
     );
-    expect(all(doc, 'pre')).toHaveLength(3);
-    expect(all(doc, 'pre[data-prompt-text]')).toHaveLength(3);
+    expect(all(doc, 'pre')).toHaveLength(4);
+    expect(all(doc, 'pre[data-prompt-text]')).toHaveLength(4);
   });
 
-  it.each(PROMPTS)('$id has no leading or trailing whitespace to lose, and no line that ends in a space', ({ text: prompt }) => {
-    // The parser drops one newline after <pre>, and a copy would silently differ from the source.
-    expect(prompt).toBe(prompt.trim());
-    expect(prompt.split('\n').filter((line) => line !== line.trimEnd())).toEqual([]);
-    // Straight quotes, LF line breaks, no tabs: what content.ts promises the clipboard gets.
-    expect(prompt).not.toMatch(/[\r\t‘’“”]/);
-  });
+  it.each(PROMPTS)(
+    '$id has no leading or trailing whitespace to lose, and no line that ends in a space',
+    ({ text: prompt }) => {
+      // The parser drops one newline after <pre>, and a copy would silently differ from the source.
+      expect(prompt).toBe(prompt.trim());
+      expect(prompt.split('\n').filter((line) => line !== line.trimEnd())).toEqual([]);
+      // Straight quotes, LF line breaks, no tabs: what content.ts promises the clipboard gets.
+      expect(prompt).not.toMatch(/[\r\t‘’“”]/);
+    },
+  );
 
-  it.each(PROMPTS)('$id: first and last lines are the ones the steps talk about', ({ text: prompt, firstLine, lastLine }) => {
-    const lines = prompt.split('\n');
-    expect(lines[0]).toBe(firstLine);
-    expect(lines[lines.length - 1]).toBe(lastLine);
-  });
+  it.each(PROMPTS)(
+    '$id: first and last lines are the ones the steps talk about',
+    ({ text: prompt, firstLine, lastLine }) => {
+      const lines = prompt.split('\n');
+      expect(lines[0]).toBe(firstLine);
+      expect(lines[lines.length - 1]).toBe(lastLine);
+    },
+  );
 
-  it.each(PROMPTS)('$id: the <pre> textContent is the prompt, character for character', ({ block, text: prompt, literal }) => {
-    const pre = doc.querySelector(`#${block} pre[data-prompt-text]`)!;
-    expect(pre.textContent).toBe(prompt);
-    expect(pre.textContent).toBe(pre.textContent!.trim());
-    // In the bytes: the template adds nothing between the tags, not even the newline the parser
-    // would have hidden.
-    expect(body).toContain(`<pre data-prompt-text>${highlightPlaceholders(prompt, literal)}</pre>`);
-  });
+  it.each(PROMPTS)(
+    '$id: the <pre> textContent is the prompt, character for character',
+    ({ block, text: prompt, literal }) => {
+      const pre = doc.querySelector(`#${block} pre[data-prompt-text]`)!;
+      expect(pre.textContent).toBe(prompt);
+      expect(pre.textContent).toBe(pre.textContent!.trim());
+      // In the bytes: the template adds nothing between the tags, not even the newline the parser
+      // would have hidden.
+      expect(body).toContain(`<pre data-prompt-text>${highlightPlaceholders(prompt, literal)}</pre>`);
+    },
+  );
 
-  it.each(PROMPTS)('$id: every [placeholder] is a <mark class="placeholder">, and nothing else is', ({ block, text: prompt, placeholders, literal }) => {
-    const pre = doc.querySelector(`#${block} pre[data-prompt-text]`)!;
-    const brackets = prompt.match(/\[[^\]\n]*\]/g) ?? [];
-    expect(brackets.filter((b) => !literal.includes(b))).toEqual(placeholders);
-    // The prompt's own bracketed words are in it, and stay plain text.
-    for (const span of literal) expect(brackets, span).toContain(span);
-    expect(literal).toEqual([...(PAGE[PROMPT_KEY[block]!] as { literal?: readonly string[] }).literal ?? []]);
-    expect(all(pre, 'mark').map(text)).toEqual(placeholders);
-    for (const mark of all(pre, 'mark')) {
-      expect(mark.className).toBe('placeholder');
-      expect(mark.getAttributeNames()).toEqual(['class']);
-      expect(mark.children).toHaveLength(0);
-    }
-    // Nothing but text and marks inside the <pre>.
-    for (const node of Array.from(pre.childNodes)) expect(['#text', 'MARK']).toContain(node.nodeName);
-    // And no <mark> anywhere else on the page.
-    expect(all(doc, 'mark').filter((m) => !m.closest('pre[data-prompt-text]'))).toEqual([]);
-  });
+  it.each(PROMPTS)(
+    '$id: every [placeholder] is a <mark class="placeholder">, and nothing else is',
+    ({ block, text: prompt, placeholders, literal }) => {
+      const pre = doc.querySelector(`#${block} pre[data-prompt-text]`)!;
+      const brackets = prompt.match(/\[[^\]\n]*\]/g) ?? [];
+      expect(brackets.filter((b) => !literal.includes(b))).toEqual(placeholders);
+      // The prompt's own bracketed words are in it, and stay plain text.
+      for (const span of literal) expect(brackets, span).toContain(span);
+      expect(literal).toEqual([...((PAGE[PROMPT_KEY[block]!] as { literal?: readonly string[] }).literal ?? [])]);
+      expect(all(pre, 'mark').map(text)).toEqual(placeholders);
+      for (const mark of all(pre, 'mark')) {
+        expect(mark.className).toBe('placeholder');
+        expect(mark.getAttributeNames()).toEqual(['class']);
+        expect(mark.children).toHaveLength(0);
+      }
+      // Nothing but text and marks inside the <pre>.
+      for (const node of Array.from(pre.childNodes)) expect(['#text', 'MARK']).toContain(node.nodeName);
+      // And no <mark> anywhere else on the page.
+      expect(all(doc, 'mark').filter((m) => !m.closest('pre[data-prompt-text]'))).toEqual([]);
+    },
+  );
 
-  it.each(PROMPTS)('$id: collapsed in a <details> under "$summary", on the $screen screen', ({ block, screen, summary }) => {
-    const el = doc.getElementById(block)!;
-    expect(el.tagName).toBe('DIV');
-    expect(el.classList.contains('prompt')).toBe(true);
-    expect(el.closest('section')?.id).toBe(screen);
-    const pre = el.querySelector('pre[data-prompt-text]')!;
-    const details = pre.parentElement!;
-    expect(details.tagName).toBe('DETAILS');
-    expect(details.hasAttribute('open')).toBe(false);
-    expect(details.parentElement).toBe(el);
-    const sum = details.firstElementChild!;
-    expect(sum.tagName).toBe('SUMMARY');
-    expect(text(sum)).toBe(summary);
-  });
+  it.each(PROMPTS)(
+    '$id: collapsed in a <details> under "$summary", on the $screen screen',
+    ({ block, screen, summary }) => {
+      const el = doc.getElementById(block)!;
+      expect(el.tagName).toBe('DIV');
+      expect(el.classList.contains('prompt')).toBe(true);
+      expect(el.closest('section')?.id).toBe(screen);
+      const pre = el.querySelector('pre[data-prompt-text]')!;
+      const details = pre.parentElement!;
+      expect(details.tagName).toBe('DETAILS');
+      expect(details.hasAttribute('open')).toBe(false);
+      expect(details.parentElement).toBe(el);
+      const sum = details.firstElementChild!;
+      expect(sum.tagName).toBe('SUMMARY');
+      expect(text(sum)).toBe(summary);
+    },
+  );
 
   it.each(PROMPTS)('$id: a visually hidden label, $block-label, names it "$label"', ({ block, label }) => {
     const el = doc.getElementById(`${block}-label`)!;
@@ -406,7 +469,10 @@ describe('THE <pre> CONTRACT: what is copied is exactly the prompt', () => {
     // `UI.slots` names placeholders by their text; one that drifted from the prompt would never fill.
     for (const { id, placeholders } of PROMPTS) {
       const slots = UI.slots[id]!;
-      expect(Object.keys(slots).filter((p) => !placeholders.includes(p)), id).toEqual([]);
+      expect(
+        Object.keys(slots).filter((p) => !placeholders.includes(p)),
+        id,
+      ).toEqual([]);
     }
     expect(Object.keys(UI.slots).sort()).toEqual(PROMPTS.map((p) => p.id).sort());
   });
@@ -468,18 +534,21 @@ describe('the twelve screens', () => {
     expect(attr(s, 'data-next')).toBe(next);
   });
 
-  it.each(SCREENS)('%s is labelled by its own %s heading, which takes focus on entry', (id, _stage, _count, _next, tag, heading) => {
-    const s = doc.getElementById(id)!;
-    expect(attr(s, 'aria-labelledby')).toBe(`${id}-heading`);
-    const h = doc.getElementById(`${id}-heading`)!;
-    expect(h.tagName).toBe(tag);
-    expect(s.contains(h)).toBe(true);
-    expect(text(h)).toBe(heading);
-    expect(attr(h, 'tabindex')).toBe('-1');
-    // It is the heading main.ts focuses: the first h1 or h2 in the screen.
-    expect(s.querySelector('h1, h2')).toBe(h);
-    expect(all(s, 'h1, h2')).toHaveLength(1);
-  });
+  it.each(SCREENS)(
+    '%s is labelled by its own %s heading, which takes focus on entry',
+    (id, _stage, _count, _next, tag, heading) => {
+      const s = doc.getElementById(id)!;
+      expect(attr(s, 'aria-labelledby')).toBe(`${id}-heading`);
+      const h = doc.getElementById(`${id}-heading`)!;
+      expect(h.tagName).toBe(tag);
+      expect(s.contains(h)).toBe(true);
+      expect(text(h)).toBe(heading);
+      expect(attr(h, 'tabindex')).toBe('-1');
+      // It is the heading main.ts focuses: the first h1 or h2 in the screen.
+      expect(s.querySelector('h1, h2')).toBe(h);
+      expect(all(s, 'h1, h2')).toHaveLength(1);
+    },
+  );
 
   it('has exactly one h1, on the welcome screen', () => {
     expect(all(doc, 'h1')).toHaveLength(1);
@@ -493,8 +562,12 @@ describe('the twelve screens', () => {
     for (let i = 1; i < levels.length; i++) expect(levels[i]!).toBeLessThanOrEqual(levels[i - 1]! + 1);
     expect(headings.map((h) => [h.tagName, text(h)])).toEqual([
       ['H1', 'Sounds Like You, Looks Like You'],
-      ['H2', 'Collect 10 to 15 samples of you'],
-      ['H2', 'Fill in two blanks, then copy'],
+      ['H2', 'Pick how it learns your voice'],
+      ['H3', 'I Have Samples'],
+      ['H3', 'Interview Me'],
+      ['H2', 'Copy your prompt'],
+      ['H3', 'I Have Samples'],
+      ['H3', 'Interview Me'],
       ['H2', 'Save your profile so the AI remembers it'],
       ['H3', 'Claude'],
       ['H3', 'ChatGPT'],
@@ -551,7 +624,8 @@ describe('the twelve screens', () => {
     }
     for (const el of all(doc, '[aria-labelledby], [aria-describedby]')) {
       for (const name of ['aria-labelledby', 'aria-describedby']) {
-        for (const id of (attr(el, name) ?? '').split(/\s+/).filter(Boolean)) expect(doc.getElementById(id), id).not.toBeNull();
+        for (const id of (attr(el, name) ?? '').split(/\s+/).filter(Boolean))
+          expect(doc.getElementById(id), id).not.toBeNull();
       }
     }
   });
@@ -586,7 +660,9 @@ describe('the step-through chrome', () => {
     expect(attr(bar[0]!.parentElement, 'aria-hidden')).toBe('true');
     expect(bar[0]!.hasAttribute('style')).toBe(false);
     // Nothing outside the header carries them.
-    expect(all(doc, '[data-stage-label], [data-count-label], [data-bar]').every((el) => header.contains(el))).toBe(true);
+    expect(all(doc, '[data-stage-label], [data-count-label], [data-bar]').every((el) => header.contains(el))).toBe(
+      true,
+    );
   });
 
   it('gives the footer Back (hidden), Next with the first label, and Start Over (hidden), in that order', () => {
@@ -631,14 +707,16 @@ describe('the step-through chrome', () => {
       '[data-next-label]': 1,
       'button[data-restart]': 1,
       '[data-steps-chrome]': 2,
-      '[data-js-only]': 3,
-      '[data-prompt]': 3,
-      'pre[data-prompt-text]': 3,
-      'a[data-copy-open]': 4,
+      '[data-js-only]': 4,
+      '[data-prompt]': 4,
+      'pre[data-prompt-text]': 4,
+      'a[data-copy-open]': 6,
       'button[data-copy-chip]': 4,
       '[data-field]': 7,
       'button[data-pick]': 2,
       '[data-pick-panel]': 2,
+      'button[data-path]': 2,
+      '[data-path-panel]': 4,
       'a[data-get-app]': 2,
       'a[data-share]': 1,
       'form#waitlist-form': 1,
@@ -657,9 +735,10 @@ describe('the step-through chrome', () => {
 describe('the parts that need the script', () => {
   const doc = parse();
 
-  it('hides exactly three parts with data-js-only: the two sets of fill fields and the app picker', () => {
+  it('hides exactly four parts with data-js-only: the two sets of fill fields and the two switches', () => {
     const jsOnly = all(doc, '[data-js-only]');
     expect(jsOnly.map((el) => [el.closest('section')?.id, el.className])).toEqual([
+      ['voice-profile', 'picker'],
       ['voice-profile-copy', 'fields'],
       ['voice-profile-save', 'picker'],
       ['carousel-creator-about', 'fields'],
@@ -691,7 +770,14 @@ describe('the parts that need the script', () => {
         'Should I wait for rates to drop?',
         '3',
       ],
-      ['carousel-creator-about', 'INPUT', 'brokerage', 'Brokerage name, exactly as it must appear in ads', 'eXp Realty', null],
+      [
+        'carousel-creator-about',
+        'INPUT',
+        'brokerage',
+        'Brokerage name, exactly as it must appear in ads',
+        'eXp Realty',
+        null,
+      ],
       [
         'carousel-creator-about',
         'TEXTAREA',
@@ -724,15 +810,20 @@ describe('the parts that need the script', () => {
     expect(new Set(fields.map((f) => attr(f, 'data-field')))).toEqual(slotFields);
     // The two lines market and clients fill are in the voice prompt, each a whole line of its own.
     const lines = PAGE.voicePrompt.text.split('\n');
-    expect(UI.lineSlots.voice_profile).toEqual({ "My market, and what I'm known for:": 'market', 'My clients are mostly:': 'clients' });
+    expect(UI.lineSlots.voice_profile).toEqual({
+      "My market, and what I'm known for:": 'market',
+      'My clients are mostly:': 'clients',
+    });
     for (const line of Object.keys(UI.lineSlots.voice_profile!)) expect(lines, line).toContain(line);
   });
 
   it('draws both save panels without the script, each under its app’s name; the picker chooses one with it', () => {
-    const picker = doc.querySelector('.picker')!;
+    const picker = doc.querySelector('#voice-profile-save .picker')!;
     expect(attr(picker, 'role')).toBe('group');
     expect(attr(picker, 'aria-label')).toBe('The app you used');
-    expect(all(picker, 'button').map((b) => [attr(b, 'type'), attr(b, 'data-pick'), attr(b, 'aria-pressed'), text(b)])).toEqual([
+    expect(
+      all(picker, 'button').map((b) => [attr(b, 'type'), attr(b, 'data-pick'), attr(b, 'aria-pressed'), text(b)]),
+    ).toEqual([
       ['button', 'claude', 'true', 'Claude'],
       ['button', 'chatgpt', 'false', 'ChatGPT'],
     ]);
@@ -753,7 +844,12 @@ describe('the parts that need the script', () => {
         false,
         'H3',
         'Claude',
-        ['Open Claude Projects.', 'Click New project, top right. Name it My Voice.', 'Leave the description blank and click Create project.', 'Paste your profile into Instructions on the right side, not the description.'],
+        [
+          'Open Claude Projects.',
+          'Click New project, top right. Name it My Voice.',
+          'Leave the description blank and click Create project.',
+          'Paste your profile into Instructions on the right side, not the description.',
+        ],
         'Open Claude Projects',
         'https://claude.ai/projects',
       ],
@@ -769,6 +865,79 @@ describe('the parts that need the script', () => {
     ]);
     for (const p of panels) expect(p.closest('section')?.id).toBe('voice-profile-save');
   });
+
+  it('draws both ways in without the script, each under its name; the switch picks one, and step 2 follows (D-043)', () => {
+    const picker = doc.querySelector('#voice-profile .picker')!;
+    expect(attr(picker, 'role')).toBe('group');
+    expect(attr(picker, 'aria-label')).toBe('How it learns your voice');
+    expect(
+      all(picker, 'button').map((b) => [attr(b, 'type'), attr(b, 'data-path'), attr(b, 'aria-pressed'), text(b)]),
+    ).toEqual([
+      ['button', 'samples', 'true', 'I Have Samples'],
+      ['button', 'interview', 'false', 'Interview Me'],
+    ]);
+    // Step 1's two panels: what to gather for each.
+    expect(
+      all(doc, '#voice-profile [data-path-panel]').map((p) => [
+        attr(p, 'data-path-panel'),
+        p.hasAttribute('hidden'),
+        text(p.querySelector('h3.pick-title')),
+        text(p.querySelector('.path-title')),
+        all(p, '.tiles > li').map(text),
+        text(p.querySelector('.callout')),
+      ]),
+    ).toEqual([
+      [
+        'samples',
+        false,
+        'I Have Samples',
+        'Collect 10 to 15 samples of you',
+        [
+          'Captions you wrote yourself',
+          'Emails and texts to clients',
+          'Meeting transcripts from Zoom, Granola, Fathom or Otter',
+          'Voice memos, or a transcript of you talking about your market',
+        ],
+        'From a meeting transcript, copy only the parts where you are the one talking.',
+      ],
+      [
+        'interview',
+        false,
+        'Interview Me',
+        'Let it interview you',
+        [
+          "Five things you've already written: texts to clients, emails, or captions. Real ones, not your best ones.",
+          'A two minute voice memo answering "Is now a good time to buy?" like you would on the phone. No transcript? Answer it with the mic in the chat.',
+        ],
+        'Talk your answers out loud with the mic. You sound more like you when you talk than when you type.',
+      ],
+    ]);
+    // Step 2's two panels: each path's prompt, and only the samples path has blanks to fill.
+    expect(
+      all(doc, '#voice-profile-copy [data-path-panel]').map((p) => [
+        attr(p, 'data-path-panel'),
+        text(p.querySelector('.path-lead')),
+        all(p, 'a[data-copy-open]').map((a) => attr(a, 'data-copy-open')),
+        all(p, '[data-field]').map((f) => attr(f, 'data-field')),
+        all(p, '[data-prompt]').map((b) => b.id),
+      ]),
+    ).toEqual([
+      [
+        'samples',
+        'Fill in two blanks, then copy.',
+        ['voice-profile-prompt', 'voice-profile-prompt'],
+        ['market', 'clients'],
+        ['voice-profile-prompt'],
+      ],
+      [
+        'interview',
+        'Copy it, then answer one question at a time.',
+        ['voice-interview-prompt', 'voice-interview-prompt'],
+        [],
+        ['voice-interview-prompt'],
+      ],
+    ]);
+  });
 });
 
 // ================================================================================================
@@ -779,9 +948,14 @@ describe('links', () => {
 
   it('is every link on the page, in order, where it goes and whether it opens a new tab', () => {
     expect(links.map((a) => [text(a), attr(a, 'href'), attr(a, 'target')])).toEqual([
+      // Sign in first; the app stores only for anyone who does not have it (D-043).
+      ['Open ChatGPT', 'https://chatgpt.com/', '_blank'],
+      ['Open Claude', 'https://claude.ai/', '_blank'],
       ['Get ChatGPT', 'https://chatgpt.com/', '_blank'],
       ['Get Claude', 'https://claude.ai/', '_blank'],
       ['Already have a voice profile? Skip to Part II', '#carousel-creator', null],
+      ['Copy & Open ChatGPT', 'https://chatgpt.com/', '_blank'],
+      ['Copy & Open Claude', 'https://claude.ai/new', '_blank'],
       ['Copy & Open ChatGPT', 'https://chatgpt.com/', '_blank'],
       ['Copy & Open Claude', 'https://claude.ai/new', '_blank'],
       ['Open Claude Projects', 'https://claude.ai/projects', '_blank'],
@@ -904,6 +1078,22 @@ describe('Copy & Open and the starter ideas', () => {
         'Copy & Open Claude',
         'https://claude.ai/new',
         'voice-profile-prompt',
+        'Claude',
+        'Copied. Paste it into the new Claude chat.',
+      ],
+      [
+        'voice-profile-copy',
+        'Copy & Open ChatGPT',
+        'https://chatgpt.com/',
+        'voice-interview-prompt',
+        'ChatGPT',
+        'Copied. Paste it into the new ChatGPT chat.',
+      ],
+      [
+        'voice-profile-copy',
+        'Copy & Open Claude',
+        'https://claude.ai/new',
+        'voice-interview-prompt',
         'Claude',
         'Copied. Paste it into the new Claude chat.',
       ],
@@ -1191,22 +1381,19 @@ describe('the copy', () => {
     expect(text(w.querySelector('.lede'))).toBe(
       "The prompts and setup from the session with Spring and Connor. One screen at a time. Tap the big green button when you're ready for the next one.",
     );
-    expect(all(w, '.card-title').map(text)).toEqual(['First: get the app and sign in']);
+    expect(all(w, '.card-title').map(text)).toEqual(['First: sign in to ChatGPT or Claude']);
+    // Sign in first, then the stores for anyone without the app (Spring's notes, D-043).
+    expect(all(w, '.card .row a.btn').map(text)).toEqual(['Open ChatGPT', 'Open Claude']);
+    expect(text(w.querySelector('.card .get-app'))).toBe("Don't have the app yet? Get ChatGPT or Get Claude.");
     expect(text(w.querySelector('.builds-lead'))).toBe("Today you'll build two things:");
     expect(all(w, '.builds ol > li').map(text)).toEqual([
       'Your AI voice profile. Phone or laptop, free.',
       'Your Carousel Creator. Laptop, Claude Pro or higher.',
     ]);
     // In this order: logo, eyebrow, title, intro, the app card, the builds, the skip link.
-    expect(Array.from(w.children).map((el) => el.tagName.toLowerCase() + (el.classList[0] ? `.${el.classList[0]}` : ''))).toEqual([
-      'svg.logo',
-      'p.eyebrow',
-      'h1',
-      'p.lede',
-      'div.card',
-      'div.builds',
-      'a.skip',
-    ]);
+    expect(
+      Array.from(w.children).map((el) => el.tagName.toLowerCase() + (el.classList[0] ? `.${el.classList[0]}` : '')),
+    ).toEqual(['svg.logo', 'p.eyebrow', 'h1', 'p.lede', 'div.card', 'div.builds', 'a.skip']);
   });
 
   it('writes the week screen’s lists, the four things you own, and the sprint', () => {
@@ -1224,15 +1411,26 @@ describe('the copy', () => {
       'Consent before any automated text, under TCPA',
     ]);
     // "Wk 1" reads as "Wk 1: Market": the colon is there for a screen reader only.
-    expect(all(doc, '#sprint ul.weeks > li').map(text)).toEqual(['Wk 1: Market', 'Wk 2: Method', 'Wk 3: Me', 'Wk 4: Market']);
+    expect(all(doc, '#sprint ul.weeks > li').map(text)).toEqual([
+      'Wk 1: Market',
+      'Wk 2: Method',
+      'Wk 3: Me',
+      'Wk 4: Market',
+    ]);
     for (const colon of all(doc, '#sprint .week-label .visually-hidden')) expect(text(colon)).toBe(':');
   });
 
   it('renders the numbered steps as lists, each step one item', () => {
-    expect(all(doc, '#voice-profile-copy ol.numbered > li').map(text)).toEqual([
+    expect(all(doc, '#voice-profile-copy [data-path-panel="samples"] ol.numbered > li').map(text)).toEqual([
       'Paste.',
       'Finish the ABOUT ME lines at the bottom.',
       'Paste your samples under them, then send.',
+    ]);
+    expect(all(doc, '#voice-profile-copy [data-path-panel="interview"] ol.numbered > li').map(text)).toEqual([
+      'Paste it and send.',
+      'Answer each question out loud. Tap the mic and talk.',
+      'When it asks, paste your five written pieces and your voice memo.',
+      'At the end it writes your Voice Profile.',
     ]);
     expect(all(doc, '#carousel-creator-project ol.numbered > li').map(text)).toEqual([
       'Click New project, top right.',
@@ -1250,7 +1448,10 @@ describe('the copy', () => {
     for (const el of all(doc, '*')) {
       // `script-src-attr 'none'`: no inline handlers. And no style attributes, so a stricter
       // `style-src-attr` later costs nothing.
-      expect(el.getAttributeNames().filter((n) => n.startsWith('on') || n === 'style'), el.tagName).toEqual([]);
+      expect(
+        el.getAttributeNames().filter((n) => n.startsWith('on') || n === 'style'),
+        el.tagName,
+      ).toEqual([]);
     }
     expect(all(doc.body, 'script, style')).toHaveLength(0);
     expect(doc.documentElement.innerHTML).not.toMatch(/undefined|\[object Object\]|NaN/);
@@ -1269,7 +1470,9 @@ describe('<head>', () => {
     expect(doc.title).toBe(PAGE.meta.title);
     expect(meta('meta[name="description"]')).toBe('The prompts and setup from the session with Spring and Connor.');
     expect(meta('meta[property="og:title"]')).toBe('AI 101 for Agents · Amplified Impact');
-    expect(meta('meta[property="og:description"]')).toBe('The prompts and setup from the session with Spring and Connor.');
+    expect(meta('meta[property="og:description"]')).toBe(
+      'The prompts and setup from the session with Spring and Connor.',
+    );
     expect(meta('meta[property="og:type"]')).toBe('website');
     expect(meta('meta[property="og:url"]')).toBe('https://learn.amplifiedimpact.io/ai101');
     expect(meta('meta[property="og:site_name"]')).toBe('Amplified Impact');
