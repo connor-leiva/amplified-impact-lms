@@ -47,19 +47,25 @@ export function highlight(value: string): string {
   return esc(value).replace(/\[[^\]\n]*\]/g, (span) => `<mark class="placeholder">${span}</mark>`);
 }
 
-/** One run of inline copy. Links on these pages are all same-site, so they open in this tab. */
+/**
+ * One run of inline copy. Same-site links open in this tab; an off-site one (the Privacy Policy's ad
+ * opt-out pages) opens in a new tab, as every off-site link on /ai101 and the guides does, with no
+ * handle on this page.
+ */
 export function inline(segments: string | readonly Inline[]): string {
   if (typeof segments === 'string') return highlight(segments);
   return segments
     .map((seg) => {
       if (typeof seg === 'string') return highlight(seg);
       if ('strong' in seg) return `<strong>${highlight(seg.strong)}</strong>`;
-      return `<a href="${esc(seg.href)}">${highlight(seg.link)}</a>`;
+      const target = /^https?:/.test(seg.href) ? ' target="_blank" rel="noopener"' : '';
+      return `<a href="${esc(seg.href)}"${target}>${highlight(seg.link)}</a>`;
     })
     .join('');
 }
 
 function block(b: Block): string {
+  if ('h3' in b) return `<h3>${highlight(b.h3)}</h3>`;
   if ('p' in b) return `<p>${inline(b.p)}</p>`;
   if ('ul' in b) return `<ul>${b.ul.map((item) => `<li>${inline(item)}</li>`).join('')}</ul>`;
   // The waitlist form's own words, quoted so a reader sees exactly what they agreed to.
@@ -80,12 +86,13 @@ function section(s: Section): string {
   ].join('\n');
 }
 
-/** The table of contents: one link per section, in order. */
+/** The table of contents: one link per section, in order, numbered unless the headings are. */
 function toc(doc: LegalDoc): string {
   const items = doc.sections.map((s) => `<li><a href="#${esc(s.id)}">${highlight(s.heading)}</a></li>`).join('');
+  const list = doc.numberedHeadings ? `<ol class="plain">` : `<ol>`;
   return (
     `<nav class="toc" aria-labelledby="toc-title">` +
-    `<p class="toc-title" id="toc-title">${esc(CHROME.tocLabel)}</p><ol>${items}</ol></nav>`
+    `<p class="toc-title" id="toc-title">${esc(CHROME.tocLabel)}</p>${list}${items}</ol></nav>`
   );
 }
 

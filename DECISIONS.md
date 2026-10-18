@@ -1886,3 +1886,34 @@ D-040.
 - **The SMS words changed while the waitlist form is live**, which D-034 warns against: a tab opened
   before the deploy and submitted after it is stored with the new words. The waitlist is past its
   event and the box is optional, so the risk is a handful of sign-ups at most.
+
+## D-042 · The Privacy Policy becomes Connor's own, and the Terms follow it
+
+**Date:** 2026-10-18
+**Approved by:** Connor Leiva, in chat on 2026-10-18, with the finished Privacy Policy as a file:
+"Use this file to update my terms of service and privacy policy on my site."
+**Scope:** `apps/web/src/legal/{content,render,render.test}.ts`, `apps/web/src/legal/legal.css`;
+`TERMS_VERSION` in `apps/api/src/routes/ai101.ts` and its tests. Amends D-035 and D-041.
+
+- **/privacy is Connor's text, word for word**: sixteen numbered sections covering every Amplified
+  Impact service (courses, coaching, consulting, events, communities, the LMS), not only the public
+  pages. Only the quotation marks and apostrophes are typeset, as the Terms' are, and the address
+  and email come from `content.ts`'s one constant per fact. A comparison of the built page against
+  the file found all 122 headings, paragraphs and list items identical. The file's byline and its
+  `[Month DD, YYYY]` and `[YYYY-MM-DD]` placeholders are replaced by the page's own date line.
+- **What the renderer gained, for the policy's shape:** `h3` subheadings ("Information You Give
+  Us"); headings that carry their own numbers, because the policy cites them ("as Section 8
+  explains"), so its table of contents adds none (a test holds them 1 to 16 in order); and off-site
+  links, the three ad opt-out pages only, which open in a new tab with `noopener` as every off-site
+  link on /ai101 and the guides does. The page still loads nothing from another origin.
+- **The Terms follow the policy where the two overlap.** "We" is Amplified Impact, LLC, a Utah
+  limited liability company, in the policy's own sentence; the Spring B and SB Coaching definitions
+  are gone, which D-041 left for this policy. Texts are opted into "for example by checking the SMS
+  box on the waitlist form or texting a keyword to us", as the policy says. What happens to a mobile
+  number is the policy's two sentences (`SMS_SHARING`, on both pages): no mobile information to
+  third parties or affiliates for marketing, and opt-in data only to the text providers.
+- **Version and effective date 2026-10-18**, and `TERMS_VERSION` with them, so sign-ups from the
+  deploy record the version with this policy.
+- **Open, Connor's call:** the policy says replays, course materials and promotional content are made
+  from recordings, and recordings shared, "as our Terms of Service describe". The Terms say nothing
+  about recordings yet; they cover the public pages, the waitlist, the guides and the messages.

@@ -95,7 +95,8 @@ a:focus-visible {
 }
 
 .doc h1,
-.doc h2 {
+.doc h2,
+.doc h3 {
   margin: 0;
   font-weight: 700;
   color: var(--text-primary);
@@ -111,6 +112,13 @@ a:focus-visible {
   font-size: 20px;
   line-height: 28px;
   letter-spacing: -0.01em;
+}
+
+/* A subheading inside a section ("Information You Give Us"), set apart from the list above it. */
+.doc h3 {
+  margin-top: 8px;
+  font-size: 17px;
+  line-height: 24px;
 }
 
 .doc strong {
@@ -180,6 +188,12 @@ a:focus-visible {
   padding-left: 22px;
   font-size: 15px;
   line-height: 22px;
+}
+
+/* The headings carry their own numbers ("1. Who We Are"), so the list adds none. */
+.toc ol.plain {
+  padding-left: 0;
+  list-style: none;
 }
 
 /* Each entry is a real tap target on a phone. */

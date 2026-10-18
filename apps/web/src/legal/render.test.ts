@@ -27,7 +27,13 @@ const inlineText = (segments: string | readonly Inline[]) =>
     : segments.map((s) => (typeof s === 'string' ? s : 'strong' in s ? s.strong : s.link)).join('');
 
 const blockText = (b: Block): string[] =>
-  'p' in b ? [inlineText(b.p)] : 'ul' in b ? b.ul.map((item) => inlineText(item)) : [b.label, b.quote];
+  'h3' in b
+    ? [b.h3]
+    : 'p' in b
+      ? [inlineText(b.p)]
+      : 'ul' in b
+        ? b.ul.map((item) => inlineText(item))
+        : [b.label, b.quote];
 
 /** Every readable paragraph, list item, heading and label in one page's content. */
 const copyOf = (doc: LegalDoc): string[] => [
@@ -64,6 +70,25 @@ const SMS_LABEL =
 const JOIN_LINE =
   'By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December agent track and other programs from Amplified Impact, LLC. Unsubscribe anytime.';
 
+/** The Privacy Policy's own words about mobile numbers (D-042), typed out. */
+const NO_MOBILE_SHARING =
+  'No mobile information will be shared with third parties or affiliates for marketing or promotional purposes.';
+const NO_OPT_IN_SHARING =
+  'Text messaging originator opt-in data and consent will not be shared with any third parties, except the aggregators and providers that deliver our text messages.';
+
+/** Who "we" are, in the same sentence on both pages. */
+const WE = '“Amplified Impact,” “we,” “us,” and “our” mean Amplified Impact, LLC, a Utah limited liability company.';
+
+/** Every off-site link, by page: the Privacy Policy's ad opt-out pages, and nothing on the Terms. */
+const OFF_SITE: Record<LegalDoc['path'], readonly string[]> = {
+  '/terms': [],
+  '/privacy': [
+    'https://optout.aboutads.info',
+    'https://optout.networkadvertising.org',
+    'https://tools.google.com/dlpage/gaoptout',
+  ],
+};
+
 describe.each(DOCS.map((doc) => [doc.path, doc] as const))('%s · outline and landmarks', (_path, doc) => {
   const page = parse(doc);
 
@@ -94,9 +119,9 @@ describe.each(DOCS.map((doc) => [doc.path, doc] as const))('%s · outline and la
 
   it('shows the effective date and the version at the top', () => {
     const time = page.querySelector('.doc-head time');
-    expect(time?.getAttribute('datetime')).toBe('2026-10-17');
-    expect(text(time)).toBe('October 17, 2026');
-    expect(text(page.querySelector('.doc-head .meta'))).toBe('Effective October 17, 2026 · Version 2026-10-17');
+    expect(time?.getAttribute('datetime')).toBe('2026-10-18');
+    expect(text(time)).toBe('October 18, 2026');
+    expect(text(page.querySelector('.doc-head .meta'))).toBe('Effective October 18, 2026 · Version 2026-10-18');
     expect(EFFECTIVE.iso).toBe(LEGAL_VERSION);
   });
 
@@ -107,6 +132,10 @@ describe.each(DOCS.map((doc) => [doc.path, doc] as const))('%s · outline and la
     const links = all(nav!, 'ol > li > a');
     expect(links.map((a) => a.getAttribute('href'))).toEqual(doc.sections.map((s) => `#${s.id}`));
     expect(links.map(text)).toEqual(doc.sections.map((s) => s.heading));
+    // Numbered headings are numbered 1, 2, 3 in order (the policy's "Section 8" must be the eighth),
+    // and the list then adds no numbers of its own.
+    if (doc.numberedHeadings) doc.sections.forEach((s, i) => expect(s.heading).toMatch(new RegExp(`^${i + 1}\\. \\S`)));
+    expect(nav!.querySelector('ol')?.classList.contains('plain')).toBe(doc.numberedHeadings === true);
   });
 
   it('links the signature logo to the workshop page, with the brand drawing unchanged', () => {
@@ -156,11 +185,23 @@ describe.each(DOCS.map((doc) => [doc.path, doc] as const))('%s · outline and la
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('links only within the site, so it makes no request and sends no one elsewhere', () => {
-    for (const a of all(page, 'a[href]')) expect(a.getAttribute('href'), text(a)).toMatch(/^(\/|#)/);
+  it('links within the site in this tab, and off it only to the listed opt-out pages, in a new tab', () => {
+    for (const a of all(page, 'a[href]')) {
+      const href = a.getAttribute('href')!;
+      if (/^(\/|#)/.test(href)) {
+        expect(a.hasAttribute('target'), href).toBe(false);
+        continue;
+      }
+      expect(OFF_SITE[doc.path], href).toContain(href);
+      expect(a.getAttribute('target'), href).toBe('_blank');
+      expect(a.getAttribute('rel'), href).toBe('noopener');
+    }
+    const offSite = all(page, 'a[href^="http"]').map((a) => a.getAttribute('href'));
+    expect(offSite).toEqual(OFF_SITE[doc.path]);
     for (const a of all(page, 'a[href^="#"]')) {
       expect(page.getElementById(a.getAttribute('href')!.slice(1)), a.getAttribute('href')!).not.toBeNull();
     }
+    // A link is not a request: the page itself still loads nothing from anywhere.
     expect(all(page, 'img, iframe, link, object, embed')).toHaveLength(0);
   });
 
@@ -249,31 +290,49 @@ describe('what the pages promise, against the waitlist form', () => {
     expect(text(terms.getElementById('emails'))).toContain('has an unsubscribe link');
   });
 
-  it('lists what the waitlist collects, and what the page never sends', () => {
-    const collect = text(privacy.getElementById('what-we-collect'));
+  it('lists what a sign-up stores, the consent record among it, and that browser-only data is never sent', () => {
+    const collect = text(privacy.getElementById('information-we-collect'));
     for (const item of [
-      'first name',
-      'email address',
-      'brokerage',
-      'mobile number',
-      'record of your consent',
-      'tag from the link',
+      'name, email address, mobile number',
+      'company or brokerage',
+      'Consent records.',
+      'the words shown to you, the page or form, the date and time, and the version of our terms and this policy in effect',
+      'a tag in the link or QR code',
+      'That information is not sent to us',
     ]) {
       expect(collect, item).toContain(item);
     }
-    const not = text(privacy.getElementById('what-we-do-not-collect'));
-    expect(not).toContain('never sent to us');
-    expect(not).toContain('no analytics, no tracking cookies, no ad pixels');
   });
 
-  it('never sells, and never shares mobile numbers or text consent for anyone else’s marketing', () => {
-    expect(privacyText).toContain('We do not sell your personal information');
-    expect(text(privacy.getElementById('text-messages'))).toContain(
-      'We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.',
+  it('never shares mobile numbers or text opt-in data for anyone’s marketing, in the same words on both pages', () => {
+    for (const sms of [text(privacy.getElementById('text-messages')), text(terms.getElementById('text-messages'))]) {
+      expect(sms).toContain(NO_MOBILE_SHARING);
+      expect(sms).toContain(NO_OPT_IN_SHARING);
+    }
+    // Section 5's sharing with Affiliated Companies leaves the mobile number out, and Section 7's
+    // categories leave the opt-in data out.
+    expect(text(privacy.getElementById('marketing'))).toContain('except your mobile number');
+    expect(text(privacy.getElementById('sharing'))).toContain(
+      'All of the categories above exclude text messaging originator opt-in data and consent',
     );
-    expect(termsText).toContain(
-      'We never share your mobile number or your text consent with any other third party or affiliate for their own marketing.',
-    );
+    expect(privacyText).toContain('We do not sell personal information in exchange for money.');
+  });
+
+  it('names one company as “we” on both pages, and no Spring', () => {
+    expect(text(terms.getElementById('who-we-are'))).toContain(WE);
+    expect(text(privacy.getElementById('who-we-are'))).toContain(WE);
+    for (const page of [termsText, privacyText]) {
+      expect(page).not.toMatch(/Spring|SB Coaching/);
+    }
+  });
+
+  it('lists the same opt-out words on both pages', () => {
+    const termsWords = text(terms.getElementById('text-messages'));
+    const privacyWords = text(privacy.getElementById('your-choices'));
+    for (const word of ['STOP', 'CANCEL', 'END', 'QUIT', 'UNSUBSCRIBE', 'REVOKE', 'OPT OUT']) {
+      expect(termsWords, word).toContain(word);
+      expect(privacyWords, word).toContain(word);
+    }
   });
 
   it('cross-links to sections that exist on the other page', () => {

@@ -173,7 +173,7 @@ describe.each(GUIDE_SLUGS)('POST /api/%s · the opt-in (D-038, D-039) @g9', (slu
       createdAt: NOW,
       ghlSyncedAt: null,
     });
-    expect(TERMS_VERSION).toBe('2026-10-17');
+    expect(TERMS_VERSION).toBe('2026-10-18');
   });
 
   it('never records a phone number or SMS consent, whatever the request says @g9', async () => {

@@ -238,7 +238,7 @@ export const SMS_CONSENT_TEXT =
  * The version of the Terms of Service and Privacy Policy a sign-up agrees to by joining: their
  * effective date. Change it when either page changes in substance.
  */
-export const TERMS_VERSION = '2026-10-17';
+export const TERMS_VERSION = '2026-10-18';
 
 /** The sign-in screen's rule (`apps/web/src/routes/auth/SignIn.tsx`), so the product has one. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
