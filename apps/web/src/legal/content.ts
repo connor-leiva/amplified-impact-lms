@@ -2,14 +2,12 @@
 // 2026-10-13, the free guides' opt-ins (/task-sync-starter, D-038; /ops-time-audit, D-039;
 // /voice-profile, D-040).
 //
-// The Privacy Policy is Connor's own text, word for word, since 2026-10-18 (D-042): one policy for
-// every Amplified Impact service, not only these pages. Only its quotation marks and apostrophes are
-// typeset, as the Terms' are. The Terms were drafted by an AI assistant, not a lawyer, for Connor's
-// review; Connor supplied every fact the draft had left as a [bracketed placeholder] on 2026-10-08
-// (the entities, names, contact, address, governing law and the liability cap). Where the two pages
-// overlap (who "we" are, how texts are opted into, what happens to a mobile number) the Terms follow
-// the policy. A lawyer's read is still recommended. `DRAFT` turns the "Draft for review" notice and
-// the `noindex` back on, and `render.test.ts` refuses to turn it off while any placeholder is left.
+// Both pages are Connor's own text, word for word, since 2026-10-18 (D-042): one Terms of Service and
+// one Privacy Policy for every Amplified Impact service, not only these pages. Only their quotation
+// marks and apostrophes are typeset. The versions before them (2026-10-08 to 2026-10-17) were drafted
+// by an AI assistant for Connor's review. A lawyer's read is still recommended. `DRAFT` turns the
+// "Draft for review" notice and the `noindex` back on, and `render.test.ts` refuses to turn it off
+// while any placeholder is left.
 //
 // THIS IS THE ONLY FILE TO EDIT WHEN THE WORDS CHANGE. `render.ts` turns it into HTML at build
 // time. Nothing here is markup: copy is structured (`Inline`, `Block`) so that a `<` typed into this
@@ -40,23 +38,21 @@ export const DRAFT: boolean = false;
  */
 export const SENDERS = 'Amplified Impact, LLC';
 
-/** Every free guide, as these pages name them. */
-const GUIDE_NAMES =
-  'the Task Sync Starter Kit at /task-sync-starter, The Ops Time Audit at /ops-time-audit, and the AI Voice Profile Setup at /voice-profile';
-
 /**
  * Who a mobile number is shared with, said ONCE so the Terms and the Privacy Policy cannot disagree
  * (they did, in the first draft: "anyone" on one page, "any other third party or affiliate" on the
- * other). The Privacy Policy's own words since D-042: the two sentences 10DLC campaign vetting looks
- * for, no third parties or affiliates for marketing, and opt-in data only to the text providers.
+ * other). The sentence 10DLC campaign vetting looks for, in both of Connor's pages (D-042); the
+ * Privacy Policy follows it with where opt-in data does go.
  */
 export const SMS_SHARING =
-  'No mobile information will be shared with third parties or affiliates for marketing or promotional purposes. Text messaging originator opt-in data and consent will not be shared with any third parties, except the aggregators and providers that deliver our text messages.';
+  'No mobile information will be shared with third parties or affiliates for marketing or promotional purposes.';
 
 /**
- * The waitlist form's consent wording, VERBATIM. Another file renders the form; these pages quote
- * it so a reader can see exactly what they agreed to. If the form's wording changes, change it here
- * in the same commit. `render.test.ts` holds both strings to literals typed out in the test.
+ * Every sign-up form's consent wording, VERBATIM: the record of what a visitor agreed to, beside the
+ * pages they agreed to. Other files render the forms, and their tests hold each form to these
+ * strings; `render.test.ts` holds these to literals typed out in the test. The pages quoted them
+ * until Connor's own Terms (D-042), which do not. If a form's wording changes, change it here in the
+ * same commit.
  */
 export const CONSENT = {
   /** The label of the optional, unchecked SMS checkbox. */
@@ -72,22 +68,20 @@ export const CONSENT = {
   guides: `By signing up, you agree to our Terms of Service and Privacy Policy and to emails from ${SENDERS}. Unsubscribe anytime.`,
 } as const;
 
-/** The SMS program's name, as carriers see it registered. */
-export const SMS_PROGRAM = 'Amplified Impact updates';
+/** The SMS program's name, as the Terms give it (D-042). */
+export const SMS_PROGRAM = 'Amplified Impact Updates';
 
 // --- The facts ------------------------------------------------------------------------------------
 // One constant per fact, so the same fact reads the same everywhere it appears. Supplied by Connor on
-// 2026-10-08; the company's state of formation, Utah, came with the Privacy Policy (D-042), whose own
-// sentences give the retention periods.
+// 2026-10-08; the company's state of formation, Utah, came with Connor's own pages (D-042), whose
+// sentences carry the rest (the liability cap, the retention periods).
 
 const P = {
   aiName: 'Amplified Impact, LLC',
   contactEmail: 'admin@amplifiedimpact.io',
   privacyEmail: 'admin@amplifiedimpact.io',
   address: '1173 N Shepard Crk Pkwy Ste A, Farmington, UT 84025',
-  lawState: 'the State of Utah',
   venue: 'the state courts in Davis County, Utah, or the federal court for the District of Utah',
-  liabilityCap: 'one hundred dollars ($100)',
 } as const;
 
 // --- Types ---------------------------------------------------------------------------------------
@@ -106,9 +100,7 @@ export type Block =
   /** A paragraph. */
   | { p: string | readonly Inline[] }
   /** A bulleted list; each item is one line of inline copy. */
-  | { ul: readonly (string | readonly Inline[])[] }
-  /** The form's own words, quoted, with a short label saying where they appear. */
-  | { quote: string; label: string };
+  | { ul: readonly (string | readonly Inline[])[] };
 
 export interface Section {
   /** The section's anchor, and the stem of its heading's id. Linked to from the other page. */
@@ -125,10 +117,12 @@ export interface LegalDoc {
   description: string;
   heading: string;
   /**
-   * True when every section heading carries its own number ("1. Who We Are"), as the Privacy
-   * Policy's do because its sentences cite them. The table of contents then adds no numbers.
+   * True when every section heading carries its own number ("1. Who We Are"), as both pages' do
+   * because their sentences cite them ("as Section 8 explains"). The contents list then adds none.
    */
   numberedHeadings?: true;
+  /** A bold notice above the intro: the Terms' warning about arbitration. */
+  notice?: string;
   intro: readonly Inline[];
   sections: readonly Section[];
 }
@@ -151,137 +145,381 @@ export const CHROME = {
 } as const;
 
 // --- Terms of Service ----------------------------------------------------------------------------
+// Connor's text, word for word (D-042). Numbered headings, as the policy's are, because its sentences
+// cite them ("Section 24 requires you").
 
 export const TERMS: LegalDoc = {
   path: '/terms',
   title: 'Terms of Service | Amplified Impact',
-  description:
-    'The terms for the AI 101 workshop page, the December waitlist, our free guides, and the emails and texts that follow.',
+  description: 'The terms that govern your use of everything Amplified Impact offers.',
   heading: 'Terms of Service',
+  numberedHeadings: true,
+  notice:
+    'Please read these terms carefully. Section 24 requires you and Amplified Impact to resolve most disputes through individual binding arbitration instead of in court or in a class action, and it explains how to opt out within 30 days.',
   intro: [
-    `These terms cover the free AI 101 workshop page at /ai101, its December waitlist, our free guides (${GUIDE_NAMES}), and the emails and text messages we send to people on our lists. When you join the waitlist or get a guide, you agree to them. Our `,
+    'These Terms of Service govern your use of everything Amplified Impact offers. Our ',
     { link: 'Privacy Policy', href: '/privacy' },
-    ' explains what we collect and how we use it.',
+    ' explains how we handle personal information and is part of these terms.',
   ],
   sections: [
     {
       id: 'who-we-are',
-      heading: 'Who we are',
+      heading: '1. Who We Are and Key Terms',
       blocks: [
-        // The Privacy Policy's own sentence, so the two pages mean the same company (D-042).
-        { p: `“Amplified Impact,” “we,” “us,” and “our” mean ${P.aiName}, a Utah limited liability company.` },
-        {
-          p:
-            'When we email or text you about our programs, these terms apply to those messages too. “You” ' +
-            'means the person using our pages, joining the waitlist, or getting a guide.',
-        },
-      ],
-    },
-    {
-      id: 'workshop-page',
-      heading: 'The AI 101 workshop page',
-      blocks: [
-        {
-          p: 'The page is free. It shares prompts, setup steps, and ideas from the AI 101 session for real estate agents. It is for education only.',
-        },
         {
           ul: [
-            'We do not promise any result. Your leads, listings, and income depend on you and your market.',
-            'AI tools make mistakes. Read and check everything an AI tool writes for you before you use it, post it, or send it.',
-            'You are responsible for what you publish and send. That includes following fair housing laws, real estate advertising rules, your MLS rules, your brokerage’s policies, and the laws on calls and texts, like the Telephone Consumer Protection Act (TCPA).',
-            'Be careful with client information. Only put it into an AI tool if the law and your brokerage allow it.',
-            'Nothing on the page is legal, tax, financial, or compliance advice.',
-          ],
-        },
-        {
-          p: 'You may use and change the prompts for your own business. Please do not sell them, or publish the page or its prompts as your own.',
-        },
-      ],
-    },
-    {
-      id: 'third-party-services',
-      heading: 'Third-party services',
-      blocks: [
-        {
-          p: 'The page points you to tools we do not own or control, like ChatGPT, Claude, Canva, and the app stores. Their own terms and privacy policies apply when you use them. We are not responsible for them. Some of them charge a fee, so check their prices and terms before you sign up.',
-        },
-      ],
-    },
-    {
-      id: 'waitlist',
-      heading: 'The December waitlist',
-      blocks: [
-        {
-          p: `When you join the waitlist, you agree to these terms and our Privacy Policy. You also agree to get emails about the December agent track and other programs from ${SENDERS}.`,
-        },
-        { quote: CONSENT.join, label: 'The words under the Join button' },
-        {
-          ul: [
-            'Joining is free. It does not enroll you in a program or commit you to buy anything.',
-            'We will share program details, dates, and prices later. We may change or cancel a program.',
-            'Please use your real name and an email address that is yours.',
-            'You can leave at any time. See Emails and Text messages below.',
+            [
+              { strong: '“Amplified Impact,” “we,” “us,” and “our”' },
+              ` mean ${P.aiName}, a Utah limited liability company.`,
+            ],
+            [
+              { strong: '“Affiliated Companies”' },
+              ' means any company that controls, is controlled by, or is under common control with Amplified Impact, and any company owned or controlled, in whole or in part, by anyone who directly or indirectly holds an ownership interest in Amplified Impact.',
+            ],
+            [
+              { strong: '“Services”' },
+              ' means our websites (including amplifiedimpact.io and its subdomains), courses, programs, coaching, consulting and implementation services, workshops, bootcamps, webinars, live and virtual events, communities, memberships, guides, templates, tools, and the emails, text messages, and other communications we send.',
+            ],
+            [
+              { strong: '“Materials”' },
+              ' means the content we provide through the Services, including videos, recordings, slides, workbooks, guides, templates, prompts, scripts, checklists, frameworks, software, and tools.',
+            ],
+            [
+              { strong: '“You”' },
+              ' means the person using the Services and, if you use them for a company or team, that company or team.',
+            ],
           ],
         },
       ],
     },
     {
-      id: 'free-guides',
-      heading: 'Free guides',
+      id: 'agreeing',
+      heading: '2. Agreeing to These Terms',
       blocks: [
         {
-          p: `Our free guides are ${GUIDE_NAMES}. When you get one, you agree to these terms and our Privacy Policy. You also agree to get emails from ${SENDERS}.`,
+          p: 'These terms are a binding agreement between you and Amplified Impact. You accept them when you check a box or click a button that refers to them, create an account, sign up, make a purchase, join a session or event, or otherwise use the Services. If you do not agree, do not use the Services.',
         },
-        { quote: CONSENT.guides, label: 'The words under the button on each guide’s page' },
+        {
+          p: 'You must be at least 18 and able to form a binding contract. If you accept these terms for a company, you confirm that you have authority to bind it.',
+        },
+        {
+          p: 'The Services are designed for professional and business development, and you agree that you are using them for business or professional purposes.',
+        },
+      ],
+    },
+    {
+      id: 'offer-terms',
+      heading: '3. Offer Terms',
+      blocks: [
+        {
+          p: 'Some offerings come with additional terms, such as an enrollment or program agreement, event terms, a proposal or statement of work, or terms shown at checkout (“Offer Terms”). Offer Terms are part of these terms. If Offer Terms conflict with these terms, the Offer Terms control for that offering.',
+        },
+      ],
+    },
+    {
+      id: 'changes',
+      heading: '4. Changes to the Services and These Terms',
+      blocks: [
+        {
+          p: 'We may change, suspend, or discontinue any part of the Services at any time, including content, features, formats, schedules, presenters, and pricing for future purchases. If we discontinue a paid offering before you receive what you paid for, we will provide a comparable substitute or a prorated refund, at our choice.',
+        },
+        {
+          p: 'We may update these terms. When we do, we will post the new version on this page and change the date and version at the top. If a change is material, we will notify you by email or a notice in the Services before it takes effect. Changes apply going forward, and a change to Section 24 will not apply to a dispute that arose before we posted it. If you keep using the Services after a change takes effect, the updated terms apply to you.',
+        },
+      ],
+    },
+    {
+      id: 'accounts',
+      heading: '5. Accounts and Access',
+      blocks: [
         {
           ul: [
-            'Getting a guide is free. It does not enroll you in a program or commit you to buy anything.',
-            'The guides are for education only. What these terms say about the workshop page applies to them too: we do not promise any result, AI tools make mistakes, you are responsible for what you send and publish, and nothing in them is legal, tax, financial, or compliance advice.',
-            'You may use and change a guide for your own business. Please do not sell it, or publish it as your own.',
-            'The guide pages have no SMS box. Getting a guide never signs you up for texts.',
-            'You can stop our emails at any time. See Emails below.',
+            'Give us accurate information and keep it current.',
+            'Keep your login secure. You are responsible for all activity under your account.',
+            'Access is personal to you, or limited to the number of users included in your purchase. Do not share your login or let anyone else use your access.',
+            'We may monitor for shared or unauthorized access, and we may suspend or end access that violates this section without a refund.',
           ],
         },
       ],
     },
     {
-      id: 'emails',
-      heading: 'Emails',
+      id: 'payments',
+      heading: '6. Purchases and Payments',
+      blocks: [
+        { h3: 'Paying for the Services' },
+        {
+          p: 'You agree to pay all fees for the Services you buy, plus any applicable taxes. You authorize us and our payment processors to charge your payment method for those fees, including any recurring or installment payments you choose. Prices are in U.S. dollars unless we say otherwise.',
+        },
+        { h3: 'Payment Plans' },
+        {
+          p: 'A payment plan is a way to pay the full price over time. It is not a subscription you can cancel. You owe every installment, even if you stop using the Services.',
+        },
+        {
+          p: 'If a payment fails and you do not fix it within 7 days after we notify you, we may suspend your access until your account is current and may require the remaining balance to be paid at once. To the extent the law allows, you will also owe interest on overdue amounts at the lesser of 1.5% per month or the highest rate the law allows, plus reasonable costs of collection, including attorneys’ fees.',
+        },
+        { h3: 'Subscriptions and Memberships' },
+        {
+          p: `Subscriptions and memberships renew automatically at the then-current price for the same billing period until you cancel. You can cancel at any time in your account settings, where available, or by emailing ${P.contactEmail}. Cancellation takes effect at the end of the current billing period, and you keep access until then. We will tell you about a price change before it applies to you and send any renewal reminders the law requires.`,
+        },
+        { h3: 'Refunds' },
+        {
+          p: 'Unless the Offer Terms for a purchase include a refund policy or guarantee, all sales are final and non-refundable, including if you do not use or finish what you bought. If Offer Terms include a refund policy or guarantee, you must meet its conditions and deadline to qualify. Nothing in this section limits a refund the law requires.',
+        },
+        { h3: 'Payment Disputes and Chargebacks' },
+        {
+          p: `If you have a billing problem, contact us first at ${P.contactEmail} so we can fix it. If you file a chargeback or payment dispute instead, we may suspend your access while it is open, and we may give your payment provider records of your purchase, your agreement to these terms, and your use of the Services. A chargeback does not cancel your obligation to pay for Services you bought.`,
+        },
+        { h3: 'Promotions and Pricing Errors' },
+        {
+          p: 'Discounts, promo codes, bonuses, and other promotions are subject to their stated terms, have no cash value, and cannot be combined unless we say so. We may correct pricing errors and cancel orders affected by them, refunding any amount charged.',
+        },
+      ],
+    },
+    {
+      id: 'programs',
+      heading: '7. Programs, Sessions, and Events',
       blocks: [
         {
-          p: `Every email we send about our programs has an unsubscribe link. Use it to stop those emails at any time, or email ${P.contactEmail}.`,
+          ul: [
+            [
+              { strong: 'Schedules.' },
+              ' Dates, times, formats, presenters, and agendas may change. We will tell you about significant changes as soon as practical.',
+            ],
+            [
+              { strong: 'Live and virtual sessions.' },
+              ' You are responsible for your own internet connection and equipment, and we are not responsible for outages of third-party platforms. Replays are available only when the Offer Terms include them or we choose to provide them, and they may be available for a limited time.',
+            ],
+            [
+              { strong: 'Access period.' },
+              ' Access to digital Materials lasts for the period stated in the Offer Terms. If no period is stated, access lasts as long as we continue to offer that content. “Lifetime access” means the lifetime of the product, not of the buyer.',
+            ],
+            [
+              { strong: 'One-on-one sessions.' },
+              ' Unless the Offer Terms say otherwise, a session you miss or cancel with less than 24 hours’ notice may be forfeited.',
+            ],
+            [
+              { strong: 'Event cancellations.' },
+              ' If we cancel an event and do not reschedule it, we will refund the registration fee you paid for it or, if you prefer, apply it to a future offering. If we postpone an event, your registration moves to the new date unless the Offer Terms provide other options. We are not responsible for travel, lodging, or other costs you incur.',
+            ],
+            [
+              { strong: 'Registrations are personal.' },
+              ' You may transfer a registration only with our written approval.',
+            ],
+          ],
+        },
+        { h3: 'In-Person Events' },
+        {
+          p: 'You are responsible for your own conduct, safety, and belongings, and you agree to follow venue rules and our staff’s instructions. We may remove anyone who acts in a disruptive, unsafe, or inappropriate way, without a refund.',
         },
         {
-          p: 'Unsubscribing from email does not stop texts. Replying STOP to a text does not stop emails. To stop both, do both.',
+          p: 'Attending an in-person event involves risks, including travel and venue risks, and you voluntarily accept them. To the fullest extent the law allows, you release Amplified Impact and its Affiliated Companies from claims arising from your attendance, except claims caused by our gross negligence or willful misconduct.',
         },
+      ],
+    },
+    {
+      id: 'recordings',
+      heading: '8. Recordings and Your Likeness',
+      blocks: [
+        {
+          p: 'We may record calls, sessions, events, and community activity, including video, audio, screen shares, chat, and transcripts, and we may take photos and video at in-person events. Recordings may be made or processed with AI tools.',
+        },
+        {
+          p: 'By joining or attending, you consent to being recorded and photographed. You grant Amplified Impact and its Affiliated Companies a worldwide, royalty-free, perpetual, irrevocable license to use, edit, reproduce, and share recordings and photos that include your name, image, likeness, voice, and what you say or share, in any media and for any lawful purpose, including replays, course Materials, promotion, and advertising, without payment or further approval.',
+        },
+        {
+          p: 'If you do not want to appear, turn off your camera, use a display name that does not identify you, and do not speak or post in the chat. At an in-person event, tell our staff when you arrive. If you ask us in writing before a session not to use your likeness in promotion, we will make reasonable efforts to honor that request.',
+        },
+        {
+          p: 'You may not record, photograph, stream, or capture any part of the Services yourself without our written permission.',
+        },
+      ],
+    },
+    {
+      id: 'testimonials',
+      heading: '9. Testimonials and Feedback',
+      blocks: [
+        {
+          p: 'If you give us a testimonial, review, story, or result, whether in writing, on video, in a survey, or in a session or community, you allow Amplified Impact and its Affiliated Companies to use it with your name, image, likeness, and business name, in any media and for any lawful purpose, without payment. We may edit it for length and clarity without changing its meaning. You confirm that it is true and reflects your honest experience. If we give you anything of value in connection with a testimonial, we will disclose that as the law requires.',
+        },
+        {
+          p: 'If you send us ideas, suggestions, or feedback, we may use them for any purpose without any obligation to you.',
+        },
+      ],
+    },
+    {
+      id: 'intellectual-property',
+      heading: '10. Intellectual Property and Your License',
+      blocks: [
+        {
+          p: 'The Services and Materials, including our names, logos, frameworks, methods, curriculum, and content, belong to Amplified Impact or its licensors and are protected by intellectual property laws. We reserve all rights we do not expressly grant.',
+        },
+        {
+          p: 'When you buy or receive access to Materials, we grant you a limited, personal, non-exclusive, non-transferable, revocable license to access and use them for your own business during your access period, under these terms.',
+        },
+        {
+          p: [
+            { strong: 'Using templates and prompts.' },
+            ' You may copy, adapt, and use templates, prompts, scripts, checklists, and similar Materials inside your own business, including with your own team, and you may keep the systems, content, and automations you build with them. Using our prompts and templates in AI tools the way we teach is allowed. You may not sell, license, or give them to anyone outside your business, or use them to build products or services for others.',
+          ],
+        },
+        { p: [{ strong: 'What you may not do.' }, ' Without our written permission, you may not:'] },
+        {
+          ul: [
+            'Copy, share, sell, resell, rent, license, publish, or distribute Materials, or post them publicly or in other groups.',
+            'Teach, present, or package our Materials, frameworks, or curriculum as your own, or use them to create a competing course, program, or product.',
+            'Use Materials to train, fine-tune, or improve any AI model, or put Materials into an AI tool to copy, summarize for others, or repackage them.',
+            'Scrape, crawl, or use bots or other automated means to access or copy the Services.',
+            'Remove copyright, trademark, or other notices.',
+            'Reverse engineer or try to extract the source code of our software or tools, except where the law allows it.',
+            'Use our names, logos, or trademarks.',
+          ],
+        },
+        {
+          p: 'If you violate this section, we may end your access without a refund and pursue any remedy available, including an injunction.',
+        },
+      ],
+    },
+    {
+      id: 'your-content',
+      heading: '11. Your Content and Data',
+      blocks: [
+        {
+          p: 'You keep ownership of the content you submit or share through the Services, such as posts, comments, questions, files, and assignments (“Your Content”). You grant us a worldwide, non-exclusive, royalty-free, perpetual, transferable, and sublicensable license to host, store, copy, use, adapt, display, and share Your Content to operate, provide, improve, and promote the Services. You confirm that you have the rights to Your Content and that it does not violate the law or anyone else’s rights. We may remove Your Content at our discretion.',
+        },
+        {
+          p: 'Do not upload or share personal information about your clients, leads, or other people unless you have the right to share it and it is needed. If you give us access to your systems or data for consulting or implementation work, you confirm that you have the rights and consents needed, and the Offer Terms for that engagement govern how we handle that data.',
+        },
+      ],
+    },
+    {
+      id: 'conduct',
+      heading: '12. Community and Conduct Rules',
+      blocks: [
+        {
+          p: 'When you use the Services, including communities, chats, sessions, and events, you agree not to:',
+        },
+        {
+          ul: [
+            'Harass, threaten, bully, or discriminate against anyone, or post hateful, obscene, or abusive content.',
+            'Spam, or use the Services to recruit, solicit, or sell to other participants, unless we allow it in that space.',
+            'Share anyone else’s confidential or personal information without permission.',
+            'Post anything illegal, infringing, misleading, or harmful, including malware.',
+            'Impersonate anyone or misrepresent your affiliation with anyone.',
+            'Interfere with or disrupt the Services or other people’s use of them.',
+          ],
+        },
+        { p: 'We may remove content and suspend or remove anyone who breaks these rules, without a refund.' },
+      ],
+    },
+    {
+      id: 'confidentiality',
+      heading: '13. Confidentiality',
+      blocks: [
+        {
+          p: 'In group programs, communities, and sessions, you may learn confidential information about other participants and their businesses. Keep it confidential and use it only to take part in the Services. We cannot guarantee that other participants will do the same, so share only what you are comfortable sharing.',
+        },
+        {
+          p: 'Non-public information we share with you, such as unreleased Materials, internal systems, and business information, is confidential. Do not share it outside your business.',
+        },
+      ],
+    },
+    {
+      id: 'education-only',
+      heading: '14. Education Only, No Professional Advice',
+      blocks: [
+        {
+          p: 'The Services are for education and information. They are not legal, tax, accounting, financial, investment, compliance, or other professional advice, and they do not create an attorney-client, fiduciary, or similar relationship. Talk with qualified professionals about your situation before you act.',
+        },
+      ],
+    },
+    {
+      id: 'no-guarantee',
+      heading: '15. No Guarantee of Results',
+      blocks: [
+        {
+          p: 'We do not promise or guarantee any result, including income, revenue, sales, leads, savings, time saved, or business growth.',
+        },
+        {
+          p: 'Results, numbers, examples, or stories in our Services or marketing, including those of our team, our Affiliated Companies, or our clients, are not necessarily typical and are not a promise of what you will achieve. They reflect specific circumstances that may not apply to you.',
+        },
+        {
+          p: 'Your results depend on many factors, including your experience, effort, skills, market conditions, business model, and the tools you use, and you may achieve no results at all. You are solely responsible for your decisions and their outcomes.',
+        },
+      ],
+    },
+    {
+      id: 'ai-and-third-party-services',
+      heading: '16. AI Tools and Third-Party Services',
+      blocks: [
+        {
+          p: 'AI tools can produce content that is inaccurate, incomplete, biased, outdated, or inappropriate. Review and verify everything an AI tool produces before you use, publish, or send it. You are responsible for how you use AI and its output.',
+        },
+        {
+          p: 'The Services may feature, recommend, link to, or integrate with tools we do not own or control, such as AI platforms, software, CRMs, social networks, and app stores. Their own terms and privacy policies apply, they may charge fees, and they may change or stop working at any time. We are not responsible for third-party tools, and a change to one does not entitle you to a refund.',
+        },
+        {
+          p: 'We may earn a commission or other benefit when you buy through some of our links or recommendations, and we will disclose that as the law requires.',
+        },
+      ],
+    },
+    {
+      id: 'your-business',
+      heading: '17. Your Responsibilities for Your Business',
+      blocks: [
+        {
+          p: 'You are solely responsible for your business and for following all laws, regulations, licensing rules, and platform terms that apply to you. That includes the rules on advertising and marketing, calls and text messages, email, consumer data and privacy, anti-discrimination, and any professional license you hold.',
+        },
+        {
+          p: 'Be careful with client and consumer information. Put it into an AI tool or share it with anyone only if the law, your contracts, and the brokerage, employer, or company policies that apply to you allow it.',
+        },
+      ],
+    },
+    {
+      id: 'communications',
+      heading: '18. Communications From Us and Our Affiliated Companies',
+      blocks: [
+        { p: 'By giving us your contact information or using the Services, you agree to receive:' },
+        {
+          ul: [
+            'Service messages about your account, purchases, sessions, and these terms.',
+            'Marketing emails and other communications from Amplified Impact and our Affiliated Companies about programs, events, products, services, resources, and opportunities.',
+          ],
+        },
+        {
+          p: `You can unsubscribe from marketing emails at any time with the link in any email. To stop marketing emails from all of our Affiliated Companies at once, email ${P.contactEmail}. You may still receive service messages about Services you use.`,
+        },
+        {
+          p: 'You agree that we may provide agreements, notices, receipts, and other records electronically, and that they satisfy any legal requirement that they be in writing.',
+        },
+        { p: 'Text messages are optional and covered by Section 19.' },
       ],
     },
     {
       id: 'text-messages',
-      heading: 'Text messages (SMS)',
+      heading: '19. Text Message Program',
       blocks: [
         {
-          p: 'Texts are optional. You get them only if you opt in, for example by checking the SMS box on the waitlist form or texting a keyword to us. You do not have to agree to texts to join the waitlist or to buy anything.',
+          p: 'Texts are optional. You receive them only if you opt in, for example by checking an SMS box or texting a keyword to us. You do not have to agree to texts to buy anything.',
         },
-        { quote: CONSENT.sms, label: 'The words next to the SMS box' },
         {
           ul: [
-            [{ strong: 'Program name: ' }, `${SMS_PROGRAM}.`],
+            [{ strong: 'Program name:' }, ` ${SMS_PROGRAM}.`],
+            [{ strong: 'Sender:' }, ' Amplified Impact.'],
             [
-              { strong: 'What we send: ' },
-              `Texts about the December agent track and other programs from ${SENDERS}, like program news, session reminders, and invitations to enroll. Some are marketing. They may be sent using automated technology.`,
+              { strong: 'What we send:' },
+              ' Texts about our programs, events, resources, and offers, including programs and events we offer with our Affiliated Companies, plus reminders and account updates. Some texts are marketing. Texts may be sent using automated technology.',
             ],
-            [{ strong: 'How often: ' }, 'Message frequency varies.'],
-            [{ strong: 'Cost: ' }, 'Msg & data rates may apply. Your mobile plan decides what you pay.'],
+            [{ strong: 'How often:' }, ' Message frequency varies.'],
+            [{ strong: 'Cost:' }, ' Msg & data rates may apply. Your mobile plan decides what you pay.'],
             [
-              { strong: 'To stop: ' },
-              'Reply STOP to any text. Replies like CANCEL, END, QUIT, UNSUBSCRIBE, REVOKE, or OPT OUT work too, and so does telling us another reasonable way. We may send one last text to confirm you are opted out.',
+              { strong: 'To stop:' },
+              ' Reply STOP to any text. CANCEL, END, QUIT, UNSUBSCRIBE, REVOKE, and OPT OUT also work, and so does telling us another reasonable way. We may send one final text to confirm you are opted out.',
             ],
-            [{ strong: 'For help: ' }, `Reply HELP to any text, or email ${P.contactEmail}.`],
-            [{ strong: 'Carriers: ' }, 'Carriers are not liable for delayed or undelivered messages.'],
+            [{ strong: 'For help:' }, ` Reply HELP to any text, or email ${P.contactEmail}.`],
+            [{ strong: 'Carriers:' }, ' Carriers are not liable for delayed or undelivered messages.'],
             [
-              { strong: 'Your number: ' },
-              'If you change or give up your mobile number, reply STOP first or tell us, so we do not text the next person who gets it.',
+              { strong: 'Your number:' },
+              ' If you change or give up your mobile number, reply STOP first or tell us, so we do not text the next person who gets it.',
             ],
           ],
         },
@@ -289,63 +527,194 @@ export const TERMS: LegalDoc = {
           p: [
             'We handle mobile numbers as our ',
             { link: 'Privacy Policy', href: '/privacy#text-messages' },
-            ` says. ${SMS_SHARING}`,
+            ` describes. ${SMS_SHARING}`,
           ],
         },
       ],
     },
     {
       id: 'disclaimers',
-      heading: 'Disclaimers',
+      heading: '20. Disclaimers',
       blocks: [
         {
-          p: 'We provide our pages, the prompts, the guides, and our messages “as is” and “as available.” To the fullest extent the law allows, we make no promises of any kind, stated or implied. That includes any promise that any of them is accurate, free of errors, always available, or right for your purpose.',
+          p: [
+            {
+              strong:
+                'THE SERVICES AND MATERIALS ARE PROVIDED “AS IS” AND “AS AVAILABLE.” TO THE FULLEST EXTENT THE LAW ALLOWS, AMPLIFIED IMPACT AND ITS AFFILIATED COMPANIES DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, AND UNINTERRUPTED OR ERROR-FREE OPERATION. WE DO NOT WARRANT THAT ANY STRATEGY, SYSTEM, TOOL, OR MATERIAL WILL PRODUCE ANY RESULT OR WORK FOR YOUR BUSINESS.',
+            },
+          ],
         },
       ],
     },
     {
       id: 'liability',
-      heading: 'Limits on our liability',
+      heading: '21. Limits on Our Liability',
       blocks: [
+        { p: [{ strong: 'TO THE FULLEST EXTENT THE LAW ALLOWS:' }] },
         {
-          p: 'To the fullest extent the law allows, we are not liable for any indirect, incidental, special, consequential, or punitive damages, or for lost profits, revenue, data, or business, that come from our pages, the prompts, the guides, the waitlist, or our messages.',
+          p: [
+            {
+              strong:
+                '(A) AMPLIFIED IMPACT, ITS AFFILIATED COMPANIES, AND THEIR OWNERS, MANAGERS, EMPLOYEES, CONTRACTORS, AND AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, REVENUE, DATA, GOODWILL, OR BUSINESS OPPORTUNITIES, ARISING FROM OR RELATED TO THE SERVICES OR THESE TERMS, EVEN IF ADVISED THAT SUCH DAMAGES WERE POSSIBLE; AND',
+            },
+          ],
         },
-        { p: `Our total liability for any claim about these things is limited to ${P.liabilityCap}.` },
-        { p: 'Some places do not allow these limits. If you live in one, some of them may not apply to you.' },
+        {
+          p: [
+            {
+              strong:
+                '(B) THE TOTAL LIABILITY OF ALL OF THEM, COMBINED, FOR ALL CLAIMS ARISING FROM OR RELATED TO THE SERVICES OR THESE TERMS WILL NOT EXCEED THE GREATER OF THE AMOUNT YOU PAID US FOR THE SERVICES GIVING RISE TO THE CLAIM IN THE 12 MONTHS BEFORE THE CLAIM AROSE, OR ONE HUNDRED DOLLARS ($100).',
+            },
+          ],
+        },
+        { p: 'Some places do not allow certain limits on liability, so some of these limits may not apply to you.' },
       ],
     },
     {
-      id: 'changes',
-      heading: 'Changes to these terms',
+      id: 'indemnification',
+      heading: '22. Indemnification',
       blocks: [
         {
-          p: 'We may update these terms. When we do, we will post the new version on this page and change the date and version at the top. If a change is significant, we will tell you by email.',
+          p: 'You will defend, indemnify, and hold harmless Amplified Impact, its Affiliated Companies, and their owners, managers, employees, contractors, and agents from all claims, losses, liabilities, damages, costs, and expenses, including reasonable attorneys’ fees, arising from:',
         },
-        { p: 'If you stay on the list after a change takes effect, the new terms apply to you.' },
+        {
+          ul: [
+            'Your use of the Services.',
+            'Your Content.',
+            'Your violation of these terms, any law, or anyone’s rights.',
+            'Your business, including any marketing, messages, content, AI tools, systems, or automations you create or use, whether or not you learned about them through the Services.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'termination',
+      heading: '23. Suspension and Termination',
+      blocks: [
+        {
+          p: 'We may suspend or end your access to any or all of the Services at any time if you breach these terms or any Offer Terms, fail to pay, file a chargeback, harm or threaten other participants or our team, or create legal risk for us. Unless the law requires otherwise, you will not receive a refund in those cases, and any unpaid balance remains due.',
+        },
+        {
+          p: 'You may stop using the Services at any time. Stopping does not cancel payments you already owe, including remaining installments under a payment plan.',
+        },
+        {
+          p: 'Sections that by their nature should survive will survive the end of these terms or your access, including those on payments, intellectual property, Your Content, confidentiality, disclaimers, limits on liability, indemnification, and dispute resolution.',
+        },
+      ],
+    },
+    {
+      id: 'arbitration',
+      heading: '24. Dispute Resolution and Arbitration',
+      blocks: [
+        { h3: 'Try to Resolve It First' },
+        {
+          p: `Before starting arbitration or a lawsuit, you agree to email ${P.contactEmail} with your name, contact information, a description of the dispute, and the relief you want, and to try in good faith to resolve it with us for 30 days. We will do the same before bringing a claim against you.`,
+        },
+        { h3: 'Binding Individual Arbitration' },
+        {
+          p: 'If we cannot resolve it, you and Amplified Impact agree that any dispute, claim, or controversy arising out of or relating to these terms, the Services, or our communications with you, including claims about text messages, calls, or emails, will be resolved by final and binding arbitration on an individual basis. This includes disputes about whether a claim must be arbitrated, which the arbitrator decides, except that a court decides disputes about the class action waiver below.',
+        },
+        {
+          p: 'The American Arbitration Association (AAA) will administer the arbitration under its applicable rules, before a single arbitrator. Hearings may take place by video or phone, or in Davis County, Utah, unless the arbitrator decides otherwise. Fees are paid as the AAA rules provide. The Federal Arbitration Act governs this section.',
+        },
+        { h3: 'Exceptions' },
+        {
+          p: 'Either party may bring an individual claim in small claims court if it qualifies. Either party may also ask a court for an injunction or other equitable relief to stop infringement or misuse of intellectual property, or unauthorized access to the Services.',
+        },
+        { h3: 'No Class Actions and No Jury' },
+        {
+          p: 'You and Amplified Impact may bring claims only individually, and not as a plaintiff or class member in any class, collective, consolidated, or representative proceeding. The arbitrator may not combine claims or award relief to anyone other than the parties to that arbitration. If a court finds this waiver unenforceable for a claim, that claim must be severed and decided in court, and the rest of this section still applies.',
+        },
+        { p: [{ strong: 'YOU AND AMPLIFIED IMPACT WAIVE ANY RIGHT TO A JURY TRIAL.' }] },
+        { h3: 'Opting Out' },
+        {
+          p: `You can opt out of this arbitration agreement by emailing ${P.contactEmail} within 30 days after you first accept these terms. Include your name, email address, and a clear statement that you opt out of arbitration. Opting out does not affect any other part of these terms.`,
+        },
+        { h3: 'Affiliated Companies and Time Limit' },
+        {
+          p: 'Our Affiliated Companies, and their owners, managers, employees, contractors, and agents, may enforce this section for claims involving them. To the extent the law allows, any claim must be brought within one year after it arose, or it is permanently barred.',
+        },
       ],
     },
     {
       id: 'governing-law',
-      heading: 'Governing law',
+      heading: '25. Governing Law and Venue',
       blocks: [
         {
-          p: `The laws of ${P.lawState} govern these terms, without regard to its conflict of law rules. Any dispute goes to ${P.venue}, unless the law where you live gives you another choice.`,
+          p: `Utah law governs these terms, without regard to its conflict of law rules, except that the Federal Arbitration Act governs Section 24. Any claim that is not arbitrated must be brought only in ${P.venue}, and you and we consent to their jurisdiction.`,
         },
       ],
     },
     {
-      id: 'general',
-      heading: 'General',
+      id: 'copyright',
+      heading: '26. Copyright Complaints',
       blocks: [
         {
-          p: 'If a court finds part of these terms cannot be enforced, the rest still applies. These terms and our Privacy Policy are the whole agreement between you and us about our pages, the guides, and the waitlist.',
+          p: `If you believe something in the Services infringes your copyright, send a notice to ${P.contactEmail} that includes:`,
+        },
+        {
+          ul: [
+            'Your name and contact information.',
+            'The copyrighted work you believe is infringed.',
+            'The material you believe infringes it, and where it appears.',
+            'A statement that you believe in good faith that the use is not authorized.',
+            'A statement, under penalty of perjury, that your notice is accurate and that you own the copyright or are authorized to act for the owner.',
+            'Your physical or electronic signature.',
+          ],
+        },
+        { p: 'We may remove material in response and may end the access of repeat infringers.' },
+      ],
+    },
+    {
+      id: 'general',
+      heading: '27. General Terms',
+      blocks: [
+        {
+          ul: [
+            [
+              { strong: 'Entire agreement.' },
+              ' These terms, any Offer Terms, and our Privacy Policy are the entire agreement between you and Amplified Impact about the Services.',
+            ],
+            [
+              { strong: 'Severability.' },
+              ' If any part of these terms is found unenforceable, it will be enforced to the maximum extent possible, and the rest stays in effect.',
+            ],
+            [
+              { strong: 'No waiver.' },
+              ' Our failure to enforce any part of these terms is not a waiver of our right to do so later.',
+            ],
+            [
+              { strong: 'Assignment.' },
+              ' You may not transfer these terms or your rights under them without our written consent. We may transfer them, including to an Affiliated Company or in a merger, acquisition, or sale of assets.',
+            ],
+            [
+              { strong: 'Events beyond our control.' },
+              ' We are not responsible for delays or failures caused by events beyond our reasonable control, such as internet or third-party platform outages, natural disasters, government action, or an emergency affecting a presenter.',
+            ],
+            [
+              { strong: 'Third-party beneficiaries.' },
+              ' Our Affiliated Companies, and their owners, managers, employees, contractors, and agents, are intended beneficiaries of Sections 7, 8, 9, 20, 21, 22, and 24. No one else is.',
+            ],
+            [
+              { strong: 'Relationship.' },
+              ' These terms do not create a partnership, joint venture, employment, agency, or fiduciary relationship.',
+            ],
+            [
+              { strong: 'Interpretation.' },
+              ' Headings are for convenience only. “Including” means “including without limitation.”',
+            ],
+            [
+              { strong: 'Notices.' },
+              ` We may send notices to the email address on your account or purchase. Send notices to us at ${P.contactEmail}, and send legal notices to the mailing address below as well.`,
+            ],
+          ],
         },
       ],
     },
     {
       id: 'contact',
-      heading: 'Contact us',
-      blocks: [{ p: `Questions about these terms? Email ${P.contactEmail} or write to us at ${P.address}.` }],
+      heading: '28. Contact Us',
+      blocks: [{ p: `Questions about these terms? Email ${P.contactEmail} or write to ${P.aiName}, ${P.address}.` }],
     },
   ],
 };
@@ -542,7 +911,9 @@ export const PRIVACY: LegalDoc = {
         {
           p: 'We use your mobile number and text consent only to send the texts you agreed to, keep a record of your consent and any opt-out, and run our text program. If you give us a mobile number without opting in to texts, we do not send marketing texts to it.',
         },
-        { p: SMS_SHARING },
+        {
+          p: `${SMS_SHARING} Text messaging originator opt-in data and consent will not be shared with any third parties, except the aggregators and providers that deliver our text messages.`,
+        },
       ],
     },
     {

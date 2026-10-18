@@ -136,7 +136,7 @@ describe('the gate', () => {
     expect($$('input[name="phone"], input[name="smsConsent"], input[type="tel"], input[type="checkbox"]')).toEqual([]);
   });
 
-  it('names Amplified Impact, LLC alone, exactly as the Terms quote (D-041)', () => {
+  it('names Amplified Impact, LLC alone, exactly as CONSENT.guides records (D-041)', () => {
     expect(text($('#gate-form .wl-legal'))).toBe(
       'By signing up, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime.',
     );

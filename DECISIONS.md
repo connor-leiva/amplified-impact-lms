@@ -1887,33 +1887,36 @@ D-040.
   before the deploy and submitted after it is stored with the new words. The waitlist is past its
   event and the box is optional, so the risk is a handful of sign-ups at most.
 
-## D-042 · The Privacy Policy becomes Connor's own, and the Terms follow it
+## D-042 · The Terms of Service and Privacy Policy become Connor's own
 
 **Date:** 2026-10-18
 **Approved by:** Connor Leiva, in chat on 2026-10-18, with the finished Privacy Policy as a file:
-"Use this file to update my terms of service and privacy policy on my site."
-**Scope:** `apps/web/src/legal/{content,render,render.test}.ts`, `apps/web/src/legal/legal.css`;
-`TERMS_VERSION` in `apps/api/src/routes/ai101.ts` and its tests. Amends D-035 and D-041.
+"Use this file to update my terms of service and privacy policy on my site," then the finished Terms
+of Service as a second file the same day.
+**Scope:** `apps/web/src/legal/{content,render,render.test}.ts`, `apps/web/src/legal/legal.css`, two
+test titles in `apps/web/src/{guides,voice}/render.test.ts`; `TERMS_VERSION` in
+`apps/api/src/routes/ai101.ts` and its tests. Amends D-035 and D-041.
 
-- **/privacy is Connor's text, word for word**: sixteen numbered sections covering every Amplified
-  Impact service (courses, coaching, consulting, events, communities, the LMS), not only the public
-  pages. Only the quotation marks and apostrophes are typeset, as the Terms' are, and the address
-  and email come from `content.ts`'s one constant per fact. A comparison of the built page against
-  the file found all 122 headings, paragraphs and list items identical. The file's byline and its
-  `[Month DD, YYYY]` and `[YYYY-MM-DD]` placeholders are replaced by the page's own date line.
-- **What the renderer gained, for the policy's shape:** `h3` subheadings ("Information You Give
-  Us"); headings that carry their own numbers, because the policy cites them ("as Section 8
-  explains"), so its table of contents adds none (a test holds them 1 to 16 in order); and off-site
-  links, the three ad opt-out pages only, which open in a new tab with `noopener` as every off-site
-  link on /ai101 and the guides does. The page still loads nothing from another origin.
-- **The Terms follow the policy where the two overlap.** "We" is Amplified Impact, LLC, a Utah
-  limited liability company, in the policy's own sentence; the Spring B and SB Coaching definitions
-  are gone, which D-041 left for this policy. Texts are opted into "for example by checking the SMS
-  box on the waitlist form or texting a keyword to us", as the policy says. What happens to a mobile
-  number is the policy's two sentences (`SMS_SHARING`, on both pages): no mobile information to
-  third parties or affiliates for marketing, and opt-in data only to the text providers.
+- **Both pages are Connor's text, word for word**: the Terms in 28 numbered sections, the Privacy
+  Policy in 16, each covering every Amplified Impact service (courses, coaching, consulting, events,
+  communities, the LMS), not only the public pages. Only the quotation marks and apostrophes are
+  typeset, and the address, email and court venue come from `content.ts`'s one constant per fact. A
+  comparison of each built page against its file found every heading, paragraph and list item
+  identical (170 on the Terms, 122 on the policy). The files' `[Month DD, YYYY]` and `[YYYY-MM-DD]`
+  placeholders, and the policy's byline, are replaced by the pages' own date line.
+- **They replace the AI-drafted pages of D-035 whole.** Gone with them: the Terms' sections on the
+  /ai101 page, the waitlist and the free guides, and the boxes that quoted each form's consent words.
+  `CONSENT` stays in `content.ts` as the record of what each form says (the forms' tests still hold
+  them to it), but no page quotes it now. The Spring B and SB Coaching definitions are gone; "we" is
+  Amplified Impact, LLC, a Utah limited liability company, on both pages, which D-041 left for this.
+- **What the renderer gained, for their shape:** `h3` subheadings; headings that carry their own
+  numbers, because the text cites them ("Section 24 requires you", "as Section 8 explains"), so the
+  table of contents adds none (a test holds them in order, and Section 24 to the arbitration
+  section); the Terms' arbitration warning, bold in a panel above the intro (`notice`); and off-site
+  links, the policy's three ad opt-out pages only, which open in a new tab with `noopener` as every
+  off-site link on /ai101 and the guides does. The pages still load nothing from another origin.
+- **Shared words, said once:** the sentence on mobile numbers ("No mobile information will be shared
+  with third parties or affiliates for marketing or promotional purposes.") is `SMS_SHARING` on both
+  pages, and the program name is `SMS_PROGRAM`, now "Amplified Impact Updates" as the Terms give it.
 - **Version and effective date 2026-10-18**, and `TERMS_VERSION` with them, so sign-ups from the
-  deploy record the version with this policy.
-- **Open, Connor's call:** the policy says replays, course materials and promotional content are made
-  from recordings, and recordings shared, "as our Terms of Service describe". The Terms say nothing
-  about recordings yet; they cover the public pages, the waitlist, the guides and the messages.
+  deploy record the version with these pages.

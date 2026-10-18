@@ -88,9 +88,7 @@ a:focus-visible {
 
 .doc p,
 .doc ul,
-.doc ol,
-.doc figure,
-.doc blockquote {
+.doc ol {
   margin: 0;
 }
 
@@ -143,6 +141,15 @@ a:focus-visible {
 
 .lede {
   color: var(--text-secondary);
+}
+
+/* The Terms' arbitration warning: bold, in a panel, so no one can say it was hidden. */
+.notice {
+  padding: 12px 16px;
+  border-left: 3px solid var(--action-primary-line);
+  border-radius: 0 10px 10px 0;
+  background: var(--bg-sunken);
+  color: var(--text-primary);
 }
 
 /* "Draft for review": the amber of the app's locked state, which says "not yet" without saying
@@ -222,29 +229,6 @@ a:focus-visible {
 
 .doc li::marker {
   color: var(--text-tertiary);
-}
-
-/* The waitlist form's own words, quoted. */
-.quote {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px 16px;
-  border-left: 3px solid var(--action-primary-line);
-  border-radius: 0 10px 10px 0;
-  background: var(--bg-sunken);
-}
-
-.quote figcaption {
-  font-size: 13px;
-  line-height: 18px;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.quote blockquote {
-  font-size: 15px;
-  line-height: 24px;
 }
 
 /* --- Footer ------------------------------------------------------------------------------------ */

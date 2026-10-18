@@ -113,7 +113,7 @@ describe.each(Object.keys(EXPECTED) as Array<keyof typeof EXPECTED>)('/%s', (slu
     expect(trap.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 
-  it('says, under the button, exactly what the Terms quote, naming only Amplified Impact, LLC (D-041)', () => {
+  it('says, under the button, exactly what CONSENT.guides records, naming only Amplified Impact, LLC (D-041)', () => {
     expect(text($('#guide-form .legal'))).toBe(
       'By signing up, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime.',
     );

@@ -67,12 +67,7 @@ export function inline(segments: string | readonly Inline[]): string {
 function block(b: Block): string {
   if ('h3' in b) return `<h3>${highlight(b.h3)}</h3>`;
   if ('p' in b) return `<p>${inline(b.p)}</p>`;
-  if ('ul' in b) return `<ul>${b.ul.map((item) => `<li>${inline(item)}</li>`).join('')}</ul>`;
-  // The waitlist form's own words, quoted so a reader sees exactly what they agreed to.
-  return (
-    `<figure class="quote"><figcaption>${highlight(b.label)}</figcaption>` +
-    `<blockquote><p>${highlight(b.quote)}</p></blockquote></figure>`
-  );
+  return `<ul>${b.ul.map((item) => `<li>${inline(item)}</li>`).join('')}</ul>`;
 }
 
 /** A section. Its <h2> names the region, so a screen reader's landmark list reads the outline. */
@@ -143,6 +138,8 @@ export function renderLegalBody(doc: LegalDoc, draft: boolean = DRAFT): string {
     `<p class="meta">${esc(CHROME.effective)} <time datetime="${esc(EFFECTIVE.iso)}">${esc(EFFECTIVE.label)}</time>` +
       `<span class="sep" aria-hidden="true"> · </span>` +
       `<span class="version">${esc(CHROME.version)} ${esc(LEGAL_VERSION)}</span></p>`,
+    // The Terms' arbitration warning, set apart and in bold before anything else is read.
+    ...(doc.notice ? [`<p class="notice"><strong>${highlight(doc.notice)}</strong></p>`] : []),
     `<p class="lede">${inline(doc.intro)}</p>`,
     `</header>`,
   ].join('\n');

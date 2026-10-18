@@ -27,17 +27,12 @@ const inlineText = (segments: string | readonly Inline[]) =>
     : segments.map((s) => (typeof s === 'string' ? s : 'strong' in s ? s.strong : s.link)).join('');
 
 const blockText = (b: Block): string[] =>
-  'h3' in b
-    ? [b.h3]
-    : 'p' in b
-      ? [inlineText(b.p)]
-      : 'ul' in b
-        ? b.ul.map((item) => inlineText(item))
-        : [b.label, b.quote];
+  'h3' in b ? [b.h3] : 'p' in b ? [inlineText(b.p)] : b.ul.map((item) => inlineText(item));
 
 /** Every readable paragraph, list item, heading and label in one page's content. */
 const copyOf = (doc: LegalDoc): string[] => [
   doc.heading,
+  ...(doc.notice ? [doc.notice] : []),
   inlineText(doc.intro),
   ...doc.sections.flatMap((s) => [s.heading, ...s.blocks.flatMap(blockText)]),
 ];
@@ -69,6 +64,8 @@ const SMS_LABEL =
   "Text me about the December agent track and other programs from Amplified Impact, LLC at the number above. Messages may be sent using automated technology. Consent isn't required to join or to buy anything. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.";
 const JOIN_LINE =
   'By joining, you agree to our Terms of Service and Privacy Policy and to emails about the December agent track and other programs from Amplified Impact, LLC. Unsubscribe anytime.';
+const GUIDES_LINE =
+  'By signing up, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime.';
 
 /** The Privacy Policy's own words about mobile numbers (D-042), typed out. */
 const NO_MOBILE_SHARING =
@@ -260,13 +257,30 @@ describe('what the pages promise, against the waitlist form', () => {
   const termsText = terms.body.textContent ?? '';
   const privacyText = privacy.body.textContent ?? '';
 
-  it('quotes the form’s consent wording exactly', () => {
+  it('records each form’s consent wording exactly', () => {
     expect(SENDERS).toBe('Amplified Impact, LLC');
     expect(CONSENT.sms).toBe(SMS_LABEL);
     expect(CONSENT.join).toBe(JOIN_LINE);
-    const quotes = all(terms, 'figure.quote blockquote').map(text);
-    expect(quotes).toContain(SMS_LABEL);
-    expect(quotes).toContain(JOIN_LINE);
+    expect(CONSENT.guides).toBe(GUIDES_LINE);
+  });
+
+  it('warns about arbitration in bold above the Terms, pointing at the arbitration section', () => {
+    const notice = terms.querySelector('.doc-head p.notice');
+    expect(text(notice)).toBe(TERMS.notice);
+    expect(notice?.firstElementChild?.tagName).toBe('STRONG');
+    expect(text(notice?.firstElementChild)).toBe(text(notice));
+    // Before the intro, and "Section 24" is the arbitration section.
+    expect(notice?.nextElementSibling?.classList.contains('lede')).toBe(true);
+    expect(TERMS.notice).toContain('Section 24');
+    expect(TERMS.sections[23]?.id).toBe('arbitration');
+    expect(privacy.querySelector('.notice')).toBeNull();
+  });
+
+  it('backs every place the Privacy Policy points at the Terms', () => {
+    // "as our Terms of Service describe" (recordings) and "our full text message terms".
+    expect(text(privacy.getElementById('how-we-use-information'))).toContain('as our Terms of Service describe');
+    expect(text(terms.getElementById('recordings'))).toContain('replays, course Materials, promotion, and advertising');
+    expect(all(privacy, 'a[href="/terms#text-messages"]')).toHaveLength(1);
   });
 
   it('carries the SMS program terms carriers look for', () => {
@@ -278,16 +292,18 @@ describe('what the pages promise, against the waitlist form', () => {
       'Reply STOP to any text.',
       'Reply HELP to any text',
       'Carriers are not liable for delayed or undelivered messages.',
-      'You do not have to agree to texts to join the waitlist or to buy anything.',
+      'You do not have to agree to texts to buy anything.',
       'automated technology',
     ]) {
       expect(sms, required).toContain(required);
     }
-    expect(SMS_PROGRAM).toBe('Amplified Impact updates');
+    expect(SMS_PROGRAM).toBe('Amplified Impact Updates');
   });
 
-  it('says every email has an unsubscribe link', () => {
-    expect(text(terms.getElementById('emails'))).toContain('has an unsubscribe link');
+  it('says every marketing email can be unsubscribed from, on both pages', () => {
+    const line = 'unsubscribe from marketing emails at any time with the link in any email';
+    expect(text(terms.getElementById('communications'))).toContain(line);
+    expect(text(privacy.getElementById('marketing'))).toContain(line);
   });
 
   it('lists what a sign-up stores, the consent record among it, and that browser-only data is never sent', () => {
@@ -307,8 +323,8 @@ describe('what the pages promise, against the waitlist form', () => {
   it('never shares mobile numbers or text opt-in data for anyone’s marketing, in the same words on both pages', () => {
     for (const sms of [text(privacy.getElementById('text-messages')), text(terms.getElementById('text-messages'))]) {
       expect(sms).toContain(NO_MOBILE_SHARING);
-      expect(sms).toContain(NO_OPT_IN_SHARING);
     }
+    expect(text(privacy.getElementById('text-messages'))).toContain(NO_OPT_IN_SHARING);
     // Section 5's sharing with Affiliated Companies leaves the mobile number out, and Section 7's
     // categories leave the opt-in data out.
     expect(text(privacy.getElementById('marketing'))).toContain('except your mobile number');
