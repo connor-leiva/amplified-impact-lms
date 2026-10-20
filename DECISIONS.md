@@ -1990,7 +1990,8 @@ new lead magnet site for a Reel Editor. This is the first 'skill' I'll be having
 it'll need to work slightly differently than the others but I want the priority to be ease of use
 and value."
 **Scope:** `apps/web/src/guides/*` (`reel-editor.ts` new), `apps/web/reel-editor.html`,
-`apps/web/public/downloads/reel-editor.zip`; `apps/api/src/routes/{guide-list,marketing}.ts`,
+`apps/web/public/downloads/reel-editor.zip`, `apps/web/public/media/reel-editor-*`;
+`apps/api/src/routes/{guide-list,marketing}.ts`,
 `apps/api/src/integrations/ghl.ts`, `apps/api/src/server.ts` (a comment); their tests;
 `.gitattributes`. Amends D-038 and D-039.
 
@@ -2031,6 +2032,17 @@ and value."
   horizontal scroll, no console errors, and no serious or critical axe violations, locked and unlocked.
   **Not verified:** a real iPhone in Instagram's browser, Safari's auto-unzip on a Mac, and an upload
   of the ZIP into Claude from this page.
+- **Before and after** (Connor's own run, supplied in chat on 2026-10-20: the edited Reel as an
+  upload, the raw take from his Google Drive), the first section under the opt-in, in a new `compare`
+  section kind: two captioned `<video>`s side by side at every width, "Before · 2:45" and "After ·
+  1:05", so the cut is visible before either plays. Both re-encoded for the web to H.264 High 4.0,
+  720 by 1280, AAC, `moov` first: the Reel arrived as HEVC, which Firefox and many Android phones
+  cannot play, and the take was 176 MB. 6.2 MB and 13.0 MB, posters about 90 KB each, under
+  `apps/web/public/media/`. `preload="none"`: the page fetches only the posters until one is played;
+  @fastify/static answers ranges with 206, which iOS needs to stream. A test holds each file to H.264,
+  `moov` before `mdat`, and size caps. **Not verified:** playback in a browser (the sandbox's Chromium
+  has no H.264 decoder; both files decode clean in ffmpeg). The Reel is taken to be the version with
+  music, since its name has no `-no-music`.
 - **The free plan** (Connor agreed, in chat on 2026-10-20): "What you need" keeps "A paid Claude
   plan", as the skill's README says, and the FAQ answers "Does it work on Claude's free plan?" with
   what Anthropic's pages say: Free includes skills, code execution and file creation, with network

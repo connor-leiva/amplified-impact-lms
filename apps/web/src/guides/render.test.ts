@@ -401,9 +401,53 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   });
 });
 
+/** An MP4's top-level boxes, in order: enough to see the codec and where the index sits. */
+function mp4Boxes(buf: Buffer): string[] {
+  const boxes: string[] = [];
+  for (let at = 0; at + 8 <= buf.length;) {
+    const size = buf.readUInt32BE(at);
+    boxes.push(buf.subarray(at + 4, at + 8).toString('latin1'));
+    if (size < 8) break;
+    at += size;
+  }
+  return boxes;
+}
+
+describe("The Reel Editor's before and after (D-045)", () => {
+  const doc = parse(guideFor('reel-editor'));
+  const figures = Array.from(doc.querySelectorAll('section.compare figure.clip'));
+
+  it('comes first after the opt-in, the raw take beside the Reel the skill made of it', () => {
+    const first = doc.querySelector('main > section:not(.optin)');
+    expect(first?.classList.contains('compare')).toBe(true);
+    expect(text(first?.querySelector('h2'))).toBe('One take, before and after');
+    expect(figures.map((f) => text(f.querySelector('.clip-label')))).toEqual(['Before · 2:45', 'After · 1:05']);
+  });
+
+  it.each([
+    ['/media/reel-editor-before.mp4', '/media/reel-editor-before.jpg'],
+    ['/media/reel-editor-after.mp4', '/media/reel-editor-after.jpg'],
+  ])('ships %s as H.264 with its index first, and its poster as a JPEG', (src, poster) => {
+    const video = figures.find((f) => f.querySelector('source')?.getAttribute('src') === src)?.querySelector('video');
+    expect(video?.getAttribute('poster')).toBe(poster);
+    const mp4 = readFileSync(resolve(HERE, `../../public${src}`));
+    // H.264 ('avc1'), never HEVC, which Firefox and many Android phones cannot play.
+    expect(mp4.includes(Buffer.from('avc1'))).toBe(true);
+    expect(mp4.includes(Buffer.from('hvc1')) || mp4.includes(Buffer.from('hev1'))).toBe(false);
+    // `moov` before `mdat` ("faststart"): it plays before it has all downloaded.
+    const boxes = mp4Boxes(mp4);
+    expect(boxes.indexOf('moov')).toBeGreaterThanOrEqual(0);
+    expect(boxes.indexOf('moov')).toBeLessThan(boxes.indexOf('mdat'));
+    // Small enough to stream on a phone, and to keep in the repository.
+    expect(mp4.length).toBeLessThan(15_000_000);
+    const jpg = readFileSync(resolve(HERE, `../../public${poster}`));
+    expect([jpg[0], jpg[1]]).toEqual([0xff, 0xd8]);
+    expect(jpg.length).toBeLessThan(150_000);
+  });
+});
+
 describe('the before-and-after section (D-045)', () => {
-  // No guide carries one yet: its clips are added with the Reel Editor's before and after. The markup
-  // contract, on a guide that has one.
+  // The markup contract, on a guide made up for it.
   const clip = (label: string, length: string) => ({
     label,
     length,

@@ -101,6 +101,34 @@ export const REEL_EDITOR: Guide = {
 
   sections: [
     {
+      // One of Connor's own runs (D-045): his raw take, and the Reel the skill made of it. Both re-encoded
+      // to H.264 at 720 by 1280 for the web; the lengths are the files'.
+      kind: 'compare',
+      eyebrow: 'Real Example',
+      heading: 'One take, before and after',
+      body: 'A real Reel of Connor’s: the raw take, straight off the camera, and what the Reel Editor handed back.',
+      clips: [
+        {
+          label: 'Before',
+          length: '2:45',
+          caption: 'The raw take, straight off the camera.',
+          src: '/media/reel-editor-before.mp4',
+          poster: '/media/reel-editor-before.jpg',
+          width: 720,
+          height: 1280,
+        },
+        {
+          label: 'After',
+          length: '1:05',
+          caption: 'Cut, captioned and animated by the Reel Editor.',
+          src: '/media/reel-editor-after.mp4',
+          poster: '/media/reel-editor-after.jpg',
+          width: 720,
+          height: 1280,
+        },
+      ],
+    },
+    {
       kind: 'list',
       heading: 'What you get back',
       items: [
