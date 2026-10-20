@@ -1,16 +1,22 @@
 // The free guides: one landing page per lead magnet, each gated on an email opt-in, all built from
-// one renderer (`render.ts`), one stylesheet and one script. DECISIONS.md D-038 and D-039.
+// one renderer (`render.ts`), one stylesheet and one script. DECISIONS.md D-038, D-039 and D-045.
 //
-// A guide's words live in its own file (`task-sync-starter.ts`, `ops-time-audit.ts`); this file holds
-// the shape they share, what every guide page says the same way (the consent line, the in-app
-// browser hint, the footer), and the list of guides. To add one: write its file, add it to `GUIDES`,
-// add `apps/web/<slug>.html` (a copy of another guide's shell), put its PDF in `public/downloads/`,
-// and add its slug to the API's `GUIDE_SLUGS` (`apps/api/src/routes/guide-list.ts`).
+// A guide's words live in its own file (`task-sync-starter.ts`, `ops-time-audit.ts`,
+// `reel-editor.ts`); this file holds the shape they share, what every guide page says the same way
+// (the consent line, the in-app browser hint, the footer), and the list of guides. To add one: write
+// its file, add it to `GUIDES`, add `apps/web/<slug>.html` (a copy of another guide's shell), put its
+// file in `public/downloads/`, and add its slug to the API's `GUIDE_SLUGS`
+// (`apps/api/src/routes/guide-list.ts`).
+//
+// Most guides are a PDF: saved, then read. A Claude skill (the Reel Editor, D-045) is a ZIP that has
+// to be added to Claude before it does anything, so its download carries `setup`, the steps that
+// follow, and `handoff`, the way a phone sends the page to a computer to do them.
 //
 // Nothing here is markup: `render.ts` escapes every string. House rules: no em dashes, short plain
 // sentences.
 
 import { OPS_TIME_AUDIT } from './ops-time-audit';
+import { REEL_EDITOR } from './reel-editor';
 import { TASK_SYNC_STARTER } from './task-sync-starter';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
@@ -62,10 +68,47 @@ export type Section =
     }
   /** A bulleted list of titled items ("What's inside"). */
   | { kind: 'list'; heading: string; items: ReadonlyArray<{ title: string; body: string }> }
-  /** A row of cards ("What you need"). `cta` adds a button back up to the opt-in. */
-  | { kind: 'tiles'; heading: string; note?: string; items: readonly Tile[]; cta?: boolean }
+  /**
+   * A row of cards ("What you need"). `cta` adds a button back up to the opt-in. `columns: 2` lays
+   * four cards out two by two from 640px, where three to a row would leave one alone.
+   */
+  | { kind: 'tiles'; heading: string; note?: string; items: readonly Tile[]; cta?: boolean; columns?: 2 }
+  /** Things to say to Claude, in groups, each one copied with a tap (the Reel Editor). */
+  | {
+      kind: 'prompts';
+      heading: string;
+      body: string;
+      groups: ReadonlyArray<{ label: string; items: readonly string[] }>;
+    }
+  /** Questions that open to their answers, with no script (the Reel Editor). */
+  | { kind: 'faq'; heading: string; items: ReadonlyArray<{ q: string; a: readonly Inline[] }> }
   /** One short line, like a pointer to another guide. */
   | { kind: 'note'; body: readonly Inline[] };
+
+/**
+ * One step of setting up a download that is not done once it is saved (a Claude skill, D-045).
+ * `action` is the step's one button: the download itself, or a page in Claude, in a new tab. `copy`
+ * is words to say, copied with a tap. `note` is a small line under them for what trips people up.
+ */
+export interface SetupStep {
+  title: string;
+  body: readonly Inline[];
+  action?: 'download' | { label: string; href: string };
+  copy?: string;
+  note?: readonly Inline[];
+}
+
+/**
+ * On a phone, the line that says to finish on a computer, and the button that gets the page there:
+ * the share sheet where there is one (`share`), otherwise `href`, a `mailto:` that works with no
+ * script.
+ */
+export interface Handoff {
+  body: string;
+  label: string;
+  href: string;
+  share: { title: string; url: string };
+}
 
 export interface Guide {
   /** The page's path without its slash, the HTML file's name, and the API's `source`. */
@@ -74,8 +117,20 @@ export interface Guide {
   hero: { eyebrow: string; title: string; lede: string; steps: readonly Step[] };
   /** The opt-in. Its anchor is the link a slide or a DM can point at. */
   optIn: { anchor: string; heading: string; body: string; button: string };
-  /** What the visitor sees once they have opted in, and on every later visit from that device. */
-  download: { heading: string; body: string; href: string; filename: string };
+  /**
+   * What the visitor sees once they have opted in, and on every later visit from that device. With
+   * `setup`, the download is one of its steps (the one whose `action` is `'download'`) rather than a
+   * button on its own. `inApp` replaces the shared in-app browser line, which is about a PDF.
+   */
+  download: {
+    heading: string;
+    body: string;
+    href: string;
+    filename: string;
+    setup?: readonly SetupStep[];
+    handoff?: Handoff;
+    inApp?: string;
+  };
   sections: readonly Section[];
   /** localStorage: this device already opted in, so the download shows straight away. */
   unlockKey: string;
@@ -85,6 +140,7 @@ export interface Guide {
 export const GUIDES: Readonly<Record<string, Guide>> = {
   [TASK_SYNC_STARTER.slug]: TASK_SYNC_STARTER,
   [OPS_TIME_AUDIT.slug]: OPS_TIME_AUDIT,
+  [REEL_EDITOR.slug]: REEL_EDITOR,
 };
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;
@@ -113,6 +169,9 @@ export const SHARED = {
   // Instagram's and Facebook's in-app browsers open a PDF instead of saving it. Shown there only.
   inApp:
     'In the Instagram app? If the PDF opens instead of saving, tap the ••• menu and choose Open in browser, then download it there.',
+  // Words a visitor can copy with a tap (`prompts`, a setup step's `copy`): the tag on each, and what
+  // the toast says once they are on the clipboard. Read by the script from the button's `data-toast`.
+  copy: { tag: 'Copy', copied: 'Copied. Paste it into Claude.' },
   footer: {
     byline: 'By Connor Leiva',
     links: [

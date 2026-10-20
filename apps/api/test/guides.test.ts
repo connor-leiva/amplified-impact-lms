@@ -87,10 +87,12 @@ const JOINED: Record<GuideSlug, string> = {
   'task-sync-starter': '#download',
   'ops-time-audit': '#download',
   'voice-profile': '#unlocked',
+  // The Reel Editor's unlocked card, which holds its setup steps (D-045).
+  'reel-editor': '#download',
 };
 
-it('serves the three guides there are, by slug', () => {
-  expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile']);
+it('serves the four guides there are, by slug', () => {
+  expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor']);
 });
 
 describe.each(GUIDE_SLUGS)('/%s · the page (D-038, D-039) @g9', (slug) => {

@@ -59,6 +59,8 @@ export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
   'ops-time-audit': ['ops-time-audit'],
   // The voice profile setup, Spring's lead magnet (D-040).
   'voice-profile': ['voice-profile'],
+  // The Reel Editor, the first Claude skill (D-045).
+  'reel-editor': ['reel-editor'],
 };
 
 /**

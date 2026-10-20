@@ -527,6 +527,7 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/task-sync-starter', methods: 'POST', guard: 'open' },
   { path: '/api/ops-time-audit', methods: 'POST', guard: 'open' },
   { path: '/api/voice-profile', methods: 'POST', guard: 'open' },
+  { path: '/api/reel-editor', methods: 'POST', guard: 'open' },
   // D-028's public page and the spec's three redirects to it. Not `/api/*`, so outside the
   // checklist's 401 rule by construction; `page` says so, and the sweep asserts the prefix.
   { path: '/ai101', methods: 'GET, HEAD', guard: 'page' },
@@ -549,6 +550,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/ops-time-audit/', methods: 'GET, HEAD', guard: 'page' },
   { path: '/voice-profile', methods: 'GET, HEAD', guard: 'page' },
   { path: '/voice-profile/', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/reel-editor', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/reel-editor/', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -1017,7 +1020,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             }),
           ],
           // The guides' opt-ins (D-038, D-039), the same way: a filled honeypot writes no row.
-          ...['/api/task-sync-starter', '/api/ops-time-audit', '/api/voice-profile'].map((url): [string, Promise<{ statusCode: number }>] => [
+          ...['/api/task-sync-starter', '/api/ops-time-audit', '/api/voice-profile', '/api/reel-editor'].map((url): [string, Promise<{ statusCode: number }>] => [
             url,
             app.inject({
               method: 'POST',
@@ -1046,6 +1049,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/ops-time-audit',
           '/ops-time-audit/',
           '/privacy',
+          '/reel-editor',
+          '/reel-editor/',
           '/task-sync-starter',
           '/task-sync-starter/',
           '/terms',
@@ -1080,10 +1085,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     expect(EXECUTED.unauthenticated).toBe(11);
-    // 10, not 6: D-028's public waitlist joined the exemptions, then the three guides' opt-ins
-    // (D-038, D-039, D-040), each probed like the others.
-    expect(EXECUTED.exempt).toBe(10);
+    // 11, not 6: D-028's public waitlist joined the exemptions, then the four guides' opt-ins
+    // (D-038, D-039, D-040, D-045), each probed like the others.
+    expect(EXECUTED.exempt).toBe(11);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(188);
+    expect(total).toBe(189);
   });
 });

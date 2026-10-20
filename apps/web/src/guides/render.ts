@@ -1,4 +1,4 @@
-// A free guide's landing page, as strings, from its content. DECISIONS.md D-038 and D-039.
+// A free guide's landing page, as strings, from its content. DECISIONS.md D-038, D-039 and D-045.
 //
 // Built like /ai101 (D-028): ONE self-contained HTML response per guide, the shared stylesheet and
 // the shared script inlined at build time by `vite-plugin.ts`, so the only other requests are the font
@@ -10,11 +10,15 @@
 // every later visit from that device); without it, through the API's 303 to `#download`, which the
 // CSS shows with `:target`. It is a soft gate, as lead magnets are: the PDF is a plain file.
 //
+// A SKILL (D-045). A download with `setup` is not done once it is saved: the unlocked card holds its
+// steps instead of one button, the download among them, and on a phone a line to finish on a computer
+// with a button that sends the page there. Words to say to Claude are buttons that copy them.
+//
 // Every string goes through `esc()`; nothing here runs in the browser.
 
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
-import { GUIDES, SHARED, SITE, type Guide, type Inline, type Section } from './content';
+import { GUIDES, SHARED, SITE, type Guide, type Handoff, type Inline, type Section, type SetupStep } from './content';
 import { UI } from './ui';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -100,6 +104,72 @@ function field(name: 'firstName' | 'email', label: string, attrs: string): strin
   );
 }
 
+/** "Download Here", saved under the guide's own name, and the in-app browser line that goes with it. */
+function downloadButton(guide: Guide): string {
+  const d = guide.download;
+  return [
+    `<a class="btn btn-primary" href="${esc(d.href)}" download="${esc(d.filename)}" data-download>${esc(SHARED.downloadButton)}</a>`,
+    `<p class="in-app" hidden data-in-app>${esc(d.inApp ?? SHARED.inApp)}</p>`,
+  ].join('\n');
+}
+
+/**
+ * Words to say to Claude, as a button that copies them (`main.ts`, which reads `data-toast`). Named
+ * "Copy: <the words>", so a screen reader never hears a button called "Edit this into a Reel". With no
+ * script the words are still there to read and select.
+ */
+function copyChip(words: string): string {
+  return (
+    `<button type="button" class="chip" data-copy data-toast="${esc(SHARED.copy.copied)}">` +
+    `<span class="visually-hidden">${esc(SHARED.copy.tag)}: </span><span data-copy-text>${esc(words)}</span>` +
+    `<span class="chip-tag" aria-hidden="true">${esc(SHARED.copy.tag)}</span></button>`
+  );
+}
+
+/**
+ * On a phone or tablet, the line to finish on a computer. Shown by the CSS on a touch screen only. The button is
+ * a `mailto:` with the page's address; `main.ts` opens the share sheet instead where there is one,
+ * with what `data-share-*` names.
+ */
+function handoff(h: Handoff): string {
+  return [
+    `<div class="handoff">`,
+    `<p>${esc(h.body)}</p>`,
+    `<a class="btn btn-outline" href="${esc(h.href)}" data-share data-share-title="${esc(h.share.title)}" data-share-url="${esc(h.share.url)}">${esc(h.label)}</a>`,
+    `</div>`,
+  ].join('\n');
+}
+
+/** A setup step's button: the download itself, or a page in Claude, in a new tab. */
+function setupAction(guide: Guide, action: SetupStep['action']): string {
+  if (action === undefined) return '';
+  if (action === 'download') return downloadButton(guide);
+  return `<a class="btn btn-outline" href="${esc(action.href)}" target="_blank" rel="noopener">${esc(action.label)}</a>`;
+}
+
+/** What to do with the download once it is saved, numbered, in the unlocked card (D-045). */
+function setup(guide: Guide, steps: readonly SetupStep[]): string {
+  const items = steps
+    .map((s, i) =>
+      [
+        `<li class="setup-step">`,
+        `<span class="setup-n" aria-hidden="true">${i + 1}</span>`,
+        `<div class="setup-body">`,
+        `<h3>${esc(s.title)}</h3>`,
+        `<p>${inline(s.body)}</p>`,
+        setupAction(guide, s.action),
+        s.copy ? copyChip(s.copy) : '',
+        s.note ? `<p class="setup-note">${inline(s.note)}</p>` : '',
+        `</div>`,
+        `</li>`,
+      ]
+        .filter(Boolean)
+        .join(''),
+    )
+    .join('\n');
+  return `<ol class="setup" role="list">\n${items}\n</ol>`;
+}
+
 /**
  * The opt-in and, in the same card, the download it unlocks.
  *
@@ -126,10 +196,12 @@ function optIn(guide: Guide): string {
     `<div id="download" class="unlocked" tabindex="-1">`,
     `<h2 id="download-heading">${esc(d.heading)}</h2>`,
     `<p>${esc(d.body)}</p>`,
-    `<a class="btn btn-primary" href="${esc(d.href)}" download="${esc(d.filename)}" data-download>${esc(SHARED.downloadButton)}</a>`,
-    `<p class="in-app" hidden data-in-app>${esc(SHARED.inApp)}</p>`,
+    d.handoff ? handoff(d.handoff) : '',
+    d.setup ? setup(guide, d.setup) : downloadButton(guide),
     `</div>`,
-  ].join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
   return [
     `<section id="${esc(o.anchor)}" class="card optin" aria-labelledby="optin-heading" data-unlock-key="${esc(guide.unlockKey)}">`,
     `<div class="locked">`,
@@ -215,12 +287,40 @@ function section(guide: Guide, s: Section, i: number): string {
       return [
         `<section class="need" aria-labelledby="${id}">`,
         `<div class="need-head"><h2 id="${id}">${esc(s.heading)}</h2>${note}</div>`,
-        `<ul class="tiles" role="list">${items}</ul>`,
+        `<ul class="tiles${s.columns === 2 ? ' tiles-2' : ''}" role="list">${items}</ul>`,
         s.cta ? `<a class="btn btn-outline" href="#${esc(guide.optIn.anchor)}">${esc(guide.optIn.button)}</a>` : '',
         `</section>`,
       ]
         .filter(Boolean)
         .join('\n');
+    }
+    case 'prompts': {
+      const groups = s.groups
+        .map(
+          (g) =>
+            `<h3 class="group-label">${esc(g.label)}</h3>` +
+            `<ul class="chips" role="list">${g.items.map((w) => `<li>${copyChip(w)}</li>`).join('')}</ul>`,
+        )
+        .join('\n');
+      return [
+        `<section class="prompts" aria-labelledby="${id}">`,
+        `<h2 id="${id}">${esc(s.heading)}</h2>`,
+        `<p class="lede-dark">${esc(s.body)}</p>`,
+        groups,
+        `</section>`,
+      ].join('\n');
+    }
+    case 'faq': {
+      // <details>, so every answer opens with no script.
+      const items = s.items
+        .map((it) => `<details class="faq-item"><summary>${esc(it.q)}</summary><p>${inline(it.a)}</p></details>`)
+        .join('');
+      return [
+        `<section class="faq" aria-labelledby="${id}">`,
+        `<h2 id="${id}">${esc(s.heading)}</h2>`,
+        `<div class="faq-list">${items}</div>`,
+        `</section>`,
+      ].join('\n');
     }
     case 'note':
       return `<p class="crosslink">${inline(s.body)}</p>`;
@@ -241,6 +341,10 @@ function footer(): string {
   ].join('\n');
 }
 
+/** Whether anything on the page copies, and so needs the toast that says it did. */
+const copies = (guide: Guide) =>
+  guide.sections.some((s) => s.kind === 'prompts') || (guide.download.setup ?? []).some((s) => s.copy !== undefined);
+
 /** Everything inside <body>. */
 export function renderGuideBody(guide: Guide): string {
   return [
@@ -250,5 +354,9 @@ export function renderGuideBody(guide: Guide): string {
     ...guide.sections.map((s, i) => section(guide, s, i)),
     `</main>`,
     footer(),
-  ].join('\n');
+    // One polite live region, drawn as a toast: "Copied", or how to copy by hand when that failed.
+    copies(guide) ? `<p id="guide-live" class="toast" role="status" aria-live="polite"></p>` : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
 }

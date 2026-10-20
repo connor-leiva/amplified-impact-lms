@@ -1980,3 +1980,57 @@ renderer (D-040). Amends D-034, D-036 and D-040.
 - **Two lines of copy around them**: the voice memo is "the question customers ask you most", and step
   2's note no longer quotes "Thinking of buying or selling?". The fill fields' example placeholders
   ("Farmington, CT", "buyers, sellers, or both") are left as examples.
+
+## D-045 · /reel-editor: the first Claude skill, a ZIP behind the guides' opt-in, with its setup
+
+**Date:** 2026-10-20
+**Approved by:** Connor Leiva, in chat on 2026-10-20, with the skill as `reel-editor.zip`: "audit my
+site ... look at the current lead magnets I have set up ... use these files to create an entirely
+new lead magnet site for a Reel Editor. This is the first 'skill' I'll be having people download, so
+it'll need to work slightly differently than the others but I want the priority to be ease of use
+and value."
+**Scope:** `apps/web/src/guides/*` (`reel-editor.ts` new), `apps/web/reel-editor.html`,
+`apps/web/public/downloads/reel-editor.zip`; `apps/api/src/routes/{guide-list,marketing}.ts`,
+`apps/api/src/integrations/ghl.ts`, `apps/api/src/server.ts` (a comment); their tests;
+`.gitattributes`. Amends D-038 and D-039.
+
+- **/reel-editor is a free guide page** (D-039's one page system), not a page of its own: the same
+  hero, email opt-in, consent line (D-041), soft gate, no-JS 303s, `?src=` attribution, served from
+  memory and exempt from the global limit. Its words are the skill's own (README, SKILL.md and its
+  references), so the page promises what the skill does. Its sign-ups are stored under
+  `source = 'reel-editor'` and tagged `reel-editor` in GoHighLevel, plus the channel tag.
+- **What is different, because a skill is installed, not read.** A PDF is done once it is saved; a
+  skill does nothing until it is in Claude. So the unlocked card is a four-step setup (`download.setup`)
+  instead of one button: turn on code execution (Open Claude Settings,
+  `claude.ai/settings/capabilities`), download the ZIP and do not unzip it, add it in Customize >
+  Skills (Open Claude Skills, `claude.ai/customize/skills`), and make the first Reel, with "Edit this
+  into a Reel" one tap to copy. The steps and URLs are the skill's README and Claude's help center
+  ("Use skills in Claude"), checked on 2026-10-20.
+- **Phones are sent to a computer.** Visitors arrive from a ManyChat DM, in Instagram's in-app
+  browser, and the help center documents uploading a skill on the web only. On a touch screen
+  (`pointer: coarse`, CSS, so it works with no script) the card says so, with "Send This to My
+  Computer": the share sheet where there is one, otherwise a `mailto:` with the page. The link it
+  sends is `/reel-editor#download`, which shows the setup on any device by `:target`, so the computer
+  needs no second sign-up; the script keeps it open for that visit and does not remember it. That
+  makes the shared link a way past the gate, which a soft gate already allows (D-038).
+- **New section kinds, for any guide:** `prompts` (things to say to Claude, each a button that
+  copies its words, with /ai101's toast and fallback copy), `faq` (`<details>`, open with no script),
+  and `tiles` with `columns: 2`. The copy and share code is /ai101's, repeated in the guides' script
+  rather than shared, because a module two inlined scripts import becomes a chunk neither can load
+  (D-040). A copy button is named "Copy: <the words>" for a screen reader.
+- **The ZIP is the file Connor supplied, byte for byte** (sha256 `64dc74f1…a2b2`, 50,043 bytes),
+  served `noindex` like the PDFs, as `application/zip`, saved as `reel-editor.zip`. A test reads it
+  and holds it to what Claude's upload needs: one `reel-editor/` folder, a `SKILL.md` named
+  `reel-editor`, no `__MACOSX`. To ship a new version, replace the file under the same name.
+- **The PDF guides are unchanged** in their markup: no setup, handoff, copy buttons or live region,
+  which a test holds. They share the script, so their inlined script (and their ETag) changes. The
+  SPA's build is byte-identical; only `dist/downloads/` gains the ZIP.
+- **Verified** in Chromium against the built server and a Postgres: phone (390 px) and desktop, sign-up
+  stored under the right source, the setup unlocked and remembered, the handoff shown on touch only,
+  copy and the toast, the download's file name, the sent link on a fresh device, the no-JS 303, no
+  horizontal scroll, no console errors, and no serious or critical axe violations, locked and unlocked.
+  **Not verified:** a real iPhone in Instagram's browser, Safari's auto-unzip on a Mac, and an upload
+  of the ZIP into Claude from this page.
+- **Open:** a GoHighLevel workflow on the `reel-editor` tag that emails the page's link would carry a
+  phone sign-up to a computer without the visitor doing anything; it is outside this repository and
+  not set up. The page promises no email.

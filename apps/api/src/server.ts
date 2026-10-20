@@ -137,7 +137,8 @@ if (existsSync(webDist)) {
     // The legal pages likewise: one URL each, `/terms` and `/privacy` (`routes/legal.ts`).
     // And the free guides (D-038, D-039), whose route sets the Referrer-Policy their no-JS opt-in needs.
     globIgnore: ['ai101.html', 'terms.html', 'privacy.html', ...GUIDE_SLUGS.map((slug) => `${slug}.html`)],
-    // The guides' PDFs (D-038, D-039) are lead magnets behind an opt-in: kept out of search results.
+    // The guides' files (D-038, D-039; the Reel Editor's ZIP, D-045) are lead magnets behind an opt-in:
+    // kept out of search results.
     setHeaders: (res, path) => {
       if (path.replace(/\\/g, '/').includes('/downloads/')) res.setHeader('x-robots-tag', 'noindex');
     },

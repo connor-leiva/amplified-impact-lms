@@ -1,4 +1,4 @@
-// The free guides the API serves (DECISIONS.md D-038, D-039, D-040), and where each one's pieces live. No
+// The free guides the API serves (DECISIONS.md D-038, D-039, D-040, D-045), and where each one's pieces live. No
 // imports, so `routes/ai101.ts` (the opt-in route) and `routes/guides.ts` (the pages) can both read it.
 //
 // A guide's slug is its page (`/<slug>`), its opt-in route (`POST /api/<slug>`), its built file
@@ -7,17 +7,19 @@
 // (`apps/web/src/guides/`; the voice profile setup's, `apps/web/src/voice/`). To add a guide, add its
 // slug here, its tags there, and its path to `PUBLIC_PREFIX` in routes/marketing.ts.
 
-export const GUIDE_SLUGS = ['task-sync-starter', 'ops-time-audit', 'voice-profile'] as const;
+export const GUIDE_SLUGS = ['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor'] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 
 /**
- * What the no-JS form's success lands on, where the page shows it with `:target`: a PDF guide's
- * download, or the voice profile setup's gated steps (D-040).
+ * What the no-JS form's success lands on, where the page shows it with `:target`: a guide's
+ * download (the Reel Editor's holds its setup steps, D-045), or the voice profile setup's gated
+ * steps (D-040).
  */
 const JOINED_FRAGMENT: Readonly<Record<GuideSlug, string>> = {
   'task-sync-starter': 'download',
   'ops-time-audit': 'download',
   'voice-profile': 'unlocked',
+  'reel-editor': 'download',
 };
 
 export const guidePagePath = (slug: GuideSlug): string => `/${slug}`;

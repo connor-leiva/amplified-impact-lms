@@ -15,6 +15,7 @@
 *.ttf binary
 *.otf binary
 *.pdf binary
+*.zip binary
 
 # The prototype is the oracle. Keep it byte-for-byte as committed; it changes only through a
 # DECISIONS entry (D-031).

@@ -1,6 +1,6 @@
 // Every word on /terms and /privacy, the public legal pages behind the /ai101 waitlist and, since
 // 2026-10-13, the free guides' opt-ins (/task-sync-starter, D-038; /ops-time-audit, D-039;
-// /voice-profile, D-040).
+// /voice-profile, D-040; /reel-editor, D-045).
 //
 // Both pages are Connor's own text, word for word, since 2026-10-18 (D-042): one Terms of Service and
 // one Privacy Policy for every Amplified Impact service, not only these pages. Only their quotation
