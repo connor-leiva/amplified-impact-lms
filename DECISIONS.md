@@ -2031,6 +2031,13 @@ and value."
   horizontal scroll, no console errors, and no serious or critical axe violations, locked and unlocked.
   **Not verified:** a real iPhone in Instagram's browser, Safari's auto-unzip on a Mac, and an upload
   of the ZIP into Claude from this page.
+- **The free plan** (Connor agreed, in chat on 2026-10-20): "What you need" keeps "A paid Claude
+  plan", as the skill's README says, and the FAQ answers "Does it work on Claude's free plan?" with
+  what Anthropic's pages say: Free includes skills, code execution and file creation, with network
+  access to package managers by default, but "Pro gives you at least 5x more usage per 5-hour session
+  than Free", and creating files "will use more of your limit". A Reel is about 20 to 25 tool calls
+  and a render of about 10 seconds per second of video, so on Free it may stop partway until the
+  limit resets. Not tested on a Free account.
 - **Open:** a GoHighLevel workflow on the `reel-editor` tag that emails the page's link would carry a
   phone sign-up to a computer without the visitor doing anything; it is outside this repository and
   not set up. The page promises no email.

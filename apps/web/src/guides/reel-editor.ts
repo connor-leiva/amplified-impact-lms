@@ -202,6 +202,14 @@ export const REEL_EDITOR: Guide = {
       heading: 'Good to know',
       items: [
         {
+          // Claude's pricing page: Free includes code execution, file creation and skills; "Pro gives you
+          // at least 5x more usage per 5-hour session than Free" (checked 2026-10-20, D-045).
+          q: 'Does it work on Claude’s free plan?',
+          a: [
+            'It can, but it may not finish in one go. Free has the skills and code execution it needs, with much less usage: Pro gives at least 5 times more per session. A Reel uses a lot of it, so on Free, Claude may stop partway until your limit resets. For a full Reel in one go, use Pro or higher.',
+          ],
+        },
+        {
           q: 'Claude stopped partway through.',
           a: ['Reply ', { strong: 'continue' }, '. It picks up where it left off.'],
         },

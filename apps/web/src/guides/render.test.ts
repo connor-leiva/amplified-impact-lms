@@ -373,6 +373,7 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   it('answers its questions in <details>, which open with no script', () => {
     const items = $$('section.faq details.faq-item');
     expect(items.map((d) => text(d.querySelector('summary')))).toEqual([
+      'Does it work on Claude’s free plan?',
       'Claude stopped partway through.',
       'How long does it take?',
       'My video won’t upload.',
