@@ -294,6 +294,31 @@ function section(guide: Guide, s: Section, i: number): string {
         .filter(Boolean)
         .join('\n');
     }
+    case 'compare': {
+      // Plain <video>s: controls, inline on iOS, and nothing fetched but the poster until one is
+      // played, so the page stays one fast response in Instagram's browser. The figure's caption
+      // names each one.
+      const clips = s.clips
+        .map((c) =>
+          [
+            `<figure class="clip">`,
+            `<video controls playsinline preload="none" poster="${esc(c.poster)}" width="${c.width}" height="${c.height}">`,
+            `<source src="${esc(c.src)}" type="video/mp4">`,
+            `</video>`,
+            `<figcaption><span class="clip-label">${esc(c.label)} · ${esc(c.length)}</span> ${esc(c.caption)}</figcaption>`,
+            `</figure>`,
+          ].join(''),
+        )
+        .join('\n');
+      return [
+        `<section class="compare" aria-labelledby="${id}">`,
+        `<p class="eyebrow eyebrow-dark">${esc(s.eyebrow)}</p>`,
+        `<h2 id="${id}">${esc(s.heading)}</h2>`,
+        `<p class="lede-dark">${esc(s.body)}</p>`,
+        `<div class="compare-grid">${clips}</div>`,
+        `</section>`,
+      ].join('\n');
+    }
     case 'prompts': {
       const groups = s.groups
         .map(

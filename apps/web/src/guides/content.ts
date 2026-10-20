@@ -73,6 +73,27 @@ export type Section =
    * four cards out two by two from 640px, where three to a row would leave one alone.
    */
   | { kind: 'tiles'; heading: string; note?: string; items: readonly Tile[]; cta?: boolean; columns?: 2 }
+  /**
+   * Videos side by side, each with its label and a line under it: a raw clip and what the guide made
+   * of it (the Reel Editor). `length` is shown with the label, as "1:05". Each is H.264 in an MP4
+   * (every browser plays it; HEVC does not play in Firefox or on many Android phones), sized by its
+   * `width` and `height` before it loads.
+   */
+  | {
+      kind: 'compare';
+      eyebrow: string;
+      heading: string;
+      body: string;
+      clips: ReadonlyArray<{
+        label: string;
+        length: string;
+        caption: string;
+        src: string;
+        poster: string;
+        width: number;
+        height: number;
+      }>;
+    }
   /** Things to say to Claude, in groups, each one copied with a tap (the Reel Editor). */
   | {
       kind: 'prompts';

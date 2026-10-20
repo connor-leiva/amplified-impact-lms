@@ -343,6 +343,50 @@ blockquote {
   color: var(--text-secondary);
 }
 
+/* --- Before and after, side by side (D-045) ----------------------------------------------------------
+   Two columns at every width: the comparison is the point, and two vertical clips side by side fit a
+   phone. Each video keeps its own shape (its width and height attributes), on a dark ground. */
+
+.compare {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.clip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+.clip video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  background: var(--text-primary);
+  object-fit: contain;
+}
+.clip figcaption {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+.clip-label {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--action-primary);
+}
+
 /* --- Words to say to Claude, copied with a tap (D-045) ---------------------------------------------- */
 
 .prompts {

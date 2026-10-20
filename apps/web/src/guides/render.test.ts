@@ -401,6 +401,56 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   });
 });
 
+describe('the before-and-after section (D-045)', () => {
+  // No guide carries one yet: its clips are added with the Reel Editor's before and after. The markup
+  // contract, on a guide that has one.
+  const clip = (label: string, length: string) => ({
+    label,
+    length,
+    caption: `${label} caption.`,
+    src: `/media/${label.toLowerCase()}.mp4`,
+    poster: `/media/${label.toLowerCase()}.jpg`,
+    width: 720,
+    height: 1280,
+  });
+  const doc = parse({
+    ...guideFor('reel-editor'),
+    sections: [
+      {
+        kind: 'compare',
+        eyebrow: 'Real Example',
+        heading: 'One clip, before and after',
+        body: 'Straight off the camera, then edited.',
+        clips: [clip('Before', '1:40'), clip('After', '1:05')],
+      },
+    ],
+  });
+  const figures = Array.from(doc.querySelectorAll('section.compare figure.clip'));
+
+  it('shows each clip as a captioned figure, in order, under its own heading', () => {
+    expect(text(doc.querySelector('section.compare h2'))).toBe('One clip, before and after');
+    expect(figures.map((f) => text(f.querySelector('figcaption')))).toEqual([
+      'Before · 1:40 Before caption.',
+      'After · 1:05 After caption.',
+    ]);
+  });
+
+  it('plays inline with controls, and fetches nothing but the poster until played', () => {
+    for (const f of figures) {
+      const video = f.querySelector('video')!;
+      expect(video.hasAttribute('controls')).toBe(true);
+      expect(video.hasAttribute('playsinline')).toBe(true);
+      expect(video.getAttribute('preload')).toBe('none');
+      expect(video.hasAttribute('autoplay')).toBe(false);
+      expect([video.getAttribute('width'), video.getAttribute('height')]).toEqual(['720', '1280']);
+      expect(video.getAttribute('poster')).toMatch(/^\/media\/.+\.jpg$/);
+      const source = video.querySelector('source')!;
+      expect(source.getAttribute('type')).toBe('video/mp4');
+      expect(source.getAttribute('src')).toMatch(/^\/media\/.+\.mp4$/);
+    }
+  });
+});
+
 describe('a PDF guide, untouched by the skill parts (D-045)', () => {
   it.each(['task-sync-starter', 'ops-time-audit'])('/%s has no setup, handoff, copy buttons or live region', (slug) => {
     const doc = parse(guideFor(slug));
