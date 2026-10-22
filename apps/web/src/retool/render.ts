@@ -6,9 +6,10 @@
 // is this page's own: the screens' words and layout, the team-size opt-in, and "Copy the Script".
 //
 // THE GATE sits part way down, on its own screen (`#kit`), not on the welcome screen as on
-// /voice-profile: the audit before it is open to anyone, as the talk needs (content.ts has why). It
-// is `data-gate`, and `main.ts` treats a gate anywhere in the list the same way: until this device
-// has signed up, no screen after it can be shown. Without the script, the screens after it sit in
+// /voice-profile: the audit, reading its map and its build steps (D-047) before it are open to
+// anyone, as the talk needs (content.ts has why). It is `data-gate`, and `main.ts` treats a gate
+// anywhere in the list the same way: until this device has signed up, no screen after it can be
+// shown. Without the script, the screens after it sit in
 // `#unlocked`, hidden until the form's 303 lands there and `:target` shows them. A soft gate, as lead
 // magnets are.
 //
@@ -45,6 +46,7 @@ const anchorOf = (index: number) => RETOOL.screens[index]!.anchor;
 /** The prompt blocks' ids: anchors a link can point at, and what the buttons that copy them name. */
 export const BLOCK = {
   audit: 'audit-prompt',
+  build: 'build-prompt',
   coordinator: 'coordinator-prompt',
   script: 'retool-script',
 } as const;
@@ -142,6 +144,23 @@ function read(): string {
   ]);
 }
 
+/**
+ * The build steps (D-047): the whole map, pasted back into one box, fills the prompt that asks for a
+ * step-by-step build of the AI employee it picked; then Copy & Open, as on the audit.
+ */
+function build(): string {
+  const b = RETOOL.build;
+  return screen(5, [
+    h2(anchorOf(5), b.heading),
+    `<p class="lede">${esc(b.intro)}</p>`,
+    fillFields(b.fields),
+    `<div class="stack">${b.open.map((o) => copyOpenButton(o, BLOCK.build)).join('')}</div>`,
+    stepsCard(b.thenHeading, b.then),
+    promptBlock(RETOOL.buildPrompt, BLOCK.build, b.showPrompt),
+    `<p class="note">${esc(b.kit)}</p>`,
+  ]);
+}
+
 /** A gate input with a visually hidden label (the placeholder shows, as on /ai101's waitlist). */
 function gateField(name: 'firstName' | 'email', placeholder: string, attrs: string): string {
   const id = `gate-${name}`;
@@ -192,11 +211,11 @@ function gate(): string {
     `</form>`,
   ].join('\n');
   return screen(
-    5,
+    6,
     [
       logo(signatureReversedSvg, g.logoAlt, 'logo logo-reversed'),
       `<p class="eyebrow eyebrow-mint">${esc(g.eyebrow)}</p>`,
-      h2(anchorOf(5), g.heading),
+      h2(anchorOf(6), g.heading),
       `<p class="wl-body">${esc(g.body)}</p>`,
       `<p id="gate-joined" class="wl-success" tabindex="-1">${esc(g.success)}</p>`,
       form,
@@ -223,8 +242,8 @@ function coordinator(): string {
       `</div>`
     );
   };
-  return screen(6, [
-    h2(anchorOf(6), c.heading),
+  return screen(7, [
+    h2(anchorOf(7), c.heading),
     `<p class="lede">${esc(c.intro)}</p>`,
     circled(c.parts.map((p) => `<span><strong>${esc(p.name)}</strong>${esc(p.detail)}</span>`)),
     `<p class="path-lead">${esc(c.fieldsLead)}</p>`,
@@ -244,8 +263,8 @@ function firstFile(): string {
   const f = RETOOL.firstFile;
   const titled = (heading: string, inner: string) =>
     card(`<h3 class="card-title card-title-lg">${esc(heading)}</h3>${inner}`);
-  return screen(7, [
-    h2(anchorOf(7), f.heading),
+  return screen(8, [
+    h2(anchorOf(8), f.heading),
     titled(f.binder.heading, `<p class="muted">${esc(f.binder.intro)}</p>${dotted(f.binder.items)}`),
     titled(f.assignment.heading, `<p class="muted">${esc(f.assignment.body)}</p>`),
     titled(f.manager.heading, `<p class="muted">${esc(f.manager.body)}</p>`),
@@ -262,8 +281,8 @@ function firstFile(): string {
  */
 function conversation(): string {
   const c = RETOOL.conversation;
-  return screen(8, [
-    h2(anchorOf(8), c.heading),
+  return screen(9, [
+    h2(anchorOf(9), c.heading),
     `<p class="lede">${esc(c.intro)}</p>`,
     circled(c.moves.map((m) => `<span>${esc(m)}</span>`)),
     `<p class="path-lead">${esc(c.scriptLead)}</p>`,
@@ -290,8 +309,8 @@ function plan(): string {
         `</li>`,
     )
     .join('');
-  return screen(9, [
-    h2(anchorOf(9), p.heading),
+  return screen(10, [
+    h2(anchorOf(10), p.heading),
     `<p class="lede">${esc(p.intro)}</p>`,
     `<ol class="plan" role="list">${weeks}</ol>`,
     callout(esc(p.dayThirty), 'tip', true),
@@ -305,8 +324,8 @@ function forward(): string {
   const r = f.review;
   // The booking button only once there is a link to book on; until then, the talk's own ask.
   const book = r.button.href ? linkButton(r.button, 'primary') : `<p class="small muted">${esc(r.pending)}</p>`;
-  return screen(10, [
-    h2(anchorOf(10), f.heading),
+  return screen(11, [
+    h2(anchorOf(11), f.heading),
     card(
       `<h3 class="card-title card-title-lg">${esc(y.title)}</h3><p class="muted">${esc(y.body)}</p>` +
         `<a class="skip" href="${esc(y.link.href)}">${esc(y.link.label)}</a>`,
@@ -329,6 +348,7 @@ export function renderRetoolBody(): string {
     sort(),
     audit(),
     read(),
+    build(),
     gate(),
     `<div id="${esc(RETOOL.gate.unlockedAnchor)}" class="gated">`,
     coordinator(),

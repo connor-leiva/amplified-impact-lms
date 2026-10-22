@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UI } from '../ai101/content';
+import { fillPrompt } from '../ai101/main';
 import { CONSENT, SENDERS } from '../legal/content';
 import { RETOOL, RETOOL_SENDERS } from './content';
 import { renderRetoolBody, renderRetoolHead } from './render';
@@ -45,6 +46,22 @@ Show me:
 3. The first AI employee I should build, in two sentences
 4. Three questions to ask my ops leader to correct this map`;
 
+/**
+ * The build steps prompt (D-047): the map pasted back in, then Connor's own ask from the live session
+ * ("Give me a simple step-by-step instruction list... Make it so that a 10th grader could follow this
+ * on their own"), then four lines from this kit.
+ */
+const BUILD = `Here's the task map AI made of my ops leader's week:
+
+[paste your whole map here]
+
+I can see the first AI employee to build. I have no clue how to get started on building this. Give me a simple step-by-step instruction list, as comprehensive as possible, that I can follow to get this built. Make it so that a 10th grader could follow this on their own.
+
+- Build it as a Project in this app, with no code.
+- Give it what a new hire gets: a job description, a training binder, a first assignment, and a manager. Write the job description out in full so I can paste it in.
+- Keep my map's buckets. A human approves anything marked DRAFT before it goes out. Anything marked OWN stays with a person.
+- Have me practice on a made-up example first, and keep wire instructions out of every file.`;
+
 describe('the head', () => {
   it('names the page and its canonical address', () => {
     expect(text($('title'))).toBe("Retool, Don't Replace: AI 101 for Team Owners · Amplified Impact");
@@ -53,7 +70,7 @@ describe('the head', () => {
 });
 
 describe('the step-through', () => {
-  it('follows the talk: the pattern, the sort, the audit, the gate, the build, the conversation, the plan', () => {
+  it('follows the talk: the pattern, the sort, the audit and its build steps, the gate, the kit, the plan', () => {
     const screens = $$('section[data-screen]').map((s) => [
       s.id,
       s.getAttribute('data-stage'),
@@ -64,8 +81,9 @@ describe('the step-through', () => {
       ['welcome', 'Welcome', null, 'Start'],
       ['three-doors', 'The Pattern', null, 'Show Me the Sort'],
       ['run-draft-own', 'Run, Draft, Own', null, 'Map My Team'],
-      ['audit', 'Your Task Map', '1 of 2', 'I Have My Map'],
-      ['read-your-map', 'Your Task Map', '2 of 2', 'Get the Full Kit'],
+      ['audit', 'Your Task Map', '1 of 3', 'I Have My Map'],
+      ['read-your-map', 'Your Task Map', '2 of 3', 'Get My Build Steps'],
+      ['build-steps', 'Your Task Map', '3 of 3', 'Get the Full Kit'],
       ['kit', 'The Full Kit', null, 'Build My AI Employee'],
       ['coordinator', 'Your First AI Employee', '1 of 2', "It's Hired"],
       ['first-file', 'Your First AI Employee', '2 of 2', 'The People Side'],
@@ -85,6 +103,7 @@ describe('the step-through', () => {
       '8',
       '9',
       '10',
+      '11',
     ]);
   });
 
@@ -121,10 +140,10 @@ describe('the step-through', () => {
 
 describe('the open part: the audit (Kit B)', () => {
   it('sits before the gate, outside the gated steps, so the room needs no form mid-call', () => {
-    for (const id of ['welcome', 'three-doors', 'run-draft-own', 'audit', 'read-your-map']) {
+    for (const id of ['welcome', 'three-doors', 'run-draft-own', 'audit', 'read-your-map', 'build-steps']) {
       expect($(`#${id}`)?.closest('#unlocked'), id).toBeNull();
     }
-    expect($('#audit-prompt')?.closest('#unlocked')).toBeNull();
+    for (const id of ['audit-prompt', 'build-prompt']) expect($(`#${id}`)?.closest('#unlocked'), id).toBeNull();
   });
 
   it('copies Kit B word for word, but for the second [number], which is [how many]', () => {
@@ -164,11 +183,74 @@ describe('the open part: the audit (Kit B)', () => {
     expect($$('a[href*="?q="], a[href*="prompt="]')).toEqual([]);
   });
 
+  it('says to keep the chat open, since the build steps start from its answer, and to use a plain chat', () => {
+    expect($$('#audit ol.numbered li').map((li) => text(li))).toEqual([
+      'Paste.',
+      'Fill in any blank still in [brackets].',
+      'Send.',
+      "Keep that chat open. You'll copy its answer in a minute.",
+    ]);
+    expect(text($('#audit .note'))).toBe(
+      'Use a regular chat, not a Project. It works on free ChatGPT and free Claude.',
+    );
+  });
+
   it('teaches the sort with the same rules the prompt sorts by, and the three that never leave Own', () => {
     expect($$('#run-draft-own .tile strong').map((s) => text(s))).toEqual(['Run', 'Draft', 'Own']);
     expect(text($('#run-draft-own .callout'))).toBe(
       'Three things never leave Own: wire instructions, consent for automated texting under TCPA, and fair housing review of listing language.',
     );
+  });
+});
+
+describe('the open part: the build steps', () => {
+  it('reads the map for the AI employee it picked, which the build steps start from', () => {
+    expect(text($('#read-your-map ol.numbered li:last-child'))).toBe(
+      'Find the first AI employee it recommends. Not sold? Start where the Run tasks pile up.',
+    );
+  });
+
+  it('copies the build steps prompt: the whole map, then the ask for steps a 10th grader could follow', () => {
+    expect(prompt('build-prompt')).toBe(BUILD);
+    expect($('#build-prompt')?.getAttribute('data-prompt')).toBe('retool_build');
+    expect($('#build-prompt')?.closest('#build-steps')).not.toBeNull();
+  });
+
+  it('fills its one blank, the map, from a box big enough to paste the whole answer into', () => {
+    expect($$('#build-prompt mark.placeholder').map((m) => m.textContent)).toEqual(['[paste your whole map here]']);
+    expect(UI.slots.retool_build).toEqual({ '[paste your whole map here]': 'taskMap' });
+    const fields = $$('#build-steps [data-field]');
+    expect(fields.map((f) => [f.tagName, f.getAttribute('data-field')])).toEqual([['TEXTAREA', 'taskMap']]);
+    expect(text($('label[for="field-taskMap"]'))).toBe(
+      'Your whole map In the chat, tap the copy icon under its answer. Then paste it here.',
+    );
+  });
+
+  it('takes the whole pasted answer, line breaks and table included, in place of its blank', () => {
+    const pasted =
+      '\n| Task | Hours | Bucket | Why |\n| CRM tagging | 3 | RUN | Rules-based |\n\nFirst AI employee: a Transaction QA agent.\n';
+    const filled = fillPrompt(BUILD, UI.slots.retool_build!, { taskMap: pasted })
+      .map((p) => p.text)
+      .join('');
+    expect(filled).toBe(BUILD.replace('[paste your whole map here]', pasted.trim()));
+  });
+
+  it('opens a blank ChatGPT or Claude chat, as the audit does', () => {
+    expect(
+      $$('#build-steps a[data-copy-open]').map((a) => [
+        text(a),
+        a.getAttribute('href'),
+        a.getAttribute('data-copy-open'),
+      ]),
+    ).toEqual([
+      ['Copy & Open ChatGPT', 'https://chatgpt.com/', 'build-prompt'],
+      ['Copy & Open Claude', 'https://claude.ai/new', 'build-prompt'],
+    ]);
+    expect($$('#build-steps ol.numbered li').map((li) => text(li))).toEqual([
+      'Paste.',
+      'Send.',
+      'Do one step at a time. Stuck? Tell it where, in the same chat.',
+    ]);
   });
 });
 

@@ -2108,3 +2108,42 @@ guides,marketing,ai101}.ts`, `db/schema.ts` and migration `0005`, `integrations/
   the "two more teams" scarcity line (the notes keep both for the Review), and first person.
 - **Open:** the Retool Review booking link. Until `RETOOL.forward.review.button.href` is set, the last
   screen says "Type RETOOL in the session chat for the booking link." in place of a button.
+
+## D-047 · /retool: the map runs straight into build steps for the AI employee it picked
+
+**Date:** 2026-10-22
+**Approved by:** the user, in chat on 2026-10-22, supplying the transcript of the live session the
+page was first used in: "Can you audit my repo and look for the /retool standalone site and then
+adjust the flow in the way I described in this transcript to make it even easier to follow."
+**Scope:** `apps/web/src/retool/{content,render}.ts`, `retool.css` and its tests; in
+`src/ai101/{content,main}.ts` the new prompt id and field, which /retool runs on (D-046).
+
+- **What the session showed.** The map's first AI employee is not always contract-to-close (the
+  live map picked a Transaction QA agent), and the next thing the room needed was how to build it.
+  Connor typed it live ("I have no clue how to get started on building this. Give me a simple
+  step-by-step instruction list. As comprehensive as possible... Make it so that a 10th grader could
+  follow this on their own") and said the tool would do it next: "copy and paste your entire output
+  into the tool, and then I will have this... give this prompt".
+- **A new open screen, `#build-steps`**, after Read Your Map and before the gate: Your Task Map is now
+  1 of 3, 2 of 3, 3 of 3. One box takes the whole answer (filling `[paste your whole map here]`,
+  field `taskMap`), then Copy & Open ChatGPT or Claude to a blank chat, as the audit does (D-032).
+  Read's Next is "Get My Build Steps"; the new screen's is "Get the Full Kit". Open, not gated, by
+  the same rule as the audit: the room does the whole work block with no form. Moving it behind the
+  gate is one line in `screens` and one in `renderRetoolBody`.
+- **The prompt** is Connor's ask, as typed, made into sentences, under the pasted map. Four lines
+  are the page's own, each from this kit, and each can be cut: build it as a Project in this app
+  with no code; the four parts a new hire gets, with the job description written out to paste; keep
+  the map's buckets (Kit B's rules); practice on a made-up example and keep wires out of every file.
+- **The audit, coached as Connor coached it live.** Hints: "Job titles are enough." (who's in ops),
+  "Rough guesses are fine. Percentages help." (what eats their week, with a percentage placeholder),
+  and "The thing that would hurt most." (what breaks, "not first in terms of time"). A fourth step,
+  "Keep that chat open. You'll copy its answer in a minute.", and the note now opens "Use a regular
+  chat, not a Project." ("I would do this in a chat, not a cowork").
+- **Copy that followed.** Read's last step is "Find the first AI employee it recommends. Not sold?
+  Start where the Run tasks pile up." ("those run categories are what you should start with"), in
+  place of "every team has contract-to-close". The welcome's second promise is "Your first AI
+  employee. Step-by-step build instructions for the one your map picks." The gate offers the
+  Coordinator as the ready-made one: "A Contract-to-Close Coordinator ready to paste in, ...".
+- **Unchanged:** Kits B to E word for word, the gate and its form, every anchor (`/retool#audit`
+  still lands on the audit), and the state key: a visitor's saved fields stay, and a saved place
+  past the map reopens one screen earlier.

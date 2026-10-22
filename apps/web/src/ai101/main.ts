@@ -74,14 +74,16 @@ const FIELD_NAMES = [
   'questions',
   'brokerage',
   'profile',
-  // /retool's (D-046): Kit B's audit, Kit C's job description, and Kit E's script. Each page keeps its
-  // state under its own key (`data-state-key`), so these sit empty on /ai101 and /voice-profile.
+  // /retool's (D-046): Kit B's audit, the map pasted back for its build steps (D-047), Kit C's job
+  // description, and Kit E's script. Each page keeps its state under its own key (`data-state-key`),
+  // so these sit empty on /ai101 and /voice-profile.
   'agents',
   'closings',
   'crm',
   'opsTeam',
   'weekEaters',
   'breaksFirst',
+  'taskMap',
   'teamName',
   'cityState',
   'opsName',
@@ -118,6 +120,7 @@ const EMPTY: State = {
   opsTeam: '',
   weekEaters: '',
   breaksFirst: '',
+  taskMap: '',
   teamName: '',
   cityState: '',
   opsName: '',

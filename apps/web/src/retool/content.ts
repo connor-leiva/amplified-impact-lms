@@ -9,15 +9,17 @@
 // WHAT IS OPEN AND WHAT IS GATED is the talk's own plan ("Build one kit page: the Kit B prompt open to
 // anyone, and Kits C through E behind a short form (name, email, team size, a December interest
 // checkbox)"), and Segment 4's "No form on it, so nobody loses two minutes": everything up to the
-// audit and reading its map is open, so the room can do the work block mid-call; the Contract-to-Close
-// Coordinator (Kit C), the 30-day plan (Kit D) and the Retool Conversation script (Kit E) sit after the
-// gate. Kit A (the note to Sarah), the run of show and the Q&A prep are the speaker's, not the room's,
-// and are not on the page.
+// audit, reading its map and its build steps (D-047) is open, so the room can do the work block
+// mid-call; the Contract-to-Close Coordinator (Kit C), the 30-day plan (Kit D) and the Retool
+// Conversation script (Kit E) sit after the gate. Kit A (the note to Sarah), the run of show and the
+// Q&A prep are the speaker's, not the room's, and are not on the page.
 //
 // The prompts (Kits B, C and E) are Connor's word for word, but for one blank: Kit B's second
 // "[number]" is "[how many]", because a placeholder is filled by its exact text (`UI.slots` in
 // `../ai101/content.ts`), and two "[number]"s could only ever hold the same value. The other words are
-// the talk's, cut to what reads on a phone, and the page's own where a comment says so.
+// the talk's, cut to what reads on a phone, and the page's own where a comment says so. The build
+// steps prompt is newer: Connor's ask from the live session, with four lines from this kit under it
+// (`BUILD_PROMPT` has which, D-047).
 //
 // House rules, as on /ai101: no em dashes, short plain sentences.
 
@@ -60,6 +62,23 @@ Show me:
 2. Hours in RUN, DRAFT, and OWN, plus RUN and DRAFT together as a percent of the week
 3. The first AI employee I should build, in two sentences
 4. Three questions to ask my ops leader to correct this map`;
+
+/**
+ * The build steps (D-047): the map, pasted in, and the ask Connor typed live after his own map came
+ * back, his words as he said them, made into sentences. The four lines under it are the page's own,
+ * each from this kit: build it in a Project, give it the four parts a new hire gets (the Coordinator
+ * screen), keep the map's buckets (Kit B's rules), and practice first with no wires (the guardrails).
+ */
+const BUILD_PROMPT = `Here's the task map AI made of my ops leader's week:
+
+[paste your whole map here]
+
+I can see the first AI employee to build. I have no clue how to get started on building this. Give me a simple step-by-step instruction list, as comprehensive as possible, that I can follow to get this built. Make it so that a 10th grader could follow this on their own.
+
+- Build it as a Project in this app, with no code.
+- Give it what a new hire gets: a job description, a training binder, a first assignment, and a manager. Write the job description out in full so I can paste it in.
+- Keep my map's buckets. A human approves anything marked DRAFT before it goes out. Anything marked OWN stays with a person.
+- Have me practice on a made-up example first, and keep wire instructions out of every file.`;
 
 /** Kit C, the Contract-to-Close Coordinator's job description. */
 const COORDINATOR_PROMPT = `You are the Contract-to-Close Coordinator for [Team Name], a real estate team in [City, State]. You support our ops leader on every new transaction. You draft; a human verifies and sends.
@@ -123,12 +142,17 @@ export const RETOOL = {
   // The talk's arc (its Run of Show): the pattern, the sort, the audit, the build, the conversation,
   // the plan, the ask. Each anchor is a link the deck or the chat can use: `/retool#audit` drops a
   // visitor straight onto the audit, for Segment 4's "Sarah drops the prompt link in the chat".
+  //
+  // The map runs straight into its build steps (D-047), as Connor walked it live: "I have my map",
+  // read it, then paste the whole map back in and get a step-by-step build for the AI employee it
+  // picked. All three are open, before the gate, so the room does the whole work block with no form.
   screens: [
     { anchor: 'welcome', stage: 'Welcome', next: 'Start' },
     { anchor: 'three-doors', stage: 'The Pattern', next: 'Show Me the Sort' },
     { anchor: 'run-draft-own', stage: 'Run, Draft, Own', next: 'Map My Team' },
-    { anchor: 'audit', stage: 'Your Task Map', count: '1 of 2', next: 'I Have My Map' },
-    { anchor: 'read-your-map', stage: 'Your Task Map', count: '2 of 2', next: 'Get the Full Kit' },
+    { anchor: 'audit', stage: 'Your Task Map', count: '1 of 3', next: 'I Have My Map' },
+    { anchor: 'read-your-map', stage: 'Your Task Map', count: '2 of 3', next: 'Get My Build Steps' },
+    { anchor: 'build-steps', stage: 'Your Task Map', count: '3 of 3', next: 'Get the Full Kit' },
     // The gate. Its Next shows only once this device has signed up; the form's button is the way on.
     { anchor: 'kit', stage: 'The Full Kit', next: 'Build My AI Employee' },
     { anchor: 'coordinator', stage: 'Your First AI Employee', count: '1 of 2', next: "It's Hired" },
@@ -153,7 +177,8 @@ export const RETOOL = {
         name: "A map of your ops leader's week.",
         detail: ' What AI can run, what it can draft, and what stays yours.',
       },
-      { name: 'One AI employee.', detail: ' A Contract-to-Close Coordinator, built from a blank screen.' },
+      // "Whether that be a contract to close coordinator or whatever is important in your world" (D-047).
+      { name: 'Your first AI employee.', detail: ' Step-by-step build instructions for the one your map picks.' },
       { name: 'A 30-day plan.', detail: ' And an answer on day 30: was it the person or the system?' },
     ],
     // Segment 1's promise, for a page.
@@ -230,30 +255,39 @@ export const RETOOL = {
       { name: 'agents', label: 'Agents on your team', placeholder: '25' },
       { name: 'closings', label: 'Closings a month, about', placeholder: '30' },
       { name: 'crm', label: 'Your CRM', placeholder: 'Follow Up Boss' },
+      // The hints are how Connor coached each question live (D-047).
       {
         name: 'opsTeam',
         label: "Who's in ops",
+        hint: 'Job titles are enough.',
         placeholder: 'one ops leader, a part-time TC',
       },
       {
         name: 'weekEaters',
         label: 'What eats their week',
-        hint: 'Rough is fine.',
-        placeholder: 'contract-to-close, agent onboarding, CRM cleanup',
+        hint: 'Rough guesses are fine. Percentages help.',
+        placeholder: 'agent questions 25%, onboarding 20%, contract-to-close',
         rows: 3,
       },
       {
         name: 'breaksFirst',
         label: 'If they quit tomorrow, the first thing that breaks',
-        hint: 'In the session? Paste what you typed in the chat at the start.',
+        hint: 'The thing that would hurt most. In the session? Use what you typed in the chat at the start.',
         placeholder: 'contract-to-close',
       },
     ] satisfies FillField[],
     open: OPEN_CHAT,
     thenHeading: 'Then, in the new chat:',
-    then: [['Paste.'], ['Fill in any blank still in [brackets].'], ['Send.']] as Inline[][],
+    // The fourth step sets up the build steps, two screens on, which start from its answer (D-047).
+    then: [
+      ['Paste.'],
+      ['Fill in any blank still in [brackets].'],
+      ['Send.'],
+      ["Keep that chat open. You'll copy its answer in a minute."],
+    ] as Inline[][],
     showPrompt: 'See the full prompt',
-    note: 'It works on free ChatGPT and free Claude.',
+    // "I would do this in a chat, not a cowork" (D-047): Copy & Open already starts a plain chat.
+    note: 'Use a regular chat, not a Project. It works on free ChatGPT and free Claude.',
   },
 
   read: {
@@ -273,12 +307,37 @@ export const RETOOL = {
         { strong: 'Multiply those hours' },
         " by what your ops leader costs per hour. Don't post it anywhere. Just look at it.",
       ],
-      [
-        { strong: 'Name the biggest cluster' },
-        ' AI employee number one. Every team has contract-to-close, which is the one this kit builds.',
-      ],
+      // "Take stock of what this recommendation was", and "those run categories are what you should
+      // start with" (D-047). The build steps on the next screen start from it.
+      [{ strong: 'Find the first AI employee' }, ' it recommends. Not sold? Start where the Run tasks pile up.'],
     ] as Inline[][],
     session: 'In the session? Drop your Run plus Draft percentage in the chat.',
+  },
+
+  /**
+   * The build steps (D-047), the step Connor added live: "copy and paste your entire output into the
+   * tool", and it asks for "a simple step-by-step instruction list" for the AI employee the map picked,
+   * "so that a 10th grader could follow this". Open, like the audit it follows.
+   */
+  build: {
+    heading: 'Get your build steps',
+    intro:
+      'Your map picked your first AI employee. Paste the whole map here, and AI writes you steps to build it that a 10th grader could follow.',
+    fields: [
+      {
+        name: 'taskMap',
+        label: 'Your whole map',
+        hint: 'In the chat, tap the copy icon under its answer. Then paste it here.',
+        placeholder: 'Task | Hours | Bucket | Why',
+        rows: 5,
+      },
+    ] satisfies FillField[],
+    open: OPEN_CHAT,
+    thenHeading: 'Then, in the new chat:',
+    then: [['Paste.'], ['Send.'], ['Do one step at a time. Stuck? Tell it where, in the same chat.']] as Inline[][],
+    showPrompt: 'See the full prompt',
+    // The way on, to the gate: the ready-made one, for the teams whose map picked contract-to-close.
+    kit: 'Want one already written? The full kit has a Contract-to-Close Coordinator ready to paste in.',
   },
 
   /** The opt-in, its own screen part way down. Every screen after it opens once the visitor signs up. */
@@ -286,7 +345,8 @@ export const RETOOL = {
     logoAlt: 'Amplified Impact',
     eyebrow: 'Free · The Full Kit',
     heading: 'Get the full kit',
-    body: 'Build your first AI employee, the script for the talk with your ops leader, and the 30-day plan. Tell us where to send updates, and the rest is yours.',
+    // Your own build steps are open on the screen before (D-047); the kit's AI employee is the ready-made one.
+    body: 'A Contract-to-Close Coordinator ready to paste in, the script for the talk with your ops leader, and the 30-day plan. Tell us where to send updates, and the rest is yours.',
     fields: { firstName: 'First name', email: 'Email', teamSize: 'Team size' },
     teamSizes: TEAM_SIZE_OPTIONS,
     december: 'Tell me about the December leadership track.',
@@ -496,6 +556,7 @@ export const RETOOL = {
   },
 
   auditPrompt: { id: 'retool_audit', label: 'The four-question audit prompt', text: AUDIT_PROMPT } satisfies Prompt,
+  buildPrompt: { id: 'retool_build', label: 'The build steps prompt', text: BUILD_PROMPT } satisfies Prompt,
   coordinatorPrompt: {
     id: 'retool_coordinator',
     label: 'The Contract-to-Close Coordinator job description',

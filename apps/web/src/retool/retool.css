@@ -99,6 +99,14 @@ html:not(.steps-on) .gated > .screen:first-child {
   display: none;
 }
 
+/* --- The build steps ------------------------------------------------------------------------------ */
+
+/* The whole map, pasted back (D-047): it grows with what is pasted, as /ai101's textareas do, up to
+   about a phone screen, then scrolls, so the buttons under it stay in reach. */
+#field-taskMap {
+  max-height: 360px;
+}
+
 /* --- The Retool Conversation ----------------------------------------------------------------------- */
 
 /* The script is said out loud, not pasted into an app: it reads in the page's own face, not the
