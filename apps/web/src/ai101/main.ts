@@ -66,7 +66,29 @@ function guard(setup: () => void): void {
 
 // --- State ----------------------------------------------------------------------------------------
 
-const FIELD_NAMES = ['market', 'clients', 'niche', 'hoods', 'questions', 'brokerage', 'profile'] as const;
+const FIELD_NAMES = [
+  'market',
+  'clients',
+  'niche',
+  'hoods',
+  'questions',
+  'brokerage',
+  'profile',
+  // /retool's (D-046): Kit B's audit, Kit C's job description, and Kit E's script. Each page keeps its
+  // state under its own key (`data-state-key`), so these sit empty on /ai101 and /voice-profile.
+  'agents',
+  'closings',
+  'crm',
+  'opsTeam',
+  'weekEaters',
+  'breaksFirst',
+  'teamName',
+  'cityState',
+  'opsName',
+  'agentsThen',
+  'closingsThen',
+  'hoursTo',
+] as const;
 type FieldName = (typeof FIELD_NAMES)[number];
 
 /**
@@ -90,6 +112,18 @@ const EMPTY: State = {
   questions: '',
   brokerage: '',
   profile: '',
+  agents: '',
+  closings: '',
+  crm: '',
+  opsTeam: '',
+  weekEaters: '',
+  breaksFirst: '',
+  teamName: '',
+  cityState: '',
+  opsName: '',
+  agentsThen: '',
+  closingsThen: '',
+  hoursTo: '',
 };
 
 function storage(): Storage | null {
@@ -333,6 +367,32 @@ function initCopyOpen(doc: Document, toast: (message: string) => void): void {
         }
         labelEl.textContent = UI.copiedThenOpen(app);
         toast(copied);
+      });
+    });
+  }
+}
+
+/**
+ * "Copy the Script" (D-046): copies a prompt block's text, as filled in right now, and stays on the
+ * page. For words the visitor sends or says themselves, where Copy & Open would open an app for
+ * nothing. If nothing can copy, the block opens and its text is selected, as Copy & Open does.
+ */
+function initCopyPrompt(doc: Document, toast: (message: string) => void): void {
+  for (const button of Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-copy-prompt]'))) {
+    const blockId = button.getAttribute('data-copy-prompt') ?? '';
+    if (promptPre(doc, blockId) === null) continue;
+    const copied = button.getAttribute('data-toast') ?? '';
+    button.addEventListener('click', () => {
+      const pre = promptPre(doc, blockId);
+      void copyText(pre?.textContent ?? '', button).then((ok) => {
+        if (ok) {
+          toast(copied);
+          return;
+        }
+        const details = pre?.closest('details');
+        if (details) details.open = true;
+        if (pre) selectContents(pre);
+        toast(UI.copyFailed);
       });
     });
   }
@@ -734,7 +794,8 @@ function revealScripted(doc: Document): void {
 
 // --- Waitlist -----------------------------------------------------------------------------------------
 
-const WL_FIELDS = ['firstName', 'email', 'phone', 'brokerage'] as const;
+// `teamSize` is /retool's <select> (D-046); a form without one never sends it.
+const WL_FIELDS = ['firstName', 'email', 'phone', 'brokerage', 'teamSize'] as const;
 type WlField = (typeof WL_FIELDS)[number];
 
 /**
@@ -751,13 +812,14 @@ export function normalizePhone(input: string): string | null {
   return null;
 }
 
-/** The API's rules, client-side, with the same messages. */
-function validate(values: Record<WlField, string>, sms: boolean): Partial<Record<WlField, string>> {
+/** The API's rules, client-side, with the same messages. `team`: this form asks for team size (D-046). */
+function validate(values: Record<WlField, string>, sms: boolean, team = false): Partial<Record<WlField, string>> {
   const errors: Partial<Record<WlField, string>> = {};
   if (values.firstName.length < 1 || values.firstName.length > 80) errors.firstName = UI.errors.firstName;
   if (values.email.length > 254 || !EMAIL.test(values.email)) errors.email = UI.errors.email;
   if (values.phone !== '' && normalizePhone(values.phone) === null) errors.phone = UI.errors.phone;
   else if (sms && values.phone === '') errors.phone = UI.errors.phoneForTexts;
+  if (team && values.teamSize === '') errors.teamSize = UI.errors.teamSize;
   return errors;
 }
 
@@ -807,13 +869,20 @@ function initSignUp(doc: Document, formId: string, errorId: string, onJoined: ()
     const el = form.elements.namedItem(name);
     return el instanceof HTMLInputElement ? el : null;
   };
-  const value = (name: string) => input(name)?.value ?? '';
+  // A field the visitor fills: an <input>, or /retool's team size <select> (D-046). `input` stays for
+  // the boxes, whose `checked` a <select> does not have.
+  const control = (name: string): HTMLInputElement | HTMLSelectElement | null => {
+    const el = form.elements.namedItem(name);
+    return el instanceof HTMLInputElement || el instanceof HTMLSelectElement ? el : null;
+  };
+  const value = (name: string) => control(name)?.value ?? '';
+  const team = control('teamSize') !== null;
 
   // The page validates now, with the API's messages, so the browser's own bubbles stand down.
   form.noValidate = true;
 
   const setFieldError = (name: WlField, message: string) => {
-    const el = input(name);
+    const el = control(name);
     const line = doc.getElementById(`${name}-error`);
     if (!el || !line) return;
     line.textContent = message;
@@ -839,7 +908,7 @@ function initSignUp(doc: Document, formId: string, errorId: string, onJoined: ()
 
   // An error clears as soon as its field is edited; the next submit re-checks everything. Ticking or
   // unticking the SMS box re-opens the phone question.
-  for (const name of WL_FIELDS) input(name)?.addEventListener('input', () => setFieldError(name, ''));
+  for (const name of WL_FIELDS) control(name)?.addEventListener('input', () => setFieldError(name, ''));
   input('smsConsent')?.addEventListener('change', () => setFieldError('phone', ''));
 
   let busy = false;
@@ -854,13 +923,14 @@ function initSignUp(doc: Document, formId: string, errorId: string, onJoined: ()
       email: value('email').trim(),
       phone: value('phone').trim(),
       brokerage: value('brokerage').trim(),
+      teamSize: value('teamSize').trim(),
     };
     const sms = input('smsConsent')?.checked === true;
-    const errors = validate(values, sms);
+    const errors = validate(values, sms, team);
     for (const name of WL_FIELDS) setFieldError(name, errors[name] ?? '');
     const firstInvalid = WL_FIELDS.filter((name) => errors[name])[0];
     if (firstInvalid) {
-      input(firstInvalid)?.focus();
+      control(firstInvalid)?.focus();
       return;
     }
 
@@ -878,7 +948,11 @@ function initSignUp(doc: Document, formId: string, errorId: string, onJoined: ()
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({
-        ...values,
+        firstName: values.firstName,
+        email: values.email,
+        brokerage: values.brokerage,
+        // /retool's two (D-046), only from a form that has them: every other page's body is unchanged.
+        ...(team ? { teamSize: values.teamSize, decemberInterest: input('decemberInterest')?.checked === true } : {}),
         // Omitted rather than empty when there is none: the API decides what an empty one means.
         phone: values.phone === '' ? undefined : values.phone,
         smsConsent: sms,
@@ -897,7 +971,7 @@ function initSignUp(doc: Document, formId: string, errorId: string, onJoined: ()
           const named = fieldError(body);
           if (!named) return failed();
           setFieldError(named.field, named.message);
-          input(named.field)?.focus();
+          control(named.field)?.focus();
         }, failed);
       }, failed)
       .then(done, done);
@@ -914,6 +988,7 @@ function boot(doc: Document): void {
   // The fields first: they fill the <pre>s that Copy & Open reads on click.
   guard(() => initFill(doc, state, save));
   guard(() => initCopyOpen(doc, toast));
+  guard(() => initCopyPrompt(doc, toast));
   guard(() => initChips(doc, toast));
   guard(() => initChoice(doc, state, save, 'app', 'data-pick', ['claude', 'chatgpt']));
   guard(() => initChoice(doc, state, save, 'path', 'data-path', ['samples', 'interview']));

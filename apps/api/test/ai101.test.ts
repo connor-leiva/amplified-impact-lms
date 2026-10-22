@@ -34,6 +34,7 @@ import {
   normalizePhone,
   pageEtag,
   SMS_CONSENT_TEXT,
+  TEAM_SIZES,
   TERMS_VERSION,
   validateWaitlist,
 } from '../src/routes/ai101';
@@ -751,8 +752,84 @@ describe('validateWaitlist and etagMatches (D-028) @g9', () => {
   it('normalizes a valid sign-up @g9', () => {
     expect(validateWaitlist({ firstName: ' Pat ', email: ' PAT@Example.com ', brokerage: '  ', src: ' qr ' })).toEqual({
       kind: 'valid',
-      entry: { firstName: 'Pat', email: 'pat@example.com', phone: null, brokerage: null, smsConsent: false, src: 'qr' },
+      entry: {
+        firstName: 'Pat',
+        email: 'pat@example.com',
+        phone: null,
+        brokerage: null,
+        smsConsent: false,
+        teamSize: null,
+        decemberInterest: false,
+        src: 'qr',
+      },
     });
+    // /retool's form (D-046): the size, trimmed, and the box.
+    expect(
+      validateWaitlist({ firstName: 'Pat', email: 'pat@example.com', teamSize: ' 51+ ', decemberInterest: 'on' }, { team: true }),
+    ).toEqual({
+      kind: 'valid',
+      entry: {
+        firstName: 'Pat',
+        email: 'pat@example.com',
+        phone: null,
+        brokerage: null,
+        smsConsent: false,
+        teamSize: '51+',
+        decemberInterest: true,
+        src: null,
+      },
+    });
+  });
+
+  it('with `team` (D-046), requires one of the four team sizes, straight after the address @g9', () => {
+    const team = { team: true };
+    const choose = { kind: 'invalid', field: 'teamSize', error: 'Choose your team size.' };
+    expect(TEAM_SIZES).toEqual(['1-10', '11-25', '26-50', '51+']);
+    for (const size of TEAM_SIZES) {
+      const v = validateWaitlist({ ...valid, teamSize: size }, team);
+      expect(v.kind === 'valid' ? v.entry.teamSize : v, size).toBe(size);
+    }
+    // Absent, blank, a near miss, a size the page never offered, an inherited property's name.
+    for (const teamSize of [undefined, null, '', '   ', '51', '51 +', '1-100', '11–25', 'Small', 'constructor', '__proto__']) {
+      expect(validateWaitlist({ ...valid, teamSize }, team), String(teamSize)).toEqual(choose);
+    }
+    // Form order on that page: firstName, email, teamSize. A later field's fault never wins over it.
+    expect(validateWaitlist({ ...valid, firstName: '', teamSize: 'x' }, team)).toMatchObject({ field: 'firstName' });
+    expect(validateWaitlist({ ...valid, email: 'x', teamSize: 'x' }, team)).toMatchObject({ field: 'email' });
+    expect(validateWaitlist({ ...valid, teamSize: 'x', phone: '555', brokerage: 'b'.repeat(121) }, team)).toEqual(choose);
+  });
+
+  it('with `team`, still checks the honeypot first (D-046) @g9', () => {
+    // A bot that filled it is answered as a success, size or no size: a 400 would say what to fix.
+    expect(validateWaitlist({ website: 'x' }, { team: true })).toEqual({ kind: 'spam' });
+    expect(validateWaitlist({ ...valid, website: ' x ', teamSize: 'nope' }, { team: true })).toEqual({ kind: 'spam' });
+    expect(validateWaitlist({ ...valid, website: 'x', teamSize: '1-10' }, { team: true })).toEqual({ kind: 'spam' });
+  });
+
+  it('counts the December box as ticked only for true, "on" or "true" (D-046) @g9', () => {
+    const december = (decemberInterest: unknown) => {
+      const v = validateWaitlist({ ...valid, teamSize: '11-25', decemberInterest: decemberInterest as never }, { team: true });
+      return v.kind === 'valid' ? v.entry.decemberInterest : v;
+    };
+    for (const yes of [true, 'on', ' ON ', 'true']) expect(december(yes), String(yes)).toBe(true);
+    for (const no of [false, 'off', 'false', '', 'yes', '1', null, undefined]) expect(december(no), String(no)).toBe(false);
+  });
+
+  it('without `team`, records neither, whatever the input carries (D-046) @g9', () => {
+    // The route strips both from every other form already; this does not trust that alone. And a
+    // size that is not one of the four is not refused there either: it is not that form's field.
+    for (const options of [undefined, {}, { team: false }]) {
+      for (const input of [
+        { ...valid, teamSize: '26-50', decemberInterest: true },
+        { ...valid, teamSize: 'not a size', decemberInterest: 'on' },
+      ]) {
+        const v = validateWaitlist(input, options);
+        expect(v, JSON.stringify(options)).toEqual({
+          kind: 'valid',
+          entry: expect.objectContaining({ teamSize: null, decemberInterest: false }),
+        });
+      }
+    }
   });
 
   it('normalizes a mobile number to E.164, or refuses it @g9', () => {

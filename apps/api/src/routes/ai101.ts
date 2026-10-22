@@ -8,7 +8,8 @@
 //   POST /api/ai101/waitlist        → JSON: 201 { ok: true } or 400 { error, field }
 //                                     a no-JS form: 303 to /ai101#waitlist-joined or #waitlist-error
 //   POST /api/<guide slug>          → the same route for each free guide's opt-in (D-038, D-039):
-//                                     its own source, no SMS, and its own landing spots
+//                                     its own source, no SMS, and its own landing spots; /retool's
+//                                     also takes a team size and the December box (D-046)
 //
 // The page itself is built by `apps/web` (`vite.ai101.config.ts`) into ONE self-contained file,
 // `dist/ai101.html`: its stylesheet and its one module script are inlined, and only the fonts are
@@ -102,6 +103,20 @@
 // (`SMS_CONSENT_TEXT`, a copy of the page's label that a test holds equal). The database refuses a
 // "yes" without all three (`ai101_waitlist_sms_consent_proof`). A number given without the box is
 // kept, but never texted: the GoHighLevel sync sends a number only with consent (D-033).
+//
+// ================================================================================================
+// TEAM SIZE AND THE DECEMBER BOX (D-046)
+// ================================================================================================
+// /retool, the page for the "Retool, Don't Replace: AI 101 for Team Owners" talk, is a guide like
+// the others, but its form asks two things no other form does: the visitor's TEAM SIZE (a required
+// `<select>`, one of `TEAM_SIZES`) and an optional, unchecked box, "Tell me about the December
+// leadership track". Which forms ask is `SignUpForm.team`, true for /retool alone, and it works the
+// way `sms` does (D-038's rule): a form whose page shows no such field cannot record one, so the
+// route drops both before validating, and `validateWaitlist` stores neither unless told the form
+// asks. The size is an allow-list, not free text, because it becomes a CRM tag (integrations/ghl.ts),
+// and the table's CHECK (`ai101_waitlist_team_size`) refuses anything else. The December box is
+// interest, not consent to anything: email consent already comes with joining, so it records only
+// whether to tell this person about that track, and nothing has to be proved about it.
 
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
@@ -156,7 +171,8 @@ export const WAITLIST_RATE_WINDOW = '1 minute';
  *
  * The form's own `maxlength`s are 80 + 254 + 24 + 120 characters (the phone's since D-034), and the
  * worst a browser can make of that is every character a three-byte UTF-8 sequence percent-encoded as
- * nine bytes: about 4.3 KiB with the field names and the SMS box's `on`. 8 KiB holds that with room, and keeps the one unauthenticated POST in the
+ * nine bytes: about 4.3 KiB with the field names and the SMS box's `on` (/retool's team size and
+ * December box, D-046, add a few dozen bytes more). 8 KiB holds that with room, and keeps the one unauthenticated POST in the
  * API from being a way to buy the app-wide 1 MiB of parsing per request.
  */
 export const WAITLIST_BODY_LIMIT = 8 * 1024;
@@ -177,6 +193,11 @@ interface SignUpForm {
   error: string;
   /** Whether the page shows the SMS box. A form that does not cannot record SMS consent. */
   sms: boolean;
+  /**
+   * Whether the page asks the team size (required) and shows the December box (D-046): /retool's
+   * alone. A form that does not cannot record either, by `sms`'s rule.
+   */
+  team: boolean;
   /** For log lines. */
   label: string;
 }
@@ -188,6 +209,7 @@ const SIGN_UP_FORMS: readonly SignUpForm[] = [
     joined: WAITLIST_JOINED_LOCATION,
     error: WAITLIST_ERROR_LOCATION,
     sms: true,
+    team: false,
     label: 'ai101 waitlist',
   },
   // Each free guide's opt-in (D-038, D-039): the same table and the same rules as the waitlist, under
@@ -199,6 +221,8 @@ const SIGN_UP_FORMS: readonly SignUpForm[] = [
     joined: guideJoinedLocation(slug),
     error: guideErrorLocation(slug),
     sms: false,
+    // The team-owner talk's page (D-046) is the only form that asks. See the header.
+    team: slug === 'retool',
     label: slug,
   })),
 ];
@@ -209,7 +233,8 @@ const SIGN_UP_FORMS: readonly SignUpForm[] = [
  * The script shows `error` under the named field when the server refuses something the client-side
  * check let through, so these are user-facing and must read exactly as the page's own:
  * `apps/web/src/ai101/content.ts` holds `UI.errors.firstName` and `UI.errors.email`, and the
- * brokerage sentence is the build contract's. The API cannot import the web app's source, so this is
+ * brokerage sentence is the build contract's; the team size's is /retool's own (D-046). The API cannot
+ * import the web app's source, so this is
  * a second copy — pinned to literals in `test/ai101.test.ts` rather than to this constant, the same
  * arrangement `routes/join.ts` uses for its 409, so the two copies cannot drift together.
  */
@@ -218,6 +243,7 @@ export const WAITLIST_ERRORS = {
   email: 'Enter a valid email address.',
   phone: 'Enter a valid mobile number.',
   brokerage: 'Enter a brokerage name under 120 characters.',
+  teamSize: 'Choose your team size.',
 } as const;
 
 /** The SMS box ticked with no number: refused against the phone field, in the page's words. */
@@ -239,6 +265,14 @@ export const SMS_CONSENT_TEXT =
  * effective date. Change it when either page changes in substance.
  */
 export const TERMS_VERSION = '2026-10-18';
+
+/**
+ * /retool's team-size choices (D-046), exactly as its `<select>` posts them: the only values the
+ * field accepts, the only ones the table's CHECK (`ai101_waitlist_team_size` in db/schema.ts) lets
+ * in, and the keys of the GoHighLevel sync's team tags (`TEAM_SIZE_TAGS` in integrations/ghl.ts).
+ */
+export const TEAM_SIZES = ['1-10', '11-25', '26-50', '51+'] as const;
+export type TeamSize = (typeof TEAM_SIZES)[number];
 
 /** The sign-in screen's rule (`apps/web/src/routes/auth/SignIn.tsx`), so the product has one. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -263,8 +297,9 @@ const BROKERAGE_MAX = 120;
  */
 const text = z.string().nullish();
 /**
- * The SMS box: `true` from the page's script, `"on"` from a plain form post (a checkbox's value),
- * absent when unticked. Anything else is a "no": consent is never inferred.
+ * A checkbox — the SMS box, or /retool's December box (D-046): `true` from the page's script, `"on"`
+ * from a plain form post (a checkbox's value), absent when unticked. Anything else is a "no":
+ * consent is never inferred, and neither is interest.
  */
 const consent = z.union([z.boolean(), z.string()]).nullish();
 const waitlistBody = z.object({
@@ -273,6 +308,9 @@ const waitlistBody = z.object({
   phone: text,
   brokerage: text,
   smsConsent: consent,
+  // /retool's two (D-046). Only a form with `team` keeps them; see the header.
+  teamSize: text,
+  decemberInterest: consent,
   website: text,
   src: text,
 });
@@ -288,6 +326,10 @@ export interface WaitlistEntry {
   brokerage: string | null;
   /** True only for a ticked box WITH a valid number. */
   smsConsent: boolean;
+  /** One of `TEAM_SIZES` from a form that asks it (/retool, D-046); null from every other form. */
+  teamSize: string | null;
+  /** The December box (D-046): true only when ticked on a form that shows it. */
+  decemberInterest: boolean;
   src: string | null;
 }
 
@@ -305,7 +347,7 @@ export function normalizePhone(input: string): string | null {
   return null;
 }
 
-/** Whether the SMS box was ticked: `true`, or a form's `"on"` (or `"true"`). Nothing else. */
+/** Whether a box was ticked: `true`, or a form's `"on"` (or `"true"`). Nothing else. */
 function ticked(value: boolean | string | null | undefined): boolean {
   if (value === true) return true;
   return typeof value === 'string' && ['on', 'true'].indexOf(value.trim().toLowerCase()) !== -1;
@@ -329,8 +371,14 @@ export type WaitlistVerdict =
  *
  * Lengths are UTF-16 code units (`.length`), which is what the inputs' `maxlength` counts, so a
  * value the browser let through is never refused here for its length.
+ *
+ * `team` says the form asks the team size and shows the December box (D-046, /retool's): the size is
+ * then required and must be one of `TEAM_SIZES`, checked straight after the address because that is
+ * where the page puts it. Without `team`, neither is recorded, whatever `input` carries: the route
+ * strips them already, and this does not trust that alone (the same arrangement as `isTextable`).
  */
-export function validateWaitlist(input: WaitlistInput): WaitlistVerdict {
+export function validateWaitlist(input: WaitlistInput, options: { team?: boolean } = {}): WaitlistVerdict {
+  const team = options.team === true;
   if ((input.website ?? '').trim() !== '') return { kind: 'spam' };
 
   const firstName = (input.firstName ?? '').trim();
@@ -343,6 +391,14 @@ export function validateWaitlist(input: WaitlistInput): WaitlistVerdict {
   const email = (input.email ?? '').trim().toLowerCase();
   if (email.length > EMAIL_MAX || !EMAIL.test(email)) {
     return { kind: 'invalid', field: 'email', error: WAITLIST_ERRORS.email };
+  }
+
+  // Required where it is asked, and only ever one of the four: a `<select>` posts nothing else, so
+  // anything else is a client that is not the page, and it must not mint a CRM tag (D-046).
+  const rawTeamSize = (input.teamSize ?? '').trim();
+  const teamSize = TEAM_SIZES.find((size) => size === rawTeamSize) ?? null;
+  if (team && teamSize === null) {
+    return { kind: 'invalid', field: 'teamSize', error: WAITLIST_ERRORS.teamSize };
   }
 
   // Optional; when given it must be a real number. The SMS box needs one.
@@ -373,6 +429,8 @@ export function validateWaitlist(input: WaitlistInput): WaitlistVerdict {
       phone,
       brokerage: brokerage === '' ? null : brokerage,
       smsConsent,
+      teamSize: team ? teamSize : null,
+      decemberInterest: team ? ticked(input.decemberInterest) : false,
       src: SRC.test(src) ? src : null,
     },
   };
@@ -554,14 +612,17 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
           // client that is not the page's own script, so there is no field to point at.
           if (!parsed.success) {
             return reply.code(400).send({
-              error: 'Expected a JSON body of { firstName, email, phone?, brokerage?, smsConsent?, website?, src? }.',
+              error:
+                'Expected a JSON body of { firstName, email, phone?, brokerage?, smsConsent?, teamSize?, decemberInterest?, website?, src? }.',
             });
           }
 
           // A page with no SMS box cannot record SMS consent or a number, whatever the request says: the
-          // stored consent would be words that visitor never saw (D-038).
-          const input = signUp.sms ? parsed.data : { ...parsed.data, phone: undefined, smsConsent: undefined };
-          const verdict = validateWaitlist(input);
+          // stored consent would be words that visitor never saw (D-038). And by the same rule, a page
+          // that does not ask the team size or show the December box cannot record either (D-046).
+          const withSms = signUp.sms ? parsed.data : { ...parsed.data, phone: undefined, smsConsent: undefined };
+          const input = signUp.team ? withSms : { ...withSms, teamSize: undefined, decemberInterest: undefined };
+          const verdict = validateWaitlist(input, { team: signUp.team });
           if (verdict.kind === 'spam') {
             req.log.info(`${signUp.label}: honeypot filled; answered as a success and stored nothing`);
             return accepted();
@@ -570,9 +631,16 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
 
           try {
             const { duplicate } = await insertSignUp(verdict.entry, signUp.source);
-            // Whether texts were agreed to, never the number itself.
+            // Whether texts were agreed to, never the number itself. The team size and the December
+            // box (D-046) are a bucket and a yes or no, which identify nobody.
             req.log.info(
-              { src: verdict.entry.src, duplicate, sms: verdict.entry.smsConsent },
+              {
+                src: verdict.entry.src,
+                duplicate,
+                sms: verdict.entry.smsConsent,
+                team: verdict.entry.teamSize,
+                december: verdict.entry.decemberInterest,
+              },
               `${signUp.label}: sign-up recorded`,
             );
           } catch (err: unknown) {

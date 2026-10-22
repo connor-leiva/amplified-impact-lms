@@ -80,9 +80,11 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   jobRuns: { table: 'job_runs', columns: ['job', 'key', 'sent_at'], gate: 8 },
   // D-028: the public /ai101 page's December waitlist. Not a `Db` record, so it appears in none of
   // the coverage maps below — only here, in the instant-unit map, and in the unique-index check.
+  // `team_size` and `december_interest` are /retool's two questions (D-046), null and false on every
+  // other form's row; `test/guides.test.ts` holds the CHECK that keeps the size to its four values.
   ai101Waitlist: {
     table: 'ai101_waitlist',
-    columns: ['brokerage', 'created_at', 'email', 'first_name', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_next_attempt_at', 'ghl_synced_at', 'id', 'phone', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'source', 'src', 'terms_version'],
+    columns: ['brokerage', 'created_at', 'december_interest', 'email', 'first_name', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_next_attempt_at', 'ghl_synced_at', 'id', 'phone', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'source', 'src', 'team_size', 'terms_version'],
     gate: 9,
   },
 };

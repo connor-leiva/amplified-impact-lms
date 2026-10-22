@@ -229,6 +229,32 @@ describe('the GHL sync job @g9', () => {
     expect((await row('wl2')).ghlSyncedAt).toBe(NOW);
   });
 
+  it("tags a /retool row with its team size and the December box, read from the row (D-046)", async () => {
+    // The claim's RETURNING carries both columns; without them every /retool contact would arrive
+    // with no size tag and no December tag, and nothing would fail but marketing's filters.
+    await insert(
+      signUp('wl1', 'owner@example.com', NOW - 3000, { source: 'retool', src: 'ig', teamSize: '51+', decemberInterest: true }),
+      signUp('wl2', 'small@example.com', NOW - 2000, { source: 'retool', src: null, teamSize: '1-10' }),
+      signUp('wl3', 'list@example.com', NOW - 1000),
+    );
+    const ghl = fakeGhl();
+    const run = await runGhlSync({ db: await testDatabase(), config, fetch: ghl.fetch, log: capture() });
+
+    expect(run).toMatchObject({ claimed: 3, synced: 3, failed: 0 });
+    expect(ghl.order).toEqual(['owner@example.com', 'small@example.com', 'list@example.com']);
+    expect(ghl.tagsSent).toEqual([
+      ['retool', 'src-ig', 'team-size-51-plus', 'december-interest'],
+      ['retool', 'src-direct', 'team-size-1-10'],
+      // A waitlist row has neither, so its tags are what they always were.
+      ['ai101-waitlist', 'event-expcon-2026', 'src-qr'],
+    ]);
+    // Tags, never fields of the contact.
+    for (const email of ['owner@example.com', 'small@example.com']) {
+      expect(Object.keys(ghl.upserts[email]!).sort(), email).toEqual(['email', 'firstName', 'locationId']);
+    }
+    expect(await row('wl1')).toMatchObject({ ghlSyncedAt: NOW, ghlError: null });
+  });
+
   it('refuses, in the database, SMS consent without its proof', async () => {
     // Consent needs the number, the time and the exact words, or the row is not written at all.
     const db = await testDatabase();

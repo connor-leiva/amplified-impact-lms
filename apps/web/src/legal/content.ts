@@ -34,7 +34,8 @@ export const DRAFT: boolean = false;
  * Who sends the emails and texts, exactly as every sign-up names it: the waitlist, its SMS box and
  * every free guide (D-041). Amplified Impact, LLC alone; until 2026-10-17 the waitlist named Spring B
  * and its affiliated companies, Spring and Connor too, and the PDF guides Amplified Impact and Connor.
- * The pages hold their own copies (`src/ai101`, `src/guides`, `src/voice`), and tests hold them equal.
+ * The pages hold their own copies (`src/ai101`, `src/guides`, `src/voice`, `src/retool`), and tests hold
+ * them equal.
  */
 export const SENDERS = 'Amplified Impact, LLC';
 

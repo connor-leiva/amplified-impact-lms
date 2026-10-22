@@ -474,7 +474,12 @@ describe('THE <pre> CONTRACT: what is copied is exactly the prompt', () => {
         id,
       ).toEqual([]);
     }
-    expect(Object.keys(UI.slots).sort()).toEqual(PROMPTS.map((p) => p.id).sort());
+    // /retool's three (D-046) are in `UI.slots` too; src/retool/render.test.ts checks them on that page.
+    expect(
+      Object.keys(UI.slots)
+        .filter((id) => !id.startsWith('retool_'))
+        .sort(),
+    ).toEqual(PROMPTS.map((p) => p.id).sort());
   });
 
   it('agrees with main.ts on what a placeholder is', async () => {
@@ -805,7 +810,10 @@ describe('the parts that need the script', () => {
     ]);
     // Every field fills a placeholder or an ABOUT ME line, and every one main.ts fills has its field.
     const slotFields = new Set(
-      [...Object.values(UI.slots), ...Object.values(UI.lineSlots)].flatMap((s) => Object.values(s)),
+      // /retool's (D-046) are that page's fields, not this one's.
+      [...Object.entries(UI.slots), ...Object.entries(UI.lineSlots)]
+        .filter(([id]) => !id.startsWith('retool_'))
+        .flatMap(([, s]) => Object.values(s)),
     );
     expect(new Set(fields.map((f) => attr(f, 'data-field')))).toEqual(slotFields);
     // The two lines market and clients fill are in the voice prompt, each a whole line of its own.

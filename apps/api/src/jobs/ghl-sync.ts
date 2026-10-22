@@ -106,6 +106,9 @@ interface ClaimedRow {
   sms_consent: boolean;
   /** Which form (D-038): it picks the contact's tags. */
   source: string;
+  /** /retool's team size and December box (D-046), tags too. Null and false on every other form's row. */
+  team_size: string | null;
+  december_interest: boolean;
   /** bigint: postgres-js hands raw int8 back as a string. */
   created_at: string | number;
 }
@@ -124,7 +127,8 @@ export async function claimDueRows(db: Database, now: number, batch: number = BA
         order by created_at, id
         limit ${batch}
         for update skip locked)
-    returning id, first_name, email, brokerage, src, ghl_attempts, phone, sms_consent, source, created_at`)) as unknown as ClaimedRow[];
+    returning id, first_name, email, brokerage, src, ghl_attempts, phone, sms_consent, source,
+              team_size, december_interest, created_at`)) as unknown as ClaimedRow[];
   // `returning` does not keep the subquery's order, and ids are random, so sort on the sign-up time:
   // the backfill goes oldest first.
   return [...rows].sort((a, b) => Number(a.created_at) - Number(b.created_at) || (a.id < b.id ? -1 : 1));
@@ -156,6 +160,8 @@ export async function runGhlSync(options: GhlSyncOptions = {}): Promise<GhlSyncR
         phone: row.phone,
         smsConsent: row.sms_consent,
         source: row.source,
+        teamSize: row.team_size,
+        decemberInterest: row.december_interest,
       },
       { config, ...(options.fetch ? { fetch: options.fetch } : {}) },
     );

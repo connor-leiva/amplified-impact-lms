@@ -11,7 +11,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { build } from '../src/app';
 import type { App } from '../src/app';
-import { GUIDE_SLUGS } from '../src/routes/guide-list';
+import { GUIDE_ALIASES, GUIDE_SLUGS } from '../src/routes/guide-list';
 
 const WWW = 'www.amplifiedimpact.io';
 const APP = 'learn.amplifiedimpact.io';
@@ -106,7 +106,7 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
 
     // Every free guide's page (D-038, D-039), where ManyChat sends people, with its `?src=` tag. Driven
     // by the API's own list, so a guide added there and forgotten in `PUBLIC_PREFIX` fails here.
-    expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor']);
+    expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool']);
     for (const slug of GUIDE_SLUGS) {
       for (const url of [`/${slug}`, `/${slug}?src=ig`]) {
         const res = await get(a, url, WWW);
@@ -118,8 +118,25 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       expect(slash.headers.location, slug).toBe(`/${slug}?src=ig`);
     }
 
+    // A guide's other spellings (D-046): the talk's "Type RETOOL in the chat" sends the room to
+    // `/RETOOL`, which must reach `routes/guides.ts`'s 301 on www, query intact, as `/AI101` does.
+    // Driven by the API's own alias list, so an alias added there and forgotten here fails.
+    expect(GUIDE_ALIASES).toEqual({ retool: ['/RETOOL', '/Retool'] });
+    for (const [slug, aliases] of Object.entries(GUIDE_ALIASES)) {
+      for (const alias of aliases ?? []) {
+        for (const [url, location] of [
+          [alias, `/${slug}`],
+          [`${alias}?src=slide`, `/${slug}?src=slide`],
+        ] as const) {
+          const res = await get(a, url, WWW);
+          expect(res.statusCode, url).toBe(301);
+          expect(res.headers.location, url).toBe(location);
+        }
+      }
+    }
+
     // Lookalikes still go to the placeholder.
-    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync', '/ops-time-auditx', '/ops', '/voice-profilex', '/voice', '/reel-editorx', '/reel']) {
+    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync', '/ops-time-auditx', '/ops', '/voice-profilex', '/voice', '/reel-editorx', '/reel', '/retoolx', '/retool-x', '/RETOOLX', '/Retoolx', '/ReTool', '/reTOOL', '/retoo']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(302);
       expect(res.headers.location, url).toBe('/');

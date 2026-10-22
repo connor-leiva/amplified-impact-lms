@@ -5,15 +5,16 @@ import { ai101Render } from './src/ai101/vite-plugin.ts';
 import { legalRender } from './src/legal/vite-plugin.ts';
 import { guideRender } from './src/guides/vite-plugin.ts';
 import { voiceRender } from './src/voice/vite-plugin.ts';
+import { retoolRender } from './src/retool/vite-plugin.ts';
 
 // `--mode fixture` builds the prototype-identical fixture app the compliance suite runs against.
 export default defineConfig(({ mode }) => ({
   // `ai101Render` only so `pnpm dev` serves /ai101 with its content. It leaves `index.html` alone;
   // the page's real build is vite.ai101.config.ts (see src/ai101/vite-plugin.ts for why).
   // `legalRender` is the same thing for /terms and /privacy (src/legal/vite-plugin.ts).
-  // `guideRender` and `voiceRender` likewise, for the free guides (D-038, D-039) and the voice
-  // profile setup (D-040).
-  plugins: [react(), ai101Render(), legalRender(), guideRender(), voiceRender()],
+  // `guideRender`, `voiceRender` and `retoolRender` likewise, for the free guides (D-038, D-039), the
+  // voice profile setup (D-040) and the "Retool, Don't Replace" kit (D-046).
+  plugins: [react(), ai101Render(), legalRender(), guideRender(), voiceRender(), retoolRender()],
   resolve: {
     // The subpath alias must come first: '@ai/core/mutations' resolves to the module file, while
     // bare '@ai/core' resolves to the barrel.

@@ -2053,3 +2053,58 @@ and value."
 - **Open:** a GoHighLevel workflow on the `reel-editor` tag that emails the page's link would carry a
   phone sign-up to a computer without the visitor doing anything; it is outside this repository and
   not set up. The page promises no email.
+
+## D-046 · /retool: the "Retool, Don't Replace" talk's kit, open audit, gated build
+
+**Date:** 2026-10-22
+**Approved by:** the user, in chat on 2026-10-22, supplying the talk's notes ("Retool, Don't Replace:
+AI 101 for Team Owners", 2026-10-21): "Can you turn this into another standalone page, with email
+gate, and follow the same step by step flow with opening up buttons into Claude, prompts copied,
+etc etc., that I can use to step people through this process from the deck I'm about to present?",
+then, live in the session: "Deploy when ready please!"
+**Scope:** `apps/web/src/retool/`, `apps/web/retool.html`, both Vite configs, `src/ai101/{content,
+render,main}.ts` (shared parts), `scripts/check-css-colors.mjs`; in the API `routes/{guide-list,
+guides,marketing,ai101}.ts`, `db/schema.ts` and migration `0005`, `integrations/ghl.ts`,
+`jobs/ghl-sync.ts`, and their tests.
+
+- **What it is.** An eleven-screen step-through at `/retool`, built as /voice-profile is (D-040):
+  /ai101's renderer draws it and /ai101's script runs it (Copy & Open to a blank chat, never `?q=`,
+  D-032; fields that fill the prompts; the Claude / ChatGPT switch). `/RETOOL` and `/Retool` 301 to
+  it, query kept, because the talk's ask is "Type RETOOL in the chat"; www lets all three through.
+  `/retool#audit` lands straight on the audit, for the link dropped in the chat mid-call.
+- **Open and gated, as the notes plan it:** "the Kit B prompt open to anyone, and Kits C through E
+  behind a short form (name, email, team size, a December interest checkbox)", and Segment 4's "No
+  form on it, so nobody loses two minutes". Open: welcome, the three doors, Run / Draft / Own, the
+  audit (Kit B) and reading the map. The gate is its own screen (`#kit`, `data-gate`), part way down;
+  main.ts already handled a gate at any index. Gated: the Contract-to-Close Coordinator (Kit C) and
+  its binder, the Retool Conversation (Kit E), the 30-day plan (Kit D), and two ways forward. Not on
+  the page: Kit A (the note to Sarah), the run of show, the Q&A prep.
+- **The prompts are Connor's word for word**, with one change: Kit B's second `[number]` is
+  `[how many]`, because a placeholder is filled by its exact text and two `[number]`s could only hold
+  one value. Kit C's `[brackets]` is its own wording (`literal`). Kit E is words to say, so it shows
+  open, in the page's face rather than mono, under a copy-only "Copy the Script" button
+  (`data-copy-prompt`, new in main.ts, hidden without the script).
+- **ChatGPT Projects, not custom GPTs.** The notes say "a Claude Project or a custom GPT". OpenAI's
+  help center (checked 2026-10-22) says custom GPTs retire on Dec 11, 2026, and personal plans
+  (Free, Go, Plus, Pro) can no longer create one; Projects have instructions and files on every plan,
+  Free included (five files). So the ChatGPT panel opens ChatGPT and walks New project, then
+  Project settings, then Instructions; the binder is four files, one each. Claude Projects are on
+  Free too (five projects), per Anthropic's help center.
+- **The sort's two questions** (the notes' slide 3, "the same two questions, in order. The first yes
+  decides the bucket; two noes mean Run") were not in the notes' export. The page asks Kit B's own
+  rules as the two questions (money, wires, texting consent, fair housing or a decision about a
+  person: Own; goes to a client, agent, lender or title, or sets a contract date: Draft), so the
+  page and the prompt sort alike. Connor's slide wording should replace them if it differs.
+- **The opt-in** is the guides' route (D-038), with two fields no other form has: `teamSize`, a
+  required `<select>` of `TEAM_SIZES` (`1-10`, `11-25`, `26-50`, `51+`; "Choose your team size."),
+  and `decemberInterest`, an unticked box, "Tell me about the December leadership track."
+  `SIGN_UP_FORMS[].team` is true for `retool` alone; every other form strips both before validating,
+  and `validateWaitlist` records neither without `team`, the same double guard as SMS. Columns
+  `team_size` (null elsewhere) and `december_interest` (default false) are additive, with a CHECK on
+  the four sizes; every existing row passes it. GoHighLevel tags (D-033): `retool`, then
+  `team-size-1-10` / `-11-25` / `-26-50` / `-51-plus` from an allow-list only, and
+  `december-interest` when ticked. Consent line as every guide's (D-041).
+- **Left out on purpose:** the talk's KW and MREA quotations (a public page, not the room), price and
+  the "two more teams" scarcity line (the notes keep both for the Review), and first person.
+- **Open:** the Retool Review booking link. Until `RETOOL.forward.review.button.href` is set, the last
+  screen says "Type RETOOL in the session chat for the booking link." in place of a button.

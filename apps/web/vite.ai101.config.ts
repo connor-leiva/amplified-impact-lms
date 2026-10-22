@@ -4,6 +4,7 @@ import { AI101_HTML, ai101Inline, ai101Render } from './src/ai101/vite-plugin.ts
 import { LEGAL_HTML, legalRender } from './src/legal/vite-plugin.ts';
 import { GUIDE_HTML, guideRender } from './src/guides/vite-plugin.ts';
 import { VOICE_HTML, voiceRender } from './src/voice/vite-plugin.ts';
+import { RETOOL_HTML, retoolRender } from './src/retool/vite-plugin.ts';
 
 // The /ai101 page's own build (DECISIONS.md D-028), run after the SPA's by `pnpm build` into the
 // same `dist/` (or `dist-fixture/`, from `--outDir`). Its own config and not a second input to
@@ -18,14 +19,15 @@ import { VOICE_HTML, voiceRender } from './src/voice/vite-plugin.ts';
 // self-contained the same way: its stylesheet inlined, and no script at all. They share no module
 // with /ai101 (their stylesheet is their own file), so adding them leaves `ai101.html` byte-identical.
 export default defineConfig({
-  // And the free guides' landing pages (D-038, D-039) and the voice profile setup (D-040), built and
-  // inlined the same way.
+  // And the free guides' landing pages (D-038, D-039), the voice profile setup (D-040) and the
+  // "Retool, Don't Replace" kit (D-046), built and inlined the same way.
   plugins: [
     ai101Render(),
     legalRender(),
     guideRender(),
     voiceRender(),
-    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML]),
+    retoolRender(),
+    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML]),
   ],
   resolve: {
     // vite.config.ts's aliases, verbatim. The subpath alias must come first: '@ai/core/mutations'
@@ -63,6 +65,7 @@ export default defineConfig({
         ...LEGAL_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
         ...GUIDE_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
         fileURLToPath(new URL(`./${VOICE_HTML}`, import.meta.url)),
+        fileURLToPath(new URL(`./${RETOOL_HTML}`, import.meta.url)),
       ],
     },
   },

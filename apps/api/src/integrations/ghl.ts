@@ -31,6 +31,13 @@
 // every sign-up, so there is nothing to gate for email. The consent's proof (when, and the exact
 // wording) stays in the row, where the database enforces it; GHL gets the fact, not the evidence.
 //
+// TEAM SIZE AND DECEMBER INTEREST (D-046). /retool's form asks the visitor's team size and has an
+// unchecked "Tell me about the December leadership track" box; both reach GHL as TAGS, for
+// attribution's reason (they only accumulate, and marketing filters on them). The size becomes a tag
+// through an allow-list (`TEAM_SIZE_TAGS`), as `?src=` does, so nothing but the four sizes can ever
+// mint one; the box becomes `december-interest`, on a contact who ticked it and only then. Any row
+// that carries them gets them, and only /retool's rows do.
+//
 // PRIVACY. Nothing this file returns or throws contains the visitor's name, address or phone, the
 // token, or a response body (which can echo them). Failures are reported as a kind and a status.
 
@@ -61,6 +68,8 @@ export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
   'voice-profile': ['voice-profile'],
   // The Reel Editor, the first Claude skill (D-045).
   'reel-editor': ['reel-editor'],
+  // /retool, the "Retool, Don't Replace: AI 101 for Team Owners" talk's page (D-046).
+  retool: ['retool'],
 };
 
 /**
@@ -83,11 +92,50 @@ export function srcTag(src: string | null | undefined): string {
 export const SMS_CONSENT_TAG = 'sms-consent';
 
 /**
- * Every tag one sign-up should carry in GHL. HighLevel stores tags lowercase; these already are.
- * `source` defaults to the waitlist's, which every row had before D-038.
+ * /retool's team sizes (D-046; `TEAM_SIZES` in routes/ai101.ts) and the tag each one becomes. An
+ * allow-list for `SRC_TAGS`'s reason, and the database's CHECK already holds the column to these
+ * four: this does not trust that alone. `+` is spelled out, since a tag is a word typed into a
+ * filter. Any other value, or none, is no team tag at all.
  */
-export function waitlistTags(src: string | null | undefined, textable = false, source = 'expcon-2026-ai101'): string[] {
-  return [...(SOURCE_TAGS[source] ?? []), srcTag(src), ...(textable ? [SMS_CONSENT_TAG] : [])];
+export const TEAM_SIZE_TAGS: Readonly<Record<string, string>> = {
+  '1-10': 'team-size-1-10',
+  '11-25': 'team-size-11-25',
+  '26-50': 'team-size-26-50',
+  '51+': 'team-size-51-plus',
+};
+
+/**
+ * The team-size tag for one sign-up, or null. An OWN key only: a plain lookup would hand back
+ * `Object.prototype`'s members for a value such as `constructor`, and a function is not a tag.
+ */
+export function teamSizeTag(teamSize: string | null | undefined): string | null {
+  if (typeof teamSize !== 'string') return null;
+  const key = teamSize.trim();
+  return Object.hasOwn(TEAM_SIZE_TAGS, key) ? TEAM_SIZE_TAGS[key]! : null;
+}
+
+/** On a contact who ticked /retool's "Tell me about the December leadership track" box (D-046). */
+export const DECEMBER_INTEREST_TAG = 'december-interest';
+
+/**
+ * Every tag one sign-up should carry in GHL. HighLevel stores tags lowercase; these already are.
+ * `source` defaults to the waitlist's, which every row had before D-038. `team` is the row's team
+ * size and December box (D-046), which only /retool's rows have; left out, it adds nothing.
+ */
+export function waitlistTags(
+  src: string | null | undefined,
+  textable = false,
+  source = 'expcon-2026-ai101',
+  team: Pick<WaitlistContact, 'teamSize' | 'decemberInterest'> = {},
+): string[] {
+  const size = teamSizeTag(team.teamSize);
+  return [
+    ...(SOURCE_TAGS[source] ?? []),
+    srcTag(src),
+    ...(size === null ? [] : [size]),
+    ...(team.decemberInterest === true ? [DECEMBER_INTEREST_TAG] : []),
+    ...(textable ? [SMS_CONSENT_TAG] : []),
+  ];
 }
 
 /** Consented AND has a number. The database refuses consent without one; this does not trust that. */
@@ -123,6 +171,13 @@ export interface WaitlistContact {
   smsConsent: boolean;
   /** Which form the sign-up came from (the row's `source`): it picks the tags. Waitlist by default. */
   source?: string;
+  /**
+   * /retool's two (D-046): one of its four team sizes, and whether the December box was ticked. Null
+   * and false on every other form's row; optional, like `source`, so a caller that predates them
+   * means "neither".
+   */
+  teamSize?: string | null;
+  decemberInterest?: boolean;
 }
 
 /** Why a sync did not happen. A kind and a status, never a body. */
@@ -226,7 +281,7 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
   const created = body?.new === true;
   const before = asTags(record?.tags);
 
-  const ours = waitlistTags(contact.src, textable, contact.source);
+  const ours = waitlistTags(contact.src, textable, contact.source, contact);
   const union = [...new Set([...before, ...ours])];
   const tagged = await call(`/contacts/${encodeURIComponent(contactId)}/tags`, { tags: union }, options);
   if (!tagged.ok) return { ok: false, kind: tagged.kind, step: 'tags', ...statusOf(tagged) };

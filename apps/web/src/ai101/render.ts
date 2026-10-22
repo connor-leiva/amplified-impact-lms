@@ -138,13 +138,14 @@ export function copyOpenButton(open: CopyOpen, promptBlockId: string): string {
 /**
  * A prompt, collapsed under "See the full prompt" as the design has it. The block's id is the anchor
  * a link can point at; its label is visually hidden (it names the prompt for the buttons that copy
- * it). See THE <pre> CONTRACT above.
+ * it). See THE <pre> CONTRACT above. `open`: shown, not collapsed, for words the visitor reads
+ * rather than pastes (/retool's script, D-046).
  */
-export function promptBlock(prompt: Prompt, id: string, summary: string): string {
+export function promptBlock(prompt: Prompt, id: string, summary: string, open = false): string {
   return [
     `<div class="prompt" id="${esc(id)}" data-prompt="${esc(prompt.id)}">`,
     `<p class="visually-hidden" id="${esc(id)}-label">${esc(prompt.label)}</p>`,
-    `<details class="card disclosure">`,
+    `<details class="card disclosure"${open ? ' open' : ''}>`,
     `<summary>${esc(summary)}</summary>`,
     `<pre data-prompt-text>${highlightPlaceholders(prompt.text, prompt.literal)}</pre>`,
     `</details>`,
@@ -255,7 +256,7 @@ function welcome(): string {
 }
 
 /** A switch over two panels; see `save()` and `samplesBody()`. Hidden until the script runs. */
-function switchOf(attr: string, label: string, options: ReadonlyArray<readonly [string, string]>): string {
+export function switchOf(attr: string, label: string, options: ReadonlyArray<readonly [string, string]>): string {
   const buttons = options
     .map(
       ([key, tab], i) => `<button type="button" ${attr}="${esc(key)}" aria-pressed="${i === 0}">${esc(tab)}</button>`,

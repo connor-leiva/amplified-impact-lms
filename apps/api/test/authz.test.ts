@@ -528,6 +528,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/ops-time-audit', methods: 'POST', guard: 'open' },
   { path: '/api/voice-profile', methods: 'POST', guard: 'open' },
   { path: '/api/reel-editor', methods: 'POST', guard: 'open' },
+  // /retool's (D-046), which also takes a team size and the December box.
+  { path: '/api/retool', methods: 'POST', guard: 'open' },
   // D-028's public page and the spec's three redirects to it. Not `/api/*`, so outside the
   // checklist's 401 rule by construction; `page` says so, and the sweep asserts the prefix.
   { path: '/ai101', methods: 'GET, HEAD', guard: 'page' },
@@ -552,6 +554,12 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/voice-profile/', methods: 'GET, HEAD', guard: 'page' },
   { path: '/reel-editor', methods: 'GET, HEAD', guard: 'page' },
   { path: '/reel-editor/', methods: 'GET, HEAD', guard: 'page' },
+  // /retool (D-046), with its two capitalised spellings: the talk says "Type RETOOL in the chat".
+  // Each is the same public 301 to the page as its trailing slash.
+  { path: '/retool', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/retool/', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/RETOOL', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/Retool', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -1020,7 +1028,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             }),
           ],
           // The guides' opt-ins (D-038, D-039), the same way: a filled honeypot writes no row.
-          ...['/api/task-sync-starter', '/api/ops-time-audit', '/api/voice-profile', '/api/reel-editor'].map((url): [string, Promise<{ statusCode: number }>] => [
+          // /retool's asks a team size too (D-046), but the honeypot is checked first, so the same
+          // probe is answered as a success there as well.
+          ...['/api/task-sync-starter', '/api/ops-time-audit', '/api/voice-profile', '/api/reel-editor', '/api/retool'].map((url): [string, Promise<{ statusCode: number }>] => [
             url,
             app.inject({
               method: 'POST',
@@ -1042,6 +1052,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
         const pages = ROUTES.filter((r) => r.guard === 'page');
         expect(pages.map((r) => r.path).sort()).toEqual([
           '/AI101',
+          '/RETOOL',
+          '/Retool',
           '/ai-101',
           '/ai101',
           '/ai101/',
@@ -1051,6 +1063,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/privacy',
           '/reel-editor',
           '/reel-editor/',
+          '/retool',
+          '/retool/',
           '/task-sync-starter',
           '/task-sync-starter/',
           '/terms',
@@ -1085,10 +1099,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     expect(EXECUTED.unauthenticated).toBe(11);
-    // 11, not 6: D-028's public waitlist joined the exemptions, then the four guides' opt-ins
-    // (D-038, D-039, D-040, D-045), each probed like the others.
-    expect(EXECUTED.exempt).toBe(11);
+    // 12, not 6: D-028's public waitlist joined the exemptions, then the five guides' opt-ins
+    // (D-038, D-039, D-040, D-045, D-046), each probed like the others.
+    expect(EXECUTED.exempt).toBe(12);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(189);
+    expect(total).toBe(190);
   });
 });

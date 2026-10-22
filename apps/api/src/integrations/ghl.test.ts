@@ -6,9 +6,13 @@ import {
   readGhlConfig,
   srcTag,
   syncWaitlistContact,
+  TEAM_SIZE_TAGS,
+  teamSizeTag,
   waitlistTags,
 } from './ghl';
 import type { Fetch, GhlConfig, WaitlistContact } from './ghl';
+// The route's list of sizes, which the tag table must cover exactly. Test-only: ghl.ts reads no route.
+import { TEAM_SIZES } from '../routes/ai101';
 
 // The GoHighLevel client (D-033), against a fake fetch. Nothing here reaches the network.
 
@@ -79,6 +83,61 @@ describe('tags @g9', () => {
     // A source nobody mapped gets no form tag, so it can trigger no workflow, the waitlist's least of all.
     expect(waitlistTags('qr', false, 'some-new-form')).toEqual(['src-qr']);
   });
+
+  it("tags a /retool sign-up with its own tag, its channel, its team size and the December box (D-046)", () => {
+    expect(waitlistTags('ig', false, 'retool', { teamSize: '26-50', decemberInterest: true })).toEqual([
+      'retool',
+      'src-ig',
+      'team-size-26-50',
+      'december-interest',
+    ]);
+    expect(waitlistTags(null, false, 'retool', { teamSize: '1-10', decemberInterest: false })).toEqual([
+      'retool',
+      'src-direct',
+      'team-size-1-10',
+    ]);
+    expect(waitlistTags('qr', false, 'retool', { teamSize: '51+' })).toEqual(['retool', 'src-qr', 'team-size-51-plus']);
+    expect(waitlistTags('facebook', false, 'retool', { teamSize: '11-25' })).toEqual(['retool', 'src-other', 'team-size-11-25']);
+  });
+
+  it('maps each of the four team sizes to its own tag, and nothing else to any tag (D-046)', () => {
+    // The table covers the route's sizes exactly: a size added there and forgotten here fails.
+    expect(Object.keys(TEAM_SIZE_TAGS)).toEqual([...TEAM_SIZES]);
+    expect(TEAM_SIZES.map((size) => teamSizeTag(size))).toEqual([
+      'team-size-1-10',
+      'team-size-11-25',
+      'team-size-26-50',
+      // `+` spelled out: a tag is a word typed into a filter.
+      'team-size-51-plus',
+    ]);
+    expect(teamSizeTag(' 11-25 ')).toBe('team-size-11-25');
+    // An allow-list, as `?src=` is: nothing else mints a tag, an inherited property's name least of all.
+    for (const other of [null, undefined, '', '51', '51-plus', '100+', 'team-size-1-10', 'constructor', '__proto__', 'toString']) {
+      expect(teamSizeTag(other), String(other)).toBeNull();
+      expect(waitlistTags('ig', false, 'retool', { teamSize: other }), String(other)).toEqual(['retool', 'src-ig']);
+    }
+  });
+
+  it('adds december-interest for a ticked box and only then (D-046)', () => {
+    expect(waitlistTags('ig', false, 'retool', { teamSize: '11-25', decemberInterest: true })).toContain('december-interest');
+    for (const team of [{ teamSize: '11-25', decemberInterest: false }, { teamSize: '11-25' }, {}]) {
+      expect(waitlistTags('ig', false, 'retool', team), JSON.stringify(team)).not.toContain('december-interest');
+    }
+  });
+
+  it("leaves every other form's tags as they were: no size and no box adds nothing (D-046)", () => {
+    for (const source of ['expcon-2026-ai101', 'task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor']) {
+      expect(waitlistTags('ig', false, source, { teamSize: null, decemberInterest: false }), source).toEqual(
+        waitlistTags('ig', false, source),
+      );
+    }
+    expect(waitlistTags('qr', true, 'expcon-2026-ai101', { teamSize: null, decemberInterest: false })).toEqual([
+      'ai101-waitlist',
+      'event-expcon-2026',
+      'src-qr',
+      'sms-consent',
+    ]);
+  });
 });
 
 describe('configuration @g9', () => {
@@ -139,6 +198,15 @@ describe('syncWaitlistContact @g9', () => {
     expect(ghl.seen[1]!.body).toEqual({ tags: ['task-sync-starter', 'src-ig'] });
     // Which form it was picks the tags; it is never sent as a field of the contact.
     expect(ghl.seen[0]!.body).not.toHaveProperty('source');
+  });
+
+  it('tags a /retool sign-up with its size and the December box, and sends neither as a contact field (D-046)', async () => {
+    const ghl = fakeGhl([upserted('c1'), tagged(['retool', 'src-ig', 'team-size-26-50', 'december-interest'])]);
+    const owner = { ...pat, brokerage: null, phone: null, src: 'ig', source: 'retool', teamSize: '26-50', decemberInterest: true };
+    expect(await syncWaitlistContact(owner, { config, fetch: ghl.fetch })).toMatchObject({ ok: true, tagsDropped: [] });
+    expect(ghl.seen[1]!.body).toEqual({ tags: ['retool', 'src-ig', 'team-size-26-50', 'december-interest'] });
+    // Facts for marketing's filters, as tags; the contact itself gets the name and the address only.
+    expect(ghl.seen[0]!.body).toEqual({ locationId: 'loc-abc', email: 'pat@example.com', firstName: 'Pat' });
   });
 
   it('sends the number and the sms-consent tag when the visitor ticked the box', async () => {

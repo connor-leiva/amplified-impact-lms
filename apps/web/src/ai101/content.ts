@@ -22,7 +22,15 @@
 
 export interface Prompt {
   /** The analytics name from the spec, and the DOM id stem. */
-  id: 'voice_profile' | 'voice_interview' | 'carousel_creator' | 'brand_system';
+  // The last three are /retool's (D-046).
+  id:
+    | 'voice_profile'
+    | 'voice_interview'
+    | 'carousel_creator'
+    | 'brand_system'
+    | 'retool_audit'
+    | 'retool_coordinator'
+    | 'retool_script';
   label: string;
   text: string;
   /** Bracketed spans that are the prompt's own words, not blanks to fill: drawn as plain text. */
@@ -70,7 +78,27 @@ export interface Screen {
 /** A labelled field whose value fills a prompt's [placeholder] as it is typed. */
 export interface FillField {
   /** The key it is saved under, and its `data-field`. */
-  name: 'market' | 'clients' | 'niche' | 'hoods' | 'questions' | 'brokerage' | 'profile';
+  // The last twelve are /retool's (D-046), which runs this page's script.
+  name:
+    | 'market'
+    | 'clients'
+    | 'niche'
+    | 'hoods'
+    | 'questions'
+    | 'brokerage'
+    | 'profile'
+    | 'agents'
+    | 'closings'
+    | 'crm'
+    | 'opsTeam'
+    | 'weekEaters'
+    | 'breaksFirst'
+    | 'teamName'
+    | 'cityState'
+    | 'opsName'
+    | 'agentsThen'
+    | 'closingsThen'
+    | 'hoursTo';
   label: string;
   /** Lighter text after the label. */
   hint?: string;
@@ -823,14 +851,31 @@ export const UI = {
       '[paste the profile that starts with "Write as me."]': 'profile',
     },
     brand_system: { '[brokerage name]': 'brokerage' },
-  } as Record<string, Record<string, 'market' | 'clients' | 'niche' | 'hoods' | 'questions' | 'brokerage' | 'profile'>>,
+    // /retool (D-046), which runs this script. Kit B's second "[number]" is "[how many]" there: a
+    // placeholder is matched by its exact text, so two identical ones could only hold the same value.
+    retool_audit: {
+      '[number]': 'agents',
+      '[how many]': 'closings',
+      '[name]': 'crm',
+      '[for example, one full-time ops leader and a part-time TC]': 'opsTeam',
+      '[list]': 'weekEaters',
+      '[answer]': 'breaksFirst',
+    },
+    retool_coordinator: { '[Team Name]': 'teamName', '[City, State]': 'cityState' },
+    retool_script: {
+      '[Name]': 'opsName',
+      '[X]': 'agentsThen',
+      '[Y]': 'closingsThen',
+      '[agent accountability / client experience / owning the scorecard]': 'hoursTo',
+    },
+  } as Record<string, Record<string, FillField['name']>>,
   /**
    * Lines that end in a colon and are filled by appending the field's value after it, per prompt: the
    * voice profile prompt's ABOUT ME lines. An empty field leaves the line as written.
    */
   lineSlots: {
     voice_profile: { "My market, and what I'm known for:": 'market', 'My clients are mostly:': 'clients' },
-  } as Record<string, Record<string, 'market' | 'clients' | 'niche' | 'hoods' | 'questions' | 'brokerage' | 'profile'>>,
+  } as Record<string, Record<string, FillField['name']>>,
   /** How a list of questions is written in place of its placeholder. */
   questionItem: '\n  - ',
   errors: {
@@ -839,6 +884,8 @@ export const UI = {
     email: 'Enter a valid email address.',
     phone: 'Enter a valid mobile number.',
     phoneForTexts: 'Add your mobile number to get texts.',
+    // /retool's opt-in (D-046); the API's copy in routes/ai101.ts is pinned to the same words.
+    teamSize: 'Choose your team size.',
     generic: 'Something went wrong. Try again.',
   },
 } as const;

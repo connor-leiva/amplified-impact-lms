@@ -139,6 +139,11 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
   // the visitor saw (`sms_consent_text`). `phone` is E.164, null when not given.
   phone: text('phone'), smsConsent: boolean('sms_consent').notNull().default(false),
   smsConsentAt: ts('sms_consent_at'), smsConsentText: text('sms_consent_text'), termsVersion: text('terms_version'),
+  // /retool's two questions (D-046, the "Retool, Don't Replace: AI 101 for Team Owners" talk), which
+  // no other form asks: `team_size`, required there and null for every other form's row (and every
+  // row before it), and `december_interest`, its unchecked "Tell me about the December leadership
+  // track" box, false unless ticked. Both reach GoHighLevel as tags (integrations/ghl.ts).
+  teamSize: text('team_size'), decemberInterest: boolean('december_interest').notNull().default(false),
 }, (t) => [
   uniqueIndex('ai101_waitlist_email_source_idx').on(t.email, t.source),
   // A "yes" to texts with no evidence behind it is the one record carrier rules (10DLC) make
@@ -147,4 +152,9 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
     'ai101_waitlist_sms_consent_proof',
     sql`not ${t.smsConsent} or (${t.phone} is not null and ${t.smsConsentAt} is not null and ${t.smsConsentText} is not null)`,
   ),
+  // The four sizes /retool's `<select>` offers (`TEAM_SIZES` in routes/ai101.ts, typed out again
+  // because drizzle-kit reads this file on its own; a test inserts each of them and one that is not).
+  // The route already refuses anything else and the GHL sync tags only from an allow-list; this is
+  // the same rule for every other writer, so a size marketing filters on is never a typo (D-046).
+  check('ai101_waitlist_team_size', sql`${t.teamSize} is null or ${t.teamSize} in ('1-10', '11-25', '26-50', '51+')`),
 ]);

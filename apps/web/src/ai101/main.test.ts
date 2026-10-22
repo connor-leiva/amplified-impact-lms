@@ -17,6 +17,24 @@ import { renderAi101Body } from './render';
 
 const KEY = 'ai101-v2';
 const VOICE = PAGE.voicePrompt.text;
+/**
+ * /retool's fields (D-046), which share this script's state shape: empty, and never filled, on /ai101,
+ * whose state is kept under its own key.
+ */
+const RETOOL_EMPTY = {
+  agents: '',
+  closings: '',
+  crm: '',
+  opsTeam: '',
+  weekEaters: '',
+  breaksFirst: '',
+  teamName: '',
+  cityState: '',
+  opsName: '',
+  agentsThen: '',
+  closingsThen: '',
+  hoursTo: '',
+};
 const CAROUSEL = PAGE.carouselPrompt.text;
 const BRAND = PAGE.brandPrompt.text;
 
@@ -283,6 +301,7 @@ describe('boot and resilience', () => {
       questions: '',
       brokerage: '',
       profile: '',
+      ...RETOOL_EMPTY,
     });
   });
 
@@ -825,6 +844,7 @@ describe('filling the prompts', () => {
       questions: 'Should I wait?\nWhat will it cost?',
       brokerage: 'eXp Realty',
       profile: '',
+      ...RETOOL_EMPTY,
     });
 
     await boot();

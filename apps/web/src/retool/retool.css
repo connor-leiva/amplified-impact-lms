@@ -1,0 +1,131 @@
+/* /retool, the "Retool, Don't Replace" kit. DECISIONS.md D-046.
+
+   /ai101's stylesheet whole, because the screens are /ai101's own parts (src/retool/render.ts builds
+   them from them), plus what this page adds: the gate, drawn as /ai101's dark waitlist card on a
+   screen of its own part way down, with a team-size <select>; `.gated`, the screens the gate keeps
+   back; the three doors and three buckets; and the 30-day plan's week cards.
+
+   Inlined into the page at build time (vite-plugin.ts), @imports included.
+   `scripts/check-css-colors.mjs` scans it: tokens and /ai101's page variables only. */
+
+@import '../ai101/ai101.css';
+
+/* --- The doors and the buckets -------------------------------------------------------------------- */
+
+/* A door's words are a sentence, not a label: the tile's 700 is for its title. */
+.door > span {
+  font-weight: 400;
+}
+.bucket strong {
+  font-size: 22px;
+  color: var(--action-primary);
+}
+
+/* --- The gate --------------------------------------------------------------------------------------- */
+
+/* The team size: a <select> drawn as the inputs beside it are (/ai101's `.wl-field input`), with its
+   own arrow, since `appearance: none` takes the browser's away. The arrow is two gradients in the
+   text colour, so it needs no image (the page makes no request beyond its fonts). */
+.wl-field select {
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 44px 12px 16px;
+  border: 0;
+  border-radius: 12px;
+  background-color: var(--bg-canvas);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-primary) 50%),
+    linear-gradient(135deg, var(--text-primary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 24px) 50%,
+    calc(100% - 18px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 19px;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+/* Nothing chosen yet: the prompt reads as the inputs' placeholders do. */
+.wl-field select:invalid {
+  color: color-mix(in oklch, var(--text-primary) 45%, transparent);
+}
+.wl-field select option {
+  color: var(--text-primary);
+}
+.wl-field select:focus-visible {
+  outline: 3px solid var(--ai101-mint);
+  outline-offset: 2px;
+}
+.wl-field select[aria-invalid='true'] {
+  box-shadow: 0 0 0 3px var(--ai101-mint);
+}
+
+/* Signed up: main.ts sets `data-state` on the gate's screen. "You're in" takes the form's place, and
+   the footer's Next takes over. */
+.kit-gate[data-state='unlocked'] .wl-success {
+  display: block;
+}
+.kit-gate[data-state='unlocked'] .wl-form {
+  display: none;
+}
+
+/* --- The screens the gate keeps back ---------------------------------------------------------------- */
+
+/* Without the script they stay hidden until the form's 303 lands on `#unlocked`; with it, main.ts
+   shows one screen at a time and never one past the gate before the visitor signs up. A box, not
+   `display: contents`, so the browser can scroll to the target. */
+.gated {
+  display: none;
+  flex-direction: column;
+  gap: 24px;
+}
+.gated:target,
+.steps-on .gated {
+  display: flex;
+}
+/* Set off from the gate, as every screen after the first is on /ai101 without the script. */
+html:not(.steps-on) .gated > .screen:first-child {
+  padding-top: 32px;
+  border-top: 1px solid var(--ai101-rule);
+}
+/* No script, after the 303: the gate says so. Separate, so a browser without :has() keeps the rest. */
+.page:has(.gated:target) .kit-gate .wl-success {
+  display: block;
+}
+.page:has(.gated:target) .kit-gate .wl-form {
+  display: none;
+}
+
+/* --- The Retool Conversation ----------------------------------------------------------------------- */
+
+/* The script is said out loud, not pasted into an app: it reads in the page's own face, not the
+   prompts' mono. */
+#retool-script pre {
+  font-family: var(--font-sans);
+  font-size: 18px;
+}
+
+/* --- The 30-day plan ---------------------------------------------------------------------------- */
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+.plan-week {
+  gap: 8px;
+  font-size: 18px;
+}
+.plan-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.plan-head .week-pillar {
+  font-size: 22px;
+}
