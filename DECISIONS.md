@@ -2147,3 +2147,41 @@ adjust the flow in the way I described in this transcript to make it even easier
 - **Unchanged:** Kits B to E word for word, the gate and its form, every anchor (`/retool#audit`
   still lands on the audit), and the state key: a visitor's saved fields stay, and a saved place
   past the map reopens one screen earlier.
+
+## D-048 · /retool in plain language: one action a step, for team leaders new to AI
+
+**Date:** 2026-10-22
+**Approved by:** the user, in chat on 2026-10-22, after a screen-by-screen review of the live page: "The
+audience we are building for is team leaders who were assuming are very tech illiterate. It needs to
+be plain language and as simple to follow as possible", then "Change it all and add the items to the
+end of the prompt to make it clearer too."
+**Scope:** `apps/web/src/retool/{content,render}.ts` and its tests. No API, form or anchor changes.
+
+- **The rule.** Every step is one action that says what to tap or what to type. Real estate words stay
+  (CRM, TC, MLS, title, under contract); AI-builder and consultant words go (prompt jargon, "share of
+  the week", baseline, redacted, ramp, "zero context", TCPA, and every EOS line: Gets it / Wants it /
+  Capacity, Rock, scorecard). A test bans them from the page.
+- **The audit:** "Fill in six quick boxes" (it said four questions and showed six). Before the buttons,
+  what they do and "Use the one you already have". The steps: sign in if it asks (a free account
+  works), press and hold the message box and tap Paste, tap Send, come back to this page. Gone: "Fill
+  in any blank still in [brackets]" and "Use a regular chat, not a Project". The welcome now says a
+  free account and about 15 minutes are needed.
+- **Read your map is "Check its answer":** every fix is words typed into the same chat. Remove a guess
+  marked (added); move anything AI would send on its own to Draft; optionally, have the AI do the
+  hours-times-cost math; find its pick. The percent for the session chat is said to be near the end.
+- **The build steps** start with how to get the answer out: type "Show me the whole map again, with my
+  fixes." (so the fixes are in it), tap the copy button (two little squares), come back, press and hold
+  the box, Paste. The box is "The whole answer from your chat". "10th grader" stays in the prompt only.
+- **Run, Draft, Own** tells the rule AI sorts by instead of setting a quiz ("You don't sort anything").
+- **The gated screens:** "This part is easiest on a laptop"; Claude's exact buttons ("Set project
+  instructions", "Save instructions") and ChatGPT's (••• then Project settings, then the Instructions
+  box); where files go (Claude: the + on the right; ChatGPT: the Sources tab, where project files moved
+  in Feb 2026); the guardrail names the switch that stops training (ChatGPT: Settings, Data controls,
+  Improve the model for everyone; Claude: Settings, Privacy, Help improve Claude). All from each app's
+  help center, checked 2026-10-22. The 30-day plan's weeks are Map, Build, Use (not "Run", a bucket
+  here), Decide, each with one plain "Track" line.
+- **The prompts, at the end only:** Kit B gains "Write it all in plain language for someone new to AI:
+  short sentences, no tech terms. Keep each Why to a few words so the table fits on a phone." The build
+  steps prompt gains "Use plain words with no tech terms. One action per step, and tell me exactly what
+  to tap, click, or type." Every earlier word of both is unchanged, and Kits C and E are untouched.
+- **Still open:** the Retool Review booking link (D-046). Outside a live session there is no way to book.

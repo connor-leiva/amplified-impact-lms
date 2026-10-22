@@ -61,13 +61,16 @@ Show me:
 1. A table: Task | Hours | Bucket | Why
 2. Hours in RUN, DRAFT, and OWN, plus RUN and DRAFT together as a percent of the week
 3. The first AI employee I should build, in two sentences
-4. Three questions to ask my ops leader to correct this map`;
+4. Three questions to ask my ops leader to correct this map
+
+Write it all in plain language for someone new to AI: short sentences, no tech terms. Keep each Why to a few words so the table fits on a phone.`;
 
 /**
  * The build steps (D-047): the map, pasted in, and the ask Connor typed live after his own map came
- * back, his words as he said them, made into sentences. The four lines under it are the page's own,
- * each from this kit: build it in a Project, give it the four parts a new hire gets (the Coordinator
- * screen), keep the map's buckets (Kit B's rules), and practice first with no wires (the guardrails).
+ * back, his words as he said them, made into sentences. The first four lines under it are the page's
+ * own, each from this kit: build it in a Project, give it the four parts a new hire gets (the
+ * Coordinator screen), keep the map's buckets (Kit B's rules), and practice first with no wires (the
+ * guardrails). The fifth asks for plain words, one action a step (D-048).
  */
 const BUILD_PROMPT = `Here's the task map AI made of my ops leader's week:
 
@@ -78,7 +81,8 @@ I can see the first AI employee to build. I have no clue how to get started on b
 - Build it as a Project in this app, with no code.
 - Give it what a new hire gets: a job description, a training binder, a first assignment, and a manager. Write the job description out in full so I can paste it in.
 - Keep my map's buckets. A human approves anything marked DRAFT before it goes out. Anything marked OWN stays with a person.
-- Have me practice on a made-up example first, and keep wire instructions out of every file.`;
+- Have me practice on a made-up example first, and keep wire instructions out of every file.
+- Use plain words with no tech terms. One action per step, and tell me exactly what to tap, click, or type.`;
 
 /** Kit C, the Contract-to-Close Coordinator's job description. */
 const COORDINATOR_PROMPT = `You are the Contract-to-Close Coordinator for [Team Name], a real estate team in [City, State]. You support our ops leader on every new transaction. You draft; a human verifies and sends.
@@ -148,9 +152,9 @@ export const RETOOL = {
   // picked. All three are open, before the gate, so the room does the whole work block with no form.
   screens: [
     { anchor: 'welcome', stage: 'Welcome', next: 'Start' },
-    { anchor: 'three-doors', stage: 'The Pattern', next: 'Show Me the Sort' },
+    { anchor: 'three-doors', stage: 'The Pattern', next: 'Show Me the Buckets' },
     { anchor: 'run-draft-own', stage: 'Run, Draft, Own', next: 'Map My Team' },
-    { anchor: 'audit', stage: 'Your Task Map', count: '1 of 3', next: 'I Have My Map' },
+    { anchor: 'audit', stage: 'Your Task Map', count: '1 of 3', next: 'I Have My Answer' },
     { anchor: 'read-your-map', stage: 'Your Task Map', count: '2 of 3', next: 'Get My Build Steps' },
     { anchor: 'build-steps', stage: 'Your Task Map', count: '3 of 3', next: 'Get the Full Kit' },
     // The gate. Its Next shows only once this device has signed up; the form's button is the way on.
@@ -182,75 +186,69 @@ export const RETOOL = {
       { name: 'A 30-day plan.', detail: ' And an answer on day 30: was it the person or the system?' },
     ],
     // Segment 1's promise, for a page.
-    plain: 'If you can send a text, you can do everything here. ChatGPT or Claude, phone or laptop.',
+    // Said up front, so nobody meets a sign-up page on screen four unwarned (D-048).
+    plain:
+      "You'll need a free ChatGPT or Claude account and about 15 minutes. If you can send a text, you can do this.",
     // A real link, so it works without JavaScript too.
-    skip: { label: 'In the session? Skip to the audit', href: '#audit' },
+    skip: { label: 'In the session? Skip to your task map', href: '#audit' },
   },
 
   doors: {
     heading: 'The seat outgrew the person',
     intro:
-      "Your first ops hire was probably an admin or an EA. The team grew, and nobody redesigned the seat. Now that seat is buried in contract-to-close, onboarding, and CRM cleanup, and you're standing at three doors.",
+      "Your first ops hire was probably an assistant. The team grew, and nobody redesigned the job. Now that seat is buried in contract-to-close, onboarding, and CRM cleanup, and you're standing at three doors.",
     doors: [
       {
         title: 'Door A: Hire again',
-        body: 'Another salary, another ramp, and two people sharing a seat built for one.',
+        body: 'Another salary, months of training, and two people sharing a job built for one.',
       },
       {
         title: 'Door B: The hard conversation',
-        body: 'You risk losing the person who knows where everything lives, over a seat nobody redesigned.',
+        body: 'You risk losing the person who knows where everything lives, over a job nobody redesigned.',
       },
       { title: 'Door C: Retool the seat', body: 'Keep the person and rebuild the work around them.' },
     ],
     question:
       "Is it the person or the system? Most owners guess. By the end of this kit you'll have a way to stop guessing.",
-    eos: 'Running EOS? Your ops leader probably still Gets it and Wants it. What broke is Capacity. AI adds capacity to a seat without adding a salary.',
   },
 
   sort: {
     heading: 'Run, Draft, Own',
     // "AI 101 in one line."
     intro:
-      "AI is a brilliant new hire with zero context. It does exactly what you trained it to do and guesses confidently at everything you didn't.",
+      'AI is like a smart new hire on day one. It does exactly what you teach it, and it guesses at everything else. So every task goes in one of three buckets.',
     buckets: [
       {
         title: 'Run',
-        body: 'AI does it end to end with light oversight.',
+        body: 'AI does it. You spot-check.',
         examples: 'Deadline reminders, under-contract checklists, CRM tagging, weekly pipeline reports.',
       },
       {
         title: 'Draft',
-        body: 'AI prepares it and a human approves.',
+        body: 'AI writes it. You read it, then send.',
         examples: 'Client status updates, onboarding emails, listing descriptions, MLS input.',
       },
       {
         title: 'Own',
-        body: 'A human keeps it.',
+        body: 'You do it.',
         examples: 'Negotiations, agent coaching, hard conversations, compliance sign-off.',
       },
     ],
-    // The talk's slide 3 sorts with "the same two questions, in order. The first yes decides the
-    // bucket; two noes mean Run." The slide's own wording was not in the talk's notes, so these two are
-    // Kit B's own rules, asked as questions (D-046): the page and the prompt sort the same way.
-    questionsHeading: 'Sort any task with two questions, in order. The first yes decides the bucket.',
+    // Kit B's own rules (D-046), so the page and the prompt sort alike. Told as the rule AI follows,
+    // not set as a quiz: the visitor never sorts a task, the prompt does (D-048).
+    questionsHeading: "You don't sort anything. AI does it on the next screen, with this rule:",
     questions: [
-      [
-        'Does it touch money, wire instructions, texting consent, fair housing review, or a decision about a person? ',
-        { strong: 'Own.' },
-      ],
-      [
-        'Does it go to a client, an agent, a lender, or title, or set or change a contract date? ',
-        { strong: 'Draft.' },
-      ],
-      ['Two noes? ', { strong: 'Run.' }, ' When unsure, pick the safer bucket.'],
+      ['Money, wire instructions, or a decision about a person? ', { strong: 'Own.' }],
+      ['Anything sent to a client, an agent, a lender, or title, or any contract date? ', { strong: 'Draft.' }],
+      ['Everything else? ', { strong: 'Run.' }, ' Not sure? It picks the safer bucket.'],
     ] as Inline[][],
     never:
-      'Three things never leave Own: wire instructions, consent for automated texting under TCPA, and fair housing review of listing language.',
+      'Three things always stay with a person: wire instructions, permission to send automated texts, and fair housing checks on listing wording.',
   },
 
   audit: {
     heading: "Map your ops leader's week",
-    intro: 'Four questions, from memory. Rough is fine. AI fills in the rest and marks what it assumed.',
+    intro: 'Fill in six quick boxes. Guesses are fine. AI fills in the rest.',
     fields: [
       { name: 'agents', label: 'Agents on your team', placeholder: '25' },
       { name: 'closings', label: 'Closings a month, about', placeholder: '30' },
@@ -276,42 +274,44 @@ export const RETOOL = {
         placeholder: 'contract-to-close',
       },
     ] satisfies FillField[],
+    // What the buttons do, said before them (D-048).
+    pick: 'Then tap one button. It copies your answers and opens the app. Use the one you already have.',
     open: OPEN_CHAT,
-    thenHeading: 'Then, in the new chat:',
-    // The fourth step sets up the build steps, two screens on, which start from its answer (D-047).
+    thenHeading: 'Then, in the app:',
+    // One action a step, each the tap itself (D-048). The last brings them back here, where the build
+    // steps start from its answer (D-047).
     then: [
-      ['Paste.'],
-      ['Fill in any blank still in [brackets].'],
-      ['Send.'],
-      ["Keep that chat open. You'll copy its answer in a minute."],
+      ['Sign in if it asks. A free account works.'],
+      ['Press and hold the message box, then tap ', { strong: 'Paste' }, '.'],
+      ['Tap ', { strong: 'Send' }, '. The answer takes about a minute.'],
+      ['Come back to this page. Leave that chat open.'],
     ] as Inline[][],
     showPrompt: 'See the full prompt',
-    // "I would do this in a chat, not a cowork" (D-047): Copy & Open already starts a plain chat.
-    note: 'Use a regular chat, not a Project. It works on free ChatGPT and free Claude.',
   },
 
   read: {
-    heading: 'Read your map',
-    intro: "It's a first draft. Your ops leader corrects it in Week 1. That's when it becomes real.",
+    // Every fix is words to type into the same chat, so none needs a skill the page never taught
+    // (D-048): strike a guess, overrule a bucket, price the hours (the AI does the math), find its pick.
+    heading: 'Check its answer',
+    intro: 'AI made some guesses. Fix them by typing into that same chat. It takes two minutes.',
     steps: [
       [
-        { strong: 'Strike one task' },
-        " marked (added) that your team doesn't have. AI drafts the map; you own the truth.",
+        { strong: "Remove what's wrong." },
+        ' Tasks marked (added) are its guesses. If one isn\'t something your team does, type: "Remove [task]. We don\'t do that."',
       ],
       [
-        { strong: 'Overrule one bucket.' },
-        ' It put client updates in Run? Would you let AI send that unread? No. Draft.',
+        { strong: "Move what you'd want to read first." },
+        ' If it has AI sending something to a client or an agent on its own, type: "Move [task] to Draft."',
       ],
-      [{ strong: 'Find Run plus Draft' }, ' as a share of the week.'],
       [
-        { strong: 'Multiply those hours' },
-        " by what your ops leader costs per hour. Don't post it anywhere. Just look at it.",
+        { strong: "See what it's worth." },
+        ' Optional. Type: "My ops leader costs about $35 an hour. What are the Run and Draft hours worth in a year?" Use their real number.',
       ],
-      // "Take stock of what this recommendation was", and "those run categories are what you should
-      // start with" (D-047). The build steps on the next screen start from it.
-      [{ strong: 'Find the first AI employee' }, ' it recommends. Not sold? Start where the Run tasks pile up.'],
+      // "Take stock of what this recommendation was" (D-047). The build steps on the next screen start from it.
+      [{ strong: 'Find its pick.' }, ' Near the end, it names the first AI employee to build. That comes next.'],
     ] as Inline[][],
-    session: 'In the session? Drop your Run plus Draft percentage in the chat.',
+    session:
+      'In the session? Near the end, find the percent of the week AI can help with. Type it in the session chat.',
   },
 
   /**
@@ -321,20 +321,31 @@ export const RETOOL = {
    */
   build: {
     heading: 'Get your build steps',
-    intro:
-      'Your map picked your first AI employee. Paste the whole map here, and AI writes you steps to build it that a 10th grader could follow.',
+    intro: 'Now turn that answer into simple, step-by-step instructions for building your first AI employee.',
+    // Asking for the whole map again gathers the fixes typed on the screen before into one answer
+    // to copy (D-048).
+    getHeading: 'First, get the answer:',
+    get: [
+      ['Go back to that chat and type: "Show me the whole map again, with my fixes."'],
+      ['Under its answer, tap the copy button (two little squares).'],
+      ['Come back here. Press and hold the box below, then tap ', { strong: 'Paste' }, '.'],
+    ] as Inline[][],
     fields: [
       {
         name: 'taskMap',
-        label: 'Your whole map',
-        hint: 'In the chat, tap the copy icon under its answer. Then paste it here.',
-        placeholder: 'Task | Hours | Bucket | Why',
+        label: 'The whole answer from your chat',
+        placeholder: 'Paste the whole answer here',
         rows: 5,
       },
     ] satisfies FillField[],
+    pick: 'Then tap one button. It copies everything and opens a new chat.',
     open: OPEN_CHAT,
     thenHeading: 'Then, in the new chat:',
-    then: [['Paste.'], ['Send.'], ['Do one step at a time. Stuck? Tell it where, in the same chat.']] as Inline[][],
+    then: [
+      ['Press and hold the message box, then tap ', { strong: 'Paste' }, '.'],
+      ['Tap ', { strong: 'Send' }, '.'],
+      ['Follow its steps one at a time. Stuck? Tell it which step, in that same chat.'],
+    ] as Inline[][],
     showPrompt: 'See the full prompt',
     // The way on, to the gate: the ready-made one, for the teams whose map picked contract-to-close.
     kit: 'Want one already written? The full kit has a Contract-to-Close Coordinator ready to paste in.',
@@ -373,7 +384,7 @@ export const RETOOL = {
       { name: 'A first assignment.', detail: ' An executed purchase agreement.' },
       { name: 'A manager.', detail: ' You, checking its work.' },
     ],
-    fieldsLead: 'Start with the job description. Fill in two blanks, then pick your app.',
+    fieldsLead: 'This part is easiest on a laptop. Fill in two boxes, then pick your app.',
     fields: [
       { name: 'teamName', label: 'Your team name', placeholder: 'The Rivera Group' },
       { name: 'cityState', label: 'City, State', placeholder: 'Austin, TX' },
@@ -385,9 +396,11 @@ export const RETOOL = {
         label: 'Copy & Open Claude',
         app: 'Claude',
         href: 'https://claude.ai/projects',
-        toast: 'Copied. Make the Project, then paste into Instructions.',
+        toast: 'Copied. Make the Project, then paste into its instructions.',
       } satisfies CopyOpen,
-      // As /ai101's Save step has it (D-037): name it, skip the description, then Instructions.
+      // As /ai101's Save step has it (D-037): name it, skip the description, then Instructions. The
+      // button names are Claude's help center's ("Set project instructions", "Save instructions",
+      // checked 2026-10-22, D-048).
       steps: [
         [
           'Click ',
@@ -396,8 +409,14 @@ export const RETOOL = {
           { strong: 'Contract-to-Close Coordinator' },
           '.',
         ],
-        ['Leave the description blank and click ', { strong: 'Create project' }, '.'],
-        ['Paste into ', { strong: 'Instructions' }, ' on the right side, not the description.'],
+        ['Leave the description blank. Click ', { strong: 'Create project' }, '.'],
+        [
+          'On the right, click ',
+          { strong: 'Set project instructions' },
+          '. Paste, then click ',
+          { strong: 'Save instructions' },
+          '.',
+        ],
       ] as Inline[][],
     },
     // A ChatGPT Project, not the talk's "custom GPT": OpenAI retires custom GPTs on Dec 11, 2026, and
@@ -420,22 +439,28 @@ export const RETOOL = {
           { strong: 'Contract-to-Close Coordinator' },
           '.',
         ],
-        ['Open the ', { strong: '•••' }, ' menu, then ', { strong: 'Project settings' }, '.'],
-        ['Paste into ', { strong: 'Instructions' }, '.'],
+        ['Click the ', { strong: '•••' }, ' menu at the top, then ', { strong: 'Project settings' }, '.'],
+        ['Click in the ', { strong: 'Instructions' }, ' box and paste.'],
       ] as Inline[][],
     },
     showPrompt: 'See the full job description',
-    // The three lines the talk reads aloud.
+    // The three lines the talk reads aloud, said as what they do (D-048).
     keyLines:
-      'The three lines that matter most: cite the contract section for every date, never guess, and end with Verify Before Sending.',
+      'What keeps it safe: it shows where in the contract each date came from, it never guesses, and it ends with a list for you to check before anything goes out.',
   },
 
   firstFile: {
-    heading: 'Train it, then give it a file',
+    heading: 'Train it, then give it a contract',
     binder: {
       heading: 'The training binder',
       // One file each: free ChatGPT Projects hold five (D-046).
-      intro: "Add these to the Project as files, one each: the binder you'd hand a new TC on day one.",
+      intro: "Upload these to the Project, one file each. It's the binder you'd hand a new TC on day one.",
+      // Where each app takes files, per its help center, checked 2026-10-22: Claude's "+" in the
+      // knowledge panel on the right; ChatGPT's Sources tab, where project files moved in Feb 2026 (D-048).
+      how: [
+        ['In Claude: on the Project page, click the ', { strong: '+' }, ' on the right side and upload each one.'],
+        ["In ChatGPT: open the Project's ", { strong: 'Sources' }, ' tab and upload each one.'],
+      ] as Inline[][],
       items: [
         'Your contract-to-close checklist',
         'Four email templates: under contract, inspection scheduled, clear to close, closing week',
@@ -445,22 +470,29 @@ export const RETOOL = {
     },
     assignment: {
       heading: 'The first assignment',
-      body: 'Upload an executed purchase agreement. Out comes the key-dates timeline with sections cited, the file checklist, and drafts to the client, the lender, title, and the other agent.',
+      body: 'Start a new chat inside the Project. Attach a signed purchase agreement with the + button, and send it. You get back every key date, the file checklist, and draft emails to the client, the lender, title, and the other agent.',
     },
     manager: {
       heading: 'The manager',
-      body: "Check one date against the contract. Then fix one thing in the job description. You don't fire a new TC for one miss. You update the binder.",
+      body: "Check one date against the contract yourself. If it got something wrong, add a line to its instructions that fixes it. You don't fire a new TC for one mistake. You coach them.",
     },
-    guardrails:
-      "Practice on a fictional contract first. Keep wire instructions out of every template. Check your AI account's data settings before you upload a real client file.",
+    // "Check your data settings", made the exact switch in each app (their help centers, checked
+    // 2026-10-22, D-048).
+    guardrails: [
+      "Practice on a made-up contract first. Keep wire instructions out of every file. Before you upload a real client's contract, stop the app from learning from your chats. ChatGPT: Settings, then Data controls, then turn off ",
+      { strong: 'Improve the model for everyone' },
+      '. Claude: Settings, then Privacy, then turn off ',
+      { strong: 'Help improve Claude' },
+      '.',
+    ] as Inline[],
     // The seam: said plainly, as the talk says it, without the pitch.
-    crm: "This version doesn't touch your CRM. Connecting it so files open themselves is build work, different for every CRM.",
+    crm: "This version doesn't connect to your CRM. You upload each contract yourself. Connecting it to your CRM is a bigger build, different for every CRM.",
     next: {
       heading: 'The next seats',
       items: [
         'An Agent Onboarding Guide',
-        'A Listing Launch Coordinator (fair housing review stays Own)',
-        'A Lead Follow-Up Coordinator (texting consent stays Own)',
+        'A Listing Launch Coordinator (a person still does the fair housing check)',
+        'A Lead Follow-Up Coordinator (a person still handles texting permission)',
         'A weekly meeting prep assistant',
       ],
     },
@@ -469,11 +501,11 @@ export const RETOOL = {
   conversation: {
     heading: 'Bring your ops leader in',
     intro:
-      'The tech is the easy part. Rollouts die when the person in the seat feels it is being done to them. Four moves, in this order:',
+      "The tech is the easy part. This only works if your ops leader feels it's done with them, not to them. Four moves, in this order:",
     moves: [
       'Name the seat, not the person: "We grew and your seat didn\'t. That\'s on me."',
       'Make them the manager of the AI, not its replacement. They train it and check its work.',
-      'Agree where the recovered hours go before you build anything.',
+      'Agree where their saved hours go before you build anything.',
       'Measure it together for 30 days.',
     ],
     scriptLead:
@@ -494,47 +526,47 @@ export const RETOOL = {
     worried:
       'If they\'re worried: "This is how your seat becomes sustainable. You\'ll be the person on our team who knows how to run AI, and that makes you harder to replace, not easier."',
     honest:
-      "Retool fixes Capacity. It can't fix Get It or Want It. If the seat works on day 30, it was the system. If it still doesn't, you'll have that hard conversation with data instead of a hunch.",
+      "AI can give them time back. It can't make someone care about the job. If it still isn't working on day 30, you'll know it's the person, and you'll have proof.",
   },
 
   plan: {
     heading: 'Your 30-day retool plan',
-    intro:
-      'One AI employee, four weeks, and a day-30 answer to the question underneath: was it the person or the system?',
-    measureLabel: 'Measure',
-    // Kit D, a week to a card. Week 1's "(Kit E)" is "(the script)": the page has no kit letters.
+    intro: "One AI employee, four weeks. On day 30 you'll know: was it the person or the system?",
+    measureLabel: 'Track',
+    // Kit D, a week to a card, in plain words (D-048). Week 1's "(Kit E)" is "(the script)": the page has
+    // no kit letters. Week 3 is "Use", not the talk's "Run", which on this page is a bucket.
     weeks: [
       {
         week: 'Week 1',
         focus: 'Map',
         doThis:
-          "Share the why with your ops leader (the script). Hand them today's draft map to correct with real hours. Re-run it together, agree on buckets, and pick AI employee number one.",
-        measure: 'Baseline: minutes per new file, or weekly hours on that cluster',
+          "Talk to your ops leader first (the script). Show them today's answer and have them fix the hours. Agree on the first AI employee to build.",
+        measure: 'How long one new file takes today',
       },
       {
         week: 'Week 2',
         focus: 'Build',
         doThis:
-          'Build it with the four parts. Test it on three recently closed files, redacted, and compare its output to what actually happened. Fix the job description.',
-        measure: 'Errors caught in testing',
+          'Build it, using the steps you got. Test it on three old, closed files with client names blacked out. Fix its instructions wherever it got something wrong.',
+        measure: 'The mistakes it made',
       },
       {
         week: 'Week 3',
-        focus: 'Run',
+        focus: 'Use',
         doThis:
-          'Use it on every new file next to the old process. Log minutes and every correction. Update the job description on Friday.',
-        measure: 'Minutes per file against baseline; corrections per file',
+          'Use it on every new file, next to your usual way. Write down how long each file takes and every fix. Update its instructions every Friday.',
+        measure: 'Time per file, compared with Week 1',
       },
       {
         week: 'Week 4',
         focus: 'Decide',
-        doThis: 'Compare to baseline. Decide in writing where the recovered hours go. Pick AI employee number two.',
-        measure: "Hours back per week; your ops leader's workload rating, 1 to 10, before and after",
+        doThis:
+          'Compare with Week 1. Decide, in writing, where the saved hours go. Pick the next AI employee to build.',
+        measure: "Hours saved each week, and your ops leader's workload, 1 to 10, before and after",
       },
     ],
     dayThirty:
-      "On day 30: if the seat works now, it was the system. If it still doesn't, you have data for a fair conversation about the person.",
-    eos: 'Running EOS? Make the retool a Rock and put minutes per file on your scorecard.',
+      "On day 30: if the job works now, it was the system. If it still doesn't, you have proof for a fair talk about the person.",
   },
 
   forward: {

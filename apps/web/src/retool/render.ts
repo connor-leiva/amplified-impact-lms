@@ -106,7 +106,6 @@ function doors(): string {
     `<p class="lede">${esc(d.intro)}</p>`,
     tiles(d.doors, 'door'),
     callout(esc(d.question), 'tip', true),
-    `<p class="note">${esc(d.eos)}</p>`,
   ]);
 }
 
@@ -127,10 +126,10 @@ function audit(): string {
     h2(anchorOf(3), a.heading),
     `<p class="lede">${esc(a.intro)}</p>`,
     fillFields(a.fields),
+    `<p class="path-lead">${esc(a.pick)}</p>`,
     `<div class="stack">${a.open.map((o) => copyOpenButton(o, BLOCK.audit)).join('')}</div>`,
     stepsCard(a.thenHeading, a.then),
     promptBlock(RETOOL.auditPrompt, BLOCK.audit, a.showPrompt),
-    `<p class="note">${esc(a.note)}</p>`,
   ]);
 }
 
@@ -145,15 +144,18 @@ function read(): string {
 }
 
 /**
- * The build steps (D-047): the whole map, pasted back into one box, fills the prompt that asks for a
- * step-by-step build of the AI employee it picked; then Copy & Open, as on the audit.
+ * The build steps (D-047): how to get the whole answer back out of the chat (D-048), the box it is
+ * pasted into, which fills the prompt that asks for a step-by-step build of the AI employee it
+ * picked; then Copy & Open, as on the audit.
  */
 function build(): string {
   const b = RETOOL.build;
   return screen(5, [
     h2(anchorOf(5), b.heading),
     `<p class="lede">${esc(b.intro)}</p>`,
+    stepsCard(b.getHeading, b.get),
     fillFields(b.fields),
+    `<p class="path-lead">${esc(b.pick)}</p>`,
     `<div class="stack">${b.open.map((o) => copyOpenButton(o, BLOCK.build)).join('')}</div>`,
     stepsCard(b.thenHeading, b.then),
     promptBlock(RETOOL.buildPrompt, BLOCK.build, b.showPrompt),
@@ -265,10 +267,14 @@ function firstFile(): string {
     card(`<h3 class="card-title card-title-lg">${esc(heading)}</h3>${inner}`);
   return screen(8, [
     h2(anchorOf(8), f.heading),
-    titled(f.binder.heading, `<p class="muted">${esc(f.binder.intro)}</p>${dotted(f.binder.items)}`),
+    titled(
+      f.binder.heading,
+      `<p class="muted">${esc(f.binder.intro)}</p>${dotted(f.binder.items)}` +
+        f.binder.how.map((h) => `<p class="small muted">${inline(h)}</p>`).join(''),
+    ),
     titled(f.assignment.heading, `<p class="muted">${esc(f.assignment.body)}</p>`),
     titled(f.manager.heading, `<p class="muted">${esc(f.manager.body)}</p>`),
-    callout(esc(f.guardrails), 'warn', true),
+    callout(inline(f.guardrails), 'warn', true),
     `<p class="note">${esc(f.crm)}</p>`,
     titled(f.next.heading, dotted(f.next.items)),
   ]);
@@ -314,7 +320,6 @@ function plan(): string {
     `<p class="lede">${esc(p.intro)}</p>`,
     `<ol class="plan" role="list">${weeks}</ol>`,
     callout(esc(p.dayThirty), 'tip', true),
-    `<p class="note">${esc(p.eos)}</p>`,
   ]);
 }
 
