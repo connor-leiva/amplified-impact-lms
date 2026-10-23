@@ -28,7 +28,6 @@ const RETOOL_EMPTY = {
   opsTeam: '',
   weekEaters: '',
   breaksFirst: '',
-  taskMap: '',
   teamName: '',
   cityState: '',
   opsName: '',

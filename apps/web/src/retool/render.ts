@@ -80,6 +80,16 @@ function tiles(items: ReadonlyArray<{ title: string; body: string; examples?: st
   return `<ul class="tiles" role="list">${rows}</ul>`;
 }
 
+/**
+ * A button that only copies a prompt block's text, as filled in right now, and stays on the page
+ * (`data-copy-prompt`, main.ts): for words the visitor pastes into a chat already open (the build
+ * steps, D-049) or says out loud (the script). Hidden until the script runs, which it needs.
+ */
+const copyPromptButton = (blockId: string, copy: { label: string; toast: string }) =>
+  `<button type="button" class="btn btn-primary" data-copy-prompt="${esc(blockId)}" ` +
+  `aria-describedby="${esc(blockId)}-label" data-toast="${esc(copy.toast)}" hidden data-js-only>` +
+  `${esc(copy.label)}</button>`;
+
 /** A list with terracotta dots, as /ai101's "What you own" has it. */
 const dotted = (items: readonly string[]) =>
   `<ul class="dotted" role="list">${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`;
@@ -144,22 +154,24 @@ function read(): string {
 }
 
 /**
- * The build steps (D-047): how to get the whole answer back out of the chat (D-048), the box it is
- * pasted into, which fills the prompt that asks for a step-by-step build of the AI employee it
- * picked; then Copy & Open, as on the audit.
+ * The build (D-047), asked in the same chat as the map (D-049): first the way past it for a map that
+ * picked contract-to-close (the kit has that one written), then one copy-only button, the way the
+ * script's is (`data-copy-prompt`), and the steps back in that chat. Nothing to paste into this page
+ * and no new chat to open. The button needs the script, so it is `hidden data-js-only`; without it the
+ * request is in the block below, to select and copy.
  */
 function build(): string {
   const b = RETOOL.build;
   return screen(5, [
     h2(anchorOf(5), b.heading),
+    callout(esc(b.skip), 'tip'),
     `<p class="lede">${esc(b.intro)}</p>`,
-    stepsCard(b.getHeading, b.get),
-    fillFields(b.fields),
-    `<p class="path-lead">${esc(b.pick)}</p>`,
-    `<div class="stack">${b.open.map((o) => copyOpenButton(o, BLOCK.build)).join('')}</div>`,
+    `<p class="path-lead">${esc(b.copyLead)}</p>`,
+    copyPromptButton(BLOCK.build, b.copy),
     stepsCard(b.thenHeading, b.then),
+    `<p class="small muted">${inline(b.lost)}</p>`,
+    callout(esc(b.safety), 'warn'),
     promptBlock(RETOOL.buildPrompt, BLOCK.build, b.showPrompt),
-    `<p class="note">${esc(b.kit)}</p>`,
   ]);
 }
 
@@ -247,6 +259,8 @@ function coordinator(): string {
   return screen(7, [
     h2(anchorOf(7), c.heading),
     `<p class="lede">${esc(c.intro)}</p>`,
+    `<a class="skip" href="${esc(c.skip.href)}">${esc(c.skip.label)}</a>`,
+    `<p class="path-lead">${esc(c.partsLead)}</p>`,
     circled(c.parts.map((p) => `<span><strong>${esc(p.name)}</strong>${esc(p.detail)}</span>`)),
     `<p class="path-lead">${esc(c.fieldsLead)}</p>`,
     fillFields(c.fields),
@@ -267,6 +281,8 @@ function firstFile(): string {
     card(`<h3 class="card-title card-title-lg">${esc(heading)}</h3>${inner}`);
   return screen(8, [
     h2(anchorOf(8), f.heading),
+    // Before the binder, so nothing is uploaded before it is read (D-049).
+    callout(inline(f.guardrails), 'warn', true),
     titled(
       f.binder.heading,
       `<p class="muted">${esc(f.binder.intro)}</p>${dotted(f.binder.items)}` +
@@ -274,9 +290,7 @@ function firstFile(): string {
     ),
     titled(f.assignment.heading, `<p class="muted">${esc(f.assignment.body)}</p>`),
     titled(f.manager.heading, `<p class="muted">${esc(f.manager.body)}</p>`),
-    callout(inline(f.guardrails), 'warn', true),
     `<p class="note">${esc(f.crm)}</p>`,
-    titled(f.next.heading, dotted(f.next.items)),
   ]);
 }
 
@@ -293,9 +307,7 @@ function conversation(): string {
     circled(c.moves.map((m) => `<span>${esc(m)}</span>`)),
     `<p class="path-lead">${esc(c.scriptLead)}</p>`,
     fillFields(c.fields),
-    `<button type="button" class="btn btn-primary" data-copy-prompt="${esc(BLOCK.script)}" ` +
-      `aria-describedby="${esc(BLOCK.script)}-label" data-toast="${esc(c.copy.toast)}" hidden data-js-only>` +
-      `${esc(c.copy.label)}</button>`,
+    copyPromptButton(BLOCK.script, c.copy),
     promptBlock(RETOOL.scriptPrompt, BLOCK.script, c.showScript, true),
     callout(esc(c.worried), 'tip'),
     callout(esc(c.honest), 'warn'),
@@ -319,6 +331,8 @@ function plan(): string {
     h2(anchorOf(10), p.heading),
     `<p class="lede">${esc(p.intro)}</p>`,
     `<ol class="plan" role="list">${weeks}</ol>`,
+    // Under Week 4, which says to pick the next one (D-049).
+    card(`<h3 class="card-title card-title-lg">${esc(p.next.heading)}</h3>${dotted(p.next.items)}`),
     callout(esc(p.dayThirty), 'tip', true),
   ]);
 }

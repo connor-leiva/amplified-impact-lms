@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UI } from '../ai101/content';
-import { fillPrompt } from '../ai101/main';
 import { CONSENT, SENDERS } from '../legal/content';
 import { RETOOL, RETOOL_SENDERS } from './content';
 import { renderRetoolBody, renderRetoolHead } from './render';
@@ -52,21 +51,22 @@ const KIT_B_PLAIN = `
 Write it all in plain language for someone new to AI: short sentences, no tech terms. Keep each Why to a few words so the table fits on a phone.`;
 
 /**
- * The build steps prompt (D-047): the map pasted back in, then Connor's own ask from the live session
- * ("Give me a simple step-by-step instruction list... Make it so that a 10th grader could follow this
- * on their own"), then four lines from this kit.
+ * The build request (D-047, D-049): which AI employee, asked in the chat that already has the map;
+ * then Connor's own ask from the live session ("Give me a simple step-by-step instruction list...
+ * Make it so that a 10th grader could follow this on their own"); then the page's own lines.
  */
-const BUILD = `Here's the task map AI made of my ops leader's week:
+const BUILD = `Now help me build the first AI employee from the task map above. Use the one you recommended, or the one I said I'd rather build.
 
-[paste your whole map here]
+I have no clue how to get started on building this. Give me a simple step-by-step instruction list, as comprehensive as possible, that I can follow to get this built. Make it so that a 10th grader could follow this on their own.
 
-I can see the first AI employee to build. I have no clue how to get started on building this. Give me a simple step-by-step instruction list, as comprehensive as possible, that I can follow to get this built. Make it so that a 10th grader could follow this on their own.
-
-- Build it as a Project in this app, with no code.
-- Give it what a new hire gets: a job description, a training binder, a first assignment, and a manager. Write the job description out in full so I can paste it in.
+- Build it as a Project in this app, with no code, not a custom GPT. Explain what a Project is in one sentence. If a step needs a paid plan, tell me before that step.
+- Give it what a new hire gets: a job description, a training binder, a first assignment, and a manager. The manager will be my ops leader. Write the job description out in full so I can paste it in.
 - Keep my map's buckets. A human approves anything marked DRAFT before it goes out. Anything marked OWN stays with a person.
+- If this AI employee would need to connect to my CRM, email, or texts, tell me first. Then give me a version that works when I paste in or upload what it needs.
+- Before I use any real client information, show me how to turn off the setting that lets this app learn from my chats.
 - Have me practice on a made-up example first, and keep wire instructions out of every file.
-- Use plain words with no tech terms. One action per step, and tell me exactly what to tap, click, or type.`;
+- Start with a list of what to gather. Split the steps into short parts with a heading for each, so I can stop after any part and pick up later.
+- Use plain words with no tech terms. One action per step, and tell me exactly what to tap, click, or type. If you're not sure what a button is called today, tell me where on the screen to look.`;
 
 describe('the head', () => {
   it('names the page and its canonical address', () => {
@@ -76,7 +76,7 @@ describe('the head', () => {
 });
 
 describe('the step-through', () => {
-  it('follows the talk: the pattern, the sort, the audit and its build steps, the gate, the kit, the plan', () => {
+  it('follows the talk: the problem, the sort, the map and the build, the gate, the ready-made one, the talk, the plan', () => {
     const screens = $$('section[data-screen]').map((s) => [
       s.id,
       s.getAttribute('data-stage'),
@@ -85,17 +85,17 @@ describe('the step-through', () => {
     ]);
     expect(screens).toEqual([
       ['welcome', 'Welcome', null, 'Start'],
-      ['three-doors', 'The Pattern', null, 'Show Me the Buckets'],
+      ['three-doors', 'The Problem', null, 'Show Me the Buckets'],
       ['run-draft-own', 'Run, Draft, Own', null, 'Map My Team'],
-      ['audit', 'Your Task Map', '1 of 3', 'I Have My Answer'],
-      ['read-your-map', 'Your Task Map', '2 of 3', 'Get My Build Steps'],
-      ['build-steps', 'Your Task Map', '3 of 3', 'Get the Full Kit'],
-      ['kit', 'The Full Kit', null, 'Build My AI Employee'],
-      ['coordinator', 'Your First AI Employee', '1 of 2', "It's Hired"],
-      ['first-file', 'Your First AI Employee', '2 of 2', 'The People Side'],
-      ['retool-conversation', 'The Retool Conversation', null, 'Make the Plan'],
-      ['thirty-day-plan', 'The 30-Day Retool Plan', null, 'Last Thing'],
-      ['two-ways', 'Two Ways Forward', null, null],
+      ['audit', 'Your Task Map', '1 of 2', 'I Have My Map'],
+      ['read-your-map', 'Your Task Map', '2 of 2', 'Next: Build It'],
+      ['build-steps', 'Your AI Employee', null, 'Get the Full Kit'],
+      ['kit', 'The Full Kit', null, 'Continue'],
+      ['coordinator', 'Optional: A Ready-Made One', '1 of 2', 'Next: The Binder'],
+      ['first-file', 'Optional: A Ready-Made One', '2 of 2', 'Next: The Talk'],
+      ['retool-conversation', 'Talk With Your Ops Leader', null, 'Make the Plan'],
+      ['thirty-day-plan', 'Your 30-Day Plan', null, 'Last Step'],
+      ['two-ways', "What's Next", null, null],
     ]);
     expect($$('section[data-screen]').map((s) => s.getAttribute('data-screen'))).toEqual([
       '0',
@@ -191,11 +191,13 @@ describe('the open part: the audit (Kit B)', () => {
     expect($$('a[href*="?q="], a[href*="prompt="]')).toEqual([]);
   });
 
-  it('counts its boxes right, says what the buttons do before them, and that a free account works', () => {
-    expect(text($('#audit .lede'))).toBe('Fill in six quick boxes. Guesses are fine. AI fills in the rest.');
+  it('asks for an answer in every box, says to read the steps before tapping, and that a free account works', () => {
+    expect(text($('#audit .lede'))).toBe(
+      "Type an answer in each box below. Rough guesses are fine. The gray words in each box are only examples. ChatGPT or Claude will use your answers to make a task map. A task map is a table of your ops leader's weekly tasks, the hours each task takes, and the bucket (Run, Draft, or Own) each task goes in.",
+    );
     expect($$('#audit .field')).toHaveLength(6);
     expect(text($('#audit .path-lead'))).toBe(
-      'Then tap one button. It copies your answers and opens the app. Use the one you already have.',
+      'Read the four steps under the buttons first, because the button takes you away from this page. Then tap Copy & Open ChatGPT or Copy & Open Claude. The button copies your answers and opens that app. Use the one you have an account with. No account yet? Either one is free.',
     );
     // Before the buttons, so it is read first.
     const lead = $('#audit .path-lead')!;
@@ -203,97 +205,92 @@ describe('the open part: the audit (Kit B)', () => {
     expect(lead.compareDocumentPosition(firstButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('gives one tap a step, and brings them back to this page with the chat left open', () => {
+  it('says to sign in, how to paste on a phone and a computer, and how to come back with the chat kept', () => {
     expect($$('#audit ol.numbered li').map((li) => text(li))).toEqual([
-      'Sign in if it asks. A free account works.',
-      'Press and hold the message box, then tap Paste.',
-      'Tap Send. The answer takes about a minute.',
-      'Come back to this page. Leave that chat open.',
+      "Sign in, or sign up if you're new. A free account works. Sign in even if ChatGPT lets you skip it, because ChatGPT only saves chats when you're signed in, and you'll need this chat again.",
+      'Paste into the message box at the bottom of the screen, where you type. On a phone: press and hold the box, then tap Paste. On a computer: click the box, then press Ctrl+V (Cmd+V on a Mac).',
+      'Tap the send arrow next to the message box. The AI takes about a minute to answer. Wait until the AI stops writing.',
+      "Come back to this page. On a phone, switch back to Safari or Chrome. If this page isn't showing, tap the tabs button and pick this page. On a computer, click this page's tab at the top of the window. Keep the ChatGPT or Claude chat open, because you'll type in that same chat on the next two screens.",
     ]);
   });
 
   it('teaches the sort with the same rules the prompt sorts by, as a rule AI follows, not a quiz', () => {
     expect($$('#run-draft-own .tile strong').map((s) => text(s))).toEqual(['Run', 'Draft', 'Own']);
     expect(text($('#run-draft-own .card-title'))).toBe(
-      "You don't sort anything. AI does it on the next screen, with this rule:",
+      "You won't sort anything yourself. In a few minutes, ChatGPT or Claude will sort every task using these rules:",
     );
     expect($$('#run-draft-own ol.numbered li').map((li) => text(li))).toEqual([
-      'Money, wire instructions, or a decision about a person? Own.',
-      'Anything sent to a client, an agent, a lender, or title, or any contract date? Draft.',
-      'Everything else? Run. Not sure? It picks the safer bucket.',
+      'Money, wire instructions, or a decision about a person, like hiring or pay? Own.',
+      'Anything sent to a client, an agent, a lender, or title, or anything that sets or changes a contract date? Draft.',
+      "Everything else? Run. When the AI isn't sure, the AI picks the bucket where a person checks more.",
     ]);
+    // A contract date is Draft, so no Run example may be one (D-049).
+    expect(text($('#run-draft-own .tile'))).not.toMatch(/deadline/i);
     expect(text($('#run-draft-own .callout'))).toBe(
-      'Three things always stay with a person: wire instructions, permission to send automated texts, and fair housing checks on listing wording.',
+      "Three things always stay with a person: wire instructions, getting a lead's OK before you send them automatic texts, and checking listing wording for fair housing.",
     );
   });
 });
 
-describe('the open part: the build steps', () => {
-  it('checks the answer with fixes typed into the same chat, ending on the AI employee it picked', () => {
-    expect(text($('#read-your-map h2'))).toBe('Check its answer');
+describe('the open part: checking the map, then building from it in the same chat', () => {
+  it("checks the AI's response with fixes typed into that same chat: the ones the build uses", () => {
+    expect(text($('#read-your-map h2'))).toBe("Check the AI's response");
+    expect(text($('#read-your-map .lede'))).toContain('Where you see [brackets], type your own words instead');
     expect($$('#read-your-map ol.numbered li').map((li) => text(li))).toEqual([
-      "Remove what's wrong. Tasks marked (added) are its guesses. If one isn't something your team does, type: \"Remove [task]. We don't do that.\"",
-      'Move what you\'d want to read first. If it has AI sending something to a client or an agent on its own, type: "Move [task] to Draft."',
-      'See what it\'s worth. Optional. Type: "My ops leader costs about $35 an hour. What are the Run and Draft hours worth in a year?" Use their real number.',
-      'Find its pick. Near the end, it names the first AI employee to build. That comes next.',
+      // Connor's own wording, word for word (2026-10-22).
+      "Remove what doesn't apply to your ops team. Tasks marked (added) in the response are guesses the AI made about your team. If one isn't something your team does, type: \"Remove [task]. We don't do that.\"",
+      'Make sure you read every message before it goes out. In the AI\'s table, look at the Bucket column. Any task that sends an email or text to a client, an agent, a lender, or title should say Draft. If one says Run instead, type: "Move [task] to Draft."',
+      'Ask the AI which AI employee to build first. Type: "With my fixes, which AI employee should I build first?" The AI\'s answer names one job, like a Contract-to-Close Coordinator. That job is your first AI employee. Want a different one? Type: "I\'d rather build [your choice] first."',
     ]);
+    // The talk's "multiply those hours by what your ops leader costs" builds nothing (D-049).
+    expect(text($('#read-your-map'))).not.toMatch(/\$|an hour|worth/);
   });
 
-  it('copies the build steps prompt: the whole map, then the ask for steps a 10th grader could follow', () => {
+  it('copies the build request: which AI employee, then the ask for steps a 10th grader could follow', () => {
     expect(prompt('build-prompt')).toBe(BUILD);
     expect($('#build-prompt')?.getAttribute('data-prompt')).toBe('retool_build');
     expect($('#build-prompt')?.closest('#build-steps')).not.toBeNull();
+    // Nothing to fill: the map is already in the chat it is pasted into.
+    expect($$('#build-prompt mark.placeholder')).toEqual([]);
+    expect($$('#build-steps [data-field]')).toEqual([]);
+    expect(UI.slots.retool_build).toBeUndefined();
   });
 
-  it('fills its one blank, the map, from a box big enough to paste the whole answer into', () => {
-    expect($$('#build-prompt mark.placeholder').map((m) => m.textContent)).toEqual(['[paste your whole map here]']);
-    expect(UI.slots.retool_build).toEqual({ '[paste your whole map here]': 'taskMap' });
-    const fields = $$('#build-steps [data-field]');
-    expect(fields.map((f) => [f.tagName, f.getAttribute('data-field')])).toEqual([['TEXTAREA', 'taskMap']]);
-    expect(text($('label[for="field-taskMap"]'))).toBe('The whole answer from your chat');
-    expect($('#field-taskMap')?.getAttribute('placeholder')).toBe('Paste the whole answer here');
-  });
-
-  it('says how to get the whole answer out of the chat, fixes and all, before the box', () => {
-    const [get] = $$('#build-steps .card').filter((c) => c.querySelector('ol.numbered'));
-    expect(text(get!.querySelector('.card-title'))).toBe('First, get the answer:');
-    expect(Array.from(get!.querySelectorAll('li')).map((li) => text(li))).toEqual([
-      'Go back to that chat and type: "Show me the whole map again, with my fixes."',
-      'Under its answer, tap the copy button (two little squares).',
-      'Come back here. Press and hold the box below, then tap Paste.',
-    ]);
-    expect(get!.compareDocumentPosition($('#field-taskMap')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  });
-
-  it('takes the whole pasted answer, line breaks and table included, in place of its blank', () => {
-    const pasted =
-      '\n| Task | Hours | Bucket | Why |\n| CRM tagging | 3 | RUN | Rules-based |\n\nFirst AI employee: a Transaction QA agent.\n';
-    const filled = fillPrompt(BUILD, UI.slots.retool_build!, { taskMap: pasted })
-      .map((p) => p.text)
-      .join('');
-    expect(filled).toBe(BUILD.replace('[paste your whole map here]', pasted.trim()));
-  });
-
-  it('opens a blank ChatGPT or Claude chat, as the audit does', () => {
-    expect(
-      $$('#build-steps a[data-copy-open]').map((a) => [
-        text(a),
-        a.getAttribute('href'),
-        a.getAttribute('data-copy-open'),
-      ]),
-    ).toEqual([
-      ['Copy & Open ChatGPT', 'https://chatgpt.com/', 'build-prompt'],
-      ['Copy & Open Claude', 'https://claude.ai/new', 'build-prompt'],
-    ]);
-    expect(text($('#build-steps .path-lead'))).toBe('Then tap one button. It copies everything and opens a new chat.');
-    const then = $$('#build-steps .card').filter(
-      (c) => text(c.querySelector('.card-title')) === 'Then, in the new chat:',
+  it('asks in the same chat as the map: a copy-only button, no new chat opened', () => {
+    expect($$('#build-steps a[data-copy-open]')).toEqual([]);
+    const button = $('#build-steps button[data-copy-prompt]') as HTMLButtonElement;
+    expect(button.getAttribute('data-copy-prompt')).toBe('build-prompt');
+    expect(text(button)).toBe('Copy the Request');
+    expect(button.hidden).toBe(true);
+    expect(button.hasAttribute('data-js-only')).toBe(true);
+    expect(text($('#build-steps .path-lead'))).toBe(
+      "Tap Copy the Request. The button copies a message asking the AI for build steps. The button doesn't open ChatGPT or Claude.",
     );
-    expect(Array.from(then[0]!.querySelectorAll('li')).map((li) => text(li))).toEqual([
-      'Press and hold the message box, then tap Paste.',
-      'Tap Send.',
-      'Follow its steps one at a time. Stuck? Tell it which step, in that same chat.',
+    expect($$('#build-steps ol.numbered li').map((li) => text(li))).toEqual([
+      'Go back to the ChatGPT or Claude chat with your task map. On a phone, switch to that app or tab. On a computer, click that tab at the top of the window.',
+      'Paste the request into the message box, the same way as before.',
+      'Tap the send arrow.',
+      'Follow the AI\'s steps, one at a time. A computer is easiest for this part. Need to stop? The steps stay saved in that same chat. Stuck on a step? In that same chat, type: "I\'m stuck on step [number]."',
     ]);
+  });
+
+  it('sends a map that picked contract-to-close to the ready-made one first, before any copying', () => {
+    const skip = $('#build-steps .callout-tip')!;
+    expect(text(skip)).toBe(
+      'Did the AI pick contract-to-close? Skip this screen. The full kit, next, has a Contract-to-Close Coordinator that is already written for you. Tap Get the Full Kit at the bottom of this screen.',
+    );
+    expect(
+      skip.compareDocumentPosition($('#build-steps button[data-copy-prompt]')!) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('warns about real client information before the build, for owners who never see the Coordinator', () => {
+    expect(text($('#build-steps .callout-warn'))).toBe(
+      "Before you put any real client information into ChatGPT or Claude, turn off the setting that lets the app learn from your chats. The AI's steps will show you how.",
+    );
+    expect(prompt('build-prompt')).toContain(
+      'show me how to turn off the setting that lets this app learn from my chats',
+    );
   });
 });
 
@@ -379,7 +376,7 @@ describe('the gate', () => {
   });
 
   it('says "You\'re in" once open, in a line the CSS shows in place of the form', () => {
-    expect(text($('#gate-joined'))).toBe("You're in. The full kit is open.");
+    expect(text($('#gate-joined'))).toBe("You're in. The rest of the kit is open.");
   });
 });
 
@@ -414,7 +411,13 @@ describe('the gated part: Kits C, D and E', () => {
       ['claude', 'https://claude.ai/projects', 'coordinator-prompt'],
       ['chatgpt', 'https://chatgpt.com/', 'coordinator-prompt'],
     ]);
-    expect(doc.body.textContent).not.toMatch(/custom GPT|GPT builder|gpts\/editor/i);
+    // Only the build request names one, to rule it out.
+    const outsidePrompts = Array.from(doc.body.querySelectorAll('*'))
+      .filter((el) => !el.closest('pre') && el.children.length === 0)
+      .map((el) => el.textContent ?? '')
+      .join(' ');
+    expect(outsidePrompts).not.toMatch(/custom GPT|GPT builder|gpts\/editor/i);
+    expect(prompt('build-prompt')).toContain('not a custom GPT');
   });
 
   it('copies the Retool Conversation script (Kit E), shown open, with a copy-only button', () => {
@@ -422,13 +425,16 @@ describe('the gated part: Kits C, D and E', () => {
       true,
     );
     expect($('#retool-script details')?.hasAttribute('open')).toBe(true);
+    // Connor's words but for one clause: the owner has already built by now (D-049).
+    expect(prompt('retool-script')).toContain("Before we use it on real work, let's agree where your time goes");
+    expect(prompt('retool-script')).not.toContain('Before we build anything');
     expect($$('#retool-script mark.placeholder').map((m) => m.textContent)).toEqual([
       '[Name]',
       '[X]',
       '[Y]',
       '[agent accountability / client experience / owning the scorecard]',
     ]);
-    const button = $('button[data-copy-prompt]') as HTMLButtonElement;
+    const button = $('button[data-copy-prompt="retool-script"]') as HTMLButtonElement;
     expect(button.getAttribute('data-copy-prompt')).toBe('retool-script');
     expect(text(button)).toBe('Copy the Script');
     // It needs the script to do anything, so it shows only with it.
@@ -437,30 +443,51 @@ describe('the gated part: Kits C, D and E', () => {
     expect($('#retool-script')?.closest('#retool-conversation')).not.toBeNull();
   });
 
-  it('says to make the Project on a laptop, with the button names each app uses today', () => {
-    expect(text($('#coordinator .path-lead'))).toBe(
-      'This part is easiest on a laptop. Fill in two boxes, then pick your app.',
+  it('is the optional, ready-made one, with a link past it for anyone who built their own', () => {
+    expect(text($('#coordinator .lede'))).toBe(
+      "Optional: use this AI employee if the AI picked contract-to-close. The Coordinator's instructions are already written, so you can use them instead of the AI's build steps.",
+    );
+    const skip = $('#coordinator a.skip')!;
+    expect(skip.getAttribute('href')).toBe('#retool-conversation');
+    expect(text(skip)).toBe('Built a different AI employee? Skip to the talk with your ops leader');
+  });
+
+  it('says to make the Project on a computer, with the button names each app uses today', () => {
+    expect(text($$('#coordinator .path-lead').filter((p) => text(p).startsWith('Do this part'))[0])).toBe(
+      "Do this part on a computer. Setting up a Project is hard on a phone. A Project is a folder in ChatGPT or Claude that keeps an AI employee's instructions and files together. Type your team's name and your city and state in the two boxes below, then tap the app you use.",
     );
     expect($$('#coordinator [data-pick-panel="claude"] li').map((li) => text(li))).toEqual([
-      'Click New project, top right. Name it Contract-to-Close Coordinator.',
-      'Leave the description blank. Click Create project.',
-      'On the right, click Set project instructions. Paste, then click Save instructions.',
+      'Click New project in the top right.',
+      'In the first box, type Contract-to-Close Coordinator. Leave the second box blank, and click Create project.',
+      'On the right side, click Set project instructions.',
+      'Paste the instructions, then click Save instructions.',
     ]);
     expect($$('#coordinator [data-pick-panel="chatgpt"] li').map((li) => text(li))).toEqual([
-      'Click New project in the sidebar. Name it Contract-to-Close Coordinator.',
-      'Click the ••• menu at the top, then Project settings.',
-      'Click in the Instructions box and paste.',
+      'On the left side of ChatGPT, click New project.',
+      'Type Contract-to-Close Coordinator as the name, then click Create project.',
+      'Click the three dots (•••) at the top right of the Project page, then click Project settings.',
+      'Click in the Instructions box, paste the instructions, then click Save.',
     ]);
   });
 
-  it('says where each app takes files, and names the exact switch that stops it learning from chats', () => {
-    expect(text($('#first-file'))).toContain(
-      'In Claude: on the Project page, click the + on the right side and upload each one.',
+  it('turns off training before anything is uploaded, and keeps the binder to four files', () => {
+    const guard = $('#first-file .callout-warn')!;
+    // First on the screen, before the binder.
+    expect(guard.compareDocumentPosition($('#first-file .card')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(text(guard)).toContain(
+      'In ChatGPT: click your name in the bottom left corner, then Settings, then Data controls. Turn off Improve the model for everyone, then click Done.',
     );
-    expect(text($('#first-file'))).toContain("In ChatGPT: open the Project's Sources tab and upload each one.");
-    const guard = text($('#first-file .callout-warn'));
-    expect(guard).toContain('ChatGPT: Settings, then Data controls, then turn off Improve the model for everyone.');
-    expect(guard).toContain('Claude: Settings, then Privacy, then turn off Help improve Claude.');
+    expect(text(guard)).toContain(
+      'In Claude: click your name in the bottom left corner, then Settings, then Privacy. Turn off the switch that starts with Help improve.',
+    );
+    expect(text(guard)).toContain("don't tap thumbs up or thumbs down");
+    expect(text($('#first-file'))).toContain('Upload four files to the Project, one for each item below.');
+    expect(text($('#first-file'))).toContain(
+      'In Claude: on the Project page, click the + on the right side. Upload one file at a time.',
+    );
+    expect(text($('#first-file'))).toContain(
+      'In ChatGPT: open the Project, and click the Sources tab. Add one file at a time.',
+    );
   });
 
   it('speaks plainly: no EOS terms, no AI-builder jargon, no riddles left from the first draft', () => {
@@ -476,13 +503,18 @@ describe('the gated part: Kits C, D and E', () => {
       expect(words, String(banned)).not.toMatch(banned);
   });
 
-  it('lays out the 30-day plan (Kit D) as four weeks: Map, Build, Use, Decide', () => {
+  it('lays out the 30-day plan (Kit D) for an owner who has built: Talk, Test, Use, Decide', () => {
     expect($$('#thirty-day-plan .plan-week .week-pillar').map((w) => text(w))).toEqual([
-      'Map',
-      'Build',
+      'Talk',
+      'Test',
       'Use',
       'Decide',
     ]);
+    // Week 4 compares the workload number Week 1 took.
+    expect(text($$('#thirty-day-plan .plan-week')[0])).toContain('rate their workload from 1 to 10');
+    // The next seats, where Week 4 says to pick one.
+    expect(text($('#thirty-day-plan'))).toContain('More AI employees to build later');
+    expect($('#first-file')?.textContent).not.toContain('More AI employees');
     expect($$('#thirty-day-plan .plan-week')).toHaveLength(4);
   });
 
@@ -493,7 +525,7 @@ describe('the gated part: Kits C, D and E', () => {
       expect(RETOOL.forward.review.button.href).toMatch(/^https:\/\//);
     } else {
       expect(book).toEqual([]);
-      expect(text($('#two-ways'))).toContain('Type RETOOL in the session chat for the booking link.');
+      expect(text($('#two-ways'))).toContain('On a live call? Type RETOOL in the Zoom chat to get the booking link.');
     }
     // No price, no scarcity on the page: the talk keeps both for the Review.
     expect(text($('#two-ways'))).not.toMatch(/\$|two (more )?teams|spots/i);

@@ -2185,3 +2185,57 @@ end of the prompt to make it clearer too."
   steps prompt gains "Use plain words with no tech terms. One action per step, and tell me exactly what
   to tap, click, or type." Every earlier word of both is unchanged, and Kits C and E are untouched.
 - **Still open:** the Retool Review booking link (D-046). Outside a live session there is no way to book.
+
+## D-049 · /retool: build in the map's own chat, right away, in words a first-time AI user can follow
+
+**Date:** 2026-10-22
+**Approved by:** the user, in chat on 2026-10-22, showing the "Check its answer" screen: "Do these
+steps make sense if they're already building their OWN AI employee from what we went through in the
+earlier steps? Also, I still don't think this language is simple enough throughout the whole thing",
+with a model line ("Remove what doesn't apply to your ops team. Tasks marked (added) in the response
+are guesses the AI made about your team. If one isn't something your team does, type: \"Remove
+[task]. We don't do that.\""). Asked whether owners build now or with their ops leader in Week 2, the
+user chose "Build right away", knowing it changes one clause of Kit E.
+**Scope:** `apps/web/src/retool/{content,render}.ts`, `retool.css`, its tests and a new
+`main.test.ts`; in `src/ai101/{content,main}.ts` and `main.test.ts`, the `taskMap` field removed. No
+API, form, anchor or state-key changes.
+
+- **The answer to the question: partly.** The check steps fed the build, but one ("see what it's
+  worth", hours times cost) built nothing, the pick came last, and the build then had the visitor
+  ask the chat to repeat its map, copy it, paste it into this page, and paste it again into a new
+  chat. Now: the check screen keeps only the fixes the build uses (remove the AI's guesses, Connor's
+  line word for word; make sure anything sent to a client, agent, lender or title is Draft; then ask
+  which AI employee to build first, after the fixes, which can change it). The build is asked in the
+  SAME chat, which already holds the map and the fixes: one "Copy the Request" button
+  (`data-copy-prompt`, copy-only, as the script's), paste, send, follow the steps. The `taskMap` box
+  and `[paste your whole map here]` are gone; a saved one is ignored, as any unknown key is.
+- **Build right away** (the user's choice over "steps now, build in Week 2"). So: a map that picked
+  contract-to-close skips the build screen (a note at its top) for the ready-made Coordinator, which
+  comes first after the gate, marked optional, with a link past it to the talk. Kit E's "Before we
+  build anything" is "Before we use it on real work"; the talk's moves make the ops leader the boss
+  of an AI employee that exists; the plan's weeks are Talk, Test, Use, Decide (Kit D's Map and Build
+  are done by then), Week 1 takes the 1 to 10 workload number that Week 4 compares.
+- **The build request** keeps Connor's live ask word for word, after a new first line (build the one
+  you recommended, or the one I said I'd rather build), and gains lines that close dead ends a
+  first-timer hits: a Project, not a custom GPT, and say before a paid step; the ops leader as the
+  manager; say before anything needs a CRM, email or text connection, and give a version that works
+  without it; show how to turn off training before real client data; parts that can be stopped and
+  picked up; and where to look when a button's name has changed.
+- **The words.** A review read the page as a 58-year-old first-time user on an iPhone during a Zoom
+  call, as a literal 10th grader, for flow, for tone, and against each app's help center; 79 edits,
+  most taken. The rules: name the actor and the place ("the AI", "the AI's response", "that same
+  chat", never a bare "it"); explain a term the first time (task map, AI employee, Project, bucket);
+  one action a step; how to paste on a phone and on a computer, once; how to get back to this page;
+  read the steps before tapping a button that leaves the page; the field labels are questions; "the
+  person or the job", not "the system"; "Option A/B/C" for the talk's doors (the letters still match
+  the slide); "On a live call?" and "the Zoom chat" for the session lines.
+- **Facts corrected, from each help center (2026-10-22):** sign in to ChatGPT even when it lets you
+  skip it, since signed-out chats are not kept; ChatGPT's New project ends with Create project and its
+  instructions with Save; ChatGPT's Data controls are under the account menu and close with Done; a
+  thumbs up or down can send a chat for training even after opting out; Claude's switch is named by
+  its first words ("Help improve"), as Anthropic has renamed it; free ChatGPT Projects hold five
+  files, so the binder is four files; Run's examples drop "deadline reminders", since a contract date
+  is Draft by the page's own rule. The safety line now comes first on the binder screen, and a short
+  one is on the build screen, for owners who never see the Coordinator.
+- **Still open:** the Retool Review booking link (D-046), and what the December leadership track is:
+  the box's label names it without saying what it is.

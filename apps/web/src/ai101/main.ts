@@ -74,16 +74,16 @@ const FIELD_NAMES = [
   'questions',
   'brokerage',
   'profile',
-  // /retool's (D-046): Kit B's audit, the map pasted back for its build steps (D-047), Kit C's job
-  // description, and Kit E's script. Each page keeps its state under its own key (`data-state-key`),
-  // so these sit empty on /ai101 and /voice-profile.
+  // /retool's (D-046): Kit B's audit, Kit C's job description, and Kit E's script. Each page keeps its
+  // state under its own key (`data-state-key`), so these sit empty on /ai101 and /voice-profile. (The
+  // map pasted back for the build steps, D-047's `taskMap`, went when they moved into the map's own
+  // chat, D-049: a saved one is now ignored, as any unknown key is.)
   'agents',
   'closings',
   'crm',
   'opsTeam',
   'weekEaters',
   'breaksFirst',
-  'taskMap',
   'teamName',
   'cityState',
   'opsName',
@@ -120,7 +120,6 @@ const EMPTY: State = {
   opsTeam: '',
   weekEaters: '',
   breaksFirst: '',
-  taskMap: '',
   teamName: '',
   cityState: '',
   opsName: '',

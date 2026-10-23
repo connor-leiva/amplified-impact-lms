@@ -79,7 +79,7 @@ export interface Screen {
 /** A labelled field whose value fills a prompt's [placeholder] as it is typed. */
 export interface FillField {
   /** The key it is saved under, and its `data-field`. */
-  // The last thirteen are /retool's (D-046, and `taskMap` D-047), which runs this page's script.
+  // The last twelve are /retool's (D-046), which runs this page's script.
   name:
     | 'market'
     | 'clients'
@@ -94,7 +94,6 @@ export interface FillField {
     | 'opsTeam'
     | 'weekEaters'
     | 'breaksFirst'
-    | 'taskMap'
     | 'teamName'
     | 'cityState'
     | 'opsName'
@@ -863,8 +862,6 @@ export const UI = {
       '[list]': 'weekEaters',
       '[answer]': 'breaksFirst',
     },
-    // The build steps (D-047): the whole map, pasted back in.
-    retool_build: { '[paste your whole map here]': 'taskMap' },
     retool_coordinator: { '[Team Name]': 'teamName', '[City, State]': 'cityState' },
     retool_script: {
       '[Name]': 'opsName',
