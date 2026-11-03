@@ -5,8 +5,9 @@
 // `reel-editor.ts`); this file holds the shape they share, what every guide page says the same way
 // (the consent line, the in-app browser hint, the footer), and the list of guides. To add one: write
 // its file, add it to `GUIDES`, add `apps/web/<slug>.html` (a copy of another guide's shell), put its
-// file in `public/downloads/`, and add its slug to the API's `GUIDE_SLUGS`
-// (`apps/api/src/routes/guide-list.ts`).
+// file in `public/downloads/`, add its slug to the API's `GUIDE_SLUGS`
+// (`apps/api/src/routes/guide-list.ts`), and list it in the free library
+// (`ENTRIES` in `src/library/content.ts`, D-050).
 //
 // Most guides are a PDF: saved, then read. A Claude skill (the Reel Editor, D-045) is a ZIP that has
 // to be added to Claude before it does anything, so its download carries `setup`, the steps that

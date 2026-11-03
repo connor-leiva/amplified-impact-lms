@@ -112,15 +112,18 @@ const fixtureOnly = process.env.VITE_DATA_SOURCE === 'fixture';
 // served under a hash computed from different bytes.
 const ai101Page = readBuilt(ai101Html);
 const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readBuilt(guideHtml(slug))]));
+// The free library that lists them (D-050), which has an inline script of its own.
+const libraryPage = readBuilt(fileURLToPath(new URL('../../web/dist/library.html', import.meta.url)));
 
 const app = await build({
   logger: true,
   fixtureOnly,
   // Not the legal pages: they carry no script (`apps/web/src/legal/render.test.ts` holds them to
   // that), so they have nothing to hash, and a script added to one later stays blocked.
-  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(guidePages)]),
+  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(guidePages), libraryPage]),
   ai101Page,
   guidePages,
+  libraryPage,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml) },
   marketingPage: readBuilt(holdingHtml),
   waitlist: databaseConfigured(),
@@ -136,7 +139,7 @@ if (existsSync(webDist)) {
     // there). One URL for the page; `/ai101.html` falls through to the SPA like any unknown path.
     // The legal pages likewise: one URL each, `/terms` and `/privacy` (`routes/legal.ts`).
     // And the free guides (D-038, D-039), whose route sets the Referrer-Policy their no-JS opt-in needs.
-    globIgnore: ['ai101.html', 'terms.html', 'privacy.html', ...GUIDE_SLUGS.map((slug) => `${slug}.html`)],
+    globIgnore: ['ai101.html', 'terms.html', 'privacy.html', 'library.html', ...GUIDE_SLUGS.map((slug) => `${slug}.html`)],
     // The guides' files (D-038, D-039; the Reel Editor's ZIP, D-045) are lead magnets behind an opt-in:
     // kept out of search results.
     setHeaders: (res, path) => {

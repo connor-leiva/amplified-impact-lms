@@ -2239,3 +2239,48 @@ API, form, anchor or state-key changes.
   one is on the build screen, for owners who never see the Coordinator.
 - **Still open:** the Retool Review booking link (D-046), and what the December leadership track is:
   the box's label names it without saying what it is.
+
+## D-050 · /library: one page that lists every guide, skill and setup
+
+**Date:** 2026-11-03
+**Approved by:** the user, in chat on 2026-11-03: "It's getting large enough that I need to shift gears
+to start treating our content as a repository for people. As such, I need your help creating a landing
+page for these skills that is modeled somewhat similarly to this page:
+https://learnaiwithmariah.com/guides/"
+**Scope:** `apps/web/src/library/`, `apps/web/library.html`, both Vite configs,
+`scripts/check-css-colors.mjs`; in the API `routes/library.ts`, `routes/marketing.ts`, `app.ts`,
+`server.ts`, and their tests.
+
+- **What it is.** A public page at `/library`: a forest hero, pills by AI tool and by topic, a search, a
+  sort, and a grid of cards, each one link. The reference's shape in this brand's words and colours.
+  `/guides` and `/skills` 301 to it, query kept, because on www an unknown path goes to the placeholder.
+  It is not one of `GUIDE_SLUGS`: a slug is also an opt-in route and a sign-up `source`, and this page
+  has no form. Served as the guides are (from memory, exempt from the global limit, ETag), in both modes.
+- **One record per resource.** `ENTRIES` in `src/library/content.ts` is the only thing to edit to list
+  something. The pills are worked out from the records, so a new tool or topic gets its pill by being
+  used and an unused one never shows. Each record's `keywords` are searched but never shown.
+- **It cannot fall behind.** A test reads the API's `GUIDE_SLUGS` and fails if a guide has no record, so
+  a new guide page cannot ship missing from the library, and another fails on a card linking to a page
+  that does not exist. "To add a guide" in `guide-list.ts` and `guides/content.ts` says so.
+- **With no script,** every card shows, newest first, and every link works; the pills, search and sort
+  are `hidden data-js-only`. The script reads each card's `data-` attributes, so no catalog copy is in it.
+- **The Ops Time Audit and the Task Sync Starter Kit are listed,** though the user's list did not name
+  them: they are live free guides, and the test above requires a record. Removing them means an explicit
+  exception in that test.
+- **The Content Strategist is "Coming soon".** The user named it as on the site, but it is not on
+  `origin/main` or in production (`/content-strategist` falls to the placeholder). Its card has
+  `href: null`, which links nowhere. Its words are from the README of the `content-opportunity-research`
+  skill in the user's Downloads, taken to be the same thing. To confirm with the user.
+- **Exact on www.** `/library`, `/guides` and `/skills` match with no deeper path, unlike the guides'
+  slugs: `/skills/reel-editor` is the link people will guess, and through the allow-list it would reach
+  the app's shell. `/retool/x` and its siblings still have that hole; out of scope here.
+- **Honest cards.** A card with no page sorts last in both directions, so the first card is always one
+  that opens. The Reel Editor's says it needs a paid Claude plan to finish in one go, and AI 101's that
+  its carousel half needs a laptop and Claude Pro. The lede says most pages ask for a name and email,
+  since five of the six live ones do.
+- **Known floor:** every colour here is an `oklch()` token, as on the sibling pages, so below Safari 15.4
+  the page loses its colours and the pressed pill looks like the others. The script and the links work.
+- **Not done:** `/` on www still shows the "under construction" placeholder, which links only to /ai101.
+  Whether the library replaces it is the user's call. Two older problems the review found, which the
+  library now exposes to more people: /ai101's sprint calendar buttons add dates that have passed
+  (D-032), and page 8 of the Task Sync PDF still has template blanks (D-038).

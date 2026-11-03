@@ -38,6 +38,7 @@ async function serve(marketingHost: string | undefined, page: string | null = PA
     logger: false,
     ai101Page: '<title>AI 101</title>',
     guidePages: Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, `<title>Guide ${slug}</title>`])),
+    libraryPage: '<title>The Free Library</title>',
     marketingPage: page,
   });
   await app.ready();
@@ -67,6 +68,33 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       const res = await get(a, url, APP);
       expect(res.body, `${url} on the app host`).not.toContain('Under construction');
       expect(res.statusCode, `${url} on the app host`).not.toBe(302);
+    }
+  });
+
+  it('lets the free library and its other spellings through on www, and no deeper (D-050) @g9', async () => {
+    const a = await serve(WWW);
+
+    for (const url of ['/library', '/library?src=ig']) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(200);
+      expect(res.body, url).toContain('The Free Library');
+    }
+    for (const [url, location] of [
+      ['/library/', '/library'],
+      ['/guides', '/library'],
+      ['/guides/', '/library'],
+      ['/skills', '/library'],
+      ['/skills/?src=ig', '/library?src=ig'],
+    ] as const) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(301);
+      expect(res.headers.location, url).toBe(location);
+    }
+    // A guessed deep link must not reach the app's shell on www.
+    for (const url of ['/skills/reel-editor', '/guides/reel-editor', '/library/x', '/skills/x?src=ig']) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(302);
+      expect(res.headers.location, url).toBe('/');
     }
   });
 
@@ -136,7 +164,7 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     }
 
     // Lookalikes still go to the placeholder.
-    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync', '/ops-time-auditx', '/ops', '/voice-profilex', '/voice', '/reel-editorx', '/reel', '/retoolx', '/retool-x', '/RETOOLX', '/Retoolx', '/ReTool', '/reTOOL', '/retoo']) {
+    for (const url of ['/Ai101', '/ai101x', '/ai-1010', '/waitlistx', '/task-sync-starterx', '/task-sync', '/ops-time-auditx', '/ops', '/voice-profilex', '/voice', '/reel-editorx', '/reel', '/retoolx', '/retool-x', '/RETOOLX', '/Retoolx', '/ReTool', '/reTOOL', '/retoo', '/libraryx', '/library-old', '/Library', '/guidesx', '/guide', '/skillsx', '/skill']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(302);
       expect(res.headers.location, url).toBe('/');

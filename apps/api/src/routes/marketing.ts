@@ -41,14 +41,16 @@ import type { App } from '../app';
  * which the "Retool, Don't Replace" talk's room types ("Type RETOOL in the chat"), for `/AI101`'s
  * reason — `routes/guides.ts` 301s each to `/retool`, but only if www lets it reach that route. Their
  * PDFs, under `/downloads/`, are files, so they pass on their
- * own. `/terms` and `/privacy` because the waitlist on it links
+ * own. `/library`, the free library that lists them all (D-050), with `/guides` and `/skills`, the
+ * other words someone would type for it (`routes/library.ts` 301s both). Those three match exactly, so
+ * a guessed `/skills/reel-editor` goes to `/`, not through to the app's shell. `/terms` and `/privacy` because the waitlist on it links
  * to them, and a visitor on www must land on the page, not on the placeholder (`routes/legal.ts`);
  * those two match exactly, with or without a query string, so `/terms-old` still goes to `/`.
  * `/api/` because the health check lives there — Railway's probe arrives with its own `Host` and a
  * redirect would fail a deploy that is perfectly healthy — and so does the waitlist the page posts to.
  */
 const PUBLIC_PREFIX =
-  /^\/((ai101|AI101|ai-101|waitlist|task-sync-starter|ops-time-audit|voice-profile|reel-editor|retool|RETOOL|Retool)(\/|$|\?)|(terms|privacy)($|\?)|api\/)/;
+  /^\/((ai101|AI101|ai-101|waitlist|task-sync-starter|ops-time-audit|voice-profile|reel-editor|retool|RETOOL|Retool)(\/|$|\?)|(library|guides|skills)\/?($|\?)|(terms|privacy)($|\?)|api\/)/;
 
 /** The placeholder's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);

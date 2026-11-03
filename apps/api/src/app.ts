@@ -73,6 +73,7 @@ import { clock } from './lib/clock';
 import { registerAi101Page, registerAi101Waitlist } from './routes/ai101';
 import { registerLegalPages } from './routes/legal';
 import { registerGuidePages, type GuidePages } from './routes/guides';
+import { registerLibraryPage } from './routes/library';
 import type { LegalPages } from './routes/legal';
 import { registerMarketingHost } from './routes/marketing';
 import { registerAuthRoutes } from './routes/auth';
@@ -135,6 +136,8 @@ export interface BuildOptions {
    * 404. Their inline script must be in `inlineScriptHashes`, as /ai101's is. `routes/guides.ts`.
    */
   guidePages?: GuidePages;
+  /** The built free library, `apps/web/dist/library.html` (D-050); a JSON 404 when absent. */
+  libraryPage?: string | null;
   /**
    * The built placeholder for the marketing host, `apps/web/dist/holding.html`, served on
    * `MARKETING_HOST` only. `null` when it has not been built, which makes `/` there a 404
@@ -433,6 +436,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   // for the same reasons, in both modes. `routes/legal.ts`.
   registerLegalPages(app, options.legalPages);
   registerGuidePages(app, options.guidePages);
+  registerLibraryPage(app, options.libraryPage ?? null);
 
   let events: EventHub | null = null;
 

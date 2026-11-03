@@ -6,7 +6,8 @@
 // GoHighLevel tags (`SOURCE_TAGS` in integrations/ghl.ts). Its words, PDF and shell are the web app's
 // (`apps/web/src/guides/`; the voice profile setup's, `apps/web/src/voice/`). To add a guide, add its
 // slug here, its tags there, and its path (and any alias in `GUIDE_ALIASES` below) to `PUBLIC_PREFIX`
-// in routes/marketing.ts. A guide whose form asks for more than a name and an address says so in
+// in routes/marketing.ts, and list it in the free library (`ENTRIES` in `apps/web/src/library/content.ts`,
+// D-050; a test fails until you do). A guide whose form asks for more than a name and an address says so in
 // `SIGN_UP_FORMS` (routes/ai101.ts): /retool's team size (D-046) is the only one so far.
 
 export const GUIDE_SLUGS = ['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool'] as const;

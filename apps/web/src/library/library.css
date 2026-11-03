@@ -1,0 +1,334 @@
+/* /library, the free library. DECISIONS.md D-050.
+
+   A forest hero, then pill filters and a grid of cards on the guides' cream and paper. Mobile first,
+   for a link opened on a phone; two columns from 640px, three from 1024px.
+
+   COLOURS. Cream, ink, forest and paper are tokens. The one accent is the brand mark's mint, a page
+   variable with /ai101's exact value (D-034). `scripts/check-css-colors.mjs` scans this file.
+
+   Inlined into the page at build time (vite-plugin.ts). The fonts are the same four files /ai101 loads. */
+
+@import '@fontsource/hanken-grotesk/400.css';
+@import '@fontsource/hanken-grotesk/700.css';
+@import '@fontsource/hanken-grotesk/800.css';
+@import '@fontsource/dm-mono/400.css';
+@import '../styles/tokens.css';
+@import '../styles/global.css';
+
+:root {
+  --lib-mint: oklch(0.793 0.116 162);
+}
+
+/* `hidden` wins over every `display` below: the controls are hidden markup until the script runs. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+h1,
+h3,
+p,
+ul {
+  margin: 0;
+}
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+:focus-visible {
+  /* Forest, not the paler --action-primary-line: that is under 2:1 against the cream behind it. */
+  outline: 3px solid var(--action-primary);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- The hero ------------------------------------------------------------------------------------- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 20px 30px;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  text-align: center;
+}
+.logo {
+  display: block;
+  width: 170px;
+  height: auto;
+  margin-bottom: 10px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lib-mint);
+}
+.hero h1 {
+  max-width: 14em;
+  font-size: clamp(34px, 8.5vw, 72px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+.lede {
+  max-width: 34em;
+  font-size: clamp(17px, 2.4vw, 21px);
+}
+
+/* --- The controls --------------------------------------------------------------------------------- */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 22px 20px 56px;
+}
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filter-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.chip[aria-pressed='true'] {
+  border-color: var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.finder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* 16px and up: iOS zooms the page into any field smaller than that. */
+.finder input,
+.sorter select {
+  min-height: 48px;
+  /* --text-tertiary, not a line token: a field's edge has to read as one, 3:1 against the cream. */
+  border: 1px solid var(--text-tertiary);
+  border-radius: 14px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+}
+.finder input {
+  width: 100%;
+  padding: 0 16px;
+}
+.sorter select {
+  padding: 0 10px;
+}
+.finder input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* --- The cards ------------------------------------------------------------------------------------ */
+
+.list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.count {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+.sorter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.items {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.item {
+  display: flex;
+}
+.item-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--line-default);
+  border-radius: 18px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+/* global.css underlines every link on hover, which would underline a whole card. */
+a.item-body:hover {
+  border-color: var(--action-primary);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+/* Drawn above the title, though after it in the markup (render.ts has why). */
+.item-tags {
+  order: -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.item-tags li:first-child {
+  color: var(--action-primary);
+}
+.item-title {
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.item-desc {
+  font-size: 17px;
+  color: var(--text-secondary);
+}
+/* Last in the card, pushed to its bottom, so a row of cards lines up. */
+.item-arrow,
+.item-soon-tag {
+  margin-top: auto;
+  padding-top: 8px;
+  font-weight: 700;
+  color: var(--action-primary);
+}
+.item-arrow {
+  font-size: 22px;
+  line-height: 1;
+}
+.item-soon .item-body {
+  border-style: dashed;
+  border-color: var(--line-strong);
+  background: transparent;
+}
+.item-soon-tag {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+}
+.clear {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--action-primary);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --- The footer ----------------------------------------------------------------------------------- */
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+.foot-links a {
+  color: inherit;
+}
+
+/* --- Wider screens -------------------------------------------------------------------------------- */
+
+@media (min-width: 640px) {
+  .hero {
+    gap: 14px;
+    padding: 44px 32px 64px;
+  }
+  .logo {
+    width: 200px;
+    margin-bottom: 18px;
+  }
+  .page {
+    padding: 36px 32px 72px;
+  }
+  .foot {
+    padding: 0 32px 48px;
+  }
+  .controls {
+    gap: 18px;
+  }
+  .items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

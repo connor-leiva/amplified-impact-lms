@@ -560,6 +560,13 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/retool/', methods: 'GET, HEAD', guard: 'page' },
   { path: '/RETOOL', methods: 'GET, HEAD', guard: 'page' },
   { path: '/Retool', methods: 'GET, HEAD', guard: 'page' },
+  // The free library (D-050), with the other words someone would type for it, each a public 301.
+  { path: '/library', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/library/', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/guides', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/guides/', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/skills', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/skills/', methods: 'GET, HEAD', guard: 'page' },
 ];
 
 /**
@@ -1058,6 +1065,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/ai101',
           '/ai101/',
           '/ai101/carousel-sprint.ics',
+          '/guides',
+          '/guides/',
+          '/library',
+          '/library/',
           '/ops-time-audit',
           '/ops-time-audit/',
           '/privacy',
@@ -1065,6 +1076,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/reel-editor/',
           '/retool',
           '/retool/',
+          '/skills',
+          '/skills/',
           '/task-sync-starter',
           '/task-sync-starter/',
           '/terms',

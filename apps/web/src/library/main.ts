@@ -1,0 +1,106 @@
+// /library's only script. DECISIONS.md D-050.
+//
+// It turns the list the markup already holds into a filterable one: the tool and topic pills, the
+// search and the sort. With JavaScript off, or if this throws, every card still shows, newest first,
+// and every link works, because the controls stay `hidden` until the last line of `boot`.
+//
+// Inlined into the page as one `<script type="module">` (`ai101Inline`), so it imports nothing: a
+// module shared with another page's script would be split into a chunk an inlined script cannot load.
+// Built for es2019 / Safari 13, as /ai101's is, for the in-app browsers a shared link opens in.
+
+/** The script's copy of `LIBRARY.count`, which `render.test.ts` holds equal. */
+export const countLabel = (n: number): string => `Showing ${n} ${n === 1 ? 'resource' : 'resources'}`;
+
+const wordsOf = (el: Element, attr: string) => (el.getAttribute(attr) ?? '').split(' ').filter(Boolean);
+
+function boot(doc: Document): void {
+  const list = doc.getElementById('library-items');
+  const count = doc.getElementById('library-count');
+  const empty = doc.getElementById('library-empty');
+  const clear = doc.getElementById('library-clear');
+  const search = doc.getElementById('library-search') as HTMLInputElement | null;
+  const sort = doc.getElementById('library-sort') as HTMLSelectElement | null;
+  if (!list || !count || !empty || !clear || !search || !sort) return;
+
+  // Each card with what is matched against, read once. `order` keeps cards added the same day in the
+  // markup's order, whichever way the sort runs. `soon` has no page yet, and sorts last either way.
+  const cards = Array.from(list.querySelectorAll<HTMLElement>('[data-item]')).map((el, order) => ({
+    el,
+    order,
+    added: el.getAttribute('data-added') ?? '',
+    soon: el.classList.contains('item-soon'),
+    tools: wordsOf(el, 'data-tools'),
+    topics: wordsOf(el, 'data-topics'),
+    text: `${el.textContent ?? ''} ${el.getAttribute('data-words') ?? ''}`.toLowerCase(),
+  }));
+  const chips = Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-filter]'));
+  const picked: Record<string, string> = { tool: '', topic: '' };
+
+  const apply = () => {
+    // iOS types a curly apostrophe; the cards have straight ones.
+    const terms = search.value
+      .toLowerCase()
+      .replace(/[\u2018\u2019]/g, "'")
+      .split(/\s+/)
+      .filter(Boolean);
+    let showing = 0;
+    for (const c of cards) {
+      const show =
+        (picked.tool === '' || c.tools.indexOf(picked.tool!) >= 0) &&
+        (picked.topic === '' || c.topics.indexOf(picked.topic!) >= 0) &&
+        terms.every((t) => c.text.indexOf(t) >= 0);
+      c.el.hidden = !show;
+      if (show) showing += 1;
+    }
+    for (const chip of chips) {
+      const name = chip.getAttribute('data-filter') ?? '';
+      chip.setAttribute('aria-pressed', String(picked[name] === chip.getAttribute('data-value')));
+    }
+    const label = countLabel(showing);
+    if (count.textContent !== label) count.textContent = label;
+    empty.hidden = showing > 0;
+  };
+
+  const applySort = () => {
+    const dir = sort.value === 'oldest' ? 1 : -1;
+    const sorted = [...cards].sort(
+      (a, b) => Number(a.soon) - Number(b.soon) || dir * a.added.localeCompare(b.added) || a.order - b.order,
+    );
+    for (const c of sorted) list.appendChild(c.el);
+  };
+
+  for (const chip of chips) {
+    chip.addEventListener('click', () => {
+      // A pressed pill is announced as a toggle, so tapping it again turns it off. "All" is already ''.
+      const name = chip.getAttribute('data-filter') ?? '';
+      const value = chip.getAttribute('data-value') ?? '';
+      picked[name] = picked[name] === value ? '' : value;
+      apply();
+    });
+  }
+  search.addEventListener('input', apply);
+  // The list has already filtered as they typed. The phone's Search key puts the keyboard away, so they
+  // can see it.
+  search.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') search.blur();
+  });
+  sort.addEventListener('change', applySort);
+  clear.addEventListener('click', () => {
+    picked.tool = '';
+    picked.topic = '';
+    search.value = '';
+    apply();
+    // A button, not the search: focusing a field from a tap opens a phone's keyboard over the list.
+    // The Clear button has just been hidden, so focus has to go somewhere.
+    if (chips[0]) chips[0].focus();
+  });
+
+  // A browser that restored the form on Back keeps what it restored in step with the list.
+  applySort();
+  apply();
+
+  // Only now, with everything wired: a failure above leaves the plain list and no dead controls.
+  for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[data-js-only]'))) el.hidden = false;
+}
+
+boot(document);
