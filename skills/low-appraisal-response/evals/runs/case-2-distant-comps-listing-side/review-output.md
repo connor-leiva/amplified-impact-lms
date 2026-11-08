@@ -148,8 +148,8 @@ price. We have a few days to choose a path, and the key contract date is
 
 What The Appraisal Says
 $689,000 minus $662,000 = $27,000. The report describes the home correctly.
-The gap comes from the sales the appraiser used, which are 2 to 3.4 miles
-away in other neighborhoods.
+The gap comes from the sales the appraiser used, which are 2.14 to 3.42
+miles away in other neighborhoods.
 
 What We Found
 Three homes in Willow Example Farms sold before the appraisal date and weren't

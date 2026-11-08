@@ -18,7 +18,7 @@ A reconsideration of value (ROV) asks the appraiser, through the lender, to look
 Selling Guide B4-1.3-12, Appraisal Quality Matters (09/03/2025), in the Guide published November 4, 2026:
 - For loans that require an appraisal report, the lender must have "policies and procedures in place for a borrower-initiated reconsideration of value (ROV)."
 - The process must let the borrower appeal when they believe the value "is unsupported," "may be deficient due to unacceptable appraisal practices," or "reflects prohibited discriminatory practices."
-- The lender gives the borrower a disclosure of the ROV process when it provides the appraisal. "Only one borrower-initiated ROV is permitted per appraisal."
+- The lender gives the borrower a disclosure of the ROV process when it provides the appraisal. The disclosure must make clear that "only one borrower-initiated ROV is permitted per appraisal."
 - **What the borrower's request must include:** the borrower's name, property address, effective date of the appraisal, appraiser name, and date of the ROV request; "identification and description of unsupported, inaccurate, or deficient areas in the appraisal report"; "additional data, information, or comparable properties (not to exceed five), and the related data sources (for example, the MLS listing number)"; and "an explanation of why the new data supports the ROV."
 - The lender completes its own appraisal review first, has an underwriter or appraisal expert review the request, goes back to the borrower if it's unclear, sets turn-time expectations, and gets a revised report from the appraiser "that includes commentary on conclusions regardless of the outcome."
 - "After a loan has closed, an ROV request is no longer allowed to be submitted by the borrower."

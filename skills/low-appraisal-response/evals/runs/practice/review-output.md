@@ -250,4 +250,4 @@ deadline? Please let me know by [date].
 | Lender Make-Believe Mortgage Co.; buyers Jordan and Casey Example | Agent's message; appraisal page 1 |
 | Open placeholders | [Loan Officer Name], [Date Sent], [Listing Agent Name], [date], [Agent Name] |
 
-Kept out of every draft: the CSV's private remarks (the lockbox code, "Sellers relocating, motivated," showing notes), the loan amount, and the report's-own-rates table.
+Kept out of every draft: the CSV's Private Remarks column (access details, seller motivation, showing notes), the loan amount, and the report's-own-rates table.

@@ -34,7 +34,7 @@ $575,000 contract price minus $538,000 appraised value = **$37,000**, about 6.4%
 
 - The report's contract section matches the REPC: $575,000, contract date 11/02/2026, no financial assistance (REPC Section 2.2: $0).
 - No addendum or appraisal gap term was uploaded, so the buyers haven't agreed to cover any part of a shortfall.
-- The REPC shows a $546,250 conventional loan. The lender bases the loan on the lower of the price and the appraised value, so if nothing changes, the buyers' cash to close rises by at least the gap. Example Lending Group confirms the exact figure.
+- The lender figures the loan-to-value on the lower of the price and the appraised value ($538,000), so keeping the $575,000 price means more cash, a loan that's a larger share of the value, or both. How much depends on the loan-to-value the buyers keep; Example Lending Group gives the figures.
 
 ## Fact Check
 
@@ -89,7 +89,7 @@ No reconsideration is guaranteed to change the value. The lender reviews the req
 
 1. **Request a reconsideration of value through Example Lending Group, and ask for an extension.** Tradeoff: under the conventional rules the buyers get one borrower-initiated request per appraisal, and it may not finish by Tuesday, so it only protects them alongside an extension of the Appraisal Deadline signed before 5:00 PM Tuesday. Whether to extend is the seller's call.
 2. **Renegotiate.** A price change or seller credit happens only on a signed addendum, and the lender gets a copy. Tradeoff: the number is the buyers' and seller's decision; meeting halfway would be $575,000 minus $18,500 = $556,500. Any credit is subject to what the lender allows at the appraised value.
-3. **Cover the gap.** Keep the price and bring more cash. Tradeoff: the lender bases the loan on the lower of price and appraised value, so the extra cash is at least the $37,000 gap; Example Lending Group confirms the exact figure.
+3. **Cover the gap.** Keep the price. Tradeoff: the lender figures the loan-to-value on the $538,000 appraised value, not the price, so the buyers bring more cash or borrow a larger share of the value (which can change mortgage insurance or terms); Example Lending Group gives the exact figures.
 4. **Cancel under the Appraisal Condition.** Written notice to the seller with a complete copy of the appraisal by 5:00 PM Tuesday, November 10. All $8,000 of earnest money is released to the buyers. Tradeoff: they lose the house. Waiting and canceling later under the financing condition would cost $4,000 of it.
 
 If no extension is signed by 5:00 PM Tuesday, the buyers have to choose among options 2 to 4 by then, even with the request pending.
@@ -138,7 +138,7 @@ The appraiser's grid shows the basement as unfinished, with no bedroom or bath d
 1. Ask your lender to have the appraisal reconsidered, pointing to those facts. You send it; I've drafted it for you. There's no promise the value changes, and the lender's review may take longer than our deadline.
 2. Ask the seller to extend the appraisal deadline so the review can finish. I'll ask the listing agent today.
 3. Renegotiate the price or ask for a credit, in a signed addendum.
-4. Keep the price and bring more cash. Your lender would confirm the amount, which would be at least $37,000.
+4. Keep the price. Your lender figures the loan on the $538,000 appraised value, so you'd bring more cash or borrow a larger share of the value. Your loan officer will give you the exact numbers.
 5. Cancel by 5:00 PM Tuesday with written notice and a full copy of the appraisal. Your $8,000 earnest money comes back to you. If we wait past Tuesday, a later cancellation for financing reasons would cost $4,000 of it.
 
 **What Happens Next**

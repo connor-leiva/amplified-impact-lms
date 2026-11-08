@@ -31,12 +31,13 @@ How to use this:
 
 ## The Appraisal Condition
 
-- The state-approved REPC (effective December 4, 2024) sets the appraisal condition in Section 8.2 by checkbox. If IS is checked, the buyer's obligation is "conditioned upon the Property appraising for not less than the Purchase Price."
+- Two REPC versions are in use. The November 1, 2026 form may be used now and is mandatory from January 1, 2027. The December 4, 2024 form can be used until then. Read the version and section numbers from the signed contract (`utah-repc.md`, `utah-repc-2026.md`).
+- The December 4, 2024 REPC sets the appraisal condition in Section 8.2 by checkbox. If IS is checked, the buyer's obligation is "conditioned upon the Property appraising for not less than the Purchase Price."
 - If the appraisal comes in below the price, the buyer may cancel by written notice, with a copy of the lender's or appraiser's "Notice of Appraised Value," no later than the Financing & Appraisal Deadline in Section 24(c). The earnest money goes back to the buyer.
 - The form gives the buyer a right to cancel, not a right to a lower price. Any price change or credit takes a signed addendum.
 - If IS NOT is checked, or the buyer lets the deadline pass, the condition is waived. The box is separate from financing, so a cash buyer can still check it.
-- For FHA and VA loans, the FHA/VA Loan Addendum lets the buyer walk away without losing the deposit if the price exceeds the FHA appraised value or VA reasonable value, "Notwithstanding the Financing & Appraisal Deadline."
-- A revised REPC is pending, with mandatory use set for January 1, 2027. Section numbers may change. Read them from the signed contract. See `utah-repc.md`.
+- On the November 1, 2026 REPC the appraisal condition is Section 12.2, and the buyer cancels with written notice "along with a complete copy of the appraisal, no later than the Appraisal Deadline referenced in Section 4(c)." That form has a separate Appraisal Deadline (4(c)) and Financing Deadline (4(d)). See `utah-repc-2026.md`.
+- For FHA and VA loans, the FHA/VA Loan Addendum (Section 3) lets the buyer walk away without losing the deposit if the price exceeds the FHA appraised value or VA reasonable value, notwithstanding the appraisal deadline: the "Financing & Appraisal Deadline" on the 2020 addendum used with the 2024 REPC, and the "Appraisal Deadline" on the November 1, 2026 addendum. The buyer may still choose to complete the purchase.
 
 How to use this: pricing above what the closed sales support doesn't only risk a slow sale. It can create a contract that falls apart or gets renegotiated at appraisal, after the listing has already lost its newness.
 

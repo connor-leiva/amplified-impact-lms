@@ -25,7 +25,7 @@ Use data analysis (Python) on the uploaded files.
 
 Then:
 - **Totals check.** The run adds every account and compares it to the report's own totals and Net Income. If it doesn't tie, find the misread line, and if it can't be fixed, say so at the top and treat every number as provisional.
-- **Account map.** Read "How Each Account Was Read." If an account is misread (agent payouts in Contract Labor, a lead vendor under Marketing), write `map.json` as the code's header shows and rerun. Say what you changed.
+- **Account map.** Read "How Each Account Was Read." If an account is misread (agent payouts in Contract Labor, a lead vendor under Marketing), write `map.json` as the code's header shows and rerun. Do the same with "production_columns" when the run says a production column wasn't recognized (Sisu's download names columns after its form fields). Say what you changed.
 - Every number in the output comes from the run, and every computed figure is shown with its arithmetic as the run prints it. Never compute a new total by hand; if a figure isn't in the run, leave it out.
 
 ## 3. Read How Revenue Is Recorded First

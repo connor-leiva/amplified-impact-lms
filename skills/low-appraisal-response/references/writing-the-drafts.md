@@ -69,7 +69,7 @@ The seller can't file an ROV. The listing agent sends facts and sales to the buy
 
 Money language:
 - Show the gap as arithmetic: "$640,000 contract price minus $612,000 appraised value = $28,000."
-- When the buyer would cover the gap, say the lender bases the loan on the lower of price and appraised value, so the extra cash is at least the gap; the lender confirms the exact figure. Never compute a loan amount or down payment.
+- When the buyer would cover the gap, say the lender figures the loan-to-value on the lower of price and appraised value, so keeping the price means more cash, a loan that's a larger share of the value (which can add mortgage insurance or change the terms), or both. How much more cash depends on the loan-to-value the buyer keeps, so never say the extra cash equals the gap or is at least the gap; the loan officer gives the figure. Never compute a loan amount, down payment or cash to close.
 - For VA: if the buyer proceeds above the reasonable value, the difference comes from their own cash, not borrowed.
 - Splits: show the arithmetic ("meeting halfway would be $640,000 minus $14,000 = $626,000"). The client decides; the skill never recommends a number.
 - Appraisal gap term in an addendum: say what the buyer already agreed to bring and what's left, quoting the addendum ("Addendum No. 1 has you covering up to $10,000 of a shortfall; that leaves $18,000"). Whether the cancellation right survives comes from the addendum's own words; if they're unclear, say the broker will confirm.

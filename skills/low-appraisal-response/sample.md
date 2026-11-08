@@ -40,7 +40,7 @@ $640,000 contract price minus $612,000 appraised value = **$28,000**, about 4.4%
 
 Other money notes for Make-Believe Mortgage Co.:
 - The report's contract section matches the REPC and Addendum No. 1: $640,000, 10/07/2026, and the $6,000 seller contribution.
-- The lender bases the loan on the lower of price and appraised value, so keeping the price means at least $28,000 more cash at today's value. The lender confirms the exact figure.
+- The lender figures the loan-to-value on the lower of price and appraised value ($612,000), so keeping the $640,000 price means more cash, a loan that's a larger share of the value, or both. How much depends on the loan-to-value the buyers keep; the lender gives the figures.
 - Conventional limits on seller contributions are figured on the lower of price and appraised value, so the lender confirms the $6,000 still fits. Don't quote a limit.
 
 ## Fact Check
@@ -125,7 +125,7 @@ There's no promise the value changes. The lender reviews the request, and the ap
 
 1. **Request a reconsideration of value, and ask for an extension.** Strong grounds. Tradeoff: one borrower-initiated request per appraisal under the conventional rules, and it may not finish by Friday, so pair it with an extension of the Financing & Appraisal Deadline signed before 5:00 PM Friday, November 13. Whether to extend is the sellers' call. Also weigh the gap term: a revised value of $630,000 or more would leave the buyers covering the difference without the Appraisal Condition behind them.
 2. **Renegotiate.** A lower price or a credit, on a signed addendum that goes to the lender. Two reference points, as arithmetic only: halfway would be $640,000 minus $14,000 = $626,000; a price where the remaining gap equals the $10,000 the buyers already agreed to cover would be $612,000 plus $10,000 = $622,000. Tradeoff: the sellers may say no, and any credit has to fit what the lender allows at the appraised value.
-3. **Cover the gap.** Keep the price and bring at least $28,000 more: the $10,000 Addendum No. 1 already commits them to, plus $18,000. Tradeoff: cash out of pocket; Make-Believe Mortgage Co. confirms the exact figure.
+3. **Cover the gap.** Keep the price. Addendum No. 1 already has the buyers paying up to $10,000 of a shortfall in cash; the other $18,000 of today's gap is outside it. The lender figures the loan-to-value on $612,000, so they'd bring more cash, borrow a larger share of the value, or both. Tradeoff: cash out of pocket or different loan terms; Make-Believe Mortgage Co. gives the exact figures.
 4. **Cancel under the Appraisal Condition.** Written notice with a copy of the Notice of Appraised Value by 5:00 PM Friday, November 13, under Section 8.2(a); the $10,000 earnest money comes back. Tradeoff: they lose the house.
 
 ## Reconsideration of Value Request
@@ -165,29 +165,28 @@ Jordan Example and Casey Example
 
 Hi Jordan and Casey,
 
-**The appraisal came in at $612,000, $28,000 under our $640,000 price. There are real reasons to ask for another look, and we need a plan before 5:00 PM Friday, November 13.**
+**The appraisal came in at $612,000, $28,000 under our $640,000 price. There are real grounds to ask for another look, and we need a plan by 5:00 PM Friday, November 13.**
 
 **What The Appraisal Says**
-The appraiser compared your home to three sales 1.62 to 2.91 miles away. For two of them, the report counts their basements as main-floor living space, which makes them look much larger than your home and pulls the value down.
+Two of the three sales the appraiser used, 1.62 to 2.91 miles away, have their basements counted as main-floor living space, so they look much larger than your home.
 
 **What We Found**
-Three similar ramblers in Practice Ridge Estates sold before the appraisal date and weren't used, including one just down the street at 4089 W Practice Ridge Dr that sold for $645,000 in September.
+Three similar ramblers in Practice Ridge Estates sold before the appraisal date and weren't used, including 4089 W Practice Ridge Dr ($645,000 in September).
 
-**One Contract Detail To Know**
-In Addendum No. 1 you agreed to cover up to $10,000 of an appraisal shortfall. Because today's gap is $28,000, your right to cancel over the appraisal still applies. If a revised value came back within $10,000 of the price, you'd likely be covering that difference in cash without the option to cancel. I'll confirm that reading with my broker.
+**One Contract Detail**
+Addendum No. 1 has you covering up to $10,000 of a shortfall. The gap is $28,000, so you can still cancel over the appraisal. If a revised value came within $10,000 of the price, you'd likely cover that difference in cash with no option to cancel. I'll confirm with my broker.
 
 **Your Options**
-1. Ask your lender for a reconsideration of value. I've drafted it for you to send. There's no promise the value changes, and it may take longer than our deadline.
-2. Ask the sellers to extend the deadline so the review can finish. I'll ask their agent Monday.
+1. Ask your lender for a reconsideration of value. I've drafted it. The value may not change, and the review may outlast our deadline.
+2. Ask the sellers to extend the deadline. I'll ask Monday.
 3. Renegotiate the price or ask for a credit, in a signed addendum.
-4. Keep the price and bring more cash, at least $28,000, which includes the $10,000 you already agreed to. Your lender will confirm the exact amount.
+4. Keep the price. Your lender figures the loan on $612,000, so you'd bring more cash or borrow a larger share of the value. Your loan officer has the numbers.
 5. Cancel by 5:00 PM Friday with written notice under the appraisal condition, and your $10,000 earnest money comes back.
 
 **What Happens Next**
-- Monday, November 9: you send the request to Make-Believe Mortgage Co., and I request the extension.
-- By Friday, November 13 at 5:00 PM: if there's no signed extension, we decide among options 3 to 5.
+- Monday, November 9: you send the request, and I ask for the extension.
+- By 5:00 PM Friday: without a signed extension, we choose among options 3 to 5.
 
-Talk soon,
 [Agent Name]
 
 ## Note to the Listing Agent

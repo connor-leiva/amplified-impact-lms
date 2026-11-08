@@ -44,3 +44,8 @@ From `objective-checks.txt` (the script reads both PDFs, the CSV, the prompt and
 
 - The practice addendum now carries a made-up appraisal gap term (buyer covers up to $10,000), added to exercise the skill's new addendum check. The run caught the part that's easy to miss: a reconsideration that moves the value only part of the way could end the buyers' right to cancel.
 - The client email states the comparables' distances from the report (1.62 to 2.91 miles) instead of rounding them.
+
+## Reviewer Correction (2026-11-08)
+
+The independent review found that this output said keeping the price means "at least $28,000 more cash" (The Gap, Option 3 and client email option 4). That overstated it: the lender figures the loan-to-value on $612,000, so the buyers bring more cash, borrow a larger share of the value, or both, and only the loan officer can give the figure. Those three lines in `output.md` and `sample.md` were corrected, along with the source of the error in SKILL.md and writing-the-drafts.md. Check 9 still passes on the corrected text. See `review-grading.md`.
+The client email was also over the 300-word limit in writing-the-drafts.md (about 355 words before the correction). It was tightened to 296 words with the same facts and options; the Check before sending rows still cover every figure in it.

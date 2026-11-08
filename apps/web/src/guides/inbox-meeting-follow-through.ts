@@ -25,8 +25,8 @@
 //
 // Plans and connectors, as page-notes.md "What You Need" found them on 2026-11-08:
 //   - Skills: Claude's help center lists them on every plan, Free included; Claude's docs say Pro and up.
-//     page-notes.md says "Pro or higher" to be safe, so the page calls Pro or higher the safe choice,
-//     says why, and never promises Free. No run used Free.
+//     page-notes.md says "Pro or higher" to be safe. The page states both, as every skill page does,
+//     says what to do if a Free account has no way to add a skill, and never promises Free. No run used Free.
 //   - Gmail and Google Calendar: the help center says all users and that Gmail can draft and send;
 //     Claude's docs say Pro and up and read only. The page says the pages differ, promises read-only use
 //     and drafts in the chat, and mentions Gmail drafts only as untested and only if the connector can.
@@ -503,7 +503,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Pro or higher is the safe choice: Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up.',
           tag: 'Team or Enterprise: an owner turns on code execution',
         },
         {
@@ -628,7 +628,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
           // page-notes.md, "What You Need" and "What to Connect or Upload". Free is untested.
           q: 'Which plans do I need?',
           a: [
-            'For Claude, Pro or higher is the safe choice. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up, and we haven’t tested this skill on Free. Anthropic’s pages also differ on which plans have the Gmail and Google Calendar connectors. Microsoft 365 is on every plan. For Granola, Claude reads full transcripts only on a paid Granola plan. On Granola’s free plan, Claude gets the last 30 days of notes and says commitments may be missing.',
+            'Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up, and we haven’t tested this skill on Free. If your Free account shows no way to add a skill, you need a paid plan. Anthropic’s pages also differ on which plans have the Gmail and Google Calendar connectors. Microsoft 365 is on every plan. For Granola, Claude reads full transcripts only on a paid Granola plan. On Granola’s free plan, Claude gets the last 30 days of notes and says commitments may be missing.',
           ],
         },
         {

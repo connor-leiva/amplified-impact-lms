@@ -906,13 +906,14 @@ def detail_checks(txs, keys, th, overrides):
 # --- production --------------------------------------------------------------------------------------
 
 ALIASES = OrderedDict([
-    ("close_date", ["settlement date", "close date", "closed date", "closing date", "date closed", "actual close date",
+    ("close_date", ["settlement date", "close date", "closed date", "closed settlement date", "closing date", "date closed", "actual close date",
                     "close of escrow", "coe date", "settled date", "closing"]),
     ("status", ["status", "transaction status", "deal status", "stage"]),
     ("gci", ["gross commission amount", "gci", "gross commission", "gross commission income", "total gci",
              "total commission", "commission amount", "gross commission income gci"]),
     ("agent_paid", ["paid income to agents", "agent split", "agent paid", "agent commission", "agent income", "agent net",
-                    "agent payout", "gross agent paid income", "net agent paid income", "agent dollar", "agent share",
+                    "agent payout", "gross agent paid income", "gross agent s paid income", "net agent paid income",
+                    "net agent s paid income", "agent dollar", "agent share",
                     "agent split amount", "paid to agent"]),
     ("team", ["team income amount", "team net", "team income", "company dollar", "team dollar", "team share",
               "net to team", "house", "company income", "team net income", "company dollar amount"]),

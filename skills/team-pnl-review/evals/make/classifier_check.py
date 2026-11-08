@@ -7,7 +7,8 @@ guaranteed payments. Everything here is made up.
 
 Extracts the code from references/analysis-code.md into SCRATCH_DIR, checks 25 account names, then runs
 the code end to end on a small made-up P&L and checks the categories, the totals and two flags, and runs
-the same P&L with the latest month first (month-end headers) to check the months are read in calendar order.
+the same P&L with the latest month first (month-end headers) to check the months are read in calendar order,
+and a closings file with Sisu's form-field column names.
 Prints PASS or the failures.
 """
 import csv
@@ -110,7 +111,22 @@ def main():
     for want in ("### Mar 2026 Against Feb 2026", "### Year to Date (Jan 2026 to Mar 2026)", "= 71,100.00"):
         if want not in md2:
             fails.append(f"latest-month-first layout: '{want}' missing")
-    print("PASS: %d account names, the end-to-end run and the latest-month-first layout" % len(CASES) if not fails else "FAIL\n" + "\n".join(fails))
+    # A closings file with Sisu's form-field column names (Closed (Settlement) Date, Gross Agent(s) Paid Income).
+    prod = scratch / "made-up-sisu-labels.csv"
+    with prod.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["Closed (Settlement) Date", "Status", "GCI", "Gross Agent(s) Paid Income", "Team Net Income", "Lead Source"])
+        w.writerow(["01/15/2026", "Closed", "50000.00", "30000.00", "19750.00", "Made-up Source"])
+        w.writerow(["02/15/2026", "Closed", "60000.00", "36000.00", "23700.00", "Made-up Source"])
+        w.writerow(["03/15/2026", "Closed", "70000.00", "42000.00", "27650.00", "Made-up Source"])
+        w.writerow(["03/20/2026", "Pending", "9000.00", "5400.00", "3600.00", "Made-up Source"])
+    out3 = scratch / "made-up-run-sisu-labels"
+    subprocess.run([sys.executable, str(code), str(src), "--production", str(prod), "--out", str(out3)], check=True, capture_output=True)
+    md3 = (out3 / "pnl_report.md").read_text(encoding="utf-8")
+    for want in ("close_date = 'Closed (Settlement) Date'", "agent_paid = 'Gross Agent(s) Paid Income'", "Closings counted in the P&L months: 3"):
+        if want not in md3:
+            fails.append(f"Sisu column names: '{want}' missing")
+    print("PASS: %d account names, the end-to-end run, the latest-month-first layout and Sisu column names" % len(CASES) if not fails else "FAIL\n" + "\n".join(fails))
 
 
 if __name__ == "__main__":
