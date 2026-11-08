@@ -1,6 +1,6 @@
 # Team P&L Review: Gingersnap Realty Team, January to June 2026
 
-Independent reviewer run, 2026-11-08. Code extracted from `references/analysis-code.md` exactly as SKILL.md step 2 says, run on `gingersnap-pnl-by-month-jan-jun-2026.xlsx` with `--production sisu-transactions-download-jan-jun-2026.csv`. No map.json was needed.
+Independent reviewer run, November 8, 2026. Code extracted from `references/analysis-code.md` exactly as SKILL.md step 2 says, run on `gingersnap-pnl-by-month-jan-jun-2026.xlsx` with `--production sisu-transactions-download-jan-jun-2026.csv`. No map.json was needed.
 
 ## 1. Bottom Line
 

@@ -5,7 +5,7 @@
 - **Utah, November 1, 2026 REPC.** You said you're writing on the new form, so every section number below is from it. Its conditions apply only when their Section 3 boxes are checked.
 - **Acceptance date:** Wednesday, November 11, 2026, as you described. Every date below moves if Acceptance moves.
 - **The preapproval depends on the sale of 88 W Sample Ct.** The letter says approval is "contingent upon the sale and closing of the borrowers' current residence" and that its proceeds are part of the down payment. The offer's sale-of-home condition and dates have to match.
-- **Placeholders:** [time for the townhome to close], [Seller's Compensation Contribution, only if your buyer agreement calls for one].
+- **Placeholders:** [time for the townhome to close], [Seller's Compensation Contribution, only if your buyer agreement calls for one], [time] for the buyers' answers.
 
 ## 2. Bottom Line
 
@@ -107,7 +107,7 @@ Recommend **$598,000 with a $14,500 Seller's Contribution to Closing Costs** (pr
 
 Hi Avery and Quinn,
 
-**I recommend offering $598,000 and asking the seller to pay $14,500 toward your closing costs, with the offer depending on the sale of your townhome. That's $21,900 under list, which fits a home that has been on the market 60 days with two price cuts. I can't promise the seller says yes, and I'd like your go-ahead by Monday afternoon.**
+**I recommend offering $598,000 and asking the seller to pay $14,500 toward your closing costs, with the offer depending on the sale of your townhome. That's $21,900 under list, which fits a home that has been on the market 60 days with two price cuts. I can't promise the seller says yes, and I'd like your go-ahead by [time] Monday.**
 
 **What The Sales Show**
 - 5210 S Imaginary Elm Way, on the same street with an original kitchen like this one, sold October 17 for $600,000 with $7,500 toward the buyer's costs.
@@ -126,7 +126,7 @@ Hi Avery and Quinn,
 - The sale-of-home condition protects you but makes the offer less attractive. Without it, you could lose your earnest money if the townhome doesn't sell in time.
 - Please have your lender confirm that $14,500 fits your loan before we send the offer.
 
-**What I Need From You (By Monday At 3:00 PM)**
+**What I Need From You (By [Time] Monday)**
 1. Are you comfortable at $598,000 with $14,500 toward closing costs?
 2. When do you expect the townhome to close? That sets our closing date.
 
@@ -145,7 +145,8 @@ Please don't include a personal letter or photos with the offer; we'll keep it a
 | Median 33 days; sale-to-list ratios and median 98.7%; sale-to-original median 97.5% | Computed from the comps export |
 | $30,000, $19,900, $9,900, $20,000, $583,500, $21,900, $9,000, $2,000, $2,500 | Arithmetic shown in sections 3 and 4 and the terms table |
 | $598,000 price, 5-day Seller Disclosure, 14-day Due Diligence and Appraisal, 26-day Financing, 35-day Settlement, offer deadline time | Recommendations for the agent and buyers to decide |
-| $14,500 closing cost estimate, $610,000 cap, $5,000 earnest money, 88 W Sample Ct, November 11 acceptance target | Your message |
+| $14,500 closing cost estimate, $610,000 cap, $5,000 earnest money, 88 W Sample Ct, November 11 acceptance target, writing the offer Monday ("tomorrow") | Your message |
+| [time] Monday for the buyers' answers | Placeholder: set it before you write the offer |
 | Conventional, $640,000, 20% down, contingent on the sale of 88 W Sample Ct, appraisal in 12 days, final approval at 25 days, valid through January 15, 2027 | Preapproval letter, November 4, 2026 |
 | Sections 1, 1(a), 1(b), 2.1, 2.2, 2.3, 3(a) to (d), 3(c)(i), 4(a) to (f), 5, 8.3(c), 12.1, 12.2(a), 12.3(a), 12.3(c), 25, 30 | November 1, 2026 REPC |
 | All dates (November 15, 16, 23, 25; December 7, 16) | Counted from Acceptance on Wednesday, November 11; confirm with your transactions team |

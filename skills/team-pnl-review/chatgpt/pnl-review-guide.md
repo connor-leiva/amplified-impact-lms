@@ -4,7 +4,7 @@ How to read the analysis run and turn it into the review. The run's thresholds a
 
 ## Reading the Run
 
-- Use the run's figures exactly as printed: whole dollars in the tables, cents in the arithmetic lines. Don't re-round, re-add or convert.
+- Use the run's figures exactly as printed: whole dollars in the tables, cents in the arithmetic lines. Don't re-round, re-add or convert, and don't fold several months into one rounded figure ("about 2%"): give the range the run printed ("1.9% to 2.2%").
 - Every computed figure in the output carries its arithmetic, copied from the run (in the form "company dollar = [commission] - [splits] - [referral fees] - [brokerage fees] = [result]").
 - **Totals check fails:** say so in What I Used and the bottom line, list the months and amounts, and call every figure provisional. For a PDF, look at the page: a footer or a wrapped line read as an account is the usual cause. If it can't be fixed, ask for the Excel export.
 - **Account map:** check every account the run marked "no keyword: default" and any account whose name suggests agent payouts (Contract Labor, 1099 Payments) or a lead vendor. Fix with map.json and rerun:
@@ -43,6 +43,7 @@ Outside company dollar, inside net income: **fees charged to agents** (desk, tec
 - **Always:** company dollar and margin on company dollar, by month and for the period; expense mix as a share of company dollar.
 - **Only for gross months:** splits as a share of commission; company dollar as a share of gross commission.
 - **Only with a production file:** closings, cost per closing, lead generation per closing, company dollar and net income per closing, average GCI per closing, the P&L-to-production reconciliation, lead source return.
+- **Lead spend the run couldn't tie to a source** (an account such as Online Lead Programs that names no vendor in the production file): say so with its period total and ask the owner which source it pays for; `map.json` "lead_sources" ties them on a rerun. Never guess the match.
 - **Never:** a ratio that mixes gross and net months; a benchmark from memory; a run rate, forecast or year-end estimate; closings inferred from TC fees or any per-file charge.
 
 ## Flags: What Each One Gets
@@ -61,7 +62,7 @@ Use the run's priority order (P1 is most important).
 | P7 spike, negative_expense | Bookkeeper | Account, month, amount against the usual |
 | P8 likely_miscategorized, split_share | Bookkeeper | Vendor, amount, date, the account it's in and the one it usually uses |
 | P9 price_change | Owner | Old and new monthly amount, start month |
-| P9 brokerage_share_drop | Broker or bookkeeper | The shares before and after; ask about a cap or fee change |
+| P9 brokerage_share_drop | Broker; bookkeeper only if something may be missing | The shares before and after. Broker: did the team or its agents reach a cap, did the fee schedule change, and when does the cap year reset. Bookkeeper: only whether anything is missing from the account |
 | P9 referral_netted | Bookkeeper | Confirm referral fees are withheld at closing |
 | P10 one_time, new_vendor_once | List only | One line each, no question unless the owner asks |
 | P10 revenue_share_income | What I Used, Company Dollar | One line: kept out of commission income and company dollar, included in net income |
@@ -104,7 +105,7 @@ A one-page draft the owner can share with a partner. About 250 words.
 - **What Needs a Look:** up to five flags, one line each.
 - **Cost per Closing:** the period figure, or "Not available: add [the export] to see it."
 - **The Decision:** the one decision.
-- **With the Bookkeeper:** how many questions went out.
+- **With the Bookkeeper:** how many questions went out, plus how many went to the CPA or the broker.
 
 No individual's pay, no client names, no account or card numbers.
 
@@ -129,8 +130,8 @@ Best: the Profit and Loss with one column per month, as Excel, for January throu
 
 - **QuickBooks Online:** Reports, then Standard reports. Open Profit and Loss, set the dates, choose Months under Display columns by, and run the report. Then Export/Print, then Export to Excel. The report can be run on a cash or accrual basis from its Accounting method setting. Sources: "Export reports to Excel" (updated 2026-08-04), https://quickbooks.intuit.com/learn-support/en-us/help-article/report-management/export-reports-excel-quickbooks-online/L7iAoP97n_US_en_US ; "Customize reports" (updated 2026-09-15, its video walks through Display columns by Month), https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/customize-reports-quickbooks-online/L0gKmSawG_US_en_US ; "Choose between cash and accrual accounting methods" (updated 2026-08-05), https://quickbooks.intuit.com/learn-support/en-us/help-article/product-preferences/choose-cash-accrual-accounting-methods-reports/L64yocn6B_US_en_US
 - **QuickBooks Online, charge-level detail:** search Standard reports for Profit and Loss Detail, set the same dates, Export to Excel. Intuit says "Detail" versions of standard reports are available on QuickBooks Online Essentials, Plus and Advanced (same "Customize reports" article). This is the file that shows duplicate charges and new vendors.
-- **QuickBooks Desktop:** Reports, then Company & Financial, then Profit & Loss Standard. Customize Report, Display tab, and pick the period in Display columns by (Intuit's article shows Year; choose Month for monthly columns). For detail: Reports, Company & Financial, Profit & Loss Detail. To export on Windows: open the report, then Excel, then Create New Worksheet; on a Mac, Export. Sources: "Customize company and financial reports" (updated 2026-08-03), https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/customize-company-financial-reports/L0kGdvblz_US_en_US ; "Export reports as Excel workbooks in QuickBooks Desktop," https://quickbooks.intuit.com/learn-support/en-us/help-article/export-reports/export-reports-excel-workbooks-quickbooks-desktop/L4cLJEeXt_US_en_US (read through search excerpts).
-- **Xero:** run the Income Statement (Profit and Loss) report, compare it by month, then Export and choose Microsoft Excel (PDF and Google Sheets are also offered). Exporting needs the administrator, standard + reports or viewer role. Sources: "Export and print a report," https://central.xero.com/0/article/Export-or-print-a-report ; "Income Statement (Profit and Loss) report," https://central.xero.com/0/article/Profit-and-Loss-New (the month-comparison steps weren't readable; follow the screen).
+- **QuickBooks Desktop:** Reports, then Company & Financial, then Profit & Loss Standard. Customize Report, Display tab, set the dates, and pick the period in Display columns by (Intuit's article shows Year; pick the monthly option if your version lists it, and follow the screen). For detail: Reports, Company & Financial, Profit & Loss Detail. To export on Windows: on the open report, the Excel dropdown, then Create New Worksheet; on a Mac, Export, then File, Save As. Sources: "Customize company and financial reports" (updated 2026-08-03), https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/customize-company-financial-reports/L0kGdvblz_US_en_US ; "Export reports as Excel workbooks in QuickBooks Desktop" (updated 2026-08-03), https://quickbooks.intuit.com/learn-support/en-us/help-article/export-reports/export-reports-excel-workbooks-quickbooks-desktop/L4cLJEeXt_US_en_US ; both checked 2026-11-08.
+- **Xero:** Reporting menu, All reports, then open the Profit and Loss report. Set the Date range (for example Last month), choose the number of past periods under Compare with (Xero suggests months when the range is a month), and click Update. Then Export and choose Microsoft Excel (PDF and Google Sheets are also offered). Running and exporting the report needs the administrator, standard + reports or viewer role. Sources: "Profit and Loss report," https://central.xero.com/s/article/Profit-and-Loss-New ; "Export and print a report," https://central.xero.com/s/article/Export-or-print-a-report ; both checked 2026-11-08.
 - **A bookkeeper's spreadsheet:** fine if it has accounts down the side and months across the top, with section headings (Income, Cost of Goods Sold, Expenses) and a Net Income line.
 
 ### The Production Export (optional; needed for cost per closing and lead source return)

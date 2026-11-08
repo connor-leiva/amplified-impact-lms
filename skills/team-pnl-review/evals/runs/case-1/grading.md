@@ -61,3 +61,25 @@ None on this case's expectations. Two fixes made while building it apply here:
 ## Rerun on 2026-11-08
 
 The code was changed after this case was graded (revenue share income, per-deal brokerage fees in Cost of Goods Sold, referral gifts, guaranteed payments, the owner draw question). Rerun on the same files: pnl_report.md, pnl_report.json and pnl_accounts.csv are identical, so output.md stands, and the objective checks pass again.
+
+## Independent Review (November 8, 2026)
+
+A second reviewer ran this case from scratch before reading output.md: SKILL.md followed as written, the code extracted from references/analysis-code.md and run on the same two files. The analysis files matched files/ byte for byte. Output: review-output.md.
+
+| # | Expectation | Review run | Evidence |
+|---|---|---|---|
+| 1 | Figures from the code; totals check passes | Pass | What I Used: "every month's accounts add up to the report's own section totals and Net Income" |
+| 2 | April named as net before any ratio; five months gross | Pass | Section 3 comes before Company Dollar and Margin and names April and the five gross months |
+| 3 | April income = team's share 63,691.41, not GCI 147,457.50 | Pass | "April's commission income of 63,691.41 matches the team's share, not April's GCI of 147,457.50" |
+| 4 | What compares and what doesn't; ratios on gross commission leave April out | Pass | "What still compares" and "What doesn't"; 242,493.43 / 654,206.25 = 37.1% on the gross months only |
+| 5 | April not treated as a drop in business | Pass | "April was not a slow month: it had 10 closings" |
+| 6 | Company dollar and margin with arithmetic | Pass | Seven arithmetic lines and the table |
+| 7 | Expense mix on company dollar with arithmetic | Pass | Expense Mix table |
+| 8 | Cost per closing from 56 closings | Pass | "274,678.55 / 56 = 4,904.97" and four more lines |
+| 9 | Bookkeeper asked about April and to restate; decision is one method and restate April | Pass | Bookkeeper question 1; bottom line and The Decision |
+| 10 | Owner brief, Title Case email, no client names | Pass | "Questions On The January To June 2026 P&L"; objective check: no names |
+| 11 | Check Before Sending traces the drafts | Pass | 11-row table with the run section for each item |
+
+Objective checks (`objective_checks.py evals/runs/case-1 --file review-output.md ...`): 410 numbers, none untraced; 0 dashes; Title Case subject; Check Before Sending present; no names, account details, protected-class words or benchmark language; bottom line 3 sentences.
+
+Compared with output.md: the two runs agree on every finding, figure and question. Differences are wording only (the review run asks the bookkeeper what the extra 2,500.00 a month in Online Lead Programs covers; output.md also asks for a sub-account per lead vendor). No expectation was missed, so nothing in this case needed a fix. The skill changes made during the review (broker questions in the output, no folding several months into one rounded share, lead spend that can't be tied to a source, months read in calendar order) don't change this case's analysis files or any expectation, so output.md stands.

@@ -167,7 +167,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
           ],
         },
         // No-break spaces hold the rating scale together, so it wraps as one piece, never after the 1.
-        { p: ['Notes: ____________________ My\u00a0rating:\u00a0 1\u00a0 2\u00a0 3\u00a0 4\u00a0 5'] },
+        { p: ['Notes: ____________________ My\u00a0rating:\u00a01\u00a0\u00a02\u00a0\u00a03\u00a0\u00a04\u00a0\u00a05'] },
         {
           p: [
             'Questions about schools, safety, flood zones or the area: the school district, the local police department and FEMA’s flood maps are the official sources, and I’m glad to help you find them.',

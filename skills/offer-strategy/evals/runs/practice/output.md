@@ -4,7 +4,7 @@
 
 - **Utah, November 1, 2026 REPC.** You said you're on the new form, so every section number below is from it. Its conditions apply only when their Section 3 boxes are checked.
 - **Acceptance date:** Tuesday, November 10, 2026, as you described. Every date below moves if Acceptance moves.
-- **Placeholder:** [Seller's Compensation Contribution, only if your buyer agreement calls for one].
+- **Placeholders:** [Seller's Compensation Contribution, only if your buyer agreement calls for one], [time] for the buyers' answers.
 
 ## 2. Bottom Line
 
@@ -107,7 +107,7 @@ Recommend **$562,500 with the $5,000 Seller's Contribution to Closing Costs the 
 
 Hi Riley and Jordan,
 
-**I recommend offering $562,500 with the $5,000 the seller is already offering toward your closing costs. That's $7,400 under list, right in line with the recent sales, and it leaves room under your $565,000 limit if the seller counters. I can't promise the seller says yes, and I'd like your go-ahead by Monday evening.**
+**I recommend offering $562,500 with the $5,000 the seller is already offering toward your closing costs. That's $7,400 under list, right in line with the recent sales, and it leaves room under your $565,000 limit if the seller counters. I can't promise the seller says yes, and I'd like your go-ahead by [time].**
 
 **What The Sales Show**
 - 2310 E Pretend Poppy Ln, on your street and nearly the same size, sold October 2 for $560,000 with $4,000 toward the buyer's costs.
@@ -126,7 +126,7 @@ Hi Riley and Jordan,
 - Your earnest money becomes hard to get back after the 10-day inspection period, except for appraisal and loan problems.
 - Please have your lender confirm the $5,000 toward closing costs fits your loan.
 
-**What I Need From You (By Monday At 6:00 PM)**
+**What I Need From You (By [Time])**
 1. Are you comfortable at $562,500?
 2. Is closing December 11 workable for you?
 
@@ -148,6 +148,7 @@ Please don't include a personal letter or photos with the offer; we'll keep it a
 | $10,000, $2,400, $2,600, $557,500, $556,000, $7,400, $2,500, $567,500, $539,000 | Arithmetic shown in sections 3 and 4 |
 | $562,500 price, 3-day Seller Disclosure, 10-day Due Diligence, 20-day Appraisal, 24-day Financing, 31-day Settlement, 3 days' possession, offer deadline time | Recommendations for you and the buyers to decide |
 | $565,000 limit, no offers yet, $5,000 earnest money, November 10 acceptance target | Your message |
+| [time] for the buyers' answers | Placeholder: set it early enough to write the offer before Tuesday |
 | Conventional, $575,000, 10% down, down payment and closing costs verified, appraisal in 14 days, final approval in 21 days, valid through December 27, 2026 | Preapproval letter, October 28, 2026 |
 | Sections 1, 1(a), 1(b), 2.1, 2.2, 2.3, 3(a) to (d), 3(c)(i), 4(a) to (f), 5, 8.3(c), 9.3, 12.1, 12.2(a), 12.3(a), 12.3(c), 25, 30 | November 1, 2026 REPC |
 | All dates (November 13, 14, 16, 20, 24, 30; December 4, 11) | Counted from Acceptance on Tuesday, November 10; confirm with your transactions team |

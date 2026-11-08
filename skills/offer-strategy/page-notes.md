@@ -48,19 +48,19 @@ A bottom line (the recommended price, the three terms that matter most, and how 
 - Put agent-only MLS remarks, lockbox codes, loan or account numbers in anything your buyer sees, or reveal your buyer's top number to the listing side.
 - Keep the official deadline calendar. Its dates are for strategy; confirm them with your transactions team.
 - Send anything. Drafts only.
-- Price a listing (that's Pricing Conversation Prep), compare offers a seller received (Offer Comparison), explain a counter (Counter Explainer), prep a showing tour (Showing Tour Prep) or answer a low appraisal under contract (Low Appraisal Response).
+- Price a listing (that's Pricing Conversation Prep), compare offers a seller received (Offer Comparison), explain a counter (Counter Explainer), review a builder's contract on a new build (New Construction Review), prep a showing tour (Showing Tour Prep) or answer a low appraisal under contract (Low Appraisal Response).
 
 ## What You Need
 
 - **Claude:** a plan with skills and code execution. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. Code execution ("Code execution and file creation," called "Create and edit files" in the updated layout) is on by default on Free, Pro, Max and Ultra. On Team and Enterprise, an Owner controls skills and code execution.
 - **No connectors.** Gmail is optional, only to save the buyer email as a draft when you ask.
-- **ChatGPT instead:** a Project, on any plan that has Projects (Free, Go, Plus, Pro). The project holds 4 files, inside Free's limit of 5 files per project. Free has separate, unpublished limits on file uploads and data analysis; ChatGPT tells you when you hit them.
+- **ChatGPT instead:** a Project, on any plan that has Projects (Free, Go, Plus, Pro). The project holds 4 files, inside Free's limit of 5 files per project. OpenAI's Free tier FAQ says Free users can upload 3 files a day, so on Free, adding the project's four files and attaching your three working files can take more than one day. Data analysis on Free has its own limit, which OpenAI doesn't publish; ChatGPT tells you when you hit it.
 - **No cost** beyond your Claude or ChatGPT plan and the MLS access you already have.
 
 ## Install
 
 - **Claude:** download `offer-strategy.zip` and don't unzip it. Go to Customize > Skills, click +, then + Create skill, select Upload a skill, and choose the ZIP. Make sure it's toggled on, then start a new chat and attach your files.
-- **ChatGPT:** download `offer-strategy-chatgpt.zip` and unzip it. Select New project in the sidebar and name it. Open the more options menu (•••), select Project settings, and paste the text from `paste-into-instructions.txt`, with your voice profile quick card under the last line. Add the four .md files to the project. Then start a chat in the project and attach your files.
+- **ChatGPT:** download `offer-strategy-chatgpt.zip` and unzip it. Select New project in the sidebar and name it. Open the more options menu (•••), select Project settings, and paste the text from `paste-into-instructions.txt`, with your voice profile quick card under the last line. Add the four .md files in the project's Sources section (project files moved there from Project settings in February 2026). Then start a chat in the project and attach your files.
 
 ## Run / Draft / Own
 
@@ -70,7 +70,7 @@ A bottom line (the recommended price, the three terms that matter most, and how 
 
 ## FAQs
 
-- **Should my buyer waive the appraisal to win?** Sometimes it's their choice to make, but the skill shows the gap in dollars (your offer minus the highest closed sale) against the cash their letter shows, and it won't recommend a waiver unless the lender confirms the cash. For FHA and VA, it explains why "waiving" doesn't really change anything for the seller.
+- **Should my buyer waive the appraisal to win?** That's your buyer's choice. The skill shows the gap in dollars (your offer minus the highest closed sale) against the cash their letter shows, and it won't recommend a waiver unless the lender confirms the cash. For FHA and VA, it explains why "waiving" doesn't really change anything for the seller.
 - **Which REPC does it use?** The one you tell it you're writing on. Until December 31, 2026 that can be the December 4, 2024 form or the November 1, 2026 form; from January 1, 2027 only the new one. The section numbers differ (the new form has separate Appraisal and Financing Deadlines and a seller closing-cost line in Section 2.2), and the skill never mixes them.
 - **Will it write an escalation clause?** No. It gives you the numbers (start, increment, cap) and tells you to use your brokerage's approved addendum with your broker's review. Utah has no state-approved escalation form.
 - **What if I don't have a preapproval letter yet?** It still recommends the terms, uses placeholders for anything the lender has to answer (days for the appraisal and loan, concession limits), and tells you what to ask.
@@ -95,13 +95,15 @@ offer, write an offer, buyer offer, offer price, how much over list, under list,
 - Eval 2, a 60-day listing with two price cuts, a sale-of-home buyer, the November 1, 2026 REPC: 8 of 8 after fixing three arithmetic and wording slips in the first draft. It recommended below list with a Section 2.2 concession at the lender's estimate, kept the sale-of-home condition with Section 3(d) and the addendum, built separate Appraisal and Financing Deadlines from the letter, and moved a Sunday Financing Deadline to Monday because the new form's weekend rule doesn't cover it. A line now tells the skill to check every "highest" or "closest" claim and every subtraction in code.
 - Eval 3, an Idaho buyer who wanted to waive the appraisal at $485,000 with about $3,800 in reserves, a loan number on the letter, and a buyer letter about her family: 8 of 8 after one fix (general mode now says nothing about Utah at all). It recommended against the waiver with the $15,000 gap shown, kept the loan number and the letter's contents out, and flagged that the preapproval expires before a 30-day close.
 - Practice run: 12 of 12 after one fix (the highest sale was misread). It is the sample on this page.
+- Independent review (2026-11-08): a reviewer ran Eval 2 and the practice files from scratch before reading the builder's outputs. Both passed (8 of 8 and 12 of 12), with the same position calls as the builder's runs and recommended prices within $2,000 of them. The review found that two buyer emails asked for answers by an hour that wasn't in the inputs ("Monday At 3:00 PM", "Monday At 6:00 PM"); the skill now uses the offer deadline, the agent's timing or a [time] placeholder, and the sample on this page was updated. It also added New Construction Review to the description's list of skills this one is not for, told the skill to set financing and settlement dates after a buyer's home sale can close when the loan depends on it, and corrected one source attribution (the NAR article on buyer letters).
+- Routing, written out (not run with all 17 skills installed): three prompts that should land here (an FHA buyer asking what to offer from an MLS sheet and comps; a highest-and-best round asking whether to escalate or waive the appraisal; a 75-day listing with three cuts asking how far under list the buyers can go) and near-misses that belong elsewhere (several offers on the agent's own listing go to Offer Comparison; the seller's counter to the buyers' offer goes to Counter Explainer; a builder's purchase agreement on a spec home goes to New Construction Review).
 - `node scripts/skills.mjs check offer-strategy` passes.
 
 **Not tested:**
 - Real Utah Life MLS sheets, CMAs and lender letters (none provided yet), and real Flexmls, Matrix or Cloud CMA files.
 - The ChatGPT Project version in ChatGPT itself (the instructions mirror the skill; the click paths are from OpenAI's help center).
 - Upload on a Claude Free plan, and the Gmail draft step.
-- Collision check against all 17 skills installed together (the description names its five nearest siblings).
+- Collision check with all 17 skills installed together (the description names its six nearest siblings).
 - Not verified anywhere: a primary source for typical Utah due diligence lengths, FHA, VA and USDA concession limits, and the terms of the UAR members-only addenda (sale of buyer's property, closing costs, short-term leaseback). The skill writes these as placeholders or "confirm with your broker, team leader or lender."
 
 ## Sources (checked 2026-11-08)
@@ -110,8 +112,9 @@ offer, write an offer, buyer offer, offer price, how much over list, under list,
 - Code execution on by default, and its name in the updated layout: https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude
 - Claude training setting: https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings ; commercial plans not trained on by default: https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training
 - ChatGPT Projects (New project, ••• > Project settings, 5 files per project on Free): https://help.openai.com/en/articles/10169521-projects-in-chatgpt
+- ChatGPT project files in the Sources section: https://learn.chatgpt.com/docs/projects (and the February 23, 2026 release note: https://help.openai.com/en/articles/6825453-chatgpt-release-notes)
 - ChatGPT data controls (Settings > Data controls > Improve the model for everyone): https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt
-- ChatGPT Free limits on uploads and data analysis: https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq
+- ChatGPT Free limits (3 file uploads per day; data analysis limit not published): https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq
 - ChatGPT plans with Projects: https://chatgpt.com/pricing
 - UtahRealEstate.com, View Listing History (Agent Full Report, History link, Property Activity Report): https://help.utahrealestate.com/index.php/knowledge-base/searches-reports/how-to-guides-searches-reports/how-to-view-the-listing-history/
 - UtahRealEstate.com, CMA Steps: https://help.utahrealestate.com/index.php/knowledge-base/cma/how-to-guides-cma/cma-steps/

@@ -53,3 +53,9 @@ Result: **pass, 8 of 8.**
 | 8 | Fail. Unsourced figures ("$950,000," "FHA allows up to 6%," "10 to 14 days," "about 2%") and no Check before sending. |
 
 **Baseline: 0 of 8 pass (2 partial), against 8 of 8 with the skill.** What the skill adds: the FHA appraisal escape stated correctly so the buyers aren't told to "waive" a protection they can't actually waive, no appraisal waiver without lender-confirmed cash, no drafted escalation clause, the 2024 REPC's section numbers, the lead-based paint window on a pre-1978 home, agent-only remarks kept out of the buyer email, and advice against the buyer letter instead of for it.
+
+## Reviewer Update (2026-11-08)
+
+The independent reviewer did not rerun this case. The buyer email's decision time is tied to the listing agent's deadline, which the updated SKILL.md allows, but it was not traced. A Check before sending row now lists it as a recommendation. The result stands.
+
+`review-output.md` in this folder is a complete independent run from an earlier review that was interrupted before grading. It reaches the same price ($505,000), keeps the appraisal condition on the FHA offer and keeps agent-only remarks out of the email. It was not graded in this review.

@@ -60,7 +60,11 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
   eyebrow: 'Free Claude Skill · For Team Leaders and Owners',
   // page-notes.md, "The Promise", with the actor named and the words to say in front.
   lede: 'Say “Run my morning pass,” and Claude reads your inbox and yesterday’s meetings, then hands back the decisions only you can make, replies and hand-offs already drafted, and the promises you forgot, with any email that changes wire instructions flagged at the top.',
-  outcome: { n: '03', title: 'Know What Needs You Today', body: 'Your decisions first, drafts to read, and who owes what.' },
+  outcome: {
+    n: '03',
+    title: 'Know What Needs You Today',
+    body: 'Your decisions first, drafts to read, and who owes what.',
+  },
   optInBody:
     'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. Claude only reads your email and meetings and writes drafts for you to read. It never sends, deletes or changes anything.',
   setupMinutes: 10,
@@ -298,7 +302,10 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
             caption: 'Your team (5 of 10)',
             head: ['Owner and commitment', 'Due'],
             rows: [
-              ['Casey Mockridge: send Jordan the pending list with anything at risk', 'Today, Thu, Nov 5, noon (“by noon tomorrow”)'],
+              [
+                'Casey Mockridge: send Jordan the pending list with anything at risk',
+                'Today, Thu, Nov 5, noon (“by noon tomorrow”)',
+              ],
               ['Devon Testerly: send the updated vendor list to all agents', 'Fri, Nov 6 (“by Friday”)'],
               [
                 'Priya Exampleton: pull leads with no appointment set in the last 30 days from Follow Up Boss',
@@ -421,7 +428,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         },
         {
           title: 'Needs you today',
-          body: 'Decisions only you can make, like money approvals, decisions about people, policy exceptions and upset clients, plus anything due within two business days. Each says why it’s yours and by when. Claude never decides for you.',
+          body: 'Decisions only you can make, like money approvals, decisions about people, policy exceptions and upset clients, plus anything with a consequence that’s due within two business days. Each says why it’s yours and by when. Claude never decides for you.',
         },
         {
           title: 'Your promises',
@@ -607,7 +614,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
           a: [
             'It goes to the top as High risk, with the red flags Claude found and the words ',
             { strong: 'verify by phone with title at a number you already have' },
-            '. That means a number from your own records, like the title company’s opening package, never the number or link in the email. Claude never drafts a reply to it, never forwards it, and never repeats its account numbers, phone numbers or links. Claude drafts only an alert for your transactions team and the agent on the file, and, for you to choose, a short heads-up for the client: don’t wire money based on any email. An emailed change to an agent’s commission deposit is handled the same way. If money may already have moved, Claude says to call the bank now and ask for a wire recall, call title at the number you already have, and file at ic3.gov.',
+            '. That means a number from your own records, like the title company’s opening package, never the number or link in the email. Claude never drafts a reply to it, never forwards it, and never repeats its account numbers, phone numbers or links. Claude drafts only an alert for your transactions team and the agent on the file, and, for you to choose, a short heads-up for the client: don’t wire money based on any email. An emailed change to an agent’s commission deposit is handled the same way. If money may already have moved, Claude says to call the bank now and ask for a wire recall, call title at the number you already have, and file a complaint at ic3.gov, the FBI’s internet crime site.',
           ],
         },
         {

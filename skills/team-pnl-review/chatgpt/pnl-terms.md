@@ -46,7 +46,7 @@ These definitions explain the numbers; they don't change them. Brokerages, coach
 
 ## Revenue Share and Other Brokerage Income
 
-- Some brokerages pay agents and team owners for the agents they bring to the brokerage. eXp World Holdings' 2025 annual report: "The Company maintains a revenue share program which allows agents and brokers to earn additional income from real estate transactions closed by agents they have attracted to the Company," funded "from the Company's portion of transaction commissions." The same report lists "sales commissions, revenue share and stock-based compensation paid to the Company's agents" as separate costs. [6]
+- Some brokerages pay agents and team owners for the agents they bring to the brokerage. eXp World Holdings' 2025 annual report: "The Company maintains a revenue share program which allows agents and brokers to earn additional income from real estate transactions closed by agents they have attracted to the Company," funded "from the Company's portion of transaction commissions." The same report says its commissions and other agent-related costs "include sales commissions, revenue share and stock-based compensation paid to the Company's agents." [6]
 - On a team's P&L, revenue share, profit share or stock income from the brokerage is income, but it doesn't come from the team's closings. This review reads it as other income: outside commission income and company dollar, inside net income. Counting it as commission would make splits look low and company dollar look high.
 - Each brokerage's program and its terms come from the brokerage agreement and the broker. This review never projects revenue share or states anyone's terms.
 
@@ -81,7 +81,7 @@ These definitions explain the numbers; they don't change them. Brokerages, coach
 
 ## Cost per Closing and Lead Source Return
 
-- **Cost per closing** = operating expenses for the months ÷ closings in the same months. eXp World Holdings reports the same idea at brokerage scale, "real estate per transaction cost": selling, general and administrative, sales and marketing and technology expenses divided by total transactions. [6] This review computes it only from a production file, never from a per-file fee or any other proxy.
+- **Cost per closing** = operating expenses for the months ÷ closings in the same months. eXp World Holdings reports the same idea at brokerage scale, "real estate per transaction cost": selling, general and administrative, sales and marketing and technology and development expenses divided by total transactions. [6] This review computes it only from a production file, never from a per-file fee or any other proxy.
 - **Lead source return:** Sisu's glossary defines Lead Source ROI as how much money, or profit, a lead source makes, and ROI as the net gain divided by the original cost. [1] This review uses (the team's share from that source's closings − that source's spend) ÷ spend, for the same months. For a pay-at-close source the spend is the referral fees on its closings, and the team's share in the production file is usually already after those fees, so the return is that share ÷ the fees (the same net gain per dollar, without subtracting the fee twice). Lead spend and the closings it produces rarely fall in the same months, so it is a rough period view.
 
 ## Sources

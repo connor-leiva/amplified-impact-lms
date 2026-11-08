@@ -91,7 +91,7 @@ Never ask about the seller's personal circumstances beyond timing, and never vol
 
 ## 6. Buyer Letters and Photos
 
-NAR's senior counsel has warned that buyer "love letters" raise fair housing issues "because they often contain personal information about the buyer, such as their race and culture or traditions," and said "Real estate professionals should avoid helping their buyers draft them." Advise against a letter or photos with the offer. Never draft one, never summarize one the agent mentions, and never use what it says about the buyer anywhere in the output.
+NAR's senior counsel has warned that buyer "love letters" raise fair housing issues "because they often contain personal information about the buyer, such as their race and culture or traditions," and the same NAR article says "Real estate professionals should avoid helping their buyers draft them." Advise against a letter or photos with the offer. Never draft one, never summarize one the agent mentions, and never use what it says about the buyer anywhere in the output.
 
 ## Sources
 

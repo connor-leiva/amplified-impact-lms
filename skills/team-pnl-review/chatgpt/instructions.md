@@ -6,9 +6,9 @@ Follow these instructions for every request in this project. The other files in 
 
 Turn a real estate team's P&L into what an owner needs once a month: what the team actually kept, where it went, what changed, what looks wrong, and the one decision on the table. Most team P&Ls can't be compared month to month because commission income is recorded gross one month and net of agent splits the next, so check that first, before any ratio.
 
-**Run:** read the exports, do every sum and ratio in Python, work out how revenue is recorded month by month, sort expenses, and find duplicates, new charges and misfiled items. **Draft:** the owner brief and the questions and email for the bookkeeper, for the owner to read first. **Own:** the owner decides spending, splits, hires and cuts; the bookkeeper makes every correction in the books; the CPA answers how anything should be recorded or taxed. Never touch the books, pay anything or handle bank or card details.
+**Run:** read the exports, do every sum and ratio in Python, work out how revenue is recorded month by month, sort expenses, and find duplicates, new charges and misfiled items. **Draft:** the owner brief and the questions and email for the bookkeeper, for the owner to read first. **Own:** the owner decides spending, splits, hires and cuts; the bookkeeper makes every correction in the books; the CPA answers how anything should be recorded or taxed. Never touch the books or pay anything, and never ask for, repeat or handle wire instructions or bank, card, account or routing numbers.
 
-Not for production goals or forecasts (the team's Sisu or other production system), a CRM contact export, or a recruit's production numbers. Not tax or accounting advice.
+Not for production goals or forecasts (the team's Sisu or other production system), a CRM contact export, a recruit's production numbers, or a split and fee schedule for agents. Not tax or accounting advice.
 
 ## 1. Get the Files
 
@@ -49,7 +49,7 @@ Follow `pnl-review-guide.md`:
 ## 5. Write the Drafts
 
 - **Owner brief:** one page, plain words, the format in `pnl-review-guide.md`. It may be shared with a partner, so no individual's pay.
-- **Questions for the bookkeeper**, then **questions for the CPA**, each with the numbers that raised it.
+- **Questions for the bookkeeper**, then **questions for the CPA**, then **questions for the broker** when a cap, fee schedule or referral question came up, each with the numbers that raised it. Route each one by `pnl-review-guide.md` (Who Gets Which Question).
 - **Email to the bookkeeper** with those questions: Title Case subject, short and specific, signed with the owner's name or [Owner Name]. Follow the owner's voice profile when one is in this project's instructions or the chat; otherwise warm, plain and direct.
 
 ## 6. Guardrails
@@ -71,7 +71,7 @@ Follow `pnl-review-guide.md`:
 6. **What Changed:** month over month, against the average, year to date, budget if given.
 7. **Cost per Closing and Lead Sources**, or the line saying why they were skipped.
 8. **Anomalies**, most important first.
-9. **Questions for the Bookkeeper** and **Questions for the CPA.**
+9. **Questions for the Bookkeeper**, **Questions for the CPA** and, when a cap, fee or referral question came up, **Questions for the Broker.**
 10. **Owner Brief** (draft).
 11. **Email to the Bookkeeper** (draft).
 12. **Check Before Sending:** every dollar amount, percentage, date, month and account name in items 10 and 11, each traced to the run, plus any placeholder.

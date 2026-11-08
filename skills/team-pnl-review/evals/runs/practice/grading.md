@@ -44,3 +44,31 @@ Result: 10 of 10 checks pass; every applicable objective check passes.
 ## Rerun on 2026-11-08
 
 Rerun with the updated code (revenue share income, per-deal brokerage fees in Cost of Goods Sold, referral gifts, guaranteed payments, the owner draw question): the analysis files are identical, so output.md and sample.md stand. Objective checks rerun: all pass. The new account rules are covered by evals/make/classifier_check.py (25 account names plus a made-up end-to-end P&L): PASS.
+
+## Independent Review (November 8, 2026)
+
+A second reviewer ran the practice files from scratch before reading output.md or sample.md, with the practice prompt from page-notes.md: SKILL.md followed as written, the code extracted from references/analysis-code.md and run on both practice files. The analysis files matched files/ byte for byte. Output: review-output.md.
+
+| # | Check | Review run | Evidence |
+|---|---|---|---|
+| 1 | Gross every month, confirmed against the export | Pass | Section 3: "Every month's commission income matches that month's gross GCI in the production file" |
+| 2 | Pending and canceled deals left out | Pass | "Left out: 2 rows with a status of Pending and 1 Cancelled"; 77 closings |
+| 3 | Brokerage step-down asked, not asserted | Pass | Section 3 and a question for the broker, including when the cap year resets |
+| 4 | Video Editing App new recurring at 79.00 since June | Pass | Anomaly 2; bookkeeper question 2 |
+| 5 | Google PPC August spike | Pass | Anomaly 3; bookkeeper question 3 |
+| 6 | Pumpkinpatch Portal price change is the decision | Pass | Bottom line: "keep or cancel Pumpkinpatch Portal at 3,000.00 a month since July 2026 (it was 2,500.00)" |
+| 7 | Uncategorized 486.20 in July | Pass | Anomaly 1; bookkeeper question 1 |
+| 8 | Lanternfly Leads as pay at close | Pass | Lead sources: "46,882.21 / 75,196.65 = 0.62 per $1 of fees" with the explanation |
+| 9 | Cost per closing with arithmetic | Pass | "304,883.76 / 77 = 3,959.53" and four more lines |
+| 10 | No client name or address | Pass | Objective check: none |
+
+Objective checks (`objective_checks.py evals/runs/practice --file review-output.md ...`): 537 numbers, none untraced; 0 dashes; Title Case subject; Check Before Sending present; no names, account details or benchmark language; bottom line 3 sentences.
+
+### What the comparison found, and what changed
+
+Both runs found all ten items. Three differences showed the skill was ambiguous, and each was fixed in the skill and in output.md (and so sample.md):
+1. **The broker question had nowhere to go.** review-rules.md routes cap and fee questions to the broker, but SKILL.md's output listed only bookkeeper and CPA questions, so output.md asked the bookkeeper whether "the brokerage's charges changed" and the brief said "confirm whether we capped" with no one asked. SKILL.md step 5 and output item 9 now include Questions for the Broker when a cap, fee or referral question comes up; the flag table says what to ask the broker (cap, fee schedule, when the cap year resets) and the bookkeeper (only whether anything is missing). output.md now has a Questions for the Broker section.
+2. **"About 2%".** output.md folded the run's 1.9% to 3.2% into "about 2%" (and said so in a note), against the rule to use the run's figures as printed. review-rules.md now says not to fold several months into one rounded figure; output.md gives "1.9% to 2.2% since" June and 3.2% in May.
+3. **The decision's wording.** output.md offered "keep Pumpkinpatch Portal at 3,000.00 a month or take it back down," an option the files don't show exists; it now reads "keep or cancel," as the decision rule writes it. The bottom line's "looks like a cap" became a question for the broker, and the biggest-change line no longer credits lower brokerage fees alone (the run's month lines show referral fees going from 13,998.25 to 0.00 as well).
+
+Objective checks on the updated output.md: 524 numbers, none untraced; every other check passes. sample.md is a copy of the updated output.md.

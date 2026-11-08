@@ -120,11 +120,11 @@ def main(argv):
                 bad.append(s)
                 break
     print(f"- subject lines: {len(subjects)}; not Title Case: {bad or 'none'}")
-    print(f"- 'Check Before Sending' section: {'present' if re.search(r'^#+ Check Before Sending', out, re.M | re.I) else 'MISSING'}")
+    print(f"- 'Check Before Sending' section: {'present' if re.search(r'^#+ (?:\d+\.\s*)?Check Before Sending', out, re.M | re.I) else 'MISSING'}")
     print(f"- protected-class words: {sorted(set(m.group(0).lower() for m in PROTECTED.finditer(out))) or 'none'}")
     print(f"- wire, account or card details: {sorted(set(m.group(0) for m in WIRE.finditer(out))) or 'none'}")
     print(f"- benchmark language: {sorted(set(m.group(0).lower() for m in BENCH.finditer(out))) or 'none'}")
-    bl = re.search(r"\*\*Bottom line:\*\*(.+?)(?:\n\n|\n#)", out, re.S)
+    bl = re.search(r"\*\*Bottom line:\*\*(.+?)(?:\n\n|\n#)", out, re.S) or re.search(r"^#+ (?:\d+\.\s*)?Bottom Line\s*\n\n(.+?)(?:\n\n|\n#)", out, re.S | re.M | re.I)
     if bl:
         sentences = [x for x in re.split(r"(?<=[.!?])\s+(?=[A-Z])", bl.group(1).strip()) if x]
         print(f"- bottom line sentences: {len(sentences)}")

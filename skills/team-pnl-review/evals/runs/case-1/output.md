@@ -158,7 +158,7 @@ Charge-level checks need the P&L Detail export from QuickBooks (Reports, Standar
 
 **The Decision:** Agree with the bookkeeper and CPA on one way to record commission income, and have April restated to match.
 
-**With the Bookkeeper:** 3 questions sent.
+**With the Bookkeeper:** 3 questions sent; 1 question for the CPA.
 
 ## Email to the Bookkeeper (Draft)
 

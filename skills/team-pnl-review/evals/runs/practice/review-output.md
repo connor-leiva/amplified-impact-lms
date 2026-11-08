@@ -1,6 +1,6 @@
 # Team P&L Review: Pinecone & Puddle Home Team, January to September 2026
 
-Independent reviewer run, 2026-11-08. Prompt (from page-notes.md): "Here's our P&L and our closed deals. How are we doing, and what should I look at?" Code extracted from `references/analysis-code.md` as SKILL.md step 2 says, run on `PRACTICE Team P&L by Month Jan-Sep 2026.xlsx` with `--production "PRACTICE Closed Deals Export Jan-Sep 2026.csv"`. No map.json was needed.
+Independent reviewer run, November 8, 2026. Prompt (from page-notes.md): "Here's our P&L and our closed deals. How are we doing, and what should I look at?" Code extracted from `references/analysis-code.md` as SKILL.md step 2 says, run on `PRACTICE Team P&L by Month Jan-Sep 2026.xlsx` with `--production "PRACTICE Closed Deals Export Jan-Sep 2026.csv"`. No map.json was needed.
 
 ## 1. Bottom Line
 

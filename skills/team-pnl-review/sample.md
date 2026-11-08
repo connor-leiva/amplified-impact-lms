@@ -1,6 +1,6 @@
 # Team P&L Review: Pinecone & Puddle Home Team, January to September 2026
 
-**Bottom line:** The team kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losing money in each of the first three months. The biggest change in September was company dollar, up 6,610.89 from August, and brokerage split and fees have run near 2% of commission income since May against about 6.0% before, which looks like a cap but needs confirming. The one decision: keep Pumpkinpatch Portal at 3,000.00 a month (up from 2,500.00 since July 2026) or take it back down.
+**Bottom line:** The team kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losing money in each of the first three months. The biggest change in September was company dollar, up 6,610.89 from August, and brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on, a question for your broker. The one decision: keep or cancel Pumpkinpatch Portal (3,000.00 a month since July 2026; it was 2,500.00).
 
 ## What I Used
 
@@ -27,7 +27,7 @@
 | Sep 2026 | $124,088 | $69,981 | $0 | $2,360 | 56.4% |
 
 - **Splits vary from 46.0% to 65.0% of commission income** (typical 58.0%). Months with more referral-fee deals or more of the team leader's own deals can run lower. The production file matches every month, so this doesn't point to a recording problem.
-- **Brokerage split and fees dropped.** About 6.0% of commission income from January to April, then May 3.2%, June 2.1%, July 1.9%, August 2.2%, September 1.9%. That pattern fits a brokerage cap being reached in May, but it could also be a fee schedule change or something missing. Worth confirming before you count on it.
+- **Brokerage split and fees dropped.** About 6.0% of commission income from January to April, then May 3.2%, June 2.1%, July 1.9%, August 2.2%, September 1.9%. That can mean the team or its agents reached a brokerage cap, the fee schedule changed, or something is missing from the account. Only the broker knows the cap terms, so it goes to the broker as a question, along with when the cap year resets.
 
 ## Company Dollar and Margin
 
@@ -90,7 +90,7 @@ People is salaries and wages, payroll taxes, health insurance, transaction coord
 | Other | $1,269 | $1,309 | 1,309.05 - 1,268.85 = 40.20 |
 | Net income | $9,465 | $19,091 | 19,091.15 - 9,464.69 = 9,626.46 |
 
-- **Biggest change:** company dollar, 45,135.98 to 51,746.87 (6,610.89). Lower brokerage fees are part of it: 2,655.00 in August, 2,360.00 in September.
+- **Biggest change:** company dollar, 45,135.98 to 51,746.87 (6,610.89). In the month table above, referral fees went from 13,998.25 in August to 0.00 in September and brokerage split and fees from 2,655.00 to 2,360.00, while agent splits rose with commission income.
 - Lead generation fell 2,644.52 because Google PPC came back from 3,940.85 in August to 1,296.33.
 - **September against the January to August average:** company dollar $51,747 against $35,952; net income $19,091 against $2,768.
 - **Year to date (January to September 2026):** company dollar 339,366.76; operating expenses 304,883.76; net income 41,233.00; margin 41,233.00 / 339,366.76 = 12.1%. No prior-year months are in the file.
@@ -124,7 +124,7 @@ Monthly, operating expenses per closing ran from 3,108.33 (May, 11 closings) to 
 
 ## Anomalies
 
-1. **Brokerage split and fees dropped** from about 6.0% of commission income (January to April) to 3.2% in May and about 2% since. A cap, a fee change or something missing? Ask your broker or bookkeeper.
+1. **Brokerage split and fees dropped** from 6.0% of commission income (January to April) to 3.2% in May and 1.9% to 2.2% since. A cap, a fee change or something missing? A question for your broker (below).
 2. **Uncategorized Expense:** 486.20 in July 2026.
 3. **New recurring charge:** Software & Subscriptions:Video Editing App, 79.00 a month since June 2026.
 4. **One-month jump:** Google PPC was 3,940.85 in August 2026 against a usual 1,264.12 (+2,676.73), back to 1,296.33 in September.
@@ -137,17 +137,21 @@ Charge-level checks need the QuickBooks Profit and Loss Detail export for the sa
 1. Uncategorized Expense holds 486.20 in July. What is it, and which account should it move to?
 2. Video Editing App started in June at 79.00 a month. Which subscription is it, and is it meant to continue?
 3. Google PPC was 3,940.85 in August, 2,676.73 above its usual month. Was that one campaign, or a billing catch-up?
-4. Brokerage split and fees dropped from about 6.0% of commission income to 3.2% in May and about 2% since. Is anything missing from that account, or did the brokerage's charges change?
+4. Brokerage split and fees dropped from 6.0% of commission income to 3.2% in May and 1.9% to 2.2% since. Is anything missing from that account from May on? (I'm asking the broker separately about a cap or fee change.)
 
 ## Questions for the CPA
 
 None from these numbers.
 
+## Questions for the Broker
+
+1. Our brokerage split and fees were 6.0% of commission income from January to April 2026, 3.2% in May and 1.9% to 2.2% from June to September. Did the team or its agents reach a cap in May, or did the fee schedule change? When does the cap year reset?
+
 ## Owner Brief (Draft)
 
 **Owner Brief: Pinecone & Puddle Home Team P&L, January to September 2026**
 
-**Bottom Line:** We kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losses in January, February and March. Brokerage split and fees have run near 2% of commission income since May, down from about 6.0%. Our decision: keep Pumpkinpatch Portal at 3,000.00 a month or take it back down.
+**Bottom Line:** We kept $41,233 in net income for January to September, a 12.1% margin on company dollar, and $19,091 in September (36.9%), after losses in January, February and March. Brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on. Our decision: keep or cancel Pumpkinpatch Portal at 3,000.00 a month.
 
 **Profit:** Period net income $41,233 on company dollar of $339,367 (12.1%). September net income $19,091 on company dollar of $51,747 (36.9%).
 
@@ -158,7 +162,7 @@ None from these numbers.
 **What Changed:** Company dollar rose from $45,136 in August to $51,747 in September; Google PPC came back down from its August jump.
 
 **What Needs a Look:**
-- Brokerage fees down since May: confirm whether we capped.
+- Brokerage fees down since May: asking the broker whether we reached a cap or the fee schedule changed.
 - 486.20 uncategorized in July.
 - Video Editing App, new at 79.00 a month since June.
 - Google PPC at 3,940.85 in August.
@@ -167,9 +171,9 @@ None from these numbers.
 
 **Lead Sources:** Google PPC returned 3.54 per $1 spent and Pumpkinpatch Portal 1.79; Lanternfly Leads kept 0.62 per $1 of referral fees.
 
-**The Decision:** Keep Pumpkinpatch Portal at 3,000.00 a month (up from 2,500.00 since July) or take it back down.
+**The Decision:** Keep or cancel Pumpkinpatch Portal (3,000.00 a month since July; it was 2,500.00). For January to September it cost 24,000.00 and its 16 closings brought the team 66,930.64.
 
-**With the Bookkeeper:** 4 questions sent.
+**With the Bookkeeper:** 4 questions sent; 1 question for the broker.
 
 ## Email to the Bookkeeper (Draft)
 
@@ -182,7 +186,7 @@ I went through the January to September P&L against our closed-deal export. A fe
 1. Uncategorized Expense has 486.20 in July. What is it, and where should it go?
 2. Video Editing App started in June at 79.00 a month. Which subscription is it?
 3. Google PPC was 3,940.85 in August, well above its usual month. Was that one campaign, or a billing catch-up?
-4. Brokerage split and fees dropped to 3.2% of commission income in May and about 2% since, from about 6.0% before. Is anything missing from that account?
+4. Brokerage split and fees dropped to 3.2% of commission income in May and 1.9% to 2.2% since, from 6.0% before. Is anything missing from that account from May on?
 
 Once the July item is moved, could you send an updated P&L by month as Excel?
 
@@ -199,15 +203,16 @@ Every figure below comes from the analysis run (pnl_report.md, attached), in the
 | Period company dollar | $339,367 (339,366.76) | Company Dollar and Margin, Period |
 | September net income, company dollar, margin | $19,091, $51,747, 36.9% | Company Dollar and Margin, Sep 2026 |
 | August company dollar | $45,136 | Changes |
+| Referral fees 13,998.25 (Aug) to 0.00 (Sep); brokerage 2,655.00 to 2,360.00 | 13,998.25, 0.00, 2,655.00, 2,360.00 | Company Dollar and Margin, Aug and Sep 2026 lines |
 | Months with a loss | January, February, March | Company Dollar and Margin table |
-| Brokerage share | about 6.0% (Jan to Apr), 3.2% in May, 1.9% to 2.2% since | How Revenue Is Recorded; Flags (brokerage_share_drop) |
+| Brokerage share | 6.0% (Jan to Apr), 3.2% in May, 1.9% to 2.2% since | How Revenue Is Recorded; Flags (brokerage_share_drop) |
 | Expense shares | People 54.5%, occupancy 11.7%, lead generation 11.2% | Expense Mix |
 | Uncategorized | 486.20, July 2026 | Flags (uncategorized) |
 | Video Editing App | 79.00 a month since June 2026 | Flags (new_recurring_account) |
 | Google PPC | 3,940.85 in August; usual 1,264.12; +2,676.73 | Flags (spike) |
-| Pumpkinpatch Portal | 2,500.00 to 3,000.00 since July 2026 | Flags (price_change) |
+| Pumpkinpatch Portal | 2,500.00 to 3,000.00 since July 2026; 24,000.00 spend; 16 closings; 66,930.64 team's share | Flags (price_change); Production, Lead Sources |
 | Cost per closing | 3,959.53; 4,407.36 and 535.49 per closing; 77 closings | Production, Cost per Closing |
 | Lead source returns | 3.54, 1.79, 0.62 | Production, Lead Sources |
 | Placeholders | [Bookkeeper Name], [Owner Name] | Fill in before sending |
 
-"About 2%" for the brokerage share since May is a reading of the run's monthly shares (1.9% to 3.2%), not a separate calculation. Confirm the cap question with your broker before treating the lower fees as permanent.
+Confirm the cap question with your broker before treating the lower brokerage fees as permanent.

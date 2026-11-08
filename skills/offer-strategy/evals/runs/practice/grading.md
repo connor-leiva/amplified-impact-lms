@@ -37,3 +37,13 @@ Result: **pass, 12 of 12** (after one fix, below). This output is `sample.md`.
 ## Shared Reference Added After This Run
 
 The shared `utah-repc-2026.md` was added to `skills/_shared/` during this build, after the run. SKILL.md now lists it for the November 1, 2026 form, and skill.json ships it. Every 2026 section number and quote in this output was checked against it and against the UAR clean copy: they match (Sections 1, 2.1 to 2.3, 3(a) to (d), 3(c)(i), 4(a) to (f), 5, 8.3(c), 9.3, 12.1 to 12.3, 25, 30). No rerun was needed.
+
+## Reviewer's Independent Run (review-output.md)
+
+Run on 2026-11-08 by the independent reviewer, from scratch, following SKILL.md 1.0 on the three practice files with the page's practice prompt, before reading `output.md`.
+
+Result: **pass, 12 of 12** on the practice checks above, plus the objective checks (0 dashes, Title Case subject, Check before sending present, 0 hits in the email for lockbox codes, "relocating," "prefers," the listing agent's phone, or other listings' agent remarks).
+
+**Comparison with the builder's output (sample.md).** Both call Balanced, leave out the short sale, label the March sale older, place the listing above the same-floor-plan sale for its 2021 kitchen and 2023 roof, ask for the seller's offered $5,000 in Section 2.2, stay under the buyers' $565,000, set Settlement after December 1 with 3 days' possession, and keep the agent-only remarks out of the email. Differences are judgment: $562,000 against $562,500; due diligence 14 days against 10; the reviewer used the lender's exact 14 and 21 days while the builder added margin (20 and 24). One real problem in the builder's output: the email asked for answers "By Monday At 6:00 PM," an hour the inputs don't support.
+
+**Reviewer changes.** `output.md` and `sample.md` now ask for answers "by [time]," with the placeholder flagged and traced in Check before sending. SKILL.md now tells the skill to tie decision times to the offer deadline or the agent's message, otherwise [time]. Its 12 of 12 stands.

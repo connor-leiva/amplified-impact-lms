@@ -41,3 +41,7 @@ The letter expires December 2, 2026, before a 30-day close from a November 10 ac
 
 - The first draft's flags said "No Utah notes or forms apply." Harmless, but a Forum agent in another state shouldn't see Utah mentioned at all. Removed from the output, and SKILL.md's general-mode line now says "no Utah sections, notes or mentions."
 - First draft called possession at closing "standard," a claim about Idaho practice the inputs don't support. Removed.
+
+## Reviewer Update (2026-11-08)
+
+The independent reviewer did not rerun this case. The buyer email's decision time is tied to the listing agent's deadline, which the updated SKILL.md allows, but it was not traced. A Check before sending row now lists it as a recommendation. The result stands.

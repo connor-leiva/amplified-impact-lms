@@ -127,5 +127,6 @@ About the letter to the sellers: I'd leave it out. Personal letters can raise fa
 | $4,900, $2,600, $7,500, $15,000, $10,100, $467,500 | Arithmetic shown in sections 3 and 4 |
 | $477,500 price and every placeholder | Recommendations for you and Dakota to decide |
 | $485,000 and the appraisal waiver idea; two other offers due Tuesday at noon | Your message |
+| Monday at 6:00 PM for Dakota's answer | Recommendation, set ahead of the Tuesday noon deadline; change it if you need more time |
 | Conventional, $490,000 maximum, 5% down, about $3,800 in reserves after closing, loan based on the lower of price or appraised value, expires December 2, 2026 | Preapproval letter, November 2, 2026 |
 | Thursday, December 10 (30 days from an assumed Tuesday, November 10 acceptance) | Arithmetic; confirm with your transactions team |

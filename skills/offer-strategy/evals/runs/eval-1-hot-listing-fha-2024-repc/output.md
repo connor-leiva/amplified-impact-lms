@@ -152,6 +152,7 @@ Please don't include a personal letter or photos with the offer; we'll keep it a
 | $5,100 (505,000 minus 499,900), $7,000 (505,000 minus 498,000), $10,100 (510,000 minus 499,900), $12,000 (510,000 minus 498,000), $1,900 (499,900 minus 498,000) | Arithmetic |
 | $505,000 price, the escalation numbers ($502,000, $1,000, $510,000 cap), 3-day Seller Disclosure Deadline, 10-day Due Diligence, 21-day Financing & Appraisal Deadline, offer deadline | Recommendations for the agent and buyers to decide |
 | $510,000 limit; four offers; highest and best Monday, November 9 at 6:00 PM; $5,000 minimum earnest money; December 18 and two days after Recording | Your message (from the listing agent) |
+| Monday at noon for the buyers' decisions | Recommendation, set ahead of the listing agent's 6:00 PM deadline; change it if you need more time |
 | FHA, $515,000 maximum, 3.5% down, verified assets for down payment and closing costs, appraisal ordered within 3 business days, 10 to 14 days, close 25 days from Acceptance, expires January 31, 2027 | Preapproval letter, November 2, 2026 |
 | Sections 2.1, 2.2, 3.3, 7(b), 8.1, 8.2, 8.3(b), 8.3(b)(i), 8.4, 10.1, 24(a) to (d), 25; FHA/VA Loan Addendum Sections 3, 4, 6 | December 4, 2024 REPC; FHA/VA Loan Addendum effective November 18, 2020 |
 | All dates (November 13, 14, 20; December 1, 18) | Counted from an assumed Acceptance of Tuesday, November 10; confirm with your transactions team |
