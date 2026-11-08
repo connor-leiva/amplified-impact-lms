@@ -21,7 +21,21 @@
 //
 // House rules: no em dashes, short plain sentences, one action a step, the actor and the place named.
 
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import type { Guide, Inline, Section, SetupStep, Step } from './content';
+
+/**
+ * The words for a skill's ChatGPT Project Instructions box, read from its source,
+ * `skills/<name>/chatgpt/paste.txt`, so the page and the ZIP can never say two different things. Read
+ * at build time: a page's words are rendered by Vite into HTML and never ship to the browser. From
+ * the working directory up to the repository root, which holds `skills/README.md`.
+ */
+export function chatgptPaste(name: string): string {
+  let dir = process.cwd();
+  while (!existsSync(join(dir, 'skills', 'README.md')) && dirname(dir) !== dir) dir = dirname(dir);
+  return readFileSync(join(dir, 'skills', name, 'chatgpt', 'paste.txt'), 'utf8');
+}
 
 const ORIGIN = 'https://www.amplifiedimpact.io';
 
