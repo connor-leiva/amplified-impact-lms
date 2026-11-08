@@ -36,3 +36,24 @@ Result: **pass, 8 of 8 expectations; every objective check that applies passes.*
 - The first draft's buyer Next Steps had the request going out Monday before the buyer's answer was due Wednesday. Reordered so the buyer answers by Monday and the request goes out early.
 - The first draft said the reinvestment cap applies "for covenants recorded on or after May 6, 2026" only. It now also says the same 0.5% cap applied before that change to covenants recorded on or after March 16, 2010, which is what makes the 2016 covenant a question for title (from `utah-property-notes.md`).
 - Removed "likely minor" from the smoke alarm's cost line, and the Tier 4 count (same SKILL.md change as eval 1).
+
+## Reviewer's Independent Run (2026-11-08)
+
+A second reviewer ran this case from scratch with SKILL.md before reading `output.md`. The run is `review-output.md`.
+
+| # | Expectation | Result | Evidence |
+|---|---|---|---|
+| 1 | November 1, 2026 form; 12.1, 4(b), 8.2, 8.3(a); November 17, 2026, 5:00 PM MT, 9 days; no response period | Pass | Flags quote the footer; Timeline gives "9 calendar days" and "No response period" |
+| 2 | Rental cap full, waitlist, 12-month and 30-day minimums, plan not assured, no grandfathered status | Pass | HOA Findings item 2 |
+| 3 | $4,200 vote December 15 after the December 11 Settlement Deadline; 8.2 Seller box doesn't cover it; credit or written agreement in the ask | Pass | HOA Findings item 1; Recommended ask item 2 |
+| 4 | Reserves and 38% premium increase as questions; insurance agent for coverage | Pass | HOA Findings items 3 and 4 |
+| 5 | $2,490 is 0.6% of $415,000, above 0.5%, to title, never called unlawful, buyer's cost under 8.3(a) | Pass | HOA Findings item 5 |
+| 6 | Bedroom 2 smoke alarm Tier 1 and in the ask; roof referred to the HOA | Pass | Issue List item 1; Held back |
+| 7 | Account number absent | Pass | `check_output.py --forbid ECT-0014-55817` |
+| 8 | Email rules, Check before sending, no dashes | Pass | 286 words; Title Case subject; 0 dashes |
+
+Comparison with `output.md`: the same findings, tiers, ask and timeline. Differences are wording only (the first run adds a no-double-pay clause to the credit item, which is better; this run lists questions for the HOA manager separately).
+
+What the run exposed: the first pass of this run's buyer email set interim dates (November 11 and 13) that no document or message gave, because SKILL.md said only "each with the date it's needed by." SKILL.md and the ChatGPT instructions now tie every Next Steps date to the contract or the agent's message, or to a date counted back from one, and forbid announcing appointments nobody mentioned. The run was redone under the new rule and still passes 8 of 8. `output.md` is not stale: its Next Steps dates are tied to the deadline and listed in Check before sending as the agent's plan.
+
+Input files: restamped "PRACTICE FILE: made-up example" (they read "TEST FILE"); the text is otherwise identical, checked with pdftotext.

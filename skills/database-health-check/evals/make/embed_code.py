@@ -8,7 +8,7 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[2]
 HEAD = """# Analysis Code
 
-Last verified: 2026-11-08. The Follow Up Boss column names, default stages and export behavior this code relies on come from Follow Up Boss's help center: Export Contacts to a Spreadsheet (https://help.followupboss.com/hc/en-us/articles/360015269133-Export-Contacts-to-a-Spreadsheet), Changing a Lead Stage (https://help.followupboss.com/hc/en-us/articles/360012456793-Changing-a-Lead-Stage) and Importing Contacts Overview (https://help.followupboss.com/hc/en-us/articles/4402323033751-Importing-Contacts-Overview). The day limits are this skill's defaults, explained in the health rules.
+Last verified: 2026-11-08. The Follow Up Boss column names, default stages and export behavior this code relies on come from Follow Up Boss's help center: Export Contacts to a Spreadsheet (https://help.followupboss.com/hc/en-us/articles/360015269133-Export-Contacts-to-a-Spreadsheet), Changing a Lead Stage (https://help.followupboss.com/hc/en-us/articles/360012456793-Changing-a-Lead-Stage) and Importing Contacts Overview (https://help.followupboss.com/hc/en-us/articles/4402323033751-Importing-Contacts-Overview). The day limits are defaults, explained in the health rules.
 
 Run this code with Python 3 on the uploaded export. It uses only Python's standard library (plus openpyxl for an .xlsx file). Do not paste it into the conversation, and never print contact rows: the code keeps names, emails and phone numbers out of everything except the worklist file.
 

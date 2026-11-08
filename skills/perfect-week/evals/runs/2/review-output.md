@@ -1,123 +1,155 @@
-# Case 2, Independent Review Run (2026-11-08)
+# Case 2: Reviewer's Independent Run
 
-Run by the reviewer from scratch, following SKILL.md and its references as written, before reading the builder's output. Inputs: `evals/files/case2-calendar.ics` and `evals/files/case2-tasks.csv`, the case 2 prompt. The calendar was expanded with a short script (repeats, all-day dates, time zones), and the task hours were added up with another. The plan page and the PDF were not rendered in this run; the reply below says what each would hold.
+PRACTICE FILE: made-up example. Run by the reviewer on 2026-11-08 from SKILL.md and its references as written, before reading the builder's run. Files: evals/files/case2-calendar.ics and evals/files/case2-tasks.csv. Both were read with scripts (an .ics reader that unfolds lines, expands RRULE and EXDATE, applies RECURRENCE-ID and converts to America/New_York; a Todoist reader that skips the banner line and maps TYPE, CONTENT, RESPONSIBLE, DATE and DURATION). In a live session the plan page is a published page; here its sections are laid out in markdown.
 
 ---
 
-**Bottom line:** Your work doesn't fit in two weeks of 9 to 5. You have 75.5 hours of tasks due by November 20 and the plan gives you 36.25 hours of work blocks (16.75 this week, 19.5 next), so you're about 39 hours short, almost all of it next week. I kept every evening and Sunday empty and Saturday to your showing window; the decision for you is which of the re-dates and re-scopes below you'll take to Jamie.
+## Reply (steps 2 to 7 in one pass, as Taylor asked)
 
-Assumed, tell me if wrong: [no days off or travel before November 20] and [nothing already agreed with Jamie beyond the meetings on your calendar].
+**Bottom line:** It doesn't fit. Your list holds 76.5 hours of work due by Fri Nov 20; 1 hour of that is deadline tracking that belongs to Toni on transactions, which leaves 75.5 hours for you against 42.5 hours of focus blocks in your 9 to 5 Eastern days: 2 hours short the week of Nov 9 and 31 hours short the week of Nov 16. The one thing to decide is which of the five re-scopes below you take to Jamie; nothing goes into your evenings, Sundays or Saturday outside 10 to 2.
 
-**Time zone:** your calendar is set to Central (America/Chicago), and you work Eastern. Every time below is Eastern, so your Tuesday team meeting is 10:00 here and shows as 9:00 in your calendar. If we ever add blocks to your calendar, they'll look an hour early in your view until its time zone is changed to Eastern. The export is from November 8; I'll re-read the live calendar before anything is built.
+**Time zone note:** your calendar is set to Central (America/Chicago) and you work in Eastern. I've shown every time in Eastern. Anything added to this calendar later will look an hour off in your calendar view until you change the calendar's own time zone to Eastern, even though it sits at the right time.
 
-## What I Read
+**Plan page:** [Taylor's Perfect Week] (draft for review, Eastern). Built from your calendar export (newest change Nov 8) and your Todoist export. Sections added: The week, Where the hours go, What each block is for, Team cadence, Dates that drive the blocks, Recurring work, Task check, Hand-offs (as a list for Jamie). No Evenings and weekends section: you didn't offer any.
 
-- Calendar (Nov 9 to 20, in Eastern): Team meeting Tuesdays 10:00 to 11:30 (Jamie's), 1:1 with Jamie Thursdays 9:00 to 9:30, Sales training webinar Wednesdays 12:00 to 1:00, Inspection at 41 Fiction Avenue Thu Nov 12, 2:00 to 4:00, CE class Fri Nov 13, 10:00 to 1:00, listing appointment at 18 Mockingbird Example Way Mon Nov 9, 5:30 to 6:30, listing appointment at 7 Sampleview Terrace Wed Nov 18, 4:00 to 5:00, closing at 41 Fiction Avenue Fri Nov 20, 2:00 to 3:00, showings Sat Nov 14, 10:00 to 1:00. Your Tuesday and Thursday evening commitment stays as it is and isn't part of the plan.
-- Dates that drive the blocks (posted by Toni, your transactions team): Due Diligence Deadline Mon Nov 16 and Settlement Deadline Fri Nov 20 for 41 Fiction Avenue. For planning only; confirm dates with your transactions team.
-- Todoist: 18 of your open tasks due by November 20 (the daily prospecting calls count as 10 sessions and the Friday seller updates as 2), 76.5 hours by their own estimates. Left out: "Approve team holiday card proof" (Jamie's), the note row, and the CE hours due November 30 (flagged below).
+**Problems flagged on the board (nothing moved):**
+- Mon Nov 9, listing appointment at 18 Mockingbird Example Way: it's saved at 4:30 Central, which is 5:30 to 6:30 PM Eastern, after your 5:00 stop. If you meant 4:30 Eastern, fix the event's time zone; it's your event, so I won't touch it.
+- Thu Nov 12, the 2:00 to 4:00 inspection at 41 Fiction Avenue takes most of that afternoon's focus time.
+- Fri Nov 13, the 10:00 to 1:00 CE class pushes lunch to 1:00 and leaves 2 focus hours that day.
+- Wed Nov 18, the 4:00 listing appointment at 7 Sampleview Terrace replaces that afternoon's comms sweep and shutdown.
 
-Flags, nothing moved:
-- Mon Nov 9: the 18 Mockingbird listing appointment runs 5:30 to 6:30, after your day ends. It's client time, so it stays; the CMA block sits right before it.
-- Wed Nov 18: the 7 Sampleview Terrace appointment takes your last hour, so that day's sweep and shutdown move earlier. Todoist has no prep task for it; the 2:30 block before it is free for prep if you want it.
-- Fri Nov 13: the live CE class takes the middle of your day.
+**Before step 8:** I've stopped here. Nothing is connected, so nothing goes on your calendar. When you're ready, I can help you connect Google Calendar, or make a calendar file you import yourself.
 
-## Step 3: The Perfect Week (Eastern)
+**Question for you:** Which of the re-scopes do you want to take to Jamie, and do you want to use 3 of your open hours (2 the week of Nov 9, 1 the week of Nov 16) to close what's left, or keep the full hour a day open?
 
-A normal week (Week of Nov 16 shown; Nov 9 has the inspection and CE class cut in):
+---
 
-| | Mon | Tue | Wed | Thu | Fri |
+## Plan Page Sections
+
+### The Week (Eastern, Mon to Fri; every block within 9:00 to 5:00)
+
+| Time | Mon | Tue | Wed | Thu | Fri |
 |---|---|---|---|---|---|
-| 9:00 | Launch (top 3) | Launch | Launch | 1:1 Jamie | Launch |
-| 9:15 | Comms sweep | Comms sweep | Comms sweep | 9:30 Launch, 9:45 Comms sweep | Comms sweep |
-| 9:45 | Prospecting: past-client calls from your CRM list | Focus | Prospecting | 10:15 Prospecting | Prospecting |
-| 10:45 | Listings focus | 10:00 Team meeting | Listings focus | 11:15 Listings focus | Seller updates, then focus |
-| 11:30 / 12:00 | (focus) | 11:30 Prospecting | 12:00 Sales training webinar | (focus) | (focus) |
-| 12:30 | Lunch | Lunch | 1:00 Lunch | Lunch | Lunch |
-| 1:00 | Open time | Open time | 1:30 Open time | Open time | Open time |
-| 2:00 | Focus | Buyers and listings focus | 2:30 Marketing focus | Admin and database focus | Focus, 3:45 Weekly review |
-| 4:15 | Comms sweep | Comms sweep | Comms sweep | Comms sweep | Comms sweep |
-| 4:45 | Shutdown | Shutdown | Shutdown | Shutdown | Shutdown |
+| 9:00 | Launch (15) | Launch (15) | Launch (15) | 1:1 Jamie / Taylor (fixed) | Launch (15) |
+| 9:15 | Comms sweep (15) | Comms sweep (15) | Comms sweep (15) | (1:1 until 9:30) | Comms sweep (15) |
+| 9:30 | Prospecting: past-client calls | Prospecting (30) | Prospecting: past-client calls | Launch 9:30, comms 9:45 | Prospecting: past-client calls |
+| 10:00 | (calls until 10:30) | Team meeting (fixed, 10:00 to 11:30) | (calls until 10:30) | Prospecting 10:00 to 11:00 | (calls until 10:30) |
+| 10:30 | Listings 10:30 to 12:30 | | Marketing and admin 10:30 to 12:00 | | Listings: seller updates 10:30 to 11:30 |
+| 11:00 | | | | Listings 11:00 to 12:30 | |
+| 11:30 | | Prospecting (30) | | | Buyers 11:30 to 12:30 |
+| 12:00 | | Lunch 12:00 to 12:30 | Sales training webinar (fixed, 12:00 to 1:00) | | |
+| 12:30 | Lunch | Listings 12:30 to 2:30 | | Lunch | Lunch |
+| 1:00 | Marketing and admin 1:00 to 3:00 | | Lunch 1:00 to 1:30 | Marketing and admin 1:00 to 3:00 | Marketing and admin 1:00 to 3:00 |
+| 1:30 | | | Listings 1:30 to 3:30 | | |
+| 2:30 | | Buyers 2:30 to 3:30 | | | |
+| 3:00 | Buyers 3:00 to 3:30 | | | Buyers 3:00 to 3:30 | Open 3:00 to 4:00 |
+| 3:30 | Open 3:30 to 4:30 | Open 3:30 to 4:30 | Open 3:30 to 4:30 | Open 3:30 to 4:30 | |
+| 4:00 | | | | | Weekly review 4:00 to 4:30 |
+| 4:30 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 |
 
-Saturday: showings only, 10:00 to 2:00 (Nov 14: Brightwater showings 10:00 to 1:00). No evenings, no Sundays.
+Saturday: Showings: Brightwater buyers, Sat Nov 14, 10:00 to 1:00 (your own block, inside your 10 to 2 window). No other Saturday time is used. Sundays and evenings stay empty.
 
-Where the hours go, per week: work blocks 16.75 (week of Nov 9) and 19.5 (week of Nov 16), including 5 hours of prospecting each week; meetings 8 and 5; launch, sweeps, shutdown and weekly review 8.75 and 8; lunch 2.5; open time 4 and 5 (about an hour a day, the default).
+### Where the Hours Go (template week)
 
-## Step 4: Task Check
+Focus 24 hours (Prospecting 5, Listings 7, Buyers 3, Marketing and admin 9); fixed meetings 3 hours (team meeting 1.5, webinar 1, 1:1 0.5); rituals 5.5; lunch 2.5; open time 5. One-offs take more: week of Nov 9 ends with 19.5 focus hours (inspection and CE class), week of Nov 16 with 23 (closing).
 
-| Week | Needed (your estimates) | Work blocks | Gap |
-|---|---|---|---|
-| Nov 9 to 13 (plus the overdue expense catch-up) | 21.5 h | 16.75 h | 4.75 h short |
-| Nov 16 to 20 | 54 h | 19.5 h | 34.5 h short |
-| Total | 75.5 h | 36.25 h | 39.25 h short |
+### What Each Block Is For
 
-75.5 is the 76.5 in Todoist less the 1-hour deadline spreadsheet, which goes back to the transactions team (below).
+- **Prospecting: past-client calls.** The call list comes from your CRM; this block protects the hour (your daily "25 past clients" task).
+- **Listings.** CMAs, launch work, the presentation, seller updates on Fridays.
+- **Buyers.** Offer notes, tour sheet before Saturday showings, consult follow-ups.
+- **Marketing and admin.** Videos, reels, blog, market email, database, expenses, CRM notes.
+- **Launch, comms sweeps, shutdown, weekly review.** Pick today's top 3; two passes at email and texts; close loops; Friday plan for next week.
 
-Where each task lands (earliest due first):
-- Mon Nov 9: Update CRM notes (1 h, due today; Jamie's note says these matter for lead audits), CMA for 18 Mockingbird (2 h, 2:00 to 4:15, right before the appointment), start the 5 Sample Ridge price reduction prep.
-- Tue Nov 10: finish the price reduction prep (1.5 h total) and the Pinewood offer strategy notes (1.5 h), then start the buyer consult follow-ups.
-- Wed Nov 11: finish the buyer consult follow-ups (1.5 h total), start the 3 Testwood Lane launch.
-- Thu Nov 12: finish the 3 Testwood launch (4 h, due today). It comes up 0.75 h short by end of day unless you take the fixes below.
-- Fri Nov 13: seller update emails (1 h) and the Brightwater tour sheet (1 h) for Saturday, in a day with 1 hour of focus after the CE class.
-- Daily: Prospecting: past-client calls, 1 h (10 sessions). The call list comes from your CRM; the block protects the time.
-- Week of Nov 16: listing videos for 3 Testwood (3 h, Mon), November market update email (2 h, by Wed), then the listing presentation rebuild (8 h, due Thu), seller updates Friday. Reels, blog posts, the pie pickup and the database cleanup don't fit.
-- Close: "Track Due Diligence and Settlement deadlines for 41 Fiction Avenue in my own spreadsheet." Toni already posts those dates to your calendar, and the official deadline calendar is the transactions team's job. No hours.
-- Flag: "CE: finish 6 remaining online hours" is due November 30, after this plan ends. It needs 6 hours in the week of November 23, ahead of anything re-dated into that week. Worth asking the CE school whether Friday's live class counts toward the 6.
+### Team Cadence
 
-What I'd change, for you to decide (nothing changed in Todoist):
+- Team meeting, Tuesdays 10:00 to 11:30 (Jamie's): bring listing and buyer status.
+- 1:1 with Jamie, Thursdays 9:00 to 9:30: bring the list for Jamie below on Nov 12.
+- Sales training webinar, Wednesdays 12:00 to 1:00 (brokerage-wide).
 
-Week of Nov 9 (4.75 h short):
-1. Re-date the expense tracking catch-up (3 h, already overdue since Nov 2) to the week of Nov 23. Frees 3 h.
-2. Cut open time to 30 minutes on Tue, Wed and Thu. Frees 1.5 h. Your call: it's the cushion for whatever lands unplanned.
-3. The last 0.25 h: send Friday's seller updates in Friday's second sweep, or Monday first thing.
+### Dates That Drive the Blocks
 
-Week of Nov 16 (34.5 h short):
-1. Blog posts: 2 of the 8 by Nov 20 (4 h at your estimate of 2 h a post), the other 6 re-dated to December. Frees 12 h.
-2. Listing presentation rebuild: re-date to December and use the current one on Nov 18. Frees 8 h.
-3. Database cleanup: tag the first 100 of 400 contacts by Nov 20 (2.5 h, my split of your 10 h), the rest in December. Frees 7.5 h.
-4. Client appreciation pie pickup: re-scope from 5 h to 2 h (ask Jamie whether the team handles part of it). Frees 3 h.
-5. Instagram reels: 2 of 4 by Nov 19, 2 re-dated. Frees 2 h.
-6. That leaves 2 h. Cut open time to 30 minutes Mon to Thu (frees 2 h), or re-date the rest of the database cleanup.
+- Mon Nov 9: CMA and CRM notes due; listing appointment, 18 Mockingbird Example Way (after hours, see flag).
+- Tue Nov 10: price reduction prep (5 Sample Ridge Road) and Pinewood offer notes due.
+- Thu Nov 12: 3 Testwood Lane launch due; inspection at 41 Fiction Avenue, 2:00 to 4:00.
+- Fri Nov 13: CE class 10:00 to 1:00; tour sheet due before Saturday's showings.
+- Mon Nov 16: Due Diligence Deadline, 41 Fiction Avenue (posted by Toni Transactor; for planning only, confirm dates with your transactions team).
+- Wed Nov 18: listing appointment, 7 Sampleview Terrace, 4:00 to 5:00; market update email due.
+- Thu Nov 19: listing presentation and reels due.
+- Fri Nov 20: Settlement Deadline, 41 Fiction Avenue (for planning only, confirm with your transactions team); closing 2:00 to 3:00; blog posts, database cleanup and pie pickup plan due.
+- After this plan: CE, 6 online hours, due Mon Nov 30 (not counted here; it needs 6 hours the week of Nov 23).
 
-With all of it, both weeks fit with no evenings, no Sundays and no Saturday work outside showings.
+### Recurring Work
 
-## Step 5: Projects Through November 20
+- Prospecting calls (every weekday, 1 hour): 10 sessions, one in each day's Prospecting block.
+- Weekly seller update emails (every Friday, 1 hour): Nov 13 and Nov 20.
+- Team meeting and 1:1: status updates go there, no separate block.
 
-The bigger pieces: the listing presentation rebuild (8 h), the blog series (16 h), the database cleanup (10 h) and the reels (4 h). As things stand, none of them can finish by its due date except the presentation, and only by pushing the reels and everything after it. With the changes above: 2 blog posts, 2 reels, 100 contacts tagged by Nov 20; the rest moves to December in this order if more lands: database cleanup first, then blog posts, then reels. No Evenings and Weekends section, since you didn't offer any.
+### Task Check
 
-## Step 6: Hand-Offs (No One to Delegate to): List to Raise With Jamie
+Headline: 18 open tasks, 1 overdue (expense catch-up, due Nov 2), 76.5 hours on the list; 75.5 hours need your blocks against 42.5 available.
 
-1. Blog posts: 2 by Nov 20, 6 in December. Why: 16 hours is most of a week of focus.
-2. Listing presentation rebuild: December. Why: it doesn't fit before your Nov 18 appointment anyway.
-3. Database cleanup: 100 contacts by Nov 20, the rest in December, or does someone on the team tag contacts? Why: 10 hours.
-4. Pie pickup: can the team run part of it? Why: 5 hours of planning in your busiest week.
-5. Reels: 2 of 4 by Nov 19.
-6. Deadline spreadsheet for 41 Fiction Avenue: closed, since the transactions team tracks those dates.
+| Week | Hours needed (by due date) | Focus hours in blocks | Short before fixes | Short after fixes |
+|---|---|---|---|---|
+| Nov 9 to 13 | 21.5 | 19.5 | 2 | 2 |
+| Nov 16 to 20 | 54 | 23 | 31 | 1 |
 
-## Step 7: Summary for Jamie (PDF)
+| Task | Area | Due | Hours | Action | Lands in |
+|---|---|---|---|---|---|
+| CMA for 18 Mockingbird Example Way listing appointment | Listings | Nov 9 | 2 | Do | Mon Listings |
+| Update CRM notes from last week's showings | Admin | Nov 9 | 1 | Do | Mon Marketing and admin |
+| Expense tracking catch-up (September and October) | Admin | Nov 2 (overdue) | 3 | Do (last hour short, see fixes) | Mon and Thu Marketing and admin |
+| Price reduction conversation prep: 5 Sample Ridge Road | Listings | Nov 10 | 1.5 | Do | Tue Listings |
+| Offer strategy notes for the Pinewood buyers | Buyers | Nov 10 | 1.5 | Do | Mon and Tue Buyers |
+| Buyer consult follow-ups (3) | Buyers | Nov 11 | 1.5 | Do | Wed Marketing and admin |
+| Launch 3 Testwood Lane | Listings | Nov 12 | 4 | Do | Tue, Wed, Thu Listings |
+| Prep tour sheet for Brightwater buyers | Buyers | Nov 13 | 1 | Do | Fri afternoon, before Saturday |
+| Weekly seller update emails (4 listings) | Listings | Fridays | 2 (1 + 1) | Do | Fri Listings |
+| Prospecting calls: 25 past clients | Prospecting | Every weekday | 10 (10 x 1) | Do | Daily Prospecting |
+| Listing videos for 3 Testwood Lane | Listings | Nov 16 | 3 | Do | Mon Nov 16 |
+| Write and send November market update email | Prospecting | Nov 18 | 2 | Do | Wed Nov 18 Marketing and admin |
+| Rebuild listing presentation | Listings | Nov 19 | 8 | Re-scope (proposal) | 2-hour refresh before Nov 18 |
+| Film 4 Instagram reels | Marketing | Nov 19 | 4 | Re-scope (proposal) | 2 reels, Thu Nov 19 |
+| Write 8 neighborhood blog posts for website | Marketing | Nov 20 | 16 | Re-scope (proposal) | 2 posts this week |
+| Plan client appreciation pie pickup | Marketing | Nov 20 | 5 | Re-scope (proposal) | 2 hours |
+| Database cleanup: tag 400 contacts | Admin | Nov 20 | 10 | Re-scope (proposal) | 3-hour first pass |
+| Track Due Diligence and Settlement deadlines for 41 Fiction Avenue in my own spreadsheet | Transactions | Nov 20 | 1 on the list, 0 in your blocks | Close: Toni owns these dates and already posts them to your calendar | None |
 
-Contents: Taylor's week (the board above, Eastern), hours by kind of block, the two-week task check (needed against available, by week, before and after the changes), the project timeline, and the list above. Left out: Taylor's evenings and family commitments, client names and contact details, and any dollar figures.
+Left out of the count: "Approve team holiday card proof" (assigned to Jamie), the note row, and "CE: finish 6 remaining online hours" (due Nov 30, after this plan; flagged above). Every estimate is from your Todoist durations; the re-scope hours below are my estimates, labeled as mine.
 
-**Check before sending**
-- Dates: Nov 9 to 20 plan window; Nov 16 Due Diligence and Nov 20 Settlement (41 Fiction Avenue, confirm with your transactions team); Nov 18 listing appointment; Nov 20 closing; CE due Nov 30.
-- Hour totals: 75.5 h needed; 16.75 h and 19.5 h of work blocks; 4.75 h and 34.5 h short; each change's hours (3, 1.5, 12, 8, 7.5, 3, 2, 2).
-- Meetings: Team meeting Tue 10:00 to 11:30, 1:1 Thu 9:00 to 9:30, webinar Wed 12:00 to 1:00, all Eastern.
-- Names: Jamie, Toni (transactions).
-- Asks: the six items in the list.
+**The moves that close the gap (proposals for you and Jamie; nothing changed in Todoist):**
+1. Blog posts: 2 by Nov 20, the other 6 re-dated into December. Saves 12 hours (my split).
+2. Database cleanup: a 3-hour first pass by Nov 20 (you pick which contacts), the rest re-dated. Saves 7 hours (my estimate).
+3. Listing presentation: a 2-hour refresh before the Nov 18 listing appointment, the full rebuild re-dated. Saves 6 hours (my estimate).
+4. Instagram reels: 2 of 4 by Nov 19, 2 re-dated. Saves 2 hours.
+5. Pie pickup plan: re-scoped to 2 hours, or ask Jamie whether team ops handles event logistics. Saves 3 hours (my estimate).
 
-Next: which of these do you want to take to Jamie, and do you want the open time cut? Nothing is on your calendar and nothing changed in Todoist; when you're ready I can add the blocks to your calendar (after you say yes) or give you a calendar file to import.
+After these, 2 hours are still short the week of Nov 9 (Friday's last half hour of calls on the CE class day, the last half hour of the tour sheet, and the last hour of the expense catch-up) and 1 hour the week of Nov 16. Options inside your working hours: use 3 of your 9 open hours (that leaves about half an hour a day unassigned instead of an hour), re-date the last expense hour, or drop Friday Nov 13's calls. Your call.
+
+### Hand-offs: The List for Jamie
+
+You have no one to hand work to, so this is the list to raise with Jamie at your Thu Nov 12 1:1:
+1. The five re-scopes above (blog, database, presentation, reels, pie pickup): what moves and why. Together they're 30 of the 31 hours that don't fit the week of Nov 16.
+2. Deadline tracking for 41 Fiction Avenue: closed on your list; Toni on transactions owns those dates.
+3. CE hours due Nov 30: 6 hours with nowhere to go before Thanksgiving week; ask Jamie to protect time the week of Nov 23.
 
 ---
 
-## Reviewer Grading Against the Case 2 Expectations (as written by the builder)
+## Step 7: Summary for Jamie (PDF in a live run)
 
-1. Every time in Eastern, time zone note given: PASS.
-2. "76.5 hours ... against 44 hours of focus blocks, a 32.5-hour gap": FAIL as written, but the expectation is the problem. 44 h of focus depends on how long the builder made rituals and open time, not on the inputs. And 76.5 h counts the transactions spreadsheet task that expectation 6 says gets no hours; the skill's step 4 says transaction work is "not hours in their week". This run's 75.5 h follows the skill. Expectation rewritten (see grading.md).
-3. No evenings, Sundays or Saturday work outside showings; no Evenings and Weekends section: PASS.
-4. Fixes are proposals; nothing changed in Todoist: PASS.
-5. Hand-offs become a list to raise with Jamie: PASS.
-6. Deadline spreadsheet routed to the transactions team, closed, no hours: PASS.
-7. Repeats expanded (10 calls, 2 seller updates), Jamie's task and the note left out, CE flagged not counted: PASS.
-8. "The remaining 1.75-hour shortfall in the week of Nov 9": FAIL as written, same reason as 2 (this run: 4.75 h short, 0.25 h after two fixes, with options inside working hours, and the open-time cut offered as Taylor's call). Rewritten to test the behavior.
-9. Summary leaves out family and evening details and client details; Check before sending: PASS.
+**Taylor's Plan, Nov 9 to 20**
 
-Ambiguity found in the skill: none in the steps. The two misses are in the eval's fixed numbers, not in what the skill told Claude to do.
+- **The week:** 9:00 to 5:00 Eastern, Monday to Friday, plus Saturday showings 10:00 to 2:00. Daily prospecting hour, listing and buyer blocks, marketing and admin blocks, team meeting Tuesdays, 1:1 Thursdays.
+- **Hours:** 75.5 hours of my work is due by Nov 20 against 42.5 focus hours. Week of Nov 9: 21.5 needed, 19.5 available. Week of Nov 16: 54 needed, 23 available.
+- **Asks:** (1) Re-scope or re-date: blog posts (2 of 8 now), database cleanup (first pass now), listing presentation (refresh now, rebuild later), reels (2 of 4 now), pie pickup plan (2 hours, or is there team help?). (2) Deadline tracking for 41 Fiction Avenue stays with transactions. (3) 6 CE hours due Nov 30 need time the week of Nov 23.
+- **Charts:** week board, hours by area, hours needed against hours available by week (before and after the re-scopes).
+
+Left out on purpose: your evenings, Sundays and family schedule, client names, and the after-hours appointment details.
+
+## Check Before Sending
+
+- Dates: Nov 9 to Nov 20 plan window; Nov 12 1:1; Nov 18 listing appointment; Nov 19 and Nov 20 due dates; Nov 30 CE due date; week of Nov 23.
+- Hour totals: 76.5 on the list, 75.5 needing your blocks, 42.5 focus hours, 21.5 and 19.5 (week of Nov 9), 54 and 23 (week of Nov 16), 30 hours saved by the re-scopes (12, 7, 6, 2, 3: the 7, 6 and 3 are my estimates), 6 CE hours, 2 and 1 hours still short.
+- Meetings and names: team meeting Tuesdays 10:00 Eastern, 1:1 with Jamie Thursdays 9:00 Eastern, Toni on transactions.
+- Asks: the five re-scopes, the transactions hand-back, the CE time.
+- Times are Eastern; your calendar shows Central.

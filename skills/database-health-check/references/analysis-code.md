@@ -1,6 +1,6 @@
 # Analysis Code
 
-Last verified: 2026-11-08. The Follow Up Boss column names, default stages and export behavior this code relies on come from Follow Up Boss's help center: Export Contacts to a Spreadsheet (https://help.followupboss.com/hc/en-us/articles/360015269133-Export-Contacts-to-a-Spreadsheet), Changing a Lead Stage (https://help.followupboss.com/hc/en-us/articles/360012456793-Changing-a-Lead-Stage) and Importing Contacts Overview (https://help.followupboss.com/hc/en-us/articles/4402323033751-Importing-Contacts-Overview). The day limits are this skill's defaults, explained in the health rules.
+Last verified: 2026-11-08. The Follow Up Boss column names, default stages and export behavior this code relies on come from Follow Up Boss's help center: Export Contacts to a Spreadsheet (https://help.followupboss.com/hc/en-us/articles/360015269133-Export-Contacts-to-a-Spreadsheet), Changing a Lead Stage (https://help.followupboss.com/hc/en-us/articles/360012456793-Changing-a-Lead-Stage) and Importing Contacts Overview (https://help.followupboss.com/hc/en-us/articles/4402323033751-Importing-Contacts-Overview). The day limits are defaults, explained in the health rules.
 
 Run this code with Python 3 on the uploaded export. It uses only Python's standard library (plus openpyxl for an .xlsx file). Do not paste it into the conversation, and never print contact rows: the code keeps names, emails and phone numbers out of everything except the worklist file.
 
@@ -92,7 +92,7 @@ CONSENT_RE = re.compile(r"(?:(?:sms|text|texting|txt|mobile)\b.*(?:consent|opt ?
 TEXT_OUT_RE = re.compile(r"(?:(?:sms|text|texting|txt)\b.*(?:opt ?out|optout|unsubscrib|stop|blocked))|^dnd$|do not disturb|do not text")
 EMAIL_OUT_RE = re.compile(r"(?:e ?mail\b.*(?:opt ?out|optout|unsubscrib))|^unsubscribed$|^email status$|do not email")
 DNC_RE = re.compile(r"^(?:do not call|dnc|dnc status|national dnc|on dnc list)$")
-SENSITIVE_RE = re.compile(r"ssn|social security|credit|income|salary|loan|account (?:number|#)|routing|birth|\bdob\b|\bage\b|marital|children|\bkids\b|religio|\brace\b|ethnic|gender|disab|veteran|nationality")
+SENSITIVE_RE = re.compile(r"ssn|social security|credit|income|salary|loan|account (?:number|#)|routing|\bwire\b|\bbank|\biban\b|\bswift\b|birth|\bdob\b|\bage\b|marital|children|\bkids\b|religio|\brace\b|ethnic|gender|disab|veteran|nationality")
 FUB_MARKERS = {"date added", "lead source", "assigned to", "is contacted", "last assigned", "email 1", "phone 1", "listing price"}
 
 
@@ -273,6 +273,16 @@ def consent_value(v):
     if s in {"opt in", "opted in"} or parse_date(s) or latest_date_in_text(s, date(2999, 1, 1)):
         return True
     return None
+
+def consent_how(v):
+    """How a yes was recorded (for example 'website form'), with dates and digits removed. Used only in counts."""
+    s = str(v or "").strip().lower()
+    s = re.sub(r"\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}/\d{1,2}/\d{2,4}\b|\b[a-z]{3,9}\.? \d{1,2},? \d{4}\b", " ", s)
+    s = re.sub(r"\d", " ", s)
+    s = re.sub(r"^\W*(?:yes|y|true|opted in|opt in|optin|opted|consented|granted|given|ok)\b", " ", s)
+    s = re.sub(r"[^a-z& ]+", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s or "(yes or a date only, no detail)"
 
 PLACEHOLDER_LOCAL = {"noemail", "no email", "none", "na", "n a", "test", "unknown", "noreply", "no reply", "donotreply",
                      "fake", "nobody", "asdf", "nomail", "no", "null", "xx", "xxx", "email", "notprovided"}
@@ -547,6 +557,8 @@ def analyze(export, transactions=None, rules=None, as_of=None):
         if tf["consent"]:
             consent = True if consent is not False else False
         rec["consent"] = consent
+        how = [consent_how(r[i]) for i in multi["consent"] if i < len(r) and consent_value(r[i]) is True]
+        rec["consent_how"] = how[0] if how else ("(consent tag)" if consent is True else None)
         rec["text_out"] = any(truthy(r[i]) for i in multi["text_out"] if i < len(r)) or tf["no_text"] or consent is False
         rec["email_out"] = any(truthy(r[i]) for i in multi["email_out"] if i < len(r)) or tf["unsub"]
         rec["dnc"] = any(truthy(r[i]) for i in multi["dnc"] if i < len(r)) or tf["dnc"]
@@ -687,7 +699,10 @@ def analyze(export, transactions=None, rules=None, as_of=None):
             x["dup_group"] = f"G{gid}"
             x["dup_kind"] = kind
             x["dup_main"] = x is main
-        dup_groups.append({"id": f"G{gid}", "kind": kind, "size": len(members), "rows": [x["row"] for x in members]})
+        split = kind == "merge" and len({x["agent"] for x in members if x["agent"]}) > 1
+        for x in members:
+            x["dup_split"] = split
+        dup_groups.append({"id": f"G{gid}", "kind": kind, "size": len(members), "rows": [x["row"] for x in members], "split_agents": split})
     shared_rows = set()
     for kind, n, rws in shared_keys:
         shared_rows.update(rws)
@@ -850,6 +865,8 @@ def analyze(export, transactions=None, rules=None, as_of=None):
         "shared_diff_records": sum(g["size"] for g in dup_groups if g["kind"] == "shared_diff"),
         "shared_keys": [{"kind": k, "records": n} for k, n, _ in sorted(shared_keys, key=lambda t: -t[1])],
         "name_only_groups": len(weak_groups), "name_only_records": sum(len(v) for v in weak_groups),
+        "merge_groups_split_agents": sum(1 for g in merge_groups if g["split_agents"]),
+        "merge_records_split_agents": sum(g["size"] for g in merge_groups if g["split_agents"]),
     }
 
     def by(keyfn, items):
@@ -931,6 +948,10 @@ def analyze(export, transactions=None, rules=None, as_of=None):
                       "documented_no": sum(1 for x in recs if x["consent"] is False),
                       "blank": sum(1 for x in recs if x["consent"] is None),
                       "textable": sum(1 for x in recs if x["textable"])}
+    how_counts = Counter(x["consent_how"] for x in recs if x["consent"] is True and x.get("consent_how"))
+    shown = [(k, n) for k, n in how_counts.most_common() if n >= 3][:8]
+    rest = sum(how_counts.values()) - sum(n for _, n in shown)
+    out["consent"]["yes_by_how_recorded"] = [{"how": k, "count": n} for k, n in shown] + ([{"how": "other wording (fewer than 3 contacts each)", "count": rest}] if rest else [])
 
     # ---------------- segments (in priority order; a contact can match more than one)
     seg_defs = [
@@ -974,7 +995,8 @@ def analyze(export, transactions=None, rules=None, as_of=None):
             others = [r for r in group_rows[x["dup_group"]] if r != x["row"]]
             o = ", ".join(str(r) for r in others[:5])
             if x["dup_kind"] == "merge":
-                issues.append((1, "Merge Candidate", f"Same email or phone and same name as row {o}" + ("; suggested main record (most recent communication, then most complete)" if x["dup_main"] else "")))
+                issues.append((1, "Merge Candidate", f"Same email or phone and same name as row {o}" + ("; suggested main record (most recent communication, then most complete)" if x["dup_main"] else "")
+                              + ("; the records have different assigned agents: the team decides who keeps the contact before merging" if x.get("dup_split") else "")))
             elif x["dup_kind"] == "shared_same_last":
                 issues.append((1, "Review Shared Contact Info", f"Shares an email or phone with row {o} under a different first name; keep separate, link as a relationship, or merge"))
             else:
@@ -1118,6 +1140,8 @@ def report_md(o):
         ["Same email or phone, different names", fmt(d["shared_diff_groups"]), fmt(d["shared_diff_records"])],
         ["Same or near-identical name only (review)", fmt(d["name_only_groups"]), fmt(d["name_only_records"])]]))
     a(f"\nRecords that would go away if every merge group were merged: {fmt(d['extra_records'])}.")
+    if d["merge_groups_split_agents"]:
+        a(f"\nMerge groups whose records have different assigned agents: {fmt(d['merge_groups_split_agents'])} groups ({fmt(d['merge_records_split_agents'])} records). A merge keeps one record's agent, so the team decides who keeps each of these contacts before ops merges.")
     if d["shared_keys"]:
         a("\nOne email or phone on many records (not treated as duplicates): " + "; ".join(f"a {k['kind']} on {k['records']} records" for k in d["shared_keys"][:8]))
     if o["stale_active"]:
@@ -1170,6 +1194,8 @@ def report_md(o):
         a(table(["Variants (contacts)", "Total"], [["; ".join(f"{v['tag']} ({v['count']})" for v in g["variants"]), fmt(g["total"])] for g in tg["groups"]]))
     cs = o["consent"]
     a(f"\n## Text Consent\n\nConsent field found: {'yes (' + ', '.join(cs['fields']) + ')' if cs['field_found'] else 'no'}. Documented yes: {fmt(cs['documented_yes'])}; documented no: {fmt(cs['documented_no'])}; blank: {fmt(cs['blank'])}. Textable (documented yes, valid phone, not opted out, not Do Not Call): {fmt(cs['textable'])}.")
+    if cs.get("yes_by_how_recorded"):
+        a("\nDocumented yes, by how the field says consent was recorded: " + "; ".join(f"{h['how']} {fmt(h['count'])}" for h in cs["yes_by_how_recorded"]) + ". A website form or a sign-in sheet counts only if it had text consent wording that names the team and the phone number.")
     a("\n## Ranked Problems (Records Affected)\n")
     a(table(["#", "Problem", "Records", "% of database"], [[i + 1, p["problem"], fmt(p["records"]), p["pct"]] for i, p in enumerate(o["ranked_problems"])]))
     a(f"\nFirst cleanup: {o['first_cleanup']['what']}. {o['first_cleanup']['why']}")

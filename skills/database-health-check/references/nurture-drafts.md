@@ -25,7 +25,7 @@ When the export has no consent field (no consent column and no consent tag), wri
 - Emails: a Title Case subject that says what the email is (never "RE:" or "FWD:" when it isn't a reply); 120 words or fewer; short paragraphs; one clear ask. End with the sign-off, then this footer:
   "To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from [Agent Name], [Brokerage Name]."
   Note for Follow Up Boss users: batch and action plan emails get Follow Up Boss's own unsubscribe footer automatically, from the company information in Admin > Company. Keep one working opt-out; check that Admin > Company shows the real postal address.
-- Texts: 300 characters or fewer, one question, no links unless the user supplies one. Start by naming the sender: "Hi [First Name], it's [Agent First and Last Name] with [Team or Brokerage Name]." Include [Agent Phone] if the text comes from a number the contact may not know. End with "Reply STOP to opt out." Only for the consent-filtered list.
+- Texts: a starting point the assigned agent makes their own and sends one at a time to people on the consent list, never a blast to the whole segment. Follow Up Boss's compliance page says its texting is for one-to-one conversations, not mass or drip texting, and warns against pasting the same text lead by lead (Calling and Texting Compliance, https://help.followupboss.com/hc/en-us/articles/4409243718039-Calling-and-Texting-Compliance). For a large list, call or email first. 300 characters or fewer, one question, no links unless the user supplies one. Start by naming the sender: "Hi [First Name], it's [Agent First and Last Name] with [Team or Brokerage Name]." Include [Agent Phone] if the text comes from a number the contact may not know. End with "Reply STOP to opt out." Only for the consent-filtered list.
 - Call openers: two or three sentences the agent can say naturally, then one open question and a soft next step. Name the agent and team in the first sentence. No script that pressures or misleads.
 
 ## Segment Notes
@@ -41,7 +41,8 @@ When the export has no consent field (no consent column and no consent tag), wri
 
 List these every time, for the user to confirm:
 - Every placeholder is filled, and Follow Up Boss merge fields replace [First Name] and agent fields where the team uses templates.
-- Texts: each contact on the consent-filtered list has a consent record that names the team or brokerage and the phone number. The field in the export says yes; the record itself is the proof.
+- Texts: each contact on the consent-filtered list has a consent record that names the team or brokerage and the phone number. The field in the export says yes; the record itself is the proof. When the run shows consent recorded as a website form or an open house sign-in, that form or sheet counts only if it had text consent wording.
+- Texts go out one at a time from the assigned agent, not as a mass text.
 - The list is scrubbed against the National Do Not Call Registry and the team's internal do-not-call list before any call list or text. Follow Up Boss has no built-in scrub.
 - Texts and calls go out between 8 a.m. and 8 p.m. in the recipient's time zone.
 - The unsubscribe link works and the postal address is real.

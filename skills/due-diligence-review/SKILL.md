@@ -1,6 +1,7 @@
 ---
 name: due-diligence-review
-description: Reviews a buyer's due diligence stack on a home under contract (inspection report, seller property condition disclosure, HOA packet (CC&Rs, budget, reserve study, minutes), radon or sewer scope results, title commitment, and the signed purchase contract) and turns it into an issue list by severity, questions for the listing agent, a draft objection list the agent approves, a negotiating timeline to the deadline, and a plain-English buyer email. Reads both Utah REPC versions and works in any state from the uploaded contract. Use it whenever a buyer's agent uploads or mentions an inspection report, seller disclosures, HOA documents, or a radon or sewer scope result, or asks what to ask the seller to fix, what to object to, or whether a finding is a big deal, even if they never say due diligence. Buyer side only. Not for a listing agent answering a buyer's repair request (repair-request-response), a builder's purchase agreement (new-construction-review), or an appraisal (low-appraisal-response).
+description: Reviews a buyer's due diligence stack on a home under contract (inspection report, seller disclosure, HOA packet with CC&Rs, budget, reserve study and minutes, radon or sewer scope, title commitment, signed purchase contract) and returns an issue list by severity, questions for the listing agent, a draft objection list the agent approves, a negotiating timeline, and a plain-English buyer email. Reads both Utah REPC versions and works in any state from the uploaded contract. Use it whenever a buyer's agent uploads or mentions an inspection report, seller disclosures, HOA documents, or a radon or sewer scope result, or asks what to ask the seller to fix, what to object to, or whether a finding is a big deal, even if they never say due diligence. Buyer side only. Not for a listing agent answering a buyer's repair request (repair-request-response), the seller's counter or addendum answering an objection (counter-explainer), a builder's contract (new-construction-review), or an appraisal (low-appraisal-response).
+compatibility: Works from uploaded PDFs (inspection, disclosures, HOA documents, title commitment, purchase contract); no connector needed. Claude skills run with code execution on, which is on by default for individual plans. Gmail is optional, only to save the buyer email as a draft when the agent asks.
 metadata:
   author: Amplified Impact
   version: "1.1"
@@ -78,6 +79,7 @@ Label it "For strategy; confirm dates with your transactions team." The transact
 - Utah mode: there is no response period. Say plainly that the written resolution must be signed by 5:00 PM Mountain Time on the deadline and that more time takes a signed extension.
 - Deadline within 48 hours: put it first in the output, in bold, with the three choices (resolve in writing in time, get a signed extension, or cancel in writing) and tell the agent to call their team leader and transactions team now.
 - Deadline passed: don't draft an objection as if it were timely. Tell the agent to talk to their team leader or broker and the transactions team right away.
+- Due Diligence Condition not checked (2024 form 8.1 IS NOT; 2026 form 3(a) blank): say so first. The form gives no due diligence cancellation right, so any repair or credit is a new written agreement; send the agent to their broker before drafting.
 
 ## 7. Write the Buyer Email
 
@@ -86,7 +88,7 @@ Write as the agent, in first person. Follow the user's voice profile when one is
 - A bolded bottom line: the overall read, the decision the buyer needs to make, and by when
 - **What Needs Attention:** Tier 1 and 2 items (and HOA items that matter) in plain English, one or two sentences each
 - **What's Normal For A Home This Age:** Tier 3 and 4 in a sentence or two
-- **Next Steps:** numbered, each with the date it's needed by
+- **Next Steps:** numbered, each tied to a date from the contract or the agent's message, or counted back from one (say so in Check before sending). Never announce an inspection, contractor visit or other appointment the agent hasn't mentioned; write "book the roofer" instead.
 - Under 300 words, short paragraphs, none of "stunning," "dream home," or "don't hesitate to reach out"
 - Don't tell the buyer whether to buy. Lay out the options: go ahead as is, ask for repairs or a credit, or cancel by the deadline.
 - Sign with the agent's name if known; otherwise [Agent Name].

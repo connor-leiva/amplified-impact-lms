@@ -14,7 +14,7 @@ import os
 import sys
 
 PRACTICE = "PRACTICE FILE: made-up example"
-TEST = "TEST FILE: made-up example"
+TEST = PRACTICE  # eval inputs carry the same stamp as the practice set
 
 CSS = """
 body { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #111; line-height: 1.35; }

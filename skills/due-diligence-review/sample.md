@@ -108,7 +108,7 @@ A GFCI outlet, a loose toilet, furnace service, deck upkeep and caulking.
 Go ahead as is, ask the seller to fix or credit these items, or cancel by November 13 and get your $8,000 earnest money back.
 
 **Next Steps**
-1. Monday, November 9: roofer visit; tell me if you want a sewer scope.
+1. As soon as you can: book a roofer to look at the roof and the attic, and tell me if you want a sewer scope.
 2. As early as possible this week: I send our request so the seller has time to answer.
 3. By 5:00 PM Friday, November 13: a signed agreement with the seller, or a decision to cancel.
 
@@ -131,4 +131,3 @@ Go ahead as is, ask the seller to fix or credit these items, or cancel by Novemb
 | Radon average 6.8 pCi/L, test ended November 6, 2026; below 4 pCi/L after mitigation | Radon report; EPA action level |
 | 20-foot irrigation ditch easement and 10-foot public utility easement along the rear lot line | Title commitment, Schedule B-II, items 5 and 6 |
 | "$[credit amount from roofing bid]" | The roofer's bid |
-| Roofer visit Monday, November 9 | Your plan for this deal |

@@ -32,3 +32,11 @@ Buyer email length: 286 words by wc, under the 300 limit.
 
 - The first draft's buyer email was 298 words by the checker's count. Trimmed four bullets to leave room.
 - Tier 4 count removed (same SKILL.md change as eval 1).
+
+## Reviewer's Independent Run and Fix (2026-11-08)
+
+A second reviewer ran the practice files from scratch with SKILL.md and the page's practice prompt before reading `output.md`. The run is `review-output.md`. It passes all 7 practice-set checks and the objective checks (0 dashes, Title Case subject, 279-word email, no number outside the inputs, the seller's loan amount and loan number absent).
+
+Same findings as `output.md`: both Tier 1 items, the page 9 attic finding marked "Not in the inspector's summary," the roof and the northeast grading as Tier 2, the disclosure questions, the missing CC&Rs and share certificate, the 2011 deed of trust for the title officer, and the rear easements against the shop plan. One judgment call differs: this run put the 2011 deed of trust release in the recommended ask, while `output.md` holds it back because the title company already requires it. Both are defensible; the agent decides.
+
+Defect found and fixed: `output.md` (and so `sample.md`) told the buyers "Monday, November 9: roofer visit," an appointment nothing in the files or the prompt supports, and listed it in Check before sending as "Your plan for this deal." This run's first pass had the same pattern (it dated the request Monday). Cause: SKILL.md's "each with the date it's needed by." SKILL.md and the ChatGPT instructions now tie every Next Steps date to the contract or the agent's message (or to a date counted back from one) and forbid announcing an appointment the agent hasn't mentioned. `output.md` and `sample.md` now read "As soon as you can: book a roofer to look at the roof and the attic, and tell me if you want a sewer scope," and the "Roofer visit" row is gone from Check before sending. Rechecked: 294-word email, 0 dashes, every number in the inputs. Result after the fix: still 12 of 12.

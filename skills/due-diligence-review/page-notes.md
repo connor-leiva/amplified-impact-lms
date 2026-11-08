@@ -8,7 +8,7 @@ Upload the inspection report and the rest of the due diligence stack, and get ba
 
 ## Who It's For
 
-Buyer's agents with a home under contract and a due diligence or inspection deadline coming up. It reads both Utah REPC versions in use right now (the December 4, 2024 form and the November 1, 2026 form). Outside Utah it works from your uploaded contract and says it didn't check state rules. It is not for listing agents answering a buyer's repair request, builder contracts, or appraisals.
+Buyer's agents with a home under contract and a due diligence or inspection deadline coming up. It reads both Utah REPC versions in use right now (the December 4, 2024 form and the November 1, 2026 form). Outside Utah it works from your uploaded contract and says it didn't check state rules. It is not for listing agents answering a buyer's repair request (use Repair Request Response), reading the seller's counter or addendum to your objection (use Counter Explainer), builder contracts (New Construction Review), or appraisals (Low Appraisal Response).
 
 ## What to Upload, and Where Each File Comes From
 
@@ -25,7 +25,7 @@ How to attach files in Claude: click the "+" button in the lower left of the cha
 
 ## Install
 
-**Claude:** download `due-diligence-review.zip` and don't unzip it. Go to Customize > Skills, click "+", then "+ Create skill", then "Upload a skill", and choose the ZIP. Make sure it's toggled on. (Claude Help Center, "Use skills in Claude," checked 2026-11-08.) Code execution has to be on: Settings > Capabilities > "Code execution and file creation" (called "Create and edit files" in the updated layout). It's on by default for Free, Pro, Max and Ultra. On Team and Enterprise, an Owner turns on skills and code execution for the organization.
+**Claude:** download `due-diligence-review.zip` and don't unzip it. Go to Customize > Skills, click "+", then "+ Create skill", then "Upload a skill", and choose the ZIP. Make sure it's toggled on. (Claude Help Center, "Use skills in Claude," checked 2026-11-08.) Code execution has to be on: Settings > Capabilities > "Code execution and file creation" (called "Create and edit files" in the updated layout). It's on by default for Free, Pro, Max and Ultra. On Team and Enterprise, an Owner turns on both "Cloud code execution and file creation" and "Skills" under Organization settings > Plugins & skills > Policy (on by default on Team), and can turn off member uploads, which hides the upload option. (Claude Help Center, "Use skills in Claude" and "Create and edit files with Claude," checked 2026-11-08.)
 
 **ChatGPT:** download `due-diligence-review-chatgpt.zip` and unzip it. Select New project in the sidebar and name it. Upload the four `.md` files to the project's Sources. Open the project's more options menu (•••) > Project settings and paste the contents of `paste-into-instructions.txt` into the instructions box, with your voice profile QUICK CARD under the last line if you have one. (OpenAI Help Center, "Projects in ChatGPT," and OpenAI's Projects docs, checked 2026-11-08.) This is a Project, not a custom GPT: OpenAI retires custom GPTs on December 11, 2026.
 
@@ -36,7 +36,7 @@ How to attach files in Claude: click the "+" button in the lower left of the cha
 - "Go through the HOA docs. My buyer wants to rent it out in a couple of years."
 - "Our due diligence deadline is tomorrow. What do we send?"
 - "Draft the objection list and an email to my buyers."
-- "Make that a Gmail draft." (Claude, only with the Gmail connector on)
+- "Make that a Gmail draft." (Claude, only with the Gmail connector on. Claude's Help Center and the Gmail connector listing say it can create drafts; one Claude docs page calls it read only. If no draft appears, copy the email from the chat.)
 
 ## What Comes Back
 
@@ -56,10 +56,11 @@ If your deadline is within 48 hours, that comes first, in bold, with your three 
 
 ## What You Need
 
-- **Claude:** a plan with skills and code execution. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. No connectors needed. The Gmail connector is optional, only to save the buyer email as a draft (the Help Center lists Google Workspace connectors for all users; Claude's docs list Gmail on Pro and up).
-- **ChatGPT:** a Project. Projects are on Free, Go, Plus and Pro, and Free allows 5 files per project, so the 4 files fit. Free also allows 3 file uploads a day and about 12 pages of text per message; a long inspection report plus a disclosure and an HOA packet can run past that. Go and Plus allow about 40 pages per message.
+- **Claude:** a plan with skills and code execution. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. No connectors needed. The Gmail connector is optional, only to save the buyer email as a draft. Claude's official pages disagree on it: the Help Center lists Google Workspace connectors for all users and says Gmail can draft; Claude's docs list Gmail on Pro and up and call it read only. (Checked 2026-11-08.)
+- **ChatGPT:** a Project. Projects are on Free, Go, Plus and Pro, and Free allows 5 files per project, so the 4 files fit. Free also allows 3 file uploads a day and about 12 pages of text per message, so on Free, setting up the project and uploading a full stack can take more than one day (OpenAI doesn't say whether project files count toward the 3), and a long inspection report plus a disclosure and an HOA packet can run past the page limit. Go and Plus allow about 40 pages per message. (OpenAI Help Center, "Projects in ChatGPT" and "ChatGPT Free Tier FAQ," and chatgpt.com/pricing, checked 2026-11-08.)
+- **Computer:** install the Claude skill from claude.ai in a browser or the Claude desktop app (Customize is in the left sidebar there). Once installed, it is saved to your account and works in chat on the web, desktop and phone apps (Claude docs, "Extend Claude" overview, checked 2026-11-08). For ChatGPT, set the project up on the web: OpenAI publishes no phone steps for creating a project or editing its instructions.
 - **Cost:** nothing beyond your plan.
-- **Privacy:** inspection reports carry your client's name and address. Consider turning off training first. Claude: Settings > Privacy > "Help Improve our AI models" (Free, Pro, Max and Ultra; Team and Enterprise chats aren't used for training by default). ChatGPT: Settings > Data controls > "Improve the model for everyone."
+- **Privacy:** inspection reports carry your client's name and address. Consider turning off training first. Claude: Settings > Privacy > "Help Improve our AI models" (Free, Pro, Max and Ultra; Team and Enterprise chats aren't used for training by default) (Claude Privacy Center, checked 2026-11-08). ChatGPT: Settings > Data controls > "Improve the model for everyone" (OpenAI Help Center, "Data Controls FAQ," checked 2026-11-08). On ChatGPT's individual plans, a thumbs up or down can still send that chat for training after you opt out.
 
 ## Run / Draft / Own
 
@@ -90,13 +91,16 @@ due diligence, inspection report, home inspection, objection, repair request, bu
 - Eval 1, an Idaho contract and a clean report with two real issues: 8 of 8. General mode, the two items only, and a timeline that skipped the Veterans Day holiday the made-up contract excludes.
 - Eval 2, a Utah December 2024 REPC with the deadline tomorrow and a scorched electrical panel only in the report's body: 8 of 8. A no-skill answer to the same files passed 2 of 8: it found the panel but described a response period the REPC doesn't have, never said the earnest money goes hard at the deadline, invented repair costs and a credit amount, and broke the email rules.
 - Eval 3, a Utah November 2026 REPC with an HOA rental cap and a roof assessment voted on after closing: 8 of 8, including that the REPC's "Seller pays" box wouldn't cover it, and the HOA account number never appeared.
+- Independent review (2026-11-08): a second reviewer ran eval 3 and the practice files from scratch before reading the first results. Both runs passed. Both also put dates in the buyer email's Next Steps that no document gave (one draft told the buyers a roofer was coming Monday), so the skill now ties every Next Steps date to the contract or the agent's message and never announces an appointment the agent didn't mention. The sample was corrected to match.
+- A written routing check: three prompts that should land here and two that belong to Repair Request Response and Counter Explainer. The description now names Counter Explainer for the seller's answer to an objection.
 
 **Not tested:**
 - Real Utah Life documents (waiting on redacted copies from Connor) and real inspection software output, which runs longer than the 7 to 11 page made-up reports.
 - Scanned, image-only PDFs.
 - The ChatGPT Project version in ChatGPT itself; its instructions match the Claude skill step for step.
 - Creating a Gmail draft.
-- The description against all 17 skills installed at once. It names repair-request-response, new-construction-review and low-appraisal-response as the siblings to use instead.
+- The description against all 17 skills installed at once (only the written routing check above). It names repair-request-response, counter-explainer, new-construction-review and low-appraisal-response as the siblings to use instead.
+- A contract with the Due Diligence box unchecked.
 
 ## Sources (all checked 2026-11-08)
 
@@ -109,6 +113,8 @@ due diligence, inspection report, home inspection, objection, repair request, bu
 - ChatGPT Projects (creating, instructions, file limits): https://help.openai.com/en/articles/10169521-projects-in-chatgpt and https://learn.chatgpt.com/docs/projects
 - ChatGPT Free upload limit: https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq
 - ChatGPT pages per message and plans with Projects: https://chatgpt.com/pricing
+- ChatGPT thumbs up or down after opting out: https://help.openai.com/en/articles/5722486-how-your-data-is-used-to-improve-model-performance
+- Claude Gmail connector listing (create_draft): https://claude.com/marketplace/connectors/gmail
 - ChatGPT training setting: https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt
 - Custom GPT retirement: https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq
 - Utah REPC versions and dates: see the skill's `references/utah-due-diligence-timing.md`

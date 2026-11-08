@@ -1,6 +1,6 @@
 # Health Rules: Checks, Segments and the Worklist
 
-How the analysis defines each check, how to turn a team's own rules into settings, how to pick the segments and how to write their Smart List filters. Follow Up Boss terms and facts come from fub-and-crm-exports.md (Last verified: 2026-11-08, sources there). The day counts below are this skill's defaults, not industry standards: label them "default" in the output and replace them with the team's own rule whenever the team has one.
+How the analysis defines each check, how to turn a team's own rules into settings, how to pick the segments and how to write their Smart List filters. Follow Up Boss terms and facts come from fub-and-crm-exports.md (Last verified: 2026-11-08, sources there). The day counts below are defaults set here, not industry standards: label them "default" in the output and replace them with the team's own rule whenever the team has one.
 
 ## Defaults
 
@@ -40,6 +40,7 @@ Build rules.json only from the team's documents or the user's message, never fro
 - **Missing or invalid phone:** no phone, or one that is not a valid 10-digit US number after removing punctuation and a leading 1. Format only.
 - **Likely duplicates:** records joined by a shared email or phone. Same or near-identical names (one letter apart, or one name a short form of the other) are merge candidates. A shared email or phone under a different first name with the same last name is "shared contact info": two people can share a number, so the team decides whether to keep them separate, link them as a relationship, or merge. An email or phone on more than 5 records is a shared line (an office, a lender, an agent's own number) and is never treated as a duplicate. Same or near-identical names with different contact info are listed for review only.
 - **Suggested main record in a merge group:** the most recent communication, then the most complete record, then the oldest. In Follow Up Boss the main record keeps its stage and agent, so the team should check both before merging.
+- **Merge groups split across agents:** a merge group whose records have different assigned agents. Merging keeps one record's agent, so it decides who keeps the contact. Report the count, mark those rows in the worklist, and leave the call to the team (a Question for the Team). Never pick the agent.
 - **Stale active-stage contacts:** new, active-lead and active-client stages with no communication for stale_days or none on record. Reported by stage and by agent. For the ranked problems, the ones with some communication on record count as "gone quiet" and the ones with none count under Never Contacted, so nothing is counted twice.
 - **Never contacted:** Is Contacted = No when the export has it, otherwise no communication on record, for contacts added more than never_contacted_days ago and not in trash or other stages.
 - **Past clients and sphere:** past client = a past-client stage (Follow Up Boss Closed counts), a past-client tag, or a match by email or phone to a closed deal in an uploaded transaction file. Sphere = a sphere stage or tag, if not already a past client. Untouched = no communication in past_client_days or none on record. Needs a last-communication date; without one, say the check could not run.
@@ -77,7 +78,7 @@ One row per record that needs work (trash and rejected left out), sorted by prio
 
 | Priority | Action | What ops does |
 |---|---|---|
-| 1 | Merge Candidate | Check both records, pick the main record (suggested one marked), merge in the CRM. In Follow Up Boss: Mass Actions > Merge People, up to 10 at once, cannot be undone |
+| 1 | Merge Candidate | Check both records, pick the main record (suggested one marked), merge in the CRM. When the reason says the records have different agents, wait for the team to decide who keeps the contact. In Follow Up Boss: Mass Actions > Merge People, up to 10 at once, cannot be undone |
 | 1 | Review Shared Contact Info | Decide: keep separate, link as a relationship, or merge |
 | 2 | Fix Stage / Set Stage | Move to the right stage under the team's definitions |
 | 3 | Assign Agent | Assign an agent or pond under the team's routing rules |
@@ -96,6 +97,16 @@ Ask only where the data shows a missing rule, and say what in the data raised it
 - Guessed or unrecognized stages: what does each mean?
 - Many stale active-stage contacts and no pond rule: after how many days without contact does a lead move to the pond or to Nurture?
 - No consent field: where does the team record text consent?
+- Consent recorded as a website form or a sign-in sheet: did that form or sheet have text consent wording that names the team and the number?
 - Unassigned contacts: who owns them?
+- Merge groups split across agents: who keeps each contact when ops merges?
 - Near-duplicate tags: which spelling stays?
 - Closed deals missing from the CRM: should they be added as past clients?
+
+## Sources
+
+Checked 2026-11-08 (the article's own last update in parentheses). The rest are listed in fub-and-crm-exports.md.
+
+- Merge Contacts (2025-02-21): https://help.followupboss.com/hc/en-us/articles/4402372112791-Merge-Contacts
+- Default Smart Lists (2026-07-22): https://help.followupboss.com/hc/en-us/articles/4420635737239-Default-Smart-Lists
+- Importing Contacts Overview (2025-07-15), for the Imported Stage and Imported Agent tags: https://help.followupboss.com/hc/en-us/articles/4402323033751-Importing-Contacts-Overview
