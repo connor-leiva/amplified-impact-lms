@@ -38,7 +38,7 @@ How the deadline works under either current Utah REPC (December 4, 2024, Section
 | 3 | Install smoke alarms in two bedrooms | Page 5, item 5.2 (SAFETY): no smoke alarms in two of the three upstairs bedrooms | Safety | No | Agent to confirm | Reasonable | Agree | Needs bid (the request doesn't call for a contractor) |
 | 4 | Replace the air conditioner condenser | Page 6, item 6.2 (MONITOR): manufactured 2003 (23 years old); "Operated; temperature split 18 F. Beyond typical service life. Budget for replacement." | Major System, age only | **Yes.** Disclosure page 2, item 4a: "Air conditioner installed 2003; works." Before the offer, as above | Agent to confirm | Push back: no defect reported, and its age was disclosed before the offer | Decline | None |
 
-The disclosure's "No" answers on roof leaks and ceiling stains (page 1, items 1b and 2b) sit next to an active leak in the report. That's a fact for you to know, not a sign the sellers knew: the stain was wet after overnight rain, and the sellers signed the disclosure on September 18, 2026.
+The disclosure's "No" answers on roof leaks and ceiling stains (page 1, items 1b and 2b) sit next to an active leak in the report. Record both as facts, not as a sign the sellers knew: the sellers signed the disclosure on September 18, 2026, and the report, dated October 28, 2026, notes light rain overnight and wet moisture readings at the stain.
 
 ### Options and Tradeoffs
 

@@ -54,8 +54,8 @@ Where the hours go, per week: work blocks 16.75 (week of Nov 9) and 19.5 (week o
 
 Where each task lands (earliest due first):
 - Mon Nov 9: Update CRM notes (1 h, due today; Jamie's note says these matter for lead audits), CMA for 18 Mockingbird (2 h, 2:00 to 4:15, right before the appointment), start the 5 Sample Ridge price reduction prep.
-- Tue Nov 10: finish the price reduction prep (1.5 h total) and the Pinewood offer strategy notes (1.5 h).
-- Wed Nov 11: buyer consult follow-ups (1.5 h), start the 3 Testwood Lane launch.
+- Tue Nov 10: finish the price reduction prep (1.5 h total) and the Pinewood offer strategy notes (1.5 h), then start the buyer consult follow-ups.
+- Wed Nov 11: finish the buyer consult follow-ups (1.5 h total), start the 3 Testwood Lane launch.
 - Thu Nov 12: finish the 3 Testwood launch (4 h, due today). It comes up 0.75 h short by end of day unless you take the fixes below.
 - Fri Nov 13: seller update emails (1 h) and the Brightwater tour sheet (1 h) for Saturday, in a day with 1 hour of focus after the CE class.
 - Daily: Prospecting: past-client calls, 1 h (10 sessions). The call list comes from your CRM; the block protects the time.

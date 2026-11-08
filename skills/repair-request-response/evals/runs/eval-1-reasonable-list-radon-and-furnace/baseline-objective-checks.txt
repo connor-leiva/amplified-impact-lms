@@ -1,0 +1,11 @@
+PASS  No em or en dashes
+FAIL  Check before sending section
+FAIL  Title Case subject lines
+FAIL  No stock phrases  [don't hesitate]
+PASS  No wire, routing or account details
+PASS  No agent-only MLS fields
+PASS  No protected-class language
+FAIL  No cost estimates without bids (phrasing)  [typically costs]
+FAIL  Every dollar amount appears in the inputs or is listed arithmetic  [$2,500]
+Numbers not found verbatim in the inputs (review each; dates and counts the skill computed are expected):
+  08, $2,500

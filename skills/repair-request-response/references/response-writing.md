@@ -39,7 +39,7 @@ Written as the agent, in first person, to the seller. Warm, plain and direct. Fo
 - **Your Options:** two or three, one line of tradeoff each
 - **One More Thing:** one plain sentence that what the inspection found is now known, so if this sale doesn't close, it goes on the disclosure for the next buyer
 - **Next Step:** what you need from the seller and by when
-- Under 300 words, short paragraphs, no em dashes
+- Under 300 words, short paragraphs, no em dashes. Count the words before you finish; if it runs long, cut What I Recommend down to the decisions and drop any reason the bottom line already gives
 - Never characterize the buyers ("picky," "unreasonable," "first-timers"). Describe the request and the house.
 - None of "stunning," "dream home," "don't hesitate to reach out"
 - Sign with the user's name if known; otherwise [Agent Name]

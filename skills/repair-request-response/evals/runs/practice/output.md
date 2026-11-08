@@ -111,19 +111,19 @@ Hi Toni and Sam,
 **What They Asked For:** Six items: a new roof, the deck stair railing, the garage door safety reverse, waterproofing the east basement wall, a pipe on the water heater relief valve, and new basement carpet.
 
 **What I Recommend:**
-- Yes: the railing, the garage door and the water heater pipe. They're quick safety fixes.
-- Roof: the inspector found wind damage and recommended a repair, not a new roof. Your roofer can't start until November 30, after the date the buyer wants work done, so a credit for the repair price is cleaner.
-- Basement: the wall was dry, and you disclosed the 2021 water. The inspector recommended keeping the window well drain clear and adding a cover, so let's offer that.
+- Yes: the railing, the garage door and the water heater pipe, all quick safety fixes.
+- Roof: the inspector recommended a repair, not a new roof. Your roofer can't start until November 30, after the buyer's completion date, so a credit for the repair price is cleaner.
+- Basement: the wall was dry, and you disclosed the 2021 water. Let's offer what the inspector recommended: a clear window well drain and a cover.
 - Carpet: no. It's cosmetic and was in plain view.
 
-**What It Costs:** $1,240 for the roof credit. I'll get prices on the three small repairs and the window well cover.
+**What It Costs:** $1,240 for the roof credit. I'll get prices on the small repairs and the window well cover.
 
 **Your Options:**
 1. Roof credit (my pick): no roofing work before closing.
-2. Roof repair: same price, but it depends on the weather after November 30.
-3. New roof: $16,800, and the inspector didn't call for it.
+2. Roof repair: same price, but weather-dependent after November 30.
+3. New roof: $16,800, which the inspector didn't call for.
 
-**One More Thing:** The inspector also noted signs of rodents in the attic. Now that it's known, along with the other findings, if this sale didn't close, it would go on your disclosure for the next buyer.
+**One More Thing:** The inspector also noted signs of rodents in the attic. Now that it's known, if this sale didn't close, it would go on your disclosure for the next buyer.
 
 **Next Step:** Reply with your OK and I'll send the counter for your signatures.
 
