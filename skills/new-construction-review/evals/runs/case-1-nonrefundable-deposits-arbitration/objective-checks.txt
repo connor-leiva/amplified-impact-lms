@@ -1,0 +1,13 @@
+Dollar amounts not in the inputs (must be shown as computed): $23,960, $3,169.50, $44,900, $47,400, $62,400
+Percentages not in the inputs: 0.25%
+Calendar dates not in the inputs (must be shown as computed): August 7, 2027, December 10, 2026, January 1, 2027, May 6, 2026, November 1, 2026, November 17, 2026
+Weekday labels that don't match the calendar: none
+Em or en dashes: none
+Subject: What The Notreal Ridge Contract Says Before You Sign Tuesday | Title Case: yes
+Check before sending section: present
+Banned stock phrases: none
+Account, routing or wire numbers: none
+Protected-class or steering wording: none
+Possible cost or tax estimates (check each is quoted from a document): none
+Possible loan advice (check each one): none
+Buyer email words (subject to next section): 332

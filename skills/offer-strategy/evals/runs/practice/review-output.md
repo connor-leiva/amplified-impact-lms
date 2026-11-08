@@ -1,165 +1,158 @@
-# Offer Strategy: 2286 E Pretend Poppy Ln (reviewer's independent run on the practice files)
+# Offer Strategy: 2286 E Pretend Poppy Ln (Reviewer's Independent Run)
 
-Reviewer run, 2026-11-08, following SKILL.md 1.0 from scratch on the three practice files and the page-notes practice prompt, before reading the builder's sample. Math done in Python (scratch script), dates checked against the calendar.
+Run by the reviewer on 2026-11-08, from scratch, following SKILL.md 1.0 on the three practice files and the practice prompt in page-notes.md, before reading the builder's output.
+
+Prompt: "My buyers, Riley and Jordan Exampleton, want to write on 2286 E Pretend Poppy Ln. We're on the new November 2026 REPC. Their top number is $565,000. The listing agent says there are no offers yet and they're reviewing as they come in. Our team usually puts down $5,000 earnest money. If we get acceptance Tuesday, November 10, what should we offer? The MLS sheet, CMA export and their preapproval letter are attached."
 
 ## Flags
 
-- Form: the November 1, 2026 REPC (you said you're on the new form). Every section number below is from that form.
-- Placeholders to fill: [Seller's Compensation Contribution from your buyer agreement, if you're asking], [who pays any change of ownership fee], [concession amount from lender] only if the buyers want more than the seller's $5,000.
-- The letter verifies funds "for the down payment and estimated closing costs" but gives no closing cost estimate, so the concession below uses the $5,000 the seller already offers.
+- **Form:** the November 1, 2026 REPC, as you said. Section numbers below are from that form only.
+- **Placeholder:** [time] for when you need your buyers' answers.
 
 ## Bottom Line
 
-Offer $562,500 with the seller's offered $5,000 toward closing costs in Section 2.2 (price after concessions $557,500), $7,400 under list and $2,500 under the Exampletons' $565,000 limit. The three terms that matter most: the $5,000 Section 2.2 contribution, the lender's own 14-day Appraisal Deadline and 21-day Financing Deadline in 4(c) and 4(d), and a Monday, December 7 Settlement with the seller staying 3 days after Recording. The listing is Balanced (23 days on market against a 15-day median, one $10,000 cut, no offers yet), so this is a fair, well-supported first offer with room to move.
+Offer $562,000 (list is $569,900) and ask for the $5,000 toward closing costs the seller already offers, in Section 2.2, which leaves the seller $557,000 after concessions. The three terms that matter most are the price, the $5,000 Section 2.2 contribution, and matching the seller's timing with Settlement on Friday, December 4 and possession 3 days after Recording. This is a Balanced listing with no other offers reported, so the offer is fair and firm rather than a stretch, and it leaves $3,000 under your buyers' $565,000 top for one counter.
 
-## Where the Listing Stands: Balanced
+## Where the Listing Stands
 
-| Signal | From the files | Read |
-|---|---|---|
-| Days on market | 23 (cumulative 23) against a median of 15 for this comp set's five recent standard solds (7, 13, 15, 15, 23) | Slower than the comps |
-| Price history | Listed 10/16/2026 at $579,900; cut to $569,900 on 10/30/2026 (day 14), a $10,000 cut (1.72%) | The seller has already moved once |
-| Seller-paid items | Public remarks: "Seller offering $5,000 toward buyer's closing costs with an acceptable offer" | The seller has put money on the table |
-| Sale-to-list, this comp set | 1 of 5 recent solds closed above list; median 99.13% of final list, 98.26% of original list | Buyers have been paying a little under list |
-| Competition | Pending: 2350 E Sample Sage Dr at a $574,900 list (12 days). Active: 2077 E Example Aster Way at $559,900 (34 days, original kitchen); 2422 E Pretend Poppy Ln at $589,900 (larger, three-car). Expired: 1950 E Sample Sage Dr at $599,000 after 92 days | Larger, updated homes sold at $571,000 and $572,500; $599,000 didn't sell |
-| The listing agent said | No offers yet; reviewing as they come in | No deadline pressure |
+**Position: Balanced.**
 
-Agent-only, for your strategy, never share: the Agent Remarks say "Seller relocating for work; prefers settlement after December 1 and 3 days possession after recording." Matching those dates costs the buyers little and is the cheapest way to make $562,500 attractive. The CMA's agent remarks also show the pending 2350 E Sample Sage Dr "Accepted offer 11/1" and the same-plan 2402 E Pretend Poppy Ln "Multiple offers received" in June.
+| Signal | What the files show |
+|---|---|
+| Days on market | 23 (cumulative 23) against a median of 14.5 for this comp set's 6 standard solds (7, 13, 14, 15, 15, 23 days; the middle two average 14.5). The short sale is left out. That is 8.5 days longer than the median. |
+| Price changes | One cut: $579,900 to $569,900 on 10/30/2026, minus $10,000 (1.7% of $579,900). |
+| Public remarks | "Seller offering $5,000 toward buyer's closing costs with an acceptable offer." |
+| Offer instructions | The listing agent said there are no offers yet and they are reviewing as they come in. |
+| Competition | Pending 2350 E Sample Sage Dr, listed at $574,900 with an updated kitchen, went under contract in 12 days. Active 2077 E Example Aster Way at $559,900 has an original kitchen and less basement finish; active 2422 E Pretend Poppy Ln at $589,900 is larger with five bedrooms and a three-car garage. |
+| Where buyers said no | Expired 1950 E Sample Sage Dr, same size with an original kitchen, asked $599,000 (from $615,000) for 92 days. |
+| Agent-only remarks (strategy only, never client-facing) | The seller is relocating for work and prefers Settlement after December 1 and 3 days of possession after Recording. |
 
 ## Price
 
-### Closest Sales (standard sales within six months)
+**Closest solds** (this comp set; subject: two story, 2004, 2,010 above grade, 1,000 basement with 850 finished, 2-car garage, 0.18-acre fenced lot, updated kitchen 2021, roof 2023, furnace and AC 2016, HOA $45 per month)
 
-| Address | Sold | Sale price | Concessions | After concessions | Above grade | Basement (total / finished) | Beds / baths | Garage, lot | DOM | Note |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 2402 E Pretend Poppy Ln | 06/20/2026 | $556,500 | $0 | $556,500 | 2,010 | 1,000 / 850 | 4 / 3.5 | 2, 0.18 ac | 7 | "Same floor plan," same street, original kitchen. The oldest sale here (June). The listing should land above it: updated kitchen (2021) and roof (2023). |
-| 2310 E Pretend Poppy Ln | 10/02/2026 | $560,000 | $4,000 | $556,000 | 1,980 | 1,000 / 900 | 4 / 3.5 | 2, 0.17 ac | 13 | Same street, updated baths, kitchen not mentioned. The listing should land at or a little above it. |
-| 2195 E Sample Sage Dr | 09/12/2026 | $571,000 | $0 | $571,000 | 2,080 | 1,040 / 1,040 | 4 / 3.5 | 3, 0.20 ac | 15 | Larger, three-car garage, fully finished basement, upgraded kitchen. The listing shouldn't reach it. |
-| 1988 E Sample Sage Dr | 10/20/2026 | $572,500 | $5,000 | $567,500 | 2,150 | 1,050 / 1,000 | 5 / 3.5 | 2, 0.19 ac | 15 | The highest sale: larger, five bedrooms, newer flooring. The listing shouldn't reach it. |
-| 2041 E Example Aster Way | 08/22/2026 | $545,000 | $6,000 | $539,000 | 1,920 | 980 / 0 | 4 / 3 | 2, 0.16 ac | 23 | Unfinished basement, original kitchen. The floor of the set. |
+| Sold | Close date | Sale price | Concessions | After concessions | Above grade / basement (finished) | Garage | How it compares |
+|---|---|---|---|---|---|---|---|
+| 2402 E Pretend Poppy Ln | 06/20/2026 | $556,500 | $0 | $556,500 | 2,010 / 1,000 (850) | 2 | Same floor plan, original kitchen. The subject's 2021 kitchen and 2023 roof put it above this one. |
+| 2310 E Pretend Poppy Ln | 10/02/2026 | $560,000 | $4,000 | $556,000 | 1,980 / 1,000 (900) | 2 | Same street, nearly the same size, updated baths. The subject should land above it. |
+| 2195 E Sample Sage Dr | 09/12/2026 | $571,000 | $0 | $571,000 | 2,080 / 1,040 (1,040) | 3 | Upgraded kitchen, but larger, a three-car garage and a fully finished basement. The subject shouldn't reach it. |
+| 1988 E Sample Sage Dr | 10/20/2026 | $572,500 | $5,000 | $567,500 | 2,150 / 1,050 (1,000) | 2 | Five bedrooms, 2008, larger, newer flooring. The subject should land below it. |
 
-The listing: 2,010 above grade, 1,000 / 850 basement, 4 beds (3 up, 1 down), 3.5 baths (2.5 up, 1 down), 2-car garage, 0.18 acres, built 2004, HOA $45 a month.
+Also considered: 2041 E Example Aster Way ($545,000, $6,000 concessions, $539,000 after; unfinished basement, original kitchen), well below the subject; 2277 E Make Believe Ct ($538,000, $3,000 concessions; closed 03/14/2026), labeled older, more than six months ago. Left out: 2129 E Example Aster Way ($499,000), a short sale sold as-is.
 
-Left out:
-- 2129 E Example Aster Way ($499,000, 09/30/2026): a short sale, sold as-is.
-- 2277 E Make Believe Ct ($538,000 with $3,000 concessions, 03/14/2026): older than six months.
+**This comp set's numbers** (the 6 standard solds)
+- Sale-to-list: 2310 99.13% ($560,000 / $564,900), 2195 99.32% ($571,000 / $574,900), 2041 99.11% ($545,000 / $549,900), 2402 100.82% ($556,500 / $552,000), 1988 98.72% ($572,500 / $579,900), 2277 99.65% ($538,000 / $539,900). Five sold below their final list price; one sold above.
+- One of the two actives has cut its price (2077 E Example Aster Way, $565,000 to $559,900).
+- Price per above-grade square foot on the four closest runs $266.28 (1988) to $282.83 (2310); a cross-check only.
 
-### This Comp Set's Numbers (the five sales above)
+**Supported range: $560,000 to $571,000.** The bottom is 2310's sale price, a home the subject should beat; the top is 2195, a larger home with a three-car garage the subject shouldn't reach.
 
-- Median days on market: 15. The listing: 23.
-- Price per above-grade square foot: $266.28 (1988 E Sample Sage Dr) to $283.85 (2041 E Example Aster Way). The listing at list: $569,900 / 2,010 = $283.53. A cross-check only; basement finish differs.
-- Sale-to-list: median 99.13% of final list; 1 of 5 above list.
+**Recommended offer: $562,000**, with the $5,000 Section 2.2 contribution. That is $7,900 under list ($569,900 minus $562,000), inside the supported range, and $3,000 under your buyers' $565,000 top. Price after concessions: $562,000 minus $5,000 = $557,000.
 
-### Supported Range and Recommendation
-
-- **Supported range: $560,000 to $571,000.** The listing brackets between 2310 E Pretend Poppy Ln (should sell at or above, $560,000) and 2195 E Sample Sage Dr (larger with a three-car garage, $571,000). The same-plan sale at $556,500 sets a floor, and the kitchen and roof updates put the listing above it.
-- **List price:** $569,900, inside the range near the top.
-- **Recommended offer: $562,500, with $5,000 in Section 2.2.** That's $7,400 under list and $6,000 above the same-plan sale. Price after concessions: $562,500 minus $5,000 = $557,500, which sits just above the two Pretend Poppy Ln sales' net prices ($556,500 and $556,000). Why: the listing is slower than its comps, the seller has already cut once and offered $5,000, and there are no other offers.
-- **Room to move:** a counter up to the Exampletons' $565,000 (price after concessions $560,000) stays inside the range.
-- **Appraisal check:** $562,500 is $10,000 below the highest closed sale ($572,500) and $8,500 below $571,000, so there's no reference gap. Appraisers adjust comps for concessions, and the home still has to appraise at the contract price, $562,500. That's a reference point, not a prediction.
+**Appraisal check (a reference point, not a prediction):** the offer is $9,000 below the highest closed sale that supports the range ($571,000 minus $562,000). The highest sale in the set, 1988 E Sample Sage Dr at $572,500, is a larger home.
 
 ## Recommended Terms (November 1, 2026 REPC)
 
 | Term | Recommendation | Why | Section |
 |---|---|---|---|
-| Purchase Price | $562,500 | See Price above | 1 |
-| Earnest Money Deposit | $5,000 | Your team's usual amount (your message) | 1(a); delivery in 5 |
-| New Loan | Conventional box | The letter is a conventional 30-year fixed preapproval with 10% down | 1(b) |
-| Seller's Compensation Contribution | [amount from your buyer agreement, if you're asking] | Lowers the seller's net like a concession; amount only from your agreement | 2.1 (excess returned to the seller under 8.3(b)) |
-| Seller's Contribution to Closing Costs | $5,000 | The seller's own offer in the public remarks. Uses are listed in 8.3(c). Ask the lender to confirm the loan allows it; under Fannie Mae's rules seller money can't fund the down payment or reserves. | 2.2 |
-| Home warranty | WILL NOT (not requested) | Keeps the ask simple | 2.3 |
-| Due Diligence Condition | Check 3(a); Deadline 10 calendar days after Acceptance (recommendation) | Room for the inspection, the HOA documents and the secondary water share evidence, ending before the appraisal comes in. Confirm your inspector's availability. Unchecked, the buyers have no due diligence protection. | 3(a); 4(b); 12.1 |
-| Seller Disclosure Deadline | 3 calendar days after Acceptance (recommendation) | Gets the disclosures, HOA documents and water share evidence early in the 10 days | 4(a); 11 |
-| Appraisal Condition | Check 3(b) | Keeps the right to cancel if the appraisal comes in under $562,500. Unchecked, it doesn't apply. | 3(b); 12.2 |
-| Appraisal Deadline | 14 calendar days after Acceptance | The letter: "14 calendar days from acceptance to receive the appraisal" | 4(c) |
-| Financing Condition | Check 3(c); 50% box | 50% of $5,000 = $2,500 goes to the seller if the buyers cancel for financing under 12.3(a). That's also the result if no box is checked. A lower percentage protects the buyers more; the buyers decide. | 3(c), 3(c)(i); 12.3 |
-| Financing Deadline | 21 calendar days after Acceptance | The letter: "21 calendar days from acceptance for final loan approval" | 4(d) |
-| Settlement Deadline | Monday, December 7, 2026 | Six days after the Financing Deadline; inside the letter's December 27 expiration | 4(e) |
-| Possession | 3 Calendar Days after Recording | Low cost to the buyers. If the seller stays longer, 9.3 sets a holdover fee of the stated amount or $300 per day, whichever is greater. | 4(f); 9.3 |
-| Sale of Buyer's Property | Leave 3(d) unchecked | Nothing in your message or the letter says they have a home to sell | 3(d) |
-| Change of ownership fee | [who pays any change of ownership fee] | HOA at $45 a month; ask whether a transfer or reinvestment fee applies. A negotiable checkbox. | 8.3(a) |
-| Water shares | Confirm what conveys | The sheet lists secondary water from Pretend Canal Co. 7.5 includes the water rights or shares that are the legal source of that service; evidence is a Seller Disclosure under 11(i). | 7.5; 11(i) |
-| Escalation | Not used | No competing offers reported | |
-| Offer deadline | Tuesday, November 10 at [time] | Matches the Acceptance you're aiming for | 30 |
+| Purchase Price | $562,000 | Inside the range, under your buyers' top, room for one counter | 1 |
+| Loan | Conventional box checked | The letter is for a Conventional 30-year fixed loan, 10% down, price up to $575,000 | 1(b) |
+| Earnest Money | $5,000 | Your team's amount | 1(a); delivery in 5 |
+| Seller's Contribution to Closing Costs | $5,000 | The seller offers it in the public remarks. The lender confirms the amount the loan program allows. | 2.2 (uses in 8.3(c)) |
+| Due Diligence Condition | Check it | Keeps the right to cancel or object | 3(a); terms in 12.1 |
+| Appraisal Condition | Check it | The price must appraise at $562,000 or your buyers can cancel with the appraisal by the Appraisal Deadline | 3(b); terms in 12.2 |
+| Financing Condition | Check it; 50% box in 3(c)(i) (50% also applies if no box is checked) | 50% of $5,000 = $2,500 released to the seller on a financing cancellation after Due Diligence and by the Financing Deadline | 3(c), 3(c)(i); terms in 12.3 |
+| Sale of Buyer's Property | Leave unchecked | Nothing in your message or the letter shows a home to sell | 3(d) |
+| Seller Disclosure Deadline | Day 3 | Gets disclosures and HOA documents to your buyers early | 4(a) |
+| Due Diligence Deadline | Day 14 | Room for the inspection, HOA document review ($45 per month HOA) and the Pretend Canal Co. secondary water; no competing offers call for shortening it. Confirm the inspector's availability. | 4(b) |
+| Appraisal Deadline | Day 14 | The lender typically needs 14 days for the appraisal | 4(c) |
+| Financing Deadline | Day 21 | The lender typically needs 21 days for final approval | 4(d) |
+| Settlement Deadline | Day 24 | After the seller's preferred December 1 and 3 days after the Financing Deadline | 4(e) |
+| Possession | 3 calendar days after Recording | Matches the seller's timing; confirm with the listing agent | 4(f); holdover terms in 9.3 |
+| Offer deadline | [time] Tuesday, November 10, 2026 | Matches your target Acceptance date | 30 |
 
-### Dates if the Seller Accepts Tuesday, November 10 (for strategy; confirm dates with your transactions team)
+Lead-based paint does not apply (built 2004). The preapproval is valid through December 27, 2026, after the recommended Settlement.
 
-| Item | Days after Acceptance | Date |
+**Dates if Acceptance is Tuesday, November 10, 2026.** For strategy; confirm dates with your transactions team.
+
+| Item | Day | Date |
 |---|---|---|
-| Seller Disclosure Deadline | 3 | Friday, November 13 |
-| Earnest money delivered | 4 | Saturday, November 14, so Monday, November 16 under Section 25 |
-| Due Diligence Deadline | 10 | Friday, November 20 |
-| Appraisal Deadline | 14 | Tuesday, November 24 |
-| Financing Deadline | 21 | Tuesday, December 1 |
-| Settlement Deadline | 27 | Monday, December 7 |
-| Possession | 3 calendar days after Recording | |
-
-Deadlines are 5:00 PM Mountain Time on the date. Section 25 moves only the earnest money delivery, the earnest money deposit and the Settlement Deadline off a weekend or legal holiday. None of the other dates here lands on a weekend.
+| Seller Disclosure Deadline | Day 3 | Friday, November 13 |
+| Earnest money delivered to your brokerage | Day 4 | Saturday, November 14, so Monday, November 16 under the 2026 form's next-business-day rule |
+| Due Diligence Deadline | Day 14 | Tuesday, November 24 |
+| Appraisal Deadline | Day 14 | Tuesday, November 24 |
+| Financing Deadline | Day 21 | Tuesday, December 1 |
+| Settlement Deadline | Day 24 | Friday, December 4 |
+| Possession | 3 days after Recording | [depends on Recording] |
 
 ## Risk Ledger
 
-| Term | What it gives the seller | What it risks for the buyers | Who confirms |
+| Term | What it gives the seller | What it risks for your buyers | Who confirms |
 |---|---|---|---|
-| 10-day due diligence | Faster certainty | Ten days for the inspection, HOA documents and water share evidence. After 4(b), the $5,000 becomes non-refundable except under 12.2(a) and 12.3(a). | Inspector |
-| 50% in 3(c)(i) | $2,500 if the buyers cancel for financing | They lose $2,500 (50% of $5,000) on a 12.3(a) cancellation; after the Financing Deadline, a loan that doesn't fund puts all $5,000 at risk (12.3(c)) | Lender |
-| 3 days possession after Recording | Time to move | They own the home but can't move in for 3 days. The 9.3 holdover fee (at least $300 a day) applies only if the seller stays past that. | Transactions team, broker |
-| Settlement December 7 | The seller's timing | Six days between final loan approval and Settlement; if the lender needs more, ask now | Lender |
+| $5,000 earnest money | A real deposit | After the Due Diligence Deadline (Tuesday, November 24) the $5,000 becomes non-refundable, except for an appraisal cancellation under 12.2(a) or a financing cancellation under 12.3(a) | Broker |
+| 50% financing release in 3(c)(i) | Part of the deposit if the loan falls through before the Financing Deadline | 50% x $5,000 = $2,500 lost on a financing cancellation | Lender, broker |
+| Appraisal and Financing Deadlines at exactly the lender's 14 and 21 days | Answers on value and the loan sooner | If the appraisal or approval runs late, the deadline passes first; after the Financing Deadline, a loan that doesn't fund can cost all $5,000 under 12.3(b) and (c). Ask the lender whether it wants a buffer. | Lender |
+| Possession 3 days after Recording | Time to move after closing | Your buyers own the home while the seller is still in it. If the seller stays past 3 days, the 9.3 holdover fee is the greater of the amount written in or $300 per day. Ask your broker whether a separate leaseback addendum is needed. | Broker |
 
 ## Questions for the Listing Agent
 
-1. Does the seller's $5,000 toward closing costs apply to an offer at our price?
-2. What Settlement date and possession timing does the seller want?
-3. How many shares of Pretend Canal Co. secondary water go with the home, and can you send the share evidence early?
-4. Is there an HOA change of ownership fee or any pending special assessment?
-5. Which REPC version is your side expecting, the December 2024 form or the November 2026 form?
-6. Where should earnest money go: your brokerage's trust account or a title company?
-7. Is there anything the seller already knows needs repair?
-
-Never share the Exampletons' $565,000 limit, the letter's $575,000 maximum or their cash. If the letter goes with the offer, ask the lender for one written at the offer price.
+1. Is the seller working on the November 1, 2026 REPC? We are writing on it.
+2. The remarks offer $5,000 toward the buyer's closing costs. Is Section 2.2 the way the seller wants it written?
+3. What Settlement date and possession timing does the seller prefer? Would a short rent-back help?
+4. Are the Seller Disclosures and HOA documents available now?
+5. Are there records for the Pretend Canal Co. secondary water?
+6. Where should earnest money be deposited?
+7. Since offers are reviewed as they come in, how soon will the seller respond?
 
 ## Buyer Email
 
 **Subject: Offer Plan For 2286 E Pretend Poppy Ln**
 
-Riley and Jordan,
+Hi Riley and Jordan,
 
-**My recommendation: offer $562,500 and ask the seller to put the $5,000 they're offering toward your closing costs. The home has been on the market longer than similar homes and there are no other offers yet, so this is a fair first offer with room to move up to your $565,000.**
+**My recommendation: offer $562,000 and take the $5,000 the seller is offering toward closing costs. No other offers have come in, so this is a fair, firm offer, with $3,000 of room under your $565,000 limit.**
 
 **What The Sales Show**
-2402 E Pretend Poppy Ln, the same floor plan with an original kitchen, sold in June for $556,500. 2310 E Pretend Poppy Ln sold October 2 for $560,000. A larger home with a three-car garage sold for $571,000. This home's 2021 kitchen and 2023 roof put it between those.
+- 2310 E Pretend Poppy Ln, nearly the same size, sold for $560,000 on October 2.
+- 2402 E Pretend Poppy Ln, the same floor plan with an original kitchen, sold for $556,500 in June. Your home's 2021 kitchen and 2023 roof put it above that.
+- 2195 E Sample Sage Dr, larger with a three-car garage, sold for $571,000 in September.
 
 **The Terms I Recommend**
-- $562,500, with the seller paying $5,000 of your closing costs.
-- $5,000 earnest money.
-- 10 days for inspections, HOA documents and water share records.
-- Appraisal and loan deadlines that match your lender's timing: 14 and 21 days.
-- Closing Monday, December 7, with the seller able to stay 3 days after recording. I'll confirm those dates work for them.
+1. Price $562,000, with the seller paying $5,000 of your closing costs. Your lender confirms the amount.
+2. $5,000 earnest money.
+3. 14 days for inspections and HOA documents.
+4. The appraisal and loan dates your lender gave us (14 and 21 days).
+5. Closing on Friday, December 4, with the seller moving out within 3 days after the sale records. I'm confirming the seller's timing with their agent.
 
 **What Each Choice Risks**
-After the 10 days, your $5,000 can't come back for inspection reasons. If you cancel because of the loan before the loan deadline, $2,500 of it goes to the seller. The appraisal has to support the price. At $562,500 the offer sits below the two highest recent sales, but no one can promise an appraisal.
+After the inspection deadline, your $5,000 is at risk except as the contract protects it. Using the lender's exact appraisal and loan timing helps the offer, but if the lender runs late we may need an extension. Letting the seller stay 3 days means they're still in the home after you own it; the contract sets a daily fee if they stay longer.
 
 **What I Need From You**
-1. Your OK on $562,500 and these terms by Monday evening, so I can send it.
-2. Whether you'd want a home warranty included.
-3. Let Casey know we're writing, so the letter can show the offer price.
+1. Yes or no on $562,000, by [time] Tuesday.
+2. Yes or no on closing December 4 with the 3-day move-out, by [time] Tuesday.
 
-One more thing: please skip a personal letter or photos with the offer. I'll explain why when we talk.
+Please don't include a personal letter or photos with the offer. I recommend we keep it to the terms.
+
+Nothing here guarantees the seller accepts or what the appraisal will say.
 
 [Agent Name]
 
 ## Check Before Sending
 
-| Item in the drafts | Source |
+| Item | Where it comes from |
 |---|---|
-| $562,500 offer; $5,000 Section 2.2; $557,500 after concessions; $7,400 under list; $6,000 above $556,500; $2,500 under $565,000 | Recommendation; arithmetic from the MLS sheet, CMA export and your message |
-| $569,900 list; $579,900 original; cut 10/30/2026; 23 days on market; "Seller offering $5,000 toward buyer's closing costs" | MLS sheet and Property Activity Report |
-| $556,500 (06/20/2026, same floor plan); $560,000 with $4,000 (10/02/2026); $571,000 (09/12/2026, three-car); $572,500 with $5,000 (10/20/2026) | CMA export |
-| Median 15 days; 99.13% median sale-to-list; 1 of 5 over list; $266.28 to $283.85 per above-grade square foot; $10,000 and $8,500 below the top sales | Arithmetic from the CMA export's five recent standard solds |
-| $565,000 limit; no offers yet; $5,000 earnest money; Acceptance Tuesday, November 10 | Your message |
-| Conventional, 10% down, up to $575,000, 14 and 21 days, valid through December 27, 2026, loan officer Casey Notreal | Preapproval letter, October 28, 2026 |
-| $2,500 (50% of $5,000) | 3(c)(i) default, arithmetic |
-| $300 per day holdover minimum | 2026 REPC 9.3 (references/utah-offer-terms.md) |
-| Sections 1, 1(a), 1(b), 2.1, 2.2, 2.3, 3(a) to (d), 3(c)(i), 4(a) to (f), 5, 7.5, 8.3(a) to (c), 9.3, 11, 11(i), 12.1 to 12.3, 25, 30 | November 1, 2026 REPC (references/utah-offer-terms.md, utah-repc-2026.md) |
-| Dates: November 13, 14, 16, 20, 24; December 1, 7 | Day counts from a Tuesday, November 10 Acceptance, checked against the calendar |
-| Placeholders: [Seller's Compensation Contribution], [who pays any change of ownership fee], [concession amount from lender] | Not in the files |
-
-Kept out of the buyer email: the lockbox code, every Agent Remark (including the seller's reasons and date preferences as written), the listing agent's phone number, the showing instructions, and the comps' agent remarks.
+| $569,900 list, $579,900 original, cut on 10/30/2026; 23 days on market | MLS sheet, Property Activity Report |
+| Median 14.5 days (7, 13, 14, 15, 15, 23) | CMA export DOM column, standard solds |
+| $5,000 toward closing costs | MLS public remarks |
+| $560,000, $4,000, October 2 (2310 E Pretend Poppy Ln) | CMA export |
+| $556,500, June (2402 E Pretend Poppy Ln) | CMA export |
+| $571,000, September (2195 E Sample Sage Dr); $572,500 (1988 E Sample Sage Dr) | CMA export |
+| 2021 kitchen, 2023 roof | MLS public remarks and Roof field |
+| $562,000 offer; $560,000 to $571,000 range | Recommendation; range from 2310 and 2195 |
+| $7,900 under list, $3,000 under the top, $557,000 after concessions, $9,000 appraisal gap, $2,500 at risk | Arithmetic shown above |
+| $565,000 top, $5,000 earnest money, Tuesday, November 10 | Your message |
+| 14 and 21 days; Conventional, 10% down, up to $575,000; valid through December 27, 2026 | Preapproval letter |
+| Days 3, 4, 14, 21, 24 and their dates from Tuesday, November 10, 2026 | Computed; confirm with your transactions team |
+| $300 per day holdover | November 1, 2026 REPC Section 9.3 |
+| Sections 1, 1(a), 1(b), 2.2, 3(a) to 3(d), 3(c)(i), 4(a) to 4(f), 5, 8.3(c), 9.3, 12.1, 12.2(a), 12.3(a) to (c), 30 | November 1, 2026 REPC |
+| Placeholder: [time] | Fill before sending |
