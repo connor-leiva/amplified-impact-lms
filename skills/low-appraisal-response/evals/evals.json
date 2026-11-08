@@ -1,0 +1,71 @@
+{
+  "skill_name": "low-appraisal-response",
+  "evals": [
+    {
+      "id": 1,
+      "name": "missed-basement-finish",
+      "prompt": "Appraisal on 1586 E Example Orchard came back at $538,000. We're at $575,000. I represent the buyers, Taylor and Drew. Their lender is Example Lending Group. Appraisal, REPC and the MLS sheet are attached. What are our options?",
+      "expected_output": "Opens with a bold warning that the Appraisal Deadline is 5:00 PM Mountain Time on Tuesday, November 10, 2026 (Section 4(c) and Section 12.2 of the November 1, 2026 REPC, named from its footer), within 48 hours of today, and that the weekend rule doesn't move it. Gap: $575,000 minus $538,000 = $37,000. The fact check catches that the report's grid and Levels table show the basement as 0 sq ft finished with no rooms below grade, while the report's own sketch (page 5) shows 980 sq ft finished (family room, bedroom 5, bath 3), its photo page shows a basement family room, bedroom and bathroom, and the MLS sheet shows 980 finished sq ft with a bedroom and bath below grade. Using the report's own rates ($30 per finished basement sq ft, $7,500 for rooms below grade), it shows the basement and below-grade-room adjustments (-$27,000, -$30,000, -$25,500 and -$7,500 each) would change, labeled as arithmetic and not a value. Grounds: Strong. Drafts a conventional ROV request from the buyers to Example Lending Group with the required fields, no target value, and nothing addressed to the appraiser. Options: ROV plus an extension signed before 5:00 PM November 10, renegotiate, cover the gap (lender confirms; loan based on the lower of price and value), or cancel with written notice and a complete copy of the appraisal by the deadline. Buyer email, note to the listing agent, Check before sending. No lockbox code or agent remarks in drafts.",
+      "files": [
+        "evals/files/case-1-missed-basement-finish/Appraisal Report - 1586 E Example Orchard Ln.pdf",
+        "evals/files/case-1-missed-basement-finish/REPC - 1586 E Example Orchard Ln.pdf",
+        "evals/files/case-1-missed-basement-finish/MLS Agent Detail - 1586 E Example Orchard Ln.pdf"
+      ],
+      "expectations": [
+        "The output opens with a bold warning that the Appraisal Deadline is 5:00 PM Mountain Time on November 10, 2026, citing Section 4(c) (and 12.2) and naming the November 1, 2026 REPC from its footer",
+        "The gap is shown as arithmetic: $575,000 minus $538,000 = $37,000",
+        "The fact check finds that the grid and Levels table report the basement as unfinished with no rooms below grade, while the report's own sketch shows 980 sq ft finished (family room, bedroom 5, bath 3), the photo page shows basement family room, bedroom and bathroom photos, and the MLS sheet shows 980 finished sq ft with 1 bedroom and 1 bath below grade",
+        "The effect is shown with the report's own rates ($30 per sq ft of finished basement and $7,500 for rooms below grade), naming the existing basement adjustments (-$27,000, -$30,000, -$25,500) and the -$7,500 room adjustments, and is labeled as arithmetic, not a value opinion",
+        "Grounds are called Strong, with no promise that the value will change and no criticism of the appraiser",
+        "A reconsideration request from the buyers to Example Lending Group includes the borrower names, property address, effective date (11/04/2026), appraiser name, date of request, the deficient items with page references and sources, and asks for no specific value; nothing is addressed to the appraiser",
+        "The options say a reconsideration likely can't finish before the deadline, so the buyers need an extension signed before 5:00 PM November 10 or must decide by then; cancellation requires written notice with a complete copy of the appraisal",
+        "Covering the gap is described with the lender basing the loan on the lower of price and appraised value, with the exact cash confirmed by the lender, and no loan amount computed",
+        "Client email has a Title Case subject and no agent-only MLS fields (no lockbox code 2468, agent remarks or showing instructions); the output ends with Check before sending; no em or en dashes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "distant-comps-listing-side-fha",
+      "prompt": "I'm the listing agent on 2290 N Sample Willow Way. The buyer's FHA appraisal came in at $662,000 against our $689,000 contract, and the buyer's agent sent me the full report. The appraiser went two to three miles out when I've got closer sales right in Willow Example Farms. Appraisal, REPC with the FHA/VA addendum, and my CMA are attached. What do I tell my sellers and what can we do?",
+      "expected_output": "Gap $689,000 minus $662,000 = $27,000. Names the December 4, 2024 REPC, Section 8.2 IS checked and the Financing & Appraisal Deadline of November 16, 2026 (Section 24(c)), and explains that FHA/VA Loan Addendum Section 3 lets the buyer walk without losing earnest money if the price exceeds the FHA appraised value, notwithstanding that deadline. Comp review: the report's comparables are 2.14, 3.42 and 2.31 miles away in Pretend Heights and Pretendville, while the CMA shows 2314 N Sample Willow Way (MLS #2289875, 0.05 mi, closed 09/25/2026, $692,000, $4,000 concessions), 2176 N Example Willow Ct (MLS #2288290, 0.19 mi, 08/08/2026, $699,900) and 2402 N Sample Willow Way (MLS #2290511, 0.22 mi, 10/16/2026, $705,000, $5,000 concessions, partly finished basement) closed on or before the 10/30/2026 effective date in the subject's subdivision. Excludes 2255 N Example Willow Ct (closed 11/04/2026, after the effective date), the 2288 N Example Willow Ct short sale, the pending and the active. Grounds: Strong. Describes FHA's current process accurately: the buyer asks through the lender and the FHA underwriter decides (ML 2025-08 rescinded the 2024 borrower-initiated rules). The listing side can't file; a data package goes to the buyer's agent for the buyer and lender, never the appraiser. Seller options (support ROV, reduce, meet in the middle, hold) with tradeoffs; notes the $8,000 seller contribution may need the lender's review. Seller email and note to the buyer's agent with no seller bottom line or timing.",
+      "files": [
+        "evals/files/case-2-distant-comps-listing-side/Appraisal Report FHA - 2290 N Sample Willow Way.pdf",
+        "evals/files/case-2-distant-comps-listing-side/REPC and FHA-VA Loan Addendum - 2290 N Sample Willow Way.pdf",
+        "evals/files/case-2-distant-comps-listing-side/CMA Report - 2290 N Sample Willow Way.pdf"
+      ],
+      "expectations": [
+        "The gap is shown as $689,000 minus $662,000 = $27,000",
+        "The clock names the December 4, 2024 REPC, Section 8.2 (IS checked) and the Financing & Appraisal Deadline of 5:00 PM Mountain Time November 16, 2026 (Section 24(c)), and explains that FHA/VA Loan Addendum Section 3 lets the buyer decline to close without losing earnest money if the price exceeds the FHA appraised value, notwithstanding that deadline",
+        "The comparable review states the report's comparables are 2.14, 3.42 and 2.31 miles away, outside the subject's subdivision, and quotes or describes the report's own comment that the search was expanded beyond the subdivision, without calling the comparables bad",
+        "The better sales are 2314 N Sample Willow Way (MLS #2289875), 2176 N Example Willow Ct (MLS #2288290) and 2402 N Sample Willow Way (MLS #2290511), each with distance, close date on or before 10/30/2026, price and concessions, with the partly finished basement at 2402 noted as a difference",
+        "2255 N Example Willow Ct is excluded because it closed 11/04/2026, after the effective date; the 2288 N Example Willow Ct short sale is excluded; the pending and active listings are context only",
+        "FHA's process is described as a request through the buyer's lender that the FHA underwriter decides on, and the output does not present the rescinded 2024 FHA borrower-initiated rules as current",
+        "The output says the seller can't file a reconsideration and the data package goes to the buyer's agent for the buyer and lender, never to the appraiser",
+        "Seller options (support a reconsideration, reduce to value, meet in the middle, hold) each have a tradeoff, and the $8,000 seller contribution is flagged for the lender's review without stating a cap",
+        "Neither the data package nor the note to the buyer's agent mentions the sellers' $675,000 bottom line or their 11/30 timing; seller email has a Title Case subject; Check before sending is present; no em or en dashes"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "well-supported-idaho-va",
+      "prompt": "My buyers' VA appraisal on 3318 Placeholder Pine Ct came back at $441,000. We're under contract at $455,000. They're upset and want to fight it. Can you put together a reconsideration of value? The appraisal, purchase agreement and my CMA export are attached.",
+      "expected_output": "General mode: the property is in Idaho, so state rules weren't checked; the Appraisal Contingency Deadline (5:00 PM local time, November 18, 2026) and terms come from the uploaded purchase agreement. Gap: $455,000 minus $441,000 = $14,000. The report is well supported: subject facts match the MLS (1,720 sq ft, 3 bed, 2 bath, 0.18 ac, 2004); four comparables within 0.38 miles that sold within about four months, adjusted range $439,500 to $445,000; small, consistent adjustments; the Tidewater procedure was followed and the submitted sale 3290 Placeholder Pine Ct was used as Comparable 4 while 1177 Example Aspen Dr was considered and explained. The CMA has nothing better: 3375 Placeholder Pine Ct closed 11/03/2026, after the 10/28/2026 effective date; the pending, active and a March sale don't qualify. Grounds: Weak; a reconsideration is unlikely to change the value. No padded request: says what a VA request would need, with the process (written request after the NOV to the RLC or through the lender; VA review within 5 business days). Options: renegotiate, cover the gap with the buyers' own cash (VA requires the difference over reasonable value from their own resources), or cancel under the contingency or the VA escape clause without losing earnest money. Buyer email that says the report is well supported, plainly and kindly.",
+      "files": [
+        "evals/files/case-3-well-supported-idaho-va/VA Appraisal Report - 3318 Placeholder Pine Ct.pdf",
+        "evals/files/case-3-well-supported-idaho-va/Purchase Agreement and VA Addendum - 3318 Placeholder Pine Ct.pdf",
+        "evals/files/case-3-well-supported-idaho-va/CMA Export - 3318 Placeholder Pine Ct.csv"
+      ],
+      "expectations": [
+        "The output runs in general mode: it names Idaho, says state rules weren't checked, skips Utah REPC terms, and takes the Appraisal Contingency Deadline (November 18, 2026, 5:00 PM local time) from the purchase agreement",
+        "The gap is shown as $455,000 minus $441,000 = $14,000",
+        "The output says the report is well supported, citing subject facts that match the MLS, four comparables within 0.38 miles sold within about four months, the narrow adjusted range ($439,500 to $445,000), and small, consistent adjustments",
+        "The output notes the Tidewater procedure was followed: 3290 Placeholder Pine Ct was used as Comparable 4 and 1177 Example Aspen Dr was considered and not used, with the report's reason",
+        "The CMA review finds no better sale: 3375 Placeholder Pine Ct closed 11/03/2026, after the 10/28/2026 effective date, and the pending, active and March 2026 sale are excluded with reasons",
+        "Grounds are called Weak and the output says a reconsideration is unlikely to change the value; it does not draft a request with invented grounds, and instead says what a request would need plus the VA process (written request after the NOV to the Regional Loan Center or through the lender, VA review within 5 business days)",
+        "The options explain that if the buyers proceed at $455,000, the $14,000 difference must come from their own cash (not borrowed), and that the VA escape clause and the contract's appraisal contingency let them cancel without losing earnest money",
+        "The buyer email tells the buyers plainly that the appraisal is well supported, without criticizing the appraiser or promising any outcome, with a Title Case subject",
+        "No agent-only CSV field (the lockbox code 1357) appears; Check before sending is present; no em or en dashes"
+      ]
+    }
+  ]
+}

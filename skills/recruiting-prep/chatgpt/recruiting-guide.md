@@ -147,6 +147,7 @@ Last verified: 2026-11-08. The legal points here come from outreach-rules.md (TC
 - **From:** the real sender, [Agent Name], never a made-up persona.
 - **Subject:** Title Case and honest about what the email is. Never "Re:" or "Fwd:" on a first touch. Good: "A Quick Question About Your Business," "Coffee Next Week?" Not: "Your Listing Inquiry."
 - **Body:** under 150 words for a first touch. One reason for reaching out (the tier's angle), one specific thing the team offers at that level (from the team's document, or "[your offer for this level]"), one low-pressure ask (a 20-minute coffee or call).
+- **About the sender and the team:** only what the files or the user's message say. No claims about how often the sender talks with agents, team size, years in business, rankings, awards or results ("I talk with a few agents each quarter" is made up unless a file says it). The name, title placeholder, team and brokerage are enough.
 - **Merge fields:** [First Name] only. Never a recipient's own production numbers, ranking, office move, transaction addresses or anything else from the MLS data.
 - **Signature:** [Agent Name], [Title], [Team Name], [Brokerage Name], [Agent Phone]. Real estate advertising rules generally require the licensee's status to be clear, and some states require the brokerage name; see Part 4 of this guide.
 - **Footer, every email:**
@@ -174,6 +175,8 @@ An angle is the one reason this tier might want a conversation. Build it from th
 - Lower tiers: training, lead sources, support on each transaction.
 
 Without a team document, label the angle "General suggestion; replace with your team's offer," and keep the draft's offer line as a placeholder.
+
+**No closings in period and Not tiered** (no production row, so no level): write one shared email for these groups that uses only what the team's document says applies to every agent (how the team works, its schedule, what stays the agent's), or a general suggestion with "[your offer]" when there is no document. Never pick a level's offer for someone with no production data. Tell the user to check their production in the MLS before moving them to a tier. A text goes only to the contacts in these groups with documented consent, listed by ID.
 
 Never build an angle on a production drop, a personal detail, a note, age, family or any personal trait. Never criticize the recipient's current brokerage, even indirectly ("tired of being ignored by your broker?").
 
@@ -216,12 +219,12 @@ Use the team's value proposition or offer document first. If it is organized by 
 
 Where the team has no document, or the document doesn't cover a level, use the guidance below, and label every line of it "General guidance, not from your documents." It is a starting point for the leader's questions, not research and not a fact about this candidate.
 
-- **Newer or low production (0 to 5 sides a year):** training and a clear path to the first deals, lead sources they can work, accountability, help on each transaction.
-- **Growing (6 to 15):** steadier lead flow, systems and follow-up, transaction coordination, marketing support.
-- **Established (16 to 30):** time back (transaction coordination, listing coordination, showing help), the economics of split, cap and fees, marketing and listing support, fewer administrative tasks.
-- **High production (over 30):** leverage (buyer agents, showing partners, administrative staff), economics, control of their own brand and database, a leadership or expansion path, and a culture that fits how they work.
+- **0 to 5 sides a year:** training and a clear path to the first deals, lead sources they can work, accountability, help on each transaction.
+- **6 to 15 sides:** steadier lead flow, systems and follow-up, transaction coordination, marketing support.
+- **16 to 30 sides:** time back (transaction coordination, listing coordination, showing help), the economics of split, cap and fees, marketing and listing support, fewer administrative tasks.
+- **Over 30 sides:** leverage (buyer agents, showing partners, administrative staff), economics, control of their own brand and database, a leadership or expansion path, and a culture that fits how they work.
 
-Listing-heavy agents often care most about listing support and marketing; buyer-heavy agents about lead flow and showing help. Say "often," because the conversation decides.
+These bands are by side count only and have no names, so they never get confused with the team's own level names. Listing-heavy agents often care most about listing support and marketing; buyer-heavy agents about lead flow and showing help. Say "often," because the conversation decides.
 
 ## Discovery Questions
 
@@ -261,7 +264,7 @@ Choose the five to seven most likely, from this list and the files:
 - **Timing:** "Not this year," "After my listings close."
 - **Revenue share or stock** (when the brokerage has a program): answer only with what the brokerage's official materials say, if uploaded; never an amount, an example or a projection.
 
-Each answer follows one shape: acknowledge what's real in the objection, ask one question that gets to the need behind it, answer with what the team's documents say (quoted), and offer a next step. Where the documents say nothing, write "[Your answer: not in your documents]" and the question to ask instead.
+Each answer follows one shape: acknowledge what's real in the objection, ask one question that gets to the need behind it, answer with what the team's documents say (quoted), and offer a next step. Where the documents say nothing, write "[Your answer: not in your documents]" and the question to ask instead. The acknowledgment speaks to this candidate only; no claims about what "most agents" feel or do. If the leader offers to introduce the candidate to someone on the team, add that no one should quote income, earnings or results.
 
 Never:
 - Compute what the candidate would earn, net, keep or save under the team's terms, even from their own numbers, and never compare their past income with a projected one. Point to the terms as written so the candidate can run their own numbers with their own advisor.
@@ -276,7 +279,7 @@ Written to send after the meeting:
 - Under 200 words. Thanks, then the two or three things the candidate said matter (business terms only, as placeholders if the meeting hasn't happened: "[What they said about listing support]"), what the team's documents say about each, the next step with [Day and Time], and anything the leader promised to send.
 - No numbers about what they'd earn, no claims, nothing about their current brokerage.
 - The compliance elements in Part 2 of this guide.
-- If notes or a transcript from the meeting are uploaded (or read from Granola when it is connected and the user asks), read them in full and fill the placeholders from them, business terms only. Leave out anything personal the candidate shared, even if they raised it, and never record it anywhere.
+- If notes or a transcript from the meeting are uploaded or pasted, read them in full and fill the placeholders from them, business terms only. Leave out anything personal the candidate shared, even if they raised it, and never record it anywhere.
 - Commitments the leader made in the meeting ("I'll send our terms") go in the email as sent items, and in Check before sending so nothing is promised that wasn't.
 
 # Part 4: Recruiting Guardrails

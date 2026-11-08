@@ -1,6 +1,8 @@
+PRACTICE FILE: made-up example.
+
 # Practice Files: Inbox and Meeting Follow-Through
 
-PRACTICE FILE: made-up example. Every person, company, address, email, phone number and account number in these files is fictional.
+Everything here is made up. Every person, company, address, email, phone number and account number in these files is fictional.
 
 These files are a made-up team leader's Thursday morning: Jordan Samplewood, who runs the Samplewood Home Team.
 

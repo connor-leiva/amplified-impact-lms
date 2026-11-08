@@ -7,8 +7,8 @@ labeled only Microphone and System audio; and Granola AI notes that miss two com
 wrong owner for a third.
 """
 
-ROSTER = """Name,Role,Email
-TEST FILE: made-up example,,
+ROSTER = """TEST FILE: made-up example
+Name,Role,Email
 Kendra Mockingham,Team Owner,kendra@mockinghamgroup.example
 Raj Filewell,Transactions Manager,raj@mockinghamgroup.example
 Sofia Callbright,ISA,sofia@mockinghamgroup.example

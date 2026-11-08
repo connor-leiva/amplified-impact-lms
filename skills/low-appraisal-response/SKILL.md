@@ -61,8 +61,9 @@ Strong, Some or Weak, using the guide's rubric, with the two or three facts that
 ## 7. Write the Drafts
 
 Read `references/writing-the-drafts.md`.
-- **Buyer's side:** the reconsideration request from the buyer to the lender, in the program's format, only when grounds are Strong or Some, or when the agent asks anyway (then say the grounds are weak in the agent notes, not in the request).
-- **Listing side:** the data package for the buyer's agent to pass to the buyer and lender.
+- **Buyer's side, Strong or Some grounds:** the reconsideration request from the buyer to the lender, in the program's format.
+- **Listing side, Strong or Some grounds:** the data package for the buyer's agent to pass to the buyer and lender.
+- **Weak grounds:** don't pad a request to satisfy an ask. Say what a request would need (a fact the report got wrong, or a closer or more similar sale that closed by the effective date) and that the files have none, then give the program's process and fields with [placeholders] in case the agent finds one.
 - **The client email** and **a note to the other agent.**
 
 ## 8. Guardrails
@@ -87,7 +88,7 @@ Read `references/writing-the-drafts.md`.
 7. **Better sales from the CMA**, then the sales left out and why
 8. **Grounds:** Strong, Some or Weak, and why
 9. **Options** for the agent's side (both sides when unclear)
-10. **Reconsideration request** (buyer's side) or **data package** (listing side), when there are grounds or the agent asks
+10. **Reconsideration request** (buyer's side) or **data package** (listing side), or, with weak grounds, what a request would need
 11. **Client email**
 12. **Note to the other agent**
 13. **Check before sending:** every date, time, dollar amount, square footage, page reference, MLS number and quoted phrase in items 10 to 12, each with its source, plus any open placeholder

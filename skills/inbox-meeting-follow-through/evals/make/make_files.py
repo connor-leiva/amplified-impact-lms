@@ -20,9 +20,11 @@ SKILL = HERE.parent.parent
 PRACTICE = SKILL / "practice"
 FILES = SKILL / "evals" / "files"
 
-PRACTICE_README = """# Practice Files: Inbox and Meeting Follow-Through
+PRACTICE_README = """PRACTICE FILE: made-up example.
 
-PRACTICE FILE: made-up example. Every person, company, address, email, phone number and account number in these files is fictional.
+# Practice Files: Inbox and Meeting Follow-Through
+
+Everything here is made up. Every person, company, address, email, phone number and account number in these files is fictional.
 
 These files are a made-up team leader's Thursday morning: Jordan Samplewood, who runs the Samplewood Home Team.
 

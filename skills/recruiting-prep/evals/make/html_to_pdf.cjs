@@ -1,5 +1,5 @@
 // Print an HTML file to PDF with Playwright's Chromium, with a "made-up example" line at the top of every page.
-// Usage: node html_to_pdf.cjs input.html output.pdf "TEST FILE: made-up example"
+// Usage: node html_to_pdf.cjs input.html output.pdf "PRACTICE FILE: made-up example"
 const { chromium } = require('playwright');
 
 (async () => {

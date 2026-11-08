@@ -34,7 +34,7 @@ STREETS = ["Puddleduck Way", "Gumdrop Ct", "Snickerdoodle Ln", "Marshmallow Dr",
            "Bumblebee Cir", "Lollipop Loop", "Jellybean Row", "Waffle Iron Ave", "Pumpernickel St", "Kazoo Ct"]
 CLIENT_FIRST = ["Rosie", "Milo", "Pippa", "Otis", "Hazel", "Fitz", "Wren", "Bram", "Tilly", "Gus", "Posy", "Rufus"]
 CLIENT_LAST = ["Rutabaga", "Crumpet", "Noodlewood", "Fizzlebottom", "Puddingstone", "Wafflesworth",
-               "Bumbleberry", "Tinkerpot", "Marmaduke", "Sprinkleton", "Gingersnap", "Muffintop"]
+               "Bumbleberry", "Tinkerpot", "Marmaduke", "Sprinkleton", "Picklesworth", "Muffintop"]
 
 
 def r2(x):

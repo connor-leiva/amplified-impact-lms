@@ -32,7 +32,7 @@ FILES = SKILL / "evals" / "files"
 PRACTICE = SKILL / "practice"
 PLANTED = MAKE / "planted"
 PRACTICE_MARK = "PRACTICE FILE: made-up example"
-TEST_MARK = "TEST FILE: made-up example"
+TEST_MARK = PRACTICE_MARK  # eval inputs carry the same "PRACTICE FILE: made-up example" line as the practice files
 
 FIRST = ["Ava", "Ben", "Cora", "Dev", "Elle", "Finn", "Gwen", "Hank", "Iris", "Jade", "Kip", "Lena", "Milo", "Nora",
          "Otto", "Pia", "Quin", "Rosa", "Sam", "Tess", "Uma", "Vic", "Wren", "Yara", "Zeke", "Arlo", "Bea", "Cal",

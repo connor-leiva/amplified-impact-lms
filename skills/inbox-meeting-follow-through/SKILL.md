@@ -78,7 +78,7 @@ Use the week's digests in the conversation or project plus the week's mail and m
 ## Output, In This Order
 
 1. **Bottom line** (three sentences max): the count of items that need the leader today, the most urgent one, and any high-risk email.
-2. **High Risk** (only when found): each money email, its red flags, the verify line, and what not to do.
+2. **High Risk:** each money email, its red flags, the verify line, and what not to do; "None" in one line when there are none.
 3. **Needs You Today:** each decision, why it's the leader's, and by when.
 4. **Your Promises:** unkept promises, oldest first, with due date and whether they've followed up.
 5. **Replies:** who, what they need, by when.

@@ -1,4 +1,4 @@
-TEST FILE: made-up example
+PRACTICE FILE: made-up example
 Opportunity Name,Contact Name,Phone,Email,Pipeline,Stage,Status,Opportunity Value,Source,Assigned To,Tags,Created On,Updated On,Opportunity ID,Contact ID,Current Brokerage,Closed Units 12 Mo,Closed Volume 12 Mo,Listing Sides 12 Mo,Buyer Sides 12 Mo,Production Source,SMS Consent,DND,Recruiter Notes
 Nico Peppersnout Recruit,Nico Peppersnout,+13525550181,nico.peppersnout@postbox.test,Agent Recruiting,Nurture,open,0,Career night,Avery Pelicanfeather,recruit,2026-07-17,2026-08-30,opp_215ccb2d3,con_232b30628,Harborview Example Partners,5,1660000,1,4,"MLS production report, closed 11/01/2025 to 10/31/2026",,false,
 Carla Tansyhopper Recruit,Carla Tansyhopper,+19415550118,carla.tansyhopper@postbox.test,Agent Recruiting,Nurture,open,0,Instagram,Avery Pelicanfeather,recruit,2026-08-31,2026-10-12,opp_11d2f6d83,con_1ffce10b9,Maplewood Example Realty,31,21855000,21,10,"MLS production report, closed 11/01/2025 to 10/31/2026","Yes, web form opt-in 2026-04-03",false,"Going through a divorce, probably needs money"

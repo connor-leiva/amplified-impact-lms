@@ -116,6 +116,11 @@ def pct(x):
     return "n/a" if x is None else f"{x * 100:.1f}%"
 
 
+def fm(x):
+    """An operand in a printed formula: negatives in parentheses."""
+    return f"({x:,.2f})" if x < 0 else f"{x:,.2f}"
+
+
 def div(a, b):
     return None if not b else a / b
 
@@ -1154,7 +1159,7 @@ def write_report(pnl, A, det, prod, P, budget, notes, out_dir):
         L.append(f"### {mlabel(l)} Against {mlabel(p)}")
         if V.get("recording_changed"):
             L.append(f"- Recording changed between these months ({A['status'][p]} to {A['status'][l]}): commission income and splits moved because of how they were recorded. Compare company dollar, not commission income.")
-        rows = [[n, money(a), money(b), f"{m2(b)} - {m2(a)} = {m2(b - a)}", pct(div(b - a, abs(a))) if a else "n/a"] for n, a, b in V["mom"]["lines"]]
+        rows = [[n, money(a), money(b), f"{fm(b)} - {fm(a)} = {m2(b - a)}", pct(div(b - a, a)) if a > 0 else "n/a"] for n, a, b in V["mom"]["lines"]]
         L.append(table(["Line", mlabel(p), mlabel(l), "Change", "Change %"], rows))
         bg = V["biggest"]
         L.append(f"\nBiggest change: {bg['line']}, {m2(bg['prev'])} to {m2(bg['last'])} ({m2(bg['change'])})" +
@@ -1224,6 +1229,14 @@ def write_report(pnl, A, det, prod, P, budget, notes, out_dir):
             if f["code"] == "likely_miscategorized":
                 explained |= {("one_time", f["month"], acct), ("spike", f["month"], acct)}
         flags = [f for f in flags if not (f.get("account_level") and (f["code"], f.get("month"), f.get("account")) in explained)]
+        for g in flags:
+            if g["code"] == "uncategorized" and g.get("month"):
+                ts = [t for t in det["uncategorized"] if t["month"] == g["month"]]
+                if ts:
+                    extra = "; ".join(f"{t['name'] or '(no name)'} {m2(t['amount'])} on {t['date']}" for t in ts)
+                    g["text"] += f" In the detail: {extra}."
+                    if g.get("question"):
+                        g["question"] = g["question"].replace(". What is it", f" ({extra}). What is it")
         flags = [f for f in flags if f["code"] != "uncategorized_detail" or not any(g["code"] == "uncategorized" and g.get("month") == f["month"] for g in flags)]
         flags.sort(key=lambda f: (f["priority"], f.get("month") or ""))
     if flags:

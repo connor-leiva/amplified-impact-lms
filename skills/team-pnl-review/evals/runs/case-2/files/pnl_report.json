@@ -357,8 +357,8 @@
   {
    "priority": 4,
    "code": "uncategorized",
-   "text": "Uncategorized Expense holds 412.18 in Sep 2026.",
-   "question": "Uncategorized Expense holds 412.18 in Sep 2026. What is it, and which account should it move to?",
+   "text": "Uncategorized Expense holds 412.18 in Sep 2026. In the detail: SQ *PICKLE BARREL 412.18 on 2026-09-24.",
+   "question": "Uncategorized Expense holds 412.18 in Sep 2026 (SQ *PICKLE BARREL 412.18 on 2026-09-24). What is it, and which account should it move to?",
    "month": "2026-09",
    "amount": 412.18
   },
@@ -391,7 +391,7 @@
  ],
  "questions": [
   "Snapdragon CRM was charged 599.00 on 2026-08-03 and again on 2026-08-04 (Software & Subscriptions:CRM). Is the second charge a duplicate, and has it been refunded?",
-  "Uncategorized Expense holds 412.18 in Sep 2026. What is it, and which account should it move to?",
+  "Uncategorized Expense holds 412.18 in Sep 2026 (SQ *PICKLE BARREL 412.18 on 2026-09-24). What is it, and which account should it move to?",
   "Pinecone Dialer started in Jul 2026 at 349.00 a month (Software & Subscriptions:Dialer). Is this a new subscription, and is it set up to recur?",
   "Lanternfly Leads has 1,250.00 in Office Supplies on 2026-06-05, but its other charges are in Advertising & Marketing:Online Lead Programs. Should it move?"
  ],

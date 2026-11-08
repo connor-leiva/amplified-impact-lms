@@ -24,7 +24,7 @@ settlement_date,status,agent_name,first_name,last_name,property_address_line_1,t
 2026-03-21,Closed,Wendell Wafflecone,Fitz,Tinkerpot,617 Snickerdoodle Ln,458000.00,12595.00,0.00,629.75,7557.00,4408.25,Sphere of Influence
 2026-03-27,Closed,Wendell Wafflecone,Milo,Tinkerpot,8817 Gumdrop Ct,669000.00,18397.50,0.00,919.88,11038.50,6439.12,Sphere of Influence
 2026-03-27,Closed,Pippa Pancake,Wren,Tinkerpot,286 Waffle Iron Ave,523500.00,14396.25,0.00,719.81,8637.75,5038.69,Past Client
-2026-03-28,Closed,Ferris Fudgeworth,Rosie,Gingersnap,5424 Lollipop Loop,554000.00,16620.00,0.00,831.00,9972.00,5817.00,Open House
+2026-03-28,Closed,Ferris Fudgeworth,Rosie,Picklesworth,5424 Lollipop Loop,554000.00,16620.00,0.00,831.00,9972.00,5817.00,Open House
 2026-04-02,Closed,Ferris Fudgeworth,Wren,Muffintop,6808 Kazoo Ct,547500.00,13687.50,0.00,684.38,8212.50,4790.62,Sphere of Influence
 2026-04-13,Closed,Wendell Wafflecone,Milo,Bumbleberry,4658 Pumpernickel St,473500.00,11837.50,0.00,591.88,7102.50,4143.12,Past Client
 2026-04-15,Closed,Ferris Fudgeworth,Hazel,Crumpet,2613 Pinwheel Pl,551500.00,16545.00,4963.50,827.25,6948.90,3805.35,Zippity Leads
@@ -36,7 +36,7 @@ settlement_date,status,agent_name,first_name,last_name,property_address_line_1,t
 2026-04-24,Closed,Gilda Gingersnap,Hazel,Crumpet,6056 Kazoo Ct,712500.00,17812.50,0.00,890.63,0.00,16921.87,PPC
 2026-04-28,Closed,Pippa Pancake,Bram,Marmaduke,2543 Marshmallow Dr,553000.00,16590.00,0.00,829.50,9954.00,5806.50,Sphere of Influence
 2026-05-09,Closed,Ferris Fudgeworth,Otis,Wafflesworth,1024 Kazoo Ct,652000.00,19560.00,0.00,978.00,11736.00,6846.00,PPC
-2026-05-09,Closed,Ferris Fudgeworth,Milo,Gingersnap,3591 Waffle Iron Ave,476500.00,13103.75,3931.13,655.19,5503.57,3013.86,Zippity Leads
+2026-05-09,Closed,Ferris Fudgeworth,Milo,Picklesworth,3591 Waffle Iron Ave,476500.00,13103.75,3931.13,655.19,5503.57,3013.86,Zippity Leads
 2026-05-09,Closed,Pippa Pancake,Rufus,Puddingstone,3037 Marshmallow Dr,286000.00,7150.00,0.00,357.50,4290.00,2502.50,Open House
 2026-05-13,Closed,Pippa Pancake,Pippa,Marmaduke,2036 Pinwheel Pl,639500.00,15987.50,4796.25,799.38,6714.75,3677.12,Zippity Leads
 2026-05-15,Closed,Wendell Wafflecone,Posy,Rutabaga,9618 Marshmallow Dr,375000.00,9375.00,0.00,468.75,5625.00,3281.25,Open House
@@ -51,8 +51,8 @@ settlement_date,status,agent_name,first_name,last_name,property_address_line_1,t
 2026-06-08,Closed,Ferris Fudgeworth,Bram,Bumbleberry,3630 Bumblebee Cir,455500.00,11387.50,0.00,569.38,6832.50,3985.62,PPC
 2026-06-11,Closed,Ferris Fudgeworth,Gus,Fizzlebottom,6933 Jellybean Row,649500.00,19485.00,0.00,974.25,11691.00,6819.75,Sphere of Influence
 2026-06-12,Closed,Wendell Wafflecone,Fitz,Crumpet,5027 Marshmallow Dr,559000.00,16770.00,5031.00,838.50,7043.40,3857.10,Zippity Leads
-2026-06-14,Closed,Dot Dumpling,Wren,Gingersnap,2650 Snickerdoodle Ln,430500.00,12915.00,0.00,645.75,7749.00,4520.25,Sphere of Influence
+2026-06-14,Closed,Dot Dumpling,Wren,Picklesworth,2650 Snickerdoodle Ln,430500.00,12915.00,0.00,645.75,7749.00,4520.25,Sphere of Influence
 2026-06-14,Closed,Gilda Gingersnap,Posy,Wafflesworth,6457 Pumpernickel St,457500.00,12581.25,0.00,629.06,0.00,11952.19,Open House
-2026-06-17,Closed,Pippa Pancake,Bram,Gingersnap,8585 Bumblebee Cir,370000.00,11100.00,3330.00,555.00,4662.00,2553.00,Zippity Leads
+2026-06-17,Closed,Pippa Pancake,Bram,Picklesworth,8585 Bumblebee Cir,370000.00,11100.00,3330.00,555.00,4662.00,2553.00,Zippity Leads
 2026-06-20,Closed,Ferris Fudgeworth,Milo,Tinkerpot,3813 Snickerdoodle Ln,433000.00,11907.50,0.00,595.38,7144.50,4167.62,Open House
 2026-06-26,Closed,Pippa Pancake,Milo,Fizzlebottom,9123 Marshmallow Dr,498000.00,13695.00,0.00,684.75,8217.00,4793.25,Open House

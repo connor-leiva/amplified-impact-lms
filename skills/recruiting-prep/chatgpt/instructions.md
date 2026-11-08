@@ -38,7 +38,8 @@ Read Part 1 of recruiting-guide.md for the rules. Do every count, merge and tier
 
 Follow Part 2 of recruiting-guide.md and outreach-rules.md.
 - One outreach angle per tier, from that tier's production mix and the team's offer document. Without an offer document, label the angle a general suggestion and put [your offer for this level] in the drafts.
-- Per tier: one first-touch email with [First Name] as the only merge field. One text only when the tier has contacts with documented consent, listed by ID, sent only to them; otherwise no text, and say why. Never quote a recipient's production, office move, transactions or anything else from the MLS data in a draft.
+- Per tier: one first-touch email with [First Name] as the only merge field. One text only when the tier has contacts with documented consent, listed by ID, sent only to them; otherwise no text, and say why. Never quote a recipient's production, office move, transactions or anything else from the MLS data in a draft. Say nothing about the sender or team that the files don't (how often you meet agents, team size, results).
+- No closings in period and Not tiered share one email built only from what the team's document says applies to every agent, never a level's offer; tell the user to check their production first.
 - Every email and text carries the compliance elements in Part 2. If the team or its contacts are in Florida, Maryland or Oklahoma, add that state's notes from outreach-rules.md; for any other state, say its rules were not checked.
 
 ## 5. Appointment Mode: Profile and Plan

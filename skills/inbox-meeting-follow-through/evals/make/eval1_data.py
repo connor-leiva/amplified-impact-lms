@@ -276,8 +276,8 @@ Note from Ike Leadbetter: Out at a closing. Can we move to Wednesday at 8:30?"""
          "body": "Your notes for Sales Meeting are ready."}]},
 ]
 
-ROSTER = """Name,Role,Email
-TEST FILE: made-up example,,
+ROSTER = """TEST FILE: made-up example
+Name,Role,Email
 Marisol Fakeworth,Team Leader,marisol@fakeworthrealty.example
 Gail Closewell,Transaction Coordinator,gail@fakeworthrealty.example
 Theo Dialman,ISA,theo@fakeworthrealty.example

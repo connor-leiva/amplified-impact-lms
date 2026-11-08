@@ -120,7 +120,7 @@ Each category as a share of company dollar for the period (category total / comp
 | Tech | $1,676 | $1,077 | 1,077.00 - 1,676.00 = -599.00 | -35.7% |
 | Occupancy | $4,600 | $4,600 | 4,600.00 - 4,600.00 = 0.00 | 0.0% |
 | Other | $583 | $537 | 537.35 - 583.10 = -45.75 | -7.8% |
-| Net income | -$323 | -$3,293 | -3,293.01 - -322.71 = -2,970.30 | -920.4% |
+| Net income | -$323 | -$3,293 | (-3,293.01) - (-322.71) = -2,970.30 | n/a |
 
 Biggest change: Company dollar, 22,690.52 to 19,162.65 (-3,527.87).
 
@@ -148,14 +148,14 @@ Largest account moves (operating expenses):
 
 ## Flags
 - [P3 duplicate_charge] Snapdragon CRM: 599.00 on 2026-08-03 and again on 2026-08-04 in Software & Subscriptions:CRM.
-- [P4 uncategorized] Uncategorized Expense holds 412.18 in Sep 2026.
+- [P4 uncategorized] Uncategorized Expense holds 412.18 in Sep 2026. In the detail: SQ *PICKLE BARREL 412.18 on 2026-09-24.
 - [P6 new_recurring_vendor] Pinecone Dialer is new since Jul 2026 (Software & Subscriptions:Dialer) and is charged every month since: 349.00, 349.00, 349.00.
 - [P8 likely_miscategorized] Lanternfly Leads: 1,250.00 in Office Supplies (2026-06-05), while most of its charges are in Advertising & Marketing:Online Lead Programs.
 - [P10 new_vendor_once] Hootenanny Video: a new vendor, charged once (59.00 on 2026-05-14, Software & Subscriptions:Video).
 
 ## Questions for the Bookkeeper (seeds)
 1. Snapdragon CRM was charged 599.00 on 2026-08-03 and again on 2026-08-04 (Software & Subscriptions:CRM). Is the second charge a duplicate, and has it been refunded?
-2. Uncategorized Expense holds 412.18 in Sep 2026. What is it, and which account should it move to?
+2. Uncategorized Expense holds 412.18 in Sep 2026 (SQ *PICKLE BARREL 412.18 on 2026-09-24). What is it, and which account should it move to?
 3. Pinecone Dialer started in Jul 2026 at 349.00 a month (Software & Subscriptions:Dialer). Is this a new subscription, and is it set up to recur?
 4. Lanternfly Leads has 1,250.00 in Office Supplies on 2026-06-05, but its other charges are in Advertising & Marketing:Online Lead Programs. Should it move?
 
