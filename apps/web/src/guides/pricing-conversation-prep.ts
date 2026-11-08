@@ -78,11 +78,13 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
   sections: [
     {
       // sample.md (the practice run), shortened, in the output's own order and its own words, cut only
-      // by whole items, rows and sentences: the file read, the bottom line, three of the five closest
-      // comps (with the bracket and the rambler left out), three lines of the market read, three of the
+      // by whole items, rows, sentences and clauses: the files read, the bottom line, the subject, three
+      // of the five closest comps, the rambler left out, two lines of the market read, three of the
       // recommendation, the talk track's recommendation and ask, one objection, the seller summary's
-      // title, bottom line and Why This Price, and three lines of Check before sending. The comp table's
-      // columns are merged (price with concessions, above grade with basement) so it fits a phone.
+      // title, bottom line and Why This Price, and three lines of Check before sending. The comp table
+      // keeps two of its ten columns' worth (each sale's price and concessions, and sample.md's "Why it's
+      // close, or where it differs"), so it reads on a phone with no sideways scroll; the above-grade
+      // and basement split shows in the subject line and the rambler left out.
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What the prep looks like',
@@ -109,27 +111,26 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
         },
         { h: 'Closest comps' },
         {
+          p: [
+            'The subject: two-story, 2006, 2,180 sq ft above grade, basement 1,040 sq ft with 980 finished, 5 beds, 3.5 baths, 2-car garage. Roof replaced 2024; original kitchen cabinets with new counters in 2019.',
+          ],
+        },
+        {
           table: {
             caption: 'Closest comps, 3 of 5 rows',
-            head: ['Sale', 'Price', 'Sq ft', 'Why it’s close, or where it differs'],
+            head: ['Sale', 'Why it’s close, or where it differs'],
             rows: [
               [
-                '1510 W Juniper Example Dr, sold October 17, 2026',
-                '$589,000, with $7,500 in concessions ($581,500 after)',
-                '2,150 above grade. Basement 1,020 (1,020 finished).',
-                'Same street, nearly the same size, finished basement, original kitchen. Newest sale. Subject should sell at or a little above it.',
+                '1510 W Juniper Example Dr: $589,000, with $7,500 in concessions ($581,500 after)',
+                'Same street, nearly the same size, finished basement, original kitchen. Subject should sell at or a little above it.',
               ],
               [
-                '1602 W Cedar Sample Cir, sold September 26, 2026',
-                '$598,000, with $4,000 in concessions ($594,000 after)',
-                '2,300 above grade. Basement 1,100 (1,100 finished).',
-                'Larger: 120 more sq ft above grade, 6 beds, second kitchenette, backs to a walking trail. Subject should land close to it.',
+                '1602 W Cedar Sample Cir: $598,000, with $4,000 in concessions ($594,000 after)',
+                'Larger: 120 more sq ft above grade, 6 beds, second kitchenette. Subject should land close to it.',
               ],
               [
-                '1376 W Cedar Sample Cir, sold July 11, 2026',
-                '$604,500, no concessions',
-                '2,120 above grade. Basement 1,000 (950 finished).',
-                'Remodeled kitchen (2023) and a three-car garage; sold over list in 5 days. The top of the bracket: subject shouldn’t pass it.',
+                '1376 W Cedar Sample Cir: $604,500, no concessions',
+                'Remodeled kitchen (2023) and a three-car garage. The top of the bracket: subject shouldn’t pass it.',
               ],
             ],
           },
@@ -145,7 +146,6 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
           items: [
             'Months of supply: 5 two-story sales in the 6-month window = 0.83 a month. 3 two-story actives ÷ 0.83 = 3.6 months. Under the five-to-six-month rule of thumb, so this comp set leans toward sellers.',
             'First price versus reduced: the three that sold at their first price went under contract in 5, 9 and 14 days. The two that started higher and cut took 36 and 44 days and sold at 96.6% of their original price.',
-            'Where buyers said no: 1340 W Cedar Sample Cir, the same size as the subject above grade (2,180) with a finished basement, cut from $649,900 to $634,900 and expired after 120 days.',
           ],
         },
         { h: 'Recommendation' },
@@ -191,7 +191,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
           items: [
             'Subject 2,180 above grade, 1,040 basement (980 finished): CMA subject table and agent notes. Confirm the square footage against the tax record or a measurement before you quote it.',
             '$589,000, October 17, 2026, $7,500 concessions, original kitchen: MLS 2210555.',
-            '$599,900, the range $590,000 to $605,000, and the $600,000 search line: your call, from the bracket above.',
+            '$599,900, the range $590,000 to $605,000, and the $600,000 search line: your call.',
           ],
         },
       ],
@@ -243,7 +243,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
       // SKILL.md's Run, Draft, Own, and page-notes.md's.
       kind: 'tiles',
       heading: 'Who does what',
-      note: 'The AI does the math. You and your seller set the price.',
+      note: 'The AI reads and drafts. You and your seller set the price.',
       items: [
         {
           label: 'Run',
@@ -258,7 +258,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
         {
           label: 'Own',
           title: 'Always yours and your seller’s',
-          body: 'The price: your recommendation, and your seller’s decision on the list price, any reduction or concession. Every money conversation, and the fair housing review of anything you share. Your seller’s loan balance never goes in anything for the seller, and the AI never asks for wire instructions or account numbers.',
+          body: 'The price: your recommendation, and your seller’s decision on the list price, any reduction or concession. Every money conversation, and the fair housing review of anything you share. The AI keeps your seller’s loan balance and what they need to net out of anything your seller sees, and never asks for wire instructions or account numbers.',
         },
       ],
     },
@@ -338,16 +338,16 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
         },
         {
           // page-notes.md, FAQ (Fannie Mae B4-1.3-05, ANSI Z765, checked 2026-11-08); SKILL.md, section 2.
-          q: 'Why doesn’t it just use price per square foot?',
+          q: 'Why doesn’t the AI just use price per square foot?',
           a: [
-            'Appraisers count only above-grade finished space as living area and look at the basement separately. Fannie Mae requires it. Total square footage makes a home with a big basement look underpriced. So the AI compares above-grade and basement square feet separately, and uses price per above-grade square foot only as a cross-check. That’s also how it answers a seller who says “our house is bigger.”',
+            'Appraisers count only above-grade finished space as living area and look at the basement separately, as Fannie Mae requires. Total square footage makes a home with a big basement look underpriced. So the AI compares above-grade and basement square feet separately, and uses price per above-grade square foot only as a cross-check. That’s also how it answers a seller who says “our house is bigger.”',
           ],
         },
         {
           // page-notes.md, FAQ and "Privacy before you upload"; SKILL.md, sections 4, 6 and 7.
           q: 'Will my seller see the private remarks or lockbox codes in my export?',
           a: [
-            'No. The AI keeps agent-only fields (private remarks, showing instructions, lockbox and gate codes, owner contact details), showing agents’ names, and comments about people, schools or safety out of the talk track and the seller summary. Check the ',
+            'No. The AI keeps agent-only fields (private remarks, showing instructions, lockbox and gate codes, owner contact details), showing agents’ names, and comments about people, schools or safety out of the talk track and the seller summary. Look over the ',
             { strong: 'Check before sending' },
             ' list anyway before you share anything. Rules on using MLS data in outside tools vary, so check with your MLS or broker.',
           ],
@@ -356,7 +356,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
           // page-notes.md, "Who It's For" and FAQ; SKILL.md, "Pick the state".
           q: 'Does it work outside Utah?',
           a: [
-            'Yes. It’s built for Utah first: it knows sale prices aren’t public record there, and how the appraisal condition works in both Utah REPCs in use until January 1, 2027. In another state, the AI uses the same comp method on your files only, and tells you it didn’t check your state’s rules.',
+            'Yes. The skill is built for Utah first: it knows sale prices aren’t public record there, and how the appraisal condition works in both Utah REPCs in use until January 1, 2027. In another state, the AI uses the same comp method on your files only, and tells you it didn’t check your state’s rules.',
           ],
         },
         {

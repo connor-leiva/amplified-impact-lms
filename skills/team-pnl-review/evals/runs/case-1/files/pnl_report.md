@@ -26,7 +26,7 @@
 
 Typical split share (median of the months with splits): 53.1%.
 
-Brokerage split and fees as a share of commission income (gross months): Jan 2026 5.0%, Feb 2026 5.0%, Mar 2026 5.0%, May 2026 5.0%, Jun 2026 5.0%; usual 5.0%.
+Brokerage split and fees as a share of commission income (gross months): Jan 2026 5.0%, Feb 2026 5.0%, Mar 2026 5.0%, May 2026 5.0%, Jun 2026 5.0%.
 
 ## Company Dollar and Margin
 Company dollar = commission income - agent splits - referral fees paid - brokerage split and fees. Margin = net income / company dollar.

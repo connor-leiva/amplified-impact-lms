@@ -1102,7 +1102,7 @@ def write_report(pnl, A, det, prod, P, budget, notes, out_dir):
         L.append(f"\nTypical split share (median of the months with splits): {pct(A['typical'])}.")
     if A["btyp"]:
         L.append("\nBrokerage split and fees as a share of commission income (gross months): " +
-                 ", ".join(f"{mlabel(k)} {pct(v)}" for k, v in A["bshare"].items()) + f"; usual {pct(A['btyp'])}.")
+                 ", ".join(f"{mlabel(k)} {pct(v)}" for k, v in A["bshare"].items()) + ".")
     L.append("")
     L.append("## Company Dollar and Margin")
     L.append("Company dollar = commission income - agent splits - referral fees paid - brokerage split and fees. Margin = net income / company dollar.")

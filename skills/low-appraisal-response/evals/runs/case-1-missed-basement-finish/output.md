@@ -7,7 +7,7 @@
 
 ## Bottom Line for the Agent
 
-The appraisal is $37,000 under the $575,000 contract price, and the main cause is a factual error: the report's grid and Levels table treat the basement as unfinished, while the report's own sketch, its photos and the MLS sheet show 980 square feet finished with a bedroom and a full bath. Each comparable was adjusted down $34,500 for basement finish and rooms the subject actually has, so the grounds for a reconsideration are strong. Because the deadline is Tuesday at 5:00 PM, ask the listing agent for an extension today and get the request to Example Lending Group tomorrow.
+The appraisal is $37,000 under the $575,000 contract price, and the main cause is a factual error: the report's grid and Levels table treat the basement as unfinished, while the report's own sketch, its photos and the MLS sheet show 980 square feet finished with a bedroom and a full bath. Each comparable was adjusted down $33,000 to $37,500 for basement finish and rooms the subject actually has, so the grounds for a reconsideration are strong. Because the deadline is Tuesday at 5:00 PM, ask the listing agent for an extension today and get the request to Example Lending Group tomorrow.
 
 ## The Clock
 

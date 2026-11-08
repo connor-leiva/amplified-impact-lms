@@ -17,7 +17,7 @@ Your 46 GoHighLevel opportunities come down to 44 unique agents: on your tiers, 
 - **MLS data-use check.** Your Production Source column says the units come from an "MLS production report, closed 11/01/2025 to 10/31/2026." Confirm your MLS rules allow using that data for recruiting and putting it into an AI tool.
 - **Recruiter notes left out.** 39 of the 46 rows have recruiter notes. 11 rows, for 10 agents, hold personal details (kinds: marital status 4, family or familial status 3, health or disability 2, age 1, religion 1, national origin or citizenship 1, personal finances 1). I didn't read or use any of them, and none appears below or in the CSV. Consider deleting those details from the Recruiter Notes field in GoHighLevel; the keyword check can miss some, so review the column there.
 - **Old estimates not used.** Two opportunities carry "Old tracker estimate, 2025" units (16 and 3). They are shown in the CSV's Units Not Used column and never used to tier.
-- **Florida.** Your team is in Tampa, and the contacts' area codes are Florida numbers. Florida's rules are in the drafts section and in Check Before Sending.
+- **Florida.** Your team is in Tampa, so Florida's rules apply on top of the federal ones. They are in the drafts section and in Check Before Sending.
 - **No team offer document.** The angles are general suggestions, and each email has [your offer for this level] for you to fill in.
 - **Placeholders:** [Agent Name], [Agent First and Last Name], [Title], [Agent Phone], [Unsubscribe Link], [Sender Postal Address], [your offer for this level].
 

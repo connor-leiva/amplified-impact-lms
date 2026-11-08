@@ -18,7 +18,7 @@ The 102 rows in your two tabs come down to 83 unique agents: on your one-pager's
 - **No roster or owners.** Owners show as [Owner]. Tell me who works each tier, or upload a roster with roles, and I'll assign them.
 - **Files disagree.** Your list has Dev Tansymuffin at Pinecrest Example Homes; the MLS report shows Copperleaf Example Real Estate. Your list's Approx Units differ from the MLS for several agents (Pip Lanternpuddle "5" against 55 MLS sides). The MLS numbers are used; your list's numbers are shown in the CSV and never used to tier.
 - **Notes left out.** 22 rows in Our List have notes. 1 row matches personal-detail keywords (kinds: family or familial status, personal finances). No note was read into tiers, signals, drafts or the CSV. Consider removing personal details from your list.
-- **State rules.** Your one-pager's address is in North Carolina, and the contacts' area codes are North Carolina numbers. North Carolina's texting and telemarketing rules were not checked: confirm with your broker.
+- **State rules.** Your one-pager's address is in North Carolina. North Carolina's texting and telemarketing rules were not checked: confirm with your broker.
 - **Placeholders:** [Agent Name], [Agent First and Last Name], [Title], [Agent Phone], [Unsubscribe Link], [Day and Time], [Owner], and the meeting placeholders in the follow-up email.
 
 ## What Was Merged
@@ -138,7 +138,7 @@ To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link].
 
 **Text:** The only contact in this tier with documented consent is R007 Marisol Quillpocket, and you already have coffee with her on Tuesday, so no first-touch text is needed here.
 
-### Building (0 to 11 sides): 48 agents (R020 Dev Crumpetnook held)
+### Building (0 to 11 sides): 49 agents (R020 Dev Crumpetnook held from drafts)
 
 **Angle:** support on every deal. 119 listing and 141 buyer sides; your Building level gives team buyer leads after a 30-day training track, weekly one-on-one coaching, a transaction coordinator on every deal and a shared showing assistant.
 

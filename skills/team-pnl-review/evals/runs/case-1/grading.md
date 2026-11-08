@@ -1,0 +1,50 @@
+# Grading: Case 1, Mixed Gross and Net Recording (and the No-Skill Baseline)
+
+Run: SKILL.md followed as written. The code was extracted from references/analysis-code.md and run on evals/files/case1/gingersnap-pnl-by-month-jan-jun-2026.xlsx with --production evals/files/case1/sisu-transactions-download-jan-jun-2026.csv. Analysis files: files/pnl_report.md, files/pnl_report.json, files/pnl_accounts.csv. Output: output.md. Baseline: baseline.md, the same prompt and files answered without SKILL.md or the references.
+
+Result: 11 of 11 expectations pass; every applicable objective check passes. The baseline passes 0 of 11.
+
+## Expectations
+
+| # | Expectation | Skill | Baseline | Evidence |
+|---|---|---|---|---|
+| 1 | Figures from the code; totals check passes for all six months | Pass | Fail | Skill: What I Used, "Totals check: passed." Baseline: computed in pandas but never checked the accounts against the report's totals |
+| 2 | Before any ratio, April is named as recorded net; the other five months gross | Pass | Fail | Skill: How Revenue Is Recorded comes before Company Dollar and names April and the five gross months. Baseline: reads April as "commission splits were never recorded" |
+| 3 | Production file shows April income = team's share 63,691.41, not GCI 147,457.50 | Pass | Fail | Skill: "April's P&L commission income of 63,691.41 matches the team's share in the production file, not April's GCI of 147,457.50," plus the April components from the run. Baseline: only a period-level gap ("about $76,566 lower than Sisu GCI") |
+| 4 | Says what still compares and what doesn't; ratios on gross commission leave April out | Pass | Fail | Skill: "Still compares across all six months: company dollar, net income and margin on company dollar"; company dollar share of gross commission uses "gross months only." Baseline: gross margin 100.0% and net margin 28.8% for April, a 43.2% blended gross margin |
+| 5 | Nothing treats April's lower commission income as a drop in business | Pass | Fail | Skill: "April's commission income is not a drop in business." Baseline: "Revenue dropped to $64,891, less than half of March" |
+| 6 | Company dollar and margin by month and period, with arithmetic | Pass | Fail | Skill: seven arithmetic lines and the table. Baseline: no company dollar |
+| 7 | Expense mix as a share of company dollar, with arithmetic | Pass | Fail | Skill: Expense Mix table, e.g. "150,028.50 / 306,184.84 = 49.0%." Baseline: none |
+| 8 | Cost per closing from the 56 closings, with arithmetic | Pass | Fail | Skill: "Operating expenses per closing = 274,678.55 / 56 = 4,904.97" and four more lines. Baseline: $12,257 per closing, which counts agent splits as a cost of running the team |
+| 9 | Bookkeeper asked about April and to restate it; decision is one recording method and restate April | Pass | Fail | Skill: Question 1 and the bottom line's decision. Baseline: asks the bookkeeper to "record April's missing commission splits," which would double-count them if April was recorded net |
+| 10 | Owner brief and Title Case bookkeeper email; no client name anywhere | Pass | Fail | Skill: both drafted; subject "Questions On The January To June P&L"; objective check found no client name. Baseline: a partner summary, no email |
+| 11 | Check Before Sending traces the drafts' numbers to the run | Pass | Fail | Skill: 13-row table with the run section for each. Baseline: none |
+
+## Objective Checks (skill run)
+
+Script: `python3 -I evals/make/objective_checks.py evals/runs/case-1 [both input files] --prompt "[prompt]"`
+
+| Check | Result |
+|---|---|
+| Every number in the output appears in the inputs or the run's analysis output | Pass: 387 numbers, none untraced |
+| Deadlines match the uploaded contract | Not applicable (no contract) |
+| No em or en dashes | Pass: 0 |
+| Title Case subject lines | Pass: 1 of 1 |
+| Check Before Sending section | Pass |
+| No cost estimates without bids | Pass: no estimates of any kind; every figure is from the run |
+| No agent-only MLS fields in client-facing text | Not applicable (no MLS data) |
+| No protected-class language | Pass: none |
+| No wire or account details | Pass: none |
+| No client, agent or employee names | Pass: none of the 63 names in the Sisu file |
+| No benchmark language | Pass |
+| Bottom line three sentences or fewer | Pass: 3 |
+
+## What the Skill Adds Over the Baseline
+
+The baseline found the odd month but read it backwards: it decided April's splits were missing, told the owner April's profit was "overstated by tens of thousands of dollars" (an estimate from an assumed split rate), and told the bookkeeper to add splits that the production file shows were already netted out. It reported April as the best month by margin (28.8% net, 100% gross), blended net and gross months into a 43.2% gross margin, counted agent splits in cost per closing ($12,257), compared the team to "industry norms" it never named, and suggested the owner look at whether staffing is "right-sized," a decision about people. It had no email, no Check Before Sending and no arithmetic a bookkeeper could follow. The skill caught the net month, proved it with the production file, kept every ratio on company dollar so April compares, and asked the right person the right question.
+
+## Failures Found and Fixed
+
+None on this case's expectations. Two fixes made while building it apply here:
+- The first fixture had made-up margins above 50% of company dollar, unlike real team P&Ls; payroll, lead spend and rent were raised in the generator so the run reads like a working team (12.6% for the period).
+- A client surname in the generator ("Gingersnap") matched the team's name and tripped the names check; the generator now uses another made-up surname. The analysis code was unchanged.

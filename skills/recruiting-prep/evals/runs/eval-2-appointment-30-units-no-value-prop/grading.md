@@ -45,3 +45,10 @@ Tool: `python3 -I evals/make/objective_checks.py evals/runs/eval-2-appointment-3
 ## Baseline Notes
 
 Without the skill, the answer was useful on the profile and talking points but did exactly what the skill exists to prevent: it built an earnings projection from an assumed 2.5% commission and an invented 70/30 comparison, told the leader to print it for the candidate, invented team services and a testimonial, and drafted a follow-up email with no opt-out line, postal address or recruiting footer that repeated the candidate's production and an earnings claim. (The baseline file contains no dashes because no file in this repo may; the dash check is not meaningful for it.)
+
+## Reviewer Changes (2026-11-08)
+
+- The Independence answer opened with "Most agents at your level feel that way," a generalization about agents that no input supports. It now reads "That makes sense; it's your business." references/appointment-mode.md now says the acknowledgment speaks to this candidate only.
+- The general-guidance bands in references/appointment-mode.md lost their names ("Established (16 to 30)" is now "16 to 30 sides") so they can't be mistaken for a team's own level names. This output's "an established agent around 16 to 30 sides a year" is still accurate.
+- The PDF now carries "PRACTICE FILE: made-up example" on every page instead of "TEST FILE"; its text is otherwise identical.
+- Objective checks rerun: problems none. Untraced by the script: 16 (the "16 to 30 sides" general-guidance band, from the reference, labeled general) and the computed figures shown with their math.

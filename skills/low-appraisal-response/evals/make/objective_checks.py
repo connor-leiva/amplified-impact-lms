@@ -87,13 +87,13 @@ protected = [p for p in ["families", "family", "kids", "children", "church", "re
              if re.search(r"\b" + p, text_wo_rooms, re.I)]
 check("No protected-class language", not protected, ", ".join(protected))
 
-typical = re.findall(r"[^.\n]*\b(typically costs?|usually costs?|typical cost|runs about|ballpark)\b[^.\n]*", out, re.I)
+typical = [m.group(0) for m in re.finditer(r"[^.\n]*\b(typically costs?|usually costs?|typical cost|runs about|ballpark)\b[^.\n]*", out, re.I)]
 check("No cost estimates without bids (phrasing)", not typical, " | ".join(typical))
 
-blame = re.findall(r"[^.\n]*\b(bad comps?|careless|sloppy|incompetent|lazy|biased appraiser|wrong appraiser)\b[^.\n]*", out, re.I)
+blame = [m.group(0) for m in re.finditer(r"[^.\n]*\b(bad comps?|careless|sloppy|incompetent|lazy|biased appraiser|wrong appraiser)\b[^.\n]*", out, re.I)]
 check("No criticism of the appraiser", not blame, " | ".join(blame))
 
-promise = re.findall(r"[^.\n]*\b(will (?:raise|increase|change) the value|guarantee[sd]?|value will come in)\b[^.\n]*", out, re.I)
+promise = [m.group(0) for m in re.finditer(r"[^.\n]*\b(will (?:raise|increase|change) the value|guarantee[sd]?|value will come in)\b[^.\n]*", out, re.I)]
 promise = [p for p in promise if not re.search(r"\b(no|not|never|can't|cannot|won't)\b", p, re.I)]
 check("No promise of a value change", not promise, " | ".join(promise))
 

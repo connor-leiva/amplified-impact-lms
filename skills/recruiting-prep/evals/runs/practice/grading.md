@@ -43,3 +43,11 @@ Tool: `python3 -I evals/make/objective_checks.py evals/runs/practice "practice/P
 2. The state line said the phone numbers "are in North Carolina," an inference from area codes. It now cites the one-pager's NC address.
 3. Terms As Written added, quoting the one-pager's split, cap and fee section and its revenue share line, word for word.
 4. The Building heading said "48 agents," a number made by subtracting the held agent. It now says 49, with R020 held from drafts.
+
+## Reviewer Changes (2026-11-08)
+
+- **Not tiered:** this run told the user to reuse the Building or Growing draft and to send Flo Noodlebloom the Building text, which assigns a level to agents with no production data. The skill now says these groups share one email built only from what the team's document says applies to every agent. output.md and sample.md now have a "How We Work At Harborlight" email from the one-pager's How We Work section and a matching text to R074. Check 12 now covers 5 emails and 2 texts.
+- **Invented sender line:** the Established email said "I talk with a few established agents each quarter." Replaced with "I'd like to hear what you want the next stage of your business to look like."
+- **Results objection:** the suggestion to introduce Marisol to a team agent now adds that the agent should not quote income, earnings or results.
+- Objective checks rerun after the edits: problems none; untraced only the profile math shown in the output.
+- An independent reviewer run is in review-output.md and review-grading.md: 12 of 12.

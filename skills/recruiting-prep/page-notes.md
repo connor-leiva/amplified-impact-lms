@@ -62,7 +62,7 @@ Team leaders, recruiting directors, recruiters and appointment setters on real e
 
 - **Run:** reads and merges every file, de-duplicates, does the production math in code, tiers, finds the signals in the data, and sorts text consent.
 - **Draft:** the angles, first-touch emails and consent-only texts, the discovery questions, objection answers and the follow-up email, for you to review.
-- **Own:** who to recruit and who calls them, any offer, every split, cap or fee, texting consent and the Do Not Call scrub, the MLS rules check, and the fair treatment review of anything that goes out.
+- **Own:** who to recruit and who calls them, any offer, every split, cap or fee, any banking or payment detail (the skill never asks for or repeats one), texting consent and the Do Not Call scrub, the MLS rules check, and the fair treatment review of anything that goes out.
 
 ## FAQs
 
@@ -94,6 +94,7 @@ Tested (evals/runs, graded in each grading.md):
 - A GoHighLevel export with a notes column of personal details, a request to use them, team tiers and Florida contacts: 10 of 10 after one fix round.
 - The practice files, both modes in one request: 12 of 12; kept as sample.md.
 - The shipped list code on edge cases outside the cases: first and last name in separate columns, a totals row, an office phone shared by five agents, an "LLC" office name, a list too small for default tiers.
+- An independent review on 2026-11-08 reran the GoHighLevel case (10 of 10) and the practice files (12 of 12) from the skill alone and got the same counts. It tightened two things the runs disagreed on: drafts now say nothing about the sender or team that the files don't, and agents with no production data share one email built from what the team's document says applies to everyone.
 
 Not tested:
 - A real MLS agent production report, BrokerMetrics export, Sisu recruits download or GoHighLevel export. Their exact column headers weren't available; the code maps columns by meaning and reports what it mapped, and should be checked against one real export from a Forum member before release.

@@ -1,0 +1,8 @@
+{
+  "name": "offer-comparison",
+  "page": "offer-comparison",
+  "title": "Offer Comparison",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["utah-repc.md", "utah-repc-2026.md", "utah-forms-and-counters.md", "buyer-agreements.md"]
+}

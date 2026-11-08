@@ -176,7 +176,7 @@ An angle is the one reason this tier might want a conversation. Build it from th
 
 Without a team document, label the angle "General suggestion; replace with your team's offer," and keep the draft's offer line as a placeholder.
 
-**No closings in period and Not tiered** (no production row, so no level): write one shared email for these groups that uses only what the team's document says applies to every agent (how the team works, its schedule, what stays the agent's), or a general suggestion with "[your offer]" when there is no document. Never pick a level's offer for someone with no production data. Tell the user to check their production in the MLS before moving them to a tier. A text goes only to the contacts in these groups with documented consent, listed by ID.
+**No closings in period and Not tiered** (zero sides in the period, or no production row at all, so no level fits; with the team's own tiers, use them as written, even when a level starts at 0): write one shared email for these groups that uses only what the team's document says applies to every agent (how the team works, its schedule, what stays the agent's), or a general suggestion with "[your offer]" when there is no document. Never pick a level's offer for someone with no production data. Tell the user to check their production in the MLS before moving them to a tier. A text goes only to the contacts in these groups with documented consent, listed by ID.
 
 Never build an angle on a production drop, a personal detail, a note, age, family or any personal trait. Never criticize the recipient's current brokerage, even indirectly ("tired of being ignored by your broker?").
 

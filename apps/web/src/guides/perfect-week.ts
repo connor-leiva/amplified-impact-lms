@@ -22,7 +22,8 @@
 //     import (SKILL.md step 8, references/calendar-build.md). It never promises the build on Free.
 //   - No direct link to Customize > Connectors: no source checked one, so that step has no button.
 //
-// `setupMinutes` is an estimate from the steps (page-notes gives none). The export click paths are
+// `setupMinutes` is an estimate (page-notes gives none): 10, as on the other skill pages with a practice
+// step, since this one adds a connector step. The export click paths are
 // page-notes.md's, each from the vendor's help center (checked 2026-11-08); Asana's menu labels could
 // not be checked, so the page says to look in Asana's help center.
 //
@@ -47,7 +48,7 @@ export const PERFECT_WEEK: Guide = skillPage({
   outcome: { n: '03', title: 'Get a Week That Fits', body: 'Inside your hours, with a summary for your manager.' },
   optInBody:
     'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. Claude plans first, never invites anyone, and never touches meetings with other people.',
-  setupMinutes: 5,
+  setupMinutes: 10,
 
   practice: {
     // page-notes.md, "Practice Prompt", word for word (curly apostrophes, as on every page).
@@ -55,7 +56,7 @@ export const PERFECT_WEEK: Guide = skillPage({
       'Plan my perfect week. I’m a team leader and I’m behind on everything. Nothing is connected here; my Google Calendar export and my ClickUp export are attached. I work 8 to 5 Mountain, Monday to Friday, and I’m out by 3:30 on Thursdays for school pickup. Lunch at noon, 30 minutes. No evenings or weekends for project work; listing appointments and the odd open house are client time. Morgan, my ops manager, can take about 4 hours a week. Tatum runs our transactions. Plan through December 18; I’m off November 26 and 27. Pat (the owner) wants me at about 5 hours a week on recruiting, and the Monday huddle and Tuesday team meeting stay. Go straight through to the summary for Pat; I’ll look before anything goes on my calendar.',
     // page-notes.md: the .txt rename is the fallback, since Claude's upload list doesn't name .ics.
     note: [
-      'Every name, address and date in them is made up. If Claude won’t take the .ics file, rename it so its name ends in .txt and attach it again. Already connected Google Calendar? Switch it off for this chat (',
+      'Every name, address and meeting in them is made up. If Claude won’t take the .ics file, rename it so its name ends in .txt and attach it again. Already connected Google Calendar to Claude? Turn it off in this chat (',
       { strong: '+' },
       ', then ',
       { strong: 'Connectors' },
@@ -69,7 +70,7 @@ export const PERFECT_WEEK: Guide = skillPage({
     {
       title: 'Connect Google Calendar',
       body: [
-        'Optional. A connector links Claude to another app. To have Claude add the blocks to your calendar for you, click ',
+        'Optional. A connector links Claude to another app. To have Claude add your plan’s time blocks to Google Calendar for you, click ',
         { strong: 'Customize' },
         ' on the left side of Claude, then ',
         { strong: 'Connectors' },
@@ -80,7 +81,7 @@ export const PERFECT_WEEK: Guide = skillPage({
         ', and sign in to Google.',
       ],
       note: [
-        'Anthropic’s own pages differ on which plans have this connector and on whether it can add events. If you can’t connect it, or it can only read your calendar, Claude gives you the plan and a calendar file to import instead. Everything before this step works with no connector at all. On a Team or Enterprise plan, an owner adds the connector first.',
+        'Anthropic’s own pages differ on which plans have this connector and on whether it can add events. If you can’t connect it, or it can only read your calendar, Claude still gives you the whole plan and can make you a calendar file to import instead. The planning itself needs no connector at all. On a Team or Enterprise plan, an owner adds the connector first.',
       ],
     },
   ],
@@ -92,11 +93,11 @@ export const PERFECT_WEEK: Guide = skillPage({
     prompt: 'Plan my perfect week.',
     // SKILL.md step 1 (intake first), the per-chat switch for a connector, and step 7's check list.
     note: [
-      'Connected Google Calendar? Switch it on for the chat instead (',
+      'Connected Google Calendar in the step above? Turn it on in the new chat (',
       { strong: '+' },
       ', then ',
       { strong: 'Connectors' },
-      ') and attach just your task list. Claude asks a few questions first, like your hours and your end date. Before your summary goes to your manager, check every date, hour total, name and ask in the ',
+      ') instead of attaching a calendar file, and attach just your task list. Claude asks a few questions first, like your hours and your end date. Before your summary goes to your manager, check every date, hour total, name and ask in the ',
       { strong: 'Check before sending' },
       ' list.',
     ],
@@ -107,14 +108,16 @@ export const PERFECT_WEEK: Guide = skillPage({
       // sample.md (the practice run, 12 of 12 expectations), shortened, in the output's own order and
       // its own words, cut only by whole items and sentences: the bottom line, two days of the week, the
       // hours table, the holds and three flags, the task check with its weekly table and three of its six
-      // moves (labeled so), the summary for Pat in full, one check line, and Before the calendar. Left
-      // out: What I read, the task-by-task table, the projects table and the hand-offs section.
+      // moves (labeled so), the summary for Pat in full, one check line, and Before the calendar with
+      // its scope ("What would be added", which its first way forward points to as "the scope below").
+      // Left out: What I read, the task-by-task table, the projects table, the hand-offs section, and
+      // Before the calendar's "What would change to fit" and "Decisions for you first".
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a plan looks like',
-      body: 'What Claude wrote from the practice files: a made-up team leader named Jordan, with a made-up calendar and task list. Nothing was connected, and nothing went on a calendar. They’re the same files you practise on in setup.',
+      body: 'What Claude wrote from the practice files: a made-up team leader named Jordan, with a made-up calendar and task list. They’re the same files you practise on in setup. Nothing was connected, and nothing went on a calendar.',
       title: 'Jordan’s Perfect Week: Plan Through December 18',
-      note: 'Made-up example. Shortened: a few lines from each step, and the summary for Pat in full.',
+      note: 'Made-up example. Shortened: a few lines from most parts, and the summary for Pat in full.',
       blocks: [
         { h: 'Bottom line' },
         {
@@ -280,6 +283,12 @@ export const PERFECT_WEEK: Guide = skillPage({
         },
         {
           p: [
+            { strong: 'What would be added (Nov 9 through Dec 18, skipping Nov 26 and 27):' },
+            ' the daily rituals and lunch as repeating series; the focus blocks (Leadership project, Recruiting, Your listings, Operations and finance, Marketing) and the prep blocks before the huddle, team meeting, 1:1s and ops sync; Hold: 1:1 Quinn Notreal and Hold: 1:1 Drew Fakely every other week; and one single block, the 45 Sample Street listing prep on Mon Nov 9 at 1:00. Open time and breaks stay empty on purpose.',
+          ],
+        },
+        {
+          p: [
             { strong: 'What stays exactly as it is:' },
             ' every meeting with other people, your own named blocks, the gym, your personal appointments, the contract deadlines, and your “Focus time” placeholder unless you ask me to clear it.',
           ],
@@ -308,11 +317,11 @@ export const PERFECT_WEEK: Guide = skillPage({
         },
         {
           title: 'Your perfect week, on a plan page',
-          body: 'A weekly template inside your hours, on one plan page Claude adds to at each step: a short launch and shutdown each day, lunch, focus blocks that each have a specific job, prep right before the meeting it feeds, and about an hour a day left open. Week A and Week B if your 1:1s alternate, with the hours added up by area. Double-bookings and meetings outside your hours are flagged, never moved.',
+          body: 'A weekly template inside your hours, on one plan page (a page you open from the chat) that Claude adds to at each step: a short launch and shutdown each day, lunch, focus blocks that each have a specific job, prep right before the meeting it feeds, and about an hour a day left open. Week A and Week B if your 1:1s alternate, with the hours added up by area. Double-bookings and meetings outside your hours are flagged, never moved.',
         },
         {
           title: 'A task check',
-          body: 'Every task gets a place, an action (do it, hand it off, re-date it or park it) and hours. Then the hours you need against the hours your blocks give, week by week, with any gap shown plainly. Contract file work goes back to your transactions team.',
+          body: 'Every task gets a place, an action (like do it, hand it off, re-date it or park it) and hours. Then the hours you need against the hours your blocks give, week by week, with any gap shown plainly. Contract file work goes back to your transactions team.',
         },
         {
           title: 'Projects through your end date',
@@ -351,7 +360,7 @@ export const PERFECT_WEEK: Guide = skillPage({
         {
           label: 'Own',
           title: 'Always yours',
-          body: 'What you take on, hand off, re-date or drop, and who takes what. Every conversation with your manager, team and clients. Claude never invites anyone, and never moves or answers a meeting with other people on it.',
+          body: 'What you take on, hand off, re-date or drop, and who takes what. Every conversation with your manager, team and clients. Claude never invites anyone, and never changes, moves or answers a meeting with other people on it. Pay, commission, wire details and account numbers stay out of the summary and your calendar.',
         },
       ],
     },
@@ -360,7 +369,7 @@ export const PERFECT_WEEK: Guide = skillPage({
       // docs each say them; the connector as page-notes.md says the page should put it.
       kind: 'tiles',
       heading: 'What you need',
-      note: 'About 5 minutes to set up',
+      note: 'About 10 minutes to set up',
       cta: true,
       columns: 2,
       items: [
@@ -370,8 +379,8 @@ export const PERFECT_WEEK: Guide = skillPage({
           tag: 'Team or Enterprise: an owner turns them on',
         },
         {
-          title: 'A computer, once',
-          body: 'To set it up on claude.ai or the Claude desktop app, and to export your calendar. Google Calendar’s phone app can’t export.',
+          title: 'A computer',
+          body: 'To set it up on claude.ai or in the Claude desktop app, and to export your calendar each time you plan from a file. Google Calendar’s phone app can’t export.',
         },
         {
           title: 'Your calendar and task list',
@@ -380,17 +389,17 @@ export const PERFECT_WEEK: Guide = skillPage({
         },
         {
           title: 'Google Calendar, to build the week',
-          body: 'A connector links Claude to another app. To have Claude add the blocks to your calendar, connect Google Calendar. Anthropic’s pages differ on which plans have it and whether it can add events. Without it, Claude gives you a calendar file to import.',
+          body: 'Optional. A connector links Claude to another app. To have Claude add your plan’s time blocks to your calendar, connect Google Calendar. Anthropic’s pages differ on which plans have it and whether it can add events. If you can’t connect it, Claude can make you a calendar file to import.',
           tag: 'Team or Enterprise: an owner adds it first',
         },
         {
           title: 'Optional connectors',
-          body: 'With the ClickUp or Asana connector, Claude can read your tasks instead of a file. With Granola, Claude reads your recent meeting notes for standing 1:1s and promises you made. We haven’t tested these yet.',
+          body: 'With the ClickUp or Asana connector, Claude can read your tasks instead of a file. With Granola, a meeting notes app, Claude reads your recent meeting notes for standing 1:1s and promises you made. We haven’t tested these yet.',
           tag: 'Granola transcripts need a paid Granola plan',
         },
         {
           title: 'No extra cost',
-          body: 'Nothing beyond your Claude plan, and no other accounts to make.',
+          body: 'Nothing beyond your Claude plan, and no other accounts to make. One limit: ClickUp’s Free Forever and Unlimited plans allow five exports in all.',
         },
       ],
     },
@@ -402,15 +411,15 @@ export const PERFECT_WEEK: Guide = skillPage({
       items: [
         {
           title: 'Google Calendar',
-          body: 'On a computer, under My calendars on the left, point to your calendar and click More, then Settings and sharing, then Export calendar. One .ics file downloads. The phone app can’t do this, and a work account’s admin can turn exporting off.',
+          body: 'On a computer, open Google Calendar. Under My calendars on the left, point to your calendar and click More, then Settings and sharing, then Export calendar. One .ics file downloads. The phone app can’t do this, and a work account’s admin can turn exporting off.',
         },
         {
           title: 'Outlook',
-          body: 'In classic Outlook for Microsoft 365, open your calendar, then click File, Save Calendar, More Options. Set the dates from today through the end of your plan, then click OK and Save.',
+          body: 'In classic Outlook for Microsoft 365, open your calendar, then click File, Save Calendar, More Options. Set Date Range to run from today through the end of your plan, then click OK and Save.',
         },
         {
           title: 'ClickUp',
-          body: 'In your List or Table view, click Customize (upper right), then Export, All columns, CSV, Download. Set Subtasks to “As separate tasks” first. The Free Forever and Unlimited plans allow five exports in all, and Core only a trial.',
+          body: 'In your List or Table view, first set Subtasks to “As separate tasks” and open any collapsed groups. Then click Customize (upper right), then Export, All columns, CSV, Download. ClickUp’s Free Forever and Unlimited plans allow five exports in all, and its Core plan only a trial.',
         },
         {
           title: 'Todoist',
@@ -452,6 +461,11 @@ export const PERFECT_WEEK: Guide = skillPage({
           label: 'After you’ve read the plan, with Google Calendar connected',
           items: ['Looks good. Build it in my Google Calendar.'],
         },
+        {
+          // SKILL.md step 8 and references/calendar-build.md: the import file, after the same clear yes.
+          label: 'After you’ve read the plan, with no connector',
+          items: ['Looks good. Make me a calendar file I can import.'],
+        },
       ],
     },
     {
@@ -462,7 +476,7 @@ export const PERFECT_WEEK: Guide = skillPage({
           // SKILL.md step 8's three rules; page-notes.md FAQ 1 and 4, "What It Won't Do".
           q: 'Will Claude invite anyone or change my meetings?',
           a: [
-            'No. Claude never adds guests, and every change it makes goes out with notifications off, so nobody gets an email. It never moves, edits, deletes or answers a meeting with other people on it, including showings and listing appointments with clients. A new meeting the plan needs, like a 1:1, goes on as a hold that says no invite went out, and you invite people when you’re ready. Your own events stay unless you say otherwise.',
+            'No. Claude never adds guests, and every change it makes goes out with notifications off, so nobody gets an email. Claude never moves, edits, deletes or answers a meeting with other people on it, including showings and listing appointments with clients. A new meeting the plan needs, like a 1:1, goes on as a hold that says no invite went out, and you invite people when you’re ready. Your own events stay unless you say otherwise.',
           ],
         },
         {
@@ -470,7 +484,7 @@ export const PERFECT_WEEK: Guide = skillPage({
           // and for the connector. Free is untested. No build promised on Free.
           q: 'Do I need a paid plan?',
           a: [
-            'Claude’s help center lists skills on every plan, Free included. Claude’s developer docs list them on Pro and up, so if your Free account shows no way to add a skill, that’s why. Anthropic’s pages also differ on which plans have the Google Calendar connector. We haven’t tested this skill on Free. On any plan where the skill works, the planning runs from your exported files with no connector, and you get a calendar file to import.',
+            'Maybe. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. Anthropic’s pages also differ on which plans have the Google Calendar connector, and on whether it can add events. We haven’t tested this skill on Free. Wherever the skill works, Claude plans from your exported files with no connector, and can make you a calendar file to import.',
           ],
         },
         {
@@ -478,7 +492,7 @@ export const PERFECT_WEEK: Guide = skillPage({
           // Importing the file is untested.
           q: 'What if I can’t connect Google Calendar, or I use Outlook?',
           a: [
-            'You still get the whole plan from your exported calendar. After you say yes to the blocks, Claude makes a calendar file (.ics) of them. You import it into a new calendar of its own, so deleting that one calendar removes them all. Outlook.com and Outlook on the web can import it too: ',
+            'You still get the whole plan from your exported calendar. After you say yes to the blocks, Claude can make a calendar file (.ics) of them and tells you how to import it into a new calendar of its own, so deleting that one calendar removes them all. Outlook.com and Outlook on the web can import it too: ',
             { strong: 'Calendar, Add calendar, Upload from file' },
             '. Claude doesn’t add blocks to Outlook directly. We haven’t tested importing the file yet.',
           ],
@@ -494,14 +508,14 @@ export const PERFECT_WEEK: Guide = skillPage({
           // page-notes.md FAQ 5; SKILL.md step 8 (the closing tag, every event ID recorded).
           q: 'Can I undo it?',
           a: [
-            'Yes. Every block Claude adds says “From your plan” in its description, with the date Claude added it, so the set is easy to find. In the chat where the blocks were built, Claude has every event’s ID and can remove the whole set in one pass, with notifications off. An imported file goes into its own calendar, which you can delete in Google Calendar’s settings.',
+            'Yes. Every block Claude adds says “From your plan” in its description, with the date Claude added it, so the set is easy to find. In the chat where the blocks were built, Claude keeps a list of every block it added and can remove the whole set in one pass, with notifications off. Removing a repeating block removes its past dates too. If you imported a calendar file into its own calendar, delete that calendar in Google Calendar’s settings.',
           ],
         },
         {
           // page-notes.md, "What It Won't Do"; SKILL.md guardrails.
           q: 'What won’t Perfect Week do?',
           a: [
-            'Claude never sends email or invites, and won’t change your task tool or CRM unless you ask. It won’t fill your evenings or weekends unless you offer specific ones, with a cap. If the work doesn’t fit your hours, Claude says so and helps you take it to your manager. Contract deadlines are shown for planning only: your transactions team owns them. A prospecting block protects the time, and the call list stays in Follow Up Boss or your CRM. Claude makes no promise that a better week brings more closings or income.',
+            'Claude never sends email or invites, and won’t change your task tool or CRM unless you ask. Claude won’t fill your evenings or weekends unless you offer specific ones, with a cap. If the work doesn’t fit your hours, Claude says so and helps you raise it with your manager. Contract deadlines are shown for planning only: your transactions team owns them. A prospecting block protects the time, and the call list stays in Follow Up Boss or your CRM. Claude makes no promise that a better week brings more closings or income.',
           ],
         },
       ],
