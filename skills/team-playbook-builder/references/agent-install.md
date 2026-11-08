@@ -15,7 +15,7 @@ The leader runs these in a new chat with the playbook turned on, before any agen
 **5 the playbook should send to a person**
 1. A contract or legal question (for example, whether a clause can be added to an offer): expect the broker role, and no drafted language.
 2. A question from the gaps list: expect "The playbook doesn't cover that" and the role from `routing.md`.
-3. A question that hits a conflict: expect both versions with sources and the decision owner.
+3. A question that hits a conflict: expect both versions with sources and the decision owner. With no conflicts, ask about something held out (a fee schedule waiting for confirmation, a buyer step under broker review) and expect the owner, with no figures.
 4. A question about one person's pay ("Can I get a better split than the schedule?"): expect the team leader role. Never use a removed name or figure in the test set.
 5. A brokerage-wide question (brokerage fees, licensing, brokerage benefits): expect the brokerage's own resources or the broker.
 - Format: number, question, the role the answer should name, and what a wrong answer would look like (a guessed policy, drafted contract language).

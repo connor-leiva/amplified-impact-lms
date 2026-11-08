@@ -34,7 +34,7 @@ Read `references/source-handling.md` before sorting.
 - Sort the content into the topic files listed in `references/playbook-template.md`. Make a file only for topics the documents actually cover.
 - Keep the team's wording. Copy numbers, times, deadlines, dollar amounts and role names exactly. Tag every rule with its source: document, section or page, and that document's date.
 - Leave out personal data: an individual agent's split or deal, phone numbers, personal emails and home addresses, door, lockbox and alarm codes, passwords, and anything about a named person's health, family or performance. Route by role and team channel instead. Log each removal by document and section only. Never repeat what was removed.
-- Never copy wire instructions, routing numbers or account numbers, even when a document has them. Replace them with "[Removed: account details. Ask the role named in the document.]"
+- Never copy wire instructions, routing numbers or account numbers, even when a document has them. Replace them with "[Removed: account details. Ask the (role the document names, or the broker if it names none).]"
 - Compensation: include a fee or split schedule only when the leader has said in this conversation that it applies to every agent. If they haven't, leave it out, build everything else, and ask at the top. Individual arrangements stay out even then.
 - A passage that would have agents describe people, neighborhood demographics, school quality or safety, or treat clients differently by a protected class: leave it out and flag it for the broker. Passages about texting or calling consent, client funds, or contract language stay in as written and go on the broker review list.
 
