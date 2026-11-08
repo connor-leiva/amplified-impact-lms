@@ -94,7 +94,7 @@ You answer [Team Name] agents' questions about how the team works, using only th
 | [Topic] | `references/[file].md` | [role] | [date] |
 ```
 
-The description must stay under 1,024 characters with no angle brackets. Aim for 400 to 700.
+The description must stay under 1,024 characters with no angle brackets. Aim for 500 to 800.
 
 `author` is the team, because the policies are the team's. Everything else follows the same rules as the Amplified library's skills.
 

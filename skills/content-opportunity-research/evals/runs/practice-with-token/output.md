@@ -20,7 +20,7 @@ Only 4 this week because the listing tour (PRACTICE_BIRCH_B2) has no transcript 
 
 ### 1. The first question I ask a seller now
 - **Evidence:** @example_coach_alder https://www.instagram.com/reel/PRACTICE_ALDER_A1/, views 18,400 = 3.47x their median of 5,304 (strong, 23 posts), collected 2026-11-06.
-- **What the source did:** hook as said: "I stopped asking sellers what they think their house is worth." Argument: names an opener most listing agents use, says it puts a number in the room before any comps, then swaps in a goal question so the price talk is about the seller's goal. Why it may have worked (hypothesis): the hook confesses a habit the viewer likely shares, it is 41 seconds long, and it ends with a direct "try it at your next one" that gives viewers something to do.
+- **What the source did:** hook as said: "I stopped asking sellers what they think their house is worth." Argument: names an opener most listing agents use, says it anchors the seller on a price before any comps are shown, then swaps in a question about what a good outcome looks like, so the price talk starts from the seller's goal. Why it may have worked (hypothesis): the hook confesses a habit the viewer likely shares, it is 41 seconds long, and it ends with a direct "try it at your next one" that gives viewers something to do.
 - **Talking-head premise:** Rory tells the opener he used at listing appointments, what it did to the price conversation, and the question he asks first now, using one real appointment where it changed things. Passes the competitor test because it rests on Rory's own before-and-after and his own question, which no one on the watchlist has.
 - **Proof needed from your business:**
   [NEED: the opener you used to use, word for word]
