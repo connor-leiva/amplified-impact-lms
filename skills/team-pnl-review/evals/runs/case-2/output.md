@@ -1,6 +1,6 @@
 # Team P&L Review: Marmalade Key Team, January to September 2026
 
-**Bottom line:** The team kept $6,606 in net income for January to September, a 3.3% margin on company dollar, and lost $3,293 in September, because operating expenses took 98.7% of company dollar. The biggest change in September was company dollar, down 3,527.87 from August, and the detail shows a likely duplicate CRM charge, a new dialer subscription and a lead vendor charge filed as office supplies. The one decision: keep or cancel Pinecone Dialer (349.00 a month since July 2026).
+**Bottom line:** The team kept $6,606 in net income for January to September, a 3.3% margin on company dollar (operating expenses took 98.7% of it), and lost $3,293 in September. The biggest change in September was company dollar, down 3,527.87 from August, and the detail shows a likely duplicate CRM charge, a new dialer subscription and a lead vendor charge filed as office supplies. The one decision: keep or cancel Pinecone Dialer (349.00 a month since July 2026).
 
 ## What I Used
 

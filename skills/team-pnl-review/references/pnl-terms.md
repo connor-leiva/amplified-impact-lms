@@ -77,7 +77,7 @@ These definitions explain the numbers; they don't change them. Brokerages, coach
 ## Owner Pay
 
 - How an owner is paid (draws, distributions, guaranteed payments, or salary through payroll) depends on how the business is set up for tax; the IRS says "the procedures for compensating yourself for your efforts in carrying on a trade or business will depend on the type of business structure you elect." [12]
-- So "profit" on one team's P&L may be before owner pay and on another's after it. When a draw or distribution line appears among expenses, the skill shows net income both as reported and before that line, and asks the CPA how owner pay should be recorded.
+- So "profit" on one team's P&L may be before owner pay and on another's after it. When a draw, distribution or guaranteed payment line appears among expenses, the skill shows net income both as reported and before that line, asks the bookkeeper only whether the line holds owner pay and nothing else, and asks the CPA how owner pay should be recorded. It never suggests where the line belongs.
 
 ## Cost per Closing and Lead Source Return
 

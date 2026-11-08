@@ -113,7 +113,7 @@ Charge-level checks (duplicate charges, new vendors, a charge in the wrong accou
 
 ## Questions for the Bookkeeper
 
-1. 6500 Owner's Draw (60,000.00 this period) is posted as an expense. Should it sit in an equity account instead? I'm also asking the CPA how owner pay should be recorded.
+1. 6500 Owner's Draw (60,000.00 this period) is posted as an expense. Does it hold only owner pay, with no other payments mixed in? I'm asking the CPA how owner pay should be recorded, so no change until then.
 2. What was the extra 4,750.30 in Print & Signs in September? One-time, or a new normal?
 3. Can you send a closed-deal list for January to October (or tell me which report in our system has it) so we can see cost per closing?
 
@@ -154,7 +154,7 @@ Hi [Bookkeeper Name],
 
 Thanks for the January to October P&L. Three questions:
 
-1. Owner's Draw (60,000.00 so far this year) is posted as an expense. Should it sit in an equity account instead? I'm checking with our CPA on how owner pay should be recorded, so no change yet.
+1. Owner's Draw (60,000.00 so far this year) is posted as an expense. Does that account hold only my draws, with nothing else mixed in? I'm checking with our CPA on how owner pay should be recorded, so please leave it as is for now.
 2. Print & Signs was 5,340.75 in September, about 4,750.30 more than usual. What was it?
 3. Could you send a list of closed deals for January to October, or point me to the report that has them? I'd like to track cost per closing.
 

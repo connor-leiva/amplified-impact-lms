@@ -1,4 +1,4 @@
-EVAL FILE: made-up example. Every name, company and street is fictional.
+PRACTICE FILE: made-up example. Every name, company and street is fictional.
 Granola transcript
 Meeting: Listing appt, Lee and Sam Fictionale, 4821 E Example Mesa Dr, Mesa AZ
 Date: Sunday, November 8, 2026, 2:00 PM

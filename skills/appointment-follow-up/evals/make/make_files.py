@@ -124,7 +124,7 @@ PRACTICE_TURNS = [
 # --- Eval 1: a first-time buyer over coffee, Granola on iPhone. Preapproval pending, no buyer agreement mentioned.
 
 EVAL1_HEADER = [
-    "EVAL FILE: made-up example. Every name, company and street is fictional.",
+    "PRACTICE FILE: made-up example. Every name, company and street is fictional.",
     "Granola (iPhone) transcript",
     "Coffee with Quinn Mockridge",
     "Sat, Nov 7, 2026, 10:04 AM",
@@ -177,7 +177,7 @@ EVAL1_TURNS = [
 # turn is "Microphone". The sellers want a higher price than the agent recommends, and one seller names the loan balance.
 
 EVAL2_HEADER = [
-    "EVAL FILE: made-up example. Every name, company and street is fictional.",
+    "PRACTICE FILE: made-up example. Every name, company and street is fictional.",
     "Granola transcript",
     "Meeting: Listing appt, Lee and Sam Fictionale, 4821 E Example Mesa Dr, Mesa AZ",
     "Date: Sunday, November 8, 2026, 2:00 PM",
@@ -291,7 +291,7 @@ def main():
     (FILES / "eval-2-listing-price-gap" / "Granola transcript, Listing appt Fictionale.txt").write_text(
         granola_desktop(EVAL2_HEADER, EVAL2_TURNS), encoding="utf-8")
     (FILES / "eval-3-neighborhood-remark" / "zoom audio_transcript Fakewell relocation consult.vtt").write_text(
-        vtt("EVAL FILE: made-up example. Every name, company and street is fictional.", EVAL3_CUES), encoding="utf-8")
+        vtt("PRACTICE FILE: made-up example. Every name, company and street is fictional.", EVAL3_CUES), encoding="utf-8")
     print("wrote practice and eval files")
 
 

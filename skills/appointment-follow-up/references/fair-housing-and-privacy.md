@@ -7,7 +7,7 @@ An appointment transcript holds the client's exact words, including things that 
 ## Protected Classes
 
 - **Federal (Fair Housing Act, 42 U.S.C. 3604):** race, color, religion, sex, handicap (disability), familial status, and national origin. Section 3604(c) makes it unlawful to make or publish any statement, with respect to the sale or rental of a dwelling, that indicates a preference, limitation or discrimination based on these.
-- **Utah (Utah Fair Housing Act, Utah Code 57-21-5):** race, color, religion, sex, national origin, familial status, source of income, disability, sexual orientation, and gender identity. Subsection (2) covers oral or written representations and statements that directly or indirectly express a preference. Subsection (3) bars inducing a sale or rental by talking about who is moving into a neighborhood.
+- **Utah (Utah Fair Housing Act, Utah Code 57-21-5):** race, color, religion, sex, national origin, familial status, source of income, disability, sexual orientation, and gender identity. Subsection (2) covers oral or written representations and statements that directly or indirectly express a preference. Subsection (3) bars inducing, or trying to induce, a sale or rental for profit by talking about who is moving into a neighborhood.
 - **Other states and cities** add their own classes. In general mode, treat any remark about a person's characteristics as off limits.
 
 ## What to Do With What the Client Said

@@ -1,4 +1,4 @@
-EVAL FILE: made-up example. Every name, company and street is fictional.
+PRACTICE FILE: made-up example. Every name, company and street is fictional.
 Granola (iPhone) transcript
 Coffee with Quinn Mockridge
 Sat, Nov 7, 2026, 10:04 AM

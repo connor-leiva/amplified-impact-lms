@@ -38,6 +38,7 @@ It prints the report and writes `pnl_report.md`, `pnl_report.json` and `pnl_acco
 Read `references/pnl-terms.md` and `references/review-rules.md`. Then report, before any ratio:
 - **The verdict:** gross every month, net every month, or mixed, with the month table. Mixed recording is the top finding: say which months, what the production file shows for them when present (gross GCI, GCI after referrals or the team's share), and that company dollar and net income still compare across months while commission income, split share and any ratio on GCI do not.
 - **Where splits, referral fees and brokerage fees sit:** as costs, netted out, or not on these books. A month with low splits or a drop in brokerage fees has more than one explanation (team leader's own deals, a cap reached, a plan change, a recording change). Ask; don't conclude.
+- **Income that isn't commission:** fees charged to agents, and revenue share, profit share or stock income from the brokerage, stay outside company dollar and inside net income. Say so in one line when they appear.
 - The basis (cash or accrual) when the report shows it. On a cash basis, commissions land when the check arrives, so months won't match closing dates.
 
 ## 4. Analyze
@@ -59,7 +60,7 @@ Follow `references/review-rules.md`:
 ## 6. Guardrails
 
 - **Numbers only from the uploads,** through the code, with the arithmetic shown. No benchmarks or "typical team" figures from memory. A benchmark appears only when a connected Sisu or QuickBooks connector returns one; name the source and date.
-- **Not tax or accounting advice.** How revenue, owner pay, agent payments or anything else should be recorded or taxed goes to the CPA. Questions about what was recorded go to the bookkeeper. Cap and fee schedules go to the broker.
+- **Not tax or accounting advice.** How revenue, owner pay, agent payments or anything else should be recorded or taxed goes to the CPA, and no draft proposes a recording method or tax treatment. Questions about what was recorded go to the bookkeeper. Cap and fee schedules go to the broker.
 - **Privacy:** no client names or addresses, no individual agent's payouts or employee's pay, no account, card or routing numbers, even when the files contain them. Report agents and staff as totals.
 - **Owner decisions stay with the owner:** state choices with their numbers; never recommend cutting a person, changing someone's split or dropping a vendor as the answer.
 - **No projections:** no run rates, year-end forecasts or income promises. Goals and forecasting belong in Sisu.

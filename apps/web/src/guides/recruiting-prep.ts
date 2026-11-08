@@ -49,7 +49,8 @@ export const RECRUITING_PREP: Guide = skillPage({
       'Upload your recruit list and get it back with the duplicates merged, every agent tiered by production, and a first-touch email for each tier. Or prep one recruiting coffee from a candidate’s production and your own offer. A free skill for Claude and ChatGPT.',
   },
 
-  eyebrow: 'Free AI Skill · For Team Leaders and Recruiters',
+  // Non-breaking spaces keep the audience on one line at phone width, as /counter-explainer does.
+  eyebrow: 'Free AI Skill · For\u00a0Team\u00a0Leaders\u00a0and\u00a0Recruiters',
   // page-notes.md, "One-Line Promise", with the actor named.
   lede: 'Upload the recruit list you already have and the AI hands it back clean and tiered by production, with a first message for each tier, or upload one candidate’s production and walk into your recruiting coffee prepared.',
   outcome: { n: '03', title: 'Know Who to Call First', body: 'A clean list by tier, drafts you read first, and prep for each coffee.' },
@@ -63,7 +64,7 @@ export const RECRUITING_PREP: Guide = skillPage({
     prompt:
       'Here’s our recruit list (the MLS export and our own list are two tabs) and our value proposition one-pager. Organize and tier the list and draft first-touch messages. Then prep me for my coffee with Marisol Quillpocket on Tuesday, November 10 at 11.',
     note: [
-      'There are two files: a recruit list with two tabs (an MLS export and a team’s own list) and that team’s value proposition. Every name, number and address in them is made up. Look for the duplicates merged, the opt-out left out of every draft, and a results claim in the value proposition flagged for your broker. ',
+      'There are two files: a workbook with two tabs (an MLS export and a team’s own recruit list) and that team’s value proposition. Every name, number and address in them is made up. Look for the duplicates merged, the opt-out left out of every draft, and a results claim in the value proposition flagged for your broker. ',
     ],
   },
 
@@ -87,17 +88,20 @@ export const RECRUITING_PREP: Guide = skillPage({
     {
       // sample.md (the practice run, 12 of 12 checks), shortened, in the output's own order and its own
       // words, cut only by whole items, rows, columns and sentences: the opening line, the bottom line,
-      // five of seven flags, what was merged, the tiers (four of six columns), four of eight why-now
-      // signals (without the Level column), the consent line, the Growing angle and email, one text,
-      // then the coffee: the profile (four of six rows), the needs, four of ten discovery questions and
-      // the don't-ask list, the terms as written, two of eight objections, and five lines of the check
-      // list. The signature and footer lines of the email are joined into one paragraph each.
+      // five of seven flags, what was merged, the tiers (three of six columns), four of eight why-now
+      // signals, the consent line, the Growing angle and email, one text, then the coffee: the profile,
+      // the needs, four of ten discovery questions and the don't-ask list, the terms as written, one of
+      // eight objections and its "Never" line, and five lines of the check list. Drawn to read on a
+      // phone without hiding a column: the merge table as a list, the why-now ID, agent and level in one
+      // column, the profile's totals turned on their side (its listing and buyer rows left to the side mix
+      // and average price lines under it, which give 14 and 8), and the email's signature and footer lines
+      // joined into one paragraph each.
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a recruiting prep looks like',
       body: 'What the AI wrote from the practice files: a made-up team’s recruit list (an MLS export and their own list) and their value proposition. They’re the same files you practise on in setup.',
       title: 'Recruiting Prep: Harborlight Example Team',
-      note: 'Made-up example. Shortened: five of seven flags, four of eight why-now signals, one level’s email and one text, four of ten questions, two of eight objections, and five lines of the check list. The follow-up email is left out.',
+      note: 'Made-up example. Shortened: one first-touch email of four, one text of two, one objection of eight, and parts of the rest. The follow-up email is left out.',
       blocks: [
         {
           p: [
@@ -123,19 +127,11 @@ export const RECRUITING_PREP: Guide = skillPage({
         { h: 'What was merged' },
         { p: ['102 rows minus 19 merges = ', { strong: '83 unique agents' }, '.'] },
         {
-          table: {
-            caption: 'Merges by rule',
-            head: ['Merge rule', 'Merges', 'What they were'],
-            rows: [
-              [
-                'Same MLS agent ID',
-                '2',
-                'One row pasted twice (BSX50219, Kit Parsniptoes: identical, kept once) and one agent under two offices (BSX50439, Joss Cloversnout: rows added together)',
-              ],
-              ['Same email', '9', '8 Our List rows matched to MLS agents, plus 1 Our List row entered twice (capitalized email)'],
-              ['Same phone and last name', '8', 'Our List rows with no email, matched by cell number'],
-            ],
-          },
+          items: [
+            'Same MLS agent ID, 2 merges: one row pasted twice (BSX50219, Kit Parsniptoes: identical, kept once) and one agent under two offices (BSX50439, Joss Cloversnout: rows added together).',
+            'Same email, 9 merges: 8 Our List rows matched to MLS agents, plus 1 Our List row entered twice (capitalized email).',
+            'Same phone and last name, 8 merges: Our List rows with no email, matched by cell number.',
+          ],
         },
         {
           p: [
@@ -154,13 +150,13 @@ export const RECRUITING_PREP: Guide = skillPage({
         {
           table: {
             caption: 'Agents by level',
-            head: ['Level', 'Agents', 'Sides', 'Volume'],
+            head: ['Level', 'Agents', 'Sides'],
             rows: [
-              ['Established (25+ sides)', '5', '185', '$81,421,000'],
-              ['Growing (12 to 24 sides)', '14', '239', '$99,314,000'],
-              ['Building (0 to 11 sides)', '49', '260', '$107,477,500'],
-              ['Not tiered (Our List only, no MLS data)', '14', '', ''],
-              ['Do not contact', '1', '', ''],
+              ['Established (25+ sides)', '5', '185'],
+              ['Growing (12 to 24 sides)', '14', '239'],
+              ['Building (0 to 11 sides)', '49', '260'],
+              ['Not tiered (Our List only, no MLS data)', '14', ''],
+              ['Do not contact', '1', ''],
             ],
           },
         },
@@ -178,16 +174,15 @@ export const RECRUITING_PREP: Guide = skillPage({
         {
           table: {
             caption: 'Four of eight signals',
-            head: ['ID', 'Agent', 'What the data shows'],
+            head: ['Agent', 'What the data shows'],
             rows: [
               [
-                'R005',
-                'Dev Tansymuffin',
+                'R005 Dev Tansymuffin, Established',
                 'Our List says Pinecrest Example Homes (last touch 2026-04-20); the MLS report shows Copperleaf Example Real Estate. Also up: 26 sides against 18.',
               ],
-              ['R007', 'Marisol Quillpocket', 'Up: 22 sides against 17'],
-              ['R018', 'Gwen Mittennoggin', 'Down: 12 against 16'],
-              ['R060', 'Rafe Kettlesprout', 'New production: 2 sides, 0 in the prior 12 months'],
+              ['R007 Marisol Quillpocket, Growing', 'Up: 22 sides against 17'],
+              ['R018 Gwen Mittennoggin, Growing', 'Down: 12 against 16'],
+              ['R060 Rafe Kettlesprout, Building', 'New production: 2 sides, 0 in the prior 12 months'],
             ],
           },
         },
@@ -242,12 +237,11 @@ export const RECRUITING_PREP: Guide = skillPage({
         {
           table: {
             caption: 'Production profile',
-            head: ['', 'This period', 'Prior 12 months', 'Change'],
+            head: ['', 'Total sides', 'Total volume'],
             rows: [
-              ['Total sides', '22', '17', '+5 (5 / 17 = 29%)'],
-              ['Listing sides', '14', 'not broken out', ''],
-              ['Buyer sides', '8', 'not broken out', ''],
-              ['Total volume', '$9,033,500', '$6,429,000', '+$2,604,500 ($2,604,500 / $6,429,000 = 41%)'],
+              ['This period', '22', '$9,033,500'],
+              ['Prior 12 months', '17', '$6,429,000'],
+              ['Change', '+5 (5 / 17 = 29%)', '+$2,604,500 ($2,604,500 / $6,429,000 = 41%)'],
             ],
           },
         },
@@ -305,12 +299,6 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           p: [
-            { strong: 'Results: if she asks “how do your agents do?” ' },
-            'Don’t use the one-pager’s “40% more transactions” line until your broker has reviewed it. Offer to introduce her to an agent on the team instead, and ask that agent not to quote income, earnings or results.',
-          ],
-        },
-        {
-          p: [
             'Never: a “you’d make more” number, a lead count, or anything negative about Copperleaf Example Real Estate or her broker.',
           ],
         },
@@ -349,12 +337,8 @@ export const RECRUITING_PREP: Guide = skillPage({
           body: 'Your team’s tiers, your offer document’s levels, or default tiers from your list’s spread, labeled as defaults with the cut points shown. Counts, sides and volume for each. A tracker’s self-reported numbers never set a tier.',
         },
         {
-          title: 'Why now',
-          body: 'Signals from the data only: production up or down, new production, or an office change. Each one with its source, never a guess about someone’s life.',
-        },
-        {
-          title: 'Owners by tier',
-          body: 'The owners your files already assign, or suggestions by role from your roster, labeled as suggestions.',
+          title: 'Why now, and owners by tier',
+          body: 'Signals from the data only: production up or down, new production, or an office change, each with its source and never a guess about someone’s life. Then the owners your files already assign, or suggestions by role from your roster.',
         },
         {
           title: 'First-touch drafts',
@@ -539,14 +523,14 @@ export const RECRUITING_PREP: Guide = skillPage({
           // page-notes.md, FAQ (Bay East 12.11.1; MLS Now Rule 7.3).
           q: 'Can I upload my MLS’s production report?',
           a: [
-            'Check your MLS’s rules first. They vary. One MLS’s rules expressly allow using MLS information to recruit agents to another brokerage. Another bars giving MLS information to software vendors or online AI tools without a separate license. The AI flags this every time. Your broker can help you read your MLS’s rules.',
+            'Check your MLS’s rules first. They vary. Bay East’s MLS rules expressly allow using MLS information to recruit agents to another brokerage. MLS Now’s rules bar giving MLS information to software vendors or online AI tools without a separate license. The AI flags this every time. Your broker can help you read your MLS’s rules.',
           ],
         },
         {
           // page-notes.md, FAQ.
           q: 'We don’t have tiers or a value proposition.',
           a: [
-            'That’s fine. The AI builds default tiers from your own list’s spread and labels them as defaults. Every angle and every line about what a candidate needs is labeled general guidance, with a blank for your offer. Tell the AI your tiers, or upload your offer, and it redoes them in the same chat.',
+            'That’s fine. The AI builds default tiers from your own list’s spread and labels them as defaults. The drafts get a blank for your offer, and every line about what a candidate needs is labeled general guidance. Tell the AI your tiers, or upload your offer, and it redoes them in the same chat.',
           ],
         },
         {

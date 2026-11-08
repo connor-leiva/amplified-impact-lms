@@ -153,7 +153,7 @@ Largest account moves (operating expenses):
 Charge-level checks (duplicate charges, new vendors, a vendor in the wrong account) need the P&L Detail export; only account-level patterns were checked.
 
 ## Questions for the Bookkeeper (seeds)
-1. 6500 · Owner's Draw (60,000.00 this period) is posted as an expense. Should owner draws sit in an equity account instead? (How owner pay is recorded is a question for the CPA.)
+1. 6500 · Owner's Draw (60,000.00 this period) is posted as an expense. Does it hold only owner pay, with no other payments mixed in? (How owner pay should be recorded is a question for the CPA; no change until then.)
 2. What was the extra 4,750.30 in 6000 · Advertising:6020 · Print & Signs in Sep 2026? One-time, or the new normal?
 3. 6300 · Software went from 912.40 to 938.15 a month in Apr 2026. Was that a planned price or plan change?
 

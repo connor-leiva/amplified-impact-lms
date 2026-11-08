@@ -40,3 +40,7 @@ Result: 10 of 10 checks pass; every applicable objective check passes.
 1. **Misleading "usual" brokerage share.** The first run printed "usual 3.2%" for brokerage fees, the median of all nine months, which hides a step from 6.0% to about 2%. Fix: the brokerage flag now compares each month to the months before it and fires once, at the step; the summary line lists the shares without a "usual." Rerun: "fell from about 6.0% of commission income (Jan 2026 to Apr 2026) to: May 2026 3.2%..."
 2. **A conclusion where the skill should ask.** The first draft said lower split months were "expected, not a recording problem." Softened to say they "can run lower" and that the matching production file doesn't point to a recording problem.
 3. **Unrealistic margin.** As in the other cases, the generator's expenses were raised so the practice P&L reads like a working team (12.1% for the period).
+
+## Rerun on 2026-11-08
+
+Rerun with the updated code (revenue share income, per-deal brokerage fees in Cost of Goods Sold, referral gifts, guaranteed payments, the owner draw question): the analysis files are identical, so output.md and sample.md stand. Objective checks rerun: all pass. The new account rules are covered by evals/make/classifier_check.py (25 account names plus a made-up end-to-end P&L): PASS.

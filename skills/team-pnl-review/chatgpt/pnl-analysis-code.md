@@ -452,11 +452,17 @@ def parse_pnl(path):
 
 STRONG_COST = [
     ("uncategorized", r"uncategori[sz]ed|ask my accountant|suspense|unclassified"),
-    ("owner", r"owner'?s? (draw|distribution|pay|equity)|\bdraws?\b|shareholder distribution|member distribution|partner distribution|distributions? to owner"),
+    ("owner", r"owner'?s? (draw|distribution|pay|equity)|\bdraws?\b|shareholder distribution|member distribution|partner distribution|distributions? to owner|guaranteed payments?"),
+    ("marketing", r"referral.*(gift|appreciation|thank|party|event)|(gift|appreciation|thank|party|event).*referral"),
     ("referral_fees", r"referral"),
     ("brokerage_fees", r"brokerage|\bbroker\b|franchise|royalt|\bcap fee|company dollar|broker review"),
     ("agent_splits", r"commission|agent split|agent pay|agent comp|payout|\bsplits?\b|cost of sale.*agent"),
     ("lead_gen", r"\bleads?\b|lead gen|\bppc\b|pay.per.click|google ads|adwords|facebook ads|meta ads|\bportal\b|zillow|realtor\.com|homes\.com|opcity|readyconnect|prospect|seller data|buyer data|\bexpired"),
+]
+# A per-deal charge with no other keyword, in Cost of Goods Sold, is a brokerage charge (a TC fee is people).
+COGS_FEES = [
+    ("people", r"transaction coordinator|\btc\b"),
+    ("brokerage_fees", r"transaction fees?|risk management|e&o|errors|per.?(deal|file|transaction)|deal fees?|file fees?|compliance fees?"),
 ]
 OTHER_COST = [
     ("people", r"payroll|salar|wage|bonus|\bisa\b|inside sales|assistant|transaction coordinator|\btc\b|contract labor|contractor|\bstaff|recruit|training|coaching|employee|benefit|health insurance|401|workers.?comp|hiring|showing (agent|assistant)"),
@@ -467,6 +473,7 @@ OTHER_COST = [
 ]
 INCOME_RULES = [
     ("uncategorized_income", r"uncategori[sz]ed|ask my accountant|suspense|unclassified"),
+    ("other_income", r"revenue shar|rev\.? shar|profit shar|stock award|equity award|stock income"),
     ("contra_splits", r"(agent|commission).*(paid|split|payout|less)|(paid|less|payout).*(agent|commission)"),
     ("agent_fees", r"(agent|desk|tech|technology|transaction|admin|e&o|marketing|franchise) fees?\b|fees? (from|charged to) agents|agent dues"),
     ("other_income", r"interest|dividend|misc|refund|rebate|reimburs|other income|gain on|cash back"),
@@ -503,6 +510,10 @@ def classify(acct, overrides):
     c = first_match(STRONG_COST, leaf_name)
     if c:
         return c, f"keyword in '{leaf_name}'"
+    if sec == "cogs":
+        c = first_match(COGS_FEES, leaf_name)
+        if c:
+            return c, f"per-deal charge in Cost of Goods Sold: '{leaf_name}'"
     for nm in parents:
         c = first_match(STRONG_COST, nm) or first_match(OTHER_COST, nm)
         if c:
@@ -658,7 +669,11 @@ def analyze(pnl, overrides, th):
         names = sorted({a["name"] for a in pnl["accounts"] if a["cat"] == "owner"})
         flag(5, "owner_draw_on_pnl", f"{', '.join(names)} totals {m2(period['owner'])} in the period and is recorded as an expense, which lowers profit. "
              f"Net income before it: {m2(period['net_income'])} + {m2(period['owner'])} = {m2(period['net_income'] + period['owner'])}.",
-             f"{', '.join(names)} ({m2(period['owner'])} this period) is posted as an expense. Should owner draws sit in an equity account instead? (How owner pay is recorded is a question for the CPA.)")
+             f"{', '.join(names)} ({m2(period['owner'])} this period) is posted as an expense. Does it hold only owner pay, with no other payments mixed in? (How owner pay should be recorded is a question for the CPA; no change until then.)")
+    for a in pnl["accounts"]:
+        if a["cat"] == "other_income" and re.search(r"revenue shar|rev\.? shar|profit shar|stock award|equity award|stock income", norm(a["path"][-1])) and any(a["vals"].values()):
+            flag(10, "revenue_share_income", f"{a['name']} ({m2(sum(a['vals'].values()))} in the period) is read as other income from the brokerage, not commission from the team's closings: "
+                 f"it is outside company dollar and inside net income.", None, account=a["name"])
     bk = [k for k in keys if k in bshare and bshare[k] is not None]
     for i, k in enumerate(bk):
         prior = [bshare[j] for j in bk[:i]]

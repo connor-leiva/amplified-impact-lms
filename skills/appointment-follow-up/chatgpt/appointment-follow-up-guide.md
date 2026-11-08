@@ -16,8 +16,8 @@ Use this to read the speaker labels correctly and, when nothing was uploaded, to
 | Granola, desktop app, in person (laptop on the kitchen table) | Same as above | Everyone talks into the laptop's microphone, so nearly every turn is Me or Microphone | Work out each speaker from names and context. Prices and promises need a person, or "the sellers" and a flag |
 | Granola, mobile app (iPhone or Android), in person | Open the note, tap the three dots (...) at top right, then View transcript; share it from there | Speaker A, Speaker B, and so on | Letters, not names, and Granola says identification may not be exact. The mobile apps are free |
 | Granola CSV export | Settings > Profile > Generate CSV; the file is emailed within a few hours and the link lasts 24 hours | As above | Only notes with a summary, one export per 24 hours. Use it for an old meeting, not tonight's |
-| Zoom cloud recording audio transcript | Zoom web portal > Recordings & Transcripts > Cloud recordings > the meeting; the transcript is a separate VTT file | Speaker names from Zoom (in practice, each participant's display name); an unnamed one shows as Unknown Speaker | Needs a Pro, Business, Education or Enterprise account with cloud recording and audio transcript on before the meeting. Display names can be a device ("Jordan's iPad") |
-| iPhone call recording (phone appointments) | During a call in the Phone app, tap the more button, then Call Recording. Afterward: Notes > Call Recordings folder > the note > the recording > Copy Transcript | Apple says the speaker of each statement is identified | Both people hear an audio notice that the call is being recorded. Not offered in every country or language. Apple says to verify a transcript before relying on it |
+| Zoom cloud recording audio transcript | Zoom web portal > Recordings & Transcripts > Cloud recordings > the meeting; the transcript is a separate VTT file | Speaker names from Zoom (in practice, each participant's display name); an unnamed one shows as Unknown Speaker | Needs a Pro, Business, Education or Enterprise account with cloud recording and audio transcript on before the meeting. Display names can be a device ("Jordan's iPad"). If the file won't upload, open it in a text editor and paste the text |
+| iPhone call recording (phone appointments) | During a call in the Phone app, tap the more button, then Call Recording. Afterward: Notes > Call Recordings folder > the note > the recording > Copy Transcript | Apple says the speaker of each statement is identified | Only on a call with one other person. Both people hear an audio notice that the call is being recorded. Not offered in every country or language. Apple says to verify a transcript before relying on it |
 | iPhone Voice Memos (in person) | Voice Memos > the recording > more button > Copy Transcript | Apple's guide doesn't say speakers are labeled; treat it as unlabeled | Work out speakers from context and flag anything that matters |
 | Follow Up Boss calling | FUB already transcribes and summarizes calls made through the FUB number when the account owner has the call recording power-up on | Not needed | Don't rebuild FUB's summary. Give the email and next steps only |
 | Notes typed or dictated by the agent | Pasted into the chat | None | Only as complete as the notes. Say so |
@@ -59,6 +59,7 @@ Granola only transcribes live meetings; it can't take an uploaded audio file. An
 - A time with no AM or PM: use the one the conversation makes clear ("after six"); otherwise [time] and a flag.
 - Different time zones: write both.
 - Check every weekday against the calendar before writing it.
+- Written a day or more after the appointment: "tonight" and "today" in the transcript mean the appointment day, so those promises are already due. Flag each one ("promised Saturday night: confirm it went out"), and in the email call the appointment "Saturday," not "yesterday" or "last night."
 
 ## The Recap Email
 
@@ -90,7 +91,7 @@ Subject: [Title Case, names the next step]
 
 ## The Follow Up Boss Note
 
-Plain text, one fact per labeled line, under about 150 words. Write "Not discussed" rather than leaving a line out.
+Plain text, one labeled line per topic, about 200 words or fewer. Fragments, not sentences, and each fact on one line only (a promise goes under Promised, not again under Next step). Write "Not discussed" rather than leaving a line out.
 
 ```
 [Appointment type], [how: in person, Zoom, phone], [weekday, date]. [Client names].
@@ -104,6 +105,7 @@ Concerns: ...
 Promised: ...
 Next step: [weekday, date, time]: ...
 Follow-up: [date]
+Contact: ... (only a preference the client stated: "text," "email")
 Suggested Timeframe to Move: [value]
 ```
 
@@ -130,7 +132,7 @@ List, for items 4 to 6 of the output:
 - Granola, Subscriptions and billing (mobile apps free; plans): https://docs.granola.ai/help-center/managing-your-account/subscriptions-and-billing
 - Granola, Get Note API (speaker source microphone or speaker; Speaker A and B buckets on iOS): https://docs.granola.ai/api-reference/get-note
 - Zoom, Using audio transcription for cloud recordings (VTT file, requirements, Recordings & Transcripts, Unknown Speaker): https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0064927
-- Apple, Record and transcribe a call on iPhone: https://support.apple.com/guide/iphone/record-and-transcribe-a-call-iph57c6590e9/ios
+- Apple, Record and transcribe a call on iPhone (one other person; audio notice; verify the transcript): https://support.apple.com/guide/iphone/record-and-transcribe-a-call-iph57c6590e9/ios
 - Apple, View a transcription (Voice Memos): https://support.apple.com/guide/iphone/view-a-transcription-iph00953a982/ios
 - Follow Up Boss, Call Transcripts and Summaries: https://help.followupboss.com/hc/en-us/articles/23799926737687
 - Follow Up Boss, Team Mentions (the yellow note section and Create Note): https://help.followupboss.com/hc/en-us/articles/4402379946007
@@ -145,7 +147,7 @@ An appointment transcript holds the client's exact words, including things that 
 ## Protected Classes
 
 - **Federal (Fair Housing Act, 42 U.S.C. 3604):** race, color, religion, sex, handicap (disability), familial status, and national origin. Section 3604(c) makes it unlawful to make or publish any statement, with respect to the sale or rental of a dwelling, that indicates a preference, limitation or discrimination based on these.
-- **Utah (Utah Fair Housing Act, Utah Code 57-21-5):** race, color, religion, sex, national origin, familial status, source of income, disability, sexual orientation, and gender identity. Subsection (2) covers oral or written representations and statements that directly or indirectly express a preference. Subsection (3) bars inducing a sale or rental by talking about who is moving into a neighborhood.
+- **Utah (Utah Fair Housing Act, Utah Code 57-21-5):** race, color, religion, sex, national origin, familial status, source of income, disability, sexual orientation, and gender identity. Subsection (2) covers oral or written representations and statements that directly or indirectly express a preference. Subsection (3) bars inducing, or trying to induce, a sale or rental for profit by talking about who is moving into a neighborhood.
 - **Other states and cities** add their own classes. In general mode, treat any remark about a person's characteristics as off limits.
 
 ## What to Do With What the Client Said

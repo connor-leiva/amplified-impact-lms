@@ -1,6 +1,6 @@
 ---
 name: low-appraisal-response
-description: "Reviews an appraisal that came in under the contract price, for the buyer's or listing agent. Reads the appraisal report, the contract and addenda, and an optional MLS CMA export, then returns the gap, factual errors (above-grade versus basement area, finish, bed and bath counts, lot, upgrades), a comp and adjustment review, better closed sales dated by the effective date, whether a reconsideration of value has real grounds, a draft request for the lender in the loan program's format, options for each side, the appraisal deadline and client drafts. Use it whenever an agent says an appraisal came in low or short, mentions an appraisal gap, a Notice of Appraised Value, a VA Notice of Value or a Tidewater call, or wants to challenge or rebut an appraisal, even if they never say 'reconsideration of value.' Utah first; general mode elsewhere. Not for a list price (pricing-conversation-prep), pricing an offer (offer-strategy), a repair request (repair-request-response) or a counteroffer (counter-explainer)."
+description: "Reviews an appraisal that came in under the contract price, for the buyer's or listing agent. Reads the appraisal, contract, addenda and an optional MLS CMA export, then returns the gap, factual errors (above-grade versus basement area, finish, bed and bath counts, lot, upgrades), a comp and adjustment review, better closed sales dated by the effective date, whether a reconsideration of value has real grounds, a draft request to the lender in the loan program's format, each side's options, the deadline and client drafts. Use it whenever an agent says an appraisal came in low or short, mentions an appraisal gap on a home under contract, a Notice of Appraised Value, a VA Notice of Value or a Tidewater call, or wants to challenge one, even if they never say 'reconsideration of value.' Utah first; general mode elsewhere. Not for a list price (pricing-conversation-prep), appraisal terms in a new offer (offer-strategy), a repair request (repair-request-response) or what a counter changes (counter-explainer)."
 metadata:
   author: Amplified Impact
   version: "1.0"
@@ -18,9 +18,9 @@ Why it matters: in Utah the buyer's right to cancel over a low appraisal ends at
 ## 1. Gather the Documents
 
 - **The appraisal report, every page (required for the review).** If only a Notice of Appraised Value or a lender's email came, do the gap, the clock and the options, say the review needs the full report, and tell the agent how to get it: the lender must give the buyer a copy; the listing agent asks the buyer's agent.
-- **The signed contract and every addendum:** price, the appraisal condition box, the deadline, loan type, seller credits, an FHA/VA Loan Addendum.
+- **The signed contract and every addendum:** price, the appraisal condition box, the deadline, loan type, seller credits, an FHA/VA Loan Addendum. Read every addendum for an appraisal gap term (the buyer agreed to pay some or all of a shortfall), an escalation clause's appraisal language, or a waived condition, and quote it: it changes the options.
 - **When present:** a CMA or MLS export (CSV or PDF), the subject's MLS sheet, a county record, permits or receipts for updates.
-- **From the agent's message:** which side they're on, the lender, what the client wants. Use it; don't ask for it. If the side isn't clear from the message, write both sides' options and flag it.
+- **From the agent's message:** which side they're on, the lender, what the client wants, and today's date if they give one. Use it; don't ask for it. If the side isn't clear, write both sides' options and flag it.
 
 Never ask the agent to type what a document contains. Missing a deadline or a name? Use a placeholder such as [Appraisal Deadline] or [Buyer Names], flag it at the top, and keep going.
 
@@ -35,11 +35,12 @@ Never ask the agent to type what a document contains. Missing a deadline or a na
 - If the deadline is today, tomorrow or the day after, put that first, in bold. If it has passed, don't treat a cancellation as timely: send the agent to the broker and the transactions team now.
 - FHA or VA: say what the FHA amendatory clause, the VA escape clause or Utah's FHA/VA Loan Addendum adds to the deadline.
 - A reconsideration runs on the lender's clock. If it can't finish before the deadline, say the buyer must cancel, let the condition lapse, or get an extension signed before the deadline.
+- The financing condition is not a free fallback. If the contract releases part of the earnest money to the seller on a financing cancellation, show that amount next to the appraisal cancellation, which releases it all to the buyer.
 - Label it: "For strategy; confirm dates with your transactions team."
 
 ## 3. Do the Gap Math
 
-Contract price minus appraised value, and the gap as a share of the price, with the arithmetic shown. Check the price the report lists against the contract. Note existing seller credits: lenders base the loan, and the room for seller credits, on the lower of price and appraised value, so the lender confirms what still fits.
+Contract price minus appraised value, and the gap as a share of the price, with the arithmetic shown. Check the price the report lists against the contract. Apply any appraisal gap term: what the buyer already agreed to cover, what's left, and whether the cancellation right survives. Note existing seller credits: lenders base the loan, and the room for seller credits, on the lower of price and appraised value, so the lender confirms what still fits.
 
 ## 4. Review the Report
 
@@ -56,7 +57,7 @@ Strong, Some or Weak, using the guide's rubric, with the two or three facts that
 
 ## 6. Lay Out the Options
 
-**Buyer's side:** request a reconsideration (when there are grounds); renegotiate (price to value, meet in the middle, a seller credit, subject to the lender); cover the gap (the cash rises by at least the gap; VA buyers pay any amount over reasonable value from their own cash); cancel under the appraisal condition by the deadline with the required notice and copy. **Seller's side:** support a reconsideration with a data package for the buyer's lender; reduce to value; meet in the middle; hold the price (the buyer may cancel and get the earnest money back if the condition or an FHA/VA clause applies). Each option gets its tradeoff and its deadline. Price changes go on an approved addendum, and the lender gets a copy.
+**Buyer's side:** request a reconsideration (when there are grounds); renegotiate (price to value, meet in the middle, a seller credit, subject to the lender); cover the gap (the cash rises by at least the gap; VA buyers pay any amount over reasonable value from their own cash); cancel under the appraisal condition by the deadline with the required notice and copy. **Seller's side:** support a reconsideration with a data package for the buyer's lender; reduce to value; meet in the middle; hold the price (the buyer may cancel and get the earnest money back if the condition or an FHA/VA clause applies). Each option gets its tradeoff and its deadline. Price changes go on an approved addendum, and the lender gets a copy. If the agent asks about a second appraisal or switching lenders, give the program's rule from `references/rov-programs.md` and send the question to the loan officer.
 
 ## 7. Write the Drafts
 
@@ -71,7 +72,7 @@ Read `references/writing-the-drafts.md`.
 - **Appraiser independence.** Facts and comparables go to the lender through its reconsideration process. Never draft anything to the appraiser, suggest calling them, or name a value they should reach. A VA Tidewater call is answered to the lender with sales data only.
 - **No promises, no blame.** No promise the value will change, no criticism of the appraiser, no "bad comps." When the report is well supported, say so.
 - Every fact, number, date and name comes from the documents or the agent's message. No outside sales, no invented adjustments or rates. Unclear or illegible: say so.
-- Stay in lane: not the appraiser, lender, attorney or broker. Loan amounts, credits and cash to close go to the lender; contract questions to the broker.
+- Stay in lane: not the appraiser, lender, attorney or broker. Loan amounts, credits and cash to close go to the lender; contract questions to the broker. Never draft new contract language; describe the change for the agent's approved addendum.
 - Fair housing: describe the property and the sales, never the people. No comments on who lives nearby, schools or safety.
 - Privacy: no loan, account or Social Security numbers, no income or assets. Agent-only MLS fields (private remarks, showing instructions, lockbox or access codes, seller motivation) never appear in drafts.
 - Client writing: Title Case subjects, short paragraphs, no em dashes, none of "stunning," "dream home" or "don't hesitate to reach out." Follow the user's voice profile when one is in the conversation (a Project's instructions such as the "My Voice" project from amplifiedimpact.io/voice-profile, their preferences, or a voice skill); otherwise warm, plain and direct.

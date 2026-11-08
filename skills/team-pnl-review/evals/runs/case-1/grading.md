@@ -39,6 +39,15 @@ Script: `python3 -I evals/make/objective_checks.py evals/runs/case-1 [both input
 | No benchmark language | Pass |
 | Bottom line three sentences or fewer | Pass: 3 |
 
+## Objective Checks (baseline)
+
+| Check | Result |
+|---|---|
+| Every number traces to the inputs | Fail: 31 figures don't appear in the inputs as written. Most are whole-dollar roundings or totals computed off the page with no arithmetic shown (total income $725,098, gross profit $313,385); one is an assumption, a "55% to 60%" split rate used to call April's profit overstated |
+| Check Before Sending section | Fail: missing |
+| No benchmark language | Fail: "industry norms for real estate teams" (the check now looks for this phrase) |
+| No em or en dashes, no names, no account details | Pass |
+
 ## What the Skill Adds Over the Baseline
 
 The baseline found the odd month but read it backwards: it decided April's splits were missing, told the owner April's profit was "overstated by tens of thousands of dollars" (an estimate from an assumed split rate), and told the bookkeeper to add splits that the production file shows were already netted out. It reported April as the best month by margin (28.8% net, 100% gross), blended net and gross months into a 43.2% gross margin, counted agent splits in cost per closing ($12,257), compared the team to "industry norms" it never named, and suggested the owner look at whether staffing is "right-sized," a decision about people. It had no email, no Check Before Sending and no arithmetic a bookkeeper could follow. The skill caught the net month, proved it with the production file, kept every ratio on company dollar so April compares, and asked the right person the right question.
@@ -48,3 +57,7 @@ The baseline found the odd month but read it backwards: it decided April's split
 None on this case's expectations. Two fixes made while building it apply here:
 - The first fixture had made-up margins above 50% of company dollar, unlike real team P&Ls; payroll, lead spend and rent were raised in the generator so the run reads like a working team (12.6% for the period).
 - A client surname in the generator ("Gingersnap") matched the team's name and tripped the names check; the generator now uses another made-up surname. The analysis code was unchanged.
+
+## Rerun on 2026-11-08
+
+The code was changed after this case was graded (revenue share income, per-deal brokerage fees in Cost of Goods Sold, referral gifts, guaranteed payments, the owner draw question). Rerun on the same files: pnl_report.md, pnl_report.json and pnl_accounts.csv are identical, so output.md stands, and the objective checks pass again.

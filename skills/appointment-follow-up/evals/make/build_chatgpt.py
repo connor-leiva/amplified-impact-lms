@@ -17,8 +17,11 @@ def main():
     guide = (SKILL / "references" / "follow-up-guide.md").read_text(encoding="utf-8")
     fair = (SKILL / "references" / "fair-housing-and-privacy.md").read_text(encoding="utf-8")
 
-    lines = [l for l in guide.splitlines() if not l.startswith("| Granola connector in Claude")]
+    lines = [l for l in guide.splitlines()
+             if not l.startswith("| Granola connector in Claude") and not l.startswith("- Claude, Upload files to Claude")]
     guide = "\n".join(lines) + "\n"
+    guide = guide.replace("Claude's upload list names TXT, not VTT: if the file won't upload, open it in a text editor and paste the text",
+                          "If the file won't upload, open it in a text editor and paste the text")
     guide = guide.replace("# Follow-Up Guide", "# Appointment Follow-Up Guide", 1)
     guide = guide.replace("the leave-out lists in `fair-housing-and-privacy.md`", "the leave-out lists in Part 2 of this file")
     guide = guide.replace("see `buyer-agreements.md`", "see buyer-agreements.md")

@@ -21,7 +21,7 @@ SMALL_TITLE = {"a", "an", "the", "and", "but", "or", "for", "nor", "on", "at", "
 PROTECTED = re.compile(r"\b(empty nest|growing family|kids|children|retiree|senior citizen|elderly|young couple|newlywed|single mom|"
                        r"single dad|pregnan|church|religio|ethnic|race\b|disabilit|wheelchair|family-friendly|good schools|school district|safe neighborhood)", re.I)
 WIRE = re.compile(r"(wire instruction|routing number|account number|\bABA\b|swift code|card ending|xxxx\d{4})", re.I)
-BENCH = re.compile(r"(industry average|industry benchmark|typical team|most teams (spend|keep|run)|benchmark of|healthy teams|rule of thumb)", re.I)
+BENCH = re.compile(r"(industry average|industry benchmark|industry norms?|typical team|most teams (spend|keep|run)|benchmark of|healthy teams|rule of thumb)", re.I)
 
 
 def canon(tok):

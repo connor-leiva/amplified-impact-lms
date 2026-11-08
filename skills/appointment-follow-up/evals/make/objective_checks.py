@@ -2,8 +2,8 @@
 
 python3 skills/appointment-follow-up/evals/make/objective_checks.py <case-id> [output.md|baseline.md]
 
-Checks: no em or en dashes; Title Case subject; email body under 200 words; text under 300 characters; the
-[Personal note: add by voice] line; a Check Before Sending section; no stock phrases in the email or text; every
+Checks: no em or en dashes; Title Case subject; email body under 200 words; text under 300 characters; the FUB note
+about 200 words or fewer; the [Personal note: add by voice] line; a Check Before Sending section; no stock phrases in the email or text; every
 number in the output found in the input (each miss listed for a person to grade: resolved dates and arithmetic
 are allowed when marked); strings that must never appear for the case; protected-class words; wire or account
 details. Writes nothing; prints a report.
@@ -83,6 +83,12 @@ def main():
     if text_v:
         msg = re.split(r"\n\*\(", text_v.strip())[0].strip()
         rec("Text under 300 characters", len(msg) < 300, f"{len(msg)} characters")
+
+    fub = section(text, "Follow Up Boss Note")
+    if fub:
+        m = re.search(r"```\n(.*?)```", fub, re.S)
+        note_words = len((m.group(1) if m else fub).split())
+        rec("FUB note about 200 words or fewer (210 allowed)", note_words <= 210, f"{note_words} words")
 
     client_facing = (email + text_v).lower()
     hits = [p for p in STOCK if p in client_facing]

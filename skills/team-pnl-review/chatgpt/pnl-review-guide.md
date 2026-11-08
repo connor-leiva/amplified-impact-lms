@@ -15,7 +15,7 @@ How to read the analysis run and turn it into the review. The run's thresholds a
 Cost of the sale, subtracted to get company dollar:
 - **Agent splits:** commissions paid to the team's agents, wherever they sit (Cost of Goods Sold, expenses, or a negative line inside income).
 - **Referral fees paid:** to other brokerages and pay-at-close lead programs.
-- **Brokerage split and fees:** the brokerage's split, royalty, franchise, transaction and review fees.
+- **Brokerage split and fees:** the brokerage's split, royalty, franchise, transaction and review fees. A per-deal charge in Cost of Goods Sold with no other keyword (Transaction Fees, Risk Management Fee, E&O Fee) is read as a brokerage fee; a TC fee there is people.
 
 Operating expenses, shown as a share of company dollar:
 - **Lead generation:** paid lead programs, portals, pay-per-click and paid social bought for leads, prospecting data and lists.
@@ -25,7 +25,9 @@ Operating expenses, shown as a share of company dollar:
 - **Occupancy:** rent, utilities, cleaning, repairs, storage.
 - **Other:** dues and licenses, insurance, professional fees, bank fees, meals, travel and auto, supplies, taxes, and anything without a keyword.
 
-Kept apart: **Uncategorized** (always a bookkeeper question) and **owner draws or distributions** recorded as expenses (left out of the mix; net income shown both ways).
+Kept apart: **Uncategorized** (always a bookkeeper question) and **owner draws, distributions or guaranteed payments** recorded as expenses (left out of the mix; net income shown both ways).
+
+Outside company dollar, inside net income: **fees charged to agents** (desk, tech or transaction fees the team collects) and **revenue share, profit share or stock income from the brokerage**. Revenue share is paid by the brokerage on deals closed by agents the owner attracted to it, not earned on the team's own closings (pnl-terms.md), so counting it as commission would inflate company dollar and make splits look low.
 
 ## How Revenue Is Recorded: What to Say
 
@@ -53,7 +55,7 @@ Use the run's priority order (P1 is most important).
 | P2 totals_do_not_tie | Top of the output | The months and amounts; figures are provisional |
 | P3 duplicate_charge, exact_double | Bookkeeper | Vendor, account, both dates, amount; ask whether it's a duplicate and whether it was refunded |
 | P4 uncategorized | Bookkeeper | Amount, month, vendor if the detail shows it; ask where it belongs |
-| P5 owner_draw_on_pnl | CPA and bookkeeper | Net income as reported and before the draw line; ask how owner pay should be recorded |
+| P5 owner_draw_on_pnl | CPA and bookkeeper | Net income as reported and before the draw line. Bookkeeper: only whether the line holds owner pay and nothing else. CPA: how owner pay should be recorded. Never suggest where it should go |
 | P6 new_recurring_vendor, new_recurring_account | Owner (keep or cancel), bookkeeper (what is it) | Vendor or account, start month, monthly amount |
 | P6 contract_labor_large | Bookkeeper | Ask whether it holds agent payouts |
 | P7 spike, negative_expense | Bookkeeper | Account, month, amount against the usual |
@@ -62,6 +64,7 @@ Use the run's priority order (P1 is most important).
 | P9 brokerage_share_drop | Broker or bookkeeper | The shares before and after; ask about a cap or fee change |
 | P9 referral_netted | Bookkeeper | Confirm referral fees are withheld at closing |
 | P10 one_time, new_vendor_once | List only | One line each, no question unless the owner asks |
+| P10 revenue_share_income | What I Used, Company Dollar | One line: kept out of commission income and company dollar, included in net income |
 
 When both an account-level and a charge-level flag describe the same thing, the run keeps the charge-level one. Report it once.
 
@@ -134,7 +137,7 @@ Best: the Profit and Loss with one column per month, as Excel, for January throu
 
 One row per closed deal, for the same months: closing date, status, GCI, what the agents were paid, referral fees, brokerage fees, the team's share and lead source. Client names and addresses can stay in the file; the review never repeats them.
 
-- **Sisu:** the Transactions page, filtered to the closed transactions for the same months. The Download icon exports the transactions currently shown to a spreadsheet, and the Form Selector and Choose Visible Columns control which columns come with it, so pick the commission fields (GCI, Gross Agent Paid Income) and lead source. Admin and TC users see all team transactions; agents see only their own. The Income Report also downloads, but it includes forecasted transactions; the analysis counts only closed ones. Sources: "How do I use the Transactions Page" (updated 2026-08-31), https://kb-app.sisu.co/en/articles/8234892-how-do-i-use-the-transactions-page ; "Income Report Overview" (2026-07-01), https://kb-app.sisu.co/en/articles/9311648-income-report-overview
+- **Sisu:** the Transactions page, filtered to the closed transactions for the same months. The Download icon exports the transactions currently shown to a spreadsheet, and the Form Selector and Choose Visible Columns control which columns come with it, so pick the commission fields (GCI, Gross Agent Paid Income) and lead source. Admin and TC users see all team transactions; agents see only their own. The Income Report also downloads, but it includes forecasted transactions; the analysis counts only closed ones. Sources: "Transactions Page Overview" (Kayla Latta, updated 2026-08-31), https://kb-app.sisu.co/en/articles/8234892-transactions-page-overview ; "Income Report Overview" (2026-07-01), https://kb-app.sisu.co/en/articles/9311648-income-report-overview
 - **The brokerage's back office:** a closed-transactions or production report with those columns. Each brokerage's click path differs and wasn't checked; ask the broker or office manager for the report.
 - **A spreadsheet** the team keeps, one row per closing.
 

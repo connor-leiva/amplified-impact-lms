@@ -34,6 +34,18 @@ Both forms: performance on a stated date is due "by 5:00 PM Mountain Time" (Sect
 - If IS NOT was checked (or 3(b) is blank), there's no appraisal cancellation right. Read the financing condition and any FHA/VA Loan Addendum before telling anyone the buyer can or can't walk, and send the buyer to the lender.
 - Missed deadline: don't treat a cancellation as timely. Tell the agent to call the broker and the transactions team now. An FHA/VA Loan Addendum may still apply (below).
 
+## The Financing Condition Is Not a Free Fallback
+
+A buyer who lets the appraisal condition lapse and later cancels under the financing condition pays for it. Show both side by side whenever the financing box is checked.
+- **December 4, 2024 REPC, Section 8.3(b)(i):** if the buyer "is not satisfied with the terms and conditions of the Loan," the buyer may cancel after the Due Diligence Deadline and no later than the Financing & Appraisal Deadline, and the dollar amount written in that blank "shall be released to Seller." The appraisal cancellation under 8.2(a) releases the whole deposit to the buyer, on the same date. So when both apply, the appraisal route is the one that returns all of the earnest money: name the section in the notice.
+- **November 1, 2026 REPC, Section 12.3(a):** the same right runs to the separate Financing Deadline in 4(d), and the deposit is released to Seller "according to the percentage in Section 3(c)(i)" ("50%" if no box is checked). Show the dollar result. The Appraisal Deadline in 4(c) usually comes first, so letting it pass and relying on the financing condition later costs that share of the deposit.
+- After either financing deadline passes, if the loan doesn't fund, all deposits go to the seller (8.3(b)(ii) and (iii); 12.3(b) and (c)). Loan questions go to the lender; whether a cancellation is proper goes to the broker.
+
+## Appraisal Gap Terms
+
+- Neither REPC has an appraisal gap line, and the Division's state-approved list has no appraisal gap addendum. A term where the buyer agrees to pay some or all of a shortfall shows up on the blank Addendum or a brokerage or Utah Association of REALTORS form (UAR lists an "Appraisal Addendum to REPC," members only; its terms weren't reviewed). See `utah-forms-and-counters.md`.
+- When one is attached, quote it and apply it to the numbers: what the buyer already agreed to bring, what's left of the gap, and whether the appraisal condition still applies above that amount. If the wording leaves that unclear, say so and send it to the broker. Never redraft it.
+
 ## FHA/VA Loan Addendum
 
 The state FHA/VA Loan Addendum (effective November 18, 2020), Section 3: "Notwithstanding the Financing & Appraisal Deadline (if applicable), Buyer SHALL NOT be obligated to complete the purchase of the Property or incur any penalty or forfeiture of the Earnest Money Deposit ... if: (a) for a VA loan, the Purchase Price exceeds the reasonable value of the Property established by the VA Certificate of Reasonable Value or VA appraisal; or (b) for an FHA loan, the Purchase Price exceeds the appraised value of the Property (excluding closing costs) established by the FHA appraisal." The buyer may still choose to close.

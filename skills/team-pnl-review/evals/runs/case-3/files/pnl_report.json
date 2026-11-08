@@ -357,7 +357,7 @@
    "priority": 5,
    "code": "owner_draw_on_pnl",
    "text": "6500 \u00b7 Owner's Draw totals 60,000.00 in the period and is recorded as an expense, which lowers profit. Net income before it: 56,804.08 + 60,000.00 = 116,804.08.",
-   "question": "6500 \u00b7 Owner's Draw (60,000.00 this period) is posted as an expense. Should owner draws sit in an equity account instead? (How owner pay is recorded is a question for the CPA.)"
+   "question": "6500 \u00b7 Owner's Draw (60,000.00 this period) is posted as an expense. Does it hold only owner pay, with no other payments mixed in? (How owner pay should be recorded is a question for the CPA; no change until then.)"
   },
   {
    "priority": 7,
@@ -378,7 +378,7 @@
   }
  ],
  "questions": [
-  "6500 \u00b7 Owner's Draw (60,000.00 this period) is posted as an expense. Should owner draws sit in an equity account instead? (How owner pay is recorded is a question for the CPA.)",
+  "6500 \u00b7 Owner's Draw (60,000.00 this period) is posted as an expense. Does it hold only owner pay, with no other payments mixed in? (How owner pay should be recorded is a question for the CPA; no change until then.)",
   "What was the extra 4,750.30 in 6000 \u00b7 Advertising:6020 \u00b7 Print & Signs in Sep 2026? One-time, or the new normal?",
   "6300 \u00b7 Software went from 912.40 to 938.15 a month in Apr 2026. Was that a planned price or plan change?"
  ],

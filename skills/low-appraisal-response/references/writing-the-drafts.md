@@ -68,6 +68,8 @@ Money language:
 - When the buyer would cover the gap, say the lender bases the loan on the lower of price and appraised value, so the extra cash is at least the gap; the lender confirms the exact figure. Never compute a loan amount or down payment.
 - For VA: if the buyer proceeds above the reasonable value, the difference comes from their own cash, not borrowed.
 - Splits: show the arithmetic ("meeting halfway would be $640,000 minus $14,000 = $626,000"). The client decides; the skill never recommends a number.
+- Appraisal gap term in an addendum: say what the buyer already agreed to bring and what's left, quoting the addendum ("Addendum No. 1 has you covering up to $10,000 of a shortfall; that leaves $18,000"). Whether the cancellation right survives comes from the addendum's own words; if they're unclear, say the broker will confirm.
+- Cancellation routes: when the buyer could cancel under more than one condition, say which returns all of the earnest money and by when. Never tell a client a cancellation is "safe"; the agent and broker confirm the notice.
 
 ## The Note to the Other Agent
 
