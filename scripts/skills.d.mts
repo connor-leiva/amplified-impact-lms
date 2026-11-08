@@ -33,7 +33,7 @@ export function plan(name: string): {
   chatgpt: Download<PlannedEntry> | null;
   practice: Download<PlannedEntry> | null;
 };
-export function frontmatter(text: string): { data: Record<string, unknown>; body: string } | null;
+export function frontmatter(text: string): { data: Record<string, unknown>; body: string; unsafe: string[] } | null;
 export function check(name: string): { errors: string[]; warnings: string[] };
 export function zip(entries: { path: string; data: Buffer }[]): Buffer;
 export function unzip(buf: Buffer): Map<string, Buffer>;
