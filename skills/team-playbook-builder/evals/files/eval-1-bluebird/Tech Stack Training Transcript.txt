@@ -1,0 +1,32 @@
+PRACTICE FILE: made-up example
+
+Bluebird Tech Stack Training
+Recorded October 6, 2026
+Transcript exported from the team's meeting notes app
+
+Taylor Fakesmith  0:00
+Welcome, everybody. Today is the tech stack: Follow Up Boss, Dotloop, Canva and Google Drive.
+
+Taylor Fakesmith  0:41
+Logins: post in #ops and I'll set you up within one business day. Don't share logins with anyone.
+
+Taylor Fakesmith  2:10
+Follow Up Boss: every new lead gets the Bluebird New Lead action plan. Don't turn it off without asking Jamie.
+
+Taylor Fakesmith  4:32
+Dotloop is where every contract and listing agreement lives. Name each loop with the property address.
+
+Taylor Fakesmith  6:05
+Canva: the Bluebird brand kit is in the team folder. Templates only.
+
+Taylor Fakesmith  7:48
+Google Drive: the Bluebird shared drive has the offer checklist, scripts and the handbook.
+
+Agent (Parker Pretendwell)  9:15
+What are the pond rules? When does a lead get taken back?
+
+Taylor Fakesmith  9:22
+We'll do pond rules on another call. That doc isn't finished.
+
+Taylor Fakesmith  10:02
+That's it. Questions about tech go in #ops.

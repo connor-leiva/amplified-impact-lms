@@ -1,0 +1,23 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "post_id": "PRACTICE_ALDER_A2",
+  "url": "https://www.instagram.com/reel/PRACTICE_ALDER_A2/",
+  "owner": "example_coach_alder",
+  "multiple": 2.24,
+  "baseline_label": "strong",
+  "collected_at": "2026-11-06T13:00:00Z",
+  "run_id": "madeUpRun004",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 56,
+  "duration_sec": 38,
+  "caption": "Your CRM is a graveyard. Here's the Friday fix. #aiforagents_example",
+  "transcript": "Your CRM is not a database, it is a graveyard. Two thousand contacts, and you call the same forty. Every Friday I pick ten people I have not talked to in a year and send a voice memo, not a text. No ask. Out of ten, three or four write back. That is the whole system.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 11900,
+    "likes": 640,
+    "comments": 51,
+    "shares": null
+  }
+}

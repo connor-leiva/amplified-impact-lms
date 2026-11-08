@@ -1,0 +1,23 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "post_id": "PRACTICE_DUNE_D1",
+  "url": "https://www.instagram.com/p/PRACTICE_DUNE_D1/",
+  "owner": "example_newcomer_dune",
+  "multiple": null,
+  "baseline_label": "none",
+  "collected_at": "2026-11-06T13:00:00Z",
+  "run_id": "madeUpRun004",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 64,
+  "duration_sec": 44,
+  "caption": "The open house question that got me 3 buyer consults in one Sunday. Comment SCRIPT and I'll DM it to you.",
+  "transcript": "I am a first-year agent and open houses scared me. So I stopped asking people if they had an agent. Instead I asked: what is the one thing this house got right that your current place does not? People talk for five minutes. Three of them booked a buyer consult with me that afternoon. Comment SCRIPT and I will send you the whole thing.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 26203,
+    "likes": 1217,
+    "comments": 487,
+    "shares": null
+  }
+}

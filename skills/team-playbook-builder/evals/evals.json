@@ -1,0 +1,73 @@
+{
+  "skill_name": "team-playbook-builder",
+  "evals": [
+    {
+      "id": 1,
+      "name": "five-documents-one-conflict-two-gaps",
+      "prompt": "My agents keep texting me the same questions. Here are our five team documents. Build us a playbook skill they can install.",
+      "expected_output": "A bluebird-example-group-playbook ZIP that passes the check script, with one topic file per covered topic, each with an owner and a last-updated date. The closing gift contradiction (the Agent Handbook says the team pays up to $150 per side; the Marketing and Brand Rules say gifts are the agent's own expense) is listed with both quotes and sources and shown as a CONFLICT in the playbook. Pond rules and leaving the team are listed as gaps with no policy written for either, and the Lead Management SOP is listed as referenced but not uploaded. Then a 25-question test set (20 answerable, 5 routed), a draft message to agents with a Title Case subject, and Check before sending.",
+      "files": [
+        "evals/files/eval-1-bluebird/Bluebird Agent Handbook.docx",
+        "evals/files/eval-1-bluebird/Buyer Process SOP.pdf",
+        "evals/files/eval-1-bluebird/Listing Launch Checklist.pdf",
+        "evals/files/eval-1-bluebird/Marketing and Brand Rules.docx",
+        "evals/files/eval-1-bluebird/Tech Stack Training Transcript.txt"
+      ],
+      "expectations": [
+        "The output names the skill bluebird-example-group-playbook, and the packaged ZIP passes the check script with the one folder at the ZIP root",
+        "The closing gift contradiction is listed with both quotes (Agent Handbook: the team pays up to $150 per side; Marketing and Brand Rules: the agent's own expense), each with its document, section and date, and no winner is picked",
+        "In the generated playbook, the closing gift topic is marked CONFLICT, shows both versions and sends agents to a named decision owner",
+        "The gaps list includes pond rules and what happens when an agent leaves the team, and the playbook writes no policy for either",
+        "The Lead Management SOP is listed as a document referenced but not uploaded",
+        "Every topic file in the generated playbook has an Owner line and a Last updated line",
+        "The test set has exactly 25 questions: 20 with expected answers and sources, and 5 that route to a named role",
+        "The generated SKILL.md answers only from its references, cites the section, flags sections dated more than 12 months before today, and routes contract and legal questions to the Designated Broker",
+        "Every policy number, dollar amount, time and date in the playbook and the output appears in the input documents",
+        "The message to agents has a Title Case subject line, and the output ends with a Check before sending section",
+        "No em or en dashes appear in the output or any generated file"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "individual-splits-and-personal-data",
+      "prompt": "Turn these into a playbook our agents can install. Keep it simple.",
+      "expected_output": "A fernhollow-example-partners-playbook ZIP that passes the check script with the removed names and figures as must-not-contain terms. Nothing from the Agent Splits (Confidential) sheet appears anywhere, and the removal log names only the file, the sheet and the kind of item. The Team Plan sheet is held out and the output asks at the top whether it applies to every agent. Phone numbers, the personal email, the alarm code and the trust account details are removed and never repeated; the earnest money process stays without account details and goes to the broker review list with the Hello 1 texting step.",
+      "files": [
+        "evals/files/eval-2-fernhollow/Team Operations Manual 2026.pdf",
+        "evals/files/eval-2-fernhollow/Commission and Fees.xlsx",
+        "evals/files/eval-2-fernhollow/Onboarding Checklist.docx"
+      ],
+      "expectations": [
+        "No agent name, split or note from the Agent Splits (Confidential) sheet appears anywhere in the playbook files or the chat output, and the removal log names only the file, the sheet and the kind of item",
+        "The Team Plan splits and fees are not in the playbook, and the output asks near the top whether that schedule applies to every agent",
+        "No phone number, personal email, alarm code, routing number or account number from the Operations Manual appears anywhere in the playbook or the chat output",
+        "The playbook keeps the earnest money process (earnest money goes to the title company) with the account details replaced by a removal note, and the trust account step is on the broker review list",
+        "The Hello 1 texting step is kept as written and is on the broker review list for consent",
+        "The output shows the check script ran with the removed names and figures as must-not-contain terms and passed",
+        "The test set includes a routed question about someone's own pay that uses no removed name or figure",
+        "Every topic file has an Owner line and a Last updated line, and the ZIP has the one folder at its root",
+        "The output ends with a Check before sending section, and no em or en dashes appear anywhere"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "reserved-name-stale-manual-team-plan",
+      "prompt": "We're on a Claude Team plan. Build the playbook for my team from these two files, and tell me the best way to get it to my agents.",
+      "expected_output": "A playbook whose name leaves out the reserved word (for example okafor-example-team-playbook), with a one-line reason. Every policy manual section (May 2024) is flagged stale and carries its date. The manual's MLS compensation step and its sign-before-offer buyer agreement step stay out of the playbook and go to the broker review list, citing the August 17, 2024 practice changes; the training call's newer rule (buyer agreement before the first showing) is in the playbook with its source, and the disagreement is listed as a conflict. The 21-day pond rule is flagged as under review. The generated SKILL.md routes contract, addendum and custom clause questions to the managing broker. Sharing steps cover the Team plan options.",
+      "files": [
+        "evals/files/eval-3-okafor/Okafor Team Policy Manual.pdf",
+        "evals/files/eval-3-okafor/Contracts QA Training Call.vtt"
+      ],
+      "expectations": [
+        "The skill name contains neither 'claude' nor 'anthropic' and the output says in one line why it differs from the team's name",
+        "Every section taken from the May 2024 policy manual is flagged stale in the output and carries its date into the playbook",
+        "The manual's steps to check cooperating compensation in the MLS and to sign the buyer agreement before writing an offer are not in the playbook and are on the broker review list, citing the August 17, 2024 practice changes",
+        "The training call's rule that every buyer signs the brokerage's buyer agreement before the first showing (from October 1) is in the playbook with its source, and the disagreement with the manual is listed as a conflict",
+        "The 21-day pond rule is flagged because the team leader said on the call she isn't sure it's staying",
+        "The generated SKILL.md routes contract, addendum and custom clause questions to the managing broker and never drafts clause language",
+        "The sharing steps cover the Team plan options (share with specific people, owner provisioning, publish to the organization) with Help Center click paths",
+        "The ZIP passes the check script, the test set has 20 answerable and 5 routed questions, the output ends with Check before sending, and no em or en dashes appear"
+      ]
+    }
+  ]
+}

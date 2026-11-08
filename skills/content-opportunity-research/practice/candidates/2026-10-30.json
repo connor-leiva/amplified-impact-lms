@@ -1,0 +1,349 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "generated_at": "2026-10-30T13:00:00Z",
+  "settings": {
+    "outlier_multiple": 2.0,
+    "min_post_age_hours": 72.0,
+    "candidate_window_days": 21
+  },
+  "failures": [],
+  "stale": [],
+  "notes": [
+    "Watchlist creators without a strong baseline: example_agent_birch."
+  ],
+  "creators": [
+    {
+      "owner": "example_agent_birch",
+      "on_watchlist": true,
+      "metric": "views",
+      "baseline_posts": 9,
+      "baseline_label": "weak",
+      "median": 2100,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_coach_alder",
+      "on_watchlist": true,
+      "metric": "views",
+      "baseline_posts": 23,
+      "baseline_label": "strong",
+      "median": 5100,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_teamlead_cedar",
+      "on_watchlist": true,
+      "metric": "engagement",
+      "baseline_posts": 15,
+      "baseline_label": "strong",
+      "median": 380,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_agent_hazel",
+      "on_watchlist": false,
+      "metric": "views",
+      "baseline_posts": 1,
+      "baseline_label": "none",
+      "median": null,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_agent_maple",
+      "on_watchlist": false,
+      "metric": "views",
+      "baseline_posts": 0,
+      "baseline_label": "none",
+      "median": null,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_broker_juniper",
+      "on_watchlist": false,
+      "metric": "views",
+      "baseline_posts": 1,
+      "baseline_label": "none",
+      "median": null,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_coach_linden",
+      "on_watchlist": false,
+      "metric": "views",
+      "baseline_posts": 1,
+      "baseline_label": "none",
+      "median": null,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_lender_elm",
+      "on_watchlist": false,
+      "metric": "views",
+      "baseline_posts": 0,
+      "baseline_label": "none",
+      "median": null,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_newcomer_dune",
+      "on_watchlist": false,
+      "metric": "views",
+      "baseline_posts": 2,
+      "baseline_label": "none",
+      "median": null,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    },
+    {
+      "owner": "example_stager_fern",
+      "on_watchlist": false,
+      "metric": "views",
+      "baseline_posts": 1,
+      "baseline_label": "none",
+      "median": null,
+      "last_collected_at": "2026-10-30T13:00:00Z"
+    }
+  ],
+  "candidates": [
+    {
+      "post_id": "PRACTICE_ALDER_A0",
+      "url": "https://www.instagram.com/reel/PRACTICE_ALDER_A0/",
+      "owner": "example_coach_alder",
+      "on_watchlist": true,
+      "source": "watchlist",
+      "query": null,
+      "published_at": "2026-10-17T15:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 12800,
+      "multiple": 2.51,
+      "baseline_label": "strong",
+      "baseline_posts": 23,
+      "is_outlier": true,
+      "views": 12800,
+      "likes": 610,
+      "comments": 44,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "2,000 contacts. You call the same 40. #agentsystems_example"
+    },
+    {
+      "post_id": "PRACTICE_CEDAR_C1",
+      "url": "https://www.instagram.com/reel/PRACTICE_CEDAR_C1/",
+      "owner": "example_teamlead_cedar",
+      "on_watchlist": true,
+      "source": "watchlist",
+      "query": null,
+      "published_at": "2026-10-24T17:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "engagement",
+      "value": 937,
+      "multiple": 2.47,
+      "baseline_label": "strong",
+      "baseline_posts": 15,
+      "is_outlier": true,
+      "views": null,
+      "likes": 859,
+      "comments": 78,
+      "shares": null,
+      "missing": [
+        "views",
+        "shares"
+      ],
+      "caption_excerpt": "We cut our Monday huddle to one question."
+    },
+    {
+      "post_id": "PRACTICE_ALDER_A2",
+      "url": "https://www.instagram.com/reel/PRACTICE_ALDER_A2/",
+      "owner": "example_coach_alder",
+      "on_watchlist": true,
+      "source": "watchlist",
+      "query": null,
+      "published_at": "2026-10-20T15:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 11900,
+      "multiple": 2.33,
+      "baseline_label": "strong",
+      "baseline_posts": 23,
+      "is_outlier": true,
+      "views": 11900,
+      "likes": 640,
+      "comments": 51,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "Your CRM is a graveyard. Here's the Friday fix. #aiforagents_example"
+    },
+    {
+      "post_id": "PRACTICE_BIRCH_B1",
+      "url": "https://www.instagram.com/reel/PRACTICE_BIRCH_B1/",
+      "owner": "example_agent_birch",
+      "on_watchlist": true,
+      "source": "watchlist",
+      "query": null,
+      "published_at": "2026-10-22T16:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 5900,
+      "multiple": 2.81,
+      "baseline_label": "weak",
+      "baseline_posts": 9,
+      "is_outlier": true,
+      "views": 5900,
+      "likes": 330,
+      "comments": 28,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "I timed my week. Six hours went here."
+    },
+    {
+      "post_id": "PRACTICE_FERN_F1",
+      "url": "https://www.instagram.com/p/PRACTICE_FERN_F1/",
+      "owner": "example_stager_fern",
+      "on_watchlist": false,
+      "source": "discovery",
+      "query": "#agentsystems_example",
+      "published_at": "2026-10-26T13:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 20680,
+      "multiple": null,
+      "baseline_label": "none",
+      "baseline_posts": 1,
+      "is_outlier": false,
+      "views": 20680,
+      "likes": 921,
+      "comments": 66,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "Staging on a $300 budget. Before and after."
+    },
+    {
+      "post_id": "PRACTICE_DUNE_D0",
+      "url": "https://www.instagram.com/p/PRACTICE_DUNE_D0/",
+      "owner": "example_newcomer_dune",
+      "on_watchlist": false,
+      "source": "discovery",
+      "query": "#aiforagents_example",
+      "published_at": "2026-10-25T18:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 5831,
+      "multiple": null,
+      "baseline_label": "none",
+      "baseline_posts": 2,
+      "is_outlier": false,
+      "views": 5831,
+      "likes": 277,
+      "comments": 33,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "Week 12 as a new agent. What I'd tell week-1 me."
+    },
+    {
+      "post_id": "PRACTICE_LINDEN_L1",
+      "url": "https://www.instagram.com/p/PRACTICE_LINDEN_L1/",
+      "owner": "example_coach_linden",
+      "on_watchlist": false,
+      "source": "discovery",
+      "query": "#agentsystems_example",
+      "published_at": "2026-10-23T13:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 5200,
+      "multiple": null,
+      "baseline_label": "none",
+      "baseline_posts": 1,
+      "is_outlier": false,
+      "views": 5200,
+      "likes": 240,
+      "comments": 31,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "The Sunday reset I do for my business."
+    },
+    {
+      "post_id": "PRACTICE_DUNE_D2",
+      "url": "https://www.instagram.com/p/PRACTICE_DUNE_D2/",
+      "owner": "example_newcomer_dune",
+      "on_watchlist": false,
+      "source": "discovery",
+      "query": "#agentsystems_example",
+      "published_at": "2026-10-18T13:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 4800,
+      "multiple": null,
+      "baseline_label": "none",
+      "baseline_posts": 2,
+      "is_outlier": false,
+      "views": 4800,
+      "likes": 210,
+      "comments": 18,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "My first listing appointment, honestly."
+    },
+    {
+      "post_id": "PRACTICE_HAZEL_H1",
+      "url": "https://www.instagram.com/p/PRACTICE_HAZEL_H1/",
+      "owner": "example_agent_hazel",
+      "on_watchlist": false,
+      "source": "discovery",
+      "query": "#aiforagents_example",
+      "published_at": "2026-10-21T14:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 3900,
+      "multiple": null,
+      "baseline_label": "none",
+      "baseline_posts": 1,
+      "is_outlier": false,
+      "views": 3900,
+      "likes": 150,
+      "comments": 12,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "AI wrote my listing description. Here's what I changed."
+    },
+    {
+      "post_id": "PRACTICE_JUNIPER_J1",
+      "url": "https://www.instagram.com/p/PRACTICE_JUNIPER_J1/",
+      "owner": "example_broker_juniper",
+      "on_watchlist": false,
+      "source": "discovery",
+      "query": "#aiforagents_example",
+      "published_at": "2026-10-19T14:00:00Z",
+      "collected_at": "2026-10-30T13:00:00Z",
+      "metric": "views",
+      "value": 2600,
+      "multiple": null,
+      "baseline_label": "none",
+      "baseline_posts": 1,
+      "is_outlier": false,
+      "views": 2600,
+      "likes": 95,
+      "comments": 6,
+      "shares": null,
+      "missing": [
+        "shares"
+      ],
+      "caption_excerpt": "Broker tip: read the contract before the AI summary."
+    }
+  ]
+}

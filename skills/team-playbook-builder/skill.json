@@ -1,0 +1,8 @@
+{
+  "name": "team-playbook-builder",
+  "page": "team-playbook-builder",
+  "title": "Team Playbook Builder",
+  "version": "1.0",
+  "apps": ["claude"],
+  "shared": []
+}
