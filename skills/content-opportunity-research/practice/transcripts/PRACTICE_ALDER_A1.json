@@ -1,0 +1,23 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "post_id": "PRACTICE_ALDER_A1",
+  "url": "https://www.instagram.com/reel/PRACTICE_ALDER_A1/",
+  "owner": "example_coach_alder",
+  "multiple": 3.47,
+  "baseline_label": "strong",
+  "collected_at": "2026-11-06T13:00:00Z",
+  "run_id": "madeUpRun004",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 97,
+  "duration_sec": 41,
+  "caption": "The question I cut from every listing appointment. Save this for your next one. #agentsystems_example",
+  "transcript": "I stopped asking sellers what they think their house is worth. For years that was my opener, and it put a number in the room before I had shown a single comp. Now I open with one question: what has to be true about this sale for you to call it a win? I hear about timing, about the next house, about not wanting showings during the holidays. Then the price conversation is about their goal, not my number against theirs. My appointments got shorter. Try it at your next one and tell me what you hear.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 18400,
+    "likes": 1120,
+    "comments": 96,
+    "shares": null
+  }
+}

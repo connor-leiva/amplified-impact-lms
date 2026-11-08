@@ -1,0 +1,10 @@
+{
+  "name": "perfect-week",
+  "page": "perfect-week",
+  "title": "Perfect Week",
+  "version": "1.1",
+  "apps": [
+    "claude"
+  ],
+  "shared": []
+}

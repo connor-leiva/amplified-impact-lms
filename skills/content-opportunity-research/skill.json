@@ -1,0 +1,10 @@
+{
+  "name": "content-opportunity-research",
+  "page": "content-strategist",
+  "title": "Content Strategist",
+  "version": "1.1",
+  "apps": [
+    "claude"
+  ],
+  "shared": []
+}

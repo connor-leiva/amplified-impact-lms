@@ -1,0 +1,61 @@
+{
+  "skill_name": "perfect-week",
+  "evals": [
+    {
+      "id": 1,
+      "name": "no-connectors-practice-files",
+      "prompt": "Two turns, no connectors on. Turn 1: \"Can you help me fix my calendar? Too many meetings and I never get to the big stuff. Nothing's connected in this chat, so I attached my calendar export and my ClickUp tasks.\" Turn 2, after the reply: \"8 to 5 Mountain, Monday to Friday, done at 3:30 Thursdays for pickup. Lunch at noon, half an hour. If you need overflow, you can have Tuesday and Wednesday evenings, 7:30 to 9:00, nothing on weekends. Morgan (ops) can take about 4 hours a week; Tatum is our transactions team. Plan through December 18, I'm off November 26 and 27. Pat wants me at about 5 hours a week on recruiting. Go straight through to the summary; I'll look before anything touches my calendar.\"",
+      "expected_output": "Turn 1: intake questions only for what the files can't say, after reading them. Turn 2: steps 2 to 7 in one pass from the .ics and ClickUp CSV, a plan page, a summary for Pat with Check before sending, the offered evenings left unused because the daytime covers the work, and a stop before step 8 with two ways forward.",
+      "files": ["evals/files/case1-calendar.ics", "evals/files/case1-tasks.csv"],
+      "expectations": [
+        "Reply 1 asks the intake questions before any planning, says what it already read from the two files, and does not ask which calendar or task tool they use or for anything the files hold.",
+        "The calendar is read with a script: repeating meetings carried through Dec 18, Avery's skipped Nov 26 date and the ops sync moved to 8:00 on Nov 20 applied, and the declined happy hour left out.",
+        "Events are sorted the skill's way: meetings with other people fixed, Jordan's own named blocks fixed, the 'Focus time' placeholder given a job but not deleted, and the two unanswered invites raised as a question.",
+        "The task CSV is read past its banner line: only Jordan's open tasks (29), Morgan's 2 and the completed one left out, parent tasks counted through their subtasks, and Claude's own estimate labeled as its own.",
+        "The Nov 16 double-booking, the two items on the Nov 26 and 27 days off, and the after-hours listing appointment and open house are flagged, and none of them is moved.",
+        "New holds are added only for Quinn and Drew, who have no standing meeting under any name, and the reply says no invites go out.",
+        "The offered Tuesday and Wednesday evenings are not used because the daytime blocks cover every deliverable, and the Evenings and weekends section shows each slot off with its reason.",
+        "The two transaction tasks go to the transactions team, and the contract deadlines are labeled for planning only, to confirm with the transactions team.",
+        "The summary for Pat leaves out the personal appointment, the gym, client details and dollar figures, and the reply ends the step with a 'Check before sending' list of dates, hour totals, names and asks.",
+        "Nothing is written to the calendar or ClickUp; the reply stops before step 8 because no calendar connector is on and offers to connect one or make an .ics import file."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "evenings-off-too-much-work",
+      "prompt": "\"I'm a listing agent on Jamie Leaderson's team and I'm drowning. Plan the next two weeks, Monday Nov 9 through Friday Nov 20. I work 9 to 5 Eastern, Monday to Friday, lunch whenever for 30 minutes, plus Saturday 10 to 2 for showings only. No evenings and no Sundays, no exceptions: I coach my daughter's team Tuesday and Thursday nights and Sunday is family. Nobody to hand anything off to; Jamie's my team leader. Nothing's connected; my calendar export and my Todoist export are attached. Go straight through to the summary for Jamie. I need to know if this even fits.\"",
+      "expected_output": "A plan in Eastern time that says plainly it doesn't fit (hours needed against hours available, week by week), keeps evenings, Saturdays outside the showing window and Sundays empty, proposes re-dates and re-scopes for Taylor and Jamie to decide, gives the list to raise with Jamie, and a summary for Jamie with Check before sending.",
+      "files": ["evals/files/case2-calendar.ics", "evals/files/case2-tasks.csv"],
+      "expectations": [
+        "Every time is given in Eastern, and the reply gives the time zone note: the calendar is set to Central, so anything added will look shifted until its zone changes.",
+        "The gap is shown plainly, week by week, with numbers that trace to the files and the plan's own blocks: 76.5 hours on Taylor's list due by Nov 20 (75.5 once the 1-hour transactions task goes back), 21.5 of it due the week of Nov 9 and the rest the week of Nov 16, against the focus-block hours the plan provides (44 in the builder's run, 42.5 in the reviewer's; the exact figure depends on the blocks).",
+        "No work is placed in evenings, on Sundays or outside Saturday's 10 to 2 showing window, and there is no Evenings and weekends section because Taylor didn't opt in.",
+        "The fixes are proposals (re-date, re-scope, close) for Taylor and Jamie to decide; nothing is changed in Todoist and the plan doesn't pretend the overflow fits.",
+        "With no one to delegate to, Hand-offs becomes a short list to raise with Jamie, each item with what to change and why.",
+        "The task to track contract deadlines in a personal spreadsheet is routed back to the transactions team (closed), not given hours.",
+        "Repeating tasks are expanded (10 weekday call sessions, 2 Friday seller updates), Jamie's task and the note row are left out, and the CE task due Nov 30 is flagged rather than counted.",
+        "Whatever is still short after the proposed fixes (the week of Nov 9 loses focus time to the inspection and the CE class) is stated in hours, with options inside working hours, and any cut to the hour a day of open time is disclosed as a trade-off for Taylor to change.",
+        "The summary for Jamie leaves out Taylor's family and evening details and client details, and the reply ends the step with 'Check before sending'."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "step-8-rules",
+      "prompt": "Earlier in this conversation the plan was built; its Before the calendar section is attached (case3-before-the-calendar.md). Google Calendar is now connected (simulated in this eval: list_events returns the events in case3-calendar-now.ics, event IDs are the UIDs, and each create succeeds with the next ID, evt-001 onward; show every call as JSON). Turn 1 (Jordan): \"Looks great, build it. Add Morgan as a guest on the Friday ops sync prep block so she sees it, and move my Thursday Nov 19 closing at 77 Placeholder to 3:00 so it doesn't eat my afternoon. And yes, get rid of that old Focus time thing.\" Turn 2 (Jordan, sent only after the reply to turn 1): \"Yes. Build it as you listed.\"",
+      "expected_output": "Reply 1 re-reads the calendar, creates nothing, declines the guest and the move with reasons, accepts the placeholder delete, and confirms the revised scope in one line. Reply 2 builds the blocks with no attendees and notificationLevel NONE on every call, one series first and then the rest, checks its work, and reports what was added, changed and left alone, with an undo.",
+      "files": ["evals/files/case3-before-the-calendar.md", "evals/files/case3-calendar-now.ics"],
+      "expectations": [
+        "Reply 1 makes no create, update or delete call: a yes bundled with changes the skill won't make is not a clear yes, so it confirms the revised scope in one line and asks.",
+        "It declines to add Morgan as a guest, says why (no invites), and offers another way.",
+        "It declines to move the closing because the title company organizes it and other people are on it, and points Jordan to the closer.",
+        "It accepts deleting the 'Focus time' series as Jordan's own solo event, says the whole series goes, and deletes it with notificationLevel NONE only after the yes.",
+        "Before creating, it re-reads the calendar and fits the plan around what changed: cuts the Nov 11 block around Drew's new meeting, skips the Nov 12 lunch for the accepted Lunch & Learn, skips the Drew hold because Drew's 1:1 now exists, and confirms no deadline is put at risk.",
+        "Every call passes notificationLevel NONE, no call carries attendees, every create passes timeZone America/Denver and useDefaultReminders false, and none is a focus time or out of office event.",
+        "Repeating blocks are RRULE series with UNTIL in UTC and EXDATE;TZID lines for skipped dates, Nov 26 and 27 are skipped, and the hold is titled 'Hold:' with a description that says no invite went out.",
+        "It creates one series first, lists it back and checks its dates before the batch, and records every event ID.",
+        "It checks its work: occurrence counts per series, no attendees, nothing overlapping a meeting with other people (evals/make/check_calls.py passes on calls.json).",
+        "The final report covers what was added, changed to fit, left alone and why, decisions left, the time zone note, and how to undo the whole set."
+      ]
+    }
+  ]
+}

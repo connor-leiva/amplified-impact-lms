@@ -1,0 +1,23 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "post_id": "PRACTICE_BIRCH_B1",
+  "url": "https://www.instagram.com/reel/PRACTICE_BIRCH_B1/",
+  "owner": "example_agent_birch",
+  "multiple": 2.73,
+  "baseline_label": "weak",
+  "collected_at": "2026-11-06T13:00:00Z",
+  "run_id": "madeUpRun004",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 67,
+  "duration_sec": 47,
+  "caption": "I timed my week. Six hours went here.",
+  "transcript": "I tracked every hour last week. Six of them went to rewriting the same three emails: the showing recap, the offer-received update, and the under-contract next steps. So I wrote each one once, saved it as a template, and now I only edit the first line. I am not telling you to automate your clients. I am telling you to stop writing the same email from scratch.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 5900,
+    "likes": 330,
+    "comments": 28,
+    "shares": null
+  }
+}

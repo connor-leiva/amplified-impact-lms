@@ -1,0 +1,8 @@
+{
+  "name": "inbox-meeting-follow-through",
+  "page": "inbox-meeting-follow-through",
+  "title": "Inbox and Meeting Follow-Through",
+  "version": "1.0",
+  "apps": ["claude"],
+  "shared": []
+}

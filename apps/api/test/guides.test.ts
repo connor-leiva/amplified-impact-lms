@@ -123,6 +123,9 @@ it('serves the guides there are, by slug', () => {
       'database-health-check',
       'recruiting-prep',
       'team-playbook-builder',
+      'content-strategist',
+      'perfect-week',
+      'inbox-meeting-follow-through',
     ]);
 });
 

@@ -1,0 +1,67 @@
+# PRACTICE FILE: made-up example
+# The settings of a made-up creator, Rory Samplewood. Content Strategist practice data.
+
+version: "1.0"
+
+# practice: true means the scripts never call Apify and nothing is ever spent.
+practice: true
+
+context:
+  creator_name: "Rory Samplewood (made-up)"
+  audience: "real estate agents and small team owners"
+  niche: "AI and simple systems for small real estate teams"
+  pillars: ["systems", "team leadership", "AI how-tos", "listing conversations"]
+  offers: ["free listing appointment question sheet", "Make-Believe Realty Team Systems Workshop"]
+  primary_format: "talking-head"
+  review_topics: ["income claims", "listings", "fair housing"]
+
+budget:
+  monthly_budget_usd: 10        # made-up; practice: true means nothing is ever spent
+  per_run_max_usd: null
+  reserve_usd: 1.00
+
+apify:
+  token_env: APIFY_TOKEN
+  base_url: https://api.apify.com/v2
+  poll_seconds: 10
+  run_timeout_seconds: 900
+
+watchlist:
+  accounts: ["example_coach_alder", "example_agent_birch", "example_teamlead_cedar"]
+  actor: apify/instagram-reel-scraper
+  reels_per_account: 24
+  lookback: "90 days"
+  skip_pinned: true
+  include_shares_count: false
+  max_charge_usd: null
+
+discovery:
+  enabled: true
+  actor: apify/instagram-hashtag-scraper
+  hashtags: ["aiforagents_example", "agentsystems_example"]
+  keywords: []
+  results_type: reels
+  results_per_query: 20
+  max_queries: 6
+  max_charge_usd: null
+
+study:
+  actor: apify/instagram-reel-scraper
+  max_candidates: 8
+  max_unbaselined: 2
+  max_charge_usd: null
+
+scoring:
+  min_post_age_hours: 72
+  baseline_days: 90
+  candidate_window_days: 21
+  outlier_multiple: 2.0
+  strong_baseline_posts: 12
+  weak_baseline_posts: 5
+  views_coverage_for_views_metric: 0.6
+  stale_after_days: 8
+  max_unbaselined_leads: 10
+
+output:
+  drive_folder_id: ""
+  media_tmp_dir: /tmp/content-research-media

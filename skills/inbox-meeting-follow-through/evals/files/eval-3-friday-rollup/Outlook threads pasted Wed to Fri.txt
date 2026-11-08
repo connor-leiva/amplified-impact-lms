@@ -1,0 +1,204 @@
+PRACTICE FILE: made-up example. Every person, company, address and email in this file is fictional.
+
+Pasted from Outlook by Bianca Fauxley on Friday, October 30, 2026, 2:50 PM Pacific Time.
+Inbox and Sent Items since Wednesday, October 28, 2026, 7:00 AM. Times are Pacific Time.
+
+======================================================================
+CONVERSATION 1 of 12
+Subject: December newsletter
+Messages: 1
+======================================================================
+
+From: Lena Postwell <lena@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Friday, October 30, 2026, 1:00 PM
+Subject: December newsletter
+Attachments: December_Newsletter_Draft.pdf
+
+Draft attached. Can you approve it by Monday so it goes out Tuesday?
+
+Lena
+
+
+======================================================================
+CONVERSATION 2 of 12
+Subject: Accepted: Monday Team Meeting
+Messages: 1
+======================================================================
+
+From: Lena Postwell <lena@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Friday, October 30, 2026, 12:00 PM
+Subject: Accepted: Monday Team Meeting
+
+Lena Postwell has accepted this invitation.
+
+
+======================================================================
+CONVERSATION 3 of 12
+Subject: Open house posted
+Messages: 1
+======================================================================
+
+From: Lena Postwell <lena@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Friday, October 30, 2026, 11:00 AM
+Subject: Open house posted
+
+The 44 Example Bluff Rd open house is posted on the MLS and our socials for Sunday, 1 to 4.
+
+Lena
+
+
+======================================================================
+CONVERSATION 4 of 12
+Subject: Lockboxes ordered
+Messages: 1
+======================================================================
+
+From: Hector Opsmith <hector@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Friday, October 30, 2026, 10:15 AM
+Subject: Lockboxes ordered
+
+Six lockboxes ordered, arriving Tuesday.
+
+Hector
+
+
+======================================================================
+CONVERSATION 5 of 12
+Subject: Settlement moved: 8 Example Fern Ct
+Messages: 1
+======================================================================
+
+From: Mae Closely <mae@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Friday, October 30, 2026, 9:00 AM
+Subject: Settlement moved: 8 Example Fern Ct
+
+FYI, settlement for 8 Example Fern Ct moved to Friday, November 6 at the lender's request. I've updated the file and told the agents.
+
+Mae
+
+
+======================================================================
+CONVERSATION 6 of 12
+Subject: Photos delivered: 44 Example Bluff Rd
+Messages: 1
+======================================================================
+
+From: Example Photo Studio <studio@examplephoto.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Thursday, October 29, 2026, 5:05 PM
+Subject: Photos delivered: 44 Example Bluff Rd
+
+Your photos for 44 Example Bluff Rd are delivered to your shared folder. Thanks for the business!
+
+
+======================================================================
+CONVERSATION 7 of 12
+Subject: Listing presentation
+Messages: 1
+======================================================================
+
+From: Felix Mockton <felix@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Thursday, October 29, 2026, 4:45 PM
+Subject: Re: Listing presentation
+
+Thanks again for watching my presentation Tuesday. Looking forward to your notes!
+
+Felix
+
+
+======================================================================
+CONVERSATION 8 of 12
+Subject: E&O renewal submitted
+Messages: 1
+======================================================================
+
+From: Hector Opsmith <hector@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Thursday, October 29, 2026, 2:00 PM
+Subject: E&O renewal submitted
+Attachments: EO_Renewal_Confirmation.pdf
+
+The E&O renewal is submitted. Confirmation attached.
+
+Hector
+
+
+======================================================================
+CONVERSATION 9 of 12
+Subject: Holiday card proof
+Messages: 2
+======================================================================
+
+From: Hector Opsmith <hector@fauxleyhomes.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Thursday, October 29, 2026, 1:00 PM
+Subject: Holiday card proof
+Attachments: Holiday_Card_Proof.pdf
+
+Holiday card proof attached. Can you approve it?
+
+Hector
+
+----------------------------------------------------------------------
+
+From: Bianca Fauxley <bianca@fauxleyhomes.example>
+To: Hector Opsmith <hector@fauxleyhomes.example>
+Date: Thursday, October 29, 2026, 1:30 PM
+Subject: Re: Holiday card proof
+
+Looks good at a glance. I'll approve the holiday card proof Monday after Lena weighs in.
+
+Bianca
+
+
+======================================================================
+CONVERSATION 10 of 12
+Subject: Roof leak
+Messages: 1
+======================================================================
+
+From: Gwen Pastly <gwen.pastly@mailbox.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Thursday, October 29, 2026, 9:20 AM
+Subject: Re: Roof leak
+
+Hi Bianca, still hoping for those roofer names! Rain is coming Sunday.
+
+Gwen
+
+
+======================================================================
+CONVERSATION 11 of 12
+Subject: Example Realty Weekly
+Messages: 1
+======================================================================
+
+From: Example Realty Weekly <news@examplerealtyweekly.example>
+To: Bianca Fauxley <bianca@fauxleyhomes.example>
+Date: Thursday, October 29, 2026, 8:00 AM
+Subject: Example Realty Weekly
+
+This week's news and tips.
+
+
+======================================================================
+CONVERSATION 12 of 12
+Subject: Q4 Team Goals
+Messages: 1
+======================================================================
+
+From: Bianca Fauxley <bianca@fauxleyhomes.example>
+To: Fauxley Team <team@fauxleyhomes.example>
+Date: Wednesday, October 28, 2026, 4:10 PM
+Subject: Q4 Team Goals
+Attachments: Q4_Team_Goals.pdf
+
+Team, attached are our Q4 goals. We'll walk through them together Monday.
+
+Bianca

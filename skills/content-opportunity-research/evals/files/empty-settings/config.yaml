@@ -1,0 +1,81 @@
+# Content Opportunity Research: your settings
+# Fill in the four sections marked FILL IN. Everything else has sensible defaults.
+# Claude never edits this file during a run.
+
+version: "1.0"
+
+# ---------------------------------------------------------------- FILL IN: about you
+context:
+  creator_name: ""                # whose content this is for, e.g. "Jordan" or "Acme Realty"
+  audience: ""                    # who you make content for, e.g. "real estate agents and team owners"
+  niche: ""                       # one line on your space, e.g. "AI tools for small real estate teams"
+  pillars: []                     # your content pillars, e.g. ["systems", "client stories", "AI how-tos"]
+  offers: []                      # what your content should lead to, in priority order
+  primary_format: talking-head    # the format you film most
+  review_topics: []               # topics that need a compliance or legal check before posting,
+                                  # e.g. ["income claims", "listings", "health claims"]
+
+# ---------------------------------------------------------------- FILL IN: budget
+budget:
+  # Your monthly Apify spending limit in US dollars. Nothing is collected while this is empty.
+  # Set the same number as the hard cap on your Apify account's Limits page.
+  # Measured: Amplified Impact's weekly runs (2 creators, 1 hashtag, 2 to 4 transcripts)
+  # cost $0.06 to $0.29 each. More creators, hashtags and transcripts cost more; see
+  # references/setup-and-costs.md. Claude never picks this number for you.
+  monthly_budget_usd: null
+  # Cap for one run across all stages. Null means monthly / 5,
+  # which leaves room for a fifth week or a rerun.
+  per_run_max_usd: null
+  # Stop collecting when less than this is left in the billing cycle.
+  reserve_usd: 1.00
+
+apify:
+  token_env: APIFY_TOKEN          # the environment variable that holds your Apify API token
+  base_url: https://api.apify.com/v2   # the scripts refuse any other host
+  poll_seconds: 10
+  run_timeout_seconds: 900
+
+# ---------------------------------------------------------------- FILL IN: creators to watch
+watchlist:
+  # Instagram usernames without the @. Pick 2-5 creators your audience already follows.
+  accounts: []
+  actor: apify/instagram-reel-scraper   # only this actor and the hashtag scraper can run
+  reels_per_account: 24           # enough history for a strong baseline
+  lookback: "90 days"             # passed to the actor's onlyPostsNewerThan
+  skip_pinned: true
+  include_shares_count: false     # needs a paid Apify plan
+  max_charge_usd: null            # null = 40% of the per-run cap
+
+# ---------------------------------------------------------------- FILL IN: niche discovery
+discovery:
+  enabled: true
+  actor: apify/instagram-hashtag-scraper
+  hashtags: []                    # without the #, e.g. ["aiforrealestate"]
+  keywords: []                    # optional keyword searches
+  results_type: reels
+  results_per_query: 20           # free Apify usage covers only the first page
+  max_queries: 6                  # one actor run per query keeps provenance per row
+  max_charge_usd: null            # null = 30% of the per-run cap, split across queries
+
+study:
+  actor: apify/instagram-reel-scraper
+  max_candidates: 8               # transcripts are billed per minute of audio
+  max_unbaselined: 2              # discovery leads with no baseline, at most
+  max_charge_usd: null            # null = 30% of the per-run cap
+
+scoring:
+  min_post_age_hours: 72          # younger posts are too new to judge
+  baseline_days: 90
+  candidate_window_days: 21       # only recent posts can become candidates
+  outlier_multiple: 2.0           # a post must beat its creator's median by this much
+  strong_baseline_posts: 12
+  weak_baseline_posts: 5
+  views_coverage_for_views_metric: 0.6
+  stale_after_days: 8
+  max_unbaselined_leads: 10
+
+output:
+  # Optional. A Google Drive folder ID to save each brief as a Google Doc
+  # (needs the Google Drive connector). Leave empty to save briefs as Markdown only.
+  drive_folder_id: ""
+  media_tmp_dir: /tmp/content-research-media   # full captions and transcripts; deleted at the end of every run

@@ -19,6 +19,9 @@ export const GUIDE_SLUGS = [
   'database-health-check',
   'recruiting-prep',
   'team-playbook-builder',
+  'content-strategist',
+  'perfect-week',
+  'inbox-meeting-follow-through',
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 

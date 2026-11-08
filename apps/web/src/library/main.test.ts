@@ -119,7 +119,7 @@ describe('the search', () => {
     search('reels');
     expect(visible()).toContain('Reel Editor');
     search('meetings');
-    expect(visible()).toEqual(['Task Sync Starter Kit']);
+    expect(visible()).toEqual(['Inbox and Meeting Follow-Through', 'Perfect Week', 'Task Sync Starter Kit']);
   });
 
   it('finds an entry by a keyword its card never shows', async () => {
@@ -132,7 +132,7 @@ describe('the search', () => {
   it('matches words in the title and the description, in any case', async () => {
     await boot();
     search('MEETINGS');
-    expect(visible()).toEqual(['Task Sync Starter Kit']);
+    expect(visible()).toEqual(['Inbox and Meeting Follow-Through', 'Perfect Week', 'Task Sync Starter Kit']);
   });
 
   it('matches a topic, though no card shows its name', async () => {
