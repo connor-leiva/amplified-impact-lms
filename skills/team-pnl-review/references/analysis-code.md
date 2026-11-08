@@ -142,6 +142,10 @@ def parse_month(v, year_hint=None):
     if m and m.group(1) in MONTHS:
         y = int(m.group(2))
         return (y + 2000 if y < 100 else y, MONTHS[m.group(1)])
+    m = re.fullmatch(r"\d{1,2}[\s\-]+([a-z]{3,9})[\s,\-]+(\d{2}|\d{4})", s)  # "30 Sep 2026", a month-end column
+    if m and m.group(1) in MONTHS:
+        y = int(m.group(2))
+        return (y + 2000 if y < 100 else y, MONTHS[m.group(1)])
     m = re.fullmatch(r"(\d{4})-(\d{1,2})", s)
     if m and 1 <= int(m.group(2)) <= 12:
         return (int(m.group(1)), int(m.group(2)))
@@ -367,6 +371,8 @@ def parse_pnl(path):
         if k not in seen:
             seen.add(k)
             mc.append((j, k))
+    if all(re.fullmatch(r"\d{4}-\d{2}", k) for _, k in mc):
+        mc.sort(key=lambda x: x[1])  # comparison layouts (Xero's Compare with) can put the latest month first
     keys = [k for _, k in mc]
     first_data = min(j for j, _ in mc)
     title = [" ".join(str(c) for c in r["cells"] if c not in (None, "")) for r in rows[:hi]]

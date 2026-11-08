@@ -4,7 +4,7 @@ How to read the analysis run and turn it into the review. The run's thresholds a
 
 ## Reading the Run
 
-- Use the run's figures exactly as printed: whole dollars in the tables, cents in the arithmetic lines. Don't re-round, re-add or convert.
+- Use the run's figures exactly as printed: whole dollars in the tables, cents in the arithmetic lines. Don't re-round, re-add or convert, and don't fold several months into one rounded figure ("about 2%"): give the range the run printed ("1.9% to 2.2%").
 - Every computed figure in the output carries its arithmetic, copied from the run (in the form "company dollar = [commission] - [splits] - [referral fees] - [brokerage fees] = [result]").
 - **Totals check fails:** say so in What I Used and the bottom line, list the months and amounts, and call every figure provisional. For a PDF, look at the page: a footer or a wrapped line read as an account is the usual cause. If it can't be fixed, ask for the Excel export.
 - **Account map:** check every account the run marked "no keyword: default" and any account whose name suggests agent payouts (Contract Labor, 1099 Payments) or a lead vendor. Fix with map.json and rerun:
@@ -43,6 +43,7 @@ Outside company dollar, inside net income: **fees charged to agents** (desk, tec
 - **Always:** company dollar and margin on company dollar, by month and for the period; expense mix as a share of company dollar.
 - **Only for gross months:** splits as a share of commission; company dollar as a share of gross commission.
 - **Only with a production file:** closings, cost per closing, lead generation per closing, company dollar and net income per closing, average GCI per closing, the P&L-to-production reconciliation, lead source return.
+- **Lead spend the run couldn't tie to a source** (an account such as Online Lead Programs that names no vendor in the production file): say so with its period total and ask the owner which source it pays for; `map.json` "lead_sources" ties them on a rerun. Never guess the match.
 - **Never:** a ratio that mixes gross and net months; a benchmark from memory; a run rate, forecast or year-end estimate; closings inferred from TC fees or any per-file charge.
 
 ## Flags: What Each One Gets
@@ -61,7 +62,7 @@ Use the run's priority order (P1 is most important).
 | P7 spike, negative_expense | Bookkeeper | Account, month, amount against the usual |
 | P8 likely_miscategorized, split_share | Bookkeeper | Vendor, amount, date, the account it's in and the one it usually uses |
 | P9 price_change | Owner | Old and new monthly amount, start month |
-| P9 brokerage_share_drop | Broker or bookkeeper | The shares before and after; ask about a cap or fee change |
+| P9 brokerage_share_drop | Broker; bookkeeper only if something may be missing | The shares before and after. Broker: did the team or its agents reach a cap, did the fee schedule change, and when does the cap year reset. Bookkeeper: only whether anything is missing from the account |
 | P9 referral_netted | Bookkeeper | Confirm referral fees are withheld at closing |
 | P10 one_time, new_vendor_once | List only | One line each, no question unless the owner asks |
 | P10 revenue_share_income | What I Used, Company Dollar | One line: kept out of commission income and company dollar, included in net income |
@@ -104,7 +105,7 @@ A one-page draft the owner can share with a partner. About 250 words.
 - **What Needs a Look:** up to five flags, one line each.
 - **Cost per Closing:** the period figure, or "Not available: add [the export] to see it."
 - **The Decision:** the one decision.
-- **With the Bookkeeper:** how many questions went out.
+- **With the Bookkeeper:** how many questions went out, plus how many went to the CPA or the broker.
 
 No individual's pay, no client names, no account or card numbers.
 

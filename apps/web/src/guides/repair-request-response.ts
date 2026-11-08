@@ -53,7 +53,11 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
   eyebrow: 'Free AI Skill · For Listing Agents',
   // page-notes.md, "One-Line Promise", with the actor named.
   lede: 'Upload the buyer’s repair request, the inspection report and your bids, and the AI lays out your seller’s answer: what to agree to, what to push back on, what it costs from your bids, the real deadline, and the drafts to send.',
-  outcome: { n: '03', title: 'Know What to Send Back', body: 'What to agree to, what to push back on, and the drafts to send.' },
+  outcome: {
+    n: '03',
+    title: 'Know What to Send Back',
+    body: 'What to agree to, what to push back on, and the drafts to send.',
+  },
   optInBody:
     'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. There’s a ChatGPT version too. Either one prices repairs from your bids only, never from a guess.',
   setupMinutes: 10,
@@ -89,14 +93,16 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
       // sample.md (the practice run, as the review left it), shortened, in the output's own order and its
       // own words, cut by whole parts, rows, items and sentences: both flags; the bottom line; three of
       // the clock's seven rows (its Source column dropped) and its first two "how the deadline works"
-      // lines; the item table in three columns so it fits a phone (each request's report page moved into
-      // its cell, the category joined to the read, the inspector's words, disclosed, visible and bid
-      // columns dropped) and the basement line from Options and Tradeoffs; the net impact; the bid's
-      // timing and its bank-details line; the disclosure note's roof, rodent and not-requested lines and
-      // its closing lines (without the Utah citations sentence); four of the seven response terms (without
-      // their numbers, and the opening's quoted parenthetical cut); the seller email in full; three rows
-      // of Check before sending. Left out: the clock's other rows, Questions for the Buyer's Agent, the
-      // strategy packages and the note to the buyer's agent.
+      // lines; the item table in two columns so it fits a phone without scrolling (each request's report
+      // page moved into its cell; the category, the read and the response joined in the second; the
+      // inspector's words, disclosed, visible and bid columns dropped) and the basement line from Options
+      // and Tradeoffs; the net impact; the bid's timing and its bank-details line; the disclosure note's
+      // roof and rodent lines and its closing lines (without the Utah citations sentence); four of the
+      // seven response terms (without their numbers, and the opening's quoted parenthetical cut); the
+      // seller email in full; three rows of Check before sending. Left out: the clock's other rows,
+      // Questions for the Buyer's Agent, the strategy packages and the note to the buyer's agent. Also
+      // left out: the disclosure note's "Not requested" line, which lists the stained basement carpet,
+      // though the carpet was the buyer's item 6 (a slip in sample.md, for Connor).
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What the AI wrote for a made-up repair request',
@@ -124,7 +130,10 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
             caption: 'The clock, 3 of its 7 rows',
             head: ['What', 'When'],
             rows: [
-              ['Buyer’s addendum lapses unless the sellers accept', '5:00 PM Mountain Time, Wednesday, November 11, 2026 (3 days)'],
+              [
+                'Buyer’s addendum lapses unless the sellers accept',
+                '5:00 PM Mountain Time, Wednesday, November 11, 2026 (3 days)',
+              ],
               ['Due Diligence Deadline', '5:00 PM Mountain Time, Tuesday, November 17, 2026 (9 days)'],
               ['Settlement Deadline', 'Friday, December 4, 2026'],
             ],
@@ -147,7 +156,10 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
                 '1. Licensed roofer replaces the roof covering (page 3, item 3.2)',
                 'Major System. Push back on replacement: the inspector recommended repair. Counter: $1,240 credit (Option 1 amount)',
               ],
-              ['2. Secure the deck stair guardrail and post (page 4, item 4.2)', 'Safety. Reasonable. Agree, qualified contractor'],
+              [
+                '2. Secure the deck stair guardrail and post (page 4, item 4.2)',
+                'Safety. Reasonable. Agree, qualified contractor',
+              ],
               [
                 '3. Repair the garage door so it reverses on contact (page 4, item 4.3)',
                 'Safety. Reasonable. Agree, garage door technician',

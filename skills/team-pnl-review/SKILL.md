@@ -1,6 +1,6 @@
 ---
 name: team-pnl-review
-description: Reviews a real estate team's P&L and turns a profit and loss export from QuickBooks, Xero or the bookkeeper (Excel, CSV or PDF), plus an optional P&L Detail, closed-deal export and budget, into an owner brief and questions for the bookkeeper. It first checks how commission income is recorded each month (gross GCI with agent splits as a cost, or net of splits; referral and brokerage fees as costs or netted out), then computes company dollar, margin, expense mix, monthly and year-to-date changes, and cost per closing and lead source return when closings data supports them. It flags duplicate charges, new recurring vendors and miscategorized items, with all math in code, shown. Use it whenever an owner, team leader or ops person uploads a P&L, income statement or monthly financials, or asks about profit, margin, company dollar or where the money went, even if they never say P&L. Not for goals or forecasts (Sisu), a CRM export (database-health-check) or a recruit's production (recruiting-prep). Not tax advice.
+description: Reviews a real estate team's P&L: a profit and loss export from QuickBooks, Xero or the bookkeeper (Excel, CSV or PDF), plus an optional P&L Detail, closed-deal export and budget. It first checks how commission income is recorded each month (gross GCI with agent splits as a cost, or net of splits and fees), then computes company dollar, margin, expense mix, monthly and year-to-date changes, and cost per closing and lead source return when closings data supports them. It flags duplicate charges, new recurring vendors and misfiled items, with all math in code, shown, and drafts an owner brief and bookkeeper questions. Use it whenever an owner, team leader or ops person uploads a P&L, income statement or monthly financials, or asks about profit, margin, company dollar or where the money went, even if they never say P&L. Not tax advice (the CPA). Not for goals or forecasts (Sisu), a CRM export (database-health-check), a recruit's production (recruiting-prep) or an agent fee schedule (team-playbook-builder).
 compatibility: Needs code execution (Settings > Capabilities > Code execution and file creation) to do the math in Python. Works from uploaded P&L, P&L Detail and production exports (Excel, CSV or PDF). A QuickBooks, Xero or Sisu connector, if connected, is used read only.
 metadata:
   author: Amplified Impact
@@ -11,7 +11,7 @@ metadata:
 
 Turn the team's P&L into what an owner needs once a month: what the team actually kept, where it went, what changed, what looks wrong, and the one decision on the table. Most team P&Ls can't be compared month to month because commission income is recorded gross one month and net of agent splits the next, so this skill checks that first, before any ratio.
 
-**Run:** reads the exports, does every sum and ratio in code, works out how revenue is recorded month by month, sorts expenses, and finds duplicates, new charges and misfiled items. **Draft:** the owner brief and the questions and email for the bookkeeper, for the owner to read first. **Own:** the owner decides spending, splits, hires and cuts; the bookkeeper makes every correction in the books; the CPA answers how anything should be recorded or taxed. This skill never touches the books, pays anything or handles bank or card details.
+**Run:** reads the exports, does every sum and ratio in code, works out how revenue is recorded month by month, sorts expenses, and finds duplicates, new charges and misfiled items. **Draft:** the owner brief and the questions and email for the bookkeeper, for the owner to read first. **Own:** the owner decides spending, splits, hires and cuts; the bookkeeper makes every correction in the books; the CPA answers how anything should be recorded or taxed. This skill never touches the books or pays anything, and never asks for, repeats or handles wire instructions or bank, card, account or routing numbers.
 
 ## 1. Get the Files
 
@@ -54,7 +54,7 @@ Follow `references/review-rules.md`:
 ## 5. Write the Drafts
 
 - **Owner brief:** one page, plain words, the format in `references/review-rules.md`. It may be shared with a partner, so no individual's pay.
-- **Questions for the bookkeeper**, then **questions for the CPA**, each with the numbers that raised it.
+- **Questions for the bookkeeper**, then **questions for the CPA**, then **questions for the broker** when a cap, fee schedule or referral question came up, each with the numbers that raised it. Route each one by `references/review-rules.md` (Who Gets Which Question).
 - **Email to the bookkeeper** with those questions: Title Case subject, short and specific, signed with the owner's name or [Owner Name]. Follow the owner's voice profile when one is in the conversation; otherwise warm, plain and direct.
 
 ## 6. Guardrails
@@ -76,7 +76,7 @@ Follow `references/review-rules.md`:
 6. **What Changed:** month over month, against the average, year to date, budget if given.
 7. **Cost per Closing and Lead Sources**, or the line saying why they were skipped.
 8. **Anomalies**, most important first.
-9. **Questions for the Bookkeeper** and **Questions for the CPA.**
+9. **Questions for the Bookkeeper**, **Questions for the CPA** and, when a cap, fee or referral question came up, **Questions for the Broker.**
 10. **Owner Brief** (draft).
 11. **Email to the Bookkeeper** (draft).
 12. **Check Before Sending:** every dollar amount, percentage, date, month and account name in items 10 and 11, each traced to the run, plus any placeholder.

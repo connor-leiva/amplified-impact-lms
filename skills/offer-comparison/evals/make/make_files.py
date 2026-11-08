@@ -350,7 +350,7 @@ emit(f"{E2}/preapproval-samplebuyer.pdf", lender_letter(dict(
     signer="Mo Lendwell, NMLS 0000007 (made-up)", signer_title="Loan Officer, Sample Rock Lending",
     fine="Practice file. Not a real lender or a real approval.")), "Preapproval Samplebuyer")
 
-rb = dict(RS, ref_date="November 9, 2026", buyers="Emery Pretendwell and Finley Pretendwell", buyer_initials="EP FP",
+rb = dict(RS, ref_date="November 8, 2026", buyers="Emery Pretendwell and Finley Pretendwell", buyer_initials="EP FP",
           buyer_agent="Kit Exampleagent", buyer_brokerage="Notreal Homes",
           price=512000, em=8000, loan=460800, loan_type="Conventional", cash=43200,
           comp_pct="2.5", comp_amt=None, concession=6000, hw=None,
@@ -359,10 +359,10 @@ rb = dict(RS, ref_date="November 9, 2026", buyers="Emery Pretendwell and Finley 
           d_settle="December 22, 2026", possession=("days", "2"), em_form="personal check", addenda26="",
           incl=["washers", "dryers", "refrigerators"], assess="Seller", transfer="Buyer",
           accept_time="9:00 PM", accept_date="November 10, 2026",
-          buyer_sigs=[esig("Emery Pretendwell", "11/09/2026 8:15 AM MT"), esig("Finley Pretendwell", "11/09/2026 8:22 AM MT")])
+          buyer_sigs=[esig("Emery Pretendwell", "11/08/2026 3:15 PM MT"), esig("Finley Pretendwell", "11/08/2026 3:22 PM MT")])
 emit(f"{E2}/offer-pretendwell-repc.pdf", repc26(rb), "Offer Pretendwell")
 
-rc = dict(RS, ref_date="November 9, 2026", buyers="Hollis Testperson", buyer_initials="HT",
+rc = dict(RS, ref_date="November 8, 2026", buyers="Hollis Testperson", buyer_initials="HT",
           buyer_agent="Sage Imaginary", buyer_brokerage="Fictional Fork Realty Group",
           price=508000, em=5000, loan=457200, loan_type="Conventional", cash=45800,
           comp_pct="2", comp_amt=None, concession=None, hw=None,
@@ -371,7 +371,7 @@ rc = dict(RS, ref_date="November 9, 2026", buyers="Hollis Testperson", buyer_ini
           d_settle="December 21, 2026", possession="recording", em_form="personal check", addenda26="",
           incl=["refrigerators"], assess="Seller", transfer="Buyer", no_initials_pages=[3],
           accept_time="12:00 PM", accept_date="November 10, 2026",
-          buyer_sigs=[esig("Hollis Testperson", "11/09/2026 10:40 AM MT"), ""])
+          buyer_sigs=[esig("Hollis Testperson", "11/08/2026 5:40 PM MT"), ""])
 emit(f"{E2}/offer-testperson-repc.pdf", repc26(rc), "Offer Testperson")
 emit(f"{E2}/preapproval-testperson.pdf", lender_letter(dict(
     lender="Fictional First Lending", lender_sub="A made-up lender. 8 Pretend Court, Fictional Fork, UT 84000. (801) 555-0192",
@@ -394,7 +394,7 @@ ns_lines = [("Listing brokerage compensation", "3.0% of sale price", 15150),
 ns_total = sum(v for _, _, v in ns_lines)
 emit(f"{E2}/net-sheet-pretend-peak-title.pdf", net_sheet(dict(
     company="Pretend Peak Title Insurance Agency", company_sub="A made-up title company. 200 Example Blvd, Fictional Fork, UT 84000. (801) 555-0105",
-    head=[("Prepared", "November 9, 2026"), ("Prepared for", "Robin Exampleseller, through Jordan Listsample, Make-Believe Realty"),
+    head=[("Prepared", "November 8, 2026"), ("Prepared for", "Robin Exampleseller, through Jordan Listsample, Make-Believe Realty"),
           ("Property", "3318 W Pretend Juniper Dr, Fictional Fork, UT 84000"),
           ("Based on", "Offer from Casey Samplebuyer and Drew Samplebuyer, Offer Reference Date November 8, 2026"),
           ("Settlement date used", "December 18, 2026"), ("Escrow officer", "Lou Titleperson")],

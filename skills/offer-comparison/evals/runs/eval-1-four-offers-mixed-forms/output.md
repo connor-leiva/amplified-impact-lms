@@ -175,7 +175,7 @@ Here's how the four line up:
 | C | $655,000 | $640,000 | FHA, 3.5% down | December 19 (performed December 21) |
 | D | $652,000 | $646,000 | Conventional, subject to selling their current home | December 30 |
 
-What separates A and B: A is $17,500 higher, but A asks you to pay 2.5% of the price to the buyer's brokerage and B asks for nothing, so on what each offer asks of you, A comes out about $1,312.50 ahead. B is cash with a 5-day inspection period and closes first, but the buyer's proof of funds is from September and doesn't cover the price yet. I've asked for current proof.
+What separates A and B: A is $17,500 higher, but A asks you to pay 2.5% of the price to the buyer's brokerage and B asks for nothing, so on what each offer asks of you, A comes out about $1,312.50 ahead. B is cash with a 5-day inspection period and closes first, but the buyer's proof of funds is from September and doesn't cover the price yet. I'll ask for current proof today.
 
 C has the biggest headline, but after $15,000 back to the buyer, its brokerage request and possible FHA repairs of up to $6,000, it's the lowest of the four. D depends on the buyers selling a home they haven't listed yet, and one page of their contract is missing.
 
