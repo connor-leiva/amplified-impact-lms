@@ -1,0 +1,71 @@
+{
+  "skill_name": "new-construction-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "case-1-nonrefundable-deposits-arbitration",
+      "prompt": "I'm Jordan Sampleagent. My buyer Avery Testcase paid a $2,500 reservation fee on Lot 112 at Pretend Pines, and Notreal Ridge Builders wants the purchase agreement signed with the deposits by noon Tuesday. The sales rep told her they'll fix anything her inspector finds. We're in Utah. What should I flag before she signs, and can you draft an email to her? Today is Sunday, November 8, 2026.",
+      "expected_output": "Utah mode, comparing against the November 1, 2026 REPC. The signing deadline (12:00 PM Mountain Time on November 10, 2026) is flagged first in bold as within 48 hours. A money-at-risk table shows $25,000 earnest money (with the $2,500 reservation fee credited, $22,500 due at signing) and the $22,400 structural options payment nonrefundable at signing, a $15,000 second deposit at frame, and 50% of Design Center selections as a placeholder, with running totals computed and shown ($47,400, then $62,400). Binding arbitration with a Seller-selected arbitrator, jury and class waivers, Buyer-paid filing fee, a one-year claim limit after Closing and a waiver of implied warranties are described as written and routed to an attorney with no enforceability conclusion. No financing, appraisal or due diligence protection is compared with REPC Sections 12.1 to 12.3. No completion outside date and the federal ILSA two-year question go to the attorney. The 4% cost escalation is shown with its largest increase computed ($23,960). The rep's verbal promise is set against the entire-agreement clause. Questions for the builder's rep, a key dates table labeled for strategy, a buyer email signed by Jordan Sampleagent, and Check before sending.",
+      "files": [
+        "evals/files/case-1-nonrefundable-deposits-arbitration/Purchase and Sale Agreement - Lot 112 Pretend Pines.pdf",
+        "evals/files/case-1-nonrefundable-deposits-arbitration/Deposit Schedule and Design Center Addendum - Lot 112.pdf",
+        "evals/files/case-1-nonrefundable-deposits-arbitration/Lot Reservation Agreement - Lot 112 Pretend Pines.pdf"
+      ],
+      "expectations": [
+        "The output flags first, in bold, that the reservation expires at 12:00 PM Mountain Time on November 10, 2026, within 48 hours of today.",
+        "The bottom line is three sentences or fewer and names the top three risks with a dollar amount or date for each, including the nonrefundable deposits and binding arbitration.",
+        "A money-at-risk table lists the $2,500 reservation fee credit, $22,500 due at signing toward the $25,000 earnest money, the $22,400 structural options payment, the $15,000 second deposit and the Design Center payment (amount as a placeholder), each with when it is due, who holds it and when it becomes nonrefundable, and running totals with the math shown.",
+        "The arbitration clause is described as written (single arbitrator selected by Seller, Buyer pays the filing fee, jury and class waivers) along with the one-year claim limit after Closing and the waiver of implied warranties, and each goes to a real estate attorney with no statement about whether it is enforceable.",
+        "The comparison with the Utah REPC uses the November 1, 2026 form's section numbers only and names the missing due diligence, appraisal and financing protections (Sections 12.1, 12.2 and 12.3) and the weaker seller-default remedy (Section 19).",
+        "The output flags that completion can be extended without limit and has no outside date, and lists the federal ILSA two-year question for the attorney without saying what follows.",
+        "The 4% cost adjustment clause is flagged with its largest possible increase shown as computed (4% of the $599,000 Base Price is $23,960).",
+        "The sales rep's promise to fix anything the inspector finds is set against the contract's entire-agreement clause and the inspection terms, with a question asking that it be put in writing.",
+        "The buyer email has a Title Case subject, stays under 350 words, does not tell the buyer whether to sign, recommends attorney review before signing, has no em dashes, and is signed Jordan Sampleagent.",
+        "A Check before sending section lists every date, dollar amount and page reference in the drafts, with computed figures marked as computed."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "case-2-lender-tied-incentive",
+      "prompt": "My buyers, Jordan and Riley Evalson, want the quick move-in at 2214 S Imaginary Aspen Ln from Sample Crest Homes. They're preapproved with Pretend Valley Credit Union and want to know whether they should switch to the builder's lender to get the $20,000. Here's the purchase agreement, the incentive addendum and the disclosure they gave us. Help me explain the incentive and what to ask. Utah. Today is November 8, 2026.",
+      "expected_output": "Utah mode, completed home. The Flex Incentive ($20,000) and each of its four conditions (Sample Crest Mortgage, apply within 3 days, close by December 18, 2026, Make-Believe Title) are listed with page references, against the $5,000 Standard Incentive for another lender, with the $15,000 difference computed. Both incentives void if Closing slips past December 18, 2026 for a non-Seller reason. The skill does not recommend a lender or say whether the incentive is worth it; it says the buyers' lenders can compare the full cost and the lender confirms how much the loan program allows. RESPA: the Affiliated Business Arrangement Disclosure is present, dated November 2, 2026, unsigned, describing 100% and 51% ownership and estimated charges; the purchase agreement's Section 9 has the buyer pay for a lender's policy issued by the builder's affiliated title agency, which conflicts with the disclosure's statement that the buyer is not required to use the listed providers. That is quoted with the RESPA Section 9 language and sent to an attorney without a violation conclusion. The 5-day Review Period, the 3-day application deadline and the December 4, 2026 Loan Approval Date appear in a key dates table labeled for strategy. The missing Homeowner Warranty Guide (Exhibit C) is listed. A neutral buyer email and Check before sending.",
+      "files": [
+        "evals/files/case-2-lender-tied-incentive/Home Purchase Agreement - 2214 S Imaginary Aspen Ln.pdf",
+        "evals/files/case-2-lender-tied-incentive/Flex Incentive Addendum - 2214 S Imaginary Aspen Ln.pdf",
+        "evals/files/case-2-lender-tied-incentive/Affiliated Business Arrangement Disclosure - Sample Crest.pdf"
+      ],
+      "expectations": [
+        "The output lists the $20,000 Flex Incentive and all four of its conditions (Sample Crest Mortgage, apply within three days after the Contract Date, close on or before December 18, 2026, Make-Believe Title for title and escrow) with page references.",
+        "The output shows the $5,000 Standard Incentive for another lender and the $15,000 difference as computed, and notes both incentives are void if Closing slips past December 18, 2026 for a reason other than Seller's delay.",
+        "The output never recommends which lender to use and never says whether the incentive is worth it; it says the buyers' lenders can lay out the full cost of each option and that the lender confirms how much of the incentive the loan program allows, without stating any cap.",
+        "The output reports that the Affiliated Business Arrangement Disclosure is present, dated November 2, 2026, unsigned, and describes the 100% and 51% ownership and the estimated charges.",
+        "The output quotes the purchase agreement's title and escrow section (the buyer pays for a lender's policy issued by the builder's affiliated title agency) next to the disclosure's 'NOT required' statement and the RESPA Section 9 language, and sends it to a real estate attorney without concluding that anything violates RESPA.",
+        "A key dates table labeled 'For strategy; confirm dates with your transactions team' includes the 5-day Review Period, the 3-day loan application deadline, the December 4, 2026 Loan Approval Date and the December 18, 2026 closing date.",
+        "The output lists the Homeowner Warranty Guide (Exhibit C) as referred to but not uploaded.",
+        "The buyer email has a Title Case subject, describes the incentive's conditions in dollars without advising on the loan, has no em dashes and none of the banned stock phrases, and is signed [Agent Name].",
+        "A Check before sending section is present and every dollar amount in the output appears in the documents or is shown as computed."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "case-3-special-district-general-mode",
+      "prompt": "I'm licensed in Colorado too. My buyer client, Sam Generalcase, is looking at a to-be-built home in Imaginary Creek from Fictional Front Range Homes. Can you review the builder's purchase contract and the special district disclosure and draft an email to Sam? Today is November 8, 2026.",
+      "expected_output": "General mode: says near the top that state rules were not checked and that this follows the uploaded contract only, and uses no Utah statute, REPC section or PID rule. The metropolitan district's maximum levies (55.000 and 10.000 mills), the 2026 certified levy (58.000 mills), authorized debt ($45,000,000), bonds outstanding ($28,400,000, maturing December 1, 2056), the $1,500 facilities fee and the $45 monthly services fee are reported as the disclosure states them, with the disclosure's own $2,320 example quoted rather than a new tax estimate, and questions for the title company, the county treasurer and the district manager. The money table shows the $12,000 escrowed earnest money and the $15,000 nonrefundable options deposit paid to the builder ($27,000 total, computed). Mediation then binding arbitration with a jury waiver goes to an attorney. Comparison against the standard protections list notes this contract does include inspections with a limited cancel right, financing and appraisal outs, and a 24-month outside date. Buyer email and Check before sending.",
+      "files": [
+        "evals/files/case-3-special-district-general-mode/New Home Purchase Contract - Lot 9 Imaginary Creek Filing 4.pdf",
+        "evals/files/case-3-special-district-general-mode/Exhibit D Special District Public Disclosure - Imaginary Creek Metro District 2.pdf"
+      ],
+      "expectations": [
+        "The output says near the top: 'State rules were not checked; this follows the uploaded contract only.'",
+        "The output cites no Utah statute, Utah REPC section number, Utah PID rule or Utah form anywhere.",
+        "The district section reports the maximum levies (55.000 mills debt service, 10.000 mills operations), the 2026 certified levy of 58.000 mills, $45,000,000 authorized debt, $28,400,000 bonds outstanding with final maturity December 1, 2056, the $1,500 facilities fee and the $45 monthly services fee, each with its page.",
+        "The output does not compute a tax for this home; it quotes the disclosure's own $2,320 example as an illustration and routes the real amount to the county treasurer or assessor, the title company and the district manager.",
+        "The money-at-risk table shows the $12,000 earnest money held in escrow by the title company and the $15,000 options deposit paid to the builder and nonrefundable except on Seller default, with the $27,000 total shown as computed.",
+        "Mediation followed by binding arbitration with a jury waiver is described as written and routed to a real estate attorney, with no enforceability conclusion.",
+        "The comparison uses the standard protections list and credits what this contract does give (third-party pre-drywall and final inspections, financing and appraisal cancellation rights, and a 24-month completion deadline with a refund).",
+        "The buyer email has a Title Case subject, no em dashes, no advice on whether to sign, and recommends attorney review before signing.",
+        "A Check before sending section is present and every number in the output appears in the documents or is shown as computed."
+      ]
+    }
+  ]
+}
