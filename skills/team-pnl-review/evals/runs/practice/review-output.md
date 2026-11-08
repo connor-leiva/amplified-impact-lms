@@ -4,7 +4,7 @@ Independent reviewer run, 2026-11-08. Prompt (from page-notes.md): "Here's our P
 
 ## 1. Bottom Line
 
-The team made 41,233.00 in net income from January to September 2026, a 12.1% margin on company dollar, and 19,091.15 in September after losses in January to March. The biggest change from August to September is company dollar, up 6,610.89 to 51,746.87, and brokerage split and fees have run at about 2% of commission income since May against about 6% before, which raises company dollar without any change in production. The one decision: keep or cancel Pumpkinpatch Portal at 3,000.00 a month since July 2026 (it was 2,500.00).
+The team made 41,233.00 in net income from January to September 2026, a 12.1% margin on company dollar, and 19,091.15 in September after losses in January to March. The biggest change from August to September is company dollar, up 6,610.89 to 51,746.87, and brokerage split and fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on, which raises company dollar without any change in production. The one decision: keep or cancel Pumpkinpatch Portal at 3,000.00 a month since July 2026 (it was 2,500.00).
 
 ## 2. What I Used
 
@@ -148,7 +148,7 @@ Charge-level checks (duplicate charges, new vendors, a vendor in the wrong accou
 3. Google PPC was 3,940.85 in August 2026, against about 1,264.12 in a usual month. What was the extra 2,676.73?
 
 **For the broker**
-1. Brokerage split and fees dropped from about 6.0% of commission income to 3.2% in May 2026 and about 2% since. Did the team or its agents reach a cap, or did the fee schedule change? When does the cap year reset?
+1. Brokerage split and fees dropped from about 6.0% of commission income to 3.2% in May 2026 and 1.9% to 2.2% since. Did the team or its agents reach a cap, or did the fee schedule change? When does the cap year reset?
 
 **For the CPA:** none from these numbers.
 
@@ -156,7 +156,7 @@ Charge-level checks (duplicate charges, new vendors, a vendor in the wrong accou
 
 **Owner Brief: Pinecone & Puddle Home Team P&L, January to September 2026**
 
-**Bottom Line:** The team made 41,233.00 in net income from January to September 2026, a 12.1% margin on company dollar, and 19,091.15 in September after losses in January to March. Company dollar rose 6,610.89 from August to September, the biggest change, and brokerage fees have run at about 2% of commission income since May against about 6% before. The decision: keep or cancel Pumpkinpatch Portal at 3,000.00 a month since July (it was 2,500.00).
+**Bottom Line:** The team made 41,233.00 in net income from January to September 2026, a 12.1% margin on company dollar, and 19,091.15 in September after losses in January to March. Company dollar rose 6,610.89 from August to September, the biggest change, and brokerage fees fell from 6.0% of commission income in January to April to between 1.9% and 3.2% from May on. The decision: keep or cancel Pumpkinpatch Portal at 3,000.00 a month since July (it was 2,500.00).
 
 **Profit:** Net income 41,233.00 on company dollar of 339,366.76 (12.1%). September: 19,091.15 on 51,746.87 (36.9%).
 
@@ -167,7 +167,7 @@ Charge-level checks (duplicate charges, new vendors, a vendor in the wrong accou
 **What Changed:** Company dollar rose from 45,135.98 in August to 51,746.87 in September.
 
 **What Needs a Look:**
-- Brokerage fees down from about 6.0% to about 2% of commission income since May: asking the broker whether a cap was reached.
+- Brokerage fees down from 6.0% of commission income to between 1.9% and 3.2% since May: asking the broker whether a cap was reached.
 - Pumpkinpatch Portal up from 2,500.00 to 3,000.00 a month since July.
 - Google PPC spike in August (3,940.85).
 - Video Editing App, new at 79.00 a month since June.
@@ -205,7 +205,7 @@ Thanks,
 | September net income 19,091.15; company dollar 51,746.87; margin 36.9% | Company Dollar and Margin, Sep 2026 |
 | Losses in January to March | Company Dollar and Margin, Jan to Mar 2026 net income |
 | August company dollar 45,135.98; change 6,610.89 | Changes, Sep 2026 Against Aug 2026 |
-| Brokerage fees about 6.0% before May, 3.2% in May, about 2% since | How Revenue Is Recorded (brokerage share line); Flags P9 brokerage_share_drop |
+| Brokerage fees 6.0% in January to April, 3.2% in May, 1.9% to 2.2% since | How Revenue Is Recorded (brokerage share line); Flags P9 brokerage_share_drop |
 | People 54.5%, occupancy 11.7%, lead generation 11.2% | Expense Mix |
 | Pumpkinpatch Portal 2,500.00 to 3,000.00 from July; 24,000.00 spend; 16 closings; 66,930.64 team's share | Flags P9 price_change; Lead Sources |
 | Google PPC 3,940.85 in August; usual 1,264.12; extra 2,676.73 | Flags P7 spike |

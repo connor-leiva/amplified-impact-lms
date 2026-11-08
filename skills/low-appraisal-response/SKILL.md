@@ -91,5 +91,5 @@ Read `references/writing-the-drafts.md`.
 9. **Options** for the agent's side (both sides when unclear)
 10. **Reconsideration request** (buyer's side) or **data package** (listing side), or, with weak grounds, what a request would need
 11. **Client email**
-12. **Note to the other agent**
+12. **Note to the other agent** (listing side: the data package's cover note serves when there's nothing more to ask)
 13. **Check before sending:** every date, time, dollar amount, square footage, page reference, MLS number and quoted phrase in items 10 to 12, each with its source, plus any open placeholder

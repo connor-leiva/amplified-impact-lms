@@ -94,7 +94,7 @@ Left out, and why:
 
 No outcome is promised. The FHA underwriter decides whether to ask the appraiser to reconsider, and the appraiser may keep the value.
 
-## How an FHA Reconsideration Works Now
+### How an FHA Reconsideration Works Now
 
 - The buyers ask Pretend Home Loans. FHA's current rule (Handbook 4000.1, II.A.3.a.ix): "The underwriter may request a reconsideration of value when the Appraiser did not consider information that was relevant on the effective date of the appraisal." The 2024 FHA rules for borrower-initiated requests were rescinded in March 2025 (Mortgagee Letter 2025-08), so the lender's own process sets the form and turn time.
 - Sales that closed on or before the effective date are the ones that count. FHA sets no number; five or fewer is a practical limit, and these three are enough.
@@ -112,7 +112,7 @@ Your CMA notes say the sellers need to close by November 30 for their next purch
 
 The sellers decide. The sales above support options 1 and 3 most.
 
-## Data Package for the Buyer's Agent
+## Data Package and Note to the Buyer's Agent
 
 **Subject: Sales For The Lender's Review, 2290 N Sample Willow Way**
 

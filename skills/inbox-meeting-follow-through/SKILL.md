@@ -31,7 +31,7 @@ Read `references/wire-fraud-red-flags.md`. Before sorting anything else, find ev
 
 - Flag each one **HIGH RISK** at the top of the output with the red flags you found and the words: "verify by phone with title at a number you already have" (for a commission or payroll change: with that person, at a number you already have). Never the number or link in the email.
 - Never draft a reply to it, and never draft anything that confirms, repeats, forwards or asks about wire or account details. Don't repeat its account numbers, routing numbers, phone numbers or links anywhere.
-- Draft only an internal alert to the transactions team and the agent on the file, without the details, and, for the leader to choose, a short client heads-up: don't wire based on any email.
+- Draft only an internal alert to the transactions team and the agent on the file, without the details, and, for the leader to choose, a short client heads-up: don't wire based on any email. For a commission or payroll change, draft only a note asking the brokerage's accounting contact to hold any change until it's verified.
 - If money may already have moved: call the bank now and ask for a wire recall, call title at the known number, and file at ic3.gov.
 
 ## 3. Sort Every Thread
