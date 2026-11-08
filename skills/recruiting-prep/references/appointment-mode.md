@@ -2,6 +2,8 @@
 
 How to prep a team leader or recruiter for one conversation with one agent. The candidate decides; the leader owns every offer. This prep makes the leader ready to listen well and answer from the team's own documents.
 
+This file states no state or industry facts. The level guidance below is labeled general guidance every time it is used: a starting point for the leader's questions, not research. Rules on fair treatment, earnings claims and other brokerages, with sources, are in `recruiting-guardrails.md` (last verified 2026-11-08).
+
 ## Production Profile
 
 From the candidate's production data only (a row in a list, an MLS agent production page, a transaction list):

@@ -1,0 +1,3 @@
+{"team_brokerage": "Marigold Example Realty",
+ "tiers": [{"name": "Established (25+ sides)", "min": 25}, {"name": "Growing (12 to 24 sides)", "min": 12, "max": 24}, {"name": "Building (0 to 11 sides)", "min": 0, "max": 11}],
+ "tier_label": "Your offer document's levels"}

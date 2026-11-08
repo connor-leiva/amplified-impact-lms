@@ -27,7 +27,7 @@ Our rule: no income, earnings, savings, net or revenue-share projections, exampl
 Why, from the source checked:
 - The FTC's 2022 advance notice on deceptive or unfair earnings claims (87 FR 13951) summarizes what its cases establish: earnings claims "are material"; representations about possible earnings "are not mere puffery, and will usually imply that such earnings are typical"; a likely earnings amount "can be implied, including through testimonials from successful participants and examples of hypothetical or past profits"; and earnings claims "must be substantiated." It also describes lifestyle claims (that a money-making opportunity leads to a material change in lifestyle, "such as getting to go on expensive vacations, quitting your job, or buying a luxury car").
 - Whether a team or brokerage recruiting pitch counts as a "money-making opportunity" under FTC rules is not settled by the sources checked here: confirm with your broker or an attorney. Our rule doesn't depend on the answer.
-- Not checked: whether the FTC has finalized any earnings-claim rule since that notice, and the FTC's multi-level marketing guidance (ftc.gov blocked automated access on 2026-11-08; open it in a browser when updating).
+- Status as of 2026-11-08: the FTC's Semiannual Regulatory Agenda (91 FR 53156, August 14, 2026) still lists a "proposed Earnings Claims Trade Regulation Rule, to be codified at 16 CFR 462," and the eCFR (current through 2026-11-05) has no part 462. So no final earnings-claim rule is in force; the case law summarized above still is. Not checked: the FTC's multi-level marketing guidance (ftc.gov blocked automated access on 2026-11-08; open it in a browser when updating).
 
 In practice:
 - "At your volume you'd keep $X more with us" is a projection. So is "agents who join us earn 30% more." Neither appears in any draft or answer.
@@ -64,4 +64,6 @@ All checked 2026-11-08.
 - FTC, Deceptive or Unfair Earnings Claims, advance notice of proposed rulemaking, 87 FR 13951 (Mar. 11, 2022): https://www.govinfo.gov/content/pkg/FR-2022-03-11/html/2022-04679.htm
 - Texas Real Estate Commission, required information in advertisements (Rule 535.155): https://www.trec.texas.gov/what-required-information-must-be-provided-advertisements-such-signs-email-and-business-cards
 - Bay East MLS Rules, effective December 1, 2025 (Sections 12.11.1 and 12.12): https://bayeast.org/wp-content/uploads/Bay-East-MLS-Rules_Effective_12012025_CLEAN.pdf
+- FTC, Semiannual Regulatory Agenda, 91 FR 53156 (Aug. 14, 2026): https://www.govinfo.gov/content/pkg/FR-2026-08-14/html/2026-16617.htm
+- eCFR, Title 16, Chapter I (no part 462 as of 2026-11-05): https://www.ecfr.gov/current/title-16/chapter-I
 - FTC, Business Guidance Concerning Multi-Level Marketing (could not be loaded on 2026-11-08; open it in a browser when updating): https://www.ftc.gov/business-guidance/resources/business-guidance-concerning-multi-level-marketing

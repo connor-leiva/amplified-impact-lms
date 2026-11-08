@@ -46,7 +46,6 @@
 | Past Client | 23 | 4.6% |
 | Homes.com | 17 | 3.4% |
 
-"Import" is the source Follow Up Boss records when an import file has no source column, so 55 contacts lost their original source on the way in.
 
 **By assigned agent**
 
@@ -77,7 +76,7 @@ Rufus Tumbleweed's count includes all 15 Lantern Lake pond leads, since he's the
 
 These are format checks: a well-formed email or phone can still be dead.
 
-**Likely duplicates:** 12 merge groups (24 records) share an email or phone under the same or a near-identical name; merging them all would remove 12 records. 2 more groups (4 records) share an email or phone under a different first name with the same last name: two people can share a number, so a person decides whether to keep them separate, link them as a relationship, or merge. One phone number sits on 7 different people's records, which looks like an office or lender line typed into contacts, so it's flagged for review rather than merged. 1 pair shares only a name.
+**Likely duplicates:** 12 merge groups (24 records) share an email or phone under the same or a near-identical name; merging them all would remove 12 records. 2 more groups (4 records) share an email or phone under a different first name with the same last name: two people can share a number, so a person decides whether to keep them separate, link them as a relationship, or merge. One phone number sits on 7 different people's records, which looks like an office or lender line typed into contacts, so it's flagged for review rather than merged. 1 pair shares only a name. In 6 of the merge groups (12 records) the records have different assigned agents: a merge keeps one record's agent, so the team decides who keeps each of those contacts before ops merges (Question 7).
 
 **Active-stage contacts with no communication in 90+ days:** 94 of 216 (43.5%): 54 gone quiet and 40 with no communication on record.
 
@@ -128,7 +127,7 @@ The 3 closed deals sit in Submitting Offers 2 and Showing Homes 1. In all, 82 co
 | Sphere (10); sphere (7) | 17 |
 | Investors (3); investor (2); Investor (2) | 7 |
 
-**Text consent:** Text Consent shows yes for 108 contacts and no for 13; 379 are blank. 105 are textable (yes, valid phone, not opted out, not Do Not Call).
+**Text consent:** Text Consent shows yes for 108 contacts and no for 13; 379 are blank. 105 are textable (yes, valid phone, not opted out, not Do Not Call). The yes values say how consent was recorded: signed buyer form 39, website form 37, open house sign in 32.
 
 ## Cleanup Worklist
 
@@ -150,9 +149,11 @@ The 3 closed deals sit in Submitting Offers 2 and Showing Homes 1. In all, 82 co
 | Assign Agent | 2 |
 
 How to work it:
-1. **Merge Candidate (24 rows) first.** Sort by Duplicate Group and check the record marked Suggested Main Record (most recent communication, then most complete). In Follow Up Boss: search the name, View List of People, select the records, Mass Actions > Merge People, choose the main contact. The main contact keeps its name, agent, lender and stage; the others go to Trash. It can't be undone. Leave Review Shared Contact Info rows for a person: two people can share a number, and Merge People As Relationships keeps the second person as a relationship on one contact instead of folding them into one person.
+1. **Merge Candidate (24 rows) first.** Sort by Duplicate Group and check the record marked Suggested Main Record (most recent communication, then most complete). In Follow Up Boss: search the name, View List of People, select the records, Mass Actions > Merge People, choose the main contact. The main contact keeps its name, agent, lender and stage; the others go to Trash. It can't be undone. Where the Reason says the records have different agents, wait for the team to decide who keeps the contact. Leave Review Shared Contact Info rows for a person: two people can share a number, and Merge People As Relationships keeps the second person as a relationship on one contact instead of folding them into one person.
 2. **Agent Follow-Up Or Pond Decision (79 rows).** Filter by Assigned Agent and hand each agent their rows. Anything still silent after a real attempt gets a stage or pond decision under the rule you set.
-3. **Review New-Lead Stage (26 rows) and Fix Stage (3 rows).** Move each to the stage that matches where the conversation is.
+3. **Fill Missing Phone (28 rows).** Fill only from the record's own history (an inquiry, a signed form). Don't buy or append numbers to text them.
+
+After those: Review New-Lead Stage (26 rows) and Fix Stage (3 rows), moving each to the stage that matches where the conversation is.
 
 ## Re-Engagement Segments
 
@@ -200,7 +201,8 @@ For every email list add: Email is good; Tags exclude Unsubscribed and the bounc
 3. **Is 90 days your follow-up standard?** It's this skill's default; give me yours and I'll rerun.
 4. **What does Vendor mean?** 5 contacts sit there; I left them out of every segment.
 5. **Which tag spelling stays** for Seller, Buyer, Past Client, Open House, Sphere and Investor?
-6. **What does "Yes" in Text Consent mean?** The texts below assume it marks a signed, written consent record that names your team and the phone number.
+6. **What does "Yes" in Text Consent mean?** 37 of the yes values say website form and 32 say open house sign in. Those count only if the form or sign-in sheet had text consent wording that names your team and the phone number. The texts below assume each yes points to a signed, written consent record.
+7. **Who keeps the contact in the 6 merge groups split across agents?** Merging keeps the main record's agent, so the team makes that call, not ops.
 
 ## Nurture Drafts
 
@@ -314,7 +316,8 @@ Text (Text Consent filtered list only): "Hi [First Name], it's [Agent First and 
 
 - **Segment sizes and filter values** against Follow Up Boss before sending: Back On The Site 31 (Last Activity under 30 days, Last Communication over 30 days), Past Clients 18 and Sphere 16 (12+ months), Stalled Pipeline 53 (90+ days), Never-Worked Leads 56 (added 30+ days ago, Last Communication empty), Quiet Nurture 79 (180+ days). If a Smart List count is far off, fix the filter first.
 - **Stage and tag names in the filters:** Closed, Past Client, Sphere, Nurture, Vendor, Trash, Rejected, the ten active stages, Unsubscribed, Do Not Call, DNC, Do Not Text, and the exact text of your bounced-email tag.
-- **Text consent:** every contact on a text list has a consent record that names your team or brokerage and the phone number. Text Consent = Yes in the export points to it; the record is the proof. Confirm what the field means with your broker.
+- **Text consent:** every contact on a text list has a consent record that names your team or brokerage and the phone number. Text Consent = Yes in the export points to it; the record is the proof. Confirm what the field means with your broker. A website form or an open house sign-in counts only if it had text consent wording.
+- **Texts one at a time:** each text is a starting point the assigned agent makes their own and sends to one person at a time. Follow Up Boss says its texting is for one-to-one conversations, not mass or drip texting.
 - **Do Not Call:** scrub every call list and text list against the National Do Not Call Registry and your internal list before use. Follow Up Boss has no built-in scrub.
 - **Quiet hours:** calls and texts between 8 a.m. and 8 p.m. in the recipient's time zone.
 - **Emails:** the unsubscribe link works; [Sender Postal Address] is your real address; Admin > Company in Follow Up Boss shows the right company information, since its own unsubscribe footer uses it.

@@ -1,0 +1,746 @@
+{
+ "sources": [
+  {
+   "label": "ghl-agent-recruiting-opportunities.csv",
+   "kind": "list",
+   "header_row": 2,
+   "titles": [
+    "TEST FILE: made-up example"
+   ],
+   "period": "",
+   "columns": {
+    "name": "Contact Name",
+    "phone": "Phone",
+    "email": "Email",
+    "stage": "Stage",
+    "status": "Status",
+    "owner": "Assigned To",
+    "tags": "Tags",
+    "last_touch": "Updated On",
+    "office": "Current Brokerage",
+    "units": "Closed Units 12 Mo",
+    "volume": "Closed Volume 12 Mo",
+    "list_sides": "Listing Sides 12 Mo",
+    "buy_sides": "Buyer Sides 12 Mo",
+    "prod_source": "Production Source",
+    "text": "SMS Consent",
+    "dnd": "DND",
+    "notes": "Recruiter Notes"
+   },
+   "unmapped": [
+    "Opportunity Name",
+    "Pipeline",
+    "Opportunity Value",
+    "Source",
+    "Created On",
+    "Opportunity ID",
+    "Contact ID"
+   ],
+   "rows": 46,
+   "skipped_total_rows": 0,
+   "notes_rows": 39
+  }
+ ],
+ "warnings": [],
+ "rows_in": 46,
+ "unique": 44,
+ "merges": {
+  "Same email": 2
+ },
+ "shared_lines": {
+  "phone": 0,
+  "email": 0
+ },
+ "cuts": null,
+ "tier_label": "Your tiers",
+ "tiers": {
+  "A": {
+   "count": 7,
+   "units": 171.0,
+   "range": [
+    20.0,
+    31.0
+   ],
+   "volume": 85387500.0,
+   "list": 102.0,
+   "buy": 69.0,
+   "members": [
+    [
+     "R001",
+     "Carla Tansyhopper",
+     31.0,
+     21855000.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Avery Pelicanfeather",
+     "Documented consent"
+    ],
+    [
+     "R002",
+     "Opal Cobblebottom",
+     27.0,
+     10370500.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R003",
+     "Tova Waffletoes",
+     26.0,
+     10810500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R004",
+     "Lars Tansytoes",
+     24.0,
+     8155000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R005",
+     "Hollis Teacupbloom",
+     22.0,
+     13972000.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Avery Pelicanfeather",
+     "Consent noted, no record named"
+    ],
+    [
+     "R006",
+     "Gus Ripplepocket",
+     21.0,
+     11467500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Jordan Seagrapebottom",
+     "Documented consent"
+    ],
+    [
+     "R007",
+     "Marta Ripplewhistle",
+     20.0,
+     8757000.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Jordan Seagrapebottom",
+     "Documented consent"
+    ]
+   ]
+  },
+  "B": {
+   "count": 9,
+   "units": 123.0,
+   "range": [
+    10.0,
+    19.0
+   ],
+   "volume": 61876000.0,
+   "list": 44.0,
+   "buy": 79.0,
+   "members": [
+    [
+     "R008",
+     "Rafe Teacuppocket",
+     19.0,
+     10541500.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R009",
+     "Selma Nettlefluff",
+     18.0,
+     6693500.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R010",
+     "Zeke Waffledumple",
+     16.0,
+     6077500.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Jordan Seagrapebottom",
+     "Documented consent"
+    ],
+    [
+     "R011",
+     "Tess Bramblewobble",
+     14.0,
+     8076000.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R012",
+     "Ava Marblehopper",
+     13.0,
+     7106000.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R013",
+     "Willa Biscuitbottom",
+     12.0,
+     7244000.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R014",
+     "Tobin Hobnobcrumb",
+     11.0,
+     4446000.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R015",
+     "Imani Ripplebottom",
+     10.0,
+     6372000.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Jordan Seagrapebottom",
+     "Documented consent"
+    ],
+    [
+     "R016",
+     "Lou Kettlesprout",
+     10.0,
+     5319500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ]
+   ]
+  },
+  "C": {
+   "count": 15,
+   "units": 93.0,
+   "range": [
+    4.0,
+    9.0
+   ],
+   "volume": 50678000.0,
+   "list": 41.0,
+   "buy": 52.0,
+   "members": [
+    [
+     "R017",
+     "Jules Lanternmuffin",
+     9.0,
+     5417500.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R018",
+     "Milo Quillbloom",
+     9.0,
+     3171500.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Jordan Seagrapebottom",
+     "Consent noted, no record named"
+    ],
+    [
+     "R019",
+     "Greer Picklenook",
+     8.0,
+     5793500.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R020",
+     "Marta Ripplebloom",
+     8.0,
+     4637000.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R021",
+     "Ike Lanternpuddle",
+     7.0,
+     5018500.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Avery Pelicanfeather",
+     "Consent noted, no record named"
+    ],
+    [
+     "R022",
+     "Wren Juniperpocket",
+     7.0,
+     4367000.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Avery Pelicanfeather",
+     "Documented consent"
+    ],
+    [
+     "R023",
+     "Rafe Tumblenoggin",
+     6.0,
+     3252500.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R024",
+     "Rhea Nettletoes",
+     6.0,
+     2927000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R025",
+     "Yara Sorrelbutton",
+     6.0,
+     3223000.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R026",
+     "Dev Puddingmuffin",
+     5.0,
+     3210500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R027",
+     "Nico Peppersnout",
+     5.0,
+     1660000.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R028",
+     "Vic Dapplenook",
+     5.0,
+     2878500.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R029",
+     "Iris Parsniphopper",
+     4.0,
+     1100500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R030",
+     "Rosa Teacupnoggin",
+     4.0,
+     2728000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R031",
+     "Vera Marblewhistle",
+     4.0,
+     1293000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ]
+   ]
+  },
+  "D": {
+   "count": 11,
+   "units": 21.0,
+   "range": [
+    0.0,
+    3.0
+   ],
+   "volume": 9764500.0,
+   "list": 9.0,
+   "buy": 12.0,
+   "members": [
+    [
+     "R032",
+     "Rhea Nettlebottom",
+     3.0,
+     1140500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R033",
+     "Willa Brambledumple",
+     3.0,
+     1992500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R034",
+     "Willa Picklebottom",
+     3.0,
+     1735000.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R035",
+     "Zuri Biscuitsprout",
+     3.0,
+     1096500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R036",
+     "Cyrus Fiddlepuddle",
+     2.0,
+     489500.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R037",
+     "Dina Clovertoes",
+     2.0,
+     1024500.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R038",
+     "Marta Pepperbottom",
+     2.0,
+     741000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R039",
+     "Ben Noodlehopper",
+     1.0,
+     490500.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R040",
+     "Kenji Saffronbloom",
+     1.0,
+     483000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ],
+    [
+     "R041",
+     "Nell Dapplehopper",
+     1.0,
+     571500.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Avery Pelicanfeather",
+     "No consent on record"
+    ],
+    [
+     "R042",
+     "Dina Tumblesprout",
+     0.0,
+     0.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Jordan Seagrapebottom",
+     "No consent on record"
+    ]
+   ]
+  },
+  "Do not contact": {
+   "count": 2,
+   "units": 17.0,
+   "range": [
+    2.0,
+    15.0
+   ],
+   "volume": 6823000.0,
+   "list": 13.0,
+   "buy": 4.0,
+   "members": [
+    [
+     "R043",
+     "Leon Crumpettoes",
+     15.0,
+     5932000.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "",
+     "Opted out"
+    ],
+    [
+     "R044",
+     "Rafe Quillcrumb",
+     2.0,
+     891000.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "",
+     "Opted out"
+    ]
+   ]
+  }
+ },
+ "signals": [],
+ "owners": {
+  "A": {
+   "Avery Pelicanfeather": 3,
+   "Jordan Seagrapebottom": 4
+  },
+  "B": {
+   "Avery Pelicanfeather": 5,
+   "Jordan Seagrapebottom": 4
+  },
+  "C": {
+   "Jordan Seagrapebottom": 7,
+   "Avery Pelicanfeather": 8
+  },
+  "D": {
+   "Jordan Seagrapebottom": 7,
+   "Avery Pelicanfeather": 4
+  }
+ },
+ "consent": {
+  "A": {
+   "documented": [
+    [
+     "R001",
+     "Carla Tansyhopper"
+    ],
+    [
+     "R006",
+     "Gus Ripplepocket"
+    ],
+    [
+     "R007",
+     "Marta Ripplewhistle"
+    ]
+   ],
+   "noted": [
+    [
+     "R005",
+     "Hollis Teacupbloom"
+    ]
+   ],
+   "none": 3
+  },
+  "B": {
+   "documented": [
+    [
+     "R010",
+     "Zeke Waffledumple"
+    ],
+    [
+     "R015",
+     "Imani Ripplebottom"
+    ]
+   ],
+   "noted": [],
+   "none": 7
+  },
+  "C": {
+   "documented": [
+    [
+     "R022",
+     "Wren Juniperpocket"
+    ]
+   ],
+   "noted": [
+    [
+     "R018",
+     "Milo Quillbloom"
+    ],
+    [
+     "R021",
+     "Ike Lanternpuddle"
+    ]
+   ],
+   "none": 12
+  },
+  "D": {
+   "documented": [],
+   "noted": [],
+   "none": 11
+  }
+ },
+ "repeated": [],
+ "office_splits": [],
+ "flags": [],
+ "units_not_used": [
+  [
+   "R008",
+   "Rafe Teacuppocket",
+   [
+    [
+     "ghl-agent-recruiting-opportunities.csv",
+     10,
+     16.0,
+     "Old tracker estimate, 2025"
+    ]
+   ]
+  ],
+  [
+   "R023",
+   "Rafe Tumblenoggin",
+   [
+    [
+     "ghl-agent-recruiting-opportunities.csv",
+     21,
+     3.0,
+     "Old tracker estimate, 2025"
+    ]
+   ]
+  ]
+ ],
+ "possible_duplicates": [],
+ "on_team": [],
+ "opted_out": [
+  [
+   "R043",
+   "Leon Crumpettoes"
+  ],
+  [
+   "R044",
+   "Rafe Quillcrumb"
+  ]
+ ],
+ "own_brokerage": [],
+ "notes": {
+  "rows_with_notes": 39,
+  "personal_rows": 11,
+  "personal_agents": 10,
+  "kinds": {
+   "marital status": 4,
+   "personal finances": 1,
+   "pregnancy": 1,
+   "family": 2,
+   "health or disability": 2,
+   "religion": 1,
+   "national origin or citizenship": 1,
+   "age": 1
+  }
+ }
+}

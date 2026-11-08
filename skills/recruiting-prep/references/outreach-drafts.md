@@ -2,6 +2,8 @@
 
 Every recruiting email and text is marketing. Follow `outreach-rules.md` for the rules; this file turns them into the pieces every draft carries. Drafts only: the user sends.
 
+Last verified: 2026-11-08. The legal points here come from `outreach-rules.md` (TCPA, CAN-SPAM, Florida, Maryland, Oklahoma, MLS rules) and `recruiting-guardrails.md` (NAR Code of Ethics, advertising rules, earnings claims), where each is sourced.
+
 ## Every Recruiting Email
 
 - **From:** the real sender, [Agent Name], never a made-up persona.
