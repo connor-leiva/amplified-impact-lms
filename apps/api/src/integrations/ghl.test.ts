@@ -4,6 +4,7 @@ import {
   GHL_BASE_URL,
   isTextable,
   readGhlConfig,
+  SOURCE_TAGS,
   srcTag,
   syncWaitlistContact,
   TEAM_SIZE_TAGS,
@@ -13,6 +14,7 @@ import {
 import type { Fetch, GhlConfig, WaitlistContact } from './ghl';
 // The route's list of sizes, which the tag table must cover exactly. Test-only: ghl.ts reads no route.
 import { TEAM_SIZES } from '../routes/ai101';
+import { GUIDE_SLUGS } from '../routes/guide-list';
 
 // The GoHighLevel client (D-033), against a fake fetch. Nothing here reaches the network.
 
@@ -122,6 +124,14 @@ describe('tags @g9', () => {
     expect(waitlistTags('ig', false, 'retool', { teamSize: '11-25', decemberInterest: true })).toContain('december-interest');
     for (const team of [{ teamSize: '11-25', decemberInterest: false }, { teamSize: '11-25' }, {}]) {
       expect(waitlistTags('ig', false, 'retool', team), JSON.stringify(team)).not.toContain('december-interest');
+    }
+  });
+
+  it('tags every guide\'s sign-ups with the guide\'s own slug, from GUIDE_SLUGS (D-052)', () => {
+    // A guide added to the list is tagged without a second list to keep: its slug, then the channel.
+    for (const slug of GUIDE_SLUGS) {
+      expect(SOURCE_TAGS[slug], slug).toEqual([slug]);
+      expect(waitlistTags('ig', false, slug).slice(0, 2), slug).toEqual([slug, 'src-ig']);
     }
   });
 
