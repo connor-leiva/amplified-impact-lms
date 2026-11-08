@@ -17,6 +17,8 @@ One line per document, oldest first:
 - A signature shows a document was signed, not that it was delivered. Most forms make acceptance depend on delivery too (for Utah's two REPC versions, see the Acceptance sections of `utah-repc.md` and `utah-repc-2026.md`). When status depends on delivery, write "signed [date, time]; confirm it was delivered."
 - Many addendum forms have a box for ADDENDUM or COUNTEROFFER at the top, which tells you whether it was a counter (before a contract exists) or a change to an accepted contract. If neither is checked, flag it.
 
+**Dates that don't fit the form.** A document signed before the effective date in its own footer, or an addendum dated before the contract it changes, goes on the flag list for the broker.
+
 **Before or after acceptance.** Note whether a contract already exists. Before acceptance, every document is part of a negotiation, and if the last one lapses there is no contract. After acceptance, a new addendum proposes a change to a binding contract; if it lapses, the contract stands as it was and its deadlines keep running.
 
 ## 2. Carry Terms Forward Correctly

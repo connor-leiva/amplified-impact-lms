@@ -1,0 +1,75 @@
+{
+  "skill_name": "repair-request-response",
+  "evals": [
+    {
+      "id": 1,
+      "name": "reasonable-list-radon-and-furnace",
+      "prompt": "The buyer's agent sent over their objection on 3340 S Example Crest. I've attached the REPC, the inspection report and the two bids my sellers got this weekend. My sellers just want this to close without drama. What should we send back?",
+      "expected_output": "Recommends agreeing to both items: radon mitigation (Safety, 6.2 pCi/L on page 9, item 9.1) and the furnace (Safety, cracked heat exchanger and 42 ppm carbon monoxide on page 7, item 7.2), both Reasonable. Net impact from bids only: $1,450 + $2,380 = $3,830 with HVAC Option A, or $1,450 + $4,960 = $6,410 with Option B, with the lead times against the completion date five calendar days before the December 4, 2026 Settlement Deadline. Reads the December 4, 2024 REPC footer, says there is no Response Period, and gives 5:00 PM Mountain Time on November 12, 2026 (Section 24(b), Section 8.1(b) and (c)) as both the deadline to sign a written resolution and the end of the buyer's cancellation window, plus the buyer's addendum lapsing at 5:00 PM on November 10, 2026. Suggests accepting Addendum No. 1 as written. Seller email, buyer's agent note, disclosure note (radon level, heat exchanger crack and the unrequested downspout, gutter, cover plate and sediment items are now known) and Check before sending.",
+      "files": [
+        "evals/files/eval-1-reasonable-list/Buyer Objection Addendum No 1 - 3340 S Example Crest Dr.pdf",
+        "evals/files/eval-1-reasonable-list/Inspection Report - 3340 S Example Crest Dr.pdf",
+        "evals/files/eval-1-reasonable-list/REPC - 3340 S Example Crest Dr.pdf",
+        "evals/files/eval-1-reasonable-list/Bid - Pretend Peak Radon.pdf",
+        "evals/files/eval-1-reasonable-list/Bid - Make-Believe Heating and Air.pdf"
+      ],
+      "expectations": [
+        "The output recommends agreeing to both the radon mitigation and the furnace repair, rates both Safety and Reasonable, and cites page 9 item 9.1 and page 7 item 7.2",
+        "The net impact uses only the bids, with the arithmetic shown: $1,450 + $2,380 = $3,830 (Option A) and $1,450 + $4,960 = $6,410 (Option B)",
+        "The clock names the December 4, 2024 REPC from its footer, says there is no Response Period, and gives 5:00 PM Mountain Time on November 12, 2026 as both the deadline for a signed written resolution and the end of the buyer's cancellation window, citing Section 8.1 and Section 24(b)",
+        "The output notes the buyer's addendum lapses at 5:00 PM Mountain Time on November 10, 2026, and that accepting Addendum No. 1 as written is the simplest path when the seller agrees to both items",
+        "The HVAC lead times are compared with the completion date the request sets (five calendar days before the December 4, 2026 Settlement Deadline)",
+        "The strategy leads with Certainty, the seller's stated priority",
+        "The disclosure note lists the radon result and the heat exchanger crack as now known, includes at least one finding the buyer did not request, and says the next buyer's disclosures must reflect them if this sale doesn't close",
+        "The seller email has a Title Case subject, is under 300 words, and the output ends with Check before sending",
+        "No cost appears that is not in a bid, and no em or en dashes appear"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "kitchen-sink-targeted-counter",
+      "prompt": "Buyer's agent just sent this repair addendum on 781 N Sample Orchard. 14 items. My sellers think it's a lot and want to keep as much of their net as they can. REPC, inspection and the one electrician bid are attached. Help me put together a counter.",
+      "expected_output": "Opens with a bold warning that the Due Diligence Deadline (5:00 PM Mountain Time, November 10, 2026, Section 4(b) of the November 1, 2026 REPC) is within 48 hours and the buyer's addendum lapses at 5:00 PM on November 9, 2026. No Response Period (Section 12.1(b) and (c)). A targeted counter that agrees to the Safety items (double tap 6.3, kitchen GFCI 6.4, handrail 5.4, dryer duct 9.2) and pushes back on the roof (age only, 3.1), water heater (age only, 8.2), driveway (cosmetic, 2.2), windows (cosmetic, 4.2), garage slab (inspector said no action needed, 5.2), carpet cleaning, the home warranty and HVAC service (maintenance) for a Net priority. Flags the wrong page on item 6 (page 4 cited; it is on page 5), item 10 (sprinklers not tested, 2.3) and item 11 (beyond the recommendation). Net impact from the one bid only ($285, $295, $60 lines; $640 total) with the handrail and dryer duct as needs bid. Notes the existing $3,000 Section 2.2 seller contribution if a credit is used.",
+      "files": [
+        "evals/files/eval-2-kitchen-sink/Buyer Repair Addendum No 1 - 781 N Sample Orchard Way.pdf",
+        "evals/files/eval-2-kitchen-sink/Inspection Report - 781 N Sample Orchard Way.pdf",
+        "evals/files/eval-2-kitchen-sink/REPC - 781 N Sample Orchard Way.pdf",
+        "evals/files/eval-2-kitchen-sink/Bid - Sample Spark Electric.pdf"
+      ],
+      "expectations": [
+        "The output opens with a bold 48-hour warning: the Due Diligence Deadline is 5:00 PM Mountain Time on November 10, 2026 and the buyer's addendum lapses at 5:00 PM on November 9, 2026",
+        "The clock names the November 1, 2026 REPC and cites its own section numbers (Section 4(b) and Section 12.1), and says there is no Response Period",
+        "The counter agrees to the Safety items (double tap, kitchen GFCI, basement handrail, dryer duct) and declines or pushes back on the roof replacement and water heater replacement as age only, the driveway and windows as cosmetic, and the garage slab as beyond the inspector's 'no action needed'",
+        "The output flags that item 6 cites page 4 but the handrail finding is on page 5, and that item 10 has no matching finding because the sprinklers were winterized and not tested",
+        "The net impact uses only the Sample Spark Electric bid lines ($285, $295, $60; $640 total) and lists the handrail and dryer duct as needs bid, with no estimate for them",
+        "If a credit is discussed, the output notes the REPC's existing $3,000 seller contribution in Section 2.2 and that the buyer's lender confirms the cap",
+        "The strategy leads with Net, the seller's stated priority",
+        "The response terms name the declined items by number, the seller email has a Title Case subject and never characterizes the buyers, and the output ends with Check before sending",
+        "No em or en dashes appear"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "item-already-disclosed",
+      "prompt": "Buyer's agent sent this repair addendum on Placeholder Pines. My sellers already told the buyers about the sewer line in their disclosure. How should we respond?",
+      "expected_output": "Flags at the top that no REPC or Due Diligence Deadline was provided and uses [Due Diligence Deadline], explaining that under either current Utah REPC a written resolution must be signed by 5:00 PM Mountain Time on that deadline. The sewer item is split: roots and the March 2024 cleaning were disclosed (disclosure page 2, item 3b, signed September 18, 2026, buyer acknowledged October 19, 2026, before the October 20, 2026 Offer Reference Date), while the offset at 52 feet and the belly from 61 to 68 feet are new. Read: Negotiable, with options from the Placeholder Pipe and Drain bid only ($3,850, $6,400, $11,600). The roof leak is Reasonable; the disclosure's 'No' on roof leaks is noted neutrally. Smoke alarms Reasonable, needs bid. AC push back (age only). All three seller priorities shown with 'Ask the seller which matters most.' Disclosure note covers the offset, belly and roof leak.",
+      "files": [
+        "evals/files/eval-3-already-disclosed/Buyer Repair Addendum No 1 - 59 E Placeholder Pines Ct.pdf",
+        "evals/files/eval-3-already-disclosed/Inspection and Sewer Scope Report - 59 E Placeholder Pines Ct.pdf",
+        "evals/files/eval-3-already-disclosed/Seller Property Condition Disclosure - 59 E Placeholder Pines Ct.pdf",
+        "evals/files/eval-3-already-disclosed/Bid - Placeholder Pipe and Drain.pdf"
+      ],
+      "expectations": [
+        "The output flags at the top that the Due Diligence Deadline wasn't provided, uses [Due Diligence Deadline], and says a written resolution must be signed by 5:00 PM Mountain Time on that deadline under the current Utah REPC, with no Response Period",
+        "The sewer item is split into the disclosed part (roots and the March 2024 cleaning, disclosure page 2 item 3b) and the new part (the offset at 52 feet and the belly from 61 to 68 feet)",
+        "The output compares dates: the disclosure was signed September 18, 2026 and acknowledged by the buyer October 19, 2026, before the October 20, 2026 Offer Reference Date",
+        "Sewer options use only the bid amounts ($3,850, $6,400, $11,600), with any split shown as arithmetic, and no other sewer cost appears",
+        "The roof leak is rated Reasonable, and the disclosure's 'No' on roof leaks is stated as a neutral fact, never as an accusation",
+        "The air conditioner replacement is pushed back as age only, and the smoke alarms are Reasonable with needs bid",
+        "With no stated priority, all three packages (Net, Certainty, Timing) appear with 'Ask the seller which matters most'",
+        "The disclosure note lists the offset, the belly and the roof leak as now known and says the next buyer's disclosures must reflect them if this sale doesn't close",
+        "Title Case subject lines, Check before sending at the end, and no em or en dashes"
+      ]
+    }
+  ]
+}

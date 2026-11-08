@@ -369,7 +369,7 @@ write("evals/files/eval-1-second-counter/Addendum No. 2 Buyer Counteroffer.pdf",
 # ---------------------------------------------------------------------------------------------
 
 e2 = dict(
-    ord="October 29, 2026", buyer="Sam Testcase and Alex Testcase", seller="Jamie Fauxseller",
+    ord="November 2, 2026", buyer="Sam Testcase and Alex Testcase", seller="Jamie Fauxseller",
     address="77 Example Court, Fakeview, Utah 84000",
 )
 write("evals/files/eval-2-hidden-due-diligence/REPC 77 Example Court.pdf", E_STAMP, repc_2026(dict(
@@ -377,13 +377,13 @@ write("evals/files/eval-2-hidden-due-diligence/REPC 77 Example Court.pdf", E_STA
     street="77 Example Court", city="Fakeview", county="Sample", zip="84000", taxid="00-000-0077",
     price="$455,000", lines={"a": "$7,500", "b": "$409,500", "c": "$0", "d": "$0", "e": "$38,000"},
     comp_pct="2.5", closing_costs="$0", emd_form="cashier's check",
-    deadlines={"a": "November 5, 2026", "b": "November 20, 2026", "c": "December 1, 2026", "d": "December 4, 2026", "e": "December 11, 2026"},
+    deadlines={"a": "November 9, 2026", "b": "November 20, 2026", "c": "December 4, 2026", "d": "December 8, 2026", "e": "December 15, 2026"},
     other_included=["washers", "dryers"], excluded="None.",
     seller_agent="Taylor Mockagent", seller_brokerage="Pretend Summit Homes",
     buyer_agent="Robin Draftagent", buyer_brokerage="Example Peak Realty",
-    offer_expires="9:00 PM on October 30, 2026",
-    buyer_sigs=[("Sam Testcase", "10/29/2026", None), ("Alex Testcase", "10/29/2026", None)],
-    seller_response={"type": "counter", "addendum": "1", "sigs": [("Jamie Fauxseller", "10/30/2026", "6:20 PM")]},
+    offer_expires="9:00 PM on November 3, 2026",
+    buyer_sigs=[("Sam Testcase", "11/02/2026", None), ("Alex Testcase", "11/02/2026", None)],
+    seller_response={"type": "counter", "addendum": "1", "sigs": [("Jamie Fauxseller", "11/03/2026", "6:20 PM")]},
 )), "Buyer's Initials ST AT | Seller's Initials JF")
 
 write("evals/files/eval-2-hidden-due-diligence/Addendum No. 1 Seller Counteroffer.pdf", E_STAMP, utah_addendum(dict(
@@ -392,9 +392,9 @@ write("evals/files/eval-2-hidden-due-diligence/Addendum No. 1 Seller Counteroffe
         "The Purchase Price in Section 1 is changed to $462,000.",
         "Section 4(f) Possession: 48 Hours after Recording.",
     ],
-    who_accepts="Buyer", deadline_time="5:00", ampm="PM", deadline_date="October 31, 2026",
-    signers=[("Seller", "Jamie Fauxseller", "10/30/2026", "6:20 PM")],
-    response={"type": "accept", "party": "Buyer", "sigs": [("Sam Testcase", "10/31/2026", "11:02 AM"), ("Alex Testcase", "10/31/2026", "11:09 AM")]},
+    who_accepts="Buyer", deadline_time="5:00", ampm="PM", deadline_date="November 4, 2026",
+    signers=[("Seller", "Jamie Fauxseller", "11/03/2026", "6:20 PM")],
+    response={"type": "accept", "party": "Buyer", "sigs": [("Sam Testcase", "11/04/2026", "11:02 AM"), ("Alex Testcase", "11/04/2026", "11:09 AM")]},
 )), "Buyer's Initials ST AT | Seller's Initials JF")
 
 write("evals/files/eval-2-hidden-due-diligence/Addendum No. 2 Home Warranty and Refrigerator.pdf", E_STAMP, utah_addendum(dict(

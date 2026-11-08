@@ -263,7 +263,7 @@ Consent field found: yes (Text Consent). Documented yes: 1,309; documented no: 1
 | 1 | Leads never contacted, added 30+ days ago | 669 | 13.4% |
 | 2 | Missing or invalid phone (not trash) | 562 | 11.2% |
 | 3 | Active-stage contacts gone quiet: communication on record, none in 90+ days | 529 | 10.6% |
-| 4 | Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients not labeled) | 474 | 9.5% |
+| 4 | Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients in the wrong stage) | 474 | 9.5% |
 | 5 | Missing or invalid email (not trash) | 429 | 8.6% |
 | 6 | Past clients and sphere with no communication in 365+ days | 340 | 6.8% |
 | 7 | Likely duplicates (records in merge groups) | 272 | 5.4% |

@@ -223,7 +223,7 @@ Consent field found: yes (SMS Opt-In). Documented yes: 323; documented no: 35; b
 | # | Problem | Records | % of database |
 |---|---|---|---|
 | 1 | Leads never contacted, added 30+ days ago | 261 | 21.8% |
-| 2 | Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients not labeled) | 194 | 16.2% |
+| 2 | Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients in the wrong stage) | 194 | 16.2% |
 | 3 | Missing or invalid phone (not trash) | 171 | 14.2% |
 | 4 | Active-stage contacts gone quiet: communication on record, none in 60+ days | 133 | 11.1% |
 | 5 | Past clients and sphere with no communication in 365+ days | 122 | 10.2% |

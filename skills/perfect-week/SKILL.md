@@ -118,7 +118,7 @@ Add Hand-offs to the plan page.
 
 Make a clean version for their manager: the week, hours by area, the project timeline, the hand-offs and the asks. Use the session's document tool (it can export a PDF) or make a PDF. Carry over the main visuals as charts: the week board, hours by area, project hours by week, hand-off loads, and the timeline. End your reply with "Check before sending": every date, hour total, meeting, name and ask in the summary, for them to verify before it goes anywhere.
 
-Leave out anything personal or sensitive: health, pay, comp splits, commission and other dollar amounts, clients' personal details, private appointments. Calendars and documents get seen by coworkers, so keep the same rule for event titles and descriptions in step 8.
+Leave out anything personal or sensitive: health, pay, comp splits, commission and other dollar amounts, clients' personal details, lockbox codes and access notes, private appointments. Calendars and documents get seen by coworkers, so keep the same rule for event titles and descriptions in step 8.
 
 ## 8. Build it in Google Calendar
 

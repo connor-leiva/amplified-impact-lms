@@ -60,7 +60,7 @@ Read `references/market-metrics.md`. Compute only what the data supports, show t
 
 **Price Reduction mode, also:**
 - Show where the home sits against everything that has sold, gone pending or come on since it listed.
-- Read the activity: days on market against the comp set; showings per week; feedback grouped by theme (price, condition, layout, the home's location features). Quote only comments about the property. Drop anything about people, schools or safety, and never repeat showing agents' names or contact details.
+- Read the activity: days on market against the comp set; showings per week; feedback grouped by theme (price, condition, layout, the home's location features). Quote only comments about the property. Drop anything about people, schools or safety (tell the agent only the dates of the comments you left out, so they stay out of any seller version of the report), and never repeat showing agents' names or contact details.
 - Recommend a new price and explain why that number, using the newest comps and the price bands.
 - If the data says price isn't the main problem (steady showings, feedback about condition), say so and name the alternative: a condition fix, or a seller concession toward the buyer's costs or a rate buydown. Loan programs cap seller concessions; see `references/comp-method.md` and tell the agent to confirm with the buyer's lender.
 

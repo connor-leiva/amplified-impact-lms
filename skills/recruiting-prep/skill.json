@@ -1,0 +1,8 @@
+{
+  "name": "recruiting-prep",
+  "page": "recruiting-prep",
+  "title": "Recruiting Prep",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}

@@ -1167,7 +1167,7 @@
    "pct": "21.8%"
   },
   {
-   "problem": "Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients not labeled)",
+   "problem": "Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients in the wrong stage)",
    "records": 194,
    "pct": "16.2%"
   },

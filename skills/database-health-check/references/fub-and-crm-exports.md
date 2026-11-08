@@ -55,7 +55,7 @@ HighLevel (GoHighLevel), as an example of another CRM: only admin users can expo
 
 - Follow Up Boss deduplicates imported and web leads automatically when the email matches, or when the phone number and the first and last name all match. Duplicates still slip in through manual entry, typos, a second email or phone, and integrations.
 - Merging: search the name, View List of People, select the records, Mass Actions > Merge People, choose the main contact. Up to 10 at once. The main contact keeps its name, assigned agent, assigned lender, stage and running action plan; the other records' data moves to it and those records go to the Trash stage. A merge cannot be undone.
-- Two people who share a phone or email can be linked with Merge People As Relationships instead of a full merge.
+- For two people who share a phone or email, Merge People As Relationships combines the records into one contact and keeps the second person as a relationship on it, instead of folding them into one person.
 
 ## Tags Follow Up Boss Adds Itself
 

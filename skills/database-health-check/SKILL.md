@@ -32,7 +32,7 @@ Read `references/health-rules.md` first. Then:
    ```
    OUTPUT_FOLDER is where the user can download files. The run prints the report and writes `health_report.md`, `health_report.json` and `cleanup_worklist.csv`.
 3. Check the "Columns Used" table and the stage reading. If a column or stage was read wrong, fix it in rules.json (`columns`, `stage_classes`) and run again. Say what you changed.
-4. Every number in the output comes from this run. Never open raw contact rows in the conversation, and never compute a replacement count by hand.
+4. Every number in the output comes from this run. Never open raw contact rows in the conversation, and never compute a replacement count or a new total by hand: if a sum isn't in the run's output, leave it out.
 
 ## 3. Read the Health Report
 

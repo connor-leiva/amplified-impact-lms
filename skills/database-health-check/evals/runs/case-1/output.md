@@ -172,7 +172,7 @@ The 31 closed deals sit in Showing Homes 9, Under Contract 6, Active Listing 5, 
 | Archive Candidate | 3 |
 
 How to work the top three:
-1. **Merge Candidate (272 rows, do these first).** Sort by Duplicate Group. For each group, open the records, check the one marked Suggested Main Record, then in Follow Up Boss search the name, View List of People, select the records, Mass Actions > Merge People and pick the main contact. The main contact keeps its name, agent, lender and stage; the others go to Trash. A merge can't be undone, so check before each one. Leave "Review Shared Contact Info" rows for a person to decide: two people can share a number, and Merge People As Relationships links them without merging.
+1. **Merge Candidate (272 rows, do these first).** Sort by Duplicate Group. For each group, open the records, check the one marked Suggested Main Record, then in Follow Up Boss search the name, View List of People, select the records, Mass Actions > Merge People and pick the main contact. The main contact keeps its name, agent, lender and stage; the others go to Trash. A merge can't be undone, so check before each one. Leave "Review Shared Contact Info" rows for a person to decide: two people can share a number, and Merge People As Relationships keeps the second person as a relationship on one contact instead of folding them into one person.
 2. **Agent Follow-Up Or Pond Decision (792 rows).** Split by Assigned Agent and hand each agent their rows. Anything still silent after the agent's attempt gets a stage or pond decision under the rule you set (see Questions).
 3. **Fill Missing Phone (293 rows).** Fill only from the record's own history (an inquiry, a signed form). Don't buy or append numbers to text them.
 
@@ -258,7 +258,7 @@ Subject: Thinking Of You And Your Home
 >
 > It's been a while, and I wanted to say thank you again for trusting me with your move. I hope the home has been good to you.
 >
-> If it would help, I'm happy to put together a home value review or answer any questions about the market. And if a friend or family member is thinking about buying or selling, I'd be glad to talk with them.
+> If it would help, I'm happy to put together a home value review or answer any questions about the market. And if someone you know is thinking about buying or selling, I'd be glad to talk with them.
 >
 > [Agent Name]
 >

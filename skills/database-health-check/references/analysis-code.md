@@ -1037,7 +1037,7 @@ def analyze(export, transactions=None, rules=None, as_of=None):
     # problems are defined so they do not double count: quiet (touched before) versus never contacted
     probs = [
         ("Likely duplicates (records in merge groups)", out["duplicates"]["merge_records"]),
-        ("Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients not labeled)",
+        ("Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients in the wrong stage)",
          len({x["row"] for x in recs if x["closed_in_active"] or x["no_stage"] or x["parked_new"] or x["past_unlabeled"] or x["tag_mismatch"]})),
         ("Unassigned contacts", out["unassigned"]["count"]),
         ("Missing or invalid email (not trash)", sum(1 for x in live if x["email_state"] != "ok")),
