@@ -1097,10 +1097,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     expect(EXECUTED.unauthenticated).toBe(11);
-    // 12, not 6: D-028's public waitlist joined the exemptions, then the five guides' opt-ins
-    // (D-038, D-039, D-040, D-045, D-046), each probed like the others.
-    expect(EXECUTED.exempt).toBe(12);
+    // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
+    // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
+    expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(190);
+    expect(total).toBe(185 + GUIDE_SLUGS.length);
   });
 });
