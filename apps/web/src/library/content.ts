@@ -48,7 +48,7 @@ export interface Entry {
 export const ENTRIES: readonly Entry[] = [
   {
     title: 'Inbox and Meeting Follow-Through',
-    description: 'Claude goes through your inbox and yesterday’s meetings and hands back the decisions only you can make, drafted replies and hand-offs, and the promises you haven’t kept, with any wire-change email flagged first. It reads and drafts but never sends. Set it up on a computer, with a Claude plan that can add skills.',
+    description: 'Claude goes through your inbox and yesterday’s meetings and hands back the decisions only you can make, drafted replies and hand-offs, and the promises you haven’t kept, with any wire-change email flagged first. Claude reads and drafts but never sends. Set it up on a computer, with a Claude plan that can add skills.',
     kind: 'Claude Skill',
     href: '/inbox-meeting-follow-through',
     tools: ['claude'],

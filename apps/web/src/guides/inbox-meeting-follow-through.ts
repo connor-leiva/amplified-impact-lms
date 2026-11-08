@@ -25,8 +25,8 @@
 //
 // Plans and connectors, as page-notes.md "What You Need" found them on 2026-11-08:
 //   - Skills: Claude's help center lists them on every plan, Free included; Claude's docs say Pro and up.
-//     page-notes.md says "Pro or higher" to be safe. The page states both, as every skill page does,
-//     says what to do if a Free account has no way to add a skill, and never promises Free. No run used Free.
+//     The page states both, as every skill page does, says a Free account with no way to add a skill
+//     needs a paid plan, and never promises Free or recommends a plan. No run used Free.
 //   - Gmail and Google Calendar: the help center says all users and that Gmail can draft and send;
 //     Claude's docs say Pro and up and read only. The page says the pages differ, promises read-only use
 //     and drafts in the chat, and mentions Gmail drafts only as untested and only if the connector can.
@@ -66,7 +66,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
     body: 'Your decisions first, drafts to read, and who owes what.',
   },
   optInBody:
-    'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. Claude only reads your email and meetings and writes drafts for you to read. It never sends, deletes or changes anything.',
+    'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. Claude only reads your email and meetings and writes drafts for you to read. Claude never sends, deletes or changes anything.',
   setupMinutes: 10,
 
   practice: {
@@ -151,7 +151,8 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
       // sample.md (the practice run, 13 of 13 checks), shortened, in the output's own order and its own
       // words, cut only by whole items, rows, columns and sentences: the bottom line; High Risk with five
       // of six red flags, the verify line, what not to do and what was drafted; all four Needs You Today
-      // items, each cut to its first sentences; both promises and the kept one; two delegations by role
+      // items, each cut to its first sentences; both promises and the kept one; one of four replies (R1, the
+      // compliance question and the [policy answer] blank); two delegations by role
       // and two more as one-liners; the commitments tables (Jordan's three rows, five of
       // the team's ten rows) with the private line and two of the notes; two of five Waiting On Others
       // rows; six of the skipped counts; Drafts 1, 2 and 20 of 21; three lines of Check Before Sending;
@@ -249,6 +250,13 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
             'Checked and kept, not listed: the executed counter you promised Marcus Loanley on October 30 went out at 4:40 PM that day.',
           ],
         },
+        { h: 'Replies' },
+        {
+          p: [
+            { strong: 'R1. Rae: closing gift and home warranty.' },
+            ' Rae asks whether she can give her buyers a $500 gift card at closing, and who pays for the home warranty on team listings (her listing appointment is Friday). The gift card is a compliance question for Glen Brokerton, not something to answer here. The home warranty is team policy; there’s no team playbook in this conversation, so Draft 10 has a [policy answer] placeholder.',
+          ],
+        },
         { h: 'Delegations' },
         {
           p: [
@@ -331,7 +339,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         { h: 'Waiting on others' },
         {
           table: {
-            caption: 'Two of five',
+            caption: '2 of 5',
             head: ['Who owes what', 'Status'],
             rows: [
               [
@@ -424,7 +432,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         },
         {
           title: 'High risk, first',
-          body: 'Any email that sends, changes or asks to confirm where money goes, or changes a title or escrow contact’s email or phone number. Each comes with its red flags, the words “verify by phone with title at a number you already have,” and what not to do. An emailed change to an agent’s commission deposit is flagged the same way.',
+          body: 'Any email that sends, changes or asks to confirm where money goes, or changes a title or escrow contact’s email or phone number. Each comes with its red flags, the words “verify by phone with title at a number you already have,” and what not to do. An emailed change to an agent’s commission deposit is flagged too, with a call to that agent at a number you already have.',
         },
         {
           title: 'Needs you today',
@@ -448,11 +456,11 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         },
         {
           title: 'What was skipped',
-          body: 'Counts by reason, like newsletters, automated notices and threads your team already has. Plus anything suspicious, like an email telling an AI to do something, and, with Google Calendar connected, meetings that have no notes.',
+          body: 'Counts by reason, like newsletters, automated notices and threads your team already has. Anything suspicious is named, like an email telling an AI to do something. With Google Calendar connected, so are meetings that have no notes.',
         },
         {
           title: 'Drafts',
-          body: 'Every reply, forward (with a short note on top), follow-up on what’s overdue and fraud alert, numbered to match, plus anything you promised, when your files hold it. One recap per team meeting, with private matters left out. One message per person.',
+          body: 'Every reply, forward (with a short note on top), follow-up on what’s overdue and fraud alert, numbered to match. When your email already holds something you promised, like a date someone confirmed, Claude drafts its delivery. Otherwise the draft has a blank for what only you can add. One recap per team meeting, with private matters left out.',
         },
         {
           title: 'Check before sending',
@@ -488,7 +496,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         {
           label: 'Own',
           title: 'Always yours',
-          body: 'Every decision in “Needs you today,” and every message that goes out, including its fair housing check. Anything touching wire or banking details, money approvals, and any decision about a person. Claude never sends, deletes, archives or labels anything, or answers an invite.',
+          body: 'Every decision in “Needs you today.” Every message that goes out, and its fair housing check. Money approvals, anything touching wire or banking details, and any decision about a person. Claude never sends, deletes, archives or labels anything, or answers an invite.',
         },
       ],
     },
@@ -503,7 +511,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns on code execution',
         },
         {
@@ -614,14 +622,14 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
           a: [
             'It goes to the top as High risk, with the red flags Claude found and the words ',
             { strong: 'verify by phone with title at a number you already have' },
-            '. That means a number from your own records, like the title company’s opening package, never the number or link in the email. Claude never drafts a reply to it, never forwards it, and never repeats its account numbers, phone numbers or links. Claude drafts only an alert for your transactions team and the agent on the file, and, for you to choose, a short heads-up for the client: don’t wire money based on any email. An emailed change to an agent’s commission deposit is handled the same way. If money may already have moved, Claude says to call the bank now and ask for a wire recall, call title at the number you already have, and file a complaint at ic3.gov, the FBI’s internet crime site.',
+            '. That means a number from your own records, like the title company’s opening package, never the number or link in the email. Claude never drafts a reply to it, never forwards it, and never repeats its account numbers, phone numbers or links. Claude drafts only an alert for your transactions team and the agent on the file, and, for you to choose, a short heads-up for the client: don’t wire money based on any email. An emailed change to an agent’s commission deposit is flagged too. Claude says to call that agent at a number you already have, and drafts only a note asking your brokerage’s accounting or office contact to hold any change until it’s checked. If money may already have moved, Claude says to call the bank now and ask for a wire recall, call title at the number you already have, and file a complaint at ic3.gov, the FBI’s internet crime site.',
           ],
         },
         {
           // SKILL.md step 1; page-notes.md FAQ 3 and "What You Need" (pasted threads count as chat content).
           q: 'Does it work with nothing connected?',
           a: [
-            'Yes. Paste your email threads, or attach them as PDFs, along with your meeting transcripts. A Claude chat takes up to 20 files. You get the same morning pass, with the drafts in the chat. For a big inbox, connecting Gmail or Outlook is much easier than files. Emails you paste or attach count as chat content, so turn off training first, as setup shows.',
+            'Yes. Paste your email threads, or attach them as PDFs, along with your meeting transcripts. A Claude chat takes up to 20 files. You get the same morning pass, with the drafts in the chat. For a big inbox, connecting Gmail or Outlook is much easier than files. Emails you paste or attach count as chat content, so turn off training first, as setup shows. We tested the skill this way, on made-up files. We haven’t tried it with live Gmail, Outlook, Google Calendar or Granola connectors yet, so run the practice files first.',
           ],
         },
         {
@@ -636,7 +644,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
           // Project, since running day after day in one is untested.
           q: 'How does Claude know where it left off?',
           a: [
-            'Every pass ends with a Covered through time. Run the next pass in the same chat, and Claude starts from there. In a new chat, tell Claude where to start, like “since yesterday at 7.” Otherwise Claude reads the last 24 hours, or since Friday morning on a Monday.',
+            'Every pass ends with a “Covered through” time. Run the next pass in the same chat, and Claude starts from there. In a new chat, tell Claude where to start, like “since yesterday at 7.” Otherwise Claude reads the last 24 hours, or since Friday morning on a Monday.',
           ],
         },
         {
