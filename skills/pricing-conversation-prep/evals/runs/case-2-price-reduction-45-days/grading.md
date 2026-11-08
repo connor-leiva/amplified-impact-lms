@@ -40,3 +40,18 @@ Result: **pass, 8 of 8** (after one fix, below).
 - **Rerun:** both lines now read from the data ("cut to $674,900, and went pending at 33 days"; "went under contract at 37 days, and sold at 95.0% of its original price"), and all eight expectations pass.
 
 The months of supply metric was skipped because the export doesn't state its search period, as `market-metrics.md` requires, and the output says so in Flags.
+
+## Independent Review (2026-11-08)
+
+A reviewer ran this case from scratch with SKILL.md 1.1 and its references, before reading `output.md`. The run is `review-output.md`.
+
+**Reviewer's run: pass, 8 of 8.** It ran Price Reduction mode in Utah and recommended $659,900 in $650,000 to $665,000 at medium confidence: five same-subdivision solds bracket the home, but none backs to Example Parkway. It showed $689,900 against 3602 S Sample Spruce Ln ($665,000 after $699,900), 3376 S Pretend Poplar Way ($655,000), the pending at $674,900 and 3611 S Sample Spruce Ln at $679,900. The activity read used 11 showings, 6 of 8 too high, 45 days against a median of 15, and the Parkway road noise as a property feature. It left the 10/12 and 11/01 comments out by date, and it skipped months of supply because no period is stated. "Wait for spring" was answered with the three choices and no forecast. Objective checks: 0 dashes, a Check before sending section, 0 hits for 4417, 801-555-0143, 410,000, "school", "type of families", any showing agent's name, "FHA buyer", "Remove shoes" or "24-hour". 27 numbers aren't literally in the files; each is shown arithmetic (ratios, price per above-grade sq ft, prices after concessions, differences) or the labeled recommendation.
+
+**Compared with `output.md`:** both pass every expectation, and the price calls differ within reason ($659,900 against $664,900). The review found three things the builder's grading missed:
+1. The talk track said "a couple mentioned the parkway noise." Only one comment (10/03) did, so the output inflated a count in client-facing text. Fixed in `output.md` ("one mentioned"). SKILL.md step 4 now says to count feedback exactly.
+2. The bracket named the current list price as what the subject "shouldn't reach," not a sale. Fixed: it now names 3455 S Practice Pine Dr ($668,500). SKILL.md step 2 now says to bracket with closed sales, not list prices.
+3. Confidence was "high" although no sold backs to Example Parkway, the feature buyers named. SKILL.md step 4 now says to lower confidence a step when no sold shares a feature that moves value, and `output.md` now says medium, with the reason.
+
+With those edits, `output.md` still passes 8 of 8.
+
+One more change, in every run here and in `sample.md`: the appraisal check no longer cites REPC section numbers or the "Financing & Appraisal Deadline." The revised REPC (footer "EFFECTIVE NOVEMBER 1, 2026") moves the appraisal condition to Section 12.2 with its own Appraisal Deadline, and both versions are in use until January 1, 2027, so a home not yet under contract gets the form-neutral version: the buyer may cancel by the contract's appraisal deadline, which is a right to cancel, not a lower price. SKILL.md step 4 now says so, and the skill ships `utah-repc.md` and `utah-repc-2026.md` (with `utah-forms-and-counters.md`, which they name).

@@ -113,7 +113,7 @@ check("No wire, routing or account details", not wire, ", ".join(wire))
 typical = re.findall(r"[^.\n]*\b(typically costs?|usually costs?|typical cost|runs about|ballpark|expect to pay)\b[^.\n]*", out, re.I)
 check("No cost estimates", not typical, " | ".join(typical))
 
-opinions = [p for p in ["overpriced", "underpriced", "good deal", "great deal", "a steal", "bargain", "priced to sell"] if p in out.lower()]
+opinions = [p for p in ["overpriced", "underpriced", "good deal", "great deal", "a steal", "bargain", "priced to sell", "good value", "value play", "great value"] if p in out.lower()]
 check("No price opinions", not opinions, ", ".join(opinions))
 
 heads = re.findall(r"^#{2,4} (.+)$", sheet, re.M)

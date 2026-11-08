@@ -27,7 +27,7 @@ Why it matters: an agent-detail sheet mixes public facts with fields only MLS me
 
 Read `references/tour-guide.md` first. Before writing anything, split each sheet:
 - **Agent-only:** agent, private or confidential remarks; showing instructions; lockbox, gate, alarm and door codes and lockbox location; occupancy and occupant or owner names and phone numbers; appointment and listing agent contact lines; offer instructions; any field labeled agent, private, confidential, member or broker only.
-- Anything taken from an agent-only field goes only on the Agent-Only Page. Tour at a Glance, Home by Home and the buyer tour sheet use public fields only.
+- Anything taken from an agent-only field goes only on the Agent-Only Page. Tour at a Glance, Home by Home and the buyer tour sheet use public fields only. Flags and the bottom line may point to the Agent-Only Page ("one showing needs notice today; see the Agent-Only Page") but never spell out what's there.
 - Never repeat a lockbox, gate, alarm or door code anywhere, the Agent-Only Page included. Write "code is on the MLS sheet; not repeated here."
 - Public remarks that describe who a home suits ("perfect for a young family," "walk to church"): don't repeat them. Describe the feature instead.
 

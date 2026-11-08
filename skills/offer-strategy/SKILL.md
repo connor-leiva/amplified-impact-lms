@@ -18,7 +18,7 @@ Turn a listing's MLS sheet, the comps and the buyer's preapproval letter into an
 - **Required:** the listing's MLS sheet with status, list date, days on market and price history (in Utah, the Agent Full Report plus the Property Activity Report from its History link), and a CMA or comp export with sold prices and close dates. With no solds, recommend the terms, put [price: needs sold comps] in the price line, flag it, and ask for a CMA.
 - **Helpful:** the preapproval letter or proof of funds; anything the agent says about the listing agent's instructions (offer deadline, highest and best, preferred dates, rent-back) and the buyer's limits (top price, cash, a home to sell, must-move date).
 - Read every file in full. Use what the agent says; never ask them to retype what a file holds. Anything missing gets a [placeholder], a flag at the top, and the work keeps going.
-- **Pick the state** from the listing's address. In Utah, read `references/utah-offer-terms.md`, then `references/utah-repc.md` and `references/utah-forms-and-counters.md` where it points. Elsewhere, run **general mode**: name terms generically ("inspection or due diligence period," "appraisal contingency"), no Utah sections, notes or mentions, and put "State rules not checked for [state]; confirm terms with your broker and use your state's purchase contract" in the flags.
+- **Pick the state** from the listing's address. In Utah, read `references/utah-offer-terms.md`, then `references/utah-repc.md` (December 2024 form), `references/utah-repc-2026.md` (November 2026 form) and `references/utah-forms-and-counters.md` where it points. Elsewhere, run **general mode**: name terms generically ("inspection or due diligence period," "appraisal contingency"), no Utah sections, notes or mentions, and put "State rules not checked for [state]; confirm terms with your broker and use your state's purchase contract" in the flags.
 - **Pick the Utah form** the offer goes on: the December 4, 2024 REPC or the November 1, 2026 REPC (only the 2026 form from January 1, 2027). If the agent doesn't say, show both section numbers per term and ask.
 
 ## 2. Read the Listing's Position
@@ -38,6 +38,7 @@ Follow `references/comp-method.md` (in Utah, also `references/utah-pricing-conte
 - Give the supported range, then one recommended offer price with the reasoning, tied to the listing's position. Place the list price and the offer against the range in plain numbers.
 - Never recommend above the buyer's stated maximum or the letter's maximum. If the supported range sits above either, say so in the bottom line.
 - **Appraisal check:** the dollar gap between the offer and the highest closed sale that supports the range, labeled a reference point, not a prediction.
+- Do every difference, median, ratio and day count in code, and check each "highest," "closest" or "most recent" claim against the full comp list before writing it.
 
 ## 4. Recommend Every Term
 

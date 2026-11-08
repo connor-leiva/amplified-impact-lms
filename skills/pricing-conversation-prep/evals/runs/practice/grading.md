@@ -29,3 +29,15 @@ Result: **pass, 12 of 12.** This output is `sample.md`.
 ## Changes Made From This Run
 
 - Bottom line wording tightened ("the pushback most likely to come first is Zillow's $607,000").
+
+## Independent Review (2026-11-08)
+
+A reviewer ran the practice prompt from scratch with SKILL.md 1.1, before reading `output.md` or `sample.md`. The run is `review-output.md`.
+
+**Reviewer's run: pass, 12 of 12.** It recommended $599,900 in $590,000 to $605,000 at high confidence, flagged and left out the rambler that appears only in the export ($370.91 against $188.31 per sq ft), showed concessions and prices after concessions, computed 3.6 months of supply from the stated six-month window, placed $615,000 and Zillow's $607,000 against the sales, and kept every agent-only field out (0 hits for 7720, 5512, 3381, 9034, the tenant's name and phone, "divorc", "relocat", "Offers reviewed", "inspection due", "Multiple offers"). 0 dashes; every number not in the files is shown arithmetic or the labeled recommendation.
+
+**Compared with `output.md`:** the same price, range and confidence. The review changed two things in `output.md` and `sample.md`:
+1. The Zillow answer said "sites like that don't have the actual closed prices." Whether a site gets MLS sold data in Utah couldn't be confirmed from a primary source, and two runs (this one and case 1) asserted it, so `references/objections.md` now says an estimate "may not have" those prices and never to say it doesn't. Both runs and the reviewer's run now use "may not have."
+2. "Why This Price" said $599,900 "puts you in front of every buyer searching up to $600,000, while two higher-priced homes are still waiting for offers." Nothing in the files shows whether those listings have offers, and "every buyer" overstates it. It now reads "keeps you in searches capped at $600,000, while two higher-priced homes are still on the market."
+
+One more change, in every run here and in `sample.md`: the appraisal check no longer cites REPC section numbers or the "Financing & Appraisal Deadline." The revised REPC (footer "EFFECTIVE NOVEMBER 1, 2026") moves the appraisal condition to Section 12.2 with its own Appraisal Deadline, and both versions are in use until January 1, 2027, so a home not yet under contract gets the form-neutral version: the buyer may cancel by the contract's appraisal deadline, which is a right to cancel, not a lower price. SKILL.md step 4 now says so, and the skill ships `utah-repc.md` and `utah-repc-2026.md` (with `utah-forms-and-counters.md`, which they name).

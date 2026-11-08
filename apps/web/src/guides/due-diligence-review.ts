@@ -21,7 +21,8 @@
 // other states from the uploaded contract itself.
 //
 // It works in Claude (a skill) and in ChatGPT (a Project). The practice set is five PDFs, attached one
-// by one. `setupMinutes` is an estimate from the steps (page-notes gives none).
+// by one. `setupMinutes` is an estimate (page-notes gives none): 10, as /database-health-check says for
+// the same shared setup steps, with five practice PDFs here instead of one CSV.
 //
 // House rules: no em dashes, short plain sentences, one action a step, the actor and the place named.
 
@@ -44,7 +45,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
   outcome: { n: '03', title: 'Know What to Ask For', body: 'What matters, what to ask for, and an email for your buyer.' },
   optInBody:
     'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. There’s a ChatGPT version too.',
-  setupMinutes: 5,
+  setupMinutes: 10,
 
   practice: {
     // page-notes.md, "Practice Prompt", word for word. The "pretend today" line keeps the made-up
@@ -52,7 +53,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
     prompt:
       'Pretend today is Sunday, November 8, 2026. Here’s everything on 2468 Example Aspen Drive in Riverton. My buyers are Avery and Jordan Samplewood. They want to finish the rest of the basement and maybe build a detached shop in the backyard next year. What should we ask for?',
     note: [
-      'Every name, address and number in them is made up. The words start with “Pretend today is Sunday, November 8, 2026” so the made-up deadline hasn’t already passed. ',
+      'There are five files. Every name, address and number in them is made up. The words to say start with “Pretend today is Sunday, November 8, 2026” so the made-up deadline hasn’t already passed. ',
     ],
   },
 
@@ -64,7 +65,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
     // SKILL.md, section 1: the buyer's plans, when the agent mentions them, are checked against every
     // document. Then the shared "Check before sending" line.
     note: [
-      'Add your buyer’s plans, like renting it out or finishing the basement, and the AI checks every document against them. Before anything goes out, check every date, dollar amount and page number in the ',
+      'Add your buyer’s plans to the message, like renting the home out or finishing the basement, and the AI checks every document against them. Before anything goes out, check every date, dollar amount and page number in the ',
       { strong: 'Check before sending' },
       ' list against your documents.',
     ],
@@ -77,14 +78,15 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
       // sample.md (the practice run), shortened, in the output's own order and its own words, cut only
       // by whole items and sentences: the REPC version flag, the bottom line, findings 1 (safety) and 4
       // (the one the inspector's summary left out), one question for the listing agent, the timeline's
-      // no-response-period lines, two asks, the buyer email in full, and three rows of Check before
+      // first four lines (the deadline, so "By then" points to something, then the no-response-period
+      // lines), two asks, the buyer email in full, and three rows of Check before
       // sending. Left out: every line about the 2011 deed of trust (Connor's call, open in the review).
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a review looks like',
       body: 'What the AI wrote from the practice files: a made-up home in Riverton, Utah, made-up buyers and made-up documents. They’re the same files you practise on in setup.',
       title: 'Due Diligence Review: 2468 Example Aspen Drive, Riverton, Utah',
-      note: 'Made-up example. Shortened: a few lines from each part, and the buyer email in full.',
+      note: 'Made-up example. Shortened: a few lines from most parts, and the buyer email in full.',
       blocks: [
         { h: 'Flags' },
         {
@@ -126,6 +128,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
         { p: ['For strategy; confirm dates with your transactions team.'] },
         {
           items: [
+            'Due Diligence Deadline: 5:00 PM Mountain Time, Friday, November 13, 2026 (Sections 21 and 24(b)). 5 days from today.',
             'By then (Section 8.1(b)): cancel by written notice, and the $8,000 Earnest Money Deposit is released to the buyers; or resolve objections in writing with the seller.',
             'No response period. This REPC gives the seller no set number of days to answer and gives the buyers no cancellation window afterward. If the objection goes out Monday, November 9, the seller has November 10 through 5:00 PM Friday, November 13 to sign a resolution. Each day spent waiting for a roofing bid is a day less for the seller.',
             'If neither happens (Section 8.1(c)): the Due Diligence Condition is waived, and the Earnest Money Deposit becomes non-refundable except under the appraisal and financing conditions.',
@@ -203,7 +206,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
         },
         {
           title: 'An issue list, by tier',
-          body: 'Every finding sorted into four tiers, from safety and health down to notes only, with its page. Findings the inspector’s summary left out are marked.',
+          body: 'Every finding sorted into four tiers, from safety and health down to notes only, with its page. Tier 1 and 2 findings the inspector’s summary left out are marked.',
         },
         {
           title: 'Questions for the listing agent',
@@ -250,7 +253,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
         {
           label: 'Own',
           title: 'Always yours',
-          body: 'Whether to object, cancel or go ahead, with your buyer. Every repair, credit and dollar amount, and any extension. Wire instructions and account numbers: the AI never asks for them or repeats them.',
+          body: 'Whether to object, cancel or go ahead, with your buyer. Every repair, credit and dollar amount, any extension, and what goes to the seller’s side. Wire instructions and account numbers stay with you: the AI never asks for them or repeats them.',
         },
       ],
     },
@@ -258,7 +261,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
       // page-notes.md, "What You Need", and its sources (checked 2026-11-08).
       kind: 'tiles',
       heading: 'What you need',
-      note: 'About 5 minutes to set up',
+      note: 'About 10 minutes to set up',
       cta: true,
       columns: 2,
       items: [
@@ -283,7 +286,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
         },
         {
           title: 'No connectors needed',
-          body: 'A connector links Claude to another app, like Gmail. This skill needs none. The AI writes the buyer email in the chat for you to copy.',
+          body: 'A connector links the AI to another app, like Gmail. This skill needs none. The AI writes the buyer email in the chat for you to copy.',
         },
         {
           title: 'No extra cost',
@@ -320,7 +323,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
           // SKILL.md, section 1; page-notes.md's FAQ. UAR's notice (utahrealtors.com, checked 2026-11-08).
           q: 'Which contracts does it work with?',
           a: [
-            'Both Utah REPCs in use now. The AI reads the footer, “EFFECTIVE DECEMBER 4, 2024” or “EFFECTIVE NOVEMBER 1, 2026,” and uses that form’s section numbers. The Utah Association of REALTORS says the old form can’t be used starting January 1, 2027. In another state, the AI takes the deadline, any response period and what happens if you do nothing from your uploaded contract, and says it didn’t check your state’s rules.',
+            'Both Utah REPCs in use now. The AI reads the contract’s footer, “EFFECTIVE DECEMBER 4, 2024” or “EFFECTIVE NOVEMBER 1, 2026,” and uses that form’s section numbers. The Utah Association of REALTORS says the old form can’t be used starting January 1, 2027. In another state, the AI takes the deadline, any response period and what happens if you do nothing from your uploaded contract, and says it didn’t check your state’s rules. It isn’t built for a builder’s new construction contract.',
           ],
         },
         {
@@ -334,30 +337,40 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
           // SKILL.md, sections 2 and 5.
           q: 'Why won’t the AI estimate repair costs?',
           a: [
-            'It uses only numbers from your documents. Without a bid, a finding says “needs bid,” and a credit in the objection list reads “$[credit amount from bid].” Get a contractor’s bid and the AI will use that number.',
+            'The AI uses only numbers from your documents. Without a bid, a finding says “needs bid,” and a credit in the objection list reads “$[credit amount from bid].” Attach a contractor’s bid in the same chat, and the AI uses that number.',
           ],
         },
         {
-          // page-notes.md, "What You Need": Claude's help center and docs disagree on Free; ChatGPT's
-          // limits from OpenAI's help center and pricing page, via the vendor check of 2026-11-08.
-          q: 'Do I need a paid plan?',
+          // page-notes.md, "What You Need": Claude's help center lists skills on every plan, Claude's docs
+          // on Pro and up. No run was on a Free account.
+          q: 'Does it work on Claude’s free plan?',
           a: [
-            'In Claude, the help center lists skills on every plan, Free included. Claude’s developer docs list them on Pro and up, so if your Free account shows no way to add a skill, that’s why. In ChatGPT, Projects work on Free, Go, Plus and Pro. Free allows 3 file uploads a day and about 12 pages of text per message. So on Free, setup and a full set of documents can take more than one day, and a long inspection report plus an HOA packet can be too much for one message. Go and Plus allow about 40 pages per message.',
+            'Maybe. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. We haven’t tested the skill on Free.',
           ],
         },
         {
-          // page-notes.md: Claude's pages disagree on Gmail drafts, and creating one was not tested.
-          // Connor's call; the page promises nothing.
+          // page-notes.md, "What You Need" and "Not tested": ChatGPT's limits from OpenAI's help center
+          // and pricing page, via the vendor check of 2026-11-08. The practice set is five PDFs, more
+          // than Free's 3 uploads a day. The ChatGPT version was not run in ChatGPT.
+          q: 'Does it work on free ChatGPT?',
+          a: [
+            'Projects work on Free, Go, Plus and Pro, but Free has limits: 3 file uploads a day and about 12 pages of text per message. The practice set alone is 5 files, so on Free, setup and practice can take more than one day. A long inspection report plus an HOA packet can also be too much for one message on Free. Go and Plus allow about 40 pages per message. We haven’t tested the ChatGPT version inside ChatGPT yet, so try the practice files first.',
+          ],
+        },
+        {
+          // page-notes.md: Claude's pages disagree on which plans have the Gmail connector and whether it
+          // can create drafts, and creating one was not tested. Connor's call; the page promises nothing,
+          // and "What to say" gives no prompt for a draft.
           q: 'Can it save the buyer email in Gmail?',
           a: [
-            'Maybe. The AI always writes the email in the chat for you to copy. If you use Claude with its Gmail connector switched on, you can ask Claude to save the email as a Gmail draft. Claude’s own help pages disagree on whether that connector can make drafts, and we haven’t tested it, so if no draft appears, copy the email from the chat. The AI never sends anything.',
+            'Not for sure. The AI writes the buyer email in the chat for you to copy. A Gmail draft would take Claude’s Gmail connector, and Claude’s own help pages disagree on which plans have it and whether it can make drafts. We haven’t tested it. If you ask for a Gmail draft and none appears, copy the email from the chat. The AI never sends anything.',
           ],
         },
         {
           // page-notes.md, "What It Will Not Do".
           q: 'What won’t it do?',
           a: [
-            'The AI never sends, posts or writes to your CRM. It won’t estimate repair costs or how long something will last, or tell your buyer whether to buy. It won’t answer legal, title, loan, insurance or health questions: it points them to an attorney, the title officer, the lender or a certified professional. It doesn’t write new contract language or keep your official deadline calendar. It won’t repeat loan numbers, account numbers or wiring instructions, or comment on the people in a neighborhood, schools or safety.',
+            'The AI never sends, posts or writes to your CRM. It won’t estimate repair costs or how long something will last, or tell your buyer whether to buy. It won’t answer legal, title, loan, insurance or health questions: it points them to an attorney, the title officer, the lender, an insurance agent or a certified professional. It doesn’t write new contract language or keep your official deadline calendar. It won’t repeat loan numbers, account numbers or wiring instructions, or comment on the people in a neighborhood, schools or safety.',
           ],
         },
       ],

@@ -24,7 +24,7 @@ Turn a CMA into what a listing agent needs walking into a pricing conversation: 
 
 **Pick the mode:** New Listing if the subject isn't active, Price Reduction if it's active or the agent says so.
 
-**Pick the state:** from the subject's address or MLS. In Utah, read `references/utah-pricing-context.md` and use its notes. Anywhere else, run general mode: skip the Utah file, say nothing about the state's disclosure laws or contract forms, take any contract or appraisal terms only from uploaded documents, and put "State rules not checked for [state]" in the flags. If the state is unclear, use general mode and say so.
+**Pick the state:** from the subject's address or MLS. In Utah, read `references/utah-pricing-context.md` and use its notes. Anywhere else, run general mode: skip the Utah files, say nothing about the state's disclosure laws or contract forms, take any contract or appraisal terms only from uploaded documents, and put "State rules not checked for [state]" in the flags. If the state is unclear, use general mode and say so.
 
 ## 2. Clean the Comp Set
 
@@ -55,7 +55,7 @@ Read `references/market-metrics.md`. Compute only what the data supports, show t
 - **Recommended price:** a specific number inside the range, with the reasoning. Buyers filter searches by price; when the range straddles a round number, name the trade-off.
 - **Confidence:** high, medium or low, from how many comps there are, how recent and how similar. Lower it a step when no sold shares a feature that moves value (backing to a busy road, a view, a basement like the subject's), and say which.
 - **The seller's number:** when the agent shared it, place it against the range in plain numbers (which solds support it, if any). Never stretch the recommendation to match it or to win the listing.
-- **Appraisal check:** if the recommended price or the seller's number sits above the closest solds, say plainly that a financed buyer's appraisal will lean on those same closed sales. In Utah, explain the REPC appraisal condition from the Utah file. In general mode, say only that a buyer's contract may let them cancel or renegotiate after a low appraisal.
+- **Appraisal check:** if the recommended price or the seller's number sits above the closest solds, say plainly that a financed buyer's appraisal will lean on those same closed sales. In Utah, explain the REPC appraisal condition without section numbers or deadline names, because two REPC versions are in use until January 1, 2027 ("Check the Version First" in `references/utah-repc.md`) and the home isn't under contract yet: when the buyer's contract includes the condition and the appraisal comes in under the price, the buyer may cancel by the contract's appraisal deadline and get the earnest money back. It's a right to cancel, not a lower price. In general mode, say only that a buyer's contract may let them cancel or renegotiate after a low appraisal.
 - **What would change this:** one or two facts that would move the number (a pending's final price, condition the agent sees at the walkthrough).
 
 **Price Reduction mode, also:**

@@ -40,17 +40,17 @@ Lee and Sam,
 
 Here's the plan for Thursday. Thanks for walking me through the house today.
 
-What I heard matters most: being in Tucson closer to your daughter, closed by mid-January before your rental starts February 1, and on the market before Thanksgiving. You're also thinking about the dogs during showings, and about not sitting on the market.
+What I heard matters most. Be in Tucson, closer to your daughter. Close by mid-January, before your rental starts February 1. Be on the market before Thanksgiving. And plan around the dogs for showings, without sitting on the market.
 
 On price, I recommended listing at $539,900, from a range of $529,000 to $545,000. You'd rather start at $575,000. It's your call. I want you to make it with the numbers in front of you.
 
 Coming from me:
 - The full CMA, tonight
-- A net sheet from Example Title at both prices, by Wednesday
+- A net sheet from Example Title at both prices, by Wednesday, November 11
 - Chris's number at Sample Fix-It, for the garage door spring
 - My photo prep list
 
-On your side: paint the front door, and Sam's trimming the oleanders next weekend.
+On your side: paint the front door. Sam's trimming the oleanders the weekend of November 14 and 15.
 
 I'll be back Thursday, November 12, at 6:00 PM. We'll decide on price and sign the listing paperwork. If we decide then, photos can be Tuesday, November 17, and we'd go live Friday, November 20.
 
@@ -59,7 +59,6 @@ I'll be back Thursday, November 12, at 6:00 PM. We'll decide on price and sign t
 Talk soon,
 Drew
 
-*(175 words in the body. Follows your QUICK CARD: short sentences, first names, the point up front, no exclamation points.)*
 
 ## Follow Up Boss Note
 

@@ -65,7 +65,7 @@ No two signed documents conflict. Gaps and questions:
 ## What It Means for Your Buyers
 
 - **Time:** their due diligence window shrinks by a week. Counting from the November 9 Seller Disclosure Deadline, they would have 4 days to the Due Diligence Deadline instead of 11. With the inspection on Thursday, November 12, they would have one day (Friday, November 13, until 5:00 PM) to read the report, decide, and either cancel in writing or get any objections resolved in writing with the seller. Any further evaluation the inspector recommends would have to fit in that day.
-- **Risk:** after 5:00 PM November 13, if they haven't cancelled or resolved objections in writing, the $7,500 becomes non-refundable except under the appraisal and financing conditions. The financing cancellation in 12.3(a) applies "after the Due Diligence Deadline," so from November 14 a cancellation over loan terms would release $3,750 to the seller.
+- **Risk:** after 5:00 PM November 13, if they haven't cancelled or resolved objections in writing, the $7,500 becomes non-refundable except under the appraisal and financing conditions. The financing cancellation in 12.3(a) applies "after the Due Diligence Deadline," so once the November 13 deadline passes, a cancellation over loan terms would release $3,750 to the seller.
 - **Money:** the seller pays up to $650 toward a home warranty plan your buyers choose, and the kitchen refrigerator stays. Nothing else about the price or the loan changes.
 - **Logistics:** your buyers would choose and order the warranty plan before Settlement.
 

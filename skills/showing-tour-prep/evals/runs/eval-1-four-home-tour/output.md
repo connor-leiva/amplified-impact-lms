@@ -2,7 +2,7 @@
 
 ## Bottom Line
 
-Three of the four homes (Holladay, Mapleton and Riverton) meet every criterion the sheets can answer: 3+ bedrooms, under $550,000 and a garage. The Draper condo doesn't fit the plan to rent later (its public remarks state a rental cap and a 12-month owner-occupancy rule), and it has 2 bedrooms and no garage. Before Saturday, note Riverton's offer deadline and ask Holladay's listing agent what the trustee's disclosure will cover (both on the Agent-Only Page).
+Three of the four homes (Holladay, Mapleton and Riverton) meet every criterion the sheets can answer: 3+ bedrooms, under $550,000 and a garage. The Draper condo doesn't fit the plan to rent later (its public remarks state a rental cap and a 12-month owner-occupancy rule), and it has 2 bedrooms and no garage. Before Saturday, read the Agent-Only Page for homes 2 and 4; both have items to act on before or right after the tour.
 
 ## Tour at a Glance
 
@@ -146,21 +146,21 @@ From your list: Meets: under $550,000. Doesn't: 2 bedrooms (you asked for 3+), n
 Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 2. 2840 E Example Elm Dr, Holladay
-$515,000 | 3 beds (all on the main floor) | 2 baths (1 full up, 1 three-quarter down) | 1,340 sq ft above grade + 1,300 sq ft basement (40% finished) | 0.27 acres | Built 1958 | No HOA
+$515,000 | 3 beds (all on the main floor) | 1 full bath up, 1 three-quarter bath down | 1,340 sq ft above grade + 1,300 sq ft basement (40% finished) | 0.27 acres | Built 1958 | No HOA
 Good to know: trust sale, sold as-is (the seller won't make repairs; you can still inspect). Price reduced twice, $34,000 total.
 Look for: painted surfaces (built before 1978); the boiler and the evaporative cooler; the unfinished part of the basement.
 From your list: Meets: 3 bedrooms, under $550,000, 1-car garage. Check: whether part could be rented (city rules).
 Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 3. 1350 N Sample Canal Rd, Mapleton
-$549,900 | 4 beds (3 up, 1 down) | 4 baths (2 full and 1 half up, 1 three-quarter down) | 2,060 sq ft above grade + 1,020 sq ft basement (50% finished) | 0.52 acres | Built 1987 | No HOA
+$549,900 | 4 beds (3 up, 1 down) | 2 full and 1 half bath up, 1 three-quarter bath down | 2,060 sq ft above grade + 1,020 sq ft basement (50% finished) | 0.52 acres | Built 1987 | No HOA
 Good to know: 2 shares of Example Ditch Irrigation Company for flood irrigation on a turn schedule; no pressurized irrigation. RV parking.
 Look for: the ditch and how water reaches the yard; the basement bedroom's window; the garden space and fruit trees.
 From your list: Meets: 4 bedrooms, under $550,000, 2-car garage. Check: whether part could be rented (city rules).
 Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 4. 4418 W Placeholder Hollow Dr, Riverton
-$534,500 | 5 beds (4 up, 1 down) | 4 baths (2 full and 1 half up, 1 full down) | 2,050 sq ft above grade + 1,050 sq ft basement (finished) | 0.19 acres | Built 2003 | HOA $120 a quarter ($40 a month: common area and trail)
+$534,500 | 5 beds (4 up, 1 down) | 2 full and 1 half bath up, 1 full bath down | 2,050 sq ft above grade + 1,050 sq ft basement (finished) | 0.19 acres | Built 2003 | HOA $120 a quarter ($40 a month: common area and trail)
 Good to know: furnace and AC replaced in 2024. Price reduced $15,000.
 Look for: the basement bedroom's window; the fence along the trail; the roof's age.
 From your list: Meets: 5 bedrooms, under $550,000, 2-car garage. Check: the HOA's rental rules.

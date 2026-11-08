@@ -14,7 +14,7 @@ One table, one row per home:
 
 | # | Address | Status | Price | Beds (up / down) | Baths (up / down) | Above grade / basement sq ft | Built | HOA per month | Days on market | Price change |
 
-- Baths: write full, three-quarter and half baths the way the sheet counts them ("2.5 up / 1 down"). If the sheet only gives totals, say "split not on the sheet."
+- Baths: write full, three-quarter and half baths the way the sheet counts them ("2 full, 1 half up / 1 three-quarter down"). Never add them into a decimal ("3.5 baths"); MLS systems count three-quarter baths differently. If the sheet only gives totals, say "split not on the sheet."
 - Price change: "none shown" or "down $40,000 (two cuts)."
 
 ## Home by Home (for the agent; public fields only)
@@ -59,7 +59,7 @@ Rules for the tour sheet:
 
 Head it **Agent-Only Page: Do Not Share or Forward**. Then:
 
-1. **Before the tour:** the buyer agreement check; statuses to reconfirm the morning of the tour (anything not Active, or a sheet printed before today); missing sheets.
+1. **Before the tour:** the buyer agreement check; statuses to reconfirm the morning of the tour (anything not Active, or a sheet printed before today); any showing notice that has to go out before the tour, counted back from the tour time (a 24-hour notice for a 10:00 AM tour tomorrow means by 10:00 AM today); missing sheets.
 2. **Per home**, numbered to match:
    - **Access and showing notes:** in plain words ("lockbox on the side door; code is on the MLS sheet; not repeated here"; "24-hour notice; tenant to be contacted per the sheet"). Never copy a code, a name or a phone number.
    - **What the agent remarks say:** each point in a line, with what it means for this buyer (an offer deadline, a rent-back, a sewer note, a tenant's lease end).

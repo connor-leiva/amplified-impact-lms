@@ -8,6 +8,9 @@
     "chatgpt"
   ],
   "shared": [
-    "utah-pricing-context.md"
+    "utah-pricing-context.md",
+    "utah-repc.md",
+    "utah-repc-2026.md",
+    "utah-forms-and-counters.md"
   ]
 }

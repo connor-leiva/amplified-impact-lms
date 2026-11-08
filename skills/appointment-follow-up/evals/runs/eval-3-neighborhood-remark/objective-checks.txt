@@ -1,0 +1,14 @@
+Objective checks: eval-3-neighborhood-remark / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subject: Next Steps Before Wednesday's Video Tour
+- PASS  Email body under 200 words: 165 words (signature included)
+- PASS  [Personal note: add by voice] line
+- PASS  Text under 300 characters: 140 characters
+- PASS  No stock phrases in email or text
+- PASS  Check Before Sending section
+- PASS  Never-appear strings absent
+- PASS  Protected-class words (review each)
+- PASS  No wire or account details
+- PASS  Every timestamp or clock time is in the input
+- FAIL  Numbers not found in the input (grade each): 030
+- NOTE  Reference numbers: Numbers from the skill's references, not the input: 9.73

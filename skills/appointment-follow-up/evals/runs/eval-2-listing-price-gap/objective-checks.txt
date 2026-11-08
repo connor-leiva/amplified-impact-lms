@@ -1,0 +1,12 @@
+Objective checks: eval-2-listing-price-gap / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subject: Thursday At 6, And What's Coming Before Then
+- PASS  Email body under 200 words: 182 words (signature included)
+- PASS  [Personal note: add by voice] line
+- PASS  No stock phrases in email or text
+- PASS  Check Before Sending section
+- PASS  Never-appear strings absent
+- PASS  Protected-class words (review each)
+- PASS  No wire or account details
+- PASS  Every timestamp or clock time is in the input
+- FAIL  Numbers not found in the input (grade each): 14, 15

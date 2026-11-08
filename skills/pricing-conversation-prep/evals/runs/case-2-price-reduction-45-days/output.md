@@ -52,7 +52,7 @@ The subject: two-story, 2012, 2,380 sq ft above grade, basement 1,150 sq ft with
 
 **Confidence: medium.** Five solds of the same style in the same subdivision within about four months, two of them since the subject listed, plus a near-twin pending. It isn't high because no sold backs to Example Parkway; the only homes that do are the pending (sale price not known yet) and the expired listing.
 
-**Appraisal check (Utah).** At $689,900 the price is $21,400 above the highest sale in the set ($668,500), so a financed buyer's appraisal would have little to lean on. Under the state-approved REPC, if the appraisal condition box is checked and the home appraises below the price, the buyer can cancel by the Financing & Appraisal Deadline and get the earnest money back; FHA and VA buyers have their own addendum protection. A price inside the range takes most of that risk off the table, though no appraisal result is certain.
+**Appraisal check (Utah).** At $689,900 the price is $21,400 above the highest sale in the set ($668,500), so a financed buyer's appraisal would have little to lean on. Under the Utah REPC (either version in use until January 1, 2027), if the buyer's contract includes the appraisal condition and the home appraises below the price, the buyer can cancel by the contract's appraisal deadline and get the earnest money back; FHA and VA buyers have their own addendum protection. A price inside the range takes most of that risk off the table, though no appraisal result is certain.
 
 **What would change this:** the pending 3527 S Practice Pine Dr's final sale price when it closes, and how quickly 3299 S Sample Spruce Ln ($669,000, 4 days) draws an offer.
 

@@ -1,0 +1,12 @@
+Objective checks: eval-3-neighborhood-remark / baseline.md
+- PASS  No em or en dashes
+- FAIL  Title Case subject: Great Chatting Last Night - Next Steps for Your Utah Home Search (lowercase: ['for'])
+- FAIL  Email body under 200 words: 288 words (signature included)
+- FAIL  [Personal note: add by voice] line
+- FAIL  No stock phrases in email or text: don't hesitate, reach out, perfect home
+- FAIL  Check Before Sending section
+- FAIL  Never-appear strings absent: 220, Cobble Ridge, demographic
+- FAIL  Protected-class words (review each): demographics
+- PASS  No wire or account details
+- PASS  Every timestamp or clock time is in the input
+- PASS  Numbers not found in the input (grade each)

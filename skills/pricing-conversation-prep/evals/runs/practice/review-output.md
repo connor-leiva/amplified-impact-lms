@@ -1,6 +1,6 @@
 # Pricing Conversation Prep: 1482 W Juniper Example Dr (New Listing)
 
-Reviewer's independent run, 2026-11-08, following SKILL.md and its references from scratch on the two practice files and the practice prompt in page-notes.md. Rerun after the review's fixes: the only change is the Zillow answer, which now says an estimate "may not have" the MLS's closed prices instead of asserting what data the site has. Mode: New Listing (the subject isn't listed). State: Utah (Sampleville, UT 84000), so the Utah notes apply.
+Reviewer's independent run, 2026-11-08, following SKILL.md and its references from scratch on the two practice files and the practice prompt in page-notes.md. Rerun after the review's fixes: the Zillow answer now says an estimate "may not have" the MLS's closed prices instead of asserting what data the site has, and the appraisal check no longer cites REPC section numbers or deadline names, because two REPC versions are in use until January 1, 2027. Mode: New Listing (the subject isn't listed). State: Utah (Sampleville, UT 84000), so the Utah notes apply.
 
 ## Flags
 
@@ -52,7 +52,7 @@ Five two-story solds (May 5 to November 5, 2026, the CMA's stated six-month wind
 - **Confidence: high.** Five recent same-style sales in the same neighborhood, consistent sizes and finishes, and a near-twin pending.
 - **The sellers' number ($615,000):** $10,500 above the highest two-story sale, $612,000 rambler included. No sale in either file supports it. The closest listing tried higher: 1340 W Cedar Sample Cir, same above-grade size, expired after 120 days at $634,900.
 - **Zillow ($607,000):** $2,500 above the highest sale, which had a newer kitchen and a three-car garage.
-- **Appraisal check (Utah):** at $615,000 the price would sit above every closed sale, and a financed buyer's appraiser will lean on these same sales. Under the state-approved REPC (Section 8.2), when the appraisal condition is checked and the appraisal comes in under the price, the buyer may cancel by the Financing & Appraisal Deadline and get the earnest money back. It's a right to cancel, not an automatic lower price; any change takes a signed addendum. Read section numbers from the signed contract. No appraisal result can be promised.
+- **Appraisal check (Utah):** at $615,000 the price would sit above every closed sale, and a financed buyer's appraiser will lean on these same sales. Under the Utah REPC (two versions are in use until January 1, 2027, so no section numbers until there is a signed contract), when the buyer's contract includes the appraisal condition and the appraisal comes in under the price, the buyer may cancel by the contract's appraisal deadline and get the earnest money back. It's a right to cancel, not an automatic lower price; any change takes a signed addendum. No appraisal result can be promised.
 - **What would change this:** the closed price of 1528 W Juniper Example Dr; condition you see at the walkthrough (the kitchen especially).
 
 ## Talk Track

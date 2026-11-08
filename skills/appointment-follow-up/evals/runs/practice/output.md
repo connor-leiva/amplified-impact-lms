@@ -1,7 +1,7 @@
 ## Flags
 
 - **Buyer agreement: discussed, not signed yet.** You're sending it through DocuSign tonight, Sunday, November 8. As you described it, it runs three months, through February 8. The first tour is **Saturday, November 14, at 10:00 AM**, so it needs both signatures before then. In Utah it comes from your brokerage or the Utah Association of REALTORS forms (usually the Exclusive Buyer-Broker Agreement and Agency Disclosure); confirm the current version with your broker.
-- **Preapproval: done, with a condition.** Preapproved with Dana Fakerson at Placeholder Mortgage, conventional, letter dated October 30. Dana said it assumes the townhome sells first (2:35). They said yes to your calling Dana tomorrow about buying before the townhome sells (2:41 to 2:55).
+- **Preapproval: done, with a condition.** Preapproved with Dana Fakerson at Placeholder Mortgage, conventional, letter dated October 30. Dana said it assumes the townhome sells first (2:35). They said yes to your calling Dana tomorrow, Monday, November 9, about buying before the townhome sells (2:41 to 2:55).
 - **Speakers:** Granola's desktop app on a Zoom call labels you "Microphone" and both Testwoods "System audio" (they shared one laptop). Worked out from context: Morgan at 0:25 and 1:40, Casey at 0:42 and 4:36 (confirmed by "That's Casey" at 4:40, where Morgan asks for email). Lines that can't be pinned to one of them are written as the Testwoods'.
 - **Left out on purpose:** a health detail about the family member moving in (the need is written as home features), and the balance owed on the townhome.
 
@@ -46,10 +46,10 @@ Thanks for tonight. Here's what I heard matters most:
 
 What I'm doing:
 
-- Sending the buyer agreement through DocuSign tonight. Please read it and sign before Saturday.
-- Calling Dana tomorrow about buying before the townhome sells
-- Setting up your search by tomorrow night: texts for Casey, email for Morgan
-- Sending Saturday's addresses on Thursday
+- Sending the buyer agreement through DocuSign tonight. Please read it and sign before Saturday, November 14.
+- Calling Dana on Monday, November 9, about buying before the townhome sells
+- Setting up your search by Monday night, November 9: texts for Casey, email for Morgan
+- Sending Saturday's addresses on Thursday, November 12
 - The police department's crime map and the district's boundary lookup: [Add links]
 
 Tuesday, November 10, at 6:30 PM, I'll walk through the townhome and bring the recent sales from your complex.
@@ -60,13 +60,11 @@ Saturday, November 14, at 10:00 AM, we'll tour three homes.
 
 Riley
 
-*(166 words in the body.)*
 
 ## Text Version (to Casey, who asked for texts)
 
-Hi Casey, it's Riley. I'll see you both at the townhome Tuesday, Nov 10, at 6:30 PM, and we tour three homes Saturday, Nov 14, at 10:00 AM. The buyer agreement in DocuSign needs both signatures before Saturday.
+Hi Casey, it's Riley: I'll see you both at the townhome Tuesday, Nov 10, at 6:30 PM. Then we tour three homes Saturday, Nov 14, at 10:00 AM.
 
-*(209 characters.)*
 
 ## Follow Up Boss Note
 
@@ -91,7 +89,7 @@ Paste it into the note box on the Testwoods' profile and click Create Note. The 
 
 ## Next Steps
 
-1. **You, tonight, Sunday, November 8:** send the buyer agreement through DocuSign.
+1. **You, tonight, Sunday, November 8:** send the buyer agreement through DocuSign. DocuSign arrives by email and Casey said "I never check email," so a quick text that it's waiting helps it get signed before Saturday.
 2. **You, Monday, November 9:** call Dana Fakerson at Placeholder Mortgage about buying before the townhome sells.
 3. **You, by Monday night, November 9:** set up the search, with texts to Casey and email to Morgan.
 4. **You, [date]:** send the police department's crime map and the district's boundary lookup links. No day was set; with the recap works.

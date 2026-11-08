@@ -44,9 +44,9 @@ Thanks for the time on Zoom last night. Here's what I heard matters most:
 What I'm sending:
 
 - Our buyer agreement, by email for e-signature. Read it and ask me anything. It needs to be signed before Wednesday's video tour.
-- Your search with RV parking and the HOA filter, by Monday
+- Your search with RV parking and the HOA filter, by Monday, November 9
 - The district's boundary lookup and the state's school report card
-- The two homes for Wednesday, on Tuesday
+- The two homes for Wednesday's tour, on Tuesday, November 10
 
 Live video tour: Wednesday, November 11, at 5:00 PM Mountain (4:00 PM Pacific). Jordan, I'll text you the link.
 
@@ -56,13 +56,11 @@ In person: Saturday, December 5, all day, while you're here December 4 to 6.
 
 Kendall
 
-*(151 words in the body.)*
 
 ## Text Version (to Jordan, who asked to be texted)
 
-Hi Jordan, it's Kendall. Our live video tour is Wednesday, Nov 11, at 4:00 PM Pacific (5:00 PM my time). I'll text the link before then. The buyer agreement needs both signatures first.
+Hi Jordan, it's Kendall: our live video tour is Wednesday, Nov 11, at 4:00 PM Pacific (5:00 PM my time). I'll text you the link before then.
 
-*(183 characters.)*
 
 ## Follow Up Boss Note
 
@@ -86,7 +84,7 @@ Paste it into the note box on the Fakewells' profile and click Create Note. The 
 
 ## Next Steps
 
-1. **You, Saturday, November 7 (promised "tonight"):** email the buyer agreement for e-signature. Confirm it went out.
+1. **You, Saturday, November 7 (promised "tonight"):** email the buyer agreement for e-signature. Confirm it went out. Jordan said email gets missed ("I'm bad with email"), so a quick text that the agreement is waiting in their inbox helps it get signed before Wednesday.
 2. **You, by Monday, November 9:** set up the search with RV parking and the HOA filter; send the district's boundary lookup and the state's school report card links.
 3. **You, Tuesday, November 10:** pick the two homes for the video tour and send them.
 4. **Ellis and Jordan, before Wednesday, November 11:** read and sign the buyer agreement.

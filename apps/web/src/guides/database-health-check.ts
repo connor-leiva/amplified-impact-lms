@@ -38,9 +38,9 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
   eyebrow: 'Free AI Skill · For Team Leaders and Ops',
   // page-notes.md, "One-Line Promise".
   lede: 'Upload your CRM export and get back a health report, a cleanup list for your VA, and the groups worth calling or emailing this month, with the messages drafted.',
-  outcome: { n: '03', title: 'Clean Up and Reach Out', body: 'A list for your VA, and drafts your agents read first.' },
+  outcome: { n: '03', title: 'Clean Up and Reach Out', body: 'A cleanup list for your VA, and drafts your team reads first.' },
   optInBody:
-    'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude, or to a ChatGPT Project, once. This one reads your export and never changes anything in your CRM.',
+    'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. There’s a ChatGPT version too. Either one reads your export and never changes anything in your CRM.',
   setupMinutes: 10,
 
   practice: {
@@ -57,7 +57,8 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
     ],
     prompt: 'Here’s our CRM export. Run a database health check and give me a plan to work it.',
     // page-notes.md: Follow Up Boss's "Export Contacts to a Spreadsheet" and "Users, Roles & Permissions",
-    // checked 2026-11-08.
+    // checked 2026-11-08. "As the owner or an admin so the file holds everyone" is page-notes.md's and
+    // references/fub-and-crm-exports.md's (an agent sees only their own leads).
     note: [
       'To export from Follow Up Boss, open ',
       { strong: 'People > All People' },
@@ -67,11 +68,11 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
       { strong: 'Select All' },
       ', click ',
       { strong: 'Export' },
-      ', check ',
+      ' (the downward arrow), check ',
       { strong: 'Export All Columns' },
       ', then click ',
       { strong: 'Yes, Export People' },
-      '. Export as the Account Owner, or as someone the owner gave Can Export.',
+      '. Export as the Account Owner, or as an admin the owner gave the Can Export permission, so the file holds every contact.',
     ],
   },
 
@@ -89,7 +90,7 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
       heading: 'What a health check looks like',
       body: 'What Claude wrote from the practice file: a made-up Follow Up Boss export with 500 contacts and five made-up agents.',
       title: 'Database Health Check, as of 2026-11-08',
-      note: 'Made-up example. Shortened: part of the report, one of its six groups in full, and part of the check list.',
+      note: 'Made-up example. Shortened: part of the report and the worklist, one of its six groups in full, three of its seven questions, and part of the check list.',
       blocks: [
         { h: 'Bottom line' },
         {
@@ -229,7 +230,7 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
           body: 'Three sentences at most: how many contacts you have, the three biggest problems with their counts, and the one cleanup to do first.',
         },
         {
-          title: 'What it used',
+          title: 'What the AI used',
           body: 'The file, the settings (your team’s rules, or defaults marked as defaults), the columns behind each check, and anything missing from your export.',
         },
         {
@@ -238,11 +239,11 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
         },
         {
           title: 'A cleanup worklist',
-          body: 'A spreadsheet file with one row for each record that needs work, the fix and the reason, plus how your VA works the first three fixes in your CRM. It’s the only file with names and phone numbers.',
+          body: 'A spreadsheet file with one row for each record that needs work, with the fix and the reason. It’s the only file with names, emails and phone numbers. Duplicates that two agents own are marked for your team to decide. The report also shows how your VA works the first three fixes in your CRM.',
         },
         {
           title: 'Four to six groups to work',
-          body: 'Each with its Follow Up Boss Smart List filter (a saved search), its size, how many can be emailed, called or texted, the agents who own most of it, and the next move.',
+          body: 'The report calls them segments. Each comes with its Follow Up Boss Smart List filter (a saved search), its size, how many can be emailed, called or texted, the agents who own most of it, and the next move.',
         },
         {
           title: 'Questions for your team',
@@ -254,7 +255,7 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
         },
         {
           title: 'Check before sending',
-          body: 'Every count, filter and placeholder to confirm, plus the Do Not Call scrub, calling hours, and your email’s unsubscribe link and address.',
+          body: 'Every count, filter and placeholder to confirm, plus the Do Not Call scrub, quiet hours for calls and texts, and your email’s unsubscribe link and postal address.',
         },
       ],
     },
@@ -277,7 +278,7 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
         {
           label: 'Own',
           title: 'Always your team’s',
-          body: 'Every merge, stage change, reassignment, pond move and archive in your CRM. Who keeps a contact two agents share, and who gets called. Texting consent, the Do Not Call scrub, and the fair housing review of every message.',
+          body: 'Every merge, stage change, reassignment, pond move and archive in your CRM. Who keeps a contact two agents share, and who gets called. Texting consent, the Do Not Call scrub, and the fair housing review of every message. Bank, wire and loan details in your export: the AI ignores them and never repeats them.',
         },
       ],
     },
@@ -291,12 +292,12 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included. A big export uses more of your plan’s usage.',
+          body: 'With skills and code execution on, so Claude can run the counts on your file. Claude’s help center lists skills on every plan, Free included, but we haven’t tested Free. A big export uses more of your plan’s usage.',
           tag: 'Team or Enterprise: an owner turns on code execution',
         },
         {
           title: 'Or a ChatGPT plan',
-          body: 'With data analysis, which runs the counts. ChatGPT’s free plan limits it, so big exports work best on a paid plan.',
+          body: 'The ChatGPT version goes in a Project, a folder in ChatGPT that keeps instructions and files together. It needs data analysis, which runs the counts. ChatGPT’s free plan limits data analysis, so big exports work best on a paid plan.',
         },
         {
           title: 'A computer',
@@ -304,11 +305,11 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
         },
         {
           title: 'Your CRM export',
-          body: 'From Follow Up Boss, as the Account Owner or someone the owner gave Can Export. Another CRM’s full contact export works too. A closed-deal export helps, but isn’t needed.',
+          body: 'From Follow Up Boss, by the Account Owner or an admin the owner gave the Can Export permission. Or another CRM’s export of every contact, with every column. A closed-deal export helps, but isn’t needed.',
         },
         {
           title: 'No connector needed',
-          body: 'A connector links the AI to another app. You don’t need one. If a CRM connector is on, the skill only reads from it.',
+          body: 'A connector links the AI to another app, like your CRM. You don’t need one: the skill works from your export. If a CRM connector is on, the skill never changes a record through it.',
         },
         {
           title: 'Nothing else to pay for',
@@ -367,7 +368,7 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
           // free plan has data analysis only as "Limited" (chatgpt.com/pricing).
           q: 'Which plan do I need?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list skills on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a plan with data analysis: the free plan limits it, so big exports work best on a paid plan. We tested the skill in Claude, not on Free and not yet in ChatGPT. In either app, run the practice file first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list skills on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a plan with data analysis: the free plan limits it, so big exports work best on a paid plan. We tested the skill with Claude. We haven’t tried it on Claude’s free plan or in ChatGPT yet. In either app, run the practice file first.',
           ],
         },
         {
@@ -380,21 +381,23 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
             { strong: 'Columns' },
             ' in the upper right, and check ',
             { strong: 'Last Communication' },
-            '. That may bring it through.',
+            ' and ',
+            { strong: 'Last Activity' },
+            '. That may bring them through.',
           ],
         },
         {
           // page-notes.md, FAQ; case 2 was a made-up export from another CRM.
           q: 'We’re not on Follow Up Boss.',
           a: [
-            'The skill is built to read other CRMs’ exports too, such as KW Command, GoHighLevel or Brivity. It matches your columns by name (Lead Status, Owner, Last Contacted and so on) and shows that match at the top of the report, so you can correct it. The group filters come back in plain words for your CRM. Export every contact with every column; your CRM’s help center shows how.',
+            'The skill is built to read other CRMs’ exports too, such as KW Command, GoHighLevel or Brivity. It matches your columns by name (Lead Status, Owner, Last Contacted and so on) and shows that match at the top of the report, so you can correct it. We’ve tested it only on a made-up export from another CRM, so check that match first. The group filters come back in plain words for your CRM. Export every contact with every column; your CRM’s help center shows how.',
           ],
         },
         {
           // page-notes.md, FAQ; Anthropic's Privacy Center; Follow Up Boss's export email.
           q: 'What happens to our client data?',
           a: [
-            'Turn off training before you upload real contacts. The setup steps show where. The chat and the report show only counts, stages, sources and agent names. Names, emails and phone numbers go only in the cleanup worklist file, so share it only with whoever does the cleanup. Follow Up Boss also emails your Account Owner after every export.',
+            'Turn off training before you upload real contacts. The setup steps show where. The chat and the report show only counts, stages, sources, tags and agent names. Names, emails and phone numbers go only in the cleanup worklist file, so share it only with whoever does the cleanup. The skill ignores birthday, bank, wire and loan columns. Follow Up Boss also emails your Account Owner after every export.',
           ],
         },
       ],

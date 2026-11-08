@@ -1,29 +1,29 @@
 # Page Notes: Pricing Conversation Prep (/pricing-conversation-prep)
 
-Skill: `pricing-conversation-prep`, version 1.1. Claude and ChatGPT. Every fact below was checked on 2026-11-08; sources are at the end, and the skill's own facts are in `references/comp-method.md`, `references/market-metrics.md` and `references/utah-pricing-context.md`.
+Skill: `pricing-conversation-prep`, version 1.1. Claude and ChatGPT. Every fact below was checked on 2026-11-08; sources are at the end, and the skill's own facts are in `references/comp-method.md`, `references/market-metrics.md`, `references/utah-pricing-context.md` and the shared Utah REPC references it ships (`utah-repc.md`, `utah-repc-2026.md`).
 
 ## One-Line Promise
 
-Upload your CMA and walk into the pricing conversation with a number you can defend, the story behind it, and answers to every objection your seller is likely to raise.
+Upload your CMA and walk into the pricing conversation with a number you can defend, the story behind it, and answers to the objections your seller is most likely to raise.
 
 ## Who It's For
 
-Listing agents preparing for a listing appointment or a price reduction conversation. Built for Utah (it knows Utah is a non-disclosure state and how the Utah REPC's appraisal condition works) and works in any other state in general mode, where it uses only your files and says state rules weren't checked.
+Listing agents preparing for a listing appointment or a price reduction conversation. Built for Utah (it knows Utah is a non-disclosure state and how the appraisal condition works in both Utah REPC versions in use until January 1, 2027) and works in any other state in general mode, where it uses only your files and says state rules weren't checked.
 
 ## What to Upload, and Where Each File Comes From
 
 You need one file with sold comps that show sale prices and close dates. The rest makes it better.
 
 - **Your CMA or comp export (required).** A CMA report as a PDF, or an MLS export as a CSV, or both.
-  - **UtahRealEstate.com, CMA:** search for comparable properties (the CMA tab has Create New), select the listings, then choose CMA Report from the Reports dropdown. Create CMA Packet at the top of the page makes a basic presentation; Cloud CMA is also in the Reports dropdown and is free with your membership. Save or print the report as a PDF. (Checked against UtahRealEstate.com's "CMA Steps" and "Using the CMA Report" articles.)
+  - **UtahRealEstate.com, CMA:** search for comparable properties (the CMA tab has Create New), select the listings, then choose CMA Report from the Reports dropdown. Create CMA Packet at the top of the page makes a basic presentation; Cloud CMA, in the Reports dropdown, makes a branded one and is included in your MLS membership. Save the packet or report as a PDF (UtahRealEstate.com's help articles don't describe that step; any PDF that lists the comps with prices and dates works). (Checked against UtahRealEstate.com's "CMA Steps" and "Using the CMA Report" articles.)
   - **UtahRealEstate.com, CSV export:** from the search results, select the listings, choose Export Report from the Reports dropdown, answer the security question, pick Standard (over 100 fields) or a Custom report, choose CSV, and select Download. Up to 600 listings per export. (UtahRealEstate.com, "Exporting MLS Listings".)
   - **Flexmls MLSs (outside Utah):** run the search, click the More menu (three dots), then Export, choose Export all matches or Export selected matches, keep Generic Text Export (a .csv), enter the verification code and click Export. To save a Flexmls CMA as a PDF, click Print and choose Save as PDF. (Flexmls Help, "Export Search Results" and "Save a CMA as a PDF".)
   - **Any other MLS or CMA tool:** any PDF or CSV that lists sold, pending, active and expired comps with prices and dates works. The more columns the better: original list price, concessions, cumulative days on market, and above-grade and basement square footage separately.
 - **The subject's MLS sheet or tax record (helpful).** For a new listing, the subject column of your CMA is usually enough. For a price reduction, upload the listing's MLS sheet.
 - **Your showing report (price reductions).**
-  - **ShowingTime:** from the UtahRealEstate.com homepage, select the ShowingTime icon, click Reports, select Listing Activity Report, and click the listing's row. Its Homeowner Version leaves out showing agent details and unpublished feedback. (UtahRealEstate.com, "ShowingTime Listing Activity Report".)
+  - **ShowingTime:** from the UtahRealEstate.com homepage, select the ShowingTime icon, click Reports, select Listing Activity Report, and click the listing's row. To save a file, open the Homeowner Version from the report's menu and choose Download PDF. That version leaves out showing agent details and any feedback you haven't published. (UtahRealEstate.com, "ShowingTime Listing Activity Report".)
   - **Aligned Showings:** select My Listings, find the listing and select the Download Activity Report icon. It opens as a PDF. (UtahRealEstate.com, "Aligned Showings Reports".)
-  - Either version works. The skill keeps showing agents' names and contact details, and any comment about people or schools, out of everything it writes for the seller.
+  - Either report works. The skill keeps showing agents' names and contact details, and any comment about people or schools, out of everything it writes for the seller.
 
 **Privacy before you upload:** MLS exports carry agent-only remarks, lockbox codes and owner contact details. The skill keeps them out of anything client-facing, but turn off model training first if you haven't: in Claude, Settings > Privacy > Help Improve our AI models (Free, Pro, Max, Ultra; Team and Enterprise chats aren't used for training by default); in ChatGPT, Settings > Data controls > Improve the model for everyone. Check your MLS's rules on using MLS data in outside tools with your MLS or broker.
 
@@ -47,6 +47,7 @@ A bottom line (three sentences: the price, the range, your confidence, and the p
 - Put agent-only MLS fields, your seller's loan balance or net needs, showing agents' details, or comments about people, schools or safety into anything client-facing.
 - Do commission or seller net math (ask your title company for a net sheet), or quote concession limits for a specific buyer (their lender confirms).
 - Send anything. Drafts only.
+- Ask for, repeat or handle wire instructions or account or routing numbers.
 - Price an offer for a buyer (that's Offer Strategy), respond to a low appraisal (Low Appraisal Response), compare several offers (Offer Comparison), or write the follow-up after the appointment (Appointment Follow-Up).
 
 ## What You Need
@@ -59,13 +60,13 @@ A bottom line (three sentences: the price, the range, your confidence, and the p
 ## Install
 
 - **Claude:** download `pricing-conversation-prep.zip` and don't unzip it. Go to Customize > Skills, click +, then + Create skill, select Upload a skill, and choose the ZIP. Make sure it's toggled on, then start a new chat and attach your CMA.
-- **ChatGPT:** download `pricing-conversation-prep-chatgpt.zip` and unzip it. Select New project in the sidebar and name it. Open the more options menu (•••), select Project settings, and paste the text from `paste-into-instructions.txt`, with your voice profile quick card under the last line. Add the four .md files to the project. Then start a chat in the project and attach your CMA.
+- **ChatGPT:** download `pricing-conversation-prep-chatgpt.zip` and unzip it. Select New project in the sidebar and name it. Open the more options menu (•••), select Project settings, and paste the text from `paste-into-instructions.txt`, with your voice profile quick card under the last line. Upload the four .md files to the project; they then appear in the project's sources list. Then start a chat in the project and attach your CMA.
 
 ## Run / Draft / Own
 
 - **Run:** reading the CMA, MLS sheet and showing report; sorting and cleaning the comps; the math (price per above-grade square foot, concessions, sale-to-list, months of supply, days on market).
 - **Draft:** the talk track, the objection answers and the seller pricing summary, for you to read and change first.
-- **Own (you):** the list price and any reduction or concession, every money conversation with your seller, and the fair housing read of anything you share.
+- **Own (you and your seller):** your price recommendation and your seller's decision on the list price, any reduction or concession, every money conversation, and the fair housing read of anything you share. Wire and account details never go through the skill.
 
 ## FAQs
 
@@ -94,6 +95,7 @@ CMA, comps, pricing, list price, listing appointment, price reduction, price dro
 - Eval 2, a price reduction at 45 days with 11 showings and a showing report (Utah): 8 of 8 after one fix. The first run invented when a comp's price cut happened; the reference now says never to guess timing the export doesn't show. It left out a school comment and a comment about families, the showing agents' details, the lockbox code and the sellers' loan balance.
 - Eval 3, a thin comp set with two recent solds, in Colorado (general mode): 8 of 8 after one fix (a derived expiration date was removed). It said state rules weren't checked, made no Utah or Colorado claims, left out a horse property, listed the missing export fields and skipped the metrics that need them.
 - Practice run: 12 of 12. It is the sample on this page.
+- Independent review (2026-11-08): a second reviewer ran eval 2 and the practice set from scratch, both passing (8 of 8 and 12 of 12). The review tightened the skill where runs differed or overreached: count feedback exactly, bracket with closed sales, lower confidence when no sold shares a feature like backing to a busy road, say an online estimate "may not have" Utah's closed prices rather than asserting what a site's data is, and explain the appraisal condition without REPC section numbers while two REPC versions are in use.
 - `node scripts/skills.mjs check pricing-conversation-prep` passes.
 
 **Not tested:**
@@ -107,7 +109,7 @@ CMA, comps, pricing, list price, listing appointment, price reduction, price dro
 - Skills upload path and plans: https://support.claude.com/en/articles/12512180-use-skills-in-claude and https://claude.com/docs/skills/overview
 - Code execution on by default, and its name in the updated layout: https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude
 - Claude training setting: https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings ; commercial plans not trained on by default: https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training
-- ChatGPT Projects (New project, ••• > Project settings, 5 files per project on Free), opened directly: https://help.openai.com/en/articles/10169521-projects-in-chatgpt
+- ChatGPT Projects (New project, ••• > Project settings, files in the project sources list, 5 files per project on Free), opened directly: https://help.openai.com/en/articles/10169521-projects-in-chatgpt
 - ChatGPT data controls (Settings > Data controls > Improve the model for everyone), opened directly: https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt
 - ChatGPT Free limits on uploads and data analysis, opened directly: https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq
 - ChatGPT plans with Projects: https://chatgpt.com/pricing

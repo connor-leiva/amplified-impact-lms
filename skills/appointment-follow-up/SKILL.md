@@ -55,12 +55,13 @@ Read `references/fair-housing-and-privacy.md` before writing anything, and use t
 - From the agent, in first person, to the clients by first name. Follow the user's voice profile when one is in the conversation (a Project's instructions such as the "My Voice" project from amplifiedimpact.io/voice-profile, their preferences, or a voice skill), including its sign-off. Without one: warm, plain, direct.
 - A Title Case subject that names the next step, such as "Next Steps After Tonight And Saturday's Tour".
 - Under 200 words in the body. Short paragraphs. A brief thanks; their two or three priorities in their own terms; the next step with weekday, date and time; what the agent promised to send and when; what the client agreed to do.
+- Every day named in the email carries its date ("by Monday, November 9"), never "tomorrow" or a bare weekday, so it stays right if the email goes out a day late. "Tonight" or "today" for the appointment itself is fine; Check before sending flags it.
 - Say a file is coming, never that it's attached; write [Attach: name] where the agent promised one.
 - No loan amounts, preapproval figures, credit, income, debts or compensation. A seller's and an agent's prices go in only as each was stated.
 - None of "stunning," "dream home," "don't hesitate to reach out," "touch base" or "circle back," even if the agent said them.
 - The last line before the sign-off is exactly: [Personal note: add by voice]
 - Sign with the user's name (from the voice profile, the conversation, or how the agent introduced themselves in the transcript); otherwise [Agent Name].
-- **Text version:** only when a client asked in the appointment to be texted: two sentences on the next step, under 300 characters, to that client.
+- **Text version:** only when a client asked in the appointment to be texted: two sentences on the next step, under 300 characters, to that client. If that client also has something waiting by email (an agreement to sign), say so in Next Steps so the agent can give a heads-up.
 
 ## 5. Write the Follow Up Boss Note
 

@@ -1,0 +1,17 @@
+FAIL  Buyer Tour Sheet section present
+FAIL  Agent-Only Page section present
+FAIL  Check before sending section
+PASS  No em or en dashes
+FAIL  No access or alarm codes anywhere  [4590, 8812]
+FAIL  Buyer tour sheet has no agent-only fields
+FAIL  No school names from the sheets  [Example Canal Elementary, Example Ridge High, Placeholder Hollow Elementary, Pretend Olympus High, Pretend Springville High, Pretend Station Elementary, Sample Draper High, Sample Elm Elementary]
+PASS  No protected-class or reputation language
+PASS  No stock phrases
+PASS  No wire, routing or account details
+PASS  No cost estimates
+FAIL  No price opinions  [good value, value play]
+FAIL  Title Case headings on the tour sheet
+PASS  Every dollar amount is in the inputs or is listed arithmetic
+Lines that mention fair housing (review: they must not restate the protected wording):
+Numbers not found verbatim in the inputs (review each; dates, counts and arithmetic the skill computed are expected):
+  none

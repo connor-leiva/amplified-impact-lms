@@ -58,4 +58,4 @@ Never put these in anything client-facing, even when the export or MLS sheet inc
 All checked 2026-11-08.
 - Fannie Mae Selling Guide B4-1.3-05, Improvements Section of the Appraisal Report (06/04/2025): https://selling-guide.fanniemae.com/sel/b4-1.3-05/improvements-section-appraisal-report
 - Fannie Mae Selling Guide B4-1.3-09, Adjustments to Comparable Sales, sections on sales or financing concessions and market conditions: https://selling-guide.fanniemae.com/sel/b4-1.3-09/adjustments-comparable-sales
-- The method follows the Pricing Conversation Prep skill's comp method (skills/pricing-conversation-prep/references/comp-method.md, version 1.1).
+- The method follows the comp method in the Pricing Conversation Prep skill, version 1.1, from the same library.

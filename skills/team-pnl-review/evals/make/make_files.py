@@ -208,7 +208,7 @@ def practice(skill):
     rng = random.Random(20261)
     n, year = 9, 2026
     agents = [("Tessa Teaspoon", 3), ("Ollie Oatcake", 3), ("Juniper Jellybean", 2), ("Barnaby Biscuit", 2),
-              ("Marigold Fern", 1.4)]
+              ("Marigold Fern", 0.6)]
     sources = [("Lanternfly Leads", 22), ("Pumpkinpatch Portal", 20), ("Google PPC", 12), ("Sphere", 18),
                ("Past Client", 14), ("Open House", 6), ("Agent Generated", 8)]
     cap = 26000.0
@@ -219,7 +219,7 @@ def practice(skill):
             return 295.0
         return min(fee, cap - running) if running + fee > cap else fee
 
-    deals = make_deals(rng, year, [6, 6, 8, 9, 11, 10, 10, 9, 8], agents, sources, "Marigold Fern", 0.55,
+    deals = make_deals(rng, year, [6, 6, 8, 9, 11, 10, 10, 9, 8], agents, sources, "Marigold Fern", 0.65,
                        {"Lanternfly Leads": 0.35}, brokerage)
     closings = counts_by_month(deals, n)
     gci = by_month(deals, "gci", n, year)
@@ -241,10 +241,12 @@ def practice(skill):
                 leaf("Client Appreciation", [180, 245, 210, 260, 395, 310, 240, 285, 330]),
             ]),
             group("Payroll Expenses", [
-                leaf("Salaries & Wages", [8400] * n),
-                leaf("Payroll Taxes", [642.60] * n),
+                leaf("Salaries & Wages", [13750] * n),
+                leaf("Payroll Taxes", [1051.88] * n),
+                leaf("Health Insurance", [1240] * n),
             ]),
             leaf("Transaction Coordinator Fees", [350 * c for c in closings]),
+            leaf("Coaching & Training", [1500] * n),
             group("Software & Subscriptions", [
                 leaf("CRM", [899] * n),
                 leaf("Dialer", [249] * n),
@@ -252,7 +254,7 @@ def practice(skill):
                 leaf("Video Editing App", [0, 0, 0, 0, 0, 79, 79, 79, 79]),
             ]),
             group("Rent & Office", [
-                leaf("Rent", [2800] * n),
+                leaf("Rent", [4200] * n),
                 leaf("Utilities", [236.18, 228.40, 201.77, 188.62, 179.05, 203.90, 241.33, 238.71, 207.46]),
             ]),
             leaf("Dues & Licenses", [1140, 0, 0, 1140, 0, 0, 1140, 0, 0]),
@@ -326,14 +328,15 @@ def case1(skill):
                  leaf("5200 Brokerage Split & Fees", b2)],
         "expense": [
             group("6000 Advertising & Marketing", [
-                leaf("6010 Online Lead Programs", [5800, 5800, 5800, 5800, 5800, 7300]),
+                leaf("6010 Online Lead Programs", [9800, 9800, 9800, 9800, 9800, 12300]),
                 leaf("6020 Signs & Print", [410.55, 388.20, 512.75, 466.10, 530.40, 498.85]),
                 leaf("6030 Listing Photography", [650, 520, 845, 780, 910, 715]),
                 leaf("6040 Client Gifts", [295.40, 180.15, 342.60, 276.90, 410.25, 318.70]),
             ]),
             group("6100 Payroll Expenses", [
-                leaf("6110 Salaries & Wages", [9800] * n),
-                leaf("6120 Payroll Taxes", [749.70] * n),
+                leaf("6110 Salaries & Wages", [21500] * n),
+                leaf("6120 Payroll Taxes", [1644.75] * n),
+                leaf("6130 Health Insurance", [1860] * n),
             ]),
             group("6200 Software & Subscriptions", [
                 leaf("6210 CRM", [1050] * n),
@@ -341,7 +344,7 @@ def case1(skill):
                 leaf("6230 Transaction Management", [199] * n),
                 leaf("6240 Other Software", [118.40, 118.40, 131.20, 118.40, 118.40, 118.40]),
             ]),
-            leaf("6300 Rent", [3200] * n),
+            leaf("6300 Rent", [5400] * n),
             leaf("6310 Utilities", [214.36, 236.10, 198.44, 176.82, 169.30, 201.95]),
             leaf("6400 Dues & Licenses", [1320, 0, 0, 1320, 0, 0]),
             leaf("6410 Insurance - E&O", [410] * n),
@@ -382,7 +385,7 @@ def case2(skill):
     n, year = 9, 2026
     agents = [("Tessa Teaspoon", 3), ("Ollie Oatcake", 3), ("Juniper Jellybean", 2)]
     sources = [("Lanternfly Leads", 40), ("Sphere", 35), ("Past Client", 25)]
-    deals = make_deals(rng, year, [5, 5, 6, 7, 8, 8, 7, 7, 6], agents, sources, None, 0.6, {}, lambda g, run: g * 0.06)
+    deals = make_deals(rng, year, [5, 5, 6, 7, 8, 8, 7, 7, 6], agents, sources, None, 0.68, {}, lambda g, run: g * 0.06)
     tx = defaultdict(list)  # account path -> list of (date, type, num, name, memo, amount)
     chk = [1040]
 
@@ -410,10 +413,12 @@ def case2(skill):
             tx[("expense", "Office Supplies")].append((date(year, m, 5), "Expense", "", "Lanternfly Leads", "Card charge", 1250.00))
         tx[("expense", "Advertising & Marketing", "Postcards")].append((date(year, m, 15), "Expense", "", "Moonbeam Postcards", "Farm mailer", 420.00))
         tx[("expense", "Advertising & Marketing", "Listing Photography")].append((date(year, m, 18), "Expense", "", "Glimmerglass Photo", "Listing shoots", r2(rng.choice([350, 525, 700, 875]))))
-        tx[("expense", "Rent")].append((date(year, m, 1), "Check", num(), "Quillfeather Properties LLC", "Office rent", 3100.00))
+        tx[("expense", "Rent")].append((date(year, m, 1), "Check", num(), "Quillfeather Properties LLC", "Office rent", 4600.00))
         tx[("expense", "Payroll Expenses", "Salaries & Wages")].append((date(year, m, 15), "Payroll Check", "", "Clementine Quill", "Payroll", 2275.00))
         tx[("expense", "Payroll Expenses", "Salaries & Wages")].append((date(year, m, 28), "Payroll Check", "", "Clementine Quill", "Payroll", 2275.00))
-        tx[("expense", "Payroll Expenses", "Payroll Taxes")].append((date(year, m, 28), "Tax Payment", "", "IRS", "Employer taxes", 348.08))
+        tx[("expense", "Payroll Expenses", "Salaries & Wages")].append((date(year, m, 15), "Payroll Check", "", "Barnaby Biscuit", "Payroll", 2850.00))
+        tx[("expense", "Payroll Expenses", "Salaries & Wages")].append((date(year, m, 28), "Payroll Check", "", "Barnaby Biscuit", "Payroll", 2850.00))
+        tx[("expense", "Payroll Expenses", "Payroll Taxes")].append((date(year, m, 28), "Tax Payment", "", "IRS", "Employer taxes", 784.13))
         tx[("expense", "Transaction Coordinator Fees")].append((date(year, m, 27), "Bill", "", "Teacup Transaction Services", "TC files", 325.00 * sum(1 for d in deals if d["date"].month == m)))
         tx[("expense", "Insurance - E&O")].append((date(year, m, 20), "Expense", "", "Fiddlehead Mutual", "E&O premium", 365.00))
         tx[("expense", "Bank Fees")].append((date(year, m, 30 if m != 2 else 27), "Expense", "", "Bank", "Service charge", 30.00))

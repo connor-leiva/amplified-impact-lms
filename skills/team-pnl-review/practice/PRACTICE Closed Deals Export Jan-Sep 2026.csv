@@ -1,82 +1,82 @@
 PRACTICE FILE: made-up example
 Close Date,Status,Property Address,Client,Agent,Side,Sale Price,GCI,Referral Fee,Brokerage Fee,Agent Split,Team Net,Lead Source
-01/04/2026,Closed,8842 Pumpernickel St,Posy Puddingstone,Juniper Jellybean,Buyer,713500.00,21405.00,0.00,1284.30,11772.75,8347.95,Sphere
-01/04/2026,Closed,5349 Waffle Iron Ave,Rosie Fizzlebottom,Tessa Teaspoon,Buyer,538500.00,14808.75,5183.06,888.53,5294.13,3443.03,Lanternfly Leads
-01/09/2026,Closed,7846 Waffle Iron Ave,Fitz Bumbleberry,Juniper Jellybean,Buyer,289500.00,7237.50,0.00,434.25,3980.63,2822.62,Pumpkinpatch Portal
-01/16/2026,Closed,3582 Pumpernickel St,Tilly Wafflesworth,Ollie Oatcake,Seller,317500.00,7937.50,2778.13,476.25,2837.65,1845.47,Lanternfly Leads
+01/04/2026,Closed,8842 Pumpernickel St,Posy Puddingstone,Juniper Jellybean,Buyer,713500.00,21405.00,0.00,1284.30,13913.25,6207.45,Sphere
+01/04/2026,Closed,5349 Waffle Iron Ave,Rosie Fizzlebottom,Tessa Teaspoon,Buyer,538500.00,14808.75,5183.06,888.53,6256.70,2480.46,Lanternfly Leads
+01/09/2026,Closed,7846 Waffle Iron Ave,Fitz Bumbleberry,Ollie Oatcake,Buyer,289500.00,7237.50,0.00,434.25,4704.38,2098.87,Pumpkinpatch Portal
+01/16/2026,Closed,3582 Pumpernickel St,Tilly Wafflesworth,Tessa Teaspoon,Seller,317500.00,7937.50,2778.13,476.25,3353.59,1329.53,Lanternfly Leads
 01/22/2026,Closed,8602 Teakettle Rd,Milo Tinkerpot,Marigold Fern,Seller,470500.00,14115.00,4940.25,846.90,0.00,8327.85,Lanternfly Leads
-01/25/2026,Closed,8370 Snickerdoodle Ln,Tilly Rutabaga,Marigold Fern,Seller,328500.00,9855.00,0.00,591.30,0.00,9263.70,Google PPC
-02/05/2026,Closed,9353 Marshmallow Dr,Bram Noodlewood,Juniper Jellybean,Seller,422000.00,11605.00,0.00,696.30,6382.75,4525.95,Google PPC
-02/07/2026,Closed,6388 Pinwheel Pl,Bram Sprinkleton,Barnaby Biscuit,Seller,654500.00,16362.50,0.00,981.75,8999.38,6381.37,Google PPC
-02/12/2026,Closed,3687 Gumdrop Ct,Bram Marmaduke,Juniper Jellybean,Buyer,293500.00,8071.25,0.00,484.28,4439.19,3147.78,Past Client
-02/14/2026,Closed,2879 Gumdrop Ct,Wren Gingersnap,Barnaby Biscuit,Seller,478000.00,11950.00,0.00,717.00,6572.50,4660.50,Sphere
-02/16/2026,Closed,312 Waffle Iron Ave,Rosie Muffintop,Juniper Jellybean,Seller,547000.00,13675.00,0.00,820.50,7521.25,5333.25,Sphere
-02/24/2026,Closed,6642 Marshmallow Dr,Bram Gingersnap,Barnaby Biscuit,Seller,616500.00,16953.75,0.00,1017.23,9324.56,6611.96,Sphere
-03/03/2026,Closed,1379 Waffle Iron Ave,Fitz Tinkerpot,Juniper Jellybean,Buyer,651000.00,16275.00,0.00,976.50,8951.25,6347.25,Pumpkinpatch Portal
-03/04/2026,Closed,6167 Lollipop Loop,Posy Marmaduke,Tessa Teaspoon,Buyer,323500.00,8896.25,3113.69,533.78,3180.41,2068.37,Lanternfly Leads
-03/05/2026,Closed,7264 Pumpernickel St,Otis Muffintop,Barnaby Biscuit,Seller,438500.00,13155.00,0.00,789.30,7235.25,5130.45,Google PPC
-03/06/2026,Closed,2978 Snickerdoodle Ln,Hazel Gingersnap,Marigold Fern,Seller,645500.00,16137.50,5648.13,968.25,0.00,9521.12,Lanternfly Leads
-03/07/2026,Closed,8404 Lollipop Loop,Rosie Puddingstone,Marigold Fern,Seller,569000.00,17070.00,5974.50,1024.20,0.00,10071.30,Lanternfly Leads
-03/09/2026,Closed,4373 Puddleduck Way,Pippa Muffintop,Barnaby Biscuit,Seller,458500.00,13755.00,0.00,825.30,7565.25,5364.45,Agent Generated
-03/21/2026,Closed,3627 Puddleduck Way,Hazel Puddingstone,Tessa Teaspoon,Buyer,471500.00,11787.50,0.00,707.25,6483.13,4597.12,Sphere
-03/23/2026,Closed,4196 Pumpernickel St,Wren Marmaduke,Ollie Oatcake,Seller,456000.00,11400.00,0.00,684.00,6270.00,4446.00,Pumpkinpatch Portal
-04/05/2026,Closed,5997 Pumpernickel St,Bram Bumbleberry,Barnaby Biscuit,Buyer,437500.00,12031.25,0.00,721.88,6617.19,4692.18,Open House
-04/06/2026,Closed,4990 Waffle Iron Ave,Fitz Wafflesworth,Ollie Oatcake,Buyer,604500.00,16623.75,0.00,997.43,9143.06,6483.26,Open House
-04/13/2026,Closed,2579 Gumdrop Ct,Posy Gingersnap,Barnaby Biscuit,Buyer,716000.00,17900.00,0.00,1074.00,9845.00,6981.00,Sphere
-04/22/2026,Closed,4901 Lollipop Loop,Gus Muffintop,Barnaby Biscuit,Seller,633000.00,15825.00,0.00,949.50,8703.75,6171.75,Pumpkinpatch Portal
-04/22/2026,Closed,1672 Waffle Iron Ave,Gus Wafflesworth,Juniper Jellybean,Seller,377500.00,9437.50,3303.13,566.25,3373.90,2194.22,Lanternfly Leads
-04/23/2026,Closed,7324 Snickerdoodle Ln,Rosie Muffintop,Tessa Teaspoon,Seller,446500.00,12278.75,0.00,736.73,6753.31,4788.71,Past Client
-04/23/2026,Closed,4055 Pumpernickel St,Tilly Crumpet,Tessa Teaspoon,Buyer,443500.00,11087.50,0.00,665.25,6098.13,4324.12,Past Client
-04/24/2026,Closed,2599 Marshmallow Dr,Bram Gingersnap,Tessa Teaspoon,Buyer,535500.00,16065.00,0.00,963.90,8835.75,6265.35,Google PPC
-04/28/2026,Closed,2571 Puddleduck Way,Milo Sprinkleton,Ollie Oatcake,Seller,469000.00,11725.00,0.00,703.50,6448.75,4572.75,Pumpkinpatch Portal
-05/02/2026,Closed,1954 Jellybean Row,Rosie Marmaduke,Tessa Teaspoon,Seller,500500.00,12512.50,0.00,750.75,6881.88,4879.87,Agent Generated
-05/03/2026,Closed,6447 Puddleduck Way,Rufus Fizzlebottom,Tessa Teaspoon,Buyer,351500.00,8787.50,0.00,527.25,4833.13,3427.12,Agent Generated
-05/03/2026,Closed,1089 Marshmallow Dr,Milo Tinkerpot,Juniper Jellybean,Seller,407000.00,12210.00,0.00,732.60,6715.50,4761.90,Pumpkinpatch Portal
-05/07/2026,Closed,4105 Pinwheel Pl,Hazel Bumbleberry,Marigold Fern,Seller,486000.00,14580.00,0.00,863.79,0.00,13716.21,Open House
-05/09/2026,Closed,2517 Lollipop Loop,Rufus Sprinkleton,Juniper Jellybean,Seller,579000.00,14475.00,0.00,295.00,7961.25,6218.75,Agent Generated
-05/14/2026,Closed,1126 Gumdrop Ct,Otis Crumpet,Marigold Fern,Buyer,634500.00,15862.50,0.00,295.00,0.00,15567.50,Sphere
-05/14/2026,Closed,2789 Lollipop Loop,Tilly Noodlewood,Ollie Oatcake,Buyer,657000.00,16425.00,0.00,295.00,9033.75,7096.25,Google PPC
-05/15/2026,Closed,4667 Teakettle Rd,Otis Marmaduke,Barnaby Biscuit,Buyer,627500.00,15687.50,0.00,295.00,8628.13,6764.37,Agent Generated
-05/23/2026,Closed,4989 Jellybean Row,Otis Muffintop,Ollie Oatcake,Buyer,584000.00,14600.00,0.00,295.00,8030.00,6275.00,Past Client
-05/26/2026,Closed,6647 Jellybean Row,Gus Wafflesworth,Ollie Oatcake,Buyer,700000.00,17500.00,0.00,295.00,9625.00,7580.00,Past Client
-05/27/2026,Closed,5984 Lollipop Loop,Rufus Sprinkleton,Juniper Jellybean,Buyer,341500.00,10245.00,0.00,295.00,5634.75,4315.25,Pumpkinpatch Portal
-06/05/2026,Closed,1634 Kazoo Ct,Bram Bumbleberry,Barnaby Biscuit,Seller,707000.00,21210.00,0.00,295.00,11665.50,9249.50,Pumpkinpatch Portal
-06/08/2026,Closed,2243 Pumpernickel St,Posy Puddingstone,Ollie Oatcake,Buyer,467000.00,11675.00,4086.25,295.00,4173.81,3119.94,Lanternfly Leads
-06/10/2026,Closed,9468 Teakettle Rd,Otis Sprinkleton,Barnaby Biscuit,Buyer,412000.00,11330.00,3965.50,295.00,4050.48,3019.02,Lanternfly Leads
-06/11/2026,Closed,3223 Kazoo Ct,Rosie Bumbleberry,Barnaby Biscuit,Seller,678000.00,18645.00,0.00,295.00,10254.75,8095.25,Google PPC
-06/14/2026,Closed,7032 Waffle Iron Ave,Posy Wafflesworth,Juniper Jellybean,Buyer,305000.00,9150.00,0.00,295.00,5032.50,3822.50,Sphere
-06/16/2026,Closed,1696 Lollipop Loop,Bram Marmaduke,Barnaby Biscuit,Seller,683000.00,20490.00,0.00,295.00,11269.50,8925.50,Pumpkinpatch Portal
-06/19/2026,Closed,3512 Jellybean Row,Posy Rutabaga,Juniper Jellybean,Buyer,287500.00,8625.00,0.00,295.00,4743.75,3586.25,Pumpkinpatch Portal
-06/22/2026,Closed,4161 Jellybean Row,Posy Crumpet,Tessa Teaspoon,Buyer,697500.00,20925.00,7323.75,295.00,7480.69,5825.56,Lanternfly Leads
-06/24/2026,Closed,3653 Pumpernickel St,Fitz Gingersnap,Ollie Oatcake,Buyer,482000.00,13255.00,0.00,295.00,7290.25,5669.75,Past Client
-06/26/2026,Closed,2218 Puddleduck Way,Rosie Puddingstone,Tessa Teaspoon,Seller,321000.00,8025.00,0.00,295.00,4413.75,3316.25,Pumpkinpatch Portal
-07/07/2026,Closed,4356 Snickerdoodle Ln,Otis Muffintop,Ollie Oatcake,Seller,711000.00,21330.00,0.00,295.00,11731.50,9303.50,Google PPC
-07/08/2026,Closed,6186 Lollipop Loop,Milo Rutabaga,Tessa Teaspoon,Seller,515500.00,12887.50,4510.63,295.00,4607.28,3474.59,Lanternfly Leads
-07/08/2026,Closed,7916 Snickerdoodle Ln,Gus Bumbleberry,Marigold Fern,Buyer,698000.00,17450.00,0.00,295.00,0.00,17155.00,Pumpkinpatch Portal
-07/09/2026,Closed,7806 Marshmallow Dr,Tilly Fizzlebottom,Juniper Jellybean,Buyer,667500.00,16687.50,5840.63,295.00,5965.78,4586.09,Lanternfly Leads
-07/14/2026,Closed,5650 Lollipop Loop,Rosie Muffintop,Ollie Oatcake,Buyer,409500.00,11261.25,0.00,295.00,6193.69,4772.56,Sphere
-07/18/2026,Closed,8137 Snickerdoodle Ln,Pippa Fizzlebottom,Ollie Oatcake,Buyer,325500.00,8951.25,0.00,295.00,4923.19,3733.06,Pumpkinpatch Portal
-07/18/2026,Closed,8394 Pinwheel Pl,Bram Marmaduke,Tessa Teaspoon,Seller,582000.00,16005.00,0.00,295.00,8802.75,6907.25,Sphere
-07/21/2026,Closed,7252 Pinwheel Pl,Rosie Sprinkleton,Barnaby Biscuit,Buyer,431500.00,12945.00,4530.75,295.00,4627.84,3491.41,Lanternfly Leads
-07/23/2026,Closed,1867 Pumpernickel St,Otis Gingersnap,Juniper Jellybean,Seller,718000.00,17950.00,0.00,295.00,9872.50,7782.50,Google PPC
-07/23/2026,Closed,4725 Lollipop Loop,Pippa Puddingstone,Ollie Oatcake,Seller,563500.00,16905.00,0.00,295.00,9297.75,7312.25,Sphere
-08/02/2026,Closed,6876 Bumblebee Cir,Milo Muffintop,Juniper Jellybean,Seller,434500.00,11948.75,0.00,295.00,6571.81,5081.94,Pumpkinpatch Portal
-08/05/2026,Closed,3035 Lollipop Loop,Rosie Noodlewood,Marigold Fern,Buyer,319000.00,7975.00,2791.25,295.00,0.00,4888.75,Lanternfly Leads
-08/07/2026,Closed,8951 Pumpernickel St,Posy Puddingstone,Tessa Teaspoon,Seller,469500.00,11737.50,0.00,295.00,6455.63,4986.87,Sphere
-08/13/2026,Closed,4067 Puddleduck Way,Wren Muffintop,Barnaby Biscuit,Buyer,484500.00,14535.00,0.00,295.00,7994.25,6245.75,Sphere
-08/16/2026,Closed,1645 Gumdrop Ct,Tilly Noodlewood,Juniper Jellybean,Seller,691500.00,20745.00,7260.75,295.00,7416.34,5772.91,Lanternfly Leads
+01/25/2026,Closed,8370 Snickerdoodle Ln,Tilly Rutabaga,Barnaby Biscuit,Seller,328500.00,9855.00,0.00,591.30,6405.75,2857.95,Google PPC
+02/05/2026,Closed,9353 Marshmallow Dr,Bram Noodlewood,Juniper Jellybean,Seller,422000.00,11605.00,0.00,696.30,7543.25,3365.45,Google PPC
+02/07/2026,Closed,6388 Pinwheel Pl,Bram Sprinkleton,Juniper Jellybean,Seller,654500.00,16362.50,0.00,981.75,10635.63,4745.12,Google PPC
+02/12/2026,Closed,3687 Gumdrop Ct,Bram Marmaduke,Juniper Jellybean,Buyer,293500.00,8071.25,0.00,484.28,5246.31,2340.66,Past Client
+02/14/2026,Closed,2879 Gumdrop Ct,Wren Gingersnap,Barnaby Biscuit,Seller,478000.00,11950.00,0.00,717.00,7767.50,3465.50,Sphere
+02/16/2026,Closed,312 Waffle Iron Ave,Rosie Muffintop,Juniper Jellybean,Seller,547000.00,13675.00,0.00,820.50,8888.75,3965.75,Sphere
+02/24/2026,Closed,6642 Marshmallow Dr,Bram Gingersnap,Barnaby Biscuit,Seller,616500.00,16953.75,0.00,1017.23,11019.94,4916.58,Sphere
+03/03/2026,Closed,1379 Waffle Iron Ave,Fitz Tinkerpot,Juniper Jellybean,Buyer,651000.00,16275.00,0.00,976.50,10578.75,4719.75,Pumpkinpatch Portal
+03/04/2026,Closed,6167 Lollipop Loop,Posy Marmaduke,Tessa Teaspoon,Buyer,323500.00,8896.25,3113.69,533.78,3758.66,1490.12,Lanternfly Leads
+03/05/2026,Closed,7264 Pumpernickel St,Otis Muffintop,Juniper Jellybean,Seller,438500.00,13155.00,0.00,789.30,8550.75,3814.95,Google PPC
+03/06/2026,Closed,2978 Snickerdoodle Ln,Hazel Gingersnap,Barnaby Biscuit,Seller,645500.00,16137.50,5648.13,968.25,6818.09,2703.03,Lanternfly Leads
+03/07/2026,Closed,8404 Lollipop Loop,Rosie Puddingstone,Barnaby Biscuit,Seller,569000.00,17070.00,5974.50,1024.20,7212.08,2859.22,Lanternfly Leads
+03/09/2026,Closed,4373 Puddleduck Way,Pippa Muffintop,Barnaby Biscuit,Seller,458500.00,13755.00,0.00,825.30,8940.75,3988.95,Agent Generated
+03/21/2026,Closed,3627 Puddleduck Way,Hazel Puddingstone,Tessa Teaspoon,Buyer,471500.00,11787.50,0.00,707.25,7661.88,3418.37,Sphere
+03/23/2026,Closed,4196 Pumpernickel St,Wren Marmaduke,Ollie Oatcake,Seller,456000.00,11400.00,0.00,684.00,7410.00,3306.00,Pumpkinpatch Portal
+04/05/2026,Closed,5997 Pumpernickel St,Bram Bumbleberry,Barnaby Biscuit,Buyer,437500.00,12031.25,0.00,721.88,7820.31,3489.06,Open House
+04/06/2026,Closed,4990 Waffle Iron Ave,Fitz Wafflesworth,Ollie Oatcake,Buyer,604500.00,16623.75,0.00,997.43,10805.44,4820.88,Open House
+04/13/2026,Closed,2579 Gumdrop Ct,Posy Gingersnap,Barnaby Biscuit,Buyer,716000.00,17900.00,0.00,1074.00,11635.00,5191.00,Sphere
+04/22/2026,Closed,4901 Lollipop Loop,Gus Muffintop,Barnaby Biscuit,Seller,633000.00,15825.00,0.00,949.50,10286.25,4589.25,Pumpkinpatch Portal
+04/22/2026,Closed,1672 Waffle Iron Ave,Gus Wafflesworth,Juniper Jellybean,Seller,377500.00,9437.50,3303.13,566.25,3987.34,1580.78,Lanternfly Leads
+04/23/2026,Closed,7324 Snickerdoodle Ln,Rosie Muffintop,Tessa Teaspoon,Seller,446500.00,12278.75,0.00,736.73,7981.19,3560.83,Past Client
+04/23/2026,Closed,4055 Pumpernickel St,Tilly Crumpet,Tessa Teaspoon,Buyer,443500.00,11087.50,0.00,665.25,7206.88,3215.37,Past Client
+04/24/2026,Closed,2599 Marshmallow Dr,Bram Gingersnap,Tessa Teaspoon,Buyer,535500.00,16065.00,0.00,963.90,10442.25,4658.85,Google PPC
+04/28/2026,Closed,2571 Puddleduck Way,Milo Sprinkleton,Ollie Oatcake,Seller,469000.00,11725.00,0.00,703.50,7621.25,3400.25,Pumpkinpatch Portal
+05/02/2026,Closed,1954 Jellybean Row,Rosie Marmaduke,Tessa Teaspoon,Seller,500500.00,12512.50,0.00,750.75,8133.13,3628.62,Agent Generated
+05/03/2026,Closed,6447 Puddleduck Way,Rufus Fizzlebottom,Tessa Teaspoon,Buyer,351500.00,8787.50,0.00,527.25,5711.88,2548.37,Agent Generated
+05/03/2026,Closed,1089 Marshmallow Dr,Milo Tinkerpot,Ollie Oatcake,Seller,407000.00,12210.00,0.00,732.60,7936.50,3540.90,Pumpkinpatch Portal
+05/07/2026,Closed,4105 Pinwheel Pl,Hazel Bumbleberry,Barnaby Biscuit,Seller,486000.00,14580.00,0.00,863.79,9477.00,4239.21,Open House
+05/09/2026,Closed,2517 Lollipop Loop,Rufus Sprinkleton,Ollie Oatcake,Seller,579000.00,14475.00,0.00,295.00,9408.75,4771.25,Agent Generated
+05/14/2026,Closed,1126 Gumdrop Ct,Otis Crumpet,Barnaby Biscuit,Buyer,634500.00,15862.50,0.00,295.00,10310.63,5256.87,Sphere
+05/14/2026,Closed,2789 Lollipop Loop,Tilly Noodlewood,Ollie Oatcake,Buyer,657000.00,16425.00,0.00,295.00,10676.25,5453.75,Google PPC
+05/15/2026,Closed,4667 Teakettle Rd,Otis Marmaduke,Juniper Jellybean,Buyer,627500.00,15687.50,0.00,295.00,10196.88,5195.62,Agent Generated
+05/23/2026,Closed,4989 Jellybean Row,Otis Muffintop,Ollie Oatcake,Buyer,584000.00,14600.00,0.00,295.00,9490.00,4815.00,Past Client
+05/26/2026,Closed,6647 Jellybean Row,Gus Wafflesworth,Ollie Oatcake,Buyer,700000.00,17500.00,0.00,295.00,11375.00,5830.00,Past Client
+05/27/2026,Closed,5984 Lollipop Loop,Rufus Sprinkleton,Juniper Jellybean,Buyer,341500.00,10245.00,0.00,295.00,6659.25,3290.75,Pumpkinpatch Portal
+06/05/2026,Closed,1634 Kazoo Ct,Bram Bumbleberry,Juniper Jellybean,Seller,707000.00,21210.00,0.00,295.00,13786.50,7128.50,Pumpkinpatch Portal
+06/08/2026,Closed,2243 Pumpernickel St,Posy Puddingstone,Ollie Oatcake,Buyer,467000.00,11675.00,4086.25,295.00,4932.69,2361.06,Lanternfly Leads
+06/10/2026,Closed,9468 Teakettle Rd,Otis Sprinkleton,Juniper Jellybean,Buyer,412000.00,11330.00,3965.50,295.00,4786.93,2282.57,Lanternfly Leads
+06/11/2026,Closed,3223 Kazoo Ct,Rosie Bumbleberry,Juniper Jellybean,Seller,678000.00,18645.00,0.00,295.00,12119.25,6230.75,Google PPC
+06/14/2026,Closed,7032 Waffle Iron Ave,Posy Wafflesworth,Juniper Jellybean,Buyer,305000.00,9150.00,0.00,295.00,5947.50,2907.50,Sphere
+06/16/2026,Closed,1696 Lollipop Loop,Bram Marmaduke,Barnaby Biscuit,Seller,683000.00,20490.00,0.00,295.00,13318.50,6876.50,Pumpkinpatch Portal
+06/19/2026,Closed,3512 Jellybean Row,Posy Rutabaga,Ollie Oatcake,Buyer,287500.00,8625.00,0.00,295.00,5606.25,2723.75,Pumpkinpatch Portal
+06/22/2026,Closed,4161 Jellybean Row,Posy Crumpet,Tessa Teaspoon,Buyer,697500.00,20925.00,7323.75,295.00,8840.81,4465.44,Lanternfly Leads
+06/24/2026,Closed,3653 Pumpernickel St,Fitz Gingersnap,Ollie Oatcake,Buyer,482000.00,13255.00,0.00,295.00,8615.75,4344.25,Past Client
+06/26/2026,Closed,2218 Puddleduck Way,Rosie Puddingstone,Tessa Teaspoon,Seller,321000.00,8025.00,0.00,295.00,5216.25,2513.75,Pumpkinpatch Portal
+07/07/2026,Closed,4356 Snickerdoodle Ln,Otis Muffintop,Ollie Oatcake,Seller,711000.00,21330.00,0.00,295.00,13864.50,7170.50,Google PPC
+07/08/2026,Closed,6186 Lollipop Loop,Milo Rutabaga,Tessa Teaspoon,Seller,515500.00,12887.50,4510.63,295.00,5444.97,2636.90,Lanternfly Leads
+07/08/2026,Closed,7916 Snickerdoodle Ln,Gus Bumbleberry,Barnaby Biscuit,Buyer,698000.00,17450.00,0.00,295.00,11342.50,5812.50,Pumpkinpatch Portal
+07/09/2026,Closed,7806 Marshmallow Dr,Tilly Fizzlebottom,Juniper Jellybean,Buyer,667500.00,16687.50,5840.63,295.00,7050.47,3501.40,Lanternfly Leads
+07/14/2026,Closed,5650 Lollipop Loop,Rosie Muffintop,Ollie Oatcake,Buyer,409500.00,11261.25,0.00,295.00,7319.81,3646.44,Sphere
+07/18/2026,Closed,8137 Snickerdoodle Ln,Pippa Fizzlebottom,Ollie Oatcake,Buyer,325500.00,8951.25,0.00,295.00,5818.31,2837.94,Pumpkinpatch Portal
+07/18/2026,Closed,8394 Pinwheel Pl,Bram Marmaduke,Tessa Teaspoon,Seller,582000.00,16005.00,0.00,295.00,10403.25,5306.75,Sphere
+07/21/2026,Closed,7252 Pinwheel Pl,Rosie Sprinkleton,Juniper Jellybean,Buyer,431500.00,12945.00,4530.75,295.00,5469.26,2649.99,Lanternfly Leads
+07/23/2026,Closed,1867 Pumpernickel St,Otis Gingersnap,Ollie Oatcake,Seller,718000.00,17950.00,0.00,295.00,11667.50,5987.50,Google PPC
+07/23/2026,Closed,4725 Lollipop Loop,Pippa Puddingstone,Tessa Teaspoon,Seller,563500.00,16905.00,0.00,295.00,10988.25,5621.75,Sphere
+08/02/2026,Closed,6876 Bumblebee Cir,Milo Muffintop,Juniper Jellybean,Seller,434500.00,11948.75,0.00,295.00,7766.69,3887.06,Pumpkinpatch Portal
+08/05/2026,Closed,3035 Lollipop Loop,Rosie Noodlewood,Barnaby Biscuit,Buyer,319000.00,7975.00,2791.25,295.00,3369.44,1519.31,Lanternfly Leads
+08/07/2026,Closed,8951 Pumpernickel St,Posy Puddingstone,Tessa Teaspoon,Seller,469500.00,11737.50,0.00,295.00,7629.38,3813.12,Sphere
+08/13/2026,Closed,4067 Puddleduck Way,Wren Muffintop,Barnaby Biscuit,Buyer,484500.00,14535.00,0.00,295.00,9447.75,4792.25,Sphere
+08/16/2026,Closed,1645 Gumdrop Ct,Tilly Noodlewood,Juniper Jellybean,Seller,691500.00,20745.00,7260.75,295.00,8764.76,4424.49,Lanternfly Leads
 08/17/2026,Closed,1419 Jellybean Row,Rosie Crumpet,Marigold Fern,Buyer,622000.00,17105.00,0.00,295.00,0.00,16810.00,Google PPC
-08/19/2026,Closed,7979 Teakettle Rd,Pippa Sprinkleton,Ollie Oatcake,Seller,577500.00,15881.25,0.00,295.00,8734.69,6851.56,Sphere
-08/20/2026,Closed,4206 Teakettle Rd,Otis Sprinkleton,Juniper Jellybean,Buyer,303000.00,7575.00,0.00,295.00,4166.25,3113.75,Google PPC
-08/25/2026,Closed,6549 Snickerdoodle Ln,Bram Wafflesworth,Ollie Oatcake,Buyer,451000.00,11275.00,3946.25,295.00,4030.81,3002.94,Lanternfly Leads
+08/19/2026,Closed,7979 Teakettle Rd,Pippa Sprinkleton,Ollie Oatcake,Seller,577500.00,15881.25,0.00,295.00,10322.81,5263.44,Sphere
+08/20/2026,Closed,4206 Teakettle Rd,Otis Sprinkleton,Juniper Jellybean,Buyer,303000.00,7575.00,0.00,295.00,4923.75,2356.25,Google PPC
+08/25/2026,Closed,6549 Snickerdoodle Ln,Bram Wafflesworth,Ollie Oatcake,Buyer,451000.00,11275.00,3946.25,295.00,4763.69,2270.06,Lanternfly Leads
 09/11/2026,Closed,1857 Lollipop Loop,Wren Noodlewood,Marigold Fern,Buyer,547500.00,16425.00,0.00,295.00,0.00,16130.00,Sphere
-09/13/2026,Closed,9278 Waffle Iron Ave,Milo Tinkerpot,Tessa Teaspoon,Seller,547500.00,16425.00,0.00,295.00,9033.75,7096.25,Sphere
-09/16/2026,Closed,3975 Jellybean Row,Rosie Puddingstone,Barnaby Biscuit,Buyer,540500.00,16215.00,0.00,295.00,8918.25,7001.75,Agent Generated
-09/20/2026,Closed,7852 Pumpernickel St,Gus Puddingstone,Juniper Jellybean,Seller,491000.00,12275.00,0.00,295.00,6751.25,5228.75,Past Client
-09/22/2026,Closed,7231 Lollipop Loop,Milo Wafflesworth,Marigold Fern,Buyer,501000.00,15030.00,0.00,295.00,0.00,14735.00,Past Client
-09/23/2026,Closed,2508 Marshmallow Dr,Tilly Crumpet,Barnaby Biscuit,Seller,720000.00,18000.00,0.00,295.00,9900.00,7805.00,Pumpkinpatch Portal
-09/25/2026,Closed,4527 Waffle Iron Ave,Pippa Bumbleberry,Ollie Oatcake,Buyer,562500.00,16875.00,0.00,295.00,9281.25,7298.75,Agent Generated
-09/28/2026,Closed,3899 Lollipop Loop,Fitz Sprinkleton,Tessa Teaspoon,Buyer,467000.00,12842.50,0.00,295.00,7063.38,5484.12,Pumpkinpatch Portal
+09/13/2026,Closed,9278 Waffle Iron Ave,Milo Tinkerpot,Tessa Teaspoon,Seller,547500.00,16425.00,0.00,295.00,10676.25,5453.75,Sphere
+09/16/2026,Closed,3975 Jellybean Row,Rosie Puddingstone,Barnaby Biscuit,Buyer,540500.00,16215.00,0.00,295.00,10539.75,5380.25,Agent Generated
+09/20/2026,Closed,7852 Pumpernickel St,Gus Puddingstone,Juniper Jellybean,Seller,491000.00,12275.00,0.00,295.00,7978.75,4001.25,Past Client
+09/22/2026,Closed,7231 Lollipop Loop,Milo Wafflesworth,Barnaby Biscuit,Buyer,501000.00,15030.00,0.00,295.00,9769.50,4965.50,Past Client
+09/23/2026,Closed,2508 Marshmallow Dr,Tilly Crumpet,Barnaby Biscuit,Seller,720000.00,18000.00,0.00,295.00,11700.00,6005.00,Pumpkinpatch Portal
+09/25/2026,Closed,4527 Waffle Iron Ave,Pippa Bumbleberry,Tessa Teaspoon,Buyer,562500.00,16875.00,0.00,295.00,10968.75,5611.25,Agent Generated
+09/28/2026,Closed,3899 Lollipop Loop,Fitz Sprinkleton,Tessa Teaspoon,Buyer,467000.00,12842.50,0.00,295.00,8347.63,4199.87,Pumpkinpatch Portal
 10/16/2026,Pending,4410 Kazoo Ct,Posy Sprinkleton,Tessa Teaspoon,Buyer,512000.00,14080.00,0.00,295.00,7744.00,6041.00,Sphere
 10/23/2026,Pending,771 Gumdrop Ct,Gus Tinkerpot,Ollie Oatcake,Seller,468500.00,12883.75,4509.31,295.00,4605.95,3473.49,Lanternfly Leads
 09/18/2026,Cancelled,2290 Teakettle Rd,Hazel Marmaduke,Juniper Jellybean,Buyer,399000.00,9975.00,0.00,0.00,0.00,0.00,Google PPC

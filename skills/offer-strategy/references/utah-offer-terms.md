@@ -2,7 +2,7 @@
 
 Last verified: 2026-11-08
 
-What this skill needs from the Utah Real Estate Purchase Contract (REPC) to recommend offer terms. `utah-repc.md` maps the December 4, 2024 form in full. This file maps both forms now in use, side by side, for the terms that go into an offer. Name each term by its defined name ("Due Diligence Deadline," "Seller's Contribution to Closing Costs") and take section numbers only from the form the agent is writing on.
+What this skill needs from the Utah Real Estate Purchase Contract (REPC) to recommend offer terms. `utah-repc.md` maps the December 4, 2024 form in full and `utah-repc-2026.md` maps the November 1, 2026 form. This file puts both forms side by side for the terms that go into an offer, and adds the offer-side details those files don't cover. Name each term by its defined name ("Due Diligence Deadline," "Seller's Contribution to Closing Costs") and take section numbers only from the form the agent is writing on.
 
 This is a reference for strategy, not legal advice. The signed contract controls. The agent writes the offer on the brokerage's forms, and the transactions team owns the official dates.
 
@@ -11,7 +11,6 @@ This is a reference for strategy, not legal advice. The signed contract controls
 - **December 4, 2024 form.** Footer: "EFFECTIVE DECEMBER 4, 2024." The Division of Real Estate's State Approved Forms page still posted this form on 2026-11-08.
 - **November 1, 2026 form.** Footer: "EFFECTIVE NOVEMBER 1, 2026. AS OF JANUARY 1, 2027, IT WILL REPLACE AND SUPERSEDE THE PREVIOUSLY APPROVED VERSION OF THIS FORM." The Utah Association of REALTORS (UAR) says the Attorney General's Office approved it, that it "will be effective and available for use on Nov. 1, 2026," and that "You may no longer use the old version of the REPC starting Jan. 1, 2027." UAR posts a watermarked "Final Clean Copy" dated October 14, 2026; the section numbers below come from it.
 - **So:** an offer written through December 31, 2026 can be on either form. From January 1, 2027, only the November 1, 2026 form. If the agent doesn't say which form, show both section numbers for each term and ask. Never mix the two forms' numbers for one term.
-- `utah-repc.md` was written before UAR's notice and says the new form's status couldn't be confirmed. Where the two files differ about the November 1, 2026 form, follow this file.
 
 ## Section Map for Offer Terms
 

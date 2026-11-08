@@ -36,7 +36,8 @@ How to use this:
 - The form gives the buyer a right to cancel, not a right to a lower price. Any price change or credit takes a signed addendum.
 - If IS NOT is checked, or the buyer lets the deadline pass, the condition is waived. The box is separate from financing, so a cash buyer can still check it.
 - For FHA and VA loans, the FHA/VA Loan Addendum lets the buyer walk away without losing the deposit if the price exceeds the FHA appraised value or VA reasonable value, "Notwithstanding the Financing & Appraisal Deadline."
-- A revised REPC is pending, with mandatory use set for January 1, 2027. Section numbers may change. Read them from the signed contract.
+- A revised REPC is out. Its footer reads "EFFECTIVE NOVEMBER 1, 2026. AS OF JANUARY 1, 2027, IT WILL REPLACE AND SUPERSEDE THE PREVIOUSLY APPROVED VERSION OF THIS FORM." The Utah Association of REALTORS says it is available for use from November 1, 2026 and the old version may no longer be used starting January 1, 2027, so either version can show up until then. In the revised form the appraisal condition is Section 12.2, it runs to a separate Appraisal Deadline (Section 4(c)), and a buyer who cancels sends "a complete copy of the appraisal." The right to cancel, not to a lower price, is the same in both.
+- Before a home is under contract, explain the appraisal condition without section numbers or deadline names, since the buyer's offer may come on either form. Once there is a signed contract, read them from it.
 
 How to use this: pricing above what the closed sales support doesn't only risk a slow sale. It can create a contract that falls apart or gets renegotiated at appraisal, after the listing has already lost its newness.
 
@@ -56,3 +57,5 @@ All checked 2026-11-08.
 - State-approved Real Estate Purchase Contract (effective December 4, 2024), Sections 8.2 and 24: https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf
 - FHA/VA Loan Addendum, Section 3: https://commerce.utah.gov/wp-content/uploads/2023/03/fha-va-loan-addendum.pdf
 - Real Estate Commission minutes, August 19, 2026 (revised REPC, January 1, 2027 mandatory date): https://www.utah.gov/pmn/files/1492649.pdf
+- Real Estate Purchase Contract, effective November 1, 2026, Utah Association of REALTORS "Final Clean Copy" dated October 14, 2026 (checked 2026-11-08): https://utrealtors.wpenginepowered.com/wp-content/uploads/2026/10/REPC-Final-Clean-Copy-10.14.2026-with-Watermark.pdf
+- Utah Association of REALTORS, "Review of REPC Updates and Changes to Related Forms" (checked 2026-11-08): https://utahrealtors.com/realtor/review-of-repc-updates-and-changes-to-related-forms/

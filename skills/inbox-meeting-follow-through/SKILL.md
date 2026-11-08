@@ -65,7 +65,7 @@ If the user asks for drafts in Gmail or Outlook and the connector allows it, cre
 
 ## 7. Friday Rollup (When Asked)
 
-Use the week's digests in the conversation or project plus the week's mail and meetings. Sort every commitment and promise into **Done** (with the message or meeting that proves it), **Open** (not yet due) and **Slipped** (past due with no proof), by owner. Never mark anything done without evidence. For each slipped item, suggest a new date and draft the follow-up.
+Use the week's digests in the conversation or project plus the week's mail and meetings. Sort every commitment and promise into **Done** (with the message or meeting that proves it), **Open** (not yet due) and **Slipped** (past due with no proof), by owner. Never mark anything done without evidence. When the leader wasn't copied on the work, it isn't slipped either: list it as "no proof either way" and suggest asking. Count items that appear in more than one digest once. For each slipped item, suggest a new date and draft the follow-up.
 
 ## Guardrails
 

@@ -4,5 +4,5 @@
   "title": "Counter Explainer",
   "version": "1.0",
   "apps": ["claude", "chatgpt"],
-  "shared": ["utah-repc.md", "utah-forms-and-counters.md"]
+  "shared": ["utah-repc.md", "utah-forms-and-counters.md", "utah-repc-2026.md"]
 }

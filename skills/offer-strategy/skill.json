@@ -3,6 +3,15 @@
   "page": "offer-strategy",
   "title": "Offer Strategy",
   "version": "1.0",
-  "apps": ["claude", "chatgpt"],
-  "shared": ["utah-repc.md", "utah-forms-and-counters.md", "utah-pricing-context.md", "buyer-agreements.md"]
+  "apps": [
+    "claude",
+    "chatgpt"
+  ],
+  "shared": [
+    "utah-repc.md",
+    "utah-repc-2026.md",
+    "utah-forms-and-counters.md",
+    "utah-pricing-context.md",
+    "buyer-agreements.md"
+  ]
 }

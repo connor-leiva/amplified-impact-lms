@@ -4,7 +4,7 @@
 - **Preapproval: in process, not issued.** Quinn applied with Sample State Credit Union (loan officer Pat Notreal) on Tuesday. Pat still needs Quinn's last two pay stubs and two months of bank statements, which Quinn plans to send Monday, November 9. Pat is also checking whether a down payment assistance program fits.
 - **Speakers:** Granola on iPhone labels by letter. Speaker A is you and Speaker B is Quinn. One line labeled Speaker A ("Pat said she just needs my last two pay stubs and two months of bank statements...") is Quinn talking about Quinn's own loan application, so it's treated as Quinn's.
 - **Signature:** your name isn't in the transcript or your message, so the email is signed [Agent Name].
-- **Left out on purpose:** Quinn's credit score and student loan figure. The follow-up doesn't need them.
+- **Left out on purpose:** the credit and debt figures Quinn shared. The follow-up doesn't need them.
 
 ## Bottom Line
 
@@ -44,18 +44,17 @@ Thanks for meeting me for coffee yesterday. Here's what I heard matters most to 
 What I'm sending you:
 
 - The second lender's name, so you can compare quotes
-- My top five homes by Monday, from the search I set up for you
+- My top five homes by Monday, November 9, from the search I set up for you
 - The checklist of what to have ready for your lender, and the questions I ask every HOA
 
-On your side, you're sending Pat your last two pay stubs and two months of bank statements on Monday, and asking her about down payment help.
+On your side, you're sending Pat your last two pay stubs and two months of bank statements on Monday, November 9, and asking her about down payment help.
 
-Let's talk Wednesday evening, after you've heard from Pat, and pick which homes to see. Then we'll go see them Saturday, November 14, at 11:00 AM.
+Let's talk Wednesday evening, November 11, after you've heard from Pat, and pick which homes to see. Then we'll go see them Saturday, November 14, at 11:00 AM.
 
 [Personal note: add by voice]
 
 [Agent Name]
 
-*(131 words in the body.)*
 
 ## Follow Up Boss Note
 

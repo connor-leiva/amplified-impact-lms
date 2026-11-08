@@ -6,7 +6,7 @@ ChatGPT Free holds 5 project files, so the project gets 4: the instructions (wri
 chatgpt/instructions.md) plus these three, merged from the skill's references and the shared Utah files:
   counter-explainer-guide.md      references/reading-the-chain.md + references/drafting-guide.md
   utah-repc.md                    skills/_shared/utah-repc.md, as is apart from file names
-  utah-counters-and-new-repc.md   skills/_shared/utah-forms-and-counters.md + references/utah-repc-2026.md
+  utah-counters-and-new-repc.md   skills/_shared/utah-forms-and-counters.md + skills/_shared/utah-repc-2026.md
 Rerun it whenever any of those sources change, so the two versions don't drift.
 """
 import os
@@ -74,6 +74,6 @@ counters = (
     "differs from the December 4, 2024 form (second part). Each part keeps its own Last verified date and sources.\n\n"
     + demote(rename(read(os.path.join(SHARED, "utah-forms-and-counters.md"))))
     + "\n\n"
-    + demote(rename(read(os.path.join(SKILL, "references", "utah-repc-2026.md"))))
+    + demote(rename(read(os.path.join(SHARED, "utah-repc-2026.md"))))
 )
 write("utah-counters-and-new-repc.md", counters)

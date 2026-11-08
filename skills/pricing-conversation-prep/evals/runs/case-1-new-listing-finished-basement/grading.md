@@ -52,3 +52,7 @@ Result: **pass, 8 of 8.**
 | 8 | Fail. Invented numbers and no Check before sending. |
 
 **Baseline: 0 of 8 pass (2 partial), against 8 of 8 with the skill.** The skill's biggest additions: no invented basement or upgrade values, the concessions read, a range that respects the stale active, Utah's appraisal condition stated correctly, and agent-only remarks kept out.
+
+## Review Note (2026-11-08)
+
+The reviewer ran case 2 and the practice set, not this case. One line here was changed after the review: the Zillow answer said online sites "don't have the closed prices I'm showing you," which couldn't be confirmed from a primary source. It now says they "may not have" them, as `references/objections.md` now requires. The appraisal check also no longer names the "Financing & Appraisal Deadline": two REPC versions are in use until January 1, 2027 and they name the deadline differently, so it now says "the contract's appraisal deadline." Expectation 5 still passes (it explains the condition as a right to cancel, not an automatic price cut). The grading above is otherwise unchanged.
