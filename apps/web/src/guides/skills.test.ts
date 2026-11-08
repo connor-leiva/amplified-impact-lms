@@ -80,7 +80,8 @@ it('links only to pages that exist, so a skill page never ships pointing at one 
   const pages = new Set(['/library', '/ai101', '/voice-profile', '/retool', '/terms', '/privacy', ...Object.keys(GUIDES).map((s) => `/${s}`)]);
   const html = Object.values(GUIDES).map((g) => renderGuideBody(g));
   for (const page of html) {
-    for (const [, href] of page.matchAll(/href="(\/[^"#?]*)/g)) {
+    for (const match of page.matchAll(/href="(\/[^"#?]*)/g)) {
+      const href = match[1] ?? '';
       if (href.startsWith('/downloads/')) {
         expect(existsSync(join(DOWNLOADS_DIR, href.slice('/downloads/'.length))), `${href} is not in public/downloads`).toBe(true);
         continue;
