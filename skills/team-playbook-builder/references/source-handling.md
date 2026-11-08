@@ -29,7 +29,7 @@ If only a month or a year is given, treat it as the last day of that month or ye
 | Role titles and the names of people in those roles | Keep, in `routing.md` |
 | Team channels and shared inboxes (the #transactions channel, a team inbox) | Keep |
 | Phone numbers of any kind (cells, direct lines, office lines), personal emails, home addresses | Remove and log. Route by role and team channel instead. The check script blocks phone numbers |
-| Door, lockbox, alarm and supply codes; passwords; logins | Remove and log. Keep the process ("ask Ops for the code") if the document gives one |
+| Door, lockbox, alarm and supply codes; passwords; logins | Remove and log. Keep the process if the document gives one ("Office access: Director of Operations, Day 1"). If it gives none, write nothing in its place, not even "ask Ops," and add "How do I get it?" to the gaps with its likely owner |
 | Wire instructions, bank names tied to accounts, routing and account numbers | Remove and log. Write "[Removed: account details. Ask the (role the document names, or the broker if it names none).]" |
 | An individual agent's split, cap, bonus, fee waiver, draw or deal terms | Remove and log, always, even if the leader says to include compensation |
 | Anything about a named person's health, family, performance, discipline or reviews | Remove and log |

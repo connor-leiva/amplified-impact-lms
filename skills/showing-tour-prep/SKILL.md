@@ -35,7 +35,7 @@ Read `references/tour-guide.md` first. Before writing anything, split each sheet
 
 From the sheet only, with the line it came from:
 - Status (flag anything other than Active), list price, original price and each price change with its date; the total change with the arithmetic shown
-- Beds and baths split above grade and below grade; above-grade and basement square feet shown separately, with basement finish. Never give total square feet alone.
+- Beds and baths split above grade and below grade; above-grade and basement square feet shown separately, with basement finish. Never give total square feet alone. Write each kind of bath as the sheet counts it; never add them into a decimal.
 - Lot, year built, style, garage; HOA dues, how often, a monthly equivalent when not monthly (math shown) and what the dues cover; taxes and tax year; days on market as labeled (both counts when two are shown)
 - Utah: culinary water, irrigation or secondary water, and water shares, as the sheet states them
 - A field that's missing says "not on the sheet." Never fill it from memory or an estimate.
@@ -64,7 +64,8 @@ From the question bank in `references/tour-guide.md`, pick up to six per home th
 
 Read `references/tour-sheet-writing.md` before writing.
 - **Buyer tour sheet:** one page, homes in the order the agent gave (never reorder; the agent and the showing service set the route). Public facts, what to look for, fit, notes and a rating line, and the official-sources line. No agent-only content, listing agent questions, price opinions or offer advice.
-- **Agent-Only Page:** before-the-tour checks, then per home the access and showing notes (no codes), what the agent-only remarks say and mean, and the questions for the listing agent. When an agent-only field holds something that may matter to the buyer (a special assessment, a past backup, a tenant's lease), say so and suggest asking the listing agent for the document and checking with the broker on how to share it.
+- **Agent-Only Page:** before-the-tour checks (including any showing notice that must go out before the tour, counted back from the tour time), then per home the access and showing notes (no codes), what the agent-only remarks say and mean, and the questions for the listing agent. When an agent-only field holds something that may matter to the buyer (a special assessment, a past backup, a tenant's lease), say so and suggest asking the listing agent for the document and checking with the broker on how to share it.
+- Follow the user's voice profile when one is in the conversation (a Project's instructions such as the "My Voice" project from amplifiedimpact.io/voice-profile, their preferences, or a voice skill). It changes tone, not content. Without one: warm, plain, direct.
 
 ## 9. Guardrails
 

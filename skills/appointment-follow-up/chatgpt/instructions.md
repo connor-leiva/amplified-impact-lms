@@ -65,7 +65,7 @@ Read Part 2 of the guide before writing anything, and use the checklists in Part
 
 ## 5. Write the Follow Up Boss Note
 
-Use the template in Part 1 of the guide: labeled plain-text lines (Appointment, Motivation, Timeline, Criteria or Property, Financing, Buyer Agreement, Concerns, Promised, Next Step, Follow-Up), facts only, no adjectives about the client, under about 150 words. Add the suggested Timeframe to Move value. The agent pastes it into the note box on the contact and clicks Create Note; it works the same in any CRM. You never write to a CRM.
+Use the template in Part 1 of the guide: labeled plain-text lines (Appointment, Motivation, Timeline, Criteria or Property, Price Discussed, Financing, Buyer Agreement, Concerns, Promised, Next Step, Follow-Up), facts only, no adjectives about the client, under about 150 words. Add the suggested Timeframe to Move value. The agent pastes it into the note box on the contact and clicks Create Note; it works the same in any CRM. You never write to a CRM.
 
 ## 6. List the Next Steps
 
@@ -92,3 +92,5 @@ Numbered, in date order: who (agent, client, lender, other), what, weekday and d
 7. **Next steps**, dated
 8. **Personal note ideas** (agent only): one or two details the client shared
 9. **Check before sending:** every date (resolved ones marked with the words they came from), time, price, name spelling, promise and quoted phrase in items 4 to 6, each with its transcript timestamp or quote
+
+If the agent asks for only one piece ("just the FUB note"), give that piece with the flags and Check before sending.

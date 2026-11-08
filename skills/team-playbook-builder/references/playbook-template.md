@@ -29,7 +29,7 @@ Examples: "Smith & Rivera Group" becomes `smith-rivera-group-playbook`. "The O'N
 
 ## Topic Files
 
-Use these file names. Make a file only when the documents have content for it. Merge two topics into one file when one of them would hold fewer than three rules.
+Use these file names. Make a file only when the documents have content for it. Merge two topics into one file when one of them would hold fewer than three rules, unless it holds a CONFLICT or UNDER REVIEW block: that topic keeps its own file so agents find it.
 
 | File | What goes in it |
 |---|---|
@@ -120,6 +120,8 @@ Sources: [document title] ([date]); [document title] ([date])
 - [Document B], [section] ([date]): "[exact quote]"
 - The team hasn't decided which applies. Give agents both versions and send them to the [decision owner role].
 ```
+
+Every bullet in a topic file is a rule from a document, with its source. Don't add routing lines of your own ("never give account details," "ask Ops for the code"): routing lives in the generated SKILL.md, and a question the documents don't answer goes in `routing.md` under "Not Written Yet."
 
 When the leader settles a conflict, replace the CONFLICT block with the chosen rule, keep its source, and add "(Confirmed by [role], [date])".
 

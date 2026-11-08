@@ -41,7 +41,7 @@ export const PERFECT_WEEK: Guide = skillPage({
       'Attach your calendar and task list, and Claude plans a week that fits inside your working hours, with a summary for your manager. Claude never invites anyone or touches meetings with other people. A free Claude skill.',
   },
 
-  eyebrow: 'Free Claude Skill · For Agents and Team Leaders',
+  eyebrow: 'Free Claude Skill · For Agents and Teams',
   // page-notes.md, "The Promise", without promising the calendar build, which depends on the connector.
   lede: 'Claude turns your real calendar and task list into a week that fits inside your working hours, and puts nothing on your calendar until you say yes.',
   outcome: { n: '03', title: 'Get a Week That Fits', body: 'Inside your hours, with a summary for your manager.' },
@@ -264,13 +264,11 @@ export const PERFECT_WEEK: Guide = skillPage({
           ],
         },
         { p: [{ strong: 'The asks:' }] },
+        { p: ['1. Move the business plan review from Dec 11 to the Dec 18 monthly review, or find an hour before Dec 11.'] },
         {
-          items: [
-            'Move the business plan review from Dec 11 to the Dec 18 monthly review, or find an hour before Dec 11.',
-            'Agree the recruiting target as about 5 hours in a normal week (5.5 planned) and 3.5 hours Thanksgiving week.',
-            'Agree that Morgan takes the five items above.',
-          ],
+          p: ['2. Agree the recruiting target as about 5 hours in a normal week (5.5 planned) and 3.5 hours Thanksgiving week.'],
         },
+        { p: ['3. Agree that Morgan takes the five items above.'] },
         { h: 'Check before sending' },
         {
           items: [
@@ -339,8 +337,8 @@ export const PERFECT_WEEK: Guide = skillPage({
           body: 'A PDF with the week, hours by area, the project timeline, the hand-offs and your asks, leaving out personal appointments, client details and dollar figures. Then a Check before sending list of every date, hour total, name and ask.',
         },
         {
-          title: 'Your week on your calendar, after your yes',
-          body: 'With Google Calendar connected, and only after a clear yes: repeating blocks with no guests and notifications off, fitted around anything new, then what was added, changed and left alone, and how to undo it. Without the connector: a calendar file to import.',
+          title: 'On your calendar, after your yes',
+          body: 'With Google Calendar connected, and only after a clear yes: repeating blocks with no guests and notifications off, fitted around anything new, then what was added, changed and left alone, and how to undo it. Without a connector that can add events: a calendar file to import.',
         },
       ],
     },
@@ -391,12 +389,12 @@ export const PERFECT_WEEK: Guide = skillPage({
           tag: 'No connector needed to plan',
         },
         {
-          title: 'Google Calendar, to build it',
-          body: 'A connector links Claude to another app. To have Claude add the blocks to your calendar, connect Google Calendar. Anthropic’s pages differ on which plans have it and whether it can add events. Without it, you get a calendar file to import.',
+          title: 'Google Calendar, to build the week',
+          body: 'A connector links Claude to another app. To have Claude add the blocks to your calendar, connect Google Calendar. Anthropic’s pages differ on which plans have it and whether it can add events. Without it, Claude gives you a calendar file to import.',
           tag: 'Team or Enterprise: an owner adds it first',
         },
         {
-          title: 'Other connectors, if you have them',
+          title: 'Optional connectors',
           body: 'With the ClickUp or Asana connector, Claude can read your tasks instead of a file. With Granola, Claude reads your recent meeting notes for standing 1:1s and promises you made. We haven’t tested these yet.',
           tag: 'Granola transcripts need a paid Granola plan',
         },

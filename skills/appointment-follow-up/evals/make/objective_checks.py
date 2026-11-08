@@ -20,7 +20,7 @@ CASES = {
     "eval-2-listing-price-gap": (["evals/files/eval-2-listing-price-gap/Granola transcript, Listing appt Fictionale.txt"],
                                  ["212", "owe"]),
     "eval-3-neighborhood-remark": (["evals/files/eval-3-neighborhood-remark/zoom audio_transcript Fakewell relocation consult.vtt"],
-                                   ["big families", "kids everywhere", "Spanish", "like us", "220", "Cobble Ridge", "demographic"]),
+                                   ["big families", "kids everywhere", "Spanish", "like us", "220", "Example Hollow", "demographic"]),
 }
 PROMPTS = {  # numbers the agent's message supplies
     "eval-1-first-time-buyer": "",

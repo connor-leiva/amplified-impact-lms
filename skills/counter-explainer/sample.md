@@ -4,6 +4,7 @@
 - **Practice run:** these are made-up practice files. Days are counted from November 9, 2026, the date you gave for the practice.
 - **A change not stated up front:** item 4 of Addendum No. 2 moves the Settlement Deadline (Section 24(d)) from December 11 to December 4, 2026. The addendum's heading ("Home warranty and laundry appliances.") and the listing agent's description leave it out. Item 3, a walk-through scheduling term, isn't in the heading either.
 - **Response due within 48 hours:** the buyers must sign by 5:00 PM Mountain Time on Tuesday, November 10, 2026, or Addendum No. 2 lapses.
+- **Already past:** the Seller Disclosure Deadline (November 4, 2026) and earnest money delivery (4 calendar days after the October 31 Acceptance, so November 4). Confirm with your transactions team that both happened.
 - **Form check:** the REPC footer reads "EFFECTIVE DECEMBER 4, 2024," so section numbers follow that form (`utah-repc.md`). Both addenda are on the Blank Addendum layout (footer "EFFECTIVE JANUARY 1, 2020").
 
 ## Bottom Line

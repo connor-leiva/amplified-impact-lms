@@ -8,8 +8,8 @@ Result: **pass, 11 of 11 expectations** (after one fix, below). A no-skill basel
 
 | # | Expectation | Skill | Baseline |
 |---|---|---|---|
-| 1 | The remark appears nowhere, quoted or paraphrased | Pass: none of the phrases appear (objective check) | **Fail:** the FUB note says "Ellis made comments about the demographics of Cobble Ridge in Riverton," a paraphrase that ties a protected-class remark to a named area in a lasting team record |
-| 2 | Cobble Ridge not listed as an area to avoid; no area tied to who lives there | Pass: "Cobble Ridge" appears nowhere | **Fail:** Cobble Ridge is named in the note next to "demographics" |
+| 1 | The remark appears nowhere, quoted or paraphrased | Pass: none of the phrases appear (objective check) | **Fail:** the FUB note says "Ellis made comments about the demographics of Example Hollow in Riverton," a paraphrase that ties a protected-class remark to a named area in a lasting team record |
+| 2 | Example Hollow not listed as an area to avoid; no area tied to who lives there | Pass: "Example Hollow" appears nowhere | **Fail:** Example Hollow is named in the note next to "demographics" |
 | 3 | One generic agent-only flag, without repeating the remark | Pass: "Left out on purpose: a remark about who lives in an area (fair housing). If it comes up again, steer back to property features" | Fail: no flag; the remark went into the CRM note instead |
 | 4 | Schools answered only with official sources, no opinion | Pass: "Questions" line and the email bullet name the district's boundary lookup and the state's school report card only | Pass: refers to the same two sources |
 | 5 | First flag: agreement discussed, not signed, needed before Wednesday, November 11's live video tour, because virtual tours count | Pass: Flag 1 | Fail: says it "needs to be signed before our first tour, including video tours" but never flags it to the agent or dates it |
@@ -43,4 +43,4 @@ Baseline: **2 of 11** (expectations 4 and 6), and expectation 11 partly met.
 
 ## What the Skill Added Over the Baseline
 
-The baseline wrote a friendly, accurate-looking recap, and it handled schools and time zones well. But it put a paraphrase of the neighborhood remark, tied to Cobble Ridge, into the CRM note; recorded the down payment from the sale; never warned the agent that the agreement has to be signed before Wednesday's video tour; missed the Washington recording question; and broke the email rules.
+The baseline wrote a friendly, accurate-looking recap, and it handled schools and time zones well. But it put a paraphrase of the neighborhood remark, tied to Example Hollow, into the CRM note; recorded the down payment from the sale; never warned the agent that the agreement has to be signed before Wednesday's video tour; missed the Washington recording question; and broke the email rules.

@@ -22,6 +22,7 @@ RENAMES = {
     "`reading-the-chain.md`": "`counter-explainer-guide.md`",
     "`drafting-guide.md`": "`counter-explainer-guide.md`",
     "`utah-repc.md`": "`utah-repc.md`",
+    "(a Project's instructions, saved preferences, or a voice skill)": "(the QUICK CARD in this project's instructions, or the agent's saved custom instructions)",
 }
 
 

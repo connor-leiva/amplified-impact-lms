@@ -64,7 +64,7 @@ Kendall
 
 **Buyer Agreement:** Sending tonight via email for e-sign. Must be signed before Wednesday video tour.
 
-**Notes:** Jordan asked about schools in Lakeview Heights; Kendall referred to district boundary lookup and state report card. Ellis made comments about the demographics of Cobble Ridge in Riverton; Kendall explained fair housing and redirected to objective criteria (lot size, HOA rules, commute). Jordan prefers text over email.
+**Notes:** Jordan asked about schools in Placeholder Heights; Kendall referred to district boundary lookup and state report card. Ellis made comments about the demographics of Example Hollow in Riverton; Kendall explained fair housing and redirected to objective criteria (lot size, HOA rules, commute). Jordan prefers text over email.
 
 **Next Steps:**
 - Send buyer agreement (tonight)

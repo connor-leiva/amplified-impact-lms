@@ -1,6 +1,6 @@
 ---
 name: team-playbook-builder
-description: Turns a real estate team's own SOPs into a playbook skill every agent installs on their own Claude account. It reads the policy manual, onboarding checklist, lead routing and pond rules, transaction handoff steps, fee schedules meant for all agents, brand rules, tech how-tos and training transcripts, then returns a ready-to-upload ZIP that answers agents' questions from those documents only and names the section, plus a conflicts list, the gaps new agents will hit, a 25-question test set and a message to agents. Use this whenever a team leader, owner or ops person uploads SOPs or an agent handbook, or asks for an onboarding assistant, an SOP bot, a team knowledge base, or a way for agents to stop texting them the same questions, even if they never say "playbook" or "skill." Not for answering one agent's question yourself, brokerage-wide policy, contract or legal questions (the broker), cleaning a CRM export (database-health-check), or recruits (recruiting-prep).
+description: Turns a real estate team's own SOPs into a playbook skill every agent installs on their own Claude account. It reads the policy manual, onboarding checklist, lead routing and pond rules, transaction handoff steps, fee schedules meant for all agents, brand rules, tech how-tos and training transcripts, then returns a ready-to-upload ZIP that answers agents' questions from those documents only and names the section, plus conflicts, gaps, a 25-question test set and a message to agents. Use this whenever a team leader, owner or ops person uploads SOPs or an agent handbook, sends a playbook ZIP to update, or asks for an onboarding assistant, an SOP bot, a team knowledge base, or a way for agents to stop texting them the same questions, even if they never say "playbook" or "skill." Not for one quick SOP answer, brokerage-wide policy, contract or legal questions (the broker), a team meeting's action items (inbox-meeting-follow-through), a CRM export (database-health-check), or recruits (recruiting-prep).
 compatibility: Works from uploaded files (PDF, Word, Google Docs downloads, spreadsheets, training transcripts). Reads Google Drive, Microsoft 365 or ClickUp only when that connector is connected, read only. Uses code execution, which Claude skills already require, to read Word and Excel files and to check and package the playbook as a ZIP.
 metadata:
   author: Amplified Impact
@@ -13,7 +13,7 @@ Turn the team's own documents into a playbook skill that answers an agent's ques
 
 Why it matters: new agents ask the same questions every week, the answers live in five places, and the places disagree. An assistant that guesses is worse than none, so the playbook answers only from the documents, says when it can't, and the leader sees every gap and conflict before agents do.
 
-What this skill does on its own: reads every document, sorts it by topic, finds conflicts, gaps and stale sections, strips personal data, and checks and packages the skill. What it drafts for the leader to review first: the playbook, the test set and the message to agents. What stays with the leader: every policy, which version wins a conflict, whether a fee schedule applies to everyone, and any decision about a person.
+What this skill does on its own: reads every document, sorts it by topic, finds conflicts, gaps and stale sections, strips personal data, and checks and packages the skill. What it drafts for the leader to review first: the playbook, the test set and the message to agents. What stays with the leader: every policy, which version wins a conflict, whether a fee schedule applies to everyone, sharing the skill with agents, and any decision about a person. The broker review list (texting consent, client funds, fair housing) goes to the broker.
 
 ## 1. Gather the Documents
 
@@ -25,7 +25,7 @@ Never ask the leader to type what a document contains. Take the team name, broke
 
 Read every document in full, transcripts included: rules hide in the middle of long manuals and in the Q&A at the end of training calls. For each document, record its title, file name, stated owner, stated last-updated or effective date ("not stated" if there isn't one), and what it covers.
 
-**Update mode:** if the leader uploads an existing `-playbook` ZIP or folder with new documents, read the old playbook first, apply only what changed, raise the version (1.0 to 1.1), and list every change.
+**Update mode:** if the leader uploads an existing `-playbook` ZIP or folder with new documents, read the old playbook first, apply only what changed, raise the version (1.0 to 1.1), and list every change. Do the same when the leader answers a "Needs your answer" item later in the chat (settles a conflict, confirms the fee schedule).
 
 ## 2. Sort What Each Document Says
 
@@ -34,6 +34,8 @@ Read `references/source-handling.md` before sorting.
 - Sort the content into the topic files listed in `references/playbook-template.md`. Make a file only for topics the documents actually cover.
 - Keep the team's wording. Copy numbers, times, deadlines, dollar amounts and role names exactly. Tag every rule with its source: document, section or page, and that document's date.
 - Leave out personal data: an individual agent's split or deal, phone numbers, personal emails and home addresses, door, lockbox and alarm codes, passwords, and anything about a named person's health, family or performance. Route by role and team channel instead. Log each removal by document and section only. Never repeat what was removed.
+- When you remove a code or login, keep the document's own process for getting it ("Office access: Director of Operations, Day 1"). If the document gives none, write nothing in its place, not even "ask Ops": add "How do I get it?" to the gaps with its likely owner.
+- Every line in a topic file is a rule from a document, with its source. Routing lines of your own ("never give account details") go in the generated SKILL.md, not in topic files.
 - Never copy wire instructions, routing numbers or account numbers, even when a document has them. Replace them with "[Removed: account details. Ask the (role the document names, or the broker if it names none).]"
 - Compensation: include a fee or split schedule only when the leader has said in this conversation that it applies to every agent. If they haven't, leave it out, build everything else, and ask at the top. Individual arrangements stay out even then.
 - A passage that would have agents describe people, neighborhood demographics, school quality or safety, or treat clients differently by a protected class: leave it out and flag it for the broker. Passages about texting or calling consent, client funds, or contract language stay in as written and go on the broker review list.
@@ -55,7 +57,7 @@ Read `references/playbook-template.md` and follow it exactly.
 
 ## 5. Check and Package It
 
-Read `references/skill-upload-rules.md` and run its check-and-package script on the folder, passing every removed or held name, figure and step from step 2 as must-not-contain terms. Fix every error and rerun until it passes. The result is `team-slug-playbook.zip` with the folder at the root of the ZIP, the format Claude's skill upload expects. If code can't run, give every file in full plus the packaging steps from that reference.
+Read `references/skill-upload-rules.md` and run its check-and-package script on the folder, passing every removed or held name, figure and step from step 2 as must-not-contain terms. Never show those terms in the chat: report how many were passed. Fix every error and rerun until it passes. The result is `team-slug-playbook.zip` with the folder at the root of the ZIP, the format Claude's skill upload expects. If code can't run, give every file in full plus the packaging steps from that reference.
 
 ## 6. Write the Test Set and the Message to Agents
 

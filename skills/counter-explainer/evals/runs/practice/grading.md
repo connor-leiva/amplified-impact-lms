@@ -39,3 +39,7 @@ Result: **pass, 12 of 12 checks.** Objective checks in `objective-checks.txt`. T
 
 - The first draft's risk line said the buyers would be "past their appraisal and financing protections with the deadline already here," which blurred two rules. It now says what the REPC says: the loan has to be ready by the day those cancellation rights end, and more time needs a written extension signed by the seller (Section 21).
 - "I'll check with your lender that December 4 works" committed the agent to an action. It's now in brackets for the agent to keep or cut.
+
+## Reviewer Update (2026-11-08)
+
+The independent reviewer's run (`review-output.md`, graded in `review-grading.md`) also passed all 12 checks. One change to this output and `sample.md`: the two deadlines already past on the practice date (Seller Disclosure and earnest money delivery, both November 4) were added to Flags, because SKILL.md's output order puts "a deadline past or within 48 hours" there. They were already in the timeline. Nothing else changed.

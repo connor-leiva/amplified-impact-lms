@@ -375,9 +375,9 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
           // page-notes.md, FAQ and the Columns tip ("Filtering contacts").
           q: 'Our export doesn’t have Last Communication.',
           a: [
-            'The report says so up front, reads the dates in the calls, texts and notes columns instead, and marks those checks approximate. Next time, turn the column on before you export: in Follow Up Boss, open ',
+            'The report says so up front, reads the dates in the calls, texts and notes columns instead, and marks those checks approximate. Next time, before you export, open ',
             { strong: 'People' },
-            ', click ',
+            ' in Follow Up Boss, click ',
             { strong: 'Columns' },
             ' in the upper right, and check ',
             { strong: 'Last Communication' },

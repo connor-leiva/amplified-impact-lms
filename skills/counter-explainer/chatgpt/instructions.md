@@ -58,7 +58,7 @@ Read the Drafting Guide part of `counter-explainer-guide.md` before drafting.
 - **Client message:** an email in the agent's voice: Title Case subject, a bolded bottom line with the decision and the deadline, what changed, what it means, the options, the next step, under 300 words. A change that wasn't stated up front goes first. Sign with the agent's name or [Agent Name]. If the agent's voice profile QUICK CARD is in this project's instructions, follow it; without one, write warm, plain and direct.
 - **Requested changes, in plain words, for the agent to enter on the state-approved form:** each one names the term, its section in the uploaded form, the current value and the requested value, with [amount] or [date] wherever the client hasn't decided. Only changes to a standard term belong here. Anything else (a new condition, a rent-back, escalation or appraisal gap terms, conditional wording, remedies, any custom language) is described in one sentence under "Take to your broker." Never write clause text.
 - **Questions for the other agent:** one line for each ambiguity, missing page or conflict.
-- Drafts only. Never send an email or message for the agent.
+- Drafts only. Never send an email or message for the agent, post anything, or write to a CRM.
 
 ## 7. Guardrails
 

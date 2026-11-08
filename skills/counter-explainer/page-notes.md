@@ -18,7 +18,7 @@ Upload all of these to one chat (Claude takes up to 20 files per chat; PDFs, pho
 3. **Every earlier counter or addendum**, so it can carry terms forward and catch conflicts.
 
 Where the files come from:
-- **SkySlope Forms** (used by many brokerages, including eXp): log in to SkySlope Forms, open the file, go to the **Signed Documents** tab, select the documents, click **Download** in the lower right, and choose a download option. (SkySlope help center, checked 2026-11-08.) A counter that's still waiting on the other side downloads with only the signatures done so far. That's expected, and the skill reads it as pending.
+- **SkySlope Forms**, if your brokerage uses it: log in to SkySlope Forms, open the file, go to the **Signed Documents** tab, select the documents, click **Download** in the lower right, and choose a download option. (SkySlope help center, checked 2026-11-08.) A counter that's still waiting on the other side downloads with only the signatures done so far. That's expected, and the skill reads it as pending.
 - **Other e-signature or transaction systems** (DocuSign, Authentisign, Dotloop, zipForm and others): download the signed or sent PDF from the envelope or file. We didn't verify those vendors' click paths; use their help center.
 - **An email attachment or a phone photo** of a paper counter works too. Photos should show the whole page, including the signatures and the footer.
 
@@ -52,14 +52,16 @@ A bottom line first (what changed, the change that matters most, and the respons
 - Estimate net proceeds, cash to close, commissions or loan limits. It points you to a net sheet or the lender.
 - Keep the official deadline calendar. Dates are for strategy; your transactions team confirms them.
 - Send anything. Every email is a draft. It never asks for or repeats wire or account details.
-- Compare several offers side by side (use Offer Comparison), answer a buyer's repair request (Repair Request Response), review inspection findings (Due Diligence Review) or respond to a low appraisal (Low Appraisal Response).
+- Compare several offers side by side (use Offer Comparison), answer a buyer's repair request (Repair Request Response), review inspection findings (Due Diligence Review) or review a low appraisal report (Low Appraisal Response).
 
 ## What You Need
 
 - **Claude:** a plan that includes skills, with code execution on. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise, and code execution is on by default on Free, Pro, Max and Ultra. Claude's docs list Pro and up for skills, so if the upload option is missing on Free, that's why. On Team and Enterprise, an Owner controls whether members can upload skills.
 - **Install:** Customize > Skills > + > Create skill > Upload a skill, then choose `counter-explainer.zip` as downloaded (don't unzip it). Make sure it's toggled on.
 - **Connectors: none required.** Optional: Gmail or Microsoft 365 (Outlook), only to save the client email as a draft when you ask. Claude's Help Center says the Gmail connector can draft email; Claude's docs page for Gmail describes it as read-only. If drafting isn't offered, copy the email from the chat. Work or school Microsoft 365 accounts need an admin to turn on write tools.
-- **ChatGPT instead:** a ChatGPT Project (not a custom GPT) with the four files from `counter-explainer-chatgpt.zip`. Paste `paste-into-instructions.txt` into the Project's instructions, upload the other four files to the Project, and attach the deal documents to each chat. ChatGPT Free allows 5 files per project and, per OpenAI's pricing page, about 12 pages of text per message, so a full contract plus several addenda may not fit on Free; Go or Plus allow about 40 pages.
+- **ChatGPT instead:** a ChatGPT Project (not a custom GPT). `counter-explainer-chatgpt.zip` holds five files: paste the text of `paste-into-instructions.txt` into the Project's instructions (the more options menu, then Project settings), add the other four files to the Project's Sources tab, and attach the deal documents to each chat. ChatGPT Free allows 5 files per project, 3 file uploads per day, and, per OpenAI's pricing page, about 12 pages of text per message. So on Free, setting up the Project and attaching a full chain can take more than one day, and a contract plus several addenda may not fit in one message. Go or Plus allow 25 project files and about 40 pages per message.
+- **Device:** install it from claude.ai in a browser or from the Claude desktop app. Once installed, it's saved to your account and works in chats on the web, desktop and mobile apps.
+- **Accounts:** none beyond Claude or ChatGPT. The documents come from your e-signature or transaction system, or as photos or scans.
 - **Cost:** none beyond your Claude or ChatGPT plan.
 
 ## Run / Draft / Own
@@ -96,6 +98,7 @@ counteroffer, counter, addendum, REPC, Utah REPC, contract changes, what changed
 - Eval 2, an addendum on the revised November 1, 2026 REPC described as "just the fridge and a home warranty" that also moves the Due Diligence Deadline a week earlier (buyer side): 12 of 12. A no-skill baseline on the same files passed 5 of 12: it found the date change but missed the form version, the earnest money consequence and the deal as it stands, and its email had an em dash, a non-Title-Case subject and "don't hesitate to reach out."
 - Eval 3, two signed addenda that conflict on the seller credit and the closing date, in Idaho (general mode): 12 of 12. No winner picked; both conflicts quoted and routed to the broker.
 - Objective checks on every run (`evals/make/objective_checks.py`): every number not in the documents is shown as computed, weekdays match the calendar, no dashes, Title Case subjects, Check before sending present, no banned phrases or account numbers.
+- An independent reviewer reran eval 2 and the practice files from scratch on 2026-11-08 (`review-output.md` and `review-grading.md` in each run folder): 12 of 12 on both, with the same catches as the builder's runs.
 - `node scripts/skills.mjs check counter-explainer` passes.
 
 **Not tested:**
@@ -104,7 +107,7 @@ counteroffer, counter, addendum, REPC, Utah REPC, contract changes, what changed
 - UAR's members-only counteroffer and addendum forms, the FHA/VA Loan Addendum, and builder or attorney-prepared contracts.
 - Long chains (five or more documents).
 - The ChatGPT Project version in ChatGPT itself, and Gmail or Outlook draft saving.
-- A collision check with all 17 library skills installed. Descriptions were compared by hand: one counter or addendum lands here; several offers go to Offer Comparison; a seller's answer to a repair request goes to Repair Request Response.
+- A collision check with all 17 library skills installed. The reviewer checked routing by hand against every sibling description: one counter or addendum, an extension, or "where does the deal stand" lands here; several offers go to Offer Comparison; drafting the seller's answer to a repair request goes to Repair Request Response; reviewing the appraisal report itself goes to Low Appraisal Response, while an addendum that changes the price after an appraisal lands here.
 
 ## Sources (checked 2026-11-08)
 
@@ -115,7 +118,10 @@ counteroffer, counter, addendum, REPC, Utah REPC, contract changes, what changed
 - Microsoft 365 connector: https://support.claude.com/en/articles/15183774-connect-to-microsoft-365
 - Claude training setting: https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings
 - Commercial plans not trained on by default: https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training
-- ChatGPT Projects and file limits: https://help.openai.com/en/articles/10169521-projects-in-chatgpt (blocked to direct fetch; from search results) and https://chatgpt.com/pricing (pages of text per message)
+- ChatGPT Projects, file limits and the instructions click path: https://help.openai.com/en/articles/10169521-projects-in-chatgpt (blocked to direct fetch; from search results) and https://chatgpt.com/pricing (pages of text per message)
+- ChatGPT project files on the Sources tab (release note, February 23, 2026): https://help.openai.com/en/articles/6825453-chatgpt-release-notes (from search results)
+- ChatGPT Free, 3 file uploads per day: https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq (from search results)
+- Skills available in chat on web, desktop and mobile once added: https://claude.com/docs/extend/overview
 - ChatGPT training setting: https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt (blocked to direct fetch; from search results)
 - Custom GPT retirement: https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq (from search results)
 - SkySlope Forms, download signed documents: https://support.skyslope.com/hc/en-us/articles/23308101889947-Save-Documents-from-SkySlope-Forms

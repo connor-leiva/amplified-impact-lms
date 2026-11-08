@@ -1,5 +1,7 @@
 # Reading the Chain
 
+Last verified: 2026-11-08
+
 How to read a purchase contract and its counters and addenda as one deal, and how to catch what a quick read misses. This file is about reading documents, not state law. For Utah form rules, see `utah-forms-and-counters.md`, `utah-repc.md` and `utah-repc-2026.md`. Outside Utah, every rule comes from the uploaded documents.
 
 Which Utah REPC is in use: follow `utah-repc.md` and `utah-repc-2026.md`. The "Revisions are pending" note in `utah-forms-and-counters.md` was written before the Utah Association of REALTORS reported the Attorney General's approval (checked 2026-11-08: https://utahrealtors.com/realtor/review-of-repc-updates-and-changes-to-related-forms/). Its counteroffer mechanics still apply. For a contract on the November 1, 2026 form, Acceptance needs the signed document to be "Received" (Sections 22 and 23 of that form), not "communicated."

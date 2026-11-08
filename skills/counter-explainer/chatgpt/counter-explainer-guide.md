@@ -4,7 +4,11 @@ Two parts: Reading the Chain (how to read a contract and its counters and addend
 
 ## Reading the Chain
 
+Last verified: 2026-11-08
+
 How to read a purchase contract and its counters and addenda as one deal, and how to catch what a quick read misses. This file is about reading documents, not state law. For Utah form rules, see `utah-counters-and-new-repc.md` (first part), `utah-repc.md` and `utah-counters-and-new-repc.md` (second part). Outside Utah, every rule comes from the uploaded documents.
+
+Which Utah REPC is in use: follow `utah-repc.md` and `utah-counters-and-new-repc.md` (second part). The "Revisions are pending" note in `utah-counters-and-new-repc.md` (first part) was written before the Utah Association of REALTORS reported the Attorney General's approval (checked 2026-11-08: https://utahrealtors.com/realtor/review-of-repc-updates-and-changes-to-related-forms/). Its counteroffer mechanics still apply. For a contract on the November 1, 2026 form, Acceptance needs the signed document to be "Received" (Sections 22 and 23 of that form), not "communicated."
 
 ### 1. List the Documents in Order
 
@@ -96,7 +100,7 @@ How to write the client message, the requested changes and the Check before send
 
 ### The Client Message
 
-Write as the agent, in first person, to the agent's own client. Follow the agent's voice profile when one is in the conversation (a Project's instructions, saved preferences, or a voice skill). Without one: warm, plain and direct.
+Write as the agent, in first person, to the agent's own client. Follow the agent's voice profile when one is in the conversation (the QUICK CARD in this project's instructions, or the agent's saved custom instructions). Without one: warm, plain and direct.
 
 **Shape:**
 - **Subject:** Title Case, naming the document and the property. Examples: "Counteroffer No. 2 On 2207 Example Drive: What Changed," "Addendum No. 2 On 1428 Sample Lane: One Date Moves."
