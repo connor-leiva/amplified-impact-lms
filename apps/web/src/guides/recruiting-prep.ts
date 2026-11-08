@@ -46,13 +46,13 @@ export const RECRUITING_PREP: Guide = skillPage({
   meta: {
     title: 'Recruiting Prep: A Free AI Skill · Amplified Impact',
     description:
-      'Upload your recruit list and get it back with the duplicates merged, every agent tiered by production, and a first-touch email for each tier. Or prep one recruiting coffee from a candidate’s production and your own offer. A free skill for Claude and ChatGPT.',
+      'Upload your recruit list and get it back with the duplicates merged and the list tiered by production, plus a first-touch email for each tier. Or prep one recruiting coffee from a candidate’s production. A free skill for Claude and ChatGPT.',
   },
 
   // Non-breaking spaces keep the audience on one line at phone width, as /counter-explainer does.
   eyebrow: 'Free AI Skill · For\u00a0Team\u00a0Leaders\u00a0and\u00a0Recruiters',
   // page-notes.md, "One-Line Promise", with the actor named.
-  lede: 'Upload the recruit list you already have and the AI hands it back clean and tiered by production, with a first message for each tier, or upload one candidate’s production and walk into your recruiting coffee prepared.',
+  lede: 'Upload the recruit list you already have, and the AI hands it back clean and tiered by production, with a first message for each tier. Or upload one candidate’s production and walk into your recruiting coffee prepared.',
   outcome: { n: '03', title: 'Know Who to Call First', body: 'A clean list by tier, drafts you read first, and prep for each coffee.' },
   optInBody:
     'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. There’s a ChatGPT version too. Either one drafts for you and never sends anything.',
@@ -205,7 +205,7 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           p: [
-            { strong: 'Growing angle (your one-pager): ' },
+            { strong: 'Angle (your one-pager, Growing): ' },
             'time back on listings. A listing coordinator who handles photos, launch and listing paperwork, plus a marketing budget for your sphere.',
           ],
         },
@@ -334,7 +334,7 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           title: 'Tiers by production',
-          body: 'Your team’s tiers, your offer document’s levels, or default tiers from your list’s spread, labeled as defaults with the cut points shown. Counts, sides and volume for each. A tracker’s self-reported numbers never set a tier.',
+          body: 'Your team’s tiers, the levels in your value proposition, or default tiers from the spread of production on your list, labeled as defaults with the cut points shown. Counts, sides and volume for each. A tracker’s self-reported numbers never set a tier.',
         },
         {
           title: 'Why now, and owners by tier',
@@ -346,19 +346,19 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           title: 'The organized list',
-          body: 'A CSV, a spreadsheet file: one row per agent, every source row traced, and no notes column.',
+          body: 'A CSV file that opens as a spreadsheet: one row per agent, every source row traced, and no notes column.',
         },
         {
           title: 'For a coffee: a production profile',
-          body: 'The candidate’s last 12 months from their file: sides, volume, listing and buyer split, and average price with the math shown, against the year before.',
+          body: 'The candidate’s last 12 months from their file: sides, volume, listing and buyer split, and average price with the math shown, against the year before when the file has it.',
         },
         {
           title: 'What they likely need, and what to ask',
-          body: 'Needs from your offer document first, quoting the section. Anything else is labeled general guidance. Open discovery questions, and a list of personal topics not to ask about.',
+          body: 'Needs from your value proposition first, quoting the section. Anything else is labeled general guidance. Open discovery questions, and a list of personal topics not to ask about.',
         },
         {
           title: 'Your offer and your terms',
-          body: 'Each likely need against what your document says, or “Not in your documents.” Your split, cap and fees quoted word for word, with no math.',
+          body: 'Each likely need against what your value proposition says, or “Not in your documents.” Your split, cap and fees quoted word for word, when your files or your message state them, with no math.',
         },
         {
           title: 'Objections and a follow-up email',
@@ -410,7 +410,7 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           title: 'Or a ChatGPT plan',
-          body: 'The ChatGPT version goes in a Project, a folder in ChatGPT that keeps instructions and files together. It needs data analysis to merge and tier the list, and ChatGPT’s free plan has data analysis only as “Limited.”',
+          body: 'The ChatGPT version goes in a Project, a folder in ChatGPT that keeps instructions and files together. To merge and tier the list, it needs data analysis, the ChatGPT tool that works with spreadsheets. ChatGPT’s free plan limits data analysis.',
           tag: 'Free ChatGPT limits uploads and data analysis',
         },
         {
@@ -419,17 +419,17 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           title: 'Your recruit list',
-          body: 'An MLS agent production report, a BrokerMetrics, Sisu, GoHighLevel or Follow Up Boss export, or your own tracker. Mixed is fine. Your roster and your value proposition (the page on what your team offers) help, but aren’t needed.',
-          tag: 'Excel, CSV, PDF or Word. Nothing to type.',
+          body: 'An MLS agent production report, a BrokerMetrics, Sisu, GoHighLevel or Follow Up Boss export, or your own tracker. Mixed is fine. Your roster and your value proposition (what your team offers agents, in writing) help, but aren’t needed.',
+          tag: 'Excel, CSV, PDF or Word. Nothing to retype.',
         },
         {
           title: 'Connectors, if you want',
-          body: 'A connector links Claude to another app. With Google Drive or Microsoft 365, Claude can read your offer document there. With Granola, it can read a recruiting meeting’s notes. All read only, Claude only, and not tested yet.',
+          body: 'A connector links Claude to another app. With Google Drive or Microsoft 365, Claude can read your value proposition there. With Granola, Claude can read a recruiting meeting’s notes. All read only, Claude only, and not tested yet.',
           tag: 'Granola transcripts need its Business or Enterprise plan',
         },
         {
           title: 'No extra cost',
-          body: 'Nothing beyond your Claude or ChatGPT plan, and the MLS access or recruiting tool you already use.',
+          body: 'Nothing beyond your Claude or ChatGPT plan and the MLS access or recruiting tool you already use.',
         },
       ],
     },
@@ -504,9 +504,9 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           // page-notes.md, FAQ; references/recruiting-guardrails.md (FTC, 87 FR 13951).
-          q: 'The candidate wants to know what they’d make with us. Can it run the numbers?',
+          q: 'The candidate wants to know what they’d make with us. Can the AI run the numbers?',
           a: [
-            'No, not even from their own production. The FTC’s cases treat earnings claims as material and require a reasonable basis for them, and whether that reaches a team’s recruiting pitch isn’t settled. So the AI stays out of it entirely. It lays out your split, cap and fees word for word, so the candidate can run their own numbers with their own advisor. It also flags any earnings, results or lifestyle claim in your own documents for your broker.',
+            'No, not even from their own production. In the FTC’s cases, a claim about what someone will earn needs a reasonable basis, and whether that reaches a team’s recruiting pitch isn’t settled. So the AI stays out of it entirely. When your files state your split, cap and fees, the AI lays them out word for word, so the candidate can run their own numbers with their own advisor. It also flags any earnings, results or lifestyle claim in your own documents for your broker.',
           ],
         },
         {
@@ -523,21 +523,21 @@ export const RECRUITING_PREP: Guide = skillPage({
           // page-notes.md, FAQ (Bay East 12.11.1; MLS Now Rule 7.3).
           q: 'Can I upload my MLS’s production report?',
           a: [
-            'Check your MLS’s rules first. They vary. Bay East’s MLS rules expressly allow using MLS information to recruit agents to another brokerage. MLS Now’s rules bar giving MLS information to software vendors or online AI tools without a separate license. The AI flags this every time. Your broker can help you read your MLS’s rules.',
+            'Check your MLS’s rules first. They vary. Bay East’s MLS rules expressly allow using MLS information to recruit agents to another brokerage. MLS Now’s rules bar giving MLS information to software vendors or online AI tools without a separate license. The AI flags this whenever a file comes from your MLS. Your broker can help you read your MLS’s rules.',
           ],
         },
         {
           // page-notes.md, FAQ.
           q: 'We don’t have tiers or a value proposition.',
           a: [
-            'That’s fine. The AI builds default tiers from your own list’s spread and labels them as defaults. The drafts get a blank for your offer, and every line about what a candidate needs is labeled general guidance. Tell the AI your tiers, or upload your offer, and it redoes them in the same chat.',
+            'That’s fine. The AI builds default tiers from the spread of production on your own list and labels them as defaults. The drafts get a blank for your offer, and every line about what a candidate needs is labeled general guidance. Tell the AI your tiers, or upload your value proposition, and the AI redoes them in the same chat.',
           ],
         },
         {
           // page-notes.md, "What You Need" and "What Was and Wasn't Tested".
           q: 'Which plan do I need, and what was tested?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project with data analysis, which the free plan limits. We tested the skill in Claude, on made-up lists. We haven’t tried it on Claude’s free plan, inside ChatGPT, or on a real MLS, BrokerMetrics, Sisu or GoHighLevel export yet. So run the practice files first, and the first time you use your own list, check “What was merged” against your file.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, you need a paid plan. In ChatGPT, a Project with data analysis. Free ChatGPT has limits on uploads and data analysis. We tested the skill in Claude, on made-up lists. We haven’t tried it on Claude’s free plan, inside ChatGPT, on a real export from an MLS or a recruiting tool, or on a list over a few hundred rows yet. So run the practice files first, and the first time you use your own list, check “What was merged” against your file.',
           ],
         },
       ],
