@@ -61,7 +61,7 @@ For each item:
 
 - Read each bid against its item: scope, amount, options, exclusions, license number shown, valid-until date, earliest start or lead time against the Settlement Deadline, permits.
 - Net impact is the sum of bid amounts for the items the seller would fund, with the arithmetic shown. Items without a bid say "needs bid," stay out of the total, and are counted.
-- Never estimate a cost, a range or a "typical" price. No commission, title or proration math unless a net sheet is uploaded.
+- Never estimate a cost, a range or a "typical" price, and never size an unbid item in words ("expensive," "far more," "a quick fix"); say it has no bid. No commission, title or proration math unless a net sheet is uploaded.
 - If the contract already has a seller contribution, show what a new credit makes the total. The buyer's lender confirms the cap; don't state one.
 
 ## 6. Recommend a Response by the Seller's Priority

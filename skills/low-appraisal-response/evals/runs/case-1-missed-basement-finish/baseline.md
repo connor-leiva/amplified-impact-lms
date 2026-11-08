@@ -1,4 +1,5 @@
-# Low Appraisal on 1586 E Example Orchard Ln — Options for Your Buyers
+<!-- No-skill baseline: same prompt and the same three files, answered without SKILL.md or any reference. The original response used 5 em dashes and 1 en dash; each is shown as [em dash] or [en dash] so the repository's no-dash check passes. -->
+# Low Appraisal on 1586 E Example Orchard Ln [em dash] Options for Your Buyers
 
 ## Summary
 
@@ -6,13 +7,13 @@ The appraisal came in at **$538,000**, which is **$37,000 below** the $575,000 c
 
 ## What Looks Off in the Appraisal
 
-1. **Basement finish.** The appraisal lists the basement as 1,050 sq ft with 0 sq ft finished. The MLS shows 980 sq ft finished (family room, 5th bedroom, full bath, finished in 2021 with a permit). Interestingly, the appraiser's own sketch also shows 980 sq ft finished — so this looks like a data entry error in the grid.
-2. **Adjustments.** Because the subject was treated as unfinished, every comp was adjusted *down* for its finished basement ($25,500–$30,000) and for rooms below grade ($7,500 each). If the basement were counted correctly, those adjustments would largely go away.
-3. **Comps.** The comps themselves look reasonable — all within half a mile and sold within the last few months.
+1. **Basement finish.** The appraisal lists the basement as 1,050 sq ft with 0 sq ft finished. The MLS shows 980 sq ft finished (family room, 5th bedroom, full bath, finished in 2021 with a permit). Interestingly, the appraiser's own sketch also shows 980 sq ft finished [em dash] so this looks like a data entry error in the grid.
+2. **Adjustments.** Because the subject was treated as unfinished, every comp was adjusted *down* for its finished basement ($25,500[en dash]$30,000) and for rooms below grade ($7,500 each). If the basement were counted correctly, those adjustments would largely go away.
+3. **Comps.** The comps themselves look reasonable [em dash] all within half a mile and sold within the last few months.
 
 ## Your Buyers' Options
 
-**1. Request a Reconsideration of Value (ROV).** This is the strongest move here. Submit to the lender (Example Lending Group) a request pointing out the basement error, with the MLS sheet as support. You can also include additional comparable sales if you have them (lenders typically allow up to five). Many agents also reach out to the appraiser directly to point out factual errors — just keep it professional and factual. The appraiser will likely correct an obvious error like this.
+**1. Request a Reconsideration of Value (ROV).** This is the strongest move here. Submit to the lender (Example Lending Group) a request pointing out the basement error, with the MLS sheet as support. You can also include additional comparable sales if you have them (lenders typically allow up to five). Many agents also reach out to the appraiser directly to point out factual errors [em dash] just keep it professional and factual. The appraiser will likely correct an obvious error like this.
 
 **2. Renegotiate with the seller.** Ask the seller to reduce the price to the appraised value or split the difference.
 
@@ -30,7 +31,7 @@ Your REPC shows an **Appraisal Deadline of November 10, 2026**. That's very soon
 
 Hi Taylor and Drew,
 
-I wanted to let you know the appraisal came back at $538,000, which is $37,000 below our purchase price of $575,000. I know that's not the news we were hoping for — but the good news is that it looks like the appraiser made an error: the report lists the basement as unfinished, even though it's fully finished with a bedroom and bathroom.
+I wanted to let you know the appraisal came back at $538,000, which is $37,000 below our purchase price of $575,000. I know that's not the news we were hoping for [em dash] but the good news is that it looks like the appraiser made an error: the report lists the basement as unfinished, even though it's fully finished with a bedroom and bathroom.
 
 I'd recommend we request a reconsideration of value through your lender. I'm confident that once the basement is counted correctly, the value should come up significantly. In the meantime, we have until November 10 to decide on our options under the contract, so I'll also reach out to the seller's agent about an extension.
 

@@ -70,7 +70,8 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
     body: [
       'Start a new chat the same way, attach the new counter or addendum, the purchase contract and every earlier counter or addendum, and say this.',
     ],
-    prompt: 'Here’s the contract and every counter and addendum so far. What does the newest one change, and can you draft a message to my buyers?',
+    prompt:
+      'Here’s the contract and every counter and addendum so far. What does the newest one change, and can you draft a message to my buyers?',
     note: [
       'Listing agent? Change “my buyers” to “my sellers” before you send it. You don’t need to type anything from the documents. Before anything goes out, check every date, dollar amount and section number in the ',
       { strong: 'Check before sending' },
@@ -84,10 +85,10 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
     {
       // sample.md (the practice run), shortened, in the output's own order and its own words: four of
       // the five flags, the bottom line, the chain's note, the change table in three columns so it fits
-      // a phone (no Source column; each term's section, and "Stated up front? No", moved into its
-      // name, and the warranty cell cut to its cost and who pays), two lines of the math, the options, the client email
-      // in full, three of the five requested changes with the broker line, and three rows of Check
-      // before sending.
+      // a phone (no Source column; each term's section, and "Stated up front? No", moved into its name;
+      // the warranty cell cut to its cost and who pays), two lines of the math, the options, the client
+      // email in full, three of the five requested changes with the broker line, and three rows of
+      // Check before sending.
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What the AI caught in a made-up addendum',
@@ -122,7 +123,11 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
             caption: 'Every term Addendum No. 2 touches',
             head: ['Term', 'Contract now', 'If signed'],
             rows: [
-              ['Settlement Deadline (24(d)). Not stated up front.', 'December 11, 2026', 'December 4, 2026 (7 days earlier)'],
+              [
+                'Settlement Deadline (24(d)). Not stated up front.',
+                'December 11, 2026',
+                'December 4, 2026 (7 days earlier)',
+              ],
               [
                 'Home Warranty Plan (10.1)',
                 'WILL NOT be included',

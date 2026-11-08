@@ -37,12 +37,13 @@ Written as the agent, in first person, to the seller. Warm, plain and direct. Fo
 - Open with a bolded bottom line: the recommendation, what it costs from bids, and the decision needed and by when (a time before the buyer's request lapses or the Due Diligence Deadline, whichever is first)
 - **What They Asked For:** one or two sentences (how many items, what kinds)
 - **What I Recommend:** the items to agree to and the items to push back on, one sentence each, with the reason in property terms
-- **What It Costs:** bid amounts only; name the items that still need bids
+- **What It Costs:** bid amounts only; name the items that still need bids. Never size an unbid item in words ("expensive," "far more," "a quick fix"), here or in Your Options
 - **Your Options:** two or three, one line of tradeoff each
 - **One More Thing:** one plain sentence that what the inspection found is now known, so if this sale doesn't close, it goes on the disclosure for the next buyer
 - **Next Step:** what you need from the seller and by when
 - Under 300 words, short paragraphs, no em dashes. Count the words before you finish; if it runs long, cut What I Recommend down to the decisions and drop any reason the bottom line already gives
 - Never characterize the buyers ("picky," "unreasonable," "first-timers"). Describe the request and the house.
+- Say an item was visible at showings only when a document or the agent says so; the item table's "agent to confirm" stays out of the email
 - None of "stunning," "dream home," "don't hesitate to reach out"
 - Sign with the user's name if known; otherwise [Agent Name]
 

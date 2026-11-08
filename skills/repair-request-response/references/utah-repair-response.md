@@ -14,7 +14,7 @@ Read the footer on the last page of the uploaded REPC.
 | "EFFECTIVE NOVEMBER 1, 2026. AS OF JANUARY 1, 2027, IT WILL REPLACE AND SUPERSEDE THE PREVIOUSLY APPROVED VERSION OF THIS FORM." | Section 12.1 (applies only if box 3(a) is checked) | Section 4: (a) Seller Disclosure, (b) Due Diligence, (c) Appraisal, (d) Financing, (e) Settlement, (f) Possession | 2.2 and 8.3(c) seller's contribution to closing costs; 2.3 home warranty; 13.1 buyer's "As-Is" acknowledgment; 13.2 seller's acknowledgments; 14 walk-through; 15.1 no substantial alterations without the buyer's written consent; 17 complete contract; 22 notices (defines "Received"); 23 acceptance; 25 time is of the essence |
 
 - On 2026-11-08 the Division of Real Estate's State Approved Forms page still linked the December 4, 2024 form, and the Utah Association of REALTORS posted the November 1, 2026 form. Until January 1, 2027, either may be in a file. Name the version in the output and use its section numbers.
-- `utah-repc.md` explains the December 4, 2024 form in detail. For the November 1, 2026 form, use the section numbers in the table above.
+- `utah-repc.md` explains the December 4, 2024 form in detail, and `utah-repc-2026.md` explains the November 1, 2026 form and what changed. Use the section numbers in the table above for whichever form is uploaded.
 - Any other footer (an older REPC, a builder's or attorney's contract): read every deadline and remedy from that contract and confirm with the broker.
 
 ## There Is No Response Period in Either Current Form

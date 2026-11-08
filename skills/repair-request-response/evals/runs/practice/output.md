@@ -108,13 +108,13 @@ Hi Toni and Sam,
 
 **My recommendation: fix the three small safety items, give a $1,240 credit for the roof instead of a new roof, offer to clean and cover the east window well, and say no to the carpet. That keeps your December 4 closing on track. I'd like your OK by Tuesday so we can answer before the buyer's request expires at 5:00 PM on Wednesday, November 11.**
 
-**What They Asked For:** Six items: a new roof, the deck stair railing, the garage door safety reverse, waterproofing the east basement wall, a pipe on the water heater relief valve, and new basement carpet.
+**What They Asked For:** Six items, from a new roof and basement waterproofing to new basement carpet.
 
 **What I Recommend:**
-- Yes: the railing, the garage door and the water heater pipe, all quick safety fixes.
+- Yes: the railing, the garage door and the water heater pipe, which the inspector rated as safety items.
 - Roof: the inspector recommended a repair, not a new roof. Your roofer can't start until November 30, after the buyer's completion date, so a credit for the repair price is cleaner.
 - Basement: the wall was dry, and you disclosed the 2021 water. Let's offer what the inspector recommended: a clear window well drain and a cover.
-- Carpet: no. It's cosmetic and was in plain view.
+- Carpet: no. The inspector noted a stain, which is cosmetic.
 
 **What It Costs:** $1,240 for the roof credit. I'll get prices on the small repairs and the window well cover.
 
