@@ -148,11 +148,14 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
       // words, cut only by whole items, rows, columns and sentences: the bottom line; High Risk with five
       // of six red flags, the verify line, what not to do and what was drafted; all four Needs You Today
       // items, each cut to its first sentences; both promises and the kept one; two delegations by role
-      // and two more as one-liners; the commitments tables (Jordan's three rows in three columns, five of
-      // the team's ten rows in three columns) with the private line and two of the notes; two of five
-      // Waiting On Others rows without the Due column; six of the skipped counts; Drafts 1, 2 and 20 of
-      // 21; three lines of Check Before Sending; and the Covered through line. Headings in sentence case,
-      // as on every skill page. The recap's hyphen bullets are its lines, one paragraph each.
+      // and two more as one-liners; the commitments tables (Jordan's three rows, five of
+      // the team's ten rows) with the private line and two of the notes; two of five Waiting On Others
+      // rows; six of the skipped counts; Drafts 1, 2 and 20 of 21; three lines of Check Before Sending;
+      // and the Covered through line. Drawn to read on a phone without hiding a column: every table has
+      // two columns, with the timing words in brackets after the due date (the team's first one where
+      // a row has two), the owner in front of the commitment, and the due date in the status. Headings
+      // in sentence case, as on every skill page. The recap's hyphen bullets are its lines, one
+      // paragraph each.
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a morning pass looks like',
@@ -270,18 +273,16 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         {
           table: {
             caption: 'Yours (Jordan)',
-            head: ['Commitment', 'Due', 'Timing words'],
+            head: ['Commitment', 'Due'],
             rows: [
-              ['Decide on the dialer renewal', 'Today, Thu, Nov 5', '“by tomorrow”'],
+              ['Decide on the dialer renewal', 'Today, Thu, Nov 5 (“by tomorrow”)'],
               [
                 'Call the Exampleberg sellers about the price feedback on Creek Way',
                 'Today, Thu, Nov 5 (you said “this week”; Pat asked for “tomorrow”)',
-                '“this week”',
               ],
               [
                 'Ask Casey whether the HOA resale certificate is in before the relaunch',
                 'Wed, Nov 11 (rule: no date given)',
-                'none given',
               ],
             ],
           },
@@ -295,17 +296,16 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         {
           table: {
             caption: 'Your team (5 of 10)',
-            head: ['Commitment', 'Owner', 'Due'],
+            head: ['Owner and commitment', 'Due'],
             rows: [
-              ['Send Jordan the pending list with anything at risk', 'Casey Mockridge', 'Today, Thu, Nov 5, noon'],
-              ['Send the updated vendor list to all agents', 'Devon Testerly', 'Fri, Nov 6'],
+              ['Casey Mockridge: send Jordan the pending list with anything at risk', 'Today, Thu, Nov 5, noon (“by noon tomorrow”)'],
+              ['Devon Testerly: send the updated vendor list to all agents', 'Fri, Nov 6 (“by Friday”)'],
               [
-                'Pull leads with no appointment set in the last 30 days from Follow Up Boss',
-                'Priya Exampleton',
-                'Mon, Nov 9, morning',
+                'Priya Exampleton: pull leads with no appointment set in the last 30 days from Follow Up Boss',
+                'Mon, Nov 9, morning (“by Monday morning”)',
               ],
-              ['Send the sellers the launch timeline', 'Ben Sampleton', 'Wed, Nov 4 (overdue)'],
-              ['Get the listing video live', 'Mara Demoville', 'Tue, Nov 10'],
+              ['Ben Sampleton: send the sellers the launch timeline', 'Wed, Nov 4, overdue (“today,” then “tonight”)'],
+              ['Mara Demoville: get the listing video live', 'Tue, Nov 10 (“by Monday,” then “make it Tuesday”)'],
             ],
           },
         },
@@ -325,14 +325,13 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         {
           table: {
             caption: 'Two of five',
-            head: ['What', 'Who', 'Status'],
+            head: ['Who owes what', 'Status'],
             rows: [
               [
-                'Two slides on preapproval for the November 12 buyer seminar',
-                'Marcus Loanley, Sample Summit Mortgage',
-                'Overdue. Draft 19.',
+                'Marcus Loanley, Sample Summit Mortgage: two slides on preapproval for the November 12 buyer seminar',
+                'Overdue (due Mon, Nov 2). Draft 19.',
               ],
-              ['Three quotes for new yard signs', 'Devon Testerly', 'Not due.'],
+              ['Devon Testerly: three quotes for new yard signs', 'Not due (Fri, Nov 6).'],
             ],
           },
         },
@@ -482,7 +481,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
         {
           label: 'Own',
           title: 'Always yours',
-          body: 'Every decision in Needs you today, and every message that goes out, including its fair housing check. Anything touching wire or banking details, money approvals, and any decision about a person. Claude never sends, deletes, archives or labels anything, or answers an invite.',
+          body: 'Every decision in “Needs you today,” and every message that goes out, including its fair housing check. Anything touching wire or banking details, money approvals, and any decision about a person. Claude never sends, deletes, archives or labels anything, or answers an invite.',
         },
       ],
     },
@@ -608,7 +607,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
           a: [
             'It goes to the top as High risk, with the red flags Claude found and the words ',
             { strong: 'verify by phone with title at a number you already have' },
-            '. That means a number you already have, never the number or link in the email. Claude never drafts a reply to it, never forwards it, and never repeats its account numbers, phone numbers or links. Claude drafts only an alert for your transactions team and the agent on the file, and, for you to choose, a short heads-up for the client: don’t wire money based on any email. An emailed change to an agent’s commission deposit is handled the same way. If money may already have moved, Claude says to call the bank now and ask for a wire recall, call title at the number you already have, and file at ic3.gov.',
+            '. That means a number from your own records, like the title company’s opening package, never the number or link in the email. Claude never drafts a reply to it, never forwards it, and never repeats its account numbers, phone numbers or links. Claude drafts only an alert for your transactions team and the agent on the file, and, for you to choose, a short heads-up for the client: don’t wire money based on any email. An emailed change to an agent’s commission deposit is handled the same way. If money may already have moved, Claude says to call the bank now and ask for a wire recall, call title at the number you already have, and file at ic3.gov.',
           ],
         },
         {
@@ -637,7 +636,7 @@ export const INBOX_MEETING_FOLLOW_THROUGH: Guide = skillPage({
           // page-notes.md, "What It Won't Do"; SKILL.md steps 3 and 5 and Guardrails.
           q: 'What won’t it do?',
           a: [
-            'Claude won’t work your leads or run your transaction file. Follow Up Boss or your CRM does the first, and your transactions team the second. So lead emails go to your ISA, and contract and lender emails go to transactions. Contract, legal and compliance questions go to your broker. Claude won’t make up a team policy: it leaves a [policy answer] blank. Claude keeps an agent’s private matters (health, family, pay, performance) out of every draft and recap. It never repeats what a lead says about the kind of neighbors they want.',
+            'Claude won’t work your leads or run your transaction file. Follow Up Boss or your CRM does the first, and your transactions team the second. So lead emails go to your ISA, and contract and lender emails go to transactions. Contract, legal and compliance questions go to your broker. Claude won’t make up a team policy: it leaves a [policy answer] blank. Claude keeps an agent’s private matters (health, family, pay, performance) out of every draft and recap, and never repeats what a lead says about the kind of neighbors they want.',
           ],
         },
       ],

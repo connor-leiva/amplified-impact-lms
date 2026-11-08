@@ -6,7 +6,8 @@ guaranteed payments. Everything here is made up.
   python3 -I evals/make/classifier_check.py SKILL_DIR SCRATCH_DIR
 
 Extracts the code from references/analysis-code.md into SCRATCH_DIR, checks 25 account names, then runs
-the code end to end on a small made-up P&L and checks the categories, the totals and two flags.
+the code end to end on a small made-up P&L and checks the categories, the totals and two flags, and runs
+the same P&L with the latest month first (month-end headers) to check the months are read in calendar order.
 Prints PASS or the failures.
 """
 import csv
@@ -96,7 +97,20 @@ def main():
         fails.append("end to end: totals check did not pass")
     if "company dollar = 180,000.00 - 108,000.00 - 0.00 - 900.00 = 71,100.00" not in md:
         fails.append("end to end: period company dollar is not 71,100.00 (revenue share or the transaction fee was misread)")
-    print("PASS: %d account names and the end-to-end run" % len(CASES) if not fails else "FAIL\n" + "\n".join(fails))
+    # The same P&L with the latest month first and month-end headers, as a comparison layout (Xero's Compare with)
+    # can export it: the run must read the months in calendar order.
+    hdr = {"Jan 2026": "31 Jan 2026", "Feb 2026": "28 Feb 2026", "Mar 2026": "31 Mar 2026"}
+    rev = [r if len(r) < 5 else [r[0]] + [hdr.get(c, c) for c in r[1:4]][::-1] + [r[4]] for r in PNL]
+    src2 = scratch / "made-up-pnl-latest-first.csv"
+    with src2.open("w", newline="", encoding="utf-8") as f:
+        csv.writer(f).writerows(rev)
+    out2 = scratch / "made-up-run-latest-first"
+    subprocess.run([sys.executable, str(code), str(src2), "--out", str(out2)], check=True, capture_output=True)
+    md2 = (out2 / "pnl_report.md").read_text(encoding="utf-8")
+    for want in ("### Mar 2026 Against Feb 2026", "### Year to Date (Jan 2026 to Mar 2026)", "= 71,100.00"):
+        if want not in md2:
+            fails.append(f"latest-month-first layout: '{want}' missing")
+    print("PASS: %d account names, the end-to-end run and the latest-month-first layout" % len(CASES) if not fails else "FAIL\n" + "\n".join(fails))
 
 
 if __name__ == "__main__":

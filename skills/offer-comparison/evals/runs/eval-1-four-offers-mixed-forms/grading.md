@@ -38,5 +38,4 @@ Run: `output.md`, following SKILL.md 1.0 on the nine files in `evals/files/case-
 First draft fixes, before this grade:
 - The seller email asked for "a call before noon Monday." Noon isn't in any file; changed to "before Monday at 3:00 PM, when A expires."
 - The email said D "is missing pages"; changed to "one page of their contract is missing."
-
-No skill change was needed for this case.
+- The email said "I've asked for current proof" before any request was sent; changed to "I'll ask for current proof today." The same slip showed up in eval 2, so SKILL.md step 7 now forbids claiming a request already went out.

@@ -23,7 +23,7 @@ Run: `output.md`, following SKILL.md 1.0 on the six files in `evals/files/case-2
 
 | Check | Result |
 |---|---|
-| Every number in the output appears in the inputs | PASS. 23 numbers aren't literal in the inputs; each is shown arithmetic: day counts (33, 37, 41, 70), percentages of price (15,360; 15,240; 12,800; 10,160; 4,000; 2,500), estimated nets (190,890; 195,650), differences (5,850; 1,090; 8,000 is in the inputs; 7,200), down payments (101,000; 51,200; 50,800), prices after concessions (502,000; 506,000) and prices less seller-paid amounts (491,900; 493,200; 497,840) |
+| Every number in the output appears in the inputs | PASS. 23 numbers aren't literal in the inputs; each is shown arithmetic: day counts (33, 37, 41, 70), percentages of price (15,360; 15,240; 12,800; 10,160; 4,000; 2,500), estimated nets (190,890; 195,650), differences (5,850; 1,090; 7,200), down payments (101,000; 51,200; 50,800), prices after concessions (502,000; 506,000) and prices less seller-paid amounts (491,900; 493,200; 497,840) |
 | Deadlines match the uploaded contracts | PASS. Every 4(a) to 4(e) date and every Section 30 time matches its offer's page 1 and page 7 |
 | No em or en dashes | PASS (0) |
 | Title Case subject lines | PASS (1 of 1) |
@@ -35,8 +35,8 @@ Run: `output.md`, following SKILL.md 1.0 on the six files in `evals/files/case-2
 
 ## What Changed After Grading
 
-- The seller email first said "I've asked C's agent for an updated letter." Nothing had been sent; changed to "I'll ask ... today." (Same fix made in eval 1's email.)
+- The seller email first said "I've asked C's agent for an updated letter." Nothing had been sent; changed to "I'll ask ... today." The same slip was in eval 1's email, so it is a skill fix: SKILL.md step 7 now says the email makes "no claim that a request already went out ("I'll ask," not "I've asked")." The practice run and eval 3 were run after this change.
 - A question to Offer A's agent offered "[possession terms] if Robin needs time after Recording." Robin never said she needs time; replaced with a question about the $3,000 contribution.
 - The expectation on held lines named the $281,600 payoff; reworded to "the payoff estimate" because the skill keeps the seller's payoff figure on the net sheet rather than repeating it.
 
-No skill change was needed for this case.
+

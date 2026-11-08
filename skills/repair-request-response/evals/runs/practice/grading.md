@@ -43,3 +43,7 @@ The first pass's seller email ran 313 words, over the 300-word limit. `reference
 ## Reviewer Changes (2026-11-08)
 
 The independent review (`review-grading.md`) edited this output and `sample.md`: unbid items are no longer sized as "small," and the "Visible at showings" column no longer says "No" without support. The skill now says how to fill that column (SKILL.md step 4). The objective checks were rerun on the edited output: 9 of 9.
+
+## Review note, 2026-11-08 (integration)
+
+The practice output listed the stained basement carpet (page 10, item 10.1) under "Not requested", but it is the buyer's item 6 on Addendum No. 2. The line now lists only the furnace filter and the driveway cracks, in output.md and sample.md.

@@ -82,7 +82,7 @@ For the agent and the sellers' file. The sellers now know what this report found
 - Loose deck stair guardrail (page 4, item 4.2); garage door that didn't reverse on contact (page 4, item 4.3); no relief valve discharge pipe (page 8, item 8.3)
 - Efflorescence on the east foundation wall, dry at inspection (page 5, item 5.3); east window well without a cover and debris over its drain (page 2, item 2.3). The 2021 water event is already disclosed (page 1, item 2a)
 - Not requested, and **found only in the body of the report, not in its summary:** rodent droppings near the attic hatch and along the north eave, no live activity (page 9, item 9.2). The disclosure answered "No" to known pests (page 2, item 4a), signed October 20, 2026, before this November 2 inspection.
-- Not requested: dirty furnace filter (page 7, item 7.3); driveway shrinkage cracks (page 2, item 2.2); stained basement carpet (page 10, item 10.1)
+- Not requested: dirty furnace filter (page 7, item 7.3); driveway shrinkage cracks (page 2, item 2.2)
 
 If this sale doesn't close, the sellers' disclosures to the next buyer must reflect any material defect they now know about, including the rodent evidence. Repairs finished with paid invoices can be disclosed as repaired. In Utah this follows from REPC Section 10.3(a), Mitchell v. Christensen (2001 UT 80), and R162-2f-401a(1)(d), which keeps a known material defect outside a listing agent's confidentiality. Which items count as material is your broker's call; legal questions go to a real estate attorney.
 

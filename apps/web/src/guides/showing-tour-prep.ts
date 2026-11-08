@@ -75,7 +75,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
     prompt: 'Here are the MLS sheets for my showings tomorrow. Prep me and make a tour sheet I can hand my buyers.',
     // SKILL.md, sections 1 and 6 (criteria and the buyer agreement), and section 10, item 7.
     note: [
-      'Add the tour time and your buyers’ must-haves to the message, or paste your Follow Up Boss note, and the AI checks each home against them. Say whether your buyer agreement is signed. Before anything goes out, check every price, date, size and fee in the ',
+      'Add the tour time and your buyers’ must-haves to the message, or paste your Follow Up Boss note. The AI checks each home against them. Tell the AI if your buyer agreement is signed. Before anything goes out, check every price, date, size and fee in the ',
       { strong: 'Check before sending' },
       ' list against the MLS sheets.',
     ],
@@ -117,13 +117,14 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
         { h: 'Tour at a glance' },
         {
           table: {
-            caption: 'Tour at a glance, 3 of its 11 columns',
+            caption: '3 of its 11 columns',
             head: ['Home', 'Price', 'Above grade / basement sq ft'],
             rows: [
-              ['1. Murray', '$379,900', '1,320 / no basement (2nd floor unit)'],
-              ['2. Sandy', '$489,900', '1,220 / 1,180 (60% finished)'],
-              ['3. Spanish Fork', '$624,900', '2,410 / 1,205 (0% finished)'],
-              ['4. West Jordan', '$575,000', '1,560 / 1,040 (100% finished)'],
+              // A no-break space after each number, so it never sits alone on a line at 390 pixels.
+              ['1.\u00a0Murray', '$379,900', '1,320 / no basement (2nd floor unit)'],
+              ['2.\u00a0Sandy', '$489,900', '1,220 / 1,180 (60% finished)'],
+              ['3.\u00a0Spanish Fork', '$624,900', '2,410 / 1,205 (0% finished)'],
+              ['4.\u00a0West Jordan', '$575,000', '1,560 / 1,040 (100% finished)'],
             ],
           },
         },
@@ -165,7 +166,8 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
             'From your list: Meets: bedrooms, baths, 2-car garage, under $600,000, HOA under $250. Check: garden space, the HOA’s rental rules.',
           ],
         },
-        { p: ['Notes: ____________________   My rating: 1  2  3  4  5'] },
+        // No-break spaces hold the rating scale together, so it wraps as one piece, never after the 1.
+        { p: ['Notes: ____________________ My\u00a0rating:\u00a0 1\u00a0 2\u00a0 3\u00a0 4\u00a0 5'] },
         {
           p: [
             'Questions about schools, safety, flood zones or the area: the school district, the local police department and FEMA’s flood maps are the official sources, and I’m glad to help you find them.',
@@ -289,7 +291,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
         },
         {
           title: 'MLS sheets, as PDFs',
-          body: 'The agent version of your MLS report for each home, with agent remarks and showing instructions. One PDF per home, or one PDF with every home. A client version works, but your agent-only page will be thin.',
+          body: 'The agent version of your MLS report for each home, with agent remarks and showing instructions. One PDF per home, or one PDF with every home. A client version works too, but your agent-only page will have less on it.',
           tag: 'Required, from your MLS',
         },
         {
@@ -363,7 +365,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
           // SKILL.md, sections 2 and 8; page-notes.md's FAQ and "Privacy".
           q: 'Will my buyers see the private remarks or the lockbox codes?',
           a: [
-            'Not on the tour sheet. Agent remarks, showing instructions, occupancy, and owner or tenant names and phone numbers go only on your agent-only page. Lockbox, gate and alarm codes aren’t repeated anywhere, not even on your page, which says “code is on the MLS sheet; not repeated here.” If the private remarks hold something your buyers should know, like a special assessment, your page says so and suggests asking the listing agent for the document and checking with your broker on how to share it. Your uploaded MLS sheets still hold everything, so share the tour sheet, never the chat.',
+            'Not on the tour sheet. Agent remarks, showing instructions, occupancy, and owner or tenant names and phone numbers go only on your agent-only page. Lockbox, gate and alarm codes aren’t repeated anywhere, not even there. Your page just says “code is on the MLS sheet; not repeated here.” If the private remarks hold something your buyers should know, like a special assessment, your agent-only page says so. It suggests you ask the listing agent for the document and check with your broker on how to share it. Your uploaded MLS sheets still hold everything, so share the tour sheet, never the chat.',
           ],
         },
         {
