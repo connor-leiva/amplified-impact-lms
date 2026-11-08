@@ -235,6 +235,17 @@ export function check(name) {
   for (const ref of new Set(text.match(/references\/[\w.-]+\.md/g) ?? [])) {
     if (!shipped.has(ref)) err(`SKILL.md names ${ref}, which the skill does not ship`);
   }
+  // A shipped reference that points to a shared one by name ("use `utah-repc-2026.md` instead") must
+  // ship it too, or the pointer leads nowhere inside the installed skill.
+  const shared = new Set(existsSync(SHARED_DIR) ? readdirSync(SHARED_DIR).filter((f) => f.endsWith('.md')) : []);
+  for (const entry of p.skill.entries) {
+    if (!entry.path.endsWith('.md')) continue;
+    for (const [, named] of readFileSync(entry.abs, 'utf8').matchAll(/`([\w.-]+\.md)`/g)) {
+      if (shared.has(named) && !shipped.has(`references/${named}`)) {
+        err(`${entry.path.slice(name.length + 1)} names ${named}, a shared reference the skill does not ship: add it to skill.json shared`);
+      }
+    }
+  }
   const all = [
     ...p.skill.entries,
     ...(p.chatgpt?.entries ?? []),
