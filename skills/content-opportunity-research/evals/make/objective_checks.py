@@ -45,7 +45,7 @@ def main(argv):
     date_parts = {part.lstrip("0") or "0" for d in dates for part in d.split("-")} | {part for d in dates for part in d.split("-")}
 
     print(f"Output: {out_path}")
-    dashes = [c for c in text if c in "–—"]
+    dashes = [c for c in text if c in (chr(0x2013), chr(0x2014))]
     print(f"- em or en dashes: {len(dashes)}")
 
     found_dates = re.findall(r"\d{4}-\d{2}-\d{2}", text)
@@ -82,7 +82,7 @@ def main(argv):
         print(f"- bottom line sentences: {len(sentences)}")
     if token:
         print(f"- token repeated in output: {'YES' if token in text else 'no'}")
-    print(f"- PRACTICE label on the first line after the title: {'yes' if re.search(r'^# .+\n\n\*\*PRACTICE:', text) else 'no'}")
+    print(f"- PRACTICE label on the first line after the title: {'yes' if re.search(r'^# .+\n\n\*\*PRACTICE:', text, re.M) else 'no'}")
     return 0
 
 

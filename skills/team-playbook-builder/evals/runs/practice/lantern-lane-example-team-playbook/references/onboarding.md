@@ -9,7 +9,7 @@ Most of this file comes from the onboarding checklist dated June 3, 2024, more t
 ## Week 1
 
 - Sign the independent contractor agreement with Make-Believe Realty Group (owner: Managing Broker; Day 1). (Source: Onboarding Checklist, Week 1; dated June 3, 2024)
-- Office access: the Director of Operations sets it up on Day 1. (Source: Onboarding Checklist, Week 1; dated June 3, 2024)
+- Office access (owner: Director of Operations; Day 1). The door code isn't in this playbook; ask the Director of Operations. (Source: Onboarding Checklist, Week 1; dated June 3, 2024)
 - Get your Follow Up Boss login (Director of Operations; Day 2). (Source: Onboarding Checklist, Week 1; dated June 3, 2024)
 - Join the Slack channels #leads, #transactions, #marketing and #ops (Director of Operations; Day 2). (Source: Onboarding Checklist, Week 1; dated June 3, 2024)
 - Get MLS access and an electronic lockbox key (Director of Operations; Day 3). (Source: Onboarding Checklist, Week 1; dated June 3, 2024)
