@@ -12,13 +12,20 @@
 export const TOOLS = { claude: 'Claude', chatgpt: 'ChatGPT' } as const;
 export type Tool = keyof typeof TOOLS;
 
-/** What a resource is about, or what kind of thing it is. In this order on the page. */
+/**
+ * What a resource is about, or what kind of thing it is. In this order on the page. A topic shows only
+ * when a card uses it, and a new one is added only when several cards would (D-052): the buyer side,
+ * the listing side and contracts each have six or more skills.
+ */
 export const TOPICS = {
   skills: 'Claude Skills',
   setup: 'Setup',
   prompts: 'Copy and Paste Prompts',
   content: 'Content',
   'team-ops': 'Team Ops',
+  buyers: 'Buyer Side',
+  listings: 'Listing Side',
+  contracts: 'Contracts and Offers',
 } as const;
 export type Topic = keyof typeof TOPICS;
 

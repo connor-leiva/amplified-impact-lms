@@ -25,6 +25,7 @@
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { App } from '../app';
+import { GUIDE_ALIASES, GUIDE_SLUGS } from './guide-list';
 
 /**
  * Paths that reach their real handler on the marketing host rather than the placeholder.
@@ -45,6 +46,9 @@ import type { App } from '../app';
  * other words someone would type for it (`routes/library.ts` 301s both). `/terms` and `/privacy`
  * because the waitlist on it links to them, and a visitor on www must land on the page, not on the
  * placeholder (`routes/legal.ts`).
+ * Built from `GUIDE_SLUGS` and `GUIDE_ALIASES` (D-052), so a guide added there is public on www with
+ * nothing more to edit, and matched exactly like the rest.
+ *
  * `/api/` because the health check lives there — Railway's probe arrives with its own `Host` and a
  * redirect would fail a deploy that is perfectly healthy — and so does the waitlist the page posts to.
  *
@@ -58,8 +62,21 @@ import type { App } from '../app';
  * and so does `/terms-old`. The sprint's calendar file, `/ai101/carousel-sprint.ics`, is a file, so it
  * passes on its own.
  */
-const PUBLIC_PREFIX =
-  /^\/((ai101|waitlist|task-sync-starter|ops-time-audit|voice-profile|reel-editor|retool|library|guides|skills)\/?|AI101|ai-101|RETOOL|Retool|terms|privacy)($|\?)|^\/api\//;
+const PUBLIC_PREFIX = exactPaths(
+  // A route answers each of these with and without a trailing slash.
+  ['ai101', 'waitlist', ...GUIDE_SLUGS, 'library', 'guides', 'skills'],
+  // A route answers each of these only as written.
+  ['AI101', 'ai-101', ...Object.values(GUIDE_ALIASES).flatMap((aliases) => (aliases ?? []).map((a) => a.slice(1))), 'terms', 'privacy'],
+);
+
+/**
+ * `^/(a|b|c)/?($|\?)`-shaped: each name exactly, with or without a query string, and a trailing slash
+ * only for `withSlash`; plus `/api/` as a prefix. Names are escaped, so a slug can never widen the match.
+ */
+function exactPaths(withSlash: readonly string[], asWritten: readonly string[]): RegExp {
+  const alt = (names: readonly string[]) => names.map((n) => n.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|');
+  return new RegExp(`^/((${alt(withSlash)})/?|${alt(asWritten)})($|\\?)|^/api/`);
+}
 
 /** The placeholder's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);

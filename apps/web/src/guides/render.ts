@@ -18,7 +18,18 @@
 
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
-import { GUIDES, SHARED, SITE, type Guide, type Handoff, type Inline, type Section, type SetupStep } from './content';
+import {
+  GUIDES,
+  SHARED,
+  SITE,
+  type Guide,
+  type Handoff,
+  type Inline,
+  type OtherApp,
+  type SampleBlock,
+  type Section,
+  type SetupStep,
+} from './content';
 import { UI } from './ui';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -127,6 +138,19 @@ function copyChip(words: string): string {
 }
 
 /**
+ * Longer words to paste (a Project's instructions, D-052): the copy chip's button and script, drawn
+ * as a block that keeps its line breaks. The words are the button's text, so a screen reader hears
+ * what it copies.
+ */
+function copyBlock(words: string): string {
+  return (
+    `<button type="button" class="chip chip-block" data-copy data-toast="${esc(SHARED.copy.copied)}">` +
+    `<span class="visually-hidden">${esc(SHARED.copy.tag)}: </span><span class="chip-block-text" data-copy-text>${esc(words)}</span>` +
+    `<span class="chip-tag" aria-hidden="true">${esc(SHARED.copy.tag)}</span></button>`
+  );
+}
+
+/**
  * On a phone or tablet, the line to finish on a computer. Shown by the CSS on a touch screen only. The button is
  * a `mailto:` with the page's address; `main.ts` opens the share sheet instead where there is one,
  * with what `data-share-*` names.
@@ -140,10 +164,16 @@ function handoff(h: Handoff): string {
   ].join('\n');
 }
 
-/** A setup step's button: the download itself, or a page in Claude, in a new tab. */
+/**
+ * A setup step's button: the download itself, another file saved under its own name (D-052), or a
+ * page in the app, in a new tab.
+ */
 function setupAction(guide: Guide, action: SetupStep['action']): string {
   if (action === undefined) return '';
   if (action === 'download') return downloadButton(guide);
+  if (action.download !== undefined) {
+    return `<a class="btn btn-outline" href="${esc(action.href)}" download="${esc(action.download)}">${esc(action.label)}</a>`;
+  }
   return `<a class="btn btn-outline" href="${esc(action.href)}" target="_blank" rel="noopener">${esc(action.label)}</a>`;
 }
 
@@ -159,6 +189,7 @@ function setup(guide: Guide, steps: readonly SetupStep[]): string {
         `<p>${inline(s.body)}</p>`,
         setupAction(guide, s.action),
         s.copy ? copyChip(s.copy) : '',
+        s.copyBlock ? copyBlock(s.copyBlock) : '',
         s.note ? `<p class="setup-note">${inline(s.note)}</p>` : '',
         `</div>`,
         `</li>`,
@@ -168,6 +199,31 @@ function setup(guide: Guide, steps: readonly SetupStep[]): string {
     )
     .join('\n');
   return `<ol class="setup" role="list">\n${items}\n</ol>`;
+}
+
+/**
+ * A skill that also works in ChatGPT (D-052): which app, then that app's steps. Two radio buttons and
+ * CSS (`skills.css`), no script, so it works with JavaScript off and in Safari 13: the inputs come
+ * before the two step lists as their siblings, and `:checked ~` shows one list. Claude is checked to
+ * start. With no CSS at all, both lists show, each under its heading.
+ */
+function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp): string {
+  return [
+    `<div class="apps">`,
+    `<p class="apps-q" id="apps-q">${esc(other.question)}</p>`,
+    `<input class="app-radio" type="radio" name="app" id="app-claude" value="claude" checked aria-describedby="apps-q">`,
+    `<input class="app-radio" type="radio" name="app" id="app-chatgpt" value="chatgpt" aria-describedby="apps-q">`,
+    `<div class="app-switch"><label for="app-claude">${esc(other.claude)}</label><label for="app-chatgpt">${esc(other.chatgpt)}</label></div>`,
+    `<div class="app-setup app-setup-claude">`,
+    `<h3 class="app-heading">${esc(`In ${other.claude}`)}</h3>`,
+    setup(guide, claude),
+    `</div>`,
+    `<div class="app-setup app-setup-chatgpt">`,
+    `<h3 class="app-heading">${esc(`In ${other.chatgpt}`)}</h3>`,
+    setup(guide, other.setup),
+    `</div>`,
+    `</div>`,
+  ].join('\n');
 }
 
 /**
@@ -197,7 +253,7 @@ function optIn(guide: Guide): string {
     `<h2 id="download-heading">${esc(d.heading)}</h2>`,
     `<p>${esc(d.body)}</p>`,
     d.handoff ? handoff(d.handoff) : '',
-    d.setup ? setup(guide, d.setup) : downloadButton(guide),
+    d.setup && d.chatgpt ? appSetups(guide, d.setup, d.chatgpt) : d.setup ? setup(guide, d.setup) : downloadButton(guide),
     `</div>`,
   ]
     .filter(Boolean)
@@ -349,7 +405,43 @@ function section(guide: Guide, s: Section, i: number): string {
     }
     case 'note':
       return `<p class="crosslink">${inline(s.body)}</p>`;
+    case 'sample':
+      return [
+        `<section class="sample" aria-labelledby="${id}">`,
+        `<p class="eyebrow eyebrow-dark">${esc(s.eyebrow)}</p>`,
+        `<h2 id="${id}">${esc(s.heading)}</h2>`,
+        `<p class="lede-dark">${esc(s.body)}</p>`,
+        `<article class="card sample-doc" aria-labelledby="${id}-title">`,
+        `<div class="sample-head"><p class="sample-title" id="${id}-title">${esc(s.title)}</p><p class="note">${esc(s.note)}</p></div>`,
+        ...s.blocks.map((b, j) => sampleBlock(b, `${id}-t${j + 1}`)),
+        `</article>`,
+        `</section>`,
+      ].join('\n');
   }
+}
+
+/**
+ * One piece of a sample. A table sits in a region that scrolls sideways on a phone; the region is
+ * focusable, named by the table's caption, so a keyboard can scroll it too.
+ */
+function sampleBlock(b: SampleBlock, id: string): string {
+  if ('h' in b) return `<h3 class="sample-h">${esc(b.h)}</h3>`;
+  if ('p' in b) return `<p class="sample-p">${inline(b.p)}</p>`;
+  if ('items' in b) return `<ul class="sample-list">${b.items.map((it) => `<li>${esc(it)}</li>`).join('')}</ul>`;
+  if ('table' in b) {
+    const t = b.table;
+    const head = t.head.map((h) => `<th scope="col">${esc(h)}</th>`).join('');
+    const rows = t.rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('');
+    return (
+      `<div class="sample-table${t.head.length > 3 ? ' sample-table-wide' : ''}" role="region" tabindex="0" aria-labelledby="${id}">` +
+      `<table><caption id="${id}">${esc(t.caption)}</caption><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`
+    );
+  }
+  return (
+    `<div class="sample-email"><p class="sample-subject"><span class="sample-subject-label">Subject: </span>${esc(b.email.subject)}</p>` +
+    b.email.body.map((para) => `<p>${esc(para)}</p>`).join('') +
+    `</div>`
+  );
 }
 
 function footer(): string {
@@ -368,7 +460,10 @@ function footer(): string {
 
 /** Whether anything on the page copies, and so needs the toast that says it did. */
 const copies = (guide: Guide) =>
-  guide.sections.some((s) => s.kind === 'prompts') || (guide.download.setup ?? []).some((s) => s.copy !== undefined);
+  guide.sections.some((s) => s.kind === 'prompts') ||
+  [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? [])].some(
+    (s) => s.copy !== undefined || s.copyBlock !== undefined,
+  );
 
 /** Everything inside <body>. */
 export function renderGuideBody(guide: Guide): string {

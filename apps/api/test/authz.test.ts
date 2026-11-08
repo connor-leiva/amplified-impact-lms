@@ -121,6 +121,7 @@ import type { App } from '../src/app';
 import { deterministicIds } from '../src/lib/clock';
 import { resetOutbox } from '../src/email/transport';
 import { SCHEMAS } from '../src/routes/schemas';
+import { GUIDE_ALIASES, GUIDE_SLUGS } from '../src/routes/guide-list';
 import { resetDatabase, testDatabase } from './helpers';
 
 /** Gate 7's instant, the one the oracle and the parity run use. */
@@ -523,13 +524,11 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // header, point 3. Registered whenever a database is configured, which `build()` defaults to here.
   { path: '/api/ai101/waitlist', methods: 'POST', guard: 'open' },
   // The free guides' opt-ins (D-038, D-039): the waitlist's route under each guide's path, open for
-  // the same reasons, and refusing what their pages do not show (phone, SMS).
-  { path: '/api/task-sync-starter', methods: 'POST', guard: 'open' },
-  { path: '/api/ops-time-audit', methods: 'POST', guard: 'open' },
-  { path: '/api/voice-profile', methods: 'POST', guard: 'open' },
-  { path: '/api/reel-editor', methods: 'POST', guard: 'open' },
-  // /retool's (D-046), which also takes a team size and the December box.
-  { path: '/api/retool', methods: 'POST', guard: 'open' },
+  // the same reasons, and refusing what their pages do not show (phone, SMS). /retool's (D-046) also
+  // takes a team size and the December box. One per slug in `GUIDE_SLUGS` (D-052), so every guide is
+  // classified the same way: `the router serves exactly the routes this file knows about` still fails
+  // on a route registered outside that list.
+  ...GUIDE_SLUGS.map((slug) => ({ path: `/api/${slug}`, methods: 'POST', guard: 'open' as const })),
   // D-028's public page and the spec's three redirects to it. Not `/api/*`, so outside the
   // checklist's 401 rule by construction; `page` says so, and the sweep asserts the prefix.
   { path: '/ai101', methods: 'GET, HEAD', guard: 'page' },
@@ -545,21 +544,14 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // pages, served like /ai101, and outside `/api/` like it.
   { path: '/terms', methods: 'GET, HEAD', guard: 'page' },
   { path: '/privacy', methods: 'GET, HEAD', guard: 'page' },
-  // The free guides' landing pages (D-038, D-039), served like /ai101.
-  { path: '/task-sync-starter', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/task-sync-starter/', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/ops-time-audit', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/ops-time-audit/', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/voice-profile', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/voice-profile/', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/reel-editor', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/reel-editor/', methods: 'GET, HEAD', guard: 'page' },
-  // /retool (D-046), with its two capitalised spellings: the talk says "Type RETOOL in the chat".
-  // Each is the same public 301 to the page as its trailing slash.
-  { path: '/retool', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/retool/', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/RETOOL', methods: 'GET, HEAD', guard: 'page' },
-  { path: '/Retool', methods: 'GET, HEAD', guard: 'page' },
+  // The free guides' landing pages (D-038, D-039), served like /ai101, each with its trailing slash's
+  // 301, and /retool's two capitalised spellings (D-046): the talk says "Type RETOOL in the chat",
+  // and each is the same public 301 to the page. From `GUIDE_SLUGS` and `GUIDE_ALIASES` (D-052).
+  ...GUIDE_SLUGS.flatMap((slug) => [
+    { path: `/${slug}`, methods: 'GET, HEAD', guard: 'page' as const },
+    { path: `/${slug}/`, methods: 'GET, HEAD', guard: 'page' as const },
+    ...(GUIDE_ALIASES[slug] ?? []).map((alias) => ({ path: alias, methods: 'GET, HEAD', guard: 'page' as const })),
+  ]),
   // The free library (D-050), with the other words someone would type for it, each a public 301.
   { path: '/library', methods: 'GET, HEAD', guard: 'page' },
   { path: '/library/', methods: 'GET, HEAD', guard: 'page' },
@@ -1037,7 +1029,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // The guides' opt-ins (D-038, D-039), the same way: a filled honeypot writes no row.
           // /retool's asks a team size too (D-046), but the honeypot is checked first, so the same
           // probe is answered as a success there as well.
-          ...['/api/task-sync-starter', '/api/ops-time-audit', '/api/voice-profile', '/api/reel-editor', '/api/retool'].map((url): [string, Promise<{ statusCode: number }>] => [
+          ...GUIDE_SLUGS.map((slug) => `/api/${slug}`).map((url): [string, Promise<{ statusCode: number }>] => [
             url,
             app.inject({
               method: 'POST',
@@ -1057,35 +1049,28 @@ describe('Gate 7 · the authorization matrix @g7', () => {
         // `/api/*` and nothing else — so that is the property asserted. A page route that moved
         // under `/api/` would have to be reclassified, and argued for, like the waitlist was.
         const pages = ROUTES.filter((r) => r.guard === 'page');
-        expect(pages.map((r) => r.path).sort()).toEqual([
-          '/AI101',
-          '/RETOOL',
-          '/Retool',
-          '/ai-101',
-          '/ai101',
-          '/ai101/',
-          '/ai101/carousel-sprint.ics',
-          '/guides',
-          '/guides/',
-          '/library',
-          '/library/',
-          '/ops-time-audit',
-          '/ops-time-audit/',
-          '/privacy',
-          '/reel-editor',
-          '/reel-editor/',
-          '/retool',
-          '/retool/',
-          '/skills',
-          '/skills/',
-          '/task-sync-starter',
-          '/task-sync-starter/',
-          '/terms',
-          '/voice-profile',
-          '/voice-profile/',
-          '/waitlist',
-          '/waitlist/',
-        ]);
+        // The guides' pages come from `GUIDE_SLUGS` and `GUIDE_ALIASES` (D-052); the rest are named.
+        const guidePages = GUIDE_SLUGS.flatMap((slug) => [`/${slug}`, `/${slug}/`, ...(GUIDE_ALIASES[slug] ?? [])]);
+        expect(pages.map((r) => r.path).sort()).toEqual(
+          [
+            '/AI101',
+            '/ai-101',
+            '/ai101',
+            '/ai101/',
+            '/ai101/carousel-sprint.ics',
+            '/guides',
+            '/guides/',
+            '/library',
+            '/library/',
+            '/privacy',
+            '/skills',
+            '/skills/',
+            '/terms',
+            '/waitlist',
+            '/waitlist/',
+            ...guidePages,
+          ].sort(),
+        );
         expect(pages.filter((r) => r.path.startsWith('/api/'))).toEqual([]);
 
         // `/api/events` is exempt too and is NOT injected: an SSE response never ends, and

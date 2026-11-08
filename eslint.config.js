@@ -13,6 +13,10 @@ export default tseslint.config(
       'compliance/report/**',
       '**/coverage/**',
       '**/*.d.ts',
+      '**/*.d.mts',
+      // The free skills' sources (D-052): what Claude and ChatGPT read, plus the scripts that made their
+      // practice and test files. `node scripts/skills.mjs check` is their linter.
+      'skills/**',
     ],
   },
   js.configs.recommended,
