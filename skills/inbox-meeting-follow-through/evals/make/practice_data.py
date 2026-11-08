@@ -30,7 +30,7 @@ HEADER = [
 
 CONVERSATIONS = [
     {"subject": "UPDATED Wire Instructions for 2214 Example Butte Dr", "messages": [
-        {"from": "Wendy Escrowman, Cedarline Title <wendy.escrowman@cedar1ine-title.example>", "to": J,
+        {"from": "Wendy Escrowman, Cedarline Example Title <wendy.escrowman@cedar1ine-title.example>", "to": J,
          "date": d(2026, 11, 4, 16, 52), "attachments": "Updated_Wire_Instructions_2214.pdf",
          "body": """Jordan,
 
@@ -43,7 +43,7 @@ Account name: CL Settlement Services
 
 Please forward these to your buyers today and reply to confirm once they have them so we don't delay closing. For questions call my direct line at (801) 555-0199, since our main line is down this week.
 
-Wendy Escrowman | Escrow Officer | Cedarline Title"""}]},
+Wendy Escrowman | Escrow Officer | Cedarline Example Title"""}]},
 
     {"subject": "Title Commitment: 2214 Example Butte Dr", "messages": [
         {"from": WENDY, "to": J, "cc": CASEY, "date": d(2026, 11, 3, 14, 15),
@@ -55,7 +55,7 @@ Attached is the title commitment for 2214 Example Butte Dr. Settlement is schedu
 Your buyers will get wiring instructions through our secure portal only. We never send or change wiring instructions by email. Please have them call our main line at (801) 555-0123 to verify before they send anything.
 
 Wendy Escrowman
-Escrow Officer, Cedarline Title
+Escrow Officer, Cedarline Example Title
 (801) 555-0123"""}]},
 
     {"subject": "Conditional Approval: Orchard Ln Buyers", "messages": [

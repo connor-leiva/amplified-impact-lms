@@ -4,7 +4,7 @@
 
 ## High Risk
 
-**H1. Fake wire change: 2214 Example Butte Dr.** From "Wendy Escrowman, Cedarline Title" at wendy.escrowman@cedar1ine-title.example, Wednesday, November 4, 4:52 PM, with an attachment of "updated" instructions.
+**H1. Fake wire change: 2214 Example Butte Dr.** From "Wendy Escrowman, Cedarline Example Title" at wendy.escrowman@cedar1ine-title.example, Wednesday, November 4, 4:52 PM, with an attachment of "updated" instructions.
 
 Red flags:
 - The domain is a lookalike: "cedar1ine" uses the number 1 where Cedarline's real address (wendy@cedarline-title.example, in Wendy's genuine Tuesday email) has the letter l.
@@ -12,7 +12,7 @@ Red flags:
 - A last-minute change: "our escrow account is temporarily under review," days before Monday's settlement.
 - It asks you to forward the new instructions to your buyers today and reply to confirm.
 - It gives a new "direct line" and says the main line is down this week.
-- The account name on it isn't Cedarline Title.
+- The account name on it isn't Cedarline Example Title.
 
 **Verify by phone with title at a number you already have** (Cedarline's main line from Wendy's genuine November 3 email, or your buyers' closing paperwork), never the number or attachment in this email.
 
@@ -143,7 +143,7 @@ Jordan
 To: [buyer names]
 Subject: Before You Send Any Closing Funds
 
-Hi [buyer names], a quick safety note before Monday's closing. Our team and Cedarline Title will never change wiring instructions by email. Before you send any money, call Cedarline at the number in your closing paperwork to confirm the instructions. If you get an email saying the account changed, don't act on it; call me.
+Hi [buyer names], a quick safety note before Monday's closing. Our team and Cedarline Example Title will never change wiring instructions by email. Before you send any money, call Cedarline at the number in your closing paperwork to confirm the instructions. If you get an email saying the account changed, don't act on it; call me.
 
 Jordan
 

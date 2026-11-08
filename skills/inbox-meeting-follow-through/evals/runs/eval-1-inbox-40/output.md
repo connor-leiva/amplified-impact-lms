@@ -4,15 +4,15 @@
 
 ## High Risk
 
-**H1. Fake wire change: 9 Example Dune Ln.** From "Sandbar Title Closing Team" at closings@sandbartitle-closings.example, Monday, November 2, 6:41 PM, with an attachment of "revised" instructions.
+**H1. Fake wire change: 9 Example Dune Ln.** From "Sandbar Example Title Closing Team" at closings@sandbartitle-closings.example, Monday, November 2, 6:41 PM, with an attachment of "revised" instructions.
 
 Red flags:
-- The sender domain doesn't match Sandbar Title. Jill Escrowby's genuine email on Friday, October 30 came from jill@sandbartitle.example; this one comes from a different domain (sandbartitle-closings.example).
-- Sandbar Title said in that same October 30 email: "We never change wiring instructions by email," and that the buyers get instructions through its secure portal.
+- The sender domain doesn't match Sandbar Example Title. Jill Escrowby's genuine email on Friday, October 30 came from jill@sandbartitle.example; this one comes from a different domain (sandbartitle-closings.example).
+- Sandbar Example Title said in that same October 30 email: "We never change wiring instructions by email," and that the buyers get instructions through its secure portal.
 - A last-minute change to a "new trust account effective today," days before closing.
 - Urgency: it wants the buyers to wire "today or tomorrow."
 - It asks you to forward the instructions to your buyers, Terry and Sam Buyerly, and to reply to confirm.
-- It gives a cell number that is not Sandbar Title's office number, and the beneficiary is not Sandbar Title.
+- It gives a cell number that is not Sandbar Example Title's office number, and the beneficiary is not Sandbar Example Title.
 
 **Verify by phone with title at a number you already have** (the office number in Jill's genuine October 30 email or the buyers' closing paperwork), never the number or attachment in this email.
 
@@ -93,7 +93,7 @@ No transcripts today, as you said. Granola's notice says your notes for Monday's
 - Automated notices: 7 (showing feedback for 51 Sample Bay Ct, e-signature completed, MLS update, Granola notes ready, Zoom recording ready, calendar acceptance, Sisu scoreboard)
 - Newsletters and promotions: 4
 - Team FYI with no ask: 1 (7 Example Tern Ct funded)
-- Before the window with nothing new since: 5 (Ike's day off, the office supplies order, the kept addendum promise, and Jill's two October 30 emails, which I used above as the genuine Sandbar Title reference and the net sheet source)
+- Before the window with nothing new since: 5 (Ike's day off, the office supplies order, the kept addendum promise, and Jill's two October 30 emails, which I used above as the genuine Sandbar Example Title reference and the net sheet source)
 
 ## Drafts
 
@@ -101,7 +101,7 @@ No transcripts today, as you said. Granola's notice says your notes for Monday's
 To: Gail Closewell, Dana Sampleford
 Subject: Possible Wire Fraud Email On 9 Example Dune Ln: Do Not Forward
 
-Gail, Dana, an email came in Monday at 6:41 PM claiming to be from Sandbar Title with "revised" wiring instructions for 9 Example Dune Ln. Red flags: it's from a different domain than Jill's real address, Sandbar told us on October 30 it never changes wiring instructions by email, it pushes a brand-new account days before closing, and it asks us to forward it to the buyers.
+Gail, Dana, an email came in Monday at 6:41 PM claiming to be from Sandbar Example Title with "revised" wiring instructions for 9 Example Dune Ln. Red flags: it's from a different domain than Jill's real address, Sandbar told us on October 30 it never changes wiring instructions by email, it pushes a brand-new account days before closing, and it asks us to forward it to the buyers.
 
 Please don't forward it, reply to it or use anything in it.
 
@@ -113,7 +113,7 @@ Marisol
 To: Terry and Sam Buyerly
 Subject: Before You Send Any Closing Funds
 
-Terry and Sam, a quick safety note before Thursday. Our team and Sandbar Title will never change wiring instructions by email. Before you send any money, call Sandbar Title at the number in your closing paperwork to confirm the instructions. If you get an email saying the account changed, don't act on it; call us.
+Terry and Sam, a quick safety note before Thursday. Our team and Sandbar Example Title will never change wiring instructions by email. Before you send any money, call Sandbar Example Title at the number in your closing paperwork to confirm the instructions. If you get an email saying the account changed, don't act on it; call us.
 
 Dana
 
@@ -165,7 +165,7 @@ Reply in thread: Net sheet for 51 Sample Bay Ct
 To: Gary Sellwood
 [attach: Seller Net Sheet 51 Sample Bay Ct.pdf, from Jill Escrowby's October 30 email]
 
-Gary, you're right, I owe you this. Attached is the estimated seller net sheet from Sandbar Title. It's an estimate, so let's walk through it together before you decide on the counter. Are you free for a quick call [day and time]?
+Gary, you're right, I owe you this. Attached is the estimated seller net sheet from Sandbar Example Title. It's an estimate, so let's walk through it together before you decide on the counter. Are you free for a quick call [day and time]?
 
 Marisol
 

@@ -170,7 +170,7 @@ Subject: UPDATED Wire Instructions for 2214 Example Butte Dr
 Messages: 1
 ======================================================================
 
-From: Wendy Escrowman, Cedarline Title <wendy.escrowman@cedar1ine-title.example>
+From: Wendy Escrowman, Cedarline Example Title <wendy.escrowman@cedar1ine-title.example>
 To: Jordan Samplewood <jordan@samplewoodteam.example>
 Date: Wednesday, November 4, 2026, 4:52 PM
 Subject: UPDATED Wire Instructions for 2214 Example Butte Dr
@@ -187,7 +187,7 @@ Account name: CL Settlement Services
 
 Please forward these to your buyers today and reply to confirm once they have them so we don't delay closing. For questions call my direct line at (801) 555-0199, since our main line is down this week.
 
-Wendy Escrowman | Escrow Officer | Cedarline Title
+Wendy Escrowman | Escrow Officer | Cedarline Example Title
 
 
 ======================================================================
@@ -623,7 +623,7 @@ Attached is the title commitment for 2214 Example Butte Dr. Settlement is schedu
 Your buyers will get wiring instructions through our secure portal only. We never send or change wiring instructions by email. Please have them call our main line at (801) 555-0123 to verify before they send anything.
 
 Wendy Escrowman
-Escrow Officer, Cedarline Title
+Escrow Officer, Cedarline Example Title
 (801) 555-0123
 
 

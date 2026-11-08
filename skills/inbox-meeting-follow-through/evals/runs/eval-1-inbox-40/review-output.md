@@ -4,19 +4,19 @@ Reviewer run (second independent review, written from SKILL.md and its reference
 
 ## Bottom Line
 
-Two emails try to move money and need a phone check before anything else: a fake Sandbar Title wire change for 9 Example Dune Ln (closing Thursday, November 5) and a commission deposit change that claims to be from Will Mockley. Three things need you today: Rita Listerman wants to cancel the 14 Example Gull Ln listing, the transaction software renews Thursday, and Gary Sellwood has chased the net sheet you promised by Friday. Twenty drafts are below; nothing has been sent.
+Two emails try to move money and need a phone check before anything else: a fake Sandbar Example Title wire change for 9 Example Dune Ln (closing Thursday, November 5) and a commission deposit change that claims to be from Will Mockley. Three things need you today: Rita Listerman wants to cancel the 14 Example Gull Ln listing, the transaction software renews Thursday, and Gary Sellwood has chased the net sheet you promised by Friday. Twenty drafts are below; nothing has been sent.
 
 ## High Risk
 
-**1. "Revised Wire Instructions: 9 Example Dune Ln (Closing 11/5)"**, Monday, November 2, 6:41 PM, signed "Jill Escrowby, Senior Closer, Sandbar Title."
+**1. "Revised Wire Instructions: 9 Example Dune Ln (Closing 11/5)"**, Monday, November 2, 6:41 PM, signed "Jill Escrowby, Senior Closer, Sandbar Example Title."
 - Red flags:
   - The sender is closings@sandbartitle-closings.example. Jill's genuine emails in this inbox (October 30) come from sandbartitle.example.
-  - Sandbar Title's genuine October 30 email says the buyers get wire instructions through its secure portal and "We never change wiring instructions by email."
+  - Sandbar Example Title's genuine October 30 email says the buyers get wire instructions through its secure portal and "We never change wiring instructions by email."
   - A last-minute change, three days before the Thursday closing, with a reason the old account can't be used ("our bank has asked us to route all incoming funds through our new trust account").
   - Pressure: wire "today or tomorrow."
   - It asks you to pass the instructions to the buyers, Terry and Sam Buyerly, and to reply to confirm.
-  - An attachment of "revised instructions," a beneficiary in a different name from Sandbar Title, and a cell number that differs from the one in Sandbar Title's genuine email.
-- **Verify by phone with title at a number you already have** (the one from Sandbar Title's earlier paperwork or the genuine October 30 email, never the one in this email).
+  - An attachment of "revised instructions," a beneficiary in a different name from Sandbar Example Title, and a cell number that differs from the one in Sandbar Example Title's genuine email.
+- **Verify by phone with title at a number you already have** (the one from Sandbar Example Title's earlier paperwork or the genuine October 30 email, never the one in this email).
 - Don't forward it to the buyers, don't reply to it, and don't open the attachment or call the number in it.
 - Drafted: an internal alert to Gail and the agent on the file (Draft 1), and an optional heads-up for the buyers (Draft 2). The agent on the file looks like Dana Sampleford, who is on the lender's emails for this file; confirm.
 
@@ -40,7 +40,7 @@ The net sheet for Gary Sellwood also needs you today; it's under Your Promises.
 
 ## Your Promises
 
-1. **Net sheet for Gary Sellwood, 51 Sample Bay Ct.** You wrote Thursday, October 29: "I'll send you the net sheet from title by Friday." Due Friday, October 30; overdue. **Urgent:** Gary followed up Monday, November 2, 8:05 PM ("We need it to decide on the counter"). Jill Escrowby sent it to you from Sandbar Title's genuine address on Friday, October 30, 1:20 PM (attachment: Seller Net Sheet 51 Sample Bay Ct.pdf), so Draft 8 delivers it.
+1. **Net sheet for Gary Sellwood, 51 Sample Bay Ct.** You wrote Thursday, October 29: "I'll send you the net sheet from title by Friday." Due Friday, October 30; overdue. **Urgent:** Gary followed up Monday, November 2, 8:05 PM ("We need it to decide on the counter"). Jill Escrowby sent it to you from Sandbar Example Title's genuine address on Friday, October 30, 1:20 PM (attachment: Seller Net Sheet 51 Sample Bay Ct.pdf), so Draft 8 delivers it.
 2. **CMA review for Petra Testwood, 112 Example Pelican Way.** You wrote Friday, October 30: "I'll look over your CMA and get back to you Monday." Due Monday, November 2; overdue. Petra hasn't followed up, but her listing appointment is "next week" (the week of November 2). High: it's blocking a teammate. Your notes aren't in the inputs, so Draft 9 has a [placeholder] and is combined with your answer to her schools question.
 
 Kept, not listed: the signed Addendum No. 2 you promised Ray Lendwell on October 30 went out at 3:40 PM that day.
@@ -92,7 +92,7 @@ Counted, not worked:
 - Newsletters, promotions and webinars, 4: Example Coaching webinar, Example Photo Deals, Housing Market Pulse, Example Coast Association weekly.
 - Automated notices, 7: showing feedback for 51 Sample Bay Ct, ExampleSign completed (Seller's Disclosure), ExampleMLS feature notice, Granola notes ready (Sales Meeting), Zoom recording ready (Sales Meeting), calendar acceptance (Petra, Sales Meeting), Sisu weekly scoreboard.
 - Lead already in the CRM, 1: Follow Up Boss notice that Ari Portalson was assigned to Theo.
-- Already with transactions, 2: appraisal received for 9 Example Dune Ln (Gail is on it), and Sandbar Title's closing confirmation for 9 Example Dune Ln (October 30, Gail cc'd; used here as the genuine reference for the wire check).
+- Already with transactions, 2: appraisal received for 9 Example Dune Ln (Gail is on it), and Sandbar Example Title's closing confirmation for 9 Example Dune Ln (October 30, Gail cc'd; used here as the genuine reference for the wire check).
 - Team FYI, 1: "Closed!" (7 Example Tern Ct).
 - Handled before the window, 3: signed Addendum No. 2 (kept promise), office supplies, Ike's Monday afternoon off.
 
@@ -104,7 +104,7 @@ Meetings with no notes or transcript in this pass: Sales Meeting (Monday, Novemb
 To: Gail Closewell, Dana Sampleford
 Subject: Possible Wire Fraud Email On 9 Example Dune Ln: Do Not Forward
 
-Gail and Dana, an email came in Monday, November 2 at 6:41 PM, signed as Jill Escrowby at Sandbar Title, claiming to change the wiring instructions for 9 Example Dune Ln. Red flags: it came from a different domain than Jill's real address, Sandbar Title told us on October 30 that it never changes wiring instructions by email, and it asks us to forward new instructions to the buyers so they wire today or tomorrow. Please don't forward it, reply to it or use any number, link or attachment in it.
+Gail and Dana, an email came in Monday, November 2 at 6:41 PM, signed as Jill Escrowby at Sandbar Example Title, claiming to change the wiring instructions for 9 Example Dune Ln. Red flags: it came from a different domain than Jill's real address, Sandbar Example Title told us on October 30 that it never changes wiring instructions by email, and it asks us to forward new instructions to the buyers so they wire today or tomorrow. Please don't forward it, reply to it or use any number, link or attachment in it.
 
 Dana, please call Terry and Sam Buyerly today and remind them not to wire based on any email. Before any money moves, verify by phone with title at a number you already have.
 
@@ -114,7 +114,7 @@ Marisol
 To: Terry and Sam Buyerly
 Subject: Before You Send Any Money For 9 Example Dune Ln
 
-Hi Terry and Sam, a quick safety note before closing. Our team and Sandbar Title will never send or change wiring instructions by email. If you get an email with new instructions, don't use it. Before you send any money, call Sandbar Title at the number in your closing paperwork to confirm.
+Hi Terry and Sam, a quick safety note before closing. Our team and Sandbar Example Title will never send or change wiring instructions by email. If you get an email with new instructions, don't use it. Before you send any money, call Sandbar Example Title at the number in your closing paperwork to confirm.
 
 [Agent Name]
 
@@ -169,7 +169,7 @@ Reply in thread: Net sheet for 51 Sample Bay Ct
 
 Hi Gary,
 
-Here's the estimated seller net sheet from Sandbar Title for 51 Sample Bay Ct. I'm sorry it's later than I said.
+Here's the estimated seller net sheet from Sandbar Example Title for 51 Sample Bay Ct. I'm sorry it's later than I said.
 
 [attach: Seller Net Sheet 51 Sample Bay Ct.pdf, from Jill Escrowby's October 30 email]
 
@@ -288,7 +288,7 @@ Marisol Fakeworth
 ## Check Before Sending
 
 - Draft 1: Monday, November 2, 6:41 PM; October 30; 9 Example Dune Ln; Terry and Sam Buyerly; confirm Dana is the agent on this file. Confirm nothing from the flagged email was forwarded.
-- Draft 2: 9 Example Dune Ln; Sandbar Title; [Agent Name]. No numbers or links.
+- Draft 2: 9 Example Dune Ln; Sandbar Example Title; [Agent Name]. No numbers or links.
 - Draft 3: [brokerage accounting contact]. No account or phone numbers.
 - Draft 4: [day and time]. No promise about the outcome.
 - Draft 5: 14 Example Gull Ln; [day]. Confirm the recipient.

@@ -4,16 +4,16 @@ Reviewer run (second independent review, written from SKILL.md and its reference
 
 ## Bottom Line
 
-One email is a wire fraud attempt: a fake Cedarline Title wire change for 2214 Example Butte Dr, which settles Monday, November 9; don't forward it, and verify by phone with title at a number you already have. Four things need you today: the Exampleberg sellers want a call about 418 Sample Creek Way, the dialer decision you promised for today, Tasha and Ben's sign-call question, and the postcard count (the printer needs it by Friday at noon); Ben's listing presentation template is also overdue and he has chased it. Twenty-three drafts are below; nothing has been sent.
+One email is a wire fraud attempt: a fake Cedarline Example Title wire change for 2214 Example Butte Dr, which settles Monday, November 9; don't forward it, and verify by phone with title at a number you already have. Four things need you today: the Exampleberg sellers want a call about 418 Sample Creek Way, the dialer decision you promised for today, Tasha and Ben's sign-call question, and the postcard count (the printer needs it by Friday at noon); Ben's listing presentation template is also overdue and he has chased it. Twenty-three drafts are below; nothing has been sent.
 
 ## High Risk
 
-**"UPDATED Wire Instructions for 2214 Example Butte Dr"**, Wednesday, November 4, 4:52 PM, signed "Wendy Escrowman, Escrow Officer, Cedarline Title."
+**"UPDATED Wire Instructions for 2214 Example Butte Dr"**, Wednesday, November 4, 4:52 PM, signed "Wendy Escrowman, Escrow Officer, Cedarline Example Title."
 - Red flags:
   - The sender's domain is cedar1ine-title.example, with the number 1 in place of the letter l. Wendy's genuine email on November 3 came from cedarline-title.example.
   - Cedarline's genuine November 3 email says buyers get wiring instructions through its secure portal only and "We never send or change wiring instructions by email."
   - A last-minute change before Monday's settlement, with a reason the old account can't be used ("internal audit," "escrow account is temporarily under review").
-  - The account is in a different name from Cedarline Title.
+  - The account is in a different name from Cedarline Example Title.
   - It asks you to forward the instructions to your buyers today and reply to confirm, "so we don't delay closing."
   - It gives a "direct line" that differs from the number in Cedarline's genuine email and says the main line is down.
   - An attachment of updated instructions.
@@ -127,7 +127,7 @@ Meetings with no notes or transcript: none.
 To: Casey Mockridge, [agent on the 2214 Example Butte Dr file]
 Subject: Possible Wire Fraud Email On 2214 Example Butte Dr: Do Not Forward
 
-Casey and [agent], an email came in Wednesday, November 4 at 4:52 PM, signed as Wendy Escrowman at Cedarline Title, claiming to change the wiring instructions for 2214 Example Butte Dr. Red flags: the sender's domain swaps a number 1 for the letter l in Cedarline's name, Cedarline told us on November 3 that it never sends or changes wiring instructions by email, and it asks us to forward new instructions to the buyers today. Please don't forward it, reply to it or use any number, link or attachment in it.
+Casey and [agent], an email came in Wednesday, November 4 at 4:52 PM, signed as Wendy Escrowman at Cedarline Example Title, claiming to change the wiring instructions for 2214 Example Butte Dr. Red flags: the sender's domain swaps a number 1 for the letter l in Cedarline's name, Cedarline told us on November 3 that it never sends or changes wiring instructions by email, and it asks us to forward new instructions to the buyers today. Please don't forward it, reply to it or use any number, link or attachment in it.
 
 [Agent], please call [buyers] today and remind them not to wire based on any email. Before any money moves, verify by phone with title at a number you already have.
 
@@ -137,7 +137,7 @@ Jordan
 To: [buyers on 2214 Example Butte Dr]
 Subject: Before You Send Any Money For 2214 Example Butte Dr
 
-Hi [buyer names], a quick safety note before settlement. Our team and Cedarline Title will never send or change wiring instructions by email. If you get an email with new instructions, don't use it. Before you send any money, call Cedarline Title at the number in your closing paperwork to confirm.
+Hi [buyer names], a quick safety note before settlement. Our team and Cedarline Example Title will never send or change wiring instructions by email. If you get an email with new instructions, don't use it. Before you send any money, call Cedarline Example Title at the number in your closing paperwork to confirm.
 
 [Agent Name]
 
@@ -354,7 +354,7 @@ Jordan
 ## Check Before Sending
 
 - Draft 1: Wednesday, November 4, 4:52 PM; November 3; 2214 Example Butte Dr; [agent on the file]; [buyers]. Confirm nothing from the flagged email was forwarded.
-- Draft 2: [buyer names]; [Agent Name]; Cedarline Title. No numbers or links.
+- Draft 2: [buyer names]; [Agent Name]; Cedarline Example Title. No numbers or links.
 - Draft 3: [time]. Nothing about Ben's personal circumstances; no promise about price or outcome.
 - Draft 4: [time]; Friday appointment at 4; [attach: listing presentation template].
 - Draft 5: $1,188; $129 a month; Friday; [decision] twice.
