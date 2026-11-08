@@ -66,7 +66,7 @@ A phone number is never consent. See `outreach-rules.md`.
 
 ## Tiers
 
-**Team tiers first.** If the user or a file gives tier rules ("A is 20 or more closings"), apply them exactly, label them "your tiers," and use the team's names.
+**Team tiers first.** If the user or a file gives tier rules ("A is 20 or more closings"), apply them exactly, label them "your tiers," and use the team's names. If the team's value proposition or offer document is organized by production level ("Growing: 12 to 24 sides"), use those levels as the tiers, label them "your offer document's levels," and use each level's offer in that tier's angle and draft. If the rules and the document disagree, use the rules and say so.
 
 **Default tiers** (only when the team gives none). Build them from this list's spread of TTM units among unique agents with at least one unit, after removing the team's own agents and opted-out contacts:
 - Find the 90th, 75th and 50th percentile of TTM units (nearest rank) and round each down to a whole number.

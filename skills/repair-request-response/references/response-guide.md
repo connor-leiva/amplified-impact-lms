@@ -1,5 +1,7 @@
 # Response Guide
 
+Last verified: 2026-11-08
+
 How to read a buyer's repair request from the seller's side, sort each item, and weigh the options. The four categories line up with the tiers a buyer's agent uses for the same report (Tier 1 Safety, Tier 2 Major System, Tier 3 Maintenance, Tier 4 Cosmetic and informational), so both sides can talk about an item in the same terms.
 
 ## Match the Request to the Report
@@ -91,3 +93,11 @@ For each package, list the items, the remedy, the bid total and the main risk. D
 - Existing seller contributions in the contract: if a new credit goes on the same line, show the new total.
 - Items without a bid: "needs bid," left out of the total and counted ("2 items still need bids").
 - No commission, title or proration math unless a seller net sheet is uploaded. If one is, use only its figures.
+
+## Sources
+
+Checked 2026-11-08. The few industry facts here (the radon action level, certified mitigation with a post-mitigation test, lenders capping seller contributions) come from:
+- EPA, What is EPA's Action Level for Radon: https://www.epa.gov/radon/what-epas-action-level-radon-and-what-does-it-mean
+- Utah DEQ, High radon levels? What's next: https://deq.utah.gov/dwmrc/radon-high-levels
+- Utah FHA/VA Loan Addendum, Sections 4 and 6 (seller repair and closing cost amounts set by the parties, within loan program rules): https://commerce.utah.gov/wp-content/uploads/2023/03/fha-va-loan-addendum.pdf
+- Utah Division of Real Estate newsletter Q4 2019 (seller contribution, price reduction or repairs; loop in the buyer's lender): https://commerce.utah.gov/wp-content/uploads/2023/04/newsletter_q4-2019.pdf

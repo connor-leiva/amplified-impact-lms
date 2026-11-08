@@ -34,7 +34,7 @@ Read `references/list-mode.md`. Do the work in code, not by eye.
 
 ## 3. List Mode: Tier, Signals and Owners
 
-- **Tiers:** use the team's own tier definitions when the files or message give them, exactly as written. Otherwise use the default tiers in `references/list-mode.md`, built from this list's spread, with the cut points shown and labeled "default tiers from this list, not your team's rules." Tier on trailing-twelve-month production only (units, with volume, listing sides and buyer sides shown when present).
+- **Tiers:** use the team's own tier definitions when the files or message give them, exactly as written. If the team's offer document is organized by production level, those levels are the tiers, so each tier's draft can use that level's offer. Otherwise use the default tiers in `references/list-mode.md`, built from this list's spread, with the cut points shown and labeled "default tiers from this list, not your team's rules." Tier on trailing-twelve-month production only (units, with volume, listing sides and buyer sides shown when present).
 - **Why now:** report only what the data shows: production up or down against the prior period, new production, an office change (two offices for one agent ID, an office that differs between files, a movement column). State each as a data fact with its source, never as a guess about the person's life.
 - **Owners:** when a roster is uploaded, suggest an owner per tier by role (the defaults are in `references/list-mode.md`); keep any owner the files already assign. Without a roster, use [Owner].
 

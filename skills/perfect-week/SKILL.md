@@ -1,6 +1,6 @@
 ---
 name: perfect-week
-description: "Plans someone's ideal working week from their real calendar and task list: a weekly template, a check of every task against the hours the week really has, bigger projects placed week by week through an end date, hand-offs, and a summary for their manager. Then, only after a clear yes, it builds the blocks in Google Calendar with no guests and no invites. Works from a connected calendar or from an exported calendar (.ics) and a task list (CSV, Excel, a ClickUp, Asana or Todoist export). Use this whenever an agent, team leader or operator asks about time blocking, their calendar, too many meetings, an ideal week, plan my week, protecting prospecting time, fitting showings and listing appointments around everything else, feeling behind, or work-life balance, or attaches a calendar export or task list and asks what fits, even if they never say 'perfect week' or 'time blocking.' Not for turning the inbox and the day's meetings into follow-ups, drafts and delegations (use inbox-meeting-follow-through)."
+description: "Plans someone's ideal working week from their real calendar and task list: a weekly template, a check of every task against the hours they have, bigger projects placed through an end date, hand-offs, and a summary for their manager. Then, only after a clear yes, it builds the blocks in Google Calendar with no guests and no invites. Works from a connected calendar or an .ics export, plus a task list (a ClickUp, Asana or Todoist CSV, or a spreadsheet). Use this whenever an agent, team leader or operator asks about time blocking, getting their calendar under control, too many meetings, an ideal week, plan my week, protecting prospecting time, fitting in showings and listing appointments, feeling behind, or work-life balance, or attaches a calendar export or task list and asks what fits, even if they never say 'perfect week' or 'time blocking.' Not for a quick calendar lookup or booking one meeting, or turning the inbox and meetings into follow-ups, drafts and delegations (use inbox-meeting-follow-through)."
 metadata:
   author: Amplified Impact
   version: "1.1"
@@ -87,7 +87,7 @@ Ask what they'd change before moving on.
 
 For every task from step 2, decide:
 - Where it lands: a specific block, or a recurring meeting. Items that need to come up in a recurring meeting go to that meeting first.
-- The action: do it, hand it off, re-date it, park it, close or merge it, or wait on someone. Transaction file work (deadline tracking, compliance, under-contract updates) is the transactions team's: hand it off or wait on them, not hours in their week.
+- The action: do it, hand it off, re-date it, park it, close or merge it, or wait on someone. Transaction file work (deadline tracking, compliance, under-contract updates) is the transactions team's: count it in what's on their list, then hand it off or wait on them, so it never takes hours in their blocks.
 - Hours: their estimate, or yours, labeled as yours.
 
 Then compare hours needed with hours the blocks provide, week by week, through the end date, and show the gap plainly. If it doesn't fit, say what you'd change: re-date, hand off, drop. Don't close a gap with evening work they didn't choose.
@@ -118,7 +118,7 @@ Add Hand-offs to the plan page.
 
 Make a clean version for their manager: the week, hours by area, the project timeline, the hand-offs and the asks. Use the session's document tool (it can export a PDF) or make a PDF. Carry over the main visuals as charts: the week board, hours by area, project hours by week, hand-off loads, and the timeline. End your reply with "Check before sending": every date, hour total, meeting, name and ask in the summary, for them to verify before it goes anywhere.
 
-Leave out anything personal or sensitive: health, pay, comp splits, commission and other dollar amounts, clients' personal details, lockbox codes and access notes, private appointments. Calendars and documents get seen by coworkers, so keep the same rule for event titles and descriptions in step 8.
+Leave out anything personal or sensitive: health, pay, comp splits, commission and other dollar amounts, clients' personal details, lockbox codes and access notes, wire instructions and account numbers (never repeat these, even from an event description), private appointments. Calendars and documents get seen by coworkers, so keep the same rule for event titles and descriptions in step 8.
 
 ## 8. Build it in Google Calendar
 

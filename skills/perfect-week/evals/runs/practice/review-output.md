@@ -33,7 +33,7 @@ Flagged, nothing moved:
 | 12:00 | Lunch | Lunch | Lunch | Lunch | Lunch (3rd Friday: Pat's review at 11:00 first) |
 | 12:30 | Recruiting | Recruiting | Open time | Open time | Recruiting |
 | 1:00 | Open time | Open time | Onboarding playbook (your "Focus time" block) | TIMEBLOCK: Recruiting calls | Open time |
-| 2:00 | Listings and marketing | Listings and marketing | 3:00 Casey coaching (Week A) or growth room | Comms sweep, 3:15 Shutdown | Weekly review, then growth room |
+| 2:00 | Listings and marketing | Listings and marketing | 3:00 Casey coaching (Week A) or growth room | Listings and marketing, 2:45 Comms sweep, 3:15 Shutdown | Weekly review, then growth room |
 | 4:15 | Comms sweep, shutdown | Comms sweep, shutdown | Comms sweep, shutdown | | Comms sweep, shutdown |
 
 Week A is the week of Nov 9, Nov 23 and Dec 7 (Avery, Casey). Week B is the week of Nov 16, Nov 30 and Dec 14 (Riley). Prep sits right before what it feeds: the 45 Sample Street packet before Monday's 2:00 appointment, the 9 Example Court CMA on Tuesday afternoon before the 5:30 appointment.

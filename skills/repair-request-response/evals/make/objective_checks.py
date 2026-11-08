@@ -49,7 +49,7 @@ def check(name, ok, evidence=""):
     results.append((name, ok, evidence))
 
 
-check("No em or en dashes", not re.search("[–—]", out))
+check("No em or en dashes", not re.search("[" + chr(0x2013) + chr(0x2014) + "]", out))
 check("Check before sending section", bool(re.search(r"^## Check Before Sending", out, re.M)))
 
 subjects = re.findall(r"\*\*Subject: (.+?)\*\*", out)

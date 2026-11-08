@@ -1,5 +1,7 @@
 # Writing the Response
 
+Last verified: 2026-11-08
+
 Four drafts: the response terms, the seller email, the note to the buyer's agent and the disclosure note. Then "Check before sending."
 
 ## Response Terms for the Addendum
@@ -65,3 +67,10 @@ For the agent and the seller's file.
 ## Check Before Sending
 
 List every date, time, dollar amount, page and item number, quoted finding and quoted disclosure that appears in the response terms, the seller email and the note to the buyer's agent. Give the source of each (the document and page, the bid line, or the agent's message) so the agent can verify it. List every placeholder still open.
+
+## Sources
+
+Checked 2026-11-08, for the form and process facts above:
+- Utah Blank Addendum (ADDENDUM and COUNTEROFFER boxes, acceptance deadline): https://commerce.utah.gov/wp-content/uploads/2023/03/blank-addendum.pdf
+- Utah REPC, November 1, 2026 (Section 2.2 seller's contribution to closing costs): https://utrealtors.wpenginepowered.com/wp-content/uploads/2026/10/REPC-Final-Clean-Copy-10.14.2026-with-Watermark.pdf
+- Utah DEQ, High radon levels? What's next (certified mitigator, post-mitigation test): https://deq.utah.gov/dwmrc/radon-high-levels

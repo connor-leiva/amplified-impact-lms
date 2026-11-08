@@ -26,7 +26,7 @@ for item in pdfs:
     path = os.path.join(SKILL_DIR, item["pdf"])
     pages = pages_of(path)
     text = "".join(pages)
-    if re.search("[–—]", text):
+    if re.search("[" + chr(0x2013) + chr(0x2014) + "]", text):
         print("DASH", item["pdf"])
         bad += 1
     if "PRACTICE FILE: made-up example" not in pages[0]:

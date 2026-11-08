@@ -44,6 +44,7 @@ Read `references/response-guide.md`. For every requested item, find the finding 
 - no matching finding, or a system the inspector didn't test
 - age only, with no defect reported
 - a vague ask ("fix all electrical")
+- terms in the request that aren't repairs (a new price, a moved deadline): list them separately and say they need their own review
 
 Then list findings the buyer didn't request. They stay out of the response but go in the disclosure note.
 
