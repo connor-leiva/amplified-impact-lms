@@ -48,7 +48,7 @@ CASES = {
 }
 
 BANNED = ["stunning", "dream home", "don't hesitate", "hope this email finds you", "circle back", "touch base"]
-DASHES = re.compile("[–—]")
+DASHES = re.compile("[" + chr(0x2013) + chr(0x2014) + "]")
 
 
 def corpus(paths, prompt):

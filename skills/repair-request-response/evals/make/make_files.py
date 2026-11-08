@@ -656,19 +656,19 @@ E2 = "evals/files/eval-2-kitchen-sink/"
 E2_PROP = "781 N Sample Orchard Way, Fictionville, Utah 84999"
 
 repc_2026(E2 + "REPC - 781 N Sample Orchard Way.pdf", {
-    "ref_full": "October 22, 2026", "buyer": "Quinn Exampleton", "seller": "Pat Testwell and Jordan Testwell",
+    "ref_full": "November 2, 2026", "buyer": "Quinn Exampleton", "seller": "Pat Testwell and Jordan Testwell",
     "street": "781 N Sample Orchard Way", "city": "Fictionville", "county": "Mock", "tax_id": "00-000-0001 (made-up)",
     "price": "468,500", "emd": "4,000", "loan": "444,600", "cash": "19,900", "seller_contrib": "3,000",
-    "sdd": "October 29, 2026", "ddd": "November 10, 2026", "apd": "November 19, 2026", "fid": "November 24, 2026",
-    "settle": "December 8, 2026", "offer_exp": "8:00 PM on October 23, 2026", "acc_date": "October 23, 2026, 6:10 PM",
+    "sdd": "November 5, 2026", "ddd": "November 10, 2026", "apd": "November 19, 2026", "fid": "November 24, 2026",
+    "settle": "December 8, 2026", "offer_exp": "8:00 PM on November 3, 2026", "acc_date": "November 3, 2026, 6:10 PM",
 })
 
 report(
     E2 + "Inspection Report - 781 N Sample Orchard Way.pdf",
     {"name": "Make-Believe Home Inspection Co.", "addr": "9 Imaginary Ct, Fictionville, UT", "inspector": "Rowan Placeholder"},
-    {"report_no": "MBHI-1031-26", "address": "781 N Sample Orchard Way", "date": "October 31, 2026",
+    {"report_no": "MBHI-1105-26", "address": "781 N Sample Orchard Way", "date": "November 5, 2026",
      "rows": [("Property", E2_PROP), ("Client", "Quinn Exampleton"), ("Client's agent", "Harper Demo, Pretend Pines Realty"),
-              ("Inspection date", "October 31, 2026, 1:00 PM to 4:00 PM"), ("Weather", "Sunny, 52 F"),
+              ("Inspection date", "November 5, 2026, 1:00 PM to 4:00 PM"), ("Weather", "Sunny, 52 F"),
               ("Home", "Rambler with partly finished basement and attached garage; year built 1984 (per listing); vacant"),
               ("Utilities", "On at time of inspection")]},
     [("5.4", "SAFETY", "Basement stairway has no handrail", "5"),
@@ -744,10 +744,10 @@ report(
 
 blank_addendum(
     E2 + "Buyer Repair Addendum No 1 - 781 N Sample Orchard Way.pdf",
-    "1", "ADDENDUM", "October 22, 2026", "Quinn Exampleton", "Pat Testwell and Jordan Testwell", E2_PROP,
+    "1", "ADDENDUM", "November 2, 2026", "Quinn Exampleton", "Pat Testwell and Jordan Testwell", E2_PROP,
     items_html(
         "Under Section 12.1(b)(ii) of the REPC, Buyer objects to the following items from the Make-Believe Home Inspection Co. report "
-        "MBHI-1031-26 dated October 31, 2026. Seller to complete each item using licensed contractors and deliver paid invoices to Buyer "
+        "MBHI-1105-26 dated November 5, 2026. Seller to complete each item using licensed contractors and deliver paid invoices to Buyer "
         "no later than five calendar days before the Settlement Deadline:",
         ["Roof (page 3, item 3.1): replace the roof with new architectural shingles.",
          "Electrical panel (page 6, item 6.3): correct the double-tapped breaker.",

@@ -171,7 +171,7 @@ def main():
         for label, p in pats:
             if p.search(t):
                 errors.append(f"{rel} has what looks like {label}")
-        for e in sorted(set(re.findall(r"[\w.+-]+@[\w-]+\.[\w.-]+", t))):
+        for e in sorted(set(re.findall(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", t))):
             warnings.append(f"{rel} has the email {e}: keep it only if it's a shared team inbox")
         for i, term in enumerate(a.must_not_contain, 1):
             if term and term.lower() in t.lower():

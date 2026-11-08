@@ -226,7 +226,11 @@ export const PERFECT_WEEK: Guide = skillPage({
           ],
         },
         { p: [{ strong: 'Jordan’s Perfect Week: Plan Through December 18' }] },
-        { p: ['A proposed weekly template for Nov 9 to Dec 18 (off Nov 26 and 27), built from my calendar and task list.'] },
+        {
+          p: [
+            'A proposed weekly template for Nov 9 to Dec 18 (off Nov 26 and 27), built from my calendar and task list.',
+          ],
+        },
         {
           p: [
             { strong: 'The week:' },
@@ -246,16 +250,20 @@ export const PERFECT_WEEK: Guide = skillPage({
           ],
         },
         { p: [{ strong: 'The asks:' }] },
-        { p: ['1. Move the business plan review from Dec 11 to the Dec 18 monthly review, or find an hour before Dec 11.'] },
         {
-          p: ['2. Agree the recruiting target as about 5 hours in a normal week (5.5 planned) and 3.5 hours Thanksgiving week.'],
+          p: [
+            '1. Move the business plan review from Dec 11 to the Dec 18 monthly review, or find an hour before Dec 11.',
+          ],
+        },
+        {
+          p: [
+            '2. Agree the recruiting target as about 5 hours in a normal week (5.5 planned) and 3.5 hours Thanksgiving week.',
+          ],
         },
         { p: ['3. Agree that Morgan takes the five items above.'] },
         { h: 'Check before sending' },
         {
-          items: [
-            'The asks: three, as listed. Check Morgan has agreed to the five items before Pat sees ask 3.',
-          ],
+          items: ['The asks: three, as listed. Check Morgan has agreed to the five items before Pat sees ask 3.'],
         },
         { h: 'Before the calendar' },
         {
