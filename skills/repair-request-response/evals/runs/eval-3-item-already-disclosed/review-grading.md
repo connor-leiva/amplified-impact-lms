@@ -2,11 +2,12 @@
 
 Independent reviewer run on 2026-11-08 (`review-output.md`), done from scratch by following SKILL.md and its references before reading the builder's output. Inputs read in full as text (pdftotext): Addendum No. 1, the 10-page inspection and sewer scope report, the 2-page seller disclosure and the sewer bid. Prompt as in evals.json.
 
-Result: **pass, 9 of 9 expectations; 9 of 9 objective checks** (`review-objective-checks.txt`).
+Result: **pass, 10 of 10 expectations; 9 of 9 objective checks** (`review-objective-checks.txt`). Expectation 1a was added to evals.json by this review.
 
 | # | Expectation | Result | Evidence |
 |---|---|---|---|
 | 1 | Flags the missing deadline, uses [Due Diligence Deadline], signed resolution by 5:00 PM MT, no Response Period | Pass | Flags, second bullet; The Clock, second bullet |
+| 1a | Bold flag that Addendum No. 1 lapses at 5:00 PM MT on November 9, 2026, with no deadline known | Pass | Flags, first bullet, in bold |
 | 2 | Sewer split: roots and the March 2024 cleaning (disclosure page 2, item 3b) versus the offset at 52 feet and the belly from 61 to 68 feet | Pass | Item table row 1; Options |
 | 3 | Dates compared: September 18, 2026; October 19, 2026; Offer Reference Date October 20, 2026 | Pass | Item table row 1 |
 | 4 | Sewer options from the bid only, splits as arithmetic | Pass | $3,850, $6,400, $11,600; "$11,600 minus $6,400 = $5,200"; "$11,600 / 2 = $5,800" |

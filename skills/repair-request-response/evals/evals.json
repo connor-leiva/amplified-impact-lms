@@ -61,6 +61,7 @@
       ],
       "expectations": [
         "The output flags at the top that the Due Diligence Deadline wasn't provided, uses [Due Diligence Deadline], and says a written resolution must be signed by 5:00 PM Mountain Time on that deadline under the current Utah REPC, with no Response Period",
+        "With no Due Diligence Deadline known, the output flags in bold at the top that the buyer's Addendum No. 1 lapses at 5:00 PM Mountain Time on November 9, 2026, the next day",
         "The sewer item is split into the disclosed part (roots and the March 2024 cleaning, disclosure page 2 item 3b) and the new part (the offset at 52 feet and the belly from 61 to 68 feet)",
         "The output compares dates: the disclosure was signed September 18, 2026 and acknowledged by the buyer October 19, 2026, before the October 20, 2026 Offer Reference Date",
         "Sewer options use only the bid amounts ($3,850, $6,400, $11,600), with any split shown as arithmetic, and no other sewer cost appears",
