@@ -13,6 +13,7 @@ import { describe, expect, it } from 'vitest';
 import { check, DOWNLOADS_DIR, expected, listSkills, readManifest, shellFor, shellPath, SKILLS_DIR, unzip } from '../../../../scripts/skills.mjs';
 import { ENTRIES } from '../library/content';
 import { GUIDES } from './content';
+import { renderGuideBody } from './render';
 import { GUIDE_HTML } from './vite-plugin';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -72,6 +73,21 @@ describe.each(SKILLS)('skills/%s', (name) => {
   it('is in the free library, linked to its page', () => {
     expect(ENTRIES.some((e) => e.href === `/${manifest.page}`)).toBe(true);
   });
+});
+
+it('links only to pages that exist, so a skill page never ships pointing at one still to come', () => {
+  // The other public pages a guide may link to (D-028, D-040, D-046, D-050, D-035), and every guide.
+  const pages = new Set(['/library', '/ai101', '/voice-profile', '/retool', '/terms', '/privacy', ...Object.keys(GUIDES).map((s) => `/${s}`)]);
+  const html = Object.values(GUIDES).map((g) => renderGuideBody(g));
+  for (const page of html) {
+    for (const [, href] of page.matchAll(/href="(\/[^"#?]*)/g)) {
+      if (href.startsWith('/downloads/')) {
+        expect(existsSync(join(DOWNLOADS_DIR, href.slice('/downloads/'.length))), `${href} is not in public/downloads`).toBe(true);
+        continue;
+      }
+      expect(pages.has(href), `a guide page links to ${href}, which is not a page yet`).toBe(true);
+    }
+  }
 });
 
 it('keeps every download in public/downloads tied to a source', () => {
