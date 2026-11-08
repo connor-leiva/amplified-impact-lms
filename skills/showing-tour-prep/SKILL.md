@@ -18,6 +18,7 @@ Why it matters: an agent-detail sheet mixes public facts with fields only MLS me
 
 - **Required:** an MLS sheet for each home, one PDF per home or one PDF with all of them. The agent version (with agent remarks and showing instructions) is best. A client or public version works; say the agent-only page will be thin. No sheet at all: ask for them and stop.
 - **Optional:** the buyer's criteria from the agent's message, a pasted Follow Up Boss note or an uploaded note; the tour date; the buyer's loan type if mentioned. Use what's there. Don't ask for more.
+- Read every sheet to its last page: agent remarks and showing fields often sit there.
 - A home the agent names without a sheet: list it under Flags and prep the rest. Never ask the agent to type what a sheet contains. A missing tour date becomes [Tour Date], flagged at the top.
 - **Utah mode** (Utah addresses): read `references/utah-tour-notes.md`, then the sections of `references/utah-property-notes.md` the sheets raise (water rights and shares, HOA rental restrictions, reinvestment fees, radon, public infrastructure districts).
 - **General mode** (any other state): skip every utah-* file. Say near the top: "State rules were not checked; this follows the MLS sheets only."

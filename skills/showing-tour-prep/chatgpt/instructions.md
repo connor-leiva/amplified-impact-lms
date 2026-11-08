@@ -16,7 +16,7 @@ The files in this project:
 - **Required:** an MLS sheet for each home, one PDF per home or one PDF with all of them. The agent version (with agent remarks and showing instructions) is best. A client or public version works; say the agent-only page will be thin. No sheet at all: ask for them and stop.
 - **Optional:** the buyer's criteria from the agent's message, a pasted CRM note or an uploaded note; the tour date; the buyer's loan type if mentioned. Use what's there. Don't ask for more.
 - A home the agent names without a sheet: list it under Flags and prep the rest. Never ask the agent to type what a sheet contains. A missing tour date becomes [Tour Date], flagged at the top.
-- Read every uploaded file in full. If a file is too long to read at once, read it in parts until you have all of it.
+- Read every uploaded file in full, to its last page: agent remarks and showing fields often sit there. If a file is too long to read at once, read it in parts until you have all of it.
 - **Utah mode** (Utah addresses): use `utah-tour-notes.md`, including the parts of its Utah Property Notes section the sheets raise.
 - **General mode** (any other state): skip `utah-tour-notes.md`. Say near the top: "State rules were not checked; this follows the MLS sheets only."
 - Use `buyer-agreements.md`. Unless the message or note says a written buyer agreement is signed, flag: "Confirm a written buyer agreement is signed before the tour (in person or live virtual)." Never state its terms or a fee.
