@@ -1255,6 +1255,15 @@ def write_report(pnl, A, det, prod, P, budget, notes, out_dir):
                          money(team) if team is not None else "n/a", money(inc), label])
         L.append("### P&L Commission Income Against the Production File")
         L.append(table(["Month", "Closings", "Production GCI", "GCI after referral fees", "Team's share", "P&L commission income", "Reads as"], rows))
+        for k, inc, gci, gar, team, label in P["recon"]:
+            if A["status"][k] != "gross" or not label.startswith("matches gross"):
+                p = P["per"][k]
+                parts = [f"GCI {m2(p['gci'])}"] if P["has"]["gci"] else []
+                for f, name in (("agent_paid", "paid to agents"), ("referral", "referral fees"), ("brokerage", "brokerage fees"), ("team", "team's share")):
+                    if P["has"][f]:
+                        parts.append(f"{name} {m2(p[f])}")
+                L.append(f"\n{mlabel(k)} in the production file ({p['closings']:g} closings): " + "; ".join(parts) +
+                         f". The P&L shows commission income {m2(inc)}, agent splits {m2(A['splits'][k])}, referral fees {m2(A['referral'][k])}, brokerage split and fees {m2(A['brokerage'][k])}.")
         c = P["cpc"]
         if c:
             L.append("\n### Cost per Closing (period)")

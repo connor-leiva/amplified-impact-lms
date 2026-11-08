@@ -164,6 +164,8 @@ Charge-level checks (duplicate charges, new vendors, a vendor in the wrong accou
 | May 2026 | 11 | $149,069 | $135,247 | $46,645 | $149,069 | matches gross GCI |
 | Jun 2026 | 10 | $139,676 | $131,315 | $53,091 | $139,676 | matches gross GCI |
 
+Apr 2026 in the production file (10 closings): GCI 147,457.50; paid to agents 67,915.20; referral fees 8,478.00; brokerage fees 7,372.89; team's share 63,691.41. The P&L shows commission income 63,691.41, agent splits 0.00, referral fees 0.00, brokerage split and fees 0.00.
+
 ### Cost per Closing (period)
 - Operating expenses per closing = 274,678.55 / 56 = 4,904.97
 - Lead generation per closing = 61,300.00 / 56 = 1,094.64

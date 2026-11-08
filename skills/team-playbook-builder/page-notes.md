@@ -18,7 +18,7 @@ Any mix of these, up to 20 files in one chat (Claude's limit per chat; 500 MB pe
 - **Google Docs:** open the doc, then File > Download, and choose PDF or Microsoft Word (.docx). Source: https://support.google.com/docs/answer/49114 (checked 2026-11-08).
 - **Google Drive without downloading:** with the Google Drive connector, click + in the chat, choose "Add from Google Drive," and search or paste the doc's link. Source: https://support.claude.com/en/articles/10166901-use-google-workspace-connectors (checked 2026-11-08). Drive reads text only, not images inside docs.
 - **OneDrive or SharePoint:** connect Microsoft 365 under Customize > Connectors (find Microsoft 365, click Add), then ask Claude to read the folder. Available on every Claude plan. Source: https://support.claude.com/en/articles/15183774-connect-to-microsoft-365 (checked 2026-11-08 by Amplified's vendor review).
-- **ClickUp Docs:** connect ClickUp from Customize > Connectors; its directory listing says it reaches ClickUp tasks, docs and Chat. Source: https://claude.com/marketplace/connectors/clickup (checked 2026-11-08). Exporting a ClickUp Doc to PDF is also possible, but ClickUp's help center blocked our check on 2026-11-08, so the page should send people to the connector, or to ClickUp support for export steps.
+- **ClickUp Docs:** connect ClickUp from Customize > Connectors: click + next to Connectors, find ClickUp, click Connect and sign in. Sources: https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities (checked 2026-11-08 by Amplified's vendor review) and the ClickUp listing, which says it reaches ClickUp tasks, docs and Chat: https://claude.com/marketplace/connectors/clickup (checked 2026-11-08). Exporting a ClickUp Doc to PDF is also possible, but ClickUp's help center blocked our check on 2026-11-08, so the page should send people to the connector, or to ClickUp support for export steps.
 - **Training call recordings (Zoom):** in the Zoom web portal, click Recordings & Transcripts, open the Cloud recordings tab, and click the meeting's name; the audio transcript is a VTT file in the list of recording files. Needs a Pro, Business, Education or Enterprise Zoom account with cloud recording and audio transcription on. Source: https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0064927 (checked 2026-11-08).
 - **Other transcripts (Otter, Fathom, Granola):** a text export or a copy of the transcript works. We didn't check those vendors' export menus; the page should say "export or copy the transcript as text" without a click path.
 
@@ -57,10 +57,10 @@ The playbook itself answers agents only from the team's documents, ends every an
 ## What the Person Needs
 
 - **The leader:** a Claude account with code execution on (on by default for Free, Pro, Max and Ultra: Settings > Capabilities > "Code execution and file creation," called "Create and edit files" in the updated settings). Skills require it. Source: https://support.claude.com/en/articles/12512180-use-skills-in-claude (checked 2026-11-08).
-- **Each agent:** their own Claude account, or a seat on the team's Claude Team or Enterprise plan. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; the claude.com docs and Anthropic's platform docs leave Free out. The page should say skills are on paid plans and "may also work on Free."
+- **Each agent:** their own Claude account, or a seat on the team's Claude Team or Enterprise plan. Claude's Help Center and pricing page list skills on Free, Pro, Max, Ultra, Team and Enterprise; the claude.com docs and Anthropic's platform docs leave Free out. The page should say "works on any Claude plan; if an agent on Free doesn't see the upload option, they need a paid plan." Sources: https://support.claude.com/en/articles/12512180-use-skills-in-claude (checked 2026-11-08) and https://claude.com/pricing (checked 2026-11-08 by Amplified's vendor review).
 - **Connectors:** optional (Google Drive, Microsoft 365, ClickUp), read only.
 - **Cost:** nothing beyond the Claude plan. No other accounts.
-- **Time:** one chat for the leader; about two minutes per agent to install, or none if an owner provisions it on a Team or Enterprise plan.
+- **Time:** one chat for the leader; a few clicks per agent to install, or none if an owner provisions it on a Team or Enterprise plan.
 
 ## Run / Draft / Own
 
@@ -76,7 +76,7 @@ The playbook itself answers agents only from the team's documents, ends every an
 
 **My documents disagree with each other. Will it guess?** No. It quotes both, asks you to choose, and until you do, the playbook shows agents both versions and tells them to ask you.
 
-**Can agents who use ChatGPT use it?** Not this version. The playbook is a Claude skill, and ChatGPT can't install one. See "Why There's No ChatGPT Version."
+**Can agents who use ChatGPT use it?** Not tested. ChatGPT now supports skills in the same open format, but the playbook's install and sharing steps are Claude's, and we haven't tried a generated playbook in ChatGPT. See "Why There's No ChatGPT Version."
 
 **We're not in Utah. Does it work?** Yes. Everything comes from your own documents, so it works in any state and with any brokerage. It doesn't check your documents against state law; it flags items for your broker instead.
 
@@ -90,7 +90,7 @@ What to look for: it catches the pond rule conflict (10 days versus 14), lists p
 
 ## Why There's No ChatGPT Version
 
-The job's output is a Claude skill that agents install, and ChatGPT can't install or run one, so a ChatGPT Project version of the builder would hand the leader something agents can't use. Custom GPTs retire on December 11, 2026 (https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq), and shared ChatGPT Projects are small on Free (5 files and 5 collaborators; https://help.openai.com/en/articles/6825453-chatgpt-release-notes), both checked 2026-11-08 by Amplified's vendor review. A later version could also export the playbook as a shared ChatGPT Project for teams on paid ChatGPT plans; that's an open question for Connor.
+The job's output is a Claude skill: its upload checks, install steps and sharing options are all Claude's, and it was tested only as a Claude skill, so this version ships for Claude only. ChatGPT now supports skills in the same open format (a folder with a SKILL.md that has a name and a description): standalone skills in the ChatGPT desktop app, and skills inside plugins in Chat and Work on the web, desktop and mobile. Sources: https://learn.chatgpt.com/docs/build-skills and https://learn.chatgpt.com/codex/skills-and-plugins (both checked 2026-11-08). We haven't tested whether a generated playbook installs or answers correctly there, and OpenAI's own install steps for a skill file weren't checked (help.openai.com blocked our check), so the page shouldn't promise ChatGPT. Custom GPTs retire on December 11, 2026 (https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq), and shared ChatGPT Projects are small on Free (5 files and 5 collaborators; https://help.openai.com/en/articles/6825453-chatgpt-release-notes), both checked 2026-11-08 by Amplified's vendor review. Whether a later version should add ChatGPT install steps for teams that use ChatGPT is an open question for Connor.
 
 ## Suggested Library Keywords
 
@@ -104,10 +104,13 @@ team playbook, SOP, onboarding, agent onboarding, team policies, policy manual, 
 - Eval 2, individual splits, an unconfirmed fee schedule, phone numbers, a personal email, an alarm code and trust account numbers: passed 9 of 9 after three fixes
 - Eval 3, a team name containing "Claudette," a May 2024 manual, a training call that changes a rule, and a Team plan: passed 8 of 8 after two fixes
 - Every generated playbook passed the skill's own check script and the repo's SKILL.md rules (scripts/skills.mjs frontmatter parsing), and each ZIP has one folder at its root
+- Independent review (2026-11-08): a second run of eval 2 and of the practice set, from SKILL.md alone, passed 9 of 9 and every practice check, with no removed name, number or figure anywhere. Both eval 2 runs (the builder's and the reviewer's first draft) put "ask the Operations Manager" behind a removed office code the manual gave no process for. The skill now says to write nothing there and list the question as a gap, and both runs were corrected and rechecked.
 
 **Not tested:**
 - Uploading a generated ZIP to a live claude.ai account (no account in the build environment). The ZIPs follow every documented rule, and Amplified's own skills upload in the same format.
 - Asking questions of an installed playbook (the 25-question test sets are written, not run)
 - Google Drive, Microsoft 365 and ClickUp connector reads (no connected accounts); scanned image-only PDFs; sets over 20 files
 - Utah Life's real onboarding documents (the handoff's private fixture), which Connor hasn't sent yet
+- Long documents: the practice and eval files run one to two pages each, and real manuals run much longer, so "read every document in full" is untested at real length. The Utah Life pass covers it.
+- Installing or using a generated playbook in ChatGPT
 - Whether claude.ai accepts a description that contains the word "claude" inside a team's name (the documented reserved-word rule covers only the name)

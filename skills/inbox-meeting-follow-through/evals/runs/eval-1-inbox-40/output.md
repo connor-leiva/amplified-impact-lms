@@ -9,7 +9,7 @@
 Red flags:
 - The sender domain doesn't match Sandbar Title. Jill Escrowby's genuine email on Friday, October 30 came from jill@sandbartitle.example; this one comes from a different domain (sandbartitle-closings.example).
 - Sandbar Title said in that same October 30 email: "We never change wiring instructions by email," and that the buyers get instructions through its secure portal.
-- A last-minute change to a "new trust account effective today," two days before closing.
+- A last-minute change to a "new trust account effective today," days before closing.
 - Urgency: it wants the buyers to wire "today or tomorrow."
 - It asks you to forward the instructions to your buyers, Terry and Sam Buyerly, and to reply to confirm.
 - It gives a cell number that is not Sandbar Title's office number, and the beneficiary is not Sandbar Title.
@@ -101,7 +101,7 @@ No transcripts today, as you said. Granola's notice says your notes for Monday's
 To: Gail Closewell, Dana Sampleford
 Subject: Possible Wire Fraud Email On 9 Example Dune Ln: Do Not Forward
 
-Gail, Dana, an email came in Monday at 6:41 PM claiming to be from Sandbar Title with "revised" wiring instructions for 9 Example Dune Ln. Red flags: it's from a different domain than Jill's real address, Sandbar told us on October 30 it never changes wiring instructions by email, it pushes a brand-new account two days before closing, and it asks us to forward it to the buyers.
+Gail, Dana, an email came in Monday at 6:41 PM claiming to be from Sandbar Title with "revised" wiring instructions for 9 Example Dune Ln. Red flags: it's from a different domain than Jill's real address, Sandbar told us on October 30 it never changes wiring instructions by email, it pushes a brand-new account days before closing, and it asks us to forward it to the buyers.
 
 Please don't forward it, reply to it or use anything in it.
 

@@ -105,10 +105,10 @@ export const PERFECT_WEEK: Guide = skillPage({
   sections: [
     {
       // sample.md (the practice run, 12 of 12 expectations), shortened, in the output's own order and
-      // its own words, cut only by whole items and sentences: the bottom line, three reads, two days of
-      // the week, the hours table, the holds and three flags, the task check with its weekly table and
-      // the six moves, Morgan's load, the summary for Pat in full, one check line, and Before the
-      // calendar. Left out: the fixed-meeting list, the task-by-task table and the projects table.
+      // its own words, cut only by whole items and sentences: the bottom line, two days of the week, the
+      // hours table, the holds and three flags, the task check with its weekly table and three of its six
+      // moves (labeled so), the summary for Pat in full, one check line, and Before the calendar. Left
+      // out: What I read, the task-by-task table, the projects table and the hand-offs section.
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a plan looks like',
@@ -127,14 +127,6 @@ export const PERFECT_WEEK: Guide = skillPage({
             'Your intake answers covered everything I needed, so I went straight through steps 2 to 7 as you asked and stopped before the calendar. Plan page: ',
             { strong: 'Jordan’s Perfect Week' },
             ' (plan-page.html, attached). Nothing was connected and nothing was changed.',
-          ],
-        },
-        { h: 'What I read' },
-        {
-          items: [
-            'Placeholder: “Focus time,” Wed 1:00 to 2:30. The plan gives it a job.',
-            'No reply yet: Lunch & Learn: 2027 Loan Programs (Thu Nov 12, 12:00 to 1:00) and Friendsgiving potluck (Wed Nov 18, 12:00 to 1:30). Are you going? You already declined the brokerage happy hour, so it’s not in your week.',
-            'Contract deadlines posted by Transactions: Due Diligence Deadline (Fri Nov 13) and Settlement Deadline (Fri Nov 20), 210 Testwood Drive. For planning only; confirm dates with your transactions team.',
           ],
         },
         { h: 'Your week' },
@@ -219,22 +211,12 @@ export const PERFECT_WEEK: Guide = skillPage({
             '“After fixes” includes about 2 recruiting coffees a week (none Thanksgiving week), so the 10 coffees spread out instead of landing on Dec 18.',
           ],
         },
-        { p: [{ strong: 'The moves:' }] },
+        { p: [{ strong: 'Three of the six moves:' }] },
         {
           items: [
-            'Hand five items to Morgan: 5.5 hours one-time plus 15 minutes a week (details under Hand-offs).',
             'Send the two transaction tasks back to Tatum. Updating the under-contract tracker and the compliance file review are the transactions team’s work, not hours in your week.',
             'Clear the two overdue items this week: receipts in Wednesday’s ops block, the October P&L in Friday’s sync with Morgan.',
-            'Pull the Dec 4 work forward: the goals draft, the checklists and the presentation refresh all land before Thanksgiving, so Dec 4 isn’t a crunch.',
             'Move “Review business plan draft with Pat” from Dec 11 to the Dec 18 monthly review, if Pat agrees.',
-            'Park “Rewrite team website bio” (no due date) to next quarter.',
-          ],
-        },
-        { h: 'Hand-offs' },
-        {
-          p: [
-            { strong: 'Morgan Placeholder, operations manager' },
-            ' (cap: the 4 hours a week you said Morgan can take on). Load by week: 1.25, 1.25, 1.75, 2.25, 0.25, 0.25 hours. The highest week (Nov 30) is under the 4-hour cap. Hand these over in Friday’s ops sync, and ask Morgan whether that load works before you count on it.',
           ],
         },
         { h: 'Summary for Pat' },
