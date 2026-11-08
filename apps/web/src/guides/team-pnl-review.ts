@@ -68,7 +68,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
     // two files hold and what the run should find (evals/make/planted/practice.json; sample.md).
     prompt: 'Here’s our P&L and our closed deals. How are we doing, and what should I look at?',
     note: [
-      'There are two files: a QuickBooks-style P&L by month for a made-up team, January to September 2026, and that team’s closed-deal export. Every name and number in them is made up. Look for the 2 pending deals and 1 canceled deal left out of the 77 closings, the drop in brokerage fees sent to the broker as a question, and the lead portal’s price increase as the one decision. ',
+      'There are two files: a QuickBooks-style P&L by month for a made-up team, January to September 2026, and that team’s closed-deal export. Every name and number in them is made up. Look for the 2 pending deals and 1 canceled deal left out of the 77 closings, the drop in brokerage fees, turned into a question for your broker, and the lead portal’s price increase as the one decision. ',
     ],
   },
 
@@ -116,7 +116,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         { h: 'What I used' },
         {
           items: [
-            'Production: 77 closings in those months. Left out: 2 pending deals and 1 canceled deal. Client names and addresses in the file were not used.',
+            'Production: PRACTICE Closed Deals Export Jan-Sep 2026.csv, 77 closings in those months. Left out: 2 pending deals and 1 canceled deal. Client names and addresses in the file were not used.',
             'Totals check: passed. Every month’s accounts add up to the report’s own Net Income and section totals.',
             'Gaps: no P&L Detail, so charge-level checks (duplicate charges, new vendors, a vendor in the wrong account) were not run. No budget. No prior-year months.',
           ],
@@ -161,7 +161,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
           },
         },
         { p: ['The team also collected 6,750.00 in fees charged to agents (Agent Fee Income), outside company dollar.'] },
-        { h: 'Cost per closing' },
+        { h: 'Cost per closing and lead sources' },
         { p: ['From the 77 closed deals in the export (January to September):'] },
         {
           items: [
@@ -260,7 +260,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         },
         {
           title: 'What the AI used',
-          body: 'Your files, the months, cash or accrual, and a totals check: every month’s accounts must add up to your report’s own totals. Plus any account the AI had to sort again, and anything missing.',
+          body: 'Your files, the months, whether your books are on a cash or accrual basis (when the report says), and a totals check: every month’s accounts must add up to your report’s own totals. Plus any account the AI moved to a different category (say, agent payouts filed under Contract Labor), and anything missing.',
         },
         {
           title: 'How your books record commissions',
@@ -268,7 +268,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         },
         {
           title: 'Company dollar and margin',
-          body: 'Company dollar is what the team keeps from commissions after agent splits, referral fees and the brokerage’s split and fees. You get it and your margin by month and for the period, with the arithmetic. Fees you charge agents and revenue share from your brokerage are shown on their own line.',
+          body: 'Company dollar is what the team keeps from commissions after agent splits, referral fees and the brokerage’s split and fees. Margin is net income as a share of company dollar. You get both by month and for the period, with the arithmetic. Fees you charge agents and revenue share from your brokerage are shown on their own line.',
         },
         {
           title: 'Where the money goes',
@@ -276,7 +276,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         },
         {
           title: 'What changed',
-          body: 'Last month against the month before and against the earlier months’ average, year to date, and against your budget if you upload one.',
+          body: 'Last month against the month before and against the earlier months’ average, year to date when your file starts in January, and against your budget if you upload one.',
         },
         {
           title: 'Cost per closing and lead sources',
@@ -284,7 +284,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         },
         {
           title: 'Anomalies',
-          body: 'Duplicate charges, new recurring charges, charges in the wrong account, uncategorized items, owner draws in expenses and one-month jumps. Duplicates and new vendors need your P&L Detail.',
+          body: 'Duplicate charges, new recurring charges, charges in the wrong account, uncategorized items, owner draws in expenses and one-month jumps. Duplicate charges, new vendors and a vendor in the wrong account need your P&L Detail.',
         },
         {
           title: 'Questions for your bookkeeper, CPA and broker',
@@ -292,7 +292,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         },
         {
           title: 'An owner brief',
-          body: 'One page in plain words, safe to hand a business partner: it names no one’s pay.',
+          body: 'One page in plain words that you can share with a business partner. It shows no one’s individual pay.',
         },
         {
           title: 'An email to your bookkeeper',
@@ -344,21 +344,21 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         },
         {
           title: 'Or a ChatGPT plan',
-          body: 'The ChatGPT version goes in a Project, a folder in ChatGPT that keeps instructions and files together. It needs data analysis to do the math, and ChatGPT’s free plan has data analysis only as “Limited.”',
+          body: 'The ChatGPT version goes in a Project, a folder in ChatGPT that keeps instructions and files together. It needs data analysis, the ChatGPT tool that runs the math in code. ChatGPT’s free plan has data analysis only as “Limited.”',
           tag: 'Free ChatGPT limits uploads and data analysis',
         },
         {
           title: 'A computer',
-          body: 'Setting up a skill is easiest on a computer. It’s also where you export your P&L. QuickBooks Desktop exports from the computer it runs on.',
+          body: 'Setting up a skill is easiest on a computer. A computer is also where you export your P&L. QuickBooks Desktop exports from the computer it runs on.',
         },
         {
           title: 'Your P&L by month',
           body: 'From QuickBooks Online, QuickBooks Desktop or Xero, as Excel with the months across the top. A CSV or your bookkeeper’s PDF works too. Your P&L Detail, closed deals and a budget help, but aren’t needed.',
-          tag: 'Excel works best. Nothing to type.',
+          tag: 'Excel works best. No numbers to type in.',
         },
         {
           title: 'Connectors, if you want',
-          body: 'A connector links Claude to another app. With the QuickBooks, Xero or Sisu Sunburst connector on, Claude can read your numbers there instead of from an export. The skill only reads, though the QuickBooks connector can also send invoices. We haven’t tested these yet.',
+          body: 'A connector links Claude to another app. You don’t need one: the skill works from your exports. If the QuickBooks, Xero or Sisu Sunburst connector is on, Claude can read your numbers there, and only reads. The QuickBooks connector can also send invoices, which the skill never does. We haven’t tested the connectors yet.',
           tag: 'Sunburst needs a Sunburst subscription',
         },
         {
@@ -392,7 +392,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
         },
         {
           title: 'Your P&L Detail (optional)',
-          body: 'For duplicate charges and new vendors. In QuickBooks Online, search Standard reports for Profit and Loss Detail, use the same dates, and export to Excel. It’s on the Essentials, Plus and Advanced plans. In QuickBooks Desktop: Reports, then Company & Financial, then Profit & Loss Detail.',
+          body: 'For duplicate charges and new vendors. In QuickBooks Online, search Standard reports for Profit and Loss Detail, use the same dates, and export to Excel. QuickBooks Online has the Detail report on its Essentials, Plus and Advanced plans. In QuickBooks Desktop: Reports, then Company & Financial, then Profit & Loss Detail.',
         },
         {
           title: 'Your closed deals (optional)',
@@ -466,8 +466,8 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
           // page-notes.md, "What You Need" and "What Was and Wasn't Tested".
           q: 'Which plan do I need, and what was tested?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, you need a paid plan. In ChatGPT, a Project with data analysis. ChatGPT’s free plan limits data analysis and uploads. We tested the skill in Claude on made-up QuickBooks-style reports. We haven’t run a real QuickBooks, Xero or Sisu export through it yet, or tried it in ChatGPT, on Claude’s free plan or with a connector. So run the practice files first. The first time you use your own P&L, look at the totals check in ',
-            { strong: 'What I Used' },
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, you need a paid plan. In ChatGPT, a Project with data analysis. ChatGPT’s free plan limits data analysis and uploads. We tested the skill in Claude on made-up QuickBooks-style reports. We haven’t run a real QuickBooks, Xero or Sisu export through it yet, or tried it in ChatGPT, on Claude’s free plan, with a connector or with a budget. So run the practice files first. The first time you use your own P&L, look at the totals check in ',
+            { strong: 'What I used' },
             '.',
           ],
         },
@@ -483,7 +483,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
     {
       kind: 'note',
       body: [
-        'Want the other half of your team’s numbers, your CRM? ',
+        'Want to check the other half of your team’s numbers, your CRM? ',
         { link: 'Database Health Check', href: '/database-health-check', sameTab: true },
         ' turns your CRM export into a health report and a cleanup list.',
       ],
