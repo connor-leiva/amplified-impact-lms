@@ -216,6 +216,14 @@ function chatgptSetup(p: SkillPage, skill: string, paste: string): SetupStep[] {
   ];
 }
 
+/**
+ * Words to say, as a copy chip, or as the copy block when they run past a short line: a long prompt in
+ * a chip is a screen tall on a phone.
+ */
+const LONG_PROMPT = 120;
+const say = (words: string): Pick<SetupStep, 'copy' | 'copyBlock'> =>
+  words.length > LONG_PROMPT ? { copyBlock: words } : { copy: words };
+
 function practiseStep(p: SkillPage, skill: string, where: string, voice: readonly Inline[]): SetupStep {
   const body: readonly Inline[] = p.practice.zip
     ? ['Download the practice files. ', { strong: 'Don’t unzip them.' }, ` ${where}, attach the ZIP, and say this.`]
@@ -224,7 +232,7 @@ function practiseStep(p: SkillPage, skill: string, where: string, voice: readonl
     title: 'Practise on the Made-Up Example',
     body,
     action: { label: 'Download Practice Files', href: `/downloads/${skill}-practice.zip`, download: `${skill}-practice.zip` },
-    copy: p.practice.prompt,
+    ...say(p.practice.prompt),
     note: [...(p.practice.note ?? ['Every name, address and number in them is made up. ']), ...voice],
   };
 }
@@ -233,7 +241,7 @@ function realStep(p: SkillPage): SetupStep {
   return {
     title: 'Use It on Your Own Files',
     body: p.real.body,
-    ...(p.real.prompt === undefined ? {} : { copy: p.real.prompt }),
+    ...(p.real.prompt === undefined ? {} : say(p.real.prompt)),
     note: p.real.note ?? CHECK_BEFORE_SENDING,
   };
 }

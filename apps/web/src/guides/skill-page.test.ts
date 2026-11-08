@@ -182,6 +182,17 @@ describe('what a skill can add to the steps', () => {
   });
 });
 
+describe('a long prompt', () => {
+  const long = 'Read the practice files and tell me what matters, then draft the email, '.repeat(3).trim();
+  const guide = skillPage({ ...SPEC, practice: { prompt: long } });
+  const practise = (guide.download.setup ?? []).find((s) => s.title === 'Practise on the Made-Up Example');
+
+  it('is a copy block, not a chip a screen tall on a phone', () => {
+    expect(practise?.copyBlock).toBe(long);
+    expect(practise?.copy).toBeUndefined();
+  });
+});
+
 describe('a skill page for Claude only', () => {
   const { chatgpt: _none, ...claudeOnly } = SPEC;
   const guide = skillPage({ ...claudeOnly, skill: 'made-up-folder' });
