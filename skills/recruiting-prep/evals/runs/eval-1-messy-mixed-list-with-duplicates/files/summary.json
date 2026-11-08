@@ -5,7 +5,7 @@
    "kind": "production",
    "header_row": 3,
    "titles": [
-    "TEST FILE: made-up example",
+    "PRACTICE FILE: made-up example",
     "Agent Production Report Tri-County Example MLS Closed 11/01/2025 to 10/31/2026 All residential property types Generated 11/03/2026"
    ],
    "period": "11/01/2025 to 10/31/2026",
@@ -36,7 +36,7 @@
    "kind": "list",
    "header_row": 2,
    "titles": [
-    "TEST FILE: made-up example"
+    "PRACTICE FILE: made-up example"
    ],
    "period": "",
    "columns": {

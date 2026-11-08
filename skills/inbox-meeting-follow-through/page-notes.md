@@ -102,7 +102,7 @@ inbox, email triage, daily pass, morning routine, follow-up, follow-through, mee
 
 ## Why There's No ChatGPT Version
 
-Built Claude only, as specified: the daily pass is designed around Claude's Gmail, Microsoft 365, Google Calendar and Granola connectors reading the inbox and meetings directly, with the "Covered through" handoff between passes. The pasted-thread mode would work in a ChatGPT Project; whether to add one is an open question for Connor.
+Built Claude only, as specified: the daily pass is designed around Claude's Gmail, Microsoft 365, Google Calendar and Granola connectors reading the inbox and meetings directly, with the "Covered through" handoff between passes. The pasted-thread mode would work in a ChatGPT Project; whether to add one is an open question.
 
 ## Tested and Not Tested
 

@@ -3,7 +3,7 @@
 ## Columns Used
 
 **ghl-agent-recruiting-opportunities.csv**: list file, header on row 2, 46 rows read. Period: not stated in the file
-- Title lines: TEST FILE: made-up example
+- Title lines: PRACTICE FILE: made-up example
 - Mapped: name = "Contact Name"; phone = "Phone"; email = "Email"; stage = "Stage"; status = "Status"; owner = "Assigned To"; tags = "Tags"; last_touch = "Updated On"; office = "Current Brokerage"; units = "Closed Units 12 Mo"; volume = "Closed Volume 12 Mo"; list_sides = "Listing Sides 12 Mo"; buy_sides = "Buyer Sides 12 Mo"; prod_source = "Production Source"; text = "SMS Consent"; dnd = "DND"; notes = "Recruiter Notes"
 - Not used: "Opportunity Name"; "Pipeline"; "Opportunity Value"; "Source"; "Created On"; "Opportunity ID"; "Contact ID"
 - Rows with notes: 39 (notes are never read into tiers, signals, drafts or the CSV)

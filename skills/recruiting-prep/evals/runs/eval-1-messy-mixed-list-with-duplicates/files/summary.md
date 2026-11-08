@@ -3,13 +3,13 @@
 ## Columns Used
 
 **mls-agent-production-report.csv**: production file, header on row 3, 150 rows read. Period: 11/01/2025 to 10/31/2026
-- Title lines: TEST FILE: made-up example / Agent Production Report Tri-County Example MLS Closed 11/01/2025 to 10/31/2026 All residential property types Generated 11/03/2026
+- Title lines: PRACTICE FILE: made-up example / Agent Production Report Tri-County Example MLS Closed 11/01/2025 to 10/31/2026 All residential property types Generated 11/03/2026
 - Mapped: mls_id = "Agent MLS ID"; name = "Agent Name"; office = "Office Name"; phone = "Agent Phone"; email = "Agent Email"; list_sides = "List Sides"; list_vol = "List Volume"; buy_sides = "Sell Sides"; buy_vol = "Sell Volume"; units = "Total Sides"; volume = "Total Volume"; prior_units = "Prior 12 Mo Total Sides"; prior_volume = "Prior 12 Mo Total Volume"
 - Not used: "Office MLS ID"
 - Rows with notes: 0 (notes are never read into tiers, signals, drafts or the CSV)
 
 **recruit-tracker.xlsx**: list file, header on row 2, 55 rows read. Period: not stated in the file
-- Title lines: TEST FILE: made-up example
+- Title lines: PRACTICE FILE: made-up example
 - Mapped: name = "Name"; office = "Brokerage"; phone = "Cell"; email = "Email"; approx_units = "Approx Units"; text = "Text OK?"; last_touch = "Last Touch"; stage = "Stage"; notes = "Notes"
 - Not used: "Source"
 - Rows with notes: 48 (notes are never read into tiers, signals, drafts or the CSV)

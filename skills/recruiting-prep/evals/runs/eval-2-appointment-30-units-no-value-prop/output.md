@@ -96,7 +96,7 @@ Each answer: acknowledge, ask, answer from your documents, offer a next step. Wh
 "You've built something real, and people know your name." Ask: "How do your clients find you today, and what would you need to keep?" Answer: [Your answer: not in your documents. How agents' own names appear in your marketing.]
 
 **Independence: "I don't want someone telling me how to run my business."**
-"Most agents at your level feel that way." Ask: "What would you want to keep exactly as it is?" Answer: [Your answer: not in your documents. What's required (meetings, systems) and what's up to the agent.]
+"That makes sense; it's your business." Ask: "What would you want to keep exactly as it is?" Answer: [Your answer: not in your documents. What's required (meetings, systems) and what's up to the agent.]
 
 **Lead quality: "Team leads are junk," or "I don't need leads."**
 "With a business built on listings, you may not need them." Ask: "If you had more time, where would you spend it?" Answer: [Your answer: not in your documents. Whether leads are offered, optional, and on what terms.] Don't promise a number of leads.

@@ -167,7 +167,7 @@ Subject: A Quick Question About Your Next Year
 
 Hi [First Name],
 
-I'm [Agent Name], [Title] of the Cardinal Example Team at Lanternbrook Example Realty. I talk with a handful of agents each quarter about how they want their business to run next year, and I'd value your perspective.
+I'm [Agent Name], [Title] of the Cardinal Example Team at Lanternbrook Example Realty. I'd like to hear how you want your business to run next year, and I'd value your perspective.
 
 [Your offer for this level: one sentence on the support you give agents at this level.]
 

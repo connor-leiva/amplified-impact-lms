@@ -116,7 +116,7 @@ Subject: A Question About Your Next Stage
 
 Hi [First Name],
 
-I'm [Agent Name], [Title] with the Harborlight Example Team at Marigold Example Realty. I talk with a few established agents each quarter about what the next stage of their business could look like.
+I'm [Agent Name], [Title] with the Harborlight Example Team at Marigold Example Realty. I'd like to hear what you want the next stage of your business to look like.
 
 For agents at your level, we provide an inside sales agent who books buyer consults and a path to lead a small pod of buyer agents, and you keep your own brand on your marketing.
 
@@ -189,7 +189,28 @@ Held: R065 Kit Parsniptoes (bare "yes," no record named) and R020 Dev Crumpetnoo
 
 ### Not Tiered (14 agents)
 
-These are on Our List but not in the MLS report, so I can't place them. Confirm their current production first; then use the Building or Growing draft that fits. Text only to R074 Flo Noodlebloom (documented consent), using the Building text.
+These are on Our List but not in the MLS report, so I can't place them on a level. Check their production in the MLS before you move any of them to a level's draft. Until then, this email uses only what your one-pager says applies to every agent ("How We Work").
+
+Subject: How We Work At Harborlight
+
+Hi [First Name],
+
+I'm [Agent Name] with the Harborlight Example Team at Marigold Example Realty. We have one team meeting a week, no required floor time, and you choose your own schedule. Your database stays yours if you leave.
+
+If you'd like to hear how that works day to day, would you have 20 minutes for coffee or a call?
+
+[Agent Name]
+[Title], Harborlight Example Team
+Marigold Example Realty
+[Agent Phone]
+
+This is a recruiting message from [Agent Name], Harborlight Example Team at Marigold Example Realty.
+To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link].
+Harborlight Example Team, 77 Lantern Way, Suite 4, Seabright Example, NC
+
+**Text (only to R074 Flo Noodlebloom)**
+
+Hi [First Name], it's [Agent First and Last Name] with the Harborlight Example Team at Marigold Example Realty. We have no required floor time and you set your own schedule. Open to a 20-minute coffee? [Agent Phone]. Reply STOP to opt out.
 
 ## The Organized CSV
 
@@ -282,7 +303,7 @@ From the one-pager: "One team meeting a week (Tuesday, 9:00 a.m., 45 minutes)." 
 From the one-pager: "Marigold Example Realty offers a revenue share program. Ask for the brokerage's official disclosure; we don't estimate what anyone will earn from it." Give her the brokerage's official disclosure; no amounts or examples.
 
 **Results: if she asks "how do your agents do?"**
-Don't use the one-pager's "40% more transactions" line until your broker has reviewed it. Offer to introduce her to an agent on the team instead.
+Don't use the one-pager's "40% more transactions" line until your broker has reviewed it. Offer to introduce her to an agent on the team instead, and ask that agent not to quote income, earnings or results.
 
 Never: a "you'd make more" number, a lead count, or anything negative about Copperleaf Example Real Estate or her broker.
 

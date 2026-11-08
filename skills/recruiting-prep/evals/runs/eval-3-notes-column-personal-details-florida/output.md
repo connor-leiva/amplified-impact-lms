@@ -107,7 +107,7 @@ Subject: A Question About Your Listing Business
 
 Hi [First Name],
 
-I'm [Agent Name], [Title] with the Pelican Example Group at Seagrape Example Realty in Tampa. I talk with a few agents each quarter about what would give them more time on the listing side, and I'd value your take.
+I'm [Agent Name], [Title] with the Pelican Example Group at Seagrape Example Realty in Tampa. I'd like to hear what would give you more time on the listing side, and I'd value your take.
 
 [Your offer for this level: one sentence on the listing support you give agents at this level.]
 

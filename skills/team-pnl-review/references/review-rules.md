@@ -74,10 +74,11 @@ Use the run's "Biggest change" line: the largest move from the month before to t
 The first that applies:
 1. **Mixed recording:** "Decide with your bookkeeper and CPA one way to record commission income, and have [months] restated before using any ratio built on commission income."
 2. **Totals don't tie:** "Get a corrected export before deciding anything from these numbers."
-3. **A new recurring charge or a price increase on one:** "Keep or cancel [vendor or account] ([amount] a month since [month])." With several, the largest monthly amount.
-4. **The largest increase in an expense category in the latest month that the run doesn't mark one-time:** "Decide whether [category] at [new amount] continues (it was [old amount])."
-5. **With production, a lead source whose period return is below zero:** "Decide whether [source] stays at [spend] for these months' results ([team share] back on [spend]), allowing for the lag between spend and closings."
-6. **Otherwise:** "Nothing in these numbers forces a decision this month."
+3. **Owner draws recorded as expenses:** "Decide with your CPA how owner pay is recorded, so profit means the same thing every month ([net income as reported], or [net income before the draw line])."
+4. **A new recurring charge, or a price increase on one, of $100 a month or more** (this skill's default for what's worth an owner's decision): "Keep or cancel [vendor or account] ([amount] a month since [month])." With several, the largest monthly amount.
+5. **The largest increase in an expense category in the latest month that the run doesn't mark one-time:** "Decide whether [category] at [new amount] continues (it was [old amount])."
+6. **With production, a lead source whose period return is below zero:** "Decide whether [source] stays at [spend] for these months' results ([team share] back on [spend]), allowing for the lag between spend and closings."
+7. **Otherwise:** "Nothing in these numbers forces a decision this month."
 
 Duplicate charges and misfiled items are fixes for the bookkeeper, not owner decisions. Never frame the decision as letting a person go, changing someone's split, or a tax move.
 
