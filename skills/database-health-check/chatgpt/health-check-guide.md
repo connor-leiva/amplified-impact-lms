@@ -8,7 +8,7 @@ Last verified: 2026-11-08, against Follow Up Boss's help center (help.followupbo
 
 ### Getting the Export (Follow Up Boss)
 
-- Who can export: the Account Owner by default. The owner can give other users the Can Export permission (Admin > Team, the Can export column). The owner gets an email each time anyone exports.
+- Who can export: the Account Owner by default. Only the owner can give other users the Can Export permission (Admin > Teams, the Can Export checkbox). The owner gets an email each time anyone exports.
 - Run it as the owner or an admin with Can Export, from People > All People. All People holds every contact the user can see: admins see the whole account, agents see only their assigned, collaborator and pond leads.
 - Steps: People > All People, check the box next to Name and choose Select All, click Export (the downward arrow), check Export All Columns, then Yes, Export People. A CSV downloads at once. Exporting never removes or changes contacts.
 - Without Export All Columns, the file holds the name plus the columns turned on in the current view, and only the first phone, email and address. With it, the file holds up to six of each.
@@ -46,7 +46,7 @@ When a CRM has no last-communication column but has Last Activity, the analysis 
 
 Columns the analysis ignores on purpose: anything naming a birthday, age, credit, income, loan, account or routing number, Social Security number, marital status, children, gender, race, religion, disability or veteran status, plus every relationship column. It reads Notes, Calls and Texts only for dates.
 
-HighLevel (GoHighLevel), as an example of another CRM: only admin users can export; Contacts > Smart Lists, select the contacts (Select All Contacts for everyone), then More > Export; the file holds only the columns visible in the table (Manage Fields), and the finished file waits in Contacts > Bulk Actions for 30 days. Exports run per sub-account. For any other CRM, tell the user to export every contact with every column their CRM allows, and confirm the steps in that CRM's help center.
+HighLevel (GoHighLevel), as an example of another CRM (help article modified 2025-12-24): only admin users can export; Contacts > Smart Lists, select the contacts (Select All Contacts for everyone), then More > Export; the file holds only the columns visible in the table (Manage Fields), and the finished file waits in Contacts > Bulk Actions for 30 days. Exports run per sub-account. For any other CRM, tell the user to export every contact with every column their CRM allows, and confirm the steps in that CRM's help center.
 
 ### Stages
 
@@ -70,35 +70,36 @@ Follow Up Boss adds some tags automatically: Unsubscribed (when someone unsubscr
 - A pond is a shared group of leads any member of that pond can see and claim. Ponds need an account with more than one user. Owners and admins create them (Admin > Ponds) and pick a Pond Lead, whose name stands in as the assigned agent for action plans, notifications and other systems.
 - Ways in: Mass Actions > Assign Pond on selected people; Lead Flow rules that send a source's new leads straight to a pond; or an automation using the Reassign action. Agents claim a lead by assigning it to themselves.
 - Follow Up Boss's own best practices: set office rules for working pond leads, use the pond for unresponsive or cold leads, and share Smart Lists that surface pond leads who are active again.
-- The skill recommends pond rules. People move the leads.
+- Recommend pond rules. People move the leads.
 
 ### Smart Lists
 
 - Create one: People > All People > Filters, add filters, then + New List, name it, choose who to share it with, Save List. Sharing a list shares the filters, not the contacts: each person sees only the matching contacts they already have access to, so an agent's count can be lower than the size in this report.
 - Each added filter narrows the list (the help center's example: one filter includes the Sphere tag, another excludes the Buyer tag). To catch "never contacted" as well as "not in 12 months," make a second list using Last Communication is empty.
-- Filter names used in this skill's segment criteria: Stage, Tags, Source, Created, Agent, Pond, Last Communication, Last Activity, Last Call, Last Text, Last Email, Email, Phone, Timeframe, Deal Stage, Deal Close Date and custom fields.
+- Filter names used in the segment criteria: Stage, Tags, Source, Created, Agent, Pond, Last Communication, Last Activity, Last Call, Last Text, Last Email, Email, Phone, Timeframe, Deal Stage, Deal Close Date and custom fields.
 - Filter conditions: is empty, is not empty, contains, does not contain, is good, is bad (for Email and Phone), include any or all, exclude any or all, was less than, was more than (minutes to years), is less than, is greater than, is between.
 - Default and Best Practice lists every account gets, with their filters: Important, Qualify: Needs Contact, Revived Prospects (Last Activity less than 7 days ago, Created more than 10 days ago, Last Communication more than 7 days ago, Stage includes Attempted Contact, Spoke with Customer, Lead, Nurture), Met/Appt Set, Potential Prospects, Under Contract, Current Clients, four Nurture lists by Timeframe, and Past Clients (Stage includes Closed, Last Communication more than 90 days ago). When a segment overlaps one of these, say so: the team may already have the list.
 
 ### Next Moves in Follow Up Boss
 
-- Call List: select contacts or a Smart List on People, click the Calling List phone icon. Needs Follow Up Boss calling and the desktop app. Follow Up Boss has no built-in Do Not Call scrubbing; its help center points to an integration for that.
+- Call List: select contacts or a Smart List on People, click the Calling List phone icon. Needs Follow Up Boss calling and the desktop app. Follow Up Boss has no built-in Do Not Call scrubbing; its help center points to an integration (CallAction) for that.
 - Batch Email: select contacts, click the Batch Email icon. Sends from the user's connected email, up to 10,000 emails per user per day, one email per address even when duplicates are selected. Follow Up Boss adds its own unsubscribe footer to batch and action plan emails, using the company information in Admin > Company. Its own tip before a batch: exclude the Unsubscribed tag and filter to good emails.
 - Action plans cannot be applied in bulk. To start one on existing contacts, an owner or admin sets up an automation (Admin > Automations); otherwise it is applied one contact at a time. For a whole segment, a batch email or a call list is the practical first move.
-- Merge fields such as Contact First Name are picked from the Merge Fields menu in a template. Drafts in this skill use [First Name]; swap in the merge field when building the template.
+- Merge fields such as Contact First Name are picked from the Merge Fields menu in a template. The drafts use [First Name]; swap in the merge field when building the template.
 
 ### Consent Facts From Follow Up Boss
 
 - Contacts who text STOP, STOPALL, UNSUBSCRIBE, CANCEL, END or QUIT are opted out of texts from every Follow Up Boss number on the account. Their number shows in orange on the profile. The help center does not say whether that status appears in an export, so treat texts as blocked unless the team's own consent field says yes.
 - Follow Up Boss asks whoever imports a file to confirm opt-in consent. That confirmation is not a per-contact consent record and is not an export column.
-- Follow Up Boss's compliance page says leads need consent before the first text and that a website form is not an opt-in unless it has opt-in wording. This skill follows the stricter rule in outreach-rules.md: no documented consent, no text.
+- Follow Up Boss's compliance page says leads need consent before the first text and that a website form is not an opt-in unless it has opt-in wording. The stricter rule in outreach-rules.md applies here: no documented consent, no text. When the team's consent field says how consent was recorded (a website form, an open house sign-in sheet), that form or sheet counts only if it had text consent wording.
+- The same page says Follow Up Boss texting is for one-to-one conversations with people who expect to hear from you, not mass or drip texting, and warns against importing a list and texting it or pasting the same text lead by lead. So a segment's text draft is a starting point the assigned agent makes their own and sends one at a time, never a blast to the whole list. For a large list, call or email instead.
 
 ### Sources
 
 All checked 2026-11-08. The date in parentheses is the article's own last update.
 
 - Export Contacts to a Spreadsheet (2026-04-21): https://help.followupboss.com/hc/en-us/articles/360015269133-Export-Contacts-to-a-Spreadsheet
-- Users, Roles & Permissions (2025-09-25): https://help.followupboss.com/hc/en-us/articles/4402370636567-Users-Roles-Permissions
+- Users, Roles & Permissions (2025-09-25; exporting permission is owner only): https://help.followupboss.com/hc/en-us/articles/4402370636567-Users-Roles-Permissions
 - Invite and manage your team (2026-07-22): https://help.followupboss.com/hc/en-us/articles/4402370641175-Invite-and-manage-your-team
 - People Overview (2025-03-06): https://help.followupboss.com/hc/en-us/articles/360018115954-People-Overview
 - Smart Lists Overview (2026-07-22): https://help.followupboss.com/hc/en-us/articles/1500008374882-Smart-Lists-Overview
@@ -137,7 +138,7 @@ Not confirmed here (say "confirm with Follow Up Boss support" or "confirm with y
 
 ## Health Rules: Checks, Segments and the Worklist
 
-How the analysis defines each check, how to turn a team's own rules into settings, how to pick the segments and how to write their Smart List filters. Follow Up Boss terms and facts come from the exports part of this guide (Last verified: 2026-11-08, sources there). The day counts below are this skill's defaults, not industry standards: label them "default" in the output and replace them with the team's own rule whenever the team has one.
+How the analysis defines each check, how to turn a team's own rules into settings, how to pick the segments and how to write their Smart List filters. Follow Up Boss terms and facts come from the exports part of this guide (Last verified: 2026-11-08, sources there). The day counts below are defaults set here, not industry standards: label them "default" in the output and replace them with the team's own rule whenever the team has one.
 
 ### Defaults
 
@@ -177,6 +178,7 @@ Build rules.json only from the team's documents or the user's message, never fro
 - **Missing or invalid phone:** no phone, or one that is not a valid 10-digit US number after removing punctuation and a leading 1. Format only.
 - **Likely duplicates:** records joined by a shared email or phone. Same or near-identical names (one letter apart, or one name a short form of the other) are merge candidates. A shared email or phone under a different first name with the same last name is "shared contact info": two people can share a number, so the team decides whether to keep them separate, link them as a relationship, or merge. An email or phone on more than 5 records is a shared line (an office, a lender, an agent's own number) and is never treated as a duplicate. Same or near-identical names with different contact info are listed for review only.
 - **Suggested main record in a merge group:** the most recent communication, then the most complete record, then the oldest. In Follow Up Boss the main record keeps its stage and agent, so the team should check both before merging.
+- **Merge groups split across agents:** a merge group whose records have different assigned agents. Merging keeps one record's agent, so it decides who keeps the contact. Report the count, mark those rows in the worklist, and leave the call to the team (a Question for the Team). Never pick the agent.
 - **Stale active-stage contacts:** new, active-lead and active-client stages with no communication for stale_days or none on record. Reported by stage and by agent. For the ranked problems, the ones with some communication on record count as "gone quiet" and the ones with none count under Never Contacted, so nothing is counted twice.
 - **Never contacted:** Is Contacted = No when the export has it, otherwise no communication on record, for contacts added more than never_contacted_days ago and not in trash or other stages.
 - **Past clients and sphere:** past client = a past-client stage (Follow Up Boss Closed counts), a past-client tag, or a match by email or phone to a closed deal in an uploaded transaction file. Sphere = a sphere stage or tag, if not already a past client. Untouched = no communication in past_client_days or none on record. Needs a last-communication date; without one, say the check could not run.
@@ -214,7 +216,7 @@ One row per record that needs work (trash and rejected left out), sorted by prio
 
 | Priority | Action | What ops does |
 |---|---|---|
-| 1 | Merge Candidate | Check both records, pick the main record (suggested one marked), merge in the CRM. In Follow Up Boss: Mass Actions > Merge People, up to 10 at once, cannot be undone |
+| 1 | Merge Candidate | Check both records, pick the main record (suggested one marked), merge in the CRM. When the reason says the records have different agents, wait for the team to decide who keeps the contact. In Follow Up Boss: Mass Actions > Merge People, up to 10 at once, cannot be undone |
 | 1 | Review Shared Contact Info | Decide: keep separate, link as a relationship, or merge |
 | 2 | Fix Stage / Set Stage | Move to the right stage under the team's definitions |
 | 3 | Assign Agent | Assign an agent or pond under the team's routing rules |
@@ -233,9 +235,19 @@ Ask only where the data shows a missing rule, and say what in the data raised it
 - Guessed or unrecognized stages: what does each mean?
 - Many stale active-stage contacts and no pond rule: after how many days without contact does a lead move to the pond or to Nurture?
 - No consent field: where does the team record text consent?
+- Consent recorded as a website form or a sign-in sheet: did that form or sheet have text consent wording that names the team and the number?
 - Unassigned contacts: who owns them?
+- Merge groups split across agents: who keeps each contact when ops merges?
 - Near-duplicate tags: which spelling stays?
 - Closed deals missing from the CRM: should they be added as past clients?
+
+### Sources
+
+Checked 2026-11-08 (the article's own last update in parentheses). The rest are listed in the exports part of this guide.
+
+- Merge Contacts (2025-02-21): https://help.followupboss.com/hc/en-us/articles/4402372112791-Merge-Contacts
+- Default Smart Lists (2026-07-22): https://help.followupboss.com/hc/en-us/articles/4420635737239-Default-Smart-Lists
+- Importing Contacts Overview (2025-07-15), for the Imported Stage and Imported Agent tags: https://help.followupboss.com/hc/en-us/articles/4402323033751-Importing-Contacts-Overview
 
 ## Nurture Drafts
 
@@ -264,7 +276,7 @@ When the export has no consent field (no consent column and no consent tag), wri
 - Emails: a Title Case subject that says what the email is (never "RE:" or "FWD:" when it isn't a reply); 120 words or fewer; short paragraphs; one clear ask. End with the sign-off, then this footer:
   "To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from [Agent Name], [Brokerage Name]."
   Note for Follow Up Boss users: batch and action plan emails get Follow Up Boss's own unsubscribe footer automatically, from the company information in Admin > Company. Keep one working opt-out; check that Admin > Company shows the real postal address.
-- Texts: 300 characters or fewer, one question, no links unless the user supplies one. Start by naming the sender: "Hi [First Name], it's [Agent First and Last Name] with [Team or Brokerage Name]." Include [Agent Phone] if the text comes from a number the contact may not know. End with "Reply STOP to opt out." Only for the consent-filtered list.
+- Texts: a starting point the assigned agent makes their own and sends one at a time to people on the consent list, never a blast to the whole segment. Follow Up Boss's compliance page says its texting is for one-to-one conversations, not mass or drip texting, and warns against pasting the same text lead by lead (Calling and Texting Compliance, https://help.followupboss.com/hc/en-us/articles/4409243718039-Calling-and-Texting-Compliance). For a large list, call or email first. 300 characters or fewer, one question, no links unless the user supplies one. Start by naming the sender: "Hi [First Name], it's [Agent First and Last Name] with [Team or Brokerage Name]." Include [Agent Phone] if the text comes from a number the contact may not know. End with "Reply STOP to opt out." Only for the consent-filtered list.
 - Call openers: two or three sentences the agent can say naturally, then one open question and a soft next step. Name the agent and team in the first sentence. No script that pressures or misleads.
 
 ### Segment Notes
@@ -280,7 +292,8 @@ When the export has no consent field (no consent column and no consent tag), wri
 
 List these every time, for the user to confirm:
 - Every placeholder is filled, and Follow Up Boss merge fields replace [First Name] and agent fields where the team uses templates.
-- Texts: each contact on the consent-filtered list has a consent record that names the team or brokerage and the phone number. The field in the export says yes; the record itself is the proof.
+- Texts: each contact on the consent-filtered list has a consent record that names the team or brokerage and the phone number. The field in the export says yes; the record itself is the proof. When the run shows consent recorded as a website form or an open house sign-in, that form or sheet counts only if it had text consent wording.
+- Texts go out one at a time from the assigned agent, not as a mass text.
 - The list is scrubbed against the National Do Not Call Registry and the team's internal do-not-call list before any call list or text. Follow Up Boss has no built-in scrub.
 - Texts and calls go out between 8 a.m. and 8 p.m. in the recipient's time zone.
 - The unsubscribe link works and the postal address is real.

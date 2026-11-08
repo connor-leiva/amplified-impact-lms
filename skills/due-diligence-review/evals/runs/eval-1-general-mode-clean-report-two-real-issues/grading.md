@@ -34,3 +34,7 @@ Result: **pass, 8 of 8 expectations; every objective check that applies passes.*
 ## Fixes Made During This Run
 
 - The first draft gave a count of Tier 4 notes ("7 items") that was wrong (the report has 11). The count is a number no document states, so SKILL.md's output list now says Tier 4 is one line naming the notable notes, without a count. The output was updated to match.
+
+## Review Note (2026-11-08)
+
+The input PDFs were restamped "PRACTICE FILE: made-up example" (they read "TEST FILE"). Their text is otherwise identical, checked with pdftotext, so this grading stands.

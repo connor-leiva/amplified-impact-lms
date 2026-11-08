@@ -44,6 +44,15 @@ Write eight to ten open questions, specific to this candidate's production mix. 
 
 A table: the candidate's likely need (from the profile and the level guidance), what the team's document says about it (quoted, with the section), and the gap ("Not in your documents"). Never fill a gap with a service, split, fee, lead count or result the documents don't state.
 
+## Terms As Written
+
+When the team's document or the user's message states the split, cap, fees or what they cover, put them in one block, word for word, with the source named ("From your one-pager, Splits, Cap and Fees:" or "From your message:"). It is what the leader hands over when the candidate asks "what are your numbers?"
+
+- Quote; don't summarize, convert or combine terms.
+- No math, no examples, no "at your volume." The candidate runs their own numbers with their own advisor.
+- Brokerage fees and any revenue share or stock program: only the brokerage's official materials, if uploaded. Otherwise "[Brokerage fees: from your brokerage's official schedule]."
+- If the document has no terms and the user stated none, write "Not in your documents" and leave the block out of the follow-up email.
+
 ## Objections and Answers
 
 Choose the five to seven most likely, from this list and the files:
@@ -59,7 +68,7 @@ Choose the five to seven most likely, from this list and the files:
 Each answer follows one shape: acknowledge what's real in the objection, ask one question that gets to the need behind it, answer with what the team's documents say (quoted), and offer a next step. Where the documents say nothing, write "[Your answer: not in your documents]" and the question to ask instead.
 
 Never:
-- Compute what the candidate would earn, net, keep or save under the team's terms, even from their own numbers, and never compare their past income with a projected one. Offer to lay out the team's terms as written so the candidate can run their own numbers with their own advisor.
+- Compute what the candidate would earn, net, keep or save under the team's terms, even from their own numbers, and never compare their past income with a projected one. Point to the terms as written so the candidate can run their own numbers with their own advisor.
 - Use an earnings or lifestyle claim from the team's documents ("our agents earn 30% more"). Flag it for broker review instead.
 - Say anything negative about the candidate's current brokerage, broker or team, or repeat anything negative someone else said about them.
 - Promise a number of leads, deals or a result.
@@ -71,4 +80,5 @@ Written to send after the meeting:
 - Under 200 words. Thanks, then the two or three things the candidate said matter (business terms only, as placeholders if the meeting hasn't happened: "[What they said about listing support]"), what the team's documents say about each, the next step with [Day and Time], and anything the leader promised to send.
 - No numbers about what they'd earn, no claims, nothing about their current brokerage.
 - The compliance elements in `outreach-drafts.md`.
-- If notes or a transcript from the meeting are uploaded, fill the placeholders from them, business terms only. Leave out anything personal the candidate shared.
+- If notes or a transcript from the meeting are uploaded (or read from Granola when it is connected and the user asks), read them in full and fill the placeholders from them, business terms only. Leave out anything personal the candidate shared, even if they raised it, and never record it anywhere.
+- Commitments the leader made in the meeting ("I'll send our terms") go in the email as sent items, and in Check before sending so nothing is promised that wasn't.

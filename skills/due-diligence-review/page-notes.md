@@ -106,6 +106,7 @@ due diligence, inspection report, home inspection, objection, repair request, bu
 
 - Claude file uploads: https://support.claude.com/en/articles/8241126-uploading-files-to-claude
 - Claude skills, install path and plans: https://support.claude.com/en/articles/12512180-use-skills-in-claude and https://claude.com/docs/skills/overview
+- Claude skills work on web, desktop and mobile once added: https://claude.com/docs/extend/overview
 - Claude code execution setting and defaults: https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude
 - Claude Google Workspace connectors: https://support.claude.com/en/articles/10166901-use-google-workspace-connectors and https://claude.com/docs/connectors/google/gmail
 - Claude training setting: https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings

@@ -348,7 +348,9 @@
   "shared_diff_records": 0,
   "shared_keys": [],
   "name_only_groups": 7,
-  "name_only_records": 14
+  "name_only_records": 14,
+  "merge_groups_split_agents": 27,
+  "merge_records_split_agents": 54
  },
  "stale_active": {
   "days": 60,
@@ -654,7 +656,13 @@
   "documented_yes": 323,
   "documented_no": 35,
   "blank": 842,
-  "textable": 318
+  "textable": 318,
+  "yes_by_how_recorded": [
+   {
+    "how": "(yes or a date only, no detail)",
+    "count": 323
+   }
+  ]
  },
  "segments": [
   {

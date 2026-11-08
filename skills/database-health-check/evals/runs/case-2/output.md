@@ -70,7 +70,7 @@
 
 Format checks only: a well-formed email or phone can still be dead.
 
-**Likely duplicates:** 38 merge groups (76 records) share an email or phone under the same or a near-identical name; merging them all would remove 38 records. Another 10 groups (21 records) share an email or phone under a different first name with the same last name: two people can share a number, so a person decides. 7 groups (14 records) share only a name and are listed for review.
+**Likely duplicates:** 38 merge groups (76 records) share an email or phone under the same or a near-identical name; merging them all would remove 38 records. Another 10 groups (21 records) share an email or phone under a different first name with the same last name: two people can share a number, so a person decides. 7 groups (14 records) share only a name and are listed for review. In 27 of the merge groups (54 records) the records have different owners: a merge keeps one record's owner, so the team decides who keeps each of those contacts before your VA merges (Question 9).
 
 **Active statuses with no communication in 60+ days (your standard):** 283 of 477 active-status contacts (59.3%): 133 gone quiet and 150 with no communication on record.
 
@@ -137,7 +137,7 @@ Past clients: 101 by Past Client status, 9 more by the Closed Client label only.
 | Archive Candidate | 1 |
 
 How your VA works the top three:
-1. **Merge Candidate (76 rows) first.** Sort by Duplicate Group; the row marked Suggested Main Record has the most recent contact. Check how your CRM merges (which record's status and owner survive) before the first one. Leave Review Shared Contact Info rows for a person.
+1. **Merge Candidate (76 rows) first.** Sort by Duplicate Group; the row marked Suggested Main Record has the most recent contact. Check how your CRM merges (which record's status and owner survive) before the first one. Where the Reason says the records have different owners, wait for the team to decide who keeps the contact. Leave Review Shared Contact Info rows for a person.
 2. **Pond Candidate (178 rows).** These are New or Warm leads with no contact in 45+ days. Move them to the Shared Pool under your rule, after the merges.
 3. **Agent Follow-Up Or Pond Decision (86 rows).** Active statuses past your 60-day standard that the pool rule doesn't cover (Hot, Appointment Booked, Active Buyer, Active Seller, In Escrow). Hand each owner their rows.
 
@@ -169,6 +169,7 @@ Every email list: Email Opt-Out is not Yes, and the email is valid. Every text l
 6. **Who owns the 46 contacts with no owner and no pool label?**
 7. **Which label spelling stays** for First-Time Buyer, Closed Client and Move-Up Seller?
 8. **What does a Y in SMS Opt-In stand for?** Texts below assume it marks a signed, written consent that names Brightwater Collective and the phone number.
+9. **Who keeps the contact in the 27 merge groups split across owners?** Merging keeps one record's owner, so the team makes that call, not the VA.
 
 ## Nurture Drafts
 
@@ -283,6 +284,7 @@ Text (SMS Opt-In = Y only): "Hi [First Name], it's [Agent First and Last Name] w
 - **Segment sizes and filter values** against your CRM before sending: Back On The Site 46 (website visit in 30 days, no contact in 30), Past Clients 55 and SOI 67 (12+ months), Stalled Pipeline 134 (60+ days), Never-Worked Leads 239 (added 30+ days ago, never contacted), Quiet Nurture 205 (180+ days).
 - **Your rule numbers** as I read them from the rules document: 60 days, 45 days for New and Warm, once a year for past clients and SOI.
 - **Text consent:** every contact on a text list has a consent record that names Brightwater Collective (or your brokerage) and the phone number. SMS Opt-In = Y points to it; the record is the proof.
+- **Texts one at a time:** each text is a starting point the owner makes their own and sends to one person at a time, not a mass text. For a large list, call or email first.
 - **Do Not Call:** scrub every call list and text list against the National Do Not Call Registry and your internal list first.
 - **Quiet hours:** calls and texts between 8 a.m. and 8 p.m. in the recipient's time zone.
 - **Emails:** a working unsubscribe link and your real postal address in place of [Sender Postal Address]; Email Opt-Out = Yes excluded.

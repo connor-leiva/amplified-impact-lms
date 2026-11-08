@@ -420,7 +420,9 @@
    }
   ],
   "name_only_groups": 83,
-  "name_only_records": 167
+  "name_only_records": 167,
+  "merge_groups_split_agents": 55,
+  "merge_records_split_agents": 114
  },
  "stale_active": {
   "days": 90,
@@ -851,7 +853,21 @@
   "documented_yes": 1309,
   "documented_no": 136,
   "blank": 3555,
-  "textable": 1252
+  "textable": 1252,
+  "yes_by_how_recorded": [
+   {
+    "how": "website form",
+    "count": 460
+   },
+   {
+    "how": "open house sign in",
+    "count": 432
+   },
+   {
+    "how": "signed buyer form",
+    "count": 417
+   }
+  ]
  },
  "segments": [
   {

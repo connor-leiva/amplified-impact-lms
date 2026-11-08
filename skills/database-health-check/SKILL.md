@@ -1,6 +1,6 @@
 ---
 name: database-health-check
-description: Turns a CRM contact export into a database health report, a cleanup worklist CSV for ops or a VA, and four to six re-engagement segments written as Smart List filters, with nurture drafts for each. Built for Follow Up Boss People exports; maps other CRMs' columns (KW Command, GoHighLevel, Brivity). Counts contacts by stage, source and agent and finds duplicates, missing or bad emails and phones, stale active-stage leads, past clients and sphere untouched for a year, stage problems, unassigned contacts and messy tags. Use this whenever a team leader, owner or ops person uploads a CRM or contact export, or asks to clean up or audit the CRM, check database health, dedupe contacts, find neglected leads, or plan how to work the database, past clients or sphere, even if they never say "health check." Not for lead routing, lead scoring or reassigning one agent's leads (Follow Up Boss and Sisu do that), a recruit list (recruiting-prep), a P&L (team-pnl-review) or one appointment's follow-up (appointment-follow-up).
+description: Turns a real estate team's CRM contact export into a database health report, a cleanup worklist CSV for ops or a VA, and four to six re-engagement segments written as Smart List filters, with nurture drafts for each. Built for Follow Up Boss People exports; maps other CRMs' columns (KW Command, GoHighLevel, Brivity). Finds duplicates, bad emails and phones, stale active-stage leads, past clients and sphere untouched for a year, stage problems, unassigned contacts and messy tags. Use this whenever a team leader, owner or ops person uploads a CRM or contact export, or asks to clean up or audit the CRM, check database health, dedupe contacts, find neglected leads, or plan how to work the database, past clients or sphere, even if they never say "health check." Not for lead routing, lead scoring or reassigning leads (Follow Up Boss and Sisu), a recruit list (recruiting-prep), a team playbook from SOPs (team-playbook-builder), a P&L (team-pnl-review) or one appointment's follow-up (appointment-follow-up).
 compatibility: Needs code execution (Settings > Capabilities > Code execution and file creation) to run the analysis on large exports and write the cleanup worklist CSV. Works from an uploaded CSV or XLSX export. A CRM connector, if one is connected, is used read only.
 metadata:
   author: Amplified Impact
@@ -38,6 +38,8 @@ Read `references/health-rules.md` first. Then:
 
 - Rank and choose exactly as `references/health-rules.md` says: the three biggest problems are the top three ranked problems, and the first cleanup follows its rule. Say which rule applied.
 - Name every gap the run reports (no last-communication date, no consent field, no record ID, no lead-activity column) and what it stopped.
+- When the run reports merge groups split across agents, say how many: a merge keeps one record's agent, so the team decides who keeps each contact. It goes to Questions for the Team; never pick the agent.
+- When the run shows how consent was recorded (a website form, an open house sign-in), say in Check Before Sending that those count only if the form or sheet had text consent wording.
 - Stages read by guess or not recognized go to Questions for the Team. So does Closed versus Past Client when both are in use.
 - Follow Up Boss: pond leads export under the pond's lead agent and the pond name is left out. Say this when ponds are in use or one agent's count looks high.
 - Use `references/fub-and-crm-exports.md` for Follow Up Boss facts. If the export isn't from Follow Up Boss, use plain filter words and the user's CRM name.
@@ -48,12 +50,12 @@ Pick four to six of the run's segment candidates, in its order, as `references/h
 
 ## 5. Draft the Nurture Messages
 
-Read `references/nurture-drafts.md` and `references/outreach-rules.md`. For each segment: an email; a call opener for call-list segments; a text only for the consent-filtered version of the list. When the export has no consent field, write no texts at all, say why, and say how to add one. Emails carry the opt-out line, the postal address placeholder and the marketing footer. Texts name the sender and end with "Reply STOP to opt out." Write in the user's voice profile when one is in the conversation (their preferences, a project's instructions or a voice skill); otherwise warm, plain and direct. Sign with the user's name or [Agent Name].
+Read `references/nurture-drafts.md` and `references/outreach-rules.md`. For each segment: an email; a call opener for call-list segments; a text only for the consent-filtered version of the list, as a starting point the agent sends one at a time (Follow Up Boss texting is not for mass texts). When the export has no consent field, write no texts at all, say why, and say how to add one. Emails carry the opt-out line, the postal address placeholder and the marketing footer. Texts name the sender and end with "Reply STOP to opt out." Write in the user's voice profile when one is in the conversation (their preferences, a project's instructions or a voice skill); otherwise warm, plain and direct. Sign with the user's name or [Agent Name].
 
 ## 6. Guardrails
 
-- **Privacy:** contact names, emails and phone numbers appear only in `cleanup_worklist.csv`. The conversation and the report use counts, percentages, stage, source, tag and agent names. Never quote notes, calls, texts, background or relationship fields. Ignore birthdays, credit scores and other personal financial details.
-- **Never write to the CRM:** no merges, reassignments, stage changes, tags, deletes or pond moves, even with a connector and even if asked. Recommend; people act.
+- **Privacy:** contact names, emails and phone numbers appear only in `cleanup_worklist.csv`. The conversation and the report use counts, percentages, stage, source, tag and agent names. Never quote notes, calls, texts, background or relationship fields. Ignore birthdays, credit scores and other personal financial details. Never repeat a loan, account or routing number or any wire or bank detail.
+- **Never write to the CRM, never send:** no merges, reassignments, stage changes, tags, deletes or pond moves, even with a connector and even if asked. Never send, schedule or start an email, text, call list or action plan. Recommend and draft; people act.
 - **Stay out of Follow Up Boss's and Sisu's lane:** no lead routing, lead scoring or reassigning one agent's neglected leads. Recommend pond and stage rules for the team to adopt.
 - **Fair housing:** segment only on behavior and history in the data (stage, source, dates, activity, tags the team applied). Never infer or mention age, family status or any protected characteristic. Drafts describe services, never people, schools, safety or who lives where.
 - **Outreach:** texts only to contacts with documented consent; opt-out in every email and text; Do Not Call scrub and quiet hours in Check Before Sending. Consent and state-law questions go to the broker or an attorney.
@@ -64,7 +66,7 @@ Read `references/nurture-drafts.md` and `references/outreach-rules.md`. For each
 1. **Bottom line** (three sentences max): database size, the three biggest problems with their counts, and the one cleanup to do first.
 2. **What I Used:** file and format, the settings (defaults or team rules), columns that drove the checks, and every gap.
 3. **Health Report:** counts and percentages in short tables: by stage (with how each stage was read), by source (top 10), by agent (contacts, stale, never contacted, past client and sphere untouched); contact info; likely duplicates; stale active-stage contacts by stage and by agent; never contacted; past clients and sphere; stage problems; unassigned and ponds; near-duplicate tags; text consent coverage.
-4. **Cleanup Worklist:** the file, its row count, rows by action, and how ops works the top three actions in the CRM.
+4. **Cleanup Worklist:** the file, its row count, rows by action, and how ops works three actions in the CRM: the one behind the first cleanup, then the two others with the most rows.
 5. **Re-Engagement Segments:** four to six, as in step 4.
 6. **Questions for the Team:** each with the data that raised it.
 7. **Nurture Drafts:** by segment.

@@ -372,7 +372,9 @@
    }
   ],
   "name_only_groups": 3,
-  "name_only_records": 6
+  "name_only_records": 6,
+  "merge_groups_split_agents": 6,
+  "merge_records_split_agents": 12
  },
  "stale_active": {
   "days": 90,
@@ -693,7 +695,8 @@
   "documented_yes": 0,
   "documented_no": 0,
   "blank": 800,
-  "textable": 0
+  "textable": 0,
+  "yes_by_how_recorded": []
  },
  "segments": [
   {

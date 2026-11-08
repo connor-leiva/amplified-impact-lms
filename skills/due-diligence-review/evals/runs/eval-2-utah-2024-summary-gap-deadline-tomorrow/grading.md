@@ -40,3 +40,7 @@ The baseline found the panel, which a careful reader of an 11-page report can do
 - Tier 4 count removed (see eval 1's note; the same SKILL.md change).
 - The email first said "He calls it a fire hazard." The inspector's gender isn't in the report, so it now reads "The inspector calls it a fire hazard."
 - `review-guide.md` gained EPA's 48-hour minimum test time, so the skill can say plainly that a radon test can't finish before a deadline less than 48 hours away (source: EPA Home Buyer's and Seller's Guide to Radon, March 2024 revision, checked 2026-11-08).
+
+## Review Note (2026-11-08)
+
+The input PDFs were restamped "PRACTICE FILE: made-up example" (they read "TEST FILE"). Their text is otherwise identical, checked with pdftotext, so this grading stands.

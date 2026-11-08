@@ -120,6 +120,8 @@ All other sources: 0 contacts across 0 more source values.
 
 Records that would go away if every merge group were merged: 12.
 
+Merge groups whose records have different assigned agents: 6 groups (12 records). A merge keeps one record's agent, so the team decides who keeps each of these contacts before ops merges.
+
 One email or phone on many records (not treated as duplicates): a phone on 7 records
 
 ## Active-Stage Contacts, No Communication In 90+ Days
@@ -235,6 +237,8 @@ Distinct tags: 34. Used on one contact only: 1. Near-duplicate groups: 6 (19 tag
 ## Text Consent
 
 Consent field found: yes (Text Consent). Documented yes: 108; documented no: 13; blank: 379. Textable (documented yes, valid phone, not opted out, not Do Not Call): 105.
+
+Documented yes, by how the field says consent was recorded: signed buyer form 39; website form 37; open house sign in 32. A website form or a sign-in sheet counts only if it had text consent wording that names the team and the phone number.
 
 ## Ranked Problems (Records Affected)
 

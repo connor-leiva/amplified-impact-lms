@@ -92,7 +92,7 @@ These are format checks only: a well-formed email or phone can still be dead.
 | Same email or phone, different names | 6 | 12 |
 | Same or near-identical name only, different contact info: review | 83 | 167 |
 
-Merging every merge group would remove 139 records. One phone number sits on 8 different people's records; that looks like an office or lender line typed into contacts, so it is flagged for review, not merged.
+Merging every merge group would remove 139 records. One phone number sits on 8 different people's records; that looks like an office or lender line typed into contacts, so it is flagged for review, not merged. In 55 of the merge groups (114 records) the records have different assigned agents: a merge keeps one record's agent, so the team decides who keeps each of those contacts before ops merges (Question 9).
 
 **Active-stage contacts with no communication in 90+ days:** 939 of 2,192 active-stage contacts (42.8%). Of those, 529 have gone quiet (communication on record, none in 90+ days) and 410 have no communication on record.
 
@@ -148,7 +148,7 @@ The 31 closed deals sit in Showing Homes 9, Under Contract 6, Active Listing 5, 
 | Investors (32); Investor (29); investor (23) | 84 |
 | VIP (14); vip (9) | 23 |
 
-**Text consent:** the Text Consent field shows yes for 1,309 contacts and no for 136; 3,555 are blank. 1,252 are textable (yes, valid phone, not opted out, not Do Not Call).
+**Text consent:** the Text Consent field shows yes for 1,309 contacts and no for 136; 3,555 are blank. 1,252 are textable (yes, valid phone, not opted out, not Do Not Call). The yes values say how consent was recorded: website form 460, open house sign in 432, signed buyer form 417.
 
 ## Cleanup Worklist
 
@@ -172,7 +172,7 @@ The 31 closed deals sit in Showing Homes 9, Under Contract 6, Active Listing 5, 
 | Archive Candidate | 3 |
 
 How to work the top three:
-1. **Merge Candidate (272 rows, do these first).** Sort by Duplicate Group. For each group, open the records, check the one marked Suggested Main Record, then in Follow Up Boss search the name, View List of People, select the records, Mass Actions > Merge People and pick the main contact. The main contact keeps its name, agent, lender and stage; the others go to Trash. A merge can't be undone, so check before each one. Leave "Review Shared Contact Info" rows for a person to decide: two people can share a number, and Merge People As Relationships keeps the second person as a relationship on one contact instead of folding them into one person.
+1. **Merge Candidate (272 rows, do these first).** Sort by Duplicate Group. For each group, open the records, check the one marked Suggested Main Record, then in Follow Up Boss search the name, View List of People, select the records, Mass Actions > Merge People and pick the main contact. The main contact keeps its name, agent, lender and stage; the others go to Trash. A merge can't be undone, so check before each one. Where the Reason says the records have different agents, wait for the team to decide who keeps the contact. Leave "Review Shared Contact Info" rows for a person to decide: two people can share a number, and Merge People As Relationships keeps the second person as a relationship on one contact instead of folding them into one person.
 2. **Agent Follow-Up Or Pond Decision (792 rows).** Split by Assigned Agent and hand each agent their rows. Anything still silent after the agent's attempt gets a stage or pond decision under the rule you set (see Questions).
 3. **Fill Missing Phone (293 rows).** Fill only from the record's own history (an inquiry, a signed form). Don't buy or append numbers to text them.
 
@@ -224,7 +224,8 @@ For every email list add: Email is good; Tags exclude Unsubscribed and the bounc
 5. **Should the 14 closed deals missing from the CRM be added as past clients?** The 6 that matched only by name need a person to check.
 6. **Who owns the 63 unassigned contacts?**
 7. **Which tag spelling stays** for Seller, Open House, Buyer, Past Client, Sphere, Investor and VIP?
-8. **What does "Yes" in Text Consent mean?** Texts below assume it marks a signed, written consent record that names your team and the phone number.
+8. **What does "Yes" in Text Consent mean?** 460 of the yes values say website form and 432 say open house sign in. Those count only if the form or sign-in sheet had text consent wording that names your team and the phone number. Texts below assume each yes points to a signed, written consent record.
+9. **Who keeps the contact in the 55 merge groups split across agents?** Merging keeps the main record's agent, so the team makes that call, not ops.
 
 ## Nurture Drafts
 
@@ -338,7 +339,8 @@ Text (Text Consent filtered list only): "Hi [First Name], it's [Agent First and 
 
 - **Segment sizes and filter values** against Follow Up Boss before sending: Back On The Site 305 (Last Activity under 30 days, Last Communication over 30 days), Past Clients 178 (12+ months), Sphere 162 (12+ months), Stalled Pipeline 527 (90+ days), Never-Worked Leads 581 (added 30+ days ago, Last Communication empty), Quiet Nurture 863 (180+ days). If a Smart List count is far off, fix the filter first.
 - **Stage and tag names in the filters:** Closed, Past Client, Sphere, Nurture, Vendor, Trash, Rejected, the ten active stages, Unsubscribed, Do Not Call, DNC, Do Not Text, and the exact text of your bounced-email tag.
-- **Text consent:** every contact on a text list has a consent record that names your team or brokerage and the phone number. Text Consent = Yes in the export is the pointer, not the proof. Confirm what the field means with your broker.
+- **Text consent:** every contact on a text list has a consent record that names your team or brokerage and the phone number. Text Consent = Yes in the export is the pointer, not the proof. Confirm what the field means with your broker. A website form or an open house sign-in counts only if it had text consent wording.
+- **Texts one at a time:** each text is a starting point the assigned agent makes their own and sends to one person at a time. Follow Up Boss says its texting is for one-to-one conversations, not mass or drip texting; for a large list, call or email first.
 - **Do Not Call:** scrub every call list and text list against the National Do Not Call Registry and your internal list before use. Follow Up Boss has no built-in scrub.
 - **Quiet hours:** calls and texts between 8 a.m. and 8 p.m. in the recipient's time zone.
 - **Emails:** the unsubscribe link works; [Sender Postal Address] is your real address; Admin > Company in Follow Up Boss shows the right company information, since its own unsubscribe footer uses it.

@@ -73,7 +73,7 @@
 | Do Not Call tag | 11 | 1.4% |
 | No valid email and no valid phone | 3 | 0.4% |
 
-**Likely duplicates:** 20 merge groups (40 records) share an email or phone under the same or a near-identical name; merging them would remove 20 records. 4 more groups (8 records) share an email or phone under a different first name with the same last name, for a person to decide. One phone number sits on 7 different people's records, which looks like an office or lender line, so it's flagged for review rather than merged. 3 groups (6 records) share only a name.
+**Likely duplicates:** 20 merge groups (40 records) share an email or phone under the same or a near-identical name; merging them would remove 20 records. 4 more groups (8 records) share an email or phone under a different first name with the same last name, for a person to decide. One phone number sits on 7 different people's records, which looks like an office or lender line, so it's flagged for review rather than merged. 3 groups (6 records) share only a name. In 6 of the merge groups (12 records) the records have different assigned agents, so the team decides who keeps each contact before ops merges (Question 7).
 
 **Active-stage contacts with no communication in 90+ days:** 148 of 351 (42.2%): 80 gone quiet, 68 with no communication on record. By stage: Lead 88, Attempted Contact 25, Spoke with Customer 11, Showing Homes 8, Under Contract 6, Appointment Set 4, Met with Customer 3, Active Listing 1, Listing Agreement 1, Submitting Offers 1. By agent: Ivo Saltmarsh 50, Clementine Rook 42, Delphine Ashgrove 31, Pascal Wickerby 24, unassigned 1.
 
@@ -113,7 +113,7 @@
 | Fill Missing Contact Info | 1 |
 
 How to work the top three:
-1. **Merge Candidate (40 rows) first.** Sort by Duplicate Group and check the Suggested Main Record. In Follow Up Boss: search the name, View List of People, select the records, Mass Actions > Merge People, choose the main contact. It can't be undone, and the other records go to Trash.
+1. **Merge Candidate (40 rows) first.** Sort by Duplicate Group and check the Suggested Main Record. In Follow Up Boss: search the name, View List of People, select the records, Mass Actions > Merge People, choose the main contact. It can't be undone, and the other records go to Trash. Where the Reason says the records have different agents, wait for the team to decide who keeps the contact.
 2. **Agent Follow-Up Or Pond Decision (127 rows).** Hand each agent their rows; anything still silent after a real attempt gets a stage change or a pond decision under a rule you set.
 3. **Fill Missing Phone (49 rows).** Fill only from the record's own history.
 
@@ -157,6 +157,7 @@ For every email list add: Email is good; Tags exclude Unsubscribed and the bounc
 4. **What does Vendor mean?** 10 contacts sit there; I left them out of every group.
 5. **Who owns the 7 unassigned contacts?**
 6. **Which tag spelling stays** for Buyer, Seller, Open House, Past Client, Sphere and Investor?
+7. **Who keeps the contact in the 6 merge groups split across agents?** Merging keeps the main record's agent, so the team makes that call, not ops.
 
 ## Nurture Drafts
 

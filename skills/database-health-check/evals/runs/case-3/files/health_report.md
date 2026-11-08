@@ -119,6 +119,8 @@ All other sources: 0 contacts across 0 more source values.
 
 Records that would go away if every merge group were merged: 20.
 
+Merge groups whose records have different assigned agents: 6 groups (12 records). A merge keeps one record's agent, so the team decides who keeps each of these contacts before ops merges.
+
 One email or phone on many records (not treated as duplicates): a phone on 7 records
 
 ## Active-Stage Contacts, No Communication In 90+ Days
