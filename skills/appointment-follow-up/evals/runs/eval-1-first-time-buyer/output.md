@@ -2,6 +2,7 @@
 
 - **Buyer agreement: never came up.** Nothing in the transcript mentions a written buyer agreement, and showings are set for **Saturday, November 14, at 11:00 AM**. Get your brokerage's written buyer agreement signed before then. A live video tour counts as a tour too. In Utah it comes from your brokerage or the Utah Association of REALTORS forms (usually the Exclusive Buyer-Broker Agreement and Agency Disclosure); confirm the current version with your broker. If you want it in the email, a line like this fits after the showings paragraph: "Before Saturday I'll send our buyer agreement so you can read it and ask me anything. It needs to be signed before we tour."
 - **Preapproval: in process, not issued.** Quinn applied with Sample State Credit Union (loan officer Pat Notreal) on Tuesday. Pat still needs Quinn's last two pay stubs and two months of bank statements, which Quinn plans to send Monday, November 9. Pat is also checking whether a down payment assistance program fits.
+- **Promises already due:** this follow-up is being written Sunday, November 8, the day after the coffee. You told Quinn you'd text a second lender's name and set up the search with alerts "today" (Saturday, November 7). Confirm both went out; it's the first next step.
 - **Speakers:** Granola on iPhone labels by letter. Speaker A is you and Speaker B is Quinn. One line labeled Speaker A ("Pat said she just needs my last two pay stubs and two months of bank statements...") is Quinn talking about Quinn's own loan application, so it's treated as Quinn's.
 - **Signature:** your name isn't in the transcript or your message, so the email is signed [Agent Name].
 - **Left out on purpose:** the credit and debt figures Quinn shared. The follow-up doesn't need them.
@@ -34,7 +35,7 @@ First-time buyer consult with Quinn Mockridge on Saturday, November 7: Quinn wan
 
 Quinn,
 
-Thanks for meeting me for coffee yesterday. Here's what I heard matters most to you:
+Thanks for meeting me for coffee on Saturday. Here's what I heard matters most to you:
 
 - In-unit laundry
 - A garage, or at least covered parking
@@ -94,7 +95,7 @@ Paste it into the note box on Quinn's profile and click Create Note. Mid-March i
 
 | Item | Where it's from |
 |---|---|
-| "yesterday" (email) | Appointment date Saturday, November 7, 2026, from the transcript header. Right only if you send on Sunday, November 8 |
+| "on Saturday" (email) | Appointment date Saturday, November 7, 2026, from the transcript header |
 | Wednesday evening, November 11 | Resolved from "let's touch base Wednesday evening on the phone," said Saturday, November 7. No time set |
 | Saturday, November 14, 11:00 AM | Resolved from "we could see some next Saturday" and "Let's say 11?" / "11's great," said on Saturday, November 7. Confirm Quinn means the 14th |
 | Monday, November 9 | Resolved from "by Monday I'll send you my top five" and "I'll send them Monday" |

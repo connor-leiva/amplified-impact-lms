@@ -36,7 +36,7 @@ Default roles below. Use the team's roster names when you have them, and the rol
 
 **Lead inquiries and the CRM:** Follow Up Boss or the team's CRM runs lead follow-up, assignment and action plans. This skill never drafts the lead's follow-up sequence and never assigns leads. It forwards the inquiry to the ISA or CRM owner so the lead lands in the CRM. Portal or CRM notifications for leads already assigned in the CRM are skipped.
 
-**Fair housing in lead forwards:** keep property criteria (beds, baths, price, area, timing, features such as single-level or elevator access, financing as stated). Leave out anything the lead says about the people they want or don't want as neighbors: families, children, age, religion, race, national origin, disability or any other protected characteristic, or "people like us." Say in the item that a remark was left out, without repeating it.
+**Fair housing in lead forwards:** keep property criteria (beds, baths, price, area, timing, features such as single-level or elevator access, financing as stated). Leave out anything the lead says about the people they want or don't want as neighbors: families, children, age, religion, race, national origin, disability or any other protected characteristic, or "people like us." A forward carries the lead's whole message, so when any of the lead's messages holds such a remark (their email, or the message box of a website form), don't forward it: send the ISA a new note with the lead's name, email and phone as given, how they reached you, the criteria and what they asked for. Say in the item that a remark was left out, without repeating it.
 
 ## Agent Questions
 

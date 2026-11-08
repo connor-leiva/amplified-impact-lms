@@ -1,6 +1,6 @@
 # Review Run: Practice File, Testwood Buyer Consult
 
-Independent reviewer run, from SKILL.md and its references only, before reading the builder's output. Input: `Granola transcript, buyer consult, Testwood (practice).txt`. Prompt: "Here's my Granola transcript from tonight's buyer consult with the Testwoods. Write my follow-up email and the FUB note."
+Independent reviewer run, from SKILL.md and its references only, before reading the builder's output. Rerun after the review's fixes: the Follow Up Boss note was cut from 212 words to meet the new "about 200 words or fewer" rule and gained no new facts; nothing else changed. Input: `Granola transcript, buyer consult, Testwood (practice).txt`. Prompt: "Here's my Granola transcript from tonight's buyer consult with the Testwoods. Write my follow-up email and the FUB note."
 
 ---
 
@@ -69,16 +69,16 @@ Hi Casey, it's Riley. I'll see you both Tuesday, November 10, at 6:30 PM at the 
 ## Follow Up Boss Note
 
 ```
-Buyer consult, Zoom, Sunday, November 8, 2026. Morgan and Casey Testwood.
-Motivation: Out of room in current 3-bed townhome (Example Ridge Way, Herriman); household growing after the first of the year.
-Timeline: In the new home by end of February; Casey starts at the Lehi office March 1.
-Criteria: 4+ beds, one bedroom on the main with a full bath close by. No-step or one-step entry (level garage entry OK). 2+ car garage. Yard for raised beds. Riverton, South Jordan, west West Jordan. Not backing onto Bangerter or any big road. No HOA or a small one. Around 650, 700 top with townhome sold.
-Financing: Preapproved, conventional, Dana Fakerson, Placeholder Mortgage. Letter dated 10/30 for 690; assumes townhome sells first.
-Buyer agreement: Discussed, not signed. DocuSign sent tonight, 3 months through 2/8 as stated. Sign before first tour.
-Concerns: Buy-first vs sell-first. Asked about safety in south Riverton; pointed to official sources.
-Promised: Agreement tonight; call Dana Mon 11/9; portal search by Mon night 11/9; crime map link; tour addresses Thu 11/12; townhome sales Tue.
-Next step: Tue 11/10, 6:30 PM, townhome walk-through (listing conversation).
-Follow-up: Thu 11/12 (send tour addresses; confirm agreement signed). Tour Sat 11/14, 10:00 AM.
+Buyer consult, Zoom, Sun 11/8/2026, 6:30 PM. Morgan and Casey Testwood.
+Motivation: Out of room in 3-bed townhome (Example Ridge Way, Herriman); household growing after the new year.
+Timeline: In new home by end of Feb; Casey starts at Lehi office Mar 1.
+Criteria: 4+ beds, one on the main with a full bath close by. No-step or one-step entry (level garage entry OK). 2+ car garage. Yard for raised beds. Riverton, South Jordan, west West Jordan. Not backing onto Bangerter or any big road. No HOA or a small one. Around 650; 700 top with townhome sold.
+Financing: Preapproved, conventional, Dana Fakerson, Placeholder Mortgage. Letter 10/30 for 690; assumes townhome sells first.
+Buyer agreement: Discussed, not signed. DocuSign tonight; 3 months through 2/8 as stated. Sign before first tour.
+Concerns: Buy first vs sell first. Asked about safety in south Riverton; pointed to official sources.
+Promised: Agreement tonight; call Dana Mon 11/9; portal search Mon night 11/9; crime map link; tour addresses Thu 11/12; complex sales Tue.
+Next step: Tue 11/10, 6:30 PM, townhome walk-through. Sat 11/14, 10:00 AM, tour 3 homes.
+Follow-up: Mon 11/9 (after Dana call).
 Contact: Casey by text, Morgan by email.
 Suggested Timeframe to Move: 3-6 months
 ```

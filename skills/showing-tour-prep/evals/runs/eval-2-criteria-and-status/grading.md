@@ -39,3 +39,9 @@ From `objective-checks.txt`:
 Two things the first draft had to improvise are now written into the skill:
 - A showing notice that has to go out before the tour (West Jordan's 24-hour tenant notice for a 10:00 AM tour means 10:00 AM today) is now a named item in `references/tour-sheet-writing.md`, counted back from the tour time.
 - Flags and the bottom line may point to the Agent-Only Page ("one showing needs notice today") without spelling out what's there. SKILL.md step 2 now says so.
+
+## Review Update (2026-11-08, independent reviewer)
+
+- Fixture: the Follow Up Boss note said "copied Saturday 11/07/2026" but "Showing three homes tomorrow (Monday)." It now says "copied Sunday 11/08/2026" (file and generator). The tour date this output uses, Monday 11/09 at 10:00 AM, is unchanged.
+- The West Jordan as-is line was edited to the corrected rule (the buyer can still inspect as long as the offer includes the Due Diligence Condition), and the Herriman tour sheet line "I'm asking for the amount" became "I'll ask for the amount" (the tour sheet may not say the agent already asked for something). Objective checks rerun: 14 of 14. The grade stands at 9 of 9.
+- The reviewer's independent run of this case is in `review-output.md`, graded in `review-grading.md`.

@@ -413,6 +413,10 @@ P_ADD1 = ("<h1>ADDENDUM NO. 1 TO REAL ESTATE PURCHASE CONTRACT</h1><p class='sma
           "Property located at 4127 W Practice Ridge Dr, Example Springs, UT 84000.</p>"
           "<p>1. Seller agrees to contribute $6,000 at Settlement toward Buyer's closing costs, prepaid items and/or "
           "discount points, as permitted by Buyer's lender.</p>"
+          "<p>2. Appraisal gap. If the Property appraises for less than the Purchase Price, Buyer agrees to pay in cash at "
+          "Settlement the difference between the appraised value and the Purchase Price, up to $10,000, and the Purchase "
+          "Price shall not change. If the appraised value is more than $10,000 below the Purchase Price, the Appraisal "
+          "Condition in Section 8.2 of the REPC remains in effect.</p>"
           "<p>Seller shall have until 9:00 PM Mountain Time on October 7, 2026 to accept the terms of this ADDENDUM in "
           "accordance with the provisions of Section 23 of the REPC.</p>"
           + kv([("Buyer signatures", "Jordan Example, Casey Example, October 6, 2026"),
@@ -424,7 +428,7 @@ repc_2024("practice-repc.html", "practice/02 REPC and Addendum - 4127 W Practice
     "county": "Sample County", "zip": "84000", "price": 640000, "em": 10000, "loan": 512000,
     "loan_type": "Conventional", "cash": 118000, "fin_em": 1000, "sdd": "October 13, 2026",
     "ddd": "October 24, 2026", "fad": "November 13, 2026", "setd": "November 24, 2026",
-    "addenda": "Addendum No. 1 (seller contribution)",
+    "addenda": "Addendum No. 1 (seller contribution and appraisal gap)",
 }, extra_pages=[P_ADD1])
 
 CMA_COLS = ["MLS #", "Status", "Address", "City", "State", "Zip", "Subdivision", "Distance (mi)", "Style",

@@ -7,7 +7,7 @@
 
 ## Bottom Line for the Agent
 
-Agree to the three Safety items (deck stair guardrail, garage door auto-reverse, water heater discharge pipe), and counter the roof with a $1,240 credit, the roofer's repair price, instead of a new roof, because the roofer can't start until November 30, after the November 29 completion date the buyer set. Offer what the inspector actually recommended for the basement wall (clean the window well and drain, add a cover) instead of waterproofing, and decline the carpet. The net impact known from bids is $1,240, with three or four small items still needing bids, and the deadline to have this signed by both sides is 5:00 PM Mountain Time on Tuesday, November 17, 2026.
+Agree to the three Safety items (deck stair guardrail, garage door auto-reverse, water heater discharge pipe), and counter the roof with a $1,240 credit, the roofer's repair price, instead of a new roof, because the roofer can't start until November 30, after the November 29 completion date the buyer set. Offer what the inspector actually recommended for the basement wall (clean the window well and drain, add a cover) instead of waterproofing, and decline the carpet. The net impact known from bids is $1,240, with four items still needing bids (three if the sellers don't offer the window well work), and the deadline to have this signed by both sides is 5:00 PM Mountain Time on Tuesday, November 17, 2026.
 
 ## The Clock
 
@@ -35,9 +35,9 @@ How the deadline works on the December 4, 2024 REPC:
 |---|---|---|---|---|---|---|---|---|
 | 1 | Licensed roofer replaces the roof covering | Page 3, item 3.2 (REPAIR): several lifted and creased shingles on the north slope, "consistent with wind damage"; two missing near the ridge; no active leaks (see 9.1); "Recommend evaluation and repair by a licensed roofing contractor. The remainder of the roof covering appeared serviceable for its age." | Major System | Roof age disclosed (page 1, item 1a, "Replaced in 2011"); no leaks disclosed (1b), consistent with the report | Agent to confirm | Push back on replacement: the inspector recommended repair | Counter: $1,240 credit (Option 1 amount) | Pretend Shingle Roofing: Option 1 repair $1,240.00; Option 2 replacement $16,800.00 |
 | 2 | Secure the deck stair guardrail and post | Page 4, item 4.2 (SAFETY): loose at the bottom post, "moves more than 2 inches when pushed. Fall hazard." Qualified contractor | Safety | No | Agent to confirm | Reasonable | Agree, qualified contractor | Needs bid |
-| 3 | Repair the garage door so it reverses on contact | Page 4, item 4.3 (SAFETY): did not reverse on a 1.5-inch board; photo-eyes did reverse it; "Entrapment hazard"; garage door technician | Safety | No. Disclosure page 2, item 3d: "No" problems with the garage door or opener | No | Reasonable | Agree, garage door technician | Needs bid |
-| 4 | Licensed foundation contractor evaluates the east wall and installs waterproofing | Page 5, item 5.3 (MONITOR): efflorescence about 3 feet wide below the east window well; "Moisture meter readings were dry"; "Recommend monitoring, keeping the window well and its drain clear, and a window well cover (see 2.3)." Page 2, item 2.3: no cover, debris over the drain | Major System | **Yes.** Disclosure page 1, item 2a: April 2021 water under the east window; drain cleaned and soil regraded in May 2021; "No water has come in since." Signed October 20, 2026, after the October 14, 2026 Offer Reference Date; buyer acknowledged October 21, 2026 | No (storage closet) | Negotiable: disclosed, but only during due diligence, and the ask goes past the inspector's "monitoring" | Counter: clean the window well and drain and install a cover, as the inspector recommended | Needs bid |
-| 5 | Licensed plumber installs a relief valve discharge pipe | Page 8, item 8.3 (SAFETY): no discharge pipe; scalding water "at head height"; licensed plumber | Safety | No. Disclosure page 2, item 3b: "No" problems with the water heater | No | Reasonable | Agree, licensed plumber | Needs bid |
+| 3 | Repair the garage door so it reverses on contact | Page 4, item 4.3 (SAFETY): did not reverse on a 1.5-inch board; photo-eyes did reverse it; "Entrapment hazard"; garage door technician | Safety | No. Disclosure page 2, item 3d: "No" problems with the garage door or opener | No (found only by a contact test) | Reasonable | Agree, garage door technician | Needs bid |
+| 4 | Licensed foundation contractor evaluates the east wall and installs waterproofing | Page 5, item 5.3 (MONITOR): efflorescence about 3 feet wide below the east window well; "Moisture meter readings were dry"; "Recommend monitoring, keeping the window well and its drain clear, and a window well cover (see 2.3)." Page 2, item 2.3: no cover, debris over the drain | Major System (foundation moisture; the inspector rated it MONITOR) | **Yes.** Disclosure page 1, item 2a: April 2021 water under the east window; drain cleaned and soil regraded in May 2021; "No water has come in since." Signed October 20, 2026, after the October 14, 2026 Offer Reference Date; buyer acknowledged October 21, 2026 | Agent to confirm (storage closet) | Negotiable: disclosed, but only during due diligence, and the ask goes past the inspector's "monitoring" | Counter: clean the window well and drain and install a cover, as the inspector recommended | Needs bid |
+| 5 | Licensed plumber installs a relief valve discharge pipe | Page 8, item 8.3 (SAFETY): no discharge pipe; scalding water "at head height"; licensed plumber | Safety | No. Disclosure page 2, item 3b: "No" problems with the water heater | Agent to confirm | Reasonable | Agree, licensed plumber | Needs bid |
 | 6 | Replace the basement family room carpet | Page 10, item 10.1 (INFO): stained area about 4 by 6 feet near the east wall; dry | Cosmetic | No | Likely: finished family room, in plain view; agent to confirm | Push back | Decline | None |
 
 ### Options and Tradeoffs
@@ -48,7 +48,7 @@ How the deadline works on the December 4, 2024 REPC:
   - *Replacement, Option 2, $16,800.00:* what the buyer asked for, but past the inspector's recommendation, which says the rest of the roof "appeared serviceable for its age."
   - *Decline:* not recommended; missing shingles are a real defect, and the buyer can cancel by November 17.
 - **Item 4, basement wall.** The buyer learned of the 2021 event during due diligence (the disclosure was signed after the offer), so "it was disclosed" carries less weight here. The inspector found the wall dry and recommended monitoring, a clear window well drain and a cover. Counter with exactly that (needs bid). Declining outright is the alternative; it costs nothing in bids but leaves the buyer's concern unanswered.
-- **Item 6, carpet.** Decline: cosmetic and in plain view in a finished room.
+- **Item 6, carpet.** Decline: cosmetic, rated INFO, and dry at inspection.
 
 ## Questions for the Buyer's Agent
 
@@ -65,11 +65,11 @@ Net impact, from bids only:
 - **Recommended (Timing) package:** $1,240.00 credit for the roof.
 - Items still needing bids: the guardrail (item 2), the garage door (item 3) and the discharge pipe (item 5), plus the window well cleanout and cover if the sellers offer it (item 4). That's 3 items, or 4 with the window well.
 - Carpet: declined, no cost.
-- No other dollar amounts are known. Get the small bids this week so every repair can finish by November 29.
+- No other dollar amounts are known. Get bids for those items this week so every repair can finish by November 29.
 
 ## Strategy by Seller Priority
 
-**Timing (the sellers' stated priority), recommended.** Credit $1,240.00 for the roof instead of a repair that can't start until November 30. Repair items 2, 3 and 5 right away (small jobs; book them as soon as the counter is signed). Offer the window well cleanout and cover for item 4. Decline item 6. Send the counter early enough to be signed before the buyer's addendum lapses on November 11. Known total: $1,240.00, plus 4 items needing bids. Main risk: a contractor for the small items can't come before November 29.
+**Timing (the sellers' stated priority), recommended.** Credit $1,240.00 for the roof instead of a repair that can't start until November 30. Repair items 2, 3 and 5, booked as soon as the counter is signed; if a bid can't finish one by November 29, offer a credit at that bid's amount instead. Offer the window well cleanout and cover for item 4. Decline item 6. Send the counter early enough to be signed before the buyer's addendum lapses on November 11. Known total: $1,240.00, plus 4 items needing bids. Main risk: a contractor for items 2, 3 or 5 can't come before November 29.
 
 **Net.** Repair the roof through Option 1 ($1,240.00), with the buyer agreeing to a completion date after November 29; repair items 2, 3 and 5; decline items 4 and 6. Known total: $1,240.00, plus 3 items needing bids. Main risks: the roofing schedule and weather against the December 4 Settlement Deadline, hidden decking damage at $95.00 per sheet, and a buyer who may push back on item 4.
 
@@ -106,7 +106,7 @@ Copies of the signed resolution go to the buyer's lender, the title company and 
 
 Hi Toni and Sam,
 
-**My recommendation: fix the three small safety items, give a $1,240 credit for the roof instead of a new roof, offer to clean and cover the east window well, and say no to the carpet. That keeps your December 4 closing on track. I'd like your OK by Tuesday so we can answer before the buyer's request expires at 5:00 PM on Wednesday, November 11.**
+**My recommendation: fix the three safety items, give a $1,240 credit for the roof instead of a new roof, offer to clean and cover the east window well, and say no to the carpet. That keeps your December 4 closing on track. I'd like your OK by Tuesday so we can answer before the buyer's request expires at 5:00 PM on Wednesday, November 11.**
 
 **What They Asked For:** Six items, from a new roof and basement waterproofing to new basement carpet.
 
@@ -116,7 +116,7 @@ Hi Toni and Sam,
 - Basement: the wall was dry, and you disclosed the 2021 water. Let's offer what the inspector recommended: a clear window well drain and a cover.
 - Carpet: no. The inspector noted a stain, which is cosmetic.
 
-**What It Costs:** $1,240 for the roof credit. I'll get prices on the small repairs and the window well cover.
+**What It Costs:** $1,240 for the roof credit. I'll get prices on the three safety repairs and the window well cover.
 
 **Your Options:**
 1. Roof credit (my pick): no roofing work before closing.

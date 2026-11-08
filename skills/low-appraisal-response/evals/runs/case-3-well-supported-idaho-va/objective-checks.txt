@@ -1,6 +1,6 @@
 PASS  No em or en dashes
 PASS  Check before sending section
-PASS  Title Case subject lines  [Your Appraisal And Next Steps For 3318 Placeholder Pine Ct; Appraisal On 3318 Placeholder Pine Ct]
+PASS  Title Case subject lines  [Appraisal Results And Your Options For 3318 Placeholder Pine Ct; VA Appraisal On 3318 Placeholder Pine Ct]
 PASS  No stock phrases
 PASS  No wire, routing or account details
 PASS  Drafts found for the client-facing checks

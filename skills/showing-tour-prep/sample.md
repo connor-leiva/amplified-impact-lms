@@ -72,7 +72,7 @@ Utah mode: Utah addresses. Each sheet shows the same number for Days on MLS and 
 - Roof, furnace and air conditioner ages: not on the sheet. Radon: ask for any test result; plan to test.
 
 **Red flags in the remarks**
-- "Estate sale, sold as-is. Seller will not make any repairs." The person signing for the estate may never have lived there, so disclosures may be thin. The seller won't fix things, but under the Utah REPC's as-is clause the buyer still has due diligence to inspect.
+- "Estate sale, sold as-is. Seller will not make any repairs." The person signing for the estate may never have lived there, so disclosures may be thin. The seller won't fix things. Under the Utah REPC's as-is clause the buyer can still inspect, as long as the offer includes the Due Diligence Condition.
 - Terms: Cash, Conventional. FHA isn't listed. Ask the listing agent, and have the buyers' lender weigh in.
 - Two price cuts totaling $40,000; 51 days on MLS.
 - The public remarks also describe who the home suits; that wording isn't repeated here or on the tour sheet.
@@ -155,14 +155,14 @@ Prepared by Taylor Example for Sam and Alex
 
 ### 1. 4521 S Example Commons Dr #208, Murray
 $379,900 | 3 beds | 2 baths (1 full, 1 three-quarter) | 1,320 sq ft, 2nd floor condo | Built 2004 | HOA $315 a month (water, sewer, trash, snow removal, exterior, insurance, pool, clubhouse)
-Good to know: rental restrictions apply; I've asked for the HOA rules. Carport stall, no garage.
+Good to know: rental restrictions apply; I'll ask for the HOA rules. Carport stall, no garage.
 Look for: the parking; the balcony; what the HOA maintains.
 From your list: Meets: 3 bedrooms, 2 baths, under $600,000. Doesn't: 2-car garage, garden yard, HOA under $250, basement.
 Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 2. 1187 E Placeholder Pine Ave, Sandy
 $489,900 | 4 beds (3 up, 1 down) | 2 baths (1 full up, 1 three-quarter down) | 1,220 sq ft main floor + 1,180 sq ft basement (60% finished) | 0.22 acres | Built 1968 | No HOA
-Good to know: estate sale, sold as-is (the seller won't make repairs; you can still inspect). The listing shows cash or conventional financing only; we'll ask about FHA. Price reduced twice, $40,000 total.
+Good to know: estate sale, sold as-is (the seller won't make repairs; your offer can still include time to inspect). The listing shows cash or conventional financing only; we'll ask about FHA. Price reduced twice, $40,000 total.
 Look for: the garden area and trees; the single-pane windows; painted surfaces (built before 1978).
 From your list: Meets: 4 bedrooms, 2 baths, garden yard, under $600,000, no HOA. Doesn't: 1-car garage.
 Notes: ____________________   My rating: 1  2  3  4  5

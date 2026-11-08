@@ -1,6 +1,6 @@
 ---
 name: repair-request-response
-description: Drafts a listing agent's answer to a buyer's repair request or due diligence objection. Reads it against the inspection report, seller disclosure, contractor bids and REPC, then returns an item table (report page, category, disclosed or visible, reasonableness, and repair, credit, price cut or decline), a response for the seller's priority (net, certainty or timing) with costs from bids only, the deadline to resolve it in writing, a seller email, addendum terms and a disclosure note. Use it whenever a listing agent uploads or mentions a buyer's objection, repair request or addendum, or inspection response, including a credit or price cut asked for instead of repairs, or asks what the seller should fix, credit or push back on, even if they never say "repair request." Utah first; general mode elsewhere. Not for the buyer's side (due-diligence-review), any other counter or addendum, including the seller's answer once it comes back (counter-explainer), or a low appraisal (low-appraisal-response).
+description: Drafts a listing agent's answer to a buyer's repair request or due diligence objection. Reads it against the inspection report, seller disclosure, contractor bids and REPC, then returns an item table (report page, category, disclosed or visible, reasonableness, and repair, credit, price cut or decline), a response for the seller's priority (net, certainty or timing) with costs from bids only, the deadline to resolve it in writing, a seller email, addendum terms and a disclosure note. Use it whenever a listing agent uploads or mentions a buyer's objection, repair request, repair addendum or inspection response, including a credit or price cut instead of repairs, or asks what the seller should fix, credit or push back on, even if they never say "repair request." Utah first; general mode elsewhere. Not for the buyer's side (due-diligence-review), explaining what a counter or addendum changes, such as the buyer's reply to the sellers' response (counter-explainer), or a low appraisal (low-appraisal-response).
 compatibility: Works from uploaded PDFs or photos of the buyer's request, inspection report, bids, seller disclosure and purchase contract; no connector needed. Claude skills run with code execution on, which is on by default for individual plans. Gmail is optional, only to save the seller email as a draft when the agent asks.
 metadata:
   author: Amplified Impact
@@ -22,7 +22,7 @@ Why it matters: under both current Utah REPC forms there is no seven-day Respons
 - **When present:** contractor bids, the seller's property condition disclosure, the signed REPC and every addendum, specialty reports (radon, sewer scope), the MLS sheet, a seller net sheet from title.
 - **From the agent's message:** the seller's priority (net, certainty or timing), any date they mention, market context such as a backup offer. Use it. Don't ask for it.
 
-Never ask the agent to type what a document contains. If a deadline, bid or page is missing, use a placeholder such as [Due Diligence Deadline] or [needs bid], flag it at the top, and keep going.
+Never ask the agent to type what a document contains. If a deadline, bid or page is missing, use a placeholder such as [Due Diligence Deadline] or [needs bid], flag it at the top, and keep going. If the request is numbered after Addendum No. 1 or refers to earlier addenda that weren't uploaded, flag that too: they may have changed deadlines or terms.
 
 Read in this order: the request; the report section behind each item; the report's summary; the rest of the report for findings the request leaves out; the disclosure in full; each bid in full.
 
@@ -34,7 +34,7 @@ Read `references/utah-repair-response.md` first. It tells you which REPC version
 
 - Name the version from the contract's footer. Show today's date, the Due Diligence Deadline and the days left, the acceptance deadline written on the buyer's request, and the Settlement Deadline.
 - Under either current Utah form, the buyer's cancellation window and the deadline for a signed written resolution are the same: 5:00 PM Mountain Time on the Due Diligence Deadline. Say so plainly, because many agents still expect seven days plus three. If the uploaded contract or an attached Lead-Based Paint Addendum has a Response Period, compute it from that language and say which objections it covers.
-- If the Due Diligence Deadline is today, tomorrow or the day after (about 48 hours or less), put that first, in bold, with the time the buyer's request lapses. If it has passed, don't treat the request as timely: tell the agent to call their broker and transactions team before responding.
+- If the Due Diligence Deadline is today, tomorrow or the day after (about 48 hours or less), put that first, in bold, with the time the buyer's request lapses. If the Due Diligence Deadline isn't known, apply the same rule to the lapse time. If the Due Diligence Deadline has passed, don't treat the request as timely: tell the agent to call their broker and transactions team before responding.
 - Label the section: "For strategy; confirm dates with your transactions team."
 
 ## 3. Match Each Request to the Report
@@ -54,7 +54,7 @@ Then list findings the buyer didn't request. They stay out of the response but g
 For each item:
 - **Category:** Safety, Major System, Maintenance or Cosmetic. Keep the inspector's own rating; if you place an item differently, say why.
 - **Disclosed:** the disclosure page, the seller's words and the signed date, compared with the Offer Reference Date and Acceptance. Split partly disclosed items into the disclosed part and the new part.
-- **Visible at showings:** only from the documents or the agent; otherwise "agent to confirm."
+- **Visible at showings:** "Yes" only when the listing remarks, photos or the agent say so; "No" only when the report shows it can't be seen (underground, behind a finished wall, found only by a test). The report was written after the offer, so a surface condition it describes is "likely; agent to confirm." Otherwise "agent to confirm."
 - **Read:** Reasonable, Negotiable or Push back, with a one-line reason.
 - **Options with tradeoffs:** repair by a licensed contractor with paid invoices, credit, price reduction or decline; evaluate first for "further evaluation" items; a home warranty for age-only items.
 - **Bid:** the amount and bidder, or "needs bid."

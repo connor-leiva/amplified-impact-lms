@@ -60,7 +60,7 @@ The disclosure's "No" answers on roof leaks and ceiling stains (page 1, items 1b
 
 | Bid | Scope against the request | Timing | Notes |
 |---|---|---|---|
-| Placeholder Pipe & Drain, Inc., November 6, 2026 (license no. EX-4004 shown; estimator a licensed plumbing contractor) | Based on the October 28, 2026 sewer scope video. A: offset only. B: offset and belly. C: the full 74 feet the buyer asked for | 2 to 3 weeks from approval, subject to permit and weather | Valid 30 days; 30% deposit at approval; includes a post-repair camera inspection; 2-year workmanship warranty on new pipe |
+| Placeholder Pipe & Drain, Inc., November 6, 2026 (license no. EX-4004 shown; estimator a licensed plumbing contractor) | Based on the October 28, 2026 sewer scope video. A: offset only. B: offset and belly. C: the full lateral, about 74 feet from the cleanout to the city main (the buyer asked for the line from the house; the scope in 8.0 started at the cleanout) | 2 to 3 weeks from approval, subject to permit and weather | Valid 30 days; 30% deposit at approval; includes a post-repair camera inspection; 2-year workmanship warranty on new pipe |
 
 Net impact, from bids only:
 - Sewer: $3,850.00 (A), $6,400.00 (B) or $11,600.00 (C). Splits: $5,200.00 (buyer's share of C after the sellers pay B: $11,600.00 minus $6,400.00) or $5,800.00 each (C divided by 2).
@@ -120,7 +120,7 @@ Hi Lee and Dana,
 **Your Options:**
 1. Repair the sewer yourselves: you control the work, but it takes 2 to 3 weeks after approval.
 2. Credit $6,400 instead: no construction before closing, same dollars.
-3. Pay half of a full replacement ($5,800): the most likely yes, and the highest cost.
+3. Pay half of a full replacement ($5,800): closest to what they asked for, and the highest cost.
 
 **One More Thing:** Now that the offset, the sag and the roof leak are known, if this sale didn't close, they'd go on your disclosure for the next buyer unless they're repaired.
 

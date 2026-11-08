@@ -39,3 +39,7 @@ Result: **pass, 11 of 11 checks; 14 of 14 objective checks**, after one fix to t
 ## Failure Found and Fixed
 
 The first draft's tour sheet added bath counts into decimals: "2.5 baths" for Spanish Fork and "3.5 baths" for West Jordan, where the sheet counts 2 full, 1 half and 1 three-quarter. MLS systems count a three-quarter bath differently, so a decimal invents a number the sheet doesn't give. `references/tour-sheet-writing.md` now says to write each kind of bath as the sheet counts it and never to add them into a decimal. The tour sheet was rewritten to that rule (and eval 1's "4 baths" lines with it); all checks rerun and pass.
+
+## Review Update (2026-11-08, independent reviewer)
+
+Edited in this output and in `sample.md` (still identical): the Sandy as-is line now says the buyer can still inspect "as long as the offer includes the Due Diligence Condition," the Sandy tour sheet says "your offer can still include time to inspect," and the Murray tour sheet's "I've asked for the HOA rules" became "I'll ask for the HOA rules," because nothing in the inputs says the agent asked. The tour sheet is 494 words. Objective checks rerun: 14 of 14. The grade stands at 11 of 11. The reviewer's independent run is in `review-output.md`, graded in `review-grading.md`.

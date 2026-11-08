@@ -70,7 +70,7 @@ Utah mode: Utah addresses.
 
 **Red flags in the remarks**
 - "Short sale, subject to lender approval." The seller's lender has to agree to the price, and timing is uncertain. Ask whether the lender has approved and how long approval is taking.
-- "Sold as-is." The seller won't make repairs; under the Utah REPC's as-is clause the buyer still has due diligence to inspect.
+- "Sold as-is." The seller won't make repairs. Under the Utah REPC's as-is clause the buyer can still inspect, as long as the offer includes the Due Diligence Condition.
 - Two price cuts totaling $44,000; 80 days on MLS.
 - The public remarks also describe who the home suits and nearby places. That wording isn't repeated here or on the tour sheet.
 
@@ -137,7 +137,7 @@ Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 3. 5562 W Example Ridge Way, Herriman
 $629,900 | 5 beds (3 main, 2 down) | 3 full baths (2 main, 1 down) | 1,720 sq ft main floor + 1,700 sq ft finished basement | 0.15 acres | Built 2021 | HOA $210 a quarter ($70 a month: common areas, park, trash)
-Good to know: back on the market after a buyer's financing fell through. Inside a public infrastructure district, with a levy on the tax bill; I'm asking for the amount.
+Good to know: back on the market after a buyer's financing fell through. Inside a public infrastructure district, with a levy on the tax bill; I'll ask for the amount.
 Look for: the 1-step porch and the garage entry; the main-floor primary bath; doorway widths.
 From your list: Meets: 4+ bedrooms, 2+ full baths, under $650,000, VA accepted, main-level bedroom and full bath. Check: the entry steps.
 Notes: ____________________   My rating: 1  2  3  4  5

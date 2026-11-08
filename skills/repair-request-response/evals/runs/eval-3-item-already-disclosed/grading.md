@@ -35,3 +35,7 @@ Result: **pass, 9 of 9 expectations; 9 of 9 objective checks.**
 ## Notes
 
 One sentence in the first pass read "the stain was wet after overnight rain," which joins two facts into a cause. It now states the two facts separately (the report notes light rain overnight; the readings were wet), so the output doesn't suggest why the sellers didn't know.
+
+## Reviewer Changes (2026-11-08)
+
+The independent review (`review-grading.md`) corrected two lines of this output: the bid table said Option C covered "the full 74 feet the buyer asked for," but the buyer asked for the line from the house and Option C starts at the cleanout; and the seller email called the even split "the most likely yes," a prediction the skill forbids. Expectations still pass 9 of 9; objective checks rerun, 9 of 9.

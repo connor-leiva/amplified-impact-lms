@@ -1,6 +1,6 @@
 # Morning Pass, Tuesday, November 3, 2026
 
-Reviewer run (second independent review, written from SKILL.md and its references only, before reading the builder's output.md, grading.md, baseline.md or sample.md). Inputs: `Mailbox export 2026-11-03 (40 conversations).txt` and `Team roster.csv`. Prompt: "Morning pass, please. Today is Tuesday, November 3, 2026, 7:00 AM Eastern, and my last pass was yesterday at 7:00 AM. My mailbox export (inbox plus last week's sent mail) and my team roster are attached. No meetings to pull today."
+Reviewer run (second independent review, written from SKILL.md and its references only, before reading the builder's output.md, grading.md, baseline.md or sample.md). Rerun after the review fix to forwards (a lead's message with a remark about neighbors gets a new note, not a forward): Draft 17 and the ISA item changed; nothing else did. Inputs: `Mailbox export 2026-11-03 (40 conversations).txt` and `Team roster.csv`. Prompt: "Morning pass, please. Today is Tuesday, November 3, 2026, 7:00 AM Eastern, and my last pass was yesterday at 7:00 AM. My mailbox export (inbox plus last week's sent mail) and my team roster are attached. No meetings to pull today."
 
 ## Bottom Line
 
@@ -61,7 +61,7 @@ Kept, not listed: the signed Addendum No. 2 you promised Ray Lendwell on October
 - **Inspection scheduling on 27 Example Heron Ct**, Max Outsideagent (Coastal Other Realty), Monday, 10:10 AM. His buyers want Thursday at 9 and he asks who to coordinate with. Inspection scheduling is a transactions item. The listing agent isn't named in the inputs. Draft 16.
 
 **ISA (Theo Dialman)**
-- **Lois Inquiryton, buyer lead** (two threads merged: her email Monday, 9:12 PM, and the website form Monday, 9:05 PM, both about the sign at 3 Example Marsh Rd, Unit 204). Property criteria: two bedrooms, single level, elevator building, under $400,000, near the water; moving from Ohio next spring; paying cash from a house sale; wants a call this week. Draft 17 forwards the website form, not her email, because her email includes a remark about the people she wants as neighbors. That remark is left out of the forward and every draft.
+- **Lois Inquiryton, buyer lead** (two threads merged: her email Monday, 9:12 PM, and the website form Monday, 9:05 PM, both about the sign at 3 Example Marsh Rd, Unit 204). Property criteria: two bedrooms, single level, elevator building, under $400,000, near the water; moving from Ohio next spring; paying cash from a house sale; wants a call this week. Her email includes a remark about the people she wants as neighbors, so Draft 17 is a new note with her criteria and contact details, not a forward. The remark is left out of every draft.
 
 **Ops (Nina Opsworth)**
 - **Example Staging Co invoice INV-2026-311** for staging at 51 Sample Bay Ct, $1,150, due November 15 (Monday, 9:45 AM). Draft 18.
@@ -246,16 +246,14 @@ Marisol
 
 (original email below)
 
-**Draft 17. Forward to Theo: new lead**
+**Draft 17. New lead note to Theo** (new note, not a forward: her email includes a remark that stays out)
 To: Theo Dialman
 Subject: New Buyer Lead: Lois Inquiryton, 3 Example Marsh Rd Sign
 
-Theo, new buyer lead for the CRM. Lois Inquiryton and her husband saw our sign at 3 Example Marsh Rd, Unit 204, and sent the website inquiry below. They're moving here from Ohio next spring, paying cash from their house sale, and want two bedrooms, single level, an elevator building, under $400,000, near the water. They asked for a call this week.
+Theo, new buyer lead for the CRM. Lois Inquiryton (lois.inquiryton@mailbox.example, 614-555-0133) and her husband saw our sign at 3 Example Marsh Rd, Unit 204, and also sent a website inquiry. They're moving here from Ohio next spring, paying cash from their house sale, and want two bedrooms, single level, an elevator building, under $400,000, near the water. They asked for a call this week.
 
 Thanks,
 Marisol
-
-(website inquiry below; forward the form, not her separate email)
 
 **Draft 18. Forward to Nina: staging invoice**
 To: Nina Opsworth
@@ -303,7 +301,7 @@ Marisol Fakeworth
 - Drafts 12 to 14: [decision], [plumber name and number], [policy answer].
 - Draft 15: Wednesday, November 4 at noon; 9 Example Dune Ln; Buyerly. Confirm the recipient.
 - Draft 16: 27 Example Heron Ct; Thursday at 9 (Thursday, November 5); [listing agent]. Confirm the recipient.
-- Draft 17: Lois Inquiryton; 3 Example Marsh Rd, Unit 204; under $400,000; forward the website form, not Lois's own email. Confirm the recipient.
+- Draft 17: Lois Inquiryton; lois.inquiryton@mailbox.example; 614-555-0133; 3 Example Marsh Rd, Unit 204; under $400,000. Send it as a new email; don't forward either of Lois's messages. Confirm the recipient.
 - Draft 18: INV-2026-311; $1,150; November 15. Confirm the recipient.
 - Draft 19: Thursday's appointment. Confirm the recipient.
 - Draft 20: Tuesday, October 27; 20 panels; [date].

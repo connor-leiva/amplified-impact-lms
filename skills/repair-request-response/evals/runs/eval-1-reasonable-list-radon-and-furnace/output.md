@@ -22,7 +22,7 @@ How the deadline works on this form:
 - **There is no Response Period.** Under Section 8.1(b), by the Due Diligence Deadline the buyer must either cancel in writing (the $5,000 Earnest Money Deposit goes back to the buyer) or "resolve in writing with Seller" the objections. Under Section 8.1(c), if neither happens, the buyer is deemed to have waived the Due Diligence Condition.
 - So the deadline for a signed written resolution and the end of the buyer's cancellation window are the same moment: 5:00 PM Mountain Time on November 12, 2026. There is no seven-day period plus three days after it.
 - If the sellers accept Addendum No. 1, Acceptance happens when they sign it and that is communicated to the buyer or the buyer's agent (Section 23), before 5:00 PM on November 10.
-- The buyer can still cancel for any reason by the Due Diligence Deadline, so a quick yes protects the deal best.
+- The buyer can still cancel for any reason by the Due Diligence Deadline, so answering early leaves the most time to sign before then.
 
 ## Item Table
 

@@ -2,7 +2,7 @@
 
 Last verified: 2026-11-08
 
-How to read an MLS agent-detail sheet, what to look at in person, what the remarks can mean, what to ask the listing agent, how to check fit, and where to send questions this skill doesn't answer. Facts with a source are listed at the end. Utah-only facts live in `utah-tour-notes.md`.
+How to read an MLS agent-detail sheet, what to look at in person, what the remarks can mean, what to ask the listing agent, how to check fit, and where to send questions the tour prep doesn't answer. Facts with a source are listed at the end. Utah-only facts live in `utah-tour-notes.md`.
 
 ## 1. Public or Agent-Only: The Field Map
 
@@ -38,7 +38,7 @@ Rules:
 Pick three to six per home. Each item names its trigger. Notice and ask; never diagnose or price.
 
 **From the year built**
-- Built before 1978: federal law requires sellers and agents, before the buyer signs a contract, to give the EPA lead pamphlet, disclose known lead-based paint and hazards, and provide a 10-day period to test for lead (the parties may agree to change it, and buyers may waive it; EPA lists exemptions, including foreclosure sales). Look at the condition of painted surfaces (peeling, chipping), and ask for the lead disclosure.
+- Built before 1978: federal law requires sellers and agents, before the buyer signs a contract, to give the EPA lead pamphlet, disclose known lead-based paint and hazards, and provide a 10-day period to test for lead (the parties may agree to change it, and buyers may waive it). EPA lists exemptions, including "sales of target housing at foreclosure" (40 CFR 745.101(a)); a bank-owned home resold after foreclosure isn't a sale at foreclosure, so don't call it exempt: ask the listing agent for the lead disclosure and confirm with your broker. Look at the condition of painted surfaces (peeling, chipping), and ask for the lead disclosure.
 - Any age: ask the age of the roof, furnace, air conditioner and water heater when the sheet doesn't give them, and look for the date labels on the equipment.
 - Remarks claim something is "new" or "updated" with a year: ask for invoices and any permit.
 
@@ -66,7 +66,7 @@ Quote the words. Say what they can mean, then the question. Never guess at motiv
 
 | Words on the sheet | What it can mean for the buyer | Ask |
 |---|---|---|
-| As-is, no repairs, investor special, handyman | The seller has said up front it won't make repairs. The buyer can usually still inspect under the contract's due diligence or inspection terms (Utah: see `utah-tour-notes.md`). | What inspections or reports does the seller have? Any known issues? |
+| As-is, no repairs, investor special, handyman | The seller has said up front it won't make repairs. The buyer can usually still inspect, if the offer keeps the contract's due diligence or inspection condition (Utah: see `utah-tour-notes.md`). | What inspections or reports does the seller have? Any known issues? |
 | Cash only, cash or conventional, no FHA or VA | A financed buyer, or a buyer with that loan type, may not be able to buy it. | Why is financing limited? (Then the buyer's lender confirms.) |
 | Tenant-occupied, lease through a date | Possession, showing notice and the lease all affect timing. | Lease end date; whether the tenant leaves by settlement; deposits; can the buyer get a copy of the lease? |
 | Short sale, subject to lender approval | The seller's lender has to agree to the price; timing is uncertain. | Has the lender approved? How long has approval taken? Any other liens? |
@@ -109,7 +109,7 @@ Never ask about the occupants as people, the seller's reasons for selling beyond
 ## 7. Fair Housing and Official Sources
 
 - The federal Fair Housing Act regulations call steering unlawful: restricting or discouraging a buyer's choices because of race, color, religion, sex, handicap (disability), familial status or national origin, including "communicating to any prospective purchaser that he or she would not be comfortable or compatible with existing residents of a community, neighborhood or development" (24 CFR 100.70). State laws can add classes (Utah's are in `utah-tour-notes.md`).
-- So the skill describes homes and documents, never people. It doesn't say who a home suits, and it doesn't repeat that wording from remarks or a buyer's note.
+- So the tour prep describes homes and documents, never people. It doesn't say who a home suits, and it doesn't repeat that wording from remarks or a buyer's note.
 - When a buyer asks about these topics, point to the source and let the buyer decide:
   - Schools and school boundaries: the school district
   - Crime and safety: the local police department
@@ -121,6 +121,7 @@ Never ask about the occupants as people, the seller's reasons for selling beyond
 
 - Fannie Mae Selling Guide B4-1.3-05, Improvements Section of the Appraisal Report (above- and below-grade square footage, ANSI Z765-2021): https://selling-guide.fanniemae.com/sel/b4-1.3-05/improvements-section-appraisal-report
 - EPA, Real Estate Disclosures about Potential Lead Hazards (pre-1978 housing, pamphlet, 10-day opportunity, exemptions including foreclosure sales; updated May 27, 2026): https://www.epa.gov/lead/real-estate-disclosure
+- 40 CFR 745.101, Scope and applicability (exemption (a): "Sales of target housing at foreclosure"): https://www.ecfr.gov/current/title-40/chapter-I/subchapter-R/part-745/subpart-F/section-745.101
 - EPA, What is EPA's Action Level for Radon (fix at 4 pCi/L or more): https://www.epa.gov/radon/what-epas-action-level-radon-and-what-does-it-mean
 - EPA, Home Buyer's and Seller's Guide to Radon ("If you are buying or selling a home, have it tested for radon"): https://www.epa.gov/sites/default/files/2015-05/documents/hmbuygud.pdf
 - FEMA Flood Map Service Center ("the official public source for flood hazard information produced in support of the National Flood Insurance Program"): https://msc.fema.gov/portal/home
@@ -145,6 +146,7 @@ One table, one row per home:
 | # | Address | Status | Price | Beds (up / down) | Baths (up / down) | Above grade / basement sq ft | Built | HOA per month | Days on market | Price change |
 
 - Baths: write full, three-quarter and half baths the way the sheet counts them ("2 full, 1 half up / 1 three-quarter down"). Never add them into a decimal ("3.5 baths"); MLS systems count three-quarter baths differently. If the sheet only gives totals, say "split not on the sheet."
+- "Up" means above grade. When a stated criterion is about one level (a main-level bedroom, no stairs), name the level instead ("3 main", "3 upstairs, none on the main floor"), on the tour sheet too.
 - Price change: "none shown" or "down $40,000 (two cuts)."
 
 ### Home by Home (for the agent; public fields only)
@@ -157,7 +159,7 @@ For each home, under its number and address:
 
 ### Buyer Tour Sheet (share this page)
 
-Client-facing. It fits on one printed page: aim for about 100 to 130 words per home and never more than 500 words in all. Warm, plain, direct; no hype words ("stunning," "dream home," "won't last"); no em dashes. Follow the user's voice profile when one is in the conversation; it changes tone, not content.
+Client-facing. It fits on one printed page: never more than 500 words in all, counting the notes and rating lines. That's about 100 words per home for four homes or fewer, and about 70 for five or six; past six homes, keep each home to its first three lines plus Notes, and say in Flags that the sheet runs long. Warm, plain, direct; no hype words ("stunning," "dream home," "won't last"); no em dashes. Follow the user's voice profile when one is in the conversation; it changes tone, not content.
 
 Layout:
 
@@ -183,6 +185,7 @@ Rules for the tour sheet:
 - Nothing about who a home suits, the neighbors, schools, safety or a place of worship. No school names.
 - No price opinions, no "good deal" or "overpriced," no offer advice, no estimated costs.
 - "Doesn't" fit items are stated plainly and kindly ("2 bedrooms; your list says 3 or more").
+- Never tell the buyer the agent has already asked for, sent or received something ("I've asked for the HOA rules") unless the agent said so. "I'll ask about..." is fine; the agent reviews it.
 - A fact that came only from an agent-only field does not appear, even rephrased.
 
 ### Agent-Only Page (do not share)

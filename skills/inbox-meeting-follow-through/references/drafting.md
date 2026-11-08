@@ -34,7 +34,9 @@ Thanks,
 (original email below)
 ```
 
-For a lead: the lead's name, how they reached us, and their property criteria, timing, price range and financing as stated, plus what they asked for (a showing, a call). Never what they said about who they want as neighbors.
+A forward carries the whole original email. Forward only when everything in it can go to that person. When the original holds something that must not travel (a lead's remark about who they want as neighbors, an agent's private matter), write a new email instead, with "(new note, not a forward: [reason])" above it, and give the recipient what they need from the inputs.
+
+For a lead: the lead's name, how they reached us, and their property criteria, timing, price range and financing as stated, plus what they asked for (a showing, a call). Never what they said about who they want as neighbors. If the lead's own message includes such a remark, the note is a new email with the lead's email and phone as given, not a forward.
 
 For a lender condition or contract email: name the file and say the details are in the email below. Don't restate amounts, balances or account details in the note.
 
@@ -90,7 +92,7 @@ Two or three sentences: our team and the title company will never change wiring 
 
 ## Creating Drafts in Gmail or Outlook
 
-Only when the user asks and the connector allows drafts. Create replies inside their thread, one draft per thread, and list each draft with its link. Never send, even if asked in the same breath: tell them the drafts are ready to review. If the connector can only read, say so and leave the drafts in the chat.
+Only when the user asks and the connector allows drafts. Create replies inside their thread, one draft per thread, and list each draft with its link. A message that combines two replies to one person goes in the thread of its first item; say which. New notes (alerts, recaps, lead notes) are new drafts. Never send, even if asked in the same breath: tell them the drafts are ready to review. If the connector can only read, say so and leave the drafts in the chat.
 
 ## Check Before Sending
 

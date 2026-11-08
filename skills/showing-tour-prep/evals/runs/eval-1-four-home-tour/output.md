@@ -64,7 +64,7 @@ Utah mode: Utah addresses. Each sheet shows the same number for Days on MLS and 
 
 **Red flags in the remarks**
 - "Trust sale." The trustee signing may never have lived there, so disclosures may be thin. Ask who signs and whether any court approval is needed (title confirms).
-- "Sold strictly as-is; seller will make no repairs or provide any warranties." The seller won't fix things, but under the Utah REPC's as-is clause (Section 10.2 of the December 2024 form, 13.1 of the November 2026 form) the buyer still has due diligence to inspect and evaluate.
+- "Sold strictly as-is; seller will make no repairs or provide any warranties." The seller won't fix things. Under the Utah REPC's as-is clause (Section 10.2 of the December 2024 form, 13.1 of the November 2026 form) the buyer can still inspect and evaluate, as long as the offer includes the Due Diligence Condition (Section 8.1 or 3(a)).
 - Terms: Cash, Conventional only. Fine for a conventional loan.
 - Two price cuts totaling $34,000; 66 days on MLS. Ask about feedback and any contract that fell through.
 
@@ -147,7 +147,7 @@ Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 2. 2840 E Example Elm Dr, Holladay
 $515,000 | 3 beds (all on the main floor) | 1 full bath up, 1 three-quarter bath down | 1,340 sq ft above grade + 1,300 sq ft basement (40% finished) | 0.27 acres | Built 1958 | No HOA
-Good to know: trust sale, sold as-is (the seller won't make repairs; you can still inspect). Price reduced twice, $34,000 total.
+Good to know: trust sale, sold as-is (the seller won't make repairs; your offer can still include time to inspect). Price reduced twice, $34,000 total.
 Look for: painted surfaces (built before 1978); the boiler and the evaporative cooler; the unfinished part of the basement.
 From your list: Meets: 3 bedrooms, under $550,000, 1-car garage. Check: whether part could be rented (city rules).
 Notes: ____________________   My rating: 1  2  3  4  5

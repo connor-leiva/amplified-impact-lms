@@ -23,3 +23,10 @@ Result: **pass, 12 of 12 checks** (after the Eval 1 and Eval 3 fixes were applie
 
 - The email's bare "tomorrow," "on Thursday" and "before Saturday" became "Monday, November 9," "Thursday, November 12" and "Saturday, November 14" (the Eval 1 fix).
 - The text to Casey dropped its third sentence about the agreement; that heads-up moved to Next Steps item 1 (the Eval 3 fix). Casey said "I never check email," and DocuSign arrives by email, so the agent is told to text a heads-up.
+
+## Review Update (2026-11-08)
+
+An independent review reran the practice file from scratch (`review-output.md`, `review-grading.md`, 12 of 12). This output, and `sample.md`, were updated:
+- The note was cut from 263 to 209 words for the new "about 200 words or fewer" rule, and the current HOA dues (285 a month), which the follow-up doesn't need, came out of it and out of Check before sending.
+- Next Steps item 4 read "No day was set; with the recap works." It now reads "sending them with the recap works."
+- `objective-checks.txt` was regenerated with the new note-length check. Still 12 of 12.

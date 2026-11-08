@@ -45,7 +45,11 @@ Disclosure doesn't take away the buyer's right to cancel by the Due Diligence De
 
 If the disclosure says "no known" issue and the report shows evidence of one, record both as facts for the agent. Sellers often don't know. Never suggest the seller knew, and never accuse anyone.
 
-**Visible at showings.** Use only the documents or the agent: the report describes a surface condition in plain view in a lived-in room (a stained carpet, a cracked driveway, fogged panes), the listing remarks mention it, or the agent says so. Otherwise write "agent to confirm." A condition in plain view was part of what the buyer saw when making the offer.
+**Visible at showings.** Use only the documents or the agent, and remember the report was written after the offer.
+- "Yes": the listing remarks or photos show it, or the agent says so. A condition in plain view at showings was part of what the buyer saw when making the offer.
+- "Likely; agent to confirm": the report describes a surface condition in plain view in a finished room (a stained carpet, a cracked driveway, fogged panes). Furniture, rugs or a later change may mean it wasn't seen.
+- "No": the report shows it can't be seen (underground, behind a finished wall, found only by a test such as a radon monitor or a garage door contact test).
+- Otherwise: "agent to confirm." Never write "No" or "Yes" by guessing.
 
 ## The Reasonableness Read
 

@@ -1,6 +1,6 @@
 ---
 name: showing-tour-prep
-description: Turns the MLS sheets for the homes on a buyer's showing tour into tour prep: a snapshot of each home (price changes, beds and baths above and below grade, above-grade and basement square feet, lot, year, HOA dues, days on market), what to look at in person, red flags in the remarks, fit against the buyer's stated criteria, questions for each listing agent, a one-page buyer tour sheet, and a separate agent-only page that keeps private remarks, showing instructions and lockbox codes off anything the buyer sees. Use it whenever a buyer's agent uploads MLS agent-detail sheets or listing printouts for homes they're showing, or says showings tomorrow, tour this weekend, prep me for these homes or make a tour sheet, even if they never say tour prep. Utah first; general mode elsewhere. Not for choosing offer terms (offer-strategy), documents on a home under contract (due-diligence-review), pricing a listing from a CMA (pricing-conversation-prep), or recapping a buyer consult (appointment-follow-up).
+description: "Turns the MLS sheets for the homes on a buyer's showing tour into tour prep, with a snapshot of each home (price changes, beds, baths and square feet above and below grade, HOA dues, days on market), what to look at in person, red flags in the remarks, fit against the buyer's stated criteria, questions for each listing agent, a one-page buyer tour sheet, and a separate agent-only page that keeps private remarks, showing instructions and lockbox codes off anything the buyer sees. Use it whenever a buyer's agent uploads MLS agent-detail sheets or listing printouts for homes they'll show, or says showings tomorrow, tour this weekend, prep me for these homes or make a tour sheet, even if they never say tour prep. Utah first; general mode elsewhere. Not for choosing offer terms (offer-strategy), documents on a home under contract (due-diligence-review), pricing a listing (pricing-conversation-prep), recapping a buyer consult (appointment-follow-up), or booking showings or fitting them into the week (perfect-week)."
 metadata:
   author: Amplified Impact
   version: "1.0"
@@ -83,6 +83,6 @@ Read `references/tour-sheet-writing.md` before writing.
 2. **Bottom line for the agent** (three sentences max): how many homes, the one or two things to handle before the tour, and which homes meet the most stated criteria
 3. **Tour at a Glance:** one table, a row per home (status, price, beds and baths split, above-grade and basement square feet, year, HOA per month, days on market, price change)
 4. **Home by Home** (public fields only): the rest of the snapshot, what to look at in person, red flags in the remarks, fit
-5. **Buyer Tour Sheet** (share this page)
-6. **Agent-Only Page** (do not share)
+5. **Buyer Tour Sheet (Share This Page)**
+6. **Agent-Only Page: Do Not Share or Forward**
 7. **Check before sending:** every price, date, size, fee and quoted remark on the tour sheet and in the listing agent questions, with the sheet and field it came from, plus open placeholders and anything a sheet left unclear

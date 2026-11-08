@@ -15,6 +15,7 @@ One table, one row per home:
 | # | Address | Status | Price | Beds (up / down) | Baths (up / down) | Above grade / basement sq ft | Built | HOA per month | Days on market | Price change |
 
 - Baths: write full, three-quarter and half baths the way the sheet counts them ("2 full, 1 half up / 1 three-quarter down"). Never add them into a decimal ("3.5 baths"); MLS systems count three-quarter baths differently. If the sheet only gives totals, say "split not on the sheet."
+- "Up" means above grade. When a stated criterion is about one level (a main-level bedroom, no stairs), name the level instead ("3 main", "3 upstairs, none on the main floor"), on the tour sheet too.
 - Price change: "none shown" or "down $40,000 (two cuts)."
 
 ## Home by Home (for the agent; public fields only)
@@ -27,7 +28,7 @@ For each home, under its number and address:
 
 ## Buyer Tour Sheet (share this page)
 
-Client-facing. It fits on one printed page: aim for about 100 to 130 words per home and never more than 500 words in all. Warm, plain, direct; no hype words ("stunning," "dream home," "won't last"); no em dashes. Follow the user's voice profile when one is in the conversation; it changes tone, not content.
+Client-facing. It fits on one printed page: never more than 500 words in all, counting the notes and rating lines. That's about 100 words per home for four homes or fewer, and about 70 for five or six; past six homes, keep each home to its first three lines plus Notes, and say in Flags that the sheet runs long. Warm, plain, direct; no hype words ("stunning," "dream home," "won't last"); no em dashes. Follow the user's voice profile when one is in the conversation; it changes tone, not content.
 
 Layout:
 
@@ -53,6 +54,7 @@ Rules for the tour sheet:
 - Nothing about who a home suits, the neighbors, schools, safety or a place of worship. No school names.
 - No price opinions, no "good deal" or "overpriced," no offer advice, no estimated costs.
 - "Doesn't" fit items are stated plainly and kindly ("2 bedrooms; your list says 3 or more").
+- Never tell the buyer the agent has already asked for, sent or received something ("I've asked for the HOA rules") unless the agent said so. "I'll ask about..." is fine; the agent reviews it.
 - A fact that came only from an agent-only field does not appear, even rephrased.
 
 ## Agent-Only Page (do not share)

@@ -15,7 +15,7 @@ Result: **pass, 11 of 11 checks; 9 of 9 objective checks**, after one fix to the
 | 3 | Roof: pushes back on replacement (inspector recommended repair), compares the roofer's November 30 earliest start with the November 29 completion date, recommends the $1,240 credit for Timing | Pass | Item table row 1; "Options and Tradeoffs"; "Timing" package |
 | 4 | Guardrail, garage door and discharge pipe Reasonable, needs bid, no estimates | Pass | Rows 2, 3, 5 |
 | 5 | Basement: disclosed, but signed October 20, 2026, after the October 14, 2026 Offer Reference Date, so the "priced into the offer" argument is weak; counters with the inspector's own recommendation | Pass | Row 4; "Options and Tradeoffs" |
-| 6 | Carpet declined as cosmetic and in plain view | Pass | Row 6 |
+| 6 | Carpet declined as cosmetic (visibility at showings: likely, agent to confirm) | Pass | Row 6 |
 | 7 | Reads the body-only rodent finding (page 9, item 9.2), which the report's summary leaves out, into the disclosure note, stated neutrally against the disclosure's "No" on pests | Pass | "Disclosure Note," fourth bullet; seller email "One More Thing" |
 | 8 | Never repeats the bid's bank, routing or account details; adds the verify-by-phone line | Pass | Bids table; objective check |
 | 9 | The sellers' counter is numbered Addendum No. 3 | Pass | "Response Terms" |
@@ -39,3 +39,7 @@ Result: **pass, 11 of 11 checks; 9 of 9 objective checks**, after one fix to the
 ## Failure Found and Fixed
 
 The first pass's seller email ran 313 words, over the 300-word limit. `references/response-writing.md` now says to count the words before finishing and, if long, cut What I Recommend to the decisions and drop reasons the bottom line already gives. Rerun: 292 words, same content.
+
+## Reviewer Changes (2026-11-08)
+
+The independent review (`review-grading.md`) edited this output and `sample.md`: unbid items are no longer sized as "small," and the "Visible at showings" column no longer says "No" without support. The skill now says how to fill that column (SKILL.md step 4). The objective checks were rerun on the edited output: 9 of 9.

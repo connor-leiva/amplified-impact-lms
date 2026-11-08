@@ -1,8 +1,9 @@
 Objective checks: eval-1-first-time-buyer / output.md
 - PASS  No em or en dashes
 - PASS  Title Case subject: Next Steps Before Saturday's Showings
-- PASS  Email body under 200 words: 155 words (signature included)
+- PASS  Email body under 200 words: 156 words (signature included)
 - PASS  [Personal note: add by voice] line
+- PASS  FUB note about 200 words or fewer (210 allowed): 201 words
 - PASS  No stock phrases in email or text
 - PASS  Check Before Sending section
 - PASS  Never-appear strings absent

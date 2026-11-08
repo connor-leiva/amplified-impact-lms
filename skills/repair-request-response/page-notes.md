@@ -4,7 +4,7 @@ Skill: `repair-request-response`, version 1.0. Claude and ChatGPT. Every fact be
 
 ## One-line promise
 
-Upload the buyer's repair request, the inspection report and your bids, and get the seller's answer: what to agree to, what to push back on, what it costs from your bids, and the drafts to send, before the deadline.
+Upload the buyer's repair request, the inspection report and your bids, and get the seller's answer: what to agree to, what to push back on, what it costs from your bids, the real deadline, and the drafts to send.
 
 ## Who it's for
 
@@ -48,8 +48,9 @@ A three-sentence bottom line, then: the clock (which REPC version, the deadline 
 
 - **Claude:** a plan with skills and code execution. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. Code execution ("Code execution and file creation," called "Create and edit files" in the updated settings) is on by default for individual plans. On Team and Enterprise, an Owner controls whether skills are on (Team plans have them on by default).
 - **Install in Claude:** Customize > Skills > "+" > Create skill > Upload a skill, then choose `repair-request-response.zip` as downloaded. Make sure it's toggled on.
-- **ChatGPT instead:** a Project, on any plan with Projects (Free, Go, Plus, Pro). Select New project in the sidebar; open the more options menu (•••) > Project settings and paste `paste-into-instructions.txt` into the instructions; add the four `.md` files as project files. That's 4 files, inside Free's limit of 5 per project. ChatGPT Free limits file uploads and shows the limit when you reach it, so attaching a request, a report, a disclosure and a bid on Free may hit it; paid plans have more room.
-- **No connectors needed.** With Gmail connected in Claude, it can save the seller email as a draft if you ask. It never sends.
+- **ChatGPT instead:** a Project, on any plan with Projects (Free, Go, Plus, Pro). Select New project in the sidebar; open the more options menu (•••) > Project settings and paste `paste-into-instructions.txt` into the instructions; add the four `.md` files to the project's Sources section. That's 4 files, inside Free's limit of 5 per project. OpenAI's Free tier FAQ has said Free users are limited to 3 file uploads per day (check the current limit there), so on Free, setting up the Project and attaching a deal's request, report, disclosure and bids can take more than one day. Paid plans have more room.
+- **No connectors needed.** With Gmail connected in Claude, it can save the seller email as a draft if you ask. It never sends. Claude's Gmail connector page lists it for Pro, Max, Ultra, Team and Enterprise, so on Free, copy the email instead.
+- **Computer:** install the skill from claude.ai in a browser or the Claude desktop app, where Claude's docs describe managing skills. Use it there with PDFs or phone photos of the documents. The mobile apps weren't tested.
 - **Cost:** nothing beyond your Claude or ChatGPT plan.
 - **Privacy:** these files carry your seller's name and address. On Claude Free, Pro, Max and Ultra, you can turn off Settings > Privacy > "Help Improve our AI models." In ChatGPT, Settings > Data controls > "Improve the model for everyone." Team and Enterprise Claude chats aren't used for training by default.
 
@@ -84,6 +85,7 @@ repair request, inspection response, buyer objection, due diligence, repair adde
 - A 14-item kitchen-sink list, November 1, 2026 REPC, deadline two days out, one electrician bid: 9 of 9, after fixing the 48-hour warning rule. It caught a wrong page reference, a request for a system the inspector didn't test, and a request past the inspector's "no action needed."
 - A request on an item the seller already disclosed (sewer roots), no REPC: 9 of 9. It split the disclosed roots from the new offset and belly, compared the disclosure date with the offer date, and used a placeholder for the missing deadline.
 - The practice files: 11 of 11 checks, after shortening the seller email to fit 300 words. It found the body-only rodent finding and never repeated the bid's bank details.
+- An independent review (2026-11-08) reran eval 3 and the practice files from scratch: 9 of 9 and 11 of 11 after two skill fixes (flag earlier addenda that weren't uploaded; a stricter rule for "visible at showings"). It also caught a scope gap the first run missed (the buyer asked for the sewer line from the house; the bid starts at the cleanout) and removed words that sized unbid repairs ("small") from the sample.
 
 **Not tested:**
 - Real (redacted) Utah Life repair requests, reports and bids.
@@ -100,7 +102,9 @@ repair request, inspection response, buyer objection, due diligence, repair adde
 - Claude training setting: https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings
 - Team and Enterprise chats not used for training by default: https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training
 - ChatGPT Projects (New project, Project settings, files, per-plan file counts): https://help.openai.com/en/articles/10169521-projects-in-chatgpt
-- ChatGPT Free tier upload limits: https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq
+- ChatGPT project Chats and Sources sections: https://learn.chatgpt.com/docs/projects
+- Claude Gmail connector plans: https://claude.com/docs/connectors/google/gmail
+- ChatGPT Free tier upload limits (3 uploads per day, from the vendor fact check of 2026-11-08; the page blocks automated reading, so recheck it by hand): https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq
 - ChatGPT plans with Projects: https://chatgpt.com/pricing
 - ChatGPT data controls: https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt
 - Custom GPT retirement (why this ships as a Project): https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq

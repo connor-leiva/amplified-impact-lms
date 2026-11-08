@@ -4,6 +4,7 @@ Objective checks: practice / output.md
 - PASS  Email body under 200 words: 186 words (signature included)
 - PASS  [Personal note: add by voice] line
 - PASS  Text under 300 characters: 140 characters
+- PASS  FUB note about 200 words or fewer (210 allowed): 209 words
 - PASS  No stock phrases in email or text
 - PASS  Check Before Sending section
 - PASS  Never-appear strings absent

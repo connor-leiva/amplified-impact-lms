@@ -38,3 +38,10 @@ Result: **pass, 9 of 9 expectations** (after one fix, below). Objective checks i
 - **Fix to SKILL.md, Step 4:** "Every day named in the email carries its date ('by Monday, November 9'), never 'tomorrow' or a bare weekday... 'Tonight' or 'today' for the appointment itself is fine; Check before sending flags it."
 - **Rerun:** the email now reads "by Monday, November 9," "on Monday, November 9" and "Wednesday evening, November 11." Expectation 5 passes.
 - **Also changed during the run:** the first draft called Quinn "she." The transcript never shows Quinn's pronouns (only Pat's), so SKILL.md Step 2 now says "Names, not pronouns," and the output uses Quinn's name throughout.
+
+## Review Update (2026-11-08)
+
+An independent review changed two rules, and this output was updated to match. It now passes **10 of 10** (the 9 above plus a new one).
+- **New expectation 10, written a day later:** the agent asked on Sunday about Saturday's coffee, so the "today" promises (the second lender's name, the search with alerts) were already due. Pass after the update: a "Promises already due" flag was added (Next Steps item 1 already had it), and the email's "yesterday" became "on Saturday."
+- **Note length:** SKILL.md's "under about 150 words" became "about 200 words or fewer"; this note is 201 words. `objective-checks.txt` was regenerated with the new check.
+- The expected output and expectation 4 no longer call Quinn "her": the transcript never shows Quinn's pronoun.

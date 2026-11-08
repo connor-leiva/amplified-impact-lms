@@ -44,3 +44,9 @@ Baseline: **2 of 11** (expectations 4 and 6), and expectation 11 partly met.
 ## What the Skill Added Over the Baseline
 
 The baseline wrote a friendly, accurate-looking recap, and it handled schools and time zones well. But it put a paraphrase of the neighborhood remark, tied to Example Hollow, into the CRM note; recorded the down payment from the sale; never warned the agent that the agreement has to be signed before Wednesday's video tour; missed the Washington recording question; and broke the email rules.
+
+## Review Update (2026-11-08)
+
+An independent review reran this case from scratch (`review-output.md`, `review-grading.md`, 12 of 12) and changed two rules; this output was updated to match. It now passes **12 of 12** (the 11 above plus a new one).
+- **New expectation 12, written a day later:** the buyer agreement was promised "tonight" on Saturday and the agent asked Sunday. Pass after the update: a "Promise already due" flag was added (Next Steps item 1 already had it), and the email's "last night" became "on Saturday."
+- **Note length:** the note was cut from 242 to 206 words for the new "about 200 words or fewer" rule, with a Contact line. `objective-checks.txt` was regenerated. The baseline files are unchanged.

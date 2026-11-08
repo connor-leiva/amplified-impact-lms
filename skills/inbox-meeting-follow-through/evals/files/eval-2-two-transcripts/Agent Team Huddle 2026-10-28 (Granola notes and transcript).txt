@@ -1,4 +1,4 @@
-TEST FILE: made-up example. Copied from Granola (notes and transcript).
+PRACTICE FILE: made-up example. Copied from Granola (notes and transcript).
 
 Agent Team Huddle
 Wednesday, October 28, 2026, 11:00 AM Central Time

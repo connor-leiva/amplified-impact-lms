@@ -1,6 +1,6 @@
 # Page Notes: Appointment Follow-Up (/appointment-follow-up)
 
-Skill: `appointment-follow-up`, version 1.0. Works in Claude (skill) and ChatGPT (Project). Forked from Connor's personal listing appointment follow-up skill, with his voice and name replaced by the user's voice profile and name. Every fact below was checked on 2026-11-08; sources are at the end and in the skill's references.
+Skill: `appointment-follow-up`, version 1.0. Works in Claude (skill) and ChatGPT (Project). Every fact below was checked on 2026-11-08; sources are at the end and in the skill's references.
 
 ## One-Line Promise
 
@@ -17,8 +17,8 @@ The transcript is the input. Upload it as a file or paste it into the chat. You 
 - **Granola, desktop app (Mac or Windows):** open the meeting note, click the transcript button (the waveform bars to the left of the "Ask anything" bar; close Chat first if it's open), then click the copy icon at the top right of the transcript panel. Paste it into the chat. On a Zoom or phone call, your side shows as "Me" and everyone else as "Them"; at a kitchen table, nearly everything shows as "Me," and the skill sorts out who said what. (Granola Help Center, "How transcription works" and "Speaker tags," checked 2026-11-08.)
 - **Granola, phone app (iPhone or Android), for in-person appointments:** open the note, tap the three dots (...) at the top right, then View transcript, and share it from there. Speakers show as Speaker A, Speaker B. The phone apps are free. (Granola Help Center, "How transcription works on mobile" and "Subscriptions and billing," checked 2026-11-08.)
 - **Granola connector in Claude (optional):** instead of copying, say "follow up on my appointment with [client]" and Claude reads the meeting. Reading the transcript this way needs a paid Granola plan (Business is $14 per user per month); on the free Basic plan, Claude gets notes from the last 30 days but not the transcript. (Granola Help Center, "Granola MCP," checked 2026-11-08.)
-- **Zoom cloud recording:** in the Zoom web portal, go to Recordings & Transcripts > Cloud recordings > the meeting, and download the audio transcript (a .vtt file). It needs a Pro, Business, Education or Enterprise account with cloud recording and audio transcription turned on before the meeting. (Zoom Support, "Using audio transcription for cloud recordings," checked 2026-11-08.)
-- **iPhone call recording, for phone appointments:** during a call in the Phone app, tap the more button, then Call Recording. Both of you hear an announcement that the call is being recorded. Afterward, open Notes > Call Recordings, tap the note, tap the recording, then Copy Transcript. Not available in every country or language. (Apple Support, "Record and transcribe a call on iPhone," checked 2026-11-08.)
+- **Zoom cloud recording:** in the Zoom web portal, go to Recordings & Transcripts > Cloud recordings > the meeting, and download the audio transcript (a .vtt file). It needs a Pro, Business, Education or Enterprise account with cloud recording and audio transcription turned on before the meeting. Claude's list of supported uploads names TXT but not VTT, so if the file won't upload, open it in any text editor and paste the text into the chat. (Zoom Support, "Using audio transcription for cloud recordings," and Claude Help Center, "Upload files to Claude," checked 2026-11-08.)
+- **iPhone call recording, for phone appointments:** works on a call with one other person. During the call in the Phone app, tap the more button, then Call Recording. Both of you hear an announcement that the call is being recorded. Afterward, open Notes > Call Recordings, tap the note, tap the recording, then Copy Transcript. Not available in every country or language. (Apple Support, "Record and transcribe a call on iPhone," checked 2026-11-08.)
 - **iPhone Voice Memos, for in-person appointments:** open the recording, tap the more button, then Copy Transcript. (Apple Support, "View a transcription," checked 2026-11-08.)
 - **Your own notes:** paste them in. The follow-up is only as complete as the notes.
 
@@ -35,7 +35,7 @@ How to attach files in Claude: click the "+" button in the lower left of the cha
 ## Things to Say
 
 - "Here's tonight's buyer consult. Write my follow-up."
-- "Recap my listing appointment with the Hendersons and give me the FUB note." (Claude with the Granola connector: no upload needed.)
+- "Recap my listing appointment with the Samplesons and give me the FUB note." (Claude with the Granola connector: no upload needed.)
 - "They want to list higher than I recommended. Write a recap that keeps the price question open."
 - "Zoom transcript attached. They're relocating from out of state."
 - "Just the FUB note, please."
@@ -43,7 +43,7 @@ How to attach files in Claude: click the "+" button in the lower left of the cha
 
 ## What Comes Back
 
-Flags first, when they apply: a buyer consult with no signed buyer agreement and a tour coming up (with the date to get it signed by), a preapproval that's still pending, speakers the transcript couldn't tell apart, general mode outside Utah, a recording note when someone was in another state, and a line saying something was left out on purpose. Then a three-sentence bottom line; what it heard (priorities in the client's words, motivation, timeline, concerns, prices exactly as each person said them, every promise on both sides, with timestamps); a recap email under 200 words in your voice, with a Title Case subject and a "[Personal note: add by voice]" line; a two-sentence text when a client asked to be texted; a Follow Up Boss note with a suggested Timeframe to Move; next steps with weekdays and dates; a couple of personal-note ideas; and a "Check before sending" list of every date, price, name and promise, with where it came from.
+Flags first, when they apply: a buyer consult with no signed buyer agreement and a tour coming up (with the date to get it signed by), a preapproval that's still pending, a promise from the appointment that's already due when you ask the next day, speakers the transcript couldn't tell apart, general mode outside Utah, a recording note when someone was in another state, and a line saying something was left out on purpose. Then a three-sentence bottom line; what it heard (priorities in the client's words, motivation, timeline, concerns, prices exactly as each person said them, every promise on both sides, with timestamps); a recap email under 200 words in your voice, with a Title Case subject and a "[Personal note: add by voice]" line; a two-sentence text when a client asked to be texted; a Follow Up Boss note with a suggested Timeframe to Move; next steps with weekdays and dates; a couple of personal-note ideas; and a "Check before sending" list of every date, price, name and promise, with where it came from.
 
 ## What It Will Not Do
 
@@ -59,8 +59,9 @@ Flags first, when they apply: a buyer consult with no signed buyer agreement and
 - **Claude:** a plan with skills and code execution. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. No connectors needed. Optional: the Granola connector (any Claude plan per its listing; the transcript needs a paid Granola plan) and the Gmail connector to save the email as a draft (the Help Center lists Google Workspace connectors for all users; Claude's docs list Gmail on Pro and up).
 - **ChatGPT:** a Project. Projects are on Free, Go, Plus and Pro, and Free allows 5 files per project, so the 4 files fit. A 30-minute transcript pasted as text fits comfortably.
 - **A transcript source:** Granola (desktop or phone; transcripts through the connector need Business at $14 per user per month), Zoom Pro or higher with cloud recording, or an iPhone with call recording or Voice Memos transcripts where Apple offers them.
+- **Device:** add the skill once from claude.ai or the Claude desktop app on a computer; after that it works in chat on the web, desktop and phone apps too (Claude docs, "Extend Claude" and "How to use skills," checked 2026-11-08). Copying a Granola desktop transcript or a Zoom .vtt file is easiest on a computer.
 - **Cost:** nothing beyond your plans.
-- **Privacy:** transcripts hold your clients' names and personal details. Consider turning off training first. Claude: Settings > Privacy > "Help Improve our AI models" (Free, Pro, Max and Ultra; Team and Enterprise chats aren't used for training by default). ChatGPT: Settings > Data controls > "Improve the model for everyone." Granola: Settings > Preferences > "Use my data to improve models for everyone."
+- **Privacy:** transcripts hold your clients' names and personal details. Consider turning off training first. Claude: Settings > Privacy > "Help Improve our AI models" (Free, Pro, Max and Ultra; Team and Enterprise chats aren't used for training by default) (Claude Privacy Center, checked 2026-11-08). ChatGPT: Settings > Data controls > "Improve the model for everyone" (OpenAI Help Center, "Data Controls FAQ," checked 2026-11-08). Granola desktop: click your workspace name at the bottom left, then Settings > Preferences > "Use my data to improve models for everyone"; the Android app doesn't have this switch yet (Granola Help Center, "Models and training," checked 2026-11-08).
 
 ## Run / Draft / Own
 
@@ -86,12 +87,15 @@ appointment follow-up, buyer consultation, buyer consult, listing appointment, r
 
 ## Tested and Not Tested
 
+**Origin:** the skill started from Connor's own listing appointment follow-up skill. His voice, name and sign-off were replaced with the user's voice profile and name; nothing of his ships.
+
 **Tested (2026-11-08), with made-up transcripts:**
 - Practice run, a move-up buyer consult on Zoom recorded in Granola (both buyers on one laptop): 12 of 12 checks. It flagged the unsigned buyer agreement before Saturday's tour, kept the preapproval amount out of the email, left out a family member's health detail and the townhome balance, sorted texts for Casey and email for Morgan, and caught that the DocuSign email will go to the buyer who said "I never check email."
 - Eval 1, a first-time buyer over coffee on Granola for iPhone, preapproval pending, buyer agreement never mentioned: 9 of 9 after one fix. It caught a line Granola labeled with the wrong speaker.
 - Eval 2, a listing appointment in Mesa, Arizona (general mode) recorded at the kitchen table, sellers wanting $575,000 against a $539,900 recommendation, with a voice QUICK CARD: 10 of 10 after one fix. It kept each price with who said it, never proposed a number, and left out the loan balance.
 - Eval 3, a Zoom relocation consult from Washington with a remark about who lives in a neighborhood and a schools question: 11 of 11 after one fix. A no-skill answer to the same prompt passed 2 of 11: it put a paraphrase of the remark, tied to the neighborhood's name, into the CRM note, recorded the down payment amount, missed the buyer agreement deadline before the video tour and the recording question, and broke the email rules.
 - The fixes, now in the skill: every day named in an email carries its date; client texts stay two sentences on the next step, with any email heads-up moved to Next Steps; clients are called by name, never an assumed he or she.
+- Independent review (2026-11-08): a second reviewer reran Eval 3 and the practice file from scratch and got the same results (12 of 12 each). It found that no run could meet the note's old 150-word limit (runs came in at 201 to 263 words), so the Follow Up Boss note is now "about 200 words or fewer" and checked; and that a follow-up written the next day needed a rule, so promises due "tonight" or "today" are now flagged to confirm, and the email names the appointment day instead of "yesterday." Evals 1 and 3 each gained a check for it, and both pass.
 
 **Not tested:**
 - Real transcripts from Utah Life agents (waiting on redacted copies from Connor), real Granola copy-paste output (the practice file follows the connector's labels: Microphone and System audio), and Otter or Fathom exports.
@@ -123,6 +127,7 @@ appointment follow-up, buyer consultation, buyer consult, listing appointment, r
 - Buyer agreements: see the shared `buyer-agreements.md` (NAR MLS Policy Statement 8.13 and UAR forms)
 - Claude file uploads: https://support.claude.com/en/articles/8241126-uploading-files-to-claude
 - Claude skills, install path and plans: https://support.claude.com/en/articles/12512180-use-skills-in-claude and https://claude.com/docs/skills/overview
+- Claude skills on each device (added on web or desktop, used on mobile too): https://claude.com/docs/extend/overview and https://claude.com/docs/skills/how-to
 - Claude code execution setting and defaults: https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude
 - Claude connectors: https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities and the Granola listing at https://claude.com/marketplace/connectors/granola
 - Claude Google Workspace connectors: https://support.claude.com/en/articles/10166901-use-google-workspace-connectors and https://claude.com/docs/connectors/google/gmail

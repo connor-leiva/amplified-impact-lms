@@ -47,7 +47,7 @@ Flags first (an unsigned buyer agreement, a home that's under contract, a showin
 
 - **Claude:** a plan with skills and code execution. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. Code execution ("Code execution and file creation," called "Create and edit files" in the updated settings) is on by default for individual plans. On Team and Enterprise, an Owner controls whether skills are on (Team plans have them on by default).
 - **Install in Claude:** Customize > Skills > "+" > Create skill > Upload a skill, then choose `showing-tour-prep.zip` as downloaded. Make sure it's toggled on.
-- **ChatGPT instead:** a Project, on any plan with Projects (Free, Go, Plus, Pro). Select New project in the sidebar; open the more options menu (•••) > Project settings and paste `paste-into-instructions.txt` into the instructions; add the four `.md` files to the project's Sources tab. That's 4 files, inside Free's limit of 5 per project. ChatGPT Free allows 3 file uploads a day, so on Free, print the whole tour's sheets as one PDF.
+- **ChatGPT instead:** a Project, on any plan with Projects (Free, Go, Plus, Pro). Select New project in the sidebar; open the more options menu (•••) > Project settings and paste `paste-into-instructions.txt` into the instructions; add the four `.md` files to the project's Sources tab. That's 4 files, inside Free's limit of 5 per project. ChatGPT Free also allows 3 file uploads a day and, per OpenAI's pricing page, about 12 pages of text per message. So on Free, setting up the project can take more than one day (OpenAI doesn't say whether project files count toward the 3), and a tour of more than about six two-page sheets may not fit in one message; print the tour's sheets as one PDF. Go and Plus allow about 40 pages per message. (OpenAI Help Center, "Projects in ChatGPT" and "ChatGPT Free Tier FAQ," read through search excerpts because help.openai.com blocks direct reads, and chatgpt.com/pricing, checked 2026-11-08; confirm the menu labels in a browser before publishing.)
 - **No connectors needed.** Paste your Follow Up Boss note; the skill never writes to your CRM.
 - **Cost:** nothing beyond your Claude or ChatGPT plan.
 - **Privacy:** MLS agent sheets carry owner and tenant names and phone numbers and access codes. The skill leaves them out of what it writes, but the uploaded file is still in the chat. On Claude Free, Pro, Max and Ultra, you can turn off Settings > Privacy > "Help Improve our AI models." In ChatGPT, Settings > Data controls > "Improve the model for everyone." Team and Enterprise Claude chats aren't used for training by default.
@@ -84,6 +84,13 @@ showing, tour, showing tour, tour sheet, buyer tour, MLS sheet, agent full repor
 - General mode (two Arizona sheets from a different MLS layout, a bank-owned home with cash or conventional terms for a VA buyer, and leased solar): 8 of 8, with no Utah rules applied.
 - The practice files: 11 of 11 checks, after one fix: the first draft added baths into decimals ("3.5 baths"); the skill now writes each kind of bath as the sheet counts it.
 
+**Independent review (2026-11-08):** a second reviewer ran the criteria case and the practice files from scratch before reading the builder's runs (`review-output.md` and `review-grading.md` in each run folder): 9 of 9 and 11 of 11, 14 of 14 objective checks each. The review fixed:
+- The skill's description was not valid YAML (a colon inside an unquoted line), which a skill uploader may reject; it is now quoted, and it names Perfect Week for booking showings.
+- The as-is note: both Utah REPC forms make the Due Diligence Condition a checkbox, so the skill now says a buyer can still inspect as long as the offer includes it, never that due diligence is automatic.
+- The lead rule: EPA's exemption is for sales at foreclosure, so the skill no longer lets a bank's later resale read as exempt.
+- Tour sheet length (about 100 words a home up to four homes, about 70 for five or six), level names for bedrooms when a criterion is about the main floor, and no lines telling the buyer the agent already asked for something.
+- The ChatGPT files no longer mention skills; one eval note's date was corrected.
+
 **Not tested:**
 - Real (redacted) UtahRealEstate.com agent reports. The test sheets imitate the layout; real reports may label fields differently.
 - The ChatGPT Project version in ChatGPT itself (its files mirror the Claude version's steps and references).
@@ -103,6 +110,7 @@ showing, tour, showing tour, tour sheet, buyer tour, MLS sheet, agent full repor
 - ChatGPT Projects (New project, Project settings, per-plan file counts): https://help.openai.com/en/articles/10169521-projects-in-chatgpt
 - ChatGPT project Sources tab: https://learn.chatgpt.com/docs/projects
 - ChatGPT Free upload limit: https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq
+- ChatGPT per-message page limits by plan: https://chatgpt.com/pricing
 - ChatGPT plans with Projects: https://chatgpt.com/pricing
 - ChatGPT data controls: https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt
 - Custom GPT retirement (why this ships as a Project): https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq

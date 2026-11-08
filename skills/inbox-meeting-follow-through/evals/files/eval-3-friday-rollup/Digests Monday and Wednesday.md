@@ -1,4 +1,4 @@
-TEST FILE: made-up example. Two earlier daily passes from this week, saved from Claude into this project.
+PRACTICE FILE: made-up example. Two earlier daily passes from this week, saved from Claude into this project.
 
 Team: Bianca Fauxley (Team Leader), Mae Closely (Transaction Coordinator), Ari Dialwell (ISA), Hector Opsmith (Operations), Lena Postwell (Marketing), Felix Mockton (Agent).
 

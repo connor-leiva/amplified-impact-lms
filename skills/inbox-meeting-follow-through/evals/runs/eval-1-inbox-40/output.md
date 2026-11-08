@@ -63,11 +63,11 @@ Checked and kept, not listed: the signed Addendum No. 2 you promised Ray Lendwel
 - **D3. Inspection scheduling, 27 Example Heron Ct.** Max Outsideagent (Coastal Other Realty) wants Thursday at 9 and asks who to coordinate with. Draft 15 forwards it to Gail with [listing agent] copied (the email doesn't say whose listing it is).
 
 **ISA (Theo Dialman)**
-- **D2. New lead: Lois Inquiryton, 3 Example Marsh Rd, Unit 204.** She reached you twice on Monday night (a website form at 9:05 PM and a direct email at 9:12 PM); this is one lead. Criteria as stated: two bedrooms, single level, elevator building, under $400,000, near the water, paying cash from their house sale, moving next spring, wants a call this week. Her email included a remark about the kind of neighbors they prefer; it's left out of the forward. It isn't in Follow Up Boss yet (no notice for her), so Draft 16 sends it to Theo to add and call.
+- **D2. New lead: Lois Inquiryton, 3 Example Marsh Rd, Unit 204.** She reached you twice on Monday night (a website form at 9:05 PM and a direct email at 9:12 PM); this is one lead. Criteria as stated: two bedrooms, single level, elevator building, under $400,000, near the water, paying cash from their house sale, moving next spring, wants a call this week. Her email included a remark about the kind of neighbors they prefer, and a forward would carry it, so Draft 16 is a new note with her criteria and contact details instead. It isn't in Follow Up Boss yet (no notice for her), so Draft 16 sends it to Theo to add and call.
 
 **Operations (Nina Opsworth)**
 - **D4. Staging invoice INV-2026-311,** 51 Sample Bay Ct, $1,150, due November 15. Draft 17.
-- **D5. Dana wants the preferred inspector list** for her buyers. Nina keeps the vendor list; if your team has a playbook skill, the list may be there too. Draft 18.
+- **D5. Dana wants the preferred inspector list** for her buyers. Nothing in the inputs says who keeps a vendor list; this assumes ops (Nina) does, so check before sending. If your team has a playbook skill, the list may be there too. Draft 18.
 
 **Sales Manager (Ike Leadbetter)**
 - **D6. Will wants help on his listing presentation** before Thursday's appointment (from his real address, Monday 9:00 AM). In Draft 10 with the 1:1 reschedule.
@@ -211,7 +211,7 @@ Marisol
 Reply in thread: Need a plumber
 To: Bea Formerton
 
-Hi Bea, sorry about the water heater. [Plumber name and phone from your vendor list] has done good work for our clients. Let me know how it goes.
+Hi Bea, sorry about the water heater. [Plumber name and phone from your vendor list]. Let me know how it goes.
 
 Marisol
 
@@ -234,12 +234,12 @@ Gail, the buyer's agent on 27 Example Heron Ct wants to schedule the inspection 
 
 Marisol
 
-**Draft 16. Forward to Theo (D2)**
+**Draft 16. New lead note to Theo (D2)**
 To: Theo Dialman
 Subject: New Lead: 3 Example Marsh Rd, Unit 204
-(forward Lois Inquiryton's email below)
+(new note, not a forward: Lois's email includes a remark that stays out)
 
-Theo, new lead from our sign at 3 Example Marsh Rd, Unit 204: Lois Inquiryton. She also sent the website form, so it's one lead. Two bedrooms, single level, elevator building, under $400,000, near the water. Paying cash from their house sale, moving next spring. She asked for a call this week. Can you add her to Follow Up Boss and call her today?
+Theo, new lead from our sign at 3 Example Marsh Rd, Unit 204: Lois Inquiryton, lois.inquiryton@mailbox.example, 614-555-0133. She also sent the website form, so it's one lead. Two bedrooms, single level, elevator building, under $400,000, near the water. Paying cash from their house sale, moving next spring. She asked for a call this week. Can you add her to Follow Up Boss and call her today?
 
 Marisol
 
@@ -257,7 +257,7 @@ To: Nina Opsworth
 Subject: Inspector List For Dana
 (forward Dana Sampleford's email below)
 
-Nina, Dana's buyers want inspector names. Can you send her our vendor list?
+Nina, Dana's buyers want inspector names. If we keep an inspector list, can you send it to her? If not, let me know.
 
 Marisol
 
@@ -285,8 +285,9 @@ Marisol Fakeworth
 - Draft 13: fill [plumber name and phone].
 - Draft 14: forward Ray's email unchanged; "Wednesday at noon" is Ray's date (Wednesday, November 4 at 12:00 PM). Confirm dates with your transactions team.
 - Draft 15: Thursday at 9; fill [listing agent for 27 Example Heron Ct]. Confirm the recipient.
-- Draft 16: 3 Example Marsh Rd, Unit 204; under $400,000; two bedrooms. Confirm the recipient (Theo).
+- Draft 16: 3 Example Marsh Rd, Unit 204; lois.inquiryton@mailbox.example; 614-555-0133; under $400,000; two bedrooms. Send as a new email, not a forward of Lois's messages. Confirm the recipient (Theo).
 - Draft 17: INV-2026-311, $1,150, due November 15.
+- Draft 18: confirm Nina is the right person for an inspector list.
 - Draft 19: October 27; 20 panels; fill [date].
 
 Covered through: Tuesday, November 3, 2026, 6:55 AM Eastern (when the export was made). Sources: the mailbox export (Inbox October 30 to November 3, Sent Mail October 27 to November 3) and the team roster. No calendar or meeting notes read; Monday's Sales Meeting notes are waiting in Granola. Gaps: none in the export.

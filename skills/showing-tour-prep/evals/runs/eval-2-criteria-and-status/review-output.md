@@ -71,7 +71,7 @@ Three Utah homes for Monday at 10:00 AM: confirm a signed buyer agreement and se
 
 **Red flags in the remarks**
 - "Short sale, subject to lender approval": the seller's lender has to agree to the price, so timing is uncertain. Questions: has the lender approved, how long has approval taken, and are there other liens?
-- "Sold as-is": the seller has said it won't make repairs. Under the standard Utah REPC the buyer still has due diligence to inspect and evaluate the home (Section 10.2 of the December 4, 2024 form; Section 13.1 of the November 1, 2026 form; read the section from the contract you use). Question: what reports or known issues does the seller have?
+- "Sold as-is": the seller has said it won't make repairs. Under the standard Utah REPC's as-is clause the buyer can still inspect and evaluate the home, as long as the offer includes the Due Diligence Condition (Sections 8.1 and 10.2 of the December 4, 2024 form; Sections 3(a) and 13.1 of the November 1, 2026 form; read them from the contract you use). Question: what reports or known issues does the seller have?
 - Price cuts: down $44,000 in two cuts over 80 days on market. The reason isn't on the sheet. Question: what feedback has the seller had?
 - The rest of the public remarks describe nearby places and who the home suits; not repeated here.
 
@@ -114,7 +114,7 @@ Three Utah homes for Monday at 10:00 AM: confirm a signed buyer agreement and se
 - Bedroom and full bath on the main level: Meets (primary on the main floor; 3 bedrooms and 2 full baths on Floor 1).
 - Few or no steps to get in: Can't tell from the sheet. The front porch has 1 step and the garage entry isn't listed; check both on the tour.
 
-## Buyer Tour Sheet (share this page)
+## Buyer Tour Sheet (Share This Page)
 
 ## Tour Sheet: Monday, November 9, 10:00 AM
 Prepared by [Agent Name] for Devon and Harper

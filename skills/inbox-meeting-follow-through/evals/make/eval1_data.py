@@ -23,7 +23,7 @@ JILL = "Jill Escrowby <jill@sandbartitle.example>"
 RAY = "Ray Lendwell <ray@baylinemortgage.example>"
 
 HEADER = [
-    "TEST FILE: made-up example. Every person, company, address, email, phone number and account number in this file is fictional.",
+    "PRACTICE FILE: made-up example. Every person, company, address, email, phone number and account number in this file is fictional.",
     "",
     "MAILBOX EXPORT",
     "Account: Marisol Fakeworth <marisol@fakeworthrealty.example>",
@@ -276,7 +276,7 @@ Note from Ike Leadbetter: Out at a closing. Can we move to Wednesday at 8:30?"""
          "body": "Your notes for Sales Meeting are ready."}]},
 ]
 
-ROSTER = """TEST FILE: made-up example
+ROSTER = """PRACTICE FILE: made-up example
 Name,Role,Email
 Marisol Fakeworth,Team Leader,marisol@fakeworthrealty.example
 Gail Closewell,Transaction Coordinator,gail@fakeworthrealty.example

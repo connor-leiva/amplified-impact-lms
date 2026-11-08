@@ -20,7 +20,9 @@ Both Utah REPC versions in use say the buyer buys the home in its "As-Is" condit
 - REPC effective December 4, 2024: Section 10.2 (Due Diligence in Section 8.1)
 - REPC effective November 1, 2026: Section 13.1 (Due Diligence in Section 12.1)
 
-So "sold as-is" in the remarks tells the buyer the seller won't make repairs; it doesn't take away the buyer's due diligence under the standard REPC. Read section numbers from the contract actually used; the new form is required from January 1, 2027 (see `utah-property-notes.md`).
+The Due Diligence Condition itself is a choice in both forms: it applies only when the offer checks it (Section 8.1, "IS" or "IS NOT," in the December 4, 2024 form; the Section 3(a) box in the November 1, 2026 form).
+
+So "sold as-is" in the remarks tells the buyer the seller won't make repairs. It doesn't by itself take away the buyer's due diligence: under the standard REPC the buyer keeps it as long as the offer includes the Due Diligence Condition. Write it that way; never say the buyer "still has due diligence" without that condition. Read section numbers from the contract actually used; the new form is required from January 1, 2027 (see `utah-property-notes.md`).
 
 ## Taxes on the Sheet
 
@@ -54,12 +56,12 @@ Read the section the sheet raises, and use its "What Buyers Should Ask" or "What
 ## Sources (all checked 2026-11-08)
 
 - UtahRealEstate.com, MLS Rules and Regulations Reference Guide (revised February 11, 2026), "Remarks Included on Listings" and "Offers of Compensation Prohibited on the MLS": https://help.utahrealestate.com/wp-content/uploads/2026/02/URE-Rules-and-Regulations-Reference-Guide-Effective-02-11-26.pdf
-- REPC effective December 4, 2024 (Section 10.2): https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf
-- REPC effective November 1, 2026, UAR-posted copy (Section 13.1): https://utrealtors.wpenginepowered.com/wp-content/uploads/2026/10/REPC-Final-Clean-Copy-10.14.2026-with-Watermark.pdf
+- REPC effective December 4, 2024 (Sections 8.1 and 10.2): https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf
+- REPC effective November 1, 2026, UAR-posted copy (Sections 3(a), 12.1 and 13.1): https://utrealtors.wpenginepowered.com/wp-content/uploads/2026/10/REPC-Final-Clean-Copy-10.14.2026-with-Watermark.pdf
 - Utah Code 59-2-103, Rate of assessment of property, residential property (effective 7/1/2025): https://le.utah.gov/xcode/Title59/Chapter2/59-2-S103.html
 - Utah Code 15A-2-103, Specific editions adopted (2021 IRC; effective 7/1/2026): https://le.utah.gov/xcode/Title15A/Chapter2/15A-2-S103.html
 - Utah Code 15A-3-202, Amendments to Chapters 1 through 5 of IRC (R310.1 amendment; effective 7/1/2026): https://le.utah.gov/xcode/Title15A/Chapter3/15A-3-S202.html
 - 2021 IRC Section R310.1 text, as reproduced in Washington's adoption (the ICC site did not load from the checking environment): https://lawfilesext.leg.wa.gov/law/WACArchive/2021/htm/WAC%20%2051%20%20TITLE/WAC%20%2051%20-%2051%20%20CHAPTER/WAC%20%2051%20-%2051%20-03100.htm
 - Utah Geological Survey, Utah Geologic Hazards Portal: https://geology.utah.gov/apps/hazards/
-- Utah Code 57-21-5, Utah Fair Housing Act, discriminatory practices: https://le.utah.gov/xcode/Title57/Chapter21/57-21-S5.html
+- Utah Code 57-21-5, Utah Fair Housing Act, discriminatory practices (effective 5/6/2026): https://le.utah.gov/xcode/Title57/Chapter21/57-21-S5.html
 - Water, rental restriction, reinvestment fee, radon and public infrastructure district sources: listed in `utah-property-notes.md`

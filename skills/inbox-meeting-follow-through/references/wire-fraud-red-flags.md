@@ -56,13 +56,13 @@ Why "a number you already have": CFPB tells buyers to verify closing instruction
 Put this first, in bold, when an email or a meeting suggests funds were already sent on changed instructions:
 - Call the sending bank now and ask for a wire recall (CFPB; IC3 says "time is of the essence").
 - Call title at the number you already have.
-- File a complaint at www.ic3.gov as soon as possible. IC3 says it may be able to help financial institutions and law enforcement freeze funds. Its 2025 annual report describes a closing wire of over $449,000, sent after an email impersonating the buyers' attorneys, that the receiving bank still held after IC3's Recovery Asset Team asked for a freeze.
+- File a complaint at www.ic3.gov as soon as possible. IC3 says it may be able to help financial institutions and law enforcement freeze funds. Its 2025 annual report describes a wire of over $449,000, sent by people closing on a home after an email impersonating their attorneys, that the receiving bank still held after IC3's Recovery Asset Team asked for a freeze.
 - Tell the broker.
 
 ## Why It Matters (for the Leader, Not for Client Drafts)
 
 - In 2025, IC3's real estate category recorded 12,368 complaints and $275,110,419 in reported losses, up from $173,586,820 in 2024. IC3's real estate category also includes rental and timeshare fraud, so not all of it is closing wire fraud.
-- Business email compromise, the scam behind most closing wire fraud, recorded 24,768 complaints and $3,046,598,558 in reported losses in 2025.
+- Business email compromise (IC3 files closing wire fraud like the example above as "BEC/Real Estate") recorded 24,768 complaints and $3,046,598,558 in reported losses in 2025.
 
 Use these only to explain why the flag matters. Don't put statistics in client drafts.
 

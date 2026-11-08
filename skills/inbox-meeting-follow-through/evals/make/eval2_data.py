@@ -7,7 +7,7 @@ labeled only Microphone and System audio; and Granola AI notes that miss two com
 wrong owner for a third.
 """
 
-ROSTER = """TEST FILE: made-up example
+ROSTER = """PRACTICE FILE: made-up example
 Name,Role,Email
 Kendra Mockingham,Team Owner,kendra@mockinghamgroup.example
 Raj Filewell,Transactions Manager,raj@mockinghamgroup.example
@@ -84,14 +84,14 @@ GRANOLA_TRANSCRIPT = [
 
 def zoom_vtt():
     lines = ["WEBVTT", "",
-             "NOTE TEST FILE: made-up example. Weekly Leadership Meeting, Wednesday, October 28, 2026, 9:00 AM Central Time. Zoom cloud recording audio transcript, saved as .txt.", ""]
+             "NOTE PRACTICE FILE: made-up example. Weekly Leadership Meeting, Wednesday, October 28, 2026, 9:00 AM Central Time. Zoom cloud recording audio transcript, saved as .txt.", ""]
     for i, (a, b, who, text) in enumerate(ZOOM, 1):
         lines += [str(i), f"{a} --> {b}", f"{who}: {text}", ""]
     return "\n".join(lines)
 
 
 def granola_txt():
-    lines = ["TEST FILE: made-up example. Copied from Granola (notes and transcript).", "", GRANOLA_NOTES.strip(), "", "TRANSCRIPT", ""]
+    lines = ["PRACTICE FILE: made-up example. Copied from Granola (notes and transcript).", "", GRANOLA_NOTES.strip(), "", "TRANSCRIPT", ""]
     for who, text in GRANOLA_TRANSCRIPT:
         lines += [f"{who}: {text}", ""]
     return "\n".join(lines)

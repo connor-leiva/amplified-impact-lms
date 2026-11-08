@@ -1,4 +1,4 @@
-FAIL  No em or en dashes
+PASS  No em or en dashes
 FAIL  Check before sending section
 FAIL  Title Case subject lines  [Update on your appraisal]
 FAIL  No stock phrases  [don't hesitate]

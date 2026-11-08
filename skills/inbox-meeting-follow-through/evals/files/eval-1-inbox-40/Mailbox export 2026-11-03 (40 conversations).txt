@@ -1,4 +1,4 @@
-TEST FILE: made-up example. Every person, company, address, email, phone number and account number in this file is fictional.
+PRACTICE FILE: made-up example. Every person, company, address, email, phone number and account number in this file is fictional.
 
 MAILBOX EXPORT
 Account: Marisol Fakeworth <marisol@fakeworthrealty.example>

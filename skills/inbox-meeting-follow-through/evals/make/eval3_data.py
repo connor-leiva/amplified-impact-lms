@@ -14,7 +14,7 @@ FELIX = "Felix Mockton <felix@fauxleyhomes.example>"
 MAE = "Mae Closely <mae@fauxleyhomes.example>"
 TEAM = "Fauxley Team <team@fauxleyhomes.example>"
 
-DIGESTS = """TEST FILE: made-up example. Two earlier daily passes from this week, saved from Claude into this project.
+DIGESTS = """PRACTICE FILE: made-up example. Two earlier daily passes from this week, saved from Claude into this project.
 
 Team: Bianca Fauxley (Team Leader), Mae Closely (Transaction Coordinator), Ari Dialwell (ISA), Hector Opsmith (Operations), Lena Postwell (Marketing), Felix Mockton (Agent).
 
@@ -63,7 +63,7 @@ Covered through: Wednesday, October 28, 2026, 6:58 AM Pacific. Sources: Outlook 
 """
 
 HEADER = [
-    "TEST FILE: made-up example. Every person, company, address and email in this file is fictional.",
+    "PRACTICE FILE: made-up example. Every person, company, address and email in this file is fictional.",
     "",
     "Pasted from Outlook by Bianca Fauxley on Friday, October 30, 2026, 2:50 PM Pacific Time.",
     "Inbox and Sent Items since Wednesday, October 28, 2026, 7:00 AM. Times are Pacific Time.",

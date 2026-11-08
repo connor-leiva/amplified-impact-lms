@@ -1,6 +1,6 @@
 WEBVTT
 
-NOTE TEST FILE: made-up example. Weekly Leadership Meeting, Wednesday, October 28, 2026, 9:00 AM Central Time. Zoom cloud recording audio transcript, saved as .txt.
+NOTE PRACTICE FILE: made-up example. Weekly Leadership Meeting, Wednesday, October 28, 2026, 9:00 AM Central Time. Zoom cloud recording audio transcript, saved as .txt.
 
 1
 00:00:03.200 --> 00:00:05.900

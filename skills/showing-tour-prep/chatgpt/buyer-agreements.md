@@ -82,7 +82,7 @@ These UAR forms are copyrighted for members. Use the version in your brokerage's
 - To represent both buyer and seller as a limited agent, a licensee must first get each party's informed written consent (R162-2f-401a(3)).
 - Your MLS and your brokerage may add their own rules. Confirm with your broker.
 
-## For Skills
+## How to Use This File
 
 - If a buyer consult shows no signed or discussed written agreement, flag it: confirm a written buyer agreement is signed before any tour, in person or live virtual.
 - Never state a compensation amount, term, or form version that is not in the inputs.

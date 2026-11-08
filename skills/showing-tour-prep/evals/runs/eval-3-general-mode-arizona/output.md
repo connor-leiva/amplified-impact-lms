@@ -32,7 +32,7 @@ Both sheets list one level and no basement, so there's no above and below grade 
 - Taxes: $1,644 (2025). Financing accepted: Cash, Conventional.
 
 **Look at in person**
-- Built 1974 (before 1978): look at painted surfaces for peeling or chipping, and ask whether a lead-based paint disclosure and pamphlet will be provided. EPA lists some exemptions, including foreclosure sales; ask the listing agent whether one applies here.
+- Built 1974 (before 1978): look at painted surfaces for peeling or chipping, and ask whether a lead-based paint disclosure and pamphlet will be provided. EPA's exemption covers sales at foreclosure, and a bank's later resale isn't one, so don't treat this home as exempt; ask for the disclosure and confirm with your broker.
 - Pool: the equipment, its age and condition, and the fence or barrier around it.
 - The original kitchen, as the remarks say.
 - Roof, air conditioner and water heater ages: not on the sheet; look for labels.
@@ -95,7 +95,7 @@ Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 2. 3920 W Placeholder Mesa Ln, Chandler
 $475,000 | 4 beds | 2 full baths | about 1,880 sq ft, one level, split floor plan | 6,900 sq ft lot | Built 1999 | HOA $95 a month (common areas, community pool) | 2-car garage
-Good to know: the solar panels are leased; I'm asking for the lease terms.
+Good to know: the solar panels are leased; I'll ask for the lease terms.
 Look for: the community pool and greenbelt; the solar setup; the roof.
 From your list: Meets: single-level, 4 bedrooms, under $480,000, VA accepted. Check: community pool only, no private pool.
 Notes: ____________________   My rating: 1  2  3  4  5

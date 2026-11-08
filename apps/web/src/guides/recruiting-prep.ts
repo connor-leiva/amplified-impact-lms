@@ -504,9 +504,9 @@ export const RECRUITING_PREP: Guide = skillPage({
         },
         {
           // page-notes.md, FAQ; references/recruiting-guardrails.md (FTC, 87 FR 13951).
-          q: 'The candidate wants to know what she’d make with us. Can it run the numbers?',
+          q: 'The candidate wants to know what they’d make with us. Can it run the numbers?',
           a: [
-            'No, not even from her own production. The FTC’s cases treat earnings claims as material and require a reasonable basis for them, and whether that reaches a team’s recruiting pitch isn’t settled. So the AI stays out of it entirely. It lays out your split, cap and fees word for word, so she can run her own numbers with her own advisor. It also flags any earnings, results or lifestyle claim in your own documents for your broker.',
+            'No, not even from their own production. The FTC’s cases treat earnings claims as material and require a reasonable basis for them, and whether that reaches a team’s recruiting pitch isn’t settled. So the AI stays out of it entirely. It lays out your split, cap and fees word for word, so the candidate can run their own numbers with their own advisor. It also flags any earnings, results or lifestyle claim in your own documents for your broker.',
           ],
         },
         {

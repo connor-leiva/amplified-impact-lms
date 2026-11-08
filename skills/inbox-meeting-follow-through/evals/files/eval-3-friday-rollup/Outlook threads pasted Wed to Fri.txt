@@ -1,4 +1,4 @@
-TEST FILE: made-up example. Every person, company, address and email in this file is fictional.
+PRACTICE FILE: made-up example. Every person, company, address and email in this file is fictional.
 
 Pasted from Outlook by Bianca Fauxley on Friday, October 30, 2026, 2:50 PM Pacific Time.
 Inbox and Sent Items since Wednesday, October 28, 2026, 7:00 AM. Times are Pacific Time.

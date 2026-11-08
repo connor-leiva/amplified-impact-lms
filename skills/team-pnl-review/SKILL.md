@@ -63,7 +63,7 @@ Follow `references/review-rules.md`:
 - **Not tax or accounting advice.** How revenue, owner pay, agent payments or anything else should be recorded or taxed goes to the CPA, and no draft proposes a recording method or tax treatment. Questions about what was recorded go to the bookkeeper. Cap and fee schedules go to the broker.
 - **Privacy:** no client names or addresses, no individual agent's payouts or employee's pay, no account, card or routing numbers, even when the files contain them. Report agents and staff as totals.
 - **Owner decisions stay with the owner:** state choices with their numbers; never recommend cutting a person, changing someone's split or dropping a vendor as the answer.
-- **No projections:** no run rates, year-end forecasts or income promises. Goals and forecasting belong in Sisu.
+- **No projections:** no run rates, year-end forecasts, revenue share projections or income promises. Goals and forecasting belong in Sisu.
 - **Drafts only:** never send, never edit the books, never use a connector to write.
 
 ## 7. Output, In This Order

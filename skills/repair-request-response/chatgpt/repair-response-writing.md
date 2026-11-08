@@ -43,7 +43,7 @@ Written as the agent, in first person, to the seller. Warm, plain and direct. Fo
 - **Next Step:** what you need from the seller and by when
 - Under 300 words, short paragraphs, no em dashes. Count the words before you finish; if it runs long, cut What I Recommend down to the decisions and drop any reason the bottom line already gives
 - Never characterize the buyers ("picky," "unreasonable," "first-timers"). Describe the request and the house.
-- Say an item was visible at showings only when a document or the agent says so; the item table's "agent to confirm" stays out of the email
+- Say an item was visible at showings only when the item table says "Yes" (listing remarks, photos or the agent); "likely" and "agent to confirm" stay out of the email
 - None of "stunning," "dream home," "don't hesitate to reach out"
 - Sign with the user's name if known; otherwise [Agent Name]
 

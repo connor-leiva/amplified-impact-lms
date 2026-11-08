@@ -18,6 +18,8 @@ def read(path):
 
 
 def retarget(text):
+    text = text.replace("## For Skills", "## How to Use This File")
+    text = text.replace("the skill says so in its output", "the output says so")
     text = text.replace("`tour-sheet-writing.md`", "the Writing section of `tour-guide.md`")
     text = text.replace("`utah-property-notes.md`", "the Utah Property Notes section of `utah-tour-notes.md`")
     text = text.replace("`tour-guide.md`, section 1", "section 1 of `tour-guide.md`")
@@ -45,8 +47,8 @@ open(os.path.join(SKILL, "chatgpt", "tour-guide.md"), "w", encoding="utf-8").wri
 notes = read(os.path.join(SKILL, "references", "utah-tour-notes.md"))
 prop = read(os.path.join(SHARED, "utah-property-notes.md"))
 notes = notes.replace("## In `utah-property-notes.md`", "## What the Utah Property Notes Section Covers")
-out = retarget(notes).rstrip() + "\n\n" + demote(prop).rstrip() + "\n"
+out = retarget(notes).rstrip() + "\n\n" + demote(retarget(prop)).rstrip() + "\n"
 open(os.path.join(SKILL, "chatgpt", "utah-tour-notes.md"), "w", encoding="utf-8").write(out)
 
-open(os.path.join(SKILL, "chatgpt", "buyer-agreements.md"), "w", encoding="utf-8").write(read(os.path.join(SHARED, "buyer-agreements.md")))
+open(os.path.join(SKILL, "chatgpt", "buyer-agreements.md"), "w", encoding="utf-8").write(retarget(read(os.path.join(SHARED, "buyer-agreements.md"))))
 print("wrote chatgpt/tour-guide.md, chatgpt/utah-tour-notes.md, chatgpt/buyer-agreements.md")

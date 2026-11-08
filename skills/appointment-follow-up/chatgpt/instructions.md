@@ -84,7 +84,7 @@ Numbered, in date order: who (agent, client, lender, other), what, weekday and d
 
 ## 8. Output, In This Order
 
-1. **Flags**, only when they apply: buyer agreement (first), preapproval, placeholders used, unclear speakers, notes only (no transcript), general mode, recording, and "Left out on purpose" (generic)
+1. **Flags**, only when they apply: buyer agreement (first), preapproval, promises already due (written a day or more later), placeholders used, unclear speakers, notes only (no transcript), general mode, recording, and "Left out on purpose" (generic)
 2. **Bottom line for the agent** (three sentences max): what kind of appointment, where it landed, the next step with its date, and the one thing to do first
 3. **What I heard:** who and when, the client's priorities with timestamps, the buyer or listing extras, motivation, timeline, concerns, and every promise made on both sides
 4. **Recap email**

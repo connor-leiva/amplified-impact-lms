@@ -439,7 +439,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
           // "How to Share It, by Plan".
           q: 'Which plan do my agents need?',
           a: [
-            'Each agent needs their own Claude account with skills, or a seat on your Claude Team or Enterprise plan. Claude’s help center lists skills on every plan, Free included, but Claude’s docs leave Free out. If an agent on Free sees no way to add a skill, they need a paid plan. Agents who use only ChatGPT: ChatGPT now takes skills in the same format, but we haven’t tried a playbook there, so we can’t promise it works.',
+            'Each agent needs their own Claude account with skills, or a seat on your Claude Team or Enterprise plan. Claude’s help center lists skills on every plan, Free included, but Claude’s docs leave Free out. If an agent on Free sees no way to add a skill, they need a paid plan. The playbook is built for Claude. Agents who use only ChatGPT would need a Claude account to use it.',
           ],
         },
         {

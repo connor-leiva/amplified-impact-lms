@@ -4,30 +4,34 @@
 // response deadline, the options, a client email and the requested changes in plain words for the
 // state-approved form. What every skill page says the same way is in `skill-page.ts` (D-052).
 //
-// The words come from the skill itself (SKILL.md and drafting-guide.md), its page notes, its graded
-// runs (three evals and the practice run, all passed, plus a reviewer's reruns of eval 2 and the
+// The words come from the skill itself (SKILL.md and references/drafting-guide.md), its page notes, its
+// graded runs (the practice run and three evals, all passed, plus a reviewer's reruns of eval 2 and the
 // practice) and the build and review reports, so the page promises what the skill does. Either side:
 // buyer's and listing agents. It describes and summarizes; it never writes contract clauses, and
-// anything beyond a standard term goes to the broker. The note points to Offer Comparison for weighing
-// several offers.
+// anything beyond a standard term goes to the broker. The note points listing agents with several
+// offers to Offer Comparison.
 //
 // What the page leaves out or hedges, and why:
+//   - No e-signature platform is named as the one Utah Life agents use: which one they use is Connor's
+//     to confirm (review report, "for_connor"). The page says "wherever your contracts are signed or stored".
 //   - Photos and scans: page-notes.md's upload list says they work, but its "Not tested" list names
-//     scanned, photographed and handwritten counters. So the page says PDFs were tested and photos were
-//     not.
+//     scanned, photographed and handwritten counters. So the page says PDFs, and that photos and scans
+//     haven't been tested yet.
+//   - ChatGPT Free's file and per-message limits came from search excerpts and OpenAI's pricing page, so
+//     the page states no numbers for them: it says Free limits uploads and how much fits in a message,
+//     and what that means (setup and practice can take more than a day; a long chain may not fit).
 //   - Gmail or Outlook drafts: optional, untested, and Claude's own pages disagree on whether the Gmail
 //     connector can draft. So "What to say" offers no draft prompt, and the FAQ says to copy the email
 //     from the chat if no draft appears.
-//   - ChatGPT's limits (3 uploads a day, about 12 pages a message on Free) are page-notes.md's, from
-//     OpenAI's pricing page and help-center search excerpts, as /due-diligence-review states them. The
-//     ChatGPT version was not run inside ChatGPT, and the FAQ says so.
+//   - A text instead of an email: drafting-guide.md drafts one only when the agent asks, and no graded
+//     run did. So no prompt asks for one; the Own tile says texting consent stays with the agent.
 //
 // The REPC changed on November 1, 2026 (the old form can't be used from January 1, 2027): the skill
 // reads the version from the contract's footer, so the page says it works with both Utah forms, and in
 // other states from the uploaded documents alone.
 //
 // The practice set is three PDFs and a README, attached file by file. `setupMinutes` is an estimate
-// (page-notes gives none): 10, as /due-diligence-review says for the same shared setup steps.
+// (page-notes gives none): 10, as the other skill pages with a ChatGPT version say for the same steps.
 //
 // House rules: no em dashes, short plain sentences, one action a step, the actor and the place named.
 
@@ -44,29 +48,32 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
       'Upload the contract and the new counter or addendum, and see exactly what changed, the deal as it would stand, the response deadline and a message for your client. A free skill for Claude and ChatGPT.',
   },
 
-  // Non-breaking spaces keep the audience on one line: at 390 pixels the line wraps after the dot,
-  // never with "Agents" alone.
+  // Non-breaking spaces keep the audience on one line: at 390 pixels the line wraps after the dot, never
+  // with "Agents" alone (as /recruiting-prep does).
   eyebrow: 'Free AI Skill · For\u00a0Buyer’s\u00a0and\u00a0Listing\u00a0Agents',
-  // page-notes.md, "One-Line Promise", with the actor named.
-  lede: 'Upload the contract and the new counter or addendum, and the AI shows you exactly what changed, including the line nobody mentioned, before your client signs.',
-  outcome: { n: '03', title: 'Know What Changed', body: 'Every change, the deadline, and a message for your client.' },
+  // page-notes.md, "One-Line Promise", with the actor named, and "any change" for "the line": not every
+  // counter hides one.
+  lede: 'Upload the contract and the new counter or addendum, and the AI shows you exactly what changed, including any change nobody mentioned, before your client signs.',
+  outcome: { n: '03', title: 'Know What Changed', body: 'Every change, the deadline, and a draft for your client.' },
   optInBody:
     'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. There’s a ChatGPT version too. Either one explains the changes in plain words and never writes contract language.',
   setupMinutes: 10,
 
   practice: {
-    // page-notes.md, "Practice Prompt", word for word (curly apostrophes, as on every page). The
-    // "treat today as" line keeps the made-up response deadline from having already passed.
+    // page-notes.md, "Practice Prompt", word for word (curly apostrophes, as on every page). The "treat
+    // today as" line keeps the made-up response deadline from having already passed.
     prompt:
       'I represent the buyers on 1428 Sample Ridge Lane. The listing agent sent Addendum No. 2 and says it’s just a home warranty and the washer and dryer. What does it change, and can you draft a message to my buyers? This is a practice run, so treat today as November 9, 2026.',
+    // The practice ZIP also holds a README for the person, with the same words to say.
     note: [
-      'Attach only the three PDFs. The README is for you. Every name, address and number in the files is made up. The words to say end with “treat today as November 9, 2026” so the made-up deadline hasn’t already passed. ',
+      'Attach the three PDFs. You don’t need to attach the README file. Every name, address and number in the files is made up. The words to say end with “treat today as November 9, 2026” so the made-up deadline hasn’t already passed. ',
     ],
   },
 
   real: {
     // SKILL.md, section 1: the new document is required; the contract and every earlier counter give
-    // the full picture; the side comes from "my buyers" or "my sellers".
+    // the full picture; the side comes from "my buyers" or "my sellers"; never ask the agent to type
+    // terms a document already contains.
     body: [
       'Start a new chat the same way, attach the new counter or addendum, the purchase contract and every earlier counter or addendum, and say this.',
     ],
@@ -83,38 +90,24 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
 
   sections: [
     {
-      // sample.md (the practice run), shortened, in the output's own order and its own words: four of
-      // the five flags, the bottom line, the chain's note, the change table in three columns so it fits
-      // a phone (no Source column; each term's section, and "Stated up front? No", moved into its name;
-      // the warranty cell cut to its cost and who pays), two lines of the math, the options, the client
-      // email in full, three of the five requested changes with the broker line, and three rows of
-      // Check before sending.
+      // sample.md (the practice run), shortened, in the output's own order and its own words, cut only by
+      // whole parts, rows, items and sentences: the bottom line; the change table in three columns so it
+      // fits a phone (the Source column dropped; each term's section, and "Stated up front? No", moved into
+      // its name; the warranty cell cut to its cost and who pays) with the line under it; two of the
+      // math's four lines; the client email in full; three of the five requested changes with the broker
+      // line; three rows of Check before sending. Left out: the flags, the chain, the deal as it stands,
+      // the questions, what it means, the timeline and the options (the email carries them).
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What the AI caught in a made-up addendum',
-      body: 'What the AI wrote from the practice files: a made-up home in Utah, made-up buyers and a made-up seller. The listing agent said Addendum No. 2 was just a home warranty and the washer and dryer. They’re the same files you practise on in setup.',
+      body: 'From the practice files: a made-up home in Utah, made-up buyers and a made-up seller. The listing agent said Addendum No. 2 was just a home warranty and the washer and dryer. These are the same files you practise on in setup.',
       title: 'Counter Explainer: 1428 Sample Ridge Lane, Addendum No. 2',
-      note: 'Made-up example. Shortened: a few lines from most parts, and the client email in full.',
+      note: 'Made-up example. Shortened: a few parts, and the client email in full.',
       blocks: [
-        { h: 'Flags' },
-        {
-          items: [
-            'Practice run: these are made-up practice files. Days are counted from November 9, 2026, the date you gave for the practice.',
-            'A change not stated up front: item 4 of Addendum No. 2 moves the Settlement Deadline (Section 24(d)) from December 11 to December 4, 2026. The addendum’s heading (“Home warranty and laundry appliances.”) and the listing agent’s description leave it out.',
-            'Response due within 48 hours: the buyers must sign by 5:00 PM Mountain Time on Tuesday, November 10, 2026, or Addendum No. 2 lapses.',
-            'Form check: the REPC footer reads “EFFECTIVE DECEMBER 4, 2024,” so section numbers follow that form.',
-          ],
-        },
         { h: 'Bottom line' },
         {
           p: [
             'Addendum No. 2 adds a seller-paid home warranty (up to $600) and the washer and dryer, but item 4 also moves the Settlement Deadline in Section 24(d) from December 11 to December 4, 2026, which neither the heading nor the listing agent’s description mentions. That puts Settlement on the same day as the Financing & Appraisal Deadline, so your buyers’ lender would have to be ready to close on the last day of their appraisal and loan protections. The buyers have until 5:00 PM Mountain Time Tuesday, November 10, 2026 (tomorrow) to sign it; if they don’t, the contract stays as it is.',
-          ],
-        },
-        { h: 'The chain' },
-        {
-          p: [
-            'A contract already exists: the REPC as changed by Addendum No. 1. Addendum No. 2 proposes changes to it.',
           ],
         },
         { h: 'What changed' },
@@ -150,15 +143,6 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
             'Price lines don’t match: Section 2.1 lines total $5,000 + $0 + $440,100 + $0 + $43,900 = $489,000, but Addendum No. 1 set the price at $495,000, a $6,000 difference. Section 2.1 lets the buyers and lender adjust the loan (c) and cash (e) lines. Ask the lender to update them.',
           ],
         },
-        { h: 'Options and tradeoffs' },
-        {
-          items: [
-            'Sign it as written. The buyers get the warranty and the washer and dryer, and closing moves to December 4, the same day their appraisal and loan protections end.',
-            'Counter specific terms (Addendum No. 3, COUNTEROFFER box). Accept the warranty, the washer and dryer and the walk-through notice, and keep Settlement at December 11 or propose another date. The seller can accept, counter or let it lapse. Until the seller accepts, the contract stays as it is.',
-            'Let it lapse or reject it. Nothing changes: Settlement stays December 11, with no warranty and no washer and dryer. The contract’s deadlines keep running.',
-          ],
-        },
-        { p: ['[Your recommendation]'] },
         { h: 'Client message' },
         {
           email: {
@@ -205,8 +189,8 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
         { h: 'Check before sending' },
         {
           table: {
-            caption: 'Check before sending, 3 of 11 rows',
-            head: ['Item in the drafts', 'Check against'],
+            caption: '3 of its 11 lines',
+            head: ['In the drafts', 'Check it against'],
             rows: [
               ['December 4, new date', 'Addendum No. 2, page 1, item 4'],
               ['5:00 PM Tuesday, November 10, response deadline', 'Addendum No. 2, page 1, acceptance line'],
@@ -223,7 +207,7 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
       items: [
         {
           title: 'Flags, first',
-          body: 'Only when they apply: a practice run, a missing document, which form or state the AI read, blanks to fill, a change not stated up front, and a deadline that has passed or is within 48 hours.',
+          body: 'Only when they apply: a practice run, a missing document, a note on the form or the state, blanks for you to fill, a change not stated up front, and a deadline that has passed or is within 48 hours.',
         },
         {
           title: 'A bottom line',
@@ -239,7 +223,7 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
         },
         {
           title: 'The deal as it would stand',
-          body: 'The price and how it’s paid, seller money, earnest money and when it goes at risk, conditions, every deadline, possession, and what’s included or excluded. With the math shown, like price lines that no longer add up to the price.',
+          body: 'The price and how it’s paid, seller money, earnest money and when it goes at risk, conditions, every deadline, possession, and what’s included or excluded. The math is shown, like price lines that no longer add up to the price.',
         },
         {
           title: 'Conflicts, gaps and questions',
@@ -276,7 +260,7 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
       // when the agent asks, and whether the client agreed to texts is the agent's call.
       kind: 'tiles',
       heading: 'Who does what',
-      note: 'The AI reads and drafts. You and your client decide.',
+      note: 'The AI drafts. You and your client decide.',
       items: [
         {
           label: 'Run',
@@ -291,13 +275,14 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
         {
           label: 'Own',
           title: 'Always yours',
-          body: 'Whether to accept, counter or let it lapse: your client decides, with your advice. Every price and dollar amount. The wording on the form. Anything beyond a standard term goes to your broker. If you ask the AI for a text, whether your client has agreed to get texts. Wire and account details: the AI never asks for them or repeats them.',
+          body: 'Whether to accept, counter or let it lapse: your client decides, with your advice. Every price and dollar amount. The wording on the form. Anything beyond a standard term, or two documents that conflict, goes to your broker. If you ask the AI to write a text, whether your client agreed to get texts. Wire and account details: the AI never asks for them or repeats them.',
         },
       ],
     },
     {
       // page-notes.md, "What You Need", and its "Tested and Not Tested" (PDFs only; no photos, scans or
-      // Gmail or Outlook drafts tested).
+      // Gmail or Outlook drafts tested). No ChatGPT Free limits as numbers, and no e-signature platform
+      // named.
       kind: 'tiles',
       heading: 'What you need',
       note: 'About 10 minutes to set up',
@@ -306,21 +291,21 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but we haven’t tested Free.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included.',
           tag: 'Team or Enterprise: an owner turns them on',
         },
         {
           title: 'Or a ChatGPT Project',
-          body: 'A Project is a folder in ChatGPT that keeps instructions and files together. Projects work on Free ChatGPT, with upload limits.',
-          tag: 'Go or Plus fit long chains better',
+          body: 'A Project is a folder in ChatGPT that keeps instructions and files together. Projects work on free ChatGPT too.',
+          tag: 'Free ChatGPT has upload limits',
         },
         {
           title: 'A computer, once',
           body: 'To set it up on claude.ai or in the Claude desktop app, or on the ChatGPT website. Once added, the Claude skill works in Claude’s phone app too.',
         },
         {
-          title: 'Your documents',
-          body: 'The new counter or addendum, plus the purchase contract and every earlier counter or addendum, as PDFs from your e-signature or transaction system. Claude takes up to 20 files in a chat. We haven’t tested photos or scans yet.',
+          title: 'Your documents, as PDFs',
+          body: 'The new counter or addendum, plus the purchase contract and every earlier counter or addendum. Download them from wherever your contracts are signed or stored. Claude takes up to 20 files in a chat. We haven’t tested photos or scans yet.',
           tag: 'The new counter or addendum is required',
         },
         {
@@ -334,8 +319,8 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
       ],
     },
     {
-      // page-notes.md, "Things to Say", word for word with curly apostrophes, and "Addendum 2" as it is
-      // there.
+      // page-notes.md, "Things to Say", with curly apostrophes and "Addendum 2" as it is there. The last
+      // one says what the sellers decided, so the AI has an answer to turn into requested changes.
       kind: 'prompts',
       heading: 'What to say',
       body: 'Tap to copy. Start a new chat (in ChatGPT, inside the Project), attach your documents, and paste. Follow-ups go in the same chat.',
@@ -356,7 +341,9 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
         },
         {
           label: 'Follow-ups, in the same chat',
-          items: ['Turn my sellers’ answer into the changes I need to put on the counteroffer form.'],
+          items: [
+            'My sellers want to accept everything except the new closing date. Turn that into the changes I need to put on the counteroffer form.',
+          ],
         },
       ],
     },
@@ -375,48 +362,50 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
           // SKILL.md, sections 6 and 7; drafting-guide.md, "Take to Your Broker"; page-notes.md's FAQ.
           q: 'Can the AI write the counteroffer for me?',
           a: [
-            'No. The AI gives you each change in plain words, with its section number, for you to enter on the state-approved addendum form. It never writes clause language. Utah licensees fill out approved forms, and anything beyond changing a standard term, like a rent-back or an appraisal gap, goes to your broker.',
+            'No. The AI gives you each change in plain words, with its section number, for you to enter on the state-approved form. It never writes contract language. Utah agents fill out approved forms, and anything beyond changing a standard term, like a rent-back or an appraisal gap, goes to your broker.',
           ],
         },
         {
           // SKILL.md, section 2; page-notes.md's FAQ (UAR and the Division's forms page, checked
-          // 2026-11-08); eval 3 (Idaho, general mode).
+          // 2026-11-08); eval 2 (the November 1, 2026 form) and eval 3 (Idaho, general mode).
           q: 'Which contracts does it work with?',
           a: [
             'Both Utah REPCs in use now. The AI reads the contract’s footer, “EFFECTIVE DECEMBER 4, 2024” or “EFFECTIVE NOVEMBER 1, 2026,” and uses that form’s section numbers. The Utah Association of REALTORS says the old form can’t be used starting January 1, 2027. Ask your broker which version your brokerage uses. In another state, the AI takes every term, deadline and rule from your own documents and says it didn’t check your state’s rules.',
           ],
         },
         {
-          // page-notes.md, "What You Need" and "Not tested". ChatGPT's limits as /due-diligence-review
-          // states them. The practice set alone is 3 PDFs, plus 4 files for the Project.
+          // page-notes.md, "What You Need" and "Not tested". ChatGPT Free's limits without numbers: they
+          // came from search excerpts and the pricing page. The practice set alone is 3 PDFs, plus 4
+          // files for the Project.
           q: 'Which plan do I need?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, Projects work on Free, but Free allows 3 file uploads a day and about 12 pages of text per message. So on Free, setup and practice can take more than one day, and a contract plus several addenda may not fit in one message. Go and Plus allow about 40 pages per message. We tested the skill in Claude, not yet inside ChatGPT, so try the practice files first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project works on the free plan, but free ChatGPT limits how many files you can upload and how much text fits in one message. So on free ChatGPT, setup and practice can take more than one day, and a contract with several addenda may not fit in one message. We tested the skill in Claude. We haven’t tried it on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
           ],
         },
         {
-          // page-notes.md, "What You Need": Claude's pages disagree on Gmail drafting; Microsoft 365 work
-          // accounts need an admin; neither was tested.
-          q: 'Can it save the client email in Gmail or Outlook?',
+          // page-notes.md, "What You Need": Claude's pages disagree on Gmail drafting; work or school
+          // Microsoft 365 accounts need an admin; neither was tested.
+          q: 'Can the AI save the client email in Gmail or Outlook?',
           a: [
-            'Maybe, but you don’t need it. The AI writes the email in the chat for you to copy. With Claude’s Gmail or Microsoft 365 connector on, you can ask for a draft, but Claude’s own pages disagree on whether the Gmail connector can make drafts, and a work Microsoft 365 account needs an admin to allow it. We haven’t tested either. If no draft appears, copy the email from the chat. The AI never sends anything.',
+            'Not for sure, and you don’t need it. The AI writes the email in the chat for you to copy. With Claude’s Gmail or Microsoft 365 connector on, you can ask for a draft. But Claude’s own pages disagree on whether the Gmail connector can make drafts, and a work or school Microsoft 365 account needs an admin to allow it. We haven’t tested either. If no draft appears, copy the email from the chat. The AI never sends anything.',
           ],
         },
         {
           // page-notes.md, "What It Won't Do"; SKILL.md, section 7.
-          q: 'What won’t it do?',
+          q: 'What won’t the AI do?',
           a: [
-            'The AI won’t recommend a price, an amount or an option. It won’t decide whether a counter is valid, or pick a winner when two documents conflict: it quotes both and names who settles it. It won’t estimate net proceeds, cash to close, commissions or loan limits. It doesn’t keep your official deadline calendar. It describes terms, never people. It leaves account, loan and Social Security numbers out of what it writes, and never asks for or repeats wire instructions. The skill isn’t built for repair requests, inspection findings or appraisal reports; those have their own skills.',
+            'The AI won’t recommend a price, an amount or an option. It won’t decide whether a counter is valid, or pick a winner when two documents conflict: it quotes both and names who settles it. It won’t estimate net proceeds, cash to close or commissions, or say how much seller money a loan allows: the lender confirms that. It doesn’t keep your official deadline calendar. It describes terms, never people. It leaves account, loan and Social Security numbers out of what it writes, and never asks for or repeats wire instructions.',
           ],
         },
       ],
     },
     {
+      // skills/offer-comparison/SKILL.md: listing side, two or more offers, side by side for the seller.
       kind: 'note',
       body: [
-        'Weighing several offers at once? ',
+        'Listing agent with several offers on one home? ',
         { link: 'Offer Comparison', href: '/offer-comparison', sameTab: true },
-        ' lines them up side by side.',
+        ' puts them side by side for your sellers.',
       ],
     },
   ],

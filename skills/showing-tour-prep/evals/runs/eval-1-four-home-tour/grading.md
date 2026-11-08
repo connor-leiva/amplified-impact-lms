@@ -53,3 +53,7 @@ See `baseline.md` and `baseline-objective-checks.txt`. Against the same 9 expect
 It also gives price opinions ("Good value," "the value play") and picks a favorite partly on the seller's concession, which is offer territory.
 
 What the skill adds: agent-only fields and codes kept off the buyer's page, above-grade and basement square feet kept apart, the Utah details (as-is under the REPC, lead for a 1958 home, water share questions, rental cap rules), questions per listing agent and a Check before sending list.
+
+## Review Update (2026-11-08, independent reviewer)
+
+The reviewer confirmed against both REPC forms that the Due Diligence Condition is a checkbox (Section 8.1 "IS / IS NOT" in the December 4, 2024 form; Section 3(a) in the November 1, 2026 form). `utah-tour-notes.md` now says so, and this output's Holladay lines were edited to match: the buyer can still inspect "as long as the offer includes the Due Diligence Condition," and the tour sheet says "your offer can still include time to inspect." Expectation 6 in `evals.json` now asks for that wording. Objective checks rerun: 14 of 14. The grade stands at 9 of 9.

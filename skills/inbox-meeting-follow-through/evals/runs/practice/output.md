@@ -57,7 +57,7 @@ Checked and kept, not listed: the executed counter you promised Marcus Loanley o
 - **D2. Inspection request, 902 Example Aspen Way (Rae's listing).** The buyer's agent, Lee Outsideton, wants Friday at 10 AM and asks who to coordinate with. Draft 15, with Rae copied.
 
 **ISA (Priya Exampleton)**
-- **D3. New website lead: Morgan Leadsworth, 418 Sample Creek Way.** Relocating from Denver in January; 4 bedrooms, under $650,000, close to light rail; preapproved with their credit union; wants to see the home this Saturday. It came through the website form, so it isn't in Follow Up Boss yet. Her message also included remarks that aren't property criteria; they're left out of the forward. Draft 16. (418 Sample Creek Way is Ben's listing, so Priya will need Ben for the showing.)
+- **D3. New website lead: Morgan Leadsworth, 418 Sample Creek Way.** Relocating from Denver in January; 4 bedrooms, under $650,000, close to light rail; preapproved with their credit union; wants to see the home this Saturday. It came through the website form, so it isn't in Follow Up Boss yet. The form's message also includes a remark about who they want as neighbors, and a forward would carry it, so Draft 16 is a new note with the criteria and contact details instead. Draft 16. (418 Sample Creek Way is Ben's listing, so Priya will need Ben for the showing.)
 
 **Listing agent (Ben Sampleton)**
 - **D4. Showing feedback, 418 Sample Creek Way,** from Kim Showington yesterday at 3:45 PM. Draft 17.
@@ -246,7 +246,7 @@ Jordan
 To: Casey Mockridge
 Subject: HOA Resale Certificate For 418 Sample Creek Way
 
-Casey, is the HOA resale certificate in for 418 Sample Creek Way? We'd like to know before we push the relaunch next week.
+Casey, is the HOA resale certificate in for 418 Sample Creek Way? We'd like to know before we push the relaunch.
 
 Jordan
 
@@ -269,12 +269,12 @@ Casey, the buyer's agent on Rae's listing at 902 Example Aspen Way wants the ins
 
 Jordan
 
-**Draft 16. Forward to Priya (D3)**
+**Draft 16. New lead note to Priya (D3)**
 To: Priya Exampleton
 Subject: New Website Lead For 418 Sample Creek Way
-(forward the website inquiry below)
+(new note, not a forward: the form's message includes a remark that stays out)
 
-Priya, new lead from the website: Morgan Leadsworth, asking about 418 Sample Creek Way. Relocating from Denver in January; 4 bedrooms, under $650,000, close to light rail; preapproved with their credit union. Morgan wants to see the home this Saturday. Can you add Morgan to Follow Up Boss, call today, and line up the showing with Ben?
+Priya, new lead from the website: Morgan Leadsworth (morgan.leadsworth@mailbox.example, (720) 555-0164), asking about 418 Sample Creek Way. Relocating from Denver in January; 4 bedrooms, under $650,000, close to light rail; preapproved with their credit union. Morgan wants to see the home this Saturday. Can you add Morgan to Follow Up Boss, call today, and line up the showing with Ben?
 
 Jordan
 
@@ -348,7 +348,7 @@ Jordan
 - Draft 13: 418 Sample Creek Way.
 - Draft 14: forward Marcus's email unchanged; "Monday" is Marcus's date (Monday, November 9; Financing and Appraisal Deadline 11/12 per Marcus). Confirm dates with your transactions team.
 - Draft 15: Friday at 10 AM; 902 Example Aspen Way. Confirm the recipient and the Cc.
-- Draft 16: 4 bedrooms, under $650,000, January, Saturday. Confirm the recipient (Priya).
+- Draft 16: morgan.leadsworth@mailbox.example; (720) 555-0164; 4 bedrooms, under $650,000, January, Saturday. Send as a new email, not a forward of the form. Confirm the recipient (Priya).
 - Draft 18: invoice 2026-118, $325, due November 18.
 - Draft 19: two slides; November 12 seminar; fill [date].
 - Drafts 20 and 21: every date matches the tables above. Both leave out the private matter discussed in the huddle.

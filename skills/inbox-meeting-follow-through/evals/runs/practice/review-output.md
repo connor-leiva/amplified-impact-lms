@@ -1,6 +1,6 @@
 # Morning Pass, Thursday, November 5, 2026
 
-Reviewer run (second independent review, written from SKILL.md and its references only, before reading the builder's output.md, grading.md or sample.md). Inputs: the four practice files. Prompt: "Run my morning pass. Treat today as Thursday, November 5, 2026, 7:30 AM Mountain, and my last pass was yesterday at 7:30 AM. Nothing is connected; my inbox export, yesterday's two meeting transcripts and my roster are attached."
+Reviewer run (second independent review, written from SKILL.md and its references only, before reading the builder's output.md, grading.md or sample.md). Inputs: the four practice files. Prompt: "Run my morning pass. Treat today as Thursday, November 5, 2026, 7:30 AM Mountain, and my last pass was yesterday at 7:30 AM. Nothing is connected; my inbox export, yesterday's two meeting transcripts and my roster are attached." Rechecked after the review fixes (new note instead of a forward for a lead's message with a remark about neighbors; the Covered through definition): Draft 17 already followed them, so nothing changed.
 
 ## Bottom Line
 
@@ -274,7 +274,7 @@ Casey, is the HOA resale certificate for 418 Sample Creek Way in? We want to kno
 Thanks,
 Jordan
 
-**Draft 17. New lead note to Priya** (a new email, not a forward)
+**Draft 17. New lead note to Priya** (new note, not a forward: the form's message includes a remark that stays out)
 To: Priya Exampleton
 Subject: New Buyer Lead: Morgan Leadsworth, 418 Sample Creek Way
 

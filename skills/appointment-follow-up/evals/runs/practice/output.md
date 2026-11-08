@@ -69,19 +69,17 @@ Hi Casey, it's Riley: I'll see you both at the townhome Tuesday, Nov 10, at 6:30
 ## Follow Up Boss Note
 
 ```
-Buyer consult, Zoom, Sun Nov 8, 2026, 6:30 PM. Morgan and Casey Testwood.
-Motivation: Out of room in 3-bed townhome (Example Ridge Way, Herriman); family member moving in after the new year. Casey starts at Lehi office Mar 1.
-Timeline: In by end of Feb; Mar 1 is the hard date.
-Criteria: 4+ bed incl. main-floor bedroom with full bath nearby; no-step or one-step entry (level garage entry could work); 2+ car garage; yard for raised beds. Riverton, South Jordan, west side of West Jordan. Nothing backing onto Bangerter or a busy road. No HOA or a small one (pay 285/mo now). Around 650,000; 700,000 top, with townhome sold.
-Financing: Preapproved, conventional, Placeholder Mortgage, Dana Fakerson; letter Oct 30 for 690,000; assumes townhome sells first. Agent calling Dana Mon Nov 9 (buyers OK'd) re buying before selling.
-Home to sell: Townhome on Example Ridge Way, Herriman. Walk-through Tue Nov 10, 6:30 PM.
-Buyer agreement: Discussed, not signed. DocuSign Sun Nov 8; 3 months through Feb 8, as discussed. Sign before Sat Nov 14 tour.
-Concerns: Carrying two payments; selling first with nowhere to go.
-Asked about safety and schools; pointed to official sources (police crime map, district boundary lookup).
-Contact: Casey texts, Morgan email.
-Promised: agreement Sun Nov 8; call Dana Mon Nov 9; search by Mon Nov 9 night; crime map and boundary links; Saturday addresses Thu Nov 12; complex sales Tue.
-Next step: Tue Nov 10, 6:30 PM at townhome. Tour 3 homes Sat Nov 14, 10:00 AM.
+Buyer consult, Zoom, Sun Nov 8, 2026. Morgan and Casey Testwood.
+Motivation: Out of room in 3-bed townhome (Example Ridge Way, Herriman); household growing in the new year.
+Timeline: In by end of Feb; Casey starts at Lehi office Mar 1 (hard date).
+Criteria: 4+ bed, one on the main with full bath nearby; no-step or one-step entry (level garage OK); 2+ car garage; yard for raised beds. Riverton, South Jordan, west West Jordan. No backing onto Bangerter or big roads. No HOA or a small one. Around 650,000; 700,000 top with townhome sold.
+Financing: Preapproved, conventional, Placeholder Mortgage, Dana Fakerson; letter Oct 30 for 690,000; assumes townhome sells first.
+Buyer agreement: Discussed, not signed. DocuSign Sun Nov 8; 3 months through Feb 8, as stated. Sign before first tour.
+Concerns: Buy first (two payments) vs sell first (nowhere to go). Safety and schools: pointed to official sources.
+Promised: agreement Sun Nov 8; call Dana and portal search Mon Nov 9; crime map and boundary links; tour addresses Thu Nov 12; complex sales Tue.
+Next step: Tue Nov 10, 6:30 PM, townhome walk-through. Sat Nov 14, 10:00 AM, tour 3 homes.
 Follow-up: Mon Nov 9 (after Dana call)
+Contact: Casey texts, Morgan email.
 Suggested Timeframe to Move: 3-6 months
 ```
 
@@ -92,7 +90,7 @@ Paste it into the note box on the Testwoods' profile and click Create Note. The 
 1. **You, tonight, Sunday, November 8:** send the buyer agreement through DocuSign. DocuSign arrives by email and Casey said "I never check email," so a quick text that it's waiting helps it get signed before Saturday.
 2. **You, Monday, November 9:** call Dana Fakerson at Placeholder Mortgage about buying before the townhome sells.
 3. **You, by Monday night, November 9:** set up the search, with texts to Casey and email to Morgan.
-4. **You, [date]:** send the police department's crime map and the district's boundary lookup links. No day was set; with the recap works.
+4. **You, [date]:** send the police department's crime map and the district's boundary lookup links. No day was set; sending them with the recap works.
 5. **You, before Tuesday:** pull the recent sales from their complex. If you use `pricing-conversation-prep`, run it on that CMA so the townhome range is ready.
 6. **You and the Testwoods, Tuesday, November 10, 6:30 PM, at the townhome:** walk-through and a realistic range.
 7. **You, Thursday, November 12:** send Saturday's addresses and route.
@@ -118,7 +116,6 @@ Paste it into the note box on the Testwoods' profile and click Create Note. The 
 | February 8, three months (flag and FUB note) | 4:07 |
 | $650,000 and $700,000 | "around 650. 700 is the absolute top" (2:17), read as thousands |
 | 690,000 and October 30 (FUB note only) | 2:26 |
-| 285/mo (FUB note only) | 2:03 |
 | Morgan and Casey Testwood | Spelled as in the meeting title |
 | Dana Fakerson, Placeholder Mortgage | 2:26, as heard; confirm spelling |
 | Example Ridge Way, Bangerter | 0:25, 1:56, as heard |

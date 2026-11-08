@@ -71,7 +71,7 @@ Four Utah homes for Monday at 4:00 PM: get the buyer agreement signed and send t
 - Radon: test result or mitigation system (any Utah home).
 
 **Red flags in the remarks**
-- "Estate sale, sold as-is. Seller will not make any repairs.": the person signing for the seller may never have lived there, so disclosures may be thin, and the seller won't make repairs. Under the standard Utah REPC the buyer still has due diligence to inspect and evaluate the home (Section 10.2 of the December 4, 2024 form; Section 13.1 of the November 1, 2026 form). Questions: who signs for the seller and is their authority in place; what reports exist.
+- "Estate sale, sold as-is. Seller will not make any repairs.": the person signing for the seller may never have lived there, so disclosures may be thin, and the seller won't make repairs. Under the standard Utah REPC's as-is clause the buyer can still inspect and evaluate the home, as long as the offer includes the Due Diligence Condition (Sections 8.1 and 10.2 of the December 4, 2024 form; Sections 3(a) and 13.1 of the November 1, 2026 form). Questions: who signs for the seller and is their authority in place; what reports exist.
 - Terms "Cash, Conventional": FHA isn't listed. Ask why; the buyers' lender confirms.
 - Price cuts: down $40,000 in two cuts over 51 days. The reason isn't on the sheet.
 - One phrase in the public remarks describes who the home suits; not repeated here.
@@ -149,7 +149,7 @@ Four Utah homes for Monday at 4:00 PM: get the buyer agreement signed and send t
 - Option to rent it out later: Can't tell from the sheet; ask for the CC&Rs.
 - Commute downtown: can't tell from the sheet.
 
-## Buyer Tour Sheet (share this page)
+## Buyer Tour Sheet (Share This Page)
 
 ## Tour Sheet: Monday, November 9, 4:00 PM
 Prepared by Taylor Example for Sam and Alex
@@ -157,7 +157,7 @@ Prepared by Taylor Example for Sam and Alex
 ### 1. 4521 S Example Commons Dr #208, Murray
 $379,900 | 3 beds, one level | 1 full and 1 three-quarter bath
 1,320 sq ft, 2nd-floor condo, no basement | Built 2004 | HOA $315 a month (includes water, sewer, trash, insurance, pool)
-Good to know: rental restrictions apply (see the CC&Rs). Parking is a carport stall and an open stall; no garage.
+Good to know: rental restrictions apply (see the CC&Rs). Carport and open stall; no garage.
 Look for: which stall goes with the unit.
 From your list: Meets: 3 beds, 2 baths, budget. Doesn't: 2-car garage, yard, HOA under $250, basement. Check: the rental rules.
 Notes: ____________________   My rating: 1  2  3  4  5
@@ -165,15 +165,15 @@ Notes: ____________________   My rating: 1  2  3  4  5
 ### 2. 1187 E Placeholder Pine Ave, Sandy
 $489,900 | 4 beds (3 main, 1 basement) | 1 full bath main, 1 three-quarter bath basement
 1,220 sq ft above grade + 1,180 sq ft basement (60% finished) | 0.22 acre | Built 1968 | HOA none
-Good to know: estate sale, sold as-is (no seller repairs). Down $40,000 since September. Listed terms: cash or conventional.
-Look for: painted surfaces (built before 1978); the unfinished part of the basement; the original kitchen and baths.
+Good to know: estate sale, sold as-is (no seller repairs; your offer can include time to inspect). Down $40,000 since September. Listed terms: cash or conventional.
+Look for: painted surfaces (built before 1978); the unfinished basement space.
 From your list: Meets: 4 beds, 2 baths, garden area, budget. Doesn't: 1-car garage plus carport. Check: FHA with your lender.
 Notes: ____________________   My rating: 1  2  3  4  5
 
 ### 3. 1462 N Example Orchard Ln, Spanish Fork
 $624,900 | 4 beds, all upstairs | 2 full baths up, 1 half bath main
 2,410 sq ft above grade + 1,205 sq ft basement (unfinished, roughed-in bath) | 0.31 acre | Built 2016 | HOA none
-Good to know: includes 1.5 shares of Example Bench Irrigation Company for the pressurized irrigation. I'll ask how they transfer and their yearly cost.
+Good to know: includes 1.5 shares of Example Bench Irrigation Company (pressurized irrigation). I'll ask how they transfer and their yearly cost.
 Look for: the irrigation connection and timer; the basement layout; the garden boxes.
 From your list: Meets: 4 beds, baths, 3-car garage, fenced yard, basement to finish. Doesn't: listed above your $600,000 budget.
 Notes: ____________________   My rating: 1  2  3  4  5

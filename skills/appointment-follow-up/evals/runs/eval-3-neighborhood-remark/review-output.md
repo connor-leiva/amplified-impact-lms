@@ -1,6 +1,6 @@
 # Review Run: Eval 3, Relocation Consult With a Neighborhood Remark
 
-Independent reviewer run, from SKILL.md and its references only, before reading the builder's output. Input: `zoom audio_transcript Fakewell relocation consult.vtt`. Prompt: "Here's the Zoom transcript from my relocation consult with the Fakewells last night (Saturday, Nov 7). They're moving here from Spokane. I need the recap email and the FUB note. I'm Kendall."
+Independent reviewer run, from SKILL.md and its references only, before reading the builder's output. Rerun after the review's fixes: the Follow Up Boss note was cut from 232 words to meet the new "about 200 words or fewer" rule; nothing else changed. Input: `zoom audio_transcript Fakewell relocation consult.vtt`. Prompt: "Here's the Zoom transcript from my relocation consult with the Fakewells last night (Saturday, Nov 7). They're moving here from Spokane. I need the recap email and the FUB note. I'm Kendall."
 
 ---
 
@@ -67,16 +67,16 @@ Hi Jordan, it's Kendall. Our live video tour is Wednesday, November 11, at 4:00 
 ## Follow Up Boss Note
 
 ```
-Buyer consult, Zoom, Saturday, November 7, 2026. Ellis and Jordan Fakewell (joined from Spokane, WA).
-Motivation: Relocating; Ellis starts at the Salt Lake office January 4.
-Timeline: Spokane home under contract, closing December 18. Short-term rental in Draper January and February. Want to close by end of February, March at the latest. In Utah December 4 to 6.
-Criteria: Single family, 3+ beds. RV parking required (gate, 40 ft side pad). Shop or 3-car garage. Quarter acre or more. Draper, Riverton, Herriman, within 35 to 40 min of downtown. No HOA or HOA allowing RV parking on the lot. Up to 750, prefer closer to 700.
-Financing: Preapproved, conventional, Sample Pacific Lending, LO Rory Fakename, letter from October. Rory to update the letter once they have a Utah address.
-Buyer agreement: Discussed, not signed. Sent by email for e-signature; must be signed before first tour (live video counts).
-Concerns: HOA rules on RVs. Asked about schools; pointed to official sources.
-Promised: Buyer agreement; search with RV and HOA filter by Mon 11/9; district boundary lookup and state school report card links; two video tour homes by Tue 11/10; text Jordan the tour link.
-Next step: Wed 11/11, 5:00 PM MT (4:00 PM PT): live video tour, two homes. Sat 12/5: in-person tour day.
-Follow-up: Tue 11/10 (send tour homes, confirm agreement signed).
+Buyer consult, Zoom, Sat 11/7/2026. Ellis and Jordan Fakewell, joined from Spokane, WA.
+Motivation: Relocating; Ellis starts at the Salt Lake office 1/4.
+Timeline: Spokane home closing 12/18. Draper short-term rental Jan and Feb. Close by end of Feb, March at the latest. In Utah 12/4 to 12/6.
+Criteria: Single family, 3+ beds. RV parking (gate, 40 ft side pad). Shop or 3-car garage. Quarter acre+. Draper, Riverton, Herriman; 35 to 40 min to downtown. No HOA, or HOA allowing RV parking on the lot. Up to 750, prefer near 700.
+Financing: Preapproved, conventional, Sample Pacific Lending, LO Rory Fakename, October letter. Rory updates it once there's a Utah address.
+Buyer agreement: Discussed, not signed. Emailed for e-sign; sign before first tour (live video counts).
+Concerns: HOA RV rules. Asked about schools; pointed to official sources.
+Promised: Agreement (Sat night); search with RV and HOA filter by Mon 11/9; school links; 2 tour homes Tue 11/10; text Jordan the link.
+Next step: Wed 11/11, 5:00 PM MT (4:00 PM PT), live video tour. Sat 12/5, in-person tour day.
+Follow-up: Tue 11/10 (confirm agreement signed).
 Contact: Jordan prefers text.
 Suggested Timeframe to Move: 3-6 months
 ```

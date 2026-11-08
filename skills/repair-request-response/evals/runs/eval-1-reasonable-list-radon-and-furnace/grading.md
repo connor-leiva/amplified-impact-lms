@@ -47,3 +47,7 @@ See `baseline.md` and `baseline-objective-checks.txt`. Against the same 9 expect
 It also uses "Don't hesitate to reach out," repeats an unsourced statistic ("roughly 1 in 3 homes test high") with no source, and signs "[Your Name]".
 
 What the skill adds: the right deadline mechanics for the form actually uploaded, the bid math checked against the completion date, a disclosure note, a buyer's agent note, and a Check before sending list, with no invented costs.
+
+## Reviewer Changes (2026-11-08)
+
+The independent review reworded one line of the clock ("a quick yes protects the deal best" now reads "answering early leaves the most time to sign before then"), so the output doesn't predict the buyer's response. Objective checks rerun with the $2,580 difference listed as arithmetic: 9 of 9.

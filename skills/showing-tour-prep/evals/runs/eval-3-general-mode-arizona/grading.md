@@ -34,3 +34,7 @@ From `objective-checks.txt`:
 | No wire or account details | Pass | |
 
 Note on the scan: the first pass of the checker flagged "green" on the tour sheet; it was "greenbelt," a public feature. The agent-only term is now "is green."
+
+## Review Update (2026-11-08, independent reviewer)
+
+40 CFR 745.101(a) exempts "sales of target housing at foreclosure." A bank selling a home it took back is not that sale, so `tour-guide.md` now says not to call a bank-owned resale exempt. This output's Mesa lead line was edited to match, and expectation 3 now checks it. "I'm asking for the lease terms" on the tour sheet became "I'll ask for the lease terms." Objective checks rerun: 14 of 14. The grade stands at 8 of 8.

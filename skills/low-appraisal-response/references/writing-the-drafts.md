@@ -1,5 +1,9 @@
 # Writing the Drafts
 
+Last verified: 2026-11-08
+
+The program rules these drafts follow (who sends a request, the fields, the comp limits, the VA Tidewater fields) are summarized with their sources in `rov-programs.md`. This file is about how to write.
+
 Every draft here is read by someone who can say no: a lender's underwriter, a nervous client, the other agent. Write so each can act without a phone call. Facts, page numbers and MLS numbers; no adjectives about anyone.
 
 ## The Reconsideration of Value Request (Buyer's Side)
@@ -78,3 +82,12 @@ Two to five sentences. Factual and friendly: what you're doing (requesting a rec
 ## Check Before Sending
 
 List every date, time, dollar amount, square footage, page reference, MLS number and quoted phrase in the drafts, each with its source document and page, plus any open [placeholder].
+
+## Sources
+
+All checked 2026-11-08. Full quotes are in `rov-programs.md`.
+- Fannie Mae Selling Guide B4-1.3-12 (borrower ROV fields; one borrower-initiated ROV per appraisal): https://selling-guide.fanniemae.com/sel/b4-1.3-12/quality-assurance
+- Freddie Mac Guide Section 5604.4 (standardized ROV fields; maximum of five alternative comparables): https://guide.freddiemac.com/app/guide/section/5604.4
+- HUD Handbook 4000.1, II.A.3.a.ix (the FHA underwriter requests the reconsideration): https://www.hud.gov/sites/default/files/Housing/documents/40001-hsgh-Update-18.pdf
+- VA Pamphlet 26-7, Chapter 10, Topics 8 and 22 (Tidewater fields; reconsideration after the NOV): https://www.knowva.ebenefits.va.gov/system/templates/selfservice/va_ssnew/help/customer/locale/en-US/portal/554400000001018/content/554400000314679/VA-Pamphlet-VAP26-7-Chapter-10-Appraisal-Process
+- Fannie Mae Selling Guide B2-1.2-01 (property value is the lower of the sales price or the appraised value): https://selling-guide.fanniemae.com/sel/b2-1.2-01/loan-value-ltv-ratios
