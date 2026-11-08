@@ -125,9 +125,8 @@ TOTAL_ROW = re.compile(r"^(grand )?totals?\b|^summary$|^count$", re.I)
 
 # Kinds of personal detail, matched by keyword only, so notes are never read into the conversation.
 PERSONAL = {
-    "family": r"\bkids?\b|child|\bson\b|daughter|\bbaby\b|\bmom\b|\bdad\b|mother|father|husband|wife|spouse|"
-              r"family|grandkid|grandchild|parent",
-    "pregnancy": r"pregnan|due in|maternity|expecting",
+    "family or familial status": r"\bkids?\b|child|\bson\b|daughter|\bbaby\b|\bmom\b|\bdad\b|mother|father|husband|"
+                                 r"wife|spouse|family|grandkid|grandchild|parent|pregnan|due in|maternity|expecting",
     "marital status": r"divorc|married|marriage|newlywed|widow|separated|single (mom|dad|parent)|honeymoon|engaged|fianc",
     "age": r"\bage\b|\baged\b|years old|\bretir|\bold\b|\byoung\b|\b[2-9]\d\b(?! ?(units|sides|deals|closings|%))|"
            r"born in \d|boomer|millennial|gen z",

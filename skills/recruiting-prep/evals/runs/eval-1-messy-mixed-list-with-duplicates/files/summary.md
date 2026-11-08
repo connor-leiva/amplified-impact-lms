@@ -147,6 +147,6 @@ Default thresholds: up or down means a change of 25% or more and at least 3 unit
 
 ## Notes Column
 
-Rows with notes: 48. Rows whose notes match personal-detail keywords: 2, for 2 agents (kinds: family 1, marital status 1, personal finances 1). Keyword matching can miss some, so the leader should review the notes column in the source file. Note text is never shown here.
+Rows with notes: 48. Rows whose notes match personal-detail keywords: 2, for 2 agents (kinds: family or familial status 1, marital status 1, personal finances 1). Keyword matching can miss some, so the leader should review the notes column in the source file. Note text is never shown here.
 
 Self-reported units shown in the CSV but never used for tiers: 37 agents.

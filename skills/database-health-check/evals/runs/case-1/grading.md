@@ -47,3 +47,10 @@ Tool: `python3 -I evals/make/objective_checks.py evals/runs/case-1 evals/files/f
 2. **Hand-made totals.** The first output added segment counts together (23 past clients back on the site; 19 past clients outside a past-client stage). Neither total was in the run's output, so the number check failed. Fix: SKILL.md step 2 now says never to compute a new total by hand; the output cites the run's own figures (Closed 12 and Past Client 11; Lead 9, Nurture 6, Attempted Contact 4). Rerun: 400 of 400 numbers traced.
 3. **Family wording in a referral ask.** One past-client email said "a friend or family member." Fix: references/nurture-drafts.md now says to use "someone you know" for referral asks; the draft was rewritten.
 4. **Shared lines counted as duplicates (fixed before grading).** An office number on 8 records was grouped as one duplicate. Fix: an email or phone on more than 5 records is reported as a shared line and never merged.
+
+## Review Update (2026-11-08)
+
+An independent review changed the skill after this run. Nothing it changed alters a count above.
+- files/ was regenerated with the reviewed analysis code, same inputs and settings. Every existing number is identical; the report now also shows merge groups split across agents and how text consent was recorded (website form 460, open house sign in 432, signed buyer form 417), and the worklist marks those merge rows.
+- output.md was patched to match the reviewed skill: the 55 merge groups (114 records) split across agents in Likely Duplicates, the merge step and a new Question 9; the consent breakdown in Text Consent, Question 8 and Check Before Sending; a Check Before Sending line that texts go one at a time.
+- The objective checks were rerun on the patched output.md: every number traces to the run or the prompt, no dashes, no contact details, Title Case subjects, opt-out lines present.

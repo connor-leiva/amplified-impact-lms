@@ -39,3 +39,10 @@ The baseline did a reasonable first pass with code, but it texted every group wi
 ## Failures Found and Fixed
 
 None on this case. The checks it depends on (consent gating in SKILL.md step 5 and references/nurture-drafts.md, the gap list in the analysis code) held on the first run.
+
+## Review Update (2026-11-08)
+
+An independent review changed the skill after this run. Nothing it changed alters a count above.
+- files/ was regenerated with the reviewed analysis code, same inputs and settings. Every existing number is identical; the report now also shows merge groups split across agents, and the worklist marks those merge rows.
+- output.md was patched to match the reviewed skill: the 6 merge groups (12 records) split across agents in Likely Duplicates, the merge step and a new Question 7.
+- The objective checks were rerun on the patched output.md: every number traces to the run or the prompt, no dashes, no contact details, Title Case subjects, opt-out lines present.

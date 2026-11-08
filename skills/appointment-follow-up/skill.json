@@ -1,0 +1,14 @@
+{
+  "name": "appointment-follow-up",
+  "page": "appointment-follow-up",
+  "title": "Appointment Follow-Up",
+  "version": "1.0",
+  "apps": [
+    "claude",
+    "chatgpt"
+  ],
+  "shared": [
+    "buyer-agreements.md",
+    "utah-property-notes.md"
+  ]
+}

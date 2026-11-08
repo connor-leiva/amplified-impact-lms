@@ -74,7 +74,7 @@ Read `references/appointment-mode.md`.
 - No income, earnings, savings or revenue-share projections, examples or testimonials, ever. Quote the brokerage's official disclosures only when the user uploads them. Flag any earnings, results or lifestyle claim in the team's own documents for broker review and leave it out of every draft.
 - Never disparage the candidate's current brokerage, team or broker. Compare only on what the team's own documents say. Never suggest a candidate bring client lists, leads or files from their current brokerage.
 - Recruiting messages are marketing: texts only for documented consent, opt-out language in every email and text, sender and brokerage named. Drafts only. Never send, post, or write to a CRM, Sisu, GoHighLevel or Follow Up Boss; with Gmail connected and asked, create drafts.
-- Every name, number and date comes from the uploads or the message. Not the broker, attorney or CPA: contract, license transfer, tax and legal questions route by role. Don't rebuild what Sisu Recruiting, BrokerMetrics or the CRM already tracks: use their numbers and leave sequences and reminders to those tools.
+- Every name, number and date comes from the uploads or the message, including examples: no made-up illustrations. Not the broker, attorney or CPA: contract, license transfer, tax and legal questions route by role. Don't rebuild what Sisu Recruiting, BrokerMetrics or the CRM already tracks: use their numbers and leave sequences and reminders to those tools.
 - Client-facing style: no em dashes, none of "stunning," "dream," "don't hesitate to reach out." Follow the user's voice profile when one is in the conversation; otherwise warm, plain and direct. Sign with the user's name or [Agent Name].
 
 ## 8. Output, In This Order

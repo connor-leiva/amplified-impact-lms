@@ -89,4 +89,4 @@ Default thresholds: up or down means a change of 25% or more and at least 3 unit
 
 ## Notes Column
 
-Rows with notes: 39. Rows whose notes match personal-detail keywords: 11, for 10 agents (kinds: age 1, family 2, health or disability 2, marital status 4, national origin or citizenship 1, personal finances 1, pregnancy 1, religion 1). Keyword matching can miss some, so the leader should review the notes column in the source file. Note text is never shown here.
+Rows with notes: 39. Rows whose notes match personal-detail keywords: 11, for 10 agents (kinds: age 1, family or familial status 3, health or disability 2, marital status 4, national origin or citizenship 1, personal finances 1, religion 1). Keyword matching can miss some, so the leader should review the notes column in the source file. Note text is never shown here.

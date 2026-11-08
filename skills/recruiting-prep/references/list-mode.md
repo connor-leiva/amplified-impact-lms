@@ -56,7 +56,7 @@ Report: rows read per file, merges by rule, unique agents, possible duplicates, 
 - **Already on the team:** any merged agent who matches the uploaded roster (by MLS ID, email, phone, or name plus the team's brokerage). Leave them out of tiers, drafts and the CSV; list them.
 - **At your own brokerage, not on the roster:** keep them in tiers, mark "Hold: at your brokerage," and keep them out of drafts until the user says. Without a roster, every agent whose office is the user's brokerage is held this way.
 - **Opted out:** STOP, opted out, unsubscribed, Do Not Call, DND or similar in any consent, opt-out, tag, stage or status field. Keep them in the CSV with Outreach Tier "Do not contact" and no owner. Never draft to them.
-- **Notes:** free-text notes are never read for tiers, signals, angles or drafts and never copied into the CSV. The code counts rows whose notes match personal-detail keywords (family, pregnancy, marital status, age, health or disability, religion, national origin or citizenship, race, sexual orientation or gender identity, personal finances) and reports the count and kinds only. Keywords can miss some, so tell the user to review the column in the source.
+- **Notes:** free-text notes are never read for tiers, signals, angles or drafts and never copied into the CSV. The code counts rows whose notes match personal-detail keywords (family or familial status, including pregnancy; marital status; age; health or disability; religion; national origin or citizenship; race; sexual orientation or gender identity; personal finances) and reports the count and kinds only. Keywords can miss some, so tell the user to review the column in the source.
 
 ## Consent for Texts
 

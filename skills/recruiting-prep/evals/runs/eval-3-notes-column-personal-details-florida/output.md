@@ -1,18 +1,17 @@
 # Recruiting Prep: Pelican Example Group Pipeline
 
-**About the notes:** I tiered on production only and didn't use the Recruiter Notes column to move anyone up or down. Personal circumstances can't decide who gets recruited or how hard, so the tiers below are your A to D rules applied to closed units, nothing else.
+## Bottom Line
+
+46 opportunity rows are 44 unique agents; 2 are on DND, leaving 42 to work: 7 in A, 9 in B, 15 in C and 11 in D under your rules, on production only. Start with the 7 A agents (Avery has 3, Jordan has 4), who lean listing-side, then the 9 B agents, who lean buyer-side. Six contacts have documented text consent; everyone else gets email first.
 
 ## Flags
 
+- **About the notes:** I can't use the Recruiter Notes or anyone's personal circumstances to move people up or down, so the tiers below are your A to D rules applied to closed units and nothing else.
 - **MLS data check:** the production fields say "MLS production report, closed 11/01/2025 to 10/31/2026." Confirm your MLS rules allow using that report for recruiting and putting it into an AI tool.
-- **Notes left out:** 39 of the 46 rows have Recruiter Notes. I didn't use them for tiers, angles or drafts, and they aren't in the CSV. 11 rows (10 contacts) hold personal details: marital status, pregnancy and family, age, religion, health and national origin. Consider deleting those from GoHighLevel; they shouldn't sit in a recruiting file.
-- **Florida:** you're in Tampa and every phone number has a Florida area code, so Florida's texting rules apply on top of the federal ones (details under Check Before Sending).
+- **Notes left out:** 39 of the 46 rows have Recruiter Notes. I didn't read them into tiers, angles or drafts, and they aren't in the CSV. 11 rows (10 agents) hold personal details (kinds: marital status, family or familial status, health or disability, age, religion, national origin or citizenship, personal finances). Consider deleting those from GoHighLevel; they don't belong in a recruiting file.
+- **Florida:** you're in Tampa, so Florida's texting rules apply on top of the federal ones, and Florida presumes a call to a Florida area code reaches a Florida resident (details under Check Before Sending).
 - **No why-now signals:** this export has no prior-period production and no office history, so there's nothing in the data to show a change. Your tiers and the listing or buyer mix drive the angles.
 - **Placeholders to fill:** [Agent Name], [Title], [Agent Phone], [Unsubscribe Link], [Sender Postal Address], and [your offer for this level] in each draft (no value proposition document was uploaded).
-
-## Bottom Line
-
-46 opportunity rows are 44 unique agents; 2 are on DND, leaving 42 to work: 7 in A, 9 in B, 15 in C and 11 in D under your rules. Start with the 7 A agents (Avery has 3, Jordan has 4), who lean listing-side, then the 9 B agents, who lean buyer-side. Six contacts have documented text consent; everyone else gets email first.
 
 ## What Was Merged
 
@@ -26,7 +25,7 @@
 |---|---|---|
 | Same email | 2 | Rafe Teacuppocket (rows 10 and 44) and Rafe Tumblenoggin (rows 5 and 21) each have an open opportunity and an older lost one (created 2025-09-02) |
 
-The two older lost rows carry "Old tracker estimate, 2025" in Production Source (16 and 3 units). That's a different period and source, so I used the current rows' MLS numbers (19 and 6 units) and show the old estimates in the CSV's Self-Reported Units (Not Used) column.
+The two older lost rows carry "Old tracker estimate, 2025" in Production Source (16 and 3 units). That's a different period and source, so I used the current rows' MLS numbers (19 and 6 units) and show the old estimates in the CSV's Units Not Used (Source) column.
 
 No possible duplicates. No roster was uploaded, and no one in the file lists Seagrape Example Realty as their current brokerage.
 
@@ -90,7 +89,7 @@ Every opportunity already has an Assigned To, and the split is already close to 
 | D | 4 | 7 |
 | **Total** | **20** | **22** |
 
-If you'd rather balance D, moving 1 or 2 of Jordan's D contacts to Avery evens it out. That's your call; I haven't changed anything in GoHighLevel.
+If you'd rather even it out, moving one of Jordan's contacts to Avery does it. That's your call; I haven't changed anything in GoHighLevel.
 
 ## Angles and First-Touch Drafts
 
@@ -227,4 +226,4 @@ To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link].
 - **Quiet hours:** texts only between 8 a.m. and 8 p.m. in the recipient's local time.
 - **Email:** a working [Unsubscribe Link] (live at least 30 days), your real [Sender Postal Address], opt-outs honored within 10 business days.
 - **MLS:** your MLS rules allow this use and an AI upload.
-- **Notes cleanup:** remove the personal details from the 10 contacts' Recruiter Notes in GoHighLevel.
+- **Notes cleanup:** remove the personal details from the 10 agents' Recruiter Notes in GoHighLevel.
