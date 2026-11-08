@@ -4,7 +4,8 @@ Checks: nothing runs without a budget or a token; a practice config never calls 
 the token goes only to https://api.apify.com and is never written or printed; only the two
 fixed read-only actors can start; every run carries a positive charge cap and an item cap
 that fit the stage's share; the budget is checked before every run and an exhausted budget
-stops collection before any spend; dry runs call nothing; cleanup refuses an unsafe folder.
+stops collection before any spend; dry runs call nothing; cleanup refuses an unsafe folder;
+a redirect off api.apify.com is refused; caps round down.
 
 Usage: python evals/make/check_scripts.py   (prints PASS or FAIL per check, exits 1 on any FAIL)
 """
@@ -183,6 +184,31 @@ def main() -> int:
         check("only common.py opens network connections", net == ["common.py"], ", ".join(net))
         shell = [n for n, s in src.items() if re.search(r"subprocess|os\.system|os\.popen", s)]
         check("no script shells out", not shell, ", ".join(shell))
+
+        # 11. Redirects stay on api.apify.com (urllib copies the Authorization header onto a redirect),
+        #     and a stage cap is rounded down, never above the headroom over the reserve.
+        import email.message
+        import io
+        import urllib.request
+        import common
+        handler = common._ApifyOnlyRedirects()
+        req = urllib.request.Request("https://api.apify.com/v2/users/me/limits",
+                                     headers={"Authorization": f"Bearer {TOKEN}"})
+        try:
+            handler.redirect_request(req, io.BytesIO(), 302, "Found", email.message.Message(),
+                                     "https://evil.example.com/v2/users/me/limits")
+            refused, detail = False, "followed"
+        except common.ApifyError as e:
+            refused, detail = "REDIRECT_NOT_ALLOWED" in str(e) and TOKEN not in str(e), str(e)
+        same = handler.redirect_request(req, io.BytesIO(), 302, "Found", email.message.Message(),
+                                        "https://api.apify.com/v2/users/me/limits/")
+        check("a redirect off api.apify.com is refused before the token goes there; one within it is followed",
+              refused and same is not None and same.full_url.startswith("https://api.apify.com/"), detail)
+        check("every request goes through the redirect-guarded opener",
+              "urlopen(" not in src["common.py"] and "_OPENER.open(" in src["common.py"])
+        small = {"budget": {"monthly_budget_usd": 20, "reserve_usd": 1.0}}
+        cap = common.stage_cap(small, "watchlist", {"remaining_usd": 1.126})
+        check("a stage cap is rounded down, never above the headroom left over the reserve", cap == 0.12, f"${cap}")
     finally:
         shutil.rmtree(root, ignore_errors=True)
     failed = RESULTS.count(False)

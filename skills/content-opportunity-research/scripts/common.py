@@ -6,6 +6,7 @@ the Apify class below, so spending is checked and capped in one place.
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
 import time
@@ -117,6 +118,21 @@ class ApifyError(Exception):
     pass
 
 
+class _ApifyOnlyRedirects(urllib.request.HTTPRedirectHandler):
+    """Follow a redirect only if it stays on ALLOWED_HOST over https. urllib copies the
+    Authorization header onto a redirected request, so a redirect anywhere else could carry the token."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        parts = urllib.parse.urlsplit(newurl)
+        if parts.scheme != "https" or parts.hostname != ALLOWED_HOST:
+            raise ApifyError(f"REDIRECT_NOT_ALLOWED: api.apify.com redirected to {parts.hostname}; "
+                             "the redirect was not followed and the token was not sent there")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_OPENER = urllib.request.build_opener(_ApifyOnlyRedirects)
+
+
 class Apify:
     """Minimal Apify API client: account limits, run an actor, read its dataset."""
 
@@ -139,7 +155,7 @@ class Apify:
             "Content-Type": "application/json",
         })
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with _OPENER.open(req, timeout=timeout) as resp:
                 raw = resp.read()
         except urllib.error.HTTPError as e:
             detail = e.read()[:300].decode("utf-8", "replace")
@@ -224,7 +240,8 @@ def stage_cap(cfg, stage: str, budget: dict, runs_in_stage: int = 1) -> float:
     stage_total = float(explicit) if explicit else float(per_run) * STAGE_SHARES[stage]
     per_actor_run = stage_total / max(runs_in_stage, 1)
     headroom = max(budget["remaining_usd"] - float(b.get("reserve_usd", 1.0)), 0)
-    return round(min(per_actor_run, headroom), 2)
+    # Round down to the cent, so a cap never ends up above the stage share or the headroom.
+    return math.floor(min(per_actor_run, headroom) * 100 + 1e-9) / 100
 
 
 # ---------------------------------------------------------------- normalizing

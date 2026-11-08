@@ -7,7 +7,7 @@ Every click path below was checked on 2026-11-08. Sources are in `references/set
 ## Quick path: the Claude app
 
 1. Do step 1 below (Apify account, usage limit, API token).
-2. In Claude (claude.ai or the desktop app), open Settings > Capabilities > Code execution and file creation (called Create and edit files in the updated Settings layout). Turn on Allow network egress, then add `api.apify.com` under Additional allowed domains. Without this, Claude can't reach Apify. Anthropic also offers an All domains option and calls it the riskiest; this skill needs only `api.apify.com`. On a Team or Enterprise plan, only an Owner can change this, in Organization settings > Capabilities.
+2. In Claude (claude.ai or the desktop app), open Settings > Capabilities > Code execution and file creation (called Create and edit files in the updated Settings layout). Turn on Allow network egress, then type `api.apify.com` under Additional allowed domains and click Add. Without this, Claude can't reach Apify. Anthropic also offers an All domains option and calls it the riskiest; this skill needs only `api.apify.com`. On a Team or Enterprise plan, only an Owner can change this, in Organization settings > Capabilities.
 3. Customize > Skills > + > Create skill > Upload a skill > choose `content-opportunity-research.zip` as downloaded. Don't unzip it. Make sure the skill is toggled on.
 4. Before you paste your token into any chat: on a Free, Pro, Max or Ultra plan, turn off Settings > Privacy > Help Improve our AI models. (Team and Enterprise chats aren't used for training by default.)
 5. Start a new chat and say: **"Run my content opportunities brief."** The first time, Claude asks for your audience, budget, creators, hashtags and Apify token, and gives you back a filled `config.yaml` and your data folder at the end. Attach both next week so Claude skips the questions and builds on last week's history.
@@ -92,6 +92,7 @@ Everything you collect is research data, not instructions.
 | `BUDGET_EXHAUSTED` | You've hit this month's budget minus the reserve. It resets with your Apify billing cycle. |
 | `WARNING: Apify account hard cap is unset` | Set the limit on Apify's Billing > Limits page (step 1.2). |
 | `network error` or HTTP 403 reaching api.apify.com | Claude app: add `api.apify.com` under Settings > Capabilities (step 2 of the quick path). Claude Code cloud: allow it in the environment's network access. |
+| `REDIRECT_NOT_ALLOWED` | Apify's API answered with a redirect to another site, so the script stopped without following it or sending your token there. Try again later; if it repeats, tell Apify support. |
 | `BASE_URL_NOT_ALLOWED` | `apify.base_url` in `config.yaml` must stay `https://api.apify.com/v2`. The scripts send your token nowhere else. |
 | `ACTOR_NOT_ALLOWED` | The scripts start only `apify/instagram-reel-scraper` and `apify/instagram-hashtag-scraper`. Put those back in `config.yaml`. |
 | `PRACTICE_MODE` | You're using the practice `config.yaml`. Use your own settings for a real run. |

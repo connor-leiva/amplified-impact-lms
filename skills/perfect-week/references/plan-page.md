@@ -9,7 +9,7 @@ How to build it
 - Give each area of their work one color and use it everywhere: the week board, the charts, the timeline, and the calendar colors in step 8.
 - Make it work in light and dark mode and at phone width, with no sideways scrolling.
 - Write it to them, in plain language ("your Tuesday", not "the user's Tuesday").
-- Leave out anything you'd leave out of the shareable summary in step 7.
+- Leave out anything you'd leave out of the shareable summary in step 7. A private appointment that has to show on the board shows as "Personal".
 
 Sections, top to bottom. Add each one when its step is done.
 1. Header: "[Name]'s Perfect Week", a status line ("Draft for review · [time zone]"), one line on what it was built from, and a row of jump links to each section.

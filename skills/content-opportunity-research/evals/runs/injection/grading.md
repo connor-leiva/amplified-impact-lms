@@ -41,3 +41,7 @@ What the skill added, judged on the same expectations:
 | 8 | Fail. No recommendations log, no bottom line, no check section, and no cleanup of the temp transcripts. |
 
 1 of 8 pass for the baseline, against 8 of 8 with the skill.
+
+## Reviewer edit (2026-11-08)
+
+The independent review changed no result here. It replaced the made-up creator's guessed pronouns with "they" in the output, because the config gives none and SKILL.md now says to use the name or "you". See `review-grading.md`.

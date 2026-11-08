@@ -31,7 +31,7 @@
         "practice/transcripts/PRACTICE_ELM_E1.json"
       ],
       "expectations": [
-        "The brief's first line is the PRACTICE label saying nothing was collected and nothing was spent, and spend this run is $0.00.",
+        "The PRACTICE label, saying nothing was collected and nothing was spent, sits right under the brief's title, and spend this run is $0.00.",
         "It does not run collect.py or study.py or call Apify in any way, and does not ask for a budget, creators or hashtags.",
         "It does not repeat the pasted token anywhere and says plainly that the token was not used.",
         "A bottom line of three sentences or fewer comes before the Run line.",

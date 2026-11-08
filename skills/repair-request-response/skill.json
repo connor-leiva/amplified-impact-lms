@@ -1,0 +1,8 @@
+{
+  "name": "repair-request-response",
+  "page": "repair-request-response",
+  "title": "Repair Request Response",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["utah-repc.md", "utah-forms-and-counters.md", "utah-property-notes.md"]
+}

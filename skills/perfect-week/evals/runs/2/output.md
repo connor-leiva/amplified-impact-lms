@@ -10,7 +10,7 @@ Files the run produced: `plan-page.html` (plan page, sent as a file) and `summar
 
 ---
 
-**Bottom line:** It doesn't fit as it stands. Your task list needs 75.5 hours by Nov 20 and your working hours give 44 hours of focus blocks, a 31.5-hour gap, and I haven't put any of it in your evenings, Saturdays or Sundays. If Jamie agrees to move or shrink four items (35 hours), everything else fits except 1.75 hours in the week of Nov 9, which is your call.
+**Bottom line:** It doesn't fit as it stands. Your task list needs 76.5 hours by Nov 20 and your working hours give 44 hours of focus blocks, a 32.5-hour gap, and I haven't put any of it in your evenings, Saturdays or Sundays. If Jamie agrees to move or shrink four items (35 hours) and you close one task that's the transactions team's job, everything else fits except 1.75 hours in the week of Nov 9, which is your call.
 
 Plan page: **Taylor's Perfect Week** (`plan-page.html`, attached). Summary for Jamie: `summary.pdf`, attached. Nothing was connected and nothing was changed.
 
@@ -21,7 +21,7 @@ Plan page: **Taylor's Perfect Week** (`plan-page.html`, attached). Summary for J
 - **Your own blocks, left alone:** Showings for the Brightwater buyers (Sat Nov 14, 10:00 to 1:00, inside your Saturday window), Listing appointment at 7 Sampleview Terrace (Wed Nov 18, 4:00 to 5:00), and your coaching practices (Tue and Thu evenings).
 - **After hours:** the Nov 9 listing appointment ends at 6:30 pm Eastern. It shows as 4:30 in your Central calendar, which may be how it got booked. It has your client on it, so it stays unless you move it with them.
 - **Contract deadlines posted by your transactions team:** Due Diligence Deadline (Mon Nov 16) and Settlement Deadline (Fri Nov 20), 41 Fiction Avenue. For planning only; confirm dates with your transactions team.
-- **Tasks:** 19 open tasks of yours due by Nov 20, 1 of them overdue (expense catch-up, due Nov 2). Two repeat: prospecting calls every weekday (10 sessions) and seller updates every Friday (2). I left out Jamie's task (the holiday card proof) and a note row. One more task is due after your end date: **CE, 6 hours, due Nov 30.** It isn't in the count, but it will land in Thanksgiving week unless you plan for it.
+- **Tasks:** 18 open tasks of yours due by Nov 20, 1 of them overdue (expense catch-up, due Nov 2). Two repeat: prospecting calls every weekday (10 sessions) and seller updates every Friday (2). I left out Jamie's task (the holiday card proof) and a note row. One more task is due after your end date: **CE, 6 hours, due Nov 30.** It isn't in the count, but it will land in Thanksgiving week unless you plan for it.
 
 ## Your Week (Step 3)
 
@@ -43,23 +43,23 @@ That's 40 hours, your full week. **One trade-off to know about:** I left 3 hours
 
 ## Task Check (Step 4)
 
-**It doesn't fit.** 75.5 hours of task work due by Nov 20 (your estimates) against 44 hours of focus blocks (20.5 the week of Nov 9, which loses time to the inspection and the CE class, and 23.5 the week of Nov 16).
+**It doesn't fit.** 76.5 hours of task work due by Nov 20 (your estimates, counting each prospecting session and Friday seller update) against 44 hours of focus blocks (20.5 the week of Nov 9, which loses time to the inspection and the CE class, and 23.5 the week of Nov 16).
 
 | Week | Due that week, before fixes | Your work as placed, after fixes | Focus-block hours |
 |---|---|---|---|
 | Nov 9 | 21.5 h | 22.25 h (1.75 h with no block) | 20.5 h |
-| Nov 16 | 54 h | 18.25 h | 23.5 h |
+| Nov 16 | 55 h | 18.25 h | 23.5 h |
 
-The week of Nov 16 is where it breaks: 54 hours come due, including 16 for blog posts, 10 for the database cleanup, 8 for the listing presentation, 5 for the pie pickup and 4 for reels.
+The week of Nov 16 is where it breaks: 55 hours come due, including 16 for blog posts, 10 for the database cleanup, 8 for the listing presentation, 5 for the pie pickup and 4 for reels.
 
 **The moves that close it** (you and Jamie decide; I haven't changed anything in Todoist):
 1. **Re-date or re-scope four items with Jamie** (35 hours): the 8 blog posts (16 h), the database cleanup (10 h), the pie pickup planning (5 h) and the 4 reels (4 h).
-2. **Close the deadline-tracking spreadsheet task.** Your transactions team posts and owns those dates, so tracking them yourself is their job done twice.
+2. **Close the deadline-tracking spreadsheet task** (1 hour). Your transactions team posts and owns those dates, so tracking them yourself is their job done twice.
 3. **Week of Nov 9 only:** Tuesday, Thursday and Friday's admin blocks become client work (2.5 hours), and the overdue expense catch-up moves to the week of Nov 16's admin blocks (3 hours, which fits exactly).
 4. **Keep the listing presentation rebuild.** It fits in the week of Nov 16's client blocks (Nov 16 to Nov 19) before its Nov 19 due date.
 5. **The last 1.75 hours, week of Nov 9:** 30 minutes of CRM notes (due Monday), 45 minutes of Friday's seller updates and 30 minutes of Friday's calls, all squeezed by the CE class. Your options, all inside your hours: use 1.75 of that week's 2 hours of open time, send Friday's seller updates Monday morning instead, or skip Friday's half call session. **Evenings, Saturdays and Sundays stay off either way.**
 
-After those moves: 40.5 hours of work. The week of Nov 9 is 1.75 hours short; the week of Nov 16 has 5.25 hours left over (2.25 of client work, 3 of marketing). If Jamie says the reels can be 3 instead of 4, those 3 marketing hours cover them.
+After those moves: 40.5 hours of work (76.5 less 35 re-dated and 1 closed). The week of Nov 9 is 1.75 hours short; the week of Nov 16 has 5.25 hours left over (2.25 of client work, 3 of marketing). If Jamie says the reels can be 3 instead of 4, those 3 marketing hours cover them.
 
 | Task | Due | Hours | Action | Where it lands |
 |---|---|---|---|---|
@@ -100,11 +100,11 @@ You have no one to hand work to, so this is the list to take to Jamie:
 
 ## Summary for Jamie (Step 7)
 
-Attached: `summary.pdf`, "Taylor's Two Weeks: What Fits and What Needs a New Date": the week board, hours by area, the numbers and the asks. It leaves out your evening coaching, family time and client details. The text:
+Attached: `summary.pdf`, "Taylor's Two Weeks: What Fits and What Needs a New Date": the week board, hours by area, the numbers and the asks. It leaves out your evenings, Sundays and client details. The text:
 
 > **Taylor's Two Weeks: What Fits and What Needs a New Date**
 >
-> I mapped Nov 9 to Nov 20 inside my 9:00 to 5:00 days. My task list has 75.5 hours due by Nov 20; my week has 44 hours of focus time once meetings, the inspection, the CE class and the closing are in. That's 31.5 hours more than fits. I'm keeping evenings and Sundays off.
+> I mapped Nov 9 to Nov 20 inside my 9:00 to 5:00 days. My task list has 76.5 hours due by Nov 20; my week has 44 hours of focus time once meetings, the inspection, the CE class and the closing are in. That's 32.5 hours more than fits. I'm keeping evenings and Sundays off.
 >
 > **What fits:** prospecting every day (5 hours a week), every listing and buyer deadline, the listing videos, the market update email, the expense catch-up and the listing presentation rebuild.
 >
@@ -120,7 +120,7 @@ Attached: `summary.pdf`, "Taylor's Two Weeks: What Fits and What Needs a New Dat
 ### Check before sending
 
 - Dates: Nov 9 to Nov 20; blog posts, database cleanup and pie pickup due Nov 20; reels due Nov 19; CE due Nov 30; CE class Fri Nov 13.
-- Hour totals: 75.5 hours due; 44 hours of focus time; 31.5 over; 16, 10, 5 and 4 hours for the four items (35 together); 1.75 hours short the week of Nov 9; 5 hours of prospecting a week; 6 hours of CE.
+- Hour totals: 76.5 hours due; 44 hours of focus time; 32.5 over; 16, 10, 5 and 4 hours for the four items (35 together); 1.75 hours short the week of Nov 9; 5 hours of prospecting a week; 6 hours of CE.
 - Counts: 8 blog posts, 400 contacts, 4 reels.
 - Names: Jamie.
 - The asks: four, plus the note on Nov 9 and CE. If you've already decided how to cover the 1.75 hours, update item 5 before sending.

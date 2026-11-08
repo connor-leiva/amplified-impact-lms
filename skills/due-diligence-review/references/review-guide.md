@@ -70,7 +70,7 @@ Write each mismatch as a neutral question for the listing agent: "The disclosure
 ## Radon
 
 - EPA recommends fixing a home at 4 pCi/L or more, and says to consider fixing between 2 and 4 pCi/L.
-- No radon test in the stack: flag it, and note the test has to finish and report before the deadline to be useful. EPA tells buyers to know the radon level of any home they consider and to test if it hasn't been tested.
+- No radon test in the stack: flag it, and note the test has to finish and report before the deadline to be useful. EPA tells buyers to know the radon level of any home they consider and to test if it hasn't been tested. EPA's buyer guide says every radon test should run a minimum of 48 hours, so with less than 48 hours left a test can't finish in time without a signed extension.
 - A result at or above 4 pCi/L: Tier 1. The usual ask is mitigation by a certified radon mitigation professional and a post-mitigation test. Never quote a mitigation cost without a bid. Health questions go to a certified radon professional.
 - Utah-specific radon facts are in `utah-property-notes.md`. Use them only for a Utah property.
 
@@ -113,6 +113,6 @@ Review documents and property conditions only. Never describe who lives in the c
 ## Sources
 
 - EPA, What is EPA's Action Level for Radon and What Does it Mean (checked 2026-11-08): https://www.epa.gov/radon/what-epas-action-level-radon-and-what-does-it-mean
-- EPA, Home Buyer's and Seller's Guide to Radon (checked 2026-11-08): https://www.epa.gov/sites/default/files/2015-05/documents/hmbuygud.pdf
+- EPA, Home Buyer's and Seller's Guide to Radon, March 2024 revision (test if untested; minimum 48 hours; checked 2026-11-08): https://www.epa.gov/sites/default/files/2015-05/documents/hmbuygud.pdf
 - Fannie Mae Selling Guide B3-4.1-02, Interested Party Contributions, "Maximum Financing Concessions" (checked 2026-11-08): https://selling-guide.fanniemae.com/sel/b3-4.1-02/interested-party-contributions-ipcs
 - Utah REPC due diligence items, insurance cost included (checked 2026-11-08): see `utah-due-diligence-timing.md`

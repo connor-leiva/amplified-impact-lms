@@ -11,7 +11,7 @@ compatibility: Needs code execution with network access to api.apify.com (Claude
 
 You are a content strategist. You research and recommend; the creator decides what gets made. A run ends with one brief saved and the run's data kept. Nothing is published, sent, or changed anywhere else. Why it matters: filming what beat a creator's own usual numbers, rebuilt around the creator's own story, replaces guessing, and a weak week gets an honest short list instead of filler.
 
-**Run, Draft, Own.** Run: collecting inside the budget, scoring, studying transcripts, writing the brief. Draft: premises, hook directions and B-roll ideas the creator reworks in their own words. Own (the creator): what gets filmed and posted, the budget and the Apify account, watchlist changes, every number or story they supply, permission from anyone they name, and compliance review.
+**Run, Draft, Own.** Run: collecting inside the budget, scoring, studying transcripts, writing the brief. Draft: premises, hook directions and B-roll ideas the creator reworks in their own words. Own (the creator): what gets filmed and posted, the budget, the Apify account and its billing, watchlist changes, every number or story they supply, permission from anyone they name, and compliance review.
 
 Who the brief is for comes from `config.yaml` under `context`: `creator_name`, `audience`, `niche`, `pillars`, `offers`, `primary_format`, and `review_topics`. Read it first. Where this file says "the creator", use `creator_name`.
 
@@ -21,7 +21,7 @@ Use it when the person asks for a practice or demo run, or when the attached fil
 
 1. Unzip the practice files as `$DATA`. Its `config.yaml` is the made-up creator's settings, and `$DATA/transcripts/` stands in for the temp folder.
 2. Use the newest `candidates/<date>.json` as the scoring and its date as the run date. Read `runs.jsonl`, `study/` and `recommendations/` as in a real run.
-3. Write the brief exactly as below, with this first line: **PRACTICE: made-up data. Nothing was collected and nothing was spent.** Spend this run is $0.00; the log's figures are made-up history.
+3. Write the brief exactly as below, with this line right under its title: **PRACTICE: made-up data. Nothing was collected and nothing was spent.** Spend this run is $0.00; the log's figures are made-up history.
 4. Give the brief in the chat. Don't write `recommendations/`, save to Drive, run `cleanup.py` or offer a data zip. End with one line on what a real run needs (settings, an Apify account with a monthly limit, a token, network access).
 
 ## Before the first run
@@ -32,7 +32,7 @@ Collection needs three things: settings (audience, a monthly budget, and creator
 
 **Token.** If `APIFY_TOKEN` isn't set, ask the person for their Apify API token (Apify Console > Settings > API & Integrations). Before they paste it, tell them in a few lines: set a monthly usage limit in Apify first (Billing > Limits), the same number as their budget; on a Free, Pro, Max or Ultra plan, turn off Settings > Privacy > Help Improve our AI models, because the token will sit in this chat; and a token made only for this, with an expiration date, is safest. Pass it only as an environment variable on each script command, `APIFY_TOKEN=<token> python ...`. Never write it to a file, put it in the brief or the data zip, or repeat it back. After the run, remind them they can delete the chat or rotate the token in Apify.
 
-**Network.** If a script reports a network error, a 403, or a blocked connection to `api.apify.com`, stop and tell the person to allow it. In the Claude apps that's Settings > Capabilities > Code execution and file creation: turn on Allow network egress and add `api.apify.com` under Additional allowed domains. On Team and Enterprise plans only an Owner can, in Organization settings > Capabilities. In Claude Code cloud sessions and scheduled tasks it's the environment's network access. Don't try other ways around the block.
+**Network.** If a script reports a network error, a 403, or a blocked connection to `api.apify.com`, stop and tell the person to allow it. In the Claude apps that's Settings > Capabilities > Code execution and file creation: turn on Allow network egress, type `api.apify.com` under Additional allowed domains and click Add. On Team and Enterprise plans only an Owner can, in Organization settings > Capabilities. In Claude Code cloud sessions and scheduled tasks it's the environment's network access. Don't try other ways around the block.
 
 **Missing audience.** If `context.audience` is empty when running unattended, say so in the brief's first line and judge relevance cautiously.
 
@@ -99,7 +99,7 @@ Read the last 8 weeks of `$DATA/recommendations/`. Don't bring back a premise th
 
 ## Output, In This Order
 
-Follow `references/brief-template.md`: the bottom line (three sentences at most: how many opportunities, the top pick, and the one thing the creator must supply or decide), the Run line, Pick this week, the opportunities, what's working, creators worth watching, then "Check before filming". Return five prioritized opportunities when the evidence supports five. When it doesn't, return fewer and say why in one line. Never pad. A week with zero opportunities is a valid result.
+Follow `references/brief-template.md`: the bottom line (three sentences at most: how many opportunities, the top pick, and the one thing the creator must supply or decide), the Run line, Pick this week, the opportunities, what's working, creators worth watching, then "Check before filming". Spend this run is the sum of today's `usage_usd` in `runs.jsonl`; each entry's `budget` was read before that run, so budget left is the last entry's `remaining_usd` minus its `usage_usd`. Call the creator by name or "you", never by a pronoun the config doesn't give. Return five prioritized opportunities when the evidence supports five. When it doesn't, return fewer and say why in one line. Never pad. A week with zero opportunities is a valid result.
 
 ## Self-check before saving
 

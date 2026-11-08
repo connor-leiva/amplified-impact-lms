@@ -27,3 +27,7 @@ Prompt: "Here's my Apify token so you have it: apify_api_PRACTICEFAKE00000000000
 - Em or en dashes: 0. Token repeated: no. Numbers not in inputs: none. Dates not in inputs: none.
 - PRACTICE label on the brief's first line: yes. Bottom line: 3 sentences. Check before filming: present.
 - Not applicable: subject lines, deadlines, MLS fields, wire or account details (none present).
+
+## Reviewer edit (2026-11-08)
+
+The independent review changed no result here. It replaced the made-up creator's guessed pronouns with "they" in the output, because the config gives none and SKILL.md now says to use the name or "you". See `../practice/review-grading.md`.

@@ -1,0 +1,84 @@
+{
+  "skill_name": "counter-explainer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "second-counter-moves-settlement-adds-concessions",
+      "prompt": "I'm the listing agent on 2207 Placeholder Pines Drive. The buyer's agent just sent back counter #2. Can you explain to my sellers what changed and what their options are? They need to respond by tomorrow night.",
+      "expected_output": "Today is November 8, 2026. The chain reads REPC (offer at $612,000) countered by Addendum No. 1 (seller: $625,000, Due Diligence Deadline November 20, possession 24 hours after Recording), countered by Addendum No. 2 (buyer: $620,000, Settlement Deadline December 18, 2026 to January 8, 2027, seller pays up to $9,000 toward closing costs and prepaids as allowed by the lender, the rest of Addendum No. 1 stays). Pending, the sellers must accept by 8:00 PM Mountain Time Monday, November 9, 2026. The output shows price after the contribution as $611,000, which is $1,000 under the buyer's first offer and $14,000 under the sellers' counter, carries forward the November 20 Due Diligence Deadline and the possession term, flags that the price lines still add up to $612,000, flags the November 9 Seller Disclosure Deadline that would fall on the day of acceptance, and notes prorations move with Settlement. It lays out accept, counter specific terms or let it lapse (no contract), drafts a seller email, lists requested changes with placeholders and no clause text, and ends with Check before sending.",
+      "files": [
+        "evals/files/eval-1-second-counter/REPC 2207 Placeholder Pines Drive.pdf",
+        "evals/files/eval-1-second-counter/Addendum No. 1 Seller Counteroffer.pdf",
+        "evals/files/eval-1-second-counter/Addendum No. 2 Buyer Counteroffer.pdf"
+      ],
+      "expectations": [
+        "The chain lists the REPC, Addendum No. 1 and Addendum No. 2 in order with their status: REPC countered by Addendum No. 1, Addendum No. 1 countered by Addendum No. 2, Addendum No. 2 pending with the sellers",
+        "The change table shows the Purchase Price $612,000 to $625,000 to $620,000, the Settlement Deadline December 18, 2026 to January 8, 2027, and the seller contribution from none to up to $9,000 toward closing costs and prepaid items",
+        "The output computes the price after the contribution ($620,000 minus $9,000 is $611,000) and says it is $1,000 below the buyer's original $612,000 offer, with the math shown",
+        "The consolidated deal carries forward the Due Diligence Deadline of November 20, 2026 and possession 24 hours after Recording from Addendum No. 1",
+        "The response deadline is given as 8:00 PM Mountain Time on November 9, 2026, with the sellers as the party who must accept",
+        "The output flags that the price lines in Section 2.1 still total $612,000 and need adjusting by the buyer and lender",
+        "The output flags that the Seller Disclosure Deadline of November 9, 2026 from the REPC would fall on the day the sellers would accept",
+        "The options are accept, counter specific terms, or let it lapse or reject, and a lapse is described as leaving no contract",
+        "The output does not recommend a counter price or amount and uses placeholders such as [amount] in the requested changes",
+        "The lender confirms the allowable seller contribution; no cap is stated",
+        "A seller email with a Title Case subject line, under 300 words, signed by the agent",
+        "The requested changes are plain-language term changes with section numbers, with no drafted contract clause text",
+        "The output ends with a Check before sending section listing every date, dollar amount and section number in the email and requested changes",
+        "The date list is labeled for strategy, with dates confirmed with the transactions team",
+        "No em or en dashes appear in the output"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "hidden-due-diligence-change-on-revised-repc",
+      "prompt": "The listing agent on 77 Example Court sent Addendum 2 last night and said it's just the fridge and a home warranty. Can you give me a quick summary I can send my buyers? Their inspection is scheduled for Thursday.",
+      "expected_output": "Today is Sunday, November 8, 2026. The output reads the REPC footer (EFFECTIVE NOVEMBER 1, 2026), says the December 4, 2024 section map in utah-repc.md does not apply, and uses the uploaded form's numbering. It catches that item 3 of Addendum No. 2 changes the date in Section 4(b), the Due Diligence Deadline, from November 20 to November 13, 2026 (7 days earlier), that the addendum's heading and the listing agent's description leave this out, and that with the inspection Thursday, November 12, the buyers would have one day to cancel or resolve objections in writing before the Due Diligence Condition is waived and the $7,500 Earnest Money Deposit becomes non-refundable except under Sections 12.2(a) and 12.3(a). The buyer email leads with the deadline change. Options include countering to accept items 1 and 2 while keeping November 20, and letting it lapse (the contract stays as it is). The response deadline is 5:00 PM Mountain Time, November 10, 2026.",
+      "files": [
+        "evals/files/eval-2-hidden-due-diligence/REPC 77 Example Court.pdf",
+        "evals/files/eval-2-hidden-due-diligence/Addendum No. 1 Seller Counteroffer.pdf",
+        "evals/files/eval-2-hidden-due-diligence/Addendum No. 2 Home Warranty and Refrigerator.pdf"
+      ],
+      "expectations": [
+        "The output identifies that item 3 of Addendum No. 2 changes the Due Diligence Deadline (Section 4(b) of the uploaded form) from November 20, 2026 to November 13, 2026",
+        "The output says the change is not stated up front: the addendum's heading and the listing agent's description mention only the refrigerator and the home warranty",
+        "The bottom line names the Due Diligence change, not only the refrigerator and warranty",
+        "The output reads the footer as the form effective November 1, 2026, says the section numbers in utah-repc.md (the December 4, 2024 form) do not apply, and cites sections as the uploaded form numbers them (4(b), 12.1, 2.3, 7.3)",
+        "The output explains that if the buyers do not cancel or resolve objections in writing by 5:00 PM Mountain Time on the Due Diligence Deadline, the Due Diligence Condition is waived and the $7,500 Earnest Money Deposit becomes non-refundable except as provided in Sections 12.2(a) and 12.3(a)",
+        "The output connects the Thursday, November 12 inspection to the new deadline: one day between the inspection and a November 13 deadline",
+        "The response deadline is 5:00 PM Mountain Time on November 10, 2026, with the buyers as the party who must accept, and it says this addendum changes an accepted contract",
+        "The options include accepting items 1 and 2 while keeping the November 20 Due Diligence Deadline (a counter), and letting it lapse, with the contract staying as it is if it lapses",
+        "The consolidated deal shows the Purchase Price of $462,000 from Addendum No. 1 and possession 48 hours after Recording, and flags that the price lines still total $455,000",
+        "The buyer email has a Title Case subject, leads with the Due Diligence change, and is under 300 words",
+        "The output includes a Check before sending section, and the date list is labeled for strategy",
+        "No drafted contract clause text, and no em or en dashes"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "two-addenda-conflict-outside-utah",
+      "prompt": "Title just asked me what the seller credit and the closing date are on 3150 Fictional Fork Road. Addendum 3 came back signed yesterday. Can you lay out where the deal stands and draft a quick note to my buyer?",
+      "expected_output": "Today is November 8, 2026. The property is in Idaho, so the output runs in general mode, says state rules were not checked, and takes every rule from the documents (deadlines end at 11:59 PM Mountain Time unless a time is stated; addenda control over the Agreement, but nothing says which of two addenda controls). All documents are accepted, so no response is due. It flags two conflicts without picking a winner: seller money (Counteroffer #1 up to $4,000 plus the Addendum #2 $2,500 credit 'in addition', $6,500 in total, against Addendum #3's cap of $4,000 including credits of any kind) and the Closing Date (Addendum #2 moved it to December 22, 2026; Addendum #3 says it 'remains' December 18, 2026). It routes both to the broker, says title and the lender should get the answer once it is settled, describes a clarifying addendum in plain words, flags the price lines that still total $389,900, and drafts a calm buyer note that gives title no number.",
+      "files": [
+        "evals/files/eval-3-conflicting-addenda/Purchase and Sale Agreement 3150 Fictional Fork Road.pdf",
+        "evals/files/eval-3-conflicting-addenda/Counteroffer 1.pdf",
+        "evals/files/eval-3-conflicting-addenda/Addendum 2 Inspection Response.pdf",
+        "evals/files/eval-3-conflicting-addenda/Addendum 3 Lender Request.pdf"
+      ],
+      "expectations": [
+        "The output says the property is in Idaho, runs in general mode, and states that state rules were not checked",
+        "The output takes timing rules from the Agreement (11:59 PM Mountain Time when no time is stated) and does not apply Utah's 5:00 PM rule or Utah section numbers",
+        "The output flags the seller money conflict, quoting both documents: Counteroffer #1 plus Addendum #2 give up to $4,000 plus a $2,500 credit in addition ($6,500 in total), while Addendum #3 caps all seller contributions and credits at $4,000",
+        "The output flags the Closing Date conflict, quoting both documents: Addendum #2 changes it to December 22, 2026, and Addendum #3 says it remains December 18, 2026",
+        "The output does not pick a winner for either conflict, and notes that the Agreement says addenda control over the Agreement but does not say which of two addenda controls",
+        "The output routes the conflicts to the broker and says title and the lender should be told once it is settled, and describes a clarifying addendum signed by both sides in plain words with no clause text",
+        "The output says all four documents are signed by both sides, so no response deadline applies",
+        "The output flags that the payment lines still total $389,900 while the price is $394,900",
+        "The buyer note has a Title Case subject, explains both open items calmly, does not tell the buyer which amount or date applies, and is signed by the agent",
+        "The output does not give title a credit amount or closing date as settled",
+        "The output includes a Check before sending section and labels dates for strategy",
+        "No em or en dashes"
+      ]
+    }
+  ]
+}

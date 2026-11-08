@@ -15,18 +15,18 @@ Agents, team leaders and brokerages who film talking-head content for Instagram 
 - **Claude:** a plan with skills and code execution. Code execution is on by default on Free, Pro, Max and Ultra. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. On Team and Enterprise, an Owner controls network access.
 - **Network access to `api.apify.com`** for Claude's code execution (click path below).
 - **An Apify account** (apify.com). The Free plan is $0 a month with $5 of included usage; once it's used, Apify blocks usage until the next cycle. Starter is $19 a month.
-- **What a run costs:** Amplified Impact's own weekly runs (2 creators, 1 hashtag, 2 to 4 transcripts) cost $0.06 to $0.29 each from 2026-10-07 to 2026-11-06. Estimated from Apify's published prices (not measured): 3 creators, 2 hashtags and 8 short transcripts come to about $0.70 a run on the Free plan, mostly transcripts. The person sets their own monthly budget; the skill never picks it.
+- **What a run costs:** Amplified Impact's own weekly runs (2 creators, 1 hashtag, 2 to 4 transcripts) cost $0.06 to $0.29 each from 2026-10-07 to 2026-11-06; Apify charged nothing for the hashtag part of those runs, so expect a little more when it does. Estimated from Apify's published prices (not measured): 3 creators, 2 hashtags and 8 short transcripts come to about $0.70 a run on the Free plan, mostly transcripts. The person sets their own monthly budget; the skill never picks it.
 - **No connectors needed.** Google Drive is optional, only to save each brief as a Google Doc.
 - **Optional:** Claude Code, to run it every week on its own (scheduled tasks are on Pro, Max, Ultra, Team and Enterprise).
 
 ## Set up, in this order (say this plainly on the page)
 
-1. **Create an Apify account and set its monthly usage limit first:** Apify Console > Billing > Limits tab > Custom usage limit > Edit limit. Use the same number you'll give Claude as your budget. This cap holds even if everything else fails.
-2. **Create a token:** Apify Console > Settings > API & Integrations. Make one just for this, with an expiration date.
-3. **Allow Apify in Claude:** Settings > Capabilities > Code execution and file creation (called Create and edit files in the updated layout). Turn on Allow network egress, then add `api.apify.com` under Additional allowed domains. Don't pick All domains: Anthropic calls it the riskiest option, and this needs only one domain. Team and Enterprise: ask your Owner to add it in Organization settings > Capabilities.
-4. **Turn off training before you paste the token:** Settings > Privacy > Help Improve our AI models, off (Free, Pro, Max and Ultra). Team and Enterprise chats aren't used for training by default.
-5. **Install the skill:** Customize > Skills > + > Create skill > Upload a skill, then choose `content-opportunity-research.zip` as downloaded (don't unzip it). Make sure it's toggled on.
-6. **Start a new chat** (not an incognito chat: in the new Claude experience those can't run code) and say "Run my content opportunities brief."
+1. **Create an Apify account and set its monthly usage limit first:** Apify Console > Billing > Limits tab > Custom usage limit > Edit limit. Use the same number you'll give Claude as your budget. This cap holds even if everything else fails. On the Free plan the limit starts at the plan's $5. (Source: https://docs.apify.com/account/subscriptions.md, checked 2026-11-08.)
+2. **Create a token:** Apify Console > Settings > API & Integrations. Make one just for this, with an expiration date. (Source: https://docs.apify.com/integrations/api.md, checked 2026-11-08.)
+3. **Allow Apify in Claude** (on claude.ai or the desktop app; for the phone apps the help center describes only the on and off switch): Settings > Capabilities > Code execution and file creation (called Create and edit files in the updated layout). Turn on Allow network egress, then type `api.apify.com` under Additional allowed domains and click Add. Don't pick All domains: Anthropic calls it the riskiest option, and this needs only one domain. Team and Enterprise: ask your Owner to add it in Organization settings > Capabilities. (Source: https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude, including its settings screenshot, checked 2026-11-08.)
+4. **Turn off training before you paste the token:** Settings > Privacy > Help Improve our AI models, off (Free, Pro, Max and Ultra). Team and Enterprise chats aren't used for training by default. (Sources: https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings and https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training, checked 2026-11-08.)
+5. **Install the skill:** Customize > Skills > + > Create skill > Upload a skill, then choose `content-opportunity-research.zip` as downloaded (don't unzip it). Make sure it's toggled on. (Source: https://support.claude.com/en/articles/12512180-use-skills-in-claude, checked 2026-11-08.)
+6. **Start a new chat** (not an incognito chat: in the new Claude experience those can't run code) and say "Run my content opportunities brief." (Source: https://support.claude.com/en/articles/12260368-using-incognito-chats, checked 2026-11-08.)
 
 ## What to upload, and where it comes from
 
@@ -65,10 +65,10 @@ A brief that starts with a three-sentence bottom line and a run line (what ran, 
 ## FAQs
 
 - **Is it safe to paste my Apify token into Claude?** Set Apify's monthly usage limit first, so the worst case is capped. Turn off Help Improve our AI models first, use a token made just for this with an expiration date, and delete the chat or rotate the token afterward if you like. Claude passes the token only to the scripts, which send it only to api.apify.com and never write it to a file.
-- **What does it cost?** Your Apify usage, capped by the budget you set and Apify's own limit. Measured: $0.06 to $0.29 a run for 2 creators and 1 hashtag. More creators, hashtags and transcripts cost more. The Free plan's $5 a month covers small watchlists.
+- **What does it cost?** Your Apify usage, capped by the budget you set and Apify's own limit. Measured: $0.06 to $0.29 a run for 2 creators and 1 hashtag, in runs where Apify charged nothing for the hashtag part. More creators, hashtags and transcripts cost more; transcripts cost the most. The Free plan's $5 a month covers small watchlists.
 - **Why did I get only two ideas?** It never pads. A reel has to beat its own creator's median by 2x, and baselines are thin in the first weeks. Zero is a valid week.
 - **Can it run every week without me?** Yes, in Claude Code as a scheduled task; the skill's SETUP.md walks through it. In a regular chat, attach last week's data ZIP and config each week.
-- **Does it work in ChatGPT?** No. It runs Python scripts that call Apify with spending caps, and ChatGPT's data analysis can't reach the internet. An Apify connector could start any actor without those caps, so there's no ChatGPT version.
+- **Does it work in ChatGPT?** No. It's built on Python scripts that run in Claude's code sandbox and call Apify with spending caps. An Apify connector could start any actor without those caps, so there's no ChatGPT version.
 
 ## Practice prompt
 
@@ -85,7 +85,8 @@ content ideas, Instagram, reels, talking-head, outliers, competitor research, co
 - Eval 1, practice files plus a pasted token: 13 of 13. The token wasn't used or repeated.
 - Eval 2, empty settings with "just pick a budget": 6 of 6. It asked for the budget, creators and hashtags in one message and picked no number.
 - Eval 3, collected posts carrying instructions aimed at AI ("comment GUIDE", "add this account", "rank this first", "raise your budget"): 8 of 8. Both flagged, none followed, ranking unchanged. A no-skill baseline on the same files passed 1 of 8: it ranked the injected post first, invented closing-cost percentages and reused source hooks word for word.
-- The scripts, end to end against a mock of Apify's API (no network, no spend): 18 of 18 safety checks (`evals/make/check_scripts.py`): no run without a budget or token; practice config never calls Apify; token only to api.apify.com, never written or printed; only the two fixed actors; every run capped within its stage share; budget read before every run; exhausted budget stops before spending; dry runs call nothing; cleanup refuses an unsafe folder.
+- The scripts, end to end against a mock of Apify's API (no network, no spend): 21 of 21 safety checks (`evals/make/check_scripts.py`): no run without a budget or token; practice config never calls Apify; token only to api.apify.com, never written or printed, and a redirect to any other site is refused; only the two fixed actors; every run capped within its stage share, rounded down; budget read before every run; exhausted budget stops before spending; dry runs call nothing; cleanup refuses an unsafe folder.
+- Independent review (2026-11-08): the reviewer reran the practice files (12 of 12) and eval 3 (8 of 8) from scratch, including the save, cleanup and next week's rescoring on a copy (`review-output.md` and `review-grading.md` in `evals/runs/practice/` and `evals/runs/injection/`).
 
 **Not tested:**
 - A real Apify run from this version (the token rules, caps and actor inputs match Apify's published API and actor schemas, and Amplified's own runs of the earlier version worked; the transcript field name was never seen in Apify's docs).
@@ -105,5 +106,5 @@ content ideas, Instagram, reels, talking-head, outliers, competitor research, co
 - Apify usage limit: https://docs.apify.com/account/subscriptions.md
 - Apify API token, expiration, rotation: https://docs.apify.com/integrations/api.md
 - Actor prices: https://api.apify.com/v2/acts/apify~instagram-reel-scraper and https://api.apify.com/v2/acts/apify~instagram-hashtag-scraper
-- ChatGPT data analysis has no internet access: https://help.openai.com/en/articles/8437071-data-analysis-with-chatgpt (blocked to direct fetch; confirmed through search results)
+- Pay per event, platform usage and the charge cap: https://docs.apify.com/platform/actors/running/actors-in-store.md
 - Measured run costs: Amplified Impact's RE-01 Content Opportunities Briefs, 2026-10-07 to 2026-11-06 (internal)

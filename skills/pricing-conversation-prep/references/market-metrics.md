@@ -34,7 +34,7 @@ If the export shows seller concessions, count how many solds had them and show e
 
 ## Price Cuts Among Actives
 
-If the CMA shows original and current list prices, count how many actives have cut their price and by how much. Several cuts in the competitive set are a strong, neutral signal ("2 of the 3 homes you're competing with have already reduced").
+If the CMA shows original and current list prices, count how many actives have cut their price and by how much. An export with only the original and current price doesn't say when a cut happened or how many there were: never guess the timing. Several cuts in the competitive set are a strong, neutral signal ("2 of the 3 homes you're competing with have already reduced").
 
 ## Expired and Withdrawn Listings
 

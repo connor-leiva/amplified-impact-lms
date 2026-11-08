@@ -37,7 +37,7 @@ Download the practice files from the skill's page, attach the ZIP in a new chat,
 ## Quick start: Claude app
 
 1. Create an Apify account, set a monthly usage limit (Apify Console > Billing > Limits), and create an API token (Settings > API & Integrations), ideally one just for this with an expiration date.
-2. In Claude: Settings > Capabilities > Code execution and file creation. Turn on Allow network egress and add `api.apify.com` under Additional allowed domains. On a Team or Enterprise plan, ask your Owner to add it.
+2. In Claude: Settings > Capabilities > Code execution and file creation. Turn on Allow network egress, type `api.apify.com` under Additional allowed domains and click Add. On a Team or Enterprise plan, ask your Owner to add it.
 3. Customize > Skills > + > Create skill > Upload a skill > choose this zip as downloaded (don't unzip it).
 4. Before you paste your token into a chat, turn off Settings > Privacy > Help Improve our AI models (Free, Pro, Max and Ultra plans).
 5. New chat: **"Run my content opportunities brief."** Claude asks for your niche, creators, hashtags, budget and token the first time.

@@ -35,3 +35,7 @@ Graded against eval 1's expectations, minus the two about a pasted token.
 
 - Borrowed phrase in opportunity 1's argument summary, rephrased (expectation 12). Rerun: pass.
 - Two factual slips caught on the self-check (a lead called "most-viewed" when PRACTICE_ELM_E1 had more views; "in three weeks" for two reels three days apart), corrected before grading.
+
+## Reviewer edit (2026-11-08)
+
+The independent review changed no result here. It replaced the made-up creator's guessed pronouns with "they" in the output, because the config gives none and SKILL.md now says to use the name or "you". See `review-grading.md`.

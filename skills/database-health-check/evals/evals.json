@@ -1,0 +1,64 @@
+{
+  "skill_name": "database-health-check",
+  "evals": [
+    {
+      "id": 1,
+      "name": "fub-5000",
+      "prompt": "Here's our Follow Up Boss export, all 5,000 people, plus the closed deals from our back office since 2019. Give me a health check on the database and a plan to work it. We meet as a team Thursday.",
+      "expected_output": "A bottom line with the database size, the three biggest problems with counts and the first cleanup (merge duplicates, since more than 1% of records sit in merge groups); a health report in counts and percentages computed in code; a cleanup worklist CSV with names and phones in it and nowhere else; four to six segments with Follow Up Boss Smart List filters, sizes and next moves; questions for the team; nurture drafts with texts only for the Text Consent filtered lists; Check Before Sending.",
+      "files": ["evals/files/fub-people-export-5000.csv", "evals/files/closed-transactions-2019-2026.csv"],
+      "expectations": [
+        "The counts come from running the analysis code on the file, and the output reports 5,000 records.",
+        "The bottom line is three sentences or fewer and names the database size, three problems with counts, and one first cleanup.",
+        "The first cleanup is merging duplicates, with the reason that a Follow Up Boss merge keeps the main record's stage and agent.",
+        "It reports at least 125 merge-candidate groups and reports the shared-contact-info groups (different first names) and the one phone shared by 8 records separately, without calling them duplicates to merge.",
+        "It reports active-stage contacts with no communication in 90+ days broken out by stage and by agent.",
+        "It reports past clients and sphere with no communication in 12+ months, and asks the team what separates the Closed stage from the Past Client stage.",
+        "It uses the closed-transaction file: closed deals still sitting in active stages, past clients not labeled, and the 14 closed deals that are not in the CRM.",
+        "It explains that Follow Up Boss exports pond leads under the pond's lead agent without the pond name.",
+        "The Birthday column is ignored and nothing in the output refers to age or family status.",
+        "A cleanup worklist CSV is produced with row, name, email, phone, agent, stage, action and reason; no contact name, email or phone number appears in the chat output.",
+        "Four to six segments each have a Follow Up Boss Smart List filter, a size from the run, emailable, callable and textable counts, and a next move.",
+        "Text drafts are written only for consent-filtered lists using the Text Consent field, and each ends with Reply STOP to opt out.",
+        "Every email draft has a Title Case subject, an opt-out line, the [Sender Postal Address] placeholder and the marketing footer.",
+        "A Check Before Sending section lists consent records, a Do Not Call scrub, quiet hours, the unsubscribe link and postal address.",
+        "The output never says it changed, merged, reassigned or deleted a record."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "other-crm",
+      "prompt": "We're not on Follow Up Boss. Attached is our CRM contact export and the rules doc our ops lead wrote. I need a cleanup plan for our VA and the groups we should be working this month.",
+      "expected_output": "The columns mapped from a non-Follow-Up-Boss export (Lead Status, Owner, Last Contacted, Labels, Primary Email, Mobile Phone, SMS Opt-In), the team's 60-day standard and 45-day Shared Pool rule applied and labeled as team rules, blank and undefined statuses raised as questions, segments written as plain filters for their CRM, and texts only for SMS Opt-In = Y contacts.",
+      "files": ["evals/files/brightwater-crm-contacts.csv", "evals/files/brightwater-crm-rules.pdf"],
+      "expectations": [
+        "It shows how the columns were mapped (Lead Status as stage, Owner as agent, Last Contacted as last communication, Labels as tags, SMS Opt-In as consent) and reports 1,200 records despite the two title rows above the header.",
+        "It applies the team's 60-day follow-up standard instead of the 90-day default and says it is the team's rule.",
+        "It applies the 45-day Shared Pool rule to New and Warm leads and the worklist marks them Pond Candidate.",
+        "Past clients include the Past Client status and the Closed Client label, and SOI is read as sphere.",
+        "It raises the blank statuses and the undefined Investor status as questions for the team.",
+        "Segment filters are written in plain words for their CRM, not presented as Follow Up Boss Smart Lists.",
+        "Text drafts are limited to contacts whose SMS Opt-In shows Y, and each ends with Reply STOP to opt out.",
+        "No contact name, email or phone number appears in the chat output.",
+        "Email drafts carry an opt-out line and the [Sender Postal Address] placeholder, and subjects are Title Case."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-consent",
+      "prompt": "Follow Up Boss export attached. What's wrong with our database, and what should we send to which groups? Include texts for each group, our agents love texting.",
+      "expected_output": "A full health report and segments, emails and call openers, but no text drafts: the export has no consent field, the output says so and says how to add one. The missing lead-activity column is named and the Back On The Site segment is skipped.",
+      "files": ["evals/files/fub-people-export-no-consent.csv"],
+      "expectations": [
+        "No text message drafts appear anywhere in the output, even though the user asked for them.",
+        "It states that the export has no text consent field and that this is why texts were withheld.",
+        "It tells the user how to add a consent field (for example a Follow Up Boss custom field) and to rerun.",
+        "Email drafts and call openers are still provided for the segments.",
+        "It names the missing Last Activity column and does not present a Back On The Site segment.",
+        "The health report gives counts and percentages for duplicates, contact info, stale active-stage contacts and past clients and sphere.",
+        "No contact name, email or phone number appears in the chat output.",
+        "A Check Before Sending section is present."
+      ]
+    }
+  ]
+}
