@@ -150,7 +150,24 @@ export function frontmatter(text) {
     const nested = /^\s+([A-Za-z][\w-]*):\s*(.*)$/.exec(line);
     if (nested && current) data[current][nested[1]] = scalar(nested[2]);
   }
-  return { data, body: text.slice(match[0].length) };
+  return { data, body: text.slice(match[0].length), unsafe: unsafePlainScalars(lines) };
+}
+
+/**
+ * Values a real YAML parser rejects or misreads, though the reader above takes them: an unquoted value
+ * that holds ": " or " #", or starts with a character YAML gives a meaning to. Claude's uploader parses
+ * the frontmatter as YAML, so such a description fails the upload (found in review, D-052).
+ */
+function unsafePlainScalars(lines) {
+  const bad = [];
+  for (const line of lines) {
+    const m = /^\s*([A-Za-z][\w-]*):\s+(.+)$/.exec(line);
+    if (!m) continue;
+    const v = m[2].trim();
+    if (/^["']/.test(v) || v === '>' || v === '|' || v === '>-' || v === '|-') continue;
+    if (/: |\s#|^[[\]{}&*!|>%@`,?-]\s?/.test(v) || v.endsWith(':')) bad.push(m[1]);
+  }
+  return bad;
 }
 
 function scalar(raw) {
@@ -205,6 +222,7 @@ export function check(name) {
   if (!fm) err('SKILL.md has no YAML frontmatter between --- lines');
   else {
     const { data, body } = fm;
+    for (const key of fm.unsafe) err(`frontmatter "${key}" is not valid YAML unquoted (it holds ": ", " #" or a leading symbol): put it in double quotes`);
     for (const key of Object.keys(data)) if (!ALLOWED_KEYS.has(key)) err(`frontmatter key "${key}" is not allowed`);
     if (data.name !== name) err(`frontmatter name "${data.name}" must equal the folder name`);
     if (typeof data.name === 'string') {
