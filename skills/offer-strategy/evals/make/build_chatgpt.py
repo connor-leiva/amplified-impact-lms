@@ -57,12 +57,9 @@ write("offer-strategy-guide.md",
 
 utah = fix(read(os.path.join(ref, "utah-offer-terms.md")))
 pricing = fix(read(os.path.join(shared, "utah-pricing-context.md")))
-STALE = "- A revised REPC is pending, with mandatory use set for January 1, 2027. Section numbers may change. Read them from the signed contract. See Part 1 of `utah-repc-both-forms.md`."
-CURRENT = ("- A revised REPC, effective November 1, 2026, is in use, and only it may be used from January 1, 2027. On it the "
-           "appraisal condition is Section 12.2 and runs to a separate Appraisal Deadline, Section 4(c). See Part 1 of this "
-           "file and Part 2 of `utah-repc-both-forms.md`.")
-assert STALE in pricing, "shared utah-pricing-context.md changed: update build_chatgpt.py"
-pricing = pricing.replace(STALE, CURRENT)
+# The shared file used to call the November 1, 2026 REPC "pending", and this script patched that line.
+# The shared file is now correct, so the guard below only makes sure the stale line never comes back.
+assert "A revised REPC is pending" not in pricing, "shared utah-pricing-context.md calls the new REPC pending again"
 forms = fix(read(os.path.join(shared, "utah-forms-and-counters.md")))
 write("utah-offer-terms.md",
       part(1, utah) + "\n\n---\n\n" + part(2, pricing) + "\n\n---\n\n" + part(3, forms))

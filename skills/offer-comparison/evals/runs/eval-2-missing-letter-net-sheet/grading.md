@@ -40,3 +40,13 @@ Run: `output.md`, following SKILL.md 1.0 on the six files in `evals/files/case-2
 - The expectation on held lines named the $281,600 payoff; reworded to "the payoff estimate" because the skill keeps the seller's payoff figure on the net sheet rather than repeating it.
 
 
+
+## Independent Review (2026-11-08)
+
+The reviewer ran this case from scratch, following SKILL.md 1.0, before reading `output.md`: `review-output.md`. It matched the builder's run on every figure: $189,800 as written; $190,890 and $195,650 estimated by the same changed lines; the same held lines and notes; C's letter problems; the missing initials on page 3 of 7; B's 50% default ($4,000); Sunday, November 15 moving to Monday, November 16; the same top two (C if its letter is updated, then A) and the same $5,850 difference.
+
+**Reviewer run: 10 of 10 on the original expectations, and 11 of 11 with the expectation added below.** Objective checks: 0 dashes; 0 hits for 77120034, SRL-662104, FFL-90233; payoff not in the email; 287-word email.
+
+Changes after the review:
+- Expectation 8 added: all three offers lapse on Tuesday, November 10, before the Wednesday, November 11 Acceptance the agent named. Both runs caught it (the builder's Flags: "A Wednesday, November 11 acceptance means getting extensions, or countering, before then"); SKILL.md now says to check every acceptance deadline against the expected Acceptance date, so the behavior no longer depends on luck. Builder's run: PASS.
+- Expectation 7 now includes the Closing note: funding and Recording can follow Settlement by up to four calendar days (9.2), so B's and C's Closings could reach December 26 and 25 if Robin means funded and recorded by Christmas. The builder's output was updated by the reviewer in one table row, one email sentence and one Check before sending line to match the SKILL.md change. With that edit, the builder's run is 11 of 11.

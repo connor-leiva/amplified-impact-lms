@@ -165,12 +165,13 @@ How to use this:
 
 ## The Appraisal Condition
 
-- The state-approved REPC (effective December 4, 2024) sets the appraisal condition in Section 8.2 by checkbox. If IS is checked, the buyer's obligation is "conditioned upon the Property appraising for not less than the Purchase Price."
+- Two REPC versions are in use. The November 1, 2026 form may be used now and is mandatory from January 1, 2027. The December 4, 2024 form can be used until then. Read the version and section numbers from the signed contract (Part 1 of `utah-repc-both-forms.md`, Part 2 of `utah-repc-both-forms.md`).
+- The December 4, 2024 REPC sets the appraisal condition in Section 8.2 by checkbox. If IS is checked, the buyer's obligation is "conditioned upon the Property appraising for not less than the Purchase Price."
 - If the appraisal comes in below the price, the buyer may cancel by written notice, with a copy of the lender's or appraiser's "Notice of Appraised Value," no later than the Financing & Appraisal Deadline in Section 24(c). The earnest money goes back to the buyer.
 - The form gives the buyer a right to cancel, not a right to a lower price. Any price change or credit takes a signed addendum.
 - If IS NOT is checked, or the buyer lets the deadline pass, the condition is waived. The box is separate from financing, so a cash buyer can still check it.
-- For FHA and VA loans, the FHA/VA Loan Addendum lets the buyer walk away without losing the deposit if the price exceeds the FHA appraised value or VA reasonable value, "Notwithstanding the Financing & Appraisal Deadline."
-- A revised REPC, effective November 1, 2026, is in use, and only it may be used from January 1, 2027. On it the appraisal condition is Section 12.2 and runs to a separate Appraisal Deadline, Section 4(c). See Part 1 of this file and Part 2 of `utah-repc-both-forms.md`.
+- On the November 1, 2026 REPC the appraisal condition is Section 12.2, and the buyer cancels with written notice "along with a complete copy of the appraisal, no later than the Appraisal Deadline referenced in Section 4(c)." That form has a separate Appraisal Deadline (4(c)) and Financing Deadline (4(d)). See Part 2 of `utah-repc-both-forms.md`.
+- For FHA and VA loans, the FHA/VA Loan Addendum (Section 3) lets the buyer walk away without losing the deposit if the price exceeds the FHA appraised value or VA reasonable value, notwithstanding the appraisal deadline: the "Financing & Appraisal Deadline" on the 2020 addendum used with the 2024 REPC, and the "Appraisal Deadline" on the November 1, 2026 addendum. The buyer may still choose to complete the purchase.
 
 How to use this: pricing above what the closed sales support doesn't only risk a slow sale. It can create a contract that falls apart or gets renegotiated at appraisal, after the listing has already lost its newness.
 
@@ -251,13 +252,13 @@ Notes:
 
 ## Counteroffer Mechanics
 
-- **The seller's first response is on the REPC.** Page 6 has three boxes: ACCEPTANCE, COUNTEROFFER, or REJECTION. A counteroffer presents the buyer's terms "subject to the exceptions or modifications as specified by the attached ADDENDUM No."
+- **The seller's first response is on the REPC.** It has three boxes: ACCEPTANCE, COUNTEROFFER, or REJECTION. They are on page 6 of the December 4, 2024 form and on page 7 of the November 1, 2026 form, under Section 30. A counteroffer presents the buyer's terms "subject to the exceptions or modifications as specified by the attached ADDENDUM No."
 - **Every counteroffer is an addendum.** The state-approved blank form has two boxes at the top: "[ ] ADDENDUM [ ] COUNTEROFFER." Each one is numbered and covers the REPC "including all prior addenda and counteroffers."
 - **What controls.** Each addendum says its terms "shall control" where they conflict with the REPC and prior addenda, and "All other terms ... shall remain the same."
 - **Who must accept, and by when.** Each addendum names the party ("[ ] Seller [ ] Buyer shall have until ...") and a time and date in Mountain Time to accept "in accordance with the provisions of Section 23 of the REPC. Unless so accepted, the offer as set forth in this ADDENDUM shall lapse."
 - **The other side's response.** Each addendum ends with ACCEPTANCE, COUNTEROFFER ("presents as a counteroffer the terms of attached ADDENDUM NO. ___"), or REJECTION. A counter to a counter is the next numbered addendum.
-- **How acceptance happens.** REPC Section 23: Acceptance occurs "only when" (a) the party has signed where noted to show acceptance, and (b) that party or their agent "has communicated to the other party or to the other party's agent" that it has been signed. A signature that has not been communicated is not yet Acceptance.
-- **How an offer lapses.** The REPC offer lapses if not accepted by the time in Section 25, and the brokerage returns the Earnest Money Deposit. A counteroffer lapses at the time written in its addendum.
+- **How acceptance happens.** REPC Section 23 in both versions. On the December 4, 2024 form, Acceptance occurs "only when" (a) the party has signed where noted to show acceptance, and (b) that party or their agent "has communicated to the other party or to the other party's agent" that it has been signed. A signature that has not been communicated is not yet Acceptance. On the November 1, 2026 form, the signed offer or counteroffer must instead be "Received" by the other party or their agent or broker by the deadline (see Part 2 of `utah-repc-both-forms.md`).
+- **How an offer lapses.** The REPC offer lapses if not accepted by the time in its acceptance deadline section: Section 25 on the December 4, 2024 form, Section 30 on the November 1, 2026 form. The brokerage returns the Earnest Money Deposit. A counteroffer lapses at the time written in its addendum.
 - **Reading a chain.** List the addenda in number order. For each, note the sender, the changes, the acceptance deadline, and whether it was accepted, countered, rejected or allowed to lapse. The final terms are the REPC plus every accepted addendum, with later accepted terms controlling.
 
 ## Multiple Counteroffers at Once
@@ -289,8 +290,8 @@ The state forms do not include a withdrawal notice. The UAR library lists "Buyer
 - **All Inclusive Trust Deed** and **All Inclusive Promissory Note Secured by All Inclusive Trust Deed.** Seller financing that wraps an existing loan.
 
 **Not on the Division's list, but often named:**
-- **Water Rights Addendum.** This is a deed addendum, not a REPC addendum. Utah Code 57-3-109 defines a "water rights addendum" to a deed, "in a form approved by the Legislature in a joint resolution," and the state engineer makes the form public. The Division of Water Rights publishes the "Water Rights Addendum to Land Deeds." In the REPC, water rights are covered by Section 1.4 and the Seller Disclosure in Section 7(i). Questions about which rights convey go to the title company.
-- **Sale of Buyer's Property addendum.** REPC Section 2.2 refers to "the attached subject to sale of Buyer's property addendum," but the Division lists none. The UAR library lists "Subject to Sale of Buyer's Property Addendum to REPC."
+- **Water Rights Addendum.** This is a deed addendum, not a REPC addendum. Utah Code 57-3-109 defines a "water rights addendum" to a deed, "in a form approved by the Legislature in a joint resolution," and the state engineer makes the form public. The Division of Water Rights publishes the "Water Rights Addendum to Land Deeds." In the December 4, 2024 REPC, water rights are covered by Section 1.4 and the Seller Disclosure in Section 7(i). In the November 1, 2026 REPC, they are under Water Service (Section 7.5) and Seller Disclosures (Section 11). Questions about which rights convey go to the title company.
+- **Sale of Buyer's Property addendum.** In the December 4, 2024 REPC, Section 2.2 refers to "the attached subject to sale of Buyer's property addendum." In the November 1, 2026 REPC it is the checkbox in Section 3(d), and without the addendum the condition does not apply. The Division lists no such addendum. The UAR library lists "Subject to Sale of Buyer's Property Addendum to REPC."
 - **Other UAR forms** (titles from UAR's public list; text is members only): Addendum/Counteroffer to REPC; Resolution of Due Diligence Addendum to REPC; Appraisal Addendum to REPC; Closing Costs Addendum; Secondary "Backup" Contract Addendum to REPC; Short-term Lease-back Addendum to REPC; New Construction REPC; Real Estate Purchase Contract for Land; Seller's Property Condition Disclosure. Whether a brokerage may use them is the broker's call.
 
 ## Sources

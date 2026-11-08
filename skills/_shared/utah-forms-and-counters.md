@@ -55,7 +55,7 @@ Notes:
 
 ## Counteroffer Mechanics
 
-- **The seller's first response is on the REPC.** Page 6 has three boxes: ACCEPTANCE, COUNTEROFFER, or REJECTION. A counteroffer presents the buyer's terms "subject to the exceptions or modifications as specified by the attached ADDENDUM No."
+- **The seller's first response is on the REPC.** It has three boxes: ACCEPTANCE, COUNTEROFFER, or REJECTION. They are on page 6 of the December 4, 2024 form and on page 7 of the November 1, 2026 form, under Section 30. A counteroffer presents the buyer's terms "subject to the exceptions or modifications as specified by the attached ADDENDUM No."
 - **Every counteroffer is an addendum.** The state-approved blank form has two boxes at the top: "[ ] ADDENDUM [ ] COUNTEROFFER." Each one is numbered and covers the REPC "including all prior addenda and counteroffers."
 - **What controls.** Each addendum says its terms "shall control" where they conflict with the REPC and prior addenda, and "All other terms ... shall remain the same."
 - **Who must accept, and by when.** Each addendum names the party ("[ ] Seller [ ] Buyer shall have until ...") and a time and date in Mountain Time to accept "in accordance with the provisions of Section 23 of the REPC. Unless so accepted, the offer as set forth in this ADDENDUM shall lapse."
@@ -93,8 +93,8 @@ The state forms do not include a withdrawal notice. The UAR library lists "Buyer
 - **All Inclusive Trust Deed** and **All Inclusive Promissory Note Secured by All Inclusive Trust Deed.** Seller financing that wraps an existing loan.
 
 **Not on the Division's list, but often named:**
-- **Water Rights Addendum.** This is a deed addendum, not a REPC addendum. Utah Code 57-3-109 defines a "water rights addendum" to a deed, "in a form approved by the Legislature in a joint resolution," and the state engineer makes the form public. The Division of Water Rights publishes the "Water Rights Addendum to Land Deeds." In the REPC, water rights are covered by Section 1.4 and the Seller Disclosure in Section 7(i). Questions about which rights convey go to the title company.
-- **Sale of Buyer's Property addendum.** REPC Section 2.2 refers to "the attached subject to sale of Buyer's property addendum," but the Division lists none. The UAR library lists "Subject to Sale of Buyer's Property Addendum to REPC."
+- **Water Rights Addendum.** This is a deed addendum, not a REPC addendum. Utah Code 57-3-109 defines a "water rights addendum" to a deed, "in a form approved by the Legislature in a joint resolution," and the state engineer makes the form public. The Division of Water Rights publishes the "Water Rights Addendum to Land Deeds." In the December 4, 2024 REPC, water rights are covered by Section 1.4 and the Seller Disclosure in Section 7(i). In the November 1, 2026 REPC, they are under Water Service (Section 7.5) and Seller Disclosures (Section 11). Questions about which rights convey go to the title company.
+- **Sale of Buyer's Property addendum.** In the December 4, 2024 REPC, Section 2.2 refers to "the attached subject to sale of Buyer's property addendum." In the November 1, 2026 REPC it is the checkbox in Section 3(d), and without the addendum the condition does not apply. The Division lists no such addendum. The UAR library lists "Subject to Sale of Buyer's Property Addendum to REPC."
 - **Other UAR forms** (titles from UAR's public list; text is members only): Addendum/Counteroffer to REPC; Resolution of Due Diligence Addendum to REPC; Appraisal Addendum to REPC; Closing Costs Addendum; Secondary "Backup" Contract Addendum to REPC; Short-term Lease-back Addendum to REPC; New Construction REPC; Real Estate Purchase Contract for Land; Seller's Property Condition Disclosure. Whether a brokerage may use them is the broker's call.
 
 ## Sources

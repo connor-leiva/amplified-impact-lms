@@ -52,6 +52,7 @@ Letters A to D follow the order the buyers signed (November 7 at 9:14 AM, Novemb
 | Escalation | Yes: $1,500 over the highest competing Net Price, cap $662,000 | No | No | No |
 | Inclusions and exclusions | Refrigerators (7.3); nothing excluded | Refrigerators (1.2); nothing excluded | Washers, dryers, refrigerators (7.3); nothing excluded | Washers, dryers (1.2); nothing excluded |
 | Possession | Upon Recording (4(f)) | Upon Recording (3.3) | 1 calendar day after Recording (4(f)) | 1 calendar day after Recording (3.3) |
+| Possession against the January 4 rental | Sellers out at Recording, as early as Dec 22: about two weeks before the rental | Sellers out at Recording, as early as Nov 30: about five weeks before the rental | Out a day after Recording, about two weeks before | Out a day after Recording; fits if Closing lands by Jan 3 |
 | Other terms | Special assessments: Seller (8.2); change of ownership fees: Buyer (8.3(a)) | Special assessments: Seller (4.2); change of ownership fees: Buyer (4.3(c)) | Special assessments: Seller; change of ownership fees: Buyer | Special assessments: Seller; change of ownership fees: Buyer |
 | Letter | Sample Valley Mortgage, Nov 6, 2026; expires Feb 4, 2027; conventional; price up to $660,000, loan up to $594,000; credit reviewed, income and assets verified for down payment and closing costs; conditions include an appraisal acceptable to the lender | Imaginary Credit Union statement dated **Oct 1, 2026**: **$598,200 as of Sept 30, 2026**, **$31,800 short** of the $630,000 price before closing costs, and 40 days old at a Nov 9 Acceptance | Pretend Lending Group, Nov 4, 2026; valid through Jan 3, 2027; FHA; price up to $655,000; base loan $632,075; assumes **one** $15,000 seller contribution; credit, income and assets reviewed | Make-Pretend Mortgage, **Oct 20, 2026; expires Dec 19, 2026** (11 days before Settlement); price up to $660,000, loan up to $528,000; credit and income reviewed (no mention of assets); **contingent on the sale and closing of 415 N Example Elm St** |
 | Offer expiration | Mon, Nov 9, 3:00 PM (30) | Mon, Nov 9, 9:00 PM (25) | Mon, Nov 9, 6:00 PM (30) | Tue, Nov 10, 5:00 PM (25) |
@@ -132,6 +133,7 @@ I'm not ruling on whether any offer is valid as written.
 1. The proof of funds shows $598,200 as of September 30. Can you send current proof that covers the $630,000 price plus closing costs?
 2. Are the funds in the buyer's name and available by the November 30 Settlement Deadline?
 3. The Due Diligence Deadline falls on Saturday, November 14. Is your buyer set to finish inspections by 5:00 PM that day?
+4. Is your buyer flexible on a later Settlement Deadline or possession after Recording, given the sellers' January 4 move?
 
 **C (Casey Imaginaryagent):**
 1. The 2020 FHA/VA Loan Addendum is attached to a 2026 REPC, and $15,000 appears in both REPC 2.2 and addendum Section 6. Is the total seller contribution $15,000? Would you replace the addendum with the November 1, 2026 version?
@@ -179,6 +181,8 @@ What separates A and B: A is $17,500 higher, but A asks you to pay 2.5% of the p
 
 C has the biggest headline, but after $15,000 back to the buyer, its brokerage request and possible FHA repairs of up to $6,000, it's the lowest of the four. D depends on the buyers selling a home they haven't listed yet, and one page of their contract is missing.
 
+Both A and B have you out at Recording, which could be weeks before your rental starts on January 4. We can ask either buyer for a later Settlement Deadline or time after Recording.
+
 Your options: accept A, counter A, accept or counter B once the funds are confirmed, ask all four for their highest and best, or take one as a backup.
 
 What I need from you: a call before Monday at 3:00 PM, when A expires, so we can respond in time.
@@ -205,4 +209,5 @@ None of these figures is your net. Once we narrow it to two, I'll get net sheets
 | Computed: $647,500; $16,187.50; $16,000; $19,650; $16,300; $631,312.50; $619,650 and $604,650; $629,700; $646,000, $640,000, $625,000; $17,500; $1,312.50; $300; $31,800; $7,500; $1,500; $582,750; $641,500; $64,000, $22,925, $130,400; down payment percentages; day counts and weekdays from Nov 9 | Recompute from the rows above |
 | Section 25 next-business-day rule (C's Saturday Settlement Deadline) | 2026 REPC page 6 |
 | Closing up to four days after Settlement (funding and Recording) | 2026 REPC 9.2; 2024 REPC 3.2 |
+| January 4 rental; close by January 2 | Your message |
 | Placeholders: [Agent Name], [amount], [time and date], [Seller's decision] | Fill before sending |

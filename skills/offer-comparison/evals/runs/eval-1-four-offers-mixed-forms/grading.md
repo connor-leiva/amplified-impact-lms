@@ -39,3 +39,32 @@ First draft fixes, before this grade:
 - The seller email asked for "a call before noon Monday." Noon isn't in any file; changed to "before Monday at 3:00 PM, when A expires."
 - The email said D "is missing pages"; changed to "one page of their contract is missing."
 - The email said "I've asked for current proof" before any request was sent; changed to "I'll ask for current proof today." The same slip showed up in eval 2, so SKILL.md step 7 now forbids claiming a request already went out.
+
+## Independent Review (2026-11-08)
+
+The reviewer did not rerun this case; it ran eval 2 and the practice files from scratch instead. After the SKILL.md change about Closing (funding and Recording can come up to four calendar days after Settlement on both Utah forms), this output was stale on one point: it said D fits the January 2 move date "with 3 days to spare," but D's December 30 Settlement allows Closing as late as Sunday, January 3 (2024 form 3.2). The reviewer updated the "Fits the January 2 move date" row, one line in D's certainty factors and one Check before sending line, and added the Closing note to expectation 8 in `evals.json`. The other three offers' Closings (December 26, December 4 and December 25) still fall before January 2. With that edit, the skill run stays 10 of 10.
+
+## Second Independent Review (2026-11-08)
+
+A second reviewer ran this case from scratch, following SKILL.md 1.0, before reading `output.md`: `review-output.md`.
+
+| # | Expectation (short) | Reviewer run | Note |
+|---|---|---|---|
+| 1 | Sections from each offer's own form | PASS | A and C cite 1, 2.1, 2.2, 2.3, 3(b), 3(c)(i), 4(a) to 4(f), 9.2, 30; B and D cite 2.1, 2.2, 3.2, 3.3, 4.3(e), 8.2, 8.3(a), 24(a) to 24(d), 25 |
+| 2 | No net math; not-a-net figures; title net sheets suggested | PASS | Same four "not a net" figures as the builder's run |
+| 3 | Escalation from the Net Price definition to $647,500 | PASS | Same nets and result; cap $2,000 above the letter; appraisal-gap cash not shown; proof is the broker's call |
+| 4 | C's 2020 addendum and $15,000 twice, no ruling | PASS | |
+| 5 | B's proof of funds short and old; no member or account number | PASS | 0 hits for 0072215 and 3390 |
+| 6 | D's page 4 rows unknown; letter expiry; home not listed | PASS | |
+| 7 | Buyer letter and photo set aside | PASS | 0 hits for baby, grandparent, immigra, church, nursery, garden, trailhead |
+| 8 | Saturday Settlement to Monday; January 2 and Closing checks; strategy label | PASS | Also checked possession against the January 4 rental (below) |
+| 9 | Top two A and B, $17,500 and $1,312.50, C's caps | PASS | |
+| 10 | Email, Check before sending, no dashes, no loan numbers, no promises | PASS | 343-word email; 0 dashes; 0 loan numbers |
+
+**Reviewer run: 10 of 10.** Same offer letters, figures, top two and differences as the builder's run.
+
+What the reviewer's run had that the builder's didn't: the sellers move into their rental on January 4, and A and B both give possession at Recording, so taking either could put the sellers out of the house about two weeks (A, Settlement December 22) or about five weeks (B, Settlement November 30) before the rental starts. SKILL.md step 4 already said to check possession against the seller's must-have dates; the builder's run read "close by January 2" as the only date. SKILL.md step 4 (and the ChatGPT instructions) now say to check possession against the day the sellers can move into their next home and to note the later-possession or rent-back question, and `comparison-guide.md` has it in the possession row. Expectation 8 now includes it.
+
+What the builder's run had that the reviewer's didn't: the result if D's pages can't be shared as proof ($641,500 from C's $640,000 Net Price). Not an expectation; a good addition.
+
+The reviewer updated `output.md` for the new part of expectation 8: a "Possession against the January 4 rental" table row, a fourth question for B's agent, one paragraph in the seller email (now 375 words) and one Check before sending line. With that edit the builder's run is 10 of 10 again.

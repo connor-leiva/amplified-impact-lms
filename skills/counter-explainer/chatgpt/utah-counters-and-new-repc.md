@@ -30,7 +30,7 @@ The Division's State Approved Forms page listed these on 2026-11-08. Effective d
 
 Notes:
 - Utah Administrative Code R162-2f-401f, as published on 2026-11-08, lists the approved forms with some different dates. It lists the REPC as "September 1, 2017," the Assumption Addendum and Buyer Financial Information Sheet as January 1, 1999, and the two All Inclusive forms as October 1, 1983. Commission minutes from August 2024 say the rule needs an amendment to match the newer REPC. Confirm with your broker which versions your brokerage requires.
-- **Revisions are pending.** On September 23, 2026 the Real Estate Commission approved revised versions of the REPC, the FHA/VA Loan Addendum, the Seller Financing Addendum, and the Deposit of Earnest Money with Title Insurance Company Addendum. It set them to take effect November 1, 2026, with mandatory use by January 1, 2027, "subject to approval by the Office of the Attorney General." On October 9, 2026 the Attorney General's review was still under way. On 2026-11-08 the Division's page still posted the older versions. Check each uploaded form's footer.
+- **Revised forms are in use from November 1, 2026.** On September 23, 2026 the Real Estate Commission approved revised versions of the REPC, the FHA/VA Loan Addendum, the Seller Financing Addendum, and the Deposit of Earnest Money with Title Insurance Company Addendum, effective November 1, 2026, with mandatory use by January 1, 2027, "subject to approval by the Office of the Attorney General." The Utah Association of REALTORS now says the Attorney General approved the new REPC, that it is effective and available for use from November 1, 2026, and that the old version may no longer be used starting January 1, 2027. On 2026-11-08 the Division's page still posted the older versions, so both can show up in a file until then. The Blank Addendum (the counteroffer form) is not on the revised list. Check each uploaded form's footer; for a REPC whose footer reads "EFFECTIVE NOVEMBER 1, 2026", use `utah-counters-and-new-repc.md` (second part), where acceptance needs the signed offer to be "Received" (Sections 22 and 23).
 
 ### What a Licensee May Do
 
@@ -59,13 +59,13 @@ Notes:
 
 ### Counteroffer Mechanics
 
-- **The seller's first response is on the REPC.** Page 6 has three boxes: ACCEPTANCE, COUNTEROFFER, or REJECTION. A counteroffer presents the buyer's terms "subject to the exceptions or modifications as specified by the attached ADDENDUM No."
+- **The seller's first response is on the REPC.** It has three boxes: ACCEPTANCE, COUNTEROFFER, or REJECTION. They are on page 6 of the December 4, 2024 form and on page 7 of the November 1, 2026 form, under Section 30. A counteroffer presents the buyer's terms "subject to the exceptions or modifications as specified by the attached ADDENDUM No."
 - **Every counteroffer is an addendum.** The state-approved blank form has two boxes at the top: "[ ] ADDENDUM [ ] COUNTEROFFER." Each one is numbered and covers the REPC "including all prior addenda and counteroffers."
 - **What controls.** Each addendum says its terms "shall control" where they conflict with the REPC and prior addenda, and "All other terms ... shall remain the same."
 - **Who must accept, and by when.** Each addendum names the party ("[ ] Seller [ ] Buyer shall have until ...") and a time and date in Mountain Time to accept "in accordance with the provisions of Section 23 of the REPC. Unless so accepted, the offer as set forth in this ADDENDUM shall lapse."
 - **The other side's response.** Each addendum ends with ACCEPTANCE, COUNTEROFFER ("presents as a counteroffer the terms of attached ADDENDUM NO. ___"), or REJECTION. A counter to a counter is the next numbered addendum.
-- **How acceptance happens.** REPC Section 23: Acceptance occurs "only when" (a) the party has signed where noted to show acceptance, and (b) that party or their agent "has communicated to the other party or to the other party's agent" that it has been signed. A signature that has not been communicated is not yet Acceptance.
-- **How an offer lapses.** The REPC offer lapses if not accepted by the time in Section 25, and the brokerage returns the Earnest Money Deposit. A counteroffer lapses at the time written in its addendum.
+- **How acceptance happens.** REPC Section 23 in both versions. On the December 4, 2024 form, Acceptance occurs "only when" (a) the party has signed where noted to show acceptance, and (b) that party or their agent "has communicated to the other party or to the other party's agent" that it has been signed. A signature that has not been communicated is not yet Acceptance. On the November 1, 2026 form, the signed offer or counteroffer must instead be "Received" by the other party or their agent or broker by the deadline (see `utah-counters-and-new-repc.md` (second part)).
+- **How an offer lapses.** The REPC offer lapses if not accepted by the time in its acceptance deadline section: Section 25 on the December 4, 2024 form, Section 30 on the November 1, 2026 form. The brokerage returns the Earnest Money Deposit. A counteroffer lapses at the time written in its addendum.
 - **Reading a chain.** List the addenda in number order. For each, note the sender, the changes, the acceptance deadline, and whether it was accepted, countered, rejected or allowed to lapse. The final terms are the REPC plus every accepted addendum, with later accepted terms controlling.
 
 ### Multiple Counteroffers at Once
@@ -97,8 +97,8 @@ The state forms do not include a withdrawal notice. The UAR library lists "Buyer
 - **All Inclusive Trust Deed** and **All Inclusive Promissory Note Secured by All Inclusive Trust Deed.** Seller financing that wraps an existing loan.
 
 **Not on the Division's list, but often named:**
-- **Water Rights Addendum.** This is a deed addendum, not a REPC addendum. Utah Code 57-3-109 defines a "water rights addendum" to a deed, "in a form approved by the Legislature in a joint resolution," and the state engineer makes the form public. The Division of Water Rights publishes the "Water Rights Addendum to Land Deeds." In the REPC, water rights are covered by Section 1.4 and the Seller Disclosure in Section 7(i). Questions about which rights convey go to the title company.
-- **Sale of Buyer's Property addendum.** REPC Section 2.2 refers to "the attached subject to sale of Buyer's property addendum," but the Division lists none. The UAR library lists "Subject to Sale of Buyer's Property Addendum to REPC."
+- **Water Rights Addendum.** This is a deed addendum, not a REPC addendum. Utah Code 57-3-109 defines a "water rights addendum" to a deed, "in a form approved by the Legislature in a joint resolution," and the state engineer makes the form public. The Division of Water Rights publishes the "Water Rights Addendum to Land Deeds." In the December 4, 2024 REPC, water rights are covered by Section 1.4 and the Seller Disclosure in Section 7(i). In the November 1, 2026 REPC, they are under Water Service (Section 7.5) and Seller Disclosures (Section 11). Questions about which rights convey go to the title company.
+- **Sale of Buyer's Property addendum.** In the December 4, 2024 REPC, Section 2.2 refers to "the attached subject to sale of Buyer's property addendum." In the November 1, 2026 REPC it is the checkbox in Section 3(d), and without the addendum the condition does not apply. The Division lists no such addendum. The UAR library lists "Subject to Sale of Buyer's Property Addendum to REPC."
 - **Other UAR forms** (titles from UAR's public list; text is members only): Addendum/Counteroffer to REPC; Resolution of Due Diligence Addendum to REPC; Appraisal Addendum to REPC; Closing Costs Addendum; Secondary "Backup" Contract Addendum to REPC; Short-term Lease-back Addendum to REPC; New Construction REPC; Real Estate Purchase Contract for Land; Seller's Property Condition Disclosure. Whether a brokerage may use them is the broker's call.
 
 ### Sources
@@ -126,6 +126,7 @@ All checked 2026-11-08.
 - Real Estate Commission minutes, August 21, 2024 (rule needs amendment for the new REPC): https://www.utah.gov/pmn/files/1168373.pdf
 - Real Estate Commission minutes, September 23, 2026 (revised REPC and addenda, effective dates): https://www.utah.gov/pmn/files/1505559.pdf
 - Real Estate Commission draft minutes, October 9, 2026 (Attorney General review under way): https://www.utah.gov/pmn/files/1502919.pdf
+- Utah Association of REALTORS, review of REPC updates and changes to related forms (Attorney General approval; effective November 1, 2026; old version not usable from January 1, 2027): https://utahrealtors.com/realtor/review-of-repc-updates-and-changes-to-related-forms/
 - Utah Association of REALTORS form titles (public list; form text is members only): https://utahrealtors.com/legal-form/feed/
 
 ## Utah REPC Effective November 1, 2026: Section Map and What Changed

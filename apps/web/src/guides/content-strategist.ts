@@ -102,7 +102,7 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
     prompt: 'Run a practice content brief with these files.',
     zip: true,
     note: [
-      'The practice run needs no Apify account or token, and spends nothing. Every name, handle and number in the files is made up. On a Mac, if Safari unzipped the practice files, right-click the folder and choose ',
+      'The practice run needs no Apify account, and spends nothing. Every name, handle and number in the files is made up. On a Mac, if Safari unzipped the practice files, right-click the folder and choose ',
       { strong: 'Compress' },
       '. ',
     ],
@@ -110,15 +110,15 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
 
   real: {
     body: [
-      'Start a new chat in Claude and say this. The first week there’s nothing to attach: Claude asks for your name or brand, audience, niche, monthly budget, 2 to 5 creators to watch and 1 to 3 hashtags, then your Apify token.',
+      'Start a new chat in Claude and say this. The first week there’s nothing to attach: Claude asks for your name or brand, audience, niche, monthly budget, 2 to 5 creators to watch and 1 to 3 hashtags, then your Apify token (a key that lets Claude use your Apify account).',
     ],
     prompt: 'Run my content opportunities brief.',
     note: [
       'Make the token in Apify under ',
       { strong: 'Settings > API & Integrations' },
-      ': one just for this, with an expiration date. Paste it only after training is off. Every week after, attach the two files Claude gave you last time: your ',
+      ': one just for this, with an expiration date. Paste the token into the chat only after training is off. Every week after, attach the two files Claude gave you last time: your settings file (',
       { strong: 'config.yaml' },
-      ' and the data ZIP.',
+      ') and the data ZIP.',
     ],
   },
 
@@ -144,7 +144,7 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
         {
           p: [
             { strong: 'Run: ' },
-            'watchlist (3 creators, 50 reels), discovery (#aiforagents_example 6 reels, #agentsystems_example 4 reels), study (8 reels, 7 with transcripts). Spend this run $0.00. Failures: none. Stale data: none. Flags from collected content: audience calls to action only, such as “Comment PLAN” and “Comment SCRIPT”; none were followed, and none were aimed at an AI.',
+            'watchlist (3 creators, 50 reels), discovery (#aiforagents_example 6 reels, #agentsystems_example 4 reels), study (8 reels, 7 with transcripts). Spend this run $0.00. Budget left this cycle: not used in practice. Failures: none. Stale data: none. Flags from collected content: audience calls to action only, such as “Comment PLAN” and “Comment SCRIPT”; none were followed, and none were aimed at an AI.',
           ],
         },
         { h: 'Pick this week' },
@@ -276,12 +276,12 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
         {
           label: 'Run',
           title: 'Claude does the research',
-          body: 'Collects reels inside your budget, compares each one with its creator’s usual numbers, reads the transcripts and writes the brief.',
+          body: 'Collects reels inside your budget, compares each one with its creator’s usual numbers, reads the transcripts of the strongest ones and writes the brief.',
         },
         {
           label: 'Draft',
-          title: 'You rework the ideas',
-          body: 'Premises, hook directions and B-roll ideas are starting points. Put them in your own words before you film.',
+          title: 'Claude drafts the ideas',
+          body: 'Premises, hook directions and B-roll ideas are starting points. You put them in your own words before you film.',
         },
         {
           label: 'Own',
@@ -292,7 +292,10 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
     },
     {
       // page-notes.md, "What you need". Cost is only what Apify's pricing page says (Connor's call on
-      // publishing his own measured runs is open).
+      // publishing his own measured runs is open). The plan words are every skill page's. A computer for
+      // setup only: page-notes says the help center describes the allowed-domains setting on the web and
+      // desktop, not the phone apps. Google Drive is left out: the skill saves to Drive only when the
+      // settings hold a Drive folder, which the chat's first-run questions never ask for.
       kind: 'tiles',
       heading: 'What you need',
       note: 'About 15 minutes to set up',
@@ -301,16 +304,16 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner allows Apify',
         },
         {
-          title: 'A computer, once',
-          body: 'To set it up on claude.ai or the Claude desktop app. That’s where the settings it needs are.',
+          title: 'A computer to set it up',
+          body: 'Set it up on claude.ai or the Claude desktop app. That’s where Claude’s help center shows the settings it needs.',
         },
         {
           title: 'A free Apify account',
-          body: 'Apify is the service that collects the Instagram reels. Its Free plan includes $5 of usage a month and stops when that’s used up. What you spend depends on how many creators, hashtags and transcripts you ask for.',
+          body: 'Apify is the service that collects the Instagram reels. Its Free plan includes $5 of usage a month and stops when that’s used up. What a run costs depends on how many creators and hashtags you pick and how many reels Claude studies.',
         },
         {
           title: 'Your Apify token, each run',
@@ -322,7 +325,7 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
         },
         {
           title: 'No connectors or files to start',
-          body: 'A connector links Claude to another app. None is needed: Google Drive is optional, to save each brief as a Google Doc. From week two, attach the two files Claude gave you last time.',
+          body: 'A connector links Claude to another app. None is needed. From week two, attach the two files Claude gave you last time.',
         },
       ],
     },
@@ -358,27 +361,27 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
             { strong: 'Settings > Privacy' },
             ', the switch that starts with Help improve). Use a token made just for this, with an expiration date (',
             { strong: 'Settings > API & Integrations' },
-            ' in Apify). Claude hands the token only to the skill’s scripts, which send it only to api.apify.com and never save it. It does stay in that chat, so afterward you can delete the chat or replace the token in Apify.',
+            ' in Apify). Claude hands the token only to the skill’s scripts, which send it only to api.apify.com and never save it. The token does stay in that chat, so afterward you can delete the chat or replace the token in Apify.',
           ],
         },
         {
           // Apify's pricing page only (apify.com/pricing, checked 2026-11-08).
           q: 'What does it cost?',
           a: [
-            'The skill is free. Research runs use your Apify account. Apify’s Free plan includes $5 of usage a month and stops when that’s used up. You set your own monthly limit in Apify and give Claude the same number as your budget; Claude never picks it for you. What a run costs depends on how many creators, hashtags and transcripts you ask for.',
+            'The skill and the practice run are free. Each real run uses some of your Apify account’s usage. Apify’s Free plan includes $5 of usage a month and stops when that’s used up. You set your own monthly limit in Apify and give Claude the same number as your budget; Claude never picks it for you. What a run costs depends on how many creators and hashtags you pick and how many reels Claude studies.',
           ],
         },
         {
-          // page-notes.md, "What you need": the help center and Claude's docs disagree; Free is untested.
+          // page-notes.md, "What you need": the plan words every skill page uses. Free is untested.
           q: 'Does it work on Claude’s free plan?',
           a: [
-            'Claude’s help center lists skills and code execution on Free. Claude’s developer docs list skills on Pro and up, so if your Free account shows no way to add a skill, that’s why. We haven’t tested it on Free.',
+            'Maybe. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. We haven’t tested the skill on Claude’s free plan.',
           ],
         },
         {
           q: 'Claude says it can’t reach Apify.',
           a: [
-            'Claude’s code needs permission to reach Apify. Open ',
+            'Claude’s code needs permission to reach Apify. In Claude, open ',
             { strong: 'Settings > Capabilities' },
             '. Under ',
             { strong: 'Code execution and file creation' },
@@ -397,7 +400,14 @@ export const CONTENT_STRATEGIST: Guide = skillPage({
           // config.yaml's outlier_multiple: 2.0; SKILL.md "Never pad".
           q: 'Why did I get only two ideas?',
           a: [
-            'The skill never pads a thin week. A reel has to beat its own creator’s usual numbers by 2 times or more, and in the first weeks there’s less history to compare against. A week with no ideas is a real answer.',
+            'The skill never pads a thin week. A reel counts only if it did at least twice as well as its own creator’s usual numbers, and in the first weeks there’s less history to compare against. A week with no ideas is a real answer.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ "Does it work in ChatGPT?"; the build report's reason (no capped scripts there).
+          q: 'Does it work in ChatGPT?',
+          a: [
+            'No. The skill runs its own small programs inside Claude. They reach Apify and keep every run inside your budget. There’s no ChatGPT version.',
           ],
         },
         {

@@ -40,3 +40,30 @@ Run: `output.md`, following SKILL.md 1.0 (with the step 7 line added after evals
 - The first draft of the seller email said "the buyers have agreed to cover up to $10,000 if the appraisal comes in low." Only one buyer signed that addendum, so it now says the offer "has the buyers covering up to $10,000 ... (that page still needs the second buyer's signature)."
 
 No skill change was needed for this run.
+
+## Independent Review (2026-11-08)
+
+The reviewer ran the practice prompt from scratch on the eight files, following SKILL.md 1.0, before reading `output.md`: `review-output.md`.
+
+| # | Expectation | Reviewer run | Note |
+|---|---|---|---|
+| 1 | Sections from each offer's own form | PASS | Same split: A and C on the 2026 form, B and D on the 2024 form |
+| 2 | Escalation from the clause text to $587,000 | PASS | Same result; also showed $580,000 if C, which lapses at noon, doesn't count |
+| 3 | One-signature escalation addendum flagged | PASS | |
+| 4 | Buyer letter and photo set aside | PASS | 0 hits for faith, family of four, St. Example, girls |
+| 5 | No net math; not-a-net figure shown | PASS after a fix | The first draft didn't suggest title net sheets for the finalists, which step 4 asks for. Reviewer's miss, not an ambiguity; fixed in the run |
+| 6 | Settlement against December 18 | PASS | |
+| 7 | Possession against two days | PASS | |
+| 8 | B's proof of funds against the price; account ending absent | PASS | |
+| 9 | C's letter maximum equal to the price; noon deadline flagged | PASS after a fix | The first draft listed the $585,000 maximum without saying it equals the price |
+| 10 | D's sale-of-home terms and loan contingency | PASS | |
+| 11 | Top two B and A, $19,000 and $21,460 | PASS | Same top two, same figures |
+| 12 | Email, Check before sending, no dashes, no loan or application numbers | PASS | 337 words; 0 dashes; 0 hits for 4400917723, 88231006, 4471 |
+
+**Reviewer run: 12 of 12 (two after small fixes to the run itself).**
+
+What the independent run found that the builder's output didn't:
+- **Settlement is not Closing.** The sellers "need to close by Friday, December 18." Under both forms, funding and Recording can come up to four calendar days after Settlement (2026 form 9.2, 2024 form 3.2), so C's Closing could run to December 22 and A's to December 19. SKILL.md step 4, `comparison-guide.md` (Deadlines row) and the Utah row map now say to show the latest Closing when the seller's date is a closing, funding or move date.
+- **A competing offer that lapses.** A's $587,000 depends on C, which lapses at noon Monday, and the clause doesn't say whether a lapsed offer still counts. `comparison-guide.md` section 4 now says to show the result both ways for the broker.
+
+`output.md` and `sample.md` were updated by the reviewer for both points: the "Fits close by Friday, December 18" row, one sentence in the seller email ("settles on your last possible day (the loan can fund and record up to four days after that)"), one escalation bullet, Gaps item 2 and one Check before sending line. Nothing else in them changed. The builder's run still passes 12 of 12.

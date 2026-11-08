@@ -17,8 +17,9 @@
 //
 // Plans, as page-notes.md "What the Person Needs" has them (checked 2026-11-08): Claude's help center
 // and pricing page list skills on every plan, Free included; the claude.com docs and the platform docs
-// leave Free out. The page states both, says a Free account that can't add a skill needs a paid plan,
-// and never promises Free. The connectors (Google Drive, Microsoft 365, ClickUp) are optional, read
+// leave Free out. The page states both in the words every skill page uses (the developer docs "list
+// them on Pro and up"), says a Free account that can't add a skill needs a paid plan, for the leader
+// and for each agent, and never promises Free. The connectors (Google Drive, Microsoft 365, ClickUp) are optional, read
 // only and untested, and the page says so.
 //
 // Not tested, so not promised: uploading a generated playbook to a live Claude account, asking an
@@ -54,7 +55,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
     // page-notes.md, "Practice Prompt", word for word, and "What to look for".
     prompt: 'Build our team playbook from these five documents. The fee schedule applies to every agent on the team.',
     note: [
-      'The five files are a made-up team’s policy manual, lead routing SOP, onboarding checklist, training call transcript and fee schedule. Every name, number and code in them is made up. Look for the pond rule conflict (10 days versus 14), pay timing and time off listed as gaps, and one agent’s own split left out. ',
+      'The five files are a made-up team’s policy manual, lead routing SOP, onboarding checklist, training call transcript and fee schedule. Every name, number and code in them is made up. In Claude’s answer, look for the pond rule conflict (10 days versus 14), pay timing and time off listed as gaps, and one agent’s own split left out. ',
     ],
   },
 
@@ -66,7 +67,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
     // SKILL.md step 2 (compensation held until the leader confirms) and step 6 (run the test set before
     // sharing); references/agent-install.md (the test set runs in a new chat with the playbook on).
     note: [
-      'Your fee schedule stays out until you tell Claude it applies to every agent. Before you share the playbook, add it to your own Claude the same way you added this skill. Then ask it the 25 test questions Claude wrote, in a new chat. Check every number, date and dollar amount in the ',
+      'Your fee schedule stays out until you tell Claude it applies to every agent. Before you share the playbook, add it to your own Claude the same way you added this skill. Then, in a new chat, ask the playbook the 25 test questions Claude wrote. Check every number, date and dollar amount in the ',
       { strong: 'Check before sending' },
       ' list against your documents.',
     ],
@@ -88,7 +89,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
       heading: 'What a playbook build looks like',
       body: 'What Claude wrote from the practice files: five made-up documents from a made-up team, the Lantern Lane Example Team. They’re the same files you practise on in setup.',
       title: 'Lantern Lane Example Team Playbook: Built and Checked',
-      note: 'Made-up example. Shortened: two broker flags of four, three removals of five, six of the 25 test questions, and three lines of the check list.',
+      note: 'Made-up example. Shortened: only the top three gaps, two broker flags of four, three removals of five, six of the 25 test questions, three lines of the check list, and no sharing steps.',
       blocks: [
         { h: 'Bottom line' },
         {
@@ -296,7 +297,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
         },
         {
           title: 'A message to your agents',
-          body: 'A draft with the steps to add the playbook, for you to read and send. Plus sharing steps that match your Claude plan.',
+          body: 'A draft with the steps to add the playbook, for you to read and send. Plus sharing steps for your Claude plan, or for each kind of plan if you don’t say which.',
         },
         {
           title: 'Check before sending',
@@ -314,7 +315,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
         {
           label: 'Run',
           title: 'Claude does the sorting',
-          body: 'Reads every document in full, sorts it by topic, finds conflicts, gaps and stale sections, takes out personal data, and checks and packages the playbook.',
+          body: 'Reads every document, sorts what it says by topic, finds conflicts, gaps and stale sections, takes out personal data, and checks and packages the playbook.',
         },
         {
           label: 'Draft',
@@ -330,8 +331,8 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
     },
     {
       // page-notes.md, "What the Person Needs", and the build report's needs (computer, connectors,
-      // accounts and cost). The Free wording is page-notes.md's: the help center lists Free, the docs
-      // don't, so the page never promises it. "None if an owner adds it": a shared (not provisioned)
+      // accounts and cost). The Free wording is every skill page's: the help center lists Free, the
+      // developer docs list Pro and up, so the page never promises it, for the leader or an agent. "None if an owner adds it": a shared (not provisioned)
       // skill is off until each agent turns it on (references/agent-install.md).
       kind: 'tiles',
       heading: 'What you need',
@@ -341,31 +342,31 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan, for you',
-          body: 'With skills and code execution on, so Claude can read Word and Excel files and package the playbook. Claude’s help center lists skills on every plan, Free included, but Claude’s docs leave Free out. If your Free account has no way to add a skill, you need a paid plan.',
+          body: 'With skills and code execution on, so Claude can read Word and Excel files and package the playbook. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns on code execution',
         },
         {
           title: 'Claude for each agent',
-          body: 'Each agent adds the playbook to their own Claude account. Or, on your Claude Team or Enterprise plan, you share it with them, or an owner adds it for everyone.',
+          body: 'Each agent adds the playbook to their own Claude account. On a Claude Team or Enterprise plan, you can share it with them instead, or an owner can add it for everyone. If an agent’s Free account has no way to add a skill, that agent needs a paid plan.',
           tag: 'A few clicks each, or none if an owner adds it',
         },
         {
           title: 'A computer',
-          body: 'Adding a skill to Claude is easiest on a computer, for you and for each agent. Once it’s added, it works in chat on the Claude phone app too.',
+          body: 'Adding a skill to Claude is easiest on a computer, for you and for each agent. Building the playbook is easiest there too, since you attach files and save a ZIP. Once a skill is added, it also works in chat in the Claude phone app.',
         },
         {
           title: 'Your team’s documents',
-          body: 'Your policy manual, SOPs, onboarding checklist, fee schedule for all agents, brand rules, tech how-tos and training call transcripts. PDF, Word, Excel or text. Nothing to type.',
+          body: 'Your policy manual, SOPs, onboarding checklist, fee schedule for all agents, brand rules, tech how-tos and training call transcripts. PDF, Word, Excel or text. Nothing to retype.',
           tag: 'Up to 20 files in one chat',
         },
         {
           title: 'Connectors, if you want',
-          body: 'A connector links Claude to another app. With Google Drive, Microsoft 365 or ClickUp connected, Claude can read your documents there, read only, instead of uploads. We haven’t tested these yet.',
+          body: 'A connector links Claude to another app. With Google Drive, Microsoft 365 or ClickUp connected, Claude can read your documents there instead of you attaching them. Claude only reads them and never changes anything there. We haven’t tested these connectors yet.',
           tag: 'Optional',
         },
         {
           title: 'No extra cost',
-          body: 'Nothing beyond your Claude plan, and no other accounts to make.',
+          body: 'Nothing beyond a Claude plan for you and for each agent. No other accounts to make.',
           tag: 'Zoom transcripts need a paid Zoom account',
         },
       ],
@@ -380,7 +381,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
         { title: 'PDF, Word and Excel files', body: 'Attach them as they are.' },
         {
           title: 'Google Docs',
-          body: 'Open the doc, click File, then Download, and choose PDF or Microsoft Word (.docx). Or, with the Google Drive connector on, click + in the chat, choose Add from Google Drive, and search for the doc or paste its link. Drive reads the words only, not pictures in the doc.',
+          body: 'Open the doc, click File, then Download, and choose PDF or Microsoft Word (.docx). Or, with the Google Drive connector on, click + in the chat, choose Add from Google Drive, and search for the doc or paste its link. From Drive, Claude reads only the words, not pictures in the doc.',
         },
         {
           title: 'OneDrive or SharePoint',
@@ -411,15 +412,16 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
           ],
         },
         {
-          label: 'In the same chat, to answer Claude’s questions',
-          items: ['The fee schedule applies to every agent on the team.', 'Use the policy manual’s pond rule.'],
-        },
-        {
-          label: 'Later, to update it or share it',
+          label: 'In the same chat, after Claude answers',
           items: [
-            'Here’s our current playbook ZIP and the new lead routing SOP. Update it.',
+            'The fee schedule applies to every agent on the team.',
+            'Use the policy manual’s pond rule.',
             'We’re on a Claude Team plan. What’s the best way to get this to my agents?',
           ],
+        },
+        {
+          label: 'Later, in a new chat, with your playbook ZIP and the changed document attached',
+          items: ['Here’s our current playbook ZIP and the new lead routing SOP. Update it.'],
         },
       ],
     },
@@ -431,7 +433,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
           // SKILL.md step 1 (connectors read only), step 2 and Guardrails; page-notes.md, "What It Won't Do".
           q: 'What won’t it do?',
           a: [
-            'Claude never writes a policy your documents don’t have, and never picks a winner when two documents disagree. It leaves out anyone’s own split or deal, phone numbers, personal emails, door and lockbox codes, passwords, and wire and account numbers. Your fee schedule stays out until you say it applies to every agent. Claude never sends the message to agents or shares the playbook. With a connector on, it only reads: it never writes to Google Drive, Microsoft 365, ClickUp or your CRM. The playbook sends contract, legal and compliance questions to your broker, and brokerage-wide questions to your brokerage. It explains your written rules. It doesn’t route leads, score agents or keep deal deadlines.',
+            'Claude never writes a policy your documents don’t have, and never picks a winner when two documents disagree. Claude leaves out anyone’s own split or deal, phone numbers, personal emails, door and lockbox codes, passwords, and wire and account numbers. Your fee schedule stays out until you say it applies to every agent. Claude never sends the message to agents or shares the playbook. With a connector on, Claude only reads: it never writes to Google Drive, Microsoft 365, ClickUp or your CRM. The playbook sends contract, legal and compliance questions to your broker, and brokerage-wide questions to your brokerage. The playbook explains your written rules. It doesn’t route leads, score agents or keep deal deadlines.',
           ],
         },
         {
@@ -439,7 +441,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
           // "How to Share It, by Plan".
           q: 'Which plan do my agents need?',
           a: [
-            'Each agent needs their own Claude account with skills, or a seat on your Claude Team or Enterprise plan. Claude’s help center lists skills on every plan, Free included, but Claude’s docs leave Free out. If an agent on Free sees no way to add a skill, they need a paid plan. The playbook is built for Claude. Agents who use only ChatGPT would need a Claude account to use it.',
+            'Each agent needs their own Claude account with skills, or a seat on your Claude Team or Enterprise plan. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If an agent’s Free account has no way to add a skill, that agent needs a paid plan. The playbook is built for Claude, and we’ve only tried it in Claude. We haven’t tested it in ChatGPT, so for agents who use only ChatGPT, we can’t promise it works.',
           ],
         },
         {
@@ -465,7 +467,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
           // page-notes.md FAQ ("We're not in Utah"); SKILL.md, the opening line.
           q: 'Does it work for any brokerage or state?',
           a: [
-            'Yes. Every answer comes from your own documents, so it works for any team, brokerage or state. Claude doesn’t check your documents against state law. It flags items for your broker instead.',
+            'Yes. The playbook answers only from your own documents, so it works for any team, brokerage or state. Claude doesn’t check your documents against state law. It flags items for your broker instead.',
           ],
         },
         {
@@ -486,7 +488,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
       body: [
         'Have a CRM export to clean up, not SOPs? ',
         { link: 'Database Health Check', href: '/database-health-check', sameTab: true },
-        ' is the other skill for team leaders.',
+        ' is the skill for that.',
       ],
     },
   ],

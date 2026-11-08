@@ -15,6 +15,7 @@ Listing agents with two or more offers on the table, from a weekend with two off
 1. **Each offer, with all its addenda (required, two or more).** Buyers' agents send these as PDF attachments, usually one signed packet per offer. Download each one as it came:
    - **Gmail:** open the message, hover over the attachment at the bottom, and click Download.
    - **Outlook (new Outlook, or Outlook on the web):** select the dropdown arrow on the attachment and select Download, or Download all for every attachment in the message.
+   - Download and upload them yourself, even with Gmail connected: Claude's Gmail connector sees only an attachment's name and details, not what's inside it.
    - Keep **each offer as its own PDF**. Claude reads checkboxes, initials and signatures from the page images only in PDFs of 100 pages or fewer, so one giant combined file can hide a missing initial. A chat holds up to 20 files.
 2. **Each buyer's preapproval letter or proof of funds (expected).** Usually attached to the same email. If one is missing, the skill still runs, marks that offer "[no letter uploaded]" and drafts the question to ask for it.
 3. **A seller net sheet from title (optional).** Ask your title officer to run one. Without it the skill won't estimate commissions, title fees, the payoff or prorations. With one, it uses the sheet for the offer it was run on and estimates the others from it, labeled as estimates for title to confirm.
@@ -22,7 +23,7 @@ Listing agents with two or more offers on the table, from a weekend with two off
 
 **Buyer letters and photos:** if an offer includes one, the skill sets it aside, notes that it was there and keeps it out of the comparison and the email. You don't need to remove it first.
 
-**Privacy before you upload:** offers and lender letters carry buyers' financial details. Turn off model training first if you haven't: in Claude, Settings > Privacy > Help Improve our AI models (Free, Pro, Max and Ultra; Team and Enterprise chats aren't used for training by default); in ChatGPT, Settings > Data controls > Improve the model for everyone. Never upload wire instructions; the skill won't use them.
+**Privacy before you upload:** offers and lender letters carry buyers' financial details. Turn off model training first if you haven't: in Claude, Settings > Privacy > Help Improve our AI models (Anthropic's article names Free, Pro and Max; Team and Enterprise chats aren't used for training by default); in ChatGPT, Settings > Data controls > Improve the model for everyone. Never upload wire instructions; the skill won't use them.
 
 ## Things to Say
 
@@ -52,9 +53,10 @@ Flags first (missing pages, signatures and initials, missing letters, set-aside 
 ## What You Need
 
 - **Claude:** a plan with skills and code execution. Claude's Help Center lists skills on Free, Pro, Max, Ultra, Team and Enterprise; Claude's docs list Pro and up, so if the upload option is missing on Free, that's why. Code execution ("Code execution and file creation," called "Create and edit files" in the updated layout) is on by default on Free, Pro, Max and Ultra. On Team and Enterprise, an Owner controls skills and code execution.
-- **No connectors.** Gmail is optional, only to save the seller email as a draft when you ask (Claude's Help Center says the Gmail connector can draft; one Claude docs page calls it read-only, so if drafting isn't offered, copy the email instead).
+- **No connectors.** Gmail is optional, only to save the seller email as a draft when you ask. Claude's Help Center says the Gmail connector is on every plan and can draft; Claude's docs page lists it on Pro and up and calls it read-only. If drafting isn't offered, copy the email instead.
 - **ChatGPT instead:** a Project, on any plan that has Projects (Free, Go, Plus, Pro). The project holds 4 files, inside Free's limit of 5. A four-offer set is a lot for ChatGPT Free, which allows 3 file uploads a day and about 12 pages of text per message (Go and Plus allow about 40), so use Go or Plus, or Claude, for a full offer set. Attach the offers in the chat, not as project files: OpenAI says PDFs added as project files are read as text only. OpenAI's help pages disagree on when ChatGPT reads images inside a PDF, so in ChatGPT check every initial and signature line yourself.
-- **No cost** beyond your Claude or ChatGPT plan.
+- **A computer with a web browser** (or the Claude desktop app) to download the offer PDFs from email and upload them. Skills are added in claude.ai or the desktop app; once added, they're saved to your account and also work in chats in the Claude mobile app.
+- **No cost** beyond your Claude or ChatGPT plan. The title net sheet is optional and comes from your title officer.
 
 ## Install
 
@@ -94,6 +96,8 @@ multiple offers, compare offers, offer comparison, highest and best, which offer
 - Eval 2, three offers on the 2026 REPC, one with no lender letter and one whose letter is old, expires before closing and tops out below the price, with a title net sheet run on the first offer: 10 of 10. It used the sheet for that offer and estimated the other two by changing only the percentage and offer-term lines, held the flat lines with notes, read an unchecked financing box as the form's 50% default, and moved a Sunday earnest money date to Monday.
 - Eval 3, an Idaho offer set with two escalation clauses that each count "any other offer": 9 of 9 after one fix (a missing sentence comparing one cap with its letter). General mode named no Utah rule, showed both escalation readings ($433,000 and $433,500, or $439,000 and $438,000) and sent the question to the broker.
 - Practice run: 12 of 12. It is the sample on this page.
+- Independent review (same day): a second reviewer ran eval 2 and the practice files from scratch and got the same rankings and figures. It added two checks the builder's runs had missed: when the sellers' date is a closing or move date, show the latest Closing, because funding and Recording can come up to four days after Settlement on both Utah forms; and when an escalation depends on an offer that will lapse first, show the result both ways for the broker. The sample was updated in those places to match.
+- Second independent review (same day): another reviewer ran eval 1 from scratch and got the same figures, top two and differences (10 of 10). Its run also noticed that the two finalists hand over the house at Recording, weeks before the sellers' January 4 rental starts. SKILL.md now checks possession against the day the sellers can move into their next home, and the eval 1 output was updated to match. It also checked the description against its neighbors: three requests that should land here ("Three offers came in over the weekend, which should my sellers take?", "Highest and best came in at noon, five offers attached", "Cash at 610 or FHA at 625 with 10k back, which leaves my seller more?") and two that shouldn't ("The buyer sent back Addendum No. 2, what changed?" goes to Counter Explainer; "My buyers are up against multiple offers, should we escalate?" goes to Offer Strategy). The last one could have matched "multiple offers" here, so the description now says "your buyer's offer (offer-strategy)".
 - One skill fix came out of testing: twice, a seller email said "I've asked" for something before any request went out. SKILL.md now says the email makes no claim that a request already went out.
 - `node scripts/skills.mjs check offer-comparison` passes.
 
@@ -102,16 +106,17 @@ multiple offers, compare offers, offer comparison, highest and best, which offer
 - A PDF over 100 pages, where Claude reads text only.
 - The ChatGPT Project version in ChatGPT itself, and whether ChatGPT sees initials and checkboxes in chat-attached PDFs on each plan.
 - Upload on a Claude Free plan, and the Gmail draft step.
-- Collision check against all 17 skills installed together (the description names its four nearest siblings).
+- Collision check with all 17 skills installed together in Claude. The five requests above were checked against the descriptions by reading, not in a live Claude account.
 - Not verified anywhere: the terms of the Utah Association of REALTORS members-only forms (multiple offers addendum, backup contract addendum, subject to sale addendum, short-term lease-back); the skill reads them from the attached document and sends questions to the broker. Whether the REPC's "legal holiday" means the days in Utah Code 63G-1-301 is written as "confirm with your broker."
 
 ## Sources (checked 2026-11-08)
 
 - Skills upload path and plans: https://support.claude.com/en/articles/12512180-use-skills-in-claude and https://claude.com/docs/skills/overview
+- Skills added in claude.ai or the desktop app also work in chat on mobile: https://claude.com/docs/extend/overview
 - Code execution on by default, and its name in the updated layout: https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude
 - Claude file limits (20 files per chat; images in PDFs read only up to 100 pages): https://support.claude.com/en/articles/8241126-uploading-files-to-claude
 - Claude training setting: https://privacy.claude.com/en/articles/12109829-how-do-i-change-my-model-improvement-privacy-settings ; commercial plans not trained on by default: https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training
-- Gmail connector can draft (Help Center): https://support.claude.com/en/articles/10166901-use-google-workspace-connectors ; read-only (Claude docs): https://claude.com/docs/connectors/google/gmail
+- Gmail connector can draft and is on every plan (Help Center): https://support.claude.com/en/articles/10166901-use-google-workspace-connectors ; read-only, Pro and up, attachment details only (Claude docs): https://claude.com/docs/connectors/google/gmail
 - Gmail, download an attachment (open the message, hover over the attachment, click Download): https://support.google.com/mail/answer/30719
 - Outlook, save attachments (new Outlook: dropdown arrow, Download or Download all; Outlook on the web: Download or Download all): https://support.microsoft.com/en-us/outlook/mail/open-save-and-edit-attachments-received-in-outlook
 - ChatGPT Projects (New project, ••• > Project settings, 5 files per project on Free): https://help.openai.com/en/articles/10169521-projects-in-chatgpt ; project files on the Sources tab: https://help.openai.com/en/articles/6825453-chatgpt-release-notes and https://learn.chatgpt.com/docs/projects
