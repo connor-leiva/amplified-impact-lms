@@ -18,7 +18,7 @@ The unit inspected well (one missing smoke alarm), but the HOA packet raises two
 ## Issue List
 
 **Tier 1: Safety and Health**
-1. **No smoke alarm in bedroom 2 (page 5, rated Safety).** Smoke alarms are present in bedroom 1 and the upstairs hall; a CO alarm is in the upstairs hall. Action: ask the seller to install one. Cost: needs bid (likely minor, but no figure is in the documents).
+1. **No smoke alarm in bedroom 2 (page 5, rated Safety).** Smoke alarms are present in bedroom 1 and the upstairs hall; a CO alarm is in the upstairs hall. Action: ask the seller to install one. Cost: needs bid.
 
 **Tier 2: Major System or Structure**
 None in the unit. The roof is the HOA's (see HOA Findings).
@@ -27,7 +27,7 @@ None in the unit. The roof is the HOA's (see HOA Findings).
 2. Dishwasher drain line has no high loop or air gap (page 6, Maintenance)
 3. Kitchen backsplash caulking cracked (page 6, Maintenance)
 
-**Tier 4: Informational.** 9 notes, including: the roof, viewed from the ground, shows "curling and granule loss" on the south slope, and the inspector refers it to the HOA (page 3); the water heater is dated 2011, and at 15 years the inspector says to budget for replacement (page 4, an age note, not a defect); the furnace is dated 2005 and operated normally; the attic is reached through an HOA-controlled access and was not entered (page 7).
+**Tier 4: Informational.** Notable notes: the roof, viewed from the ground, shows "curling and granule loss" on the south slope, and the inspector refers it to the HOA (page 3); the water heater is dated 2011, and at 15 years the inspector says to budget for replacement (page 4, an age note, not a defect); the furnace is dated 2005 and operated normally; the attic is reached through an HOA-controlled access and was not entered (page 7).
 
 ## Questions for the Listing Agent
 

@@ -49,7 +49,7 @@ def main():
     src = a.prompt + "\n" + "\n".join(pdf_text(p) for p in a.inputs)
     ok = True
 
-    dashes = [m.start() for m in re.finditer("[–—]", out)]
+    dashes = [m.start() for m in re.finditer("[\\u2013\\u2014]", out)]
     print(f"em/en dashes: {len(dashes)}")
     ok &= not dashes
 

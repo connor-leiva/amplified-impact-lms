@@ -31,7 +31,7 @@ The summary page looks minor, but the body of the report has a safety item the s
 7. Upstairs hall bath sink stopper doesn't operate (page 10, Maintenance)
 8. Wood siding paint weathered on the south side (page 3, Maintenance; not in the summary, minor)
 
-**Tier 4: Informational.** 12 notes, including several original windows with fogged glass from failed seals (page 10), furnace and air conditioner data plates dated 2010, water heater dated 2016 with seismic straps, air conditioner not tested in the cold, and smoke and CO alarms present.
+**Tier 4: Informational.** Notable notes: several original windows with fogged glass from failed seals (page 10), furnace and air conditioner data plates dated 2010, water heater dated 2016 with seismic straps, air conditioner not tested in the cold, and smoke and CO alarms present.
 
 ## Questions for the Listing Agent
 

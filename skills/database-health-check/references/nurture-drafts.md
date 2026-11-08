@@ -2,6 +2,8 @@
 
 How to write the drafts for each segment. Read outreach-rules.md too: its checklist governs every text and email here. This is not legal advice; consent questions go to the broker or an attorney.
 
+Last verified: 2026-11-08. The Follow Up Boss details here (its automatic unsubscribe footer and Admin > Company, merge fields, no built-in Do Not Call scrub) come from its help center: Unsubscribing from Marketing Emails, https://help.followupboss.com/hc/en-us/articles/11469480193687-Unsubscribing-from-Marketing-Emails ; How to Use Merge Fields, https://help.followupboss.com/hc/en-us/articles/360014569454-How-to-Use-Merge-Fields ; Call Lists, https://help.followupboss.com/hc/en-us/articles/360014082414-Call-Lists . More sources are in fub-and-crm-exports.md.
+
 ## What Each Segment Gets
 
 | Segment next move | Drafts |

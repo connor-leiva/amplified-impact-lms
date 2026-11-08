@@ -11,7 +11,7 @@ metadata:
 
 Turn one CRM export into what a team leader needs to fix and work the database: how healthy it is in numbers, a worklist ops can clear, and the segments worth calling or emailing this month, with drafts. Follow Up Boss and Sisu work the hottest leads; nothing in the stack looks at the whole database, where duplicates split one person's history across two agents, past clients sit in the wrong stage and leads nobody called age out.
 
-This skill runs the counting in code and drafts the plan. It never touches the CRM. People make every merge, stage change, reassignment, pond move and archive, decide who gets called, and own texting consent and the fair housing review of every message.
+**Run:** it reads the export, does every count in code, finds duplicates and stage problems, sizes the segments and builds the worklist. **Draft:** the filters, the segment plan, the team questions and every message, for the team leader to review. **Own:** the team makes every merge, stage change, reassignment, pond move and archive in the CRM, decides who gets called, and owns texting consent and the fair housing review of every message. This skill never touches the CRM.
 
 ## 1. Get the Export
 
@@ -48,7 +48,7 @@ Pick four to six of the run's segment candidates, in its order, as `references/h
 
 ## 5. Draft the Nurture Messages
 
-Read `references/nurture-drafts.md` and `references/outreach-rules.md`. For each segment: an email; a call opener for call-list segments; a text only for the consent-filtered version of the list. When the export has no consent field, write no texts at all, say why, and say how to add one. Emails carry the opt-out line, the postal address placeholder and the marketing footer. Texts name the sender and end with "Reply STOP to opt out."
+Read `references/nurture-drafts.md` and `references/outreach-rules.md`. For each segment: an email; a call opener for call-list segments; a text only for the consent-filtered version of the list. When the export has no consent field, write no texts at all, say why, and say how to add one. Emails carry the opt-out line, the postal address placeholder and the marketing footer. Texts name the sender and end with "Reply STOP to opt out." Write in the user's voice profile when one is in the conversation (their preferences, a project's instructions or a voice skill); otherwise warm, plain and direct. Sign with the user's name or [Agent Name].
 
 ## 6. Guardrails
 

@@ -1,0 +1,12 @@
+Dollar amounts not in the inputs: $1,000, $14,000, $5,000, $611,000
+Percentages not in the inputs: 1.45%
+Clock times not in the inputs: none
+Calendar dates not in the inputs (must be shown as computed): none
+Weekday labels that don't match the calendar: none
+Em or en dashes: none
+Subject: Counteroffer No. 2 On 2207 Placeholder Pines Drive: What Changed | Title Case: yes
+Check before sending section: present
+Banned stock phrases: none
+Account, routing or wire numbers: none
+Protected-class or steering wording: none
+Client message words (heading to next section): 280

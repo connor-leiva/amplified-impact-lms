@@ -23,7 +23,7 @@ Result: **pass, 8 of 8.**
 
 | Check | Result | Evidence |
 |---|---|---|
-| Every number in the output appears in the inputs | Pass | 118 numbers; 24 not literally in the files, each arithmetic shown in the output: ratios (97.3, 97.7, 98.8, 99.5, 99.6), price per above-grade sq ft, prices after concessions (494,500, 546,000, 577,000), 600 (2,050 minus 1,450), 15,000 (each cut), 75,100 ($640,000 minus $564,900), 0.83 and 2.4 (months of supply), 13 (listings counted). The recommendation, the range and the $550,000 search line are labeled as the agent's call in Check before sending. |
+| Every number in the output appears in the inputs | Pass | 117 numbers; 23 not literally in the files, each arithmetic shown in the output: ratios (97.3, 97.7, 98.8, 99.5, 99.6), price per above-grade sq ft, prices after concessions (494,500, 546,000, 577,000), 600 (2,050 minus 1,450), 15,000 (each cut), 75,100 ($640,000 minus $564,900), 0.83 and 2.4 (months of supply), 13 (listings counted). The recommendation, the range and the $550,000 search line are labeled as the agent's call in Check before sending. |
 | Deadlines match the uploaded contract | N/A | No contract uploaded; the appraisal deadline is described, not dated. |
 | No em or en dashes | Pass | 0 |
 | Title Case subject lines | Pass | No email was asked for; the summary title is Title Case. |

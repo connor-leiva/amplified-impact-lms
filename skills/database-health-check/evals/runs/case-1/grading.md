@@ -2,7 +2,7 @@
 
 Run: SKILL.md followed as written. The code was extracted from references/analysis-code.md and run on evals/files/fub-people-export-5000.csv with --transactions evals/files/closed-transactions-2019-2026.csv (no team rules uploaded, so defaults). Analysis files: files/health_report.md, files/health_report.json, files/cleanup_worklist.csv. Output: output.md. Baseline for this skill is on case 3.
 
-Result: 15 of 15 expectations pass after one fix round; 10 of 10 applicable objective checks pass.
+Result: 15 of 15 expectations pass after one fix round; 9 of 9 applicable objective checks pass.
 
 ## Expectations
 
@@ -11,7 +11,7 @@ Result: 15 of 15 expectations pass after one fix round; 10 of 10 applicable obje
 | 1 | Counts come from the analysis code; 5,000 records | Pass | files/health_report.md header "Records: 5,000"; every number in output.md traces to that file (objective check below) |
 | 2 | Bottom line of three sentences or fewer with size, three problems with counts, one first cleanup | Pass | Three sentences: 5,000 contacts; 669 never contacted, 562 missing or invalid phone, 529 gone quiet; merge first |
 | 3 | First cleanup is merging, with the Follow Up Boss reason | Pass | "Follow Up Boss keeps the main record's stage and agent when it merges, so stage and assignment fixes made before merging would be wasted" |
-| 4 | At least 125 merge groups; shared-contact-info groups and the shared phone reported separately | Pass | 133 merge groups (272 records); 24 different-first-name groups and 6 different-name groups; "One phone number sits on 8 different people's records ... flagged for review, not merged" (the generator planted 136 merge groups, 25 shared-contact pairs and an 8-record office line; the 3 groups not found had invalid phone formats) |
+| 4 | At least 125 merge groups; shared-contact-info groups and the shared phone reported separately | Pass | 133 merge groups (272 records); 24 different-first-name groups and 6 different-name groups; "One phone number sits on 8 different people's records ... flagged for review, not merged" (the generator planted 136 merge groups, 25 shared-contact pairs and an 8-record office line, per evals/make/planted/case1.json; 133 of the 136 were found) |
 | 5 | Stale active-stage contacts by stage and by agent | Pass | Table of 10 stages; agent table column "Active stage, no touch 90+ days" |
 | 6 | Past clients and sphere untouched 12+ months; Closed versus Past Client question | Pass | 178 of 487 past clients and 162 of 493 sphere; Question 1 |
 | 7 | Uses the closed-deal file: closed deals in active stages, past clients not labeled, 14 not in the CRM | Pass | 31 closed deals in active stages; 20 matched but not in a past client stage; "14 are not in the CRM at all"; Question 5 |

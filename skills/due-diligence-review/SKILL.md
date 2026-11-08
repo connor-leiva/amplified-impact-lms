@@ -105,7 +105,7 @@ Write as the agent, in first person. Follow the user's voice profile when one is
 1. **Flags**, only when they apply: deadline within 48 hours (bold), deadline passed, placeholders used, general mode, which REPC version
 2. **Bottom line for the agent** (three sentences max): the overall read, the count of Tier 1 and 2 items, and the days left
 3. **Documents reviewed:** one line each with its date and pages, plus anything expected that's missing
-4. **Issue list**, grouped by tier (Tier 4 can be a one-line count unless the agent asks)
+4. **Issue list**, grouped by tier (Tier 4 can be one line naming the notable notes, without a count, unless the agent asks for detail)
 5. **Questions for the listing agent**, from the cross-check
 6. **HOA findings**, only if HOA documents were provided
 7. **Negotiating timeline**

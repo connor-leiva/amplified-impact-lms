@@ -55,7 +55,7 @@ def main():
     out = open(out_path, encoding="utf-8").read()
     src = prompt + "\n" + "\n".join(text_of(f) for f in files)
     have = numbers(src)
-    dashes = len(re.findall(r"[–—]", out))
+    dashes = len(re.findall("[" + chr(0x2013) + chr(0x2014) + "]", out))
     print(f"em or en dashes: {dashes}")
     print(f"Check before sending section: {'yes' if re.search(r'check before sending', out, re.I) else 'NO'}")
     missing = sorted(v for v in numbers(out) if v not in have)

@@ -38,7 +38,10 @@ Merge rows that share any of these, in this order, and record which rule merged 
 Do not merge rows that share only a name (same name, different offices, no shared phone or email). List them as "possible duplicates" for a person to check.
 
 When rows merge:
-- Production: take it from the MLS or production export. If one MLS agent ID appears under two offices in the same report, add the rows together for TTM and flag an office change.
+- Production: take it from the MLS or production export. When one MLS agent ID appears more than once in the same report:
+  - same office and the same numbers: a repeated row; keep one
+  - two different offices: add the rows together for TTM and flag an office change
+  - same office, different numbers: don't add them; use the larger row for the tier and flag it for a person to check
 - Contact details: keep every distinct email and phone; show the team's own file first.
 - Stage, owner and last touch: from the team's own file.
 - Consent and opt-out: from whichever file records it. An opt-out anywhere wins.
@@ -47,7 +50,7 @@ Report: rows read per file, rows merged, unique agents, merges by rule, possible
 
 ## Removals
 
-- **Already on the team:** any merged agent who matches the uploaded roster (by MLS ID, email, phone, or name plus office). Leave them out of tiers and drafts; list the count.
+- **Already on the team:** any merged agent who matches the uploaded roster (by MLS ID, email, phone, or name plus office). Leave them out of tiers and drafts; list the count. Without a roster, don't remove anyone: flag agents whose office is the user's own brokerage ("at your brokerage: check whether they're on your team") and keep them out of drafts until the user says.
 - **Opted out:** STOP, opted out, unsubscribed, Do Not Call, DND or similar in any file. Keep them in the CSV with Outreach Tier "Do not contact" and no owner. Never draft to them.
 - **Notes:** free-text notes are never read for tiers, signals, angles or drafts and never copied into the CSV. If notes hold personal details, report the count of rows and the kinds (for example "family, health, age"), never the text.
 

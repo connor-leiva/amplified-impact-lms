@@ -1,0 +1,223 @@
+{
+  "team": "Cardinal Example Team",
+  "brokerage": "Lanternbrook Example Realty",
+  "mls_rows": 150,
+  "mls_unique_ids": 147,
+  "split_office": [
+    {
+      "mls_id": "TCX20550",
+      "name": "Ezra Pickletoes",
+      "from": "Pinecrest Example Homes",
+      "to": "Granite Example Home Group",
+      "units": 11
+    },
+    {
+      "mls_id": "TCX20557",
+      "name": "Arlo Picklecrumb",
+      "from": "Pinecrest Example Homes",
+      "to": "Silverline Example Realty",
+      "units": 8
+    }
+  ],
+  "repeated_row_id": "TCX20641",
+  "on_team_in_mls": [
+    "TCX20445",
+    "TCX20690",
+    "TCX21040"
+  ],
+  "roster_roles": {
+    "Team Leader": "Joss Teacuppocket",
+    "Recruiting Director": "Pax Noodlebottom",
+    "Appointment Setter (ISA)": "Mira Tumblecrumb"
+  },
+  "tracker_matches": {
+    "email": [
+      "TCX21019",
+      "TCX20431",
+      "TCX20697",
+      "TCX20655",
+      "TCX21222",
+      "TCX20760",
+      "TCX21306",
+      "TCX21376",
+      "TCX21299",
+      "TCX20571",
+      "TCX21047",
+      "TCX20585",
+      "TCX20606",
+      "TCX20809",
+      "TCX20767"
+    ],
+    "phone_last": [
+      "TCX21012",
+      "TCX21236",
+      "TCX20879",
+      "TCX20865",
+      "TCX21229",
+      "TCX21089",
+      "TCX20459",
+      "TCX20816"
+    ],
+    "name_office": [
+      "TCX21117",
+      "TCX20718",
+      "TCX20739",
+      "TCX20725",
+      "TCX20935"
+    ],
+    "variant_phone": [
+      "TCX21131",
+      "TCX20522"
+    ]
+  },
+  "office_changed_tracker": [
+    {
+      "mls_id": "TCX20655",
+      "name": "Jules Saffronbutton",
+      "tracker": "Silverline Example Realty",
+      "mls": "Willowmere Example Properties"
+    },
+    {
+      "mls_id": "TCX20571",
+      "name": "Quin Lanternmuffin",
+      "tracker": "Harborview Example Partners",
+      "mls": "Maplewood Example Realty"
+    },
+    {
+      "mls_id": "TCX20879",
+      "name": "Finn Sorrelwhistle",
+      "tracker": "Harborview Example Partners",
+      "mls": "Riverbend Example Realty"
+    },
+    {
+      "mls_id": "TCX21089",
+      "name": "Walt Mittennook",
+      "tracker": "Northfield Example Brokers",
+      "mls": "Oakhaven Example Realty"
+    }
+  ],
+  "opted_out_mls_ids": [
+    "TCX20697",
+    "TCX20865"
+  ],
+  "tracker_only": [
+    {
+      "name": "Fay Tansysprout",
+      "email": "fay.tansysprout@postbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Imani Parsnipbottom",
+      "email": "imani.parsnipbottom@postbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Ola Saffronsprout",
+      "email": "ola.saffronsprout@mailbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Delia Kettlemuffin",
+      "email": "delia.kettlemuffin@inbox.test",
+      "dnc": true
+    },
+    {
+      "name": "Cleo Bramblepuddle",
+      "email": "cleo.bramblepuddle@mailbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Joss Nettlefluff",
+      "email": "joss.nettlefluff@inbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Kaia Bramblepocket",
+      "email": "kaia.bramblepocket@postbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Yuki Biscuitbottom",
+      "email": "yuki.biscuitbottom@inbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Tess Crumpetmuffin",
+      "email": "tess.crumpetmuffin@inbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Orrin Tansydumple",
+      "email": "orrin.tansydumple@letterbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Juno Cobblefluff",
+      "email": "juno.cobblefluff@inbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Pip Tumblebottom",
+      "email": "pip.tumblebottom@postbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Vic Quillcrumb",
+      "email": "vic.quillcrumb@inbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Fay Tumblehopper",
+      "email": "fay.tumblehopper@postbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Leon Hobnobwhistle",
+      "email": "leon.hobnobwhistle@inbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Tobin Picklebloom",
+      "email": "tobin.picklebloom@inbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Hattie Mittenbloom",
+      "email": "hattie.mittenbloom@postbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Una Peppersnout",
+      "email": "una.peppersnout@mailbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Gil Wafflemuffin",
+      "email": "gil.wafflemuffin@postbox.test",
+      "dnc": false
+    },
+    {
+      "name": "Iris Cloversnout",
+      "email": "iris.cloversnout@letterbox.test",
+      "dnc": false
+    }
+  ],
+  "possible_duplicates": [
+    {
+      "name": "Dot Kettlenook",
+      "mls_id": "TCX20466"
+    },
+    {
+      "name": "Viggo Biscuitbutton",
+      "mls_id": "TCX20788"
+    }
+  ],
+  "tracker_repeats": 3,
+  "tracker_rows": 55,
+  "personal_notes": [
+    "Has 3 kids, wants flexibility",
+    "Recently widowed, may need income"
+  ],
+  "total_rows": 205,
+  "expected_unique": 169
+}

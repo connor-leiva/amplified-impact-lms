@@ -37,7 +37,7 @@ The home has two safety items (a water heater that spilled exhaust during the dr
 11. Minor debris in the rear gutter (page 3, Maintenance)
 12. Primary bedroom closet door rubs at the top (page 10, Maintenance; not in the summary, minor)
 
-**Tier 4: Informational.** 15 notes, including: the water heater is 17 years old by its 2009 data plate (page 7), furnace and air conditioner data plates dated 2015, air conditioner not tested in the cold, smoke alarms on each level and a CO alarm on the main level, garage door reversed as intended, basement bedroom egress window present, no defects at the main panel.
+**Tier 4: Informational.** Notable notes: the water heater is 17 years old by its 2009 data plate (page 7), furnace and air conditioner data plates dated 2015, air conditioner not tested in the cold, smoke alarms on each level and a CO alarm on the main level, garage door reversed as intended, basement bedroom egress window present, no defects at the main panel.
 
 ## Questions for the Listing Agent
 
@@ -94,12 +94,12 @@ Hi Avery and Jordan,
 **The home is in solid shape overall, but there are two safety items and three bigger items to sort out, and we need to decide what to ask the seller for before 5:00 PM on Friday, November 13.**
 
 **What Needs Attention**
-- **Water heater venting:** exhaust spilled back into the room during testing. A licensed contractor should correct it (page 7).
+- **Water heater venting:** exhaust spilled back during testing. A licensed contractor should correct it (page 7).
 - **Radon:** the basement tested at 6.8 pCi/L. EPA recommends fixing a home at 4 or above, usually with a mitigation system.
-- **Roof:** the inspector says it's near the end of its life. I'd like a roofer to give us an evaluation and a bid this week (page 3).
+- **Roof:** the inspector says it's near the end of its life. I'd like a roofer's evaluation and bid this week (page 3).
 - **Attic:** a bath fan vents into the attic, and there's staining on the roof boards around it. The roofer can look at both (page 9).
-- **Northeast basement corner:** the soil slopes toward the house and there are signs of past moisture on that wall. That matters before you finish the basement (pages 4 and 10).
-- **Your shop plan:** there's a 20-foot irrigation easement and a 10-foot utility easement along the back lot line. Let's check what that means before you count on the space.
+- **Northeast basement corner:** the soil slopes toward the house, with signs of past moisture on that wall. That matters before you finish the basement (pages 4 and 10).
+- **Your shop plan:** a 20-foot irrigation easement and a 10-foot utility easement run along the back lot line. Let's check what they allow.
 
 **What's Normal For A Home This Age**
 A GFCI outlet, a loose toilet, furnace service, deck upkeep and caulking.

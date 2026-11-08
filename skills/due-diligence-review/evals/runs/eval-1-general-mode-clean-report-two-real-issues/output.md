@@ -31,7 +31,7 @@ A clean report with two real issues: a scorched, overheated dryer breaker with m
 8. Bedroom 2 door sticks (page 8, Maintenance)
 9. A few fallen insulation batts near the crawlspace access (page 7, Maintenance; not in the summary, minor)
 
-**Tier 4: Informational.** 11 notes, including: roof about 10 years old by the inspector's estimate with normal wear, attic ventilation adequate, grading slopes away, smoke and CO alarms present, furnace and air conditioner data plates dated 2012, water heater dated 2018, air conditioner not tested in the cold, and minor nail pops.
+**Tier 4: Informational.** Notable notes: roof about 10 years old by the inspector's estimate with normal wear, attic ventilation adequate, grading slopes away, smoke and CO alarms present, furnace and air conditioner data plates dated 2012, water heater dated 2018, air conditioner not tested in the cold, and minor nail pops.
 
 ## Questions for the Listing Agent
 

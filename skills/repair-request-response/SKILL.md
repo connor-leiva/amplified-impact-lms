@@ -33,7 +33,7 @@ Read `references/utah-repair-response.md` first. It tells you which REPC version
 
 - Name the version from the contract's footer. Show today's date, the Due Diligence Deadline and the days left, the acceptance deadline written on the buyer's request, and the Settlement Deadline.
 - Under either current Utah form, the buyer's cancellation window and the deadline for a signed written resolution are the same: 5:00 PM Mountain Time on the Due Diligence Deadline. Say so plainly, because many agents still expect seven days plus three. If the uploaded contract or an attached Lead-Based Paint Addendum has a Response Period, compute it from that language and say which objections it covers.
-- If the Due Diligence Deadline is within 48 hours, put that first, in bold. If it has passed, don't treat the request as timely: tell the agent to call their broker and transactions team before responding.
+- If the Due Diligence Deadline is today, tomorrow or the day after (about 48 hours or less), put that first, in bold, with the time the buyer's request lapses. If it has passed, don't treat the request as timely: tell the agent to call their broker and transactions team before responding.
 - Label the section: "For strategy; confirm dates with your transactions team."
 
 ## 3. Match Each Request to the Report
