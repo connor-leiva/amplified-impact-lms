@@ -67,7 +67,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
     // SKILL.md, section 1 (the seller's number and Zillow's are used when the agent mentions them) and
     // section 8, item 9 (every number traced to its MLS number or file).
     note: [
-      'Add what your sellers have said to the message, like the price they want or the Zillow number they quote, and the AI places it against your comps. Before you share anything, check every price, date and square footage in the ',
+      'Add what your sellers have said to the message, like the price they want or the Zillow number they quote, and the AI places that number against your comps. Before you share anything, check every price, date and square footage in the ',
       { strong: 'Check before sending' },
       ' list against its MLS number.',
     ],
@@ -153,7 +153,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
           items: [
             'Recommended price: $599,900. It’s where the closest match went pending in 9 days, and it stays under $600,000, so the home shows up in searches capped there.',
             'The Pretendleys’ $615,000: $10,500 above the highest two-story sale ($604,500), above the new active at $609,000, and $9,900 under the active at $624,900 that has sat 47 days after a cut.',
-            'Appraisal check (Utah): a financed buyer’s appraiser will lean on these same closed sales. If the buyer’s contract includes the appraisal condition and the home appraises below the price, the buyer can cancel by the contract’s appraisal deadline and get the earnest money back. It’s a right to cancel, not an automatic price cut, but at $615,000 it’s a real risk. No appraisal result is certain.',
+            'Appraisal check (Utah): a financed buyer’s appraiser will lean on these same closed sales. Under the Utah REPC (either version in use until January 1, 2027), if the buyer’s contract includes the appraisal condition and the home appraises below the price, the buyer can cancel by the contract’s appraisal deadline and get the earnest money back. It’s a right to cancel, not an automatic price cut, but at $615,000 it’s a real risk. No appraisal result is certain.',
           ],
         },
         { h: 'Talk track' },

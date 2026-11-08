@@ -28,6 +28,9 @@ out = open(out_path, encoding="utf-8").read()
 def read(p):
     if p.lower().endswith(".pdf"):
         return subprocess.run(["pdftotext", "-layout", p, "-"], capture_output=True, text=True, check=True).stdout
+    if p.lower().endswith(".csv"):
+        import csv
+        return "\n".join(" | ".join(row) for row in csv.reader(open(p, encoding="utf-8")))
     return open(p, encoding="utf-8").read()
 
 
@@ -40,7 +43,7 @@ if use_refs:
 
 
 def norm(n):
-    n = n.replace("$", "").replace(",", "")
+    n = n.rstrip(",.").replace("$", "").replace(",", "")
     if n.endswith(".00"):
         n = n[:-3]
     return n

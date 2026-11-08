@@ -1,6 +1,7 @@
 ---
 name: repair-request-response
-description: Drafts a listing agent's answer to a buyer's repair request or due diligence objection. Reads the buyer's objection or repair addendum against the inspection report, seller disclosures, contractor bids and the REPC, then returns an item table (report page, category, disclosed or visible, reasonableness, and repair, credit, price reduction or decline), a response for the seller's priority (net, certainty or timing) with the net cost from bids only, the deadline to resolve it in writing, a seller email, addendum terms and a disclosure note. Use it whenever a listing agent uploads or mentions a buyer's objection, repair request, repair addendum or inspection response, or asks what the seller should fix, credit or push back on, even if they never say “repair request.” Utah first; general mode elsewhere. Not for the buyer's side of an inspection (due-diligence-review), an addendum changing price or dates instead of asking for repairs (counter-explainer), or a low appraisal (low-appraisal-response).
+description: Drafts a listing agent's answer to a buyer's repair request or due diligence objection. Reads the buyer's objection or repair addendum against the inspection report, seller disclosure, contractor bids and REPC, then returns an item table (report page, category, disclosed or visible, reasonableness, and repair, credit, price cut or decline), a response for the seller's priority (net, certainty or timing) with costs from bids only, the deadline to resolve it in writing, a seller email, addendum terms and a disclosure note. Use it whenever a listing agent uploads or mentions a buyer's objection, repair request or addendum, or inspection response, including a credit or price cut asked for instead of repairs, or asks what the seller should fix, credit or push back on, even if they never say "repair request." Utah first; general mode elsewhere. Not for the buyer's side (due-diligence-review), a counter or addendum that isn't a buyer's repair request, including the seller's answer once it comes back (counter-explainer), or a low appraisal (low-appraisal-response).
+compatibility: Works from uploaded PDFs or photos of the buyer's request, inspection report, bids, seller disclosure and purchase contract; no connector needed. Claude skills run with code execution on, which is on by default for individual plans. Gmail is optional, only to save the seller email as a draft when the agent asks.
 metadata:
   author: Amplified Impact
   version: "1.0"
@@ -29,7 +30,7 @@ If the property is outside Utah, run in general mode: take every deadline and te
 
 ## 2. Set the Clock
 
-Read `references/utah-repair-response.md` first. It tells you which REPC version you have and where its sections are. For the December 4, 2024 form, `references/utah-repc.md` explains the terms.
+Read `references/utah-repair-response.md` first. It tells you which REPC version you have and where its sections are. For the December 4, 2024 form, `references/utah-repc.md` explains the terms; for the November 1, 2026 form, `references/utah-repc-2026.md` does.
 
 - Name the version from the contract's footer. Show today's date, the Due Diligence Deadline and the days left, the acceptance deadline written on the buyer's request, and the Settlement Deadline.
 - Under either current Utah form, the buyer's cancellation window and the deadline for a signed written resolution are the same: 5:00 PM Mountain Time on the Due Diligence Deadline. Say so plainly, because many agents still expect seven days plus three. If the uploaded contract or an attached Lead-Based Paint Addendum has a Response Period, compute it from that language and say which objections it covers.
@@ -62,7 +63,7 @@ For each item:
 
 - Read each bid against its item: scope, amount, options, exclusions, license number shown, valid-until date, earliest start or lead time against the Settlement Deadline, permits.
 - Net impact is the sum of bid amounts for the items the seller would fund, with the arithmetic shown. Items without a bid say "needs bid," stay out of the total, and are counted.
-- Never estimate a cost, a range or a "typical" price. No commission, title or proration math unless a net sheet is uploaded.
+- Never estimate a cost, a range or a "typical" price, and never size an unbid item in words ("expensive," "far more," "a quick fix"); say it has no bid. No commission, title or proration math unless a net sheet is uploaded.
 - If the contract already has a seller contribution, show what a new credit makes the total. The buyer's lender confirms the cap; don't state one.
 
 ## 6. Recommend a Response by the Seller's Priority

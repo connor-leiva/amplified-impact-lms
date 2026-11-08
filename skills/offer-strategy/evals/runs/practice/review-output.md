@@ -20,7 +20,7 @@ Offer $562,500 with the seller's offered $5,000 toward closing costs in Section 
 | Price history | Listed 10/16/2026 at $579,900; cut to $569,900 on 10/30/2026 (day 14), a $10,000 cut (1.72%) | The seller has already moved once |
 | Seller-paid items | Public remarks: "Seller offering $5,000 toward buyer's closing costs with an acceptable offer" | The seller has put money on the table |
 | Sale-to-list, this comp set | 1 of 5 recent solds closed above list; median 99.13% of final list, 98.26% of original list | Buyers have been paying a little under list |
-| Competition | Pending: 2350 E Sample Sage Dr at a $574,900 list (12 days). Active: 2077 E Example Aster Way at $559,900 (34 days, original kitchen); 2422 E Pretend Poppy Ln at $589,900 (larger, three-car). Expired: 1950 E Sample Sage Dr at $599,000 after 92 days | Updated homes near $570,000 sell; $599,000 didn't |
+| Competition | Pending: 2350 E Sample Sage Dr at a $574,900 list (12 days). Active: 2077 E Example Aster Way at $559,900 (34 days, original kitchen); 2422 E Pretend Poppy Ln at $589,900 (larger, three-car). Expired: 1950 E Sample Sage Dr at $599,000 after 92 days | Larger, updated homes sold at $571,000 and $572,500; $599,000 didn't sell |
 | The listing agent said | No offers yet; reviewing as they come in | No deadline pressure |
 
 Agent-only, for your strategy, never share: the Agent Remarks say "Seller relocating for work; prefers settlement after December 1 and 3 days possession after recording." Matching those dates costs the buyers little and is the cheapest way to make $562,500 attractive. The CMA's agent remarks also show the pending 2350 E Sample Sage Dr "Accepted offer 11/1" and the same-plan 2402 E Pretend Poppy Ln "Multiple offers received" in June.

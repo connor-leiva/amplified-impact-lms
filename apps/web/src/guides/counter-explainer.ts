@@ -60,7 +60,7 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
     prompt:
       'I represent the buyers on 1428 Sample Ridge Lane. The listing agent sent Addendum No. 2 and says it’s just a home warranty and the washer and dryer. What does it change, and can you draft a message to my buyers? This is a practice run, so treat today as November 9, 2026.',
     note: [
-      'Attach the three PDFs. The README is for you to read. Every name, address and number in them is made up. The words to say end with “treat today as November 9, 2026” so the made-up deadline hasn’t already passed. ',
+      'Attach only the three PDFs. The README is for you. Every name, address and number in the files is made up. The words to say end with “treat today as November 9, 2026” so the made-up deadline hasn’t already passed. ',
     ],
   },
 
