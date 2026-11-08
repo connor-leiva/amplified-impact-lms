@@ -475,13 +475,11 @@ describe('only /retool records a team size or the December box (D-046) @g9', () 
   });
 
   it('covers every form there is but /retool @g9', () => {
-    expect(OTHERS).toEqual([
-      '/api/task-sync-starter',
-      '/api/ops-time-audit',
-      '/api/voice-profile',
-      '/api/reel-editor',
-      '/api/ai101/waitlist',
-    ]);
+    // Every guide's opt-in from `GUIDE_SLUGS` (D-052) but /retool's, and the waitlist.
+    expect(OTHERS).toContain('/api/ai101/waitlist');
+    expect(OTHERS).not.toContain('/api/retool');
+    for (const slug of GUIDE_SLUGS.filter((s) => s !== 'retool')) expect(OTHERS).toContain(`/api/${slug}`);
+    expect(OTHERS).toHaveLength(GUIDE_SLUGS.length);
   });
 
   it.each(OTHERS)('%s stores neither, whatever the request says @g9', async (url) => {
