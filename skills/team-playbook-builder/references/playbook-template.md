@@ -121,7 +121,7 @@ Sources: [document title] ([date]); [document title] ([date])
 - The team hasn't decided which applies. Give agents both versions and send them to the [decision owner role].
 ```
 
-Every bullet in a topic file is a rule from a document, with its source. Don't add routing lines of your own ("never give account details," "ask Ops for the code"): routing lives in the generated SKILL.md, and a question the documents don't answer goes in `routing.md` under "Not Written Yet."
+Every rule in a topic file comes from a document and carries its source. Never put your own words behind a document's source tag, and never add a process the document doesn't give ("ask Ops for the code"). Routing of your own belongs in the generated SKILL.md, and a question the documents don't answer goes in `routing.md` under "Not Written Yet."
 
 When the leader settles a conflict, replace the CONFLICT block with the chosen rule, keep its source, and add "(Confirmed by [role], [date])".
 

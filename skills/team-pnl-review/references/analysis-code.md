@@ -1284,7 +1284,7 @@ def write_report(pnl, A, det, prod, P, budget, notes, out_dir):
                          ", ".join(r["accounts"]) or ("referral fees on these closings" if r.get("basis", "").startswith("pay at close") else "none"),
                          money(r["spend"]) if r.get("spend") is not None else "n/a", calc])
         L.append(table(["Source", "Closings", "GCI", "Team's share", "Spend line in the P&L", "Spend", "Return on spend"], rows))
-        L.append("\nReturn on spend = (team's share from the source's closings - spend) / spend, for the same months. Lead spend and the closings it produces rarely land in the same months, so read this as a rough period view.")
+        L.append("\nReturn on spend = (team's share from the source's closings - spend) / spend, for the same months. For a pay-at-close source the team's share is already after the referral fee, so its return = team's share / referral fees. Lead spend and the closings it produces rarely land in the same months, so read this as a rough period view.")
     L.append("")
     with open(os.path.join(out_dir, "pnl_report.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(L) + "\n")

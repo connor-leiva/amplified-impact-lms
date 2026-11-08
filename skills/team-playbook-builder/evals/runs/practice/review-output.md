@@ -133,7 +133,7 @@ I've turned our SOPs into a Claude skill, the Lantern Lane Example Team Playbook
 
 When it doesn't know, it says so and tells you who to ask. Contract and legal questions still go to the Managing Broker.
 
-To add it (about two minutes, easiest on a computer):
+To add it (a few clicks, easiest on a computer):
 1. Download the attached lantern-lane-example-team-playbook.zip. Don't unzip it.
 2. In Claude, go to Customize, then Skills. Click +, then + Create skill, then Upload a skill, and choose the ZIP.
 3. Make sure it's switched on. If Claude says skills need code execution, turn on Code execution and file creation in Settings, then Capabilities.

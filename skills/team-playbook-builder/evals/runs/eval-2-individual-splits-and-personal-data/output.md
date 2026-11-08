@@ -15,7 +15,7 @@ Files: Team Operations Manual 2026.pdf, Commission and Fees.xlsx, Onboarding Che
 
 **File:** `fernhollow-example-partners-playbook.zip` (one folder at the root, ready to upload)
 
-**Check result:** passed, with 26 must-not-contain terms (every removed name, split, note, phone number, email, code and account detail, plus the held team plan figures). None appear in the playbook. One warning, kept on purpose: `tc@fernhollow-example.test` is the Transaction Coordinator's inbox from the Operations Manual, not a personal address.
+**Check result:** passed, with 27 must-not-contain terms (every removed name, split, note, phone number, email, code and account detail, plus the held team plan figures). None appear in the playbook. One warning, kept on purpose: `tc@fernhollow-example.test` is the Transaction Coordinator's inbox from the Operations Manual, not a personal address.
 
 | File | Topic | Owner | Last updated |
 |---|---|---|---|
@@ -46,6 +46,7 @@ None found. Your two documents don't overlap on any rule.
 - Time off and coverage, and leaving the team: nothing in the documents (Team Owner).
 - Compliance: how texting consent is recorded; where to report a complaint or a mistake (Managing Broker).
 - Leads: which Follow Up Boss stages and tags to use; whether sphere leads are handled differently (Operations Manager).
+- Office: how to get into the office outside open hours. The manual's section 6 gave only a code, now removed, and no process (Operations Manager).
 
 **Documents referenced but not uploaded**
 - The brokerage onboarding packet (Onboarding Checklist, "First Week"). It's Nowhere Real Estate Co.'s document, so the playbook sends those questions to the Managing Broker.
@@ -118,7 +119,7 @@ I've turned our SOPs into a Claude skill, the Fernhollow Example Partners Playbo
 
 When it doesn't know, it says so and tells you who to ask. Contract and legal questions still go to the Managing Broker.
 
-To add it (about two minutes, easiest on a computer):
+To add it (a few clicks, easiest on a computer):
 1. Download the attached fernhollow-example-partners-playbook.zip. Don't unzip it.
 2. In Claude, go to Customize, then Skills. Click +, then + Create skill, then Upload a skill, and choose the ZIP.
 3. Make sure it's switched on. If Claude says skills need code execution, turn on Code execution and file creation in Settings, then Capabilities.

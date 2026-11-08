@@ -32,10 +32,9 @@ Read every document in full, transcripts included: rules hide in the middle of l
 Read `references/source-handling.md` before sorting.
 
 - Sort the content into the topic files listed in `references/playbook-template.md`. Make a file only for topics the documents actually cover.
-- Keep the team's wording. Copy numbers, times, deadlines, dollar amounts and role names exactly. Tag every rule with its source: document, section or page, and that document's date.
+- Keep the team's wording. Copy numbers, times, deadlines, dollar amounts and role names exactly. Tag every rule with its source: document, section or page, and that document's date. Never put your own words behind a source tag; routing of your own goes in the generated SKILL.md.
 - Leave out personal data: an individual agent's split or deal, phone numbers, personal emails and home addresses, door, lockbox and alarm codes, passwords, and anything about a named person's health, family or performance. Route by role and team channel instead. Log each removal by document and section only. Never repeat what was removed.
 - When you remove a code or login, keep the document's own process for getting it ("Office access: Director of Operations, Day 1"). If the document gives none, write nothing in its place, not even "ask Ops": add "How do I get it?" to the gaps with its likely owner.
-- Every line in a topic file is a rule from a document, with its source. Routing lines of your own ("never give account details") go in the generated SKILL.md, not in topic files.
 - Never copy wire instructions, routing numbers or account numbers, even when a document has them. Replace them with "[Removed: account details. Ask the (role the document names, or the broker if it names none).]"
 - Compensation: include a fee or split schedule only when the leader has said in this conversation that it applies to every agent. If they haven't, leave it out, build everything else, and ask at the top. Individual arrangements stay out even then.
 - A passage that would have agents describe people, neighborhood demographics, school quality or safety, or treat clients differently by a protected class: leave it out and flag it for the broker. Passages about texting or calling consent, client funds, or contract language stay in as written and go on the broker review list.

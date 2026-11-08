@@ -3,6 +3,7 @@
 ## Flags
 
 - **General mode:** both homes are in Arizona. State rules were not checked; this follows the MLS sheets only.
+- **VA:** one sheet doesn't list VA in its financing terms (home 1).
 - Placeholder used: [Agent Name].
 
 ## Bottom Line

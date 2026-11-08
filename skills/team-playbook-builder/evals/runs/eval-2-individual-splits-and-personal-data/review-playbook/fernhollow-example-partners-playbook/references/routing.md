@@ -38,3 +38,4 @@ These questions come up and the team's documents don't answer them yet. Send age
 | What happens to my leads and pending deals if I leave the team? | Team Owner |
 | How is texting or calling consent recorded? | Managing Broker |
 | Where is the Hello 1 template? | Operations Manager |
+| How do I get into the office outside open hours? | Operations Manager |

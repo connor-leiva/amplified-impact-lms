@@ -11,4 +11,4 @@ Sources: Team Operations Manual 2026 (April 22, 2026), sections 3 and 6
 
 ## Office
 
-- The office is open 8:00 AM to 6:00 PM on weekdays. Office codes aren't in this playbook; ask the Operations Manager. (Source: Operations Manual, section 6; dated April 22, 2026)
+- The office is open 8:00 AM to 6:00 PM on weekdays. (Source: Operations Manual, section 6; dated April 22, 2026)

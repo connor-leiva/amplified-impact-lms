@@ -74,12 +74,12 @@ Read `references/tour-sheet-writing.md` before writing.
 - Fair housing: describe homes, never people. No comments on schools, safety, demographics or who a home suits; point to official sources (`references/tour-guide.md`). Don't repeat protected-class wording from remarks or the buyer's note.
 - Stay in lane: not the inspector, appraiser, lender, title officer or attorney. No price opinions ("overpriced," "a steal") and no offer advice; that's offer-strategy. No guarantees.
 - Don't rebuild the MLS or the showing service: no routing, scheduling or confirming appointments.
-- Privacy: leave out seller, occupant and owner names and numbers, the buyer's loan and financial details beyond the loan type, and any wire, account or routing details.
+- Privacy: leave out seller, occupant and owner names and numbers, the buyer's loan and financial details beyond the loan type and the budget they gave, and any wire, account or routing details.
 - Drafts only. Never send, post or write to a CRM. With a Gmail connector and the agent's ask, save a draft.
 
 ## 10. Output, In This Order
 
-1. **Flags**, only when they apply: buyer agreement not confirmed, a status other than Active, a sheet printed before today, missing sheets, client-version sheets, placeholders, general mode
+1. **Flags**, only when they apply: buyer agreement not confirmed, a status other than Active, a showing notice due before the tour, financing terms that leave out the buyer's loan type, a sheet printed before today, missing sheets, client-version sheets, placeholders, general mode
 2. **Bottom line for the agent** (three sentences max): how many homes, the one or two things to handle before the tour, and which homes meet the most stated criteria
 3. **Tour at a Glance:** one table, a row per home (status, price, beds and baths split, above-grade and basement square feet, year, HOA per month, days on market, price change)
 4. **Home by Home** (public fields only): the rest of the snapshot, what to look at in person, red flags in the remarks, fit

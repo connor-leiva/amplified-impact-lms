@@ -49,7 +49,7 @@ None found. The manual and the checklist agree wherever they cover the same thin
 - Listings: the process from appointment to live; who orders photos and signs and who pays; who approves listing marketing. Ask: Team Owner.
 - Contract to close: partly answered. The Transaction Coordinator owns the deadline calendar and the client timeline, but the manual doesn't say what else stays with the agent; what to tell clients about wire fraud; closing gifts. Ask: Transaction Coordinator, and the Managing Broker for wire fraud wording.
 - Marketing and brand: what needs approval before posting, how the team and brokerage names must appear, rules for your own social accounts and ads. Ask: Team Owner, and the Managing Broker for advertising rules.
-- Tech: partly answered. Follow Up Boss and MLS logins come from the Operations Manager; transaction system and lockbox access aren't covered; where templates live. Ask: Operations Manager.
+- Tech and office: partly answered. Follow Up Boss and MLS logins come from the Operations Manager; transaction system and lockbox access aren't covered; where templates live; how to get into the office (the manual gives a code, now removed, and no process). Ask: Operations Manager.
 - Meetings and expectations: who your mentor or point person is. Ask: Team Owner.
 - Time off and coverage: who covers your clients when you're away, and what hours you must be reachable for leads. Ask: Team Owner.
 - Leaving the team: what happens to your leads and pending deals, and what you owe or keep. Ask: Team Owner.
@@ -72,7 +72,7 @@ None found. The manual and the checklist agree wherever they cover the same thin
 - Commission and Fees.xlsx, sheet "Team Plan": team-wide fee and split schedule. Held until you answer the question above.
 - Team Operations Manual, Section 1 (Roles): personal phone numbers and a personal email. The playbook routes by role instead.
 - Team Operations Manual, Section 5 (Earnest Money and Wires): account details. Replaced with "[Removed: account details. Ask the Managing Broker.]"
-- Team Operations Manual, Section 6 (Office): an access code. The manual gives no access process, so the playbook says nothing about access.
+- Team Operations Manual, Section 6 (Office): an access code. The manual gives no access process, so the playbook says nothing about access and lists it as a gap.
 
 ## Test Set (25 Questions)
 
@@ -126,7 +126,7 @@ I've turned our SOPs into a Claude skill, the Fernhollow Example Partners Playbo
 
 When it doesn't know, it says so and tells you who to ask. Contract and legal questions still go to the Managing Broker.
 
-To add it (about two minutes, easiest on a computer):
+To add it (a few clicks, easiest on a computer):
 1. Download the attached fernhollow-example-partners-playbook.zip. Don't unzip it.
 2. In Claude, go to Customize, then Skills. Click +, then + Create skill, then Upload a skill, and choose the ZIP.
 3. Make sure it's switched on. If Claude says skills need code execution, turn on Code execution and file creation in Settings, then Capabilities.

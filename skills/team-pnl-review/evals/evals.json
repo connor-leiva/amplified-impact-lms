@@ -1,0 +1,64 @@
+{
+  "skill_name": "team-pnl-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "mixed-gross-net",
+      "prompt": "Here's our P&L for January through June from QuickBooks and our closed deals downloaded from Sisu. How are we doing? I want margin by month and what changed, and something I can hand my business partner.",
+      "expected_output": "Before any ratio, the review says April is recorded net of splits (commission income 63,691.41 with no agent splits, referral fees or brokerage fees) while the other five months are gross, and the production file confirms April's income equals the team's share, not its GCI. Company dollar, net income and margin on company dollar are shown by month with the arithmetic and still compare; ratios on GCI leave April out. Cost per closing comes from the 56 closings. The decision is to pick one recording method and restate April. Owner brief, bookkeeper email and Check Before Sending follow.",
+      "files": ["evals/files/case1/gingersnap-pnl-by-month-jan-jun-2026.xlsx", "evals/files/case1/sisu-transactions-download-jan-jun-2026.csv"],
+      "expectations": [
+        "The figures come from running the analysis code on the files, and the totals check passes for all six months.",
+        "Before any ratio, the output says April 2026 is recorded net of splits (commission income of 63,691.41 with no agent splits, referral fees or brokerage fees) while January to March, May and June are recorded gross.",
+        "It uses the production file to show April's commission income matches the team's share (63,691.41), not April's GCI (147,457.50).",
+        "It says company dollar, net income and margin on company dollar still compare across all six months, while commission income, split share and ratios on GCI do not, and any ratio on gross commission leaves April out.",
+        "Nothing in the output treats April's lower commission income as a drop in business.",
+        "Company dollar and margin are shown by month and for the period, each with its arithmetic (commission income - agent splits - referral fees - brokerage fees, and net income / company dollar).",
+        "The expense mix is shown as a share of company dollar, with the arithmetic.",
+        "Cost per closing is computed from the 56 closings in the production file, with the arithmetic shown.",
+        "The bookkeeper questions ask whether April was recorded net and ask for it to be restated; the one decision is to choose one way to record commission income and restate April.",
+        "An owner brief and a bookkeeper email with a Title Case subject are drafted, and no client name from the production file appears anywhere.",
+        "A Check Before Sending section traces the numbers in the brief and email to the run."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "duplicate-and-new-vendor",
+      "prompt": "Attached are our P&L by month and the P&L Detail from QuickBooks, January through September. Something feels off with our expenses. Where is the money going and what should I ask my bookkeeper?",
+      "expected_output": "Revenue is gross every month. The charge-level checks find the Snapdragon CRM charge of 599.00 on 2026-08-03 repeated on 2026-08-04, Pinecone Dialer as a new recurring vendor at 349.00 a month since July, a Lanternfly Leads charge of 1,250.00 filed in Office Supplies, and 412.18 in Uncategorized Expense. Expense mix on company dollar with arithmetic. Cost per closing is skipped for lack of a production file. The decision is keep or cancel the dialer; the duplicate and misfiled charge go to the bookkeeper. No agent or employee name appears with an amount.",
+      "files": ["evals/files/case2/marmalade-pnl-by-month-jan-sep-2026.xlsx", "evals/files/case2/marmalade-pnl-detail-jan-sep-2026.xlsx"],
+      "expectations": [
+        "It flags the Snapdragon CRM charge of 599.00 on 2026-08-03 and again on 2026-08-04 in Software & Subscriptions:CRM as a likely duplicate, for the bookkeeper to confirm and check for a refund.",
+        "It flags Pinecone Dialer as a new recurring vendor since July 2026 at 349.00 a month.",
+        "It flags the 1,250.00 Lanternfly Leads charge on 2026-06-05 in Office Supplies as likely miscategorized, because the vendor's other charges are in Online Lead Programs.",
+        "It flags 412.18 in Uncategorized Expense in September 2026.",
+        "It reports that commission income is recorded gross every month, with agent splits and brokerage fees as costs and no referral fee line.",
+        "Company dollar, margin and the expense mix as a share of company dollar are shown with their arithmetic.",
+        "Cost per closing and lead source return are skipped, and the output names the missing production export and where it comes from.",
+        "No agent's or employee's name appears next to an amount, even though the detail lists agent payouts and payroll checks by name.",
+        "The one decision is whether to keep or cancel Pinecone Dialer; the duplicate and the misfiled charge are bookkeeper fixes, not the decision.",
+        "The bookkeeper email has a Title Case subject and asks about the duplicate, the dialer, the Office Supplies charge and the uncategorized item, naming charges by vendor, date and amount only.",
+        "A Check Before Sending section is present."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-production-file",
+      "prompt": "Here's the P&L our bookkeeper sent for January through October. What's our cost per closing, and how's our margin? I need a one-page brief for my business partner.",
+      "expected_output": "The PDF's ten months are read and tie to its Net Income. Cost per closing is skipped because no production file was uploaded; the gap and the export that fills it are named, and no closings count is guessed from the TC fee line. Margin on company dollar for the period is 56,804.08 / 283,424.24 = 20.0%. Owner's Draw of 60,000.00 sits in expenses; net income is shown both ways and the recording question goes to the CPA. The September Print & Signs spike is flagged. Year to date has no prior-year comparison. A one-page owner brief with the gap line.",
+      "files": ["evals/files/case3/butterscotch-profit-and-loss-jan-oct-2026.pdf"],
+      "expectations": [
+        "It reads all ten months from the PDF and the totals check passes.",
+        "It says cost per closing can't be computed without a production export, names the export to upload and where it comes from, and gives no cost per closing figure.",
+        "It does not estimate the number of closings from Transaction Coordinator Fees or any other line.",
+        "It reports the period margin on company dollar with its arithmetic (56,804.08 / 283,424.24 = 20.0%) and company dollar with its arithmetic.",
+        "It flags Owner's Draw (60,000.00 for the period) recorded as an expense, shows net income before it (116,804.08), and sends the question of how owner pay should be recorded to the CPA.",
+        "It flags the September 2026 Print & Signs spike (5,340.75 against a usual 590.45).",
+        "It reports year to date for January to October 2026 and says there is no prior-year comparison in the file.",
+        "The owner brief fits on one page and includes a line saying cost per closing is not available and what to add.",
+        "No benchmark, industry average or typical-team figure appears.",
+        "A Check Before Sending section is present."
+      ]
+    }
+  ]
+}
