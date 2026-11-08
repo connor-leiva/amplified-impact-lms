@@ -25,7 +25,7 @@ Work from what's uploaded. The typical set:
 - The signed purchase contract and every addendum (for the deadline and any changed timing)
 
 Pick the mode from the contract or the property address:
-- **Utah mode:** read the REPC footer to tell the December 4, 2024 form from the November 1, 2026 form, then read `references/utah-due-diligence-timing.md`. Use that version's section numbers only.
+- **Utah mode:** read the REPC footer to tell the December 4, 2024 form from the November 1, 2026 form, then read `references/utah-due-diligence-timing.md` (and `references/utah-repc.md` for earnest money, lead-based paint and other December 2024 form details). Use that version's section numbers only.
 - **General mode (any other state):** take the inspection or due diligence deadline, any response period or cancellation window, and what silence means from the uploaded contract, with its section numbers. Skip every utah-* reference. Say near the top: "State rules were not checked; this follows the uploaded contract only."
 
 Never ask the agent to type what a document contains. If the deadline isn't in an upload or the agent's message, use [Due Diligence Deadline], flag it at the top, and keep going. If no contract is uploaded and the state is unclear, run general mode with placeholders.

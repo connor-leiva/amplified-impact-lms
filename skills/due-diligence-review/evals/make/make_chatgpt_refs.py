@@ -33,8 +33,15 @@ def demote(text):
 
 
 def rename(text):
+    text = text.replace(
+        "`utah-repc.md` was written before UAR's notice and says the new form's status couldn't be confirmed. "
+        "Where the two files differ about the November 1, 2026 form, follow this file.",
+        "Part 2 below was written before UAR's notice and says the new form's status couldn't be confirmed. "
+        "Where Part 1 and Part 2 differ about the November 1, 2026 form, follow Part 1.")
+    text = text.replace("`utah-repc.md` maps the December 4, 2024 form in full. This file adds",
+                        "Part 2 below maps the December 4, 2024 form in full. Part 1 adds")
     text = text.replace("`utah-due-diligence-timing.md`", "`utah-repc-and-timing.md`")
-    text = text.replace("`utah-repc.md`", "the REPC notes in `utah-repc-and-timing.md`")
+    text = text.replace("`utah-repc.md`", "Part 2 below")
     text = text.replace("`utah-forms-and-counters.md`", "your broker")
     text = text.replace("This skill drafts", "These instructions draft")
     text = text.replace("What this skill needs", "What these instructions need")

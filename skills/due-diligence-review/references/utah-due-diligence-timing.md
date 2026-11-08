@@ -14,6 +14,8 @@ Read the footer on the last page of the uploaded REPC.
 
 Until January 1, 2027, either version can arrive. Never mix their section numbers in one output.
 
+`utah-repc.md` was written before UAR's notice and says the new form's status couldn't be confirmed. Where the two files differ about the November 1, 2026 form, follow this file.
+
 ## Section Map
 
 | Topic | December 4, 2024 form | November 1, 2026 form |

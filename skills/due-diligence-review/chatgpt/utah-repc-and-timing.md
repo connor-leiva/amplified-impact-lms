@@ -6,7 +6,7 @@ Utah only. Part 1 covers both REPC versions now in use and how due diligence end
 
 ## Part 1: Which REPC, Which Sections, Which Dates
 
-What these instructions need from the Utah Real Estate Purchase Contract (REPC) to review due diligence and lay out a negotiating timeline. the REPC notes in `utah-repc-and-timing.md` maps the December 4, 2024 form in full. This file adds the November 1, 2026 form, which agents may now upload, and the due diligence points that matter most for timing. The signed contract always controls: read every date, box and amount from the upload.
+What these instructions need from the Utah Real Estate Purchase Contract (REPC) to review due diligence and lay out a negotiating timeline. Part 2 below maps the December 4, 2024 form in full. Part 1 adds the November 1, 2026 form, which agents may now upload, and the due diligence points that matter most for timing. The signed contract always controls: read every date, box and amount from the upload.
 
 ### Which Version Is Uploaded
 
@@ -17,6 +17,8 @@ Read the footer on the last page of the uploaded REPC.
 - **Any other footer, or none.** Don't apply the section numbers below. Read every term from the contract and confirm with your broker.
 
 Until January 1, 2027, either version can arrive. Never mix their section numbers in one output.
+
+Part 2 below was written before UAR's notice and says the new form's status couldn't be confirmed. Where Part 1 and Part 2 differ about the November 1, 2026 form, follow Part 1.
 
 ### Section Map
 
@@ -44,7 +46,7 @@ Until January 1, 2027, either version can arrive. Never mix their section number
 - If the results are unacceptable, the buyer may, no later than the Due Diligence Deadline, either cancel by written notice (the Earnest Money Deposit is released to the buyer) or "resolve in writing with Seller any objections Buyer has arising from Buyer's Due Diligence."
 - If the buyer does neither, the buyer "shall be deemed to have waived the Due Diligence Condition," and the Earnest Money Deposit becomes non-refundable except under the appraisal and financing conditions.
 - **There is no Response Period in either version.** Neither form gives the seller a set number of days to answer an objection, and neither gives the buyer a cancellation window after the deadline. Sending an objection does not extend anything. The written resolution has to be signed by 5:00 PM Mountain Time on the Due Diligence Deadline, or the buyer has to cancel by then.
-- The seven-day Response Period and three-day cancellation window many agents remember are in the Lead-Based Paint Addendum, and they apply only to objections about a lead-based paint risk assessment when that addendum is attached (see the REPC notes in `utah-repc-and-timing.md`). Never apply them to the inspection objection.
+- The seven-day Response Period and three-day cancellation window many agents remember are in the Lead-Based Paint Addendum, and they apply only to objections about a lead-based paint risk assessment when that addendum is attached (see Part 2 below). Never apply them to the inspection objection.
 - What this means for strategy: the earlier the objection goes out, the more days the seller has to answer before the deadline. An objection sent on the deadline leaves no time to negotiate.
 - More time takes a written extension signed by all parties (2024 form Section 21; 2026 form Section 25), on an approved addendum, before 5:00 PM Mountain Time on the current deadline. Confirm with your broker before relying on any extension.
 

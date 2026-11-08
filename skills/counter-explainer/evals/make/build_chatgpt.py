@@ -47,7 +47,7 @@ def demote(text):
 
 
 def write(name, text):
-    if "–" in text or "—" in text:
+    if chr(0x2013) in text or chr(0x2014) in text:
         raise SystemExit(f"{name} has an em or en dash")
     with open(os.path.join(OUT, name), "w", encoding="utf-8") as fh:
         fh.write(text.rstrip() + "\n")

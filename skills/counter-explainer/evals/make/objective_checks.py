@@ -94,7 +94,7 @@ for m in re.finditer(rf"\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sun
         weekday_errors.append(m.group(0))
 report.append("Weekday labels that don't match the calendar: " + (", ".join(weekday_errors) or "none"))
 
-report.append("Em or en dashes: " + ("FOUND" if re.search(r"[–—]", out) else "none"))
+report.append("Em or en dashes: " + ("FOUND" if (chr(0x2013) in out or chr(0x2014) in out) else "none"))
 
 subjects = re.findall(r"\*\*Subject:\*\*\s*(.+)", out)
 SMALL = {"a", "an", "the", "and", "or", "of", "to", "in", "on", "for", "at", "by"}
