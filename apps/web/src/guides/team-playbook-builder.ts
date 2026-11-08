@@ -13,18 +13,18 @@
 // Claude only (skill.json): the skill's output is a Claude skill, and its upload checks, install steps
 // and sharing options are Claude's. ChatGPT supports the same skill format, but no playbook has been
 // tried there, so the page says so and promises nothing in ChatGPT (page-notes.md, "Why There's No
-// ChatGPT Version").
+// ChatGPT Version"). So no `chatgpt`, and `chatgptPaste` is not imported (lint fails an unused import).
 //
 // Plans, as page-notes.md "What the Person Needs" has them (checked 2026-11-08): Claude's help center
-// and pricing page list skills on every plan, Free included; Claude's docs and the platform docs leave
-// Free out. The page states both, says a Free account that can't add a skill needs a paid plan, and
-// never promises Free. The connectors (Google Drive, Microsoft 365, ClickUp) are optional, read only
-// and untested, and the page says so.
+// and pricing page list skills on every plan, Free included; the claude.com docs and the platform docs
+// leave Free out. The page states both, says a Free account that can't add a skill needs a paid plan,
+// and never promises Free. The connectors (Google Drive, Microsoft 365, ClickUp) are optional, read
+// only and untested, and the page says so.
 //
 // Not tested, so not promised: uploading a generated playbook to a live Claude account, asking an
-// installed playbook its 25 questions, connector reads, long real manuals, and attaching a .vtt file in
-// claude.ai (the runs read the practice files as text). `setupMinutes` is an estimate from the steps:
-// page-notes.md gives none.
+// installed playbook its 25 questions, connector reads, long real manuals, sets over 20 files, and
+// attaching a .vtt file in claude.ai (the runs read the practice files as text). `setupMinutes` is an
+// estimate (page-notes.md gives none): 10, as on the other skill pages with a practice run.
 //
 // House rules: no em dashes, short plain sentences, one action a step, the actor and the place named.
 
@@ -41,13 +41,14 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
       'Upload your team’s SOPs, policy manual and training call transcripts, and get back a playbook your agents add to their own Claude, with the source behind every answer. Plus the gaps, the conflicts and 25 test questions. A free Claude skill.',
   },
 
-  eyebrow: 'Free Claude Skill · For Team Leaders and Ops',
+  // No-break spaces keep "For Team Leaders and Ops" on one line on a phone.
+  eyebrow: 'Free Claude Skill · For Team Leaders and Ops',
   // page-notes.md, "One-Line Promise", with "install" in plain words and no promise that texts stop.
-  lede: 'Upload your team’s SOPs and get back a Claude skill your agents add to their own Claude, so they can ask it first and get your team’s written answer, with the section it came from.',
+  lede: 'Upload your team’s SOPs and get back a playbook your agents add to their own Claude, so they can ask it first and get your team’s written answer, with the section it came from.',
   outcome: { n: '03', title: 'Share It With Your Agents', body: 'After you check the gaps, the conflicts and the 25 test questions.' },
   optInBody:
     'Tell us where to send updates and the skill is yours. A skill is a set of instructions you add to Claude once, so Claude knows how to do this job. This one reads your team’s documents and builds a second skill, your team playbook, for your agents to add. Claude never sends or shares anything for you.',
-  setupMinutes: 5,
+  setupMinutes: 10,
 
   practice: {
     // page-notes.md, "Practice Prompt", word for word, and "What to look for".
@@ -65,7 +66,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
     // SKILL.md step 2 (compensation held until the leader confirms) and step 6 (run the test set before
     // sharing); references/agent-install.md (the test set runs in a new chat with the playbook on).
     note: [
-      'Your fee schedule stays out until you tell Claude it applies to every agent. Before you share the playbook, add it to your own Claude the same way you added this skill, and ask it the 25 test questions in a new chat. Check every number, date and dollar amount in the ',
+      'Your fee schedule stays out until you tell Claude it applies to every agent. Before you share the playbook, add it to your own Claude the same way you added this skill. Then ask it the 25 test questions Claude wrote, in a new chat. Check every number, date and dollar amount in the ',
       { strong: 'Check before sending' },
       ' list against your documents.',
     ],
@@ -74,17 +75,20 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
   sections: [
     {
       // sample.md (the practice run, 12 of 12 checks), shortened, in the output's own order and its own
-      // words, cut only by whole items, rows and sentences: the bottom line, Needs your answer, the
-      // playbook's files (two of the table's four columns, without the SKILL.md row) and how it behaves,
-      // the conflict, the top three gaps, the stale flag and two of four broker flags, three of five
-      // removals, four of 20 answerable and three of five routed test questions, the message to agents
-      // in full, and three rows of the check list.
+      // words, cut only by whole items, rows, columns and sentences: the bottom line, Needs your answer,
+      // the playbook's files (two of the table's four columns, without the SKILL.md row) and how it
+      // behaves, the conflict, the top three gaps, the stale flag and two of four broker flags, three of
+      // five removals, three of 20 answerable and three of five routed test questions, the message to
+      // agents in full, and three rows of the check list. On a phone a three-column table of sentences
+      // is a column of single words, so each table here has two: a test answer and a check line end
+      // with "Source:" and the sample's own source, as the playbook's answers do, and the routed
+      // questions leave out "A wrong answer would".
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a playbook build looks like',
       body: 'What Claude wrote from the practice files: five made-up documents from a made-up team, the Lantern Lane Example Team. They’re the same files you practise on in setup.',
       title: 'Lantern Lane Example Team Playbook: Built and Checked',
-      note: 'Made-up example. Shortened: two broker flags of four, three removals of five, seven of the 25 test questions, and three lines of the check list.',
+      note: 'Made-up example. Shortened: two broker flags of four, three removals of five, six of the 25 test questions, and three lines of the check list.',
       blocks: [
         { h: 'Bottom line' },
         {
@@ -167,7 +171,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
         { p: [{ strong: 'For your broker (I don’t rule on these):' }] },
         {
           items: [
-            'Two buyer steps held out of the playbook. Onboarding Checklist, Week 4: checking “the buyer agent compensation offered in the MLS” before each showing, and having the buyer sign the Buyer Agency Agreement “before you write an offer.” NAR’s practice changes took effect August 17, 2024: they removed offers of compensation from the MLS and require a written agreement with a buyer before touring a home. These steps look written for the old rules. The playbook tells agents the buyer steps are under review and sends them to you and the Managing Broker.',
+            'Two buyer steps held out of the playbook. Onboarding Checklist, Week 4: checking “the buyer agent compensation offered in the MLS” before each showing, and having the buyer sign the Buyer Agency Agreement “before you write an offer.” NAR’s practice changes took effect August 17, 2024: they removed offers of compensation from the MLS and require a written agreement with a buyer before touring a home. These steps look written for the old rules. The playbook tells agents the buyer steps are under review and sends them to you and the Managing Broker. Rules can differ by MLS and state, so confirm with your broker.',
             'Texting new leads. Policy Manual 3.2 says to “call or text a newly assigned lead within 5 minutes” and doesn’t mention consent. It’s in the playbook as written.',
           ],
         },
@@ -183,28 +187,20 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
         { p: ['Run these in a new chat with the playbook switched on, before you share it.'] },
         {
           table: {
-            caption: 'Should answer (4 of 20)',
-            head: ['Question', 'Expected answer', 'Source'],
+            caption: 'Should answer (3 of 20)',
+            head: ['Question', 'Expected answer'],
             rows: [
               [
                 'I got a lead notification. How long do I have to accept it?',
-                '15 minutes in Follow Up Boss, or it goes to the next agent.',
-                'Lead Routing and Pond SOP, Routing Steps 4',
+                '15 minutes in Follow Up Boss, or it goes to the next agent. Source: Lead Routing and Pond SOP, Routing Steps 4.',
               ],
               [
                 'When’s the team meeting?',
-                'Tuesdays, 9:30 to 10:30 AM, at the office or on Zoom; required for every agent in the Lead Rotation.',
-                'Policy Manual, 4.1',
-              ],
-              [
-                'The seller wants to push closing a week. Can I just agree by email?',
-                'No. Any date change needs a signed addendum; send the details to the Transaction Coordinator, and contract wording goes to the Managing Broker.',
-                'Training Call, 00:02:02',
+                'Tuesdays, 9:30 to 10:30 AM, at the office or on Zoom; required for every agent in the Lead Rotation. Source: Policy Manual, 4.1.',
               ],
               [
                 'Can I post my new listing on Instagram before it goes live?',
-                'No. Don’t post a listing on social media before it is active in the MLS.',
-                'Policy Manual, 5.4',
+                'No. Don’t post a listing on social media before it is active in the MLS. Source: Policy Manual, 5.4.',
               ],
             ],
           },
@@ -212,22 +208,13 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
         {
           table: {
             caption: 'Should send to a person (3 of 5)',
-            head: ['Question', 'The answer should name', 'A wrong answer would'],
+            head: ['Question', 'The answer should name'],
             rows: [
-              [
-                'Can I add a clause to my buyer’s offer saying the seller pays for a home warranty?',
-                'The Managing Broker',
-                'Draft the clause or say yes or no',
-              ],
-              [
-                'When will I get paid for my closing next week?',
-                '“The playbook doesn’t cover that,” and the Team Leader',
-                'Guess a number of days',
-              ],
+              ['Can I add a clause to my buyer’s offer saying the seller pays for a home warranty?', 'The Managing Broker'],
+              ['When will I get paid for my closing next week?', '“The playbook doesn’t cover that,” and the Team Leader'],
               [
                 'How many days until an untouched lead goes back to the pond?',
                 'Both versions (10 days, Policy Manual 3.4; 14 calendar days, Lead Routing and Pond SOP) and the Team Leader',
-                'Pick one number',
               ],
             ],
           },
@@ -252,13 +239,18 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
         },
         { h: 'Check before sending' },
         {
+          p: [
+            'Every number, dollar amount, date and quoted rule in the playbook and the test set, with its source. Check each against your documents.',
+          ],
+        },
+        {
           table: {
-            caption: 'Three of the check list’s 19 lines',
-            head: ['Item', 'In the playbook', 'Source'],
+            caption: 'The check list (3 of 19)',
+            head: ['Item', 'In the playbook'],
             rows: [
-              ['Pond rule (CONFLICT)', '10 days versus 14 calendar days', 'Policy Manual, 3.4; Lead Routing and Pond SOP, The Pond'],
-              ['Monthly team fee', '$85, charged on the 1st', 'Fee Schedule, section 2'],
-              ['Closing gifts', 'Up to $100 per transaction; order at least 5 days before closing', 'Training Call, 00:02:21'],
+              ['Pond rule (CONFLICT)', '10 days versus 14 calendar days. Source: Policy Manual, 3.4; Lead Routing and Pond SOP, The Pond.'],
+              ['Monthly team fee', '$85, charged on the 1st. Source: Fee Schedule, section 2.'],
+              ['Closing gifts', 'Up to $100 per transaction; order at least 5 days before closing. Source: Training Call, 00:02:21.'],
             ],
           },
         },
@@ -339,22 +331,23 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
     {
       // page-notes.md, "What the Person Needs", and the build report's needs (computer, connectors,
       // accounts and cost). The Free wording is page-notes.md's: the help center lists Free, the docs
-      // don't, so the page never promises it.
+      // don't, so the page never promises it. "None if an owner adds it": a shared (not provisioned)
+      // skill is off until each agent turns it on (references/agent-install.md).
       kind: 'tiles',
       heading: 'What you need',
-      note: 'About 5 minutes to set up',
+      note: 'About 10 minutes to set up',
       cta: true,
       columns: 2,
       items: [
         {
           title: 'A Claude plan, for you',
-          body: 'With skills and code execution on, so Claude can read Word and Excel files and package the playbook. Claude’s help center lists skills on every plan, Free included. Claude’s developer docs list them on Pro and up, so if your Free account has no way to add a skill, you need a paid plan.',
+          body: 'With skills and code execution on, so Claude can read Word and Excel files and package the playbook. Claude’s help center lists skills on every plan, Free included, but Claude’s docs leave Free out. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns on code execution',
         },
         {
           title: 'Claude for each agent',
           body: 'Each agent adds the playbook to their own Claude account. Or, on your Claude Team or Enterprise plan, you share it with them, or an owner adds it for everyone.',
-          tag: 'A few clicks each, or none on Team or Enterprise',
+          tag: 'A few clicks each, or none if an owner adds it',
         },
         {
           title: 'A computer',
@@ -435,10 +428,10 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
       heading: 'Good to know',
       items: [
         {
-          // SKILL.md step 2 and Guardrails; page-notes.md, "What It Won't Do".
+          // SKILL.md step 1 (connectors read only), step 2 and Guardrails; page-notes.md, "What It Won't Do".
           q: 'What won’t it do?',
           a: [
-            'Claude never writes a policy your documents don’t have, and never picks a winner when two documents disagree. It leaves out anyone’s own split or deal, phone numbers, personal emails, door and lockbox codes, passwords, and wire and account numbers. Your fee schedule stays out until you say it applies to every agent. Claude never sends the message to agents, shares the playbook, or writes to Google Drive, ClickUp or your CRM. The playbook sends contract, legal and compliance questions to your broker, and brokerage-wide questions to your brokerage. It explains your written rules, and doesn’t route leads, score agents or keep deal deadlines: Follow Up Boss, Sisu and your transactions team still do that.',
+            'Claude never writes a policy your documents don’t have, and never picks a winner when two documents disagree. It leaves out anyone’s own split or deal, phone numbers, personal emails, door and lockbox codes, passwords, and wire and account numbers. Your fee schedule stays out until you say it applies to every agent. Claude never sends the message to agents or shares the playbook. With a connector on, it only reads: it never writes to Google Drive, Microsoft 365, ClickUp or your CRM. The playbook sends contract, legal and compliance questions to your broker, and brokerage-wide questions to your brokerage. It explains your written rules. It doesn’t route leads, score agents or keep deal deadlines.',
           ],
         },
         {
@@ -446,7 +439,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
           // "How to Share It, by Plan".
           q: 'Which plan do my agents need?',
           a: [
-            'Each agent needs their own Claude account with skills, or a seat on your Claude Team or Enterprise plan. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If an agent on Free sees no way to add a skill, they need a paid plan. The playbook is a Claude skill. ChatGPT now takes skills in the same format, but we haven’t tried a playbook there.',
+            'Each agent needs their own Claude account with skills, or a seat on your Claude Team or Enterprise plan. Claude’s help center lists skills on every plan, Free included, but Claude’s docs leave Free out. If an agent on Free sees no way to add a skill, they need a paid plan. Agents who use only ChatGPT: ChatGPT now takes skills in the same format, but we haven’t tried a playbook there, so we can’t promise it works.',
           ],
         },
         {
@@ -465,7 +458,7 @@ export const TEAM_PLAYBOOK_BUILDER: Guide = skillPage({
             { strong: 'Update it' },
             '. Claude raises the version number and lists what changed. Agents on their own accounts delete the old playbook in ',
             { strong: 'Customize > Skills' },
-            ' and upload the new ZIP. On a Team or Enterprise plan, people you shared it with get updates at their next use. Claude’s help center doesn’t say how to load a new ZIP into a shared skill, so if you don’t see a way, delete it, upload the new ZIP and share it again.',
+            ' and upload the new ZIP. On a Team or Enterprise plan, people you shared it with get updates at their next use. Claude’s help center doesn’t say how to load a new ZIP into a shared skill, so if you don’t see a way, delete the old playbook, upload the new ZIP and share it again.',
           ],
         },
         {

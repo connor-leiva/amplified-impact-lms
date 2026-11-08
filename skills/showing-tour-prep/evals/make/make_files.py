@@ -433,7 +433,7 @@ EVAL2 = [
 
 EVAL2_NOTE = (E2 + "Buyer Note - Follow Up Boss.txt", """PRACTICE FILE: made-up example. Not a real person or note.
 
-Follow Up Boss note, copied Saturday 11/07/2026
+Follow Up Boss note, copied Sunday 11/08/2026
 Contact: Devon and Harper Example (made-up)
 
 Need 4+ bedrooms and at least 2 full baths. Budget up to $650,000. VA loan.

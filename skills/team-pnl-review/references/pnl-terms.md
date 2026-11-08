@@ -25,7 +25,8 @@ These definitions explain the numbers; they don't change them. Brokerages, coach
 
 ## Brokerage Split and Fees
 
-- What the brokerage keeps from each deal: its split, plus any royalty, franchise, transaction or review fees. Sisu calls charges that come out before anyone is paid "pre-split adjustments": they "come 'off the top' (or possibly added to) Adjusted GCI prior to the team/brokerage or any agent receiving their pay." [1]
+- What the brokerage keeps from each deal: its split, plus any royalty, franchise, transaction or review fees. Sisu calls charges that come out before anyone is paid "pre-split adjustments": they "come 'off the top' (or possibly added to) Adjusted GCI prior to the team/brokerage or any agent receiving their pay." [13]
+- On a P&L they can appear as one line or several (a split, a transaction fee, a risk management or E&O fee per deal). The skill reads a per-deal fee in Cost of Goods Sold as a brokerage charge and shows how it read every account, so the owner or bookkeeper can correct it.
 - On a P&L they show up either as a cost line (when the team records the full commission) or not at all (when the team is paid after the brokerage has taken its share).
 
 ## Cap
@@ -38,9 +39,16 @@ These definitions explain the numbers; they don't change them. Brokerages, coach
 
 ## Referral Fees
 
-- Paid to another brokerage, or to a referral or lead program, for a client referral. Federal rules (Regulation X, 12 CFR 1024.14(g)(1)(v)) do not prohibit "a payment pursuant to cooperative brokerage and referral arrangements or agreements between real estate agents and real estate brokers." Who else may receive a referral fee is set by state license law; a referral fee paid to anyone other than a brokerage is a question for the broker. [8]
+- Paid to another brokerage, or to a referral or lead program, for a client referral. Sisu's commission form takes referral fees first: "Referral Adjustments get paid out prior to the local brokerage receiving any payment. In other words, referral adjustments come 'off the top.'" [13]
+- Federal rules (Regulation X, 12 CFR 1024.14(g)(1)(v)) do not prohibit "a payment pursuant to cooperative brokerage and referral arrangements or agreements between real estate agents and real estate brokers," and the rule adds that this "refers only to fee divisions within real estate brokerage arrangements when all parties are acting in a real estate brokerage capacity." Who else may receive a referral fee is set by state license law; a referral fee paid to anyone other than a brokerage is a question for the broker. [8]
 - **Pay-at-close lead programs** charge little or nothing up front and collect a referral fee after the deal closes. Sisu's glossary describes Zillow Flex as connections "at no upfront cost." Zillow's own FAQ, read only through search excerpts because zillow.com blocks automated reading, says the fee is paid out of escrow at closing or within 15 days after. Confirm with the bookkeeper how the team's fees are paid. [1] [9]
 - So a referral fee can be withheld on the settlement statement (the team's deposit is already net of it and no expense appears) or paid after closing (a cost line). For a pay-at-close source, the referral fee is the cost of the source.
+
+## Revenue Share and Other Brokerage Income
+
+- Some brokerages pay agents and team owners for the agents they bring to the brokerage. eXp World Holdings' 2025 annual report: "The Company maintains a revenue share program which allows agents and brokers to earn additional income from real estate transactions closed by agents they have attracted to the Company," funded "from the Company's portion of transaction commissions." The same report lists "sales commissions, revenue share and stock-based compensation paid to the Company's agents" as separate costs. [6]
+- On a team's P&L, revenue share, profit share or stock income from the brokerage is income, but it doesn't come from the team's closings. The skill reads it as other income: outside commission income and company dollar, inside net income. Counting it as commission would make splits look low and company dollar look high.
+- Each brokerage's program and its terms come from the brokerage agreement and the broker. The skill never projects revenue share or states anyone's terms.
 
 ## Gross Versus Net Recording
 
@@ -74,7 +82,7 @@ These definitions explain the numbers; they don't change them. Brokerages, coach
 ## Cost per Closing and Lead Source Return
 
 - **Cost per closing** = operating expenses for the months ÷ closings in the same months. eXp World Holdings reports the same idea at brokerage scale, "real estate per transaction cost": selling, general and administrative, sales and marketing and technology expenses divided by total transactions. [6] The skill computes it only from a production file, never from a per-file fee or any other proxy.
-- **Lead source return:** Sisu's glossary defines Lead Source ROI as how much money, or profit, a lead source makes, and ROI as the net gain divided by the original cost. [1] The skill uses (the team's share from that source's closings − that source's spend) ÷ spend, for the same months, and for a pay-at-close source uses the referral fees on its closings as the spend. Lead spend and the closings it produces rarely fall in the same months, so it is a rough period view.
+- **Lead source return:** Sisu's glossary defines Lead Source ROI as how much money, or profit, a lead source makes, and ROI as the net gain divided by the original cost. [1] The skill uses (the team's share from that source's closings − that source's spend) ÷ spend, for the same months. For a pay-at-close source the spend is the referral fees on its closings, and the team's share in the production file is usually already after those fees, so the return is that share ÷ the fees (the same net gain per dollar, without subtracting the fee twice). Lead spend and the closings it produces rarely fall in the same months, so it is a rough period view.
 
 ## Sources
 
@@ -90,3 +98,4 @@ These definitions explain the numbers; they don't change them. Brokerages, coach
 10. IRS, Publication 538, "Accounting Periods and Methods" (page last reviewed 2026-04-30), checked 2026-11-08: https://www.irs.gov/publications/p538
 11. QuickBooks, "Choose between cash and accrual accounting methods in QuickBooks Online" (updated 2026-08-05), checked 2026-11-08: https://quickbooks.intuit.com/learn-support/en-us/help-article/product-preferences/choose-cash-accrual-accounting-methods-reports/L64yocn6B_US_en_US
 12. IRS, "Paying yourself" (page last reviewed 2026-05-08), checked 2026-11-08: https://www.irs.gov/businesses/small-businesses-self-employed/paying-yourself
+13. Sisu, "Using The Commission Form & Generating CDA's" (Kayla Latta, March 21, 2025), checked 2026-11-08: https://kb-app.sisu.co/en/articles/10518280-using-the-commission-form-generating-cda-s
