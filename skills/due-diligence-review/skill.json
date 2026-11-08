@@ -4,10 +4,10 @@
   "title": "Due Diligence Review",
   "version": "1.1",
   "apps": [
-    "claude",
-    "chatgpt"
+    "claude"
   ],
   "shared": [
-    "utah-repc.md"
+    "utah-repc.md",
+    "utah-property-notes.md"
   ]
 }

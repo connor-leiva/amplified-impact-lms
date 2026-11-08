@@ -1,2 +1,2 @@
 warning: references/routing.md has the email tc@fernhollow-example.test: keep it only if it's a shared team inbox
-OK: /home/user/amplified-impact-lms/skills/team-playbook-builder/evals/runs/eval-2-individual-splits-and-personal-data/fernhollow-example-partners-playbook.zip (5540 bytes, 6 files, one folder 'fernhollow-example-partners-playbook/' at the root)
+OK: eval-2-individual-splits-and-personal-data/fernhollow-example-partners-playbook.zip (5543 bytes, 6 files, one folder 'fernhollow-example-partners-playbook/' at the root)

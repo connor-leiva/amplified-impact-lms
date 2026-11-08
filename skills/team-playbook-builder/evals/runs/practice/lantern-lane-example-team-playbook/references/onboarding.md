@@ -29,7 +29,11 @@ Most of this file comes from the onboarding checklist dated June 3, 2024, more t
 ## Week 4
 
 - Join the Lead Rotation after your Week 4 sign-off with the Team Leader (Day 30). (Source: Onboarding Checklist, Week 4; dated June 3, 2024)
-- The checklist's Week 4 buyer steps are under review and aren't in this playbook. For how to work with buyers before a showing or an offer, ask the Team Leader and the Managing Broker. (Source: Onboarding Checklist, Week 4; dated June 3, 2024)
+
+## UNDER REVIEW: Working With Buyers Before a Showing or an Offer
+
+- The onboarding checklist's Week 4 buyer steps are under review with the Team Leader and the Managing Broker, so they aren't in this playbook. (Source: Onboarding Checklist, Week 4; dated June 3, 2024)
+- Give agents this note and send them to the Team Leader and the Managing Broker.
 
 ## Your First 90 Days
 

@@ -1,0 +1,27 @@
+{
+ "records": 500,
+ "closed_deal_in_active_stage_from_deal_columns": 3,
+ "merge_groups": 13,
+ "merge_extra_records": 13,
+ "shared_same_last_groups": 2,
+ "shared_phone_records": 7,
+ "stage_counts": {
+  "Nurture": 134,
+  "Trash": 38,
+  "Lead": 87,
+  "Sphere": 37,
+  "Under Contract": 12,
+  "Vendor": 5,
+  "Spoke with Customer": 20,
+  "Listing Agreement": 9,
+  "Submitting Offers": 5,
+  "Closed": 30,
+  "Past Client": 23,
+  "Attempted Contact": 45,
+  "Showing Homes": 14,
+  "Met with Customer": 12,
+  "Appointment Set": 10,
+  "Rejected": 17,
+  "Active Listing": 2
+ }
+}

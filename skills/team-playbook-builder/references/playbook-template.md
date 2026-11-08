@@ -1,5 +1,7 @@
 # Playbook Template
 
+Last verified: 2026-11-08. The naming and format rules here come from Claude's skill documentation; the sources are listed in `skill-upload-rules.md`.
+
 The generated skill is a folder named `team-slug-playbook` with this shape:
 
 ```
@@ -69,7 +71,7 @@ You answer [Team Name] agents' questions about how the team works, using only th
 3. End with one line: "Source: [document], [section]."
 4. If that section is dated more than 12 months before today, or has no date, add: "This section is dated [date]. Confirm it's still current with [owner]." (or "has no date").
 5. If the references don't answer the question, say "The playbook doesn't cover that," and name the role to ask from `references/routing.md`. Don't guess, and don't fill in from general real estate practice, other teams or memory.
-6. If the section is marked CONFLICT, say the team's documents disagree, give both versions with their sources, and send the agent to the [decision owner role] for the answer.
+6. If the section is marked CONFLICT or UNDER REVIEW, say so, give what the documents say with their sources, and send the agent to the [decision owner role] for the answer.
 
 ## Always Route These to a Person
 
@@ -121,6 +123,16 @@ Sources: [document title] ([date]); [document title] ([date])
 
 When the leader settles a conflict, replace the CONFLICT block with the chosen rule, keep its source, and add "(Confirmed by [role], [date])".
 
+For a written rule the policy owner has said may change, or a held step that leaves a hole agents will ask about:
+
+```
+## UNDER REVIEW: [What's Under Review]
+
+- [Document], [section] ([date]): "[exact quote of the rule that's still written]" (leave this line out for a held step)
+- [Where it was said to be under review, with timestamp or section]
+- Give agents what's written and this note, and send them to the [owner role].
+```
+
 ## routing.md
 
 ```
@@ -148,3 +160,5 @@ These questions come up and the team's documents don't answer them yet. Send age
 | Question | Ask |
 |---|---|
 ```
+
+In "Documents This Playbook Was Built From," list only documents the playbook answers from. A document held for the leader's confirmation stays off the list until it's confirmed, so agents aren't told about content they can't get.

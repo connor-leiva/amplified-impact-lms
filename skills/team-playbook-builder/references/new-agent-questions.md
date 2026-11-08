@@ -1,5 +1,7 @@
 # Questions New Agents Ask
 
+Last verified: 2026-11-08. This is a working checklist, not a list of facts. The one industry change it touches (written buyer agreements before touring, from August 17, 2024) is sourced in `source-handling.md`.
+
 Check the team's documents against this list to find gaps. It's a working list of what a new agent on a real estate team needs answered, not a statement of what any team must have. A question counts as answered only when a document answers it, not when a document mentions the topic. "Likely owner" is a suggestion for the gaps list: use the role names the team's documents use.
 
 Items marked **[First month]** are the ones a new agent hits in their first 30 days. Put unanswered first-month items at the top of the gaps list, in this order.

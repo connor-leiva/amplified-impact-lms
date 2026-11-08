@@ -40,7 +40,7 @@ Read `references/source-handling.md` before sorting.
 
 ## 3. Find Conflicts, Gaps and Stale Sections
 
-- **Conflicts:** two documents (or a document and a training call) that give different numbers, deadlines, owners or steps for the same thing. Quote both with sources. Don't pick a winner. In the playbook, that topic shows both versions and sends agents to the owner until the leader decides.
+- **Conflicts:** two documents (or a document and a training call) that give different numbers, deadlines, owners or steps for the same thing. Quote both with sources. Don't pick a winner. In the playbook, that topic shows both versions and sends agents to the owner until the leader decides, unless one side is held out anyway (see `references/source-handling.md`). A rule the owner says may change is marked under review.
 - **Gaps:** check the documents against `references/new-agent-questions.md`. List the questions they don't answer, each with the role that likely owns it, and put the three a new agent will hit first at the top. Never write the missing policy.
 - **Stale:** any section whose date is more than 12 months before today, plus undated documents. Buyer-side steps that rely on compensation shown in the MLS, or on touring before a written buyer agreement, stay out of the playbook and go to the broker (see `references/source-handling.md`).
 - **Missing documents:** anything the documents tell agents to read that wasn't uploaded.
@@ -55,13 +55,13 @@ Read `references/playbook-template.md` and follow it exactly.
 
 ## 5. Check and Package It
 
-Read `references/skill-upload-rules.md` and run its check-and-package script on the folder, passing every removed name and figure from step 2 as must-not-contain terms. Fix every error and rerun until it passes. The result is `team-slug-playbook.zip` with the folder at the root of the ZIP, the format Claude's skill upload expects. If code can't run, give every file in full plus the packaging steps from that reference.
+Read `references/skill-upload-rules.md` and run its check-and-package script on the folder, passing every removed or held name, figure and step from step 2 as must-not-contain terms. Fix every error and rerun until it passes. The result is `team-slug-playbook.zip` with the folder at the root of the ZIP, the format Claude's skill upload expects. If code can't run, give every file in full plus the packaging steps from that reference.
 
 ## 6. Write the Test Set and the Message to Agents
 
 Read `references/agent-install.md`.
 
-- **Test set, 25 questions:** 20 the playbook answers, each with the expected answer in a sentence or two and its source; 5 that must go to a person (a contract question, a gap, a conflict, someone's own pay, a brokerage-wide question), each with the role the answer should name. Write them the way agents ask. Tell the leader to run them before sharing.
+- **Test set, 25 questions:** 20 the playbook answers, each with the expected answer in a sentence or two and its source; 5 that must go to a person (a contract question, a gap, a conflict or something held out, someone's own pay, a brokerage-wide question), each with the role the answer should name. Write them the way agents ask. Tell the leader to run them before sharing.
 - **Message to agents:** a short draft with a Title Case subject line: what the playbook is for, how to install it, what it won't answer, and who to tell when an answer looks wrong. Match the leader's voice profile if one is in the conversation; otherwise warm, plain and direct. Sign with the leader's name or [Team Leader Name].
 - **Sharing steps for the leader**, matched to their Claude plan when they've said which one.
 

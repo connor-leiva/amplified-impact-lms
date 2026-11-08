@@ -59,6 +59,10 @@ A conflict is the same subject with a different number, deadline, owner, step or
 
 Don't recommend a winner. A newer date doesn't settle it, because an older manual is sometimes the one the leader kept current.
 
+When one side of a conflict is a step that stays out of the playbook anyway (a pre-August 2024 buyer step, or removed content), the playbook shows only the other side, with its source. The output still lists the conflict so the leader can confirm it and fix the older document.
+
+When the policy owner says on a training call that a written rule may change ("I'm not sure we're keeping that"), keep the written rule, add that it's under review with the call's timestamp, and list it under Needs Your Answer.
+
 ## Broker Review List
 
 Put these on the list for the leader to take to the broker. Don't rule on them.

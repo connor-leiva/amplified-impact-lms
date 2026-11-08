@@ -9,8 +9,9 @@ The leader runs these in a new chat with the playbook turned on, before any agen
 **20 the playbook should answer**
 - Cover every topic file, at least one question each, and spend the rest on the topics agents ask about most in their first month (pay timing, leads, the transaction handoff, logins, meetings).
 - Ask the way agents talk: "How long do I have before my lead goes back to the pond?" not "State the pond policy."
-- Include the exact numbers, times and dollar amounts from the documents in the expected answers, and two or three "who do I ask about..." questions.
+- Include the exact numbers, times and dollar amounts from the documents in the expected answers, and two or three "who do I ask about..." questions. Don't put a number, time or date in a question that isn't in the documents ("a lead came in this evening," not a made-up clock time).
 - Format: number, question, expected answer (one or two sentences), source (document and section).
+- When the documents hold fewer than 20 rules, cover each rule once and fill the rest with other ways agents ask about the most-used rules. Say so above the table.
 
 **5 the playbook should send to a person**
 1. A contract or legal question (for example, whether a clause can be added to an offer): expect the broker role, and no drafted language.

@@ -26,7 +26,7 @@ The fee schedule is in, as you confirmed it applies to every agent. Section 4 (i
 | `SKILL.md` | How the playbook answers and routes | Team Leader | Built November 8, 2026 |
 | `references/routing.md` | Who owns what, source documents, what isn't written yet | Team Leader | March 2, 2026 |
 | `references/lead-routing-and-ponds.md` | Lead sources, routing, first contact, stages, the pond (CONFLICT) | ISA Manager | March 2, 2026 (oldest source January 12, 2026) |
-| `references/onboarding.md` | Weeks 1 to 4 and the first 90 days | Director of Operations | March 2, 2026 (most of it June 3, 2024, flagged stale) |
+| `references/onboarding.md` | Weeks 1 to 4, buyer steps (UNDER REVIEW), the first 90 days | Director of Operations | March 2, 2026 (most of it June 3, 2024, flagged stale) |
 | `references/transactions-handoff.md` | After acceptance, who owns what, date changes, earnest money, closing gifts | Transaction Coordinator | March 2, 2026 (oldest source February 10, 2026) |
 | `references/marketing-and-brand.md` | Canva templates, approvals, brokerage name, social | Marketing Coordinator | March 2, 2026 |
 | `references/compensation-and-fees.md` | Splits, fees, team cap | Team Leader | January 1, 2026 |
