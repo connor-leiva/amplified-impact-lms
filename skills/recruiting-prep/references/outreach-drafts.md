@@ -9,6 +9,7 @@ Last verified: 2026-11-08. The legal points here come from `outreach-rules.md` (
 - **From:** the real sender, [Agent Name], never a made-up persona.
 - **Subject:** Title Case and honest about what the email is. Never "Re:" or "Fwd:" on a first touch. Good: "A Quick Question About Your Business," "Coffee Next Week?" Not: "Your Listing Inquiry."
 - **Body:** under 150 words for a first touch. One reason for reaching out (the tier's angle), one specific thing the team offers at that level (from the team's document, or "[your offer for this level]"), one low-pressure ask (a 20-minute coffee or call).
+- **About the sender and the team:** only what the files or the user's message say. No claims about how often the sender talks with agents, team size, years in business, rankings, awards or results ("I talk with a few agents each quarter" is made up unless a file says it). The name, title placeholder, team and brokerage are enough.
 - **Merge fields:** [First Name] only. Never a recipient's own production numbers, ranking, office move, transaction addresses or anything else from the MLS data.
 - **Signature:** [Agent Name], [Title], [Team Name], [Brokerage Name], [Agent Phone]. Real estate advertising rules generally require the licensee's status to be clear, and some states require the brokerage name; see `recruiting-guardrails.md`.
 - **Footer, every email:**
@@ -36,6 +37,8 @@ An angle is the one reason this tier might want a conversation. Build it from th
 - Lower tiers: training, lead sources, support on each transaction.
 
 Without a team document, label the angle "General suggestion; replace with your team's offer," and keep the draft's offer line as a placeholder.
+
+**No closings in period and Not tiered** (no production row, so no level): write one shared email for these groups that uses only what the team's document says applies to every agent (how the team works, its schedule, what stays the agent's), or a general suggestion with "[your offer]" when there is no document. Never pick a level's offer for someone with no production data. Tell the user to check their production in the MLS before moving them to a tier. A text goes only to the contacts in these groups with documented consent, listed by ID.
 
 Never build an angle on a production drop, a personal detail, a note, age, family or any personal trait. Never criticize the recipient's current brokerage, even indirectly ("tired of being ignored by your broker?").
 

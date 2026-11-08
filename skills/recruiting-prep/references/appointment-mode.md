@@ -22,12 +22,12 @@ Use the team's value proposition or offer document first. If it is organized by 
 
 Where the team has no document, or the document doesn't cover a level, use the guidance below, and label every line of it "General guidance, not from your documents." It is a starting point for the leader's questions, not research and not a fact about this candidate.
 
-- **Newer or low production (0 to 5 sides a year):** training and a clear path to the first deals, lead sources they can work, accountability, help on each transaction.
-- **Growing (6 to 15):** steadier lead flow, systems and follow-up, transaction coordination, marketing support.
-- **Established (16 to 30):** time back (transaction coordination, listing coordination, showing help), the economics of split, cap and fees, marketing and listing support, fewer administrative tasks.
-- **High production (over 30):** leverage (buyer agents, showing partners, administrative staff), economics, control of their own brand and database, a leadership or expansion path, and a culture that fits how they work.
+- **0 to 5 sides a year:** training and a clear path to the first deals, lead sources they can work, accountability, help on each transaction.
+- **6 to 15 sides:** steadier lead flow, systems and follow-up, transaction coordination, marketing support.
+- **16 to 30 sides:** time back (transaction coordination, listing coordination, showing help), the economics of split, cap and fees, marketing and listing support, fewer administrative tasks.
+- **Over 30 sides:** leverage (buyer agents, showing partners, administrative staff), economics, control of their own brand and database, a leadership or expansion path, and a culture that fits how they work.
 
-Listing-heavy agents often care most about listing support and marketing; buyer-heavy agents about lead flow and showing help. Say "often," because the conversation decides.
+These bands are by side count only and have no names, so they never get confused with the team's own level names. Listing-heavy agents often care most about listing support and marketing; buyer-heavy agents about lead flow and showing help. Say "often," because the conversation decides.
 
 ## Discovery Questions
 
@@ -67,7 +67,7 @@ Choose the five to seven most likely, from this list and the files:
 - **Timing:** "Not this year," "After my listings close."
 - **Revenue share or stock** (when the brokerage has a program): answer only with what the brokerage's official materials say, if uploaded; never an amount, an example or a projection.
 
-Each answer follows one shape: acknowledge what's real in the objection, ask one question that gets to the need behind it, answer with what the team's documents say (quoted), and offer a next step. Where the documents say nothing, write "[Your answer: not in your documents]" and the question to ask instead.
+Each answer follows one shape: acknowledge what's real in the objection, ask one question that gets to the need behind it, answer with what the team's documents say (quoted), and offer a next step. Where the documents say nothing, write "[Your answer: not in your documents]" and the question to ask instead. The acknowledgment speaks to this candidate only; no claims about what "most agents" feel or do. If the leader offers to introduce the candidate to someone on the team, add that no one should quote income, earnings or results.
 
 Never:
 - Compute what the candidate would earn, net, keep or save under the team's terms, even from their own numbers, and never compare their past income with a projected one. Point to the terms as written so the candidate can run their own numbers with their own advisor.
