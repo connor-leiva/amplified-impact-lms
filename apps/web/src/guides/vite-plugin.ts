@@ -13,7 +13,14 @@ import type * as Render from './render.ts';
  * the API reads it (`apps/api/src/server.ts`). Keep in step with `GUIDES` in `content.ts`, which a
  * test checks.
  */
-export const GUIDE_HTML = ['task-sync-starter.html', 'ops-time-audit.html', 'reel-editor.html'] as const;
+export const GUIDE_HTML = [
+  'task-sync-starter.html',
+  'ops-time-audit.html',
+  'reel-editor.html',
+  'database-health-check.html',
+  'recruiting-prep.html',
+  'team-playbook-builder.html',
+] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */
 const RENDER_URL = '/src/guides/render.ts';

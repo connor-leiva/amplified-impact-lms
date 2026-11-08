@@ -113,8 +113,17 @@ const JOINED = Object.fromEntries(
   GUIDE_SLUGS.map((slug) => [slug, STEP_THROUGHS.includes(slug) ? '#unlocked' : '#download']),
 ) as Record<GuideSlug, string>;
 
-it('serves the five guides there are, by slug', () => {
-  expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool']);
+it('serves the guides there are, by slug', () => {
+  expect(GUIDE_SLUGS).toEqual([
+      'task-sync-starter',
+      'ops-time-audit',
+      'voice-profile',
+      'reel-editor',
+      'retool',
+      'database-health-check',
+      'recruiting-prep',
+      'team-playbook-builder',
+    ]);
 });
 
 describe.each(GUIDE_SLUGS)('/%s · the page (D-038, D-039) @g9', (slug) => {

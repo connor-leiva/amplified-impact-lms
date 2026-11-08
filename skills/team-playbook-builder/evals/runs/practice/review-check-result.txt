@@ -1,0 +1,2 @@
+warning: references/routing.md has the email transactions@lanternlane-example.test: keep it only if it's a shared team inbox
+OK: ./lantern-lane-example-team-playbook.zip (10914 bytes, 10 files, one folder 'lantern-lane-example-team-playbook/' at the root)

@@ -1,0 +1,21 @@
+{
+ "records": 1200,
+ "merge_groups_planted": 40,
+ "shared_same_last_groups": 10,
+ "status_counts": {
+  "Closed Lost": 58,
+  "Active Buyer": 37,
+  "Long-Term Nurture": 279,
+  "New": 192,
+  "Appointment Booked": 27,
+  "SOI": 163,
+  "Warm": 134,
+  "Do Not Contact": 21,
+  "In Escrow": 28,
+  "(blank)": 71,
+  "Past Client": 101,
+  "Hot": 37,
+  "Investor": 30,
+  "Active Seller": 22
+ }
+}

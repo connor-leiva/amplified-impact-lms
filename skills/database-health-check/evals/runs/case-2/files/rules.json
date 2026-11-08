@@ -1,0 +1,5 @@
+{"stale_days": 60, "past_client_days": 365, "pond_after_days": 45, "pond_stages": ["New", "Warm"], "pond_tags": ["Shared Pool"],
+ "past_client_tags": ["Closed Client"], "sphere_tags": ["SOI"],
+ "stage_classes": {"New": "new", "Warm": "active_lead", "Hot": "active_lead", "Appointment Booked": "active_lead",
+  "Active Buyer": "active_client", "Active Seller": "active_client", "In Escrow": "active_client",
+  "Long-Term Nurture": "nurture", "Past Client": "past_client", "SOI": "sphere", "Closed Lost": "inactive", "Do Not Contact": "inactive"}}

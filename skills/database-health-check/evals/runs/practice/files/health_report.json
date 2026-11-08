@@ -1,0 +1,1247 @@
+{
+ "as_of": "2026-11-08",
+ "file": "PRACTICE-followupboss-people-export.csv",
+ "records": 500,
+ "header_row": 2,
+ "format": "Follow Up Boss People export",
+ "settings": {
+  "stale_days": 90,
+  "past_client_days": 365,
+  "new_lead_days": 60,
+  "never_contacted_days": 30,
+  "nurture_quiet_days": 180,
+  "back_on_site_days": 30,
+  "recent_close_days": 365,
+  "archive_days": 730,
+  "shared_key_limit": 5
+ },
+ "team_rules_used": [],
+ "columns_used": [
+  [
+   "Name",
+   "Name"
+  ],
+  [
+   "First name",
+   "First Name"
+  ],
+  [
+   "Last name",
+   "Last Name"
+  ],
+  [
+   "Stage",
+   "Stage"
+  ],
+  [
+   "Source",
+   "Lead Source"
+  ],
+  [
+   "Assigned agent",
+   "Assigned To"
+  ],
+  [
+   "Date added",
+   "Date Added"
+  ],
+  [
+   "Last communication",
+   "Last Communication"
+  ],
+  [
+   "Lead activity",
+   "Last Activity"
+  ],
+  [
+   "Is contacted",
+   "Is Contacted"
+  ],
+  [
+   "Tags",
+   "Tags"
+  ],
+  [
+   "Deal stage",
+   "Deal Stage"
+  ],
+  [
+   "Deal close date",
+   "Deal Close Date"
+  ],
+  [
+   "Timeframe",
+   "Timeframe"
+  ],
+  [
+   "Email columns",
+   "Email 1, Email 2"
+  ],
+  [
+   "Phone columns",
+   "Phone 1, Phone 2"
+  ],
+  [
+   "Text consent columns",
+   "Text Consent"
+  ]
+ ],
+ "touch_source": "column 'Last Communication'",
+ "gaps": [
+  "No record ID column: the worklist identifies records by their row in this file, name and first email or phone.",
+  "Follow Up Boss exports pond leads with the pond's lead agent as the assignment and leaves out the pond name, so pond leads count under that agent unless the pond name was added as a tag before export."
+ ],
+ "ignored_columns": [],
+ "relationship_columns_ignored": 0,
+ "stages": [
+  {
+   "stage": "Nurture",
+   "class": "Nurture",
+   "how": "default",
+   "count": 134,
+   "pct": "26.8%"
+  },
+  {
+   "stage": "Lead",
+   "class": "New lead",
+   "how": "default",
+   "count": 87,
+   "pct": "17.4%"
+  },
+  {
+   "stage": "Attempted Contact",
+   "class": "Active lead",
+   "how": "default",
+   "count": 45,
+   "pct": "9.0%"
+  },
+  {
+   "stage": "Trash",
+   "class": "Inactive (trash, rejected, dead)",
+   "how": "default",
+   "count": 38,
+   "pct": "7.6%"
+  },
+  {
+   "stage": "Sphere",
+   "class": "Sphere",
+   "how": "default",
+   "count": 37,
+   "pct": "7.4%"
+  },
+  {
+   "stage": "Closed",
+   "class": "Past client",
+   "how": "default",
+   "count": 30,
+   "pct": "6.0%"
+  },
+  {
+   "stage": "Past Client",
+   "class": "Past client",
+   "how": "default",
+   "count": 23,
+   "pct": "4.6%"
+  },
+  {
+   "stage": "Spoke with Customer",
+   "class": "Active lead",
+   "how": "default",
+   "count": 20,
+   "pct": "4.0%"
+  },
+  {
+   "stage": "Rejected",
+   "class": "Inactive (trash, rejected, dead)",
+   "how": "default",
+   "count": 17,
+   "pct": "3.4%"
+  },
+  {
+   "stage": "Showing Homes",
+   "class": "Active client",
+   "how": "default",
+   "count": 14,
+   "pct": "2.8%"
+  },
+  {
+   "stage": "Under Contract",
+   "class": "Active client",
+   "how": "default",
+   "count": 12,
+   "pct": "2.4%"
+  },
+  {
+   "stage": "Met with Customer",
+   "class": "Active lead",
+   "how": "default",
+   "count": 12,
+   "pct": "2.4%"
+  },
+  {
+   "stage": "Appointment Set",
+   "class": "Active lead",
+   "how": "default",
+   "count": 10,
+   "pct": "2.0%"
+  },
+  {
+   "stage": "Listing Agreement",
+   "class": "Active client",
+   "how": "default",
+   "count": 9,
+   "pct": "1.8%"
+  },
+  {
+   "stage": "Vendor",
+   "class": "Other (vendor, agent, partner)",
+   "how": "guess",
+   "count": 5,
+   "pct": "1.0%"
+  },
+  {
+   "stage": "Submitting Offers",
+   "class": "Active client",
+   "how": "default",
+   "count": 5,
+   "pct": "1.0%"
+  },
+  {
+   "stage": "Active Listing",
+   "class": "Active client",
+   "how": "default",
+   "count": 2,
+   "pct": "0.4%"
+  }
+ ],
+ "stage_classes": {
+  "Nurture": 134,
+  "New lead": 87,
+  "Active lead": 87,
+  "Inactive (trash, rejected, dead)": 55,
+  "Past client": 53,
+  "Active client": 42,
+  "Sphere": 37,
+  "Other (vendor, agent, partner)": 5
+ },
+ "unrecognized_stages": [],
+ "guessed_stages": [
+  "Vendor"
+ ],
+ "sources": [
+  {
+   "source": "Zillow",
+   "count": 88,
+   "pct": "17.6%"
+  },
+  {
+   "source": "Website",
+   "count": 68,
+   "pct": "13.6%"
+  },
+  {
+   "source": "Sphere",
+   "count": 63,
+   "pct": "12.6%"
+  },
+  {
+   "source": "Import",
+   "count": 55,
+   "pct": "11.0%"
+  },
+  {
+   "source": "Referral",
+   "count": 53,
+   "pct": "10.6%"
+  },
+  {
+   "source": "Realtor.com",
+   "count": 41,
+   "pct": "8.2%"
+  },
+  {
+   "source": "Facebook",
+   "count": 37,
+   "pct": "7.4%"
+  },
+  {
+   "source": "Open House",
+   "count": 27,
+   "pct": "5.4%"
+  },
+  {
+   "source": "Past Client",
+   "count": 23,
+   "pct": "4.6%"
+  },
+  {
+   "source": "Homes.com",
+   "count": 17,
+   "pct": "3.4%"
+  },
+  {
+   "source": "Google PPC",
+   "count": 11,
+   "pct": "2.2%"
+  },
+  {
+   "source": "(blank)",
+   "count": 10,
+   "pct": "2.0%"
+  },
+  {
+   "source": "Sign Call",
+   "count": 7,
+   "pct": "1.4%"
+  }
+ ],
+ "sources_other": 0,
+ "source_count": 13,
+ "agents": [
+  {
+   "agent": "Juniper Quickfoot",
+   "contacts": 119,
+   "pct": "23.8%",
+   "active_stage": 52,
+   "stale_active": 20,
+   "never_contacted": 14,
+   "past_sphere_untouched": 6,
+   "in_merge_groups": 3
+  },
+  {
+   "agent": "Barnaby Larkspur",
+   "contacts": 112,
+   "pct": "22.4%",
+   "active_stage": 49,
+   "stale_active": 22,
+   "never_contacted": 13,
+   "past_sphere_untouched": 8,
+   "in_merge_groups": 5
+  },
+  {
+   "agent": "Rufus Tumbleweed",
+   "contacts": 97,
+   "pct": "19.4%",
+   "active_stage": 43,
+   "stale_active": 20,
+   "never_contacted": 16,
+   "past_sphere_untouched": 6,
+   "in_merge_groups": 3
+  },
+  {
+   "agent": "Odessa Fernwhistle",
+   "contacts": 87,
+   "pct": "17.4%",
+   "active_stage": 42,
+   "stale_active": 20,
+   "never_contacted": 10,
+   "past_sphere_untouched": 7,
+   "in_merge_groups": 9
+  },
+  {
+   "agent": "Marisol Pinecone",
+   "contacts": 83,
+   "pct": "16.6%",
+   "active_stage": 29,
+   "stale_active": 11,
+   "never_contacted": 13,
+   "past_sphere_untouched": 7,
+   "in_merge_groups": 4
+  },
+  {
+   "agent": "(unassigned)",
+   "contacts": 2,
+   "pct": "0.4%",
+   "active_stage": 1,
+   "stale_active": 1,
+   "never_contacted": 0,
+   "past_sphere_untouched": 0,
+   "in_merge_groups": 0
+  }
+ ],
+ "contact_info": {
+  "email_missing": 34,
+  "email_invalid": 7,
+  "email_ok": 459,
+  "email_bounced_tag": 6,
+  "email_unsubscribed": 19,
+  "phone_missing": 61,
+  "phone_invalid": 8,
+  "phone_ok": 431,
+  "dnc": 6,
+  "text_opted_out": 13,
+  "unreachable": 8,
+  "unreachable_live": 8
+ },
+ "duplicates": {
+  "merge_groups": 12,
+  "merge_records": 24,
+  "extra_records": 12,
+  "shared_same_last_groups": 2,
+  "shared_same_last_records": 4,
+  "shared_diff_groups": 0,
+  "shared_diff_records": 0,
+  "shared_keys": [
+   {
+    "kind": "phone",
+    "records": 7
+   }
+  ],
+  "name_only_groups": 1,
+  "name_only_records": 2,
+  "merge_groups_split_agents": 6,
+  "merge_records_split_agents": 12
+ },
+ "stale_active": {
+  "days": 90,
+  "active_stage_total": 216,
+  "count": 94,
+  "no_communication_on_record": 40,
+  "gone_quiet": 54,
+  "by_stage": [
+   {
+    "name": "Lead",
+    "count": 57
+   },
+   {
+    "name": "Attempted Contact",
+    "count": 12
+   },
+   {
+    "name": "Showing Homes",
+    "count": 6
+   },
+   {
+    "name": "Spoke with Customer",
+    "count": 5
+   },
+   {
+    "name": "Listing Agreement",
+    "count": 4
+   },
+   {
+    "name": "Met with Customer",
+    "count": 3
+   },
+   {
+    "name": "Appointment Set",
+    "count": 3
+   },
+   {
+    "name": "Under Contract",
+    "count": 2
+   },
+   {
+    "name": "Submitting Offers",
+    "count": 2
+   }
+  ],
+  "by_agent": [
+   {
+    "name": "Barnaby Larkspur",
+    "count": 22
+   },
+   {
+    "name": "Rufus Tumbleweed",
+    "count": 20
+   },
+   {
+    "name": "Juniper Quickfoot",
+    "count": 20
+   },
+   {
+    "name": "Odessa Fernwhistle",
+    "count": 20
+   },
+   {
+    "name": "Marisol Pinecone",
+    "count": 11
+   },
+   {
+    "name": "(unassigned)",
+    "count": 1
+   }
+  ]
+ },
+ "never_contacted": {
+  "days": 30,
+  "basis": "Is Contacted column",
+  "count": 66,
+  "by_agent": [
+   {
+    "name": "Rufus Tumbleweed",
+    "count": 16
+   },
+   {
+    "name": "Juniper Quickfoot",
+    "count": 14
+   },
+   {
+    "name": "Barnaby Larkspur",
+    "count": 13
+   },
+   {
+    "name": "Marisol Pinecone",
+    "count": 13
+   },
+   {
+    "name": "Odessa Fernwhistle",
+    "count": 10
+   }
+  ],
+  "by_source": [
+   {
+    "name": "Zillow",
+    "count": 14
+   },
+   {
+    "name": "Referral",
+    "count": 11
+   },
+   {
+    "name": "Import",
+    "count": 8
+   },
+   {
+    "name": "Sphere",
+    "count": 7
+   },
+   {
+    "name": "Website",
+    "count": 6
+   },
+   {
+    "name": "Facebook",
+    "count": 6
+   },
+   {
+    "name": "Homes.com",
+    "count": 4
+   },
+   {
+    "name": "(blank)",
+    "count": 3
+   }
+  ]
+ },
+ "past_sphere": {
+  "days": 365,
+  "past_clients": 53,
+  "sphere": 37,
+  "past_from_stage": 53,
+  "past_from_tag_only": 0,
+  "past_from_transactions_only": 0,
+  "past_untouched": 18,
+  "past_no_communication_on_record": 5,
+  "sphere_untouched": 16,
+  "sphere_no_communication_on_record": 5,
+  "by_agent": [
+   {
+    "name": "Barnaby Larkspur",
+    "count": 8
+   },
+   {
+    "name": "Marisol Pinecone",
+    "count": 7
+   },
+   {
+    "name": "Odessa Fernwhistle",
+    "count": 7
+   },
+   {
+    "name": "Juniper Quickfoot",
+    "count": 6
+   },
+   {
+    "name": "Rufus Tumbleweed",
+    "count": 6
+   }
+  ],
+  "past_stage_names": [
+   "Closed",
+   "Past Client"
+  ],
+  "past_tags_seen": [
+   "Past Client",
+   "Past Clients",
+   "PastClient",
+   "past client"
+  ]
+ },
+ "transactions": null,
+ "stage_problems": {
+  "closed_deal_in_active_stage": 3,
+  "closed_deal_in_active_stage_by_stage": [
+   {
+    "name": "Submitting Offers",
+    "count": 2
+   },
+   {
+    "name": "Showing Homes",
+    "count": 1
+   }
+  ],
+  "past_client_not_labeled": 0,
+  "past_client_tag_wrong_stage": 0,
+  "no_stage": 0,
+  "parked_in_new_lead_stage": 43,
+  "new_lead_days": 60,
+  "in_new_lead_stage_past_limit_total": 82,
+  "unrecognized_stage_records": 0,
+  "import_tags": 4
+ },
+ "pond_rule": null,
+ "unassigned": {
+  "count": 2,
+  "by_class": {
+   "New lead": 1,
+   "Sphere": 1
+  },
+  "pond_records": 15,
+  "pond_column": false,
+  "pond_by_agent": [
+   {
+    "name": "Rufus Tumbleweed",
+    "count": 15
+   }
+  ]
+ },
+ "tags": {
+  "distinct": 34,
+  "records_with_tags": 269,
+  "near_duplicate_groups": 6,
+  "near_duplicate_tags": 19,
+  "groups": [
+   {
+    "variants": [
+     {
+      "tag": "Seller",
+      "count": 27
+     },
+     {
+      "tag": "Sellers",
+      "count": 18
+     },
+     {
+      "tag": "seller",
+      "count": 17
+     }
+    ],
+    "total": 62
+   },
+   {
+    "variants": [
+     {
+      "tag": "Buyer",
+      "count": 29
+     },
+     {
+      "tag": "Buyers",
+      "count": 19
+     },
+     {
+      "tag": "buyer",
+      "count": 8
+     }
+    ],
+    "total": 56
+   },
+   {
+    "variants": [
+     {
+      "tag": "Past Client",
+      "count": 23
+     },
+     {
+      "tag": "Past Clients",
+      "count": 12
+     },
+     {
+      "tag": "past client",
+      "count": 9
+     },
+     {
+      "tag": "PastClient",
+      "count": 8
+     }
+    ],
+    "total": 52
+   },
+   {
+    "variants": [
+     {
+      "tag": "Open House",
+      "count": 19
+     },
+     {
+      "tag": "open house",
+      "count": 11
+     },
+     {
+      "tag": "Open-House",
+      "count": 8
+     },
+     {
+      "tag": "Openhouse",
+      "count": 6
+     }
+    ],
+    "total": 44
+   },
+   {
+    "variants": [
+     {
+      "tag": "Sphere",
+      "count": 10
+     },
+     {
+      "tag": "sphere",
+      "count": 7
+     }
+    ],
+    "total": 17
+   },
+   {
+    "variants": [
+     {
+      "tag": "Investors",
+      "count": 3
+     },
+     {
+      "tag": "investor",
+      "count": 2
+     },
+     {
+      "tag": "Investor",
+      "count": 2
+     }
+    ],
+    "total": 7
+   }
+  ],
+  "used_once": 1
+ },
+ "consent": {
+  "field_found": true,
+  "fields": [
+   "Text Consent"
+  ],
+  "documented_yes": 108,
+  "documented_no": 13,
+  "blank": 379,
+  "textable": 105,
+  "yes_by_how_recorded": [
+   {
+    "how": "signed buyer form",
+    "count": 39
+   },
+   {
+    "how": "website form",
+    "count": 37
+   },
+   {
+    "how": "open house sign in",
+    "count": 32
+   }
+  ]
+ },
+ "segments": [
+  {
+   "key": "back_on_site",
+   "name": "Back On The Site",
+   "size": 31,
+   "also_in_earlier_segment": 0,
+   "next_move": "call list",
+   "emailable": 25,
+   "callable": 29,
+   "textable": 6,
+   "no_communication_on_record": 6,
+   "by_agent": [
+    {
+     "name": "Juniper Quickfoot",
+     "count": 11
+    },
+    {
+     "name": "Barnaby Larkspur",
+     "count": 8
+    },
+    {
+     "name": "Rufus Tumbleweed",
+     "count": 7
+    },
+    {
+     "name": "Marisol Pinecone",
+     "count": 3
+    },
+    {
+     "name": "Odessa Fernwhistle",
+     "count": 2
+    }
+   ],
+   "stages": [
+    {
+     "name": "Nurture",
+     "count": 13
+    },
+    {
+     "name": "Lead",
+     "count": 5
+    },
+    {
+     "name": "Attempted Contact",
+     "count": 3
+    },
+    {
+     "name": "Past Client",
+     "count": 3
+    },
+    {
+     "name": "Under Contract",
+     "count": 2
+    },
+    {
+     "name": "Submitting Offers",
+     "count": 1
+    },
+    {
+     "name": "Listing Agreement",
+     "count": 1
+    },
+    {
+     "name": "Met with Customer",
+     "count": 1
+    }
+   ],
+   "sources": [
+    {
+     "name": "Zillow",
+     "count": 13
+    },
+    {
+     "name": "Website",
+     "count": 7
+    },
+    {
+     "name": "Facebook",
+     "count": 4
+    },
+    {
+     "name": "Realtor.com",
+     "count": 4
+    },
+    {
+     "name": "Homes.com",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "key": "past_clients",
+   "name": "Past Clients, No Touch In 12+ Months",
+   "size": 18,
+   "also_in_earlier_segment": 1,
+   "next_move": "call list",
+   "emailable": 14,
+   "callable": 15,
+   "textable": 0,
+   "no_communication_on_record": 5,
+   "by_agent": [
+    {
+     "name": "Barnaby Larkspur",
+     "count": 5
+    },
+    {
+     "name": "Marisol Pinecone",
+     "count": 4
+    },
+    {
+     "name": "Juniper Quickfoot",
+     "count": 4
+    },
+    {
+     "name": "Rufus Tumbleweed",
+     "count": 3
+    },
+    {
+     "name": "Odessa Fernwhistle",
+     "count": 2
+    }
+   ],
+   "stages": [
+    {
+     "name": "Closed",
+     "count": 11
+    },
+    {
+     "name": "Past Client",
+     "count": 7
+    }
+   ],
+   "sources": [
+    {
+     "name": "Website",
+     "count": 8
+    },
+    {
+     "name": "Zillow",
+     "count": 3
+    },
+    {
+     "name": "Open House",
+     "count": 2
+    },
+    {
+     "name": "Past Client",
+     "count": 2
+    },
+    {
+     "name": "Import",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "key": "sphere",
+   "name": "Sphere, No Touch In 12+ Months",
+   "size": 16,
+   "also_in_earlier_segment": 0,
+   "next_move": "email campaign",
+   "emailable": 15,
+   "callable": 15,
+   "textable": 3,
+   "no_communication_on_record": 5,
+   "by_agent": [
+    {
+     "name": "Odessa Fernwhistle",
+     "count": 5
+    },
+    {
+     "name": "Rufus Tumbleweed",
+     "count": 3
+    },
+    {
+     "name": "Barnaby Larkspur",
+     "count": 3
+    },
+    {
+     "name": "Marisol Pinecone",
+     "count": 3
+    },
+    {
+     "name": "Juniper Quickfoot",
+     "count": 2
+    }
+   ],
+   "stages": [
+    {
+     "name": "Sphere",
+     "count": 16
+    }
+   ],
+   "sources": [
+    {
+     "name": "Sphere",
+     "count": 9
+    },
+    {
+     "name": "Import",
+     "count": 4
+    },
+    {
+     "name": "Referral",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "key": "stalled",
+   "name": "Stalled Pipeline, No Touch In 90+ Days",
+   "size": 53,
+   "also_in_earlier_segment": 6,
+   "next_move": "call list",
+   "emailable": 48,
+   "callable": 45,
+   "textable": 3,
+   "no_communication_on_record": 0,
+   "by_agent": [
+    {
+     "name": "Juniper Quickfoot",
+     "count": 13
+    },
+    {
+     "name": "Odessa Fernwhistle",
+     "count": 12
+    },
+    {
+     "name": "Rufus Tumbleweed",
+     "count": 11
+    },
+    {
+     "name": "Barnaby Larkspur",
+     "count": 10
+    },
+    {
+     "name": "Marisol Pinecone",
+     "count": 6
+    },
+    {
+     "name": "(unassigned)",
+     "count": 1
+    }
+   ],
+   "stages": [
+    {
+     "name": "Lead",
+     "count": 17
+    },
+    {
+     "name": "Attempted Contact",
+     "count": 12
+    },
+    {
+     "name": "Showing Homes",
+     "count": 6
+    },
+    {
+     "name": "Spoke with Customer",
+     "count": 5
+    },
+    {
+     "name": "Listing Agreement",
+     "count": 4
+    },
+    {
+     "name": "Met with Customer",
+     "count": 3
+    },
+    {
+     "name": "Appointment Set",
+     "count": 3
+    },
+    {
+     "name": "Under Contract",
+     "count": 2
+    }
+   ],
+   "sources": [
+    {
+     "name": "Zillow",
+     "count": 11
+    },
+    {
+     "name": "Realtor.com",
+     "count": 9
+    },
+    {
+     "name": "Facebook",
+     "count": 8
+    },
+    {
+     "name": "Open House",
+     "count": 5
+    },
+    {
+     "name": "Website",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "key": "never",
+   "name": "Never-Worked Leads",
+   "size": 56,
+   "also_in_earlier_segment": 3,
+   "next_move": "call list",
+   "emailable": 43,
+   "callable": 48,
+   "textable": 8,
+   "no_communication_on_record": 56,
+   "by_agent": [
+    {
+     "name": "Rufus Tumbleweed",
+     "count": 15
+    },
+    {
+     "name": "Barnaby Larkspur",
+     "count": 12
+    },
+    {
+     "name": "Juniper Quickfoot",
+     "count": 11
+    },
+    {
+     "name": "Marisol Pinecone",
+     "count": 10
+    },
+    {
+     "name": "Odessa Fernwhistle",
+     "count": 8
+    }
+   ],
+   "stages": [
+    {
+     "name": "Lead",
+     "count": 40
+    },
+    {
+     "name": "Nurture",
+     "count": 16
+    }
+   ],
+   "sources": [
+    {
+     "name": "Zillow",
+     "count": 12
+    },
+    {
+     "name": "Referral",
+     "count": 10
+    },
+    {
+     "name": "Website",
+     "count": 6
+    },
+    {
+     "name": "Facebook",
+     "count": 6
+    },
+    {
+     "name": "Import",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "key": "quiet_nurture",
+   "name": "Quiet Nurture, No Touch In 180+ Days",
+   "size": 79,
+   "also_in_earlier_segment": 24,
+   "next_move": "email campaign",
+   "emailable": 66,
+   "callable": 73,
+   "textable": 20,
+   "no_communication_on_record": 19,
+   "by_agent": [
+    {
+     "name": "Rufus Tumbleweed",
+     "count": 20
+    },
+    {
+     "name": "Juniper Quickfoot",
+     "count": 19
+    },
+    {
+     "name": "Barnaby Larkspur",
+     "count": 17
+    },
+    {
+     "name": "Marisol Pinecone",
+     "count": 14
+    },
+    {
+     "name": "Odessa Fernwhistle",
+     "count": 9
+    }
+   ],
+   "stages": [
+    {
+     "name": "Nurture",
+     "count": 79
+    }
+   ],
+   "sources": [
+    {
+     "name": "Zillow",
+     "count": 19
+    },
+    {
+     "name": "Referral",
+     "count": 9
+    },
+    {
+     "name": "Realtor.com",
+     "count": 9
+    },
+    {
+     "name": "Website",
+     "count": 9
+    },
+    {
+     "name": "Sphere",
+     "count": 8
+    }
+   ]
+  }
+ ],
+ "worklist": {
+  "rows": 205,
+  "by_action": {
+   "Agent Follow-Up Or Pond Decision": 79,
+   "Fill Missing Phone": 28,
+   "Review New-Lead Stage": 26,
+   "Merge Candidate": 24,
+   "Fill Missing Email": 16,
+   "Review Shared Contact Info": 11,
+   "Fix Invalid Phone": 6,
+   "Fix Invalid Email": 4,
+   "Fix Stage": 3,
+   "Fill Missing Contact Info": 3,
+   "Clean Import Tag": 3,
+   "Assign Agent": 2
+  },
+  "by_agent": {
+   "Juniper Quickfoot": 46,
+   "Rufus Tumbleweed": 45,
+   "Barnaby Larkspur": 43,
+   "Odessa Fernwhistle": 37,
+   "Marisol Pinecone": 32,
+   "(unassigned)": 2
+  }
+ },
+ "ranked_problems": [
+  {
+   "problem": "Leads never contacted, added 30+ days ago",
+   "records": 66,
+   "pct": "13.2%"
+  },
+  {
+   "problem": "Missing or invalid phone (not trash)",
+   "records": 61,
+   "pct": "12.2%"
+  },
+  {
+   "problem": "Active-stage contacts gone quiet: communication on record, none in 90+ days",
+   "records": 54,
+   "pct": "10.8%"
+  },
+  {
+   "problem": "Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients in the wrong stage)",
+   "records": 46,
+   "pct": "9.2%"
+  },
+  {
+   "problem": "Missing or invalid email (not trash)",
+   "records": 38,
+   "pct": "7.6%"
+  },
+  {
+   "problem": "Past clients and sphere with no communication in 365+ days",
+   "records": 34,
+   "pct": "6.8%"
+  },
+  {
+   "problem": "Likely duplicates (records in merge groups)",
+   "records": 24,
+   "pct": "4.8%"
+  },
+  {
+   "problem": "Unassigned contacts",
+   "records": 2,
+   "pct": "0.4%"
+  }
+ ],
+ "first_cleanup": {
+  "what": "Merge likely duplicates first",
+  "why": "4.8% of records sit in merge groups (rule: 1% or more). Follow Up Boss keeps the main record's stage and assigned agent when it merges, so stage and assignment fixes made before merging can be lost."
+ }
+}

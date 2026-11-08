@@ -1,0 +1,18 @@
+{
+  "name": "Dana Thimblewhistle",
+  "office": "Riverbend Example Realty",
+  "units": 30,
+  "list_sides": 19,
+  "buy_sides": 11,
+  "total_volume": 13436000,
+  "list_volume": 8246000,
+  "buy_volume": 5190000,
+  "avg_price": 447867,
+  "min_price": 257500,
+  "max_price": 602500,
+  "prior_units": 24,
+  "prior_volume": 9874500,
+  "split": "80/20",
+  "cap": 16000,
+  "meeting": "Thursday, November 12, 2026 at 10 a.m."
+}

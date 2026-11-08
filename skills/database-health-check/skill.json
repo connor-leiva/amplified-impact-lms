@@ -1,0 +1,8 @@
+{
+  "name": "database-health-check",
+  "page": "database-health-check",
+  "title": "Database Health Check",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}

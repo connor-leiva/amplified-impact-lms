@@ -1,0 +1,1217 @@
+{
+ "as_of": "2026-11-08",
+ "file": "brightwater-crm-contacts.csv",
+ "records": 1200,
+ "header_row": 3,
+ "format": "Other CRM export (columns mapped by name)",
+ "settings": {
+  "stale_days": 60,
+  "past_client_days": 365,
+  "new_lead_days": 60,
+  "never_contacted_days": 30,
+  "nurture_quiet_days": 180,
+  "back_on_site_days": 30,
+  "recent_close_days": 365,
+  "archive_days": 730,
+  "shared_key_limit": 5
+ },
+ "team_rules_used": [
+  "past_client_days",
+  "past_client_tags",
+  "pond_after_days",
+  "pond_stages",
+  "pond_tags",
+  "sphere_tags",
+  "stage_classes",
+  "stale_days"
+ ],
+ "columns_used": [
+  [
+   "Record ID",
+   "Contact ID"
+  ],
+  [
+   "Name",
+   "Full Name"
+  ],
+  [
+   "Stage",
+   "Lead Status"
+  ],
+  [
+   "Source",
+   "Lead Source"
+  ],
+  [
+   "Assigned agent",
+   "Owner"
+  ],
+  [
+   "Date added",
+   "Created Date"
+  ],
+  [
+   "Last communication",
+   "Last Contacted"
+  ],
+  [
+   "Lead activity",
+   "Last Website Visit"
+  ],
+  [
+   "Tags",
+   "Labels"
+  ],
+  [
+   "Email columns",
+   "Primary Email, Secondary Email"
+  ],
+  [
+   "Phone columns",
+   "Mobile Phone, Home Phone"
+  ],
+  [
+   "Text consent columns",
+   "SMS Opt-In"
+  ],
+  [
+   "Email opt-out columns",
+   "Email Opt-Out"
+  ]
+ ],
+ "touch_source": "column 'Last Contacted'",
+ "gaps": [],
+ "ignored_columns": [],
+ "relationship_columns_ignored": 0,
+ "stages": [
+  {
+   "stage": "Long-Term Nurture",
+   "class": "Nurture",
+   "how": "team",
+   "count": 279,
+   "pct": "23.2%"
+  },
+  {
+   "stage": "New",
+   "class": "New lead",
+   "how": "team",
+   "count": 192,
+   "pct": "16.0%"
+  },
+  {
+   "stage": "SOI",
+   "class": "Sphere",
+   "how": "team",
+   "count": 163,
+   "pct": "13.6%"
+  },
+  {
+   "stage": "Warm",
+   "class": "Active lead",
+   "how": "team",
+   "count": 134,
+   "pct": "11.2%"
+  },
+  {
+   "stage": "Past Client",
+   "class": "Past client",
+   "how": "team",
+   "count": 101,
+   "pct": "8.4%"
+  },
+  {
+   "stage": "(blank)",
+   "class": "No stage",
+   "how": "none",
+   "count": 71,
+   "pct": "5.9%"
+  },
+  {
+   "stage": "Closed Lost",
+   "class": "Inactive (trash, rejected, dead)",
+   "how": "team",
+   "count": 58,
+   "pct": "4.8%"
+  },
+  {
+   "stage": "Active Buyer",
+   "class": "Active client",
+   "how": "team",
+   "count": 37,
+   "pct": "3.1%"
+  },
+  {
+   "stage": "Hot",
+   "class": "Active lead",
+   "how": "team",
+   "count": 37,
+   "pct": "3.1%"
+  },
+  {
+   "stage": "Investor",
+   "class": "Not recognized",
+   "how": "none",
+   "count": 30,
+   "pct": "2.5%"
+  },
+  {
+   "stage": "In Escrow",
+   "class": "Active client",
+   "how": "team",
+   "count": 28,
+   "pct": "2.3%"
+  },
+  {
+   "stage": "Appointment Booked",
+   "class": "Active lead",
+   "how": "team",
+   "count": 27,
+   "pct": "2.2%"
+  },
+  {
+   "stage": "Active Seller",
+   "class": "Active client",
+   "how": "team",
+   "count": 22,
+   "pct": "1.8%"
+  },
+  {
+   "stage": "Do Not Contact",
+   "class": "Inactive (trash, rejected, dead)",
+   "how": "team",
+   "count": 21,
+   "pct": "1.8%"
+  }
+ ],
+ "stage_classes": {
+  "Nurture": 279,
+  "Active lead": 198,
+  "New lead": 192,
+  "Sphere": 163,
+  "Past client": 101,
+  "Active client": 87,
+  "Inactive (trash, rejected, dead)": 79,
+  "No stage": 71,
+  "Not recognized": 30
+ },
+ "unrecognized_stages": [
+  "Investor"
+ ],
+ "guessed_stages": [],
+ "sources": [
+  {
+   "source": "Website",
+   "count": 222,
+   "pct": "18.5%"
+  },
+  {
+   "source": "Zillow",
+   "count": 177,
+   "pct": "14.8%"
+  },
+  {
+   "source": "Import",
+   "count": 160,
+   "pct": "13.3%"
+  },
+  {
+   "source": "SOI",
+   "count": 132,
+   "pct": "11.0%"
+  },
+  {
+   "source": "Referral",
+   "count": 128,
+   "pct": "10.7%"
+  },
+  {
+   "source": "Open House",
+   "count": 113,
+   "pct": "9.4%"
+  },
+  {
+   "source": "Facebook Ads",
+   "count": 110,
+   "pct": "9.2%"
+  },
+  {
+   "source": "(blank)",
+   "count": 62,
+   "pct": "5.2%"
+  },
+  {
+   "source": "Realtor.com",
+   "count": 52,
+   "pct": "4.3%"
+  },
+  {
+   "source": "Sign Call",
+   "count": 44,
+   "pct": "3.7%"
+  }
+ ],
+ "sources_other": 0,
+ "source_count": 10,
+ "agents": [
+  {
+   "agent": "Pell Mossgrove",
+   "contacts": 279,
+   "pct": "23.2%",
+   "active_stage": 115,
+   "stale_active": 69,
+   "never_contacted": 60,
+   "past_sphere_untouched": 24,
+   "in_merge_groups": 15
+  },
+  {
+   "agent": "Sunny Larkfield",
+   "contacts": 272,
+   "pct": "22.7%",
+   "active_stage": 106,
+   "stale_active": 63,
+   "never_contacted": 54,
+   "past_sphere_untouched": 27,
+   "in_merge_groups": 14
+  },
+  {
+   "agent": "Booker Quillfeather",
+   "contacts": 221,
+   "pct": "18.4%",
+   "active_stage": 86,
+   "stale_active": 49,
+   "never_contacted": 40,
+   "past_sphere_untouched": 23,
+   "in_merge_groups": 15
+  },
+  {
+   "agent": "Marigold Tumbletoes",
+   "contacts": 198,
+   "pct": "16.5%",
+   "active_stage": 83,
+   "stale_active": 49,
+   "never_contacted": 50,
+   "past_sphere_untouched": 18,
+   "in_merge_groups": 15
+  },
+  {
+   "agent": "Fennick Oddsworth",
+   "contacts": 178,
+   "pct": "14.8%",
+   "active_stage": 65,
+   "stale_active": 39,
+   "never_contacted": 40,
+   "past_sphere_untouched": 21,
+   "in_merge_groups": 10
+  },
+  {
+   "agent": "(unassigned)",
+   "contacts": 50,
+   "pct": "4.2%",
+   "active_stage": 22,
+   "stale_active": 14,
+   "never_contacted": 17,
+   "past_sphere_untouched": 8,
+   "in_merge_groups": 7
+  },
+  {
+   "agent": "(pond)",
+   "contacts": 2,
+   "pct": "0.2%",
+   "active_stage": 0,
+   "stale_active": 0,
+   "never_contacted": 0,
+   "past_sphere_untouched": 1,
+   "in_merge_groups": 0
+  }
+ ],
+ "contact_info": {
+  "email_missing": 77,
+  "email_invalid": 10,
+  "email_ok": 1113,
+  "email_bounced_tag": 0,
+  "email_unsubscribed": 35,
+  "phone_missing": 159,
+  "phone_invalid": 18,
+  "phone_ok": 1023,
+  "dnc": 0,
+  "text_opted_out": 35,
+  "unreachable": 12,
+  "unreachable_live": 11
+ },
+ "duplicates": {
+  "merge_groups": 38,
+  "merge_records": 76,
+  "extra_records": 38,
+  "shared_same_last_groups": 10,
+  "shared_same_last_records": 21,
+  "shared_diff_groups": 0,
+  "shared_diff_records": 0,
+  "shared_keys": [],
+  "name_only_groups": 7,
+  "name_only_records": 14,
+  "merge_groups_split_agents": 27,
+  "merge_records_split_agents": 54
+ },
+ "stale_active": {
+  "days": 60,
+  "active_stage_total": 477,
+  "count": 283,
+  "no_communication_on_record": 150,
+  "gone_quiet": 133,
+  "by_stage": [
+   {
+    "name": "New",
+    "count": 118
+   },
+   {
+    "name": "Warm",
+    "count": 83
+   },
+   {
+    "name": "Active Buyer",
+    "count": 22
+   },
+   {
+    "name": "In Escrow",
+    "count": 19
+   },
+   {
+    "name": "Hot",
+    "count": 19
+   },
+   {
+    "name": "Appointment Booked",
+    "count": 13
+   },
+   {
+    "name": "Active Seller",
+    "count": 9
+   }
+  ],
+  "by_agent": [
+   {
+    "name": "Pell Mossgrove",
+    "count": 69
+   },
+   {
+    "name": "Sunny Larkfield",
+    "count": 63
+   },
+   {
+    "name": "Marigold Tumbletoes",
+    "count": 49
+   },
+   {
+    "name": "Booker Quillfeather",
+    "count": 49
+   },
+   {
+    "name": "Fennick Oddsworth",
+    "count": 39
+   },
+   {
+    "name": "(unassigned)",
+    "count": 14
+   }
+  ]
+ },
+ "never_contacted": {
+  "days": 30,
+  "basis": "no communication on record",
+  "count": 261,
+  "by_agent": [
+   {
+    "name": "Pell Mossgrove",
+    "count": 60
+   },
+   {
+    "name": "Sunny Larkfield",
+    "count": 54
+   },
+   {
+    "name": "Marigold Tumbletoes",
+    "count": 50
+   },
+   {
+    "name": "Fennick Oddsworth",
+    "count": 40
+   },
+   {
+    "name": "Booker Quillfeather",
+    "count": 40
+   },
+   {
+    "name": "(unassigned)",
+    "count": 17
+   }
+  ],
+  "by_source": [
+   {
+    "name": "Import",
+    "count": 45
+   },
+   {
+    "name": "Zillow",
+    "count": 40
+   },
+   {
+    "name": "Website",
+    "count": 31
+   },
+   {
+    "name": "Open House",
+    "count": 30
+   },
+   {
+    "name": "Facebook Ads",
+    "count": 27
+   },
+   {
+    "name": "SOI",
+    "count": 25
+   },
+   {
+    "name": "Referral",
+    "count": 23
+   },
+   {
+    "name": "(blank)",
+    "count": 16
+   }
+  ]
+ },
+ "past_sphere": {
+  "days": 365,
+  "past_clients": 110,
+  "sphere": 163,
+  "past_from_stage": 101,
+  "past_from_tag_only": 9,
+  "past_from_transactions_only": 0,
+  "past_untouched": 55,
+  "past_no_communication_on_record": 14,
+  "sphere_untouched": 67,
+  "sphere_no_communication_on_record": 8,
+  "by_agent": [
+   {
+    "name": "Sunny Larkfield",
+    "count": 27
+   },
+   {
+    "name": "Pell Mossgrove",
+    "count": 24
+   },
+   {
+    "name": "Booker Quillfeather",
+    "count": 23
+   },
+   {
+    "name": "Fennick Oddsworth",
+    "count": 21
+   },
+   {
+    "name": "Marigold Tumbletoes",
+    "count": 18
+   },
+   {
+    "name": "(unassigned)",
+    "count": 8
+   },
+   {
+    "name": "(pond)",
+    "count": 1
+   }
+  ],
+  "past_stage_names": [
+   "Past Client"
+  ],
+  "past_tags_seen": [
+   "Closed Client",
+   "Closed Clients",
+   "closed client"
+  ]
+ },
+ "transactions": null,
+ "stage_problems": {
+  "closed_deal_in_active_stage": 0,
+  "closed_deal_in_active_stage_by_stage": [],
+  "past_client_not_labeled": 0,
+  "past_client_tag_wrong_stage": 9,
+  "no_stage": 71,
+  "parked_in_new_lead_stage": 114,
+  "new_lead_days": 60,
+  "in_new_lead_stage_past_limit_total": 189,
+  "unrecognized_stage_records": 30,
+  "import_tags": 0
+ },
+ "pond_rule": {
+  "days": 45,
+  "stages": [
+   "New",
+   "Warm"
+  ],
+  "candidates": 213
+ },
+ "unassigned": {
+  "count": 46,
+  "by_class": {
+   "New lead": 13,
+   "Sphere": 9,
+   "Nurture": 8,
+   "Active client": 5,
+   "Active lead": 4,
+   "Not recognized": 4,
+   "No stage": 2,
+   "Past client": 1
+  },
+  "pond_records": 62,
+  "pond_column": false,
+  "pond_by_agent": [
+   {
+    "name": "Sunny Larkfield",
+    "count": 19
+   },
+   {
+    "name": "Pell Mossgrove",
+    "count": 13
+   },
+   {
+    "name": "Booker Quillfeather",
+    "count": 11
+   },
+   {
+    "name": "Marigold Tumbletoes",
+    "count": 9
+   },
+   {
+    "name": "Fennick Oddsworth",
+    "count": 8
+   },
+   {
+    "name": "(no agent)",
+    "count": 2
+   }
+  ]
+ },
+ "tags": {
+  "distinct": 11,
+  "records_with_tags": 440,
+  "near_duplicate_groups": 3,
+  "near_duplicate_tags": 8,
+  "groups": [
+   {
+    "variants": [
+     {
+      "tag": "First-Time Buyer",
+      "count": 58
+     },
+     {
+      "tag": "first time buyer",
+      "count": 58
+     },
+     {
+      "tag": "First Time Buyer",
+      "count": 42
+     }
+    ],
+    "total": 158
+   },
+   {
+    "variants": [
+     {
+      "tag": "Closed Client",
+      "count": 56
+     },
+     {
+      "tag": "closed client",
+      "count": 29
+     },
+     {
+      "tag": "Closed Clients",
+      "count": 25
+     }
+    ],
+    "total": 110
+   },
+   {
+    "variants": [
+     {
+      "tag": "Move Up Seller",
+      "count": 53
+     },
+     {
+      "tag": "Move-Up Seller",
+      "count": 38
+     }
+    ],
+    "total": 91
+   }
+  ],
+  "used_once": 0
+ },
+ "consent": {
+  "field_found": true,
+  "fields": [
+   "SMS Opt-In"
+  ],
+  "documented_yes": 323,
+  "documented_no": 35,
+  "blank": 842,
+  "textable": 318,
+  "yes_by_how_recorded": [
+   {
+    "how": "(yes or a date only, no detail)",
+    "count": 323
+   }
+  ]
+ },
+ "segments": [
+  {
+   "key": "back_on_site",
+   "name": "Back On The Site",
+   "size": 46,
+   "also_in_earlier_segment": 0,
+   "next_move": "call list",
+   "emailable": 41,
+   "callable": 38,
+   "textable": 13,
+   "no_communication_on_record": 11,
+   "by_agent": [
+    {
+     "name": "Booker Quillfeather",
+     "count": 12
+    },
+    {
+     "name": "Sunny Larkfield",
+     "count": 9
+    },
+    {
+     "name": "Marigold Tumbletoes",
+     "count": 9
+    },
+    {
+     "name": "Pell Mossgrove",
+     "count": 7
+    },
+    {
+     "name": "Fennick Oddsworth",
+     "count": 6
+    },
+    {
+     "name": "(unassigned)",
+     "count": 3
+    }
+   ],
+   "stages": [
+    {
+     "name": "SOI",
+     "count": 11
+    },
+    {
+     "name": "Long-Term Nurture",
+     "count": 9
+    },
+    {
+     "name": "New",
+     "count": 7
+    },
+    {
+     "name": "Past Client",
+     "count": 5
+    },
+    {
+     "name": "Investor",
+     "count": 3
+    },
+    {
+     "name": "Warm",
+     "count": 3
+    },
+    {
+     "name": "(blank)",
+     "count": 3
+    },
+    {
+     "name": "Appointment Booked",
+     "count": 2
+    }
+   ],
+   "sources": [
+    {
+     "name": "Website",
+     "count": 15
+    },
+    {
+     "name": "Zillow",
+     "count": 14
+    },
+    {
+     "name": "Realtor.com",
+     "count": 12
+    },
+    {
+     "name": "Facebook Ads",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "key": "past_clients",
+   "name": "Past Clients, No Touch In 12+ Months",
+   "size": 55,
+   "also_in_earlier_segment": 5,
+   "next_move": "call list",
+   "emailable": 50,
+   "callable": 52,
+   "textable": 19,
+   "no_communication_on_record": 14,
+   "by_agent": [
+    {
+     "name": "Sunny Larkfield",
+     "count": 14
+    },
+    {
+     "name": "Fennick Oddsworth",
+     "count": 12
+    },
+    {
+     "name": "Booker Quillfeather",
+     "count": 10
+    },
+    {
+     "name": "Pell Mossgrove",
+     "count": 9
+    },
+    {
+     "name": "Marigold Tumbletoes",
+     "count": 8
+    },
+    {
+     "name": "(unassigned)",
+     "count": 2
+    }
+   ],
+   "stages": [
+    {
+     "name": "Past Client",
+     "count": 49
+    },
+    {
+     "name": "Long-Term Nurture",
+     "count": 6
+    }
+   ],
+   "sources": [
+    {
+     "name": "Website",
+     "count": 13
+    },
+    {
+     "name": "Zillow",
+     "count": 8
+    },
+    {
+     "name": "SOI",
+     "count": 8
+    },
+    {
+     "name": "Open House",
+     "count": 7
+    },
+    {
+     "name": "Import",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "key": "sphere",
+   "name": "Sphere, No Touch In 12+ Months",
+   "size": 67,
+   "also_in_earlier_segment": 3,
+   "next_move": "email campaign",
+   "emailable": 64,
+   "callable": 60,
+   "textable": 16,
+   "no_communication_on_record": 8,
+   "by_agent": [
+    {
+     "name": "Pell Mossgrove",
+     "count": 15
+    },
+    {
+     "name": "Sunny Larkfield",
+     "count": 13
+    },
+    {
+     "name": "Booker Quillfeather",
+     "count": 13
+    },
+    {
+     "name": "Marigold Tumbletoes",
+     "count": 10
+    },
+    {
+     "name": "Fennick Oddsworth",
+     "count": 9
+    },
+    {
+     "name": "(unassigned)",
+     "count": 6
+    },
+    {
+     "name": "(pond)",
+     "count": 1
+    }
+   ],
+   "stages": [
+    {
+     "name": "SOI",
+     "count": 67
+    }
+   ],
+   "sources": [
+    {
+     "name": "Website",
+     "count": 14
+    },
+    {
+     "name": "Zillow",
+     "count": 9
+    },
+    {
+     "name": "Import",
+     "count": 8
+    },
+    {
+     "name": "Referral",
+     "count": 7
+    },
+    {
+     "name": "Facebook Ads",
+     "count": 7
+    }
+   ]
+  },
+  {
+   "key": "stalled",
+   "name": "Stalled Pipeline, No Touch In 60+ Days",
+   "size": 134,
+   "also_in_earlier_segment": 3,
+   "next_move": "call list",
+   "emailable": 122,
+   "callable": 115,
+   "textable": 28,
+   "no_communication_on_record": 1,
+   "by_agent": [
+    {
+     "name": "Pell Mossgrove",
+     "count": 38
+    },
+    {
+     "name": "Sunny Larkfield",
+     "count": 34
+    },
+    {
+     "name": "Booker Quillfeather",
+     "count": 23
+    },
+    {
+     "name": "Fennick Oddsworth",
+     "count": 18
+    },
+    {
+     "name": "Marigold Tumbletoes",
+     "count": 18
+    },
+    {
+     "name": "(unassigned)",
+     "count": 3
+    }
+   ],
+   "stages": [
+    {
+     "name": "Warm",
+     "count": 50
+    },
+    {
+     "name": "New",
+     "count": 43
+    },
+    {
+     "name": "Active Buyer",
+     "count": 12
+    },
+    {
+     "name": "In Escrow",
+     "count": 10
+    },
+    {
+     "name": "Hot",
+     "count": 9
+    },
+    {
+     "name": "Active Seller",
+     "count": 6
+    },
+    {
+     "name": "Appointment Booked",
+     "count": 4
+    }
+   ],
+   "sources": [
+    {
+     "name": "Website",
+     "count": 31
+    },
+    {
+     "name": "SOI",
+     "count": 20
+    },
+    {
+     "name": "Zillow",
+     "count": 18
+    },
+    {
+     "name": "Import",
+     "count": 15
+    },
+    {
+     "name": "Open House",
+     "count": 13
+    }
+   ]
+  },
+  {
+   "key": "never",
+   "name": "Never-Worked Leads",
+   "size": 239,
+   "also_in_earlier_segment": 9,
+   "next_move": "call list",
+   "emailable": 218,
+   "callable": 186,
+   "textable": 55,
+   "no_communication_on_record": 239,
+   "by_agent": [
+    {
+     "name": "Pell Mossgrove",
+     "count": 54
+    },
+    {
+     "name": "Sunny Larkfield",
+     "count": 52
+    },
+    {
+     "name": "Marigold Tumbletoes",
+     "count": 47
+    },
+    {
+     "name": "Booker Quillfeather",
+     "count": 37
+    },
+    {
+     "name": "Fennick Oddsworth",
+     "count": 33
+    },
+    {
+     "name": "(unassigned)",
+     "count": 16
+    }
+   ],
+   "stages": [
+    {
+     "name": "New",
+     "count": 75
+    },
+    {
+     "name": "Long-Term Nurture",
+     "count": 62
+    },
+    {
+     "name": "Warm",
+     "count": 33
+    },
+    {
+     "name": "(blank)",
+     "count": 21
+    },
+    {
+     "name": "Active Buyer",
+     "count": 10
+    },
+    {
+     "name": "Hot",
+     "count": 10
+    },
+    {
+     "name": "In Escrow",
+     "count": 9
+    },
+    {
+     "name": "Appointment Booked",
+     "count": 9
+    }
+   ],
+   "sources": [
+    {
+     "name": "Import",
+     "count": 40
+    },
+    {
+     "name": "Zillow",
+     "count": 37
+    },
+    {
+     "name": "Website",
+     "count": 28
+    },
+    {
+     "name": "Open House",
+     "count": 27
+    },
+    {
+     "name": "Facebook Ads",
+     "count": 26
+    }
+   ]
+  },
+  {
+   "key": "quiet_nurture",
+   "name": "Quiet Nurture, No Touch In 180+ Days",
+   "size": 205,
+   "also_in_earlier_segment": 65,
+   "next_move": "email campaign",
+   "emailable": 187,
+   "callable": 166,
+   "textable": 53,
+   "no_communication_on_record": 62,
+   "by_agent": [
+    {
+     "name": "Sunny Larkfield",
+     "count": 59
+    },
+    {
+     "name": "Pell Mossgrove",
+     "count": 46
+    },
+    {
+     "name": "Marigold Tumbletoes",
+     "count": 33
+    },
+    {
+     "name": "Fennick Oddsworth",
+     "count": 32
+    },
+    {
+     "name": "Booker Quillfeather",
+     "count": 31
+    },
+    {
+     "name": "(unassigned)",
+     "count": 4
+    }
+   ],
+   "stages": [
+    {
+     "name": "Long-Term Nurture",
+     "count": 205
+    }
+   ],
+   "sources": [
+    {
+     "name": "Website",
+     "count": 35
+    },
+    {
+     "name": "Zillow",
+     "count": 31
+    },
+    {
+     "name": "Import",
+     "count": 29
+    },
+    {
+     "name": "Referral",
+     "count": 26
+    },
+    {
+     "name": "Open House",
+     "count": 20
+    }
+   ]
+  }
+ ],
+ "worklist": {
+  "rows": 645,
+  "by_action": {
+   "Pond Candidate": 178,
+   "Agent Follow-Up Or Pond Decision": 86,
+   "Merge Candidate": 76,
+   "Fill Missing Phone": 68,
+   "Set Stage": 66,
+   "Review New-Lead Stage": 46,
+   "Assign Agent": 36,
+   "Fill Missing Email": 35,
+   "Review Shared Contact Info": 21,
+   "Fix Invalid Phone": 11,
+   "Fix Stage": 8,
+   "Fix Invalid Email": 7,
+   "Review Possible Duplicate (Name Only)": 6,
+   "Archive Candidate": 1
+  },
+  "by_agent": {
+   "Pell Mossgrove": 159,
+   "Sunny Larkfield": 129,
+   "Booker Quillfeather": 109,
+   "Marigold Tumbletoes": 109,
+   "Fennick Oddsworth": 92,
+   "(unassigned)": 46,
+   "(pond)": 1
+  }
+ },
+ "ranked_problems": [
+  {
+   "problem": "Leads never contacted, added 30+ days ago",
+   "records": 261,
+   "pct": "21.8%"
+  },
+  {
+   "problem": "Stage problems (closed deals in active stages, no stage, contacted leads still in a new-lead stage, past clients in the wrong stage)",
+   "records": 194,
+   "pct": "16.2%"
+  },
+  {
+   "problem": "Missing or invalid phone (not trash)",
+   "records": 171,
+   "pct": "14.2%"
+  },
+  {
+   "problem": "Active-stage contacts gone quiet: communication on record, none in 60+ days",
+   "records": 133,
+   "pct": "11.1%"
+  },
+  {
+   "problem": "Past clients and sphere with no communication in 365+ days",
+   "records": 122,
+   "pct": "10.2%"
+  },
+  {
+   "problem": "Missing or invalid email (not trash)",
+   "records": 84,
+   "pct": "7.0%"
+  },
+  {
+   "problem": "Likely duplicates (records in merge groups)",
+   "records": 76,
+   "pct": "6.3%"
+  },
+  {
+   "problem": "Unassigned contacts",
+   "records": 46,
+   "pct": "3.8%"
+  }
+ ],
+ "first_cleanup": {
+  "what": "Merge likely duplicates first",
+  "why": "6.3% of records sit in merge groups (rule: 1% or more). A merge keeps one record's stage and owner, so stage and assignment fixes made before merging can be lost (check how your CRM merges)."
+ }
+}

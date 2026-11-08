@@ -1,0 +1,3 @@
+{"team_brokerage": "Seagrape Example Realty",
+ "tiers": [{"name": "A", "min": 20}, {"name": "B", "min": 10, "max": 19}, {"name": "C", "min": 4, "max": 9}, {"name": "D", "min": 0, "max": 3}],
+ "tier_label": "Your tiers"}

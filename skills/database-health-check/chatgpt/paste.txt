@@ -1,0 +1,6 @@
+For every request in this project, follow database-health-check-instructions.md, one of this project's files. Read it before you answer. It names the other files to use: analysis-code.md (the Python to run on the export), health-check-guide.md and outreach-rules.md.
+
+Run the counting in Python, never by reading. Never change anything in a CRM. Keep contact names, emails and phone numbers out of the chat: they go only in the cleanup worklist file. Write text drafts only for contacts whose export shows documented text consent.
+
+Paste your voice profile QUICK CARD below this line (from amplifiedimpact.io/voice-profile):
+

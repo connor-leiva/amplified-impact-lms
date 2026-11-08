@@ -46,6 +46,36 @@ export interface Entry {
 }
 
 export const ENTRIES: readonly Entry[] = [
+  {
+    title: 'Team Playbook Builder',
+    description: 'Upload your team’s SOPs and training calls and get back a playbook your agents add to their own Claude, with the source behind every answer, plus the gaps and conflicts to fix. Set it up on a computer, with a Claude plan that can add skills.',
+    kind: 'Claude Skill',
+    href: '/team-playbook-builder',
+    tools: ['claude'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-08',
+    keywords: 'team playbook, SOP, SOPs, onboarding, agent onboarding, new agent questions, team policies, policy manual, agent handbook, team knowledge base, onboarding assistant, training transcripts, pond rules, lead routing, transaction handoff, fee schedule, team leader, ops, Claude skill builder',
+  },
+  {
+    title: 'Recruiting Prep',
+    description: 'Upload your recruit list and get it back with the duplicates merged, every agent tiered by production, and first-touch drafts for each tier, or prep one recruiting coffee from a candidate’s production. Set it up once on a computer, in Claude or ChatGPT.',
+    kind: 'Claude Skill',
+    href: '/recruiting-prep',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-08',
+    keywords: 'recruiting recruit list agent recruiting mls production report brokermetrics sisu recruiting gohighlevel follow up boss top producers team leader recruiter appointment setter recruiting coffee value proposition objections split cap first-touch email tiers duplicates',
+  },
+  {
+    title: 'Database Health Check',
+    description: 'Upload your CRM export and get a health report, a cleanup list for your VA, and the groups worth calling or emailing this month, with the messages drafted. Easiest on a computer. The skill never changes your CRM.',
+    kind: 'Claude Skill',
+    href: '/database-health-check',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-08',
+    keywords: 'crm cleanup database health check audit follow up boss fub export dedupe duplicates merge smart lists ponds past clients sphere soi nurture stale leads never contacted re-engagement team leader owner ops va worklist kw command gohighlevel brivity',
+  },
   // Not on the site yet. Set `href` to its page when it goes up. The words are from the README of the
   // `content-opportunity-research` skill, taken to be this one (D-050).
   {

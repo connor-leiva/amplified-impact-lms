@@ -1,0 +1,414 @@
+{
+  "rows": 46,
+  "unique": 44,
+  "duplicate_contacts": [
+    "rafe.teacuppocket@postbox.test",
+    "rafe.tumblenoggin@mailbox.test"
+  ],
+  "tiers_all": {
+    "A": 7,
+    "B": 10,
+    "C": 15,
+    "D": 12
+  },
+  "personal_note_names": [
+    "Carla",
+    "Opal",
+    "Hollis",
+    "Marta",
+    "Rafe",
+    "Selma",
+    "Leon",
+    "Willa",
+    "Tobin",
+    "Imani"
+  ],
+  "personal_terms": [
+    "divorce",
+    "pregnan",
+    "due in March",
+    "63",
+    "retir",
+    "church",
+    "devout",
+    "chemo",
+    "husband",
+    "transferred",
+    "Venezuela",
+    "single mom",
+    "widow",
+    "newlywed",
+    "honeymoon"
+  ],
+  "documented_consent": [
+    "carla.tansyhopper@postbox.test",
+    "marta.ripplewhistle@mailbox.test",
+    "imani.ripplebottom@letterbox.test",
+    "wren.juniperpocket@mailbox.test",
+    "zeke.waffledumple@postbox.test",
+    "gus.ripplepocket@postbox.test"
+  ],
+  "bare_yes": [
+    "hollis.teacupbloom@mailbox.test",
+    "milo.quillbloom@letterbox.test",
+    "ike.lanternpuddle@mailbox.test"
+  ],
+  "dnd": [
+    "leon.crumpettoes@mailbox.test",
+    "rafe.quillcrumb@inbox.test"
+  ],
+  "truth": [
+    {
+      "first": "Carla",
+      "last": "Tansyhopper",
+      "units": 31,
+      "email": "carla.tansyhopper@postbox.test",
+      "consent": "Yes, web form opt-in 2026-04-03",
+      "dnd": false
+    },
+    {
+      "first": "Opal",
+      "last": "Cobblebottom",
+      "units": 27,
+      "email": "opal.cobblebottom@letterbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Hollis",
+      "last": "Teacupbloom",
+      "units": 22,
+      "email": "hollis.teacupbloom@mailbox.test",
+      "consent": "Yes",
+      "dnd": false
+    },
+    {
+      "first": "Marta",
+      "last": "Ripplewhistle",
+      "units": 20,
+      "email": "marta.ripplewhistle@mailbox.test",
+      "consent": "Yes, web form opt-in 2026-04-03",
+      "dnd": false
+    },
+    {
+      "first": "Rafe",
+      "last": "Teacuppocket",
+      "units": 19,
+      "email": "rafe.teacuppocket@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Selma",
+      "last": "Nettlefluff",
+      "units": 18,
+      "email": "selma.nettlefluff@letterbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Leon",
+      "last": "Crumpettoes",
+      "units": 15,
+      "email": "leon.crumpettoes@mailbox.test",
+      "consent": "",
+      "dnd": true
+    },
+    {
+      "first": "Willa",
+      "last": "Biscuitbottom",
+      "units": 12,
+      "email": "willa.biscuitbottom@letterbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Tobin",
+      "last": "Hobnobcrumb",
+      "units": 11,
+      "email": "tobin.hobnobcrumb@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Imani",
+      "last": "Ripplebottom",
+      "units": 10,
+      "email": "imani.ripplebottom@letterbox.test",
+      "consent": "Yes, web form opt-in 2026-04-03",
+      "dnd": false
+    },
+    {
+      "first": "Lou",
+      "last": "Kettlesprout",
+      "units": 10,
+      "email": "lou.kettlesprout@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Milo",
+      "last": "Quillbloom",
+      "units": 9,
+      "email": "milo.quillbloom@letterbox.test",
+      "consent": "Yes",
+      "dnd": false
+    },
+    {
+      "first": "Marta",
+      "last": "Ripplebloom",
+      "units": 8,
+      "email": "marta.ripplebloom@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Greer",
+      "last": "Picklenook",
+      "units": 8,
+      "email": "greer.picklenook@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Wren",
+      "last": "Juniperpocket",
+      "units": 7,
+      "email": "wren.juniperpocket@mailbox.test",
+      "consent": "Yes, opt-in form 2026-08-27",
+      "dnd": false
+    },
+    {
+      "first": "Rafe",
+      "last": "Tumblenoggin",
+      "units": 6,
+      "email": "rafe.tumblenoggin@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Dev",
+      "last": "Puddingmuffin",
+      "units": 5,
+      "email": "dev.puddingmuffin@letterbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Rosa",
+      "last": "Teacupnoggin",
+      "units": 4,
+      "email": "rosa.teacupnoggin@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Vera",
+      "last": "Marblewhistle",
+      "units": 4,
+      "email": "vera.marblewhistle@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Willa",
+      "last": "Brambledumple",
+      "units": 3,
+      "email": "willa.brambledumple@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Willa",
+      "last": "Picklebottom",
+      "units": 3,
+      "email": "willa.picklebottom@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Cyrus",
+      "last": "Fiddlepuddle",
+      "units": 2,
+      "email": "cyrus.fiddlepuddle@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Rafe",
+      "last": "Quillcrumb",
+      "units": 2,
+      "email": "rafe.quillcrumb@inbox.test",
+      "consent": "",
+      "dnd": true
+    },
+    {
+      "first": "Kenji",
+      "last": "Saffronbloom",
+      "units": 1,
+      "email": "kenji.saffronbloom@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Nell",
+      "last": "Dapplehopper",
+      "units": 1,
+      "email": "nell.dapplehopper@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Dina",
+      "last": "Tumblesprout",
+      "units": 0,
+      "email": "dina.tumblesprout@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Lars",
+      "last": "Tansytoes",
+      "units": 24,
+      "email": "lars.tansytoes@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Zeke",
+      "last": "Waffledumple",
+      "units": 16,
+      "email": "zeke.waffledumple@postbox.test",
+      "consent": "Yes, web form opt-in 2026-04-03",
+      "dnd": false
+    },
+    {
+      "first": "Ava",
+      "last": "Marblehopper",
+      "units": 13,
+      "email": "ava.marblehopper@letterbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Jules",
+      "last": "Lanternmuffin",
+      "units": 9,
+      "email": "jules.lanternmuffin@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Ike",
+      "last": "Lanternpuddle",
+      "units": 7,
+      "email": "ike.lanternpuddle@mailbox.test",
+      "consent": "Yes",
+      "dnd": false
+    },
+    {
+      "first": "Yara",
+      "last": "Sorrelbutton",
+      "units": 6,
+      "email": "yara.sorrelbutton@mailbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Nico",
+      "last": "Peppersnout",
+      "units": 5,
+      "email": "nico.peppersnout@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Vic",
+      "last": "Dapplenook",
+      "units": 5,
+      "email": "vic.dapplenook@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Iris",
+      "last": "Parsniphopper",
+      "units": 4,
+      "email": "iris.parsniphopper@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Rhea",
+      "last": "Nettlebottom",
+      "units": 3,
+      "email": "rhea.nettlebottom@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Marta",
+      "last": "Pepperbottom",
+      "units": 2,
+      "email": "marta.pepperbottom@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Ben",
+      "last": "Noodlehopper",
+      "units": 1,
+      "email": "ben.noodlehopper@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Tess",
+      "last": "Bramblewobble",
+      "units": 14,
+      "email": "tess.bramblewobble@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Gus",
+      "last": "Ripplepocket",
+      "units": 21,
+      "email": "gus.ripplepocket@postbox.test",
+      "consent": "Yes, web form opt-in 2026-04-03",
+      "dnd": false
+    },
+    {
+      "first": "Rhea",
+      "last": "Nettletoes",
+      "units": 6,
+      "email": "rhea.nettletoes@letterbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Zuri",
+      "last": "Biscuitsprout",
+      "units": 3,
+      "email": "zuri.biscuitsprout@postbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Dina",
+      "last": "Clovertoes",
+      "units": 2,
+      "email": "dina.clovertoes@inbox.test",
+      "consent": "",
+      "dnd": false
+    },
+    {
+      "first": "Tova",
+      "last": "Waffletoes",
+      "units": 26,
+      "email": "tova.waffletoes@postbox.test",
+      "consent": "",
+      "dnd": false
+    }
+  ]
+}
