@@ -1,6 +1,6 @@
 # Pricing Conversation Prep: 1482 W Juniper Example Dr (New Listing)
 
-Reviewer's independent run, 2026-11-08, following SKILL.md and its references from scratch on the two practice files and the practice prompt in page-notes.md. Mode: New Listing (the subject isn't listed). State: Utah (Sampleville, UT 84000), so the Utah notes apply.
+Reviewer's independent run, 2026-11-08, following SKILL.md and its references from scratch on the two practice files and the practice prompt in page-notes.md. Rerun after the review's fixes: the only change is the Zillow answer, which now says an estimate "may not have" the MLS's closed prices instead of asserting what data the site has. Mode: New Listing (the subject isn't listed). State: Utah (Sampleville, UT 84000), so the Utah notes apply.
 
 ## Flags
 
@@ -72,7 +72,7 @@ Five two-story solds (May 5 to November 5, 2026, the CMA's stated six-month wind
 ## Objections and Answers
 
 **1. "Zillow says $607,000."**
-"That's a model's estimate. In Utah, sale prices aren't public record, so estimates work without the closed prices the MLS has. Here are the actual sales: the highest two-story sale was $604,500, with a 2023 kitchen and three-car garage. A buyer's appraiser will use sales like these, not the estimate."
+"That's a model's estimate. In Utah, sale prices aren't public record, so an online estimate may not have the closed prices the MLS holds. Here are the actual sales: the highest two-story sale was $604,500, with a 2023 kitchen and three-car garage. A buyer's appraiser will use sales like these, not the estimate."
 
 **2. "We'd like to start at $615,000. We can always come down."**
 "I understand not wanting to leave money on the table. In this set, the three homes that priced right went under contract in 5 to 14 days and closed at 99.48% to 100.77% of their first price. The two that started high and cut took 36 and 44 days and closed at about 96.6% of where they started. And 1340 Cedar Sample started at $649,900 and expired. Starting high here has meant a longer wait for less."

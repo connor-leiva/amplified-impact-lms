@@ -23,7 +23,7 @@ Sources: Lantern Lane Policy Manual (March 2, 2026); Lead Routing and Pond SOP (
 | Lantern Lane Policy Manual, Version 3.2 | Avery Example, Team Leader | March 2, 2026 |
 | Lead Routing and Pond SOP | Casey Testwell, ISA Manager | January 12, 2026 |
 | New Agent Onboarding Checklist | Morgan Sampleton, Director of Operations | June 3, 2024 |
-| Training Call: Handing Off a Deal to Transactions | Recorded by the Director of Operations | February 10, 2026 |
+| Training Call: Handing Off a Deal to Transactions | Not stated | Recorded February 10, 2026 |
 | Compensation and Fee Schedule 2026 | Avery Example, Team Leader | Effective January 1, 2026 |
 
 ## Not Written Yet

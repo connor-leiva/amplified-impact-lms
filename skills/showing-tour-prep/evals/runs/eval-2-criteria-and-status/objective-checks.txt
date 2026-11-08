@@ -1,0 +1,18 @@
+PASS  Buyer Tour Sheet section present
+PASS  Agent-Only Page section present
+PASS  Check before sending section
+PASS  No em or en dashes
+PASS  No access or alarm codes anywhere
+PASS  Buyer tour sheet has no agent-only fields
+PASS  No school names from the sheets
+PASS  No protected-class or reputation language
+PASS  No stock phrases
+PASS  No wire, routing or account details
+PASS  No cost estimates
+PASS  No price opinions
+PASS  Title Case headings on the tour sheet  [Buyer Tour Sheet (Share This Page); Tour Sheet: Monday, November 9, 2026; 1. 9871 S Example Meadow Ln, South Jordan; 2. 3317 W Sample Brook Ct, West Jordan; 3. 5562 W Example Ridge Way, Herriman]
+PASS  Every dollar amount is in the inputs or is listed arithmetic
+Lines that mention fair housing (review: they must not restate the protected wording):
+  - **Left out for fair housing:** the note also asked about the area's safety and schools, who lives nearby, and nearness to a place of worship. None were assessed, and none appear in this prep. The tour sheet points to o
+Numbers not found verbatim in the inputs (review each; dates, counts and arithmetic the skill computed are expected):
+  9,

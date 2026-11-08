@@ -4,7 +4,7 @@ Every draft is for the leader to read, change and send. Nothing is sent by this 
 
 ## Rules for Every Draft
 
-- **One draft per thread or person.** Show To, Cc (only when needed), Subject, then the body.
+- **One message per person.** When two replies or notes go to the same person, combine them into one draft. A forward stays one per forwarded email, with a short note on top. Show To, Cc (only when needed), Subject, then the body.
 - **Subjects:** a reply stays in its thread, so its subject is the thread's ("Reply in thread: [subject as it appears]"). Forwards and new emails get a new subject in Title Case, every word capitalized, naming the property or topic: "Lender Conditions For 77 Example Orchard Ln," "Holiday Party Date Is Set."
 - **The point first.** The first sentence says what the reader needs to know or do.
 - **Short.** Two to five short paragraphs, usually under 150 words. A forward note is one to three lines on top of the original.

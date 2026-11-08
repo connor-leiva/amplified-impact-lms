@@ -59,7 +59,7 @@ Read `references/meeting-commitments.md`. Read the full transcript; use any AI s
 
 ## 6. Draft
 
-Read `references/drafting.md`. Draft replies, forwards with a short note on top, follow-ups (only for what's overdue), promise deliveries and alerts, plus one recap per team meeting to its attendees (each person's commitments and dates, sensitive items left out). One draft per person: when two items go to the same person, combine them. Each draft is short, carries only facts from the inputs, and marks anything missing as a [placeholder]. Use the user's voice profile when one is in the conversation (their preferences, a project's instructions or a voice skill); otherwise warm, plain and direct. Sign with the leader's name.
+Read `references/drafting.md`. Draft replies, forwards with a short note on top, follow-ups (only for what's overdue), promise deliveries and alerts, plus one recap per team meeting to its attendees (each person's commitments and dates, sensitive items left out). One message per person: combine replies and notes to the same person; forwards stay one per forwarded email. Each draft is short, carries only facts from the inputs, and marks anything missing as a [placeholder]. Use the user's voice profile when one is in the conversation (their preferences, a project's instructions or a voice skill); otherwise warm, plain and direct. Sign with the leader's name.
 
 If the user asks for drafts in Gmail or Outlook and the connector allows it, create one draft per thread, in the thread, and never send. If the user asks for tasks and a task connector (ClickUp, Asana or another) is connected, search that tool for the same work first and update or skip instead of duplicating.
 

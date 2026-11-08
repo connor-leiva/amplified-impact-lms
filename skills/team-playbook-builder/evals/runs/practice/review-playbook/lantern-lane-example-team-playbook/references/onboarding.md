@@ -4,8 +4,6 @@ Owner: Director of Operations (Morgan Sampleton)
 Last updated: June 3, 2024 (oldest source in this file: June 3, 2024)
 Sources: New Agent Onboarding Checklist (June 3, 2024)
 
-Every rule in this file comes from a checklist dated June 3, 2024, more than 12 months ago. Confirm it's still current with the Director of Operations.
-
 ## Week 1
 
 - Sign the independent contractor agreement with Make-Believe Realty Group with the Managing Broker, Day 1. (Source: New Agent Onboarding Checklist, Week 1; dated June 3, 2024)

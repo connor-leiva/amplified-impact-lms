@@ -11,7 +11,7 @@ Every answer follows the same shape: acknowledge what's real in the objection, s
 What's behind it: an outside number the seller trusts because it's neutral and free.
 
 Pattern: an online estimate is a model's guess; the CMA shows what buyers actually paid for the closest homes. Put the estimate next to the closest solds' prices. The buyer's appraiser will use closed sales like these, not the estimate.
-- In Utah: sale prices aren't public record, so estimates work without the closed prices the MLS holds (see `utah-pricing-context.md`).
+- In Utah: sale prices aren't public record, so an online estimate may not have the closed prices the MLS holds (see `utah-pricing-context.md`). Say "may not": whether a given site gets MLS sold data isn't something the CMA shows, so never say it doesn't.
 - Outside Utah (general mode): don't say whether the state discloses sale prices. Stick to "these are the actual closed sales."
 
 Don't: mock the site or claim it's always wrong.

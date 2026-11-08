@@ -61,7 +61,7 @@ The subject: two-story, 2006, 2,180 sq ft above grade, basement 1,040 sq ft with
 ## 6. Objections and Answers
 
 **"Zillow says $607,000."**
-"Zillow's a fair place to start. In Utah, sale prices aren't public record, so sites like that don't have the actual closed prices I'm showing you. What buyers really paid for homes like yours runs from $572,000 to $604,500, and the buyer's appraiser will use those sales too."
+"Zillow's a fair place to start. In Utah, sale prices aren't public record, so an online estimate may not have the actual closed prices I'm showing you. What buyers really paid for homes like yours runs from $572,000 to $604,500, and the buyer's appraiser will use those sales too."
 
 **"We were hoping for $615,000. Can't we start there and come down?"**
 "I understand not wanting to leave money on the table. Here's what this neighborhood shows: the homes that sold at their first price went under contract in 5 to 14 days. The two that started high and cut took 36 and 44 days and sold at 96.6% of their first price. The home your size that started at $649,900 expired after 120 days."
@@ -97,7 +97,7 @@ The subject: two-story, 2006, 2,180 sq ft above grade, basement 1,040 sq ft with
 - About 3.6 months of supply among two-story homes here, based on the last six months.
 
 **Why This Price**
-Your home lines up closely with the five two-story sales around you, and your finished basement and 2024 roof put you near the top of them. The fully remodeled home with a three-car garage sold for $604,500, and the home most like yours just went under contract at $599,900 in 9 days. $599,900 puts you in front of every buyer searching up to $600,000, while two higher-priced homes are still waiting for offers.
+Your home lines up closely with the five two-story sales around you, and your finished basement and 2024 roof put you near the top of them. The fully remodeled home with a three-car garage sold for $604,500, and the home most like yours just went under contract at $599,900 in 9 days. $599,900 keeps you in searches capped at $600,000, while two higher-priced homes are still on the market.
 
 This is my price opinion based on a comparative market analysis, not an appraisal.
 

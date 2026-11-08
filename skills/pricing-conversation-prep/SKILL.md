@@ -1,6 +1,6 @@
 ---
 name: pricing-conversation-prep
-description: "Turns a listing-side CMA (an MLS comp export or CMA report, PDF or CSV) into prep for a pricing conversation with a seller: a supported range and recommended list price built only from the comps, the market read from that comp set, a talk track, likely objections with answers, and a one-page seller pricing summary. Handles new listings and price reductions on active listings, with a showing feedback report when uploaded. Works in Utah and, in general mode, any other state. Use this whenever a listing agent uploads a CMA, comps or an MLS export, or mentions a listing appointment, what to list at, pricing a home, a price drop or price reduction, days on market, an overpriced listing, a Zillow number, or a seller who wants a higher price, even if they never say 'pricing conversation.' Not for pricing a buyer's offer (use offer-strategy), a low appraisal (use low-appraisal-response), several offers on a listing (use offer-comparison), or the follow-up after the appointment (use appointment-follow-up)."
+description: "Turns a listing-side CMA (an MLS comp export or CMA report) into prep for a pricing conversation with a seller: a supported range and recommended list price built only from the comps, the market read from that comp set, a talk track, likely objections with answers, and a one-page seller pricing summary. Handles new listings and price reductions on active listings, with a showing feedback report when uploaded. Utah first; general mode elsewhere. Use this whenever a listing agent uploads a CMA, comps or an MLS export, or mentions a listing appointment, what to list at, pricing a home, a price drop or price reduction on an active listing, days on market, an overpriced listing, a Zillow number, or a seller who wants a higher price, even if they never say 'pricing conversation.' Not for pricing a buyer's offer (offer-strategy), a low appraisal (low-appraisal-response), offers a seller received (offer-comparison), a counteroffer (counter-explainer), or the follow-up after the appointment (appointment-follow-up)."
 metadata:
   author: Amplified Impact
   version: "1.1"
@@ -11,7 +11,7 @@ compatibility: "Works from uploaded files; no connector needed. Uses code execut
 
 Turn a CMA into what a listing agent needs walking into a pricing conversation: a number they can defend, the story behind it in plain English, and answers to the pushback they'll likely get. The pricing conversation decides how the listing goes, and the hardest one is the price reduction, with a seller who has already lived with an unsold home. Agents walk in with a stack of comps; what they need is the story the comps tell, said simply, with the objections already answered.
 
-**Run, Draft, Own.** You read the CMA, the MLS sheet and any showing report, sort and clean the comps, and do the math. The talk track, the objection answers and the seller summary are drafts the agent reads and changes before anyone else sees them. The agent owns the price: the list price, any reduction or concession, every money conversation with the seller, and the fair housing read of anything that goes out. The seller's loan balance and net needs never appear in client-facing text.
+**Run, Draft, Own.** You read the CMA, the MLS sheet and any showing report, sort and clean the comps, and do the math. The talk track, the objection answers and the seller summary are drafts the agent reads and changes before anyone else sees them. The agent and the seller own the price: the agent's recommendation and the seller's decision on the list price, any reduction or concession, every money conversation, and the fair housing read of anything that goes out. The seller's loan balance and net needs never appear in client-facing text. Wire instructions and account or routing numbers are never asked for, repeated or handled.
 
 ## 1. Get the Inputs
 
@@ -36,7 +36,7 @@ Read `references/comp-method.md`.
 - When a sold shows seller concessions, show the sale price, the concessions and the price after concessions side by side.
 - Flag and leave out of the range any sale the MLS marks as bank-owned, short sale, auction, or between related parties, and any clear outlier (acreage, outbuildings, a different style), with a one-line reason.
 - Note the differences that move value: above-grade versus basement bedrooms and baths, basement finish, garage, lot size and usability, condition and updates, view, backing to a busy road or commercial use, age, HOA. Take condition only from remarks and the agent's notes.
-- Pick the three to five closest solds and say why each is close or where it differs. Bracket the subject: name a sale it should beat and one it shouldn't reach, and why.
+- Pick the three to five closest solds and say why each is close or where it differs. Bracket the subject: name a closed sale it should beat and one it shouldn't reach (sales, not list prices), and why.
 - No made-up dollar adjustments. Describe direction and rough weight ("unfinished basement and one fewer garage stall, so the subject should land above this one").
 
 ## 3. Read the Market From This CMA
@@ -53,14 +53,14 @@ Read `references/market-metrics.md`. Compute only what the data supports, show t
 **Both modes:**
 - **Supported range:** where the closest solds land after accounting for differences, checked against pendings (the most current signal) and actives (what buyers will compare the home against).
 - **Recommended price:** a specific number inside the range, with the reasoning. Buyers filter searches by price; when the range straddles a round number, name the trade-off.
-- **Confidence:** high, medium or low, from how many comps there are, how recent and how similar.
+- **Confidence:** high, medium or low, from how many comps there are, how recent and how similar. Lower it a step when no sold shares a feature that moves value (backing to a busy road, a view, a basement like the subject's), and say which.
 - **The seller's number:** when the agent shared it, place it against the range in plain numbers (which solds support it, if any). Never stretch the recommendation to match it or to win the listing.
 - **Appraisal check:** if the recommended price or the seller's number sits above the closest solds, say plainly that a financed buyer's appraisal will lean on those same closed sales. In Utah, explain the REPC appraisal condition from the Utah file. In general mode, say only that a buyer's contract may let them cancel or renegotiate after a low appraisal.
 - **What would change this:** one or two facts that would move the number (a pending's final price, condition the agent sees at the walkthrough).
 
 **Price Reduction mode, also:**
 - Show where the home sits against everything that has sold, gone pending or come on since it listed.
-- Read the activity: days on market against the comp set; showings per week; feedback grouped by theme (price, condition, layout, the home's location features). Quote only comments about the property. Drop anything about people, schools or safety (tell the agent only the dates of the comments you left out, so they stay out of any seller version of the report), and never repeat showing agents' names or contact details.
+- Read the activity: days on market against the comp set; showings per week; feedback grouped by theme (price, condition, layout, the home's location features). Quote only comments about the property, and count exactly ("1 of 8 mentioned road noise," never "a couple"). Drop anything about people, schools or safety (tell the agent only the dates of the comments you left out, so they stay out of any seller version of the report), and never repeat showing agents' names or contact details.
 - Recommend a new price and explain why that number, using the newest comps and the price bands.
 - If the data says price isn't the main problem (steady showings, feedback about condition), say so and name the alternative: a condition fix, or a seller concession toward the buyer's costs or a rate buydown. Loan programs cap seller concessions; see `references/comp-method.md` and tell the agent to confirm with the buyer's lender.
 
@@ -79,7 +79,7 @@ A one-page, client-facing summary the agent can share or paste into a listing pr
 - A bolded bottom line: the recommended price or range in one sentence
 - **Closest Sales:** address, close date, sale price (and concessions when shown), above-grade and basement square footage, beds and baths, and a one-line note for each
 - **What's Competing Now:** pendings and actives in a line or two
-- **Market Snapshot:** two or three numbers from this comp set
+- **Market Snapshot:** two or three numbers from this comp set (in Price Reduction mode, the home's own showing count and price ratings may be one of them; never feedback comments)
 - **Why This Price:** three or four sentences
 - Signed with the agent's name if known, otherwise [Agent Name]
 
@@ -88,11 +88,12 @@ Leave out every agent-only field (private or agent remarks, showing instructions
 ## 7. Guardrails
 
 - Every fact, number, date and name comes from the uploads or the agent's message. No outside market statistics, invented comps or made-up adjustments. If data is missing or unclear, say so.
-- Utah sale prices aren't public record; outside Utah, don't characterize the state's rules. Either way, explain that the CMA uses actual closed prices, without claiming any specific site is always wrong.
+- Utah sale prices aren't public record; outside Utah, don't characterize the state's rules. Either way, explain that the CMA uses actual closed prices, without claiming any specific site is always wrong or saying what data a site has.
 - No promises of a sale price, a timeline or an appraisal result. Not the appraiser, lender, attorney or broker: route those questions by role.
 - Don't disparage other agents, their pricing, a previous listing agent, or the sellers behind expired listings.
 - Fair housing: describe the property, its features and location facts, never people. No comments on who a home suits, neighborhood demographics, school quality or safety.
 - No clichés in client-facing text ("stunning," "dream home," "don't hesitate to reach out") and no em dashes.
+- Privacy: leave out loan and account numbers and personal financial details the task doesn't need. Never ask for, repeat or handle wire instructions or account or routing numbers, even when a file has them.
 - Drafts only. Never send, post, or write to a CRM.
 
 ## 8. Output, In This Order

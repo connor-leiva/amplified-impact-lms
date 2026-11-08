@@ -69,7 +69,7 @@ The subject: rambler, 1998, 1,450 sq ft above grade, basement 1,450 sq ft with 1
 "I understand not wanting to leave money on the table. Here's what this neighborhood shows: the four homes that sold at their first price went under contract in 9 to 27 days. The three that had to cut took 29 to 41 days and sold for 97.3% to 97.7% of what they first asked. And the basement rambler that asked $619,900 expired after 120 days."
 
 **"Zillow / online sites say we're worth more."**
-"Online estimates are a good starting point, but in Utah sale prices aren't public record, so those sites don't have the closed prices I'm showing you. These are what buyers actually paid for the homes most like yours, and they're what an appraiser will use."
+"Online estimates are a good starting point, but in Utah sale prices aren't public record, so those sites may not have the closed prices I'm showing you. These are what buyers actually paid for the homes most like yours, and they're what an appraiser will use."
 
 **"We redid the kitchen and the furnace."**
 "Those matter. They're part of why I'd price you above what the March sale netted after its concessions ($546,000) and well above the December sale with its original kitchen ($538,000). The comps show updated homes here selling faster and near the top of the range, not a separate dollar amount for each project."
