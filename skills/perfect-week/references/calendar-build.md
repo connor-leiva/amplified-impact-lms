@@ -10,11 +10,12 @@ Checked against the connector's own tool definitions in a Claude session on 2026
 
 - **list_events:** pass `timeZone` (their IANA zone), `pageSize` 250 (the maximum) and follow `pageToken` with each `nextPageToken`.
 - **create_event:** `summary`, `startTime` and `endTime` as local times with no offset and no trailing Z, plus `timeZone`. Repeats go in `recurrenceData` as RFC 5545 strings (`RRULE:...`, `EXDATE;TZID=...:...`).
-- **notificationLevel:** `NONE` on every create, update and delete. On updates the tool's default is `ALL`, so leaving it out can email every guest.
+- **notificationLevel:** `NONE` on every create, update and delete. Left unset, all three treat it as `ALL`, so leaving it out can email every guest.
 - **attendees:** never set, and never `addedAttendees` on an update. Leave `addGoogleMeetUrl` off.
 - **Reminders:** `useDefaultReminders: false` with no `overrideReminders` gives a block no reminders. Left out, the calendar's default reminders apply. For an evening or weekend block they asked to be reminded of: `overrideReminders: [{"method": "popup", "minutes": 10}]`.
 - **availability:** `AVAILABILITY_FREE` for reserve and growth blocks; leave the default (busy) on everything else.
 - **colorId:** one per area, from Google's event color palette, matching the plan page.
+- **No repeat rule on update_event:** the update tool has no recurrence field, so it can't end a series early or change how it repeats. To change a series, delete it and create a new one. Deleting a series removes every date of it, past ones included: say so before they say yes.
 - **eventType:** leave it unset (a regular event). Never `FOCUS_TIME` or `OUT_OF_OFFICE`: Google's focus time declines new and existing meetings by default, and out of office events have decline settings too, so either one can answer other people's invitations for them.
 
 ## Repeat Rules

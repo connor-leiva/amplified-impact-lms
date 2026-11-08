@@ -184,9 +184,9 @@ def practice_calendar():
     ev.append(event(tz, "pw-gym@practice.example", "Gym", "20260907T060000", "20260907T070000", me,
                     rrule="FREQ=WEEKLY;BYDAY=MO,WE,FR"))
     # One-offs, Mon Nov 9 to Sun Nov 22
-    ev.append(event(tz, "pw-la-45sample@practice.example", "Listing appointment: 45 Sample Street (Maplewoods)",
+    ev.append(event(tz, "pw-la-45sample@practice.example", "Listing appointment: 45 Sample Street (Mapletests)",
                     "20261109T140000", "20261109T150000", me,
-                    [jordan, person("Sam Maplewood", "sam.maplewood@mail.example")], location="45 Sample Street"))
+                    [jordan, person("Sam Mapletest", "sam.mapletest@mail.example")], location="45 Sample Street"))
     ev.append(event(tz, "pw-la-9example@practice.example", "Listing appointment: 9 Example Court", "20261110T173000",
                     "20261110T183000", me, location="9 Example Court",
                     description="Sellers asked for after work. Bring CMA and listing packet."))
@@ -325,7 +325,7 @@ def case2_calendar():
     ev.append(event(tz, "c2-ce@case2.example", "CE class: Contracts update (live online)", "20261113T090000", "20261113T120000",
                     ("Example CE School", "classes@examplece.example"),
                     [person("Example CE School", "classes@examplece.example"), taylor], location="Online"))
-    ev.append(event(tz, "c2-showings@case2.example", "Showings: Brightwater buyers (3 homes)", "20261114T090000",
+    ev.append(event(tz, "c2-showings@case2.example", "Showings: Brightsample buyers (3 homes)", "20261114T090000",
                     "20261114T120000", me))
     ev.append(event(tz, "c2-dd@case2.example", "Due Diligence Deadline: 41 Fiction Avenue", "20261116", "20261117", tc,
                     [person(*tc), taylor], all_day=True, transp="TRANSPARENT"))
@@ -360,8 +360,8 @@ def case2_tasks():
     task("Rebuild listing presentation", "Nov 19 2026", 480, prio="3")
     task("Listing videos for 3 Testwood Lane", "Nov 16 2026", 180, prio="2")
     sec("Buyers")
-    task("Prep tour sheet for Brightwater buyers", "Nov 13 2026", 60, prio="2")
-    task("Offer strategy notes for the Pinewood buyers", "Nov 10 2026", 90, prio="1")
+    task("Prep tour sheet for Brightsample buyers", "Nov 13 2026", 60, prio="2")
+    task("Offer strategy notes for the Pinetest buyers", "Nov 10 2026", 90, prio="1")
     task("Buyer consult follow-ups (3)", "Nov 11 2026", 90)
     sec("Prospecting")
     task("Prospecting calls: 25 past clients", "every weekday", 60, prio="1")

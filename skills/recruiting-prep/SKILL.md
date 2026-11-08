@@ -57,7 +57,7 @@ Read `references/outreach-drafts.md` and `references/outreach-rules.md`.
 Read `references/appointment-mode.md`.
 
 - **Production profile:** trailing-twelve-month sides and volume, listing and buyer split, average price (show the math), price range and the prior period, all from the file, with the period named.
-- **What agents at this level usually need:** from the team's offer document first, quoting the section. Anything not from the team's document is labeled "General guidance, not from your documents."
+- **What agents at this level usually need:** from the team's offer document first, quoting the section. Anything not from the team's document is labeled "General guidance, not from your documents," wherever it appears, the bottom line included.
 - **Discovery questions:** open questions about goals, support, what's working and the candidate's own timeline, including how their current agreement handles listings and pendings (theirs to check with their broker or attorney). Include the don't-ask list.
 - **How your offer maps:** each likely need, what the team's document says (with its section), or "Not in your documents."
 - **Terms as written:** when the team's document or the user's message states the split, cap or fees, quote them word for word in one block the leader can hand over, with the source named. No math, no examples.

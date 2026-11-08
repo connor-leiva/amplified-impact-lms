@@ -1,0 +1,71 @@
+{
+ "gci_by_month": [
+  113048.75,
+  93507.5,
+  158905.0,
+  147457.5,
+  149068.75,
+  139676.25
+ ],
+ "splits_by_month": [
+  64246.35,
+  44381.25,
+  84321.0,
+  67915.2,
+  81148.19,
+  71240.4
+ ],
+ "referral_by_month": [
+  5971.5,
+  0.0,
+  5511.0,
+  8478.0,
+  13821.76,
+  8361.0
+ ],
+ "brokerage_by_month": [
+  5652.46,
+  4675.38,
+  7945.26,
+  7372.89,
+  7453.45,
+  6983.82
+ ],
+ "team_share_by_month": [
+  37178.44,
+  44450.87,
+  61127.74,
+  63691.41,
+  46645.35,
+  53091.03
+ ],
+ "pnl_commission_income": [
+  113048.75,
+  93507.5,
+  158905.0,
+  63691.41,
+  149068.75,
+  139676.25
+ ],
+ "net_income_by_month": [
+  12932.85,
+  21816.67,
+  37817.65,
+  39328.94,
+  23247.4,
+  28493.08
+ ],
+ "closings_by_month": [
+  8,
+  7,
+  10,
+  10,
+  11,
+  10
+ ],
+ "planted": [
+  "April commission income equals the production file's team share; splits, referral and brokerage lines are zero in April",
+  "Online Lead Programs up from 5800 to 7300 in June",
+  "client names in the production file"
+ ]
+}

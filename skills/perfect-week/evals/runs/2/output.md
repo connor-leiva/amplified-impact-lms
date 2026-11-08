@@ -18,7 +18,7 @@ Plan page: **Taylor's Perfect Week** (`plan-page.html`, attached). Summary for J
 
 - **Time zone first:** your calendar is set to Central (America/Chicago) and you work in Eastern. Every time in this plan is Eastern. Anything we add later will look an hour earlier in a calendar view that's still on Central (9:00 Eastern shows as 8:00). Changing the calendar's own time zone to Eastern fixes the view.
 - **Fixed:** Team meeting (Tue 10:00 to 11:30), 1:1 Jamie / Taylor (Thu 9:00 to 9:30), Sales training webinar (Wed 12:00 to 1:00), Inspection at 41 Fiction Avenue (Thu Nov 12, 2:00 to 4:00), CE class (Fri Nov 13, 10:00 to 1:00), Listing appointment at 18 Mockingbird Example Way (Mon Nov 9, 5:30 to 6:30 pm), Closing at 41 Fiction Avenue (Fri Nov 20, 2:00 to 3:00).
-- **Your own blocks, left alone:** Showings for the Brightwater buyers (Sat Nov 14, 10:00 to 1:00, inside your Saturday window), Listing appointment at 7 Sampleview Terrace (Wed Nov 18, 4:00 to 5:00), and your coaching practices (Tue and Thu evenings).
+- **Your own blocks, left alone:** Showings for the Brightsample buyers (Sat Nov 14, 10:00 to 1:00, inside your Saturday window), Listing appointment at 7 Sampleview Terrace (Wed Nov 18, 4:00 to 5:00), and your coaching practices (Tue and Thu evenings).
 - **After hours:** the Nov 9 listing appointment ends at 6:30 pm Eastern. It shows as 4:30 in your Central calendar, which may be how it got booked. It has your client on it, so it stays unless you move it with them.
 - **Contract deadlines posted by your transactions team:** Due Diligence Deadline (Mon Nov 16) and Settlement Deadline (Fri Nov 20), 41 Fiction Avenue. For planning only; confirm dates with your transactions team.
 - **Tasks:** 18 open tasks of yours due by Nov 20, 1 of them overdue (expense catch-up, due Nov 2). Two repeat: prospecting calls every weekday (10 sessions) and seller updates every Friday (2). I left out Jamie's task (the holiday card proof) and a note row. One more task is due after your end date: **CE, 6 hours, due Nov 30.** It isn't in the count, but it will land in Thanksgiving week unless you plan for it.
@@ -67,10 +67,10 @@ After those moves: 40.5 hours of work (76.5 less 35 re-dated and 1 closed). The 
 | CMA for 18 Mockingbird Example Way listing appointment | Mon Nov 9 | 2 | Do it | Mon Nov 9 10:30 to 12:30, before the 5:30 pm appointment |
 | Update CRM notes from last week's showings | Mon Nov 9 | 1 | Do it | Mon Nov 9 2:30 (30 min); the other 30 min has no block (see move 5) |
 | Price reduction conversation prep: 5 Sample Ridge Road | Tue Nov 10 | 1.5 | Do it | Mon Nov 9 1:00 (90 min) |
-| Offer strategy notes for the Pinewood buyers | Tue Nov 10 | 1.5 | Do it | Tue Nov 10 1:00 (90 min) |
+| Offer strategy notes for the Pinetest buyers | Tue Nov 10 | 1.5 | Do it | Tue Nov 10 1:00 (90 min) |
 | Buyer consult follow-ups (3) | Wed Nov 11 | 1.5 | Do it | Tue Nov 10 2:30 and 3:30, Wed Nov 11 10:30 |
 | Launch 3 Testwood Lane: MLS input, description, photo review | Thu Nov 12 | 4 | Do it | Wed Nov 11 10:45 and 3:30, Thu Nov 12 11:00 and 1:00 |
-| Prep tour sheet for Brightwater buyers | Fri Nov 13 | 1 | Do it | Thu Nov 12 1:30, Fri Nov 13 3:00 |
+| Prep tour sheet for Brightsample buyers | Fri Nov 13 | 1 | Do it | Thu Nov 12 1:30, Fri Nov 13 3:00 |
 | Weekly seller update emails (4 listings), Fri Nov 13 | Fri Nov 13 | 1 | Do it | Fri Nov 13 3:30 (15 min); 45 min has no block (see move 5) |
 | Listing videos for 3 Testwood Lane | Mon Nov 16 | 3 | Do it | Mon Nov 9 3:30, Wed Nov 11 1:30, Fri Nov 13 1:00 |
 | Prospecting calls: 25 past clients | Every weekday | 10 (1 a day) | Do it | Daily prospecting block; Fri Nov 13 only 30 min (CE class) |

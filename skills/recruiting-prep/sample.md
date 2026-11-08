@@ -2,19 +2,19 @@
 
 Two parts: your recruit list, organized and tiered with first-touch drafts, then your coffee with Marisol Quillpocket on Tuesday, November 10 at 11.
 
+## Bottom Line
+
+The two tabs hold 102 rows and 83 unique agents: using your one-pager's levels, 5 are Established (25+ sides), 14 Growing (12 to 24) and 49 Building (0 to 11), with 14 more on Our List but not in the MLS report and 1 opted out. Start with the 5 Established agents and the 14 Growing ones, where your listing coordinator is the clearest offer. For Marisol, a listing-heavy Growing agent up 5 sides on last year, the conversation is about what a listing takes from her today and what your listing coordinator would take off her plate.
+
 ## Flags
 
 - **MLS data check:** the MLS Export tab is a Bayside Example MLS Agent Production Report. Confirm your MLS rules allow using it for recruiting and putting it into an AI tool.
 - **A claim to take to your broker:** your one-pager says "Agents who join Harborlight close 40% more transactions in their first year." That's a results claim about what agents will achieve. I left it out of every draft and answer; have your broker review it before it goes in front of a recruit.
 - **At your brokerage:** R020 Dev Crumpetnook's MLS office is Marigold Example Realty, your brokerage. No roster was uploaded, so I kept them in the tiers but out of the drafts. Tell me if they're not on your team.
 - **No owners yet:** no roster was uploaded, so every tier shows [Owner]. Upload a roster with roles and I'll suggest who works which tier.
-- **Notes left out:** 22 rows on Our List have notes. I didn't use them for tiers, angles or drafts, and they're not in the CSV. One holds personal family and financial details; consider deleting it.
-- **State rules:** your team and the phone numbers are in North Carolina. Texting rules were only checked for Florida, Maryland and Oklahoma, so North Carolina's own rules were not checked: confirm with your broker.
+- **Notes left out:** 22 rows on Our List have notes. I didn't read them into tiers, angles or drafts, and they're not in the CSV. 1 row holds personal details (kinds: family or familial status, personal finances); consider deleting it from Our List.
+- **State rules:** your one-pager's address is in North Carolina. State texting rules were checked only for Florida, Maryland and Oklahoma, so North Carolina's own rules were not checked: confirm with your broker.
 - **Placeholders to fill:** [Agent Name], [Title], [Agent Phone] and [Unsubscribe Link]. The postal address comes from your one-pager.
-
-## Bottom Line
-
-The two tabs hold 102 rows and 83 unique agents: using your one-pager's levels, 5 are Established (25+ sides), 14 Growing (12 to 24) and 49 Building (0 to 11), with 14 more on Our List but not in the MLS report and 1 opted out. Start with the 5 Established agents and the 14 Growing ones, where your listing coordinator is the clearest offer. For Marisol, a listing-heavy Growing agent up 5 sides on last year, the conversation is about what a listing takes from her today and what your listing coordinator would take off her plate.
 
 # Part 1: The Recruit List
 
@@ -48,7 +48,7 @@ No possible duplicates. **Opted out (1):** R083 Yara Cloversprout ("STOP" on Our
 | Not tiered (Our List only, no MLS data) | 14 | | | | |
 | Do not contact | 1 | | | | |
 
-Our List's "Approx Units" are self-reported, so they're in the CSV but not used for levels.
+Our List's "Approx Units" are self-reported, so they're in the CSV under Units Not Used but never set a level.
 
 **Established (25+ sides)**
 
@@ -158,7 +158,7 @@ Harborlight Example Team, 77 Lantern Way, Suite 4, Seabright Example, NC
 
 **Text:** none. The only Growing contact with documented consent is Marisol, and you're already meeting her.
 
-### Building (48 agents; R020 held)
+### Building (49 agents; R020 held from drafts)
 
 **Angle (your one-pager, Building):** support on every deal. Team buyer leads after a 30-day training track, weekly one-on-one coaching, a transaction coordinator on every deal and a shared showing assistant.
 
@@ -193,13 +193,11 @@ These are on Our List but not in the MLS report, so I can't place them. Confirm 
 
 ## The Organized CSV
 
-`organized-recruit-list.csv`: 83 rows, one per unique agent, in level order. Columns: Recruit ID, Name, Office (MLS), Brokerage (Your List), Sources (tab and row), Merge Rule, TTM Units, TTM Volume, Listing Sides, Buyer Sides, Prior 12 Mo Units, Period, Outreach Tier, Tier Basis, Why Now, Suggested Owner, Email, Other Emails, Phone, Other Phones, Text Status, Contact Status, Stage (Your List), Last Touch (Your List), Possible Duplicate Of, Self-Reported Units (Not Used). No notes.
+`organized-recruit-list.csv`: 83 rows, one per unique agent, in level order. Columns: Recruit ID, Name, Office (Production Report), Brokerage (Your List), Sources (tab and row), Merge Rule, TTM Units, TTM Volume, Listing Sides, Buyer Sides, Prior 12 Mo Units, Period, Outreach Tier, Tier Basis, Why Now, Side Mix, Suggested Owner, Email, Other Emails, Phone, Other Phones, Text Status, Contact Status, Stage (Your List), Last Touch (Your List), Possible Duplicate Of, Units Not Used (Source), Flags. No notes. R020 shows Contact Status "Hold: at your brokerage."
 
 # Part 2: Coffee With Marisol Quillpocket, Tuesday, November 10, 11 a.m.
 
-## Bottom Line
-
-Marisol closed 22 sides and $9,033,500 in the 12 months ending 10/31/2026, up from 17 sides, and 14 of her 22 sides were listings. That puts her in your one-pager's Growing level, where the listing coordinator is the offer that matches her business. Find out what a listing costs her in time today and what would make a move worth the disruption.
+Marisol is a listing-heavy Growing agent, up 5 sides on the prior 12 months, so the prep centers on your listing coordinator and what a listing takes from her today.
 
 ## Production Profile
 
@@ -251,6 +249,14 @@ From the MLS Export tab (Bayside Example MLS, closed 11/01/2025 to 10/31/2026). 
 | Control of her database | "Your database stays yours if you leave." | None |
 | Schedule and meetings | "One team meeting a week (Tuesday, 9:00 a.m., 45 minutes). No required floor time. You choose your own schedule." | None |
 | Economics | Splits, cap and fees section (below) | What the split and fees pay for, beyond the services listed |
+
+## Terms As Written
+
+From your one-pager, "Splits, Cap and Fees," word for word. Hand this over if she asks for your numbers; she runs them with her own accountant or advisor, and I won't run them for her.
+
+> Team-generated leads: 50/50. Your own leads and sphere: 80/20 to you. Team cap: $18,000 a year in team split; after cap, your own leads are 100% to you and team leads are 70/30. Transaction fee: $395 per closed side, paid at closing. Marigold Example Realty's brokerage fees are separate and set by the brokerage.
+
+And from "Revenue Share": "Marigold Example Realty offers a revenue share program. Ask for the brokerage's official disclosure; we don't estimate what anyone will earn from it." Brokerage fees: [from Marigold Example Realty's official schedule].
 
 ## Objections and Answers
 

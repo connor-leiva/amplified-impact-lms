@@ -47,7 +47,7 @@ PRACTICE FILE: made-up example. Run by the reviewer on 2026-11-08 from SKILL.md 
 | 4:00 | | | | | Weekly review 4:00 to 4:30 |
 | 4:30 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 | Comms sweep, then shutdown 4:45 |
 
-Saturday: Showings: Brightwater buyers, Sat Nov 14, 10:00 to 1:00 (your own block, inside your 10 to 2 window). No other Saturday time is used. Sundays and evenings stay empty.
+Saturday: Showings: Brightsample buyers, Sat Nov 14, 10:00 to 1:00 (your own block, inside your 10 to 2 window). No other Saturday time is used. Sundays and evenings stay empty.
 
 ### Where the Hours Go (template week)
 
@@ -70,7 +70,7 @@ Focus 24 hours (Prospecting 5, Listings 7, Buyers 3, Marketing and admin 9); fix
 ### Dates That Drive the Blocks
 
 - Mon Nov 9: CMA and CRM notes due; listing appointment, 18 Mockingbird Example Way (after hours, see flag).
-- Tue Nov 10: price reduction prep (5 Sample Ridge Road) and Pinewood offer notes due.
+- Tue Nov 10: price reduction prep (5 Sample Ridge Road) and Pinetest offer notes due.
 - Thu Nov 12: 3 Testwood Lane launch due; inspection at 41 Fiction Avenue, 2:00 to 4:00.
 - Fri Nov 13: CE class 10:00 to 1:00; tour sheet due before Saturday's showings.
 - Mon Nov 16: Due Diligence Deadline, 41 Fiction Avenue (posted by Toni Transactor; for planning only, confirm dates with your transactions team).
@@ -100,10 +100,10 @@ Headline: 18 open tasks, 1 overdue (expense catch-up, due Nov 2), 76.5 hours on 
 | Update CRM notes from last week's showings | Admin | Nov 9 | 1 | Do | Mon Marketing and admin |
 | Expense tracking catch-up (September and October) | Admin | Nov 2 (overdue) | 3 | Do (last hour short, see fixes) | Mon and Thu Marketing and admin |
 | Price reduction conversation prep: 5 Sample Ridge Road | Listings | Nov 10 | 1.5 | Do | Tue Listings |
-| Offer strategy notes for the Pinewood buyers | Buyers | Nov 10 | 1.5 | Do | Mon and Tue Buyers |
+| Offer strategy notes for the Pinetest buyers | Buyers | Nov 10 | 1.5 | Do | Mon and Tue Buyers |
 | Buyer consult follow-ups (3) | Buyers | Nov 11 | 1.5 | Do | Wed Marketing and admin |
 | Launch 3 Testwood Lane | Listings | Nov 12 | 4 | Do | Tue, Wed, Thu Listings |
-| Prep tour sheet for Brightwater buyers | Buyers | Nov 13 | 1 | Do | Fri afternoon, before Saturday |
+| Prep tour sheet for Brightsample buyers | Buyers | Nov 13 | 1 | Do | Fri afternoon, before Saturday |
 | Weekly seller update emails (4 listings) | Listings | Fridays | 2 (1 + 1) | Do | Fri Listings |
 | Prospecting calls: 25 past clients | Prospecting | Every weekday | 10 (10 x 1) | Do | Daily Prospecting |
 | Listing videos for 3 Testwood Lane | Listings | Nov 16 | 3 | Do | Mon Nov 16 |

@@ -1,0 +1,47 @@
+{
+ "closings_by_month": [
+  6,
+  6,
+  8,
+  9,
+  11,
+  10,
+  10,
+  9,
+  8
+ ],
+ "closings_total": 77,
+ "gci_by_month": [
+  75358.75,
+  78617.5,
+  108476.25,
+  122973.75,
+  152885.0,
+  143330.0,
+  152372.5,
+  118777.5,
+  124087.5
+ ],
+ "net_income_by_month": [
+  11957.72,
+  9578.96,
+  25617.52,
+  22805.17,
+  57059.86,
+  31627.98,
+  43321.78,
+  30982.46,
+  48023.18
+ ],
+ "brokerage_cap_first_flat_fee_month": 5,
+ "planted": [
+  "Video Editing App new recurring from Jun at 79",
+  "Google PPC spike in Aug (3940.85)",
+  "Pumpkinpatch Portal up from 2500 to 3000 in Jul",
+  "Uncategorized Expense 486.20 in Jul",
+  "brokerage fees drop to a flat 295 per deal after the made-up cap",
+  "2 pending and 1 cancelled rows to exclude",
+  "Lanternfly Leads is pay at close: cost is the referral fee",
+  "client names and addresses in the export"
+ ]
+}

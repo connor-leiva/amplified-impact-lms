@@ -1,15 +1,15 @@
 # Recruiting Prep: Coffee With Dana Thimblewhistle, Thursday, November 12, 10 a.m.
 
+## Bottom Line
+
+Dana closed 30 sides and $13,436,000 in the 12 months ending 10/31/2026, up from 24 sides, and nearly two thirds of her sides were listings. General guidance, not from your documents: listing-heavy agents at this level often care most about time back and listing support, and your documents don't say yet what you offer there. The one thing to learn on Thursday: what's eating her time now, and what she'd need to see to make a move worth the disruption.
+
 ## Flags
 
 - **No value proposition document.** Everything below about what agents at Dana's level need is general guidance, labeled that way, and the offer map is mostly "Not in your documents." Upload your offer or value proposition document (even a rough one) and I'll redo the needs, the offer map and the objection answers from it.
-- **The take-home number:** I won't calculate what Dana would take home, net or earn on your 80/20 split with a $16,000 cap, even from her own numbers. That's an earnings projection, and those don't belong in a recruiting conversation. What I can do is lay out your terms exactly as you state them so she can run her own numbers with her own accountant or advisor (see "Your Terms, As Stated").
+- **The take-home number:** I won't calculate what Dana would take home, net or earn on your 80/20 split with a $16,000 cap, even from her own numbers, because that's an earnings projection. Your terms are under "Terms As Written," word for word, so she can run her own numbers with her own accountant or advisor.
 - **MLS data check:** the attachment is a Prairie Example MLS Agent Production Detail report. Confirm your MLS rules allow using it for recruiting and putting it into an AI tool.
 - **Placeholders to fill:** [Agent Name], [Team Name], [Brokerage Name], [Agent Phone], [Unsubscribe Link], [Sender Postal Address], and the bracketed lines in the follow-up email after you meet.
-
-## Bottom Line
-
-Dana closed 30 sides and $13,436,000 in the 12 months ending 10/31/2026, up from 24 sides, and nearly two thirds of her sides were listings. Agents running a listing-heavy business at this level often care most about time back and listing support, but your documents don't say yet what you offer there. The one thing to learn on Thursday: what's eating her time now, and what she'd need to see to make a move worth the disruption.
 
 ## Production Profile
 
@@ -71,9 +71,16 @@ These are starting points for your questions, not facts about Dana. Thursday's c
 
 Don't fill a gap in the room with a service or number you haven't written down. "Let me send you that in writing" is a strong answer.
 
-## Your Terms, As Stated
+## Terms As Written
 
-From your message, and only these: an 80/20 split and a $16,000 cap. Before Thursday, write down which side gets 80, what the cap year runs from, what fees apply before and after cap, and what the split pays for. Hand Dana that page; she can run it against her own business with her own accountant or advisor. I won't run it for her: any "you'd keep $X more" figure is an earnings projection.
+From your message, word for word: "our 80/20 split with a $16,000 cap."
+
+- Split: 80/20
+- Cap: $16,000
+- Team fees, what the split and cap pay for, and when the cap year starts: [not in your documents]
+- Brokerage fees: [from your brokerage's official schedule]
+
+Before Thursday, write down which side gets the 80, when the cap year starts, what fees apply before and after cap, and what the split pays for. Hand Dana that page; she can run it against her own business with her own accountant or advisor. I won't run it for her: any "you'd keep $X more" figure is an earnings projection.
 
 ## Objections and Answers
 
@@ -95,7 +102,7 @@ Each answer: acknowledge, ask, answer from your documents, offer a next step. Wh
 "With a business built on listings, you may not need them." Ask: "If you had more time, where would you spend it?" Answer: [Your answer: not in your documents. Whether leads are offered, optional, and on what terms.] Don't promise a number of leads.
 
 **Culture: "I don't want to be in meetings all day," or "Teams churn agents."**
-"That's worth asking any team." Ask: "What's the best team or office culture you've seen, and why?" Answer: [Your answer: not in your documents. Your meeting rhythm and what a normal week looks like.] Offer: "Come sit in on a team meeting and judge for yourself."
+"That's worth asking any team." Ask: "What's the best team or office culture you've seen, and why?" Answer: [Your answer: not in your documents. Your meeting rhythm and what a normal week looks like.] If you hold a regular team meeting, offer: "Come sit in on one and judge for yourself."
 
 **Timing: "Not this year," or "after my listings close."**
 "Makes sense, especially with a full listing pipeline." Ask: "What would need to be true for the timing to be right?" Next step: offer a check-in date she picks, and remind her that what happens to listings and pendings is in her current agreement, for her broker or attorney to answer.

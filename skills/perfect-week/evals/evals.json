@@ -28,13 +28,13 @@
       "files": ["evals/files/case2-calendar.ics", "evals/files/case2-tasks.csv"],
       "expectations": [
         "Every time is given in Eastern, and the reply gives the time zone note: the calendar is set to Central, so anything added will look shifted until its zone changes.",
-        "The gap is shown plainly with numbers from the files: 76.5 hours of task work due by Nov 20 against 44 hours of focus blocks, a 32.5-hour gap, broken out by week.",
+        "The gap is shown plainly, week by week, with numbers that trace to the files and the plan's own blocks: 76.5 hours on Taylor's list due by Nov 20 (75.5 once the 1-hour transactions task goes back), 21.5 of it due the week of Nov 9 and the rest the week of Nov 16, against the focus-block hours the plan provides (44 in the builder's run, 42.5 in the reviewer's; the exact figure depends on the blocks).",
         "No work is placed in evenings, on Sundays or outside Saturday's 10 to 2 showing window, and there is no Evenings and weekends section because Taylor didn't opt in.",
         "The fixes are proposals (re-date, re-scope, close) for Taylor and Jamie to decide; nothing is changed in Todoist and the plan doesn't pretend the overflow fits.",
         "With no one to delegate to, Hand-offs becomes a short list to raise with Jamie, each item with what to change and why.",
         "The task to track contract deadlines in a personal spreadsheet is routed back to the transactions team (closed), not given hours.",
         "Repeating tasks are expanded (10 weekday call sessions, 2 Friday seller updates), Jamie's task and the note row are left out, and the CE task due Nov 30 is flagged rather than counted.",
-        "The remaining 1.75-hour shortfall in the week of Nov 9 is stated, with options inside working hours, and the reduced open time is disclosed as a trade-off for Taylor to change.",
+        "Whatever is still short after the proposed fixes (the week of Nov 9 loses focus time to the inspection and the CE class) is stated in hours, with options inside working hours, and any cut to the hour a day of open time is disclosed as a trade-off for Taylor to change.",
         "The summary for Jamie leaves out Taylor's family and evening details and client details, and the reply ends the step with 'Check before sending'."
       ]
     },

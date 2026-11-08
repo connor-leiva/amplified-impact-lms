@@ -45,3 +45,23 @@ What the skill added on the same prompt and files:
 ## Fixes Made During Grading
 
 - The first draft counted 19 open tasks and 75.5 hours by leaving out the deadline-spreadsheet task before it had been closed. The task list has 18 open tasks due by Nov 20, and before fixes that task's hour counts: 76.5 hours and a 32.5-hour gap. Corrected in output.md and on the plan page. This was a run error, not a gap in the skill (step 4 says to count every task and then say what to close).
+
+## Reviewer's Independent Run (2026-11-08)
+
+The reviewer ran case 2 from SKILL.md and its references as written, before reading this run: `review-output.md`. Graded against the expectations as reworded in this review (2 and 8 no longer fix the plan-dependent 44, 32.5 and 1.75 hour figures, since any sound set of blocks gives its own focus hours).
+
+| # | Result | Evidence |
+|---|---|---|
+| 1 | PASS | Every time in Eastern; the Central calendar note; the Nov 9 appointment flagged as 5:30 to 6:30 PM Eastern. |
+| 2 | PASS | 76.5 hours on the list, 75.5 once the transactions hour goes back; 21.5 due the week of Nov 9 and 54 the week of Nov 16, against 19.5 and 23 focus hours (42.5 in all). |
+| 3 | PASS | Nothing in evenings, Sundays or Saturday outside 10 to 2; no Evenings and weekends section. |
+| 4 | PASS | Five re-scopes as proposals for Taylor and Jamie; "nothing changed in Todoist". |
+| 5 | PASS | Hand-offs is the list for Jamie, each item with what changes and why. |
+| 6 | PASS | The deadline-tracking task is closed back to Toni, 0 hours in Taylor's blocks. |
+| 7 | PASS | 10 call sessions and 2 Friday updates; Jamie's task and the note row left out; CE due Nov 30 flagged, not counted. |
+| 8 | PASS | 2 hours short the week of Nov 9 and 1 the week of Nov 16 after the fixes, with options inside working hours and the open-time trade-off named. |
+| 9 | PASS | The summary leaves out the coaching, Sundays and client names; "Check before sending" closes the step. |
+
+**9 of 9.** Both runs pass, with different but sound plans. What the reviewer's run showed about the skill: the two items it handled only by judgment (Todoist's "every weekday" dates and the CE task due after the end date) weren't written down anywhere, so `references/reading-exports.md` now says how to count a repeating date and to name a big task due soon after the end date. The client nicknames in the files ("Brightwater" and "Pinewood" buyers) were renamed to obviously made-up ones (Brightsample, Pinetest) here and in the files; this run's outputs were updated to match.
+
+One nuance in this run, not a failure: its bottom line counts the transactions hour in the 32.5-hour gap ("before fixes"), then closes it as a fix. The reviewer's run takes it out first (75.5). Either reading meets step 4, which says to count the task on the list and keep it out of the blocks.

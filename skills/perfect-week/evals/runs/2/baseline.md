@@ -18,7 +18,7 @@ It doesn't fit. Adding up the estimates in your Todoist export, you have roughly
 - Wed Nov 11, 11:00 to 12:00: Sales training webinar
 - Thu Nov 12, 8:00 to 8:30: 1:1 with Jamie; 1:00 to 3:00: Inspection, 41 Fiction Avenue
 - Fri Nov 13, 9:00 to 12:00: CE class
-- Sat Nov 14, 9:00 to 12:00: Showings (Brightwater buyers)
+- Sat Nov 14, 9:00 to 12:00: Showings (Brightsample buyers)
 
 **Week 2 (Nov 16 to 20)**
 - Mon Nov 16: Due Diligence Deadline, 41 Fiction Avenue
@@ -38,7 +38,7 @@ It doesn't fit. Adding up the estimates in your Todoist export, you have roughly
 
 ## Priorities
 
-**Must do (client-facing, hard deadlines):** the CMA for 18 Mockingbird (Monday), the price reduction prep and Pinewood offer notes (Tuesday), buyer follow-ups (Wednesday), the 3 Testwood Lane launch (Thursday), the Brightwater tour sheet (Friday), seller updates both Fridays, daily prospecting, and the listing videos.
+**Must do (client-facing, hard deadlines):** the CMA for 18 Mockingbird (Monday), the price reduction prep and Pinetest offer notes (Tuesday), buyer follow-ups (Wednesday), the 3 Testwood Lane launch (Thursday), the Brightsample tour sheet (Friday), seller updates both Fridays, daily prospecting, and the listing videos.
 
 **Should do:** the market update email, the listing presentation rebuild, the expense catch-up (it's overdue), tracking the 41 Fiction Avenue deadlines.
 

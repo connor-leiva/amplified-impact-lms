@@ -1,0 +1,71 @@
+{
+  "skill_name": "showing-tour-prep",
+  "evals": [
+    {
+      "id": 1,
+      "name": "four-home-utah-tour",
+      "prompt": "Showing these four Saturday, November 14 to Riley and Quinn Make-Believe. Signed buyer agreement is on file. They want 3+ bedrooms, under $550,000, a garage, and they want to be able to rent out part or all of the home down the road. Conventional loan. Can you prep me and give me a tour sheet for them?",
+      "expected_output": "Utah mode, no buyer agreement flag (the agent says it's signed). Tour at a Glance with above-grade and basement square feet split: Draper condo 1,104 / none, Holladay 1,340 / 1,300 (40% finished), Mapleton 2,060 / 1,020 (50% finished), Riverton 2,050 / 1,050 (100% finished); HOA per month $285, none, none, and $40 for Riverton ($120 quarterly divided by 3, math shown). Price changes from the history: Draper down $10,000, Holladay down $34,000 in two cuts, Riverton down $15,000. Condo: public remarks say rental cap and 12-month owner occupancy before renting, so it Doesn't fit the rent-later criterion; also 2 beds and no garage. Holladay: trust sale sold strictly as-is (REPC as-is clause, buyer still has due diligence), Terms cash or conventional (fine for this conventional buyer), built 1958 so the lead-based paint disclosure applies; the sewer backup, out-of-state trustee and limited disclosure come only from agent remarks and stay on the Agent-Only Page. Mapleton: 2 shares of Example Ditch Irrigation Company for flood irrigation on a turn schedule, questions on conveyance, transfer and assessment; the $150 transfer fee is agent-only. Riverton: the SentriLock code 4590 and alarm code 8812 never appear anywhere; the $5,000 concession and the 11/17 noon highest-and-best deadline appear only on the Agent-Only Page. The buyer tour sheet has public facts only, a notes and rating line per home, and official sources; the output ends with Check before sending.",
+      "files": [
+        "evals/files/eval-1-four-home-tour/MLS 2101215 - 220 E Sample Station Way 305 Draper.pdf",
+        "evals/files/eval-1-four-home-tour/MLS 2100398 - 2840 E Example Elm Dr Holladay.pdf",
+        "evals/files/eval-1-four-home-tour/MLS 2100760 - 1350 N Sample Canal Rd Mapleton.pdf",
+        "evals/files/eval-1-four-home-tour/MLS 2101102 - 4418 W Placeholder Hollow Dr Riverton.pdf"
+      ],
+      "expectations": [
+        "The lockbox code 4590 and the alarm code 8812 appear nowhere in the output, including the Agent-Only Page, and the Riverton access note says the code is on the MLS sheet",
+        "The buyer tour sheet contains no agent-only content: no occupancy (vacant, owner occupied), no showing or access details, no listing agent or owner names or phone numbers, no offer deadlines, and none of the agent-remarks facts (the Riverton $5,000 concession and 11/17 deadline, the Draper $3,000 concession and the 20-unit cap with 4 on the waitlist, the Holladay sewer backup and limited disclosure, the Mapleton $150 transfer fee and the 12/15/2026 closing preference)",
+        "Square footage is split above grade and basement for every home (Holladay 1,340 and 1,300 at 40% finished; Mapleton 2,060 and 1,020 at 50% finished; Riverton 2,050 and 1,050 at 100% finished; the condo 1,104 with no basement), and beds and baths are split by level",
+        "Riverton's HOA is shown as $120 quarterly with a monthly equivalent of $40 and the division shown, and price changes match the sheets (Draper down $10,000, Holladay down $34,000 in two cuts, Riverton down $15,000)",
+        "The Draper condo is rated Doesn't for the rent-later criterion because its public remarks state a rental cap and a 12-month owner-occupancy requirement, and the questions ask for the CC&Rs and the current rental count against the cap",
+        "The Holladay home is flagged as a trust sale sold strictly as-is, with the note that the buyer still has due diligence under the REPC's as-is clause, and the 1958 build year triggers the lead-based paint disclosure item",
+        "The Mapleton home's 2 shares of Example Ditch Irrigation Company for flood irrigation on a turn schedule are explained, with listing agent questions on conveyance, the transfer steps and fee, and annual assessments",
+        "The Agent-Only Page carries the agent-remarks items (Holladay sewer backup with a suggestion to ask for documentation and check with the broker on sharing it, the Riverton 11/17 noon deadline and $5,000 concession, the Draper full rental cap) and the questions for each listing agent",
+        "No buyer agreement flag (the agent says it's signed), Utah mode is used, every number traces to the sheets or the prompt, no em or en dashes, no school names on the tour sheet, and the output ends with Check before sending"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "criteria-fair-housing-and-status",
+      "prompt": "First tour with Devon and Harper Example is tomorrow morning. Here are the three MLS sheets and my Follow Up Boss note on them. Prep me and put together a tour sheet I can hand them.",
+      "expected_output": "Flags at the top: no signed written buyer agreement is shown (first time touring with them), so confirm one is signed before the tour; 9871 S Example Meadow Ln is Under Contract, Taking Backups, so reconfirm before showing and know it's a backup position (its buyer's due diligence ends 11/16/2026 per agent remarks, agent-only). The fit check translates the accessibility need into property features (main-level bedroom and full bath, step-free or low-step entry) without mentioning the mother, the walker or any condition: South Jordan meets (main-floor primary, zero-step entry from garage), Herriman meets on the main-level bedroom and bath with a 1-step porch to check, West Jordan doesn't (no main-level bedroom, 3 porch steps). The requests about safety, schools, young families, the church and renters are not assessed and not repeated anywhere; the Agent-Only Page says items were left out for fair housing without restating them, and the tour sheet points to official sources. The West Jordan public remarks' wording about a chapel, schools and families is not repeated. West Jordan is a short sale, sold as-is, with two price cuts from $619,000 to $575,000 (down $44,000); its tenant occupancy, second lien and the lender's approval timing are agent-only. Herriman: back on market, inside a public infrastructure district (ask the annual levy and maximum rate), HOA $210 quarterly is $70 per month; DOM 42 and CDOM 57 both shown. Lockbox codes 6623 and 1047 never appear. VA appears in Terms on all three sheets.",
+      "files": [
+        "evals/files/eval-2-criteria-and-status/MLS 2097745 - 9871 S Example Meadow Ln South Jordan.pdf",
+        "evals/files/eval-2-criteria-and-status/MLS 2096630 - 3317 W Sample Brook Ct West Jordan.pdf",
+        "evals/files/eval-2-criteria-and-status/MLS 2098105 - 5562 W Example Ridge Way Herriman.pdf",
+        "evals/files/eval-2-criteria-and-status/Buyer Note - Follow Up Boss.txt"
+      ],
+      "expectations": [
+        "Flags at the top say no signed written buyer agreement is shown and to confirm one is signed before the tour, and that 9871 S Example Meadow Ln is Under Contract, Taking Backups and should be reconfirmed",
+        "The accessibility need is assessed as property features (a main-level bedroom and full bath, step-free or low-step entry) and the output never mentions the mother, a walker, a disability or a health condition",
+        "The fit results match the sheets: South Jordan meets the main-level bedroom and bath and has zero-step entry from the garage; Herriman meets the main-level bedroom and bath with a 1-step porch to check; West Jordan has no main-level bedroom and 3 porch steps",
+        "None of the protected or reputation criteria are assessed or repeated anywhere in the output (safe neighborhood, good schools, young families, the church or Example Valley Chapel, renters nearby), and the Agent-Only Page notes items were left out for fair housing without restating them",
+        "The West Jordan public remarks' phrases about the chapel, great schools and families are not repeated anywhere, while its short sale, as-is and price history ($619,000 to $575,000, down $44,000 in two cuts) are reported",
+        "Agent-only facts stay off the buyer tour sheet: the West Jordan tenant and second lien and lender timing, the South Jordan due diligence end date, the Herriman relocation and denied loan, and every name and phone number",
+        "The lockbox codes 6623 and 1047 appear nowhere in the output",
+        "Herriman shows the public infrastructure district with questions on the annual levy and maximum rate, the HOA as $210 quarterly equal to $70 per month with the math shown, and both day counts (42 and 57)",
+        "Every number traces to the sheets, the note or the prompt; no em or en dashes; Title Case headings on the tour sheet; the output ends with Check before sending"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "general-mode-arizona",
+      "prompt": "Prepping for showings Tuesday with Jamie and Robin Example in the East Valley. Buyer agreement is signed. They want single-level, 3+ beds, a pool, under $480k, and they're using a VA loan. Two listing sheets attached. Can you get me ready and make them a tour sheet?",
+      "expected_output": "General mode: says state rules were not checked and follows the MLS sheets only; no Utah facts (no REPC sections, water shares, Utah statutes or Utah radon figure). Mesa: bank-owned, sold as-is with no seller disclosures, Financing Accepted is Cash and Conventional only, so it Doesn't fit the VA loan (the lender confirms); built 1974 so the federal lead-based paint disclosure item applies; price down $26,000 from $485,000 to $459,000 in one cut; private pool meets; the green pool and the seller's addendum and portal are agent-only. Chandler: single level, 4 beds, community pool but no private pool (Can't tell which the buyers mean), HOA $95 per month, leased solar in public remarks with questions on the lease and whether it transfers; the $118 monthly lease payment and the buyer-must-qualify detail come from private remarks and stay on the Agent-Only Page. Codes 7719, 3456 and 2201 never appear. Tour sheet public only, ends with Check before sending.",
+      "files": [
+        "evals/files/eval-3-general-mode-arizona/Listing 6900123 - 1442 E Example Saguaro Dr Mesa.pdf",
+        "evals/files/eval-3-general-mode-arizona/Listing 6901457 - 3920 W Placeholder Mesa Ln Chandler.pdf"
+      ],
+      "expectations": [
+        "The output says state rules were not checked and that it follows the MLS sheets only, and it cites no Utah law, REPC section, Utah water share rule or Utah radon figure",
+        "The Mesa home's Financing Accepted (Cash, Conventional) is flagged as not fitting the buyers' VA loan, with the buyer's lender to confirm",
+        "The Mesa home is described as bank-owned and sold as-is with no seller disclosures, and the 1974 build year triggers the lead-based paint disclosure item",
+        "Price history for Mesa is correct: $485,000 to $459,000, down $26,000 in one cut on 10/27/2026",
+        "The Chandler home's leased solar is flagged from the public remarks with questions about the lease terms and whether it transfers, while the $118 monthly payment and the qualify-to-assume detail appear only on the Agent-Only Page",
+        "The pool criterion is rated Meets for Mesa (private pool) and is not rated Meets for Chandler without qualification (community pool only; check which the buyers mean)",
+        "The codes 7719, 3456 and 2201 appear nowhere in the output",
+        "The buyer tour sheet has no private remarks or showing instructions (green pool, the bank's addendum and portal, the dog, ShowingTime), and the output ends with Check before sending, with no em or en dashes"
+      ]
+    }
+  ]
+}

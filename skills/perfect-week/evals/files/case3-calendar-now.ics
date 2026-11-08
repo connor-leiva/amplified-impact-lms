@@ -288,14 +288,14 @@ UID:pw-la-45sample@practice.example
 ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=Jordan
   Sampleton;X-NUM-GUESTS=0:mailto:jordan@samplepeak.example
 ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=Sam Ma
- plewood;X-NUM-GUESTS=0:mailto:sam.maplewood@mail.example
+ pletest;X-NUM-GUESTS=0:mailto:sam.mapletest@mail.example
 CREATED:20261001T160000Z
 DESCRIPTION:
 LAST-MODIFIED:20261001T160000Z
 LOCATION:45 Sample Street
 SEQUENCE:0
 STATUS:CONFIRMED
-SUMMARY:Listing appointment: 45 Sample Street (Maplewoods)
+SUMMARY:Listing appointment: 45 Sample Street (Mapletests)
 TRANSP:OPAQUE
 END:VEVENT
 BEGIN:VEVENT
