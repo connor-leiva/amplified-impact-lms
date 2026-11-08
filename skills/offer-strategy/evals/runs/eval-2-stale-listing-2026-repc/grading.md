@@ -39,3 +39,7 @@ Result: **pass, 8 of 8** (after one fix on the first draft, below).
 - First draft said "4 of 5 solds had cuts or concessions"; the export shows 3 of 5 with both. Corrected.
 - First draft said the buyers "would risk a second mortgage" without the sale-of-home condition; that went past the inputs. Rewritten to what the letter supports: the loan depends on the townhome's sale.
 - No skill change needed: each error was arithmetic or wording in this run, caught by the Check before sending pass that SKILL.md requires.
+
+## Shared Reference Added After This Run
+
+The shared `utah-repc-2026.md` was added to `skills/_shared/` during this build, after the run. SKILL.md now lists it for the November 1, 2026 form, and skill.json ships it. Every 2026 section number and quote in this output was checked against it and against the UAR clean copy: they match (Sections 1, 2.1 to 2.3, 3(a) to (d), 3(c)(i), 4(a) to (f), 5, 8.3(c), 9.3, 12.1 to 12.3, 25, 30). No rerun was needed.

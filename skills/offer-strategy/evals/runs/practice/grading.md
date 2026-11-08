@@ -33,3 +33,7 @@ Result: **pass, 12 of 12** (after one fix, below). This output is `sample.md`.
 ## Changes Made From This Run
 
 - First draft compared the list price with "the highest recent sale" at $571,000; the highest is 1988 E Sample Sage Dr at $572,500. Corrected in the signals table and the appraisal check.
+
+## Shared Reference Added After This Run
+
+The shared `utah-repc-2026.md` was added to `skills/_shared/` during this build, after the run. SKILL.md now lists it for the November 1, 2026 form, and skill.json ships it. Every 2026 section number and quote in this output was checked against it and against the UAR clean copy: they match (Sections 1, 2.1 to 2.3, 3(a) to (d), 3(c)(i), 4(a) to (f), 5, 8.3(c), 9.3, 12.1 to 12.3, 25, 30). No rerun was needed.

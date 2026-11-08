@@ -36,7 +36,7 @@ Layout:
 Prepared by [Agent Name] for [Buyer Name or "you"]
 
 ### 1. [Address]
-[Price] | [beds] beds ([up] up, [down] down) | [baths] baths ([up] up, [down] down)
+[Price] | [beds] beds ([up] up, [down] down) | [baths by kind as the sheet counts them, e.g. 2 full and 1 half up, 1 three-quarter down]
 [above-grade] sq ft above grade + [basement] sq ft basement ([finish]) | [lot] | Built [year] | HOA [amount and what it covers, or "none"]
 Good to know: [one or two public facts that matter: as-is, rental limits, water shares, a price change]
 Look for: [two or three specific things]

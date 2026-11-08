@@ -115,7 +115,7 @@ Write as the agent, in first person, to the agent's own client. Follow the agent
 - Don't promise the other side will accept, the appraisal will come in, or the loan will close on time.
 - No em dashes. Never "stunning," "dream home," "don't hesitate to reach out," "rest assured" or "exciting news."
 
-If the agent asks for a text instead, write two or three short sentences with the decision, the one change that matters most and the deadline, and say the full summary is in their email.
+If the agent asks for a text instead, write two or three short sentences with the decision, the one change that matters most and the deadline, and say the full summary is in their email. Draft a text only when the agent asks for one: whether the client has agreed to texts is the agent's call.
 
 ### Requested Changes for the Form
 

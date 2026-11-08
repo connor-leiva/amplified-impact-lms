@@ -128,7 +128,7 @@ All checked 2026-11-08.
 - Real Estate Commission draft minutes, October 9, 2026 (Attorney General review under way): https://www.utah.gov/pmn/files/1502919.pdf
 - Utah Association of REALTORS form titles (public list; form text is members only): https://utahrealtors.com/legal-form/feed/
 
-## Utah REPC Effective November 1, 2026: What Changes How a Counter Reads
+## Utah REPC Effective November 1, 2026: Section Map and What Changed
 
 Last verified: 2026-11-08
 
@@ -138,7 +138,7 @@ Use this file only when the uploaded REPC's footer reads "EFFECTIVE NOVEMBER 1, 
 
 - The footer of the revised form reads: "THIS FORM APPROVED BY THE UTAH REAL ESTATE COMMISSION AND THE OFFICE OF THE UTAH ATTORNEY GENERAL, EFFECTIVE NOVEMBER 1, 2026. AS OF JANUARY 1, 2027, IT WILL REPLACE AND SUPERSEDE THE PREVIOUSLY APPROVED VERSION OF THIS FORM."
 - The Utah Association of REALTORS (UAR) says: "The Utah Attorney General's Office has approved a new version of the Utah Real Estate Purchase Contract (REPC). The updated REPC will be effective and available for use on Nov. 1, 2026. You may no longer use the old version of the REPC starting Jan. 1, 2027." UAR posts a watermarked "Final Clean Copy" of the form dated October 14, 2026. The section map below comes from that copy.
-- On 2026-11-08 the Division of Real Estate's State Approved Forms page still posted the December 4, 2024 REPC, and `utah-repc.md` (verified the same day) says the revised form could not be confirmed in effect from the Division. So both versions can show up in a file through December 31, 2026. Confirm with your broker which version your brokerage uses.
+- On 2026-11-08 the Division of Real Estate's State Approved Forms page still posted the December 4, 2024 REPC. So both versions can show up in a file through December 31, 2026. Confirm with your broker which version your brokerage uses.
 - The same UAR page says the FHA/VA Loan Addendum, Seller Financing Addendum and Deposit of Earnest Money with Title Insurance Company Addendum were also updated, and that the FHA/VA update removes its closing cost language. The Division's Blank Addendum (the form used for counteroffers, footer "EFFECTIVE JANUARY 1, 2020") is not on UAR's list of updated forms, and the Division still posted that version on 2026-11-08. Its acceptance line still points to "Section 23 of the REPC," which is Acceptance in both REPC versions.
 
 ### Section Map (November 1, 2026 Form)
@@ -167,7 +167,7 @@ Use this file only when the uploaded REPC's footer reads "EFFECTIVE NOVEMBER 1, 
 | 28 | Confirmation of Agency Disclosure |
 | 30 | Acceptance Deadline, then the Seller's ACCEPTANCE, COUNTEROFFER or REJECTION boxes |
 
-### Differences That Change How a Counter Reads
+### What Changed, and How It Reads
 
 Compared with the December 4, 2024 form:
 
