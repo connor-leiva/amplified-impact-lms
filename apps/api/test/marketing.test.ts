@@ -27,8 +27,32 @@ afterEach(async () => {
   else process.env.MARKETING_HOST = saved;
 });
 
+/**
+ * What `server.ts`'s not-found handler answers every unknown non-API path with: the app's own
+ * `index.html`. `build()` does not install it (the static plugin and the handler are `server.ts`'s),
+ * so `asServed` below puts a stand-in back, which is what lets a test say "never the app's shell".
+ */
+const SHELL = '<!doctype html><title>Amplified Impact</title><div id="root"></div>';
+
+/**
+ * Production's routing around `build()`: one real file in `dist/` (`wildcard: false` makes each one a
+ * route) and the not-found handler that answers anything else with the app's shell.
+ */
+function asServed(a: App): void {
+  a.get('/assets/index-abc123.js', async (_req, reply) => reply.type('text/javascript').send('/* app */'));
+  a.setNotFoundHandler((req, reply) =>
+    req.url.startsWith('/api/')
+      ? reply.code(404).send({ error: 'Not found' })
+      : reply.code(200).type('text/html; charset=utf-8').send(SHELL),
+  );
+}
+
 /** `MARKETING_HOST` is read during `build()`, so it has to be set before the app is constructed. */
-async function serve(marketingHost: string | undefined, page: string | null = PAGE): Promise<App> {
+async function serve(
+  marketingHost: string | undefined,
+  page: string | null = PAGE,
+  setup?: (a: App) => void,
+): Promise<App> {
   saved = process.env.MARKETING_HOST;
   if (marketingHost === undefined) delete process.env.MARKETING_HOST;
   else process.env.MARKETING_HOST = marketingHost;
@@ -41,6 +65,7 @@ async function serve(marketingHost: string | undefined, page: string | null = PA
     libraryPage: '<title>The Free Library</title>',
     marketingPage: page,
   });
+  setup?.(app);
   await app.ready();
   return app;
 }
@@ -206,12 +231,79 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     expect(res.statusCode).not.toBe(301);
   });
 
-  it('leaves file requests alone, so a favicon is not a redirect on every load @g9', async () => {
-    const a = await serve(WWW);
+  it('leaves real files alone, and answers a missing one 404, never with a redirect or the app (D-051) @g9', async () => {
+    const a = await serve(WWW, PAGE, asServed);
 
-    for (const url of ['/favicon.ico', '/assets/index-abc123.js', '/ai101-qr.svg']) {
+    // A file a route serves: one of `dist/`'s, and the sprint's calendar under /ai101 (D-032).
+    const asset = await get(a, '/assets/index-abc123.js', WWW);
+    expect(asset.statusCode).toBe(200);
+    expect(asset.body).toBe('/* app */');
+    const ics = await get(a, '/ai101/carousel-sprint.ics', WWW);
+    expect(ics.statusCode).toBe(200);
+    expect(ics.headers['content-type']).toMatch(/text\/calendar/);
+
+    // A file nothing serves: a plain 404, so a favicon is not a redirect on every load, and not the
+    // app's `index.html`, which the not-found handler would answer with (before D-051 it did, 200).
+    for (const url of ['/favicon.ico', '/ai101-qr.svg', '/assets/gone-123.js', '/vault/x.png', '/retool/x.html', '/ai101.html', '/library.html', '/retool.html', '/downloads/nope.pdf?src=ig']) {
       const res = await get(a, url, WWW);
-      expect(res.statusCode, url).not.toBe(302);
+      expect(res.statusCode, url).toBe(404);
+      expect(res.headers.location, url).toBeUndefined();
+      expect(res.body, url).not.toBe(SHELL);
+    }
+
+    // On the app host the same paths are the app's, as before: this rule is www's alone.
+    expect((await get(a, '/vault/x.png', APP)).body).toBe(SHELL);
+  });
+
+  it('serves the placeholder at /index.html too, not the app that file is (D-051) @g9', async () => {
+    // `/index.html` looks like a file, and is one, so it once passed as a file and served the app's
+    // shell on www although `ROOT` names it.
+    const a = await serve(WWW, PAGE, asServed);
+
+    for (const url of ['/index.html', '/index.html?src=ig']) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(200);
+      expect(res.body, url).toBe(PAGE);
+    }
+  });
+
+  it('lets each public page through exactly, and no deeper, so nothing on www reaches the app (D-051) @g9', async () => {
+    const a = await serve(WWW, PAGE, asServed);
+
+    // Before D-051 a page's slug matched as a prefix, so `/retool/x` reached the not-found handler
+    // and was answered with the app's shell. Driven by the API's own lists, so a guide or an alias
+    // added there is held to the same rule.
+    const pages = ['ai101', 'waitlist', ...GUIDE_SLUGS, 'library', 'guides', 'skills'];
+    const exact = ['AI101', 'ai-101', ...Object.values(GUIDE_ALIASES).flatMap((aliases) => (aliases ?? []).map((alias) => alias.slice(1))), 'terms', 'privacy'];
+    const deeper = [
+      ...pages.flatMap((p) => [`/${p}/x`, `/${p}/x?src=ig`, `/${p}/x/`, `/${p}//`, `/${p}/${p}`]),
+      // No trailing-slash route answers these spellings, so a slash is as unknown as a deeper path.
+      ...exact.flatMap((p) => [`/${p}/`, `/${p}/?src=ig`, `/${p}/x`]),
+      '/ai101/anything/else',
+      '/terms-old',
+    ];
+    for (const url of deeper) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(302);
+      expect(res.headers.location, url).toBe('/');
+      expect(res.body, url).not.toBe(SHELL);
+    }
+
+    // And every page path still reaches its own route: the page, or its own 301 or 302.
+    for (const p of pages) {
+      for (const url of [`/${p}`, `/${p}?src=ig`, `/${p}/`, `/${p}/?src=ig`]) {
+        const res = await get(a, url, WWW);
+        expect([200, 301, 302], url).toContain(res.statusCode);
+        expect(res.headers.location ?? '', url).not.toBe('/');
+        expect(res.body, url).not.toBe(SHELL);
+      }
+    }
+    for (const p of exact) {
+      for (const url of [`/${p}`, `/${p}?src=ig`]) {
+        const res = await get(a, url, WWW);
+        expect(res.headers.location ?? '', url).not.toBe('/');
+        expect(res.body, url).not.toBe(SHELL);
+      }
     }
   });
 
