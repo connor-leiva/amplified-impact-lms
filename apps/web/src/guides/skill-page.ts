@@ -55,13 +55,20 @@ export interface SkillPage {
   optInBody: string;
   /** About how many minutes setup takes, said on the unlocked card. */
   setupMinutes: number;
-  /** What to say with the practice files attached, and anything to add under it. */
-  practice: { prompt: string; note?: readonly Inline[] };
+  /**
+   * What to say with the practice files attached, and anything to add under it. `zip`: attach the
+   * practice ZIP as it is rather than its files, for a practice set too big to attach file by file
+   * (a Claude chat takes 20 files; Claude unpacks a ZIP itself).
+   */
+  practice: { prompt: string; note?: readonly Inline[]; zip?: boolean };
   /** The last step: using it on real files. */
   real: { body: readonly Inline[]; prompt?: string; note?: readonly Inline[] };
   /** The skill's ChatGPT Project version: the words for the Project's Instructions box (its `chatgpt/paste.txt`). */
   chatgpt?: { paste: string };
-  /** Anything a step must add for this skill, such as a connector to switch on, after "Add It to Claude". */
+  /**
+   * Steps this skill alone needs in Claude, such as an account to make or a connector to switch on.
+   * They come after the practice, which needs neither, and before the person's own files.
+   */
   extraClaudeSteps?: readonly SetupStep[];
   sections: readonly Section[];
   /** localStorage: this device already opted in. */
@@ -118,7 +125,6 @@ function claudeSetup(p: SkillPage, skill: string): SetupStep[] {
       ],
       action: { label: 'Open Claude Skills', href: 'https://claude.ai/customize/skills' },
     },
-    ...(p.extraClaudeSteps ?? []),
     {
       title: 'Turn Off Training First',
       body: [
@@ -135,7 +141,8 @@ function claudeSetup(p: SkillPage, skill: string): SetupStep[] {
         'On a Team or Enterprise plan, chats aren’t used for training. In chats with real client files, don’t tap thumbs up or thumbs down.',
       ],
     },
-    practiseStep(p, skill, 'Start a new chat in Claude, attach the files, and say this.'),
+    practiseStep(p, skill, 'Start a new chat in Claude'),
+    ...(p.extraClaudeSteps ?? []),
     realStep(p),
   ];
 }
@@ -202,15 +209,18 @@ function chatgptSetup(p: SkillPage, skill: string, paste: string): SetupStep[] {
       copyBlock: paste,
       note: ['Made your voice profile? Paste its QUICK CARD at the end, where the words say to.'],
     },
-    practiseStep(p, skill, 'In the Project, start a new chat, attach the files, and say this.'),
+    practiseStep(p, skill, 'In the Project, start a new chat'),
     realStep(p),
   ];
 }
 
-function practiseStep(p: SkillPage, skill: string, how: string): SetupStep {
+function practiseStep(p: SkillPage, skill: string, where: string): SetupStep {
+  const body: readonly Inline[] = p.practice.zip
+    ? ['Download the practice files. ', { strong: 'Don’t unzip them.' }, ` ${where}, attach the ZIP, and say this.`]
+    : [`Download the practice files and unzip them. ${where}, attach the files, and say this.`];
   return {
     title: 'Practise on the Made-Up Example',
-    body: ['Download the practice files and unzip them. ', how],
+    body,
     action: { label: 'Download Practice Files', href: `/downloads/${skill}-practice.zip`, download: `${skill}-practice.zip` },
     copy: p.practice.prompt,
     note: [...(p.practice.note ?? ['Every name, address and number in them is made up. ']), ...VOICE],

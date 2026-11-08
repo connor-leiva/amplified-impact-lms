@@ -156,6 +156,23 @@ describe('a skill page with a ChatGPT version', () => {
   });
 });
 
+describe('what a skill can add to the steps', () => {
+  const extra = { title: 'Make an Example Account', body: ['Sign up.'] };
+  const { chatgpt: _none, ...claudeOnly } = SPEC;
+  const guide = skillPage({ ...claudeOnly, practice: { prompt: 'Practise', zip: true }, extraClaudeSteps: [extra] });
+  const titles = (guide.download.setup ?? []).map((s) => s.title);
+
+  it('puts its own steps after the practice, which needs none of them, and before real files', () => {
+    expect(titles.slice(-3)).toEqual(['Practise on the Made-Up Example', 'Make an Example Account', 'Use It on Your Own Files']);
+  });
+
+  it('says to attach the practice ZIP as it is when the set is too big to attach file by file', () => {
+    const practise = (guide.download.setup ?? []).find((s) => s.title === 'Practise on the Made-Up Example');
+    const words = (practise?.body ?? []).map((b) => (typeof b === 'string' ? b : 'strong' in b ? b.strong : '')).join('');
+    expect(words).toBe('Download the practice files. Don’t unzip them. Start a new chat in Claude, attach the ZIP, and say this.');
+  });
+});
+
 describe('a skill page for Claude only', () => {
   const { chatgpt: _none, ...claudeOnly } = SPEC;
   const guide = skillPage({ ...claudeOnly, skill: 'made-up-folder' });

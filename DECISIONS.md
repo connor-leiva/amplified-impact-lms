@@ -2370,8 +2370,10 @@ yet: each skill's page, ZIPs and library card arrive with its own entry (D-053 o
   execution is on, download the ZIP, add it in Customize > Skills, turn off training, practise on the
   made-up files, then use it on real ones. In ChatGPT: turn off training, download, make a Project, add
   the files on its Sources tab, paste the instructions, practise, use it. Training is turned off before
-  the practice in both, and the practice comes before any real file: tests hold that order. A page file
-  holds only the skill's own words. The click paths are the ones /reel-editor (D-045) and /retool (D-048,
+  the practice in both, and the practice comes before any real file: tests hold that order. Steps only
+  one skill needs (an account to make, a connector to switch on) come after the practice, which needs
+  neither, and before real files. A practice set too big to attach file by file (a Claude chat takes 20
+  files) is attached as its ZIP, which Claude unpacks. A page file holds only the skill's own words. The click paths are the ones /reel-editor (D-045) and /retool (D-048,
   D-049) checked, plus Claude's help center on 2026-11-08: code execution is on by default for Free,
   Pro, Max and Ultra, and is called "Create and edit files" in Claude's newer settings ("Create and edit
   files with Claude", modified 2026-11-05); the upload path ("Use skills in Claude", modified
