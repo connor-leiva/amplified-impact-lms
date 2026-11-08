@@ -124,6 +124,15 @@ describe('a skill page with a ChatGPT version', () => {
     expect(text(block)).toContain('Copy:');
   });
 
+  it('sends Claude users to their My Voice project, and ChatGPT users to the QUICK CARD in this Project', () => {
+    const [claude, chatgpt] = lists() as [Element, Element];
+    const practise = (setup: Element) =>
+      [...setup.querySelectorAll('.setup-step')].find((li) => text(li.querySelector('h3')) === 'Practise on the Made-Up Example');
+    expect(text(practise(claude))).toContain('My Voice');
+    expect(text(practise(chatgpt))).not.toContain('My Voice');
+    expect(text(chatgpt)).toContain('QUICK CARD');
+  });
+
   it('copies the practice and real-file words with a tap, and has the live region that reports it', () => {
     const chips = [...doc.querySelectorAll('button.chip:not(.chip-block) [data-copy-text]')].map(text);
     expect(chips.filter((c) => c === 'Review the practice file')).toHaveLength(2);

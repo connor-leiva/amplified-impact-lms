@@ -141,7 +141,7 @@ function claudeSetup(p: SkillPage, skill: string): SetupStep[] {
         'On a Team or Enterprise plan, chats aren’t used for training. In chats with real client files, don’t tap thumbs up or thumbs down.',
       ],
     },
-    practiseStep(p, skill, 'Start a new chat in Claude'),
+    practiseStep(p, skill, 'Start a new chat in Claude', VOICE),
     ...(p.extraClaudeSteps ?? []),
     realStep(p),
   ];
@@ -209,12 +209,14 @@ function chatgptSetup(p: SkillPage, skill: string, paste: string): SetupStep[] {
       copyBlock: paste,
       note: ['Made your voice profile? Paste its QUICK CARD at the end, where the words say to.'],
     },
-    practiseStep(p, skill, 'In the Project, start a new chat'),
+    // No My Voice line here: in ChatGPT the skill is its own Project, and the voice comes from the
+    // QUICK CARD pasted into that Project's instructions (the step before).
+    practiseStep(p, skill, 'In the Project, start a new chat', []),
     realStep(p),
   ];
 }
 
-function practiseStep(p: SkillPage, skill: string, where: string): SetupStep {
+function practiseStep(p: SkillPage, skill: string, where: string, voice: readonly Inline[]): SetupStep {
   const body: readonly Inline[] = p.practice.zip
     ? ['Download the practice files. ', { strong: 'Don’t unzip them.' }, ` ${where}, attach the ZIP, and say this.`]
     : [`Download the practice files and unzip them. ${where}, attach the files, and say this.`];
@@ -223,7 +225,7 @@ function practiseStep(p: SkillPage, skill: string, where: string): SetupStep {
     body,
     action: { label: 'Download Practice Files', href: `/downloads/${skill}-practice.zip`, download: `${skill}-practice.zip` },
     copy: p.practice.prompt,
-    note: [...(p.practice.note ?? ['Every name, address and number in them is made up. ']), ...VOICE],
+    note: [...(p.practice.note ?? ['Every name, address and number in them is made up. ']), ...voice],
   };
 }
 
