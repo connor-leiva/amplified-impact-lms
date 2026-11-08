@@ -8,7 +8,7 @@ Utah listing, so the Utah notes apply. Files read in full: the Agent Full Report
 
 ## 2. Bottom Line
 
-Recommend reducing from $689,900 to **$664,900**, inside a supported range of **$655,000 to $670,000**, with **high confidence**: five solds in Practice Pine Ridge closed between $649,000 and $668,500, and the closest match, 3527 S Practice Pine Dr (which also backs to Example Parkway), went pending only after cutting to $674,900. At 45 days the home has passed the solds' 15-day median, 6 of the 8 feedback responses called the price too high, and the most likely pushback is the Mockridges' wish to wait for spring.
+Recommend reducing from $689,900 to **$664,900**, inside a supported range of **$655,000 to $670,000**, with **medium confidence**: five solds in Practice Pine Ridge closed between $649,000 and $668,500, but none of them backs to Example Parkway, and the closest match, 3527 S Practice Pine Dr (which also backs to Example Parkway), went pending only after cutting to $674,900. At 45 days the home has passed the solds' 15-day median, 6 of the 8 feedback responses called the price too high, and the most likely pushback is the Mockridges' wish to wait for spring.
 
 ## 3. Closest Comps
 
@@ -22,7 +22,7 @@ The subject: two-story, 2012, 2,380 sq ft above grade, basement 1,150 sq ft with
 | 2206120 | 3518 S Practice Pine Dr | Sold 2026-08-28 | $662,000 | $6,000 | $656,000 | 2,350 | 1,150 (1,050) | 3 | $281.70 | Same street, similar size, 3-car. Backs to open space rather than the parkway. |
 | 2203987 | 3455 S Practice Pine Dr | Sold 2026-06-26 | $668,500 | $0 | $668,500 | 2,300 | 1,100 (1,100) | 2 | $290.65 | Same street, interior lot, updated kitchen. Highest sale in the set, and the oldest. |
 
-**Bracket:** the subject should sell above 3376 S Pretend Poplar Way ($655,000: smaller, 2-car garage) and 3390 S Sample Spruce Ln ($649,000: unfinished basement). It shouldn't reach $689,900, which sits above every sale in the set and above 3611 S Sample Spruce Ln ($679,900), a larger, newer home that has sat 52 days.
+**Bracket:** the subject should sell above 3376 S Pretend Poplar Way ($655,000: smaller, 2-car garage) and 3390 S Sample Spruce Ln ($649,000: unfinished basement). It shouldn't reach 3455 S Practice Pine Dr ($668,500), the highest sale in the set, on an interior lot with an updated kitchen, where the subject backs to the parkway. At $689,900 it also sits above 3611 S Sample Spruce Ln ($679,900), a larger, newer home that has sat 52 days.
 
 **Left out of the range:** 3390 S Sample Spruce Ln ($649,000, July 31) as a direct comp: its basement is unfinished. It still marks the floor.
 
@@ -50,7 +50,7 @@ The subject: two-story, 2012, 2,380 sq ft above grade, basement 1,150 sq ft with
 
 **Recommended price: $664,900.** It sits right on the newest close (3602 S Sample Spruce Ln, $665,000), under the $670,000 line one buyer named, and $4,100 under the new $669,000 listing, so the subject is the better buy of the two. A smaller step, like $679,900, would tie it with a larger, newer home that has sat 52 days.
 
-**Confidence: high.** Five solds of the same style in the same subdivision within about four months, two of them since the subject listed, plus a near-twin pending.
+**Confidence: medium.** Five solds of the same style in the same subdivision within about four months, two of them since the subject listed, plus a near-twin pending. It isn't high because no sold backs to Example Parkway; the only homes that do are the pending (sale price not known yet) and the expired listing.
 
 **Appraisal check (Utah).** At $689,900 the price is $21,400 above the highest sale in the set ($668,500), so a financed buyer's appraisal would have little to lean on. Under the state-approved REPC, if the appraisal condition box is checked and the home appraises below the price, the buyer can cancel by the Financing & Appraisal Deadline and get the earnest money back; FHA and VA buyers have their own addendum protection. A price inside the range takes most of that risk off the table, though no appraisal result is certain.
 
@@ -68,7 +68,7 @@ The subject: two-story, 2012, 2,380 sq ft above grade, basement 1,150 sq ft with
 
 **Beat 2: What you're competing with.** "Right now buyers can see 3611 Sample Spruce at $679,900, which is bigger and newer and has been sitting 52 days, and a new listing at 3299 Sample Spruce at $669,000. At $689,900, we're the highest price on the board."
 
-**Beat 3: What buyers have told us.** "Eleven groups have walked through. People love the kitchen and the theater room, and they say it's clean and well kept. Six of the eight who left feedback said the price was high, and a couple mentioned the parkway noise out back. Buyers are seeing the home. They're comparing it to those sales and passing."
+**Beat 3: What buyers have told us.** "Eleven groups have walked through. People love the kitchen and the theater room, and they say it's clean and well kept. Six of the eight who left feedback said the price was high, and one mentioned the parkway noise out back. Buyers are seeing the home. They're comparing it to those sales and passing."
 
 **Recommendation.** "I recommend we adjust to $664,900. That lines up with the newest sale, puts us just under the new listing at $669,000, and gets us in front of buyers searching under $670,000 and $675,000."
 
