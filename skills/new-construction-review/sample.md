@@ -175,7 +175,7 @@ The builder pays up to $17,500 toward closing costs or a rate buydown only if yo
 2. Ask your credit union whether it can approve your loan within 30 days.
 3. I'm requesting the warranty guide, HOA documents, soils report and the district's yearly cost.
 
-Wire money only after confirming by phone with the title company.
+Before wiring any money, call the title company at a number you look up yourself.
 
 [Agent Name]
 

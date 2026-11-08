@@ -10,7 +10,7 @@ The seller decides which offer to accept, counter or reject. This guide helps th
 - **Use the letters, not buyer names,** in the table, the ranking and the seller email. Buyer names appear once, in the offer set list, so the agent can match files. This keeps the comparison on terms.
 - **Match every page to its offer** by property address, buyer names and Offer Reference Date. A page that matches no offer, or two offers with the same buyer, goes in the flags.
 - **Buyer letters, photos, videos and personal notes.** Set them aside. Note only that one was included and where (offer, file, page). Never summarize, quote, describe or weigh it, and keep it out of the ranking. The same goes for personal details in a buyer agent's cover email: family, faith, background, health, reasons for moving. NAR's legal staff warn that buyer letters "often contain personal information about the buyer, such as their race and culture or traditions as a way of appealing to the seller's emotions," which raises fair housing risk.
-- **The anchor date.** Count deadlines from the expected Acceptance date in the agent's message. If none is given, count from the day after each offer's acceptance deadline, say so, and label it an assumption.
+- **The anchor date.** Count deadlines from the expected Acceptance date in the agent's message. If none is given, count from the day after each offer's acceptance deadline, say so, and label it an assumption. If an offer lapses before the expected Acceptance date, flag it at the top: the seller decides sooner, or the buyer's agent extends the deadline in writing.
 - **Dates written in, or counted.** When the contract states a deadline as a calendar date (the Utah REPC does), show that date, its weekday and its days after the expected Acceptance. When it states a number of days, count them from the expected Acceptance under the form's own counting rule, and label the result an estimate.
 
 ## 2. Reading Each Row
@@ -28,7 +28,7 @@ The seller decides which offer to accept, counter or reject. This guide helps th
 | Loan type and down payment | The payment lines and any loan addendum; the letter | Program; down payment in dollars and as a share of the price (price minus loan, divided by price) | A letter for a different program or a lower maximum |
 | Appraisal condition | The contract's appraisal box; any appraisal gap terms in an addendum | Kept or not; gap coverage in dollars; the protected range ("the buyer covers a shortfall down to $X; below that the appraisal condition applies") | FHA and VA keep the buyer's right to walk if the price exceeds the appraised value, whatever the contract box says |
 | Financing condition | The contract's financing box | Kept or not | A financed offer with the financing box unchecked |
-| Deadlines | The contract's deadline section | Each as a date with its weekday and days after the expected Acceptance | Dates out of order; a weekend or holiday date and the form's own rule for it; a Seller Disclosure Deadline the seller must meet |
+| Deadlines | The contract's deadline section | Each as a date with its weekday and days after the expected Acceptance | Dates out of order; a weekend or holiday date and the form's own rule for it; a Seller Disclosure Deadline the seller must meet; a Settlement date that fits the seller's closing or move date while funding and recording, which some forms allow after Settlement, may not |
 | Sale of the buyer's home | The contract box and the sale-of-home addendum | Status of the buyer's home (not listed, listed, under contract with a closing date), the addendum's deadlines, the seller's right to keep marketing, and any notice period to remove the condition | The box checked with no addendum attached |
 | Escalation | The escalation addendum | Base price, increment, cap, what it measures against, proof required, appraisal terms, and the computed result (section 4) | A cap above the buyer's letter maximum |
 | Inclusions and exclusions | The included and excluded items sections | Only differences between offers, plus any personal property requested | Items the listing excluded that an offer includes |
@@ -68,7 +68,7 @@ Use the clause's own words for every step. If the clause doesn't say, don't fill
 1. **Base price** in the contract.
 2. **Increment:** the amount above a competing offer.
 3. **Cap:** the most the buyer will pay.
-4. **What counts as a competing offer:** "bona fide," written, signed, received before a time, and any exclusions (for example, offers that escalate themselves, or offers with a sale-of-home condition). If the clause excludes nothing, every competing offer counts, including weaker ones.
+4. **What counts as a competing offer:** "bona fide," written, signed, received before a time, and any exclusions (for example, offers that escalate themselves, or offers with a sale-of-home condition). If the clause excludes nothing, every competing offer counts, including weaker ones. If the escalated price depends on an offer that will lapse or could be withdrawn before the seller accepts, and the clause doesn't say whether such an offer still counts, show the result both ways for the broker.
 5. **What it measures against:** the purchase price, or a defined net (for example, price minus seller concessions). Use exactly the definition written.
 6. **Compute:** find the highest competing figure under that definition, add the increment, stop at the cap. If a competing figure is already above the cap, the escalated price is the cap and the offer still sits below that competitor.
 7. **Proof:** what the seller must provide (a copy of the competing offer, some pages, names redacted) and by when. Whether and how to share a competing buyer's offer is the broker's call.
@@ -87,7 +87,7 @@ The seller is never obliged to accept the escalating offer, and the escalated pr
 
 ## 6. Counter Options
 
-Lay out each option with what the seller gains, what it risks, and what happens to the other offers. The seller decides; the skill writes no counter price of its own.
+Lay out each option with what the seller gains, what it risks, and what happens to the other offers. The seller decides; the comparison suggests no counter price of its own.
 
 - **Accept one offer as written.** The fastest path to a contract. The others are rejected or held as backups.
 - **Counter one offer.** Name each term to change in plain words, with [amount] or [date] where the seller hasn't decided. NAR's consumer guide notes that "sending a counteroffer voids the original offer, so the seller cannot go back and accept the original offer." Contract law varies by state; confirm with the broker.

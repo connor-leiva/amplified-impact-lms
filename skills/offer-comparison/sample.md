@@ -45,7 +45,7 @@ Letters A to D follow the order the buyers signed (November 6 at 6:45 PM, Novemb
 | Appraisal deadline | Tue, Dec 1 (day 22), 4(c) | N/A | Fri, Dec 4 (day 25), 4(c) | Thu, Dec 31 (day 52), 24(c) |
 | Financing deadline | Tue, Dec 8 (day 29), 4(d) | N/A | Fri, Dec 11 (day 32), 4(d) | Same Dec 31 date, 24(c) |
 | Settlement Deadline | Tue, Dec 15 (day 36), 4(e) | Tue, Dec 1 (day 22), 24(d) | Fri, Dec 18 (day 39), 4(e) | **Fri, Jan 15, 2027 (day 67)**, 24(d) |
-| Fits "close by Friday, December 18" | Yes, 3 days early | Yes, 17 days early | Yes, on the day itself | **No, 28 days late** |
+| Fits "close by Friday, December 18" | Settlement 3 days early; funding and Recording can take up to 4 more days (9.2), so Closing could run to Sat, Dec 19 | Yes, 17 days early; Closing by Sat, Dec 5 at the latest (3.2) | Settlement on the day itself; Closing could run to Tue, Dec 22 (9.2) | **No, 28 days late** |
 | Possession (seller wants 2 days after Recording) | 2 calendar days after Recording (4(f)): **fits** | 3 calendar days after Recording (3.3): **fits, with a day to spare** | Upon Recording (4(f)): **doesn't fit** | 2 calendar days after Recording (3.3): fits |
 | Sale of buyer's home | No | No (2.2 IS NOT) | No | **Yes** (2.2 IS): 88 W Pretend Pine Ct, listed November 2, 2026; signed sale contract by Dec 11; sellers may keep marketing and take a backup, then the buyers have 72 hours to drop the condition |
 | Escalation | Yes: $2,000 over the highest competing price, cap $600,000 | No | No | No |
@@ -75,6 +75,7 @@ Earnest money delivery: four calendar days after a Monday, November 9 Acceptance
 - Buyer-brokerage contribution at 2%: $11,740 (it was $11,600 at $580,000).
 - Appraisal: the buyers cover a shortfall down to $577,000 ($587,000 minus $10,000). Below that, they can cancel by December 1 and get their deposit back. The letter verifies assets for the down payment and closing costs only, so ask the lender to confirm the extra $10,000 is there.
 - If D had counted, A would have gone to $592,000. It doesn't, because the clause excludes sale-of-home offers.
+- **The $587,000 depends on C, which lapses at noon Monday.** The clause counts offers the sellers "receive" before accepting A and doesn't say whether one that has lapsed still counts. If your broker reads it as not counting, B's $568,000 is the only competing price: $568,000 plus $2,000 is $570,000, below A's own $580,000, so A stays at $580,000. For your broker.
 - Sharing C's pages as proof is the broker's call. The sellers aren't obliged to accept A because it escalates, and the escalated price becomes the contract price only on the signed addendum the clause calls for.
 - The addendum carries only one buyer's signature (see Gaps).
 
@@ -99,7 +100,7 @@ Earnest money delivery: four calendar days after a Monday, November 9 Acceptance
 ## Gaps to Resolve With Your Broker
 
 1. **Offer A, Escalation Addendum:** signed by Morgan Testcase only; Riley Testcase's signature line is blank.
-2. **Offer A, escalation proof:** whether and how to share C's (or B's) pages, redacted, as the clause requires.
+2. **Offer A, escalation proof:** whether and how to share C's (or B's) pages, redacted, as the clause requires, and whether C still counts if it has lapsed by the time the sellers accept A.
 3. **Offer C:** possession on Recording doesn't give the sellers the 2 days they want; that's a counter item, not a defect.
 4. **Offer D:** Settlement Deadline of January 15, 2027 is after the sellers' December 18 date.
 
@@ -158,7 +159,7 @@ Hi Jamie and Alex,
 
 What separates A and B: A is $19,000 more. B is cash, so there's no loan or appraisal that could hold things up, and after November 16 the buyer's $15,000 deposit is at risk if they walk. A has a strong loan approval, and its offer has the buyers covering up to $10,000 if the appraisal comes in low (that page still needs the second buyer's signature), but a loan and an appraisal still have to come through.
 
-C needs $12,000 back toward the buyer's costs, closes on your last possible day, and doesn't give you time to move out. D can't close until January 15 and depends on the buyers selling their home.
+C needs $12,000 back toward the buyer's costs, settles on your last possible day (the loan can fund and record up to four days after that), and doesn't give you time to move out. D can't close until January 15 and depends on the buyers selling their home.
 
 Your options: accept B, accept A, counter one of them, or ask the top offers for their highest and best.
 
@@ -184,4 +185,5 @@ These numbers aren't your net. Once we narrow it to two, I'll get net sheets fro
 | D addenda: $5,000 (Addendum No. 1); 88 W Pretend Pine Ct listed Nov 2, 2026, contract by Dec 11, 72 hours | `07 Offer - Samplewright`, pages 7 and 8 |
 | D letter: Nov 2, 2026; Jan 31, 2027; $600,000; sale contingency | `08 Preapproval Letter - Samplewright` |
 | Computed: $587,000 (and $592,000 if D counted); $11,600, $11,740, $14,200, $14,625, $11,800; $573,000, $585,000; $575,260, $553,800, $557,775, $572,550; $19,000, $21,460; $577,000; $528,300; $44,400; $4,000; $5,000 and $2,500 financing amounts; $58,000, $20,475, $118,000 down; day counts and weekdays from Nov 9; 3, 17 and 28 days against Dec 18 | Recompute from the rows above |
+| Closing up to four days after Settlement (funding and Recording) | 2026 REPC 9.2; 2024 REPC 3.2 |
 | Placeholders: [Agent Name], [price $amount], [other terms], [time and date], [Seller's decision] | Fill before sending |

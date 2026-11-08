@@ -34,6 +34,7 @@ Where each comparison row sits on the two Utah Real Estate Purchase Contracts (R
 | Appraisal deadline | Financing & Appraisal Deadline, 24(c) | Appraisal Deadline, 4(c) |
 | Financing deadline | Same Financing & Appraisal Deadline, 24(c) | Financing Deadline, 4(d) |
 | Settlement Deadline | 24(d) | 4(e) |
+| Closing (loan funding and Recording) | 3.2: no later than four calendar days after Settlement | 9.2: same |
 | Possession | 3.3 | 4(f), with holdover terms in 9.3 |
 | Included items | 1.1, with 1.2 checkboxes (washers, dryers, refrigerators, microwave ovens, other) | 7.1, 7.2 smart home, 7.3 checkboxes (washers, dryers, refrigerators, electric vehicle charging stations, other) |
 | Excluded items | 1.3 | 7.4 |

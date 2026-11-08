@@ -45,7 +45,7 @@ Letters follow the order the buyers signed (November 8 at 1:09 PM, 3:22 PM and 5
 | Appraisal Deadline (4(c)) | Wed, Dec 2 (day 21) | Fri, Dec 4 (day 23) | Mon, Dec 7 (day 26) |
 | Financing Deadline (4(d)) | Wed, Dec 9 (day 28) | Fri, Dec 11 (day 30) | Mon, Dec 14 (day 33) |
 | Settlement Deadline (4(e)) | Fri, Dec 18 (day 37) | Tue, Dec 22 (day 41) | Mon, Dec 21 (day 40) |
-| Before Christmas (Fri, Dec 25) | Yes | Yes | Yes |
+| Before Christmas (Fri, Dec 25) | Settlement yes; Closing (funding and Recording) by Tue, Dec 22 at the latest (9.2) | Settlement yes; Closing could run to Sat, Dec 26, after Christmas (9.2) | Settlement yes; Closing could run to Fri, Dec 25 (9.2) |
 | Sale of buyer's home (3(d)) | No | No | No |
 | Escalation | None | None | None |
 | Included items (7.3) | Refrigerators | Washers, dryers, refrigerators | Refrigerators |
@@ -148,7 +148,7 @@ Hi Robin,
 | B | $512,000 | $506,000 | Conventional, 10% down | December 22 | about $190,890 |
 | C | $508,000 | $508,000 | Conventional, 10% down | December 21 | about $195,650 |
 
-All three close before Christmas. The estimated nets come from title's net sheet, which was run on Offer A; B and C are my estimates from it, and title will confirm the exact figures.
+All three settle before Christmas, though for B and C the loan could fund and record as late as Christmas or the day after. The estimated nets come from title's net sheet, which was run on Offer A; B and C are my estimates from it, and title will confirm the exact figures.
 
 What separates the top two: C doesn't ask you for closing-cost help, so it nets the most. But C's lender letter is from September, approves a lower price and loan than the offer needs, and expires before closing. A has a current letter that covers its terms. B has no lender letter at all yet, so I'm not counting on it until one arrives.
 
@@ -170,4 +170,5 @@ What I need from you: a call before Tuesday at 12:00 PM, when Offer C expires. I
 | Net sheet: $189,800; 3.0%; $15,150; $10,100; $3,000; $1,742; $450; $40; $3,118; Dec 18 settlement date used; prepared Nov 8, 2026 | `net-sheet-pretend-peak-title.pdf` |
 | Computed: $15,360, $15,240, $12,800, $10,160; $190,890, $195,650; $5,850, $1,090; $502,000, $506,000; $491,900, $493,200, $497,840; $4,000, $2,500; $101,000, $51,200, $50,800; $8,000, $7,200; 70 days; day counts and weekdays from Nov 11 | Recompute from the rows above |
 | Section 25 next-business-day rule (earnest money Sunday, Nov 15 to Monday, Nov 16) | 2026 REPC page 6 |
+| Closing up to four days after Settlement (funding and Recording) | 2026 REPC 9.2 |
 | Placeholders: [Agent Name], [date and time], [price $amount], [closing-cost contribution $amount], [time and date], [Seller's decision] | Fill before sending |

@@ -32,7 +32,7 @@ For each key term, capture what the contract says, quoting where wording matters
 
 ## 3. Build the Money-at-Risk Table
 
-List every payment before closing: earnest money, deposits, lot premium deposits, option or design payments, change order payments and fees. For each: amount, when it's due, who holds it (title escrow, a brokerage trust account or the builder), when it turns nonrefundable and what gets it back. Add the running total at risk at each step, with the math shown. Use the code tool for the math when it's available. If the builder holds the money and may spend it on construction, say so plainly. Never estimate an amount the documents don't state.
+List every payment before closing: earnest money, deposits, lot premium deposits, option or design payments, change order payments and fees. For each: amount, when it's due, who holds it (title escrow, a brokerage trust account or the builder), when it turns nonrefundable and what gets it back. Check each refund clause (builder default, builder cancellation, loan denial) against the contract's own terms: if it returns only "deposits" while option or design payments are named separately, write "Not clear" for those payments and put it on the attorney list. Add the running total at risk at each step, with the math shown. Use the code tool for the math when it's available. If the builder holds the money and may spend it on construction, say so plainly. Never estimate an amount the documents don't state.
 
 ## 4. Describe Lender-Tied Incentives
 

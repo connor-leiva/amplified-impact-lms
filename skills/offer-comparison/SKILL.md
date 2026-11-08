@@ -41,7 +41,8 @@ List for the agent to resolve with the broker: missing pages (a gap in "Page X o
 One column per offer; every row from `references/comparison-guide.md` section 2, with the Utah section from that offer's form. Cover: price; seller concessions; price after concessions; buyer-brokerage contribution as written (with dollars at that price); other seller-paid amounts with a cap (home warranty, FHA or VA appraisal repairs, termite); price less seller-paid amounts written in the offer; earnest money (amount, holder, delivery date); walk-away windows (the last date the buyer can cancel with the whole deposit back for any reason, on a low appraisal, and on the sale-of-home condition, plus the dollars the seller keeps on a financing cancellation); loan type and down payment; appraisal condition and any gap coverage; financing condition; Seller Disclosure, Due Diligence, appraisal, financing and Settlement deadlines (each a date with its weekday and days after the expected Acceptance); sale of the buyer's home; escalation; inclusions and exclusions; possession or rent-back; other addenda; the letter (lender, date, expiration, program, maximum, what was verified, conditions); offer expiration with time left.
 
 - Do all arithmetic and date counts in code, and check every "highest," "lowest" or "only" claim against all offers before writing it.
-- Settlement and possession dates against the seller's must-have dates: say which offers fit.
+- Settlement and possession dates against the seller's must-have dates: say which offers fit. When the seller's date is a closing, funding or move date, show the latest Closing too: on both Utah forms, funding and Recording can come up to four calendar days after Settlement (2024 form 3.2, 2026 form 9.2); elsewhere, take it from the form.
+- Check each offer's acceptance deadline against the expected Acceptance date. An offer that lapses first goes in the flags, with the extension question for its agent.
 - **Net:** without a net sheet, no listing commission, title, escrow, payoff or proration math. Show the price less seller-paid amounts written in the offer, labeled "not a net," and suggest asking title for a net sheet on the finalists. With a net sheet, follow `references/comparison-guide.md` section 5.
 
 ## 5. Do the Escalation Math From the Clause Text Only
@@ -72,7 +73,7 @@ For each offer, list what raises or lowers the chance it closes on time, from th
 
 ## 9. Output, In This Order
 
-1. **Flags**, only when they apply: practice run, missing letters or pages, signatures, set-aside letters and photos, form versions, general mode, placeholders, an offer expiring within 24 hours or already lapsed
+1. **Flags**, only when they apply: practice run, missing letters or pages, signatures, set-aside letters and photos, form versions, general mode, placeholders, an offer expiring within 24 hours, already lapsed or lapsing before the expected Acceptance date
 2. **Bottom line for the agent** (three sentences max): the top two offers for the seller's priorities and why, the dollar difference, and the response deadline
 3. **The offer set:** one line per offer: letter, buyer names, buyer's agent, form version, pages, letter attached, acceptance deadline
 4. **Side-by-side table**

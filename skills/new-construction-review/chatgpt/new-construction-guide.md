@@ -28,9 +28,9 @@ Mark every dollar amount, every date or trigger ("within 10 days after Notice of
 
 For each term: what to capture, then what to watch for. Quote the contract where the exact words matter and give the page and section.
 
-**1. Price.** Base price, lot premium, options and upgrades, total. Any clause that can change the price (cost escalation, a price "subject to change" until a milestone, a change in plan or elevation). If a clause caps the increase as a percent or a dollar amount, show the largest increase it allows, with the math. Watch for: a total that doesn't add up, a price that can rise after signing, an appraisal clause that makes the buyer pay any gap.
+**1. Price.** Base price, lot premium, options and upgrades, total. Any clause that can change the price (cost escalation, a price "subject to change" until a milestone, a change in plan or elevation). If a clause caps the increase as a percent or a dollar amount, show the largest increase it allows, with the math. If the increase is triggered by a date or a number of days, set it next to the builder's own completion estimate and say whether that estimate already reaches past the trigger. Watch for: a total that doesn't add up, a price that can rise after signing, an appraisal clause that makes the buyer pay any gap.
 
-**2. Deposits.** Each payment, its due date or trigger, who holds it (title escrow, a brokerage trust account, or the builder), whether the builder may use it for construction or any purpose, when it becomes nonrefundable, and the events that return it. Watch for: deposits paid to the builder directly, "non-refundable upon acceptance," option payments that are never refundable even when the earnest money is, and a short cancellation window with a fee.
+**2. Deposits.** Each payment, its due date or trigger, who holds it (title escrow, a brokerage trust account, or the builder), whether the builder may use it for construction or any purpose, when it becomes nonrefundable, and the events that return it. Watch for: deposits paid to the builder directly, "non-refundable upon acceptance," option payments that are never refundable even when the earnest money is, and a short cancellation window with a fee. Read the defined terms: when the builder-default or builder-cancellation refund returns "deposits paid" but the buyer-default clause lists deposits, option payments and design payments separately, it isn't clear the option and design money comes back. Write "Not clear" in the money table and put it on the attorney list; don't decide it.
 
 **3. Completion and delay.** Estimated completion date or range; whether it is guaranteed; extensions (weather, labor, materials, governmental delays, force majeure) and whether they have a limit; any outside date; the buyer's remedies for delay (cancellation, refund, a per day payment, none); the builder's right to cancel; the notice of completion and how many days the buyer has to close after it. Watch for: no outside date, "Seller shall have no liability for delays," and a short window to close after notice, because the buyer's lender and rate lock must fit it (a lender question).
 
@@ -54,7 +54,7 @@ For each term: what to capture, then what to watch for. Quote the contract where
 
 **12. Special districts and assessments.** The district's name and type, the maximum levy, the current levy or annual amount, fees, bonds and their term, and where each appears (plat note, recorded notice, title commitment, disclosure). Never estimate a tax.
 
-**13. Buyer agent registration.** When and how the buyer's agent must register the buyer (often at the first visit), forms, deadlines, the compensation terms as written, and what voids them. Check against the buyer agreement rules in the buyer agreement rules (the brokerage may not receive more than the buyer's written agreement allows; confirm with the broker). Don't compute compensation.
+**13. Buyer agent registration.** When and how the buyer's agent must register the buyer (often at the first visit), forms, deadlines, the compensation terms as written, and what voids them. Check them against the buyer's written agreement: the brokerage may not receive more than that agreement allows (confirm with the broker). Don't compute compensation.
 
 **14. Everything else worth a line when present:** default remedies on both sides (compare them), the builder's right to cancel, assignment, recording bans, non-disparagement or review limits, risk of loss before closing, title and survey, who pays which closing costs, the entire agreement clause ("no oral representations"), and any promise the agent mentions that the documents don't contain.
 
@@ -106,7 +106,7 @@ A short list the agent can hand to the buyer's attorney. For each item: the page
 - A warranty that replaces implied warranties, and its exclusions
 - No completion deadline, unlimited extensions, or no remedy for delay (and, for a home not yet built, the federal ILSA two-year question)
 - Price escalation or "subject to change" price terms
-- Default remedies that differ for buyer and builder
+- Default remedies that differ for buyer and builder, and a builder-default or cancellation refund that returns only "deposits" when option or design payments are named separately
 - A requirement to use a particular lender, title or escrow company, or conflicting statements about it (RESPA questions)
 - Anything about liens, title or assessments that the title company can't answer
 

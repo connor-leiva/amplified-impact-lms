@@ -147,7 +147,7 @@ For strategy; confirm dates with your transactions team. The Contract Date is "t
 
 ## Buyer Email
 
-**Subject: What The Lot 112 Builder Contract Says Before You Sign**
+**Subject:** What The Lot 112 Builder Contract Says Before You Sign
 
 Hi Avery,
 
@@ -214,7 +214,7 @@ Jordan Sampleagent
 | 6 | Unlimited extensions, no outside date, ILSA two-year question without saying what follows | Pass | Key terms; attorney item 6 |
 | 7 | 4% clause with $23,960 shown as computed | Pass | Bottom line; key terms |
 | 8 | Rep's promise set against the entire-agreement clause and inspection terms, with a question to put it in writing | Pass | "The rep's promise"; rep question 3 |
-| 9 | Email: Title Case subject, under 350 words, no advice to sign, attorney review, no em dashes, signed Jordan Sampleagent | Pass | Email is about 330 words |
+| 9 | Email: Title Case subject, under 350 words, no advice to sign, attorney review, no em dashes, signed Jordan Sampleagent | Pass | Email is 295 words by objective_checks.py; subject Title Case |
 | 10 | Check before sending lists every date, dollar amount and page reference, computed figures marked | Pass | Check before sending |
 
 10 of 10. Points this run raised that the expectations don't test: PSA 11.2 returns only "deposits paid" while 11.1 lists option and Design Center payments separately; PSA 7.3's one-year limit against the ten-year structural coverage; the PSA has no title, deed, risk of loss or attorney fee terms; the builder's own 9 to 12 month estimate can run past the 270-day price trigger.

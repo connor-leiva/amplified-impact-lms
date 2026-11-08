@@ -47,7 +47,7 @@ Letters A to D follow the order the buyers signed (November 7 at 9:14 AM, Novemb
 | Appraisal deadline | Tue, Dec 1 (day 22), 4(c) | N/A (24(c) written "N/A") | Mon, Dec 7 (day 28), 4(c) | Fri, Dec 18 (day 39), 24(c), one Financing & Appraisal Deadline |
 | Financing deadline | Wed, Dec 9 (day 30), 4(d) | N/A | Mon, Dec 14 (day 35), 4(d) | Same Dec 18 date, 24(c) |
 | Settlement Deadline | Tue, Dec 22 (day 43), 4(e) | Mon, Nov 30 (day 21), 24(d) | **Sat, Dec 19 (day 40)**, 4(e): under Section 25 performance moves to **Mon, Dec 21** | Wed, Dec 30 (day 51), 24(d) |
-| Fits the January 2 move date | Yes | Yes | Yes | Yes, with 3 days to spare |
+| Fits the January 2 move date | Yes; Closing (funding and Recording) by Sat, Dec 26 at the latest (9.2) | Yes; Closing by Fri, Dec 4 at the latest (3.2) | Yes; Closing by Fri, Dec 25 at the latest, counted from the Dec 21 performance date (9.2) | Settlement yes, 3 days early, but funding and Recording can take up to 4 more days (3.2), so Closing could run to Sun, Jan 3, past January 2 |
 | Sale of buyer's home | No (3(d) unchecked) | No (2.2 IS NOT) | No | **Yes** (2.2 IS): 415 N Example Elm St, **not yet listed**; list by Fri, Nov 20; signed sale contract by Fri, Dec 4 or either side may cancel; sellers may keep marketing; 72 hours to remove the condition after notice of a backup |
 | Escalation | Yes: $1,500 over the highest competing Net Price, cap $662,000 | No | No | No |
 | Inclusions and exclusions | Refrigerators (7.3); nothing excluded | Refrigerators (1.2); nothing excluded | Washers, dryers, refrigerators (7.3); nothing excluded | Washers, dryers (1.2); nothing excluded |
@@ -100,7 +100,7 @@ The sellers aren't obliged to accept A because it escalates. The escalated price
 - Lowers: 3.5% down with $15,000 in concessions; FHA appraisal escape with no deadline; appraisal-required repairs up to $5,000 and termite work up to $1,000 that the sellers may pay; the 2020 addendum on a 2026 REPC with money in two places; Saturday Settlement moves to Monday, December 21.
 
 **D: lower certainty.**
-- Lowers: the buyers' home isn't listed yet; the loan is contingent on its sale and closing; the letter expires December 19, before the December 30 Settlement; page 4 of the REPC (appraisal, financing, home warranty) is missing; the 72-hour notice right helps the sellers only if a backup buyer appears.
+- Lowers: the buyers' home isn't listed yet; the loan is contingent on its sale and closing; the letter expires December 19, before the December 30 Settlement; Closing could run to January 3, past the sellers' January 2 date; page 4 of the REPC (appraisal, financing, home warranty) is missing; the 72-hour notice right helps the sellers only if a backup buyer appears.
 
 **Ranking for "most money, fewest repair obligations":**
 1. **A**: highest price after concessions ($647,500) and highest price less seller-paid amounts ($631,312.50); no repair caps.
@@ -204,4 +204,5 @@ None of these figures is your net. Once we narrow it to two, I'll get net sheets
 | D: Oct 20, 2026, expires Dec 19, 2026, $660,000, $528,000, sale contingency | `preapproval-fictionaire.pdf`, page 1 |
 | Computed: $647,500; $16,187.50; $16,000; $19,650; $16,300; $631,312.50; $619,650 and $604,650; $629,700; $646,000, $640,000, $625,000; $17,500; $1,312.50; $300; $31,800; $7,500; $1,500; $582,750; $641,500; $64,000, $22,925, $130,400; down payment percentages; day counts and weekdays from Nov 9 | Recompute from the rows above |
 | Section 25 next-business-day rule (C's Saturday Settlement Deadline) | 2026 REPC page 6 |
+| Closing up to four days after Settlement (funding and Recording) | 2026 REPC 9.2; 2024 REPC 3.2 |
 | Placeholders: [Agent Name], [amount], [time and date], [Seller's decision] | Fill before sending |

@@ -10,4 +10,4 @@ Account, routing or wire numbers: none
 Protected-class or steering wording: none
 Possible cost or tax estimates (check each is quoted from a document): none
 Possible loan advice (check each one): none
-Buyer email words (subject to next section): 332
+Buyer email words (subject to next section): 343

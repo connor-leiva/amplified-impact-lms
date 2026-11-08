@@ -36,4 +36,17 @@ Run on 2026-11-08 following SKILL.md 1.0 exactly, reading the three PDFs with th
 ## Notes
 
 - The skill's Utah notes added items a generic review misses: the reinvestment fee checked against Utah Code 57-1-46, the construction lien window (38-1a-502), the DOPL license lookup, and the one-year claim clause read against 78B-2-225(3)(c).
-- No fixes were needed after this run.
+- No fixes were needed after this run (builder's note; see the independent review below).
+
+## Independent Review (2026-11-08)
+
+An independent reviewer ran this case from scratch with SKILL.md 1.0 before reading `output.md`. That run is `review-output.md`: 10 of 10 expectations, objective checks clean (email 295 words).
+
+Compared with `output.md`, both runs reached the same findings on every expectation. The independent run also caught:
+- PSA 11.2 returns only "deposits paid" on a Seller default, while PSA 11.1 lists "deposits, Structural Option payments and Design Center payments" separately. `output.md` had marked the options and Design Center payments "Seller default only," which reads more into the contract than it says.
+- The builder's own completion estimate (9 to 12 months after the permit, PSA 3.1) can run past the 270-day trigger for the 4% increase (PSA 1.2).
+- The PSA has no title, deed, title insurance, risk of loss or attorney fee terms (REPC 10.1, 10.2, 20, 24.2).
+
+Skill changes from this review: SKILL.md step 3 and `references/review-guide.md` (Deposits, Price) now tell the skill to check each refund clause against the contract's defined terms and to set a date-triggered price increase next to the builder's own completion estimate; `references/drafting-guide.md` adds the refund-scope question to the attorney examples.
+
+Edits to `output.md` so it matches the updated skill (reviewer edits, marked here): the options and Design Center rows of the money table now read "Not clear" with the reason; attorney item 7 asks whether "deposits paid" covers those payments; the email says the contract isn't clear that the options and Design Center money comes back even on a builder default, and drops "and I'm here to talk it through." The email is 343 words by the checker's count (subject and signature included). `objective-checks.txt` was regenerated. Expectations still pass 10 of 10.

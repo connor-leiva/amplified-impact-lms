@@ -34,6 +34,7 @@ Where each comparison row sits on the two Utah Real Estate Purchase Contracts (R
 | Appraisal deadline | Financing & Appraisal Deadline, 24(c) | Appraisal Deadline, 4(c) |
 | Financing deadline | Same Financing & Appraisal Deadline, 24(c) | Financing Deadline, 4(d) |
 | Settlement Deadline | 24(d) | 4(e) |
+| Closing (loan funding and Recording) | 3.2: no later than four calendar days after Settlement | 9.2: same |
 | Possession | 3.3 | 4(f), with holdover terms in 9.3 |
 | Included items | 1.1, with 1.2 checkboxes (washers, dryers, refrigerators, microwave ovens, other) | 7.1, 7.2 smart home, 7.3 checkboxes (washers, dryers, refrigerators, electric vehicle charging stations, other) |
 | Excluded items | 1.3 | 7.4 |
@@ -191,8 +192,8 @@ Notes:
 - **What controls.** Each addendum says its terms "shall control" where they conflict with the REPC and prior addenda, and "All other terms ... shall remain the same."
 - **Who must accept, and by when.** Each addendum names the party ("[ ] Seller [ ] Buyer shall have until ...") and a time and date in Mountain Time to accept "in accordance with the provisions of Section 23 of the REPC. Unless so accepted, the offer as set forth in this ADDENDUM shall lapse."
 - **The other side's response.** Each addendum ends with ACCEPTANCE, COUNTEROFFER ("presents as a counteroffer the terms of attached ADDENDUM NO. ___"), or REJECTION. A counter to a counter is the next numbered addendum.
-- **How acceptance happens.** REPC Section 23: Acceptance occurs "only when" (a) the party has signed where noted to show acceptance, and (b) that party or their agent "has communicated to the other party or to the other party's agent" that it has been signed. A signature that has not been communicated is not yet Acceptance.
-- **How an offer lapses.** The REPC offer lapses if not accepted by the time in Section 25, and the brokerage returns the Earnest Money Deposit. A counteroffer lapses at the time written in its addendum.
+- **How acceptance happens.** REPC Section 23 in both versions. On the December 4, 2024 form, Acceptance occurs "only when" (a) the party has signed where noted to show acceptance, and (b) that party or their agent "has communicated to the other party or to the other party's agent" that it has been signed. A signature that has not been communicated is not yet Acceptance. On the November 1, 2026 form, the signed offer or counteroffer must instead be "Received" by the other party or their agent or broker by the deadline (see Part 2 of `utah-repc-both-forms.md`).
+- **How an offer lapses.** The REPC offer lapses if not accepted by the time in its acceptance deadline section: Section 25 on the December 4, 2024 form, Section 30 on the November 1, 2026 form. The brokerage returns the Earnest Money Deposit. A counteroffer lapses at the time written in its addendum.
 - **Reading a chain.** List the addenda in number order. For each, note the sender, the changes, the acceptance deadline, and whether it was accepted, countered, rejected or allowed to lapse. The final terms are the REPC plus every accepted addendum, with later accepted terms controlling.
 
 ## Multiple Counteroffers at Once

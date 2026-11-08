@@ -19,7 +19,7 @@ A short list the agent can hand to the buyer's attorney. For each item: the page
 - A warranty that replaces implied warranties, and its exclusions
 - No completion deadline, unlimited extensions, or no remedy for delay (and, for a home not yet built, the federal ILSA two-year question)
 - Price escalation or "subject to change" price terms
-- Default remedies that differ for buyer and builder
+- Default remedies that differ for buyer and builder, and a builder-default or cancellation refund that returns only "deposits" when option or design payments are named separately
 - A requirement to use a particular lender, title or escrow company, or conflicting statements about it (RESPA questions)
 - Anything about liens, title or assessments that the title company can't answer
 

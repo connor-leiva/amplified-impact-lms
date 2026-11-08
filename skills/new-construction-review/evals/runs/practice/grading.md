@@ -34,3 +34,12 @@ Run on 2026-11-08 following SKILL.md 1.0 exactly, on the three files in `practic
 | No agent-only MLS fields | Not applicable; none present |
 | No protected-class language | Pass. The rental note is about recorded restrictions, not people. |
 | No wire or account details | Pass. Only the instruction to confirm wiring by phone. |
+
+## Independent Review (2026-11-08)
+
+An independent reviewer ran the practice files from scratch with SKILL.md 1.0 and the practice prompt before reading `output.md`. That run is `review-output.md`. Graded against the 12 checks above: 12 of 12 (check 1: the lot hold flagged with 5 days, not bold; check 12: subject "Your Lot 47 Builder Contract: What To Know Before Friday," 334 words, [Agent Name], no lender advice). Objective checks clean; the checker flags the CFPB "still look for a better deal" quote in the agent-facing incentive section, which is sourced and outside the email.
+
+Compared with `output.md`: the same findings on every check. Differences:
+- The independent run compared risk of loss (REPC 24.2 lets either party cancel over 10% damage; PA 15 leaves the choice with the builder). `output.md` left it out.
+- `output.md` listed the federal ILSA two-year question for the attorney even though PA 3.3 sets a 24-month outside date; the review guide asks for it only when there is no firm obligation. Harmless, left as is.
+- `output.md`'s email said "Wire money only after confirming by phone with the title company." The drafting guide asks for a call to the title company "at a number they look up themselves," which is the part that stops wire fraud. Reviewer edit: the line now reads "Before wiring any money, call the title company at a number you look up yourself." Email 348 words by the checker's count. `sample.md` was refreshed to match, and `objective-checks.txt` regenerated.

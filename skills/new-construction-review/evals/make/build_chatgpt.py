@@ -63,7 +63,9 @@ guide = ("# New Construction Guide\n\n"
          "(questions for the builder's rep, the attorney list, key dates, the buyer email and Check before sending).\n\n"
          + demote(read(os.path.join(REF, "review-guide.md")))
          + "\n" + demote(read(os.path.join(REF, "drafting-guide.md"))))
-guide = guide.replace("`buyer-agreements.md`", "the buyer agreement rules (the brokerage may not receive more than the buyer's written agreement allows; confirm with the broker)")
+guide = guide.replace("Check against the buyer agreement rules in `buyer-agreements.md`.",
+                      "Check them against the buyer's written agreement: the brokerage may not receive more than that agreement allows (confirm with the broker).")
+guide = guide.replace("`buyer-agreements.md`", "the buyer's written agreement (the brokerage may not receive more than it allows; confirm with the broker)")
 guide = rename(guide)
 
 # 2. lender-incentives-respa.md

@@ -158,7 +158,7 @@ For strategy; confirm dates with your transactions team. The Contract Date is th
 
 ## Buyer Email
 
-**Subject: Your Lot 47 Builder Contract: What To Know Before Friday**
+**Subject:** Your Lot 47 Builder Contract: What To Know Before Friday
 
 Hi Casey and Morgan,
 
@@ -212,6 +212,6 @@ Next steps:
 
 ---
 
-## Reviewer Grading (against the practice checks in grading.md, read after this run)
+## Reviewer Grading (against the 12 practice checks in grading.md, read after this run)
 
-See the comparison section in `grading.md`.
+12 of 12. Objective checks clean (email 334 words). The comparison with the builder's run is in `grading.md`, under Independent Review.

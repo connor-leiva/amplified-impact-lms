@@ -26,9 +26,9 @@ All payments go to Notreal Ridge Builders, "are credited to the Purchase Price a
 |---|---|---|---|---|---|---|
 | Reservation fee | $2,500 (paid 10/30/2026, credited to earnest money) | Paid | Builder | Already ("non-refundable") | Nothing stated | $2,500 |
 | Earnest money balance | $22,500 ($25,000 less the $2,500 credit) | At signing | Builder | On Seller's acceptance | Seller default only | $2,500 + $22,500 = $25,000 |
-| Structural options | $22,400 (100% of Exhibit 1) | At signing | Builder | When paid | Seller default only | $25,000 + $22,400 = $47,400 |
+| Structural options | $22,400 (100% of Exhibit 1) | At signing | Builder | When paid | Not clear: PSA 11.2 returns "deposits paid," while 11.1 names Structural Option and Design Center payments separately (attorney item) | $25,000 + $22,400 = $47,400 |
 | Second deposit | $15,000 | Within 5 days after Seller's notice the frame inspection passed | Builder | When paid | Seller default only | $47,400 + $15,000 = $62,400 |
-| Design Center payment | 50% of [Design Center selections total] | At the Design Center appointment, within 30 days after the Contract Date | Builder | When paid | Seller default only | $62,400 + [50% of selections] |
+| Design Center payment | 50% of [Design Center selections total] | At the Design Center appointment, within 30 days after the Contract Date | Builder | When paid | Not clear (same as the options payment) | $62,400 + [50% of selections] |
 | Change fee after Design Center cut-off | $500 per change, plus the change | When ordered | Builder | Not stated | Not stated | Adds to the total |
 
 Also note: if the builder cancels because it can't get a permit, it refunds "deposits paid, without interest" (PSA 3.3). Whether the $22,400 structural options payment and the $2,500 reservation fee count as "deposits" for that refund isn't stated. On Buyer default, the builder keeps "all deposits, Structural Option payments and Design Center payments" (PSA 11.1).
@@ -109,7 +109,7 @@ Not legal advice. These are the clauses a real estate attorney should review wit
 4. **One year after Closing to bring "any claim against Seller of any kind," regardless of when discovered** (PSA 7.3). Utah Code 78B-2-225 gives six years after completion for contract and warranty actions but says a contract that "expressly establishes a different period of limitations" controls. The attorney can explain what this means for a defect found in year two.
 5. **Completion extendable "without limit" and no liability for delay** (PSA 3.2). For a home not yet built, federal ILSA (15 U.S.C. 1702(a)(2)) exempts a sale under a contract "obligating the seller ... to erect such a building thereon within a period of two years." Ask the attorney whether the lack of a firm completion obligation matters here.
 6. **Base Price increase of up to 4% after 270 days** (PSA 1.2), up to $23,960 (computed).
-7. **One-sided default remedies** (PSA 11.1, 11.2).
+7. **One-sided default remedies** (PSA 11.1, 11.2), including whether "deposits paid" in 11.2 covers the $22,400 structural options payment and the Design Center payments, which 11.1 names separately.
 8. **The rep's verbal promise** versus the entire-agreement clause (PSA 12.1, 4.3).
 
 ## Key Dates
@@ -140,7 +140,7 @@ Hi Avery,
 - Within five days after the builder says the frame inspection passed: a $15,000 second deposit, bringing it to $62,400.
 - At the Design Center: half of whatever you select.
 
-All of it goes to the builder, can be used for construction, and comes back only if the builder defaults.
+All of it goes to the builder and can be used for construction. The deposits come back only if the builder defaults, and the contract isn't clear that the options and Design Center money comes back even then.
 
 **How This Differs From A Resale Contract**
 - No right to cancel if the loan falls through or the appraisal comes in low.
@@ -155,7 +155,7 @@ The sales rep's promise to fix anything your inspector finds isn't in the contra
 2. I'm asking the builder for the warranty booklet, the HOA documents, the Design Center price list and the rep's promise in writing.
 3. Talk with your lender about a closing 9 to 12 months after the permit that must happen within 7 days of the occupancy notice.
 
-Whether to sign is your call, and I'm here to talk it through.
+Whether to sign is your call.
 
 Jordan Sampleagent
 
