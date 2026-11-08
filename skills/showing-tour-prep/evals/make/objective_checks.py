@@ -4,7 +4,7 @@ Usage:
   python3 objective_checks.py OUTPUT_MD PROMPT_TEXT INPUT [INPUT ...]
       [--forbid 4590,8812]            strings that must appear nowhere (access and alarm codes)
       [--sheet-forbid "a|b|c"]        strings that must not appear in the buyer tour sheet (agent-only facts)
-      [--computed 40,10000]           numbers the skill computed (arithmetic shown in the output)
+      [--computed "40;10,000"]        numbers the skill computed (arithmetic shown in the output), separated by ;
       [--refs]                        also count numbers in the skill's references as sources
 Inputs are PDFs (read with pdftotext) or text files. Prints PASS or FAIL per check with evidence, then lists
 every number in the output that is not found verbatim in the inputs, for a person to review.
@@ -33,7 +33,7 @@ use_refs = "--refs" in args
 args = [a for a in args if a != "--refs"]
 forbid = [s for s in take("--forbid").split(",") if s]
 sheet_forbid = [s for s in take("--sheet-forbid").split("|") if s]
-computed = {c.strip() for c in take("--computed").split(",") if c.strip()}
+computed = {c.strip() for c in take("--computed").split(";") if c.strip()}
 out_path, prompt, inputs = args[0], args[1], args[2:]
 out = open(out_path, encoding="utf-8").read()
 
@@ -107,7 +107,7 @@ check("No protected-class or reputation language", not protected, ", ".join(prot
 stock = [p for p in ["stunning", "dream home", "don't hesitate", "do not hesitate", "won't last", "must see"] if p in out.lower()]
 check("No stock phrases", not stock, ", ".join(stock))
 
-wire = [p for p in ["routing", "account number", "wire to", "ACH"] if p.lower() in out.lower()]
+wire = [p for p in [r"\brouting\b", r"account number", r"wire to", r"\bACH\b"] if re.search(p, out, re.I if p != r"\bACH\b" else 0)]
 check("No wire, routing or account details", not wire, ", ".join(wire))
 
 typical = re.findall(r"[^.\n]*\b(typically costs?|usually costs?|typical cost|runs about|ballpark|expect to pay)\b[^.\n]*", out, re.I)

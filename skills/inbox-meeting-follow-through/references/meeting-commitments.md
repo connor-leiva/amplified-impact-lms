@@ -46,7 +46,7 @@ Keep the timing words exactly as said, then resolve a due date. Count from the m
 | No date, normal priority | 7 days after, moved to the next business day if it lands on a weekend (label it) |
 | No date, low priority | 14 days after (label it) |
 
-Never set a weekend date. Don't move a date that has passed: show it and mark it overdue. Never invent a date that a rule can't produce; write [due date] instead.
+Never set a weekend due date, unless the commitment is an event on that day (a Sunday open house). Don't move a date that has passed: show it and mark it overdue. Never invent a date that a rule can't produce; write [due date] instead.
 
 ## Priority
 

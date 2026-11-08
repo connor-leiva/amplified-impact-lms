@@ -74,23 +74,22 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
 
   sections: [
     {
-      // sample.md (the practice run), shortened, in the output's own order and its own words: the flags,
-      // the bottom line, Tier 1 and the first two Tier 2 findings, one question for the listing agent,
-      // the timeline's no-response-period lines, two asks and two held-back items, the buyer email in
-      // full, and four rows of Check before sending. Left out: every line about the 2011 deed of trust
-      // (Connor's call, open in the review).
+      // sample.md (the practice run), shortened, in the output's own order and its own words, cut only
+      // by whole items and sentences: the REPC version flag, the bottom line, findings 1 (safety) and 4
+      // (the one the inspector's summary left out), one question for the listing agent, the timeline's
+      // no-response-period lines, two asks, the buyer email in full, and three rows of Check before
+      // sending. Left out: every line about the 2011 deed of trust (Connor's call, open in the review).
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a review looks like',
       body: 'What the AI wrote from the practice files: a made-up home in Riverton, Utah, made-up buyers and made-up documents. They’re the same files you practise on in setup.',
       title: 'Due Diligence Review: 2468 Example Aspen Drive, Riverton, Utah',
-      note: 'Made-up example. Shortened: a few findings from each part, and the buyer email in full.',
+      note: 'Made-up example. Shortened: a few lines from each part, and the buyer email in full.',
       blocks: [
         { h: 'Flags' },
         {
           items: [
             'REPC version: the footer reads “EFFECTIVE DECEMBER 4, 2024,” so the December 4, 2024 form’s section numbers apply (8.1, 21, 24(b)).',
-            'Not uploaded: the subdivision CC&Rs (a Seller Disclosure under Section 7(d); the title commitment lists CC&Rs recorded in 1995) and evidence of the irrigation water share (Section 7(i); the disclosure says “Certificate to be provided”).',
           ],
         },
         { h: 'Bottom line' },
@@ -107,26 +106,14 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
             ' “The vent connector is separated at the draft hood and slopes downward toward the chimney,” and “exhaust spillage was observed at the draft hood” during a 5-minute draft test. The inspector notes this “can allow carbon monoxide into the home” and says to have a licensed plumber or HVAC contractor correct it before use. Action: ask the seller. Cost: needs bid.',
           ],
         },
-        {
-          p: [
-            { strong: '2. Radon at 6.8 pCi/L (radon report).' },
-            ' A 48-hour continuous monitor test in the basement family room averaged 6.8 pCi/L. EPA recommends fixing a home at 4 pCi/L or more. Action: ask the seller for mitigation by a certified radon mitigation professional and a post-mitigation test. Cost: needs bid. Health questions go to a certified radon professional.',
-          ],
-        },
         { p: [{ strong: 'Tier 2: Major System or Structure' }] },
-        {
-          p: [
-            { strong: '3. Roof (page 3, rated Further Evaluation).' },
-            ' “Widespread granule loss on all slopes,” about a dozen cracked or lifted shingles on the south slope, and exposed nail heads. “The roof appears to be near the end of its service life.” The disclosure gives the roof’s age as “Approx. 2004.” Action: get the roofer’s evaluation and bid this week, then ask for a credit or price reduction from that bid. Cost: needs bid.',
-          ],
-        },
         {
           p: [
             {
               strong:
                 '4. Bath fan venting into the attic, with stained roof sheathing (page 9). Not in the inspector’s summary.',
             },
-            ' The upstairs hall bath fan duct “ends in the attic insulation instead of venting to the exterior” (Repair), and there is “dark staining on the underside of the roof sheathing over an area about 4 feet by 6 feet around the bath fan location” (Further Evaluation). The sheathing was dry at the time of inspection, and “the inspector cannot determine the nature of the staining.” I’ve rated it Tier 2 because it involves the roof structure and an unknown cause; the roofer evaluating item 3 can look at it on the same visit. Cost: needs bid.',
+            ' The upstairs hall bath fan duct “ends in the attic insulation instead of venting to the exterior” (Repair), and there is “dark staining on the underside of the roof sheathing over an area about 4 feet by 6 feet around the bath fan location” (Further Evaluation). The sheathing was dry at the time of inspection, and “the inspector cannot determine the nature of the staining.” Cost: needs bid.',
           ],
         },
         { h: 'Questions for the listing agent' },
@@ -139,7 +126,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
         { p: ['For strategy; confirm dates with your transactions team.'] },
         {
           items: [
-            'Due Diligence Deadline: 5:00 PM Mountain Time, Friday, November 13, 2026 (Sections 21 and 24(b)). 5 days from today.',
+            'By then (Section 8.1(b)): cancel by written notice, and the $8,000 Earnest Money Deposit is released to the buyers; or resolve objections in writing with the seller.',
             'No response period. This REPC gives the seller no set number of days to answer and gives the buyers no cancellation window afterward. If the objection goes out Monday, November 9, the seller has November 10 through 5:00 PM Friday, November 13 to sign a resolution. Each day spent waiting for a roofing bid is a day less for the seller.',
             'If neither happens (Section 8.1(c)): the Due Diligence Condition is waived, and the Earnest Money Deposit becomes non-refundable except under the appraisal and financing conditions.',
           ],
@@ -155,13 +142,6 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
           items: [
             'Seller to have a licensed plumber or HVAC contractor correct the water heater venting noted on page 7 of the Practice Point Home Inspections report dated November 6, 2026 (vent connector separated at the draft hood and sloping toward the chimney, with exhaust spillage during the draft test). Seller to provide Buyer the contractor’s written findings and paid invoices no later than five calendar days before the Settlement Deadline.',
             'Seller to credit Buyer $[credit amount from roofing bid] at Settlement toward repair or replacement of the roof noted on page 3 of the same report.',
-          ],
-        },
-        { p: [{ strong: 'Held Back' }] },
-        {
-          items: [
-            'Furnace service (page 6): routine maintenance; the furnace produced heat.',
-            'Deck boards and fasteners (page 4): routine maintenance, visible at showings.',
           ],
         },
         { h: 'Buyer email' },
@@ -193,15 +173,11 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
         { h: 'Check before sending' },
         {
           table: {
-            caption: 'Check before sending, 4 of 13 rows',
+            caption: 'Check before sending, 3 of 13 rows',
             head: ['Item in the drafts', 'Verify against'],
             rows: [
               ['Due Diligence Deadline: Friday, November 13, 2026, 5:00 PM Mountain Time', 'REPC Section 24(b) and Section 21'],
               ['$8,000 Earnest Money Deposit, released on a timely cancellation', 'REPC page 1 and Section 8.1(b)(i)'],
-              [
-                'Page 7: water heater vent separated, sloping toward the chimney, spillage in a 5-minute draft test',
-                'Inspection report, page 7',
-              ],
               ['“$[credit amount from roofing bid]”', 'The roofer’s bid'],
             ],
           },
@@ -219,7 +195,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
         },
         {
           title: 'A bottom line',
-          body: 'Three sentences at most: the overall read, how many Tier 1 and Tier 2 items there are, and the days left.',
+          body: 'Three sentences at most: the overall read, how many Tier 1 and Tier 2 items there are (safety, and major systems or structure), and the days left.',
         },
         {
           title: 'Documents reviewed',
@@ -366,7 +342,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
           // limits from OpenAI's help center and pricing page, via the vendor check of 2026-11-08.
           q: 'Do I need a paid plan?',
           a: [
-            'In Claude, the help center lists skills on every plan, Free included. Claude’s developer docs list them on Pro and up, so if your Free account shows no way to add a skill, that’s why. In ChatGPT, Projects work on Free, Go, Plus and Pro. Free allows 3 file uploads a day and about 12 pages of text per message, so on Free, setup and a full set of documents can take more than one day, and a long inspection report plus an HOA packet can run past the page limit. Go and Plus allow about 40 pages per message.',
+            'In Claude, the help center lists skills on every plan, Free included. Claude’s developer docs list them on Pro and up, so if your Free account shows no way to add a skill, that’s why. In ChatGPT, Projects work on Free, Go, Plus and Pro. Free allows 3 file uploads a day and about 12 pages of text per message. So on Free, setup and a full set of documents can take more than one day, and a long inspection report plus an HOA packet can be too much for one message. Go and Plus allow about 40 pages per message.',
           ],
         },
         {
@@ -381,7 +357,7 @@ export const DUE_DILIGENCE_REVIEW: Guide = skillPage({
           // page-notes.md, "What It Will Not Do".
           q: 'What won’t it do?',
           a: [
-            'The AI never sends, posts or writes to your CRM. It won’t estimate repair costs or how long something will last, tell your buyer whether to buy, or judge legal effect. Loan, insurance and health questions go to the lender, the title officer, an attorney or a certified professional. It doesn’t write new contract language or keep your official deadline calendar. It won’t repeat loan numbers, account numbers or wiring instructions, or comment on the people in a neighborhood, schools or safety.',
+            'The AI never sends, posts or writes to your CRM. It won’t estimate repair costs or how long something will last, or tell your buyer whether to buy. It won’t answer legal, title, loan, insurance or health questions: it points them to an attorney, the title officer, the lender or a certified professional. It doesn’t write new contract language or keep your official deadline calendar. It won’t repeat loan numbers, account numbers or wiring instructions, or comment on the people in a neighborhood, schools or safety.',
           ],
         },
       ],

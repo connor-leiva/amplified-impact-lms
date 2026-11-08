@@ -30,6 +30,7 @@ Run, Draft, Own: this skill reads the whole transcript, works out who said what,
 - **The appointment date:** from the transcript header, the file name or the agent's message; otherwise [Appointment Date], flagged. Resolve every relative date ("tomorrow," "Tuesday," "next weekend," "the 20th") against it and write the weekday and date. Mark each resolved date in Check before sending with the words it came from. If the words allow two dates, give both and flag it.
 - **Time zones:** when the transcript shows people in different zones, write times in both ("5:00 PM Mountain, 4:00 PM Pacific").
 - **Transcription errors:** names, streets, lenders and numbers get misheard. Prefer the spelling in the meeting title, attendee list or the agent's message; otherwise use it as heard and list it to confirm.
+- **Names, not pronouns:** call clients by name. Don't write he or she for a client unless the transcript shows it.
 
 ## 3. Pull Out What Matters
 

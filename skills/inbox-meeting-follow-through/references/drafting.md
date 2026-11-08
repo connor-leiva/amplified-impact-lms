@@ -37,6 +37,21 @@ For a lead: the lead's name, how they reached us, and their property criteria, t
 
 For a lender condition or contract email: name the file and say the details are in the email below. Don't restate amounts, balances or account details in the note.
 
+## Meeting Recap (One Per Team Meeting)
+
+```
+To: [the meeting's team attendees]
+Subject: [Meeting Name] Recap: Who Owns What
+
+Thanks, everyone. Here's what we each took on:
+- [Owner]: [commitment], by [day, date]
+- ...
+Waiting on: [outside person], [what], by [date]. [Team member] is following up.
+[Leader first name]
+```
+
+Leave out every sensitive item and anything said "between us." Leave out commitments made only to the leader in private. Transactions items that involve contract dates say "confirm dates with [transactions team member]."
+
 ## Follow-Up (Only When Overdue)
 
 ```

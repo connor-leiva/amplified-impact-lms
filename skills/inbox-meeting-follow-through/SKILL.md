@@ -55,10 +55,11 @@ Read `references/meeting-commitments.md`. Read the full transcript; use any AI s
 - Keep the timing words verbatim, then resolve a due date with the rules. A later change in the same meeting replaces the earlier one.
 - People outside the team go under Waiting On Others, never as owners of team tasks.
 - Sensitive items (performance, pay or splits, health, family, legal or employment matters) stay on the leader's own list, worded neutrally, and never go into a forward or a draft to anyone else.
+- Flag conflicts: two dates that can't both hold (a video due before the photos it needs), or an owner who isn't in the meeting or on the roster.
 
 ## 6. Draft
 
-Read `references/drafting.md`. Draft replies, forwards with a short note on top, follow-ups (only for what's overdue), promise deliveries and alerts. Each draft is short, carries only facts from the inputs, and marks anything missing as a [placeholder]. Use the user's voice profile when one is in the conversation (their preferences, a project's instructions or a voice skill); otherwise warm, plain and direct. Sign with the leader's name.
+Read `references/drafting.md`. Draft replies, forwards with a short note on top, follow-ups (only for what's overdue), promise deliveries and alerts, plus one recap per team meeting to its attendees (each person's commitments and dates, sensitive items left out). One draft per person: when two items go to the same person, combine them. Each draft is short, carries only facts from the inputs, and marks anything missing as a [placeholder]. Use the user's voice profile when one is in the conversation (their preferences, a project's instructions or a voice skill); otherwise warm, plain and direct. Sign with the leader's name.
 
 If the user asks for drafts in Gmail or Outlook and the connector allows it, create one draft per thread, in the thread, and never send. If the user asks for tasks and a task connector (ClickUp, Asana or another) is connected, search that tool for the same work first and update or skip instead of duplicating.
 
