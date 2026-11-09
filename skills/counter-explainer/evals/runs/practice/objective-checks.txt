@@ -1,0 +1,12 @@
+Dollar amounts not in the inputs: $4,000, $6,000
+Percentages not in the inputs: none
+Clock times not in the inputs: none
+Calendar dates not in the inputs (must be shown as computed): November 27
+Weekday labels that don't match the calendar: none
+Em or en dashes: none
+Subject: Addendum No. 2 On 1428 Sample Ridge Lane: Closing Would Move Up A Week | Title Case: yes
+Check before sending section: present
+Banned stock phrases: none
+Account, routing or wire numbers: none
+Protected-class or steering wording: none
+Client message words (heading to next section): 265

@@ -1,0 +1,16 @@
+{
+  "name": "due-diligence-review",
+  "page": "due-diligence-review",
+  "title": "Due Diligence Review",
+  "version": "1.1",
+  "apps": [
+    "claude",
+    "chatgpt"
+  ],
+  "shared": [
+    "utah-repc.md",
+    "utah-property-notes.md",
+    "utah-repc-2026.md",
+    "utah-forms-and-counters.md"
+  ]
+}

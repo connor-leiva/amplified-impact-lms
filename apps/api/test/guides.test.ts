@@ -126,6 +126,11 @@ it('serves the guides there are, by slug', () => {
       'content-strategist',
       'perfect-week',
       'inbox-meeting-follow-through',
+      'due-diligence-review',
+      'repair-request-response',
+      'counter-explainer',
+      'offer-strategy',
+      'offer-comparison',
     ]);
 });
 

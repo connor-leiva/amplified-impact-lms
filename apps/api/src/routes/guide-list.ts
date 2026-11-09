@@ -22,6 +22,11 @@ export const GUIDE_SLUGS = [
   'content-strategist',
   'perfect-week',
   'inbox-meeting-follow-through',
+  'due-diligence-review',
+  'repair-request-response',
+  'counter-explainer',
+  'offer-strategy',
+  'offer-comparison',
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 

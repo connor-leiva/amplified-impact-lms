@@ -1,0 +1,11 @@
+Dollar amounts not in the inputs: none
+Percentages not in the inputs: none
+Clock times not in the inputs: none
+Calendar dates not in the inputs (must be shown as computed): November 12
+Weekday labels that don't match the calendar: none
+Em or en dashes: none
+Subject: Quick update on 77 Example Court [em dash] Addendum 2 | Title Case: NO, lowercase: update, on, em, dash
+Check before sending section: MISSING
+Banned stock phrases: don't hesitate to reach out
+Account, routing or wire numbers: none
+Protected-class or steering wording: none

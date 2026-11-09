@@ -1,0 +1,67 @@
+{
+  "skill_name": "due-diligence-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "general-mode-clean-report-two-real-issues",
+      "prompt": "Today is Sunday, November 8, 2026. Inspection's back on 915 Example Larch Street in Boise. My buyer is Riley Testcase. Can you go through it and tell me what's worth asking for? I'd like to send the repair request tomorrow morning.",
+      "expected_output": "General mode (Idaho): a note near the top that state rules were not checked and the review follows the uploaded agreement only. Two real issues: the scorched 30-amp dryer breaker with melted insulation and undersized conductors (Tier 1, page 5) and the active crawlspace drain leak (Tier 2, page 7). The recommended ask is those two items only, with the six maintenance items held back. The timeline comes from the agreement's Section 9: Inspection Period ends November 12 at 5:00 p.m. Mountain Time; a Repair Request received Monday, November 9 starts a 3 business day Seller Response Period that ends November 13 (November 11 is a federal holiday), and the buyer's 2 business day election ends November 17. A buyer email, then Check before sending.",
+      "files": [
+        "evals/files/case1/Purchase and Sale Agreement 915 Example Larch St.pdf",
+        "evals/files/case1/Inspection Report 915 Example Larch St.pdf"
+      ],
+      "expectations": [
+        "The output says near the top that state rules were not checked and that it follows the uploaded agreement only, and it cites no Utah REPC section, Utah statute or Utah radon statistic",
+        "The scorched 30-amp dryer breaker with melted insulation and undersized 12 AWG conductors (page 5) is Tier 1, and the active crawlspace drain leak with standing water and elevated subfloor moisture (page 7) is Tier 2",
+        "The recommended ask has exactly those two items, each naming the licensed trade, the report page and proof of completion (receipts or paid invoices) before closing, and the six maintenance items are held back with a one-line reason each",
+        "The timeline follows the agreement: the Inspection Period ends 5:00 p.m. Mountain Time on Thursday, November 12, 2026; a Repair Request received Monday, November 9 gives a Seller Response Period ending Friday, November 13 (skipping the November 11 federal holiday) and a buyer election window ending Tuesday, November 17; it is labeled for strategy with dates to confirm with the transactions team",
+        "The output notes that the seller's property disclosure (due within 3 days after Acceptance under Section 8) was not uploaded, and that no radon test or sewer scope is on file",
+        "No cost or remaining-life estimates appear; repair items without a bid say needs bid or use a bracketed placeholder",
+        "The buyer email has a Title Case subject, a bolded bottom line naming the decision and its deadline, the options (go ahead, ask for repairs or a credit, or terminate), is under 300 words, and is signed [Agent Name]",
+        "The output ends with a Check before sending section listing every date, dollar amount and page reference in the drafts, and contains no em or en dashes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "utah-2024-summary-gap-deadline-tomorrow",
+      "prompt": "Today is Sunday, November 8, 2026. The inspection report on 3355 W Example Falcon Court came in late Friday. Buyers are Quinn and Jordan Exampleson. The summary looks pretty minor, so I'm thinking we just ask for the furnace service and the GFCIs. Can you look it over and draft what we send?",
+      "expected_output": "A bold flag first: the Due Diligence Deadline is tomorrow, Monday, November 9, 2026, at 5:00 PM Mountain Time. The REPC is the December 4, 2024 form. The scorched FPE Stab-Lok panel on page 9 is Tier 1 and marked not in the inspector's summary; the basement window well moisture on page 6 is also outside the summary and conflicts with the disclosure's No to basement water. The output pushes back on asking only for furnace service and GFCIs, explains there is no Response Period (the resolution must be signed by 5:00 PM tomorrow, or the buyer cancels or gets a signed extension), and says the earnest money goes hard if neither happens. Objection list, buyer email, Check before sending.",
+      "files": [
+        "evals/files/case2/REPC 3355 W Example Falcon Ct (signed).pdf",
+        "evals/files/case2/Home Inspection Report 3355 W Example Falcon Ct.pdf",
+        "evals/files/case2/Seller Property Condition Disclosure 3355 W Example Falcon Ct.pdf"
+      ],
+      "expectations": [
+        "Before the bottom line, a bold flag says the Due Diligence Deadline is tomorrow, Monday, November 9, 2026, at 5:00 PM Mountain Time, less than 48 hours away, and tells the agent to call their team leader and transactions team now",
+        "The output identifies the December 4, 2024 REPC from its footer and uses its section numbers (8.1 and 24(b)), not the November 2026 numbering",
+        "The scorched Federal Pacific Stab-Lok panel (20-amp kitchen breaker and bus bar, breakers not seating firmly, called a fire hazard) on page 9 is Tier 1 and marked as not in the inspector's summary",
+        "The basement bedroom window well moisture (staining, efflorescence, elevated meter reading) on page 6 is marked as not in the summary, and the disclosure's No to basement water is raised as a neutral question for the listing agent",
+        "The output pushes back on asking only for furnace service and GFCIs, and the recommended ask includes the panel by a licensed electrician",
+        "The output says there is no Response Period under this REPC: the written resolution must be signed by 5:00 PM Mountain Time on November 9, or the buyer must cancel in writing by then or get a signed extension; it never describes a seven-day response period or a three-day cancellation window for this objection",
+        "The output says the Earnest Money Deposit becomes non-refundable (except under the appraisal and financing conditions) if the buyer neither cancels nor resolves in writing by the deadline",
+        "No cost estimates appear; the buyer email has a Title Case subject, states the deadline and the options, and is under 300 words; the output ends with Check before sending; no em or en dashes"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "utah-2026-hoa-rental-cap-special-assessment",
+      "prompt": "Today is Sunday, November 8, 2026. Can you go through the HOA docs and the inspection for 77 Example Cove Lane, Unit 14 in Lehi? My buyer Morgan Testfield plans to live there about two years and then keep it as a rental.",
+      "expected_output": "The REPC is the November 1, 2026 form (Sections 12.1, 4(b), 8.2, 8.3(a)); the Due Diligence Deadline is November 17, 2026, 9 days away, with no response period. HOA findings lead: the rental cap (6 of 30 units, all filled, 4 owners on the waitlist, 12-month minimum) makes the buyer's rental plan uncertain; the proposed $4,200 per unit special assessment goes to a vote on December 15, 2026, after the December 11 Settlement Deadline, so the 8.2 Seller box would not cover it as written; reserves and the 38% insurance increase are questions; the $2,490 reinvestment fee is 0.6% of the price and goes to title to confirm. The missing bedroom 2 smoke alarm is Tier 1. Objection list with a $4,200 credit item, buyer email, Check before sending. The owner account number never appears.",
+      "files": [
+        "evals/files/case3/REPC 77 Example Cove Ln Unit 14 (signed).pdf",
+        "evals/files/case3/HOA Documents Example Cove Townhomes.pdf",
+        "evals/files/case3/Inspection Report 77 Example Cove Ln Unit 14.pdf"
+      ],
+      "expectations": [
+        "The output identifies the November 1, 2026 REPC from its footer, uses its numbering (12.1, 4(b), 8.2, 8.3(a)), gives the Due Diligence Deadline as November 17, 2026 at 5:00 PM Mountain Time (9 days away), and says there is no response period",
+        "The HOA findings say the rental cap (6 of 30 units, 20%) is full with 4 owners on the waitlist, leases need a 12-month minimum and no stays under 30 days, so the buyer's plan to rent in about two years is not assured; the buyer would go on the waitlist and gets no grandfathered rental status",
+        "The output explains that the proposed $4,200 per unit special assessment goes to an owner vote on December 15, 2026, after the December 11, 2026 Settlement Deadline, so the Section 8.2 Seller box would not cover it as written, and the recommended ask includes a $4,200 seller credit or a written agreement on who pays",
+        "Reserves ($21,500 budgeted against $58,000 recommended, 31% funded, roofs at 0 to 2 years) and the 38% master insurance premium increase are raised as questions, not verdicts, and the master policy versus owner coverage goes to the buyer's insurance agent",
+        "The $2,490 reinvestment fee is shown as 0.6% of the $415,000 price, flagged as above 0.5% for the title company to confirm, never called unlawful, and noted as the buyer's cost under Section 8.3(a)",
+        "The missing smoke alarm in bedroom 2 (page 5) is Tier 1 and in the recommended ask, and the roof observation is referred to the HOA rather than asked of the seller as a repair",
+        "The owner account number ECT-0014-55817 does not appear anywhere in the output",
+        "The buyer email has a Title Case subject, is under 300 words, lays out options without telling the buyer whether to buy, and the output ends with Check before sending; no em or en dashes"
+      ]
+    }
+  ]
+}
