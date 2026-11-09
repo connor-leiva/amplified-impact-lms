@@ -11,6 +11,8 @@
 //   3. In Instagram's or Facebook's in-app browser, a line on how to save the file.
 //   4. Words to say to Claude copy with a tap, and say so in the toast (D-045).
 //   5. "Send This to My Computer" opens the share sheet where there is one (D-045).
+//   6. "Copy & Open Claude" (or ChatGPT) copies a step's words and opens the app (D-070).
+//   7. A setup shows one step at a time, with Back and Next, and remembers the place (D-070).
 //
 // Written for the in-app WebViews that ManyChat's DM links open in: built for es2019 / Safari 13,
 // every feature in `guard()`, every storage access wrapped.
@@ -284,6 +286,122 @@ function initCopy(doc: Document, toast: (message: string) => void): void {
   }
 }
 
+// --- Copy & Open (D-070) ------------------------------------------------------------------------------
+
+/**
+ * Copies `text` before the page can lose focus, for a link about to open an app: the legacy copy
+ * FINISHES inside the click, and `writeText` starts there too (/ai101's `copyBeforeLeaving`, D-032).
+ */
+function copyBeforeLeaving(text: string, el: HTMLElement): boolean {
+  let ok = legacyCopy(text, el);
+  const clipboard = navigator.clipboard as Clipboard | undefined;
+  if (clipboard && typeof clipboard.writeText === 'function' && window.isSecureContext) {
+    try {
+      void clipboard.writeText(text).then(
+        () => undefined,
+        () => undefined,
+      );
+      ok = true;
+    } catch {
+      // Only the legacy path's answer counts.
+    }
+  }
+  return ok;
+}
+
+/**
+ * "Copy & Open Claude" (or ChatGPT): copies its step's words, says so, and lets the link open the app
+ * in a new tab. When nothing could copy, the link stays put: the words are selected for the device's
+ * own Copy, and the next tap opens the app.
+ */
+function initCopyOpen(doc: Document, toast: (message: string) => void): void {
+  for (const link of Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[data-copy-open]'))) {
+    const words = link.closest('.setup-step')?.querySelector('[data-copy-text]');
+    if (!words) continue;
+    const copied = link.getAttribute('data-toast') ?? '';
+    let failedOnce = false;
+    link.addEventListener('click', (event) => {
+      if (copyBeforeLeaving(words.textContent ?? '', link)) {
+        toast(copied);
+        return;
+      }
+      if (failedOnce) return;
+      failedOnce = true;
+      event.preventDefault();
+      selectContents(words);
+      toast(UI.copyFailed);
+    });
+  }
+}
+
+// --- One step at a time (D-070) -----------------------------------------------------------------------
+
+function readStep(key: string): number {
+  try {
+    const n = Number(storage()?.getItem(key));
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+  } catch {
+    return 1;
+  }
+}
+
+function saveStep(key: string, n: number): void {
+  try {
+    storage()?.setItem(key, String(n));
+  } catch {
+    // Full or blocked: the place is kept for this visit only.
+  }
+}
+
+/**
+ * Each setup becomes screens: the current step shows, the rest wait (`data-current`, `skills.css`),
+ * with "Step 2 of 7", Back and Next, and Start Over on the last. The place is remembered per app.
+ * Without this, every step shows, numbered, as before.
+ */
+function initGuided(doc: Document): void {
+  for (const box of Array.from(doc.querySelectorAll<HTMLElement>('[data-guided]'))) {
+    const steps = Array.from(box.querySelectorAll<HTMLElement>('.setup-step'));
+    const progress = box.querySelector<HTMLElement>('[data-guided-progress]');
+    const nav = box.querySelector<HTMLElement>('[data-guided-nav]');
+    const back = box.querySelector<HTMLButtonElement>('[data-guided-back]');
+    const next = box.querySelector<HTMLButtonElement>('[data-guided-next]');
+    const restart = box.querySelector<HTMLButtonElement>('[data-guided-restart]');
+    if (steps.length < 2 || !progress || !nav || !back || !next || !restart) continue;
+    const key = box.getAttribute('data-guided-key') ?? '';
+    const template = progress.getAttribute('data-guided-progress') ?? '';
+    const total = steps.length;
+
+    const show = (n: number, focus: boolean) => {
+      const at = Math.min(Math.max(n, 1), total);
+      current = at;
+      steps.forEach((step, i) => {
+        if (i + 1 === at) step.setAttribute('data-current', '');
+        else step.removeAttribute('data-current');
+      });
+      progress.textContent = template.replace('{n}', String(at)).replace('{total}', String(total));
+      back.hidden = at === 1;
+      next.hidden = at === total;
+      restart.hidden = at !== total;
+      if (key) saveStep(key, at);
+      if (focus) {
+        const heading = steps[at - 1]?.querySelector<HTMLElement>('h3');
+        heading?.focus({ preventScroll: true });
+        // Keeps the step's top in view after a tap far down a long step. Not in every WebView.
+        if (typeof progress.scrollIntoView === 'function') progress.scrollIntoView({ block: 'nearest' });
+      }
+    };
+
+    let current = 1;
+    box.setAttribute('data-guided-on', '');
+    progress.hidden = false;
+    nav.hidden = false;
+    show(key ? readStep(key) : 1, false);
+    back.addEventListener('click', () => show(current - 1, true));
+    next.addEventListener('click', () => show(current + 1, true));
+    restart.addEventListener('click', () => show(1, true));
+  }
+}
+
 // --- Send This to My Computer (D-045) ---------------------------------------------------------------
 
 /** The share sheet where there is one; otherwise the link's own `mailto:`, as written. */
@@ -338,7 +456,10 @@ function boot(doc: Document): void {
     }
   });
   guard(() => initForm(doc));
-  guard(() => initCopy(doc, toaster(doc.getElementById('guide-live'))));
+  const toast = toaster(doc.getElementById('guide-live'));
+  guard(() => initCopy(doc, toast));
+  guard(() => initCopyOpen(doc, toast));
+  guard(() => initGuided(doc));
   guard(() => initShare(doc));
 }
 

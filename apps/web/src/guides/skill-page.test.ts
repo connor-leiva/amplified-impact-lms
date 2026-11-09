@@ -102,8 +102,42 @@ describe('a skill page with a ChatGPT version', () => {
       'https://claude.ai/settings/capabilities',
       'https://claude.ai/customize/skills',
       'https://claude.ai/settings/data-privacy-controls',
-      // The practice step's pointer to the voice profile guide, which opens beside the setup.
+      // The practice step: Copy & Open Claude, then its pointer to the voice profile guide.
+      'https://claude.ai/new',
       '/voice-profile',
+      // The real-file step's Copy & Open Claude.
+      'https://claude.ai/new',
+    ]);
+  });
+
+  it('gives every step with words to say a Copy & Open for its own app, beside the copy chip (D-070)', () => {
+    const [claude, chatgpt] = lists() as [Element, Element];
+    const opens = (setup: Element) =>
+      [...setup.querySelectorAll('a[data-copy-open]')].map((a) => [
+        text(a.closest('.setup-step')?.querySelector('h3')),
+        text(a),
+        a.getAttribute('href'),
+        a.getAttribute('data-toast'),
+      ]);
+    expect(opens(claude)).toEqual([
+      ['Practise on the Made-Up Example', 'Copy & Open Claude', 'https://claude.ai/new', 'Copied. Paste it into Claude.'],
+      ['Use It on Your Own Files', 'Copy & Open Claude', 'https://claude.ai/new', 'Copied. Paste it into Claude.'],
+    ]);
+    expect(opens(chatgpt).map((o) => [o[0], o[1], o[2]])).toEqual([
+      ['Paste the Instructions', 'Copy & Open ChatGPT', 'https://chatgpt.com/'],
+      ['Practise on the Made-Up Example', 'Copy & Open ChatGPT', 'https://chatgpt.com/'],
+      ['Use It on Your Own Files', 'Copy & Open ChatGPT', 'https://chatgpt.com/'],
+    ]);
+    // Every one sits in a step with the words it copies.
+    for (const a of doc.querySelectorAll('a[data-copy-open]')) {
+      expect(a.closest('.setup-step')?.querySelector('[data-copy-text]')).not.toBeNull();
+    }
+  });
+
+  it('remembers the place in each app apart: one guided setup per app, keyed by the page (D-070)', () => {
+    expect([...doc.querySelectorAll('[data-guided]')].map((g) => g.getAttribute('data-guided-key'))).toEqual([
+      'mus-unlocked-step-claude',
+      'mus-unlocked-step-chatgpt',
     ]);
   });
 

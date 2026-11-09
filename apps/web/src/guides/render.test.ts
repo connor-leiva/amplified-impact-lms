@@ -7,6 +7,7 @@ import { CONSENT, SENDERS } from '../legal/content';
 import { GUIDE_SENDERS, GUIDES, type Guide } from './content';
 import { esc, guideFor, renderGuideBody, renderGuideHead } from './render';
 import { GUIDE_HTML } from './vite-plugin';
+import { TASK_SYNC_MORNING_ADD_ON, TASK_SYNC_PROMPT } from './task-sync-starter';
 
 // The free guides' markup contract (D-038, D-039, D-045), on the parsed DOM, for every guide. What the
 // script does with it is `main.test.ts`'s; that the API serves it is
@@ -314,7 +315,7 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   });
 
   it("opens Claude's own settings and skills pages in a new tab, from steps 1 and 3", () => {
-    const links = $$('#download .setup a:not([data-download])').map((a) => [
+    const links = $$('#download .setup a:not([data-download]):not([data-copy-open])').map((a) => [
       text(a),
       a.getAttribute('href'),
       a.getAttribute('target'),
@@ -324,6 +325,24 @@ describe('The Reel Editor, its own parts (D-045)', () => {
       ['Open Claude Settings', 'https://claude.ai/settings/capabilities', '_blank', 'noopener'],
       ['Open Claude Skills', 'https://claude.ai/customize/skills', '_blank', 'noopener'],
     ]);
+  });
+
+  it('copies the first Reel prompt and opens a new Claude chat from its step, in a new tab (D-070)', () => {
+    const open = $$('#download .setup a[data-copy-open]');
+    expect(open.map((a) => [text(a), a.getAttribute('href'), a.getAttribute('target')])).toEqual([
+      ['Copy & Open Claude', 'https://claude.ai/new', '_blank'],
+    ]);
+    expect(open[0]?.closest('.setup-step')?.querySelector('[data-copy-text]')).not.toBeNull();
+  });
+
+  it('walks the setup one step at a time once the script runs, with Back and Next in the markup (D-070)', () => {
+    const box = $('#download [data-guided]');
+    expect(box?.getAttribute('data-guided-key')).toBe('re-unlocked-step-claude');
+    expect(steps().map((li) => li.getAttribute('data-step'))).toEqual(['1', '2', '3', '4']);
+    expect(box?.querySelector('[data-guided-progress]')?.getAttribute('data-guided-progress')).toBe('Step {n} of {total}');
+    expect($$('#download [data-guided-nav] button').map(text)).toEqual(['Back', 'Next', 'Start Over']);
+    // Hidden until the script turns the list into steps: with no script, every step shows.
+    expect(box?.querySelector('[data-guided-nav]')?.hasAttribute('hidden')).toBe(true);
   });
 
   it('says, in Instagram, to open the real browser, about a ZIP rather than a PDF', () => {
@@ -518,9 +537,44 @@ describe('the before-and-after section (D-045)', () => {
 });
 
 describe('a PDF guide, untouched by the skill parts (D-045)', () => {
-  it.each(['task-sync-starter', 'ops-time-audit'])('/%s has no setup, handoff, copy buttons or live region', (slug) => {
+  it.each(['ops-time-audit'])('/%s has no setup, handoff, copy buttons or live region', (slug) => {
     const doc = parse(guideFor(slug));
     expect(doc.querySelectorAll('.setup, .handoff, [data-copy], [aria-live], details').length).toBe(0);
+  });
+});
+
+describe('the Task Sync Starter Kit, walked one step at a time (D-070)', () => {
+  const doc = parse(guideFor('task-sync-starter'));
+  const steps = () => [...doc.querySelectorAll('#download .setup-step')];
+
+  it('follows the kit: download, training off, the prompt, a test run, tools, then the morning run', () => {
+    expect(steps().map((li) => text(li.querySelector('h3')))).toEqual([
+      'Download the Kit',
+      'Turn Off Training First',
+      'Copy the Task Sync Prompt',
+      'Test It on Last Week’s Meeting',
+      'Connect Your Tools',
+      'Run It Every Weekday Morning',
+    ]);
+    expect(steps()[0]?.querySelector('a[data-download]')?.getAttribute('href')).toBe('/downloads/task-sync-starter-kit.pdf');
+  });
+
+  it('copies the kit’s prompt and morning add-on exactly as written, each with Copy & Open Claude', () => {
+    const blocks = [...doc.querySelectorAll('#download .chip-block [data-copy-text]')].map((el) => el.textContent);
+    expect(blocks).toEqual([TASK_SYNC_PROMPT, TASK_SYNC_MORNING_ADD_ON]);
+    expect(TASK_SYNC_PROMPT.startsWith('You are the follow-up coordinator for my real estate team.')).toBe(true);
+    expect(TASK_SYNC_PROMPT).toContain('BEFORE YOU CREATE ANYTHING');
+    expect(TASK_SYNC_PROMPT.endsWith('or give me a checklist I can paste.')).toBe(true);
+    const opens = [...doc.querySelectorAll('#download a[data-copy-open]')];
+    expect(opens.map((a) => [text(a), a.getAttribute('href')])).toEqual([
+      ['Copy & Open Claude', 'https://claude.ai/new'],
+      ['Copy & Open Claude', 'https://claude.ai/new'],
+    ]);
+  });
+
+  it('has the toast for its copy buttons, and its place remembered under its own key', () => {
+    expect(doc.getElementById('guide-live')?.getAttribute('aria-live')).toBe('polite');
+    expect(doc.querySelector('[data-guided]')?.getAttribute('data-guided-key')).toBe('tss-unlocked-step-claude');
   });
 });
 

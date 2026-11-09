@@ -373,6 +373,80 @@ describe('The Reel Editor, through the same script (D-045)', () => {
     expect(window.getSelection()?.toString()).toBe('Edit this into a Reel');
   });
 
+  describe('Copy & Open Claude (D-070)', () => {
+    const open = () => $<HTMLAnchorElement>('#download a[data-copy-open]');
+
+    it('copies the step’s words inside the tap, says so, and lets the link open Claude', async () => {
+      vi.useFakeTimers();
+      const { written, legacy } = stubClipboard();
+      await bootReel('/reel-editor', () => localStorage.setItem('re-unlocked', '1'));
+      expect(click(open()).followed).toBe(true);
+      // Both paths start inside the click, so the words are on the clipboard before the app opens.
+      expect(legacy).toEqual(['Edit this into a Reel']);
+      expect(written).toHaveBeenCalledWith('Edit this into a Reel');
+      await vi.advanceTimersByTimeAsync(150);
+      expect(toast()).toBe('Copied. Paste it into Claude.');
+    });
+
+    it('when nothing can copy, stays put once and selects the words, then opens on the next tap', async () => {
+      vi.useFakeTimers();
+      stub(window, 'isSecureContext', false);
+      stubClipboard(undefined, false);
+      stub(window, 'isSecureContext', false);
+      await bootReel('/reel-editor', () => localStorage.setItem('re-unlocked', '1'));
+      expect(click(open()).followed).toBe(false);
+      await vi.advanceTimersByTimeAsync(150);
+      expect(toast()).toMatch(/Couldn't copy automatically/);
+      expect(window.getSelection()?.toString()).toBe('Edit this into a Reel');
+      expect(click(open()).followed).toBe(true);
+    });
+  });
+
+  describe('one step at a time (D-070)', () => {
+    const steps = () => Array.from(document.querySelectorAll<HTMLElement>('#download .setup-step'));
+    const current = () => steps().findIndex((li) => li.hasAttribute('data-current')) + 1;
+    const progress = () => $('#download [data-guided-progress]');
+    const button = (name: 'back' | 'next' | 'restart') => $<HTMLButtonElement>(`#download [data-guided-${name}]`);
+
+    it('shows the first step with "Step 1 of 4" and Next, and Back and Start Over hidden', async () => {
+      await bootReel('/reel-editor', () => localStorage.setItem('re-unlocked', '1'));
+      expect($('#download [data-guided]').hasAttribute('data-guided-on')).toBe(true);
+      expect(current()).toBe(1);
+      expect(steps().filter((li) => li.hasAttribute('data-current'))).toHaveLength(1);
+      expect(progress().hidden).toBe(false);
+      expect(progress().textContent).toBe('Step 1 of 4');
+      expect($('#download [data-guided-nav]').hidden).toBe(false);
+      expect([button('back').hidden, button('next').hidden, button('restart').hidden]).toEqual([true, false, true]);
+    });
+
+    it('moves with Next and Back, focuses the step’s heading, and remembers the place for next time', async () => {
+      await bootReel('/reel-editor', () => localStorage.setItem('re-unlocked', '1'));
+      button('next').click();
+      button('next').click();
+      expect(current()).toBe(3);
+      expect(progress().textContent).toBe('Step 3 of 4');
+      expect(document.activeElement).toBe(steps()[2]!.querySelector('h3'));
+      button('back').click();
+      expect(current()).toBe(2);
+      expect(localStorage.getItem('re-unlocked-step-claude')).toBe('2');
+      // A new visit opens where this one left off.
+      await bootReel('/reel-editor', () => localStorage.setItem('re-unlocked', '1'));
+      expect(current()).toBe(2);
+    });
+
+    it('ends on the last step with Start Over, which goes back to step 1', async () => {
+      await bootReel('/reel-editor', () => {
+        localStorage.setItem('re-unlocked', '1');
+        localStorage.setItem('re-unlocked-step-claude', '9');
+      });
+      // A saved place past the end is the last step, not nothing.
+      expect(current()).toBe(4);
+      expect([button('back').hidden, button('next').hidden, button('restart').hidden]).toEqual([false, true, false]);
+      button('restart').click();
+      expect(current()).toBe(1);
+    });
+  });
+
   describe('Send This to My Computer', () => {
     /** `window.location`, with assignments to `href` recorded instead of followed. */
     function watchNavigation(): string[] {

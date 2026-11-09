@@ -271,6 +271,15 @@ export const SHARED = {
   // Words a visitor can copy with a tap (`prompts`, a setup step's `copy`): the tag on each, and what
   // the toast says once they are on the clipboard. Read by the script from the button's `data-toast`.
   copy: { tag: 'Copy', copied: 'Copied. Paste it into Claude.' },
+  // A setup step's words, copied and the app opened with one tap (D-070): a blank chat, never a `?q=`
+  // prefill (D-032). The words stay on the page as a copy chip too, for a second paste.
+  copyOpen: {
+    claude: { label: 'Copy & Open Claude', href: 'https://claude.ai/new', toast: 'Copied. Paste it into Claude.' },
+    chatgpt: { label: 'Copy & Open ChatGPT', href: 'https://chatgpt.com/', toast: 'Copied. Paste it into ChatGPT.' },
+  },
+  // The setup, one step at a time once the script runs (D-070). `{n}` and `{total}` are filled in by
+  // `main.ts`, which reads the template from the markup so no copy lives in the script.
+  guided: { progress: 'Step {n} of {total}', back: 'Back', next: 'Next', startOver: 'Start Over' },
   footer: {
     byline: 'By Connor Leiva',
     links: [

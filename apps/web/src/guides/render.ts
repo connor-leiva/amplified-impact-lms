@@ -177,19 +177,37 @@ function setupAction(guide: Guide, action: SetupStep['action']): string {
   return `<a class="btn btn-outline" href="${esc(action.href)}" target="_blank" rel="noopener">${esc(action.label)}</a>`;
 }
 
-/** What to do with the download once it is saved, numbered, in the unlocked card (D-045). */
-function setup(guide: Guide, steps: readonly SetupStep[]): string {
+type App = keyof typeof SHARED.copyOpen;
+
+/**
+ * "Copy & Open Claude" (or ChatGPT) under a step's words (D-070). A real link, so with JavaScript off
+ * it still opens the app; with it, `main.ts` copies the step's words first and shows `data-toast`.
+ */
+function copyOpen(app: App): string {
+  const o = SHARED.copyOpen[app];
+  return `<a class="btn btn-primary copy-open" href="${esc(o.href)}" target="_blank" rel="noopener" data-copy-open data-toast="${esc(o.toast)}">${esc(o.label)}</a>`;
+}
+
+/**
+ * What to do with the download once it is saved, in the unlocked card (D-045). Numbered, every step
+ * showing, with no script; with it, `main.ts` shows one step at a time with Back and Next and
+ * remembers the visitor's place under `data-guided-key` (D-070). A step with words to say gets the
+ * copy chip and a "Copy & Open" for its app.
+ */
+function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): string {
   const items = steps
     .map((s, i) =>
       [
-        `<li class="setup-step">`,
+        `<li class="setup-step" data-step="${i + 1}">`,
         `<span class="setup-n" aria-hidden="true">${i + 1}</span>`,
         `<div class="setup-body">`,
-        `<h3>${esc(s.title)}</h3>`,
+        `<h3 tabindex="-1">${esc(s.title)}</h3>`,
         `<p>${inline(s.body)}</p>`,
         setupAction(guide, s.action),
-        s.copy ? copyChip(s.copy) : '',
-        s.copyBlock ? copyBlock(s.copyBlock) : '',
+        // Short words: the chip, then the button. A long block (a Project's instructions, the Task Sync
+        // prompt) runs screens long on a phone, so its button comes first, under the instruction.
+        s.copy ? copyChip(s.copy) + copyOpen(app) : '',
+        s.copyBlock ? copyOpen(app) + copyBlock(s.copyBlock) : '',
         s.note ? `<p class="setup-note">${inline(s.note)}</p>` : '',
         `</div>`,
         `</li>`,
@@ -198,7 +216,18 @@ function setup(guide: Guide, steps: readonly SetupStep[]): string {
         .join(''),
     )
     .join('\n');
-  return `<ol class="setup" role="list">\n${items}\n</ol>`;
+  const g = SHARED.guided;
+  return [
+    `<div class="guided" data-guided data-guided-key="${esc(`${guide.unlockKey}-step-${app}`)}">`,
+    `<p class="guided-progress" data-guided-progress="${esc(g.progress)}" hidden></p>`,
+    `<ol class="setup" role="list">\n${items}\n</ol>`,
+    `<div class="guided-nav" data-guided-nav hidden>`,
+    `<button type="button" class="btn btn-outline" data-guided-back>${esc(g.back)}</button>`,
+    `<button type="button" class="btn btn-primary" data-guided-next>${esc(g.next)}</button>`,
+    `<button type="button" class="btn btn-outline" data-guided-restart hidden>${esc(g.startOver)}</button>`,
+    `</div>`,
+    `</div>`,
+  ].join('\n');
 }
 
 /**
@@ -220,7 +249,7 @@ function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp):
     `</div>`,
     `<div class="app-setup app-setup-chatgpt">`,
     `<h3 class="app-heading">${esc(`In ${other.chatgpt}`)}</h3>`,
-    setup(guide, other.setup),
+    setup(guide, other.setup, 'chatgpt'),
     `</div>`,
     `</div>`,
   ].join('\n');

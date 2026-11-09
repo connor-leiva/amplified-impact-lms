@@ -343,6 +343,51 @@ blockquote {
   color: var(--text-secondary);
 }
 
+/* --- The setup, one step at a time (D-070) ---------------------------------------------------------
+   Once the script runs (`data-guided-on`), only the current step shows, under "Step 2 of 7", with
+   Back and Next below it. Without the script every step shows, numbered. */
+
+[data-guided-on] .setup-step {
+  display: none;
+}
+[data-guided-on] .setup-step[data-current] {
+  display: grid;
+  border-top: 0;
+  padding-top: 10px;
+}
+.guided-progress {
+  margin: 12px 0 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.guided-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-default);
+}
+.guided-nav[hidden],
+.guided-nav [hidden] {
+  display: none;
+}
+.guided-nav .btn {
+  flex: 1 1 0;
+}
+.setup-body .copy-open {
+  margin-top: 2px;
+}
+.setup-body h3:focus {
+  outline: none;
+}
+.setup-body h3:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 4px;
+}
+
 /* --- Before and after, side by side (D-045) ----------------------------------------------------------
    Two columns at every width: the comparison is the point, and two vertical clips side by side fit a
    phone. Each video keeps its own shape (its width and height attributes), on a dark ground. */
