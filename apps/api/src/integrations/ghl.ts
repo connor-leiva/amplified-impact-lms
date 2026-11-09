@@ -41,6 +41,8 @@
 // PRIVACY. Nothing this file returns or throws contains the visitor's name, address or phone, the
 // token, or a response body (which can echo them). Failures are reported as a kind and a status.
 
+import { GUIDE_SLUGS } from '../routes/guide-list';
+
 /** The API host for v2. */
 export const GHL_BASE_URL = 'https://services.leadconnectorhq.com';
 
@@ -62,14 +64,11 @@ export const WAITLIST_TAGS = ['ai101-waitlist', 'event-expcon-2026'] as const;
  */
 export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
   'expcon-2026-ai101': WAITLIST_TAGS,
-  'task-sync-starter': ['task-sync-starter'],
-  'ops-time-audit': ['ops-time-audit'],
-  // The voice profile setup, Spring's lead magnet (D-040).
-  'voice-profile': ['voice-profile'],
-  // The Reel Editor, the first Claude skill (D-045).
-  'reel-editor': ['reel-editor'],
-  // /retool, the "Retool, Don't Replace: AI 101 for Team Owners" talk's page (D-046).
-  retool: ['retool'],
+  // Every free guide, tagged with its own slug: `task-sync-starter` (D-038), `ops-time-audit` (D-039),
+  // `voice-profile`, Spring's lead magnet (D-040), `reel-editor`, the first Claude skill (D-045),
+  // `retool`, the "Retool, Don't Replace" talk's page (D-046), and each skill page after them (D-052
+  // on). From `GUIDE_SLUGS`, so a guide added there is tagged without a second list to keep.
+  ...Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, [slug]])),
 };
 
 /**

@@ -104,8 +104,30 @@ export type Section =
     }
   /** Questions that open to their answers, with no script (the Reel Editor). */
   | { kind: 'faq'; heading: string; items: ReadonlyArray<{ q: string; a: readonly Inline[] }> }
+  /**
+   * A skill's output, shortened, drawn as a document (D-052): what comes back from a run on the
+   * made-up practice files. `blocks` are its headings, paragraphs, lists, tables and draft emails, in
+   * order. A table scrolls sideways inside the card on a phone, never the page.
+   */
+  | {
+      kind: 'sample';
+      eyebrow: string;
+      heading: string;
+      body: string;
+      title: string;
+      note: string;
+      blocks: readonly SampleBlock[];
+    }
   /** One short line, like a pointer to another guide. */
   | { kind: 'note'; body: readonly Inline[] };
+
+/** One piece of a `sample`: a heading, a paragraph, a list, a table or a draft email. */
+export type SampleBlock =
+  | { h: string }
+  | { p: readonly Inline[] }
+  | { items: readonly string[] }
+  | { table: { caption: string; head: readonly string[]; rows: ReadonlyArray<readonly string[]> } }
+  | { email: { subject: string; body: readonly string[] } };
 
 /**
  * One step of setting up a download that is not done once it is saved (a Claude skill, D-045).
@@ -115,9 +137,28 @@ export type Section =
 export interface SetupStep {
   title: string;
   body: readonly Inline[];
-  action?: 'download' | { label: string; href: string };
+  /**
+   * `'download'` is the guide's own download. A link with `download` is another file to save under
+   * that name, in place (a skill's ChatGPT version or practice files, D-052); without it, a page in
+   * the app, in a new tab.
+   */
+  action?: 'download' | { label: string; href: string; download?: string };
   copy?: string;
+  /** Longer words to paste, such as a Project's instructions: the same copy button, drawn as a block. */
+  copyBlock?: string;
   note?: readonly Inline[];
+}
+
+/**
+ * A skill that also works in ChatGPT (D-052): the unlocked card asks which app, with two radio
+ * buttons and no script, and shows that app's steps. `setup` stays Claude's.
+ */
+export interface OtherApp {
+  /** The question over the two buttons. */
+  question: string;
+  claude: string;
+  chatgpt: string;
+  setup: readonly SetupStep[];
 }
 
 /**
@@ -150,6 +191,8 @@ export interface Guide {
     href: string;
     filename: string;
     setup?: readonly SetupStep[];
+    /** With `setup`, the same skill's steps in ChatGPT, behind a Claude / ChatGPT switch (D-052). */
+    chatgpt?: OtherApp;
     handoff?: Handoff;
     inApp?: string;
   };

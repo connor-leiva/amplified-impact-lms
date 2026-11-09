@@ -102,16 +102,16 @@ afterEach(async () => {
   await app?.close();
 });
 
-/** Where each guide's no-JS success lands: what its page shows with `:target`. */
-const JOINED: Record<GuideSlug, string> = {
-  'task-sync-starter': '#download',
-  'ops-time-audit': '#download',
-  'voice-profile': '#unlocked',
-  // The Reel Editor's unlocked card, which holds its setup steps (D-045).
-  'reel-editor': '#download',
-  // A step-through with the opt-in part way down, like the voice profile setup's (D-046).
-  retool: '#unlocked',
-};
+/**
+ * Where each guide's no-JS success lands: what its page shows with `:target`. The two step-throughs
+ * with the opt-in part way down land on their gated steps (the voice profile setup's, D-040, and
+ * /retool's, D-046); every other guide, the PDF guides and every skill page (the Reel Editor's holds
+ * its setup steps, D-045; D-052), lands on its download.
+ */
+const STEP_THROUGHS: readonly GuideSlug[] = ['voice-profile', 'retool'];
+const JOINED = Object.fromEntries(
+  GUIDE_SLUGS.map((slug) => [slug, STEP_THROUGHS.includes(slug) ? '#unlocked' : '#download']),
+) as Record<GuideSlug, string>;
 
 it('serves the five guides there are, by slug', () => {
   expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool']);
@@ -475,13 +475,11 @@ describe('only /retool records a team size or the December box (D-046) @g9', () 
   });
 
   it('covers every form there is but /retool @g9', () => {
-    expect(OTHERS).toEqual([
-      '/api/task-sync-starter',
-      '/api/ops-time-audit',
-      '/api/voice-profile',
-      '/api/reel-editor',
-      '/api/ai101/waitlist',
-    ]);
+    // Every guide's opt-in from `GUIDE_SLUGS` (D-052) but /retool's, and the waitlist.
+    expect(OTHERS).toContain('/api/ai101/waitlist');
+    expect(OTHERS).not.toContain('/api/retool');
+    for (const slug of GUIDE_SLUGS.filter((s) => s !== 'retool')) expect(OTHERS).toContain(`/api/${slug}`);
+    expect(OTHERS).toHaveLength(GUIDE_SLUGS.length);
   });
 
   it.each(OTHERS)('%s stores neither, whatever the request says @g9', async (url) => {

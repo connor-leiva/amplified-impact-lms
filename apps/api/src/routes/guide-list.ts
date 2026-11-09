@@ -15,15 +15,13 @@ export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 
 /**
  * What the no-JS form's success lands on, where the page shows it with `:target`: a guide's
- * download (the Reel Editor's holds its setup steps, D-045), or the gated steps of a page that is a
- * step-through with the opt-in part way down it: the voice profile setup's (D-040) and /retool's,
- * the "Retool, Don't Replace" talk's (D-046).
+ * download (`download`: the PDF guides', the Reel Editor's, which holds its setup steps, D-045, and
+ * every skill page's, D-052), or the gated steps of a page that is a step-through with the opt-in
+ * part way down it: the voice profile setup's (D-040) and /retool's, the "Retool, Don't Replace"
+ * talk's (D-046). Only those two are listed; every other guide lands on `download`.
  */
-const JOINED_FRAGMENT: Readonly<Record<GuideSlug, string>> = {
-  'task-sync-starter': 'download',
-  'ops-time-audit': 'download',
+const JOINED_FRAGMENT: Readonly<Partial<Record<GuideSlug, string>>> = {
   'voice-profile': 'unlocked',
-  'reel-editor': 'download',
   retool: 'unlocked',
 };
 
@@ -40,6 +38,6 @@ export const GUIDE_ALIASES: Readonly<Partial<Record<GuideSlug, readonly string[]
 export const guidePagePath = (slug: GuideSlug): string => `/${slug}`;
 export const guideSignUpPath = (slug: GuideSlug): string => `/api/${slug}`;
 /** Where the no-JS form lands once the sign-up is stored. */
-export const guideJoinedLocation = (slug: GuideSlug): string => `/${slug}#${JOINED_FRAGMENT[slug]}`;
+export const guideJoinedLocation = (slug: GuideSlug): string => `/${slug}#${JOINED_FRAGMENT[slug] ?? 'download'}`;
 /** Where a refused no-JS form lands: the page's error line, shown the same way. */
 export const guideErrorLocation = (slug: GuideSlug): string => `/${slug}#guide-error`;

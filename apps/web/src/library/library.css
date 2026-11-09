@@ -67,17 +67,17 @@ ul {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 22px 20px 30px;
+  gap: 6px;
+  padding: 16px 20px 22px;
   background: var(--action-primary);
   color: var(--action-on-primary);
   text-align: center;
 }
 .logo {
   display: block;
-  width: 170px;
+  width: 140px;
   height: auto;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 .eyebrow {
   font-family: var(--font-mono);
@@ -88,14 +88,14 @@ ul {
 }
 .hero h1 {
   max-width: 14em;
-  font-size: clamp(34px, 8.5vw, 72px);
+  font-size: 28px;
   font-weight: 800;
   line-height: 1.04;
   letter-spacing: -0.02em;
 }
 .lede {
   max-width: 34em;
-  font-size: clamp(17px, 2.4vw, 21px);
+  font-size: 16px;
 }
 
 /* --- The controls --------------------------------------------------------------------------------- */
@@ -103,20 +103,20 @@ ul {
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 22px 20px 56px;
+  padding: 16px 20px 56px;
 }
 .controls {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 .filter {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .filter-label {
   display: block;
@@ -126,12 +126,20 @@ ul {
   text-transform: uppercase;
   color: var(--text-secondary);
 }
+/* On a phone each row of pills is one line that scrolls sideways inside itself (never the page), so
+   the filters take three short rows and the first card is on the first screen (D-052). The padding
+   keeps a pressed pill's focus ring inside the scroll box. */
 .chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  margin: -3px;
+  padding: 3px;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 .chip {
+  flex: none;
   min-height: 44px;
   padding: 0 18px;
   border: 1px solid var(--line-strong);
@@ -152,6 +160,20 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+/* On a phone the search box and the sort say what they are by themselves (the placeholder, the
+   options), so their labels are for a screen reader only, and come back from 640px. */
+.finder .filter-label,
+.sorter .filter-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 /* 16px and up: iOS zooms the page into any field smaller than that. */
 .finder input,
@@ -314,8 +336,34 @@ a.item-body:hover {
     width: 200px;
     margin-bottom: 18px;
   }
+  .hero h1 {
+    font-size: clamp(34px, 8.5vw, 72px);
+  }
+  .lede {
+    font-size: clamp(17px, 2.4vw, 21px);
+  }
   .page {
+    gap: 20px;
     padding: 36px 32px 72px;
+  }
+  .filter {
+    gap: 8px;
+  }
+  .chips {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    overflow-x: visible;
+  }
+  .finder .filter-label,
+  .sorter .filter-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
   }
   .foot {
     padding: 0 32px 48px;

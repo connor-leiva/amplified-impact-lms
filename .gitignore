@@ -34,3 +34,7 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Python caches from the skills' generator scripts (skills/*/evals/make/, D-052).
+__pycache__/
+*.pyc

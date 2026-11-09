@@ -34,7 +34,7 @@ import { readFileSync } from 'node:fs';
 const FORBIDDEN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 /** Extensions whose bytes are not text and are declared `binary` in .gitattributes. */
-const BINARY = /\.(png|jpe?g|gif|ico|webp|woff2?|ttf|otf|pdf|zip|mp4|webm)$/i;
+const BINARY = /\.(png|jpe?g|gif|ico|webp|woff2?|ttf|otf|pdf|zip|mp4|webm|xlsx?|docx|pptx)$/i;
 
 const name = (code) => {
   const names = { 0: 'NUL', 7: 'BEL', 8: 'BS', 11: 'VT', 12: 'FF', 27: 'ESC', 127: 'DEL' };

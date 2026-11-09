@@ -17,6 +17,11 @@
 *.pdf binary
 *.zip binary
 *.mp4 binary
+# Office files: the free skills' practice and test files include spreadsheets and Word documents (D-052).
+*.xlsx binary
+*.xls binary
+*.docx binary
+*.pptx binary
 
 # The prototype is the oracle. Keep it byte-for-byte as committed; it changes only through a
 # DECISIONS entry (D-031).

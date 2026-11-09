@@ -2323,3 +2323,89 @@ route changes; `learn` is untouched.
   on the old allow-list with the production symptoms. Checked as well against the real server
   (`server.ts` with `MARKETING_HOST` set and a built `dist/`): every page, alias, redirect, download
   and the `.ics` answer as before on www, and `learn` serves the same responses for every path tried.
+
+## D-052 · The skills platform: skill sources in the repo, one page shape for every skill, a library for 18 or more
+
+**Date:** 2026-11-08
+**Approved by:** the user, in chat on 2026-11-08, setting the goal for the skills library: "Keep each
+skill's source in the repo (for example skills/<slug>/), generate its ZIP with a script, commit the ZIP
+to apps/web/public/downloads/, and add a test that fails if the ZIP and its source drift apart." "Where
+the job works in ChatGPT too, a ChatGPT Project version: its instructions and the files to add. Never a
+custom GPT." "If adding a dozen guides shows a real duplication problem, you may refactor, with its own
+decision entry and no change to the existing pages' output." "Keep the library usable at 18 or more
+cards. Fix the phone layout so the first card is on the first screen. Add a topic only when several
+cards use it." The slate of 17 skills was approved the same day: "slate approved."
+**Scope:** `skills/` (new: `README.md`, `_shared/`), `scripts/skills.mjs` and `skills.d.mts` (new),
+`eslint.config.js`; in the web app `src/guides/{content,render}.ts`, `skill-page.ts`, `skills.css`,
+`skill-page.test.ts`, `skills.test.ts` (new), `src/library/{content.ts,library.css}`; in the API
+`routes/{guide-list,marketing}.ts`, `integrations/ghl.ts`, `test/{authz,guides}.test.ts`. No new page
+yet: each skill's page, ZIPs and library card arrive with its own entry (D-053 on).
+
+- **A skill's source lives in `skills/<name>/`** (`skills/README.md` is the contract): `SKILL.md` and
+  `references/` (what Claude reads), `chatgpt/` (the ChatGPT Project version: one instructions file, up
+  to three more, and the words for the Project's Instructions box), `practice/` (made-up files to
+  practise on), `evals/` (the test cases, their made-up files, and every run with its grading),
+  `sample.md` (one kept output, for the page) and `page-notes.md`. Facts several skills share (the Utah
+  REPC, Utah property rules, buyer agreements, outreach rules) live once in `skills/_shared/` and are
+  copied into each skill's ZIP that lists them, since a skill installs alone and cannot point outside
+  its folder.
+- **`node scripts/skills.mjs build` makes the three downloads** a skill page offers, under
+  `public/downloads/`: `<name>.zip` (the skill, one `<name>/` folder at the root, as Claude's upload
+  needs), `<name>-chatgpt.zip` and `<name>-practice.zip`. No dependency: the ZIPs are written with
+  node:zlib, sorted, with one fixed timestamp, so a rebuild with no source change writes the same bytes.
+  `check` holds each skill to Anthropic's format and the house rules before it builds: frontmatter keys
+  only from the Agent Skills spec's list; a lowercase name equal to the folder, never containing
+  "claude" or "anthropic"; a description of 1,024 characters or fewer with no angle brackets (the Reel
+  Editor's 833 upload fine; Anthropic's pages disagree, and the help center's 200 is not what the
+  uploader enforces); every reference SKILL.md names actually shipped; no em or en dash in any file; a
+  ChatGPT version of four files or fewer (Free ChatGPT holds 5 in a Project) with no mention of Claude;
+  practice files, two or more test cases, a sample and page notes.
+- **The drift test** (`src/guides/skills.test.ts`) unpacks every committed download and holds each
+  entry, byte for byte, to its source, and fails on a file one has and the other lacks. It also holds
+  each skill to its page (the right three downloads, and the ChatGPT instructions copied word for word
+  from `chatgpt/paste.txt`), its HTML shell, its build entry and its library card, and fails on a ZIP in
+  `downloads/` that no source makes (the Reel Editor's, Connor's own file, is the one exception).
+- **One page shape for every skill.** `skillPage()` (`src/guides/skill-page.ts`) writes what every skill
+  page says the same way: the hero's three steps, the opt-in, and the setup. In Claude: check code
+  execution is on, download the ZIP, add it in Customize > Skills, turn off training, practise on the
+  made-up files, then use it on real ones. In ChatGPT: turn off training, download, make a Project, add
+  the files on its Sources tab, paste the instructions, practise, use it. Training is turned off before
+  the practice in both, and the practice comes before any real file: tests hold that order. Steps only
+  one skill needs (an account to make, a connector to switch on) come after the practice, which needs
+  neither, and before real files. A practice set too big to attach file by file (a Claude chat takes 20
+  files) is attached as its ZIP, which Claude unpacks. A page file holds only the skill's own words. The click paths are the ones /reel-editor (D-045) and /retool (D-048,
+  D-049) checked, plus Claude's help center on 2026-11-08: code execution is on by default for Free,
+  Pro, Max and Ultra, and is called "Create and edit files" in Claude's newer settings ("Create and edit
+  files with Claude", modified 2026-11-05); the upload path ("Use skills in Claude", modified
+  2026-10-30); the Privacy settings page, `claude.ai/settings/data-privacy-controls` (Anthropic's
+  Privacy Center).
+- **The Claude / ChatGPT switch is two radio buttons and CSS, no script:** the inputs come before both
+  step lists as their siblings, and `:checked ~` shows one. It works with JavaScript off, in Safari 13
+  (no `:has`) and in Instagram's in-app browser. Claude is checked to start. With no CSS, both lists
+  show, each under its heading.
+- **New parts, used only by skill pages:** a step can offer another file to save under its own name (the
+  ChatGPT version, the practice files), and a long copy block (the Project's instructions), the copy
+  chip's own button and script; a `sample` section draws a run's output as a document, with its tables
+  in a region a keyboard can scroll (sideways on a phone only when a table has four columns or more).
+- **No change to the existing pages' output.** Skill pages load `skills.css`, which imports the guide
+  styles and adds their own, and the same script, unchanged. Every other page built from this change
+  (/ai101, /voice-profile, /retool, the three guides, the legal pages, the placeholder, the app) is
+  byte-identical to the build before it; the library is the one page that changes, on purpose.
+- **Fewer lists to keep by hand.** The www allow-list is built from `GUIDE_SLUGS` and `GUIDE_ALIASES`
+  (its pattern is byte-identical to the hand-written one of D-051 for today's five guides); each guide's
+  GoHighLevel tag is its slug, from the same list; a guide lands its no-JS sign-up on `#download` unless
+  it is one of the two step-throughs (/voice-profile and /retool land on `#unlocked`, as before); and the
+  API's route inventory test classifies every guide's routes from the list. So adding a skill page is:
+  its source, its page file, its shell (`node scripts/skills.mjs shell`), one line in `GUIDES`,
+  `GUIDE_HTML` and `GUIDE_SLUGS`, and its library card.
+- **The library at 18 or more cards.** On a phone each row of pills is one line that scrolls sideways
+  inside itself, never the page; the hero is shorter; the search box and the sort keep their labels for
+  a screen reader but do not draw them. At 390 by 844 the first card now starts 506 pixels down, whole
+  on the first screen (it was 775). From 640 pixels wide nothing changes. Three topics join, each used
+  by six or more of the new skills: Buyer Side, Listing Side and Contracts and Offers. A topic shows only
+  once a card uses it, so they appear with the first skill pages.
+- **Verified:** web tests, typecheck and lint; the API suite (894) against a local Postgres; every page's
+  build compared byte for byte with the build before; a throwaway skill page built and checked in
+  Chromium at 390 pixels (the switch shows one app's steps, no sideways scroll, the copy block and the
+  sample read well); the library at 390 and 1280 pixels. **Not verified:** a real phone, and the switch
+  with a screen reader.
