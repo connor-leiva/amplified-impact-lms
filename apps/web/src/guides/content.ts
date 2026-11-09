@@ -25,6 +25,11 @@ import { TEAM_PLAYBOOK_BUILDER } from './team-playbook-builder';
 import { CONTENT_STRATEGIST } from './content-strategist';
 import { PERFECT_WEEK } from './perfect-week';
 import { INBOX_MEETING_FOLLOW_THROUGH } from './inbox-meeting-follow-through';
+import { DUE_DILIGENCE_REVIEW } from './due-diligence-review';
+import { REPAIR_REQUEST_RESPONSE } from './repair-request-response';
+import { COUNTER_EXPLAINER } from './counter-explainer';
+import { OFFER_STRATEGY } from './offer-strategy';
+import { OFFER_COMPARISON } from './offer-comparison';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -218,6 +223,11 @@ export const GUIDES: Readonly<Record<string, Guide>> = {
   [CONTENT_STRATEGIST.slug]: CONTENT_STRATEGIST,
   [PERFECT_WEEK.slug]: PERFECT_WEEK,
   [INBOX_MEETING_FOLLOW_THROUGH.slug]: INBOX_MEETING_FOLLOW_THROUGH,
+  [DUE_DILIGENCE_REVIEW.slug]: DUE_DILIGENCE_REVIEW,
+  [REPAIR_REQUEST_RESPONSE.slug]: REPAIR_REQUEST_RESPONSE,
+  [COUNTER_EXPLAINER.slug]: COUNTER_EXPLAINER,
+  [OFFER_STRATEGY.slug]: OFFER_STRATEGY,
+  [OFFER_COMPARISON.slug]: OFFER_COMPARISON,
 };
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;

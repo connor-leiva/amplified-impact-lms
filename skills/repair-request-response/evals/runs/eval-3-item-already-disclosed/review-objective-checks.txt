@@ -1,0 +1,11 @@
+PASS  No em or en dashes
+PASS  Check before sending section
+PASS  Title Case subject lines  [The Buyer's Repair Request On 59 E Placeholder Pines Ct: My Recommendation; Sellers' Response To Addendum No. 1, 59 E Placeholder Pines Ct]
+PASS  No stock phrases
+PASS  No wire, routing or account details
+PASS  No agent-only MLS fields
+PASS  No protected-class language
+PASS  No cost estimates without bids (phrasing)
+PASS  Every dollar amount appears in the inputs or is listed arithmetic
+Numbers not found verbatim in the inputs (review each; dates and counts the skill computed are expected):
+  none

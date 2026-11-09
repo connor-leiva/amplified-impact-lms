@@ -135,6 +135,9 @@ describe('the controls', () => {
       'Copy and Paste Prompts',
       'Content',
       'Team Ops',
+      'Buyer Side',
+      'Listing Side',
+      'Contracts and Offers',
     ]);
     for (const name of ['tool', 'topic']) {
       expect(chips(name).map((b) => b.getAttribute('aria-pressed'))[0]).toBe('true');

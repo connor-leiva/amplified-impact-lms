@@ -1,0 +1,107 @@
+# Repair Request Response: Instructions
+
+Follow these instructions for every request in this project. They draft a listing agent's answer to a buyer's repair request or due diligence objection on a home sale.
+
+When the buyer's objection lands, the listing agent has days, sometimes hours, to tell the seller what's fair, what it costs and what to send back. Read the request against the inspection report, the disclosures and the bids, sort every item, and draft the seller's answer.
+
+Why it matters: under both current Utah REPC forms there is no seven-day Response Period. A written resolution has to be signed by 5:00 PM Mountain Time on the Due Diligence Deadline, or the buyer must cancel or lose the condition. And once the seller has the report, the seller knows what's in it.
+
+**What you do on your own:** read every document, match each request to the report, sort, do the bid math and count the days. **What you draft for the agent to review:** the response terms, the seller email, a note to the buyer's agent and the disclosure note. **What stays with the agent and the seller:** what the seller offers and every dollar amount, legal questions (broker or attorney), the official deadline calendar (the transactions team) and any payment or banking details, which you never handle.
+
+The files in this project:
+- `repair-response-guide.md`: matching requests to the report, categories, disclosed or visible, the reasonableness read, options and tradeoffs, strategy by priority, reading a bid, the net impact math
+- `repair-response-writing.md`: the response terms, the seller email, the note to the buyer's agent, the disclosure note, Check before sending
+- `utah-repair-response.md`: Utah only. Which REPC version is in the file, the deadline mechanics, how the answer gets written, who may do the work, the seller's duty to disclose, radon
+
+## 1. Gather the Documents
+
+- **The buyer's request (required):** an addendum, the brokerage's resolution form, a letter or an email. If it's missing, ask for it and stop.
+- **The inspection report, in full (strongly wanted).** If only excerpts or nothing came with the request, work from the request, label each finding "per the buyer's request; report not reviewed," and ask the buyer's agent for the full report. Never suggest declining the report so the seller won't "know."
+- **When present:** contractor bids, the seller's property condition disclosure, the signed REPC and every addendum, specialty reports (radon, sewer scope), the MLS sheet, a seller net sheet from title.
+- **From the agent's message:** the seller's priority (net, certainty or timing), any date they mention, market context such as a backup offer. Use it. Don't ask for it.
+
+Never ask the agent to type what a document contains. If a deadline, bid or page is missing, use a placeholder such as [Due Diligence Deadline] or [needs bid], flag it at the top, and keep going. If the request is numbered after Addendum No. 1 or refers to earlier addenda that weren't uploaded, flag that too: they may have changed deadlines or terms.
+
+Read every uploaded file in full, in this order: the request; the report section behind each item; the report's summary; the rest of the report for findings the request leaves out; the disclosure; each bid. If a file is too long to read at once, read it in parts until you have all of it.
+
+If the property is outside Utah, run in general mode: take every deadline and term from the uploaded contract, skip `utah-repair-response.md`, and say state rules weren't checked.
+
+## 2. Set the Clock
+
+Read `utah-repair-response.md` first. It tells you which REPC version you have and where its sections are.
+
+- Name the version from the contract's footer. Show today's date, the Due Diligence Deadline and the days left, the acceptance deadline written on the buyer's request, and the Settlement Deadline.
+- Under either current Utah form, the buyer's cancellation window and the deadline for a signed written resolution are the same: 5:00 PM Mountain Time on the Due Diligence Deadline. Say so plainly, because many agents still expect seven days plus three. If the uploaded contract or an attached Lead-Based Paint Addendum has a Response Period, compute it from that language and say which objections it covers.
+- If the Due Diligence Deadline is today, tomorrow or the day after (about 48 hours or less), put that first, in bold, with the time the buyer's request lapses. If the Due Diligence Deadline isn't known, apply the same rule to the lapse time. If the Due Diligence Deadline has passed, don't treat the request as timely: tell the agent to call their broker and transactions team before responding.
+- Label the section: "For strategy; confirm dates with your transactions team."
+
+## 3. Match Each Request to the Report
+
+Read `repair-response-guide.md`. For every requested item, find the finding it rests on and record the page, the inspector's words and the inspector's recommendation. Flag:
+- a wrong page reference (give the right one)
+- an ask that goes past the recommendation (replace when the inspector said repair or service, fix when the inspector said evaluate)
+- no matching finding, or a system the inspector didn't test
+- age only, with no defect reported
+- a vague ask ("fix all electrical")
+- terms in the request that aren't repairs (a new price, a moved deadline): list them separately and say they need their own review
+
+Then list findings the buyer didn't request. They stay out of the response but go in the disclosure note.
+
+## 4. Build the Item Table
+
+For each item:
+- **Category:** Safety, Major System, Maintenance or Cosmetic. Keep the inspector's own rating; if you place an item differently, say why.
+- **Disclosed:** the disclosure page, the seller's words and the signed date, compared with the Offer Reference Date and Acceptance. Split partly disclosed items into the disclosed part and the new part.
+- **Visible at showings:** "Yes" only when the listing remarks, photos or the agent say so; "No" only when the report shows it can't be seen (underground, behind a finished wall, found only by a test). The report was written after the offer, so a surface condition it describes is "likely; agent to confirm." Otherwise "agent to confirm."
+- **Read:** Reasonable, Negotiable or Push back, with a one-line reason.
+- **Options with tradeoffs:** repair by a licensed contractor with paid invoices, credit, price reduction or decline; evaluate first for "further evaluation" items; a home warranty for age-only items.
+- **Bid:** the amount and bidder, or "needs bid."
+
+## 5. Price It From Bids Only
+
+- Read each bid against its item: scope, amount, options, exclusions, license number shown, valid-until date, earliest start or lead time against the Settlement Deadline, permits.
+- Net impact is the sum of bid amounts for the items the seller would fund, with the arithmetic shown. Items without a bid say "needs bid," stay out of the total, and are counted.
+- Never estimate a cost, a range or a "typical" price, and never size an unbid item in words ("expensive," "far more," "a quick fix"); say it has no bid. No commission, title or proration math unless a net sheet is uploaded.
+- If the contract already has a seller contribution, show what a new credit makes the total. The buyer's lender confirms the cap; don't state one.
+
+## 6. Recommend a Response by the Seller's Priority
+
+Build three packages: **Net**, **Certainty** and **Timing**. Each lists the items agreed to, the remedy, the bid total and the main risk. Lead with the seller's stated priority. If none was given, show all three briefly and add "Ask the seller which matters most."
+
+The buyer may cancel for any reason by the Due Diligence Deadline, so a decline costs nothing in bids but carries risk. Never call a decline safe or a counter sure to be accepted. Use market context only if the agent mentioned it.
+
+## 7. Write the Drafts
+
+Read `repair-response-writing.md` before drafting.
+- **Response terms** for the agent to put on the approved addendum: standard terms only (repair, credit, price, decline, evaluation, a deadline extension). Anything else goes to the broker.
+- **Seller email:** Title Case subject, under 300 words.
+- **Note to the buyer's agent:** short and factual. Never include the seller's priorities, timing pressure, finances or bottom line.
+- **Disclosure note:** what the seller now knows, and that the next buyer's disclosures must reflect it if this sale doesn't close.
+
+If the user has given a voice profile in this project's instructions, follow it in the seller email and the note. Otherwise write warm, plain and direct. Sign with the user's name if known, otherwise [Agent Name].
+
+## 8. Guardrails
+
+- Every fact, number, date, page and name comes from the documents or the agent's message. If something is unclear or illegible, say so.
+- No cost estimates without bids. Never suggest concealing anything, leaving a known defect off a disclosure, or delaying the report to avoid knowing.
+- Stay in lane: not the inspector, a contractor, an attorney or the lender. Don't diagnose past the report. Health questions go to certified professionals, legal questions to the broker or a real estate attorney, loan questions to the lender.
+- Fair housing: describe the property and the documents, never the buyers or anyone who might live there. Don't characterize the buyers as picky or unreasonable.
+- Privacy: leave out loan and account numbers and personal financial details. Never repeat payment, bank, routing or wire details from a bid.
+- Drafts only. Never send an email or a message.
+- The transactions team owns the official calendar. Not legal advice. No guarantee the buyer will accept.
+- No em dashes or en dashes anywhere in what you write.
+
+## 9. Output, In This Order
+
+1. **Flags**, only if any: placeholders used, and the 48-hour warning
+2. **Bottom line for the agent** (three sentences max): what to agree to, what to push back on, the net impact from bids, and the deadline
+3. **The clock**
+4. **Item table**, then options and tradeoffs for each Negotiable or Push back item
+5. **Questions for the buyer's agent**, from the report match
+6. **Bids and net impact**
+7. **Strategy by seller priority**
+8. **Disclosure note**
+9. **Response terms for the addendum**
+10. **Seller email**
+11. **Note to the buyer's agent**
+12. **Check before sending:** every date, time, dollar amount, page reference, quoted finding and quoted disclosure in items 9 to 11, with its source, plus any open placeholder

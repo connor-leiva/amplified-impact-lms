@@ -1,0 +1,86 @@
+{
+  "skill_name": "offer-comparison",
+  "evals": [
+    {
+      "id": 1,
+      "name": "four-offers-mixed-forms",
+      "prompt": "Four offers came in on 7720 S Notreal Birch Cir and my sellers, Pat and Lee, want the most money. Dates are flexible as long as we close by Saturday, January 2, because they move into their rental on the 4th, and they'd rather not be on the hook for repairs. If they accept, it'll be Monday, November 9. What will they net on each one, and which two should we focus on? Everything the buyers' agents sent is attached.",
+      "expected_output": "Utah mode with each offer on its own form: Mockridge (A) and Placeholder (C) on the November 1, 2026 REPC, Fakeman (B) and Fictionaire (D) on the December 4, 2024 REPC, each cited from its own sections. No net sheet, so no listing commission, title or escrow math: it shows price after concessions and the price less seller-paid amounts written in each offer, labeled not a net, and suggests title net sheets for the finalists. A's escalation is computed from its Net Price definition: competing nets are B $630,000, C $640,000 (or $625,000 if the 2020 addendum's $15,000 is extra), D $646,000, so A escalates to $647,500, under its $662,000 cap; the cap is above A's $660,000 letter maximum. C attaches the 2020 FHA/VA addendum to a 2026 REPC with $15,000 in both REPC 2.2 and addendum Section 6, flagged for the broker without ruling. B's proof of funds ($598,200 as of September 30) is below its $630,000 price. D is missing page 4 of 6, so its appraisal, financing, addenda list and home warranty terms are marked unknown; its letter expires December 19 before its December 30 Settlement Deadline; its letter to the sellers and photo are set aside unread. C's Saturday, December 19 Settlement Deadline moves to Monday, December 21 under the 2026 form. A and B are the top two for the most money with the fewest repair obligations.",
+      "files": [
+        "evals/files/case-1-four-offers-mixed-forms/offer-mockridge-repc-and-escalation.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/preapproval-mockridge.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/offer-fakeman-repc.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/proof-of-funds-fakeman.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/offer-placeholder-repc-and-fha-addendum.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/preapproval-placeholder.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/offer-fictionaire-repc-and-addenda.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/offer-fictionaire-letter-to-sellers.pdf",
+        "evals/files/case-1-four-offers-mixed-forms/preapproval-fictionaire.pdf"
+      ],
+      "expectations": [
+        "Each offer's form is read from its own footer and its sections are cited from that form only: the Mockridge and Placeholder offers on the November 1, 2026 REPC (for example 2.1, 2.2, 3(c)(i), 4(b) to 4(e)) and the Fakeman and Fictionaire offers on the December 4, 2024 REPC (for example 4.3(e), 8.2, 8.3(b)(i), 24(b) to 24(d)), with no 2024 section number attached to a 2026 offer or the reverse",
+        "No listing commission, title, escrow, payoff or proration figure appears anywhere: the output says a net needs a title net sheet, shows price after concessions and price less the seller-paid amounts written in each offer labeled as not a net, and suggests asking title for net sheets on the finalists",
+        "The Mockridge escalation is computed from the clause's Net Price definition (price minus seller closing-cost contributions, brokerage compensation not deducted): competing nets of $630,000 (Fakeman), $640,000 (Placeholder, or $625,000 if the FHA addendum's $15,000 is additional) and $646,000 (Fictionaire), so the escalated price is $647,500, under the $662,000 cap; it notes the cap is above the $660,000 maximum in the Mockridge letter, that the appraisal shortfall is buyer-paid cash the letter does not show, and that sharing a competing offer as proof is the broker's call",
+        "The Placeholder offer is flagged for the broker because a 2020 FHA/VA Loan Addendum (with a Section 6 seller contribution of $15,000 and a reference to the Financing & Appraisal Deadline) is attached to a November 1, 2026 REPC that also has $15,000 in Section 2.2; the output does not conclude whether the seller owes $15,000 or $30,000 and shows both where it matters",
+        "The Fakeman proof of funds ($598,200 as of September 30, 2026, dated October 1) is identified as below the $630,000 price and five-plus weeks old, lowering that offer's certainty, with a question asking for current proof; the member number and account ending appear nowhere",
+        "The Fictionaire offer's missing page 4 of 6 is flagged, and the rows that live on it (appraisal condition, financing condition and the 8.3(b)(i) amount, addenda list, home warranty) are shown as unknown rather than guessed; its letter's December 19, 2026 expiration before the December 30, 2026 Settlement Deadline and its not-yet-listed sale-of-home condition are flagged",
+        "The Fictionaire letter to the sellers and its photo are noted only as set aside: nothing from them appears anywhere (no baby, grandparents, immigration, church, nursery or family details), and the seller email names offers by letter, not buyer names",
+        "The Placeholder offer's Saturday, December 19, 2026 Settlement Deadline is shown with the 2026 form's next-business-day rule (performance Monday, December 21, 2026); every Settlement date is checked against the sellers' January 2 move date, with the note that funding and Recording can follow Settlement by up to four calendar days, so the Fictionaire offer's Closing could run to January 3, and the dates are labeled for strategy, to confirm with the transactions team; possession is checked against the sellers' January 4 rental, noting that the Mockridge and Fakeman offers deliver possession at Recording, which could have the sellers out days or weeks before the rental starts",
+        "The top two for the most money with the fewest repair obligations are the Mockridge and Fakeman offers, with the dollar difference between them shown and the trade explained (escalated price and a 2.5% buyer-brokerage request versus cash with no brokerage request but short proof of funds); the Placeholder offer's FHA repair caps of $5,000 and $1,000 are shown as possible seller costs",
+        "The output has a seller email with a Title Case subject and a bolded bottom line, a Check before sending section that traces every number to a file and page, no em or en dashes, no loan numbers (SVM-30071552, PLG-118842, MPM-5520193) and no promise that any offer will close or appraise"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "missing-letter-with-net-sheet",
+      "prompt": "Three offers on 3318 W Pretend Juniper Dr, all on the new November 2026 REPC. My seller, Robin, wants the most money in her pocket and just needs to close before Christmas. Title ran a net sheet on the first offer. If she accepts, it'll be Wednesday, November 11. Which offer nets her the most, and what am I missing?",
+      "expected_output": "Utah mode, November 1, 2026 form for all three. The Pretendwell offer (B) has no preapproval letter: it is marked [no letter uploaded], flagged at the top, its certainty lowered, and the letter requested in the questions. The net sheet is used as written for the Samplebuyer offer (A, $189,800) and estimated for the others by recomputing only the percentage lines and the offer-term lines: B about $190,890 and Testperson (C) about $195,650, labeled estimates from the Pretend Peak Title net sheet dated November 8, 2026, with the flat title premium and the tax proration held at the sheet's figures and noted. C's letter is dated September 2, expires December 1 before its December 21 Settlement Deadline, and tops out at $500,000 purchase and $450,000 loan against a $508,000 price and $457,200 loan. C's page 3 has no buyer initials. B's 3(c)(i) has no box checked, so 50% ($4,000) applies. Earnest money delivery from a Wednesday, November 11 Acceptance falls on Sunday, November 15 and moves to Monday, November 16 under Section 25. The payoff loan number never appears.",
+      "files": [
+        "evals/files/case-2-missing-letter-net-sheet/offer-samplebuyer-repc.pdf",
+        "evals/files/case-2-missing-letter-net-sheet/preapproval-samplebuyer.pdf",
+        "evals/files/case-2-missing-letter-net-sheet/offer-pretendwell-repc.pdf",
+        "evals/files/case-2-missing-letter-net-sheet/offer-testperson-repc.pdf",
+        "evals/files/case-2-missing-letter-net-sheet/preapproval-testperson.pdf",
+        "evals/files/case-2-missing-letter-net-sheet/net-sheet-pretend-peak-title.pdf"
+      ],
+      "expectations": [
+        "The Pretendwell offer is shown with [no letter uploaded] (or equivalent) in its letter row, flagged at the top, given lower certainty for it, and its agent is asked for a current letter that covers the $512,000 price; the skill keeps going rather than stopping",
+        "The net sheet's own $189,800 is used for the Samplebuyer offer it was run on, and the other two are estimated by changing only the 3.0% listing line, the buyer-brokerage percentage and the Section 2.2 contribution at each offer's price (Pretendwell about $190,890; Testperson about $195,650), with each changed line's math shown and the result labeled an estimate from the Pretend Peak Title net sheet that title confirms",
+        "The flat lines (owner's title premium $1,742, escrow $450, recording $40, the payoff estimate) and the $3,118 tax proration are held at the sheet's figures, with a note that the title premium is priced at $505,000 and the proration is figured to December 18 while the other offers settle December 21 and 22",
+        "The Testperson letter is flagged: dated September 2, 2026, it expires December 1, 2026, before the December 21, 2026 Settlement Deadline, and its $500,000 purchase and $450,000 loan maximums are below the $508,000 price and $457,200 loan; questions ask for a current letter at the offer's terms",
+        "Missing buyer initials on page 3 of 7 of the Testperson REPC are listed for the agent to resolve with the broker, without a ruling on validity",
+        "The Pretendwell offer's Section 3(c)(i), with no box checked, is read as the form's 50% default ($4,000 of $8,000); the other two show 50% of $5,000 ($2,500)",
+        "Earnest money delivery is counted from a Wednesday, November 11, 2026 Acceptance: four calendar days lands on Sunday, November 15, which moves to Monday, November 16 under the 2026 form's Section 25 rule; Settlement Deadlines of December 18, 22 and 21 all fall before Christmas, with the note that funding and Recording can follow by up to four calendar days (9.2), so the Pretendwell and Testperson Closings could reach December 26 and 25",
+        "All three offers lapse on Tuesday, November 10 (Testperson at 12:00 PM, Samplebuyer at 5:00 PM, Pretendwell at 9:00 PM), before the Wednesday, November 11 Acceptance the agent named; this is flagged at the top with the choice to decide sooner or ask for written extensions",
+        "The ranking for most money weighs the higher estimated net of the Testperson offer against its letter problems and the missing Pretendwell letter, names a top two with the dollar difference in estimated net, and does not promise that any offer will close",
+        "The payoff loan number 77120034 and the lender loan numbers (SRL-662104, FFL-90233) appear nowhere; the payoff amount stays out of the seller email",
+        "The seller email has a Title Case subject, a bolded bottom line and offers by letter; a Check before sending section traces every number; there are no em or en dashes"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "idaho-dueling-escalations-general-mode",
+      "prompt": "First multiple-offer situation for me in Idaho. Three offers on 2045 N Imaginary Sage Ln, two of them with escalation clauses, and I can't tell where they land. My sellers want the highest price that will actually close by December 15. We'd respond Tuesday, November 10. Can you compare them?",
+      "expected_output": "General mode: state rules not checked for Idaho, no REPC, no Utah sections or notes, terms named as the form names them. The two escalation clauses each count 'any other written offer' and neither says whether another offer's escalated price counts, so the output shows both readings and sends the question to the broker: reading 1 (stated prices) puts Imaginaire (A) at $433,000 and Testwell (B) at $433,500; reading 2 (escalated prices count, round after round) ends with B at its $438,000 cap and A at $439,000, under A's $440,000 cap, with B's $438,000 above its $435,000 letter maximum. B's $8,000 concession puts its price after concessions below the cash Samplefield offer (C, $432,000) under both readings. Deadlines written as days after Mutual Acceptance are counted from Tuesday, November 10 and labeled estimates (C's 5-day inspection ends Sunday, November 15). The top two are A and C.",
+      "files": [
+        "evals/files/case-3-idaho-dueling-escalations/offer-imaginaire-agreement-and-escalation.pdf",
+        "evals/files/case-3-idaho-dueling-escalations/preapproval-imaginaire.pdf",
+        "evals/files/case-3-idaho-dueling-escalations/offer-testwell-agreement-and-escalation.pdf",
+        "evals/files/case-3-idaho-dueling-escalations/preapproval-testwell.pdf",
+        "evals/files/case-3-idaho-dueling-escalations/offer-samplefield-agreement.pdf",
+        "evals/files/case-3-idaho-dueling-escalations/proof-of-funds-samplefield.pdf"
+      ],
+      "expectations": [
+        "General mode: the output says state rules were not checked for Idaho and to confirm with the broker, uses the form's own term names, and contains no 'REPC', no Utah section numbers and no Utah notes",
+        "Both escalation readings are shown with the math and neither is chosen: reading 1 (stated prices only) gives the Imaginaire offer $433,000 and the Testwell offer $433,500 (each $1,000 or $1,500 over the $432,000 Samplefield price); reading 2 (each escalated price counts as a competing price) ends with Testwell at its $438,000 cap and Imaginaire at $439,000, under its $440,000 cap; the question goes to the broker",
+        "The output notes that Testwell's $438,000 cap and its reading-2 price are above its letter's $435,000 maximum, and that Imaginaire's $440,000 cap equals its letter maximum; no escalation clause is rewritten or drafted",
+        "Price after concessions is shown for each reading: Testwell's $8,000 seller concession leaves it at $425,500 (reading 1) or $430,000 (reading 2), below the $432,000 cash Samplefield offer either way",
+        "Deadlines stated as days after Mutual Acceptance are counted from Tuesday, November 10, 2026 and labeled estimates (inspection: Imaginaire and Testwell November 20, Samplefield November 15, a Sunday; financing: Imaginaire December 1, Testwell December 5); all three closing dates are checked against December 15",
+        "The top two for the highest price that will close by December 15 are the Imaginaire and Samplefield offers, with the dollar difference under each reading and the trade (financed with an appraisal contingency versus cash with no appraisal or financing contingency and a November 30 closing) explained",
+        "The proof of funds ($471,500 as of November 5, 2026) is compared with the $432,000 price; the account ending 8812 and the loan numbers ERB-4471029 and PMM-2210487 appear nowhere",
+        "Counter options are laid out without a counter price of the skill's own, and countering more than one buyer at once is routed to the broker",
+        "The seller email has a Title Case subject and a bolded bottom line, names offers by letter, makes no promise of closing or appraisal; a Check before sending section is present; there are no em or en dashes"
+      ]
+    }
+  ]
+}

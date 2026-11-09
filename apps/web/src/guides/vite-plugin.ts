@@ -23,6 +23,11 @@ export const GUIDE_HTML = [
   'content-strategist.html',
   'perfect-week.html',
   'inbox-meeting-follow-through.html',
+  'due-diligence-review.html',
+  'repair-request-response.html',
+  'counter-explainer.html',
+  'offer-strategy.html',
+  'offer-comparison.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */
