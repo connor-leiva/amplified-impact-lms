@@ -14,8 +14,7 @@
 // points to Offer Strategy, for deciding what to offer.
 //
 // What the page leaves out or hedges, and why:
-//   - No routing or scheduling: SKILL.md, section 9. The page says the showing service (ShowingTime is
-//     the example) and the MLS's routing report do that, and the AI keeps the agent's order.
+//   - No routing or scheduling: SKILL.md, section 9. The page says the showing service and the MLS's routing report do that, and the AI keeps the agent's order.
 //   - ChatGPT Free's upload and per-message limits came from search excerpts and OpenAI's pricing page
 //     (help.openai.com did not load for the review), so the page states no numbers for them: it says
 //     Free limits uploads and how much fits in a message, and what that means.
@@ -108,13 +107,13 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
             'FHA: one sheet doesn’t list FHA in its Terms (home 2).',
           ],
         },
-        { h: 'Bottom line' },
+        { h: 'Bottom Line' },
         {
           p: [
             'No home meets every must-have: Spanish Fork checks the most boxes (bedrooms, baths, a 3-car garage, a garden yard and an unfinished basement) but is $24,900 over the $600,000 budget, and West Jordan meets the bedrooms, baths, garage, budget and HOA, with yard space to check. Sandy’s sheet lists cash or conventional only (they’re FHA) and a 1-car garage, and the Murray condo has no garage or yard and rental restrictions. Before 4:00 PM Monday: get the buyer agreement signed and send the one notice on the Agent-Only Page today.',
           ],
         },
-        { h: 'Tour at a glance' },
+        { h: 'Tour at a Glance' },
         {
           table: {
             caption: '3 of its 11 columns',
@@ -128,7 +127,8 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
             ],
           },
         },
-        { h: 'Home by home: 2. 1187 E Placeholder Pine Ave, Sandy' },
+        { h: 'Home by Home (public fields only)' },
+        { p: [{ strong: '2. 1187 E Placeholder Pine Ave, Sandy' }] },
         { p: [{ strong: 'Look at in person' }] },
         {
           items: [
@@ -146,7 +146,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
             'The public remarks also describe who the home suits; that wording isn’t repeated here or on the tour sheet.',
           ],
         },
-        { h: 'Buyer tour sheet (share this page)' },
+        { h: 'Buyer Tour Sheet (Share This Page)' },
         { p: [{ strong: 'Tour Sheet: Monday, November 9, 2026' }] },
         { p: ['Prepared by Taylor Example for Sam and Alex'] },
         { p: [{ strong: '4. 752 W Sample Ridge Rd, West Jordan' }] },
@@ -173,8 +173,8 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
             'Questions about schools, safety, flood zones or the area: the school district, the local police department and FEMA’s flood maps are the official sources, and I’m glad to help you find them.',
           ],
         },
-        { h: 'Agent-only page: do not share or forward' },
-        { p: [{ strong: 'Before the tour' }] },
+        { h: 'Agent-Only Page: Do Not Share or Forward' },
+        { p: [{ strong: 'Before the Tour' }] },
         {
           items: [
             'Get the buyer agreement signed before 4:00 PM Monday (sent 11/05, not signed per your note).',
@@ -199,7 +199,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
             'Will the tenant be out before a January settlement?',
           ],
         },
-        { h: 'Check before sending' },
+        { h: 'Check Before Sending' },
         {
           items: [
             'Home 4: $575,000; 4 beds; 2 full and 1 half above grade plus 1 three-quarter down; 980 plus 580 = 1,560 sq ft above grade; 1,040 sq ft basement, 100% finished (Levels); 0.17 acres; built 1999; HOA $45 monthly (HOA); kitchen 2022, roof 2021, egress window (Features, Public Remarks).',
@@ -277,7 +277,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner controls skills',
         },
         {
@@ -287,7 +287,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
         },
         {
           title: 'A computer',
-          body: 'To set it up once, on claude.ai, in the Claude desktop app or on the ChatGPT website. Saving MLS reports as PDFs is easiest on a computer too.',
+          body: 'To set it up once, on claude.ai or the ChatGPT website. Saving MLS reports as PDFs is easiest on a computer too.',
         },
         {
           title: 'MLS sheets, as PDFs',
@@ -365,7 +365,7 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
           // SKILL.md, sections 2 and 8; page-notes.md's FAQ and "Privacy".
           q: 'Will my buyers see the private remarks or the lockbox codes?',
           a: [
-            'Not on the tour sheet. Agent remarks, showing instructions, occupancy, and owner or tenant names and phone numbers go only on your agent-only page. Lockbox, gate and alarm codes aren’t repeated anywhere, not even there. Your page just says “code is on the MLS sheet; not repeated here.” If the private remarks hold something your buyers should know, like a special assessment, your agent-only page says so. It suggests you ask the listing agent for the document and check with your broker on how to share it. Your uploaded MLS sheets still hold everything, so share the tour sheet, never the chat.',
+            'Not on the tour sheet. Agent remarks, showing instructions and occupancy go only on your agent-only page. Owner and tenant names and phone numbers, and lockbox, gate and alarm codes, aren’t repeated anywhere, not even there. Your page just says a contact or a code “is on the MLS sheet; not repeated here.” If the private remarks hold something your buyers should know, like a special assessment, your agent-only page says so. It suggests you ask the listing agent for the document and check with your broker on how to share it. Your uploaded MLS sheets still hold everything, so share the tour sheet, never the chat.',
           ],
         },
         {
@@ -396,14 +396,14 @@ export const SHOWING_TOUR_PREP: Guide = skillPage({
           // for the Project.
           q: 'Which plan do I need?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project works on the free plan, but free ChatGPT limits how many files you can upload a day and how much text fits in one message. So on free ChatGPT, setup and practice can take more than one day, and a big tour may not fit in one message: save the tour’s sheets as one PDF. We haven’t tried the skill on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. In ChatGPT, a Project works on the free plan, but free ChatGPT limits how many files you can upload a day and how much text fits in one message. So on free ChatGPT, setup and practice can take more than one day, and a big tour may not fit in one message: save the tour’s sheets as one PDF. We haven’t tried the skill on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
           ],
         },
         {
           // page-notes.md, "What It Will Not Do"; SKILL.md, section 9.
           q: 'What won’t the AI do?',
           a: [
-            'The AI won’t plan the route, book showings or confirm appointments. Your showing service, like ShowingTime, and your MLS’s routing report already do that, and the AI keeps the homes in the order you give. It won’t say what to offer, call a home overpriced or a good deal, or estimate repair costs. It never sends anything or writes to your CRM, and it leaves bank account and wire details out of what it writes.',
+            'The AI won’t plan the route, book showings or confirm appointments. Your showing service and your MLS’s routing report already do that, and the AI keeps the homes in the order you give. It won’t say what to offer, call a home overpriced or a good deal, or estimate repair costs. It never sends anything or writes to your CRM, and it leaves bank account and wire details out of what it writes.',
           ],
         },
       ],

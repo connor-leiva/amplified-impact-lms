@@ -322,7 +322,7 @@ export const OFFER_STRATEGY: Guide = skillPage({
         },
         {
           title: 'Recommended terms',
-          body: 'Every term in a table, with a reason: price, earnest money, due diligence, appraisal and financing deadlines, settlement, possession, appraisal and financing protection, seller concessions, sale of your buyer’s home, escalation, and lead-based paint when it applies. In Utah, with the section number on your form. The dates are counted from Acceptance and labeled for strategy.',
+          body: 'Every term in a table, with a reason: price, earnest money, due diligence, appraisal and financing deadlines, settlement, possession, appraisal and financing protection, seller concessions, sale of your buyer’s home, escalation, and lead-based paint when it applies. In Utah, with the section number on your form. When you give an expected Acceptance date, the dates are counted from it and labeled for strategy.',
         },
         {
           title: 'A risk ledger',
@@ -334,7 +334,7 @@ export const OFFER_STRATEGY: Guide = skillPage({
         },
         {
           title: 'A buyer email',
-          body: 'Written as you, under 350 words: the recommended price, the sales behind it, the terms, what each choice risks, and the decisions your buyer needs to make. It ends with a line advising against a personal letter or photos.',
+          body: 'Written as you, under 350 words: the recommended price, the sales behind it, the terms, what each choice risks, and the decisions your buyer needs to make. It includes a line advising against a personal letter or photos.',
         },
         {
           title: 'Check before sending',
@@ -351,7 +351,7 @@ export const OFFER_STRATEGY: Guide = skillPage({
         {
           label: 'Run',
           title: 'The AI does the reading and math',
-          body: 'Reads the MLS sheet, its price history, the comps and the preapproval letter, and sorts the comps. Does the math: days on market against the comps, prices after concessions, the appraisal gap, and every date counted from Acceptance.',
+          body: 'Reads the MLS sheet, its price history, the comps and the preapproval letter, and sorts the comps. Does the math: days on market against the comps, prices after concessions, the appraisal gap, and the dates, counted from the Acceptance date you give.',
         },
         {
           label: 'Draft',
@@ -376,7 +376,7 @@ export const OFFER_STRATEGY: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on, so Claude can do the comp and date math. Claude’s help center lists skills on every plan, Free included.',
+          body: 'With skills and code execution on, so Claude can do the comp and date math. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner controls skills',
         },
         {
@@ -386,7 +386,7 @@ export const OFFER_STRATEGY: Guide = skillPage({
         },
         {
           title: 'A computer',
-          body: 'To set it up once, on claude.ai, in the Claude desktop app or on the ChatGPT website. Saving reports from your MLS is easiest on a computer too.',
+          body: 'To set it up once, on claude.ai, in the Claude desktop app or on the ChatGPT website. The MLS steps below are written for a computer.',
         },
         {
           title: 'Your files',
@@ -500,7 +500,7 @@ export const OFFER_STRATEGY: Guide = skillPage({
           // published. The practice set is 3 files, plus 4 for the Project.
           q: 'Which plan do I need?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project on Free, Go, Plus or Pro. Free ChatGPT limits how many files you can upload a day, so setup and the practice run can take more than one day. Free ChatGPT also limits data analysis, and ChatGPT tells you when you reach that limit. We tested the skill in Claude. We haven’t tried it on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. In ChatGPT, a Project on Free, Go, Plus or Pro. Free ChatGPT limits how many files you can upload a day, so setup and the practice run can take more than one day. Free ChatGPT also limits data analysis, and ChatGPT tells you when you reach that limit. We tested the skill in Claude. We haven’t tried it on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
           ],
         },
         {

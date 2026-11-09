@@ -77,7 +77,7 @@ export const LOW_APPRAISAL_RESPONSE: Guide = skillPage({
     body: [
       'Start a new chat the same way. Attach the full appraisal, the signed contract with every addendum, and your CMA or MLS export. Then say this.',
     ],
-    // page-notes.md, "Things to Say", the first, without its [brackets]: the AI reads the numbers from the files.
+    // Built from page-notes.md, "Things to Say", the first, in plain words: the AI reads the address and numbers from the files.
     prompt: 'The appraisal came in under our contract price. Here’s the appraisal, the contract and my comps. What are our options?',
     note: [
       'Add which side you’re on, the lender’s name and what your client wants. You don’t need to type anything that’s in your files. Before anything goes out, check every date, dollar amount and page number in the ',
@@ -334,7 +334,7 @@ export const LOW_APPRAISAL_RESPONSE: Guide = skillPage({
         },
         {
           title: 'The clock',
-          body: 'Which contract the AI read and its appraisal terms, quoted. The deadline at 5:00 PM Mountain Time, the days left, and what a cancellation needs. Whether the lender’s review can finish in time, and what canceling under the financing condition instead would cost. Labeled for strategy: your transactions team keeps the official dates.',
+          body: 'Which contract the AI read and its appraisal terms, quoted. The deadline and its time (5:00 PM Mountain Time in Utah), the days left, and what a cancellation needs. Whether the lender’s review can finish in time. If your contract releases earnest money on a financing cancellation, what canceling that way instead would cost. Labeled for strategy: your transactions team keeps the official dates.',
         },
         {
           title: 'The gap',
@@ -342,7 +342,7 @@ export const LOW_APPRAISAL_RESPONSE: Guide = skillPage({
         },
         {
           title: 'A fact check',
-          body: 'The home’s facts in the report against the report’s own sketch and photos and your MLS data: above-grade and basement area, finish, bedrooms, baths, lot and garage. For any fact that’s off, the report’s own adjustment rates applied as arithmetic, labeled “not a value.”',
+          body: 'The home’s facts in the report against the report’s own sketch and photos and your MLS data: above-grade and basement area, finish, bedrooms, baths, lot and garage. For any fact that’s off, the report’s own adjustment rates applied as arithmetic, labeled “arithmetic, not a value opinion.”',
         },
         {
           title: 'A comparable review',
@@ -365,7 +365,7 @@ export const LOW_APPRAISAL_RESPONSE: Guide = skillPage({
           body: 'Buyer’s side: a request from your buyers to their lender, in the loan program’s format, with no target value. Listing side: a data package for the buyer’s agent to pass to the buyer and the lender. With weak grounds, what a request would need instead of a padded one.',
         },
         { title: 'A client email', body: 'Written as you, in plain words: the gap, what the AI found, the options and what happens next.' },
-        { title: 'A note to the other agent', body: 'Short and factual, like a request for an extension.' },
+        { title: 'A note to the other agent', body: 'Short and factual, like a request for an extension. On the listing side, the data package’s cover note can stand in.' },
         {
           title: 'Check before sending',
           body: 'Every date, time, dollar amount, square footage, page number, MLS number and quote in the drafts, with where to check it.',
@@ -518,7 +518,7 @@ export const LOW_APPRAISAL_RESPONSE: Guide = skillPage({
           // page-notes.md's FAQ; SKILL.md, section 2; both REPCs (references/utah-appraisal.md).
           q: 'Does the lender’s review stop the contract clock?',
           a: [
-            'No. In Utah, the buyer’s right to cancel over a low appraisal ends at 5:00 PM Mountain Time on the contract’s deadline, and the lender’s timing doesn’t change that. If the review won’t finish in time, the buyer and seller sign an extension before the deadline, or the buyer decides by then. Canceling later under the financing condition instead can cost part of the earnest money, and the AI shows how much.',
+            'No. In Utah, the buyer’s right to cancel over a low appraisal ends at 5:00 PM Mountain Time on the contract’s deadline, and the lender’s timing doesn’t change that. If the review won’t finish in time, the buyer and seller sign an extension before the deadline, or the buyer decides by then. Canceling later under the financing condition instead can cost part of the earnest money, and the AI shows the amount when your contract sets one.',
           ],
         },
         {

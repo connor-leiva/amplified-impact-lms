@@ -94,7 +94,7 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
       // whole parts, rows, items and sentences: the bottom line; the change table in three columns so it
       // fits a phone (the Source column dropped; each term's section, and "Stated up front? No", moved into
       // its name; the warranty cell cut to its cost and who pays) with the line under it; two of the
-      // math's four lines; the client email in full; three of the five requested changes with the broker
+      // math's five lines; the client email in full; three of the five requested changes with the broker
       // line; three rows of Check before sending. Left out: the flags, the chain, the deal as it stands,
       // the questions, what it means, the timeline and the options (the email carries them).
       kind: 'sample',
@@ -291,7 +291,7 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns them on',
         },
         {
@@ -379,7 +379,7 @@ export const COUNTER_EXPLAINER: Guide = skillPage({
           // files for the Project.
           q: 'Which plan do I need?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project works on the free plan, but free ChatGPT limits how many files you can upload and how much text fits in one message. So on free ChatGPT, setup and practice can take more than one day, and a contract with several addenda may not fit in one message. We tested the skill in Claude. We haven’t tried it on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. In ChatGPT, a Project works on the free plan, but free ChatGPT limits how many files you can upload and how much text fits in one message. So on free ChatGPT, setup and practice can take more than one day, and a contract with several addenda may not fit in one message. We tested the skill in Claude. We haven’t tried it on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
           ],
         },
         {

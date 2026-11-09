@@ -88,7 +88,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What the prep looks like',
-      body: 'What the AI wrote from the practice files: a made-up home in Utah, made-up sellers and a made-up CMA. They’re the same files you practise on in setup.',
+      body: 'What the AI wrote from the practice files: a made-up home in Utah, made-up sellers and a made-up CMA. They’re the same files you practice on in setup.',
       title: 'Pricing Prep: 1482 W Juniper Example Dr (New Listing)',
       note: 'Made-up example. Shortened: a few lines from each part.',
       blocks: [
@@ -273,7 +273,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on, so Claude can do the math on your export. Claude’s help center lists skills on every plan, Free included.',
+          body: 'With skills and code execution on, so Claude can do the math on your export. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns them on',
         },
         {
@@ -364,7 +364,7 @@ export const PRICING_CONVERSATION_PREP: Guide = skillPage({
           // plan, its docs on Pro and up; no run on Free, and none inside ChatGPT.
           q: 'Which plan do I need?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project on Free, Go, Plus or Pro. Free ChatGPT has limits on uploads and data analysis, and ChatGPT tells you when you reach one. We tested the skill in Claude. We haven’t tried it on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. In ChatGPT, a Project on Free, Go, Plus or Pro. Free ChatGPT has limits on uploads and data analysis, and ChatGPT tells you when you reach one. We tested the skill in Claude. We haven’t tried it on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
           ],
         },
         {

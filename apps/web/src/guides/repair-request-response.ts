@@ -98,7 +98,7 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
       // inspector's words, disclosed, visible and bid columns dropped) and the basement line from Options
       // and Tradeoffs; the net impact; the bid's timing and its bank-details line; the disclosure note's
       // roof and rodent lines and its closing lines (without the Utah citations sentence); four of the
-      // seven response terms (without their numbers, and the opening's quoted parenthetical cut); the
+      // seven response terms (without their numbers, and the opening in full); the
       // seller email in full; three rows of Check before sending. Left out: the clock's other rows,
       // Questions for the Buyer's Agent, the strategy packages and the note to the buyer's agent. Also
       // left out: the disclosure note's "Not requested" line, which lists the stained basement carpet,
@@ -216,7 +216,9 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
         { h: 'Response terms for the addendum' },
         {
           p: [
-            'The sellers check COUNTEROFFER on the buyer’s Addendum No. 2 and sign. Addendum No. 3 is a state-approved addendum with the COUNTEROFFER box checked:',
+            'The sellers check ',
+            { strong: 'COUNTEROFFER' },
+            ' on the buyer’s Addendum No. 2 (“presents as a counteroffer the terms of attached ADDENDUM NO. 3”) and sign. Addendum No. 3 is a state-approved addendum with the COUNTEROFFER box checked:',
           ],
         },
         {
@@ -360,7 +362,7 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns them on',
         },
         {
@@ -453,7 +455,7 @@ export const REPAIR_REQUEST_RESPONSE: Guide = skillPage({
           // the top). The practice set alone is 4 PDFs, plus 4 files for the Project.
           q: 'Which plan do I need?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project works on the free plan, but free ChatGPT limits how many files you can upload in a day. So on free ChatGPT, setup and a deal’s request, report, disclosure and bids can take more than one day. We haven’t tried the skill on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. In ChatGPT, a Project works on the free plan, but free ChatGPT limits how many files you can upload in a day. So on free ChatGPT, setup and a deal’s request, report, disclosure and bids can take more than one day. We haven’t tried the skill on Claude’s free plan or inside ChatGPT yet, so run the practice files first.',
           ],
         },
         {

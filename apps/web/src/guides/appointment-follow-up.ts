@@ -58,7 +58,7 @@ export const APPOINTMENT_FOLLOW_UP: Guide = skillPage({
   },
 
   // Non-breaking spaces keep the audience on one line at phone width, as /counter-explainer does.
-  eyebrow: 'Free AI Skill · For Buyer’s and Listing Agents',
+  eyebrow: 'Free AI Skill · For Buyer’s Agents and Listing Agents',
   // page-notes.md, "One-Line Promise", with the actor named. The flags lead "What you get back".
   lede: 'Attach or paste the transcript from tonight’s buyer consult or listing appointment, and the AI hands back your recap email, a Follow Up Boss note ready to paste, and next steps with real dates.',
   outcome: { n: '03', title: 'Follow Up Tonight', body: 'An email to read and send, a note to paste, and dated next steps.' },
@@ -116,7 +116,7 @@ export const APPOINTMENT_FOLLOW_UP: Guide = skillPage({
       // sample.md (the practice run, 12 of 12 checks), shortened, in the output's own order and its own
       // words, cut only by whole items, rows and sentences: all four flags (the buyer agreement flag
       // without its Utah forms sentence), the bottom line, three of the priorities and two more lines of
-      // What I Heard, the whole email and text, seven of the note's thirteen lines and its paste line,
+      // What I Heard, the whole email and text, seven of the note's twelve lines and its paste line,
       // five of nine next steps (numbers dropped), and five of sixteen rows of Check before sending.
       // "pricing-conversation-prep" is written as the page's name, Pricing Conversation Prep.
       kind: 'sample',
@@ -124,7 +124,7 @@ export const APPOINTMENT_FOLLOW_UP: Guide = skillPage({
       heading: 'What the AI hands back',
       body: 'What the AI wrote from the practice file: a made-up buyer consult on Zoom between a made-up agent, Riley, and made-up buyers, Morgan and Casey Testwood. It’s the same file you practise on in setup.',
       title: 'Follow-Up: Testwood Buyer Consult, Sunday, November 8',
-      note: 'Made-up example. Shortened: one sentence cut from the flags, and a few lines kept from What I Heard, the Follow Up Boss note, the next steps and Check before sending. The bottom line, email and text are whole.',
+      note: 'Made-up example. Shortened: one sentence cut from the flags, and a few lines kept from What I Heard, the Follow Up Boss note, the next steps and Check before sending, and Personal Note Ideas left out. The bottom line, email and text are whole.',
       blocks: [
         { h: 'Flags' },
         {
@@ -331,7 +331,7 @@ export const APPOINTMENT_FOLLOW_UP: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, that’s why.',
+          body: 'With skills and code execution on. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns on skills and code execution',
         },
         {
@@ -477,7 +477,7 @@ export const APPOINTMENT_FOLLOW_UP: Guide = skillPage({
           // page-notes.md, "What You Need" and "Tested and Not Tested".
           q: 'Which plan do I need, and what was tested?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, that’s why. In ChatGPT, a Project on Free, Go, Plus or Pro. Free ChatGPT has upload limits, so if a file won’t upload, paste the transcript as text. The Granola connector reads your transcript only on a paid Granola plan. We tested the skill in Claude on four made-up appointments. We haven’t tried it inside ChatGPT, with the Granola connector on a live meeting, or on real appointment transcripts yet, so run the practice file first.',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. In ChatGPT, a Project on Free, Go, Plus or Pro. Free ChatGPT has upload limits, so if a file won’t upload, paste the transcript as text. The Granola connector reads your transcript only on a paid Granola plan. We tested the skill in Claude on four made-up appointments. We haven’t tried it inside ChatGPT, with the Granola connector on a live meeting, or on real appointment transcripts yet, so run the practice file first.',
           ],
         },
       ],

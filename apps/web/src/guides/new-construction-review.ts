@@ -104,7 +104,7 @@ export const NEW_CONSTRUCTION_REVIEW: Guide = skillPage({
       kind: 'sample',
       eyebrow: 'Made-Up Example',
       heading: 'What a review looks like',
-      body: 'What the AI wrote from the practice files: a made-up builder’s contract for a lot in Utah, with made-up buyers. They’re the same files you practise on in setup. “PA” is the builder’s purchase agreement.',
+      body: 'What the AI wrote from the practice files: a made-up builder’s contract for a lot in Utah, with made-up buyers. They’re the same files you practice on in setup. “PA” is the builder’s purchase agreement.',
       title: 'New Construction Review: Lot 47, Make-Believe Meadows Phase 2',
       note: 'Made-up example. Shortened: a few lines from most parts, and the buyer email in full.',
       blocks: [

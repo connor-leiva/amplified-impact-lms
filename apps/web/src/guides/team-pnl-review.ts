@@ -339,13 +339,13 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
       items: [
         {
           title: 'A Claude plan',
-          body: 'With skills and code execution on, so Claude can do the math in code. Claude’s help center lists skills on every plan, Free included. Claude’s developer docs list them on Pro and up, so if your Free account has no way to add a skill, you need a paid plan.',
+          body: 'With skills and code execution on, so Claude can do the math in code. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan.',
           tag: 'Team or Enterprise: an owner turns on code execution',
         },
         {
           title: 'Or a ChatGPT plan',
           body: 'The ChatGPT version goes in a Project, a folder in ChatGPT that keeps instructions and files together. It needs data analysis, the ChatGPT tool that runs the math in code. ChatGPT’s free plan has data analysis only as “Limited.”',
-          tag: 'Free ChatGPT limits uploads and data analysis',
+          tag: 'Free ChatGPT limits data analysis',
         },
         {
           title: 'A computer',
@@ -466,7 +466,7 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
           // page-notes.md, "What You Need" and "What Was and Wasn't Tested".
           q: 'Which plan do I need, and what was tested?',
           a: [
-            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account shows no way to add a skill, you need a paid plan. In ChatGPT, a Project with data analysis. ChatGPT’s free plan limits data analysis and uploads. We tested the skill in Claude on made-up QuickBooks-style reports. We haven’t run a real QuickBooks, Xero or Sisu export through it yet, or tried it in ChatGPT, on Claude’s free plan, with a connector or with a budget. So run the practice files first. The first time you use your own P&L, look at the totals check in ',
+            'In Claude, a plan with skills and code execution. Claude’s help center lists skills on every plan, Free included, but Claude’s developer docs list them on Pro and up. If your Free account has no way to add a skill, you need a paid plan. In ChatGPT, a Project with data analysis. ChatGPT’s free plan limits data analysis. We tested the skill in Claude on made-up QuickBooks-style reports. We haven’t run a real QuickBooks, Xero or Sisu export through it yet, or tried it in ChatGPT, on Claude’s free plan, with a connector or with a budget. So run the practice files first. The first time you use your own P&L, look at the totals check in ',
             { strong: 'What I used' },
             '.',
           ],
