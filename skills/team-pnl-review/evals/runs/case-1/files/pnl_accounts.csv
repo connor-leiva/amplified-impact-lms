@@ -1,0 +1,24 @@
+Account,Section,Read as,Why,Jan 2026,Feb 2026,Mar 2026,Apr 2026,May 2026,Jun 2026,Period
+4000 Commission Income,income,Commission income,keyword in 'commission income',113048.75,93507.50,158905.00,63691.41,149068.75,139676.25,717897.66
+4100 Agent Tech Fee Income,income,Fees charged to agents,keyword in 'agent tech fee income',1200.00,1200.00,1200.00,1200.00,1200.00,1200.00,7200.00
+5000 Agent Commission Splits,cogs,Agent splits,keyword in 'agent commission splits',64246.35,44381.25,84321.00,0.00,81148.19,71240.40,345337.19
+5100 Referral Fees Paid,cogs,Referral fees paid,keyword in 'referral fees paid',5971.50,0.00,5511.00,0.00,13821.76,8361.00,33665.26
+5200 Brokerage Split & Fees,cogs,Brokerage split and fees,keyword in 'brokerage split & fees',5652.46,4675.38,7945.26,0.00,7453.45,6983.82,32710.37
+6000 Advertising & Marketing:6010 Online Lead Programs,expense,Lead generation,keyword in 'online lead programs',9800.00,9800.00,9800.00,9800.00,9800.00,12300.00,61300.00
+6000 Advertising & Marketing:6020 Signs & Print,expense,Marketing,parent account 'advertising & marketing',410.55,388.20,512.75,466.10,530.40,498.85,2806.85
+6000 Advertising & Marketing:6030 Listing Photography,expense,Marketing,parent account 'advertising & marketing',650.00,520.00,845.00,780.00,910.00,715.00,4420.00
+6000 Advertising & Marketing:6040 Client Gifts,expense,Marketing,parent account 'advertising & marketing',295.40,180.15,342.60,276.90,410.25,318.70,1824.00
+6100 Payroll Expenses:6110 Salaries & Wages,expense,People,parent account 'payroll expenses',21500.00,21500.00,21500.00,21500.00,21500.00,21500.00,129000.00
+6100 Payroll Expenses:6120 Payroll Taxes,expense,People,parent account 'payroll expenses',1644.75,1644.75,1644.75,1644.75,1644.75,1644.75,9868.50
+6100 Payroll Expenses:6130 Health Insurance,expense,People,parent account 'payroll expenses',1860.00,1860.00,1860.00,1860.00,1860.00,1860.00,11160.00
+6200 Software & Subscriptions:6210 CRM,expense,Tech,parent account 'software & subscriptions',1050.00,1050.00,1050.00,1050.00,1050.00,1050.00,6300.00
+6200 Software & Subscriptions:6220 Dialer,expense,Tech,parent account 'software & subscriptions',349.00,349.00,349.00,349.00,349.00,349.00,2094.00
+6200 Software & Subscriptions:6230 Transaction Management,expense,Tech,parent account 'software & subscriptions',199.00,199.00,199.00,199.00,199.00,199.00,1194.00
+6200 Software & Subscriptions:6240 Other Software,expense,Tech,parent account 'software & subscriptions',118.40,118.40,131.20,118.40,118.40,118.40,723.20
+6300 Rent,expense,Occupancy,keyword in 'rent',5400.00,5400.00,5400.00,5400.00,5400.00,5400.00,32400.00
+6310 Utilities,expense,Occupancy,keyword in 'utilities',214.36,236.10,198.44,176.82,169.30,201.95,1196.97
+6400 Dues & Licenses,expense,Other,keyword in 'dues & licenses',1320.00,0.00,0.00,1320.00,0.00,0.00,2640.00
+6410 Insurance - E&O,expense,Other,keyword in 'insurance - e&o',410.00,410.00,410.00,410.00,410.00,410.00,2460.00
+6420 Professional Fees,expense,Other,keyword in 'professional fees',600.00,600.00,600.00,600.00,600.00,600.00,3600.00
+6430 Meals,expense,Other,keyword in 'meals',244.18,198.65,287.40,231.55,266.90,252.35,1481.03
+6440 Bank Fees,expense,Other,keyword in 'bank fees',35.00,35.00,35.00,35.00,35.00,35.00,210.00

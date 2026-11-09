@@ -1,0 +1,66 @@
+{
+  "skill_name": "pricing-conversation-prep",
+  "evals": [
+    {
+      "id": 1,
+      "name": "new-listing-finished-basement",
+      "prompt": "Listing appointment Thursday with Dana and Lee Pretendson at 1186 W Sample Orchard Ln. They want $640,000. Their reasoning: the house has 2,850 finished square feet and the neighbor's two-story on Fictional Fox Way sold for $585,000 with only 2,050. My CMA and the MLS export are attached. What should we list at, and how do I handle the square footage argument?",
+      "expected_output": "New Listing mode in Utah. The subject (1,450 above grade plus a 1,450 sq ft basement with 1,400 finished) is compared on above-grade square footage and basement finish separately, never on total square footage. The output says no Sample Orchard Estates sale has a basement and leans on the two Makebelieve Meadows finished-basement ramblers ($552,000 and $538,000, labeled older and farther) with the no-basement ramblers ($476,500 to $497,500) as the floor and the active finished-basement rambler at $564,900 (52 days) as a ceiling signal. It recommends a specific price in the mid $500,000s with medium or low confidence, states that $640,000 is above every sale in the CMA, explains the Utah appraisal condition, answers the neighbor comparison with the above-grade split and that sale's $8,000 concessions, and gives a seller summary with no agent-only fields.",
+      "files": [
+        "evals/files/case-1-finished-basement/cma-report-1186-w-sample-orchard-ln.pdf",
+        "evals/files/case-1-finished-basement/mls-export-1186-w-sample-orchard-ln.csv"
+      ],
+      "expectations": [
+        "The output compares above-grade square footage (1,450) and basement square footage (1,450 total, 1,400 finished) separately, shows price per above-grade square foot for the closest solds, and never prices the subject on total finished square footage",
+        "The square footage argument is answered with the split: 1311 W Fictional Fox Way has 2,050 above-grade square feet and no basement against the subject's 1,450 above grade, and its $8,000 concessions are named",
+        "The output says no Sample Orchard Estates sale has a basement, uses the two Makebelieve Meadows finished-basement sales with each labeled older than six months and farther away, and puts no invented dollar value on the basement",
+        "The recommended price is one specific number inside a stated range; the range sits above the no-basement rambler solds ($476,500 to $497,500) and no higher than the $564,900 list price of the active finished-basement rambler, and confidence is medium or low with the reason",
+        "The bottom line or recommendation says plainly that $640,000 is above every sale in the CMA, and the appraisal check explains the Utah REPC appraisal condition (cancel, not an automatic price cut) without promising an appraisal outcome",
+        "Market metrics are labeled this comp set and show their math (months of supply from the 180-day window, sale-to-list and sale-to-original-list, days on market, price cuts among actives, concessions, the two expired listings)",
+        "The seller summary has a Title Case title, a bolded bottom line, and none of the agent-only fields (no lockbox or gate codes such as 2291, 6610 or 4402, no agent remarks, no showing instructions), and it is not called an appraisal",
+        "Every number in the output appears in the inputs or is arithmetic shown from them, a Check before sending section traces each draft number to its MLS number, and there are no em or en dashes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "price-reduction-45-days",
+      "prompt": "45 days on market at 3472 S Practice Pine Dr, 11 showings and no offers. I'm meeting Kim and Avery Mockridge Tuesday to talk about a price reduction. They've told me they owe about $410,000 and they'd rather wait for spring. MLS sheet, comps export and the showing report are attached.",
+      "expected_output": "Price Reduction mode in Utah. The $689,900 list price is shown above every sale in the comp set, including the two that closed since it listed (3602 S Sample Spruce Ln at $665,000 after starting at $699,900, and 3376 S Pretend Poplar Way at $655,000), above the pending's $674,900 list price and the 52-day active at $679,900. A specific new price at or below $674,900 is recommended with a range and confidence. The activity read uses the report: 11 showings, 6 of 8 feedback responses said too high, 45 days against a 15-day median for the solds, and Example Parkway road noise as a property feature. The school district and 'type of families' comments, the showing agents' names and numbers, the lockbox code and the $410,000 loan balance appear nowhere in client-facing text. The 'wait for spring' objection is answered without a forecast.",
+      "files": [
+        "evals/files/case-2-price-reduction/mls-sheet-3472-s-practice-pine-dr.pdf",
+        "evals/files/case-2-price-reduction/comps-export-3472-s-practice-pine-dr.csv",
+        "evals/files/case-2-price-reduction/listing-activity-report-3472-s-practice-pine-dr.pdf"
+      ],
+      "expectations": [
+        "The output runs Price Reduction mode and shows the $689,900 list price against the solds since the listing went live (3602 S Sample Spruce Ln at $665,000 after an original list of $699,900; 3376 S Pretend Poplar Way at $655,000), the pending at $674,900 and the active 3611 S Sample Spruce Ln at $679,900, and says the subject is priced above every sale in the set",
+        "It recommends one specific new price at or below $674,900, inside a stated range, tied to the newest comps and price bands, with a confidence level",
+        "The activity read uses the showing report: 11 completed showings, 6 of 8 feedback responses rated the price too high, 45 days against the solds' median of 15, and Example Parkway road noise named as a property feature",
+        "The school district comment and the 'type of families' comment are not quoted, paraphrased or counted as a feedback theme anywhere (at most an agent-only note says, by date, that two comments were left out under fair housing), and no showing agent name or phone number appears",
+        "The $410,000 loan balance does not appear in the talk track, the objection answers or the seller summary",
+        "The 'wait for spring' objection is answered with what waiting means in this comp set and the three choices (adjust now, take it off and relist later, hold), with no forecast of rates or seasonal prices",
+        "No agent-only field appears in client-facing text: no lockbox code 4417, no owner phone 801-555-0143, no agent remarks or showing instructions",
+        "Every number in the output appears in the inputs or is arithmetic shown from them, the seller summary has a Title Case title, a Check before sending section is present, and there are no em or en dashes"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "thin-comps-general-mode-colorado",
+      "prompt": "First listing appointment for me in Colorado: 4410 Example Mesa Rd in Pretendville. The seller says Zillow shows $575,000. Attached are my comp export (ranches nearby, sold in the last 12 months plus actives and expireds) and the property profile. Only two solds came back from the last six months. What price can I defend?",
+      "expected_output": "General mode: the output says state rules were not checked for Colorado and uses no Utah notes, REPC terms or claims about Colorado's disclosure rules. The bottom line says only two solds closed in the last six months and gives low confidence. The range is anchored on 4522 Example Mesa Rd ($548,000) and 3980 Pretend Butte Ln ($561,000), with the three older solds labeled older and 2875 Fictional Fence Rd ($689,000 on 2.4 acres with a horse barn) left out as an outlier. Missing fields (original list price, concessions, cumulative days on market) are listed and the metrics that need them skipped. Zillow's $575,000 is placed against the closed sales and the 58-day active at $574,900 without calling the site wrong.",
+      "files": [
+        "evals/files/case-3-thin-comps-colorado/comp-export-4410-example-mesa-rd.csv",
+        "evals/files/case-3-thin-comps-colorado/property-profile-4410-example-mesa-rd.pdf"
+      ],
+      "expectations": [
+        "The output says it ran in general mode and that state rules were not checked for Colorado, and it contains no Utah REPC terms, no Utah notes and no claim about whether Colorado discloses sale prices",
+        "The bottom line says only two solds closed in the last six months and gives low confidence",
+        "The range is anchored on 4522 Example Mesa Rd ($548,000) and 3980 Pretend Butte Ln ($561,000); the three older solds are labeled older; 2875 Fictional Fence Rd ($689,000, 2.4 acres with a horse barn) is left out of the range with a reason",
+        "The output lists the missing fields (no original list price, no concessions, no cumulative days on market) and skips the metrics that need them instead of estimating",
+        "Zillow's $575,000 is placed against the two recent closed sales and the active at $574,900 (58 days), without saying the site is always wrong and without outside statistics",
+        "The recommendation is one specific number inside a stated range, and the appraisal check is phrased for general mode (a buyer's contract may let them cancel or renegotiate) with no promise of an outcome",
+        "No private remark appears in client-facing text (no shed combo 1188, no note about the seller's attorney or the estate, no seller schedule), and the seller summary has a Title Case title",
+        "Every number in the output appears in the inputs or is arithmetic shown from them, a Check before sending section is present, and there are no em or en dashes"
+      ]
+    }
+  ]
+}

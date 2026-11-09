@@ -1,0 +1,21 @@
+Account,Section,Read as,Why,Jan 2026,Feb 2026,Mar 2026,Apr 2026,May 2026,Jun 2026,Jul 2026,Aug 2026,Sep 2026,Period
+Commission Income,income,Commission income,keyword in 'commission income',60332.50,65743.75,81998.75,102861.25,103846.25,89371.25,115481.25,87271.25,73702.50,780608.75
+Agent Fee Income,income,Fees charged to agents,keyword in 'agent fee income',450.00,450.00,450.00,450.00,450.00,450.00,450.00,450.00,450.00,4050.00
+Agent Commission Splits,cogs,Agent splits,keyword in 'agent commission splits',41026.10,44705.75,55759.15,69945.65,70615.45,60772.45,78527.25,59344.45,50117.70,530813.95
+Brokerage Split & Fees,cogs,Brokerage split and fees,keyword in 'brokerage split & fees',3619.95,3944.63,4919.93,6171.68,6230.78,5362.28,6928.88,5236.28,4422.15,46836.56
+Advertising & Marketing:Online Lead Programs,expense,Lead generation,keyword in 'online lead programs',2000.00,2000.00,2000.00,2000.00,2000.00,750.00,2000.00,2000.00,2000.00,16750.00
+Advertising & Marketing:Postcards,expense,Marketing,parent account 'advertising & marketing',420.00,420.00,420.00,420.00,420.00,420.00,420.00,420.00,420.00,3780.00
+Advertising & Marketing:Listing Photography,expense,Marketing,parent account 'advertising & marketing',350.00,350.00,700.00,350.00,350.00,700.00,525.00,875.00,875.00,5075.00
+Bank Fees,expense,Other,keyword in 'bank fees',30.00,30.00,30.00,30.00,30.00,30.00,30.00,30.00,30.00,270.00
+Insurance - E&O,expense,Other,keyword in 'insurance - e&o',365.00,365.00,365.00,365.00,365.00,365.00,365.00,365.00,365.00,3285.00
+Meals,expense,Other,keyword in 'meals',188.10,210.75,188.10,96.40,142.35,96.40,188.10,188.10,142.35,1440.65
+Office Supplies,expense,Other,keyword in 'office supplies',0.00,0.00,0.00,0.00,0.00,1250.00,0.00,0.00,0.00,1250.00
+Payroll Expenses:Payroll Taxes,expense,People,parent account 'payroll expenses',784.13,784.13,784.13,784.13,784.13,784.13,784.13,784.13,784.13,7057.17
+Payroll Expenses:Salaries & Wages,expense,People,parent account 'payroll expenses',10250.00,10250.00,10250.00,10250.00,10250.00,10250.00,10250.00,10250.00,10250.00,92250.00
+Rent,expense,Occupancy,keyword in 'rent',4600.00,4600.00,4600.00,4600.00,4600.00,4600.00,4600.00,4600.00,4600.00,41400.00
+Software & Subscriptions:CRM,expense,Tech,parent account 'software & subscriptions',599.00,599.00,599.00,599.00,599.00,599.00,599.00,1198.00,599.00,5990.00
+Software & Subscriptions:Dialer,expense,Tech,parent account 'software & subscriptions',0.00,0.00,0.00,0.00,0.00,0.00,349.00,349.00,349.00,1047.00
+Software & Subscriptions:Document Signing,expense,Tech,parent account 'software & subscriptions',129.00,129.00,129.00,129.00,129.00,129.00,129.00,129.00,129.00,1161.00
+Software & Subscriptions:Video,expense,Tech,parent account 'software & subscriptions',0.00,0.00,0.00,0.00,59.00,0.00,0.00,0.00,0.00,59.00
+Transaction Coordinator Fees,expense,People,keyword in 'transaction coordinator fees',1625.00,1625.00,1950.00,2275.00,2600.00,2600.00,2275.00,2275.00,1950.00,19175.00
+Uncategorized Expense,expense,Uncategorized,keyword in 'uncategorized expense',0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,412.18,412.18

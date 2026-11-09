@@ -1,0 +1,18 @@
+PASS  Buyer Tour Sheet section present
+PASS  Agent-Only Page section present
+PASS  Check before sending section
+PASS  No em or en dashes
+PASS  No access or alarm codes anywhere
+PASS  Buyer tour sheet has no agent-only fields
+PASS  No school names from the sheets
+PASS  No protected-class or reputation language
+PASS  No stock phrases
+PASS  No wire, routing or account details
+PASS  No cost estimates
+PASS  No price opinions
+PASS  Title Case headings on the tour sheet  [Buyer Tour Sheet (Share This Page); Tour Sheet: Monday, November 9, 4:00 PM; 1. 4521 S Example Commons Dr #208, Murray; 2. 1187 E Placeholder Pine Ave, Sandy; 3. 1462 N Example Orchard Ln, Spanish Fork; 4. 752 W Sample Ridge Rd, West Jordan]
+PASS  Every dollar amount is in the inputs or is listed arithmetic
+Lines that mention fair housing (review: they must not restate the protected wording):
+  ### Left Out for Fair Housing
+Numbers not found verbatim in the inputs (review each; dates, counts and arithmetic the skill computed are expected):
+  none

@@ -1,0 +1,8 @@
+{
+  "name": "low-appraisal-response",
+  "page": "low-appraisal-response",
+  "title": "Low Appraisal Response",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["utah-repc.md", "utah-repc-2026.md", "utah-pricing-context.md", "utah-forms-and-counters.md"]
+}

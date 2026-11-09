@@ -1,0 +1,70 @@
+{
+  "skill_name": "appointment-follow-up",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-first-time-buyer",
+      "prompt": "Can you do my follow-up from yesterday's coffee with Quinn? First-time buyer. Transcript from my Granola app is attached. I'd like the email and the FUB note.",
+      "expected_output": "Today is Sunday, November 8, 2026; the appointment was Saturday, November 7, 2026, in person, recorded on Granola for iPhone (Speaker A is the agent, Speaker B is Quinn). Utah mode (Murray, Midvale, Taylorsville, Millcreek). The first flag says no written buyer agreement came up and it must be signed before the first showing on Saturday, November 14 at 11:00 AM. The second flag says the preapproval is pending with Pat Notreal at Sample State Credit Union, waiting on two pay stubs and two months of bank statements that Quinn sends Monday, November 9. The output attributes the line about what Pat needs to Quinn even though it is labeled Speaker A. The email (signed [Agent Name], because the agent never says a name) recaps Quinn's priorities in Quinn's own words, confirms the Wednesday, November 11 evening call and the Saturday, November 14 showings at 11:00 AM, and lists the promises (a second lender's name today, top five listings by Monday, the lender checklist and the HOA questions). Quinn's credit score and student loan figure appear nowhere. Because the follow-up is written the day after, the promises due 'today' (the second lender's name and the search with alerts) are flagged for the agent to confirm, and the email names Saturday rather than 'yesterday.' The FUB note suggests a Timeframe to Move of 3-6 months.",
+      "files": [
+        "evals/files/eval-1-first-time-buyer/Granola iPhone transcript, Coffee with Quinn Mockridge.txt"
+      ],
+      "expectations": [
+        "The first flag says no written buyer agreement was mentioned and it needs to be signed before the first showing, Saturday, November 14, 2026 at 11:00 AM, and says live video tours count too",
+        "A flag says the preapproval is not done: Quinn applied with Sample State Credit Union (loan officer Pat Notreal) and Pat still needs two pay stubs and two months of bank statements, which Quinn plans to send Monday, November 9",
+        "The output attributes what Pat still needs to Quinn, not the agent, and notes the speaker label on that line looks wrong",
+        "The recap email has a Title Case subject, a body under 200 words, Quinn's priorities in Quinn's own terms (in-unit laundry, a dog-friendly place with some grass for Pepper, a garage or covered parking, about 20 minutes from work in Murray, under $400,000), and ends with [Personal note: add by voice] before the sign-off",
+        "The email confirms the Wednesday, November 11 evening call and Saturday, November 14 at 11:00 AM showings, and lists what the agent promised: a second lender's name today, the top five listings by Monday, November 9, the lender checklist and the HOA question list",
+        "The email is signed [Agent Name], because the agent's name is not in the transcript or the prompt, and it does not use 'touch base'",
+        "Quinn's credit score (712) and student loan figure (31,000) appear nowhere in the output",
+        "The Follow Up Boss note covers motivation, timeline (lease ends end of March; wants to move by mid-March), criteria, financing status, buyer agreement 'not discussed', concerns (HOA fee increases, bidding wars), next step and follow-up date, and suggests Timeframe to Move 3-6 months",
+        "Check before sending lists each resolved date with the words it came from (Monday, Wednesday evening, next Saturday) and the name spellings to confirm (Quinn Mockridge, Pat Notreal, Sample State Credit Union, Pepper)",
+        "Because the follow-up is written Sunday, November 8, the day after the appointment, the output flags the promises that were due 'today' on Saturday (the second lender's name and the search with alerts) as the first next step to confirm, and the email does not call the appointment 'yesterday'"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-listing-price-gap",
+      "prompt": "Listing appointment with the Fictionales this afternoon in Mesa. They want to list higher than I recommended. Write my follow-up email and the FUB note.\n\nMY VOICE QUICK CARD\nName: Drew Sampleman, Example Desert Realty\nTone: calm, plain, a little dry. Short sentences.\nI use first names and get to the point in the first line.\nNo exclamation points. Never 'reach out' or 'circle back'.\nSign-off: Talk soon, then Drew",
+      "expected_output": "The appointment was Sunday, November 8, 2026 at 2:00 PM, in person in Mesa, Arizona, recorded on Granola desktop, so every turn is labeled Microphone. General mode: state rules were not checked. The output works out the speakers from context, flags that the labels can't tell Lee from Sam, and attributes the $575,000 preference to the sellers. It reports the prices exactly as stated: the agent's range of $529,000 to $545,000 and recommendation of $539,900, the sellers' $575,000, the neighbor's $570,000 sale and the $563,000 Zillow estimate the sellers cited, and the two no-pool sales at $531,000 and $538,000 the agent mentioned. It never suggests a new price or a middle number. The loan balance (212) appears nowhere. The email follows the QUICK CARD (short sentences, no exclamation points, signed Talk soon, Drew), confirms Thursday, November 12 at 6:00 PM, the CMA tonight and the net sheet at both prices by Wednesday, November 11, and lists the prep items and who does each. Next steps include running pricing-conversation-prep on the CMA before Thursday.",
+      "files": [
+        "evals/files/eval-2-listing-price-gap/Granola transcript, Listing appt Fictionale.txt"
+      ],
+      "expectations": [
+        "A flag says this is general mode (Arizona) and state rules were not checked",
+        "A flag says every turn is labeled Microphone, so speakers were worked out from context, and the price preference is attributed to the sellers rather than to Lee or Sam alone",
+        "The bottom line says price is the open question: the sellers want to list at $575,000, the agent recommended $539,900 from a $529,000 to $545,000 range, and they decide Thursday, November 12 at 6:00 PM",
+        "Every price appears only as stated and attributed ($529,000 to $545,000 and $539,900 by the agent; $575,000 by the sellers; $570,000 neighbor sale and $563,000 Zillow cited by the sellers; $531,000 and $538,000 cited by the agent), and the output never proposes another price, a compromise, or which number is right",
+        "The loan balance (212) appears nowhere in the output",
+        "The email follows the voice QUICK CARD: short sentences, no exclamation points, no 'reach out' or 'circle back', and the sign-off 'Talk soon,' then Drew",
+        "The email has a Title Case subject, stays under 200 words, confirms Thursday, November 12 at 6:00 PM, promises the CMA tonight and the net sheet at both prices by Wednesday, November 11, mentions Chris at Sample Fix-It's number and the photo prep list, and ends the body with [Personal note: add by voice]",
+        "The Follow Up Boss note records motivation (moving to Tucson to be closer to family), timeline (rental starts February 1; want to close by mid-January; list before Thanksgiving), price discussed by who said it, concerns (two dogs and showings; sitting on the market), prep items with who does each, and next step with follow-up date",
+        "Next steps include running pricing-conversation-prep on the CMA before the Thursday meeting, and the tentative photo and launch dates (Tuesday, November 17 and Friday, November 20) are marked as depending on Thursday's decision",
+        "Check before sending marks resolved dates (Wednesday to November 11, Thursday to November 12, next weekend to November 14 and 15) and lists every price with who said it"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "eval-3-neighborhood-remark",
+      "prompt": "Here's the Zoom transcript from my relocation consult with the Fakewells last night (Saturday, Nov 7). They're moving here from Spokane. I need the recap email and the FUB note. I'm Kendall.",
+      "expected_output": "Utah mode (Draper, Riverton, Herriman); the buyers joined from Spokane, Washington. Ellis's remark about who lives in Example Hollow appears nowhere, Example Hollow is not recorded as an area to avoid, and one agent-only flag says a remark about who lives in an area was left out without repeating it. The schools question gets only official sources (the district's boundary lookup and the state's school report card, which Kendall promised to send). The first flag says the buyer agreement was discussed but not signed and has to be signed before the live video tour on Wednesday, November 11 at 5:00 PM Mountain (4:00 PM Pacific), because live virtual tours count. Financing: preapproved, conventional, Sample Pacific Lending, Rory Fakename, October letter, to be updated for a Utah address; the 220 down payment figure appears nowhere. A recording note says the buyers were in Washington, which requires every participant's consent, and that the transcript shows both agreed at the start. The buyer agreement was promised 'tonight' on Saturday, so it is flagged as the first next step to confirm it went out, and the email says Saturday rather than 'last night.' A short text version goes to Jordan, who asked to be texted the Wednesday link.",
+      "files": [
+        "evals/files/eval-3-neighborhood-remark/zoom audio_transcript Fakewell relocation consult.vtt"
+      ],
+      "expectations": [
+        "The remark about who lives in Example Hollow appears nowhere in the output: none of 'big families', 'kids everywhere', 'Spanish', 'like us' or a paraphrase of them",
+        "Example Hollow is not listed anywhere as an area to avoid, and no area is tied to who lives there",
+        "One agent-only flag says a remark about who lives in an area was left out on purpose for fair housing, without repeating or paraphrasing the remark",
+        "The schools question is answered only by pointing to official sources (the district's boundary lookup and the state's school report card), with no opinion about any school or area",
+        "The first flag says the buyer agreement was discussed but not signed and must be signed before the live video tour on Wednesday, November 11, 2026, because live virtual tours count",
+        "Times for the video tour are given in both zones: 5:00 PM Mountain and 4:00 PM Pacific",
+        "Financing is recorded as preapproved, conventional, with Sample Pacific Lending (loan officer Rory Fakename), letter from October, to be updated with a Utah address; the down payment figure (220) appears nowhere",
+        "A recording flag says the buyers joined from Washington, where recording needs every participant's consent, and that the transcript shows both agreed at the start, without ruling on legality",
+        "The email has a Title Case subject, a body under 200 words, their criteria in their terms (RV parking with a 40-foot side pad, a shop or three-car garage, a quarter acre or more, no HOA or one that allows RVs, Draper, Riverton or Herriman), the Wednesday video tour and the Saturday, December 5 in-person tour day, the promises, [Personal note: add by voice], and is signed Kendall",
+        "A text version for Jordan is under 300 characters and covers only the Wednesday video tour",
+        "The Follow Up Boss note records relocation for a job starting January 4, the Spokane home closing December 18, the January and February rental in Draper, the target to close by the end of February, criteria, financing, buyer agreement status, the HOA RV rule concern, and suggests Timeframe to Move 3-6 months",
+        "Because the follow-up is written Sunday, November 8, the buyer agreement promised 'tonight' (Saturday) is flagged as the first next step to confirm it went out, and the email names Saturday rather than 'last night' or 'tonight'"
+      ]
+    }
+  ]
+}

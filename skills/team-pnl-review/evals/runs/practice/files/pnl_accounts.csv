@@ -1,0 +1,28 @@
+Account,Section,Read as,Why,Jan 2026,Feb 2026,Mar 2026,Apr 2026,May 2026,Jun 2026,Jul 2026,Aug 2026,Sep 2026,Period
+Commission Income,income,Commission income,keyword in 'commission income',75358.75,78617.50,108476.25,122973.75,152885.00,143330.00,152372.50,118777.50,124087.50,1076878.75
+Agent Fee Income,income,Fees charged to agents,keyword in 'agent fee income',750.00,750.00,750.00,750.00,750.00,750.00,750.00,750.00,750.00,6750.00
+Agent Commission Splits,cogs,Agent splits,keyword in 'agent commission splits',34633.67,51101.38,60930.96,77785.91,99375.27,83170.43,89368.82,56988.27,69980.63,623335.34
+Brokerage Split & Fees,cogs,Brokerage split and fees,keyword in 'brokerage split & fees',4521.53,4717.06,6508.58,7378.44,4939.39,2950.00,2950.00,2655.00,2360.00,38980.00
+Referral Fees Paid,cogs,Referral fees paid,keyword in 'referral fees paid',12901.44,0.00,14736.32,3303.13,0.00,15375.50,14882.01,13998.25,0.00,75196.65
+Advertising & Marketing:Online Lead Programs:Pumpkinpatch Portal,expense,Lead generation,keyword in 'pumpkinpatch portal',2500.00,2500.00,2500.00,2500.00,2500.00,2500.00,3000.00,3000.00,3000.00,24000.00
+Advertising & Marketing:Online Lead Programs:Google PPC,expense,Lead generation,keyword in 'google ppc',1180.42,1225.10,1198.77,1240.05,1302.66,1288.19,1315.40,3940.85,1296.33,13987.77
+Advertising & Marketing:Listing Photos & Signs,expense,Marketing,parent account 'advertising & marketing',640.00,615.00,880.00,925.00,1105.00,990.00,1010.00,920.00,845.00,7930.00
+Advertising & Marketing:Postcards & Mailers,expense,Marketing,parent account 'advertising & marketing',450.00,450.00,450.00,450.00,450.00,450.00,450.00,450.00,450.00,4050.00
+Advertising & Marketing:Client Appreciation,expense,Marketing,parent account 'advertising & marketing',180.00,245.00,210.00,260.00,395.00,310.00,240.00,285.00,330.00,2455.00
+Payroll Expenses:Salaries & Wages,expense,People,parent account 'payroll expenses',13750.00,13750.00,13750.00,13750.00,13750.00,13750.00,13750.00,13750.00,13750.00,123750.00
+Payroll Expenses:Payroll Taxes,expense,People,parent account 'payroll expenses',1051.88,1051.88,1051.88,1051.88,1051.88,1051.88,1051.88,1051.88,1051.88,9466.92
+Payroll Expenses:Health Insurance,expense,People,parent account 'payroll expenses',1240.00,1240.00,1240.00,1240.00,1240.00,1240.00,1240.00,1240.00,1240.00,11160.00
+Transaction Coordinator Fees,expense,People,keyword in 'transaction coordinator fees',2100.00,2100.00,2800.00,3150.00,3850.00,3500.00,3500.00,3150.00,2800.00,26950.00
+Coaching & Training,expense,People,keyword in 'coaching & training',1500.00,1500.00,1500.00,1500.00,1500.00,1500.00,1500.00,1500.00,1500.00,13500.00
+Software & Subscriptions:CRM,expense,Tech,parent account 'software & subscriptions',899.00,899.00,899.00,899.00,899.00,899.00,899.00,899.00,899.00,8091.00
+Software & Subscriptions:Dialer,expense,Tech,parent account 'software & subscriptions',249.00,249.00,249.00,249.00,249.00,249.00,249.00,249.00,249.00,2241.00
+Software & Subscriptions:Website & IDX,expense,Tech,parent account 'software & subscriptions',199.00,199.00,199.00,199.00,199.00,199.00,199.00,199.00,199.00,1791.00
+Software & Subscriptions:Video Editing App,expense,Tech,parent account 'software & subscriptions',0.00,0.00,0.00,0.00,0.00,79.00,79.00,79.00,79.00,316.00
+Rent & Office:Rent,expense,Occupancy,parent account 'rent & office',4200.00,4200.00,4200.00,4200.00,4200.00,4200.00,4200.00,4200.00,4200.00,37800.00
+Rent & Office:Utilities,expense,Occupancy,parent account 'rent & office',236.18,228.40,201.77,188.62,179.05,203.90,241.33,238.71,207.46,1925.42
+Dues & Licenses,expense,Other,keyword in 'dues & licenses',1140.00,0.00,0.00,1140.00,0.00,0.00,1140.00,0.00,0.00,3420.00
+Insurance - E&O,expense,Other,keyword in 'insurance - e&o',385.00,385.00,385.00,385.00,385.00,385.00,385.00,385.00,385.00,3465.00
+Professional Fees,expense,Other,keyword in 'professional fees',650.00,650.00,650.00,650.00,650.00,650.00,650.00,650.00,650.00,5850.00
+Meals,expense,Other,keyword in 'meals',164.20,212.75,188.40,301.15,256.80,172.35,233.90,198.60,244.05,1972.20
+Bank Fees,expense,Other,keyword in 'bank fees',27.50,31.00,25.00,38.75,29.25,33.50,26.00,35.25,30.00,276.25
+Uncategorized Expense,expense,Uncategorized,keyword in 'uncategorized expense',0.00,0.00,0.00,0.00,0.00,0.00,486.20,0.00,0.00,486.20

@@ -1,0 +1,8 @@
+{
+  "name": "showing-tour-prep",
+  "page": "showing-tour-prep",
+  "title": "Showing Tour Prep",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["utah-property-notes.md", "buyer-agreements.md"]
+}

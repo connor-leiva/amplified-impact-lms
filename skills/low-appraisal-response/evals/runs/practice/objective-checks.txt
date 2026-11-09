@@ -1,0 +1,15 @@
+PASS  No em or en dashes
+PASS  Check before sending section
+PASS  Title Case subject lines  [Request For Reconsideration Of Value, 4127 W Practice Ridge Dr; Appraisal Results And Next Steps For 4127 W Practice Ridge Dr; Appraisal On 4127 W Practice Ridge Dr]
+PASS  No stock phrases
+PASS  No wire, routing or account details
+PASS  Drafts found for the client-facing checks
+PASS  No agent-only MLS fields or client bottom line in the drafts
+PASS  No lockbox or access codes anywhere in the output
+PASS  No protected-class language
+PASS  No cost estimates without bids (phrasing)
+PASS  No criticism of the appraiser
+PASS  No promise of a value change
+PASS  Every dollar amount appears in the inputs or is listed arithmetic
+Numbers not found verbatim in the inputs (review each; dates, counts and arithmetic the skill computed are expected):
+  none

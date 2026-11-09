@@ -1,0 +1,18 @@
+Account,Section,Read as,Why,Jan 2026,Feb 2026,Mar 2026,Apr 2026,May 2026,Jun 2026,Jul 2026,Aug 2026,Sep 2026,Oct 2026,Period
+4000 · Commission Income,income,Commission income,keyword in 'commission income',59571.25,75567.50,64867.50,92127.50,120676.25,93801.25,90501.25,111527.50,89497.50,87493.75,885631.25
+5000 · Agent Commissions Paid,cogs,Agent splits,keyword in 'agent commissions paid',36934.18,46851.85,40217.85,57119.05,74819.29,58156.78,56110.78,69147.06,55488.45,54246.13,549091.42
+5050 · Brokerage Fees,cogs,Brokerage split and fees,keyword in 'brokerage fees',2978.57,3778.38,3243.38,4606.38,6033.82,4690.07,4525.08,5576.38,4474.89,4374.69,44281.64
+5100 · Referral Fees,cogs,Referral fees paid,keyword in 'referral fees',0.00,1840.50,0.00,2215.80,0.00,0.00,3012.45,0.00,1765.20,0.00,8833.95
+6000 · Advertising:6010 · Lead Generation,expense,Lead generation,keyword in 'lead generation',3400.00,3400.00,3400.00,3400.00,3400.00,3400.00,3400.00,3400.00,3400.00,3400.00,34000.00
+6000 · Advertising:6020 · Print & Signs,expense,Marketing,parent account 'advertising',520.40,488.15,610.90,575.25,702.80,655.10,590.45,612.30,5340.75,498.60,10594.70
+6000 · Advertising:6030 · Social Media Ads,expense,Marketing,parent account 'advertising',600.00,600.00,600.00,600.00,600.00,600.00,600.00,600.00,600.00,600.00,6000.00
+6100 · Transaction Coordinator Fees,expense,People,keyword in 'transaction coordinator fees',1500.00,1875.00,2250.00,2625.00,3000.00,3000.00,2625.00,2625.00,2250.00,2250.00,24000.00
+6200 · Payroll:6210 · Admin Wages,expense,People,parent account 'payroll',4333.33,4333.33,4333.33,4333.33,4333.33,4333.33,4333.33,4333.33,4333.33,4333.33,43333.30
+6200 · Payroll:6220 · Payroll Taxes,expense,People,parent account 'payroll',331.50,331.50,331.50,331.50,331.50,331.50,331.50,331.50,331.50,331.50,3315.00
+6300 · Software,expense,Tech,keyword in 'software',912.40,912.40,912.40,938.15,938.15,938.15,938.15,938.15,938.15,938.15,9304.25
+6400 · Office Rent,expense,Occupancy,keyword in 'office rent',2450.00,2450.00,2450.00,2450.00,2450.00,2450.00,2450.00,2450.00,2450.00,2450.00,24500.00
+6500 · Owner's Draw,expense,Owner draws or distributions,keyword in 'owner's draw',6000.00,6000.00,6000.00,6000.00,6000.00,6000.00,6000.00,6000.00,6000.00,6000.00,60000.00
+6600 · Insurance,expense,Other,keyword in 'insurance',298.00,298.00,298.00,298.00,298.00,298.00,298.00,298.00,298.00,298.00,2980.00
+6700 · Accounting,expense,Other,keyword in 'accounting',525.00,525.00,525.00,525.00,525.00,525.00,525.00,525.00,525.00,525.00,5250.00
+6800 · Auto & Travel,expense,Other,keyword in 'auto & travel',312.66,288.10,405.25,350.80,298.45,377.90,421.15,366.30,309.75,344.60,3474.96
+7000 · Interest Income,other_income,Other income,keyword in 'interest income',12.40,11.85,13.10,12.95,14.20,13.75,14.05,13.60,12.80,13.35,132.05

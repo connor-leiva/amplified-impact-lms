@@ -1,0 +1,399 @@
+{
+ "file": "marmalade-pnl-by-month-jan-sep-2026.xlsx",
+ "months": [
+  "2026-01",
+  "2026-02",
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09"
+ ],
+ "basis": "Accrual",
+ "checks": [],
+ "verdict": "Gross every month: commission income is recorded before agent splits, and splits are recorded as a cost.",
+ "where": [
+  "agent splits are recorded as a cost",
+  "no referral fee line: referral fees are netted out before the money arrives, or none were paid",
+  "brokerage split and fees are recorded as a cost"
+ ],
+ "status": {
+  "2026-01": "gross",
+  "2026-02": "gross",
+  "2026-03": "gross",
+  "2026-04": "gross",
+  "2026-05": "gross",
+  "2026-06": "gross",
+  "2026-07": "gross",
+  "2026-08": "gross",
+  "2026-09": "gross"
+ },
+ "typical_split_share": 0.6799999999999999,
+ "commission": {
+  "2026-01": 60332.5,
+  "2026-02": 65743.75,
+  "2026-03": 81998.75,
+  "2026-04": 102861.25,
+  "2026-05": 103846.25,
+  "2026-06": 89371.25,
+  "2026-07": 115481.25,
+  "2026-08": 87271.25,
+  "2026-09": 73702.5
+ },
+ "splits": {
+  "2026-01": 41026.1,
+  "2026-02": 44705.75,
+  "2026-03": 55759.15,
+  "2026-04": 69945.65,
+  "2026-05": 70615.45,
+  "2026-06": 60772.45,
+  "2026-07": 78527.25,
+  "2026-08": 59344.45,
+  "2026-09": 50117.7
+ },
+ "referral": {
+  "2026-01": 0.0,
+  "2026-02": 0.0,
+  "2026-03": 0.0,
+  "2026-04": 0.0,
+  "2026-05": 0.0,
+  "2026-06": 0.0,
+  "2026-07": 0.0,
+  "2026-08": 0.0,
+  "2026-09": 0.0
+ },
+ "brokerage": {
+  "2026-01": 3619.95,
+  "2026-02": 3944.63,
+  "2026-03": 4919.93,
+  "2026-04": 6171.68,
+  "2026-05": 6230.78,
+  "2026-06": 5362.28,
+  "2026-07": 6928.88,
+  "2026-08": 5236.28,
+  "2026-09": 4422.15
+ },
+ "company_dollar": {
+  "2026-01": 15686.45,
+  "2026-02": 17093.37,
+  "2026-03": 21319.67,
+  "2026-04": 26743.920000000006,
+  "2026-05": 27000.020000000004,
+  "2026-06": 23236.520000000004,
+  "2026-07": 30025.12,
+  "2026-08": 22690.520000000004,
+  "2026-09": 19162.65
+ },
+ "net_income": {
+  "2026-01": -5203.78,
+  "2026-02": -3819.51,
+  "2026-03": -245.56,
+  "2026-04": 5295.39,
+  "2026-05": 5121.54,
+  "2026-06": 1112.99,
+  "2026-07": 7960.89,
+  "2026-08": -322.71,
+  "2026-09": -3293.01
+ },
+ "margin": {
+  "2026-01": -0.33173726368936246,
+  "2026-02": -0.22344979369194023,
+  "2026-03": -0.011518001920292389,
+  "2026-04": 0.19800350883490525,
+  "2026-05": 0.18968652615812875,
+  "2026-06": 0.047898308352541594,
+  "2026-07": 0.2651409886122021,
+  "2026-08": -0.014222239067240412,
+  "2026-09": -0.1718452301743235
+ },
+ "opex": {
+  "2026-01": 21340.23,
+  "2026-02": 21362.879999999997,
+  "2026-03": 22015.23,
+  "2026-04": 21898.53,
+  "2026-05": 22328.48,
+  "2026-06": 22573.53,
+  "2026-07": 22514.23,
+  "2026-08": 23463.23,
+  "2026-09": 22905.66
+ },
+ "by_category": {
+  "lead_gen": {
+   "2026-01": 2000.0,
+   "2026-02": 2000.0,
+   "2026-03": 2000.0,
+   "2026-04": 2000.0,
+   "2026-05": 2000.0,
+   "2026-06": 750.0,
+   "2026-07": 2000.0,
+   "2026-08": 2000.0,
+   "2026-09": 2000.0
+  },
+  "marketing": {
+   "2026-01": 770.0,
+   "2026-02": 770.0,
+   "2026-03": 1120.0,
+   "2026-04": 770.0,
+   "2026-05": 770.0,
+   "2026-06": 1120.0,
+   "2026-07": 945.0,
+   "2026-08": 1295.0,
+   "2026-09": 1295.0
+  },
+  "people": {
+   "2026-01": 12659.13,
+   "2026-02": 12659.13,
+   "2026-03": 12984.13,
+   "2026-04": 13309.13,
+   "2026-05": 13634.13,
+   "2026-06": 13634.13,
+   "2026-07": 13309.13,
+   "2026-08": 13309.13,
+   "2026-09": 12984.13
+  },
+  "tech": {
+   "2026-01": 728.0,
+   "2026-02": 728.0,
+   "2026-03": 728.0,
+   "2026-04": 728.0,
+   "2026-05": 787.0,
+   "2026-06": 728.0,
+   "2026-07": 1077.0,
+   "2026-08": 1676.0,
+   "2026-09": 1077.0
+  },
+  "occupancy": {
+   "2026-01": 4600.0,
+   "2026-02": 4600.0,
+   "2026-03": 4600.0,
+   "2026-04": 4600.0,
+   "2026-05": 4600.0,
+   "2026-06": 4600.0,
+   "2026-07": 4600.0,
+   "2026-08": 4600.0,
+   "2026-09": 4600.0
+  },
+  "other": {
+   "2026-01": 583.1,
+   "2026-02": 605.75,
+   "2026-03": 583.1,
+   "2026-04": 491.4,
+   "2026-05": 537.35,
+   "2026-06": 1741.4,
+   "2026-07": 583.1,
+   "2026-08": 583.1,
+   "2026-09": 537.35
+  }
+ },
+ "period": {
+  "commission": 780608.75,
+  "splits": 530813.95,
+  "referral": 0.0,
+  "brokerage": 46836.56,
+  "company_dollar": 202958.24000000002,
+  "agent_fees": 4050.0,
+  "other_income": 0.0,
+  "opex": 200402.0,
+  "net_income": 6606.240000000001,
+  "owner": 0.0,
+  "uncategorized": 412.18,
+  "by_cat": {
+   "lead_gen": 16750.0,
+   "marketing": 8855.0,
+   "people": 118482.17,
+   "tech": 8257.0,
+   "occupancy": 41400.0,
+   "other": 6245.650000000001
+  },
+  "margin": 0.032549750135791485
+ },
+ "variances": {
+  "mom": {
+   "prev": "2026-08",
+   "last": "2026-09",
+   "lines": [
+    [
+     "Company dollar",
+     22690.520000000004,
+     19162.65
+    ],
+    [
+     "Lead generation",
+     2000.0,
+     2000.0
+    ],
+    [
+     "Marketing",
+     1295.0,
+     1295.0
+    ],
+    [
+     "People",
+     13309.13,
+     12984.13
+    ],
+    [
+     "Tech",
+     1676.0,
+     1077.0
+    ],
+    [
+     "Occupancy",
+     4600.0,
+     4600.0
+    ],
+    [
+     "Other",
+     583.1,
+     537.35
+    ],
+    [
+     "Net income",
+     -322.71,
+     -3293.01
+    ]
+   ]
+  },
+  "movers": [
+   [
+    599.0,
+    "Software & Subscriptions:CRM",
+    1198.0,
+    599.0,
+    -599.0
+   ],
+   [
+    412.18,
+    "Uncategorized Expense",
+    0.0,
+    412.18,
+    412.18
+   ],
+   [
+    325.0,
+    "Transaction Coordinator Fees",
+    2275.0,
+    1950.0,
+    -325.0
+   ],
+   [
+    45.75,
+    "Meals",
+    188.1,
+    142.35,
+    -45.75
+   ]
+  ],
+  "biggest": {
+   "line": "Company dollar",
+   "prev": 22690.520000000004,
+   "last": 19162.65,
+   "change": -3527.8700000000026,
+   "driver": null
+  },
+  "recording_changed": false,
+  "vs_avg": [
+   [
+    "Company dollar",
+    22974.448750000003,
+    19162.65
+   ],
+   [
+    "Lead generation",
+    1843.75,
+    2000.0
+   ],
+   [
+    "Marketing",
+    945.0,
+    1295.0
+   ],
+   [
+    "People",
+    13187.255,
+    12984.13
+   ],
+   [
+    "Tech",
+    897.5,
+    1077.0
+   ],
+   [
+    "Occupancy",
+    4600.0,
+    4600.0
+   ],
+   [
+    "Other",
+    713.5375,
+    537.35
+   ],
+   [
+    "Net income",
+    1237.40625,
+    -3293.01
+   ]
+  ],
+  "ytd": {
+   "year": "2026",
+   "through": "2026-09",
+   "company_dollar": 202958.24000000002,
+   "opex": 200402.0,
+   "net_income": 6606.240000000001
+  }
+ },
+ "flags": [
+  {
+   "priority": 3,
+   "code": "duplicate_charge",
+   "text": "Snapdragon CRM: 599.00 on 2026-08-03 and again on 2026-08-04 in Software & Subscriptions:CRM.",
+   "month": "2026-08",
+   "amount": 599.0,
+   "account": "Software & Subscriptions:CRM",
+   "question": "Snapdragon CRM was charged 599.00 on 2026-08-03 and again on 2026-08-04 (Software & Subscriptions:CRM). Is the second charge a duplicate, and has it been refunded?"
+  },
+  {
+   "priority": 4,
+   "code": "uncategorized",
+   "text": "Uncategorized Expense holds 412.18 in Sep 2026. In the detail: SQ *PICKLE BARREL 412.18 on 2026-09-24.",
+   "question": "Uncategorized Expense holds 412.18 in Sep 2026 (SQ *PICKLE BARREL 412.18 on 2026-09-24). What is it, and which account should it move to?",
+   "month": "2026-09",
+   "amount": 412.18
+  },
+  {
+   "priority": 6,
+   "code": "new_recurring_vendor",
+   "month": "2026-07",
+   "amount": 349.0,
+   "account": "Software & Subscriptions:Dialer",
+   "text": "Pinecone Dialer is new since Jul 2026 (Software & Subscriptions:Dialer) and is charged every month since: 349.00, 349.00, 349.00.",
+   "question": "Pinecone Dialer started in Jul 2026 at 349.00 a month (Software & Subscriptions:Dialer). Is this a new subscription, and is it set up to recur?"
+  },
+  {
+   "priority": 8,
+   "code": "likely_miscategorized",
+   "month": "2026-06",
+   "amount": 1250.0,
+   "account": "Office Supplies",
+   "text": "Lanternfly Leads: 1,250.00 in Office Supplies (2026-06-05), while most of its charges are in Advertising & Marketing:Online Lead Programs.",
+   "question": "Lanternfly Leads has 1,250.00 in Office Supplies on 2026-06-05, but its other charges are in Advertising & Marketing:Online Lead Programs. Should it move?"
+  },
+  {
+   "priority": 10,
+   "code": "new_vendor_once",
+   "month": "2026-05",
+   "amount": 59.0,
+   "text": "Hootenanny Video: a new vendor, charged once (59.00 on 2026-05-14, Software & Subscriptions:Video).",
+   "question": null
+  }
+ ],
+ "questions": [
+  "Snapdragon CRM was charged 599.00 on 2026-08-03 and again on 2026-08-04 (Software & Subscriptions:CRM). Is the second charge a duplicate, and has it been refunded?",
+  "Uncategorized Expense holds 412.18 in Sep 2026 (SQ *PICKLE BARREL 412.18 on 2026-09-24). What is it, and which account should it move to?",
+  "Pinecone Dialer started in Jul 2026 at 349.00 a month (Software & Subscriptions:Dialer). Is this a new subscription, and is it set up to recur?",
+  "Lanternfly Leads has 1,250.00 in Office Supplies on 2026-06-05, but its other charges are in Advertising & Marketing:Online Lead Programs. Should it move?"
+ ],
+ "production": null
+}

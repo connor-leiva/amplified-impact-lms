@@ -30,6 +30,12 @@ import { REPAIR_REQUEST_RESPONSE } from './repair-request-response';
 import { COUNTER_EXPLAINER } from './counter-explainer';
 import { OFFER_STRATEGY } from './offer-strategy';
 import { OFFER_COMPARISON } from './offer-comparison';
+import { PRICING_CONVERSATION_PREP } from './pricing-conversation-prep';
+import { APPOINTMENT_FOLLOW_UP } from './appointment-follow-up';
+import { SHOWING_TOUR_PREP } from './showing-tour-prep';
+import { LOW_APPRAISAL_RESPONSE } from './low-appraisal-response';
+import { TEAM_PNL_REVIEW } from './team-pnl-review';
+import { NEW_CONSTRUCTION_REVIEW } from './new-construction-review';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -228,6 +234,12 @@ export const GUIDES: Readonly<Record<string, Guide>> = {
   [COUNTER_EXPLAINER.slug]: COUNTER_EXPLAINER,
   [OFFER_STRATEGY.slug]: OFFER_STRATEGY,
   [OFFER_COMPARISON.slug]: OFFER_COMPARISON,
+  [PRICING_CONVERSATION_PREP.slug]: PRICING_CONVERSATION_PREP,
+  [APPOINTMENT_FOLLOW_UP.slug]: APPOINTMENT_FOLLOW_UP,
+  [SHOWING_TOUR_PREP.slug]: SHOWING_TOUR_PREP,
+  [LOW_APPRAISAL_RESPONSE.slug]: LOW_APPRAISAL_RESPONSE,
+  [TEAM_PNL_REVIEW.slug]: TEAM_PNL_REVIEW,
+  [NEW_CONSTRUCTION_REVIEW.slug]: NEW_CONSTRUCTION_REVIEW,
 };
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;
