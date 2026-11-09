@@ -1,0 +1,17 @@
+PASS  Buyer Tour Sheet section present
+PASS  Agent-Only Page section present
+PASS  Check before sending section
+PASS  No em or en dashes
+PASS  No access or alarm codes anywhere
+PASS  Buyer tour sheet has no agent-only fields
+PASS  No school names from the sheets
+PASS  No protected-class or reputation language
+PASS  No stock phrases
+PASS  No wire, routing or account details
+PASS  No cost estimates
+PASS  No price opinions
+PASS  Title Case headings on the tour sheet  [Buyer Tour Sheet (Share This Page); Tour Sheet: Tuesday, November 10, 2026; 1. 1442 E Example Saguaro Dr, Mesa; 2. 3920 W Placeholder Mesa Ln, Chandler]
+PASS  Every dollar amount is in the inputs or is listed arithmetic
+Lines that mention fair housing (review: they must not restate the protected wording):
+Numbers not found verbatim in the inputs (review each; dates, counts and arithmetic the skill computed are expected):
+  none

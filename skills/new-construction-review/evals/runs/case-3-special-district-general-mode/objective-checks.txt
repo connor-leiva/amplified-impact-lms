@@ -1,0 +1,14 @@
+Dollar amounts not in the inputs (must be shown as computed): $27,000
+Percentages not in the inputs: none
+Calendar dates not in the inputs (must be shown as computed): March 20
+Weekday labels that don't match the calendar: none
+Em or en dashes: none
+Subject: What The Imaginary Creek Builder Contract Says | Title Case: yes
+Check before sending section: present
+Banned stock phrases: none
+Account, routing or wire numbers: none
+Protected-class or steering wording: none
+Possible cost or tax estimates (check each is quoted from a document): none
+Possible loan advice (check each one): none
+General mode, Utah references: none
+Buyer email words (subject to next section): 305

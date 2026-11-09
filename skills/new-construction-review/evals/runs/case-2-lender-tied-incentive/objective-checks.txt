@@ -1,0 +1,13 @@
+Dollar amounts not in the inputs (must be shown as computed): $15,000
+Percentages not in the inputs: none
+Calendar dates not in the inputs (must be shown as computed): January 1, January 1, 2027, November 1, 2026, November 10, 2026, November 12, November 12, 2026, November 13, 2026, November 15, 2026
+Weekday labels that don't match the calendar: none
+Em or en dashes: none
+Subject: How The Sample Crest Incentive Works | Title Case: yes
+Check before sending section: present
+Banned stock phrases: none
+Account, routing or wire numbers: none
+Protected-class or steering wording: none
+Possible cost or tax estimates (check each is quoted from a document): none
+Possible loan advice (check each one): ent or homebuilder has a preferred lender, still look for a better deal."
+Buyer email words (subject to next section): 318

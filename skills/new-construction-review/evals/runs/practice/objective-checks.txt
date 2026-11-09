@@ -1,0 +1,13 @@
+Dollar amounts not in the inputs (must be shown as computed): $20,337.50, $9,500
+Percentages not in the inputs: 50%
+Calendar dates not in the inputs (must be shown as computed): December 13, 2026, December 4, December 4, 2026, January 1, January 1, 2027, November 1, 2026, November 13, 2028, November 16, November 16, 2026, November 18, November 18, 2026, October 24
+Weekday labels that don't match the calendar: none
+Em or en dashes: none
+Subject: What The Placeholder Peak Contract Says Before Friday | Title Case: yes
+Check before sending section: present
+Banned stock phrases: none
+Account, routing or wire numbers: none
+Protected-class or steering wording: none
+Possible cost or tax estimates (check each is quoted from a document): none
+Possible loan advice (check each one): none
+Buyer email words (subject to next section): 348

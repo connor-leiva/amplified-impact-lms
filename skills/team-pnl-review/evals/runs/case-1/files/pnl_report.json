@@ -1,0 +1,452 @@
+{
+ "file": "gingersnap-pnl-by-month-jan-jun-2026.xlsx",
+ "months": [
+  "2026-01",
+  "2026-02",
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06"
+ ],
+ "basis": "Accrual",
+ "checks": [],
+ "verdict": "MIXED: Apr 2026 shows commission income with no agent splits, while Jan 2026, Feb 2026, Mar 2026, May 2026, Jun 2026 show gross commission with splits as a cost. Company dollar is comparable across all months; gross commission, split share and any ratio on gross commission are not.",
+ "where": [
+  "agent splits are recorded as a cost",
+  "referral fees are recorded as a cost",
+  "brokerage split and fees are recorded as a cost"
+ ],
+ "status": {
+  "2026-01": "gross",
+  "2026-02": "gross",
+  "2026-03": "gross",
+  "2026-04": "NET (no agent splits recorded)",
+  "2026-05": "gross",
+  "2026-06": "gross"
+ },
+ "typical_split_share": 0.5306378024605897,
+ "commission": {
+  "2026-01": 113048.75,
+  "2026-02": 93507.5,
+  "2026-03": 158905.0,
+  "2026-04": 63691.41,
+  "2026-05": 149068.75,
+  "2026-06": 139676.25
+ },
+ "splits": {
+  "2026-01": 64246.35,
+  "2026-02": 44381.25,
+  "2026-03": 84321.0,
+  "2026-04": 0.0,
+  "2026-05": 81148.19,
+  "2026-06": 71240.4
+ },
+ "referral": {
+  "2026-01": 5971.5,
+  "2026-02": 0.0,
+  "2026-03": 5511.0,
+  "2026-04": 0.0,
+  "2026-05": 13821.76,
+  "2026-06": 8361.0
+ },
+ "brokerage": {
+  "2026-01": 5652.46,
+  "2026-02": 4675.38,
+  "2026-03": 7945.26,
+  "2026-04": 0.0,
+  "2026-05": 7453.45,
+  "2026-06": 6983.82
+ },
+ "company_dollar": {
+  "2026-01": 37178.44,
+  "2026-02": 44450.87,
+  "2026-03": 61127.74,
+  "2026-04": 63691.41,
+  "2026-05": 46645.35,
+  "2026-06": 53091.030000000006
+ },
+ "net_income": {
+  "2026-01": -7722.2,
+  "2026-02": 1161.62,
+  "2026-03": 17162.6,
+  "2026-04": 18673.89,
+  "2026-05": 2592.35,
+  "2026-06": 6838.03
+ },
+ "margin": {
+  "2026-01": -0.20770640188238126,
+  "2026-02": 0.02613267186896454,
+  "2026-03": 0.2807661464336813,
+  "2026-04": 0.2931932265277217,
+  "2026-05": 0.05557574334847954,
+  "2026-06": 0.1287982169492662
+ },
+ "opex": {
+  "2026-01": 46100.64,
+  "2026-02": 44489.25,
+  "2026-03": 45165.14,
+  "2026-04": 46217.52,
+  "2026-05": 45253.0,
+  "2026-06": 47453.0
+ },
+ "by_category": {
+  "lead_gen": {
+   "2026-01": 9800.0,
+   "2026-02": 9800.0,
+   "2026-03": 9800.0,
+   "2026-04": 9800.0,
+   "2026-05": 9800.0,
+   "2026-06": 12300.0
+  },
+  "marketing": {
+   "2026-01": 1355.9499999999998,
+   "2026-02": 1088.3500000000001,
+   "2026-03": 1700.35,
+   "2026-04": 1523.0,
+   "2026-05": 1850.65,
+   "2026-06": 1532.55
+  },
+  "people": {
+   "2026-01": 25004.75,
+   "2026-02": 25004.75,
+   "2026-03": 25004.75,
+   "2026-04": 25004.75,
+   "2026-05": 25004.75,
+   "2026-06": 25004.75
+  },
+  "tech": {
+   "2026-01": 1716.4,
+   "2026-02": 1716.4,
+   "2026-03": 1729.2,
+   "2026-04": 1716.4,
+   "2026-05": 1716.4,
+   "2026-06": 1716.4
+  },
+  "occupancy": {
+   "2026-01": 5614.36,
+   "2026-02": 5636.1,
+   "2026-03": 5598.44,
+   "2026-04": 5576.82,
+   "2026-05": 5569.3,
+   "2026-06": 5601.95
+  },
+  "other": {
+   "2026-01": 2609.18,
+   "2026-02": 1243.65,
+   "2026-03": 1332.4,
+   "2026-04": 2596.55,
+   "2026-05": 1311.9,
+   "2026-06": 1297.35
+  }
+ },
+ "period": {
+  "commission": 717897.66,
+  "splits": 345337.19,
+  "referral": 33665.26,
+  "brokerage": 32710.37,
+  "company_dollar": 306184.84,
+  "agent_fees": 7200.0,
+  "other_income": 0.0,
+  "opex": 274678.55,
+  "net_income": 38706.29,
+  "owner": 0.0,
+  "uncategorized": 0.0,
+  "by_cat": {
+   "lead_gen": 61300.0,
+   "marketing": 9050.85,
+   "people": 150028.5,
+   "tech": 10311.2,
+   "occupancy": 33596.97,
+   "other": 10391.03
+  },
+  "margin": 0.12641478265220446
+ },
+ "variances": {
+  "mom": {
+   "prev": "2026-05",
+   "last": "2026-06",
+   "lines": [
+    [
+     "Company dollar",
+     46645.35,
+     53091.030000000006
+    ],
+    [
+     "Lead generation",
+     9800.0,
+     12300.0
+    ],
+    [
+     "Marketing",
+     1850.65,
+     1532.55
+    ],
+    [
+     "People",
+     25004.75,
+     25004.75
+    ],
+    [
+     "Tech",
+     1716.4,
+     1716.4
+    ],
+    [
+     "Occupancy",
+     5569.3,
+     5601.95
+    ],
+    [
+     "Other",
+     1311.9,
+     1297.35
+    ],
+    [
+     "Net income",
+     2592.35,
+     6838.03
+    ]
+   ]
+  },
+  "movers": [
+   [
+    2500.0,
+    "6000 Advertising & Marketing:6010 Online Lead Programs",
+    9800.0,
+    12300.0,
+    2500.0
+   ],
+   [
+    195.0,
+    "6000 Advertising & Marketing:6030 Listing Photography",
+    910.0,
+    715.0,
+    -195.0
+   ],
+   [
+    91.55000000000001,
+    "6000 Advertising & Marketing:6040 Client Gifts",
+    410.25,
+    318.7,
+    -91.55000000000001
+   ],
+   [
+    32.64999999999998,
+    "6310 Utilities",
+    169.3,
+    201.95,
+    32.64999999999998
+   ],
+   [
+    31.549999999999955,
+    "6000 Advertising & Marketing:6020 Signs & Print",
+    530.4,
+    498.85,
+    -31.549999999999955
+   ],
+   [
+    14.549999999999983,
+    "6430 Meals",
+    266.9,
+    252.35,
+    -14.549999999999983
+   ]
+  ],
+  "biggest": {
+   "line": "Company dollar",
+   "prev": 46645.35,
+   "last": 53091.030000000006,
+   "change": 6445.680000000008,
+   "driver": null
+  },
+  "recording_changed": false,
+  "vs_avg": [
+   [
+    "Company dollar",
+    50618.762,
+    53091.030000000006
+   ],
+   [
+    "Lead generation",
+    9800.0,
+    12300.0
+   ],
+   [
+    "Marketing",
+    1503.66,
+    1532.55
+   ],
+   [
+    "People",
+    25004.75,
+    25004.75
+   ],
+   [
+    "Tech",
+    1718.9600000000003,
+    1716.4
+   ],
+   [
+    "Occupancy",
+    5599.004,
+    5601.95
+   ],
+   [
+    "Other",
+    1818.736,
+    1297.35
+   ],
+   [
+    "Net income",
+    6373.652,
+    6838.03
+   ]
+  ],
+  "ytd": {
+   "year": "2026",
+   "through": "2026-06",
+   "company_dollar": 306184.84,
+   "opex": 274678.55,
+   "net_income": 38706.29
+  }
+ },
+ "flags": [
+  {
+   "priority": 1,
+   "code": "mixed_recording",
+   "text": "Apr 2026 records commission income of 63,691.41 with no agent splits (other months record gross commission with splits as a cost). Apr 2026 commission income 63,691.41 is closer to the median company dollar of the gross months (46,645.35) than to their median commission income (139,676.25)",
+   "question": "Apr 2026 shows commission income of 63,691.41 and no agent splits, referral fees or brokerage fees, while the other months show gross commission with those as costs. Was Apr 2026 recorded net of splits? Please restate it the same way as the other months.",
+   "month": "2026-04"
+  },
+  {
+   "priority": 9,
+   "code": "price_change",
+   "text": "6000 Advertising & Marketing:6010 Online Lead Programs changed from 9,800.00 to 12,300.00 a month starting Jun 2026.",
+   "question": "6000 Advertising & Marketing:6010 Online Lead Programs went from 9,800.00 to 12,300.00 a month in Jun 2026. Was that a planned price or plan change?",
+   "month": "2026-06"
+  }
+ ],
+ "questions": [
+  "Apr 2026 shows commission income of 63,691.41 and no agent splits, referral fees or brokerage fees, while the other months show gross commission with those as costs. Was Apr 2026 recorded net of splits? Please restate it the same way as the other months.",
+  "6000 Advertising & Marketing:6010 Online Lead Programs went from 9,800.00 to 12,300.00 a month in Jun 2026. Was that a planned price or plan change?"
+ ],
+ "production": {
+  "closings": 56.0,
+  "cost_per_closing": {
+   "closings": 56.0,
+   "opex": 274678.55,
+   "lead_gen": 61300.0,
+   "company_dollar": 306184.84,
+   "net_income": 38706.29,
+   "gci": 801663.75
+  },
+  "lead_sources": [
+   {
+    "source": "Sphere of Influence",
+    "closings": 19.0,
+    "gci": 266338.75,
+    "team": 98003.54000000001,
+    "referral": 0.0,
+    "accounts": [],
+    "spend": null
+   },
+   {
+    "source": "Zippity Leads",
+    "closings": 10.0,
+    "gci": 140477.5,
+    "team": 40025.22,
+    "referral": 42143.26,
+    "accounts": [],
+    "spend": 42143.26,
+    "roi": 0.9497419041621364,
+    "basis": "pay at close: the referral fees on these closings are the cost, and the team's share is already after them"
+   },
+   {
+    "source": "PPC",
+    "closings": 9.0,
+    "gci": 152253.75,
+    "team": 63976.29,
+    "referral": 0.0,
+    "accounts": [],
+    "spend": null
+   },
+   {
+    "source": "Open House",
+    "closings": 7.0,
+    "gci": 85986.25,
+    "team": 37643.93,
+    "referral": 0.0,
+    "accounts": [],
+    "spend": null
+   },
+   {
+    "source": "Sign Call",
+    "closings": 6.0,
+    "gci": 78412.5,
+    "team": 27444.37,
+    "referral": 0.0,
+    "accounts": [],
+    "spend": null
+   },
+   {
+    "source": "Past Client",
+    "closings": 5.0,
+    "gci": 78195.0,
+    "team": 39091.49,
+    "referral": 0.0,
+    "accounts": [],
+    "spend": null
+   }
+  ],
+  "reconciliation": [
+   [
+    "2026-01",
+    113048.75,
+    113048.75,
+    107077.25,
+    37178.44,
+    "matches gross GCI"
+   ],
+   [
+    "2026-02",
+    93507.5,
+    93507.5,
+    93507.5,
+    44450.87,
+    "matches gross GCI"
+   ],
+   [
+    "2026-03",
+    158905.0,
+    158905.0,
+    153394.0,
+    61127.740000000005,
+    "matches gross GCI"
+   ],
+   [
+    "2026-04",
+    63691.41,
+    147457.5,
+    138979.5,
+    63691.41,
+    "matches the team's share"
+   ],
+   [
+    "2026-05",
+    149068.75,
+    149068.75,
+    135246.99,
+    46645.35,
+    "matches gross GCI"
+   ],
+   [
+    "2026-06",
+    139676.25,
+    139676.25,
+    131315.25,
+    53091.03,
+    "matches gross GCI"
+   ]
+  ]
+ }
+}

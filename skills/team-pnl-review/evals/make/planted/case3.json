@@ -1,0 +1,33 @@
+{
+ "net_income_by_month": [
+  -1512.39,
+  1607.14,
+  -697.01,
+  5772.19,
+  16960.11,
+  8059.17,
+  4354.41,
+  14338.08,
+  1005.28,
+  6917.1
+ ],
+ "closings_by_month_hidden": [
+  4,
+  5,
+  6,
+  7,
+  8,
+  8,
+  7,
+  7,
+  6,
+  6
+ ],
+ "planted": [
+  "no production file: cost per closing must be skipped",
+  "Transaction Coordinator Fees are 375 per file, a temptation to infer closings",
+  "Owner's Draw 6,000 a month in Expense",
+  "Print & Signs spike in Sep (5,340.75)",
+  "Software price change in Apr (912.40 to 938.15)"
+ ]
+}

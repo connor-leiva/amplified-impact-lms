@@ -80,6 +80,12 @@ describe('the list of guides', () => {
       'counter-explainer',
       'offer-strategy',
       'offer-comparison',
+      'pricing-conversation-prep',
+      'appointment-follow-up',
+      'showing-tour-prep',
+      'low-appraisal-response',
+      'team-pnl-review',
+      'new-construction-review',
     ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {

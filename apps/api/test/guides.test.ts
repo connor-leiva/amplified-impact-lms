@@ -131,6 +131,12 @@ it('serves the guides there are, by slug', () => {
       'counter-explainer',
       'offer-strategy',
       'offer-comparison',
+      'pricing-conversation-prep',
+      'appointment-follow-up',
+      'showing-tour-prep',
+      'low-appraisal-response',
+      'team-pnl-review',
+      'new-construction-review',
     ]);
 });
 
