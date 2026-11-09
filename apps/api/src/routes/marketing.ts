@@ -42,15 +42,24 @@ import type { App } from '../app';
  * reason — `routes/guides.ts` 301s each to `/retool`, but only if www lets it reach that route. Their
  * PDFs, under `/downloads/`, are files, so they pass on their
  * own. `/library`, the free library that lists them all (D-050), with `/guides` and `/skills`, the
- * other words someone would type for it (`routes/library.ts` 301s both). Those three match exactly, so
- * a guessed `/skills/reel-editor` goes to `/`, not through to the app's shell. `/terms` and `/privacy` because the waitlist on it links
- * to them, and a visitor on www must land on the page, not on the placeholder (`routes/legal.ts`);
- * those two match exactly, with or without a query string, so `/terms-old` still goes to `/`.
+ * other words someone would type for it (`routes/library.ts` 301s both). `/terms` and `/privacy`
+ * because the waitlist on it links to them, and a visitor on www must land on the page, not on the
+ * placeholder (`routes/legal.ts`).
  * `/api/` because the health check lives there — Railway's probe arrives with its own `Host` and a
  * redirect would fail a deploy that is perfectly healthy — and so does the waitlist the page posts to.
+ *
+ * EXACT PATHS, NOT PREFIXES (D-051). Every page path above matches whole, with or without a query
+ * string, and with a trailing slash only where a route answers one: `/ai101/`, `/waitlist/`, each
+ * `/<slug>/`, `/library/`, `/guides/` and `/skills/` each 301 (or 302) to the page, but `/AI101/`,
+ * `/ai-101/`, `/RETOOL/`, `/Retool/`, `/terms/` and `/privacy/` have no route. A path that matched
+ * here and had no route fell through to `@fastify/static`'s not-found handler, which answers with the
+ * app's `index.html`: until D-051, `www.amplifiedimpact.io/retool/x` (or `/ai101/anything`) served the
+ * LMS shell on the public host. Now a deeper or lookalike path goes to `/` like any other unknown one,
+ * and so does `/terms-old`. The sprint's calendar file, `/ai101/carousel-sprint.ics`, is a file, so it
+ * passes on its own.
  */
 const PUBLIC_PREFIX =
-  /^\/((ai101|AI101|ai-101|waitlist|task-sync-starter|ops-time-audit|voice-profile|reel-editor|retool|RETOOL|Retool)(\/|$|\?)|(library|guides|skills)\/?($|\?)|(terms|privacy)($|\?)|api\/)/;
+  /^\/((ai101|waitlist|task-sync-starter|ops-time-audit|voice-profile|reel-editor|retool|library|guides|skills)\/?|AI101|ai-101|RETOOL|Retool|terms|privacy)($|\?)|^\/api\//;
 
 /** The placeholder's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);
@@ -58,9 +67,12 @@ const ROOT = new Set(['/', '/index.html']);
 /**
  * A request for a file rather than a page: anything whose last segment carries an extension.
  *
- * Left alone so a favicon, an image or a font resolves normally instead of being bounced to the
- * placeholder. The page itself requests nothing — it is one self-contained response — but a browser
- * asks for `/favicon.ico` unprompted, and a 302 on that is a pointless round trip on every load.
+ * A real one is left alone, so an image, a font, a guide's PDF or the sprint's `.ics` resolves
+ * normally instead of being bounced to the placeholder. One that no route serves answers a plain 404
+ * (D-051): the page itself requests nothing — it is one self-contained response — but a browser asks
+ * for `/favicon.ico` unprompted, and a 302 on that is a pointless round trip on every load. Before
+ * D-051 such a path fell through to the app's not-found handler, which answers with the LMS's
+ * `index.html`, so `www.../vault/x.png` and `www.../ai101.html` were the app's shell.
  */
 const LOOKS_LIKE_A_FILE = /\/[^/]+\.[a-z0-9]+$/i;
 
@@ -72,9 +84,10 @@ export interface MarketingOptions {
 /**
  * Serve the marketing host's placeholder, and keep the app off that host.
  *
- * Everything that is not the placeholder, `/ai101` or `/api/` redirects to `/` — so a link to
- * `www.amplifiedimpact.io/vault` lands on the placeholder rather than on the LMS sign-in screen,
- * which is what a visitor who has never heard of the product would otherwise be shown.
+ * Everything that is not the placeholder, a public page in `PUBLIC_PREFIX`, `/api/` or a real file
+ * redirects to `/` — so a link to `www.amplifiedimpact.io/vault` lands on the placeholder rather than
+ * on the LMS sign-in screen, which is what a visitor who has never heard of the product would
+ * otherwise be shown. A missing file answers 404. Nothing on this host reaches the app's shell.
  *
  * 302 rather than 301, deliberately: these paths WILL mean something later, when `www` has a real
  * site with real pages. A 301 is cached by browsers more or less forever, so it would outlive the
@@ -102,8 +115,8 @@ export function registerMarketingHost(app: App, options: MarketingOptions): void
     const requested = (req.headers.host ?? '').toLowerCase().split(':')[0];
     if (requested !== host) return;
 
-    if (PUBLIC_PREFIX.test(req.url) || LOOKS_LIKE_A_FILE.test(req.url.split('?')[0] ?? '')) return;
-
+    // The placeholder first: `/index.html` also looks like a file, and is one (the app's own), so
+    // checked after the file rule below it served the app's shell on www (until D-051).
     const path = req.url.split('?')[0] ?? '/';
     if (ROOT.has(path)) {
       if (options.page === null) {
@@ -118,6 +131,18 @@ export function registerMarketingHost(app: App, options: MarketingOptions): void
         .type('text/html; charset=utf-8')
         .header('cache-control', 'public, max-age=300')
         .send(options.page);
+      return;
+    }
+
+    if (PUBLIC_PREFIX.test(req.url)) return;
+
+    if (LOOKS_LIKE_A_FILE.test(path)) {
+      // `is404` is the router's own answer, worked out before this hook runs: no route serves this
+      // path. In production every file in `dist/` is a route (`wildcard: false` in `server.ts`), so
+      // this is exactly "the file does not exist", and the not-found handler would answer it with the
+      // app's `index.html`.
+      if (!req.is404) return;
+      await reply.code(404).type('text/plain; charset=utf-8').send('Not found');
       return;
     }
 

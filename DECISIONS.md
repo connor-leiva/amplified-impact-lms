@@ -2284,3 +2284,42 @@ https://learnaiwithmariah.com/guides/"
   Whether the library replaces it is the user's call. Two older problems the review found, which the
   library now exposes to more people: /ai101's sprint calendar buttons add dates that have passed
   (D-032), and page 8 of the Task Sync PDF still has template blanks (D-038).
+
+## D-051 · Nothing on www reaches the app: exact page paths, and a 404 for a missing file
+
+**Date:** 2026-11-08
+**Approved by:** the user, in the handoff sent to this thread on 2026-11-08, under "Ready to do":
+"Close the www deep-path hole for the older pages (/retool/x reaches the SPA on www). Make the guide
+slugs in PUBLIC_PREFIX match exactly, the way library|guides|skills do, and add lookalikes to
+apps/api/test/marketing.test.ts. Check that /<slug>/ 301s still pass." The missing-file and
+`/index.html` halves below are the same leak, found while closing it, and are not in that quote:
+they ship for the user's review in the same change.
+**Scope:** `apps/api/src/routes/marketing.ts`, `apps/api/test/marketing.test.ts`. No page, copy or
+route changes; `learn` is untouched.
+
+- **The hole (D-029, named in D-050).** `PUBLIC_PREFIX` matched the older pages' slugs as prefixes, so
+  on www `/retool/x`, `/ai101/anything` and `/waitlist/x` passed the allow-list, found no route, and
+  `server.ts`'s not-found handler answered with the LMS's `index.html`, 200. So did `/AI101/`,
+  `/ai-101/`, `/RETOOL/` and `/Retool/`, which no route answers. Confirmed in production on
+  2026-11-08. In a browser the app then sent the visitor to `/sign-in`, which www 302s to `/`, so
+  people ended on the placeholder after loading the whole app; a client with no script, a crawler
+  among them, got the app's shell.
+- **Exact paths.** Every page path now matches whole, with or without a query string, and with a
+  trailing slash only where a route answers one (`/ai101/`, `/waitlist/`, each `/<slug>/`, `/library/`,
+  `/guides/`, `/skills/`). Anything deeper or lookalike goes to `/` with the 302 every unknown path
+  gets. Adding a guide is unchanged: its slug joins the group that takes a trailing slash, its aliases
+  the group that does not.
+- **A missing file is a 404 on www.** A path whose last segment has an extension passed as a "file"
+  whether or not one existed, so `/vault/x.png`, `/retool/x.html`, `/ai101.html` and `/favicon.ico`
+  were also the app's shell, 200. A real file still passes (every file in `dist/` is a route, and so
+  is `/ai101/carousel-sprint.ics`); a missing one now answers a plain-text 404, decided by the router's
+  own `is404`, not a redirect, so a browser's unprompted favicon request costs one round trip.
+- **`/index.html` is the placeholder.** `ROOT` named it, but it was checked after the file rule, and
+  `/index.html` is a real file (the app's), so www served the app there. The placeholder is now
+  checked first.
+- **Tests.** Three new tests in `marketing.test.ts` put production's not-found handler back around
+  `build()` (as a stand-in that answers with a shell) and hold that no deeper path, lookalike or
+  missing file on www is answered with it, driven by `GUIDE_SLUGS` and `GUIDE_ALIASES`. All three fail
+  on the old allow-list with the production symptoms. Checked as well against the real server
+  (`server.ts` with `MARKETING_HOST` set and a built `dist/`): every page, alias, redirect, download
+  and the `.ics` answer as before on www, and `learn` serves the same responses for every path tried.
