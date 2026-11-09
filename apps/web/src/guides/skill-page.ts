@@ -110,7 +110,7 @@ function claudeSetup(p: SkillPage, skill: string): SetupStep[] {
       title: 'Download the Skill',
       body: ['One ZIP file. ', { strong: 'Don’t unzip it.' }],
       action: 'download',
-      note: [`On a Mac, Safari may unzip it for you. If you get a ${skill} folder, right-click it and choose Compress.`],
+      note: [`On a Mac, Safari may unzip it for you. If you get a folder named ${skill}, right-click it and choose Compress.`],
     },
     {
       title: 'Add It to Claude',
