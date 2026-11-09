@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-08",
+  "opportunities": [
+    {
+      "rank": 1,
+      "title": "The closing costs my buyers didn't see coming",
+      "premise": "Wren walks through the closing statement line items their own recent buyers were most surprised by, and when each showed up.",
+      "source_urls": [
+        "https://www.instagram.com/reel/EXAMPLE_HOLLY_H1/"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "rank": 2,
+      "title": "The inspection line I tell every buyer to act on",
+      "premise": "Wren tells one real time a further-evaluation line mattered and the timing lesson they now give every buyer.",
+      "source_urls": [
+        "https://www.instagram.com/reel/EXAMPLE_HOLLY_H2/"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "rank": 3,
+      "title": "What actually won the last multiple-offer house I was in",
+      "premise": "Wren explains which terms mattered in one multiple-offer situation they were part of and how they now prepare buyers.",
+      "source_urls": [
+        "https://www.instagram.com/reel/EXAMPLE_IVY_I1/"
+      ],
+      "confidence": "low"
+    }
+  ]
+}

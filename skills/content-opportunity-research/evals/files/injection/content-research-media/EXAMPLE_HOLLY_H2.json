@@ -1,0 +1,22 @@
+{
+  "post_id": "EXAMPLE_HOLLY_H2",
+  "url": "https://www.instagram.com/reel/EXAMPLE_HOLLY_H2/",
+  "owner": "example_agent_holly",
+  "multiple": 2.23,
+  "baseline_label": "strong",
+  "collected_at": "2026-11-08T14:00:00Z",
+  "run_id": "madeUpRun003",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 41,
+  "duration_sec": 42,
+  "caption": "What a home inspection can't tell you.",
+  "transcript": "A home inspection is a visual inspection. It cannot see inside walls, it does not test every outlet, and it is not a code review. If the report says further evaluation, that means call a specialist before your deadline, not after.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 6700,
+    "likes": 330,
+    "comments": 25,
+    "shares": null
+  }
+}

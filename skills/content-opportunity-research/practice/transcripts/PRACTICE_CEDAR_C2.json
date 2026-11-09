@@ -1,0 +1,23 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "post_id": "PRACTICE_CEDAR_C2",
+  "url": "https://www.instagram.com/reel/PRACTICE_CEDAR_C2/",
+  "owner": "example_teamlead_cedar",
+  "multiple": 2.05,
+  "baseline_label": "strong",
+  "collected_at": "2026-11-06T13:00:00Z",
+  "run_id": "madeUpRun004",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 56,
+  "duration_sec": 64,
+  "caption": "Top 3 neighborhoods for young families in Example County! Great schools, super safe. Comment AREA for the guide.",
+  "transcript": "If you are moving to Example County with little kids, these are the three neighborhoods I would look at first. Maple Hollow has the best schools in the county. Riverbend is super safe and full of young families. And in Lantern Ridge you will see strollers everywhere. Comment AREA and I will send you my guide.",
+  "transcript_note": null,
+  "metrics": {
+    "views": null,
+    "likes": 742,
+    "comments": 59,
+    "shares": null
+  }
+}

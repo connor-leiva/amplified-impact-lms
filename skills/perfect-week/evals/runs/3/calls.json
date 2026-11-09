@@ -1,0 +1,644 @@
+[
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Launch",
+   "startTime": "2026-11-09T08:00:00",
+   "endTime": "2026-11-09T08:15:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261120T080000",
+    "EXDATE;TZID=America/Denver:20261126T080000",
+    "EXDATE;TZID=America/Denver:20261127T080000"
+   ],
+   "description": "Pick today's top 3 from your plan and task list.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "1",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-001"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Comms sweep",
+   "startTime": "2026-11-09T08:15:00",
+   "endTime": "2026-11-09T08:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261126T081500"
+   ],
+   "description": "Email, texts and team chat: answer what takes two minutes, park the rest.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "1",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-002"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Lunch",
+   "startTime": "2026-11-09T12:00:00",
+   "endTime": "2026-11-09T12:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261112T120000",
+    "EXDATE;TZID=America/Denver:20261126T120000",
+    "EXDATE;TZID=America/Denver:20261127T120000"
+   ],
+   "description": "Away from the desk.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "2",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-003"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Comms sweep",
+   "startTime": "2026-11-09T16:15:00",
+   "endTime": "2026-11-09T16:45:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261127T161500"
+   ],
+   "description": "Second pass: replies, voicemails, team questions.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "1",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-004"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Shutdown",
+   "startTime": "2026-11-09T16:45:00",
+   "endTime": "2026-11-09T17:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261127T164500"
+   ],
+   "description": "Close loops and write tomorrow's top 3.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "1",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-005"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Comms sweep",
+   "startTime": "2026-11-12T14:45:00",
+   "endTime": "2026-11-12T15:15:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261119T144500",
+    "EXDATE;TZID=America/Denver:20261126T144500"
+   ],
+   "description": "Second pass before pickup.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "1",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-006"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Shutdown",
+   "startTime": "2026-11-12T15:15:00",
+   "endTime": "2026-11-12T15:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261119T151500",
+    "EXDATE;TZID=America/Denver:20261126T151500"
+   ],
+   "description": "Note tomorrow's top 3; done by 3:30 for pickup.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "1",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-007"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Huddle prep",
+   "startTime": "2026-11-09T08:30:00",
+   "endTime": "2026-11-09T09:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20261219T065959Z"
+   ],
+   "description": "Last week's numbers and wins for the 9:00 huddle.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-008"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Recruiting: coffee or recruit calls",
+   "startTime": "2026-11-09T09:30:00",
+   "endTime": "2026-11-09T11:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261116T093000"
+   ],
+   "description": "One recruit coffee, or 4 to 6 calls from your recruit list, then log them.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "10",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-009"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Leadership project",
+   "startTime": "2026-11-16T12:30:00",
+   "endTime": "2026-11-16T14:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20261219T065959Z"
+   ],
+   "description": "Business plan and onboarding playbook deliverables (see Projects on your plan page).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-010"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Your listings",
+   "startTime": "2026-11-16T14:45:00",
+   "endTime": "2026-11-16T16:15:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20261219T065959Z"
+   ],
+   "description": "Listing prep and seller updates; past-client calls from your CRM list.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-011"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Team meeting prep",
+   "startTime": "2026-11-10T08:30:00",
+   "endTime": "2026-11-10T09:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20261219T065959Z"
+   ],
+   "description": "Training topic and pipeline review agenda for 9:30.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-012"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Team meeting follow-through",
+   "startTime": "2026-11-10T11:00:00",
+   "endTime": "2026-11-10T11:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20261219T065959Z"
+   ],
+   "description": "Send notes and owners for every action item.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-013"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Your listings",
+   "startTime": "2026-11-10T12:30:00",
+   "endTime": "2026-11-10T14:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261117T123000"
+   ],
+   "description": "CMAs, listing packets, the listing presentation refresh.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-014"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Marketing",
+   "startTime": "2026-11-10T14:45:00",
+   "endTime": "2026-11-10T15:45:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20261219T065959Z"
+   ],
+   "description": "Market update videos, client gifts, past-client email.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "3",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-015"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Leadership project",
+   "startTime": "2026-11-18T08:30:00",
+   "endTime": "2026-11-18T10:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20261219T065959Z"
+   ],
+   "description": "Business plan and onboarding playbook deliverables (see Projects on your plan page).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-016"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Operations and finance",
+   "startTime": "2026-11-11T11:00:00",
+   "endTime": "2026-11-11T12:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261202T110000"
+   ],
+   "description": "P&L questions, expenses, tech and renewals.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "8",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-017"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Recruiting follow-up",
+   "startTime": "2026-11-11T13:00:00",
+   "endTime": "2026-11-11T14:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20261219T065959Z"
+   ],
+   "description": "Follow-ups from coffees and calls; book next week's coffees.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "10",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-018"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "1:1 prep",
+   "startTime": "2026-11-11T14:30:00",
+   "endTime": "2026-11-11T15:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20261219T065959Z"
+   ],
+   "description": "Prep for Casey (Week A) or Drew (Week B).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-019"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Your listings",
+   "startTime": "2026-11-12T08:30:00",
+   "endTime": "2026-11-12T09:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261126T083000"
+   ],
+   "description": "Past-client calls from your CRM list.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-020"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "1:1 prep",
+   "startTime": "2026-11-12T09:30:00",
+   "endTime": "2026-11-12T10:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261126T093000"
+   ],
+   "description": "Prep for Avery (Week A) or Riley (Week B).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-021"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Hold: 1:1 Quinn Notreal",
+   "startTime": "2026-11-12T10:30:00",
+   "endTime": "2026-11-12T11:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=TH;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261126T103000"
+   ],
+   "description": "Every other week. No invite went out: you invite Quinn when you are ready. Hold only: no invite went out.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-022"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Recruiting: coffee or recruit calls",
+   "startTime": "2026-11-12T11:00:00",
+   "endTime": "2026-11-12T12:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261126T110000"
+   ],
+   "description": "A coffee, or calls and the recruiting follow-up list.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "10",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-023"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Ops sync prep",
+   "startTime": "2026-11-13T08:15:00",
+   "endTime": "2026-11-13T08:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261120T081500",
+    "EXDATE;TZID=America/Denver:20261127T081500"
+   ],
+   "description": "Agenda for Morgan: hand-offs and open questions.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "8",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-024"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Leadership project",
+   "startTime": "2026-11-13T09:00:00",
+   "endTime": "2026-11-13T11:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261127T090000"
+   ],
+   "description": "Business plan and onboarding playbook deliverables (see Projects on your plan page).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-025"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Your listings",
+   "startTime": "2026-11-13T11:00:00",
+   "endTime": "2026-11-13T12:00:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261120T110000",
+    "EXDATE;TZID=America/Denver:20261127T110000",
+    "EXDATE;TZID=America/Denver:20261218T110000"
+   ],
+   "description": "Seller updates and past-client calls.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-026"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Operations and finance",
+   "startTime": "2026-11-13T12:30:00",
+   "endTime": "2026-11-13T13:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261127T123000"
+   ],
+   "description": "Hand-offs to Morgan, receipts, renewals.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "8",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-027"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Marketing",
+   "startTime": "2026-11-13T13:30:00",
+   "endTime": "2026-11-13T14:30:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261127T133000"
+   ],
+   "description": "Videos, gifts, past-client email.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "3",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-028"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Weekly review",
+   "startTime": "2026-11-13T15:30:00",
+   "endTime": "2026-11-13T16:15:00",
+   "timeZone": "America/Denver",
+   "recurrenceData": [
+    "RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20261219T065959Z",
+    "EXDATE;TZID=America/Denver:20261127T153000"
+   ],
+   "description": "Check this week against the plan and set next week's blocks.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "1",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-029"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Listing appointment prep: 45 Sample Street",
+   "startTime": "2026-11-09T13:00:00",
+   "endTime": "2026-11-09T14:00:00",
+   "timeZone": "America/Denver",
+   "description": "Finish the listing packet right before the 2:00 appointment.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-030"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Recruiting: coffee or recruit calls",
+   "startTime": "2026-11-16T10:30:00",
+   "endTime": "2026-11-16T11:30:00",
+   "timeZone": "America/Denver",
+   "description": "One recruit coffee, or 4 to 6 calls from your recruit list, then log them.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "10",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-031"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Leadership project",
+   "startTime": "2026-11-09T12:30:00",
+   "endTime": "2026-11-09T13:00:00",
+   "timeZone": "America/Denver",
+   "description": "Business plan and onboarding playbook deliverables (see Projects on your plan page).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-032"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Your listings",
+   "startTime": "2026-11-09T15:00:00",
+   "endTime": "2026-11-09T16:15:00",
+   "timeZone": "America/Denver",
+   "description": "Listing prep and seller updates; past-client calls from your CRM list.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-033"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Your listings",
+   "startTime": "2026-11-17T12:30:00",
+   "endTime": "2026-11-17T13:00:00",
+   "timeZone": "America/Denver",
+   "description": "CMAs, listing packets, the listing presentation refresh.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-034"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Your listings",
+   "startTime": "2026-11-17T14:00:00",
+   "endTime": "2026-11-17T14:30:00",
+   "timeZone": "America/Denver",
+   "description": "CMAs, listing packets, the listing presentation refresh.\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "6",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-035"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Leadership project",
+   "startTime": "2026-11-11T08:30:00",
+   "endTime": "2026-11-11T09:00:00",
+   "timeZone": "America/Denver",
+   "description": "Business plan and onboarding playbook deliverables (see Projects on your plan page).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-036"
+ },
+ {
+  "tool": "create_event",
+  "args": {
+   "summary": "Leadership project",
+   "startTime": "2026-11-11T10:00:00",
+   "endTime": "2026-11-11T10:30:00",
+   "timeZone": "America/Denver",
+   "description": "Business plan and onboarding playbook deliverables (see Projects on your plan page).\n\nFrom your plan (added by Claude on Nov 9, 2026). Solo block: no guests, no invites.",
+   "colorId": "9",
+   "useDefaultReminders": false,
+   "notificationLevel": "NONE"
+  },
+  "id": "evt-037"
+ },
+ {
+  "tool": "delete_event",
+  "args": {
+   "eventId": "pw-focus@practice.example",
+   "notificationLevel": "NONE"
+  },
+  "id": null
+ }
+]

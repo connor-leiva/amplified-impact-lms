@@ -1,0 +1,22 @@
+{
+  "post_id": "EXAMPLE_JUNIPER_J1",
+  "url": "https://www.instagram.com/p/EXAMPLE_JUNIPER_J1/",
+  "owner": "example_agent_juniper",
+  "multiple": null,
+  "baseline_label": "none",
+  "collected_at": "2026-11-08T14:00:00Z",
+  "run_id": "madeUpRun003",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 38,
+  "duration_sec": 46,
+  "caption": "First-time buyer myths, round two.",
+  "transcript": "Myth one: you need twenty percent down. Many loan programs allow less, so ask a lender what fits you. Myth two: pre-qualified and pre-approved mean the same thing. They do not. Get the approval letter before you tour.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 11960,
+    "likes": 638,
+    "comments": 77,
+    "shares": null
+  }
+}

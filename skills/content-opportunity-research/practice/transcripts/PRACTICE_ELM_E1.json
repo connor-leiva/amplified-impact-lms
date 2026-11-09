@@ -1,0 +1,23 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "post_id": "PRACTICE_ELM_E1",
+  "url": "https://www.instagram.com/p/PRACTICE_ELM_E1/",
+  "owner": "example_lender_elm",
+  "multiple": null,
+  "baseline_label": "none",
+  "collected_at": "2026-11-06T13:00:00Z",
+  "run_id": "madeUpRun004",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 49,
+  "duration_sec": 58,
+  "caption": "How I made $250K my first year as a loan officer (not clickbait). Comment PLAN.",
+  "transcript": "My first year in lending I closed sixty loans and made two hundred fifty thousand dollars. Here is the plan. I called every agent in my farm area twice a week and I used AI to write every follow-up. Comment PLAN and I will send you the exact schedule.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 34000,
+    "likes": 1500,
+    "comments": 410,
+    "shares": null
+  }
+}

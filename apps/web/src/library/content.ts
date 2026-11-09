@@ -47,6 +47,36 @@ export interface Entry {
 
 export const ENTRIES: readonly Entry[] = [
   {
+    title: 'Inbox and Meeting Follow-Through',
+    description: 'Claude goes through your inbox and yesterday’s meetings and hands back the decisions only you can make, drafted replies and hand-offs, and the promises you haven’t kept, with any wire-change email flagged first. Claude reads and drafts but never sends. Set it up on a computer, with a Claude plan that can add skills.',
+    kind: 'Claude Skill',
+    href: '/inbox-meeting-follow-through',
+    tools: ['claude'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-08',
+    keywords: 'inbox email triage gmail outlook microsoft 365 granola zoom teams otter fathom transcript meeting notes action items follow up follow-through commitments delegation hand-offs promises accountability wire fraud friday rollup morning daily pass team leaders owners ops',
+  },
+  {
+    title: 'Perfect Week',
+    description: 'Claude turns your calendar and task list into a week that fits inside your working hours, with a summary for your manager. Nothing goes on your calendar until you say yes, and Claude never invites anyone. Set it up on a computer, with a Claude plan that can add skills.',
+    kind: 'Claude Skill',
+    href: '/perfect-week',
+    tools: ['claude'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-08',
+    keywords: 'time blocking time block calendar schedule ideal week plan my week weekly planning too many meetings behind overwhelmed work-life balance prospecting recruiting time team leaders ops delegate hand off time management google calendar outlook ics clickup todoist asana tasks productivity',
+  },
+  {
+    title: 'Content Strategist',
+    description: 'Every week, see which Instagram reels in your niche beat their creator’s usual numbers, and get up to five talking-head ideas built on your own stories. Set it up on a computer, with a Claude plan that can add skills and a free Apify account.',
+    kind: 'Claude Skill',
+    href: '/content-strategist',
+    tools: ['claude'],
+    topics: ['skills', 'content'],
+    added: '2026-11-08',
+    keywords: 'instagram reels content ideas what to post talking-head video ideas hooks outliers competitor research content strategy weekly brief creators hashtags apify social media marketing',
+  },
+  {
     title: 'Team Playbook Builder',
     description: 'Upload your team’s SOPs, policy manual and training call transcripts, and get back a playbook your agents add to their own Claude, with the source behind every answer, plus the gaps, the conflicts and 25 test questions. Set it up on a computer. You and each agent need a Claude plan that can add skills.',
     kind: 'Claude Skill',
@@ -75,18 +105,6 @@ export const ENTRIES: readonly Entry[] = [
     topics: ['skills', 'team-ops'],
     added: '2026-11-08',
     keywords: 'crm cleanup database health check audit follow up boss fub export dedupe duplicates merge smart lists ponds past clients sphere soi nurture stale leads never contacted re-engagement team leader owner ops va worklist kw command gohighlevel brivity',
-  },
-  // Not on the site yet. Set `href` to its page when it goes up. The words are from the README of the
-  // `content-opportunity-research` skill, taken to be this one (D-050).
-  {
-    title: 'Content Strategist',
-    description: "Find out what to post next on Instagram, based on what's outperforming in your niche this week.",
-    kind: 'Claude Skill',
-    href: null,
-    tools: ['claude'],
-    topics: ['skills', 'content'],
-    added: '2026-10-28',
-    keywords: 'instagram reels ideas hooks research outliers social media marketing',
   },
   {
     title: "Retool, Don't Replace",

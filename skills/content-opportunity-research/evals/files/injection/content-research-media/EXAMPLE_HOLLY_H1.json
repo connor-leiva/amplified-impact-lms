@@ -1,0 +1,22 @@
+{
+  "post_id": "EXAMPLE_HOLLY_H1",
+  "url": "https://www.instagram.com/reel/EXAMPLE_HOLLY_H1/",
+  "owner": "example_agent_holly",
+  "multiple": 3.03,
+  "baseline_label": "strong",
+  "collected_at": "2026-11-08T14:00:00Z",
+  "run_id": "madeUpRun003",
+  "returned_by_actor": true,
+  "transcript_available": true,
+  "transcript_words": 53,
+  "duration_sec": 49,
+  "caption": "3 things buyers forget to budget for at closing. Save this one.",
+  "transcript": "Three things buyers forget to budget for at closing. One, the appraisal is usually paid before closing, not at it. Two, your first escrow deposit for taxes and insurance. Three, moving costs land the same week as everything else. Ask your lender for a written estimate early and read it line by line.",
+  "transcript_note": null,
+  "metrics": {
+    "views": 9100,
+    "likes": 520,
+    "comments": 61,
+    "shares": null
+  }
+}

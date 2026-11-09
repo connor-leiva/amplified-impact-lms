@@ -1,0 +1,75 @@
+WEBVTT
+
+NOTE PRACTICE FILE: made-up example. Leadership Huddle, Wednesday, November 4, 2026, 9:00 AM Mountain Time. Zoom cloud recording audio transcript, saved as .txt.
+
+1
+00:00:05.120 --> 00:00:09.480
+Jordan Samplewood: Morning, everyone. Quick one today. Casey, pipeline first.
+
+2
+00:00:10.020 --> 00:00:24.900
+Casey Mockridge: We've got six pending. 2214 Example Butte closes Monday the 9th. 77 Example Orchard has lender conditions coming. I'll send you the pending list with anything at risk by noon tomorrow.
+
+3
+00:00:25.300 --> 00:00:27.010
+Jordan Samplewood: Great. Devon?
+
+4
+00:00:27.500 --> 00:00:41.200
+Devon Testerly: Holiday party venue: I'm waiting on Example Lodge to confirm the date, I should hear today. And the dialer renewal, I need your answer by Friday.
+
+5
+00:00:41.800 --> 00:00:47.330
+Jordan Samplewood: I'll decide on the dialer by tomorrow. Priya, how much are you on it?
+
+6
+00:00:47.900 --> 00:00:53.400
+Unknown Speaker: Every day. It's most of my sign calls and my callbacks.
+
+7
+00:00:54.000 --> 00:01:04.700
+Jordan Samplewood: Okay. Devon, can you also send the updated vendor list to all the agents by Friday? Rae was asking about inspectors.
+
+8
+00:01:05.100 --> 00:01:07.600
+Devon Testerly: Yep, I'll have it out Friday.
+
+9
+00:01:08.000 --> 00:01:09.900
+Jordan Samplewood: Luis, agent side?
+
+10
+00:01:10.300 --> 00:01:21.800
+Luis Placeholder: The new agents want more role-play. I'll run a listing presentation role-play for the new agents next Tuesday at 10.
+
+11
+00:01:22.200 --> 00:01:27.500
+Jordan Samplewood: Love it. Tasha asked about role-play too, pull her in.
+
+12
+00:01:27.900 --> 00:01:44.300
+Luis Placeholder: Will do. One more thing, and keep this between us: Ben is dealing with a family health issue, so he may be slower this month. I told him we'd cover where we can.
+
+13
+00:01:44.800 --> 00:01:50.100
+Jordan Samplewood: Thanks for telling me. I'll check in with him privately this week.
+
+14
+00:01:50.600 --> 00:01:52.000
+Jordan Samplewood: Mara, marketing?
+
+15
+00:01:52.400 --> 00:02:04.900
+Mara Demoville: The Creek Way postcard is ready to print, I just need a count from you. And I'm building the November newsletter, I'll have a draft to you Monday.
+
+16
+00:02:05.300 --> 00:02:15.600
+Jordan Samplewood: Priya, can you pull the list of leads with no appointment set in the last 30 days from Follow Up Boss before Monday's sales meeting?
+
+17
+00:02:16.000 --> 00:02:18.700
+Priya Exampleton: Sure, I'll have it by Monday morning.
+
+18
+00:02:19.100 --> 00:02:27.800
+Jordan Samplewood: And I'll call the Exampleberg sellers about the price feedback on Creek Way this week. Okay, thanks everyone.

@@ -1,0 +1,8 @@
+{
+  "date": "2026-11-08",
+  "opportunities": [
+    {"rank": 1, "title": "What buyers forget to budget for", "premise": "Wren names the costs Wren's own recent buyers did not see coming, when each showed up, and the one question Wren has every buyer ask their lender.", "source_urls": ["https://www.instagram.com/reel/EXAMPLE_HOLLY_H1/"], "confidence": "high"},
+    {"rank": 2, "title": "The line in an inspection report buyers skim past", "premise": "Wren tells one anonymized story where an inspection report pointed to a specialist, and what Wren tells buyers to do the day a report arrives.", "source_urls": ["https://www.instagram.com/reel/EXAMPLE_HOLLY_H2/"], "confidence": "medium"},
+    {"rank": 3, "title": "When an offer loses on terms, not price", "premise": "Wren uses one offer Wren's buyers won or lost on terms to explain which terms Wren talks through before writing any offer.", "source_urls": ["https://www.instagram.com/reel/EXAMPLE_IVY_I1/"], "confidence": "low"}
+  ]
+}

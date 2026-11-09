@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taylor's Perfect Week</title>
+<style>
+:root{--bg:#f7f6f2;--card:#ffffff;--ink:#1d1d1b;--muted:#5e5d58;--line:#dedcd4;--soft:#efeee8;--warn:#a34a00;--warnbg:#fff2e2;--accent:#2b5bb5;
+--c-leadership:#3f63c9;--c-recruiting:#2f8a4c;--c-production:#d9822b;--c-operations:#6b6b6b;--c-marketing:#8a46b0;--c-admin:#7f8fd1;--c-break:#9db8a3;--c-open:#c9c6bb;--c-meeting:#4a4a46;--c-personal:#a9a59b;--c-listings:#d9822b;--c-buyers:#c0504d;--c-prospecting:#2f8a4c;--c-transactions:#6b6b6b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#151514;--card:#1f1f1d;--ink:#eeece6;--muted:#aaa79d;--line:#383732;--soft:#2a2a27;--warn:#ffb26b;--warnbg:#3a2a18;--accent:#8fb0ff;--c-open:#55534c;--c-meeting:#bdbab0;--c-personal:#6e6b63}}
+:root[data-theme="dark"]{--bg:#151514;--card:#1f1f1d;--ink:#eeece6;--muted:#aaa79d;--line:#383732;--soft:#2a2a27;--warn:#ffb26b;--warnbg:#3a2a18;--accent:#8fb0ff;--c-open:#55534c;--c-meeting:#bdbab0;--c-personal:#6e6b63}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+h1{font-size:28px;line-height:1.2;margin:0 0 6px}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:15px;margin:16px 0 6px}
+p{margin:6px 0}
+a{color:var(--accent)}
+.status{color:var(--muted);font-size:14px}
+.jumps{display:flex;flex-wrap:wrap;gap:6px 14px;margin:12px 0 0;padding:0;list-style:none;font-size:14px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 16px;margin:18px 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:10px 0}
+.tile{background:var(--soft);border-radius:8px;padding:10px 12px}
+.tile b{display:block;font-size:22px;line-height:1.2}
+.tile span{color:var(--muted);font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;margin:8px 0}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+button,select,input{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.board{display:grid;grid-template-columns:48px repeat(var(--ndays),minmax(0,1fr));gap:4px;position:relative}
+.board .head{font-weight:600;font-size:13px;text-align:center}
+.col{position:relative;height:var(--h);background:var(--soft);border-radius:6px}
+.times{position:relative;height:var(--h);font-size:11px;color:var(--muted)}
+.times div{position:absolute;right:4px;transform:translateY(-6px)}
+.b{position:absolute;left:2px;right:2px;border-radius:4px;padding:1px 4px;font-size:11px;line-height:1.2;overflow:hidden;cursor:pointer;color:#fff;border:0;text-align:left}
+.b.fixed{background:var(--card)!important;color:var(--ink);border:2px solid var(--c-meeting)}
+.b.hold{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.25) 0 6px,transparent 6px 12px)}
+.b.open,.b.break,.b.lunch{color:var(--ink)}
+.b .w{font-weight:700;color:var(--warn);background:var(--warnbg);border-radius:3px;padding:0 3px;margin-right:3px}
+.b:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.list{display:none}
+.list h3{margin:12px 0 4px}
+.list ul{margin:0;padding-left:0;list-style:none}
+.list li{padding:4px 0;border-bottom:1px solid var(--line);font-size:14px}
+@media (max-width:700px){.board{display:none}.list{display:block}.boardonly{display:none}}
+.panel{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--line);padding:14px 16px 18px;box-shadow:0 -6px 20px rgba(0,0,0,.15);display:none;z-index:5}
+.panel.show{display:block}
+.panel .x{float:right}
+.warnbox{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:6px 10px;margin:6px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.tablewrap{overflow-x:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.card{border:1px solid var(--line);border-left:6px solid var(--muted);border-radius:8px;padding:10px 12px}
+.timeline{display:grid;gap:3px;font-size:12px}
+.timeline .cell{background:var(--soft);border-radius:3px;min-height:26px;padding:3px;text-align:center}
+.timeline .cell.on{color:#fff;font-weight:600}
+.timeline .lab{font-weight:600;padding:3px 4px;align-self:center}
+.bars text{fill:var(--ink);font-size:11px}
+.bars .ax{stroke:var(--line)}
+.muted{color:var(--muted)}
+.pill{display:inline-block;border-radius:10px;padding:0 8px;font-size:12px;background:var(--soft)}
+ul.tight{margin:4px 0;padding-left:20px}
+@media print{body{background:#fff}section{break-inside:avoid;border:0;padding:6px 0}.toolbar,.jumps,.panel,.noprint{display:none!important}.board{display:grid}.list{display:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<div class="panel" id="panel" role="dialog" aria-label="Block details"></div>
+<script type="application/json" id="plan-data">{"name": "Taylor", "status": "Draft for review \u00b7 Eastern time (America/New_York)", "builtFrom": "Built from your calendar export (taylor@exampleridge.example, set to Central time) and your Todoist export, plus what you told me. All times here are Eastern. Nothing was connected; nothing has been changed.", "sections": [["week", "The week"], ["handoffs", "For Jamie"], ["taskcheck", "Task check"], ["hours", "Where the hours go"], ["blocks", "What each block is for"], ["dates", "Dates"], ["calendar", "Before the calendar"]], "areas": [{"id": "prospecting", "name": "Prospecting"}, {"id": "listings", "name": "Client work (listings and buyers)"}, {"id": "marketing", "name": "Marketing"}, {"id": "admin", "name": "Admin and rituals"}, {"id": "break", "name": "Lunch"}, {"id": "open", "name": "Open time"}], "week": {"days": ["Mon", "Tue", "Wed", "Thu", "Fri"], "start": "09:00", "end": "17:00", "variants": null, "blocks": [{"id": "launchMon", "day": "Mon", "start": "09:00", "end": "09:15", "area": "admin", "kind": "ritual", "title": "Launch", "job": "Pick today's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "commsMon", "day": "Mon", "start": "09:15", "end": "09:30", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Email, texts, CRM alerts.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "comms2Mon", "day": "Mon", "start": "16:15", "end": "16:45", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Second pass.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "shutMon", "day": "Mon", "start": "16:45", "end": "17:00", "area": "admin", "kind": "ritual", "title": "Shutdown", "job": "Tomorrow's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "launchTue", "day": "Tue", "start": "09:00", "end": "09:15", "area": "admin", "kind": "ritual", "title": "Launch", "job": "Pick today's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "commsTue", "day": "Tue", "start": "09:15", "end": "09:30", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Email, texts, CRM alerts.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "comms2Tue", "day": "Tue", "start": "16:15", "end": "16:45", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Second pass.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "shutTue", "day": "Tue", "start": "16:45", "end": "17:00", "area": "admin", "kind": "ritual", "title": "Shutdown", "job": "Tomorrow's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "launchWed", "day": "Wed", "start": "09:00", "end": "09:15", "area": "admin", "kind": "ritual", "title": "Launch", "job": "Pick today's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "commsWed", "day": "Wed", "start": "09:15", "end": "09:30", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Email, texts, CRM alerts.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "comms2Wed", "day": "Wed", "start": "16:15", "end": "16:45", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Second pass.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "shutWed", "day": "Wed", "start": "16:45", "end": "17:00", "area": "admin", "kind": "ritual", "title": "Shutdown", "job": "Tomorrow's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "launchThu", "day": "Thu", "start": "09:30", "end": "09:45", "area": "admin", "kind": "ritual", "title": "Launch", "job": "Pick today's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "commsThu", "day": "Thu", "start": "09:45", "end": "10:00", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Email, texts, CRM alerts.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "comms2Thu", "day": "Thu", "start": "16:15", "end": "16:45", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Second pass.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "shutThu", "day": "Thu", "start": "16:45", "end": "17:00", "area": "admin", "kind": "ritual", "title": "Shutdown", "job": "Tomorrow's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "launchFri", "day": "Fri", "start": "09:00", "end": "09:15", "area": "admin", "kind": "ritual", "title": "Launch", "job": "Pick today's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "commsFri", "day": "Fri", "start": "09:15", "end": "09:30", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Email, texts, CRM alerts.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "comms2Fri", "day": "Fri", "start": "16:15", "end": "16:45", "area": "admin", "kind": "ritual", "title": "Comms sweep", "job": "Second pass.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "shutFri", "day": "Fri", "start": "16:45", "end": "17:00", "area": "admin", "kind": "ritual", "title": "Shutdown", "job": "Tomorrow's top 3.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "teammtg", "day": "Tue", "start": "10:00", "end": "11:30", "area": "meeting", "kind": "fixed", "title": "Team meeting", "job": "", "weeks": null, "who": "Jamie Leaderson and the team", "status": "Existing, stays exactly as it is", "warn": ""}, {"id": "training", "day": "Wed", "start": "12:00", "end": "13:00", "area": "meeting", "kind": "fixed", "title": "Sales training webinar (Example Ridge Realty)", "job": "", "weeks": null, "who": "All agents", "status": "Existing, stays exactly as it is", "warn": ""}, {"id": "oneonone", "day": "Thu", "start": "09:00", "end": "09:30", "area": "meeting", "kind": "fixed", "title": "1:1 Jamie / Taylor", "job": "", "weeks": null, "who": "Jamie Leaderson", "status": "Existing, stays exactly as it is", "warn": ""}, {"id": "prosMon", "day": "Mon", "start": "09:30", "end": "10:30", "area": "prospecting", "kind": "focus", "title": "Prospecting", "job": "25 past-client calls from your CRM list.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "cliMon", "day": "Mon", "start": "10:30", "end": "12:30", "area": "listings", "kind": "focus", "title": "Client work", "job": "Listings and buyers, earliest deadline first.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "lunchMon", "day": "Mon", "start": "12:30", "end": "13:00", "area": "break", "kind": "lunch", "title": "Lunch", "job": "", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "cliMon2", "day": "Mon", "start": "13:00", "end": "14:30", "area": "listings", "kind": "focus", "title": "Client work", "job": "Listings and buyers, earliest deadline first.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "admMon", "day": "Mon", "start": "14:30", "end": "15:00", "area": "admin", "kind": "focus", "title": "Admin", "job": "CRM notes, expenses.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "openMon", "day": "Mon", "start": "15:00", "end": "15:30", "area": "open", "kind": "open", "title": "Open time", "job": "", "weeks": null, "who": "Just you", "status": "Plan only, not added", "warn": ""}, {"id": "mktMon", "day": "Mon", "start": "15:30", "end": "16:15", "area": "marketing", "kind": "focus", "title": "Marketing", "job": "Videos, reels, market update email.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "prepTue", "day": "Tue", "start": "09:30", "end": "10:00", "area": "listings", "kind": "prep", "title": "Team meeting prep", "job": "Your pipeline update for the 10:00 team meeting.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "prosTue", "day": "Tue", "start": "11:30", "end": "12:30", "area": "prospecting", "kind": "focus", "title": "Prospecting", "job": "25 past-client calls from your CRM list.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "lunchTue", "day": "Tue", "start": "12:30", "end": "13:00", "area": "break", "kind": "lunch", "title": "Lunch", "job": "", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "cliTue", "day": "Tue", "start": "13:00", "end": "15:00", "area": "listings", "kind": "focus", "title": "Client work", "job": "Listings and buyers, earliest deadline first.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "openTue", "day": "Tue", "start": "15:00", "end": "15:30", "area": "open", "kind": "open", "title": "Open time", "job": "", "weeks": null, "who": "Just you", "status": "Plan only, not added", "warn": ""}, {"id": "admTue", "day": "Tue", "start": "15:30", "end": "16:15", "area": "admin", "kind": "focus", "title": "Admin", "job": "CRM notes, expenses.", "weeks": null, "who": "Just you", "status": "New block", "warn": "Week of Nov 9 only: this block becomes client work, and the expense catch-up moves to the week of Nov 16."}, {"id": "prosWed", "day": "Wed", "start": "09:30", "end": "10:30", "area": "prospecting", "kind": "focus", "title": "Prospecting", "job": "25 past-client calls from your CRM list.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "cliWed", "day": "Wed", "start": "10:30", "end": "12:00", "area": "listings", "kind": "focus", "title": "Client work", "job": "Listings and buyers, earliest deadline first.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "lunchWed", "day": "Wed", "start": "13:00", "end": "13:30", "area": "break", "kind": "lunch", "title": "Lunch", "job": "After the webinar.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "mktWed", "day": "Wed", "start": "13:30", "end": "15:00", "area": "marketing", "kind": "focus", "title": "Marketing", "job": "Videos, reels, market update email.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "openWed", "day": "Wed", "start": "15:00", "end": "15:30", "area": "open", "kind": "open", "title": "Open time", "job": "", "weeks": null, "who": "Just you", "status": "Plan only, not added", "warn": ""}, {"id": "cliWed2", "day": "Wed", "start": "15:30", "end": "16:15", "area": "listings", "kind": "focus", "title": "Client work", "job": "Listings and buyers, earliest deadline first.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "prosThu", "day": "Thu", "start": "10:00", "end": "11:00", "area": "prospecting", "kind": "focus", "title": "Prospecting", "job": "25 past-client calls from your CRM list.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "cliThu", "day": "Thu", "start": "11:00", "end": "12:30", "area": "listings", "kind": "focus", "title": "Client work", "job": "Listings and buyers, earliest deadline first.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "lunchThu", "day": "Thu", "start": "12:30", "end": "13:00", "area": "break", "kind": "lunch", "title": "Lunch", "job": "", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "admThu", "day": "Thu", "start": "13:00", "end": "14:00", "area": "admin", "kind": "focus", "title": "Admin", "job": "CRM notes, expenses.", "weeks": null, "who": "Just you", "status": "New block", "warn": "Week of Nov 9 only: this block becomes client work, and the expense catch-up moves to the week of Nov 16."}, {"id": "mktThu", "day": "Thu", "start": "14:00", "end": "15:00", "area": "marketing", "kind": "focus", "title": "Marketing", "job": "Videos, reels, market update email.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "openThu", "day": "Thu", "start": "15:00", "end": "15:30", "area": "open", "kind": "open", "title": "Open time", "job": "", "weeks": null, "who": "Just you", "status": "Plan only, not added", "warn": ""}, {"id": "cliThu2", "day": "Thu", "start": "15:30", "end": "16:15", "area": "listings", "kind": "focus", "title": "Client work", "job": "Listings and buyers, earliest deadline first.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "prosFri", "day": "Fri", "start": "09:30", "end": "10:30", "area": "prospecting", "kind": "focus", "title": "Prospecting", "job": "25 past-client calls from your CRM list.", "weeks": null, "who": "Just you", "status": "New block", "warn": "Fri Nov 13: the CE class (10:00 to 1:00) takes most of this."}, {"id": "cliFri", "day": "Fri", "start": "10:30", "end": "12:00", "area": "listings", "kind": "focus", "title": "Client work", "job": "Seller update emails (4 listings) first, then listings and buyers.", "weeks": null, "who": "Just you", "status": "New block", "warn": "Fri Nov 13: the CE class (10:00 to 1:00) takes most of this."}, {"id": "openFri", "day": "Fri", "start": "12:00", "end": "12:30", "area": "open", "kind": "open", "title": "Open time", "job": "", "weeks": null, "who": "Just you", "status": "Plan only, not added", "warn": ""}, {"id": "lunchFri", "day": "Fri", "start": "12:30", "end": "13:00", "area": "break", "kind": "lunch", "title": "Lunch", "job": "", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "mktFri", "day": "Fri", "start": "13:00", "end": "14:30", "area": "marketing", "kind": "focus", "title": "Marketing", "job": "Videos, reels, market update email.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}, {"id": "openFri2", "day": "Fri", "start": "14:30", "end": "15:00", "area": "open", "kind": "open", "title": "Open time", "job": "", "weeks": null, "who": "Just you", "status": "Plan only, not added", "warn": ""}, {"id": "admFri", "day": "Fri", "start": "15:00", "end": "15:45", "area": "admin", "kind": "focus", "title": "Admin", "job": "CRM notes, expenses.", "weeks": null, "who": "Just you", "status": "New block", "warn": "Week of Nov 9 only: this block becomes client work, and the expense catch-up moves to the week of Nov 16."}, {"id": "review", "day": "Fri", "start": "15:45", "end": "16:15", "area": "admin", "kind": "review", "title": "Weekly review", "job": "Check the week; set next week's blocks.", "weeks": null, "who": "Just you", "status": "New block", "warn": ""}], "problems": ["Your calendar is set to Central and you work in Eastern. Every time here is Eastern; anything we add will look an hour earlier in a calendar view still set to Central.", "Mon Nov 9, 5:30 to 6:30 pm Eastern: listing appointment at 18 Mockingbird Example Way, after your 5:00 stop (it shows as 4:30 in your Central calendar). It has a client on it, so it stays unless you move it with them.", "Fri Nov 13, 10:00 to 1:00: the CE class takes Friday's client work and lunch, and half the call session.", "Thu Nov 12, 2:00 to 4:00: the inspection at 41 Fiction Avenue takes Thursday's marketing and client work."]}, "evenings": null, "handoffs": {"tiles": [["0", "people to hand work to"], ["35 h", "to re-date or re-scope"], ["1", "task to close (transactions)"], ["6 h", "CE due Nov 30, after this plan"]], "people": [], "managerTitle": "To raise with Jamie (no one to hand off to, so this is the list)", "managerList": ["Blog posts: 8 posts, 16 hours, due Nov 20. Re-date to December, or cut to 2 for now.", "Database cleanup: tag 400 contacts, 10 hours, due Nov 20. Re-date to December, or ask whether someone on the team can help.", "Client appreciation pie pickup: 5 hours of planning due Nov 20. Ask whether the team can help, or run a simpler version.", "Instagram reels: 4 reels, 4 hours, due Nov 19. Move to the week of Nov 23, or cut to 3 (3 marketing hours are free the week of Nov 16).", "CE: 6 hours due Nov 30 land in Thanksgiving week. Plan them now.", "The week of Nov 9 is still 1.75 hours short after every fix, because of Friday's CE class."]}, "taskCheck": {"headline": "It does not fit as it stands. The two weeks need 76.5 hours of task work and your blocks give 44, a gap of 32.5 hours. Evenings and Sundays stay off. With the fixes below, it fits except 1.75 hours in the week of Nov 9, which is your call.", "tiles": [["18", "open tasks due by Nov 20 (plus 1 due Nov 30)"], ["1", "overdue"], ["76.5 h", "needed through Nov 20 (your estimates)"], ["44 h", "focus-block hours through Nov 20"]], "weekly": [{"week": "Nov 9", "needBefore": 21.5, "needAfter": 22.25, "blocks": 20.5}, {"week": "Nov 16", "needBefore": 55.0, "needAfter": 18.25, "blocks": 23.5}], "moves": ["Re-date or re-scope four items with Jamie: blog posts (16 h), database cleanup (10 h), pie pickup planning (5 h), reels (4 h). That is 35 hours.", "Close the deadline-tracking spreadsheet task: the transactions team posts and owns those dates.", "Week of Nov 9 only: the Tue, Thu and Fri admin blocks become client work (2.5 h), and the overdue expense catch-up moves to the week of Nov 16.", "Keep the listing presentation rebuild: it fits in the week of Nov 16's client blocks.", "The last 1.75 hours (week of Nov 9): use part of that week's 2 hours of open time, send Friday's seller updates Monday morning, or skip Friday's half call session. Your choice; evenings stay off."], "tasks": [{"title": "Expense tracking catch-up (September and October)", "area": "Admin", "due": "Mon Nov 2", "hours": "3", "action": "Re-date (overdue)", "lands": "Week of Nov 16 admin blocks: Mon 2:30, Tue 3:30, Thu 1:00, Fri 3:00", "window": "Week of Nov 9"}, {"title": "CMA for 18 Mockingbird Example Way listing appointment", "area": "Listings", "due": "Mon Nov 9", "hours": "2", "action": "Do it", "lands": "Mon Nov 9 10:30 to 12:30, before the 5:30 pm appointment", "window": "Week of Nov 9"}, {"title": "Update CRM notes from last week's showings", "area": "Admin", "due": "Mon Nov 9", "hours": "1", "action": "Do it", "lands": "Mon Nov 9 2:30 (30 min); the other 30 min has no block: see the gap", "window": "Week of Nov 9"}, {"title": "Price reduction conversation prep: 5 Sample Ridge Road", "area": "Listings", "due": "Tue Nov 10", "hours": "1.5", "action": "Do it", "lands": "Mon Nov 9 1:00 (90 min)", "window": "Week of Nov 9"}, {"title": "Offer strategy notes for the Pinetest buyers", "area": "Buyers", "due": "Tue Nov 10", "hours": "1.5", "action": "Do it", "lands": "Tue Nov 10 1:00 (90 min)", "window": "Week of Nov 9"}, {"title": "Buyer consult follow-ups (3)", "area": "Buyers", "due": "Wed Nov 11", "hours": "1.5", "action": "Do it", "lands": "Tue Nov 10 2:30 and 3:30, Wed Nov 11 10:30", "window": "Week of Nov 9"}, {"title": "Launch 3 Testwood Lane: MLS input, description, photo review", "area": "Listings", "due": "Thu Nov 12", "hours": "4", "action": "Do it", "lands": "Wed Nov 11 10:45 and 3:30, Thu Nov 12 11:00 and 1:00", "window": "Week of Nov 9"}, {"title": "Prep tour sheet for Brightsample buyers", "area": "Buyers", "due": "Fri Nov 13", "hours": "1", "action": "Do it", "lands": "Thu Nov 12 1:30, Fri Nov 13 3:00", "window": "Week of Nov 9"}, {"title": "Weekly seller update emails (4 listings), Fri Nov 13", "area": "Listings", "due": "Fri Nov 13", "hours": "1", "action": "Do it", "lands": "Fri Nov 13 3:30 (15 min); 45 min has no block: see the gap", "window": "Week of Nov 9"}, {"title": "Listing videos for 3 Testwood Lane", "area": "Marketing", "due": "Mon Nov 16", "hours": "3", "action": "Do it", "lands": "Mon Nov 9 3:30, Wed Nov 11 1:30, Fri Nov 13 1:00", "window": "Week of Nov 16"}, {"title": "Prospecting calls: 25 past clients (every weekday)", "area": "Prospecting", "due": "Daily", "hours": "10 (1 a day)", "action": "Do it", "lands": "Daily prospecting block; Fri Nov 13 only 30 min (CE class)", "window": "Daily"}, {"title": "Write and send November market update email", "area": "Marketing", "due": "Wed Nov 18", "hours": "2", "action": "Do it", "lands": "Fri Nov 13 1:45, Mon Nov 16 3:30, Wed Nov 18 1:30", "window": "Week of Nov 16"}, {"title": "Rebuild listing presentation", "area": "Listings", "due": "Thu Nov 19", "hours": "8", "action": "Do it", "lands": "Mon Nov 16 10:30 and 1:00, Tue Nov 17 1:00, Wed Nov 18 10:30 and 3:30, Thu Nov 19 11:00", "window": "Week of Nov 16"}, {"title": "Film 4 Instagram reels", "area": "Marketing", "due": "Thu Nov 19", "hours": "4", "action": "Re-date (ask Jamie)", "lands": "Week of Nov 23, or cut to 3 reels and use the 3 marketing hours left the week of Nov 16", "window": "Week of Nov 16"}, {"title": "Weekly seller update emails (4 listings), Fri Nov 20", "area": "Listings", "due": "Fri Nov 20", "hours": "1", "action": "Do it", "lands": "Fri Nov 20 10:30", "window": "Week of Nov 16"}, {"title": "Write 8 neighborhood blog posts for website", "area": "Marketing", "due": "Fri Nov 20", "hours": "16", "action": "Re-date (ask Jamie)", "lands": "After Nov 20: ask Jamie whether these are needed now or can start in December", "window": "Week of Nov 16"}, {"title": "Plan client appreciation pie pickup", "area": "Marketing", "due": "Fri Nov 20", "hours": "5", "action": "Re-scope (ask Jamie)", "lands": "No room before Nov 20: ask Jamie for help from the team, or a simpler version", "window": "Week of Nov 16"}, {"title": "Database cleanup: tag 400 contacts", "area": "Admin", "due": "Fri Nov 20", "hours": "10", "action": "Re-date (ask Jamie)", "lands": "After Nov 20: ask Jamie for a December date or help", "window": "Week of Nov 16"}, {"title": "Track Due Diligence and Settlement deadlines for 41 Fiction Avenue in my own spreadsheet", "area": "Transactions", "due": "Fri Nov 20", "hours": "1", "action": "Close it", "lands": "Your transactions team (Toni Transactor) posts and owns these deadlines", "window": "Week of Nov 16"}, {"title": "CE: finish 6 remaining online hours", "area": "Admin", "due": "Mon Nov 30", "hours": "6", "action": "Flag (after this plan)", "lands": "Due after Nov 20, so not counted: it needs 6 hours between Nov 23 and Nov 30", "window": "After Nov 20"}]}, "hours": {"note": "A typical week, 9:00 to 5:00 Eastern, Monday to Friday. Saturday 10:00 to 2:00 is showings only and is not counted.", "rows": [{"label": "Client work", "hours": 11.5, "area": "listings"}, {"label": "Prospecting", "hours": 5, "area": "prospecting"}, {"label": "Marketing", "hours": 4.75, "area": "marketing"}, {"label": "Admin", "hours": 3, "area": "admin"}, {"label": "Rituals and weekly review", "hours": 6.75, "area": "admin", "note": "(launch, comms, shutdown)"}, {"label": "Lunch", "hours": 2.5, "area": "break"}, {"label": "Open time", "hours": 3, "area": "open"}, {"label": "Existing meetings", "hours": 3, "area": null}, {"label": "Team meeting prep", "hours": 0.5, "area": "listings"}]}, "blockCards": [{"title": "Prospecting", "area": "prospecting", "job": "25 past-client calls a day from your CRM list. Follow Up Boss or your CRM owns the list; this protects the time.", "when": "Daily, 9:30 (Tue 11:30, Thu 10:00)"}, {"title": "Client work", "area": "listings", "job": "Listings and buyers, earliest deadline first: CMAs, launches, offer notes, tour sheets, seller updates on Fridays.", "when": "Mon 10:30 and 1:00, Tue 1:00, Wed 10:30 and 3:30, Thu 11:00 and 3:30, Fri 10:30"}, {"title": "Marketing", "area": "marketing", "job": "Listing videos, the market update email, reels if they stay.", "when": "Mon 3:30, Wed 1:30, Thu 2:00, Fri 1:00"}, {"title": "Admin", "area": "admin", "job": "CRM notes and the expense catch-up.", "when": "Mon 2:30, Tue 3:30, Thu 1:00, Fri 3:00"}, {"title": "Open time", "area": "open", "job": "Unassigned on purpose, about 30 minutes to an hour a day.", "when": "Mon, Tue, Wed and Thu 3:00; Fri 12:00 and 2:30"}], "cadence": null, "dates": [{"date": "Mon Nov 9, 5:30 pm", "what": "Listing appointment: 18 Mockingbird Example Way", "note": "CMA in Monday morning's client block."}, {"date": "Thu Nov 12, 2:00 to 4:00", "what": "Inspection: 41 Fiction Avenue", "note": "Takes Thursday afternoon's blocks."}, {"date": "Fri Nov 13, 10:00 to 1:00", "what": "CE class: Contracts update", "note": "The reason the week of Nov 9 is short."}, {"date": "Sat Nov 14, 10:00 to 1:00", "what": "Showings: Brightsample buyers", "note": "Inside your Saturday showing window. Tour sheet done Friday."}, {"date": "Mon Nov 16", "what": "Due Diligence Deadline: 41 Fiction Avenue", "note": "Posted by your transactions team. For planning only; confirm dates with them."}, {"date": "Wed Nov 18, 4:00 to 5:00", "what": "Listing appointment: 7 Sampleview Terrace", "note": "Takes the afternoon comms sweep and shutdown that day."}, {"date": "Fri Nov 20", "what": "Settlement Deadline and closing (2:00), 41 Fiction Avenue", "note": "Transactions team owns the deadline; confirm with them."}, {"date": "Mon Nov 30", "what": "CE: 6 online hours due", "note": "After this plan. It needs time in Thanksgiving week."}], "beforeCalendar": {"title": "Before the calendar", "status": "Not built. There is no calendar connector in this chat, and the re-dates above need your call and Jamie's first.", "add": ["Rituals, lunch, prospecting, client work, marketing and admin blocks, Mon to Fri, Nov 9 through Nov 20, all in Eastern time."], "change": ["Week of Nov 9: Tue, Thu and Fri admin blocks titled as client work.", "Thu Nov 12 and Fri Nov 13: blocks cut around the inspection and the CE class.", "Wed Nov 18 and Fri Nov 20: blocks cut around the listing appointment and the closing."], "leave": ["Every meeting with other people, your Saturday showings, your coaching practices, and all-day deadlines from the transactions team."], "decisions": ["The four items to raise with Jamie.", "How to cover the last 1.75 hours in the week of Nov 9.", "Whether to switch your calendar's time zone to Eastern."], "look": ["Calendar time zone: Central, while you work in Eastern.", "Mon Nov 9 listing appointment after 5:00 Eastern."], "rules": ["No invites: no guests on anything I create, notifications off on every change.", "Hands off other people's meetings.", "Your own events stay unless you say otherwise."]}}</script>
+<script>
+(function(){
+const D = JSON.parse(document.getElementById('plan-data').textContent);
+const MODE = D.mode || 'page';
+const app = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const color = a => `var(--c-${a})`;
+const tm = s => { const [h,m] = s.split(':').map(Number); return h*60+m; };
+const fmtH = h => (Math.round(h*100)/100).toString();
+const areaName = id => (D.areas.find(a => a.id === id) || {name:id}).name;
+let variant = (D.week.variants || [null])[0];
+let html = '';
+const sec = (id, title, body) => { html += `<section id="${id}"><h2>${esc(title)}</h2>${body}</section>`; };
+const tiles = arr => `<div class="tiles">${arr.map(t => `<div class="tile"><b>${esc(t[0])}</b><span>${esc(t[1])}</span></div>`).join('')}</div>`;
+const legend = () => `<div class="legend">${D.areas.map(a => `<span><i class="sw" style="background:${color(a.id)}"></i>${esc(a.name)}</span>`).join('')}<span><i class="sw" style="border:2px solid var(--c-meeting)"></i>Existing meeting</span></div>`;
+
+function bars(rows, opts){
+  // rows: [{label, values:[{v, color, name}]}] grouped horizontal bars
+  const W = 640, rowH = 18*(rows[0] ? rows[0].values.length : 1) + 12, lw = opts.labelW || 150;
+  const max = Math.max(1, ...rows.flatMap(r => r.values.map(v => v.v)), opts.max || 0);
+  const H = rows.length*rowH + 20;
+  let s = `<svg class="bars" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W*1.15}px" role="img" aria-label="${esc(opts.aria)}">`;
+  rows.forEach((r,i) => {
+    const y0 = i*rowH + 4;
+    s += `<text x="0" y="${y0+12}">${esc(r.label)}</text>`;
+    r.values.forEach((v,j) => {
+      const w = (W-lw-60) * v.v / max, y = y0 + j*18;
+      s += `<rect x="${lw}" y="${y}" width="${Math.max(0,w)}" height="14" rx="3" fill="${v.color}"><title>${esc(v.name)}: ${fmtH(v.v)} h</title></rect><text x="${lw+w+4}" y="${y+11}">${fmtH(v.v)} h${v.note ? ' ' + esc(v.note) : ''}</text>`;
+    });
+    if (opts.cap) { const x = lw + (W-lw-60)*opts.cap/max; s += `<line x1="${x}" x2="${x}" y1="${y0-2}" y2="${y0+rowH-8}" stroke="var(--warn)" stroke-dasharray="3 3"/>`; }
+  });
+  return s + '</svg>';
+}
+
+// 1. Header
+html += `<header><h1>${esc(D.name)}'s Perfect Week</h1><p class="status">${esc(D.status)}</p><p>${esc(D.builtFrom)}</p>`;
+if (MODE === 'page') html += `<ul class="jumps">${D.sections.map(s => `<li><a href="#${s[0]}">${esc(s[1])}</a></li>`).join('')}</ul>`;
+html += `</header>`;
+
+// 2. The week
+function boardHTML(){
+  const days = D.week.days, s0 = tm(D.week.start), s1 = tm(D.week.end), scale = 1.1;
+  const H = (s1-s0)*scale;
+  let b = `<div class="board" style="--ndays:${days.length};--h:${H}px"><div></div>${days.map(d => `<div class="head">${d}</div>`).join('')}`;
+  b += `<div class="times">`; for (let m = s0; m <= s1; m += 60) b += `<div style="top:${(m-s0)*scale}px">${Math.floor(m/60)%12 || 12}${m/60 < 12 ? 'a' : 'p'}</div>`; b += `</div>`;
+  days.forEach(d => {
+    b += `<div class="col">`;
+    D.week.blocks.filter(x => x.day === d && (!x.weeks || !variant || x.weeks.includes(variant))).forEach(x => {
+      const top = (tm(x.start)-s0)*scale, h = (tm(x.end)-tm(x.start))*scale;
+      const bg = x.kind === 'fixed' ? '' : `background:${color(x.area)}`;
+      b += `<button class="b ${x.kind}" style="top:${top}px;height:${h-1}px;${bg}" data-id="${x.id}" aria-label="${esc(x.day + ' ' + x.start + ' ' + x.title)}">${x.warn ? '<span class="w">! </span>' : ''}${esc(x.title)}</button>`;
+    });
+    b += `</div>`;
+  });
+  b += `</div>`;
+  b += `<div class="list">${days.map(d => `<h3>${d}</h3><ul>${D.week.blocks.filter(x => x.day === d && (!x.weeks || !variant || x.weeks.includes(variant))).map(x => `<li><button class="b-list" data-id="${x.id}" style="border:0;padding:0;background:none;text-align:left;width:100%"><i class="sw" style="background:${color(x.area)}"></i>${x.start} to ${x.end} ${esc(x.title)}${x.warn ? ' <b style="color:var(--warn)">(check)</b>' : ''}</button></li>`).join('')}</ul>`).join('')}</div>`;
+  return b;
+}
+let weekBody = '';
+if (D.week.variants && MODE === 'page') weekBody += `<div class="toolbar">${D.week.variants.map(v => `<button class="vbtn" aria-pressed="${v === variant}" data-v="${v}">Week ${v}</button>`).join('')}<span class="muted">${esc(D.week.variantNote || '')}</span></div>`;
+weekBody += legend() + `<div id="boardwrap">${boardHTML()}</div>`;
+if (D.week.problems && D.week.problems.length) weekBody += `<h3>Flagged on the board</h3><ul class="tight">${D.week.problems.map(p => `<li>${esc(p)}</li>`).join('')}</ul>`;
+const weekTitle = D.week.variants ? 'Your week (Week ' + variant + ' shown' + (MODE === 'page' ? '; switch above' : '') + ')' : 'Your week';
+sec('week', weekTitle, weekBody);
+
+// 3. Evenings and weekends
+if (D.evenings && MODE === 'page') {
+  let e = tiles(D.evenings.tiles);
+  e += `<div class="toolbar"><label>Week <select id="evweek">${D.evenings.weeks.map((w,i) => `<option value="${i}">${esc(w.label)}</option>`).join('')}</select></label></div><div id="evbody"></div>`;
+  sec('evenings', 'Evenings and weekends', e);
+}
+
+// 4. Projects
+if (D.projects) {
+  const P = D.projects; let p = tiles(P.tiles);
+  p += `<div class="timeline" style="grid-template-columns:minmax(120px,1.4fr) repeat(${P.weeks.length},minmax(0,1fr))"><div></div>${P.weeks.map(w => `<div class="lab" style="text-align:center">${esc(w)}</div>`).join('')}`;
+  P.items.forEach(it => { p += `<div class="lab">${esc(it.name)}</div>` + it.hoursByWeek.map(h => `<div class="cell ${h ? 'on' : ''}" style="${h ? 'background:' + color(it.area) : ''}">${h ? fmtH(h) + 'h' : ''}</div>`).join(''); });
+  p += `</div>`;
+  if (MODE === 'page') P.items.forEach(it => { p += `<h3><i class="sw" style="background:${color(it.area)}"></i>${esc(it.name)}</h3><p class="muted">Done means: ${esc(it.endState)}</p><div class="tablewrap"><table><tr><th>Deliverable</th><th>Hours</th><th>Due</th><th>Who helps</th><th>Where it lands</th></tr>${it.deliverables.map(d => `<tr><td>${esc(d.name)}</td><td>${fmtH(d.hours)}${d.mine ? ' (my estimate)' : ''}</td><td>${esc(d.due)}</td><td>${esc(d.helps || 'You')}</td><td>${esc(d.lands)}</td></tr>`).join('')}</table></div>`; });
+  if (P.growth) p += `<h3>Growth room</h3><p>${esc(P.growth.text)}</p><p>If scope grows, these move to next quarter first, in this order:</p><ol>${P.growth.movesFirst.map(m => `<li>${esc(m)}</li>`).join('')}</ol>`;
+  if (P.late && P.late.length) p += `<div class="warnbox"><b>Can't finish by its due date:</b> ${P.late.map(esc).join('; ')}</div>`;
+  sec('projects', 'Projects through ' + P.endLabel, p);
+}
+
+// 5. Hand-offs
+if (D.handoffs) {
+  const Hh = D.handoffs; let h = tiles(Hh.tiles);
+  Hh.people.forEach(pp => {
+    h += `<h3>${esc(pp.name)} <span class="pill">${esc(pp.role)}</span></h3>`;
+    if (pp.weekly && pp.weekly.length) h += `<p><b>Weekly:</b> ${pp.weekly.map(w => esc(w.item) + ' (' + fmtH(w.hours) + ' h)').join('; ')}</p>`;
+    if (pp.once && pp.once.length) h += `<p><b>One-time:</b></p><ul class="tight">${pp.once.map(o => `<li>${esc(o.item)}: ${fmtH(o.hours)} h, ${esc(o.when)}</li>`).join('')}</ul>`;
+    if (pp.load) h += bars(pp.load.map(l => ({label: l.week, values:[{v:l.hours, color:'var(--c-operations)', name:pp.name}]})), {aria: pp.name + ' weekly load against cap', cap: pp.cap, max: pp.cap, labelW: 120}) + `<p class="muted">Dashed line: the ${fmtH(pp.cap)} hours a week ${esc(pp.capSource)}.</p>`;
+    if (pp.note) h += `<p class="muted">${esc(pp.note)}</p>`;
+  });
+  if (Hh.managerList && Hh.managerList.length) h += `<h3>${esc(Hh.managerTitle || 'To raise with your manager')}</h3><ul class="tight">${Hh.managerList.map(m => `<li>${esc(m)}</li>`).join('')}</ul>`;
+  sec('handoffs', 'Hand-offs', h);
+}
+
+// 6. Recurring work
+if (D.recurring && MODE === 'page') {
+  sec('recurring', 'Recurring work', `<div class="tablewrap"><table><tr><th>Meeting</th><th>When</th><th>Standing items</th><th>Prep</th></tr>${D.recurring.map(r => `<tr><td>${esc(r.meeting)}</td><td>${esc(r.when)}</td><td>${r.items.map(esc).join('<br>')}</td><td>${esc(r.prep)}</td></tr>`).join('')}</table></div>`);
+}
+
+// 7. Task check
+if (D.taskCheck && MODE === 'page') {
+  const T = D.taskCheck; let t = `<p><b>${esc(T.headline)}</b></p>` + tiles(T.tiles);
+  t += `<div class="toolbar"><button class="tcv" data-v="before" aria-pressed="false">Before fixes</button><button class="tcv" data-v="after" aria-pressed="true">After fixes</button><span class="muted">Hours of task work each week against the focus-block hours for that work.</span></div><div id="tcchart"></div>`;
+  t += `<h3>The moves that close the gap</h3><ol>${T.moves.map(m => `<li>${esc(m)}</li>`).join('')}</ol>`;
+  const areas = [...new Set(T.tasks.map(x => x.area))], actions = [...new Set(T.tasks.map(x => x.action))], windows = [...new Set(T.tasks.map(x => x.window))];
+  t += `<div class="toolbar"><select id="fw"><option value="">Any due window</option>${windows.map(w => `<option>${esc(w)}</option>`).join('')}</select><select id="fa"><option value="">Any action</option>${actions.map(w => `<option>${esc(w)}</option>`).join('')}</select><select id="fr"><option value="">Any area</option>${areas.map(w => `<option>${esc(w)}</option>`).join('')}</select><input id="fq" type="search" placeholder="Search tasks" aria-label="Search tasks"><span id="fc" class="muted"></span></div>`;
+  t += `<div class="tablewrap"><table id="tt"><thead><tr><th>Task</th><th>Area</th><th>Due</th><th>Hours</th><th>Action</th><th>Where it lands</th></tr></thead><tbody></tbody></table></div>`;
+  sec('taskcheck', 'Task check', t);
+}
+
+// 8. Where the hours go
+if (D.hours) {
+  sec('hours', 'Where the hours go', `<p class="muted">${esc(D.hours.note)}</p>` + bars(D.hours.rows.map(r => ({label:r.label, values:[{v:r.hours, color: r.area ? color(r.area) : 'var(--c-meeting)', name:r.label, note:r.note}]})), {aria:'Hours by area in a typical week', labelW: 170}));
+}
+
+// 9. What each block is for
+if (D.blockCards && MODE === 'page') sec('blocks', 'What each block is for', `<div class="cards">${D.blockCards.map(c => `<div class="card" style="border-left-color:${color(c.area)}"><b>${esc(c.title)}</b><p>${esc(c.job)}</p><p class="muted">${esc(c.when)}</p></div>`).join('')}</div>`);
+
+// 10. Team cadence
+if (D.cadence && MODE === 'page') sec('cadence', 'Team cadence', `<div class="tablewrap"><table><tr><th>Meeting</th><th>When</th><th>Who</th><th>Bring</th></tr>${D.cadence.map(c => `<tr><td>${esc(c.meeting)}</td><td>${esc(c.when)}</td><td>${esc(c.who)}</td><td>${esc(c.bring)}</td></tr>`).join('')}</table></div>`);
+
+// 11. Dates
+if (D.dates && MODE === 'page') sec('dates', 'Dates that drive the blocks', `<div class="tablewrap"><table><tr><th>Date</th><th>What</th><th>What it means for the plan</th></tr>${D.dates.map(c => `<tr><td>${esc(c.date)}</td><td>${esc(c.what)}</td><td>${esc(c.note)}</td></tr>`).join('')}</table></div>`);
+
+// Summary asks
+if (D.asks && MODE === 'summary') sec('asks', 'The asks', `<ol>${D.asks.map(a => `<li>${esc(a)}</li>`).join('')}</ol>`);
+
+// 12. Before the calendar
+if (D.beforeCalendar && MODE === 'page') {
+  const C = D.beforeCalendar; const L = (t, a) => a && a.length ? `<h3>${esc(t)}</h3><ul class="tight">${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  sec('calendar', C.title || 'Before the calendar', `<p>${esc(C.status)}</p>` + L('What will be added', C.add) + L('What will change to fit', C.change) + L('What stays exactly as it is', C.leave) + L('Decisions for you first', C.decisions) + L('Worth a look on your calendar now', C.look) + L('The three house rules', C.rules));
+}
+
+app.innerHTML = html;
+
+// interactions
+const panel = document.getElementById('panel');
+function openBlock(id){
+  const x = D.week.blocks.find(b => b.id === id); if (!x) return;
+  panel.innerHTML = `<button class="x" aria-label="Close">Close</button><h3><i class="sw" style="background:${color(x.area)}"></i>${esc(x.title)}</h3><p>${esc(x.day)} ${esc(x.start)} to ${esc(x.end)}${x.weeks ? ' (Week ' + x.weeks.join(' and ') + ')' : ''}</p><p><b>Its job:</b> ${esc(x.job || 'Existing meeting.')}</p><p><b>Who:</b> ${esc(x.who || 'Just you')}</p><p><b>Status:</b> ${esc(x.status)}</p>${x.warn ? `<div class="warnbox">${esc(x.warn)}</div>` : ''}`;
+  panel.classList.add('show'); panel.querySelector('.x').focus();
+  panel.querySelector('.x').onclick = () => panel.classList.remove('show');
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) openBlock(b.dataset.id); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') panel.classList.remove('show'); });
+document.querySelectorAll('.vbtn').forEach(btn => btn.onclick = () => { variant = btn.dataset.v; document.getElementById('boardwrap').innerHTML = boardHTML(); document.querySelectorAll('.vbtn').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === variant)); const h = document.querySelector('#week h2'); if (h) h.textContent = 'Your week (Week ' + variant + ' shown; switch above)'; });
+if (D.evenings && MODE === 'page') {
+  const ev = () => { const w = D.evenings.weeks[document.getElementById('evweek').value];
+    document.getElementById('evbody').innerHTML = `<ul class="tight">${w.slots.map(s => `<li><b>${esc(s.when)}</b>: ${s.off ? '<span class="muted">Off. ' + esc(s.off) + '</span>' : s.deliverables.map(esc).join('; ')}</li>`).join('')}</ul>${w.daytime ? `<p class="muted">Daytime project blocks that week: ${esc(w.daytime)}</p>` : ''}`; };
+  document.getElementById('evweek').onchange = ev; ev();
+}
+if (D.taskCheck && MODE === 'page') {
+  const T = D.taskCheck;
+  const chart = v => { document.getElementById('tcchart').innerHTML = bars(T.weekly.map(w => ({label: w.week, values:[{v: v === 'before' ? w.needBefore : w.needAfter, color:'var(--c-production)', name:'Hours needed'},{v: w.blocks, color:'var(--c-leadership)', name:'Focus-block hours'}]})), {aria:'Hours needed against focus-block hours by week', labelW:120}) + `<div class="legend"><span><i class="sw" style="background:var(--c-production)"></i>Hours needed</span><span><i class="sw" style="background:var(--c-leadership)"></i>Focus-block hours</span></div>`; };
+  document.querySelectorAll('.tcv').forEach(b => b.onclick = () => { document.querySelectorAll('.tcv').forEach(x => x.setAttribute('aria-pressed', x === b)); chart(b.dataset.v); });
+  chart('after');
+  const tb = document.querySelector('#tt tbody');
+  const draw = () => { const fw = document.getElementById('fw').value, fa = document.getElementById('fa').value, fr = document.getElementById('fr').value, q = document.getElementById('fq').value.toLowerCase();
+    const rows = T.tasks.filter(x => (!fw || x.window === fw) && (!fa || x.action === fa) && (!fr || x.area === fr) && (!q || x.title.toLowerCase().includes(q)));
+    tb.innerHTML = rows.map(x => `<tr><td>${esc(x.title)}</td><td>${esc(x.area)}</td><td>${esc(x.due)}</td><td>${esc(x.hours)}</td><td>${esc(x.action)}</td><td>${esc(x.lands)}</td></tr>`).join('');
+    document.getElementById('fc').textContent = rows.length + ' of ' + T.tasks.length + ' tasks'; };
+  ['fw','fa','fr','fq'].forEach(id => document.getElementById(id).addEventListener('input', draw)); draw();
+}
+})();
+</script>
+</body>
+</html>

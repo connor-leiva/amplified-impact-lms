@@ -20,6 +20,9 @@ export const GUIDE_HTML = [
   'database-health-check.html',
   'recruiting-prep.html',
   'team-playbook-builder.html',
+  'content-strategist.html',
+  'perfect-week.html',
+  'inbox-meeting-follow-through.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */

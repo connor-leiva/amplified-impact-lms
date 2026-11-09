@@ -1,0 +1,63 @@
+# Made-up eval data for the Content Strategist: a fictional creator, Wren Fictional.
+
+version: "1.0"
+
+context:
+  creator_name: "Wren Fictional (made-up)"
+  audience: "home buyers and sellers in Example Valley"
+  niche: "plain-English explainers on buying and selling a home in Example Valley"
+  pillars: ["buying process", "selling process", "market explainers"]
+  offers: ["free buyer consultation", "home value review"]
+  primary_format: "talking-head"
+  review_topics: ["listings", "market statistics"]
+
+budget:
+  monthly_budget_usd: 15
+  per_run_max_usd: null
+  reserve_usd: 1.00
+
+apify:
+  token_env: APIFY_TOKEN
+  base_url: https://api.apify.com/v2
+  poll_seconds: 10
+  run_timeout_seconds: 900
+
+watchlist:
+  accounts: ["example_agent_holly", "example_agent_ivy"]
+  actor: apify/instagram-reel-scraper
+  reels_per_account: 24
+  lookback: "90 days"
+  skip_pinned: true
+  include_shares_count: false
+  max_charge_usd: null
+
+discovery:
+  enabled: true
+  actor: apify/instagram-hashtag-scraper
+  hashtags: ["examplevalleyhomes"]
+  keywords: []
+  results_type: reels
+  results_per_query: 20
+  max_queries: 6
+  max_charge_usd: null
+
+study:
+  actor: apify/instagram-reel-scraper
+  max_candidates: 8
+  max_unbaselined: 2
+  max_charge_usd: null
+
+scoring:
+  min_post_age_hours: 72
+  baseline_days: 90
+  candidate_window_days: 21
+  outlier_multiple: 2.0
+  strong_baseline_posts: 12
+  weak_baseline_posts: 5
+  views_coverage_for_views_metric: 0.6
+  stale_after_days: 8
+  max_unbaselined_leads: 10
+
+output:
+  drive_folder_id: ""
+  media_tmp_dir: /tmp/content-research-media

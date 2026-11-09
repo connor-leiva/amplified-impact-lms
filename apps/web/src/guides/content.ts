@@ -22,6 +22,9 @@ import { TASK_SYNC_STARTER } from './task-sync-starter';
 import { DATABASE_HEALTH_CHECK } from './database-health-check';
 import { RECRUITING_PREP } from './recruiting-prep';
 import { TEAM_PLAYBOOK_BUILDER } from './team-playbook-builder';
+import { CONTENT_STRATEGIST } from './content-strategist';
+import { PERFECT_WEEK } from './perfect-week';
+import { INBOX_MEETING_FOLLOW_THROUGH } from './inbox-meeting-follow-through';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -212,6 +215,9 @@ export const GUIDES: Readonly<Record<string, Guide>> = {
   [DATABASE_HEALTH_CHECK.slug]: DATABASE_HEALTH_CHECK,
   [RECRUITING_PREP.slug]: RECRUITING_PREP,
   [TEAM_PLAYBOOK_BUILDER.slug]: TEAM_PLAYBOOK_BUILDER,
+  [CONTENT_STRATEGIST.slug]: CONTENT_STRATEGIST,
+  [PERFECT_WEEK.slug]: PERFECT_WEEK,
+  [INBOX_MEETING_FOLLOW_THROUGH.slug]: INBOX_MEETING_FOLLOW_THROUGH,
 };
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;

@@ -1,0 +1,23 @@
+{
+  "_practice": "PRACTICE FILE: made-up example",
+  "post_id": "PRACTICE_BIRCH_B2",
+  "url": "https://www.instagram.com/reel/PRACTICE_BIRCH_B2/",
+  "owner": "example_agent_birch",
+  "multiple": 3.42,
+  "baseline_label": "weak",
+  "collected_at": "2026-11-06T13:00:00Z",
+  "run_id": "madeUpRun004",
+  "returned_by_actor": true,
+  "transcript_available": false,
+  "transcript_words": 0,
+  "duration_sec": 30,
+  "caption": "Just listed: 4 bed modern farmhouse on Example Lane. Swipe for the kitchen. DM for a private tour.",
+  "transcript": null,
+  "transcript_note": "not returned by the actor",
+  "metrics": {
+    "views": 7400,
+    "likes": 410,
+    "comments": 19,
+    "shares": null
+  }
+}
