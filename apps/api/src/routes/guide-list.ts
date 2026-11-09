@@ -10,7 +10,16 @@
 // D-050; a test fails until you do). A guide whose form asks for more than a name and an address says so in
 // `SIGN_UP_FORMS` (routes/ai101.ts): /retool's team size (D-046) is the only one so far.
 
-export const GUIDE_SLUGS = ['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool'] as const;
+export const GUIDE_SLUGS = [
+  'task-sync-starter',
+  'ops-time-audit',
+  'voice-profile',
+  'reel-editor',
+  'retool',
+  'database-health-check',
+  'recruiting-prep',
+  'team-playbook-builder',
+] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 
 /**

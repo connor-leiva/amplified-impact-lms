@@ -64,15 +64,23 @@ const EXPECTED = {
 } as const;
 
 describe('the list of guides', () => {
-  it('has the three guides, each with a shell the build reads and the API serves by the same slug', () => {
-    expect(Object.keys(GUIDES)).toEqual(['task-sync-starter', 'ops-time-audit', 'reel-editor']);
+  it('has every guide, each with a shell the build reads and the API serves by the same slug', () => {
+    expect(Object.keys(GUIDES)).toEqual([
+      'task-sync-starter',
+      'ops-time-audit',
+      'reel-editor',
+      'database-health-check',
+      'recruiting-prep',
+      'team-playbook-builder',
+    ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {
       expect(GUIDES[slug]!.slug).toBe(slug);
       const shell = read(`../../${slug}.html`);
       expect(shell, slug).toContain('<!--guide:head-->');
       expect(shell, slug).toContain('<!--guide:body-->');
-      expect(shell, slug).toContain('href="/src/guides/guides.css"');
+      // A skill page's shell loads skills.css, the guide styles plus its own (D-052).
+      expect(shell, slug).toMatch(/href="\/src\/guides\/(guides|skills)\.css"/);
       expect(shell, slug).toContain('src="/src/guides/main.ts"');
     }
   });

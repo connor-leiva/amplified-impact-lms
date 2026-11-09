@@ -19,6 +19,9 @@
 import { OPS_TIME_AUDIT } from './ops-time-audit';
 import { REEL_EDITOR } from './reel-editor';
 import { TASK_SYNC_STARTER } from './task-sync-starter';
+import { DATABASE_HEALTH_CHECK } from './database-health-check';
+import { RECRUITING_PREP } from './recruiting-prep';
+import { TEAM_PLAYBOOK_BUILDER } from './team-playbook-builder';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -206,6 +209,9 @@ export const GUIDES: Readonly<Record<string, Guide>> = {
   [TASK_SYNC_STARTER.slug]: TASK_SYNC_STARTER,
   [OPS_TIME_AUDIT.slug]: OPS_TIME_AUDIT,
   [REEL_EDITOR.slug]: REEL_EDITOR,
+  [DATABASE_HEALTH_CHECK.slug]: DATABASE_HEALTH_CHECK,
+  [RECRUITING_PREP.slug]: RECRUITING_PREP,
+  [TEAM_PLAYBOOK_BUILDER.slug]: TEAM_PLAYBOOK_BUILDER,
 };
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;

@@ -1,0 +1,2412 @@
+{
+ "sources": [
+  {
+   "label": "mls-agent-production-report.csv",
+   "kind": "production",
+   "header_row": 3,
+   "titles": [
+    "PRACTICE FILE: made-up example",
+    "Agent Production Report Tri-County Example MLS Closed 11/01/2025 to 10/31/2026 All residential property types Generated 11/03/2026"
+   ],
+   "period": "11/01/2025 to 10/31/2026",
+   "columns": {
+    "mls_id": "Agent MLS ID",
+    "name": "Agent Name",
+    "office": "Office Name",
+    "phone": "Agent Phone",
+    "email": "Agent Email",
+    "list_sides": "List Sides",
+    "list_vol": "List Volume",
+    "buy_sides": "Sell Sides",
+    "buy_vol": "Sell Volume",
+    "units": "Total Sides",
+    "volume": "Total Volume",
+    "prior_units": "Prior 12 Mo Total Sides",
+    "prior_volume": "Prior 12 Mo Total Volume"
+   },
+   "unmapped": [
+    "Office MLS ID"
+   ],
+   "rows": 150,
+   "skipped_total_rows": 0,
+   "notes_rows": 0
+  },
+  {
+   "label": "recruit-tracker.xlsx",
+   "kind": "list",
+   "header_row": 2,
+   "titles": [
+    "PRACTICE FILE: made-up example"
+   ],
+   "period": "",
+   "columns": {
+    "name": "Name",
+    "office": "Brokerage",
+    "phone": "Cell",
+    "email": "Email",
+    "approx_units": "Approx Units",
+    "text": "Text OK?",
+    "last_touch": "Last Touch",
+    "stage": "Stage",
+    "notes": "Notes"
+   },
+   "unmapped": [
+    "Source"
+   ],
+   "rows": 55,
+   "skipped_total_rows": 0,
+   "notes_rows": 48
+  }
+ ],
+ "warnings": [],
+ "rows_in": 205,
+ "unique": 169,
+ "merges": {
+  "Same MLS agent ID": 3,
+  "Same email": 18,
+  "Same phone and last name": 10,
+  "Same name and office": 5
+ },
+ "shared_lines": {
+  "phone": 0,
+  "email": 0
+ },
+ "cuts": {
+  "producing_agents": 134,
+  "p90": 23,
+  "p75": 15,
+  "p50": 8,
+  "rank90": 121,
+  "rank75": 101,
+  "rank50": 67
+ },
+ "tier_label": "Default tiers",
+ "tiers": {
+  "Tier 1": {
+   "count": 18,
+   "units": 543.0,
+   "range": [
+    23.0,
+    52.0
+   ],
+   "volume": 272918000.0,
+   "list": 270.0,
+   "buy": 273.0,
+   "members": [
+    [
+     "R001",
+     "Zeke Cloverbloom",
+     52.0,
+     27070000.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R002",
+     "Tobin Cobblehopper",
+     48.0,
+     18623500.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R003",
+     "Kenji Juniperpuddle",
+     47.0,
+     26857000.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R004",
+     "Nicolas Peppernoggin",
+     39.0,
+     17989500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R005",
+     "Theodora Ripplehopper",
+     34.0,
+     19357500.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R006",
+     "Remy Cobblewobble",
+     32.0,
+     19035000.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R007",
+     "Hattie Dapplemuffin",
+     31.0,
+     18279500.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R008",
+     "Emil Tumblesprout",
+     26.0,
+     10536000.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R009",
+     "Tova Noodlebutton",
+     25.0,
+     15190000.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R010",
+     "Abe Gumdropsprout",
+     24.0,
+     6919500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R011",
+     "Viggo Biscuitbutton",
+     24.0,
+     10856500.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R012",
+     "Ben Kettledumple",
+     23.0,
+     9965500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R013",
+     "Joss Fiddlebloom",
+     23.0,
+     14299500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R014",
+     "Kaia Ripplepuddle",
+     23.0,
+     12346500.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R015",
+     "Kenji Puddingbloom",
+     23.0,
+     6914000.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R016",
+     "Mae Tansytoes",
+     23.0,
+     11938000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R017",
+     "Mae Thimblecrumb",
+     23.0,
+     13120500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ],
+    [
+     "R018",
+     "Marta Puddingmuffin",
+     23.0,
+     13620000.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Joss Teacuppocket",
+     "No consent on record"
+    ]
+   ]
+  },
+  "Tier 2": {
+   "count": 16,
+   "units": 299.0,
+   "range": [
+    15.0,
+    22.0
+   ],
+   "volume": 143426000.0,
+   "list": 156.0,
+   "buy": 143.0,
+   "members": [
+    [
+     "R019",
+     "Lena Cloversprout",
+     22.0,
+     11012500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R020",
+     "Pia Wafflenook",
+     21.0,
+     7929000.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R021",
+     "Arlo Saffronbloom",
+     20.0,
+     12138000.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R022",
+     "Zora Lanternwobble",
+     20.0,
+     9673000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R023",
+     "Ben Brambletoes",
+     19.0,
+     5921000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R024",
+     "Cleo Marblesnout",
+     19.0,
+     11931000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R025",
+     "Emil Quibblewobble",
+     19.0,
+     8560500.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R026",
+     "Rosa Picklenook",
+     19.0,
+     6781500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R027",
+     "Uma Bramblesprout",
+     19.0,
+     7583000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R028",
+     "Walt Marblenoggin",
+     19.0,
+     12701500.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R029",
+     "Juno Quillpuddle",
+     18.0,
+     5355000.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R030",
+     "Remy Puddingbottom",
+     18.0,
+     5887000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R031",
+     "Juno Lanterndumple",
+     17.0,
+     10192500.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R032",
+     "Nell Gumdropdumple",
+     17.0,
+     10263500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R033",
+     "Petra Teacupbloom",
+     17.0,
+     8841500.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ],
+    [
+     "R034",
+     "Bianca Biscuitwobble",
+     15.0,
+     8655500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Pax Noodlebottom",
+     "No consent on record"
+    ]
+   ]
+  },
+  "Tier 3": {
+   "count": 40,
+   "units": 395.0,
+   "range": [
+    8.0,
+    14.0
+   ],
+   "volume": 175203500.0,
+   "list": 214.0,
+   "buy": 181.0,
+   "members": [
+    [
+     "R035",
+     "Ned Tumblesnout",
+     14.0,
+     5669000.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "Documented consent"
+    ],
+    [
+     "R036",
+     "Vera Wafflesprout",
+     13.0,
+     3635500.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "Documented consent"
+    ],
+    [
+     "R037",
+     "Bea Dapplefluff",
+     12.0,
+     4463000.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R038",
+     "Ben Teacuptoes",
+     12.0,
+     6819000.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R039",
+     "Cyrus Thimblemuffin",
+     12.0,
+     5389000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R040",
+     "Ivy Kettlepocket",
+     12.0,
+     6191000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R041",
+     "Juno Gumdropsprocket",
+     12.0,
+     3424000.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R042",
+     "Kenji Noodlenoggin",
+     12.0,
+     5306500.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R043",
+     "Nell Parsnipnook",
+     12.0,
+     5477000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R044",
+     "Bea Wafflefluff",
+     11.0,
+     5876500.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R045",
+     "Cleo Cobblenook",
+     11.0,
+     6602000.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R046",
+     "Edie Clovernook",
+     11.0,
+     3182000.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R047",
+     "Ezra Pickletoes",
+     11.0,
+     6604500.0,
+     [
+      "Pinecrest Example Homes",
+      "Granite Example Home Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R048",
+     "Jules Saffronbutton",
+     11.0,
+     4583000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R049",
+     "Dina Saffroncrumb",
+     10.0,
+     2746000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R050",
+     "Ezra Puddingtoes",
+     10.0,
+     3359500.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R051",
+     "Hugo Kettlebutton",
+     10.0,
+     3931500.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R052",
+     "Jade Bramblesnout",
+     10.0,
+     5459500.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R053",
+     "Leon Sorreltoes",
+     10.0,
+     4345500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R054",
+     "Bea Nettlenook",
+     9.0,
+     5767500.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R055",
+     "Cyrus Saffronmuffin",
+     9.0,
+     4746000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R056",
+     "Ezra Saffronnook",
+     9.0,
+     4652500.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R057",
+     "Ezra Thimbledumple",
+     9.0,
+     4602000.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R058",
+     "Flo Fiddlenook",
+     9.0,
+     2835000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R059",
+     "Hugo Junipermuffin",
+     9.0,
+     4575000.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R060",
+     "Iris Wafflebloom",
+     9.0,
+     3399000.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R061",
+     "Pax Mittenmuffin",
+     9.0,
+     5429000.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R062",
+     "Sid Crumpetbottom",
+     9.0,
+     3957000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R063",
+     "Tess Hobnobdumple",
+     9.0,
+     2753500.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R064",
+     "Zuri Mittenbottom",
+     9.0,
+     3714000.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R065",
+     "Arlo Picklecrumb",
+     8.0,
+     3496500.0,
+     [
+      "Pinecrest Example Homes",
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R066",
+     "Elle Mittenbutton",
+     8.0,
+     2869000.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R067",
+     "Finn Sorrelwhistle",
+     8.0,
+     2571500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R068",
+     "Freya Sorrelbutton",
+     8.0,
+     3692500.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R069",
+     "Iris Bramblecrumb",
+     8.0,
+     3411000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R070",
+     "Kip Tansypocket",
+     8.0,
+     2527500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R071",
+     "Petra Cobblemuffin",
+     8.0,
+     4291000.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R072",
+     "Wren Peppertoes",
+     8.0,
+     5210500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R073",
+     "Wren Teacupwobble",
+     8.0,
+     3356000.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R074",
+     "Yuki Wafflehopper",
+     8.0,
+     4283500.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ]
+   ]
+  },
+  "Tier 4": {
+   "count": 60,
+   "units": 206.0,
+   "range": [
+    1.0,
+    7.0
+   ],
+   "volume": 92323500.0,
+   "list": 93.0,
+   "buy": 113.0,
+   "members": [
+    [
+     "R075",
+     "Cora Crumpetsprout",
+     7.0,
+     3453000.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R076",
+     "Elle Thimblebottom",
+     7.0,
+     3938500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R077",
+     "Emil Pepperwhistle",
+     7.0,
+     3411500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R078",
+     "Flo Parsniphopper",
+     7.0,
+     4394500.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R079",
+     "Kit Bramblewobble",
+     7.0,
+     3291500.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R080",
+     "Tova Nettlebutton",
+     7.0,
+     2073000.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "Mira Tumblecrumb",
+     "Documented consent"
+    ],
+    [
+     "R081",
+     "Delia Ripplesprocket",
+     6.0,
+     2518000.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R082",
+     "Gil Dapplebloom",
+     6.0,
+     3203000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R083",
+     "Rhea Kettletoes",
+     6.0,
+     2657000.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R084",
+     "Cal Puddingpocket",
+     5.0,
+     2820000.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R085",
+     "Cleo Saffronwhistle",
+     5.0,
+     3061500.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R086",
+     "Hollis Fiddlewhistle",
+     5.0,
+     2286000.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R087",
+     "Hollis Parsnippocket",
+     5.0,
+     2092500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "Consent noted, no record named"
+    ],
+    [
+     "R088",
+     "Ivy Hobnobnook",
+     5.0,
+     2198500.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R089",
+     "Nell Peppermuffin",
+     5.0,
+     1387000.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R090",
+     "Quin Lanternmuffin",
+     5.0,
+     1373500.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R091",
+     "Sid Lanternbloom",
+     5.0,
+     2580000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R092",
+     "Wes Quibblebottom",
+     5.0,
+     2558500.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R093",
+     "Zora Quibbletoes",
+     5.0,
+     1778000.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R094",
+     "Zora Sorrelfluff",
+     5.0,
+     2318500.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R095",
+     "Bea Lanternfluff",
+     4.0,
+     1074500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R096",
+     "Cyrus Marblebloom",
+     4.0,
+     2222000.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R097",
+     "Freya Cobblebutton",
+     4.0,
+     1538500.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R098",
+     "Kip Mittensprocket",
+     4.0,
+     1808000.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R099",
+     "Ned Picklehopper",
+     4.0,
+     2631000.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R100",
+     "Ola Thimblebutton",
+     4.0,
+     1094000.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "Documented consent"
+    ],
+    [
+     "R101",
+     "Orrin Sorrelsnout",
+     4.0,
+     2347500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "Consent noted, no record named"
+    ],
+    [
+     "R102",
+     "Bianca Hobnobtoes",
+     3.0,
+     1491000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R103",
+     "Cal Crumpetbloom",
+     3.0,
+     1737000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R104",
+     "Dina Dapplesprout",
+     3.0,
+     1183500.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R105",
+     "Elle Tansywhistle",
+     3.0,
+     697500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R106",
+     "Leon Quilltoes",
+     3.0,
+     1102500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R107",
+     "Lou Kettlepuddle",
+     3.0,
+     790000.0,
+     [
+      "Maplewood Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R108",
+     "Tova Junipersprocket",
+     3.0,
+     1391000.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R109",
+     "Uma Nettlesprout",
+     3.0,
+     1420500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R110",
+     "Viggo Thimblepocket",
+     3.0,
+     1389500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R111",
+     "Cleo Picklesprout",
+     2.0,
+     470000.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R112",
+     "Cleo Ripplesnout",
+     2.0,
+     1068500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R113",
+     "Hollis Sorrelbloom",
+     2.0,
+     761000.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R114",
+     "Ike Sorrelbottom",
+     2.0,
+     1218000.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R115",
+     "Lars Biscuitnoggin",
+     2.0,
+     1212500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R116",
+     "Nico Junipertoes",
+     2.0,
+     870000.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R117",
+     "Pip Kettlewobble",
+     2.0,
+     575000.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R118",
+     "Sam Nettlewobble",
+     2.0,
+     1341000.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "Documented consent"
+    ],
+    [
+     "R119",
+     "Walt Mittennook",
+     2.0,
+     967500.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R120",
+     "Wes Pepperbottom",
+     2.0,
+     628500.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R121",
+     "Wren Cloverdumple",
+     2.0,
+     368500.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R122",
+     "Zora Fiddlefluff",
+     2.0,
+     744000.0,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R123",
+     "Dot Kettlenook",
+     1.0,
+     304000.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R124",
+     "Edie Cloverhopper",
+     1.0,
+     421500.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R125",
+     "Elle Dapplesnout",
+     1.0,
+     628500.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R126",
+     "Finn Teacupmuffin",
+     1.0,
+     599500.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R127",
+     "Freya Ripplemuffin",
+     1.0,
+     413000.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R128",
+     "Hugo Kettlesnout",
+     1.0,
+     404500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R129",
+     "Ivy Juniperwhistle",
+     1.0,
+     235500.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R130",
+     "Orrin Tansyfluff",
+     1.0,
+     353000.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R131",
+     "Otto Quibblemuffin",
+     1.0,
+     340500.0,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R132",
+     "Sam Noodlemuffin",
+     1.0,
+     301500.0,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R133",
+     "Walt Cobblewhistle",
+     1.0,
+     333000.0,
+     [
+      "Silverline Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R134",
+     "Zeke Quillbutton",
+     1.0,
+     452500.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "Consent noted, no record named"
+    ]
+   ]
+  },
+  "No closings in period": {
+   "count": 8,
+   "units": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "volume": 0,
+   "list": 0,
+   "buy": 0,
+   "members": [
+    [
+     "R135",
+     "Cora Noodlesprout",
+     0.0,
+     0.0,
+     [
+      "Harborview Example Partners"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R136",
+     "Cyrus Hobnobcrumb",
+     0.0,
+     0.0,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R137",
+     "Freya Fiddlehopper",
+     0.0,
+     0.0,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R138",
+     "Joss Parsnipbloom",
+     0.0,
+     0.0,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R139",
+     "Orrin Bramblebloom",
+     0.0,
+     0.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R140",
+     "Remy Lanternnoggin",
+     0.0,
+     0.0,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R141",
+     "Rhea Saffronbottom",
+     0.0,
+     0.0,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R142",
+     "Rosa Cobblebottom",
+     0.0,
+     0.0,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ]
+   ]
+  },
+  "Not tiered: no production data": {
+   "count": 21,
+   "units": null,
+   "range": null,
+   "volume": 0,
+   "list": 0,
+   "buy": 0,
+   "members": [
+    [
+     "R143",
+     "Cleo Bramblepuddle",
+     null,
+     null,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R144",
+     "Dot Kettlenook",
+     null,
+     null,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R145",
+     "Fay Tansysprout",
+     null,
+     null,
+     [
+      "Riverbend Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "Documented consent"
+    ],
+    [
+     "R146",
+     "Fay Tumblehopper",
+     null,
+     null,
+     [
+      "Willowmere Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R147",
+     "Gil Wafflemuffin",
+     null,
+     null,
+     [
+      "Lakeshore Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R148",
+     "Hattie Mittenbloom",
+     null,
+     null,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R149",
+     "Imani Parsnipbottom",
+     null,
+     null,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R150",
+     "Iris Cloversnout",
+     null,
+     null,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R151",
+     "Joss Nettlefluff",
+     null,
+     null,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "Consent noted, no record named"
+    ],
+    [
+     "R152",
+     "Juno Cobblefluff",
+     null,
+     null,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R153",
+     "Kaia Bramblepocket",
+     null,
+     null,
+     [
+      "Harborview Example Partners"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R154",
+     "Leon Hobnobwhistle",
+     null,
+     null,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R155",
+     "Ola Saffronsprout",
+     null,
+     null,
+     [
+      "Granite Example Home Group"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R156",
+     "Orrin Tansydumple",
+     null,
+     null,
+     [
+      "Pinecrest Example Homes"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R157",
+     "Pip Tumblebottom",
+     null,
+     null,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "Consent noted, no record named"
+    ],
+    [
+     "R158",
+     "Tess Crumpetmuffin",
+     null,
+     null,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R159",
+     "Tobin Picklebloom",
+     null,
+     null,
+     [
+      "Summit Example Properties"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R160",
+     "Una Peppersnout",
+     null,
+     null,
+     [
+      "Northfield Example Brokers"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R161",
+     "Vic Quillcrumb",
+     null,
+     null,
+     [
+      "Foxglove Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R162",
+     "Viggo Biscuitbutton",
+     null,
+     null,
+     [
+      "Oakhaven Example Realty"
+     ],
+     "Mira Tumblecrumb",
+     "No consent on record"
+    ],
+    [
+     "R163",
+     "Yuki Biscuitbottom",
+     null,
+     null,
+     [
+      "Copperleaf Example Real Estate"
+     ],
+     "Mira Tumblecrumb",
+     "Documented consent"
+    ]
+   ]
+  },
+  "Do not contact": {
+   "count": 3,
+   "units": 9.0,
+   "range": [
+    4.0,
+    5.0
+   ],
+   "volume": 3844000.0,
+   "list": 6.0,
+   "buy": 3.0,
+   "members": [
+    [
+     "R164",
+     "Marta Lanternbottom",
+     5.0,
+     1720500.0,
+     [
+      "Riverbend Example Realty"
+     ],
+     "",
+     "Opted out"
+    ],
+    [
+     "R165",
+     "Mae Hobnobnoggin",
+     4.0,
+     2123500.0,
+     [
+      "Granite Example Home Group"
+     ],
+     "",
+     "Opted out"
+    ],
+    [
+     "R166",
+     "Delia Kettlemuffin",
+     null,
+     null,
+     [
+      "Bluegate Example Realty Group"
+     ],
+     "",
+     "Opted out"
+    ]
+   ]
+  },
+  "On your team (removed)": {
+   "count": 3,
+   "units": 60.0,
+   "range": [
+    3.0,
+    41.0
+   ],
+   "volume": 21119500.0,
+   "list": 25.0,
+   "buy": 35.0,
+   "members": [
+    [
+     "R167",
+     "Joss Teacuppocket",
+     41.0,
+     14268000.0,
+     [
+      "Lanternbrook Example Realty"
+     ],
+     "",
+     "No consent on record"
+    ],
+    [
+     "R168",
+     "Freya Gumdropbloom",
+     16.0,
+     5835500.0,
+     [
+      "Lanternbrook Example Realty"
+     ],
+     "",
+     "No consent on record"
+    ],
+    [
+     "R169",
+     "Kenji Pepperpuddle",
+     3.0,
+     1016000.0,
+     [
+      "Lanternbrook Example Realty"
+     ],
+     "",
+     "No consent on record"
+    ]
+   ]
+  }
+ },
+ "signals": [
+  [
+   "R002",
+   "Tobin Cobblehopper",
+   "Tier 1",
+   [
+    "New production: 48 this period, 0 in the prior 12 months"
+   ]
+  ],
+  [
+   "R012",
+   "Ben Kettledumple",
+   "Tier 1",
+   [
+    "Down: 23 against 35 in the prior 12 months"
+   ]
+  ],
+  [
+   "R016",
+   "Mae Tansytoes",
+   "Tier 1",
+   [
+    "Up: 23 against 18 in the prior 12 months"
+   ]
+  ],
+  [
+   "R024",
+   "Cleo Marblesnout",
+   "Tier 2",
+   [
+    "Up: 19 against 15 in the prior 12 months"
+   ]
+  ],
+  [
+   "R034",
+   "Bianca Biscuitwobble",
+   "Tier 2",
+   [
+    "Up: 15 against 12 in the prior 12 months"
+   ]
+  ],
+  [
+   "R039",
+   "Cyrus Thimblemuffin",
+   "Tier 3",
+   [
+    "Up: 12 against 8 in the prior 12 months"
+   ]
+  ],
+  [
+   "R040",
+   "Ivy Kettlepocket",
+   "Tier 3",
+   [
+    "Down: 12 against 16 in the prior 12 months"
+   ]
+  ],
+  [
+   "R042",
+   "Kenji Noodlenoggin",
+   "Tier 3",
+   [
+    "Up: 12 against 3 in the prior 12 months"
+   ]
+  ],
+  [
+   "R047",
+   "Ezra Pickletoes",
+   "Tier 3",
+   [
+    "Listed under two offices in the production report (Pinecrest Example Homes and Granite Example Home Group); all prior-period sides are under Pinecrest Example Homes, so the move looks like Pinecrest Example Homes to Granite Example Home Group"
+   ]
+  ],
+  [
+   "R048",
+   "Jules Saffronbutton",
+   "Tier 3",
+   [
+    "Your list says Silverline Example Realty (last touch 2026-05-30); the production report shows Willowmere Example Properties"
+   ]
+  ],
+  [
+   "R050",
+   "Ezra Puddingtoes",
+   "Tier 3",
+   [
+    "Up: 10 against 7 in the prior 12 months"
+   ]
+  ],
+  [
+   "R051",
+   "Hugo Kettlebutton",
+   "Tier 3",
+   [
+    "Down: 10 against 14 in the prior 12 months"
+   ]
+  ],
+  [
+   "R065",
+   "Arlo Picklecrumb",
+   "Tier 3",
+   [
+    "Listed under two offices in the production report (Pinecrest Example Homes and Silverline Example Realty); all prior-period sides are under Pinecrest Example Homes, so the move looks like Pinecrest Example Homes to Silverline Example Realty"
+   ]
+  ],
+  [
+   "R067",
+   "Finn Sorrelwhistle",
+   "Tier 3",
+   [
+    "Your list says Harborview Example Partners (last touch 2026-07-06); the production report shows Riverbend Example Realty"
+   ]
+  ],
+  [
+   "R073",
+   "Wren Teacupwobble",
+   "Tier 3",
+   [
+    "Down: 8 against 11 in the prior 12 months"
+   ]
+  ],
+  [
+   "R080",
+   "Tova Nettlebutton",
+   "Tier 4",
+   [
+    "Down: 7 against 10 in the prior 12 months"
+   ]
+  ],
+  [
+   "R090",
+   "Quin Lanternmuffin",
+   "Tier 4",
+   [
+    "Your list says Harborview Example Partners (last touch 2026-08-16); the production report shows Maplewood Example Realty"
+   ]
+  ],
+  [
+   "R119",
+   "Walt Mittennook",
+   "Tier 4",
+   [
+    "Your list says Northfield Example Brokers (last touch 2026-03-17); the production report shows Oakhaven Example Realty"
+   ]
+  ],
+  [
+   "R128",
+   "Hugo Kettlesnout",
+   "Tier 4",
+   [
+    "New production: 1 this period, 0 in the prior 12 months"
+   ]
+  ]
+ ],
+ "owners": {
+  "Tier 1": {
+   "Joss Teacuppocket": 18
+  },
+  "Tier 2": {
+   "Pax Noodlebottom": 16
+  },
+  "Tier 3": {
+   "Mira Tumblecrumb": 40
+  },
+  "Tier 4": {
+   "Mira Tumblecrumb": 60
+  },
+  "No closings in period": {
+   "Mira Tumblecrumb": 8
+  },
+  "Not tiered: no production data": {
+   "Mira Tumblecrumb": 21
+  }
+ },
+ "consent": {
+  "Tier 1": {
+   "documented": [],
+   "noted": [],
+   "none": 18
+  },
+  "Tier 2": {
+   "documented": [],
+   "noted": [],
+   "none": 16
+  },
+  "Tier 3": {
+   "documented": [
+    [
+     "R035",
+     "Ned Tumblesnout"
+    ],
+    [
+     "R036",
+     "Vera Wafflesprout"
+    ]
+   ],
+   "noted": [],
+   "none": 38
+  },
+  "Tier 4": {
+   "documented": [
+    [
+     "R080",
+     "Tova Nettlebutton"
+    ],
+    [
+     "R100",
+     "Ola Thimblebutton"
+    ],
+    [
+     "R118",
+     "Sam Nettlewobble"
+    ]
+   ],
+   "noted": [
+    [
+     "R087",
+     "Hollis Parsnippocket"
+    ],
+    [
+     "R101",
+     "Orrin Sorrelsnout"
+    ],
+    [
+     "R134",
+     "Zeke Quillbutton"
+    ]
+   ],
+   "none": 54
+  },
+  "No closings in period": {
+   "documented": [],
+   "noted": [],
+   "none": 8
+  },
+  "Not tiered: no production data": {
+   "documented": [
+    [
+     "R145",
+     "Fay Tansysprout"
+    ],
+    [
+     "R163",
+     "Yuki Biscuitbottom"
+    ]
+   ],
+   "noted": [
+    [
+     "R151",
+     "Joss Nettlefluff"
+    ],
+    [
+     "R157",
+     "Pip Tumblebottom"
+    ]
+   ],
+   "none": 17
+  }
+ },
+ "repeated": [
+  [
+   "R078",
+   "Flo Parsniphopper",
+   [
+    "TCX20641"
+   ]
+  ]
+ ],
+ "office_splits": [
+  [
+   "R047",
+   "Ezra Pickletoes",
+   [
+    "TCX20550"
+   ],
+   {
+    "offices": [
+     "Pinecrest Example Homes",
+     "Granite Example Home Group"
+    ],
+    "from": "Pinecrest Example Homes",
+    "to": "Granite Example Home Group"
+   },
+   11.0
+  ],
+  [
+   "R065",
+   "Arlo Picklecrumb",
+   [
+    "TCX20557"
+   ],
+   {
+    "offices": [
+     "Pinecrest Example Homes",
+     "Silverline Example Realty"
+    ],
+    "from": "Pinecrest Example Homes",
+    "to": "Silverline Example Realty"
+   },
+   8.0
+  ]
+ ],
+ "flags": [],
+ "units_not_used": [],
+ "possible_duplicates": [
+  [
+   "R011",
+   "Viggo Biscuitbutton",
+   [
+    "R162"
+   ]
+  ],
+  [
+   "R123",
+   "Dot Kettlenook",
+   [
+    "R144"
+   ]
+  ],
+  [
+   "R144",
+   "Dot Kettlenook",
+   [
+    "R123"
+   ]
+  ],
+  [
+   "R162",
+   "Viggo Biscuitbutton",
+   [
+    "R011"
+   ]
+  ]
+ ],
+ "on_team": [
+  "Joss Teacuppocket (Team Leader)",
+  "Freya Gumdropbloom (Buyer Agent)",
+  "Kenji Pepperpuddle (Buyer Agent)"
+ ],
+ "opted_out": [
+  [
+   "R164",
+   "Marta Lanternbottom"
+  ],
+  [
+   "R165",
+   "Mae Hobnobnoggin"
+  ],
+  [
+   "R166",
+   "Delia Kettlemuffin"
+  ]
+ ],
+ "own_brokerage": [],
+ "notes": {
+  "rows_with_notes": 48,
+  "personal_rows": 2,
+  "personal_agents": 2,
+  "kinds": {
+   "family or familial status": 1,
+   "marital status": 1,
+   "personal finances": 1
+  }
+ }
+}

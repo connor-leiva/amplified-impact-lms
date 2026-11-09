@@ -159,7 +159,16 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
 
     // Every free guide's page (D-038, D-039), where ManyChat sends people, with its `?src=` tag. Driven
     // by the API's own list, so a guide added there and forgotten in `PUBLIC_PREFIX` fails here.
-    expect(GUIDE_SLUGS).toEqual(['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool']);
+    expect(GUIDE_SLUGS).toEqual([
+      'task-sync-starter',
+      'ops-time-audit',
+      'voice-profile',
+      'reel-editor',
+      'retool',
+      'database-health-check',
+      'recruiting-prep',
+      'team-playbook-builder',
+    ]);
     for (const slug of GUIDE_SLUGS) {
       for (const url of [`/${slug}`, `/${slug}?src=ig`]) {
         const res = await get(a, url, WWW);

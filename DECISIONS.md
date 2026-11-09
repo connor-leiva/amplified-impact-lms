@@ -2409,3 +2409,192 @@ yet: each skill's page, ZIPs and library card arrive with its own entry (D-053 o
   Chromium at 390 pixels (the switch shows one app's steps, no sideways scroll, the copy block and the
   sample read well); the library at 390 and 1280 pixels. **Not verified:** a real phone, and the switch
   with a screen reader.
+
+## D-053 · /database-health-check: Database Health Check, a free skill for Claude and ChatGPT
+
+**Date:** 2026-11-08
+**Approved by:** the user, in chat on 2026-11-08, approving the slate of 17 skills: "slate approved. report back when the entire library, with all your recommended skills, have been built."
+**Scope:** `skills/database-health-check/`, `apps/web/src/guides/database-health-check.ts`, `apps/web/database-health-check.html`, `apps/web/public/downloads/database-health-check*.zip`, and one line each in `GUIDES`, `GUIDE_HTML`, `GUIDE_SLUGS` and the library's `ENTRIES` (with the tests that pin those lists).
+
+- **/database-health-check is the Database Health Check skill's page** (`apps/web/src/guides/database-health-check.ts`, `DATABASE_HEALTH_CHECK`), built with `skillPage()` (D-052). It uses slug `database-health-check`, unlockKey `dhc-unlocked`, and the ChatGPT instructions from `chatgptPaste('database-health-check')`, so they stay word for word with `chatgpt/paste.txt`. The eyebrow is "Free AI Skill · For Team Leaders and Ops". The lede is page-notes.md's one-line promise. The outcome step is "Clean Up and Reach Out". The practice prompt is page-notes.md's. The last step says to attach your own CRM export and gives the Follow Up Boss export click path.
+- **Sections, in order:**
+  - **The sample**, a shortened and faithful excerpt of sample.md: the bottom line, three health report findings, part of the contact info table, the worklist's top five actions and how to work the first, the six groups, Past Clients in full (its Smart List filter, counts, why, next move, call opener and email, and "No text: none of these 18 shows a yes in Text Consent"), three of the seven team questions, and four check-before-sending items.
+  - **What you get back:** the eight output parts, in SKILL.md section 7's order.
+  - **Who does what:** Run, Draft and Own.
+  - **What you need:** six tiles with a button back to the sign-up.
+  - **What to say:** page-notes.md's five prompts in three groups.
+  - **Good to know:** six questions, including "What won't it do?" and the plan question.
+  - **A note** pointing recruit lists to Recruiting Prep at /recruiting-prep.
+- **Connor's three calls are left open.**
+  - **Consent:** the page says only that the skill drafts texts just for contacts whose export shows documented consent, and flags the rest. The sample leaves out how the consent yes values were recorded, its question about that, and the matching check line.
+  - **Texts:** the page says texts are drafts an agent sends, never a mass text. It leaves out the sample's one-at-a-time line.
+  - **Merges across agents:** the page says the skill lists them for the team to decide and never merges.
+- **What the page says the skill needs, all from page-notes.md:**
+  - A Claude plan with skills and code execution. Free is listed by Claude's help center but unconfirmed in Claude's docs, and untested.
+  - Or a ChatGPT plan with data analysis, which the free plan limits, so big exports work best on a paid plan. No ChatGPT limits are stated as numbers: page-notes says they came only from search excerpts.
+  - A computer, because Follow Up Boss saves the export as a CSV.
+  - A Follow Up Boss export by the Account Owner or someone the owner gave Can Export, or another CRM's full export. A closed-deal export is optional.
+  - No connector. A CRM connector, if on, is only read from.
+  - No cost beyond the AI plan and the CRM.
+- **Sources:**
+  - The setup steps are `skill-page.ts`'s, from the click paths in D-045, D-048, D-049 and D-052, checked 2026-11-08.
+  - The Follow Up Boss export path, Can Export and the owner's export email come from the Follow Up Boss help center articles page-notes.md cites ("Export Contacts to a Spreadsheet", "Users, Roles & Permissions", "Invite and manage your team").
+  - The Columns tip comes from "Filtering contacts".
+  - The Claude plan facts come from Claude's help center ("Use skills in Claude", "Create and edit files with Claude"). ChatGPT's "Limited" data analysis comes from chatgpt.com/pricing.
+  - "Follow Up Boss has no consent column of its own" comes from `references/fub-and-crm-exports.md`, which infers it from the help center's column list.
+  - The Default Smart Lists fact in the sample is a review-checked fact.
+- **Beyond the spec:**
+  - Terms a first-time user may not know are explained where they first appear: skill (in the sign-up text), connector, Smart List and CSV.
+  - The last step's note gives the Follow Up Boss export path instead of the shared note about dates, dollar amounts and page numbers, which doesn't fit this skill.
+  - The FAQ says plainly what was tested: in Claude, not on Free, and not yet in ChatGPT. It says the skill is "built to read" other CRMs' exports, because only a made-up one was tested.
+  - The sample shows the consent rule at the level of one group, without taking a side on Connor's open consent call.
+  - The three ZIPs are built with `node scripts/skills.mjs build database-health-check`, which also passed the skill checks: `database-health-check.zip`, `-chatgpt.zip` and `-practice.zip` in `apps/web/public/downloads/`.
+- **Tested:**
+  - Rendered with the preview harness and screenshotted at 390 px in every state: the hero, the locked sign-up, the Claude and ChatGPT steps, the sample, and every section with the FAQ answers open. No sideways scroll. Each screenshot was read and fixed, then previewed again.
+  - `pnpm exec tsc --noEmit` passes.
+  - No em or en dashes in the source or on the page. Curly apostrophes everywhere except the ChatGPT instructions, which are copied word for word from paste.txt.
+- **Not tested:**
+  - No real phone.
+- **The skill's own tests** (`skills/database-health-check/evals/`), from its build: 1 fub-5000: 15 of 15 expectations; 9 of 9 applicable objective checks (400 of 400 numbers trace to the run's analysis output); 2 other-crm: 9 of 9 expectations; 9 of 9 applicable objective checks; 3 no-consent: 8 of 8 expectations; 9 of 9 applicable objective checks; no-skill baseline 2 of 8; practice: 12 of 12 applicable case-1 expectations; objective checks all pass (339 of 339 numbers traced).
+- **Against no skill:** Without the skill, Claude (with code execution) on case 3 wrote texts for every group despite no consent field, told a lead 'I saw you were looking at homes online', printed contact names and an email in the chat, miscounted duplicates (case-sensitive emails, raw phone text, the office line counted as duplicates: 14 email rows vs the skill's 20 merge groups) and stale contacts (484, mixing trash, nurture and past clients into the pipeline), used banned phrasing and an unsupported equity claim, suggested mass-applying action plans (FUB can't), and produced no worklist, no Smart List filters, no opt-out language, no team questions and no Check Before Sending. It passed 2 of 8 expectations; the skill passed 8 of 8. The skill adds: math in tested code with every number traceable, a worklist CSV as the only place personal data appears, FUB-verified export, merge, pond and Smart List facts, consent-gated text drafts, CAN-SPAM-style footers, and non-overlapping problem ranking with a first-cleanup rule.
+- **Independent review** (verdict: ready-with-notes): case-2 other-crm: passed; practice: passed; case-1 fub-5000 and case-3 no-consent: passed.
+- **Open for Connor** (from the review and the page):
+  - Check one real Follow Up Boss 'Export All Columns' file (yours or a Forum member's, redacted): header names, date format, whether Last Communication and Last Activity come through, and how a custom Text Consent field exports. Every stale-lead check depends on it.
+  - Decide how teams should treat consent recorded from a website form or an open house sign-in sheet. The skill now flags these, citing Follow Up Boss's own compliance page that a form is not an opt-in without consent wording. Confirm the wording with your broker or attorney before the Forum session.
+  - Texts now come with a note that agents send them one at a time, never as a mass text. This follows Follow Up Boss's compliance page, which says its texting is not for mass or drip texting and warns against pasting the same text lead by lead. Keep or adjust this framing for the Forum audience.
+  - Merge groups whose records belong to different agents are now counted and sent to the team ('who keeps the contact'), never decided by ops or the skill. In the synthetic data that is more than half the merge groups. Confirm that's the stance you want to teach.
+  - Before publishing, confirm the ChatGPT Free limits in a browser (5 files per Project, 3 uploads a day, data analysis 'Limited'). page-notes flags them.
+  - Run node scripts/skills.mjs build, which writes to apps/ (outside my lane), so the downloads include these changes.
+  - Three calls are yours, and the page leaves each one open. Consent recorded from a website form or an open house sign-in: the page says only that texts are drafted for contacts with documented consent, and the rest are flagged. Texts going out one at a time: the page says only 'drafts an agent sends, never a mass text.' Merges across agents: the page says the skill lists them for the team and never merges. Once you decide, the sample can add back the consent breakdown, Question 6 and the one-at-a-time check line.
+  - Before the Forum on November 13 to 15, run one real Follow Up Boss 'Export All Columns' file through the skill. Nobody has checked yet whether Last Communication, Last Activity and a Text Consent custom field come through, and every stale-lead check depends on them.
+  - The ChatGPT version has never been run inside ChatGPT, so the plan answer in the FAQ says 'We tested the skill in Claude, not on Free and not yet in ChatGPT.' Run the practice file in a ChatGPT Project, then drop 'and not yet in ChatGPT'.
+  - Setup time says about 10 minutes, in the hero, the unlocked card and 'What you need'. That is my estimate: no source gives one. Change setupMinutes if your own setup runs differently.
+  - Two shared lines in skill-page.ts, which I didn't touch, affect this page. The ChatGPT 'Make a Project' step says Free ChatGPT allows 5 files in a Project, but page-notes says that number came only from search excerpts. The practice note says to start chats inside your My Voice project, which in ChatGPT conflicts with practising inside this skill's own Project.
+- **Integrated and checked on 2026-11-08** (this pull request): registered in `GUIDES`, `GUIDE_HTML` and `GUIDE_SLUGS` with its shell and library card, its three downloads rebuilt by `node scripts/skills.mjs build`. Web tests (1,117), API tests (943, against a local Postgres), typecheck, lint and the build pass; every page that is not new builds byte for byte as before. Against the built server, as www and as learn: the page answers 200, its trailing slash 301s, a deeper path on www 302s to the placeholder, and each download serves as a ZIP. In Chromium at 390 by 844, a sign-up through the page stored its row under the page's own source with `src=ig`, unlocked the setup, ran the page's hashed inline script under the CSP with no console errors, and nothing scrolled sideways. **Not checked here:** a real phone, a screen reader, an upload of the ZIP into a live Claude or ChatGPT account, and the skill run inside Claude.ai or ChatGPT itself (every run in `evals/` was an agent following the skill on the made-up files).
+## D-054 · /recruiting-prep: Recruiting Prep, a free skill for Claude and ChatGPT
+
+**Date:** 2026-11-08
+**Approved by:** the user, in chat on 2026-11-08, approving the slate of 17 skills: "slate approved. report back when the entire library, with all your recommended skills, have been built."
+**Scope:** `skills/recruiting-prep/`, `apps/web/src/guides/recruiting-prep.ts`, `apps/web/recruiting-prep.html`, `apps/web/public/downloads/recruiting-prep*.zip`, and one line each in `GUIDES`, `GUIDE_HTML`, `GUIDE_SLUGS` and the library's `ENTRIES` (with the tests that pin those lists).
+
+- **/recruiting-prep is the free page for Recruiting Prep** (`skills/recruiting-prep/`, version 1.0). It is built with `skillPage()` (D-052) in `apps/web/src/guides/recruiting-prep.ts` as `RECRUITING_PREP`, with slug `recruiting-prep` and unlock key `rp-unlocked`. It is for team leaders, recruiters and appointment setters. Connor presents it at the Forum, November 13 to 15. It has a Claude skill and a ChatGPT Project version, and the ChatGPT instructions are read from `chatgpt/paste.txt` through `chatgptPaste()`.
+- **What the page says the skill does.** There are two modes. List mode turns a recruit list (an MLS agent production report, a BrokerMetrics, Sisu, GoHighLevel or Follow Up Boss export, or a tracker, often mixed) into one de-duplicated list, tiered by production. It adds why-now signals, owners by tier, first-touch drafts and a clean CSV. Appointment mode preps one recruiting coffee: a production profile with the math shown, likely needs (from the team's document first, the rest labeled general guidance), discovery questions with a don't-ask list, the offer mapped to those needs, the terms quoted word for word, objection answers and a follow-up email. Every word comes from SKILL.md, its references, page-notes.md, sample.md and the graded runs.
+- **Guardrails the page holds to, as SKILL.md does:**
+  - It tiers on production only, never on anything personal, and never reads a notes column.
+  - It makes no income, earnings or revenue-share projection, ever, even from the candidate's own numbers. The FAQ gives page-notes.md's FTC reason.
+  - It never disparages a candidate's current brokerage.
+  - Every recruiting text and email is treated as marketing. Texts go only to contacts with documented consent, and every message has an opt-out line, the sender and the brokerage.
+  - MLS data rules vary, so the page says to check yours, with Bay East 12.11.1 and MLS Now Rule 7.3 as examples.
+  - On telemarketing, the page says only that whether federal rules reach a recruiting text "isn't settled", that the drafts follow every marketing text rule anyway, and that state rules differ (Florida, Maryland and Oklahoma notes; any other state is flagged as not checked). It never says a recruiting text is not telemarketing.
+- **Sections, in order:**
+  - **The sample:** sample.md, shortened, cut only by whole items, rows, columns and sentences and labeled "Made-Up Example". It keeps the bottom line, five of seven flags, what was merged, the tiers, four of eight signals, the consent line, the Growing email and one text, then Marisol's profile, needs, four questions, the terms as written, one objection and five check lines.
+  - **What you get back:** 12 parts, in SKILL.md's output order for list mode and then appointment mode.
+  - **Who does what:** Run, Draft, Own.
+  - **What you need:** six tiles, with the button back to the sign-up.
+  - **Where to get your list:** new beyond the brief, see below.
+  - **What to say:** page-notes.md's five prompts, in three groups.
+  - **Good to know:** six questions.
+  - **The note:** points to /team-playbook-builder for an agent who has already joined.
+- **What it needs, as the page says it:**
+  - **Claude:** a plan with skills and code execution. Claude's help center lists Free, but its developer docs list Pro and up, so Free is not promised. On Team or Enterprise, an owner turns code execution on.
+  - **ChatGPT:** a Project with data analysis, which the free plan has only as "Limited". No ChatGPT Free numbers appear in this page's own words.
+  - **A computer** to set up and to export the list.
+  - **The recruit list.** The roster and the value proposition are optional.
+  - **Connectors are optional, Claude only, read only and untested:** Google Drive or Microsoft 365 for the offer document, and Granola for meeting notes (Granola transcripts need its Business or Enterprise plan).
+  - **No cost** beyond the Claude or ChatGPT plan and the MLS access or recruiting tool already in use.
+- **Sources.**
+  - The setup steps are `skillPage()`'s shared ones (D-045, D-048, D-049, D-052).
+  - The export click paths are page-notes.md's, each from the vendor's help center, checked 2026-11-08: BrokerMetrics Export, the Sisu Recruits page article, HighLevel's Opportunities FAQs and Smart Lists, Follow Up Boss "Export Contacts to a Spreadsheet", and Google Docs Editors Help for a Google Sheet.
+  - The plan facts are page-notes.md's, from Claude's help center and docs and chatgpt.com/pricing.
+  - The MLS, FTC and texting facts come from page-notes.md, references/outreach-rules.md and references/recruiting-guardrails.md. Those cite the 2026 NAR Code, FTC 87 FR 13951, 47 CFR 64.1200, Bay East and MLS Now.
+  - The practice prompt is page-notes.md's, word for word.
+- **Calls made inside the brief:**
+  - **A "Where to get your list" section** (six exports), placed after "What you need", as /team-playbook-builder has "Where to get your documents". People need to get the list out of five different tools before the skill can do anything.
+  - **No Gmail draft is promised.** SKILL.md allows one when asked, but no run tested it, and Claude's pages disagree on whether its Gmail connector can write a draft (as due-diligence-review.ts records).
+  - **The sample is drawn to read on a phone without hiding a column.** The merge table became a list. The tiers kept three columns. The why-now ID, agent and level share one column. The profile's totals are turned on their side. The email's signature and footer lines are joined into one paragraph each. The words are sample.md's.
+  - **`setupMinutes` is 10, an estimate,** as the other pages with a ChatGPT version say. page-notes.md gives none.
+  - **The eyebrow is "For Team Leaders and Recruiters",** with non-breaking spaces. Adding appointment setters wrapped badly at phone width.
+- **Built:** `node scripts/skills.mjs build recruiting-prep` wrote `public/downloads/recruiting-prep.zip` (43,496 bytes), `recruiting-prep-chatgpt.zip` (41,507 bytes) and `recruiting-prep-practice.zip` (56,797 bytes) from the current sources. The skill check passed first.
+- **What the skill's runs showed:**
+  - Case 1, a messy 205-row MLS report and tracker with a roster: 12 of 12.
+  - Case 2, appointment prep with a request for take-home math: 10 of 10. A run without the skill scored 2 of 10: it projected take-home pay and wrote an email with no opt-out line.
+  - Case 3, a GoHighLevel export with personal notes and Florida contacts: 10 of 10.
+  - The practice files, both modes in one request: 12 of 12, kept as sample.md.
+  - A reviewer reran case 3 and the practice files from the skill alone and got the same counts.
+- **Verified for the page:**
+  - The preview rendered with no em or en dash, and TypeScript typechecks.
+  - Screenshots at 390 pixels wide covered the hero, the sign-up, the whole sample, the Claude setup and the ChatGPT setup, and every FAQ answer opened.
+  - The page is 390 pixels wide, so nothing scrolls sideways, and no table hides a column.
+  - Visible copy has no straight quotes or apostrophes, apart from the ChatGPT instructions, which are copied word for word from the skill.
+- **Not verified:**
+  - Accessibility (axe) and a real phone.
+  - The skill on a real MLS, BrokerMetrics, Sisu or GoHighLevel export, inside ChatGPT, on Claude Free, or with any connector.
+- **The skill's own tests** (`skills/recruiting-prep/evals/`), from its build: 1: 12 of 12 expectations; 9 of 9 applicable objective checks; 2: 10 of 10 expectations; 8 of 8 applicable objective checks; no-skill baseline 2 of 10; 3: 10 of 10 expectations; 9 of 9 applicable objective checks; Practice files, both modes in one request: 12 of 12 checks; 9 of 9 applicable objective checks.
+- **Against no skill:** On case 2 the no-skill answer passed 2 of 10 expectations. Asked for what the candidate would take home, it assumed a 2.5% commission rate, projected $319,900 and claimed a gap of more than $84,000 a year against a 70/30 split it invented. It told the leader to print that table for the candidate. It also stated needs as facts without labeling them, invented team services and a testimonial ('A lot of our top producers felt that way'), and left out the agreement and pending-deals question and the don't-ask list. Its follow-up email had a subject that was not Title Case, no opt-out line, no postal address and no recruiting footer, repeated her closing count and made an earnings claim. With the skill, the same prompt declines the projection in two sentences and quotes the terms with no math. Every needs statement is labeled general guidance, and each objection is answered only from the team's own documents, with placeholders where they say nothing. The follow-up email meets CAN-SPAM, and every number is traced in Check Before Sending. In list mode, what the skill adds is merges and counts that come out the same every run, from code that is tested and shipped with the skill. A no-skill answer would have to hand-build that code each time.
+- **Independent review** (verdict: ready-with-notes): Case 3: GoHighLevel export with personal notes, a request to use them, team A to D tiers, Florida: passed; Practice files, both modes in one request: passed.
+- **Open for Connor** (from the review and the page):
+  - Decide whether a recruiting text to an agent counts as telemarketing in your members' states, or have the Forum's broker or attorney confirm it. The skill treats every recruiting text as marketing either way.
+  - Send one redacted real export (an MLS production report or BrokerMetrics, plus a GoHighLevel or Sisu recruits download) from a Forum member, so the Columns Used mapping can be checked before the November 11 sessions.
+  - Send Utah Life's value proposition by production level when it's ready. It becomes the appointment-mode fixture.
+  - Approve the two behavior rules the review added: no statements about the sender or team beyond the files (no 'I talk with a few agents each quarter'), and one level-neutral email for agents with no production data instead of a level's offer.
+  - Confirm that eval input files should carry 'PRACTICE FILE: made-up example' (changed from 'TEST FILE' so they match the practice files). Other skills in the repo still use TEST FILE on eval inputs, so pick one convention.
+  - Run `node scripts/skills.mjs build recruiting-prep` before release so the downloads match the edited sources.
+  - Whether a recruiting text counts as telemarketing in a given state is still your open question. The page never says it doesn't. It says the federal answer isn't settled, that the drafts follow every marketing text rule anyway, and that state rules differ, so check yours with your broker.
+  - The page doesn't promise Gmail drafts. SKILL.md allows them when asked, but no run tested the Gmail connector, and Claude's pages disagree on whether it can write a draft. If you confirm it works, add a prompt like "Save these as Gmail drafts".
+  - This page's own copy gives no numbers for ChatGPT Free. But the shared ChatGPT "Make a Project" step in skill-page.ts (D-049, D-052) says "Free ChatGPT allows 5 files in a Project." That line is on every page with a ChatGPT version. If you want no Free ChatGPT numbers anywhere, change the shared step.
+  - The practice prompt from page-notes.md says "Tuesday, November 10 at 11", which is a past date by the Forum (November 13 to 15). Nothing depends on the date, but you could change it in page-notes.md and sample.md if it looks odd on stage.
+  - The skill was tested only on made-up lists. Before release, run one redacted real export from a Forum member (an MLS report or BrokerMetrics, plus a GoHighLevel or Sisu download), as the review asked. The page tells people to check "What was merged" against their own file the first time.
+  - The eyebrow names team leaders and recruiters only. Adding appointment setters wrapped badly at phone width.
+- **Independent page check (2026-11-08, after this PR opened).** A second agent read the page against SKILL.md, sample.md and page-notes.md and fixed what it found: the lede and library card no longer say every agent is tiered (14 of 83 practice agents had no MLS data and were left untiered); the plan wording matches every skill page; ChatGPT Free's limits are described with no numbers; the earnings FAQ drops the legal word "material" and says terms are laid out only when the files state them; one name ("value proposition") for the team's offer document; and the sample's own label restored word for word. Open from it: the practice prompt's date (November 10) and whether connector plan limits belong on the page.
+- **Integrated and checked on 2026-11-08** (this pull request): registered in `GUIDES`, `GUIDE_HTML` and `GUIDE_SLUGS` with its shell and library card, its three downloads rebuilt by `node scripts/skills.mjs build`. Web tests (1,117), API tests (943, against a local Postgres), typecheck, lint and the build pass; every page that is not new builds byte for byte as before. Against the built server, as www and as learn: the page answers 200, its trailing slash 301s, a deeper path on www 302s to the placeholder, and each download serves as a ZIP. In Chromium at 390 by 844, a sign-up through the page stored its row under the page's own source with `src=ig`, unlocked the setup, ran the page's hashed inline script under the CSP with no console errors, and nothing scrolled sideways. **Not checked here:** a real phone, a screen reader, an upload of the ZIP into a live Claude or ChatGPT account, and the skill run inside Claude.ai or ChatGPT itself (every run in `evals/` was an agent following the skill on the made-up files).
+## D-055 · /team-playbook-builder: Team Playbook Builder, a free skill for Claude
+
+**Date:** 2026-11-08
+**Approved by:** the user, in chat on 2026-11-08, approving the slate of 17 skills: "slate approved. report back when the entire library, with all your recommended skills, have been built."
+**Scope:** `skills/team-playbook-builder/`, `apps/web/src/guides/team-playbook-builder.ts`, `apps/web/team-playbook-builder.html`, `apps/web/public/downloads/team-playbook-builder*.zip`, and one line each in `GUIDES`, `GUIDE_HTML`, `GUIDE_SLUGS` and the library's `ENTRIES` (with the tests that pin those lists).
+
+- **/team-playbook-builder is the Team Playbook Builder's page.** It is built with `skillPage()` (D-052) in `apps/web/src/guides/team-playbook-builder.ts`, with export `TEAM_PLAYBOOK_BUILDER`, unlock key `tpb-unlocked` and slug and skill `team-playbook-builder`. It works in Claude only (skill.json `apps: ["claude"]`). So the page has no ChatGPT switch and no `-chatgpt.zip`, and `chatgptPaste` is not imported, because lint fails an unused import. The page is for team leaders, owners and ops staff. The leader attaches the team's SOPs, policy manual, onboarding checklist, fee schedule and training transcripts. Claude returns, in SKILL.md's order: a bottom line; Needs your answer; the playbook skill (a ZIP each agent adds to their own Claude, checked against Claude's upload rules); conflicts; gaps; stale and broker flags; a log of what was left out; a 25-question test set; a draft message to agents with install steps and sharing steps by plan; and Check before sending. Connor presents it at the Forum, November 13 to 15.
+- **Sections, in the brief's order, plus one:** a sample from the practice run; What you get back; Who does what (Run, Draft, Own); What you need (with the button back to the opt-in); **Where to get your documents** (added); What to say (all six of page-notes' prompts, in three groups); Good to know (six FAQs); and a note pointing to /database-health-check. "Where to get your documents" holds page-notes.md's upload sources (Google Docs download, the Google Drive connector, the Microsoft 365 and ClickUp connectors, Zoom VTT transcripts, and Otter, Fathom or Granola). It is there because the job depends on gathering files, and the last setup step points to it.
+- **The words** come from SKILL.md, its references (agent-install.md, source-handling.md, playbook-template.md), page-notes.md, the graded runs and the build and review reports, so the page promises only what the skill does. The lede is page-notes' one-line promise without "instead of texting you", which the page can't back. "Skill" is explained in the opt-in, and "connector" in its tile. The practice prompt is page-notes' word for word.
+- **The sample** is sample.md (the practice run, 12 of 12 checks), cut only by whole items, rows, columns and sentences. A script confirmed that every string on the page appears in sample.md word for word, except the four table captions, which are the page's own labels. It keeps the bottom line, Needs your answer, the topic table (topic and owner), how the playbook behaves, the pond conflict, the top three gaps, the stale flag, two broker flags (including "confirm with your broker"), three removals, 3 of 20 answerable and 3 of 5 routed test questions, the message to agents in full, and 3 of the 19 check lines. Every table has two columns so it reads on a phone. Test answers and check lines end with "Source:" and the sample's own source. The routed questions drop the "A wrong answer would" column.
+- **What it needs, only as page-notes.md supports:**
+  - A Claude plan with skills and code execution. Claude's help center and pricing page list Free; the claude.com docs and the platform docs leave it out. The page states both, says a Free account that can't add a skill needs a paid plan, and never promises Free.
+  - Each agent needs their own Claude account, or a seat on a Team or Enterprise plan (shared with them, or added for everyone by an owner).
+  - A computer, to add skills.
+  - Up to 20 files in one chat.
+  - Optional connectors (Google Drive, Microsoft 365, ClickUp), read only and marked untested.
+  - No cost beyond the Claude plan. Zoom VTT transcripts need a paid Zoom account.
+  - The tag says "or none if an owner adds it", not "none on Team or Enterprise", because a shared skill stays off until each agent turns it on.
+- **Setup steps** are skill-page.ts's (D-052). The document click paths are page-notes.md's, checked on 2026-11-08 against each vendor's help center. ClickUp's own export steps are sent to ClickUp support (its help center blocked the check), and Otter, Fathom and Granola get "export or copy the transcript as text" with no click path. Setup is estimated at 10 minutes, as on the other skill pages with a practice run (page-notes gives no time).
+- **Run, Draft, Own** follow SKILL.md:
+  - Run: Claude reads, sorts, finds conflicts, gaps and stale sections, takes out personal data, and checks and packages the playbook.
+  - Draft: the playbook, the test set and the message to agents, which the leader reads first.
+  - Own: every policy, which version wins a conflict, whether a fee schedule applies to everyone, sharing, and any decision about a person. Texting consent, client funds and fair housing go to the broker, and wire and account numbers never go in the playbook.
+- **What the page does not promise, because it wasn't tested:** ChatGPT (the plan FAQ says the playbook is built for Claude, and an agent who uses only ChatGPT would need a Claude account), connector reads, a live upload of a generated ZIP, or answers from an installed playbook. The update FAQ keeps the skill's honest fallback: the help center doesn't say how to load a new ZIP into a shared skill, so delete the old one, upload the new ZIP and share it again.
+- **Verified:**
+  - `pnpm exec tsc --noEmit` and eslint on the file pass.
+  - The preview harness renders the page with no em or en dash.
+  - At 390 by 844 in Chromium: the locked hero and opt-in, the unlocked setup, the sample, the FAQ with every answer open, and the full page. No sideways scroll, and no element wider than the screen outside a table's scroll region.
+  - `node scripts/skills.mjs check team-playbook-builder` prints ok. `build` rewrote the two ZIPs byte for byte the same (same sha256).
+- **Not verified:**
+  - A real phone.
+  - A live claude.ai upload of a generated playbook, and its 25 questions run against it.
+  - Attaching the practice .vtt file in claude.ai (the runs read it as text).
+  - Free plan behavior.
+- **The skill's own tests** (`skills/team-playbook-builder/evals/`), from its build: practice: 12 of 12 checks (4 spec traps, 8 behavior and objective checks); eval 1: 11 of 11 expectations, plus the objective checks; eval 2: 9 of 9 expectations, plus the objective checks; eval 3: 8 of 8 expectations, plus the objective checks.
+- **Against no skill:** On eval 1, Claude without the skill made a plausible skill folder, but it picked the handbook in the closing gift conflict and wrote policy for both gaps (a pond rule and offboarding). It also gave a wrong upload path (Settings > Capabilities), had no citations, owners, dates, staleness rule or routing, did not check the name or ZIP, and wrote no test set, agent message or Check before sending. It met 2 of 11 expectations; the skill met 11 of 11. What the skill adds: answers tied to a cited section, conflicts shown instead of decided, gaps routed instead of filled, personal data and individual pay kept out and verified by a must-not-contain scan, pre-2024 buyer steps held for the broker, a ZIP that passes Claude's upload rules, a 25-question test set, and sharing steps matched to the plan.
+- **Independent review** (verdict: ready-with-notes): eval 2: individual-splits-and-personal-data: passed; practice: Lantern Lane Example Team, five files: passed.
+- **Open for Connor** (from the review and the page):
+  - Decide whether a later version should add ChatGPT install steps. A reviewer reported that ChatGPT now takes skills in the same format; not verified here (OpenAI's help center blocks automated reads), and nothing has been tested there.
+  - Send Utah Life's real onboarding documents for the private-fixture pass. That is the only test of long manuals and real formatting.
+  - Before the Forum, upload one generated ZIP (evals/runs/practice/lantern-lane-example-team-playbook.zip) to a live Claude account and run its 25 questions. That is the one end-to-end check no one could do here.
+  - Confirm the page wording on plans: 'works on any Claude plan; if an agent on Free doesn't see the upload option, they need a paid plan'. The Help Center and pricing page list Free; the claude.com docs and platform docs leave it out.
+  - Keep or reverse two reviewer changes: the agent message now says 'a few clicks' instead of 'about two minutes', and a topic with a CONFLICT or UNDER REVIEW block now keeps its own file.
+  - Before the Forum, upload skills/team-playbook-builder/evals/runs/practice/lantern-lane-example-team-playbook.zip to a live Claude account and ask it the 25 test questions. No one has done this end-to-end check.
+  - Attach the five practice files to a claude.ai chat once, to confirm it accepts the .vtt training call transcript. The graded runs read it as text, so an upload refusal would break the page's practice step on stage.
+  - Confirm the plan wording. The page says Claude's help center lists skills on every plan, Free included, but Claude's docs leave Free out, and that a Free account that can't add a skill needs a paid plan. I didn't use page-notes' "works on any Claude plan", because the brief says never to promise Free.
+  - Send Utah Life's real onboarding documents. Every practice and eval document is one to two pages, so "reads every document in full" is untested at real manual length, and so are sets over 20 files.
+  - Setup time on the page ("about 10 minutes") is an estimate, as on the other skill pages with a practice run. page-notes gives no time.
+  - From the review: decide whether a later version adds ChatGPT install steps for teams that use only ChatGPT. Also keep or reverse two reviewer changes in the skill: the agent message says "a few clicks", and a topic with a CONFLICT or UNDER REVIEW block keeps its own file.
+- **Independent page check (2026-11-08, after this PR opened).** A second agent read the page against SKILL.md, sample.md and page-notes.md and fixed what it found: plan wording that matches every skill page, said for the leader and for each agent; "No extra cost" now says a Claude plan for you and for each agent; "reads every document in full" became "reads every document" (every test file was one or two pages); an unbacked line about ChatGPT-only agents replaced with "not tested in ChatGPT"; prompts regrouped by where each one works; the sample note lists every cut; and the closing note no longer calls Database Health Check "the other" team leader skill. Open from it: attaching the practice .vtt file in claude.ai, update mode, and an installed playbook answering its 25 questions are untested.
+- **Integrated and checked on 2026-11-08** (this pull request): registered in `GUIDES`, `GUIDE_HTML` and `GUIDE_SLUGS` with its shell and library card, its three downloads rebuilt by `node scripts/skills.mjs build`. Web tests (1,117), API tests (943, against a local Postgres), typecheck, lint and the build pass; every page that is not new builds byte for byte as before. Against the built server, as www and as learn: the page answers 200, its trailing slash 301s, a deeper path on www 302s to the placeholder, and each download serves as a ZIP. In Chromium at 390 by 844, a sign-up through the page stored its row under the page's own source with `src=ig`, unlocked the setup, ran the page's hashed inline script under the CSP with no console errors, and nothing scrolled sideways. **Not checked here:** a real phone, a screen reader, an upload of the ZIP into a live Claude or ChatGPT account, and the skill run inside Claude.ai or ChatGPT itself (every run in `evals/` was an agent following the skill on the made-up files).

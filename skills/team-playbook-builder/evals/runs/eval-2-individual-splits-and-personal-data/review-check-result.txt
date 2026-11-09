@@ -1,0 +1,3 @@
+warning: references/routing.md has the email tc@fernhollow-example.test: keep it only if it's a shared team inbox
+warning: references/transactions-handoff.md has the email tc@fernhollow-example.test: keep it only if it's a shared team inbox
+OK: ./fernhollow-example-partners-playbook.zip (5844 bytes, 6 files, one folder 'fernhollow-example-partners-playbook/' at the root)

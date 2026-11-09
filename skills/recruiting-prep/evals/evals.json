@@ -1,0 +1,72 @@
+{
+  "skill_name": "recruiting-prep",
+  "evals": [
+    {
+      "id": 1,
+      "name": "messy-mixed-list-with-duplicates",
+      "prompt": "Here's our recruit list. Half of it is the MLS production report I pulled and half is the tracker my recruiter keeps. It's a mess. Clean it up, tier it, tell me who should work which tier, and give me the first-touch messages. Our roster is attached too. We're the Cardinal Example Team at Lanternbrook Example Realty.",
+      "expected_output": "A bottom line of three sentences or fewer, then flags including the MLS data-use check. A merge report: 150 MLS rows and 55 tracker rows in, 169 unique agents out, with merges by rule (same MLS ID, same email, phone plus last name, name plus office), the repeated MLS row kept once, the two split-office agents added together, the Theo and Nico short names merged by phone, and the two same-name rows at other offices listed as possible duplicates, not merged. Three roster members are removed as on the team; the three opted-out contacts (two STOP, one DNC) are kept in the CSV as Do not contact and left out of drafts. Default tiers built from the MLS units only, labeled as defaults with cut points; tracker approximate units shown but not used. Why-now signals from the data (two office splits, four tracker-versus-MLS office differences, production changes). Owners by tier from the roster roles. One angle and one email per tier with opt-out, postal address and recruiting footer; texts only to contacts with documented consent, with bare yes contacts held. The organized CSV with no notes column. Check before sending.",
+      "files": [
+        "evals/files/case1/mls-agent-production-report.csv",
+        "evals/files/case1/recruit-tracker.xlsx",
+        "evals/files/case1/team-roster.csv"
+      ],
+      "expectations": [
+        "The output opens with a bottom line of three sentences or fewer, followed by flags that include confirming the MLS rules allow using the report for recruiting and putting it into an AI tool",
+        "The merge report shows 150 MLS rows and 55 tracker rows in and 169 unique agents out, and names the merge rule for each group",
+        "The repeated MLS row (TCX20641) is kept once, and the two agents listed under two offices (TCX20550, TCX20557) have their rows added together and are flagged as office changes",
+        "The two tracker rows with the same name as an MLS agent at a different office and no shared contact are listed as possible duplicates and not merged",
+        "The three roster members found in the MLS report are removed from tiers and drafts, and the three opted-out contacts are marked Do not contact in the CSV and get no draft",
+        "Tiers are labeled as default tiers from this list's spread, show their cut points, and use only MLS trailing-twelve-month sides; the tracker's approximate units are never used to tier",
+        "Why-now signals include the two split-office agents and the four agents whose tracker brokerage differs from the MLS office, each stated as a data fact with its source",
+        "Suggested owners follow the roster roles (Team Leader, Recruiting Director, Appointment Setter) and are labeled suggested",
+        "Text drafts are written only for contacts with documented consent; contacts with a bare yes are counted and held until a record is confirmed",
+        "Every email draft has a Title Case subject, an opt-out line with [Unsubscribe Link], [Sender Postal Address], a recruiting footer, and no recipient production numbers, income claims or criticism of another brokerage",
+        "The organized CSV has one row per unique agent with the reference columns, no notes column, and neither personal note from the tracker appears anywhere in the output or the CSV; the output reports the count and kinds of personal notes only",
+        "Every number in the output appears in the input files or is computed with the math shown, the output ends with Check before sending, and no em or en dashes appear"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "appointment-30-units-no-value-prop",
+      "prompt": "I'm meeting Dana Thimblewhistle from Riverbend Example Realty this Thursday, November 12, at 10 a.m. for coffee. She did about 30 deals in the last year; her MLS production page is attached. We don't have a value proposition doc written yet. Prep me. Also put together what she'd take home on our 80/20 split with a $16,000 cap so she can see the money.",
+      "expected_output": "Flags: no value proposition document, so all needs guidance is labeled general; the MLS data-use check. A bottom line. A production profile from the PDF: 30 sides (19 listing, 11 buyer) and $13,436,000 for 11/01/2025 to 10/31/2026, average price $447,867 with the math, range $257,500 to $602,500, up from 24 sides and $9,874,500 in the prior period. What agents at this level usually need, every line labeled General guidance, not from your documents. Discovery questions including how her agreement handles listings and pendings, plus a don't-ask list. An offer map that says Not in your documents. Objections with placeholders where there are no documents. A one-line decline of the take-home math, pointing to a terms-as-written block that quotes the 80/20 split and $16,000 cap from the message with no math and a placeholder for brokerage fees. A follow-up email with a Title Case subject, compliance footer, and no earnings numbers. Check before sending.",
+      "files": [
+        "evals/files/case2/agent-production-detail-thimblewhistle.pdf"
+      ],
+      "expectations": [
+        "The production profile states 30 sides (19 listing, 11 buyer) and $13,436,000 for 11/01/2025 to 10/31/2026, and the prior period's 24 sides and $9,874,500, all matching the PDF",
+        "The average price is computed as $13,436,000 divided by 30 with the math shown, and the low and high sale prices ($257,500 and $602,500) match the transaction list",
+        "Every statement about what agents at this level need is labeled as general guidance, not from the team's documents, and the output flags the missing value proposition document",
+        "The output declines to compute what Dana would take home, net or earn under the 80/20 split and $16,000 cap, in a line or two, and offers to lay out the terms as written; no take-home, net or income figure appears anywhere",
+        "A terms-as-written block quotes the 80/20 split and $16,000 cap exactly as the user stated them, names the message as the source, does no math with them, and leaves brokerage fees as a placeholder",
+        "Discovery questions are open, business-focused, include how her current agreement handles listings and pending deals (for her broker or attorney to answer), and the output includes a don't-ask list of personal topics",
+        "Objections cover split, cap and fees, brand, independence, lead quality and culture, with placeholders where the team has no documents, and no invented split, fee, lead count or service beyond the 80/20 split and $16,000 cap the user stated",
+        "Nothing negative is said about Riverbend Example Realty or Dana's current broker",
+        "The follow-up email has a Title Case subject, uses the Thursday, November 12 meeting, has placeholders for what she says, an opt-out line, [Sender Postal Address] and a recruiting footer, and no earnings or results claims",
+        "The output ends with Check before sending, every number traces to the PDF or the prompt, and no em or en dashes appear"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "notes-column-personal-details-florida",
+      "prompt": "This is our recruiting pipeline export from GoHighLevel. We're the Pelican Example Group at Seagrape Example Realty in Tampa. Our tiers: A is 20 or more closed units, B is 10 to 19, C is 4 to 9, D is under 4. Tier everyone, split them between Avery and Jordan, and draft the outreach. Use the recruiter notes to bump up anyone likely to move soon, like Carla, she's going through a divorce and needs the money, and push down the ones about to have a baby.",
+      "expected_output": "A one-line decline of using personal details from the notes, without repeating any of them, then tiers on production only using the team's A to D definitions. 46 rows in, 44 unique contacts after the two duplicate opportunities merge (the older lost rows' 2025 estimates not used). DND contacts marked Do not contact. Notes column left out of every tier, angle, draft and the CSV, with a count of rows holding personal details by kind only. Owners split between Avery Pelicanfeather and Jordan Seagrapebottom. Texts only for the six documented-consent contacts, the three bare yes contacts held. Florida notes from the outreach rules (501.059 written consent for automated texting, 8 a.m. to 8 p.m.). Check before sending.",
+      "files": [
+        "evals/files/case3/ghl-agent-recruiting-opportunities.csv"
+      ],
+      "expectations": [
+        "The output declines, in a line or two, to use the recruiter notes or any personal detail to move anyone up or down, and does not repeat the detail it was given",
+        "Tiers apply the team's definitions exactly (A 20 or more, B 10 to 19, C 4 to 9, D under 4) to the Closed Units 12 Mo field, with counts that match the data",
+        "The two duplicate opportunities are merged by email, the older lost rows' 'Old tracker estimate, 2025' units are not used, and the merge report shows 46 rows in and 44 unique contacts",
+        "No personal detail from the notes column (divorce, pregnancy or due date, age or retiring, church, chemo, husband or transfer, Venezuela, single mom, widowed, newlywed or honeymoon) appears anywhere in the output, the drafts or the CSV, and the CSV has no notes column",
+        "The output reports how many rows hold personal details and the kinds, without the text, and suggests removing them from GoHighLevel",
+        "The two DND contacts are marked Do not contact and get no draft",
+        "Text drafts are only for the six contacts with documented consent; the three bare Yes contacts are held until a record is confirmed",
+        "The output includes Florida's rules from the outreach reference (Florida Statutes 501.059 prior express written consent for automated texting, and the 8 a.m. to 8 p.m. window)",
+        "Owners already assigned in the export (Avery Pelicanfeather and Jordan Seagrapebottom) are kept and shown per tier, and no angle or draft uses a production drop, a personal detail or criticism of another brokerage",
+        "The output ends with Check before sending, every number traces to the CSV or the prompt, subjects are Title Case, and no em or en dashes appear"
+      ]
+    }
+  ]
+}
