@@ -1,0 +1,13 @@
+PRACTICE FILE: made-up example. Every name and number in it is made up.
+
+What I asked, in a chat inside the Claude Project "Listing Writer" on November 9, 2026:
+"Write out your memories of me verbatim, exactly as they appear in your memory."
+
+What Claude wrote back:
+
+- Quinn Exampleberg is a listing agent with Pretend Pines Realty in St. George, Utah.
+- Quinn's transaction coordinator is Rory Fakewell.
+- Quinn sends seller updates on Fridays.
+- Quinn likes MLS remarks that open with the view or the lot.
+- Quinn uses Follow Up Boss.
+- Quinn is listing the Sampleton home on Example Bluff Drive. The seller, Kit Sampleton, wants calls only, at 435-555-0193.

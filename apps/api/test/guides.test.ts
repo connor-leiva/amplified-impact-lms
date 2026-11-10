@@ -151,6 +151,9 @@ it('serves the guides there are, by slug', () => {
       'agent-1on1-prep',
       'tc-file-audit',
       'post-closing-client-care',
+      'team-ai-brain',
+      'ai-brain-tuneup',
+      'ai-brain-setup',
     ]);
 });
 

@@ -121,6 +121,7 @@ function test(): string {
       `<div class="card pair-card pair-after"><span class="pair-label">${esc(t.after.label)}</span><strong>${esc(t.after.text)}</strong></div>` +
       `</div>`,
     callout(esc(t.done), 'tip', true),
+    `<p class="lede" data-next>${inline(t.next)}</p>`,
   ]);
 }
 

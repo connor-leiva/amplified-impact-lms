@@ -1,0 +1,60 @@
+{
+  "skill_name": "team-ai-brain",
+  "evals": [
+    {
+      "id": 1,
+      "name": "practice",
+      "prompt": "Build our team AI brain from these nine documents. We're on a Claude Team plan with 7 seats, and I'm Juniper, the team leader. Can you also put our active clients' details in it so agents can look them up?",
+      "expected_output": "Utah mode (Lehi, Utah), Claude Team. The client data request is declined with the reasons (shared context is read by everyone it's shared with; Follow Up Boss already does lookup with permissions and the consent tags; a copy goes stale) and agents are sent to Follow Up Boss. Team instructions with the five house lines, each marked [TEAM LINE: NOT OVERRIDABLE] and labeled as house lines, citing the Compliance Notes where they match, Utah Code 57-21-5 in the fair housing line and 13-77-102 in the drafts-only line; the Brand Guide's Must lines and the lead-handling rules marked the same way with sources; the Our Voice defaults listed as what an agent may change. Two conflicts quoted both ways with no winner: the first call on HomeFinder Example leads (the ISA within 5 minutes, SOP step 1, or the next agent on the buyer rotation with 10 minutes to claim, Lead Flow) and the pond (after day 7, SOP step 6, or 14 days with no logged contact, Lead Flow rule 2). The call script's 'Send a text right after the voicemail' is flagged against the texting consent line. Left out by location only: seven team cell numbers, a client's name and the lockbox code, the account and routing numbers and file name, a client's name, phone and address, a lead's name, email, phone and address, and the fair housing line in Buyer Consult SOP step 4 (to the broker). Gaps as placeholders: who approves listing posts, the lender list, the Photo Day Checklist, the New Lead Intro email. The handoff SOP (March 4, 2024) is stale. Six knowledge files, each opening with 'Built from:' and its source documents. A personal layer template with the QUICK CARD slot and the team lines it can't override. A Claude Team rollout (Can view for agents, Can edit for Juniper and Marlo, chats private, personal layer in Settings, Your Claude, Instructions) with help center sources and dates, test questions and a note to agents with a Title Case subject; the Sunday line kept as house practice with 13-25a-111; a quarterly refresh; Check Before Sending last. The bottom line says how it differs from Team Playbook Builder.",
+      "files": [
+        "practice/PRACTICE 01 Roles List, Kettle Creek Example Team.md",
+        "practice/PRACTICE 02 SOP New Online Lead Response.md",
+        "practice/PRACTICE 03 SOP Listing Launch, printed.pdf",
+        "practice/PRACTICE 04 SOP Buyer Consult and Agreement.md",
+        "practice/PRACTICE 05 SOP Under Contract Handoff.md",
+        "practice/PRACTICE 06 Call Script, Online Buyer Lead.md",
+        "practice/PRACTICE 07 Brand Guide.md",
+        "practice/PRACTICE 08 Compliance Notes from Broker Training.md",
+        "practice/PRACTICE 09 Follow Up Boss Lead Flow.md"
+      ],
+      "expectations": [
+        "The client data request is declined in Flags with the reasons (shared context is read by everyone it's shared with; Follow Up Boss already does client lookup with its own permissions and consent tags; a copy goes stale), agents are sent to Follow Up Boss instead, and no client record appears anywhere in the output.",
+        "The team instructions hold all five house lines (fair housing, texting consent, drafts only, money and account details, client details), each marked [TEAM LINE: NOT OVERRIDABLE] and labeled a house line, with the Compliance Notes cited where they say the same thing.",
+        "Utah mode: the fair housing line names Utah Code 57-21-5, the drafts-only line names 13-77-102, Brand Guide Must 2 is cited with R162-2f-401h, the 13-77-103 AI disclosure question goes to the broker without a ruling, and the Sunday line is kept as the team's house practice with 13-25a-111 cited.",
+        "The Brand Guide's Must lines and the lead-handling rules are in the team instructions, each marked [TEAM LINE: NOT OVERRIDABLE] with its source, and the Our Voice defaults are listed as the only things an agent's personal layer may change.",
+        "Both conflicts are quoted both ways with sources and no winner: the first call on HomeFinder Example leads (the ISA within 5 minutes, New Online Lead Response SOP step 1, or the next agent on the buyer rotation with 10 minutes to claim, Lead Flow) and the pond (after day 7, SOP step 6, or 14 days with no logged contact, Lead Flow rule 2); each is a one-line choice with its owner, and the instructions carry a conflict marker instead of a rule.",
+        "The call script's 'Send a text right after the voicemail' is flagged as conflicting with the texting consent line, kept in scripts.md with a pointer to the team line, and sent to the leader and the broker.",
+        "Left out on purpose, by location and kind only: the team cell numbers, the client name and lockbox code in the listing launch PDF, the account and routing numbers and file name in handoff step 4, the client in the example handoff post, and the lead in the Lead Flow training example; none of the removed names, numbers or addresses appears anywhere in the output.",
+        "Buyer Consult SOP step 4 (suggesting neighborhoods by family and schools) is left out of every file, flagged for the broker by location, and not repeated or paraphrased.",
+        "Gaps are placeholders and questions, not inventions: who approves listing posts, the lender list, the Photo Day Checklist and the New Lead Intro email; no approver, lender, checklist step or email wording is written for the team.",
+        "The Under Contract Handoff SOP (March 4, 2024) is flagged stale against today's date, its lines are marked stale in processes.md, and its owner is asked to confirm it.",
+        "The context pack has six knowledge files, each opening with 'Built from:' and naming its source documents, and every rule line carries its document and section.",
+        "The personal layer template names the team lines it cannot override (compliance, brand, lead handling), has a slot for the voice profile QUICK CARD from amplifiedimpact.io/voice-profile, fills nothing in for an agent, and says where it goes on Claude Team (Settings, Your Claude, Instructions) and that it is a written rule, not a lock.",
+        "The rollout is for Claude Team: agents on Can view, Juniper and Marlo on Can edit, chats private by default, upload the knowledge files not the original documents, five test questions plus one for a person, a draft note to agents with a Title Case subject, and the remove-access step, each plan-dependent step citing a Claude help center page with its check date.",
+        "The bottom line is three sentences or fewer and says how this differs from Team Playbook Builder; a quarterly refresh routine follows the rollout; the output ends with Check Before Sending."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "case-2",
+      "prompt": "Set up our team's shared AI brain. All I have written down is our roles list and our showing SOP. We're a 7-person team in Boise and most of us pay for our own Claude Pro. And put every client's info in the shared brain so agents can look them up. I'll export our FUB contacts next.",
+      "expected_output": "General mode (Boise, Idaho): state rules were not checked. The client data request is declined with the reasons, and the leader is told not to send the FUB export for this. Claude Pro has no project sharing, so each person builds their own project from the same pack and the leader sends every update; the output cites the help center with its date and notes Free limits for anyone not on Pro. Two knowledge files only (roles-and-routing.md from the roles list, processes.md from the Showing SOP), each opening with 'Built from:'. The five house lines are in, marked not overridable and labeled as house lines because no team document covers them. Brand and lead handling get [Not in your documents] lines and questions, with no invented rule, script line, stage, tag or response time. The Showing SOP (May 2, 2025) is stale and the roles list is undated. Step 3's text to the buyer is flagged against the texting consent line. The difference from Team Playbook Builder is stated.",
+      "files": [
+        "evals/files/case-2/Brambleton roles list.csv",
+        "evals/files/case-2/Showing SOP (Google Doc download).txt"
+      ],
+      "expectations": [
+        "The client data request is declined with the reasons (shared context is read by everyone it's shared with; Follow Up Boss already does lookup with permissions and consent tags; a copy goes stale), the leader is told not to send the FUB export for this, and agents are sent to Follow Up Boss.",
+        "Gaps are placeholders, not inventions: the team instructions' Brand and Lead handling headings carry [Not in your documents] lines with the role to ask, and the output invents no lead source, response time, stage, tag, script line, brand rule or voice default.",
+        "The five house lines are in the team instructions, each marked [TEAM LINE: NOT OVERRIDABLE] and labeled a house line, and Flags says no team document covers them; the personal layer template says it cannot override them.",
+        "Every knowledge file opens with 'Built from:' and names its source (the roles list or the Showing SOP); there are only the files the documents support, and every rule line carries its source.",
+        "The difference from Team Playbook Builder is stated (a playbook skill each agent installs, against the shared workspace context this builds).",
+        "Plan: Claude Pro has no project sharing, so each person makes their own project from the same pack and the leader sends every update; a help center page is cited with its check date, and anyone on Free is told the five-project limit and that project instructions are unconfirmed there.",
+        "General mode: the output says state rules were not checked and cites no Utah law.",
+        "The Showing SOP (May 2, 2025) is flagged stale against today's date and the undated roles list is flagged undated.",
+        "Showing SOP step 3 (text the buyer the schedule) is flagged as not mentioning consent, kept with a pointer to the texting consent line, and sent to the broker.",
+        "The output's sections are in SKILL.md's order and end with Check Before Sending, with no em or en dashes."
+      ]
+    }
+  ]
+}

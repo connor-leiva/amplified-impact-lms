@@ -89,5 +89,11 @@ export const VOICE = {
     // In place of /ai101's "Part I done. That's all you need in the room today." and its laptop
     // handoff to Part II, which this page does not have.
     done: 'Done. Your voice profile is set up.',
+    // The AI Brain set's first skill (D-097): the voice is one part of what the AI should know.
+    next: [
+      'Next, give your AI the rest of your business. ',
+      { link: 'AI Brain Setup', href: '/ai-brain-setup', sameTab: true },
+      ' builds your instructions, a file about your business and what to remember, around this voice profile.',
+    ] as Inline[],
   },
 } as const;

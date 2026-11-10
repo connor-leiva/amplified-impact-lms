@@ -1,0 +1,14 @@
+PRACTICE FILE: made-up example (eval case 2). Brambleton Example Group and Placeholder Peak Realty are made up, and so is every name in this file.
+
+Brambleton Example Group, Placeholder Peak Realty, Boise, Idaho
+SOP: Booking and Running Showings
+Owner: Pat Exampleton, Operations Coordinator
+Last updated: May 2, 2025
+
+1. Before any showing, the buyer agreement is signed. No exceptions.
+2. Request every showing in ShowingTime at least 24 hours ahead.
+3. Text the buyer the showing schedule the night before.
+4. Bea confirms each showing the morning of.
+5. Leave feedback for the listing agent within 24 hours.
+6. Log each showing in Follow Up Boss as an appointment.
+7. Never share lockbox codes in a text or email. They come through ShowingTime only.

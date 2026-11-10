@@ -110,9 +110,11 @@ describe('a skill page with a ChatGPT version', () => {
       'https://claude.ai/settings/capabilities',
       'https://claude.ai/customize/skills',
       'https://claude.ai/settings/data-privacy-controls',
-      // The practice step: Copy & Open Claude, then its pointer to the voice profile guide.
+      // The practice step: Copy & Open Claude, then its pointers to the voice profile guide and to
+      // AI Brain Setup (D-097).
       'https://claude.ai/new',
       '/voice-profile',
+      '/ai-brain-setup',
       // The real-file step's Copy & Open Claude.
       'https://claude.ai/new',
     ]);
@@ -173,6 +175,18 @@ describe('a skill page with a ChatGPT version', () => {
     expect(text(practise(claude))).toContain('My Voice');
     expect(text(practise(chatgpt))).not.toContain('My Voice');
     expect(text(chatgpt)).toContain('QUICK CARD');
+  });
+
+  it('points both setups to AI Brain Setup, in a new tab like the voice guide, except on that page itself (D-097)', () => {
+    const brainLinks = (d: Document) =>
+      [...d.querySelectorAll('.app-setup a[href="/ai-brain-setup"]')].map((a) => [text(a), a.getAttribute('target')]);
+    expect(brainLinks(doc)).toEqual([
+      ['AI Brain', '_blank'],
+      ['AI Brain', '_blank'],
+    ]);
+    const [claude] = lists() as [Element];
+    expect(text(claude)).toContain('New to Claude? Set up your AI Brain first, so every skill starts out knowing your market, your team and your rules.');
+    expect(brainLinks(parse(skillPage({ ...SPEC, slug: 'ai-brain-setup' })))).toEqual([]);
   });
 
   it('copies the practice and real-file words with a tap, and has the live region that reports it', () => {

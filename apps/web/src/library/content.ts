@@ -47,6 +47,36 @@ export interface Entry {
 
 export const ENTRIES: readonly Entry[] = [
   {
+    title: 'AI Brain Setup',
+    description: 'Answer a few questions about your business and get your Claude setup back, ready to paste: your instructions, an About My Business file, the facts to remember, and exactly where each one goes. Nothing about your clients and no passwords. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/ai-brain-setup',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'setup'],
+    added: '2026-11-10',
+    keywords: 'ai brain claude setup set up claude claude project project instructions project knowledge project files memory claude memory custom instructions instructions for claude personal preferences context onboarding getting started first skill foundation about my business how i like to work voice profile quick card compliance block fair housing tcpa follow up boss fub utah team leader chatgpt project',
+  },
+  {
+    title: 'AI Brain Tune-Up',
+    description: 'Paste in your AI’s project instructions, files and memory and see every stale, conflicting, vague or missing line, quoted, with clean instructions to paste back in and a memory list to keep, change or remove. It changes nothing itself. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/ai-brain-tuneup',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'setup'],
+    added: '2026-11-10',
+    keywords: 'ai brain tune up tune-up audit claude project project instructions project knowledge knowledge files memory claude memory chatgpt memory custom instructions instructions for claude custom style styles stale instructions conflicting instructions ai keeps getting it wrong drift clean up voice profile quick card compliance lines fair housing texting consent drafts only workspace context calibrate',
+  },
+  {
+    title: 'Team AI Brain',
+    description: 'Turn your team’s SOPs, scripts, brand guide, compliance notes, roles list and Follow Up Boss lead flow into one shared AI workspace: project instructions with your compliance and brand lines locked in, knowledge files that each name their source, a personal layer each agent fills in, and a rollout for your plan. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/team-ai-brain',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops', 'setup'],
+    added: '2026-11-10',
+    keywords: 'team ai brain shared project team project claude team plan claude projects project instructions project knowledge knowledge files shared context ai workspace team standards brand guide compliance lines fair housing texting consent tcpa sops call scripts roles list follow up boss lead flow personal layer voice profile quick card rollout chatgpt business shared chatgpt project team leader ops',
+  },
+  {
     title: 'Post-Closing Client Care',
     description: 'Attach your TC’s closing email and your notes and get your client’s first year after closing: a dated plan, the card and thank-you, a review request you send every client the same way, introductions to your own vendors and a property tax reminder that points to the county. Set it up once on a computer, in Claude or a ChatGPT Project.',
     kind: 'Claude Skill',

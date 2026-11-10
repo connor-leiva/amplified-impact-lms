@@ -1,0 +1,8 @@
+{
+  "name": "team-ai-brain",
+  "page": "team-ai-brain",
+  "title": "Team AI Brain",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

@@ -110,6 +110,9 @@ describe('the list of guides', () => {
       'agent-1on1-prep',
       'tc-file-audit',
       'post-closing-client-care',
+      'team-ai-brain',
+      'ai-brain-tuneup',
+      'ai-brain-setup',
     ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {

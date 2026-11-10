@@ -1,0 +1,78 @@
+{
+  "skill_name": "ai-brain-tuneup",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-full-messy-workspace",
+      "prompt": "Here's everything from our team ops project, plus my account instructions from Settings. My drafts keep getting things wrong. Tune it up.",
+      "expected_output": "Today is November 10, 2026. A team leader's ops workspace (The Mockingdale Group, Mesa, Gilbert and Chandler, Arizona): Project instructions, account-wide Instructions for Claude, a stale 2025 plan PDF, a current routing file dated September 8, 2026 and memory copied topic by topic from Settings. Flags name three privacy items by kind and location only (a Follow Up Boss login and password in the instructions, a routing and an account number in the PDF, a recruit's cell and personal email in memory) and repeat none of them. Findings quote each exact line: the old brokerage in the account instructions and the PDF, settled by memory's May 2026 move and the September file; Taylor Fakeman as transaction coordinator, settled by memory's July 2026 change and the September file naming Jules Sampleberg; the 2025 goals and 2024 lead sources, asked; Monday against Thursday for the agent update, left for the user; 'Always answer in bullet points.' (account) against 'no bullet points' (project), left for the user; the recruiting text line against texting consent; 'Use best practices.' and 'Keep it tight.' as vague; 'Be fun but professional.' pinned by two memory items. The rewrite keeps every other line word for word, drops the login, names Jules, adds the brokerage from memory, holds placeholders for the day, voice, sign-off, best practices and length, keeps 'Never mention schools in listing posts.' in place, copies the routing file's texting line word for word and adds the three house lines. Fixes for the account instructions are given as Settings changes, with the password to be changed. The memory list removes the recruit's details and a client's closing and marks the Thursday item Decide. The diff matches the rewrite both ways.",
+      "files": [
+        "evals/files/eval-1-full-messy-workspace/Project instructions, Mockingdale Team Ops.txt",
+        "evals/files/eval-1-full-messy-workspace/Instructions for Claude, copied from Settings.txt",
+        "evals/files/eval-1-full-messy-workspace/Knowledge, Mockingdale 2025 Goals and Team Plan.pdf",
+        "evals/files/eval-1-full-messy-workspace/Knowledge, Lead Routing and Pond Rules Sep 2026.md",
+        "evals/files/eval-1-full-messy-workspace/Memory topics, copied from Settings.txt"
+      ],
+      "expectations": [
+        "Every finding quotes its exact line (or both lines, for a conflict) word for word from the inputs, with where it lives (piece and line, or PDF page and line).",
+        "The login email, the password, the routing number, the account number and the recruit's cell number and personal email are each flagged for removal by kind and location, and none of the six values appears anywhere in the output, including the diff and Check Before Sending.",
+        "The old brokerage (account instructions line 1 and the PDF) and Taylor Fakeman as transaction coordinator (project instructions line 13 and the PDF) are stale and settled by the inputs: each names the dated memory item and the September 2026 routing file that agrees.",
+        "The Monday against Thursday agent update conflict and the bullet points conflict between the account instructions and the project instructions are left for the user: both quotes, both options, no winner picked, and a placeholder naming both for the day.",
+        "The recruiting text line is a conflict with texting consent, and the rewrite keeps the user's words inside a consent condition.",
+        "No invented facts in the rewrite: every added fact (Sample Summit Realty, Jules Sampleberg, the wins and joke preferences, under 150 words) is traced to its source in Check Before Sending, and every gap (voice, sign-off, best practices, length, day) is a [placeholder].",
+        "Compliance lines are present after the rewrite: the user's 'Never mention schools in listing posts.' stays in place, the routing file's texting line is copied in word for word, the three house lines are added, and Flags say which were added and that state rules were not checked.",
+        "The fixes for the account-wide instructions are given as changes in Settings > Your Claude > Instructions, and the fix for the login says to change the password.",
+        "The memory list quotes each item, removes the recruit's details (M8) and the client's closing (M9), and marks the Thursday item (M5) Decide.",
+        "The diff matches the rewrite: its unchanged and added lines are the rewrite, and its unchanged and removed lines are the original, with the login and password still replaced.",
+        "The output ends with Check Before Sending, has no em or en dashes, says to run the tune-up again next month, and every number in it is in the inputs."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-style-conflict",
+      "prompt": "Here's my Listing Writer project: the instructions, my custom style, the one knowledge file and my memory. It's mostly fine, I think. Tune it up.",
+      "expected_output": "A mostly fine listing agent workspace (Quinn Exampleberg, Pretend Pines Realty, St. George, Utah) whose instructions already hold a voice profile QUICK CARD and all three compliance lines. Two findings only: the client's phone number in memory M6 (flagged, never repeated) and the conflict between 'Write in a formal tone for all client emails.' (instructions line 8) and the Quinn Casual style's 'Always write in a casual tone.' (style line 1), left for the user with both options, noting the QUICK CARD doesn't settle it. The CRM (Follow Up Boss) and transaction coordinator (Rory Fakewell) move in from memory. The rewrite changes only the tone line, to a placeholder naming both options, and adds those two lines; the QUICK CARD and the three compliance lines are copied character for character, and no house lines are added. The memory list keeps M1 to M5 and removes M6. The diff matches the rewrite.",
+      "files": [
+        "evals/files/eval-2-style-conflict/Project instructions, Listing Writer.md",
+        "evals/files/eval-2-style-conflict/Custom style, Quinn Casual.txt",
+        "evals/files/eval-2-style-conflict/Knowledge, Seller Update Template 2026.md",
+        "evals/files/eval-2-style-conflict/Claude memory, written out.txt"
+      ],
+      "expectations": [
+        "Every finding quotes its exact line word for word from the inputs, with where it lives.",
+        "The tone conflict is found with both quotes ('Write in a formal tone for all client emails.' in the instructions and 'Always write in a casual tone.' in the style), and the user decides: both options are given, none is picked, and the QUICK CARD is not used to settle it.",
+        "The client's phone number in memory M6 is flagged for removal and does not appear anywhere in the output.",
+        "The voice profile QUICK CARD is copied into the rewrite character for character, including its own [VERIFY] line.",
+        "Compliance lines are present after the rewrite: the user's drafts-only, fair housing and texting lines are kept word for word, and no house lines are added because none were missing.",
+        "No invented facts in the rewrite: the only added lines (Follow Up Boss and Rory Fakewell) come from memory and are traced in Check Before Sending, and the tone line becomes a placeholder naming both options.",
+        "The workspace is treated as mostly fine: no false stale or vague findings, and every line other than the tone line is unchanged.",
+        "The diff matches the rewrite: its unchanged and added lines are the rewrite, and its unchanged and removed lines are the original.",
+        "The output ends with Check Before Sending, has no em or en dashes, says to run the tune-up again next month, and every number in it is in the inputs."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "practice",
+      "prompt": "Tune up my Claude project. Attached are my project instructions, my two knowledge files and my memory, written out by Claude.",
+      "expected_output": "The practice workspace (Jamie Testerson, Testerson Home Team, Davis County, Utah). The seller's phone number in memory M10 is flagged and never repeated. Findings quote each exact line: 'Keep client emails under 100 words.' against memory's long, detailed emails (left for the user); 'Always text new leads first, then email if they don't answer.' against texting consent; the 2025 plan's Fakewood Realty Group and Jordan Notreal, settled by memory's dated changes and the October 2026 checklist; the 2025 goals and memory's undated 30-closings goal, asked; five vague lines; and the brand file that isn't in the project. The rewrite moves the brokerage, market, team and CRM in from memory, holds placeholders for voice, email length, the brand file and an example note, keeps the texting line inside a consent condition and adds the three house compliance lines. The memory list keeps, changes, removes or marks Decide on each of the 11 items. The diff matches the rewrite. Kept as sample.md.",
+      "files": [
+        "practice/PRACTICE Project instructions, My Real Estate Assistant.md",
+        "practice/PRACTICE Knowledge file, 2025 Business Plan.md",
+        "practice/PRACTICE Knowledge file, Listing Launch Checklist Oct 2026.md",
+        "practice/PRACTICE Claude memory, written out Nov 9 2026.txt"
+      ],
+      "expectations": [
+        "Every finding quotes its exact line (or both lines, for a conflict) word for word from the inputs, with where it lives.",
+        "The seller's phone number in memory M10 is flagged for removal and does not appear anywhere in the output.",
+        "The email length conflict (instructions line 7 against memory M6) is left for the user, with a placeholder naming both options.",
+        "Fakewood Realty Group and Jordan Notreal in the 2025 plan are stale and settled by the dated memory items and the October 2026 checklist; the 2025 goals and memory M9 are stale by date only and asked about.",
+        "'Always text new leads first, then email if they don't answer.' is a conflict with texting consent, and the rewrite keeps it inside a consent condition.",
+        "No invented facts in the rewrite: brokerage, market, team and CRM come from memory and are traced in Check Before Sending; voice, email length, the brand file and the example note are placeholders.",
+        "Compliance lines are present after the rewrite: the three house lines are added, and Flags say so and that state rules were not checked.",
+        "The memory list quotes every item and gives each one Keep, Change, Remove or Decide, removing M10 and M11.",
+        "The diff matches the rewrite in both directions.",
+        "The output ends with Check Before Sending, has no em or en dashes, says to run the tune-up again next month, and every number in it is in the inputs."
+      ]
+    }
+  ]
+}

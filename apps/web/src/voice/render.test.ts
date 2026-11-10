@@ -213,6 +213,16 @@ describe("the steps, /ai101's own", () => {
     expect(text($('#voice-profile-test .callout'))).toBe('Done. Your voice profile is set up.');
     expect($('#voice-profile-test .card-accent')).toBeNull();
   });
+
+  it('points on to AI Brain Setup, in the same tab, after the test (D-097)', () => {
+    const next = $('#voice-profile-test [data-next]');
+    expect(text(next)).toBe(
+      'Next, give your AI the rest of your business. AI Brain Setup builds your instructions, a file about your business and what to remember, around this voice profile.',
+    );
+    expect(Array.from(next?.querySelectorAll('a') ?? []).map((a) => [a.getAttribute('href'), a.getAttribute('target')])).toEqual([
+      ['/ai-brain-setup', null],
+    ]);
+  });
 });
 
 describe('the stylesheet and the shell', () => {
