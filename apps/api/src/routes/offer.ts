@@ -44,7 +44,19 @@ import {
   validateCheckout,
 } from '../billing/checkout';
 import type { CheckoutErrorCode } from '../billing/checkout';
-import { CARTS, CART_IDS, LOOKUP_KEYS, PLAN_NAMES, TOKEN_PATTERN, dollars, longDay, renewalText } from '../billing/catalog';
+import {
+  AGENTS_FIRST_CHARGE_AT,
+  CARDS,
+  CARTS,
+  CART_IDS,
+  LOOKUP_KEYS,
+  PLAN_NAMES,
+  TOKEN_PATTERN,
+  dollars,
+  longDay,
+  priceWords,
+  renewalText,
+} from '../billing/catalog';
 import type { Cart, CartId, CartState, PlanKind } from '../billing/catalog';
 import { foundingOpen } from '../billing/config';
 import type { OfferConfig } from '../billing/config';
@@ -100,7 +112,12 @@ export function fillTokens(template: string, values: Readonly<Record<string, str
 }
 
 /** What every cart shows right now. */
-export function cartStates(config: OfferConfig, prices: PriceMap | null, stripeReady: boolean, now: number): Record<CartId, CartState> {
+export function cartStates(
+  config: OfferConfig,
+  prices: PriceMap | null,
+  stripeReady: boolean,
+  now: number,
+): Record<CartId, CartState> {
   const out = {} as Record<CartId, CartState>;
   for (const id of CART_IDS) {
     const cart = CARTS[id];
@@ -150,6 +167,15 @@ export function offerValues(f: OfferFill): Record<string, string> {
     const p = f.prices?.[key];
     values[`price:${key}`] = p ? dollars(p.unitAmount) : '';
   }
+  const words = priceWords(
+    Object.fromEntries(LOOKUP_KEYS.flatMap((k) => (f.prices?.[k] ? [[k, f.prices[k]!.unitAmount]] : []))),
+  );
+  for (const card of CARDS) {
+    values[`headline:${card}`] = words.headline[card];
+    values[`unit:${card}`] = words.unit[card];
+    values[`terms:${card}`] = words.terms[card];
+  }
+  for (const id of CART_IDS) values[`cartline:${id}`] = words.cartline[id];
   // The first open cart is chosen when no link chose one, so the form never posts without a plan.
   const firstOpen = CART_IDS.find((id) => states[id] === 'checkout') ?? null;
   const chosen = f.selected && states[f.selected] === 'checkout' ? f.selected : firstOpen;
@@ -158,7 +184,8 @@ export function offerValues(f: OfferFill): Record<string, string> {
     values[`state:${id}`] = states[id];
     values[`link:${id}`] = f.config.paymentLinks[id] ?? '';
     values[`checked:${id}`] = id === chosen ? 'checked' : '';
-    values[`renewal:${id}`] = f.prices && hasPrices(f.prices, cart.items) ? renewalText(cart, renewalAmounts(cart, f.prices), f.now) : '';
+    values[`renewal:${id}`] =
+      f.prices && hasPrices(f.prices, cart.items) ? renewalText(cart, renewalAmounts(cart, f.prices), f.now) : '';
   }
   return values;
 }
@@ -167,6 +194,8 @@ export function offerValues(f: OfferFill): Record<string, string> {
 export interface WelcomeFill {
   /** `confirmed` once the webhook has marked it paid; `pending` before; `unknown` for no such session. */
   state: 'confirmed' | 'pending' | 'unknown';
+  /** True for an agent plan's saved card with nothing charged yet. */
+  trialing?: boolean;
   plan: PlanKind | null;
   sessionId: string | null;
   now: number;
@@ -185,6 +214,9 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     'intake-url': intake ?? '',
     'intake-state': intake ? 'link' : 'email',
     'session-id': w.sessionId ?? '',
+    'paid-line': w.trialing
+      ? `Your card is saved, and nothing is charged until ${dayOfYear(AGENTS_FIRST_CHARGE_AT)}.`
+      : 'Your payment is in, and Stripe has emailed your receipt.',
   };
 }
 
@@ -193,7 +225,8 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
 const SRC = /^[a-z0-9_-]{1,32}$/i;
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
 
-const queryOf = (req: FastifyRequest): Record<string, string | undefined> => (req.query ?? {}) as Record<string, string | undefined>;
+const queryOf = (req: FastifyRequest): Record<string, string | undefined> =>
+  (req.query ?? {}) as Record<string, string | undefined>;
 
 function cartParam(raw: string | undefined): CartId | null {
   return raw !== undefined && (CART_IDS as readonly string[]).includes(raw) ? (raw as CartId) : null;
@@ -207,7 +240,10 @@ function errorParam(raw: string | undefined): CheckoutErrorCode | null {
 function allowCheckoutFormAction(reply: FastifyReply): void {
   const csp = reply.getHeader('content-security-policy');
   if (typeof csp !== 'string') return;
-  reply.header('content-security-policy', csp.replace(/form-action 'self'/, "form-action 'self' https://checkout.stripe.com"));
+  reply.header(
+    'content-security-policy',
+    csp.replace(/form-action 'self'/, "form-action 'self' https://checkout.stripe.com"),
+  );
 }
 
 /** Where Stripe sends the buyer back to: the site the page is served on. */
@@ -265,6 +301,7 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     const sessionId = raw && SESSION_ID.test(raw) ? raw : null;
     let state: WelcomeFill['state'] = 'unknown';
     let plan: PlanKind | null = null;
+    let trialing = false;
     if (sessionId && options.database) {
       const [order] = await getDb()
         .select({ status: orders.status, plan: orders.plan })
@@ -273,13 +310,22 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
         .limit(1);
       if (order) {
         plan = order.plan as PlanKind;
-        state = order.status === 'paid' || order.status === 'trialing' ? 'confirmed' : order.status === 'pending' ? 'pending' : 'unknown';
+        trialing = order.status === 'trialing';
+        state =
+          order.status === 'paid' || order.status === 'trialing'
+            ? 'confirmed'
+            : order.status === 'pending'
+              ? 'pending'
+              : 'unknown';
       } else {
         // A fallback Payment Link's session has no order until its webhook lands, usually seconds later.
         state = 'pending';
       }
     }
-    return sendPage(reply, fillTokens(welcomePage, welcomeValues({ state, plan, sessionId, now: now(), config })));
+    return sendPage(
+      reply,
+      fillTokens(welcomePage, welcomeValues({ state, plan, sessionId, now: now(), config, trialing })),
+    );
   });
 
   app.get(OFFER_API_PATH, { config: { rateLimit: false } }, async (): Promise<unknown> => {
@@ -312,17 +358,21 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
 
   if (!options.database) return;
 
-  app.get(ORDER_STATUS_PATH, { config: { rateLimit: { max: ORDER_STATUS_RATE_MAX, timeWindow: '1 minute' } } }, async (req, reply) => {
-    const raw = queryOf(req).session_id;
-    if (!raw || !SESSION_ID.test(raw)) return reply.code(400).send({ error: 'Expected a session_id.' });
-    const [order] = await getDb()
-      .select({ status: orders.status, plan: orders.plan })
-      .from(orders)
-      .where(eq(orders.stripeSessionId, raw))
-      .limit(1);
-    if (!order) return reply.code(404).send({ status: 'unknown' });
-    return { status: order.status, plan: order.plan, name: PLAN_NAMES[order.plan as PlanKind] };
-  });
+  app.get(
+    ORDER_STATUS_PATH,
+    { config: { rateLimit: { max: ORDER_STATUS_RATE_MAX, timeWindow: '1 minute' } } },
+    async (req, reply) => {
+      const raw = queryOf(req).session_id;
+      if (!raw || !SESSION_ID.test(raw)) return reply.code(400).send({ error: 'Expected a session_id.' });
+      const [order] = await getDb()
+        .select({ status: orders.status, plan: orders.plan })
+        .from(orders)
+        .where(eq(orders.stripeSessionId, raw))
+        .limit(1);
+      if (!order) return reply.code(404).send({ status: 'unknown' });
+      return { status: order.status, plan: order.plan, name: PLAN_NAMES[order.plan as PlanKind] };
+    },
+  );
 
   await registerCheckout(app, options, log);
   await registerWebhook(app, options, log);
@@ -334,9 +384,13 @@ async function registerCheckout(app: FastifyInstance, options: OfferRouteOptions
   const { config } = options;
   await app.register(async (scope) => {
     // The no-JS form's body, parsed here and nowhere else (routes/ai101.ts gives the reason).
-    scope.addContentTypeParser(FORM_CONTENT_TYPE, { parseAs: 'string', bodyLimit: CHECKOUT_BODY_LIMIT }, (_req, body, done) => {
-      done(null, Object.fromEntries(new URLSearchParams(String(body))));
-    });
+    scope.addContentTypeParser(
+      FORM_CONTENT_TYPE,
+      { parseAs: 'string', bodyLimit: CHECKOUT_BODY_LIMIT },
+      (_req, body, done) => {
+        done(null, Object.fromEntries(new URLSearchParams(String(body))));
+      },
+    );
 
     scope.post(
       CHECKOUT_PATH,
@@ -347,8 +401,13 @@ async function registerCheckout(app: FastifyInstance, options: OfferRouteOptions
       },
       async (req, reply): Promise<FastifyReply> => {
         const ct = req.headers['content-type'];
-        const kind = isJsonContentType(ct) ? 'json' : ct?.split(';')[0]?.trim().toLowerCase() === FORM_CONTENT_TYPE ? 'form' : null;
-        if (kind === null) return reply.code(415).send({ error: `Checkout takes ${JSON_CONTENT_TYPE} or ${FORM_CONTENT_TYPE}.` });
+        const kind = isJsonContentType(ct)
+          ? 'json'
+          : ct?.split(';')[0]?.trim().toLowerCase() === FORM_CONTENT_TYPE
+            ? 'form'
+            : null;
+        if (kind === null)
+          return reply.code(415).send({ error: `Checkout takes ${JSON_CONTENT_TYPE} or ${FORM_CONTENT_TYPE}.` });
 
         const raw = (req.body ?? {}) as Record<string, unknown>;
         // The no-JS form has one renewal box per cart (`renew-<cart>`); only the chosen cart's counts.
@@ -359,18 +418,22 @@ async function registerCheckout(app: FastifyInstance, options: OfferRouteOptions
 
         const page = parsed.data.campaign === 'forum' ? FORUM_PATH : OFFER_PATH;
         const refuse = (code: CheckoutErrorCode, cart: CartId | null, status = 400): FastifyReply => {
-          const fallback = cart ? config.paymentLinks[cart] ?? null : null;
+          const fallback = cart ? (config.paymentLinks[cart] ?? null) : null;
           if (kind === 'form') {
             const q = new URLSearchParams({ error: code, ...(cart ? { cart } : {}) });
             return reply.redirect(`${page}?${q.toString()}#checkout`, 303);
           }
-          return reply.code(status).send({ error: CHECKOUT_ERRORS[code], field: ERROR_FIELD[code], code, ...(fallback ? { fallback } : {}) });
+          return reply
+            .code(status)
+            .send({ error: CHECKOUT_ERRORS[code], field: ERROR_FIELD[code], code, ...(fallback ? { fallback } : {}) });
         };
 
         const verdict = validateCheckout(parsed.data);
         if (verdict.kind === 'spam') {
           log.info({}, 'checkout: honeypot filled; nothing stored');
-          return kind === 'form' ? reply.redirect(page, 303) : reply.code(400).send({ error: CHECKOUT_ERRORS.cart, field: 'cart' });
+          return kind === 'form'
+            ? reply.redirect(page, 303)
+            : reply.code(400).send({ error: CHECKOUT_ERRORS.cart, field: 'cart' });
         }
         if (verdict.kind === 'invalid') return refuse(verdict.code, verdict.cart);
         const entry = verdict.entry;
@@ -386,29 +449,39 @@ async function registerCheckout(app: FastifyInstance, options: OfferRouteOptions
         const renewal = renewalSentence(entry, p, t);
         const orderId = randomIds()('ord');
         const db = getDb();
-        await db.insert(orders).values({
-          id: orderId,
-          plan: cart.plan,
-          option: cart.option,
-          origin: 'offer',
-          status: 'pending',
-          name: entry.name,
-          email: entry.email,
-          phone: entry.phone,
-          company: entry.company,
-          crm: entry.crm,
-          teamSize: entry.teamSize,
-          src: entry.src,
-          campaign: entry.campaign,
-          agreementVersion: AGREEMENT_VERSION,
-          agreementAcceptedAt: t,
-          renewalConsentAt: renewal ? t : null,
-          renewalConsentText: renewal,
-          smsConsent: entry.sms,
-          smsConsentAt: entry.sms ? t : null,
-          smsConsentText: entry.sms ? OFFER_SMS_CONSENT_TEXT : null,
-          createdAt: t,
-        });
+        // A failed write is caught here, never handed to app.ts's error handler: drizzle's message
+        // carries every bound value, which here is the buyer's name, email and phone (routes/ai101.ts).
+        const dbFailed = (err: unknown): FastifyReply => {
+          log.error({ order: orderId, cart: cart.id, reason: errorReason(err) }, 'checkout: database write failed');
+          return refuse('stripe', cart.id, 500);
+        };
+        try {
+          await db.insert(orders).values({
+            id: orderId,
+            plan: cart.plan,
+            option: cart.option,
+            origin: 'offer',
+            status: 'pending',
+            name: entry.name,
+            email: entry.email,
+            phone: entry.phone,
+            company: entry.company,
+            crm: entry.crm,
+            teamSize: entry.teamSize,
+            src: entry.src,
+            campaign: entry.campaign,
+            agreementVersion: AGREEMENT_VERSION,
+            agreementAcceptedAt: t,
+            renewalConsentAt: renewal ? t : null,
+            renewalConsentText: renewal,
+            smsConsent: entry.sms,
+            smsConsentAt: entry.sms ? t : null,
+            smsConsentText: entry.sms ? OFFER_SMS_CONSENT_TEXT : null,
+            createdAt: t,
+          });
+        } catch (err) {
+          return dbFailed(err);
+        }
 
         // A buyer who already has an account pays as the same Stripe customer.
         const [existing] = await db
@@ -435,11 +508,21 @@ async function registerCheckout(app: FastifyInstance, options: OfferRouteOptions
             orderId,
           );
         } catch (err) {
-          log.error({ order: orderId, cart: cart.id, reason: errorReason(err) }, 'checkout: Stripe did not open a session');
+          log.error(
+            { order: orderId, cart: cart.id, reason: errorReason(err) },
+            'checkout: Stripe did not open a session',
+          );
           return refuse('stripe', cart.id, 502);
         }
-        await db.update(orders).set({ stripeSessionId: session.id }).where(eq(orders.id, orderId));
-        log.info({ order: orderId, cart: cart.id, session: session.id, campaign: entry.campaign, src: entry.src }, 'checkout: session opened');
+        try {
+          await db.update(orders).set({ stripeSessionId: session.id }).where(eq(orders.id, orderId));
+        } catch (err) {
+          return dbFailed(err);
+        }
+        log.info(
+          { order: orderId, cart: cart.id, session: session.id, campaign: entry.campaign, src: entry.src },
+          'checkout: session opened',
+        );
         return kind === 'form' ? reply.redirect(session.url, 303) : reply.code(200).send({ url: session.url });
       },
     );
@@ -452,49 +535,55 @@ async function registerWebhook(app: FastifyInstance, options: OfferRouteOptions,
   await app.register(async (scope) => {
     // The signature is over the exact bytes Stripe sent, so this route keeps them: no JSON parse first.
     scope.removeAllContentTypeParsers();
-    scope.addContentTypeParser('*', { parseAs: 'buffer', bodyLimit: WEBHOOK_BODY_LIMIT }, (_req, body, done) => done(null, body));
+    scope.addContentTypeParser('*', { parseAs: 'buffer', bodyLimit: WEBHOOK_BODY_LIMIT }, (_req, body, done) =>
+      done(null, body),
+    );
 
-    scope.post(WEBHOOK_PATH, { bodyLimit: WEBHOOK_BODY_LIMIT, config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
-      const secret = options.config.stripeWebhookSecret;
-      if (!secret || !options.verify) {
-        log.error({}, 'stripe webhook: STRIPE_WEBHOOK_SECRET is not set; answering 503 so Stripe retries');
-        return reply.code(503).send({ error: 'Not configured.' });
-      }
-      const signature = req.headers['stripe-signature'];
-      if (typeof signature !== 'string' || !Buffer.isBuffer(req.body)) return reply.code(400).send({ error: 'Missing signature.' });
+    scope.post(
+      WEBHOOK_PATH,
+      { bodyLimit: WEBHOOK_BODY_LIMIT, config: { rateLimit: false } },
+      async (req, reply): Promise<FastifyReply> => {
+        const secret = options.config.stripeWebhookSecret;
+        if (!secret || !options.verify) {
+          log.error({}, 'stripe webhook: STRIPE_WEBHOOK_SECRET is not set; answering 503 so Stripe retries');
+          return reply.code(503).send({ error: 'Not configured.' });
+        }
+        const signature = req.headers['stripe-signature'];
+        if (typeof signature !== 'string' || !Buffer.isBuffer(req.body))
+          return reply.code(400).send({ error: 'Missing signature.' });
 
-      let event;
-      try {
-        event = options.verify(req.body, signature, secret);
-      } catch {
-        log.warn({}, 'stripe webhook: bad signature');
-        return reply.code(400).send({ error: 'Bad signature.' });
-      }
+        let event;
+        try {
+          event = options.verify(req.body, signature, secret);
+        } catch {
+          log.warn({}, 'stripe webhook: bad signature');
+          return reply.code(400).send({ error: 'Bad signature.' });
+        }
 
-      const db = getDb();
-      const t = clock.now();
-      const seen = await recordEvent(db, event, t);
-      if (seen === 'done') return reply.code(200).send({ received: true, duplicate: true });
+        const db = getDb();
+        const t = clock.now();
+        const seen = await recordEvent(db, event, t);
+        if (seen === 'done') return reply.code(200).send({ received: true, duplicate: true });
 
-      try {
-        const result = await handleStripeEvent(event, {
-          stripe: options.stripe,
-          config: options.config,
-          prices: options.prices,
-          log,
-          now: () => clock.now(),
-          db,
-        });
-        await markEvent(db, event.id, clock.now(), null);
-        log.info({ event: event.id, type: event.type, result, retry: seen === 'retry' }, 'stripe webhook: handled');
-        return reply.code(200).send({ received: true });
-      } catch (err) {
-        const reason = errorReason(err);
-        await markEvent(db, event.id, clock.now(), reason);
-        log.error({ event: event.id, type: event.type, reason }, 'stripe webhook: failed; Stripe will retry');
-        return reply.code(500).send({ error: 'Failed; retry.' });
-      }
-    });
+        try {
+          const result = await handleStripeEvent(event, {
+            stripe: options.stripe,
+            config: options.config,
+            prices: options.prices,
+            log,
+            now: () => clock.now(),
+            db,
+          });
+          await markEvent(db, event.id, clock.now(), null);
+          log.info({ event: event.id, type: event.type, result, retry: seen === 'retry' }, 'stripe webhook: handled');
+          return reply.code(200).send({ received: true });
+        } catch (err) {
+          const reason = errorReason(err);
+          await markEvent(db, event.id, clock.now(), reason);
+          log.error({ event: event.id, type: event.type, reason }, 'stripe webhook: failed; Stripe will retry');
+          return reply.code(500).send({ error: 'Failed; retry.' });
+        }
+      },
+    );
   });
 }
-

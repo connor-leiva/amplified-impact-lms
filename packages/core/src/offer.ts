@@ -363,10 +363,6 @@ export const OFFER_TOKENS = {
   errorField: token('error-field'),
   campaign: token('campaign'),
   src: token('src'),
-  name: token('v-name'),
-  email: token('v-email'),
-  phone: token('v-phone'),
-  company: token('v-company'),
   pagePath: token('page-path'),
   offerState: token('offer-state'),
   founding: token('founding'),
@@ -381,4 +377,76 @@ export const WELCOME_TOKENS = {
   intakeUrl: token('intake-url'),
   intakeState: token('intake-state'),
   sessionId: token('session-id'),
+} as const;
+
+/** The three plan cards on the page, in plan order. */
+export const CARDS: readonly PlanKind[] = ['library', 'cohort', 'agents'];
+
+/** The carts each card sells, in the order the form lists them. */
+export const CARD_CARTS: Readonly<Record<PlanKind, readonly CartId[]>> = {
+  library: ['library'],
+  cohort: ['cohort-full', 'cohort-two-pay'],
+  agents: ['agents-upto15', 'agents-16to40'],
+};
+
+/** An amount by lookup key, in cents: all the page's price words need. */
+export type Amounts = Partial<Record<LookupKey, number>>;
+
+/** "January 26" for the agent plan's first charge. */
+const firstCharge = (): string => longDate(AGENTS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '');
+
+/**
+ * The words the page prints for each card and each cart, from the live amounts. Empty strings when an
+ * amount is missing, so the page can show its "price on the payment page" line instead (D-073: the
+ * code holds no amounts of its own).
+ */
+export function priceWords(a: Amounts): {
+  headline: Record<PlanKind, string>;
+  /** What the headline amount is per, beside it: "a month" for the agent plan, nothing for one-time prices. */
+  unit: Record<PlanKind, string>;
+  terms: Record<PlanKind, string>;
+  cartline: Record<CartId, string>;
+} {
+  const $ = (key: LookupKey): string | null => (a[key] === undefined ? null : dollars(a[key]!));
+  const lu = $('library_upfront'), mm = $('membership_monthly'), cf = $('cohort_founding_full'), c2 = $('cohort_founding_two_pay');
+  const a15 = $('agents_upto15_founding'), a40 = $('agents_16to40_founding');
+  const all = (...xs: (string | null)[]) => xs.every((x) => x !== null);
+  return {
+    headline: {
+      library: all(lu, mm) ? lu! : '',
+      cohort: all(cf, c2) ? cf! : '',
+      agents: all(a15, a40) ? a15! : '',
+    },
+    unit: { library: '', cohort: '', agents: all(a15, a40) ? 'a month' : '' },
+    terms: {
+      library: all(lu, mm) ? `today, then ${mm} a month from day 31` : '',
+      cohort: all(cf, c2) ? `or 2 monthly payments of ${c2}` : '',
+      agents: all(a15, a40) ? `for up to 15 agents, or ${a40} a month for 16 to 40. First charge ${firstCharge()}.` : '',
+    },
+    cartline: {
+      library: all(lu, mm) ? `${lu} today, then ${mm} a month` : '',
+      'cohort-full': cf ? `${cf} once` : '',
+      'cohort-two-pay': c2 ? `2 monthly payments of ${c2}` : '',
+      'agents-upto15': a15 ? `${a15} a month from ${firstCharge()}` : '',
+      'agents-16to40': a40 ? `${a40} a month from ${firstCharge()}` : '',
+    },
+  };
+}
+
+/** What each cart is called in the form's plan list. */
+export const CART_NAMES: Readonly<Record<CartId, string>> = {
+  library: 'Skill Library',
+  'cohort-full': 'Core Cohort, paid in full',
+  'cohort-two-pay': 'Core Cohort, two payments',
+  'agents-upto15': 'Agent Team Plan, up to 15 agents',
+  'agents-16to40': 'Agent Team Plan, 16 to 40 agents',
+};
+
+
+export const PRICE_TOKENS = {
+  headline: (card: PlanKind) => token(`headline:${card}`),
+  unit: (card: PlanKind) => token(`unit:${card}`),
+  terms: (card: PlanKind) => token(`terms:${card}`),
+  cartline: (cart: CartId) => token(`cartline:${cart}`),
+  paidLine: token('paid-line'),
 } as const;

@@ -545,3 +545,29 @@ describe('the skill library (D-078)', () => {
     expect(missingKind.statusCode).toBe(404);
   });
 });
+
+describe('www routing (D-074, D-051)', () => {
+  afterEach(() => {
+    delete process.env.MARKETING_HOST;
+  });
+
+  it('serves the offer pages on www at their exact paths, and no lookalike', async () => {
+    process.env.MARKETING_HOST = 'www.amplifiedimpact.io';
+    stub = stubStripe();
+    app = await build({
+      logger: false,
+      marketingPage: '<!doctype html><title>Holding</title>',
+      legalPages: { agreement: '<!doctype html><title>Agreement</title>' },
+      offer: { pages: { offer: OFFER_PAGE, welcome: WELCOME_PAGE }, config: CONFIG, stripe: stub.client, verify: stripeVerifier(), prices: createPriceCache(() => stub.client) },
+    });
+    const get = (url: string) => app.inject({ method: 'GET', url, headers: { host: 'www.amplifiedimpact.io' } });
+    for (const url of ['/offer', '/forum', '/offer?cart=library', '/offer/welcome?session_id=cs_test_session0001', '/agreement']) {
+      expect((await get(url)).statusCode, url).toBe(200);
+    }
+    for (const url of ['/offer/', '/Offer', '/offer.html', '/offer/welcome/x', '/forum/', '/FORUM', '/agreement/']) {
+      const res = await get(url);
+      expect([302, 404], url).toContain(res.statusCode);
+      expect(res.body, url).not.toContain('data-offer');
+    }
+  });
+});
