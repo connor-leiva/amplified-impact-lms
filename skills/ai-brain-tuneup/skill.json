@@ -1,0 +1,8 @@
+{
+  "name": "ai-brain-tuneup",
+  "page": "ai-brain-tuneup",
+  "title": "AI Brain Tune-Up",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

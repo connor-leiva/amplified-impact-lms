@@ -1,0 +1,40 @@
+ABOUT MY BUSINESS
+Last updated: November 10, 2026. I update this file when something changes.
+
+ME
+Casey [Last Name]. I sign [Sign-off]. Real estate agent. [Time Zone and Hours].
+
+MY BROKERAGE AND TEAM
+Brokerage: [Brokerage Name]. Team: [Team Name, or Solo].
+Team by role: [Team by Role, or Solo].
+
+MY MARKET
+State: [State: Idaho?]. Areas: the Boise area [Cities or Counties I Work Most].
+
+WHAT I'M KNOWN FOR
+Mostly buyers.
+
+MY TOOLS
+CRM: Follow Up Boss
+Other tools: [Other Tools I Use Every Week]
+
+WHERE MY BUSINESS COMES FROM
+[Where My Business Comes From]
+
+MY BROKERAGE'S RULES (as I stated them)
+[Brokerage Rules: ask my broker which to add]
+
+MY OWN COMPLIANCE LIMITS (as I stated them)
+[My Own Limits, and Anything the AI Should Never Do]
+
+MY GOALS (as I stated them)
+[My Goals for the Next 12 Months]
+
+WHAT I WANT HELP WITH
+[What I Want Help With Each Week]
+
+ANYTHING ELSE
+[Anything Else Every Chat Should Know]
+
+WHAT THIS FILE NEVER HOLDS
+Client names, contact details or deal details. Passwords, logins, or account, routing, wire or Social Security numbers.

@@ -1,0 +1,21 @@
+Objective checks: eval-2-sparse-login-clients / output.md
+- PASS  No em or en dashes
+- PASS  Sections in SKILL.md's order: Flags / Bottom Line / Where Everything Goes / Block 1: How I Like to Work / Block 2: Project Instructions / Block 3: About My Business / Block 4: Facts to Remember / Your Voice / Still To Fill In / Check Before Pasting
+- PASS  Paste into line above Block 1: How I Like to Work: Settings, Your Claude, Instructions (account-wide). Click your initials in the lower left ...
+- PASS  Paste into line above Block 2: Project Instructions: the Casey's AI Brain project, Set project instructions, then Save instructions....
+- PASS  Paste into line above Block 3: About My Business: the Casey's AI Brain project's knowledge. Click + on the right side of the project page an...
+- PASS  Paste into line above Block 4: Facts to Remember: a new chat outside any project, so every project can use these. Send it, then check Settin...
+- PASS  Seven house compliance lines, word for word
+- PASS  General mode: State rules were not checked
+- PASS  How I Like to Work under 1,500 characters before MY VOICE: 896 characters
+- PASS  No QUICK CARD: points to amplifiedimpact.io/voice-profile
+- PASS  Project Instructions under about 4,000 characters: 2280 characters
+- PASS  No placeholder in Facts to Remember
+- PASS  Every placeholder in the blocks is in Still To Fill In: 16 distinct
+- PASS  Never-appear strings absent
+- PASS  No email address or phone number anywhere
+- PASS  Title Case section headings
+- PASS  Check Before Pasting section (this skill's Check before sending)
+- PASS  Title Case subject lines: N/A: this skill writes no email subject lines
+- PASS  Numbers not found in the inputs or references (grade each)
+- PASS  Numbers from the skill's references (statutes, dates, limits): 16, 30

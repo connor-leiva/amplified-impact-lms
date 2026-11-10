@@ -195,8 +195,8 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
 
    The boot log line `offer configuration` says what is on and the key's mode (`test` or `live`),
    never a value.
-3. Load the skills: `pnpm --filter @ai/api skills --upload` puts the 18 ZIPs in the bucket and the
-   catalog in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
+3. Load the skills: `pnpm --filter @ai/api skills --upload` puts every skill's ZIPs (the 35 skills
+   in `SKILL_CATALOG`) in the bucket and the catalog in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
    free in `packages/core/src/skills.ts` first. Free today: Appointment Follow-Up, Database Health Check
    and Team P&L Review.
 4. Print `/forum-qr.svg` (it encodes `https://www.amplifiedimpact.io/forum?src=qr`). It decodes at

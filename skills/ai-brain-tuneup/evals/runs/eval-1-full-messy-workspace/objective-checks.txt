@@ -1,0 +1,15 @@
+Objective checks: eval-1-full-messy-workspace / output.md
+- PASS  No em or en dashes
+- PASS  Sections in SKILL.md's order
+- PASS  Check Before Sending is the last section
+- PASS  Bottom line is three sentences or fewer: 3 sentences
+- PASS  Every table quote is word for word in the inputs: 37 quotes
+- PASS  Private values never appear
+- PASS  Rewrite has a fair housing line
+- PASS  Rewrite has a texting consent line
+- PASS  Rewrite has a drafts-only line
+- PASS  Diff: unchanged and added lines are the rewrite
+- PASS  Diff: unchanged and removed lines are the original
+- PASS  Every added placeholder is in Check Before Sending: 5 placeholders
+- PASS  Run-again line in the fix list
+- PASS  Numbers not found in the inputs (grade each)

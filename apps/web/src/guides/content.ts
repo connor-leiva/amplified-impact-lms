@@ -57,6 +57,9 @@ import { EXPIRED_FSBO_OUTREACH } from './expired-fsbo-outreach';
 import { AGENT_1ON1_PREP } from './agent-1on1-prep';
 import { TC_FILE_AUDIT } from './tc-file-audit';
 import { POST_CLOSING_CLIENT_CARE } from './post-closing-client-care';
+import { TEAM_AI_BRAIN } from './team-ai-brain';
+import { AI_BRAIN_TUNEUP } from './ai-brain-tuneup';
+import { AI_BRAIN_SETUP } from './ai-brain-setup';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -292,6 +295,9 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [AGENT_1ON1_PREP.slug]: AGENT_1ON1_PREP,
   [TC_FILE_AUDIT.slug]: TC_FILE_AUDIT,
   [POST_CLOSING_CLIENT_CARE.slug]: POST_CLOSING_CLIENT_CARE,
+  [TEAM_AI_BRAIN.slug]: TEAM_AI_BRAIN,
+  [AI_BRAIN_TUNEUP.slug]: AI_BRAIN_TUNEUP,
+  [AI_BRAIN_SETUP.slug]: AI_BRAIN_SETUP,
 };
 
 /**

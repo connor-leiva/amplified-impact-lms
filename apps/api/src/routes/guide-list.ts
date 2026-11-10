@@ -47,6 +47,9 @@ export const GUIDE_SLUGS = [
   'agent-1on1-prep',
   'tc-file-audit',
   'post-closing-client-care',
+  'team-ai-brain',
+  'ai-brain-tuneup',
+  'ai-brain-setup',
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 

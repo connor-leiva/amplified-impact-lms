@@ -1,0 +1,18 @@
+Objective checks: practice / output.md
+- PASS  No em or en dashes
+- PASS  Sections in SKILL.md's order
+- PASS  Check Before Sending is the last section
+- PASS  Bottom line is three sentences or fewer: 3 sentences
+- PASS  Bottom line names Team Playbook Builder
+- PASS  Client data request declined in Flags
+- PASS  All five house lines in the instructions, each marked not overridable
+- PASS  Each house line says it is a house line: 5 found
+- PASS  Every knowledge file opens with Built from:: 6 files
+- PASS  No planted client or personal detail anywhere
+- PASS  The SOP's fair housing line not repeated
+- PASS  Utah mode: 57-21-5, 13-77-102, 13-77-103, R162-2f-401h and 13-25a-111 cited
+- PASS  Planted gaps written as placeholders
+- PASS  Title Case subject lines: 1 subject(s)
+- PASS  No claim the skill shared, created or changed anything, and no legal ruling
+- NOTE  Numbers from the skill's references, not the inputs: 1.0, 1.1, 08, 13, 21, 25, 57, 102, 103, 111, 162, 401
+- PASS  Numbers not found in the inputs, the prompt or a reference (grade each)

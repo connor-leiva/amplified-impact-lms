@@ -196,6 +196,9 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       'agent-1on1-prep',
       'tc-file-audit',
       'post-closing-client-care',
+      'team-ai-brain',
+      'ai-brain-tuneup',
+      'ai-brain-setup',
     ]);
     for (const slug of GUIDE_SLUGS) {
       for (const url of [`/${slug}`, `/${slug}?src=ig`]) {

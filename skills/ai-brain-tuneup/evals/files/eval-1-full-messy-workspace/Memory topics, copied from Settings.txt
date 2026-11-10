@@ -1,0 +1,20 @@
+PRACTICE FILE: made-up example. Copied from Settings > Your Claude > Manage (next to Your memory) > Topics on November 9, 2026, one topic at a time. Every name and number in it is made up.
+
+Topic: Avery's team
+- Avery Mockingdale leads The Mockingdale Group, 9 agents in Mesa, Gilbert and Chandler.
+- The team moved from Imaginary Oaks Realty to Sample Summit Realty in May 2026.
+
+Topic: Operations
+- Reese Exampleworth is the operations manager.
+- Taylor Fakeman stopped doing transaction coordination in July 2026. Jules Sampleberg is the new transaction coordinator.
+- The weekly agent update now goes out on Thursdays, after the Wednesday team meeting.
+
+Topic: Writing
+- Avery wants agent updates to open with the week's wins.
+- Avery likes a joke in agent updates now and then.
+
+Topic: Recruiting
+- Avery is recruiting Drew Pretendson from Pretend Peak Realty. Drew's cell is 480-555-0182 and personal email is drew.pretendson@example.com.
+
+Topic: Clients
+- The Fakeland closing on Example Mesa Drive is set for November 20, 2026.

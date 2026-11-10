@@ -45,9 +45,13 @@ const zips = (id: string, withChatgpt: boolean, withPractice = true): CatalogSki
   ...(withPractice ? { practice: `${id}-practice.zip` } : {}),
 });
 
-/** Proposed tags; see the header. `owner_ops` is the owner and operations set, `agent` the agents'. */
+/**
+ * Proposed tags; see the header. `owner_ops` is the owner and operations set, `agent` the agents'.
+ * The AI Brain set (D-097 to D-099) opens its sections: the foundation the other skills build on.
+ */
 export const SKILL_CATALOG: readonly CatalogSkill[] = [
   // For the people who run the team.
+  { id: 'team-ai-brain', title: 'Team AI Brain', summary: "Builds the team's shared AI workspace from its own SOPs, scripts, brand guide and lead flow.", sets: 'owner_ops', files: zips('team-ai-brain', true) },
   { id: 'database-health-check', title: 'Database Health Check', summary: 'Turns a CRM export into a cleanup list and re-engagement segments.', sets: 'owner_ops', files: zips('database-health-check', true) },
   { id: 'recruiting-prep', title: 'Recruiting Prep', summary: 'Tiers a recruit list and preps each recruiting conversation.', sets: 'owner_ops', files: zips('recruiting-prep', true) },
   { id: 'team-playbook-builder', title: 'Team Playbook Builder', summary: "Turns the team's SOPs into a playbook skill every agent installs.", sets: 'owner_ops', files: zips('team-playbook-builder', false) },
@@ -59,6 +63,8 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'agent-1on1-prep', title: 'Agent 1:1 Prep', summary: "Preps a coaching one-on-one from one agent's numbers, goals and last time's notes.", sets: 'owner_ops', files: zips('agent-1on1-prep', true) },
   { id: 'tc-file-audit', title: 'TC File Audit', summary: 'Crosses one transaction file against the brokerage checklist and the contract dates, and drafts the asks.', sets: 'owner_ops', files: zips('tc-file-audit', true) },
   // For everyone.
+  { id: 'ai-brain-setup', title: 'AI Brain Setup', summary: 'Interviews an agent or team leader and builds their Claude workspace: instructions, a business file and memory.', sets: 'both', files: zips('ai-brain-setup', true) },
+  { id: 'ai-brain-tuneup', title: 'AI Brain Tune-Up', summary: "Audits the AI's project instructions, files and memory, and hands back clean instructions to paste in.", sets: 'both', files: zips('ai-brain-tuneup', true) },
   { id: 'perfect-week', title: 'Perfect Week', summary: 'Plans an ideal working week from the real calendar and task list.', sets: 'both', files: zips('perfect-week', false) },
   { id: 'content-opportunity-research', title: 'Content Strategist', summary: "Weekly Instagram research and five ideas built on the creator's own stories.", sets: 'both', files: zips('content-opportunity-research', false) },
   { id: 'reel-editor', title: 'Reel Editor', summary: 'Edits a filmed talking-head video into a Reel.', sets: 'both', files: { claude: 'reel-editor.zip' } },

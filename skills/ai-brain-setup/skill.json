@@ -1,0 +1,8 @@
+{
+  "name": "ai-brain-setup",
+  "page": "ai-brain-setup",
+  "title": "AI Brain Setup",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

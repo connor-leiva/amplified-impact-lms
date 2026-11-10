@@ -1,0 +1,8 @@
+Objective checks: eval-3-cold-start-interview / output.md
+- PASS  No em or en dashes
+- PASS  Privacy line word for word
+- PASS  Privacy line before the questions
+- PASS  Round 1's four questions, word for word
+- PASS  No questions from later rounds: 4 numbered questions
+- PASS  Skip is allowed and becomes a placeholder
+- PASS  Nothing built

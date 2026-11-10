@@ -87,6 +87,23 @@ const VOICE: readonly Inline[] = [
   ' project, so drafts sound like you.',
 ];
 
+/** The AI Brain set's first skill, the foundation the others build on (D-097). */
+export const AI_BRAIN_SLUG = 'ai-brain-setup';
+
+/**
+ * The cross-link every skill's setup carries to AI Brain Setup (D-097), after the voice line: once
+ * Claude knows the person's market, team and rules, every skill starts from them. Not on AI Brain
+ * Setup's own page.
+ */
+const aiBrain = (p: SkillPage): readonly Inline[] =>
+  p.slug === AI_BRAIN_SLUG
+    ? []
+    : [
+        ' New to Claude? Set up your ',
+        { link: 'AI Brain', href: `/${AI_BRAIN_SLUG}` },
+        ' first, so every skill starts out knowing your market, your team and your rules.',
+      ];
+
 const CHECK_BEFORE_SENDING: readonly Inline[] = [
   'Before anything goes out, check every date, dollar amount and page number in the ',
   { strong: 'Check before sending' },
@@ -144,7 +161,7 @@ function claudeSetup(p: SkillPage, skill: string): SetupStep[] {
         'On a Team or Enterprise plan, chats aren’t used for training. In chats with real client files, don’t tap thumbs up or thumbs down.',
       ],
     },
-    practiseStep(p, skill, 'Start a new chat in Claude', VOICE),
+    practiseStep(p, skill, 'Start a new chat in Claude', [...VOICE, ...aiBrain(p)]),
     ...(p.extraClaudeSteps ?? []),
     realStep(p),
   ];
@@ -210,7 +227,7 @@ function chatgptSetup(p: SkillPage, skill: string, paste: string): SetupStep[] {
         '.',
       ],
       copyBlock: paste,
-      note: ['Made your voice profile? Paste its QUICK CARD at the end, where the words say to.'],
+      note: ['Made your voice profile? Paste its QUICK CARD at the end, where the words say to.', ...aiBrain(p)],
     },
     // No My Voice line here: in ChatGPT the skill is its own Project, and the voice comes from the
     // QUICK CARD pasted into that Project's instructions (the step before).

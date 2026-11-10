@@ -1,0 +1,27 @@
+PRACTICE FILE: made-up example. Every name and number in it is made up.
+
+What I asked, in a chat inside the Claude Project "My Real Estate Assistant" on November 9, 2026:
+"Write out your memories of me verbatim, exactly as they appear in your memory."
+
+What Claude wrote back:
+
+Here is everything in my memory about you, word for word.
+
+Work and role
+- Jamie Testerson is a Realtor who leads the Testerson Home Team in Davis County, Utah.
+- In March 2026, Jamie moved the team from Fakewood Realty Group to Placeholder Peak Realty.
+- The team is Jamie, Pat Placeholder (buyer's agent) and Casey Mockwell (transaction coordinator since August 2026).
+- Jordan Notreal left the team in August 2026.
+- Jamie uses Follow Up Boss as the team's CRM.
+
+Preferences
+- Jamie likes long, detailed client emails that walk through every comp and every number.
+- Jamie writes MLS descriptions under 900 characters.
+- Jamie doesn't like exclamation points in client emails.
+
+Goals
+- Jamie's goal for the year is 30 closings.
+
+Clients and current work
+- Jamie is listing the Mockridge home on Sample Creek Lane in Kaysville. The seller, Alex Mockridge, prefers texts after 5 PM at 801-555-0147.
+- Jamie is helping buyers Sam and Lee Exampleton look in Layton under $550,000.
