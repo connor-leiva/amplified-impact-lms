@@ -28,6 +28,8 @@ import { crmOf, planStatusOf, teamSizeOfAgents } from './webhook';
 import { buyerTags } from '../integrations/ghl';
 import { cartStates, fillTokens, offerValues, welcomeValues } from '../routes/offer';
 import { FREE_SKILLS, PAID_DOWNLOADS, SKILL_CATALOG } from './skills-catalog';
+import { FREE_GROK_TEMPLATES, GROK_TEMPLATES, isFreeGrokTemplate, PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
+import { LIBRARY_ROWS } from './library-rows';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -269,6 +271,36 @@ describe('the skill catalog (D-082)', () => {
   it('names only files that exist in /downloads', () => {
     const dir = fileURLToPath(new URL('../../../web/public/downloads/', import.meta.url));
     const missing = SKILL_CATALOG.flatMap((s) => Object.values(s.files)).filter((f) => {
+      try {
+        readFileSync(`${dir}${f}`);
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    expect(missing).toEqual([]);
+  });
+});
+
+describe('the Grok Bot templates in the library (D-100)', () => {
+  it('load as their own rows beside the 35 skills, with one `grok` file each and their own free list', () => {
+    expect(LIBRARY_ROWS).toHaveLength(SKILL_CATALOG.length + GROK_TEMPLATES.length);
+    expect(new Set(LIBRARY_ROWS.map((r) => r.id)).size).toBe(LIBRARY_ROWS.length);
+    for (const g of GROK_TEMPLATES) {
+      const row = LIBRARY_ROWS.find((r) => r.id === g.id);
+      expect(row?.files, g.id).toEqual({ grok: `${g.id}.zip` });
+      expect(row?.free, g.id).toBe(isFreeGrokTemplate(g.id));
+      expect(row?.build).toBe('node scripts/grok-templates.mjs build');
+    }
+    for (const s of SKILL_CATALOG) expect(LIBRARY_ROWS.find((r) => r.id === s.id)?.files).toEqual(s.files);
+    expect(LIBRARY_ROWS.filter((r) => r.free).map((r) => r.id).sort()).toEqual([...FREE_SKILLS, ...FREE_GROK_TEMPLATES].sort());
+  });
+
+  it('keep their paid ZIPs off www, and every ZIP they name is built', () => {
+    expect(PAID_GROK_DOWNLOADS).toHaveLength(12);
+    expect(PAID_GROK_DOWNLOADS.some((f) => PAID_DOWNLOADS.includes(f))).toBe(false);
+    const dir = fileURLToPath(new URL('../../../web/public/downloads/', import.meta.url));
+    const missing = GROK_TEMPLATES.map((g) => g.file).filter((f) => {
       try {
         readFileSync(`${dir}${f}`);
         return false;

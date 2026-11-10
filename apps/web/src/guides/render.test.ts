@@ -113,6 +113,22 @@ describe('the list of guides', () => {
       'team-ai-brain',
       'ai-brain-tuneup',
       'ai-brain-setup',
+      'card-bank-feed-audit',
+      'commission-tie-out',
+      'team-payout-journals',
+      'month-end-close',
+      'trust-earnest-watch',
+      'vendor-1099-readiness',
+      'quarterly-tax-profit-first',
+      'lead-source-roi',
+      'contract-to-close-deadlines',
+      'new-contract-intake',
+      'missing-documents-audit',
+      'weekly-status-updates',
+      'stalled-item-follow-up',
+      'closing-week-checklist',
+      'listing-to-live',
+      'post-close-file-closeout',
     ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {
@@ -655,8 +671,9 @@ describe('the layouts (D-071)', () => {
       if (inSkillLibrary(g)) expect(doc.querySelector('#skill-library'), g.slug).not.toBeNull();
       else expect(doc.querySelector('[data-guided] .guided-head'), g.slug).not.toBeNull();
     }
-    for (const g of looks.filter((x) => x.sections.some((s) => s.kind === 'sample'))) {
+    for (const g of looks.filter((x) => x.grok === undefined && x.sections.some((s) => s.kind === 'sample'))) {
       // Every skill's sample has a "Bottom line" (or "Bottom line for the agent"), drawn as its callout.
+      // A Grok Bot template's sample is the template's own (D-100), held to it in grok-templates.test.ts.
       expect(text(parse(g).querySelector('.sk-hero .sample-bottom h3')), g.slug).toMatch(/^Bottom line/i);
     }
     const ota = parse(guideFor('ops-time-audit'));

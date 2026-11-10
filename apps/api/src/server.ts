@@ -60,6 +60,7 @@ import { GUIDE_SLUGS } from './routes/guide-list';
 import { describeOfferConfig, readOfferConfig } from './billing/config';
 import { startBillingLoop } from './jobs/billing';
 import { PAID_DOWNLOADS } from './billing/skills-catalog';
+import { PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
 
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
@@ -163,6 +164,8 @@ if (existsSync(webDist)) {
       // Paid skills are not public files (D-082): they live in the bucket and open through the
       // platform's library. `PAID_DOWNLOADS` names them; `test/paid-skills.test.ts` holds the list.
       ...PAID_DOWNLOADS.map((file) => `downloads/${file}`),
+      // So are the paid Grok Bot templates (D-100), from their own list, not the skills'.
+      ...PAID_GROK_DOWNLOADS.map((file) => `downloads/${file}`),
     ],
     // The guides' files (D-038, D-039; the Reel Editor's ZIP, D-045) are lead magnets behind an opt-in:
     // kept out of search results.

@@ -1,3 +1,4 @@
+import { isFreeGrokTemplate, PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
 import { isFreeSkill, PAID_DOWNLOADS, SKILL_CATALOG } from '@ai/core/skills';
 import { describe, expect, it } from 'vitest';
 import { GUIDES, inSkillLibrary, SHARED, type Guide } from './content';
@@ -19,6 +20,10 @@ const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace
 const PAGES = Object.values(GUIDES).filter((g) => g.skill !== undefined);
 const PAID = PAGES.filter((g) => !isFreeSkill(g.skill ?? ''));
 const FREE = PAGES.filter((g) => isFreeSkill(g.skill ?? ''));
+// The paid Grok Bot templates (D-100), by their own free list: their pages are drawn the same way, so
+// the page checks below hold them too. The skill-only checks (the catalog, its ZIP names) do not.
+const PAID_GROK = Object.values(GUIDES).filter((g) => g.grok !== undefined && !isFreeGrokTemplate(g.grok));
+const ALL_PAID_DOWNLOADS = [...PAID_DOWNLOADS, ...PAID_GROK_DOWNLOADS];
 const entryFor = (g: Guide) => SKILL_CATALOG.find((s) => s.id === g.skill);
 
 describe('the catalog and the pages', () => {
@@ -34,13 +39,14 @@ describe('the catalog and the pages', () => {
   it('draws a page as paid exactly when the catalog says its skill is not free', () => {
     expect(PAID.length).toBeGreaterThan(0);
     expect(FREE.length).toBeGreaterThan(0);
-    for (const g of Object.values(GUIDES)) expect(inSkillLibrary(g), g.slug).toBe(PAID.includes(g));
+    for (const g of Object.values(GUIDES)) expect(inSkillLibrary(g), g.slug).toBe(PAID.includes(g) || PAID_GROK.includes(g));
+    expect(PAID_GROK).toHaveLength(12);
     // A guide that is not a skill (a PDF) is never in the Skill Library.
     expect(inSkillLibrary(GUIDES['ops-time-audit'] as Guide)).toBe(false);
   });
 });
 
-describe.each(PAID.map((g) => [g.slug, g] as const))('paid /%s (D-082)', (slug, guide) => {
+describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%s (D-082)', (slug, guide) => {
   const doc = parse(guide);
   const html = doc.documentElement.outerHTML;
   const card = doc.getElementById(SHARED.skillLibrary.anchor);
@@ -83,7 +89,7 @@ describe.each(PAID.map((g) => [g.slug, g] as const))('paid /%s (D-082)', (slug, 
   });
 
   it('links no paid ZIP, and no download at all: no setup, no file to save', () => {
-    for (const file of PAID_DOWNLOADS) expect(html, file).not.toContain(`/downloads/${file}`);
+    for (const file of ALL_PAID_DOWNLOADS) expect(html, file).not.toContain(`/downloads/${file}`);
     expect($$('a[href^="/downloads/"], a[download], [data-download], #download, .setup, [data-guided], .handoff')).toEqual([]);
   });
 

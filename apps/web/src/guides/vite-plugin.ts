@@ -51,6 +51,22 @@ export const GUIDE_HTML = [
   'team-ai-brain.html',
   'ai-brain-tuneup.html',
   'ai-brain-setup.html',
+  'card-bank-feed-audit.html',
+  'commission-tie-out.html',
+  'team-payout-journals.html',
+  'month-end-close.html',
+  'trust-earnest-watch.html',
+  'vendor-1099-readiness.html',
+  'quarterly-tax-profit-first.html',
+  'lead-source-roi.html',
+  'contract-to-close-deadlines.html',
+  'new-contract-intake.html',
+  'missing-documents-audit.html',
+  'weekly-status-updates.html',
+  'stalled-item-follow-up.html',
+  'closing-week-checklist.html',
+  'listing-to-live.html',
+  'post-close-file-closeout.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */

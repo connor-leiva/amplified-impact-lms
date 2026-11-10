@@ -393,7 +393,10 @@ export const TC_FILE_AUDIT: Guide = skillPage({
       body: [
         'Reviewing the buyer’s inspection and disclosures instead? ',
         { link: 'Due Diligence Review', href: '/due-diligence-review', sameTab: true },
-        ' is built for that.',
+        ' is built for that. Want every active file checked against your checklist each weekday? ',
+        // The Grok Bot template beside this skill (D-100): a schedule, not one file on demand.
+        { link: 'Missing-Documents File Audit', href: '/missing-documents-audit', sameTab: true },
+        ' is the Grok Bot template for that.',
       ],
     },
   ],

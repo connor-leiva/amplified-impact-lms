@@ -134,9 +134,9 @@ function downloadButton(guide: Guide): string {
  * "Copy: <the words>", so a screen reader never hears a button called "Edit this into a Reel". With no
  * script the words are still there to read and select.
  */
-function copyChip(words: string): string {
+function copyChip(words: string, toast: string = SHARED.copy.copied): string {
   return (
-    `<button type="button" class="chip" data-copy data-toast="${esc(SHARED.copy.copied)}">` +
+    `<button type="button" class="chip" data-copy data-toast="${esc(toast)}">` +
     `<span class="visually-hidden">${esc(SHARED.copy.tag)}: </span><span data-copy-text>${esc(words)}</span>` +
     `<span class="chip-tag" aria-hidden="true">${esc(SHARED.copy.tag)}</span></button>`
   );
@@ -147,9 +147,9 @@ function copyChip(words: string): string {
  * as a block that keeps its line breaks. The words are the button's text, so a screen reader hears
  * what it copies.
  */
-function copyBlock(words: string): string {
+function copyBlock(words: string, toast: string = SHARED.copy.copied): string {
   return (
-    `<button type="button" class="chip chip-block" data-copy data-toast="${esc(SHARED.copy.copied)}">` +
+    `<button type="button" class="chip chip-block" data-copy data-toast="${esc(toast)}">` +
     `<span class="visually-hidden">${esc(SHARED.copy.tag)}: </span><span class="chip-block-text" data-copy-text>${esc(words)}</span>` +
     `<span class="chip-tag" aria-hidden="true">${esc(SHARED.copy.tag)}</span></button>`
   );
@@ -200,6 +200,11 @@ function copyOpen(app: App): string {
  * copy chip and a "Copy & Open" for its app.
  */
 function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): string {
+  // A Grok Bot template's steps (D-100) happen in Grok Bot, which no button can open: the words are
+  // copied, with a toast that names Grok Bot, and nothing says Claude.
+  const grok = guide.grok !== undefined;
+  const toast = grok ? SHARED.copy.copiedGrok : SHARED.copy.copied;
+  const opens = (a: App) => (grok ? '' : copyOpen(a));
   const items = steps
     .map((s, i) =>
       [
@@ -208,11 +213,13 @@ function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): 
         `<div class="setup-body">`,
         `<h3 tabindex="-1">${esc(s.title)}</h3>`,
         `<p>${inline(s.body)}</p>`,
-        setupAction(guide, s.action),
+        // A template's file is an extra to its copy (D-100), so it comes after the words to paste.
+        grok ? '' : setupAction(guide, s.action),
         // Short words: the chip, then the button. A long block (a Project's instructions, the Task Sync
         // prompt) runs screens long on a phone, so its button comes first, under the instruction.
-        s.copy ? copyChip(s.copy) + copyOpen(app) : '',
-        s.copyBlock ? copyOpen(app) + copyBlock(s.copyBlock) : '',
+        s.copy ? copyChip(s.copy, toast) + opens(app) : '',
+        s.copyBlock ? opens(app) + copyBlock(s.copyBlock, toast) : '',
+        grok ? setupAction(guide, s.action) : '',
         s.note ? `<p class="setup-note">${inline(s.note)}</p>` : '',
         `</div>`,
         `</li>`,
@@ -224,7 +231,7 @@ function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): 
   const g = SHARED.guided;
   const progress = `<p class="guided-progress" data-guided-progress="${esc(g.progress)}" hidden></p>`;
   return [
-    `<div class="guided" data-guided data-guided-key="${esc(`${guide.unlockKey}-step-${app}`)}">`,
+    `<div class="guided" data-guided data-guided-key="${esc(`${guide.unlockKey}-step-${grok ? 'grok' : app}`)}">`,
     // A skill page names the checklist, with the step count beside it (D-071).
     guide.layout === 'skill'
       ? `<div class="guided-head"><p class="guided-title">${esc(SHARED.skill.setupTitle)}</p>${progress}</div>`

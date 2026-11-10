@@ -50,6 +50,22 @@ export const GUIDE_SLUGS = [
   'team-ai-brain',
   'ai-brain-tuneup',
   'ai-brain-setup',
+  'card-bank-feed-audit',
+  'commission-tie-out',
+  'team-payout-journals',
+  'month-end-close',
+  'trust-earnest-watch',
+  'vendor-1099-readiness',
+  'quarterly-tax-profit-first',
+  'lead-source-roi',
+  'contract-to-close-deadlines',
+  'new-contract-intake',
+  'missing-documents-audit',
+  'weekly-status-updates',
+  'stalled-item-follow-up',
+  'closing-week-checklist',
+  'listing-to-live',
+  'post-close-file-closeout',
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 

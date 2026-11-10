@@ -1,3 +1,4 @@
+import { GROK_COLLECTIONS, GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
 import { isFreeSkill, SKILL_CATALOG } from '@ai/core/skills';
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -63,15 +64,20 @@ describe('the catalog', () => {
 });
 
 describe('with no script', () => {
+  // The main list holds everything that is not on the Grok Bot shelf (D-100).
+  const MAIN = ENTRIES.filter((e) => e.collection === undefined);
+
   it('shows every card, newest first, each a real link', () => {
     const titles = $$('#library-items .item-title').map((t) => text(t));
-    const live = ENTRIES.filter((e) => e.href !== null);
-    const soon = ENTRIES.filter((e) => e.href === null);
+    const live = MAIN.filter((e) => e.href !== null);
+    const soon = MAIN.filter((e) => e.href === null);
     const newest = [...live].sort((a, b) => b.added.localeCompare(a.added)).map((e) => e.title);
     // A card that cannot be opened is never the first thing a visitor sees.
     expect(titles).toEqual([...newest, ...soon.map((e) => e.title)]);
-    expect($$('#library-items a.item-body').length).toBe(ENTRIES.filter((e) => e.href !== null).length);
-    expect($$('#library-items [hidden]')).toEqual([]);
+    expect($$('#library-items a.item-body').length).toBe(MAIN.filter((e) => e.href !== null).length);
+    expect($$('#library-items [hidden], [data-shelf] [hidden]')).toEqual([]);
+    // The count is of every card, the main list's and the shelf's.
+    expect($$('[data-item]')).toHaveLength(ENTRIES.length);
     expect(text($('#library-count'))).toBe(`Showing ${ENTRIES.length} resources`);
   });
 
@@ -110,17 +116,23 @@ describe('a card', () => {
     }
   });
 
-  it('says "In the Amplified Skill Library" on every paid skill’s card, and on no other (D-082)', () => {
-    // Paid is the catalog's call, read through the skill a page names (the ZIP's name, not always the slug).
-    const paidPage = (href: string | null) => {
+  it('says "In the Amplified Skill Library" on every paid skill’s and template’s card, and on no other (D-082, D-100)', () => {
+    // Paid is the catalog's call, read through the skill a page names (the ZIP's name, not always the
+    // slug), or the Grok Bot template, by its own free list.
+    const paidSkill = (href: string | null) => {
       const skill = href === null ? undefined : GUIDES[href.slice(1)]?.skill;
       return skill !== undefined && !isFreeSkill(skill);
     };
+    const paidTemplate = (href: string | null) => {
+      const grok = href === null ? undefined : GUIDES[href.slice(1)]?.grok;
+      return grok !== undefined && !isFreeGrokTemplate(grok);
+    };
     const tagged = (href: string) =>
       Array.from(doc.querySelectorAll(`a.item-body[href="${href}"] .item-tags li`)).map((li) => text(li)).includes('In the Amplified Skill Library');
-    for (const e of ENTRIES) if (e.href !== null) expect(tagged(e.href), e.title).toBe(paidPage(e.href));
+    for (const e of ENTRIES) if (e.href !== null) expect(tagged(e.href), e.title).toBe(paidSkill(e.href) || paidTemplate(e.href));
     // One card for each paid skill in the catalog: every one is labelled, under whichever slug.
-    expect(ENTRIES.filter((e) => paidPage(e.href))).toHaveLength(SKILL_CATALOG.filter((s) => !isFreeSkill(s.id)).length);
+    expect(ENTRIES.filter((e) => paidSkill(e.href))).toHaveLength(SKILL_CATALOG.filter((s) => !isFreeSkill(s.id)).length);
+    expect(ENTRIES.filter((e) => paidTemplate(e.href))).toHaveLength(GROK_TEMPLATES.filter((g) => !isFreeGrokTemplate(g.id)).length);
     expect(tagged('/content-strategist')).toBe(!isFreeSkill('content-opportunity-research'));
     expect(tagged('/appointment-follow-up')).toBe(!isFreeSkill('appointment-follow-up'));
     expect(LIBRARY.paid).toBe('In the Amplified Skill Library');
@@ -142,11 +154,62 @@ describe('a card', () => {
   });
 });
 
+describe('the Grok Bot shelf (D-100)', () => {
+  const shelf = $('[data-shelf]');
+  const cardTitles = (root: Element | null) => Array.from(root?.querySelectorAll('.item-title') ?? []).map((t) => text(t));
+
+  it('comes after the main list: one section, its heading, its line, and its two collections in order', () => {
+    expect(shelf?.tagName).toBe('SECTION');
+    expect(shelf?.previousElementSibling?.id).toBe('library-items');
+    expect(text(shelf?.querySelector('h2'))).toBe('Grok Bot');
+    expect(shelf?.getAttribute('aria-labelledby')).toBe('shelf-grok');
+    expect(text(shelf?.querySelector('.shelf-body'))).toBe(LIBRARY.grok.body);
+    const collections = Array.from(shelf?.querySelectorAll('[data-collection]') ?? []);
+    expect(collections.map((c) => c.getAttribute('data-collection'))).toEqual([...GROK_COLLECTIONS]);
+    expect(collections.map((c) => text(c.querySelector('h3')))).toEqual(['Bookkeeping', 'Transactions']);
+  });
+
+  it('holds every template, each under its own collection, in the catalog’s order, and nothing else', () => {
+    for (const c of GROK_COLLECTIONS) {
+      const list = $(`[data-collection="${c}"] ul.items`);
+      expect(cardTitles(list), c).toEqual(GROK_TEMPLATES.filter((g) => g.collection === c).map((g) => g.title));
+      expect(cardTitles(list), c).toHaveLength(8);
+    }
+    expect(cardTitles(shelf)).toHaveLength(16);
+    // No template in the main list, and no skill or guide on the shelf.
+    const grokTitles = new Set(GROK_TEMPLATES.map((g) => g.title));
+    expect(cardTitles($('#library-items')).filter((t) => grokTitles.has(t))).toEqual([]);
+    for (const e of ENTRIES) expect(e.collection !== undefined, e.title).toBe(grokTitles.has(e.title));
+  });
+
+  it('says Grok Bot on each card, never Claude, with its title a heading under its collection’s', () => {
+    for (const el of Array.from(shelf?.querySelectorAll('[data-item]') ?? [])) {
+      const tags = Array.from(el.querySelectorAll('.item-tags li')).map((li) => text(li));
+      expect(tags[0]).toBe('Grok Bot');
+      expect(tags).not.toContain('Claude');
+      expect(tags).not.toContain('Claude Skill');
+      expect(el.getAttribute('data-tools')).toBe('grok');
+      expect(el.querySelector('.item-title')?.tagName).toBe('H4');
+    }
+    const trust = $('a.item-body[href="/trust-earnest-watch"]');
+    expect(Array.from(trust?.querySelectorAll('.item-tags li') ?? []).map((li) => text(li))).toEqual(['Grok Bot', 'For Brokers', 'In the Amplified Skill Library']);
+  });
+
+  it('tells a template’s reader to add it to Grok Bot, never the skills’ Claude closer', () => {
+    for (const e of ENTRIES.filter((x) => x.collection !== undefined)) {
+      expect(e.description, e.title).toMatch(/Download the template, add it to Grok Bot and save the routine it recommends\.$/);
+      expect(e.description, e.title).not.toContain('in Claude or a ChatGPT Project');
+      expect(e.kind, e.title).toBe('Grok Bot');
+      expect(e.topics[0], e.title).toBe(e.collection);
+    }
+  });
+});
+
 describe('the controls', () => {
   const chips = (name: string) => $$(`button[data-filter="${name}"]`);
 
   it('offers a pill for each tool and topic in use, in order, after All, with All pressed', () => {
-    expect(chips('tool').map((b) => text(b))).toEqual(['All', 'Claude', 'ChatGPT']);
+    expect(chips('tool').map((b) => text(b))).toEqual(['All', 'Claude', 'ChatGPT', 'Grok Bot']);
     expect(chips('topic').map((b) => text(b))).toEqual([
       'All',
       'Claude Skills',
@@ -157,6 +220,8 @@ describe('the controls', () => {
       'Buyer Side',
       'Listing Side',
       'Contracts and Offers',
+      'Bookkeeping',
+      'Transactions',
     ]);
     for (const name of ['tool', 'topic']) {
       expect(chips(name).map((b) => b.getAttribute('aria-pressed'))[0]).toBe('true');

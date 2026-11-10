@@ -23,7 +23,8 @@ import type { PlanAccess, SkillAccess } from '../billing/access';
 import type { PlanKind, PlanStatus, SkillSet } from '../billing/catalog';
 
 export const SKILLS_PATH = '/api/skills';
-const FILE_KINDS = ['claude', 'chatgpt', 'practice'] as const;
+// `grok`: a Grok Bot template's one ZIP (D-100), loaded from its own catalog (billing/library-rows.ts).
+const FILE_KINDS = ['claude', 'chatgpt', 'practice', 'grok'] as const;
 type FileKind = (typeof FILE_KINDS)[number];
 
 const LOCKED = 'This skill is not in your plan.';

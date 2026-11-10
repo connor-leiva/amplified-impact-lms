@@ -251,7 +251,7 @@ export const skills = pgTable('skills', {
   id: text('id').primaryKey(), title: text('title').notNull(), summary: text('summary').notNull().default(''),
   sets: text('sets').notNull(), free: boolean('free').notNull().default(false),
   releasedAt: ts('released_at').notNull(),
-  files: jsonb('files').$type<{ claude?: string; chatgpt?: string; practice?: string }>().notNull().default({}),
+  files: jsonb('files').$type<{ claude?: string; chatgpt?: string; practice?: string; grok?: string }>().notNull().default({}),
   status: text('status').notNull().default('published'),
 }, (t) => [
   check('skills_sets', sql`${t.sets} in ('owner_ops', 'agent', 'both')`),

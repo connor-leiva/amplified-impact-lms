@@ -64,6 +64,18 @@ describe('the skill library screen', () => {
     expect(screen.getByRole('link', { name: COPY.signIn })).toHaveAttribute('href', '/sign-in');
   });
 
+  it('offers a Grok Bot template’s one file as a Grok Bot download (D-100)', async () => {
+    fetchMock.mockResolvedValue(
+      answer(200, {
+        skills: [skill({ id: 'month-end-close', title: 'Month-End Close Packet', sets: 'both', files: ['grok'] })],
+      }),
+    );
+    render(<SkillLibrary />);
+    const link = await screen.findByRole('link', { name: COPY.files.grok });
+    expect(link).toHaveAttribute('href', '/api/skills/month-end-close/download/grok');
+    expect(COPY.files.grok).toBe('Download for Grok Bot');
+  });
+
   it('says so when the list fails to load', async () => {
     fetchMock.mockResolvedValue(answer(500, {}));
     render(<SkillLibrary />);

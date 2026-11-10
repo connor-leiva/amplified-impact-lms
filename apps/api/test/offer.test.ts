@@ -616,6 +616,26 @@ describe('the skill library (D-079)', () => {
     const missingKind = await app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/download/chatgpt', headers: { cookie } });
     expect(missingKind.statusCode).toBe(404);
   });
+
+  it('lists a Grok Bot template with its one file kind, `grok`, by the same access rule (D-100)', async () => {
+    await buy('library', {}, { subscription: 'sub_lib' });
+    const now = NOW_MS;
+    await (await db()).insert(skills).values([
+      { id: 'month-end-close', title: 'Month-End Close Packet', sets: 'both', releasedAt: now - DAY, files: { grok: 'month-end-close.zip' } },
+      { id: 'listing-to-live', title: 'Listing-to-Live Launch Checklist', sets: 'agent', releasedAt: now - DAY, files: { grok: 'listing-to-live.zip' } },
+    ]);
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+    const cookie = await app.signInAs(owner!.id);
+    const list = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
+    const byId = Object.fromEntries(list.json().skills.map((s: { id: string; state: string; files: string[] }) => [s.id, s]));
+    expect(byId['month-end-close']).toMatchObject({ state: 'open', files: ['grok'] });
+    expect(byId['listing-to-live']).toMatchObject({ state: 'locked', files: ['grok'] });
+    const locked = await app.inject({ method: 'GET', url: '/api/skills/listing-to-live/download/grok', headers: { cookie } });
+    expect(locked.statusCode).toBe(403);
+    // A template has no Claude file.
+    const wrongKind = await app.inject({ method: 'GET', url: '/api/skills/month-end-close/download/claude', headers: { cookie } });
+    expect(wrongKind.statusCode).toBe(404);
+  });
 });
 
 describe('www routing (D-075, D-051)', () => {

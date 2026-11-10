@@ -15,13 +15,14 @@ import s from './SkillLibrary.module.css';
 
 export const COPY = {
   title: 'Skill Library',
-  sub: 'Every skill your plan includes. Download one, then add it to Claude or ChatGPT.',
+  sub: 'Every skill your plan includes. Download one, then add it to Claude, ChatGPT or Grok Bot.',
   sets: { owner_ops: 'Owner and Operations Skills', agent: 'Agent Skills', both: 'Skills for Everyone' },
   free: 'Free',
   locked: 'Not in your plan.',
   seePlans: 'See Plans',
   upcoming: (date: string) => `Coming ${date}.`,
-  files: { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', practice: 'Practice Files' },
+  // `grok`: a Grok Bot template's one file (D-100).
+  files: { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', practice: 'Practice Files', grok: 'Download for Grok Bot' },
   loading: 'Loading your skills',
   unavailable: 'The skill library opens when you sign in.',
   signIn: 'Sign In',
