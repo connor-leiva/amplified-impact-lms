@@ -13,9 +13,16 @@
 // to be added to Claude before it does anything, so its download carries `setup`, the steps that
 // follow, and `handoff`, the way a phone sends the page to a computer to do them.
 //
+// A PAID SKILL (D-080, D-082). Every skill page names its skill in the library's catalog (`skill`).
+// Unless `FREE_SKILLS` names it, the skill is in the Skill Library on the platform: its page keeps
+// the hero and the sample, and shows the Skill Library card in place of the sign-up and the setup,
+// with no link to a ZIP (`inSkillLibrary`). Its own words and setup stay in its file, so naming it in
+// `FREE_SKILLS` brings the download back with no other edit.
+//
 // Nothing here is markup: `render.ts` escapes every string. House rules: no em dashes, short plain
 // sentences.
 
+import { isFreeSkill } from '@ai/core/skills';
 import { OPS_TIME_AUDIT } from './ops-time-audit';
 import { REEL_EDITOR } from './reel-editor';
 import { TASK_SYNC_STARTER } from './task-sync-starter';
@@ -193,6 +200,12 @@ export interface Handoff {
 export interface Guide {
   /** The page's path without its slash, the HTML file's name, and the API's `source`. */
   slug: string;
+  /**
+   * The skill this page offers, by its id in the skill library's catalog (`SKILL_CATALOG` in
+   * `@ai/core/skills`): its ZIP's name, which is not always the slug (/content-strategist). A guide
+   * that is not a skill has none. A skill that is not free is drawn as `inSkillLibrary` says.
+   */
+  skill?: string;
   meta: { title: string; description: string };
   hero: { eyebrow: string; title: string; lede: string; steps: readonly Step[] };
   /** The opt-in. Its anchor is the link a slide or a DM can point at. */
@@ -229,8 +242,8 @@ export interface Guide {
   bar?: string;
 }
 
-/** Every guide, by slug. */
-export const GUIDES: Readonly<Record<string, Guide>> = {
+/** Every guide, by slug, as written. */
+const WRITTEN: Readonly<Record<string, Guide>> = {
   [TASK_SYNC_STARTER.slug]: TASK_SYNC_STARTER,
   [OPS_TIME_AUDIT.slug]: OPS_TIME_AUDIT,
   [REEL_EDITOR.slug]: REEL_EDITOR,
@@ -252,6 +265,40 @@ export const GUIDES: Readonly<Record<string, Guide>> = {
   [TEAM_PNL_REVIEW.slug]: TEAM_PNL_REVIEW,
   [NEW_CONSTRUCTION_REVIEW.slug]: NEW_CONSTRUCTION_REVIEW,
 };
+
+/**
+ * A paid skill's page stops calling itself free (D-082): "Free" comes off its title, description and
+ * eyebrow, and its first fact says where the skill is. Its own file keeps the free wording for the day
+ * `FREE_SKILLS` names it again, so a free page is exactly as written.
+ */
+const unfree = (text: string): string =>
+  text
+    .replace(/\bA Free AI\b/g, 'An AI')
+    .replace(/\ba free AI\b/g, 'an AI')
+    .replace(/\b([Aa]) [Ff]ree /g, '$1 ')
+    .replace(/^Free /, '')
+    .replace(/ [Ff]ree /g, ' ');
+
+function asPaid(guide: Guide): Guide {
+  if (guide.skill === undefined || isFreeSkill(guide.skill)) return guide;
+  return {
+    ...guide,
+    meta: { title: unfree(guide.meta.title), description: unfree(guide.meta.description) },
+    hero: { ...guide.hero, eyebrow: unfree(guide.hero.eyebrow) },
+    ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'In the Amplified Skill Library' : f)) } : {}),
+  };
+}
+
+/** Every guide, by slug, with each paid skill's page worded as one. */
+export const GUIDES: Readonly<Record<string, Guide>> = Object.fromEntries(
+  Object.entries(WRITTEN).map(([slug, guide]) => [slug, asPaid(guide)]),
+);
+
+/**
+ * Whether a page's skill is paid, and so in the Skill Library rather than a download (D-080, D-082).
+ * Free fails closed, as in the catalog: a skill is free only when `FREE_SKILLS` names it.
+ */
+export const inSkillLibrary = (guide: Guide): boolean => guide.skill !== undefined && !isFreeSkill(guide.skill);
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;
 
@@ -299,6 +346,16 @@ export const SHARED = {
     sampleMore: 'See the Full Example',
     sampleLess: 'Show Less',
     bar: 'Get the Free Skill',
+  },
+  // A paid skill's page (D-082): the card in the sign-up's place, which says where the skill is now.
+  // "See Plans" goes to the offer's plans (D-075); "Sign In" is the platform's own sign-in, for
+  // people who already bought a plan. Also the button under "What you need".
+  skillLibrary: {
+    anchor: 'skill-library',
+    heading: 'In the Amplified Skill Library',
+    body: 'This skill is part of the Amplified Skill Library in the Amplified Impact platform.',
+    plans: { label: 'See Plans', href: '/offer#plans' },
+    signIn: { lead: 'Already bought a plan?', label: 'Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
   },
   footer: {
     byline: 'By Connor Leiva',

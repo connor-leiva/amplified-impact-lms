@@ -112,7 +112,7 @@ export interface Section {
 
 export interface LegalDoc {
   /** The page's URL path, which is also how the footer marks the current page. */
-  path: '/terms' | '/privacy';
+  path: '/terms' | '/privacy' | '/agreement';
   /** The <title>. */
   title: string;
   description: string;
@@ -126,6 +126,10 @@ export interface LegalDoc {
   notice?: string;
   intro: readonly Inline[];
   sections: readonly Section[];
+  /** This page's own draft state, version and date, when they differ from the shared ones (/agreement, D-073). */
+  draft?: boolean;
+  version?: string;
+  effective?: { iso: string; label: string };
 }
 
 /** Text shared by both pages: the header link, the table of contents, the footer, the draft note. */

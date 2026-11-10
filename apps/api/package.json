@@ -12,7 +12,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts",
-    "db:seed:prod": "tsx src/db/seed.ts --launch"
+    "db:seed:prod": "tsx src/db/seed.ts --launch",
+    "provision": "tsx src/billing/cli.ts provision",
+    "skills": "tsx src/billing/cli.ts skills"
   },
   "dependencies": {
     "@ai/core": "workspace:*",
@@ -30,6 +32,7 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "resend": "^6.32.0",
+    "stripe": "^19.3.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {

@@ -31,12 +31,16 @@ import { etagMatches, pageEtag } from './ai101';
 
 export const TERMS_PATH = '/terms';
 export const PRIVACY_PATH = '/privacy';
+/** The subscription agreement every offer order records (D-073): served exactly like the other two. */
+export const AGREEMENT_PATH = '/agreement';
 
 export interface LegalPages {
   /** The built `apps/web/dist/terms.html`, or null when it has not been built. */
   terms?: string | null;
   /** The built `apps/web/dist/privacy.html`, or null when it has not been built. */
   privacy?: string | null;
+  /** The built `apps/web/dist/agreement.html`, or null when it has not been built. */
+  agreement?: string | null;
 }
 
 /** One page's route. `page` is the built HTML, or null for a checkout nobody built. */
@@ -61,4 +65,5 @@ function registerPage(app: FastifyInstance, path: string, page: string | null): 
 export function registerLegalPages(app: FastifyInstance, pages: LegalPages = {}): void {
   registerPage(app, TERMS_PATH, pages.terms ?? null);
   registerPage(app, PRIVACY_PATH, pages.privacy ?? null);
+  registerPage(app, AGREEMENT_PATH, pages.agreement ?? null);
 }

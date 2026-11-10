@@ -3336,3 +3336,125 @@ yet: each skill's page, ZIPs and library card arrive with its own entry (D-053 o
 - **Long copy blocks in a setup step** (the Task Sync prompt and its morning add-on, a skill's ChatGPT Project instructions) show their first lines, about 13, fading out, so Back and Next stay near the step in the narrower card. The block is still the button that copies every word, Copy & Open still copies them all, and a screen reader still hears them all. This reaches the ChatGPT step on the 14 skill pages that have one.
 - **Tested:** web tests 1,246 and API tests 1,167 (local dev database), typecheck, lint and the build. In Chromium against the built server and the dev database, on /reel-editor and /task-sync-starter (and /offer-strategy and /team-playbook-builder again): no serious or critical axe violations, locked and unlocked at 1440 and at 390; the card stays beside the picture; a sign-up with a made-up name unlocks the card and moves focus to it; every step shows as a row and Next ticks the steps behind it; on a phone the bar shows, leads to the card and hides, and the unlocked setup comes before the picture, with no sideways scroll; with JavaScript off the form's 303 lands on #download and every step shows numbered; no console errors.
 - **Not tested:** a real phone, Instagram's in-app browser, Safari, a screen reader, and playing the two videos on a phone.
+---
+
+# The offer launch: D-073 to D-082 (accepted)
+
+The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-080 and asked for each to go in here as a proposal that Connor approves before the code merges. D-071 and D-072 were already taken (the skill pages' design, and the Reel Editor's and Task Sync Starter Kit's look), so they are numbered D-073 to D-082 below, in the spec's order.
+
+**Accepted by Connor on 2026-11-10, with edits** (in chat, the Batch 0 instructions for pull request #10): "Accept D-073 through D-082 with these required edits before merge." His decisions that day, which the entries below now carry:
+
+1. **The AI Accelerator rolls into Amplified Insiders automatically.** Cohort buyers continue at $197 a month after the cohort plus its 90 included days; cohort one's first charge is Monday, May 3, 2027 (the last build is Feb 2, 2027). It is said at sign-up, beside a required consent box.
+2. **Members cancel themselves in Stripe's billing portal,** at period end, with 30 days' notice wording, keeping every skill already released. Not email only.
+3. **Offer names:** Amplified AI Accelerator, Amplified Skill Library, Amplified Insiders, Amplified Team Plan.
+4. **The client agreement is attorney-approved as it stood**; only its draft markers, the plan names, the renewal and cancel lines and its version changed (D-075).
+5. **Free picks:** Database Health Check and Team P&L Review join Appointment Follow-Up (D-080).
+6. The Stripe-side billing requirements of 2026-11-10 (sections A to E): fixed `trial_end` instants, a separate Insiders subscription for two-pay, the installments stopped at the second paid invoice, and a locked portal configuration for buyers inside a commitment (D-077).
+
+## D-073 · Payments go through Stripe's hosted Checkout by redirect
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10 (the spec's D-071).
+**Scope:** `apps/api/src/billing/` (`checkout.ts`, `stripe.ts`, `config.ts`), `apps/api/src/routes/offer.ts`, `packages/core/src/offer.ts`, the `stripe` package (19.3.0, pinned to its own API version `2025-10-29.clover`).
+
+- No Stripe.js and no card fields on our pages. The offer form posts to `POST /api/checkout`, which writes the order and answers with the Checkout Session's URL: JSON for the page's script, a 303 for a plain form post.
+- Helmet's `form-action 'self'` would block that 303 in a browser, so the offer page's own response, and no other, adds `https://checkout.stripe.com` to `form-action`. Tested in Chromium with JavaScript off.
+- Every session carries `client_reference_id` and metadata `order_id`, `ai_plan`, `ai_option`, `origin` and `campaign`, copied to the payment or the subscription; uses the order id as its idempotency key; prefills the email, collects a phone number and expires after 60 minutes.
+- The settings are `STRIPE_SECRET_KEY` (a restricted key), `STRIPE_WEBHOOK_SECRET`, `OFFER_OPEN`, `FOUNDING_CLOSES_AT`, plus `INVITES_FROM`, `PAYMENT_LINK_*` (the fallback links) and `INTAKE_URL_*` (Sarah O.'s forms), `STRIPE_PORTAL_LOGIN_URL` and `STRIPE_PORTAL_CONFIG_LOCKED` (D-077). The API boots without any of them; the log says which are set and a key's mode, never a value.
+- `AGREEMENT_VERSION` lives beside the checkout (`billing/checkout.ts`), held equal to the page's copy by `test/offer-copy.test.ts`.
+
+## D-074 · Prices live in Stripe, found by lookup key
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10 (the spec's D-072).
+**Scope:** `billing/prices.ts`, `packages/core/src/offer.ts` (`LOOKUP_KEYS`, `priceWords`).
+
+- The code holds no amount and no price id. It asks Stripe for the six lookup keys in the handoff (`cohort_founding_full`, `cohort_founding_two_pay`, `library_upfront`, `membership_monthly`, `agents_upto15_founding`, `agents_16to40_founding`) and caches them for 5 minutes. A failed refresh keeps the last good list; with none, the page shows the Payment Links, or "The carts open soon".
+- The page prints prices the API fills per request (`%%tokens%%`), so a moved lookup key shows within 5 minutes with no deploy. When a price is missing, a card says "The price shows on the payment page" rather than a wrong number.
+
+## D-075 · Orders and Stripe events; only the webhook marks an order paid; the offer pages
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10 (the spec's D-073 and D-074, which share these files).
+**Scope:** migration `0006_offer_billing` (`orders`, `stripe_events`), `billing/webhook.ts`, `routes/offer.ts`, `routes/legal.ts`, `routes/marketing.ts`, `apps/web/src/offer/`, `apps/web/{offer,offer-welcome,agreement}.html`, `apps/web/src/legal/agreement.ts`, `apps/web/public/forum-qr.svg`, `test/authz.test.ts`.
+
+- `orders` holds one row per purchase attempt, from the page (written before Stripe is called) or from a fallback Payment Link (written by the webhook from the link's metadata and custom fields). `stripe_events` holds one row per event, inserted first, so a processed event is answered 200 and skipped.
+- The webhook checks the signature over the raw body, then does the database work inline and answers 500 on a failure so that **Stripe's own retries** bring the event back for three days. This differs from the spec's "answers 200 fast and works after": with no local retry queue, a 200 for a failed event would lose it. The work is a few queries and at most two Stripe calls, and emails go out after the commit.
+- Pages: `/offer`, `/forum` (the same page; it records `campaign` = `forum`), `/offer/welcome` and `/agreement`. They join D-051's exact allow-list (no trailing slash; `/offer/`, `/Offer`, `/offer.html`, `/offer/welcome/x` and `/forum/` never serve the page, tested), are `noindex`, and are exempt from the global limit (D-028). `/api/checkout` has its own limit (120 a minute per key, sized for a room on one address), `/api/offer/order-status` its own (600), and the webhook none.
+- Net-new UI, like the sign-in screens: the offer page, the welcome page and the agreement. Checked against the taste-skill rubric in Chromium at 390 and 1440: no sideways scroll, no axe violations, no console or CSP errors, the scripted and the no-JS checkout both reaching Stripe.
+- `/agreement` is the attorney-approved text (Connor, 2026-11-10), version `2026-11-12`, recorded on every order. Since approval only its draft markers, the plan names and the renewal and cancel lines changed (decisions 1 to 4 above).
+
+## D-076 · Buyer tags in GHL
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10 (the spec's D-075), the tag list as below.
+**Scope:** `integrations/ghl.ts` (`BUYER_TAGS`, `buyerTags`, `syncBuyerContact`), `jobs/ghl-orders.ts`, `jobs/ghl-sync.ts`.
+
+- The waitlist's GHL loop also copies buyers, on the same tick: the order is the record, GHL a copy, tags only ever added, never a phone number without SMS consent. A pending order is never copied.
+- Tags: `offer-buyer`, `plan-library` / `plan-cohort` / `plan-agents`, `pay-full` / `pay-two` (cohort), `checkout-abandoned-<plan>`, `payment-failed`, `membership-ended`, `refunded`, `event-forum-nov-2026` (orders through `/forum`), `sms-consent`, and `cohort-waitlist` (the offer page's waitlist form, a sign-up like the guides'). `intake-done` is GHL's own. `offer-interest` and `interest-<plan>` wait for P1's "not ready yet" form.
+
+## D-077 · Billing rules
+
+**Date:** 2026-11-10
+**Status:** Accepted with edits, Connor, 2026-11-10 (the spec's D-076): the auto-roll into Amplified Insiders and cancelling in the portal.
+**Scope:** `packages/core/src/offer.ts`, `billing/checkout.ts`, `billing/webhook.ts`.
+
+- **Fixed dates, as unix instants.** Amplified Insiders for cohort one starts Monday, May 3, 2027, 00:00 Central (`1809320400`); the Amplified Team Plan's first charge is Tuesday, Jan 26, 2027, 00:00 Central (`1800943200`). Checkout Sessions set `trial_end` to them; after every paid purchase, site or Payment Link, the webhook pins a subscription whose `trial_end` differs (no proration), because a link's relative `trial_period_days` drifts with the day it was last edited. Never `trial_period_days=90` for Insiders, which would bill in February. The Team Plan instant moved from the proposal's 9 am to midnight, as the Stripe-side requirements state it.
+- **The AI Accelerator in full** is one subscription: `cohort_founding_full` charged today and `membership_monthly` trialing to May 3, 2027. That subscription is the buyer's Amplified Insiders.
+- **Two payments** stay their own subscription (`cohort_founding_two_pay` only). The webhook ends it at the second paid invoice (`cancel_at_period_end`), keeping the second charge and preventing a third; its end is "complete", not "cancelled", and takes no access away. Every paid two-pay buyer, site or Payment Link, gets a **separate** Insiders subscription on the saved card, trialing to May 3, 2027, keyed `membership-autoroll-<checkout session>`, skipped when the customer already holds an active or trialing membership. The proposal's date set at checkout is gone: a `cancel_at` before a failed second payment's retries could lose that payment.
+- **The library** is one subscription: `library_upfront` charged today and `membership_monthly` on a 30-day trial, so the $197 starts on day 31. A link that could only carry the $2,000 gets its $197 started by the webhook.
+- **Cancelling** is the member's own, in Stripe's billing portal, at period end, with 30 days' notice; every renewal box, Stripe's checkout page and `/agreement` say so (`CANCEL_WORDS`), and a cancelled plan keeps every skill already released. The platform's Manage Billing button (`GET /api/billing/portal`, the owner only) opens a portal session; for a buyer inside a commitment (two-pay before payment 2, a Team Plan inside its 3-month minimum) it uses the portal configuration with cancelling off (`STRIPE_PORTAL_CONFIG_LOCKED`). The public login page cannot hide the button, so a Team Plan cancelled inside its minimum is logged for Connor, and the agreement keeps the minimum owed.
+- **Founding** closes at `FOUNDING_CLOSES_AT` (default Sun, Nov 15, 11:59 pm Central): the founding carts are refused at checkout and the page shows "Founding prices closed". A session already open can still be paid within its hour.
+- **Consent.** Every cart with a later charge has its own required box naming the amount, the start date and how to cancel (both AI Accelerator carts name Amplified Insiders); the words are stored with the order (`renewal_consent_text`). The two-pay's second payment counts as a later charge. The CRM question refuses the cohort to teams not on Follow Up Boss, offering the library and the waitlist.
+- **Refunds.** A full refund ends the plan and its access, and cancels its subscriptions so nothing charges again.
+
+## D-078 · Accounts and plans; provisioning
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10 (the spec's D-077).
+**Scope:** migration `0006` (`accounts`, `plans`), `packages/core/src/provision.ts`, `billing/provision.ts`, `billing/cli.ts`, `jobs/billing.ts`.
+
+- A paid order becomes a platform team with the buyer as an invited Team Owner, through `provisionOwner` in `@ai/core` (a pure function on `Db`, persisted with `persistDiff` under the mutations' advisory lock, like `/api/mutate`). It is not one of the 37 mutations and has no route.
+- One account per owner email; one plan per order; running it twice changes nothing. A second plan for the same buyer lands on the same account and team, raising seats and tier, never lowering them.
+- **Defaults until Spring and Connor decide:** every owner is Team tier (so the Team Hub is theirs), in cohort one (`dec26`); seats are 2 for the library and the cohort (owner plus an operations lead), 16 and 41 for the agent tiers (the agents plus the owner).
+- Invites made before `INVITES_FROM` (Mon, Nov 16, 8 am Central) are held and sent by a one-minute loop when it passes; after it, they go at once. While the platform runs in fixture mode (production today), every invite is held, because there is no sign-in for its link to reach; the first deploy in http mode sends them. The staff command `pnpm --filter @ai/api provision --order <id> [--invite-now]` re-runs provisioning for one order.
+- The 11th cohort sale is not refused; it logs an error line asking Connor to book a tech assistant.
+
+## D-079 · The skill library
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10 (the spec's D-078).
+**Scope:** migration `0006` (`skills`), `packages/core/src/skills.ts`, `billing/access.ts`, `routes/skills.ts`, `storage.ts` (`skillFileKey`, `putObject`), `billing/cli.ts`, `apps/web/src/routes/library/`, `apps/web/src/router.tsx`.
+
+- One rule, `canOpenSkill`: the skill is free; or one of the account's plans covers its set and is paid through a date on or after its release ("cancel and keep"). A refunded plan opens nothing; an agent plan opens nothing until its first charge.
+- `GET /api/skills` lists every published skill as open, locked or upcoming; `GET /api/skills/:id/download/:kind` answers 403 when the rule says no, else a 5-minute presigned link (D-024's pattern). A sales agent opens the agent set and the free skills, never an owner-and-ops-only skill.
+- `pnpm --filter @ai/api skills [--upload]` loads the catalog into the table and puts the ZIPs in the bucket under `skills/<id>/`.
+- `/skill-library` on learn is the screen: net-new UI outside the shell, like `/sign-in`, so no portal golden moves. It groups the skills by set (Owner and Operations Skills, Agent Skills, Skills for Everyone), with the downloads on an open skill, "Not in your plan." and See Plans on a locked one, and the date on an upcoming one; signed out, it offers Sign In. **No sidebar entry:** the welcome email and the www skill pages link to it, and an entry in the shell is a separate decision because it moves every portal golden.
+
+## D-080 · Only the free skills stay downloadable on www
+
+**Date:** 2026-11-10
+**Status:** Accepted with edits, Connor, 2026-11-10 (the spec's D-079): the two free picks.
+**Scope:** `packages/core/src/skills.ts` (`FREE_SKILLS`, `PAID_DOWNLOADS`), `apps/api/src/server.ts`, `apps/web/src/guides/`, `apps/web/src/library/`.
+
+- Free fails closed: a skill is free only when `FREE_SKILLS` names it. Today that is Appointment Follow-Up (the Follow Up Boss follow-up skill) and Connor's two picks, Database Health Check and Team P&L Review (2026-11-10). The voice profile and the time audit are guides, not ZIPs, and stay as they are.
+- `server.ts` stops serving every paid ZIP from `/downloads`, and any `/downloads/` path no route serves is a plain 404 rather than the SPA.
+- The tags in `skills.ts` are read off each skill's own description; changing one is a one-word edit. The Reel Editor stays paid.
+
+## D-081 · Seats by plan
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10 (the spec's D-080). **Not built:** it belongs to P2 (by Jan 26) and re-captures the Team Hub goldens.
+
+- `inviteMember` takes its limits from the account's plan (15 or 40 agents) instead of its fixed 1 owner, 1 operations lead and 5 sales agents, and the Team Hub handles 40 people. Provisioning already sets `teams.seats` from the plan (D-078).
+
+## D-082 · The skill pages of paid skills become previews
+
+**Date:** 2026-11-10
+**Status:** Accepted, Connor, 2026-11-10. The spec folds this into its D-079; it is its own entry because it changes 17 pages.
+**Scope:** `apps/web/src/guides/` and `apps/web/src/library/`.
+
+- A paid skill's page keeps its hero and its sample, and shows an "In the Amplified Skill Library" card ("This skill is part of the Amplified Skill Library in the Amplified Impact platform.", See Plans to `/offer#plans`, and "Already bought a plan? Sign In" to `learn.amplifiedimpact.io/skill-library`) in place of the sign-up and the setup. "What you need" points to See Plans. No built page links a paid ZIP, and no paid page has a sign-up form.
+- A paid page stops calling itself free: "Free" comes off its title, description and eyebrow, and its first fact reads "In the Amplified Skill Library". Its own file keeps the free words and the setup, so naming the skill in `FREE_SKILLS` brings the free page back with no other edit. The free page (Appointment Follow-Up) builds byte for byte as before.
+- The free library's cards tag each paid skill "In the Amplified Skill Library", and its lede now says "The free ones ask for your name and email. The rest are in the Amplified Skill Library."
+- **Left for Connor:** paid pages still describe the setup in their own words ("About 10 minutes to set up", "Step 1 shows you where"), and the phone's "Get the Free Skill" bar does not show on them.

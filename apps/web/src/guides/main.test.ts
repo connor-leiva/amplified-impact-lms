@@ -1,6 +1,16 @@
+import type * as Skills from '@ai/core/skills';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { validate } from './main';
 import { guideFor, renderGuideBody } from './render';
+
+// The Reel Editor and Offer Strategy are paid (D-082): their live pages show the Skill Library card, with
+// no sign-up and no setup (`skill-library.test.ts`). Their setup stays in their files for the day
+// `FREE_SKILLS` names them, and it is the fullest markup to run the script against, so this file draws
+// them as that day will: free. A paid page through the script is the last group below.
+vi.mock('@ai/core/skills', async (importOriginal) => {
+  const real = await importOriginal<typeof Skills>();
+  return { ...real, isFreeSkill: (id: string) => ['reel-editor', 'offer-strategy'].includes(id) || real.isFreeSkill(id) };
+});
 
 // The free guides' one script (D-038, D-039, D-045), against the real markup in jsdom. `main.ts` boots on
 // import, so each test renders a guide's body and then imports a fresh copy (`vi.resetModules()`).
@@ -622,5 +632,38 @@ describe('a skill page (D-071)', () => {
       await bootSkill();
       expect(bar().hidden).toBe(true);
     });
+  });
+});
+
+describe('a paid skill page (D-082)', () => {
+  // Pricing Conversation Prep: paid, and drawn as it ships, with the Skill Library card in the
+  // sign-up's place.
+  const bootPaid = (before?: () => void) => boot('/pricing-conversation-prep', before, 'pricing-conversation-prep');
+
+  it('has nothing for the gate to open: no card to unlock, no form, no setup, no sign-up bar', async () => {
+    await bootPaid(() => localStorage.setItem('pcp-unlocked', '1'));
+    expect(document.querySelector('[data-unlock-key], #guide-form, #download, [data-guided], [data-sk-bar]')).toBeNull();
+    expect($('[data-skill-library]').hasAttribute('data-state')).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('still peeks the sample, which stays as the preview', async () => {
+    await bootPaid();
+    expect($('[data-peekable]').hasAttribute('data-peek')).toBe(true);
+    $<HTMLButtonElement>('[data-sample-more]').click();
+    expect($('[data-peekable]').hasAttribute('data-peek')).toBe(false);
+  });
+
+  it('still copies "What to say" with a tap, and says so', async () => {
+    vi.useFakeTimers();
+    stub(window, 'isSecureContext', true);
+    const written = vi.fn(() => Promise.resolve());
+    stub(navigator, 'clipboard', { writeText: written });
+    await bootPaid();
+    const chip = $<HTMLButtonElement>('section.prompts button[data-copy]');
+    click(chip);
+    await vi.advanceTimersByTimeAsync(150);
+    expect(written).toHaveBeenCalledWith(chip.querySelector('[data-copy-text]')?.textContent);
+    expect($('#guide-live').textContent).toBe('Copied. Paste it into Claude.');
   });
 });

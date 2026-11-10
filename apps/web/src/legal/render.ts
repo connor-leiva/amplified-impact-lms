@@ -18,6 +18,7 @@
 // The brand package's signature drawing, byte for byte (`scripts/reference-tokens.mjs --check` holds
 // the copy in `assets/brand/` to `design-reference/brand/`). Inlined, so the logo costs no request.
 import signature from '../assets/brand/amplified-impact-signature.svg?raw';
+import { AGREEMENT } from './agreement';
 import {
   CHROME,
   DRAFT,
@@ -32,7 +33,7 @@ import {
 } from './content';
 
 /** The two pages, by the name of their HTML entry (`terms.html`, `privacy.html`). */
-export const LEGAL_PAGES = { terms: TERMS, privacy: PRIVACY } as const;
+export const LEGAL_PAGES = { terms: TERMS, privacy: PRIVACY, agreement: AGREEMENT } as const;
 export type LegalPageName = keyof typeof LEGAL_PAGES;
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -120,7 +121,7 @@ function footer(doc: LegalDoc): string {
 }
 
 /** The <head> lines for one page. While `draft`, search engines are asked not to index it. */
-export function renderLegalHead(doc: LegalDoc, draft: boolean = DRAFT): string {
+export function renderLegalHead(doc: LegalDoc, draft: boolean = doc.draft ?? DRAFT): string {
   return [
     `<title>${esc(doc.title)}</title>`,
     `<meta name="description" content="${esc(doc.description)}" />`,
@@ -129,15 +130,17 @@ export function renderLegalHead(doc: LegalDoc, draft: boolean = DRAFT): string {
 }
 
 /** Everything inside <body> for one page. */
-export function renderLegalBody(doc: LegalDoc, draft: boolean = DRAFT): string {
+export function renderLegalBody(doc: LegalDoc, draft: boolean = doc.draft ?? DRAFT): string {
+  const effective = doc.effective ?? EFFECTIVE;
+  const version = doc.version ?? LEGAL_VERSION;
   const head = [
     `<header class="doc-head">`,
     // Plain `esc`, not `highlight`: the note mentions "[brackets]" to explain them, and is not one.
     ...(draft ? [`<p class="draft" role="note">${esc(CHROME.draft)}</p>`] : []),
     `<h1 id="doc-title">${highlight(doc.heading)}</h1>`,
-    `<p class="meta">${esc(CHROME.effective)} <time datetime="${esc(EFFECTIVE.iso)}">${esc(EFFECTIVE.label)}</time>` +
+    `<p class="meta">${esc(CHROME.effective)} <time datetime="${esc(effective.iso)}">${esc(effective.label)}</time>` +
       `<span class="sep" aria-hidden="true"> · </span>` +
-      `<span class="version">${esc(CHROME.version)} ${esc(LEGAL_VERSION)}</span></p>`,
+      `<span class="version">${esc(CHROME.version)} ${esc(version)}</span></p>`,
     // The Terms' arbitration warning, set apart and in bold before anything else is read.
     ...(doc.notice ? [`<p class="notice"><strong>${highlight(doc.notice)}</strong></p>`] : []),
     `<p class="lede">${inline(doc.intro)}</p>`,

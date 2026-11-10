@@ -16,7 +16,7 @@ import { fill, ssrLoadForBuild } from '../ai101/vite-plugin.ts';
 import type * as Render from './render.ts';
 
 /** The two HTML entries, relative to the web app's root, and so their names in `dist/`. */
-export const LEGAL_HTML = ['terms.html', 'privacy.html'] as const;
+export const LEGAL_HTML = ['terms.html', 'privacy.html', 'agreement.html'] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */
 const RENDER_URL = '/src/legal/render.ts';

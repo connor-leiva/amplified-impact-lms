@@ -285,7 +285,7 @@ export const LIBRARY = {
   meta: {
     title: 'The Free Library · Amplified Impact',
     description:
-      'Free guides, Claude skills and setups for real estate teams. Most ask for your name and email, then they are yours.',
+      'Guides, Claude skills and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
     url: 'https://www.amplifiedimpact.io/library',
     siteName: 'Amplified Impact',
   },
@@ -293,7 +293,7 @@ export const LIBRARY = {
   eyebrow: 'The Free Library',
   title: 'Put AI to work on your team.',
   // Said here so a card that opens on a sign-up form is no surprise: five of the six live pages ask.
-  lede: 'Free guides, Claude skills and setups for real estate teams. Most ask for your name and email, then they are yours.',
+  lede: 'Guides, Claude skills and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
   // Never seen: it names the list for a screen reader, under the page's one heading.
   listHeading: 'Everything in the library',
   filters: {
@@ -312,4 +312,10 @@ export const LIBRARY = {
   empty: 'Nothing matches that.',
   clear: 'Clear filters',
   soon: 'Coming soon',
+  /**
+   * The tag on a paid skill's card (D-082): its page is a preview, and the skill is in the Skill
+   * Library on the platform. Which skills are paid is the catalog's call (`FREE_SKILLS` in
+   * `@ai/core/skills`), read through the skill's page, so this file names none.
+   */
+  paid: 'In the Amplified Skill Library',
 } as const;
