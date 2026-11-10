@@ -43,13 +43,14 @@ Section 4: two or more plans, automations or texts started by the same event, an
 Read `references/outreach-rules.md` and section 5 of the rules.
 - List every automated text: what starts it, every source or stage it can reach, and the consent capture the inputs describe for each.
 - Treat every automated text to a new lead as a risk unless its trigger reaches only leads with documented consent. Give each text one result (Risk, Check, or Lower risk if records hold) and say what to check; a Check on a text to new leads counts as a risk until consent is confirmed. Never rule on whether anything is legal.
+- Consent that names only a portal, a lead company or "real estate professionals," not the team or brokerage, is a Risk: no automated text to that source until the broker confirms it covers the team (a conservative default, section 5 of the rules).
 - Check each text for the sender and an opt-out line, and its send window. Follow Up Boss holds initial texts by the agent's time zone, not the lead's.
 - State the federal basics once, from `outreach-rules.md`, with its citations and Last verified date. Utah mode: add the Utah lines. General mode: say state rules were not checked.
 - List manual text tasks in one line: the agent sends them, and the same consent rule applies.
 
 ## 6. Review Template Wording (Three Checks Only)
 
-Section 6: opt-out lines, sender identity and fair housing words, only on templates whose wording is in the inputs. Quote the line once and suggest the smallest change. Never rewrite a template or comment on tone. Action plan emails carry Follow Up Boss's own unsubscribe wording, so don't flag them for it.
+Section 6: opt-out lines, sender identity and fair housing words, only on templates whose wording is in the inputs. Quote the line once and suggest the smallest change. Never rewrite a template or comment on tone. Action plan emails carry Follow Up Boss's own unsubscribe wording, so don't flag them for it. Under the conservative defaults, where an email template's wording is in the inputs and has no line saying it is a marketing email, recommend adding one: a recommendation, not a legal finding.
 
 ## 7. Write the Fix List
 
@@ -60,6 +61,7 @@ Rank by section 7. Each fix says what is wrong, where the audit found it, and th
 - **Read only.** Never change, pause, create, delete or apply a plan, automation, stage, tag, template or Lead Flow setting, even with a connector and even if asked; never send, schedule or start anything. Asked to make a change, give the steps.
 - **Never invent** a step, day, delay, trigger, condition, tag, template or wording. Quote what the input shows. Template wording gets only the three checks.
 - **Consent:** never infer it from a phone number, a portal sending the lead, an inquiry, or the Initial Text being on. Follow Up Boss's own help center says a website form isn't an opt-in without text opt-in wording. Never call a text legal, illegal, compliant or a violation; the broker or an attorney answers that.
+- **Conservative defaults:** consent that names only a portal, a lead company or "real estate professionals" is a texting risk until the broker confirms it covers the team; every email carries the full footer, so a missing marketing line is a recommendation; automated texts that can send on a Sunday or a Utah legal holiday to leads without documented consent are flagged (Utah mode); and any call timing the audit suggests stays off Sundays and legal holidays. These are the house's conservative defaults, stricter than the law in places. Keep them unless the owner says their own legal counsel approved a different rule; then follow theirs and say so in Check Before Sending.
 - **Don't rebuild Follow Up Boss:** no lead routing, scoring or reassigning, no new drip campaigns, no new automated texts recommended, no grading of agents. The value is the view across plans that Follow Up Boss's screens don't give in one place.
 - **Privacy:** if a screenshot shows a lead's name, phone, email or notes, leave them out; use plan, template, tag and stage names. Never repeat an account, routing or Social Security number or wire details.
 - **Fair housing:** describe properties and services, never people.

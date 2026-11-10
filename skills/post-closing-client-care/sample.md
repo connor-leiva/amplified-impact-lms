@@ -1,6 +1,6 @@
 # Post-Closing Client Care: Taylor and Jamie Mockwood, 1482 W Fakewater Ln
 
-Prompt: "We just closed on 1482 W Fakewater Ln. Here's my TC's closing email, my notes, my vendor list and my review links. I'm Sam Testerfield with Example Ridge Realty. Build Taylor and Jamie's first year." Files: the four practice files. Run on Tuesday, November 10, 2026, the day the made-up deal recorded; on a later day, the closing-day touches are flagged as past and moved up. Graded 11 of 11 (`evals/runs/eval-1-buyer-closing/grading.md`).
+Prompt: "We just closed on 1482 W Fakewater Ln. Here's my TC's closing email, my notes, my vendor list and my review links. I'm Sam Testerfield with Example Ridge Realty. Build Taylor and Jamie's first year." Files: the four practice files. Run on Tuesday, November 10, 2026, the day the made-up deal recorded; on a later day, the closing-day touches are flagged as past and moved up. Graded 11 of 11 (`evals/runs/eval-1-buyer-closing/grading.md`); its email footers and three Check Before Sending lines were updated afterward for the conservative defaults.
 
 ## Flags
 
@@ -66,6 +66,8 @@ Tonight, to Taylor and Jamie.
 >
 > Sam Testerfield
 > Example Ridge Realty
+>
+> To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from Sam Testerfield, Example Ridge Realty.
 
 ## Review Request
 
@@ -119,7 +121,7 @@ Tonight, Tuesday, November 10, 2026, to Taylor and Jamie (Taylor asked for a pai
 > Sam Testerfield
 > Example Ridge Realty
 >
-> To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address].
+> To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from Sam Testerfield, Example Ridge Realty.
 
 Not introduced: Pretend Gardens Landscaping (Jamie plans to plant the garden herself, so it's a talking point, not a job) and the rest of your list (nothing in the notes calls for them).
 
@@ -197,12 +199,12 @@ Follow Up Boss can remind you when each touch is due. These are steps for you or
 
 **Texts.** Keep Taylor's written consent record (the text consent form signed with the buyer intake on 8/14/2026). Send each text by hand, one at a time, between 8 a.m. and 8 p.m. Mountain. No texts to Jamie.
 
-**Calls and Do Not Call.** Taylor and Jamie closed with you today, so the day 90 call falls inside the 18-month established business relationship window in outreach-rules.md, but any do-not-call request ends it. Check your own do-not-call list before you call.
+**Calls and Do Not Call.** Taylor and Jamie closed with you today, so the day 90 call falls inside the 18-month established business relationship window in outreach-rules.md, but any do-not-call request ends it. Check your own do-not-call list before you call. The day 90 call, Monday, February 8, 2027, is not a Sunday or a Utah legal holiday (Presidents' Day is Monday, February 15), so it keeps its date.
 
-**Email footer.** Fill [Unsubscribe Link] and [Sender Postal Address] with a working link and your real postal address, and confirm the footer wording with your broker. The thank-you email has no footer on purpose (it's about the closing they just finished); add one if you add anything promotional. The vendor email leaves off the "marketing email" line because Taylor asked for a painter.
+**Email footer.** Fill [Unsubscribe Link] and [Sender Postal Address] with a working link and your real postal address, and confirm the footer wording with your broker. Every email carries the full footer, the thank-you and the vendor email included, even though Taylor asked for a painter. That's a conservative default.
 
 **County.** Davis County, from "with the Davis County Recorder." The assessor's link was checked on 2026-11-10. Agent only: Utah's process changes on January 1, 2027 (S.B. 238): new owners file Form TC-473A with the county board of equalization, by September 15 (Utah State Tax Commission). Through December 31, 2026, the assessor mails a declaration after a sale; Davis County calls it the PT-19A, and its page says five business days while the statute says 90 days. Ask the Davis County Assessor what applies to a November 2026 purchase. The email states no percentage, amount, deadline or eligibility.
 
 **Gift.** The framed sketch and the pie from Sample Street Bakery, as your notes name them.
 
-**State rules.** Utah mode. The texting, calling and email rules are federal (outreach-rules.md). Utah's evening, Sunday and holiday limits (Utah Code 13-25a-103(3)) don't apply to a licensee acting within the license (13-25a-111); texts here go 8 a.m. to 8 p.m. as house practice. Other Utah rules weren't checked. Confirm with your broker.
+**State rules.** Utah mode. The texting, calling and email rules are federal (outreach-rules.md). Utah's evening, Sunday and holiday limits (Utah Code 13-25a-103(3)) don't apply to a licensee acting within the license (13-25a-111); texts here go 8 a.m. to 8 p.m. as house practice, and no call goes on a Sunday or a Utah legal holiday (a conservative default). Other Utah rules weren't checked. Confirm with your broker.

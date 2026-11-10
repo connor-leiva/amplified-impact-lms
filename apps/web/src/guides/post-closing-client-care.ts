@@ -19,8 +19,9 @@
 // straight quotes and apostrophes are written curly, as on every page.
 //
 // What the page holds to, as SKILL.md does: drafts only, never sent, never written to a CRM, no action
-// plan started. Texts only for clients who agreed to texts. One review ask for every client, no reward for
-// a review and none tied to a rating (16 CFR 465.4), no gating (16 CFR 255.2). Only the agent's own
+// plan started. Texts only for clients who agreed to texts. One review ask for every client, no reward of
+// any kind for a review (16 CFR 465.4 bars the rating-tied kind; the rest is a conservative default), no
+// gating (16 CFR 255.2). Only the agent's own
 // vendors, every relationship said, none that pays for referrals (RESPA Section 8), an affiliated business
 // with its disclosure first. No tax, legal or insurance advice: the county assessor or a professional.
 // Nothing from the notes about health, money or family, no price, nothing invented.
@@ -29,10 +30,11 @@
 //   - Connor's filter: Follow Up Boss action plans can already schedule post-close touches. The page says
 //     so (the first FAQ) and says the skill's part is the writing from this deal's facts plus the review
 //     and vendor rules; the Follow Up Boss part is setup steps only.
-//   - The email footer: every email but the thank-you carries outreach-rules.md's opt-out and postal
-//     address footer (the vendor email without the "marketing email" line, because the client asked). The
-//     sample shows it as written. Whether a one-to-one client email needs it is a broker question, left
-//     to Connor, as on /sphere-touch-plan.
+//   - The email footer: every email, the thank-you and the vendor introductions included, carries
+//     outreach-rules.md's full footer (the opt-out, the postal address and the marketing line). That is
+//     Connor's conservative default, as are no reward of any kind for a review and no call on a Sunday
+//     or a legal holiday; the FAQ says they can be calibrated with the agent's own legal counsel. The
+//     sample shows the footer as written, and its day 90 call is on neither a Sunday nor a holiday.
 //   - Utah's primary residential exemption changes on January 1, 2027 (S.B. 238): the page says only that
 //     the reminder points to the county and mentions the change, never a percentage, a deadline or who
 //     qualifies. Only Salt Lake and Davis County assessor pages were read; the page names no county.
@@ -179,6 +181,7 @@ export const POST_CLOSING_CLIENT_CARE: Guide = skillPage({
               'I’ll check in next Tuesday, November 17, to see how the move is going. Until then, if anything about the house comes up, call me.',
               'Sam Testerfield',
               'Example Ridge Realty',
+              'To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from Sam Testerfield, Example Ridge Realty.',
             ],
           },
         },
@@ -225,7 +228,7 @@ export const POST_CLOSING_CLIENT_CARE: Guide = skillPage({
               'I don’t receive anything for referring either one, and you’re free to use anyone you like.',
               'Sam Testerfield',
               'Example Ridge Realty',
-              'To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address].',
+              'To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from Sam Testerfield, Example Ridge Realty.',
             ],
           },
         },
@@ -266,7 +269,7 @@ export const POST_CLOSING_CLIENT_CARE: Guide = skillPage({
             '“I don’t receive anything for referring either one” comes from your list’s header (“I don’t take referral fees or anything else from anyone on this list”). Confirm it’s still true for both before you send.',
             'Review links: open each once to check it lands on your profile. Send this same ask to every client, whatever you expect them to say.',
             'Texts: keep Taylor’s written consent record. Send each text by hand, one at a time, between 8 a.m. and 8 p.m. Mountain. No texts to Jamie.',
-            'Email footer: fill [Unsubscribe Link] and [Sender Postal Address], and confirm the wording with your broker. The thank-you email has no footer on purpose.',
+            'Email footer: fill [Unsubscribe Link] and [Sender Postal Address], and confirm the wording with your broker. Every email carries the full footer, the thank-you and the vendor email included. That’s a conservative default.',
           ],
         },
       ],
@@ -450,7 +453,7 @@ export const POST_CLOSING_CLIENT_CARE: Guide = skillPage({
           // page-notes.md, FAQ; references/reviews-and-vendors.md, Reviews.
           q: 'Can I give a gift card for a five-star review?',
           a: [
-            'No. The FTC’s review rule bars any reward tied to what a review says (16 CFR 465.4), and Google bars any reward for a review at all. The AI leaves the reward out and drafts an ask you can send every client. A closing gift is fine, as long as it’s a thank-you for the closing and never tied to a review.',
+            'No. The FTC’s review rule bars any reward tied to what a review says (16 CFR 465.4), and Google bars any reward for a review at all. The AI leaves the reward out and drafts an ask you can send every client. It offers no reward of any kind for a review: no gift, gift card, discount, drawing or donation, before or after, tied to the rating or not. A closing gift is fine, as long as it’s a thank-you for the closing and never tied to a review.',
           ],
         },
         {
@@ -472,6 +475,14 @@ export const POST_CLOSING_CLIENT_CARE: Guide = skillPage({
           q: 'What does it say about property taxes, and what about my state?',
           a: [
             'For a Utah buyer, the day 30 email says to watch for the county assessor’s form about the home’s primary residential exemption and return it by the date on it, notes that Utah’s process changes on January 1, 2027, and links the county. It never says whether they qualify or what they’ll save. Outside Utah, it says to ask the county assessor whether an application is needed, and that state rules weren’t checked. We tested it on made-up Utah and Idaho closings, not yet on real files or inside ChatGPT, so run the practice files first.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails (Conservative defaults); outreach-rules.md, Conservative
+          // Defaults.
+          q: 'Why is it stricter than the law?',
+          a: [
+            'A few rules are our conservative defaults, stricter than the law in places. Every email carries the full footer (an opt-out, your postal address and a line saying it’s a marketing email), the thank-you and the vendor introductions included. No reward of any kind for a review, before or after, tied to the rating or not. And no call or voicemail on a Sunday or a legal holiday. You can calibrate them with your own legal counsel: tell the AI the rule your counsel approved, and it follows that and says so in Check before sending.',
           ],
         },
       ],

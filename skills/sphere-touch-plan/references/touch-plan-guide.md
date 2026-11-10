@@ -95,7 +95,8 @@ Decide each channel from the export and the agent's message, never from a phone 
 | Call | A phone number | Do Not Call, DNC or Do Not Contact; no phone |
 
 - A Do Not Call request covers texts too: the FCC treats a text as a call.
-- A yes recorded from a website form or an open house sign-in counts only if that form or sheet had text consent wording. Draft the text and put that check first in Check Before Sending.
+- A yes recorded from a website form or an open house sign-in counts only if that form or sheet had text consent wording that names the agent's team or brokerage. Draft the text and put that check first in Check Before Sending.
+- A yes from a purchased, portal or shared lead (a portal, a lead company, a referral network) counts only when the consent record names the agent's team or brokerage. If it names only the portal, the lead company or "real estate professionals," no text until the broker confirms it covers them (a conservative default in `outreach-rules.md`): draft an email, or a call note when there is no email, and flag it. If the export doesn't show what it names, draft the text and put that check first in Check Before Sending.
 - A yes the agent gives in chat: draft the text and say to keep the written record (the reply, the form) with its date.
 
 **Which draft:** the month's touch kind decides it, then the open channels.
@@ -125,8 +126,11 @@ Every draft is tied to at least one real thing in the export, named in its "Why 
 Follow the user's voice profile QUICK CARD when one is in the conversation, including its sign-off and the words it bans. Without one: warm, plain, direct. Sign with the user's name or [Agent Name]. Call people by first name. No "stunning," "dream home," "don't hesitate to reach out," "touch base," "circle back," "just checking in" or "I hope this email finds you well."
 
 - **Text:** 300 characters or fewer, one question, no links unless the agent gives one. Start "Hi [First Name], it's [Agent First and Last Name] with [Team or Brokerage Name]." End with "Reply STOP to opt out." Each one is for the agent to send by hand, one at a time, from their own number. Never a mass text.
-- **Email:** a Title Case subject that says what the email is (never "RE:" or "FWD:"); 120 words or fewer; short paragraphs; one easy question. After the sign-off, this footer, from `outreach-rules.md`: "To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from [Agent Name], [Brokerage Name]."
+- **Email:** a Title Case subject that says what the email is (never "RE:" or "FWD:"); 120 words or fewer; short paragraphs; one easy question. After the sign-off, on every email, a one-to-one note to a past client included, this footer, from `outreach-rules.md`: "To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from [Agent Name], [Brokerage Name]."
 - **Call note:** the agent's name and team in the first sentence, the "why now" in the second, one open question, and a one-line voicemail with [Agent Phone]. Nothing that pressures or misleads.
+- **No calls on Sundays or legal holidays** (a conservative default in `outreach-rules.md`): a call note's send day is never a Sunday or a federal legal holiday. One that would land on one moves to the next day that is neither, with a one-line why. When the send day is "this week," name the days to skip. Texts and emails keep their day.
+- **Federal legal holidays** (5 U.S.C. 6103, checked 2026-11-10): New Year's Day (January 1), the Birthday of Martin Luther King, Jr. (third Monday in January), Washington's Birthday (third Monday in February), Memorial Day (last Monday in May), Juneteenth (June 19), Independence Day (July 4), Labor Day (first Monday in September), Columbus Day (second Monday in October), Veterans Day (November 11), Thanksgiving Day (fourth Thursday in November) and Christmas Day (December 25). One that falls on a Saturday is observed the Friday before, and one on a Sunday the Monday after: skip that day too. State holidays, Utah's included, were not checked; say so.
+- **The next ones:** Wednesday, November 11, 2026; Thursday, November 26, 2026; Friday, December 25, 2026; Friday, January 1, 2027; Monday, January 18, 2027; Monday, February 15, 2027; Monday, May 31, 2027; Friday, June 18, and Saturday, June 19, 2027; Monday, July 5, 2027 (July 4 is a Sunday); Monday, September 6, 2027; Monday, October 11, 2027; Thursday, November 11, 2027.
 - **Card text:** two or three sentences in the agent's hand, tied to the "why now." No footer needed for mail.
 - Each draft gets: who it goes to, the tier, the channel and why (for example "Email: Text Consent says Revoked"), the day to send it (the anniversary day, or the first day of the window), and the "Why now" line with the column or note it came from.
 
@@ -136,7 +140,7 @@ Follow the user's voice profile QUICK CARD when one is in the conversation, incl
 - Each fact a draft mentions, with the note's date or the column.
 - Texts: the written consent record for each person texted (it names the agent or team and the phone number), including any yes the agent gave in chat and any open house or website form yes; texts go out one at a time by hand.
 - Calls and texts: scrub the numbers against the National Do Not Call Registry and the agent's internal do-not-call list, unless the broker confirms an exception applies (a past client within 18 months of closing is one example in `outreach-rules.md`). Follow Up Boss has no built-in scrub.
-- Quiet hours: texts and calls between 8 a.m. and 8 p.m. in the recipient's time zone.
+- Quiet hours: texts and calls between 8 a.m. and 8 p.m. in the recipient's time zone. No calls on a Sunday or a legal holiday; texts and emails keep their day, weekends included.
 - Emails: the unsubscribe link works and the postal address is real.
 - Opt-outs: honor every STOP, unsubscribe and do-not-call request within 10 business days and mark it in the CRM.
-- State rules: federal rules and three states are in `outreach-rules.md`; other states' calling and texting rules, Utah's included, were not checked. Confirm with your broker.
+- State rules: federal rules and three states are in `outreach-rules.md`; other states' calling and texting rules, Utah's included, were not checked, and neither were state holidays. Confirm with your broker.

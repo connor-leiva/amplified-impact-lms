@@ -37,7 +37,7 @@ Read `references/fair-housing-and-representation.md` and the "Checklist for Skil
 - **NO AGENT:** thanks, one or two specifics from the notes about what they liked or asked (as noted; none when the notes say nothing about them), each thing the agent promised them with its date, and an offer to answer questions, show it again and help with their search.
 - **AGENT STATUS UNKNOWN:** the same, but help is offered only "if you're not already working with an agent," with no request to meet, call or tour. A second look at this home is fine when they asked for one, with "if you're working with an agent, they can set it up with me."
 - **A question the agent didn't answer or promise anything on:** the draft may say "I'll find out and let you know," and Check before sending marks it as a new promise, not in the notes.
-- **Emails:** a Title Case subject that names the property; under 120 words in the body; first name; every day named carries its date; a file the agent promised is "coming," never "attached"; the footer from the guide.
+- **Emails:** a Title Case subject that names the property; under 120 words in the body; first name; every day named carries its date; a file the agent promised is "coming," never "attached"; the full footer from the guide (Email Footers), thank-yous included.
 - **Texts, TEXT OK only:** above each text, a "Consent:" line saying where consent came from. The text names the agent and brokerage, gives [Agent Phone] unless the conversation has the number, points to the email for details, ends with "Reply STOP to opt out.", and stays at 320 characters or fewer.
 - **Voice:** follow the user's voice profile when one is in the conversation (a Project's instructions such as the "My Voice" project from amplifiedimpact.io/voice-profile, their preferences, or a voice skill), including its sign-off. Without one: warm, plain, direct. Sign with the user's name; otherwise [Agent Name].
 - None of "stunning," "dream home," "don't hesitate to reach out," "touch base" or "circle back."
@@ -49,13 +49,14 @@ Read `references/fair-housing-and-representation.md` and the "Checklist for Skil
 - **What visitors said:** only from the notes, as features and reactions, with counts only as the notes give them ("two groups said..."). No names, no contact details, no descriptions of people.
 - **Price:** a visitor's price comment goes in as feedback only. Never recommend a price or a change. If the notes hold the agent's own price opinion, leave it out and flag it: that conversation is the agent's (`pricing-conversation-prep` helps prepare it).
 - **Questions to answer:** every question visitors asked about the home that the sellers can help answer, without who asked.
-- What happens next, as the agent noted it. Under 200 words, with a Title Case subject.
+- What happens next, as the agent noted it. Under 200 words, with a Title Case subject and the same full footer.
 
 ## 5. Dates, Send Times and Location
 
 - Resolve every relative date in the notes against the open house date and write the weekday and date. Mark each in Check before sending with the words it came from.
 - **Written a day or more after the open house:** the drafts name the day ("on Sunday"), never "today." Every promise already due is flagged and becomes the first next step.
 - **Send window:** texts between 8 AM and 8 PM in the visitor's local time. When the open house ended late, say "by 8 PM tonight or after 8 AM tomorrow" with tomorrow's date.
+- **Calls:** no call or voicemail on a Sunday or a legal holiday (the guide's Dates and the Send Window lists them). A call that would land on one moves to the next day that is neither, with a one-line why. Texts and emails keep their day.
 - **Utah mode** when the property is in Utah: read `references/utah-open-house-notes.md`. Otherwise general mode: skip it and say "State rules were not checked."
 
 ## Run, Draft, Own
@@ -69,7 +70,8 @@ Read `references/fair-housing-and-representation.md` and the "Checklist for Skil
 - **Facts only from the inputs:** every name, date, count, feature, question and promise comes from the sheet, the notes or the agent's message. Never invent what a visitor said, liked or asked. Quote a visitor only when the notes quote them.
 - **Represented visitors:** thank-you only, every time, marked clearly, with questions routed through their agent.
 - **Fair housing:** describe the property, never the visitors. Never write who the home suits. Leave out every description of a visitor and every remark about who lives in the area, with one generic agent-only flag; schools and safety get official sources only.
-- **Texts and email:** texts only for TEXT OK visitors, with the consent line, the sender and "Reply STOP to opt out."; never treat a phone number as consent; every visitor email carries the opt-out and postal address footer. Consent and state-law questions go to the broker or an attorney.
+- **Texts and email:** texts only for TEXT OK visitors, with the consent line, the sender and "Reply STOP to opt out."; never treat a phone number as consent; every email, the seller update included, carries the full footer (the marketing line, the opt-out and the postal address). Consent and state-law questions go to the broker or an attorney.
+- **Conservative defaults:** every email carries the full footer, even a thank-you to a represented visitor and the seller update, and no call or voicemail goes on a Sunday or a legal holiday, even with consent and even where Utah exempts licensees. These are the house's conservative defaults, stricter than the law in places. Keep them unless the user says their own legal counsel approved a different rule; then follow theirs and say so in Check before sending.
 - **Privacy:** no visitor names, contact details or personal details in the seller update; no preapproval, budget or other money details anywhere; no email addresses or phone numbers repeated except to flag a missing or unreadable one. Never ask for, repeat or handle wire, account, routing or Social Security numbers.
 - **Stay in lane:** no price advice, no promise about offers or timing. Not the lender, attorney or broker.
 - **Drafts only:** never send, text, post or write to a CRM. If the sign-in app already sent an automatic thank-you, these are the personal follow-ups; don't rebuild the app's automation.
@@ -82,6 +84,6 @@ Read `references/fair-housing-and-representation.md` and the "Checklist for Skil
 4. **Visitor drafts:** one section per visitor, in sheet order
 5. **Seller update** (or Listing Agent Update)
 6. **Next steps:** dated, in order: promises already due, the drafts and when to send them, each promise from the notes, and answers to route through a visitor's agent
-7. **Check before sending:** every date (resolved ones with the words they came from), time, count, address, name spelling, promise and quoted feedback in items 4 and 5, each with its source; the consent source for every text; quiet hours, a Do Not Call scrub, a real postal address and the user's state rules
+7. **Check before sending:** every date (resolved ones with the words they came from), time, count, address, name spelling, promise and quoted feedback in items 4 and 5, each with its source; the consent source for every text; quiet hours, no calls on a Sunday or a legal holiday, a Do Not Call scrub, a real postal address and the user's state rules
 
 If the agent asks for only one piece ("just the seller update"), give that piece with the flags and Check before sending.

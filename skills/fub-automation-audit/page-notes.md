@@ -80,6 +80,8 @@ Tip: before taking screenshots of anything that shows a lead's name or phone (a 
 
 **Will it tell me whether our texts are legal?** No. It tells you which automated texts can reach people with no documented consent, what to check, and the federal basics with their sources; your broker or an attorney makes the call. In Utah it adds Utah's Sunday and holiday question.
 
+**Why is it stricter than the law?** It uses our conservative defaults. Consent that names only a portal, a lead company or "real estate professionals," and not your team or brokerage, counts as a texting risk: no automated text to that source until your broker confirms it covers you. Every email should carry the full footer, so where a template has no line saying it's a marketing email, the audit recommends one. In Utah, automated texts that can send on a Sunday or a legal holiday to leads without documented consent get flagged. You can calibrate these with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check Before Sending.
+
 **We're on Automations 2.0. Does it work?** Yes: screenshot each automation's canvas. The fixes follow the 2.0 screens. One thing Follow Up Boss's help center doesn't say is whether a 2.0 automation stops when a lead replies, so the audit lists that as a question.
 
 ## Practice Prompt

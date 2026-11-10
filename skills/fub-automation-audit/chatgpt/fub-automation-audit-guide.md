@@ -134,8 +134,9 @@ For every automated text (each Lead Flow initial text, each outside campaign ste
 
 - **What starts it,** and every source or stage it can reach. A tag added for everyone from a source reaches everyone from that source.
 - **Consent capture for each source it reaches,** as the inputs describe it: documented (the form's text consent wording is quoted or described), not documented (the form has no text wording), or not described. A phone number, a portal sending the lead, an inquiry, or the Initial Text being switched on is never consent.
+- **Portal-only consent (a conservative default, `outreach-rules.md`):** wording that names only a portal, a lead company or "real estate professionals," and not the team or brokerage, counts as not documented for the team. The result is Risk, and the fix is no automated text to that source until the broker confirms the consent covers the team. When a portal or lead company source's consent isn't described, the Check asks whose name its wording gives.
 - **The result,** one of three, with the reason:
-  - **Risk:** it can reach leads with no documented consent.
+  - **Risk:** it can reach leads with no documented consent, portal-only consent included.
   - **Check:** consent capture isn't described for at least one source it reaches. A Check on a text that reaches new leads is treated as a risk until the owner confirms the consent capture, and ranks with the risks in the fix list.
   - **Lower risk if records hold:** it reaches only sources whose forms carry text consent wording; confirm the wording and that records are kept.
 - Treat every automated text to a new lead as a risk unless its trigger reaches only leads with documented consent. Never say legal, illegal, compliant, a violation or "allowed": say what to check.
@@ -148,7 +149,7 @@ For every automated text (each Lead Flow initial text, each outside campaign ste
 
 Only on templates whose wording is in the inputs. Quote the line once and suggest the smallest change. Never rewrite a template, and never comment on tone, length or sales copy.
 
-1. **Opt-out:** every automated text carries an opt-out line, such as "Reply STOP to opt out." Action plan emails get Follow Up Boss's unsubscribe wording automatically, so don't flag a missing unsubscribe line in them; add one Check Before Sending line to confirm the company name and address in Admin > Company, which that footer uses.
+1. **Opt-out and footer:** every automated text carries an opt-out line, such as "Reply STOP to opt out." Action plan emails get Follow Up Boss's unsubscribe wording automatically, so don't flag a missing unsubscribe line in them; add one Check Before Sending line to confirm the company name and address in Admin > Company, which that footer uses. Under the house's conservative defaults (`outreach-rules.md`), every email also carries a plain line that says it is a marketing email, such as "This is a marketing email from {Agent Name}, [Team or Brokerage Name]." Follow Up Boss's unsubscribe wording doesn't say that. Where an email template's wording is in the inputs and has no such line, recommend adding it to the template. It is a recommendation, not a legal finding: never call the email noncompliant. Email templates whose wording isn't in the inputs get one Check Before Sending line to look for it.
 2. **Sender identity:** every automated text names the agent and the team or brokerage.
 3. **Fair housing words:** words about people, schools or safety instead of the property, such as "perfect for families," "young families," "family-friendly," "great schools," "good schools," "safe neighborhood," "safe area," "exclusive," "integrated," "no kids," "adults only," "bachelor pad," "walking distance to church" or any place of worship. Suggest deleting the phrase or replacing it with a fact about the property, and pointing to official sources for schools. A word that only describes a feature ("family room," "walk-in closet") is fine.
 
@@ -163,7 +164,8 @@ Rank, highest first:
 6. Plans that end with no next step.
 7. Active stages with nothing attached, then other stages.
 8. Long silences.
-9. Things only a person can confirm (consent not described, a day reading assumed, stop on reply not shown, a link marked "to confirm").
+9. Recommended under the conservative defaults, not findings: the marketing line missing from an email template.
+10. Things only a person can confirm (consent not described, a day reading assumed, stop on reply not shown, a link marked "to confirm").
 
 Each fix is one numbered item: what is wrong and where the audit found it, then the clicks in Follow Up Boss, in the account's version. When the fix is a choice (which of two plans keeps running, whether a source should get an automated text at all), give the options and say the owner decides. When the change is in an outside tool, say so and name the Follow Up Boss step that starts it. Remind once that editing a plan reaches only contacts who haven't reached that step yet. Never write that a change was made.
 
@@ -184,4 +186,4 @@ Each question names the input that raised it: a consent capture not described, a
 
 ## 9. Check Before Sending
 
-Before the owner shares the audit or changes anything in Follow Up Boss: every plan, automation and template name; every day with its arithmetic; every trigger, condition and tag; every quoted line; every count; each with its source. Then every reading assumed, the consent records for each texting source, a Do Not Call scrub, quiet hours in the lead's time zone, the company name and address in Admin > Company, the outside tool's own settings, the state rules (the Utah lines, or "state rules were not checked"), and "confirm with your broker or an attorney" for every consent question.
+Before the owner shares the audit or changes anything in Follow Up Boss: every plan, automation and template name; every day with its arithmetic; every trigger, condition and tag; every quoted line; every count; each with its source. Then every reading assumed, the consent records for each texting source, a Do Not Call scrub, quiet hours in the lead's time zone, the company name and address in Admin > Company, the marketing line in each email template, the outside tool's own settings, the state rules (the Utah lines, or "state rules were not checked"), and "confirm with your broker or an attorney" for every consent question.

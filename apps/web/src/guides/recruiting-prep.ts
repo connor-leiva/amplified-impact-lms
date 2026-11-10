@@ -307,7 +307,7 @@ export const RECRUITING_PREP: Guide = skillPage({
           items: [
             'Texts: 2 first-touch texts (R022, R074); check each consent record names your team or brokerage and the number. R065 held for a record; R020 held until you confirm they’re not on your team.',
             'Before any call or text: scrub against the National Do Not Call Registry and your internal list; R083 is Do not contact.',
-            'Quiet hours: texts only between 8 a.m. and 8 p.m. in the recipient’s local time.',
+            'Quiet hours: texts only between 8 a.m. and 8 p.m. in the recipient’s local time, and no calls or voicemails on a Sunday or a legal holiday.',
             'Email: a working [Unsubscribe Link] (live at least 30 days). The postal address on your one-pager has no ZIP code; add it so it’s a complete postal address.',
             'North Carolina: state texting and telemarketing rules were not checked; confirm with your broker.',
           ],
@@ -517,6 +517,14 @@ export const RECRUITING_PREP: Guide = skillPage({
             'No. The AI never sends anything. It drafts texts only for contacts your file shows have documented consent, like a signed form or a dated opt-in. Anyone with a bare “yes” waits until you confirm a written record. Every text names you and your team and ends with ',
             { strong: 'Reply STOP to opt out' },
             '. Every email has an unsubscribe line and your postal address. Whether federal telemarketing rules reach a recruiting text isn’t settled, so the drafts follow every marketing text rule anyway. State rules differ: the AI adds notes for Florida, Maryland and Oklahoma, and says any other state wasn’t checked. Confirm yours with your broker.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails ("Conservative defaults"); the shared outreach-rules.md,
+          // Conservative Defaults.
+          q: 'Why is it stricter than the law?',
+          a: [
+            'It uses our conservative defaults. Every email carries the full footer: the line that says it’s a recruiting message, the way to opt out and your postal address. No calls or voicemails go on a Sunday or a legal holiday. A consent record that names only a portal, a lead company or “real estate professionals,” and not your team or brokerage, means no text until your broker confirms it covers you. You can calibrate these with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check before sending.',
           ],
         },
         {

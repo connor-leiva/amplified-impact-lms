@@ -47,7 +47,7 @@ Say in Flags which column was read as the agent question and which as consent wh
 | Consent blank or "No," no consent column, or only a phone number | EMAIL ONLY | Email only. A phone number alone is never consent |
 | Consent checked but no phone number | EMAIL ONLY | Email only; flag it |
 | A do-not-contact box, or the notes say no follow-up | NO DRAFT | Listed in Flags; nothing drafted |
-| No email and not TEXT OK | NO DRAFT | Listed for the agent to decide. A call is the agent's call; check the Do Not Call list first |
+| No email and not TEXT OK | NO DRAFT | Listed for the agent to decide. A call is the agent's call: check the Do Not Call list first, and never on a Sunday or a legal holiday |
 | The same email, phone or full name on two rows | One visitor | One set of drafts. Count rows and visitors separately |
 
 ## Counting for the Seller Update
@@ -65,6 +65,9 @@ Say in Flags which column was read as the agent question and which as consent wh
 - Check every weekday against the calendar before writing it.
 - Written a day or more after the open house: the drafts say "on Sunday" or "at Sunday's open house," never "today." Any promise due "today," "tonight" or a day already past is flagged and becomes the first next step.
 - Texts go between 8 AM and 8 PM in the visitor's local time (outreach-rules.md). When the open house ended late, say "send by 8 PM tonight or after 8 AM tomorrow" with tomorrow's weekday and date.
+- Calls and voicemails: never on a Sunday or a legal holiday, even with consent (a conservative default in `outreach-rules.md`). A call the next steps would put on one moves to the next day that is neither, with a one-line why. Texts and emails keep their day.
+- Which holidays: in Utah mode, the Utah legal holidays in `utah-open-house-notes.md`. In general mode, Sundays and the federal legal holidays (5 U.S.C. 6103): New Year's Day (January 1), the Birthday of Martin Luther King, Jr. (third Monday in January), Washington's Birthday (third Monday in February), Memorial Day (last Monday in May), Juneteenth (June 19), Independence Day (July 4), Labor Day (first Monday in September), Columbus Day (second Monday in October), Veterans Day (November 11), Thanksgiving Day (fourth Thursday in November) and Christmas Day (December 25). One that falls on a Saturday is observed the Friday before, and one on a Sunday the Monday after: skip that day too. Say that state holidays were not checked.
+- The next federal ones: Wednesday, November 11, 2026; Thursday, November 26, 2026; Friday, December 25, 2026; Friday, January 1, 2027; Monday, January 18, 2027; Monday, February 15, 2027.
 
 ## Draft Shapes
 
@@ -104,10 +107,10 @@ Thanks for coming to the open house at [Street Address] on [weekday, date].
 [Sign-off]
 [Agent Name]
 
-To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from [Agent Name], [Brokerage Name]. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
 ```
 
-No offer to help, represent, meet, call, tour other homes, send listings or set up a search. No question about their agent or their agreement. No marketing line, because it offers nothing; confirm that with the broker.
+No offer to help, represent, meet, call, tour other homes, send listings or set up a search. No question about their agent or their agreement. It still ends with the full footer, like every email here.
 
 ### Text (TEXT OK only)
 
@@ -136,22 +139,26 @@ Questions to answer: [each question about the home, without who asked].
 
 [Sign-off]
 [Agent Name]
+
+This is a marketing email from [Agent Name], [Brokerage Name]. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
 ```
 
 Under 200 words. No visitor names, contact details, financing or descriptions of people. When the agent hosted another agent's listing, a teammate's included, the same update is written to that listing agent ("Listing Agent Update") to pass on, never to the sellers.
 
 ## Email Footers
 
-From `outreach-rules.md` (CAN-SPAM), treating each follow-up as a commercial email:
-- Every visitor email ends with an opt-out ("To stop these emails, reply UNSUBSCRIBE.") and [Sender Postal Address].
-- An email that offers the agent's services also says what it is: "This is a marketing email from [Agent Name], [Brokerage Name]." Leave that line off only when the agent confirms the visitor asked for these emails.
-- The seller update goes to the agent's own clients about their listing, so it gets no footer.
+From `outreach-rules.md` (CAN-SPAM and its Conservative Defaults), every email the skill drafts ends with the full footer, with no exception:
+- "This is a marketing email from [Agent Name], [Brokerage Name]. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]"
+- That is the marketing line, the opt-out and the postal address on every visitor email, the thank-you to a visitor who has an agent included, even when the visitor asked for these emails.
+- The seller update carries it too, though it goes to the agent's own clients, and so does a Listing Agent Update.
+- This is a conservative default, stricter than the law in places. Keep it unless the agent says their own legal counsel approved a different rule; then follow theirs and say so in Check before sending.
 
 ## Sources (all checked 2026-11-10)
 
 - Curb Hero Help Center, "Viewing, downloading and sharing lead data": https://intercom.help/block-party/en/articles/2849017-viewing-downloading-and-sharing-lead-data
 - Curb Hero Help Center, "Getting started with the top rated digital open house sign in" (up to 3 added questions in Edit Listing): https://intercom.help/block-party/en/articles/2944795-getting-started-with-the-top-rated-digital-open-house-sign-in
 - Google Docs Editors Help, "View and manage form responses" (Download responses (.csv)): https://support.google.com/docs/answer/139706
+- 5 U.S.C. 6103, the federal legal public holidays: https://www.law.cornell.edu/uscode/text/5/6103
 - Text and email rules: `outreach-rules.md` (its own sources, checked 2026-11-08)
 
 # Part 2: Fair Housing, Privacy and Represented Visitors

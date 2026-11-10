@@ -342,7 +342,7 @@ If you upload your notes from Tuesday, I'll fill the brackets from what she said
 - **Results claim:** "40% more transactions" stays out until your broker reviews it.
 - **Texts:** 2 first-touch texts (R022, R074); check each consent record names your team or brokerage and the number. R065 held for a record; R020 held until you confirm they're not on your team.
 - **Before any call or text:** scrub against the National Do Not Call Registry and your internal list; R083 is Do not contact.
-- **Quiet hours:** texts only between 8 a.m. and 8 p.m. in the recipient's local time.
+- **Quiet hours:** texts only between 8 a.m. and 8 p.m. in the recipient's local time, and no calls or voicemails on a Sunday or a legal holiday.
 - **Email:** a working [Unsubscribe Link] (live at least 30 days). The postal address on your one-pager has no ZIP code; add it so it's a complete postal address.
 - **MLS:** your MLS rules allow this use and an AI upload. Don't quote anyone's production back to them in writing.
 - **North Carolina:** state texting and telemarketing rules were not checked; confirm with your broker.

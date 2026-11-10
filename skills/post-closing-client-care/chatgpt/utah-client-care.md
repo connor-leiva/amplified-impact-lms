@@ -47,12 +47,21 @@ Last verified: 2026-11-10.
 
 Utah Code 61-2f-401(26), the version effective October 1, 2026, makes it grounds for discipline of a licensee to fail "to timely disclose to a buyer or seller an affiliated business arrangement, as defined in Section 31A-23a-1001, in accordance with the federal Real Estate Settlement Procedures Act, 12 U.S.C. Sec. 2601 et seq. and any rules made thereunder." In Utah, an affiliated vendor introduction always carries the disclosure flag in `post-closing-client-care-guide.md` (Reviews and Vendors); the broker confirms which form.
 
-## Texts on Sundays and Holidays
+## Texts and Calls on Sundays and Holidays
 
 - Utah Code 13-25a-103(3) (effective May 4, 2022): "A person may not make a telephone solicitation to a residential telephone or cellular telephone without prior express consent" between 9 p.m. and 8 a.m., "on a Sunday," or "on a legal holiday."
 - Utah Code 13-25a-111 (effective May 1, 2024): "Notwithstanding any other provision of this chapter, Sections 13-25a-103 and 13-25a-108 do not apply to a person who holds and acts within the scope of a license or registration: ... (2) issued by the Division of Real Estate." So for a licensed agent acting within the license, Utah's evening, Sunday and holiday limits (and its state no-call list in 13-25a-108) don't apply. Whether a given message is within the scope of the license is the broker's call.
 - The federal TCPA still applies (`outreach-rules.md`): texts only with consent, the sender named, "Reply STOP to opt out," quiet hours.
 - What these drafts do, as house practice rather than a Utah rule: texts only to clients who agreed to texts, sent 8 a.m. to 8 p.m. in the client's time zone. A text keeps its date, Sundays included; an agent who'd rather not text a client on a Sunday or a holiday can move it a day. With no record of consent, there is no text at all.
+- Calls and voicemails: never on a Sunday or a Utah legal holiday (the list below), even with consent and even though 13-25a-111 exempts a licensee. This is a conservative default, stricter than Utah law for a licensee. A call that would land on one, the day 90 call included, moves to the next day that is neither, with a one-line why.
+
+## Utah Legal Holidays
+
+Utah Code 63G-1-301 (the version effective May 6, 2026, and the one effective January 1, 2027):
+- Every Sunday.
+- New Year's Day (January 1), Dr. Martin Luther King, Jr. Day (third Monday of January), Presidents' Day (third Monday of February), Good Friday, Easter Sunday, Memorial Day (last Monday of May), Juneteenth (June 19), Independence Day (July 4), Pioneer Day (July 24), Labor Day (first Monday of September), Columbus Day (second Monday of October), Veterans Day (November 11), Thanksgiving Day (fourth Thursday of November), Christmas (December 25), and any day of fasting or thanksgiving the president or the governor proclaims.
+- A fixed-date holiday that falls on a Saturday is observed the Friday before, and one on a Sunday the Monday after. Skip both the date and the day it is observed.
+- The next ones, for a first-year plan: Wednesday, November 11, 2026 (Veterans Day); Thursday, November 26, 2026 (Thanksgiving); Friday, December 25, 2026; Friday, January 1, 2027; Monday, January 18, 2027; Monday, February 15, 2027; Friday, March 19, 2027 (Good Friday); Monday, May 31, 2027; Friday, June 18, and Saturday, June 19, 2027 (Juneteenth); Monday, July 5, 2027 (July 4 is a Sunday); Friday, July 23, and Saturday, July 24, 2027 (Pioneer Day); Monday, September 6, 2027; Monday, October 11, 2027; Thursday, November 11, 2027; Thursday, November 25, 2027.
 
 ## Sources
 
@@ -71,3 +80,5 @@ All checked 2026-11-10.
 - Utah Code 61-2f-401, grounds for disciplinary action (effective October 1, 2026): https://le.utah.gov/xcode/Title61/Chapter2F/C61-2f-S401_2026050620261001.html
 - Utah Code 13-25a-103, telephone solicitations (effective May 4, 2022): https://le.utah.gov/xcode/Title13/Chapter25A/C13-25a-S103_2022050420220504.html
 - Utah Code 13-25a-111, exemptions (effective May 1, 2024): https://le.utah.gov/xcode/Title13/Chapter25A/C13-25a-S111_2024050120240501.html
+- Utah Code 63G-1-301, legal holidays (effective May 6, 2026): https://le.utah.gov/xcode/Title63G/Chapter1/C63G-1-S301_2026050620260506.html
+- Utah Code 63G-1-301 (effective January 1, 2027): https://le.utah.gov/xcode/Title63G/Chapter1/C63G-1-S301_2026050620270101.html

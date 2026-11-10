@@ -214,7 +214,7 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
           items: [
             'Segment sizes and filter values against Follow Up Boss before sending. If a Smart List count is far off, fix the filter first.',
             'Do Not Call: scrub every call list and text list against the National Do Not Call Registry and your internal list before use. Follow Up Boss has no built-in scrub.',
-            'Quiet hours: calls and texts between 8 a.m. and 8 p.m. in the recipient’s time zone.',
+            'Quiet hours: calls and texts between 8 a.m. and 8 p.m. in the recipient’s time zone, and no calls or voicemails on a Sunday or a legal holiday.',
             'Worklist: 205 rows hold names and phone numbers; share it only with the people doing the cleanup. Nothing in Follow Up Boss was changed.',
           ],
         },
@@ -361,6 +361,14 @@ export const DATABASE_HEALTH_CHECK: Guide = skillPage({
           q: 'Will it text my leads?',
           a: [
             'No. Texts are drafts an agent sends, never a mass text. The skill drafts texts only for contacts whose export shows documented consent, and flags the rest. Follow Up Boss has no consent column of its own, so teams that track consent use a custom field or a tag. If your export has no consent field, you get no text drafts, and the report tells you how to add one.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails ("Conservative defaults"); the shared outreach-rules.md,
+          // Conservative Defaults.
+          q: 'Why is it stricter than the law?',
+          a: [
+            'It uses our conservative defaults. Every email carries the full footer, including the line that says it’s a marketing email. No calls or voicemails go on a Sunday or a legal holiday. Consent that names only a portal, a lead company or “real estate professionals,” and not your team or brokerage, means no texts until your broker confirms it covers you. And it never offers a reward of any kind for a review. You can calibrate these with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check Before Sending.',
           ],
         },
         {

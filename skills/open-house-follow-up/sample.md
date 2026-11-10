@@ -68,7 +68,7 @@ Thanks for coming to the open house at 2468 Sample Aspen Ln on Sunday. I'll get 
 
 Riley
 
-To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from Riley Sampleton, Example Peak Realty. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
 
 ### 3. Sam Fictional: NO AGENT, EMAIL ONLY
 
@@ -142,7 +142,7 @@ Thanks for coming to the open house at 2468 Sample Aspen Ln on Sunday. I appreci
 
 Riley
 
-To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from Riley Sampleton, Example Peak Realty. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
 
 ### 7. Jamie Pretendo: NO AGENT, EMAIL ONLY
 
@@ -231,6 +231,8 @@ One visitor asked for a second look, this evening, Tuesday, November 10, and I'm
 
 Riley
 
+This is a marketing email from Riley Sampleton, Example Peak Realty. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+
 ## Next Steps
 
 1. **You, today, Tuesday, November 10:** confirm the Sunday-night recap to Robin and Kerry went out. If it didn't, send the update above now (promised Sunday, November 8).
@@ -241,7 +243,7 @@ Riley
 6. **You, by Friday, November 13:** send Lee recent sales on Sample Birch Way ("this week").
 7. **You, once Robin and Kerry answer:** the water heater's age goes to Taylor Samplewood, Quinn's agent, not to Quinn. The washer and dryer answer goes to Kendall.
 8. **Optional:** let Taylor Samplewood and Drew Fakeman know their clients came by. Questions from their clients about the home go through them.
-9. **Blake Fakington:** no draft. A call is your decision; check the Do Not Call list first.
+9. **Blake Fakington:** no draft. A call is your decision; check the Do Not Call list first. Not tomorrow, Wednesday, November 11 (Veterans Day, a Utah legal holiday): call today or on Thursday, November 12.
 
 ## Check Before Sending
 
@@ -270,7 +272,7 @@ Riley
 | Name spellings | Sheet: Morgan Exampleton, Quinn Placeholder, Sam Fictional, Jordan Testwell, Casey Mockwood, Sage Sampleford, Jamie Pretendo, Lee Samplesmith, Kendall Mockingham; agents Taylor Samplewood and Drew Fakeman |
 | Consent for each text | Morgan (rows 1 and 11), Casey (row 5), Lee (row 8): "Consent To Text: Yes." Confirm your sign-in form's consent wording named you or Example Peak Realty and text messages, and keep that record with the date and number |
 | Quiet hours | Send texts between 8 AM and 8 PM Mountain |
-| Utah, Sunday open house | Utah's solicitation law (Utah Code 13-25a-103) limits Sunday and holiday solicitation calls to people who consented, though a licensee acting within the license is exempt (13-25a-111), so this is house practice; whether it reaches texts wasn't confirmed. These texts go only to visitors who consented. A call to anyone else waits for a weekday |
+| Utah, Sunday open house | No calls or voicemails on Sundays or Utah legal holidays, a conservative default: Utah's solicitation law (Utah Code 13-25a-103) limits them, though a licensee acting within the license is exempt (13-25a-111), and whether it reaches texts wasn't confirmed. Tomorrow, Wednesday, November 11, is Veterans Day, so a call to Blake goes today or waits for Thursday, November 12. These texts go only to visitors who consented, and texts and emails keep their day |
 | Do Not Call | Scrub any number you call against the National Do Not Call Registry and your internal list |
 | [Agent Phone], [Sender Postal Address] | Fill in your real phone number and postal address |
-| Marketing line | On the 7 emails that offer your services, not on Quinn's or Sage's thank-you. Confirm the wording with your broker |
+| Footer | The full footer (the marketing line, the opt-out and [Sender Postal Address]) on all 9 visitor emails, Quinn's and Sage's thank-yous included, and on the seller update. A conservative default; confirm the wording with your broker |

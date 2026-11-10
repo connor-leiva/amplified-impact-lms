@@ -386,6 +386,14 @@ export const MARKET_UPDATE_EMAIL: Guide = skillPage({
           ],
         },
         {
+          // page-notes.md, FAQ; SKILL.md, Guardrails ("Conservative defaults"); the shared outreach-rules.md,
+          // Conservative Defaults and CAN-SPAM item 3 (prior affirmative consent).
+          q: 'Why is it stricter than the law?',
+          a: [
+            'It uses our conservative defaults. Every email carries the full footer, including the line that says it’s a marketing email, even when your contacts asked for the update. Federal email law can let you leave that line off for people who asked; the skill keeps it. You can calibrate this with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check before sending.',
+          ],
+        },
+        {
           // page-notes.md, FAQ; SKILL.md, section 1 (Location).
           q: 'Does it work outside Utah?',
           a: [

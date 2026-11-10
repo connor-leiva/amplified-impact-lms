@@ -69,6 +69,8 @@ Team leaders, owners and ops staff on real estate teams, in any state and any br
 
 **Will it text my leads?** It never sends anything. It drafts texts only for contacts your export shows have consented, and only when the export has a consent field. If your consent field says a yes came from a website form or an open house sign-in, it reminds you that those count only if the form had text consent wording. Follow Up Boss has no consent column of its own, so most teams record consent in a custom field or tag. No field, no text drafts; the skill tells you how to add one.
 
+**Why is it stricter than the law?** It uses our conservative defaults. Every email carries the full footer, including the line that says it's a marketing email. No calls or voicemails go on a Sunday or a legal holiday. Consent that names only a portal, a lead company or "real estate professionals," and not your team or brokerage, means no texts until your broker confirms it covers you. And it never offers a reward of any kind for a review. You can calibrate these with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check Before Sending.
+
 **Our export doesn't have Last Communication. What happens?** The skill says so up front, reads the dates in the calls, texts and notes columns instead, and marks those checks approximate. Turning the Last Communication column on before exporting may bring it through.
 
 **We're on KW Command, GoHighLevel or Brivity. Does it work?** Yes. It maps your columns by name (Lead Status, Owner, Last Contacted, and so on) and shows the map at the top of the report so you can correct it. The segment filters come back in plain words for your CRM.
