@@ -126,5 +126,5 @@ If Avery replies to anything, stop these touches and pick up the conversation.
 | Send window | Texts and calls between 8 AM and 8 PM Mountain. Wednesday, November 11 is a Utah legal holiday: the Day 1 text and email keep it, and the Day 1 call and voicemail go Thursday, November 12 (a conservative default) |
 | Do Not Call | Nothing in the record. Check your team's internal do-not-call list before calling |
 | [Agent Phone], [Sender Postal Address] | Fill in your real phone number and postal address |
-| Email footer | Every email carries the opt-out line, [Sender Postal Address] and "This is a marketing email from Riley Sampleton, Example Peak Realty.", even though Avery asked to hear back (a conservative default); confirm the wording with your broker |
+| Email footer | Every email carries the opt-out line, [Sender Postal Address] and "This is a marketing email from Riley Sampleton, Example Peak Realty." It stays even though Avery asked to hear back (a conservative default). Confirm the wording with your broker |
 | Follow Up Boss | Pausing "Website Buyer, 14 Day" is your call; nothing here changes Follow Up Boss |

@@ -30,13 +30,16 @@
 //     says so. Connor's filter: the skill is the personal reply beside the automation, not a rebuild.
 //   - Portal consent: the page never says a portal's form covers the agent's texts. It says to ask the
 //     broker and tell the AI, as the skill's CHECK FIRST read does.
-//   - Utah's Sunday and holiday limit on solicitation calls (Utah Code 13-25a-103(3)): whether a lead's
-//     own inquiry counts as consent was not confirmed, and 13-25a-111 exempts a licensee acting within
-//     the license, so the skill keeps the rule as house practice. The page says the AI moves those calls to the next
-//     weekday unless the lead's consent covers calls, and that questions go to the broker.
-//   - The email footer leaves off the "This is a marketing email" line because the lead asked to hear
-//     back; Check before sending says to confirm the footer with the broker. The page says only that every
-//     email ends with a way to opt out.
+//   - Sundays and legal holidays: no call or voicemail lands on one, even with consent that covers calls
+//     and even though Utah Code 13-25a-111 exempts a licensee acting within the license. It moves to the
+//     next day that is neither; texts to a TEXT OK lead and emails keep their day. Utah mode uses Utah's
+//     legal holidays, general mode Sundays and the federal ones (5 U.S.C. 6103). A conservative default.
+//   - The email footer: every email, the first reply and every touch, carries the opt-out line, the
+//     postal address and "This is a marketing email from [Agent Name], [Brokerage Name].", even though the
+//     lead asked to hear back. A conservative default; Check before sending says to confirm the wording.
+//   - The three conservative defaults (the footer, the call-free Sundays and holidays, no text on
+//     portal-only consent until the broker confirms) are stricter than the law in places. The FAQ "Why is
+//     it stricter than the law?" names them and says you can calibrate them with your own legal counsel.
 //   - Real Follow Up Boss, portal and Facebook files, screenshots, ChatGPT itself and Claude Free were not
 //     tested; the page says so, as the other skill pages do. The notification layouts in the practice files
 //     are realistic, not copies, and no vendor click path for a notification is given.
@@ -173,6 +176,7 @@ export const SPEED_TO_LEAD_REPLY: Guide = skillPage({
               'Riley Sampleton',
               'Example Peak Realty | [Agent Phone]',
               'To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]',
+              'This is a marketing email from Riley Sampleton, Example Peak Realty.',
             ],
           },
         },
@@ -206,6 +210,7 @@ export const SPEED_TO_LEAD_REPLY: Guide = skillPage({
               'Riley Sampleton',
               'Example Peak Realty | [Agent Phone]',
               'To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]',
+              'This is a marketing email from Riley Sampleton, Example Peak Realty.',
             ],
           },
         },
@@ -244,7 +249,7 @@ export const SPEED_TO_LEAD_REPLY: Guide = skillPage({
       items: [
         {
           title: 'Flags, first',
-          body: 'Only when they apply: a lead who replied STOP or is marked Do Not Text or Do Not Call, consent your broker should check, an automatic message or action plan that already went out, a lead who has an agent, a lead outside 8 AM to 8 PM, a Utah Sunday or holiday, a lead outside Utah, and a line saying something was left out on purpose.',
+          body: 'Only when they apply: a lead who replied STOP or is marked Do Not Text or Do Not Call, consent your broker should check, an automatic message or action plan that already went out, a lead who has an agent, a lead outside 8 AM to 8 PM, a call moved off a Sunday or legal holiday, a lead outside Utah, and a line saying something was left out on purpose.',
         },
         {
           title: 'A bottom line',
@@ -260,7 +265,7 @@ export const SPEED_TO_LEAD_REPLY: Guide = skillPage({
         },
         {
           title: 'A first email',
-          body: 'Under 150 words, with a subject that names the home or their question. It answers each question from the listing only, or says you’ll find out, and ends with a way to opt out. It follows your voice profile, if you made one with our free guide.',
+          body: 'Under 150 words, with a subject that names the home or their question. It answers each question from the listing only, or says you’ll find out, and ends with a way to opt out, your postal address and a line saying it’s a marketing email. It follows your voice profile, if you made one with our free guide.',
         },
         {
           title: 'A call opener and voicemail',
@@ -422,7 +427,7 @@ export const SPEED_TO_LEAD_REPLY: Guide = skillPage({
           // page-notes.md, FAQ; SKILL.md, section 2 (CHECK FIRST).
           q: 'The portal says the buyer agreed to be contacted. Can I text them?',
           a: [
-            'The portal’s own consent wording usually isn’t in the lead email, and it may name the portal or “real estate professionals” rather than you. Ask your broker whether it covers your texts. If it does, tell the AI, and it drafts the text.',
+            'The portal’s own consent wording usually isn’t in the lead email, and it may name the portal or “real estate professionals” rather than you. Ask your broker whether it covers your texts. Until they confirm, no text (a conservative default). If it does, tell the AI, and it drafts the text.',
           ],
         },
         {
@@ -438,7 +443,15 @@ export const SPEED_TO_LEAD_REPLY: Guide = skillPage({
           // utah-lead-reply-notes.md (R162-2f-401a(2), 13-25a-103(3)).
           q: 'They asked to see it Saturday. Why doesn’t it book the showing?',
           a: [
-            'Since August 17, 2024, NAR’s MLS policy has required a signed written agreement with a buyer before touring a home, in person or by live video. Answering their questions doesn’t need one. So the reply offers to set it up and says the buyer agreement comes first. In Utah, the AI also moves a follow-up call off a Sunday or a legal holiday unless the lead’s consent covers calls. Outside Utah, it tells you it didn’t check your state’s rules. Questions go to your broker.',
+            'Since August 17, 2024, NAR’s MLS policy has required a signed written agreement with a buyer before touring a home, in person or by live video. Answering their questions doesn’t need one. So the reply offers to set it up and says the buyer agreement comes first. The AI also moves a follow-up call or voicemail off a Sunday or a legal holiday, even when the lead’s consent covers calls. Outside Utah, it tells you it didn’t check your state’s rules. Questions go to your broker.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails ("Conservative defaults"); the shared outreach-rules.md,
+          // "Conservative Defaults".
+          q: 'Why is it stricter than the law?',
+          a: [
+            'A few of its rules are our conservative defaults, and they go further than the law in places. Every email carries the full footer: a way to opt out, your postal address and a line saying it’s a marketing email, even to a lead who asked to hear back. No call or voicemail lands on a Sunday or a legal holiday, even with consent, and even though Utah exempts licensees. It moves to the next day that isn’t one. And consent that names only a portal or “real estate professionals” gets no text until your broker confirms it covers you. You can calibrate these with your own legal counsel. Tell the AI the rule your counsel approved, and it follows that and notes it in Check before sending.',
           ],
         },
         {
