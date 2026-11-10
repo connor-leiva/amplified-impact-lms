@@ -84,6 +84,15 @@ import { registerJoinRoute } from './routes/join';
 import { registerMutateRoute } from './routes/mutate';
 import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
+import { registerOfferRoutes } from './routes/offer';
+import { registerSkillRoutes } from './routes/skills';
+import type { OfferPages } from './routes/offer';
+import { readOfferConfig } from './billing/config';
+import type { OfferConfig } from './billing/config';
+import { createPriceCache } from './billing/prices';
+import type { PriceCache } from './billing/prices';
+import { stripeClient, stripeVerifier } from './billing/stripe';
+import type { BillingStripe } from './billing/stripe';
 
 /**
  * Fastify's `trustProxy`, as the one-hop function the comment at the call site argues for.
@@ -155,6 +164,19 @@ export interface BuildOptions {
    * `DatabaseConfigError` on the first sign-up. `routes/ai101.ts` carries the argument.
    */
   waitlist?: boolean;
+  /**
+   * The offer (D-072 to D-076): its built pages and, for a test, its configuration, Stripe client and
+   * price cache. Left out, the configuration is read from the environment and the client is made from
+   * `STRIPE_SECRET_KEY` when one is set. The routes are registered in both modes, like /ai101; the ones
+   * that need a database follow `waitlist`. `routes/offer.ts`.
+   */
+  offer?: {
+    pages?: OfferPages;
+    config?: OfferConfig;
+    stripe?: BillingStripe | null;
+    verify?: BillingStripe['constructEvent'] | null;
+    prices?: PriceCache;
+  };
 }
 
 /** § 7.7's `build()`, with the two things Gate 7's snippet calls on the result. */
@@ -438,6 +460,29 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   registerGuidePages(app, options.guidePages);
   registerLibraryPage(app, options.libraryPage ?? null);
 
+  // The offer (D-072 to D-076): its pages in both modes, its order, webhook and waitlist routes
+  // wherever there is a database, like the waitlist above.
+  {
+    const config = options.offer?.config ?? readOfferConfig();
+    const stripe =
+      options.offer?.stripe !== undefined ? options.offer.stripe : config.stripeSecretKey ? stripeClient(config.stripeSecretKey) : null;
+    const verify = options.offer?.verify !== undefined ? options.offer.verify : config.stripeWebhookSecret ? stripeVerifier() : null;
+    const prices =
+      options.offer?.prices ??
+      createPriceCache(
+        () => stripe,
+        (err) => app.log.warn({ reason: (err as { code?: string; type?: string }).code ?? (err as { type?: string }).type }, 'Stripe prices could not be loaded'),
+      );
+    await registerOfferRoutes(app, {
+      pages: options.offer?.pages ?? {},
+      config,
+      stripe,
+      verify,
+      prices,
+      database: options.waitlist ?? !fixtureOnly,
+    });
+  }
+
   let events: EventHub | null = null;
 
   if (!fixtureOnly) {
@@ -456,6 +501,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerSnapshotRoute(app);
     registerJoinRoute(app);
     registerFilesRoutes(app);
+    // The skill library (D-078): signed in, like the Vault beside it.
+    registerSkillRoutes(app);
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

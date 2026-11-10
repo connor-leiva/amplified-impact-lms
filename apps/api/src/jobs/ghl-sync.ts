@@ -39,6 +39,7 @@ import type { Database } from '../db/client';
 import { ai101Waitlist } from '../db/schema';
 import { clock } from '../lib/clock';
 import { readGhlConfig, syncWaitlistContact } from '../integrations/ghl';
+import { runGhlOrderSync } from './ghl-orders';
 import type { Fetch, GhlConfig, GhlFailureKind } from '../integrations/ghl';
 
 /** Rows claimed per tick. Sequential calls at a few hundred ms each: a room's sign-ups in minutes. */
@@ -269,11 +270,14 @@ export function startGhlSync(options: StartGhlSyncOptions): GhlSync {
   const fire = (): void => {
     if (inFlight) return; // a tick that outlasts the interval is a slow GHL, not news
     inFlight = runGhlSync({ ...options, config, log })
+      .then(async (run) => {
+        if (run.claimed > 0) log.info({ ...run, paused: run.paused?.kind }, 'GHL sync tick');
+        // The offer's buyers (D-075), after the sign-ups, on the same tick and the same token.
+        const buyers = await runGhlOrderSync({ db: options.db ?? getDb(), log, config, ...(options.fetch ? { fetch: options.fetch } : {}) });
+        if (buyers.claimed > 0) log.info({ ...buyers, paused: buyers.paused?.kind }, 'GHL buyer sync tick');
+      })
       .then(
-        (run) => {
-          if (run.claimed === 0) return;
-          log.info({ ...run, paused: run.paused?.kind }, 'GHL sync tick');
-        },
+        () => {},
         (err: unknown) => log.error({ err }, 'GHL sync tick failed; the loop continues and the next tick retries'),
       )
       .finally(() => {

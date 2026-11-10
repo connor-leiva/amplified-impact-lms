@@ -66,7 +66,12 @@ const PUBLIC_PREFIX = exactPaths(
   // A route answers each of these with and without a trailing slash.
   ['ai101', 'waitlist', ...GUIDE_SLUGS, 'library', 'guides', 'skills'],
   // A route answers each of these only as written.
-  ['AI101', 'ai-101', ...Object.values(GUIDE_ALIASES).flatMap((aliases) => (aliases ?? []).map((a) => a.slice(1))), 'terms', 'privacy'],
+  // The offer (D-074): its page at both addresses, the page after Stripe, and the agreement. Exact, with
+  // no trailing slash, so `/offer/`, `/forum/` and `/offer/welcome/x` stay off it.
+  [
+    'AI101', 'ai-101', ...Object.values(GUIDE_ALIASES).flatMap((aliases) => (aliases ?? []).map((a) => a.slice(1))), 'terms', 'privacy',
+    'offer', 'forum', 'offer/welcome', 'agreement',
+  ],
 );
 
 /**

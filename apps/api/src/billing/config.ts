@@ -1,0 +1,107 @@
+// The offer's settings, read from the environment (the spec's "Settings in Railway").
+//
+//   STRIPE_SECRET_KEY      a restricted key, `rk_test_…` until Thursday, then `rk_live_…`
+//   STRIPE_WEBHOOK_SECRET  `whsec_…` for the endpoint in the same mode
+//   OFFER_OPEN             `true` opens the carts; anything else keeps them closed
+//   FOUNDING_CLOSES_AT     an ISO instant with an offset; defaults to Sun, Nov 15, 11:59 pm Central
+//   INVITES_FROM           when held owner invites go out; defaults to Mon, Nov 16, 8:00 am Central
+//   PAYMENT_LINK_*         Grokbok's fallback Payment Links, one per cart (catalog.ts names them)
+//   INTAKE_URL_*           Sarah O.'s intake form per plan, shown on /offer/welcome
+//
+// EVERYTHING HERE IS OPTIONAL, AND THE API BOOTS WITHOUT ANY OF IT. With no Stripe key the offer page
+// shows the fallback links instead of its own buttons; with no links either, it says the carts open
+// soon. A secret is never logged, and `describeOfferConfig` reports only whether each one is set and
+// which mode a key is in (`test` or `live`, from its prefix), never a character of its value.
+
+import { CART_IDS, CARTS, DEFAULT_FOUNDING_CLOSES_AT, DEFAULT_INVITES_FROM, PLAN_KINDS } from './catalog';
+import type { CartId, PlanKind } from './catalog';
+
+export interface OfferConfig {
+  stripeSecretKey: string | null;
+  stripeWebhookSecret: string | null;
+  open: boolean;
+  foundingClosesAt: number;
+  invitesFrom: number;
+  paymentLinks: Partial<Record<CartId, string>>;
+  intakeUrls: Partial<Record<PlanKind, string>>;
+}
+
+export class OfferConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'OfferConfigError';
+  }
+}
+
+function instant(name: string, raw: string | undefined, fallback: string): number {
+  const value = (raw ?? '').trim() || fallback;
+  const parsed = Date.parse(value);
+  // A typo here would silently keep founding prices on sale forever, or close them at once: loud.
+  if (Number.isNaN(parsed) || !/[zZ]|[+-]\d\d:?\d\d$/.test(value)) {
+    throw new OfferConfigError(`${name} must be an ISO 8601 instant with an offset, e.g. ${fallback}; got ${JSON.stringify(value)}.`);
+  }
+  return parsed;
+}
+
+/** An https URL, or null. A link that is not one is ignored rather than shown to a buyer. */
+function httpsUrl(raw: string | undefined): string | null {
+  const value = (raw ?? '').trim();
+  if (value === '') return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+const secret = (raw: string | undefined): string | null => {
+  const value = (raw ?? '').trim();
+  return value === '' ? null : value;
+};
+
+export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConfig {
+  const paymentLinks: Partial<Record<CartId, string>> = {};
+  for (const id of CART_IDS) {
+    const url = httpsUrl(env[CARTS[id].paymentLinkEnv]);
+    if (url) paymentLinks[id] = url;
+  }
+  const intakeUrls: Partial<Record<PlanKind, string>> = {};
+  for (const plan of PLAN_KINDS) {
+    const url = httpsUrl(env[`INTAKE_URL_${plan.toUpperCase()}`]);
+    if (url) intakeUrls[plan] = url;
+  }
+  return {
+    stripeSecretKey: secret(env.STRIPE_SECRET_KEY),
+    stripeWebhookSecret: secret(env.STRIPE_WEBHOOK_SECRET),
+    open: (env.OFFER_OPEN ?? '').trim().toLowerCase() === 'true',
+    foundingClosesAt: instant('FOUNDING_CLOSES_AT', env.FOUNDING_CLOSES_AT, DEFAULT_FOUNDING_CLOSES_AT),
+    invitesFrom: instant('INVITES_FROM', env.INVITES_FROM, DEFAULT_INVITES_FROM),
+    paymentLinks,
+    intakeUrls,
+  };
+}
+
+/** Whether founding prices still sell at `now`. */
+export const foundingOpen = (config: Pick<OfferConfig, 'foundingClosesAt'>, now: number): boolean => now < config.foundingClosesAt;
+
+/** `test` or `live` from a key's prefix, or `unknown`. The only thing about a key that is ever logged. */
+export function keyMode(key: string | null): 'test' | 'live' | 'unknown' | 'unset' {
+  if (key === null) return 'unset';
+  if (/^(rk|sk)_test_/.test(key)) return 'test';
+  if (/^(rk|sk)_live_/.test(key)) return 'live';
+  return 'unknown';
+}
+
+/** A boot line for the log: what is on, in which mode, and nothing secret. */
+export function describeOfferConfig(config: OfferConfig): Record<string, unknown> {
+  return {
+    open: config.open,
+    stripe: keyMode(config.stripeSecretKey),
+    webhook: config.stripeWebhookSecret === null ? 'unset' : 'set',
+    foundingClosesAt: new Date(config.foundingClosesAt).toISOString(),
+    invitesFrom: new Date(config.invitesFrom).toISOString(),
+    paymentLinks: Object.keys(config.paymentLinks),
+    intakeForms: Object.keys(config.intakeUrls),
+  };
+}

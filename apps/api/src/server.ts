@@ -57,6 +57,9 @@ import { readDatabaseUrl } from './db/client';
 import { startScheduler } from './jobs/scheduler';
 import { startGhlSync } from './jobs/ghl-sync';
 import { GUIDE_SLUGS } from './routes/guide-list';
+import { describeOfferConfig, readOfferConfig } from './billing/config';
+import { startBillingLoop } from './jobs/billing';
+import { PAID_DOWNLOADS } from './billing/skills-catalog';
 
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
@@ -114,17 +117,25 @@ const ai101Page = readBuilt(ai101Html);
 const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readBuilt(guideHtml(slug))]));
 // The free library that lists them (D-050), which has an inline script of its own.
 const libraryPage = readBuilt(fileURLToPath(new URL('../../web/dist/library.html', import.meta.url)));
+// The offer's pages (D-074): the offer and the page after Stripe each carry one inline script; the
+// agreement is a legal page and carries none.
+const offerPage = readBuilt(fileURLToPath(new URL('../../web/dist/offer.html', import.meta.url)));
+const welcomePage = readBuilt(fileURLToPath(new URL('../../web/dist/offer-welcome.html', import.meta.url)));
+const agreementHtml = fileURLToPath(new URL('../../web/dist/agreement.html', import.meta.url));
+// Read once, here, so a malformed FOUNDING_CLOSES_AT stops the deploy before it serves a wrong price.
+const offerConfig = readOfferConfig();
 
 const app = await build({
   logger: true,
   fixtureOnly,
   // Not the legal pages: they carry no script (`apps/web/src/legal/render.test.ts` holds them to
   // that), so they have nothing to hash, and a script added to one later stays blocked.
-  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(guidePages), libraryPage]),
+  inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(guidePages), libraryPage, offerPage, welcomePage]),
   ai101Page,
   guidePages,
   libraryPage,
-  legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml) },
+  legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml), agreement: readBuilt(agreementHtml) },
+  offer: { pages: { offer: offerPage, welcome: welcomePage }, config: offerConfig },
   marketingPage: readBuilt(holdingHtml),
   waitlist: databaseConfigured(),
 });
@@ -139,7 +150,20 @@ if (existsSync(webDist)) {
     // there). One URL for the page; `/ai101.html` falls through to the SPA like any unknown path.
     // The legal pages likewise: one URL each, `/terms` and `/privacy` (`routes/legal.ts`).
     // And the free guides (D-038, D-039), whose route sets the Referrer-Policy their no-JS opt-in needs.
-    globIgnore: ['ai101.html', 'terms.html', 'privacy.html', 'library.html', ...GUIDE_SLUGS.map((slug) => `${slug}.html`)],
+    globIgnore: [
+      'ai101.html',
+      'terms.html',
+      'privacy.html',
+      'library.html',
+      // The offer's pages have one URL each (routes/offer.ts, routes/legal.ts), filled per request.
+      'offer.html',
+      'offer-welcome.html',
+      'agreement.html',
+      ...GUIDE_SLUGS.map((slug) => `${slug}.html`),
+      // Paid skills are not public files (D-081): they live in the bucket and open through the
+      // platform's library. `PAID_DOWNLOADS` names them; `test/paid-skills.test.ts` holds the list.
+      ...PAID_DOWNLOADS.map((file) => `downloads/${file}`),
+    ],
     // The guides' files (D-038, D-039; the Reel Editor's ZIP, D-045) are lead magnets behind an opt-in:
     // kept out of search results.
     setHeaders: (res, path) => {
@@ -151,7 +175,12 @@ if (existsSync(webDist)) {
   // a repository handed an HTML document would throw a parse error instead of the `{ error }`
   // `apps/web/src/data/http.ts` knows how to read.
   app.setNotFoundHandler((req, reply) =>
-    req.url.startsWith('/api/') ? reply.code(404).send({ error: 'Not found' }) : reply.sendFile('index.html'),
+    req.url.startsWith('/api/')
+      ? reply.code(404).send({ error: 'Not found' })
+      : // A file no route serves, such as a paid skill's old ZIP (D-081), is a plain 404, never the SPA.
+        req.url.startsWith('/downloads/')
+        ? reply.code(404).type('text/plain; charset=utf-8').send('Not found')
+        : reply.sendFile('index.html'),
   );
 }
 
@@ -193,5 +222,10 @@ startScheduler({ fixtureOnly, log: app.log });
 // database — and both GHL variables, not by `fixtureOnly`: it is about this page, not about the
 // program's emails, which is the distinction the comment above draws. Off and saying so otherwise.
 startGhlSync({ waitlist: databaseConfigured(), log: app.log });
+
+// The offer (D-072 to D-077): say once what is on and in which mode, never a secret, and send the
+// owner invites held for Monday once Monday comes.
+app.log.info(describeOfferConfig(offerConfig), 'offer configuration');
+startBillingLoop({ database: databaseConfigured(), invitesFrom: offerConfig.invitesFrom, log: app.log });
 
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 3000) });

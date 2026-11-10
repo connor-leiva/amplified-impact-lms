@@ -19,3 +19,4 @@ export * from './vtt';
 export { MutationError } from './mutations';
 export type { Ctx, Actor, Effect, Outcome } from './mutations';
 export type { MutationName, MutationArgs } from './catalog';
+export * from './provision';

@@ -212,6 +212,17 @@ const SIGN_UP_FORMS: readonly SignUpForm[] = [
     team: false,
     label: 'ai101 waitlist',
   },
+  // The cohort waitlist on the offer page (D-076): a team not on Follow Up Boss, or one that missed
+  // the founding cohort, leaves a name and an address for cohort two. No SMS box on that form.
+  {
+    path: '/api/offer/waitlist',
+    source: 'cohort-waitlist',
+    joined: '/offer#waitlist-joined',
+    error: '/offer#waitlist-error',
+    sms: false,
+    team: false,
+    label: 'cohort waitlist',
+  },
   // Each free guide's opt-in (D-038, D-039): the same table and the same rules as the waitlist, under
   // the guide's own `source` (so the GoHighLevel sync tags it as that guide, not the waitlist, and
   // one person may be on several), with no SMS box on its page, and landing back on that page.

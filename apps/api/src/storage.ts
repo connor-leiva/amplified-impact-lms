@@ -387,6 +387,20 @@ export function resourceKey(resourceId: string): string {
  * `resources[].name` before it presigns: a safe segment is one that cannot escape
  * `modules/<moduleId>/`, not one that names a file this module has.
  */
+/** A skill library file (D-078): `skills/<slug>/<file>`. Never public; served by a presigned GET. */
+export function skillFileKey(slug: string, fileName: string): string {
+  return `skills/${requireSafe('skill id', slug)}/${requireSafe('file name', fileName)}`;
+}
+
+/**
+ * Put one object, server side. Used only by the staff command that moves the paid skills' ZIPs into the
+ * bucket (`pnpm --filter @ai/api skills --upload`); browsers upload through `presignPut`.
+ */
+export async function putObject(key: string, body: Uint8Array, contentType: string): Promise<void> {
+  const { client, config } = s3();
+  await client.send(new PutObjectCommand({ Bucket: config.bucket, Key: requireKey(key), Body: body, ContentType: contentType }));
+}
+
 export function moduleFileKey(moduleId: string, fileName: string): string {
   return `modules/${requireSafe('module id', moduleId)}/${requireSafe('file name', fileName)}`;
 }

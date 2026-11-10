@@ -559,6 +559,22 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/guides/', methods: 'GET, HEAD', guard: 'page' },
   { path: '/skills', methods: 'GET, HEAD', guard: 'page' },
   { path: '/skills/', methods: 'GET, HEAD', guard: 'page' },
+  // The offer (D-072 to D-076). Its pages are public like the guides'. Its API routes are open on
+  // purpose, each with what stands in for a session: checkout has the same-origin check and its own
+  // limit, the status lookup answers only to an unguessable Stripe session id with nothing personal,
+  // the waitlist is the guides' route, and the webhook is signed by Stripe (`routes/offer.ts`).
+  { path: '/offer', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/forum', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/offer/welcome', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/agreement', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/api/offer', methods: 'GET, HEAD', guard: 'open' },
+  { path: '/api/offer/order-status', methods: 'GET, HEAD', guard: 'open' },
+  { path: '/api/checkout', methods: 'POST', guard: 'open' },
+  { path: '/api/offer/waitlist', methods: 'POST', guard: 'open' },
+  { path: '/api/stripe/webhook', methods: 'POST', guard: 'open' },
+  // The skill library (D-078): signed in, like the Vault.
+  { path: '/api/skills', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/skills/:id/download/:kind', methods: 'GET, HEAD', guard: 'session' },
 ];
 
 /**
@@ -950,6 +966,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               payload: { contentType: 'application/pdf', size: 1024 },
             }),
           '/api/sessions/:id/join': () => app.inject({ method: 'GET', url: '/api/sessions/dec26-s3/join' }),
+          // The skill library (D-078): a list of what an account can open, and a presigned download.
+          '/api/skills': () => app.inject({ method: 'GET', url: '/api/skills' }),
+          '/api/skills/:id/download/:kind': () => app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/download/claude' }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1037,6 +1056,14 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               payload: { firstName: 'Probe', email: 'probe@example.test', website: 'x' },
             }),
           ]),
+          // The offer (D-072 to D-076): its facts, a status lookup with no such session, a checkout
+          // and a cohort-waitlist sign-up with a filled honeypot (no order, no row), and the webhook
+          // with no signature (400 before anything is read).
+          ['/api/offer', app.inject({ method: 'GET', url: '/api/offer' })],
+          ['/api/offer/order-status', app.inject({ method: 'GET', url: '/api/offer/order-status?session_id=cs_test_nonexistent0' })],
+          ['/api/checkout', app.inject({ method: 'POST', url: '/api/checkout', payload: { cart: 'library', website: 'x' } })],
+          ['/api/offer/waitlist', app.inject({ method: 'POST', url: '/api/offer/waitlist', payload: { firstName: 'Probe', email: 'probe@example.test', website: 'x' } })],
+          ['/api/stripe/webhook', app.inject({ method: 'POST', url: '/api/stripe/webhook', payload: '{}', headers: { 'content-type': 'application/json' } })],
         ];
 
         for (const [path, pending] of probes) {
@@ -1054,6 +1081,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
         expect(pages.map((r) => r.path).sort()).toEqual(
           [
             '/AI101',
+            '/agreement',
+            '/forum',
+            '/offer',
+            '/offer/welcome',
             '/ai-101',
             '/ai101',
             '/ai101/',
@@ -1096,11 +1127,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // 11, not 7: phase 08 added four session-guarded routes (the two file downloads, upload-url and
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
-    expect(EXECUTED.unauthenticated).toBe(11);
+    // 13 with the skill library's two (D-078).
+    expect(EXECUTED.unauthenticated).toBe(13);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
-    expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length);
+    // Plus the offer's five open routes (D-072 to D-076).
+    expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length + 5);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(185 + GUIDE_SLUGS.length);
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 2 + 5);
   });
 });

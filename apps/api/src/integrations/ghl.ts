@@ -64,6 +64,8 @@ export const WAITLIST_TAGS = ['ai101-waitlist', 'event-expcon-2026'] as const;
  */
 export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
   'expcon-2026-ai101': WAITLIST_TAGS,
+  // The offer page's cohort waitlist (D-075, D-076).
+  'cohort-waitlist': ['cohort-waitlist'],
   // Every free guide, tagged with its own slug: `task-sync-starter` (D-038), `ops-time-audit` (D-039),
   // `voice-profile`, Spring's lead magnet (D-040), `reel-editor`, the first Claude skill (D-045),
   // `retool`, the "Retool, Don't Replace" talk's page (D-046), and each skill page after them (D-052
@@ -269,7 +271,85 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
   // See the header: no consent, no number in the CRM.
   const textable = isTextable(contact);
   if (textable) upsertBody.phone = contact.phone!.trim();
+  return upsertAndTag(upsertBody, waitlistTags(contact.src, textable, contact.source, contact), options);
+}
 
+// --- buyers (D-075) ---------------------------------------------------------------------------------
+// The offer's orders reach GHL the same way: the order row is the record, GHL a copy, tags only ever
+// added. The tags below drive Sarah O.'s welcome and intake workflows and Matt's follow-ups, and are
+// Connor's to approve. `offer-buyer` rather than `buyer`: in a CRM of real estate contacts, "buyer"
+// already means a home buyer.
+
+/** Every tag a buyer can carry, for the approval list and the test that holds it. */
+export const BUYER_TAGS = {
+  buyer: 'offer-buyer',
+  plan: (plan: string) => `plan-${plan}`,
+  payFull: 'pay-full',
+  payTwo: 'pay-two',
+  abandoned: (plan: string) => `checkout-abandoned-${plan}`,
+  paymentFailed: 'payment-failed',
+  membershipEnded: 'membership-ended',
+  refunded: 'refunded',
+  forum: 'event-forum-nov-2026',
+} as const;
+
+/** The facts about one order that decide its tags. */
+export interface BuyerFacts {
+  plan: string;
+  option: string;
+  status: string;
+  paidAt: number | null;
+  paymentFailedAt: number | null;
+  membershipEndedAt: number | null;
+  refundedAt: number | null;
+  campaign: string | null;
+  smsConsent: boolean;
+  phone: string | null;
+}
+
+const OFFER_PLANS = ['library', 'cohort', 'agents'];
+
+/** The tags one order should carry now. Tags are never removed, so a later event only adds. */
+export function buyerTags(o: BuyerFacts): string[] {
+  if (!OFFER_PLANS.includes(o.plan)) return [];
+  const tags: string[] = [];
+  const bought = o.paidAt !== null || o.status === 'paid' || o.status === 'trialing' || o.refundedAt !== null;
+  if (bought) {
+    tags.push(BUYER_TAGS.buyer, BUYER_TAGS.plan(o.plan));
+    if (o.plan === 'cohort') tags.push(o.option === 'two_pay' ? BUYER_TAGS.payTwo : BUYER_TAGS.payFull);
+  } else if (o.status === 'expired') {
+    tags.push(BUYER_TAGS.abandoned(o.plan));
+  }
+  if (o.paymentFailedAt !== null) tags.push(BUYER_TAGS.paymentFailed);
+  if (o.membershipEndedAt !== null) tags.push(BUYER_TAGS.membershipEnded);
+  if (o.refundedAt !== null) tags.push(BUYER_TAGS.refunded);
+  if (tags.length && o.campaign === 'forum') tags.push(BUYER_TAGS.forum);
+  if (tags.length && isTextable(o)) tags.push(SMS_CONSENT_TAG);
+  return tags;
+}
+
+export interface BuyerContact extends BuyerFacts {
+  name: string | null;
+  email: string;
+  company: string | null;
+}
+
+/** Create or update the buyer's contact and add the order's tags. Idempotent, like the waitlist's. */
+export async function syncBuyerContact(contact: BuyerContact, options: SyncOptions): Promise<GhlResult> {
+  const upsertBody: Record<string, unknown> = { locationId: options.config.locationId, email: contact.email };
+  const name = (contact.name ?? '').trim();
+  if (name) {
+    const [first, ...rest] = name.split(/\s+/);
+    upsertBody.firstName = first;
+    if (rest.length) upsertBody.lastName = rest.join(' ');
+  }
+  if (contact.company && contact.company.trim() !== '') upsertBody.companyName = contact.company.trim();
+  if (isTextable(contact)) upsertBody.phone = contact.phone!.trim();
+  return upsertAndTag(upsertBody, buyerTags(contact), options);
+}
+
+/** The upsert, then the tags as a union with what the contact already has (see the header). */
+async function upsertAndTag(upsertBody: Record<string, unknown>, ours: readonly string[], options: SyncOptions): Promise<GhlResult> {
   const upserted = await call('/contacts/upsert', upsertBody, options);
   if (!upserted.ok) return { ok: false, kind: upserted.kind, step: 'upsert', ...statusOf(upserted) };
 
@@ -280,7 +360,6 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
   const created = body?.new === true;
   const before = asTags(record?.tags);
 
-  const ours = waitlistTags(contact.src, textable, contact.source, contact);
   const union = [...new Set([...before, ...ours])];
   const tagged = await call(`/contacts/${encodeURIComponent(contactId)}/tags`, { tags: union }, options);
   if (!tagged.ok) return { ok: false, kind: tagged.kind, step: 'tags', ...statusOf(tagged) };

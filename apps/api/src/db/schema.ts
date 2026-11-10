@@ -158,3 +158,102 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
   // the same rule for every other writer, so a size marketing filters on is never a typo (D-046).
   check('ai101_waitlist_team_size', sql`${t.teamSize} is null or ${t.teamSize} in ('1-10', '11-25', '26-50', '51+')`),
 ]);
+
+// ================================================================================================
+// THE OFFER: ORDERS, STRIPE EVENTS, ACCOUNTS, PLANS AND SKILLS (D-074, D-078, D-079)
+// ================================================================================================
+// Billing state, kept out of the prototype's `Db` exactly as the waitlist and the auth tables are:
+// none of these is in the snapshot codec, so a snapshot write can never touch them and Gate 7's
+// oracle and the parity suites cannot move. Teams and people (the `users` and `teams` rows an
+// account points at) are still written through `@ai/core`, by provisioning (billing/provision.ts).
+//
+// Every instant is epoch ms (`ts()`), for the waitlist's reason: `clock.now()` is the number written,
+// and the access rule (`canOpenSkill`, billing/access.ts) compares them as plain numbers. The enum-ish
+// columns are text with a CHECK, typed out here because drizzle-kit reads this file on its own;
+// billing/catalog.ts holds the same lists and `test/offer-schema.test.ts` holds the two equal.
+
+// One row per purchase attempt: from the offer page (`origin` = 'offer', created before Stripe is
+// called) or from a fallback Payment Link (`origin` = 'payment_link', created by the webhook). Only
+// the webhook moves `status` past 'pending' (D-074). The buyer's details, the consent proof and the
+// attribution are the order's own; the account it became is `account_id`.
+export const orders = pgTable('orders', {
+  id: text('id').primaryKey(),
+  plan: text('plan').notNull(), option: text('option').notNull(), origin: text('origin').notNull(),
+  status: text('status').notNull(),
+  name: text('name'), email: text('email'), phone: text('phone'), company: text('company'), crm: text('crm'),
+  teamSize: text('team_size'),
+  src: text('src'), campaign: text('campaign'),
+  agreementVersion: text('agreement_version'), agreementAcceptedAt: ts('agreement_accepted_at'),
+  renewalConsentAt: ts('renewal_consent_at'), renewalConsentText: text('renewal_consent_text'),
+  smsConsent: boolean('sms_consent').notNull().default(false), smsConsentAt: ts('sms_consent_at'), smsConsentText: text('sms_consent_text'),
+  stripeSessionId: text('stripe_session_id'), stripeCustomerId: text('stripe_customer_id'),
+  stripePaymentIntentId: text('stripe_payment_intent_id'), stripeSubscriptionId: text('stripe_subscription_id'),
+  amountTotal: integer('amount_total'), currency: text('currency'),
+  paymentsMade: integer('payments_made').notNull().default(0),
+  // When the events behind the follow-up tags happened (D-076): the GHL sync reads these.
+  paidAt: ts('paid_at'), paymentFailedAt: ts('payment_failed_at'), membershipEndedAt: ts('membership_ended_at'), refundedAt: ts('refunded_at'),
+  ghlContactId: text('ghl_contact_id'), ghlSyncedAt: ts('ghl_synced_at'),
+  ghlAttempts: integer('ghl_attempts').notNull().default(0), ghlNextAttemptAt: ts('ghl_next_attempt_at'), ghlError: text('ghl_error'),
+  accountId: text('account_id'),
+  createdAt: ts('created_at').notNull(),
+}, (t) => [
+  uniqueIndex('orders_stripe_session_idx').on(t.stripeSessionId),
+  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents')`),
+  check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40')`),
+  check('orders_origin', sql`${t.origin} in ('offer', 'payment_link')`),
+  check('orders_status', sql`${t.status} in ('pending', 'paid', 'trialing', 'expired', 'failed', 'refunded')`),
+  check('orders_crm', sql`${t.crm} is null or ${t.crm} in ('follow_up_boss', 'other')`),
+  // The waitlist's rule (D-034): a "yes" to texts needs the number, the time and the words.
+  check('orders_sms_consent_proof', sql`not ${t.smsConsent} or (${t.phone} is not null and ${t.smsConsentAt} is not null and ${t.smsConsentText} is not null)`),
+  // The same for a renewal: a time with no words is not proof of what was agreed to.
+  check('orders_renewal_consent_proof', sql`(${t.renewalConsentAt} is null) = (${t.renewalConsentText} is null)`),
+]);
+
+// One row per Stripe event (D-074). Inserted before anything else happens, keyed by Stripe's own id,
+// so a redelivered event that was already processed is skipped. `error` holds a short reason for an
+// event that failed and will be retried by Stripe, never a payload.
+export const stripeEvents = pgTable('stripe_events', {
+  id: text('id').primaryKey(), type: text('type').notNull(),
+  receivedAt: ts('received_at').notNull(), processedAt: ts('processed_at'), error: text('error'),
+});
+
+// The buying team (D-077): one platform team with the buyer as its Team Owner. Found by the owner's
+// email (lower-cased), so a library buyer who later buys the cohort keeps one account and one login.
+// `invite_sent_at` is null until the owner's invite has gone out: invites made before
+// `INVITES_FROM` wait for it (Mon, Nov 16), so they arrive with the welcome email.
+export const accounts = pgTable('accounts', {
+  id: text('id').primaryKey(), teamId: text('team_id').notNull(), ownerUserId: text('owner_user_id').notNull(),
+  ownerEmail: text('owner_email').notNull(), name: text('name').notNull(), crm: text('crm'),
+  stripeCustomerId: text('stripe_customer_id'),
+  createdAt: ts('created_at').notNull(), inviteSentAt: ts('invite_sent_at'),
+}, (t) => [uniqueIndex('accounts_owner_email_idx').on(t.ownerEmail)]);
+
+// A plan an account holds (D-077). `paid_through` is what the access rule compares with a skill's
+// `released_at` ("cancel and keep"); `live_until` ends office hours, builds and coaching;
+// `minimum_until` is the agent plan's 3-month minimum. One plan per order, so provisioning the same
+// order twice finds the plan it made the first time.
+export const plans = pgTable('plans', {
+  id: text('id').primaryKey(), accountId: text('account_id').notNull(), kind: text('kind').notNull(),
+  option: text('option').notNull(), seats: integer('seats').notNull(), cohortId: text('cohort_id'), status: text('status').notNull(),
+  startsAt: ts('starts_at').notNull(), paidThrough: ts('paid_through'), liveUntil: ts('live_until'), minimumUntil: ts('minimum_until'),
+  stripeSubscriptionId: text('stripe_subscription_id'), orderId: text('order_id').notNull(), createdAt: ts('created_at').notNull(),
+}, (t) => [
+  uniqueIndex('plans_order_idx').on(t.orderId),
+  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents')`),
+  check('plans_status', sql`${t.status} in ('trialing', 'active', 'past_due', 'canceled', 'ended')`),
+]);
+
+// The skill library (D-078). One row per skill, keyed by its slug. `sets` is which plans open it;
+// `free` skills open for everyone; `released_at` is the date "cancel and keep" compares with a plan's
+// `paid_through`. `files` holds bucket keys, never URLs: a download is a short-lived link minted per
+// request after `canOpenSkill` says yes (D-024's pattern).
+export const skills = pgTable('skills', {
+  id: text('id').primaryKey(), title: text('title').notNull(), summary: text('summary').notNull().default(''),
+  sets: text('sets').notNull(), free: boolean('free').notNull().default(false),
+  releasedAt: ts('released_at').notNull(),
+  files: jsonb('files').$type<{ claude?: string; chatgpt?: string; practice?: string }>().notNull().default({}),
+  status: text('status').notNull().default('published'),
+}, (t) => [
+  check('skills_sets', sql`${t.sets} in ('owner_ops', 'agent', 'both')`),
+  check('skills_status', sql`${t.status} in ('draft', 'published', 'hidden')`),
+]);

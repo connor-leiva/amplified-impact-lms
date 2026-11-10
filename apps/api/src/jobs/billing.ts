@@ -1,0 +1,52 @@
+// The offer's one timed job: owner invites held for Monday (D-077).
+//
+// Provisioning creates the account the moment a sale is paid, but before `INVITES_FROM` (Mon, Nov 16,
+// 8 am Central) it holds the owner's invite, so the login arrives beside Sarah O.'s welcome email
+// rather than on a Saturday night with nothing around it. This loop sends the held ones once that
+// instant passes. Armed by a database, like the waitlist's GHL loop, and not by `fixtureOnly`:
+// production runs fixture mode with a database, and the buyers still need their invites.
+
+import type { Database } from '../db/client';
+import { clock } from '../lib/clock';
+import { sendHeldInvites } from '../billing/provision';
+import type { BillingLog } from '../billing/provision';
+
+export const BILLING_TICK_MS = 60_000;
+
+export interface BillingLoop {
+  readonly running: boolean;
+  stop(): Promise<void>;
+}
+
+export function startBillingLoop(options: {
+  database: boolean;
+  invitesFrom: number;
+  log: BillingLog;
+  db?: Database;
+  intervalMs?: number;
+}): BillingLoop {
+  if (!options.database) return { running: false, stop: async () => {} };
+  let inFlight: Promise<void> | null = null;
+  let timer: NodeJS.Timeout | null = setInterval(() => {
+    if (inFlight) return;
+    inFlight = sendHeldInvites({ db: options.db, log: options.log, now: clock.now(), invitesFrom: options.invitesFrom })
+      .then(
+        () => {},
+        (err: unknown) => options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'held invites tick failed; the next tick retries'),
+      )
+      .finally(() => {
+        inFlight = null;
+      });
+  }, options.intervalMs ?? BILLING_TICK_MS);
+  timer.unref();
+  return {
+    get running() {
+      return timer !== null;
+    },
+    async stop() {
+      if (timer) clearInterval(timer);
+      timer = null;
+      if (inFlight) await inFlight;
+    },
+  };
+}
