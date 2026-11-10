@@ -1,0 +1,20 @@
+{
+  "set": "practice: 1487 Example Quail Lane, Faketown, Utah (Utah REPC, December 4, 2024 form)",
+  "as_of": "2026-11-10 (named in the practice prompt)",
+  "planted": {
+    "missing": [
+      "Earnest money receipt: export row 6 Not Uploaded; due Acceptance 2026-10-27 + 4 = 2026-10-31 (Saturday), 10 days past",
+      "Lead-Based Paint Disclosure & Acknowledgement: no row; year built 1974 makes checklist item 9 apply; due Seller Disclosure Deadline 2026-11-03, 7 days past"
+    ],
+    "unsigned_addendum": "Addendum No. 2 (Settlement Deadline to 2026-12-11): buyers only; the Settlement Deadline stays 2026-12-04",
+    "deadline_inside_3_days": "Due Diligence Deadline 2026-11-12 (Thursday), 2 days, set by Addendum No. 1 (signed by all 11/05), replacing 2026-11-09",
+    "also": [
+      "Export file name dated 2026-11-09, a day before the as-of date",
+      "Radon Test Results in the file, not on the checklist",
+      "Checklist item 13 applies only if the buyers object; the notes say an objection is planned 11/11",
+      "Settlement statement and Commission Disbursement Authorization not uploaded, due 2026-12-04 (24 days): not yet due",
+      "Appraisal appointment 2026-11-13 in the notes",
+      "No wire request in the notes"
+    ]
+  }
+}

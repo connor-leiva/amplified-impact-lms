@@ -44,6 +44,9 @@ export const GUIDE_SLUGS = [
   'seller-listing-update',
   'listing-appointment-prep',
   'expired-fsbo-outreach',
+  'agent-1on1-prep',
+  'tc-file-audit',
+  'post-closing-client-care',
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 

@@ -47,6 +47,36 @@ export interface Entry {
 
 export const ENTRIES: readonly Entry[] = [
   {
+    title: 'Post-Closing Client Care',
+    description: 'Attach your TC’s closing email and your notes and get your client’s first year after closing: a dated plan, the card and thank-you, a review request you send every client the same way, introductions to your own vendors and a property tax reminder that points to the county. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/post-closing-client-care',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'buyers', 'listings'],
+    added: '2026-11-10',
+    keywords: 'post-closing after closing closing follow-up past client care client care first year closing gift thank-you card thank-you email review request ask for a review google review zillow review five-star review review gating ftc review rule vendor list preferred vendors referral fee respa affiliated business disclosure homestead exemption primary residential exemption property tax county assessor follow up boss fub action plan automations 2.0 home anniversary tc closing email sisu text consent',
+  },
+  {
+    title: 'TC File Audit',
+    description: 'Attach one transaction file’s document list, the contract’s key dates, your brokerage’s checklist and your notes, and see what’s missing, what’s unsigned and what’s due this week, with days remaining counted and the asks to the agent and broker drafted. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/tc-file-audit',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'transaction coordinator tc file audit transaction file checklist compliance review broker review missing documents unsigned addendum signatures initials skyslope dotloop brokermint lone wolf contract to close deadlines key dates repc utah due diligence deadline settlement deadline seller disclosure deadline earnest money receipt wire fraud ops lead team owner',
+  },
+  {
+    title: 'Agent 1:1 Prep',
+    description: 'Attach one agent’s monthly numbers, their goals and your notes from last time, and walk into your coaching one-on-one with the pace math written out against their own goal, last time’s commitments carried forward and the questions to ask. Facts, not judgments. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/agent-1on1-prep',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'one-on-one one on one 1:1 1 on 1 coaching agent coaching coaching session accountability accountability meeting check-in team leader coach sisu agent accountability report pacer pace pacing goals business plan prorated goal year to date appointments set appointments met signed under contract closings gci commitments agenda recap follow up boss',
+  },
+  {
     title: 'Expired and FSBO Outreach',
     description: 'Upload your expired list or FSBO list and get a personal first letter for every owner you may contact, built from that listing’s own facts, plus call openers only for scrubbed numbers, door-knock notes and a two-week plan. Listings that may still be under a listing agreement are held out. Set it up once on a computer, in Claude or a ChatGPT Project.',
     kind: 'Claude Skill',

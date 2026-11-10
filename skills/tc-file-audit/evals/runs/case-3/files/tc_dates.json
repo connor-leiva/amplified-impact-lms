@@ -1,0 +1,157 @@
+{
+  "as_of": "2026-11-10",
+  "week_end": "2026-11-16",
+  "deadlines": [
+    {
+      "name": "Inspection objection deadline",
+      "date": "2026-11-18",
+      "weekday": "Wednesday",
+      "long": "Wednesday, November 18, 2026",
+      "days": 8,
+      "math": "2026-11-18 - 2026-11-10 = 8",
+      "timing": "later",
+      "source": "contract dates file, line 2 of the dates",
+      "ref": "",
+      "was": [],
+      "proposed": []
+    },
+    {
+      "name": "Appraisal deadline",
+      "date": "2026-11-25",
+      "weekday": "Wednesday",
+      "long": "Wednesday, November 25, 2026",
+      "days": 15,
+      "math": "2026-11-25 - 2026-11-10 = 15",
+      "timing": "later",
+      "source": "contract dates file",
+      "ref": "",
+      "was": [],
+      "proposed": []
+    },
+    {
+      "name": "Loan approval deadline",
+      "date": "2026-12-02",
+      "weekday": "Wednesday",
+      "long": "Wednesday, December 2, 2026",
+      "days": 22,
+      "math": "2026-12-02 - 2026-11-10 = 22",
+      "timing": "later",
+      "source": "contract dates file",
+      "ref": "",
+      "was": [],
+      "proposed": []
+    },
+    {
+      "name": "Closing date",
+      "date": "2026-11-16",
+      "weekday": "Monday",
+      "long": "Monday, November 16, 2026",
+      "days": 6,
+      "math": "2026-11-16 - 2026-11-10 = 6",
+      "timing": "this week",
+      "source": "contract dates file",
+      "ref": "",
+      "was": [],
+      "proposed": []
+    }
+  ],
+  "odd": [
+    "Closing date (2026-11-16) is before Inspection objection deadline (2026-11-18), which the contract lists above it",
+    "Closing date (2026-11-16) is before Appraisal deadline (2026-11-25), which the contract lists above it",
+    "Closing date (2026-11-16) is before Loan approval deadline (2026-12-02), which the contract lists above it"
+  ],
+  "weekend": [],
+  "counted": [],
+  "dated": [],
+  "items": [
+    {
+      "item": "Purchase and Sale Agreement",
+      "result": "in file",
+      "found": "Purchase and Sale Agreement (documents list)",
+      "status": "uploaded 11/02",
+      "signed": "signed by all",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "Seller's Property Disclosure",
+      "result": "in file",
+      "found": "Seller's Property Disclosure (documents list)",
+      "status": "uploaded 11/04",
+      "signed": "signed by sellers",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "Earnest money receipt",
+      "result": "in file",
+      "found": "Earnest money receipt (documents list)",
+      "status": "uploaded 11/05",
+      "signed": "not shown",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "Inspection report",
+      "result": "unclear",
+      "found": "Inspection report (documents list)",
+      "status": "not uploaded",
+      "signed": "",
+      "due": "",
+      "why": "no brokerage checklist to say whether or when it is required",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "Addendum 1 (inspection extension)",
+      "result": "incomplete",
+      "found": "Addendum 1 (inspection extension) (documents list)",
+      "status": "uploaded 11/09",
+      "signed": "signed by buyers only",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    }
+  ],
+  "counts": {
+    "missing": 0,
+    "incomplete": 1,
+    "unclear": 1,
+    "in file": 3,
+    "not applicable": 0
+  },
+  "this_week": [
+    {
+      "kind": "Deadline",
+      "name": "Closing date",
+      "date": "2026-11-16",
+      "long": "Monday, November 16, 2026",
+      "days": 6,
+      "math": "2026-11-16 - 2026-11-10 = 6",
+      "source": "contract dates file"
+    }
+  ],
+  "past_due_open": [],
+  "open_no_date": [
+    "Inspection report",
+    "Addendum 1 (inspection extension)"
+  ]
+}

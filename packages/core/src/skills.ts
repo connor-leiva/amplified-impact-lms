@@ -56,6 +56,8 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'l10-meeting-prep', title: 'L10 Meeting Prep', summary: "Preps the weekly EOS L10 from the team's scorecard, rocks, to-dos and issues.", sets: 'owner_ops', files: zips('l10-meeting-prep', true) },
   { id: 'fub-pipeline-review', title: 'FUB Pipeline Review', summary: 'Runs the weekly pipeline review from Follow Up Boss exports.', sets: 'owner_ops', files: zips('fub-pipeline-review', true) },
   { id: 'fub-automation-audit', title: 'FUB Automation Audit', summary: "Lines up the team's Follow Up Boss plans and automations to find gaps, overlaps and texting-consent risk.", sets: 'owner_ops', files: zips('fub-automation-audit', true) },
+  { id: 'agent-1on1-prep', title: 'Agent 1:1 Prep', summary: "Preps a coaching one-on-one from one agent's numbers, goals and last time's notes.", sets: 'owner_ops', files: zips('agent-1on1-prep', true) },
+  { id: 'tc-file-audit', title: 'TC File Audit', summary: 'Crosses one transaction file against the brokerage checklist and the contract dates, and drafts the asks.', sets: 'owner_ops', files: zips('tc-file-audit', true) },
   // For everyone.
   { id: 'perfect-week', title: 'Perfect Week', summary: 'Plans an ideal working week from the real calendar and task list.', sets: 'both', files: zips('perfect-week', false) },
   { id: 'content-opportunity-research', title: 'Content Strategist', summary: "Weekly Instagram research and five ideas built on the creator's own stories.", sets: 'both', files: zips('content-opportunity-research', false) },
@@ -79,6 +81,7 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'seller-listing-update', title: 'Seller Listing Update', summary: "Turns a week of showing feedback and listing numbers into the sellers' weekly update.", sets: 'agent', files: zips('seller-listing-update', true) },
   { id: 'listing-appointment-prep', title: 'Listing Appointment Prep', summary: 'Preps a listing appointment: the plan, the questions, a marketing plan and a seller net sheet, everything but the price.', sets: 'agent', files: zips('listing-appointment-prep', true) },
   { id: 'expired-fsbo-outreach', title: 'Expired and FSBO Outreach', summary: 'Drafts a first touch for each expired or FSBO owner, with calls only to scrubbed numbers.', sets: 'agent', files: zips('expired-fsbo-outreach', true) },
+  { id: 'post-closing-client-care', title: 'Post-Closing Client Care', summary: "Plans a client's first year after closing and drafts the card, the thank-you, the review request and vendor introductions.", sets: 'agent', files: zips('post-closing-client-care', true) },
 ];
 
 export const isFreeSkill = (id: string): boolean => FREE_SKILLS.includes(id);

@@ -1,0 +1,30 @@
+Objective checks: eval-3-idaho-buyer-vendors / output.md
+- PASS  No em or en dashes
+- PASS  The ten sections, in order: Flags, Bottom Line, What I Used, Your First-Year Plan, Closing Day, Review Request, Vendor Introductions, Property Tax Reminder, Set It Up in Follow Up Boss, Check Before Sending
+- PASS  Every plan date from the closing date appears: closing day Friday, November 6, 2026, week 1 Friday, November 13, 2026, day 30 Sunday, December 6, 2026, day 90 Thursday, February 4, 2027, month 6 Friday, May 7, 2027, first anniversary Saturday, November 6, 2027
+- PASS  Every moved date appears: Tuesday, November 10, 2026
+- PASS  Title Case subjects: Thank You, And Welcome Home; Would You Share How It Went?; The Insurance Agent You Asked About; A Property Tax Question For The County
+- PASS  Thank-You Email: body 150 words or fewer: 89
+- PASS  Thank-You Email: no footer, on purpose
+- PASS  Review Request Email: body 120 words or fewer: 77
+- PASS  Review Request Email: opt-out and postal address footer
+- PASS  Review Request Email: marketing line
+- PASS  Vendor Introductions Email: body 150 words or fewer: 77
+- PASS  Vendor Introductions Email: opt-out and postal address footer
+- PASS  Vendor Introductions Email: no marketing line (the client asked for it)
+- PASS  Day 30 Email: body 150 words or fewer: 103
+- PASS  Day 30 Email: opt-out and postal address footer
+- PASS  Day 30 Email: marketing line
+- PASS  The review email holds every review link
+- PASS  Texts only to the clients who agreed: Morgan
+- PASS  Review Request Text to Morgan: sender first, 300 characters or fewer, one link, Reply STOP: 254 characters
+- PASS  No rating, star, reward or gift card words in the drafts
+- PASS  Never-appear strings absent from the whole output
+- PASS  No money words in the drafts
+- PASS  No protected-class, school, safety or neighborhood words in the drafts
+- PASS  No stock phrases in the drafts
+- PASS  No vendor in the drafts beyond the ones the notes call for
+- PASS  Every vendor the notes call for is introduced: Example Shield Insurance Agency
+- PASS  Every phone number in the drafts is in the inputs: 208-555-0131
+- PASS  No wire or account details
+- PASS  Every number found in the inputs, the worked-out dates or the cited rules: all found

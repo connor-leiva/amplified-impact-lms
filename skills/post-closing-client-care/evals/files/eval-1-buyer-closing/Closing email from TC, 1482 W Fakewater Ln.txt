@@ -1,0 +1,34 @@
+PRACTICE FILE: made-up example. Not a real person, property, brokerage, lender or title company.
+
+From: Kit Placeholder <kit.placeholder@example.com>
+To: Sam Testerfield <sam.testerfield@example.com>
+Date: Tue, Nov 10, 2026, 3:02 PM
+Subject: CLOSED and Recorded: 1482 W Fakewater Ln, Pretend Springs (Mockwood purchase)
+
+Hi Sam,
+
+Great news: the Mockwood purchase is funded and recorded!
+
+Property: 1482 W Fakewater Ln, Pretend Springs, UT 84000
+Buyers: Taylor Mockwood and Jamie Mockwood
+Our side: Buyer
+Sellers: Chris and Robin Notaseller (listing agent: Morgan Sampleford, Placeholder Peaks Realty)
+Signed: Monday, 11/09/2026, at Mockingbird Title and Escrow (escrow officer Robin Fakename)
+Funded and recorded: Tuesday, 11/10/2026, 2:14 PM, with the Davis County Recorder, Entry No. 3990012
+Purchase price: $489,000
+Lender: Sample Basin Mortgage (loan officer Lee Notreal), loan no. 77-0042913
+Commission: disbursed by wire to the Example Ridge Realty trust account ending 4417
+Keys: released to the buyers at 2:30 PM today
+Buyer emails: taylor.mockwood@example.com, jamie.mockwood@example.com
+Buyer phones: Taylor 801-555-0123, Jamie 801-555-0198
+Mailing address after closing: the property address above
+
+Still open on my side:
+- Final settlement statement uploaded to the file (done)
+- Mark closed in Sisu (done)
+- Home warranty: seller-paid 1-year plan from Example Home Shield, confirmation emailed to the buyers
+
+Thanks for a smooth one!
+
+Kit Placeholder
+Transaction Coordinator, Example Ridge Realty
