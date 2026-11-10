@@ -183,6 +183,8 @@ export function renderLibraryBody(): string {
     grokShelf(),
     `<div class="empty" id="library-empty" hidden><p>${esc(LIBRARY.empty)}</p>` +
       `<button type="button" class="clear" id="library-clear">${esc(LIBRARY.clear)}</button></div>`,
+    // The general note (D-101), after every list, so no filter ever hides it.
+    `<p class="library-note">${esc(LIBRARY.note)}</p>`,
     `</main>`,
     footer(),
   ].join('\n');

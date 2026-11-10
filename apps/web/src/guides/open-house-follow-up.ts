@@ -27,14 +27,15 @@
 //     rule only as the references state them (fair-housing-and-representation.md and
 //     utah-open-house-notes.md, checked 2026-11-10), and sends questions to the broker. Whether a
 //     brokerage wants even a thank-you sent to another agent's client is left to the agent ("Own").
-//   - Email footers: every visitor email carries an opt-out and [Sender Postal Address], and the ones
-//     that offer services carry a marketing line (the shared outreach-rules.md, CAN-SPAM). The page says
-//     only that every email has an opt-out footer; the marketing line on one-to-one follow-ups is
-//     Connor's call (DECISIONS entry).
+//   - Email footers: every email, the thank-you to a represented visitor and the seller update
+//     included, carries the full footer (the marketing line, the opt-out and [Sender Postal Address]).
+//     That is Connor's conservative default on top of the shared outreach-rules.md (CAN-SPAM). The
+//     sample shows it whole, and the FAQ says it can be calibrated with the agent's own legal counsel.
 //   - Utah's Sunday and holiday limit on solicitation calls (Utah Code 13-25a-103): the section speaks
 //     of calls, 13-25a-111 exempts a licensee acting within the license, and whether it reaches texts
 //     was not confirmed. The page says "limits on solicitation
-//     calls" and nothing about texts.
+//     calls" and nothing about texts. Calls and voicemails skip Sundays and legal holidays everywhere,
+//     as a conservative default (Utah's holidays in Utah mode, the federal ones otherwise).
 //   - A photo of a real handwritten sheet, real sign-in app exports, an XLSX and more than 12 visitors
 //     were not tested. The photo is in "Where to get your sign-in sheet", marked untested, and not in
 //     "What to say". Claude Free and the ChatGPT Project inside ChatGPT are untested too; the page says
@@ -190,7 +191,7 @@ export const OPEN_HOUSE_FOLLOW_UP: Guide = skillPage({
               'Hi Quinn,',
               'Thanks for coming to the open house at 2468 Sample Aspen Ln on Sunday. I’ll get the water heater’s age to Taylor Samplewood, so you’ll hear it from Taylor.',
               'Riley',
-              'To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]',
+              'This is a marketing email from Riley Sampleton, Example Peak Realty. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]',
             ],
           },
         },
@@ -224,6 +225,7 @@ export const OPEN_HOUSE_FOLLOW_UP: Guide = skillPage({
               'Whether the washer and dryer stay',
               'One visitor asked for a second look, this evening, Tuesday, November 10, and I’m setting it up.',
               'Riley',
+              'This is a marketing email from Riley Sampleton, Example Peak Realty. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]',
             ],
           },
         },
@@ -274,7 +276,7 @@ export const OPEN_HOUSE_FOLLOW_UP: Guide = skillPage({
         },
         {
           title: 'A follow-up for every visitor',
-          body: 'An email under 120 words with a subject that names the home and an opt-out at the bottom, plus a text for each visitor who said yes to texts, with where that yes came from. A visitor who has an agent gets a thank-you only. The drafts follow your voice profile, if you made one with our free guide.',
+          body: 'An email under 120 words with a subject that names the home and the full footer at the bottom (an opt-out, your postal address and a marketing line), plus a text for each visitor who said yes to texts, with where that yes came from. A visitor who has an agent gets a thank-you only. The drafts follow your voice profile, if you made one with our free guide.',
         },
         {
           title: 'A seller update',
@@ -455,7 +457,15 @@ export const OPEN_HOUSE_FOLLOW_UP: Guide = skillPage({
           // page-notes.md, FAQ; SKILL.md, section 5 (Location); utah-open-house-notes.md.
           q: 'Does it work outside Utah?',
           a: [
-            'Yes. Outside Utah, the thank-you-only rule, fair housing and the federal texting rules still apply, and the AI tells you it didn’t check your state’s rules. The Utah notes, Utah’s licensing rule and its Sunday and holiday limits on solicitation calls, switch on only for a Utah open house.',
+            'Yes. Outside Utah, the thank-you-only rule, fair housing and the federal texting rules still apply, calls skip Sundays and federal holidays, and the AI tells you it didn’t check your state’s rules or holidays. The Utah notes, Utah’s licensing rule, its Sunday and holiday limits on solicitation calls and its legal holidays, switch on only for a Utah open house.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails (Conservative defaults); outreach-rules.md, Conservative
+          // Defaults.
+          q: 'Why is it stricter than the law?',
+          a: [
+            'A few rules are our conservative defaults, stricter than the law in places. Every email carries the full footer (an opt-out, your postal address and a line saying it’s a marketing email), even a thank-you to a visitor who has an agent and your seller update. And no call or voicemail goes on a Sunday or a legal holiday, even with consent and even though Utah exempts licensees. You can calibrate them with your own legal counsel: tell the AI the rule your counsel approved, and it follows that and says so in Check before sending.',
           ],
         },
         {

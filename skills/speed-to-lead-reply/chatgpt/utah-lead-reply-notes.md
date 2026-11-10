@@ -21,13 +21,13 @@ Last verified: 2026-11-10. Utah only: read this when the property is in Utah. Ou
 - The act does not define "prior express consent." Whether a lead's own inquiry counts as consent to a call on a Sunday or a holiday was not confirmed for this file. Ask the broker.
 - A caller making an "unsolicited telephone call" must identify themselves, the business, and the purpose of the call promptly (13-25a-103(5)). A call "in response to an express request of the person called," or to someone with an established business relationship (one based on an inquiry, among other things), is not an "unsolicited telephone call" (13-25a-102(4) and (10)). The call opener names the agent, the brokerage and the reason in its first sentence either way.
 - The same section requires following the federal TCPA (13-25a-103(4)); see `outreach-rules.md`.
-- **Licensee exemption.** Sections 13-25a-103 and 13-25a-108 "do not apply to a person who holds and acts within the scope of a license" issued by the Utah Division of Real Estate (Utah Code 13-25a-111, effective May 1, 2024). So for a licensed agent acting as one, Utah's own evening, Sunday and holiday limits may not apply. The skill keeps the Sunday and holiday care in this file anyway, as house practice. The federal TCPA still applies (`outreach-rules.md`), and whether a message is within the license is the broker's call.
+- **Licensee exemption.** Sections 13-25a-103 and 13-25a-108 "do not apply to a person who holds and acts within the scope of a license" issued by the Utah Division of Real Estate (Utah Code 13-25a-111, effective May 1, 2024). So for a licensed agent acting as one, Utah's own evening, Sunday and holiday limits may not apply. The skill keeps calls off Sundays and holidays anyway, as a conservative default (`outreach-rules.md`, Conservative Defaults). The federal TCPA still applies (`outreach-rules.md`), and whether a message is within the license is the broker's call.
 
-What the skill does (house practice for a licensed agent, since 13-25a-111 exempts a licensee acting within the license from 13-25a-103):
+What the skill does (a conservative default, stricter than the law here, since 13-25a-111 exempts a licensee acting within the license from 13-25a-103):
 - Texts and calls go between 8 AM and 8 PM anyway, inside Utah's window.
-- On a Sunday or a Utah legal holiday, a text to a TEXT OK lead keeps its day (the lead's written consent covers texts), and so does a call when the same consent line covers calls.
-- Any other call or voicemail that would land on a Sunday or a Utah legal holiday moves to the next day that is neither, and the output says why in one line. Emails keep their day.
-- When today itself is a Sunday or a Utah legal holiday, Flags says so first: the email now, the text if TEXT OK, and the call on the next weekday unless the broker says the inquiry counts as consent.
+- On a Sunday or a Utah legal holiday, a text to a TEXT OK lead keeps its day (the lead's written consent covers texts). Emails keep their day.
+- No call or voicemail lands on a Sunday or a Utah legal holiday, even when the lead's written consent covers calls. It moves to the next day that is neither, and the output says why in one line.
+- When today itself is a Sunday or a Utah legal holiday, Flags says so first: the email now, the text if TEXT OK, and the call on the next day that is neither.
 
 ## Utah Legal Holidays
 

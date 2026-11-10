@@ -21,11 +21,16 @@
 //   - The cadence (Past Clients 12 touches a year, Close Sphere 6, Wider Sphere 4) and the weekly share
 //     are house defaults, not Connor's: the page says "a default you can change" and gives no cadence
 //     as advice.
-//   - Every email carries the opt-out and marketing footer from outreach-rules.md, even a personal
-//     anniversary note. The sample shows it as written. Whether a purely personal note needs it is a
-//     broker question, left to Connor.
+//   - Every email carries the full footer from outreach-rules.md (the opt-out, the postal address and
+//     the marketing line), even a personal anniversary note: Connor's conservative default. The sample
+//     shows it as written.
 //   - A yes from an open house sign-in gets a text with a check first (as Database Health Check does,
-//     D-053's open call). The sample shows the check, not a ruling.
+//     D-053's open call): its wording must name the agent or the team. A portal or shared lead's yes
+//     that names only the portal gets no text until the broker confirms (a conservative default). The
+//     sample shows the check, not a ruling.
+//   - Calls and voicemails skip Sundays and the federal legal holidays (a conservative default; state
+//     holidays weren't checked). The sample's two calls skip Wednesday, November 11 and Sunday,
+//     November 15. The FAQ says these defaults can be calibrated with the agent's own legal counsel.
 //   - Utah's calling and texting rules were not checked (no utah-*.md); the page says state rules are
 //     the broker's and that the skill says when they weren't checked.
 //   - The Follow Up Boss date automation facts come from search excerpts of its help center (the site
@@ -120,7 +125,7 @@ export const SPHERE_TOUCH_PLAN: Guide = skillPage({
         { p: [{ strong: 'Consent that doesn’t count, or needs a check:' }] },
         {
           items: [
-            'Ned Puddlefoot: Text Consent says “Yes - open house sign-in 2023-10-04.” That counts only if the sign-in sheet had text consent wording. Check the sheet before you send Ned’s text. If it didn’t, don’t send it; ask me for an email instead.',
+            'Ned Puddlefoot: Text Consent says “Yes - open house sign-in 2023-10-04.” That counts only if the sign-in sheet had text consent wording that named you or Pretend Peak Realty. Check the sheet before you send Ned’s text. If it didn’t, don’t send it; ask me for an email instead.',
             'Milo Grumbleton: Text Consent says “Yes - verbal at closing.” A verbal yes isn’t a written record, so Milo gets an email.',
             'Dev Quillfeather: a written yes, but tagged Do Not Text. The opt-out wins. Email.',
           ],
@@ -140,7 +145,7 @@ export const SPHERE_TOUCH_PLAN: Guide = skillPage({
         { h: 'Bottom line' },
         {
           p: [
-            'Your plan holds 28 people: 14 past clients, 6 close sphere and 8 wider sphere, with Iris and Jade joining after their first year. This week has 14 touches (6 texts, 6 emails and 2 call notes): nine any day this week, starting with Gwen, who is back from Lisbon, and five closing anniversaries from Thursday, November 12 to Monday, November 16. Do this first: check that Ned’s open house sign-in sheet had text consent wording, then work the nine.',
+            'Your plan holds 28 people: 14 past clients, 6 close sphere and 8 wider sphere, with Iris and Jade joining after their first year. This week has 14 touches (6 texts, 6 emails and 2 call notes): nine any day this week (the two calls skip Wednesday, November 11, Veterans Day, and Sunday), starting with Gwen, who is back from Lisbon, and five closing anniversaries from Thursday, November 12 to Monday, November 16. Do this first: check that Ned’s open house sign-in sheet had text consent wording, then work the nine.',
           ],
         },
         { h: 'Your 12-month touch plan' },
@@ -183,7 +188,7 @@ export const SPHERE_TOUCH_PLAN: Guide = skillPage({
                 'Note, October 30, 2026: in Lisbon until Nov 9, wants a painter recommendation once she’s back. No touch since',
                 'Text: “Yes - signed sphere form 2024-02-11”',
               ],
-              ['This week', 'Pia Snickerdoodle', 'Past Clients', 'Rotation: no communication on record', 'Call note: no email, Text Consent blank'],
+              ['This week, not Wednesday, November 11 or Sunday, November 15', 'Pia Snickerdoodle', 'Past Clients', 'Rotation: no communication on record', 'Call note: no email, Text Consent blank'],
               ['This week', 'Milo Grumbleton', 'Past Clients', 'Rotation: last touch December 2, 2024', 'Email: consent is verbal only'],
               ['Thursday, November 12', 'Ben Thimblewick', 'Past Clients', 'Home anniversary, 7 years (Home Anniversary 2019-11-12)', 'Email: Text Consent blank'],
               ['Friday, November 13', 'Dev Quillfeather', 'Past Clients', 'First home anniversary (Deal Close Date 2025-11-13)', 'Email: tagged Do Not Text'],
@@ -278,10 +283,10 @@ export const SPHERE_TOUCH_PLAN: Guide = skillPage({
         { h: 'Check before sending' },
         {
           items: [
-            'Texts: a written consent record for Gwen, Kit, Lars, Ned, Ava and Opal that names you or Pretend Peak Realty and their number. For Ned, the sign-in sheet needs text consent wording. Send each one by hand, one at a time, from your own number.',
+            'Texts: a written consent record for Gwen, Kit, Lars, Ned, Ava and Opal that names you or Pretend Peak Realty and their number. For Ned, the sign-in sheet needs text consent wording that names you or Pretend Peak Realty. Send each one by hand, one at a time, from your own number.',
             'Do Not Call: scrub every number you’ll call or text (including Pia’s and Hattie’s) against the National Do Not Call Registry and your own do-not-call list, unless your broker confirms an exception applies. Follow Up Boss has no built-in scrub.',
-            'Quiet hours: calls and texts between 8 a.m. and 8 p.m. in each person’s time zone, weekends included (Ava’s is Saturday, Opal’s Sunday).',
-            'State rules: Utah’s and other states’ calling and texting rules weren’t checked. Confirm with your broker.',
+            'Quiet hours: calls and texts between 8 a.m. and 8 p.m. in each person’s time zone. Texts go weekends included (Ava’s is Saturday, Opal’s Sunday). Calls never go on a Sunday or a legal holiday, a conservative default: Pia’s and Hattie’s skip Wednesday, November 11 (Veterans Day) and Sunday, November 15.',
+            'State rules: Utah’s and other states’ calling and texting rules weren’t checked, and neither were state holidays. Confirm with your broker.',
           ],
         },
       ],
@@ -486,6 +491,14 @@ export const SPHERE_TOUCH_PLAN: Guide = skillPage({
           q: 'What was tested, and what about my state?',
           a: [
             'We tested the skill in Claude on a made-up Follow Up Boss export, the same export with a voice profile, and a made-up spreadsheet with no consent column. We haven’t tried it inside ChatGPT, on a real export, or set up the Follow Up Boss steps in a live account yet, so run the practice file first. The texting, calling and email rules it uses are federal, plus Florida, Maryland and Oklahoma. It tells you when your state’s rules, Utah’s included, weren’t checked. Questions go to your broker.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails (Conservative defaults); outreach-rules.md, Conservative
+          // Defaults.
+          q: 'Why is it stricter than the law?',
+          a: [
+            'A few rules are our conservative defaults, stricter than the law in places. Every email carries the full footer (an opt-out, your postal address and a line saying it’s a marketing email), even a personal note to a past client. No call or voicemail goes on a Sunday or a federal legal holiday. And a yes that names only a portal, a lead company or “real estate professionals” gets no text until your broker confirms it covers you. You can calibrate them with your own legal counsel: tell the AI the rule your counsel approved, and it follows that and says so in Check before sending.',
           ],
         },
       ],

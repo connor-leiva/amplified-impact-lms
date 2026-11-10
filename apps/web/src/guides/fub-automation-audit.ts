@@ -34,6 +34,10 @@
 //   - Utah's Sunday and holiday rule (Utah Code 13-25a-103(3)): 13-25a-111 exempts a licensee acting
 //     within the license, and whether the rule reaches texts was not confirmed.
 //     The page names it only as a question for the broker.
+//   - Conservative defaults (Connor, 2026-11-10): portal-only consent is a texting risk until the broker
+//     confirms it; a missing marketing line in an email template is a recommendation, not a finding. The
+//     sample's HomeFinder Example result was edited to match sample.md after the graded run, and the FAQ
+//     says a user can calibrate the defaults with their own legal counsel.
 //   - Not tested, said once in the FAQ: real Follow Up Boss screenshots, Automations 2.0 canvases, the
 //     ChatGPT version inside ChatGPT.
 //
@@ -194,7 +198,7 @@ export const FUB_AUTOMATION_AUDIT: Guide = skillPage({
             head: ['Automated text', 'Result'],
             rows: [
               ['Website (IDX) initial text', 'Lower risk if records hold. Confirm the wording with your broker and that each lead’s record (date, number, wording) is kept.'],
-              ['HomeFinder Example initial text', 'Check, treated as a risk until confirmed because it reaches new leads. Find out what HomeFinder Example’s form says about texts and whose name it gives.'],
+              ['HomeFinder Example initial text', 'Check, treated as a risk until confirmed because it reaches new leads. Find out what HomeFinder Example’s form says about texts and whose name it gives. If it names only HomeFinder Example or “real estate professionals,” not your team, it’s a Risk: no automated text until your broker confirms it covers you.'],
               ['Facebook Lead Ads initial text', 'Risk: it reaches leads with no documented consent.'],
               ['Open House 3 Text (days 0, 2, 6)', 'Risk: it reaches the visitors who didn’t check the box.'],
             ],
@@ -419,6 +423,14 @@ export const FUB_AUTOMATION_AUDIT: Guide = skillPage({
           q: 'Will it tell me whether our texts are legal?',
           a: [
             'No. It tells you which automated texts can reach people with no documented consent, what to check, and the federal basics with their sources. Your broker or an attorney makes the call. In Utah it adds one question for your broker: whether Utah’s Sunday and holiday limit on solicitations reaches texts, given the exemption for licensees acting within their license.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails ("Conservative defaults"); the shared outreach-rules.md,
+          // Conservative Defaults.
+          q: 'Why is it stricter than the law?',
+          a: [
+            'It uses our conservative defaults. Consent that names only a portal, a lead company or “real estate professionals,” and not your team or brokerage, counts as a texting risk: no automated text to that source until your broker confirms it covers you. Every email should carry the full footer, so where a template has no line saying it’s a marketing email, the audit recommends one. In Utah, automated texts that can send on a Sunday or a legal holiday to leads without documented consent get flagged. You can calibrate these with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check Before Sending.',
           ],
         },
         {

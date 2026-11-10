@@ -135,6 +135,9 @@ describe('a card', () => {
     expect(ENTRIES.filter((e) => paidTemplate(e.href))).toHaveLength(GROK_TEMPLATES.filter((g) => !isFreeGrokTemplate(g.id)).length);
     expect(tagged('/content-strategist')).toBe(!isFreeSkill('content-opportunity-research'));
     expect(tagged('/appointment-follow-up')).toBe(!isFreeSkill('appointment-follow-up'));
+    // AI Brain Setup is free (Connor, 2026-11-10, D-101): its card is a free one.
+    expect(isFreeSkill('ai-brain-setup')).toBe(true);
+    expect(tagged('/ai-brain-setup')).toBe(false);
     expect(LIBRARY.paid).toBe('In the Amplified Skill Library');
   });
 
@@ -277,6 +280,15 @@ describe('the page', () => {
   it('uses no id twice', () => {
     const ids = $$('[id]').map((el) => el.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('ends with the general note: the compliance rules are conservative defaults to calibrate with counsel (D-101)', () => {
+    const note = $('main > p.library-note');
+    expect(text(note)).toBe(LIBRARY.note);
+    expect(LIBRARY.note).toMatch(/conservative defaults/);
+    expect(LIBRARY.note).toMatch(/your own legal counsel\.$/);
+    // After every list and the empty line, so a filter never hides it.
+    expect(note?.previousElementSibling?.id).toBe('library-empty');
   });
 
   it('escapes what it draws: an apostrophe in a title stays one character', () => {

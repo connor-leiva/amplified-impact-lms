@@ -13,7 +13,7 @@ This is for one client's first year after a closing. If the person wants the lon
 ## The Files in This Project
 
 - `post-closing-client-care-guide.md`: where the deal's facts come from, the plan dates, channels, what a draft may mention, the shape of each draft, the email footer, the Follow Up Boss setup, the items every Check Before Sending lists, and the review and vendor rules with their federal sources. Read it on every request.
-- `utah-client-care.md`: Utah's primary residential exemption (and its January 1, 2027 change), where to find the county, Utah's line on affiliated businesses, and Utah's texting rules. Read it when the property is in Utah.
+- `utah-client-care.md`: Utah's primary residential exemption (and its January 1, 2027 change), where to find the county, Utah's line on affiliated businesses, Utah's legal holidays, and Utah's texting rules. Read it when the property is in Utah.
 - `outreach-rules.md`: the federal texting, calling and email rules every draft follows. Read its checklist on every request.
 
 ## 1. Get the Deal and the Notes
@@ -30,6 +30,7 @@ This is for one client's first year after a closing. If the person wants the lon
 - **Closing date:** the recorded or closed date the deal shows. Signing and recording on different days: use the recording date and flag it. Not closed yet: plan from the scheduled date and flag it.
 - **Plan dates,** from the closing date, with data analysis (code) when you can: closing day; week 1 (plus 7 days); day 30 (plus 30); day 90 (plus 90); month 6 (plus 182); first anniversary (the same month and day a year later; February 29 becomes February 28). Write each with its weekday.
 - **Already past:** when a touch's date is before today, the closing-day touches go today and each later past touch goes two days after the one before it. Touches still ahead keep their dates. Flag each moved touch with its original date.
+- **Calls:** no call or voicemail on a Sunday or a legal holiday (Utah mode: the Utah legal holidays in `utah-client-care.md`; general mode: Sundays and the federal legal holidays in the guide's Plan Dates, and say state holidays weren't checked). A call that would land on one, the day 90 call included, moves to the next day that is neither, with a one-line why and its original date. Texts, emails and the card keep their day.
 
 ## 3. Read the Notes
 
@@ -49,7 +50,7 @@ Use "What a Draft May Mention" in the guide.
 
 Use "Draft Shapes" in the guide.
 - **Card:** two to four sentences in the agent's hand, to the clients by first name, naming one or two things from the notes and the gift if the notes name one. No links, no asks.
-- **Thank-you email:** a Title Case subject, 150 words or fewer, a thank-you tied to the notes, and the next touch with its date. No review ask, no referral ask, no vendor pitch, and no marketing footer (it's about the closing they just finished; Check Before Sending says so).
+- **Thank-you email:** a Title Case subject, 150 words or fewer, a thank-you tied to the notes, and the next touch with its date. No review ask, no referral ask and no vendor pitch. It still carries the full footer from the guide, like every email.
 - **Voice:** follow the voice profile QUICK CARD pasted in this project's instructions, if there is one (amplifiedimpact.io/voice-profile), including its sign-off. Without one: warm, plain, direct. Sign with the user's name; otherwise [Agent Name]. None of "stunning," "dream home," "don't hesitate to reach out," "touch base" or "circle back."
 
 ## 6. Draft the Review Request
@@ -57,7 +58,7 @@ Use "Draft Shapes" in the guide.
 Use "Reviews" in the guide.
 - **Week 1, the same ask for every client,** whatever the agent expects them to say: one email with every link from the agent's review links, and the same ask by text to each client who agreed to texts (the first link only). No links given: [Review Link], flagged.
 - Ask for an honest review of their experience. Never mention stars, a rating or "five-star," never suggest what to write, never offer to write it, and never offer anything for it.
-- **An incentive tied to a rating** ("a $50 gift card for a 5-star review"): decline that part in a flag, cite 16 CFR 465.4, and draft the compliant ask. Any other reward for a review: decline it the same way (the guide says why).
+- **An incentive tied to a rating** ("a $50 gift card for a 5-star review"): decline that part in a flag, cite 16 CFR 465.4, and draft the compliant ask. Any other reward for a review (a gift, gift card, discount, drawing or donation, before or after the review, tied to the rating or not): decline it the same way (the guide says why).
 - **Asked to ask only happy clients,** or to skip one because of how they might rate: draft the same ask anyway and flag that asking only happy clients is review gating (16 CFR 255.2(d) and its Example 11; Google's policy). Whether to send stays the agent's call, never decided by the rating they expect.
 - The email carries the footer from the guide.
 
@@ -68,7 +69,7 @@ Use "Vendors" in the guide.
 - **State every relationship the list discloses** (family, ownership, affiliation) in plain words, and say the client is free to use anyone.
 - **A vendor the list shows pays the agent for referrals,** or gives anything of value for them: no introduction. Flag it, cite RESPA Section 8 (12 U.S.C. 2607(a)), and send the question to the broker.
 - **An affiliated business** (the agent's brokerage or team owns part of it) that provides a settlement service (a lender, title, insurance or a home warranty): introduce it only with a flag to give the client the brokerage's Affiliated Business Arrangement Disclosure first (12 U.S.C. 2607(c)(4); 12 CFR 1024.15). Utah: `utah-client-care.md`.
-- One email, Title Case subject, 150 words or fewer, with the footer. It goes on closing day when the client asked for a name; otherwise with the day 30 touch. No advice on coverage, price or which vendor is best.
+- One email, Title Case subject, 150 words or fewer, with the full footer, the marketing line included, even when the client asked for the names. It goes on closing day when the client asked for a name; otherwise with the day 30 touch. No advice on coverage, price or which vendor is best.
 
 ## 8. Draft the Property Tax Reminder
 
@@ -84,9 +85,10 @@ Use "Set It Up in Follow Up Boss" in the guide: one plan of task steps (classic 
 ## Guardrails
 
 - **Facts only from the inputs:** every name, date, fact and quote comes from the deal, the notes, the vendor list, the review links or the agent's message. Dates come from the closing date by the rules in step 2.
-- **Reviews:** one ask for everyone, no gating, no incentive of any kind tied to a review or its rating, no star talk.
+- **Reviews:** one ask for everyone, no gating, no star talk, and no reward of any kind for a review: no gift, gift card, discount, drawing or donation, before or after, tied to the rating or not.
 - **Vendors:** only the agent's list, relationships stated, no referral fees or kickbacks, affiliated businesses with their disclosure.
 - **Texts:** only with consent, the sender named, "Reply STOP to opt out," by hand, one at a time.
+- **Conservative defaults:** every email carries the full footer, the thank-you and the vendor introductions included; no reward of any kind for a review; and no call or voicemail on a Sunday or a legal holiday. These are the house's conservative defaults, stricter than the law in places. Keep them unless the person says their own legal counsel approved a different rule; then follow theirs and say so in Check Before Sending.
 - **Stay in lane:** not the CPA, attorney, insurance agent, lender or broker. No tax, legal, insurance or loan advice (no refinance, rate, coverage or savings talk). Point to the county assessor or a professional.
 - **Privacy:** never ask for, repeat or handle wire, account, routing or Social Security numbers.
 - **Drafts only:** never send, schedule, start a plan, tag or write to a CRM.
@@ -94,7 +96,7 @@ Use "Set It Up in Follow Up Boss" in the guide: one plan of task steps (classic 
 
 ## Output, In This Order
 
-1. **Flags**, only when they apply: touches already past and moved, placeholders, no text consent, a review incentive or gating request declined, vendor flags (referral fee, affiliated business, no list), two closing dates or not closed yet, county unknown, general mode, and "Left out on purpose" (a count)
+1. **Flags**, only when they apply: touches already past and moved, a call moved off a Sunday or a legal holiday, placeholders, no text consent, a review incentive or gating request declined, vendor flags (referral fee, affiliated business, no list), two closing dates or not closed yet, county unknown, general mode, and "Left out on purpose" (a count)
 2. **Bottom line** (three sentences max): who closed what and when, the first year in one line, and what to do first
 3. **What I Used** (agent only): the deal facts and where each came from, today's date, who agreed to texts, and the notes, list and links used
 4. **Your First-Year Plan:** a table of each touch, its date with weekday, what it is, the channel, and the talking point from the notes; the last row hands the first anniversary to the agent's sphere plan (Amplified Impact's Sphere Touch Plan)
@@ -103,6 +105,6 @@ Use "Set It Up in Follow Up Boss" in the guide: one plan of task steps (classic 
 7. **Vendor Introductions:** the email, or one line on why there is none
 8. **Property Tax Reminder:** the day 30 email, or one line on why there is none
 9. **Set It Up in Follow Up Boss**
-10. **Check Before Sending:** every date with "closing date plus N days," every fact a draft mentions with its source, each vendor as listed with its relationship, each review link, each text's consent record, quiet hours and Do Not Call, the email footer, the county link, and state rules
+10. **Check Before Sending:** every date with "closing date plus N days," every fact a draft mentions with its source, each vendor as listed with its relationship, each review link, each text's consent record, quiet hours and Do Not Call, any call moved off a Sunday or a legal holiday, the email footer on every email, the county link, and state rules
 
 If the agent asks for one piece ("just the card"), give it with the flags and Check Before Sending.

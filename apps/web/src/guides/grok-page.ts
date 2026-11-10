@@ -25,7 +25,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { grokTemplate, type GrokTemplate } from '@ai/core/grok-templates';
+import { grokTemplate, isFreeGrokTemplate, type GrokTemplate } from '@ai/core/grok-templates';
 import type { Guide, Inline, SampleBlock, Section, SetupStep, Step } from './content';
 
 /** The repository's root: from the working directory up, to the folder that holds the templates. */
@@ -233,6 +233,7 @@ export function grokPage(p: GrokPage): Guide {
   const books = t.collection === 'bookkeeping';
   const support = books ? 'bookkeeping' : 'transaction';
   const run = `Run @${name} now`;
+  const save = `Save these instructions as a skill called "${name}". Keep them exactly as written.`;
   // Bookkeeping reads QuickBooks Online, which Grok Bot's docs do not list as an app; the template's own
   // fallback is an export. A transaction template reads whatever system the team uses (its own words).
   const collectionNote: Inline[] = books
@@ -269,14 +270,30 @@ export function grokPage(p: GrokPage): Guide {
         '.',
       ],
     },
-    {
-      title: 'Save the Template as a Skill',
-      body: ['In the new Bot’s chat, paste this and send it. It saves the whole template as a skill called ', { strong: name }, '.'],
-      copyBlock: `Save these instructions as a skill called "${name}". Keep them exactly as written.\n\n${text.trimEnd()}`,
-      // The ZIP, as a second button under the words: the guided setup is the way in (Connor, 2026-11-10).
-      action: { label: 'Download the File', href: `/downloads/${t.file}`, download: t.file },
-      note: ['The file is the same template, to keep. You don’t need it for this step.'],
-    },
+    isFreeGrokTemplate(t.id)
+      ? {
+          title: 'Save the Template as a Skill',
+          body: ['In the new Bot’s chat, paste this and send it. It saves the whole template as a skill called ', { strong: name }, '.'],
+          copyBlock: `${save}\n\n${text.trimEnd()}`,
+          // The ZIP, as a second button under the words: the guided setup is the way in (Connor, 2026-11-10).
+          action: { label: 'Download the File', href: `/downloads/${t.file}`, download: t.file },
+          note: ['The file is the same template, to keep. You don’t need it for this step.'],
+        }
+      : {
+          // A paid template's words stay in the Skill Library (D-101): the page says what to paste
+          // them under, and its button goes there for the file.
+          title: 'Save the Template as a Skill',
+          body: [
+            'Download the template from the Skill Library and unzip it. In the new Bot’s chat, paste these words, then paste everything in ',
+            { strong: 'SKILL.md' },
+            ' under them and send. It saves the whole template as a skill called ',
+            { strong: name },
+            '.',
+          ],
+          copy: save,
+          action: { label: 'Download the File', href: `/downloads/${t.file}`, download: t.file },
+          note: ['Paste all of SKILL.md, top to bottom, and change nothing in it.'],
+        },
     {
       title: 'Connect Its Apps',
       body: [

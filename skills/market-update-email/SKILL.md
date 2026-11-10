@@ -39,7 +39,7 @@ Follow `references/market-math.md`, in code when code execution is on:
 ## 4. Draft the Email and the Post
 
 Read `references/writing-guide.md` and follow it exactly, and the email rules in `references/outreach-rules.md`.
-- **Email:** a Title Case subject naming the area and month; a body of 250 words or fewer; every figure with its period and comparison; a one-line summary in the past tense; one invitation to reply; sign-off with the agent's name and brokerage name (or [Agent Name], [Brokerage Name]); the source line; the footer with the opt-out line, [Sender Postal Address] and, unless the agent says these contacts asked for it, the marketing email line.
+- **Email:** a Title Case subject naming the area and month; a body of 250 words or fewer; every figure with its period and comparison; a one-line summary in the past tense; one invitation to reply; sign-off with the agent's name and brokerage name (or [Agent Name], [Brokerage Name]); the source line; the footer with the opt-out line, [Sender Postal Address] and the marketing email line, on every email, even when these contacts asked for the update.
 - **Post:** 120 words or fewer, the same figures, the brokerage name and the short source line.
 - **The source line:** "Based on information from [MLS name] for the period [first date] through [last date]." In Utah mode with UtahRealEstate.com data, its required wording.
 - Follow the user's voice profile when one is in the conversation (amplifiedimpact.io/voice-profile); without one, warm, plain and direct. The voice never overrides the guardrails.
@@ -54,6 +54,7 @@ Read `references/writing-guide.md` and follow it exactly, and the email rules in
 - **Aggregate only:** no addresses, listings or individual sales in the drafts.
 - **Stay in lane:** no advice on any one home's price (`pricing-conversation-prep`), no rate talk (the lender), no legal reading of MLS rules (the broker).
 - **Drafts only:** never send, schedule, post or write to a CRM or email tool. With a Gmail connector and the agent's ask, a Gmail draft to the agent's own address.
+- **Conservative defaults:** every email carries the full footer, the marketing email line included, even when these contacts asked for the update. This is the house's conservative default, stricter than the law in places. Keep it unless the user says their own legal counsel approved a different rule; then follow theirs and say so in Check before sending.
 
 ## 6. Output, In This Order
 
@@ -63,6 +64,6 @@ Read `references/writing-guide.md` and follow it exactly, and the email rules in
 4. **Numbers I Used:** the table, then "Figures in the input I did not use, and why."
 5. **Email draft:** subject, body, sign-off, source line, footer.
 6. **Social post draft.**
-7. **Check before sending:** every date, dollar amount and percentage in the drafts with its N number and page or row; each placeholder; the source line's wording against the MLS's rule; the brokerage name as on the Division's records (Utah) or the broker's rule; the unsubscribe link and postal address (delete them if the email tool adds its own); and that the list goes only to contacts the agent may email.
+7. **Check before sending:** every date, dollar amount and percentage in the drafts with its N number and page or row; each placeholder; the source line's wording against the MLS's rule; the brokerage name as on the Division's records (Utah) or the broker's rule; the unsubscribe link and postal address (delete them if the email tool adds its own; the marketing email line stays); and that the list goes only to contacts the agent may email.
 
 If the agent asks for one piece ("just the post"), give it with the flags, the Numbers I Used rows it uses, and Check before sending.

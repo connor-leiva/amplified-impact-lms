@@ -42,15 +42,15 @@ Follow the guide's "Who Is Due This Week" exactly: channels closed, done this mo
 
 ## 6. Choose Each Channel
 
-Use the guide's Channel table. A text only when a consent field or tag shows a written yes, or the agent says in this conversation that this person agreed to texts. Never infer consent from a phone number, a lead source, a past deal or a friendship. A verbal-only yes, a blank, No, Revoked or STOP value, Do Not Text, Do Not Call or DNC closes texts. Everyone else gets an email, or a call note when there is no email. Unsubscribed or Do Not Email closes email; Do Not Call closes calls. No channel open: no draft, and the opt-outs are honored.
+Use the guide's Channel table. A text only when a consent field or tag shows a written yes, or the agent says in this conversation that this person agreed to texts. Never infer consent from a phone number, a lead source, a past deal or a friendship. A yes from a website form, an open house sign-in, or a purchased, portal or shared lead must name the agent's team or brokerage: put that check first in Check Before Sending, and when it names only the portal, the lead company or "real estate professionals," no text until the broker confirms it covers them (a conservative default). A verbal-only yes, a blank, No, Revoked or STOP value, Do Not Text, Do Not Call or DNC closes texts. Everyone else gets an email, or a call note when there is no email. Unsubscribed or Do Not Email closes email; Do Not Call closes calls. No channel open: no draft, and the opt-outs are honored.
 
 ## 7. Draft the Touches
 
 Read the guide's "What a Draft May Mention" and "Writing the Drafts," and `references/outreach-rules.md`. For each pick: who, tier, channel and why, the day to send, a "Why now" line naming the column or note, then the draft.
 - Tie every draft to something real in the list. Use only what the fields and notes say: no invented life events, anniversaries, children, pets, interests or favors.
 - Texts: under 300 characters, name the agent and team, one question, end with "Reply STOP to opt out," sent by hand one at a time.
-- Emails: Title Case subject, 120 words or fewer, the opt-out and postal address footer.
-- Call notes: an opener, one open question, a voicemail line.
+- Emails: Title Case subject, 120 words or fewer, and the full footer (the opt-out, the postal address and the marketing line) on every one.
+- Call notes: an opener, one open question, a voicemail line. A call never goes on a Sunday or a federal legal holiday (the guide lists them; state holidays weren't checked): one that would land on one moves to the next day that is neither, with a one-line why. Texts and emails keep their day.
 - Follow the user's voice profile QUICK CARD when one is in the conversation (amplifiedimpact.io/voice-profile), including its sign-off. Without one: warm, plain, direct. Sign with the user's name or [Agent Name].
 
 ## 8. Say What to Set Up in Follow Up Boss
@@ -60,12 +60,13 @@ Read `references/fub-setup.md`. Give the agent four short setups, with the expor
 ## 9. Guardrails
 
 - **Texting consent (TCPA):** texts only as in step 6. Every text ends "Reply STOP to opt out." Honor every STOP, unsubscribe and do-not-call request within 10 business days. Calls and texts: Do Not Call Registry scrub and 8 a.m. to 8 p.m. in Check Before Sending. Consent and state-law questions go to the broker or an attorney.
+- **Conservative defaults:** every email carries the full footer, the marketing line included, even a one-to-one note to a past client; no call or voicemail on a Sunday or a federal legal holiday; and consent that names only a portal, a lead company or "real estate professionals" gets no text until the broker confirms it covers them. These are the house's conservative defaults, stricter than the law in places. Keep them unless the user says their own legal counsel approved a different rule; then follow theirs and say so in Check Before Sending.
 - **Never invent:** every fact, date, name and number in the output comes from the list or the agent's message. Years since closing are worked out from the closing date and marked in Check Before Sending.
 - **Left out on purpose:** health, money (loans, refinancing, rates, jobs, prices, equity), family status and changes in it, religion, national origin, disability and age, even when the notes say them. One generic agent-only line counts them, never repeats them. Deal prices and website activity never appear.
 - **Fair housing:** describe homes, projects and services, never people. No comments on neighborhoods, schools, safety or who lives where. No guesses from names or addresses.
 - **No numbers you don't have:** no home values, market statistics, rates or predictions. The home value review is an offer, not a number.
 - **Drafts only:** never send, schedule, tag, change a stage or write to a CRM, even with a connector and even if asked. Don't rebuild what Follow Up Boss automates: reminders and recurring dates belong in Follow Up Boss (step 8); this skill picks and drafts.
-- **State rules:** outreach-rules.md covers the federal rules and Florida, Maryland and Oklahoma. Every run says other states' calling and texting rules, Utah's included, were not checked.
+- **State rules:** outreach-rules.md covers the federal rules and Florida, Maryland and Oklahoma. Every run says other states' calling and texting rules, Utah's included, were not checked, and neither were state holidays.
 - Never ask for, repeat or handle wire, account, routing or Social Security numbers.
 
 ## 10. Output, In This Order
@@ -78,6 +79,6 @@ Read `references/fub-setup.md`. Give the agent four short setups, with the expor
 6. **Drafts:** one per pick, in send-day order.
 7. **Not This Week:** channels closed, first-year clients (post-closing-client-care), anniversaries and asked-for follow-ups later this month, with dates.
 8. **Set It Up in Follow Up Boss** (or in plain words for another CRM or a spreadsheet).
-9. **Check Before Sending:** every anniversary date and year count with its column, every fact a draft mentions with its note date, each text's consent record, the Do Not Call scrub, quiet hours, the unsubscribe link and postal address, offers to have ready, and state rules.
+9. **Check Before Sending:** every anniversary date and year count with its column, every fact a draft mentions with its note date, each text's consent record, the Do Not Call scrub, quiet hours, no calls on a Sunday or a legal holiday, the unsubscribe link and postal address, offers to have ready, and state rules.
 
 If the agent asks for one piece ("just this week's texts"), give it with the flags and Check Before Sending.

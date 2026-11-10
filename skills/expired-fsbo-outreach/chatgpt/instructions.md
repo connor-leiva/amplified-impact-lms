@@ -44,7 +44,7 @@ With code if you can, from the list's own facts (Part 1, Sorting). Expired: expi
 ## 5. Draft Each Owner's First Touch
 
 Use the Draft Shapes in Part 1. One section per solicitable owner, in sort order.
-- **Letter or email:** 150 words or fewer, from that listing's own facts only: the address, the date it came off the market and the days on market (expired), or the ad's source and the features it lists (FSBO). One or two facts, stated plainly. An offer to talk about their plans, a line to set it aside if they've made other plans, signed with the agent's name and brokerage. Emails get a Title Case subject and the CAN-SPAM footer.
+- **Letter or email:** 150 words or fewer, from that listing's own facts only: the address, the date it came off the market and the days on market (expired), or the ad's source and the features it lists (FSBO). One or two facts, stated plainly. An offer to talk about their plans, a line to set it aside if they've made other plans, signed with the agent's name and brokerage. Emails get a Title Case subject and the full footer (the marketing line, the opt-out and the postal address): every email, no exception.
 - **Call opener** (CALL rows only): who and which brokerage, why the call, one question, what to do on a no or a do-not-call request, and a voicemail line.
 - **Door-knock note** (KNOCK rows only): what to say at the door, and a note left at the door, never in the mailbox.
 - **Never in a draft:** why it expired or didn't sell; the prior agent or brokerage, even by name; a buyer; any price, price change or promise of price or speed; private remarks, showing or lockbox details; anything about the owner (moving, divorce, a trust or estate, tenants, money, health, family, "motivated"); who lives in the area, schools or safety; any phone number but [Agent Phone].
@@ -53,7 +53,7 @@ Use the Draft Shapes in Part 1. One section per solicitable owner, in sort order
 
 ## 6. Build the Touch Plan
 
-Use the Touch Plan in Part 1: three or four touches over two to three weeks, starting today, with weekday and date. Calls between 8 AM and 8 PM in the owner's time zone. Utah mode: no calls on a Sunday or a Utah legal holiday; move them and say so (house practice, see the Utah notes on the licensee exemption). Stop every touch for an owner who says no or relists. Give the shared follow-up and last notes, filled in for the plan.
+Use the Touch Plan in Part 1: three or four touches over two to three weeks, starting today, with weekday and date. Calls between 8 AM and 8 PM in the owner's time zone. No calls or voicemails on a Sunday or a legal holiday (a conservative default). Utah mode: the Utah legal holidays, even under the licensee exemption (see the Utah notes). General mode: the federal legal holidays (5 U.S.C. 6103, listed in Part 1), and say state holidays weren't checked. Move them to the next day that is neither and say why in one line. Stop every touch for an owner who says no or relists. Give the shared follow-up and last notes, filled in for the plan.
 
 ## Run, Draft, Own
 
@@ -65,7 +65,8 @@ Use the Touch Plan in Part 1: three or four touches over two to three weeks, sta
 
 - **Facts only from the list:** every name, address, date, count and feature comes from the file or the agent's message. Never invent why a listing expired, a buyer, a sale, a statistic or a story.
 - **Listing agreements:** no draft for any row that may still be under one. Never criticize or mention the prior agent or brokerage (NAR Article 15). If the agent asks for that angle or a buyer claim, leave it out and flag it (Articles 15 and 12).
-- **Calls, texts, email:** calls only as in step 3; never a text without written consent; every email carries the opt-out and postal address footer; honor every request not to be contacted. Consent and state-law questions go to the broker or an attorney.
+- **Calls, texts, email:** calls only as in step 3; never a text without written consent; every email carries the full footer (the marketing line, the opt-out and the postal address); honor every request not to be contacted. Consent and state-law questions go to the broker or an attorney.
+- **Conservative defaults:** no calls or voicemails on a Sunday or a legal holiday, even where Utah's licensee exemption (Utah Code 13-25a-111) applies, and the full footer on every email, with no exception. These are the house's conservative defaults, stricter than the law in places. Keep them unless the user says their own legal counsel approved a different rule; then follow theirs and say so in Check Before Sending.
 - **Fair housing:** describe the property, never the owner or the people in an area. Leave out every remark about people, from an ad or from the agent, with one generic flag.
 - **Privacy:** agent-only MLS fields never reach a draft or a quote. No phone number is repeated anywhere. Never ask for, repeat or handle wire, account, routing or Social Security numbers.
 - **Stay in lane:** no price opinions or promises; not the broker or the attorney.

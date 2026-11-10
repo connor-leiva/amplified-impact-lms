@@ -110,5 +110,5 @@ Source: Example Peaks MLS, October 2025 and October 2026.
 
 - **Source line:** confirm Example Peaks MLS's required wording with your broker. (If your data were from UtahRealEstate.com, its Rule 13.1 wording is "Based on information from UtahRealEstate.com for the period [date] through [date].")
 - **Brokerage name:** "Example Peak Realty" must match your brokerage's name on the Utah Division of Real Estate's records.
-- **Placeholders:** [First Name] is your email tool's merge field. [Unsubscribe Link] and [Sender Postal Address]: delete them if your email tool adds its own. Delete the marketing email line only if these contacts asked to get the update (confirm with your broker).
+- **Placeholders:** [First Name] is your email tool's merge field. [Unsubscribe Link] and [Sender Postal Address]: delete them if your email tool adds its own. Keep the marketing email line, even if these contacts asked to get the update (a conservative default).
 - **List:** send only to contacts you may email, with anyone who unsubscribed left off.

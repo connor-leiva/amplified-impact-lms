@@ -723,7 +723,8 @@ describe('the layouts (D-071)', () => {
   it('keeps the card beside the sample in view only until it holds the setup', () => {
     const css = read('./skills.css');
     expect(css).toMatch(/\.sk \.optin \{\s*position: sticky;/);
-    expect(css).toMatch(/\.sk \.optin\[data-state='unlocked'\] \{\s*position: static;/);
+    // A paid skill's card holds its setup from the start (D-101), so it never sticks.
+    expect(css).toMatch(/\.sk \.optin\[data-state='unlocked'\],\s*\.sk \.optin\[data-skill-library\] \{\s*position: static;/);
     expect(css).toMatch(/\.sk \.optin:has\(\.unlocked:target\) \{\s*position: static;/);
   });
 });

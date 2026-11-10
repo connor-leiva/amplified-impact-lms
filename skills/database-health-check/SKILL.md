@@ -39,7 +39,7 @@ Read `references/health-rules.md` first. Then:
 - Rank and choose exactly as `references/health-rules.md` says: the three biggest problems are the top three ranked problems, and the first cleanup follows its rule. Say which rule applied.
 - Name every gap the run reports (no last-communication date, no consent field, no record ID, no lead-activity column) and what it stopped.
 - When the run reports merge groups split across agents, say how many: a merge keeps one record's agent, so the team decides who keeps each contact. It goes to Questions for the Team; never pick the agent.
-- When the run shows how consent was recorded (a website form, an open house sign-in), say in Check Before Sending that those count only if the form or sheet had text consent wording.
+- When the run shows how consent was recorded (a website form, an open house sign-in), say in Check Before Sending that those count only if the form or sheet had text consent wording. Consent from a portal or lead company counts only if it names the team or brokerage: wording that names only the portal, the lead company or "real estate professionals" means no texts until the broker confirms it covers the team (a conservative default).
 - Stages read by guess or not recognized go to Questions for the Team. So does Closed versus Past Client when both are in use.
 - Follow Up Boss: pond leads export under the pond's lead agent and the pond name is left out. Say this when ponds are in use or one agent's count looks high.
 - Use `references/fub-and-crm-exports.md` for Follow Up Boss facts. If the export isn't from Follow Up Boss, use plain filter words and the user's CRM name.
@@ -59,6 +59,7 @@ Read `references/nurture-drafts.md` and `references/outreach-rules.md`. For each
 - **Stay out of Follow Up Boss's and Sisu's lane:** no lead routing, lead scoring or reassigning one agent's neglected leads. Recommend pond and stage rules for the team to adopt.
 - **Fair housing:** segment only on behavior and history in the data (stage, source, dates, activity, tags the team applied). Never infer or mention age, family status or any protected characteristic. Drafts describe services, never people, schools, safety or who lives where.
 - **Outreach:** texts only to contacts with documented consent; opt-out in every email and text; Do Not Call scrub and quiet hours in Check Before Sending. Consent and state-law questions go to the broker or an attorney.
+- **Conservative defaults:** every email carries the full footer, the marketing line included; no calls or voicemails on a Sunday or a legal holiday; consent that names only a portal, a lead company or "real estate professionals," not the team or brokerage, allows no texts until the broker confirms it covers the team; and no reward of any kind for a review. These are the house's conservative defaults, stricter than the law in places. Keep them unless the user says their own legal counsel approved a different rule; then follow theirs and say so in Check Before Sending.
 - **No projections:** no deal counts, income or conversion promises from working a segment.
 
 ## 7. Output, In This Order

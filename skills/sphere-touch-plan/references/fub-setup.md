@@ -18,7 +18,8 @@ Last verified: 2026-11-10. The export, Smart List, action plan and texting facts
 ### 1. A Text Consent field, if there isn't one
 
 - The Account Owner adds a custom field (Admin > Custom Fields), such as "Text Consent," and fills it only from written records: the date and where the yes came from ("Yes - signed buyer form 2023-09-02").
-- A website form or an open house sign-in counts only if it had text consent wording (Follow Up Boss's compliance page says a website form is not an opt-in unless it has opt-in wording).
+- A website form or an open house sign-in counts only if it had text consent wording that names the team or brokerage (Follow Up Boss's compliance page says a website form is not an opt-in unless it has opt-in wording).
+- A purchased, portal or shared lead's yes counts only when its consent record names the team or brokerage. One that names only the portal, the lead company or "real estate professionals" stays out of Text Consent until the broker confirms it covers the team (a conservative default).
 - Tags for opt-outs: Do Not Text, Do Not Call, Do Not Email (Follow Up Boss suggests these itself) and Unsubscribed (Follow Up Boss adds it when someone unsubscribes from marketing email).
 - Contacts who text STOP, STOPALL, UNSUBSCRIBE, CANCEL, END or QUIT are opted out of texts from every Follow Up Boss number on the account; their number shows in orange on the profile.
 

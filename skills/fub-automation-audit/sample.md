@@ -1,6 +1,6 @@
 # FUB Automation Audit: Gumdrop Hollow Home Team, Example Ridge Realty
 
-*Made-up example: what the skill returned for the four practice files and the practice prompt, run on 2026-11-10 and graded in evals/runs/practice/grading.md (14 of 14 expectations). Every team, person, portal, tool and plan in it is made up. The audit doesn't depend on the day it runs.*
+*Made-up example: what the skill returned for the four practice files and the practice prompt, run on 2026-11-10 and graded in evals/runs/practice/grading.md (14 of 14 expectations), then edited on 2026-11-10 for the house's conservative defaults (portal-only consent and the marketing line in emails). Every team, person, portal, tool and plan in it is made up. The audit doesn't depend on the day it runs.*
 
 Prompt: "Here are our Follow Up Boss action plans, our automations list, and our stages and lead sources. Audit them: what's missing, what's overlapping, and are our automated texts a problem?"
 
@@ -114,7 +114,7 @@ No chain passes Follow Up Boss's limit of 4 action plan emails to one contact a 
 | Automated text | What starts it, and who it reaches | Consent capture (your notes) | Result |
 |---|---|---|---|
 | Website (IDX) initial text | Every new Website (IDX) lead, 5 minutes after | Documented: a checkbox the lead has to check to register, with text wording naming Gumdrop Hollow Home Team at Example Ridge Realty | **Lower risk if records hold.** Confirm the wording with your broker and that each lead's record (date, number, wording) is kept. |
-| HomeFinder Example initial text | Every new HomeFinder Example lead, 2 minutes after | Not described: "not sure what their form says about texting" | **Check**, treated as a risk until confirmed because it reaches new leads. Find out what HomeFinder Example's form says about texts and whose name it gives. |
+| HomeFinder Example initial text | Every new HomeFinder Example lead, 2 minutes after | Not described: "not sure what their form says about texting" | **Check**, treated as a risk until confirmed because it reaches new leads. Find out what HomeFinder Example's form says about texts and whose name it gives. If it names only HomeFinder Example or "real estate professionals," not your team, it's a Risk: no automated text until your broker confirms it covers you. |
 | Facebook Lead Ads initial text | Every new Facebook Lead Ads lead, 1 minute after | Not documented: "There's no wording about texts on it." | **Risk:** it reaches leads with no documented consent. |
 | Open House 3 Text (days 0, 2, 6) | Every visitor the Sample SignIn App sends: Open House Visitor adds oh-text on day 0 and "runs on all of them" | Partly documented: an optional box, "OK to text me about this home and others"; "Some visitors check it and some don't." | **Risk:** it reaches the visitors who didn't check the box. |
 
@@ -143,6 +143,7 @@ Only the templates whose wording you sent were checked: the 3 initial texts, the
 - **HomeFinder Example initial text:** add "Reply STOP to opt out." at the end.
 - **Open House 3 Text, day 0:** add "Reply STOP to opt out." **Day 2:** "Hi {first name}, did the home catch your eye? I can send you similar ones." Add the agent and team, and "Reply STOP to opt out."
 - **Thanks for Stopping By (fair housing):** "This neighborhood is perfect for young families, with great schools nearby." Both phrases describe people and schools, not the home. Delete the sentence; the next one already describes the home ("a fenced backyard, a finished basement and a two-car garage"). For schools, point visitors to the official school district sources.
+- **Thanks for Stopping By (footer, a recommendation):** it has no line that says it's a marketing email. Under the skill's conservative defaults, every email carries one, and Follow Up Boss's unsubscribe wording doesn't say it. Add one after the signature, such as "This is a marketing email from {Agent Name}, Gumdrop Hollow Home Team, Example Ridge Realty." This is a recommendation, not a legal finding.
 - Action plan emails get Follow Up Boss's unsubscribe wording automatically, so none is flagged for it.
 
 ## Fix List
@@ -156,7 +157,7 @@ Ranked. Every step is yours to take; this audit changed nothing. Editing a plan 
    - Admin > Action Plans, Open House Visitor, Edit, delete step 1 (Add tag(s): oh-text), Save. The hosting agent then adds the oh-text tag by hand only to visitors who checked "OK to text me."
    - Or ask Sample SignIn App's support whether it can mark visitors who checked the box (a tag, for example). If it can, Follow Up Boss's Lead Flow rules can start a different plan for tagged leads; ask Follow Up Boss support to help set it up.
    - Either way, in Sample Drip Texter (outside Follow Up Boss): add "Reply STOP to opt out." to the day 0 and day 2 texts and the sender to day 2, end the send window at 8 p.m., and ask your broker about Sundays.
-3. **HomeFinder Example initial text (Check, treated as a risk until confirmed; no opt-out).** Admin > Lead Flow, HomeFinder Example, Advanced Settings, the Initial Text Message: add "Reply STOP to opt out.", Save. Ask HomeFinder Example what its form says about texts and whose name it gives. If it names no text consent for your team, treat this text like item 1 (same Lead Flow path).
+3. **HomeFinder Example initial text (Check, treated as a risk until confirmed; no opt-out).** Admin > Lead Flow, HomeFinder Example, Advanced Settings, the Initial Text Message: add "Reply STOP to opt out.", Save. Ask HomeFinder Example what its form says about texts and whose name it gives. If it names no text consent for your team, or names only HomeFinder Example or "real estate professionals," treat this text like item 1 until your broker confirms it covers you (same Lead Flow path).
 4. **Thanks for Stopping By (fair housing words).** It sends automatically on day 0 of Open House Visitor. Admin > Email Templates, Thanks for Stopping By, edit it, delete the neighborhood sentence quoted under Template Wording, and save. A template edit changes it in every plan that uses it.
 5. **Nurture overlap (two plans, same-day emails on days 0, 30 and 150).** First confirm on one contact who reached day 30 of New Website Lead: open each plan's details on the lead profile; a plan an automation started says "Plan started via [Automation Name] automation." Then your choice:
    - Admin > Action Plans, New Website Lead, Edit, delete step 10 (Add tag(s): nurture), Save, so only Long-Term Nurture starts.
@@ -167,7 +168,8 @@ Ranked. Every step is yours to take; this audit changed nothing. Editing a plan 
 9. **Portal Buyer 14 Day ends with no next step.** Admin > Action Plans, Portal Buyer 14 Day, Edit, add a last step, such as "Run [days] days after the previous step: Change stage" to the stage you use for these leads, or "Create task: decide what's next," Save.
 10. **Hot Prospect, Active Client and Sphere have nothing attached.** If a stage should start a plan: Admin > Automations, + Add Automation, trigger Stage Changed to that stage, action: the plan, Save and Enable. No new automated texts.
 11. **Long-Term Nurture's 120-day silence.** If you want a touch sooner: Admin > Action Plans, Long-Term Nurture, Edit, add a step between step 2 and step 3 or shorten step 3's run, Save.
-12. **Confirm:** the Website (IDX) consent records (date, number, wording) for each lead, and the company name and address in Admin > Company, which Follow Up Boss's email unsubscribe footer uses.
+12. **Thanks for Stopping By has no marketing line (recommended under the skill's conservative defaults, not a finding).** Admin > Email Templates, Thanks for Stopping By, add the line quoted under Template Wording, and save. You can do it in the same edit as item 4.
+13. **Confirm:** the Website (IDX) consent records (date, number, wording) for each lead, and the company name and address in Admin > Company, which Follow Up Boss's email unsubscribe footer uses.
 
 ## Questions for the Team
 
@@ -189,4 +191,5 @@ Before you share this audit or change anything in Follow Up Boss:
 - **Same-day emails, days 0, 30 and 150; closing emails, day 30:** these depend on the stage-change link marked "to confirm."
 - **Defaults:** 14 and 90 days, the house defaults, not your standard.
 - **Counts:** 10 action plans, 7 automations (6 on), 6 sources, 9 stages, 6 automated text steps (3 initial texts and 3 campaign texts).
+- **Email templates you didn't send:** check each for a line that says it's a marketing email (the skill's conservative default).
 - **Before relying on any consent judgment:** consent records for every texting source, a Do Not Call scrub, quiet hours in the lead's time zone, Sample Drip Texter's own settings, the company name and address in Admin > Company, and the Utah Sunday and holiday question (Utah Code 13-25a-103(3)). Confirm with your broker or an attorney.

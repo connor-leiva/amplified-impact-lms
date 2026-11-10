@@ -635,16 +635,36 @@ describe('a skill page (D-071)', () => {
   });
 });
 
-describe('a paid skill page (D-082)', () => {
+describe('a paid skill page (D-082, D-101)', () => {
   // Pricing Conversation Prep: paid, and drawn as it ships, with the Skill Library card in the
-  // sign-up's place.
+  // sign-up's place and the guided setup under it.
   const bootPaid = (before?: () => void) => boot('/pricing-conversation-prep', before, 'pricing-conversation-prep');
 
-  it('has nothing for the gate to open: no card to unlock, no form, no setup, no sign-up bar', async () => {
+  it('has nothing for the gate to open: no card to unlock, no form, no sign-up bar', async () => {
     await bootPaid(() => localStorage.setItem('pcp-unlocked', '1'));
-    expect(document.querySelector('[data-unlock-key], #guide-form, #download, [data-guided], [data-sk-bar]')).toBeNull();
+    expect(document.querySelector('[data-unlock-key], #guide-form, #download, [data-sk-bar]')).toBeNull();
     expect($('[data-skill-library]').hasAttribute('data-state')).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('walks the setup one step at a time, as the free page does (D-101)', async () => {
+    await bootPaid();
+    const boxes = Array.from(document.querySelectorAll<HTMLElement>('[data-skill-library] [data-guided]'));
+    expect(boxes.map((b) => b.getAttribute('data-guided-key'))).toEqual(['pcp-unlocked-step-claude', 'pcp-unlocked-step-chatgpt']);
+    const box = boxes[0] as HTMLElement;
+    expect(box.hasAttribute('data-guided-on')).toBe(true);
+    const current = () => box.querySelector('.setup-step[data-current]')?.getAttribute('data-step');
+    expect(current()).toBe('1');
+    box.querySelector<HTMLButtonElement>('[data-guided-next]')?.click();
+    expect(current()).toBe('2');
+    expect(localStorage.getItem('pcp-unlocked-step-claude')).toBe('2');
+    // The download step's button goes to the Skill Library, in a new tab.
+    const get = box.querySelector('.setup-step[data-current] a.btn');
+    expect([get?.textContent, get?.getAttribute('href'), get?.getAttribute('target')]).toEqual([
+      'Get It in the Skill Library',
+      'https://learn.amplifiedimpact.io/skill-library',
+      '_blank',
+    ]);
   });
 
   it('still peeks the sample, which stays as the preview', async () => {

@@ -188,9 +188,9 @@ No em dashes. None of "stunning," "dream," "don't hesitate to reach out," "game-
 
 List for the user:
 - Every name, number, date and quoted line in the drafts, with its source
-- Text recipients: the count with documented consent, the count waiting on a record, and the count excluded
+- Text recipients: the count with documented consent, the count waiting on a record, and the count excluded. A consent record that names only a portal, a lead company or "real estate professionals," not your team or brokerage, means no text until your broker confirms it covers you (a conservative default)
 - A Do Not Call scrub before any call or text, and the team's internal do-not-call list
-- Quiet hours: 8 a.m. to 8 p.m. recipient local time
+- Quiet hours: 8 a.m. to 8 p.m. recipient local time, and no calls or voicemails on a Sunday or a legal holiday, including a call you propose as a next step (a conservative default)
 - A working unsubscribe link and the real postal address in place of the placeholders
 - The MLS data-use check
 - State rules: the notes in outreach-rules.md for Florida, Maryland and Oklahoma contacts; anywhere else, "state rules not checked; confirm with your broker"

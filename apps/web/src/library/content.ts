@@ -682,6 +682,11 @@ export const LIBRARY = {
    */
   paid: 'In the Amplified Skill Library',
   /**
+   * The library's general note, under everything (D-101): the compliance rules in the skills and
+   * templates are the house's conservative defaults (Connor, 2026-11-10), each also said on its page.
+   */
+  note: 'The texting, email, calling, review and commission rules in these skills and templates are conservative defaults, stricter than the law in places. Calibrate them with your own legal counsel.',
+  /**
    * The Grok Bot shelf (D-100), under the main list: its templates in two collections, in
    * `GROK_COLLECTIONS` order. The words are the README's collection intros, in this page's voice.
    */

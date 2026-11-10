@@ -36,6 +36,9 @@ Work the dates out from the closing date, in code when you can, and write each o
 - **Why 182:** Follow Up Boss counts delays in days, so a fixed day count keeps the plan and the Follow Up Boss tasks on the same dates. February 29 anniversaries become February 28.
 - **Already past:** a touch whose date is before today moves up. The closing-day touches go today; each later past touch goes two days after the one before it. Touches still ahead keep their dates. Flag each moved touch with its original date ("Week 1 was Friday, November 6; the review request now goes Thursday, November 12").
 - **Talking points:** day 90 and month 6 get one line each from the notes (the garden they planned for spring, the fence they plan to replace). Nothing left in the notes: "Ask how the house is treating them," and say the notes had nothing more.
+- **No call on a Sunday or a legal holiday** (a conservative default in `outreach-rules.md`): a call or voicemail that would land on one, the day 90 call included, moves to the next day that is neither, and the plan says why in one line. Texts, emails and the card keep their day.
+- **Which holidays:** in Utah mode, the Utah legal holidays in `utah-client-care.md`. In general mode, Sundays and the federal legal holidays (5 U.S.C. 6103): New Year's Day (January 1), the Birthday of Martin Luther King, Jr. (third Monday in January), Washington's Birthday (third Monday in February), Memorial Day (last Monday in May), Juneteenth (June 19), Independence Day (July 4), Labor Day (first Monday in September), Columbus Day (second Monday in October), Veterans Day (November 11), Thanksgiving Day (fourth Thursday in November) and Christmas Day (December 25). One that falls on a Saturday is observed the Friday before, and one on a Sunday the Monday after: skip that day too. Say that state holidays were not checked.
+- **The next federal ones:** Wednesday, November 11, 2026; Thursday, November 26, 2026; Friday, December 25, 2026; Friday, January 1, 2027; Monday, January 18, 2027; Monday, February 15, 2027; Monday, May 31, 2027; Friday, June 18, and Saturday, June 19, 2027; Monday, July 5, 2027 (July 4 is a Sunday); Monday, September 6, 2027; Monday, October 11, 2027; Thursday, November 11, 2027; Thursday, November 25, 2027.
 - **Check Before Sending** writes every date as "closing date plus N days."
 
 ## Channels
@@ -66,14 +69,14 @@ Every personal line comes from the notes or the deal, and Check Before Sending n
 Follow the user's voice profile QUICK CARD when one is in the conversation, including its sign-off and the words it bans. Without one: warm, plain, direct, short paragraphs. Sign with the user's name and brokerage, or [Agent Name]. None of "stunning," "dream home," "don't hesitate to reach out," "touch base," "circle back," "just checking in" or "I hope this email finds you well."
 
 - **Card text:** two to four sentences in the agent's hand, to the clients by first name, signed with the agent's first name. One or two things from the notes, the gift if the notes name it, and thanks. No links, no asks, no footer.
-- **Thank-you email:** a Title Case subject; 150 words or fewer in the body; thanks tied to one or two things from the notes; the next touch with its weekday and date ("I'll check in next Tuesday, November 17"). No review, referral or vendor ask. No footer: it is about the transaction they just finished. Check Before Sending says so and says to add the footer if anything promotional goes in.
+- **Thank-you email:** a Title Case subject; 150 words or fewer in the body; thanks tied to one or two things from the notes; the next touch with its weekday and date ("I'll check in next Tuesday, November 17"). No review, referral or vendor ask. Then the footer, like every email.
 - **Review request email:** a Title Case subject; 120 words or fewer in the body; "I ask every client the same thing"; an honest review of their experience; every link from the agent's list, each on its own line with the site's name; "a few sentences is plenty." No stars, ratings, "five-star," sample wording or reward. Then the footer.
 - **Review request text:** for each client who agreed to texts: "Hi [First Name], it's [Agent Full Name] with [Brokerage]." The same ask in one or two sentences, the first link only, "Reply STOP to opt out." 300 characters or fewer, links counted.
 - **Vendor introductions email:** a Title Case subject naming what they asked about; 150 words or fewer in the body; for each vendor: the trade, the company, the contact name and phone exactly as the list shows them, and why (the client's need, from the notes); each relationship the list discloses, in plain words ("Full disclosure: Dale is my brother-in-law"); "You're free to use anyone you like." Add "I don't receive anything for referring them" only when the list says so. Then the footer.
 - **Day 30 email (buyers):** a Title Case subject; 150 words or fewer in the body; one check-in line from the notes; the property tax reminder (Utah: `utah-client-care.md`; general mode: the county assessor, and nothing about the state's rules); any vendor introductions that wait for day 30. Then the footer.
 - **Talking points** (day 90, month 6): one line each, from the notes, with the channel.
 
-**The email footer,** from `outreach-rules.md`, after the signature on every email but the thank-you: "To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from [Agent Name], [Brokerage Name]." Drop the last sentence only on an email the notes show the client asked for (the vendor names they asked for). Check Before Sending says to confirm the footer with the broker.
+**The email footer,** from `outreach-rules.md`, after the signature on every email, the thank-you and the vendor introductions included: "To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [Sender Postal Address]. This is a marketing email from [Agent Name], [Brokerage Name]." Never drop a sentence, even on an email the client asked for: the full footer on every one-to-one client email is a conservative default. Check Before Sending says to confirm the footer with the broker.
 
 ## Set It Up in Follow Up Boss (the Agent's Instructions)
 
@@ -109,7 +112,8 @@ Follow Up Boss can already remind the agent when each touch is due. Give these s
 - Each review link, opened once to check it lands on the right profile; the same ask going to every client.
 - Texts: each client's consent record (the agent's word in chat, or the field or form with its date), sent by hand, one at a time, 8 a.m. to 8 p.m. their time. Clients without consent get no text.
 - Calls and texts: the Do Not Call check. A past client within 18 months of the closing is inside the established business relationship window in `outreach-rules.md`, but any do-not-call request ends it.
-- Emails: the unsubscribe link works, the postal address is real, the thank-you has no footer on purpose, and the footer wording is confirmed with the broker.
+- Calls: none on a Sunday or a legal holiday; a moved call with its original date and why.
+- Emails: the unsubscribe link works, the postal address is real, every email carries the full footer (the thank-you and the vendor introductions too), and the footer wording is confirmed with the broker.
 - The county assessor's link and name (Utah: the 2027 change in `utah-client-care.md`).
 - The gift, as the notes name it.
 - State rules: Utah mode, or "State rules were not checked."
@@ -126,5 +130,7 @@ Follow Up Boss help center, checked 2026-11-10 (the site blocks direct reads; fa
 - Automations Triggered by a Date (updated 2024-09-11): https://help.followupboss.com/hc/en-us/articles/12662110564503-Automations-Triggered-by-a-Date
 - Never Miss a Birthday or Anniversary: https://help.followupboss.com/hc/en-us/articles/360025684874-Never-Miss-a-Birthday-or-Anniversary
 - Texting Opt-in/Opt-Out (updated 2025-02-25): https://help.followupboss.com/hc/en-us/articles/360022160813-Texting-Opt-in-Opt-Out
+
+Federal legal holidays: 5 U.S.C. 6103, checked 2026-11-10: https://www.law.cornell.edu/uscode/text/5/6103
 
 Not confirmed here: whether a task created from a plan can be given a time of day; whether Automations 2.0 adds Follow Up Boss's unsubscribe footer to its emails (these steps use tasks, so it doesn't matter here).

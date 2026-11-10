@@ -374,7 +374,7 @@ Two weeks, Tuesday, November 10 to Tuesday, November 24. Calls between 8 AM and 
 | 3 | Tuesday, November 17 | Follow-up note (letter, or email for the 3 email owners) | Follow-up note, and a third call only if you haven't spoken | |
 | 4 | Tuesday, November 24 | Last note | Last note; no calls | |
 
-- **No calls on:** Wednesday, November 11 (Veterans Day) and Sundays, November 15 and 22. They are Utah legal holidays, and this plan keeps them call-free for the whole team, licensed or not. Utah's Sunday and holiday limit (Utah Code 13-25a-103) doesn't apply to a licensee acting within the license (13-25a-111), but it does to anyone calling who isn't licensed. Ask your broker if you want to change that. Thanksgiving, Thursday, November 26, falls after the plan ends.
+- **No calls or voicemails on:** Wednesday, November 11 (Veterans Day) and Sundays, November 15 and 22. They are Utah legal holidays, and this plan keeps them call-free for the whole team, licensed or not, as a conservative default. Utah's Sunday and holiday limit (Utah Code 13-25a-103) doesn't apply to a licensee acting within the license (13-25a-111), but it does to anyone calling who isn't licensed. Keep it unless your own legal counsel approves a different rule. Thanksgiving, Thursday, November 26, falls after the plan ends.
 - **Stop every touch** for an owner who says no, asks not to be contacted, or relists with any brokerage.
 - **Example Holdings LLC** gets touches 1, 3 and 4 by mail at its office address, and no knock.
 
@@ -401,7 +401,7 @@ Hi [First name], this is my last note about [street]. If your plans change, I'm 
 | Before mailing: search the MLS for every address | A listing can relist between the export and the mail. Drop any that has |
 | Canceled rows 4 and 10, and row 9's November 30 date | Confirm in the MLS or with the listing brokerage before any contact |
 | Plan dates: Tuesday, November 10; Thursday, November 12; Saturday, November 14; Tuesday, November 17; Tuesday, November 24 | Worked out from today, Tuesday, November 10, 2026 |
-| No calls Wednesday, November 11 or Sundays | Utah Code 63G-1-301 (Veterans Day, Sundays) and 13-25a-103; licensee exemption in 13-25a-111. House practice; confirm with your broker |
+| No calls Wednesday, November 11 or Sundays | Utah Code 63G-1-301 (Veterans Day, Sundays) and 13-25a-103; licensee exemption in 13-25a-111. A conservative default; keep it unless your own legal counsel approves a different rule |
 | Emails: the footer, a working unsubscribe, and your real postal address for [Sender Postal Address] | outreach-rules.md (CAN-SPAM) |
 | Example Ridge Realty in every letter and email | Utah Admin. Code R162-2f-401h: the brokerage name as on the Division of Real Estate's records |
 | Door-knocks | Check Sandy, South Jordan, Riverton, Draper, West Jordan, Herriman, Holladay, Murray and West Valley City rules on door-to-door solicitation (not checked). No knock at a No Soliciting sign |

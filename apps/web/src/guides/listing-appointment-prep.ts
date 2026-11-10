@@ -29,6 +29,10 @@
 //     and "fully negotiable," disclosed in the listing agreement; the seller's written approval, with
 //     the amount, before any payment to a buyer's broker), checked 2026-11-10. No rate appears on the
 //     page except the practice file's own (2.5%) and the practice prompt's 2% example.
+//   - Conservative defaults (Connor, 2026-11-10): commission talk uses NAR's disclosure wording,
+//     "Broker commissions are not set by law and are fully negotiable," in place of "There isn't a
+//     set rate." The sample's commission answer was edited to match sample.md after the graded run.
+//     The FAQ says a user can calibrate it with their own legal counsel.
 //   - Utah: the FAQ names only what utah-listing-appointment.md supports (UAR's revised Exclusive Right
 //     to Sell Listing Agreement, the square footage source rule R162-2f-401a(8), the net listing ban
 //     R162-2f-401b(1)(h)), and says general mode doesn't check other states.
@@ -300,7 +304,7 @@ export const LISTING_APPOINTMENT_PREP: Guide = skillPage({
         {
           p: [
             { strong: '“What’s your commission?”' },
-            ' “My fee is 2.5% of the sale price, paid to Example Peak Realty at closing. It isn’t set by law, and it’s negotiable, like every fee; we agree on it in the listing agreement. Paying a buyer’s agent is a separate choice, and it’s yours: you can offer something or nothing, and if you offer something, you approve the amount in writing before it’s offered. The net sheet shows it both ways. You mentioned a number you’d heard: there isn’t a set rate. Every fee is agreed between the agent and the seller.”',
+            ' “My fee is 2.5% of the sale price, paid to Example Peak Realty at closing. Broker commissions are not set by law and are fully negotiable. We agree on mine in the listing agreement. Paying a buyer’s agent is a separate choice, and it’s yours: you can offer something or nothing, and if you offer something, you approve the amount in writing before it’s offered. The net sheet shows it both ways. You mentioned a number you’d heard: every fee is agreed between the agent and the seller.”',
           ],
         },
         {
@@ -530,7 +534,14 @@ export const LISTING_APPOINTMENT_PREP: Guide = skillPage({
           // page-notes.md, FAQ; references/nar-and-federal-rules.md (NAR Policy Statement 8.12).
           q: 'Why won’t it tell me what a normal commission is?',
           a: [
-            'There isn’t one. Since August 17, 2024, NAR’s MLS policy has required listing agreements to say clearly that broker compensation isn’t set by law and is fully negotiable. Any payment to a buyer’s agent needs the seller’s written approval, with the amount, before it’s offered. So the AI explains your fee as you state it, makes the buyer’s agent question the seller’s choice, and leaves every other number out.',
+            'Broker commissions are not set by law and are fully negotiable. Since August 17, 2024, NAR’s MLS policy has required listing agreements to say so clearly. Any payment to a buyer’s agent needs the seller’s written approval, with the amount, before it’s offered. So the AI explains your fee as you state it, makes the buyer’s agent question the seller’s choice, and leaves every other number out.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails ("Conservative defaults").
+          q: 'Why is it stricter than the law?',
+          a: [
+            'It uses our conservative defaults. When commission comes up, it uses NAR’s disclosure wording, “Broker commissions are not set by law and are fully negotiable,” and never says or hints at a set or typical rate. You can calibrate this with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check Before Sending.',
           ],
         },
         {

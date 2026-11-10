@@ -9,13 +9,14 @@
 // /sign-in. In the fixture build there is no API, so it says the library opens when you sign in.
 
 import { useEffect, useState } from 'react';
+import { setupGuideHref } from '@ai/core/skills';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import s from './SkillLibrary.module.css';
 
 export const COPY = {
   title: 'Skill Library',
-  sub: 'Every skill your plan includes. Download one, then add it to Claude, ChatGPT or Grok Bot.',
+  sub: 'Every skill your plan includes. Download one, then follow its Setup Guide to add it to Claude, ChatGPT or Grok Bot.',
   sets: { owner_ops: 'Owner and Operations Skills', agent: 'Agent Skills', both: 'Skills for Everyone' },
   free: 'Free',
   locked: 'Not in your plan.',
@@ -23,6 +24,8 @@ export const COPY = {
   upcoming: (date: string) => `Coming ${date}.`,
   // `grok`: a Grok Bot template's one file (D-100).
   files: { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', practice: 'Practice Files', grok: 'Download for Grok Bot' },
+  // The skill's www page, with its guided setup step by step (D-101), in a new tab.
+  guide: 'Setup Guide',
   loading: 'Loading your skills',
   unavailable: 'The skill library opens when you sign in.',
   signIn: 'Sign In',
@@ -76,16 +79,22 @@ function SkillRow({ skill }: { skill: LibrarySkill }) {
       </div>
       <div className={s.actions}>
         {skill.state === 'open' ? (
-          skill.files.map((kind, i) => (
-            <a
-              key={kind}
-              className={i === 0 ? s.primary : s.secondary}
-              href={`/api/skills/${encodeURIComponent(skill.id)}/download/${kind}`}
-            >
-              <Icon name="download" size={16} />
-              {COPY.files[kind]}
+          <>
+            {skill.files.map((kind, i) => (
+              <a
+                key={kind}
+                className={i === 0 ? s.primary : s.secondary}
+                href={`/api/skills/${encodeURIComponent(skill.id)}/download/${kind}`}
+              >
+                <Icon name="download" size={16} />
+                {COPY.files[kind]}
+              </a>
+            ))}
+            <a className={s.secondary} href={setupGuideHref(skill.id)} target="_blank" rel="noopener">
+              <Icon name="listChecks" size={16} />
+              {COPY.guide}
             </a>
-          ))
+          </>
         ) : skill.state === 'locked' ? (
           <>
             <span className={s.note}>

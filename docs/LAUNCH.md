@@ -199,7 +199,7 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
    in `SKILL_CATALOG`) and the 16 Grok Bot templates' (`GROK_TEMPLATES`, D-100) in the bucket and both
    catalogs in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
    free in `packages/core/src/skills.ts` first, and a template's in `packages/core/src/grok-templates.ts`.
-   Free today: Appointment Follow-Up, Database Health Check and Team P&L Review, and the templates Weekly
+   Free today: Appointment Follow-Up, Database Health Check, Team P&L Review and AI Brain Setup (D-101), and the templates Weekly
    Card & Bank Audit, Quarterly Tax & Profit-First Set-Aside, Contract-to-Close Deadline Tracker and New
    Contract Intake.
 4. Print `/forum-qr.svg` (it encodes `https://www.amplifiedimpact.io/forum?src=qr`). It decodes at

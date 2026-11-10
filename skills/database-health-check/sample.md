@@ -319,7 +319,7 @@ Text (Text Consent filtered list only): "Hi [First Name], it's [Agent First and 
 - **Text consent:** every contact on a text list has a consent record that names your team or brokerage and the phone number. Text Consent = Yes in the export points to it; the record is the proof. Confirm what the field means with your broker. A website form or an open house sign-in counts only if it had text consent wording.
 - **Texts one at a time:** each text is a starting point the assigned agent makes their own and sends to one person at a time. Follow Up Boss says its texting is for one-to-one conversations, not mass or drip texting.
 - **Do Not Call:** scrub every call list and text list against the National Do Not Call Registry and your internal list before use. Follow Up Boss has no built-in scrub.
-- **Quiet hours:** calls and texts between 8 a.m. and 8 p.m. in the recipient's time zone.
+- **Quiet hours:** calls and texts between 8 a.m. and 8 p.m. in the recipient's time zone, and no calls or voicemails on a Sunday or a legal holiday.
 - **Emails:** the unsubscribe link works; [Sender Postal Address] is your real address; Admin > Company in Follow Up Boss shows the right company information, since its own unsubscribe footer uses it.
 - **Placeholders:** [First Name], [Agent Name], [Agent First and Last Name], [Team or Brokerage Name], [Brokerage Name], [Unsubscribe Link], [Sender Postal Address].
 - **State rules** for texting and calling where you and your contacts are: confirm with your broker or an attorney.

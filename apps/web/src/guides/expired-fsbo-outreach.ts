@@ -31,8 +31,10 @@
 //     UtahRealEstate.com uses Canceled only for a terminated agreement. The page says a Canceled listing
 //     waits for the agent's confirmation and why (DECISIONS entry asks Connor).
 //   - Utah's Sunday and holiday limit (Utah Code 13-25a-103) exempts a licensee acting within the
-//     license (13-25a-111). The skill keeps Sundays and Utah holidays call-free anyway, as house
-//     practice; the page says both and sends the question to the broker.
+//     license (13-25a-111). The skill keeps Sundays and Utah holidays call-free anyway, as a conservative
+//     default (Connor, 2026-11-10), and in general mode Sundays and the federal holidays (5 U.S.C.
+//     6103). The page says both and that a user can calibrate the defaults with their own legal counsel.
+//     The sample's "No calls" line was edited to match sample.md after the graded run.
 //   - Vendor click paths: only Landvoice's was found (its blog, June 23, 2022). REDX's, Vulcan7's and
 //     the MLS's export paths were not confirmed, so the page names no menu for them.
 //   - Whether UtahRealEstate.com treats an owner letter that cites its own listing's MLS facts as
@@ -234,8 +236,8 @@ export const EXPIRED_FSBO_OUTREACH: Guide = skillPage({
         },
         {
           p: [
-            { strong: 'No calls on:' },
-            ' Wednesday, November 11 (Veterans Day) and Sundays, November 15 and 22. They are Utah legal holidays, and this plan keeps them call-free for the whole team, licensed or not. Utah’s Sunday and holiday limit (Utah Code 13-25a-103) doesn’t apply to a licensee acting within the license (13-25a-111), but it does to anyone calling who isn’t licensed. Ask your broker if you want to change that.',
+            { strong: 'No calls or voicemails on:' },
+            ' Wednesday, November 11 (Veterans Day) and Sundays, November 15 and 22. They are Utah legal holidays, and this plan keeps them call-free for the whole team, licensed or not, as a conservative default. Utah’s Sunday and holiday limit (Utah Code 13-25a-103) doesn’t apply to a licensee acting within the license (13-25a-111), but it does to anyone calling who isn’t licensed. Keep it unless your own legal counsel approves a different rule.',
           ],
         },
         { h: 'Check before sending' },
@@ -277,7 +279,7 @@ export const EXPIRED_FSBO_OUTREACH: Guide = skillPage({
         },
         {
           title: 'A two-week touch plan',
-          body: 'Three or four touches with dates. In Utah, no calls on Sundays or Utah holidays. Every touch stops for an owner who says no or relists.',
+          body: 'Three or four touches with dates. No calls on Sundays or legal holidays: Utah’s in Utah, federal ones elsewhere. Every touch stops for an owner who says no or relists.',
         },
         {
           title: 'Check before sending',
@@ -435,7 +437,15 @@ export const EXPIRED_FSBO_OUTREACH: Guide = skillPage({
           // 2026-11-10).
           q: 'Can I call on a Sunday in Utah?',
           a: [
-            'Utah’s law limits solicitation calls on Sundays and Utah legal holidays (Utah Code 13-25a-103), but it exempts a licensed agent acting within the license (13-25a-111). The plan still keeps Sundays and Utah holidays call-free, so one rule covers everyone on your team, licensed or not. Ask your broker if you want to change that.',
+            'Utah’s law limits solicitation calls on Sundays and Utah legal holidays (Utah Code 13-25a-103), but it exempts a licensed agent acting within the license (13-25a-111). The plan still keeps Sundays and Utah holidays call-free, so one rule covers everyone on your team, licensed or not. To change that, ask your own legal counsel.',
+          ],
+        },
+        {
+          // page-notes.md, FAQ; SKILL.md, Guardrails ("Conservative defaults"); the shared outreach-rules.md,
+          // Conservative Defaults.
+          q: 'Why is it stricter than the law?',
+          a: [
+            'It uses our conservative defaults. No calls or voicemails go on a Sunday or a legal holiday, even where Utah exempts a licensed agent. Outside Utah, that means Sundays and the federal holidays, and it tells you it didn’t check your state’s. Every email carries the full footer: the line that says it’s a marketing email, the way to opt out and your postal address. You can calibrate these with your own legal counsel: tell the AI what your counsel approved, and it follows that and says so in Check Before Sending.',
           ],
         },
         {
