@@ -1,0 +1,8 @@
+{
+  "name": "open-house-follow-up",
+  "page": "open-house-follow-up",
+  "title": "Open House Follow-Up",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}

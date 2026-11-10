@@ -1,0 +1,1622 @@
+{
+ "meeting_date": "2026-11-18",
+ "meeting_date_source": "from the request",
+ "agenda": [
+  [
+   "Segue",
+   5,
+   "8:30 AM to 8:35 AM"
+  ],
+  [
+   "Scorecard",
+   5,
+   "8:35 AM to 8:40 AM"
+  ],
+  [
+   "Rock Review",
+   5,
+   "8:40 AM to 8:45 AM"
+  ],
+  [
+   "Customer and Employee Headlines",
+   5,
+   "8:45 AM to 8:50 AM"
+  ],
+  [
+   "To-Do List",
+   5,
+   "8:50 AM to 8:55 AM"
+  ],
+  [
+   "IDS",
+   60,
+   "8:55 AM to 9:55 AM"
+  ],
+  [
+   "Conclude",
+   5,
+   "9:55 AM to 10:00 AM"
+  ]
+ ],
+ "files_read": [
+  "Scorecard: Pickleberry Point Weekly Scorecard.xlsx, sheet 'Scorecard', header row 2, wide layout, 9 measurables, 13 week columns. Columns used: {'title': 'Measurable', 'owner': 'Owner', 'goal': 'Goal'}. Ignored: none.",
+  "Rocks: Ninety Rocks Export.xlsx, sheet 'Rocks', header row 2. Columns used: {'title': 'Title', 'owner': 'Owner', 'status': 'Status', 'completed_on': 'Completed On (Date)', 'due': 'Due Date', 'created': 'Created Date', 'notes': 'Description', 'kind': 'Level'}.",
+  "Issues: Issues List.csv, sheet 'Issues List', header row 2. Columns used: {'title': 'Title', 'owner': 'Owner', 'created': 'Created', 'notes': 'Description', 'kind': 'Type'}.",
+  "Headlines: Headlines.txt, sheet 'text', header row None. Columns used: {}.",
+  "To-dos: Ninety To-Dos Export.xlsx, sheet 'To-Dos', header row 2. Columns used: {'title': 'Title', 'owner': 'Owner', 'completed_on': 'Completed On', 'due': 'Due Date', 'created': 'Create Date', 'notes': 'Description'}."
+ ],
+ "gaps": [],
+ "scorecard": {
+  "file": "Pickleberry Point Weekly Scorecard.xlsx",
+  "sheet": "Scorecard",
+  "header_row": 2,
+  "layout": "wide",
+  "columns_used": {
+   "title": "Measurable",
+   "owner": "Owner",
+   "goal": "Goal"
+  },
+  "ignored_columns": [],
+  "week_columns": 13,
+  "weeks_after_meeting": [],
+  "weeks_not_entered": [],
+  "latest_week": "2026-11-09",
+  "latest_week_label": "11/9/2026",
+  "window": [
+   "2026-08-17",
+   "2026-08-24",
+   "2026-08-31",
+   "2026-09-07",
+   "2026-09-14",
+   "2026-09-21",
+   "2026-09-28",
+   "2026-10-05",
+   "2026-10-12",
+   "2026-10-19",
+   "2026-10-26",
+   "2026-11-02",
+   "2026-11-09"
+  ],
+  "window_labels": [
+   "8/17/2026",
+   "8/24/2026",
+   "8/31/2026",
+   "9/7/2026",
+   "9/14/2026",
+   "9/21/2026",
+   "9/28/2026",
+   "10/5/2026",
+   "10/12/2026",
+   "10/19/2026",
+   "10/26/2026",
+   "11/2/2026",
+   "11/9/2026"
+  ],
+  "order_in_file": "week columns oldest first",
+  "measurables": [
+   {
+    "title": "New Leads",
+    "owner": "Fennel Quackenbush",
+    "goal_text": "80+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 80.0
+    },
+    "goal_read_as": "at least 80",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "86",
+     "value": 86.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "93",
+     "value": 93.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 2,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "69",
+      "value": 69.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "89",
+      "value": 89.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "77",
+      "value": 77.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "95",
+      "value": 95.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "83",
+      "value": 83.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "82",
+      "value": 82.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "87",
+      "value": 87.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "88",
+      "value": 88.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "86",
+      "value": 86.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "87",
+      "value": 87.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "91",
+      "value": 91.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "93",
+      "value": 93.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "86",
+      "value": 86.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Speed to Lead (Minutes)",
+    "owner": "Fennel Quackenbush",
+    "goal_text": "5",
+    "dir_text": "",
+    "goal": {
+     "dir": "at most",
+     "value": 5.0
+    },
+    "goal_read_as": "at most 5",
+    "goal_how": "goals.json",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "9",
+     "value": 9.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "8",
+     "value": 8.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 2,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "2",
+      "value": 2.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "2",
+      "value": 2.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "2",
+      "value": 2.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "2",
+      "value": 2.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "8",
+      "value": 8.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "9",
+      "value": 9.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Appointments Set",
+    "owner": "Juniper Wobblesby",
+    "goal_text": "14+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 14.0
+    },
+    "goal_read_as": "at least 14",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "11",
+     "value": 11.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "15",
+     "value": 15.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 7,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "17",
+      "value": 17.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "15",
+      "value": 15.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "16",
+      "value": 16.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "13",
+      "value": 13.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "16",
+      "value": 16.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "12",
+      "value": 12.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "11",
+      "value": 11.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "12",
+      "value": 12.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "15",
+      "value": 15.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "13",
+      "value": 13.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "13",
+      "value": 13.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "15",
+      "value": 15.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "11",
+      "value": 11.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Appointments Met",
+    "owner": "Juniper Wobblesby",
+    "goal_text": "10+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 10.0
+    },
+    "goal_read_as": "at least 10",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "8",
+     "value": 8.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "11",
+     "value": 11.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 4,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "12",
+      "value": 12.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "12",
+      "value": 12.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "8",
+      "value": 8.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "12",
+      "value": 12.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "9",
+      "value": 9.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "8",
+      "value": 8.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "8",
+      "value": 8.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Buyer Agreements Signed",
+    "owner": "Rosemary Pinwhistle",
+    "goal_text": "4+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 4.0
+    },
+    "goal_read_as": "at least 4",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "5",
+     "value": 5.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "3",
+     "value": 3.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 5,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Listings Taken",
+    "owner": "Barnaby Crumpet",
+    "goal_text": "3+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 3.0
+    },
+    "goal_read_as": "at least 3",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "3",
+     "value": 3.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "4",
+     "value": 4.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 2,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Under Contract (Units)",
+    "owner": "Barnaby Crumpet",
+    "goal_text": "4+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 4.0
+    },
+    "goal_read_as": "at least 4",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "2",
+     "value": 2.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "6",
+     "value": 6.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 6,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Closed Units",
+    "owner": "Tansy Fernwhistle",
+    "goal_text": "3+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 3.0
+    },
+    "goal_read_as": "at least 3",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "4",
+     "value": 4.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "4",
+     "value": 4.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 3,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Past Client Calls",
+    "owner": "Tansy Fernwhistle",
+    "goal_text": "25+",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 25.0
+    },
+    "goal_read_as": "at least 25",
+    "goal_how": "the + in the goal",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "25",
+     "value": 25.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "24",
+     "value": 24.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 12,
+    "misses": 4,
+    "blanks": 1,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "20",
+      "value": 20.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "26",
+      "value": 26.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "31",
+      "value": 31.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "28",
+      "value": 28.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "30",
+      "value": 30.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "28",
+      "value": 28.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "",
+      "value": null,
+      "result": "BLANK"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "24",
+      "value": 24.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "30",
+      "value": 30.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "21",
+      "value": 21.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "26",
+      "value": 26.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "24",
+      "value": 24.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "25",
+      "value": 25.0,
+      "result": "HIT"
+     }
+    ]
+   }
+  ],
+  "blanks": [
+   {
+    "measurable": "Past Client Calls",
+    "owner": "Tansy Fernwhistle",
+    "week": "2026-09-28",
+    "week_label": "9/28/2026"
+   }
+  ],
+  "unreadable": []
+ },
+ "rocks": {
+  "file": "Ninety Rocks Export.xlsx",
+  "sheet": "Rocks",
+  "header_row": 2,
+  "columns_used": {
+   "title": "Title",
+   "owner": "Owner",
+   "status": "Status",
+   "completed_on": "Completed On (Date)",
+   "due": "Due Date",
+   "created": "Created Date",
+   "notes": "Description",
+   "kind": "Level"
+  },
+  "items": [
+   {
+    "title": "Hire a Full-Time ISA",
+    "owner": "Juniper Wobblesby",
+    "status": "Off-Track",
+    "completed_on": "",
+    "due": "12/31/2026",
+    "created": "10/01/2026",
+    "notes": "",
+    "kind": "Company",
+    "status_given": "Off-Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Launch the Seller Pre-Listing Packet",
+    "owner": "Barnaby Crumpet",
+    "status": "On-Track",
+    "completed_on": "",
+    "due": "12/31/2026",
+    "created": "10/01/2026",
+    "notes": "",
+    "kind": "Company",
+    "status_given": "On-Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Every Buyer on a Signed Agreement Before Touring",
+    "owner": "Rosemary Pinwhistle",
+    "status": "On-Track",
+    "completed_on": "",
+    "due": "12/31/2026",
+    "created": "10/01/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "On-Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Move TC Checklists Into the New System",
+    "owner": "Tansy Fernwhistle",
+    "status": "Done",
+    "completed_on": "11/06/2026",
+    "due": "12/31/2026",
+    "created": "10/01/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "Done",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Build the Q1 2027 Lead Budget",
+    "owner": "Fennel Quackenbush",
+    "status": "On-Track",
+    "completed_on": "",
+    "due": "12/31/2026",
+    "created": "10/01/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "On-Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Start the Past Client Quarterly Pop-By",
+    "owner": "Tansy Fernwhistle",
+    "status": "Off-Track",
+    "completed_on": "",
+    "due": "12/31/2026",
+    "created": "10/01/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "Off-Track",
+    "due_iso": "2026-12-31"
+   }
+  ],
+  "status_counts": {
+   "Off-Track": 2,
+   "On-Track": 3,
+   "Done": 1
+  },
+  "has_status_column": true
+ },
+ "issues": {
+  "sheets": [
+   {
+    "file": "Issues List.csv",
+    "sheet": "Issues List",
+    "header_row": 2,
+    "columns_used": {
+     "title": "Title",
+     "owner": "Owner",
+     "created": "Created",
+     "notes": "Description",
+     "kind": "Type"
+    }
+   }
+  ],
+  "short_term": [
+   {
+    "title": "Larkspur Loop buyer deal: inspection response due Thursday 11/19",
+    "owner": "Rosemary Pinwhistle",
+    "created": "11/16/2026",
+    "notes": "Seller's agent hasn't answered our repair request. Deadline is Thursday 11/19 at 5 PM.",
+    "kind": "Short-Term",
+    "n_in_file": 1,
+    "sheet": "Issues List",
+    "created_iso": "2026-11-16"
+   },
+   {
+    "title": "Appointments set down since the ISA moved to part time",
+    "owner": "Juniper Wobblesby",
+    "created": "11/02/2026",
+    "notes": "ISA hours cut from 40 to 20 in October.",
+    "kind": "Short-Term",
+    "n_in_file": 2,
+    "sheet": "Issues List",
+    "created_iso": "2026-11-02"
+   },
+   {
+    "title": "Two pendings fell through in October and nobody reviewed why",
+    "owner": "Barnaby Crumpet",
+    "created": "10/28/2026",
+    "notes": "",
+    "kind": "Short-Term",
+    "n_in_file": 3,
+    "sheet": "Issues List",
+    "created_iso": "2026-10-28"
+   },
+   {
+    "title": "Weekend lead response has no owner",
+    "owner": "Fennel Quackenbush",
+    "created": "11/09/2026",
+    "notes": "Leads that come in after Friday 6 PM wait until Monday.",
+    "kind": "Short-Term",
+    "n_in_file": 4,
+    "sheet": "Issues List",
+    "created_iso": "2026-11-09"
+   },
+   {
+    "title": "Showing feedback isn't reaching sellers",
+    "owner": "Barnaby Crumpet",
+    "created": "11/04/2026",
+    "notes": "",
+    "kind": "Short-Term",
+    "n_in_file": 5,
+    "sheet": "Issues List",
+    "created_iso": "2026-11-04"
+   },
+   {
+    "title": "Desk setup for the new hire",
+    "owner": "Tansy Fernwhistle",
+    "created": "11/11/2026",
+    "notes": "",
+    "kind": "Short-Term",
+    "n_in_file": 6,
+    "sheet": "Issues List",
+    "created_iso": "2026-11-11"
+   },
+   {
+    "title": "Holiday party budget",
+    "owner": "Tansy Fernwhistle",
+    "created": "10/20/2026",
+    "notes": "",
+    "kind": "Short-Term",
+    "n_in_file": 7,
+    "sheet": "Issues List",
+    "created_iso": "2026-10-20"
+   },
+   {
+    "title": "Peachfuzz Leads contract renewal: decide by 11/30",
+    "owner": "Juniper Wobblesby",
+    "created": "11/06/2026",
+    "notes": "Renewal is 12 months. Price goes up on 12/1.",
+    "kind": "Short-Term",
+    "n_in_file": 8,
+    "sheet": "Issues List",
+    "created_iso": "2026-11-06"
+   }
+  ],
+  "long_term": [
+   {
+    "title": "Add a property management arm in 2027?",
+    "owner": "Pippin Marmalade",
+    "created": "09/22/2026",
+    "notes": "",
+    "kind": "Long-Term",
+    "n_in_file": 9,
+    "sheet": "Issues List",
+    "created_iso": "2026-09-22"
+   }
+  ]
+ },
+ "headlines": {
+  "sheets": [
+   {
+    "file": "Headlines.txt",
+    "sheet": "text",
+    "header_row": null,
+    "columns_used": {}
+   }
+  ],
+  "items": [
+   {
+    "title": "Customer Headlines"
+   },
+   {
+    "title": "The Larkspur Loop buyers left us a five-star review. (Rosemary)"
+   },
+   {
+    "title": "A past client referred two coworkers this week. (Tansy)"
+   },
+   {
+    "title": "Employee Headlines"
+   },
+   {
+    "title": "Rosemary is out Friday for her mom's knee surgery; Juniper is covering her showings. (Rosemary)"
+   },
+   {
+    "title": "Fennel passed the broker pre-licensing exam. (Fennel)"
+   }
+  ]
+ },
+ "todos": {
+  "file": "Ninety To-Dos Export.xlsx",
+  "sheet": "To-Dos",
+  "header_row": 2,
+  "columns_used": {
+   "title": "Title",
+   "owner": "Owner",
+   "completed_on": "Completed On",
+   "due": "Due Date",
+   "created": "Create Date",
+   "notes": "Description"
+  },
+  "items": [
+   {
+    "title": "Call the Larkspur Loop listing agent about the inspection response",
+    "owner": "Rosemary Pinwhistle",
+    "completed_on": "11/16/2026",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Post the ISA job on two more boards",
+    "owner": "Juniper Wobblesby",
+    "completed_on": "",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "not done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Send the pre-listing packet draft to Pippin",
+    "owner": "Barnaby Crumpet",
+    "completed_on": "11/13/2026",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Pull October lead source numbers",
+    "owner": "Fennel Quackenbush",
+    "completed_on": "11/17/2026",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Order the first pop-by gifts",
+    "owner": "Tansy Fernwhistle",
+    "completed_on": "",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "not done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Update the buyer agreement checklist",
+    "owner": "Rosemary Pinwhistle",
+    "completed_on": "11/17/2026",
+    "due": "11/17/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Set up a weekend lead coverage test",
+    "owner": "Fennel Quackenbush",
+    "completed_on": "11/14/2026",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Collect showing feedback for the two active listings",
+    "owner": "Barnaby Crumpet",
+    "completed_on": "11/16/2026",
+    "due": "11/16/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Book the holiday party venue",
+    "owner": "Tansy Fernwhistle",
+    "completed_on": "11/12/2026",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Send the Peachfuzz Leads renewal terms to Pippin",
+    "owner": "Juniper Wobblesby",
+    "completed_on": "11/17/2026",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Review the two fallen pendings with the agents",
+    "owner": "Barnaby Crumpet",
+    "completed_on": "11/18/2026",
+    "due": "11/18/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-18"
+   },
+   {
+    "title": "Train Juniper on the new TC system",
+    "owner": "Tansy Fernwhistle",
+    "completed_on": "",
+    "due": "11/04/2026",
+    "created": "10/28/2026",
+    "notes": "",
+    "state": "not done",
+    "due_iso": "2026-11-04"
+   },
+   {
+    "title": "Renew the team E&O policy",
+    "owner": "Tansy Fernwhistle",
+    "completed_on": "11/05/2026",
+    "due": "11/05/2026",
+    "created": "10/28/2026",
+    "notes": "",
+    "state": "done",
+    "due_iso": "2026-11-05"
+   },
+   {
+    "title": "Draft the Q1 2027 lead budget",
+    "owner": "Fennel Quackenbush",
+    "completed_on": "",
+    "due": "11/25/2026",
+    "created": "11/11/2026",
+    "notes": "",
+    "state": "not done",
+    "due_iso": "2026-11-25"
+   }
+  ],
+  "duplicates_dropped": 0,
+  "groups": {
+   "counted": [
+    {
+     "title": "Call the Larkspur Loop listing agent about the inspection response",
+     "owner": "Rosemary Pinwhistle",
+     "completed_on": "11/16/2026",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Post the ISA job on two more boards",
+     "owner": "Juniper Wobblesby",
+     "completed_on": "",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "not done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Send the pre-listing packet draft to Pippin",
+     "owner": "Barnaby Crumpet",
+     "completed_on": "11/13/2026",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Pull October lead source numbers",
+     "owner": "Fennel Quackenbush",
+     "completed_on": "11/17/2026",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Order the first pop-by gifts",
+     "owner": "Tansy Fernwhistle",
+     "completed_on": "",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "not done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Update the buyer agreement checklist",
+     "owner": "Rosemary Pinwhistle",
+     "completed_on": "11/17/2026",
+     "due": "11/17/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Set up a weekend lead coverage test",
+     "owner": "Fennel Quackenbush",
+     "completed_on": "11/14/2026",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Collect showing feedback for the two active listings",
+     "owner": "Barnaby Crumpet",
+     "completed_on": "11/16/2026",
+     "due": "11/16/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Book the holiday party venue",
+     "owner": "Tansy Fernwhistle",
+     "completed_on": "11/12/2026",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Send the Peachfuzz Leads renewal terms to Pippin",
+     "owner": "Juniper Wobblesby",
+     "completed_on": "11/17/2026",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-18"
+    },
+    {
+     "title": "Review the two fallen pendings with the agents",
+     "owner": "Barnaby Crumpet",
+     "completed_on": "11/18/2026",
+     "due": "11/18/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-18"
+    }
+   ],
+   "older_open": [
+    {
+     "title": "Train Juniper on the new TC system",
+     "owner": "Tansy Fernwhistle",
+     "completed_on": "",
+     "due": "11/04/2026",
+     "created": "10/28/2026",
+     "notes": "",
+     "state": "not done",
+     "due_iso": "2026-11-04"
+    }
+   ],
+   "older_done": [
+    {
+     "title": "Renew the team E&O policy",
+     "owner": "Tansy Fernwhistle",
+     "completed_on": "11/05/2026",
+     "due": "11/05/2026",
+     "created": "10/28/2026",
+     "notes": "",
+     "state": "done",
+     "due_iso": "2026-11-05"
+    }
+   ],
+   "not_due_yet": [
+    {
+     "title": "Draft the Q1 2027 lead budget",
+     "owner": "Fennel Quackenbush",
+     "completed_on": "",
+     "due": "11/25/2026",
+     "created": "11/11/2026",
+     "notes": "",
+     "state": "not done",
+     "due_iso": "2026-11-25"
+    }
+   ],
+   "no_due_date": []
+  },
+  "done": 9,
+  "not_done": 2,
+  "no_status": 0,
+  "with_status": 11,
+  "rate": 81.8,
+  "arithmetic": "9 done / 11 with a status = 81.8%",
+  "window_words": "to-dos due 2026-11-12 through 2026-11-18 (the 7 days up to the meeting)",
+  "has_status": true,
+  "has_due": true
+ }
+}

@@ -34,6 +34,11 @@ export const GUIDE_HTML = [
   'low-appraisal-response.html',
   'team-pnl-review.html',
   'new-construction-review.html',
+  'listing-description-writer.html',
+  'market-update-email.html',
+  'l10-meeting-prep.html',
+  'open-house-follow-up.html',
+  'sphere-touch-plan.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */

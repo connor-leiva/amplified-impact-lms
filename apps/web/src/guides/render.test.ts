@@ -96,6 +96,11 @@ describe('the list of guides', () => {
       'low-appraisal-response',
       'team-pnl-review',
       'new-construction-review',
+      'listing-description-writer',
+      'market-update-email',
+      'l10-meeting-prep',
+      'open-house-follow-up',
+      'sphere-touch-plan',
     ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {

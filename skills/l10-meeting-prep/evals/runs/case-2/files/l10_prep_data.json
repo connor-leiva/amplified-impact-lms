@@ -1,0 +1,1354 @@
+{
+ "meeting_date": "2026-11-16",
+ "meeting_date_source": "from the request",
+ "agenda": [
+  [
+   "Segue",
+   5,
+   "10:00 AM to 10:05 AM"
+  ],
+  [
+   "Scorecard",
+   5,
+   "10:05 AM to 10:10 AM"
+  ],
+  [
+   "Rock Review",
+   5,
+   "10:10 AM to 10:15 AM"
+  ],
+  [
+   "Customer and Employee Headlines",
+   5,
+   "10:15 AM to 10:20 AM"
+  ],
+  [
+   "To-Do List",
+   5,
+   "10:20 AM to 10:25 AM"
+  ],
+  [
+   "IDS",
+   60,
+   "10:25 AM to 11:25 AM"
+  ],
+  [
+   "Conclude",
+   5,
+   "11:25 AM to 11:30 AM"
+  ]
+ ],
+ "files_read": [
+  "Scorecard: KPI (Metrics).csv, sheet 'KPI (Metrics)', header row 2, long layout, 8 measurables, 13 week columns. Columns used: {'title': 'Measurable', 'owner': 'Owner', 'goal': 'Goal', 'direction': 'Goal Direction', 'date': 'Week', 'value': 'Value'}. Ignored: none.",
+  "Rocks: Quarterly Priorities (Goals).csv, sheet 'Quarterly Priorities (Goals)', header row 2. Columns used: {'owner': 'Owner', 'status': 'Status', 'due': 'Due Date', 'title': 'Goal'}.",
+  "Issues: O&O (Issues).csv, sheet 'O&O (Issues)', header row 2. Columns used: {'title': 'Issue', 'owner': 'Owner', 'created': 'Created', 'notes': 'Details'}.",
+  "Headlines: headlines-as-pasted.txt, sheet 'text', header row None. Columns used: {}.",
+  "To-dos: To-Dos.csv, sheet 'To-Dos', header row 2. Columns used: {'title': 'To-Do', 'owner': 'Owner', 'status': 'Complete', 'due': 'Due Date'}."
+ ],
+ "gaps": [],
+ "scorecard": {
+  "file": "KPI (Metrics).csv",
+  "sheet": "KPI (Metrics)",
+  "header_row": 2,
+  "layout": "long",
+  "columns_used": {
+   "title": "Measurable",
+   "owner": "Owner",
+   "goal": "Goal",
+   "direction": "Goal Direction",
+   "date": "Week",
+   "value": "Value"
+  },
+  "ignored_columns": [],
+  "week_columns": 13,
+  "weeks_after_meeting": [],
+  "weeks_not_entered": [],
+  "latest_week": "2026-11-08",
+  "latest_week_label": "2026-11-08",
+  "window": [
+   "2026-08-16",
+   "2026-08-23",
+   "2026-08-30",
+   "2026-09-06",
+   "2026-09-13",
+   "2026-09-20",
+   "2026-09-27",
+   "2026-10-04",
+   "2026-10-11",
+   "2026-10-18",
+   "2026-10-25",
+   "2026-11-01",
+   "2026-11-08"
+  ],
+  "window_labels": [
+   "2026-08-16",
+   "2026-08-23",
+   "2026-08-30",
+   "2026-09-06",
+   "2026-09-13",
+   "2026-09-20",
+   "2026-09-27",
+   "2026-10-04",
+   "2026-10-11",
+   "2026-10-18",
+   "2026-10-25",
+   "2026-11-01",
+   "2026-11-08"
+  ],
+  "order_in_file": "one row per measurable per week",
+  "measurables": [
+   {
+    "title": "Dials",
+    "owner": "Sorrel Bumbleby",
+    "goal_text": "300",
+    "dir_text": ">=",
+    "goal": {
+     "dir": "at least",
+     "value": 300.0
+    },
+    "goal_read_as": "at least 300",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "276",
+     "value": 276.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "339",
+     "value": 339.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 12,
+    "misses": 5,
+    "blanks": 1,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "320",
+      "value": 320.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "301",
+      "value": 301.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "294",
+      "value": 294.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "294",
+      "value": 294.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "342",
+      "value": 342.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "263",
+      "value": 263.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "327",
+      "value": 327.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "314",
+      "value": 314.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "343",
+      "value": 343.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "",
+      "value": null,
+      "result": "BLANK"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "256",
+      "value": 256.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "339",
+      "value": 339.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "276",
+      "value": 276.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Conversations",
+    "owner": "Sorrel Bumbleby",
+    "goal_text": "60",
+    "dir_text": ">=",
+    "goal": {
+     "dir": "at least",
+     "value": 60.0
+    },
+    "goal_read_as": "at least 60",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "61",
+     "value": 61.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "57",
+     "value": 57.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 2,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "71",
+      "value": 71.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "70",
+      "value": 70.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "61",
+      "value": 61.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "66",
+      "value": 66.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "63",
+      "value": 63.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "71",
+      "value": 71.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "71",
+      "value": 71.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "64",
+      "value": 64.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "57",
+      "value": 57.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "61",
+      "value": 61.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "61",
+      "value": 61.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "57",
+      "value": 57.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "61",
+      "value": 61.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Appointments Set",
+    "owner": "Sorrel Bumbleby",
+    "goal_text": "10",
+    "dir_text": ">=",
+    "goal": {
+     "dir": "at least",
+     "value": 10.0
+    },
+    "goal_read_as": "at least 10",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "9",
+     "value": 9.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "9",
+     "value": 9.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 6,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "13",
+      "value": 13.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "12",
+      "value": 12.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "12",
+      "value": 12.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "9",
+      "value": 9.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "8",
+      "value": 8.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "8",
+      "value": 8.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "7",
+      "value": 7.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "12",
+      "value": 12.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "13",
+      "value": 13.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "9",
+      "value": 9.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "9",
+      "value": 9.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Appointments Held",
+    "owner": "Ivy Pennywhistle",
+    "goal_text": "8",
+    "dir_text": ">=",
+    "goal": {
+     "dir": "at least",
+     "value": 8.0
+    },
+    "goal_read_as": "at least 8",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "",
+     "value": null,
+     "result": "BLANK"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "9",
+     "value": 9.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 12,
+    "misses": 4,
+    "blanks": 1,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "6",
+      "value": 6.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "6",
+      "value": 6.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "6",
+      "value": 6.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "7",
+      "value": 7.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "10",
+      "value": 10.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "",
+      "value": null,
+      "result": "BLANK"
+     }
+    ]
+   },
+   {
+    "title": "Signed Agreements",
+    "owner": "Ivy Pennywhistle",
+    "goal_text": "5",
+    "dir_text": ">=",
+    "goal": {
+     "dir": "at least",
+     "value": 5.0
+    },
+    "goal_read_as": "at least 5",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "5",
+     "value": 5.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "6",
+     "value": 6.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 2,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "4",
+      "value": 4.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "4",
+      "value": 4.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Contracts Written",
+    "owner": "Ivy Pennywhistle",
+    "goal_text": "3",
+    "dir_text": ">=",
+    "goal": {
+     "dir": "at least",
+     "value": 3.0
+    },
+    "goal_read_as": "at least 3",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "2",
+     "value": 2.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "4",
+     "value": 4.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 4,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Lead Response Time (Minutes)",
+    "owner": "Sorrel Bumbleby",
+    "goal_text": "10",
+    "dir_text": "<=",
+    "goal": {
+     "dir": "at most",
+     "value": 10.0
+    },
+    "goal_read_as": "at most 10",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "12",
+     "value": 12.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "14",
+     "value": 14.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 7,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "15",
+      "value": 15.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "7",
+      "value": 7.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "14",
+      "value": 14.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "8",
+      "value": 8.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "14",
+      "value": 14.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "9",
+      "value": 9.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "15",
+      "value": 15.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "12",
+      "value": 12.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "14",
+      "value": 14.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "12",
+      "value": 12.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Database Touches",
+    "owner": "Moss Crinkleton",
+    "goal_text": "150",
+    "dir_text": ">=",
+    "goal": {
+     "dir": "at least",
+     "value": 150.0
+    },
+    "goal_read_as": "at least 150",
+    "goal_how": "the direction column",
+    "this_week": {
+     "week": "2026-11-08",
+     "raw": "",
+     "value": null,
+     "result": "BLANK"
+    },
+    "last_week": {
+     "week": "2026-11-01",
+     "raw": "173",
+     "value": 173.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 12,
+    "misses": 3,
+    "blanks": 1,
+    "weeks": [
+     {
+      "week": "2026-08-16",
+      "raw": "176",
+      "value": 176.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-23",
+      "raw": "153",
+      "value": 153.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-30",
+      "raw": "134",
+      "value": 134.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-06",
+      "raw": "173",
+      "value": 173.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-13",
+      "raw": "149",
+      "value": 149.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-20",
+      "raw": "157",
+      "value": 157.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-27",
+      "raw": "153",
+      "value": 153.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-04",
+      "raw": "167",
+      "value": 167.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-11",
+      "raw": "165",
+      "value": 165.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-18",
+      "raw": "143",
+      "value": 143.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-25",
+      "raw": "164",
+      "value": 164.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-01",
+      "raw": "173",
+      "value": 173.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-08",
+      "raw": "",
+      "value": null,
+      "result": "BLANK"
+     }
+    ]
+   }
+  ],
+  "blanks": [
+   {
+    "measurable": "Dials",
+    "owner": "Sorrel Bumbleby",
+    "week": "2026-10-18",
+    "week_label": "2026-10-18"
+   },
+   {
+    "measurable": "Appointments Held",
+    "owner": "Ivy Pennywhistle",
+    "week": "2026-11-08",
+    "week_label": "2026-11-08"
+   },
+   {
+    "measurable": "Database Touches",
+    "owner": "Moss Crinkleton",
+    "week": "2026-11-08",
+    "week_label": "2026-11-08"
+   }
+  ],
+  "unreadable": []
+ },
+ "rocks": {
+  "file": "Quarterly Priorities (Goals).csv",
+  "sheet": "Quarterly Priorities (Goals)",
+  "header_row": 2,
+  "columns_used": {
+   "owner": "Owner",
+   "status": "Status",
+   "due": "Due Date",
+   "title": "Goal"
+  },
+  "items": [
+   {
+    "owner": "Sorrel Bumbleby",
+    "status": "On Track",
+    "due": "2026-12-31",
+    "title": "Fill the Second ISA Seat",
+    "status_given": "On Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "owner": "Moss Crinkleton",
+    "status": "",
+    "due": "2026-12-31",
+    "title": "Launch the Monthly Homeowner Newsletter",
+    "status_given": "no status given",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "owner": "Ivy Pennywhistle",
+    "status": "Off Track",
+    "due": "2026-12-31",
+    "title": "Get Buyers Pre-Approved Before Showings",
+    "status_given": "Off Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "owner": "Thimble Oakhurst",
+    "status": "",
+    "due": "2026-12-31",
+    "title": "Document the Listing Launch Checklist",
+    "status_given": "no status given",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "owner": "Moss Crinkleton",
+    "status": "Complete",
+    "due": "2026-12-31",
+    "title": "Hold Two Client Appreciation Events",
+    "status_given": "Complete",
+    "due_iso": "2026-12-31"
+   }
+  ],
+  "status_counts": {
+   "On Track": 1,
+   "no status given": 2,
+   "Off Track": 1,
+   "Complete": 1
+  },
+  "has_status_column": true
+ },
+ "issues": {
+  "sheets": [
+   {
+    "file": "O&O (Issues).csv",
+    "sheet": "O&O (Issues)",
+    "header_row": 2,
+    "columns_used": {
+     "title": "Issue",
+     "owner": "Owner",
+     "created": "Created",
+     "notes": "Details"
+    }
+   }
+  ],
+  "short_term": [
+   {
+    "title": "Lead response time over 10 minutes after 6 PM",
+    "owner": "Sorrel Bumbleby",
+    "created": "2026-11-04",
+    "notes": "Evening leads wait for the next morning about half the time.",
+    "n_in_file": 1,
+    "sheet": "O&O (Issues)",
+    "created_iso": "2026-11-04"
+   },
+   {
+    "title": "Toffee Terrace buyer closing 11/20 still missing HOA documents",
+    "owner": "Thimble Oakhurst",
+    "created": "2026-11-12",
+    "notes": "Title needs them two days before closing.",
+    "n_in_file": 2,
+    "sheet": "O&O (Issues)",
+    "created_iso": "2026-11-12"
+   },
+   {
+    "title": "Appointments held aren't getting logged",
+    "owner": "Ivy Pennywhistle",
+    "created": "2026-11-09",
+    "notes": "",
+    "n_in_file": 3,
+    "sheet": "O&O (Issues)",
+    "created_iso": "2026-11-09"
+   },
+   {
+    "title": "Dialer contract renewal: decide by 11/30",
+    "owner": "Sorrel Bumbleby",
+    "created": "2026-10-21",
+    "notes": "Annual contract auto-renews 12/1.",
+    "n_in_file": 4,
+    "sheet": "O&O (Issues)",
+    "created_iso": "2026-10-21"
+   },
+   {
+    "title": "Newsletter design vendor",
+    "owner": "Moss Crinkleton",
+    "created": "2026-10-28",
+    "notes": "Two quotes, no decision.",
+    "n_in_file": 5,
+    "sheet": "O&O (Issues)",
+    "created_iso": "2026-10-28"
+   },
+   {
+    "title": "Pre-approval letter template is out of date",
+    "owner": "Ivy Pennywhistle",
+    "created": "2026-11-02",
+    "notes": "Lender changed the template in October.",
+    "n_in_file": 6,
+    "sheet": "O&O (Issues)",
+    "created_iso": "2026-11-02"
+   }
+  ],
+  "long_term": []
+ },
+ "headlines": {
+  "sheets": [
+   {
+    "file": "headlines-as-pasted.txt",
+    "sheet": "text",
+    "header_row": null,
+    "columns_used": {}
+   }
+  ],
+  "items": [
+   {
+    "title": "Customer: the buyers on Taffy Trail sent us a five-star review."
+   },
+   {
+    "title": "Employee: Thimble starts her TC certification course next week."
+   }
+  ]
+ },
+ "todos": {
+  "file": "To-Dos.csv",
+  "sheet": "To-Dos",
+  "header_row": 2,
+  "columns_used": {
+   "title": "To-Do",
+   "owner": "Owner",
+   "status": "Complete",
+   "due": "Due Date"
+  },
+  "items": [
+   {
+    "title": "Send the Toffee Terrace buyers the HOA document request",
+    "owner": "Thimble Oakhurst",
+    "status": "TRUE",
+    "due": "2026-11-16",
+    "state": "done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Interview the ISA candidate from the referral",
+    "owner": "Sorrel Bumbleby",
+    "status": "TRUE",
+    "due": "2026-11-16",
+    "state": "done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Pick a newsletter template",
+    "owner": "Moss Crinkleton",
+    "status": "FALSE",
+    "due": "2026-11-16",
+    "state": "not done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Call the lender about the pre-approval letter template",
+    "owner": "Ivy Pennywhistle",
+    "status": "TRUE",
+    "due": "2026-11-13",
+    "state": "done",
+    "due_iso": "2026-11-13"
+   },
+   {
+    "title": "Set the after-6 PM lead routing test",
+    "owner": "Sorrel Bumbleby",
+    "status": "FALSE",
+    "due": "2026-11-16",
+    "state": "not done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Draft the listing launch checklist outline",
+    "owner": "Thimble Oakhurst",
+    "status": "",
+    "due": "2026-11-16",
+    "state": "no status given",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Book the December client event space",
+    "owner": "Moss Crinkleton",
+    "status": "TRUE",
+    "due": "2026-11-12",
+    "state": "done",
+    "due_iso": "2026-11-12"
+   },
+   {
+    "title": "Get the dialer renewal quote in writing",
+    "owner": "Sorrel Bumbleby",
+    "status": "TRUE",
+    "due": "2026-11-16",
+    "state": "done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Log last week's appointments in the CRM",
+    "owner": "Ivy Pennywhistle",
+    "status": "FALSE",
+    "due": "2026-11-16",
+    "state": "not done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Send the October database touch report",
+    "owner": "Moss Crinkleton",
+    "status": "TRUE",
+    "due": "2026-11-15",
+    "state": "done",
+    "due_iso": "2026-11-15"
+   },
+   {
+    "title": "Update the buyer consult folder",
+    "owner": "Ivy Pennywhistle",
+    "status": "FALSE",
+    "due": "2026-11-02",
+    "state": "not done",
+    "due_iso": "2026-11-02"
+   },
+   {
+    "title": "Order client event invitations",
+    "owner": "Moss Crinkleton",
+    "status": "FALSE",
+    "due": "2026-11-23",
+    "state": "not done",
+    "due_iso": "2026-11-23"
+   }
+  ],
+  "duplicates_dropped": 0,
+  "groups": {
+   "counted": [
+    {
+     "title": "Send the Toffee Terrace buyers the HOA document request",
+     "owner": "Thimble Oakhurst",
+     "status": "TRUE",
+     "due": "2026-11-16",
+     "state": "done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Interview the ISA candidate from the referral",
+     "owner": "Sorrel Bumbleby",
+     "status": "TRUE",
+     "due": "2026-11-16",
+     "state": "done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Pick a newsletter template",
+     "owner": "Moss Crinkleton",
+     "status": "FALSE",
+     "due": "2026-11-16",
+     "state": "not done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Call the lender about the pre-approval letter template",
+     "owner": "Ivy Pennywhistle",
+     "status": "TRUE",
+     "due": "2026-11-13",
+     "state": "done",
+     "due_iso": "2026-11-13"
+    },
+    {
+     "title": "Set the after-6 PM lead routing test",
+     "owner": "Sorrel Bumbleby",
+     "status": "FALSE",
+     "due": "2026-11-16",
+     "state": "not done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Draft the listing launch checklist outline",
+     "owner": "Thimble Oakhurst",
+     "status": "",
+     "due": "2026-11-16",
+     "state": "no status given",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Book the December client event space",
+     "owner": "Moss Crinkleton",
+     "status": "TRUE",
+     "due": "2026-11-12",
+     "state": "done",
+     "due_iso": "2026-11-12"
+    },
+    {
+     "title": "Get the dialer renewal quote in writing",
+     "owner": "Sorrel Bumbleby",
+     "status": "TRUE",
+     "due": "2026-11-16",
+     "state": "done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Log last week's appointments in the CRM",
+     "owner": "Ivy Pennywhistle",
+     "status": "FALSE",
+     "due": "2026-11-16",
+     "state": "not done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Send the October database touch report",
+     "owner": "Moss Crinkleton",
+     "status": "TRUE",
+     "due": "2026-11-15",
+     "state": "done",
+     "due_iso": "2026-11-15"
+    }
+   ],
+   "older_open": [
+    {
+     "title": "Update the buyer consult folder",
+     "owner": "Ivy Pennywhistle",
+     "status": "FALSE",
+     "due": "2026-11-02",
+     "state": "not done",
+     "due_iso": "2026-11-02"
+    }
+   ],
+   "older_done": [],
+   "not_due_yet": [
+    {
+     "title": "Order client event invitations",
+     "owner": "Moss Crinkleton",
+     "status": "FALSE",
+     "due": "2026-11-23",
+     "state": "not done",
+     "due_iso": "2026-11-23"
+    }
+   ],
+   "no_due_date": []
+  },
+  "done": 6,
+  "not_done": 3,
+  "no_status": 1,
+  "with_status": 9,
+  "rate": 66.7,
+  "arithmetic": "6 done / 9 with a status = 66.7%",
+  "window_words": "to-dos due 2026-11-10 through 2026-11-16 (the 7 days up to the meeting)",
+  "has_status": true,
+  "has_due": true
+ }
+}

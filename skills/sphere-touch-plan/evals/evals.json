@@ -1,0 +1,52 @@
+{
+  "skill_name": "sphere-touch-plan",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-full-export",
+      "prompt": "Attached is my full Follow Up Boss export. Plan my sphere touches for the next year and write this week's messages. Hank Brindlecomb emailed me back in October saying texting him is totally fine, so text him.\n\nMY VOICE QUICK CARD\nName: Rowan Mockford, Pretend Peak Realty\nTone: upbeat, short, a little playful. First names.\nOne question per message. No exclamation points in emails.\nNever: 'just checking in', 'touch base', 'circle back'.\nSign-off: Cheers, then Rowan",
+      "expected_output": "Today is Tuesday, November 10, 2026, so this week is Tuesday, November 10 to Monday, November 16, with 3 weeks left in November. The export has 34 contacts: 14 past clients in the plan (Past Client tag), 6 close sphere (Sphere A), 8 wider sphere (Sphere B, plus Pip Snowberry by default), Iris Lumbergate and Jade Pocketridge routed to post-closing-client-care as first-year clients, and 4 left out of the plan (a lead, a nurture lead, an under-contract buyer and trash). The 12-month plan runs November 2026 to October 2027 by tier. This week has 14 touches: five closing anniversaries (Ben Thursday, 7 years, from the Home Anniversary field; Dev Friday, his first; Ava Saturday, 3 years; Opal Sunday, 2 years since she sold Teacup Way, worded as a sale; Elle Monday, 4 years), two dated notes (Gwen, back from Lisbon and wanting a painter; Hank, the Juniper Ct rental, follow up in November) and seven rotation picks (Pia, Milo, Hattie, Kit, Lars, Sid, Ned). Texts go to Ava, Opal, Gwen, Kit, Lars, Ned and Hank (because the agent said so in chat); emails to Ben, Dev (Do Not Text), Elle (STOP), Milo (verbal only) and Sid (Do Not Call); call notes to Pia and Hattie (no email). Finn Oddlebury gets nothing (every channel closed). No draft mentions the health, money or family notes, deal prices or Milo's website visit. The drafts follow the QUICK CARD: sign-off 'Cheers, Rowan', no exclamation points in emails, none of the banned phrases. The Follow Up Boss setup gives Smart Lists per tier, the Text Consent field, the Home Anniversary date field with a Calendar Date automation that starts an action plan of tasks, and says the agent or an admin sets it up.",
+      "files": [
+        "evals/files/eval-1-full-export/followupboss-people-export.csv"
+      ],
+      "expectations": [
+        "The output sorts the plan into Past Clients 14, Close Sphere 6 and Wider Sphere 8, puts Pip Snowberry in Wider Sphere by default and asks about it, and leaves 4 contacts (lead, nurture, under contract, trash) out of the plan by count, without naming them",
+        "Iris Lumbergate and Jade Pocketridge are sent to post-closing-client-care as first-year clients and get no draft, while Dev Quillfeather (first anniversary Friday, November 13) is in this week's touches",
+        "The 12-month plan is a table from November 2026 to October 2027 with a kind of touch per tier per month, touches a year per tier, and closing anniversaries by month",
+        "This week's anniversaries are found with the right day and years: Ben 7 years Thursday, November 12 (from the Home Anniversary field), Dev first Friday, November 13, Ava 3 years Saturday, November 14, Opal 2 years Sunday, November 15, Elle 4 years Monday, November 16; Gus (Tuesday, November 17) is named as later this month, not drafted",
+        "Opal's touch is worded as the anniversary of a sale (Teacup Way), not a home anniversary",
+        "Gwen (back from Lisbon, painter) and Hank (Juniper Ct rental, follow up in November) are due on their notes, and the rotation picks are Pia and Milo, Hattie and Kit, and Lars, Sid and Ned, with the share math shown per tier",
+        "Texts go only to Ava, Opal, Gwen, Kit, Lars, Ned and Hank; Hank's text is because the agent said so in chat, and Check Before Sending says to keep that written reply as the record",
+        "Dev (Do Not Text), Elle (Revoked, STOP), Milo (verbal only) and Sid (Do Not Call) get emails, each with the reason; Pia and Hattie get call notes because they have no email; Finn Oddlebury gets no draft because every channel is closed",
+        "Every text names Rowan Mockford and Pretend Peak Realty, is 300 characters or fewer and ends with Reply STOP to opt out.; every email has a Title Case subject and the opt-out and postal address footer",
+        "No draft or note in the output mentions the hip surgery, refinancing, the divorce, the twins, the kindergarten or layoff, Medicare, any deal price or Milo's website visit; one generic flag says notes were left out on purpose",
+        "Every draft is tied to a real field or note, named in its Why now line, and nothing is invented (no ages, children, pets or interests the export doesn't state)",
+        "The drafts follow the QUICK CARD: signed Cheers, Rowan, no exclamation points in emails, and none of just checking in, touch base or circle back",
+        "The Follow Up Boss section gives Smart Lists per tier with the export's tag names, the Text Consent field, the Home Anniversary date field with Occurs Every Year and a Calendar Date automation that starts an action plan of tasks, says which steps need the Account Owner or an admin, and says the skill changes nothing in Follow Up Boss",
+        "Check Before Sending lists each anniversary date with its column, each fact a draft uses with its note date, the consent record for each text (including Ned's open house sign-in wording), the Do Not Call scrub, quiet hours, the unsubscribe link and postal address, and says state rules beyond the federal ones and three states were not checked"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-no-consent-sheet",
+      "prompt": "Here's my sphere list from Google Sheets. Can you build my touch plan for the year and write this week's messages? Texting is way easier for me than email, so texts please.",
+      "expected_output": "Today is Tuesday, November 10, 2026 (the run's date; the prompt gives none). The sheet has 12 people with Name, Email, Phone, Mailing Address, Relationship, Closed and Notes: no stage, no tags, no last-touch column and no texting consent column. Because there is no consent column, the output writes no texts at all, says that a phone number is not consent, and says how to add a Text Consent column with the date and source of each written yes. Tiers come from Relationship by default (Past client 5, Close friend 2, Friend, Neighbor and Coworker 5), with a question. This week: Bea 6 years Friday, November 13 and Cal 2 years Monday, November 16 from the Closed column; Lu on the note to follow up the week of Nov 9; and the rotation in file order (no last-touch column): Dot, Flo, Hal and Ivy. Mo (November 20) and Gil (after Thanksgiving, Thursday, November 26) are later this month. All 7 are emails, signed [Agent Name], with the opt-out footer. Dot's health and retirement note and Jon's engagement are left out. The setup is in plain words for a spreadsheet, not Follow Up Boss Smart Lists.",
+      "files": [
+        "evals/files/eval-2-no-consent-sheet/Sphere list - Sheet1.csv"
+      ],
+      "expectations": [
+        "No text message drafts appear anywhere in the output, even though the agent asked for texts",
+        "It says the sheet has no texting consent column and that this is why there are no texts, says a phone number is not consent, and says how to add a consent column (the date and source of each written yes) and run it again",
+        "Every touch this week is an email: Bea, Cal, Lu, Dot, Flo, Hal and Ivy, seven in all, and the 12-month plan says email where a text would go",
+        "Bea's anniversary is 6 years on Friday, November 13 and Cal's 2 years on Monday, November 16, read from the Closed column's US dates; Mo (Friday, November 20) is later this month and not drafted",
+        "Lu is due on the note to follow up the week of Nov 9, and Gil's check-in after Thanksgiving is named as later this month, not drafted this week",
+        "It says there is no last-touch column, so the rotation goes in file order, and suggests adding a Last Touch column",
+        "Tiers come from the Relationship column, labeled default, with a question for the agent",
+        "Dot's health and retirement note and Jon's engagement appear nowhere in the output; one generic flag says notes were left out on purpose",
+        "Emails have Title Case subjects, the opt-out and postal address footer, and are signed [Agent Name] because the sheet and the prompt give no name",
+        "The setup section is in plain words for a spreadsheet and does not present Follow Up Boss Smart Lists as if the agent uses Follow Up Boss",
+        "A Check Before Sending section is present and says state rules were not checked"
+      ]
+    }
+  ]
+}

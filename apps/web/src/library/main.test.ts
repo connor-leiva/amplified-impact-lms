@@ -203,9 +203,16 @@ describe('the sort', () => {
     await boot();
     chip('topic', 'content').click();
     const newest = visible();
-    const live = newest.filter((t) => t !== 'Content Strategist');
+    // Oldest first by date; cards added the same day keep the markup's order either way, and a card
+    // with no page yet stays last.
+    const content = ENTRIES.filter((e) => e.topics.includes('content'));
+    const oldest = [
+      ...content.filter((e) => e.href !== null).sort((a, b) => a.added.localeCompare(b.added)),
+      ...content.filter((e) => e.href === null),
+    ].map((e) => e.title);
+    expect(new Set(content.map((e) => e.added)).size).toBeLessThan(content.length);
     sortBy('oldest');
-    expect(visible()).toEqual([...[...live].reverse(), 'Content Strategist']);
+    expect(visible()).toEqual(oldest);
     sortBy('newest');
     expect(visible()).toEqual(newest);
   });

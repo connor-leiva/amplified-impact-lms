@@ -1,0 +1,21 @@
+Objective checks: eval-1-form-export-teammate-listing / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subjects: 8 subjects
+- PASS  Every visitor email body under 120 words
+- PASS  Every visitor email has the opt-out and postal address footer
+- PASS  Texts only for TEXT OK visitors: texted: ['Ellis Testington', 'Reese Fictionalis']
+- PASS  Every TEXT OK visitor has a text
+- PASS  Each text: Consent line, brokerage, ends with Reply STOP, 320 characters or fewer
+- NOTE  Text length: 213 characters: Hi Ellis, it's Harper Mockley with Examp...
+- NOTE  Text length: 209 characters: Hi Reese, it's Harper Mockley with Examp...
+- PASS  No solicitation words in a represented visitor's draft
+- PASS  Update under 200 words: 194 words
+- PASS  No visitor names or contact details in the update
+- PASS  Update carries the sheet's counts: 8 sign-ins, 7 visitors, 2 said, 9 or 10 groups
+- PASS  Never-appear strings absent
+- FAIL  Protected-class words in drafts and update (review each): couple
+- PASS  No stock phrases in drafts or update
+- PASS  No wire or account details
+- PASS  Check Before Sending section
+- FAIL  Numbers not found in the input (grade each): 13
+- PASS  Every clock time is in the input (or a spoken hour written out)

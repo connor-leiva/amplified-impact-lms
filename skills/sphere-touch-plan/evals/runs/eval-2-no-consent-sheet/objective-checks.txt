@@ -1,0 +1,15 @@
+Objective checks: eval-2-no-consent-sheet / output.md
+- PASS  No em or en dashes
+- PASS  Check Before Sending section
+- PASS  Draft counts: 0 texts, 7 emails, 0 call notes
+- PASS  Texts only to people with consent on file or given in chat
+- PASS  Texts 300 characters or fewer
+- PASS  Every text ends with Reply STOP to opt out.
+- PASS  Title Case subjects: 7 subjects
+- PASS  Every email has the opt-out and postal address footer
+- PASS  Email bodies 120 words or fewer (signature included): Lu 36, Dot 46, Flo 23, Hal 36, Ivy 33, Bea 41, Cal 39
+- PASS  No stock phrases in the drafts
+- PASS  No website activity in the drafts
+- PASS  Never-appear strings absent
+- PASS  No wire or account details
+- PASS  Numbers not found in the inputs or the worked-out list (grade each)

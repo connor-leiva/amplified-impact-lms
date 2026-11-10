@@ -137,6 +137,11 @@ it('serves the guides there are, by slug', () => {
       'low-appraisal-response',
       'team-pnl-review',
       'new-construction-review',
+      'listing-description-writer',
+      'market-update-email',
+      'l10-meeting-prep',
+      'open-house-follow-up',
+      'sphere-touch-plan',
     ]);
 });
 

@@ -262,7 +262,8 @@ describe('the skill catalog (D-082)', () => {
     expect(FREE_SKILLS.every((id) => SKILL_CATALOG.some((s) => s.id === id))).toBe(true);
     const free = SKILL_CATALOG.filter((s) => FREE_SKILLS.includes(s.id)).flatMap((s) => Object.values(s.files));
     expect(PAID_DOWNLOADS.some((f) => free.includes(f))).toBe(false);
-    expect(new Set(SKILL_CATALOG.map((s) => s.id)).size).toBe(18);
+    expect(new Set(SKILL_CATALOG.map((s) => s.id)).size).toBe(SKILL_CATALOG.length);
+    expect(SKILL_CATALOG.length).toBe(23);
   });
 
   it('names only files that exist in /downloads', () => {

@@ -1,0 +1,8 @@
+{
+  "name": "listing-description-writer",
+  "page": "listing-description-writer",
+  "title": "Listing Description Writer",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

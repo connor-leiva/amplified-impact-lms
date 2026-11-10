@@ -33,6 +33,11 @@ export const GUIDE_SLUGS = [
   'low-appraisal-response',
   'team-pnl-review',
   'new-construction-review',
+  'listing-description-writer',
+  'market-update-email',
+  'l10-meeting-prep',
+  'open-house-follow-up',
+  'sphere-touch-plan',
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 
