@@ -47,6 +47,36 @@ export interface Entry {
 
 export const ENTRIES: readonly Entry[] = [
   {
+    title: 'Expired and FSBO Outreach',
+    description: 'Upload your expired list or FSBO list and get a personal first letter for every owner you may contact, built from that listing’s own facts, plus call openers only for scrubbed numbers, door-knock notes and a two-week plan. Listings that may still be under a listing agreement are held out. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/expired-fsbo-outreach',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'listings'],
+    added: '2026-11-10',
+    keywords: 'expired listings expireds expired listing letter fsbo for sale by owner fsbo letters prospecting letters listing leads redx vulcan7 landvoice vortex mls export door knocking cold calling call script do not call dnc scrub tcpa touch plan withdrawn canceled article 16 seller leads',
+  },
+  {
+    title: 'Listing Appointment Prep',
+    description: 'Attach your first-call notes, the seller’s questionnaire and your listing presentation before a listing appointment, and get a one-page plan, the questions to ask, a marketing plan from your own menu, a seller net sheet at your own prices and answers to “what’s your commission.” Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/listing-appointment-prep',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'listings'],
+    added: '2026-11-10',
+    keywords: 'listing appointment listing presentation pre-listing seller appointment seller net sheet net sheet estimated proceeds title fee sheet commission what is your commission buyer agent compensation nar settlement listing agreement marketing plan marketing menu seller questionnaire follow up boss note fsbo wait for spring objections why you county record mls history square footage fair housing',
+  },
+  {
+    title: 'Seller Listing Update',
+    description: 'Upload this week’s showing feedback, your listing numbers and your notes, and get the weekly update for your sellers in your voice, with every number checked against last week and any comment that shouldn’t reach a seller caught first. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/seller-listing-update',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'listings'],
+    added: '2026-11-10',
+    keywords: 'seller update weekly seller update weekly listing update tuesday update listing report seller report showing feedback recap showingtime brokerbay listing activity report zillow views saves realtor.com days on market price feedback price question listing agent fair housing',
+  },
+  {
     title: 'FUB Automation Audit',
     description: 'Copy your Follow Up Boss action plans, automations and lead sources into one chat and see where nothing happens, where two plans double up, and which automated texts could reach someone who never agreed to texts, with each fix written as steps you take. It only reads. Set it up once on a computer, in Claude or a ChatGPT Project.',
     kind: 'Claude Skill',

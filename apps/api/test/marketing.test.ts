@@ -190,6 +190,9 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       'fub-pipeline-review',
       'speed-to-lead-reply',
       'fub-automation-audit',
+      'seller-listing-update',
+      'listing-appointment-prep',
+      'expired-fsbo-outreach',
     ]);
     for (const slug of GUIDE_SLUGS) {
       for (const url of [`/${slug}`, `/${slug}?src=ig`]) {

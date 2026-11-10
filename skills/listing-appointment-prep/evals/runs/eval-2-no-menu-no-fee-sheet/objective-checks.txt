@@ -1,0 +1,20 @@
+Objective checks: eval-2-no-menu-no-fee-sheet / output.md
+PASS  Every section, in order, Check Before Sending last  [Flags | Bottom Line | Appointment Plan | Questions to Ask | Marketing Plan for 3318 W Sample Sage St | Seller Net Sheet: Estimate, Not a Closing Statement | Objection Answers | What to Bring | Check Before Sending]
+PASS  No em or en dashes
+PASS  Title Case section headings
+PASS  Bottom line is three sentences or fewer  [3 sentences]
+PASS  Agenda runs without gaps and adds up to the length  [6 blocks, 60 of 60 minutes]
+PASS  Net sheet footer: estimate, not a closing statement
+PASS  Net sheet columns are only the agent's scenarios  [['$465,000', '$480,000'] vs ['$465,000', '$480,000']]
+PASS  Net sheet totals match net_sheet_math.py  [all totals found]
+PASS  Open items as [placeholders]
+PASS  No tax estimate (taxes go to a CPA)
+PASS  No list price recommended
+PASS  No rate called standard, typical, usual or the like
+PASS  Never-appear strings absent
+PASS  No protected-class words in the client-facing parts
+PASS  No loan-number pattern
+PASS  No wire, routing or account details
+PASS  No stock phrases
+FAIL  Numbers not found in the inputs (grade each)  [13, 13,]
+Totals: 17 pass, 1 fail

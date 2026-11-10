@@ -104,6 +104,9 @@ describe('the list of guides', () => {
       'fub-pipeline-review',
       'speed-to-lead-reply',
       'fub-automation-audit',
+      'seller-listing-update',
+      'listing-appointment-prep',
+      'expired-fsbo-outreach',
     ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {

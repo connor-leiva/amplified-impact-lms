@@ -31,7 +31,8 @@
 //     only. The page says to screenshot or copy each plan, and never promises an export.
 //   - Whether a stage changed by a plan step starts a Stage Changed automation is not in the help center;
 //     the skill marks those links "to confirm," and the sample keeps the marker.
-//   - Utah's Sunday and holiday rule (Utah Code 13-25a-103(3)): whether it reaches texts was not confirmed.
+//   - Utah's Sunday and holiday rule (Utah Code 13-25a-103(3)): 13-25a-111 exempts a licensee acting
+//     within the license, and whether the rule reaches texts was not confirmed.
 //     The page names it only as a question for the broker.
 //   - Not tested, said once in the FAQ: real Follow Up Boss screenshots, Automations 2.0 canvases, the
 //     ChatGPT version inside ChatGPT.
@@ -202,7 +203,7 @@ export const FUB_AUTOMATION_AUDIT: Guide = skillPage({
         {
           p: [
             { strong: 'Utah: ' },
-            'Utah’s solicitation law limits Sunday and legal holiday solicitations to people who gave prior express consent (Utah Code 13-25a-103(3)); whether it reaches texts was not confirmed. Ask your broker.',
+            'Utah’s solicitation law limits Sunday and legal holiday solicitations to people who gave prior express consent (Utah Code 13-25a-103(3)), though Utah Code 13-25a-111 exempts a licensee acting within the license, and whether it reaches texts was not confirmed. Ask your broker.',
           ],
         },
         { h: 'Template wording' },
@@ -417,7 +418,7 @@ export const FUB_AUTOMATION_AUDIT: Guide = skillPage({
           // SKILL.md, step 5 and Guardrails; references/utah-texting-notes.md.
           q: 'Will it tell me whether our texts are legal?',
           a: [
-            'No. It tells you which automated texts can reach people with no documented consent, what to check, and the federal basics with their sources. Your broker or an attorney makes the call. In Utah it adds one question for your broker: whether Utah’s Sunday and holiday limit on solicitations reaches texts.',
+            'No. It tells you which automated texts can reach people with no documented consent, what to check, and the federal basics with their sources. Your broker or an attorney makes the call. In Utah it adds one question for your broker: whether Utah’s Sunday and holiday limit on solicitations reaches texts, given the exemption for licensees acting within their license.',
           ],
         },
         {

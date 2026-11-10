@@ -21,8 +21,9 @@ Last verified: 2026-11-10. Utah only: read this when the property is in Utah. Ou
 - The act does not define "prior express consent." Whether a lead's own inquiry counts as consent to a call on a Sunday or a holiday was not confirmed for this file. Ask the broker.
 - A caller making an "unsolicited telephone call" must identify themselves, the business, and the purpose of the call promptly (13-25a-103(5)). A call "in response to an express request of the person called," or to someone with an established business relationship (one based on an inquiry, among other things), is not an "unsolicited telephone call" (13-25a-102(4) and (10)). The call opener names the agent, the brokerage and the reason in its first sentence either way.
 - The same section requires following the federal TCPA (13-25a-103(4)); see `outreach-rules.md`.
+- **Licensee exemption.** Sections 13-25a-103 and 13-25a-108 "do not apply to a person who holds and acts within the scope of a license" issued by the Utah Division of Real Estate (Utah Code 13-25a-111, effective May 1, 2024). So for a licensed agent acting as one, Utah's own evening, Sunday and holiday limits may not apply. The skill keeps the Sunday and holiday care in this file anyway, as house practice. The federal TCPA still applies (`outreach-rules.md`), and whether a message is within the license is the broker's call.
 
-What the skill does:
+What the skill does (house practice for a licensed agent, since 13-25a-111 exempts a licensee acting within the license from 13-25a-103):
 - Texts and calls go between 8 AM and 8 PM anyway, inside Utah's window.
 - On a Sunday or a Utah legal holiday, a text to a TEXT OK lead keeps its day (the lead's written consent covers texts), and so does a call when the same consent line covers calls.
 - Any other call or voicemail that would land on a Sunday or a Utah legal holiday moves to the next day that is neither, and the output says why in one line. Emails keep their day.
@@ -54,6 +55,7 @@ Utah's protected classes add source of income, sexual orientation and gender ide
 - UAR, NAR Lawsuit Settlement: Utah FAQs and Resources (the Exclusive Buyer-Broker Agreement signed before showing; checked 2026-11-08): https://utahrealtors.com/realtor/nar-lawsuit-settlement-utah-faqs-and-resources/
 - Utah Code 13-25a-102, definitions (effective May 1, 2024): https://le.utah.gov/xcode/Title13/Chapter25A/C13-25a-S102_2024050120240501.html
 - Utah Code 13-25a-103, prohibited conduct for telephone solicitations (effective May 4, 2022): https://le.utah.gov/xcode/Title13/Chapter25A/C13-25a-S103_2022050420220504.html
+- Utah Code 13-25a-111, exemptions (effective May 1, 2024): https://le.utah.gov/xcode/Title13/Chapter25A/C13-25a-S111_2024050120240501.html
 - Utah Code 63G-1-301, legal holidays (effective May 6, 2026, and the version effective January 1, 2027): https://le.utah.gov/xcode/Title63G/Chapter1/63G-1-S301.html
 - Utah Code 57-21-5: https://le.utah.gov/xcode/Title57/Chapter21/57-21-S5.html
 - Utah School Report Card, Utah State Board of Education: https://reportcard.schools.utah.gov/

@@ -51,6 +51,9 @@ import { SPHERE_TOUCH_PLAN } from './sphere-touch-plan';
 import { FUB_PIPELINE_REVIEW } from './fub-pipeline-review';
 import { SPEED_TO_LEAD_REPLY } from './speed-to-lead-reply';
 import { FUB_AUTOMATION_AUDIT } from './fub-automation-audit';
+import { SELLER_LISTING_UPDATE } from './seller-listing-update';
+import { LISTING_APPOINTMENT_PREP } from './listing-appointment-prep';
+import { EXPIRED_FSBO_OUTREACH } from './expired-fsbo-outreach';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -280,6 +283,9 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [FUB_PIPELINE_REVIEW.slug]: FUB_PIPELINE_REVIEW,
   [SPEED_TO_LEAD_REPLY.slug]: SPEED_TO_LEAD_REPLY,
   [FUB_AUTOMATION_AUDIT.slug]: FUB_AUTOMATION_AUDIT,
+  [SELLER_LISTING_UPDATE.slug]: SELLER_LISTING_UPDATE,
+  [LISTING_APPOINTMENT_PREP.slug]: LISTING_APPOINTMENT_PREP,
+  [EXPIRED_FSBO_OUTREACH.slug]: EXPIRED_FSBO_OUTREACH,
 };
 
 /**
