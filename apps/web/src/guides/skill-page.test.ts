@@ -415,7 +415,7 @@ describe('the skill layout (D-071)', () => {
   });
 });
 
-describe('a paid skill’s page (D-082)', () => {
+describe('a paid skill’s page (D-082, D-101)', () => {
   // The made-up skill with the sections a real skill page has, under a name `FREE_SKILLS` lacks.
   const guide = skillPage({
     ...SPEC,
@@ -451,26 +451,45 @@ describe('a paid skill’s page (D-082)', () => {
     expect(card?.hasAttribute('data-skill-library')).toBe(true);
     expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Amplified Skill Library');
     expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Amplified Skill Library in the Amplified Impact platform.');
-    const links = [...(card?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
+    const top = card?.querySelector(':scope > .locked');
+    const links = [...(top?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
     expect(links).toEqual([
       ['See Plans', '/offer#plans', 'btn btn-primary', null],
       ['Sign In', 'https://learn.amplifiedimpact.io/skill-library', null, null],
     ]);
-    expect(text(card?.querySelector('.legal'))).toBe('Already bought a plan? Sign In');
+    expect(text(top?.querySelector('.legal'))).toBe('Already bought a plan? Sign In');
   });
 
-  it('has no opt-in, no setup and no download: nothing to post, and no ZIP in the markup', () => {
-    expect(doc.querySelector('form, input, [data-unlock-key], #download, .setup, [data-guided], .apps, .handoff, a[download]')).toBeNull();
+  it('has no opt-in and no download: nothing to post, and no ZIP in the markup', () => {
+    expect(doc.querySelector('form, input:not(.app-radio), [data-unlock-key], #download, .unlocked, .handoff, a[download]')).toBeNull();
     expect(html).not.toContain('/downloads/');
     expect(html).not.toContain('/api/made-up-paid-skill');
   });
 
-  it('sends "What you need" to the plans, and has no sign-up bar and no toast with nothing to copy', () => {
+  it('shows the whole guided setup under the card, each file a button to the Skill Library (D-101)', () => {
+    const setup = doc.querySelector('[data-skill-library] > .library-setup');
+    const guided = [...(setup?.querySelectorAll('[data-guided]') ?? [])];
+    expect(guided.map((g) => g.getAttribute('data-guided-key'))).toEqual(['mups-unlocked-step-claude', 'mups-unlocked-step-chatgpt']);
+    const titles = (g: Element | undefined) => [...(g?.querySelectorAll('.setup-step h3') ?? [])].map(text);
+    expect(titles(guided[0])).toEqual(guide.download.setup?.map((s) => s.title));
+    expect(titles(guided[1])).toEqual(guide.download.chatgpt?.setup.map((s) => s.title));
+    const step = (g: Element | undefined, title: string) => [...(g?.querySelectorAll('.setup-step') ?? [])].find((li) => text(li.querySelector('h3')) === title);
+    const buttons = (li: Element | undefined) => [...(li?.querySelectorAll('a.btn') ?? [])].map((a) => [text(a), a.getAttribute('href')]);
+    const get = ['Get It in the Skill Library', 'https://learn.amplifiedimpact.io/skill-library'];
+    expect(buttons(step(guided[0], 'Download the Skill'))).toEqual([get]);
+    expect(buttons(step(guided[1], 'Download the ChatGPT Version'))).toEqual([get]);
+    expect(buttons(step(guided[0], 'Practise on the Made-Up Example'))[0]).toEqual(get);
+    // The app links and the words to paste stay as on the free page.
+    expect(buttons(step(guided[0], 'Add It to Claude'))).toEqual([['Open Claude Skills', 'https://claude.ai/customize/skills']]);
+    expect(step(guided[0], 'Practise on the Made-Up Example')?.querySelector('[data-copy-text]')).not.toBeNull();
+  });
+
+  it('sends "What you need" to the plans, has no sign-up bar, and says when its setup words are copied', () => {
     const cta = doc.querySelector('.sk-band-cards a.btn');
     expect([text(cta), cta?.getAttribute('href'), cta?.className]).toEqual(['See Plans', '/offer#plans', 'btn btn-primary sk-cta']);
     expect(doc.querySelector('a[href^="#get-"]')).toBeNull();
     expect(doc.querySelector('[data-sk-bar]')).toBeNull();
-    expect(doc.getElementById('guide-live')).toBeNull();
+    expect(doc.getElementById('guide-live')?.getAttribute('role')).toBe('status');
   });
 
   it('uses no id twice, and follows the house rule: no em dashes', () => {

@@ -175,6 +175,12 @@ function handoff(h: Handoff): string {
  */
 function setupAction(guide: Guide, action: SetupStep['action']): string {
   if (action === undefined) return '';
+  // A paid page's file (D-101): the step stays, and its button goes to the Skill Library, where the
+  // file is. The page links no ZIP.
+  if (inSkillLibrary(guide) && (action === 'download' || action.download !== undefined)) {
+    const get = SHARED.skillLibrary.get;
+    return `<a class="btn btn-outline" href="${esc(get.href)}" target="_blank" rel="noopener">${esc(get.label)}</a>`;
+  }
   if (action === 'download') return downloadButton(guide);
   if (action.download !== undefined) {
     return `<a class="btn btn-outline" href="${esc(action.href)}" download="${esc(action.download)}">${esc(action.label)}</a>`;
@@ -272,14 +278,26 @@ function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp):
 }
 
 /**
- * A paid skill's card (D-082), where the opt-in was: where the skill is now, the plans, and the
- * platform's sign-in for people who already bought one. No form and no setup, so the page links no
- * ZIP, and no `data-unlock-key`, so the script leaves it alone. It wears the opt-in card's classes
- * (`optin`, `locked`, `form`, `legal`) to sit and look the same: guides.css and skills.css are inlined
- * into the free skill's page too, which stays as it was.
+ * A skill's steps, as the free page draws them once unlocked: the app switch when it also works in
+ * ChatGPT, else the one list.
  */
-function libraryCard(): string {
+function setupSteps(guide: Guide): string {
+  const d = guide.download;
+  if (d.setup && d.chatgpt) return appSetups(guide, d.setup, d.chatgpt);
+  return d.setup ? setup(guide, d.setup) : '';
+}
+
+/**
+ * A paid skill's card (D-082), where the opt-in was: where the skill is now, the plans, and the
+ * platform's sign-in for people who already bought one. Under it, the same guided setup as the free
+ * page (D-101), with every file a button to the Skill Library (`setupAction`), so the page links no
+ * ZIP. No form and no `data-unlock-key`, so the sign-up script leaves it alone. It wears the opt-in
+ * card's classes (`optin`, `locked`, `form`, `legal`) to sit and look the same: guides.css and
+ * skills.css are inlined into the free skill's page too, which stays as it was.
+ */
+function libraryCard(guide: Guide): string {
   const l = SHARED.skillLibrary;
+  const how = setupSteps(guide);
   return [
     `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library>`,
     `<div class="locked">`,
@@ -290,8 +308,11 @@ function libraryCard(): string {
     `<p class="legal">${esc(l.signIn.lead)} <a href="${esc(l.signIn.href)}">${esc(l.signIn.label)}</a></p>`,
     `</div>`,
     `</div>`,
+    how ? `<div class="library-setup">\n${how}\n</div>` : '',
     `</section>`,
-  ].join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 /**
@@ -316,7 +337,7 @@ function needCta(guide: Guide, className: string): string {
  * `data-state="unlocked"` on the card, and remembers that under the card's `data-unlock-key`.
  */
 function optIn(guide: Guide): string {
-  if (inSkillLibrary(guide)) return libraryCard();
+  if (inSkillLibrary(guide)) return libraryCard(guide);
   const o = guide.optIn;
   const d = guide.download;
   const form = [
@@ -335,7 +356,7 @@ function optIn(guide: Guide): string {
     `<h2 id="download-heading">${esc(d.heading)}</h2>`,
     `<p>${esc(d.body)}</p>`,
     d.handoff ? handoff(d.handoff) : '',
-    d.setup && d.chatgpt ? appSetups(guide, d.setup, d.chatgpt) : d.setup ? setup(guide, d.setup) : downloadButton(guide),
+    setupSteps(guide) || downloadButton(guide),
     `</div>`,
   ]
     .filter(Boolean)
@@ -540,13 +561,12 @@ function footer(extraClass = ''): string {
   ].join('\n');
 }
 
-/** Whether anything on the page copies, and so needs the toast that says it did. A paid skill's setup is not drawn. */
+/** Whether anything on the page copies, and so needs the toast that says it did. A paid page draws its setup too (D-101). */
 const copies = (guide: Guide) =>
   guide.sections.some((s) => s.kind === 'prompts') ||
-  (!inSkillLibrary(guide) &&
-    [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? [])].some(
-      (s) => s.copy !== undefined || s.copyBlock !== undefined,
-    ));
+  [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? [])].some(
+    (s) => s.copy !== undefined || s.copyBlock !== undefined,
+  );
 
 /** Everything inside <body>. */
 export function renderGuideBody(guide: Guide): string {

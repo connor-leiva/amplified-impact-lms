@@ -1,14 +1,15 @@
-import { isFreeGrokTemplate, PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
-import { isFreeSkill, PAID_DOWNLOADS, SKILL_CATALOG } from '@ai/core/skills';
+import { GROK_TEMPLATES, isFreeGrokTemplate, PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
+import { isFreeSkill, PAID_DOWNLOADS, SETUP_GUIDE_ORIGIN, setupGuideHref, SKILL_CATALOG } from '@ai/core/skills';
 import { describe, expect, it } from 'vitest';
 import { GUIDES, inSkillLibrary, SHARED, type Guide } from './content';
 import { renderGuideBody, renderGuideHead } from './render';
 
-// The skill pages after the launch (D-080, D-082), as they ship: no mocks. A paid skill's page keeps
-// its hero and its sample, and shows the Skill Library card in place of the sign-up and the setup,
-// with no link to any paid ZIP and no opt-in form. A free skill's page keeps its sign-up and its
-// downloads. Which is which is the catalog's call (`FREE_SKILLS`), so nothing here names a skill: the
-// day Connor adds his picks, these tests follow.
+// The skill pages after the launch (D-080, D-082, D-101), as they ship: no mocks. A paid skill's page
+// keeps its hero and its sample, and shows the Skill Library card in place of the sign-up, with the
+// same guided setup under it as the free page, no link to any paid ZIP and no opt-in form: each step's
+// file is a button to the Skill Library. A free skill's page keeps its sign-up and its downloads.
+// Which is which is the catalog's call (`FREE_SKILLS`), so nothing here names a skill: the day Connor
+// adds his picks, these tests follow.
 
 const parse = (guide: Guide) =>
   new DOMParser().parseFromString(
@@ -31,6 +32,15 @@ describe('the catalog and the pages', () => {
     expect(PAGES.map((g) => g.skill).sort()).toEqual(SKILL_CATALOG.map((s) => s.id).sort());
   });
 
+  it('gives every skill and template in the Skill Library a Setup Guide link to its own page (D-101)', () => {
+    for (const s of SKILL_CATALOG) {
+      const slug = setupGuideHref(s.id).replace(`${SETUP_GUIDE_ORIGIN}/`, '');
+      expect(GUIDES[slug]?.skill, s.id).toBe(s.id);
+    }
+    for (const g of GROK_TEMPLATES) expect(GUIDES[setupGuideHref(g.id).replace(`${SETUP_GUIDE_ORIGIN}/`, '')]?.grok, g.id).toBe(g.id);
+    expect(SETUP_GUIDE_ORIGIN).toBe('https://www.amplifiedimpact.io');
+  });
+
   it('names each page’s skill by its ZIP, which is not always the slug', () => {
     for (const g of PAGES) expect(g.download.href, g.slug).toBe(`/downloads/${entryFor(g)?.files.claude}`);
     expect(GUIDES['content-strategist']?.skill).toBe('content-opportunity-research');
@@ -46,7 +56,7 @@ describe('the catalog and the pages', () => {
   });
 });
 
-describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%s (D-082)', (slug, guide) => {
+describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%s (D-082, D-101)', (slug, guide) => {
   const doc = parse(guide);
   const html = doc.documentElement.outerHTML;
   const card = doc.getElementById(SHARED.skillLibrary.anchor);
@@ -80,21 +90,52 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
     }
     expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Amplified Skill Library');
     expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Amplified Skill Library in the Amplified Impact platform.');
-    const links = Array.from(card?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
+    const top = card?.querySelector(':scope > .locked');
+    const links = Array.from(top?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
     expect(links).toEqual([
       ['See Plans', '/offer#plans', false],
       ['Sign In', 'https://learn.amplifiedimpact.io/skill-library', false],
     ]);
-    expect(card?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe('/offer#plans');
+    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe('/offer#plans');
   });
 
-  it('links no paid ZIP, and no download at all: no setup, no file to save', () => {
+  it('links no paid ZIP, and no download at all: no file to save, no hand-off to a download', () => {
     for (const file of ALL_PAID_DOWNLOADS) expect(html, file).not.toContain(`/downloads/${file}`);
-    expect($$('a[href^="/downloads/"], a[download], [data-download], #download, .setup, [data-guided], .handoff')).toEqual([]);
+    expect($$('a[href^="/downloads/"], a[download], [data-download], #download, .unlocked, .handoff')).toEqual([]);
+  });
+
+  it('shows the same guided setup as the free page, under the card (D-101)', () => {
+    const d = guide.download;
+    const lists = [d.setup ?? [], ...(d.chatgpt ? [d.chatgpt.setup] : [])];
+    const boxes = Array.from(card?.querySelectorAll(':scope > .library-setup [data-guided]') ?? []);
+    expect(boxes).toHaveLength(lists.length);
+    expect(lists[0]?.length, 'a paid page with steps').toBeGreaterThan(3);
+    lists.forEach((list, i) => {
+      const items = Array.from(boxes[i]?.querySelectorAll('.setup-step') ?? []);
+      expect(items.map((li) => text(li.querySelector('h3'))), slug).toEqual(list.map((s) => s.title));
+      list.forEach((s, n) => {
+        const li = items[n];
+        // Every word to say, copy-ready, exactly as the free page has it.
+        for (const words of [s.copy, s.copyBlock].filter((w): w is string => w !== undefined)) {
+          expect(Array.from(li?.querySelectorAll('[data-copy-text]') ?? []).map((el) => el.textContent), s.title).toContain(words);
+        }
+        // A file is a button to the Skill Library; any other button is as on the free page.
+        const buttons = Array.from(li?.querySelectorAll('a.btn:not(.copy-open)') ?? []).map((a) => [text(a), a.getAttribute('href')]);
+        if (s.action === 'download' || (s.action !== undefined && s.action.download !== undefined)) {
+          expect(buttons, s.title).toEqual([[SHARED.skillLibrary.get.label, SHARED.skillLibrary.get.href]]);
+        } else if (s.action !== undefined) {
+          expect(buttons, s.title).toEqual([[s.action.label, s.action.href]]);
+        } else {
+          expect(buttons, s.title).toEqual([]);
+        }
+      });
+    });
+    expect(doc.getElementById('guide-live')?.getAttribute('role')).toBe('status');
   });
 
   it('has no opt-in form: nothing posts to its sign-up route', () => {
-    expect($$('form, input, button[type="submit"], [data-unlock-key]')).toEqual([]);
+    // The app switch's two radio buttons are the only inputs, and post nothing.
+    expect($$('form, input:not(.app-radio), button[type="submit"], [data-unlock-key]')).toEqual([]);
     expect(html).not.toContain(`/api/${slug}`);
   });
 
@@ -133,7 +174,7 @@ describe.each(FREE.map((g) => [g.slug, g] as const))('free /%s', (slug, guide) =
 
 describe('the card’s words', () => {
   const l = SHARED.skillLibrary;
-  const words = [l.heading, l.body, l.plans.label, l.signIn.lead, l.signIn.label];
+  const words = [l.heading, l.body, l.plans.label, l.signIn.lead, l.signIn.label, l.get.label];
 
   it('follow the house rules: no em dashes, no exclamation marks, no slop words', () => {
     for (const w of words) {
@@ -143,7 +184,9 @@ describe('the card’s words', () => {
   });
 
   it('give the buttons Title Case labels, and the sentence a full stop', () => {
-    expect([l.plans.label, l.signIn.label]).toEqual(['See Plans', 'Sign In']);
+    expect([l.plans.label, l.signIn.label, l.get.label]).toEqual(['See Plans', 'Sign In', 'Get It in the Skill Library']);
+    // The setup's button goes where the sign-in goes: the platform's Skill Library.
+    expect(l.get.href).toBe(l.signIn.href);
     expect(l.body).toMatch(/^[A-Z][^.]*\.$/);
   });
 });

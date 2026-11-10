@@ -113,7 +113,16 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
     const steps = guide?.download.setup ?? [];
     const step = (title: string) => steps.find((s) => s.title === title);
     const name = nameOf(source);
-    expect(step('Save the Template as a Skill')?.copyBlock).toBe(`Save these instructions as a skill called "${name}". Keep them exactly as written.\n\n${source.trimEnd()}`);
+    const save = `Save these instructions as a skill called "${name}". Keep them exactly as written.`;
+    if (isFreeGrokTemplate(id)) {
+      expect(step('Save the Template as a Skill')?.copyBlock).toBe(`${save}\n\n${source.trimEnd()}`);
+    } else {
+      // A paid template's words are in the Skill Library (D-101): the step copies only what to paste
+      // them under, and says where they are.
+      expect(step('Save the Template as a Skill')?.copy).toBe(save);
+      expect(step('Save the Template as a Skill')?.copyBlock).toBeUndefined();
+      expect(JSON.stringify(step('Save the Template as a Skill')?.body)).toContain('SKILL.md');
+    }
     expect(step('Answer the Setup Questions')?.copy).toContain(`@${name}`);
     const routine = routineOf(source);
     const schedule = step('Set the Schedule');
@@ -168,6 +177,13 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
       expect(doc.querySelector('form')).toBeNull();
       expect(doc.body.innerHTML).not.toContain(`/downloads/${template.file}`);
       expect(guide.facts?.[0]).toBe('In the Amplified Skill Library');
+      // The guided setup shows (D-101), and the template's own procedure stays in the Skill Library.
+      expect(doc.querySelectorAll('#skill-library .library-setup .setup-step')).toHaveLength(7);
+      const procedure = (source.split('\n## Procedure')[1] ?? '').split('\n## ')[0] ?? '';
+      const lines = procedure.split('\n').map((l) => l.replace(/[*`#]/g, '').replace(/^\s*(\d+\.|-)\s*/, '').trim()).filter((l) => l.length > 40);
+      expect(lines.length).toBeGreaterThan(2);
+      const page = text(doc.body);
+      for (const line of lines) expect(page, line).not.toContain(line);
     }
   });
 
@@ -185,7 +201,8 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
     const doc = parse(guide);
     expect(doc.querySelector('a.copy-open, [data-copy-open]')).toBeNull();
     const copies = Array.from(doc.querySelectorAll('[data-copy]'));
-    if (isFreeGrokTemplate(id)) expect(copies.length).toBeGreaterThan(0);
+    // Free or paid, the setup's words copy (D-101).
+    expect(copies.length).toBeGreaterThan(0);
     for (const c of copies) expect(c.getAttribute('data-toast')).toBe('Copied. Paste it into Grok Bot.');
   });
 });

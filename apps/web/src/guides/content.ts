@@ -15,9 +15,10 @@
 //
 // A PAID SKILL (D-080, D-082). Every skill page names its skill in the library's catalog (`skill`).
 // Unless `FREE_SKILLS` names it, the skill is in the Skill Library on the platform: its page keeps
-// the hero and the sample, and shows the Skill Library card in place of the sign-up and the setup,
-// with no link to a ZIP (`inSkillLibrary`). Its own words and setup stay in its file, so naming it in
-// `FREE_SKILLS` brings the download back with no other edit.
+// the hero and the sample, and shows the Skill Library card in place of the sign-up, with no link to
+// a ZIP (`inSkillLibrary`). The card holds the same guided setup as the free page (D-101), and each
+// step's file is a button to the Skill Library instead of a download. Its own words and setup stay in
+// its file, so naming it in `FREE_SKILLS` brings the download back with no other edit.
 //
 // Nothing here is markup: `render.ts` escapes every string. House rules: no em dashes, short plain
 // sentences.
@@ -435,6 +436,9 @@ export const SHARED = {
     body: 'This skill is part of the Amplified Skill Library in the Amplified Impact platform.',
     plans: { label: 'See Plans', href: '/offer#plans' },
     signIn: { lead: 'Already bought a plan?', label: 'Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
+    // A setup step's file, on a paid page (D-101): the same step, with its file in the Skill Library,
+    // which is where a paid ZIP is downloaded.
+    get: { label: 'Get It in the Skill Library', href: 'https://learn.amplifiedimpact.io/skill-library' },
   },
   footer: {
     byline: 'By Connor Leiva',

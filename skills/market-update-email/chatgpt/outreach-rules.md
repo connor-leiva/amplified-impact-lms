@@ -6,6 +6,16 @@ This is a plain-language summary for drafting messages. It is not legal advice.
 
 Anything this file could not confirm says "confirm with your broker or an attorney."
 
+## Conservative Defaults
+
+Some rules here are stricter than the law requires. They are our conservative defaults, and a user can calibrate them with their own legal counsel:
+- Every email carries the full footer: the opt-out line, the postal address and the line that says it is a marketing email, even a one-to-one note to a client or a reply to a lead who asked to hear back.
+- No calls or voicemails on a Sunday or a legal holiday, even where a licensee exemption applies (in Utah, Utah Code 13-25a-111) and even with written consent. Texts and emails keep their day.
+- Consent that names only a portal, a lead company or "real estate professionals," and not the user's team or brokerage, does not allow texts until the user's broker confirms it covers them.
+- No reward of any kind for a review: no gift, gift card, discount, drawing or donation, before or after, tied to the rating or not.
+
+Keep each default unless the user says their own legal counsel approved a different rule. Then follow theirs, and say so in "Check before sending." These defaults never loosen the federal and state rules below.
+
 ## Checklist for Skills That Draft Outreach
 
 Use this on every nurture or recruiting draft (database-health-check, recruiting-prep, and any skill that copies this file).
@@ -13,7 +23,7 @@ Use this on every nurture or recruiting draft (database-health-check, recruiting
 Texts
 1. Draft a text only for a contact the user confirms has documented consent to get marketing texts from them: a written, signed record that names their team or brokerage and the phone number. E-signatures can count.
 2. Never infer consent from a phone number being present. A number in the CRM, on a lead form, in an MLS roster or in an email signature is not consent.
-3. For purchased or shared leads, ask the user to confirm the consent record names their team or brokerage. If not, no text.
+3. For purchased, portal or shared leads, ask the user to confirm the consent record names their team or brokerage. If it names only the portal, the lead company or "real estate professionals," no text until the broker confirms it covers them (a conservative default).
 4. Treat a recruiting text to an agent like a marketing text. Same consent rule.
 5. No consent on record: draft an email instead, or list the contact for the user to handle.
 6. Leave out any contact marked opted out, unsubscribed, STOP, or Do Not Call. List them for the user.
@@ -27,12 +37,14 @@ Emails
 2. Every email includes an opt-out line and link, such as "To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]."
 3. Every email includes the sender's postal address placeholder: [Sender Postal Address].
 4. The From name is the real sender. The subject line matches what the email says. No subject that pretends to be a reply or a forward.
-5. Unless the user confirms the contact asked for these emails, add a plain footer line that says what it is, such as "This is a marketing email from [Agent Name], [Brokerage Name]." For recruiting: "This is a recruiting message from [Agent Name], [Team Name]." Confirm the wording with your broker.
+5. Add a plain footer line that says what it is to every email, even when the contact asked for it, such as "This is a marketing email from [Agent Name], [Brokerage Name]." For recruiting: "This is a recruiting message from [Agent Name], [Team Name]." This includes a one-to-one note to a client (a conservative default). Confirm the wording with your broker.
 6. Never suggest selling, sharing or handing off a list that includes people who opted out.
 
 Both
 1. Drafts only. The user sends.
 2. Put these in "Check before sending": consent records for every text, a Do Not Call scrub, quiet hours, a working unsubscribe link, the real postal address, and the user's state rules (confirm with your broker or an attorney).
+3. Never schedule a call or voicemail on a Sunday or a legal holiday. Move it to the next day that is neither, and say why in one line (a conservative default).
+4. Never offer or suggest a reward of any kind for a review (a conservative default).
 
 MLS data
 1. Before using an MLS production report for recruiting, ask the user to confirm their MLS rules allow that use, including putting MLS data into an AI tool.
@@ -166,7 +178,7 @@ Business-to-business email is covered. In 2005 the FTC noted that the Act's text
 
 Primary purpose, in short:
 - An email that mixes a promotion with other content is commercial if the subject line would lead a reasonable reader to think it promotes something, or if the body's main purpose is promotion. (16 CFR 316.3)
-- An email that only confirms a transaction the person already agreed to, such as a closing update to a current client, is transactional.
+- An email that only confirms a transaction the person already agreed to, such as a closing update to a current client, is transactional. Our skills still add the full footer to every email they draft as outreach (a conservative default).
 - Market updates, check-ins and "thinking of selling?" emails that promote your services: treat as commercial.
 
 ## MLS Data for Recruiting

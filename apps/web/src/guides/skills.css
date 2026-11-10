@@ -522,6 +522,19 @@
 .sk .unlocked > p {
   color: var(--text-secondary);
 }
+/* A paid skill's setup (D-101): the unlocked card's look, under the Skill Library card, always shown. */
+.sk .library-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--bg-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--line-default),
+    var(--shadow-xs);
+}
 
 /* The app switch, quieter: a light track, the chosen app in green (the rules above). */
 .sk .apps {
@@ -1105,7 +1118,8 @@
     top: 24px;
     align-self: start;
   }
-  .sk .optin[data-state='unlocked'] {
+  .sk .optin[data-state='unlocked'],
+  .sk .optin[data-skill-library] {
     position: static;
   }
   .sk .optin:has(.unlocked:target) {

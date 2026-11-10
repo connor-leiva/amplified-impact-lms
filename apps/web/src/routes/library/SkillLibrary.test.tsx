@@ -44,8 +44,14 @@ describe('the skill library screen', () => {
     expect(within(owner).getByRole('link', { name: COPY.files.claude })).toHaveAttribute('href', '/api/skills/team-pnl-review/download/claude');
     expect(within(owner).getByRole('link', { name: COPY.files.practice })).toBeInTheDocument();
 
+    // Beside the downloads, the skill's guided setup on its www page, in a new tab (D-101).
+    const guide = within(owner).getByRole('link', { name: COPY.guide });
+    expect(guide).toHaveAttribute('href', 'https://www.amplifiedimpact.io/team-pnl-review');
+    expect(guide).toHaveAttribute('target', '_blank');
+
     const agent = screen.getByRole('region', { name: COPY.sets.agent });
     expect(within(agent).queryByRole('link', { name: COPY.files.claude })).toBeNull();
+    expect(within(agent).queryByRole('link', { name: COPY.guide })).toBeNull();
     expect(within(agent).getByText(COPY.locked)).toBeInTheDocument();
     expect(within(agent).getByRole('link', { name: COPY.seePlans })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/offer#plans');
 
@@ -74,6 +80,15 @@ describe('the skill library screen', () => {
     const link = await screen.findByRole('link', { name: COPY.files.grok });
     expect(link).toHaveAttribute('href', '/api/skills/month-end-close/download/grok');
     expect(COPY.files.grok).toBe('Download for Grok Bot');
+    expect(screen.getByRole('link', { name: COPY.guide })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/month-end-close');
+  });
+
+  it('sends a skill whose page has another name to that page (D-101)', async () => {
+    fetchMock.mockResolvedValue(
+      answer(200, { skills: [skill({ id: 'content-opportunity-research', title: 'Content Strategist', sets: 'both', files: ['claude'] })] }),
+    );
+    render(<SkillLibrary />);
+    expect(await screen.findByRole('link', { name: COPY.guide })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/content-strategist');
   });
 
   it('says so when the list fails to load', async () => {

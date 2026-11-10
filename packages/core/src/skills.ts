@@ -7,10 +7,11 @@
 // two-new-skills-a-month rule with its own date.
 //
 // FREE FAILS CLOSED. A skill is free only when it is listed in `FREE_SKILLS`: Appointment Follow-Up
-// (the Follow Up Boss follow-up skill) and Connor's two picks, Database Health Check and Team P&L
-// Review (2026-11-10). The voice profile and the time audit are guides, not ZIPs, and stay public as
-// they are. Every other ZIP is paid: `server.ts` stops serving it from `/downloads`, and its page shows
-// a preview with the Skill Library card instead of the download (D-082).
+// (the Follow Up Boss follow-up skill), Connor's two picks, Database Health Check and Team P&L Review
+// (2026-11-10), and AI Brain Setup, the foundation the other skills build on (D-101). The voice profile
+// and the time audit are guides, not ZIPs, and stay public as they are. Every other ZIP is paid:
+// `server.ts` stops serving it from `/downloads`, and its page shows a preview and the guided setup
+// with the Skill Library card instead of the download (D-082, D-101).
 
 import type { SkillSet } from './offer';
 
@@ -22,6 +23,8 @@ export interface CatalogSkill {
   sets: SkillSet;
   /** The ZIPs this skill ships as, by kind; the file names under `apps/web/public/downloads`. */
   files: { claude?: string; chatgpt?: string; practice?: string };
+  /** Its www page's path, when it is not the id (D-101): where its guided setup is. */
+  page?: string;
 }
 
 /**
@@ -37,6 +40,8 @@ export const FREE_SKILLS: readonly string[] = [
   // Connor's two picks (2026-11-10).
   'database-health-check',
   'team-pnl-review',
+  // The library's foundation, which the other skills build on (Connor, 2026-11-10, D-101).
+  'ai-brain-setup',
 ];
 
 const zips = (id: string, withChatgpt: boolean, withPractice = true): CatalogSkill['files'] => ({
@@ -66,7 +71,7 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'ai-brain-setup', title: 'AI Brain Setup', summary: 'Interviews an agent or team leader and builds their Claude workspace: instructions, a business file and memory.', sets: 'both', files: zips('ai-brain-setup', true) },
   { id: 'ai-brain-tuneup', title: 'AI Brain Tune-Up', summary: "Audits the AI's project instructions, files and memory, and hands back clean instructions to paste in.", sets: 'both', files: zips('ai-brain-tuneup', true) },
   { id: 'perfect-week', title: 'Perfect Week', summary: 'Plans an ideal working week from the real calendar and task list.', sets: 'both', files: zips('perfect-week', false) },
-  { id: 'content-opportunity-research', title: 'Content Strategist', summary: "Weekly Instagram research and five ideas built on the creator's own stories.", sets: 'both', files: zips('content-opportunity-research', false) },
+  { id: 'content-opportunity-research', title: 'Content Strategist', summary: "Weekly Instagram research and five ideas built on the creator's own stories.", sets: 'both', files: zips('content-opportunity-research', false), page: 'content-strategist' },
   { id: 'reel-editor', title: 'Reel Editor', summary: 'Edits a filmed talking-head video into a Reel.', sets: 'both', files: { claude: 'reel-editor.zip' } },
   // For agents.
   { id: 'appointment-follow-up', title: 'Appointment Follow-Up', summary: 'Turns an appointment transcript into the recap email and the Follow Up Boss note.', sets: 'agent', files: zips('appointment-follow-up', true) },
@@ -91,6 +96,14 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
 ];
 
 export const isFreeSkill = (id: string): boolean => FREE_SKILLS.includes(id);
+
+/**
+ * The www page with a skill's guided setup, step by step (D-101), which the Skill Library links to
+ * beside its downloads. A Grok Bot template's page is its id, as is almost every skill's.
+ */
+export const SETUP_GUIDE_ORIGIN = 'https://www.amplifiedimpact.io';
+export const setupGuideHref = (id: string): string =>
+  `${SETUP_GUIDE_ORIGIN}/${SKILL_CATALOG.find((s) => s.id === id)?.page ?? id}`;
 
 /** Every ZIP that stops being a public file (D-082): each paid skill's files. */
 export const PAID_DOWNLOADS: readonly string[] = SKILL_CATALOG.filter((s) => !isFreeSkill(s.id)).flatMap((s) =>

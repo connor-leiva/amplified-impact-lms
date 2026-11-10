@@ -3,10 +3,8 @@
 // questions at a time and hands back their Claude setup, ready to paste: How I Like to Work (account
 // Instructions), Project Instructions with a compliance section, an About My Business file for the
 // project's knowledge, and Facts to Remember for memory, each labeled with exactly where it goes. What
-// every skill page says the same way is in `skill-page.ts` (D-052). The skill is paid unless Connor
-// decides otherwise (in the Amplified Skill Library, both sets), so the page is drawn with the Skill
-// Library card in place of the sign-up and the setup (D-082); the free words and the setup below stay
-// for the day it is free.
+// every skill page says the same way is in `skill-page.ts` (D-052). The skill is free (Connor,
+// 2026-11-10, D-101: `FREE_SKILLS`), so the page has the sign-up and the downloads, as written here.
 //
 // The words come from the skill itself (SKILL.md and references/brain-templates.md, claude-workspace.md
 // and utah-brain-notes.md), its page notes and its graded runs (the practice run 12 of 12, eval 1 13 of

@@ -337,6 +337,15 @@ a.item-body:hover {
   gap: 10px;
   padding: 8px 0;
 }
+/* The general note (D-101): quiet, under the lists, above the footer. */
+.library-note {
+  max-width: 68ch;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-default);
+  font-size: 15px;
+  color: var(--text-secondary);
+}
 .clear {
   min-height: 44px;
   padding: 0;
