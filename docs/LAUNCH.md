@@ -170,7 +170,7 @@ from `Cohort.cadence` instead of being fixed to the December cohort's rhythm.
 
 ## 8. The offer launch (Forum, Nov 13 to 15)
 
-The carts, the webhook and the accounts are built (DECISIONS.md D-072 to D-081, proposed). What is
+The carts, the webhook and the accounts are built (DECISIONS.md D-073 to D-082, proposed). What is
 left needs an account, a credential or a person. Grokbok's part is in `docs/STRIPE-HANDOFF.md`.
 
 **Before Thursday, Nov 12**

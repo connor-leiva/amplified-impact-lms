@@ -1,4 +1,4 @@
-// /agreement: the subscription agreement every offer order records (DECISIONS.md D-072).
+// /agreement: the subscription agreement every offer order records (DECISIONS.md D-073).
 //
 // A DRAFT FOR SPRING'S ATTORNEY. The spec has the attorney approve this text before the carts open on
 // Thursday, Nov 12; until then the page says it is a draft, asks search engines not to index it, and

@@ -165,7 +165,7 @@ export interface BuildOptions {
    */
   waitlist?: boolean;
   /**
-   * The offer (D-072 to D-076): its built pages and, for a test, its configuration, Stripe client and
+   * The offer (D-073 to D-077): its built pages and, for a test, its configuration, Stripe client and
    * price cache. Left out, the configuration is read from the environment and the client is made from
    * `STRIPE_SECRET_KEY` when one is set. The routes are registered in both modes, like /ai101; the ones
    * that need a database follow `waitlist`. `routes/offer.ts`.
@@ -460,7 +460,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   registerGuidePages(app, options.guidePages);
   registerLibraryPage(app, options.libraryPage ?? null);
 
-  // The offer (D-072 to D-076): its pages in both modes, its order, webhook and waitlist routes
+  // The offer (D-073 to D-077): its pages in both modes, its order, webhook and waitlist routes
   // wherever there is a database, like the waitlist above.
   {
     const config = options.offer?.config ?? readOfferConfig();
@@ -501,7 +501,7 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerSnapshotRoute(app);
     registerJoinRoute(app);
     registerFilesRoutes(app);
-    // The skill library (D-078): signed in, like the Vault beside it.
+    // The skill library (D-079): signed in, like the Vault beside it.
     registerSkillRoutes(app);
     registerMutateRoute(app, { broadcast });
 

@@ -1,4 +1,4 @@
-// The skill library's API (D-078): what a signed-in learner's account can open, and the download.
+// The skill library's API (D-079): what a signed-in learner's account can open, and the download.
 //
 //   GET /api/skills                     → every published skill, each `open`, `locked` or `upcoming`
 //   GET /api/skills/:id/download/:kind  → 302 to a short-lived link, or 403 when `canOpenSkill` says no

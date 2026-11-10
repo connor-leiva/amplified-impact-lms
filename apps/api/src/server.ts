@@ -117,7 +117,7 @@ const ai101Page = readBuilt(ai101Html);
 const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readBuilt(guideHtml(slug))]));
 // The free library that lists them (D-050), which has an inline script of its own.
 const libraryPage = readBuilt(fileURLToPath(new URL('../../web/dist/library.html', import.meta.url)));
-// The offer's pages (D-074): the offer and the page after Stripe each carry one inline script; the
+// The offer's pages (D-075): the offer and the page after Stripe each carry one inline script; the
 // agreement is a legal page and carries none.
 const offerPage = readBuilt(fileURLToPath(new URL('../../web/dist/offer.html', import.meta.url)));
 const welcomePage = readBuilt(fileURLToPath(new URL('../../web/dist/offer-welcome.html', import.meta.url)));
@@ -160,7 +160,7 @@ if (existsSync(webDist)) {
       'offer-welcome.html',
       'agreement.html',
       ...GUIDE_SLUGS.map((slug) => `${slug}.html`),
-      // Paid skills are not public files (D-081): they live in the bucket and open through the
+      // Paid skills are not public files (D-082): they live in the bucket and open through the
       // platform's library. `PAID_DOWNLOADS` names them; `test/paid-skills.test.ts` holds the list.
       ...PAID_DOWNLOADS.map((file) => `downloads/${file}`),
     ],
@@ -177,7 +177,7 @@ if (existsSync(webDist)) {
   app.setNotFoundHandler((req, reply) =>
     req.url.startsWith('/api/')
       ? reply.code(404).send({ error: 'Not found' })
-      : // A file no route serves, such as a paid skill's old ZIP (D-081), is a plain 404, never the SPA.
+      : // A file no route serves, such as a paid skill's old ZIP (D-082), is a plain 404, never the SPA.
         req.url.startsWith('/downloads/')
         ? reply.code(404).type('text/plain; charset=utf-8').send('Not found')
         : reply.sendFile('index.html'),
@@ -223,7 +223,7 @@ startScheduler({ fixtureOnly, log: app.log });
 // program's emails, which is the distinction the comment above draws. Off and saying so otherwise.
 startGhlSync({ waitlist: databaseConfigured(), log: app.log });
 
-// The offer (D-072 to D-077): say once what is on and in which mode, never a secret, and send the
+// The offer (D-073 to D-078): say once what is on and in which mode, never a secret, and send the
 // owner invites held for Monday once Monday comes.
 app.log.info(describeOfferConfig(offerConfig), 'offer configuration');
 // Not in fixture mode: there is no sign-in to invite anyone to, so invites wait for the http deploy.

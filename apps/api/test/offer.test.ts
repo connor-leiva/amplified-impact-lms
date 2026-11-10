@@ -1,4 +1,4 @@
-// The offer, end to end against Postgres with a stubbed Stripe (D-072 to D-078): the spec's test plan,
+// The offer, end to end against Postgres with a stubbed Stripe (D-073 to D-079): the spec's test plan,
 // as far as it can run without Stripe's own test mode. Webhook events are signed exactly as Stripe signs
 // them (`generateTestHeaderString`); Checkout Sessions are created against a stub that records what it
 // was asked for. No network.
@@ -195,7 +195,7 @@ const invoice = (sub: string, amount: number, periodEnd: number, meta: Record<st
   lines: { data: [{ period: { start: Math.floor(NOW_MS / 1000), end: Math.floor(periodEnd / 1000) } }] },
 });
 
-describe('POST /api/checkout (D-072, D-076)', () => {
+describe('POST /api/checkout (D-073, D-077)', () => {
   beforeEach(async () => void (await fresh()));
 
   it('writes a pending order with the consent proof, then opens a session for it', async () => {
@@ -283,7 +283,7 @@ describe('POST /api/checkout (D-072, D-076)', () => {
   });
 });
 
-describe('the offer pages (D-074)', () => {
+describe('the offer pages (D-075)', () => {
   beforeEach(async () => void (await fresh()));
 
   it('fills prices and state, records the forum campaign on /forum only, and lets the form reach Stripe', async () => {
@@ -335,7 +335,7 @@ describe('the offer pages (D-074)', () => {
   });
 });
 
-describe('POST /api/stripe/webhook (D-074, D-076, D-077)', () => {
+describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
   beforeEach(async () => void (await fresh()));
 
   it('16: refuses a bad signature, and counts a repeated event once', async () => {
@@ -544,7 +544,7 @@ describe('POST /api/stripe/webhook (D-074, D-076, D-077)', () => {
   });
 });
 
-describe('the skill library (D-078)', () => {
+describe('the skill library (D-079)', () => {
   beforeEach(async () => void (await fresh()));
 
   it('15: a locked skill is 403 and an open one is listed open', async () => {
@@ -567,7 +567,7 @@ describe('the skill library (D-078)', () => {
   });
 });
 
-describe('www routing (D-074, D-051)', () => {
+describe('www routing (D-075, D-051)', () => {
   afterEach(() => {
     delete process.env.MARKETING_HOST;
   });

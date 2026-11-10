@@ -1,4 +1,4 @@
-// The offer's words that exist twice, held equal (D-074): what a buyer saw on the page is what the
+// The offer's words that exist twice, held equal (D-075): what a buyer saw on the page is what the
 // order stores as proof. The API cannot import the web app at runtime, but a test can read it.
 
 import { describe, expect, it } from 'vitest';
@@ -6,7 +6,7 @@ import { AGREEMENT_VERSION, CHECKOUT_ERRORS, OFFER_SMS_CONSENT_TEXT } from '../s
 import { CHECKOUT } from '../../web/src/offer/content';
 import { AGREEMENT_VERSION as WEB_AGREEMENT_VERSION } from '../../web/src/legal/agreement';
 
-describe('the offer copy shared with the page (D-074)', () => {
+describe('the offer copy shared with the page (D-075)', () => {
   it('stores the SMS box exactly as the page shows it', () => {
     expect(CHECKOUT.sms).toBe(OFFER_SMS_CONSENT_TEXT);
   });

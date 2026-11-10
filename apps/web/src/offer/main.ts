@@ -1,4 +1,4 @@
-// The offer page's one script (D-074). Everything it does is an enhancement: with no script the form
+// The offer page's one script (D-075). Everything it does is an enhancement: with no script the form
 // posts to `/api/checkout` and the browser follows the API's 303 to Stripe, and every field and box
 // shows. With it:
 //

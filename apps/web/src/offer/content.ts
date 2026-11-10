@@ -1,4 +1,4 @@
-// Every word on /offer (and /forum) and /offer/welcome (DECISIONS.md D-074).
+// Every word on /offer (and /forum) and /offer/welcome (DECISIONS.md D-075).
 //
 // THE ONLY FILE TO EDIT WHEN THE WORDS CHANGE. `render.ts` turns it into HTML at build time; the API
 // fills the prices and dates per request (`%%tokens%%`, @ai/core/offer). Nothing here is markup.

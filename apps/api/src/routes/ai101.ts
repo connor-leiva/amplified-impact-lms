@@ -212,7 +212,7 @@ const SIGN_UP_FORMS: readonly SignUpForm[] = [
     team: false,
     label: 'ai101 waitlist',
   },
-  // The cohort waitlist on the offer page (D-076): a team not on Follow Up Boss, or one that missed
+  // The cohort waitlist on the offer page (D-077): a team not on Follow Up Boss, or one that missed
   // the founding cohort, leaves a name and an address for cohort two. No SMS box on that form.
   {
     path: '/api/offer/waitlist',

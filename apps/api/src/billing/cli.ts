@@ -1,4 +1,4 @@
-// Staff commands for the offer (D-077, D-078). Run against the database `DATABASE_URL` names.
+// Staff commands for the offer (D-078, D-079). Run against the database `DATABASE_URL` names.
 //
 //   pnpm --filter @ai/api provision --order <id> [--invite-now]
 //       Re-runs provisioning for one paid order: finds or creates the account, the plan and the owner,

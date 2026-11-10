@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { validate } from './main';
 import { guideFor, renderGuideBody } from './render';
 
-// The Reel Editor and Offer Strategy are paid (D-081): their live pages show the Skill Library card, with
+// The Reel Editor and Offer Strategy are paid (D-082): their live pages show the Skill Library card, with
 // no sign-up and no setup (`skill-library.test.ts`). Their setup stays in their files for the day
 // `FREE_SKILLS` names them, and it is the fullest markup to run the script against, so this file draws
 // them as that day will: free. A paid page through the script is the last group below.
@@ -635,7 +635,7 @@ describe('a skill page (D-071)', () => {
   });
 });
 
-describe('a paid skill page (D-081)', () => {
+describe('a paid skill page (D-082)', () => {
   // Pricing Conversation Prep: paid, and drawn as it ships, with the Skill Library card in the
   // sign-up's place.
   const bootPaid = (before?: () => void) => boot('/pricing-conversation-prep', before, 'pricing-conversation-prep');

@@ -1,4 +1,4 @@
-// The few Stripe calls the offer makes, behind one small interface (D-072).
+// The few Stripe calls the offer makes, behind one small interface (D-073).
 //
 // Everything that talks to Stripe goes through `BillingStripe`, so the checkout route and the
 // webhook can be tested against a stub with no network (the spec's "tests without the network"), and

@@ -1,4 +1,4 @@
-// /offer/welcome's one script (D-074): while the payment is confirming, ask the API every few seconds
+// /offer/welcome's one script (D-075): while the payment is confirming, ask the API every few seconds
 // whether the webhook has landed, and reload into the confirmed page when it has. Without a script the
 // page says to refresh in a minute. After two minutes, longer than Stripe takes, it shows "No checkout found".
 

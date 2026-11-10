@@ -4,7 +4,7 @@ import { render, screen, within } from '@testing-library/react';
 import SkillLibrary, { COPY } from './SkillLibrary';
 import type { LibrarySkill } from './SkillLibrary';
 
-// /skill-library (D-078): open skills download, locked ones point to the plans, upcoming ones say when.
+// /skill-library (D-079): open skills download, locked ones point to the plans, upcoming ones say when.
 
 const skill = (over: Partial<LibrarySkill>): LibrarySkill => ({
   id: 'team-pnl-review',

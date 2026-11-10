@@ -1,4 +1,4 @@
-// The offer's pure rules (D-072 to D-078), without a database or a network: the Stripe contract each
+// The offer's pure rules (D-073 to D-079), without a database or a network: the Stripe contract each
 // cart is built to, the form's refusals, the access rule, the buyer tags and the page's tokens.
 
 import { describe, expect, it } from 'vitest';
@@ -59,7 +59,7 @@ const session = (cart: (typeof CART_IDS)[number], extra: Partial<Parameters<type
     ...extra,
   });
 
-describe('the Stripe contract (D-072, D-073, D-076)', () => {
+describe('the Stripe contract (D-073, D-074, D-077)', () => {
   it('holds the CHECK constraints and the catalog to the same lists', () => {
     const sql = readFileSync(fileURLToPath(new URL('../../drizzle/0006_offer_billing.sql', import.meta.url)), 'utf8');
     const listIn = (name: string) => sql.match(new RegExp(`"${name}" CHECK \\(.*? in \\(([^)]*)\\)`))?.[1]?.match(/'[^']*'/g)?.map((s) => s.slice(1, -1));
@@ -152,7 +152,7 @@ describe('the Stripe contract (D-072, D-073, D-076)', () => {
   });
 });
 
-describe('the checkout form (D-076)', () => {
+describe('the checkout form (D-077)', () => {
   const ok = { cart: 'library', name: 'Pat Buyer', email: 'Pat@Example.com', agree: 'on', renew: 'on' };
 
   it('accepts a complete form and normalizes it', () => {
@@ -194,7 +194,7 @@ describe('the checkout form (D-076)', () => {
   });
 });
 
-describe('the access rule (D-078)', () => {
+describe('the access rule (D-079)', () => {
   const skill = (over: Partial<SkillAccess> = {}): SkillAccess => ({ sets: 'owner_ops', free: false, releasedAt: NOW - 10 * DAY, status: 'published', ...over });
   const library = (over: Partial<PlanAccess> = {}): PlanAccess => ({ kind: 'library', status: 'active', paidThrough: NOW + 20 * DAY, liveUntil: NOW + 20 * DAY, ...over });
 
@@ -231,7 +231,7 @@ describe('the access rule (D-078)', () => {
   });
 });
 
-describe('the skill catalog (D-081)', () => {
+describe('the skill catalog (D-082)', () => {
   it('fails closed: only the named skills are free, and every other ZIP is paid', () => {
     expect(FREE_SKILLS.every((id) => SKILL_CATALOG.some((s) => s.id === id))).toBe(true);
     const free = SKILL_CATALOG.filter((s) => FREE_SKILLS.includes(s.id)).flatMap((s) => Object.values(s.files));
@@ -253,7 +253,7 @@ describe('the skill catalog (D-081)', () => {
   });
 });
 
-describe('buyer tags (D-075)', () => {
+describe('buyer tags (D-076)', () => {
   const base = { plan: 'cohort', option: 'two_pay', status: 'paid', paidAt: NOW, paymentFailedAt: null, membershipEndedAt: null, refundedAt: null, campaign: null, smsConsent: false, phone: null };
 
   it('tags a buyer by plan and payment, and the forum when it came through /forum', () => {
@@ -284,7 +284,7 @@ describe('webhook helpers', () => {
   });
 });
 
-describe('the offer page values (D-074)', () => {
+describe('the offer page values (D-075)', () => {
   const config = readOfferConfig({ OFFER_OPEN: 'true', PAYMENT_LINK_COHORT_FULL: 'https://buy.stripe.com/test_x' });
 
   it('opens every cart with prices and Stripe, and closes founding carts after the close', () => {

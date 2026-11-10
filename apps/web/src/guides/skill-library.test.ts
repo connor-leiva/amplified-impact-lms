@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { GUIDES, inSkillLibrary, SHARED, type Guide } from './content';
 import { renderGuideBody, renderGuideHead } from './render';
 
-// The skill pages after the launch (D-079, D-081), as they ship: no mocks. A paid skill's page keeps
+// The skill pages after the launch (D-080, D-082), as they ship: no mocks. A paid skill's page keeps
 // its hero and its sample, and shows the Skill Library card in place of the sign-up and the setup,
 // with no link to any paid ZIP and no opt-in form. A free skill's page keeps its sign-up and its
 // downloads. Which is which is the catalog's call (`FREE_SKILLS`), so nothing here names a skill: the
@@ -40,7 +40,7 @@ describe('the catalog and the pages', () => {
   });
 });
 
-describe.each(PAID.map((g) => [g.slug, g] as const))('paid /%s (D-081)', (slug, guide) => {
+describe.each(PAID.map((g) => [g.slug, g] as const))('paid /%s (D-082)', (slug, guide) => {
   const doc = parse(guide);
   const html = doc.documentElement.outerHTML;
   const card = doc.getElementById(SHARED.skillLibrary.anchor);

@@ -14,7 +14,7 @@
 // steps instead of one button, the download among them, and on a phone a line to finish on a computer
 // with a button that sends the page there. Words to say to Claude are buttons that copy them.
 //
-// A PAID SKILL (D-081). Its page keeps the hero and the sample. The Skill Library card takes the
+// A PAID SKILL (D-082). Its page keeps the hero and the sample. The Skill Library card takes the
 // opt-in card's place, with no form and no setup, so no link to a ZIP is in the markup at all; the
 // buttons that led back up to the opt-in go to the plans instead.
 //
@@ -265,7 +265,7 @@ function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp):
 }
 
 /**
- * A paid skill's card (D-081), where the opt-in was: where the skill is now, the plans, and the
+ * A paid skill's card (D-082), where the opt-in was: where the skill is now, the plans, and the
  * platform's sign-in for people who already bought one. No form and no setup, so the page links no
  * ZIP, and no `data-unlock-key`, so the script leaves it alone. It wears the opt-in card's classes
  * (`optin`, `locked`, `form`, `legal`) to sit and look the same: guides.css and skills.css are inlined
@@ -289,7 +289,7 @@ function libraryCard(): string {
 
 /**
  * The button under "What you need": back up to the opt-in, or, for a paid skill, to the plans
- * (D-081).
+ * (D-082).
  */
 function needCta(guide: Guide, className: string): string {
   if (inSkillLibrary(guide)) {
@@ -683,14 +683,15 @@ function skillSection(guide: Guide, s: Section, i: number): string {
       return band('list', id, [bandHead(id, s.heading), `<ul class="sk-list" role="list">${items}</ul>`].join('\n'));
     }
     case 'tiles': {
-      // Labelled tiles are who does what (Run, Draft, Own): open columns on a white band, the last,
-      // what stays the person's, marked in green. The rest ("What you need") are cards.
-      const roles = s.items.every((it) => it.label);
+      // Who does what (Run, Draft, Own): open columns on a white band, the last, what stays the
+      // person's, marked in green. Every other row of tiles ("What you need", the Reel Editor's two
+      // looks) is cards, each with its small label when it has one.
+      const roles = s.items.map((it) => it.label ?? '').join() === 'Run,Draft,Own';
       const items = s.items
         .map(
           (it) =>
             `<li>` +
-            (it.label ? `<span class="sk-role">${esc(it.label)}</span>` : '') +
+            (it.label ? `<span class="${roles ? 'sk-role' : 'sk-label'}">${esc(it.label)}</span>` : '') +
             `<strong>${esc(it.title)}</strong><span class="sk-body">${esc(it.body)}</span>` +
             (it.tag ? `<span class="sk-tag">${esc(it.tag)}</span>` : '') +
             `</li>`,
@@ -708,8 +709,11 @@ function skillSection(guide: Guide, s: Section, i: number): string {
       return band('pair', null, skillFaq(s, id));
     case 'note':
       return band('note', null, `<p class="crosslink">${inline(s.body)}</p>`);
-    default:
-      // Not on a skill page today: the guide's own markup, in a band.
+    case 'sample':
+    case 'compare':
+    case 'example':
+    case 'report':
+      // A second picture after the hero's (none today): the guide's own markup, in a band.
       return band('other', null, section(guide, s, i));
   }
 }
@@ -732,17 +736,73 @@ function skillSections(guide: Guide, skip: number): string {
   return out.join('\n');
 }
 
-/** A skill page's <body>. */
+/**
+ * The Reel Editor's before and after, beside the opt-in: the raw take and the Reel, side by side, as
+ * the guide draws them (plain videos, nothing fetched but the poster until one plays). Its heading and
+ * line of context are for a screen reader; each clip's caption says what it is.
+ */
+function skillCompare(s: Extract<Section, { kind: 'compare' }>, i: number): string {
+  const id = `s${i + 1}-heading`;
+  const clips = s.clips
+    .map((c) =>
+      [
+        `<figure class="clip">`,
+        `<video controls playsinline preload="none" poster="${esc(c.poster)}" width="${c.width}" height="${c.height}">`,
+        `<source src="${esc(c.src)}" type="video/mp4">`,
+        `</video>`,
+        `<figcaption><span class="clip-label">${esc(c.label)} · ${esc(c.length)}</span> ${esc(c.caption)}</figcaption>`,
+        `</figure>`,
+      ].join(''),
+    )
+    .join('\n');
+  return [
+    `<section class="compare sk-show sk-compare" aria-labelledby="${id}">`,
+    `<h2 id="${id}" class="visually-hidden">${esc(s.heading)}</h2>`,
+    `<p class="visually-hidden">${esc(s.body)}</p>`,
+    `<div class="compare-grid">${clips}</div>`,
+    `</section>`,
+  ].join('\n');
+}
+
+/**
+ * The Task Sync Starter Kit's example, beside the opt-in, as a sheet of paper: its heading as the
+ * sheet's title, the sentence said in the meeting, and the task it becomes in green.
+ */
+function skillExample(s: Extract<Section, { kind: 'example' }>, i: number): string {
+  const id = `s${i + 1}-heading`;
+  const rows = s.task.rows.map((r) => `<div class="row"><dt>${esc(r.label)}</dt><dd>${esc(r.value)}</dd></div>`).join('');
+  return [
+    `<section class="example sk-show sk-example" aria-labelledby="${id}">`,
+    `<div class="sk-sheet">`,
+    `<div class="sample-doc">`,
+    `<h2 id="${id}" class="sample-title">${esc(s.heading)}</h2>`,
+    `<p class="visually-hidden">${esc(s.body)}</p>`,
+    `<figure class="quote"><blockquote>${esc(s.quote)}</blockquote><figcaption>${esc(s.quoteSource)}</figcaption></figure>`,
+    `<div class="task sk-task"><p class="task-title">${esc(s.task.title)}</p><dl>${rows}</dl></div>`,
+    `</div>`,
+    `</div>`,
+    `</section>`,
+  ].join('\n');
+}
+
+/** The picture beside the opt-in: the first sample, before and after, or example on the page. */
+function skillShowcase(s: Section | undefined, i: number): string {
+  if (s?.kind === 'sample') return skillSample(s, i);
+  if (s?.kind === 'compare') return skillCompare(s, i);
+  if (s?.kind === 'example') return skillExample(s, i);
+  return '';
+}
+
+/** A page's <body> in the library's look. */
 function skillBody(guide: Guide): string {
-  const at = guide.sections.findIndex((s) => s.kind === 'sample');
-  const sample = guide.sections[at];
+  const at = guide.sections.findIndex((s) => s.kind === 'sample' || s.kind === 'compare' || s.kind === 'example');
   return [
     skillTop(guide),
     `<main class="sk">`,
     `<div class="sk-hero sk-wrap">`,
     skillIntro(guide),
     optIn(guide),
-    sample?.kind === 'sample' ? skillSample(sample, at) : '',
+    skillShowcase(guide.sections[at], at),
     `</div>`,
     skillSections(guide, at),
     `</main>`,
@@ -753,7 +813,7 @@ function skillBody(guide: Guide): string {
     // the bar only beside one.
     inSkillLibrary(guide)
       ? ''
-      : `<div class="sk-bar" data-sk-bar hidden><a class="btn btn-primary" href="#${esc(guide.optIn.anchor)}">${esc(SHARED.skill.bar)}</a></div>`,
+      : `<div class="sk-bar" data-sk-bar hidden><a class="btn btn-primary" href="#${esc(guide.optIn.anchor)}">${esc(guide.bar ?? SHARED.skill.bar)}</a></div>`,
   ]
     .filter(Boolean)
     .join('\n');

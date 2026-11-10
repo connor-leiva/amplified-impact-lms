@@ -79,7 +79,7 @@ const WE = '“Amplified Impact,” “we,” “us,” and “our” mean Ampli
 /** Every off-site link, by page: the Privacy Policy's ad opt-out pages, and nothing on the Terms. */
 const OFF_SITE: Record<LegalDoc['path'], readonly string[]> = {
   '/terms': [],
-  // The subscription agreement (D-072) has its own tests in agreement.test.ts.
+  // The subscription agreement (D-073) has its own tests in agreement.test.ts.
   '/agreement': [],
   '/privacy': [
     'https://optout.aboutads.info',

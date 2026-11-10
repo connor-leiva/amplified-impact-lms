@@ -93,7 +93,7 @@ describe('a card', () => {
     expect(link.hasAttribute('target')).toBe(false);
     expect(text(link.querySelector('.item-title'))).toBe('Reel Editor');
     expect(text(link.querySelector('.item-desc'))).toBe(entry.description);
-    // The Reel Editor is paid, so its card says where it is now (D-081).
+    // The Reel Editor is paid, so its card says where it is now (D-082).
     expect(Array.from(link.querySelectorAll('.item-tags li')).map((li) => text(li))).toEqual(['Claude Skill', 'In the Skill Library']);
     const item = link.closest('[data-item]')!;
     expect(item.getAttribute('data-tools')).toBe('claude');
@@ -110,7 +110,7 @@ describe('a card', () => {
     }
   });
 
-  it('says "In the Skill Library" on every paid skill’s card, and on no other (D-081)', () => {
+  it('says "In the Skill Library" on every paid skill’s card, and on no other (D-082)', () => {
     // Paid is the catalog's call, read through the skill a page names (the ZIP's name, not always the slug).
     const paidPage = (href: string | null) => {
       const skill = href === null ? undefined : GUIDES[href.slice(1)]?.skill;

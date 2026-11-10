@@ -272,7 +272,7 @@ export function startGhlSync(options: StartGhlSyncOptions): GhlSync {
     inFlight = runGhlSync({ ...options, config, log })
       .then(async (run) => {
         if (run.claimed > 0) log.info({ ...run, paused: run.paused?.kind }, 'GHL sync tick');
-        // The offer's buyers (D-075), after the sign-ups, on the same tick and the same token.
+        // The offer's buyers (D-076), after the sign-ups, on the same tick and the same token.
         const buyers = await runGhlOrderSync({ db: options.db ?? getDb(), log, config, ...(options.fetch ? { fetch: options.fetch } : {}) });
         if (buyers.claimed > 0) log.info({ ...buyers, paused: buyers.paused?.kind }, 'GHL buyer sync tick');
       })

@@ -8,9 +8,10 @@
    COLOURS. Tokens only, as in guides.css, whose page variables this file shares. `scripts/check-css-colors.mjs`
    scans it. Mobile first; one breakpoint at 640px, as in guides.css.
 
-   A skill page itself (`layout: 'skill'`, D-071) is styled at the end of this file, under its own
-   classes (`.sk`, `.sk-top`, `.sk-foot`, `.sk-bar`), so /task-sync-starter, which loads this file
-   too, draws as before. Its headings are Hanken Grotesk at 600, the one weight added here. */
+   A page in the library's look (`layout: 'skill'`: every skill, D-071, and /reel-editor and
+   /task-sync-starter, D-072) is styled at the end of this file, under the layout's own classes
+   (`.sk`, `.sk-top`, `.sk-foot`, `.sk-bar`), so nothing here reaches a page without it. Its headings
+   are Hanken Grotesk at 600, the one weight added here. */
 
 @import '@fontsource/hanken-grotesk/600.css';
 @import './guides.css';
@@ -708,12 +709,22 @@
 .sk .chip-block-text {
   font-size: 13px;
 }
+/* A long block (a Project's instructions, the Task Sync prompt) shows its first lines, fading out, so
+   Back and Next stay near the step (D-072). The button still copies every word, and a screen reader
+   still hears them all; the full text is what lands in the app. */
+.sk .setup-body .chip-block-text {
+  max-height: 264px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 65%, transparent);
+  mask-image: linear-gradient(to bottom, var(--text-primary) 65%, transparent);
+}
 
 /* --- The sample, as a sheet of paper -------------------------------------------------------------
    With the script it starts as its first screen, fading out, with "See the Full Example" (main.ts).
    On a wide screen it sits on a second sheet, turned a little, while it is a preview. */
 
-.sk-sample {
+.sk-sample,
+.sk-show {
   grid-area: sample;
   display: block;
   min-width: 0;
@@ -807,6 +818,64 @@
   margin: 0;
 }
 
+/* --- The Reel Editor's before and after, in the hero (D-072) --------------------------------------
+   The two clips side by side at every width, as guides.css draws them, a little narrower than the
+   column so a vertical video stays inside the first screen. */
+
+.sk-compare .compare-grid {
+  max-width: 520px;
+  gap: 12px;
+}
+.sk-compare video {
+  box-shadow: var(--shadow-pop);
+}
+.sk-compare figcaption {
+  font-size: 14px;
+}
+.sk-compare .clip-label {
+  font-size: 12px;
+}
+
+/* --- The Task Sync Starter Kit's example, as a sheet (D-072) ---------------------------------------
+   Its heading as the sheet's title, the sentence from the meeting, then the task it becomes, in green. */
+
+.sk-example .sample-doc {
+  gap: 16px;
+}
+.sk-example .quote {
+  padding-left: 14px;
+  border-left-width: 3px;
+}
+.sk-example .quote blockquote {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.sk-example .quote figcaption {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.sk-task {
+  padding: 14px 16px 6px;
+  border-radius: 10px;
+  background: var(--action-primary-tint);
+}
+.sk-task .task-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--action-primary);
+}
+.sk-task .row {
+  grid-template-columns: 76px minmax(0, 1fr);
+  padding: 8px 0;
+  border-top-color: var(--action-primary-line);
+  font-size: 14px;
+}
+.sk-task dt {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 /* --- The bands below the hero --------------------------------------------------------------------- */
 
 .sk-band {
@@ -877,7 +946,8 @@
 .sk-roles li:last-child {
   border-top-color: var(--action-primary);
 }
-.sk-role {
+.sk-role,
+.sk-label {
   font-size: 14px;
   font-weight: 600;
   color: var(--action-primary);
@@ -912,10 +982,13 @@
   display: inline-flex;
   margin-top: 24px;
 }
-/* What to say, and the questions, side by side from 960px. */
+/* What to say, and the questions, side by side from 960px. Either one alone keeps a reading width. */
 .sk-pair {
   display: grid;
   gap: 48px;
+}
+.sk-band-pair > .sk-wrap > .sk-col {
+  max-width: 720px;
 }
 .sk .prompts,
 .sk .faq {

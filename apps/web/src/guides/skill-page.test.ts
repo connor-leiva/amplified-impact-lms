@@ -8,8 +8,8 @@ import { skillPage, type SkillPage } from './skill-page';
 // Claude and in ChatGPT, the switch between them, and the new section and step parts the renderer
 // draws for a skill. Each real skill page is held to its own source in `skills.test.ts`.
 //
-// A skill is free only when `FREE_SKILLS` names it (D-079), so the made-up skills here are named free,
-// as a real one would be; one named nowhere is paid, and its page is the last group (D-081).
+// A skill is free only when `FREE_SKILLS` names it (D-080), so the made-up skills here are named free,
+// as a real one would be; one named nowhere is paid, and its page is the last group (D-082).
 vi.mock('@ai/core/skills', async (importOriginal) => {
   const real = await importOriginal<typeof Skills>();
   return { ...real, isFreeSkill: (id: string) => ['made-up-skill', 'made-up-folder'].includes(id) || real.isFreeSkill(id) };
@@ -401,7 +401,7 @@ describe('the skill layout (D-071)', () => {
   });
 });
 
-describe('a paid skill’s page (D-081)', () => {
+describe('a paid skill’s page (D-082)', () => {
   // The made-up skill with the sections a real skill page has, under a name `FREE_SKILLS` lacks.
   const guide = skillPage({
     ...SPEC,

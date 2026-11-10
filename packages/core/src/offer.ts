@@ -1,4 +1,4 @@
-// The offer, as data: the plans, the carts and the Stripe contract (DECISIONS.md D-072, D-073, D-077).
+// The offer, as data: the plans, the carts and the Stripe contract (DECISIONS.md D-073, D-074, D-078).
 //
 // THIS FILE IS THE LINE BETWEEN THE CODE AND STRIPE. Grokbok's handoff (docs/STRIPE-HANDOFF.md) uses
 // the same names, so either side can be built without waiting for the other. The code never stores a
@@ -21,14 +21,14 @@ export type OrderOption = (typeof ORDER_OPTIONS)[number];
 export const ORDER_ORIGINS = ['offer', 'payment_link'] as const;
 export type OrderOrigin = (typeof ORDER_ORIGINS)[number];
 
-/** `pending` until the webhook says otherwise (D-074): only the webhook marks an order paid. */
+/** `pending` until the webhook says otherwise (D-075): only the webhook marks an order paid. */
 export const ORDER_STATUSES = ['pending', 'paid', 'trialing', 'expired', 'failed', 'refunded'] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const PLAN_STATUSES = ['trialing', 'active', 'past_due', 'canceled', 'ended'] as const;
 export type PlanStatus = (typeof PLAN_STATUSES)[number];
 
-/** Connor tags every skill as one of these (D-078). */
+/** Connor tags every skill as one of these (D-079). */
 export const SKILL_SETS = ['owner_ops', 'agent', 'both'] as const;
 export type SkillSet = (typeof SKILL_SETS)[number];
 
@@ -327,7 +327,7 @@ export function initialPlanDates(plan: PlanKind, now: number): PlanDates {
   }
 }
 
-/** Which skill sets a plan opens (D-078). Cohort buyers get both. */
+/** Which skill sets a plan opens (D-079). Cohort buyers get both. */
 export const PLAN_SETS: Readonly<Record<PlanKind, readonly ('owner_ops' | 'agent')[]>> = {
   library: ['owner_ops'],
   cohort: ['owner_ops', 'agent'],
@@ -397,7 +397,7 @@ const firstCharge = (): string => longDate(AGENTS_FIRST_CHARGE_AT).replace(/, \d
 
 /**
  * The words the page prints for each card and each cart, from the live amounts. Empty strings when an
- * amount is missing, so the page can show its "price on the payment page" line instead (D-073: the
+ * amount is missing, so the page can show its "price on the payment page" line instead (D-074: the
  * code holds no amounts of its own).
  */
 export function priceWords(a: Amounts): {

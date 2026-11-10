@@ -1,4 +1,4 @@
-// The Vite plugin behind /offer and /offer/welcome (D-074), exactly as the legal pages' and the
+// The Vite plugin behind /offer and /offer/welcome (D-075), exactly as the legal pages' and the
 // library's: it fills the markers in `apps/web/offer.html` and `offer-welcome.html` with what
 // `render.ts` renders from `content.ts`. In both configs, so `pnpm dev` shows the pages too (with
 // their `%%tokens%%` unfilled: the API fills them per request).

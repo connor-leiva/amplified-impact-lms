@@ -1,4 +1,4 @@
-// Turning a paid order into a team with an owner (DECISIONS.md D-077).
+// Turning a paid order into a team with an owner (DECISIONS.md D-078).
 //
 // The platform had no way for a person to arrive without a team owner inviting them: `inviteMember`
 // needs an owner already in a team, and staff cannot add a learner. A purchase is that missing door.

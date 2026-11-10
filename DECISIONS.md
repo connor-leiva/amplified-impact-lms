@@ -3322,13 +3322,27 @@ yet: each skill's page, ZIPs and library card arrive with its own entry (D-053 o
 - **Tested:** web tests 1,243 and API tests 1,167 (local dev database), typecheck, lint and the build. In Chromium against the built server and the dev database, on all 17 skill pages: no serious or critical axe violations locked at 1440, unlocked at 1440 and at 390; the card stays beside the open sample; See the Full Example opens and Show Less closes; a sign-up with a made-up name unlocks the card, moves focus to it and stops it sticking; every step shows as a row, Next ticks the steps behind it; the ChatGPT switch shows its own steps; on a phone the bar shows, leads to the card and hides, the unlocked setup comes before the sample, no sideways scroll; with JavaScript off the whole sample shows, the form's 303 lands on #download and every step shows numbered; no console errors.
 - **Not tested:** a real phone and Instagram's in-app browser, a screen reader, Safari (`:has()` puts the setup first on a phone once unlocked; without it the sample stays first).
 
+## D-072 · The Reel Editor and the Task Sync Starter Kit take the library's look
+
+**Date:** 2026-11-10
+**Approved by:** the user, in chat on 2026-11-10: "Move reel-editor and task-sync-starter into the new layout".
+**Scope:** `apps/web/src/guides/render.ts` (the layout's picture can be a before and after or an example, not only a sample; tiles with labels other than Run, Draft and Own are cards), `content.ts` (`Guide.bar`), `reel-editor.ts`, `task-sync-starter.ts`, `reel-editor.html` (now loads `skills.css`), `skills.css`, and the tests. /reel-editor and /task-sync-starter change. The 17 skill pages keep their markup and look (checked pixel for pixel against main on two of them at 390 and 1440); only the long copy block in a setup step changes (below). /ops-time-audit, the home page, /library and the other pages are byte-identical.
+
+- **The same layout as the skill pages (D-071).** The top bar with "Free Library / <title>", one eyebrow, the title, the lede and three pills, the sign-up card beside the picture on a computer, the setup as a checklist once unlocked, the sections as bands, and the phone's bar to the sign-up. The guides' three numbered steps are no longer drawn; they stay in the data.
+- **The Reel Editor's picture is its before and after.** The raw take and the finished Reel, side by side beside the sign-up, as the page already had them (plain videos, nothing fetched but the posters until one plays). Pills: "Free", "About 2 minutes to set up", "Works in Claude".
+- **The Task Sync kit's picture is its example.** As a sheet of paper: its heading as the title, the sentence from Monday's meeting, and the task it becomes in green. Pills: "Free", "About 20 minutes to set up", "Works in Claude". Its phone bar reads "Get the Free Kit".
+- **The Reel Editor's order.** "For the best results" now comes before "What to say", so "What to say" and "Good to know" sit side by side, as on the skill pages. No words changed.
+- **Labelled cards.** "Graphics that explain, not decorate" and "Two looks" are cards with their small green labels; the white who-does-what band is only for Run, Draft and Own.
+- **Long copy blocks in a setup step** (the Task Sync prompt and its morning add-on, a skill's ChatGPT Project instructions) show their first lines, about 13, fading out, so Back and Next stay near the step in the narrower card. The block is still the button that copies every word, Copy & Open still copies them all, and a screen reader still hears them all. This reaches the ChatGPT step on the 14 skill pages that have one.
+- **Tested:** web tests 1,246 and API tests 1,167 (local dev database), typecheck, lint and the build. In Chromium against the built server and the dev database, on /reel-editor and /task-sync-starter (and /offer-strategy and /team-playbook-builder again): no serious or critical axe violations, locked and unlocked at 1440 and at 390; the card stays beside the picture; a sign-up with a made-up name unlocks the card and moves focus to it; every step shows as a row and Next ticks the steps behind it; on a phone the bar shows, leads to the card and hides, and the unlocked setup comes before the picture, with no sideways scroll; with JavaScript off the form's 303 lands on #download and every step shows numbered; no console errors.
+- **Not tested:** a real phone, Instagram's in-app browser, Safari, a screen reader, and playing the two videos on a phone.
 ---
 
-# The offer launch: D-072 to D-081 (proposed)
+# The offer launch: D-073 to D-082 (proposed)
 
-The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-080 and asks for each to go in here as a proposal that Connor approves before the code merges. D-071 was already taken by the skill pages' design, so they are numbered D-072 to D-081 below, in the spec's order. **Every entry in this section is a proposal. None is approved yet.** The code is on `claude/busy-darwin-xsmr2o`, built as the spec asks ("build this site to completion", Connor, in chat on 2026-11-10), and waits on these entries before it merges.
+The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-080 and asks for each to go in here as a proposal that Connor approves before the code merges. D-071 and D-072 were already taken (the skill pages' design, and the Reel Editor's and Task Sync Starter Kit's look), so they are numbered D-073 to D-082 below, in the spec's order. **Every entry in this section is a proposal. None is approved yet.** The code is on `claude/busy-darwin-xsmr2o`, built as the spec asks ("build this site to completion", Connor, in chat on 2026-11-10), and waits on these entries before it merges.
 
-## D-072 · Payments go through Stripe's hosted Checkout by redirect
+## D-073 · Payments go through Stripe's hosted Checkout by redirect
 
 **Date:** 2026-11-10
 **Status:** Proposed. Awaiting Connor's approval (the spec's D-071).
@@ -3340,7 +3354,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - The settings are `STRIPE_SECRET_KEY` (a restricted key), `STRIPE_WEBHOOK_SECRET`, `OFFER_OPEN`, `FOUNDING_CLOSES_AT`, plus `INVITES_FROM`, `PAYMENT_LINK_*` (the fallback links) and `INTAKE_URL_*` (Sarah O.'s forms). The API boots without any of them; the log says which are set and a key's mode, never a value.
 - `AGREEMENT_VERSION` lives beside the checkout (`billing/checkout.ts`), held equal to the page's copy by `test/offer-copy.test.ts`.
 
-## D-073 · Prices live in Stripe, found by lookup key
+## D-074 · Prices live in Stripe, found by lookup key
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-072).
@@ -3349,7 +3363,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - The code holds no amount and no price id. It asks Stripe for the six lookup keys in the handoff (`cohort_founding_full`, `cohort_founding_two_pay`, `library_upfront`, `membership_monthly`, `agents_upto15_founding`, `agents_16to40_founding`) and caches them for 5 minutes. A failed refresh keeps the last good list; with none, the page shows the Payment Links, or "The carts open soon".
 - The page prints prices the API fills per request (`%%tokens%%`), so a moved lookup key shows within 5 minutes with no deploy. When a price is missing, a card says "The price shows on the payment page" rather than a wrong number.
 
-## D-074 · Orders and Stripe events; only the webhook marks an order paid; the offer pages
+## D-075 · Orders and Stripe events; only the webhook marks an order paid; the offer pages
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-073 and D-074, which share these files).
@@ -3361,7 +3375,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - Net-new UI, like the sign-in screens: the offer page, the welcome page and the agreement. Checked against the taste-skill rubric in Chromium at 390 and 1440: no sideways scroll, no axe violations, no console or CSP errors, the scripted and the no-JS checkout both reaching Stripe.
 - `/agreement` is a draft with `[attorney to confirm]` placeholders until Spring's attorney sends the text; it says so on the page.
 
-## D-075 · Buyer tags in GHL
+## D-076 · Buyer tags in GHL
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-075). Connor approves the list before the code ships.
@@ -3370,7 +3384,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - The waitlist's GHL loop also copies buyers, on the same tick: the order is the record, GHL a copy, tags only ever added, never a phone number without SMS consent. A pending order is never copied.
 - Tags: `offer-buyer`, `plan-library` / `plan-cohort` / `plan-agents`, `pay-full` / `pay-two` (cohort), `checkout-abandoned-<plan>`, `payment-failed`, `membership-ended`, `refunded`, `event-forum-nov-2026` (orders through `/forum`), `sms-consent`, and `cohort-waitlist` (the offer page's waitlist form, a sign-up like the guides'). `intake-done` is GHL's own. `offer-interest` and `interest-<plan>` wait for P1's "not ready yet" form.
 
-## D-076 · Billing rules
+## D-077 · Billing rules
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-076).
@@ -3384,7 +3398,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Consent.** Every cart with a later charge has its own box naming the amount, the start date and how to cancel; the words are stored with the order (`renewal_consent_text`). The two-pay's second payment counts as a later charge. The CRM question refuses the cohort to teams not on Follow Up Boss, offering the library and the waitlist.
 - **Refunds.** A full refund ends the plan and its access, and cancels its subscriptions so nothing charges again.
 
-## D-077 · Accounts and plans; provisioning
+## D-078 · Accounts and plans; provisioning
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-077).
@@ -3396,7 +3410,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - Invites made before `INVITES_FROM` (Mon, Nov 16, 8 am Central) are held and sent by a one-minute loop when it passes; after it, they go at once. While the platform runs in fixture mode (production today), every invite is held, because there is no sign-in for its link to reach; the first deploy in http mode sends them. The staff command `pnpm --filter @ai/api provision --order <id> [--invite-now]` re-runs provisioning for one order.
 - The 11th cohort sale is not refused; it logs an error line asking Connor to book a tech assistant.
 
-## D-078 · The skill library
+## D-079 · The skill library
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-078).
@@ -3407,7 +3421,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - `pnpm --filter @ai/api skills [--upload]` loads the catalog into the table and puts the ZIPs in the bucket under `skills/<id>/`.
 - `/skill-library` on learn is the screen: net-new UI outside the shell, like `/sign-in`, so no portal golden moves. It groups the skills by set (Owner and Operations Skills, Agent Skills, Skills for Everyone), with the downloads on an open skill, "Not in your plan." and See Plans on a locked one, and the date on an upcoming one; signed out, it offers Sign In. **No sidebar entry:** the welcome email and the www skill pages link to it, and an entry in the shell is a separate decision because it moves every portal golden.
 
-## D-079 · Only the free skills stay downloadable on www
+## D-080 · Only the free skills stay downloadable on www
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-079).
@@ -3417,14 +3431,14 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - `server.ts` stops serving every paid ZIP from `/downloads`, and any `/downloads/` path no route serves is a plain 404 rather than the SPA.
 - **The tags in `skills.ts` are a first pass for Connor**, read off each skill's own description; changing one is a one-word edit.
 
-## D-080 · Seats by plan
+## D-081 · Seats by plan
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-080). **Not built:** it belongs to P2 (by Jan 26) and re-captures the Team Hub goldens.
 
-- `inviteMember` takes its limits from the account's plan (15 or 40 agents) instead of its fixed 1 owner, 1 operations lead and 5 sales agents, and the Team Hub handles 40 people. Provisioning already sets `teams.seats` from the plan (D-077).
+- `inviteMember` takes its limits from the account's plan (15 or 40 agents) instead of its fixed 1 owner, 1 operations lead and 5 sales agents, and the Team Hub handles 40 people. Provisioning already sets `teams.seats` from the plan (D-078).
 
-## D-081 · The skill pages of paid skills become previews
+## D-082 · The skill pages of paid skills become previews
 
 **Date:** 2026-11-10
 **Status:** Proposed. The spec folds this into its D-079; it is its own entry because it changes 17 pages.

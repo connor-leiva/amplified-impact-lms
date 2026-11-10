@@ -64,7 +64,7 @@ export const WAITLIST_TAGS = ['ai101-waitlist', 'event-expcon-2026'] as const;
  */
 export const SOURCE_TAGS: Readonly<Record<string, readonly string[]>> = {
   'expcon-2026-ai101': WAITLIST_TAGS,
-  // The offer page's cohort waitlist (D-075, D-076).
+  // The offer page's cohort waitlist (D-076, D-077).
   'cohort-waitlist': ['cohort-waitlist'],
   // Every free guide, tagged with its own slug: `task-sync-starter` (D-038), `ops-time-audit` (D-039),
   // `voice-profile`, Spring's lead magnet (D-040), `reel-editor`, the first Claude skill (D-045),
@@ -274,7 +274,7 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
   return upsertAndTag(upsertBody, waitlistTags(contact.src, textable, contact.source, contact), options);
 }
 
-// --- buyers (D-075) ---------------------------------------------------------------------------------
+// --- buyers (D-076) ---------------------------------------------------------------------------------
 // The offer's orders reach GHL the same way: the order row is the record, GHL a copy, tags only ever
 // added. The tags below drive Sarah O.'s welcome and intake workflows and Matt's follow-ups, and are
 // Connor's to approve. `offer-buyer` rather than `buyer`: in a CRM of real estate contacts, "buyer"

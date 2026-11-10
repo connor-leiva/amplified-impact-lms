@@ -126,7 +126,7 @@ export interface LegalDoc {
   notice?: string;
   intro: readonly Inline[];
   sections: readonly Section[];
-  /** This page's own draft state, version and date, when they differ from the shared ones (/agreement, D-072). */
+  /** This page's own draft state, version and date, when they differ from the shared ones (/agreement, D-073). */
   draft?: boolean;
   version?: string;
   effective?: { iso: string; label: string };

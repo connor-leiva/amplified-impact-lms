@@ -1,4 +1,4 @@
-// Copy the offer's buyers into GoHighLevel, with their tags (D-075). The waitlist's loop
+// Copy the offer's buyers into GoHighLevel, with their tags (D-076). The waitlist's loop
 // (jobs/ghl-sync.ts) runs this after its own rows on every tick, with the same rules:
 //
 //   - THE ORDER IS THE RECORD. The webhook writes the order and moves on; this runs later and makes the

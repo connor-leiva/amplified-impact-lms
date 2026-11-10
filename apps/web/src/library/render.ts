@@ -79,7 +79,7 @@ function controls(): string {
   ].join('\n');
 }
 
-/** Whether a card's page is a paid skill's, in the Skill Library rather than a download (D-081). */
+/** Whether a card's page is a paid skill's, in the Skill Library rather than a download (D-082). */
 function paid(entry: Entry): boolean {
   const guide = entry.href === null ? undefined : GUIDES[entry.href.replace(/^\//, '')];
   return guide !== undefined && inSkillLibrary(guide);

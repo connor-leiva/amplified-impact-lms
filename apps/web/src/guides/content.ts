@@ -13,7 +13,7 @@
 // to be added to Claude before it does anything, so its download carries `setup`, the steps that
 // follow, and `handoff`, the way a phone sends the page to a computer to do them.
 //
-// A PAID SKILL (D-079, D-081). Every skill page names its skill in the library's catalog (`skill`).
+// A PAID SKILL (D-080, D-082). Every skill page names its skill in the library's catalog (`skill`).
 // Unless `FREE_SKILLS` names it, the skill is in the Skill Library on the platform: its page keeps
 // the hero and the sample, and shows the Skill Library card in place of the sign-up and the setup,
 // with no link to a ZIP (`inSkillLibrary`). Its own words and setup stay in its file, so naming it in
@@ -230,13 +230,16 @@ export interface Guide {
   /** localStorage: this device already opted in, so the download shows straight away. */
   unlockKey: string;
   /**
-   * `'skill'`: a free skill's page in the library's look (D-071), set by `skillPage()`. A white top bar
-   * with the library breadcrumb, the sample beside the opt-in, the setup as a checklist. Without it, the
-   * guide's green cover and one column (D-038).
+   * `'skill'`: the page in the library's look (D-071), set by `skillPage()` for every free skill, and by
+   * the Reel Editor and the Task Sync Starter Kit themselves (D-072). A white top bar with the library
+   * breadcrumb, the page's picture (its sample, its before and after, or its example) beside the
+   * opt-in, the setup as a checklist. Without it, the guide's green cover and one column (D-038).
    */
   layout?: 'skill';
   /** With `layout: 'skill'`, the short facts under the lede, as pills: "Free", the setup time, the apps. */
   facts?: readonly string[];
+  /** With `layout: 'skill'`, the phone's sign-up bar, when it is not "Get the Free Skill" (a kit's is "Get the Free Kit"). */
+  bar?: string;
 }
 
 /** Every guide, by slug, as written. */
@@ -264,7 +267,7 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
 };
 
 /**
- * A paid skill's page stops calling itself free (D-081): "Free" comes off its title, description and
+ * A paid skill's page stops calling itself free (D-082): "Free" comes off its title, description and
  * eyebrow, and its first fact says where the skill is. Its own file keeps the free wording for the day
  * `FREE_SKILLS` names it again, so a free page is exactly as written.
  */
@@ -292,7 +295,7 @@ export const GUIDES: Readonly<Record<string, Guide>> = Object.fromEntries(
 );
 
 /**
- * Whether a page's skill is paid, and so in the Skill Library rather than a download (D-079, D-081).
+ * Whether a page's skill is paid, and so in the Skill Library rather than a download (D-080, D-082).
  * Free fails closed, as in the catalog: a skill is free only when `FREE_SKILLS` names it.
  */
 export const inSkillLibrary = (guide: Guide): boolean => guide.skill !== undefined && !isFreeSkill(guide.skill);
@@ -344,8 +347,8 @@ export const SHARED = {
     sampleLess: 'Show Less',
     bar: 'Get the Free Skill',
   },
-  // A paid skill's page (D-081): the card in the sign-up's place, which says where the skill is now.
-  // "See Plans" goes to the offer's plans (D-074); "Sign In" is the platform's own sign-in, for
+  // A paid skill's page (D-082): the card in the sign-up's place, which says where the skill is now.
+  // "See Plans" goes to the offer's plans (D-075); "Sign In" is the platform's own sign-in, for
   // people who already bought a plan. Also the button under "What you need".
   skillLibrary: {
     anchor: 'skill-library',

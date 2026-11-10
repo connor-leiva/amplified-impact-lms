@@ -1,4 +1,4 @@
-// Live prices, by lookup key, cached for 5 minutes (D-073).
+// Live prices, by lookup key, cached for 5 minutes (D-074).
 //
 // The offer page and the checkout route ask here; nothing in the code knows an amount. When Grokbok
 // moves a lookup key to a new price, the page shows it within `PRICE_TTL_MS`. A failed refresh keeps

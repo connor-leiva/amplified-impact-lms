@@ -1,4 +1,4 @@
-// Provisioning: a paid order becomes an account, a plan and an invited owner (D-077).
+// Provisioning: a paid order becomes an account, a plan and an invited owner (D-078).
 //
 //   provisionOrder(orderId)  the webhook calls it after marking an order paid; the staff command
 //                            `pnpm --filter @ai/api provision --order <id>` calls it by hand
@@ -40,7 +40,7 @@ export type ProvisionOutcome =
   | { ok: true; accountId: string; planId: string; createdAccount: boolean; createdPlan: boolean; invite: 'sent' | 'held' | 'already' }
   | { ok: false; reason: 'no-order' | 'not-paid' | 'unknown-cart' | 'staff-email' | 'member-of-another-team' };
 
-/** The team every owner joins: cohort one, the platform's one production cohort (D-077). */
+/** The team every owner joins: cohort one, the platform's one production cohort (D-078). */
 const OWNER_COHORT = COHORT_ONE.id;
 
 /**

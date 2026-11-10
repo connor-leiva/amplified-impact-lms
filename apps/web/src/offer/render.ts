@@ -1,4 +1,4 @@
-// /offer (and /forum) and /offer/welcome, as strings, from `content.ts` (DECISIONS.md D-074).
+// /offer (and /forum) and /offer/welcome, as strings, from `content.ts` (DECISIONS.md D-075).
 //
 // Built once by `vite-plugin.ts` into `dist/offer.html` and `dist/offer-welcome.html`, then filled per
 // request by the API: every price, date and state is a `%%token%%` (`OFFER_TOKENS` and `PRICE_TOKENS`

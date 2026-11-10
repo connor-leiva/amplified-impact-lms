@@ -387,7 +387,7 @@ export function resourceKey(resourceId: string): string {
  * `resources[].name` before it presigns: a safe segment is one that cannot escape
  * `modules/<moduleId>/`, not one that names a file this module has.
  */
-/** A skill library file (D-078): `skills/<slug>/<file>`. Never public; served by a presigned GET. */
+/** A skill library file (D-079): `skills/<slug>/<file>`. Never public; served by a presigned GET. */
 export function skillFileKey(slug: string, fileName: string): string {
   return `skills/${requireSafe('skill id', slug)}/${requireSafe('file name', fileName)}`;
 }

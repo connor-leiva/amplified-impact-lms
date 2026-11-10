@@ -1,4 +1,4 @@
-// `POST /api/stripe/webhook`: the only thing that marks an order paid (D-074, D-076).
+// `POST /api/stripe/webhook`: the only thing that marks an order paid (D-075, D-077).
 //
 // SIGNATURE, THEN ONCE PER EVENT. The raw body's `Stripe-Signature` is checked against
 // `STRIPE_WEBHOOK_SECRET` before anything is read. The event's id is then inserted into
@@ -75,7 +75,7 @@ export function errorReason(err: unknown): string {
 
 // --- helpers ---------------------------------------------------------------------------------------
 
-/** The order's GHL copy is out of date: the sync loop picks it up on its next pass (D-075). */
+/** The order's GHL copy is out of date: the sync loop picks it up on its next pass (D-076). */
 const resync = { ghlSyncedAt: null, ghlAttempts: 0, ghlNextAttemptAt: null } as const;
 
 async function orderById(db: Database, id: string | null | undefined): Promise<OrderRow | null> {

@@ -160,7 +160,7 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
 ]);
 
 // ================================================================================================
-// THE OFFER: ORDERS, STRIPE EVENTS, ACCOUNTS, PLANS AND SKILLS (D-074, D-078, D-079)
+// THE OFFER: ORDERS, STRIPE EVENTS, ACCOUNTS, PLANS AND SKILLS (D-075, D-079, D-080)
 // ================================================================================================
 // Billing state, kept out of the prototype's `Db` exactly as the waitlist and the auth tables are:
 // none of these is in the snapshot codec, so a snapshot write can never touch them and Gate 7's
@@ -174,7 +174,7 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
 
 // One row per purchase attempt: from the offer page (`origin` = 'offer', created before Stripe is
 // called) or from a fallback Payment Link (`origin` = 'payment_link', created by the webhook). Only
-// the webhook moves `status` past 'pending' (D-074). The buyer's details, the consent proof and the
+// the webhook moves `status` past 'pending' (D-075). The buyer's details, the consent proof and the
 // attribution are the order's own; the account it became is `account_id`.
 export const orders = pgTable('orders', {
   id: text('id').primaryKey(),
@@ -190,7 +190,7 @@ export const orders = pgTable('orders', {
   stripePaymentIntentId: text('stripe_payment_intent_id'), stripeSubscriptionId: text('stripe_subscription_id'),
   amountTotal: integer('amount_total'), currency: text('currency'),
   paymentsMade: integer('payments_made').notNull().default(0),
-  // When the events behind the follow-up tags happened (D-076): the GHL sync reads these.
+  // When the events behind the follow-up tags happened (D-077): the GHL sync reads these.
   paidAt: ts('paid_at'), paymentFailedAt: ts('payment_failed_at'), membershipEndedAt: ts('membership_ended_at'), refundedAt: ts('refunded_at'),
   ghlContactId: text('ghl_contact_id'), ghlSyncedAt: ts('ghl_synced_at'),
   ghlAttempts: integer('ghl_attempts').notNull().default(0), ghlNextAttemptAt: ts('ghl_next_attempt_at'), ghlError: text('ghl_error'),
@@ -209,7 +209,7 @@ export const orders = pgTable('orders', {
   check('orders_renewal_consent_proof', sql`(${t.renewalConsentAt} is null) = (${t.renewalConsentText} is null)`),
 ]);
 
-// One row per Stripe event (D-074). Inserted before anything else happens, keyed by Stripe's own id,
+// One row per Stripe event (D-075). Inserted before anything else happens, keyed by Stripe's own id,
 // so a redelivered event that was already processed is skipped. `error` holds a short reason for an
 // event that failed and will be retried by Stripe, never a payload.
 export const stripeEvents = pgTable('stripe_events', {
@@ -217,7 +217,7 @@ export const stripeEvents = pgTable('stripe_events', {
   receivedAt: ts('received_at').notNull(), processedAt: ts('processed_at'), error: text('error'),
 });
 
-// The buying team (D-077): one platform team with the buyer as its Team Owner. Found by the owner's
+// The buying team (D-078): one platform team with the buyer as its Team Owner. Found by the owner's
 // email (lower-cased), so a library buyer who later buys the cohort keeps one account and one login.
 // `invite_sent_at` is null until the owner's invite has gone out: invites made before
 // `INVITES_FROM` wait for it (Mon, Nov 16), so they arrive with the welcome email.
@@ -228,7 +228,7 @@ export const accounts = pgTable('accounts', {
   createdAt: ts('created_at').notNull(), inviteSentAt: ts('invite_sent_at'),
 }, (t) => [uniqueIndex('accounts_owner_email_idx').on(t.ownerEmail)]);
 
-// A plan an account holds (D-077). `paid_through` is what the access rule compares with a skill's
+// A plan an account holds (D-078). `paid_through` is what the access rule compares with a skill's
 // `released_at` ("cancel and keep"); `live_until` ends office hours, builds and coaching;
 // `minimum_until` is the agent plan's 3-month minimum. One plan per order, so provisioning the same
 // order twice finds the plan it made the first time.
@@ -243,7 +243,7 @@ export const plans = pgTable('plans', {
   check('plans_status', sql`${t.status} in ('trialing', 'active', 'past_due', 'canceled', 'ended')`),
 ]);
 
-// The skill library (D-078). One row per skill, keyed by its slug. `sets` is which plans open it;
+// The skill library (D-079). One row per skill, keyed by its slug. `sets` is which plans open it;
 // `free` skills open for everyone; `released_at` is the date "cancel and keep" compares with a plan's
 // `paid_through`. `files` holds bucket keys, never URLs: a download is a short-lived link minted per
 // request after `canOpenSkill` says yes (D-024's pattern).

@@ -1,5 +1,5 @@
 // The skill library's catalog (in @ai/core so the API and the www skill pages share it): which skills there are, which set each opens with, which stay free, and
-// when each was released (D-078, D-081).
+// when each was released (D-079, D-082).
 //
 // THE TAGS BELOW ARE A PROPOSAL FOR CONNOR. The spec has Connor tag every skill as owner and ops,
 // agent, or both, and pick the free 5 (voice profile, time audit, one Follow Up Boss follow-up skill and
@@ -11,7 +11,7 @@
 // time audit are guides, not ZIPs, and stay public as they are. Of the ZIP skills, Appointment Follow-Up
 // (the one that writes the Follow Up Boss note) is the follow-up skill; Connor's two picks are added
 // here when he makes them. Every other ZIP is paid: `server.ts` stops serving it from `/downloads`, and
-// its page shows a preview with "In the Skill Library" instead of the download (D-081).
+// its page shows a preview with "In the Skill Library" instead of the download (D-082).
 
 import type { SkillSet } from './offer';
 
@@ -31,7 +31,7 @@ export interface CatalogSkill {
  */
 export const LAUNCH_RELEASE = Date.parse('2026-11-01T00:00:00-05:00');
 
-/** Connor's picks go here (D-081). Fails closed: a skill not named is paid. */
+/** Connor's picks go here (D-082). Fails closed: a skill not named is paid. */
 export const FREE_SKILLS: readonly string[] = ['appointment-follow-up'];
 
 const zips = (id: string, withChatgpt: boolean, withPractice = true): CatalogSkill['files'] => ({
@@ -67,7 +67,7 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
 
 export const isFreeSkill = (id: string): boolean => FREE_SKILLS.includes(id);
 
-/** Every ZIP that stops being a public file (D-081): each paid skill's files. */
+/** Every ZIP that stops being a public file (D-082): each paid skill's files. */
 export const PAID_DOWNLOADS: readonly string[] = SKILL_CATALOG.filter((s) => !isFreeSkill(s.id)).flatMap((s) =>
   Object.values(s.files).filter((f): f is string => typeof f === 'string'),
 );

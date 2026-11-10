@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
     : []),
   { path: '/sign-in', lazy: () => import('./routes/auth/SignIn') },
   { path: '/invite/:token', lazy: () => import('./routes/auth/AcceptInvite') },
-  // The skill library (D-078): net-new, outside the shell like the two above, so no portal golden moves.
+  // The skill library (D-079): net-new, outside the shell like the two above, so no portal golden moves.
   { path: '/skill-library', lazy: () => import('./routes/library/SkillLibrary') },
   {
     path: '/',

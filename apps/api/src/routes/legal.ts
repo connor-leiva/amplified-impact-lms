@@ -31,7 +31,7 @@ import { etagMatches, pageEtag } from './ai101';
 
 export const TERMS_PATH = '/terms';
 export const PRIVACY_PATH = '/privacy';
-/** The subscription agreement every offer order records (D-072): served exactly like the other two. */
+/** The subscription agreement every offer order records (D-073): served exactly like the other two. */
 export const AGREEMENT_PATH = '/agreement';
 
 export interface LegalPages {

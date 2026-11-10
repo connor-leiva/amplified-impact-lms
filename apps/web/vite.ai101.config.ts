@@ -31,7 +31,7 @@ export default defineConfig({
     voiceRender(),
     retoolRender(),
     libraryRender(),
-    // The offer's pages (D-074), filled per request by the API.
+    // The offer's pages (D-075), filled per request by the API.
     offerRender(),
     ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML]),
   ],

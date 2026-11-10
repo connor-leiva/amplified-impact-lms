@@ -1,4 +1,4 @@
-// /skill-library: the skill library a buyer's plan opens (DECISIONS.md D-078). Net-new, like the
+// /skill-library: the skill library a buyer's plan opens (DECISIONS.md D-079). Net-new, like the
 // sign-in screens: there is no reference file for it, so it sits OUTSIDE the shell (no sidebar entry,
 // so no portal golden moves) and is reached by its URL, which the welcome email and the www skill
 // pages link to.

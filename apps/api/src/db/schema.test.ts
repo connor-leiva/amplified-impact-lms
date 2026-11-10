@@ -87,7 +87,7 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     columns: ['brokerage', 'created_at', 'december_interest', 'email', 'first_name', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_next_attempt_at', 'ghl_synced_at', 'id', 'phone', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'source', 'src', 'team_size', 'terms_version'],
     gate: 9,
   },
-  // The offer (D-074, D-077, D-078): billing state outside `Db`, like the waitlist. Gate 9 is where
+  // The offer (D-075, D-078, D-079): billing state outside `Db`, like the waitlist. Gate 9 is where
   // the public pages sit; these are their tables.
   orders: {
     table: 'orders',
@@ -273,7 +273,7 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['ai101Waitlist', 'ghlNextAttemptAt'],
   // D-034: when the visitor ticked the SMS box.
   ['ai101Waitlist', 'smsConsentAt'],
-  // The offer (D-074, D-077, D-078). `canOpenSkill` compares plans.paidThrough with skills.releasedAt
+  // The offer (D-075, D-078, D-079). `canOpenSkill` compares plans.paidThrough with skills.releasedAt
   // as plain numbers, and every other instant here is `clock.now()` as written by the webhook.
   ['orders', 'agreementAcceptedAt'], ['orders', 'renewalConsentAt'], ['orders', 'smsConsentAt'],
   ['orders', 'paidAt'], ['orders', 'paymentFailedAt'], ['orders', 'membershipEndedAt'], ['orders', 'refundedAt'],
@@ -323,11 +323,11 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   // because that is what `clock.now()` returns — the route writes it with no conversion, and a test
   // under FIXED_NOW can compare the stored value to the pinned instant with `toBe`.
   ai101Waitlist: { unit: 'epoch-ms', why: 'D-028: created_at is clock.now() as written by routes/ai101.ts; no reader converts it' },
-  orders: { unit: 'epoch-ms', why: 'D-074: clock.now() as written by checkout and the webhook' },
-  stripeEvents: { unit: 'epoch-ms', why: 'D-074: clock.now() as written by the webhook' },
-  accounts: { unit: 'epoch-ms', why: 'D-077: created_at and invite_sent_at, compared with INVITES_FROM' },
-  plans: { unit: 'epoch-ms', why: 'D-078: paid_through is compared with skills.released_at by canOpenSkill' },
-  skills: { unit: 'epoch-ms', why: 'D-078: released_at is compared with plans.paid_through by canOpenSkill' },
+  orders: { unit: 'epoch-ms', why: 'D-075: clock.now() as written by checkout and the webhook' },
+  stripeEvents: { unit: 'epoch-ms', why: 'D-075: clock.now() as written by the webhook' },
+  accounts: { unit: 'epoch-ms', why: 'D-078: created_at and invite_sent_at, compared with INVITES_FROM' },
+  plans: { unit: 'epoch-ms', why: 'D-079: paid_through is compared with skills.released_at by canOpenSkill' },
+  skills: { unit: 'epoch-ms', why: 'D-079: released_at is compared with plans.paid_through by canOpenSkill' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -524,12 +524,12 @@ describe('§7.2 composite primary keys @g7', () => {
  */
 const UNIQUE_INDEXES: Record<string, { name: string; columns: string[] }> = {
   ai101Waitlist: { name: 'ai101_waitlist_email_source_idx', columns: ['email', 'source'] },
-  // D-074: one order per Checkout Session, which is how a fallback Payment Link's second delivery
+  // D-075: one order per Checkout Session, which is how a fallback Payment Link's second delivery
   // finds the order its first one made.
   orders: { name: 'orders_stripe_session_idx', columns: ['stripe_session_id'] },
-  // D-077: accounts are found by the owner's email, so one buyer is one account.
+  // D-078: accounts are found by the owner's email, so one buyer is one account.
   accounts: { name: 'accounts_owner_email_idx', columns: ['owner_email'] },
-  // D-077: one plan per order, so provisioning an order twice finds the plan it made.
+  // D-078: one plan per order, so provisioning an order twice finds the plan it made.
   plans: { name: 'plans_order_idx', columns: ['order_id'] },
 };
 

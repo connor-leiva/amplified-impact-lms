@@ -1,4 +1,4 @@
-// `POST /api/checkout`: the offer page's buy buttons (D-072, D-073, D-076).
+// `POST /api/checkout`: the offer page's buy buttons (D-073, D-074, D-077).
 //
 //   JSON (the page's script)  → 200 { url } to send the browser to Stripe, or 400/409/503 { error, field }
 //   a plain form (no script)  → 303 to Stripe's hosted Checkout, or 303 back to the plan on the page
@@ -7,7 +7,7 @@
 // ONE ORDER, THEN ONE SESSION. The form is validated, a `pending` order is written with the buyer's
 // details and the consent proof, and only then is Stripe asked for a Checkout Session, with the order
 // id as its idempotency key, its `client_reference_id` and its metadata. Nothing here marks an order
-// paid: only the webhook does (D-074).
+// paid: only the webhook does (D-075).
 //
 // WHAT IS REFUSED, AND IN WHICH WORDS. Every refusal names a field and says what to do, in the
 // page's own voice (`CHECKOUT_ERRORS`, which the page holds a copy of and a test holds equal). The

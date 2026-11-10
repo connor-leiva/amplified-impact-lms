@@ -3,7 +3,7 @@ import { CARDS, CART_IDS, PLAN_NAMES, TOKEN_PATTERN } from '@ai/core/offer';
 import { AFTER, CARDS_COPY, CHECKOUT, CHROME, HERO, WAITLIST, WELCOME } from './content';
 import { renderOfferBody, renderOfferHead, renderWelcomeBody, renderWelcomeHead } from './render';
 
-// The markup contract for /offer and /offer/welcome (D-074), on the parsed DOM, plus the house rules
+// The markup contract for /offer and /offer/welcome (D-075), on the parsed DOM, plus the house rules
 // for their words. The API fills the `%%tokens%%`; `apps/api/test/offer.test.ts` serves the pages.
 
 const parse = (head: string, body: string) =>

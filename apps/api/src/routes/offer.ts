@@ -1,4 +1,4 @@
-// The offer's routes (D-072 to D-076). Every one is public; what stands in for a session is named on
+// The offer's routes (D-073 to D-077). Every one is public; what stands in for a session is named on
 // each.
 //
 //   GET  /offer, /forum              → the offer page, filled per request (prices, dates, which carts

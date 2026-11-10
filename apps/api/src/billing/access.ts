@@ -1,4 +1,4 @@
-// The one rule that decides whether an account can open a skill (D-078), and the one that decides
+// The one rule that decides whether an account can open a skill (D-079), and the one that decides
 // whether its live sessions are open.
 //
 //   The skill is free; or one of the account's plans covers the skill's set, and that plan is paid up

@@ -1,4 +1,4 @@
-// The offer's one timed job: owner invites held for Monday (D-077).
+// The offer's one timed job: owner invites held for Monday (D-078).
 //
 // Provisioning creates the account the moment a sale is paid, but before `INVITES_FROM` (Mon, Nov 16,
 // 8 am Central) it holds the owner's invite, so the login arrives beside Sarah O.'s welcome email

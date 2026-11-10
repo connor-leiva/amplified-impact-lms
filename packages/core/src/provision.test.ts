@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { seed } from './seed';
 import { provisionOwner } from './provision';
 
-// D-077: a paid order becomes a team with an invited owner, through a pure function on `Db`.
+// D-078: a paid order becomes a team with an invited owner, through a pure function on `Db`.
 
 const NOW = Date.parse('2026-11-14T15:00:00-06:00');
 const ctx = () => {
@@ -11,7 +11,7 @@ const ctx = () => {
 };
 const ARGS = { email: 'New.Buyer@Example.com', name: 'Pat Buyer', teamName: 'Pat Group', seats: 2, tier: 'team' as const, cohortId: 'dec26' };
 
-describe('provisionOwner (D-077)', () => {
+describe('provisionOwner (D-078)', () => {
   it('creates an invited Team Owner and their team', () => {
     const db = seed('live');
     const out = provisionOwner(db, ARGS, ctx());

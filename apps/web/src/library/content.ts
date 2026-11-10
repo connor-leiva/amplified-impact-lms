@@ -313,7 +313,7 @@ export const LIBRARY = {
   clear: 'Clear filters',
   soon: 'Coming soon',
   /**
-   * The tag on a paid skill's card (D-081): its page is a preview, and the skill is in the Skill
+   * The tag on a paid skill's card (D-082): its page is a preview, and the skill is in the Skill
    * Library on the platform. Which skills are paid is the catalog's call (`FREE_SKILLS` in
    * `@ai/core/skills`), read through the skill's page, so this file names none.
    */
