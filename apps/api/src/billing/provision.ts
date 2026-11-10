@@ -68,6 +68,8 @@ export interface ProvisionOptions {
   log: BillingLog;
   now: number;
   invitesFrom: number;
+  /** False holds every invite (the platform is in fixture mode and has no sign-in). Defaults to true. */
+  invitesEnabled?: boolean;
   /** Staff override: send the owner's invite now even before `invitesFrom`. */
   inviteNow?: boolean;
 }
@@ -174,7 +176,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
       if (ownerRow?.status !== 'invited') {
         // Already signed in once (a buyer who was a learner before): nothing to send.
         await tx.update(accounts).set({ inviteSentAt: now }).where(eq(accounts.id, acct.id));
-      } else if (now >= options.invitesFrom || options.inviteNow) {
+      } else if (options.invitesEnabled !== false && (now >= options.invitesFrom || options.inviteNow)) {
         sends = await pendingSendsFor(tx, [inviteEffect(email, acct.name)], now, log as never);
         await tx.update(accounts).set({ inviteSentAt: now }).where(eq(accounts.id, acct.id));
         invite = 'sent';

@@ -64,6 +64,8 @@ function stubStripe(): Stub {
     trialEnd: null,
     defaultPaymentMethod: 'pm_sub',
     metadata: {},
+    cancelAt: null,
+    currentPeriodEnd: null,
     ...stub.subs.get(id),
     ...over,
   });
@@ -101,6 +103,7 @@ const CONFIG: OfferConfig = {
   open: true,
   foundingClosesAt: Date.parse('2026-11-15T23:59:00-06:00'),
   invitesFrom: Date.parse('2026-11-16T08:00:00-06:00'),
+  invitesEnabled: true,
   paymentLinks: { 'cohort-full': 'https://buy.stripe.com/test_cohort_full' },
   intakeUrls: { library: 'https://forms.example.com/library' },
 };
@@ -376,6 +379,16 @@ describe('POST /api/stripe/webhook (D-074, D-076, D-077)', () => {
     expect(outboxFor({ to: 'pat@example.com', template: 'team-invite' }).length).toBe(1);
   });
 
+  it('holds every invite while the platform is in fixture mode, even after INVITES_FROM', async () => {
+    await app.close();
+    await fresh({ invitesEnabled: false });
+    process.env.FIXED_NOW = '2026-11-17T10:00:00-06:00';
+    await buy('library', {}, { subscription: 'sub_lib' });
+    const [acct] = await (await db()).select().from(accounts);
+    expect(acct!.inviteSentAt).toBeNull();
+    expect(outboxFor({ to: 'pat@example.com' })).toEqual([]);
+  });
+
   it('2: the library\'s $197 on day 31 moves paid_through a month', async () => {
     const order = await buy('library', {}, { subscription: 'sub_lib' });
     await deliver('invoice.paid', invoice('sub_lib', 200000, NOW_MS + 30 * DAY, { order_id: order.id }));
@@ -414,7 +427,15 @@ describe('POST /api/stripe/webhook (D-074, D-076, D-077)', () => {
     });
   });
 
-  it('5: two-pay ends itself after the second payment, and its end is complete, not cancelled', async () => {
+  it('5 and handoff 11: two-pay is dated to end after its second payment as soon as it is bought', async () => {
+    const periodEnd = Date.parse('2026-12-14T21:00:00Z');
+    stub.subs.set('sub_two', { id: 'sub_two', status: 'active', customer: 'cus_1', trialEnd: null, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: periodEnd });
+    await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
+    const end = stub.updates.find((u) => u.params.cancel_at);
+    expect(end?.params).toMatchObject({ cancel_at: Math.floor(Date.parse('2027-01-14T21:00:00Z') / 1000), proration_behavior: 'none' });
+  });
+
+  it('5: an undated two-pay ends itself after the second payment, and its end is complete, not cancelled', async () => {
     const order = await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
     await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }));
     expect(stub.updates.filter((u) => u.params.cancel_at_period_end)).toEqual([]);
@@ -448,7 +469,7 @@ describe('POST /api/stripe/webhook (D-074, D-076, D-077)', () => {
   });
 
   it('8: a fallback Payment Link becomes an order, and its agent trial moves to exactly Jan 26', async () => {
-    stub.subs.set('sub_link', { id: 'sub_link', status: 'trialing', customer: 'cus_7', trialEnd: AGENTS_FIRST_CHARGE_AT - 2 * DAY, defaultPaymentMethod: 'pm_7', metadata: {} });
+    stub.subs.set('sub_link', { id: 'sub_link', status: 'trialing', customer: 'cus_7', trialEnd: AGENTS_FIRST_CHARGE_AT - 2 * DAY, defaultPaymentMethod: 'pm_7', metadata: {}, cancelAt: null, currentPeriodEnd: null });
     const res = await deliver('checkout.session.completed', {
       id: 'cs_test_linksession01',
       object: 'checkout.session',

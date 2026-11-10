@@ -165,3 +165,50 @@ Two copy decisions are also still open, both flagged for you rather than guessed
 authored email strings ("This invite expires in 7 days.", "Accept Invite", "Open Admin Console",
 "Open Team Hub"), and whether the weekly digest's "…what to review before Thursday" should derive
 from `Cohort.cadence` instead of being fixed to the December cohort's rhythm.
+
+---
+
+## 8. The offer launch (Forum, Nov 13 to 15)
+
+The carts, the webhook and the accounts are built (DECISIONS.md D-072 to D-081, proposed). What is
+left needs an account, a credential or a person. Grokbok's part is in `docs/STRIPE-HANDOFF.md`.
+
+**Before Thursday, Nov 12**
+
+1. Migrate: `pnpm --filter @ai/api db:migrate` (migration 0006 adds `orders`, `stripe_events`,
+   `accounts`, `plans` and `skills`). The deploy's `preDeploy` already runs it.
+2. Railway → **web** → Variables. **The test-mode values go in by Wednesday morning, and the live ones
+   on Thursday after Spring confirms the prices.** Paste each secret straight from Stripe into
+   Railway, never into chat:
+
+   | Name | Value |
+   |---|---|
+   | `STRIPE_SECRET_KEY` | the restricted key `website-checkout` (`rk_test_…`, then `rk_live_…`) |
+   | `STRIPE_WEBHOOK_SECRET` | the endpoint's `whsec_…`, same mode as the key |
+   | `OFFER_OPEN` | `true` when the carts open; anything else shows "The carts open soon" |
+   | `FOUNDING_CLOSES_AT` | `2026-11-15T23:59:00-06:00` unless Spring picks another zone |
+   | `PAYMENT_LINK_LIBRARY`, `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`, `PAYMENT_LINK_AGENTS_UPTO15`, `PAYMENT_LINK_AGENTS_16TO40` | Grokbok's fallback links |
+   | `INTAKE_URL_LIBRARY`, `INTAKE_URL_COHORT`, `INTAKE_URL_AGENTS` | Sarah O.'s intake forms; without them the welcome page says the form comes by email |
+   | `INVITES_FROM` | optional; defaults to Mon, Nov 16, 8:00 am Central |
+
+   The boot log line `offer configuration` says what is on and the key's mode (`test` or `live`),
+   never a value.
+3. Load the skills: `pnpm --filter @ai/api skills --upload` puts the 18 ZIPs in the bucket and the
+   catalog in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
+   free in `packages/core/src/skills.ts` first: **the tags there are a first pass for Connor.**
+4. Print `/forum-qr.svg` (it encodes `https://www.amplifiedimpact.io/forum?src=qr`). It decodes at
+   3 cm; scan the printed one on an iPhone and an Android, on cellular.
+
+**Before Monday, Nov 16: the switch to http mode.** Buyers sign in to the platform, and the platform
+has no sign-in while `VITE_DATA_SOURCE` is `fixture` (section 2). Until it is `http`, every owner
+invite is **held**, not sent: the accounts exist and the invites go out by themselves on the first
+deploy in http mode (after `INVITES_FROM`). Resend's DNS (section 1) has to be done first, or the
+invites land in spam.
+
+**By hand, when needed**
+
+- Re-run one order's provisioning: `pnpm --filter @ai/api provision --order <order id>`. Add
+  `--invite-now` to send the owner's invite before `INVITES_FROM`. Running it twice changes nothing.
+- A Tap to Pay sale at the table never reaches the website: set up the buyer's account and tags by
+  hand that night, as Grokbok's handoff section 9 says.
+- The 11th cohort sale goes through and logs `cohort seat 11 sold … book a tech assistant`.

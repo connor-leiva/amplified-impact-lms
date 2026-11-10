@@ -36,6 +36,10 @@ export interface SubscriptionInfo {
   trialEnd: number | null;
   defaultPaymentMethod: string | null;
   metadata: Record<string, string>;
+  /** When it is set to end, epoch ms, or null. */
+  cancelAt: number | null;
+  /** The end of the current period, epoch ms: on the item since API 2025-03-31, on the subscription before. */
+  currentPeriodEnd: number | null;
 }
 
 export interface BillingStripe {
@@ -57,6 +61,13 @@ export interface BillingStripe {
 const idOf = (value: string | { id: string } | null | undefined): string | null =>
   value === null || value === undefined ? null : typeof value === 'string' ? value : value.id;
 
+function periodEndOf(s: Stripe.Subscription): number | null {
+  const item = s.items?.data?.[0] as { current_period_end?: number } | undefined;
+  const legacy = (s as unknown as { current_period_end?: number }).current_period_end;
+  const end = item?.current_period_end ?? legacy;
+  return typeof end === 'number' ? end * 1000 : null;
+}
+
 function subscriptionInfo(s: Stripe.Subscription): SubscriptionInfo {
   return {
     id: s.id,
@@ -65,6 +76,8 @@ function subscriptionInfo(s: Stripe.Subscription): SubscriptionInfo {
     trialEnd: s.trial_end === null ? null : s.trial_end * 1000,
     defaultPaymentMethod: idOf(s.default_payment_method as string | { id: string } | null),
     metadata: { ...(s.metadata ?? {}) },
+    cancelAt: s.cancel_at ? s.cancel_at * 1000 : null,
+    currentPeriodEnd: periodEndOf(s),
   };
 }
 

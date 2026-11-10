@@ -24,7 +24,7 @@ import type { Database } from '../db/client';
 import { orders, plans, stripeEvents } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import { AGREEMENT_VERSION } from './checkout';
-import { AGENTS_FIRST_CHARGE_AT, AI_PLANS, COHORT_ONE_LIVE_UNTIL, LIBRARY_TRIAL_DAYS, PLAN_KINDS, cartFor } from './catalog';
+import { AGENTS_FIRST_CHARGE_AT, AI_PLANS, COHORT_ONE_LIVE_UNTIL, LIBRARY_TRIAL_DAYS, PLAN_KINDS, addMonths, cartFor } from './catalog';
 import type { PlanStatus } from './catalog';
 import type { OfferConfig } from './config';
 import type { PriceCache } from './prices';
@@ -220,7 +220,13 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
     .where(eq(orders.id, order.id));
   if (next !== 'paid' && next !== 'trialing') return 'awaiting-payment';
 
-  const provisioned = await provisionOrder(order.id, { db, log: deps.log, now, invitesFrom: deps.config.invitesFrom });
+  const provisioned = await provisionOrder(order.id, {
+    db,
+    log: deps.log,
+    now,
+    invitesFrom: deps.config.invitesFrom,
+    invitesEnabled: deps.config.invitesEnabled,
+  });
   if (!provisioned.ok) {
     // Recorded and paid: staff provision it by hand (`provision --order`). Not a reason to fail the event.
     return `paid:not-provisioned:${provisioned.reason}`;
@@ -245,6 +251,13 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
     const target = Math.floor(AGENTS_FIRST_CHARGE_AT / 1000);
     if (cart.plan === 'agents' && sub.status === 'trialing' && sub.trialEnd !== null && Math.floor(sub.trialEnd / 1000) !== target) {
       update.trial_end = target;
+      update.proration_behavior = 'none';
+    }
+    // Two payments, then none: the subscription is set to end when the last paid period does, so the
+    // cancellation date shows in Stripe within a minute of the purchase. `invoice.paid` checks again
+    // at the last payment, for a subscription this could not date.
+    if (cart.installments && sub.cancelAt === null && sub.currentPeriodEnd !== null) {
+      update.cancel_at = Math.floor(addMonths(sub.currentPeriodEnd, cart.installments - 1) / 1000);
       update.proration_behavior = 'none';
     }
     if (Object.keys(update).length) await stripe.updateSubscription(subscriptionId, update, `order-${order.id}-sub`);
@@ -333,7 +346,10 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
     // Two payments, then none: the subscription ends at the end of the period the second one paid for.
     if (cart?.installments && updated && updated.paymentsMade >= cart.installments) {
       if (!deps.stripe) throw Object.assign(new Error('no Stripe key'), { code: 'no-stripe-key' });
-      await deps.stripe.updateSubscription(subscriptionId, { cancel_at_period_end: true }, `two-pay-end-${subscriptionId}`);
+      const sub = await deps.stripe.retrieveSubscription(subscriptionId);
+      if (sub.cancelAt === null) {
+        await deps.stripe.updateSubscription(subscriptionId, { cancel_at_period_end: true }, `two-pay-end-${subscriptionId}`);
+      }
       result = 'two-pay-complete';
     }
   }
@@ -347,7 +363,7 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
   if (!plan && order && (order.status === 'pending' || order.status === 'trialing')) {
     // The invoice arrived before the session's completion: the payment proves the order paid.
     await db.update(orders).set({ status: 'paid', paidAt: order.paidAt ?? now, ...resync }).where(eq(orders.id, order.id));
-    await provisionOrder(order.id, { db, log: deps.log, now, invitesFrom: deps.config.invitesFrom });
+    await provisionOrder(order.id, { db, log: deps.log, now, invitesFrom: deps.config.invitesFrom, invitesEnabled: deps.config.invitesEnabled });
     if (order.plan !== 'cohort') plan = await planOfOrder(db, order.id);
   }
   const periodEnd = periodEndOfInvoice(invoice);

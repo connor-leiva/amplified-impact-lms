@@ -22,6 +22,12 @@ export interface OfferConfig {
   open: boolean;
   foundingClosesAt: number;
   invitesFrom: number;
+  /**
+   * Whether owner invites may go out at all: only when the platform serves sign-in, which is http mode
+   * (`VITE_DATA_SOURCE` is not `fixture`). In fixture mode an invite's link would land on the demo, so
+   * every invite is held, and the billing loop sends them once the deploy runs in http mode.
+   */
+  invitesEnabled: boolean;
   paymentLinks: Partial<Record<CartId, string>>;
   intakeUrls: Partial<Record<PlanKind, string>>;
 }
@@ -77,6 +83,7 @@ export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConf
     open: (env.OFFER_OPEN ?? '').trim().toLowerCase() === 'true',
     foundingClosesAt: instant('FOUNDING_CLOSES_AT', env.FOUNDING_CLOSES_AT, DEFAULT_FOUNDING_CLOSES_AT),
     invitesFrom: instant('INVITES_FROM', env.INVITES_FROM, DEFAULT_INVITES_FROM),
+    invitesEnabled: env.VITE_DATA_SOURCE !== 'fixture',
     paymentLinks,
     intakeUrls,
   };
@@ -101,6 +108,7 @@ export function describeOfferConfig(config: OfferConfig): Record<string, unknown
     webhook: config.stripeWebhookSecret === null ? 'unset' : 'set',
     foundingClosesAt: new Date(config.foundingClosesAt).toISOString(),
     invitesFrom: new Date(config.invitesFrom).toISOString(),
+    invites: config.invitesEnabled ? 'on' : 'held: the platform is in fixture mode',
     paymentLinks: Object.keys(config.paymentLinks),
     intakeForms: Object.keys(config.intakeUrls),
   };

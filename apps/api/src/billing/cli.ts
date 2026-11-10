@@ -44,6 +44,7 @@ async function provision(): Promise<number> {
     log,
     now: clock.now(),
     invitesFrom: config.invitesFrom,
+    invitesEnabled: config.invitesEnabled,
     inviteNow: process.argv.includes('--invite-now'),
   });
   console.log(JSON.stringify(out, null, 2));

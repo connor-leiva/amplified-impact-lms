@@ -3321,3 +3321,113 @@ yet: each skill's page, ZIPs and library card arrive with its own entry (D-053 o
 - **New words on the page,** all labels: "Free Library", "Your setup", "See the Full Example", "Show Less", "Get the Free Skill", and the facts above.
 - **Tested:** web tests 1,243 and API tests 1,167 (local dev database), typecheck, lint and the build. In Chromium against the built server and the dev database, on all 17 skill pages: no serious or critical axe violations locked at 1440, unlocked at 1440 and at 390; the card stays beside the open sample; See the Full Example opens and Show Less closes; a sign-up with a made-up name unlocks the card, moves focus to it and stops it sticking; every step shows as a row, Next ticks the steps behind it; the ChatGPT switch shows its own steps; on a phone the bar shows, leads to the card and hides, the unlocked setup comes before the sample, no sideways scroll; with JavaScript off the whole sample shows, the form's 303 lands on #download and every step shows numbered; no console errors.
 - **Not tested:** a real phone and Instagram's in-app browser, a screen reader, Safari (`:has()` puts the setup first on a phone once unlocked; without it the sample stays first).
+
+---
+
+# The offer launch: D-072 to D-081 (proposed)
+
+The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-080 and asks for each to go in here as a proposal that Connor approves before the code merges. D-071 was already taken by the skill pages' design, so they are numbered D-072 to D-081 below, in the spec's order. **Every entry in this section is a proposal. None is approved yet.** The code is on `claude/busy-darwin-xsmr2o`, built as the spec asks ("build this site to completion", Connor, in chat on 2026-11-10), and waits on these entries before it merges.
+
+## D-072 · Payments go through Stripe's hosted Checkout by redirect
+
+**Date:** 2026-11-10
+**Status:** Proposed. Awaiting Connor's approval (the spec's D-071).
+**Scope:** `apps/api/src/billing/` (`checkout.ts`, `stripe.ts`, `config.ts`), `apps/api/src/routes/offer.ts`, `packages/core/src/offer.ts`, the `stripe` package (19.3.0, pinned to its own API version `2025-10-29.clover`).
+
+- No Stripe.js and no card fields on our pages. The offer form posts to `POST /api/checkout`, which writes the order and answers with the Checkout Session's URL: JSON for the page's script, a 303 for a plain form post.
+- Helmet's `form-action 'self'` would block that 303 in a browser, so the offer page's own response, and no other, adds `https://checkout.stripe.com` to `form-action`. Tested in Chromium with JavaScript off.
+- Every session carries `client_reference_id` and metadata `order_id`, `ai_plan`, `ai_option`, `origin` and `campaign`, copied to the payment or the subscription; uses the order id as its idempotency key; prefills the email, collects a phone number and expires after 60 minutes.
+- The settings are `STRIPE_SECRET_KEY` (a restricted key), `STRIPE_WEBHOOK_SECRET`, `OFFER_OPEN`, `FOUNDING_CLOSES_AT`, plus `INVITES_FROM`, `PAYMENT_LINK_*` (the fallback links) and `INTAKE_URL_*` (Sarah O.'s forms). The API boots without any of them; the log says which are set and a key's mode, never a value.
+- `AGREEMENT_VERSION` lives beside the checkout (`billing/checkout.ts`), held equal to the page's copy by `test/offer-copy.test.ts`.
+
+## D-073 · Prices live in Stripe, found by lookup key
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-072).
+**Scope:** `billing/prices.ts`, `packages/core/src/offer.ts` (`LOOKUP_KEYS`, `priceWords`).
+
+- The code holds no amount and no price id. It asks Stripe for the six lookup keys in the handoff (`cohort_founding_full`, `cohort_founding_two_pay`, `library_upfront`, `membership_monthly`, `agents_upto15_founding`, `agents_16to40_founding`) and caches them for 5 minutes. A failed refresh keeps the last good list; with none, the page shows the Payment Links, or "The carts open soon".
+- The page prints prices the API fills per request (`%%tokens%%`), so a moved lookup key shows within 5 minutes with no deploy. When a price is missing, a card says "The price shows on the payment page" rather than a wrong number.
+
+## D-074 · Orders and Stripe events; only the webhook marks an order paid; the offer pages
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-073 and D-074, which share these files).
+**Scope:** migration `0006_offer_billing` (`orders`, `stripe_events`), `billing/webhook.ts`, `routes/offer.ts`, `routes/legal.ts`, `routes/marketing.ts`, `apps/web/src/offer/`, `apps/web/{offer,offer-welcome,agreement}.html`, `apps/web/src/legal/agreement.ts`, `apps/web/public/forum-qr.svg`, `test/authz.test.ts`.
+
+- `orders` holds one row per purchase attempt, from the page (written before Stripe is called) or from a fallback Payment Link (written by the webhook from the link's metadata and custom fields). `stripe_events` holds one row per event, inserted first, so a processed event is answered 200 and skipped.
+- The webhook checks the signature over the raw body, then does the database work inline and answers 500 on a failure so that **Stripe's own retries** bring the event back for three days. This differs from the spec's "answers 200 fast and works after": with no local retry queue, a 200 for a failed event would lose it. The work is a few queries and at most two Stripe calls, and emails go out after the commit.
+- Pages: `/offer`, `/forum` (the same page; it records `campaign` = `forum`), `/offer/welcome` and `/agreement`. They join D-051's exact allow-list (no trailing slash; `/offer/`, `/Offer`, `/offer.html`, `/offer/welcome/x` and `/forum/` never serve the page, tested), are `noindex`, and are exempt from the global limit (D-028). `/api/checkout` has its own limit (120 a minute per key, sized for a room on one address), `/api/offer/order-status` its own (600), and the webhook none.
+- Net-new UI, like the sign-in screens: the offer page, the welcome page and the agreement. Checked against the taste-skill rubric in Chromium at 390 and 1440: no sideways scroll, no axe violations, no console or CSP errors, the scripted and the no-JS checkout both reaching Stripe.
+- `/agreement` is a draft with `[attorney to confirm]` placeholders until Spring's attorney sends the text; it says so on the page.
+
+## D-075 · Buyer tags in GHL
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-075). Connor approves the list before the code ships.
+**Scope:** `integrations/ghl.ts` (`BUYER_TAGS`, `buyerTags`, `syncBuyerContact`), `jobs/ghl-orders.ts`, `jobs/ghl-sync.ts`.
+
+- The waitlist's GHL loop also copies buyers, on the same tick: the order is the record, GHL a copy, tags only ever added, never a phone number without SMS consent. A pending order is never copied.
+- Tags: `offer-buyer`, `plan-library` / `plan-cohort` / `plan-agents`, `pay-full` / `pay-two` (cohort), `checkout-abandoned-<plan>`, `payment-failed`, `membership-ended`, `refunded`, `event-forum-nov-2026` (orders through `/forum`), `sms-consent`, and `cohort-waitlist` (the offer page's waitlist form, a sign-up like the guides'). `intake-done` is GHL's own. `offer-interest` and `interest-<plan>` wait for P1's "not ready yet" form.
+
+## D-076 · Billing rules
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-076).
+**Scope:** `packages/core/src/offer.ts`, `billing/checkout.ts`, `billing/webhook.ts`.
+
+- **Two-pay** is a plain monthly subscription. Each `invoice.paid` above $0 adds a payment; at the second, the webhook sets `cancel_at_period_end`. Its end is "complete", not "cancelled". This works the same for the fallback link.
+- **The library** is one subscription: `library_upfront` charged today and `membership_monthly` on a 30-day trial, so the $197 starts on day 31. A link that could only carry the $2,000 gets its $197 started by the webhook.
+- **Agent plans** trial until Tue, Jan 26, 2027 (9 am Central); the webhook moves a link's trial to exactly that instant.
+- **The cohort's $197** follows its 90 days (cohort one: May 3, 2027). Until Spring decides, the box is **optional** (`COHORT_RENEWAL`); ticked, the webhook creates the trialing membership on the saved card. Setting it to `required` makes it automatic.
+- **Founding** closes at `FOUNDING_CLOSES_AT` (default Sun, Nov 15, 11:59 pm Central): the founding carts are refused at checkout and the page shows "Founding prices closed". A session already open can still be paid within its hour.
+- **Consent.** Every cart with a later charge has its own box naming the amount, the start date and how to cancel; the words are stored with the order (`renewal_consent_text`). The two-pay's second payment counts as a later charge. The CRM question refuses the cohort to teams not on Follow Up Boss, offering the library and the waitlist.
+- **Refunds.** A full refund ends the plan and its access, and cancels its subscriptions so nothing charges again.
+
+## D-077 · Accounts and plans; provisioning
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-077).
+**Scope:** migration `0006` (`accounts`, `plans`), `packages/core/src/provision.ts`, `billing/provision.ts`, `billing/cli.ts`, `jobs/billing.ts`.
+
+- A paid order becomes a platform team with the buyer as an invited Team Owner, through `provisionOwner` in `@ai/core` (a pure function on `Db`, persisted with `persistDiff` under the mutations' advisory lock, like `/api/mutate`). It is not one of the 37 mutations and has no route.
+- One account per owner email; one plan per order; running it twice changes nothing. A second plan for the same buyer lands on the same account and team, raising seats and tier, never lowering them.
+- **Defaults until Spring and Connor decide:** every owner is Team tier (so the Team Hub is theirs), in cohort one (`dec26`); seats are 2 for the library and the cohort (owner plus an operations lead), 16 and 41 for the agent tiers (the agents plus the owner).
+- Invites made before `INVITES_FROM` (Mon, Nov 16, 8 am Central) are held and sent by a one-minute loop when it passes; after it, they go at once. While the platform runs in fixture mode (production today), every invite is held, because there is no sign-in for its link to reach; the first deploy in http mode sends them. The staff command `pnpm --filter @ai/api provision --order <id> [--invite-now]` re-runs provisioning for one order.
+- The 11th cohort sale is not refused; it logs an error line asking Connor to book a tech assistant.
+
+## D-078 · The skill library
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-078).
+**Scope:** migration `0006` (`skills`), `packages/core/src/skills.ts`, `billing/access.ts`, `routes/skills.ts`, `storage.ts` (`skillFileKey`, `putObject`), `billing/cli.ts`.
+
+- One rule, `canOpenSkill`: the skill is free; or one of the account's plans covers its set and is paid through a date on or after its release ("cancel and keep"). A refunded plan opens nothing; an agent plan opens nothing until its first charge.
+- `GET /api/skills` lists every published skill as open, locked or upcoming; `GET /api/skills/:id/download/:kind` answers 403 when the rule says no, else a 5-minute presigned link (D-024's pattern). A sales agent opens the agent set and the free skills, never an owner-and-ops-only skill.
+- `pnpm --filter @ai/api skills [--upload]` loads the catalog into the table and puts the ZIPs in the bucket under `skills/<id>/`.
+- **Not built yet:** the `/skill-library` screen in the platform. It is net-new UI that needs Connor's skill tags and a place in the shell, and adding it to the sidebar would move every portal golden.
+
+## D-079 · Only the free skills stay downloadable on www
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-079).
+**Scope:** `packages/core/src/skills.ts` (`FREE_SKILLS`, `PAID_DOWNLOADS`), `apps/api/src/server.ts`, `apps/web/src/guides/`, `apps/web/src/library/`.
+
+- Free fails closed: a skill is free only when `FREE_SKILLS` names it. Today that is Appointment Follow-Up (the Follow Up Boss follow-up skill); Connor's two picks are added there. The voice profile and the time audit are guides, not ZIPs, and stay as they are.
+- `server.ts` stops serving every paid ZIP from `/downloads`, and any `/downloads/` path no route serves is a plain 404 rather than the SPA.
+- **The tags in `skills.ts` are a first pass for Connor**, read off each skill's own description; changing one is a one-word edit.
+
+## D-080 · Seats by plan
+
+**Date:** 2026-11-10
+**Status:** Proposed (the spec's D-080). **Not built:** it belongs to P2 (by Jan 26) and re-captures the Team Hub goldens.
+
+- `inviteMember` takes its limits from the account's plan (15 or 40 agents) instead of its fixed 1 owner, 1 operations lead and 5 sales agents, and the Team Hub handles 40 people. Provisioning already sets `teams.seats` from the plan (D-077).
+
+## D-081 · The skill pages of paid skills become previews
+
+**Date:** 2026-11-10
+**Status:** Proposed. The spec folds this into its D-079; it is its own entry because it changes 17 pages.
+**Scope:** `apps/web/src/guides/` and `apps/web/src/library/`.
+
+- A paid skill's page keeps its hero and its sample, and shows an "In the Skill Library" card with "See Plans" (to `/offer#plans`) and "Sign In" in place of the sign-up and the setup. No built page links a paid ZIP. The free skill's page is unchanged.

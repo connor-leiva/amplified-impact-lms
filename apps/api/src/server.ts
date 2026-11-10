@@ -226,6 +226,7 @@ startGhlSync({ waitlist: databaseConfigured(), log: app.log });
 // The offer (D-072 to D-077): say once what is on and in which mode, never a secret, and send the
 // owner invites held for Monday once Monday comes.
 app.log.info(describeOfferConfig(offerConfig), 'offer configuration');
-startBillingLoop({ database: databaseConfigured(), invitesFrom: offerConfig.invitesFrom, log: app.log });
+// Not in fixture mode: there is no sign-in to invite anyone to, so invites wait for the http deploy.
+startBillingLoop({ database: databaseConfigured() && offerConfig.invitesEnabled, invitesFrom: offerConfig.invitesFrom, log: app.log });
 
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 3000) });
