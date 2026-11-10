@@ -6,8 +6,13 @@
    /reel-editor) inline exactly the CSS they did before: their pages stay byte-identical.
 
    COLOURS. Tokens only, as in guides.css, whose page variables this file shares. `scripts/check-css-colors.mjs`
-   scans it. Mobile first; one breakpoint at 640px, as in guides.css. */
+   scans it. Mobile first; one breakpoint at 640px, as in guides.css.
 
+   A skill page itself (`layout: 'skill'`, D-071) is styled at the end of this file, under its own
+   classes (`.sk`, `.sk-top`, `.sk-foot`, `.sk-bar`), so /task-sync-starter, which loads this file
+   too, draws as before. Its headings are Hanken Grotesk at 600, the one weight added here. */
+
+@import '@fontsource/hanken-grotesk/600.css';
 @import './guides.css';
 
 /* --- Which app: two radio buttons and CSS, no script ----------------------------------------------
@@ -212,5 +217,902 @@
 @media (min-width: 640px) {
   .sample-table-wide table {
     min-width: 0;
+  }
+}
+
+/* ================================================================================================
+   A skill page in the library's look (D-071)
+   ------------------------------------------------------------------------------------------------
+   The combined direction the owner approved: the warm paper ground with surface cards, a surface-coloured top
+   bar, h1 at 700 and h2 at 600, one green mono eyebrow on the page (the hero's), and green kept for
+   actions, the sign-up card, the setup checklist and one band (who does what). The sample sits
+   beside the sign-up as a sheet of paper, its "Bottom line" first in green; the facts are three
+   quiet pills. Spacing on a 4px scale. Mobile first; the two columns from 960px.
+
+   Everything is under the layout's own classes. The opt-in gate, the app switch and the guided
+   setup keep their markup and the rules above and in guides.css; this only redraws them. */
+
+.sk,
+.sk-bar {
+  --sk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sk-top,
+.sk,
+.sk-foot,
+.sk-bar {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.sk-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.sk h1,
+.sk h2,
+.sk h3 {
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* --- The top bar: the logo, then "Free Library / <the skill>" ----------------------------------- */
+
+.sk-top {
+  background: var(--bg-surface);
+  box-shadow: inset 0 -1px 0 var(--line-default);
+}
+.sk-top-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+}
+.sk-logo {
+  display: block;
+  flex: none;
+  width: 132px;
+  height: auto;
+}
+.sk-crumbs ol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+.sk-crumbs a {
+  color: var(--text-secondary);
+}
+.sk-crumbs a:hover {
+  color: var(--text-primary);
+}
+/* On a phone the title is the h1 just under the bar, so the trail is the way back. */
+.sk-crumbs [aria-current] {
+  display: none;
+  font-weight: 600;
+}
+.sk-crumb-sep {
+  margin-right: 8px;
+  color: var(--text-tertiary);
+}
+
+/* --- The hero: the words, the sample and the sign-up ---------------------------------------------
+   One column on a phone: the words, the sample, then the card; once unlocked, the setup comes
+   before the sample. From 960px the card is the right column, beside the words and the sample, and
+   stays in view while the visitor reads, until it holds the setup. */
+
+.sk-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'intro'
+    'sample'
+    'optin';
+  gap: 32px;
+  padding-top: 28px;
+  padding-bottom: 48px;
+}
+.sk-intro {
+  grid-area: intro;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sk .eyebrow {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  color: var(--action-primary);
+}
+.sk h1 {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.sk-lede {
+  max-width: 34em;
+  font-size: 17px;
+  line-height: 26px;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+.sk-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 0;
+  list-style: none;
+}
+.sk-facts li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--line-default);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* --- Buttons: Title Case labels (D-048), 48px, the primary green, the rest plain with a line ----- */
+
+.sk .btn,
+.sk-bar .btn {
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  transition:
+    background-color 160ms var(--sk-ease),
+    box-shadow 160ms var(--sk-ease),
+    transform 160ms var(--sk-ease);
+}
+.sk .btn-outline {
+  border: 0;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.sk .btn:active,
+.sk-bar .btn:active {
+  transform: scale(0.98);
+}
+@media (hover: hover) {
+  .sk .btn:hover {
+    transform: translateY(-1px);
+  }
+  .sk .btn-outline:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px var(--action-primary-line);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk .btn,
+  .sk-bar .btn {
+    transition: none;
+  }
+  .sk .btn:hover,
+  .sk .btn:active,
+  .sk-bar .btn:active {
+    transform: none;
+  }
+}
+
+/* --- The sign-up: a green card; once unlocked, a plain one with the setup ------------------------
+   The section is only a frame: whichever half shows paints the card, so the look follows the gate
+   (guides.css) with no rule of its own about which state it is in. */
+
+.sk .optin {
+  grid-area: optin;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  scroll-margin-top: 16px;
+}
+.sk .optin .btn {
+  align-self: stretch;
+}
+.sk .locked {
+  gap: 12px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.sk .locked h2,
+.sk .unlocked h2 {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.sk .locked > p {
+  font-size: 15px;
+  line-height: 22px;
+  opacity: 0.88;
+}
+/* The two fields side by side when the card has room, one above the other on a phone. */
+.sk .form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.sk .form > :not(.field) {
+  grid-column: 1 / -1;
+}
+.sk .field {
+  gap: 4px;
+}
+.sk .field label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.sk .field input {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 16px;
+}
+.sk .locked :focus-visible,
+.sk .field input:focus-visible {
+  outline: 3px solid var(--action-on-primary);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+.sk .field input[aria-invalid='true'] {
+  box-shadow: inset 0 0 0 2px var(--status-attention);
+}
+.sk .locked .field-error,
+.sk .locked .form-error {
+  font-size: 14px;
+  color: var(--action-on-primary);
+}
+.sk .locked .btn-primary {
+  margin-top: 8px;
+  background: var(--action-on-primary);
+  color: var(--action-primary);
+}
+@media (hover: hover) {
+  .sk .locked .btn-primary:hover {
+    background: var(--paper);
+    color: var(--action-primary);
+  }
+}
+.sk .legal {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--action-on-primary);
+  opacity: 0.85;
+}
+.sk .legal a {
+  color: var(--action-on-primary);
+}
+.sk .unlocked {
+  gap: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--bg-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--line-default),
+    var(--shadow-xs);
+}
+.sk .unlocked > p,
+.sk .handoff,
+.sk .in-app {
+  font-size: 15px;
+  line-height: 22px;
+}
+.sk .unlocked > p {
+  color: var(--text-secondary);
+}
+
+/* The app switch, quieter: a light track, the chosen app in green (the rules above). */
+.sk .apps {
+  gap: 8px;
+}
+.sk .apps-q {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.sk .app-switch {
+  border: 0;
+  border-radius: 12px;
+}
+.sk .app-switch label {
+  min-height: 40px;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* --- The setup as a checklist ---------------------------------------------------------------------
+   With no script, every step shows, numbered, one under another. With it (`data-guided-on`, D-070)
+   every step's title shows as a row: done ticked in green, the current one opened in place on a
+   green tint with its buttons, the rest numbered and waiting. Back and Next below. */
+
+.sk .guided-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 4px 4px;
+}
+.sk .guided-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.sk .guided-progress {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.sk .setup {
+  gap: 2px;
+  margin: 0;
+}
+.sk .setup-step {
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px 0;
+}
+.sk .setup-n {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+}
+.sk .setup-body {
+  gap: 8px;
+}
+.sk .setup-body h3 {
+  padding-top: 2px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.sk .setup-body p {
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--text-secondary);
+}
+.sk .setup-body .setup-note {
+  font-size: 14px;
+  line-height: 20px;
+}
+.sk [data-guided-on] .setup-step {
+  display: grid;
+  align-items: start;
+  padding: 6px 10px;
+  border-top: 0;
+  border-radius: 12px;
+}
+.sk [data-guided-on] .setup-step[data-current] {
+  padding: 14px 10px;
+  background: var(--action-primary-tint);
+}
+.sk [data-guided-on] .setup-step:not([data-current]) .setup-body > :not(h3) {
+  display: none;
+}
+.sk [data-guided-on] .setup-step:not([data-current]) .setup-n {
+  justify-self: center;
+  width: 24px;
+  height: 24px;
+  background: var(--line-default);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.sk [data-guided-on] .setup-step:not([data-current]) h3 {
+  padding-top: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+}
+.sk [data-guided-on] .setup-step[data-done] h3 {
+  color: var(--text-secondary);
+}
+.sk [data-guided-on] .setup-step[data-done] .setup-n {
+  background: var(--action-primary);
+  font-size: 0;
+}
+.sk [data-guided-on] .setup-step[data-done] .setup-n::after {
+  content: '';
+  width: 9px;
+  height: 5px;
+  margin-top: -2px;
+  border-bottom: 2px solid var(--action-on-primary);
+  border-left: 2px solid var(--action-on-primary);
+  transform: rotate(-45deg);
+}
+.sk [data-guided-on] .setup-step[data-current] .setup-n {
+  background: var(--bg-surface);
+  color: var(--action-primary);
+  box-shadow: inset 0 0 0 2px var(--action-primary);
+}
+.sk [data-guided-on] .setup-step[data-current] h3 {
+  line-height: 28px;
+  padding-top: 0;
+}
+.sk .guided-nav {
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 16px;
+}
+.sk .guided-nav .btn {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: 15px;
+}
+.sk .guided-nav [data-guided-next],
+.sk .guided-nav [data-guided-restart] {
+  margin-left: auto;
+}
+.sk .guided-nav [data-guided-next] {
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+}
+@media (hover: hover) {
+  .sk .guided-nav [data-guided-next]:hover {
+    background: var(--action-primary-tint);
+    color: var(--action-primary);
+    box-shadow: inset 0 0 0 1px var(--action-primary-line);
+  }
+}
+
+/* Words to copy: the surface colour, a hairline, "Copy" in green. */
+.sk .chip {
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--line-default);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.45;
+  transition: box-shadow 160ms var(--sk-ease);
+}
+@media (hover: hover) {
+  .sk .chip:hover {
+    box-shadow: inset 0 0 0 1px var(--action-primary-line);
+  }
+}
+.sk .chip-tag {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.sk .chip-block-text {
+  font-size: 13px;
+}
+
+/* --- The sample, as a sheet of paper -------------------------------------------------------------
+   With the script it starts as its first screen, fading out, with "See the Full Example" (main.ts).
+   On a wide screen it sits on a second sheet, turned a little, while it is a preview. */
+
+.sk-sample {
+  grid-area: sample;
+  display: block;
+  min-width: 0;
+}
+.sk-sheet {
+  position: relative;
+  isolation: isolate;
+  max-width: 560px;
+}
+.sk .sample-doc {
+  gap: 12px;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-pop);
+}
+.sk .sample-head {
+  gap: 6px;
+}
+.sk .sample-head .note {
+  font-size: 12px;
+  line-height: 16px;
+}
+.sk .sample-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.sk .sample-h {
+  font-size: 16px;
+  font-weight: 600;
+}
+.sk .sample-p,
+.sk .sample-list,
+.sk .sample-email {
+  font-size: 15px;
+}
+.sk .sample-table table {
+  font-size: 14px;
+}
+.sk .sample-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--action-primary-tint);
+}
+.sk .sample-bottom .sample-h {
+  margin: 0;
+  color: var(--action-primary);
+}
+.sk-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--action-primary);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sk-sample[data-peek] .sk-more::after {
+  content: '\2192';
+}
+.sk-sample[data-peek] .sample-doc {
+  max-height: 400px;
+  overflow: hidden;
+}
+.sk-sample[data-peek] .sk-sheet::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 160px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(to bottom, transparent, var(--bg-surface) 70%);
+  pointer-events: none;
+}
+.sk-sample[data-peek] .sk-more {
+  position: absolute;
+  bottom: 12px;
+  left: 20px;
+  z-index: 2;
+  margin: 0;
+}
+
+/* --- The bands below the hero --------------------------------------------------------------------- */
+
+.sk-band {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  box-shadow: inset 0 1px 0 var(--line-default);
+}
+.sk-band-roles {
+  background: var(--bg-surface);
+}
+.sk-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 46em;
+  margin-bottom: 20px;
+}
+.sk-head h2 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.sk-sub {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+.sk-list,
+.sk-roles,
+.sk-cards {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sk-list {
+  column-gap: 32px;
+}
+.sk-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line-default);
+}
+.sk-list strong,
+.sk-roles strong,
+.sk-cards strong {
+  font-weight: 600;
+  line-height: 1.3;
+}
+.sk-list span,
+.sk-body {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+/* Who does what: open columns, the last (what stays the person's) marked in green. */
+.sk-roles {
+  gap: 28px;
+}
+.sk-roles li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 2px solid var(--line-default);
+}
+.sk-roles li:last-child {
+  border-top-color: var(--action-primary);
+}
+.sk-role {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--action-primary);
+}
+.sk-roles strong {
+  font-size: 18px;
+}
+/* What you need: cards. */
+.sk-cards {
+  gap: 12px;
+}
+.sk-cards li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--bg-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--line-default),
+    var(--shadow-xs);
+}
+.sk-cards strong {
+  font-size: 17px;
+}
+.sk-tag {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.sk .sk-cta {
+  display: inline-flex;
+  margin-top: 24px;
+}
+/* What to say, and the questions, side by side from 960px. */
+.sk-pair {
+  display: grid;
+  gap: 48px;
+}
+.sk .prompts,
+.sk .faq {
+  display: block;
+}
+.sk .sk-group {
+  margin: 20px 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.sk .chips {
+  gap: 8px;
+}
+.sk .faq-item summary {
+  min-height: 52px;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.sk .faq-item p {
+  font-size: 15px;
+}
+.sk-band-note .crosslink {
+  font-size: 16px;
+}
+
+/* --- Footer, and the phone's sign-up bar ---------------------------------------------------------- */
+
+.sk-foot {
+  max-width: 1200px;
+  padding-bottom: 104px;
+  border-top: 0;
+}
+.sk-foot .logo-foot {
+  width: 132px;
+  margin-bottom: 8px;
+}
+.sk-band-note {
+  padding-bottom: 8px;
+}
+.sk-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: var(--bg-surface);
+  box-shadow:
+    inset 0 1px 0 var(--line-default),
+    var(--shadow-pop);
+}
+
+@media (min-width: 640px) {
+  .sk-list,
+  .sk-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 959px) {
+  .sk-hero:has(.optin[data-state='unlocked']) {
+    grid-template-areas:
+      'intro'
+      'optin'
+      'sample';
+  }
+  .sk-hero:has(.unlocked:target) {
+    grid-template-areas:
+      'intro'
+      'optin'
+      'sample';
+  }
+}
+
+@media (min-width: 960px) {
+  .sk-wrap,
+  .sk-foot {
+    padding-right: 56px;
+    padding-left: 56px;
+  }
+  .sk-top-in {
+    min-height: 60px;
+  }
+  .sk-logo {
+    width: 150px;
+  }
+  .sk-crumbs ol {
+    justify-content: flex-end;
+  }
+  .sk-crumbs [aria-current] {
+    display: block;
+  }
+  .sk-top-in {
+    justify-content: flex-start;
+  }
+  .sk-crumbs {
+    margin-left: 16px;
+  }
+  .sk-hero {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'intro optin'
+      'sample optin';
+    column-gap: 56px;
+    row-gap: 36px;
+    padding-top: 56px;
+    padding-bottom: 64px;
+  }
+  .sk .optin {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+  }
+  .sk .optin[data-state='unlocked'] {
+    position: static;
+  }
+  .sk .optin:has(.unlocked:target) {
+    position: static;
+  }
+  .sk h1 {
+    font-size: 62px;
+    line-height: 1.02;
+  }
+  .sk .eyebrow + h1 {
+    margin-top: 0;
+  }
+  .sk-lede {
+    font-size: 20px;
+    line-height: 30px;
+  }
+  .sk-facts li {
+    min-height: 32px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+  .sk .sample-doc {
+    padding: 24px;
+  }
+  .sk-sample[data-peek] .sample-doc {
+    max-height: 440px;
+  }
+  /* The sheet itself stays square, so its words stay sharp on a screen at 1x; the one under it
+     is turned. */
+  .sk-sample[data-peek] .sk-sheet::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    right: -32px;
+    bottom: -10px;
+    left: 36px;
+    z-index: -1;
+    border-radius: 8px;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-card);
+    opacity: 0.75;
+    transform: rotate(3deg);
+  }
+  .sk-sample[data-peek] .sk-more {
+    left: 24px;
+  }
+  .sk-band {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+  .sk-head {
+    margin-bottom: 28px;
+  }
+  .sk-head h2 {
+    font-size: 30px;
+  }
+  .sk-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .sk-roles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+  }
+  .sk-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .sk-cards-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sk-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 56px;
+  }
+  .sk-pair .sk-head h2 {
+    font-size: 28px;
+  }
+  .sk-foot {
+    padding-bottom: 40px;
+  }
+  .sk-bar {
+    display: none;
   }
 }

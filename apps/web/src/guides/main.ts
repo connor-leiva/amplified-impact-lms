@@ -13,6 +13,8 @@
 //   5. "Send This to My Computer" opens the share sheet where there is one (D-045).
 //   6. "Copy & Open Claude" (or ChatGPT) copies a step's words and opens the app (D-070).
 //   7. A setup shows one step at a time, with Back and Next, and remembers the place (D-070).
+//   8. On a skill page (D-071): the steps before the current one are marked done, the sample starts as
+//      its first screen with "See the Full Example", and on a phone a bar leads to the sign-up.
 //
 // Written for the in-app WebViews that ManyChat's DM links open in: built for es2019 / Safari 13,
 // every feature in `guard()`, every storage access wrapped.
@@ -80,6 +82,9 @@ function unlock(doc: Document, focus: boolean): void {
   const download = doc.getElementById(DOWNLOAD_ID);
   if (!el || !download) return;
   el.setAttribute('data-state', 'unlocked');
+  // A skill page's sign-up bar has nothing left to lead to (D-071).
+  const bar = doc.querySelector<HTMLElement>('[data-sk-bar]');
+  if (bar) bar.hidden = true;
   if (focus) download.focus();
 }
 
@@ -375,8 +380,16 @@ function initGuided(doc: Document): void {
       const at = Math.min(Math.max(n, 1), total);
       current = at;
       steps.forEach((step, i) => {
-        if (i + 1 === at) step.setAttribute('data-current', '');
-        else step.removeAttribute('data-current');
+        if (i + 1 === at) {
+          step.setAttribute('data-current', '');
+          step.setAttribute('aria-current', 'step');
+        } else {
+          step.removeAttribute('data-current');
+          step.removeAttribute('aria-current');
+        }
+        // A skill page's checklist ticks the steps before this one (D-071).
+        if (i + 1 < at) step.setAttribute('data-done', '');
+        else step.removeAttribute('data-done');
       });
       progress.textContent = template.replace('{n}', String(at)).replace('{total}', String(total));
       back.hidden = at === 1;
@@ -400,6 +413,61 @@ function initGuided(doc: Document): void {
     next.addEventListener('click', () => show(current + 1, true));
     restart.addEventListener('click', () => show(1, true));
   }
+}
+
+// --- A skill page's sample and sign-up bar (D-071) -------------------------------------------------
+
+/**
+ * The sample starts as its first screen, faded, with "See the Full Example" under it; the button then
+ * reads "Show Less". Focus reaching a part that is cut off (a table, by Tab) opens it, so a keyboard
+ * never lands on something it cannot see. Without this, all of it shows.
+ */
+function initSample(doc: Document): void {
+  for (const section of Array.from(doc.querySelectorAll<HTMLElement>('[data-peekable]'))) {
+    const button = section.querySelector<HTMLButtonElement>('[data-sample-more]');
+    const sheet = section.querySelector<HTMLElement>('.sample-doc');
+    if (!button || !sheet) continue;
+    const more = button.textContent ?? '';
+    const less = button.getAttribute('data-less') ?? more;
+    const set = (open: boolean) => {
+      if (open) section.removeAttribute('data-peek');
+      else section.setAttribute('data-peek', '');
+      button.setAttribute('aria-expanded', String(open));
+      button.textContent = open ? less : more;
+    };
+    set(false);
+    button.hidden = false;
+    button.addEventListener('click', () => {
+      const open = section.hasAttribute('data-peek');
+      set(open);
+      // After "Show Less" far down a long sample, bring the button back into view.
+      if (!open && typeof button.scrollIntoView === 'function') button.scrollIntoView({ block: 'nearest' });
+    });
+    sheet.addEventListener('focusin', () => {
+      if (section.hasAttribute('data-peek')) set(true);
+    });
+  }
+}
+
+/**
+ * On a phone, the bar at the foot of the screen that leads to the sign-up: shown while the opt-in card
+ * is out of view and the skill is not yet unlocked. `skills.css` never shows it on a wide screen, where
+ * the card stays beside the sample. Without IntersectionObserver it stays hidden: the card is still on
+ * the page.
+ */
+function initBar(doc: Document): void {
+  const bar = doc.querySelector<HTMLElement>('[data-sk-bar]');
+  const el = card(doc);
+  if (!bar || !el || typeof IntersectionObserver !== 'function') return;
+  // The card counts as in view once its top is a bar's height above the foot of the screen, so the
+  // bar never hides for a sliver of green.
+  new IntersectionObserver(
+    (entries) => {
+      const inView = entries.some((entry) => entry.isIntersecting);
+      bar.hidden = inView || el.getAttribute('data-state') === 'unlocked';
+    },
+    { rootMargin: '0px 0px -96px 0px' },
+  ).observe(el);
 }
 
 // --- Send This to My Computer (D-045) ---------------------------------------------------------------
@@ -460,6 +528,8 @@ function boot(doc: Document): void {
   guard(() => initCopy(doc, toast));
   guard(() => initCopyOpen(doc, toast));
   guard(() => initGuided(doc));
+  guard(() => initSample(doc));
+  guard(() => initBar(doc));
   guard(() => initShare(doc));
 }
 

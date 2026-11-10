@@ -585,6 +585,52 @@ describe('who a guide sign-up hears from (D-041)', () => {
   });
 });
 
+describe('the layouts (D-071)', () => {
+  it('draws every free skill in the library’s look, and the three guides in their own, untouched', () => {
+    const skills = Object.values(GUIDES).filter((g) => g.layout === 'skill');
+    expect(skills.map((g) => g.slug).sort()).toEqual(
+      Object.keys(GUIDES)
+        .filter((slug) => !['task-sync-starter', 'ops-time-audit', 'reel-editor'].includes(slug))
+        .sort(),
+    );
+    for (const g of skills) {
+      const doc = parse(g);
+      expect(doc.querySelector('header.sk-top nav[aria-label="Breadcrumb"] a[href="/library"]'), g.slug).not.toBeNull();
+      expect(doc.querySelectorAll('.eyebrow'), g.slug).toHaveLength(1);
+      expect(doc.querySelector('.sk-hero > section.sample'), g.slug).not.toBeNull();
+      // Every skill's sample has a "Bottom line" (or "Bottom line for the agent"), drawn as its callout.
+      expect(text(doc.querySelector('.sk-hero .sample-bottom h3')), g.slug).toMatch(/^Bottom line/i);
+    }
+    for (const slug of ['task-sync-starter', 'ops-time-audit', 'reel-editor']) {
+      const doc = parse(guideFor(slug));
+      expect(doc.querySelector('header.hero'), slug).not.toBeNull();
+      expect(doc.querySelector('main.page'), slug).not.toBeNull();
+      expect(doc.querySelector('[class^="sk"], [class*=" sk-"], [data-sk-bar], .guided-head'), slug).toBeNull();
+    }
+  });
+
+  it('keeps the skill layout’s styles under its own classes, so a guide that loads skills.css draws as before', () => {
+    const css = read('./skills.css');
+    const own = css.slice(css.lastIndexOf('/*', css.indexOf('A skill page in the library')));
+    const rules = own.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+\{/g) ?? [];
+    const selectors = rules
+      .map((r) => r.replace('{', '').trim())
+      .filter((r) => !r.startsWith('@'))
+      .flatMap((r) => r.split(','))
+      .map((sel) => sel.trim())
+      .filter(Boolean);
+    expect(selectors.length).toBeGreaterThan(50);
+    for (const sel of selectors) expect(sel, sel).toMatch(/^\.sk(-[a-z0-9-]+)?(?![a-z0-9-])/);
+  });
+
+  it('keeps the card beside the sample in view only until it holds the setup', () => {
+    const css = read('./skills.css');
+    expect(css).toMatch(/\.sk \.optin \{\s*position: sticky;/);
+    expect(css).toMatch(/\.sk \.optin\[data-state='unlocked'\] \{\s*position: static;/);
+    expect(css).toMatch(/\.sk \.optin:has\(\.unlocked:target\) \{\s*position: static;/);
+  });
+});
+
 describe('the stylesheet', () => {
   const css = read('./guides.css');
 

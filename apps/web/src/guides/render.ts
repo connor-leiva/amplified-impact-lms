@@ -217,9 +217,13 @@ function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): 
     )
     .join('\n');
   const g = SHARED.guided;
+  const progress = `<p class="guided-progress" data-guided-progress="${esc(g.progress)}" hidden></p>`;
   return [
     `<div class="guided" data-guided data-guided-key="${esc(`${guide.unlockKey}-step-${app}`)}">`,
-    `<p class="guided-progress" data-guided-progress="${esc(g.progress)}" hidden></p>`,
+    // A skill page names the checklist, with the step count beside it (D-071).
+    guide.layout === 'skill'
+      ? `<div class="guided-head"><p class="guided-title">${esc(SHARED.skill.setupTitle)}</p>${progress}</div>`
+      : progress,
     `<ol class="setup" role="list">\n${items}\n</ol>`,
     `<div class="guided-nav" data-guided-nav hidden>`,
     `<button type="button" class="btn btn-outline" data-guided-back>${esc(g.back)}</button>`,
@@ -473,13 +477,13 @@ function sampleBlock(b: SampleBlock, id: string): string {
   );
 }
 
-function footer(): string {
+function footer(extraClass = ''): string {
   const f = SHARED.footer;
   const links = f.links
     .map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.link)}</a>`)
     .join('<span aria-hidden="true"> · </span>');
   return [
-    `<footer class="foot">`,
+    `<footer class="foot${extraClass ? ` ${esc(extraClass)}` : ''}">`,
     logo(signatureSvg, SHARED.logoAlt, 'logo logo-foot'),
     `<p>${esc(f.byline)}</p>`,
     `<p class="foot-links">${links}</p>`,
@@ -496,6 +500,7 @@ const copies = (guide: Guide) =>
 
 /** Everything inside <body>. */
 export function renderGuideBody(guide: Guide): string {
+  if (guide.layout === 'skill') return skillBody(guide);
   return [
     hero(guide),
     `<main class="page">`,
@@ -505,6 +510,204 @@ export function renderGuideBody(guide: Guide): string {
     footer(),
     // One polite live region, drawn as a toast: "Copied", or how to copy by hand when that failed.
     copies(guide) ? `<p id="guide-live" class="toast" role="status" aria-live="polite"></p>` : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+// --- A skill page in the library's look (D-071) ------------------------------------------------------
+//
+// The same content, the same opt-in and the same setup, laid out as the combined design the owner
+// approved: a white top bar with the breadcrumb back to the library; a hero on the paper ground with
+// the one eyebrow, the title, the lede and three facts as pills; the skill's own output beside the
+// opt-in as a sheet of paper; and below, each section as a band. Every id, data attribute and class
+// that `main.ts` and the gate's CSS read is unchanged, so the opt-in, the unlock, the copy buttons and
+// the guided setup work as before. All of it styled in `skills.css` under `.sk`.
+
+/** The top bar: the logo, then "Free Library / <the skill>". */
+function skillTop(guide: Guide): string {
+  const lib = SHARED.skill.library;
+  return [
+    `<header class="sk-top">`,
+    `<div class="sk-wrap sk-top-in">`,
+    logo(signatureSvg, SHARED.logoAlt, 'sk-logo'),
+    `<nav class="sk-crumbs" aria-label="Breadcrumb"><ol role="list">`,
+    `<li><a href="${esc(lib.href)}">${esc(lib.label)}</a></li>`,
+    `<li aria-current="page"><span class="sk-crumb-sep" aria-hidden="true">/</span>${esc(guide.hero.title)}</li>`,
+    `</ol></nav>`,
+    `</div>`,
+    `</header>`,
+  ].join('\n');
+}
+
+/** The hero's words: the page's one eyebrow, the title, the lede and the facts. */
+function skillIntro(guide: Guide): string {
+  const h = guide.hero;
+  const facts = (guide.facts ?? []).map((f) => `<li>${esc(f)}</li>`).join('');
+  return [
+    `<div class="sk-intro">`,
+    `<p class="eyebrow">${esc(h.eyebrow)}</p>`,
+    `<h1>${esc(h.title)}</h1>`,
+    `<p class="sk-lede">${esc(h.lede)}</p>`,
+    facts ? `<ul class="sk-facts" role="list">${facts}</ul>` : '',
+    `</div>`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+/** A sample's blocks, with its "Bottom line" and the paragraph under it drawn as the answer that reads first. */
+function skillSampleBlocks(blocks: readonly SampleBlock[], id: string): string {
+  const out: string[] = [];
+  for (let j = 0; j < blocks.length; j++) {
+    const b = blocks[j];
+    const next = blocks[j + 1];
+    if (b && 'h' in b && /^bottom line\b/i.test(b.h) && next && 'p' in next) {
+      out.push(`<div class="sample-bottom">${sampleBlock(b, `${id}-t${j + 1}`)}${sampleBlock(next, `${id}-t${j + 2}`)}</div>`);
+      j++;
+      continue;
+    }
+    if (b) out.push(sampleBlock(b, `${id}-t${j + 1}`));
+  }
+  return out.join('\n');
+}
+
+/**
+ * The sample, as a sheet of paper beside the opt-in. Its heading and line of context are for a screen
+ * reader; the sheet says what it is. With the script, the sheet starts as its first screen with
+ * "See the Full Example" (`main.ts`); without it, all of it shows.
+ */
+function skillSample(s: Extract<Section, { kind: 'sample' }>, i: number): string {
+  const id = `s${i + 1}-heading`;
+  const docId = `${id}-doc`;
+  return [
+    `<section class="sample sk-sample" aria-labelledby="${id}" data-peekable>`,
+    `<h2 id="${id}" class="visually-hidden">${esc(s.heading)}</h2>`,
+    `<p class="visually-hidden">${esc(s.body)}</p>`,
+    `<div class="sk-sheet">`,
+    `<article class="sample-doc" id="${docId}" aria-labelledby="${id}-title">`,
+    `<div class="sample-head"><p class="note">${esc(s.note)}</p><p class="sample-title" id="${id}-title">${esc(s.title)}</p></div>`,
+    skillSampleBlocks(s.blocks, id),
+    `</article>`,
+    `<button type="button" class="sk-more" data-sample-more aria-controls="${docId}" aria-expanded="true" data-less="${esc(SHARED.skill.sampleLess)}" hidden>${esc(SHARED.skill.sampleMore)}</button>`,
+    `</div>`,
+    `</section>`,
+  ].join('\n');
+}
+
+/**
+ * One band below the hero: a full-width ground and the page's column inside it. A section named by its
+ * heading, or, when what it holds names itself (the two columns of a pair), a plain box.
+ */
+function band(kind: string, id: string | null, inner: string): string {
+  const tag = id ? 'section' : 'div';
+  const label = id ? ` aria-labelledby="${id}"` : '';
+  return [`<${tag} class="sk-band sk-band-${kind}"${label}>`, `<div class="sk-wrap">`, inner, `</div>`, `</${tag}>`].join('\n');
+}
+
+/** A band's heading and the line under it. */
+function bandHead(id: string, heading: string, sub?: string): string {
+  return (
+    `<div class="sk-head"><h2 id="${id}">${esc(heading)}</h2>` + (sub ? `<p class="sk-sub">${esc(sub)}</p>` : '') + `</div>`
+  );
+}
+
+/** "What to say": the words, each copied with a tap. Its heading's id is given, so two columns can share a band. */
+function skillPrompts(s: Extract<Section, { kind: 'prompts' }>, id: string): string {
+  const groups = s.groups
+    .map(
+      (g) =>
+        `<h3 class="sk-group">${esc(g.label)}</h3>` +
+        `<ul class="chips" role="list">${g.items.map((w) => `<li>${copyChip(w)}</li>`).join('')}</ul>`,
+    )
+    .join('\n');
+  return [`<section class="sk-col prompts" aria-labelledby="${id}">`, bandHead(id, s.heading, s.body), groups, `</section>`].join('\n');
+}
+
+function skillFaq(s: Extract<Section, { kind: 'faq' }>, id: string): string {
+  const items = s.items
+    .map((it) => `<details class="faq-item"><summary>${esc(it.q)}</summary><p>${inline(it.a)}</p></details>`)
+    .join('');
+  return [`<section class="sk-col faq" aria-labelledby="${id}">`, bandHead(id, s.heading), `<div class="faq-list">${items}</div>`, `</section>`].join('\n');
+}
+
+/** One section below the hero, as its band. */
+function skillSection(guide: Guide, s: Section, i: number): string {
+  const id = `s${i + 1}-heading`;
+  switch (s.kind) {
+    case 'list': {
+      const items = s.items.map((it) => `<li><strong>${esc(it.title)}</strong><span>${esc(it.body)}</span></li>`).join('');
+      return band('list', id, [bandHead(id, s.heading), `<ul class="sk-list" role="list">${items}</ul>`].join('\n'));
+    }
+    case 'tiles': {
+      // Labelled tiles are who does what (Run, Draft, Own): open columns on a white band, the last,
+      // what stays the person's, marked in green. The rest ("What you need") are cards.
+      const roles = s.items.every((it) => it.label);
+      const items = s.items
+        .map(
+          (it) =>
+            `<li>` +
+            (it.label ? `<span class="sk-role">${esc(it.label)}</span>` : '') +
+            `<strong>${esc(it.title)}</strong><span class="sk-body">${esc(it.body)}</span>` +
+            (it.tag ? `<span class="sk-tag">${esc(it.tag)}</span>` : '') +
+            `</li>`,
+        )
+        .join('');
+      const list = roles
+        ? `<ul class="sk-roles" role="list">${items}</ul>`
+        : `<ul class="sk-cards${s.columns === 2 ? ' sk-cards-2' : ''}" role="list">${items}</ul>`;
+      const cta = s.cta ? `<a class="btn btn-primary sk-cta" href="#${esc(guide.optIn.anchor)}">${esc(guide.optIn.button)}</a>` : '';
+      return band(roles ? 'roles' : 'cards', id, [bandHead(id, s.heading, s.note), list, cta].filter(Boolean).join('\n'));
+    }
+    case 'prompts':
+      return band('pair', null, skillPrompts(s, id));
+    case 'faq':
+      return band('pair', null, skillFaq(s, id));
+    case 'note':
+      return band('note', null, `<p class="crosslink">${inline(s.body)}</p>`);
+    default:
+      // Not on a skill page today: the guide's own markup, in a band.
+      return band('other', null, section(guide, s, i));
+  }
+}
+
+/** The sections below the hero, with "What to say" and the questions after it side by side. */
+function skillSections(guide: Guide, skip: number): string {
+  const out: string[] = [];
+  const secs = guide.sections;
+  for (let i = 0; i < secs.length; i++) {
+    const s = secs[i];
+    if (!s || i === skip) continue;
+    const next = secs[i + 1];
+    if (s.kind === 'prompts' && next?.kind === 'faq') {
+      out.push(band('pair', null, `<div class="sk-pair">${skillPrompts(s, `s${i + 1}-heading`)}\n${skillFaq(next, `s${i + 2}-heading`)}</div>`));
+      i++;
+      continue;
+    }
+    out.push(skillSection(guide, s, i));
+  }
+  return out.join('\n');
+}
+
+/** A skill page's <body>. */
+function skillBody(guide: Guide): string {
+  const at = guide.sections.findIndex((s) => s.kind === 'sample');
+  const sample = guide.sections[at];
+  return [
+    skillTop(guide),
+    `<main class="sk">`,
+    `<div class="sk-hero sk-wrap">`,
+    skillIntro(guide),
+    optIn(guide),
+    sample?.kind === 'sample' ? skillSample(sample, at) : '',
+    `</div>`,
+    skillSections(guide, at),
+    `</main>`,
+    footer('sk-foot'),
+    copies(guide) ? `<p id="guide-live" class="toast" role="status" aria-live="polite"></p>` : '',
+    // On a phone, a way to the sign-up from anywhere on the page: shown by `main.ts` while the card is
+    // out of view and the skill is not yet unlocked.
+    `<div class="sk-bar" data-sk-bar hidden><a class="btn btn-primary" href="#${esc(guide.optIn.anchor)}">${esc(SHARED.skill.bar)}</a></div>`,
   ]
     .filter(Boolean)
     .join('\n');
