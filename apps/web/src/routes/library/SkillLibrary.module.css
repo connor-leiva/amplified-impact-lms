@@ -1,0 +1,165 @@
+/* /skill-library: net-new (D-078), outside the shell like /sign-in. No reference file, so the values
+   are the house ones the portal and the sign-in card already use: radius 12 and 16, a 1px
+   --line-default border, --bg-surface cards on --bg-canvas, 40px buttons. Tokens only. */
+
+.page {
+  min-height: 100dvh;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: var(--bg-canvas);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.h1 {
+  margin: 8px 0 0;
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 600;
+}
+.sub {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skill {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+}
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.name {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.badge {
+  padding: 2px 8px;
+  border: 1px solid var(--status-success-line);
+  border-radius: 999px;
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+.summary {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.primary {
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.primary:hover {
+  background: var(--action-primary-hover);
+  color: var(--action-on-primary);
+  text-decoration: none;
+}
+.secondary {
+  border: 1px solid var(--action-secondary-line);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+}
+.secondary:hover {
+  background: var(--action-secondary-hover);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+}
+.status p {
+  margin: 0;
+}
+.spin {
+  animation: ai-spin 0.9s linear infinite;
+}
+
+@media (min-width: 640px) {
+  .skill {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .actions {
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}

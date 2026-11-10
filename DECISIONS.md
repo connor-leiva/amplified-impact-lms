@@ -3400,12 +3400,12 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 
 **Date:** 2026-11-10
 **Status:** Proposed (the spec's D-078).
-**Scope:** migration `0006` (`skills`), `packages/core/src/skills.ts`, `billing/access.ts`, `routes/skills.ts`, `storage.ts` (`skillFileKey`, `putObject`), `billing/cli.ts`.
+**Scope:** migration `0006` (`skills`), `packages/core/src/skills.ts`, `billing/access.ts`, `routes/skills.ts`, `storage.ts` (`skillFileKey`, `putObject`), `billing/cli.ts`, `apps/web/src/routes/library/`, `apps/web/src/router.tsx`.
 
 - One rule, `canOpenSkill`: the skill is free; or one of the account's plans covers its set and is paid through a date on or after its release ("cancel and keep"). A refunded plan opens nothing; an agent plan opens nothing until its first charge.
 - `GET /api/skills` lists every published skill as open, locked or upcoming; `GET /api/skills/:id/download/:kind` answers 403 when the rule says no, else a 5-minute presigned link (D-024's pattern). A sales agent opens the agent set and the free skills, never an owner-and-ops-only skill.
 - `pnpm --filter @ai/api skills [--upload]` loads the catalog into the table and puts the ZIPs in the bucket under `skills/<id>/`.
-- **Not built yet:** the `/skill-library` screen in the platform. It is net-new UI that needs Connor's skill tags and a place in the shell, and adding it to the sidebar would move every portal golden.
+- `/skill-library` on learn is the screen: net-new UI outside the shell, like `/sign-in`, so no portal golden moves. It groups the skills by set (Owner and Operations Skills, Agent Skills, Skills for Everyone), with the downloads on an open skill, "Not in your plan." and See Plans on a locked one, and the date on an upcoming one; signed out, it offers Sign In. **No sidebar entry:** the welcome email and the www skill pages link to it, and an entry in the shell is a separate decision because it moves every portal golden.
 
 ## D-079 · Only the free skills stay downloadable on www
 
