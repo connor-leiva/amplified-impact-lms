@@ -202,8 +202,10 @@ describe.each(Object.keys(EXPECTED) as Array<keyof typeof EXPECTED>)('/%s', (slu
   });
 
   it('sends the lower button back up to the opt-in', () => {
-    // Outside the opt-in card: inside it, a skill's setup steps have outline buttons of their own.
-    expect($$('main > section:not(.optin) a.btn-outline').map((a) => [text(a), a.getAttribute('href')])).toEqual([
+    // Outside the opt-in card: inside it, a skill's setup steps have outline buttons of their own. In the
+    // library's look (D-072) it is the "What you need" band's button.
+    const lower = $$('main > section:not(.optin) a.btn-outline, main > .sk-band a.sk-cta');
+    expect(lower.map((a) => [text(a), a.getAttribute('href')])).toEqual([
       [want.button, `#${want.anchor}`],
     ]);
   });
@@ -388,7 +390,7 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   it("lists what to say, in the README's three groups, each one a copy button", () => {
     const section = $('section.prompts')!;
     expect(text(section.querySelector('h2'))).toBe('What to say');
-    expect($$('section.prompts .group-label').map(text)).toEqual([
+    expect($$('section.prompts .sk-group').map(text)).toEqual([
       'To start',
       'Quick fixes, no full re-render',
       'Other changes',
@@ -429,16 +431,40 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   });
 
   it("asks for a paid plan, as the skill's README does", () => {
-    const section = $$('section.need').find((s) => text(s.querySelector('h2')) === 'What you need')!;
+    const section = $$('section.sk-band-cards').find((s) => text(s.querySelector('h2')) === 'What you need')!;
     const need = Array.from(section.querySelectorAll('li')).map((li) => [
       text(li.querySelector('strong')),
-      text(li.querySelector('span')),
+      text(li.querySelector('.sk-body')),
     ]);
     expect(need[0]).toEqual(['A paid Claude plan', 'Pro, Max, Team or Enterprise.']);
   });
 
-  it('lays its four-card and two-card rows out two by two', () => {
-    expect($$('ul.tiles-2').map((ul) => ul.children.length)).toEqual([4, 2]);
+  it('lays its four-card and two-card rows out two by two, each card with its small label', () => {
+    expect($$('ul.sk-cards-2').map((ul) => ul.children.length)).toEqual([4, 2]);
+    expect($$('ul.sk-cards-2 .sk-label').map(text)).toEqual([
+      'You compare two things',
+      'You walk through a process',
+      'You list the rules',
+      'You say a number',
+      'Editorial',
+      'Creator',
+    ]);
+    // Who does what is only Run, Draft and Own: these labels are cards, never that band.
+    expect($$('.sk-roles')).toHaveLength(0);
+  });
+
+  it('puts what to say beside the questions, after the tips for the best results (D-072)', () => {
+    expect($$('main > .sk-band h2').map(text)).toEqual([
+      'What you get back',
+      'Graphics that explain, not decorate',
+      'Two looks',
+      'What you need',
+      'For the best results',
+      'What to say',
+      'Good to know',
+    ]);
+    const pair = $('.sk-pair')!;
+    expect([...pair.children].map((c) => text(c.querySelector('h2')))).toEqual(['What to say', 'Good to know']);
   });
 });
 
@@ -458,10 +484,13 @@ describe("The Reel Editor's before and after (D-045)", () => {
   const doc = parse(guideFor('reel-editor'));
   const figures = Array.from(doc.querySelectorAll('section.compare figure.clip'));
 
-  it('comes first after the opt-in, the raw take beside the Reel the skill made of it', () => {
-    const first = doc.querySelector('main > section:not(.optin)');
-    expect(first?.classList.contains('compare')).toBe(true);
-    expect(text(first?.querySelector('h2'))).toBe('One take, before and after');
+  it('sits beside the opt-in, in the hero: the raw take beside the Reel the skill made of it (D-072)', () => {
+    const hero = doc.querySelector('main .sk-hero');
+    expect([...(hero?.children ?? [])].map((el) => el.className)).toEqual(['sk-intro', 'card optin', 'compare sk-show sk-compare']);
+    const compare = hero?.querySelector('section.compare');
+    expect(compare?.getAttribute('aria-labelledby')).toBe(compare?.querySelector('h2')?.id);
+    expect(text(compare?.querySelector('h2'))).toBe('One take, before and after');
+    expect(doc.querySelectorAll('section.compare')).toHaveLength(1);
     expect(figures.map((f) => text(f.querySelector('.clip-label')))).toEqual(['Before · 2:45', 'After · 1:05']);
   });
 
@@ -586,27 +615,41 @@ describe('who a guide sign-up hears from (D-041)', () => {
 });
 
 describe('the layouts (D-071)', () => {
-  it('draws every free skill in the library’s look, and the three guides in their own, untouched', () => {
-    const skills = Object.values(GUIDES).filter((g) => g.layout === 'skill');
-    expect(skills.map((g) => g.slug).sort()).toEqual(
-      Object.keys(GUIDES)
-        .filter((slug) => !['task-sync-starter', 'ops-time-audit', 'reel-editor'].includes(slug))
-        .sort(),
-    );
-    for (const g of skills) {
+  it('draws every free skill, the Reel Editor and the Task Sync kit in the library’s look, and The Ops Time Audit in its own', () => {
+    const looks = Object.values(GUIDES).filter((g) => g.layout === 'skill');
+    expect(looks.map((g) => g.slug).sort()).toEqual(Object.keys(GUIDES).filter((slug) => slug !== 'ops-time-audit').sort());
+    for (const g of looks) {
       const doc = parse(g);
       expect(doc.querySelector('header.sk-top nav[aria-label="Breadcrumb"] a[href="/library"]'), g.slug).not.toBeNull();
       expect(doc.querySelectorAll('.eyebrow'), g.slug).toHaveLength(1);
-      expect(doc.querySelector('.sk-hero > section.sample'), g.slug).not.toBeNull();
+      expect(doc.querySelectorAll('.sk-hero > .sk-intro, .sk-hero > .optin'), g.slug).toHaveLength(2);
+      // The hero's picture: a skill's sample, the Reel Editor's before and after, the kit's example.
+      expect(doc.querySelector('.sk-hero > section.sample, .sk-hero > section.sk-show'), g.slug).not.toBeNull();
+      expect(doc.querySelector('[data-guided] .guided-head'), g.slug).not.toBeNull();
+    }
+    for (const g of looks.filter((x) => x.sections.some((s) => s.kind === 'sample'))) {
       // Every skill's sample has a "Bottom line" (or "Bottom line for the agent"), drawn as its callout.
-      expect(text(doc.querySelector('.sk-hero .sample-bottom h3')), g.slug).toMatch(/^Bottom line/i);
+      expect(text(parse(g).querySelector('.sk-hero .sample-bottom h3')), g.slug).toMatch(/^Bottom line/i);
     }
-    for (const slug of ['task-sync-starter', 'ops-time-audit', 'reel-editor']) {
-      const doc = parse(guideFor(slug));
-      expect(doc.querySelector('header.hero'), slug).not.toBeNull();
-      expect(doc.querySelector('main.page'), slug).not.toBeNull();
-      expect(doc.querySelector('[class^="sk"], [class*=" sk-"], [data-sk-bar], .guided-head'), slug).toBeNull();
-    }
+    const ota = parse(guideFor('ops-time-audit'));
+    expect(ota.querySelector('header.hero')).not.toBeNull();
+    expect(ota.querySelector('main.page')).not.toBeNull();
+    expect(ota.querySelector('[class^="sk"], [class*=" sk-"], [data-sk-bar], .guided-head')).toBeNull();
+  });
+
+  it('sets the Task Sync kit’s example beside the opt-in as a sheet, the task in green, and names its own bar (D-072)', () => {
+    const doc = parse(guideFor('task-sync-starter'));
+    const example = doc.querySelector('.sk-hero > section.example.sk-show');
+    expect(example?.getAttribute('aria-labelledby')).toBe(example?.querySelector('h2')?.id);
+    expect(text(example?.querySelector('h2'))).toBe('One sentence from a team meeting, turned into a task');
+    expect(text(example?.querySelector('blockquote'))).toBe(
+      'Maria, can you get the Hendersons’ inspection response drafted before their deadline Thursday?',
+    );
+    expect(text(example?.querySelector('.sk-task .task-title'))).toBe('Draft the Hendersons’ inspection response');
+    expect([...(example?.querySelectorAll('.sk-task dt') ?? [])].map(text)).toEqual(['Owner', 'Due', 'Priority', 'Subtasks', 'Source']);
+    expect([...doc.querySelectorAll('.sk-facts li')].map(text)).toEqual(['Free', 'About 20 minutes to set up', 'Works in Claude']);
+    expect(text(doc.querySelector('[data-sk-bar] a'))).toBe('Get the Free Kit');
+    expect(doc.querySelector('[data-sk-bar] a')?.getAttribute('href')).toBe('#get-the-kit');
   });
 
   it('keeps the skill layout’s styles under its own classes, so a guide that loads skills.css draws as before', () => {
@@ -621,6 +664,15 @@ describe('the layouts (D-071)', () => {
       .filter(Boolean);
     expect(selectors.length).toBeGreaterThan(50);
     for (const sel of selectors) expect(sel, sel).toMatch(/^\.sk(-[a-z0-9-]+)?(?![a-z0-9-])/);
+  });
+
+  it('shows a long copy block’s first lines in a setup step, so Back and Next stay near it (D-072)', () => {
+    const rule = read('./skills.css').match(/\.sk \.setup-body \.chip-block-text \{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toContain('max-height: 264px');
+    expect(rule).toContain('overflow: hidden');
+    // Clipped for the eye only: the button still holds, and copies, every word.
+    const tss = parse(guideFor('task-sync-starter'));
+    expect(tss.querySelector('.setup-body .chip-block-text')?.textContent).toBe(TASK_SYNC_PROMPT);
   });
 
   it('keeps the card beside the sample in view only until it holds the setup', () => {

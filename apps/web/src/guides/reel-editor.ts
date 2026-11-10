@@ -194,6 +194,19 @@ export const REEL_EDITOR: Guide = {
       ],
     },
     {
+      kind: 'list',
+      heading: 'For the best results',
+      items: [
+        {
+          title: 'Film vertical',
+          body: '9:16, with your face in the upper half of the frame. The graphics go below it.',
+        },
+        { title: 'Good light and a quiet room', body: 'The cuts and captions come from what Claude hears.' },
+        { title: 'Under about 60 seconds', body: 'If the file is too big to upload, export it at 1080p.' },
+        { title: 'In English', body: 'The transcription model is English-only.' },
+      ],
+    },
+    {
       kind: 'prompts',
       heading: 'What to say',
       body: 'Tap to copy. Start a new chat, attach your video, and paste. Follow-ups go in the same chat.',
@@ -210,19 +223,6 @@ export const REEL_EDITOR: Guide = {
           label: 'Other changes',
           items: ['Move the graphics lower', 'Make it look more like a creator edited it', 'Cleaner, less busy'],
         },
-      ],
-    },
-    {
-      kind: 'list',
-      heading: 'For the best results',
-      items: [
-        {
-          title: 'Film vertical',
-          body: '9:16, with your face in the upper half of the frame. The graphics go below it.',
-        },
-        { title: 'Good light and a quiet room', body: 'The cuts and captions come from what Claude hears.' },
-        { title: 'Under about 60 seconds', body: 'If the file is too big to upload, export it at 1080p.' },
-        { title: 'In English', body: 'The transcription model is English-only.' },
       ],
     },
     {
@@ -298,4 +298,9 @@ export const REEL_EDITOR: Guide = {
   ],
 
   unlockKey: 're-unlocked',
+
+  // The library's look (D-072): the before and after beside the opt-in, the setup as a checklist. "For
+  // the best results" comes before "What to say", so the words and the questions sit side by side.
+  layout: 'skill',
+  facts: ['Free', 'About 2 minutes to set up', 'Works in Claude'],
 };

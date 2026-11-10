@@ -217,13 +217,16 @@ export interface Guide {
   /** localStorage: this device already opted in, so the download shows straight away. */
   unlockKey: string;
   /**
-   * `'skill'`: a free skill's page in the library's look (D-071), set by `skillPage()`. A white top bar
-   * with the library breadcrumb, the sample beside the opt-in, the setup as a checklist. Without it, the
-   * guide's green cover and one column (D-038).
+   * `'skill'`: the page in the library's look (D-071), set by `skillPage()` for every free skill, and by
+   * the Reel Editor and the Task Sync Starter Kit themselves (D-072). A white top bar with the library
+   * breadcrumb, the page's picture (its sample, its before and after, or its example) beside the
+   * opt-in, the setup as a checklist. Without it, the guide's green cover and one column (D-038).
    */
   layout?: 'skill';
   /** With `layout: 'skill'`, the short facts under the lede, as pills: "Free", the setup time, the apps. */
   facts?: readonly string[];
+  /** With `layout: 'skill'`, the phone's sign-up bar, when it is not "Get the Free Skill" (a kit's is "Get the Free Kit"). */
+  bar?: string;
 }
 
 /** Every guide, by slug. */

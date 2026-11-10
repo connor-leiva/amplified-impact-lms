@@ -228,4 +228,9 @@ export const TASK_SYNC_STARTER: Guide = {
   ],
 
   unlockKey: 'tss-unlocked',
+
+  // The library's look (D-072): the example beside the opt-in, as a sheet, the setup as a checklist.
+  layout: 'skill',
+  facts: ['Free', 'About 20 minutes to set up', 'Works in Claude'],
+  bar: 'Get the Free Kit',
 };
