@@ -199,6 +199,22 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       'team-ai-brain',
       'ai-brain-tuneup',
       'ai-brain-setup',
+      'card-bank-feed-audit',
+      'commission-tie-out',
+      'team-payout-journals',
+      'month-end-close',
+      'trust-earnest-watch',
+      'vendor-1099-readiness',
+      'quarterly-tax-profit-first',
+      'lead-source-roi',
+      'contract-to-close-deadlines',
+      'new-contract-intake',
+      'missing-documents-audit',
+      'weekly-status-updates',
+      'stalled-item-follow-up',
+      'closing-week-checklist',
+      'listing-to-live',
+      'post-close-file-closeout',
     ]);
     for (const slug of GUIDE_SLUGS) {
       for (const url of [`/${slug}`, `/${slug}?src=ig`]) {

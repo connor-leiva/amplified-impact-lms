@@ -6,9 +6,10 @@
 //       changes nothing the second time. Prints ids, never the buyer's details.
 //
 //   pnpm --filter @ai/api skills [--upload]
-//       Loads the skill catalog (billing/skills-catalog.ts) into the `skills` table: sets, free or paid,
-//       release dates and bucket keys. With --upload, also puts each ZIP from apps/web/public/downloads
-//       into the bucket under skills/<id>/, which needs the S3_* settings.
+//       Loads the skill catalog (billing/skills-catalog.ts) and the Grok Bot templates (D-100), each from
+//       its own list (billing/library-rows.ts), into the `skills` table: sets, free or paid, release dates
+//       and bucket keys. With --upload, also puts each ZIP from apps/web/public/downloads into the bucket
+//       under skills/<id>/, which needs the S3_* settings.
 
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +19,8 @@ import { clock } from '../lib/clock';
 import { putObject, skillFileKey } from '../storage';
 import { readOfferConfig } from './config';
 import { provisionOrder } from './provision';
-import { LAUNCH_RELEASE, SKILL_CATALOG, isFreeSkill } from './skills-catalog';
+import { LIBRARY_ROWS } from './library-rows';
+import { LAUNCH_RELEASE } from './skills-catalog';
 
 const DOWNLOADS = fileURLToPath(new URL('../../../web/public/downloads/', import.meta.url));
 
@@ -54,7 +56,7 @@ async function provision(): Promise<number> {
 async function loadSkills(): Promise<number> {
   const upload = process.argv.includes('--upload');
   const db = getDb();
-  for (const s of SKILL_CATALOG) {
+  for (const s of LIBRARY_ROWS) {
     const files: Record<string, string> = {};
     for (const [kind, name] of Object.entries(s.files)) {
       if (!name) continue;
@@ -62,15 +64,15 @@ async function loadSkills(): Promise<number> {
       if (upload) {
         const path = `${DOWNLOADS}${name}`;
         if (!existsSync(path)) {
-          console.error(`missing ${name}; build it with node scripts/skills.mjs build`);
+          console.error(`missing ${name}; build it with ${s.build}`);
           return 1;
         }
         await putObject(skillFileKey(s.id, name), readFileSync(path), 'application/zip');
       }
     }
-    const row = { title: s.title, summary: s.summary, sets: s.sets, free: isFreeSkill(s.id), releasedAt: LAUNCH_RELEASE, files, status: 'published' };
+    const row = { title: s.title, summary: s.summary, sets: s.sets, free: s.free, releasedAt: LAUNCH_RELEASE, files, status: 'published' };
     await db.insert(skills).values({ id: s.id, ...row }).onConflictDoUpdate({ target: skills.id, set: row });
-    console.log(`${s.id}: ${s.sets}${isFreeSkill(s.id) ? ', free' : ''}${upload ? ', uploaded' : ''}`);
+    console.log(`${s.id}: ${s.sets}${s.free ? ', free' : ''}${upload ? ', uploaded' : ''}`);
   }
   return 0;
 }

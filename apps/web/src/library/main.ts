@@ -22,17 +22,26 @@ function boot(doc: Document): void {
   const sort = doc.getElementById('library-sort') as HTMLSelectElement | null;
   if (!list || !count || !empty || !clear || !search || !sort) return;
 
-  // Each card with what is matched against, read once. `order` keeps cards added the same day in the
-  // markup's order, whichever way the sort runs. `soon` has no page yet, and sorts last either way.
-  const cards = Array.from(list.querySelectorAll<HTMLElement>('[data-item]')).map((el, order) => ({
-    el,
-    order,
-    added: el.getAttribute('data-added') ?? '',
-    soon: el.classList.contains('item-soon'),
-    tools: wordsOf(el, 'data-tools'),
-    topics: wordsOf(el, 'data-topics'),
-    text: `${el.textContent ?? ''} ${el.getAttribute('data-words') ?? ''}`.toLowerCase(),
-  }));
+  // Each card with what is matched against, read once, from the main list and the Grok Bot shelf's
+  // collections (D-100). `home` is its own list, which it is sorted back into. `order` keeps cards
+  // added the same day in the markup's order, whichever way the sort runs. `soon` has no page yet,
+  // and sorts last either way.
+  const lists = Array.from(doc.querySelectorAll<HTMLElement>('[data-list]'));
+  if (lists.indexOf(list) < 0) lists.unshift(list);
+  const cards = lists
+    .flatMap((home) => Array.from(home.querySelectorAll<HTMLElement>('[data-item]')).map((el) => ({ el, home })))
+    .map(({ el, home }, order) => ({
+      el,
+      home,
+      order,
+      added: el.getAttribute('data-added') ?? '',
+      soon: el.classList.contains('item-soon'),
+      tools: wordsOf(el, 'data-tools'),
+      topics: wordsOf(el, 'data-topics'),
+      text: `${el.textContent ?? ''} ${el.getAttribute('data-words') ?? ''}`.toLowerCase(),
+    }));
+  const collections = Array.from(doc.querySelectorAll<HTMLElement>('[data-collection]'));
+  const shelf = doc.querySelector<HTMLElement>('[data-shelf]');
   const chips = Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-filter]'));
   const picked: Record<string, string> = { tool: '', topic: '' };
 
@@ -56,6 +65,9 @@ function boot(doc: Document): void {
       const name = chip.getAttribute('data-filter') ?? '';
       chip.setAttribute('aria-pressed', String(picked[name] === chip.getAttribute('data-value')));
     }
+    // A collection with no card left showing goes, and the shelf with it when both have.
+    for (const c of collections) c.hidden = !Array.from(c.querySelectorAll<HTMLElement>('[data-item]')).some((el) => !el.hidden);
+    if (shelf) shelf.hidden = collections.length > 0 && collections.every((c) => c.hidden);
     const label = countLabel(showing);
     if (count.textContent !== label) count.textContent = label;
     empty.hidden = showing > 0;
@@ -66,7 +78,7 @@ function boot(doc: Document): void {
     const sorted = [...cards].sort(
       (a, b) => Number(a.soon) - Number(b.soon) || dir * a.added.localeCompare(b.added) || a.order - b.order,
     );
-    for (const c of sorted) list.appendChild(c.el);
+    for (const c of sorted) c.home.appendChild(c.el);
   };
 
   for (const chip of chips) {

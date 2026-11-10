@@ -196,9 +196,12 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
    The boot log line `offer configuration` says what is on and the key's mode (`test` or `live`),
    never a value.
 3. Load the skills: `pnpm --filter @ai/api skills --upload` puts every skill's ZIPs (the 35 skills
-   in `SKILL_CATALOG`) in the bucket and the catalog in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
-   free in `packages/core/src/skills.ts` first. Free today: Appointment Follow-Up, Database Health Check
-   and Team P&L Review.
+   in `SKILL_CATALOG`) and the 16 Grok Bot templates' (`GROK_TEMPLATES`, D-100) in the bucket and both
+   catalogs in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
+   free in `packages/core/src/skills.ts` first, and a template's in `packages/core/src/grok-templates.ts`.
+   Free today: Appointment Follow-Up, Database Health Check and Team P&L Review, and the templates Weekly
+   Card & Bank Audit, Quarterly Tax & Profit-First Set-Aside, Contract-to-Close Deadline Tracker and New
+   Contract Intake.
 4. Print `/forum-qr.svg` (it encodes `https://www.amplifiedimpact.io/forum?src=qr`). It decodes at
    3 cm; scan the printed one on an iPhone and an Android, on cellular.
 

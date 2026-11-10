@@ -22,6 +22,7 @@
 // Nothing here is markup: `render.ts` escapes every string. House rules: no em dashes, short plain
 // sentences.
 
+import { isFreeGrokTemplate } from '@ai/core/grok-templates';
 import { isFreeSkill } from '@ai/core/skills';
 import { OPS_TIME_AUDIT } from './ops-time-audit';
 import { REEL_EDITOR } from './reel-editor';
@@ -60,6 +61,22 @@ import { POST_CLOSING_CLIENT_CARE } from './post-closing-client-care';
 import { TEAM_AI_BRAIN } from './team-ai-brain';
 import { AI_BRAIN_TUNEUP } from './ai-brain-tuneup';
 import { AI_BRAIN_SETUP } from './ai-brain-setup';
+import { CARD_BANK_FEED_AUDIT } from './card-bank-feed-audit';
+import { COMMISSION_TIE_OUT } from './commission-tie-out';
+import { TEAM_PAYOUT_JOURNALS } from './team-payout-journals';
+import { MONTH_END_CLOSE } from './month-end-close';
+import { TRUST_EARNEST_WATCH } from './trust-earnest-watch';
+import { VENDOR_1099_READINESS } from './vendor-1099-readiness';
+import { QUARTERLY_TAX_PROFIT_FIRST } from './quarterly-tax-profit-first';
+import { LEAD_SOURCE_ROI } from './lead-source-roi';
+import { CONTRACT_TO_CLOSE_DEADLINES } from './contract-to-close-deadlines';
+import { NEW_CONTRACT_INTAKE } from './new-contract-intake';
+import { MISSING_DOCUMENTS_AUDIT } from './missing-documents-audit';
+import { WEEKLY_STATUS_UPDATES } from './weekly-status-updates';
+import { STALLED_ITEM_FOLLOW_UP } from './stalled-item-follow-up';
+import { CLOSING_WEEK_CHECKLIST } from './closing-week-checklist';
+import { LISTING_TO_LIVE } from './listing-to-live';
+import { POST_CLOSE_FILE_CLOSEOUT } from './post-close-file-closeout';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -223,6 +240,12 @@ export interface Guide {
    * that is not a skill has none. A skill that is not free is drawn as `inSkillLibrary` says.
    */
   skill?: string;
+  /**
+   * The Grok Bot template this page offers, by its id in `GROK_TEMPLATES` (`@ai/core/grok-templates`,
+   * D-100). Not a skill: a page has one or the other. A template that is not free is drawn as
+   * `inSkillLibrary` says, the same way a paid skill is.
+   */
+  grok?: string;
   meta: { title: string; description: string };
   hero: { eyebrow: string; title: string; lede: string; steps: readonly Step[] };
   /** The opt-in. Its anchor is the link a slide or a DM can point at. */
@@ -298,6 +321,22 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [TEAM_AI_BRAIN.slug]: TEAM_AI_BRAIN,
   [AI_BRAIN_TUNEUP.slug]: AI_BRAIN_TUNEUP,
   [AI_BRAIN_SETUP.slug]: AI_BRAIN_SETUP,
+  [CARD_BANK_FEED_AUDIT.slug]: CARD_BANK_FEED_AUDIT,
+  [COMMISSION_TIE_OUT.slug]: COMMISSION_TIE_OUT,
+  [TEAM_PAYOUT_JOURNALS.slug]: TEAM_PAYOUT_JOURNALS,
+  [MONTH_END_CLOSE.slug]: MONTH_END_CLOSE,
+  [TRUST_EARNEST_WATCH.slug]: TRUST_EARNEST_WATCH,
+  [VENDOR_1099_READINESS.slug]: VENDOR_1099_READINESS,
+  [QUARTERLY_TAX_PROFIT_FIRST.slug]: QUARTERLY_TAX_PROFIT_FIRST,
+  [LEAD_SOURCE_ROI.slug]: LEAD_SOURCE_ROI,
+  [CONTRACT_TO_CLOSE_DEADLINES.slug]: CONTRACT_TO_CLOSE_DEADLINES,
+  [NEW_CONTRACT_INTAKE.slug]: NEW_CONTRACT_INTAKE,
+  [MISSING_DOCUMENTS_AUDIT.slug]: MISSING_DOCUMENTS_AUDIT,
+  [WEEKLY_STATUS_UPDATES.slug]: WEEKLY_STATUS_UPDATES,
+  [STALLED_ITEM_FOLLOW_UP.slug]: STALLED_ITEM_FOLLOW_UP,
+  [CLOSING_WEEK_CHECKLIST.slug]: CLOSING_WEEK_CHECKLIST,
+  [LISTING_TO_LIVE.slug]: LISTING_TO_LIVE,
+  [POST_CLOSE_FILE_CLOSEOUT.slug]: POST_CLOSE_FILE_CLOSEOUT,
 };
 
 /**
@@ -314,7 +353,7 @@ const unfree = (text: string): string =>
     .replace(/ [Ff]ree /g, ' ');
 
 function asPaid(guide: Guide): Guide {
-  if (guide.skill === undefined || isFreeSkill(guide.skill)) return guide;
+  if (!inSkillLibrary(guide)) return guide;
   return {
     ...guide,
     meta: { title: unfree(guide.meta.title), description: unfree(guide.meta.description) },
@@ -330,9 +369,15 @@ export const GUIDES: Readonly<Record<string, Guide>> = Object.fromEntries(
 
 /**
  * Whether a page's skill is paid, and so in the Skill Library rather than a download (D-080, D-082).
- * Free fails closed, as in the catalog: a skill is free only when `FREE_SKILLS` names it.
+ * Free fails closed, as in the catalog: a skill is free only when `FREE_SKILLS` names it, and a Grok
+ * Bot template only when `FREE_GROK_TEMPLATES` does (D-100).
  */
-export const inSkillLibrary = (guide: Guide): boolean => guide.skill !== undefined && !isFreeSkill(guide.skill);
+export function inSkillLibrary(guide: Guide): boolean {
+  if (guide.skill !== undefined) return !isFreeSkill(guide.skill);
+  // A Grok Bot template (D-100) by its own free list, never `FREE_SKILLS`.
+  if (guide.grok !== undefined) return !isFreeGrokTemplate(guide.grok);
+  return false;
+}
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;
 
@@ -362,7 +407,7 @@ export const SHARED = {
     'In the Instagram app? If the PDF opens instead of saving, tap the ••• menu and choose Open in browser, then download it there.',
   // Words a visitor can copy with a tap (`prompts`, a setup step's `copy`): the tag on each, and what
   // the toast says once they are on the clipboard. Read by the script from the button's `data-toast`.
-  copy: { tag: 'Copy', copied: 'Copied. Paste it into Claude.' },
+  copy: { tag: 'Copy', copied: 'Copied. Paste it into Claude.', copiedGrok: 'Copied. Paste it into Grok Bot.' },
   // A setup step's words, copied and the app opened with one tap (D-070): a blank chat, never a `?q=`
   // prefill (D-032). The words stay on the page as a copy chip too, for a second paste.
   copyOpen: {

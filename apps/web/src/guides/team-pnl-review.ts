@@ -485,7 +485,12 @@ export const TEAM_PNL_REVIEW: Guide = skillPage({
       body: [
         'Want to check the other half of your team’s numbers, your CRM? ',
         { link: 'Database Health Check', href: '/database-health-check', sameTab: true },
-        ' turns your CRM export into a health report and a cleanup list.',
+        ' turns your CRM export into a health report and a cleanup list. Want the month closed in QuickBooks first, or lead spend next to what closed? ',
+        // The Grok Bot templates beside this skill (D-100): they run on a schedule; this reads the P&L.
+        { link: 'Month-End Close Packet', href: '/month-end-close', sameTab: true },
+        ' and ',
+        { link: 'Lead-Source ROI', href: '/lead-source-roi', sameTab: true },
+        ' are the Grok Bot templates for that.',
       ],
     },
   ],

@@ -1,3 +1,4 @@
+import { GROK_COLLECTIONS } from '@ai/core/grok-templates';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ENTRIES, LIBRARY } from './content';
 import { renderLibraryBody } from './render';
@@ -37,12 +38,21 @@ const sortBy = (value: string) => {
   select.value = value;
   select.dispatchEvent(new Event('change', { bubbles: true }));
 };
-/** The titles that match, in the page's order: newest first, with a card that has no page yet last. */
-const titles = (match: (e: (typeof ENTRIES)[number]) => boolean) =>
-  [...ENTRIES]
-    .filter(match)
-    .sort((a, b) => Number(a.href === null) - Number(b.href === null) || b.added.localeCompare(a.added))
-    .map((e) => e.title);
+/**
+ * The titles that match, in the page's order: the main list newest first, with a card that has no
+ * page yet last, then the Grok Bot shelf's collections (D-100), each the same way.
+ */
+const titles = (match: (e: (typeof ENTRIES)[number]) => boolean) => {
+  const inOrder = (entries: (typeof ENTRIES)[number][]) =>
+    entries
+      .filter(match)
+      .sort((a, b) => Number(a.href === null) - Number(b.href === null) || b.added.localeCompare(a.added))
+      .map((e) => e.title);
+  return [
+    ...inOrder(ENTRIES.filter((e) => e.collection === undefined)),
+    ...GROK_COLLECTIONS.flatMap((c) => inOrder(ENTRIES.filter((e) => e.collection === c))),
+  ];
+};
 
 beforeEach(() => {
   document.body.innerHTML = '';
@@ -176,6 +186,42 @@ describe('the search', () => {
     chip('tool', 'chatgpt').click();
     search('tiktok');
     expect(visible()).toEqual([]);
+  });
+});
+
+describe('the Grok Bot shelf (D-100)', () => {
+  const shelf = () => $('[data-shelf]');
+  const collection = (c: string) => $(`[data-collection="${c}"]`);
+
+  it('shows only the templates on the Grok Bot pill, and hides the main list’s cards', async () => {
+    await boot();
+    chip('tool', 'grok').click();
+    expect(visible()).toEqual(titles((e) => e.tools.includes('grok')));
+    expect(visible()).toHaveLength(16);
+    expect(shelf().hidden).toBe(false);
+    expect($('#library-count').textContent).toBe('Showing 16 resources');
+  });
+
+  it('hides a collection with nothing left in it, and the shelf when both are empty', async () => {
+    await boot();
+    chip('topic', 'bookkeeping').click();
+    expect(collection('bookkeeping').hidden).toBe(false);
+    expect(collection('transactions').hidden).toBe(true);
+    chip('topic', 'skills').click();
+    expect(shelf().hidden).toBe(true);
+    chip('topic', '').click();
+    expect(shelf().hidden).toBe(false);
+    expect(collection('transactions').hidden).toBe(false);
+  });
+
+  it('keeps each card in its own list when it sorts', async () => {
+    await boot();
+    sortBy('oldest');
+    const onShelf = Array.from(shelf().querySelectorAll('[data-item] .item-title')).map((t) => t.textContent);
+    expect(onShelf).toHaveLength(16);
+    expect($('#library-items').querySelector('[data-item] .item-title')?.textContent).not.toBe(onShelf[0]);
+    sortBy('newest');
+    expect(visible()).toEqual(titles(() => true));
   });
 });
 

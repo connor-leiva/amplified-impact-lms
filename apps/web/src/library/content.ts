@@ -8,8 +8,13 @@
 //
 // House rules, as on /ai101: no em dashes, short plain sentences.
 
-/** The AI apps a resource works in. The label is what the pill and the card say. */
-export const TOOLS = { claude: 'Claude', chatgpt: 'ChatGPT' } as const;
+import type { GrokCollection } from '@ai/core/grok-templates';
+
+/**
+ * The AI apps a resource works in. The label is what the pill and the card say. Grok Bot runs the
+ * Grok Bot templates (D-100), which are not Claude Skills.
+ */
+export const TOOLS = { claude: 'Claude', chatgpt: 'ChatGPT', grok: 'Grok Bot' } as const;
 export type Tool = keyof typeof TOOLS;
 
 /**
@@ -26,6 +31,9 @@ export const TOPICS = {
   buyers: 'Buyer Side',
   listings: 'Listing Side',
   contracts: 'Contracts and Offers',
+  // The Grok Bot shelf's two collections (D-100), eight templates each.
+  bookkeeping: 'Bookkeeping',
+  transactions: 'Transactions',
 } as const;
 export type Topic = keyof typeof TOPICS;
 
@@ -43,6 +51,13 @@ export interface Entry {
   added: string;
   /** Other words someone would search for it by, beyond what the card says. Never shown. */
   keywords: string;
+  /**
+   * A Grok Bot template's collection (D-100): the card goes on the Grok Bot shelf, under it, rather
+   * than in the main list.
+   */
+  collection?: GrokCollection;
+  /** One more tag on the card, for who it is for above all: "For Brokers". */
+  audience?: string;
 }
 
 export const ENTRIES: readonly Entry[] = [
@@ -449,13 +464,191 @@ export const ENTRIES: readonly Entry[] = [
     added: '2026-10-07',
     keywords: 'carousels carousel creator instagram social media posts design brand agents beginner workshop expcon',
   },
+  // The Grok Bot shelf (D-100): not Claude Skills. In `GROK_TEMPLATES` order, bookkeeping first.
+  {
+    title: 'Weekly Card & Bank Audit',
+    description: 'Every Monday, it checks your business cards and operating account against QuickBooks Online and lists uncategorized charges, duplicates, personal spend and missing receipts, each with a proposed category. No expense reports needed. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/card-bank-feed-audit',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine card audit bank feed credit card quickbooks qbo uncategorized transactions duplicate charges personal spend receipts gmail chart of accounts weekly bookkeeping expense report',
+    collection: 'bookkeeping',
+  },
+  {
+    title: 'Commission Tie-Out',
+    description: 'Every Tuesday, it checks each closing’s deposit in QuickBooks Online against the CDA, the split, the cap and the fees, and shows every dollar that does not match. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/commission-tie-out',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine commission tie out cda commission disbursement deposit split cap franchise fee referral fee quickbooks qbo brokerage statement variance closing',
+    collection: 'bookkeeping',
+  },
+  {
+    title: 'Team Split & Payout Journals',
+    description: 'It drafts the split, cap, desk fee and payable entries for each pay period in QuickBooks Online, then waits. Nothing posts until you approve each line. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/team-payout-journals',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine team payout journal entries agent payables split cap crossing desk fee override 1099 agents quickbooks qbo pay period approve post',
+    collection: 'bookkeeping',
+  },
+  {
+    title: 'Month-End Close Packet',
+    description: 'On the 3rd of every month, it builds one close packet from QuickBooks Online: reconciliations, leftover uncategorized items, deals that closed but have not paid, and a P&L by agent or lead source. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/month-end-close',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine month end close packet reconciliation bank rec uncategorized accrual pending closings profit and loss p&l by agent lead source quickbooks qbo monthly books',
+    collection: 'bookkeeping',
+  },
+  {
+    title: 'Trust & Earnest Money Watch',
+    description: 'For brokerages that hold client funds. Every Friday, it checks that the trust bank, QuickBooks Online and the per-deal ledger agree, and flags commingling, aging funds and closed files not at zero. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/trust-earnest-watch',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine trust account earnest money escrow three-way reconciliation commingling broker brokerage utah division of real estate trust bank ledger quickbooks qbo',
+    collection: 'bookkeeping',
+    audience: 'For Brokers',
+  },
+  {
+    title: '1099 Vendor & Agent Readiness',
+    description: 'It tracks who you paid in QuickBooks Online, who sent a W-9 and who is over the IRS threshold, so January is a check, not a scramble. It never files the forms and never shows a TIN. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/vendor-1099-readiness',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine 1099 1099-nec w-9 vendors contractors photographers tc stagers coaches 1099 agents irs threshold year end january quickbooks qbo',
+    collection: 'bookkeeping',
+  },
+  {
+    title: 'Quarterly Tax & Profit-First Set-Aside',
+    description: 'On the 5th of every month, it shows what to move into tax, profit and reserve at the rates you or your CPA set, and how close the next IRS estimate date is. It never invents a tax rate. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/quarterly-tax-profit-first',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine quarterly taxes estimated tax set aside profit first reserve savings irs 1040-es commission income self employed producing agent cpa quickbooks qbo',
+    collection: 'bookkeeping',
+  },
+  {
+    title: 'Lead-Source ROI',
+    description: 'On the 5th of every month, it puts your lead spend in QuickBooks Online next to what closed in Follow Up Boss, by source. Untagged spend and closings with no source get called out. GCI is never estimated. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/lead-source-roi',
+    tools: ['grok'],
+    topics: ['bookkeeping', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine lead source roi return on investment zillow realtor.com google facebook ads open houses sphere cost per closing gci follow up boss fub quickbooks qbo marketing spend',
+    collection: 'bookkeeping',
+  },
+  {
+    title: 'Contract-to-Close Deadline Tracker',
+    description: 'Every morning, it lists what’s overdue, due today and due in the next three days across your files, with the date math shown. Utah REPC-first, with a general mode. It works from a spreadsheet too. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/contract-to-close-deadlines',
+    tools: ['grok'],
+    topics: ['transactions', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine contract to close deadlines due diligence settlement earnest money seller disclosure repc utah daily digest transaction coordinator tc dotloop skyslope brokermint lone wolf',
+    collection: 'transactions',
+  },
+  {
+    title: 'New Contract Intake',
+    description: 'Drop in a ratified contract and it pulls out the price, the earnest money, the contingencies and the deadlines, then proposes the tracker row and a first task list the same day. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/new-contract-intake',
+    tools: ['grok'],
+    topics: ['transactions', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine new contract intake ratified contract purchase agreement repc utah tracker task list earnest money contingencies deadlines transaction coordinator tc',
+    collection: 'transactions',
+  },
+  {
+    title: 'Missing-Documents File Audit',
+    description: 'Every weekday, it checks each file against your brokerage’s own checklist and says what’s missing or unsigned before anyone submits it for broker review. It never submits a file. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/missing-documents-audit',
+    tools: ['grok'],
+    topics: ['transactions', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine missing documents file audit broker checklist compliance review unsigned documents transaction file dotloop skyslope brokermint transaction coordinator tc',
+    collection: 'transactions',
+  },
+  {
+    title: 'Weekly Client & Agent Status Updates',
+    description: 'Every Monday, it drafts a client note and an agent note for each active file, from documented facts only. Nothing is sent until you say which draft. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/weekly-status-updates',
+    tools: ['grok'],
+    topics: ['transactions', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine weekly status update client update agent update email drafts transaction progress under contract transaction coordinator tc',
+    collection: 'transactions',
+  },
+  {
+    title: 'Stalled Lender, Title & Escrow Follow-Up',
+    description: 'Every weekday, it spots appraisal, title, financing, HOA and earnest money items that should have moved and drafts the follow-up email. It never invents a stall. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/stalled-item-follow-up',
+    tools: ['grok'],
+    topics: ['transactions', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine stalled items follow up lender title escrow appraisal title commitment hoa documents earnest money receipt chase email transaction coordinator tc',
+    collection: 'transactions',
+  },
+  {
+    title: 'Closing-Week Checklist',
+    description: 'Every morning, it runs a seven-day checklist for each file about to close, with a wire-fraud reminder that never touches wire instructions. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/closing-week-checklist',
+    tools: ['grok'],
+    topics: ['transactions', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine closing week checklist settlement walk-through clear to close closing disclosure cd keys wire fraud transaction coordinator tc',
+    collection: 'transactions',
+  },
+  {
+    title: 'Listing-to-Live Launch Checklist',
+    description: 'Every weekday, it checks each listing in pre-launch for disclosures, photos, remarks, the sign, the lockbox and coming-soon rules, before anyone hits publish. It never publishes to the MLS. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/listing-to-live',
+    tools: ['grok'],
+    topics: ['transactions', 'listings'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine listing launch checklist listing to live coming soon disclosures photos remarks sign lockbox mls listing coordinator listing agent',
+    collection: 'transactions',
+  },
+  {
+    title: 'Post-Close File Closeout',
+    description: 'After settlement, it drafts the CDA request, the archive, the review ask and the move to Past Client in your CRM. Nothing is sent or changed until you approve each step. Download the template, add it to Grok Bot and save the routine it recommends.',
+    kind: 'Grok Bot',
+    href: '/post-close-file-closeout',
+    tools: ['grok'],
+    topics: ['transactions', 'contracts'],
+    added: '2026-11-10',
+    keywords: 'grok grok bot template scheduled routine post close file closeout cda commission request archive review request past client crm follow up boss after closing transaction coordinator tc',
+    collection: 'transactions',
+  },
 ];
 
 export const LIBRARY = {
   meta: {
     title: 'The Free Library · Amplified Impact',
     description:
-      'Guides, Claude skills and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
+      'Guides, Claude skills, Grok Bot templates and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
     url: 'https://www.amplifiedimpact.io/library',
     siteName: 'Amplified Impact',
   },
@@ -463,7 +656,7 @@ export const LIBRARY = {
   eyebrow: 'The Free Library',
   title: 'Put AI to work on your team.',
   // Said here so a card that opens on a sign-up form is no surprise: five of the six live pages ask.
-  lede: 'Guides, Claude skills and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
+  lede: 'Guides, Claude skills, Grok Bot templates and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
   // Never seen: it names the list for a screen reader, under the page's one heading.
   listHeading: 'Everything in the library',
   filters: {
@@ -488,4 +681,22 @@ export const LIBRARY = {
    * `@ai/core/skills`), read through the skill's page, so this file names none.
    */
   paid: 'In the Amplified Skill Library',
+  /**
+   * The Grok Bot shelf (D-100), under the main list: its templates in two collections, in
+   * `GROK_COLLECTIONS` order. The words are the README's collection intros, in this page's voice.
+   */
+  grok: {
+    heading: 'Grok Bot',
+    body: 'Templates for Grok Bot, not Claude Skills. Each one is a skill you add to Grok Bot once, with a routine that runs it on a schedule. They read and draft, and change nothing until you approve.',
+    collections: {
+      bookkeeping: {
+        heading: 'Bookkeeping',
+        body: 'Your books shouldn’t depend on expense reports you never file. These run against QuickBooks Online. They watch the card, tie out commissions, draft payout journals, close the month, keep 1099s and tax set-asides from sneaking up on you, and show which lead sources pay.',
+      },
+      transactions: {
+        heading: 'Transactions',
+        body: 'Deadlines don’t care which software your team picked. These watch the contract, Utah REPC or otherwise, and draft the next move. They work with Dotloop, SkySlope, Brokermint, Lone Wolf, Paperless Pipeline, Open to Close, or a shared sheet and an inbox.',
+      },
+    },
+  },
 } as const;

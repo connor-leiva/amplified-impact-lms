@@ -10,6 +10,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { expected as grokExpected, listTemplates } from '../../../../scripts/grok-templates.mjs';
 import { check, DOWNLOADS_DIR, expected, listSkills, readManifest, shellFor, shellPath, SKILLS_DIR, unzip } from '../../../../scripts/skills.mjs';
 import { ENTRIES } from '../library/content';
 import { GUIDES } from './content';
@@ -24,7 +25,8 @@ it('has a source in skills/ for every skill page', () => {
   // would ship a file nothing can rebuild. The Reel Editor's ZIP is Connor's own file (D-045).
   const pages = new Set(SKILLS.map((name) => readManifest(name).page));
   for (const guide of Object.values(GUIDES)) {
-    if (guide.slug === 'reel-editor' || !guide.download.href.endsWith('.zip')) continue;
+    // A Grok Bot template's page (D-100) offers its template's ZIP, from content/grok-bot-templates/.
+    if (guide.slug === 'reel-editor' || guide.grok !== undefined || !guide.download.href.endsWith('.zip')) continue;
     expect(pages.has(guide.slug), `/${guide.slug} offers a ZIP but has no skills/ folder`).toBe(true);
   }
 });
@@ -94,10 +96,14 @@ it('links only to pages that exist, so a skill page never ships pointing at one 
 
 it('keeps every download in public/downloads tied to a source', () => {
   // A skill's three files, and the guides' own (their PDFs and the Reel Editor's ZIP, D-038, D-039, D-045).
-  const fromSkills = new Set(SKILLS.flatMap((name) => expected(name).map((d) => d.file)));
+  const fromSkills = new Set([
+    ...SKILLS.flatMap((name) => expected(name).map((d) => d.file)),
+    // And the Grok Bot templates' (D-100), each from its SKILL.md in content/grok-bot-templates/.
+    ...listTemplates().flatMap((t) => grokExpected(t.id).map((d) => d.file)),
+  ]);
   const zips = readdirSync(resolve(HERE, '../../public/downloads')).filter((f) => f.endsWith('.zip'));
   for (const file of zips) {
     if (file === 'reel-editor.zip') continue;
-    expect(fromSkills.has(file), `${file} has no source in skills/`).toBe(true);
+    expect(fromSkills.has(file), `${file} has no source in skills/ or content/grok-bot-templates/`).toBe(true);
   }
 });

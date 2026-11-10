@@ -290,6 +290,46 @@ a.item-body:hover {
   color: var(--text-secondary);
 }
 
+/* --- The Grok Bot shelf (D-100): under the main list, its two collections each with a heading. ---- */
+
+.shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line-default);
+}
+.shelf-title {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.shelf-body,
+.collection-body {
+  max-width: 68ch;
+  font-size: 17px;
+  color: var(--text-secondary);
+}
+.collection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+.collection-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--action-primary);
+}
+.collection .items {
+  margin-top: 4px;
+}
+
 .empty {
   display: flex;
   flex-direction: column;
