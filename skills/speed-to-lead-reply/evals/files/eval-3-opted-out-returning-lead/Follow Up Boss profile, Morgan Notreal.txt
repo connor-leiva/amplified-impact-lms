@@ -1,0 +1,17 @@
+PRACTICE FILE: made-up example. Not a real person, lead or brokerage.
+
+Follow Up Boss: person profile, copied Tue, Nov 10, 2026 1:20 PM
+
+Morgan Notreal
+Stage: Nurture | Source: Example Basin Realty Website | Assigned: Quinn Fakeworth
+Phone: (801) 555-0181 (Mobile) [number shown in orange: opted out of texting]
+Email: morgan.notreal@example.net
+Tags: Do Not Call, Website Lead, Ogden
+Text Consent (custom field): Yes, website form 3/02/2026: "I agree to receive calls and texts from Example Basin Realty about homes for sale. Consent is not required to buy. Reply STOP to opt out."
+
+Activity
+Tue Nov 10, 1:14 PM  Inquiry: 610 E Sample Bluff Rd, Ogden, UT 84403
+    "Hi, is the furnace new? The photos make it look new. Also does the kitchen have a gas line for a stove?"
+Aug 14, 2026  Text received from Morgan: "STOP"
+Aug 14, 2026  Text sent automatically: "You're opted out of texts from Example Basin Realty. Reply START to opt back in."
+Jun 3, 2026  Note by Quinn Fakeworth: "Asked us not to call anymore. Email is fine."

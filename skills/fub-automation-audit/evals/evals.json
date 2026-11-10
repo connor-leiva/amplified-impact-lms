@@ -1,0 +1,55 @@
+{
+  "skill_name": "fub-automation-audit",
+  "evals": [
+    {
+      "id": 1,
+      "name": "practice",
+      "prompt": "Here are our Follow Up Boss action plans, our automations list, and our stages and lead sources. Audit them: what's missing, what's overlapping, and are our automated texts a problem?",
+      "expected_output": "Utah mode (Draper, Utah), classic Action Plans and Automations. An inventory of all 10 action plans (9 from the copied file, Open House Visitor from the printed PDF), all 7 automations with Back On Site shown as off, the 3 Lead Flow initial texts and the Open House 3 Text campaign, each with its source and each step's day worked out from 'after the previous step' with the arithmetic. Consent: the Facebook Lead Ads initial text and the Open House 3 Text are risks, the HomeFinder Example text is a check, the Website (IDX) text is lower risk if records hold. Wording: the Facebook text has no sender or opt-out, HomeFinder no opt-out, Open House 3 Text days 0 and 2 no opt-out, and 'perfect for young families' and 'great schools nearby' in Thanks for Stopping By. Overlaps: New Website Lead's day 30 stage and tag start Long-Term Nurture and Monthly Market Email together (same-day emails on days 0, 30 and 150); Under Contract to Close's day 30 closing email plus the Closed stage start Closing Day Thank You's day 0 closing email. Gaps: Hot Prospect, Active Client and Sphere stages; Referral and Sign Call sources; no stop on reply on Facebook Seller Lead and Monthly Market Email (and Under Contract to Close, asked as possibly on purpose); Portal Buyer 14 Day ends with an email; Long-Term Nurture's 120-day silence. A ranked fix list of FUB click paths with consent first, the TCPA basics from outreach-rules.md, the Utah Sunday and holiday line, and Check Before Sending.",
+      "files": [
+        "practice/PRACTICE Gumdrop Hollow action plans, copied from FUB.md",
+        "practice/PRACTICE Action plan Open House Visitor, printed.pdf",
+        "practice/PRACTICE Gumdrop Hollow automations list.csv",
+        "practice/PRACTICE Gumdrop Hollow stages, lead sources and texting.txt"
+      ],
+      "expectations": [
+        "The inventory lists all 10 action plans, all 7 automations (Back On Site shown as off), the 3 Lead Flow initial texts and the Open House 3 Text campaign, each row with its source file, and Open House Visitor's source is the printed PDF.",
+        "Step days are worked out from 'after the previous step' with the arithmetic shown, for example Long-Term Nurture's Spring Market Note at day 150 (30 + 120).",
+        "Utah mode: the Utah Code 13-25a-103(3) Sunday and legal holiday line is applied to the automated texts, noting the Open House 3 Text sends 7 days a week and open houses are on Saturdays and Sundays, says whether it reaches texts was not confirmed, and sends the question to the broker without ruling on legality.",
+        "Texting-consent results: the Facebook Lead Ads initial text is a Risk (the form has no text wording); the Open House 3 Text is a Risk (the oh-text tag goes on every visitor although the consent box is optional); the HomeFinder Example initial text is a Check (consent not described); the Website (IDX) initial text is Lower risk if records hold.",
+        "Template wording: the Facebook initial text has no sender and no opt-out line, the HomeFinder Example text has no opt-out line, Open House 3 Text days 0 and 2 have no opt-out line, and 'perfect for young families' and 'great schools nearby' in Thanks for Stopping By are each quoted once with the smallest change; action plan emails are not flagged for a missing unsubscribe line.",
+        "Overlap 1: New Website Lead's day 30 step changes the stage to Nurture and adds the nurture tag, so Nurture Drip and Market Email both start, with same-day emails on days 0, 30 and 150 of Long-Term Nurture and Monthly Market Email, and the stage-change link is marked to confirm.",
+        "Overlap 2: Under Contract to Close sends Happy Closing Day! at day 30 and changes the stage to Closed the same day, which starts Closing Day Thank You and its day 0 Happy Closing Day email: two closing-day emails the same day.",
+        "Stages with nothing attached: Hot Prospect, Active Client and Sphere; Trash is named as expected; the disabled Back On Site automation is not counted as attaching anything.",
+        "Lead sources with nothing attached: Referral and Sign Call.",
+        "Stop on reply off: Facebook Seller Lead and Monthly Market Email are gaps because they send emails; Under Contract to Close is flagged as mostly tasks and possibly on purpose, and asked.",
+        "Portal Buyer 14 Day is the plan that ends with no next step (its last step is an email on day 14).",
+        "Long silence: Long-Term Nurture's 120 days between Quick Check-In (day 30) and Spring Market Note (day 150) is flagged against the labeled 90-day default, and no other plan is flagged for silence.",
+        "The fix list is ranked with the consent risks first, every fix is a click path in Follow Up Boss or a change named in Sample Drip Texter, and the output never says it changed, paused, created or sent anything.",
+        "The TCPA basics are stated once with outreach-rules.md as the source and its Last verified date, and the output ends with a Check Before Sending section."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "case-2",
+      "prompt": "Here are our three FUB action plans. Can you check them for gaps, overlaps and texting risk? I don't have the automations handy.",
+      "expected_output": "General mode (Meridian, Idaho): state rules were not checked. What I Used names the missing automations list and stage list and the checks they stopped. The Seller Value Plan's trigger is 'not confirmed', quoting Dana's guess, and its text step is explained (FUB action plans have no text step; an old initial text isn't sent when an automation starts the plan) and asked about. The consent section names all five automated text steps (Buyer 5 Text days 0, 2 and 4, the Seller Value Plan's day 0 text, the Open House Thanks text); consent capture isn't described for any source. Wording: Buyer 5 Text days 2 and 4 and Open House Thanks lack a sender and an opt-out line; the Seller text has a sender and no opt-out. 'Day N' is read as days from the start and listed to confirm. Gaps from what's there: Seller Value Plan's stop on reply not shown; Seller Value Plan and Open House Thank You end with an email; the silences are measured against the labeled default. Fixes are steps in FUB or Sample Drip Texter, never actions taken.",
+      "files": [
+        "evals/files/case2/Our 3 action plans, typed from FUB.txt"
+      ],
+      "expectations": [
+        "What I Used names the missing automations list and stage list and says which checks they stopped (stages with nothing attached, overlaps between automations, whether a plan's closing stage or tag starts anything, and what starts the Seller Value Plan), and asks for them.",
+        "No invented trigger: the Seller Value Plan's trigger is reported as not confirmed with Dana's own words quoted, and no tag, stage or automation is stated as its trigger.",
+        "The consent-risk section names every automated text step: Buyer 5 Text days 0, 2 and 4, the Seller Value Plan's day 0 text, and the Open House Thanks text.",
+        "The Seller Value Plan's text step is explained: Follow Up Boss action plans have no text step of their own; it may be an old initial text, which Follow Up Boss sends only when Lead Flow applied the plan (not when an automation started it), or a step from another tool; the team is asked which.",
+        "Consent capture is not described for any source, so no text is rated Lower risk; the Buyer 5 Text (every website lead) and Open House Thanks (every visitor started by hand) are named for the owner to check, and no result says legal, illegal or compliant.",
+        "Wording: Buyer 5 Text days 2 and 4 and the Open House Thanks text have no sender and no opt-out line; the Seller Value Plan's text names the sender but has no opt-out line.",
+        "The 'Day N' lines are read as days from the start, said so in What I Used, and listed in Check Before Sending to confirm, because Follow Up Boss counts from the previous step.",
+        "Gaps from what's there: the Seller Value Plan's stop on reply is not shown and flagged; the Seller Value Plan and Open House Thank You end with an email and no next step; silences are measured against a default that is labeled as a default.",
+        "General mode: the output says state rules were not checked and cites no Utah law.",
+        "Fixes are instructions the owner follows in Follow Up Boss or in Sample Drip Texter, and the output never says it changed, paused, created or sent anything.",
+        "The output ends with a Check Before Sending section, has no em or en dashes, and every number in it is in the input or is a difference shown with its arithmetic."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+PRACTICE FILE: made-up example. Not a real person, lead or brokerage.
+
+From: Follow Up Boss notifications (practice copy)
+To: Riley Sampleton
+Subject: New Lead: Avery Testington from Example Peak Realty Website
+Date: Tue, Nov 10, 2026 at 9:43 AM MST
+
+New lead assigned to Riley Sampleton
+
+Name: Avery Testington
+Email: avery.testington@example.com
+Phone: (801) 555-0148 (Mobile)
+Lead Source: Example Peak Realty Website
+Stage: Lead
+Tags: Website Lead, Riverton
+Action Plan: Website Buyer, 14 Day (started Nov 10, 9:43 AM)
+
+Inquiry: Property Inquiry, Tue, Nov 10, 2026 9:41 AM
+Property: 4120 S Placeholder Pines Ln, Riverton, UT 84065
+Listed at $549,900 | 4 Beds | 3 Baths | 2,860 Sq Ft
+Message: Hi! Does the basement have its own entrance? My brother might stay down there for a while. And is the backyard fenced? We have a dog. Could we see it this Saturday?
+
+Registration form, as submitted Tue, Nov 10, 2026 9:41 AM:
+[X] I agree to receive calls and text messages from Example Peak Realty and its agents at the phone number above about my home search, including messages sent by automated means. Consent is not a condition of any purchase. Msg and data rates may apply. Reply STOP to opt out.
+[ ] Send me the monthly market newsletter
+
+Website Activity:
+Viewed 4120 S Placeholder Pines Ln (3 times)
+Saved search: Riverton, 4+ beds, $450,000 to $575,000
+
+Timeline:
+Nov 10, 9:43 AM  Email sent by action plan "Website Buyer, 14 Day": Thanks for registering with Example Peak Realty!
+Nov 10, 9:43 AM  Lead created from Example Peak Realty Website
+
+View this lead in Follow Up Boss: [link removed in practice file]

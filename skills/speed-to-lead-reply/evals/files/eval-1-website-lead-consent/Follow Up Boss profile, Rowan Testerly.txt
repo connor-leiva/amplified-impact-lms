@@ -1,0 +1,20 @@
+PRACTICE FILE: made-up example. Not a real person, lead or brokerage.
+
+Follow Up Boss: person profile, copied Tue, Nov 10, 2026 7:04 AM
+
+Rowan Testerly
+Stage: Lead | Source: Example Canyon Realty Website | Assigned: Jesse Sampleberg
+Phone: (801) 555-0166 (Mobile)
+Email: rowan.testerly@example.com
+Tags: Website Lead, Herriman
+Text Consent (custom field): Yes, website form 11/10/2026 6:52 AM: "By checking this box, I agree to receive text messages from Example Canyon Realty at the number provided. Consent is not required to buy. Msg and data rates may apply. Reply STOP to opt out."
+Timeframe: 0-3 Months
+Price Range (from registration): $600,000 to $675,000
+Action Plans: none
+
+Activity
+Tue Nov 10, 6:58 AM  Viewed 1536 W Example Meadow Dr, Herriman, UT 84096 (2nd view)
+Tue Nov 10, 6:53 AM  Text sent automatically (Lead Flow initial text): "Hi Rowan, thanks for reaching out to Example Canyon Realty! An agent will be in touch shortly."
+Tue Nov 10, 6:52 AM  Inquiry: 1536 W Example Meadow Dr, Herriman, UT 84096
+    "Hi, what are the HOA dues and what do they cover? And is there a bedroom on the main floor? My mom will be living with us and can't do stairs."
+Tue Nov 10, 6:52 AM  Registered on Example Canyon Realty Website

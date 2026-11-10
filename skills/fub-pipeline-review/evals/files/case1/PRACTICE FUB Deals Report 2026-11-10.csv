@@ -1,0 +1,15 @@
+PRACTICE FILE: made-up example
+Name,Stage,Status,Entered Stage,Time in Stage,Close Date,Price,Commission,Team
+"Petunia Quillby, 418 Gumdrop Way",Under Contract,Current,2026-09-28 00:00:00,43 days,2026-11-06 00:00:00,412500,12375,Barnaby Crumpet
+"Ferdinand Rattlecap, 77 Marzipan Ct",Pending,Current,2026-09-22 00:00:00,49 days,2026-10-30 00:00:00,538000,16140,Otis Marmaduke
+"Ottoline Velveteen, 9 Toffee Ln",Closed,Current,2026-10-16 00:00:00,25 days,,365000,10950,Hazel Tinkersnap
+"Percival Scrumpkin, 14 Licorice Loop",Listed,Current,2026-10-12 00:00:00,29 days,,489000,14670,Clementine Puddleby
+"Winifred Waffleton, 31 Butterscotch Bend",Closed,Current,2026-11-05 00:00:00,5 days,2026-11-05 00:00:00,455000,13650,Juniper Fogwhistle
+"Archibald Custardbloom, 6 Caramel Ct",Closed,Current,2026-10-09 00:00:00,32 days,2026-10-09 00:00:00,610000,18300,Barnaby Crumpet
+"Clover Dewdrop, 52 Nougat Ave",Under Contract,Current,2026-11-04 00:00:00,6 days,2026-12-04 00:00:00,349000,10470,Hazel Tinkersnap
+"Bartholomew Lumpkin, 880 Gumdrop Way",Listed,Current,2026-10-01 00:00:00,40 days,,524900,15747,Otis Marmaduke
+"Thaddeus Pickwhistle, 12 Jellyroll Dr",Fell Through,Current,2026-10-31 00:00:00,10 days,2026-10-31 00:00:00,289000,8670,Barnaby Crumpet
+"Philippa Hufflington, 4 Sugarplum Row",Under Contract,Current,2026-10-19 00:00:00,22 days,2026-11-18 00:00:00,472000,14160,Juniper Fogwhistle
+"Cosmo Gigglesworth, 203 Sherbet St",Under Contract,Current,2026-10-26 00:00:00,15 days,2026-11-20 00:00:00,299900,8997,Clementine Puddleby
+Posy Bumbershoot,Buyer Agreement,Current,2026-10-22 00:00:00,19 days,,,,Juniper Fogwhistle
+"Calliope Whistlebrook, 19 Crumpet Ct",Closed,Archived,2025-08-29 00:00:00,438 days,2025-08-29 00:00:00,398000,11940,Juniper Fogwhistle

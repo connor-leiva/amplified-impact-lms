@@ -1,0 +1,20 @@
+PRACTICE FILE: made-up example. Not a real person, lead, portal or brokerage.
+
+From: Sample Realty Search Lead Alerts (a made-up home search site)
+To: Parker Mockridge
+Subject: New lead for 2207 N Example Sage Way, Meridian, ID 83646
+Date: Tue, Nov 10, 2026 at 4:36 PM MST
+
+You have a new buyer lead.
+
+Name: Taylor Fakesmith
+Phone: (208) 555-0139
+Email: taylor.fakesmith@example.org
+Message: "Is this home still available? Is it a safe area, and how are the schools? We have two kids starting middle school next fall. Could we see it tomorrow afternoon?"
+
+Property: 2207 N Example Sage Way, Meridian, ID 83646
+Price: $512,000
+Beds: 4 | Baths: 2.5 | Sq Ft: 2,240 | Lot: 0.17 acres
+Listing status: Active
+
+Reply to this email or call the lead directly.

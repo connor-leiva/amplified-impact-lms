@@ -54,6 +54,8 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'team-pnl-review', title: 'Team P&L Review', summary: "Reviews the team's profit and loss and drafts the owner brief.", sets: 'owner_ops', files: zips('team-pnl-review', true) },
   { id: 'inbox-meeting-follow-through', title: 'Inbox and Meeting Follow-Through', summary: "A team leader's daily pass over email and meetings.", sets: 'owner_ops', files: zips('inbox-meeting-follow-through', false) },
   { id: 'l10-meeting-prep', title: 'L10 Meeting Prep', summary: "Preps the weekly EOS L10 from the team's scorecard, rocks, to-dos and issues.", sets: 'owner_ops', files: zips('l10-meeting-prep', true) },
+  { id: 'fub-pipeline-review', title: 'FUB Pipeline Review', summary: 'Runs the weekly pipeline review from Follow Up Boss exports.', sets: 'owner_ops', files: zips('fub-pipeline-review', true) },
+  { id: 'fub-automation-audit', title: 'FUB Automation Audit', summary: "Lines up the team's Follow Up Boss plans and automations to find gaps, overlaps and texting-consent risk.", sets: 'owner_ops', files: zips('fub-automation-audit', true) },
   // For everyone.
   { id: 'perfect-week', title: 'Perfect Week', summary: 'Plans an ideal working week from the real calendar and task list.', sets: 'both', files: zips('perfect-week', false) },
   { id: 'content-opportunity-research', title: 'Content Strategist', summary: "Weekly Instagram research and five ideas built on the creator's own stories.", sets: 'both', files: zips('content-opportunity-research', false) },
@@ -73,6 +75,7 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'market-update-email', title: 'Market Update Email', summary: "Turns the MLS's monthly stats into a market update email and a social post.", sets: 'agent', files: zips('market-update-email', true) },
   { id: 'open-house-follow-up', title: 'Open House Follow-Up', summary: 'Turns an open house sign-in sheet and notes into visitor follow-ups and a seller update.', sets: 'agent', files: zips('open-house-follow-up', true) },
   { id: 'sphere-touch-plan', title: 'Sphere Touch Plan', summary: "Plans a year of sphere and past client touches and drafts this week's messages.", sets: 'agent', files: zips('sphere-touch-plan', true) },
+  { id: 'speed-to-lead-reply', title: 'Speed to Lead Reply', summary: 'Drafts the first reply to a new online lead, with the text consent read first.', sets: 'agent', files: zips('speed-to-lead-reply', true) },
 ];
 
 export const isFreeSkill = (id: string): boolean => FREE_SKILLS.includes(id);

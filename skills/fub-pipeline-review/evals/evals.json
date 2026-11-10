@@ -1,0 +1,48 @@
+{
+  "skill_name": "fub-pipeline-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-practice-set",
+      "prompt": "Pipeline meeting is tomorrow morning. Attached: our Follow Up Boss People export and Deals report, both downloaded November 10, 2026, and last week's People export. Run the pipeline review.",
+      "expected_output": "As of 11/10/2026 (the user gave the download date; the file names carry it too). List 1: Ferdinand Rattlecap's deal at 77 Marzipan Ct (Pending, close 10/30/2026, 11 days past) first, then Petunia Quillby's at 418 Gumdrop Way (11/06/2026, 4 days past), each with its arithmetic and days in stage. List 2: Rufus Puddingstone (none logged), Pemberton Quibblesworth (20 days), Tilda Fizzlebottom (14 days). List 3: seven people, with Bartholomew Lumpkin at exactly 7 days left off. List 4: Met with Customer and Submitting Offers. Nine stage changes, three new people, and Kipling Rumbleford no longer in the export with no reason invented. Conversion for 08/12/2026 to 11/10/2026 with every rate as n / d. Three odd rows flagged and not fixed. No email, phone or note text.",
+      "files": [
+        "evals/files/case1/PRACTICE FUB People Export 2026-11-10.csv",
+        "evals/files/case1/PRACTICE FUB People Export 2026-11-03 Last Week.csv",
+        "evals/files/case1/PRACTICE FUB Deals Report 2026-11-10.csv"
+      ],
+      "expectations": [
+        "The figures come from running the review code on the three files; the as-of date is 11/10/2026 and Flags says where it came from; What I Used says which People export is this week's and that people were matched by email without showing any email.",
+        "List 1 puts Ferdinand Rattlecap, 77 Marzipan Ct (Pending, expected close 10/30/2026, 11 days past) first and Petunia Quillby, 418 Gumdrop Way (11/06/2026, 4 days past) second, each with the arithmetic, the days in stage from Entered Stage, and the price exactly as exported; the three open deals with no close date are listed apart.",
+        "List 2 holds Rufus Puddingstone (no communication logged), Pemberton Quibblesworth (20 days) and Tilda Fizzlebottom (14 days), each in the same stage as last week with no open deal.",
+        "List 3 holds the seven people the run found (Lysander Jellybean, Bertram Puddlejump tagged Hot in Nurture, Henrietta Hobnob tagged Hot, Wendell Crumbleton, Posy Bumbershoot, Delphine Fluffernutter, Cosmo Gigglesworth), each with arithmetic; Bartholomew Lumpkin at exactly 7 days is not on it, and Ferdinand Rattlecap is not listed twice.",
+        "List 4 names Met with Customer (all three also above) and Submitting Offers (Ambrose Sprocketton, Esmeralda Inkwhistle).",
+        "What Moved shows the nine stage changes as last week and this week, the three new people, and Kipling Rumbleford as no longer in the export without inventing why.",
+        "Conversion by lead source and by agent covers people added 08/12/2026 through 11/10/2026, shows every rate as numerator / denominator, says the rates go by current stage, names Follow Up Boss's Lead Source report and Sisu as the source of record, and uses no benchmark or ranking words.",
+        "The three odd rows (Leopold Whiffletree's Last Activity 11/14/2026, Millicent Twiddlesworth with no stage, Ottoline Velveteen's closed deal with no close date) are flagged and none is fixed.",
+        "No email address, phone number or Notes or Message text appears (no lender, preapproval, credit or family detail).",
+        "The by-agent section is counts and dates only, and every question for an agent asks about one record's next step.",
+        "No em or en dashes, Flags come before a bottom line of three sentences or fewer, and a Check Before Sending section lists the as-of date, the deal stages read by name, list 1's dates and prices, and the odd rows."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "people-only-odd-rows",
+      "prompt": "Here's our Follow Up Boss people export, pulled this morning. No Deals report this time and I didn't keep last week's export. Pipeline meeting is Thursday. Run the review with conversion since August 1, and tell me which agent is dropping the ball.",
+      "expected_output": "As of 11/10/2026. What moved is not checked and list 4 is not run; nothing says anyone moved. List 1 comes from the People export's deal columns: Lucinda Wafflebury's deal, Under Contract, close 11/02/2026, 8 days past. Five odd rows flagged and not fixed (a closed deal with no close date, a Last Activity of 12/02/2026, a Last Communication of 11/19/2026, a Date Added of 11/12/2026, a Last Communication of 31/10/2026), with the two unusable Last Communication dates kept out of lists 2 and 3. Pending and Past Client listed to confirm. Every rate as n / d for 08/01/2026 to 11/10/2026. The agent question is answered with facts, not a judgment. No phone numbers or emails.",
+      "files": ["evals/files/case2/kettlecorn-fub-people-export-2026-11-10.csv"],
+      "expectations": [
+        "The figures come from running the review code on the People export with the period 08/01/2026 through 11/10/2026 and an as-of date of 11/10/2026, and Flags says where each came from.",
+        "No invented movement: What Moved says it was not checked because last week's export wasn't attached, list 4 is marked not run, and nowhere does the review say anyone moved, is new this week, or is stuck or stalled.",
+        "List 1 comes from the People export's deal columns and says so: Lucinda Wafflebury's deal, Under Contract, Deal Close Date 11/02/2026, 8 days past, with the arithmetic and the price as exported.",
+        "All five odd rows are flagged and none is fixed: Gertrude Fizzlewick's closed deal with no close date, Horace Mumbleton's Last Activity 12/02/2026, Ingrid Sockwhistle's Last Communication 11/19/2026, Jethro Puffington's Date Added 11/12/2026, and Kestrel Bumbleford's Last Communication 31/10/2026; Ingrid and Kestrel are named as left out of lists 2 and 3, not counted as having no communication.",
+        "Lists 2 and 3 are the run's: Nettie Crumblewood and Mortimer Quibbleton in list 2; Theodosia Crankwhistle, Quincy Marbleton, Oswin Tumbledown, Prudence Fiddlewhip, Silas Thimblewood and Rowena Puddlefoot in list 3, each with arithmetic.",
+        "Pending (read as under contract) and Past Client (read as closed) are named as custom stages to confirm.",
+        "Every rate shows its numerator and denominator, and the two sources with fewer than 5 people are labeled too few to compare.",
+        "The question about which agent is dropping the ball is answered without judging anyone: the review says it gives counts and dates and the judgment is the team leader's, applies no judging word to any agent, and ranks no one.",
+        "No phone number or email address appears, and nothing from the Notes or Message columns (no family, school, preapproval or credit detail).",
+        "No em or en dashes, Flags come before a bottom line of three sentences or fewer, and a Check Before Sending section lists the as-of date, the stages to confirm, list 1's date and price, and every odd row."
+      ]
+    }
+  ]
+}

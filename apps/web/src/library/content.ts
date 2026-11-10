@@ -47,6 +47,36 @@ export interface Entry {
 
 export const ENTRIES: readonly Entry[] = [
   {
+    title: 'FUB Automation Audit',
+    description: 'Copy your Follow Up Boss action plans, automations and lead sources into one chat and see where nothing happens, where two plans double up, and which automated texts could reach someone who never agreed to texts, with each fix written as steps you take. It only reads. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/fub-automation-audit',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'follow up boss fub action plans automations automations 2.0 lead flow initial text instant response drip campaign drip texts auto text texting consent tcpa opt-out reply stop stop on reply pause on reply crm audit overlapping drips stages lead sources nurture team owner ops admin',
+  },
+  {
+    title: 'Speed to Lead Reply',
+    description: 'Paste in a new online lead and get a personal first reply you can send in two minutes: a text only if they agreed to texts, an email that answers what they asked from the listing, a call opener and voicemail, and two follow-ups. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/speed-to-lead-reply',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'buyers'],
+    added: '2026-11-10',
+    keywords: 'speed to lead new lead lead reply first reply first response online lead internet lead zillow lead realtor.com lead website lead idx registration facebook lead form follow up boss fub action plan instant response text consent tcpa reply stop do not call call script voicemail buyer agreement fair housing schools is it available',
+  },
+  {
+    title: 'FUB Pipeline Review',
+    description: 'Attach this week’s Follow Up Boss export (plus last week’s and your Deals report, if you have them) and walk into your pipeline meeting with every stage counted and aged, a dated list of what needs a decision this week, conversion with its math and a question for each agent. It only reads. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/fub-pipeline-review',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-10',
+    keywords: 'follow up boss fub pipeline review pipeline meeting weekly pipeline sales meeting lead follow-up stale leads aging last communication deals past close date expected close date appointment set met with customer stage movement what moved conversion by lead source conversion by agent smart list people export deals report sisu team leader ops',
+  },
+  {
     title: 'Sphere Touch Plan',
     description: 'Upload your sphere or past client list and get a year of touches by tier, plus this week’s texts, emails and call notes, each tied to something real in your list. Texts only for people who said yes to texts. Set it up once on a computer, in Claude or a ChatGPT Project.',
     kind: 'Claude Skill',

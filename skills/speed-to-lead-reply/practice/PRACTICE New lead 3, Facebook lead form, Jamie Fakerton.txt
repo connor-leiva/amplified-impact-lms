@@ -1,0 +1,26 @@
+PRACTICE FILE: made-up example. Not a real person, lead or brokerage.
+
+From: Follow Up Boss notifications (practice copy)
+To: Riley Sampleton
+Subject: New Lead: Jamie Fakerton from Facebook Lead Ad
+Date: Tue, Nov 10, 2026 at 7:12 PM MST
+
+New lead assigned to Riley Sampleton
+
+Name: Jamie Fakerton
+Email: jamie.fakerton@example.org
+Phone: (801) 555-0193 (Mobile)
+Lead Source: Facebook Lead Ad
+Campaign: New Builds in South Jordan, Fall 2026 (made up)
+Stage: Lead
+
+Form answers:
+When are you hoping to move? 3 to 6 months
+Are you working with a real estate agent? Yes
+Anything you'd like us to know? Just want the list of new builds you mentioned in the ad.
+
+Form disclaimer shown to the lead:
+By submitting this form, you agree that Example Peak Realty may contact you about your home search. See our privacy policy.
+
+Timeline:
+Nov 10, 7:12 PM  Lead created from Facebook Lead Ad

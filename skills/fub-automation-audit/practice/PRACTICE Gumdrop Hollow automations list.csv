@@ -1,0 +1,9 @@
+PRACTICE FILE: made-up example
+Name,Trigger,Conditions,Action,On or Off,Notes
+Nurture Drip,Stage changed to Nurture,None,Start action plan: Long-Term Nurture,On,
+Market Email,Tag added: nurture,Email is good,Start action plan: Monthly Market Email,On,
+Under Contract,Stage changed to Under Contract,None,Start action plan: Under Contract to Close,On,
+Closed Thank You,Stage changed to Closed,None,Start action plan: Closing Day Thank You,On,
+Past Client,Stage changed to Past Client,None,Start action plan: Past Client Care,On,
+Home Anniversary,"Calendar date: Closing Anniversary, 0 days after",Stage is Past Client,Start action plan: Home Anniversary,On,Run automation multiple times per person (every year)
+Back On Site,Property Viewed,Stage is Nurture,"Add note: Back on the site, give them a call. Notify assigned agent",Off,Turned off in August

@@ -1,0 +1,89 @@
+PRACTICE FILE: made-up example
+
+Gumdrop Hollow Home Team, Example Ridge Realty, Draper, Utah
+Typed from Follow Up Boss by Marisol Pebblecrest, team owner, on November 9, 2026.
+Every name, team, brokerage, portal and tool in this file is made up.
+
+
+STAGES (Admin > Stages, in order)
+
+Lead
+Hot Prospect
+Nurture
+Active Client
+Under Contract
+Closed
+Past Client
+Sphere
+Trash
+
+
+LEAD SOURCES (Admin > Lead Flow)
+
+Source: Website (IDX)
+  Agent: Buyer Agents group (round robin)
+  Action plan: New Website Lead
+  Initial text: yes, 5 minutes after, from the agent's FUB number
+
+Source: HomeFinder Example
+  Agent: Buyer Agents group (round robin)
+  Action plan: Portal Buyer 14 Day
+  Initial text: yes, 2 minutes after, from the agent's FUB number
+
+Source: Facebook Lead Ads
+  Agent: Juniper Quickfoot
+  Action plan: Facebook Seller Lead
+  Initial text: yes, 1 minute after, from the agent's FUB number
+
+Source: Sample SignIn App (our open house sign-in app)
+  Agent: the agent who hosted
+  Action plan: Open House Visitor
+  Initial text: no
+
+Source: Referral
+  Agent: Marisol Pebblecrest
+  Action plan: none
+  Initial text: no
+
+Source: Sign Call
+  Agent: Tobias Fernwhistle
+  Action plan: none
+  Initial text: no
+
+
+INITIAL TEXTS (Admin > Lead Flow > Advanced Settings), copied word for word
+
+Website (IDX):
+"Hi {Contact First Name}, this is {Agent First Name} with Gumdrop Hollow Home Team at Example Ridge Realty. Thanks for checking out homes on our site! Any questions I can answer? Reply STOP to opt out."
+
+HomeFinder Example:
+"Hi {Contact First Name}, it's {Agent First Name} with Gumdrop Hollow Home Team. Saw your question on {Inquiry Address}. Want to see it this week?"
+
+Facebook Lead Ads:
+"Hi {Contact First Name}! Saw you asked what your home is worth. When's a good time to chat?"
+
+
+HOW EACH SOURCE GETS TEXT CONSENT (my notes)
+
+Website (IDX): the registration form has a checkbox the lead has to check to register. It says: "I agree to receive calls and texts, including automated texts, from Gumdrop Hollow Home Team at Example Ridge Realty at the number I provided. Consent is not a condition of buying anything. Msg and data rates may apply. Reply STOP to opt out."
+
+HomeFinder Example: not sure what their form says about texting.
+
+Facebook Lead Ads: our form asks for name, phone, email and home address. There's no wording about texts on it.
+
+Sample SignIn App: there's an optional box, "OK to text me about this home and others." Some visitors check it and some don't. The app sends every visitor to FUB the same way, and the Open House Visitor plan runs on all of them.
+
+Referral and Sign Call: agents call these people by hand and text only if the person says it's OK.
+
+
+OUTSIDE TEXTING TOOL
+
+We use Sample Drip Texter for open house texts. It starts its campaign "Open House 3 Text" whenever the tag oh-text is added to someone in FUB. It sends between 8 a.m. and 9 p.m. Mountain time, 7 days a week. The campaign, copied word for word:
+
+Day 0, 1 hour after the tag: "Hi {first name}, thanks for coming to the open house today! It's {agent name} with Gumdrop Hollow Home Team. Any questions about the home?"
+
+Day 2: "Hi {first name}, did the home catch your eye? I can send you similar ones."
+
+Day 6: "Last check-in from me, {first name}! Want new listings like that one? {agent name}, Gumdrop Hollow Home Team, Example Ridge Realty. Reply STOP to opt out."
+
+We hold open houses on Saturdays and Sundays.

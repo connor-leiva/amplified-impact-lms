@@ -1,0 +1,68 @@
+{
+  "skill_name": "speed-to-lead-reply",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-website-lead-consent",
+      "prompt": "New lead just came in on my website, it's 7:05 this morning. Listing sheet's attached. I'm Jesse Sampleberg with Example Canyon Realty. Write my first reply.",
+      "expected_output": "Today is Tuesday, November 10, 2026, 7:05 AM; the property is in Herriman, Utah, so Utah mode. The Follow Up Boss profile's Text Consent field holds a website form line from 6:52 AM that covers text messages from Example Canyon Realty: the consent read quotes it and reads TEXT OK, and notes it covers texts but not calls. A first text is drafted with a Consent line, from Jesse at Example Canyon Realty, saying Jesse is writing personally (a Lead Flow automatic text went out at 6:53 AM and is flagged, not repeated), ending with Reply STOP to opt out. Because it is before 8 AM, the email goes now and the text and call wait for 8:00 AM. The email answers both of Rowan's questions from the listing sheet only: the HOA fee is $95 monthly and covers common area maintenance, snow removal in common areas and trail maintenance; the listing shows a main-level bedroom and a main-level full bath. It never mentions Rowan's mother or stairs, makes no step-free or accessibility claim, and leaves out the price range from the registration, the website views, the agent remarks (Monday's offer review, multiple offers), the showing instructions and the school names. It makes no availability claim beyond the listing status with an offer to confirm. Day 1 is Wednesday, November 11 (Veterans Day, a Utah legal holiday): the text and email keep the day, and the call moves to Thursday, November 12 because the consent covers texts only. Day 3 is Friday, November 13.",
+      "files": [
+        "evals/files/eval-1-website-lead-consent/Follow Up Boss profile, Rowan Testerly.txt",
+        "evals/files/eval-1-website-lead-consent/Listing sheet, 1536 W Example Meadow Dr.pdf"
+      ],
+      "expectations": [
+        "The consent read quotes the Text Consent field word for word (\"By checking this box, I agree to receive text messages from Example Canyon Realty at the number provided...\"), says where it sits and its time (website form, 11/10/2026 6:52 AM), and reads TEXT OK",
+        "A first text is drafted with a Consent line above it quoting the record; it names Jesse Sampleberg and Example Canyon Realty, says Jesse is writing personally, ends with \"Reply STOP to opt out.\" and is 320 characters or fewer",
+        "A flag names the automatic Lead Flow text sent at 6:53 AM, and no draft repeats it",
+        "The output says it is before 8 AM: the email can go now, and the text and call wait until 8:00 AM Mountain",
+        "The email answers both questions from the listing sheet only: the HOA fee of $95 monthly and what the sheet says it includes (common area maintenance, snow removal in common areas, trail maintenance), and a bedroom and full bath on the main level; it adds no feature the sheet doesn't show, such as a step-free entry",
+        "The email has a Title Case subject, a body of 150 words or fewer, and the opt-out and postal address footer",
+        "No draft mentions Rowan's mother, stairs as a need, who will live in the home, the price range from the registration, or the website views",
+        "No draft uses the agent remarks (the Monday, November 16 offer review or multiple offers), the showing instructions or any school name",
+        "No draft says the home is available; any status mention gives the listing's status with an offer to confirm it's still available",
+        "Day 1 is Wednesday, November 11 (a Utah legal holiday) and Day 3 is Friday, November 13; the Day 1 text and email keep their day and the Day 1 call moves to Thursday, November 12, with a one-line reason (the consent covers texts, not calls)",
+        "Check before sending lists the HOA fee and inclusions and the main-level bedroom and bath with their listing fields, the consent quote and where it sits, the 8 AM send window, [Agent Phone] and [Sender Postal Address], and a Do Not Call check"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-portal-no-consent-schools-safety",
+      "prompt": "Portal lead just came in. I don't have the listing sheet handy. I'm Parker Mockridge with Example Treasure Valley Realty. What do I send?",
+      "expected_output": "Today is Tuesday, November 10, 2026; the lead came in at 4:36 PM Mountain. The property is in Meridian, Idaho, so general mode: state rules were not checked. The portal email shows a phone number and no consent line, so the consent read says nothing in the record mentions texts, a phone number is not consent, and NO TEXT: call and email only, with no text drafted anywhere, including the touches, and no voicemail asking for a text back. The email answers the safety and schools questions with no opinion, no school names and none of safe, quiet or good schools: it points to the school district's boundary map, the state's school report card and the local police department's crime map, and offers to send the district map. It doesn't say the home is available: the listing on Sample Realty Search shows it as active, and Parker will confirm. It doesn't promise tomorrow's showing: a written buyer agreement comes first. It never repeats the line about the two kids. Property facts come only from the portal email. Call opener and voicemail name Parker and Example Treasure Valley Realty and the reason first. Day 1 is Wednesday, November 11 and Day 3 is Friday, November 13, each with a call and an email.",
+      "files": [
+        "evals/files/eval-2-portal-no-consent-schools-safety/New lead email, Sample Realty Search, Taylor Fakesmith.txt"
+      ],
+      "expectations": [
+        "The consent read says nothing in the portal email mentions texts, that a phone number is not consent, and reads NO TEXT: call and email only",
+        "No text is drafted anywhere in the output (first reply or touches), and no voicemail asks Taylor to text back",
+        "No draft gives an opinion on safety or schools, names a school, or uses \"safe\", \"quiet\", \"good schools\" or \"family-friendly\"",
+        "The email points to public sources (the school district's boundary map, the state's school report card and the local police department's crime map) and offers to send the district map",
+        "No draft says the home is available: it gives the portal's listed status and says Parker will confirm it's still available",
+        "No draft promises tomorrow's showing (Wednesday, November 11); the email says a written buyer agreement comes before any showing",
+        "No draft mentions Taylor's kids, middle school or who will live in the home",
+        "General mode: the output says state rules were not checked and applies no Utah rule",
+        "Property facts come only from the portal email ($512,000, 4 beds, 2.5 baths, 2,240 square feet, 0.17 acres), with nothing invented",
+        "The call opener's first sentence names Parker Mockridge, Example Treasure Valley Realty and the reason for the call, and the voicemail is 50 words or fewer",
+        "Day 1 (Wednesday, November 11) and Day 3 (Friday, November 13) touches are a call and an email each, and the output ends with Check before sending"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "eval-3-opted-out-returning-lead",
+      "prompt": "Old lead came back with a question. She signed up for texts on our site in March, so can you write a text? I'm Quinn Fakeworth with Example Basin Realty. Listing pasted in the other file.",
+      "expected_output": "Utah mode (Ogden). The profile has a March website consent line covering calls and texts, but Morgan replied STOP on August 14, 2026, the number is shown in orange as opted out, the profile is tagged Do Not Call, and a June 3 note says Morgan asked not to be called and that email is fine. The consent read quotes all of these and reads NO TEXT and NO CALL: email only. The output declines the agent's request for a text and says why (the STOP reply overrides the old consent line). No text, call opener or voicemail is drafted, and the day 1 and day 3 touches are emails only. The email answers the furnace question from the pasted listing (a 2023 furnace, as listed) and says Quinn will find out about a gas line, because the listing shows an electric range and says nothing about a gas line. It leaves out the agent remarks (45-day close, best offer) and the showing instructions, and makes no availability claim.",
+      "files": [
+        "evals/files/eval-3-opted-out-returning-lead/Follow Up Boss profile, Morgan Notreal.txt",
+        "evals/files/eval-3-opted-out-returning-lead/Listing pasted from MLS, 610 E Sample Bluff Rd.txt"
+      ],
+      "expectations": [
+        "The consent read quotes the March consent line, the August 14 STOP reply, the Do Not Call tag and the June 3 note, and reads NO TEXT and NO CALL: email only",
+        "A flag or the consent read declines the agent's request for a text and says the STOP reply overrides the old consent line",
+        "No text, call opener or voicemail is drafted anywhere, and the day 1 and day 3 touches are emails only",
+        "The email says the listing shows a 2023 furnace and does not claim anything about a gas line: it says Quinn will find out, because the listing shows an electric range and no gas line",
+        "No draft uses the agent remarks (a 45-day close, best offer) or the showing instructions (vacant, lockbox), and no draft says the home is available",
+        "The email has a Title Case subject, 150 words or fewer, the opt-out and postal address footer, and the output ends with Check before sending"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+PRACTICE FILE: made-up example
+
+Sample Valley Brokers, Meridian, Idaho. Typed from Follow Up Boss by Dana Mockingbird (ops) on November 10, 2026.
+Every name, team, brokerage and tool in this file is made up.
+
+We get leads from our website (Example Home Search), open houses, and referrals. I didn't pull the automations or the stages.
+
+
+1) BUYER SPEED PLAN
+Used on: Lead Flow, source Example Home Search (our website)
+Pause when lead responds: yes
+
+Day 0: Add tag drip-buyer (this starts the "Buyer 5 Text" campaign in Sample Drip Texter)
+Day 0: Email "Welcome to Example Home Search"
+Day 1: Task: call
+Day 3: Email "New Listings This Week"
+Day 10: Email "Still Searching?"
+Day 30: Change stage to Nurture
+
+Buyer 5 Text campaign (in Sample Drip Texter), copied:
+Day 0: "Hi {first name}, it's {agent name} with Sample Valley Brokers. Saw you're looking at homes. Want me to set up a tour? Reply STOP to opt out."
+Day 2: "Any homes catch your eye yet?"
+Day 4: "I can send you new listings before they hit the big sites. Want them?"
+
+
+2) SELLER VALUE PLAN
+Used on: an automation. I think it's when someone gets the seller tag, not sure.
+Pause when lead responds: (didn't check)
+
+Day 0: Email "Your Home Value"
+Day 0: Text "Hi {first name}, I just sent your home value report to your email. Questions? {agent name}, Sample Valley Brokers"
+Day 7: Task: call
+Day 21: Email "What Buyers Are Paying Near You"
+Day 60: Email "Ready When You Are"
+
+
+3) OPEN HOUSE THANK YOU
+Used on: I start it by hand on each visitor after an open house.
+Pause when lead responds: yes
+
+Day 0: Add tag oh-thanks (starts the "Open House Thanks" text in Sample Drip Texter)
+Day 0: Email "Thanks for Coming"
+Day 2: Task: call
+Day 5: Email "Similar Homes"
+
+Open House Thanks text, copied:
+"Thanks for coming by the open house today! Let me know if you have questions."

@@ -1,0 +1,8 @@
+{
+  "name": "fub-automation-audit",
+  "page": "fub-automation-audit",
+  "title": "FUB Automation Audit",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}
