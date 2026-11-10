@@ -1,0 +1,333 @@
+{
+  "as_of": "2026-11-10",
+  "week_end": "2026-11-16",
+  "deadlines": [
+    {
+      "name": "Seller Disclosure Deadline",
+      "date": "2026-11-09",
+      "weekday": "Monday",
+      "long": "Monday, November 9, 2026",
+      "days": -1,
+      "math": "2026-11-09 - 2026-11-10 = -1",
+      "timing": "passed 1 day ago",
+      "source": "key dates file, Section 4(a)",
+      "ref": "4(a)",
+      "was": [],
+      "proposed": []
+    },
+    {
+      "name": "Due Diligence Deadline",
+      "date": "2026-11-20",
+      "weekday": "Friday",
+      "long": "Friday, November 20, 2026",
+      "days": 10,
+      "math": "2026-11-20 - 2026-11-10 = 10",
+      "timing": "later",
+      "source": "key dates file, Section 4(b)",
+      "ref": "4(b)",
+      "was": [],
+      "proposed": []
+    },
+    {
+      "name": "Appraisal Deadline",
+      "date": "2026-11-24",
+      "weekday": "Tuesday",
+      "long": "Tuesday, November 24, 2026",
+      "days": 14,
+      "math": "2026-11-24 - 2026-11-10 = 14",
+      "timing": "later",
+      "source": "key dates file, Section 4(c)",
+      "ref": "4(c)",
+      "was": [],
+      "proposed": []
+    },
+    {
+      "name": "Financing Deadline",
+      "date": "2026-12-01",
+      "weekday": "Tuesday",
+      "long": "Tuesday, December 1, 2026",
+      "days": 21,
+      "math": "2026-12-01 - 2026-11-10 = 21",
+      "timing": "later",
+      "source": "key dates file, Section 4(d)",
+      "ref": "4(d)",
+      "was": [],
+      "proposed": []
+    },
+    {
+      "name": "Settlement Deadline",
+      "date": "2026-12-11",
+      "weekday": "Friday",
+      "long": "Friday, December 11, 2026",
+      "days": 31,
+      "math": "2026-12-11 - 2026-11-10 = 31",
+      "timing": "later",
+      "source": "key dates file, Section 4(e)",
+      "ref": "4(e)",
+      "was": [],
+      "proposed": []
+    }
+  ],
+  "odd": [],
+  "weekend": [],
+  "counted": [
+    {
+      "name": "Earnest Money delivery",
+      "date": "2026-11-10",
+      "weekday": "Tuesday",
+      "long": "Tuesday, November 10, 2026",
+      "days": 0,
+      "math": "2026-11-10 - 2026-11-10 = 0",
+      "timing": "today",
+      "source": "key dates file, Section 5: four (4) calendar days after Acceptance",
+      "from": "2026-11-06",
+      "from_label": "Acceptance",
+      "count": 4,
+      "count_math": "2026-11-06 + 4 = 2026-11-10"
+    }
+  ],
+  "dated": [],
+  "items": [
+    {
+      "item": "1. Buyer Broker Agreement, signed",
+      "result": "in file",
+      "found": "Buyer Broker Agreement (export row 1)",
+      "status": "Approved",
+      "signed": "All signed",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "2. REPC, signed and initialed on every page by all parties",
+      "result": "incomplete",
+      "found": "Real Estate Purchase Contract (row 2)",
+      "status": "Approved",
+      "signed": "All signed; seller initials missing on page 3",
+      "due": "2026-11-06",
+      "due_date": "2026-11-06",
+      "due_long": "Friday, November 6, 2026",
+      "days": -4,
+      "math": "2026-11-06 - 2026-11-10 = -4",
+      "timing": "passed 4 days ago"
+    },
+    {
+      "item": "3. Counteroffers and addenda, signed by all parties",
+      "result": "not applicable",
+      "found": "",
+      "status": "",
+      "signed": "",
+      "due": "",
+      "why": "key dates file: Addenda: none",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "4. Deposit of Earnest Money with Title Insurance Company Addendum",
+      "result": "in file",
+      "found": "Deposit of Earnest Money with Title Insurance Company Addendum (row 3)",
+      "status": "Approved",
+      "signed": "All signed",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "5. Earnest money receipt",
+      "result": "missing",
+      "found": "Earnest Money Receipt (row 6, empty)",
+      "status": "",
+      "signed": "",
+      "due": "Earnest Money delivery",
+      "due_date": "2026-11-10",
+      "due_long": "Tuesday, November 10, 2026",
+      "days": 0,
+      "math": "2026-11-10 - 2026-11-10 = 0",
+      "timing": "today"
+    },
+    {
+      "item": "6. Wire Fraud Advisory, signed by buyers",
+      "result": "in file",
+      "found": "Wire Fraud Advisory (row 4)",
+      "status": "Approved",
+      "signed": "All signed",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "7. Pre-approval letter or proof of funds",
+      "result": "in file",
+      "found": "Pre-Approval Letter (row 5)",
+      "status": "Approved",
+      "signed": "n/a",
+      "due": "",
+      "due_date": "",
+      "due_long": "no date on the checklist",
+      "days": null,
+      "math": "",
+      "timing": "no date"
+    },
+    {
+      "item": "8. Seller Property Condition Disclosure, signed by sellers",
+      "result": "missing",
+      "found": "",
+      "status": "",
+      "signed": "",
+      "due": "Seller Disclosure Deadline",
+      "due_date": "2026-11-09",
+      "due_long": "Monday, November 9, 2026",
+      "days": -1,
+      "math": "2026-11-09 - 2026-11-10 = -1",
+      "timing": "passed 1 day ago"
+    },
+    {
+      "item": "9. Lead-Based Paint Disclosure & Acknowledgement (homes built before 1978)",
+      "result": "not applicable",
+      "found": "",
+      "status": "",
+      "signed": "",
+      "due": "Seller Disclosure Deadline",
+      "why": "year built 1998 (key dates file)",
+      "due_date": "2026-11-09",
+      "due_long": "Monday, November 9, 2026",
+      "days": -1,
+      "math": "2026-11-09 - 2026-11-10 = -1",
+      "timing": "passed 1 day ago"
+    },
+    {
+      "item": "10. Commitment for Title Insurance",
+      "result": "in file",
+      "found": "Commitment for Title Insurance (row 7)",
+      "status": "Submitted",
+      "signed": "n/a",
+      "due": "Seller Disclosure Deadline",
+      "due_date": "2026-11-09",
+      "due_long": "Monday, November 9, 2026",
+      "days": -1,
+      "math": "2026-11-09 - 2026-11-10 = -1",
+      "timing": "passed 1 day ago"
+    },
+    {
+      "item": "11. HOA documents (CC&Rs, bylaws, rules, budget, reserve analysis, minutes)",
+      "result": "missing",
+      "found": "HOA Documents (row 8, empty)",
+      "status": "",
+      "signed": "",
+      "due": "Seller Disclosure Deadline",
+      "due_date": "2026-11-09",
+      "due_long": "Monday, November 9, 2026",
+      "days": -1,
+      "math": "2026-11-09 - 2026-11-10 = -1",
+      "timing": "passed 1 day ago"
+    },
+    {
+      "item": "12. Home inspection report or signed inspection waiver",
+      "result": "missing",
+      "found": "Home Inspection Report or Waiver (row 9, empty)",
+      "status": "",
+      "signed": "",
+      "due": "Due Diligence Deadline",
+      "due_date": "2026-11-20",
+      "due_long": "Friday, November 20, 2026",
+      "days": 10,
+      "math": "2026-11-20 - 2026-11-10 = 10",
+      "timing": "later"
+    },
+    {
+      "item": "13. Settlement statement, signed",
+      "result": "missing",
+      "found": "",
+      "status": "",
+      "signed": "",
+      "due": "Settlement Deadline",
+      "due_date": "2026-12-11",
+      "due_long": "Friday, December 11, 2026",
+      "days": 31,
+      "math": "2026-12-11 - 2026-11-10 = 31",
+      "timing": "later"
+    },
+    {
+      "item": "14. Commission Disbursement Authorization, broker signed",
+      "result": "missing",
+      "found": "",
+      "status": "",
+      "signed": "",
+      "due": "Settlement Deadline",
+      "due_date": "2026-12-11",
+      "due_long": "Friday, December 11, 2026",
+      "days": 31,
+      "math": "2026-12-11 - 2026-11-10 = 31",
+      "timing": "later"
+    }
+  ],
+  "counts": {
+    "missing": 6,
+    "incomplete": 1,
+    "unclear": 0,
+    "in file": 5,
+    "not applicable": 2
+  },
+  "this_week": [
+    {
+      "kind": "Counted period",
+      "name": "Earnest Money delivery",
+      "date": "2026-11-10",
+      "long": "Tuesday, November 10, 2026",
+      "days": 0,
+      "math": "2026-11-10 - 2026-11-10 = 0",
+      "source": "key dates file, Section 5: four (4) calendar days after Acceptance"
+    },
+    {
+      "kind": "Checklist item (missing)",
+      "name": "5. Earnest money receipt",
+      "date": "2026-11-10",
+      "long": "Tuesday, November 10, 2026",
+      "days": 0,
+      "math": "2026-11-10 - 2026-11-10 = 0",
+      "source": "Earnest Money Receipt (row 6, empty)"
+    }
+  ],
+  "past_due_open": [
+    {
+      "kind": "Checklist item (incomplete)",
+      "name": "2. REPC, signed and initialed on every page by all parties",
+      "date": "2026-11-06",
+      "long": "Friday, November 6, 2026",
+      "days": -4,
+      "math": "2026-11-06 - 2026-11-10 = -4",
+      "source": "Real Estate Purchase Contract (row 2)"
+    },
+    {
+      "kind": "Checklist item (missing)",
+      "name": "8. Seller Property Condition Disclosure, signed by sellers",
+      "date": "2026-11-09",
+      "long": "Monday, November 9, 2026",
+      "days": -1,
+      "math": "2026-11-09 - 2026-11-10 = -1",
+      "source": "not in the file"
+    },
+    {
+      "kind": "Checklist item (missing)",
+      "name": "11. HOA documents (CC&Rs, bylaws, rules, budget, reserve analysis, minutes)",
+      "date": "2026-11-09",
+      "long": "Monday, November 9, 2026",
+      "days": -1,
+      "math": "2026-11-09 - 2026-11-10 = -1",
+      "source": "HOA Documents (row 8, empty)"
+    }
+  ],
+  "open_no_date": []
+}

@@ -1,0 +1,29 @@
+PRACTICE FILE: made-up example
+
+Key dates, typed from the signed REPC by Sam Demo (TC), 11/6/2026
+88 Sample Willow Court, Pretendville, Utah. Buyer side.
+Every name, company and address in this file is made up.
+
+Form: Utah Real Estate Purchase Contract. Footer says "EFFECTIVE NOVEMBER 1, 2026. AS OF JANUARY 1, 2027, IT WILL REPLACE AND SUPERSEDE THE PREVIOUSLY APPROVED VERSION OF THIS FORM."
+Buyers: Harper Mockingbird and Quinn Mockingbird
+Sellers: Rowan Sampleton
+Buyer's agent: Avery Fictional, Placeholder Peaks Real Estate
+Listing agent: Dana Notreal, Example Canyon Homes
+Title: Notreal Title & Escrow (escrow officer Jesse Madeup)
+Lender: Pretendville Home Loans
+Year built: 1998. HOA: Willow Example Court Owners Association.
+
+Acceptance: 11/06/2026
+Section 1(a) Earnest Money: $3,000
+Section 5: deliver no later than four (4) calendar days after Acceptance; deposited with a Title Insurance Company (Notreal Title & Escrow), Deposit of Earnest Money with Title Insurance Company Addendum attached.
+Section 3: Due Diligence checked. Appraisal checked. Financing checked.
+
+Section 4 REPC Deadlines:
+(a) Seller Disclosure Deadline: 11/09/2026
+(b) Due Diligence Deadline: 11/20/2026
+(c) Appraisal Deadline: 11/24/2026
+(d) Financing Deadline: 12/01/2026
+(e) Settlement Deadline: 12/11/2026
+(f) Possession: Upon Recording
+
+Addenda: none.

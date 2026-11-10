@@ -1,0 +1,71 @@
+{
+  "skill_name": "tc-file-audit",
+  "evals": [
+    {
+      "id": 1,
+      "name": "practice",
+      "prompt": "Audit this transaction file as of November 10, 2026: what's missing, what's unsigned, and what's due this week?",
+      "expected_output": "The full file: Utah mode, the December 4, 2024 REPC (from the key dates summary). Flags: the earnest money receipt (export row 6, Not Uploaded; due Acceptance 10/27 + 4 = Saturday, October 31, 2026, 10 days past) and the Lead-Based Paint Disclosure & Acknowledgement (no row; year built 1974; due the Seller Disclosure Deadline, Tuesday, November 3, 2026, 7 days past) missing; the Due Diligence Deadline, Thursday, November 12, 2026, 2 days away, set by Addendum No. 1 (signed by all on 11/05/2026) in place of November 9; Addendum No. 2 signed by the buyers only, so the Settlement Deadline stays Friday, December 4, 2026 (24 days) and December 11 is listed as proposed; the export dated 2026-11-09. A calendar with Financing & Appraisal on Tuesday, November 24, 2026 (14 days). Due this week: the planned objection on November 11, the Due Diligence Deadline and the appraisal appointment on November 13. A message to Toby asking for the two missing items and the sellers' signatures, a note to Pat Imaginary for review, and Check Before Sending with every date's arithmetic.",
+      "files": [
+        "practice/PRACTICE Checklist export 1487 Example Quail Ln 2026-11-09.csv",
+        "practice/PRACTICE REPC key dates summary 1487 Example Quail Ln.pdf",
+        "practice/PRACTICE Sample Summit Realty buyer file checklist.md",
+        "practice/PRACTICE TC notes 1487 Example Quail Ln.txt"
+      ],
+      "expectations": [
+        "Missing Items names the earnest money receipt (due Saturday, October 31, 2026, Acceptance plus four calendar days, 10 days past) and the Lead-Based Paint Disclosure & Acknowledgement (the 1974 year built makes the conditional item apply; due by the Seller Disclosure Deadline, Tuesday, November 3, 2026, 7 days past), and lists the settlement statement and Commission Disbursement Authorization only as not yet due.",
+        "Incomplete Items names Addendum No. 2 with 'Buyers only' (sellers not signed), quoted from the export.",
+        "The calendar shows the Due Diligence Deadline as Thursday, November 12, 2026, 2 days remaining, cites Addendum No. 1 (signed by all parties on 11/05/2026) and the November 9 date it replaced, and flags it as inside 3 days.",
+        "The Settlement Deadline stays Friday, December 4, 2026 (24 days); December 11 appears only as proposed by Addendum No. 2, with who signed and who decides; the output never says the deadline was extended.",
+        "Every days-remaining number is computed in code and correct from November 10, 2026 (Seller Disclosure -7, Due Diligence 2, Financing & Appraisal 14, Settlement 24), with the arithmetic in Check Before Sending.",
+        "Due This Week lists the buyers' planned objection (Wednesday, November 11), the Due Diligence Deadline (Thursday, November 12) and the appraisal appointment (Friday, November 13), with the two past-due missing items first.",
+        "The message to the agent has a Title Case subject, asks Toby for the receipt, the Lead-Based Paint disclosure and the sellers' signatures with their dates, and the note to the broker asks for review without calling anything compliant, valid or sufficient.",
+        "No legal sufficiency or compliance claim anywhere; statuses such as Accepted and Pending Review are quoted as the export's.",
+        "What I Used names all four files, the as-of date from the prompt, Utah mode and the form's footer, the Radon Test Results as in the file but not on the checklist, and that REPC page initials are not shown.",
+        "The output ends with Check Before Sending listing every date with its source and arithmetic, every status with its row, the $5,000 earnest money with its source, and every name; no em or en dashes."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "case-2",
+      "prompt": "Audit the 88 Sample Willow Court file for me. It's Tuesday, November 10, 2026. What's missing and what do I need to chase?",
+      "expected_output": "Utah mode, the November 1, 2026 REPC (separate Appraisal and Financing Deadlines in Section 4). Flag 1: the forwarded 11/9 email asking to send the earnest money to a new account, with 'verify by phone with the title company at a number you already have' and none of its routing, account or phone numbers or bank and account names repeated anywhere; never called real or fake. Missing: the Seller Property Condition Disclosure (no row) and the HOA documents (row 8 empty), both due by the Seller Disclosure Deadline, Monday, November 9, 2026, 1 day past; the earnest money receipt, due today (Acceptance 11/06 + 4 = 11/10). Incomplete: the REPC's seller initials missing on page 3. Calendar: Seller Disclosure -1, Due Diligence 10, Appraisal 14, Financing 21, Settlement 31. Both drafts carry the verify-by-phone line without numbers. No legal sufficiency claims.",
+      "files": [
+        "evals/files/case2/Willow Ct checklist export 2026-11-10.csv",
+        "evals/files/case2/Willow Ct REPC key dates.txt",
+        "evals/files/case2/Placeholder Peaks buyer file checklist.md",
+        "evals/files/case2/Willow Ct TC notes and forwarded emails.txt"
+      ],
+      "expectations": [
+        "The wire request is the first flag, names the message by date, apparent sender and subject only, says not to send funds, and says to verify by phone with the title company at a number you already have.",
+        "No routing number, account number, phone number, bank name or account name from the email appears anywhere in the output, including Check Before Sending, and no part of any of those numbers.",
+        "The output never says the email is real, fake or legitimate, and drafts no reply to it.",
+        "Missing Items lists the Seller Property Condition Disclosure and the HOA documents (due by the Seller Disclosure Deadline, Monday, November 9, 2026, 1 day past) and the earnest money receipt (due today, Tuesday, November 10, 2026, counted from Acceptance on November 6).",
+        "Incomplete Items quotes the export's 'seller initials missing on page 3' for the REPC.",
+        "The calendar uses the November 1, 2026 form's Section 4 deadlines, and days remaining are computed correctly and shown: Seller Disclosure -1, Due Diligence 10, Appraisal 14, Financing 21, Settlement 31.",
+        "No legal sufficiency or compliance claims, and no statement of what the missed Seller Disclosure Deadline means for either party.",
+        "Both drafts carry the verify-by-phone warning without any number; the broker note names no broker it wasn't given ([Broker Name]).",
+        "The Lead-Based Paint item is not applicable (year built 1998) and counteroffers and addenda are not applicable ('Addenda: none').",
+        "Title Case subject lines, no em or en dashes, and the output ends with Check Before Sending, which says no number from the message appears."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "case-3",
+      "prompt": "Can you run a file audit on 9 Example Larkspur Way as of November 10, 2026? Dates and docs attached. We don't have a brokerage checklist written down.",
+      "expected_output": "General mode (Idaho): 'State rules and forms were not checked,' no Utah section numbers. The closing date (Monday, November 16, 2026) is before the inspection objection, appraisal and loan approval deadlines: labeled an odd date to check against the signed contract, with no date changed or picked. Addendum 1 (inspection extension) signed by the buyers only, its new date not shown, so the inspection objection deadline stays November 18. No brokerage checklist, so no missing-item cross; the inspection report shows as not uploaded. The business-day earnest money period is not computed.",
+      "files": [
+        "evals/files/case3/Larkspur Way contract dates and documents.txt"
+      ],
+      "expectations": [
+        "General mode: the output says 'State rules and forms were not checked' and cites no Utah form or section.",
+        "The closing date is labeled 'Odd date: check it against the signed contract,' with the three later deadlines named, and the output never says which date is right or proposes a corrected one.",
+        "Addendum 1 is incomplete (buyers only), its new date is said to be not shown, and the inspection objection deadline stays Wednesday, November 18, 2026.",
+        "With no brokerage checklist, the output says there is no missing-item cross and asks for the checklist; the inspection report is reported as not uploaded without calling it required.",
+        "The 'within 3 business days' earnest money period is not computed, and the output says so.",
+        "Days remaining are computed correctly from November 10, 2026: 8, 15, 22 and 6.",
+        "Placeholders [TC Name] and [Broker Name] are used and listed, Title Case subjects, no em or en dashes, and Check Before Sending ends the output."
+      ]
+    }
+  ]
+}

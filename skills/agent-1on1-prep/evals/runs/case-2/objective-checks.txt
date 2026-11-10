@@ -1,0 +1,17 @@
+Objective checks: case-2 / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subject lines: Our One-On-One Recap And Next Steps
+- PASS  Check Before Sending section
+- PASS  Flags first, then the Bottom Line
+- PASS  Bottom line three sentences or fewer: 3 sentences
+- PASS  Every n / d = x% right: 5 checked
+- PASS  Every prorated goal right: 0 checked
+- PASS  Every difference and per-month need right: 0 checked
+- PASS  Every monthly average right: 10 checked
+- PASS  Never-appear strings absent
+- PASS  Must-appear strings present
+- PASS  No words judging the agent
+- PASS  No predictions about the agent
+- PASS  No status word the inputs didn't give, in Commitments
+- PASS  No wire or account details
+- PASS  Every number in the inputs or the run (grade each miss)

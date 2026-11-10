@@ -1,0 +1,11 @@
+{
+  "set": "case 3: 9 Example Larkspur Way, Sampleton, Idaho (general mode, no form named)",
+  "as_of": "2026-11-10 (named in the prompt)",
+  "planted": {
+    "odd_date": "Closing date 2026-11-16 typed after, and dated before, the inspection objection (2026-11-18), appraisal (2026-11-25) and loan approval (2026-12-02) deadlines",
+    "unsigned_addendum": "Addendum 1 (inspection extension): signed by buyers only, new date not shown",
+    "no_checklist": "No brokerage checklist: no missing-item cross",
+    "business_days": "Earnest money 'within 3 business days': not computed in code",
+    "general_mode": "Idaho: State rules and forms were not checked"
+  }
+}

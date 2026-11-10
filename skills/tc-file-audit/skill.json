@@ -1,0 +1,8 @@
+{
+  "name": "tc-file-audit",
+  "page": "tc-file-audit",
+  "title": "TC File Audit",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

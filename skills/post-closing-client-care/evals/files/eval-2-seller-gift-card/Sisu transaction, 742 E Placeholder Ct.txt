@@ -1,0 +1,20 @@
+PRACTICE FILE: made-up example. Not a real person, property or brokerage.
+
+Copied from Sisu: Transactions, 742 E Placeholder Ct
+
+Transaction: 742 E Placeholder Ct, Mockville, UT 84000
+Client: Dana Exampleton
+Secondary Client: Lee Exampleton
+Type: Seller
+Stage: Closed
+Agent: Drew Fakeman
+Lead Source: Past Client Referral
+Listing Date: 08/28/2026
+Under Contract Date: 09/22/2026
+Close Date: 10/30/2026
+Sale Price: $612,500
+GCI: $15,312.50
+Client Email: dana.exampleton@example.com
+Secondary Client Email: lee.exampleton@example.com
+Client Phone: 801-555-0190
+Notes: Buyers' agent Casey Placeholder, Sample Summit Realty. Title: Example Valley Title.

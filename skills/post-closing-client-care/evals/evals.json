@@ -1,0 +1,75 @@
+{
+  "skill_name": "post-closing-client-care",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-buyer-closing",
+      "prompt": "We just closed on 1482 W Fakewater Ln. Here's my TC's closing email, my notes, my vendor list and my review links. I'm Sam Testerfield with Example Ridge Realty. Build Taylor and Jamie's first year.",
+      "expected_output": "Run on Tuesday, November 10, 2026, the day the deal recorded. The four files are the practice files. Utah mode, Davis County (the recorder line). The buyers signed Monday, November 9 and the deal recorded Tuesday, November 10, so the plan uses Tuesday, November 10 and flags it. Plan: closing day Tuesday, November 10, 2026; week 1 Tuesday, November 17, 2026; day 30 Thursday, December 10, 2026; day 90 Monday, February 8, 2027; month 6 Tuesday, May 11, 2027; first anniversary Wednesday, November 10, 2027, handed to sphere-touch-plan. The card names the maple, the morning light or the kitchen window, Waffles and the pie and framed sketch; the thank-you email has no asks and no footer. The review request goes to both by email with both links and to Taylor alone by text (Taylor signed text consent; Jamie said email only). The vendor email, sent on closing day because Taylor asked for a painter, introduces Sample Summit Painting (Dale Fakerson, 801-555-0142, with the brother-in-law relationship stated) and Example Fence Co. (Pat Postwell, 801-555-0167, for next summer's fence), and no other vendor; the garden is a talking point, not an introduction. The day 30 email points to the Davis County Assessor about the primary residential exemption and mentions the January 1, 2027 change, with no percentage, dollar amount or eligibility claim. The pregnancy note and the rate are left out with one generic flag; the price, loan number and trust account digits appear nowhere. Follow Up Boss steps give task delays of 7, 23, 60 and 92 days for a classic plan or Automations 2.0, started by hand on closing day, and the Home Anniversary handoff.",
+      "files": [
+        "evals/files/eval-1-buyer-closing/Closing email from TC, 1482 W Fakewater Ln.txt",
+        "evals/files/eval-1-buyer-closing/Agent notes, Taylor and Jamie Mockwood.txt",
+        "evals/files/eval-1-buyer-closing/Vendor list, Sam Testerfield.md",
+        "evals/files/eval-1-buyer-closing/Review links, Sam Testerfield.txt"
+      ],
+      "expectations": [
+        "The plan dates are worked out from the recording date, Tuesday, November 10, 2026 (signing Monday, November 9 is flagged): week 1 Tuesday, November 17, 2026; day 30 Thursday, December 10, 2026; day 90 Monday, February 8, 2027; month 6 Tuesday, May 11, 2027; first anniversary Wednesday, November 10, 2027",
+        "The first anniversary row hands Taylor and Jamie to sphere-touch-plan by name, with the date",
+        "The card text is two to four sentences, names one or two things from the notes (the maple, the morning light or kitchen window, Waffles) and the gift as the notes name it, and has no link or ask",
+        "The thank-you email has a Title Case subject, 150 words or fewer, the next touch with its date, no review, referral or vendor ask, and no marketing footer",
+        "The review request asks every client the same way: one email to both with both review links and no stars, rating, reward or sample wording, plus a text to Taylor only that names Sam Testerfield and Example Ridge Realty, is 300 characters or fewer and ends 'Reply STOP to opt out.'; Jamie gets no text",
+        "The vendor email introduces only Sample Summit Painting (Dale Fakerson, 801-555-0142, with 'brother-in-law' stated) and Example Fence Co. (Pat Postwell, 801-555-0167), goes on closing day because Taylor asked for a painter, says they are free to use anyone, and no other vendor or phone number appears",
+        "The day 30 email points to the Davis County Assessor's primary residential exemption form, says to return it by the date on the form, mentions the January 1, 2027 change, sends tax questions to the assessor or a tax professional, and states no percentage, dollar amount, deadline date or eligibility",
+        "The pregnancy note and the rate appear nowhere (no 'expecting', 'March', '6.1'), and one generic flag counts the notes left out",
+        "The price (489,000), the loan number (77-0042913) and the trust account digits (4417) appear nowhere in the output",
+        "The Follow Up Boss steps give five task steps with delays of 7, 23, 60 and 92 days (days 0, 7, 30, 90, 182) for a classic action plan and for Automations 2.0 with a Manual trigger, started by hand on closing day, plus filling Home Anniversary with the closing date, and say the steps need an admin",
+        "Check Before Sending lists every date as the closing date plus N days, the source of each personal fact, each vendor as listed, both review links, Taylor's consent record, quiet hours and Do Not Call, the email footer (with the thank-you's missing footer on purpose) and the county link"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-seller-gift-card",
+      "prompt": "We closed the Exampleton sale on October 30 and I'm behind on my follow-up. Sisu record attached. Notes: Dana and Lee loved the lilac hedge along the back fence, and Dana's pottery studio in the garage was the hardest thing to leave. They're moving to Boise to be closer to their grandkids and renting there for now. Offer them a $50 gift card for a 5-star Zillow review. My Zillow review link is https://example.com/reviews/zillow/drew-fakeman. I'm Drew Fakeman with Placeholder Canyon Realty.",
+      "expected_output": "Run on Tuesday, November 10, 2026. Seller side, Utah property (Mockville, UT), closed Friday, October 30, 2026 (Sisu Close Date). No vendor list, no text consent. The gift card for a 5-star review is declined in a flag citing 16 CFR 465.4, with a note that a closing thank-you gift with no mention of reviews is the agent's call, and the review request is the compliant ask with the Zillow link only. Plan dates from Friday, October 30, 2026: week 1 Friday, November 6, 2026 (past), day 30 Sunday, November 29, 2026, day 90 Thursday, January 28, 2027, month 6 Friday, April 30, 2027, first anniversary Saturday, October 30, 2027 handed to sphere-touch-plan. Past touches are flagged and moved: the card and thank-you today, Tuesday, November 10; the review request Thursday, November 12. No text drafts, with one flag saying why. No vendor introductions, with one line saying there is no list. No property tax reminder: the home was sold and the notes say they are renting. The grandkids note, the sale price and the GCI appear nowhere. Follow Up Boss: closing day has passed, so tasks with due dates instead of starting the plan.",
+      "files": [
+        "evals/files/eval-2-seller-gift-card/Sisu transaction, 742 E Placeholder Ct.txt"
+      ],
+      "expectations": [
+        "A flag declines the $50 gift card for a 5-star Zillow review, cites 16 CFR 465.4, and says a thank-you gift for the closing, with no mention of reviews, stays the agent's call",
+        "The review request is the compliant ask: an honest review, the same as any client, with the Zillow link, and no gift card, reward, stars, rating or sample wording anywhere in the drafts",
+        "No vendor introductions: one line says there is no vendor list, and no vendor, company or phone number is invented",
+        "No text drafts: a flag says neither Dana nor Lee is shown to have agreed to texts",
+        "Every plan date comes from the closing date, Friday, October 30, 2026: week 1 Friday, November 6, 2026; day 30 Sunday, November 29, 2026; day 90 Thursday, January 28, 2027; month 6 Friday, April 30, 2027; first anniversary Saturday, October 30, 2027",
+        "The past touches are flagged and moved: the card and thank-you email today, Tuesday, November 10, 2026, and the review request Thursday, November 12, 2026, each with its original date",
+        "The first anniversary row hands Dana and Lee to sphere-touch-plan by name, with the date",
+        "The card and thank-you thank them for the sale of 742 E Placeholder Ct, name the lilac hedge or the pottery studio from the notes, never call it a home anniversary, and the thank-you has no review ask",
+        "No property tax reminder: one line says the home was sold and the notes say they are renting in Boise",
+        "The grandkids note, the sale price (612,500) and the GCI (15,312.50) appear nowhere, and one generic flag counts the note left out",
+        "The Follow Up Boss steps say closing day has passed, so don't start the plan for them; add the touches still ahead as tasks due on their dates"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "eval-3-idaho-buyer-vendors",
+      "prompt": "Closed with Morgan Fakerly last Friday in Mocktown, Idaho. FUB record, my notes and my vendor list attached. I'm Quinn Placeholder with Sample Foothills Realty. Review links: Google https://example.com/reviews/google/quinn-placeholder and Zillow https://example.com/reviews/zillow/quinn-placeholder. Honestly Morgan was grumpy about the appraisal, so only send the review ask if she seems happy.",
+      "expected_output": "Run on Tuesday, November 10, 2026. General mode (Idaho): state rules were not checked. Closed and recorded Friday, November 6, 2026 (Ada County). The closing-day card and thank-you move to today, Tuesday, November 10; week 1, Friday, November 13, keeps its date; day 30 Sunday, December 6, 2026; day 90 Thursday, February 4, 2027; month 6 Friday, May 7, 2027; first anniversary Saturday, November 6, 2027, handed to sphere-touch-plan. The review request is drafted the same as for any client, with a flag that asking only happy clients is review gating (16 CFR 255.2, Example 11; Google's policy). Morgan's Text Consent field shows a written yes, so the review request has a text with the Google link. The vendor email (today, because Morgan asked for an insurance agent) introduces Example Shield Insurance Agency with the brokerage's 30% ownership stated and a flag to give the Affiliated Business Arrangement Disclosure first; Mockridge Heating and Cooling is not introduced because it pays $50 per referral (RESPA Section 8), and no other heating company is invented. The knee surgery and the appraisal renegotiation are left out with one generic flag. The day 30 email points to the Ada County Assessor about a homestead or primary residence exemption, with no state rules.",
+      "files": [
+        "evals/files/eval-3-idaho-buyer-vendors/Follow Up Boss person, Morgan Fakerly.txt",
+        "evals/files/eval-3-idaho-buyer-vendors/Agent notes, Morgan Fakerly.txt",
+        "evals/files/eval-3-idaho-buyer-vendors/Vendor list, Quinn Placeholder.md"
+      ],
+      "expectations": [
+        "A flag says general mode: the home is in Idaho and state rules were not checked",
+        "The review request is drafted the same way as for any client (an email with both links), and a flag says asking only happy clients is review gating, citing 16 CFR 255.2(d) and Example 11 and Google's policy, leaving the send to the agent but not on the rating they expect",
+        "Morgan gets a review request text because the Text Consent field shows a written yes; it names Quinn Placeholder and Sample Foothills Realty, has one link, is 300 characters or fewer and ends 'Reply STOP to opt out.'",
+        "The vendor email introduces Example Shield Insurance Agency (Casey Notreal, 208-555-0131) with the brokerage's 30% ownership stated and 'free to use anyone,' and a flag says to give the Affiliated Business Arrangement Disclosure first, citing 12 U.S.C. 2607(c)(4) or 12 CFR 1024.15, with no advice on coverage or savings",
+        "Mockridge Heating and Cooling is not introduced because the list says it pays $50 per referral; the flag cites RESPA Section 8 (12 U.S.C. 2607(a)), and no other heating company or phone number is invented",
+        "The knee surgery and the appraisal renegotiation are left out with one generic flag: no 'surgery', 'knee', 'appraisal' or '8,000' in the drafts",
+        "The plan dates come from Friday, November 6, 2026: the closing-day touches move to today, Tuesday, November 10 (flagged), week 1 keeps Friday, November 13, 2026, day 30 Sunday, December 6, 2026, day 90 Thursday, February 4, 2027, month 6 Friday, May 7, 2027, and the first anniversary Saturday, November 6, 2027 is handed to sphere-touch-plan",
+        "The day 30 email points Morgan to the Ada County Assessor to ask whether a homestead or primary residence exemption needs an application and by when, with no state rules, percentages or deadlines",
+        "The price (455,000) and commission (13,650) appear nowhere",
+        "The Follow Up Boss steps say closing day has passed, so add the touches still ahead as tasks instead of starting the plan"
+      ]
+    }
+  ]
+}

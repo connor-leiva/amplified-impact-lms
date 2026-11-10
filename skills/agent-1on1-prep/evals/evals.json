@@ -1,0 +1,51 @@
+{
+  "skill_name": "agent-1on1-prep",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-practice-set",
+      "prompt": "Prep my one-on-one with Marigold Fizzwhistle, Thursday, November 12 at 10:00 AM, 30 minutes. Attached: her Sisu numbers (pulled November 10, 2026), her 2026 goals and my notes from our last one-on-one. My notes for this one: she texted me on 10/29 that she finished calling the Q3 buyers. I haven't seen the listing presentation draft yet. She says the 10/18 open house at 41 Snickerdoodle Ct brought in 3 buyer leads.",
+      "expected_output": "As of 11/10/2026, pace window January to October 2026 with November shown apart as a partial month. Pace math from the run with the arithmetic: closed units 20 / 20.0 = 100.0%, signed 33 / 40.0 = 82.5%, appointments set 85 / 100.0 = 85.0%, GCI $221,035 / $225,000 = 98.2%; met to signed 33 / 72 = 45.8% against her plan's 50%. What changed since 10/08/2026: September to October, with October against her own January to September average. Commitments word for word: the Q3 buyer calls with the leader's words as status, at least 8 appointments in October with no status given and the export's 5 beside it as a fact, the listing presentation with the leader's words. Focus options: signed, appointments set, appointments met. The take-home figure and the personal why are left out and flagged. Agenda 10:00 AM to 10:30 AM, a recap template with placeholders, Check Before Sending.",
+      "files": [
+        "evals/files/case1/PRACTICE Sisu Monthly Numbers Marigold Fizzwhistle 2026-11-10.csv",
+        "evals/files/case1/PRACTICE Marigold Fizzwhistle 2026 Goals.md",
+        "evals/files/case1/PRACTICE Last 1on1 Notes 2026-10-08.txt"
+      ],
+      "expectations": [
+        "The figures come from running the prep code with goals.json written from the goals file (every goal's quote found in it); Flags give the as-of date 11/10/2026 and where it came from, the January to October 2026 window, and November 2026 as a partial month left out of the pace math.",
+        "Numbers Against Goal shows each pace with its arithmetic from the run, including 24 x 10 / 12 = 20.0 and 20 / 20.0 = 100.0% for closed units, 33 / 40.0 = 82.5% for signed, 85 / 100.0 = 85.0% for appointments set and $221,035 / $225,000 = 98.2% for GCI, and says the goals are prorated evenly by month.",
+        "The count ratios show 33 / 72 = 45.8% against her plan's 50% for met to signed, with the caveat that they are same-month ratios and Sisu is the source of record.",
+        "What Changed compares year to date through September 2026 with year to date through October 2026 from the run (for example signed 31 to 33, pace 86.1% to 82.5%) and gives October against her own January to September monthly average with its arithmetic; the open house and its 3 buyer leads are labeled as from the leader's notes.",
+        "The three commitments appear word for word; commitment 1's and commitment 3's statuses quote the leader's words; commitment 2 says no status given and shows the export's 5 appointments set in October as a fact, never marking it missed, done or not done.",
+        "One to three possible focus areas, in the run's order (signed, appointments set, appointments met), each with its numbers and a question, framed as options and the leader's call.",
+        "The take-home figure ($148,500) and the personal why (kids, cabin) appear nowhere; Flags say personal or pay details were left out.",
+        "No label or judgment of the agent, no prediction about her year, no comparison with another agent.",
+        "An agenda from 10:00 AM to 10:30 AM labeled a suggestion, and a recap template with a Title Case subject, [placeholders] and the line that it isn't a performance review.",
+        "No em or en dashes, Flags before a bottom line of three sentences or fewer, and a Check Before Sending section listing the as-of date, each goal's quote, the commitment statuses and their sources, and the placeholders."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "no-goals-personal-detail-comparison",
+      "prompt": "1:1 with Tamsin tomorrow at 2:00 PM. Attached: our team tracker (pulled this morning, November 10, 2026), my notes from our October 14 one-on-one, and my notes for this one. We never put her goals in Sisu. Prep me.",
+      "expected_output": "The run keeps only Tamsin Gooseberry's rows from the four-agent tracker and leaves the Agent Split column unread. No goal, so no pace math, and the prep says why and how to add her goals. Year to date January to October 2026 with GCI not totaled because August is empty. What changed since 10/14/2026 with October against her own January to September average. Commitments with status only as given: smart lists 'done, she showed me on 10/20' from the leader's notes; the open houses with no status given and the leader's note that she held one on 10/17 as a fact; the business plan with no status given. The back surgery, the split question and the comparison with Dana are left out, each flagged in one line, with no other agent named or compared. Focus options from her own months: signed, appointments met, appointments set.",
+      "files": [
+        "evals/files/case2/kettleworth-team-tracker-2026.xlsx",
+        "evals/files/case2/tamsin-1on1-notes-2026-10-14.txt",
+        "evals/files/case2/bram-notes-for-tamsin-1on1.txt"
+      ],
+      "expectations": [
+        "The figures come from running the prep code on the tracker with --agent for Tamsin Gooseberry and no goals file; the run's note that 3 other agents' rows were left out is kept, and no other agent's name or number appears.",
+        "No pace math anywhere: Flags and Numbers Against Goal say there's no goal and why (never set in Sisu, per the user and last time's notes) and how to add one, and no prorated goal, percentage of goal or 'on pace' appears.",
+        "Year to date January to October 2026 comes from the run (for example appointments set 73, closings 17), and GCI is not totaled because August 2026 is empty, with the empty month named and nothing filled.",
+        "What Changed gives year to date through September 2026 and through October 2026 from the run and October against her January to September monthly average with arithmetic (for example signed: 1, against 24 / 9 = 2.7 a month).",
+        "Commitments word for word with status only as given: the smart lists quote 'done, she showed me on 10/20'; the two open houses say no status given, with the leader's note that she held one on 10/17 shown as a fact, never as missed or partly done; the 2027 business plan draft says no status given.",
+        "The back surgery and the 75/25 split question appear nowhere; Flags say a personal detail and a pay question were left out, the pay question for the leader and the broker, and no split change is proposed.",
+        "The comparison question is answered in one line without naming Dana, quoting 'pulling her weight' or giving her 14 closings, and the prep compares Tamsin only with her own months.",
+        "No label or judgment of the agent and no prediction about her year; focus areas are options from her own months, in the run's order.",
+        "A 30-minute agenda from 2:00 PM, said as a default in Flags, and a recap template with a Title Case subject and [placeholders].",
+        "No em or en dashes, Flags before a bottom line of three sentences or fewer, and a Check Before Sending section."
+      ]
+    }
+  ]
+}

@@ -148,6 +148,9 @@ it('serves the guides there are, by slug', () => {
       'seller-listing-update',
       'listing-appointment-prep',
       'expired-fsbo-outreach',
+      'agent-1on1-prep',
+      'tc-file-audit',
+      'post-closing-client-care',
     ]);
 });
 

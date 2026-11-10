@@ -107,6 +107,9 @@ describe('the list of guides', () => {
       'seller-listing-update',
       'listing-appointment-prep',
       'expired-fsbo-outreach',
+      'agent-1on1-prep',
+      'tc-file-audit',
+      'post-closing-client-care',
     ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {

@@ -1,0 +1,21 @@
+Objective checks: case-2 / output.md
+- PASS  No em or en dashes
+- PASS  Sections in SKILL.md's order
+- PASS  Check Before Sending is the last section
+- PASS  Bottom line is three sentences or fewer: 3 sentences
+- PASS  Two Title Case subject lines: 2 subjects
+- PASS  No never-say words (compliant, valid, sufficient, extended, real or fake)
+- PASS  Every weekday matches its date
+- PASS  Every written-out date sum or difference is right
+- PASS  Every deadline row's days remaining recomputed from the as-of date: 5 rows
+- PASS  Planted missing items named in Missing Items
+- PASS  Planted incomplete items named in Incomplete Items
+- PASS  Planted date in Due This Week
+- PASS  Planted flags in Flags
+- PASS  No number, bank or account name from the wire message anywhere
+- PASS  The wire flag is first
+- PASS  Both drafts carry the verify-by-phone step
+- PASS  No string of six or more digits anywhere
+- PASS  Utah mode: no general-mode line
+- NOTE  Numbers from the skill's references, not the inputs (section numbers, times): 25
+- PASS  Numbers not found in the inputs, the prompt, tc_dates.md or a reference (grade each)

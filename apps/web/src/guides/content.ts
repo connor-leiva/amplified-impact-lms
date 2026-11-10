@@ -54,6 +54,9 @@ import { FUB_AUTOMATION_AUDIT } from './fub-automation-audit';
 import { SELLER_LISTING_UPDATE } from './seller-listing-update';
 import { LISTING_APPOINTMENT_PREP } from './listing-appointment-prep';
 import { EXPIRED_FSBO_OUTREACH } from './expired-fsbo-outreach';
+import { AGENT_1ON1_PREP } from './agent-1on1-prep';
+import { TC_FILE_AUDIT } from './tc-file-audit';
+import { POST_CLOSING_CLIENT_CARE } from './post-closing-client-care';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -286,6 +289,9 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [SELLER_LISTING_UPDATE.slug]: SELLER_LISTING_UPDATE,
   [LISTING_APPOINTMENT_PREP.slug]: LISTING_APPOINTMENT_PREP,
   [EXPIRED_FSBO_OUTREACH.slug]: EXPIRED_FSBO_OUTREACH,
+  [AGENT_1ON1_PREP.slug]: AGENT_1ON1_PREP,
+  [TC_FILE_AUDIT.slug]: TC_FILE_AUDIT,
+  [POST_CLOSING_CLIENT_CARE.slug]: POST_CLOSING_CLIENT_CARE,
 };
 
 /**

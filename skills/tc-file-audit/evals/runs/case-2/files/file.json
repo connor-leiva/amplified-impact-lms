@@ -1,0 +1,33 @@
+{
+  "as_of": "2026-11-10",
+  "form": "Utah Real Estate Purchase Contract, footer \"EFFECTIVE NOVEMBER 1, 2026\" (key dates file)",
+  "acceptance": {"date": "2026-11-06", "source": "key dates file, Acceptance line"},
+  "deadlines": [
+    {"name": "Seller Disclosure Deadline", "ref": "4(a)", "date": "2026-11-09", "source": "key dates file, Section 4(a)"},
+    {"name": "Due Diligence Deadline", "ref": "4(b)", "date": "2026-11-20", "source": "key dates file, Section 4(b)"},
+    {"name": "Appraisal Deadline", "ref": "4(c)", "date": "2026-11-24", "source": "key dates file, Section 4(c)"},
+    {"name": "Financing Deadline", "ref": "4(d)", "date": "2026-12-01", "source": "key dates file, Section 4(d)"},
+    {"name": "Settlement Deadline", "ref": "4(e)", "date": "2026-12-11", "source": "key dates file, Section 4(e)"}
+  ],
+  "counted": [
+    {"name": "Earnest Money delivery", "from": "2026-11-06", "from_label": "Acceptance", "days": 4, "source": "key dates file, Section 5: four (4) calendar days after Acceptance"}
+  ],
+  "dated": [],
+  "items": [
+    {"item": "1. Buyer Broker Agreement, signed", "result": "in file", "found": "Buyer Broker Agreement (export row 1)", "status": "Approved", "signed": "All signed", "due": ""},
+    {"item": "2. REPC, signed and initialed on every page by all parties", "result": "incomplete", "found": "Real Estate Purchase Contract (row 2)", "status": "Approved", "signed": "All signed; seller initials missing on page 3", "due": "2026-11-06"},
+    {"item": "3. Counteroffers and addenda, signed by all parties", "result": "not applicable", "found": "", "status": "", "signed": "", "due": "", "why": "key dates file: Addenda: none"},
+    {"item": "4. Deposit of Earnest Money with Title Insurance Company Addendum", "result": "in file", "found": "Deposit of Earnest Money with Title Insurance Company Addendum (row 3)", "status": "Approved", "signed": "All signed", "due": ""},
+    {"item": "5. Earnest money receipt", "result": "missing", "found": "Earnest Money Receipt (row 6, empty)", "status": "", "signed": "", "due": "Earnest Money delivery"},
+    {"item": "6. Wire Fraud Advisory, signed by buyers", "result": "in file", "found": "Wire Fraud Advisory (row 4)", "status": "Approved", "signed": "All signed", "due": ""},
+    {"item": "7. Pre-approval letter or proof of funds", "result": "in file", "found": "Pre-Approval Letter (row 5)", "status": "Approved", "signed": "n/a", "due": ""},
+    {"item": "8. Seller Property Condition Disclosure, signed by sellers", "result": "missing", "found": "", "status": "", "signed": "", "due": "Seller Disclosure Deadline"},
+    {"item": "9. Lead-Based Paint Disclosure & Acknowledgement (homes built before 1978)", "result": "not applicable", "found": "", "status": "", "signed": "", "due": "Seller Disclosure Deadline", "why": "year built 1998 (key dates file)"},
+    {"item": "10. Commitment for Title Insurance", "result": "in file", "found": "Commitment for Title Insurance (row 7)", "status": "Submitted", "signed": "n/a", "due": "Seller Disclosure Deadline"},
+    {"item": "11. HOA documents (CC&Rs, bylaws, rules, budget, reserve analysis, minutes)", "result": "missing", "found": "HOA Documents (row 8, empty)", "status": "", "signed": "", "due": "Seller Disclosure Deadline"},
+    {"item": "12. Home inspection report or signed inspection waiver", "result": "missing", "found": "Home Inspection Report or Waiver (row 9, empty)", "status": "", "signed": "", "due": "Due Diligence Deadline"},
+    {"item": "13. Settlement statement, signed", "result": "missing", "found": "", "status": "", "signed": "", "due": "Settlement Deadline"},
+    {"item": "14. Commission Disbursement Authorization, broker signed", "result": "missing", "found": "", "status": "", "signed": "", "due": "Settlement Deadline"}
+  ],
+  "extra": []
+}

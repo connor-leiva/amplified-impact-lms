@@ -45,6 +45,9 @@ export const GUIDE_HTML = [
   'seller-listing-update.html',
   'listing-appointment-prep.html',
   'expired-fsbo-outreach.html',
+  'agent-1on1-prep.html',
+  'tc-file-audit.html',
+  'post-closing-client-care.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */

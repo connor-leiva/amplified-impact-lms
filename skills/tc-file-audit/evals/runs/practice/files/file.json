@@ -1,0 +1,39 @@
+{
+  "as_of": "2026-11-10",
+  "form": "Utah Real Estate Purchase Contract, footer \"EFFECTIVE DECEMBER 4, 2024.\" (key dates summary)",
+  "acceptance": {"date": "2026-10-27", "source": "key dates summary, Contract table"},
+  "deadlines": [
+    {"name": "Seller Disclosure Deadline", "ref": "24(a)", "date": "2026-11-03", "source": "key dates summary, Section 24 table"},
+    {"name": "Due Diligence Deadline", "ref": "24(b)", "date": "2026-11-12", "source": "Addendum No. 1, dated 11/05/2026, signed by buyers and sellers 11/05/2026 (key dates summary, Addenda table; export row Addendum No. 1, Signed Yes)",
+     "was": [{"date": "2026-11-09", "source": "REPC Section 24(b) (key dates summary, Section 24 table)"}]},
+    {"name": "Financing & Appraisal Deadline", "ref": "24(c)", "date": "2026-11-24", "source": "key dates summary, Section 24 table"},
+    {"name": "Settlement Deadline", "ref": "24(d)", "date": "2026-12-04", "source": "key dates summary, Section 24 table",
+     "proposed": [{"date": "2026-12-11", "source": "Addendum No. 2, dated 11/09/2026", "status": "signed by buyers 11/09/2026; sellers not signed (key dates summary; export Signed: Buyers only)"}]}
+  ],
+  "counted": [
+    {"name": "Earnest Money delivery", "from": "2026-10-27", "from_label": "Acceptance", "days": 4, "source": "REPC page 1, four calendar days after Acceptance (key dates summary, Contract table)"}
+  ],
+  "dated": [
+    {"name": "Buyers' repair objection, planned", "date": "2026-11-11", "source": "TC notes, 11/9 (Toby)"},
+    {"name": "Appraisal appointment", "date": "2026-11-13", "source": "TC notes, 11/4"}
+  ],
+  "items": [
+    {"item": "1. Exclusive Buyer Broker Agreement", "result": "in file", "found": "Exclusive Buyer Broker Agreement (export row 1)", "status": "Accepted", "signed": "Yes", "due": ""},
+    {"item": "2. REPC, signed by all parties, every page initialed", "result": "in file", "found": "Real Estate Purchase Contract (REPC) (row 2)", "status": "Accepted", "signed": "Yes (page initials not shown)", "due": ""},
+    {"item": "3. Addendum No. 1, signed by all parties", "result": "in file", "found": "Addendum No. 1 (Due Diligence Deadline) (row 10)", "status": "Accepted", "signed": "Yes", "due": ""},
+    {"item": "3. Addendum No. 2, signed by all parties", "result": "incomplete", "found": "Addendum No. 2 (Settlement Deadline) (row 13)", "status": "Pending Review", "signed": "Buyers only", "due": ""},
+    {"item": "4. Deposit of Earnest Money with Title Insurance Company Addendum", "result": "in file", "found": "Deposit of Earnest Money with Title Insurance Company Addendum (row 3)", "status": "Accepted", "signed": "Yes", "due": ""},
+    {"item": "5. Earnest money receipt", "result": "missing", "found": "Earnest Money Receipt (row 6)", "status": "Not Uploaded", "signed": "", "due": "Earnest Money delivery"},
+    {"item": "6. Wire Fraud Advisory, signed by the buyers", "result": "in file", "found": "Wire Fraud Advisory (row 5)", "status": "Accepted", "signed": "Yes", "due": ""},
+    {"item": "7. Pre-approval letter or proof of funds", "result": "in file", "found": "Pre-Approval Letter (row 4)", "status": "Accepted", "signed": "Not required", "due": ""},
+    {"item": "8. Seller Property Condition Disclosure", "result": "in file", "found": "Seller Property Condition Disclosure (row 7)", "status": "Accepted", "signed": "Yes", "due": "Seller Disclosure Deadline"},
+    {"item": "9. Lead-Based Paint Disclosure & Acknowledgement (built before 1978)", "result": "missing", "found": "", "status": "", "signed": "", "due": "Seller Disclosure Deadline", "why": "year built 1974 (key dates summary)"},
+    {"item": "10. Commitment for Title Insurance", "result": "in file", "found": "Commitment for Title Insurance (row 8)", "status": "Pending Review", "signed": "Not required", "due": "Seller Disclosure Deadline"},
+    {"item": "11. HOA documents (CC&Rs, budget, minutes)", "result": "in file", "found": "HOA Documents (CC&Rs, Budget, Minutes) (row 9)", "status": "Pending Review", "signed": "Not required", "due": "Seller Disclosure Deadline"},
+    {"item": "12. Home inspection report or signed waiver", "result": "in file", "found": "Home Inspection Report (row 11)", "status": "Pending Review", "signed": "Not required", "due": "Due Diligence Deadline"},
+    {"item": "13. Due diligence resolution addendum or cancellation notice (only if the buyers object or cancel)", "result": "not applicable", "found": "", "status": "", "signed": "", "due": "Due Diligence Deadline", "why": "no objection sent yet; the notes say one is planned by 11/11"},
+    {"item": "14. Settlement statement, signed", "result": "missing", "found": "Settlement Statement (row 14)", "status": "Not Uploaded", "signed": "", "due": "Settlement Deadline"},
+    {"item": "15. Commission Disbursement Authorization", "result": "missing", "found": "Commission Disbursement Authorization (row 15)", "status": "Not Uploaded", "signed": "", "due": "Settlement Deadline"}
+  ],
+  "extra": ["Radon Test Results (export row 12, Required: No, Uploaded 2026-11-06)"]
+}

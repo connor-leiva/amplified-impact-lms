@@ -1,0 +1,12 @@
+{"plan_start": "2026-01",
+ "annual": {
+  "appointments_set": {"value": 120, "quote": "Appointments set: 120"},
+  "appointments_met": {"value": 96, "quote": "Appointments met: 96"},
+  "signed": {"value": 48, "quote": "Signed (buyer and listing agreements): 48"},
+  "under_contract": {"value": 30, "quote": "Under contract: 30"},
+  "closed_units": {"value": 24, "quote": "Closed units: 24"},
+  "closed_volume": {"value": 10800000, "quote": "Closed volume: $10,800,000"},
+  "gci": {"value": 270000, "quote": "GCI: $270,000"}},
+ "rates": {
+  "met_to_signed": {"value": 50, "quote": "Appointment met to signed: 50%"},
+  "under_contract_to_closed": {"value": 80, "quote": "Under contract to closed: 80%"}}}

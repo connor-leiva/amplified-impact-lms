@@ -1,0 +1,8 @@
+{
+  "name": "post-closing-client-care",
+  "page": "post-closing-client-care",
+  "title": "Post-Closing Client Care",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}

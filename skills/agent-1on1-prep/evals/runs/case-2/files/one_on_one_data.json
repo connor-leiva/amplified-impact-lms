@@ -1,0 +1,839 @@
+{
+ "numbers": {
+  "file": "kettleworth-team-tracker-2026.xlsx",
+  "sheet": "Monthly Production",
+  "layout": "long",
+  "header_row": 3,
+  "columns": {
+   "month": "Month",
+   "appointments_set": [
+    2,
+    "Appts Set"
+   ],
+   "appointments_met": [
+    3,
+    "Appts Held"
+   ],
+   "signed": [
+    4,
+    "Agreements Signed"
+   ],
+   "under_contract": [
+    5,
+    "Pendings"
+   ],
+   "closed_units": [
+    6,
+    "Closings"
+   ],
+   "closed_volume": [
+    7,
+    "Closed Volume"
+   ],
+   "gci": [
+    8,
+    "GCI"
+   ]
+  },
+  "confirm": [
+   "Pendings: read as under contract by month (new pendings each month); confirm"
+  ],
+  "not_read": [],
+  "pay_not_read": [
+   "Agent Split"
+  ],
+  "month_notes": [],
+  "agent": "Tamsin Gooseberry",
+  "agent_column": "Agent",
+  "other_agents": 3,
+  "rows_other_agents": 30,
+  "measures": [
+   "appointments_set",
+   "appointments_met",
+   "signed",
+   "under_contract",
+   "closed_units",
+   "closed_volume",
+   "gci"
+  ]
+ },
+ "as_of": "2026-11-10",
+ "goals": {
+  "annual": {},
+  "monthly": {},
+  "rates": {},
+  "rejected": [],
+  "checked": false,
+  "plan_start": null,
+  "sources": []
+ },
+ "odd": [
+  {
+   "where": "August 2026, GCI",
+   "what": "empty",
+   "treated": "left empty, never counted as zero"
+  }
+ ],
+ "flags": [],
+ "months_in_file": [
+  "2026-01",
+  "2026-02",
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09",
+  "2026-10"
+ ],
+ "through_source": "the last full month before the as-of date",
+ "plan_start": "2026-01",
+ "through": "2026-10",
+ "window": [
+  "2026-01",
+  "2026-02",
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09",
+  "2026-10"
+ ],
+ "months_elapsed": 10,
+ "months_left": 2,
+ "after_window": [],
+ "before_window": [],
+ "only_total": false,
+ "ytd": {
+  "appointments_set": {
+   "label": "Appointments Set",
+   "money": false,
+   "ytd": 73.0,
+   "ytd_math": "8 + 9 + 7 + 10 + 9 + 8 + 6 + 7 + 5 + 4 = 73",
+   "problems": [],
+   "prorated": null,
+   "prorated_math": "",
+   "pace": null,
+   "pace_math": "",
+   "diff_math": "",
+   "annual": null,
+   "annual_math": "",
+   "to_go_math": "",
+   "goal_kind": null,
+   "quote": ""
+  },
+  "appointments_met": {
+   "label": "Appointments Met",
+   "money": false,
+   "ytd": 57.0,
+   "ytd_math": "6 + 7 + 6 + 8 + 7 + 6 + 5 + 5 + 4 + 3 = 57",
+   "problems": [],
+   "prorated": null,
+   "prorated_math": "",
+   "pace": null,
+   "pace_math": "",
+   "diff_math": "",
+   "annual": null,
+   "annual_math": "",
+   "to_go_math": "",
+   "goal_kind": null,
+   "quote": ""
+  },
+  "signed": {
+   "label": "Signed",
+   "money": false,
+   "ytd": 25.0,
+   "ytd_math": "3 + 3 + 2 + 4 + 3 + 3 + 2 + 2 + 2 + 1 = 25",
+   "problems": [],
+   "prorated": null,
+   "prorated_math": "",
+   "pace": null,
+   "pace_math": "",
+   "diff_math": "",
+   "annual": null,
+   "annual_math": "",
+   "to_go_math": "",
+   "goal_kind": null,
+   "quote": ""
+  },
+  "under_contract": {
+   "label": "Under Contract",
+   "money": false,
+   "ytd": 18.0,
+   "ytd_math": "1 + 2 + 2 + 2 + 3 + 2 + 2 + 1 + 2 + 1 = 18",
+   "problems": [],
+   "prorated": null,
+   "prorated_math": "",
+   "pace": null,
+   "pace_math": "",
+   "diff_math": "",
+   "annual": null,
+   "annual_math": "",
+   "to_go_math": "",
+   "goal_kind": null,
+   "quote": ""
+  },
+  "closed_units": {
+   "label": "Closed Units",
+   "money": false,
+   "ytd": 17.0,
+   "ytd_math": "0 + 1 + 2 + 2 + 2 + 2 + 3 + 2 + 1 + 2 = 17",
+   "problems": [],
+   "prorated": null,
+   "prorated_math": "",
+   "pace": null,
+   "pace_math": "",
+   "diff_math": "",
+   "annual": null,
+   "annual_math": "",
+   "to_go_math": "",
+   "goal_kind": null,
+   "quote": ""
+  },
+  "closed_volume": {
+   "label": "Closed Volume",
+   "money": true,
+   "ytd": 6714000.0,
+   "ytd_math": "$0 + $365,000 + $742,000 + $798,500 + $811,000 + $760,000 + $1,190,500 + $802,000 + $415,000 + $830,000 = $6,714,000",
+   "problems": [],
+   "prorated": null,
+   "prorated_math": "",
+   "pace": null,
+   "pace_math": "",
+   "diff_math": "",
+   "annual": null,
+   "annual_math": "",
+   "to_go_math": "",
+   "goal_kind": null,
+   "quote": ""
+  },
+  "gci": {
+   "label": "GCI",
+   "money": true,
+   "ytd": null,
+   "ytd_math": "",
+   "problems": [
+    "August 2026 is empty"
+   ],
+   "prorated": null,
+   "prorated_math": "",
+   "pace": null,
+   "pace_math": "",
+   "diff_math": "",
+   "annual": null,
+   "annual_math": "",
+   "to_go_math": "",
+   "goal_kind": null,
+   "quote": ""
+  }
+ },
+ "has_goals": false,
+ "goals_unread": [],
+ "total_row": null,
+ "rates": [
+  {
+   "key": "set_to_met",
+   "label": "Appointments set to met",
+   "pct": 78.1,
+   "math": "57 / 73 = 78.1%",
+   "goal": null,
+   "against_goal": ""
+  },
+  {
+   "key": "met_to_signed",
+   "label": "Appointments met to signed",
+   "pct": 43.9,
+   "math": "25 / 57 = 43.9%",
+   "goal": null,
+   "against_goal": ""
+  },
+  {
+   "key": "signed_to_under_contract",
+   "label": "Signed to under contract",
+   "pct": 72.0,
+   "math": "18 / 25 = 72.0%",
+   "goal": null,
+   "against_goal": ""
+  },
+  {
+   "key": "under_contract_to_closed",
+   "label": "Under contract to closed",
+   "pct": 94.4,
+   "math": "17 / 18 = 94.4%",
+   "goal": null,
+   "against_goal": ""
+  }
+ ],
+ "since": {
+  "date": "2026-10-14",
+  "then_through": "2026-09",
+  "then_label": "September 2026",
+  "months_since": [
+   "October 2026"
+  ],
+  "rows": [
+   {
+    "measure": "appointments_set",
+    "label": "Appointments Set",
+    "ytd_then": 69.0,
+    "ytd_then_text": "69",
+    "since_values": [
+     "4"
+    ],
+    "ytd_now_text": "73",
+    "pace_then": "",
+    "pace_now": ""
+   },
+   {
+    "measure": "appointments_met",
+    "label": "Appointments Met",
+    "ytd_then": 54.0,
+    "ytd_then_text": "54",
+    "since_values": [
+     "3"
+    ],
+    "ytd_now_text": "57",
+    "pace_then": "",
+    "pace_now": ""
+   },
+   {
+    "measure": "signed",
+    "label": "Signed",
+    "ytd_then": 24.0,
+    "ytd_then_text": "24",
+    "since_values": [
+     "1"
+    ],
+    "ytd_now_text": "25",
+    "pace_then": "",
+    "pace_now": ""
+   },
+   {
+    "measure": "under_contract",
+    "label": "Under Contract",
+    "ytd_then": 17.0,
+    "ytd_then_text": "17",
+    "since_values": [
+     "1"
+    ],
+    "ytd_now_text": "18",
+    "pace_then": "",
+    "pace_now": ""
+   },
+   {
+    "measure": "closed_units",
+    "label": "Closed Units",
+    "ytd_then": 15.0,
+    "ytd_then_text": "15",
+    "since_values": [
+     "2"
+    ],
+    "ytd_now_text": "17",
+    "pace_then": "",
+    "pace_now": ""
+   },
+   {
+    "measure": "closed_volume",
+    "label": "Closed Volume",
+    "ytd_then": 5884000.0,
+    "ytd_then_text": "$5,884,000",
+    "since_values": [
+     "$830,000"
+    ],
+    "ytd_now_text": "$6,714,000",
+    "pace_then": "",
+    "pace_now": ""
+   },
+   {
+    "measure": "gci",
+    "label": "GCI",
+    "ytd_then": null,
+    "ytd_then_text": "not totaled",
+    "since_values": [
+     "$20,750"
+    ],
+    "ytd_now_text": "not totaled",
+    "pace_then": "",
+    "pace_now": ""
+   }
+  ],
+  "averages": [
+   {
+    "measure": "appointments_set",
+    "label": "Appointments Set",
+    "avg_math": "69 / 9 = 7.7 a month",
+    "avg": 7.666666666666667,
+    "months": "January 2026 through September 2026",
+    "since": [
+     "October 2026: 4"
+    ],
+    "since_mean": 4.0
+   },
+   {
+    "measure": "appointments_met",
+    "label": "Appointments Met",
+    "avg_math": "54 / 9 = 6.0 a month",
+    "avg": 6.0,
+    "months": "January 2026 through September 2026",
+    "since": [
+     "October 2026: 3"
+    ],
+    "since_mean": 3.0
+   },
+   {
+    "measure": "signed",
+    "label": "Signed",
+    "avg_math": "24 / 9 = 2.7 a month",
+    "avg": 2.6666666666666665,
+    "months": "January 2026 through September 2026",
+    "since": [
+     "October 2026: 1"
+    ],
+    "since_mean": 1.0
+   },
+   {
+    "measure": "under_contract",
+    "label": "Under Contract",
+    "avg_math": "17 / 9 = 1.9 a month",
+    "avg": 1.8888888888888888,
+    "months": "January 2026 through September 2026",
+    "since": [
+     "October 2026: 1"
+    ],
+    "since_mean": 1.0
+   },
+   {
+    "measure": "closed_units",
+    "label": "Closed Units",
+    "avg_math": "15 / 9 = 1.7 a month",
+    "avg": 1.6666666666666667,
+    "months": "January 2026 through September 2026",
+    "since": [
+     "October 2026: 2"
+    ],
+    "since_mean": 2.0
+   },
+   {
+    "measure": "closed_volume",
+    "label": "Closed Volume",
+    "avg_math": "$5,884,000 / 9 = $653,778 a month",
+    "avg": 653777.7777777778,
+    "months": "January 2026 through September 2026",
+    "since": [
+     "October 2026: $830,000"
+    ],
+    "since_mean": 830000.0
+   }
+  ],
+  "note": ""
+ },
+ "focus_candidates": [
+  {
+   "measure": "signed",
+   "label": "Signed",
+   "basis": "the months since the last one-on-one, under the agent's own monthly average",
+   "facts": [
+    "October 2026: 1, against the monthly average of 24 / 9 = 2.7 a month (January 2026 through September 2026)"
+   ]
+  },
+  {
+   "measure": "appointments_met",
+   "label": "Appointments Met",
+   "basis": "the months since the last one-on-one, under the agent's own monthly average",
+   "facts": [
+    "October 2026: 3, against the monthly average of 54 / 9 = 6.0 a month (January 2026 through September 2026)"
+   ]
+  },
+  {
+   "measure": "appointments_set",
+   "label": "Appointments Set",
+   "basis": "the months since the last one-on-one, under the agent's own monthly average",
+   "facts": [
+    "October 2026: 4, against the monthly average of 69 / 9 = 7.7 a month (January 2026 through September 2026)"
+   ]
+  },
+  {
+   "measure": "under_contract",
+   "label": "Under Contract",
+   "basis": "the months since the last one-on-one, under the agent's own monthly average",
+   "facts": [
+    "October 2026: 1, against the monthly average of 17 / 9 = 1.9 a month (January 2026 through September 2026)"
+   ]
+  }
+ ],
+ "cells": {
+  "2026-01": {
+   "appointments_set": [
+    8.0,
+    "num",
+    "8"
+   ],
+   "appointments_met": [
+    6.0,
+    "num",
+    "6"
+   ],
+   "signed": [
+    3.0,
+    "num",
+    "3"
+   ],
+   "under_contract": [
+    1.0,
+    "num",
+    "1"
+   ],
+   "closed_units": [
+    0.0,
+    "num",
+    "0"
+   ],
+   "closed_volume": [
+    0.0,
+    "num",
+    "0"
+   ],
+   "gci": [
+    0.0,
+    "num",
+    "0"
+   ]
+  },
+  "2026-02": {
+   "appointments_set": [
+    9.0,
+    "num",
+    "9"
+   ],
+   "appointments_met": [
+    7.0,
+    "num",
+    "7"
+   ],
+   "signed": [
+    3.0,
+    "num",
+    "3"
+   ],
+   "under_contract": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_units": [
+    1.0,
+    "num",
+    "1"
+   ],
+   "closed_volume": [
+    365000.0,
+    "num",
+    "365000"
+   ],
+   "gci": [
+    9125.0,
+    "num",
+    "9125"
+   ]
+  },
+  "2026-03": {
+   "appointments_set": [
+    7.0,
+    "num",
+    "7"
+   ],
+   "appointments_met": [
+    6.0,
+    "num",
+    "6"
+   ],
+   "signed": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "under_contract": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_units": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_volume": [
+    742000.0,
+    "num",
+    "742000"
+   ],
+   "gci": [
+    18550.0,
+    "num",
+    "18550"
+   ]
+  },
+  "2026-04": {
+   "appointments_set": [
+    10.0,
+    "num",
+    "10"
+   ],
+   "appointments_met": [
+    8.0,
+    "num",
+    "8"
+   ],
+   "signed": [
+    4.0,
+    "num",
+    "4"
+   ],
+   "under_contract": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_units": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_volume": [
+    798500.0,
+    "num",
+    "798500"
+   ],
+   "gci": [
+    19960.0,
+    "num",
+    "19960"
+   ]
+  },
+  "2026-05": {
+   "appointments_set": [
+    9.0,
+    "num",
+    "9"
+   ],
+   "appointments_met": [
+    7.0,
+    "num",
+    "7"
+   ],
+   "signed": [
+    3.0,
+    "num",
+    "3"
+   ],
+   "under_contract": [
+    3.0,
+    "num",
+    "3"
+   ],
+   "closed_units": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_volume": [
+    811000.0,
+    "num",
+    "811000"
+   ],
+   "gci": [
+    20275.0,
+    "num",
+    "20275"
+   ]
+  },
+  "2026-06": {
+   "appointments_set": [
+    8.0,
+    "num",
+    "8"
+   ],
+   "appointments_met": [
+    6.0,
+    "num",
+    "6"
+   ],
+   "signed": [
+    3.0,
+    "num",
+    "3"
+   ],
+   "under_contract": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_units": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_volume": [
+    760000.0,
+    "num",
+    "760000"
+   ],
+   "gci": [
+    19000.0,
+    "num",
+    "19000"
+   ]
+  },
+  "2026-07": {
+   "appointments_set": [
+    6.0,
+    "num",
+    "6"
+   ],
+   "appointments_met": [
+    5.0,
+    "num",
+    "5"
+   ],
+   "signed": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "under_contract": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_units": [
+    3.0,
+    "num",
+    "3"
+   ],
+   "closed_volume": [
+    1190500.0,
+    "num",
+    "1190500"
+   ],
+   "gci": [
+    29760.0,
+    "num",
+    "29760"
+   ]
+  },
+  "2026-08": {
+   "appointments_set": [
+    7.0,
+    "num",
+    "7"
+   ],
+   "appointments_met": [
+    5.0,
+    "num",
+    "5"
+   ],
+   "signed": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "under_contract": [
+    1.0,
+    "num",
+    "1"
+   ],
+   "closed_units": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_volume": [
+    802000.0,
+    "num",
+    "802000"
+   ],
+   "gci": [
+    null,
+    "empty",
+    ""
+   ]
+  },
+  "2026-09": {
+   "appointments_set": [
+    5.0,
+    "num",
+    "5"
+   ],
+   "appointments_met": [
+    4.0,
+    "num",
+    "4"
+   ],
+   "signed": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "under_contract": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_units": [
+    1.0,
+    "num",
+    "1"
+   ],
+   "closed_volume": [
+    415000.0,
+    "num",
+    "415000"
+   ],
+   "gci": [
+    10375.0,
+    "num",
+    "10375"
+   ]
+  },
+  "2026-10": {
+   "appointments_set": [
+    4.0,
+    "num",
+    "4"
+   ],
+   "appointments_met": [
+    3.0,
+    "num",
+    "3"
+   ],
+   "signed": [
+    1.0,
+    "num",
+    "1"
+   ],
+   "under_contract": [
+    1.0,
+    "num",
+    "1"
+   ],
+   "closed_units": [
+    2.0,
+    "num",
+    "2"
+   ],
+   "closed_volume": [
+    830000.0,
+    "num",
+    "830000"
+   ],
+   "gci": [
+    20750.0,
+    "num",
+    "20750"
+   ]
+  }
+ }
+}
