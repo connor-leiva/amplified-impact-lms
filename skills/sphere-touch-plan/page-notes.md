@@ -78,6 +78,8 @@ Any agent who wants to stay in touch with past clients and their sphere without 
 
 **What about my state's rules?** The texting, calling and email rules it uses are federal, plus Florida, Maryland and Oklahoma. It says when your state's rules weren't checked, Utah's included. Ask your broker.
 
+**Why is it stricter than the law?** A few rules are our conservative defaults, stricter than the law in places: every email carries the full footer (the opt-out, your postal address and a line saying it's a marketing email), even a personal note to a past client; no call or voicemail on a Sunday or a federal legal holiday; and a yes that names only a portal, a lead company or "real estate professionals" gets no text until your broker confirms it covers you. You can calibrate them with your own legal counsel: tell the AI the rule your counsel approved, and it follows that and says so in Check Before Sending.
+
 ## Practice Prompt
 
 With PRACTICE-followupboss-people-export.csv attached: "Here's my Follow Up Boss export. I'm Rowan Mockford with Pretend Peak Realty. Build my 12-month touch plan and draft this week's touches." The practice file is dated for Tuesday, November 10, 2026; the sample on this page is what came back that day. On a later date the week, the anniversaries due and the picks change.

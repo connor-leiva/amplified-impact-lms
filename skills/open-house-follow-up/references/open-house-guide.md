@@ -146,7 +146,7 @@ Under 200 words. No visitor names, contact details, financing or descriptions of
 From `outreach-rules.md` (CAN-SPAM and its Conservative Defaults), every email the skill drafts ends with the full footer, with no exception:
 - "This is a marketing email from [Agent Name], [Brokerage Name]. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]"
 - That is the marketing line, the opt-out and the postal address on every visitor email, the thank-you to a visitor who has an agent included, even when the visitor asked for these emails.
-- The seller update carries it too, though it goes to the agent's own clients, and so does a Listing Agent Update.
+- The seller update carries it too, though it goes to the agent's own clients. A Listing Agent Update goes to another agent to pass on, not to a client or a lead, so it ends with the sign-off and no footer.
 - This is a conservative default, stricter than the law in places. Keep it unless the agent says their own legal counsel approved a different rule; then follow theirs and say so in Check before sending.
 
 ## Sources (all checked 2026-11-10)

@@ -6,7 +6,7 @@ Prompt: "Here's my Follow Up Boss export. I'm Rowan Mockford with Pretend Peak R
 
 - **Texts only where a written yes is on file.** Six people due this week have a written yes in Text Consent and get a text: Gwen Tallowmere, Kit Lollibrand, Lars Thistlewood, Ned Puddlefoot, Ava Pennywhistle and Opal Rindlestock. Everyone else gets an email, or a call note when there's no email.
 - **Consent that doesn't count, or needs a check:**
-  - Ned Puddlefoot: Text Consent says "Yes - open house sign-in 2023-10-04." That counts only if the sign-in sheet had text consent wording. Check the sheet before you send Ned's text. If it didn't, don't send it; ask me for an email instead.
+  - Ned Puddlefoot: Text Consent says "Yes - open house sign-in 2023-10-04." That counts only if the sign-in sheet had text consent wording that named you or Pretend Peak Realty. Check the sheet before you send Ned's text. If it didn't, don't send it; ask me for an email instead.
   - Milo Grumbleton: Text Consent says "Yes - verbal at closing." A verbal yes isn't a written record, so Milo gets an email.
   - Elle Marrowby: Text Consent says "Revoked - replied STOP 2026-08-19." No texts. Email.
   - Dev Quillfeather: a written yes, but tagged Do Not Text. The opt-out wins. Email.
@@ -15,11 +15,11 @@ Prompt: "Here's my Follow Up Boss export. I'm Rowan Mockford with Pretend Peak R
 - **Every channel closed:** Finn Oddlebury is tagged Do Not Call and Unsubscribed and has no text consent. No draft, and his closing anniversary this week (Wednesday, November 11) is left alone.
 - **Left out on purpose:** the notes on 6 contacts hold health, money or family details. None of it is in the plan or the drafts. Read those notes yourself before you reach out.
 - **Default tier:** Pip Snowberry is in the Sphere stage with no Sphere A or Sphere B tag, so Pip is in Wider Sphere by default. Close or wider?
-- **State rules:** the calling and texting rules used here are federal, plus Florida, Maryland and Oklahoma. Utah's and other states' rules weren't checked. Confirm with your broker.
+- **State rules:** the calling and texting rules used here are federal, plus Florida, Maryland and Oklahoma. Utah's and other states' rules and holidays weren't checked. Confirm with your broker.
 
 ## Bottom Line
 
-Your plan holds 28 people: 14 past clients, 6 close sphere and 8 wider sphere, with Iris and Jade joining after their first year. This week has 14 touches (6 texts, 6 emails and 2 call notes): nine any day this week, starting with Gwen, who is back from Lisbon, and five closing anniversaries from Thursday, November 12 to Monday, November 16. Do this first: check that Ned's open house sign-in sheet had text consent wording, then work the nine.
+Your plan holds 28 people: 14 past clients, 6 close sphere and 8 wider sphere, with Iris and Jade joining after their first year. This week has 14 touches (6 texts, 6 emails and 2 call notes): nine any day this week (the two calls skip Wednesday, November 11, Veterans Day, and Sunday), starting with Gwen, who is back from Lisbon, and five closing anniversaries from Thursday, November 12 to Monday, November 16. Do this first: check that Ned's open house sign-in sheet had text consent wording, then work the nine.
 
 ## What I Used
 
@@ -60,9 +60,9 @@ The default cadence. Tell me yours and I'll redo it.
 |---|---|---|---|---|
 | This week, first | Gwen Tallowmere | Close Sphere | Note, October 30, 2026: in Lisbon until Nov 9, wants a painter recommendation once she's back. No touch since | Text: "Yes - signed sphere form 2024-02-11" |
 | This week | Hank Brindlecomb | Wider Sphere | Note, September 15, 2026: might sell his rental on Juniper Ct next year, follow up in November | Email: Text Consent blank |
-| This week | Pia Snickerdoodle | Past Clients | Rotation: no communication on record | Call note: no email, Text Consent blank |
+| This week, not Wednesday, November 11 or Sunday, November 15 | Pia Snickerdoodle | Past Clients | Rotation: no communication on record | Call note: no email, Text Consent blank |
 | This week | Milo Grumbleton | Past Clients | Rotation: last touch December 2, 2024 | Email: consent is verbal only |
-| This week | Hattie Brisklemore | Close Sphere | Rotation: no communication on record | Call note: no email, Text Consent blank |
+| This week, not Wednesday, November 11 or Sunday, November 15 | Hattie Brisklemore | Close Sphere | Rotation: no communication on record | Call note: no email, Text Consent blank |
 | This week | Kit Lollibrand | Close Sphere | Rotation: last touch January 20, 2025 | Text: "Yes - signed sphere form 2025-01-09" |
 | This week | Lars Thistlewood | Wider Sphere | Rotation: no communication on record | Text: "Yes - signed sphere form 2025-05-30" |
 | This week | Sid Tumblewaite | Wider Sphere | Rotation: last touch September 19, 2023 | Email: tagged Do Not Call |
@@ -109,7 +109,7 @@ To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [S
 
 ### 3. Pia Snickerdoodle: Call Note
 
-- **Tier:** Past Clients. **Send:** this week, between 8 a.m. and 8 p.m. her time.
+- **Tier:** Past Clients. **Send:** this week, between 8 a.m. and 8 p.m. her time, but not Wednesday, November 11 (Veterans Day, a federal legal holiday) or Sunday, November 15: no calls on Sundays or legal holidays.
 - **Why now:** rotation, no communication on record. Note from July 7, 2025: "Restoring a 1968 pickup in the garage."
 - **Channel:** call. No email on file, and Text Consent is blank.
 
@@ -139,7 +139,7 @@ To stop these emails, reply UNSUBSCRIBE or use this link: [Unsubscribe Link]. [S
 
 ### 5. Hattie Brisklemore: Call Note
 
-- **Tier:** Close Sphere. **Send:** this week, between 8 a.m. and 8 p.m. her time.
+- **Tier:** Close Sphere. **Send:** this week, between 8 a.m. and 8 p.m. her time, but not Wednesday, November 11 (Veterans Day, a federal legal holiday) or Sunday, November 15: no calls on Sundays or legal holidays.
 - **Why now:** rotation, no communication on record. Note from August 14, 2025: "Met at the Fictiona Falls farmers market; sells honey from her backyard hives."
 - **Channel:** call. No email on file, and Text Consent is blank.
 
@@ -302,10 +302,10 @@ These are steps for you, your Account Owner or an admin. This skill doesn't chan
   - Elle Marrowby: 4 years, Monday, November 16 (Deal Close Date 2022-11-16).
   - Gus Hollowtree (next week): 6 years, Tuesday, November 17 (Deal Close Date 2020-11-17).
 - **Facts in the drafts, with their notes:** Gwen, Lisbon and the painter (October 30, 2026). Hank, the rental on Juniper Ct and November (September 15, 2026). Pia, the 1968 pickup (July 7, 2025). Milo, the backsplash (December 2, 2024), and "almost two years" since your last touch (Last Communication December 2, 2024). Hattie, the farmers market and the honey (August 14, 2025). Kit, the dahlias (June 2, 2024). Lars, Example Logistics and the kayak (May 30, 2025). Sid, fly fishing (September 19, 2023). Ned, the sunroom (January 5, 2024). Ben, the theater room (November 12, 2024), "a couple of years ago." Dev, Waffles and the fenced yard (March 2, 2026). Ava, the garden boxes and tomatoes (June 3, 2025). Opal, Teacup Way and Boise (November 15, 2024; Address 1 in Boise). Elle, the pottery studio (February 10, 2026).
-- **Texts:** a written consent record for Gwen, Kit, Lars, Ned, Ava and Opal that names you or Pretend Peak Realty and their number. For Ned, the sign-in sheet needs text consent wording. Send each one by hand, one at a time, from your own number.
+- **Texts:** a written consent record for Gwen, Kit, Lars, Ned, Ava and Opal that names you or Pretend Peak Realty and their number. For Ned, the sign-in sheet needs text consent wording that names you or Pretend Peak Realty. Send each one by hand, one at a time, from your own number.
 - **Do Not Call:** scrub every number you'll call or text (including Pia's and Hattie's) against the National Do Not Call Registry and your own do-not-call list, unless your broker confirms an exception applies. Follow Up Boss has no built-in scrub.
-- **Quiet hours:** calls and texts between 8 a.m. and 8 p.m. in each person's time zone, weekends included (Ava's is Saturday, Opal's Sunday).
+- **Quiet hours:** calls and texts between 8 a.m. and 8 p.m. in each person's time zone. Texts go weekends included (Ava's is Saturday, Opal's Sunday). Calls never go on a Sunday or a legal holiday, a conservative default: Pia's and Hattie's skip Wednesday, November 11 (Veterans Day) and Sunday, November 15.
 - **Emails:** the unsubscribe link works and [Sender Postal Address] is your real postal address. If you send from Follow Up Boss, check Admin > Company too.
 - **Have ready:** a couple of painter names for Gwen, and a name for anyone who takes you up on the offer.
 - **Opt-outs:** honor any STOP, UNSUBSCRIBE or do-not-call request within 10 business days, and tag it in Follow Up Boss.
-- **State rules:** Utah's and other states' calling and texting rules weren't checked. Confirm with your broker.
+- **State rules:** Utah's and other states' calling and texting rules weren't checked, and neither were state holidays. Confirm with your broker.
