@@ -3430,4 +3430,7 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 **Status:** Proposed. The spec folds this into its D-079; it is its own entry because it changes 17 pages.
 **Scope:** `apps/web/src/guides/` and `apps/web/src/library/`.
 
-- A paid skill's page keeps its hero and its sample, and shows an "In the Skill Library" card with "See Plans" (to `/offer#plans`) and "Sign In" in place of the sign-up and the setup. No built page links a paid ZIP. The free skill's page is unchanged.
+- A paid skill's page keeps its hero and its sample, and shows an "In the Skill Library" card ("This skill is part of the Skill Library in the Amplified Impact platform.", See Plans to `/offer#plans`, and "Already bought a plan? Sign In" to `learn.amplifiedimpact.io/skill-library`) in place of the sign-up and the setup. "What you need" points to See Plans. No built page links a paid ZIP, and no paid page has a sign-up form.
+- A paid page stops calling itself free: "Free" comes off its title, description and eyebrow, and its first fact reads "In the Skill Library". Its own file keeps the free words and the setup, so naming the skill in `FREE_SKILLS` brings the free page back with no other edit. The free page (Appointment Follow-Up) builds byte for byte as before.
+- The free library's cards tag each paid skill "In the Skill Library", and its lede now says "The free ones ask for your name and email. The rest are in the Skill Library."
+- **Left for Connor:** paid pages still describe the setup in their own words ("About 10 minutes to set up", "Step 1 shows you where"), and the phone's "Get the Free Skill" bar does not show on them.

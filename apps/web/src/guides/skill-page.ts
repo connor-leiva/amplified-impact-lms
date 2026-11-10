@@ -1,6 +1,9 @@
 // What every free skill's page says the same way (DECISIONS.md D-052): the hero's steps, the opt-in,
 // and the setup that follows it, in Claude and, for a skill with a ChatGPT version, in ChatGPT. A
-// skill's page file (`<slug>.ts`) holds only its own words and calls `skillPage()`.
+// skill's page file (`<slug>.ts`) holds only its own words and calls `skillPage()`. The page names its
+// skill in the catalog (`skill`), so a paid one is drawn with the Skill Library card in place of the
+// opt-in and the setup (`inSkillLibrary` in `content.ts`, D-081). The setup is still written here, for
+// the day the skill is free.
 //
 // The setup is the Reel Editor's (D-045) plus what a skill for client files needs: training turned
 // off before any real file goes in, and a made-up example to practise on first. Each click path is
@@ -256,6 +259,7 @@ export function skillPage(p: SkillPage): Guide {
     : { n: '01', title: 'Add It to Claude', body: `One file, about ${p.setupMinutes} minutes, once.` };
   return {
     slug: p.slug,
+    skill,
     meta: p.meta,
     hero: {
       eyebrow: p.eyebrow,

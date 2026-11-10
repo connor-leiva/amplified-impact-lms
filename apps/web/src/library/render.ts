@@ -10,7 +10,7 @@
 
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
 import { esc, logo } from '../ai101/render';
-import { SHARED } from '../guides/content';
+import { GUIDES, inSkillLibrary, SHARED } from '../guides/content';
 import { ENTRIES, LIBRARY, TOOLS, TOPICS, type Entry } from './content';
 
 /** The <head> lines that come from `content.ts`: the title and the link-preview metadata. */
@@ -79,13 +79,24 @@ function controls(): string {
   ].join('\n');
 }
 
+/** Whether a card's page is a paid skill's, in the Skill Library rather than a download (D-081). */
+function paid(entry: Entry): boolean {
+  const guide = entry.href === null ? undefined : GUIDES[entry.href.replace(/^\//, '')];
+  return guide !== undefined && inSkillLibrary(guide);
+}
+
 /**
  * One card. A live one is one big link; one that is not up yet is the same card with no link and
- * "Coming soon" where the arrow goes. The tags say what it is and which apps it works in.
+ * "Coming soon" where the arrow goes. The tags say what it is, which apps it works in and, for a paid
+ * skill, that it is in the Skill Library.
  */
 function card(entry: Entry): string {
   // "Claude Skill" already names its app, so the card does not say Claude twice.
-  const tags = [entry.kind, ...entry.tools.map((t) => TOOLS[t]).filter((label) => !entry.kind.includes(label))];
+  const tags = [
+    entry.kind,
+    ...entry.tools.map((t) => TOOLS[t]).filter((label) => !entry.kind.includes(label)),
+    ...(paid(entry) ? [LIBRARY.paid] : []),
+  ];
   // The title first in the markup, so a screen reader names the link by it, not by the tags two cards
   // share. The CSS draws the tags above it.
   const inner =

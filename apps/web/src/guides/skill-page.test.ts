@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import type * as Skills from '@ai/core/skills';
+import { describe, expect, it, vi } from 'vitest';
 import type { Guide } from './content';
 import { renderGuideBody } from './render';
 import { skillPage, type SkillPage } from './skill-page';
@@ -6,6 +7,13 @@ import { skillPage, type SkillPage } from './skill-page';
 // What every free skill's page shares (D-052), on a made-up skill: the steps `skillPage()` writes, in
 // Claude and in ChatGPT, the switch between them, and the new section and step parts the renderer
 // draws for a skill. Each real skill page is held to its own source in `skills.test.ts`.
+//
+// A skill is free only when `FREE_SKILLS` names it (D-079), so the made-up skills here are named free,
+// as a real one would be; one named nowhere is paid, and its page is the last group (D-081).
+vi.mock('@ai/core/skills', async (importOriginal) => {
+  const real = await importOriginal<typeof Skills>();
+  return { ...real, isFreeSkill: (id: string) => ['made-up-skill', 'made-up-folder'].includes(id) || real.isFreeSkill(id) };
+});
 
 const parse = (guide: Guide) => new DOMParser().parseFromString(`<!doctype html><body>${renderGuideBody(guide)}</body>`, 'text/html');
 const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
@@ -390,5 +398,70 @@ describe('the skill layout (D-071)', () => {
 
   it('follows the house rule: no em dashes anywhere on the page', () => {
     expect(renderGuideBody(guide)).not.toMatch(/[–—]/);
+  });
+});
+
+describe('a paid skill’s page (D-081)', () => {
+  // The made-up skill with the sections a real skill page has, under a name `FREE_SKILLS` lacks.
+  const guide = skillPage({
+    ...SPEC,
+    slug: 'made-up-paid-skill',
+    unlockKey: 'mups-unlocked',
+    sections: [
+      ...SPEC.sections,
+      {
+        kind: 'tiles',
+        heading: 'What you need',
+        cta: true,
+        items: [{ title: 'A Claude plan', body: 'With skills on.' }],
+      },
+      { kind: 'faq', heading: 'Good to know', items: [{ q: 'Which plan do I need?', a: ['Any plan with skills.'] }] },
+    ],
+  });
+  const html = renderGuideBody(guide);
+  const doc = parse(guide);
+
+  it('names its skill, which is paid, while its words and setup stay in the guide for the day it is free', () => {
+    expect(guide.skill).toBe('made-up-paid-skill');
+    expect(guide.download.setup?.length).toBeGreaterThan(0);
+  });
+
+  it('keeps the hero and the sample, with the Skill Library card where the opt-in was', () => {
+    const hero = doc.querySelector('main .sk-hero');
+    expect([...(hero?.children ?? [])].map((el) => el.className)).toEqual(['sk-intro', 'card optin', 'sample sk-sample']);
+    expect(text(doc.querySelector('h1'))).toBe('Made-Up Skill');
+    expect(text(doc.querySelector('.sk-lede'))).toBe('It does one thing.');
+    expect(text(hero?.querySelector('.sample-title'))).toBe('Review For 12 Example Lane');
+    const card = hero?.querySelector('.optin');
+    expect(card?.id).toBe('skill-library');
+    expect(card?.hasAttribute('data-skill-library')).toBe(true);
+    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Skill Library');
+    expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Skill Library in the Amplified Impact platform.');
+    const links = [...(card?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
+    expect(links).toEqual([
+      ['See Plans', '/offer#plans', 'btn btn-primary', null],
+      ['Sign In', 'https://learn.amplifiedimpact.io/skill-library', null, null],
+    ]);
+    expect(text(card?.querySelector('.legal'))).toBe('Already bought a plan? Sign In');
+  });
+
+  it('has no opt-in, no setup and no download: nothing to post, and no ZIP in the markup', () => {
+    expect(doc.querySelector('form, input, [data-unlock-key], #download, .setup, [data-guided], .apps, .handoff, a[download]')).toBeNull();
+    expect(html).not.toContain('/downloads/');
+    expect(html).not.toContain('/api/made-up-paid-skill');
+  });
+
+  it('sends "What you need" to the plans, and has no sign-up bar and no toast with nothing to copy', () => {
+    const cta = doc.querySelector('.sk-band-cards a.btn');
+    expect([text(cta), cta?.getAttribute('href'), cta?.className]).toEqual(['See Plans', '/offer#plans', 'btn btn-primary sk-cta']);
+    expect(doc.querySelector('a[href^="#get-"]')).toBeNull();
+    expect(doc.querySelector('[data-sk-bar]')).toBeNull();
+    expect(doc.getElementById('guide-live')).toBeNull();
+  });
+
+  it('uses no id twice, and follows the house rule: no em dashes', () => {
+    const ids = [...doc.querySelectorAll('[id]')].map((el) => el.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(html).not.toMatch(/[–—]/);
   });
 });

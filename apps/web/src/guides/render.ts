@@ -14,12 +14,17 @@
 // steps instead of one button, the download among them, and on a phone a line to finish on a computer
 // with a button that sends the page there. Words to say to Claude are buttons that copy them.
 //
+// A PAID SKILL (D-081). Its page keeps the hero and the sample. The Skill Library card takes the
+// opt-in card's place, with no form and no setup, so no link to a ZIP is in the markup at all; the
+// buttons that led back up to the opt-in go to the plans instead.
+//
 // Every string goes through `esc()`; nothing here runs in the browser.
 
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
 import {
   GUIDES,
+  inSkillLibrary,
   SHARED,
   SITE,
   type Guide,
@@ -260,7 +265,43 @@ function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp):
 }
 
 /**
- * The opt-in and, in the same card, the download it unlocks.
+ * A paid skill's card (D-081), where the opt-in was: where the skill is now, the plans, and the
+ * platform's sign-in for people who already bought one. No form and no setup, so the page links no
+ * ZIP, and no `data-unlock-key`, so the script leaves it alone. It wears the opt-in card's classes
+ * (`optin`, `locked`, `form`, `legal`) to sit and look the same: guides.css and skills.css are inlined
+ * into the free skill's page too, which stays as it was.
+ */
+function libraryCard(): string {
+  const l = SHARED.skillLibrary;
+  return [
+    `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library>`,
+    `<div class="locked">`,
+    `<h2 id="library-heading">${esc(l.heading)}</h2>`,
+    `<p>${esc(l.body)}</p>`,
+    `<div class="form">`,
+    `<a class="btn btn-primary" href="${esc(l.plans.href)}">${esc(l.plans.label)}</a>`,
+    `<p class="legal">${esc(l.signIn.lead)} <a href="${esc(l.signIn.href)}">${esc(l.signIn.label)}</a></p>`,
+    `</div>`,
+    `</div>`,
+    `</section>`,
+  ].join('\n');
+}
+
+/**
+ * The button under "What you need": back up to the opt-in, or, for a paid skill, to the plans
+ * (D-081).
+ */
+function needCta(guide: Guide, className: string): string {
+  if (inSkillLibrary(guide)) {
+    const plans = SHARED.skillLibrary.plans;
+    return `<a class="${esc(className)}" href="${esc(plans.href)}">${esc(plans.label)}</a>`;
+  }
+  return `<a class="${esc(className)}" href="#${esc(guide.optIn.anchor)}">${esc(guide.optIn.button)}</a>`;
+}
+
+/**
+ * The opt-in and, in the same card, the download it unlocks. A paid skill's page has the Skill
+ * Library card instead.
  *
  * Without JavaScript the form is a plain POST (native `required` and `type=email` validation; no
  * `novalidate` in the markup, `main.ts` sets it once it validates instead), and the API answers 303 to
@@ -268,6 +309,7 @@ function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp):
  * `data-state="unlocked"` on the card, and remembers that under the card's `data-unlock-key`.
  */
 function optIn(guide: Guide): string {
+  if (inSkillLibrary(guide)) return libraryCard();
   const o = guide.optIn;
   const d = guide.download;
   const form = [
@@ -377,7 +419,7 @@ function section(guide: Guide, s: Section, i: number): string {
         `<section class="need" aria-labelledby="${id}">`,
         `<div class="need-head"><h2 id="${id}">${esc(s.heading)}</h2>${note}</div>`,
         `<ul class="tiles${s.columns === 2 ? ' tiles-2' : ''}" role="list">${items}</ul>`,
-        s.cta ? `<a class="btn btn-outline" href="#${esc(guide.optIn.anchor)}">${esc(guide.optIn.button)}</a>` : '',
+        s.cta ? needCta(guide, 'btn btn-outline') : '',
         `</section>`,
       ]
         .filter(Boolean)
@@ -491,12 +533,13 @@ function footer(extraClass = ''): string {
   ].join('\n');
 }
 
-/** Whether anything on the page copies, and so needs the toast that says it did. */
+/** Whether anything on the page copies, and so needs the toast that says it did. A paid skill's setup is not drawn. */
 const copies = (guide: Guide) =>
   guide.sections.some((s) => s.kind === 'prompts') ||
-  [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? [])].some(
-    (s) => s.copy !== undefined || s.copyBlock !== undefined,
-  );
+  (!inSkillLibrary(guide) &&
+    [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? [])].some(
+      (s) => s.copy !== undefined || s.copyBlock !== undefined,
+    ));
 
 /** Everything inside <body>. */
 export function renderGuideBody(guide: Guide): string {
@@ -656,7 +699,7 @@ function skillSection(guide: Guide, s: Section, i: number): string {
       const list = roles
         ? `<ul class="sk-roles" role="list">${items}</ul>`
         : `<ul class="sk-cards${s.columns === 2 ? ' sk-cards-2' : ''}" role="list">${items}</ul>`;
-      const cta = s.cta ? `<a class="btn btn-primary sk-cta" href="#${esc(guide.optIn.anchor)}">${esc(guide.optIn.button)}</a>` : '';
+      const cta = s.cta ? needCta(guide, 'btn btn-primary sk-cta') : '';
       return band(roles ? 'roles' : 'cards', id, [bandHead(id, s.heading, s.note), list, cta].filter(Boolean).join('\n'));
     }
     case 'prompts':
@@ -706,8 +749,11 @@ function skillBody(guide: Guide): string {
     footer('sk-foot'),
     copies(guide) ? `<p id="guide-live" class="toast" role="status" aria-live="polite"></p>` : '',
     // On a phone, a way to the sign-up from anywhere on the page: shown by `main.ts` while the card is
-    // out of view and the skill is not yet unlocked.
-    `<div class="sk-bar" data-sk-bar hidden><a class="btn btn-primary" href="#${esc(guide.optIn.anchor)}">${esc(SHARED.skill.bar)}</a></div>`,
+    // out of view and the skill is not yet unlocked. A paid skill has no sign-up, and the script shows
+    // the bar only beside one.
+    inSkillLibrary(guide)
+      ? ''
+      : `<div class="sk-bar" data-sk-bar hidden><a class="btn btn-primary" href="#${esc(guide.optIn.anchor)}">${esc(SHARED.skill.bar)}</a></div>`,
   ]
     .filter(Boolean)
     .join('\n');

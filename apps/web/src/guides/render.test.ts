@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import type * as Skills from '@ai/core/skills';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +16,14 @@ import { TASK_SYNC_MORNING_ADD_ON, TASK_SYNC_PROMPT } from './task-sync-starter'
 //
 // Values a visitor sees or a link depends on are typed out here, not read from the content files, so
 // a change to one is a change to this file too.
+//
+// The Reel Editor is paid (D-081): its live page shows the Skill Library card in place of the opt-in
+// and the setup, which `skill-library.test.ts` holds. Its opt-in and setup stay in `reel-editor.ts` for
+// the day `FREE_SKILLS` names it, so this file draws it as that day will, free, and holds them still.
+vi.mock('@ai/core/skills', async (importOriginal) => {
+  const real = await importOriginal<typeof Skills>();
+  return { ...real, isFreeSkill: (id: string) => id === 'reel-editor' || real.isFreeSkill(id) };
+});
 
 const parse = (guide: Guide) =>
   new DOMParser().parseFromString(

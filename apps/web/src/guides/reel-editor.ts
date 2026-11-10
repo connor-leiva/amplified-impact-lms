@@ -15,6 +15,9 @@ const SEND_URL = 'https://www.amplifiedimpact.io/reel-editor#download';
 
 export const REEL_EDITOR: Guide = {
   slug: 'reel-editor',
+  // Its id in the skill library's catalog. Paid unless `FREE_SKILLS` names it: then the page shows the
+  // Skill Library card in place of the opt-in and the setup below (D-081).
+  skill: 'reel-editor',
 
   meta: {
     title: 'Reel Editor: A Free Claude Skill · Amplified Impact',
