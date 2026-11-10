@@ -1,0 +1,15 @@
+Objective checks: practice / output.md
+- PASS  No em or en dashes
+- PASS  Sections in SKILL.md's order
+- PASS  Check Before Sending is the last section
+- PASS  Bottom line is three sentences or fewer: 3 sentences
+- PASS  Every plan and automation in the inventory
+- PASS  Every automated text step named in Texting-Consent Risk
+- PASS  Utah mode: Utah Code 13-25a-103(3) cited, texts not confirmed
+- PASS  Basics cite outreach-rules.md with its Last verified date
+- PASS  No claim of a change made and no legal ruling
+- PASS  Each fair housing phrase quoted at most once
+- PASS  Every written-out sum or difference is right
+- NOTE  Computed days and gaps, each checked against its arithmetic: 2, 3, 4, 5, 7, 10, 14, 20, 21, 28, 30, 60, 90, 120, 150, 180, 210, 270, 300, 360, 365
+- NOTE  Numbers from the skill's references, not the input: 08, 13, 25, 47, 64.1200, 67, 103, 2021, 2025
+- PASS  Numbers not found in the input, a reference or the arithmetic (grade each)

@@ -142,6 +142,9 @@ it('serves the guides there are, by slug', () => {
       'l10-meeting-prep',
       'open-house-follow-up',
       'sphere-touch-plan',
+      'fub-pipeline-review',
+      'speed-to-lead-reply',
+      'fub-automation-audit',
     ]);
 });
 

@@ -1,0 +1,18 @@
+Objective checks: case-2 / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subject lines: no subject lines (the review drafts no email)
+- PASS  Check Before Sending section
+- PASS  Flags first, then the Bottom Line
+- PASS  Bottom line three sentences or fewer: 3 sentences
+- PASS  No email address
+- PASS  No phone number
+- PASS  No Notes or Message text
+- PASS  Every day count's arithmetic right: 24 checked
+- PASS  Every rate's arithmetic right: 36 checked
+- PASS  Every percentage shows its numerator and denominator
+- PASS  Never-appear strings absent
+- PASS  Must-appear strings present
+- PASS  No words judging a person
+- NOTE  Judging words quoted from the user's own question (review): dropping the ball
+- PASS  No wire or account details
+- PASS  Every number in the inputs or the run (grade each miss)

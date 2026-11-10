@@ -1,0 +1,22 @@
+Objective checks: practice-lead-3-has-agent / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subjects: 1 subjects
+- PASS  Check Before Sending section
+- PASS  No text drafted anywhere (NO TEXT): 0 texts found
+- PASS  Consent read quotes the record
+- PASS  No call opener, call or voicemail (calls closed): 0 found
+- NOTE  Email length: 36 words: Thanks For Your Interest In New Builds In South Jordan
+- PASS  Emails found: 1 emails
+- PASS  First email 150 words or fewer, touch emails 80 or fewer
+- PASS  Every email has the opt-out and postal address footer
+- PASS  No sentence says the home is available without confirm or check
+- PASS  Never-appear strings absent from the whole output
+- PASS  Agent-only strings absent from the drafts
+- PASS  Protected-class and household words in the drafts (review each)
+- PASS  Neighborhood-opinion words in the drafts
+- PASS  Website activity in the drafts
+- PASS  No stock phrases in the drafts
+- PASS  No wire or account details
+- NOTE  Citations: From the skill's references: R162-2f-401b(1)(k)
+- PASS  Numbers not found in the input (grade each)
+- PASS  Every clock time is in the input (8:00 is the send window)

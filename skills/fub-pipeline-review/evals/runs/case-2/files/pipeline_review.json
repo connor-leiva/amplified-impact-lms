@@ -1,0 +1,838 @@
+{
+ "as_of": "11/10/2026",
+ "as_of_given": true,
+ "days": 7,
+ "period": [
+  "08/01/2026",
+  "11/10/2026"
+ ],
+ "period_given": true,
+ "hot_tags": [
+  "Hot"
+ ],
+ "files": [
+  {
+   "what": "this week's People export",
+   "file": "kettlecorn-fub-people-export-2026-11-10.csv",
+   "rows": 44,
+   "header_row": 2,
+   "columns": {
+    "name": "Name",
+    "first": "First Name",
+    "last": "Last Name",
+    "stage": "Stage",
+    "source": "Lead Source",
+    "agent": "Assigned To",
+    "created": "Date Added",
+    "last_comm": "Last Communication",
+    "last_activity": "Last Activity",
+    "tags": "Tags",
+    "deal_stage": "Deal Stage",
+    "deal_close": "Deal Close Date",
+    "deal_price": "Deal Price",
+    "emails (matching only, never shown)": "Email 1",
+    "phones (matching only, never shown)": "Phone 1"
+   }
+  }
+ ],
+ "deal_source": "people",
+ "flags": [
+  "No Deals export: list 1 used the People export's Deal Stage, Deal Close Date and Deal Price columns, which hold one deal per person.",
+  "Last week's People export was not attached: what moved, and list 4 (stages with no movement), were not run. Nothing in this review says anything moved."
+ ],
+ "stage_reading": [
+  {
+   "stage": "Lead",
+   "records": 7,
+   "read_as": "New lead",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Attempted Contact",
+   "records": 6,
+   "read_as": "Attempted",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Spoke with Customer",
+   "records": 4,
+   "read_as": "Spoke",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Appointment Set",
+   "records": 3,
+   "read_as": "Appointment",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Met with Customer",
+   "records": 3,
+   "read_as": "Appointment",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Showing Homes",
+   "records": 3,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Listing Agreement",
+   "records": 1,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Active Listing",
+   "records": 1,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Submitting Offers",
+   "records": 1,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Under Contract",
+   "records": 1,
+   "read_as": "Under contract",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Closed",
+   "records": 1,
+   "read_as": "Closed",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Nurture",
+   "records": 5,
+   "read_as": "Nurture",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Rejected",
+   "records": 1,
+   "read_as": "Out (rejected, trash)",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Trash",
+   "records": 1,
+   "read_as": "Out (rejected, trash)",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Pending",
+   "records": 3,
+   "read_as": "Under contract",
+   "how": "common custom stage: confirm"
+  },
+  {
+   "stage": "Past Client",
+   "records": 3,
+   "read_as": "Closed",
+   "how": "common custom stage: confirm"
+  }
+ ],
+ "to_confirm": [
+  {
+   "stage": "Pending",
+   "records": 3,
+   "read_as": "Under contract",
+   "how": "common custom stage: confirm"
+  },
+  {
+   "stage": "Past Client",
+   "records": 3,
+   "read_as": "Closed",
+   "how": "common custom stage: confirm"
+  }
+ ],
+ "totals": {
+  "records": 44,
+  "pipeline": 33,
+  "active": 20
+ },
+ "by_stage": [
+  {
+   "stage": "Lead",
+   "read_as": "New lead",
+   "now": 7,
+   "within": 1,
+   "over": 2,
+   "none": 4,
+   "unusable": 0,
+   "oldest": "Zara Puddlecrumb: 10/27/2026, 11/10/2026 minus 10/27/2026 = 14 days"
+  },
+  {
+   "stage": "Attempted Contact",
+   "read_as": "Attempted",
+   "now": 6,
+   "within": 0,
+   "over": 6,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Fergus Gumbleton: 10/05/2026, 11/10/2026 minus 10/05/2026 = 36 days"
+  },
+  {
+   "stage": "Spoke with Customer",
+   "read_as": "Spoke",
+   "now": 4,
+   "within": 2,
+   "over": 1,
+   "none": 0,
+   "unusable": 1,
+   "oldest": "Prudence Fiddlewhip: 10/29/2026, 11/10/2026 minus 10/29/2026 = 12 days"
+  },
+  {
+   "stage": "Appointment Set",
+   "read_as": "Appointment",
+   "now": 3,
+   "within": 2,
+   "over": 1,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Mortimer Quibbleton: 10/22/2026, 11/10/2026 minus 10/22/2026 = 19 days"
+  },
+  {
+   "stage": "Met with Customer",
+   "read_as": "Appointment",
+   "now": 3,
+   "within": 1,
+   "over": 1,
+   "none": 1,
+   "unusable": 0,
+   "oldest": "Silas Thimblewood: 10/30/2026, 11/10/2026 minus 10/30/2026 = 11 days"
+  },
+  {
+   "stage": "Showing Homes",
+   "read_as": "Active client",
+   "now": 3,
+   "within": 1,
+   "over": 1,
+   "none": 0,
+   "unusable": 1,
+   "oldest": "Oswin Tumbledown: 10/25/2026, 11/10/2026 minus 10/25/2026 = 16 days"
+  },
+  {
+   "stage": "Listing Agreement",
+   "read_as": "Active client",
+   "now": 1,
+   "within": 1,
+   "over": 0,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Ulric Bramblepatch: 11/04/2026, 11/10/2026 minus 11/04/2026 = 6 days"
+  },
+  {
+   "stage": "Active Listing",
+   "read_as": "Active client",
+   "now": 1,
+   "within": 1,
+   "over": 0,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Verity Gooseberry: 11/09/2026, 11/10/2026 minus 11/09/2026 = 1 day"
+  },
+  {
+   "stage": "Submitting Offers",
+   "read_as": "Active client",
+   "now": 1,
+   "within": 1,
+   "over": 0,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Wallace Crumpetsby: 11/06/2026, 11/10/2026 minus 11/06/2026 = 4 days"
+  },
+  {
+   "stage": "Under Contract",
+   "read_as": "Under contract",
+   "now": 1,
+   "within": 1,
+   "over": 0,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Yvette Plumpudding: 11/08/2026, 11/10/2026 minus 11/08/2026 = 2 days"
+  },
+  {
+   "stage": "Closed",
+   "read_as": "Closed",
+   "now": 1,
+   "within": 0,
+   "over": 1,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Nathaniel Pebbleshoe: 09/02/2026, 11/10/2026 minus 09/02/2026 = 69 days"
+  },
+  {
+   "stage": "Nurture",
+   "read_as": "Nurture",
+   "now": 5,
+   "within": 0,
+   "over": 5,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Horace Mumbleton: 08/30/2026, 11/10/2026 minus 08/30/2026 = 72 days"
+  },
+  {
+   "stage": "Rejected",
+   "read_as": "Out (rejected, trash)",
+   "now": 1,
+   "within": 0,
+   "over": 1,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Lionel Crumbsworth: 09/10/2026, 11/10/2026 minus 09/10/2026 = 61 days"
+  },
+  {
+   "stage": "Trash",
+   "read_as": "Out (rejected, trash)",
+   "now": 1,
+   "within": 0,
+   "over": 0,
+   "none": 1,
+   "unusable": 0,
+   "oldest": ""
+  },
+  {
+   "stage": "Pending",
+   "read_as": "Under contract",
+   "now": 3,
+   "within": 2,
+   "over": 1,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Rowena Puddlefoot: 11/01/2026, 11/10/2026 minus 11/01/2026 = 9 days"
+  },
+  {
+   "stage": "Past Client",
+   "read_as": "Closed",
+   "now": 3,
+   "within": 0,
+   "over": 3,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Odette Fizzlethorpe: 07/15/2026, 11/10/2026 minus 07/15/2026 = 118 days"
+  }
+ ],
+ "deals_by_stage": [],
+ "archived_deals": 0,
+ "open_deals_no_close": [
+  "Silas Thimblewood's deal",
+  "Verity Gooseberry's deal"
+ ],
+ "movement": null,
+ "d1": [
+  {
+   "deal": "Lucinda Wafflebury's deal",
+   "pipeline": "",
+   "stage": "Under Contract",
+   "close": "11/02/2026",
+   "days_past": 8,
+   "math": "11/10/2026 minus 11/02/2026 = 8 days",
+   "price": "375000",
+   "agents": "Rosalie Tinkwhistle",
+   "row": 8,
+   "person": "Lucinda Wafflebury",
+   "person_stage": "Pending",
+   "person_comm": "last communication 11/06/2026: 11/10/2026 minus 11/06/2026 = 4 days",
+   "person_comm_short": "last communication 11/06/2026, 4 days ago",
+   "agent": "Rosalie Tinkwhistle"
+  }
+ ],
+ "d2": [
+  {
+   "name": "Nettie Crumblewood",
+   "stage": "Met with Customer",
+   "agent": "Marisa Quenchley",
+   "why": [
+    "no communication logged",
+    "no open deal in the export",
+    "movement check not run (no last week's export)"
+   ],
+   "days": null,
+   "short": "no communication logged",
+   "activity": "",
+   "row": 10
+  },
+  {
+   "name": "Mortimer Quibbleton",
+   "stage": "Appointment Set",
+   "agent": "Fennimore Gaddlesby",
+   "why": [
+    "last communication 10/22/2026: 11/10/2026 minus 10/22/2026 = 19 days",
+    "no open deal in the export",
+    "movement check not run (no last week's export)"
+   ],
+   "days": 19,
+   "short": "last communication 10/22/2026, 19 days ago",
+   "activity": "",
+   "row": 9
+  }
+ ],
+ "d3": [
+  {
+   "name": "Theodosia Crankwhistle",
+   "stage": "Nurture",
+   "agent": "Fennimore Gaddlesby",
+   "hot": "Hot",
+   "comm": "last communication 10/05/2026: 11/10/2026 minus 10/05/2026 = 36 days",
+   "short": "last communication 10/05/2026, 36 days ago",
+   "days": 36,
+   "activity": "the lead's own Last Activity is 10/30/2026, after the last communication",
+   "row": 40,
+   "has_deal": false
+  },
+  {
+   "name": "Quincy Marbleton",
+   "stage": "Attempted Contact",
+   "agent": "Rosalie Tinkwhistle",
+   "hot": "Hot",
+   "comm": "last communication 10/14/2026: 11/10/2026 minus 10/14/2026 = 27 days",
+   "short": "last communication 10/14/2026, 27 days ago",
+   "days": 27,
+   "activity": "the lead's own Last Activity is 11/07/2026, after the last communication",
+   "row": 13,
+   "has_deal": false
+  },
+  {
+   "name": "Oswin Tumbledown",
+   "stage": "Showing Homes",
+   "agent": "Augustin Pebbleworth",
+   "hot": null,
+   "comm": "last communication 10/25/2026: 11/10/2026 minus 10/25/2026 = 16 days",
+   "short": "last communication 10/25/2026, 16 days ago",
+   "days": 16,
+   "activity": "the lead's own Last Activity is 11/09/2026, after the last communication",
+   "row": 11,
+   "has_deal": false
+  },
+  {
+   "name": "Prudence Fiddlewhip",
+   "stage": "Spoke with Customer",
+   "agent": "Fennimore Gaddlesby",
+   "hot": null,
+   "comm": "last communication 10/29/2026: 11/10/2026 minus 10/29/2026 = 12 days",
+   "short": "last communication 10/29/2026, 12 days ago",
+   "days": 12,
+   "activity": "",
+   "row": 12,
+   "has_deal": false
+  },
+  {
+   "name": "Silas Thimblewood",
+   "stage": "Met with Customer",
+   "agent": "Augustin Pebbleworth",
+   "hot": null,
+   "comm": "last communication 10/30/2026: 11/10/2026 minus 10/30/2026 = 11 days",
+   "short": "last communication 10/30/2026, 11 days ago",
+   "days": 11,
+   "activity": "",
+   "row": 15,
+   "has_deal": true
+  },
+  {
+   "name": "Rowena Puddlefoot",
+   "stage": "Pending",
+   "agent": "Marisa Quenchley",
+   "hot": null,
+   "comm": "last communication 11/01/2026: 11/10/2026 minus 11/01/2026 = 9 days",
+   "short": "last communication 11/01/2026, 9 days ago",
+   "days": 9,
+   "activity": "",
+   "row": 14,
+   "has_deal": true
+  }
+ ],
+ "d4": [],
+ "future_comm_active": [
+  "Ingrid Sockwhistle",
+  "Kestrel Bumbleford"
+ ],
+ "cohort": 34,
+ "no_created": 1,
+ "by_source": [
+  {
+   "key": "Zillow",
+   "created": 12,
+   "Spoke or further": {
+    "n": 5,
+    "d": 12,
+    "text": "5 / 12 = 41.7%"
+   },
+   "Appointment or further": {
+    "n": 5,
+    "d": 12,
+    "text": "5 / 12 = 41.7%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 12,
+    "text": "0 / 12 = 0.0%"
+   },
+   "now_out": 2
+  },
+  {
+   "key": "Website",
+   "created": 7,
+   "Spoke or further": {
+    "n": 3,
+    "d": 7,
+    "text": "3 / 7 = 42.9%"
+   },
+   "Appointment or further": {
+    "n": 2,
+    "d": 7,
+    "text": "2 / 7 = 28.6%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 7,
+    "text": "0 / 7 = 0.0%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Realtor.com",
+   "created": 6,
+   "Spoke or further": {
+    "n": 3,
+    "d": 6,
+    "text": "3 / 6 = 50.0%"
+   },
+   "Appointment or further": {
+    "n": 2,
+    "d": 6,
+    "text": "2 / 6 = 33.3%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 6,
+    "text": "1 / 6 = 16.7%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Open House",
+   "created": 5,
+   "Spoke or further": {
+    "n": 4,
+    "d": 5,
+    "text": "4 / 5 = 80.0%"
+   },
+   "Appointment or further": {
+    "n": 3,
+    "d": 5,
+    "text": "3 / 5 = 60.0%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 5,
+    "text": "1 / 5 = 20.0%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "(no source)",
+   "created": 2,
+   "Spoke or further": {
+    "n": 0,
+    "d": 2,
+    "text": "0 / 2 = 0.0%"
+   },
+   "Appointment or further": {
+    "n": 0,
+    "d": 2,
+    "text": "0 / 2 = 0.0%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 2,
+    "text": "0 / 2 = 0.0%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Sphere",
+   "created": 2,
+   "Spoke or further": {
+    "n": 2,
+    "d": 2,
+    "text": "2 / 2 = 100.0%"
+   },
+   "Appointment or further": {
+    "n": 1,
+    "d": 2,
+    "text": "1 / 2 = 50.0%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 2,
+    "text": "0 / 2 = 0.0%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "All",
+   "created": 34,
+   "Spoke or further": {
+    "n": 17,
+    "d": 34,
+    "text": "17 / 34 = 50.0%"
+   },
+   "Appointment or further": {
+    "n": 13,
+    "d": 34,
+    "text": "13 / 34 = 38.2%"
+   },
+   "Under contract or closed": {
+    "n": 2,
+    "d": 34,
+    "text": "2 / 34 = 5.9%"
+   },
+   "now_out": 5
+  }
+ ],
+ "by_agent_conv": [
+  {
+   "key": "Augustin Pebbleworth",
+   "created": 9,
+   "Spoke or further": {
+    "n": 5,
+    "d": 9,
+    "text": "5 / 9 = 55.6%"
+   },
+   "Appointment or further": {
+    "n": 4,
+    "d": 9,
+    "text": "4 / 9 = 44.4%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 9,
+    "text": "0 / 9 = 0.0%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Marisa Quenchley",
+   "created": 9,
+   "Spoke or further": {
+    "n": 4,
+    "d": 9,
+    "text": "4 / 9 = 44.4%"
+   },
+   "Appointment or further": {
+    "n": 4,
+    "d": 9,
+    "text": "4 / 9 = 44.4%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 9,
+    "text": "1 / 9 = 11.1%"
+   },
+   "now_out": 2
+  },
+  {
+   "key": "Fennimore Gaddlesby",
+   "created": 8,
+   "Spoke or further": {
+    "n": 5,
+    "d": 8,
+    "text": "5 / 8 = 62.5%"
+   },
+   "Appointment or further": {
+    "n": 3,
+    "d": 8,
+    "text": "3 / 8 = 37.5%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 8,
+    "text": "1 / 8 = 12.5%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Rosalie Tinkwhistle",
+   "created": 8,
+   "Spoke or further": {
+    "n": 3,
+    "d": 8,
+    "text": "3 / 8 = 37.5%"
+   },
+   "Appointment or further": {
+    "n": 2,
+    "d": 8,
+    "text": "2 / 8 = 25.0%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 8,
+    "text": "0 / 8 = 0.0%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "All",
+   "created": 34,
+   "Spoke or further": {
+    "n": 17,
+    "d": 34,
+    "text": "17 / 34 = 50.0%"
+   },
+   "Appointment or further": {
+    "n": 13,
+    "d": 34,
+    "text": "13 / 34 = 38.2%"
+   },
+   "Under contract or closed": {
+    "n": 2,
+    "d": 34,
+    "text": "2 / 34 = 5.9%"
+   },
+   "now_out": 5
+  }
+ ],
+ "by_agent": [
+  {
+   "agent": "Augustin Pebbleworth",
+   "records": 11,
+   "new": 2,
+   "attempted": 1,
+   "spoke": 1,
+   "appointment": 2,
+   "client": 2,
+   "contract": 0,
+   "active": 5,
+   "active_over": 2,
+   "active_none": 0,
+   "d1": 0,
+   "d2": 0,
+   "d3": 2,
+   "d4": 0,
+   "open_deals": 1
+  },
+  {
+   "agent": "Fennimore Gaddlesby",
+   "records": 11,
+   "new": 1,
+   "attempted": 1,
+   "spoke": 2,
+   "appointment": 2,
+   "client": 0,
+   "contract": 1,
+   "active": 5,
+   "active_over": 2,
+   "active_none": 0,
+   "d1": 0,
+   "d2": 1,
+   "d3": 2,
+   "d4": 0,
+   "open_deals": 1
+  },
+  {
+   "agent": "Marisa Quenchley",
+   "records": 11,
+   "new": 2,
+   "attempted": 1,
+   "spoke": 0,
+   "appointment": 1,
+   "client": 3,
+   "contract": 2,
+   "active": 6,
+   "active_over": 1,
+   "active_none": 1,
+   "d1": 0,
+   "d2": 1,
+   "d3": 1,
+   "d4": 0,
+   "open_deals": 3
+  },
+  {
+   "agent": "Rosalie Tinkwhistle",
+   "records": 11,
+   "new": 2,
+   "attempted": 3,
+   "spoke": 1,
+   "appointment": 1,
+   "client": 1,
+   "contract": 1,
+   "active": 4,
+   "active_over": 0,
+   "active_none": 0,
+   "d1": 1,
+   "d2": 0,
+   "d3": 1,
+   "d4": 0,
+   "open_deals": 1
+  }
+ ],
+ "questions": {
+  "Augustin Pebbleworth": [
+   "Oswin Tumbledown (Showing Homes, last communication 10/25/2026, 16 days ago; the lead's own Last Activity is 11/09/2026, after the last communication): what is the plan for this week?",
+   "Silas Thimblewood (Met with Customer, last communication 10/30/2026, 11 days ago): what is the plan for this week?"
+  ],
+  "Fennimore Gaddlesby": [
+   "Mortimer Quibbleton (Appointment Set, last communication 10/22/2026, 19 days ago, no next step in the export): what is the next step, and when?",
+   "Theodosia Crankwhistle (Nurture, tagged Hot, last communication 10/05/2026, 36 days ago; the lead's own Last Activity is 10/30/2026, after the last communication): what is the plan for this week?",
+   "Prudence Fiddlewhip (Spoke with Customer, last communication 10/29/2026, 12 days ago): what is the plan for this week?"
+  ],
+  "Marisa Quenchley": [
+   "Nettie Crumblewood (Met with Customer, no communication logged, no next step in the export): what is the next step, and when?",
+   "Rowena Puddlefoot (Pending, last communication 11/01/2026, 9 days ago): what is the plan for this week?"
+  ],
+  "Rosalie Tinkwhistle": [
+   "Lucinda Wafflebury's deal (Under Contract, expected close 11/02/2026, 8 days past): what is the new expected close date, and what is it waiting on?",
+   "Quincy Marbleton (Attempted Contact, tagged Hot, last communication 10/14/2026, 27 days ago; the lead's own Last Activity is 11/07/2026, after the last communication): what is the plan for this week?"
+  ]
+ },
+ "odd": [
+  {
+   "file": "kettlecorn-fub-people-export-2026-11-10.csv",
+   "row": 3,
+   "name": "Gertrude Fizzlewick",
+   "what": "Deal Stage Closed (read as closed) with no Deal Close Date",
+   "treated": "left as is; not counted anywhere a close date is needed"
+  },
+  {
+   "file": "kettlecorn-fub-people-export-2026-11-10.csv",
+   "row": 4,
+   "name": "Horace Mumbleton",
+   "what": "Last Activity 12/02/2026 is after the as-of date 11/10/2026",
+   "treated": "not used for aging or the decision list; check the record"
+  },
+  {
+   "file": "kettlecorn-fub-people-export-2026-11-10.csv",
+   "row": 5,
+   "name": "Ingrid Sockwhistle",
+   "what": "Last Communication 11/19/2026 is after the as-of date 11/10/2026",
+   "treated": "not used for aging or the decision list; check the record"
+  },
+  {
+   "file": "kettlecorn-fub-people-export-2026-11-10.csv",
+   "row": 6,
+   "name": "Jethro Puffington",
+   "what": "Date Added 11/12/2026 is after the as-of date 11/10/2026",
+   "treated": "left out of conversion; check the record"
+  },
+  {
+   "file": "kettlecorn-fub-people-export-2026-11-10.csv",
+   "row": 7,
+   "name": "Kestrel Bumbleford",
+   "what": "Last Communication is not a date (31/10/2026)",
+   "treated": "not used for aging or the decision list; check the record"
+  }
+ ],
+ "ran": {
+  "d1": true,
+  "d2": true,
+  "d3": true,
+  "d4": false
+ }
+}

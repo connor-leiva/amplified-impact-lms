@@ -1,0 +1,1283 @@
+{
+ "as_of": "11/10/2026",
+ "as_of_given": true,
+ "days": 7,
+ "period": [
+  "08/12/2026",
+  "11/10/2026"
+ ],
+ "period_given": false,
+ "hot_tags": [
+  "Hot"
+ ],
+ "files": [
+  {
+   "what": "this week's People export",
+   "file": "PRACTICE FUB People Export 2026-11-10.csv",
+   "rows": 54,
+   "header_row": 2,
+   "columns": {
+    "name": "Name",
+    "first": "First Name",
+    "last": "Last Name",
+    "stage": "Stage",
+    "source": "Lead Source",
+    "agent": "Assigned To",
+    "created": "Date Added",
+    "last_comm": "Last Communication",
+    "last_activity": "Last Activity",
+    "tags": "Tags",
+    "deal_stage": "Deal Stage",
+    "deal_close": "Deal Close Date",
+    "deal_price": "Deal Price",
+    "emails (matching only, never shown)": "Email 1",
+    "phones (matching only, never shown)": "Phone 1"
+   }
+  },
+  {
+   "what": "last week's People export",
+   "file": "PRACTICE FUB People Export 2026-11-03 Last Week.csv",
+   "rows": 52,
+   "header_row": 2,
+   "columns": {
+    "name": "Name",
+    "first": "First Name",
+    "last": "Last Name",
+    "stage": "Stage",
+    "source": "Lead Source",
+    "agent": "Assigned To",
+    "created": "Date Added",
+    "last_comm": "Last Communication",
+    "last_activity": "Last Activity",
+    "tags": "Tags",
+    "deal_stage": "Deal Stage",
+    "deal_close": "Deal Close Date",
+    "deal_price": "Deal Price",
+    "emails (matching only, never shown)": "Email 1",
+    "phones (matching only, never shown)": "Phone 1"
+   }
+  },
+  {
+   "what": "Deals export",
+   "file": "PRACTICE FUB Deals Report 2026-11-10.csv",
+   "rows": 13,
+   "header_row": 2,
+   "columns": {
+    "name": "Name",
+    "stage": "Stage",
+    "status": "Status",
+    "entered": "Entered Stage",
+    "close": "Close Date",
+    "price": "Price",
+    "agents": "Team"
+   }
+  }
+ ],
+ "deal_source": "deals",
+ "flags": [],
+ "stage_reading": [
+  {
+   "stage": "Lead",
+   "records": 6,
+   "read_as": "New lead",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Attempted Contact",
+   "records": 7,
+   "read_as": "Attempted",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Spoke with Customer",
+   "records": 5,
+   "read_as": "Spoke",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Appointment Set",
+   "records": 3,
+   "read_as": "Appointment",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Met with Customer",
+   "records": 3,
+   "read_as": "Appointment",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Showing Homes",
+   "records": 3,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Listing Agreement",
+   "records": 2,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Active Listing",
+   "records": 3,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Submitting Offers",
+   "records": 2,
+   "read_as": "Active client",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Under Contract",
+   "records": 5,
+   "read_as": "Under contract",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Closed",
+   "records": 4,
+   "read_as": "Closed",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Nurture",
+   "records": 7,
+   "read_as": "Nurture",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Rejected",
+   "records": 1,
+   "read_as": "Out (rejected, trash)",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "Trash",
+   "records": 2,
+   "read_as": "Out (rejected, trash)",
+   "how": "Follow Up Boss default stage"
+  },
+  {
+   "stage": "(no stage)",
+   "records": 1,
+   "read_as": "No stage",
+   "how": "no stage in the row"
+  }
+ ],
+ "to_confirm": [],
+ "totals": {
+  "records": 54,
+  "pipeline": 39,
+  "active": 26
+ },
+ "by_stage": [
+  {
+   "stage": "Lead",
+   "read_as": "New lead",
+   "now": 6,
+   "within": 1,
+   "over": 1,
+   "none": 4,
+   "unusable": 0,
+   "oldest": "Peregrine Zigzagger: 10/31/2026, 11/10/2026 minus 10/31/2026 = 10 days",
+   "last_week": 8
+  },
+  {
+   "stage": "Attempted Contact",
+   "read_as": "Attempted",
+   "now": 7,
+   "within": 3,
+   "over": 4,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Theodora Wigglesby: 10/02/2026, 11/10/2026 minus 10/02/2026 = 39 days",
+   "last_week": 5
+  },
+  {
+   "stage": "Spoke with Customer",
+   "read_as": "Spoke",
+   "now": 5,
+   "within": 3,
+   "over": 1,
+   "none": 1,
+   "unusable": 0,
+   "oldest": "Delphine Fluffernutter: 10/30/2026, 11/10/2026 minus 10/30/2026 = 11 days",
+   "last_week": 6
+  },
+  {
+   "stage": "Appointment Set",
+   "read_as": "Appointment",
+   "now": 3,
+   "within": 2,
+   "over": 1,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Pemberton Quibblesworth: 10/21/2026, 11/10/2026 minus 10/21/2026 = 20 days",
+   "last_week": 2
+  },
+  {
+   "stage": "Met with Customer",
+   "read_as": "Appointment",
+   "now": 3,
+   "within": 0,
+   "over": 2,
+   "none": 1,
+   "unusable": 0,
+   "oldest": "Tilda Fizzlebottom: 10/27/2026, 11/10/2026 minus 10/27/2026 = 14 days",
+   "last_week": 3
+  },
+  {
+   "stage": "Showing Homes",
+   "read_as": "Active client",
+   "now": 3,
+   "within": 2,
+   "over": 1,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Wendell Crumbleton: 10/24/2026, 11/10/2026 minus 10/24/2026 = 17 days",
+   "last_week": 4
+  },
+  {
+   "stage": "Listing Agreement",
+   "read_as": "Active client",
+   "now": 2,
+   "within": 2,
+   "over": 0,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Horatio Butterwick: 11/04/2026, 11/10/2026 minus 11/04/2026 = 6 days",
+   "last_week": 3
+  },
+  {
+   "stage": "Active Listing",
+   "read_as": "Active client",
+   "now": 3,
+   "within": 3,
+   "over": 0,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Bartholomew Lumpkin: 11/03/2026, 11/10/2026 minus 11/03/2026 = 7 days",
+   "last_week": 2
+  },
+  {
+   "stage": "Submitting Offers",
+   "read_as": "Active client",
+   "now": 2,
+   "within": 2,
+   "over": 0,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Ambrose Sprocketton: 11/05/2026, 11/10/2026 minus 11/05/2026 = 5 days",
+   "last_week": 2
+  },
+  {
+   "stage": "Under Contract",
+   "read_as": "Under contract",
+   "now": 5,
+   "within": 3,
+   "over": 2,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Cosmo Gigglesworth: 10/31/2026, 11/10/2026 minus 10/31/2026 = 10 days",
+   "last_week": 5
+  },
+  {
+   "stage": "Closed",
+   "read_as": "Closed",
+   "now": 4,
+   "within": 1,
+   "over": 3,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Calliope Whistlebrook: 09/15/2026, 11/10/2026 minus 09/15/2026 = 56 days",
+   "last_week": 3
+  },
+  {
+   "stage": "Nurture",
+   "read_as": "Nurture",
+   "now": 7,
+   "within": 0,
+   "over": 7,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Zinnia Tufflewick: 06/18/2026, 11/10/2026 minus 06/18/2026 = 145 days",
+   "last_week": 6
+  },
+  {
+   "stage": "Rejected",
+   "read_as": "Out (rejected, trash)",
+   "now": 1,
+   "within": 0,
+   "over": 1,
+   "none": 0,
+   "unusable": 0,
+   "oldest": "Desmond Fernsnap: 09/20/2026, 11/10/2026 minus 09/20/2026 = 51 days",
+   "last_week": 1
+  },
+  {
+   "stage": "Trash",
+   "read_as": "Out (rejected, trash)",
+   "now": 2,
+   "within": 0,
+   "over": 1,
+   "none": 1,
+   "unusable": 0,
+   "oldest": "Fitzgerald Lollygag: 10/15/2026, 11/10/2026 minus 10/15/2026 = 26 days",
+   "last_week": 1
+  },
+  {
+   "stage": "(no stage)",
+   "read_as": "No stage",
+   "now": 1,
+   "within": 0,
+   "over": 0,
+   "none": 1,
+   "unusable": 0,
+   "oldest": "",
+   "last_week": 1
+  }
+ ],
+ "deals_by_stage": [
+  {
+   "pipeline": "",
+   "stage": "Buyer Agreement",
+   "read_as": "open",
+   "how": "no closed or fell-through word: read as open",
+   "deals": 1,
+   "longest": "Posy Bumbershoot: entered 10/22/2026, 11/10/2026 minus 10/22/2026 = 19 days",
+   "past_close": 0,
+   "no_close": 1
+  },
+  {
+   "pipeline": "",
+   "stage": "Listed",
+   "read_as": "open",
+   "how": "no closed or fell-through word: read as open",
+   "deals": 2,
+   "longest": "Bartholomew Lumpkin, 880 Gumdrop Way: entered 10/01/2026, 11/10/2026 minus 10/01/2026 = 40 days",
+   "past_close": 0,
+   "no_close": 2
+  },
+  {
+   "pipeline": "",
+   "stage": "Pending",
+   "read_as": "open",
+   "how": "no closed or fell-through word: read as open",
+   "deals": 1,
+   "longest": "Ferdinand Rattlecap, 77 Marzipan Ct: entered 09/22/2026, 11/10/2026 minus 09/22/2026 = 49 days",
+   "past_close": 1,
+   "no_close": 0
+  },
+  {
+   "pipeline": "",
+   "stage": "Under Contract",
+   "read_as": "open",
+   "how": "no closed or fell-through word: read as open",
+   "deals": 4,
+   "longest": "Petunia Quillby, 418 Gumdrop Way: entered 09/28/2026, 11/10/2026 minus 09/28/2026 = 43 days",
+   "past_close": 1,
+   "no_close": 0
+  },
+  {
+   "pipeline": "",
+   "stage": "Closed",
+   "read_as": "closed",
+   "how": "a closed word in the name",
+   "deals": 3,
+   "longest": "",
+   "past_close": 0,
+   "no_close": 0
+  },
+  {
+   "pipeline": "",
+   "stage": "Fell Through",
+   "read_as": "lost",
+   "how": "a fell-through word in the name",
+   "deals": 1,
+   "longest": "",
+   "past_close": 0,
+   "no_close": 0
+  }
+ ],
+ "archived_deals": 1,
+ "open_deals_no_close": [
+  "Percival Scrumpkin, 14 Licorice Loop",
+  "Bartholomew Lumpkin, 880 Gumdrop Way",
+  "Posy Bumbershoot"
+ ],
+ "movement": {
+  "file": "PRACTICE FUB People Export 2026-11-03 Last Week.csv",
+  "matched": 51,
+  "matched_by": {
+   "email": 51
+  },
+  "changes": [
+   {
+    "name": "Ignatius Tumblewick",
+    "agent": "Clementine Puddleby",
+    "from": "Spoke with Customer",
+    "to": "Appointment Set"
+   },
+   {
+    "name": "Winifred Waffleton",
+    "agent": "Juniper Fogwhistle",
+    "from": "Under Contract",
+    "to": "Closed"
+   },
+   {
+    "name": "Clover Dewdrop",
+    "agent": "Hazel Tinkersnap",
+    "from": "Showing Homes",
+    "to": "Under Contract"
+   },
+   {
+    "name": "Montgomery Elderwhistle",
+    "agent": "Otis Marmaduke",
+    "from": "Listing Agreement",
+    "to": "Active Listing"
+   },
+   {
+    "name": "Primrose Noodleman",
+    "agent": "Barnaby Crumpet",
+    "from": "Lead",
+    "to": "Attempted Contact"
+   },
+   {
+    "name": "Cornelius Oatcrumble",
+    "agent": "Hazel Tinkersnap",
+    "from": "Lead",
+    "to": "Spoke with Customer"
+   },
+   {
+    "name": "Dorothea Gobbledy",
+    "agent": "Juniper Fogwhistle",
+    "from": "Spoke with Customer",
+    "to": "Nurture"
+   },
+   {
+    "name": "Fitzgerald Lollygag",
+    "agent": "Otis Marmaduke",
+    "from": "Attempted Contact",
+    "to": "Trash"
+   },
+   {
+    "name": "Gwendolyn Mumblecrust",
+    "agent": "Clementine Puddleby",
+    "from": "Lead",
+    "to": "Attempted Contact"
+   }
+  ],
+  "new": [
+   {
+    "name": "Humphrey Nimblefoot",
+    "agent": "Juniper Fogwhistle",
+    "stage": "Lead",
+    "created": "11/04/2026"
+   },
+   {
+    "name": "Imogen Oddsbody",
+    "agent": "Barnaby Crumpet",
+    "stage": "Lead",
+    "created": "11/06/2026"
+   },
+   {
+    "name": "Jasper Pumpernickel",
+    "agent": "Clementine Puddleby",
+    "stage": "Attempted Contact",
+    "created": "11/08/2026"
+   }
+  ],
+  "gone": [
+   {
+    "name": "Kipling Rumbleford",
+    "agent": "Otis Marmaduke",
+    "stage": "Lead"
+   }
+  ],
+  "per_stage": [
+   {
+    "stage": "Lead",
+    "last_week": 8,
+    "now": 6,
+    "entered": 2,
+    "left": 4
+   },
+   {
+    "stage": "Attempted Contact",
+    "last_week": 5,
+    "now": 7,
+    "entered": 3,
+    "left": 1
+   },
+   {
+    "stage": "Spoke with Customer",
+    "last_week": 6,
+    "now": 5,
+    "entered": 1,
+    "left": 2
+   },
+   {
+    "stage": "Appointment Set",
+    "last_week": 2,
+    "now": 3,
+    "entered": 1,
+    "left": 0
+   },
+   {
+    "stage": "Met with Customer",
+    "last_week": 3,
+    "now": 3,
+    "entered": 0,
+    "left": 0
+   },
+   {
+    "stage": "Showing Homes",
+    "last_week": 4,
+    "now": 3,
+    "entered": 0,
+    "left": 1
+   },
+   {
+    "stage": "Listing Agreement",
+    "last_week": 3,
+    "now": 2,
+    "entered": 0,
+    "left": 1
+   },
+   {
+    "stage": "Active Listing",
+    "last_week": 2,
+    "now": 3,
+    "entered": 1,
+    "left": 0
+   },
+   {
+    "stage": "Submitting Offers",
+    "last_week": 2,
+    "now": 2,
+    "entered": 0,
+    "left": 0
+   },
+   {
+    "stage": "Under Contract",
+    "last_week": 5,
+    "now": 5,
+    "entered": 1,
+    "left": 1
+   },
+   {
+    "stage": "Closed",
+    "last_week": 3,
+    "now": 4,
+    "entered": 1,
+    "left": 0
+   },
+   {
+    "stage": "Nurture",
+    "last_week": 6,
+    "now": 7,
+    "entered": 1,
+    "left": 0
+   },
+   {
+    "stage": "Rejected",
+    "last_week": 1,
+    "now": 1,
+    "entered": 0,
+    "left": 0
+   },
+   {
+    "stage": "Trash",
+    "last_week": 1,
+    "now": 2,
+    "entered": 1,
+    "left": 0
+   },
+   {
+    "stage": "(no stage)",
+    "last_week": 1,
+    "now": 1,
+    "entered": 0,
+    "left": 0
+   }
+  ],
+  "stuck": [
+   {
+    "stage": "Met with Customer",
+    "count": 3,
+    "people": [
+     "Tilda Fizzlebottom",
+     "Rufus Puddingstone",
+     "Posy Bumbershoot"
+    ],
+    "agents": [
+     "Barnaby Crumpet",
+     "Hazel Tinkersnap",
+     "Juniper Fogwhistle"
+    ],
+    "ids": [
+     1,
+     2,
+     5
+    ]
+   },
+   {
+    "stage": "Submitting Offers",
+    "count": 2,
+    "people": [
+     "Ambrose Sprocketton",
+     "Esmeralda Inkwhistle"
+    ],
+    "agents": [
+     "Clementine Puddleby",
+     "Hazel Tinkersnap"
+    ],
+    "ids": [
+     21,
+     22
+    ]
+   }
+  ]
+ },
+ "d1": [
+  {
+   "deal": "Ferdinand Rattlecap, 77 Marzipan Ct",
+   "pipeline": "",
+   "stage": "Pending",
+   "close": "10/30/2026",
+   "days_past": 11,
+   "math": "11/10/2026 minus 10/30/2026 = 11 days",
+   "price": "538000",
+   "agents": "Otis Marmaduke",
+   "row": 4,
+   "in_stage_days": 49,
+   "in_stage_math": "11/10/2026 minus 09/22/2026 = 49 days",
+   "entered": "09/22/2026",
+   "person": "Ferdinand Rattlecap",
+   "person_stage": "Under Contract",
+   "person_comm": "last communication 11/02/2026: 11/10/2026 minus 11/02/2026 = 8 days",
+   "person_comm_short": "last communication 11/02/2026, 8 days ago",
+   "agent": "Otis Marmaduke"
+  },
+  {
+   "deal": "Petunia Quillby, 418 Gumdrop Way",
+   "pipeline": "",
+   "stage": "Under Contract",
+   "close": "11/06/2026",
+   "days_past": 4,
+   "math": "11/10/2026 minus 11/06/2026 = 4 days",
+   "price": "412500",
+   "agents": "Barnaby Crumpet",
+   "row": 3,
+   "in_stage_days": 43,
+   "in_stage_math": "11/10/2026 minus 09/28/2026 = 43 days",
+   "entered": "09/28/2026",
+   "person": "Petunia Quillby",
+   "person_stage": "Under Contract",
+   "person_comm": "last communication 11/07/2026: 11/10/2026 minus 11/07/2026 = 3 days",
+   "person_comm_short": "last communication 11/07/2026, 3 days ago",
+   "agent": "Barnaby Crumpet"
+  }
+ ],
+ "d2": [
+  {
+   "name": "Rufus Puddingstone",
+   "stage": "Met with Customer",
+   "agent": "Hazel Tinkersnap",
+   "why": [
+    "no communication logged",
+    "no open deal in the export",
+    "same stage as last week's export"
+   ],
+   "days": null,
+   "short": "no communication logged",
+   "activity": "",
+   "row": 5
+  },
+  {
+   "name": "Pemberton Quibblesworth",
+   "stage": "Appointment Set",
+   "agent": "Juniper Fogwhistle",
+   "why": [
+    "last communication 10/21/2026: 11/10/2026 minus 10/21/2026 = 20 days",
+    "no open deal in the export",
+    "same stage as last week's export"
+   ],
+   "days": 20,
+   "short": "last communication 10/21/2026, 20 days ago",
+   "activity": "",
+   "row": 3
+  },
+  {
+   "name": "Tilda Fizzlebottom",
+   "stage": "Met with Customer",
+   "agent": "Barnaby Crumpet",
+   "why": [
+    "last communication 10/27/2026: 11/10/2026 minus 10/27/2026 = 14 days",
+    "no open deal in the export",
+    "same stage as last week's export"
+   ],
+   "days": 14,
+   "short": "last communication 10/27/2026, 14 days ago",
+   "activity": "",
+   "row": 4
+  }
+ ],
+ "d3": [
+  {
+   "name": "Lysander Jellybean",
+   "stage": "Spoke with Customer",
+   "agent": "Juniper Fogwhistle",
+   "hot": null,
+   "comm": "no communication logged",
+   "short": "no communication logged",
+   "days": null,
+   "activity": "the lead's own Last Activity is 10/02/2026",
+   "row": 13,
+   "has_deal": false
+  },
+  {
+   "name": "Bertram Puddlejump",
+   "stage": "Nurture",
+   "agent": "Clementine Puddleby",
+   "hot": "Hot",
+   "comm": "last communication 10/10/2026: 11/10/2026 minus 10/10/2026 = 31 days",
+   "short": "last communication 10/10/2026, 31 days ago",
+   "days": 31,
+   "activity": "the lead's own Last Activity is 11/02/2026, after the last communication",
+   "row": 52,
+   "has_deal": false
+  },
+  {
+   "name": "Henrietta Hobnob",
+   "stage": "Attempted Contact",
+   "agent": "Hazel Tinkersnap",
+   "hot": "Hot",
+   "comm": "last communication 10/20/2026: 11/10/2026 minus 10/20/2026 = 21 days",
+   "short": "last communication 10/20/2026, 21 days ago",
+   "days": 21,
+   "activity": "the lead's own Last Activity is 11/09/2026, after the last communication",
+   "row": 12,
+   "has_deal": false
+  },
+  {
+   "name": "Wendell Crumbleton",
+   "stage": "Showing Homes",
+   "agent": "Barnaby Crumpet",
+   "hot": null,
+   "comm": "last communication 10/24/2026: 11/10/2026 minus 10/24/2026 = 17 days",
+   "short": "last communication 10/24/2026, 17 days ago",
+   "days": 17,
+   "activity": "the lead's own Last Activity is 11/08/2026, after the last communication",
+   "row": 9,
+   "has_deal": false
+  },
+  {
+   "name": "Posy Bumbershoot",
+   "stage": "Met with Customer",
+   "agent": "Juniper Fogwhistle",
+   "hot": null,
+   "comm": "last communication 10/29/2026: 11/10/2026 minus 10/29/2026 = 12 days",
+   "short": "last communication 10/29/2026, 12 days ago",
+   "days": 12,
+   "activity": "",
+   "row": 8,
+   "has_deal": true
+  },
+  {
+   "name": "Delphine Fluffernutter",
+   "stage": "Spoke with Customer",
+   "agent": "Otis Marmaduke",
+   "hot": null,
+   "comm": "last communication 10/30/2026: 11/10/2026 minus 10/30/2026 = 11 days",
+   "short": "last communication 10/30/2026, 11 days ago",
+   "days": 11,
+   "activity": "",
+   "row": 10,
+   "has_deal": false
+  },
+  {
+   "name": "Cosmo Gigglesworth",
+   "stage": "Under Contract",
+   "agent": "Clementine Puddleby",
+   "hot": null,
+   "comm": "last communication 10/31/2026: 11/10/2026 minus 10/31/2026 = 10 days",
+   "short": "last communication 10/31/2026, 10 days ago",
+   "days": 10,
+   "activity": "",
+   "row": 11,
+   "has_deal": true
+  }
+ ],
+ "d4": [
+  {
+   "stage": "Met with Customer",
+   "count": 3,
+   "people": [
+    "Tilda Fizzlebottom",
+    "Rufus Puddingstone",
+    "Posy Bumbershoot"
+   ],
+   "agents": [
+    "Barnaby Crumpet",
+    "Hazel Tinkersnap",
+    "Juniper Fogwhistle"
+   ],
+   "also_above": [
+    "Tilda Fizzlebottom",
+    "Rufus Puddingstone",
+    "Posy Bumbershoot"
+   ]
+  },
+  {
+   "stage": "Submitting Offers",
+   "count": 2,
+   "people": [
+    "Ambrose Sprocketton",
+    "Esmeralda Inkwhistle"
+   ],
+   "agents": [
+    "Clementine Puddleby",
+    "Hazel Tinkersnap"
+   ],
+   "also_above": []
+  }
+ ],
+ "future_comm_active": [],
+ "cohort": 39,
+ "no_created": 0,
+ "by_source": [
+  {
+   "key": "Zillow",
+   "created": 11,
+   "Spoke or further": {
+    "n": 4,
+    "d": 11,
+    "text": "4 / 11 = 36.4%"
+   },
+   "Appointment or further": {
+    "n": 4,
+    "d": 11,
+    "text": "4 / 11 = 36.4%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 11,
+    "text": "1 / 11 = 9.1%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Realtor.com",
+   "created": 8,
+   "Spoke or further": {
+    "n": 4,
+    "d": 8,
+    "text": "4 / 8 = 50.0%"
+   },
+   "Appointment or further": {
+    "n": 3,
+    "d": 8,
+    "text": "3 / 8 = 37.5%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 8,
+    "text": "1 / 8 = 12.5%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "Website",
+   "created": 8,
+   "Spoke or further": {
+    "n": 5,
+    "d": 8,
+    "text": "5 / 8 = 62.5%"
+   },
+   "Appointment or further": {
+    "n": 3,
+    "d": 8,
+    "text": "3 / 8 = 37.5%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 8,
+    "text": "0 / 8 = 0.0%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "Facebook",
+   "created": 6,
+   "Spoke or further": {
+    "n": 1,
+    "d": 6,
+    "text": "1 / 6 = 16.7%"
+   },
+   "Appointment or further": {
+    "n": 0,
+    "d": 6,
+    "text": "0 / 6 = 0.0%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 6,
+    "text": "0 / 6 = 0.0%"
+   },
+   "now_out": 4
+  },
+  {
+   "key": "Open House",
+   "created": 2,
+   "Spoke or further": {
+    "n": 2,
+    "d": 2,
+    "text": "2 / 2 = 100.0%"
+   },
+   "Appointment or further": {
+    "n": 2,
+    "d": 2,
+    "text": "2 / 2 = 100.0%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 2,
+    "text": "0 / 2 = 0.0%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "Referral",
+   "created": 2,
+   "Spoke or further": {
+    "n": 2,
+    "d": 2,
+    "text": "2 / 2 = 100.0%"
+   },
+   "Appointment or further": {
+    "n": 2,
+    "d": 2,
+    "text": "2 / 2 = 100.0%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 2,
+    "text": "0 / 2 = 0.0%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "Sphere",
+   "created": 2,
+   "Spoke or further": {
+    "n": 2,
+    "d": 2,
+    "text": "2 / 2 = 100.0%"
+   },
+   "Appointment or further": {
+    "n": 2,
+    "d": 2,
+    "text": "2 / 2 = 100.0%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 2,
+    "text": "0 / 2 = 0.0%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "All",
+   "created": 39,
+   "Spoke or further": {
+    "n": 20,
+    "d": 39,
+    "text": "20 / 39 = 51.3%"
+   },
+   "Appointment or further": {
+    "n": 16,
+    "d": 39,
+    "text": "16 / 39 = 41.0%"
+   },
+   "Under contract or closed": {
+    "n": 2,
+    "d": 39,
+    "text": "2 / 39 = 5.1%"
+   },
+   "now_out": 5
+  }
+ ],
+ "by_agent_conv": [
+  {
+   "key": "Otis Marmaduke",
+   "created": 9,
+   "Spoke or further": {
+    "n": 6,
+    "d": 9,
+    "text": "6 / 9 = 66.7%"
+   },
+   "Appointment or further": {
+    "n": 4,
+    "d": 9,
+    "text": "4 / 9 = 44.4%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 9,
+    "text": "0 / 9 = 0.0%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Barnaby Crumpet",
+   "created": 8,
+   "Spoke or further": {
+    "n": 3,
+    "d": 8,
+    "text": "3 / 8 = 37.5%"
+   },
+   "Appointment or further": {
+    "n": 3,
+    "d": 8,
+    "text": "3 / 8 = 37.5%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 8,
+    "text": "0 / 8 = 0.0%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "Hazel Tinkersnap",
+   "created": 8,
+   "Spoke or further": {
+    "n": 4,
+    "d": 8,
+    "text": "4 / 8 = 50.0%"
+   },
+   "Appointment or further": {
+    "n": 3,
+    "d": 8,
+    "text": "3 / 8 = 37.5%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 8,
+    "text": "1 / 8 = 12.5%"
+   },
+   "now_out": 2
+  },
+  {
+   "key": "Clementine Puddleby",
+   "created": 7,
+   "Spoke or further": {
+    "n": 4,
+    "d": 7,
+    "text": "4 / 7 = 57.1%"
+   },
+   "Appointment or further": {
+    "n": 4,
+    "d": 7,
+    "text": "4 / 7 = 57.1%"
+   },
+   "Under contract or closed": {
+    "n": 1,
+    "d": 7,
+    "text": "1 / 7 = 14.3%"
+   },
+   "now_out": 0
+  },
+  {
+   "key": "Juniper Fogwhistle",
+   "created": 7,
+   "Spoke or further": {
+    "n": 3,
+    "d": 7,
+    "text": "3 / 7 = 42.9%"
+   },
+   "Appointment or further": {
+    "n": 2,
+    "d": 7,
+    "text": "2 / 7 = 28.6%"
+   },
+   "Under contract or closed": {
+    "n": 0,
+    "d": 7,
+    "text": "0 / 7 = 0.0%"
+   },
+   "now_out": 1
+  },
+  {
+   "key": "All",
+   "created": 39,
+   "Spoke or further": {
+    "n": 20,
+    "d": 39,
+    "text": "20 / 39 = 51.3%"
+   },
+   "Appointment or further": {
+    "n": 16,
+    "d": 39,
+    "text": "16 / 39 = 41.0%"
+   },
+   "Under contract or closed": {
+    "n": 2,
+    "d": 39,
+    "text": "2 / 39 = 5.1%"
+   },
+   "now_out": 5
+  }
+ ],
+ "by_agent": [
+  {
+   "agent": "Barnaby Crumpet",
+   "records": 12,
+   "new": 1,
+   "attempted": 2,
+   "spoke": 0,
+   "appointment": 1,
+   "client": 3,
+   "contract": 1,
+   "active": 5,
+   "active_over": 2,
+   "active_none": 0,
+   "d1": 1,
+   "d2": 1,
+   "d3": 1,
+   "d4": 1,
+   "open_deals": 1
+  },
+  {
+   "agent": "Clementine Puddleby",
+   "records": 9,
+   "new": 1,
+   "attempted": 2,
+   "spoke": 0,
+   "appointment": 1,
+   "client": 3,
+   "contract": 1,
+   "active": 5,
+   "active_over": 1,
+   "active_none": 0,
+   "d1": 0,
+   "d2": 0,
+   "d3": 2,
+   "d4": 1,
+   "open_deals": 2
+  },
+  {
+   "agent": "Hazel Tinkersnap",
+   "records": 11,
+   "new": 1,
+   "attempted": 1,
+   "spoke": 2,
+   "appointment": 1,
+   "client": 1,
+   "contract": 1,
+   "active": 5,
+   "active_over": 0,
+   "active_none": 1,
+   "d1": 0,
+   "d2": 1,
+   "d3": 1,
+   "d4": 2,
+   "open_deals": 1
+  },
+  {
+   "agent": "Juniper Fogwhistle",
+   "records": 11,
+   "new": 2,
+   "attempted": 1,
+   "spoke": 1,
+   "appointment": 2,
+   "client": 0,
+   "contract": 1,
+   "active": 4,
+   "active_over": 2,
+   "active_none": 1,
+   "d1": 0,
+   "d2": 1,
+   "d3": 2,
+   "d4": 1,
+   "open_deals": 2
+  },
+  {
+   "agent": "Otis Marmaduke",
+   "records": 11,
+   "new": 1,
+   "attempted": 1,
+   "spoke": 2,
+   "appointment": 1,
+   "client": 3,
+   "contract": 1,
+   "active": 7,
+   "active_over": 2,
+   "active_none": 0,
+   "d1": 1,
+   "d2": 0,
+   "d3": 1,
+   "d4": 0,
+   "open_deals": 2
+  }
+ ],
+ "questions": {
+  "Barnaby Crumpet": [
+   "Petunia Quillby, 418 Gumdrop Way (Under Contract, expected close 11/06/2026, 4 days past): what is the new expected close date, and what is it waiting on?",
+   "Tilda Fizzlebottom (Met with Customer, last communication 10/27/2026, 14 days ago, no next step in the export): what is the next step, and when?",
+   "Wendell Crumbleton (Showing Homes, last communication 10/24/2026, 17 days ago; the lead's own Last Activity is 11/08/2026, after the last communication): what is the plan for this week?"
+  ],
+  "Clementine Puddleby": [
+   "Bertram Puddlejump (Nurture, tagged Hot, last communication 10/10/2026, 31 days ago; the lead's own Last Activity is 11/02/2026, after the last communication): what is the plan for this week?",
+   "Cosmo Gigglesworth (Under Contract, last communication 10/31/2026, 10 days ago): what is the plan for this week?",
+   "Ambrose Sprocketton (Submitting Offers in both weeks' exports; no one entered or left Submitting Offers this week): what is the next step, and when?"
+  ],
+  "Hazel Tinkersnap": [
+   "Rufus Puddingstone (Met with Customer, no communication logged, no next step in the export): what is the next step, and when?",
+   "Henrietta Hobnob (Attempted Contact, tagged Hot, last communication 10/20/2026, 21 days ago; the lead's own Last Activity is 11/09/2026, after the last communication): what is the plan for this week?",
+   "Esmeralda Inkwhistle (Submitting Offers in both weeks' exports; no one entered or left Submitting Offers this week): what is the next step, and when?"
+  ],
+  "Juniper Fogwhistle": [
+   "Pemberton Quibblesworth (Appointment Set, last communication 10/21/2026, 20 days ago, no next step in the export): what is the next step, and when?",
+   "Lysander Jellybean (Spoke with Customer, no communication logged; the lead's own Last Activity is 10/02/2026): what is the plan for this week?",
+   "Posy Bumbershoot (Met with Customer, last communication 10/29/2026, 12 days ago): what is the plan for this week?"
+  ],
+  "Otis Marmaduke": [
+   "Ferdinand Rattlecap, 77 Marzipan Ct (Pending, expected close 10/30/2026, 11 days past): what is the new expected close date, and what is it waiting on?",
+   "Delphine Fluffernutter (Spoke with Customer, last communication 10/30/2026, 11 days ago): what is the plan for this week?"
+  ]
+ },
+ "odd": [
+  {
+   "file": "PRACTICE FUB People Export 2026-11-10.csv",
+   "row": 37,
+   "name": "Leopold Whiffletree",
+   "what": "Last Activity 11/14/2026 is after the as-of date 11/10/2026",
+   "treated": "not used for aging or the decision list; check the record"
+  },
+  {
+   "file": "PRACTICE FUB People Export 2026-11-10.csv",
+   "row": 38,
+   "name": "Millicent Twiddlesworth",
+   "what": "no stage in the row",
+   "treated": "counted under (no stage); left out of the decision list"
+  },
+  {
+   "file": "PRACTICE FUB Deals Report 2026-11-10.csv",
+   "row": 5,
+   "name": "Ottoline Velveteen, 9 Toffee Ln",
+   "what": "stage Closed (read as closed) with no close date",
+   "treated": "left as is; not counted anywhere a close date is needed"
+  }
+ ],
+ "ran": {
+  "d1": true,
+  "d2": true,
+  "d3": true,
+  "d4": true
+ }
+}

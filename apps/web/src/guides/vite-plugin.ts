@@ -39,6 +39,9 @@ export const GUIDE_HTML = [
   'l10-meeting-prep.html',
   'open-house-follow-up.html',
   'sphere-touch-plan.html',
+  'fub-pipeline-review.html',
+  'speed-to-lead-reply.html',
+  'fub-automation-audit.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */

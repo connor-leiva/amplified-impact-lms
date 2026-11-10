@@ -1,0 +1,27 @@
+Objective checks: practice-lead-2-portal / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subjects: 3 subjects
+- PASS  Check Before Sending section
+- PASS  No text drafted anywhere (NO TEXT): 0 texts found
+- PASS  Call opener and voicemail present
+- PASS  Every voicemail 50 words or fewer: 40, 28, 28
+- PASS  Call opener's first sentence names the agent and brokerage: Hi Casey, this is Riley Sampleton with Example Peak Realty.
+- PASS  No voicemail asks a NO TEXT lead to text back
+- NOTE  Email length: 93 words: Your Questions About 88 W Example Orchard Ct
+- NOTE  Email length: 31 words: The HOA At 88 W Example Orchard Ct
+- NOTE  Email length: 30 words: Checking In On 88 W Example Orchard Ct
+- PASS  Emails found: 3 emails
+- PASS  First email 150 words or fewer, touch emails 80 or fewer
+- PASS  Every email has the opt-out and postal address footer
+- PASS  No sentence says the home is available without confirm or check
+- PASS  Never-appear strings absent from the whole output
+- PASS  Agent-only strings absent from the drafts
+- PASS  Protected-class and household words in the drafts (review each)
+- PASS  Neighborhood-opinion words in the drafts
+- PASS  Website activity in the drafts
+- PASS  No stock phrases in the drafts
+- PASS  No wire or account details
+- NOTE  Citations: From the skill's references: 13-25a-103(3), 13-25a-103, 63G-1-301
+- PASS  Numbers not found in the input (grade each)
+- NOTE  Resolved dates: Day numbers worked out from today's date: 13
+- PASS  Every clock time is in the input (8:00 is the send window)

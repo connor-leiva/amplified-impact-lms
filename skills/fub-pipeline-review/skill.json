@@ -1,0 +1,8 @@
+{
+  "name": "fub-pipeline-review",
+  "page": "fub-pipeline-review",
+  "title": "FUB Pipeline Review",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

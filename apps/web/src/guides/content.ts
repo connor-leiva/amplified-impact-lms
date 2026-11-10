@@ -48,6 +48,9 @@ import { MARKET_UPDATE_EMAIL } from './market-update-email';
 import { L10_MEETING_PREP } from './l10-meeting-prep';
 import { OPEN_HOUSE_FOLLOW_UP } from './open-house-follow-up';
 import { SPHERE_TOUCH_PLAN } from './sphere-touch-plan';
+import { FUB_PIPELINE_REVIEW } from './fub-pipeline-review';
+import { SPEED_TO_LEAD_REPLY } from './speed-to-lead-reply';
+import { FUB_AUTOMATION_AUDIT } from './fub-automation-audit';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -274,6 +277,9 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [L10_MEETING_PREP.slug]: L10_MEETING_PREP,
   [OPEN_HOUSE_FOLLOW_UP.slug]: OPEN_HOUSE_FOLLOW_UP,
   [SPHERE_TOUCH_PLAN.slug]: SPHERE_TOUCH_PLAN,
+  [FUB_PIPELINE_REVIEW.slug]: FUB_PIPELINE_REVIEW,
+  [SPEED_TO_LEAD_REPLY.slug]: SPEED_TO_LEAD_REPLY,
+  [FUB_AUTOMATION_AUDIT.slug]: FUB_AUTOMATION_AUDIT,
 };
 
 /**

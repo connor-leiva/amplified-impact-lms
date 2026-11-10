@@ -1,0 +1,8 @@
+{
+  "name": "speed-to-lead-reply",
+  "page": "speed-to-lead-reply",
+  "title": "Speed to Lead Reply",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}
