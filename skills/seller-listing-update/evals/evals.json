@@ -1,0 +1,51 @@
+{
+  "skill_name": "seller-listing-update",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-full-week-general-mode",
+      "prompt": "Weekly update for the Mocklers on 3318 W Example Fir St in Meridian. BrokerBay export, my stats log and my notes are attached. I'm Harper Fakewell with Example Basin Realty.",
+      "expected_output": "Today is Tuesday, November 10, 2026; the week is Monday, November 2 to Sunday, November 8 (from the notes). The listing is in Meridian, Idaho, so general mode: state rules were not checked. The October 31 showing is outside the week and left out of every count. In the week: 9 appointments, 8 completed showings (the November 3 11:00 AM appointment was declined by the sellers and is not a showing), feedback from 6 of 8. Interest on the 1 to 5 scale: 5: 1, 4: 1, 3: 2, 2: 2, never averaged. Price: Priced Right 3, Too High 2, no price feedback 1. Against last week (6 showings, 4 with feedback, from the notes): 2 more showings. Zillow Showcase numbers are totals since listed, so this week's page views are 1,702 minus 1,284 = 418 and last week's 1,284 minus 820 = 464 (46 fewer, 9.9%); saves 55 minus 41 = 14 against 41 minus 30 = 11 (3 more, 27.3%). MLS listing views 58 against 71 (13 fewer, 18.3%). The Zillow listing page's 1,190 views are the last 30 days and are not compared; Realtor.com's 143 has no last-week number. Days on market 31 as of November 8. The November 5 comment (safety and break-ins) and the November 7 10:00 AM comment (the buyers' religion) are left out entirely, flagged by date and time only, with their ratings counted. The November 6 comment is trimmed: 'might write an offer this week' is quoted, the lender sentence cut. Showing agents are named because the notes ask, never with phone numbers; buyers never. Harper's own '474,900 by the 20th' stays out of every seller draft and is flagged. Jo's HOA question gets the fact that no feedback mentioned the HOA. Jo gets a text; the email goes to Sam and Jo. Next week from the notes only: carpet cleaning Tuesday, November 10 (today), broker open Wednesday, November 11, 10 to 12 (AM or PM flagged), living room photos Thursday, November 12.",
+      "files": [
+        "evals/files/eval-1-full-week-general-mode/Showings and feedback export, 3318 W Example Fir St.csv",
+        "evals/files/eval-1-full-week-general-mode/Listing stats log, 3318 W Example Fir St.csv",
+        "evals/files/eval-1-full-week-general-mode/Harper notes, Example Fir weekly update.txt"
+      ],
+      "expectations": [
+        "A flag says this is general mode (Idaho) and state rules were not checked, and no Utah rule is cited",
+        "The October 31 showing is outside the week, left out of every count and listed in Flags",
+        "Counts match the export: 8 completed showings (the declined November 3 appointment listed separately, not counted), feedback from 6 of 8, interest tallied 5: 1, 4: 1, 3: 2, 2: 2 with no average, price tallied Priced Right 3, Too High 2, none given 1",
+        "Zillow Showcase totals are turned into weekly counts with the subtraction shown: 418 views this week (1,702 minus 1,284) against 464 last week (1,284 minus 820), 46 fewer and 9.9%; 14 saves against 11, 3 more and 27.3%",
+        "The Zillow listing page's 1,190 views are labeled as the last 30 days and not compared; Realtor.com's 143 page views have no comparison because no last-week number was supplied; MLS views 58 against 71 (13 fewer)",
+        "The November 5 safety comment and the November 7 10:00 AM religion comment appear nowhere (no 'safe', 'break-ins', 'Muslim', 'mosque', and no '480'), each flagged by date and time only, with their ratings still counted",
+        "The November 6 comment is trimmed: 'might write an offer this week' is quoted exactly, the lender sentence is cut and flagged, and nothing says an offer is coming",
+        "Showing agents are named in the email because the notes ask; no phone numbers appear anywhere and no buyer is named",
+        "Harper's own price view (474,900 by the 20th) appears in no seller draft and is flagged; no draft recommends a price, a range, a reduction or holding; 'Around 470' appears only as the showing agent's quoted opinion",
+        "Jo's HOA question is answered only from the inputs: none of the feedback mentioned the HOA",
+        "A text goes to Jo only (Jo prefers texts), 320 characters or fewer, with no feedback quotes and no price talk; the email goes to Sam and Jo",
+        "Next week's plan holds only the notes' three items, dated: Tuesday, November 10 (today), Wednesday, November 11, 10 to 12 with AM or PM flagged, Thursday, November 12",
+        "The email has a Title Case subject, 250 words or fewer, no em or en dashes, no trend or forecast words, and the output ends with Check before sending listing every number with its source and arithmetic"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-thin-week-price-question",
+      "prompt": "Can you write this week's update for Chris and Alex on 2286 N Mockingbird Hollow Ln in Lehi? Showing export and my notes attached. I'm Morgan Testley with Example Wasatch Realty.",
+      "expected_output": "Today is Tuesday, November 10, 2026; the week is Monday, November 2 to Sunday, November 8, in Lehi, Utah (Utah mode). Two completed showings (Wednesday, November 4 and Saturday, November 7) and no feedback from either; the notes say a second request went out Monday, November 9. No last-week numbers were supplied, so nothing is compared and no change or trend is described anywhere. The Zillow listing page's 96 views and 3 saves are labeled as Zillow's last 30 days, not this week; Realtor.com 38 page views this week; 47 days on market (MLS). Chris's 'Should we drop the price?' (a text on Sunday, November 8) goes first in Questions for Your Price Conversation, with the facts only, and a pointer to pricing-conversation-prep with the fresh comps the notes mention. The email to Chris and Alex says no feedback came in, gives the numbers with their sources, acknowledges Chris's question with a placeholder for Morgan's answer, recommends no price, and gives the Friday, November 13 sit-down from the notes. No text version (email is best for both). Check before sending lists 2, 0, 96, 3, 38 and 47 with their sources and each resolved date with its words.",
+      "files": [
+        "evals/files/eval-2-thin-week-price-question/Showing feedback export, 2286 N Mockingbird Hollow Ln.csv",
+        "evals/files/eval-2-thin-week-price-question/Morgan notes, Mockingbird Hollow update.txt"
+      ],
+      "expectations": [
+        "No invented feedback: the output says neither showing has feedback, and no comment, theme, quote or rating appears anywhere",
+        "No invented trend: a flag says no last-week numbers were supplied, nothing is compared, and neither the email nor the agent's sections use up, down, more, fewer, trend or any forecast about the listing's numbers",
+        "The Zillow 96 views and 3 saves are labeled as the Zillow listing page's last 30 days, not as this week's numbers",
+        "No price recommendation anywhere: no price, range, reduction, hold or 'the market is telling us', in the email or the agent's sections",
+        "Chris's 'Should we drop the price?' goes to the agent first in Questions for Your Price Conversation, with facts only (2 showings, 0 feedback, 47 days on market, the portal numbers) and a pointer to pricing-conversation-prep with the fresh comps from the notes",
+        "The email acknowledges Chris's question and leaves a placeholder for Morgan's answer, and gives the Friday, November 13 sit-down from the notes",
+        "Check before sending lists every number in the email (2, 96, 3, 38, 47) with its source, and every resolved date (Monday, November 9; Sunday, November 8; Friday, November 13) with the words it came from",
+        "Utah mode (no 'State rules were not checked' line), no text version (the notes say email is best for both), a Title Case subject, 250 words or fewer, no em or en dashes"
+      ]
+    }
+  ]
+}

@@ -270,7 +270,7 @@ Riley
 | Name spellings | Sheet: Morgan Exampleton, Quinn Placeholder, Sam Fictional, Jordan Testwell, Casey Mockwood, Sage Sampleford, Jamie Pretendo, Lee Samplesmith, Kendall Mockingham; agents Taylor Samplewood and Drew Fakeman |
 | Consent for each text | Morgan (rows 1 and 11), Casey (row 5), Lee (row 8): "Consent To Text: Yes." Confirm your sign-in form's consent wording named you or Example Peak Realty and text messages, and keep that record with the date and number |
 | Quiet hours | Send texts between 8 AM and 8 PM Mountain |
-| Utah, Sunday open house | Utah's solicitation law (Utah Code 13-25a-103) limits Sunday and holiday solicitation calls to people who consented; whether it reaches texts wasn't confirmed. These texts go only to visitors who consented. A call to anyone else waits for a weekday |
+| Utah, Sunday open house | Utah's solicitation law (Utah Code 13-25a-103) limits Sunday and holiday solicitation calls to people who consented, though a licensee acting within the license is exempt (13-25a-111), so this is house practice; whether it reaches texts wasn't confirmed. These texts go only to visitors who consented. A call to anyone else waits for a weekday |
 | Do Not Call | Scrub any number you call against the National Do Not Call Registry and your internal list |
 | [Agent Phone], [Sender Postal Address] | Fill in your real phone number and postal address |
 | Marketing line | On the 7 emails that offer your services, not on Quinn's or Sage's thank-you. Confirm the wording with your broker |

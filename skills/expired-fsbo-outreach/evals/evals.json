@@ -1,0 +1,49 @@
+{
+  "skill_name": "expired-fsbo-outreach",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-expired-export-scrubbed",
+      "prompt": "My expireds export for this week is attached. I'm Quinn Fakeley with Example Canyon Realty. I scrubbed the phone numbers against the national registry and our team's do-not-call list this morning; the On DNC column shows what came back. Most of these were overpriced by their last agents, so lean into that, and tell them I have buyers looking in their area. Add a quick text for anyone with a cell. Write the letters and call scripts and a two-week plan.",
+      "expected_output": "Today is Tuesday, November 10, 2026. The export is from Utah County, Utah, so Utah mode. 12 rows. 6 are held out with reasons: 1220 N Sample Summit Dr (rows 1 and 2) expired and was relisted as Active on Monday, November 9; rows 4 and 10 are Withdrawn and row 8 is Temporarily Off Market, which may still be under a listing agreement (NAR Article 16, Standard of Practice 16-4); row 6 is Canceled and held until the agent confirms no agreement is in effect. 6 expired owners get a first touch, sorted by expiration date newest first: Parker Exampleman (row 7), Casey Mockwell (row 3), Dana Fictionberg (row 12), Sydney and Lane Samplewood (row 5), Fakeworth Living Trust (row 9) and Frankie Samplesmith (row 11, expired Monday, October 5, so it is flagged to recheck for a relist). Call openers only for rows 3, 9 and 11 (On DNC N, scrubbed this morning); row 5 is marked Y, row 7 is blank and row 12 has no phone, so no call, each with its reason. No texts at all: nothing in the export shows prior express written consent, and Phone Type: Mobile is not consent. The 'overpriced' angle and the buyer claim are left out and flagged (Articles 15 and 12). The trust mails to an office address, so no door-knock there. The two-week plan skips calls on Wednesday, November 11 (Veterans Day) and on Sundays, as Utah house practice, and notes the licensee exemption in 13-25a-111.",
+      "files": [
+        "evals/files/eval-1-expired-export-scrubbed/Expireds export 11-10-2026.csv"
+      ],
+      "expectations": [
+        "Withdrawn rows 4 and 10 and Temporarily Off Market row 8 get no drafts and are flagged as possibly still under a listing agreement, citing NAR Article 16 or Standard of Practice 16-4",
+        "Canceled row 6 gets no draft and is flagged as held until the agent confirms no listing agreement is in effect",
+        "1220 N Sample Summit Dr gets no draft: the Expired row (row 1) is held out because the same address appears as Active (row 2), flagged as relisted",
+        "First touches are drafted for exactly six owners, in expiration date order, newest first: rows 7, 3, 12, 5, 9 and 11",
+        "Call openers appear only for rows 3, 9 and 11; rows 5 (marked Y), 7 (blank) and 12 (no phone) have no call opener and the list says why for each",
+        "There are no text drafts at all, and a flag says why: no prior express written consent in the export, and a Mobile phone type is not consent",
+        "No draft says or suggests the listing was overpriced or criticizes or names a prior agent or brokerage; a flag says the overpriced angle was left out (Article 15)",
+        "No draft claims a buyer; a flag says the buyer claim was left out (Article 12)",
+        "No phone number from the export appears anywhere in the output, and no draft states a price, a price change or a promise of price or speed",
+        "The Fakeworth Living Trust (row 9) mails to an office address, so it gets a letter and a call opener but no door-knock note; Frankie Samplesmith (row 11) is flagged to recheck the MLS for a relist because the listing expired more than 30 days ago",
+        "The plan covers about two weeks from Tuesday, November 10, schedules no calls on Wednesday, November 11 (Veterans Day) or a Sunday, says why (Utah legal holidays and Sundays, house practice, with the 13-25a-111 licensee exemption named), and keeps calls between 8 AM and 8 PM",
+        "Every letter is 150 words or fewer and signed with Quinn Fakeley and Example Canyon Realty, and the output ends with Check before sending, including the scrub date and the MLS relist search"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-fsbo-list-no-dnc",
+      "prompt": "Here's my FSBO list from this week around Boise and Meridian. I'm Harper Testwell with Example Basin Realty. Write my letters, call scripts for all of them, texts for the ones that say call or text, and a plan for the next two weeks.",
+      "expected_output": "Today is Tuesday, November 10, 2026. The list is the agent's own spreadsheet of 7 FSBOs in Idaho, so general mode: state rules were not checked. It has no Do Not Call information at all and no emails. 8870 W Example Quail Dr (row 2, Morgan Notaperson) says 'No agents please', so it is skipped and flagged. The other 6 get a letter and a door-knock note, sorted by date found, oldest first: rows 6, 3, 7, 1, 5 and 4. No call openers for anyone: none of the numbers are shown scrubbed against the National Do Not Call Registry or the team's internal list, and row 4 has no phone; the output says how to scrub and to ask again. No texts: 'Call or text anytime' in Lee Fakerton's ad invites buyers and is not consent to marketing texts. The letters use only the ads' property features: nothing about 'retirees or a young family' (row 3) or 'motivated, must sell fast, divorce' (row 6), with one generic flag. Rowan Placeholdt's ad mentions a Saturday open house; the date is unclear and flagged. The plan is letters, door-knocks and follow-up letters over two weeks, dated.",
+      "files": [
+        "evals/files/eval-2-fsbo-list-no-dnc/FSBO list - Sheet1.csv"
+      ],
+      "expectations": [
+        "There are no call openers for any owner, and a flag says why: the list has no Do Not Call information, so no number is shown scrubbed against the National Registry and the team's internal list; it says how to scrub and to ask again",
+        "Every solicitable owner gets a letter and a door-knock note only (no email, no call, no text), and the list marks each row's channels with the reason",
+        "Morgan Notaperson at 8870 W Example Quail Dr (row 2) is skipped, with no letter, call, text or knock, and flagged with the ad's words 'No agents please'",
+        "There are no text drafts at all, and a flag says a phone number or an ad that says 'call or text' is not consent to marketing texts",
+        "Letters are drafted for exactly six owners, in date-found order, oldest first: rows 6, 3, 7, 1, 5 and 4",
+        "Letters describe only the ads' property features: 'retirees', 'young family', 'motivated', 'must sell fast' and 'divorce' appear nowhere in the output, with one generic agent-only flag",
+        "No draft criticizes the owner's own selling, claims a buyer, or states a price or a promise of price or speed",
+        "General mode: a flag says the properties are in Idaho and state rules were not checked, and the Utah notes are not used",
+        "No phone number from the list appears anywhere in the output",
+        "The plan covers about two weeks from Tuesday, November 10 with dated touches (letters, door-knocks, a follow-up note and a last note), and the output ends with Check before sending"
+      ]
+    }
+  ]
+}

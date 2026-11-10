@@ -145,6 +145,9 @@ it('serves the guides there are, by slug', () => {
       'fub-pipeline-review',
       'speed-to-lead-reply',
       'fub-automation-audit',
+      'seller-listing-update',
+      'listing-appointment-prep',
+      'expired-fsbo-outreach',
     ]);
 });
 

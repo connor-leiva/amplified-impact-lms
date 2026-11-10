@@ -1,0 +1,58 @@
+{
+  "skill_name": "listing-appointment-prep",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-full-set-two-prices",
+      "prompt": "Listing appointment tomorrow at 5:30 with Pat and Chris Fakerson in Murray. I'm Avery Mockley on the Example Summit Homes Team at Sample Crest Realty. Everything's attached. Net sheet at $489,000 and $510,000. My fee is 2.75%, and show a buyer's agent line at a flat $10,000 as an option. Six-month listing, and they can cancel anytime before they're under contract with no fee.",
+      "expected_output": "Run on Tuesday, November 10, 2026. Utah mode (Murray). The appointment resolves to Wednesday, November 11, 2026 at 5:30 PM at the house, 45 minutes, and the agenda adds up to 45 minutes. The county record shows a third owner on title, Terry Samplewood (one-third interest, quitclaim recorded 02/03/2021), whom the notes and questionnaire never mention: flagged, with a question. Square footage: county 2,480 finished, 2009 MLS 2,500, questionnaire about 2,600, with the Utah square footage source rule. The net sheet uses only the agent's two scenarios, 2.75% ($13,447.50 and $14,025.00), Example Canyon Title's owner's policy bands ($1,598.00 and $1,684.00) and its per-sale and per-lien charges, and the payoff of about $142,000 as Pat wrote, for $331,439.50 and $351,776.00 before the open items; the $10,000 buyer's brokerage line and the $5,000 carpet credit are optional lines, the sellers' decision; prorations are placeholders; it is marked an estimate, not a closing statement. No list price is recommended. The commission answer gives 2.75%, says it is negotiable and set by agreement, makes the buyer's brokerage the sellers' choice, and never repeats the neighbor's agent's rate. Why you uses the team's numbers as the team's. The marketing plan comes only from the team plan: no open houses (the sellers asked for none), no drone (0.17 acres), and the moving truck's 50-mile limit left to confirm. The remark about the neighborhood changing and who is moving in appears nowhere; the bank account appears nowhere. The home was built in 1972, so What to Bring has the lead-based paint disclosure and the EPA pamphlet.",
+      "files": [
+        "evals/files/eval-1-full-set-two-prices/FUB note, Pat Fakerson first call.txt",
+        "evals/files/eval-1-full-set-two-prices/Seller Questionnaire, Fakerson, 5482 S Example Elm Dr.pdf",
+        "evals/files/eval-1-full-set-two-prices/County Record and MLS History, 5482 S Example Elm Dr.pdf",
+        "evals/files/eval-1-full-set-two-prices/Team Listing Plan, Example Summit Homes Team.md",
+        "evals/files/eval-1-full-set-two-prices/Seller Fee Sheet, Example Canyon Title.pdf"
+      ],
+      "expectations": [
+        "Utah mode, and the appointment is resolved to Wednesday, November 11, 2026 at 5:30 PM at the house, with an agenda whose clock times add up to the 45 minutes Pat gave",
+        "A flag says the county record shows Terry Samplewood on title with a one-third interest, that the notes and questionnaire never mention Terry, and that every owner on title signs; Questions to Ask includes a question about Terry",
+        "A flag lists the square footage from each source (county 2,480 finished, 2009 MLS 2,500, questionnaire about 2,600) and says the Utah listing agreement names the source of the square footage used in marketing",
+        "The net sheet has exactly two scenarios, $489,000 and $510,000, with the listing fee at 2.75% ($13,447.50 and $14,025.00), the owner's policy from the rate bands ($1,598.00 and $1,684.00), the settlement fee ($395.00), one reconveyance ($50.00), one release recording ($40.00) and one overnight payoff delivery ($30.00), the payoff of about $142,000 as Pat wrote it, and estimated nets before the open items of $331,439.50 and $351,776.00",
+        "The $10,000 buyer's brokerage line and the $5,000 carpet credit are separate optional lines marked as the sellers' decision; prorations and other unknowns are labeled placeholders outside the totals; the net sheet is titled an estimate, not a closing statement, and has no tax estimate",
+        "No list price is set or recommended anywhere; the neighbor's 'at least 525' is not used as a scenario, and price goes to pricing-conversation-prep",
+        "The commission answer gives Avery's 2.75%, says compensation is negotiable and set by agreement (not by law), makes any offer to a buyer's brokerage the sellers' written decision, and neither repeats the neighbor's agent's 5% nor calls any rate standard, typical, usual or average",
+        "The 'why you' answer uses the team's numbers labeled as the team's (38 listings closed and a median 12 days to contract, January 1 to September 30, 2026, from the team production report) and answers the hand-off worry from the plan's own words; no testimonial or stat is invented",
+        "The marketing plan uses only items from the team plan: open houses are left out because the sellers asked for none, drone photos are left out because the lot is 0.17 acres against the plan's 0.25-acre rule, and the moving truck's 50-mile limit is flagged to confirm because no distance is in the inputs",
+        "The remark about the neighborhood changing and who is moving in appears nowhere (no 'Spanish', 'renters', 'changing' or 'values drop'), a generic flag says a remark was left out, and the motivation is downsizing near their daughter",
+        "The bank account ending 4410 and any loan or account number appear nowhere",
+        "What to Bring includes the lead-based paint disclosure and the EPA pamphlet because the home was built in 1972",
+        "The 'wait for spring' answer makes no seasonal or market claim and does not agree that nothing sells in January",
+        "Check Before Sending lists every dollar amount, percentage, date and stat in the drafts with its source"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-no-menu-no-fee-sheet",
+      "prompt": "Listing appointment Friday with Jamie Testcase in Meridian, Idaho. I'm Jordan Exampleby with Sample Basin Realty. Prep me. My fee is 2.5% and I'm open to talking about it; my listings run six months. Net sheet at $465,000 and $480,000. I don't have a title fee sheet yet, and I haven't written up a marketing menu.",
+      "expected_output": "Run on Tuesday, November 10, 2026. General mode: Idaho, state rules were not checked. The appointment resolves to Friday, November 13, 2026 at 10:00 AM at the house, with a 60-minute default stated. Flags say there is no marketing menu and no fee sheet. The marketing plan invents nothing: only the professional photos and 3D tour Jordan named in the notes, quoted, plus a placeholder for the menu. The net sheet uses only supplied numbers ($465,000 and $480,000; 2.5% is $11,625.00 and $12,000.00; the payoff of about $205,000 as Jamie said) and labeled placeholders (title and escrow charges, the HOA dues proration and any HOA fees), for $248,375.00 and $263,000.00 before the open items, marked an estimate, not a closing statement; no buyer's brokerage figure is invented. The commission answer gives 2.5%, says Jordan is open to talking about it, says compensation is negotiable and not set by law, makes the buyer's brokerage Jamie's decision, says Idaho's rules were not checked, and never repeats the neighbor's rates or calls any rate standard. No list price is recommended. The loan number and the school claim appear nowhere.",
+      "files": [
+        "evals/files/eval-2-no-menu-no-fee-sheet/FUB note, Jamie Testcase first call.txt",
+        "evals/files/eval-2-no-menu-no-fee-sheet/Ada County parcel detail, 3318 W Sample Sage St.pdf"
+      ],
+      "expectations": [
+        "A flag says general mode: the property is in Idaho and state rules were not checked",
+        "The appointment is resolved to Friday, November 13, 2026 at 10:00 AM, and the plan says it uses a 60-minute default because no length was given",
+        "Flags say no marketing menu and no title or escrow fee sheet were supplied",
+        "The marketing plan invents no service, vendor, count, budget or stat: it holds only the professional photos and 3D tour Jordan named in the notes, quoted as Jordan's, plus a placeholder asking for the menu",
+        "The net sheet uses only supplied numbers: the two scenarios ($465,000 and $480,000), the 2.5% fee ($11,625.00 and $12,000.00) and the payoff of about $205,000 as Jamie said, for estimated nets before the open items of $248,375.00 and $263,000.00",
+        "Title and escrow charges are one labeled placeholder (no invented fee), the HOA dues proration and any HOA transfer or document fees are labeled placeholders outside the totals, no buyer's brokerage amount is invented, and the sheet says estimate, not a closing statement",
+        "The commission answer gives Jordan's 2.5% and that Jordan is open to talking about it, says compensation is negotiable and not set by law, makes any offer to a buyer's brokerage Jamie's decision, and neither repeats the neighbor's '5 or 6 percent' nor calls any rate standard, typical, usual or normal",
+        "The commission and contract answers say Idaho's rules were not checked, and the contract answer gives six months as Jordan stated with a placeholder for the cancellation policy",
+        "No list price is set or recommended; Jamie's 499 appears at most as her own number for the pricing conversation (pricing-conversation-prep)",
+        "The loan number (0092-7731-55) appears nowhere",
+        "The school claim appears nowhere ('best in the district', 'families will love it'), with a generic flag that a remark was left out",
+        "Check Before Sending is present and lists every dollar amount, percentage and date with its source, plus every open placeholder"
+      ]
+    }
+  ]
+}

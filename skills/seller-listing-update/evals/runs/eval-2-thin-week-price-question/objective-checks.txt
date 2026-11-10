@@ -1,0 +1,19 @@
+Objective checks: eval-2-thin-week-price-question / output.md
+- PASS  No em or en dashes
+- PASS  Sections in SKILL.md's order (Text Version only when a seller prefers texts): Flags, Bottom Line, The Week in Numbers, What Buyers' Agents Said, Questions for Your Price Conversation, Seller Email, Next Week's Plan, Check Before Sending
+- PASS  Title Case subjects: 1 subject(s)
+- PASS  Seller email 250 words or fewer (Hi through the sign-off): 97 words
+- PASS  No text drafted
+- PASS  No phone numbers anywhere
+- PASS  No showing agent named in the email or text
+- PASS  Never-appear strings absent
+- PASS  No comparison words in the drafts (no last-week numbers)
+- PASS  No protected-class, school or safety words in the drafts
+- PASS  No trend or forecast words in the drafts, bottom line or price questions (grade each)
+- PASS  No price-advice words in the drafts, bottom line or price questions (grade each)
+- PASS  No stock phrases in the drafts
+- PASS  No wire or account details
+- PASS  Check Before Sending section
+- PASS  Every expected arithmetic result appears: none expected
+- PASS  Numbers not in the input or the case's computed and resolved lists (grade each)
+- PASS  Every clock time is in the input (or a spoken hour written out)

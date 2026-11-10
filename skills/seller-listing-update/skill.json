@@ -1,0 +1,8 @@
+{
+  "name": "seller-listing-update",
+  "page": "seller-listing-update",
+  "title": "Seller Listing Update",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

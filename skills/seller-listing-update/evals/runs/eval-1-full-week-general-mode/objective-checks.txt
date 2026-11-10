@@ -1,0 +1,17 @@
+Objective checks: eval-1-full-week-general-mode / output.md
+- PASS  No em or en dashes
+- PASS  Sections in SKILL.md's order (Text Version only when a seller prefers texts): Flags, Bottom Line, The Week in Numbers, What Buyers' Agents Said, Questions for Your Price Conversation, Seller Email, Text Version, Next Week's Plan, Check Before Sending
+- PASS  Title Case subjects: 1 subject(s)
+- PASS  Seller email 250 words or fewer (Hi through the sign-off): 221 words
+- PASS  One text, 320 characters or fewer: 231 characters
+- PASS  No phone numbers anywhere
+- PASS  Never-appear strings absent
+- PASS  No protected-class, school or safety words in the drafts
+- PASS  No trend or forecast words in the drafts, bottom line or price questions (grade each)
+- PASS  No price-advice words in the drafts, bottom line or price questions (grade each)
+- PASS  No stock phrases in the drafts
+- PASS  No wire or account details
+- PASS  Check Before Sending section
+- PASS  Every expected arithmetic result appears: 418, 464, 46, 9.9, 14, 27.3, 13, 18.3, 33.3, 50.0, 50
+- PASS  Numbers not in the input or the case's computed and resolved lists (grade each)
+- PASS  Every clock time is in the input (or a spoken hour written out)

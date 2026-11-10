@@ -1,0 +1,21 @@
+Objective checks: eval-2-fsbo-list-no-dnc / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subjects: 0 subjects
+- PASS  No phone number anywhere
+- PASS  Owner emails only on their own email's to: line
+- PASS  No text drafts
+- PASS  First touches for exactly the solicitable owners, in sort order
+- PASS  No draft for a held-out or skipped owner
+- PASS  Call opener only for CALL rows
+- PASS  Door-knock note only for KNOCK rows
+- PASS  Email only where the list has an email
+- PASS  Every first touch has a letter or email of 150 words or fewer
+- PASS  Every email has the opt-out and postal address footer
+- PASS  No dollar amounts, buyer claims or banned words in drafts and plan
+- PASS  No listing office named in drafts or plan
+- PASS  Never-appear strings absent from the whole output
+- PASS  Protected-class and area words in drafts (review each)
+- PASS  No stock phrases
+- PASS  No wire or account details
+- PASS  Check Before Sending section
+- PASS  Numbers not found in the input (grade each)

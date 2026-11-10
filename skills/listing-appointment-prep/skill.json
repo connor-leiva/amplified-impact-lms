@@ -1,0 +1,8 @@
+{
+  "name": "listing-appointment-prep",
+  "page": "listing-appointment-prep",
+  "title": "Listing Appointment Prep",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}

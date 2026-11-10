@@ -31,7 +31,8 @@
 //   - Portal consent: the page never says a portal's form covers the agent's texts. It says to ask the
 //     broker and tell the AI, as the skill's CHECK FIRST read does.
 //   - Utah's Sunday and holiday limit on solicitation calls (Utah Code 13-25a-103(3)): whether a lead's
-//     own inquiry counts as consent was not confirmed. The page says the AI moves those calls to the next
+//     own inquiry counts as consent was not confirmed, and 13-25a-111 exempts a licensee acting within
+//     the license, so the skill keeps the rule as house practice. The page says the AI moves those calls to the next
 //     weekday unless the lead's consent covers calls, and that questions go to the broker.
 //   - The email footer leaves off the "This is a marketing email" line because the lead asked to hear
 //     back; Check before sending says to confirm the footer with the broker. The page says only that every

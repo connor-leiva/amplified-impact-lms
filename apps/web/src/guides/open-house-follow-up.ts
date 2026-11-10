@@ -32,7 +32,8 @@
 //     only that every email has an opt-out footer; the marketing line on one-to-one follow-ups is
 //     Connor's call (DECISIONS entry).
 //   - Utah's Sunday and holiday limit on solicitation calls (Utah Code 13-25a-103): the section speaks
-//     of calls, and whether it reaches texts was not confirmed. The page says "limits on solicitation
+//     of calls, 13-25a-111 exempts a licensee acting within the license, and whether it reaches texts
+//     was not confirmed. The page says "limits on solicitation
 //     calls" and nothing about texts.
 //   - A photo of a real handwritten sheet, real sign-in app exports, an XLSX and more than 12 visitors
 //     were not tested. The photo is in "Where to get your sign-in sheet", marked untested, and not in

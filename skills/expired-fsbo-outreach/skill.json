@@ -1,0 +1,8 @@
+{
+  "name": "expired-fsbo-outreach",
+  "page": "expired-fsbo-outreach",
+  "title": "Expired and FSBO Outreach",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}

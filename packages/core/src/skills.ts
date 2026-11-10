@@ -76,6 +76,9 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'open-house-follow-up', title: 'Open House Follow-Up', summary: 'Turns an open house sign-in sheet and notes into visitor follow-ups and a seller update.', sets: 'agent', files: zips('open-house-follow-up', true) },
   { id: 'sphere-touch-plan', title: 'Sphere Touch Plan', summary: "Plans a year of sphere and past client touches and drafts this week's messages.", sets: 'agent', files: zips('sphere-touch-plan', true) },
   { id: 'speed-to-lead-reply', title: 'Speed to Lead Reply', summary: 'Drafts the first reply to a new online lead, with the text consent read first.', sets: 'agent', files: zips('speed-to-lead-reply', true) },
+  { id: 'seller-listing-update', title: 'Seller Listing Update', summary: "Turns a week of showing feedback and listing numbers into the sellers' weekly update.", sets: 'agent', files: zips('seller-listing-update', true) },
+  { id: 'listing-appointment-prep', title: 'Listing Appointment Prep', summary: 'Preps a listing appointment: the plan, the questions, a marketing plan and a seller net sheet, everything but the price.', sets: 'agent', files: zips('listing-appointment-prep', true) },
+  { id: 'expired-fsbo-outreach', title: 'Expired and FSBO Outreach', summary: 'Drafts a first touch for each expired or FSBO owner, with calls only to scrubbed numbers.', sets: 'agent', files: zips('expired-fsbo-outreach', true) },
 ];
 
 export const isFreeSkill = (id: string): boolean => FREE_SKILLS.includes(id);

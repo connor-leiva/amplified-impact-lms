@@ -42,6 +42,9 @@ export const GUIDE_HTML = [
   'fub-pipeline-review.html',
   'speed-to-lead-reply.html',
   'fub-automation-audit.html',
+  'seller-listing-update.html',
+  'listing-appointment-prep.html',
+  'expired-fsbo-outreach.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */
