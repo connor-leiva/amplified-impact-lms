@@ -115,9 +115,10 @@ function row(r: (typeof HOME.skills.rows)[number], i: number): string {
   const links = r.slugs
     .map((slug) => {
       const e = entryFor(slug);
-      // A no-break space, so the tag never starts a line on its own.
-      const free = paid(e) ? '' : `&nbsp;<span class="free">${esc(HOME.skills.free)}</span>`;
-      return `<a href="${esc(e.href ?? '/library')}">${esc(e.title)}</a>${free}`;
+      const link = `<a href="${esc(e.href ?? '/library')}">${esc(e.title)}</a>`;
+      if (paid(e)) return link;
+      // The name and its tag in one unbreakable piece, so the tag never starts a line on its own.
+      return `<span class="with-tag">${link} <span class="free">${esc(HOME.skills.free)}</span></span>`;
     })
     .join(', ');
   return [

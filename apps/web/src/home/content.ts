@@ -44,16 +44,17 @@ export const HOME = {
   nav: {
     label: 'Main',
     links: [
-      { label: 'Free Library', href: '/library' },
+      // "The Library", not "Free Library": most of it is paid now, and the free items are tagged (Connor, 2026-11-10).
+      { label: 'The Library', href: '/library' },
       { label: 'AI 101', href: '/ai101' },
       { label: 'For Team Owners', href: '#team-owners' },
     ],
-    cta: { label: 'Browse the Free Library', href: '/library' },
+    cta: { label: 'Browse the Library', href: '/library' },
   },
   hero: {
     title: 'AI that drafts the paperwork. You keep the decisions.',
     lede: 'Claude and ChatGPT skills for real estate agents and team owners: offers, inspections, follow-ups and team reports, drafted for you to check. The paid plans add live training.',
-    primary: { label: 'Browse the Free Library', href: '/library' },
+    primary: { label: 'Browse the Library', href: '/library' },
     secondary: { label: 'Start AI 101', href: '/ai101' },
   },
   /** Offer Strategy's practice output, as a sheet of paper (`skills/offer-strategy/sample.md`). */

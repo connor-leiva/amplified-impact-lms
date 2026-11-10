@@ -68,22 +68,22 @@ describe('the page', () => {
     for (const s of $$('section[aria-labelledby]')) expect(text(doc.getElementById(s.getAttribute('aria-labelledby') ?? '')), s.className).not.toBe('');
   });
 
-  it('sends the nav to the free library, AI 101 and the team owners’ section, and its button to the library', () => {
+  it('sends the nav to the library, AI 101 and the team owners’ section, and its button to the library', () => {
     expect($$('header nav a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Free Library', '/library'],
+      ['The Library', '/library'],
       ['AI 101', '/ai101'],
       ['For Team Owners', '#team-owners'],
     ]);
     expect($('#team-owners')).not.toBeNull();
     const cta = $('header a.btn-primary');
-    expect([text(cta), cta?.getAttribute('href')]).toEqual(['Browse the Free Library', '/library']);
+    expect([text(cta), cta?.getAttribute('href')]).toEqual(['Browse the Library', '/library']);
     expect($('header a.brand')?.getAttribute('href')).toBe('/');
     expect($('header a.brand svg')?.getAttribute('aria-label')).toBe('Amplified Impact');
   });
 
-  it('opens with the hero’s two buttons: the free library, then AI 101', () => {
+  it('opens with the hero’s two buttons: the library, then AI 101', () => {
     expect($$('.hero .actions a').map((a) => [text(a), a.getAttribute('href'), a.className])).toEqual([
-      ['Browse the Free Library', '/library', 'btn btn-primary'],
+      ['Browse the Library', '/library', 'btn btn-primary'],
       ['Start AI 101', '/ai101', 'btn btn-secondary'],
     ]);
   });
@@ -184,6 +184,11 @@ describe('the words', () => {
     expect(words).not.toMatch(/free (claude|chatgpt) skills|free skills|free live training/i);
   });
 
+  it('never call the library free: most of it is paid, and the free items carry their own tag', () => {
+    expect(text(doc.body)).not.toMatch(/free library/i);
+    expect($$('a[href="/library"]').map(text)).toEqual(['The Library', 'Browse the Library', 'Browse the Library', `See All ${liveEntries().length}`]);
+  });
+
   it('follow the house rule: no em dashes', () => {
     expect(renderHomeBody() + renderHomeHead()).not.toMatch(/[–—]/);
   });
@@ -191,6 +196,12 @@ describe('the words', () => {
 
 describe('the stylesheet', () => {
   const css = read('./home.css');
+
+  it('keeps small text legible: no tertiary grey, nothing under 13px (WCAG AA, 4.5:1 and up)', () => {
+    expect(css).not.toContain('--text-tertiary');
+    const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
+    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(13);
+  });
 
   it('draws a visible focus ring and honors reduced motion', () => {
     expect(css).toMatch(/:focus-visible \{\s*outline: 2px solid var\(--action-primary\);/);
