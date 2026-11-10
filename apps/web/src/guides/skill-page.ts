@@ -290,5 +290,7 @@ export function skillPage(p: SkillPage): Guide {
     },
     sections: p.sections,
     unlockKey: p.unlockKey,
+    layout: 'skill',
+    facts: ['Free', `About ${p.setupMinutes} minutes to set up`, p.chatgpt ? 'Claude or ChatGPT' : 'Works in Claude'],
   };
 }

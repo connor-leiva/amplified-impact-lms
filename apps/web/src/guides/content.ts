@@ -216,6 +216,14 @@ export interface Guide {
   sections: readonly Section[];
   /** localStorage: this device already opted in, so the download shows straight away. */
   unlockKey: string;
+  /**
+   * `'skill'`: a free skill's page in the library's look (D-071), set by `skillPage()`. A white top bar
+   * with the library breadcrumb, the sample beside the opt-in, the setup as a checklist. Without it, the
+   * guide's green cover and one column (D-038).
+   */
+  layout?: 'skill';
+  /** With `layout: 'skill'`, the short facts under the lede, as pills: "Free", the setup time, the apps. */
+  facts?: readonly string[];
 }
 
 /** Every guide, by slug. */
@@ -280,6 +288,15 @@ export const SHARED = {
   // The setup, one step at a time once the script runs (D-070). `{n}` and `{total}` are filled in by
   // `main.ts`, which reads the template from the markup so no copy lives in the script.
   guided: { progress: 'Step {n} of {total}', back: 'Back', next: 'Next', startOver: 'Start Over' },
+  // A skill page in the library's look (D-071): the breadcrumb back to the library, the checklist's
+  // label, the sample's toggle (filled in by `main.ts` from the button) and the phone's sign-up bar.
+  skill: {
+    library: { label: 'Free Library', href: '/library' },
+    setupTitle: 'Your setup',
+    sampleMore: 'See the Full Example',
+    sampleLess: 'Show Less',
+    bar: 'Get the Free Skill',
+  },
   footer: {
     byline: 'By Connor Leiva',
     links: [

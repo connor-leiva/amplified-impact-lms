@@ -240,3 +240,155 @@ describe('a skill page for Claude only', () => {
     expect(guide.hero.steps[0]?.title).toBe('Add It to Claude');
   });
 });
+
+describe('the skill layout (D-071)', () => {
+  // The made-up skill with the sections a real skill page has, in their usual order.
+  const guide = skillPage({
+    ...SPEC,
+    sections: [
+      ...SPEC.sections,
+      { kind: 'list', heading: 'What you get back', items: [{ title: 'A bottom line', body: 'Three sentences at most.' }] },
+      {
+        kind: 'tiles',
+        heading: 'Who does what',
+        note: 'The AI drafts. You decide.',
+        items: [
+          { label: 'Run', title: 'The AI reads', body: 'Every page.' },
+          { label: 'Draft', title: 'You read it first', body: 'Nothing goes out.' },
+          { label: 'Own', title: 'Always yours', body: 'Every call.' },
+        ],
+      },
+      {
+        kind: 'tiles',
+        heading: 'What you need',
+        cta: true,
+        columns: 2,
+        items: [
+          { title: 'A Claude plan', body: 'With skills on.' },
+          { title: 'A computer', body: 'To set it up.' },
+        ],
+      },
+      { kind: 'prompts', heading: 'What to say', body: 'Tap to copy.', groups: [{ label: 'To start', items: ['Review this one'] }] },
+      { kind: 'faq', heading: 'Good to know', items: [{ q: 'Which plan do I need?', a: ['Any plan with skills.'] }] },
+      { kind: 'note', body: ['Selling instead? ', { link: 'Another skill', href: '/other', sameTab: true }, ' does that.'] },
+    ],
+  });
+  const doc = parse(guide);
+
+  it('is the layout every skill page gets, with the facts it shows as pills', () => {
+    expect(guide.layout).toBe('skill');
+    expect(guide.facts).toEqual(['Free', 'About 5 minutes to set up', 'Claude or ChatGPT']);
+    const { chatgpt: _none, ...claudeOnly } = SPEC;
+    expect(skillPage(claudeOnly).facts).toEqual(['Free', 'About 5 minutes to set up', 'Works in Claude']);
+    expect([...doc.querySelectorAll('.sk-facts li')].map(text)).toEqual(['Free', 'About 5 minutes to set up', 'Claude or ChatGPT']);
+  });
+
+  it('opens with a top bar: the logo, then the breadcrumb back to the free library', () => {
+    const top = doc.querySelector('header.sk-top');
+    expect(top?.querySelector('svg[role="img"]')?.getAttribute('aria-label')).toBe('Amplified Impact');
+    const crumbs = top?.querySelector('nav[aria-label="Breadcrumb"]');
+    expect(crumbs?.querySelector('a')?.getAttribute('href')).toBe('/library');
+    expect(text(crumbs?.querySelector('a'))).toBe('Free Library');
+    const here = crumbs?.querySelector('[aria-current="page"]');
+    // The slash is drawn, never read.
+    expect(here?.querySelector('[aria-hidden="true"]')?.textContent).toBe('/');
+    expect(text(here)).toBe('/Made-Up Skill');
+    // The guides' green cover and its steps are not on a skill page.
+    expect(doc.querySelector('header.hero')).toBeNull();
+    expect(doc.querySelector('.steps')).toBeNull();
+  });
+
+  it('has one h1, one main and one eyebrow on the page: the hero’s', () => {
+    expect(doc.querySelectorAll('h1')).toHaveLength(1);
+    expect(text(doc.querySelector('h1'))).toBe('Made-Up Skill');
+    expect(doc.querySelectorAll('main')).toHaveLength(1);
+    expect([...doc.querySelectorAll('.eyebrow')].map(text)).toEqual(['Free Claude Skill · For Testing']);
+  });
+
+  it('sets the sample beside the opt-in, in the hero, once, as a sheet whose Bottom line reads first', () => {
+    const hero = doc.querySelector('main .sk-hero');
+    expect([...(hero?.children ?? [])].map((el) => el.className)).toEqual(['sk-intro', 'card optin', 'sample sk-sample']);
+    expect(doc.querySelectorAll('section.sample')).toHaveLength(1);
+    const sample = hero?.querySelector('section.sample');
+    // Its heading and line of context are for a screen reader; the sheet says what it is.
+    expect(sample?.querySelector('h2')?.className).toBe('visually-hidden');
+    expect(sample?.getAttribute('aria-labelledby')).toBe(sample?.querySelector('h2')?.id);
+    const bottom = sample?.querySelector('.sample-bottom');
+    expect(text(bottom?.querySelector('h3'))).toBe('Bottom line');
+    expect(text(bottom?.querySelector('p'))).toBe('Two items need attention.');
+    // The toggle: hidden until the script peeks the sheet, and it controls the sheet.
+    const more = sample?.querySelector<HTMLButtonElement>('button[data-sample-more]');
+    expect(more?.hidden).toBe(true);
+    expect(text(more)).toBe('See the Full Example');
+    expect(more?.getAttribute('data-less')).toBe('Show Less');
+    expect(more?.getAttribute('aria-controls')).toBe(sample?.querySelector('article.sample-doc')?.id);
+  });
+
+  it('keeps every id and attribute the script and the gate read', () => {
+    const optin = doc.querySelector('section.optin');
+    expect(optin?.id).toBe('get-the-skill');
+    expect(optin?.getAttribute('data-unlock-key')).toBe('mus-unlocked');
+    expect(optin?.querySelector('.locked #guide-form')?.getAttribute('action')).toBe('/api/made-up-skill');
+    expect(optin?.querySelector('#download.unlocked')).not.toBeNull();
+    expect(doc.querySelectorAll('[data-guided]')).toHaveLength(2);
+    expect(doc.querySelectorAll('a[data-copy-open]').length).toBeGreaterThan(0);
+    expect(doc.querySelector('#app-claude')).not.toBeNull();
+    expect(doc.getElementById('guide-live')?.getAttribute('role')).toBe('status');
+  });
+
+  it('names each setup "Your setup", with the step count beside it', () => {
+    const heads = [...doc.querySelectorAll('[data-guided] > .guided-head')];
+    expect(heads).toHaveLength(2);
+    for (const head of heads) {
+      expect(text(head.querySelector('.guided-title'))).toBe('Your setup');
+      expect(head.querySelector('[data-guided-progress]')?.hasAttribute('hidden')).toBe(true);
+    }
+  });
+
+  it('draws each section below the hero as a band named by its heading', () => {
+    const bands = [...doc.querySelectorAll('main > .sk-band')];
+    expect(bands.map((b) => b.className)).toEqual([
+      'sk-band sk-band-list',
+      'sk-band sk-band-roles',
+      'sk-band sk-band-cards',
+      'sk-band sk-band-pair',
+      'sk-band sk-band-note',
+    ]);
+    for (const b of bands.filter((el) => el.tagName === 'SECTION')) {
+      expect(text(doc.getElementById(b.getAttribute('aria-labelledby') ?? ''))).not.toBe('');
+    }
+    const ids = [...doc.querySelectorAll('[id]')].map((el) => el.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('marks who does what as Run, Draft and Own, and sends "What you need" back up to the card', () => {
+    expect([...doc.querySelectorAll('.sk-roles .sk-role')].map(text)).toEqual(['Run', 'Draft', 'Own']);
+    expect(text(doc.querySelector('.sk-band-roles .sk-sub'))).toBe('The AI drafts. You decide.');
+    expect(doc.querySelector('.sk-cards')?.classList.contains('sk-cards-2')).toBe(true);
+    const cta = doc.querySelector('.sk-band-cards a.btn');
+    expect(cta?.getAttribute('href')).toBe('#get-the-skill');
+    expect(text(cta)).toBe('Get the Skill');
+  });
+
+  it('puts what to say beside the questions, each its own named section, the words still copy buttons', () => {
+    const pair = doc.querySelector('.sk-band-pair .sk-pair');
+    const cols = [...(pair?.children ?? [])];
+    expect(cols.map((c) => [c.tagName, text(doc.getElementById(c.getAttribute('aria-labelledby') ?? ''))])).toEqual([
+      ['SECTION', 'What to say'],
+      ['SECTION', 'Good to know'],
+    ]);
+    expect(text(pair?.querySelector('.prompts button[data-copy] [data-copy-text]'))).toBe('Review this one');
+    expect(pair?.querySelector('.faq details summary')).not.toBeNull();
+  });
+
+  it("has the phone's sign-up bar, hidden until the script shows it, leading to the card", () => {
+    const bar = doc.querySelector<HTMLElement>('[data-sk-bar]');
+    expect(bar?.hidden).toBe(true);
+    expect(bar?.querySelector('a')?.getAttribute('href')).toBe('#get-the-skill');
+    expect(text(bar)).toBe('Get the Free Skill');
+  });
+
+  it('follows the house rule: no em dashes anywhere on the page', () => {
+    expect(renderGuideBody(guide)).not.toMatch(/[–—]/);
+  });
+});

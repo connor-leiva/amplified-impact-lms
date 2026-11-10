@@ -519,3 +519,108 @@ describe('The Reel Editor, through the same script (D-045)', () => {
     });
   });
 });
+
+describe('a skill page (D-071)', () => {
+  // Offer Strategy: a skill with a ChatGPT version and a long sample, as every skill page is drawn.
+  const bootSkill = (before?: () => void) => boot('/offer-strategy', before, 'offer-strategy');
+  const steps = () => Array.from(document.querySelectorAll<HTMLElement>('.app-setup-claude .setup-step'));
+  const marks = (name: string) => steps().map((li) => li.hasAttribute(name));
+
+  it('ticks the steps before the current one, and marks the current one for a screen reader', async () => {
+    await bootSkill(() => {
+      localStorage.setItem('os-unlocked', '1');
+      localStorage.setItem('os-unlocked-step-claude', '3');
+    });
+    expect(marks('data-done')).toEqual([true, true, false, false, false, false]);
+    expect(steps().map((li) => li.getAttribute('aria-current'))).toEqual([null, null, 'step', null, null, null]);
+    $<HTMLButtonElement>('.app-setup-claude [data-guided-next]').click();
+    expect(marks('data-done')).toEqual([true, true, true, false, false, false]);
+    expect(steps()[3]?.getAttribute('aria-current')).toBe('step');
+    $<HTMLButtonElement>('.app-setup-claude [data-guided-back]').click();
+    $<HTMLButtonElement>('.app-setup-claude [data-guided-back]').click();
+    expect(marks('data-done')).toEqual([true, false, false, false, false, false]);
+    expect(marks('aria-current')).toEqual([false, true, false, false, false, false]);
+  });
+
+  describe('the sample', () => {
+    const sample = () => $('[data-peekable]');
+    const more = () => $<HTMLButtonElement>('[data-sample-more]');
+
+    it('starts as its first screen, opens with "See the Full Example", and closes with "Show Less"', async () => {
+      await bootSkill();
+      expect(sample().hasAttribute('data-peek')).toBe(true);
+      expect([more().hidden, more().textContent, more().getAttribute('aria-expanded')]).toEqual([
+        false,
+        'See the Full Example',
+        'false',
+      ]);
+      more().click();
+      expect(sample().hasAttribute('data-peek')).toBe(false);
+      expect([more().textContent, more().getAttribute('aria-expanded')]).toEqual(['Show Less', 'true']);
+      more().click();
+      expect(sample().hasAttribute('data-peek')).toBe(true);
+      expect(more().textContent).toBe('See the Full Example');
+    });
+
+    it('opens when focus reaches a part that is cut off, so a keyboard never lands on what it cannot see', async () => {
+      await bootSkill();
+      $('.sample-doc .sample-table').focus();
+      expect(sample().hasAttribute('data-peek')).toBe(false);
+      expect(more().getAttribute('aria-expanded')).toBe('true');
+    });
+  });
+
+  describe("the phone's sign-up bar", () => {
+    const bar = () => $('[data-sk-bar]');
+    let seen: (entries: Array<{ isIntersecting: boolean }>) => void = () => undefined;
+    let margin = '';
+    beforeEach(() => {
+      stub(
+        window,
+        'IntersectionObserver',
+        class {
+          constructor(cb: typeof seen, options?: { rootMargin?: string }) {
+            seen = cb;
+            margin = options?.rootMargin ?? '';
+          }
+          observe() {}
+          disconnect() {}
+        },
+      );
+    });
+
+    it('shows while the card is out of view, and hides while it is in view', async () => {
+      await bootSkill();
+      expect(bar().hidden).toBe(true);
+      expect(margin).toBe('0px 0px -96px 0px');
+      seen([{ isIntersecting: false }]);
+      expect(bar().hidden).toBe(false);
+      seen([{ isIntersecting: true }]);
+      expect(bar().hidden).toBe(true);
+    });
+
+    it('goes for good once the skill is unlocked, by a sign-up or on a later visit', async () => {
+      await bootSkill();
+      seen([{ isIntersecting: false }]);
+      fill('Sam', 'sam@example.com');
+      respond(201, { ok: true });
+      submit();
+      await settle();
+      await settle();
+      expect(unlocked()).toBe(true);
+      expect(bar().hidden).toBe(true);
+      seen([{ isIntersecting: false }]);
+      expect(bar().hidden).toBe(true);
+
+      await bootSkill(() => localStorage.setItem('os-unlocked', '1'));
+      seen([{ isIntersecting: false }]);
+      expect(bar().hidden).toBe(true);
+    });
+
+    it('stays hidden where there is no IntersectionObserver: the card is still on the page', async () => {
+      stub(window, 'IntersectionObserver', undefined);
+      await bootSkill();
+      expect(bar().hidden).toBe(true);
+    });
+  });
+});
