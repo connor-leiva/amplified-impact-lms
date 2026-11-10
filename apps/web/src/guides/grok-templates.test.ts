@@ -12,7 +12,7 @@ import { check, expected, grokShellFor, grokShellPath, listTemplates, templatePa
 import { DOWNLOADS_DIR, unzip } from '../../../../scripts/skills.mjs';
 import { ENTRIES } from '../library/content';
 import { GUIDES, inSkillLibrary, type Guide } from './content';
-import { guardrailsOf, nameOf, routineOf } from './grok-page';
+import { guardrailsOf, nameOf, resultOf, routineOf } from './grok-page';
 import { renderGuideBody } from './render';
 import { GUIDE_HTML } from './vite-plugin';
 
@@ -87,20 +87,52 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
     expect(guide.layout).toBe('skill');
   });
 
-  it('copies the template’s routine prompt word for word, and names the skill as Grok Bot knows it', () => {
+  it('walks through the guided setup in Grok Bot, the ZIP only an extra (Connor, 2026-11-10)', () => {
     const steps = guide?.download.setup ?? [];
     expect(steps.map((s) => s.title)).toEqual([
-      'Download the Template',
-      'Add It to Grok Bot',
-      'Connect What It Reads',
+      'Create the Bot',
+      'Save the Template as a Skill',
+      'Connect Its Apps',
       'Answer the Setup Questions',
-      'Save the Routine',
-      'Run It Once Today',
+      'Set the Schedule',
+      'Run a First Test',
+      'Check the First Result',
     ]);
+    // Grok Bot's own labels, from docs.x.ai/grok-bot.
+    const words = JSON.stringify(steps);
+    for (const label of ['New Bot', 'Create', 'Connect apps', 'Authorize', 'Installed', 'Settings > Vault', 'Timezone', 'Details', 'When to run', 'Test', 'Allow once', 'Deny']) {
+      expect(words, label).toContain(`"strong":"${label}"`);
+    }
+    // The download is a step's extra, a second button under the words to paste, never a step of its own.
+    const extras = steps.filter((s) => s.action !== undefined && s.action !== 'download' && s.action.download !== undefined);
+    expect(extras.map((s) => s.title)).toEqual(['Save the Template as a Skill']);
+    expect(steps.some((s) => s.action === 'download')).toBe(false);
+  });
+
+  it('copies the whole template, the setup prompt, the routine on its schedule and a test prompt, word for word', () => {
+    const steps = guide?.download.setup ?? [];
+    const step = (title: string) => steps.find((s) => s.title === title);
+    const name = nameOf(source);
+    expect(step('Save the Template as a Skill')?.copyBlock).toBe(`Save these instructions as a skill called "${name}". Keep them exactly as written.\n\n${source.trimEnd()}`);
+    expect(step('Answer the Setup Questions')?.copy).toContain(`@${name}`);
     const routine = routineOf(source);
-    expect(steps.find((s) => s.title === 'Save the Routine')?.copyBlock).toBe(routine.prompt);
-    expect(JSON.stringify(steps)).toContain(`@${nameOf(source)}`);
-    expect(JSON.stringify(steps)).toContain(routine.cron);
+    const schedule = step('Set the Schedule');
+    expect(schedule?.copyBlock).toBe(`Set up a routine to run @${name} on this schedule: ${routine.schedule}\n\nEach time, use this prompt:\n\n${routine.prompt}`);
+    expect(JSON.stringify(schedule)).toContain(routine.cron);
+    expect(step('Run a First Test')?.copy).toMatch(new RegExp(`^Run @${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} now as a first test\\.`));
+  });
+
+  it('says what a good first result looks like, from the template’s output format, and how to fix a bad one', () => {
+    const result = resultOf(source);
+    const good = guide?.sections.find((s) => s.kind === 'list' && s.heading === 'What a good first result looks like');
+    expect(good?.kind === 'list' ? good.items.map((i) => i.title) : []).toEqual([
+      'In the chat',
+      ...(result.sheets.length ? ['In Google Drive'] : []),
+      template.collection === 'bookkeeping' ? 'In your books' : 'In your files',
+    ]);
+    const fixes = guide?.sections.find((s) => s.kind === 'faq' && s.heading === 'If something goes wrong');
+    expect(fixes?.kind === 'faq' ? fixes.items.length : 0).toBeGreaterThanOrEqual(5);
+    expect(JSON.stringify(fixes)).toContain(template.collection === 'bookkeeping' ? 'QuickBooks' : 'transaction system');
   });
 
   it('shows the template’s own sample and its guardrails', () => {
@@ -111,7 +143,7 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
     const lines = source.split('## Sample output (EXAMPLE DATA ONLY)')[1]?.split('\n').filter((l) => /^[A-Z]/.test(l)) ?? [];
     expect(lines.length).toBeGreaterThan(1);
     for (const line of lines.slice(0, 2)) expect(sample).toContain(line.replace(/\*\*/g, '').replace(/`/g, '').trim());
-    const list = guide.sections.find((s) => s.kind === 'list');
+    const list = guide.sections.find((s) => s.kind === 'list' && s.heading === 'What it never does');
     expect(list?.kind === 'list' ? list.items.map((i) => i.title) : []).toEqual(guardrailsOf(source).map((g) => g.title));
   });
 

@@ -18,13 +18,10 @@ export const QUARTERLY_TAX_PROFIT_FIRST: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Bookkeeping · For Producing Agents',
   lede: 'Commission months are lumpy. On the 5th of every month, this bot uses the percentages you or your CPA chose to show what to move into tax, profit and reserve, and how close the next IRS estimate date is. It will not invent a tax rate.',
   outcome: { n: '03', title: 'Set Aside, Not Guessed', body: 'What to move this month, as transfers you approve.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Connect ',
-    { strong: 'QuickBooks Online' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot, where your set-aside tracker lives.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['QuickBooks Online', 'Google Drive', 'Google Sheets'],
+  connectNote: [
+    'Your set-aside tracker can live in a Google Sheet.',
   ],
   sampleTitle: 'Quarterly Tax & Profit-First Set-Aside: An Example Month',
   faq: [

@@ -18,14 +18,8 @@ export const NEW_CONTRACT_INTAKE: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Transactions',
   lede: 'Drop in a ratified contract. This bot pulls out the price, the earnest money, the contingencies and the deadlines, proposes the tracker row and builds the first task list for the buyer or listing side.',
   outcome: { n: '03', title: 'A File Ready the Same Day', body: 'A proposed tracker row and a task list, for you to approve.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Tell it which system holds your files: Dotloop, SkySlope, Brokermint, Lone Wolf, Paperless Pipeline, Open to Close, or a Google Sheet and an inbox. Connect ',
-    { strong: 'Gmail' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot.',
-  ],
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['Gmail', 'Google Drive', 'Google Sheets'],
   sampleTitle: 'New Contract Intake: An Example Contract',
   note: [
     'Then let ',

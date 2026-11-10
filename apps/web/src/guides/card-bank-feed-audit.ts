@@ -18,15 +18,14 @@ export const CARD_BANK_FEED_AUDIT: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Bookkeeping',
   lede: 'Most real estate teams never file an expense report. Every Monday, this bot compares your cards and your operating account to QuickBooks Online and lists what needs a look: uncategorized charges, duplicates, personal spend and missing receipts, each with a proposed category.',
   outcome: { n: '03', title: 'A Clean List Every Monday', body: 'The exceptions, ranked by dollars, for you to approve.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Connect ',
-    { strong: 'QuickBooks Online' },
-    ', ',
-    { strong: 'Gmail' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot. It opens a card or bank site only when the QuickBooks feed looks stale, and you do the sign-in.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['QuickBooks Online', 'Gmail', 'Google Drive', 'Google Sheets'],
+  connectNote: [
+    'It opens a card or bank site only when the QuickBooks feed looks stale; when a site needs you, choose ',
+    { strong: 'Open computer' },
+    ', then ',
+    { strong: 'Take control' },
+    ', and finish the sign-in.',
   ],
   sampleTitle: 'Weekly Card & Bank Audit: An Example Week',
   note: [

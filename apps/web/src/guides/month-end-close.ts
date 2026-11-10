@@ -18,15 +18,10 @@ export const MONTH_END_CLOSE: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Bookkeeping',
   lede: 'On the 3rd of every month, this bot builds one packet you can review in a sitting: the reconciliations, the leftover uncategorized items, the deals that closed this month but pay next month, and a P&L by agent or lead source.',
   outcome: { n: '03', title: 'The Month, Closed', body: 'One packet to review, with every proposed change waiting on you.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Connect ',
-    { strong: 'QuickBooks Online' },
-    ', ',
-    { strong: 'Google Drive' },
-    ' and ',
-    { strong: 'Gmail' },
-    ' in Grok Bot. Follow Up Boss or your brokerage portal is optional, for closings that have not paid yet.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['QuickBooks Online', 'Google Drive', 'Google Sheets', 'Gmail'],
+  connectNote: [
+    'Follow Up Boss or your brokerage portal is optional, for closings that have not paid yet; save that login in the Vault.',
   ],
   sampleTitle: 'Month-End Close Packet: An Example Month',
   faq: [

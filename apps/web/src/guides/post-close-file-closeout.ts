@@ -18,13 +18,10 @@ export const POST_CLOSE_FILE_CLOSEOUT: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Transactions',
   lede: 'After funding or recording, this bot drafts the commission request or CDA from documents in the file, the archive, a review request and the change to Past Client in your CRM. Nothing is sent or changed until you approve each one.',
   outcome: { n: '03', title: 'Files Closed Out', body: 'Every last-mile step drafted, for you to approve.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Tell it which system holds your files and where the archive goes. Connect ',
-    { strong: 'Gmail' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot. Your CRM is read, not changed.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['Gmail', 'Google Drive'],
+  connectNote: [
+    'Your CRM is read, not changed; save that login in the Vault if it’s not in Connect apps.',
   ],
   sampleTitle: 'Post-Close File Closeout: An Example File',
   note: [

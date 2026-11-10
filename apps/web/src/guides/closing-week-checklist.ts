@@ -18,13 +18,10 @@ export const CLOSING_WEEK_CHECKLIST: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Transactions',
   lede: 'Walk-through, clear to close, the closing disclosure, keys. Every morning, this bot runs a seven-day checklist for each file about to close, with a wire-fraud warning that tells people to call a number they already trust. It never copies, stores or confirms wiring instructions.',
   outcome: { n: '03', title: 'A Calm Closing Week', body: 'What’s done and what’s open, with the reminders drafted.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'It reads your tracker and the file’s documents. Connect ',
-    { strong: 'Gmail' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot. It never opens a banking app.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['Gmail', 'Google Drive'],
+  connectNote: [
+    'It never opens a banking app.',
   ],
   sampleTitle: 'Closing-Week Checklist: An Example Morning',
   note: [

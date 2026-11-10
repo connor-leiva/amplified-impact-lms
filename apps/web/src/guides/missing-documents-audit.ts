@@ -18,13 +18,10 @@ export const MISSING_DOCUMENTS_AUDIT: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Transactions',
   lede: 'Every weekday, this bot checks each active file against your brokerage’s checklist, not a guessed national list, and says what’s missing or unsigned before anyone submits it for review.',
   outcome: { n: '03', title: 'Ready for Review', body: 'What each file still needs, and nothing submitted without you.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Tell it which system or Drive folder holds your files, and give it your brokerage’s checklist once. Connect ',
-    { strong: 'Google Drive' },
-    ' and ',
-    { strong: 'Gmail' },
-    ' in Grok Bot.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['Google Drive', 'Gmail'],
+  connectNote: [
+    'Give it your brokerage’s checklist once, in the chat or as a file in Drive.',
   ],
   sampleTitle: 'Missing-Documents File Audit: An Example Sweep',
   faq: [

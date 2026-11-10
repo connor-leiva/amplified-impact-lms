@@ -18,13 +18,10 @@ export const TEAM_PAYOUT_JOURNALS: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Bookkeeping · For Team Leaders',
   lede: 'After the commissions tie out, this bot drafts the split, cap, desk fee and payable entries for the period in QuickBooks Online, then waits. Nothing posts without your say-so that week.',
   outcome: { n: '03', title: 'Payouts Drafted, Not Posted', body: 'Entries that balance, for you to approve line by line.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Connect ',
-    { strong: 'QuickBooks Online' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot, where your split plans and cap tracker live. Gmail is optional.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['QuickBooks Online', 'Google Drive', 'Google Sheets'],
+  connectNote: [
+    'Gmail is optional. Your split plans and cap tracker can live in a Google Sheet.',
   ],
   sampleTitle: 'Team Split & Payout Journals: An Example Week',
   note: [

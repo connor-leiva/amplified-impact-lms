@@ -18,15 +18,10 @@ export const COMMISSION_TIE_OUT: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Bookkeeping',
   lede: 'Each closing should tell one story: the CDA, the split, the cap, the franchise and referral fees, and the deposit. Every Tuesday, this bot checks them against QuickBooks Online and finds the gap before it becomes an awkward conversation.',
   outcome: { n: '03', title: 'Every Closing Tied Out', body: 'Matches, variances and missing deposits, with the math shown.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Connect ',
-    { strong: 'QuickBooks Online' },
-    ', ',
-    { strong: 'Gmail' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot. It opens your brokerage’s commission portal or Follow Up Boss only to confirm a closing, and you do the sign-in.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['QuickBooks Online', 'Gmail', 'Google Drive', 'Google Sheets'],
+  connectNote: [
+    'It opens your brokerage’s commission portal or Follow Up Boss only to confirm a closing; save that login in the Vault.',
   ],
   sampleTitle: 'Commission Tie-Out: An Example Week',
   note: [

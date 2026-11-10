@@ -18,9 +18,10 @@ export const LISTING_TO_LIVE: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Transactions · For Listing Agents',
   lede: 'Photos, disclosures, remarks (facts only), the sign, the lockbox and your office’s coming-soon rules. Every weekday, this bot checks each listing in pre-launch, before anyone hits publish. Lockbox codes never appear in the report.',
   outcome: { n: '03', title: 'Launch Without a Miss', body: 'A checklist per listing, and nothing published without you.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Tell it where your listing files live: a system or a Drive folder. It reads the MLS in the browser and never publishes. You do the sign-in.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['Google Drive', 'Google Sheets'],
+  connectNote: [
+    'It reads the MLS in its own browser and never publishes; save that login in the Vault.',
   ],
   sampleTitle: 'Listing-to-Live Launch Checklist: An Example Listing',
   note: [

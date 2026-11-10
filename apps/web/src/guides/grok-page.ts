@@ -13,8 +13,13 @@
 //   write-actions line by line), logins saved in the vault and never pasted in a chat, and the shared
 //   rules the FAQ repeats: read-only and drafts by default, approval of named items in that same
 //   conversation, support only and not tax, legal or compliance advice, Utah-first with a general mode.
-// LEFT OPEN: Grok Bot's own screens. No click path is given for adding a skill or saving a routine,
-//   because none was supplied or checked; the steps say what to do, not where to click.
+// FROM GROK BOT'S DOCS (docs.x.ai/grok-bot, read 2026-11-10): every label in the setup. Create a Bot
+//   with + (New Bot) and Create; a skill is saved by asking in chat (no upload control is documented
+//   for a personal Bot); Connect apps, Authorize, Installed and Reconnect; Settings > Vault (New item,
+//   Login, Save login); the timezone in Settings, under Bot; a routine's Details, When to run, Edit and
+//   Test (Running…); the approval card's Allow once, Always allow and Deny; Open computer and Take
+//   control. QuickBooks Online is not among the apps the docs name, so a bookkeeping template's setup
+//   gives the template's own fallback (a CSV export) and a custom connector.
 //
 // House rules: no em dashes, short plain sentences, one action a step.
 
@@ -149,6 +154,43 @@ function cadence(schedule: string): string {
   return first === 'Weekdays' ? 'on weekdays' : first.toLowerCase();
 }
 
+/** What the template's first run returns: its chat summary's parts and its workbook's sheets. */
+export function resultOf(text: string): { summary: string[]; sheets: string[] } {
+  const lines = section(text, 'Output format');
+  const take = (start: RegExp, item: RegExp) => {
+    const at = lines.findIndex((l) => start.test(l));
+    if (at < 0) return [];
+    const out: string[] = [];
+    for (const l of lines.slice(at + 1)) {
+      if (l.trim() === '') {
+        if (out.length) break;
+        continue;
+      }
+      const m = item.exec(l);
+      if (!m) break;
+      out.push(plain(m[1] ?? ''));
+    }
+    return out;
+  };
+  const summary = take(/^\*\*Chat (summary|digest)/, /^- (.+)$/).filter((s) => !/^One line:/.test(s));
+  const sheets = take(/^\*\*Workbook sheets:\*\*/, /^\d+\.\s+`([^`]+)`/);
+  if (!summary.length) throw new Error('The output format needs a chat summary');
+  return { summary, sheets };
+}
+
+/** One app, two apps, or "a, b and c", each in bold, for a step's words. */
+function apps(names: readonly string[]): Inline[] {
+  const out: Inline[] = [];
+  names.forEach((n, i) => {
+    if (i > 0) out.push(i === names.length - 1 ? ' and ' : ', ');
+    out.push({ strong: n });
+  });
+  return out;
+}
+
+/** The docs this page's Grok Bot steps follow, read 2026-11-10 (D-100). */
+const GROK_DOCS = 'https://docs.x.ai/grok-bot/get-started';
+
 export interface GrokPage {
   /** The template's id: its page, its ZIP, the sign-up `source` and the GoHighLevel tag. */
   slug: string;
@@ -159,8 +201,10 @@ export interface GrokPage {
   /** The hero's third step: what the person ends up with. */
   outcome: Step;
   optInBody: string;
-  /** What to connect in Grok Bot first, in the page's words, from the README's listing. */
-  connect: readonly Inline[];
+  /** The apps to add in Grok Bot's Connect apps, from the template's "What it connects to". */
+  apps: readonly string[];
+  /** What this template alone needs connected besides them, in the page's words. */
+  connectNote?: readonly Inline[];
   /** The sample's title, over the template's own example. */
   sampleTitle: string;
   /** Questions this template alone answers, after the shared ones. */
@@ -171,45 +215,154 @@ export interface GrokPage {
   unlockKey: string;
 }
 
-/** A template's page, as a guide: its own words, the template's own routine and sample, and the shared steps. */
+/**
+ * A template's page, as a guide: its own words, the template's own instructions, routine, sample and
+ * guardrails, and the guided setup every template shares (Connor, 2026-11-10: the setup is the
+ * primary path, and the ZIP an extra). The setup's labels are Grok Bot's own, from docs.x.ai/grok-bot
+ * (get-started, bots, skills-routines-and-automations, computer-and-apps, vault,
+ * approvals-security-and-privacy), read 2026-11-10.
+ */
 export function grokPage(p: GrokPage): Guide {
   const t = grokTemplate(p.slug);
   if (!t) throw new Error(`No Grok Bot template with the id "${p.slug}"`);
   const text = grokSource(t);
   const name = nameOf(text);
   const routine = routineOf(text);
+  const result = resultOf(text);
   const when = cadence(routine.schedule);
-  const support = t.collection === 'bookkeeping' ? 'bookkeeping' : 'transaction';
+  const books = t.collection === 'bookkeeping';
+  const support = books ? 'bookkeeping' : 'transaction';
+  const run = `Run @${name} now`;
+  // Bookkeeping reads QuickBooks Online, which Grok Bot's docs do not list as an app; the template's own
+  // fallback is an export. A transaction template reads whatever system the team uses (its own words).
+  const collectionNote: Inline[] = books
+    ? [
+        'If Connect apps doesn’t list QuickBooks Online, export the report the Bot asks for from QuickBooks as a CSV and attach it in the chat, or add a QuickBooks connector you trust with ',
+        { strong: 'Add a custom connector' },
+        ' at the bottom of Connect apps.',
+      ]
+    : [
+        'Your transaction system: Dotloop, SkySlope, Brokermint, Lone Wolf, Paperless Pipeline or Open to Close. Add it in Connect apps if it’s listed. If not, save its login in the Vault so the Bot can read it in its own browser, or keep exports in a Google Drive folder. No system? A Google Sheet and Gmail work.',
+      ];
   const setup: SetupStep[] = [
     {
-      title: 'Download the Template',
-      body: ['One ZIP. ', { strong: 'Unzip it.' }, ' Inside is one file, ', { strong: 'SKILL.md' }, ', the template.'],
-      action: 'download',
+      title: 'Create the Bot',
+      body: [
+        'In Grok Bot, click ',
+        { strong: '+' },
+        ' at the top of the sidebar (',
+        { strong: 'New Bot' },
+        '). Name it ',
+        { strong: t.title },
+        ', pick a shape and a color, then click ',
+        { strong: 'Create' },
+        '.',
+      ],
+      action: { label: 'Open the Grok Bot Guide', href: GROK_DOCS },
+      note: [
+        'On a team, ',
+        { strong: '+' },
+        ' opens a menu: choose ',
+        { strong: 'Create a Bot' },
+        '. To check your plan includes Grok Bot, open ',
+        { strong: 'Settings > Usage & Billing' },
+        '.',
+      ],
     },
     {
-      title: 'Add It to Grok Bot',
-      body: ['Add ', { strong: 'SKILL.md' }, ' to Grok Bot as a new skill.'],
-      note: ['It’s a Grok Bot skill, not a Claude Skill. It doesn’t go in Claude.'],
+      title: 'Save the Template as a Skill',
+      body: ['In the new Bot’s chat, paste this and send it. It saves the whole template as a skill called ', { strong: name }, '.'],
+      copyBlock: `Save these instructions as a skill called "${name}". Keep them exactly as written.\n\n${text.trimEnd()}`,
+      // The ZIP, as a second button under the words: the guided setup is the way in (Connor, 2026-11-10).
+      action: { label: 'Download the File', href: `/downloads/${t.file}`, download: t.file },
+      note: ['The file is the same template, to keep. You don’t need it for this step.'],
     },
     {
-      title: 'Connect What It Reads',
-      body: p.connect,
-      note: ['Save bank, card and other logins in the vault. Never paste a password or a code into the chat.'],
+      title: 'Connect Its Apps',
+      body: [
+        'Click ',
+        { strong: 'Connect apps' },
+        ' in the sidebar. Search for each of these, add it, choose ',
+        { strong: 'Authorize' },
+        ' and finish signing in: ',
+        ...apps(p.apps),
+        '. Each is ready when it shows under ',
+        { strong: 'Installed' },
+        '.',
+      ],
+      note: [
+        ...collectionNote,
+        ...(p.connectNote ? [' ', ...p.connectNote] : []),
+        ' Save any other login in ',
+        { strong: 'Settings > Vault' },
+        ' (',
+        { strong: 'New item' },
+        ', ',
+        { strong: 'Login' },
+        ', ',
+        { strong: 'Save login' },
+        '). The Bot never sees a saved password. Never paste a password or a code into the chat.',
+      ],
     },
     {
       title: 'Answer the Setup Questions',
-      body: ['Start a chat in Grok Bot, mention ', { strong: `@${name}` }, ', and answer its setup questions one at a time. It remembers your answers.'],
+      body: ['Paste this in the Bot’s chat. It asks its setup questions one at a time and remembers your answers.'],
+      copy: `Set up @${name}. Ask me your setup questions one at a time, and remember my answers.`,
+      note: ['There’s no memory screen. To check what it kept, ask: ', { strong: 'What do you remember about this setup?' }],
     },
     {
-      title: 'Save the Routine',
-      body: ['Save the routine the template recommends. When: ', routine.schedule, ' Then paste this prompt.'],
-      copyBlock: routine.prompt,
-      note: [`Its example cron is ${routine.cron}, in Central time. Use your own time zone.`],
+      title: 'Set the Schedule',
+      body: [
+        'In ',
+        { strong: 'Settings' },
+        ', under ',
+        { strong: 'Bot' },
+        ', check ',
+        { strong: 'Timezone' },
+        ' (',
+        { strong: 'Auto-detect' },
+        ' follows this computer). Then paste this in the chat. It saves the routine on the template’s schedule: ',
+        routine.schedule,
+      ],
+      copyBlock: `Set up a routine to run @${name} on this schedule: ${routine.schedule}\n\nEach time, use this prompt:\n\n${routine.prompt}`,
+      note: [
+        'To check it, click the Bot’s name at the top of the chat, open ',
+        { strong: 'Details' },
+        ' and look at ',
+        { strong: 'When to run' },
+        '. ',
+        { strong: 'Edit' },
+        ` changes it. The template’s cron is ${routine.cron}. A new routine waits for its next time; it doesn’t run when it’s saved.`,
+      ],
     },
     {
-      title: 'Run It Once Today',
-      body: ['Run it once by hand today, so the first report exists.'],
-      note: ['When a run proposes a change, approve it line by line. Nothing changes until you do.'],
+      title: 'Run a First Test',
+      body: [
+        'Open the routine in ',
+        { strong: 'Details' },
+        ' and choose ',
+        { strong: 'Test' },
+        '. It reads ',
+        { strong: 'Running…' },
+        ' and the result comes back in the chat. Or paste this to run it now.',
+      ],
+      copy: `${run} as a first test. Use what you remember, ask me anything still missing, and change nothing.`,
+      note: [
+        'A test does real work and counts toward your usage. Before it changes anything, an approval card asks first: ',
+        { strong: 'Allow once' },
+        ', ',
+        { strong: 'Always allow' },
+        ' or ',
+        { strong: 'Deny' },
+        '. An email waits as a draft until you press ',
+        { strong: 'Send' },
+        '.',
+      ],
+    },
+    {
+      title: 'Check the First Result',
+      body: ['Compare it with the example on this page. A good first result has a short chat summary and a dated workbook, and changes nothing.'],
+      note: ['Something looks wrong? See ', { strong: 'If something goes wrong' }, ', below.'],
     },
   ];
   const sections: Section[] = [
@@ -222,7 +375,45 @@ export function grokPage(p: GrokPage): Guide {
       note: 'Example data only.',
       blocks: sampleBlocks(text),
     },
+    {
+      kind: 'list',
+      heading: 'What a good first result looks like',
+      items: [
+        { title: 'In the chat', body: `A short summary: ${result.summary.map((s) => s.replace(/\.$/, '')).join('; ')}.` },
+        ...(result.sheets.length ? [{ title: 'In Google Drive', body: `A dated workbook with these sheets: ${result.sheets.join(', ')}.` }] : []),
+        { title: books ? 'In your books' : 'In your files', body: 'Nothing changed. Anything it proposes waits for your approval.' },
+      ],
+    },
     { kind: 'list', heading: 'What it never does', items: guardrailsOf(text) },
+    {
+      kind: 'faq',
+      heading: 'If something goes wrong',
+      items: [
+        {
+          q: 'An app says Added, but the Bot can’t read it.',
+          a: ['Added means installed, not signed in. In ', { strong: 'Connect apps' }, ', choose ', { strong: 'Reconnect' }, ' and finish the sign-in. It’s ready when it shows under ', { strong: 'Installed' }, '.'],
+        },
+        books
+          ? { q: 'It can’t find QuickBooks.', a: ['Export the report it asks for from QuickBooks Online as a CSV and attach it in the chat. It works from the export.'] }
+          : { q: 'It can’t read our transaction system.', a: ['Save its login in the Vault so the Bot can read it in its own browser, or put an export in a Google Drive folder and tell the Bot where. A Google Sheet and Gmail also work.'] },
+        {
+          q: 'It asks for a password or a code.',
+          a: ['Don’t paste it in the chat. Save the login in ', { strong: 'Settings > Vault' }, ', or choose ', { strong: 'Open computer' }, ', then ', { strong: 'Take control' }, ', finish the step yourself and tell the Bot to continue.'],
+        },
+        {
+          q: 'It ran at the wrong time.',
+          a: ['Check ', { strong: 'Timezone' }, ' in ', { strong: 'Settings' }, ', under ', { strong: 'Bot' }, '. Then open the routine in ', { strong: 'Details' }, ' and check ', { strong: 'When to run' }, '.'],
+        },
+        {
+          q: 'There’s no Test button, or it says Couldn’t start a test run.',
+          a: ['Check its apps show under ', { strong: 'Installed' }, ', then run it from the chat instead: ', { strong: run }, '.'],
+        },
+        {
+          q: 'It used an old answer.',
+          a: ['Tell it what changed in the chat, starting ', { strong: 'That’s out of date.' }, ' It updates what it remembers.'],
+        },
+      ],
+    },
     {
       kind: 'faq',
       heading: 'Questions',
@@ -230,7 +421,7 @@ export function grokPage(p: GrokPage): Guide {
         {
           q: 'Is this a Claude Skill?',
           a: [
-            'No. It’s a Grok Bot template: one file that Grok Bot loads and runs on the schedule you save. The ',
+            'No. It’s a Grok Bot template: one set of instructions Grok Bot saves as a skill and runs on the schedule you set. The ',
             { link: 'Claude Skills', href: '/library', sameTab: true },
             ' in the library are separate.',
           ],
@@ -244,8 +435,8 @@ export function grokPage(p: GrokPage): Guide {
           ? [{ q: 'Does it work outside Utah?', a: ['Yes. It handles Utah files the Utah way first, and anything else in a general mode.'] }]
           : []),
         {
-          q: `Is this ${t.collection === 'bookkeeping' ? 'tax, legal or compliance' : 'legal or compliance'} advice?`,
-          a: [`No. It’s ${support} support only. Your ${t.collection === 'bookkeeping' ? 'CPA, broker or attorney' : 'broker or attorney'} makes those calls.`],
+          q: `Is this ${books ? 'tax, legal or compliance' : 'legal or compliance'} advice?`,
+          a: [`No. It’s ${support} support only. Your ${books ? 'CPA, broker or attorney' : 'broker or attorney'} makes those calls.`],
         },
         ...(p.faq ?? []),
       ],
@@ -261,7 +452,7 @@ export function grokPage(p: GrokPage): Guide {
       title: t.title,
       lede: p.lede,
       steps: [
-        { n: '01', title: 'Add It to Grok Bot', body: 'One file, set up once.' },
+        { n: '01', title: 'Create the Bot', body: 'In Grok Bot, step by step, with every prompt to copy.' },
         { n: '02', title: 'Save the Routine', body: `It runs ${when}.` },
         { ...p.outcome, n: '03' },
       ],
@@ -269,7 +460,7 @@ export function grokPage(p: GrokPage): Guide {
     optIn: { anchor: 'get-the-template', heading: 'Get the free template', body: p.optInBody, button: 'Get the Template' },
     download: {
       heading: 'It’s yours.',
-      body: 'Set it up once in Grok Bot. Then it runs on its own schedule.',
+      body: 'Set it up once in Grok Bot, one step at a time. Then it runs on its own schedule.',
       href: `/downloads/${t.file}`,
       filename: t.file,
       inApp: 'In the Instagram app? Tap the ••• menu and choose Open in browser, then download it there.',

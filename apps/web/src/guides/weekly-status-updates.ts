@@ -18,11 +18,10 @@ export const WEEKLY_STATUS_UPDATES: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Transactions',
   lede: 'Every Monday, this bot drafts a calm note for each client and a tighter one for each agent, written only from what’s documented in the file. Nothing is sent until you say which draft.',
   outcome: { n: '03', title: 'Updates Drafted Monday', body: 'One client note and one agent note per file, for you to send.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'It reads your tracker and the morning deadline digest. Connect ',
-    { strong: 'Gmail' },
-    ' in Grok Bot. Your CRM gives it names and channels only.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['Gmail', 'Google Sheets'],
+  connectNote: [
+    'Your CRM gives it names and channels only.',
   ],
   sampleTitle: 'Weekly Client & Agent Status Updates: An Example Week',
   note: [

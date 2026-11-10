@@ -213,11 +213,13 @@ function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): 
         `<div class="setup-body">`,
         `<h3 tabindex="-1">${esc(s.title)}</h3>`,
         `<p>${inline(s.body)}</p>`,
-        setupAction(guide, s.action),
+        // A template's file is an extra to its copy (D-100), so it comes after the words to paste.
+        grok ? '' : setupAction(guide, s.action),
         // Short words: the chip, then the button. A long block (a Project's instructions, the Task Sync
         // prompt) runs screens long on a phone, so its button comes first, under the instruction.
         s.copy ? copyChip(s.copy, toast) + opens(app) : '',
         s.copyBlock ? opens(app) + copyBlock(s.copyBlock, toast) : '',
+        grok ? setupAction(guide, s.action) : '',
         s.note ? `<p class="setup-note">${inline(s.note)}</p>` : '',
         `</div>`,
         `</li>`,

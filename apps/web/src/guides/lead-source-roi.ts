@@ -18,13 +18,10 @@ export const LEAD_SOURCE_ROI: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Bookkeeping',
   lede: 'Zillow, Google, Facebook, open houses, sphere. On the 5th of every month, this bot puts your spend from QuickBooks Online next to the closed units, volume and GCI in Follow Up Boss, by source. Untagged spend and closings with no source get called out.',
   outcome: { n: '03', title: 'See What Pays', body: 'Cost per closing by source, with nothing estimated.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Connect ',
-    { strong: 'QuickBooks Online' },
-    ' and ',
-    { strong: 'Google Drive' },
-    ' in Grok Bot. It reads Follow Up Boss, or your CRM, from an export or in the browser, and you do the sign-in.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['QuickBooks Online', 'Google Drive', 'Google Sheets'],
+  connectNote: [
+    'It reads Follow Up Boss, or your CRM, from an export or in its own browser; save that login in the Vault.',
   ],
   sampleTitle: 'Lead-Source ROI: An Example Month',
   faq: [

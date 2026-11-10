@@ -18,11 +18,10 @@ export const STALLED_ITEM_FOLLOW_UP: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Transactions',
   lede: 'If the appraisal, the title commitment, the HOA documents or the earnest money receipt should have moved and has not, this bot drafts the follow-up. Every weekday. It will not invent a stall or a status.',
   outcome: { n: '03', title: 'Nothing Sits Quietly', body: 'The stalled items and the follow-ups, drafted for you to send.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'It reads your tracker. Connect ',
-    { strong: 'Gmail' },
-    ' in Grok Bot, so it can see when each item was last touched.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['Gmail', 'Google Sheets'],
+  connectNote: [
+    'It reads Gmail to see when each item was last touched.',
   ],
   sampleTitle: 'Stalled Lender, Title & Escrow Follow-Up: An Example Day',
   unlockKey: 'gsif-unlocked',

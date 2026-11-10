@@ -18,15 +18,14 @@ export const TRUST_EARNEST_WATCH: Guide = grokPage({
   eyebrow: 'Free Grok Bot Template · Bookkeeping · For Brokers',
   lede: 'For brokers and brokerages that hold earnest money. Every Friday, this bot checks that the trust bank, QuickBooks Online and the per-deal ledger agree, and flags possible commingling, aging funds and closed files not at zero.',
   outcome: { n: '03', title: 'Three Records That Agree', body: 'The differences, ranked by dollars, flagged for the broker.' },
-  optInBody: 'Tell us where to send updates and the template is yours. It’s a Grok Bot skill: one file you add to Grok Bot once, then a routine runs it on a schedule. It reads and drafts, and changes nothing until you approve.',
-  connect: [
-    'Connect ',
-    { strong: 'QuickBooks Online' },
-    ', ',
-    { strong: 'Google Drive' },
-    ' and ',
-    { strong: 'Gmail' },
-    ' in Grok Bot. It opens the trust bank’s site for the posted balance, and you do the sign-in.',
+  optInBody: 'Tell us where to send updates and the template is yours, with its setup in Grok Bot one step at a time: every button to click and every prompt to copy. It reads and drafts, and changes nothing until you approve.',
+  apps: ['QuickBooks Online', 'Google Drive', 'Google Sheets', 'Gmail'],
+  connectNote: [
+    'It opens the trust bank’s site for the posted balance; save that login in the Vault, and finish any extra check with ',
+    { strong: 'Open computer' },
+    ', then ',
+    { strong: 'Take control' },
+    '.',
   ],
   sampleTitle: 'Trust & Earnest Money Watch: An Example Week',
   faq: [
