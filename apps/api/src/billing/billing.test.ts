@@ -76,14 +76,26 @@ describe('the Stripe contract (D-073, D-074, D-077)', () => {
     );
   });
 
-  it('builds the cohort in full as a payment that saves the card, with an invoice', () => {
+  it('builds the AI Accelerator in full as $7,500 today and Amplified Insiders trialing until May 3, 2027', () => {
     const p = session('cohort-full');
-    expect(p.mode).toBe('payment');
-    expect(p.line_items).toEqual([{ price: 'price_cff', quantity: 1 }]);
-    expect(p.customer_creation).toBe('always');
-    expect(p.payment_intent_data?.setup_future_usage).toBe('off_session');
-    expect(p.invoice_creation?.enabled).toBe(true);
-    expect(p.payment_intent_data?.metadata).toMatchObject({ order_id: 'ord_1', ai_plan: 'cohort', ai_option: 'full' });
+    expect(p.mode).toBe('subscription');
+    expect(p.line_items).toEqual([
+      { price: 'price_cff', quantity: 1 },
+      { price: 'price_mm', quantity: 1 },
+    ]);
+    // A fixed calendar date (unix 1809320400), never a relative trial that would bill in February.
+    expect(p.subscription_data?.trial_end).toBe(1809320400);
+    expect(p.subscription_data?.trial_period_days).toBeUndefined();
+    expect(p.payment_method_collection).toBe('always');
+    expect(p.subscription_data?.metadata).toMatchObject({ order_id: 'ord_1', ai_plan: 'cohort', ai_option: 'full' });
+  });
+
+  it('never passes payment method types or automatic tax (Stripe chooses cards and wallets; tax waits on David)', () => {
+    for (const id of CART_IDS) {
+      const p = session(id) as Record<string, unknown>;
+      expect(p.payment_method_types, id).toBeUndefined();
+      expect(p.automatic_tax, id).toBeUndefined();
+    }
   });
 
   it('builds the library as $2,000 today and the $197 on a 30-day trial', () => {
@@ -100,8 +112,8 @@ describe('the Stripe contract (D-073, D-074, D-077)', () => {
   it('builds an agent plan with nothing charged until Jan 26 and the card saved', () => {
     for (const id of ['agents-upto15', 'agents-16to40'] as const) {
       const p = session(id);
-      expect(p.subscription_data?.trial_end).toBe(Math.floor(AGENTS_FIRST_CHARGE_AT / 1000));
-      expect(new Date(AGENTS_FIRST_CHARGE_AT).toISOString().slice(0, 10)).toBe('2027-01-26');
+      expect(p.subscription_data?.trial_end).toBe(1800943200);
+      expect(new Date(AGENTS_FIRST_CHARGE_AT).toISOString()).toBe('2027-01-26T06:00:00.000Z');
       expect(p.payment_method_collection).toBe('always');
     }
   });
@@ -133,7 +145,7 @@ describe('the Stripe contract (D-073, D-074, D-077)', () => {
   });
 
   it('dates the cohort and the agent plan as the offer says', () => {
-    expect(new Date(COHORT_ONE_LIVE_UNTIL).toISOString().slice(0, 10)).toBe('2027-05-03');
+    expect(COHORT_ONE_LIVE_UNTIL).toBe(1809320400 * 1000);
     expect(initialPlanDates('library', NOW).paidThrough).toBe(NOW + 30 * DAY);
     expect(initialPlanDates('agents', NOW)).toMatchObject({ paidThrough: null, minimumUntil: addMonths(AGENTS_FIRST_CHARGE_AT, 3) });
   });
@@ -146,7 +158,20 @@ describe('the Stripe contract (D-073, D-074, D-077)', () => {
     expect(renewalText(CARTS['agents-upto15'], amounts, NOW)).toContain('Tuesday, January 26, 2027');
     expect(renewalText(CARTS['agents-upto15'], amounts, NOW)).toContain('3-month minimum');
     expect(renewalText(CARTS['cohort-two-pay'], { membership: 19700, recurring: 375000 }, NOW)).toContain('$3,750 on December 14, 2026');
-    for (const id of CART_IDS) expect(renewalText(CARTS[id], amounts, NOW)).not.toMatch(/[—!]/);
+    for (const id of CART_IDS) {
+      const words = renewalText(CARTS[id], amounts, NOW);
+      expect(words).not.toMatch(/[—–!]/);
+      // Members cancel themselves in the billing portal, never only by email (Connor, 2026-11-10).
+      expect(words).toContain('billing portal');
+      expect(words).not.toContain('emailing');
+    }
+    for (const id of ['cohort-full', 'cohort-two-pay'] as const) {
+      const words = renewalText(CARTS[id], { membership: 19700, recurring: 375000 }, NOW);
+      expect(words).toContain('Amplified Insiders member at $197 a month');
+      expect(words).toContain('Monday, May 3, 2027');
+      expect(words).toContain('30 days');
+      expect(words).toContain('keep every skill already released');
+    }
     expect(dollars(19700)).toBe('$197');
     expect(dollars(200000)).toBe('$2,000');
   });
@@ -173,9 +198,10 @@ describe('the checkout form (D-077)', () => {
     expect(CHECKOUT_ERRORS.crm).toContain('Skill Library');
   });
 
-  it('makes the cohort-in-full renewal box optional while Spring decides', () => {
-    const v = validateCheckout({ ...ok, cart: 'cohort-full', crm: 'follow_up_boss', renew: undefined });
-    expect(v.kind).toBe('valid');
+  it('requires the Amplified Insiders box on both AI Accelerator carts', () => {
+    for (const cart of ['cohort-full', 'cohort-two-pay']) {
+      expect(validateCheckout({ ...ok, cart, crm: 'follow_up_boss', renew: undefined }), cart).toEqual({ kind: 'invalid', code: 'renew', cart });
+    }
   });
 
   it('needs a number for texts, and only records the forum campaign', () => {

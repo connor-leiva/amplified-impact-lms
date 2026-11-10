@@ -26,6 +26,8 @@ export const COPY = {
   unavailable: 'The skill library opens when you sign in.',
   signIn: 'Sign In',
   failed: "Your skills didn't load. Refresh the page to try again.",
+  /** The owner's way into Stripe's billing portal (cards, invoices, cancelling). */
+  billing: 'Manage Billing',
 } as const;
 
 type SkillState = 'open' | 'locked' | 'upcoming';
@@ -128,6 +130,11 @@ export function Component() {
         <BrandSlot kind="lockup" />
         <h1 className={s.h1}>{COPY.title}</h1>
         <p className={s.sub}>{COPY.sub}</p>
+        {load.kind === 'ready' ? (
+          <a className={s.secondary} href="/api/billing/portal">
+            {COPY.billing}
+          </a>
+        ) : null}
       </header>
 
       {load.kind === 'loading' ? (

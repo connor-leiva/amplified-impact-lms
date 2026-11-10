@@ -72,8 +72,8 @@ describe.each(PAID.map((g) => [g.slug, g] as const))('paid /%s (D-082)', (slug, 
     } else {
       expect(doc.querySelector('main.page')?.firstElementChild).toBe(card);
     }
-    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Skill Library');
-    expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Skill Library in the Amplified Impact platform.');
+    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Amplified Skill Library');
+    expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Amplified Skill Library in the Amplified Impact platform.');
     const links = Array.from(card?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
     expect(links).toEqual([
       ['See Plans', '/offer#plans', false],

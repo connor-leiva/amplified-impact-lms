@@ -86,6 +86,7 @@ import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
 import { registerOfferRoutes } from './routes/offer';
 import { registerSkillRoutes } from './routes/skills';
+import { registerBillingRoutes } from './routes/billing';
 import type { OfferPages } from './routes/offer';
 import { readOfferConfig } from './billing/config';
 import type { OfferConfig } from './billing/config';
@@ -462,10 +463,12 @@ export async function build(options: BuildOptions = {}): Promise<App> {
 
   // The offer (D-073 to D-077): its pages in both modes, its order, webhook and waitlist routes
   // wherever there is a database, like the waitlist above.
+  const offerConfig = options.offer?.config ?? readOfferConfig();
+  const offerStripe =
+    options.offer?.stripe !== undefined ? options.offer.stripe : offerConfig.stripeSecretKey ? stripeClient(offerConfig.stripeSecretKey) : null;
   {
-    const config = options.offer?.config ?? readOfferConfig();
-    const stripe =
-      options.offer?.stripe !== undefined ? options.offer.stripe : config.stripeSecretKey ? stripeClient(config.stripeSecretKey) : null;
+    const config = offerConfig;
+    const stripe = offerStripe;
     const verify = options.offer?.verify !== undefined ? options.offer.verify : config.stripeWebhookSecret ? stripeVerifier() : null;
     const prices =
       options.offer?.prices ??
@@ -503,6 +506,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerFilesRoutes(app);
     // The skill library (D-079): signed in, like the Vault beside it.
     registerSkillRoutes(app);
+    // Manage Billing (D-077): the owner's way into Stripe's billing portal, where members cancel.
+    registerBillingRoutes(app, { stripe: offerStripe, config: offerConfig });
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

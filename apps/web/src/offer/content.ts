@@ -13,7 +13,7 @@ import type { CartId, PlanKind } from '@ai/core/offer';
 
 export const META = {
   title: 'Plans and Prices | Amplified Impact',
-  description: 'The Skill Library, the Core Cohort and the Agent Team Plan: AI training software for real estate teams.',
+  description: 'The Amplified Skill Library, the Amplified AI Accelerator and the Amplified Team Plan: AI training software for real estate teams.',
 } as const;
 
 export const CHROME = {
@@ -54,10 +54,10 @@ export const CARDS_COPY: Readonly<Record<PlanKind, CardCopy>> = {
       'Every owner and operations skill in the platform',
       'Two new skills a month while you pay',
       'Office hours for 30 days, then while you pay',
-      'If you cancel, you keep every skill released before then',
+      'Cancel yourself in the billing portal and keep every skill released',
     ],
-    choose: 'Choose Skill Library',
-    pay: { library: 'Pay for Skill Library' },
+    choose: 'Choose Amplified Skill Library',
+    pay: { library: 'Pay for Amplified Skill Library' },
   },
   cohort: {
     forWho: 'For Follow Up Boss teams who want to build the skills live, as a group, over eight weeks.',
@@ -66,9 +66,10 @@ export const CARDS_COPY: Readonly<Record<PlanKind, CardCopy>> = {
       'Eight weekly 90-minute builds on Tuesdays from December 1',
       'Weekly 60-minute office hours',
       'Then 90 days of new skills and office hours',
+      'Then Amplified Insiders at $197 a month from May 3, until you cancel',
       'Ten founding seats',
     ],
-    choose: 'Choose Core Cohort',
+    choose: 'Choose Amplified AI Accelerator',
     pay: { 'cohort-full': 'Pay in Full', 'cohort-two-pay': 'Pay in Two Payments' },
   },
   agents: {
@@ -80,7 +81,7 @@ export const CARDS_COPY: Readonly<Record<PlanKind, CardCopy>> = {
       'Logins for your agents and for you',
       'A 3-month minimum, with nothing charged until January 26',
     ],
-    choose: 'Choose Agent Team Plan',
+    choose: 'Choose Amplified Team Plan',
     pay: { 'agents-upto15': 'Buy 15-Agent Plan', 'agents-16to40': 'Buy 40-Agent Plan' },
   },
 };
@@ -91,7 +92,7 @@ export const CARD_STATES = {
   soon: 'Opens soon.',
   /** When Stripe could not say a price: the payment page still shows it. */
   priceOnStripe: 'The price shows on the payment page.',
-  waitlist: 'Join the Cohort Waitlist',
+  waitlist: 'Join the Waitlist',
 } as const;
 
 export const PLANS_HEADING = 'Plans and prices';
@@ -105,7 +106,7 @@ export const CHECKOUT = {
     email: { label: 'Email', autocomplete: 'email', hint: 'Your login and receipt go here.' },
     phone: { label: 'Mobile Number', autocomplete: 'tel', hint: 'Optional.' },
     company: { label: 'Team Name', autocomplete: 'organization', hint: 'Optional. It names your team in the platform.' },
-    crm: { label: 'Team CRM', hint: 'The Core Cohort is built on Follow Up Boss.' },
+    crm: { label: 'Team CRM', hint: 'The Amplified AI Accelerator is built on Follow Up Boss.' },
   },
   crmOptions: [
     { value: '', label: 'Choose one' },
@@ -127,7 +128,7 @@ export const CHECKOUT = {
     email: 'Enter a valid email address.',
     phone: 'Enter a valid mobile number.',
     crmMissing: 'Tell us which CRM your team uses.',
-    crm: 'The cohort is built on Follow Up Boss. The Skill Library works with any CRM, or join the cohort waitlist.',
+    crm: 'The Amplified AI Accelerator is built on Follow Up Boss. The Amplified Skill Library works with any CRM, or join the waitlist.',
     sms: 'Add your mobile number to get texts.',
     agree: 'Tick the box to accept the subscription agreement.',
     renew: 'Tick the box to agree to the later charge.',
@@ -147,12 +148,12 @@ export const AFTER = {
 } as const;
 
 export const WAITLIST = {
-  heading: 'Cohort waitlist',
-  body: 'The Core Cohort is built on Follow Up Boss. Teams on another CRM, and anyone who missed the founding seats, can join the waitlist for cohort two.',
+  heading: 'Accelerator waitlist',
+  body: 'The Amplified AI Accelerator is built on Follow Up Boss. Teams on another CRM, and anyone who missed the founding seats, can join the waitlist for the next cohort.',
   firstName: 'First Name',
   email: 'Email',
   submit: 'Join the Waitlist',
-  joined: "You're on the cohort waitlist. We'll email you when cohort two opens.",
+  joined: "You're on the Accelerator waitlist. We'll email you when the next cohort opens.",
   error: "That didn't go through. Check your name and email, then try again.",
   consent: 'By joining, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime.',
 } as const;
@@ -166,6 +167,9 @@ export const WELCOME = {
     intakeTitle: 'Your intake form',
     intakeButton: 'Open Intake Form',
     intakeEmail: 'Your intake form arrives with your welcome email.',
+    billingTitle: 'Your billing',
+    billingBody: 'Update your card, see invoices or cancel yourself in the billing portal, with 30 days\u2019 notice. You keep every skill already released.',
+    billingButton: 'Manage Billing',
   },
   pending: {
     heading: 'Confirming your payment',

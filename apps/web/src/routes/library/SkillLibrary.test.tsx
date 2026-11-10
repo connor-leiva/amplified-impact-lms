@@ -52,6 +52,7 @@ describe('the skill library screen', () => {
     expect(within(both).getByText('Coming December 15.')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith('/api/skills', expect.objectContaining({ credentials: 'include' }));
     expect(document.body.dataset.appReady).toBe('true');
+    expect(screen.getByRole('link', { name: COPY.billing })).toHaveAttribute('href', '/api/billing/portal');
   });
 
   it('sends a signed-out visitor to sign in', async () => {

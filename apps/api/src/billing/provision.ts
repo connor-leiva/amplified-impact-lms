@@ -148,9 +148,10 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
           paidThrough: dates.paidThrough,
           liveUntil: dates.liveUntil,
           minimumUntil: dates.minimumUntil,
-          // The library's and the agent plan's subscription is the plan's own. The cohort's two
-          // payments are the order's; its later $197, when there is one, is attached by the webhook.
-          stripeSubscriptionId: cart.plan === 'cohort' ? null : order.stripeSubscriptionId,
+          // The library's, the Team Plan's and the AI Accelerator-in-full's subscription is the plan's
+          // own (the last carries Amplified Insiders). Two payments are the order's subscription; its
+          // Insiders is a separate one, attached by the webhook (`ensureInsiders`).
+          stripeSubscriptionId: cart.option === 'two_pay' ? null : order.stripeSubscriptionId,
           orderId: order.id,
           createdAt: now,
         })

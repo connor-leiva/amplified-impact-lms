@@ -240,6 +240,8 @@ export function renderWelcomeBody(): string {
     `<li><h2>${esc(c.intakeTitle)}</h2>`,
     `<p class="intake-email">${esc(c.intakeEmail)}</p>`,
     `<p class="intake-link"><a class="button primary" href="${W.intakeUrl}" target="_blank" rel="noopener">${esc(c.intakeButton)}</a></p></li>`,
+    `<li><h2>${esc(c.billingTitle)}</h2><p>${esc(c.billingBody)}</p>`,
+    `<p><a class="button secondary" href="${W.portalUrl}" target="_blank" rel="noopener">${esc(c.billingButton)}</a></p></li>`,
     `</ol>`,
     `<p class="contact">${esc(WELCOME.contact)}</p>`,
     `</section>`,

@@ -190,12 +190,15 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
    | `PAYMENT_LINK_LIBRARY`, `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`, `PAYMENT_LINK_AGENTS_UPTO15`, `PAYMENT_LINK_AGENTS_16TO40` | Grokbok's fallback links |
    | `INTAKE_URL_LIBRARY`, `INTAKE_URL_COHORT`, `INTAKE_URL_AGENTS` | Sarah O.'s intake forms; without them the welcome page says the form comes by email |
    | `INVITES_FROM` | optional; defaults to Mon, Nov 16, 8:00 am Central |
+   | `STRIPE_PORTAL_LOGIN_URL` | the billing portal's login page, where members cancel themselves; Manage Billing falls back to it |
+   | `STRIPE_PORTAL_CONFIG_LOCKED` | the `bpc_…` id of the portal configuration with cancelling off, from Grokbok (`docs/STRIPE-HANDOFF.md` § 4) |
 
    The boot log line `offer configuration` says what is on and the key's mode (`test` or `live`),
    never a value.
 3. Load the skills: `pnpm --filter @ai/api skills --upload` puts the 18 ZIPs in the bucket and the
    catalog in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
-   free in `packages/core/src/skills.ts` first: **the tags there are a first pass for Connor.**
+   free in `packages/core/src/skills.ts` first. Free today: Appointment Follow-Up, Database Health Check
+   and Team P&L Review.
 4. Print `/forum-qr.svg` (it encodes `https://www.amplifiedimpact.io/forum?src=qr`). It decodes at
    3 cm; scan the printed one on an iPhone and an Android, on cellular.
 

@@ -285,7 +285,7 @@ function asPaid(guide: Guide): Guide {
     ...guide,
     meta: { title: unfree(guide.meta.title), description: unfree(guide.meta.description) },
     hero: { ...guide.hero, eyebrow: unfree(guide.hero.eyebrow) },
-    ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'In the Skill Library' : f)) } : {}),
+    ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'In the Amplified Skill Library' : f)) } : {}),
   };
 }
 
@@ -352,8 +352,8 @@ export const SHARED = {
   // people who already bought a plan. Also the button under "What you need".
   skillLibrary: {
     anchor: 'skill-library',
-    heading: 'In the Skill Library',
-    body: 'This skill is part of the Skill Library in the Amplified Impact platform.',
+    heading: 'In the Amplified Skill Library',
+    body: 'This skill is part of the Amplified Skill Library in the Amplified Impact platform.',
     plans: { label: 'See Plans', href: '/offer#plans' },
     signIn: { lead: 'Already bought a plan?', label: 'Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
   },

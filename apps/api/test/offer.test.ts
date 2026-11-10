@@ -12,7 +12,7 @@ import { build } from '../src/app';
 import type { App } from '../src/app';
 import { accounts, orders, plans, skills, stripeEvents, users, teams } from '../src/db/schema';
 import { AGREEMENT_VERSION } from '../src/billing/checkout';
-import { AGENTS_FIRST_CHARGE_AT, COHORT_ONE_LIVE_UNTIL } from '../src/billing/catalog';
+import { AGENTS_FIRST_CHARGE_AT, INSIDERS_FIRST_CHARGE_AT } from '../src/billing/catalog';
 import type { OfferConfig } from '../src/billing/config';
 import { createPriceCache } from '../src/billing/prices';
 import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
@@ -47,6 +47,9 @@ const WELCOME_PAGE = '<!doctype html><html><body data-state="%%welcome-state%%">
 
 interface Stub {
   client: BillingStripe;
+  portals: { customer: string; returnUrl: string; configuration?: string }[];
+  /** Customers who already hold an active or trialing membership. */
+  members: Set<string>;
   sessions: { params: Stripe.Checkout.SessionCreateParams; key: string }[];
   updates: { id: string; params: Stripe.SubscriptionUpdateParams }[];
   creates: { params: Stripe.SubscriptionCreateParams; key: string }[];
@@ -56,7 +59,7 @@ interface Stub {
 }
 
 function stubStripe(): Stub {
-  const stub: Stub = { sessions: [], updates: [], creates: [], cancels: [], subs: new Map(), fail: false, client: null as never };
+  const stub: Stub = { portals: [], members: new Set(), sessions: [], updates: [], creates: [], cancels: [], subs: new Map(), fail: false, client: null as never };
   const sub = (id: string, over: Partial<SubscriptionInfo> = {}): SubscriptionInfo => ({
     id,
     status: 'active',
@@ -90,6 +93,11 @@ function stubStripe(): Stub {
       stub.cancels.push(id);
       return sub(id, { status: 'canceled' });
     },
+    activeSubscriptionWithPrice: async (customer) => (stub.members.has(customer) ? 'sub_existing_member' : null),
+    createPortalSession: async (customer, returnUrl, configuration) => {
+      stub.portals.push({ customer, returnUrl, ...(configuration ? { configuration } : {}) });
+      return 'https://billing.stripe.com/p/session/test_portal';
+    },
     paymentMethodOfPaymentIntent: async () => 'pm_saved',
     subscriptionOfPaymentIntent: async () => null,
     constructEvent: stripeVerifier(),
@@ -106,6 +114,8 @@ const CONFIG: OfferConfig = {
   invitesEnabled: true,
   paymentLinks: { 'cohort-full': 'https://buy.stripe.com/test_cohort_full' },
   intakeUrls: { library: 'https://forms.example.com/library' },
+  portalLoginUrl: 'https://billing.stripe.com/p/login/test_portal',
+  portalLockedConfig: 'bpc_locked',
 };
 
 let app: App;
@@ -325,11 +335,11 @@ describe('the offer pages (D-075)', () => {
     });
     const done = await app.inject({ method: 'GET', url: '/offer/welcome?session_id=cs_test_session0001' });
     expect(done.body).toContain('data-state="confirmed"');
-    expect(done.body).toContain('<h1>Skill Library</h1>');
+    expect(done.body).toContain('<h1>Amplified Skill Library</h1>');
     expect(done.body).toContain('Monday, November 16');
     expect(done.body).toContain('href="https://forms.example.com/library"');
     const status = await app.inject({ method: 'GET', url: '/api/offer/order-status?session_id=cs_test_session0001' });
-    expect(status.json()).toEqual({ status: 'paid', plan: 'library', name: 'Skill Library' });
+    expect(status.json()).toEqual({ status: 'paid', plan: 'library', name: 'Amplified Skill Library' });
     const unknown = await app.inject({ method: 'GET', url: '/offer/welcome?session_id=nope' });
     expect(unknown.body).toContain('data-state="unknown"');
   });
@@ -410,32 +420,73 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     expect(order.ghlSyncedAt).toBeNull();
   });
 
-  it('4: the cohort in full opens both sets in cohort one, and schedules the $197 only when its box was ticked', async () => {
-    await buy('cohort-full', { crm: 'follow_up_boss', renew: false }, { payment_intent: 'pi_1', amount_total: 750000 });
+  it('4: the AI Accelerator in full opens both sets, and its own subscription carries Insiders from May 3, 2027', async () => {
+    // A Payment Link's relative trial lands on the wrong day for a later buyer: the webhook pins it.
+    stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: INSIDERS_FIRST_CHARGE_AT + 2 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    const order = await buy('cohort-full', { crm: 'follow_up_boss' }, { subscription: 'sub_full' });
     const [plan] = await (await db()).select().from(plans);
-    expect(plan).toMatchObject({ kind: 'cohort', cohortId: 'dec26', paidThrough: COHORT_ONE_LIVE_UNTIL });
-    expect((await one()).paymentsMade).toBe(1);
+    expect(plan).toMatchObject({ kind: 'cohort', cohortId: 'dec26', paidThrough: INSIDERS_FIRST_CHARGE_AT, stripeSubscriptionId: 'sub_full' });
+    expect(order.renewalConsentText).toContain('Amplified Insiders');
+    expect(stub.updates).toEqual([
+      {
+        id: 'sub_full',
+        params: { metadata: { order_id: order.id, ai_plan: 'cohort', ai_option: 'full' }, trial_end: 1809320400, proration_behavior: 'none' },
+      },
+    ]);
+    // No second membership: the purchase's own subscription is it.
     expect(stub.creates).toEqual([]);
+    // The $7,500 invoice counts as the one payment.
+    await deliver('invoice.paid', invoice('sub_full', 750000, INSIDERS_FIRST_CHARGE_AT, { order_id: order.id }));
+    expect((await one()).paymentsMade).toBe(1);
+  });
 
-    await buy('cohort-full', { crm: 'follow_up_boss', renew: true, email: 'sam@example.com' }, { payment_intent: 'pi_2' });
+  it('two payments: every buyer rolls into a separate Insiders subscription on May 3, 2027, never twice', async () => {
+    const order = await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
     expect(stub.creates).toHaveLength(1);
+    expect(stub.creates[0]!.key).toBe(`membership-autoroll-${order.stripeSessionId}`);
     expect(stub.creates[0]!.params).toMatchObject({
       customer: 'cus_1',
       items: [{ price: 'price_mm' }],
-      trial_end: Math.floor(COHORT_ONE_LIVE_UNTIL / 1000),
-      default_payment_method: 'pm_saved',
+      trial_end: 1809320400,
+      default_payment_method: 'pm_sub',
+      metadata: { ai_plan: 'membership', ai_option: 'monthly', origin: 'offer', source_plan: 'cohort', source_option: 'two_pay', source_session: order.stripeSessionId },
     });
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan!.stripeSubscriptionId).toBe('sub_membership_1');
+    // The installments are not dated at checkout: the second paid invoice ends them (section B).
+    expect(stub.updates.filter((u) => u.params.cancel_at || u.params.cancel_at_period_end)).toEqual([]);
+
+    // A buyer who already holds a membership is not enrolled again.
+    stub.members.add('cus_1');
+    await buy('cohort-two-pay', { crm: 'follow_up_boss', email: 'sam@example.com' }, { subscription: 'sub_two_b' });
+    expect(stub.creates).toHaveLength(1);
   });
 
-  it('5 and handoff 11: two-pay is dated to end after its second payment as soon as it is bought', async () => {
-    const periodEnd = Date.parse('2026-12-14T21:00:00Z');
-    stub.subs.set('sub_two', { id: 'sub_two', status: 'active', customer: 'cus_1', trialEnd: null, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: periodEnd });
-    await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
-    const end = stub.updates.find((u) => u.params.cancel_at);
-    expect(end?.params).toMatchObject({ cancel_at: Math.floor(Date.parse('2027-01-14T21:00:00Z') / 1000), proration_behavior: 'none' });
+  it('a two-pay Payment Link buyer rolls into Insiders too, with the company from company_or_team_name', async () => {
+    const res = await deliver('checkout.session.completed', {
+      id: 'cs_test_linktwopay001',
+      object: 'checkout.session',
+      client_reference_id: null,
+      payment_link: 'plink_two',
+      metadata: { ai_plan: 'cohort', ai_option: 'two_pay', origin: 'payment_link', campaign: 'forum' },
+      payment_status: 'paid',
+      customer: 'cus_9',
+      subscription: 'sub_link_two',
+      customer_details: { email: 'Kim@Example.com', name: 'Kim Owner', phone: null },
+      custom_fields: [
+        { key: 'company_or_team_name', label: { type: 'custom', custom: 'Company or team name' }, text: { value: 'Kim Group' } },
+        { key: 'crm', label: { type: 'custom', custom: 'Which CRM does your team use?' }, dropdown: { value: 'followupboss' } },
+      ],
+      consent: { terms_of_service: 'accepted' },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(await one()).toMatchObject({ origin: 'payment_link', company: 'Kim Group', crm: 'follow_up_boss', campaign: 'forum', renewalConsentAt: null });
+    expect(stub.creates).toHaveLength(1);
+    expect(stub.creates[0]!.key).toBe('membership-autoroll-cs_test_linktwopay001');
+    expect(stub.creates[0]!.params.metadata).toMatchObject({ origin: 'payment_link', campaign: 'forum', source_session: 'cs_test_linktwopay001' });
   });
 
-  it('5: an undated two-pay ends itself after the second payment, and its end is complete, not cancelled', async () => {
+  it('5: two-pay ends itself at the second paid invoice, and its end is complete, not cancelled', async () => {
     const order = await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
     await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }));
     expect(stub.updates.filter((u) => u.params.cancel_at_period_end)).toEqual([]);
@@ -497,7 +548,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     ]);
     // The welcome page finds the link's session too.
     const welcome = await app.inject({ method: 'GET', url: '/offer/welcome?session_id=cs_test_linksession01' });
-    expect(welcome.body).toContain('Agent Team Plan');
+    expect(welcome.body).toContain('Amplified Team Plan');
   });
 
   it('13: a second plan for the same buyer lands on one account', async () => {
@@ -590,5 +641,47 @@ describe('www routing (D-075, D-051)', () => {
       expect([302, 404], url).toContain(res.statusCode);
       expect(res.body, url).not.toContain('data-offer');
     }
+  });
+});
+
+describe('Manage Billing (D-077, Connor 2026-11-10)', () => {
+  beforeEach(async () => void (await fresh()));
+
+  const ownerCookie = async () => {
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+    return app.signInAs(owner!.id);
+  };
+
+  it('opens the billing portal for the owner, with cancelling on outside any commitment', async () => {
+    await buy('library', {}, { subscription: 'sub_lib' });
+    const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
+    expect(res.statusCode).toBe(303);
+    expect(res.headers.location).toBe('https://billing.stripe.com/p/session/test_portal');
+    expect(stub.portals).toEqual([{ customer: 'cus_1', returnUrl: 'https://learn.amplifiedimpact.io/skill-library' }]);
+  });
+
+  it('uses the locked configuration inside the Team Plan minimum and before the second installment', async () => {
+    await buy('agents-upto15', {}, { subscription: 'sub_a', payment_status: 'no_payment_required' });
+    await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
+    expect(stub.portals.at(-1)?.configuration).toBe('bpc_locked');
+  });
+
+  it('sends a team member who is not the owner away, and anyone without a session to sign in', async () => {
+    expect((await app.inject({ method: 'GET', url: '/api/billing/portal' })).statusCode).toBe(401);
+    await buy('library', {}, { subscription: 'sub_lib' });
+    const [acct] = await (await db()).select().from(accounts);
+    await (await db()).insert(users).values({ id: 'u_agent', email: 'agent@example.com', name: 'Agent', kind: 'learner', role: 'Sales Agent', tier: 'team', teamId: acct!.teamId, cohortId: 'dec26', status: 'active', joined: NOW_MS });
+    const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await app.signInAs('u_agent') } });
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('falls back to the portal login when Stripe cannot open a session', async () => {
+    await buy('library', {}, { subscription: 'sub_lib' });
+    stub.client.createPortalSession = async () => {
+      throw Object.assign(new Error('down'), { type: 'StripeConnectionError' });
+    };
+    const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
+    expect(res.statusCode).toBe(303);
+    expect(res.headers.location).toBe('https://billing.stripe.com/p/login/test_portal');
   });
 });

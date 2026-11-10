@@ -214,6 +214,7 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     'intake-url': intake ?? '',
     'intake-state': intake ? 'link' : 'email',
     'session-id': w.sessionId ?? '',
+    'portal-url': w.config.portalLoginUrl ?? '',
     'paid-line': w.trialing
       ? `Your card is saved, and nothing is charged until ${dayOfYear(AGENTS_FIRST_CHARGE_AT)}.`
       : 'Your payment is in, and Stripe has emailed your receipt.',

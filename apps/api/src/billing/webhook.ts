@@ -24,7 +24,7 @@ import type { Database } from '../db/client';
 import { orders, plans, stripeEvents } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import { AGREEMENT_VERSION } from './checkout';
-import { AGENTS_FIRST_CHARGE_AT, AI_PLANS, COHORT_ONE_LIVE_UNTIL, LIBRARY_TRIAL_DAYS, PLAN_KINDS, addMonths, cartFor } from './catalog';
+import { AGENTS_FIRST_CHARGE_AT, AI_PLANS, INSIDERS_FIRST_CHARGE_AT, LIBRARY_TRIAL_DAYS, PLAN_KINDS, cartFor } from './catalog';
 import type { PlanStatus } from './catalog';
 import type { OfferConfig } from './config';
 import type { PriceCache } from './prices';
@@ -116,13 +116,24 @@ export function planStatusOf(stripeStatus: string): PlanStatus {
   }
 }
 
-/** A Payment Link's custom field by key (the handoff asks Grokbok for `company`, `crm` and `agents`). */
-function customField(session: Stripe.Checkout.Session, key: string): string | null {
-  const field = (session.custom_fields ?? []).find((f) => f.key === key);
+/**
+ * A Payment Link's custom field. By key first, from the keys the links use (`company_or_team_name` on
+ * the live test links, `company` in the first handoff), then by a word in its label, so a renamed
+ * field still lands. Null when the link asks nothing of the kind.
+ */
+function customField(session: Stripe.Checkout.Session, keys: readonly string[], labelWord: RegExp): string | null {
+  const fields = session.custom_fields ?? [];
+  const field =
+    keys.map((k) => fields.find((f) => f.key === k)).find((f) => f !== undefined) ??
+    fields.find((f) => labelWord.test(f.label?.custom ?? ''));
   if (!field) return null;
   const value = field.text?.value ?? field.dropdown?.value ?? field.numeric?.value ?? null;
   return value === null || value === '' ? null : String(value);
 }
+
+const COMPANY_KEYS = ['company_or_team_name', 'company', 'team_name', 'companyorteamname'] as const;
+const CRM_KEYS = ['crm', 'which_crm', 'which_crm_does_your_team_use', 'whichcrmdoesyourteamuse'] as const;
+const AGENT_KEYS = ['agents', 'number_of_agents', 'numberofagents', 'agent_count', 'agentcount'] as const;
 
 /** A number of agents as one of the team-size buckets the site uses. */
 export function teamSizeOfAgents(raw: string | null): string | null {
@@ -169,9 +180,9 @@ async function orderForSession(db: Database, session: Stripe.Checkout.Session, n
       name: details?.name ?? null,
       email,
       phone: details?.phone ?? null,
-      company: customField(session, 'company'),
-      crm: crmOf(customField(session, 'crm')),
-      teamSize: teamSizeOfAgents(customField(session, 'agents')),
+      company: customField(session, COMPANY_KEYS, /company|team name/i),
+      crm: crmOf(customField(session, CRM_KEYS, /\bcrm\b/i)),
+      teamSize: teamSizeOfAgents(customField(session, AGENT_KEYS, /agents/i)),
       campaign: meta.campaign === 'forum' ? 'forum' : null,
       agreementVersion: accepted ? AGREEMENT_VERSION : null,
       agreementAcceptedAt: accepted ? now : null,
@@ -241,23 +252,18 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
   }
 
   if (subscriptionId) {
-    // Every subscription carries the order id, so invoice events find it even from a Payment Link;
-    // and an agent plan's first charge is exactly Jan 26, whatever trial a link set.
+    // Every subscription carries the order id, so invoice events find it even from a Payment Link.
     const sub = await stripe.retrieveSubscription(subscriptionId);
     const update: Stripe.SubscriptionUpdateParams = {};
     if (sub.metadata.order_id !== order.id) {
       update.metadata = { order_id: order.id, ai_plan: cart.plan, ai_option: cart.option, ...(fresh.campaign ? { campaign: fresh.campaign } : {}) };
     }
-    const target = Math.floor(AGENTS_FIRST_CHARGE_AT / 1000);
-    if (cart.plan === 'agents' && sub.status === 'trialing' && sub.trialEnd !== null && Math.floor(sub.trialEnd / 1000) !== target) {
-      update.trial_end = target;
-      update.proration_behavior = 'none';
-    }
-    // Two payments, then none: the subscription is set to end when the last paid period does, so the
-    // cancellation date shows in Stripe within a minute of the purchase. `invoice.paid` checks again
-    // at the last payment, for a subscription this could not date.
-    if (cart.installments && sub.cancelAt === null && sub.currentPeriodEnd !== null) {
-      update.cancel_at = Math.floor(addMonths(sub.currentPeriodEnd, cart.installments - 1) / 1000);
+    // Fixed calendar dates, whatever relative trial a Payment Link set on the day it was last edited:
+    // an Amplified Team Plan's first charge is Jan 26, 2027; the AI Accelerator in full rolls into
+    // Amplified Insiders on May 3, 2027 (its subscription carries the membership).
+    const pin = cart.plan === 'agents' ? AGENTS_FIRST_CHARGE_AT : cart.id === 'cohort-full' ? INSIDERS_FIRST_CHARGE_AT : null;
+    if (pin !== null && sub.status === 'trialing' && sub.trialEnd !== null && Math.floor(sub.trialEnd / 1000) !== Math.floor(pin / 1000)) {
+      update.trial_end = Math.floor(pin / 1000);
       update.proration_behavior = 'none';
     }
     if (Object.keys(update).length) await stripe.updateSubscription(subscriptionId, update, `order-${order.id}-sub`);
@@ -265,20 +271,27 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
 
   // The library sold through a link that could only carry the $2,000: start its $197 here, on day 31.
   if (cart.plan === 'library' && !subscriptionId) {
-    await startMembership(fresh, now + LIBRARY_TRIAL_DAYS * 86_400_000, deps, db);
+    await startMembership(fresh, now + LIBRARY_TRIAL_DAYS * 86_400_000, deps, db, { key: `membership-${order.id}`, source: null });
   }
-  // The cohort's later $197, when the buyer ticked its box (or Spring made it automatic).
-  if (cart.plan === 'cohort' && fresh.renewalConsentAt !== null) {
-    await startMembership(fresh, COHORT_ONE_LIVE_UNTIL, deps, db);
-  }
+  // Every paid AI Accelerator order rolls into Amplified Insiders on May 3, 2027, through the site
+  // or a Payment Link, ticked box or not: it is the offer's terms, agreed to at checkout.
+  if (cart.plan === 'cohort') await ensureInsiders(fresh, session.id, deps, db);
   return 'paid';
 }
 
 /**
  * A `membership_monthly` subscription trialing until `startsAt`, on the card the buyer already saved.
- * With no saved card, Stripe emails an invoice instead of charging. Idempotent by the order id.
+ * With no saved card, Stripe emails an invoice instead of charging. Idempotent by `opts.key`, and
+ * skipped when the customer already has an active or trialing membership, so a retried webhook never
+ * enrolls anyone twice.
  */
-async function startMembership(order: OrderRow, startsAt: number, deps: WebhookDeps, db: Database): Promise<void> {
+async function startMembership(
+  order: OrderRow,
+  startsAt: number,
+  deps: WebhookDeps,
+  db: Database,
+  opts: { key: string; source: { plan: string; option: string; session: string } | null },
+): Promise<void> {
   const stripe = deps.stripe!;
   const plan = await planOfOrder(db, order.id);
   if (!plan || plan.stripeSubscriptionId) return;
@@ -286,6 +299,12 @@ async function startMembership(order: OrderRow, startsAt: number, deps: WebhookD
   const price = prices?.membership_monthly;
   if (!price) throw Object.assign(new Error('membership_monthly has no price'), { code: 'no-membership-price' });
   if (!order.stripeCustomerId) throw Object.assign(new Error('order has no customer'), { code: 'no-customer' });
+
+  const existing = await stripe.activeSubscriptionWithPrice(order.stripeCustomerId, price.id);
+  if (existing) {
+    deps.log.warn({ order: order.id, plan: plan.id, subscription: existing }, 'customer already has a membership; none created');
+    return;
+  }
 
   let card: string | null = null;
   if (order.stripePaymentIntentId) card = await stripe.paymentMethodOfPaymentIntent(order.stripePaymentIntentId);
@@ -296,13 +315,42 @@ async function startMembership(order: OrderRow, startsAt: number, deps: WebhookD
       customer: order.stripeCustomerId,
       items: [{ price: price.id }],
       trial_end: Math.floor(startsAt / 1000),
-      metadata: { order_id: order.id, ai_plan: 'membership', ai_option: 'monthly' },
+      metadata: {
+        order_id: order.id,
+        ai_plan: 'membership',
+        ai_option: 'monthly',
+        origin: order.origin,
+        ...(order.campaign ? { campaign: order.campaign } : {}),
+        ...(opts.source ? { source_plan: opts.source.plan, source_option: opts.source.option, source_session: opts.source.session } : {}),
+      },
       ...(card ? { default_payment_method: card } : { collection_method: 'send_invoice', days_until_due: 7 }),
     },
-    `membership-${order.id}`,
+    opts.key,
   );
   await db.update(plans).set({ stripeSubscriptionId: sub.id }).where(eq(plans.id, plan.id));
   deps.log.info({ order: order.id, plan: plan.id, subscription: sub.id, card: card !== null }, 'membership scheduled');
+}
+
+/**
+ * An AI Accelerator order's Amplified Insiders. Paid in full, the order's own subscription carries it
+ * (`membership_monthly` trialing until May 3), so the plan points there. Two payments, the installments
+ * are their own subscription and Insiders is a separate one, created here with `trial_end` pinned to
+ * May 3, 2027 and the idempotency key `membership-autoroll-<session>` (the Stripe-side requirements,
+ * section B): sharing one subscription would delay or cancel the installments with the membership.
+ */
+async function ensureInsiders(order: OrderRow, sessionId: string, deps: WebhookDeps, db: Database): Promise<void> {
+  const plan = await planOfOrder(db, order.id);
+  if (!plan) return;
+  if (order.option === 'full' && order.stripeSubscriptionId) {
+    if (plan.stripeSubscriptionId !== order.stripeSubscriptionId) {
+      await db.update(plans).set({ stripeSubscriptionId: order.stripeSubscriptionId }).where(eq(plans.id, plan.id));
+    }
+    return;
+  }
+  await startMembership(order, INSIDERS_FIRST_CHARGE_AT, deps, db, {
+    key: `membership-autoroll-${sessionId}`,
+    source: { plan: order.plan, option: order.option, session: sessionId },
+  });
 }
 
 /** `checkout.session.expired`: the order is `expired`, and tagged `checkout-abandoned-<plan>`. */
@@ -412,6 +460,14 @@ async function subscriptionChanged(sub: Stripe.Subscription, deleted: boolean, d
   }
   if (!plan) return 'ignored:no-plan';
   if (plan.status === 'ended') return 'ignored:ended';
+
+  // The Amplified Team Plan's 3-month minimum is a contract term (the agreement, section 4). A cancel
+  // inside it (the public portal login cannot hide the button) stops Stripe, not what is owed: Connor
+  // follows up. Logged by ids only.
+  const cancelling = deleted || sub.status === 'canceled' || sub.cancel_at_period_end === true;
+  if (plan.kind === 'agents' && cancelling && plan.minimumUntil !== null && now < plan.minimumUntil) {
+    deps.log.error({ plan: plan.id, order: plan.orderId, subscription: sub.id }, 'a Team Plan was cancelled inside its 3-month minimum: Connor follows up');
+  }
 
   if (deleted || sub.status === 'canceled') {
     // Cancel and keep: `paid_through` stays; live sessions end with the period that was paid for.

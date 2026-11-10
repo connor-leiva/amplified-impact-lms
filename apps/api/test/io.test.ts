@@ -177,15 +177,18 @@ describe('§7.3 the harness is pointed at its own database @g7', () => {
     // D-019. `railway` is what the deployed Web service reads; this suite truncates every table it
     // touches, 37 times per oracle run, so the name is the only thing standing between a green run
     // and a data-loss bug. `helpers.ts` throws at import if either name is wrong; this states it.
+    // The base is whatever development database `DATABASE_URL` names: `ai_lms_dev` on a laptop,
+    // `ai_lms_test` in CI's api job. Hard-coding the laptop's name is what kept that job red.
+    const base = databaseNameOf(readDatabaseUrl());
     expect(TEST_DATABASE_NAME).not.toBe('railway');
-    expect(TEST_DATABASE_NAME).not.toBe('ai_lms_dev');
+    expect(TEST_DATABASE_NAME).not.toBe(base);
 
     // The RUN id is the part that was missing. `VITEST_POOL_ID` restarts at 1 in every invocation,
     // so two concurrent `vitest run` PROCESSES both took slot 1 and truncated each other's rows
     // mid-test. Not hypothetical: three agents hit it and each worked around it privately by
     // swapping the database name, and it then hung a full-suite run of mine for three hours against
     // a database another process kept emptying underneath it.
-    expect(TEST_DATABASE_NAME).toBe(`ai_lms_dev_r${TEST_RUN_ID}_t${WORKER_SLOT}`);
+    expect(TEST_DATABASE_NAME).toBe(`${base}_r${TEST_RUN_ID}_t${WORKER_SLOT}`.slice(0, 63));
     expect(TEST_RUN_ID).toMatch(/^[0-9a-z]{1,6}$/);
     expect(WORKER_SLOT).toMatch(/^[0-9a-z]+$/i);
     // Postgres truncates an identifier at 63 bytes SILENTLY, and a truncated name is how two

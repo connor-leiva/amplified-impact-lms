@@ -22,12 +22,12 @@
 import type Stripe from 'stripe';
 import { z } from 'zod';
 import { normalizePhone, TEAM_SIZES } from '../routes/ai101';
-import { AGENTS_FIRST_CHARGE_AT, CARTS, CART_IDS, LIBRARY_TRIAL_DAYS, renewalText } from './catalog';
+import { AGENTS_FIRST_CHARGE_AT, CARTS, CART_IDS, INSIDERS_FIRST_CHARGE_AT, LIBRARY_TRIAL_DAYS, renewalText } from './catalog';
 import type { Cart, CartId, RenewalAmounts } from './catalog';
 import type { PriceMap } from './prices';
 
 /** Bumped when /agreement changes in substance; recorded on every order. Beside `TERMS_VERSION`. */
-export const AGREEMENT_VERSION = '2026-11-12-draft';
+export const AGREEMENT_VERSION = '2026-11-12';
 
 /** The SMS box on the offer form, word for word, stored as the proof when it is ticked (D-034's rule). */
 export const OFFER_SMS_CONSENT_TEXT =
@@ -43,7 +43,7 @@ export const CHECKOUT_ERRORS = {
   phone: 'Enter a valid mobile number.',
   company: 'Enter a team name under 120 characters.',
   teamSize: 'Choose your team size.',
-  crm: 'The cohort is built on Follow Up Boss. The Skill Library works with any CRM, or join the cohort waitlist.',
+  crm: 'The Amplified AI Accelerator is built on Follow Up Boss. The Amplified Skill Library works with any CRM, or join the waitlist.',
   crmMissing: 'Tell us which CRM your team uses.',
   sms: 'Add your mobile number to get texts.',
   agree: 'Tick the box to accept the subscription agreement.',
@@ -252,8 +252,12 @@ export function checkoutSessionParams(input: SessionInput): Stripe.Checkout.Sess
   }
 
   const subscription: Stripe.Checkout.SessionCreateParams.SubscriptionData = { metadata };
+  // Trials are set here, never on a Price. The library's $197 is 30 days from today; the Team Plan and
+  // the AI Accelerator's Amplified Insiders start on fixed calendar dates, so every buyer hits the same
+  // day (never `trial_period_days`, which counts from checkout).
   if (cart.plan === 'library') subscription.trial_period_days = LIBRARY_TRIAL_DAYS;
   if (cart.plan === 'agents') subscription.trial_end = Math.floor(AGENTS_FIRST_CHARGE_AT / 1000);
+  if (cart.id === 'cohort-full') subscription.trial_end = Math.floor(INSIDERS_FIRST_CHARGE_AT / 1000);
   params.subscription_data = subscription;
   // A card is saved even when nothing is charged today (the agent plan's trial).
   params.payment_method_collection = 'always';

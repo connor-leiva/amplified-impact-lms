@@ -7,6 +7,8 @@
 //   INVITES_FROM           when held owner invites go out; defaults to Mon, Nov 16, 8:00 am Central
 //   PAYMENT_LINK_*         Grokbok's fallback Payment Links, one per cart (catalog.ts names them)
 //   INTAKE_URL_*           Sarah O.'s intake form per plan, shown on /offer/welcome
+//   STRIPE_PORTAL_LOGIN_URL      the billing portal's login page, where members cancel themselves
+//   STRIPE_PORTAL_CONFIG_LOCKED  a portal configuration with cancelling off, for buyers inside a commitment
 //
 // EVERYTHING HERE IS OPTIONAL, AND THE API BOOTS WITHOUT ANY OF IT. With no Stripe key the offer page
 // shows the fallback links instead of its own buttons; with no links either, it says the carts open
@@ -30,6 +32,14 @@ export interface OfferConfig {
   invitesEnabled: boolean;
   paymentLinks: Partial<Record<CartId, string>>;
   intakeUrls: Partial<Record<PlanKind, string>>;
+  /** Stripe's billing portal login page (`STRIPE_PORTAL_LOGIN_URL`): where a member cancels or updates a card. */
+  portalLoginUrl: string | null;
+  /**
+   * A portal configuration with cancelling turned off (`STRIPE_PORTAL_CONFIG_LOCKED`), opened for a
+   * customer still inside a commitment: two-pay before its second payment, or a Team Plan inside its
+   * 3-month minimum. Unset, those customers get the default configuration.
+   */
+  portalLockedConfig: string | null;
 }
 
 export class OfferConfigError extends Error {
@@ -86,6 +96,8 @@ export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConf
     invitesEnabled: env.VITE_DATA_SOURCE !== 'fixture',
     paymentLinks,
     intakeUrls,
+    portalLoginUrl: httpsUrl(env.STRIPE_PORTAL_LOGIN_URL),
+    portalLockedConfig: /^bpc_[A-Za-z0-9]+$/.test((env.STRIPE_PORTAL_CONFIG_LOCKED ?? '').trim()) ? env.STRIPE_PORTAL_CONFIG_LOCKED!.trim() : null,
   };
 }
 
@@ -110,6 +122,7 @@ export function describeOfferConfig(config: OfferConfig): Record<string, unknown
     invitesFrom: new Date(config.invitesFrom).toISOString(),
     invites: config.invitesEnabled ? 'on' : 'held: the platform is in fixture mode',
     paymentLinks: Object.keys(config.paymentLinks),
+    portal: { login: config.portalLoginUrl !== null, lockedConfig: config.portalLockedConfig !== null },
     intakeForms: Object.keys(config.intakeUrls),
   };
 }

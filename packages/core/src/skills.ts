@@ -1,17 +1,16 @@
 // The skill library's catalog (in @ai/core so the API and the www skill pages share it): which skills there are, which set each opens with, which stay free, and
 // when each was released (D-079, D-082).
 //
-// THE TAGS BELOW ARE A PROPOSAL FOR CONNOR. The spec has Connor tag every skill as owner and ops,
-// agent, or both, and pick the free 5 (voice profile, time audit, one Follow Up Boss follow-up skill and
-// two picks of his own) by Wednesday, Nov 11. Until he does, this file holds a first pass read off each
-// skill's own description: who it says it is for. Changing a tag is a one-word edit here, then
-// `pnpm --filter @ai/api skills` to load it.
+// THE TAGS. Every skill is owner and ops, agent, or both (D-079), read off each skill's own description:
+// who it says it is for. Changing a tag is a one-word edit here, then `pnpm --filter @ai/api skills` to
+// load it. Every skill already built counts as released at launch; anything after these follows the
+// two-new-skills-a-month rule with its own date.
 //
-// FREE FAILS CLOSED. A skill is free only when it is listed in `FREE_SKILLS`. The voice profile and the
-// time audit are guides, not ZIPs, and stay public as they are. Of the ZIP skills, Appointment Follow-Up
-// (the one that writes the Follow Up Boss note) is the follow-up skill; Connor's two picks are added
-// here when he makes them. Every other ZIP is paid: `server.ts` stops serving it from `/downloads`, and
-// its page shows a preview with "In the Skill Library" instead of the download (D-082).
+// FREE FAILS CLOSED. A skill is free only when it is listed in `FREE_SKILLS`: Appointment Follow-Up
+// (the Follow Up Boss follow-up skill) and Connor's two picks, Database Health Check and Team P&L
+// Review (2026-11-10). The voice profile and the time audit are guides, not ZIPs, and stay public as
+// they are. Every other ZIP is paid: `server.ts` stops serving it from `/downloads`, and its page shows
+// a preview with the Skill Library card instead of the download (D-082).
 
 import type { SkillSet } from './offer';
 
@@ -32,7 +31,13 @@ export interface CatalogSkill {
 export const LAUNCH_RELEASE = Date.parse('2026-11-01T00:00:00-05:00');
 
 /** Connor's picks go here (D-082). Fails closed: a skill not named is paid. */
-export const FREE_SKILLS: readonly string[] = ['appointment-follow-up'];
+export const FREE_SKILLS: readonly string[] = [
+  // The Follow Up Boss follow-up skill (the spec's free 5).
+  'appointment-follow-up',
+  // Connor's two picks (2026-11-10).
+  'database-health-check',
+  'team-pnl-review',
+];
 
 const zips = (id: string, withChatgpt: boolean, withPractice = true): CatalogSkill['files'] => ({
   claude: `${id}.zip`,

@@ -94,7 +94,7 @@ describe('a card', () => {
     expect(text(link.querySelector('.item-title'))).toBe('Reel Editor');
     expect(text(link.querySelector('.item-desc'))).toBe(entry.description);
     // The Reel Editor is paid, so its card says where it is now (D-082).
-    expect(Array.from(link.querySelectorAll('.item-tags li')).map((li) => text(li))).toEqual(['Claude Skill', 'In the Skill Library']);
+    expect(Array.from(link.querySelectorAll('.item-tags li')).map((li) => text(li))).toEqual(['Claude Skill', 'In the Amplified Skill Library']);
     const item = link.closest('[data-item]')!;
     expect(item.getAttribute('data-tools')).toBe('claude');
     expect(item.getAttribute('data-topics')).toBe('skills content');
@@ -110,20 +110,20 @@ describe('a card', () => {
     }
   });
 
-  it('says "In the Skill Library" on every paid skill’s card, and on no other (D-082)', () => {
+  it('says "In the Amplified Skill Library" on every paid skill’s card, and on no other (D-082)', () => {
     // Paid is the catalog's call, read through the skill a page names (the ZIP's name, not always the slug).
     const paidPage = (href: string | null) => {
       const skill = href === null ? undefined : GUIDES[href.slice(1)]?.skill;
       return skill !== undefined && !isFreeSkill(skill);
     };
     const tagged = (href: string) =>
-      Array.from(doc.querySelectorAll(`a.item-body[href="${href}"] .item-tags li`)).map((li) => text(li)).includes('In the Skill Library');
+      Array.from(doc.querySelectorAll(`a.item-body[href="${href}"] .item-tags li`)).map((li) => text(li)).includes('In the Amplified Skill Library');
     for (const e of ENTRIES) if (e.href !== null) expect(tagged(e.href), e.title).toBe(paidPage(e.href));
     // One card for each paid skill in the catalog: every one is labelled, under whichever slug.
     expect(ENTRIES.filter((e) => paidPage(e.href))).toHaveLength(SKILL_CATALOG.filter((s) => !isFreeSkill(s.id)).length);
     expect(tagged('/content-strategist')).toBe(!isFreeSkill('content-opportunity-research'));
     expect(tagged('/appointment-follow-up')).toBe(!isFreeSkill('appointment-follow-up'));
-    expect(LIBRARY.paid).toBe('In the Skill Library');
+    expect(LIBRARY.paid).toBe('In the Amplified Skill Library');
   });
 
   it('names its tools when its kind does not already', () => {

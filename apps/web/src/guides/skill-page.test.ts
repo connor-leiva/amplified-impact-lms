@@ -435,8 +435,8 @@ describe('a paid skill’s page (D-082)', () => {
     const card = hero?.querySelector('.optin');
     expect(card?.id).toBe('skill-library');
     expect(card?.hasAttribute('data-skill-library')).toBe(true);
-    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Skill Library');
-    expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Skill Library in the Amplified Impact platform.');
+    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Amplified Skill Library');
+    expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Amplified Skill Library in the Amplified Impact platform.');
     const links = [...(card?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
     expect(links).toEqual([
       ['See Plans', '/offer#plans', 'btn btn-primary', null],

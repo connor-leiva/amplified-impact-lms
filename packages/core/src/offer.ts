@@ -68,8 +68,18 @@ export const DEFAULT_FOUNDING_CLOSES_AT = '2026-11-15T23:59:00-06:00';
  */
 export const DEFAULT_INVITES_FROM = '2026-11-16T08:00:00-06:00';
 
-/** Agent plans' first charge: Tuesday, Jan 26, 2027. Morning in Central, so the date is right everywhere in the US. */
-export const AGENTS_FIRST_CHARGE_AT = Date.parse('2027-01-26T09:00:00-06:00');
+/**
+ * The Amplified Team Plan's first charge: Tuesday, Jan 26, 2027, 00:00 America/Chicago (unix
+ * 1800943200). Every agent subscription's `trial_end` is pinned here, so every buyer hits the same day.
+ */
+export const AGENTS_FIRST_CHARGE_AT = Date.parse('2027-01-26T00:00:00-06:00');
+
+/**
+ * The first Amplified Insiders charge for cohort one: Monday, May 3, 2027, 00:00 America/Chicago (unix
+ * 1809320400), the cohort's last build (Feb 2) plus its 90 included days. Never `trial_period_days=90`,
+ * which would count from checkout and bill in February.
+ */
+export const INSIDERS_FIRST_CHARGE_AT = Date.parse('2027-05-03T00:00:00-05:00');
 /** The agent plan's minimum term, a contract term rather than a Stripe setting (the handoff, section 5). */
 export const AGENTS_MINIMUM_MONTHS = 3;
 
@@ -86,18 +96,31 @@ export const COHORT_ONE = {
   lastBuildAt: Date.parse('2027-02-02T13:00:00-06:00'),
   afterDays: 90,
 } as const;
-/** When cohort one's 90 days end: its live sessions stop and its $197 would start. */
-export const COHORT_ONE_LIVE_UNTIL = COHORT_ONE.lastBuildAt + COHORT_ONE.afterDays * DAY;
+/**
+ * When cohort one's 90 included days end and Amplified Insiders begins: the start of May 3, 2027 in
+ * Central time, which is the last build plus `afterDays`, rounded to the day Stripe charges.
+ */
+export const COHORT_ONE_LIVE_UNTIL = INSIDERS_FIRST_CHARGE_AT;
 
 /** Ten seats, soft: the 11th sale is not refused, it alerts Connor to book a tech assistant. */
 export const COHORT_SOFT_SEATS = 10;
 
 /**
- * The cohort's $197 after its 90 days: `optional` (a box the buyer may tick) until Spring decides
- * (the spec's open decision). `required` makes the box required, which is what "automatic" means: a
- * later charge always has its own consent box at checkout.
+ * The cohort rolls into Amplified Insiders automatically (Connor, 2026-11-10), so its consent box is
+ * required: a later charge always has its own box at checkout, never a hidden one.
  */
-export const COHORT_RENEWAL: 'required' | 'optional' = 'optional';
+export const COHORT_RENEWAL: 'required' | 'optional' = 'required';
+
+/** The membership every cohort buyer rolls into, and the library's monthly name. */
+export const MEMBERSHIP_NAME = 'Amplified Insiders';
+
+/**
+ * How a member cancels (Connor, 2026-11-10): themselves, in Stripe's billing portal, at the end of the
+ * period they paid for, with 30 days' notice, keeping every skill already released. One sentence,
+ * used by every renewal box, Stripe's checkout page and the welcome page.
+ */
+export const CANCEL_WORDS =
+  'Cancel anytime in the billing portal with 30 days\u2019 notice. It ends at the close of the period you paid for, and you keep every skill already released.';
 
 /** Who answers questions and cancellations, as the legal pages name it. */
 export const SUPPORT_EMAIL = 'admin@amplifiedimpact.io';
@@ -151,8 +174,10 @@ export const CARTS: Readonly<Record<CartId, Cart>> = {
     id: 'cohort-full',
     plan: 'cohort',
     option: 'full',
-    mode: 'payment',
-    items: ['cohort_founding_full'],
+    // $7,500 today and Amplified Insiders trialing until May 3, 2027: one subscription, a one-time item
+    // and a monthly one, with `trial_end` pinned (the Stripe-side requirements, section A).
+    mode: 'subscription',
+    items: ['cohort_founding_full', 'membership_monthly'],
     founding: true,
     renewal: COHORT_RENEWAL,
     seats: 2,
@@ -266,30 +291,28 @@ export interface RenewalAmounts {
  * the checkout route both build them here, from the same prices.
  */
 export function renewalText(cart: Cart, amounts: RenewalAmounts, now: number): string {
-  const cancel = `Cancel anytime by emailing ${SUPPORT_EMAIL}.`;
+  const insiders =
+    `When the 90 included days end, I continue as an ${MEMBERSHIP_NAME} member at ${dollars(amounts.membership)} a month, ` +
+    `charged to this card starting ${longDay(INSIDERS_FIRST_CHARGE_AT)}, until I cancel.`;
   switch (cart.id) {
     case 'library':
       return (
         `I agree to ${dollars(amounts.membership)} a month for new skills and office hours, charged to this card ` +
-        `starting ${longDate(libraryFirstMembershipCharge(now))} (day 31) until I cancel. ${cancel} ` +
-        'I keep every skill released before I cancel.'
+        `starting ${longDate(libraryFirstMembershipCharge(now))} (day 31) until I cancel. ${CANCEL_WORDS}`
       );
     case 'cohort-two-pay':
       return (
-        `I agree to a second payment of ${dollars(amounts.recurring ?? 0)} on ${longDate(addMonths(now, 1))}. ` +
-        'The payments stop on their own after the second one.'
+        `I agree to a second payment of ${dollars(amounts.recurring ?? 0)} on ${longDate(addMonths(now, 1))}; ` +
+        `the payments stop on their own after the second one. ${insiders} ${CANCEL_WORDS}`
       );
     case 'cohort-full':
-      return (
-        `Keep my membership going after cohort one: ${dollars(amounts.membership)} a month for new skills and ` +
-        `office hours, starting ${longDate(COHORT_ONE_LIVE_UNTIL)}, until I cancel. ${cancel}`
-      );
+      return `${insiders.replace(/^When/, 'I agree that when')} ${CANCEL_WORDS}`;
     case 'agents-upto15':
     case 'agents-16to40':
       return (
         `I agree to ${dollars(amounts.recurring ?? 0)} a month, charged to this card starting ` +
         `${longDay(AGENTS_FIRST_CHARGE_AT)}, until I cancel, with a ${AGENTS_MINIMUM_MONTHS}-month minimum. ` +
-        `Nothing is charged today. After the third payment, ${cancel.charAt(0).toLowerCase()}${cancel.slice(1)}`
+        `Nothing is charged today. After the third payment, cancel anytime in the billing portal with 30 days\u2019 notice.`
       );
   }
 }
@@ -334,11 +357,11 @@ export const PLAN_SETS: Readonly<Record<PlanKind, readonly ('owner_ops' | 'agent
   agents: ['agent'],
 };
 
-/** The plans' working names, until Spring names them (the spec's open decision). They print on receipts. */
+/** The plans' names (Connor, 2026-11-10). They print on receipts and on every page that names a plan. */
 export const PLAN_NAMES: Readonly<Record<PlanKind, string>> = {
-  library: 'Skill Library',
-  cohort: 'Core Cohort',
-  agents: 'Agent Team Plan',
+  library: 'Amplified Skill Library',
+  cohort: 'Amplified AI Accelerator',
+  agents: 'Amplified Team Plan',
 };
 
 // --- the page's tokens -----------------------------------------------------------------------------
@@ -377,6 +400,7 @@ export const WELCOME_TOKENS = {
   intakeUrl: token('intake-url'),
   intakeState: token('intake-state'),
   sessionId: token('session-id'),
+  portalUrl: token('portal-url'),
 } as const;
 
 /** The three plan cards on the page, in plan order. */
@@ -420,13 +444,13 @@ export function priceWords(a: Amounts): {
     unit: { library: '', cohort: '', agents: all(a15, a40) ? 'a month' : '' },
     terms: {
       library: all(lu, mm) ? `today, then ${mm} a month from day 31` : '',
-      cohort: all(cf, c2) ? `or 2 monthly payments of ${c2}` : '',
+      cohort: all(cf, c2, mm) ? `or 2 monthly payments of ${c2}. Then ${mm} a month as ${MEMBERSHIP_NAME} from ${longDate(INSIDERS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '')}.` : '',
       agents: all(a15, a40) ? `for up to 15 agents, or ${a40} a month for 16 to 40. First charge ${firstCharge()}.` : '',
     },
     cartline: {
       library: all(lu, mm) ? `${lu} today, then ${mm} a month` : '',
-      'cohort-full': cf ? `${cf} once` : '',
-      'cohort-two-pay': c2 ? `2 monthly payments of ${c2}` : '',
+      'cohort-full': all(cf, mm) ? `${cf} today, then ${mm} a month from ${longDate(INSIDERS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '')}` : '',
+      'cohort-two-pay': all(c2, mm) ? `2 monthly payments of ${c2}, then ${mm} a month from ${longDate(INSIDERS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '')}` : '',
       'agents-upto15': a15 ? `${a15} a month from ${firstCharge()}` : '',
       'agents-16to40': a40 ? `${a40} a month from ${firstCharge()}` : '',
     },
@@ -435,11 +459,11 @@ export function priceWords(a: Amounts): {
 
 /** What each cart is called in the form's plan list. */
 export const CART_NAMES: Readonly<Record<CartId, string>> = {
-  library: 'Skill Library',
-  'cohort-full': 'Core Cohort, paid in full',
-  'cohort-two-pay': 'Core Cohort, two payments',
-  'agents-upto15': 'Agent Team Plan, up to 15 agents',
-  'agents-16to40': 'Agent Team Plan, 16 to 40 agents',
+  library: 'Amplified Skill Library',
+  'cohort-full': 'Amplified AI Accelerator, paid in full',
+  'cohort-two-pay': 'Amplified AI Accelerator, two payments',
+  'agents-upto15': 'Amplified Team Plan, up to 15 agents',
+  'agents-16to40': 'Amplified Team Plan, 16 to 40 agents',
 };
 
 

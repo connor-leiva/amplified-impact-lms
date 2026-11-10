@@ -50,6 +50,13 @@ export interface BillingStripe {
   createSubscription(params: Stripe.SubscriptionCreateParams, idempotencyKey: string): Promise<SubscriptionInfo>;
   /** Cancels at once, with no proration: a refunded plan must not charge again. */
   cancelSubscription(id: string): Promise<SubscriptionInfo>;
+  /**
+   * An active or trialing subscription of this customer's that carries `priceId` (Amplified Insiders),
+   * or null. Checked before the auto-roll creates one, so a retried webhook never enrolls anyone twice.
+   */
+  activeSubscriptionWithPrice(customer: string, priceId: string): Promise<string | null>;
+  /** A billing portal session's URL, optionally with a specific portal configuration. */
+  createPortalSession(customer: string, returnUrl: string, configuration?: string): Promise<string>;
   /** The payment method a PaymentIntent saved, or null. */
   paymentMethodOfPaymentIntent(id: string): Promise<string | null>;
   /** The subscription an invoice payment belongs to, for a refund of a subscription charge. */
@@ -131,6 +138,19 @@ export function stripeClient(secretKey: string): BillingStripe {
 
     async cancelSubscription(id) {
       return subscriptionInfo(await stripe.subscriptions.cancel(id, { prorate: false }));
+    },
+
+    async activeSubscriptionWithPrice(customer, priceId) {
+      const page = await stripe.subscriptions.list({ customer, status: 'all', limit: 100 });
+      const hit = page.data.find(
+        (s) => (s.status === 'active' || s.status === 'trialing') && s.items.data.some((item) => item.price?.id === priceId),
+      );
+      return hit?.id ?? null;
+    },
+
+    async createPortalSession(customer, returnUrl, configuration) {
+      const session = await stripe.billingPortal.sessions.create({ customer, return_url: returnUrl, ...(configuration ? { configuration } : {}) });
+      return session.url;
     },
 
     async paymentMethodOfPaymentIntent(id) {
