@@ -1,0 +1,49 @@
+{
+  "skill_name": "open-house-follow-up",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-form-export-teammate-listing",
+      "prompt": "Twilight open house tonight for Jesse Fakewood's listing (he's on my team). Google Form export and my notes attached. I'm Harper Mockley with Example Desert Realty. Write my follow-ups and the update.",
+      "expected_output": "Today is Tuesday, November 10, 2026; the open house was that evening, 4:30 to 6:30 PM, at 8135 E Placeholder Palm Dr in Mesa, Arizona, so general mode: state rules were not checked. The sheet is a Google Form export: the long 'I agree to receive text messages' column is read as text consent and the agent question as agent status. 8 sign-ins, 7 visitors (Rowan Sampleberg signed in twice), 2 who say they have an agent (Rowan, with Kim Notreal; Sydney Examplar, whose agent is her cousin, nothing signed). Both get a thank-you only, with Rowan's patio furniture question and Sydney's seller financing question routed through their agents. Texts go only to Ellis Testington and Reese Fictionalis, each with a Consent line and Reply STOP to opt out; Charlie Mockford consented but left no phone; Devon Placeholder-Smith and Parker Fakeworth gave phone numbers only, so email only. Reese left the agent question blank, so Reese's email and text offer help only if Reese isn't already working with an agent and ask for no meeting. Devon's remark about who is moving in and the notes' description of Ellis appear nowhere, with one generic flag. The update is a Listing Agent Update to Jesse, not the sellers, with the counts from the sheet, Harper's own '9 or 10 groups' labeled as hers, feedback from the notes, the questions to answer, and no price advice; Harper's 'drop it 10k' note is left out and flagged. Texts go by 8 PM tonight or after 8 AM Wednesday, November 11; HOA documents promised for Wednesday, November 11, Charlie's second showing Thursday, November 12 after 5 PM, and Reese's solar answer by Friday, November 13.",
+      "files": [
+        "evals/files/eval-1-form-export-teammate-listing/Open House Sign-In, 8135 E Placeholder Palm (Responses).csv",
+        "evals/files/eval-1-form-export-teammate-listing/Harper notes, Placeholder Palm twilight open house.txt"
+      ],
+      "expectations": [
+        "A flag says this is general mode (Arizona) and state rules were not checked, and the Utah notes are not used",
+        "The update is addressed to Jesse Fakewood as a Listing Agent Update for him to pass on, not to the sellers",
+        "Rowan Sampleberg and Sydney Examplar are marked HAS AN AGENT, thank-you only, Sydney included even though her notes say nothing is signed",
+        "Neither represented visitor's draft offers help, representation, a meeting, a call, other homes, listings or a search, and their questions (patio furniture, seller financing) are routed through their agents (Kim Notreal by name)",
+        "Texts are drafted only for Ellis Testington and Reese Fictionalis; each has a Consent line naming the form's consent column, names Harper and Example Desert Realty, ends with Reply STOP to opt out., and is 320 characters or fewer",
+        "Charlie Mockford is flagged as having consented with no phone number (email only), and Devon Placeholder-Smith and Parker Fakeworth get email only because a phone number alone isn't consent",
+        "Reese Fictionalis is AGENT STATUS UNKNOWN: the email offers help only if Reese is not already working with an agent, and neither the email nor the text asks to meet, call or tour",
+        "Devon's remark about who is moving in appears nowhere (no 'Spanish', no 'families moving in', no paraphrase), with one generic agent-only flag; 'young couple', 'baby', 'perfect for them' and 'elementary' appear nowhere",
+        "The update reports 8 sign-ins, 7 visitors (Rowan twice), 2 who said they have an agent, the timeframe tally from the sheet (2 at 1 to 3 months, 3 at 3 to 6 months, 1 at 6+ months, 1 just looking), and Harper's '9 or 10 groups' labeled as Harper's count",
+        "The update gives no price advice: the visitor's comparison to the Sample Mesa Ct sale appears only as feedback, and Harper's 'drop it 10k' note is left out and flagged",
+        "Dates and send times: texts by 8 PM tonight or after 8 AM Wednesday, November 11; HOA documents Wednesday, November 11; Charlie's second showing Thursday, November 12 after 5 PM; Reese's solar answer by Friday, November 13; each resolved date appears in Check before sending with the words it came from",
+        "Every email has a Title Case subject, a body under 120 words, and the footer (opt-out and [Sender Postal Address], plus the marketing line on emails that offer services), and the output ends with Check before sending"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-typed-list-no-consent",
+      "prompt": "Saturday's open house at 975 Example Orchard Ct in Lehi. I typed up the paper sign-in sheet and my notes (attached). I'm Ari Exampleby with Example Canyon Realty. Do the follow-ups and a quick update for Lane and Jo.",
+      "expected_output": "Today is Tuesday, November 10, 2026; the open house was Saturday, November 7, 11 AM to 1 PM, in Lehi, Utah, so Utah mode, and the follow-up is written three days later, so the drafts say 'on Saturday', never 'today'. 5 sign-ins, 5 visitors, 1 with an agent (Sky Testerson, agent Morgan Fakeley at Sample Summit Homes), who gets a thank-you only with the HOA question routed through Morgan. The typed list records no texting consent for anyone, so there are no text drafts at all, and a flag says a phone number alone isn't consent. Dale Notaname has no email and no consent, so no draft. Pat, Lou and Frankie never said whether they have an agent, so their emails offer help only if they aren't already working with one; Frankie's second look is offered because Frankie asked. 'Next week' said on Saturday, November 7 is resolved to the week of Monday, November 9 and flagged. The update to Lane and Jo reports 5 sign-ins from 5 visitors, 1 with an agent, the notes' 'five groups, all signed in', what visitors liked and questioned, no names and no price advice.",
+      "files": [
+        "evals/files/eval-2-typed-list-no-consent/Typed sign-in sheet and notes, 975 Example Orchard Ct.txt"
+      ],
+      "expectations": [
+        "Sky Testerson is marked HAS AN AGENT, thank-you only; the draft offers no help, representation, meeting, call, other homes, listings or search, and says the HOA answer will go to Morgan Fakeley",
+        "There are no text drafts at all, and a flag says the list records no texting consent and a phone number alone isn't consent",
+        "Dale Notaname gets no draft (no email and no text consent), and is listed in Flags with that reason",
+        "Pat Mockridge, Lou Samplewright and Frankie Placeholder are AGENT STATUS UNKNOWN: each email offers help only if they're not already working with an agent and asks for no meeting; Frankie's second look is offered because Frankie asked, with the line that an agent can set it up",
+        "The seller update counts match the sheet: 5 sign-ins, 5 visitors, 1 who said they have an agent, and the notes' 'five groups, all signed in'",
+        "The seller update holds no visitor names or contact details, reports only what the notes say (the yard, two who thought the kitchen dated, the questions on the sprinkler timer, the HOA, a rent-back and the basement), and gives no price advice",
+        "Utah mode, and because the open house was Saturday, November 7 and the follow-up is written Tuesday, November 10, the drafts say 'on Saturday' rather than 'today' and a flag says so",
+        "'Next week' (Frankie's second look) is resolved against Saturday, November 7 to the week of Monday, November 9, flagged as partly past, and listed in Check before sending",
+        "Every email has a Title Case subject, a body under 120 words and the footer, and the output ends with Check before sending"
+      ]
+    }
+  ]
+}

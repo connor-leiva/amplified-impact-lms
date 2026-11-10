@@ -1,0 +1,50 @@
+{
+  "skill_name": "listing-description-writer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-single-family",
+      "prompt": "New listing in Lehi going live on UtahRealEstate.com Friday, November 20. Attached are the MLS input draft, the county record and the sellers' feature list. Write the public remarks (keep them under 1,000 characters), two headlines and an Instagram caption for launch day. I'm Morgan Exampleton with Sample Summit Realty.",
+      "expected_output": "Utah mode. Public remarks of 1,000 characters or fewer with the count shown, built from the MLS input draft and the feature list: a 2016 two-story in Lehi on 0.18 acres, 5 bedrooms with 4 up and 1 in the basement, 2 full baths up, a half bath on the main and a three-quarter bath in the basement, a primary suite with a soaking tub and walk-in closet, a main-floor office, quartz counters, gas range, island and walk-in pantry, owned 7.2 kW solar, a 3-car tandem garage, full vinyl fence (2019), patio with a gas line for a grill, new upper-level carpet (2025), water softener included, secondary water, and an HOA of $45 a month covering common area landscaping and a community park with a playground and pavilion. The county record's 900 finished basement square feet conflicts with the input draft's 1,220 at 100% finished: flagged with both values and sources, and neither the finished square footage nor 'fully finished' appears in the drafts. 'About 5 minutes to I-15' (feature list only) is not used and is flagged to confirm. 'Huge' is not repeated. Nothing from the member-only fields appears in any draft: vacant, Boise, the 30-day close, the 11/23 offer review, ShowingTime, the Supra code 5530, owner and agent phone numbers. No school names, no assessed value ($702,300). The Fair Housing Review finds nothing in the supplied wording and nothing in its own drafts. Two Title Case headlines under 60 characters with counts. An Instagram caption of 60 to 120 words ending with Morgan Exampleton, Sample Summit Realty, at most three place and type hashtags. A Utah timing note: post the caption once the listing is live on Friday, November 20. Facts I Used, then Check before sending.",
+      "files": [
+        "evals/files/eval-1-single-family/MLS Input Draft - 3466 N Placeholder Bend Dr Lehi.pdf",
+        "evals/files/eval-1-single-family/County Parcel Record - 3466 N Placeholder Bend Dr.pdf",
+        "evals/files/eval-1-single-family/Seller feature list - Placeholder Bend.txt"
+      ],
+      "expectations": [
+        "The public remarks are 1,000 characters or fewer, and the output states the character count against the 1,000 limit",
+        "Every fact in the remarks, headlines and caption traces to the MLS input draft, the feature list or the prompt (no invented views, distances, commute times, schools, condition claims or upgrades)",
+        "The basement conflict is flagged with both values and both sources (1,220 square feet at 100% finished on the input draft; 900 finished square feet on the county record), and the drafts state neither a finished square footage nor 'fully finished'",
+        "'About 5 minutes to I-15' appears in no draft and is flagged as not used until the agent confirms it",
+        "No member-only content appears in the remarks, headlines or caption: no vacancy, Boise, relocation, 30-day close, 11/23 offer review, ShowingTime, Supra or 5530, and no owner or agent phone number",
+        "No school names from the input draft, no school, safety or people language, and the county's $702,300 market value appears nowhere in the drafts",
+        "Supported features are used accurately: owned 7.2 kW solar, the 3-car tandem garage, the $45 monthly HOA with what it covers (common area landscaping and a community park with a playground and pavilion), and baths counted as the input draft counts them",
+        "Two headlines in Title Case, each under 60 characters with its count; an Instagram caption of 60 to 120 words that ends with Morgan Exampleton and Sample Summit Realty and has at most three hashtags, none about people",
+        "A Utah timing note says to post the caption once the listing is live (Friday, November 20), because posting earlier is public marketing under UtahRealEstate.com's rule",
+        "The Fair Housing Review is present and says nothing was flagged in the supplied wording or the drafts; the output has Facts I Used and ends with Check before sending; no em or en dashes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-condo-seller-notes",
+      "prompt": "Condo listing downtown, Unit 708. My worksheet and the seller's email with what Lee wants said are attached. Write the MLS public remarks, two headlines and a Facebook caption. I'm Jamie Placeholder with Example Peak Realty.",
+      "expected_output": "Utah mode. The Fair Housing Review flags three pieces of the seller's wording, each quoted once in the review table only, with the reason and a rewrite: the line about empty nesters, young professionals, no kids and mostly adults (who the home suits and familial status: cut, and let the features speak, such as the elevator, secured entry and HOA-covered exterior maintenance); 'very safe neighborhood' with walking home at night (a safety claim: cut; buyers check the police department's published data); and 'walking distance to the Example Line station' (an ability assumption: rewritten as 0.3 miles from the Example Line light rail station, the worksheet's agent-measured distance). None of that wording appears in the remarks, headlines, caption, bottom line or flags. The HOA's approved rooftop deck with a hot tub is not in the worksheet's amenities: it is left out of every draft and flagged as not used until confirmed (a plan, not an amenity; ask for the HOA's approval and timeline). No character limit was given: flagged to confirm, with the count. Agent-only content never appears in a draft: the tenant, the 1/31/2027 lease, 24-hour notice, the divorce and quick close, Sam Fakeperson, 801-555-0144, the lockbox and code 2468, Lee Examplewood's name. The drafts use only worksheet and email facts: $389,000, seventh floor, 1,048 square feet, 2 bedrooms, 1 full and 1 three-quarter bath, built 2008, city view, west-facing balcony, granite and stainless, engineered wood floors (2021), dishwasher (2023), in-unit laundry, a deeded garage stall and storage unit, HOA $385 a month and what it covers, fitness room, bike room, secured entry, elevator, 2 pets allowed per HOA rules. The Facebook caption ends with Jamie Placeholder, Example Peak Realty. A Utah timing note: go-live is Monday, November 16, so post the caption after the listing is live.",
+      "files": [
+        "evals/files/eval-2-condo-seller-notes/Listing Worksheet - 455 S Placeholder St Unit 708.pdf",
+        "evals/files/eval-2-condo-seller-notes/Email from seller - notes for the listing.txt"
+      ],
+      "expectations": [
+        "The Fair Housing Review flags the seller's empty nesters, young professionals, no kids and mostly adults wording as describing who the home suits and familial status, with the reason and a rewrite or cut",
+        "The Fair Housing Review flags 'very safe neighborhood' as a safety claim, cuts it, and points buyers to the police department's published data rather than any opinion",
+        "The Fair Housing Review flags 'walking distance' as an ability assumption and rewrites it with the worksheet's distance: 0.3 miles from the Example Line light rail station",
+        "None of the flagged wording appears in the remarks, headlines, caption, bottom line or flags: no 'empty nester', 'young professional', 'kids', 'adults', 'safe' or 'walking distance' outside the review table",
+        "The rooftop deck and hot tub appear in no draft and are flagged as not used until the agent confirms (a planned HOA amenity, not one the worksheet lists)",
+        "Nothing is invented: every number and feature in the drafts traces to the worksheet or the seller's email, and no view, distance or amenity appears beyond what they state",
+        "No agent-only content appears in any draft: no tenant or occupancy wording, no 1/31/2027, 24-hour notice, divorce or quick close, no Sam Fakeperson or 801-555-0144, no lockbox or 2468, and no seller name",
+        "Because no character limit was given, a flag says to confirm the MLS's Public Remarks limit, and the remarks show their character count",
+        "The Facebook caption ends with Jamie Placeholder and Example Peak Realty, and a Utah timing note says to post after the listing goes live on Monday, November 16",
+        "The output has Facts I Used and ends with Check before sending; headlines are Title Case with counts; no em or en dashes"
+      ]
+    }
+  ]
+}

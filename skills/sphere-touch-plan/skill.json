@@ -1,0 +1,8 @@
+{
+  "name": "sphere-touch-plan",
+  "page": "sphere-touch-plan",
+  "title": "Sphere Touch Plan",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}

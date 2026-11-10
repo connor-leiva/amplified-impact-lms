@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import SkillLibrary, { COPY } from './SkillLibrary';
 import type { LibrarySkill } from './SkillLibrary';
 
@@ -22,6 +22,7 @@ let fetchMock: Mock;
 const answer = (status: number, body: unknown) => ({ ok: status < 400, status, json: async () => body }) as unknown as Response;
 
 beforeEach(() => {
+  delete document.body.dataset.appReady;
   fetchMock = vi.fn();
   vi.stubGlobal('fetch', fetchMock);
 });
@@ -51,7 +52,8 @@ describe('the skill library screen', () => {
     const both = screen.getByRole('region', { name: COPY.sets.both });
     expect(within(both).getByText('Coming December 15.')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith('/api/skills', expect.objectContaining({ credentials: 'include' }));
-    expect(document.body.dataset.appReady).toBe('true');
+    // The ready mark is set in an effect after the list renders, so wait for it rather than race it.
+    await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
     expect(screen.getByRole('link', { name: COPY.billing })).toHaveAttribute('href', '/api/billing/portal');
   });
 

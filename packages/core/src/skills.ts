@@ -53,6 +53,7 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'team-playbook-builder', title: 'Team Playbook Builder', summary: "Turns the team's SOPs into a playbook skill every agent installs.", sets: 'owner_ops', files: zips('team-playbook-builder', false) },
   { id: 'team-pnl-review', title: 'Team P&L Review', summary: "Reviews the team's profit and loss and drafts the owner brief.", sets: 'owner_ops', files: zips('team-pnl-review', true) },
   { id: 'inbox-meeting-follow-through', title: 'Inbox and Meeting Follow-Through', summary: "A team leader's daily pass over email and meetings.", sets: 'owner_ops', files: zips('inbox-meeting-follow-through', false) },
+  { id: 'l10-meeting-prep', title: 'L10 Meeting Prep', summary: "Preps the weekly EOS L10 from the team's scorecard, rocks, to-dos and issues.", sets: 'owner_ops', files: zips('l10-meeting-prep', true) },
   // For everyone.
   { id: 'perfect-week', title: 'Perfect Week', summary: 'Plans an ideal working week from the real calendar and task list.', sets: 'both', files: zips('perfect-week', false) },
   { id: 'content-opportunity-research', title: 'Content Strategist', summary: "Weekly Instagram research and five ideas built on the creator's own stories.", sets: 'both', files: zips('content-opportunity-research', false) },
@@ -68,6 +69,10 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'repair-request-response', title: 'Repair Request Response', summary: "Drafts the listing side's answer to a repair request.", sets: 'agent', files: zips('repair-request-response', true) },
   { id: 'low-appraisal-response', title: 'Low Appraisal Response', summary: 'Reviews a low appraisal and drafts the reconsideration of value.', sets: 'agent', files: zips('low-appraisal-response', true) },
   { id: 'new-construction-review', title: 'New Construction Review', summary: "Reviews a builder's purchase agreement before the buyer signs.", sets: 'agent', files: zips('new-construction-review', true) },
+  { id: 'listing-description-writer', title: 'Listing Description Writer', summary: 'Writes MLS remarks, headlines and a social caption from the listing worksheet, with a fair housing review.', sets: 'agent', files: zips('listing-description-writer', true) },
+  { id: 'market-update-email', title: 'Market Update Email', summary: "Turns the MLS's monthly stats into a market update email and a social post.", sets: 'agent', files: zips('market-update-email', true) },
+  { id: 'open-house-follow-up', title: 'Open House Follow-Up', summary: 'Turns an open house sign-in sheet and notes into visitor follow-ups and a seller update.', sets: 'agent', files: zips('open-house-follow-up', true) },
+  { id: 'sphere-touch-plan', title: 'Sphere Touch Plan', summary: "Plans a year of sphere and past client touches and drafts this week's messages.", sets: 'agent', files: zips('sphere-touch-plan', true) },
 ];
 
 export const isFreeSkill = (id: string): boolean => FREE_SKILLS.includes(id);

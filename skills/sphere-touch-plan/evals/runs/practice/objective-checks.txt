@@ -1,0 +1,16 @@
+Objective checks: practice / output.md
+- PASS  No em or en dashes
+- PASS  Check Before Sending section
+- PASS  Draft counts: 6 texts, 6 emails, 2 call notes
+- PASS  Texts only to people with consent on file or given in chat
+- PASS  Texts 300 characters or fewer: Gwen 193, Kit 138, Lars 164, Ned 156, Ava 164, Opal 153
+- PASS  Every text ends with Reply STOP to opt out.
+- PASS  Every text names the agent
+- PASS  Title Case subjects: 6 subjects
+- PASS  Every email has the opt-out and postal address footer
+- PASS  Email bodies 120 words or fewer (signature included): Hank 60, Milo 47, Sid 52, Ben 64, Dev 61, Elle 54
+- PASS  No stock phrases in the drafts
+- PASS  No website activity in the drafts
+- PASS  Never-appear strings absent
+- PASS  No wire or account details
+- PASS  Numbers not found in the inputs or the worked-out list (grade each)

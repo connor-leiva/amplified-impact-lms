@@ -1,0 +1,28 @@
+PRACTICE FILE: made-up example
+Month,MLS,Area,Property Type,New Listings,Closed Sales,Median Sale Price,Median Days on Market,Active Listings (Month End),List-to-Sale Ratio (%)
+2025-10,Example Peaks MLS,"Sampleton County, UT",Single-Family,412,318,489000,31,1046,98.4
+2025-11,Example Peaks MLS,"Sampleton County, UT",Single-Family,341,287,486000,35,958,98.0
+2025-12,Example Peaks MLS,"Sampleton County, UT",Single-Family,268,279,484500,41,842,97.7
+2026-01,Example Peaks MLS,"Sampleton County, UT",Single-Family,352,214,481000,46,861,97.5
+2026-02,Example Peaks MLS,"Sampleton County, UT",Single-Family,398,236,486500,43,903,98.1
+2026-03,Example Peaks MLS,"Sampleton County, UT",Single-Family,512,298,492000,36,977,98.6
+2026-04,Example Peaks MLS,"Sampleton County, UT",Single-Family,561,331,497500,29,1062,99.0
+2026-05,Example Peaks MLS,"Sampleton County, UT",Single-Family,590,362,503000,26,1138,99.1
+2026-06,Example Peaks MLS,"Sampleton County, UT",Single-Family,548,371,508000,27,1206,98.8
+2026-07,Example Peaks MLS,"Sampleton County, UT",Single-Family,521,356,506500,30,1241,98.4
+2026-08,Example Peaks MLS,"Sampleton County, UT",Single-Family,492,384,504000,33,1252,98.0
+2026-09,Example Peaks MLS,"Sampleton County, UT",Single-Family,452,345,502000,35,1227,97.8
+2026-10,Example Peaks MLS,"Sampleton County, UT",Single-Family,446,301,505000,38,1198,97.6
+2025-10,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,151,118,362000,29,402,98.1
+2025-11,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,122,104,360500,33,371,97.8
+2025-12,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,97,99,357000,39,333,97.4
+2026-01,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,141,84,355000,44,345,97.2
+2026-02,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,158,91,358000,42,362,97.6
+2026-03,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,189,112,361500,35,389,98.0
+2026-04,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,205,121,364000,30,421,98.3
+2026-05,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,214,128,366500,28,448,98.4
+2026-06,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,199,131,365000,29,471,98.1
+2026-07,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,191,124,363000,32,486,97.8
+2026-08,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,182,118,361000,35,497,97.5
+2026-09,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,173,112,359900,38,494,97.2
+2026-10,Example Peaks MLS,"Sampleton County, UT",Townhome and Condo,163,109,358500,41,488,97.0

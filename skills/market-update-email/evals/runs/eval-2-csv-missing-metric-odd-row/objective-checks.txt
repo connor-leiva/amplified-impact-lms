@@ -1,0 +1,21 @@
+Objective checks: eval-2-csv-missing-metric-odd-row / output.md
+- PASS  No em or en dashes
+- PASS  Sections present, in order
+- PASS  Title Case subject: Mockingbird Valley Homes In October 2026: What The Numbers Show
+- PASS  Email body 250 words or fewer (sign-off included): 168 words
+- PASS  Post 120 words or fewer: 65 words
+- PASS  Email source line
+- PASS  Post source line
+- PASS  Email footer: opt-out and postal address
+- PASS  No prediction or advice words in the drafts
+- PASS  No fair housing words in the drafts
+- PASS  No stock phrases in the drafts
+- PASS  No exclamation points in the drafts
+- PASS  Every number in the drafts is in the Numbers I Used table
+- PASS  Every arithmetic line in the table is right: 12 checked
+- PASS  Numbers not found in the input or the table's arithmetic (grade each)
+- NOTE  Numbers from the skill's references, not the input: 13
+- PASS  Never-in-drafts strings absent
+- PASS  Never-anywhere strings absent
+- PASS  Check Before Sending names N numbers
+- PASS  No wire or account details

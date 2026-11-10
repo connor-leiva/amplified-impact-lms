@@ -1,0 +1,12 @@
+Objective checks: practice / output.md
+- PASS  No em or en dashes
+- PASS  Title Case subject lines: Scorecard Numbers And One Rock Status Needed Before Tuesday's L10
+- PASS  Check Before Sending section
+- PASS  Bottom line three sentences or fewer: 3 sentences
+- PASS  IDS order labeled a suggestion
+- PASS  Never-appear strings absent
+- PASS  Must-appear strings present
+- PASS  No words judging a person
+- NOTE  Judging words that are quoted from an input title (review): slipping
+- PASS  No wire or account details
+- PASS  Every number in the inputs or the run (grade each miss)

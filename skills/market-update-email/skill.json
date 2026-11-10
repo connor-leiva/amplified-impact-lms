@@ -1,0 +1,8 @@
+{
+  "name": "market-update-email",
+  "page": "market-update-email",
+  "title": "Market Update Email",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": ["outreach-rules.md"]
+}

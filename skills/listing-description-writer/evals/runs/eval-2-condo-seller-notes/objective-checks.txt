@@ -1,0 +1,25 @@
+PASS  Every section, in order, with Check before sending last  [Flags | Bottom Line | Fair Housing Review | Public Remarks | Headlines | Social Caption | Facts I Used | Check before sending]
+PASS  No em or en dashes
+PASS  Remarks character count is stated and right  [stated 792, counted 792]
+PASS  No limit given: a flag says to confirm it
+PASS  Two headlines, Title Case  [Seventh-Floor SLC Condo With A West-Facing Balcony; Two Bedrooms, Two Baths And A Deeded Garage Stall]
+PASS  Headline counts right and under 60  [50 vs 50; 49 vs 49]
+PASS  Caption 60 to 120 words  [97]
+PASS  At most three hashtags, none about people  [#SaltLakeCity #SLCCondo]
+PASS  Caption names the agent and brokerage  [Jamie Placeholder, Example Peak Realty]
+PASS  No agent-only content in the drafts
+PASS  Public remarks hold no names, contact details or links
+PASS  Flagged wording appears only in the Fair Housing Review
+PASS  The review has a row for each flagged item  [3 rows]
+PASS  Unsupported or conflicting claims stay out of the drafts
+PASS  No people, school or safety words in the drafts
+PASS  No school names in the drafts
+PASS  No stock phrases
+PASS  No wire, routing or account details
+PASS  Facts I Used present
+PASS  Agent-only check line present
+PASS  Every number in the drafts is in the inputs
+Numbers anywhere in the output not found verbatim in the inputs (review: character and word counts, and dates the run
+resolved, are expected):
+  49, 50, 97, 676, 792, 5400,
+Totals: 21 pass, 0 fail

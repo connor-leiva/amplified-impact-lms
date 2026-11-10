@@ -43,6 +43,11 @@ import { SHOWING_TOUR_PREP } from './showing-tour-prep';
 import { LOW_APPRAISAL_RESPONSE } from './low-appraisal-response';
 import { TEAM_PNL_REVIEW } from './team-pnl-review';
 import { NEW_CONSTRUCTION_REVIEW } from './new-construction-review';
+import { LISTING_DESCRIPTION_WRITER } from './listing-description-writer';
+import { MARKET_UPDATE_EMAIL } from './market-update-email';
+import { L10_MEETING_PREP } from './l10-meeting-prep';
+import { OPEN_HOUSE_FOLLOW_UP } from './open-house-follow-up';
+import { SPHERE_TOUCH_PLAN } from './sphere-touch-plan';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -264,6 +269,11 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [LOW_APPRAISAL_RESPONSE.slug]: LOW_APPRAISAL_RESPONSE,
   [TEAM_PNL_REVIEW.slug]: TEAM_PNL_REVIEW,
   [NEW_CONSTRUCTION_REVIEW.slug]: NEW_CONSTRUCTION_REVIEW,
+  [LISTING_DESCRIPTION_WRITER.slug]: LISTING_DESCRIPTION_WRITER,
+  [MARKET_UPDATE_EMAIL.slug]: MARKET_UPDATE_EMAIL,
+  [L10_MEETING_PREP.slug]: L10_MEETING_PREP,
+  [OPEN_HOUSE_FOLLOW_UP.slug]: OPEN_HOUSE_FOLLOW_UP,
+  [SPHERE_TOUCH_PLAN.slug]: SPHERE_TOUCH_PLAN,
 };
 
 /**

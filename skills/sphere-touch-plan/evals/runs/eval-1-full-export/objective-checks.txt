@@ -1,0 +1,16 @@
+Objective checks: eval-1-full-export / output.md
+- PASS  No em or en dashes
+- PASS  Check Before Sending section
+- PASS  Draft counts: 7 texts, 5 emails, 2 call notes
+- PASS  Texts only to people with consent on file or given in chat
+- PASS  Texts 300 characters or fewer: Gwen 155, Hank 170, Kit 110, Lars 152, Ned 124, Ava 157, Opal 152
+- PASS  Every text ends with Reply STOP to opt out.
+- PASS  Every text names the agent
+- PASS  Title Case subjects: 5 subjects
+- PASS  Every email has the opt-out and postal address footer
+- PASS  Email bodies 120 words or fewer (signature included): Milo 38, Sid 39, Ben 50, Dev 46, Elle 27
+- PASS  No stock phrases in the drafts
+- PASS  No website activity in the drafts
+- PASS  Never-appear strings absent
+- PASS  No wire or account details
+- PASS  Numbers not found in the inputs or the worked-out list (grade each)

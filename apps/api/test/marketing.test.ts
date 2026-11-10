@@ -182,6 +182,11 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       'low-appraisal-response',
       'team-pnl-review',
       'new-construction-review',
+      'listing-description-writer',
+      'market-update-email',
+      'l10-meeting-prep',
+      'open-house-follow-up',
+      'sphere-touch-plan',
     ]);
     for (const slug of GUIDE_SLUGS) {
       for (const url of [`/${slug}`, `/${slug}?src=ig`]) {

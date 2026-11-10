@@ -1,0 +1,1717 @@
+{
+ "meeting_date": "2026-11-17",
+ "meeting_date_source": "from the request",
+ "agenda": [
+  [
+   "Segue",
+   5,
+   "9:00 AM to 9:05 AM"
+  ],
+  [
+   "Scorecard",
+   5,
+   "9:05 AM to 9:10 AM"
+  ],
+  [
+   "Rock Review",
+   5,
+   "9:10 AM to 9:15 AM"
+  ],
+  [
+   "Customer and Employee Headlines",
+   5,
+   "9:15 AM to 9:20 AM"
+  ],
+  [
+   "To-Do List",
+   5,
+   "9:20 AM to 9:25 AM"
+  ],
+  [
+   "IDS",
+   60,
+   "9:25 AM to 10:25 AM"
+  ],
+  [
+   "Conclude",
+   5,
+   "10:25 AM to 10:30 AM"
+  ]
+ ],
+ "files_read": [
+  "Scorecard: PRACTICE Scorecard Export 13 Weeks.csv, sheet 'PRACTICE Scorecard Export 13 Weeks', header row 2, wide layout, 10 measurables, 14 week columns. Columns used: {'title': 'Title', 'owner': 'Owner', 'goal': 'Goal'}. Ignored: ['KPI Group', 'Status', 'Description', 'Average', 'Total'].",
+  "Rocks: PRACTICE Rocks Q4 2026.csv, sheet 'PRACTICE Rocks Q4 2026', header row 2. Columns used: {'title': 'Title', 'owner': 'Owner', 'status': 'Status', 'due': 'Due Date', 'notes': 'Description', 'kind': 'Level'}.",
+  "Issues: PRACTICE Issues List.xlsx, sheet 'Short-Term Issues', header row 2. Columns used: {'title': 'Title', 'owner': 'Owner', 'completed_on': 'Completed Date', 'created': 'Created Date', 'priority': 'Priority', 'notes': 'Description', 'kind': 'Type'}.",
+  "Issues: PRACTICE Issues List.xlsx, sheet 'Long-Term Issues', header row 2. Columns used: {'title': 'Title', 'owner': 'Owner', 'completed_on': 'Completed Date', 'created': 'Created Date', 'priority': 'Priority', 'notes': 'Description', 'kind': 'Type'}.",
+  "Headlines: PRACTICE Headlines.txt, sheet 'text', header row None. Columns used: {}.",
+  "To-dos: PRACTICE To-Dos.csv, sheet 'PRACTICE To-Dos', header row 2. Columns used: {'title': 'Title', 'owner': 'Owner', 'status': 'Status', 'due': 'Due Date', 'created': 'Created'}."
+ ],
+ "gaps": [],
+ "scorecard": {
+  "file": "PRACTICE Scorecard Export 13 Weeks.csv",
+  "sheet": "PRACTICE Scorecard Export 13 Weeks",
+  "header_row": 2,
+  "layout": "wide",
+  "columns_used": {
+   "title": "Title",
+   "owner": "Owner",
+   "goal": "Goal"
+  },
+  "ignored_columns": [
+   "KPI Group",
+   "Status",
+   "Description",
+   "Average",
+   "Total"
+  ],
+  "week_columns": 14,
+  "weeks_after_meeting": [],
+  "weeks_not_entered": [
+   "11/16/2026 - 11/22/2026"
+  ],
+  "latest_week": "2026-11-09",
+  "latest_week_label": "11/09/2026 - 11/15/2026",
+  "window": [
+   "2026-08-17",
+   "2026-08-24",
+   "2026-08-31",
+   "2026-09-07",
+   "2026-09-14",
+   "2026-09-21",
+   "2026-09-28",
+   "2026-10-05",
+   "2026-10-12",
+   "2026-10-19",
+   "2026-10-26",
+   "2026-11-02",
+   "2026-11-09"
+  ],
+  "window_labels": [
+   "08/17/2026 - 08/23/2026",
+   "08/24/2026 - 08/30/2026",
+   "08/31/2026 - 09/06/2026",
+   "09/07/2026 - 09/13/2026",
+   "09/14/2026 - 09/20/2026",
+   "09/21/2026 - 09/27/2026",
+   "09/28/2026 - 10/04/2026",
+   "10/05/2026 - 10/11/2026",
+   "10/12/2026 - 10/18/2026",
+   "10/19/2026 - 10/25/2026",
+   "10/26/2026 - 11/01/2026",
+   "11/02/2026 - 11/08/2026",
+   "11/09/2026 - 11/15/2026"
+  ],
+  "order_in_file": "week columns newest first",
+  "measurables": [
+   {
+    "title": "Leads Added",
+    "owner": "Wren Tumbletop",
+    "goal_text": ">= 60",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 60.0
+    },
+    "goal_read_as": "at least 60",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "64",
+     "value": 64.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "46",
+     "value": 46.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 4,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "70",
+      "value": 70.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "59",
+      "value": 59.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "64",
+      "value": 64.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "75",
+      "value": 75.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "56",
+      "value": 56.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "73",
+      "value": 73.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "69",
+      "value": 69.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "64",
+      "value": 64.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "67",
+      "value": 67.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "45",
+      "value": 45.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "64",
+      "value": 64.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "46",
+      "value": 46.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "64",
+      "value": 64.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Speed to Lead (Minutes)",
+    "owner": "Wren Tumbletop",
+    "goal_text": "<= 5",
+    "dir_text": "",
+    "goal": {
+     "dir": "at most",
+     "value": 5.0
+    },
+    "goal_read_as": "at most 5",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "7",
+     "value": 7.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "4",
+     "value": 4.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 12,
+    "misses": 5,
+    "blanks": 1,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "6",
+      "value": 6.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "6",
+      "value": 6.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "",
+      "value": null,
+      "result": "BLANK"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "6",
+      "value": 6.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "6",
+      "value": 6.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "7",
+      "value": 7.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Conversations",
+    "owner": "Basil Thistlewaite",
+    "goal_text": ">= 150",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 150.0
+    },
+    "goal_read_as": "at least 150",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "131",
+     "value": 131.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "167",
+     "value": 167.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 13,
+    "misses": 4,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "167",
+      "value": 167.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "171",
+      "value": 171.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "160",
+      "value": 160.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "169",
+      "value": 169.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "134",
+      "value": 134.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "131",
+      "value": 131.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "160",
+      "value": 160.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "176",
+      "value": 176.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "174",
+      "value": 174.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "123",
+      "value": 123.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "175",
+      "value": 175.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "167",
+      "value": 167.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "131",
+      "value": 131.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Appointments Set",
+    "owner": "Wren Tumbletop",
+    "goal_text": ">= 12",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 12.0
+    },
+    "goal_read_as": "at least 12",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "12",
+     "value": 12.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "11",
+     "value": 11.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 2,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "15",
+      "value": 15.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "14",
+      "value": 14.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "14",
+      "value": 14.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "14",
+      "value": 14.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "15",
+      "value": 15.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "13",
+      "value": 13.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "14",
+      "value": 14.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "13",
+      "value": 13.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "15",
+      "value": 15.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "13",
+      "value": 13.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "10",
+      "value": 10.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "11",
+      "value": 11.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "12",
+      "value": 12.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Appointments Met",
+    "owner": "Basil Thistlewaite",
+    "goal_text": ">= 9",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 9.0
+    },
+    "goal_read_as": "at least 9",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "7",
+     "value": 7.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "10",
+     "value": 10.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 12,
+    "misses": 3,
+    "blanks": 1,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "10",
+      "value": 10.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "7",
+      "value": 7.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "10",
+      "value": 10.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "10",
+      "value": 10.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "7",
+      "value": 7.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "10",
+      "value": 10.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "",
+      "value": null,
+      "result": "BLANK"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "11",
+      "value": 11.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "10",
+      "value": 10.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "7",
+      "value": 7.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "Buyer Agreements Signed",
+    "owner": "Basil Thistlewaite",
+    "goal_text": ">= 4",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 4.0
+    },
+    "goal_read_as": "at least 4",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "4",
+     "value": 4.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "3",
+     "value": 3.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 3,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "6",
+      "value": 6.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "3",
+      "value": 3.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Listing Agreements Signed",
+    "owner": "Clementine Quillfeather",
+    "goal_text": ">= 2",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 2.0
+    },
+    "goal_read_as": "at least 2",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "1",
+     "value": 1.0,
+     "result": "MISS"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "1",
+     "value": 1.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 3,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     }
+    ]
+   },
+   {
+    "title": "New Pendings",
+    "owner": "Otis Puddlecomb",
+    "goal_text": ">= 3",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 3.0
+    },
+    "goal_read_as": "at least 3",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "3",
+     "value": 3.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "1",
+     "value": 1.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 3,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "5",
+      "value": 5.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "2",
+      "value": 2.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "4",
+      "value": 4.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Closings",
+    "owner": "Otis Puddlecomb",
+    "goal_text": ">= 2",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 2.0
+    },
+    "goal_read_as": "at least 2",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "2",
+     "value": 2.0,
+     "result": "HIT"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "1",
+     "value": 1.0,
+     "result": "MISS"
+    },
+    "weeks_with_number": 13,
+    "misses": 5,
+    "blanks": 0,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "3",
+      "value": 3.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "1",
+      "value": 1.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "2",
+      "value": 2.0,
+      "result": "HIT"
+     }
+    ]
+   },
+   {
+    "title": "Database Touches",
+    "owner": "Hazel Snickerdoodle",
+    "goal_text": ">= 200",
+    "dir_text": "",
+    "goal": {
+     "dir": "at least",
+     "value": 200.0
+    },
+    "goal_read_as": "at least 200",
+    "goal_how": "the goal's own words or symbol",
+    "this_week": {
+     "week": "2026-11-09",
+     "raw": "",
+     "value": null,
+     "result": "BLANK"
+    },
+    "last_week": {
+     "week": "2026-11-02",
+     "raw": "240",
+     "value": 240.0,
+     "result": "HIT"
+    },
+    "weeks_with_number": 12,
+    "misses": 4,
+    "blanks": 1,
+    "weeks": [
+     {
+      "week": "2026-08-17",
+      "raw": "198",
+      "value": 198.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-24",
+      "raw": "167",
+      "value": 167.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-08-31",
+      "raw": "177",
+      "value": 177.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-09-07",
+      "raw": "210",
+      "value": 210.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-14",
+      "raw": "208",
+      "value": 208.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-21",
+      "raw": "219",
+      "value": 219.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-09-28",
+      "raw": "172",
+      "value": 172.0,
+      "result": "MISS"
+     },
+     {
+      "week": "2026-10-05",
+      "raw": "218",
+      "value": 218.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-12",
+      "raw": "216",
+      "value": 216.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-19",
+      "raw": "233",
+      "value": 233.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-10-26",
+      "raw": "226",
+      "value": 226.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-02",
+      "raw": "240",
+      "value": 240.0,
+      "result": "HIT"
+     },
+     {
+      "week": "2026-11-09",
+      "raw": "",
+      "value": null,
+      "result": "BLANK"
+     }
+    ]
+   }
+  ],
+  "blanks": [
+   {
+    "measurable": "Speed to Lead (Minutes)",
+    "owner": "Wren Tumbletop",
+    "week": "2026-09-21",
+    "week_label": "09/21/2026 - 09/27/2026"
+   },
+   {
+    "measurable": "Appointments Met",
+    "owner": "Basil Thistlewaite",
+    "week": "2026-10-12",
+    "week_label": "10/12/2026 - 10/18/2026"
+   },
+   {
+    "measurable": "Database Touches",
+    "owner": "Hazel Snickerdoodle",
+    "week": "2026-11-09",
+    "week_label": "11/09/2026 - 11/15/2026"
+   }
+  ],
+  "unreadable": []
+ },
+ "rocks": {
+  "file": "PRACTICE Rocks Q4 2026.csv",
+  "sheet": "PRACTICE Rocks Q4 2026",
+  "header_row": 2,
+  "columns_used": {
+   "title": "Title",
+   "owner": "Owner",
+   "status": "Status",
+   "due": "Due Date",
+   "notes": "Description",
+   "kind": "Level"
+  },
+  "items": [
+   {
+    "title": "Launch the Past Client Event Calendar",
+    "owner": "Hazel Snickerdoodle",
+    "status": "On Track",
+    "due": "12/31/2026",
+    "notes": "",
+    "kind": "Company",
+    "status_given": "On Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Hire and Onboard a Second ISA",
+    "owner": "Marigold Fiddlesworth",
+    "status": "Off Track",
+    "due": "12/31/2026",
+    "notes": "",
+    "kind": "Company",
+    "status_given": "Off Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Get the Listing Presentation Under 45 Minutes",
+    "owner": "Clementine Quillfeather",
+    "status": "On Track",
+    "due": "12/31/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "On Track",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Move Every Transaction Into One Checklist",
+    "owner": "Otis Puddlecomb",
+    "status": "Done",
+    "due": "12/31/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "Done",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Rebuild the Buyer Consult Script",
+    "owner": "Basil Thistlewaite",
+    "status": "",
+    "due": "12/31/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "no status given",
+    "due_iso": "2026-12-31"
+   },
+   {
+    "title": "Clean Up the CRM Stages",
+    "owner": "Wren Tumbletop",
+    "status": "On Track",
+    "due": "12/31/2026",
+    "notes": "",
+    "kind": "Team",
+    "status_given": "On Track",
+    "due_iso": "2026-12-31"
+   }
+  ],
+  "status_counts": {
+   "On Track": 3,
+   "Off Track": 1,
+   "Done": 1,
+   "no status given": 1
+  },
+  "has_status_column": true
+ },
+ "issues": {
+  "sheets": [
+   {
+    "file": "PRACTICE Issues List.xlsx",
+    "sheet": "Short-Term Issues",
+    "header_row": 2,
+    "columns_used": {
+     "title": "Title",
+     "owner": "Owner",
+     "completed_on": "Completed Date",
+     "created": "Created Date",
+     "priority": "Priority",
+     "notes": "Description",
+     "kind": "Type"
+    }
+   },
+   {
+    "file": "PRACTICE Issues List.xlsx",
+    "sheet": "Long-Term Issues",
+    "header_row": 2,
+    "columns_used": {
+     "title": "Title",
+     "owner": "Owner",
+     "completed_on": "Completed Date",
+     "created": "Created Date",
+     "priority": "Priority",
+     "notes": "Description",
+     "kind": "Type"
+    }
+   }
+  ],
+  "short_term": [
+   {
+    "title": "Speed to lead slipping on weekend portal leads",
+    "owner": "Wren Tumbletop",
+    "completed_on": "",
+    "created": "10/26/2026",
+    "priority": "",
+    "notes": "Saturday and Sunday leads wait 20 minutes or more. Nobody is assigned weekends.",
+    "kind": "",
+    "n_in_file": 1,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-10-26"
+   },
+   {
+    "title": "Seller on Gingersnap Court wants out of the listing agreement",
+    "owner": "Clementine Quillfeather",
+    "completed_on": "",
+    "created": "11/12/2026",
+    "priority": "",
+    "notes": "Unhappy with showing feedback. Asked to cancel by Friday 11/20.",
+    "kind": "",
+    "n_in_file": 2,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-11-12"
+   },
+   {
+    "title": "Second ISA hire: two candidates declined",
+    "owner": "Marigold Fiddlesworth",
+    "completed_on": "",
+    "created": "11/03/2026",
+    "priority": "",
+    "notes": "Both took salaried roles elsewhere.",
+    "kind": "",
+    "n_in_file": 3,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-11-03"
+   },
+   {
+    "title": "Buyer agents not logging appointments met in the CRM",
+    "owner": "Basil Thistlewaite",
+    "completed_on": "",
+    "created": "11/05/2026",
+    "priority": "",
+    "notes": "Appointments Met may read low because some aren't logged.",
+    "kind": "",
+    "n_in_file": 4,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-11-05"
+   },
+   {
+    "title": "Office printer lease renewal",
+    "owner": "Otis Puddlecomb",
+    "completed_on": "",
+    "created": "10/14/2026",
+    "priority": "",
+    "notes": "Two quotes in, no decision yet.",
+    "kind": "",
+    "n_in_file": 5,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-10-14"
+   },
+   {
+    "title": "Pick a date for team photo day",
+    "owner": "Hazel Snickerdoodle",
+    "completed_on": "",
+    "created": "11/09/2026",
+    "priority": "",
+    "notes": "",
+    "kind": "",
+    "n_in_file": 6,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-11-09"
+   },
+   {
+    "title": "Lender partner wants to co-host an open house",
+    "owner": "Marigold Fiddlesworth",
+    "completed_on": "",
+    "created": "10/30/2026",
+    "priority": "",
+    "notes": "Need to check the co-marketing rules first.",
+    "kind": "",
+    "n_in_file": 7,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-10-30"
+   },
+   {
+    "title": "Listing photos taking five days to come back",
+    "owner": "Clementine Quillfeather",
+    "completed_on": "",
+    "created": "11/10/2026",
+    "priority": "",
+    "notes": "Two launches pushed a week this month.",
+    "kind": "",
+    "n_in_file": 8,
+    "sheet": "Short-Term Issues",
+    "created_iso": "2026-11-10"
+   }
+  ],
+  "long_term": [
+   {
+    "title": "Open a second office in Hollyhock Springs?",
+    "owner": "Marigold Fiddlesworth",
+    "completed_on": "",
+    "created": "09/15/2026",
+    "priority": "",
+    "notes": "",
+    "kind": "",
+    "n_in_file": 1,
+    "sheet": "Long-Term Issues",
+    "created_iso": "2026-09-15"
+   },
+   {
+    "title": "Team split structure for 2027",
+    "owner": "Marigold Fiddlesworth",
+    "completed_on": "",
+    "created": "10/01/2026",
+    "priority": "",
+    "notes": "",
+    "kind": "",
+    "n_in_file": 2,
+    "sheet": "Long-Term Issues",
+    "created_iso": "2026-10-01"
+   }
+  ]
+ },
+ "headlines": {
+  "sheets": [
+   {
+    "file": "PRACTICE Headlines.txt",
+    "sheet": "text",
+    "header_row": null,
+    "columns_used": {}
+   }
+  ],
+  "items": [
+   {
+    "title": "Customer Headlines"
+   },
+   {
+    "title": "The Fizzwick buyers closed on Pumpernickel Lane on Friday and sent the team a thank-you video. (Basil)"
+   },
+   {
+    "title": "Past client Dot Quibble referred a neighbor; a listing appointment is set for Thursday. (Hazel)"
+   },
+   {
+    "title": "Employee Headlines"
+   },
+   {
+    "title": "Wren hit one year with the team on Monday. (Marigold)"
+   },
+   {
+    "title": "Otis finished his transaction coordinator certification. (Otis)"
+   }
+  ]
+ },
+ "todos": {
+  "file": "PRACTICE To-Dos.csv",
+  "sheet": "PRACTICE To-Dos",
+  "header_row": 2,
+  "columns_used": {
+   "title": "Title",
+   "owner": "Owner",
+   "status": "Status",
+   "due": "Due Date",
+   "created": "Created"
+  },
+  "items": [
+   {
+    "title": "Send the Gingersnap Court sellers their showing feedback summary",
+    "owner": "Clementine Quillfeather",
+    "status": "Complete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Post the second ISA job listing on two more sites",
+    "owner": "Marigold Fiddlesworth",
+    "status": "Incomplete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "not done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Book the January past client event venue",
+    "owner": "Hazel Snickerdoodle",
+    "status": "Complete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Add the weekend lead coverage schedule to the shared calendar",
+    "owner": "Wren Tumbletop",
+    "status": "Complete",
+    "due": "11/16/2026",
+    "created": "11/10/2026",
+    "state": "done",
+    "due_iso": "2026-11-16"
+   },
+   {
+    "title": "Record the new buyer consult opener for the team",
+    "owner": "Basil Thistlewaite",
+    "status": "Incomplete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "not done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Get two quotes for the printer lease",
+    "owner": "Otis Puddlecomb",
+    "status": "Complete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Merge the duplicate stages in the CRM",
+    "owner": "Wren Tumbletop",
+    "status": "Complete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Draft the listing presentation outline",
+    "owner": "Clementine Quillfeather",
+    "status": "Complete",
+    "due": "11/13/2026",
+    "created": "11/10/2026",
+    "state": "done",
+    "due_iso": "2026-11-13"
+   },
+   {
+    "title": "Call the photographer about faster turnaround",
+    "owner": "Clementine Quillfeather",
+    "status": "Incomplete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "not done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Send the lender partner the co-marketing rules",
+    "owner": "Marigold Fiddlesworth",
+    "status": "Complete",
+    "due": "11/17/2026",
+    "created": "11/10/2026",
+    "state": "done",
+    "due_iso": "2026-11-17"
+   },
+   {
+    "title": "Update the transaction checklist for new construction",
+    "owner": "Otis Puddlecomb",
+    "status": "Incomplete",
+    "due": "11/06/2026",
+    "created": "10/30/2026",
+    "state": "not done",
+    "due_iso": "2026-11-06"
+   },
+   {
+    "title": "Order holiday cards for past clients",
+    "owner": "Hazel Snickerdoodle",
+    "status": "Incomplete",
+    "due": "11/24/2026",
+    "created": "11/10/2026",
+    "state": "not done",
+    "due_iso": "2026-11-24"
+   }
+  ],
+  "duplicates_dropped": 0,
+  "groups": {
+   "counted": [
+    {
+     "title": "Send the Gingersnap Court sellers their showing feedback summary",
+     "owner": "Clementine Quillfeather",
+     "status": "Complete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Post the second ISA job listing on two more sites",
+     "owner": "Marigold Fiddlesworth",
+     "status": "Incomplete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "not done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Book the January past client event venue",
+     "owner": "Hazel Snickerdoodle",
+     "status": "Complete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Add the weekend lead coverage schedule to the shared calendar",
+     "owner": "Wren Tumbletop",
+     "status": "Complete",
+     "due": "11/16/2026",
+     "created": "11/10/2026",
+     "state": "done",
+     "due_iso": "2026-11-16"
+    },
+    {
+     "title": "Record the new buyer consult opener for the team",
+     "owner": "Basil Thistlewaite",
+     "status": "Incomplete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "not done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Get two quotes for the printer lease",
+     "owner": "Otis Puddlecomb",
+     "status": "Complete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Merge the duplicate stages in the CRM",
+     "owner": "Wren Tumbletop",
+     "status": "Complete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Draft the listing presentation outline",
+     "owner": "Clementine Quillfeather",
+     "status": "Complete",
+     "due": "11/13/2026",
+     "created": "11/10/2026",
+     "state": "done",
+     "due_iso": "2026-11-13"
+    },
+    {
+     "title": "Call the photographer about faster turnaround",
+     "owner": "Clementine Quillfeather",
+     "status": "Incomplete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "not done",
+     "due_iso": "2026-11-17"
+    },
+    {
+     "title": "Send the lender partner the co-marketing rules",
+     "owner": "Marigold Fiddlesworth",
+     "status": "Complete",
+     "due": "11/17/2026",
+     "created": "11/10/2026",
+     "state": "done",
+     "due_iso": "2026-11-17"
+    }
+   ],
+   "older_open": [
+    {
+     "title": "Update the transaction checklist for new construction",
+     "owner": "Otis Puddlecomb",
+     "status": "Incomplete",
+     "due": "11/06/2026",
+     "created": "10/30/2026",
+     "state": "not done",
+     "due_iso": "2026-11-06"
+    }
+   ],
+   "older_done": [],
+   "not_due_yet": [
+    {
+     "title": "Order holiday cards for past clients",
+     "owner": "Hazel Snickerdoodle",
+     "status": "Incomplete",
+     "due": "11/24/2026",
+     "created": "11/10/2026",
+     "state": "not done",
+     "due_iso": "2026-11-24"
+    }
+   ],
+   "no_due_date": []
+  },
+  "done": 7,
+  "not_done": 3,
+  "no_status": 0,
+  "with_status": 10,
+  "rate": 70.0,
+  "arithmetic": "7 done / 10 with a status = 70.0%",
+  "window_words": "to-dos due 2026-11-11 through 2026-11-17 (the 7 days up to the meeting)",
+  "has_status": true,
+  "has_due": true
+ }
+}

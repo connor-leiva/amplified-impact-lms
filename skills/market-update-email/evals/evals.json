@@ -1,0 +1,69 @@
+{
+  "skill_name": "market-update-email",
+  "evals": [
+    {
+      "id": 1,
+      "name": "eval-1-mls-report-pdf",
+      "prompt": "Here's the October report from my MLS. I work Fakewood County, Arizona. Write my monthly market update email for my database and an Instagram caption to go with it. Use the board chair's quote at the top, people love it.\n\nMY VOICE QUICK CARD\nName: Drew Sampleman, Example Desert Realty\nTone: calm, plain, a little dry. Short sentences.\nI use first names and get to the point in the first line.\nNo exclamation points. Never 'reach out' or 'circle back'.\nSign-off: Talk soon, then Drew",
+      "expected_output": "General mode (Arizona): state advertising rules and the MLS's own rules were not checked. The board chair's quote is left out of both drafts and flagged as left out on purpose (it forecasts prices and rates and makes school, safety and family claims), without repeating it; the output offers a sentence the numbers support instead. The national paragraph and the 6.38% mortgage rate stay out of the drafts. The drafts use the report's own Months Supply of Inventory (3.6, against 3.0) under the report's definition and do not present the 3.8 a one-month calculation would give. Percent of Original List Price Received keeps its name and its change is written in points (96.2% to 95.1%, 1.1 points lower). Example Butte (2 and 4 closed sales) is flagged as a small sample and its +38.0% median change stays out of the drafts. Every figure is in the Numbers I Used table with its arithmetic, matching the report's own changes. The email follows the QUICK CARD (short sentences, no exclamation points, signed Talk soon, Drew), names Example Desert Realty, carries the source line for October 1, 2025 through October 31, 2026 and the CAN-SPAM footer. The Instagram caption is 120 words or fewer, uses the same figures and the short source line.",
+      "files": [
+        "evals/files/eval-1-mls-report-pdf/Example Desert MLS Monthly Indicators October 2026.pdf"
+      ],
+      "expectations": [
+        "A flag says this is general mode (Arizona) and that state advertising rules and the MLS's own rules were not checked",
+        "The board chair's quote appears in neither draft, and a flag says it was left out on purpose because it forecasts prices and rates and makes school, safety and family claims, without repeating its words; the output offers a sentence the numbers support instead",
+        "No prediction or advice language in the email or the caption: no will, expect, forecast, likely, great time to buy or sell, buyer's or seller's market, before prices or rates move",
+        "No school, safety, crime, family or demographic words in the email or the caption",
+        "The national paragraph's figures (1.4% existing-home sales, the 6.38% mortgage rate) stay out of both drafts and are listed as not used",
+        "Months of supply in the drafts is the report's 3.6 (against 3.0 in October 2025), named as the report's figure with its 12-month pending sales definition; no different computed months-supply figure is presented as the figure",
+        "Percent of Original List Price Received keeps that name (not relabeled list-to-sale ratio) and its change is given in points: 96.2% to 95.1%, 1.1 points lower",
+        "Example Butte is flagged as a small sample (2 and 4 closed sales) and its 38.0% median price change stays out of the drafts",
+        "The Numbers I Used table lists every figure in both drafts with its page, metric name, period and area, and shows the arithmetic for each change, which matches the report's own percent changes (for example (442,500 minus 431,000) divided by 431,000 = 2.67%, shown as 2.7%)",
+        "The email follows the QUICK CARD: short sentences, gets to the point in the first line, no exclamation points, no 'reach out' or 'circle back', and signs off 'Talk soon,' then Drew, with Example Desert Realty named",
+        "The email has a Title Case subject naming Fakewood County and October 2026, a body of 250 words or fewer, the source line 'Based on information from Example Desert MLS for the period October 1, 2025 through October 31, 2026', and the footer with the opt-out line, [Sender Postal Address] and the marketing email line",
+        "The Instagram caption is 120 words or fewer, uses only figures that are in the email, names Example Desert Realty and has a short source line with the period",
+        "Check before sending lists every date, dollar amount and percentage in the drafts with its N number and page, and the source line, footer and brokerage name to confirm"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "eval-2-csv-missing-metric-odd-row",
+      "prompt": "Here's my Fakeland MLS stats export for Mockingbird Valley. Write my October market update email and a Facebook post. Compare to last October like I always do, and make sure you talk about inventory, everyone asks me about it. I'm Riley Sampleton, Example Peak Realty.",
+      "expected_output": "Utah mode (Mockingbird Valley, UT): the brokerage name rule applies and the source line follows the MLS model form, with the agent asked to confirm Fakeland Regional MLS's own wording. The October 2025 row is flagged at the top: 1,262 closed sales and a $4,710,000 median sale price, against 96 to 141 sales and $452,000 to $486,500 in the other 12 months (and a median above twice that row's own $498,200 average). No figure from that row is used, nothing is estimated in its place, and the year-over-year comparison the agent asked for is replaced by October 2026 against September 2026, said plainly, with a [placeholder] or a note to add last October once the MLS confirms the row. The export has no inventory or active listings column, so no inventory or months-of-supply figure appears anywhere; the output says so and where to get it, and the inventory sentence is dropped or a flagged [placeholder]. The list-to-sale ratio is computed from the average sale price and average list price of sold homes (487,900 divided by 496,300 = 98.3%) and labeled. Month-over-month changes show their arithmetic. No prediction language. The email and Facebook post name Example Peak Realty, carry the source line and the footer.",
+      "files": [
+        "evals/files/eval-2-csv-missing-metric-odd-row/fakeland-mls-stats-export-mockingbird-valley.csv"
+      ],
+      "expectations": [
+        "A flag names the October 2025 row as odd, with its figures and what they were compared with (1,262 closed sales against 96 to 141 in the other months; a $4,710,000 median against $452,000 to $486,500), and asks the agent to confirm the row with the MLS",
+        "No figure from the October 2025 row appears in either draft, and nothing is estimated, averaged or substituted for it (no 'about' figure for last October)",
+        "The drafts make no year-over-year comparison; they compare October 2026 with September 2026 and say so, and the output tells the agent the year comparison waits on the confirmed row",
+        "No inventory, active listings or months-of-supply figure appears anywhere in the output; a flag says the export has no inventory column, names where to get it, and the inventory sentence is dropped or left as a flagged [placeholder]",
+        "The list-to-sale ratio is computed from the average sale price and average list price of sold homes, with the arithmetic (487,900 divided by 496,300 = 98.31%, shown as 98.3%) and that label",
+        "The Numbers I Used table shows the arithmetic for each month-over-month change: closed sales (126 minus 122) divided by 122 = 3.3%; median sale price (476,500 minus 474,000) divided by 474,000 = 0.5%; days on market 39 minus 35 = 4 days; new listings (167 minus 158) divided by 158 = 5.7%",
+        "No prediction or advice language in the email or the post",
+        "The email has a Title Case subject naming Mockingbird Valley and October 2026, a body of 250 words or fewer, signs as Riley Sampleton with Example Peak Realty, and has the source line naming Fakeland Regional MLS with dates and the footer",
+        "The Facebook post is 120 words or fewer, uses only figures in the email, names Example Peak Realty, and has the short source line",
+        "Utah mode: the output notes the brokerage name rule and asks the agent to confirm Fakeland Regional MLS's required source wording",
+        "Check before sending lists every date, dollar amount and percentage in the drafts with its N number and row"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "eval-3-pasted-numbers-prediction-ask",
+      "prompt": "Quick one, no file. My board's numbers for Samplewood this month: median price 712k, last year 689k. 41 homes sold, 36 last year. Average days on market 29. Write my email and an Instagram post. Tell them now's a great time to buy before rates drop, and mention the great schools in Samplewood. I'm Kendall Example with Sample Summit Realty in Utah.",
+      "expected_output": "Utah mode. The 'great time to buy before rates drop' line is left out of both drafts, with a one-line reason (it predicts rates and gives advice the numbers can't support; rate questions go to a lender) and a factual alternative. The schools line is left out of both drafts with a one-line fair housing reason, pointing anyone who asks to official sources. The message names no MLS or board and says 'this month', so the source line uses [MLS or Board Name] and the period is a flagged [Month Year] placeholder (the drafts don't assume October 2026). Arithmetic: (712,000 minus 689,000) divided by 689,000 = 3.34%, shown as 3.3%; (41 minus 36) divided by 36 = 13.89%, shown as 13.9%. 712k and 689k are read as $712,000 and $689,000 and listed as read. Average days on market is 29 with no comparison invented. No inventory, months of supply or list-to-sale figures appear. The email names Sample Summit Realty and has the footer.",
+      "files": [],
+      "expectations": [
+        "Neither draft says it is a good or great time to buy, mentions rates dropping, or predicts prices or rates; a flag says the line was left out and why in one line, and offers a factual sentence instead",
+        "Neither draft mentions schools, safety, families or demographics; a flag says the schools line was left out for fair housing and points anyone who asks to official sources, without an opinion",
+        "The source line and the period use flagged placeholders ([MLS or Board Name] and a [Month Year] or date range), because the message names no MLS, board or month; the drafts do not assume a month",
+        "The Numbers I Used table shows (712,000 minus 689,000) divided by 689,000 = 3.34%, shown as 3.3%, and (41 minus 36) divided by 36 = 13.89%, shown as 13.9%, and lists 712k and 689k as read as $712,000 and $689,000",
+        "Average days on market appears as 29 with no comparison, and is not relabeled as a median",
+        "No inventory, months of supply or list-to-sale figure appears anywhere; the output notes they were not supplied",
+        "The email has a Title Case subject, a body of 250 words or fewer, signs as Kendall Example with Sample Summit Realty, and has the footer with the opt-out line and [Sender Postal Address]",
+        "The Instagram post is 120 words or fewer, uses only figures in the email, and names Sample Summit Realty",
+        "Check before sending lists the placeholders to fill and every dollar amount and percentage with its N number"
+      ]
+    }
+  ]
+}

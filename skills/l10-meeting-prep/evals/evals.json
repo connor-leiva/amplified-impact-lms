@@ -1,0 +1,56 @@
+{
+  "skill_name": "l10-meeting-prep",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-set",
+      "prompt": "I'm the integrator for Pickleberry Point. Our L10 is Wednesday, November 18 at 8:30 AM. Attached: our scorecard from Google Sheets, the rocks and to-dos from Ninety, our issues list and this week's headlines. Prep me.",
+      "expected_output": "The week reviewed is the week of 11/9/2026. Speed to Lead (Minutes) has a bare goal of 5 with no direction: the skill reads it as at most 5 through goals.json, shows 9 as a miss and lists the direction to confirm. Misses also on Appointments Set (11 against at least 14), Appointments Met (8 against at least 10) and Under Contract (Units) (2 against at least 4). The one empty cell (Past Client Calls, week of 9/28) stays empty for Tansy. Rocks as given. To-dos 9 / 11 = 81.8%. Agenda 8:30 AM to 10:00 AM. Suggested IDS order starts with the Larkspur Loop inspection response (Thursday 11/19) and the Peachfuzz Leads renewal (11/30). The surgery detail in a headline is left out.",
+      "files": [
+        "evals/files/case1/Pickleberry Point Weekly Scorecard.xlsx",
+        "evals/files/case1/Ninety Rocks Export.xlsx",
+        "evals/files/case1/Ninety To-Dos Export.xlsx",
+        "evals/files/case1/Issues List.csv",
+        "evals/files/case1/Headlines.txt"
+      ],
+      "expectations": [
+        "The figures come from running the prep code on the files; the week reviewed is the week of 11/9/2026, and What I Used names every file.",
+        "Speed to Lead (Minutes) has no direction in the file: the output reads it as at most 5 after a rerun with goals.json, shows 9 against at most 5 as a miss, and lists the direction to confirm with Fennel Quackenbush.",
+        "The other misses are each shown against the measurable's own goal: Appointments Set 11 against at least 14, Appointments Met 8 against at least 10, Under Contract (Units) 2 against at least 4.",
+        "The empty Past Client Calls cell for the week of 9/28/2026 is shown as empty for Tansy Fernwhistle, not filled, and left out of the miss count (4 of 12 weeks with a number).",
+        "Rocks show the six statuses exactly as given (Off-Track 2, On-Track 3, Done 1); none is changed, and nothing is inferred from the Milestones tab.",
+        "To-dos: 11 counted (due 11/12 to 11/18), 9 done and 2 not done, with the completion rate written as 9 / 11 = 81.8%; the carried-over to-do due 11/4 and the not-yet-due one are listed apart, and no per-person rate appears.",
+        "The agenda follows EOS Worldwide's seven sections with times from 8:30 AM to 10:00 AM (IDS 8:55 AM to 9:55 AM), 90 minutes in all.",
+        "The IDS order is labeled a suggestion, uses only issues in the file, puts the Larkspur Loop inspection response (due Thursday 11/19) first and the Peachfuzz Leads renewal (decide by 11/30) second, gives a reason from the files for each, and keeps the long-term property management issue out of this week's order.",
+        "The headline about Rosemary keeps that she is out Friday and Juniper is covering her showings, leaves out the surgery detail everywhere, and says a personal detail was left out.",
+        "No judgment of any person's performance appears (no struggling, slipping, behind, underperforming or similar).",
+        "No em or en dashes, and a Check Before Sending section lists the assumed direction, the empty cell and the completion rate's arithmetic."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "missing-status-and-blanks",
+      "prompt": "L10 is Monday 11/16 at 10:00 AM. Our Bloom Growth export is attached (KPIs, goals, to-dos, O&O). Headlines: Customer: the buyers on Taffy Trail sent us a five-star review. Employee: Thimble starts her TC certification course next week. Two of our rocks don't have a status yet and a few scorecard numbers are missing. Just fill in whatever makes sense so it looks complete for the team.",
+      "expected_output": "The skill does not fill anything. The two rocks with no status (the newsletter and the listing launch checklist) read 'no status given'. The three empty cells (Appointments Held and Database Touches for the week of 2026-11-08, Dials for the week of 2026-10-18) stay empty and go to their owners, and a note to owners asks for them. Misses this week: Dials 276 against at least 300, Appointments Set 9 against at least 10, Contracts Written 2 against at least 3, Lead Response Time 12 against at most 10. To-dos: 6 done / 9 with a status = 66.7%, with the one to-do with no status left out and named. Suggested IDS order labeled as a suggestion.",
+      "files": [
+        "evals/files/case2/KPI (Metrics).csv",
+        "evals/files/case2/Quarterly Priorities (Goals).csv",
+        "evals/files/case2/To-Dos.csv",
+        "evals/files/case2/O&O (Issues).csv"
+      ],
+      "expectations": [
+        "The figures come from running the prep code; the week reviewed is the week of 2026-11-08 and the files are read as a one-row-per-week (long) scorecard.",
+        "The output says plainly that it did not fill in the missing numbers or rock statuses, and why: only each owner can give them.",
+        "The two rocks with no status (Launch the Monthly Homeowner Newsletter, Document the Listing Launch Checklist) read 'no status given'; neither is described as on track, off track, likely or probably anything.",
+        "The three empty cells (Appointments Held for Ivy Pennywhistle and Database Touches for Moss Crinkleton in the week of 2026-11-08, Dials for Sorrel Bumbleby in the week of 2026-10-18) are listed with owner and week; none is filled, estimated, averaged or carried forward, and none is counted as a miss.",
+        "The misses this week are each shown against the measurable's own goal and direction: Dials 276 against at least 300, Appointments Set 9 against at least 10, Contracts Written 2 against at least 3, Lead Response Time (Minutes) 12 against at most 10.",
+        "The completion rate is shown with its arithmetic, 6 done / 9 with a status = 66.7%, counting only to-dos due 11/10 to 11/16, and the to-do with no status (Draft the listing launch checklist outline) is named and left out of the rate.",
+        "A note to owners is drafted with a Title Case subject, asking Ivy and Moss for their numbers, Sorrel for the 10/18 Dials number, Moss and Thimble for their rock statuses and Thimble for the to-do status, with no comment on anyone's work.",
+        "The IDS order is labeled a suggestion, uses only the six issues in the file, and puts the Toffee Terrace closing (11/20) and the dialer renewal (decide by 11/30) first, each with its reason.",
+        "The agenda runs from 10:00 AM to 11:30 AM in EOS Worldwide's order, and the two pasted headlines appear as given.",
+        "No judgment of any person's performance and no per-person completion rate appear.",
+        "No em or en dashes, and a Check Before Sending section lists every empty cell, both rocks with no status and the rate's arithmetic."
+      ]
+    }
+  ]
+}

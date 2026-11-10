@@ -1,0 +1,8 @@
+{
+  "name": "l10-meeting-prep",
+  "page": "l10-meeting-prep",
+  "title": "L10 Meeting Prep",
+  "version": "1.0",
+  "apps": ["claude", "chatgpt"],
+  "shared": []
+}
