@@ -71,10 +71,10 @@ const privacyHtml = fileURLToPath(new URL('../../web/dist/privacy.html', import.
 // The free guides' landing pages (D-038, D-039), built beside them, one per slug. Each has an inline
 // script (the same one).
 const guideHtml = (slug: string) => fileURLToPath(new URL(`../../web/dist/${slug}.html`, import.meta.url));
-// The marketing host's placeholder. It ships in `public/`, so the SPA's own build copies it
-// into `dist/` verbatim — it needs no build step of its own, because it carries no script and
-// no import. `routes/marketing.ts` serves it on MARKETING_HOST and nowhere else.
-const holdingHtml = fileURLToPath(new URL('../../web/dist/holding.html', import.meta.url));
+// The marketing host's homepage (D-102), built beside the guides from `apps/web/src/home/`. It carries
+// no script, so it has nothing to hash. `routes/marketing.ts` serves it at `/` on MARKETING_HOST and
+// nowhere else. It replaced the "under construction" placeholder, `public/holding.html` (D-029).
+const homeHtml = fileURLToPath(new URL('../../web/dist/home.html', import.meta.url));
 
 /** A built page's contents, or `null` when it has not been built or cannot be read. */
 function readBuilt(path: string): string | null {
@@ -137,7 +137,7 @@ const app = await build({
   libraryPage,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml), agreement: readBuilt(agreementHtml) },
   offer: { pages: { offer: offerPage, welcome: welcomePage }, config: offerConfig },
-  marketingPage: readBuilt(holdingHtml),
+  marketingPage: readBuilt(homeHtml),
   waitlist: databaseConfigured(),
 });
 
@@ -160,6 +160,8 @@ if (existsSync(webDist)) {
       'offer.html',
       'offer-welcome.html',
       'agreement.html',
+      // www's homepage has one URL, `/` on the marketing host (routes/marketing.ts), and none on learn.
+      'home.html',
       ...GUIDE_SLUGS.map((slug) => `${slug}.html`),
       // Paid skills are not public files (D-082): they live in the bucket and open through the
       // platform's library. `PAID_DOWNLOADS` names them; `test/paid-skills.test.ts` holds the list.
