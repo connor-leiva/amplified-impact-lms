@@ -145,7 +145,7 @@ This is an estimate, not a closing statement. Your actual costs and proceeds com
 *From: your menu (My Fee and Terms). For you: the listing agreement is with Example Peak Realty, so confirm this cancellation policy matches your brokerage's agreement. UAR's revised listing form has an end date.*
 
 **"What's your commission?"**
-"My fee is 2.5% of the sale price, paid to Example Peak Realty at closing. It isn't set by law, and it's negotiable, like every fee; we agree on it in the listing agreement. Paying a buyer's agent is a separate choice, and it's yours: you can offer something or nothing, and if you offer something, you approve the amount in writing before it's offered. The net sheet shows it both ways. You mentioned a number you'd heard: there isn't a set rate. Every fee is agreed between the agent and the seller."
+"My fee is 2.5% of the sale price, paid to Example Peak Realty at closing. Broker commissions are not set by law and are fully negotiable. We agree on mine in the listing agreement. Paying a buyer's agent is a separate choice, and it's yours: you can offer something or nothing, and if you offer something, you approve the amount in writing before it's offered. The net sheet shows it both ways. You mentioned a number you'd heard: every fee is agreed between the agent and the seller."
 *From: your menu (My Fee and Terms). For you: NAR's policy since August 17, 2024 requires the "not set by law and fully negotiable" disclosure in listing agreements and the seller's written approval, with the amount or rate, before any payment to a buyer's broker. Offers can't go on the MLS; sellers can still offer buyer concessions such as closing costs. UAR's listing form covers both in its compensation section.*
 
 ## What to Bring

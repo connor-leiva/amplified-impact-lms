@@ -2,7 +2,7 @@
 
 - **Action plan already running.** "Website Buyer, 14 Day" started at 9:43 AM and sent its automatic email ("Thanks for registering with Example Peak Realty!") at 9:43 AM. Nothing below repeats it. Your call: pause the plan on Avery's profile in Follow Up Boss so its emails don't land between your personal touches, or let it run and send this right after it.
 - **Saturday's showing.** Avery asked to see it "this Saturday" (Saturday, November 14). No draft promises it: a written buyer agreement comes first.
-- **Day 1 is Veterans Day.** Wednesday, November 11 is a Utah legal holiday. Avery's consent line covers calls and texts, so the Day 1 text and call can go that day (Utah Code 13-25a-103(3)).
+- **Day 1 is Veterans Day.** Wednesday, November 11 is a Utah legal holiday. The Day 1 text and email keep that day, since Avery's consent covers texts. The Day 1 call and voicemail move to Thursday, November 12: no calls on a Sunday or a legal holiday, even with consent (a conservative default).
 - **Left out on purpose:** what Avery said about who might stay in the basement, Avery's website activity and saved search, the agent-only remarks and showing instructions, and the school fields.
 - **Placeholders:** [Agent Phone] and [Sender Postal Address].
 
@@ -43,6 +43,7 @@ Riley Sampleton
 Example Peak Realty | [Agent Phone]
 
 To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from Riley Sampleton, Example Peak Realty.
 
 ## Call Opener and Voicemail
 
@@ -60,6 +61,8 @@ If Saturday comes up: you're glad to set it up, and the buyer agreement comes fi
 
 > Hi Avery, it's Riley with Example Peak Realty. One more from the listing: the basement bedroom has an egress window. Anything else I can find out? Reply STOP to opt out.
 
+**Call and voicemail: Thursday, November 12.** Moved off Veterans Day: no call or voicemail lands on a Sunday or a legal holiday, even with Avery's consent (a conservative default).
+
 **Call:** Ask whether the answers helped and whether Saturday is still the plan (the buyer agreement first).
 
 **Voicemail:** Hi Avery, it's Riley Sampleton with Example Peak Realty, following up on 4120 S Placeholder Pines Ln. Call or text me back at [Agent Phone].
@@ -76,6 +79,7 @@ Riley Sampleton
 Example Peak Realty | [Agent Phone]
 
 To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from Riley Sampleton, Example Peak Realty.
 
 ### Day 3: Friday, November 13
 
@@ -99,6 +103,7 @@ Riley Sampleton
 Example Peak Realty | [Agent Phone]
 
 To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from Riley Sampleton, Example Peak Realty.
 
 If Avery replies to anything, stop these touches and pick up the conversation.
 
@@ -114,12 +119,12 @@ If Avery replies to anything, stop these touches and pick up the conversation.
 | Automatic sprinklers front and back; two-car attached garage; 2019 water heater | Listing sheet, Exterior: "Sprinklers: Automatic, front and back"; General: "Garage: 2 Car, Attached"; Interior: "Water Heater: Gas, 2019" |
 | "showed as active on the listing sheet this morning" | Listing sheet: "Status: Active," Agent Full Report printed 11/10/2026 9:50 AM. Confirm it's still available before you send |
 | Saturday, November 14 | Resolved from "Could we see it this Saturday?" in Avery's message of Tuesday, November 10 |
-| Day 1, Wednesday, November 11; Day 3, Friday, November 13 | Worked out from today, Tuesday, November 10, 2026 |
+| Day 1, Wednesday, November 11 (its call and voicemail Thursday, November 12); Day 3, Friday, November 13 | Worked out from today, Tuesday, November 10, 2026. The Day 1 call moved off Veterans Day, a Utah legal holiday (Utah Code 63G-1-301) |
 | New promises in the drafts | Confirm availability and Saturday times; send the buyer agreement if Avery wants to tour |
 | Buyer agreement | Before any showing, sign your brokerage's current buyer agreement (in Utah, usually UAR's Exclusive Buyer-Broker Agreement and Agency Disclosure); confirm with your broker |
 | Consent for the texts | Registration form line quoted above, checked, Tue, Nov 10, 2026 9:41 AM, naming Example Peak Realty and its agents. Keep that record with its date and number |
-| Send window | Texts and calls between 8 AM and 8 PM Mountain. Wednesday, November 11 is a Utah legal holiday; Avery's consent covers calls and texts |
+| Send window | Texts and calls between 8 AM and 8 PM Mountain. Wednesday, November 11 is a Utah legal holiday: the Day 1 text and email keep it, and the Day 1 call and voicemail go Thursday, November 12 (a conservative default) |
 | Do Not Call | Nothing in the record. Check your team's internal do-not-call list before calling |
 | [Agent Phone], [Sender Postal Address] | Fill in your real phone number and postal address |
-| Email footer | The opt-out line leaves off "This is a marketing email" because Avery asked to hear back; confirm the footer with your broker |
+| Email footer | Every email carries the opt-out line, [Sender Postal Address] and "This is a marketing email from Riley Sampleton, Example Peak Realty.", even though Avery asked to hear back (a conservative default); confirm the wording with your broker |
 | Follow Up Boss | Pausing "Website Buyer, 14 Day" is your call; nothing here changes Follow Up Boss |

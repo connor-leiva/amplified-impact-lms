@@ -1,6 +1,6 @@
 # Lead Reply Guide
 
-Last verified: 2026-11-10. Follow Up Boss facts come from its help center: the texting, opt-out and compliance articles were checked on 2026-11-08 (for database-health-check), and the Instant Response and action plan facts on 2026-11-10 through search excerpts, because help.followupboss.com blocks direct reads. The buyer agreement facts come from NAR (checked 2026-11-10). Menus change: when a click path here and the agent's screen disagree, trust the screen and say so. This is not legal advice; consent, fair housing and ethics questions go to the broker.
+Last verified: 2026-11-10. Follow Up Boss facts come from its help center: the texting, opt-out and compliance articles were checked on 2026-11-08 (for database-health-check), and the Instant Response and action plan facts on 2026-11-10 through search excerpts, because help.followupboss.com blocks direct reads. The buyer agreement facts come from NAR, and the federal holidays from 5 U.S.C. 6103 and OPM (both checked 2026-11-10). Menus change: when a click path here and the agent's screen disagree, trust the screen and say so. This is not legal advice; consent, fair housing and ethics questions go to the broker.
 
 ## Where Leads Come From
 
@@ -24,7 +24,7 @@ Quote the consent line word for word, with where it sits (which field, which lin
 |---|---|---|
 | A checked box or consent line that covers text messages and names the agent, team or brokerage, with a phone number | TEXT OK | Text, call and email |
 | The agent says in this chat that this lead agreed to texts from them | TEXT OK (agent's word) | Text, call and email; Check before sending asks for the written record |
-| A line that covers texts but names only the portal, "real estate professionals," "partners" or no one | CHECK FIRST | Call and email. No text until the agent confirms with the broker that it covers them and says so in chat |
+| A line that covers texts but names only the portal, "real estate professionals," "partners" or no one | CHECK FIRST | Call and email. No text until the agent confirms with the broker that it covers them and says so in chat (a conservative default) |
 | A line about "contact," calls or email only, with no mention of texts | NO TEXT | Call and email |
 | No consent line, a blank or unchecked box, or "No" | NO TEXT | Call and email |
 | Only a phone number, or only a lead source (a portal, Facebook, a website) | NO TEXT | Call and email. A phone number is never consent |
@@ -33,9 +33,9 @@ Quote the consent line word for word, with where it sits (which field, which lin
 | Unsubscribed or Do Not Email | NO EMAIL | Call, and a text only if TEXT OK |
 | Every channel closed, or no phone and no email | NO DRAFT | Flag it; nothing drafted |
 
-Note whether a TEXT OK line also covers calls ("calls and text messages"). It matters only in Utah, for Sunday and holiday calls (see `utah-lead-reply-notes.md`).
+A consent line that also covers calls doesn't change a call's day: no call or voicemail lands on a Sunday or a legal holiday (see Send Windows).
 
-A lead from a purchased or shared source: the consent record has to name the agent, team or brokerage (`outreach-rules.md`, checklist item 3). If it doesn't, CHECK FIRST.
+A lead from a purchased or shared source: the consent record has to name the agent, team or brokerage (`outreach-rules.md`, checklist item 3). If it doesn't, CHECK FIRST: no text until the broker confirms it covers the agent (a conservative default).
 
 ## Automatic Messages and Action Plans
 
@@ -123,9 +123,10 @@ Hi [First Name],
 [Brokerage Name] | [Agent Phone]
 
 To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from [Agent Name], [Brokerage Name].
 ```
 
-150 words or fewer in the body; the signature and footer don't count. The footer follows `outreach-rules.md` (an opt-out and a postal address on every email). The "This is a marketing email" line is left off because the lead asked to hear back; Check before sending says to confirm the footer with the broker.
+150 words or fewer in the body; the signature and footer don't count. The footer follows `outreach-rules.md` (Emails 2, 3 and 5): the opt-out line, the postal address and the marketing email line. Every email the skill drafts carries all three, the first reply and every touch, even though the lead asked to hear back (a conservative default). Check before sending says to confirm the wording with the broker.
 
 ### Call Opener and Voicemail
 
@@ -150,6 +151,7 @@ Thanks for reaching out about [Street Address or topic]. [Only if they asked a f
 [Brokerage Name] | [Agent Phone]
 
 To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
+This is a marketing email from [Agent Name], [Brokerage Name].
 ```
 
 No offer to help, show, call, meet, send listings or set up a search. No call opener and no touches.
@@ -159,7 +161,7 @@ No offer to help, show, call, meet, send listings or set up a search. No call op
 For each day, in the same channels as the first reply:
 - **Text** (TEXT OK only): under 200 characters, the sender, one new thing, "Reply STOP to opt out."
 - **Call:** a one-line reason for the call and a one-line voicemail.
-- **Email:** a Title Case subject, 80 words or fewer, one new thing, the same footer.
+- **Email:** a Title Case subject, 80 words or fewer, one new thing, the same full footer.
 
 One new thing means the answer the agent promised, a listing fact the first reply didn't use, or the offer to send the district map, never a new claim. Day 3 is the last touch here; after it, the lead goes to the agent's own follow-up.
 
@@ -168,7 +170,9 @@ One new thing means the answer the agent promised, a listing fact the first repl
 - Texts and calls go between 8 AM and 8 PM in the lead's local time (`outreach-rules.md`). Before 8 AM: the email now, the text and call at 8 AM. After 8 PM: the email now, the text and call after 8 AM tomorrow, with its weekday and date.
 - Emails can go any time.
 - The lead's time zone comes from the property's location. A lead with no property in the record: flag it and use the agent's time zone.
-- Utah: Sundays and legal holidays are in `utah-lead-reply-notes.md`.
+- **Sundays and legal holidays:** no call or voicemail ever lands on one, even when the lead's written consent covers calls, and even though Utah exempts licensees (Utah Code 13-25a-111). It moves to the next day that is neither, with one line saying why. A text to a TEXT OK lead and every email keep their day. This is a conservative default (`outreach-rules.md`, Conservative Defaults).
+- **Which holidays:** in Utah, the Utah legal holidays in `utah-lead-reply-notes.md`. In general mode, Sundays and the federal legal holidays below, and the output says state holidays were not checked.
+- **Federal legal holidays (5 U.S.C. 6103(a)):** January 1; the third Monday of January; the third Monday of February; the last Monday of May; June 19; July 4; the first Monday of September; the second Monday of October; November 11; the fourth Thursday of November; December 25. One on a Saturday is observed the Friday before (6103(b)), and one on a Sunday the Monday after (Executive Order 11582): keep calls off both days. The next ones: Wednesday, November 11, 2026; Thursday, November 26, 2026; Friday, December 25, 2026; Friday, January 1, 2027; Monday, January 18, 2027; Monday, February 15, 2027.
 
 ## Sources
 
@@ -188,5 +192,9 @@ Fair housing (checked 2026-11-10):
 - 42 U.S.C. 3604: https://www.law.cornell.edu/uscode/text/42/3604
 - Utah Code 57-21-5 (effective May 6, 2026): https://le.utah.gov/xcode/Title57/Chapter21/57-21-S5.html
 - Utah School Report Card, Utah State Board of Education: https://reportcard.schools.utah.gov/
+
+Federal legal holidays (checked 2026-11-10):
+- 5 U.S.C. 6103: https://www.law.cornell.edu/uscode/text/5/6103
+- OPM, Federal Holidays (the Saturday and Sunday observed days, and the 2026 and 2027 dates): https://www.opm.gov/policy-data-oversight/pay-leave/federal-holidays/
 
 Texting and email rules: `outreach-rules.md` (TCPA, the FCC's rules and CAN-SPAM, checked 2026-11-08).

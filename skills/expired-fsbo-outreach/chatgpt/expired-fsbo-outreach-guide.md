@@ -134,7 +134,7 @@ You can reach me at [Agent Phone] or [Agent Email].
 
 ### First-Touch Email
 
-The same words as the letter, with a Title Case subject that says what it is ("Your Home At 3389 S Example Creek Rd"), never one that pretends to be a reply. 150 words or fewer before the footer. Footer, from `outreach-rules.md` (CAN-SPAM):
+The same words as the letter, with a Title Case subject that says what it is ("Your Home At 3389 S Example Creek Rd"), never one that pretends to be a reply. 150 words or fewer before the footer. The footer goes on every email, follow-ups and last notes included, with no exception (a conservative default). Footer, from `outreach-rules.md` (CAN-SPAM):
 
 ```
 This is a marketing email from [Agent Name], [Brokerage Name]. To stop these emails, reply UNSUBSCRIBE. [Sender Postal Address]
@@ -175,7 +175,11 @@ Three or four touches over two to three weeks, starting today, worked out in cod
 | 3 | About day 7 | Follow-up note (letter or email) | Third call only if no conversation yet | |
 | 4 | About day 14 to 21 | Last note | No calls | |
 
-- Calls: 8 AM to 8 PM in the owner's local time (the house window, inside the federal 8 AM to 9 PM). Utah mode: no calls on a Sunday or a Utah legal holiday (`utah-calling-rules.md`); move them to the next allowed day and say so.
+- Calls: 8 AM to 8 PM in the owner's local time (the house window, inside the federal 8 AM to 9 PM).
+- No calls or voicemails on a Sunday or a legal holiday, even for a licensed agent and even with written consent. This is a conservative default (`outreach-rules.md`, Conservative Defaults), stricter than the law in places. Move them to the next day that is neither and say why in one line.
+  - Utah mode: the Utah legal holidays (`utah-calling-rules.md`), even under the licensee exemption.
+  - General mode: the federal legal holidays (5 U.S.C. 6103): New Year's Day (January 1), Martin Luther King, Jr. Day (third Monday of January), Washington's Birthday (third Monday of February), Memorial Day (last Monday of May), Juneteenth (June 19), Independence Day (July 4), Labor Day (first Monday of September), Columbus Day (second Monday of October), Veterans Day (November 11), Thanksgiving (fourth Thursday of November) and Christmas (December 25). When one falls on a weekend, keep both the date and the weekday it's observed (the Friday before or the Monday after) call-free. Say once that state holidays were not checked.
+  - Late 2026 and early 2027 (worked out, check against a calendar): Wednesday, November 11, 2026; Thursday, November 26, 2026; Friday, December 25, 2026; Friday, January 1, 2027; Monday, January 18, 2027; Monday, February 15, 2027.
 - Stop all touches for an owner who says no, asks not to be contacted, or relists with any brokerage.
 - Follow-up note (touch 3), the same for every owner, filled in: "Hi [First name], I wrote last week about your home at [street]. If selling is still on your mind, I'd be glad to talk whenever it suits you. [Agent Name], [Brokerage Name], [Agent Phone]." As an email, it gets the footer.
 - Last note (touch 4): "Hi [First name], this is my last note about [street]. If your plans change, I'm at [Agent Phone]. [Agent Name], [Brokerage Name]." As an email, it gets the footer.
@@ -189,6 +193,7 @@ Three or four touches over two to three weeks, starting today, worked out in cod
 - The Close, "REDX Review" (Vortex lead manager; DNC labeling): https://theclose.com/redx-review/
 - Florida Realtors, "What Realtors Need to Know About 'Do Not Call' Rules" (updated February 9, 2026): https://floridarealtors.org/law-ethics/library/do-not-call
 - National Association of REALTORS, "Telemarketing and Cold Calling": https://www.nar.realtor/telemarketing-cold-calling
+- 5 U.S.C. 6103, legal public holidays: https://www.law.cornell.edu/uscode/text/5/6103
 - Federal calling, texting and email rules: `outreach-rules.md` (its own sources, checked 2026-11-08)
 
 # Part 2: Ethics, Fair Housing and Privacy

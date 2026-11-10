@@ -17,7 +17,7 @@ What it says:
 - 13-25a-107.2 (not exempted): never call someone who said they don't want your calls.
 - The exemption is for the licensee acting within the license. A teammate, assistant or calling service who isn't licensed is not covered.
 
-**What the skill does (house practice):** in Utah mode the plan schedules no calls on a Sunday or a Utah legal holiday and keeps every call between 8 a.m. and 8 p.m., even for licensed callers. That keeps one rule for the whole team, licensed or not. Whether a licensee may call on those days is a question for the broker. Each Utah run says this once, in Check before sending.
+**What the skill does (a conservative default):** in Utah mode the plan schedules no calls or voicemails on a Sunday or a Utah legal holiday and keeps every call between 8 a.m. and 8 p.m., even for licensed callers and even with written consent. That keeps one rule for the whole team, licensed or not. It is the house's conservative default (`outreach-rules.md`, Conservative Defaults), stricter than the law for a licensee. Keep it unless the user says their own legal counsel approved a different rule; then follow theirs and say so. Each Utah run says this once, in Check before sending.
 
 **Texts.** The definition says "call or message." Whether Utah's section reaches text messages was not confirmed for this file. The skill drafts no texts without prior express written consent anyway.
 
@@ -52,7 +52,7 @@ A licensee may not advertise real estate services without "clearly and conspicuo
 ## Not Confirmed Here
 
 Confirm with the broker:
-- Whether a licensee's own calls are covered by the 13-25a-111 exemption in the agent's situation, and whether the team wants the Sunday and holiday rule anyway.
+- Whether a licensee's own calls are covered by the 13-25a-111 exemption in the agent's situation. The plan keeps Sundays and holidays call-free either way, unless the user's own legal counsel approved a different rule.
 - Whether UtahRealEstate.com treats a letter to an owner that mentions their own listing's MLS facts (days on market, the end date) as advertising that needs its MLS disclaimer (Rule 13.1). This file found no rule on letters to the listing's own owner.
 - Whether the agent's MLS lets them upload an MLS export into an AI tool. This file found no UtahRealEstate.com rule on it either way (see the MLS section of `outreach-rules.md`).
 - City rules on door-to-door solicitation.

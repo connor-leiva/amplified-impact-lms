@@ -29,7 +29,7 @@ This is the core. Use "The Consent Read" in the guide and the checklist in `refe
 
 - Quote, word for word, what the record shows about texts: the consent line or checkbox, where it sits, its date and whom it names. Quote every opt-out marker (Do Not Text, a STOP reply, opted out, a number shown in orange, Do Not Call, DNC, Unsubscribed). If nothing mentions texts, say "Nothing in the record mentions texts."
 - **TEXT OK:** a checked box or consent line that covers text messages and names the agent, the team or the brokerage, with a phone number; or the agent says in this chat that this lead agreed to texts from them.
-- **CHECK FIRST:** a line covers texts but names only the portal, "real estate professionals," "partners" or no one. No text; one line saying the broker confirms whether it covers the agent, and that saying so in chat gets a text drafted.
+- **CHECK FIRST:** a line covers texts but names only the portal, "real estate professionals," "partners" or no one. No text until the broker confirms (a conservative default); one line saying the broker confirms whether it covers the agent, and that saying so in chat gets a text drafted.
 - **NO TEXT:** everything else. A phone number, a lead source, a registration, or "agree to be contacted" with no mention of texts is never text consent.
 - **Closed channels:** STOP, Do Not Text or opted out: never a text, even with a consent line or the agent asking. Do Not Call or DNC: no text, no call, no voicemail; email only. Unsubscribed: no email.
 - End with one line on what the read allows: "Text, call and email," "Call and email, no text because...," or "Email only because...."
@@ -58,7 +58,7 @@ Use "Draft Shapes" and "Fair Housing" in the guide.
 - **Schools, safety, who lives nearby:** no opinion, no school names or ratings, none of "safe," "safety," "quiet," "family-friendly" or "good area" (call it "your questions about the area"). Point to the school district's boundary map, the state's school report card and the local police department's crime map, and offer to send the district map.
 - **Never in a draft:** agent-only fields (private remarks, showing instructions, lockbox, occupancy, seller motivation, offer deadlines), website activity (views, saved searches, favorites), budget, preapproval or financing details, and anything the lead said about who will live in the home.
 - **Text (TEXT OK only):** a "Consent:" line above it quoting the record. It names the agent and brokerage, answers or acknowledges their question in one line, asks one question, ends with "Reply STOP to opt out.", 320 characters or fewer.
-- **Email:** a Title Case subject naming their question or the property; 150 words or fewer in the body; every question answered or promised; one next step; the opt-out and postal address footer from the guide.
+- **Email:** a Title Case subject naming their question or the property; 150 words or fewer in the body; every question answered or promised; one next step; the full footer from the guide on every email, the first reply and every touch: the opt-out line, the postal address and "This is a marketing email from [Agent Name], [Brokerage Name]."
 - **Call opener and voicemail:** the first sentence names the agent, the brokerage and why they're calling; then the short answer and one open question. The voicemail is 50 words or fewer (about 20 seconds), left live, never a prerecorded drop.
 - **Voice:** follow the user's voice profile QUICK CARD when one is in the conversation (amplifiedimpact.io/voice-profile), including its sign-off. Without one: warm, plain, direct. Sign with the user's name; otherwise [Agent Name]. None of "stunning," "dream home," "won't last," "don't hesitate to reach out," "touch base" or "circle back."
 
@@ -66,7 +66,8 @@ Use "Draft Shapes" and "Fair Housing" in the guide.
 
 - Day 1 is the next day and day 3 is two days after that, each with its weekday and date. Same channels as the first reply: a text (TEXT OK only), a call with a one-line voicemail, and an email of 80 words or fewer.
 - Each touch brings one new thing from the inputs or the answer the agent promised. No pressure and no invented urgency.
-- **Send windows:** texts and calls between 8 AM and 8 PM in the lead's local time; outside it, email now and the rest at 8 AM with the date. Utah mode: the Utah notes on Sundays and legal holidays.
+- **Send windows:** texts and calls between 8 AM and 8 PM in the lead's local time; outside it, email now and the rest at 8 AM with the date.
+- **Sundays and legal holidays:** no call or voicemail ever lands on one, even with written consent that covers calls; it moves to the next day that is neither, with a one-line why. A text to a TEXT OK lead and every email keep their day. Utah mode: the Utah legal holidays in the Utah notes. General mode: Sundays and the federal legal holidays in the guide (Send Windows), and say state holidays were not checked.
 - If the lead replies, the touches stop: the conversation takes over. After day 3 the lead goes to the agent's own follow-up.
 
 ## Guardrails
@@ -76,17 +77,18 @@ Use "Draft Shapes" and "Fair Housing" in the guide.
 - **Fair housing:** describe the property, never the people in it or near it. Needs tied to health or household become property features without the reason. One generic agent-only flag when a remark is left out.
 - **Represented leads:** polite reply only (Utah: R162-2f-401b(1)(k) in the Utah notes). Ethics questions go to the broker.
 - **Stay in lane:** not the lender, attorney, inspector or broker. No price, approval or availability promises. Zoning and rental-use questions: the city decides; offer to help find out.
+- **Conservative defaults:** this skill applies three house defaults, stricter than the law in places (`references/outreach-rules.md`, Conservative Defaults): the full footer on every email, no calls or voicemails on a Sunday or a legal holiday, and no text on portal-only consent until the broker confirms. Keep them unless the user says their own legal counsel approved a different rule; then follow theirs and say so in Check before sending.
 - **Follow Up Boss:** advice only. Never send, schedule, tag, pause, change a stage or write a note. Never ask for, repeat or handle wire, account, routing or Social Security numbers.
 
 ## Output, In This Order
 
-1. **Flags**, only when they apply: closed channels, CHECK FIRST consent, automatic messages already sent and a running action plan (with the pause advice), has an agent, outside the send window, a Utah Sunday or holiday, placeholders, unreadable characters, general mode, and "Left out on purpose" (generic)
+1. **Flags**, only when they apply: closed channels, CHECK FIRST consent, automatic messages already sent and a running action plan (with the pause advice), has an agent, outside the send window, a call moved off a Sunday or legal holiday, placeholders, unreadable characters, general mode, and "Left out on purpose" (generic)
 2. **Bottom line** (two sentences): who the lead is and what they asked, and what to send first, by when
 3. **Consent read:** the quote or "nothing about texts," the read, and what it allows
 4. **First text**, or one line: "No text: [reason]."
 5. **First email**
 6. **Call opener and voicemail**, unless calls are closed or the lead has an agent
 7. **Day 1 and day 3 touches**, with dates, in the same channels
-8. **Check before sending:** every property fact with its listing field, every date and time with what it came from, each promise, the consent quote and where it sits, the send window, the Do Not Call check, [Agent Phone] and [Sender Postal Address], the buyer agreement form, and the user's state rules
+8. **Check before sending:** every property fact with its listing field, every date and time with what it came from, each promise, the consent quote and where it sits, the send window, the Do Not Call check, [Agent Phone] and [Sender Postal Address], the email footer, the buyer agreement form, and the user's state rules
 
 If the agent asks for one piece ("just the text"), give it with the flags, the consent read and Check before sending.

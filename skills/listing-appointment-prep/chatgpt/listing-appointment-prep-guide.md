@@ -191,7 +191,7 @@ Every answer has the same shape: acknowledge what's real, give the facts from th
 ## "What's your commission?"
 
 - Answer directly with the agent's own terms as stated: the amount or rate, who it's paid to, when, and what it covers if the agent said.
-- Say it plainly: compensation isn't set by law, it's negotiable, and it's agreed in the listing agreement (NAR policy since August 17, 2024 requires that disclosure in listing agreements; in Utah, the listing agreement form says the same).
+- Say it plainly, in NAR's disclosure wording: "Broker commissions are not set by law and are fully negotiable." The agent's own fee is agreed in the listing agreement (NAR policy since August 17, 2024 requires that disclosure in listing agreements; in Utah, the listing agreement form says the same).
 - The buyer's side is a separate choice: the seller decides whether to offer anything to a buyer's brokerage and how much. Any offer is disclosed to the seller in writing, with the amount or rate, and the seller approves it in advance. Offers can't go on the MLS; sellers can still offer buyer concessions such as closing costs.
-- If the seller says they heard a rate is normal or usual, don't repeat the number or argue with the source: "There isn't a set rate. Every fee is agreed between the agent and the seller. Here's mine, and here's what it covers."
+- If the seller says they heard a rate is normal or usual, don't repeat the number or argue with the source: "Broker commissions are not set by law and are fully negotiable. Every fee is agreed between the agent and the seller. Here's mine, and here's what it covers."
 - Never: call any rate standard, typical, usual, average, going or required; state another agent's or the market's rate; or offer a discount the agent didn't state.
