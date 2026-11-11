@@ -4393,3 +4393,25 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **A dry run unless given `--apply`.** The dry run only searches the current location and reports counts per tag.
 - **It never deletes, never writes to the current location, and never touches a form, a workflow or a pipeline.** Upserts and tag unions, so running it again is safe.
 - **After the swap**, the sync's stamp (D-134) re-sends every row this app holds to the new location, with a phone only where our own consent record allows.
+
+## D-138 · The Admin Console's Preview as Learner opens a read-only Agent or Team Owner view
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), for Connor, 2026-11-11: "ADMIN 'PREVIEW AS LEARNER' (eye button) bounces to /admin. Cause: Curriculum.tsx opens /employees/:id with no preview flag, and the AppShell.tsx staff guard (isAdmin, then replace(ADMIN_ROOT)) bounces staff. EmployeeDetail also returns null for non-learners. Fix: (a) Curriculum.tsx opens /employees/${id}?preview=1&as=${previewAs} in a new tab. (b) AppShell skips the /admin bounce only when actor is staff AND preview=1. (c) In preview, build a read-only learner from as= (agent, or team/owner) so canAccess and visibleModules work. Include drafts and ignore open dates in preview. (d) Show a banner, 'Previewing as Agent / Team Owner. Exit preview', that returns to /admin/curriculum. Turn mutations into no-ops with a 'Preview only' toast. (e) Tests: staff without the flag still bounces; staff with the flag renders; agent vs owner team-only lock; mutations blocked; fixture goldens unchanged. Do NOT enroll the Owner as a learner. Audited POST /api/admin/impersonate can come later."
+**Status:** on a pull request.
+**Scope:** `apps/web/src/data/preview.ts` (new), `boot.ts`, `hooks.ts`, `join.ts`, `repository.ts`; `apps/web/src/routes/admin/Curriculum.tsx`; `apps/web/src/routes/portal/EmployeeDetail.tsx` (stored downloads); `apps/web/src/shell/AppShell.tsx` and `.module.css`; tests (`data/preview.test.ts` new, `data/boot.test.ts`, `compliance/tests/e2e/preview.spec.ts` new).
+
+- **The URL is `/employees/<id>?preview=agent` or `?preview=owner`**, one flag instead of the brief's `preview=1&as=…`. CLAUDE.md makes `?as=` a fixture-only persona switch that "must be impossible in http mode", and `boot.test.ts` holds that. A separate, read-only flag keeps that rule whole. The eye button picks the learner as before: Team Owner for a Team-only AI Employee, Agent otherwise.
+- **Staff only.** `boot.ts` reads the flag once and wraps the repository (`withPreview`). Until the signed-in viewer is known to be staff the wrapper answers exactly as the real repository. A learner who adds `?preview=` gets their own portal, unchanged.
+- **How the bounce is skipped.** In a staff preview tab the viewer the shell sees is the read-only learner, so the shell's guards treat it as a learner and the /admin bounce never runs. Without the flag the viewer is staff and is bounced, as before. `EmployeeDetail` needs no change: it finds the learner in the snapshot.
+- **The learner is in this tab's memory only.** It is added to a copy of the staff snapshot: no account, no enrollment, no invite, no team row, and nothing is sent to the API. An Owner preview gets a team of one (the Team plan's seat count) so the Team Hub renders.
+- **Every AI Employee shows.** Drafts and scheduled ones are shown as published, with open dates ignored. The tier lock is unchanged: an Agent preview of a Team-only AI Employee lands on the first one it can open and shows the Locked Employee Preview, as an agent would.
+- **Read-only.**
+  - Every mutation is refused in the browser before any request, with the toast "Preview only". A form that shows errors inline shows it there too.
+  - The Join button opens nothing and shows the same toast.
+  - Stored files (an AI Employee's skill files, the Resource Vault) answer "Preview only" too. The bucket's routes refuse staff (`routes/files.ts`), so a download would otherwise open a 403. Files the browser makes itself, such as a session's `.ics`, still download.
+- **The banner** sits under the header: "Previewing as Agent." or "Previewing as Team Owner.", then an Exit Preview link to `/admin/curriculum`. The link is a full page load, because the preview is read at boot. Reloading a preview URL keeps the preview. Reloading after moving to another screen in the tab (the flag isn't carried) opens the Admin Console.
+- **Net-new UI.** The banner and the "Preview only" toast aren't in the reference. Both render only in a staff preview tab, which no parity scenario opens, so no golden changes.
+- **Fixture mode is unchanged.** The eye button still switches persona with `?as=`, as the reference does. The flag works there too (`?as=admin&preview=agent`), which is how the e2e tests run in fixture mode.
+- **Not done:** the audited `POST /api/admin/impersonate`, which the brief leaves for later.
+- **Not changed:** the API, `/agreement`, prices.

@@ -13,6 +13,7 @@ import { useToaster } from '../../components/primitives/Toaster';
 import { saveStoredFile } from '../../data/files';
 import { useDb, useMutate, useNow, useViewer } from '../../data/hooks';
 import { useJoin } from '../../data/join';
+import { PREVIEW_ONLY } from '../../data/preview';
 import { employeeDetailVM, initialUi, moduleReset, replayUrl, SPEEDS } from './EmployeeDetail.vm';
 import type { AssetVM, DrawerRef, EmployeeDetailUi, Speed, VideoEngine, VmAction } from './EmployeeDetail.vm';
 import { createVideoEngine } from './HlsEngine';
@@ -78,6 +79,9 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
   const mutate = useMutate();
   const { toast } = useToaster();
   const openJoin = useJoin();
+  // A staff member's preview tab (D-138). The bucket refuses staff a stored file, so a download
+  // says "Preview only" instead of opening a 403.
+  const previewing = useViewer().preview !== undefined;
   // '' until § 8.3's `publishReplay({ playbackUrl })` lands, and '' forever in fixture mode.
   const src = replayUrl(m);
 
@@ -160,11 +164,15 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
         // generates — the session `.ics`, the system prompt — is still written to a Blob.
         // `saveStoredFile` answers false in fixture mode, where there is no bucket, so the
         // prototype's path is the one that runs under the compliance suite.
+        if (a.stored && previewing) {
+          toast(PREVIEW_ONLY, 'info');
+          return;
+        }
         if (!(a.stored && saveStoredFile(a.stored))) saveFile(a.name, a.content, a.mime);
         toast(a.toast, 'success');
       }
     },
-    [toast],
+    [previewing, toast],
   );
 
   const seek = useCallback(

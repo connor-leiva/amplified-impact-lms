@@ -3,7 +3,8 @@ import { clock } from '../lib/clock';
 import { loadPrefs, savePrefs } from '../lib/prefs';
 import { createFixtureRepository, type FixtureRole } from './fixture';
 import { createHttpRepository } from './http';
-import type { LmsRepository } from './repository';
+import { readPreviewAs, withPreview } from './preview';
+import type { LmsRepository, PreviewAs } from './repository';
 
 /**
  * Choose the data source once, at boot.
@@ -62,6 +63,13 @@ if (isFixture) {
   clock.useReal();
   repo = createHttpRepository();
 }
+
+/**
+ * The Admin Console's "Preview as learner" tab (D-138). Read-only, and inert unless the signed-in
+ * viewer is staff, so it is safe in both modes; see `preview.ts`.
+ */
+export const previewAs: PreviewAs | null = readPreviewAs(qs.toString());
+if (previewAs) repo = withPreview(repo, previewAs);
 
 /** Demo controls (View As, Timeline, Reset Demo) exist only here. Never in http mode. */
 export const demoMode = isFixture && (import.meta.env.VITE_DEMO_MODE === 'true' || qs.get('demo') === '1');

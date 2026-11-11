@@ -254,6 +254,39 @@
 }
 
 /* The only scroll container in the app. */
+/* A staff member's "Preview as learner" tab (D-138). Not in the reference: the only shell UI that
+   is not, and it never renders in fixture mode's parity scenarios. Tokens only. */
+.preview {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px var(--page-pad-x);
+  border-bottom: 1px solid var(--status-attention-line);
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.previewExit {
+  margin-left: auto;
+  color: var(--text-link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.previewExit:hover {
+  color: var(--text-link-hover);
+}
+
+.previewExit:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .main {
   flex: 1;
   min-height: 0;

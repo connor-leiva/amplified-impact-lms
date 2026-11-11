@@ -62,6 +62,19 @@ describe('data source boot @g4', () => {
     expect(boot.fixtureRole).toBe('owner');
   });
 
+  it('reads the Admin Console preview flag in http mode, and only agent or owner (D-138)', async () => {
+    const owner = await load('?preview=owner', { VITE_DATA_SOURCE: 'http' });
+    expect(owner.previewAs).toBe('owner');
+    expect(owner.repo.source).toBe('http');
+    for (const q of ['?preview=1', '?preview=admin', '?as=owner', '']) {
+      const boot = await load(q, { VITE_DATA_SOURCE: 'http' });
+      expect(boot.previewAs, q).toBeNull();
+    }
+    // The flag is not a persona switch: `?as=` stays inert in http mode beside it.
+    const both = await load('?preview=agent&as=admin', { VITE_DATA_SOURCE: 'http' });
+    expect([both.previewAs, both.isFixture, both.demoMode]).toEqual(['agent', false, false]);
+  });
+
   it('defaults to http when no data source is configured', async () => {
     vi.resetModules();
     vi.stubEnv('VITE_DATA_SOURCE', '');

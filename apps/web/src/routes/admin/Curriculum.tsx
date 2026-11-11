@@ -5,7 +5,7 @@ import { Icon } from '../../components/Icon';
 import { useToaster } from '../../components/primitives/Toaster';
 import { isFixture } from '../../data/boot';
 import { useDb, useMutate, useNow } from '../../data/hooks';
-import { curriculumVM, type CurriculumRow } from './Curriculum.vm';
+import { curriculumVM, previewUrl, type CurriculumRow } from './Curriculum.vm';
 import s from './Curriculum.module.css';
 
 // Admin Curriculum `/admin/curriculum`, ported from design-reference/Admin Curriculum.dc.html.
@@ -61,12 +61,14 @@ function Curriculum() {
   /**
    * Preview as a learner. In fixture mode the prototype switches persona, and `?as=` is resolved
    * once at boot, so this is a real navigation that carries the timeline params along. In http
-   * mode there is no persona to switch: the portal route opens in a second tab.
+   * mode there is no persona to switch: the portal route opens in a second tab as a read-only
+   * Agent or Team Owner (D-138, `data/preview.ts`). Without the flag the shell sends staff back to
+   * the Admin Console, which is what this button used to do.
    */
   const preview = useCallback((r: CurriculumRow) => {
     const path = `/employees/${r.id}`;
     if (!isFixture) {
-      window.open(path, '_blank', 'noopener');
+      window.open(previewUrl(r), '_blank', 'noopener');
       return;
     }
     const url = new URL(path, window.location.href);
