@@ -360,8 +360,21 @@ describe('every week’s words', () => {
       expect(w.time.operator).toMatch(/^About /);
       expect(w.setup.length).toBeGreaterThanOrEqual(5);
       // Every setup step that opens a skill opens one the week names.
-      for (const step of w.setup) if (step.route) expect(w.skills.map((s) => s.route)).toContain(step.route);
+      for (const step of w.setup) for (const r of [step.route, ...(step.also ?? [])]) if (r) expect(w.skills.map((s) => s.route), r).toContain(r);
+      // `also` only ever follows a `route`.
+      for (const step of w.setup) if (step.also) expect(step.route, step.text).toBeDefined();
     }
+  });
+
+  it('links every one of a week’s skills that a setup step names, never naming one without its guided setup', () => {
+    const unlinked: string[] = [];
+    for (const w of weeks) {
+      for (const [i, step] of w.setup.entries()) {
+        const linked = new Set([step.route, ...(step.also ?? [])]);
+        for (const k of w.skills) if (step.text.includes(k.title) && !linked.has(k.route)) unlinked.push(`week ${w.week} step ${i + 1}: ${k.title}`);
+      }
+    }
+    expect(unlinked).toEqual([]);
   });
 
   it('gives weeks 1 to 8 a live-build page and an office-hours page tied to their sessions', () => {

@@ -4294,3 +4294,17 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **`font-src 'self' data:`.** `@fontsource`'s smallest `.woff` subsets are under Vite's inline limit, so the built stylesheet carries four fonts as `data:font/woff` URLs, and the CSP blocked them. `data:` is not a network origin, so § 9.4's "no Google domains" holds, and the test that no `https:` is allowed stays.
 - **After, same measurement:** 300 of 300 file requests answered 200 with their own type (`application/javascript`, `text/css`, `font/woff2`), 200 parallel reloads of `/employees/marketing` all 200 `text/html`, and `/api/health` still had 99 of 100 left.
 - **Not changed:** the limit's size, its key, its window, any route's own limit, `/agreement`, prices.
+
+## D-131 · A course setup step that names several Library skills links every one of them
+
+**Date:** 2026-11-11
+**Approved by:** Connor, 2026-11-11: "continue polishing the written course Week 0 to Week 8 for any empty or placeholder sections (link existing Library skills; don't rewrite them), one PR per item."
+**Status:** on a pull request.
+**Scope:** `packages/core/src/accelerator-content.ts` (`SetupStep.also`; Week 4 step 5, Week 5 step 6), `apps/web/src/routes/course/Course.vm.ts` (`StepVM.links`, `COPY.guidedSetups`) and `Course.tsx`, and their tests.
+
+- **The gap.** A setup step carried one link. Two steps name more than one of their week's skills and linked only the first:
+  - Week 4, step 5: "Optional: open Contract-to-Close Deadline Tracker, Stalled Lender, Title & Escrow Follow-Up or TC File Audit for the transaction side." Only the Contract-to-Close Deadline Tracker was linked.
+  - Week 5, step 6: "Pick the pilot task: Listing Appointment Prep or Appointment Follow-Up. …" Only Listing Appointment Prep was linked.
+- **Now** each named skill gets its own link to its existing Library guided setup. A step with one skill still says "Open the Guided Setup". A step with several says "Open a Guided Setup:" and then each skill by its Library title, so every link says where it goes.
+- **Words unchanged.** The step text, the skills, their Library pages and every other step are as they were. No new skill or page.
+- **A guard.** A core test fails if any setup step names one of its week's skills without linking it. Run against the course before this change, it lists exactly these three.
