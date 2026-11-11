@@ -35,6 +35,8 @@ import type { SubjectData, TemplateName } from '../subjects';
  */
 export interface BodyData {
   'sign-in': { token: string; appUrl?: string | null };
+  'set-password': { token: string; appUrl?: string | null };
+  'reset-password': { token: string; appUrl?: string | null };
   'team-invite': { token: string; appUrl?: string | null };
   'staff-invite': { token: string; appUrl?: string | null };
   announcement: {

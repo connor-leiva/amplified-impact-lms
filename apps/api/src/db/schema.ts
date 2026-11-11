@@ -70,8 +70,20 @@ export const tiers = pgTable('tiers', { id: tier('id').primaryKey(), name: text(
 export const requests = pgTable('upgrade_requests', { id: text('id').primaryKey(), userId: text('user_id'), name: text('name').notNull(), email: text('email').notNull(), source: text('source').notNull(), at: ts('at').notNull(), status: text('status').notNull() });
 export const permissions = pgTable('permissions', { role: text('role').notNull(), perm: text('perm').notNull(), allowed: boolean('allowed').notNull() }, (t) => [primaryKey({ columns: [t.role, t.perm] })]);
 export const activity = pgTable('activity', { id: text('id').primaryKey(), t: ts('t').notNull(), who: text('who').notNull(), what: text('what').notNull(), tone: text('tone').notNull() });
-export const authTokens = pgTable('auth_tokens', { tokenHash: text('token_hash').primaryKey(), email: text('email').notNull(), purpose: text('purpose', { enum: ['sign_in', 'invite'] }).notNull(), expiresAt: timestamp('expires_at').notNull(), usedAt: timestamp('used_at') });
-export const authSessions = pgTable('auth_sessions', { id: text('id').primaryKey(), userId: text('user_id').notNull(), expiresAt: timestamp('expires_at').notNull(), impersonating: text('impersonating') });
+export const authTokens = pgTable('auth_tokens', { tokenHash: text('token_hash').primaryKey(), email: text('email').notNull(), purpose: text('purpose', { enum: ['sign_in', 'invite', 'set_password', 'reset_password'] }).notNull(), expiresAt: timestamp('expires_at').notNull(), usedAt: timestamp('used_at') });
+// `remember` (D-132): a session from "Keep me signed in" (and every link sign-in) lasts 30 days,
+// rolling, in a 30-day cookie; one without it is a browser-session cookie and a 12-hour row.
+export const authSessions = pgTable('auth_sessions', { id: text('id').primaryKey(), userId: text('user_id').notNull(), expiresAt: timestamp('expires_at').notNull(), impersonating: text('impersonating'), remember: boolean('remember').notNull().default(true) });
+
+// Passwords (D-132). Their own table, keyed by the user, so no read of `users` (the snapshot, the
+// viewer, every admin screen) ever carries a hash. `hash` is argon2id's PHC string (algorithm,
+// parameters, salt and digest), never the password.
+export const userPasswords = pgTable('user_passwords', { userId: text('user_id').primaryKey(), hash: text('hash').notNull(), updatedAt: timestamp('updated_at').notNull() });
+
+// Failed password sign-ins, for the lockout (D-132). Keyed by a sha256 of the address typed, so an
+// address with no account is counted and locked exactly like one with an account (nothing tells
+// the two apart) and no address is stored in the clear.
+export const loginFailures = pgTable('login_failures', { key: text('key').primaryKey(), failures: integer('failures').notNull(), firstAt: timestamp('first_at').notNull(), lockedUntil: timestamp('locked_until') });
 
 // The scheduler's idempotence ledger — phase 08 § 8.5: "Record sends in a `job_runs(job, key,
 // sent_at)` table with a unique `(job, key)`. For example, the key `session-24h:dec26-s3:u_jamie`

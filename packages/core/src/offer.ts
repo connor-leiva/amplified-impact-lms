@@ -507,6 +507,11 @@ export const WELCOME_TOKENS = {
   calendarBuilds: token('calendar-builds'),
   calendarOfficeHours: token('calendar-office-hours'),
   calendarState: token('calendar-state'),
+  /**
+   * D-132: the "Set Your Password" button's link for this buyer's Checkout Session, on the LMS host,
+   * or empty (and the button hidden): see `checkoutPasswordUser` in apps/api/src/routes/password.ts.
+   */
+  setPassword: token('set-password'),
 } as const;
 
 /**

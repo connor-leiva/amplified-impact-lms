@@ -190,6 +190,13 @@ describe('/offer/welcome: the starter path, the calendars and the empty links (o
     expect(text(section('cohort'))).toContain('Week 0 is your setup path. Sign in with the login from your email first.');
   });
 
+  it('gives every plan a Set Your Password button the API fills per buyer, hidden when it leaves it empty (D-132)', () => {
+    for (const plan of ['cohort', 'membership', 'agents', 'agent_plan']) {
+      expect(hrefs(section(plan), '.password-link a'), plan).toEqual([['Set Your Password', '%%set-password%%']]);
+    }
+    expect(readFileSync(resolve(HERE, './offer.css'), 'utf8')).toMatch(/a\.button\[href=''\]/);
+  });
+
   it('names the first steps on the Agent Plan and the Team Plan, and the Team Plan’s Dec 14, with no emailed link', () => {
     for (const plan of ['agents', 'agent_plan']) {
       expect(text(section(plan)), plan).toContain('Start with AI Brain Setup, then Sounds Like You: Your AI Voice Profile, then your first 3 agent skills.');

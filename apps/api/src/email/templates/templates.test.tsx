@@ -75,6 +75,8 @@ const SAMPLE: { [K in TemplateName]: EmailPayload<K> } = {
   'sign-in': { token: 'tok_signin_1' },
   'team-invite': { inviter: 'Alex Rivera', team: 'Northline Realty', token: 'tok_invite_1' },
   'staff-invite': { token: 'tok_staff_1' },
+  'set-password': { token: 'tok_set_1' },
+  'reset-password': { token: 'tok_reset_1' },
   announcement: {
     title: 'Session 3 moved to Wed Dec 9 · 1:00 PM CT',
     body: 'The replay, chapters and transcript are on the Sales AI Employee page.',
@@ -99,6 +101,8 @@ const SUBJECT: { [K in TemplateName]: string } = {
   'replay-ready': SUBJECTS['replay-ready']({ n: 2, title: 'Speed to Lead' }),
   'build-reminder': SUBJECTS['build-reminder']({ employee: 'Marketing AI Employee' }),
   'weekly-digest': SUBJECTS['weekly-digest']({}),
+  'set-password': SUBJECTS['set-password']({}),
+  'reset-password': SUBJECTS['reset-password']({}),
 };
 
 /**
@@ -116,6 +120,8 @@ const CTA: { [K in TemplateName]: { label: string; href: string } } = {
   'replay-ready': { label: 'Watch Replay', href: `${APP}/employees/sales` },
   'build-reminder': { label: 'Continue Build', href: `${APP}/employees/marketing` },
   'weekly-digest': { label: 'Open Team Hub', href: `${APP}/team` },
+  'set-password': { label: 'Set Your Password', href: `${APP}/set-password?token=tok_set_1` },
+  'reset-password': { label: 'Reset Your Password', href: `${APP}/set-password?token=tok_reset_1` },
 };
 
 // ---------- helpers ----------------------------------------------------------------------------
@@ -182,10 +188,10 @@ const hrefOf = (html: string): string => /<a\b[^>]*\shref="([^"]*)"/.exec(html)?
 // ================================================================================================
 
 describe('email templates · § 8.1 subjects and CTAs @g8', () => {
-  it('covers all nine of § 8.1’s templates and nothing else @g8', () => {
-    // The table has nine rows. If a tenth name is ever added to `subjects.ts`, this fails here
-    // rather than silently rendering eight emails and throwing on the ninth in production.
-    expect(TEMPLATE_NAMES).toHaveLength(9);
+  it('covers all nine of § 8.1’s templates, D-132’s two password emails, and nothing else @g8', () => {
+    // § 8.1's table has nine rows and D-132 adds two. If another name is ever added to
+    // `subjects.ts`, this fails here rather than silently rendering one email short in production.
+    expect(TEMPLATE_NAMES).toHaveLength(11);
     expect(Object.keys(SAMPLE).sort()).toEqual([...TEMPLATE_NAMES].sort());
   });
 

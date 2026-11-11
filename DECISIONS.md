@@ -4242,3 +4242,33 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Now:** "· Join in Sessions (opens 15 min before)", with "Join in Sessions" linking `/sessions`. That is where a learner really joins: the Sessions page's Join button, which the join route opens 15 minutes before the start (`JOIN_WINDOW_SHUT`, "Join opens 15 min before").
 - **Still no Zoom URL** in the course's words or in `GET /api/course`. Staff set it on the session, and only the join route hands it out, inside its window.
 - **Not changed:** the course plan's words, the Library skills and their pages, the dates and times, the video placeholders. Weeks 2, 4 and 5 list no course materials because the course plan names none for them; nothing was invented to fill them.
+
+## D-132 · Email and password sign-in, set-password emails after checkout, Forgot Password; the magic link stays
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), for Connor, 2026-11-11: "reconfigure LMS login at learn.amplifiedimpact.io. Magic-link-only is not acceptable now that checkout creates accounts." The brief's eight items: email and password first (hashed with bcrypt or argon2, never logged, rate-limited, brief lockout); a 72-hour single-use, resend-able "Set your password" email when the webhook creates an account, and a "Set your password" button on the welcome page for that buyer's session; "Forgot password?" with a 1-hour link and no account enumeration; the magic link kept as "Email me a sign-in link instead"; Google only if quick and safe; existing users set a password from an account page or the forgot flow; httpOnly cookies with a 30-day "remember me"; tests and the README.
+**Status:** on a pull request.
+**Scope:** `apps/api/src/auth/passwords.ts` (new), `tokens.ts`, `sessions.ts`, `index.ts`; `apps/api/src/routes/password.ts` (new), `auth.ts` (`claimToken` by purpose), `mutate.ts` (a token per template), `offer.ts` (the welcome button's link); `apps/api/src/billing/provision.ts` (the owner's first email); `apps/api/src/email/` (two templates, their subjects and links); `apps/api/src/db/schema.ts` and migration `0009_passwords.sql`; `apps/web/src/routes/auth/` (`SignIn.tsx`, new `ForgotPassword.tsx`, `SetPassword.tsx`, `Account.tsx`, `shared.tsx`), `router.tsx`, `apps/web/src/offer/` (the button); `packages/core/src/offer.ts` (`WELCOME_TOKENS.setPassword`); `compliance/tests/e2e/signin.spec.ts`; tests; README.
+
+- **Hash:** argon2id (`@node-rs/argon2` 2.2.2, OWASP's minimum parameters). Stored in a new `user_passwords` table, so no read of `users` (the snapshot, the viewer, admin screens) carries a hash. Never logged or returned. At least 10 characters, at most 200.
+- **Sign in** (`POST /api/auth/login`). One answer for a wrong password, an unknown address and an account with no password ("That email and password don’t match."), after the same argon2 work. A 400, not a 401, because a 401 means "no session" here and sends the web client to /sign-in.
+- **Lockout and rate limit.**
+  - 5 failures in 15 minutes lock the address for 15 minutes. While locked, the password isn't checked, so a lock can't confirm a guess.
+  - The lock is keyed by a sha256 of the address typed, so an unknown address locks exactly like a known one and no address is stored.
+  - 30 password attempts per network address per 15 minutes.
+- **Remember me.** "Keep me signed in for 30 days" (on by default) is the 30-day rolling session it always was. Without it: a browser-session cookie and a 12-hour row that doesn't roll. Link sign-ins stay 30 days. `auth_sessions.remember` defaults to true, so every existing session is unchanged.
+- **Forgot password.** Answers 200 before it looks anything up, and the screen never branches. An account with a password gets a reset link (1 hour); one without gets a set-password link (72 hours). Same limits as the magic link.
+- **Set and reset links.**
+  - Single use. Shared with the magic link's token table, but each route claims only its own purpose: a password link doesn't sign anyone in at `/api/auth/verify`, and a sign-in link doesn't set a password. A link of the wrong kind isn't spent.
+  - A too-short password is refused before the link is spent.
+  - Setting a password signs the person in, makes an invited learner active (as accepting an invite did), spends every other unspent set or reset link for the address, and ends every other session.
+- **Accounts from checkout.** The owner's first email is now "Set your password" (72 hours), replacing the 7-day owner invite. It keeps the invite's timing: held until `INVITES_FROM` (D-078), then at once. "Forgot password?" resends it. Team-member and staff invites are unchanged: they accept the invite, then set a password from `/account` or Forgot Password.
+- **The welcome page's button.** It links to `learn…/set-password?checkout=<session>` only when all of these hold:
+  - The order's own account owner is still invited, has no password, and has never had a session.
+  - The order was paid in the last 72 hours.
+  - The invite hold is over.
+
+  Stripe doesn't verify the email typed at checkout, so an existing account never qualifies; its owner uses Forgot Password, which goes to their own inbox. During the hold the page keeps saying the login comes by email on the hold day, and the button stays hidden so the two don't contradict. Showing it during the hold is a one-line change if Ampy wants it.
+- **The account page** (`/account`): set a first password, or change it with the current one (under the same lockout). Saving ends every other session but this one. It's outside `AppShell`, like `/sign-in`. Not linked from the profile menu: the `shell-profile-menu` parity golden pins that menu open, and goldens change only from the reference (D-031).
+- **Not done:** "Continue with Google". The brief made it optional "if quick", and it needs an OAuth client and secrets in Railway, which would add risk tonight.
+- **Not changed:** `/agreement`, prices, Stripe products and Payment Links, seats, the magic link's own flow and limits.

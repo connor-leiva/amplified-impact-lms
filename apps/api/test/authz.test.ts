@@ -506,6 +506,16 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/auth/request', methods: 'POST', guard: 'open' },
   { path: '/api/auth/verify', methods: 'POST', guard: 'open' },
   { path: '/api/auth/sign-out', methods: 'POST', guard: 'open' },
+  // D-132: password sign-in and the set and reset links. Open like the magic link's two: they are how
+  // a visitor without a session gets one.
+  { path: '/api/auth/login', methods: 'POST', guard: 'open' },
+  { path: '/api/auth/password/forgot', methods: 'POST', guard: 'open' },
+  { path: '/api/auth/password/token', methods: 'POST', guard: 'open' },
+  { path: '/api/auth/password/set', methods: 'POST', guard: 'open' },
+  { path: '/api/auth/password/checkout', methods: 'POST', guard: 'open' },
+  // D-132: the account page's two, behind the session.
+  { path: '/api/auth/password', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/auth/password/change', methods: 'POST', guard: 'session' },
   // The four the 401 is about.
   { path: '/api/me', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/me/prefs', methods: 'PATCH', guard: 'session' },
@@ -993,6 +1003,10 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/skills/:id/download/:kind': () => app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/download/claude' }),
           '/api/billing/portal': () => app.inject({ method: 'GET', url: '/api/billing/portal' }),
           '/api/course': () => app.inject({ method: 'GET', url: '/api/course' }),
+          // D-132's account page.
+          '/api/auth/password': () => app.inject({ method: 'GET', url: '/api/auth/password' }),
+          '/api/auth/password/change': () =>
+            app.inject({ method: 'POST', url: '/api/auth/password/change', payload: { password: 'a long enough password' } }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1056,6 +1070,12 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // forged, expired and malformed alike.
           ['/api/auth/verify', app.inject({ method: 'POST', url: '/api/auth/verify', payload: { token: 'not-a-token' } })],
           ['/api/auth/sign-out', app.inject({ method: 'POST', url: '/api/auth/sign-out' })],
+          // D-132: a wrong password is a 400 with words, never the session guard's 401.
+          ['/api/auth/login', app.inject({ method: 'POST', url: '/api/auth/login', payload: { email: 'nobody@example.test', password: 'not the password' } })],
+          ['/api/auth/password/forgot', app.inject({ method: 'POST', url: '/api/auth/password/forgot', payload: { email: 'nobody@example.test' } })],
+          ['/api/auth/password/token', app.inject({ method: 'POST', url: '/api/auth/password/token', payload: { token: 'not-a-token' } })],
+          ['/api/auth/password/set', app.inject({ method: 'POST', url: '/api/auth/password/set', payload: { token: 'not-a-token', password: 'a long enough password' } })],
+          ['/api/auth/password/checkout', app.inject({ method: 'POST', url: '/api/auth/password/checkout', payload: { checkout: 'cs_test_nonexistent0', password: 'a long enough password' } })],
           // § 7.7's harness, exempt for the reason in the header.
           ['/api/test/session', app.inject({ method: 'POST', url: '/api/test/session', payload: {} })],
           ['/api/test/outbox', app.inject({ method: 'GET', url: '/api/test/outbox' })],
@@ -1160,14 +1180,15 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     // 13 with the skill library's two (D-079), 14 with Manage Billing (D-077), 15 with the AI
-    // Accelerator's course (D-110).
-    expect(EXECUTED.unauthenticated).toBe(15);
+    // Accelerator's course (D-110), 17 with the account page's two password routes (D-132).
+    expect(EXECUTED.unauthenticated).toBe(17);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
-    // Plus the offer's five open routes (D-073 to D-077).
-    expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length + 5);
+    // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
+    expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length + 5 + 5);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    // The last + 1: the AI Accelerator's course route (D-110), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1);
+    // The + 1: the AI Accelerator's course route (D-110), probed unauthenticated. The + 7: D-132's
+    // password routes, two probed unauthenticated and five as exempt.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7);
   });
 });

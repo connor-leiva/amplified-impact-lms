@@ -366,6 +366,8 @@ export const THANKS_PARTS = {
     sent: 'Your welcome email and login are on their way.',
   },
   intakeButton: 'Open Intake Form',
+  /** D-132: the buyer sets a password right here, once the API says this session may (else hidden). */
+  setPassword: 'Set Your Password',
   /** The starter path's way in, on the LMS host: the course for the Accelerator, the Skill Library for the rest. */
   course: { label: 'Open Your Course', href: `${LEARN_ORIGIN}/course` },
   library: { label: 'Open the Skill Library', href: `${LEARN_ORIGIN}/skill-library` },

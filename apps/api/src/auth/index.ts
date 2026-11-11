@@ -13,15 +13,28 @@
 export { MIN_SECRET_LENGTH, SessionSecretError, readSessionSecret, resetEphemeralSecret } from './secret';
 export type { SecretEnv } from './secret';
 
-export { INVITE_TTL_MS, SIGN_IN_TTL_MS, TOKEN_BYTES, TTL_MS, expiryFor, hashToken, mintToken, sameHash } from './tokens';
+export {
+  INVITE_TTL_MS,
+  RESET_PASSWORD_TTL_MS,
+  SET_PASSWORD_TTL_MS,
+  SIGN_IN_TTL_MS,
+  TOKEN_BYTES,
+  TTL_MS,
+  expiryFor,
+  hashToken,
+  mintToken,
+  sameHash,
+} from './tokens';
 export type { TokenPurpose } from './tokens';
 
 export {
   ROLL_AFTER_MS,
   SESSION_COOKIE,
   SESSION_TTL_MS,
+  SHORT_SESSION_TTL_MS,
   clearCookieOptions,
   createSession,
+  deleteOtherSessions,
   deleteSession,
   mintSessionId,
   needsRoll,
@@ -47,3 +60,22 @@ export {
 export type { SessionViewer } from './guard';
 
 export { pendingEmails, queueEmail, queueMailTask, settleEmails } from './mailer';
+
+export {
+  FAILURE_WINDOW_MS,
+  LOCK_AFTER,
+  LOCK_MS,
+  PASSWORD_MAX,
+  PASSWORD_MIN,
+  burnVerify,
+  clearFailures,
+  failureKey,
+  hasPassword,
+  hashPassword,
+  lockedUntil,
+  passwordHashOf,
+  passwordProblem,
+  recordFailure,
+  storePassword,
+  verifyPassword,
+} from './passwords';

@@ -33,6 +33,8 @@ const SAMPLE: { [K in TemplateName]: SubjectData[K] } = {
   'replay-ready': { n: 2, title: 'Speed to Lead' },
   'build-reminder': { employee: 'Marketing AI Employee' },
   'weekly-digest': {},
+  'set-password': {},
+  'reset-password': {},
 };
 
 describe('email subjects @g8', () => {
@@ -126,8 +128,14 @@ describe('email subjects @g8', () => {
     // asserted at runtime too because the typecheck is what a hurried `// @ts-expect-error` can
     // silence, and because this is the list the deferred /api/test/outbox route will trust.
     expect(Object.keys(SUBJECTS).sort()).toEqual([...TEMPLATE_NAMES].sort());
-    expect(TEMPLATE_NAMES).toHaveLength(9);
-    expect(new Set(TEMPLATE_NAMES).size).toBe(9);
+    // § 8.1's nine, then D-132's two password links.
+    expect(TEMPLATE_NAMES).toHaveLength(11);
+    expect(new Set(TEMPLATE_NAMES).size).toBe(11);
+  });
+
+  it('names the two password emails plainly (D-132)', () => {
+    expect(SUBJECTS['set-password']({})).toBe('Set your Amplified Impact password');
+    expect(SUBJECTS['reset-password']({})).toBe('Reset your Amplified Impact password');
   });
 
   it('leaves no § 8.1 placeholder uninterpolated', () => {

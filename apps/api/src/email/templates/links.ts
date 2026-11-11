@@ -25,6 +25,9 @@ export const ROUTES = {
 /** Phase 07 § 7.5: the sign-in link is `${APP_URL}/sign-in?token=…`. */
 export const signInPath = (token: string): string => `/sign-in?token=${encodeURIComponent(token)}`;
 
+/** D-132: a set-password or reset link, `${APP_URL}/set-password?token=…`. */
+export const setPasswordPath = (token: string): string => `/set-password?token=${encodeURIComponent(token)}`;
+
 /** Phase 07 § 7.5: "`/invite/:token` verifies the token … and signs the user in". */
 export const invitePath = (token: string): string => `/invite/${encodeURIComponent(token)}`;
 

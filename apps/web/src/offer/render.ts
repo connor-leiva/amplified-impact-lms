@@ -223,6 +223,8 @@ function extras(list: readonly StepExtra[]): string {
   const out: string[] = [];
   if (list.includes('login')) {
     out.push(`<p>${loginLine(THANKS_PARTS.login.held, THANKS_PARTS.login.sent, W.loginDay)}</p>`);
+    // D-132: an empty href (no such buyer, the hold, an account already in use) hides it.
+    out.push(`<p class="password-link"><a class="button primary" href="${W.setPassword}">${esc(THANKS_PARTS.setPassword)}</a></p>`);
   }
   if (list.includes('intake')) {
     out.push(

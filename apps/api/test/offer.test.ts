@@ -405,7 +405,9 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     // Monday morning: the held invite goes out once.
     expect(await sendHeldInvites({ log, now: CONFIG.invitesFrom, invitesFrom: CONFIG.invitesFrom })).toBe(1);
     expect(await sendHeldInvites({ log, now: CONFIG.invitesFrom + 60_000, invitesFrom: CONFIG.invitesFrom })).toBe(0);
-    expect(outboxFor({ to: 'pat@example.com', template: 'team-invite' }).length).toBe(1);
+    // D-132: the owner's first email is "Set your password" (in place of the invite), on the same timing.
+    expect(outboxFor({ to: 'pat@example.com', template: 'set-password' }).length).toBe(1);
+    expect(outboxFor({ to: 'pat@example.com', template: 'team-invite' })).toEqual([]);
   });
 
   it('holds every invite while the platform is in fixture mode, even after INVITES_FROM', async () => {
@@ -973,7 +975,7 @@ describe('every offer, end to end (D-106)', () => {
         expect(outboxFor({ to: 'pat@example.com' })).toEqual([]);
         const log = { info: () => {}, warn: () => {}, error: () => {} };
         expect(await sendHeldInvites({ log, now: CONFIG.invitesFrom, invitesFrom: CONFIG.invitesFrom })).toBe(1);
-        expect(outboxFor({ to: 'pat@example.com', template: 'team-invite' })).toHaveLength(1);
+        expect(outboxFor({ to: 'pat@example.com', template: 'set-password' })).toHaveLength(1);
 
         // The welcome page confirms the plan by its session.
         const welcome = await app.inject({ method: 'GET', url: `/offer/welcome?session_id=${order.stripeSessionId}` });
@@ -1101,7 +1103,7 @@ describe('every offer, end to end (D-106)', () => {
   it('after INVITES_FROM, every offer\'s owner invite goes at once', async () => {
     process.env.FIXED_NOW = '2026-11-17T10:00:00-06:00';
     for (const [i, c] of OFFER_CASES.entries()) await purchase(c, `buyer${i}@example.com`);
-    for (const [i] of OFFER_CASES.entries()) expect(outboxFor({ to: `buyer${i}@example.com`, template: 'team-invite' }), OFFER_CASES[i]!.cart).toHaveLength(1);
+    for (const [i] of OFFER_CASES.entries()) expect(outboxFor({ to: `buyer${i}@example.com`, template: 'set-password' }), OFFER_CASES[i]!.cart).toHaveLength(1);
     expect((await (await db()).select().from(accounts)).every((a) => a.inviteSentAt === Date.parse('2026-11-17T10:00:00-06:00'))).toBe(true);
   });
 });

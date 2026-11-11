@@ -101,3 +101,54 @@
     animation: none;
   }
 }
+
+/* D-132: the password form's extras. "Keep me signed in", and the two ways out of the form under it.
+   Sizes are the house 13/14 used on the card already; colour and focus come from tokens.css. */
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--action-primary);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.textLink {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The rules for a new password, under its field. */
+.hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+/* "Your password is saved." on the account page: a status, not an error. */
+.done {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--status-success-text);
+}
