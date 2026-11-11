@@ -54,7 +54,7 @@ describe.each(SKILLS)('skills/%s', (name) => {
     if (!guide) return;
     expect(guide.download.href).toBe(`/downloads/${name}.zip`);
     expect(guide.download.filename).toBe(`${name}.zip`);
-    const steps = [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? [])];
+    const steps = [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? []), ...(guide.download.grok?.setup ?? [])];
     const files = steps.flatMap((s) => (s.action && s.action !== 'download' && s.action.download ? [s.action.href] : []));
     expect(files).toContain(`/downloads/${name}-practice.zip`);
     if (manifest.apps.includes('chatgpt')) {
@@ -64,6 +64,13 @@ describe.each(SKILLS)('skills/%s', (name) => {
       expect(steps.some((s) => s.copyBlock === paste), 'the page copies chatgpt/paste.txt, word for word').toBe(true);
     } else {
       expect(guide.download.chatgpt).toBeUndefined();
+    }
+    // A skill that ships a Grok Bot template (D-108) shows its steps in Grok Bot, with the template's ZIP.
+    if (manifest.apps.includes('grok')) {
+      expect(guide.download.grok, 'a skill with a Grok Bot template shows its Grok Bot steps').toBeDefined();
+      expect(files).toContain(`/downloads/${name}-grok.zip`);
+    } else {
+      expect(guide.download.grok).toBeUndefined();
     }
   });
 
@@ -95,7 +102,7 @@ it('links only to pages that exist, so a skill page never ships pointing at one 
 });
 
 it('keeps every download in public/downloads tied to a source', () => {
-  // A skill's three files, and the guides' own (their PDFs and the Reel Editor's ZIP, D-038, D-039, D-045).
+  // A skill's files (three, or four with a Grok Bot template, D-108), and the guides' own (their PDFs and the Reel Editor's ZIP, D-038, D-039, D-045).
   const fromSkills = new Set([
     ...SKILLS.flatMap((name) => expected(name).map((d) => d.file)),
     // And the Grok Bot templates' (D-100), each from its SKILL.md in content/grok-bot-templates/.

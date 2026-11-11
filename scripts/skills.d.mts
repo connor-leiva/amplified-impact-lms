@@ -6,7 +6,7 @@ export interface Manifest {
   page: string;
   title: string;
   version: string;
-  apps: readonly ('claude' | 'chatgpt')[];
+  apps: readonly ('claude' | 'chatgpt' | 'grok')[];
   shared?: readonly string[];
 }
 
@@ -31,10 +31,15 @@ export function plan(name: string): {
   manifest: Manifest;
   skill: Download<PlannedEntry>;
   chatgpt: Download<PlannedEntry> | null;
+  grok: Download<PlannedEntry> | null;
   practice: Download<PlannedEntry> | null;
 };
 export function frontmatter(text: string): { data: Record<string, unknown>; body: string; unsafe: string[] } | null;
 export function check(name: string): { errors: string[]; warnings: string[] };
+export const GROK_SECTIONS: readonly string[];
+export function grokFrontmatter(text: string): Record<string, string> | null;
+export function grokSection(text: string, heading: string): string;
+export function grokTemplateErrors(text: string): string[];
 export function zip(entries: { path: string; data: Buffer }[]): Buffer;
 export function unzip(buf: Buffer): Map<string, Buffer>;
 export function expected(name: string): Download<{ path: string; data: Buffer }>[];

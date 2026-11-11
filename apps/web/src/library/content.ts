@@ -73,6 +73,19 @@ export const ENTRIES: readonly Entry[] = [
     keywords: 'onboarding new agent onboarding new hire new agent first 30 days 30 day plan 30-60-90 ramp ramp-up new agent checklist onboarding checklist agent handbook standards checkpoints mentor shadowing role-play lead rotation license transfer fair housing course role change runbook three tests safe failure accelerator week 7 team leader ops operator',
   },
   {
+    // The AI Accelerator's week 2 flagship (D-108): a Grok Bot template first, with the same brief for
+    // Claude and a ChatGPT Project. One skill with three ways in, so it is in the main list, not on the
+    // Grok Bot shelf, whose templates have no Claude or ChatGPT version.
+    title: 'Morning Brief',
+    description: 'One page every weekday morning: your top three, the decisions waiting on you, and who owns each next step, from this week’s numbers and your task list. Anything with no owner or no date gets flagged, never filled in. A Grok Bot template that runs on its own, or the same brief in Claude or a ChatGPT Project.',
+    kind: 'Grok Bot Template',
+    href: '/morning-brief',
+    tools: ['grok', 'claude', 'chatgpt'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-11',
+    keywords: 'morning brief daily brief daily priorities top three what needs my attention owner priorities decisions exceptions next actions who owns what accountability loose ends unowned commitments someone should follow up task register task list clickup asana google sheets meeting transcript granola lead-source roi fub pipeline review follow up boss scorecard team owner operator ai accelerator week 2 grok bot routine',
+  },
+  {
     title: 'AI Brain Setup',
     description: 'Answer a few questions about your business and get your Claude setup back, ready to paste: your instructions, an About My Business file, the facts to remember, and exactly where each one goes. Nothing about your clients and no passwords. Set it up once on a computer, in Claude or a ChatGPT Project.',
     kind: 'Claude Skill',

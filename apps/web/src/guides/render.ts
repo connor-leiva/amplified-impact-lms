@@ -27,6 +27,7 @@ import {
   inSkillLibrary,
   SHARED,
   SITE,
+  type GrokLane,
   type Guide,
   type Handoff,
   type Inline,
@@ -189,6 +190,8 @@ function setupAction(guide: Guide, action: SetupStep['action']): string {
 }
 
 type App = keyof typeof SHARED.copyOpen;
+/** A lane of the app switch: an app a button can open, or Grok Bot, which none can (D-108). */
+type Lane = App | 'grok';
 
 /**
  * "Copy & Open Claude" (or ChatGPT) under a step's words (D-070). A real link, so with JavaScript off
@@ -205,12 +208,12 @@ function copyOpen(app: App): string {
  * remembers the visitor's place under `data-guided-key` (D-070). A step with words to say gets the
  * copy chip and a "Copy & Open" for its app.
  */
-function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): string {
-  // A Grok Bot template's steps (D-100) happen in Grok Bot, which no button can open: the words are
-  // copied, with a toast that names Grok Bot, and nothing says Claude.
-  const grok = guide.grok !== undefined;
+function setup(guide: Guide, steps: readonly SetupStep[], app: Lane = 'claude'): string {
+  // A Grok Bot template's steps (D-100), and a skill's Grok Bot lane (D-108), happen in Grok Bot, which
+  // no button can open: the words are copied, with a toast that names Grok Bot, and nothing says Claude.
+  const grok = app === 'grok' || guide.grok !== undefined;
   const toast = grok ? SHARED.copy.copiedGrok : SHARED.copy.copied;
-  const opens = (a: App) => (grok ? '' : copyOpen(a));
+  const opens = (a: Lane) => (grok || a === 'grok' ? '' : copyOpen(a));
   const items = steps
     .map((s, i) =>
       [
@@ -255,24 +258,30 @@ function setup(guide: Guide, steps: readonly SetupStep[], app: App = 'claude'): 
 /**
  * A skill that also works in ChatGPT (D-052): which app, then that app's steps. Two radio buttons and
  * CSS (`skills.css`), no script, so it works with JavaScript off and in Safari 13: the inputs come
- * before the two step lists as their siblings, and `:checked ~` shows one list. Claude is checked to
- * start. With no CSS at all, both lists show, each under its heading.
+ * before the step lists as their siblings, and `:checked ~` shows one list. Claude is checked to
+ * start. With no CSS at all, every list shows, each under its heading. A skill with a Grok Bot lane
+ * (D-108) has three buttons, Grok Bot first and checked to start.
  */
-function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp): string {
+function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp, grok?: GrokLane): string {
+  const lanes: ReadonlyArray<{ id: Lane; label: string; steps: readonly SetupStep[] }> = [
+    ...(grok ? [{ id: 'grok' as const, label: grok.label, steps: grok.setup }] : []),
+    { id: 'claude', label: other.claude, steps: claude },
+    { id: 'chatgpt', label: other.chatgpt, steps: other.setup },
+  ];
   return [
     `<div class="apps">`,
     `<p class="apps-q" id="apps-q">${esc(other.question)}</p>`,
-    `<input class="app-radio" type="radio" name="app" id="app-claude" value="claude" checked aria-describedby="apps-q">`,
-    `<input class="app-radio" type="radio" name="app" id="app-chatgpt" value="chatgpt" aria-describedby="apps-q">`,
-    `<div class="app-switch"><label for="app-claude">${esc(other.claude)}</label><label for="app-chatgpt">${esc(other.chatgpt)}</label></div>`,
-    `<div class="app-setup app-setup-claude">`,
-    `<h3 class="app-heading">${esc(`In ${other.claude}`)}</h3>`,
-    setup(guide, claude),
-    `</div>`,
-    `<div class="app-setup app-setup-chatgpt">`,
-    `<h3 class="app-heading">${esc(`In ${other.chatgpt}`)}</h3>`,
-    setup(guide, other.setup, 'chatgpt'),
-    `</div>`,
+    ...lanes.map(
+      (l, i) =>
+        `<input class="app-radio" type="radio" name="app" id="app-${l.id}" value="${l.id}"${i === 0 ? ' checked' : ''} aria-describedby="apps-q">`,
+    ),
+    `<div class="app-switch${lanes.length > 2 ? ' app-switch-3' : ''}">${lanes.map((l) => `<label for="app-${l.id}">${esc(l.label)}</label>`).join('')}</div>`,
+    ...lanes.flatMap((l) => [
+      `<div class="app-setup app-setup-${l.id}">`,
+      `<h3 class="app-heading">${esc(`In ${l.label}`)}</h3>`,
+      setup(guide, l.steps, l.id),
+      `</div>`,
+    ]),
     `</div>`,
   ].join('\n');
 }
@@ -283,7 +292,7 @@ function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp):
  */
 function setupSteps(guide: Guide): string {
   const d = guide.download;
-  if (d.setup && d.chatgpt) return appSetups(guide, d.setup, d.chatgpt);
+  if (d.setup && d.chatgpt) return appSetups(guide, d.setup, d.chatgpt, d.grok);
   return d.setup ? setup(guide, d.setup) : '';
 }
 
@@ -564,7 +573,7 @@ function footer(extraClass = ''): string {
 /** Whether anything on the page copies, and so needs the toast that says it did. A paid page draws its setup too (D-101). */
 const copies = (guide: Guide) =>
   guide.sections.some((s) => s.kind === 'prompts') ||
-  [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? [])].some(
+  [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? []), ...(guide.download.grok?.setup ?? [])].some(
     (s) => s.copy !== undefined || s.copyBlock !== undefined,
   );
 

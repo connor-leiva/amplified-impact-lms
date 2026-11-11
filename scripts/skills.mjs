@@ -6,6 +6,11 @@
 //   node scripts/skills.mjs shell [name ...]   write each skill page's HTML shell, apps/web/<page>.html
 //   node scripts/skills.mjs list               every skill, with its page and apps
 //
+// A skill whose manifest lists `grok` (Morning Brief, D-108) also ships a Grok Bot template from
+// `grok/SKILL.md`, in the Grok Bot templates' shape (D-100, `grokTemplateErrors` below), as
+// `<name>-grok.zip`. The Grok Bot shelf's own templates in content/grok-bot-templates/ are
+// `scripts/grok-templates.mjs`'s, which shares that shape check.
+//
 // No dependencies: a ZIP is written and read here with node:zlib, so the drift test
 // (`apps/web/src/guides/skills.test.ts`) can unpack a committed download and hold every entry to its
 // source without a package. The archives are deterministic (sorted entries, one fixed timestamp), so a
@@ -38,8 +43,8 @@ export const DOWNLOADS_DIR = join(ROOT, 'apps', 'web', 'public', 'downloads');
 
 /** Frontmatter keys Anthropic's skill format allows (the Agent Skills spec and skill-creator's validator). */
 const ALLOWED_KEYS = new Set(['name', 'description', 'license', 'allowed-tools', 'metadata', 'compatibility']);
-/** Never shipped in the Claude skill: the build's own files and the other two downloads' sources. */
-const NOT_IN_SKILL = new Set(['skill.json', 'chatgpt', 'practice', 'evals', 'sample.md', 'page-notes.md']);
+/** Never shipped in the Claude skill: the build's own files and the other downloads' sources. */
+const NOT_IN_SKILL = new Set(['skill.json', 'chatgpt', 'grok', 'practice', 'evals', 'sample.md', 'page-notes.md']);
 /** Never shipped anywhere. */
 const JUNK = new Set(['.DS_Store', '__pycache__', 'Thumbs.db', '.git']);
 const TEXT = /\.(md|txt|json|ya?ml|py|sh|js|mjs|ts|css|html|csv|tsv)$/i;
@@ -76,8 +81,10 @@ function walk(dir, skipTop = new Set()) {
 }
 
 /**
- * The three downloads of one skill, each as the list of entries it must hold: `{ path, abs }`, where
- * `path` is the name inside the ZIP. `chatgpt` and `practice` are null when the skill has none.
+ * The downloads of one skill, each as the list of entries it must hold: `{ path, abs }`, where `path`
+ * is the name inside the ZIP. `chatgpt`, `grok` and `practice` are null when the skill has none. The
+ * Grok Bot template (D-108) is one file, `grok/SKILL.md`, in a folder named `<name>-grok/`, so it never
+ * unpacks over the Claude skill's own `<name>/SKILL.md`.
  */
 export function plan(name) {
   const dir = join(SKILLS_DIR, name);
@@ -96,6 +103,9 @@ export function plan(name) {
       }))
     : null;
 
+  const grokFile = join(dir, 'grok', 'SKILL.md');
+  const grok = existsSync(join(dir, 'grok')) ? [{ path: `${name}-grok/SKILL.md`, abs: grokFile }] : null;
+
   const practiceDir = join(dir, 'practice');
   const practice = existsSync(practiceDir)
     ? walk(practiceDir).map((rel) => ({ path: `${name}-practice/${rel}`, abs: join(practiceDir, rel) }))
@@ -105,6 +115,7 @@ export function plan(name) {
     manifest,
     skill: { file: `${name}.zip`, entries: skill },
     chatgpt: chatgpt && { file: `${name}-chatgpt.zip`, entries: chatgpt },
+    grok: grok && { file: `${name}-grok.zip`, entries: grok },
     practice: practice && { file: `${name}-practice.zip`, entries: practice },
   };
 }
@@ -206,6 +217,8 @@ export function check(name) {
   if (!apps.includes('claude')) err('skill.json apps must include "claude"');
   const hasChatgpt = existsSync(join(dir, 'chatgpt'));
   if (apps.includes('chatgpt') !== hasChatgpt) err('skill.json apps lists "chatgpt" exactly when chatgpt/ exists');
+  const hasGrok = existsSync(join(dir, 'grok'));
+  if (apps.includes('grok') !== hasGrok) err('skill.json apps lists "grok" exactly when grok/ exists');
   for (const file of manifest.shared ?? []) {
     if (!existsSync(join(SHARED_DIR, file))) err(`shared reference ${file} is not in skills/_shared/`);
     if (existsSync(join(dir, 'references', file))) err(`references/${file} would be overwritten by the shared copy`);
@@ -267,6 +280,7 @@ export function check(name) {
   const all = [
     ...p.skill.entries,
     ...(p.chatgpt?.entries ?? []),
+    ...(p.grok?.entries ?? []),
     ...(p.practice?.entries ?? []),
     ...walk(join(dir, 'evals')).map((rel) => ({ path: `evals/${rel}`, abs: join(dir, 'evals', rel) })),
     ...['sample.md', 'page-notes.md'].filter((f) => existsSync(join(dir, f))).map((f) => ({ path: f, abs: join(dir, f) })),
@@ -294,6 +308,15 @@ export function check(name) {
     if (/\bClaude\b|SKILL\.md|references\//.test(instr)) err('chatgpt/instructions.md mentions Claude, SKILL.md or references/');
   }
 
+  // The Grok Bot template (D-108): one SKILL.md in the Grok Bot templates' shape (D-100).
+  if (hasGrok) {
+    const files = walk(join(dir, 'grok'));
+    if (files.join() !== 'SKILL.md') err(`grok/ must hold only SKILL.md (it holds ${files.join(', ') || 'nothing'})`);
+    if (existsSync(join(dir, 'grok', 'SKILL.md'))) {
+      for (const m of grokTemplateErrors(readFileSync(join(dir, 'grok', 'SKILL.md'), 'utf8'))) err(`grok/SKILL.md: ${m}`);
+    }
+  }
+
   // Practice, evals, sample, page notes.
   if (!p.practice || p.practice.entries.length === 0) err('practice/ is missing or empty');
   const evalsPath = join(dir, 'evals', 'evals.json');
@@ -314,6 +337,72 @@ export function check(name) {
   if (!existsSync(join(dir, 'sample.md'))) err('sample.md is missing');
   if (!existsSync(join(dir, 'page-notes.md'))) err('page-notes.md is missing');
   return { errors, warnings };
+}
+
+// --- Grok Bot templates ------------------------------------------------------------------------------
+//
+// The shape every Grok Bot template has (D-100): the shelf's templates in content/grok-bot-templates/
+// (`scripts/grok-templates.mjs`) and a skill's own `grok/SKILL.md` (D-108). Here, not there, so this
+// file never imports that one, which imports this.
+
+/** The sections every template has, in this order (the Grok Bot templates README's last paragraph). */
+export const GROK_SECTIONS = ['Who it\'s for', 'What it connects to', 'Guardrails', 'Setup questions', 'Recommended routine', 'Procedure', 'Output format', 'Sample output (EXAMPLE DATA ONLY)'];
+
+/** A template's frontmatter `name` and `description` (a plain or folded `>-` scalar), or null. */
+export function grokFrontmatter(text) {
+  const m = /^---\n([\s\S]*?)\n---\n/.exec(text);
+  if (!m) return null;
+  const lines = m[1].split('\n');
+  const out = {};
+  for (let i = 0; i < lines.length; i++) {
+    const kv = /^([a-z-]+):\s*(.*)$/.exec(lines[i]);
+    if (!kv) continue;
+    let value = kv[2];
+    if (value === '>-' || value === '>' || value === '|') {
+      const block = [];
+      while (i + 1 < lines.length && /^\s+\S/.test(lines[i + 1])) block.push(lines[++i].trim());
+      value = block.join(' ');
+    }
+    out[kv[1]] = value.replace(/^["']|["']$/g, '');
+  }
+  return out;
+}
+
+/** A `## heading` section's text, without its heading, up to the next `## `. */
+export function grokSection(text, heading) {
+  const lines = text.split('\n');
+  const start = lines.findIndex((l) => l.startsWith(`## ${heading}`));
+  if (start < 0) return '';
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((l) => l.startsWith('## '));
+  return (end < 0 ? rest : rest.slice(0, end)).join('\n');
+}
+
+/** Every way a template's text breaks the shape: its frontmatter, the dash rule, its sections and its routine. */
+export function grokTemplateErrors(text) {
+  const errors = [];
+  const fm = grokFrontmatter(text);
+  if (!fm) errors.push('SKILL.md has no frontmatter between --- lines');
+  else {
+    if (!fm.name) errors.push('frontmatter needs a name');
+    if (!fm.description) errors.push('frontmatter needs a description');
+  }
+  const lines = text.split('\n');
+  lines.forEach((line, i) => {
+    if (DASHES.test(line)) errors.push(`line ${i + 1} has an em or en dash (the house rule)`);
+  });
+  const headings = lines.filter((l) => l.startsWith('## ')).map((l) => l.slice(3));
+  let at = -1;
+  for (const s of GROK_SECTIONS) {
+    const i = headings.findIndex((h, k) => k > at && h.startsWith(s));
+    if (i < 0) errors.push(`no "## ${s}" section after the ones before it`);
+    else at = i;
+  }
+  const routine = grokSection(text, 'Recommended routine');
+  if (!/\*\*Schedule:\*\*/.test(routine)) errors.push('the routine has no **Schedule:** line');
+  if (!/\*\*Cron \([^)]*\):\*\* `[^`]+`/.test(routine)) errors.push('the routine has no **Cron (...):** line');
+  if (!/\*\*Routine prompt to save:\*\*\s*\n+```\n[\s\S]+?\n```/.test(routine)) errors.push('the routine has no prompt to save in a code block');
+  return errors;
 }
 
 // --- ZIP -------------------------------------------------------------------------------------------
@@ -413,7 +502,7 @@ export function unzip(buf) {
 /** The bytes each download must have, from source: `[{ file, entries: [{ path, data }] }]`. */
 export function expected(name) {
   const p = plan(name);
-  return [p.skill, p.chatgpt, p.practice]
+  return [p.skill, p.chatgpt, p.grok, p.practice]
     .filter(Boolean)
     .map(({ file, entries }) => ({ file, entries: entries.map(({ path, abs }) => ({ path, data: readFileSync(abs) })) }));
 }

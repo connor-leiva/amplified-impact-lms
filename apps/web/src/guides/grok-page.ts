@@ -215,37 +215,40 @@ export interface GrokPage {
   unlockKey: string;
 }
 
+/** What the guided setup in Grok Bot needs to know about one template (D-100, D-108). */
+export interface GrokSetup {
+  /** The Bot's name: the template's title. */
+  title: string;
+  /** The template itself, its SKILL.md as committed. */
+  text: string;
+  /** Its ZIP under `apps/web/public/downloads`. */
+  file: string;
+  /** A free template's step 2 copies the whole template; a paid one's says to get it from the Skill Library (D-101). */
+  free: boolean;
+  /** The apps to add in Connect apps. */
+  apps: readonly string[];
+  /** The Connect Its Apps step's first note: what the template reads beyond those apps, and its fallback. */
+  appsNote: readonly Inline[];
+  /** Anything else this template alone needs connected, after it. */
+  connectNote?: readonly Inline[];
+  /** The last step's words, when a good first result is not a chat summary and a dated workbook. */
+  firstResult?: string;
+}
+
 /**
- * A template's page, as a guide: its own words, the template's own instructions, routine, sample and
- * guardrails, and the guided setup every template shares (Connor, 2026-11-10: the setup is the
- * primary path, and the ZIP an extra). The setup's labels are Grok Bot's own, from docs.x.ai/grok-bot
- * (get-started, bots, skills-routines-and-automations, computer-and-apps, vault,
- * approvals-security-and-privacy), read 2026-11-10.
+ * The seven steps in Grok Bot every template's setup shares (Connor, 2026-11-10: the setup is the
+ * primary path, and the ZIP an extra): create the Bot, save the template as a skill, connect its apps,
+ * answer its setup questions, save its routine, run a first test and check it. Every label is Grok
+ * Bot's own, from docs.x.ai/grok-bot. The shelf's pages (`grokPage`) and a skill's Grok Bot lane
+ * (Morning Brief, D-108) both draw it.
  */
-export function grokPage(p: GrokPage): Guide {
-  const t = grokTemplate(p.slug);
-  if (!t) throw new Error(`No Grok Bot template with the id "${p.slug}"`);
-  const text = grokSource(t);
+export function grokSetup(s: GrokSetup): SetupStep[] {
+  const text = s.text;
   const name = nameOf(text);
   const routine = routineOf(text);
-  const result = resultOf(text);
-  const when = cadence(routine.schedule);
-  const books = t.collection === 'bookkeeping';
-  const support = books ? 'bookkeeping' : 'transaction';
   const run = `Run @${name} now`;
   const save = `Save these instructions as a skill called "${name}". Keep them exactly as written.`;
-  // Bookkeeping reads QuickBooks Online, which Grok Bot's docs do not list as an app; the template's own
-  // fallback is an export. A transaction template reads whatever system the team uses (its own words).
-  const collectionNote: Inline[] = books
-    ? [
-        'If Connect apps doesn’t list QuickBooks Online, export the report the Bot asks for from QuickBooks as a CSV and attach it in the chat, or add a QuickBooks connector you trust with ',
-        { strong: 'Add a custom connector' },
-        ' at the bottom of Connect apps.',
-      ]
-    : [
-        'Your transaction system: Dotloop, SkySlope, Brokermint, Lone Wolf, Paperless Pipeline or Open to Close. Add it in Connect apps if it’s listed. If not, save its login in the Vault so the Bot can read it in its own browser, or keep exports in a Google Drive folder. No system? A Google Sheet and Gmail work.',
-      ];
-  const setup: SetupStep[] = [
+  return [
     {
       title: 'Create the Bot',
       body: [
@@ -254,7 +257,7 @@ export function grokPage(p: GrokPage): Guide {
         ' at the top of the sidebar (',
         { strong: 'New Bot' },
         '). Name it ',
-        { strong: t.title },
+        { strong: s.title },
         ', pick a shape and a color, then click ',
         { strong: 'Create' },
         '.',
@@ -270,13 +273,13 @@ export function grokPage(p: GrokPage): Guide {
         '.',
       ],
     },
-    isFreeGrokTemplate(t.id)
+    s.free
       ? {
           title: 'Save the Template as a Skill',
           body: ['In the new Bot’s chat, paste this and send it. It saves the whole template as a skill called ', { strong: name }, '.'],
           copyBlock: `${save}\n\n${text.trimEnd()}`,
           // The ZIP, as a second button under the words: the guided setup is the way in (Connor, 2026-11-10).
-          action: { label: 'Download the File', href: `/downloads/${t.file}`, download: t.file },
+          action: { label: 'Download the File', href: `/downloads/${s.file}`, download: s.file },
           note: ['The file is the same template, to keep. You don’t need it for this step.'],
         }
       : {
@@ -291,7 +294,7 @@ export function grokPage(p: GrokPage): Guide {
             '.',
           ],
           copy: save,
-          action: { label: 'Download the File', href: `/downloads/${t.file}`, download: t.file },
+          action: { label: 'Download the File', href: `/downloads/${s.file}`, download: s.file },
           note: ['Paste all of SKILL.md, top to bottom, and change nothing in it.'],
         },
     {
@@ -302,14 +305,14 @@ export function grokPage(p: GrokPage): Guide {
         ' in the sidebar. Search for each of these, add it, choose ',
         { strong: 'Authorize' },
         ' and finish signing in: ',
-        ...apps(p.apps),
+        ...apps(s.apps),
         '. Each is ready when it shows under ',
         { strong: 'Installed' },
         '.',
       ],
       note: [
-        ...collectionNote,
-        ...(p.connectNote ? [' ', ...p.connectNote] : []),
+        ...s.appsNote,
+        ...(s.connectNote ? [' ', ...s.connectNote] : []),
         ' Save any other login in ',
         { strong: 'Settings > Vault' },
         ' (',
@@ -378,10 +381,49 @@ export function grokPage(p: GrokPage): Guide {
     },
     {
       title: 'Check the First Result',
-      body: ['Compare it with the example on this page. A good first result has a short chat summary and a dated workbook, and changes nothing.'],
+      body: [s.firstResult ?? 'Compare it with the example on this page. A good first result has a short chat summary and a dated workbook, and changes nothing.'],
       note: ['Something looks wrong? See ', { strong: 'If something goes wrong' }, ', below.'],
     },
   ];
+}
+
+/**
+ * A template's page, as a guide: its own words, the template's own instructions, routine, sample and
+ * guardrails, and the guided setup every template shares (Connor, 2026-11-10: the setup is the
+ * primary path, and the ZIP an extra). The setup's labels are Grok Bot's own, from docs.x.ai/grok-bot
+ * (get-started, bots, skills-routines-and-automations, computer-and-apps, vault,
+ * approvals-security-and-privacy), read 2026-11-10.
+ */
+export function grokPage(p: GrokPage): Guide {
+  const t = grokTemplate(p.slug);
+  if (!t) throw new Error(`No Grok Bot template with the id "${p.slug}"`);
+  const text = grokSource(t);
+  const routine = routineOf(text);
+  const result = resultOf(text);
+  const when = cadence(routine.schedule);
+  const books = t.collection === 'bookkeeping';
+  const support = books ? 'bookkeeping' : 'transaction';
+  const run = `Run @${nameOf(text)} now`;
+  // Bookkeeping reads QuickBooks Online, which Grok Bot's docs do not list as an app; the template's own
+  // fallback is an export. A transaction template reads whatever system the team uses (its own words).
+  const collectionNote: Inline[] = books
+    ? [
+        'If Connect apps doesn’t list QuickBooks Online, export the report the Bot asks for from QuickBooks as a CSV and attach it in the chat, or add a QuickBooks connector you trust with ',
+        { strong: 'Add a custom connector' },
+        ' at the bottom of Connect apps.',
+      ]
+    : [
+        'Your transaction system: Dotloop, SkySlope, Brokermint, Lone Wolf, Paperless Pipeline or Open to Close. Add it in Connect apps if it’s listed. If not, save its login in the Vault so the Bot can read it in its own browser, or keep exports in a Google Drive folder. No system? A Google Sheet and Gmail work.',
+      ];
+  const setup = grokSetup({
+    title: t.title,
+    text,
+    file: t.file,
+    free: isFreeGrokTemplate(t.id),
+    apps: p.apps,
+    appsNote: collectionNote,
+    ...(p.connectNote ? { connectNote: p.connectNote } : {}),
+  });
   const sections: Section[] = [
     {
       kind: 'sample',

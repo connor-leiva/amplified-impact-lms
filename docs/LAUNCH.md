@@ -197,8 +197,8 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
 
    The boot log line `offer configuration` says what is on and the key's mode (`test` or `live`),
    never a value.
-3. Load the skills: `pnpm --filter @ai/api skills --upload` puts every skill's ZIPs (the 35 skills
-   in `SKILL_CATALOG`) and the 16 Grok Bot templates' (`GROK_TEMPLATES`, D-100) in the bucket and both
+3. Load the skills: `pnpm --filter @ai/api skills --upload` puts every skill's ZIPs (the 36 skills
+   in `SKILL_CATALOG`, Morning Brief's Grok Bot template among its files, D-108) and the 16 Grok Bot templates' (`GROK_TEMPLATES`, D-100) in the bucket and both
    catalogs in the table. It needs the `S3_*` settings (section 2). Change a skill's set or make it
    free in `packages/core/src/skills.ts` first, and a template's in `packages/core/src/grok-templates.ts`.
    Free today: Appointment Follow-Up, Database Health Check, Team P&L Review and AI Brain Setup (D-101), and the templates Weekly

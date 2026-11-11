@@ -130,6 +130,7 @@ describe('the list of guides', () => {
       'closing-week-checklist',
       'listing-to-live',
       'post-close-file-closeout',
+      'morning-brief',
     ]);
     expect(GUIDE_HTML).toEqual(Object.keys(GUIDES).map((slug) => `${slug}.html`));
     for (const slug of Object.keys(GUIDES)) {

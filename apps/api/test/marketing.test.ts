@@ -216,6 +216,7 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       'closing-week-checklist',
       'listing-to-live',
       'post-close-file-closeout',
+      'morning-brief',
     ]);
     for (const slug of GUIDE_SLUGS) {
       for (const url of [`/${slug}`, `/${slug}?src=ig`]) {

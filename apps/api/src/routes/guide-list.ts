@@ -67,6 +67,7 @@ export const GUIDE_SLUGS = [
   'closing-week-checklist',
   'listing-to-live',
   'post-close-file-closeout',
+  'morning-brief',
 ] as const;
 export type GuideSlug = (typeof GUIDE_SLUGS)[number];
 
