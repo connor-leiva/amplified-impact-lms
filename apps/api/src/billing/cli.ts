@@ -9,20 +9,17 @@
 //       Loads the skill catalog (billing/skills-catalog.ts) and the Grok Bot templates (D-100), each from
 //       its own list (billing/library-rows.ts), into the `skills` table: sets, free or paid, release dates
 //       and bucket keys. With --upload, also puts each ZIP from apps/web/public/downloads into the bucket
-//       under skills/<id>/, which needs the S3_* settings.
+//       under skills/<id>/, which needs the S3_* settings. Writes only the rows that differ, and checks
+//       every ZIP before uploading any (billing/library-sync.ts), so the deploy's pre-deploy step runs it
+//       every time: a second run changes 0 rows.
 
-import { readFileSync, existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { getDb, close } from '../db/client';
-import { skills } from '../db/schema';
 import { clock } from '../lib/clock';
-import { putObject, skillFileKey } from '../storage';
+import { putObject } from '../storage';
 import { readOfferConfig } from './config';
 import { provisionOrder } from './provision';
 import { LIBRARY_ROWS } from './library-rows';
-import { LAUNCH_RELEASE } from './skills-catalog';
-
-const DOWNLOADS = fileURLToPath(new URL('../../../web/public/downloads/', import.meta.url));
+import { syncSkillRows, uploadSkillFiles } from './library-sync';
 
 const log = {
   info: (o: Record<string, unknown>, m: string) => console.log(m, JSON.stringify(o)),
@@ -54,26 +51,19 @@ async function provision(): Promise<number> {
 }
 
 async function loadSkills(): Promise<number> {
-  const upload = process.argv.includes('--upload');
-  const db = getDb();
-  for (const s of LIBRARY_ROWS) {
-    const files: Record<string, string> = {};
-    for (const [kind, name] of Object.entries(s.files)) {
-      if (!name) continue;
-      files[kind] = name;
-      if (upload) {
-        const path = `${DOWNLOADS}${name}`;
-        if (!existsSync(path)) {
-          console.error(`missing ${name}; build it with ${s.build}`);
-          return 1;
-        }
-        await putObject(skillFileKey(s.id, name), readFileSync(path), 'application/zip');
-      }
-    }
-    const row = { title: s.title, summary: s.summary, sets: s.sets, free: s.free, releasedAt: LAUNCH_RELEASE, files, status: 'published' };
-    await db.insert(skills).values({ id: s.id, ...row }).onConflictDoUpdate({ target: skills.id, set: row });
-    console.log(`${s.id}: ${s.sets}${s.free ? ', free' : ''}${upload ? ', uploaded' : ''}`);
+  // Files first, so no row names a ZIP the bucket does not have; all checked before any goes up.
+  if (process.argv.includes('--upload')) {
+    const { missing, uploaded } = await uploadSkillFiles(putObject);
+    for (const m of missing) console.error(`missing ${m.name}; build it with ${m.build}`);
+    if (missing.length) return 1;
+    console.log(`${uploaded} files uploaded (the same bytes under the same keys on a repeat run).`);
   }
+  const changed = await syncSkillRows(getDb());
+  for (const id of changed) {
+    const s = LIBRARY_ROWS.find((r) => r.id === id)!;
+    console.log(`${id}: ${s.sets}${s.free ? ', free' : ''}`);
+  }
+  console.log(`${changed.length} of ${LIBRARY_ROWS.length} skill rows changed.`);
   return 0;
 }
 

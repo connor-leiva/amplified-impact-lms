@@ -41,6 +41,7 @@ import { pathToFileURL } from 'node:url';
 import { sql } from 'drizzle-orm';
 import { applyAccelerator, seedForDatabase, seedProduction } from '@ai/core';
 import type { Db, ProductionSeedOptions } from '@ai/core';
+import { isAcceleratorModule } from '@ai/core/accelerator';
 import { close, databaseNameOf, getDb, readDatabaseUrl } from './client';
 import type { Database } from './client';
 import { diffSnapshot } from './codec';
@@ -136,6 +137,25 @@ export const seedForLaunch = (
 ): Promise<number> => seedSnapshot(db, seedProduction(opts), env);
 
 /**
+ * `--if-missing` is the deploy's form (.railway/railway.ts, after `db:migrate`): it applies the
+ * curriculum to a database that has NONE of it, and otherwise writes nothing.
+ *
+ * Why not the full overlay on every deploy: it rewrites every course row but the few fields it keeps.
+ * A session staff moved in Cohorts & Sessions would go back to its old time and lose its Zoom link,
+ * attendance and replay (`keepSessionState` keeps them only on an unmoved session), and a module
+ * edited in the Module Builder, or set to draft, would revert to the code's copy, files and status.
+ * So the deploy makes sure the curriculum is there; changing it on a live database stays a deliberate
+ * `db:curriculum`, run by hand.
+ */
+export interface CurriculumOptions {
+  instructor?: string;
+  ifMissing?: boolean;
+}
+
+/** Any of the nine course modules, in any status: the curriculum has been applied here before. */
+export const hasCurriculum = (db: Db): boolean => db.modules.some((m) => isAcceleratorModule(m.id));
+
+/**
  * The Amplified AI Accelerator's curriculum, applied to a database that is already live (D-110).
  *
  * The launch seed refuses a database with users in it, and every paid order writes its buyer into
@@ -146,11 +166,12 @@ export const seedForLaunch = (
  * takes, in one transaction. Run twice, the second run writes nothing. Returns the number of rows
  * written or deleted, so the CLI can say "0 changes" when the curriculum is already current.
  */
-export async function applyCurriculum(db: Database, opts: { instructor?: string } = {}): Promise<number> {
+export async function applyCurriculum(db: Database, opts: CurriculumOptions = {}): Promise<number> {
   return db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(42)`);
     const before = await loadDb(tx);
-    const after = applyAccelerator(before, opts);
+    if (opts.ifMissing && hasCurriculum(before)) return 0;
+    const after = applyAccelerator(before, opts.instructor === undefined ? {} : { instructor: opts.instructor });
     const changes = diffSnapshot(before, after).length;
     await persistDiff(tx, before, after);
     return changes;
@@ -182,11 +203,14 @@ const USAGE = [
   '  account that can sign in to the console, and a value inherited from a shell, a .env or a',
   '  Railway variable is how production ends up owned by owner@example.com.',
   '',
-  '  tsx src/db/seed.ts --curriculum [--instructor "Full Name"]',
+  '  tsx src/db/seed.ts --curriculum [--instructor "Full Name"] [--if-missing]',
   '',
   '  --curriculum applies the Amplified AI Accelerator to a database that is already live (D-110):',
   '  cohort dec26, its sixteen sessions and the nine course modules, upserted. Users, teams,',
   '  progress and staff are not touched. Safe to run twice.',
+  '',
+  '  --if-missing applies it only to a database that has none of it, and otherwise writes nothing,',
+  '  so staff edits to the course survive. The deploy runs this form (db:curriculum:ensure).',
 ].join('\n');
 
 /**
@@ -197,7 +221,7 @@ const USAGE = [
  */
 export function parseSeedArgs(
   argv: readonly string[],
-): { mode: 'live' } | { mode: 'launch'; opts: ProductionSeedOptions } | { mode: 'curriculum'; opts: { instructor?: string } } {
+): { mode: 'live' } | { mode: 'launch'; opts: ProductionSeedOptions } | { mode: 'curriculum'; opts: CurriculumOptions } {
   const flag = (name: string): string | undefined => {
     const i = argv.indexOf(`--${name}`);
     if (i === -1) return undefined;
@@ -212,7 +236,10 @@ export function parseSeedArgs(
     // One or the other: the launch seed loads an empty database, the curriculum updates a live one.
     if (argv.includes('--launch')) throw new Error(`--curriculum and --launch cannot be combined\n\n${USAGE}`);
     const instructor = flag('instructor');
-    return { mode: 'curriculum', opts: instructor === undefined ? {} : { instructor } };
+    return {
+      mode: 'curriculum',
+      opts: { ...(instructor === undefined ? {} : { instructor }), ...(argv.includes('--if-missing') ? { ifMissing: true } : {}) },
+    };
   }
 
   if (!argv.includes('--launch')) return { mode: 'live' };
@@ -260,7 +287,7 @@ export interface SeedDeps {
   db: () => Database;
   live: (db: Database) => Promise<number>;
   launch: (db: Database, opts: ProductionSeedOptions) => Promise<number>;
-  curriculum: (db: Database, opts: { instructor?: string }) => Promise<number>;
+  curriculum: (db: Database, opts: CurriculumOptions) => Promise<number>;
   close: () => Promise<void>;
   name: () => string;
   write: (line: string) => void;
@@ -283,9 +310,11 @@ export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): P
   const db = deps.db();
   try {
     if (parsed.mode === 'curriculum') {
-      deps.write(`Applying the Amplified AI Accelerator curriculum to ${name}.\n`);
+      const ifMissing = parsed.opts.ifMissing === true;
+      deps.write(`Applying the Amplified AI Accelerator curriculum to ${name}${ifMissing ? ' if it has none' : ''}.\n`);
       const changes = await deps.curriculum(db, parsed.opts);
       deps.write(`${changes} rows changed. Users, teams, progress and staff were not touched.\n`);
+      if (ifMissing && changes === 0) deps.write('The curriculum is already here, so staff edits to it stay. To re-apply it over them, run db:curriculum.\n');
       return;
     }
     if (parsed.mode === 'launch') {
