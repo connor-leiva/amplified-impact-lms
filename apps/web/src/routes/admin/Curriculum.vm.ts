@@ -53,7 +53,10 @@ export interface CurriculumRow {
    * the prototype renders it.
    */
   dep: string;
-  /** The persona the `eye` action switches to in fixture mode (phase 06 § 6.4). */
+  /**
+   * The persona the `eye` action switches to in fixture mode (phase 06 § 6.4), and the read-only
+   * learner its http-mode preview tab shows (D-138, `previewUrl`).
+   */
   previewAs: 'agent' | 'owner';
   actLabel: string;
   /** `publishModule` when true, `unpublishModule` when false. */
@@ -118,3 +121,10 @@ export function curriculumVM(db: Db, now: number): CurriculumVM {
     }`,
   };
 }
+
+/**
+ * The http-mode preview tab (D-138): the AI Employee's page as the learner its tier calls for. The
+ * flag is `preview`, never `as`, which switches persona in fixture mode only (`data/preview.ts`).
+ */
+export const previewUrl = (r: Pick<CurriculumRow, 'id' | 'previewAs'>): string =>
+  `/employees/${encodeURIComponent(r.id)}?preview=${r.previewAs}`;

@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useToaster } from '../components/primitives/Toaster';
 import { repo } from './boot';
+import { PREVIEW_ONLY } from './preview';
 import type { JoinTicket } from './repository';
 
 /**
@@ -52,6 +53,10 @@ export function useJoin(): JoinHandler {
         return;
       }
 
+      if (ticket.kind === 'preview') {
+        toast(PREVIEW_ONLY, 'info');
+        return;
+      }
       if (ticket.kind === 'simulated') {
         simulated();
         return;

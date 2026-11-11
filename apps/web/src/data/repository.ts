@@ -19,9 +19,14 @@ export type MutationResult = Omit<Outcome, 'db'>;
 
 export type ViewerRole = 'agent' | 'owner' | 'admin' | 'learner';
 
+/** Who an Admin Console "Preview as learner" tab shows the portal as (D-138, `data/preview.ts`). */
+export type PreviewAs = 'agent' | 'owner';
+
 export interface Viewer {
   actor: Actor;
   role: ViewerRole;
+  /** Set only in a staff member's preview tab: the actor is then a read-only learner (D-138). */
+  preview?: PreviewAs;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -61,6 +66,8 @@ export type StoredFileRef =
 export type JoinTicket =
   /** Fixture mode: no server to ask, so the screen keeps the prototype's `Opening Zoom · …` toast. */
   | { kind: 'simulated' }
+  /** A staff member's preview tab (D-138): nothing opens, and the viewer is told so. */
+  | { kind: 'preview' }
   /** `200 { url }`: the window is open. */
   | { kind: 'open'; url: string }
   /** `409 { error: 'Join opens 15 min before' }`: the window is not open yet. */

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { phaseNow, seed, setViewerZone, ZERO_BASE } from '@ai/core';
 import type { Db } from '@ai/core';
-import { curriculumVM, type CurriculumRow } from './Curriculum.vm';
+import { curriculumVM, previewUrl, type CurriculumRow } from './Curriculum.vm';
 
 // Admin Curriculum at the three demo instants, Week 2 first (phase 06 § 6.1).
 //
@@ -148,6 +148,18 @@ describe('curriculumVM @g6', () => {
         'owner',
         'owner',
         'owner',
+      ]);
+    });
+
+    it('opens the http-mode preview tab with the preview flag, never ?as= (D-138)', () => {
+      const rows = curriculumVM(db, WEEK2).rows;
+      expect(rows.map(previewUrl)).toEqual([
+        '/employees/marketing?preview=agent',
+        '/employees/sales?preview=agent',
+        '/employees/database?preview=agent',
+        '/employees/meetings?preview=owner',
+        '/employees/finance?preview=owner',
+        '/employees/operations?preview=owner',
       ]);
     });
 

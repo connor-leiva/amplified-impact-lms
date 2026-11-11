@@ -3,6 +3,7 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import type { Db } from '@ai/core';
 import { clock } from '../lib/clock';
 import { repo } from './boot';
+import { PREVIEW_ONLY } from './preview';
 import type { MutationArgs, MutationName, MutationResult, Viewer } from './repository';
 import { useToaster } from '../components/primitives/Toaster';
 import { useConfetti } from '../shell/Confetti';
@@ -33,6 +34,9 @@ export function useMutate() {
   return useCallback(
     async <K extends MutationName>(name: K, args: MutationArgs<K>): Promise<MutationResult> => {
       const r = await repo.run(name, args);
+      // A preview tab changes nothing (D-138). Say so here, once, for every screen; a form that
+      // renders errors inline shows it there too.
+      if (r.error === PREVIEW_ONLY) toast(PREVIEW_ONLY, 'info');
       if (r.error) return r; // forms render this inline; nothing changed
       if (r.toast) toast(r.toast.msg, r.toast.tone);
       if (r.effects?.some((e) => e.type === 'confetti')) celebrate();

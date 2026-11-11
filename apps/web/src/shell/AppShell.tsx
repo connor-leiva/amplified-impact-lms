@@ -9,6 +9,7 @@ import { LockedEmployeePreview, type LockedItem } from '../components/LockedEmpl
 import { Avatar } from '../components/primitives/Avatar';
 import { ToasterProvider, useToaster } from '../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../data/hooks';
+import { EXIT_PREVIEW_TO, PREVIEW_LABEL } from '../data/preview';
 import { loadPrefs, savePrefs, type Prefs } from '../lib/prefs';
 import { BrandSlot } from './BrandSlot';
 import { Breadcrumbs } from './Breadcrumbs';
@@ -135,6 +136,10 @@ function Shell() {
 
   // ---- who is looking -------------------------------------------------------------------------
   const actor = viewer.actor;
+  // In a staff member's preview tab the actor is already the read-only learner (D-138), so the
+  // guards below treat it as one and the /admin bounce does not apply. Without the flag the actor
+  // is staff and is bounced, as before.
+  const preview = viewer.preview ?? null;
   const isAdmin = actor.kind === 'staff';
   const user: Learner | null =
     actor.kind === 'learner' ? (db.users.find((u) => u.id === actor.userId) ?? null) : null;
@@ -389,6 +394,17 @@ function Shell() {
             <Breadcrumbs pathname={path} employeeName={employeeName} onNavigate={go} />
             <DemoControls vw={vw} />
           </header>
+
+          {preview ? (
+            // A staff member's "Preview as learner" tab (D-138). A plain link, not the router: the
+            // preview is read at boot, so leaving it is a fresh load of the Admin Console.
+            <div className={s.preview} role="status">
+              <span>Previewing as {PREVIEW_LABEL[preview]}.</span>
+              <a className={s.previewExit} href={EXIT_PREVIEW_TO}>
+                Exit Preview
+              </a>
+            </div>
+          ) : null}
 
           <main ref={mainRef} className={s.main}>
             <Outlet />
