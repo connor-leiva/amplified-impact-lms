@@ -208,12 +208,11 @@ export const libraryHref = (route: string): string => `${LIBRARY_ORIGIN}${route}
 export const SKILL_LIBRARY_PATH = '/skill-library';
 
 /**
- * EXPECTED, NOT YET MERGED. Morning Brief (Week 2's flagship) is built on its own branch and is not in
- * `apps/web/src/library/content.ts` on main yet, so the "every flagship href exists in the Library"
- * test allows exactly that route. New Agent Onboarding Plan (Week 7's) was here too until it merged
- * (D-109).
+ * EXPECTED, NOT YET MERGED: none. Morning Brief (Week 2's flagship, D-108) and New Agent Onboarding Plan
+ * (Week 7's, D-109) were here while they were built on their own branches; both are in this branch's
+ * history now (Ampy, 2026-11-11: "empty LIBRARY_ROUTES_PENDING_MERGE once #27 and #25 are in its
+ * history"), so every flagship is a Library page like the rest.
  *
- * EMPTY THIS LIST once the Morning Brief pull request merges. Nothing else may be added to it: a course
- * link to a page that does not exist is a bug, not a pending item.
+ * KEEP THIS LIST EMPTY. A course link to a page that does not exist is a bug, not a pending item.
  */
-export const LIBRARY_ROUTES_PENDING_MERGE: readonly string[] = ['/morning-brief'];
+export const LIBRARY_ROUTES_PENDING_MERGE: readonly string[] = [];

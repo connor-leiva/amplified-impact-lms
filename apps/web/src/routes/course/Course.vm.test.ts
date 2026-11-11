@@ -131,8 +131,8 @@ describe('every week’s page', () => {
 });
 
 describe('every flagship href exists in the Library catalog', () => {
-  // `LIBRARY_ROUTES_PENDING_MERGE` (packages/core/src/accelerator.ts) is the one allowance: Morning
-  // Brief and New Agent Onboarding Plan, built on their own branches. Empty it once both merge.
+  // `LIBRARY_ROUTES_PENDING_MERGE` (packages/core/src/accelerator.ts) was the one allowance while
+  // Morning Brief and New Agent Onboarding Plan were on their own branches. It is empty now.
   const library = new Map(ENTRIES.filter((e) => e.href).map((e) => [`https://www.amplifiedimpact.io${e.href}`, e.title]));
   const pending = new Set(LIBRARY_ROUTES_PENDING_MERGE.map((r) => `https://www.amplifiedimpact.io${r}`));
 
@@ -149,12 +149,11 @@ describe('every flagship href exists in the Library catalog', () => {
     expect(missing).toEqual([]);
   });
 
-  it('allows only the expected-but-not-merged route, and it is still used', () => {
-    expect([...pending]).toEqual(['https://www.amplifiedimpact.io/morning-brief']);
-    // Merged (D-109): now a Library page like any other, so it needs no allowance.
-    expect(library.has('https://www.amplifiedimpact.io/new-agent-onboarding-plan')).toBe(true);
-    const used = new Set(weeks().flatMap((w) => w.skills.map((k) => k.href)));
-    for (const p of pending) expect(used.has(p), p).toBe(true);
+  it('allows no route as expected-but-not-merged: Morning Brief and New Agent Onboarding Plan are Library pages', () => {
+    expect([...pending]).toEqual([]);
+    for (const href of ['https://www.amplifiedimpact.io/morning-brief', 'https://www.amplifiedimpact.io/new-agent-onboarding-plan']) {
+      expect(library.has(href), href).toBe(true);
+    }
   });
 });
 
