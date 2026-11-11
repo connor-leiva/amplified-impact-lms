@@ -2,17 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PLAN_NAMES } from '@ai/core/offer';
 import { ENTRIES } from '../library/content';
 import { paid, renderLibraryBody } from '../library/render';
-import { CARDS_COPY } from '../offer/content';
-import { renderOfferBody } from '../offer/render';
-import { HERO_PHOTO, HOME } from './content';
+import { HOME, PHOTOS } from './content';
 import { entryFor, liveEntries, renderHomeBody, renderHomeHead } from './render';
 
-// www's homepage (D-102), on the parsed DOM: what it says, where every button goes, and that it says
-// nothing the rest of the site does not. That the API serves it at `/` on www only is
-// `apps/api/test/marketing.test.ts`'s.
+// www's homepage (D-102, rewritten in D-107 to Spring's homepage outline), on the parsed DOM: what it
+// says, in which order, where every button goes, and that it says nothing the rest of the site does
+// not. That the API serves it at `/` on www only is `apps/api/test/marketing.test.ts`'s.
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (path: string) => readFileSync(resolve(HERE, path), 'utf8');
@@ -24,183 +21,148 @@ const doc = new DOMParser().parseFromString(
 const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
 const $ = (selector: string) => doc.querySelector(selector);
 const $$ = (selector: string) => [...doc.querySelectorAll(selector)];
-const meta = (key: string) =>
-  doc.querySelector(`meta[name="${key}"], meta[property="${key}"]`)?.getAttribute('content') ?? null;
+const meta = (key: string) => doc.querySelector(`meta[name="${key}"], meta[property="${key}"]`)?.getAttribute('content') ?? null;
 
 describe('the head', () => {
-  it('has a real title and description, not the old placeholder’s', () => {
-    expect(text($('title'))).toBe('Amplified Impact · AI Skills and Training for Real Estate Teams');
-    expect(meta('description')).toMatch(/^Claude and ChatGPT skills for real estate agents and team owners/);
-    expect(renderHomeHead() + renderHomeBody()).not.toMatch(/under construction/i);
-  });
-
-  it('has its canonical address and the Open Graph and Twitter tags, with an absolute share image', () => {
+  it('says what Amplified Impact is, with its canonical address and a real share image', () => {
+    expect(text($('title'))).toBe('Amplified Impact · AI Coaching and Training for Business Owners and Their Teams');
+    expect(meta('description')).toMatch(/^AI coaching and training for business owners and their teams/);
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/');
-    expect(meta('og:title')).toBe(text($('title')));
-    expect(meta('og:description')).toBe(meta('description'));
-    expect(meta('og:type')).toBe('website');
-    expect(meta('og:url')).toBe('https://www.amplifiedimpact.io/');
-    expect(meta('og:site_name')).toBe('Amplified Impact');
-    expect(meta('og:image')).toBe('https://www.amplifiedimpact.io/img/home-hero.jpg');
-    expect([meta('og:image:width'), meta('og:image:height')]).toEqual(['1600', '1200']);
-    expect(meta('og:image:alt')).toBeTruthy();
+    expect(meta('og:image')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
+    expect(meta('og:image:alt')).toBe('Spring Bengtzen');
     expect(meta('twitter:card')).toBe('summary_large_image');
   });
 
   it('has the inline favicon and the stylesheet in its shell, and no script anywhere', () => {
     const shell = read('../../home.html');
     expect(shell).toContain('rel="icon" type="image/svg+xml" href="data:image/svg+xml,');
-    expect(shell).toContain('<link rel="stylesheet" href="/src/home/home.css" />');
     expect(shell).not.toMatch(/<script/i);
     expect(renderHomeBody()).not.toMatch(/<script/i);
   });
 });
 
-describe('the page', () => {
-  it('has its landmarks, a skip link to the main content, and one h1 above its h2s', () => {
+describe('Spring’s outline, in her order', () => {
+  it('has one h1, a skip link, and the nine sections’ headings in order', () => {
     expect($('a.skip')?.getAttribute('href')).toBe('#main');
-    expect($('main#main')).not.toBeNull();
-    expect($('header nav[aria-label="Main"]')).not.toBeNull();
-    expect($('footer nav[aria-label="Legal"]')).not.toBeNull();
-    expect($$('h1').map(text)).toEqual(['AI that drafts the paperwork. You keep the decisions.']);
-    expect($$('h2').map(text)).toEqual(['Skills for the work you do this week', 'The AI drafts. You check, then send.']);
-    // Every section is named by its heading.
-    for (const s of $$('section[aria-labelledby]')) expect(text(doc.getElementById(s.getAttribute('aria-labelledby') ?? '')), s.className).not.toBe('');
-  });
-
-  it('sends the nav to the library, AI 101 and the team owners’ section, and its button to the library', () => {
-    expect($$('header nav a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['The Library', '/library'],
-      ['AI 101', '/ai101'],
-      ['For Team Owners', '#team-owners'],
+    expect($$('h1').map(text)).toEqual(['AI coaching and training for business owners and their teams.']);
+    expect($$('main h2').map(text)).toEqual([
+      'Use AI as a tool, or run a business where AI does real work.',
+      'Four ways in',
+      'The Library',
+      'The AI drafts. You check, then send.',
+      'Free resources',
+      'Meet Spring and Connor',
+      'Start with 5 free skills.',
     ]);
-    expect($('#team-owners')).not.toBeNull();
-    const cta = $('header a.btn-primary');
-    expect([text(cta), cta?.getAttribute('href')]).toEqual(['Browse the Library', '/library']);
-    expect($('header a.brand')?.getAttribute('href')).toBe('/');
-    expect($('header a.brand svg')?.getAttribute('aria-label')).toBe('Amplified Impact');
+    expect([text($('.proof-label')), text($('.proof-figure'))]).toEqual(['Built inside The Utah Life Real Estate Group', '100 agents, 700+ homes a year']);
   });
 
-  it('opens with the hero’s two buttons: the library, then AI 101', () => {
+  it('opens with Spring’s subhead and two buttons: the free skills, then the programs', () => {
+    expect(text($('.hero .lede'))).toBe(
+      'We teach you to build AI into how you work, with live coaching, ready to use skills and prompts. Right now we’re doing it for real estate, because that’s the business we run every day.',
+    );
     expect($$('.hero .actions a').map((a) => [text(a), a.getAttribute('href'), a.className])).toEqual([
-      ['Browse the Library', '/library', 'btn btn-primary'],
-      ['Start AI 101', '/ai101', 'btn btn-secondary'],
+      ['Get 5 Free Skills', '/library?show=free', 'btn btn-primary'],
+      ['See the Programs', '/pricing', 'btn btn-secondary'],
     ]);
   });
 
-  it('shows the hero photo from the one file to swap, sized, with an alt that is empty while it is a placeholder', () => {
-    const img = $('.hero-photo img');
-    expect(img?.getAttribute('src')).toBe('/img/home-hero.jpg');
-    expect([img?.getAttribute('width'), img?.getAttribute('height')]).toEqual(['1600', '1200']);
-    expect(img?.hasAttribute('alt')).toBe(true);
-    expect(img?.getAttribute('alt')).toBe(HERO_PHOTO.alt);
-    const file = readFileSync(resolve(HERE, '../../public/img/home-hero.jpg'));
-    expect([file[0], file[1]]).toEqual([0xff, 0xd8]);
-    expect(file.length).toBeLessThan(400_000);
+  it('shows Spring and Connor in their own photos, named, from files on this site', () => {
+    expect($$('.hero-photos img').map((i) => [i.getAttribute('src'), i.getAttribute('alt')])).toEqual([
+      ['/img/team/spring-bengtzen.jpg', 'Spring Bengtzen'],
+      ['/img/team/connor-leiva.jpg', 'Connor Leiva'],
+    ]);
+    for (const p of Object.values(PHOTOS)) {
+      const file = readFileSync(resolve(HERE, `../../public${p.src}`));
+      expect([file[0], file[1]], p.src).toEqual([0xff, 0xd8]);
+      expect(file.length, p.src).toBeLessThan(250_000);
+    }
+    expect(existsSync(resolve(HERE, '../../public/img/home-hero.jpg'))).toBe(false);
   });
 
-  it('draws Offer Strategy’s made-up offer plan, its boxes drawn and never read', () => {
-    const sheet = $('figure.sheet');
-    expect(sheet?.getAttribute('aria-label')).toBe('A made-up offer plan from the Offer Strategy skill');
-    expect(text(sheet?.querySelector('.sheet-meta'))).toBe('Offer plan · made-up example');
-    expect($$('.sheet dt').map(text)).toEqual(['Price', 'Seller’s contribution', 'Earnest money', 'Due diligence', 'Settlement']);
-    expect($$('.sheet dd').map(text)).toEqual(['$562,500', '$5,000', '$5,000', '10 days', 'Dec 11, 2026']);
-    expect($$('.sheet .box.on')).toHaveLength(4);
-    for (const box of $$('.box, .initials')) expect(box.getAttribute('aria-hidden')).toBe('true');
-    // The numbers are the practice run's own.
-    const sample = read('../../../../skills/offer-strategy/sample.md');
-    for (const n of ['$562,500', '$5,000', '2286 E Pretend Poppy Ln', 'December 11']) expect(sample).toContain(n);
+  it('shows four ways in, by their exact names, each with its price and one button', () => {
+    const cards = $$('.way');
+    expect(cards.map((c) => text(c.querySelector('h3')))).toEqual(['Amplified AI Accelerator', 'Amplified Agent Plan', 'Amplified Team Plan', 'Amplified Insiders']);
+    expect(cards.map((c) => text(c.querySelector('.figure')))).toEqual([
+      '$7,500 founding price',
+      '$79 a month, or $790 a year',
+      '$1,491 today for 3 months, up to 15 agents',
+      '$1,997 today for one year, or $197 a month',
+    ]);
+    expect(cards.map((c) => [...c.querySelectorAll('a')].map((a) => a.getAttribute('href')))).toEqual([['/team-build'], ['/agents'], ['/teams'], ['/pricing#insiders']]);
+    expect(text($('.ways-every'))).toBe('Every program includes weekly office hours.');
+    expect(text($('.ways-free'))).toBe('Not ready? Start with 5 free skills');
   });
-});
 
-describe('the library section', () => {
-  it('counts the library’s live cards, the number the library shows, and links to it', () => {
+  it('previews the Library from its own cards: each skill a link to its page, tagged free or locked', () => {
     const n = liveEntries().length;
     expect(n).toBe(ENTRIES.filter((e) => e.href !== null).length);
     const library = new DOMParser().parseFromString(`<body>${renderLibraryBody()}</body>`, 'text/html');
     expect(library.body.textContent).toContain(`Showing ${n} resources`);
-    expect(text($('.skills-intro p'))).toBe(
-      `${n} guides, skills and templates for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.`,
-    );
-    const all = $('.skills-intro a.btn');
-    expect([text(all), all?.getAttribute('href')]).toEqual([`See All ${n}`, '/library']);
-  });
-
-  it('names each skill by its library card and links to its page, tagging only the free ones', () => {
-    for (const row of HOME.skills.rows) {
+    for (const row of HOME.library.rows) {
       for (const slug of row.slugs) {
         const entry = entryFor(slug);
-        const link = $$('.row-list a').find((a) => a.getAttribute('href') === `/${slug}`);
-        expect(text(link), slug).toBe(entry.title);
+        const li = $$('.row-list li').find((l) => l.querySelector('a')?.getAttribute('href') === `/${slug}`);
+        expect(text(li?.querySelector('a')), slug).toBe(entry.title);
+        expect(text(li?.querySelector('.tag')), slug).toBe(paid(entry) ? 'Locked' : 'Free');
         expect(existsSync(resolve(HERE, `../../${slug}.html`)), `${slug}.html`).toBe(true);
-        const tagged = link?.nextElementSibling?.classList.contains('free') ?? false;
-        expect(tagged, slug).toBe(!paid(entry));
       }
     }
-    expect($$('.row h3').map(text)).toEqual(['Buyer’s agents', 'Listing agents', 'Team owners', 'Content and your week']);
     expect(() => entryFor('not-a-page')).toThrow(/no library card/);
+    // The lock is drawn and labelled: never colour alone.
+    for (const lock of $$('.tag-lock')) expect(lock.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
   });
-});
 
-describe('Run, Draft and Own, and the team owners’ card', () => {
-  it('ticks what the AI does and leaves what the agent owns empty', () => {
+  it('keeps the old hero idea as the trust section: Run and Draft ticked, Own left empty, beside the made-up sheet', () => {
     expect($$('.role-list li').map((li) => [text(li.querySelector('strong')), li.querySelector('.box')?.classList.contains('on')])).toEqual([
       ['Run', true],
       ['Draft', true],
       ['Own', false],
     ]);
+    expect(text($('.sheet-meta'))).toBe('Offer plan · Made-up example');
+    const sample = read('../../../../skills/offer-strategy/sample.md');
+    for (const n of ['$562,500', '$5,000', '2286 E Pretend Poppy Ln', 'December 11']) expect(sample).toContain(n);
   });
 
-  it('is the Team Plan, in /offer’s own words, sending its button to that plan’s card', () => {
-    const card = $('#team-owners');
-    expect(text(card?.querySelector('h3'))).toBe(PLAN_NAMES.agents);
-    expect(text(card?.querySelector('p:not(.label)'))).toBe(CARDS_COPY.agents.forWho);
-    expect([...(card?.querySelectorAll('.team-lines li') ?? [])].map(text)).toEqual(CARDS_COPY.agents.lines.slice(0, 3));
-    expect([...(card?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['See the Team Plan', '/offer#plan-agents'],
-      ['All Plans and Prices', '/offer'],
-    ]);
-    // The anchor is real: /offer's Team Plan card.
-    expect(renderOfferBody()).toContain('id="plan-agents"');
-    // No price, and no checkout link of its own.
-    expect(text(card)).not.toMatch(/\$|stripe/i);
-    expect(renderHomeBody()).not.toMatch(/buy\.stripe\.com|checkout\.stripe\.com/);
+  it('lists the free resources for agents and for team owners, by their Library titles', () => {
+    expect($$('.free-col h3').map(text)).toEqual(['For Agents', 'For Team Owners']);
+    expect($$('.free-col a').map((a) => a.getAttribute('href'))).toEqual(['/voice-profile', '/ai101', '/ops-time-audit', '/retool', '/task-sync-starter']);
   });
 
-  it('ends with the byline and the Terms of Service and Privacy Policy', () => {
-    expect(text($('footer p'))).toBe('By Connor Leiva · Amplified Impact, LLC');
-    expect($$('footer a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Terms of Service', '/terms'],
-      ['Privacy Policy', '/privacy'],
+  it('introduces Spring and Connor from their bios, and links to the full story', () => {
+    expect($$('.person-card h3').map(text)).toEqual(['Spring Bengtzen', 'Connor Leiva']);
+    expect(text($$('.person-card')[0])).toContain('100 agents closing 700+ homes a year');
+    expect(text($$('.person-card')[1])).toContain('co-founder of Amplified Impact, an AI consulting firm that specializes in real estate');
+    expect($('.meet .section-more a')?.getAttribute('href')).toBe('/about');
+  });
+
+  it('ends with the free skills and the programs, and no testimonials', () => {
+    expect($$('.end .actions a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
+      ['Get 5 Free Skills', '/library?show=free'],
+      ['See the Programs', '/pricing'],
     ]);
+    expect(text(doc.body)).not.toMatch(/testimonial|“[^”]+” —/i);
   });
 });
 
 describe('the words', () => {
   const words = text(doc.body) + ' ' + renderHomeHead();
 
-  it('promise no income, results or time saved, and never call the paid skills free', () => {
-    expect(words).not.toMatch(/guarantee|\bincome\b|\bearn(s|ings)?\b|revenue|\bresults?\b|\broi\b|double|10x|save \d|hours? (a|per) week|close more|more deals/i);
-    expect(words).not.toMatch(/free (claude|chatgpt) skills|free skills|free live training/i);
-  });
-
-  it('never call the library free: most of it is paid, and the free items carry their own tag', () => {
-    expect(text(doc.body)).not.toMatch(/free library/i);
-    expect($$('a[href="/library"]').map(text)).toEqual(['The Library', 'Browse the Library', 'Browse the Library', `See All ${liveEntries().length}`]);
-  });
-
-  it('follow the house rule: no em dashes', () => {
+  it('follow the house rules: no em dashes, no “Forum”, no income or results promises', () => {
     expect(renderHomeBody() + renderHomeHead()).not.toMatch(/[–—]/);
+    expect(words).not.toMatch(/forum/i);
+    expect(words).not.toMatch(/guarantee|\bincome\b|\bearn(s|ings)?\b|revenue|\broi\b|double|10x|save \d|close more|more deals/i);
+    expect(words).not.toMatch(/skill library|free library/i);
   });
 });
 
 describe('the stylesheet', () => {
-  const css = read('./home.css');
+  const css = read('./home.css') + read('../site/site.css');
 
-  it('keeps small text legible: no tertiary grey, nothing under 13px (WCAG AA, 4.5:1 and up)', () => {
+  it('keeps text legible on a phone: nothing under 16px, no tertiary grey', () => {
     expect(css).not.toContain('--text-tertiary');
     const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
-    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(13);
+    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
   });
 
   it('draws a visible focus ring and honors reduced motion', () => {
