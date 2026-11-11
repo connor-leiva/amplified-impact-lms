@@ -170,7 +170,8 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
 // Every instant is epoch ms (`ts()`), for the waitlist's reason: `clock.now()` is the number written,
 // and the access rule (`canOpenSkill`, billing/access.ts) compares them as plain numbers. The enum-ish
 // columns are text with a CHECK, typed out here because drizzle-kit reads this file on its own;
-// billing/catalog.ts holds the same lists and `test/offer-schema.test.ts` holds the two equal.
+// billing/catalog.ts holds the same lists and `billing/billing.test.ts` holds the two equal (it reads
+// the migrations, the last definition of each constraint winning).
 
 // One row per purchase attempt: from the offer page (`origin` = 'offer', created before Stripe is
 // called) or from a fallback Payment Link (`origin` = 'payment_link', created by the webhook). Only
@@ -198,8 +199,8 @@ export const orders = pgTable('orders', {
   createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('orders_stripe_session_idx').on(t.stripeSessionId),
-  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership')`),
-  check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly')`),
+  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly', 'yearly')`),
   check('orders_origin', sql`${t.origin} in ('offer', 'payment_link')`),
   check('orders_status', sql`${t.status} in ('pending', 'paid', 'trialing', 'expired', 'failed', 'refunded')`),
   check('orders_crm', sql`${t.crm} is null or ${t.crm} in ('follow_up_boss', 'other')`),
@@ -239,7 +240,7 @@ export const plans = pgTable('plans', {
   stripeSubscriptionId: text('stripe_subscription_id'), orderId: text('order_id').notNull(), createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('plans_order_idx').on(t.orderId),
-  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents', 'membership')`),
+  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
   check('plans_status', sql`${t.status} in ('trialing', 'active', 'past_due', 'canceled', 'ended')`),
 ]);
 

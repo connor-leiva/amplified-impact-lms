@@ -16,6 +16,14 @@
 //
 // HELD INVITES. Before `INVITES_FROM` (Mon, Nov 16, 8 am Central) the account is made and the invite
 // waits, so the login arrives with the welcome email. From then on it goes at once.
+//
+// THE SOLO AGENT (D-106). An Amplified Agent Plan buyer is provisioned the same way, as the Team Owner
+// of a team of one (one seat), because that is what an account is: `accounts.team_id` ties the plan to
+// the buyer's logins, `/api/skills` finds the plans through the learner's team, and Manage Billing is
+// the account owner's. What differs is the tier: Agent tier, not Team tier, so the portal shows them
+// what an agent sees and no Team Hub (an owner view the Agent Plan does not sell). Their skills come
+// from the plan (`agent_plan` opens the agent set) from Jan 4, not from the role. A buyer who already
+// holds a Team tier plan keeps it: `provisionOwner` raises a tier and never lowers one.
 
 import { and, eq, isNull, ne, sql } from 'drizzle-orm';
 import { provisionOwner } from '@ai/core';
@@ -28,7 +36,7 @@ import { randomIds } from '../lib/clock';
 import { dispatchEffects, pendingSendsFor } from '../routes/mutate';
 import type { PendingSend } from '../routes/mutate';
 import { COHORT_ONE, COHORT_SEATS, cartFor, initialPlanDates } from './catalog';
-import type { PlanStatus } from './catalog';
+import type { PlanKind, PlanStatus } from './catalog';
 
 export interface BillingLog {
   info(obj: Record<string, unknown>, msg: string): void;
@@ -46,9 +54,10 @@ const OWNER_COHORT = COHORT_ONE.id;
 /**
  * Every owner is Team tier, so the Team Hub is theirs to add the logins their plan includes (the
  * operations lead, or the agents). Which AI Employees each plan's people see is Connor's to settle in
- * the session plans; this is the default until then.
+ * the session plans; this is the default until then. The Agent Plan's solo agent is Agent tier: one
+ * seat, nobody to add, and no owner view (D-106).
  */
-const OWNER_TIER = 'team' as const;
+const ownerTier = (plan: PlanKind): 'team' | 'agent' => (plan === 'agent_plan' ? 'agent' : 'team');
 
 /** The plan's status from the order's: `trialing` only for a checkout with nothing due today. */
 const planStatusFor = (orderStatus: string): PlanStatus => (orderStatus === 'trialing' ? 'trialing' : 'active');
@@ -98,7 +107,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
         name: order.name ?? '',
         teamName: existingAccount?.name ?? (order.company || order.name || email),
         seats: cart.seats,
-        tier: OWNER_TIER,
+        tier: ownerTier(cart.plan),
         cohortId: OWNER_COHORT,
       },
       { now, id: randomIds() },
@@ -133,7 +142,8 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     let [plan] = await tx.select().from(plans).where(eq(plans.orderId, order.id)).limit(1);
     const createdPlan = !plan;
     if (!plan) {
-      const dates = initialPlanDates(cart, now);
+      // Charged today, or a trial with nothing paid yet (the Agent Plan before Jan 4, D-106).
+      const dates = initialPlanDates(cart, now, order.status === 'paid');
       [plan] = await tx
         .insert(plans)
         .values({

@@ -35,6 +35,7 @@ import { getDb } from '../db/client';
 import { orders } from '../db/schema';
 import { clock } from '../lib/clock';
 import {
+  AGENT_PLAN_FIRST_CHARGE_AT,
   CARTS,
   CART_IDS,
   COHORT_SEATS,
@@ -164,12 +165,25 @@ export function salesValues(f: OfferFill): Record<string, string> {
 export interface WelcomeFill {
   /** `confirmed` once the webhook has marked it paid; `pending` before; `unknown` for no such session. */
   state: 'confirmed' | 'pending' | 'unknown';
-  /** True for a saved card with nothing charged yet. No cart sells that way since D-104. */
+  /** True for a saved card with nothing charged yet: the Amplified Agent Plan before Jan 4, 2027 (D-106). */
   trialing?: boolean;
   plan: PlanKind | null;
   sessionId: string | null;
   now: number;
   config: OfferConfig;
+}
+
+/**
+ * The line under the welcome heading: what was charged. A trial charged nothing, so it says when the
+ * first charge is instead of a receipt that was never sent: for the Agent Plan, Jan 4, 2027, the day
+ * its agent skills open.
+ */
+function paidLine(w: Pick<WelcomeFill, 'trialing' | 'plan' | 'now'>): string {
+  if (!w.trialing) return 'Your payment is in, and Stripe has emailed your receipt.';
+  if (w.plan === 'agent_plan' && w.now < AGENT_PLAN_FIRST_CHARGE_AT) {
+    return `Your card is saved. Nothing is charged until ${longDay(AGENT_PLAN_FIRST_CHARGE_AT)}, when your agent skills open.`;
+  }
+  return 'Your card is saved. Stripe emails your receipt with your first charge.';
 }
 
 export function welcomeValues(w: WelcomeFill): Record<string, string> {
@@ -193,7 +207,7 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     'intake-state': intake ? 'link' : 'email',
     'session-id': w.sessionId ?? '',
     'portal-url': w.config.portalLoginUrl ?? '',
-    'paid-line': w.trialing ? 'Your card is saved, and Stripe has emailed your receipt.' : 'Your payment is in, and Stripe has emailed your receipt.',
+    'paid-line': paidLine(w),
   };
 }
 

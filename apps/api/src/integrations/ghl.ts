@@ -280,16 +280,21 @@ export async function syncWaitlistContact(contact: WaitlistContact, options: Syn
 // Connor's to approve. `offer-buyer` rather than `buyer`: in a CRM of real estate contacts, "buyer"
 // already means a home buyer.
 
+/** A plan kind as a tag word: `agent_plan` is `agent-plan`, like every other tag's hyphens. */
+const tagWord = (plan: string): string => plan.replace(/_/g, '-');
+
 /** Every tag a buyer can carry, for the approval list and the test that holds it. */
 export const BUYER_TAGS = {
   buyer: 'offer-buyer',
-  plan: (plan: string) => `plan-${plan}`,
+  plan: (plan: string) => `plan-${tagWord(plan)}`,
   payFull: 'pay-full',
   payTwo: 'pay-two',
-  /** Amplified Insiders' two ways to pay (D-104). */
+  /** Amplified Insiders' two ways to pay (D-104); `pay-monthly` is also the Agent Plan's monthly. */
   payYear: 'pay-year',
   payMonthly: 'pay-monthly',
-  abandoned: (plan: string) => `checkout-abandoned-${plan}`,
+  /** The Amplified Agent Plan paid yearly, a price that renews each year (D-106). Not Insiders' `pay-year`. */
+  payYearly: 'pay-yearly',
+  abandoned: (plan: string) => `checkout-abandoned-${tagWord(plan)}`,
   paymentFailed: 'payment-failed',
   membershipEnded: 'membership-ended',
   refunded: 'refunded',
@@ -310,7 +315,7 @@ export interface BuyerFacts {
   phone: string | null;
 }
 
-const OFFER_PLANS = ['library', 'cohort', 'agents', 'membership'];
+const OFFER_PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan'];
 
 /** The tags one order should carry now. Tags are never removed, so a later event only adds. */
 export function buyerTags(o: BuyerFacts): string[] {
@@ -321,6 +326,7 @@ export function buyerTags(o: BuyerFacts): string[] {
     tags.push(BUYER_TAGS.buyer, BUYER_TAGS.plan(o.plan));
     if (o.plan === 'cohort') tags.push(o.option === 'two_pay' ? BUYER_TAGS.payTwo : BUYER_TAGS.payFull);
     if (o.plan === 'membership') tags.push(o.option === 'year_upfront' ? BUYER_TAGS.payYear : BUYER_TAGS.payMonthly);
+    if (o.plan === 'agent_plan') tags.push(o.option === 'yearly' ? BUYER_TAGS.payYearly : BUYER_TAGS.payMonthly);
   } else if (o.status === 'expired') {
     tags.push(BUYER_TAGS.abandoned(o.plan));
   }

@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { canOpenSkill, liveSessionsOpen, skillState } from './access';
 import type { PlanAccess, SkillAccess } from './access';
 import {
+  AGENT_PLAN_FIRST_CHARGE_AT,
   AGENTS_FIRST_CHARGE_AT,
   AGENTS_SKILLS_FROM,
   CARTS,
@@ -17,8 +18,11 @@ import {
   ORDER_OPTIONS,
   ORDER_STATUSES,
   PLAN_KINDS,
+  PLAN_NAMES,
+  PLAN_SETS,
   PLAN_STATUSES,
   SKILL_SETS,
+  SUPPORT_EMAIL,
   addMonths,
   cartForMetadata,
   initialPlanDates,
@@ -43,9 +47,9 @@ const DEFAULT_FOUNDING = Date.parse(DEFAULT_FOUNDING_CLOSES_AT);
 const dayIn = (t: number, timeZone: string) =>
   new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(t);
 
-describe('the Stripe contract (D-073, D-074, D-104)', () => {
-  it('holds the CHECK constraints and the catalog to the same lists, as migration 0007 left them', () => {
-    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql']
+describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
+  it('holds the CHECK constraints and the catalog to the same lists, as migration 0008 left them', () => {
+    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql', '0008_agent_plan.sql']
       .map((f) => readFileSync(fileURLToPath(new URL(`../../drizzle/${f}`, import.meta.url)), 'utf8'))
       .join('\n');
     // The last definition of each constraint wins.
@@ -57,11 +61,16 @@ describe('the Stripe contract (D-073, D-074, D-104)', () => {
     expect(listIn('orders_status')).toEqual([...ORDER_STATUSES]);
     expect(listIn('plans_status')).toEqual([...PLAN_STATUSES]);
     expect(listIn('skills_sets')).toEqual([...SKILL_SETS]);
+    // The Agent Plan is its own kind, beside the Team Plan's `agents` (D-106).
+    expect(PLAN_KINDS).toContain('agent_plan');
+    expect(ORDER_OPTIONS).toContain('yearly');
   });
 
-  it('asks Stripe for the eight live lookup keys, and never the retired library price', () => {
+  it('asks Stripe for the ten live lookup keys, and never the retired library price', () => {
     expect([...LOOKUP_KEYS].sort()).toEqual(
       [
+        'agent_plan_monthly',
+        'agent_plan_yearly',
         'agents_16to40_founding',
         'agents_16to40_prepay3',
         'agents_upto15_founding',
@@ -74,7 +83,7 @@ describe('the Stripe contract (D-073, D-074, D-104)', () => {
     );
   });
 
-  it('sells six carts, each through its own Payment Link setting, and no Skill Library', () => {
+  it('sells eight carts, each through its own Payment Link setting, and no Skill Library', () => {
     expect(Object.fromEntries(CART_IDS.map((id) => [id, [CARTS[id].plan, CARTS[id].option, CARTS[id].paymentLinkEnv]]))).toEqual({
       'cohort-full': ['cohort', 'full', 'PAYMENT_LINK_COHORT_FULL'],
       'cohort-two-pay': ['cohort', 'two_pay', 'PAYMENT_LINK_COHORT_TWO_PAY'],
@@ -82,7 +91,16 @@ describe('the Stripe contract (D-073, D-074, D-104)', () => {
       'insiders-monthly': ['membership', 'monthly', 'PAYMENT_LINK_INSIDERS_MONTHLY'],
       'agents-upto15': ['agents', 'upto15', 'PAYMENT_LINK_TEAM_UPTO15_PREPAY'],
       'agents-16to40': ['agents', '16to40', 'PAYMENT_LINK_TEAM_16TO40_PREPAY'],
+      'agent-monthly': ['agent_plan', 'monthly', 'PAYMENT_LINK_AGENT_MONTHLY'],
+      'agent-yearly': ['agent_plan', 'yearly', 'PAYMENT_LINK_AGENT_YEARLY'],
     });
+    // The Agent Plan: one login, one recurring price, no founding price, no minimum, no billing arrangement.
+    for (const id of ['agent-monthly', 'agent-yearly'] as const) {
+      expect(CARTS[id]).toMatchObject({ mode: 'subscription', founding: false, seats: 1, requiresFollowUpBoss: false });
+      expect(CARTS[id].minimumMonths).toBeUndefined();
+      expect(CARTS[id].billing).toBeUndefined();
+    }
+    expect([CARTS['agent-monthly'].items, CARTS['agent-yearly'].items]).toEqual([['agent_plan_monthly'], ['agent_plan_yearly']]);
     expect(CARTS['insiders-year'].items).toEqual(['membership_year_upfront', 'membership_monthly']);
     expect(CARTS['agents-upto15'].items).toEqual(['agents_upto15_prepay3', 'agents_upto15_founding']);
     // Founding prices close for the AI Accelerator and the Team Plan; Insiders has none.
@@ -98,6 +116,23 @@ describe('the Stripe contract (D-073, D-074, D-104)', () => {
     expect(cartForMetadata({ ai_plan: 'library', ai_option: 'upfront' })).toBeNull();
   });
 
+  it('reads the Agent Plan links\' metadata into the Agent Plan, never into the Team Plan or Insiders (D-106)', () => {
+    expect(cartForMetadata({ ai_plan: 'agent_plan', ai_option: 'monthly' })?.id).toBe('agent-monthly');
+    expect(cartForMetadata({ ai_plan: 'agent_plan', ai_option: 'yearly' })?.id).toBe('agent-yearly');
+    // The links' other keys (`origin`, `campaign`) do not change the cart.
+    expect(cartForMetadata({ ai_plan: 'agent_plan', ai_option: 'monthly', origin: 'payment_link', campaign: 'forum' } as Record<string, string>)?.id).toBe('agent-monthly');
+    expect(cartForMetadata({ ai_plan: 'agents', ai_option: 'monthly' })).toBeNull();
+    expect(cartForMetadata({ ai_plan: 'membership', ai_option: 'yearly' })).toBeNull();
+    expect(cartForMetadata({ ai_plan: 'agent_plan', ai_option: 'upto15' })).toBeNull();
+    expect([PLAN_NAMES.agent_plan, PLAN_NAMES.agents, PLAN_NAMES.cohort, PLAN_NAMES.membership]).toEqual([
+      'Amplified Agent Plan',
+      'Amplified Team Plan',
+      'Amplified AI Accelerator',
+      'Amplified Insiders',
+    ]);
+    expect(PLAN_SETS.agent_plan).toEqual(['agent']);
+  });
+
   it('pins the dates Ampy set: Insiders from May 4, the Team Plan billed from Apr 4, founding closing Nov 30 Mountain', () => {
     expect(INSIDERS_FIRST_CHARGE_AT / 1000).toBe(1809406800);
     expect(AGENTS_FIRST_CHARGE_AT / 1000).toBe(1806814800);
@@ -108,6 +143,13 @@ describe('the Stripe contract (D-073, D-074, D-104)', () => {
     expect(pinnedFirstCharge(CARTS['agents-upto15'])).toBe(AGENTS_FIRST_CHARGE_AT);
     expect(pinnedFirstCharge(CARTS['cohort-full'])).toBe(INSIDERS_FIRST_CHARGE_AT);
     expect([pinnedFirstCharge(CARTS['cohort-two-pay']), pinnedFirstCharge(CARTS['insiders-year'])]).toEqual([null, null]);
+  });
+
+  it('pins the Agent Plan\'s first charge to Monday, Jan 4, 2027, 00:00 Central (D-106)', () => {
+    expect(AGENT_PLAN_FIRST_CHARGE_AT / 1000).toBe(1799042400);
+    expect(AGENT_PLAN_FIRST_CHARGE_AT).toBe(Date.parse('2027-01-04T00:00:00-06:00'));
+    expect(dayIn(AGENT_PLAN_FIRST_CHARGE_AT, 'America/Chicago')).toBe('Monday, January 4, 2027');
+    expect([pinnedFirstCharge(CARTS['agent-monthly']), pinnedFirstCharge(CARTS['agent-yearly'])]).toEqual([AGENT_PLAN_FIRST_CHARGE_AT, AGENT_PLAN_FIRST_CHARGE_AT]);
   });
 
   it('builds cohort one on Wednesdays, Dec 2 to Feb 3, with Insiders 90 days after the last build', () => {
@@ -125,6 +167,14 @@ describe('the Stripe contract (D-073, D-074, D-104)', () => {
     // The Team Plan: logins now, agent skills from Dec 14, paid through the start of monthly billing, nothing locked.
     expect(initialPlanDates(CARTS['agents-16to40'], NOW)).toMatchObject({ startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, minimumUntil: null });
     expect(initialPlanDates(CARTS['agents-16to40'], AGENTS_SKILLS_FROM + DAY).startsAt).toBe(AGENTS_SKILLS_FROM + DAY);
+    // The Agent Plan on its trial: skills from Jan 4, paid through nothing until the Jan 4 invoice is paid.
+    for (const id of ['agent-monthly', 'agent-yearly'] as const) {
+      expect(initialPlanDates(CARTS[id], NOW, false)).toEqual({ startsAt: AGENT_PLAN_FIRST_CHARGE_AT, paidThrough: null, liveUntil: null, minimumUntil: null, cohortId: null });
+    }
+    // Charged at checkout (a buyer after Jan 4, on a link with no trial): one period from today.
+    const later = AGENT_PLAN_FIRST_CHARGE_AT + 10 * DAY;
+    expect(initialPlanDates(CARTS['agent-monthly'], later, true)).toMatchObject({ startsAt: later, paidThrough: addMonths(later, 1) });
+    expect(initialPlanDates(CARTS['agent-yearly'], later, true)).toMatchObject({ startsAt: later, paidThrough: addMonths(later, 12) });
   });
 
 
@@ -159,6 +209,25 @@ describe('the access rule (D-079)', () => {
     expect(canOpenSkill([], skill({ free: true }), NOW)).toBe(true);
     expect(skillState([library()], skill({ releasedAt: NOW + DAY }), NOW)).toBe('upcoming');
     expect(canOpenSkill([library()], skill({ status: 'hidden' }), NOW)).toBe(false);
+  });
+
+  it('opens the Agent Plan\'s agent skills on Jan 4 once its first charge is paid, and nothing on a trial that never pays (D-106)', () => {
+    const trial: PlanAccess = { kind: 'agent_plan', status: 'trialing', startsAt: AGENT_PLAN_FIRST_CHARGE_AT, paidThrough: null, liveUntil: null };
+    for (const at of [NOW, AGENT_PLAN_FIRST_CHARGE_AT, AGENT_PLAN_FIRST_CHARGE_AT + 40 * DAY]) {
+      expect(canOpenSkill([trial], skill({ sets: 'agent' }), at)).toBe(false);
+      expect(liveSessionsOpen(trial, at)).toBe(false);
+    }
+    const paid: PlanAccess = { ...trial, status: 'active', paidThrough: addMonths(AGENT_PLAN_FIRST_CHARGE_AT, 1) };
+    expect(canOpenSkill([paid], skill({ sets: 'agent' }), AGENT_PLAN_FIRST_CHARGE_AT - 1)).toBe(false);
+    expect(canOpenSkill([paid], skill({ sets: 'agent' }), AGENT_PLAN_FIRST_CHARGE_AT + DAY)).toBe(true);
+    expect(canOpenSkill([paid], skill({ sets: 'both' }), AGENT_PLAN_FIRST_CHARGE_AT + DAY)).toBe(true);
+    expect(canOpenSkill([paid], skill({ sets: 'owner_ops' }), AGENT_PLAN_FIRST_CHARGE_AT + DAY)).toBe(false);
+    expect(liveSessionsOpen(paid, AGENT_PLAN_FIRST_CHARGE_AT + DAY)).toBe(true);
+    // Cancel and keep: what was released while it was paid stays open; live sessions end.
+    const cancelled: PlanAccess = { ...paid, status: 'canceled', liveUntil: paid.paidThrough };
+    expect(canOpenSkill([cancelled], skill({ sets: 'agent' }), AGENT_PLAN_FIRST_CHARGE_AT + 90 * DAY)).toBe(true);
+    expect(canOpenSkill([cancelled], skill({ sets: 'agent', releasedAt: AGENT_PLAN_FIRST_CHARGE_AT + 60 * DAY }), AGENT_PLAN_FIRST_CHARGE_AT + 90 * DAY)).toBe(false);
+    expect(liveSessionsOpen(cancelled, AGENT_PLAN_FIRST_CHARGE_AT + 90 * DAY)).toBe(false);
   });
 
   it('opens a Team Plan\'s agent skills on Dec 14, with the starter path, not at purchase', () => {
@@ -234,6 +303,12 @@ describe('buyer tags (D-076)', () => {
     expect(buyerTags({ ...base, plan: 'agents', option: 'upto15', status: 'trialing', paidAt: null })).toEqual(['offer-buyer', 'plan-agents']);
   });
 
+  it('tags an Amplified Agent Plan buyer as plan-agent-plan, by how they pay (D-106)', () => {
+    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'monthly', status: 'trialing', paidAt: null })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-monthly']);
+    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'yearly', status: 'trialing', paidAt: null, campaign: 'forum' })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-yearly', 'event-forum-nov-2026']);
+    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'monthly', paymentFailedAt: NOW })).toContain('payment-failed');
+  });
+
   it('tags an Amplified Insiders buyer by how they pay (D-104)', () => {
     expect(buyerTags({ ...base, plan: 'membership', option: 'year_upfront' })).toEqual(['offer-buyer', 'plan-membership', 'pay-year']);
     expect(buyerTags({ ...base, plan: 'membership', option: 'monthly' })).toEqual(['offer-buyer', 'plan-membership', 'pay-monthly']);
@@ -268,6 +343,7 @@ describe('the offer page values (D-075, D-104)', () => {
     PAYMENT_LINK_COHORT_TWO_PAY: 'https://buy.stripe.com/test_cohort_two',
     PAYMENT_LINK_INSIDERS_YEAR: 'https://buy.stripe.com/test_insiders_year',
     PAYMENT_LINK_TEAM_UPTO15_PREPAY: 'https://buy.stripe.com/test_team15',
+    PAYMENT_LINK_AGENT_MONTHLY: 'https://buy.stripe.com/test_agent_monthly',
     // Names no cart reads any more.
     PAYMENT_LINK_LIBRARY: 'https://buy.stripe.com/test_old_library',
     PAYMENT_LINK_AGENTS_UPTO15: 'https://buy.stripe.com/test_old_agents',
@@ -279,6 +355,7 @@ describe('the offer page values (D-075, D-104)', () => {
       'cohort-two-pay': 'https://buy.stripe.com/test_cohort_two',
       'insiders-year': 'https://buy.stripe.com/test_insiders_year',
       'agents-upto15': 'https://buy.stripe.com/test_team15',
+      'agent-monthly': 'https://buy.stripe.com/test_agent_monthly',
     });
     expect(config.foundingClosesAt).toBe(DEFAULT_FOUNDING);
   });
@@ -291,10 +368,13 @@ describe('the offer page values (D-075, D-104)', () => {
       'insiders-monthly': 'soon',
       'agents-upto15': 'link',
       'agents-16to40': 'soon',
+      'agent-monthly': 'link',
+      'agent-yearly': 'soon',
     });
     const after = cartStates(config, DEFAULT_FOUNDING + 1, 0);
     expect([after['cohort-full'], after['cohort-two-pay'], after['agents-upto15'], after['agents-16to40']]).toEqual(['closed', 'closed', 'closed', 'closed']);
-    expect(after['insiders-year']).toBe('link');
+    // Insiders and the Agent Plan have no founding price: they sell after Nov 30.
+    expect([after['insiders-year'], after['agent-monthly']]).toEqual(['link', 'link']);
     expect(Object.values(cartStates(readOfferConfig({}), NOW, 0)).every((x) => x === 'soon')).toBe(true);
   });
 
@@ -343,6 +423,20 @@ describe('the offer page values (D-075, D-104)', () => {
     // No section before the webhook confirms the order.
     expect(welcomeValues({ state: 'pending', plan: 'agents', sessionId: null, now: NOW, config }).product).toBe('');
     expect(welcomeValues({ state: 'confirmed', plan: 'cohort', sessionId: null, now: NOW, config })['calendar-state']).toBe('email');
+  });
+
+  it('says what was charged: a receipt for a payment, and the Agent Plan\'s Jan 4 first charge for its trial (D-106)', () => {
+    expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: NOW, config })['paid-line']).toBe('Your payment is in, and Stripe has emailed your receipt.');
+    const agent = welcomeValues({ state: 'confirmed', plan: 'agent_plan', trialing: true, sessionId: null, now: NOW, config });
+    expect(agent['plan-name']).toBe('Amplified Agent Plan');
+    expect(agent['paid-line']).toBe('Your card is saved. Nothing is charged until Monday, January 4, 2027, when your agent skills open.');
+    expect(welcomeValues({ state: 'confirmed', plan: 'agent_plan', trialing: true, sessionId: null, now: AGENT_PLAN_FIRST_CHARGE_AT + DAY, config })['paid-line']).toBe(
+      'Your card is saved. Stripe emails your receipt with your first charge.',
+    );
+  });
+
+  it('gives the public support address, never admin@, on the offer and welcome pages and in billing messages (D-106)', () => {
+    expect(SUPPORT_EMAIL).toBe('support@amplifiedimpact.io');
   });
 
   it('reports a key only by its mode', () => {
