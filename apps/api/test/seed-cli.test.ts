@@ -16,8 +16,8 @@ import type { SeedDeps } from '../src/db/seed';
 import type { Database } from '../src/db/client';
 
 /** Substituted collaborators. No connection is opened and no row is written. */
-function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; closed: number; out: string[] } } {
-  const calls = { live: 0, launch: [] as unknown[], closed: 0, out: [] as string[] };
+function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; curriculum: unknown[]; closed: number; out: string[] } } {
+  const calls = { live: 0, launch: [] as unknown[], curriculum: [] as unknown[], closed: 0, out: [] as string[] };
   return {
     calls,
     db: () => ({}) as Database,
@@ -28,6 +28,10 @@ function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; clos
     launch: async (_db, opts) => {
       calls.launch.push(opts);
       return 2;
+    },
+    curriculum: async (_db, opts) => {
+      calls.curriculum.push(opts);
+      return 3;
     },
     close: async () => {
       calls.closed += 1;
@@ -186,5 +190,28 @@ describe('§9.5 the seed CLI @g9', () => {
       mode: 'launch',
       opts: { owner: { name: ' ', email: 'not-an-email' } },
     });
+  });
+
+  // --- the curriculum on a live database (D-110) -------------------------------------------------
+
+  it('--curriculum applies the course to a live database and reaches neither seeder @g9', async () => {
+    expect(parseSeedArgs(['--curriculum'])).toEqual({ mode: 'curriculum', opts: {} });
+    expect(parseSeedArgs(['--curriculum', '--instructor', 'Connor Leiva'])).toEqual({ mode: 'curriculum', opts: { instructor: 'Connor Leiva' } });
+    // One or the other: the launch seed is for an empty database, the curriculum for a live one.
+    expect(() => parseSeedArgs(['--curriculum', '--launch', '--owner-name', 'A B', '--owner-email', 'a@b.co'])).toThrow(/cannot be combined/);
+
+    const deps = fakeDeps();
+    await runSeed(['--curriculum'], deps);
+    expect(deps.calls.curriculum).toEqual([{}]);
+    expect([deps.calls.live, deps.calls.launch]).toEqual([0, []]);
+    expect(deps.calls.out[0]).toContain('Accelerator curriculum to ai_lms_test');
+    expect(deps.calls.out[1]).toContain('Users, teams, progress and staff were not touched');
+    expect(deps.calls.closed).toBe(1);
+  });
+
+  it('db:curriculum is the curriculum mode, and needs no owner @g9', async () => {
+    const pkg = (await import('../package.json', { with: { type: 'json' } })).default as { scripts: Record<string, string> };
+    const argvOf = (script: string) => script.split(/\s+/).slice(2);
+    expect(parseSeedArgs(argvOf(pkg.scripts['db:curriculum']!))).toEqual({ mode: 'curriculum', opts: {} });
   });
 });

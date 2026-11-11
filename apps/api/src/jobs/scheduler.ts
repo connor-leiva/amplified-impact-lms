@@ -130,6 +130,7 @@ import { NO_KEYS, dueWork } from './due';
 import type { Send, ZoneLookup } from './due';
 import { jobOf } from './keys';
 import type { JobName } from './keys';
+import { acceleratorLearnerIds } from '../lib/course-access';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -448,15 +449,17 @@ export async function runScheduledJobs(options: RunOptions = {}): Promise<Schedu
 
     const snapshot = await loadDb(tx);
     const zones = await savedZones(tx);
+    // Who the AI Accelerator's reminders may go to: the plan decides, not the cohort (D-110).
+    const accelerator = await acceleratorLearnerIds(tx, now);
 
     // `due.ts`'s header's own wrapper, in its own order: a candidate pass with `NO_KEYS` to learn
     // which keys to ask the ledger about, then the real pass with the answer. Calling `dueWork`
     // twice is its documented contract ("`alreadySent` only ever subtracts", pinned by a test in
     // `due.test.ts`) and it keeps the ledger filter inside the function that owns it instead of
     // reimplementing the subtraction here.
-    const candidates = dueWork(snapshot, now, NO_KEYS, zones).sends;
+    const candidates = dueWork(snapshot, now, NO_KEYS, zones, accelerator).sends;
     const alreadySent = await keysAlreadyIn(tx, candidates);
-    const { sends, flip } = dueWork(snapshot, now, alreadySent, zones);
+    const { sends, flip } = dueWork(snapshot, now, alreadySent, zones, accelerator);
 
     // LEDGER FIRST. See the header.
     const recorded = await recordSends(tx, sends, now, log);

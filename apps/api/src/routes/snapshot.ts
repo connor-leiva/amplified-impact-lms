@@ -27,16 +27,26 @@
 // body unchanged — "the repository adds nothing and removes nothing, so the screens render exactly
 // what the server scoped".
 
+//
+// THE ONE THING THE ROUTE ADDS: the viewer's plan (D-110). The AI Accelerator's modules and sessions
+// are for a plan that opens the course, and every paid buyer sits in cohort `dec26` as Team tier, so
+// the `Db` alone cannot tell who bought it. The route reads the learner's plans (lib/course-access.ts)
+// and hands `scopeSnapshot` a yes or no; the filtering itself stays in the one tested function.
+
 import { scopeSnapshot } from '@ai/core';
 import type { Db } from '@ai/core';
 import type { FastifyInstance } from 'fastify';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
+import { clock } from '../lib/clock';
+import { acceleratorAccess } from '../lib/course-access';
 
 export function registerSnapshotRoute(app: FastifyInstance): void {
   app.get('/api/snapshot', { preHandler: requireSession }, async (req): Promise<Db> => {
     const { actor } = viewerOrThrow(req);
-    return scopeSnapshot(await loadDb(getDb()), actor);
+    const db = getDb();
+    const access = actor.kind === 'learner' ? { accelerator: await acceleratorAccess(db, actor.userId, clock.now()) } : undefined;
+    return scopeSnapshot(await loadDb(db), actor, access);
   });
 }

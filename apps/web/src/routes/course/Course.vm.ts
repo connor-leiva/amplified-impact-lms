@@ -1,0 +1,382 @@
+// /course and /course/week-N: the Amplified AI Accelerator's pages (DECISIONS.md D-110).
+//
+// Net-new, like /skill-library (D-079): there is no reference file for it, so it sits OUTSIDE the
+// shell and no portal golden moves. It reads `GET /api/course`, which answers the course only to a
+// plan that opens it (`acceleratorOpen`), so the course's words come from the server and never sit in
+// this bundle: `CourseContent` is imported as a type, which the compiler erases.
+//
+// PURE. No React, no clock, no fetch. Every string the screen renders is computed here and
+// unit-tested; times go through `fmt.*` (the viewer's zone first, the program's in parentheses).
+
+import { fmt } from '@ai/core';
+import { SKILL_LIBRARY_PATH, coursePath, libraryHref } from '@ai/core/accelerator';
+import type { CourseContent, CourseSkill, SkillRole } from '@ai/core/accelerator-content';
+import { BLANK_WORKSHEET, COURSE_TEMPLATES, PRACTICE_SET, templateCsv, worksheetCsv } from '@ai/core/worksheet';
+
+/** One session as `GET /api/course` sends it. Never a Zoom URL. */
+export interface CourseSession {
+  id: string;
+  n: number;
+  kind: 'build' | 'office_hours';
+  week: number;
+  title: string;
+  start: number;
+  mins: number;
+}
+
+export interface CoursePayload {
+  open: true;
+  preview: boolean;
+  course: CourseContent;
+  sessions: CourseSession[];
+}
+
+export const COPY = {
+  loading: 'Loading your course',
+  signedOut: 'The AI Accelerator opens when you sign in.',
+  signIn: 'Sign In',
+  locked: 'The AI Accelerator isn’t in your plan.',
+  lockedNote: 'Your Skill Library is still open, with everything your plan includes.',
+  library: 'Open Your Skill Library',
+  failed: 'Your course didn’t load. Refresh the page to try again.',
+  preview: 'Staff preview',
+  allWeeks: 'All Weeks',
+  weeks: 'The Weeks',
+  calendar: 'Calendar',
+  howItWorks: 'How It Works',
+  roles: { owner: 'Owner', operator: 'Operator' },
+  before: 'Before Week 1',
+  intake: 'The Intake',
+  orientation: 'Orientation',
+  dataPack: 'The Data Pack',
+  preferred: 'Preferred',
+  minimum: 'Minimum to Start',
+  practiceSet: 'The Practice Set',
+  safeSharing: 'Safe Sharing',
+  lanes: 'Three Ways to Connect Your Data',
+  graduation: 'Graduation',
+  afterWeek8: 'After Week 8',
+  pilot: 'The Agent Pilot Review',
+  why: 'Why It Matters',
+  whoDoesWhat: 'Who Does What',
+  time: 'Time This Week',
+  skills: 'This Week’s Skills',
+  setup: 'Setup Order',
+  liveBuild: 'Live Build',
+  officeHours: 'Office Hours',
+  homework: 'Homework',
+  evidence: 'Evidence Packet',
+  rubric: 'Rubric',
+  readiness: 'Readiness',
+  media: 'Media',
+  materials: 'Course Materials',
+  agenda: 'Agenda',
+  lesson: 'Lesson and Case',
+  exercise: 'Live Exercise',
+  required: 'Required Outcome',
+  advanced: 'Advanced Option',
+  ownerApproval: 'Owner Approval',
+  workingAtEnd: 'Working at the End of Class',
+  byWeekEnd: 'Implemented by Week’s End',
+  assignment: 'Before the Next Session',
+  acceptance: 'Acceptance Test',
+  useEvidence: 'Adopted Means',
+  issueForm: 'Issue Form',
+  youLeaveWith: 'You Leave With',
+  inClass: 'In Class',
+  noLive: 'No live session this week. Week 0 is on your own time.',
+  guidedSetup: 'Open the Guided Setup',
+  download: 'Download in Your Skill Library',
+  free: 'Free',
+  worksheet: 'Download the Week 1 Worksheet',
+  practice: 'Download the Practice Set',
+  previous: 'Previous',
+  next: 'Next',
+  notFound: 'There’s no such week. Here’s the whole course.',
+} as const;
+
+const ROLE_LABEL: Record<SkillRole, string> = {
+  flagship: 'Flagship',
+  supporting: 'Supporting',
+  optional: 'Optional Extension',
+  pilot: 'Agent Pilot',
+  alternative: 'Alternative',
+};
+
+export interface SkillVM {
+  title: string;
+  role: string;
+  use: string;
+  free: boolean;
+  /** The skill's Library page on www, with its guided setup. */
+  href: string;
+}
+
+export interface StepVM {
+  n: number;
+  text: string;
+  link: { label: string; href: string } | null;
+}
+
+export interface Row {
+  label: string;
+  text: string;
+}
+
+export interface SessionLineVM {
+  id: string;
+  label: string;
+  title: string;
+  when: string;
+  mins: string;
+}
+
+export interface DownloadVM {
+  label: string;
+  name: string;
+  content: string;
+}
+
+export interface WeekVM {
+  week: number;
+  heading: string;
+  question: string;
+  why: readonly string[];
+  roles: Row[];
+  time: Row[];
+  timeNote: string;
+  skills: SkillVM[];
+  libraryHref: string;
+  setup: StepVM[];
+  live: null | {
+    when: string;
+    mins: string;
+    join: string;
+    agenda: Row[];
+    lesson: string;
+    exercise: string;
+    required: string;
+    advanced: string;
+    ownerApproval: string;
+    workingAtEnd: readonly string[];
+    paths: Row[];
+  };
+  officeHours: null | {
+    title: string;
+    when: string;
+    mins: string;
+    join: string;
+    note: string;
+    format: Row[];
+    outputs: readonly string[];
+    rules: readonly string[];
+    issueForm: Row[];
+  };
+  noLive: string;
+  homework: { byWeekEnd: readonly string[]; assignment: readonly string[]; acceptance: readonly string[]; useEvidence: string };
+  evidence: Row[];
+  rubric: { dimensions: Row[]; scale: string; rules: readonly string[] };
+  readiness: Row[];
+  missedAWeek: string;
+  media: readonly string[];
+  materials: readonly string[];
+  downloads: DownloadVM[];
+  prev: { label: string; href: string } | null;
+  next: { label: string; href: string } | null;
+}
+
+export interface OverviewVM {
+  title: string;
+  sub: string;
+  how: readonly string[];
+  roles: Row[];
+  scope: string;
+  support: string;
+  holiday: string;
+  weeks: { week: number; heading: string; question: string; href: string; flagship: string }[];
+  calendar: SessionLineVM[];
+  before: {
+    intake: readonly string[];
+    orientation: { minutes: string; topics: readonly string[]; media: string };
+    dataPack: { input: string; preferred: string; minimum: string }[];
+    practiceSetNote: string;
+    safeSharing: readonly string[];
+    lanes: Row[];
+    downloads: DownloadVM[];
+  };
+  after: { graduation: readonly string[]; note: string; paths: Row[]; noPaywall: string; pilot: Row[] };
+}
+
+export type CourseView =
+  | { kind: 'overview'; preview: boolean; notFound: boolean; vm: OverviewVM }
+  | { kind: 'week'; preview: boolean; title: string; vm: WeekVM };
+
+const mins = (n: number): string => `${n} Minutes`;
+const span = (from: number, to: number): string => `${from} to ${to} min`;
+
+const skillVM = (s: CourseSkill): SkillVM => ({
+  title: s.title,
+  role: ROLE_LABEL[s.role],
+  use: s.use,
+  free: !!s.free,
+  href: libraryHref(s.route),
+});
+
+/** `Week 3 · Live Build` or `Week 3 · Office Hours`, and the goal-planning title where it is one. */
+const sessionLine = (s: CourseSession): SessionLineVM => ({
+  id: s.id,
+  label: `Week ${s.week} · ${s.kind === 'build' ? COPY.liveBuild : COPY.officeHours}`,
+  title: s.title,
+  when: fmt.when(s.start),
+  mins: mins(s.mins),
+});
+
+const WORKSHEET: DownloadVM = { label: COPY.worksheet, name: 'week-1-worksheet.csv', content: worksheetCsv(BLANK_WORKSHEET) };
+const PRACTICE: DownloadVM = { label: COPY.practice, name: 'week-1-practice-set.csv', content: worksheetCsv(PRACTICE_SET) };
+
+/** The week number in `/course/week-3`, or null for anything else. */
+export function weekFromParam(param: string | undefined): number | null {
+  const m = /^week-(\d)$/.exec(param ?? '');
+  return m ? Number(m[1]) : null;
+}
+
+export function weekVM(p: CoursePayload, week: number): WeekVM | null {
+  const { course } = p;
+  const w = course.weeks.find((x) => x.week === week);
+  if (!w) return null;
+  const build = p.sessions.find((s) => s.id === w.liveBuild?.sessionId) ?? null;
+  const oh = p.sessions.find((s) => s.id === w.officeHours?.sessionId) ?? null;
+  const shared = course.shared;
+  const i = course.weeks.indexOf(w);
+  const before = course.weeks[i - 1];
+  const after = course.weeks[i + 1];
+
+  return {
+    week: w.week,
+    heading: `Week ${w.week} · ${w.title}`,
+    question: w.question,
+    why: w.why,
+    roles: [
+      { label: COPY.roles.owner, text: w.owner },
+      { label: COPY.roles.operator, text: w.operator },
+    ],
+    time: [
+      { label: COPY.roles.owner, text: w.time.owner },
+      { label: COPY.roles.operator, text: w.time.operator },
+    ],
+    timeNote: shared.estimateNote,
+    skills: w.skills.map(skillVM),
+    libraryHref: SKILL_LIBRARY_PATH,
+    setup: w.setup.map((step, k) => ({
+      n: k + 1,
+      text: step.text,
+      link: step.route ? { label: COPY.guidedSetup, href: libraryHref(step.route) } : null,
+    })),
+    live:
+      w.liveBuild && build
+        ? {
+            when: fmt.when(build.start),
+            mins: mins(build.mins),
+            join: course.intro.joinLink,
+            agenda: w.liveBuild.agenda.map((a) => ({ label: span(a.from, a.to), text: `${a.activity}. ${a.why}` })),
+            lesson: w.liveBuild.lesson,
+            exercise: w.liveBuild.exercise,
+            required: w.liveBuild.required,
+            advanced: w.liveBuild.advanced,
+            ownerApproval: w.liveBuild.ownerApproval,
+            workingAtEnd: w.liveBuild.workingAtEnd,
+            paths: shared.paths.map((x) => ({ label: x.label, text: x.text })),
+          }
+        : null,
+    officeHours:
+      w.officeHours && oh
+        ? {
+            title: oh.title,
+            when: fmt.when(oh.start),
+            mins: mins(oh.mins),
+            join: course.intro.joinLink,
+            note: w.officeHours.note,
+            format: (w.officeHours.format ?? []).map((a) => ({ label: span(a.from, a.to), text: `${a.activity}. ${a.why}` })),
+            outputs: w.officeHours.outputs ?? [],
+            rules: shared.officeHoursRules,
+            issueForm: shared.issueForm.map((f) => ({ label: f.label, text: f.hint })),
+          }
+        : null,
+    noLive: COPY.noLive,
+    homework: w.homework,
+    evidence: shared.evidence.map((e) => ({ label: e.label, text: e.hint })),
+    rubric: {
+      dimensions: shared.rubric.map((d) => ({ label: d.label, text: d.meets })),
+      scale: shared.rubricScale.map((x) => `${x.score} ${x.label}`).join(' · '),
+      rules: shared.rubricRules,
+    },
+    readiness: shared.readiness.map((r) => ({ label: r.gate, text: r.text })),
+    missedAWeek: shared.missedAWeek,
+    media: w.media,
+    materials: w.materials,
+    downloads: [
+      ...(w.week === 0 || w.week === 1 ? [WORKSHEET, PRACTICE] : []),
+      ...COURSE_TEMPLATES.filter((t) => t.weeks.includes(w.week)).map((t): DownloadVM => ({ label: t.label, name: t.file, content: templateCsv(t) })),
+    ],
+    prev: before ? { label: `${COPY.previous}: Week ${before.week}`, href: coursePath(before.week) } : null,
+    next: after ? { label: `${COPY.next}: Week ${after.week}`, href: coursePath(after.week) } : null,
+  };
+}
+
+export function overviewVM(p: CoursePayload): OverviewVM {
+  const { course } = p;
+  return {
+    title: course.intro.title,
+    sub: course.intro.sub,
+    how: course.intro.how,
+    roles: [
+      { label: COPY.roles.owner, text: course.intro.roles.owner },
+      { label: COPY.roles.operator, text: course.intro.roles.operator },
+    ],
+    scope: course.intro.scope,
+    support: course.intro.support,
+    holiday: course.intro.holiday,
+    weeks: course.weeks.map((w) => {
+      const lead = w.skills.filter((s) => s.role === 'flagship');
+      return {
+        week: w.week,
+        heading: `Week ${w.week} · ${w.title}`,
+        question: w.question,
+        href: coursePath(w.week),
+        flagship: (lead.length ? lead : w.skills).map((s) => s.title).join(', '),
+      };
+    }),
+    calendar: p.sessions.slice().sort((a, b) => a.start - b.start).map(sessionLine),
+    before: {
+      intake: course.before.intake,
+      orientation: {
+        minutes: `About ${course.before.orientation.minutes} minutes`,
+        topics: course.before.orientation.topics,
+        media: course.before.orientation.media,
+      },
+      dataPack: course.before.dataPack.map((d) => ({ ...d })),
+      practiceSetNote: course.before.practiceSetNote,
+      safeSharing: course.before.safeSharing,
+      lanes: course.before.lanes.map((l) => ({ label: l.label, text: l.text })),
+      downloads: [WORKSHEET, PRACTICE],
+    },
+    after: {
+      graduation: course.after.graduation,
+      note: course.after.graduationNote,
+      paths: course.after.paths.map((x) => ({ label: x.label, text: x.text })),
+      noPaywall: course.after.noPaywall,
+      pilot: course.after.pilotQuestions.map((x) => ({ label: x.label, text: x.text })),
+    },
+  };
+}
+
+/** What `/course` or `/course/:week` shows for this payload. An unknown week falls back to the overview. */
+export function courseView(p: CoursePayload, param: string | undefined): CourseView {
+  if (param !== undefined) {
+    const n = weekFromParam(param);
+    const vm = n === null ? null : weekVM(p, n);
+    if (vm) return { kind: 'week', preview: p.preview, title: vm.heading, vm };
+    return { kind: 'overview', preview: p.preview, notFound: true, vm: overviewVM(p) };
+  }
+  return { kind: 'overview', preview: p.preview, notFound: false, vm: overviewVM(p) };
+}

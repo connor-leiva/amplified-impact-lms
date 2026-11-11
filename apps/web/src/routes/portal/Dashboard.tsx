@@ -143,15 +143,17 @@ function Dashboard() {
         <section className={s.post}>
           <div className={s.postMain}>
             <span className={s.postKicker}>Your Cohort Wrapped on {post.ended}</span>
-            <div className={s.postTitle}>Office Hours Continue Wednesdays</div>
+            <div className={s.postTitle}>{post.title}</div>
             <div className={s.postMeta}>
               Drop-In Build Help with {post.host} · Next: {post.next}
             </div>
           </div>
           <div className={s.postActions}>
-            <button type="button" className={s.primaryBtn} onClick={() => run({ kind: 'download', file: post.cal })}>
-              Add Office Hours to Calendar
-            </button>
+            {post.cal ? (
+              <button type="button" className={s.primaryBtn} onClick={() => post.cal && run({ kind: 'download', file: post.cal })}>
+                Add Office Hours to Calendar
+              </button>
+            ) : null}
             <button type="button" className={s.secondaryBtn} onClick={() => run(post.rewatch)}>
               Rewatch Any Session
             </button>

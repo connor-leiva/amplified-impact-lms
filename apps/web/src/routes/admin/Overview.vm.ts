@@ -296,7 +296,7 @@ export function overviewVM(db: Db, now: number): OverviewVM {
     });
 
   return {
-    subline: `${cohortLine(db.cohorts[0]!, now)} · Updated Live from Learner Activity`,
+    subline: `${cohortLine(db.cohorts[0]!, now, db.sessions)} · Updated Live from Learner Activity`,
     kpis,
     chart,
     feed,

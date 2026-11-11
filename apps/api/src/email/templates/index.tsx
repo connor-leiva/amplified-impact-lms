@@ -231,7 +231,7 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
 
     case 'weekly-digest': {
       const subject = SUBJECTS['weekly-digest']({});
-      return { subject, element: <WeeklyDigestEmail subject={subject} appUrl={appUrl} /> };
+      return { subject, element: <WeeklyDigestEmail subject={subject} appUrl={appUrl} before={optStr(data, 'before')} /> };
     }
 
     default: {

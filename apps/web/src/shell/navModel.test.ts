@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { blankModule, phaseNow, seed, setViewerZone } from '@ai/core';
+import { blankModule, phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
 import { adminNav, portalNav, type NavEntry, type NavGroup } from './navModel';
 
@@ -349,5 +349,26 @@ describe('navModel @g4', () => {
       portalNav(db, jamie, { pathname: '/' }, NOW, false, true),
     );
     expect(adminNav(db, { pathname: '/admin' }, false)).toEqual(adminNav(db, { pathname: '/admin' }, false));
+  });
+
+  describe('portalNav · the AI Accelerator (D-110)', () => {
+    const prod = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
+    const buyer: Learner = { id: 'u_b', name: 'B', email: 'b@example.test', tier: 'team', role: 'Team Owner', teamId: 't_b', cohortId: 'dec26', joined: 0, last: null, status: 'active', progress: {} };
+    const keys = (groups: NavGroup[]) => groups.flatMap((g) => g.items.map((i) => i.key));
+
+    it('adds Course after Sessions when the snapshot carries the course, linking to /course', () => {
+      const [group] = portalNav(prod, buyer, { pathname: '/' }, phaseNow('live'), false, true);
+      expect(keys([group!]).slice(0, 3)).toEqual(['dashboard', 'sessions', 'course']);
+      expect(group!.items.find((i) => i.key === 'course')).toMatchObject({ label: 'Course', icon: 'book', action: { to: '/course' } });
+      // Week 0 to Week 8 are the AI Employees.
+      expect(group!.items.filter((i) => i.depth === 1).map((i) => i.label)).toEqual(['Week 0', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8']);
+    });
+
+    it('never shows it for the prototype, or for a learner whose snapshot has no course', () => {
+      const demo = seed('live');
+      expect(keys(portalNav(demo, demo.users.find((u) => u.id === 'u_alex')!, { pathname: '/' }, phaseNow('live'), false, true))).not.toContain('course');
+      const none = { ...prod, modules: [] };
+      expect(keys(portalNav(none, buyer, { pathname: '/' }, phaseNow('live'), false, true))).not.toContain('course');
+    });
   });
 });

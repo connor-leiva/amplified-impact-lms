@@ -8,12 +8,39 @@ import { fmt } from './time';
 import { canAccess } from './status';
 import type { AIEmployee, Cohort, Db, Learner, Session } from './types';
 
+// ---------- Office hours, a second series (D-110) ----------
+// The Amplified AI Accelerator runs a Thursday office hour beside each Wednesday build. Its id is
+// `<cohort>-oh<week>` and its `n` is 100 + week, so `n` stays unique within the cohort and a build is
+// still the only session whose `n` a module's `session` names. The week is read off the id, so the
+// series needs no new column. Every session the reference seeds is a build: for each of them
+// `sessionKind` is 'build' and `sessionWeek` is `s.n`, so nothing below changes for the prototype.
+const OH_ID = /-oh(\d+)$/;
+
+export type SessionKind = 'build' | 'office_hours';
+
+export const sessionKind = (s: Pick<Session, 'id'>): SessionKind => (OH_ID.test(s.id) ? 'office_hours' : 'build');
+
+/** The week a session belongs to: an office hour's from its id, a build's from its `n`. */
+export const sessionWeek = (s: Pick<Session, 'id' | 'n'>): number => {
+  const m = OH_ID.exec(s.id);
+  return m ? Number(m[1]) : s.n;
+};
+
+/** What a screen calls a session: `Session 3` for a build, `Week 3` for an office hour. */
+export const sessionLabel = (s: Pick<Session, 'id' | 'n'>): string =>
+  sessionKind(s) === 'office_hours' ? `Week ${sessionWeek(s)}` : `Session ${s.n}`;
+
+/** Whether a cohort runs its own office-hours series, which is what an Accelerator cohort looks like. */
+export const hasOfficeHoursSeries = (sessions: readonly Session[], cohortId: string): boolean =>
+  sessions.some((s) => s.cohortId === cohortId && sessionKind(s) === 'office_hours');
+
 // ---------- Lookup ----------
 export const sessionFor = (db: Db, cohortId: string, n: number): Session | null =>
   db.sessions.find((s) => s.cohortId === cohortId && s.n === n) || null;
 
+/** An office hour belongs to its week's AI Employee; a build to the one whose `session` is its `n`. */
 export const moduleForSession = (db: Db, s: Session): AIEmployee | null =>
-  db.modules.find((m) => m.session === s.n && m.status !== 'draft') || null;
+  db.modules.find((m) => m.session === sessionWeek(s) && m.status !== 'draft') || null;
 
 export const sessionEnd = (s: Session): number => s.start + s.mins * 60000;
 
@@ -50,8 +77,29 @@ export const joinMode = (s: Session | null | undefined, now: number) => {
 };
 
 // ---------- Cohort week math ----------
+/** The CST Monday 00:00 of the week `t` falls in. The reference's own expression, for any instant. */
+const mondayOf = (t: number): number => {
+  const dow = (new Date(t - 6 * 3600e3).getUTCDay() + 6) % 7;
+  return t - dow * 86400e3 - ((t - 6 * 3600e3) % 86400e3);
+};
+
+/**
+ * The course week of a cohort with an office-hours series (D-110): the latest build week whose Monday
+ * has arrived. A holiday break with no build does not count as a week, so cohort one's Jan 6 build is
+ * Week 4, not the sixth Monday since Dec 2. Before the first build's week it is 0, and after the
+ * cohort's end it is past `weeks`.
+ */
+const courseWeek = (co: Cohort, sessions: readonly Session[], now: number): number => {
+  if (now > co.end) return (co.weeks || 6) + 1;
+  const builds = sessions.filter((s) => s.cohortId === co.id && sessionKind(s) === 'build');
+  return builds.reduce((w, s) => (mondayOf(s.start) <= now ? Math.max(w, s.n) : w), 0);
+};
+
 // Fixed 6-hour CST offset, Monday-anchored. Ported literally; do not refactor the expression.
-export const cohortWeek = (co: Cohort, now: number): number => {
+// `sessions` is optional and only read for a cohort with an office-hours series (D-110): every other
+// cohort, including all three the reference seeds, keeps the Monday arithmetic exactly.
+export const cohortWeek = (co: Cohort, now: number, sessions?: readonly Session[]): number => {
+  if (sessions && hasOfficeHoursSeries(sessions, co.id)) return courseWeek(co, sessions, now);
   const d = new Date(co.start - 6 * 3600e3),
     dow = (d.getUTCDay() + 6) % 7;
   const monday = co.start - dow * 86400e3 - ((co.start - 6 * 3600e3) % 86400e3);
@@ -59,8 +107,8 @@ export const cohortWeek = (co: Cohort, now: number): number => {
 };
 
 /** The word "Cohort" is appended here, so `co.name` is `December 2026`, not `December 2026 Cohort`. */
-export const cohortLine = (co: Cohort, now: number): string => {
-  const w = cohortWeek(co, now),
+export const cohortLine = (co: Cohort, now: number, sessions?: readonly Session[]): string => {
+  const w = cohortWeek(co, now, sessions),
     weeks = co.weeks || 6;
   if (w < 1) return `${co.name} Cohort · Starts ${fmt.date(co.start)}`;
   if (w > weeks) return `${co.name} Cohort · Completed`;
@@ -196,7 +244,7 @@ export function sessionVM(db: Db, s: Session, variant: Variant, now: number): Se
 
 export const sessionEvent = (s: Session): { id: string; title: string; start: number; end: number; url: string } => ({
   id: s.id,
-  title: `Amplified Impact · Session ${s.n}: ${s.title}`,
+  title: `Amplified Impact · ${sessionLabel(s)}: ${s.title}`,
   start: s.start,
   end: sessionEnd(s),
   url: s.zoom,

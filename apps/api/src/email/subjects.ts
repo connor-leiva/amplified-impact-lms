@@ -69,8 +69,9 @@ export interface SubjectData {
   'team-invite': { inviter: string; team: string };
   'staff-invite': NoSubjectData;
   announcement: { title: string };
-  'session-24h': { n: number; title: string };
-  'session-1h': { n: number; title: string };
+  // `label` (D-110): an office hour's "Week 2", which reads better than its `n` (102). Absent: `Session {n}`.
+  'session-24h': { n: number; title: string; label?: string };
+  'session-1h': { n: number; title: string; label?: string };
   'replay-ready': { n: number; title: string };
   'build-reminder': { employee: string };
   'weekly-digest': NoSubjectData;
@@ -83,7 +84,7 @@ export interface SubjectData {
  * three full subjects as separate literals: one typo here fails three assertions, and no single
  * subject can quietly acquire a different separator from its siblings.
  */
-const sessionLine = (data: { n: number; title: string }) => `Session ${data.n} · ${data.title}`;
+const sessionLine = (data: { n: number; title: string; label?: string }) => `${data.label ?? `Session ${data.n}`} · ${data.title}`;
 
 /**
  * One builder per template. The strings are § 8.1's table, character for character.

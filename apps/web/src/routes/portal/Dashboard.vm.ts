@@ -15,11 +15,14 @@ import {
   cardSession,
   cardVM,
   fmt,
+  hasOfficeHoursSeries,
   ics,
   isOpen,
   moduleForSession,
   nextSession,
+  sessionEnd,
   sessionEvent,
+  sessionKind,
   sessionFor,
   sessionState,
   sessionVM,
@@ -85,9 +88,12 @@ export interface DashboardCal {
 
 export interface DashboardPost {
   ended: string;
+  /** "Office Hours Continue Wednesdays" for the prototype; a cohort with its own series says no day. */
+  title: string;
   host: string;
   next: string;
-  cal: DownloadSpec;
+  /** Null when there is no scheduled office hour to add (D-110): the button is not drawn. */
+  cal: DownloadSpec | null;
   rewatch: DashAction;
 }
 
@@ -181,6 +187,19 @@ export function nextWednesday(now: number): number {
   while (new Date(t - 6 * 3600e3).getUTCDay() !== 3 || t < now) t += 86400e3;
   return t;
 }
+
+/** A real office hour from the cohort's own series (D-110): its own time, and no invented link. */
+const officeHourFile = (oh: Session, stamp: number): DownloadSpec => ({
+  name: 'office-hours.ics',
+  content: ics([sessionEvent(oh)], stamp),
+  mime: 'text/calendar',
+  toast: 'Office hours added to your calendar',
+});
+
+/** No scheduled office hour yet: said, not invented. */
+const SCHEDULE_TBA = 'Schedule TBA';
+/** The host when no module of a cohort with its own office hours names an instructor (Ampy, 2026-11-11). */
+export const INSTRUCTOR_FALLBACK = 'Your instructor';
 
 const officeHoursFile = (t: number, stamp: number): DownloadSpec => ({
   name: 'office-hours.ics',
@@ -294,15 +313,34 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
   const card = isPost ? null : session;
 
   const wed = nextWednesday(now);
+  // A cohort with its own office-hours series (the AI Accelerator, D-110) uses its real Thursdays and
+  // its real instructor. The prototype's cohorts have none, so everything below is as ported for them.
+  const series = !!co && hasOfficeHoursSeries(db.sessions, co.id);
+  const ohNext = series
+    ? (accessibleSessions(db, user).find((x) => sessionKind(x) === 'office_hours' && sessionEnd(x) > now) ?? null)
+    : null;
+  // No module names an instructor: "Your instructor", never the prototype's invented name (Ampy,
+  // 2026-11-11). The prototype's own post card says "Your instructor" too (D-118).
+  const host = series ? (vis.find((m) => m.instructor)?.instructor ?? INSTRUCTOR_FALLBACK) : INSTRUCTOR_FALLBACK;
   const post: DashboardPost | null =
     isPost && co
-      ? {
-          ended: fmt.date(co.end),
-          host: 'Jordan Hale',
-          next: `${fmt.day(wed)} · ${fmt.time(wed)}`,
-          cal: officeHoursFile(wed, now),
-          rewatch: { kind: 'nav', to: '/sessions' },
-        }
+      ? series
+        ? {
+            ended: fmt.date(co.end),
+            title: 'Office Hours Continue',
+            host,
+            next: ohNext ? `${fmt.day(ohNext.start)} · ${fmt.time(ohNext.start)}` : SCHEDULE_TBA,
+            cal: ohNext ? officeHourFile(ohNext, now) : null,
+            rewatch: { kind: 'nav', to: '/sessions' },
+          }
+        : {
+            ended: fmt.date(co.end),
+            title: 'Office Hours Continue Wednesdays',
+            host,
+            next: `${fmt.day(wed)} · ${fmt.time(wed)}`,
+            cal: officeHoursFile(wed, now),
+            rewatch: { kind: 'nav', to: '/sessions' },
+          }
       : null;
 
   // ---- the Progress card ---------------------------------------------------------------------
@@ -364,14 +402,23 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
       arrow: 'arrowUR',
       action: { kind: 'toast', msg: 'Opening the cohort community', tone: 'info' },
     },
-    {
-      key: 'office-hours',
-      icon: 'calendar',
-      title: 'Office Hours',
-      sub: `Wednesdays · ${fmt.time(wed)}`,
-      arrow: 'calPlus',
-      action: { kind: 'download', file: officeHoursFile(wed, now) },
-    },
+    series
+      ? {
+          key: 'office-hours',
+          icon: 'calendar',
+          title: 'Office Hours',
+          sub: ohNext ? `${fmt.weekday(ohNext.start)}s · ${fmt.time(ohNext.start)}` : SCHEDULE_TBA,
+          arrow: 'calPlus',
+          action: ohNext ? { kind: 'download', file: officeHourFile(ohNext, now) } : { kind: 'nav', to: '/sessions' },
+        }
+      : {
+          key: 'office-hours',
+          icon: 'calendar',
+          title: 'Office Hours',
+          sub: `Wednesdays · ${fmt.time(wed)}`,
+          arrow: 'calPlus',
+          action: { kind: 'download', file: officeHoursFile(wed, now) },
+        },
     {
       key: 'support',
       icon: 'headset',

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { phaseNow, seed, setViewerZone } from '@ai/core';
+import { phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
 import { sessionsVM, type SessionsRow, type SessionsVM } from './Sessions.vm';
 
@@ -359,3 +359,48 @@ describe('sessionsVM @g5', () => {
     });
   });
 });
+
+// The AI Accelerator (D-110): a cohort with its own Thursday office-hours series. The prototype's
+// cohorts above have none, and every expectation above is unchanged by it.
+describe('Sessions · the AI Accelerator cohort', () => {
+  beforeAll(() => setViewerZone('America/Chicago'));
+  afterAll(() => setViewerZone(null));
+  const prod = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
+  const buyer: Learner = { id: 'u_b', name: 'B', email: 'b@example.test', tier: 'team', role: 'Team Owner', teamId: 't_b', cohortId: 'dec26', joined: 0, last: null, status: 'active', progress: {} };
+  const at = (s: string) => sessionsVM(prod, buyer, CT(s));
+
+  it('lists the eight Wednesday builds and says the cohort’s own cadence, not “Tue & Thu”', () => {
+    const vm = at('2026-11-20T09:00');
+    expect(vm.rows.map((r) => r.n)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(vm.rows[0]).toMatchObject({ title: 'Lead-Source ROI Live Build', module: 'Week 1 · Know the Business', when: 'Wed, Dec 2 · 1:00 PM CT', mins: 90 });
+    expect(vm.sub).toBe('Amplified AI Accelerator · December 2026 Cohort · 8 live builds · Wed builds and Thu office hours · 1:00 PM CT');
+    expect(vm.sub).not.toContain('Tue & Thu');
+  });
+
+  it('puts the real Thursday office hours in the Office Hours card, with no invented link or recording', () => {
+    const vm = at('2026-12-08T09:00');
+    expect(vm.ohDays).toBe('Thursdays');
+    expect(vm.ohTime).toBe('1:00 PM CT');
+    expect(vm.oh.map((o) => o.label)).toEqual([
+      'Thu, Dec 3 · 1:00 PM CT',
+      'Thu, Dec 10 · 1:00 PM CT',
+      'Thu, Dec 17 · 1:00 PM CT',
+      'Thu, Jan 7 · 1:00 PM CT',
+      'Thu, Jan 14 · 1:00 PM CT',
+      'Thu, Jan 21 · 1:00 PM CT',
+      'Thu, Jan 28 · 1:00 PM CT',
+      'Thu, Feb 4 · 1:00 PM CT',
+    ]);
+    expect(vm.oh[0]).toMatchObject({ past: true, posted: false });
+    expect(vm.oh[0]!.download).toBeUndefined();
+    expect(vm.oh[1]!.download!.events[0]).toMatchObject({ title: 'Amplified Impact · Week 2: Goal-Planning Session 1 and Office Hours', url: '' });
+    expect(JSON.stringify(vm)).not.toContain('zoom.us');
+  });
+
+  it('shows a buyer whose plan does not open the course nothing at all', () => {
+    // The snapshot drops the course's sessions for them (scopeSnapshot, D-110), so there is no row.
+    const vm = sessionsVM({ ...prod, sessions: [], modules: [] }, buyer, CT('2026-12-08T09:00'));
+    expect([vm.rows, vm.oh.length > 0]).toEqual([[], true]);
+  });
+});
+

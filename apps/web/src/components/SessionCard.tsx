@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { sessionLabel } from '@ai/core';
 import type { SessionVM } from '@ai/core';
 import { Icon } from './Icon';
 import { JoinButton } from './JoinButton';
@@ -61,7 +62,7 @@ export function SessionCard({ vm, onJoin, onCal, onWatch, onKit, force = '' }: S
 
   return (
     <section
-      aria-label={`${vm.kicker}: Session ${vm.n}`}
+      aria-label={`${vm.kicker}: ${sessionLabel({ id: vm.sessionId, n: vm.n })}`}
       className={s.card}
       data-variant={vm.variant}
       data-force={force || undefined}
@@ -82,7 +83,7 @@ export function SessionCard({ vm, onJoin, onCal, onWatch, onKit, force = '' }: S
           ) : null}
         </div>
         <div className={s.title}>
-          Session {vm.n} · {vm.title}
+          {sessionLabel({ id: vm.sessionId, n: vm.n })} · {vm.title}
         </div>
         <div className={s.meta}>
           <span>{vm.module}</span>

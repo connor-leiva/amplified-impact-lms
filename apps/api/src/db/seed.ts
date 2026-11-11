@@ -38,11 +38,13 @@
 // rows. D-018 recorded it as deferred rather than guessed at, and nothing portal-visible needs it.
 
 import { pathToFileURL } from 'node:url';
-import { seedForDatabase, seedProduction } from '@ai/core';
+import { sql } from 'drizzle-orm';
+import { applyAccelerator, seedForDatabase, seedProduction } from '@ai/core';
 import type { Db, ProductionSeedOptions } from '@ai/core';
 import { close, databaseNameOf, getDb, readDatabaseUrl } from './client';
 import type { Database } from './client';
-import { insertSnapshot } from './io';
+import { diffSnapshot } from './codec';
+import { insertSnapshot, loadDb, persistDiff } from './io';
 import type { Queryable } from './io';
 import * as schema from './schema';
 
@@ -133,6 +135,28 @@ export const seedForLaunch = (
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<number> => seedSnapshot(db, seedProduction(opts), env);
 
+/**
+ * The Amplified AI Accelerator's curriculum, applied to a database that is already live (D-110).
+ *
+ * The launch seed refuses a database with users in it, and every paid order writes its buyer into
+ * `users` the moment it is provisioned, so once sales start the launch seed can no longer carry the
+ * course. This can: it loads the snapshot, runs `applyAccelerator` (core, pure, idempotent: cohort
+ * `dec26`, its sixteen sessions and the nine course modules upserted, the prototype's modules drafted,
+ * nothing else touched) and writes only the difference, under the same advisory lock every mutation
+ * takes, in one transaction. Run twice, the second run writes nothing. Returns the number of rows
+ * written or deleted, so the CLI can say "0 changes" when the curriculum is already current.
+ */
+export async function applyCurriculum(db: Database, opts: { instructor?: string } = {}): Promise<number> {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(42)`);
+    const before = await loadDb(tx);
+    const after = applyAccelerator(before, opts);
+    const changes = diffSnapshot(before, after).length;
+    await persistDiff(tx, before, after);
+    return changes;
+  });
+}
+
 // ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
@@ -157,6 +181,12 @@ const USAGE = [
   '  The owner flags have no defaults and are never read from the environment. They name the only',
   '  account that can sign in to the console, and a value inherited from a shell, a .env or a',
   '  Railway variable is how production ends up owned by owner@example.com.',
+  '',
+  '  tsx src/db/seed.ts --curriculum [--instructor "Full Name"]',
+  '',
+  '  --curriculum applies the Amplified AI Accelerator to a database that is already live (D-110):',
+  '  cohort dec26, its sixteen sessions and the nine course modules, upserted. Users, teams,',
+  '  progress and staff are not touched. Safe to run twice.',
 ].join('\n');
 
 /**
@@ -165,7 +195,9 @@ const USAGE = [
  * Exported because the thing worth testing here is not the writing — it is that `--launch` cannot
  * proceed without a real owner, which needs no database to check.
  */
-export function parseSeedArgs(argv: readonly string[]): { mode: 'live' } | { mode: 'launch'; opts: ProductionSeedOptions } {
+export function parseSeedArgs(
+  argv: readonly string[],
+): { mode: 'live' } | { mode: 'launch'; opts: ProductionSeedOptions } | { mode: 'curriculum'; opts: { instructor?: string } } {
   const flag = (name: string): string | undefined => {
     const i = argv.indexOf(`--${name}`);
     if (i === -1) return undefined;
@@ -175,6 +207,13 @@ export function parseSeedArgs(argv: readonly string[]): { mode: 'live' } | { mod
     if (value === undefined || value.startsWith('--')) throw new Error(`--${name} needs a value\n\n${USAGE}`);
     return value;
   };
+
+  if (argv.includes('--curriculum')) {
+    // One or the other: the launch seed loads an empty database, the curriculum updates a live one.
+    if (argv.includes('--launch')) throw new Error(`--curriculum and --launch cannot be combined\n\n${USAGE}`);
+    const instructor = flag('instructor');
+    return { mode: 'curriculum', opts: instructor === undefined ? {} : { instructor } };
+  }
 
   if (!argv.includes('--launch')) return { mode: 'live' };
 
@@ -221,6 +260,7 @@ export interface SeedDeps {
   db: () => Database;
   live: (db: Database) => Promise<number>;
   launch: (db: Database, opts: ProductionSeedOptions) => Promise<number>;
+  curriculum: (db: Database, opts: { instructor?: string }) => Promise<number>;
   close: () => Promise<void>;
   name: () => string;
   write: (line: string) => void;
@@ -230,6 +270,7 @@ const REAL: SeedDeps = {
   db: getDb,
   live: (db) => seedLive(db),
   launch: (db, opts) => seedForLaunch(db, opts),
+  curriculum: (db, opts) => applyCurriculum(db, opts),
   close,
   name: () => databaseNameOf(readDatabaseUrl()),
   write: (line) => process.stdout.write(line),
@@ -241,6 +282,12 @@ export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): P
   const name = deps.name();
   const db = deps.db();
   try {
+    if (parsed.mode === 'curriculum') {
+      deps.write(`Applying the Amplified AI Accelerator curriculum to ${name}.\n`);
+      const changes = await deps.curriculum(db, parsed.opts);
+      deps.write(`${changes} rows changed. Users, teams, progress and staff were not touched.\n`);
+      return;
+    }
     if (parsed.mode === 'launch') {
       // Named out loud before anything is written. This is the one command here whose target being
       // wrong is unrecoverable, and the database name is the only thing distinguishing production
