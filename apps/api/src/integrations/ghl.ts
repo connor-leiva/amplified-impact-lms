@@ -254,7 +254,7 @@ function kindForStatus(status: number): GhlFailureKind {
 
 export type CallResult = { ok: true; body: unknown } | { ok: false; kind: GhlFailureKind; status?: number };
 
-/** One v2 call. Exported for one-time scripts; the sync goes through the functions above. */
+/** One v2 call. Exported for the location scripts (`ghl-location.ts`); the sync goes through the functions above. */
 export async function call(path: string, body: unknown, options: SyncOptions, method: 'POST' | 'PUT' | 'GET' = 'POST'): Promise<CallResult> {
   const doFetch = options.fetch ?? fetch;
   let res: Response;
@@ -454,7 +454,7 @@ function nameParts(name: string | null): Record<string, string> {
 
 // --- D-134: custom fields and the pipeline, each off until its ids are set ---------------------------
 //
-// IDS, NEVER NAMES. Connor creates the fields and the pipeline in GHL and pastes
+// IDS, NEVER NAMES. Connor creates the fields and the pipeline in GHL (or `ghl:setup` does) and pastes
 // their ids into Railway. The code has no default for any of them, so a deploy before he does writes
 // exactly what it wrote before: the contact and its tags.
 //
