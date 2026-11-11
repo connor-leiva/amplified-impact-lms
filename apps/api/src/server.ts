@@ -118,8 +118,8 @@ const ai101Page = readBuilt(ai101Html);
 const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readBuilt(guideHtml(slug))]));
 // The free library that lists them (D-050), which has an inline script of its own.
 const libraryPage = readBuilt(fileURLToPath(new URL('../../web/dist/library.html', import.meta.url)));
-// The offer's pages (D-075): the offer and the page after Stripe each carry one inline script; the
-// agreement is a legal page and carries none.
+// The offer's pages (D-075, D-104): the page after Stripe carries one inline script; the offer page
+// carries none since its checkout form was retired, and the agreement is a legal page.
 const offerPage = readBuilt(fileURLToPath(new URL('../../web/dist/offer.html', import.meta.url)));
 const welcomePage = readBuilt(fileURLToPath(new URL('../../web/dist/offer-welcome.html', import.meta.url)));
 const agreementHtml = fileURLToPath(new URL('../../web/dist/agreement.html', import.meta.url));
