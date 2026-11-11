@@ -1,0 +1,118 @@
+/* /teams, the Amplified Team Plan's sales page. DECISIONS.md D-113.
+
+   The site's look and the sales pages' shared pieces (`../site/offers.css`: the card and its states,
+   ticked lists, two columns, the login line's two versions, the questions). This file is the page's
+   own: the hero, the three team sizes, the join steps and the end. Mobile first, no text under 16px,
+   every tap 44px or more, nothing wider than the screen.
+
+   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+
+@import '../site/offers.css';
+
+.teams-hero {
+  padding: 40px 0 40px;
+}
+.teams-hero h1 {
+  max-width: 16ch;
+  margin-top: 8px;
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.teams-founding {
+  margin-top: 16px;
+}
+.teams-founding strong {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- The three sizes --------------------------------------------------------------------------- */
+
+.tier-owner {
+  padding-top: 16px;
+  border-top: 1px solid var(--line-default);
+}
+.tier-label {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.tier-owner .ticks {
+  margin-top: 8px;
+}
+
+/* --- What they get, how they join -------------------------------------------------------------- */
+
+.rotation-label {
+  margin-top: 20px;
+  font-weight: 500;
+}
+.rotation {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--text-secondary);
+}
+.steps {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+  counter-reset: step;
+}
+.steps li {
+  position: relative;
+  padding-left: 40px;
+  counter-increment: step;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.steps h3 {
+  font-size: 18px;
+  line-height: 1.4;
+}
+.steps p {
+  color: var(--text-secondary);
+}
+
+/* --- The end ----------------------------------------------------------------------------------- */
+
+.end-action {
+  margin-top: 20px;
+}
+.end-more {
+  margin-top: 8px;
+  color: var(--text-secondary);
+}
+.end-more a {
+  padding: 12px 0;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+/* --- Wider screens ----------------------------------------------------------------------------- */
+
+@media (min-width: 960px) {
+  .teams-hero {
+    padding: 64px 0 56px;
+  }
+  .teams-hero h1 {
+    font-size: 54px;
+  }
+  .tier-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
