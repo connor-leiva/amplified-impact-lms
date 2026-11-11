@@ -126,7 +126,21 @@ curriculum (cohort `dec26`, its sixteen sessions and the nine course modules; th
 AI Employees become drafts) to a database that has **none** of it, and on every later deploy writes
 **0 rows**. It never touches users, teams, progress or staff. The Owner, the price list and the
 reminder toggles still come only from `db:seed:prod`: if production has buyers but never had the
-launch seed, the course is there after a deploy and the Owner is not, so ask the developer.
+launch seed, the course is there after a deploy and the Owner is not.
+
+**The Owner without the launch seed.** For exactly that case, Connor runs, with production's
+`DATABASE_URL` in his own shell (nothing here sets or prints it):
+
+```bash
+pnpm --filter @ai/api db:owner -- --owner-name "Your Name" --owner-email you@amplifiedimpact.io
+```
+
+It adds only the Owner, the one account that can sign in to the console, and the staff role matrix
+if that table is empty. It writes no learner, team, order, plan, progress, course, price or reminder
+row. The two flags have no defaults and are never read from the environment. It names the address
+before writing, refuses (writing nothing) if a different Owner exists or the address already signs
+in as someone else, and run twice with the same address writes nothing the second time. Then sign in
+at learn with that address.
 
 **The pre-deploy command is set in Railway, by hand.** Railway does not read `.railway/railway.ts`
 on deploy (only `railway config apply` does), so a push never changes it. It is the web service's

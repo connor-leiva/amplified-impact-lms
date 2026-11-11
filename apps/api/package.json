@@ -15,6 +15,7 @@
     "db:seed:prod": "tsx src/db/seed.ts --launch",
     "db:curriculum": "tsx src/db/seed.ts --curriculum",
     "db:curriculum:ensure": "tsx src/db/seed.ts --curriculum --if-missing",
+    "db:owner": "tsx src/db/seed.ts --owner",
     "provision": "tsx src/billing/cli.ts provision",
     "skills": "tsx src/billing/cli.ts skills"
   },
