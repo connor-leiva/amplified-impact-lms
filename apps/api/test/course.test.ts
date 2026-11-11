@@ -20,6 +20,7 @@ import { persistDiff } from '../src/db/io';
 import { orders, plans, users } from '../src/db/schema';
 import type { Database } from '../src/db/client';
 import { NOT_IN_PLAN } from '../src/routes/course';
+import { acceleratorLearnerIds } from '../src/lib/course-access';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
 
 const AFTER_HOLD = '2026-11-20T09:00:00-06:00';
@@ -204,6 +205,11 @@ describe('anyone else cannot open the course', () => {
     const res = await get('/api/course', 'staff');
     expect(res.statusCode).toBe(200);
     expect(res.json()).toMatchObject({ open: true, preview: true });
+  });
+
+  it('the scheduler’s list of who hears about the course is the same set: the two buyers and the operator', async () => {
+    const ids_ = await acceleratorLearnerIds(handle, Date.parse(AFTER_HOLD));
+    expect([...ids_].sort()).toEqual([ids.get('full'), ids.get('twoPay'), 'u_operator'].sort());
   });
 
   it('nobody signed in gets anything', async () => {

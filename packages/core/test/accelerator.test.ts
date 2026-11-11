@@ -217,6 +217,9 @@ describe('who can open the course', () => {
     expect(acceleratorOpen([plan('agents', 'upto15')], AFTER)).toBe(false);
     expect(acceleratorOpen([plan('agents', '16to40')], AFTER)).toBe(false);
     expect(acceleratorOpen([plan('library', 'upfront')], AFTER)).toBe(false);
+    // The Amplified Agent Plan (PR #23's `agent_plan`, D-106) is not the course either.
+    expect(acceleratorOpen([plan('agent_plan', 'monthly')], AFTER)).toBe(false);
+    expect(acceleratorOpen([plan('agent_plan', 'yearly')], AFTER)).toBe(false);
     expect(acceleratorOpen([plan('cohort', 'upfront')], AFTER)).toBe(false);
     expect(acceleratorOpen([plan('cohort', null)], AFTER)).toBe(false);
     expect(acceleratorOpen([plan('cohort', 'full', 'ended')], AFTER)).toBe(false);

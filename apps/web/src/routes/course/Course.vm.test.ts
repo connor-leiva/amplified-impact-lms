@@ -104,8 +104,21 @@ describe('every week’s page', () => {
     expect(w1.setup[0]!.link).toEqual({ label: 'Open the Guided Setup', href: 'https://www.amplifiedimpact.io/lead-source-roi' });
     expect(w1.skills[0]).toEqual({ title: 'Lead-Source ROI', role: 'Flagship', use: expect.any(String), free: false, href: 'https://www.amplifiedimpact.io/lead-source-roi' });
     expect(w1.libraryHref).toBe('/skill-library');
-    expect(w1.downloads.map((d) => d.name)).toEqual(['week-1-worksheet.csv', 'week-1-practice-set.csv']);
+    expect(w1.downloads.map((d) => d.name)).toEqual(['week-1-worksheet.csv', 'week-1-practice-set.csv', 'use-log.csv']);
     expect(w1.downloads[0]!.content.split('\n')[0]).toMatch(/^"Source","Period","Spend \(\$\)"/);
+  });
+
+  it('ships the templates each week names: the decision log, the card, the runbook and the three cohort-end worksheets', () => {
+    const files = (n: number) => weekVM(payload(), n)!.downloads.map((d) => d.name);
+    expect(files(0)).toEqual(['week-1-worksheet.csv', 'week-1-practice-set.csv']);
+    expect(files(3)).toEqual(['use-log.csv', 'decision-log.csv']);
+    expect(files(6)).toEqual(['use-log.csv', 'responsibility-card.csv']);
+    expect(files(7)).toEqual(['use-log.csv', 'runbook.csv']);
+    expect(files(8)).toEqual(['use-log.csv', 'keep-fix-retire.csv', '90-day-plan.csv', 'agent-go-no-go.csv']);
+    const goNoGo = weekVM(payload(), 8)!.downloads.find((d) => d.name === 'agent-go-no-go.csv')!.content.split('\n');
+    expect(goNoGo).toHaveLength(6);
+    expect(goNoGo[1]).toBe('"Usefulness",,');
+    expect(weekVM(payload(), 3)!.downloads[1]!.content).toContain('"Decision (No Action Counts)"');
   });
 
   it('links each week to the next and back', () => {

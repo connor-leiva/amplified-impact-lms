@@ -158,3 +158,72 @@ export const BLANK_WORKSHEET: readonly WorksheetRow[] = [
   { source: 'Source 3', period: '', spend: null, spendScope: 'Direct marketing only', leads: null, closings: null },
   { source: 'Unknown source', period: '', spend: null, spendScope: 'n/a', leads: null, closings: null, unknownSource: true },
 ];
+
+// --- the course's other templates ------------------------------------------------------------------
+// Blank CSVs with the columns the course plan names. No formulas and no example rows: the team fills
+// them in from its own work. One per kind; the course page offers each on the week that uses it.
+
+export interface CourseTemplate {
+  /** The file name the browser saves. */
+  file: string;
+  /** What the download button says. */
+  label: string;
+  columns: readonly string[];
+  /** The weeks whose page offers it. */
+  weeks: readonly number[];
+}
+
+export const COURSE_TEMPLATES: readonly CourseTemplate[] = [
+  {
+    file: 'use-log.csv',
+    label: 'Download the Use Log',
+    columns: ['Date', 'Who Ran It', 'Skill and Version', 'What It Was For', 'Prep Minutes', 'Review Minutes', 'Correction Minutes', 'Action Taken'],
+    weeks: [1, 2, 3, 4, 5, 6, 7, 8],
+  },
+  {
+    file: 'decision-log.csv',
+    label: 'Download the Decision Log',
+    columns: ['Date', 'Issue', 'Observed Gap', 'Evidence', 'Decision (No Action Counts)', 'Reason', 'Owner', 'Due Date', 'Follow-Up Check'],
+    weeks: [3],
+  },
+  {
+    file: 'responsibility-card.csv',
+    label: 'Download the Responsibility Card',
+    columns: ['Deliverable', 'Outcome', 'Audience', 'Required Evidence', 'Boundaries and Prohibited Information', 'Acceptance Standard', 'Deadline', 'Approval Authority', 'New Owner'],
+    weeks: [6],
+  },
+  {
+    file: 'runbook.csv',
+    label: 'Download the Runbook',
+    columns: ['Skill and Version', 'Trigger', 'Required Data', 'Human Judgment Points', 'Repair Steps', 'Maintainer', 'Second Person Who Reran It', 'Status (Tested and Ready or Adopted)'],
+    weeks: [7],
+  },
+  {
+    file: 'keep-fix-retire.csv',
+    label: 'Download the Keep, Fix or Retire Worksheet',
+    columns: ['Workflow', 'Cycles Run', 'Outputs Accepted', 'What Changed', 'What Broke', 'Benefit Claim', 'Claim Label (Measured, Estimated or Unverified)', 'Decision (Keep, Fix or Retire)', 'Maintainer'],
+    weeks: [8],
+  },
+  {
+    file: '90-day-plan.csv',
+    label: 'Download the 90-Day Plan',
+    columns: ['Workflow', 'Owner', 'Maintainer', 'Trigger', 'Measure', 'Baseline', 'Review Date'],
+    weeks: [8],
+  },
+  {
+    file: 'agent-go-no-go.csv',
+    label: 'Download the Agent Go or No-Go Worksheet',
+    columns: ['Question', 'Evidence', 'Answer'],
+    weeks: [8],
+  },
+];
+
+/** The rows the go or no-go worksheet starts with: the plan's five pilot questions. */
+const GO_NO_GO_ROWS: readonly string[] = ['Usefulness', 'Adoption', 'Quality', 'Readiness', 'Next Step (Expand, Fix or Stop)'];
+
+/** A template as CSV: its header row, plus the go or no-go worksheet's five question rows. */
+export function templateCsv(t: CourseTemplate): string {
+  const head = t.columns.map(q).join(',');
+  if (t.file !== 'agent-go-no-go.csv') return head;
+  return [head, ...GO_NO_GO_ROWS.map((r) => [q(r), '', ''].join(','))].join('\n');
+}

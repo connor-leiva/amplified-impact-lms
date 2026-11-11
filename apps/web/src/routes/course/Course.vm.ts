@@ -11,7 +11,7 @@
 import { fmt } from '@ai/core';
 import { SKILL_LIBRARY_PATH, coursePath, libraryHref } from '@ai/core/accelerator';
 import type { CourseContent, CourseSkill, SkillRole } from '@ai/core/accelerator-content';
-import { BLANK_WORKSHEET, PRACTICE_SET, worksheetCsv } from '@ai/core/worksheet';
+import { BLANK_WORKSHEET, COURSE_TEMPLATES, PRACTICE_SET, templateCsv, worksheetCsv } from '@ai/core/worksheet';
 
 /** One session as `GET /api/course` sends it. Never a Zoom URL. */
 export interface CourseSession {
@@ -314,7 +314,10 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
     missedAWeek: shared.missedAWeek,
     media: w.media,
     materials: w.materials,
-    downloads: w.week === 0 || w.week === 1 ? [WORKSHEET, PRACTICE] : [],
+    downloads: [
+      ...(w.week === 0 || w.week === 1 ? [WORKSHEET, PRACTICE] : []),
+      ...COURSE_TEMPLATES.filter((t) => t.weeks.includes(w.week)).map((t): DownloadVM => ({ label: t.label, name: t.file, content: templateCsv(t) })),
+    ],
     prev: before ? { label: `${COPY.previous}: Week ${before.week}`, href: coursePath(before.week) } : null,
     next: after ? { label: `${COPY.next}: Week ${after.week}`, href: coursePath(after.week) } : null,
   };
