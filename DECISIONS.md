@@ -4174,3 +4174,16 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Proof under the price section's buy buttons.** `buy()` takes `proof`, and only the price section's block passes it: the hero's proof already sits beside the hero's block, so the hero doesn't show it twice. The two blocks still come from one function, with the same prices, states and links; the test now says "identical but for the proof line".
 - **The share image** is the homepage's, Spring's real headshot, so `twitter:card` is `summary_large_image`.
 - **Unchanged:** the week-to-skill map (Week 0 and the eight flagships), the calendar, the FAQ, prices and Payment Link tokens.
+
+## D-127 · /agents: office hours at 1:00 PM Central, proof under the closing button, a share image
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), the offer-pages polish brief of 2026-11-11, item 4: "/agents: office hours time, proof on the closing button, share image."
+**Status:** on a pull request, stacked on D-126's.
+**Scope:** `apps/web/src/agents/content.ts` (`OFFICE_HOURS.body`), `apps/web/src/agents/render.ts`, `apps/web/src/site/offers.css` (the proof under a closing button), and the page's tests.
+
+- **Office hours:** "Every Thursday, 1:00 PM Central, 60 minutes. Drop in with a real file and get help." The next line stays: "Every session is recorded, so you’re never behind."
+- **The weekly training's day and time stay open.** It still says "Weekly, starting the week of January 4.", and a test keeps any weekday or clock time out of the rotation section.
+- **Proof under the closing "Get Amplified Agent Plan" button**, from the shared `proofLine()`. The hero's proof beside the buy block is unchanged.
+- **The share image** is the homepage's, Spring's real headshot, so `twitter:card` is `summary_large_image`.
+- **Unchanged:** prices, carts, the invite-hold pairing (`data-invites`), the FAQ. No testimonials, no Meet section.

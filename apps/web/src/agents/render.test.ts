@@ -70,6 +70,14 @@ describe('the price and the carts', () => {
       ['Start with 5 free skills', '/library?show=free'],
     ]);
   });
+
+  it('puts the proof line right under the closing Get Amplified Agent Plan button', () => {
+    const proof = $('.end .end-action + .proof-line')!;
+    expect([text($('span', proof)), text($('strong', proof))]).toEqual(['Built inside The Utah Life Real Estate Group', '100 agents, 700+ homes a year']);
+    expect(text($('a.btn', proof.previousElementSibling!))).toBe('Get Amplified Agent Plan');
+    // And in the hero, beside the buy block, as before.
+    expect($$('.ag-hero .proof-line')).toHaveLength(1);
+  });
 });
 
 describe('the first week and the rotation', () => {
@@ -90,6 +98,35 @@ describe('the first week and the rotation', () => {
     expect($$('.week a')).toHaveLength(12);
     expect(text($('.rotation-when'))).toBe('Weekly, starting the week of January 4.');
     expect(() => libraryCard('not-a-skill')).toThrow(/no Library card/);
+  });
+});
+
+describe('office hours', () => {
+  it('say Thursday at 1:00 PM Central, 60 minutes, and that every session is recorded', () => {
+    const oh = $('#oh-title')!.parentElement!;
+    expect($$('.section-lede', oh).map(text)).toEqual([
+      'Every Thursday, 1:00 PM Central, 60 minutes. Drop in with a real file and get help.',
+      'Every session is recorded, so you’re never behind.',
+    ]);
+  });
+
+  it('leave the weekly training’s day and time open', () => {
+    expect(text($('.rotation-when'))).toBe('Weekly, starting the week of January 4.');
+    expect(text($('.rotation-section')).length).toBeGreaterThan(100);
+    expect(text($('.rotation-section'))).not.toMatch(/\b(Monday|Tuesday|Wednesday|Thursday|Friday)s?\b|\d:\d\d/);
+  });
+});
+
+describe('the share tags', () => {
+  it('carry the title, description, canonical address and Spring’s real headshot, as a large card', () => {
+    const meta = (sel: string) => $(sel)?.getAttribute('content');
+    expect(text($('title'))).toBe('Amplified Agent Plan · Amplified Impact');
+    expect(meta('meta[name="description"]')?.length).toBeGreaterThan(50);
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/agents');
+    expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/agents');
+    expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
+    expect([meta('meta[property="og:image:width"]'), meta('meta[property="og:image:height"]'), meta('meta[property="og:image:alt"]')]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });
 
