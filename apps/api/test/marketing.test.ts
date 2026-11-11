@@ -199,6 +199,7 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
       'team-ai-brain',
       'ai-brain-tuneup',
       'ai-brain-setup',
+      'new-agent-onboarding-plan',
       'card-bank-feed-audit',
       'commission-tie-out',
       'team-payout-journals',

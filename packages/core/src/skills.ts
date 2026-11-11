@@ -67,6 +67,8 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'fub-automation-audit', title: 'FUB Automation Audit', summary: "Lines up the team's Follow Up Boss plans and automations to find gaps, overlaps and texting-consent risk.", sets: 'owner_ops', files: zips('fub-automation-audit', true) },
   { id: 'agent-1on1-prep', title: 'Agent 1:1 Prep', summary: "Preps a coaching one-on-one from one agent's numbers, goals and last time's notes.", sets: 'owner_ops', files: zips('agent-1on1-prep', true) },
   { id: 'tc-file-audit', title: 'TC File Audit', summary: 'Crosses one transaction file against the brokerage checklist and the contract dates, and drafts the asks.', sets: 'owner_ops', files: zips('tc-file-audit', true) },
+  // The AI Accelerator's week 7 flagship (D-109): paid, in the owner and operations set.
+  { id: 'new-agent-onboarding-plan', title: 'New Agent Onboarding Plan', summary: "Writes down the team's onboarding once, then dates each new hire's first 30 days with owners and checkpoints.", sets: 'owner_ops', files: zips('new-agent-onboarding-plan', true) },
   // For everyone.
   { id: 'ai-brain-setup', title: 'AI Brain Setup', summary: 'Interviews an agent or team leader and builds their Claude workspace: instructions, a business file and memory.', sets: 'both', files: zips('ai-brain-setup', true) },
   { id: 'ai-brain-tuneup', title: 'AI Brain Tune-Up', summary: "Audits the AI's project instructions, files and memory, and hands back clean instructions to paste in.", sets: 'both', files: zips('ai-brain-tuneup', true) },

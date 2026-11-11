@@ -51,6 +51,7 @@ export const GUIDE_HTML = [
   'team-ai-brain.html',
   'ai-brain-tuneup.html',
   'ai-brain-setup.html',
+  'new-agent-onboarding-plan.html',
   'card-bank-feed-audit.html',
   'commission-tie-out.html',
   'team-payout-journals.html',

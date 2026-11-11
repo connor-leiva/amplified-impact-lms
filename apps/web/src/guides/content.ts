@@ -62,6 +62,7 @@ import { POST_CLOSING_CLIENT_CARE } from './post-closing-client-care';
 import { TEAM_AI_BRAIN } from './team-ai-brain';
 import { AI_BRAIN_TUNEUP } from './ai-brain-tuneup';
 import { AI_BRAIN_SETUP } from './ai-brain-setup';
+import { NEW_AGENT_ONBOARDING_PLAN } from './new-agent-onboarding-plan';
 import { CARD_BANK_FEED_AUDIT } from './card-bank-feed-audit';
 import { COMMISSION_TIE_OUT } from './commission-tie-out';
 import { TEAM_PAYOUT_JOURNALS } from './team-payout-journals';
@@ -322,6 +323,7 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [TEAM_AI_BRAIN.slug]: TEAM_AI_BRAIN,
   [AI_BRAIN_TUNEUP.slug]: AI_BRAIN_TUNEUP,
   [AI_BRAIN_SETUP.slug]: AI_BRAIN_SETUP,
+  [NEW_AGENT_ONBOARDING_PLAN.slug]: NEW_AGENT_ONBOARDING_PLAN,
   [CARD_BANK_FEED_AUDIT.slug]: CARD_BANK_FEED_AUDIT,
   [COMMISSION_TIE_OUT.slug]: COMMISSION_TIE_OUT,
   [TEAM_PAYOUT_JOURNALS.slug]: TEAM_PAYOUT_JOURNALS,

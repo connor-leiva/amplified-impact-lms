@@ -200,7 +200,7 @@ describe('the skill catalog (D-082)', () => {
     const free = SKILL_CATALOG.filter((s) => FREE_SKILLS.includes(s.id)).flatMap((s) => Object.values(s.files));
     expect(PAID_DOWNLOADS.some((f) => free.includes(f))).toBe(false);
     expect(new Set(SKILL_CATALOG.map((s) => s.id)).size).toBe(SKILL_CATALOG.length);
-    expect(SKILL_CATALOG.length).toBe(35);
+    expect(SKILL_CATALOG.length).toBe(36);
   });
 
   it('names only files that exist in /downloads', () => {
@@ -218,7 +218,7 @@ describe('the skill catalog (D-082)', () => {
 });
 
 describe('the Grok Bot templates in the library (D-100)', () => {
-  it('load as their own rows beside the 35 skills, with one `grok` file each and their own free list', () => {
+  it('load as their own rows beside the 36 skills, with one `grok` file each and their own free list', () => {
     expect(LIBRARY_ROWS).toHaveLength(SKILL_CATALOG.length + GROK_TEMPLATES.length);
     expect(new Set(LIBRARY_ROWS.map((r) => r.id)).size).toBe(LIBRARY_ROWS.length);
     for (const g of GROK_TEMPLATES) {

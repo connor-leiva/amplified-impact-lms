@@ -37,8 +37,8 @@ describe('the catalog', () => {
     expect(isFreeGrokTemplate('trust-earnest-watch')).toBe(false);
   });
 
-  it('keeps them apart from the 35 Claude Skills: no shared id, no free-skill entry, no catalog row', () => {
-    expect(SKILL_CATALOG).toHaveLength(35);
+  it('keeps them apart from the 36 Claude Skills: no shared id, no free-skill entry, no catalog row', () => {
+    expect(SKILL_CATALOG).toHaveLength(36);
     const skillIds = new Set(SKILL_CATALOG.map((s) => s.id));
     for (const g of GROK_TEMPLATES) {
       expect(skillIds.has(g.id), g.id).toBe(false);

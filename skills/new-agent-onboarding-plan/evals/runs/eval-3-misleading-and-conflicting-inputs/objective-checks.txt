@@ -1,0 +1,14 @@
+PASS  No em or en dashes
+PASS  Title Case subject lines: 2 subjects
+PASS  Bottom Line is the first section: ['Bottom Line', 'Needs Your Answer']
+PASS  Bottom line is three sentences or fewer: 3 sentences
+PASS  Needs Your Answer comes before the plan
+PASS  Check Before Sending (or Saving) is last: Check Before Sending
+PASS  Every date is from the dates code, the prompt or the files: 19 dates
+PASS  Numbers not found in the inputs or the dates code (check by hand): 1.0, 17
+PASS  Welcome note under 250 words: 159 words
+PASS  No exclamation marks in the drafts
+PASS  No banned phrases in the drafts
+PASS  No Social Security, routing or account numbers
+PASS  Forbidden terms absent everywhere: 8 terms checked
+PASS  Forbidden terms absent from the plan and drafts: 6 terms checked
