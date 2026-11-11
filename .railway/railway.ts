@@ -42,9 +42,10 @@ export default defineRailway((ctx) => {
   // registration entirely when VITE_DATA_SOURCE is 'fixture', which is what makes that safe rather
   // than merely cheap.
   const db = demo ? null : postgres('postgres');
-  // `skills` is the bucket's name in production (created 2026-11-11): web's S3_* variables are
-  // references to it, so an `apply` naming anything else would make a second, empty bucket.
-  const files = demo ? null : bucket('skills', { region: 'iad' });
+  // `skills` in `sjc` is production's bucket as it exists (created 2026-11-11): web's S3_* variables
+  // are references to it, so an `apply` naming another bucket or region would try to make a second,
+  // empty one, or to move this one.
+  const files = demo ? null : bucket('skills', { region: 'sjc' });
   if (db) resources.push(db);
   if (files) resources.push(files);
 
