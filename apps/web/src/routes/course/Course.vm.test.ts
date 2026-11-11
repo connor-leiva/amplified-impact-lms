@@ -149,8 +149,10 @@ describe('every flagship href exists in the Library catalog', () => {
     expect(missing).toEqual([]);
   });
 
-  it('allows only the two expected-but-not-merged routes, and each is still used', () => {
-    expect([...pending]).toEqual(['https://www.amplifiedimpact.io/morning-brief', 'https://www.amplifiedimpact.io/new-agent-onboarding-plan']);
+  it('allows only the expected-but-not-merged route, and it is still used', () => {
+    expect([...pending]).toEqual(['https://www.amplifiedimpact.io/morning-brief']);
+    // Merged (D-109): now a Library page like any other, so it needs no allowance.
+    expect(library.has('https://www.amplifiedimpact.io/new-agent-onboarding-plan')).toBe(true);
     const used = new Set(weeks().flatMap((w) => w.skills.map((k) => k.href)));
     for (const p of pending) expect(used.has(p), p).toBe(true);
   });
