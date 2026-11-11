@@ -1,8 +1,11 @@
 // The one rule that decides whether an account can open a skill (D-079), and the one that decides
 // whether its live sessions are open.
 //
-//   The skill is free; or one of the account's plans covers the skill's set, and that plan is paid up
-//   now or was paid up when the skill was released.
+//   The skill is free; or one of the account's plans covers the skill's set, has started, and is paid
+//   up now or was paid up when the skill was released.
+//
+// "Has started" is the plan's `starts_at`: purchase for every plan but the Team Plan, whose agent
+// skills open on Dec 14, 2026 with the starter path while its logins open at purchase (D-104).
 //
 // That is "cancel and keep": a lapsed plan keeps everything released while it was paid, and nothing
 // after. Since a skill opens only once it is released (`released_at <= now`), "paid up now" and "paid
@@ -17,6 +20,8 @@ import type { PlanKind, PlanStatus, SkillSet } from './catalog';
 export interface PlanAccess {
   kind: PlanKind;
   status: PlanStatus;
+  /** When the plan's skills open. Absent: from the start. */
+  startsAt?: number;
   paidThrough: number | null;
   liveUntil: number | null;
 }
@@ -38,7 +43,12 @@ export function canOpenSkill(plans: readonly PlanAccess[], skill: SkillAccess, n
   if (skill.status !== 'published' || skill.releasedAt > now) return false;
   if (skill.free) return true;
   return plans.some(
-    (p) => p.status !== 'ended' && p.paidThrough !== null && planCovers(p.kind, skill.sets) && skill.releasedAt <= p.paidThrough,
+    (p) =>
+      p.status !== 'ended' &&
+      p.paidThrough !== null &&
+      (p.startsAt === undefined || now >= p.startsAt) &&
+      planCovers(p.kind, skill.sets) &&
+      skill.releasedAt <= p.paidThrough,
   );
 }
 

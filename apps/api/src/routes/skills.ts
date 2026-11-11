@@ -43,7 +43,7 @@ async function accessOf(userId: string): Promise<{ role: string | null; plans: P
   const rows = await db.select().from(plans).where(inArray(plans.accountId, accts.map((a) => a.id)));
   return {
     role: user.role,
-    plans: rows.map((p) => ({ kind: p.kind as PlanKind, status: p.status as PlanStatus, paidThrough: p.paidThrough, liveUntil: p.liveUntil })),
+    plans: rows.map((p) => ({ kind: p.kind as PlanKind, status: p.status as PlanStatus, startsAt: p.startsAt, paidThrough: p.paidThrough, liveUntil: p.liveUntil })),
   };
 }
 

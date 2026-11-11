@@ -1,10 +1,11 @@
 // The few Stripe calls the offer makes, behind one small interface (D-073).
 //
-// Everything that talks to Stripe goes through `BillingStripe`, so the checkout route and the
-// webhook can be tested against a stub with no network (the spec's "tests without the network"), and
-// so the restricted key's permissions (the handoff's section 7) are one list here: Checkout Sessions,
-// Subscriptions and Customers to write; Prices, Products, PaymentIntents, Invoices and Charges to
-// read. Nothing here creates a price, a coupon or a refund.
+// Everything that talks to Stripe goes through `BillingStripe`, so the webhook can be tested against a
+// stub with no network (the spec's "tests without the network"), and so the restricted key's
+// permissions (the handoff's section 7) are one list here: Subscriptions, Customers' portal sessions
+// to write; Prices, Products, PaymentIntents, Invoices and Charges to read. Nothing here creates a
+// price, a coupon, a Payment Link or a refund, and since the site's own checkout was retired (D-104)
+// nothing creates a Checkout Session either: the Payment Links do.
 //
 // API VERSIONS. The SDK pins its own (`2025-10-29.clover`), which governs what these calls return.
 // Webhook payloads are rendered in the ENDPOINT's version, which is the account's default and may be
@@ -23,11 +24,6 @@ export interface PriceInfo {
   productName: string | null;
 }
 
-export interface CheckoutSessionResult {
-  id: string;
-  url: string;
-}
-
 /** The fields of a subscription the webhook reads. */
 export interface SubscriptionInfo {
   id: string;
@@ -44,7 +40,6 @@ export interface SubscriptionInfo {
 
 export interface BillingStripe {
   pricesByLookupKeys(keys: readonly string[]): Promise<PriceInfo[]>;
-  createCheckoutSession(params: Stripe.Checkout.SessionCreateParams, idempotencyKey: string): Promise<CheckoutSessionResult>;
   retrieveSubscription(id: string): Promise<SubscriptionInfo>;
   updateSubscription(id: string, params: Stripe.SubscriptionUpdateParams, idempotencyKey?: string): Promise<SubscriptionInfo>;
   createSubscription(params: Stripe.SubscriptionCreateParams, idempotencyKey: string): Promise<SubscriptionInfo>;
@@ -116,12 +111,6 @@ export function stripeClient(secretKey: string): BillingStripe {
         }
       }
       return out;
-    },
-
-    async createCheckoutSession(params, idempotencyKey) {
-      const session = await stripe.checkout.sessions.create(params, { idempotencyKey });
-      if (!session.url) throw new Error('Stripe returned a Checkout Session with no url');
-      return { id: session.id, url: session.url };
     },
 
     async retrieveSubscription(id) {

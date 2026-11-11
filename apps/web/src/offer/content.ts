@@ -1,5 +1,11 @@
 // Every word on /offer (and /forum) and /offer/welcome (DECISIONS.md D-075).
 //
+// D-104 (Ampy's Stripe update, 2026-11-10) changed the terms under these words: the cards now say
+// what the live Payment Links' own checkout text says (Wednesdays from Dec 2, Insiders from May 4,
+// the Team Plan's first 3 months paid today, billing from Apr 4, 15 founding seats), the Amplified
+// Skill Library card is Amplified Insiders, and the site's own checkout form is gone. Spring's
+// rewrite of this page is its own pull request.
+//
 // THE ONLY FILE TO EDIT WHEN THE WORDS CHANGE. `render.ts` turns it into HTML at build time; the API
 // fills the prices and dates per request (`%%tokens%%`, @ai/core/offer). Nothing here is markup.
 //
@@ -9,11 +15,11 @@
 // names them; they live in @ai/core/offer (`PLAN_NAMES`), which Stripe's receipts share.
 
 import { SUPPORT_EMAIL } from '@ai/core/offer';
-import type { CartId, PlanKind } from '@ai/core/offer';
+import type { CartId } from '@ai/core/offer';
 
 export const META = {
   title: 'Plans and Prices | Amplified Impact',
-  description: 'The Amplified Skill Library, the Amplified AI Accelerator and the Amplified Team Plan: AI training software for real estate teams.',
+  description: 'The Amplified AI Accelerator, Amplified Insiders and the Amplified Team Plan: AI training software for real estate teams.',
 } as const;
 
 export const CHROME = {
@@ -40,48 +46,49 @@ export const HERO = {
 export interface CardCopy {
   /** Who the plan is for, in one sentence. */
   forWho: string;
-  /** What it includes: three to seven plain lines from the spec's plan table. */
+  /** What it includes: three to seven plain lines, in the checkout's own terms. */
   lines: readonly string[];
-  choose: string;
-  /** When the cart has no form today, the Payment Link buttons, one per cart. */
+  /** The Payment Link buttons, one per cart, the first the primary one. */
   pay: Partial<Record<CartId, string>>;
 }
 
-export const CARDS_COPY: Readonly<Record<PlanKind, CardCopy>> = {
-  library: {
-    forWho: 'For owners and operations leads who want the skills and office hours, at their own pace.',
-    lines: [
-      'Every owner and operations skill in the platform',
-      'Two new skills a month while you pay',
-      'Office hours for 30 days, then while you pay',
-      'Cancel yourself in the billing portal and keep every skill released',
-    ],
-    choose: 'Choose Amplified Skill Library',
-    pay: { library: 'Pay for Amplified Skill Library' },
-  },
+/** The three cards, by plan: the AI Accelerator, Amplified Insiders, the Team Plan. */
+export type CardPlan = 'cohort' | 'membership' | 'agents';
+
+export const CARDS_COPY: Readonly<Record<CardPlan, CardCopy>> = {
   cohort: {
     forWho: 'For Follow Up Boss teams who want to build the skills live, as a group, over eight weeks.',
     lines: [
       'Both skill sets: owner and operations, and agent',
-      'Eight weekly 90-minute builds on Tuesdays from December 1',
+      'Eight weekly 90-minute builds on Wednesdays from December 2',
       'Weekly 60-minute office hours',
       'Then 90 days of new skills and office hours',
-      'Then Amplified Insiders at $197 a month from May 3, until you cancel',
-      'Ten founding seats',
+      'Then Amplified Insiders at $197 a month from May 4, until you cancel',
+      '15 founding seats',
     ],
-    choose: 'Choose Amplified AI Accelerator',
     pay: { 'cohort-full': 'Pay in Full', 'cohort-two-pay': 'Pay in Two Payments' },
+  },
+  membership: {
+    forWho: 'For owners and operations leads who want every skill and office hours, at their own pace.',
+    lines: [
+      'Every owner and operations skill in the platform',
+      'Two new skills a month',
+      'Weekly office hours',
+      'A year paid up front counts in full toward the Amplified AI Accelerator; monthly payments do not',
+      'Paid monthly, a 3-month minimum',
+      'Cancel with 30 days\u2019 notice and keep what you have downloaded',
+    ],
+    pay: { 'insiders-year': 'Pay for One Year', 'insiders-monthly': 'Pay Monthly' },
   },
   agents: {
     forWho: 'For teams who want every agent on the agent skills, with weekly coaching.',
     lines: [
-      'Every agent skill in the platform',
-      'A recorded core path, so a new hire starts the week they join',
-      'A weekly live agent coaching session',
+      'Every agent skill in the platform, from December 14',
+      'A recorded starter path, so a new hire starts the week they join',
+      'A weekly live agent coaching session from the week of January 4',
       'Logins for your agents and for you',
-      'A 3-month minimum, with nothing charged until January 26',
+      'Today covers January 4 to April 3, 2027; monthly billing starts April 4, 2027',
     ],
-    choose: 'Choose Amplified Team Plan',
     pay: { 'agents-upto15': 'Buy 15-Agent Plan', 'agents-16to40': 'Buy 40-Agent Plan' },
   },
 };
@@ -89,6 +96,8 @@ export const CARDS_COPY: Readonly<Record<PlanKind, CardCopy>> = {
 export const CARD_STATES = {
   /** The founding carts after the close. The date is filled per request. */
   closed: 'Founding prices closed on',
+  /** The AI Accelerator once its 15 seats are sold, across both links. */
+  soldout: 'All 15 founding seats are taken.',
   soon: 'Opens soon.',
   /** When Stripe could not say a price: the payment page still shows it. */
   priceOnStripe: 'The price shows on the payment page.',
@@ -96,47 +105,6 @@ export const CARD_STATES = {
 } as const;
 
 export const PLANS_HEADING = 'Plans and prices';
-
-export const CHECKOUT = {
-  heading: 'Checkout',
-  intro: "Choose a plan and tell us who you are. You pay on Stripe's page next, and nothing is charged before you confirm there.",
-  planLegend: 'Plan',
-  fields: {
-    name: { label: 'Name', autocomplete: 'name' },
-    email: { label: 'Email', autocomplete: 'email', hint: 'Your login and receipt go here.' },
-    phone: { label: 'Mobile Number', autocomplete: 'tel', hint: 'Optional.' },
-    company: { label: 'Team Name', autocomplete: 'organization', hint: 'Optional. It names your team in the platform.' },
-    crm: { label: 'Team CRM', hint: 'The Amplified AI Accelerator is built on Follow Up Boss.' },
-  },
-  crmOptions: [
-    { value: '', label: 'Choose one' },
-    { value: 'follow_up_boss', label: 'Follow Up Boss' },
-    { value: 'other', label: 'Another CRM' },
-  ],
-  /** The SMS box, word for word: the API stores it as the proof (`OFFER_SMS_CONSENT_TEXT`), and a test holds them equal. */
-  sms: "Text me about my plan, sessions and other programs from Amplified Impact, LLC at the number above. Messages may be sent using automated technology. Consent isn't required to buy. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out or HELP for help.",
-  agreeBefore: 'I accept the ',
-  agreeLink: 'Subscription Agreement',
-  agreeAfter: ', including its no-refund terms.',
-  submit: 'Continue to Payment',
-  submitting: 'Opening Stripe',
-  secure: 'Payments are processed by Stripe. Your card never touches this site.',
-  /** The client-side refusals, word for word the API's (`CHECKOUT_ERRORS`); a test holds them equal. */
-  errors: {
-    cart: 'Choose a plan.',
-    name: 'Enter your name.',
-    email: 'Enter a valid email address.',
-    phone: 'Enter a valid mobile number.',
-    crmMissing: 'Tell us which CRM your team uses.',
-    crm: 'The Amplified AI Accelerator is built on Follow Up Boss. The Amplified Skill Library works with any CRM, or join the waitlist.',
-    sms: 'Add your mobile number to get texts.',
-    agree: 'Tick the box to accept the subscription agreement.',
-    renew: 'Tick the box to agree to the later charge.',
-    network: "Checkout didn't open. Check your connection and try again.",
-  },
-  fallbackLink: 'Use the Backup Payment Link',
-  linksIntro: 'Pay on Stripe with the link for your plan. Your account is set up the same way.',
-} as const;
 
 export const AFTER = {
   heading: 'After you pay',
@@ -149,7 +117,7 @@ export const AFTER = {
 
 export const WAITLIST = {
   heading: 'Accelerator waitlist',
-  body: 'The Amplified AI Accelerator is built on Follow Up Boss. Teams on another CRM, and anyone who missed the founding seats, can join the waitlist for the next cohort.',
+  body: 'The Amplified AI Accelerator is built on Follow Up Boss. Teams on another CRM, and anyone who missed the founding seats or the founding prices, can join the waitlist.',
   firstName: 'First Name',
   email: 'Email',
   submit: 'Join the Waitlist',

@@ -11,9 +11,10 @@
 // WHAT EACH EVENT DOES is the spec's table, and each handler below says which row it is. Events and
 // plans the app does not know (the $1 `smoke_test`, `ai_plan` = `test`) are recorded and ignored.
 //
-// FALLBACK PAYMENT LINKS take the same path. A session with no order of ours becomes an order here,
-// built from the link's metadata (`ai_plan`, `ai_option`, `campaign`) and the custom fields Grokbok
-// adds (`company`, `crm`, `agents`), so a link purchase lands exactly where a site purchase does.
+// PAYMENT LINKS ARE THE ONLY WAY TO BUY (D-104: the site's own checkout is retired). A session becomes
+// an order here, built from the link's metadata (`ai_plan`, `ai_option`, `billing`, `campaign`) and the
+// custom fields Ampy adds (`company`, `crm`, `agents`). A Team Plan session must say
+// `billing=forum_prepay`; one that does not is from an older link and is not provisioned.
 //
 // NEVER LOGGED: names, emails, phone numbers. Order, account, plan and Stripe ids only.
 
@@ -23,8 +24,8 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { orders, plans, stripeEvents } from '../db/schema';
 import { randomIds } from '../lib/clock';
-import { AGREEMENT_VERSION } from './checkout';
-import { AGENTS_FIRST_CHARGE_AT, AI_PLANS, INSIDERS_FIRST_CHARGE_AT, LIBRARY_TRIAL_DAYS, PLAN_KINDS, cartFor } from './catalog';
+import { AGREEMENT_VERSION } from './agreement';
+import { AI_PLANS, INSIDERS_FIRST_CHARGE_AT, PLAN_KINDS, cartFor, cartForMetadata, pinnedFirstCharge } from './catalog';
 import type { PlanStatus } from './catalog';
 import type { OfferConfig } from './config';
 import type { PriceCache } from './prices';
@@ -164,7 +165,7 @@ async function orderForSession(db: Database, session: Stripe.Checkout.Session, n
   if (bySession) return bySession;
 
   const meta = session.metadata ?? {};
-  const cart = cartFor(meta.ai_plan ?? '', meta.ai_option ?? '');
+  const cart = cartForMetadata(meta);
   if (!cart) return null;
   const details = session.customer_details;
   const email = details?.email?.trim().toLowerCase() ?? null;
@@ -203,11 +204,17 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
   if (!(PLAN_KINDS as readonly string[]).includes(plan)) {
     return (AI_PLANS as readonly string[]).includes(plan) ? `ignored:${plan}` : 'ignored:unknown-plan';
   }
+  const meta = session.metadata ?? {};
+  if (!session.client_reference_id && !meta.order_id && cartFor(meta.ai_plan ?? '', meta.ai_option ?? '') && !cartForMetadata(meta)) {
+    // A Team Plan link from before the prepay (no `billing=forum_prepay`): paid on terms no cart sells.
+    deps.log.error({ session: session.id, plan: meta.ai_plan, option: meta.ai_option }, 'a session from an older Payment Link was not provisioned: Connor follows up');
+    return 'ignored:older-link';
+  }
   const order = await orderForSession(db, session, now);
   if (!order) return 'ignored:unknown-cart';
   const cart = cartFor(order.plan, order.option)!;
 
-  // `paid`, or `no_payment_required` for an agent plan's trial; `unpaid` is a bank debit still clearing.
+  // `paid`, or `no_payment_required` for a trial with nothing due today; `unpaid` is a bank debit still clearing.
   const paid = session.payment_status === 'paid';
   const trial = session.payment_status === 'no_payment_required';
   const next: OrderRow['status'] = paid ? 'paid' : trial ? 'trialing' : order.status;
@@ -259,9 +266,9 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
       update.metadata = { order_id: order.id, ai_plan: cart.plan, ai_option: cart.option, ...(fresh.campaign ? { campaign: fresh.campaign } : {}) };
     }
     // Fixed calendar dates, whatever relative trial a Payment Link set on the day it was last edited:
-    // an Amplified Team Plan's first charge is Jan 26, 2027; the AI Accelerator in full rolls into
-    // Amplified Insiders on May 3, 2027 (its subscription carries the membership).
-    const pin = cart.plan === 'agents' ? AGENTS_FIRST_CHARGE_AT : cart.id === 'cohort-full' ? INSIDERS_FIRST_CHARGE_AT : null;
+    // an Amplified Team Plan's monthly billing starts Apr 4, 2027; the AI Accelerator in full rolls into
+    // Amplified Insiders on May 4, 2027 (its subscription carries the membership).
+    const pin = pinnedFirstCharge(cart);
     if (pin !== null && sub.status === 'trialing' && sub.trialEnd !== null && Math.floor(sub.trialEnd / 1000) !== Math.floor(pin / 1000)) {
       update.trial_end = Math.floor(pin / 1000);
       update.proration_behavior = 'none';
@@ -269,12 +276,8 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
     if (Object.keys(update).length) await stripe.updateSubscription(subscriptionId, update, `order-${order.id}-sub`);
   }
 
-  // The library sold through a link that could only carry the $2,000: start its $197 here, on day 31.
-  if (cart.plan === 'library' && !subscriptionId) {
-    await startMembership(fresh, now + LIBRARY_TRIAL_DAYS * 86_400_000, deps, db, { key: `membership-${order.id}`, source: null });
-  }
-  // Every paid AI Accelerator order rolls into Amplified Insiders on May 3, 2027, through the site
-  // or a Payment Link, ticked box or not: it is the offer's terms, agreed to at checkout.
+  // Every paid AI Accelerator order rolls into Amplified Insiders on May 4, 2027, whichever link it
+  // came through: it is the offer's terms, agreed to at checkout.
   if (cart.plan === 'cohort') await ensureInsiders(fresh, session.id, deps, db);
   return 'paid';
 }
@@ -333,10 +336,11 @@ async function startMembership(
 
 /**
  * An AI Accelerator order's Amplified Insiders. Paid in full, the order's own subscription carries it
- * (`membership_monthly` trialing until May 3), so the plan points there. Two payments, the installments
+ * (`membership_monthly` trialing until May 4), so the plan points there. Two payments, the installments
  * are their own subscription and Insiders is a separate one, created here with `trial_end` pinned to
- * May 3, 2027 and the idempotency key `membership-autoroll-<session>` (the Stripe-side requirements,
- * section B): sharing one subscription would delay or cancel the installments with the membership.
+ * May 4, 2027 and the idempotency key `membership-autoroll-<session>` (the Stripe-side requirements,
+ * section B): sharing one subscription would delay or cancel the installments with the membership. A
+ * buyer who already holds Insiders (bought on its own) is not enrolled twice (`startMembership`).
  */
 async function ensureInsiders(order: OrderRow, sessionId: string, deps: WebhookDeps, db: Database): Promise<void> {
   const plan = await planOfOrder(db, order.id);
@@ -380,7 +384,10 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
   const order = await orderBySubscription(db, subscriptionId, meta.order_id);
   let result = 'recorded';
 
-  if (order && (order.stripeSubscriptionId === subscriptionId || order.stripeSubscriptionId === null) && meta.ai_plan !== 'membership') {
+  // A membership invoice counts toward its own Insiders order, never toward the AI Accelerator order
+  // whose roll-on Insiders it is (that subscription carries the Accelerator's `order_id`).
+  const rollOn = meta.ai_plan === 'membership' && order?.plan !== 'membership';
+  if (order && (order.stripeSubscriptionId === subscriptionId || order.stripeSubscriptionId === null) && !rollOn) {
     const [updated] = await db
       .update(orders)
       .set({
@@ -402,7 +409,7 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
     }
   }
 
-  // The plan this subscription pays for: by its id, or the order's own (library, agents).
+  // The plan this subscription pays for: by its id, or the order's own (Insiders, the Team Plan).
   let plan = await planBySubscription(db, subscriptionId);
   if (!plan && order && order.plan !== 'cohort') {
     plan = await planOfOrder(db, order.id);
@@ -414,7 +421,12 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
     await provisionOrder(order.id, { db, log: deps.log, now, invitesFrom: deps.config.invitesFrom, invitesEnabled: deps.config.invitesEnabled });
     if (order.plan !== 'cohort') plan = await planOfOrder(db, order.id);
   }
-  const periodEnd = periodEndOfInvoice(invoice);
+  let periodEnd = periodEndOfInvoice(invoice);
+  // The first invoice's trial line ends where the link's relative trial did; the pinned first charge
+  // replaces that date (`sessionCompleted`), so the plan is paid through the pin, not past it.
+  const planCart = plan ? cartFor(plan.kind, plan.option) : null;
+  const pin = planCart ? pinnedFirstCharge(planCart) : null;
+  if (pin !== null && periodEnd !== null && periodEnd > pin && now < pin) periodEnd = pin;
   if (plan && plan.status !== 'ended' && periodEnd !== null) {
     await db
       .update(plans)
@@ -461,12 +473,12 @@ async function subscriptionChanged(sub: Stripe.Subscription, deleted: boolean, d
   if (!plan) return 'ignored:no-plan';
   if (plan.status === 'ended') return 'ignored:ended';
 
-  // The Amplified Team Plan's 3-month minimum is a contract term (the agreement, section 4). A cancel
-  // inside it (the public portal login cannot hide the button) stops Stripe, not what is owed: Connor
-  // follows up. Logged by ids only.
+  // A 3-month minimum (Amplified Insiders paid monthly) is a contract term. A cancel inside it (the
+  // public portal login cannot hide the button) stops Stripe, not what is owed: Connor follows up. The
+  // Team Plan's minimum is paid at checkout, so it has none left to break. Logged by ids only.
   const cancelling = deleted || sub.status === 'canceled' || sub.cancel_at_period_end === true;
-  if (plan.kind === 'agents' && cancelling && plan.minimumUntil !== null && now < plan.minimumUntil) {
-    deps.log.error({ plan: plan.id, order: plan.orderId, subscription: sub.id }, 'a Team Plan was cancelled inside its 3-month minimum: Connor follows up');
+  if (cancelling && plan.minimumUntil !== null && now < plan.minimumUntil) {
+    deps.log.error({ plan: plan.id, order: plan.orderId, subscription: sub.id, kind: plan.kind }, 'a plan was cancelled inside its 3-month minimum: Connor follows up');
   }
 
   if (deleted || sub.status === 'canceled') {

@@ -3,9 +3,9 @@
 //   STRIPE_SECRET_KEY      a restricted key, `rk_test_…` until Thursday, then `rk_live_…`
 //   STRIPE_WEBHOOK_SECRET  `whsec_…` for the endpoint in the same mode
 //   OFFER_OPEN             `true` opens the carts; anything else keeps them closed
-//   FOUNDING_CLOSES_AT     an ISO instant with an offset; defaults to Sun, Nov 15, 11:59 pm Central
+//   FOUNDING_CLOSES_AT     an ISO instant with an offset; defaults to Mon, Nov 30, 11:59 PM Mountain
 //   INVITES_FROM           when held owner invites go out; defaults to Mon, Nov 16, 8:00 am Central
-//   PAYMENT_LINK_*         Grokbok's fallback Payment Links, one per cart (catalog.ts names them)
+//   PAYMENT_LINK_*         Ampy's Payment Links, one per cart (catalog.ts names them): the only way to buy
 //   INTAKE_URL_*           Sarah O.'s intake form per plan, shown on /offer/welcome
 //   STRIPE_PORTAL_LOGIN_URL      the billing portal's login page, where members cancel themselves
 //   STRIPE_PORTAL_CONFIG_LOCKED  a portal configuration with cancelling off, for buyers inside a commitment

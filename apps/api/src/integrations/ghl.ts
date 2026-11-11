@@ -286,6 +286,9 @@ export const BUYER_TAGS = {
   plan: (plan: string) => `plan-${plan}`,
   payFull: 'pay-full',
   payTwo: 'pay-two',
+  /** Amplified Insiders' two ways to pay (D-104). */
+  payYear: 'pay-year',
+  payMonthly: 'pay-monthly',
   abandoned: (plan: string) => `checkout-abandoned-${plan}`,
   paymentFailed: 'payment-failed',
   membershipEnded: 'membership-ended',
@@ -307,7 +310,7 @@ export interface BuyerFacts {
   phone: string | null;
 }
 
-const OFFER_PLANS = ['library', 'cohort', 'agents'];
+const OFFER_PLANS = ['library', 'cohort', 'agents', 'membership'];
 
 /** The tags one order should carry now. Tags are never removed, so a later event only adds. */
 export function buyerTags(o: BuyerFacts): string[] {
@@ -317,6 +320,7 @@ export function buyerTags(o: BuyerFacts): string[] {
   if (bought) {
     tags.push(BUYER_TAGS.buyer, BUYER_TAGS.plan(o.plan));
     if (o.plan === 'cohort') tags.push(o.option === 'two_pay' ? BUYER_TAGS.payTwo : BUYER_TAGS.payFull);
+    if (o.plan === 'membership') tags.push(o.option === 'year_upfront' ? BUYER_TAGS.payYear : BUYER_TAGS.payMonthly);
   } else if (o.status === 'expired') {
     tags.push(BUYER_TAGS.abandoned(o.plan));
   }

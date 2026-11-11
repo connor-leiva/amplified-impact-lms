@@ -268,8 +268,8 @@ h2 {
 .plan .act-link {
   display: none;
 }
-.plan[data-state='checkout'] .plan-actions .act-checkout,
 .plan[data-state='closed'] .plan-actions .act-closed,
+.plan[data-state='soldout'] .plan-actions .act-soldout,
 .plan[data-state='soon'] .plan-actions .act-soon {
   display: flex;
 }
@@ -279,6 +279,7 @@ h2 {
   gap: 8px;
 }
 .act-closed,
+.act-soldout,
 .act-soon {
   font-size: 15px;
   color: var(--text-secondary);
@@ -643,6 +644,7 @@ body[data-intake='email'] .intake-link {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+/* The steps after paying stand on their own since the form left (D-104): three across from 768px. */
 
 @media (min-width: 1024px) {
   h1 {
@@ -660,12 +662,6 @@ body[data-intake='email'] .intake-link {
     grid-template-columns: minmax(0, 680px) minmax(0, 1fr);
     align-items: start;
     gap: 64px;
-  }
-  .checkout .after {
-    padding-top: 88px;
-  }
-  .checkout .steps {
-    grid-template-columns: 1fr;
   }
 }
 

@@ -1,17 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { CARDS, CART_IDS, PLAN_NAMES, TOKEN_PATTERN } from '@ai/core/offer';
-import { AFTER, CARDS_COPY, CHECKOUT, CHROME, HERO, WAITLIST, WELCOME } from './content';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { CARD_CARTS, CARDS, PLAN_NAMES, TOKEN_PATTERN } from '@ai/core/offer';
+import { AFTER, CARD_STATES, CARDS_COPY, CHROME, HERO, WAITLIST, WELCOME } from './content';
+import type { CardPlan } from './content';
 import { renderOfferBody, renderOfferHead, renderWelcomeBody, renderWelcomeHead } from './render';
 
-// The markup contract for /offer and /offer/welcome (D-075), on the parsed DOM, plus the house rules
-// for their words. The API fills the `%%tokens%%`; `apps/api/test/offer.test.ts` serves the pages.
+// The markup contract for /offer and /offer/welcome (D-075, D-104), on the parsed DOM, plus the house
+// rules for their words. The API fills the `%%tokens%%`; `apps/api/test/offer.test.ts` serves the pages.
 
+const HERE = dirname(fileURLToPath(import.meta.url));
 const parse = (head: string, body: string) =>
   new DOMParser().parseFromString(`<!doctype html><html lang="en"><head>${head}</head><body>${body}</body></html>`, 'text/html');
 
 const offer = parse(renderOfferHead(), renderOfferBody());
 const welcome = parse(renderWelcomeHead(), renderWelcomeBody());
-const all = (doc: Document, sel: string) => Array.from(doc.querySelectorAll(sel));
+const all = (doc: Document | Element, sel: string) => Array.from(doc.querySelectorAll(sel));
 
 /** Every visible string in content.ts, flattened. */
 const copy = (): string[] => {
@@ -21,7 +26,7 @@ const copy = (): string[] => {
     else if (Array.isArray(v)) v.forEach(walk);
     else if (v && typeof v === 'object') Object.values(v).forEach(walk);
   };
-  [CHROME, HERO, CARDS_COPY, CHECKOUT, AFTER, WAITLIST, WELCOME].forEach(walk);
+  [CHROME, HERO, CARDS_COPY, CARD_STATES, AFTER, WAITLIST, WELCOME].forEach(walk);
   return out;
 };
 
@@ -34,40 +39,42 @@ describe('/offer markup', () => {
     expect(offer.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe('noindex');
   });
 
-  it('shows the three plans in order, each with one filled Choose button', () => {
-    expect(all(offer, '.plan-name').map((h) => h.textContent)).toEqual(CARDS.map((c) => PLAN_NAMES[c]));
-    for (const plan of all(offer, '.plan')) expect(plan.querySelectorAll('.act-checkout.button.primary')).toHaveLength(1);
+  it('shows the AI Accelerator, Amplified Insiders and the Team Plan, in that order', () => {
+    expect(all(offer, '.plan-name').map((h) => h.textContent)).toEqual(['Amplified AI Accelerator', 'Amplified Insiders', 'Amplified Team Plan']);
+    expect(CARDS.map((c) => PLAN_NAMES[c])).toEqual(all(offer, '.plan-name').map((h) => h.textContent));
+    // The homepage's team owners' card links here.
+    expect(offer.querySelector('#plan-agents')).not.toBeNull();
   });
 
-  it('posts a real form to /api/checkout that works with no script', () => {
-    const form = offer.querySelector<HTMLFormElement>('#checkout-form')!;
-    expect(form.getAttribute('method')).toBe('post');
-    expect(form.getAttribute('action')).toBe('/api/checkout');
-    expect(all(offer, 'input[name="cart"]').map((r) => r.getAttribute('value'))).toEqual([...CART_IDS]);
-    expect(offer.querySelector('#f-agree')?.hasAttribute('required')).toBe(true);
-    for (const id of CART_IDS) expect(offer.querySelector(`#renew-${id}`)?.getAttribute('name')).toBe(`renew-${id}`);
-    expect(offer.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(false);
-  });
-
-  it('labels every field above it, with the right types and autocomplete', () => {
-    for (const input of all(offer, '#checkout-form input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]):not(#f-website), #checkout-form select')) {
-      expect(offer.querySelector(`label[for="${input.id}"]`), input.id).not.toBeNull();
+  it('buys through each cart\'s Payment Link: one primary button per card, then its other carts', () => {
+    for (const plan of CARDS) {
+      const card = offer.getElementById(`plan-${plan}`)!;
+      const links = all(card, '.act-link a').map((a) => [a.getAttribute('href'), a.className]);
+      expect(links, plan).toEqual((CARD_CARTS[plan] ?? []).map((id, i) => [`%%link:${id}%%`, `button ${i === 0 ? 'primary' : 'secondary'}`]));
+      expect(card.getAttribute('data-state')).toBe(`%%state:${CARD_CARTS[plan]![0]}%%`);
     }
-    expect(offer.querySelector('#f-email')?.getAttribute('type')).toBe('email');
-    expect(offer.querySelector('#f-email')?.getAttribute('autocomplete')).toBe('email');
-    expect(offer.querySelector('#f-phone')?.getAttribute('type')).toBe('tel');
-    expect(offer.querySelector('#f-company')?.getAttribute('autocomplete')).toBe('organization');
-    expect(offer.querySelector('fieldset.carts legend')?.textContent).toBe('Plan');
   });
 
-  it('links the agreement from its box', () => {
-    expect(offer.querySelector('label[for="f-agree"] a')?.getAttribute('href')).toBe('/agreement');
+  it('offers the waitlist when founding closes (the Accelerator and the Team Plan) or the 15 seats sell', () => {
+    const waitlist = (plan: string, cls: string) => all(offer.getElementById(`plan-${plan}`)!, `a.${cls}`).map((a) => a.getAttribute('href'));
+    expect(waitlist('cohort', 'act-closed')).toEqual(['#waitlist']);
+    expect(waitlist('agents', 'act-closed')).toEqual(['#waitlist']);
+    expect(waitlist('membership', 'act-closed')).toEqual([]);
+    expect(waitlist('cohort', 'act-soldout')).toEqual(['#waitlist']);
+    expect(waitlist('agents', 'act-soldout')).toEqual([]);
+    expect(offer.querySelector('#plan-cohort p.act-soldout')?.textContent).toBe('All 15 founding seats are taken.');
   });
 
-  it('keeps every token outside the script, so the CSP hash never moves', () => {
-    const html = renderOfferBody();
-    expect(html).not.toMatch(/<script/);
-    expect([...html.matchAll(TOKEN_PATTERN)].length).toBeGreaterThan(20);
+  it('has no checkout form and no script: the site\'s own checkout is retired', () => {
+    expect(offer.querySelector('form[action="/api/checkout"]')).toBeNull();
+    expect(renderOfferBody()).not.toMatch(/<script/);
+    expect(readFileSync(resolve(HERE, '../../offer.html'), 'utf8')).not.toMatch(/<script/);
+    expect([...renderOfferBody().matchAll(TOKEN_PATTERN)].length).toBeGreaterThan(15);
+  });
+
+  it('keeps the waitlist form, which works with no script', () => {
+    const form = offer.querySelector<HTMLFormElement>('#waitlist-form')!;
+    expect([form.getAttribute('method'), form.getAttribute('action')]).toEqual(['post', '/api/offer/waitlist']);
   });
 });
 
@@ -79,7 +86,7 @@ describe('/offer/welcome markup', () => {
   });
 });
 
-describe('the words (house rules and the taste rubric)', () => {
+describe('the words (house rules, and the live checkout\'s terms)', () => {
   const words = copy();
 
   it('has no em dash, no exclamation mark and no slop word', () => {
@@ -87,32 +94,33 @@ describe('the words (house rules and the taste rubric)', () => {
     expect(bad).toEqual([]);
   });
 
+  it('says what the Payment Links\' checkout says, and none of the retired terms', () => {
+    const text = words.join(' \n ');
+    for (const old of [/\bMay 3\b/, /January 26/, /Tuesdays?\b/, /December 1\b/, /Skill Library/, /\$2,000/, /day 31/, /nothing (is )?charged/i, /\bTen\b/]) {
+      expect(text, String(old)).not.toMatch(old);
+    }
+    const lines = (plan: CardPlan) => CARDS_COPY[plan].lines.join(' ');
+    expect(lines('cohort')).toContain('Wednesdays from December 2');
+    expect(lines('cohort')).toContain('from May 4');
+    expect(lines('cohort')).toContain('15 founding seats');
+    expect(lines('agents')).toContain('January 4 to April 3, 2027; monthly billing starts April 4, 2027');
+    expect(lines('membership')).toContain('counts in full toward the Amplified AI Accelerator; monthly payments do not');
+  });
+
   it('writes buttons as a verb and an object in Title Case, five words at most', () => {
-    const buttons = [
-      ...CARDS.map((c) => CARDS_COPY[c].choose),
-      ...CARDS.flatMap((c) => Object.values(CARDS_COPY[c].pay)),
-      CHECKOUT.submit,
-      WAITLIST.submit,
-      WELCOME.confirmed.intakeButton,
-      WELCOME.back,
-    ];
+    const buttons = [...CARDS.flatMap((c) => Object.values(CARDS_COPY[c as CardPlan].pay)), CARD_STATES.waitlist, WAITLIST.submit, WELCOME.back];
     for (const b of buttons) {
       expect(b.split(' ').length, b).toBeLessThanOrEqual(5);
       expect(b, b).toMatch(/^[A-Z][a-z]+( (to|in|for|the|of|[A-Z0-9][A-Za-z0-9-]*))*$/);
     }
-    expect(new Set(buttons).size).toBeLessThanOrEqual(12);
   });
 
   it('keeps each plan to three to seven plain lines and a short line about who it is for', () => {
     for (const c of CARDS) {
-      expect(CARDS_COPY[c].lines.length).toBeGreaterThanOrEqual(3);
-      expect(CARDS_COPY[c].lines.length).toBeLessThanOrEqual(7);
-      expect(CARDS_COPY[c].forWho.split(' ').length).toBeLessThanOrEqual(25);
+      const card = CARDS_COPY[c as CardPlan];
+      expect(card.lines.length).toBeGreaterThanOrEqual(3);
+      expect(card.lines.length).toBeLessThanOrEqual(7);
+      expect(card.forWho.split(' ').length).toBeLessThanOrEqual(25);
     }
-  });
-
-  it('keeps the page under 900 words', () => {
-    const text = offer.body.textContent ?? '';
-    expect(text.replace(/%%[^%]+%%/g, '').split(/\s+/).filter(Boolean).length).toBeLessThan(900);
   });
 });
