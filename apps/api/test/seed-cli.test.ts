@@ -11,13 +11,15 @@
 // exactly the bug this file was written after finding: the script existed, passed `--launch`, and
 // `main()` ignored argv entirely.
 import { describe, it, expect, vi } from 'vitest';
-import { parseSeedArgs, runSeed } from '../src/db/seed';
-import type { SeedDeps } from '../src/db/seed';
+import { DEPLOY_OWNER, ownerEnsureLine, parseSeedArgs, runSeed } from '../src/db/seed';
+import type { OwnerEnsureOutcome, SeedDeps } from '../src/db/seed';
 import type { Database } from '../src/db/client';
 
 /** Substituted collaborators. No connection is opened and no row is written. */
-function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; curriculum: unknown[]; owner: unknown[]; closed: number; out: string[] } } {
-  const calls = { live: 0, launch: [] as unknown[], curriculum: [] as unknown[], owner: [] as unknown[], closed: 0, out: [] as string[] };
+function fakeDeps(): SeedDeps & {
+  calls: { live: number; launch: unknown[]; curriculum: unknown[]; owner: unknown[]; ownerEnsure: number; closed: number; named: number; out: string[] };
+} {
+  const calls = { live: 0, launch: [] as unknown[], curriculum: [] as unknown[], owner: [] as unknown[], ownerEnsure: 0, closed: 0, named: 0, out: [] as string[] };
   return {
     calls,
     db: () => ({}) as Database,
@@ -37,10 +39,17 @@ function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; curr
       calls.owner.push(opts);
       return 2;
     },
+    ownerEnsure: async () => {
+      calls.ownerEnsure += 1;
+      return { status: 'created', changes: 41 };
+    },
     close: async () => {
       calls.closed += 1;
     },
-    name: () => 'ai_lms_test',
+    name: () => {
+      calls.named += 1;
+      return 'ai_lms_test';
+    },
     write: (line) => calls.out.push(line),
   };
 }
@@ -243,9 +252,10 @@ describe('§9.5 the seed CLI @g9', () => {
     expect(pre.split(' && ')).toEqual([
       'pnpm --filter @ai/api db:migrate',
       'pnpm --filter @ai/api db:curriculum:ensure',
+      'pnpm --filter @ai/api db:owner:ensure',
       'pnpm --filter @ai/api skills --upload',
     ]);
-    expect(pre).not.toMatch(/db:seed|--launch|db:curriculum(?!:ensure)/);
+    expect(pre).not.toMatch(/db:seed|--launch|db:curriculum(?!:ensure)|db:owner(?!:ensure)/);
   });
 
   // --- the Owner alone, for a database with buyers and no launch seed (Ampy, 2026-11-11) -----------
@@ -276,5 +286,90 @@ describe('§9.5 the seed CLI @g9', () => {
     expect(deps.calls.out[0]).toContain('Adding the Owner a@b.co to ai_lms_test');
     expect(deps.calls.out[1]).toContain('Learners, teams, orders, plans, progress and the course were not touched');
     expect(deps.calls.closed).toBe(1);
+  });
+
+  // --- the deploy's Owner (Connor, 2026-11-11): db:owner:ensure in the pre-deploy command -----------
+
+  it('db:owner:ensure is --owner-ensure, which takes no flags and stands alone @g9', async () => {
+    const pkg = (await import('../package.json', { with: { type: 'json' } })).default as { scripts: Record<string, string> };
+    expect(pkg.scripts['db:owner:ensure']).toBe('tsx src/db/seed.ts --owner-ensure');
+    expect(parseSeedArgs(pkg.scripts['db:owner:ensure']!.split(/\s+/).slice(2))).toEqual({ mode: 'owner-ensure' });
+    for (const extra of [['--owner'], ['--launch'], ['--curriculum'], ['--owner-name', 'A B'], ['--owner-email', 'a@b.co']]) {
+      expect(() => parseSeedArgs(['--owner-ensure', ...extra]), extra.join(' ')).toThrow(/--owner-ensure takes no other flags/);
+    }
+  });
+
+  it('the deploy’s Owner is Connor Leiva at connor@springb.com, in the code and never from the environment @g9', () => {
+    expect(DEPLOY_OWNER).toEqual({ name: 'Connor Leiva', email: 'connor@springb.com' });
+    const before = { ...process.env };
+    process.env.OWNER_NAME = 'Someone Else';
+    process.env.OWNER_EMAIL = 'someone@else.test';
+    try {
+      expect(parseSeedArgs(['--owner-ensure'])).toEqual({ mode: 'owner-ensure' });
+      expect(DEPLOY_OWNER.email).toBe('connor@springb.com');
+    } finally {
+      process.env = before;
+    }
+  });
+
+  it('runs only the Owner step, and its one log line names no one and no database @g9', async () => {
+    const deps = fakeDeps();
+    await runSeed(['--owner-ensure'], deps);
+    expect(deps.calls.ownerEnsure).toBe(1);
+    expect([deps.calls.live, deps.calls.launch, deps.calls.curriculum, deps.calls.owner]).toEqual([0, [], [], []]);
+    expect(deps.calls.named).toBe(0);
+    expect(deps.calls.closed).toBe(1);
+    expect(deps.calls.out).toEqual([
+      'Owner: created the console’s Owner (41 rows, with the staff role matrix if it was empty). Learners, teams, orders, plans, seats and the course were not touched.\n',
+    ]);
+  });
+
+  it('says what it did for every outcome, never the name, the address or the database @g9', () => {
+    const outcomes: OwnerEnsureOutcome[] = [
+      { status: 'created', changes: 41 },
+      { status: 'unchanged' },
+      { status: 'skipped', reason: 'other-owner' },
+      { status: 'skipped', reason: 'address-taken' },
+      { status: 'skipped', reason: 'id-taken' },
+      { status: 'skipped', reason: 'error', detail: 'PostgresError' },
+    ];
+    const lines = outcomes.map(ownerEnsureLine);
+    expect(lines[1]).toBe('Owner: already set. Nothing was written.\n');
+    expect(lines[2]).toBe('Owner: skipped, this database already has a different Owner. Change the Owner from Staff & Roles in the console. Nothing was written, and the deploy goes on.\n');
+    expect(lines[3]).toBe('Owner: skipped, the Owner’s address already signs in here as another account. Nothing was written, and the deploy goes on.\n');
+    expect(lines[5]).toBe('Owner: skipped, an error stopped it (PostgresError). Nothing was written, and the deploy goes on.\n');
+    for (const l of lines) {
+      expect(l).not.toMatch(/connor|springb|leiva|@|ai_lms/i);
+      expect(l).not.toMatch(/[–—]/);
+    }
+  });
+
+  it('never throws, so the deploy never stops on it: not on a refusal, an error, or a failed connection @g9', async () => {
+    const refusal = fakeDeps();
+    refusal.ownerEnsure = async () => ({ status: 'skipped', reason: 'other-owner' });
+    await expect(runSeed(['--owner-ensure'], refusal)).resolves.toBeUndefined();
+    expect(refusal.calls.out[0]).toContain('already has a different Owner');
+
+    const thrown = fakeDeps();
+    thrown.ownerEnsure = async () => {
+      throw new TypeError('connor@springb.com went wrong');
+    };
+    await expect(runSeed(['--owner-ensure'], thrown)).resolves.toBeUndefined();
+    expect(thrown.calls.out).toEqual(['Owner: skipped, an error stopped it (TypeError). Nothing was written, and the deploy goes on.\n']);
+    expect(thrown.calls.closed).toBe(1);
+
+    const noDb = fakeDeps();
+    noDb.db = () => {
+      throw new Error('DATABASE_URL is not set');
+    };
+    await expect(runSeed(['--owner-ensure'], noDb)).resolves.toBeUndefined();
+    expect(noDb.calls.out[0]).toContain('an error stopped it (Error)');
+    expect(noDb.calls.ownerEnsure).toBe(0);
+
+    const badClose = fakeDeps();
+    badClose.close = async () => {
+      throw new Error('already closed');
+    };
+    await expect(runSeed(['--owner-ensure'], badClose)).resolves.toBeUndefined();
   });
 });
