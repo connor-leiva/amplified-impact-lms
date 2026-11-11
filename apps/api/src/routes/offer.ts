@@ -29,6 +29,7 @@
 // it in the same minute, D-028), `Referrer-Policy: same-origin` so a plain form post carries a real
 // Origin, `noindex` in the page itself. Unlike them, `no-store`: the page holds live prices.
 
+import { BUILDS_ICS, BUILDS_ICS_PATH, BUILDS_ICS_URL, OFFICE_HOURS_ICS, OFFICE_HOURS_ICS_PATH, OFFICE_HOURS_ICS_URL } from './offer-calendar';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db/client';
@@ -198,9 +199,11 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     product: w.state === 'confirmed' && w.plan ? w.plan : '',
     invites: held ? 'held' : 'sent',
     'login-day': dayOfYear(w.config.invitesFrom),
-    'calendar-builds': builds ?? '',
-    'calendar-office-hours': officeHours ?? '',
-    'calendar-state': builds || officeHours ? 'links' : 'email',
+    // The served files (offer-calendar.ts) unless a CALENDAR_URL_* variable names another, so the
+    // welcome page's add-to-calendar buttons always download something.
+    'calendar-builds': builds ?? BUILDS_ICS_URL,
+    'calendar-office-hours': officeHours ?? OFFICE_HOURS_ICS_URL,
+    'calendar-state': 'links',
     'plan-name': w.plan ? PLAN_NAMES[w.plan] : '',
     login: held
       ? `Your login arrives by email on ${dayOfYear(w.config.invitesFrom)}, with your welcome email.`
@@ -286,6 +289,17 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
       });
       return sendPage(reply, fillTokens(page, values));
     });
+  }
+
+  // The welcome page's calendar files (Ampy's offer-pages brief): the Accelerator's builds and the
+  // office hours every plan is invited to. Constant strings, so, like the sprint's file, no rate limit.
+  for (const [path, body] of [
+    [BUILDS_ICS_PATH, BUILDS_ICS],
+    [OFFICE_HOURS_ICS_PATH, OFFICE_HOURS_ICS],
+  ] as const) {
+    app.get(path, { config: { rateLimit: false } }, async (_req, reply): Promise<FastifyReply> =>
+      reply.code(200).type('text/calendar; charset=utf-8').header('cache-control', 'public, max-age=3600').send(body),
+    );
   }
 
   app.get(WELCOME_PATH, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {

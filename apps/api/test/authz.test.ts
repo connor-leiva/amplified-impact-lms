@@ -570,6 +570,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/offer', methods: 'GET, HEAD', guard: 'page' },
   { path: '/forum', methods: 'GET, HEAD', guard: 'page' },
   { path: '/offer/welcome', methods: 'GET, HEAD', guard: 'page' },
+  // The welcome page's calendar files: the Accelerator's builds, and office hours for every plan.
+  { path: '/calendar/builds.ics', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/calendar/office-hours.ics', methods: 'GET, HEAD', guard: 'page' },
   // Programs and Pricing (D-111), filled per request like /offer.
   { path: '/pricing', methods: 'GET, HEAD', guard: 'page' },
   // The Amplified AI Accelerator's sales page (D-112), filled the same way.
@@ -1106,6 +1109,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             '/forum',
             '/offer',
             '/offer/welcome',
+            '/calendar/builds.ics',
+            '/calendar/office-hours.ics',
             '/pricing',
             '/team-build',
             '/teams',

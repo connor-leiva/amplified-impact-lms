@@ -177,6 +177,46 @@ describe('the facts (docs/SPRING-PLAN.md, "Facts to use everywhere")', () => {
   });
 });
 
+describe('/offer/welcome: the starter path, the calendars and the empty links (offer-pages brief)', () => {
+  const section = (plan: string) => welcome.querySelector(`.t-${plan}`)!;
+  const hrefs = (el: Element, sel: string) => all(el, sel).map((a) => [text(a), a.getAttribute('href')]);
+
+  it('links the Accelerator to its course on the LMS host, and every other plan to the Skill Library there', () => {
+    expect(hrefs(section('cohort'), '.start-link a')).toEqual([['Open Your Course', 'https://learn.amplifiedimpact.io/course']]);
+    for (const plan of ['membership', 'agents', 'agent_plan']) {
+      expect(hrefs(section(plan), '.start-link a'), plan).toEqual([['Open the Skill Library', 'https://learn.amplifiedimpact.io/skill-library']]);
+      expect(text(section(plan)), plan).toContain('Sign in with the login from your email first.');
+    }
+    expect(text(section('cohort'))).toContain('Week 0 is your setup path. Sign in with the login from your email first.');
+  });
+
+  it('names the first steps on the Agent Plan and the Team Plan, and the Team Plan’s Dec 14, with no emailed link', () => {
+    for (const plan of ['agents', 'agent_plan']) {
+      expect(text(section(plan)), plan).toContain('Start with AI Brain Setup, then Sounds Like You: Your AI Voice Profile, then your first 3 agent skills.');
+    }
+    expect(text(section('agents'))).toContain('Your agents’ skills open Monday, December 14.');
+    expect(text(welcome.body)).not.toContain('We’ll email you the starter path link');
+  });
+
+  it('gives the Accelerator both calendar buttons and every other plan the office hours one, filled by the API', () => {
+    const cal = (plan: string) => all(section(plan), '.cal-links a').map((a) => a.getAttribute('href'));
+    expect(cal('cohort')).toEqual(['%%calendar-builds%%', '%%calendar-office-hours%%']);
+    for (const plan of ['membership', 'agents', 'agent_plan']) expect(cal(plan), plan).toEqual(['%%calendar-office-hours%%']);
+  });
+
+  it('hides an action whose link is empty: the intake form without a form, and any button with no href', () => {
+    const css = readFileSync(resolve(HERE, './offer.css'), 'utf8');
+    expect(css).toContain("body[data-intake='email'] .intake-link");
+    expect(css).toMatch(/a\.button\[href=''\][^{]*\{\s*display: none !important;/);
+    expect(all(welcome, '.intake-link a').every((a) => a.getAttribute('href') === '%%intake-url%%')).toBe(true);
+  });
+
+  it('keeps the support address and says no $37, no single-skill upsell', () => {
+    expect(text(welcome.body)).toContain('support@amplifiedimpact.io');
+    expect(text(welcome.body)).not.toMatch(/\$37|single skill/i);
+  });
+});
+
 describe('/offer/welcome markup', () => {
   it('has a thank-you section per plan, then the pending and unknown states, one h1 each', () => {
     expect(all(welcome, 'section').map((s) => s.className)).toEqual([
