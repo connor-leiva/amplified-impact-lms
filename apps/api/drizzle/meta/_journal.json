@@ -57,6 +57,13 @@
       "when": 1794371688787,
       "tag": "0007_stripe_update",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794384631138,
+      "tag": "0008_agent_plan",
+      "breakpoints": true
     }
   ]
 }

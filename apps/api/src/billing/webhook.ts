@@ -14,7 +14,10 @@
 // PAYMENT LINKS ARE THE ONLY WAY TO BUY (D-104: the site's own checkout is retired). A session becomes
 // an order here, built from the link's metadata (`ai_plan`, `ai_option`, `billing`, `campaign`) and the
 // custom fields Ampy adds (`company`, `crm`, `agents`). A Team Plan session must say
-// `billing=forum_prepay`; one that does not is from an older link and is not provisioned.
+// `billing=forum_prepay`; one that does not is from an older link and is not provisioned. An Amplified
+// Agent Plan session (`ai_plan=agent_plan`, `ai_option=monthly|yearly`, D-106) is a trial with nothing
+// due today: its order is `trialing`, its plan opens nothing until the Jan 4, 2027 invoice is paid, and
+// its subscription's `trial_end` is pinned to that day.
 //
 // NEVER LOGGED: names, emails, phone numbers. Order, account, plan and Stripe ids only.
 
@@ -237,6 +240,12 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
     })
     .where(eq(orders.id, order.id));
   if (next !== 'paid' && next !== 'trialing') return 'awaiting-payment';
+  const pinAt = pinnedFirstCharge(cart);
+  if (cart.plan === 'agent_plan' && paid && pinAt !== null && now < pinAt) {
+    // The Agent Plan's links sell a trial to Jan 4. A charge today means a link lost its trial: the
+    // buyer is billed from today, not from Jan 4. Provisioned as paid; Connor and Ampy look at the link.
+    deps.log.error({ session: session.id, order: order.id, option: cart.option }, 'an Agent Plan checkout charged before Jan 4: its Payment Link has no trial. Connor follows up');
+  }
 
   const provisioned = await provisionOrder(order.id, {
     db,
@@ -266,11 +275,12 @@ async function sessionCompleted(session: Stripe.Checkout.Session, deps: WebhookD
       update.metadata = { order_id: order.id, ai_plan: cart.plan, ai_option: cart.option, ...(fresh.campaign ? { campaign: fresh.campaign } : {}) };
     }
     // Fixed calendar dates, whatever relative trial a Payment Link set on the day it was last edited:
-    // an Amplified Team Plan's monthly billing starts Apr 4, 2027; the AI Accelerator in full rolls into
-    // Amplified Insiders on May 4, 2027 (its subscription carries the membership).
-    const pin = pinnedFirstCharge(cart);
-    if (pin !== null && sub.status === 'trialing' && sub.trialEnd !== null && Math.floor(sub.trialEnd / 1000) !== Math.floor(pin / 1000)) {
-      update.trial_end = Math.floor(pin / 1000);
+    // the Amplified Agent Plan's first charge is Jan 4, 2027; an Amplified Team Plan's monthly billing
+    // starts Apr 4, 2027; the AI Accelerator in full rolls into Amplified Insiders on May 4, 2027 (its
+    // subscription carries the membership). Only a date still ahead: Stripe refuses a past `trial_end`,
+    // and an Agent Plan bought after Jan 4 keeps whatever its link sold.
+    if (pinAt !== null && pinAt > now && sub.status === 'trialing' && sub.trialEnd !== null && Math.floor(sub.trialEnd / 1000) !== Math.floor(pinAt / 1000)) {
+      update.trial_end = Math.floor(pinAt / 1000);
       update.proration_behavior = 'none';
     }
     if (Object.keys(update).length) await stripe.updateSubscription(subscriptionId, update, `order-${order.id}-sub`);
@@ -422,10 +432,13 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
     if (order.plan !== 'cohort') plan = await planOfOrder(db, order.id);
   }
   let periodEnd = periodEndOfInvoice(invoice);
-  // The first invoice's trial line ends where the link's relative trial did; the pinned first charge
-  // replaces that date (`sessionCompleted`), so the plan is paid through the pin, not past it.
+  // The first invoice of a cart that charges a one-time item beside a trialing recurring one (the AI
+  // Accelerator in full, the Team Plan) carries the trial line, which ends where the link's relative
+  // trial did; the pinned first charge replaces that date (`sessionCompleted`), so the plan is paid
+  // through the pin, not past it. The Agent Plan sells its one recurring item alone: its trial invoice
+  // is $0 (ignored above), and anything it does pay covers its own period.
   const planCart = plan ? cartFor(plan.kind, plan.option) : null;
-  const pin = planCart ? pinnedFirstCharge(planCart) : null;
+  const pin = planCart && planCart.items.length > 1 ? pinnedFirstCharge(planCart) : null;
   if (pin !== null && periodEnd !== null && periodEnd > pin && now < pin) periodEnd = pin;
   if (plan && plan.status !== 'ended' && periodEnd !== null) {
     await db

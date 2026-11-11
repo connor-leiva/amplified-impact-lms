@@ -16,6 +16,7 @@ import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { accounts, orders, plans, users } from '../db/schema';
 import { clock } from '../lib/clock';
+import { SUPPORT_EMAIL } from '../billing/catalog';
 import type { OfferConfig } from '../billing/config';
 import type { BillingStripe } from '../billing/stripe';
 import { errorReason } from '../billing/webhook';
@@ -50,7 +51,7 @@ export function registerBillingRoutes(app: FastifyInstance, options: { stripe: B
     const fallback = (): FastifyReply =>
       config.portalLoginUrl
         ? reply.header('cache-control', 'no-store').redirect(config.portalLoginUrl, 303)
-        : reply.code(503).send({ error: 'Billing is not available yet. Write to admin@amplifiedimpact.io.' });
+        : reply.code(503).send({ error: `Billing is not available yet. Write to ${SUPPORT_EMAIL}.` });
     if (actor.kind !== 'learner') return reply.code(403).send({ error: 'Billing belongs to an account owner.' });
 
     const db = getDb();

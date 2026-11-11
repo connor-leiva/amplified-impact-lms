@@ -5,7 +5,9 @@
 //   up now or was paid up when the skill was released.
 //
 // "Has started" is the plan's `starts_at`: purchase for every plan but the Team Plan, whose agent
-// skills open on Dec 14, 2026 with the starter path while its logins open at purchase (D-104).
+// skills open on Dec 14, 2026 with the starter path while its logins open at purchase (D-104), and the
+// Agent Plan, whose skills open on Jan 4, 2027, the day of its first charge (D-106). The Agent Plan is
+// paid through nothing until that charge is paid, so a trial that never pays opens nothing.
 //
 // That is "cancel and keep": a lapsed plan keeps everything released while it was paid, and nothing
 // after. Since a skill opens only once it is released (`released_at <= now`), "paid up now" and "paid

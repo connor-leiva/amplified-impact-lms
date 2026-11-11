@@ -3,7 +3,11 @@
 // completed session (the site's own checkout is retired), signed exactly as Stripe signs webhooks
 // (`generateTestHeaderString`); the subscription calls go to a stub that records them. No network.
 //
-// The scenarios are numbered as in the spec's "In test mode" table where they map onto one.
+// The scenarios are numbered as in the spec's "In test mode" table where they map onto one. "Every
+// offer, end to end" (D-106) walks each of the eight carts through the same path: the account, the
+// plan, the held invite, the welcome page, the skills by date, a failed payment, cancel and keep, and a
+// refund. Its sessions are shaped from the links' metadata contract (D-104, D-106), not from Stripe
+// sandbox fixtures, which the repository does not have.
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import Stripe from 'stripe';
@@ -12,8 +16,19 @@ import { build } from '../src/app';
 import type { App } from '../src/app';
 import { accounts, orders, plans, skills, stripeEvents, users, teams } from '../src/db/schema';
 import { AGREEMENT_VERSION } from '../src/billing/agreement';
-import { AGENTS_FIRST_CHARGE_AT, AGENTS_SKILLS_FROM, CARTS, INSIDERS_FIRST_CHARGE_AT } from '../src/billing/catalog';
-import type { CartId } from '../src/billing/catalog';
+import {
+  AGENT_PLAN_FIRST_CHARGE_AT,
+  AGENTS_FIRST_CHARGE_AT,
+  AGENTS_SKILLS_FROM,
+  CARTS,
+  CART_IDS,
+  INSIDERS_FIRST_CHARGE_AT,
+  PLAN_NAMES,
+  addMonths,
+} from '../src/billing/catalog';
+import type { CartId, PlanKind } from '../src/billing/catalog';
+import { handleStripeEvent } from '../src/billing/webhook';
+import { buyerTags } from '../src/integrations/ghl';
 import type { OfferConfig } from '../src/billing/config';
 import { createPriceCache } from '../src/billing/prices';
 import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
@@ -37,6 +52,8 @@ const PRICE_LIST: PriceInfo[] = [
   { lookupKey: 'agents_16to40_prepay3', id: 'price_p40', unitAmount: 239100, currency: 'usd', interval: null, productName: 'Amplified Team Plan' },
   { lookupKey: 'agents_upto15_founding', id: 'price_a15', unitAmount: 49700, currency: 'usd', interval: 'month', productName: 'Agent Team Plan' },
   { lookupKey: 'agents_16to40_founding', id: 'price_a40', unitAmount: 79700, currency: 'usd', interval: 'month', productName: 'Agent Team Plan' },
+  { lookupKey: 'agent_plan_monthly', id: 'price_apm', unitAmount: 7900, currency: 'usd', interval: 'month', productName: 'Amplified Agent Plan' },
+  { lookupKey: 'agent_plan_yearly', id: 'price_apy', unitAmount: 79000, currency: 'usd', interval: 'year', productName: 'Amplified Agent Plan' },
 ];
 
 const OFFER_PAGE = [
@@ -53,7 +70,7 @@ const PRICING_PAGE = [
   '<li id="team-plan" data-state="%%state:agents-upto15%%"><a href="%%link:agents-upto15%%">z</a></li><p class="call">%%team-call%%</p></body></html>',
 ].join('');
 const WELCOME_PAGE =
-  '<!doctype html><html><body data-state="%%welcome-state%%" data-product="%%product%%"><h1>%%plan-name%%</h1><p>%%login%%</p><a href="%%intake-url%%">i</a></body></html>';
+  '<!doctype html><html><body data-state="%%welcome-state%%" data-product="%%product%%"><h1>%%plan-name%%</h1><p class="paid">%%paid-line%%</p><p>%%login%%</p><a href="%%intake-url%%">i</a></body></html>';
 
 interface Stub {
   client: BillingStripe;
@@ -64,11 +81,13 @@ interface Stub {
   creates: { params: Stripe.SubscriptionCreateParams; key: string }[];
   cancels: string[];
   subs: Map<string, SubscriptionInfo>;
+  /** Which subscription a payment intent paid an invoice of, for a refund of a subscription charge. */
+  intents: Map<string, string>;
   fail: boolean;
 }
 
 function stubStripe(): Stub {
-  const stub: Stub = { portals: [], members: new Set(), updates: [], creates: [], cancels: [], subs: new Map(), fail: false, client: null as never };
+  const stub: Stub = { portals: [], members: new Set(), updates: [], creates: [], cancels: [], subs: new Map(), intents: new Map(), fail: false, client: null as never };
   const sub = (id: string, over: Partial<SubscriptionInfo> = {}): SubscriptionInfo => ({
     id,
     status: 'active',
@@ -102,7 +121,7 @@ function stubStripe(): Stub {
       return 'https://billing.stripe.com/p/session/test_portal';
     },
     paymentMethodOfPaymentIntent: async () => 'pm_saved',
-    subscriptionOfPaymentIntent: async () => null,
+    subscriptionOfPaymentIntent: async (pi) => stub.intents.get(pi) ?? null,
     constructEvent: stripeVerifier(),
   };
   return stub;
@@ -302,10 +321,22 @@ describe('the offer pages (D-075, D-104)', () => {
     expect(soldOut).toContain('<li id="accelerator" data-state="soldout">');
   });
 
-  it('GET /api/offer lists the six carts with live prices and their links', async () => {
+  it('GET /api/offer lists the eight carts with live prices and their links', async () => {
     const body = (await app.inject({ method: 'GET', url: '/api/offer' })).json();
     expect(body.founding).toEqual({ open: true, closesAt: '2026-12-01T06:59:00.000Z' });
-    expect(body.carts.map((c: { id: string }) => c.id)).toEqual(['cohort-full', 'cohort-two-pay', 'insiders-year', 'insiders-monthly', 'agents-upto15', 'agents-16to40']);
+    expect(body.carts.map((c: { id: string }) => c.id)).toEqual([
+      'cohort-full',
+      'cohort-two-pay',
+      'insiders-year',
+      'insiders-monthly',
+      'agents-upto15',
+      'agents-16to40',
+      'agent-monthly',
+      'agent-yearly',
+    ]);
+    const agent = body.carts.find((c: { id: string }) => c.id === 'agent-yearly');
+    expect(agent).toMatchObject({ plan: 'agent_plan', option: 'yearly', name: 'Amplified Agent Plan', founding: false, state: 'soon', paymentLink: null });
+    expect(agent.prices).toEqual([{ lookupKey: 'agent_plan_yearly', amount: 79000, currency: 'usd', interval: 'year' }]);
     const year = body.carts.find((c: { id: string }) => c.id === 'insiders-year');
     expect(year).toMatchObject({ plan: 'membership', option: 'year_upfront', name: 'Amplified Insiders', state: 'link', paymentLink: 'https://buy.stripe.com/test_insiders_year' });
     expect(year.prices[0]).toEqual({ lookupKey: 'membership_year_upfront', amount: 199700, currency: 'usd', interval: null });
@@ -726,5 +757,439 @@ describe('Manage Billing (D-077, Connor 2026-11-10)', () => {
     const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
     expect(res.statusCode).toBe(303);
     expect(res.headers.location).toBe('https://billing.stripe.com/p/login/test_portal');
+  });
+});
+
+// --- every offer, end to end (D-106) ----------------------------------------------------------------
+
+/** What one cart must deliver, from the purchase to its end. */
+interface OfferCase {
+  cart: CartId;
+  /** What the completed session says was paid today: the Agent Plan sells a trial with nothing due. */
+  paymentStatus: 'paid' | 'no_payment_required';
+  plan: {
+    kind: PlanKind;
+    option: string;
+    seats: number;
+    status: 'active' | 'trialing';
+    cohortId: string | null;
+    startsAt: number;
+    paidThrough: number | null;
+    liveUntil: number | null;
+    minimumUntil: number | null;
+  };
+  tier: 'team' | 'agent';
+  /** The `trial_end` the webhook pins, in seconds, or null when it pins nothing. */
+  pin: number | null;
+  tags: string[];
+  /** When the owner first opens a skill of each set (a skill released before the purchase): null for never. */
+  opens: { owner_ops: number | null; agent: number | null };
+  /** The plan's first charge after the checkout, when nothing was charged at it: the Agent Plan's Jan 4 invoice. */
+  firstCharge?: { amount: number; periodEnd: number };
+}
+
+const JAN4 = AGENT_PLAN_FIRST_CHARGE_AT;
+const after = (t: number) => t + 9 * 3_600_000;
+const OFFER_CASES: OfferCase[] = [
+  {
+    cart: 'cohort-full',
+    paymentStatus: 'paid',
+    plan: { kind: 'cohort', option: 'full', seats: 2, status: 'active', cohortId: 'dec26', startsAt: NOW_MS, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
+    tier: 'team',
+    pin: 1809406800,
+    tags: ['offer-buyer', 'plan-cohort', 'pay-full'],
+    opens: { owner_ops: NOW_MS, agent: NOW_MS },
+  },
+  {
+    cart: 'cohort-two-pay',
+    paymentStatus: 'paid',
+    plan: { kind: 'cohort', option: 'two_pay', seats: 2, status: 'active', cohortId: 'dec26', startsAt: NOW_MS, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
+    tier: 'team',
+    pin: null,
+    tags: ['offer-buyer', 'plan-cohort', 'pay-two'],
+    opens: { owner_ops: NOW_MS, agent: NOW_MS },
+  },
+  {
+    cart: 'insiders-year',
+    paymentStatus: 'paid',
+    plan: { kind: 'membership', option: 'year_upfront', seats: 2, status: 'active', cohortId: null, startsAt: NOW_MS, paidThrough: NOW_MS + 365 * DAY, liveUntil: null, minimumUntil: null },
+    tier: 'team',
+    pin: null,
+    tags: ['offer-buyer', 'plan-membership', 'pay-year'],
+    opens: { owner_ops: NOW_MS, agent: null },
+  },
+  {
+    cart: 'insiders-monthly',
+    paymentStatus: 'paid',
+    plan: { kind: 'membership', option: 'monthly', seats: 2, status: 'active', cohortId: null, startsAt: NOW_MS, paidThrough: addMonths(NOW_MS, 1), liveUntil: null, minimumUntil: addMonths(NOW_MS, 3) },
+    tier: 'team',
+    pin: null,
+    tags: ['offer-buyer', 'plan-membership', 'pay-monthly'],
+    opens: { owner_ops: NOW_MS, agent: null },
+  },
+  {
+    cart: 'agents-upto15',
+    paymentStatus: 'paid',
+    plan: { kind: 'agents', option: 'upto15', seats: 16, status: 'active', cohortId: null, startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null, minimumUntil: null },
+    tier: 'team',
+    pin: 1806814800,
+    tags: ['offer-buyer', 'plan-agents'],
+    opens: { owner_ops: null, agent: AGENTS_SKILLS_FROM },
+  },
+  {
+    cart: 'agents-16to40',
+    paymentStatus: 'paid',
+    plan: { kind: 'agents', option: '16to40', seats: 41, status: 'active', cohortId: null, startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null, minimumUntil: null },
+    tier: 'team',
+    pin: 1806814800,
+    tags: ['offer-buyer', 'plan-agents'],
+    opens: { owner_ops: null, agent: AGENTS_SKILLS_FROM },
+  },
+  {
+    cart: 'agent-monthly',
+    paymentStatus: 'no_payment_required',
+    plan: { kind: 'agent_plan', option: 'monthly', seats: 1, status: 'trialing', cohortId: null, startsAt: JAN4, paidThrough: null, liveUntil: null, minimumUntil: null },
+    tier: 'agent',
+    pin: 1799042400,
+    tags: ['offer-buyer', 'plan-agent-plan', 'pay-monthly'],
+    opens: { owner_ops: null, agent: JAN4 },
+    firstCharge: { amount: 7900, periodEnd: addMonths(JAN4, 1) },
+  },
+  {
+    cart: 'agent-yearly',
+    paymentStatus: 'no_payment_required',
+    plan: { kind: 'agent_plan', option: 'yearly', seats: 1, status: 'trialing', cohortId: null, startsAt: JAN4, paidThrough: null, liveUntil: null, minimumUntil: null },
+    tier: 'agent',
+    pin: 1799042400,
+    tags: ['offer-buyer', 'plan-agent-plan', 'pay-yearly'],
+    opens: { owner_ops: null, agent: JAN4 },
+    firstCharge: { amount: 79000, periodEnd: addMonths(JAN4, 12) },
+  },
+];
+
+describe('every offer, end to end (D-106)', () => {
+  beforeEach(async () => void (await fresh()));
+
+  it('covers every cart the catalog sells', () => {
+    expect(OFFER_CASES.map((c) => c.cart)).toEqual([...CART_IDS]);
+  });
+
+  const subOf = (c: OfferCase) => `sub_${c.cart.replace(/-/g, '_')}`;
+  /** The subscription the plan is paid by: two payments' Insiders is its own (`ensureInsiders`). */
+  const planSubOf = (c: OfferCase) => (c.cart === 'cohort-two-pay' ? 'sub_membership_1' : subOf(c));
+
+  /** One purchase through the cart's link, with the subscription a Payment Link opens. */
+  async function purchase(c: OfferCase, email = 'pat@example.com') {
+    const sub = subOf(c);
+    const trialing = c.pin !== null;
+    stub.subs.set(sub, { id: sub, status: trialing ? 'trialing' : 'active', customer: 'cus_1', trialEnd: trialing ? c.pin! * 1000 + 3 * DAY : null, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    stub.intents.set(`pi_${sub}`, sub);
+    return buy(c.cart, { email }, { subscription: sub, payment_status: c.paymentStatus, amount_total: c.paymentStatus === 'paid' ? 100 : 0 });
+  }
+
+  /** The Agent Plan's Jan 4 invoice, paid that morning. */
+  async function payFirstCharge(c: OfferCase, orderId: string) {
+    process.env.FIXED_NOW = new Date(JAN4 + 3_600_000).toISOString();
+    const res = await deliver('invoice.paid', invoice(subOf(c), c.firstCharge!.amount, c.firstCharge!.periodEnd, { order_id: orderId, ai_plan: 'agent_plan', ai_option: c.plan.option }));
+    expect(res.statusCode).toBe(200);
+  }
+
+  async function seedSkills() {
+    await (await db()).insert(skills).values([
+      { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: NOW_MS - DAY, files: { claude: 'team-pnl-review.zip' } },
+      { id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } },
+      { id: 'perfect-week', title: 'Perfect Week', sets: 'both', releasedAt: NOW_MS - DAY, files: { claude: 'perfect-week.zip' } },
+    ]);
+  }
+
+  async function skillStates(email = 'pat@example.com'): Promise<Record<string, string>> {
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, email));
+    const cookie = await app.signInAs(owner!.id);
+    const res = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
+    expect(res.statusCode).toBe(200);
+    return Object.fromEntries(res.json().skills.map((s: { id: string; state: string }) => [s.id, s.state]));
+  }
+
+  const expectOpen = (states: Record<string, string>, c: OfferCase, at: number) => {
+    const open = (when: number | null) => (when !== null && at >= when ? 'open' : 'locked');
+    expect(states, `${c.cart} at ${new Date(at).toISOString()}`).toEqual({
+      'team-pnl-review': open(c.opens.owner_ops),
+      'offer-strategy': open(c.opens.agent),
+      'perfect-week': open([c.opens.owner_ops, c.opens.agent].filter((x): x is number => x !== null).sort((a, b) => a - b)[0] ?? null),
+    });
+  };
+
+  for (const c of OFFER_CASES) {
+    describe(`${c.cart} (${PLAN_NAMES[c.plan.kind]})`, () => {
+      it('makes the account, the plan and a held invite, confirms the plan on the welcome page, and opens its skills on their day', async () => {
+        const order = await purchase(c);
+        expect(order).toMatchObject({ plan: c.plan.kind, option: c.plan.option, origin: 'payment_link', status: c.paymentStatus === 'paid' ? 'paid' : 'trialing', email: 'pat@example.com', agreementVersion: AGREEMENT_VERSION });
+        expect(buyerTags(order)).toEqual(c.tags);
+
+        // The account and its owner, matched by email.
+        const accts = await (await db()).select().from(accounts);
+        expect(accts).toHaveLength(1);
+        expect(accts[0]).toMatchObject({ ownerEmail: 'pat@example.com', inviteSentAt: null, stripeCustomerId: 'cus_1' });
+        const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+        expect(owner).toMatchObject({ role: 'Team Owner', tier: c.tier, status: 'invited', teamId: accts[0]!.teamId, cohortId: 'dec26' });
+        const [team] = await (await db()).select().from(teams);
+        expect(team).toMatchObject({ ownerId: owner!.id, seats: c.plan.seats });
+
+        // The plan.
+        const [plan] = await (await db()).select().from(plans);
+        expect(plan).toMatchObject({ ...c.plan, accountId: accts[0]!.id, orderId: order.id, stripeSubscriptionId: planSubOf(c) });
+
+        // The subscription: tagged with the order, and pinned when the cart has a fixed first charge.
+        const own = stub.updates.filter((u) => u.id === subOf(c));
+        expect(own.at(-1)?.params.metadata).toMatchObject({ order_id: order.id, ai_plan: c.plan.kind, ai_option: c.plan.option });
+        expect(own.at(-1)?.params.trial_end).toBe(c.pin ?? undefined);
+
+        // The invite waits for Monday morning, then goes once.
+        expect(outboxFor({ to: 'pat@example.com' })).toEqual([]);
+        const log = { info: () => {}, warn: () => {}, error: () => {} };
+        expect(await sendHeldInvites({ log, now: CONFIG.invitesFrom, invitesFrom: CONFIG.invitesFrom })).toBe(1);
+        expect(outboxFor({ to: 'pat@example.com', template: 'team-invite' })).toHaveLength(1);
+
+        // The welcome page confirms the plan by its session.
+        const welcome = await app.inject({ method: 'GET', url: `/offer/welcome?session_id=${order.stripeSessionId}` });
+        expect(welcome.body).toContain('data-state="confirmed"');
+        expect(welcome.body).toContain(`<h1>${PLAN_NAMES[c.plan.kind]}</h1>`);
+        expect(welcome.body).toContain(
+          c.paymentStatus === 'paid'
+            ? 'Your payment is in, and Stripe has emailed your receipt.'
+            : 'Your card is saved. Nothing is charged until Monday, January 4, 2027, when your agent skills open.',
+        );
+        const status = await app.inject({ method: 'GET', url: `/api/offer/order-status?session_id=${order.stripeSessionId}` });
+        expect(status.json()).toEqual({ status: order.status, plan: c.plan.kind, name: PLAN_NAMES[c.plan.kind] });
+
+        // The skills, by date: today, the Team Plan's Dec 14, and Jan 4.
+        await seedSkills();
+        expectOpen(await skillStates(), c, NOW_MS);
+        process.env.FIXED_NOW = new Date(after(AGENTS_SKILLS_FROM)).toISOString();
+        expectOpen(await skillStates(), c, after(AGENTS_SKILLS_FROM));
+        if (c.firstCharge) {
+          // Jan 4, before its invoice is paid: nothing is paid for, so nothing opens.
+          process.env.FIXED_NOW = new Date(JAN4 + 60_000).toISOString();
+          expect(Object.values(await skillStates())).toEqual(['locked', 'locked', 'locked']);
+          await payFirstCharge(c, order.id);
+          const [paid] = await (await db()).select().from(plans);
+          expect(paid).toMatchObject({ status: 'active', paidThrough: c.firstCharge.periodEnd, startsAt: JAN4 });
+          expect(await one()).toMatchObject({ status: 'paid', paymentsMade: 1, paidAt: JAN4 + 3_600_000, ghlSyncedAt: null });
+        }
+        process.env.FIXED_NOW = new Date(after(JAN4)).toISOString();
+        expectOpen(await skillStates(), c, after(JAN4));
+      });
+
+      it('a failed payment makes the plan past_due and tags payment-failed', async () => {
+        const order = await purchase(c);
+        if (c.firstCharge) process.env.FIXED_NOW = new Date(JAN4 + 3_600_000).toISOString();
+        const res = await deliver('invoice.payment_failed', invoice(subOf(c), 0, NOW_MS + 31 * DAY, { order_id: order.id }));
+        expect(res.statusCode).toBe(200);
+        const [plan] = await (await db()).select().from(plans);
+        expect(plan!.status).toBe('past_due');
+        const failed = await one();
+        expect(failed.paymentFailedAt).not.toBeNull();
+        expect(buyerTags(failed)).toContain('payment-failed');
+        if (c.firstCharge) {
+          // The Agent Plan's first charge failed: nothing was ever paid, so nothing opens.
+          await seedSkills();
+          process.env.FIXED_NOW = new Date(after(JAN4)).toISOString();
+          expect(Object.values(await skillStates())).toEqual(['locked', 'locked', 'locked']);
+        }
+      });
+
+      it('cancel and keep: paid_through stays, live sessions end, and the buyer is tagged membership-ended', async () => {
+        const order = await purchase(c);
+        let cancelAt = NOW_MS;
+        if (c.firstCharge) {
+          await payFirstCharge(c, order.id);
+          // Cancelled in the portal at period end: Stripe ends the subscription when the paid period does.
+          await deliver('customer.subscription.updated', { id: subOf(c), object: 'subscription', status: 'active', cancel_at_period_end: true, metadata: { order_id: order.id } });
+          expect((await (await db()).select().from(plans))[0]!.status).toBe('active');
+          cancelAt = c.firstCharge.periodEnd;
+          process.env.FIXED_NOW = new Date(cancelAt).toISOString();
+        }
+        const [before] = await (await db()).select().from(plans);
+        const res = await deliver('customer.subscription.deleted', { id: planSubOf(c), object: 'subscription', status: 'canceled', metadata: { order_id: order.id } });
+        expect(res.statusCode).toBe(200);
+        const [plan] = await (await db()).select().from(plans);
+        const end = before!.paidThrough ?? cancelAt;
+        expect(plan).toMatchObject({ status: 'canceled', paidThrough: before!.paidThrough, liveUntil: before!.liveUntil === null ? end : Math.min(before!.liveUntil, Math.max(end, cancelAt)) });
+        expect((await one()).membershipEndedAt).toBe(cancelAt);
+        expect(buyerTags(await one())).toContain('membership-ended');
+
+        // What was released while it was paid stays open; a skill released after it does not.
+        await seedSkills();
+        await (await db()).insert(skills).values({ id: 'later-skill', title: 'Later', sets: 'both', releasedAt: before!.paidThrough! + DAY, files: { claude: 'later.zip' } });
+        const at = Math.max(after(JAN4), before!.paidThrough! + 2 * DAY);
+        process.env.FIXED_NOW = new Date(at).toISOString();
+        const states = await skillStates();
+        expect(states['later-skill']).toBe('locked');
+        delete states['later-skill'];
+        expectOpen(states, c, at);
+      });
+
+      it('a full refund ends the plan and its access, and stops later charges', async () => {
+        const order = await purchase(c);
+        let refundAt = NOW_MS;
+        if (c.firstCharge) {
+          await payFirstCharge(c, order.id);
+          refundAt = JAN4 + DAY;
+          process.env.FIXED_NOW = new Date(refundAt).toISOString();
+        }
+        const res = await deliver('charge.refunded', { id: `ch_${c.cart}`, object: 'charge', refunded: true, payment_intent: `pi_${subOf(c)}` });
+        expect(res.statusCode).toBe(200);
+        const [plan] = await (await db()).select().from(plans);
+        expect(plan).toMatchObject({ status: 'ended', liveUntil: refundAt });
+        expect(await one()).toMatchObject({ status: 'refunded', refundedAt: refundAt });
+        expect(buyerTags(await one())).toContain('refunded');
+        expect(stub.cancels.sort()).toEqual([...new Set([subOf(c), planSubOf(c)])].sort());
+        await seedSkills();
+        process.env.FIXED_NOW = new Date(after(JAN4) + DAY).toISOString();
+        expect(Object.values(await skillStates())).toEqual(['locked', 'locked', 'locked']);
+      });
+    });
+  }
+
+  it('a second purchase, of any offer, lands on the same account, whatever the email\'s case', async () => {
+    const order = ['agent-monthly', 'insiders-year', 'cohort-full', 'cohort-two-pay', 'insiders-monthly', 'agents-upto15', 'agents-16to40', 'agent-yearly'] as const;
+    for (const [i, cart] of order.entries()) {
+      const c = OFFER_CASES.find((x) => x.cart === cart)!;
+      await purchase(c, i % 2 ? 'Pat@Example.com' : 'pat@example.com');
+      const [owner] = await (await db()).select().from(users);
+      // The Agent Plan alone is Agent tier; any Team tier plan raises it, and nothing lowers it again.
+      expect(owner!.tier, cart).toBe(i === 0 ? 'agent' : 'team');
+    }
+    expect(await (await db()).select().from(accounts)).toHaveLength(1);
+    expect(await (await db()).select().from(users)).toHaveLength(1);
+    const allTeams = await (await db()).select().from(teams);
+    expect(allTeams).toHaveLength(1);
+    expect(allTeams[0]!.seats).toBe(41);
+    const held = await (await db()).select().from(plans);
+    expect(held.map((p) => `${p.kind}/${p.option}`).sort()).toEqual(OFFER_CASES.map((c) => `${c.plan.kind}/${c.plan.option}`).sort());
+    expect(new Set(held.map((p) => p.accountId)).size).toBe(1);
+    // Insiders opens the owner set today; the Agent Plan adds nothing until its Jan 4 charge is paid.
+    await seedSkills();
+    expect(await skillStates()).toEqual({ 'team-pnl-review': 'open', 'offer-strategy': 'open', 'perfect-week': 'open' });
+  });
+
+  it('after INVITES_FROM, every offer\'s owner invite goes at once', async () => {
+    process.env.FIXED_NOW = '2026-11-17T10:00:00-06:00';
+    for (const [i, c] of OFFER_CASES.entries()) await purchase(c, `buyer${i}@example.com`);
+    for (const [i] of OFFER_CASES.entries()) expect(outboxFor({ to: `buyer${i}@example.com`, template: 'team-invite' }), OFFER_CASES[i]!.cart).toHaveLength(1);
+    expect((await (await db()).select().from(accounts)).every((a) => a.inviteSentAt === Date.parse('2026-11-17T10:00:00-06:00'))).toBe(true);
+  });
+});
+
+describe('the AI Accelerator rolls into Amplified Insiders on May 4, 2027 (D-104, D-106)', () => {
+  beforeEach(async () => void (await fresh()));
+  const MAY4 = INSIDERS_FIRST_CHARGE_AT;
+
+  it('paid in full: the first $197 on May 4 carries the plan, both sets and its live sessions a month on', async () => {
+    stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: MAY4, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    const order = await buy('cohort-full', {}, { subscription: 'sub_full' });
+    process.env.FIXED_NOW = '2027-05-04T09:00:00-05:00';
+    await deliver('invoice.paid', invoice('sub_full', 19700, addMonths(MAY4, 1), { order_id: order.id, ai_plan: 'cohort', ai_option: 'full' }));
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan).toMatchObject({ kind: 'cohort', status: 'active', paidThrough: addMonths(MAY4, 1), liveUntil: addMonths(MAY4, 1) });
+    expect(stub.creates).toEqual([]);
+  });
+
+  it('two payments: the separate Insiders subscription\'s first $197 carries the plan, and never counts as an installment', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    expect(stub.creates[0]!.params.trial_end).toBe(MAY4 / 1000);
+    process.env.FIXED_NOW = '2027-05-04T09:00:00-05:00';
+    await deliver('invoice.paid', invoice('sub_membership_1', 19700, addMonths(MAY4, 1), { order_id: order.id, ai_plan: 'membership', ai_option: 'monthly' }));
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan).toMatchObject({ kind: 'cohort', status: 'active', paidThrough: addMonths(MAY4, 1), liveUntil: addMonths(MAY4, 1), stripeSubscriptionId: 'sub_membership_1' });
+    expect((await one()).paymentsMade).toBe(0);
+  });
+
+  it('cancelling Insiders before May 4 keeps the AI Accelerator: its skills and builds to May 4', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    await deliver('customer.subscription.deleted', { id: 'sub_membership_1', object: 'subscription', status: 'canceled', metadata: { order_id: order.id } });
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan).toMatchObject({ status: 'canceled', paidThrough: MAY4, liveUntil: MAY4 });
+  });
+});
+
+describe('the Amplified Agent Plan, edges (D-106)', () => {
+  beforeEach(async () => void (await fresh()));
+
+  it('bought after Jan 4 and charged at checkout: no pin into the past, paid through one period, skills open at once', async () => {
+    process.env.FIXED_NOW = '2027-01-10T10:00:00-06:00';
+    const now = Date.parse('2027-01-10T10:00:00-06:00');
+    stub.subs.set('sub_late', { id: 'sub_late', status: 'trialing', customer: 'cus_1', trialEnd: now + 7 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    const order = await buy('agent-monthly', {}, { subscription: 'sub_late', payment_status: 'paid' });
+    expect(order.status).toBe('paid');
+    expect(stub.updates.every((u) => u.params.trial_end === undefined)).toBe(true);
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan).toMatchObject({ kind: 'agent_plan', status: 'active', startsAt: now, paidThrough: addMonths(now, 1) });
+  });
+
+  it('an Agent Plan link that charged before Jan 4 is provisioned and logged for Connor, by ids only', async () => {
+    const errors: { obj: Record<string, unknown>; msg: string }[] = [];
+    const log = { info: () => {}, warn: () => {}, error: (obj: Record<string, unknown>, msg: string) => void errors.push({ obj, msg }) };
+    const session = { ...linkSession('agent-yearly'), subscription: 'sub_paid_now', payment_status: 'paid' };
+    const result = await handleStripeEvent(
+      { id: 'evt_agent_paid', object: 'event', type: 'checkout.session.completed', data: { object: session } } as unknown as Stripe.Event,
+      { stripe: stub.client, config: CONFIG, prices: createPriceCache(() => stub.client), log, now: () => NOW_MS, db: await db() },
+    );
+    expect(result).toBe('paid');
+    expect(errors.map((e) => e.msg)).toEqual(['an Agent Plan checkout charged before Jan 4: its Payment Link has no trial. Connor follows up']);
+    expect(JSON.stringify(errors)).not.toContain('pat@example.com');
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan).toMatchObject({ status: 'active', startsAt: AGENT_PLAN_FIRST_CHARGE_AT, paidThrough: addMonths(NOW_MS, 12) });
+  });
+
+  it('a solo agent who already holds a Team Plan seat on someone else\'s team is recorded and paid, not provisioned', async () => {
+    await buy('agents-upto15', { email: 'owner@example.com' }, { subscription: 'sub_team' });
+    const [acct] = await (await db()).select().from(accounts);
+    await (await db()).insert(users).values({ id: 'u_agent', email: 'agent@example.com', name: 'Agent', kind: 'learner', role: 'Sales Agent', tier: 'team', teamId: acct!.teamId, cohortId: 'dec26', status: 'active', joined: NOW_MS });
+    const order = await buy('agent-monthly', { email: 'agent@example.com' }, { subscription: 'sub_solo', payment_status: 'no_payment_required' });
+    expect(order.status).toBe('trialing');
+    expect(await (await db()).select().from(accounts)).toHaveLength(1);
+    expect((await (await db()).select().from(plans)).map((p) => p.kind)).toEqual(['agents']);
+  });
+});
+
+describe('the Team Plan\'s owner adds agents from the Team Hub (D-081, D-106)', () => {
+  beforeEach(async () => void (await fresh()));
+
+  it('an invited Sales Agent opens the agent set from Dec 14 and never the owner set', async () => {
+    await buy('agents-upto15', {}, { subscription: 'sub_team' });
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+    const cookie = await app.signInAs(owner!.id);
+    const res = await app.inject({ method: 'POST', url: '/api/mutate/inviteMember', headers: { cookie }, payload: { email: 'agent@example.com', role: 'Sales Agent' } });
+    expect(res.statusCode, res.body).toBe(200);
+    const [agent] = await (await db()).select().from(users).where(eq(users.email, 'agent@example.com'));
+    expect(agent).toMatchObject({ role: 'Sales Agent', teamId: owner!.teamId, status: 'invited' });
+    await (await db()).insert(skills).values([
+      { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: NOW_MS - DAY, files: { claude: 'team-pnl-review.zip' } },
+      { id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } },
+    ]);
+    const agentCookie = await app.signInAs(agent!.id);
+    const states = async () =>
+      Object.fromEntries((await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie: agentCookie } })).json().skills.map((s: { id: string; state: string }) => [s.id, s.state]));
+    expect(await states()).toEqual({ 'team-pnl-review': 'locked', 'offer-strategy': 'locked' });
+    process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
+    expect(await states()).toEqual({ 'team-pnl-review': 'locked', 'offer-strategy': 'open' });
+  });
+
+  it('caps Sales Agents at 5 today, short of the plan\'s 15 (D-081 is not built yet)', async () => {
+    await buy('agents-upto15', {}, { subscription: 'sub_team' });
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+    const cookie = await app.signInAs(owner!.id);
+    // A second apart: under FIXED_NOW each request's ids come from the clock (lib/clock.ts).
+    const invite = (i: number) => {
+      process.env.FIXED_NOW = new Date(NOW_MS + i * 1000).toISOString();
+      return app.inject({ method: 'POST', url: '/api/mutate/inviteMember', headers: { cookie }, payload: { email: `agent${i}@example.com`, role: 'Sales Agent' } });
+    };
+    for (let i = 1; i <= 5; i += 1) expect((await invite(i)).statusCode).toBe(200);
+    expect((await (await db()).select().from(users)).filter((u) => u.role === 'Sales Agent')).toHaveLength(5);
+    const sixth = await invite(6);
+    expect(sixth.body).toContain('Your plan includes 5 Sales Agents.');
+    const [team] = await (await db()).select().from(teams);
+    expect(team!.seats).toBe(16);
   });
 });

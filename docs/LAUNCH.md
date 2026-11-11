@@ -103,6 +103,10 @@ pnpm --filter @ai/api db:seed:prod -- --owner-name "Your Name" --owner-email you
 That loads §9.5's launch seed only: the six AI Employees, the price list, the reminder toggles, the
 permission matrix, one Owner and one cohort. No learners, teams, requests or activity.
 
+**Run it before the first sale reaches the webhook.** The seed refuses a database that already has a
+`users` row, and every paid order writes its buyer into `users` (D-078). After the first purchase it
+can no longer run as it is (D-106 lists this as open).
+
 The owner flags have **no defaults and are never read from the environment** — they name the only
 account that can sign in, and a value inherited from a shell is how production ends up owned by an
 address nobody controls. Running the script bare fails with usage, which is the safety property
@@ -176,7 +180,8 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
 **Before Thursday, Nov 12**
 
 1. Migrate: `pnpm --filter @ai/api db:migrate` (migration 0006 adds `orders`, `stripe_events`,
-   `accounts`, `plans` and `skills`). The deploy's `preDeploy` already runs it.
+   `accounts`, `plans` and `skills`; 0008 lets them hold the Agent Plan, D-106). The deploy's
+   `preDeploy` already runs it.
 2. Railway → **web** → Variables. **The test-mode values go in by Wednesday morning, and the live ones
    on Thursday after Spring confirms the prices.** Paste each secret straight from Stripe into
    Railway, never into chat:
@@ -188,7 +193,8 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
    | `OFFER_OPEN` | `true` when the carts open; anything else shows "The carts open soon" |
    | `FOUNDING_CLOSES_AT` | optional; defaults to `2026-11-30T23:59:00-07:00` (Mon, Nov 30, 11:59 PM Mountain) for the AI Accelerator and the Team Plan (D-104) |
    | `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`, `PAYMENT_LINK_INSIDERS_YEAR`, `PAYMENT_LINK_INSIDERS_MONTHLY`, `PAYMENT_LINK_TEAM_UPTO15_PREPAY`, `PAYMENT_LINK_TEAM_16TO40_PREPAY` | Ampy's Payment Links, the only way to buy since D-104; an unset one shows "Opens soon." |
-   | `INTAKE_URL_COHORT`, `INTAKE_URL_MEMBERSHIP`, `INTAKE_URL_AGENTS` | Sarah O.'s intake forms for the AI Accelerator, Amplified Insiders and the Team Plan; without them the welcome page says the form comes by email |
+   | `PAYMENT_LINK_AGENT_MONTHLY`, `PAYMENT_LINK_AGENT_YEARLY` | the Amplified Agent Plan's two links, $79 a month and $790 a year, first charge Jan 4, 2027 (D-106). Paste the URLs from Stripe; the code holds only these names |
+   | `INTAKE_URL_COHORT`, `INTAKE_URL_MEMBERSHIP`, `INTAKE_URL_AGENTS`, `INTAKE_URL_AGENT_PLAN` | Sarah O.'s intake forms for the AI Accelerator, Amplified Insiders, the Team Plan and the Agent Plan; without them the welcome page says the form comes by email |
    | `CALENDAR_URL_BUILDS`, `CALENDAR_URL_OFFICE_HOURS` | optional; the thank-you pages' "add to calendar" buttons (D-105). Unset, they say the invites come by email |
    | `TEAM_CALL_URL` | optional; where "Let's talk" goes for a team over 40 agents (D-105). Unset, an email to support@amplifiedimpact.io |
    | `INVITES_FROM` | optional; defaults to Mon, Nov 16, 8:00 am Central |
