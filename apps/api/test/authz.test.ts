@@ -570,6 +570,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/pricing', methods: 'GET, HEAD', guard: 'page' },
   // The Amplified AI Accelerator's sales page (D-112), filled the same way.
   { path: '/team-build', methods: 'GET, HEAD', guard: 'page' },
+  // The Amplified Team Plan's sales page (D-113), filled the same way.
+  { path: '/teams', methods: 'GET, HEAD', guard: 'page' },
   { path: '/agreement', methods: 'GET, HEAD', guard: 'page' },
   { path: '/api/offer', methods: 'GET, HEAD', guard: 'open' },
   { path: '/api/offer/order-status', methods: 'GET, HEAD', guard: 'open' },
@@ -1097,6 +1099,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             '/offer/welcome',
             '/pricing',
             '/team-build',
+            '/teams',
             '/ai-101',
             '/ai101',
             '/ai101/',

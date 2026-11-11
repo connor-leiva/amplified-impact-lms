@@ -49,26 +49,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* --- Ticked lists: who it's for, what you get -------------------------------------------------- */
+/* --- Who it's for -------------------------------------------------------------------------------- */
 
-.ticks {
-  display: grid;
-  gap: 10px;
-  margin-top: 16px;
-}
-.ticks li {
-  position: relative;
-  padding-left: 18px;
-}
-.ticks li::before {
-  content: '';
-  position: absolute;
-  top: 12px;
-  left: 0;
-  width: 8px;
-  height: 2px;
-  background: var(--action-primary);
-}
 .who-cols,
 .how-cols {
   display: grid;

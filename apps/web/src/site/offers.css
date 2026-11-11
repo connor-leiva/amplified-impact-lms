@@ -30,6 +30,36 @@
   color: var(--text-primary);
   font-weight: 500;
 }
+/* --- Ticked lists and two columns, for any sales page ------------------------------------------- */
+
+.ticks {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.ticks li {
+  position: relative;
+  padding-left: 18px;
+}
+.ticks li::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 8px;
+  height: 2px;
+  background: var(--action-primary);
+}
+.two-cols {
+  display: grid;
+  gap: 40px;
+}
+/* The login line's two versions, by whether logins still wait for INVITES_FROM (<body data-invites>). */
+body[data-invites='held'] .invites-sent,
+body[data-invites='sent'] .invites-held {
+  display: none !important;
+}
+
 /* --- States ----------------------------------------------------------------------------------- */
 
 body[data-founding='open'] .founding-closed,
@@ -258,6 +288,9 @@ body[data-seats='soldout'] .seats-left {
 }
 
 @media (min-width: 960px) {
+  .two-cols {
+    grid-template-columns: 1fr 1fr;
+  }
   .founding-in {
     grid-template-columns: auto 1fr;
     align-items: center;
