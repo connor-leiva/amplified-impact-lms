@@ -62,6 +62,17 @@ export interface Entry {
 
 export const ENTRIES: readonly Entry[] = [
   {
+    // The AI Accelerator's week 7 flagship (D-109). Paid: in the Library, not one of the free skills.
+    title: 'New Agent Onboarding Plan',
+    description: 'Write down how your team brings a new agent up to standard, once: your standards, who does what, your checkpoints and your first 30 days, with three tests and a runbook. Then get each new hire’s first 30 days dated and owned, with every gap and conflict shown to you, not filled in. Set it up once on a computer, in Claude or a ChatGPT Project.',
+    kind: 'Claude Skill',
+    href: '/new-agent-onboarding-plan',
+    tools: ['claude', 'chatgpt'],
+    topics: ['skills', 'team-ops'],
+    added: '2026-11-11',
+    keywords: 'onboarding new agent onboarding new hire new agent first 30 days 30 day plan 30-60-90 ramp ramp-up new agent checklist onboarding checklist agent handbook standards checkpoints mentor shadowing role-play lead rotation license transfer fair housing course role change runbook three tests safe failure accelerator week 7 team leader ops operator',
+  },
+  {
     title: 'AI Brain Setup',
     description: 'Answer a few questions about your business and get your Claude setup back, ready to paste: your instructions, an About My Business file, the facts to remember, and exactly where each one goes. Nothing about your clients and no passwords. Set it up once on a computer, in Claude or a ChatGPT Project.',
     kind: 'Claude Skill',

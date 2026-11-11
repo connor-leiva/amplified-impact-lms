@@ -266,10 +266,17 @@ describe('the sort', () => {
   it('moves the cards in the page, so a keyboard and a screen reader get the same order', async () => {
     await boot();
     sortBy('oldest');
-    const dates = items()
-      .filter((el) => !el.classList.contains('item-soon'))
-      .map((el) => el.getAttribute('data-added') ?? '');
-    expect(dates).toEqual([...dates].sort());
+    // Each list is sorted on its own: the main list, and each Grok Bot collection on the shelf (D-100). A
+    // card newer than every template (D-109's) ends the main list, before the shelf's older cards.
+    const lists = Array.from(document.querySelectorAll<HTMLElement>('[data-list]'));
+    expect(lists.length).toBeGreaterThan(1);
+    for (const list of lists) {
+      const dates = Array.from(list.querySelectorAll<HTMLElement>('[data-item]'))
+        .filter((el) => !el.classList.contains('item-soon'))
+        .map((el) => el.getAttribute('data-added') ?? '');
+      expect(dates).toEqual([...dates].sort());
+    }
+    expect(items().length).toBe(lists.reduce((n, l) => n + l.querySelectorAll('[data-item]').length, 0));
   });
 });
 

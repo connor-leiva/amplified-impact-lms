@@ -154,6 +154,7 @@ it('serves the guides there are, by slug', () => {
       'team-ai-brain',
       'ai-brain-tuneup',
       'ai-brain-setup',
+      'new-agent-onboarding-plan',
       'card-bank-feed-audit',
       'commission-tie-out',
       'team-payout-journals',

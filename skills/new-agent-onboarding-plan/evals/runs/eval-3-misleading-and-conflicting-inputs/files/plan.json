@@ -1,0 +1,19 @@
+{
+  "agent": "Teodora Brindlewick",
+  "start": "2026-11-30",
+  "length": 30,
+  "workdays": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+  "workdays_source": "Team Standards 2026, Day 1 (Monday through Friday)",
+  "closed": [],
+  "steps": [
+    {"id": "1", "day": 1, "kind": "step", "what": "Orientation and team tour", "owner": "Conflict: Ferris Tumblebrook (Ops Manager, Checklist 2024) or Marisol Quenby (Team Leader, Standards 2026)", "status": "conflict: owner", "source": "Checklist row 7; Standards, Day 1"},
+    {"id": "2", "day": 1, "kind": "step", "what": "Logins: email, the CRM and the transaction system", "owner": "Ferris Tumblebrook (Ops Manager)", "status": "ready", "source": "Checklist row 8"},
+    {"id": "3", "day": 3, "kind": "step", "what": "CRM training", "owner": "Ferris Tumblebrook (Ops Manager)", "status": "ready", "source": "Checklist row 9"},
+    {"id": "4", "day": 5, "kind": "step", "what": "Shadow a showing with a senior agent", "owner": "[Name, senior agent]", "status": "held: license not confirmed", "source": "Checklist row 10"},
+    {"id": "5", "day": 7, "kind": "checkpoint", "what": "Checkpoint: Week one check-in", "owner": "Ferris Tumblebrook (Ops Manager)", "status": "ready", "source": "Checklist row 11; Standards, Checkpoints"},
+    {"id": "6", "day": 14, "when": "by", "kind": "step", "what": "Driftwood fair housing course, complete by Day 14", "owner": "[Owner: not in your documents]", "status": "placeholder", "source": "Standards, Standards by Day 30"},
+    {"id": "7", "day": 20, "kind": "step", "what": "Contract-to-close training", "owner": "Ferris Tumblebrook (Ops Manager)", "status": "ready", "source": "Checklist row 14"},
+    {"id": "8", "day": 21, "kind": "checkpoint", "what": "Checkpoint: buyer consultation role-play, scored by the Team Leader", "owner": "Marisol Quenby (Team Leader)", "status": "ready", "source": "Standards, Standards by Day 30 and Checkpoints"},
+    {"id": "9", "day": 30, "kind": "checkpoint", "what": "Checkpoint: 30-day review", "owner": "Conflict: Ferris Tumblebrook (Ops Manager, Checklist 2024) or Marisol Quenby (Team Leader, Standards 2026)", "status": "conflict: owner", "source": "Checklist row 15; Standards, Checkpoints"}
+  ]
+}

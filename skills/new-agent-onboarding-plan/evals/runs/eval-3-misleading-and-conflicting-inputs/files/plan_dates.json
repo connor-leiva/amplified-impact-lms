@@ -1,0 +1,310 @@
+{
+  "agent": "Teodora Brindlewick",
+  "start": "2026-11-30",
+  "start_long": "Monday, November 30, 2026",
+  "length": 30,
+  "day_last": "2026-12-29",
+  "day_last_long": "Tuesday, December 29, 2026",
+  "day_last_open": true,
+  "workdays": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri"
+  ],
+  "workdays_source": "Team Standards 2026, Day 1 (Monday through Friday)",
+  "weeks": [
+    {
+      "week": 1,
+      "label": "Week 1 (Days 1 to 7): Monday, November 30, 2026 to Sunday, December 6, 2026",
+      "steps": [
+        {
+          "id": "1",
+          "day": 1,
+          "kind": "step",
+          "what": "Orientation and team tour",
+          "owner": "Conflict: Ferris Tumblebrook (Ops Manager, Checklist 2024) or Marisol Quenby (Team Leader, Standards 2026)",
+          "status": "conflict: owner",
+          "source": "Checklist row 7; Standards, Day 1",
+          "when": "on",
+          "nominal": "2026-11-30",
+          "nominal_long": "Monday, November 30, 2026",
+          "date": "2026-11-30",
+          "date_long": "Monday, November 30, 2026",
+          "scheduled_day": 1,
+          "moved": false,
+          "moved_from": [],
+          "past_plan": false
+        },
+        {
+          "id": "2",
+          "day": 1,
+          "kind": "step",
+          "what": "Logins: email, the CRM and the transaction system",
+          "owner": "Ferris Tumblebrook (Ops Manager)",
+          "status": "ready",
+          "source": "Checklist row 8",
+          "when": "on",
+          "nominal": "2026-11-30",
+          "nominal_long": "Monday, November 30, 2026",
+          "date": "2026-11-30",
+          "date_long": "Monday, November 30, 2026",
+          "scheduled_day": 1,
+          "moved": false,
+          "moved_from": [],
+          "past_plan": false
+        },
+        {
+          "id": "3",
+          "day": 3,
+          "kind": "step",
+          "what": "CRM training",
+          "owner": "Ferris Tumblebrook (Ops Manager)",
+          "status": "ready",
+          "source": "Checklist row 9",
+          "when": "on",
+          "nominal": "2026-12-02",
+          "nominal_long": "Wednesday, December 2, 2026",
+          "date": "2026-12-02",
+          "date_long": "Wednesday, December 2, 2026",
+          "scheduled_day": 3,
+          "moved": false,
+          "moved_from": [],
+          "past_plan": false
+        },
+        {
+          "id": "4",
+          "day": 5,
+          "kind": "step",
+          "what": "Shadow a showing with a senior agent",
+          "owner": "[Name, senior agent]",
+          "status": "held: license not confirmed",
+          "source": "Checklist row 10",
+          "when": "on",
+          "nominal": "2026-12-04",
+          "nominal_long": "Friday, December 4, 2026",
+          "date": "2026-12-04",
+          "date_long": "Friday, December 4, 2026",
+          "scheduled_day": 5,
+          "moved": false,
+          "moved_from": [],
+          "past_plan": false
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "label": "Week 2 (Days 8 to 14): Monday, December 7, 2026 to Sunday, December 13, 2026",
+      "steps": [
+        {
+          "id": "5",
+          "day": 7,
+          "kind": "checkpoint",
+          "what": "Checkpoint: Week one check-in",
+          "owner": "Ferris Tumblebrook (Ops Manager)",
+          "status": "ready",
+          "source": "Checklist row 11; Standards, Checkpoints",
+          "when": "on",
+          "nominal": "2026-12-06",
+          "nominal_long": "Sunday, December 6, 2026",
+          "date": "2026-12-07",
+          "date_long": "Monday, December 7, 2026",
+          "scheduled_day": 8,
+          "moved": true,
+          "moved_from": [
+            "Sun Dec 6: Sunday, not an onboarding day"
+          ],
+          "past_plan": false
+        },
+        {
+          "id": "6",
+          "day": 14,
+          "when": "by",
+          "kind": "step",
+          "what": "Driftwood fair housing course, complete by Day 14",
+          "owner": "[Owner: not in your documents]",
+          "status": "placeholder",
+          "source": "Standards, Standards by Day 30",
+          "nominal": "2026-12-13",
+          "nominal_long": "Sunday, December 13, 2026",
+          "date": "2026-12-11",
+          "date_long": "Friday, December 11, 2026",
+          "scheduled_day": 12,
+          "moved": true,
+          "moved_from": [
+            "Sun Dec 13: Sunday, not an onboarding day",
+            "Sat Dec 12: Saturday, not an onboarding day"
+          ],
+          "past_plan": false
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "label": "Week 3 (Days 15 to 21): Monday, December 14, 2026 to Sunday, December 20, 2026",
+      "steps": []
+    },
+    {
+      "week": 4,
+      "label": "Week 4 (Days 22 to 30): Monday, December 21, 2026 to Tuesday, December 29, 2026",
+      "steps": [
+        {
+          "id": "7",
+          "day": 20,
+          "kind": "step",
+          "what": "Contract-to-close training",
+          "owner": "Ferris Tumblebrook (Ops Manager)",
+          "status": "ready",
+          "source": "Checklist row 14",
+          "when": "on",
+          "nominal": "2026-12-19",
+          "nominal_long": "Saturday, December 19, 2026",
+          "date": "2026-12-21",
+          "date_long": "Monday, December 21, 2026",
+          "scheduled_day": 22,
+          "moved": true,
+          "moved_from": [
+            "Sat Dec 19: Saturday, not an onboarding day",
+            "Sun Dec 20: Sunday, not an onboarding day"
+          ],
+          "past_plan": false
+        },
+        {
+          "id": "8",
+          "day": 21,
+          "kind": "checkpoint",
+          "what": "Checkpoint: buyer consultation role-play, scored by the Team Leader",
+          "owner": "Marisol Quenby (Team Leader)",
+          "status": "ready",
+          "source": "Standards, Standards by Day 30 and Checkpoints",
+          "when": "on",
+          "nominal": "2026-12-20",
+          "nominal_long": "Sunday, December 20, 2026",
+          "date": "2026-12-21",
+          "date_long": "Monday, December 21, 2026",
+          "scheduled_day": 22,
+          "moved": true,
+          "moved_from": [
+            "Sun Dec 20: Sunday, not an onboarding day"
+          ],
+          "past_plan": false
+        },
+        {
+          "id": "9",
+          "day": 30,
+          "kind": "checkpoint",
+          "what": "Checkpoint: 30-day review",
+          "owner": "Conflict: Ferris Tumblebrook (Ops Manager, Checklist 2024) or Marisol Quenby (Team Leader, Standards 2026)",
+          "status": "conflict: owner",
+          "source": "Checklist row 15; Standards, Checkpoints",
+          "when": "on",
+          "nominal": "2026-12-29",
+          "nominal_long": "Tuesday, December 29, 2026",
+          "date": "2026-12-29",
+          "date_long": "Tuesday, December 29, 2026",
+          "scheduled_day": 30,
+          "moved": false,
+          "moved_from": [],
+          "past_plan": false
+        }
+      ]
+    }
+  ],
+  "after_plan": [],
+  "moved": [
+    {
+      "id": "5",
+      "day": 7,
+      "kind": "checkpoint",
+      "what": "Checkpoint: Week one check-in",
+      "owner": "Ferris Tumblebrook (Ops Manager)",
+      "status": "ready",
+      "source": "Checklist row 11; Standards, Checkpoints",
+      "when": "on",
+      "nominal": "2026-12-06",
+      "nominal_long": "Sunday, December 6, 2026",
+      "date": "2026-12-07",
+      "date_long": "Monday, December 7, 2026",
+      "scheduled_day": 8,
+      "moved": true,
+      "moved_from": [
+        "Sun Dec 6: Sunday, not an onboarding day"
+      ],
+      "past_plan": false
+    },
+    {
+      "id": "6",
+      "day": 14,
+      "when": "by",
+      "kind": "step",
+      "what": "Driftwood fair housing course, complete by Day 14",
+      "owner": "[Owner: not in your documents]",
+      "status": "placeholder",
+      "source": "Standards, Standards by Day 30",
+      "nominal": "2026-12-13",
+      "nominal_long": "Sunday, December 13, 2026",
+      "date": "2026-12-11",
+      "date_long": "Friday, December 11, 2026",
+      "scheduled_day": 12,
+      "moved": true,
+      "moved_from": [
+        "Sun Dec 13: Sunday, not an onboarding day",
+        "Sat Dec 12: Saturday, not an onboarding day"
+      ],
+      "past_plan": false
+    },
+    {
+      "id": "7",
+      "day": 20,
+      "kind": "step",
+      "what": "Contract-to-close training",
+      "owner": "Ferris Tumblebrook (Ops Manager)",
+      "status": "ready",
+      "source": "Checklist row 14",
+      "when": "on",
+      "nominal": "2026-12-19",
+      "nominal_long": "Saturday, December 19, 2026",
+      "date": "2026-12-21",
+      "date_long": "Monday, December 21, 2026",
+      "scheduled_day": 22,
+      "moved": true,
+      "moved_from": [
+        "Sat Dec 19: Saturday, not an onboarding day",
+        "Sun Dec 20: Sunday, not an onboarding day"
+      ],
+      "past_plan": false
+    },
+    {
+      "id": "8",
+      "day": 21,
+      "kind": "checkpoint",
+      "what": "Checkpoint: buyer consultation role-play, scored by the Team Leader",
+      "owner": "Marisol Quenby (Team Leader)",
+      "status": "ready",
+      "source": "Standards, Standards by Day 30 and Checkpoints",
+      "when": "on",
+      "nominal": "2026-12-20",
+      "nominal_long": "Sunday, December 20, 2026",
+      "date": "2026-12-21",
+      "date_long": "Monday, December 21, 2026",
+      "scheduled_day": 22,
+      "moved": true,
+      "moved_from": [
+        "Sun Dec 20: Sunday, not an onboarding day"
+      ],
+      "past_plan": false
+    }
+  ],
+  "recurring_not_held": [],
+  "holidays_in_window": [
+    {
+      "date": "2026-12-25",
+      "date_long": "Friday, December 25, 2026",
+      "name": "Christmas Day"
+    }
+  ],
+  "closed_in_window": [],
+  "problems": [],
+  "note": "Federal legal holidays only (5 U.S.C. 6103). State and local holidays were not checked."
+}

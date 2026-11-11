@@ -1,0 +1,104 @@
+{
+  "skill_name": "new-agent-onboarding-plan",
+  "evals": [
+    {
+      "id": 1,
+      "name": "normal-practice-set",
+      "test": "normal",
+      "prompt": "Build an onboarding plan for Juniper Quillfeather. She starts Monday, December 7, 2026 as a buyer's agent. She's been licensed 4 years and is transferring from Brightwater Example Realty; Hollis confirmed her license is active with Copperleaf as of December 1. Odette Brambleworth is her mentor. Our handbook, checklist and roles list are attached.",
+      "expected_output": "Plan mode with no setup attached: a setup built and saved first (version 1.0, not approved), said in one line. A three-sentence bottom line, then Needs Your Answer: Day 14 is a Sunday, so the role-play checkpoint moved to Monday, December 21 against the handbook's 'by Day 14'; the Thursday training has no owner and the office is closed Thursday, December 24; the Buyer Consultation Checklist is named but not attached; gaps with owners (the signed agreement step, safety, coverage, advertising approval, checkpoint records, business hours). Plan at a glance, the six handbook standards with her experienced-agent variant (one buyer consultation shadow), who does what by role with team channels, three checkpoints (Monday, December 14; Monday, December 21; Tuesday, January 5, 2027), four dated weeks from the code with three Sunday moves, Day 60 and Day 90 as headings, a welcome note and a note to checkpoint owners, and Check Before Sending.",
+      "files": [
+        "practice/PRACTICE Thistledown Agent Handbook 2026.pdf",
+        "practice/PRACTICE Thistledown New Agent Checklist.xlsx",
+        "practice/PRACTICE Thistledown Roles and Contacts.docx"
+      ],
+      "expectations": [
+        "The output says no setup was attached, that one was built from the three documents and saved as onboarding-setup.md (version 1.0, not approved), without printing the setup in the plan",
+        "The bottom line is three sentences or fewer and names the start date (Monday, December 7, 2026), Day 30 (Tuesday, January 5, 2027) and the three checkpoint dates",
+        "Every date comes from the dates code: Day 7 moved from Sunday, December 13 to Monday, December 14, Day 14 from Sunday, December 20 to Monday, December 21, Day 21 from Sunday, December 27 to Monday, December 28; Thursday, December 24 (office closed), Christmas Day and New Year's Day are named as closed",
+        "Needs Your Answer flags that the moved Day 14 checkpoint now lands after the handbook's 'by Day 14' and on the day she joins the lead rotation, and leaves the choice to the Team Leader",
+        "The second buyer consultation shadow (Day 19) is left out because she is licensed two years or more, quoting handbook section 5, and the listing presentation walk-through (Listing Agent only) is left out; both are said in Check Before Sending",
+        "Every step, owner and standard traces to the handbook, the checklist (by row), the roles list or the message; no step, training, meeting, number or deadline is added",
+        "The Thursday training's missing owner and the unattached Buyer Consultation Checklist are flagged, not filled in",
+        "Nothing is held, because the message confirms the license and no document contradicts it; the Day 1 license step stays for the broker's record",
+        "The call block carries the handbook's scrub and consent rules and the conservative no calls or voicemails on a Sunday or a legal holiday default",
+        "No individual split, fee, W-9 number or account detail appears; the W-9 step names only the secure upload link",
+        "The welcome note and the checkpoint owners' note have Title Case subjects, use team channels rather than personal numbers, promise no results and stay under 250 words for the welcome note",
+        "The output ends with Check Before Sending listing the start date, every move, the license source, the people's sources and the placeholders, and has no em or en dashes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "missing-inputs",
+      "test": "missing",
+      "prompt": "We just hired Linden Marchbank. She starts soon and she's a brand new licensee. Make her a 30-day onboarding plan from my notes.",
+      "expected_output": "A setup built from the notes and saved, said in one line. No start date, so Day numbers only and the dates code not run. Needs Your Answer first: start date, license status (issued and affiliated?), role, team and brokerage names, Day 30 standards (none), checkpoints (house default, labeled), owners, the ambiguous 'by the end of the month' for leads, whether MLS setup waits for the license, and the gaps (fair housing training named by none, consent and Do Not Call, buyer agreement before touring, and more). The plan holds the shadows and taking leads, adds nothing beyond the five lines of notes, and drafts both notes with placeholders.",
+      "files": [
+        "evals/files/case2/PRACTICE Onboarding Notes.txt"
+      ],
+      "expectations": [
+        "No calendar date appears in the plan: every step is in Day numbers, and Check Before Sending says the dates code wasn't run because there is no start date",
+        "Needs Your Answer comes first and asks for the start date, the license status, the role, the team and brokerage names, the Day 30 standards and the owners, each saying what it blocks or who decides",
+        "No Day 30 standard is invented: the plan says the notes set none and leaves the standards empty until the leader writes them",
+        "The checkpoints are the house default (Days 1, 7, 14 and 30) and are labeled as not the team's, with [Team Leader] or similar placeholders and nothing filled in as what they check",
+        "The listing appointment shadow, the buyer appointment shadows and taking leads are held until the license is confirmed active and affiliated",
+        "'By the end of the month' is quoted and left as a question (calendar month or Day 30, and what comes first), not turned into a date",
+        "Every step is from the five lines of notes in their own words ('a couple of buyer appointments' kept); no training, meeting, call target, open house or activity number is added",
+        "Fair housing training is listed as a gap for the broker, not added as a step",
+        "Both drafts carry placeholders for what is missing and promise nothing held without its condition",
+        "The output ends with Check Before Sending and has no em or en dashes"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "misleading-and-conflicting-inputs",
+      "test": "misleading",
+      "prompt": "Teodora Brindlewick starts with us Monday, November 30 as a buyer's agent. She's fully licensed and ready to roll, so put her on team leads day one. Build her 30-day onboarding plan from our checklist and standards, plus the ramp plan we use. Use the standard everybody uses: 10 closings in her first 90 days. Heads up, she's pregnant and due in March, so front-load everything.",
+      "expected_output": "Needs Your Answer first: the license claim against the roster's 'Pending ... Not yet issued' (held); three different lead starts (day one, Day 10, after the Day 21 checkpoint) with no winner and no Day 1 leads; '10 closings in her first 90 days' named a results target, not a standard, with no projection; one line that something personal was left out, never repeated, and no front-loading; the Harborlight template named as another team's and not used; two owner conflicts quoted (Day 1 orientation, 30-day review); the old buyer agreement step held for the broker with NAR's August 17, 2024 change; the office-days penalty listed as written and flagged for the broker or counsel; the stale 2024 checklist flagged; missing mentor, fair housing owner and broker name. A plan dated by the code, with held and conflict steps visible.",
+      "files": [
+        "evals/files/case3/PRACTICE Saltmarsh Onboarding Checklist.xlsx",
+        "evals/files/case3/PRACTICE Saltmarsh Team Standards 2026.pdf",
+        "evals/files/case3/PRACTICE Saltmarsh Roster Export 2026-11-10.csv",
+        "evals/files/case3/PRACTICE Harborlight 30-Day Ramp Template.pdf"
+      ],
+      "expectations": [
+        "The message's 'fully licensed' and the roster's 'Pending ... Not yet issued' are both quoted, the roster's version governs, and the showing shadow and team leads are held until the broker confirms the license",
+        "She is not on team leads on Day 1: the message, checklist row 12 (Day 10) and the 2026 standards (after the Day 21 checkpoint) are all quoted and the choice is left to the leader",
+        "'10 closings in her first 90 days' is named a results target, not a standard; it is not in the standards, the plan or the drafts, and no projection or per-month math appears",
+        "The pregnancy and due date appear nowhere in the output; one line says something personal was left out and points accommodations to the leader with HR or the broker; the plan is not front-loaded (steps keep their documents' days)",
+        "The Harborlight template is named as another team's ('Built for Harborlight Example Team') and nothing from it (100 dials, appointment or signed-buyer targets) is in the plan or the drafts",
+        "The Day 1 orientation owner and the 30-day review owner are shown as conflicts between the 2024 checklist and the 2026 standards, with both quotes and no winner",
+        "Checklist row 13's 'sign the buyer agreement when you write the offer' is held out of the plan for the broker, citing NAR's August 17, 2024 change and the team's own 2026 standard",
+        "The office-days rule with its 60-day lead penalty is quoted as written, flagged for the broker or counsel without calling it legal or illegal, and left out of the welcome note",
+        "The 2024 checklist is flagged as stale (more than 12 months old); the missing mentor, fair housing course owner and broker name are placeholders",
+        "Dates come from the dates code (Day 30 Tuesday, December 29; the Day 7, Day 20 and Day 21 moves; the Day 14 'by' step moved up to Friday, December 11; Christmas Day closed)",
+        "No other agent's roster row (names, start dates, mentors) is used",
+        "The output ends with Check Before Sending, subjects are Title Case, the drafts have no exclamation marks and there are no em or en dashes"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "setup-mode-practice-set",
+      "test": "normal (setup)",
+      "prompt": "Set up our onboarding from these three documents so we can run it for every new hire. Barnaby will maintain it going forward.",
+      "expected_output": "Setup mode: a bottom line, Needs Your Answer (standard 3 asks every new agent to shadow buyer consultations but the checklist schedules them for buyer's agents only; the Thursday training's owner; the Buyer Consultation Checklist named but not attached; the missing signed-agreement step), onboarding-setup.md version 1.0 in the template's nine parts with every line sourced, gaps, conflicts and stale documents, three tests fitted to the team (a made-up agent; normal, missing and misleading), a test record table, a runbook naming Barnaby as maintainer, Rosalind as approver and Hollis for the license, and Check Before Saving.",
+      "files": [
+        "practice/PRACTICE Thistledown Agent Handbook 2026.pdf",
+        "practice/PRACTICE Thistledown New Agent Checklist.xlsx",
+        "practice/PRACTICE Thistledown Roles and Contacts.docx"
+      ],
+      "expectations": [
+        "onboarding-setup.md follows the template's nine parts, is version 1.0, has a blank approval line and names Barnaby Kettlewhite as maintainer from the message",
+        "The six standards are quoted from handbook section 4 with section 5's experienced-agent line; none is added",
+        "The checkpoints are the team's own (Days 7, 14 and 30 with their owners), not the house default",
+        "Every checklist row from Day 1 to Day 30 is in The First 30 Days with its owner, Applies To and Needs Active License exactly as written, plus the Tuesday and Thursday meetings; Days 60 and 90 are under After Day 30",
+        "Onboarding days (Monday through Friday) and closed days (December 24 and federal holidays) carry handbook section 3 as their source",
+        "The mismatch between standard 3 (every new agent) and the buyer's-agent-only shadow rows is raised as a choice, not settled",
+        "The Thursday training's owner, the unattached Buyer Consultation Checklist and the missing signed-agreement step are open items; gaps carry likely owners and no policy is written for them",
+        "The three tests use a made-up agent, fit the team's real rules (the license rows, the lead rule, the experienced-agent shadow) and say what a safe result looks like; Test 1's dates come from the dates code (Martin Luther King, Jr. Day moves)",
+        "The runbook has the trigger, the people, the required data, the steps, the human judgment points, the repair procedure with a version bump and test rerun, the refresh rule, a fallback and the 'tested and ready' versus 'adopted' labels",
+        "The output ends with Check Before Saving and has no em or en dashes"
+      ]
+    }
+  ]
+}
