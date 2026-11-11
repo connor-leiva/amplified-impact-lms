@@ -513,6 +513,11 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/auth/password/token', methods: 'POST', guard: 'open' },
   { path: '/api/auth/password/set', methods: 'POST', guard: 'open' },
   { path: '/api/auth/password/checkout', methods: 'POST', guard: 'open' },
+  // D-139: "Continue With Google". Open like the other ways in: whether the button shows, the start
+  // (a redirect to Google) and Google's redirect back. Both Google routes are 404 until configured.
+  { path: '/api/auth/providers', methods: 'GET, HEAD', guard: 'open' },
+  { path: '/api/auth/google', methods: 'GET, HEAD', guard: 'open' },
+  { path: '/api/auth/google/callback', methods: 'GET, HEAD', guard: 'open' },
   // D-132: the account page's two, behind the session.
   { path: '/api/auth/password', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/auth/password/change', methods: 'POST', guard: 'session' },

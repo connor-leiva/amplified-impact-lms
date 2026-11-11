@@ -80,6 +80,9 @@ import { registerApexRedirect } from './routes/apex';
 import { registerMarketingHost } from './routes/marketing';
 import { registerAuthRoutes } from './routes/auth';
 import { registerPasswordRoutes } from './routes/password';
+import { registerGoogleRoutes } from './routes/google';
+import { readGoogleConfig } from './auth/google';
+import type { GoogleConfig } from './auth/google';
 import { registerEventsRoute } from './routes/events';
 import type { EventHub } from './routes/events';
 import { registerFilesRoutes } from './routes/files';
@@ -190,6 +193,11 @@ export interface BuildOptions {
    * `STRIPE_SECRET_KEY` when one is set. The routes are registered in both modes, like /ai101; the ones
    * that need a database follow `waitlist`. `routes/offer.ts`.
    */
+  /**
+   * "Continue With Google" (D-139). Left out, it is read from `GOOGLE_CLIENT_ID`,
+   * `GOOGLE_CLIENT_SECRET` and `APP_URL`; a test passes one with a fake `fetch`, or null for off.
+   */
+  google?: GoogleConfig | null;
   offer?: {
     pages?: OfferPages;
     config?: OfferConfig;
@@ -312,8 +320,9 @@ export function scrubUrl(url: string): string {
   let touched = false;
   for (const key of [...params.keys()]) {
     // `token` covers `/sign-in?token=…`; `email` because § 9.4 names "emails in URLs" too, and
-    // the `x-amz-` pair because § 8.2's presigned URLs carry them.
-    if (/^(token|email|signature|x-amz-signature|x-amz-credential)$/i.test(key)) {
+    // the `x-amz-` pair because § 8.2's presigned URLs carry them. `code` and `state` are Google's
+    // one-time authorization code and this browser's CSRF value on its callback (D-139).
+    if (/^(token|email|signature|x-amz-signature|x-amz-credential|code|state)$/i.test(key)) {
       params.set(key, 'REDACTED');
       touched = true;
     }
@@ -546,6 +555,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerAuthRoutes(app, { broadcast });
     // Email and password sign-in, set and reset links, the account page's change (D-132).
     registerPasswordRoutes(app, { broadcast, invitesFrom: offerConfig.invitesFrom });
+    // "Continue With Google" (D-139): 404 and a hidden button until its two keys are in Railway.
+    registerGoogleRoutes(app, { broadcast, config: options.google === undefined ? readGoogleConfig() : options.google });
     registerSnapshotRoute(app);
     registerJoinRoute(app);
     registerFilesRoutes(app);

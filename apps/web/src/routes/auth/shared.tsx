@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { Button } from '../../components/primitives/Button';
 import { BrandSlot } from '../../shell/BrandSlot';
 import s from './SignIn.module.css';
 
@@ -62,5 +63,60 @@ export function AuthCard({ title, sub, children }: { title: string; sub: string;
         {children}
       </div>
     </main>
+  );
+}
+
+// --- "Continue With Google" (D-139) ------------------------------------------------------------------
+
+/** The API's start route: a full page load, so Google's chooser replaces this page. */
+export const GOOGLE_START = '/api/auth/google';
+
+/** The button, and what the sign-in screen says for each `?google=` the callback sends back. */
+export const GOOGLE_COPY = {
+  button: 'Continue With Google',
+  'no-account': 'We couldn’t find an account for that email. Use the email you bought with, or sign in with your password.',
+  unverified: 'Google hasn’t verified that email address. Sign in with your password or an email link.',
+  'linked-elsewhere': 'That account is linked to a different Google account. Sign in with your password or an email link.',
+  failed: 'Google sign-in didn’t finish. Try again, or sign in with your password.',
+} as const;
+
+type GoogleRefusal = 'no-account' | 'unverified' | 'linked-elsewhere' | 'failed';
+const REFUSALS: readonly string[] = ['no-account', 'unverified', 'linked-elsewhere', 'failed'];
+
+/** The words for the callback's `?google=<why>`, or null for none (or anything else). */
+export function googleRefusal(why: string | null): string | null {
+  return why && REFUSALS.includes(why) ? GOOGLE_COPY[why as GoogleRefusal] : null;
+}
+
+/**
+ * Whether this deploy offers Google sign-in: `GET /api/auth/providers`. False until it answers
+ * `{ google: true }`, and false for good when it can't (no keys in Railway, fixture mode with no
+ * API, offline), so the button never shows for a route that would 404.
+ */
+export function useGoogleSignIn(): boolean {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/auth/providers', { credentials: 'same-origin' })
+      .then(async (res) => {
+        const body = res.ok ? ((await res.json().catch(() => null)) as { google?: unknown } | null) : null;
+        if (alive) setOn(body?.google === true);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return on;
+}
+
+/** Under the form, set apart by a rule. Email and password stays the primary way in. */
+export function GoogleSignIn() {
+  return (
+    <div className={s.alt}>
+      <Button variant="secondary" size="lg" className={s.submit} onClick={() => window.location.assign(GOOGLE_START)}>
+        {GOOGLE_COPY.button}
+      </Button>
+    </div>
   );
 }

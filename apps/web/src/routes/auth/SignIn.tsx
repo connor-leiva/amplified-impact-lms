@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/primitives/Button';
 import { Field, Input } from '../../components/primitives/Field';
-import { AuthCard, EMAIL, errorOf, post, useAppReady } from './shared';
+import { AuthCard, EMAIL, GoogleSignIn, errorOf, googleRefusal, post, useAppReady, useGoogleSignIn } from './shared';
 import s from './SignIn.module.css';
 
 // /sign-in — net-new. Phase 07 § 7.5 specified the magic link; D-132 makes email and password the
@@ -89,17 +89,32 @@ async function signInWithPassword(email: string, password: string, remember: boo
 type Mode = 'password' | 'link' | 'sent' | 'verifying';
 
 export function Component() {
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const token = params.get('token');
+  const google = useGoogleSignIn();
 
   const [mode, setMode] = useState<Mode>(token ? 'verifying' : params.get('method') === 'link' ? 'link' : 'password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
   const [sentTo, setSentTo] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  // A Google sign-in that came back refused (D-139) lands here with `?google=<why>`.
+  const [error, setError] = useState<string | null>(() => googleRefusal(params.get('google')));
   const [busy, setBusy] = useState(false);
+
+  // Said once: the flag leaves the address bar, so a reload doesn't repeat it.
+  useEffect(() => {
+    if (!params.has('google')) return;
+    setParams(
+      (p) => {
+        const next = new URLSearchParams(p);
+        next.delete('google');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [params, setParams]);
 
   // A sign-in token is single use, so it may be spent exactly once, even when StrictMode mounts
   // effects twice: each run attaches a fresh handler to the one in-flight request.
@@ -259,6 +274,7 @@ export function Component() {
               {COPY.signIn}
             </Button>
           </form>
+          {google ? <GoogleSignIn /> : null}
           <div className={s.links}>
             <Link className={s.textLink} to="/forgot-password">
               {COPY.forgot}

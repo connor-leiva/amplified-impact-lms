@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/primitives/Button';
 import { Field, Input } from '../../components/primitives/Field';
-import { AuthCard, PASSWORD_MIN, errorOf, post, useAppReady } from './shared';
+import { AuthCard, GoogleSignIn, PASSWORD_MIN, errorOf, post, useAppReady, useGoogleSignIn } from './shared';
 import s from './SignIn.module.css';
 
 // /set-password (D-132). Two ways in:
@@ -46,6 +46,8 @@ export function Component() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const token = params.get('token');
+  // D-139: Google is a way in instead of a password, for the same account.
+  const google = useGoogleSignIn();
   const checkout = params.get('checkout');
 
   const [state, setState] = useState<State>(token ? { kind: 'checking' } : checkout ? { kind: 'form', purpose: 'set' } : { kind: 'gone', why: 'expired' });
@@ -170,6 +172,7 @@ export function Component() {
           {COPY.submit}
         </Button>
       </form>
+      {google ? <GoogleSignIn /> : null}
     </AuthCard>
   );
 }

@@ -51,7 +51,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { build, cspScriptHashes, installShutdown } from './app';
+import { build, cspScriptHashes, installShutdown, productionLogger } from './app';
 import { registerStaticFiles } from './static';
 import { readDatabaseUrl } from './db/client';
 import { startScheduler } from './jobs/scheduler';
@@ -131,7 +131,9 @@ const agreementHtml = fileURLToPath(new URL('../../web/dist/agreement.html', imp
 const offerConfig = readOfferConfig();
 
 const app = await build({
-  logger: true,
+  // § 9.4's logger, with its redaction: no cookie, and no token, email, or Google `code` or `state`
+  // in a logged URL (D-139). `logger: true` here used to skip it, so production logged raw URLs.
+  logger: productionLogger(),
   fixtureOnly,
   // Not the legal pages: they carry no script (`apps/web/src/legal/render.test.ts` holds them to
   // that), so they have nothing to hash, and a script added to one later stays blocked.
