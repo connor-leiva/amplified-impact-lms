@@ -79,13 +79,14 @@ export default defineRailway((ctx) => {
         }),
     healthcheck: '/api/health',
     healthcheckTimeout: 60,
-    // Production answers to TWO names on this one service, told apart by `Host` inside the process
-    // (`apps/api/src/routes/marketing.ts`) rather than by running a second service. `www` is the
-    // public marketing site, `learn` is the LMS behind sign-in. Both must stay listed here: a
+    // Production answers to THREE names on this one service, told apart by `Host` inside the process
+    // (`apps/api/src/routes/marketing.ts`, `routes/apex.ts`) rather than by running a second service.
+    // `www` is the public marketing site, `learn` is the LMS behind sign-in, and the bare domain
+    // only 301s to www with its path and query kept (D-133). All must stay listed here: a
     // `config apply` against a list missing one would REMOVE that domain from the service.
     domains:
       env === 'production'
-        ? [`learn.${DOMAIN}`, `www.${DOMAIN}`]
+        ? [`learn.${DOMAIN}`, `www.${DOMAIN}`, DOMAIN]
         : demo
           ? [`demo.${DOMAIN}`]
           : [`staging.${DOMAIN}`],

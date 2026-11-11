@@ -28,6 +28,43 @@ cannot get in at all.
 5. Send yourself one test invite before inviting anyone else, and check it lands in the inbox rather
    than spam.
 
+## 1b. The bare domain: `amplifiedimpact.io/<path>` must reach www (D-133)
+
+**Today the apex is broken for every path but `/`.** `amplifiedimpact.io` has an `A` record pointing
+at GoDaddy's forwarding service (3.33.251.168 and 15.197.225.128). It 301s `/` to
+`https://www.amplifiedimpact.io` and answers **404** for everything else, so a typed or shared
+`amplifiedimpact.io/pricing`, `/team-build`, `/free` or `/forum?src=qr` breaks. (`/forum-qr.svg`
+encodes the `www` address, section 8, so the printed QR code itself works.)
+
+**The service now answers the apex itself.** `apps/api/src/routes/apex.ts` 301s any request whose
+`Host` is the apex to `https://www.amplifiedimpact.io` with the same path and query string (308 for a
+method other than GET or HEAD). The apex is `MARKETING_HOST` without its `www.`, so no new variable.
+It does nothing until apex traffic reaches Railway, which takes one of these, at the DNS host:
+
+**A. Point the apex at Railway (this is what the code is for).**
+1. Railway → **web** → Settings → Networking → **Custom Domain** → add `amplifiedimpact.io`.
+   Railway shows a `CNAME` target (a `*.up.railway.app` host) and a `TXT` verification record; both
+   are required. Railway's docs cap the Hobby plan at 2 custom domains per service, and production
+   already uses 2 (`learn`, `www`), so this needs a plan that allows a third.
+2. At the DNS host, put that `CNAME` on the root (`@`) as a flattened CNAME or ALIAS, and add the
+   `TXT`. Railway's docs say it supports only CNAME flattening and dynamic ALIAS records at a root,
+   and list GoDaddy among providers without them. If GoDaddy cannot do it, move the nameservers to
+   Cloudflare (it imports the existing records; check every `MX`, `TXT`, DKIM and `_dmarc` record
+   made it across before switching) and use a CNAME on the root there.
+3. Remove GoDaddy's forwarding for the apex and its old `A` records, so the root answers only from
+   Railway.
+4. Check, each answering `301` with a `location` that keeps the path and query:
+
+   ```bash
+   curl -sI https://amplifiedimpact.io/pricing
+   curl -sI "https://amplifiedimpact.io/forum?src=qr"
+   ```
+
+**B. Or keep the redirect at the DNS host**, with no Railway change: any redirect that keeps the
+path and query (a Cloudflare Redirect Rule from `amplifiedimpact.io/*` to
+`https://www.amplifiedimpact.io/${1}` with the query string preserved, or GoDaddy's own forwarding
+if it offers a keep-the-path option). Check it with the same two `curl` lines.
+
 ## 2. Secrets on the Web service
 
 **What breaks:** `EMAIL_FROM` and `RESEND_API_KEY` missing means every invite silently goes to a log

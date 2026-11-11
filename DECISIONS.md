@@ -4308,3 +4308,16 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Now** each named skill gets its own link to its existing Library guided setup. A step with one skill still says "Open the Guided Setup". A step with several says "Open a Guided Setup:" and then each skill by its Library title, so every link says where it goes.
 - **Words unchanged.** The step text, the skills, their Library pages and every other step are as they were. No new skill or page.
 - **A guard.** A core test fails if any setup step names one of its week's skills without linking it. Run against the course before this change, it lists exactly these three.
+
+## D-133 · The bare domain 301s to www with its path and query string
+
+**Date:** 2026-11-11
+**Approved by:** Connor, 2026-11-11 ("URGENT launch bug"): "https://amplifiedimpact.io/ 301s to www, but https://amplifiedimpact.io/pricing, /team-build, /free etc. return 404 … Make the apex 301 to https://www.amplifiedimpact.io with the same path and query string (in-app host redirect middleware, or fix the Railway/DNS redirect config), add a test, open a PR."
+**Status:** on a pull request. It takes effect once apex traffic reaches Railway (docs/LAUNCH.md § 1b).
+**Scope:** `apps/api/src/routes/apex.ts` (new), one registration in `apps/api/src/app.ts`, `.railway/railway.ts` (production's domains), `apps/api/test/apex.test.ts` (new), `docs/LAUNCH.md` § 1b.
+
+- **The cause** is outside this repo: the apex `A` record points at GoDaddy's forwarding service, which redirects `/` and answers 404 for any other path. The app never sees those requests.
+- **In the app:** a request whose `Host` is the apex (any case, any port) gets `301` to `https://www.amplifiedimpact.io` + the path and query exactly as sent; `308` for a method other than GET or HEAD, so a body is not turned into a GET. It runs first, before the marketing host's hook, cookies, rate limiting and headers. The apex is `MARKETING_HOST` without `www.`, so staging, demo and tests without a marketing host are unchanged. An absolute-form request target goes to the homepage, never to another host.
+- **In Railway:** the apex joins `learn` and `www` in production's domain list in `.railway/railway.ts`. The dashboard and DNS steps are LAUNCH.md § 1b, with a no-code alternative (a path-keeping redirect at the DNS host).
+- **Not changed:** `/agreement`, prices, the marketing pages, `learn`.
+
