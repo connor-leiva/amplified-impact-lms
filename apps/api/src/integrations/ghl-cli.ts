@@ -2,12 +2,13 @@
 //
 //   pnpm --filter @ai/api ghl:status                 counts per kind and the rows that need a look
 //   pnpm --filter @ai/api ghl:setup  [--apply]       pipeline, tags and fields in the NEW location
+//   pnpm --filter @ai/api ghl:copy   [--apply]       this app's contacts, old location to new
 //
-// setup is a dry run without --apply. Its location comes from variables set only for the run, never
-// from code: GHL_TO_TOKEN and GHL_TO_LOCATION_ID (the new sub-account). Nothing here prints a token or
-// a contact.
+// setup and copy are dry runs without --apply. Their locations come from variables set only for the
+// run, never from code: GHL_TO_TOKEN and GHL_TO_LOCATION_ID (the new sub-account), and for copy also
+// GHL_FROM_TOKEN and GHL_FROM_LOCATION_ID (Spring). Nothing here prints a token or a contact.
 
-import { ScriptStopped, setupLocation } from './ghl-location';
+import { ScriptStopped, copyContacts, setupLocation } from './ghl-location';
 
 function need(name: string): string {
   const v = (process.env[name] ?? '').trim();
@@ -35,7 +36,15 @@ async function main(): Promise<void> {
     if (!apply) console.log('\nDry run: nothing was created. Run again with --apply.');
     return;
   }
-  throw new ScriptStopped('Usage: ghl-cli status | setup [--apply]');
+  if (command === 'copy') {
+    await copyContacts({
+      from: { config: { token: need('GHL_FROM_TOKEN'), locationId: need('GHL_FROM_LOCATION_ID') }, print },
+      to: { config: { token: need('GHL_TO_TOKEN'), locationId: need('GHL_TO_LOCATION_ID') }, print },
+      apply,
+    });
+    return;
+  }
+  throw new ScriptStopped('Usage: ghl-cli status | setup [--apply] | copy [--apply]');
 }
 
 main().then(

@@ -118,18 +118,25 @@ pnpm --filter @ai/api ghl:status     # counts per kind, and the rows that are re
 The Owner and Admins see the same at `learn.amplifiedimpact.io/admin/crm-sync`, with a Retry for a
 row that gave up.
 
-**Getting Amplified Impact's own sub-account ready (D-135).** Keep the current location until the
-new one is ready. The setup script is a dry run unless given `--apply`, and can be run again safely.
-Set `GHL_TO_TOKEN` and `GHL_TO_LOCATION_ID` (the new sub-account) for the run only:
+**Moving to Amplified Impact's own sub-account.** Keep the current location until the new one is
+ready. Both scripts are dry runs unless given `--apply`, and both can be run again safely. Set
+`GHL_TO_TOKEN` and `GHL_TO_LOCATION_ID` (the new sub-account) and, for the copy,
+`GHL_FROM_TOKEN` and `GHL_FROM_LOCATION_ID` (the current one) for the run only:
 
 ```bash
 pnpm --filter @ai/api ghl:setup              # the pipeline, every app tag and the five custom fields
 ```
 
-The new location's token needs, besides the sync's scopes, the ones to read and create tags, custom
-fields and pipelines (`locations/tags.*`, `locations/customFields.*` and the pipeline create scope).
-Re-run it with `--apply` to write. It prints the `GHL_PIPELINE_ID`, `GHL_STAGE_*` and `GHL_FIELD_*`
-lines to paste into Railway once the swap is done.
+```bash
+pnpm --filter @ai/api ghl:copy               # this app's contacts and tags, current to new
+```
+
+The new location's token needs, besides the sync's scopes, the ones to read and create tags,
+custom fields and pipelines (`locations/tags.*`, `locations/customFields.*` and the pipeline create
+scope), and the current location's needs `contacts.readonly`. Re-run each with `--apply` to write. Setup prints the `GHL_PIPELINE_ID`, `GHL_STAGE_*` and
+`GHL_FIELD_*` lines to paste. Copy never deletes, never writes to the current location, never copies
+a phone number, and leaves Spring's own tags behind. Then swap `GHL_TOKEN` and `GHL_LOCATION_ID` in
+Railway. The loop re-sends every row it holds to the new location on its own.
 
 ## Gates
 

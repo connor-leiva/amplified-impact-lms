@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { APP_TAGS, CUSTOM_FIELDS, PIPELINE_NAME, PIPELINE_STAGES, ScriptStopped, politeFetch, setupLocation } from './ghl-location';
+import { ANCHOR_TAGS, APP_TAGS, CUSTOM_FIELDS, PIPELINE_NAME, PIPELINE_STAGES, ScriptStopped, copyContacts, politeFetch, setupLocation } from './ghl-location';
 import type { Fetch } from './ghl';
 
-// D-135's setup script against a fake HighLevel. Nothing reaches the network.
+// D-134's location scripts against a fake HighLevel with two locations. Nothing reaches the network.
 
 interface Contact {
   id: string;
@@ -91,6 +91,11 @@ describe('the tags this app writes @g9', () => {
     for (const tag of ['ai101-waitlist', 'event-expcon-2026', 'src-qr', 'src-ig', 'src-direct', 'sms-consent', 'task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool', 'december-interest', 'team-size-1-10', 'team-size-11-25', 'offer-buyer', 'plan-cohort', 'pay-full', 'checkout-abandoned-cohort', 'refunded', 'membership-ended', 'payment-failed', 'event-forum-nov-2026', 'ai-lead-free-skills', 'ai-buyer-accelerator', 'ai-buyer-insiders', 'ai-buyer-agent-plan', 'ai-buyer-team-plan', 'ai-refunded', 'ai-canceled', 'lms-logged-in'])
       expect(APP_TAGS, tag).toContain(tag);
   });
+
+  it('finds this app’s contacts by their own tags, never by a word Spring’s contacts share', () => {
+    for (const shared of ['sms-consent', 'src-qr', 'src-direct', 'team-size-1-10', 'december-interest', 'pay-full', 'refunded', 'event-forum-nov-2026', 'event-expcon-2026']) expect(ANCHOR_TAGS, shared).not.toContain(shared);
+    for (const ours of ['ai101-waitlist', 'voice-profile', 'offer-buyer', 'checkout-abandoned-cohort', 'ai-buyer-accelerator', 'lms-logged-in']) expect(ANCHOR_TAGS, ours).toContain(ours);
+  });
 });
 
 describe('ghl:setup @g9', () => {
@@ -159,7 +164,54 @@ describe('ghl:setup @g9', () => {
   });
 });
 
-describe('the script’s pace @g9', () => {
+describe('ghl:copy @g9', () => {
+  function spring() {
+    const loc = empty();
+    loc.contacts.push(
+      { id: 'a', email: 'pat@example.com', firstName: 'Pat', lastName: 'Buyer', companyName: 'Northline', phone: '+18605550001', tags: ['offer-buyer', 'plan-cohort', 'pay-full', 'sms-consent', 'forum-vip', 'be-collective'] },
+      { id: 'b', email: 'lead@example.com', firstName: 'Lee', tags: ['voice-profile', 'src-ig'] },
+      { id: 'c', email: 'spring-only@example.com', tags: ['be-collective', 'sms-consent', 'src-qr'] },
+      { id: 'd', tags: ['ai101-waitlist'] },
+      { id: 'e', email: 'both@example.com', tags: ['ai101-waitlist', 'voice-profile'] },
+    );
+    return loc;
+  }
+
+  it('in a dry run, only searches the old location, by this app’s tags, and writes nothing anywhere', async () => {
+    const hl = fakeHighLevel({ spring: spring(), 'loc-new': empty() }, { spring: 'pit-spring', 'loc-new': 'pit-new' });
+    const r = await copyContacts({ from: opts('spring', 'pit-spring', hl.fetch), to: opts('loc-new', 'pit-new', hl.fetch), apply: false });
+    expect(r).toMatchObject({ applied: false, contacts: 4, copied: 0, skippedNoEmail: 1 });
+    expect(r.byTag).toEqual({ 'ai101-waitlist': 2, 'voice-profile': 2, 'offer-buyer': 1, 'plan-cohort': 1 });
+    expect(hl.calls.every((c) => c.method === 'POST' && c.path === '/contacts/search' && c.token === 'pit-spring')).toBe(true);
+    expect(hl.calls[0]!.body).toEqual({ locationId: 'spring', pageLimit: 100, filters: [{ field: 'tags', operator: 'eq', value: ANCHOR_TAGS[0] }] });
+  });
+
+  it('copies each contact once, with only this app’s tags and no phone, and never touches the old location', async () => {
+    const old = spring();
+    const before = JSON.stringify(old);
+    const fresh = empty();
+    fresh.contacts.push({ id: 'n1', email: 'pat@example.com', tags: ['already-here'] });
+    const hl = fakeHighLevel({ spring: old, 'loc-new': fresh }, { spring: 'pit-spring', 'loc-new': 'pit-new' });
+    const r = await copyContacts({ from: opts('spring', 'pit-spring', hl.fetch), to: opts('loc-new', 'pit-new', hl.fetch), apply: true, pageLimit: 1 });
+    expect(r).toMatchObject({ applied: true, contacts: 4, copied: 3, skippedNoEmail: 1, failed: 0 });
+    const pat = fresh.contacts.find((c) => c.email === 'pat@example.com')!;
+    expect(pat).toMatchObject({ firstName: 'Pat', lastName: 'Buyer', companyName: 'Northline' });
+    expect(pat.phone).toBeUndefined();
+    expect(pat.tags.sort()).toEqual(['already-here', 'offer-buyer', 'pay-full', 'plan-cohort', 'sms-consent'].sort());
+    expect(fresh.contacts.find((c) => c.email === 'lead@example.com')!.tags.sort()).toEqual(['src-ig', 'voice-profile']);
+    expect(fresh.contacts.some((c) => c.email === 'spring-only@example.com')).toBe(false);
+    // The old location: searched, never written. Nothing anywhere was deleted.
+    expect(JSON.stringify(old)).toBe(before);
+    expect(hl.calls.filter((c) => c.token === 'pit-spring').every((c) => c.path === '/contacts/search')).toBe(true);
+    expect(hl.calls.some((c) => c.method === 'DELETE')).toBe(false);
+    // Again: the same contacts, the same tags.
+    const again = await copyContacts({ from: opts('spring', 'pit-spring', hl.fetch), to: opts('loc-new', 'pit-new', hl.fetch), apply: true });
+    expect(again.copied).toBe(3);
+    expect(fresh.contacts.filter((c) => c.email === 'pat@example.com')).toHaveLength(1);
+  });
+});
+
+describe('the scripts’ pace @g9', () => {
   it('waits out a 429 by its Retry-After, retries a 5xx, and spaces its calls', async () => {
     const answers = [429, 503, 200];
     const seen: number[] = [];
