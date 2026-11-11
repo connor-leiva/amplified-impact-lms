@@ -84,3 +84,21 @@ describe('worksheetCsv', () => {
     expect(worksheetCsv(BLANK_WORKSHEET).split('\n')).toHaveLength(7);
   });
 });
+
+describe('the course templates', () => {
+  it('are blank CSVs with the plan’s columns, offered on the weeks that use them', async () => {
+    const { COURSE_TEMPLATES, templateCsv } = await import('../src/worksheet');
+    expect(COURSE_TEMPLATES.map((t) => [t.file, t.weeks])).toEqual([
+      ['use-log.csv', [1, 2, 3, 4, 5, 6, 7, 8]],
+      ['decision-log.csv', [3]],
+      ['responsibility-card.csv', [6]],
+      ['runbook.csv', [7]],
+      ['keep-fix-retire.csv', [8]],
+      ['90-day-plan.csv', [8]],
+      ['agent-go-no-go.csv', [8]],
+    ]);
+    for (const t of COURSE_TEMPLATES) expect(templateCsv(t).split('\n')[0]).toBe(t.columns.map((c) => `"${c}"`).join(','));
+    const card = COURSE_TEMPLATES.find((t) => t.file === 'responsibility-card.csv')!;
+    for (const c of ['Outcome', 'Boundaries and Prohibited Information', 'Acceptance Standard', 'Approval Authority']) expect(card.columns).toContain(c);
+  });
+});

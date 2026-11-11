@@ -416,7 +416,7 @@ describe('every week’s words', () => {
 
   it('keeps the house rules in every word it serves: no em dashes, no prices, no invented people', () => {
     const all = JSON.stringify([course, acceleratorModules(), acceleratorSessions(), acceleratorCohort()]);
-    expect(all).not.toContain('—');
+    expect(all).not.toContain('\u2014');
     expect(all).not.toMatch(/\$\d{2,}/);
     expect(all).not.toContain('Jordan Hale');
     expect(all).not.toMatch(/guarantee(d)? (results|income)/i);

@@ -169,6 +169,6 @@ describe('the route', () => {
 
   it('writes no em dash anywhere it renders', () => {
     const all = JSON.stringify([overviewVM(payload()), weeks(), COPY]);
-    expect(all).not.toContain('—');
+    expect(all).not.toContain('\u2014');
   });
 });
