@@ -73,8 +73,14 @@ test('learner progress shows up in admin @g6', async ({ browser }) => {
   await open(admin, '/admin?as=admin');
   await open(learner, '/employees/sales?as=agent');
 
-  while (await learner.getByRole('button', { name: 'Mark Verified' }).count())
-    await learner.getByRole('button', { name: 'Mark Verified' }).first().click();
+  // One step at a time, and each click must land before the next count. Counting straight after a
+  // click can still see the step just clicked, and then `.first().click()` waits for a button that
+  // the re-render has already removed: the test hung until its timeout about one run in three.
+  const verify = learner.getByRole('button', { name: 'Mark Verified' });
+  for (let left = await verify.count(); left > 0; left--) {
+    await verify.first().click();
+    await expect(verify).toHaveCount(left - 1);
+  }
 
   await expect(admin.getByText(/Jamie Ortiz\s*built Sales AI Employee/)).toBeVisible();
   await close();
