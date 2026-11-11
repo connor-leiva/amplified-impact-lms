@@ -41,8 +41,20 @@ Railway → **web** → Variables:
 | `RESEND_API_KEY` | Resend → API Keys |
 | `EMAIL_FROM` | an address at the domain you verified in step 1 |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | the bucket's **Credentials** tab |
+| `S3_URL_STYLE` | optional: `path` (the default) or `virtual`. The bucket's Credentials tab says which URL style it takes: Railway's buckets created since its move to virtual-hosted URLs want `virtual`. Production's `skills` bucket takes `path` (the pre-deploy uploads through it) |
 
 `DATABASE_URL`, `SESSION_SECRET`, `APP_URL` and `VITE_DATA_SOURCE` are already set. Leave them.
+
+**Check the Library after a deploy** (D-122), with no sign-in and nothing secret in the answer:
+
+```bash
+curl https://learn.amplifiedimpact.io/api/health/library
+```
+
+`"ok": true` means every skill row is published, every ZIP is in the bucket, and a real download
+link for a paid skill (the same presign the Skill Library uses) answered. `error` names the step that
+failed: `storage-missing` (an `S3_*` variable), `list-failed`, `presign-failed` or `fetch-failed`;
+`link.status` 403 on a resolving bucket usually means the URL style is wrong for it.
 
 **`VITE_DATA_SOURCE` is still `fixture`.** The live site is the prototype demo running from
 localStorage — which is deliberate and useful, but it is not the product. Flip it to `http` when you
