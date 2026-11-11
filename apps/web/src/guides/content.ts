@@ -439,7 +439,8 @@ export const SHARED = {
   // A skill page in the library's look (D-071): the breadcrumb back to the library, the checklist's
   // label, the sample's toggle (filled in by `main.ts` from the button) and the phone's sign-up bar.
   skill: {
-    library: { label: 'Free Library', href: '/library' },
+    // "The Library", as on the homepage and /library itself (D-103): most of it is paid now.
+    library: { label: 'The Library', href: '/library' },
     setupTitle: 'Your setup',
     sampleMore: 'See the Full Example',
     sampleLess: 'Show Less',

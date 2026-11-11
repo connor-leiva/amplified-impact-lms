@@ -305,12 +305,12 @@ describe('the skill layout (D-071)', () => {
     expect([...doc.querySelectorAll('.sk-facts li')].map(text)).toEqual(['Free', 'About 5 minutes to set up', 'Claude or ChatGPT']);
   });
 
-  it('opens with a top bar: the logo, then the breadcrumb back to the free library', () => {
+  it('opens with a top bar: the logo, then the breadcrumb back to the library', () => {
     const top = doc.querySelector('header.sk-top');
     expect(top?.querySelector('svg[role="img"]')?.getAttribute('aria-label')).toBe('Amplified Impact');
     const crumbs = top?.querySelector('nav[aria-label="Breadcrumb"]');
     expect(crumbs?.querySelector('a')?.getAttribute('href')).toBe('/library');
-    expect(text(crumbs?.querySelector('a'))).toBe('Free Library');
+    expect(text(crumbs?.querySelector('a'))).toBe('The Library');
     const here = crumbs?.querySelector('[aria-current="page"]');
     // The slash is drawn, never read.
     expect(here?.querySelector('[aria-hidden="true"]')?.textContent).toBe('/');

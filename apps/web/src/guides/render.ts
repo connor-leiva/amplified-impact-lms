@@ -603,7 +603,7 @@ export function renderGuideBody(guide: Guide): string {
 // that `main.ts` and the gate's CSS read is unchanged, so the opt-in, the unlock, the copy buttons and
 // the guided setup work as before. All of it styled in `skills.css` under `.sk`.
 
-/** The top bar: the logo, then "Free Library / <the skill>". */
+/** The top bar: the logo, then "The Library / <the skill>". */
 function skillTop(guide: Guide): string {
   const lib = SHARED.skill.library;
   return [

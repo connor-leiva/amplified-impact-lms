@@ -62,7 +62,7 @@ async function serve(
     logger: false,
     ai101Page: '<title>AI 101</title>',
     guidePages: Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, `<title>Guide ${slug}</title>`])),
-    libraryPage: '<title>The Free Library</title>',
+    libraryPage: '<title>The Library</title>',
     marketingPage: page,
   });
   setup?.(app);
@@ -102,7 +102,7 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     for (const url of ['/library', '/library?src=ig']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(200);
-      expect(res.body, url).toContain('The Free Library');
+      expect(res.body, url).toContain('The Library');
     }
     for (const [url, location] of [
       ['/library/', '/library'],
