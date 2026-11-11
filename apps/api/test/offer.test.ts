@@ -1049,6 +1049,46 @@ describe('every offer, end to end (D-106)', () => {
         expect(wrong.statusCode).toBe(400);
       });
 
+      it('keeps Forgot Password and the email sign-in link working for the buyer, before and after a password (D-132)', async () => {
+        await purchase(c);
+        process.env.FIXED_NOW = new Date(CONFIG.invitesFrom + 3_600_000).toISOString();
+        const log = { info: () => {}, warn: () => {}, error: () => {} };
+        await sendHeldInvites({ log, now: CONFIG.invitesFrom, invitesFrom: CONFIG.invitesFrom });
+        const post = (url: string, payload: Record<string, unknown>) => app.inject({ method: 'POST', url, payload });
+        const tokenIn = async (template: 'set-password' | 'reset-password' | 'sign-in', path: string) => {
+          await settleEmails();
+          const mail = outboxFor({ to: 'pat@example.com', template }).at(-1);
+          return new RegExp(`/${path}\\?token=([A-Za-z0-9_-]+)`).exec(mail?.html ?? '')?.[1];
+        };
+
+        // Forgot Password before any password is set: the same answer as for an address with no account,
+        // and a fresh set-password link in the buyer's inbox.
+        const forgot = await post('/api/auth/password/forgot', { email: 'pat@example.com' });
+        const nobody = await post('/api/auth/password/forgot', { email: 'nobody@example.com' });
+        expect([forgot.statusCode, forgot.body]).toEqual([nobody.statusCode, nobody.body]);
+        // The route answers first and sends after, so the answer can't time an account.
+        await settleEmails();
+        expect(outboxFor({ to: 'pat@example.com', template: 'set-password' })).toHaveLength(2);
+        expect(outboxFor({ to: 'nobody@example.com' })).toEqual([]);
+        expect((await post('/api/auth/password/set', { token: (await tokenIn('set-password', 'set-password'))!, password: 'pats first password' })).statusCode).toBe(200);
+
+        // With a password: Forgot Password sends a reset link, which replaces it.
+        expect((await post('/api/auth/password/forgot', { email: 'pat@example.com' })).statusCode).toBe(200);
+        const reset = await tokenIn('reset-password', 'set-password');
+        expect(reset).toBeTruthy();
+        expect((await post('/api/auth/password/set', { token: reset!, password: 'pats newer password' })).statusCode).toBe(200);
+        expect((await post('/api/auth/login', { email: 'pat@example.com', password: 'pats newer password' })).statusCode).toBe(200);
+        expect((await post('/api/auth/login', { email: 'pat@example.com', password: 'pats first password' })).statusCode).toBe(400);
+
+        // The email sign-in link still works, exactly as before passwords.
+        expect((await post('/api/auth/request', { email: 'pat@example.com' })).statusCode).toBe(200);
+        const link = await tokenIn('sign-in', 'sign-in');
+        expect(link).toBeTruthy();
+        const verified = await post('/api/auth/verify', { token: link! });
+        expect(verified.statusCode, verified.body).toBe(200);
+        expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: sessionCookie(verified.headers['set-cookie']) } })).statusCode).toBe(200);
+      });
+
       it('a failed payment makes the plan past_due and tags payment-failed', async () => {
         const order = await purchase(c);
         if (c.firstCharge) process.env.FIXED_NOW = new Date(JAN4 + 3_600_000).toISOString();
