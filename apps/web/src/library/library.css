@@ -128,17 +128,13 @@ ul {
   text-transform: uppercase;
   color: var(--text-secondary);
 }
-/* On a phone each row of pills is one line that scrolls sideways inside itself (never the page), so
-   the filters take three short rows and the first card is on the first screen (D-052). The padding
-   keeps a pressed pill's focus ring inside the scroll box. */
+/* Pills wrap onto as many lines as they need, at every width. On a phone this replaces D-052's one
+   sideways-scrolling line per row, which ran off the right edge with a scrollbar and no swipe cue.
+   Nothing scrolls, so a pressed pill's focus ring has nothing to be clipped by. */
 .chips {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
-  margin: -3px;
-  padding: 3px;
-  overflow-x: auto;
-  scrollbar-width: thin;
 }
 .chip {
   flex: none;
@@ -398,12 +394,6 @@ a.item-body:hover {
   }
   .filter {
     gap: 8px;
-  }
-  .chips {
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    overflow-x: visible;
   }
   .finder .filter-label,
   .sorter .filter-label {
