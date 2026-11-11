@@ -1,7 +1,7 @@
-// The offer, end to end against Postgres with a stubbed Stripe (D-073 to D-079): the spec's test plan,
-// as far as it can run without Stripe's own test mode. Webhook events are signed exactly as Stripe signs
-// them (`generateTestHeaderString`); Checkout Sessions are created against a stub that records what it
-// was asked for. No network.
+// The offer, end to end against Postgres with a stubbed Stripe (D-073 to D-079, D-104): the spec's test
+// plan, as far as it can run without Stripe's own test mode. Every purchase is a Payment Link's
+// completed session (the site's own checkout is retired), signed exactly as Stripe signs webhooks
+// (`generateTestHeaderString`); the subscription calls go to a stub that records them. No network.
 //
 // The scenarios are numbered as in the spec's "In test mode" table where they map onto one.
 
@@ -11,8 +11,9 @@ import { eq } from 'drizzle-orm';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { accounts, orders, plans, skills, stripeEvents, users, teams } from '../src/db/schema';
-import { AGREEMENT_VERSION } from '../src/billing/checkout';
-import { AGENTS_FIRST_CHARGE_AT, INSIDERS_FIRST_CHARGE_AT } from '../src/billing/catalog';
+import { AGREEMENT_VERSION } from '../src/billing/agreement';
+import { AGENTS_FIRST_CHARGE_AT, AGENTS_SKILLS_FROM, CARTS, INSIDERS_FIRST_CHARGE_AT } from '../src/billing/catalog';
+import type { CartId } from '../src/billing/catalog';
 import type { OfferConfig } from '../src/billing/config';
 import { createPriceCache } from '../src/billing/prices';
 import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
@@ -30,18 +31,19 @@ const ORIGIN = 'http://localhost';
 const PRICE_LIST: PriceInfo[] = [
   { lookupKey: 'cohort_founding_full', id: 'price_cff', unitAmount: 750000, currency: 'usd', interval: null, productName: 'Core Cohort' },
   { lookupKey: 'cohort_founding_two_pay', id: 'price_c2', unitAmount: 375000, currency: 'usd', interval: 'month', productName: 'Core Cohort' },
-  { lookupKey: 'library_upfront', id: 'price_lu', unitAmount: 200000, currency: 'usd', interval: null, productName: 'Skill Library' },
+  { lookupKey: 'membership_year_upfront', id: 'price_my', unitAmount: 199700, currency: 'usd', interval: null, productName: 'Amplified Insiders' },
   { lookupKey: 'membership_monthly', id: 'price_mm', unitAmount: 19700, currency: 'usd', interval: 'month', productName: 'Membership' },
+  { lookupKey: 'agents_upto15_prepay3', id: 'price_p15', unitAmount: 149100, currency: 'usd', interval: null, productName: 'Amplified Team Plan' },
+  { lookupKey: 'agents_16to40_prepay3', id: 'price_p40', unitAmount: 239100, currency: 'usd', interval: null, productName: 'Amplified Team Plan' },
   { lookupKey: 'agents_upto15_founding', id: 'price_a15', unitAmount: 49700, currency: 'usd', interval: 'month', productName: 'Agent Team Plan' },
   { lookupKey: 'agents_16to40_founding', id: 'price_a40', unitAmount: 79700, currency: 'usd', interval: 'month', productName: 'Agent Team Plan' },
 ];
 
 const OFFER_PAGE = [
   '<!doctype html><html lang="en"><head><title>Plans</title></head><body data-offer="%%offer-state%%" data-founding="%%founding%%">',
-  '<form method="post" action="/api/checkout"><input type="hidden" name="campaign" value="%%campaign%%">',
-  '<p class="price">%%price:library_upfront%%</p><p class="err">%%error%%</p><a href="%%link:cohort-full%%">x</a>',
-  '<input type="radio" name="cart" value="library" %%checked:library%%></form>',
-  '<script type="module">document.body.dataset.js = "1";</script></body></html>',
+  '<li data-state="%%state:cohort-full%%"><a href="%%link:cohort-full%%">x</a><a href="%%link:cohort-two-pay%%">y</a></li>',
+  '<p class="price">%%headline:membership%% %%unit:membership%%</p><p class="closes">%%founding-closes%%</p>',
+  '<form method="post" action="/api/offer/waitlist"><input type="hidden" name="src" value="%%src%%"></form></body></html>',
 ].join('');
 const WELCOME_PAGE = '<!doctype html><html><body data-state="%%welcome-state%%"><h1>%%plan-name%%</h1><p>%%login%%</p><a href="%%intake-url%%">i</a></body></html>';
 
@@ -50,7 +52,6 @@ interface Stub {
   portals: { customer: string; returnUrl: string; configuration?: string }[];
   /** Customers who already hold an active or trialing membership. */
   members: Set<string>;
-  sessions: { params: Stripe.Checkout.SessionCreateParams; key: string }[];
   updates: { id: string; params: Stripe.SubscriptionUpdateParams }[];
   creates: { params: Stripe.SubscriptionCreateParams; key: string }[];
   cancels: string[];
@@ -59,7 +60,7 @@ interface Stub {
 }
 
 function stubStripe(): Stub {
-  const stub: Stub = { portals: [], members: new Set(), sessions: [], updates: [], creates: [], cancels: [], subs: new Map(), fail: false, client: null as never };
+  const stub: Stub = { portals: [], members: new Set(), updates: [], creates: [], cancels: [], subs: new Map(), fail: false, client: null as never };
   const sub = (id: string, over: Partial<SubscriptionInfo> = {}): SubscriptionInfo => ({
     id,
     status: 'active',
@@ -74,12 +75,6 @@ function stubStripe(): Stub {
   });
   stub.client = {
     pricesByLookupKeys: async () => PRICE_LIST,
-    createCheckoutSession: async (params, key) => {
-      if (stub.fail) throw Object.assign(new Error('boom'), { type: 'StripeConnectionError' });
-      stub.sessions.push({ params, key });
-      const n = stub.sessions.length;
-      return { id: `cs_test_session${String(n).padStart(4, '0')}`, url: `https://checkout.stripe.com/c/pay/cs_test_session${n}` };
-    },
     retrieveSubscription: async (id) => sub(id),
     updateSubscription: async (id, params) => {
       stub.updates.push({ id, params });
@@ -109,11 +104,15 @@ const CONFIG: OfferConfig = {
   stripeSecretKey: 'rk_test_offer',
   stripeWebhookSecret: SECRET,
   open: true,
-  foundingClosesAt: Date.parse('2026-11-15T23:59:00-06:00'),
+  foundingClosesAt: Date.parse('2026-11-30T23:59:00-07:00'),
   invitesFrom: Date.parse('2026-11-16T08:00:00-06:00'),
   invitesEnabled: true,
-  paymentLinks: { 'cohort-full': 'https://buy.stripe.com/test_cohort_full' },
-  intakeUrls: { library: 'https://forms.example.com/library' },
+  paymentLinks: {
+    'cohort-full': 'https://buy.stripe.com/test_cohort_full',
+    'cohort-two-pay': 'https://buy.stripe.com/test_cohort_two',
+    'insiders-year': 'https://buy.stripe.com/test_insiders_year',
+  },
+  intakeUrls: { membership: 'https://forms.example.com/insiders' },
   portalLoginUrl: 'https://billing.stripe.com/p/login/test_portal',
   portalLockedConfig: 'bpc_locked',
 };
@@ -153,19 +152,6 @@ const db = () => testDatabase();
 const orderRows = async () => (await db()).select().from(orders);
 const one = async () => (await orderRows())[0]!;
 
-const BUYER = { name: 'Pat Buyer', email: 'pat@example.com', company: 'Pat Group', agree: true, renew: true };
-
-const checkout = (payload: Record<string, unknown>) =>
-  app.inject({ method: 'POST', url: '/api/checkout', payload: JSON.stringify(payload), headers: { 'content-type': 'application/json', origin: ORIGIN } });
-
-const checkoutForm = (fields: Record<string, string>) =>
-  app.inject({
-    method: 'POST',
-    url: '/api/checkout',
-    payload: new URLSearchParams(fields).toString(),
-    headers: { 'content-type': 'application/x-www-form-urlencoded', origin: ORIGIN },
-  });
-
 let eventN = 0;
 async function deliver(type: string, object: Record<string, unknown>, id = `evt_${++eventN}`) {
   const payload = JSON.stringify({ id, object: 'event', type, api_version: '2025-10-29.clover', data: { object } });
@@ -173,28 +159,34 @@ async function deliver(type: string, object: Record<string, unknown>, id = `evt_
   return app.inject({ method: 'POST', url: '/api/stripe/webhook', payload, headers: { 'content-type': 'application/json', 'stripe-signature': header } });
 }
 
-/** A checkout on the site, then Stripe's completion for it. */
-async function buy(cart: string, extra: Record<string, unknown> = {}, session: Record<string, unknown> = {}) {
-  const res = await checkout({ cart, ...BUYER, ...extra });
-  expect(res.statusCode, res.body).toBe(200);
-  const rows = await orderRows();
-  const order = rows.find((o) => o.stripeSessionId === `cs_test_session${String(stub.sessions.length).padStart(4, '0')}`)!;
-  const done = await deliver('checkout.session.completed', {
-    id: order.stripeSessionId,
+let sessionN = 0;
+/** A cart's Payment Link session, completed: its metadata, the buyer's details and the terms box. */
+const linkSession = (cartId: CartId, email = 'pat@example.com') => {
+  const cart = CARTS[cartId];
+  return {
+    id: `cs_test_link${String(++sessionN).padStart(8, '0')}`,
     object: 'checkout.session',
-    client_reference_id: order.id,
-    metadata: { order_id: order.id, ai_plan: order.plan, ai_option: order.option },
+    client_reference_id: null,
+    payment_link: `plink_${cartId}`,
+    metadata: { ai_plan: cart.plan, ai_option: cart.option, ...(cart.billing ? { billing: cart.billing } : {}) },
     payment_status: 'paid',
     customer: 'cus_1',
     payment_intent: null,
     subscription: null,
     amount_total: 0,
     currency: 'usd',
-    customer_details: { email: order.email, name: order.name, phone: null },
-    ...session,
-  });
+    customer_details: { email, name: 'Pat Buyer', phone: null },
+    custom_fields: [{ key: 'company', text: { value: 'Pat Group' } }],
+    consent: { terms_of_service: 'accepted' },
+  };
+};
+
+/** A purchase through a cart's Payment Link: Stripe's completed session, delivered to the webhook. */
+async function buy(cartId: CartId, extra: { email?: string } = {}, session: Record<string, unknown> = {}) {
+  const base = linkSession(cartId, extra.email);
+  const done = await deliver('checkout.session.completed', { ...base, ...session });
   expect(done.statusCode, done.body).toBe(200);
-  return (await db()).select().from(orders).where(eq(orders.id, order.id)).then((r) => r[0]!);
+  return (await db()).select().from(orders).where(eq(orders.stripeSessionId, base.id)).then((r) => r[0]!);
 }
 
 const invoice = (sub: string, amount: number, periodEnd: number, meta: Record<string, string> = {}) => ({
@@ -205,141 +197,89 @@ const invoice = (sub: string, amount: number, periodEnd: number, meta: Record<st
   lines: { data: [{ period: { start: Math.floor(NOW_MS / 1000), end: Math.floor(periodEnd / 1000) } }] },
 });
 
-describe('POST /api/checkout (D-073, D-077)', () => {
+describe('POST /api/checkout, retired (D-104)', () => {
   beforeEach(async () => void (await fresh()));
 
-  it('writes a pending order with the consent proof, then opens a session for it', async () => {
-    const res = await checkout({ cart: 'library', ...BUYER, src: 'qr', campaign: 'forum', sms: true, phone: '801-555-1234' });
-    expect(res.statusCode).toBe(200);
-    expect(res.json().url).toMatch(/^https:\/\/checkout\.stripe\.com\//);
-    const order = await one();
-    expect(order).toMatchObject({
-      plan: 'library',
-      option: 'upfront',
-      origin: 'offer',
-      status: 'pending',
-      email: 'pat@example.com',
-      campaign: 'forum',
-      src: 'qr',
-      agreementVersion: AGREEMENT_VERSION,
-      agreementAcceptedAt: NOW_MS,
-      renewalConsentAt: NOW_MS,
-      smsConsent: true,
-      phone: '+18015551234',
-      stripeSessionId: 'cs_test_session0001',
-    });
-    expect(order.renewalConsentText).toContain('$197 a month');
-    expect(stub.sessions[0]!.key).toBe(order.id);
-    expect(stub.sessions[0]!.params.metadata).toMatchObject({ order_id: order.id, campaign: 'forum' });
-    expect(stub.sessions[0]!.params.cancel_url).toMatch(/^http:\/\/localhost(:80)?\/forum\?cart=library#checkout$/);
-  });
-
-  it('11: refuses an unticked agreement or renewal box, with no order and no session', async () => {
-    for (const over of [{ agree: false }, { renew: false }]) {
-      const res = await checkout({ cart: 'library', ...BUYER, ...over });
-      expect(res.statusCode).toBe(400);
-      expect(res.json().field).toBe('agree' in over ? 'agree' : 'renew');
-    }
+  it('answers 410 to the old form and its JSON, and writes nothing', async () => {
+    const json = await app.inject({ method: 'POST', url: '/api/checkout', payload: JSON.stringify({ cart: 'cohort-full' }), headers: { 'content-type': 'application/json', origin: ORIGIN } });
+    const form = await app.inject({ method: 'POST', url: '/api/checkout', payload: 'cart=cohort-full', headers: { 'content-type': 'application/x-www-form-urlencoded', origin: ORIGIN } });
+    expect([json.statusCode, form.statusCode]).toEqual([410, 410]);
+    expect(json.json().error).toMatch(/Payment Link/);
     expect(await orderRows()).toEqual([]);
-    expect(stub.sessions).toEqual([]);
-  });
-
-  it('10: refuses the cohort to a team not on Follow Up Boss, offering the library and the waitlist', async () => {
-    const res = await checkout({ cart: 'cohort-full', ...BUYER, crm: 'other' });
-    expect(res.statusCode).toBe(400);
-    expect(res.json()).toMatchObject({ field: 'crm' });
-    expect(res.json().error).toContain('Skill Library');
-    expect(res.json().error).toContain('waitlist');
-  });
-
-  it('a no-JS form gets a 303 to Stripe, and a 303 back to the plan with the error', async () => {
-    const ok = await checkoutForm({ cart: 'library', name: 'Pat', email: 'pat@example.com', agree: 'on', 'renew-library': 'on' });
-    expect(ok.statusCode).toBe(303);
-    expect(ok.headers.location).toMatch(/^https:\/\/checkout\.stripe\.com\//);
-    const bad = await checkoutForm({ cart: 'library', name: 'Pat', email: 'pat@example.com', agree: 'on', campaign: 'forum' });
-    expect(bad.statusCode).toBe(303);
-    expect(bad.headers.location).toBe('/forum?error=renew&cart=library#checkout');
-  });
-
-  it('9: refuses founding prices after the close, and keeps selling the library', async () => {
-    process.env.FIXED_NOW = '2026-11-16T00:00:00-06:00';
-    const res = await checkout({ cart: 'cohort-full', ...BUYER, crm: 'follow_up_boss' });
-    expect(res.statusCode).toBe(409);
-    expect(res.json().error).toBe('Founding prices closed on Sunday, November 15.');
-    expect(res.json().fallback).toBe('https://buy.stripe.com/test_cohort_full');
-    expect((await checkout({ cart: 'library', ...BUYER })).statusCode).toBe(200);
-  });
-
-  it('refuses everything while OFFER_OPEN is off, and answers with the fallback when Stripe fails', async () => {
-    await app.close();
-    await fresh({ open: false });
-    expect((await checkout({ cart: 'library', ...BUYER })).statusCode).toBe(409);
-    await app.close();
-    await fresh();
-    stub.fail = true;
-    const res = await checkout({ cart: 'cohort-full', ...BUYER, crm: 'follow_up_boss' });
-    expect(res.statusCode).toBe(502);
-    expect(res.json()).toMatchObject({ code: 'stripe', fallback: 'https://buy.stripe.com/test_cohort_full' });
-  });
-
-  it('refuses a post from another site', async () => {
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/checkout',
-      payload: JSON.stringify({ cart: 'library', ...BUYER }),
-      headers: { 'content-type': 'application/json', origin: 'https://evil.example' },
-    });
-    expect(res.statusCode).toBe(403);
   });
 });
 
-describe('the offer pages (D-075)', () => {
+describe('the offer pages (D-075, D-104)', () => {
   beforeEach(async () => void (await fresh()));
 
-  it('fills prices and state, records the forum campaign on /forum only, and lets the form reach Stripe', async () => {
+  it('fills each cart\'s link and state, the live prices and the Mountain deadline, with no form-action exception', async () => {
     const offer = await app.inject({ method: 'GET', url: '/offer' });
     expect(offer.statusCode).toBe(200);
-    expect(offer.body).toContain('<p class="price">$2,000</p>');
-    expect(offer.body).toContain('data-offer="checkout"');
-    expect(offer.body).toContain('name="campaign" value=""');
-    expect(offer.body).toContain('value="library" checked');
+    expect(offer.body).toContain('data-offer="links" data-founding="open"');
+    expect(offer.body).toContain('<li data-state="link"><a href="https://buy.stripe.com/test_cohort_full">x</a><a href="https://buy.stripe.com/test_cohort_two">y</a></li>');
+    expect(offer.body).toContain('<p class="price">$1,997 today for one year</p>');
+    expect(offer.body).toContain('<p class="closes">Monday, November 30 at 11:59 PM Mountain</p>');
+    expect(offer.body).not.toContain('%%');
     expect(offer.headers['cache-control']).toBe('no-store');
-    expect(String(offer.headers['content-security-policy'])).toContain("form-action 'self' https://checkout.stripe.com");
-    const forum = await app.inject({ method: 'GET', url: '/forum?src=qr&error=renew' });
-    expect(forum.body).toContain('name="campaign" value="forum"');
-    expect(forum.body).toContain('Tick the box to agree to the later charge.');
-    // Every other response keeps the plain policy.
-    const health = await app.inject({ method: 'GET', url: '/api/health' });
-    expect(String(health.headers['content-security-policy'])).not.toContain('checkout.stripe.com');
+    expect(String(offer.headers['content-security-policy'])).not.toContain('checkout.stripe.com');
+    // The QR code's address marks a waitlist sign-up, unless the link names its own source.
+    expect((await app.inject({ method: 'GET', url: '/offer' })).body).toContain('name="src" value=""');
+    expect((await app.inject({ method: 'GET', url: '/forum' })).body).toContain('name="src" value="forum"');
+    expect((await app.inject({ method: 'GET', url: '/forum?src=qr2' })).body).toContain('name="src" value="qr2"');
   });
 
-  it('GET /api/offer lists the carts with live prices', async () => {
-    const res = await app.inject({ method: 'GET', url: '/api/offer' });
-    const body = res.json();
-    expect(body.founding.open).toBe(true);
-    expect(body.carts.map((c: { id: string }) => c.id)).toEqual(['library', 'cohort-full', 'cohort-two-pay', 'agents-upto15', 'agents-16to40']);
-    expect(body.carts[0].prices[0]).toEqual({ lookupKey: 'library_upfront', amount: 200000, currency: 'usd', interval: null });
+  it('closes the founding links after Nov 30, 11:59 PM Mountain', async () => {
+    process.env.FIXED_NOW = '2026-12-01T07:00:00Z';
+    const offer = await app.inject({ method: 'GET', url: '/offer' });
+    expect(offer.body).toContain('data-founding="closed"');
+    expect(offer.body).toContain('<li data-state="closed"><a href="">x</a><a href="">y</a></li>');
+  });
+
+  it('sells the 15th AI Accelerator seat, then hides both links and reports the seats, and alerts on the last one', async () => {
+    for (let i = 1; i <= 14; i += 1) await buy(i % 2 ? 'cohort-full' : 'cohort-two-pay', { email: `owner${i}@example.com` }, { customer: `cus_${i}` });
+    let body = (await app.inject({ method: 'GET', url: '/api/offer' })).json();
+    expect(body.seats).toEqual({ total: 15, sold: 14, left: 1 });
+    expect((await app.inject({ method: 'GET', url: '/offer' })).body).toContain('<li data-state="link">');
+
+    // The 15th, provisioned by hand here so its alert can be read.
+    const last = linkSession('cohort-two-pay', 'owner15@example.com');
+    await deliver('checkout.session.completed', { ...last, payment_status: 'unpaid', customer: 'cus_15' });
+    const [order] = await (await db()).select().from(orders).where(eq(orders.stripeSessionId, last.id));
+    await (await db()).update(orders).set({ status: 'paid' }).where(eq(orders.id, order!.id));
+    const errors: string[] = [];
+    const log = { info: () => {}, warn: () => {}, error: (_o: Record<string, unknown>, msg: string) => void errors.push(msg) };
+    await provisionOrder(order!.id, { log, now: NOW_MS, invitesFrom: CONFIG.invitesFrom });
+    expect(errors).toEqual(['AI Accelerator sold out: seat 15 of 15. The page shows the waitlist; turn off both Accelerator Payment Links in Stripe']);
+
+    body = (await app.inject({ method: 'GET', url: '/api/offer' })).json();
+    expect(body.seats).toEqual({ total: 15, sold: 15, left: 0 });
+    expect(body.carts.filter((c: { plan: string }) => c.plan === 'cohort').map((c: { state: string }) => c.state)).toEqual(['soldout', 'soldout']);
+    expect(body.carts.find((c: { id: string }) => c.id === 'insiders-year').state).toBe('link');
+    expect((await app.inject({ method: 'GET', url: '/offer' })).body).toContain('<li data-state="soldout"><a href="">x</a><a href="">y</a></li>');
+  });
+
+  it('GET /api/offer lists the six carts with live prices and their links', async () => {
+    const body = (await app.inject({ method: 'GET', url: '/api/offer' })).json();
+    expect(body.founding).toEqual({ open: true, closesAt: '2026-12-01T06:59:00.000Z' });
+    expect(body.carts.map((c: { id: string }) => c.id)).toEqual(['cohort-full', 'cohort-two-pay', 'insiders-year', 'insiders-monthly', 'agents-upto15', 'agents-16to40']);
+    const year = body.carts.find((c: { id: string }) => c.id === 'insiders-year');
+    expect(year).toMatchObject({ plan: 'membership', option: 'year_upfront', name: 'Amplified Insiders', state: 'link', paymentLink: 'https://buy.stripe.com/test_insiders_year' });
+    expect(year.prices[0]).toEqual({ lookupKey: 'membership_year_upfront', amount: 199700, currency: 'usd', interval: null });
+    expect(body.carts.find((c: { id: string }) => c.id === 'agents-upto15').state).toBe('soon');
   });
 
   it('the welcome page waits for the webhook, then confirms the plan and links the intake form', async () => {
-    await checkout({ cart: 'library', ...BUYER });
-    const pending = await app.inject({ method: 'GET', url: '/offer/welcome?session_id=cs_test_session0001' });
+    const session = linkSession('insiders-year');
+    const pending = await app.inject({ method: 'GET', url: `/offer/welcome?session_id=${session.id}` });
     expect(pending.body).toContain('data-state="pending"');
-    await deliver('checkout.session.completed', {
-      id: 'cs_test_session0001',
-      client_reference_id: (await one()).id,
-      metadata: { ai_plan: 'library', ai_option: 'upfront' },
-      payment_status: 'paid',
-      customer: 'cus_1',
-      subscription: 'sub_lib',
-    });
-    const done = await app.inject({ method: 'GET', url: '/offer/welcome?session_id=cs_test_session0001' });
+    await deliver('checkout.session.completed', { ...session, subscription: 'sub_ins' });
+    const done = await app.inject({ method: 'GET', url: `/offer/welcome?session_id=${session.id}` });
     expect(done.body).toContain('data-state="confirmed"');
-    expect(done.body).toContain('<h1>Amplified Skill Library</h1>');
+    expect(done.body).toContain('<h1>Amplified Insiders</h1>');
     expect(done.body).toContain('Monday, November 16');
-    expect(done.body).toContain('href="https://forms.example.com/library"');
-    const status = await app.inject({ method: 'GET', url: '/api/offer/order-status?session_id=cs_test_session0001' });
-    expect(status.json()).toEqual({ status: 'paid', plan: 'library', name: 'Amplified Skill Library' });
+    expect(done.body).toContain('href="https://forms.example.com/insiders"');
+    const status = await app.inject({ method: 'GET', url: `/api/offer/order-status?session_id=${session.id}` });
+    expect(status.json()).toEqual({ status: 'paid', plan: 'membership', name: 'Amplified Insiders' });
     const unknown = await app.inject({ method: 'GET', url: '/offer/welcome?session_id=nope' });
     expect(unknown.body).toContain('data-state="unknown"');
   });
@@ -357,7 +297,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     });
     expect(bad.statusCode).toBe(400);
 
-    const order = await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two', payment_status: 'paid' });
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two', payment_status: 'paid' });
     const first = await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }), 'evt_same');
     const again = await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }), 'evt_same');
     expect([first.statusCode, again.statusCode]).toEqual([200, 200]);
@@ -366,16 +306,19 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     expect((await (await db()).select().from(stripeEvents)).find((e) => e.id === 'evt_same')?.processedAt).toBe(NOW_MS);
   });
 
-  it('1 and 12: a paid library order makes one account, one plan and one held invite, however often it runs', async () => {
-    const order = await buy('library', {}, { subscription: 'sub_lib' });
-    expect(order.status).toBe('paid');
+  it('1 and 12: Amplified Insiders for a year makes one account, one plan and one held invite, however often it runs', async () => {
+    const order = await buy('insiders-year', {}, { subscription: 'sub_ins' });
+    expect(order).toMatchObject({ status: 'paid', plan: 'membership', option: 'year_upfront', origin: 'payment_link', agreementVersion: AGREEMENT_VERSION });
     const [acct] = await (await db()).select().from(accounts);
     expect(acct).toMatchObject({ ownerEmail: 'pat@example.com', name: 'Pat Group', inviteSentAt: null });
     const [plan] = await (await db()).select().from(plans);
-    expect(plan).toMatchObject({ kind: 'library', status: 'active', seats: 2, paidThrough: NOW_MS + 30 * DAY, stripeSubscriptionId: 'sub_lib' });
+    expect(plan).toMatchObject({ kind: 'membership', option: 'year_upfront', status: 'active', seats: 2, paidThrough: NOW_MS + 365 * DAY, minimumUntil: null, stripeSubscriptionId: 'sub_ins' });
     const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
     expect(owner).toMatchObject({ role: 'Team Owner', status: 'invited', tier: 'team', teamId: acct!.teamId });
     expect(outboxFor({ to: 'pat@example.com' })).toEqual([]);
+    // Insiders by the year keeps its link's 365-day trial: no pin, no second membership.
+    expect(stub.updates.every((u) => u.params.trial_end === undefined)).toBe(true);
+    expect(stub.creates).toEqual([]);
 
     const log = { info: () => {}, warn: () => {}, error: () => {} };
     const again = await provisionOrder(order.id, { log, now: NOW_MS, invitesFrom: CONFIG.invitesFrom });
@@ -393,63 +336,69 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     await app.close();
     await fresh({ invitesEnabled: false });
     process.env.FIXED_NOW = '2026-11-17T10:00:00-06:00';
-    await buy('library', {}, { subscription: 'sub_lib' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
     const [acct] = await (await db()).select().from(accounts);
     expect(acct!.inviteSentAt).toBeNull();
     expect(outboxFor({ to: 'pat@example.com' })).toEqual([]);
   });
 
-  it('2: the library\'s $197 on day 31 moves paid_through a month', async () => {
-    const order = await buy('library', {}, { subscription: 'sub_lib' });
-    await deliver('invoice.paid', invoice('sub_lib', 200000, NOW_MS + 30 * DAY, { order_id: order.id }));
-    const day31 = NOW_MS + 61 * DAY;
-    await deliver('invoice.paid', invoice('sub_lib', 19700, day31, { order_id: order.id }));
+  it('2: Amplified Insiders by the month: each $197 counts and moves paid_through a month, with a 3-month minimum', async () => {
+    const order = await buy('insiders-monthly', {}, { subscription: 'sub_mo' });
+    const meta = { order_id: order.id, ai_plan: 'membership', ai_option: 'monthly' };
+    const [before] = await (await db()).select().from(plans);
+    expect(before).toMatchObject({ kind: 'membership', option: 'monthly', minimumUntil: Date.UTC(2027, 1, 14, 21) });
+    const month1 = NOW_MS + 31 * DAY;
+    await deliver('invoice.paid', invoice('sub_mo', 19700, month1, meta));
+    const month2 = NOW_MS + 61 * DAY;
+    await deliver('invoice.paid', invoice('sub_mo', 19700, month2, meta));
     const [plan] = await (await db()).select().from(plans);
-    expect(plan!.paidThrough).toBe(Math.floor(day31 / 1000) * 1000);
+    expect(plan!.paidThrough).toBe(Math.floor(month2 / 1000) * 1000);
     expect((await one()).paymentsMade).toBe(2);
   });
 
   it('3: cancel and keep: paid_through stays, live sessions end, and the buyer is tagged membership-ended', async () => {
-    await buy('library', {}, { subscription: 'sub_lib' });
-    await deliver('customer.subscription.deleted', { id: 'sub_lib', object: 'subscription', status: 'canceled', metadata: {} });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
+    await deliver('customer.subscription.deleted', { id: 'sub_ins', object: 'subscription', status: 'canceled', metadata: {} });
     const [plan] = await (await db()).select().from(plans);
-    expect(plan).toMatchObject({ status: 'canceled', paidThrough: NOW_MS + 30 * DAY });
-    expect(plan!.liveUntil).toBe(NOW_MS + 30 * DAY);
+    expect(plan).toMatchObject({ status: 'canceled', paidThrough: NOW_MS + 365 * DAY, liveUntil: NOW_MS + 365 * DAY });
     const order = await one();
     expect(order.membershipEndedAt).toBe(NOW_MS);
     expect(order.ghlSyncedAt).toBeNull();
   });
 
-  it('4: the AI Accelerator in full opens both sets, and its own subscription carries Insiders from May 3, 2027', async () => {
+  it('4: the AI Accelerator in full opens both sets, and its own subscription carries Insiders from May 4, 2027', async () => {
     // A Payment Link's relative trial lands on the wrong day for a later buyer: the webhook pins it.
     stub.subs.set('sub_full', { id: 'sub_full', status: 'trialing', customer: 'cus_1', trialEnd: INSIDERS_FIRST_CHARGE_AT + 2 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
-    const order = await buy('cohort-full', { crm: 'follow_up_boss' }, { subscription: 'sub_full' });
+    const order = await buy('cohort-full', {}, { subscription: 'sub_full' });
     const [plan] = await (await db()).select().from(plans);
     expect(plan).toMatchObject({ kind: 'cohort', cohortId: 'dec26', paidThrough: INSIDERS_FIRST_CHARGE_AT, stripeSubscriptionId: 'sub_full' });
-    expect(order.renewalConsentText).toContain('Amplified Insiders');
     expect(stub.updates).toEqual([
       {
         id: 'sub_full',
-        params: { metadata: { order_id: order.id, ai_plan: 'cohort', ai_option: 'full' }, trial_end: 1809320400, proration_behavior: 'none' },
+        params: { metadata: { order_id: order.id, ai_plan: 'cohort', ai_option: 'full' }, trial_end: 1809406800, proration_behavior: 'none' },
       },
     ]);
     // No second membership: the purchase's own subscription is it.
     expect(stub.creates).toEqual([]);
     // The $7,500 invoice counts as the one payment.
-    await deliver('invoice.paid', invoice('sub_full', 750000, INSIDERS_FIRST_CHARGE_AT, { order_id: order.id }));
+    // The $7,500 invoice counts as the one payment; its trial line, which ends past the pin, does not
+    // carry the plan past May 4.
+    await deliver('invoice.paid', invoice('sub_full', 750000, INSIDERS_FIRST_CHARGE_AT + 2 * DAY, { order_id: order.id }));
     expect((await one()).paymentsMade).toBe(1);
+    const [after] = await (await db()).select().from(plans);
+    expect(after!.paidThrough).toBe(INSIDERS_FIRST_CHARGE_AT);
   });
 
-  it('two payments: every buyer rolls into a separate Insiders subscription on May 3, 2027, never twice', async () => {
-    const order = await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
+  it('two payments: every buyer rolls into a separate Insiders subscription on May 4, 2027, never twice', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
     expect(stub.creates).toHaveLength(1);
     expect(stub.creates[0]!.key).toBe(`membership-autoroll-${order.stripeSessionId}`);
     expect(stub.creates[0]!.params).toMatchObject({
       customer: 'cus_1',
       items: [{ price: 'price_mm' }],
-      trial_end: 1809320400,
+      trial_end: 1809406800,
       default_payment_method: 'pm_sub',
-      metadata: { ai_plan: 'membership', ai_option: 'monthly', origin: 'offer', source_plan: 'cohort', source_option: 'two_pay', source_session: order.stripeSessionId },
+      metadata: { ai_plan: 'membership', ai_option: 'monthly', origin: 'payment_link', source_plan: 'cohort', source_option: 'two_pay', source_session: order.stripeSessionId },
     });
     const [plan] = await (await db()).select().from(plans);
     expect(plan!.stripeSubscriptionId).toBe('sub_membership_1');
@@ -458,7 +407,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
 
     // A buyer who already holds a membership is not enrolled again.
     stub.members.add('cus_1');
-    await buy('cohort-two-pay', { crm: 'follow_up_boss', email: 'sam@example.com' }, { subscription: 'sub_two_b' });
+    await buy('cohort-two-pay', { email: 'sam@example.com' }, { subscription: 'sub_two_b' });
     expect(stub.creates).toHaveLength(1);
   });
 
@@ -487,7 +436,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
   });
 
   it('5: two-pay ends itself at the second paid invoice, and its end is complete, not cancelled', async () => {
-    const order = await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
     await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 31 * DAY, { order_id: order.id }));
     expect(stub.updates.filter((u) => u.params.cancel_at_period_end)).toEqual([]);
     await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 61 * DAY, { order_id: order.id }));
@@ -499,35 +448,43 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
   });
 
   it('6: a failed second payment makes the plan past_due and tags payment-failed', async () => {
-    const order = await buy('cohort-two-pay', { crm: 'follow_up_boss' }, { subscription: 'sub_two' });
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
     await deliver('invoice.payment_failed', invoice('sub_two', 0, NOW_MS + 61 * DAY, { order_id: order.id }));
     const [plan] = await (await db()).select().from(plans);
     expect(plan!.status).toBe('past_due');
     expect((await one()).paymentFailedAt).toBe(NOW_MS);
   });
 
-  it('7: an agent plan charges nothing today, holds 41 logins, and opens on its Jan 26 charge', async () => {
-    const order = await buy('agents-16to40', {}, { subscription: 'sub_agents', payment_status: 'no_payment_required' });
-    expect(order.status).toBe('trialing');
+  it('7: a Team Plan pays its first 3 months today, holds 41 logins, and bills monthly from Apr 4, 2027', async () => {
+    stub.subs.set('sub_agents', { id: 'sub_agents', status: 'trialing', customer: 'cus_1', trialEnd: AGENTS_FIRST_CHARGE_AT + 9 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    const order = await buy('agents-16to40', {}, { subscription: 'sub_agents' });
+    expect(order.status).toBe('paid');
     const [plan] = await (await db()).select().from(plans);
-    expect(plan).toMatchObject({ kind: 'agents', status: 'trialing', seats: 41, paidThrough: null });
+    // Logins now; agent skills from Dec 14; paid through Apr 3; the minimum is already paid.
+    expect(plan).toMatchObject({ kind: 'agents', status: 'active', seats: 41, startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, minimumUntil: null });
     const [team] = await (await db()).select().from(teams);
     expect(team!.seats).toBe(41);
-    await deliver('invoice.paid', invoice('sub_agents', 79700, AGENTS_FIRST_CHARGE_AT + 31 * DAY, { order_id: order.id }));
-    const [after] = await (await db()).select().from(plans);
-    expect(after!.status).toBe('active');
-    expect((await one()).status).toBe('paid');
+    expect(stub.updates.at(-1)?.params).toMatchObject({ trial_end: 1806814800, proration_behavior: 'none' });
+    // The $2,391 invoice: one payment, and its trial line does not carry the plan past Apr 4.
+    await deliver('invoice.paid', invoice('sub_agents', 239100, AGENTS_FIRST_CHARGE_AT + 9 * DAY, { order_id: order.id }));
+    expect((await one()).paymentsMade).toBe(1);
+    expect((await (await db()).select().from(plans))[0]!.paidThrough).toBe(AGENTS_FIRST_CHARGE_AT);
+    // Apr 4: the first $797 moves it a month.
+    process.env.FIXED_NOW = '2027-04-04T09:00:00-05:00';
+    await deliver('invoice.paid', invoice('sub_agents', 79700, AGENTS_FIRST_CHARGE_AT + 30 * DAY, { order_id: order.id }));
+    expect((await (await db()).select().from(plans))[0]!.paidThrough).toBe(AGENTS_FIRST_CHARGE_AT + 30 * DAY);
+    expect((await one()).paymentsMade).toBe(2);
   });
 
-  it('8: a fallback Payment Link becomes an order, and its agent trial moves to exactly Jan 26', async () => {
+  it('8: a Team Plan link with billing=forum_prepay becomes an order with its trial moved to exactly Apr 4; an older link does not', async () => {
     stub.subs.set('sub_link', { id: 'sub_link', status: 'trialing', customer: 'cus_7', trialEnd: AGENTS_FIRST_CHARGE_AT - 2 * DAY, defaultPaymentMethod: 'pm_7', metadata: {}, cancelAt: null, currentPeriodEnd: null });
     const res = await deliver('checkout.session.completed', {
       id: 'cs_test_linksession01',
       object: 'checkout.session',
       client_reference_id: null,
       payment_link: 'plink_1',
-      metadata: { ai_plan: 'agents', ai_option: 'upto15', origin: 'payment_link', campaign: 'forum' },
-      payment_status: 'no_payment_required',
+      metadata: { ai_plan: 'agents', ai_option: 'upto15', billing: 'forum_prepay', origin: 'payment_link', campaign: 'forum' },
+      payment_status: 'paid',
       customer: 'cus_7',
       subscription: 'sub_link',
       customer_details: { email: 'Lee@Example.com', name: 'Lee Owner', phone: '+18015550000' },
@@ -539,7 +496,7 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     });
     expect(res.statusCode).toBe(200);
     const order = await one();
-    expect(order).toMatchObject({ origin: 'payment_link', plan: 'agents', option: 'upto15', status: 'trialing', email: 'lee@example.com', company: 'Lee Team', teamSize: '11-25', campaign: 'forum', agreementVersion: AGREEMENT_VERSION });
+    expect(order).toMatchObject({ origin: 'payment_link', plan: 'agents', option: 'upto15', status: 'paid', email: 'lee@example.com', company: 'Lee Team', teamSize: '11-25', campaign: 'forum', agreementVersion: AGREEMENT_VERSION });
     expect(stub.updates).toEqual([
       {
         id: 'sub_link',
@@ -549,26 +506,31 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     // The welcome page finds the link's session too.
     const welcome = await app.inject({ method: 'GET', url: '/offer/welcome?session_id=cs_test_linksession01' });
     expect(welcome.body).toContain('Amplified Team Plan');
+
+    // A Team Plan session without `billing=forum_prepay` is from an older link: recorded, not provisioned.
+    const older = await deliver('checkout.session.completed', { ...linkSession('agents-upto15', 'old@example.com'), metadata: { ai_plan: 'agents', ai_option: 'upto15' } });
+    expect(older.statusCode).toBe(200);
+    expect((await orderRows()).length).toBe(1);
   });
 
   it('13: a second plan for the same buyer lands on one account', async () => {
-    await buy('library', {}, { subscription: 'sub_lib' });
-    await buy('agents-upto15', {}, { subscription: 'sub_a', payment_status: 'no_payment_required' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
+    await buy('agents-upto15', {}, { subscription: 'sub_a' });
     expect((await (await db()).select().from(accounts)).length).toBe(1);
-    expect((await (await db()).select().from(plans)).map((p) => p.kind).sort()).toEqual(['agents', 'library']);
+    expect((await (await db()).select().from(plans)).map((p) => p.kind).sort()).toEqual(['agents', 'membership']);
     const [team] = await (await db()).select().from(teams);
     expect(team!.seats).toBe(16);
   });
 
   it('17: a full refund ends the plan, stops later charges and tags refunded', async () => {
-    await buy('library', {}, { subscription: 'sub_lib', payment_intent: 'pi_lib' });
-    await deliver('charge.refunded', { id: 'ch_1', object: 'charge', refunded: true, payment_intent: 'pi_lib' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins', payment_intent: 'pi_ins' });
+    await deliver('charge.refunded', { id: 'ch_1', object: 'charge', refunded: true, payment_intent: 'pi_ins' });
     const [plan] = await (await db()).select().from(plans);
     expect(plan).toMatchObject({ status: 'ended', liveUntil: NOW_MS });
     expect(await one()).toMatchObject({ status: 'refunded', refundedAt: NOW_MS, ghlSyncedAt: null });
-    expect(stub.cancels).toEqual(['sub_lib']);
+    expect(stub.cancels).toEqual(['sub_ins']);
     // A partial refund changes nothing.
-    const partial = await deliver('charge.refunded', { id: 'ch_2', refunded: false, payment_intent: 'pi_lib' });
+    const partial = await deliver('charge.refunded', { id: 'ch_2', refunded: false, payment_intent: 'pi_ins' });
     expect(partial.statusCode).toBe(200);
   });
 
@@ -580,11 +542,10 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     expect((await (await db()).select().from(stripeEvents)).every((e) => e.processedAt !== null)).toBe(true);
   });
 
-  it('an expired checkout is tagged abandoned', async () => {
-    await checkout({ cart: 'library', ...BUYER });
-    const order = await one();
-    await deliver('checkout.session.expired', { id: order.stripeSessionId, client_reference_id: order.id });
-    expect(await one()).toMatchObject({ status: 'expired', ghlSyncedAt: null });
+  it('an expired Payment Link session, which never became an order, is recorded and ignored', async () => {
+    const res = await deliver('checkout.session.expired', { id: 'cs_test_expired00001', client_reference_id: null, metadata: { ai_plan: 'membership', ai_option: 'monthly' } });
+    expect(res.statusCode).toBe(200);
+    expect(await orderRows()).toEqual([]);
   });
 
   it('answers 503 with no signing secret, so Stripe keeps retrying', async () => {
@@ -599,7 +560,7 @@ describe('the skill library (D-079)', () => {
   beforeEach(async () => void (await fresh()));
 
   it('15: a locked skill is 403 and an open one is listed open', async () => {
-    await buy('library', {}, { subscription: 'sub_lib' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
     const now = NOW_MS;
     await (await db()).insert(skills).values([
       { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: now - DAY, files: { claude: 'team-pnl-review.zip' } },
@@ -618,7 +579,7 @@ describe('the skill library (D-079)', () => {
   });
 
   it('lists a Grok Bot template with its one file kind, `grok`, by the same access rule (D-100)', async () => {
-    await buy('library', {}, { subscription: 'sub_lib' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
     const now = NOW_MS;
     await (await db()).insert(skills).values([
       { id: 'month-end-close', title: 'Month-End Close Packet', sets: 'both', releasedAt: now - DAY, files: { grok: 'month-end-close.zip' } },
@@ -635,6 +596,17 @@ describe('the skill library (D-079)', () => {
     // A template has no Claude file.
     const wrongKind = await app.inject({ method: 'GET', url: '/api/skills/month-end-close/download/claude', headers: { cookie } });
     expect(wrongKind.statusCode).toBe(404);
+  });
+
+  it('opens a Team Plan\'s agent skills on Dec 14, with the starter path, and not before', async () => {
+    await buy('agents-upto15', {}, { subscription: 'sub_a' });
+    await (await db()).insert(skills).values([{ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } }]);
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+    const cookie = await app.signInAs(owner!.id);
+    const state = async () => (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().skills[0].state;
+    expect(await state()).toBe('locked');
+    process.env.FIXED_NOW = '2026-12-14T08:00:00-06:00';
+    expect(await state()).toBe('open');
   });
 });
 
@@ -673,22 +645,25 @@ describe('Manage Billing (D-077, Connor 2026-11-10)', () => {
   };
 
   it('opens the billing portal for the owner, with cancelling on outside any commitment', async () => {
-    await buy('library', {}, { subscription: 'sub_lib' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
     const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
     expect(res.statusCode).toBe(303);
     expect(res.headers.location).toBe('https://billing.stripe.com/p/session/test_portal');
     expect(stub.portals).toEqual([{ customer: 'cus_1', returnUrl: 'https://learn.amplifiedimpact.io/skill-library' }]);
   });
 
-  it('uses the locked configuration inside the Team Plan minimum and before the second installment', async () => {
-    await buy('agents-upto15', {}, { subscription: 'sub_a', payment_status: 'no_payment_required' });
+  it('uses the locked configuration inside Insiders\' 3-month minimum, and not for the prepaid Team Plan', async () => {
+    await buy('agents-upto15', {}, { subscription: 'sub_a' });
+    await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
+    expect(stub.portals.at(-1)?.configuration).toBeUndefined();
+    await buy('insiders-monthly', {}, { subscription: 'sub_mo' });
     await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
     expect(stub.portals.at(-1)?.configuration).toBe('bpc_locked');
   });
 
   it('sends a team member who is not the owner away, and anyone without a session to sign in', async () => {
     expect((await app.inject({ method: 'GET', url: '/api/billing/portal' })).statusCode).toBe(401);
-    await buy('library', {}, { subscription: 'sub_lib' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
     const [acct] = await (await db()).select().from(accounts);
     await (await db()).insert(users).values({ id: 'u_agent', email: 'agent@example.com', name: 'Agent', kind: 'learner', role: 'Sales Agent', tier: 'team', teamId: acct!.teamId, cohortId: 'dec26', status: 'active', joined: NOW_MS });
     const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await app.signInAs('u_agent') } });
@@ -696,7 +671,7 @@ describe('Manage Billing (D-077, Connor 2026-11-10)', () => {
   });
 
   it('falls back to the portal login when Stripe cannot open a session', async () => {
-    await buy('library', {}, { subscription: 'sub_lib' });
+    await buy('insiders-year', {}, { subscription: 'sub_ins' });
     stub.client.createPortalSession = async () => {
       throw Object.assign(new Error('down'), { type: 'StripeConnectionError' });
     };

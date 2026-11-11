@@ -1,15 +1,18 @@
-// The offer's pure rules (D-073 to D-079), without a database or a network: the Stripe contract each
-// cart is built to, the form's refusals, the access rule, the buyer tags and the page's tokens.
+// The offer's pure rules (D-073 to D-079, D-104), without a database or a network: the Stripe contract
+// each cart is sold on, the access rule, the buyer tags and the page's tokens.
 
 import { describe, expect, it } from 'vitest';
 import { canOpenSkill, liveSessionsOpen, skillState } from './access';
 import type { PlanAccess, SkillAccess } from './access';
 import {
   AGENTS_FIRST_CHARGE_AT,
+  AGENTS_SKILLS_FROM,
   CARTS,
   CART_IDS,
-  DEFAULT_FOUNDING_CLOSES_AT,
+  COHORT_ONE,
   COHORT_ONE_LIVE_UNTIL,
+  DEFAULT_FOUNDING_CLOSES_AT,
+  INSIDERS_FIRST_CHARGE_AT,
   LOOKUP_KEYS,
   ORDER_OPTIONS,
   ORDER_STATUSES,
@@ -17,11 +20,12 @@ import {
   PLAN_STATUSES,
   SKILL_SETS,
   addMonths,
-  dollars,
+  cartForMetadata,
   initialPlanDates,
-  renewalText,
+  mountainDeadline,
+  pinnedFirstCharge,
+  priceWords,
 } from './catalog';
-import { CHECKOUT_ERRORS, checkoutSessionParams, validateCheckout } from './checkout';
 import { keyMode, readOfferConfig } from './config';
 import type { PriceMap } from './prices';
 import { crmOf, planStatusOf, teamSizeOfAgents } from './webhook';
@@ -37,196 +41,124 @@ const NOW = Date.parse('2026-11-14T15:00:00-06:00'); // Saturday at the Forum
 const DAY = 86_400_000;
 const DEFAULT_FOUNDING = Date.parse(DEFAULT_FOUNDING_CLOSES_AT);
 
+const price = (lookupKey: string, unitAmount: number, interval: 'month' | null) => ({ lookupKey, id: `price_${lookupKey}`, unitAmount, currency: 'usd', interval, productName: 'x' });
 const PRICES: PriceMap = {
-  cohort_founding_full: { lookupKey: 'cohort_founding_full', id: 'price_cff', unitAmount: 750000, currency: 'usd', interval: null, productName: 'Core Cohort' },
-  cohort_founding_two_pay: { lookupKey: 'cohort_founding_two_pay', id: 'price_c2', unitAmount: 375000, currency: 'usd', interval: 'month', productName: 'Core Cohort' },
-  library_upfront: { lookupKey: 'library_upfront', id: 'price_lu', unitAmount: 200000, currency: 'usd', interval: null, productName: 'Skill Library' },
-  membership_monthly: { lookupKey: 'membership_monthly', id: 'price_mm', unitAmount: 19700, currency: 'usd', interval: 'month', productName: 'Membership' },
-  agents_upto15_founding: { lookupKey: 'agents_upto15_founding', id: 'price_a15', unitAmount: 49700, currency: 'usd', interval: 'month', productName: 'Agent Team Plan' },
-  agents_16to40_founding: { lookupKey: 'agents_16to40_founding', id: 'price_a40', unitAmount: 79700, currency: 'usd', interval: 'month', productName: 'Agent Team Plan' },
+  cohort_founding_full: price('cohort_founding_full', 750000, null),
+  cohort_founding_two_pay: price('cohort_founding_two_pay', 375000, 'month'),
+  membership_year_upfront: price('membership_year_upfront', 199700, null),
+  membership_monthly: price('membership_monthly', 19700, 'month'),
+  agents_upto15_prepay3: price('agents_upto15_prepay3', 149100, null),
+  agents_16to40_prepay3: price('agents_16to40_prepay3', 239100, null),
+  agents_upto15_founding: price('agents_upto15_founding', 49700, 'month'),
+  agents_16to40_founding: price('agents_16to40_founding', 79700, 'month'),
 };
+/** The page's price words read amounts in cents by lookup key. */
+const AMOUNTS = Object.fromEntries(Object.entries(PRICES).map(([k, v]) => [k, v!.unitAmount]));
 
-const session = (cart: (typeof CART_IDS)[number], extra: Partial<Parameters<typeof checkoutSessionParams>[0]> = {}) =>
-  checkoutSessionParams({
-    cart: CARTS[cart],
-    orderId: 'ord_1',
-    email: 'pat@example.com',
-    customerId: null,
-    campaign: null,
-    prices: PRICES,
-    baseUrl: 'https://www.amplifiedimpact.io',
-    cancelPath: '/offer?cart=library#checkout',
-    now: NOW,
-    renewal: 'words',
-    ...extra,
-  });
+const dayIn = (t: number, timeZone: string) =>
+  new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(t);
 
-describe('the Stripe contract (D-073, D-074, D-077)', () => {
-  it('holds the CHECK constraints and the catalog to the same lists', () => {
-    const sql = readFileSync(fileURLToPath(new URL('../../drizzle/0006_offer_billing.sql', import.meta.url)), 'utf8');
-    const listIn = (name: string) => sql.match(new RegExp(`"${name}" CHECK \\(.*? in \\(([^)]*)\\)`))?.[1]?.match(/'[^']*'/g)?.map((s) => s.slice(1, -1));
+describe('the Stripe contract (D-073, D-074, D-104)', () => {
+  it('holds the CHECK constraints and the catalog to the same lists, as migration 0007 left them', () => {
+    const sql = ['0006_offer_billing.sql', '0007_stripe_update.sql']
+      .map((f) => readFileSync(fileURLToPath(new URL(`../../drizzle/${f}`, import.meta.url)), 'utf8'))
+      .join('\n');
+    // The last definition of each constraint wins.
+    const listIn = (name: string) =>
+      [...sql.matchAll(new RegExp(`"${name}" CHECK \\(.*? in \\(([^)]*)\\)`, 'g'))].at(-1)?.[1]?.match(/'[^']*'/g)?.map((x) => x.slice(1, -1));
     expect(listIn('orders_plan')).toEqual([...PLAN_KINDS]);
+    expect(listIn('plans_kind')).toEqual([...PLAN_KINDS]);
     expect(listIn('orders_option')).toEqual([...ORDER_OPTIONS]);
     expect(listIn('orders_status')).toEqual([...ORDER_STATUSES]);
     expect(listIn('plans_status')).toEqual([...PLAN_STATUSES]);
     expect(listIn('skills_sets')).toEqual([...SKILL_SETS]);
   });
 
-  it('asks Stripe only for the six lookup keys the handoff creates', () => {
+  it('asks Stripe for the eight live lookup keys, and never the retired library price', () => {
     expect([...LOOKUP_KEYS].sort()).toEqual(
-      ['agents_16to40_founding', 'agents_upto15_founding', 'cohort_founding_full', 'cohort_founding_two_pay', 'library_upfront', 'membership_monthly'].sort(),
+      [
+        'agents_16to40_founding',
+        'agents_16to40_prepay3',
+        'agents_upto15_founding',
+        'agents_upto15_prepay3',
+        'cohort_founding_full',
+        'cohort_founding_two_pay',
+        'membership_monthly',
+        'membership_year_upfront',
+      ].sort(),
     );
   });
 
-  it('builds the AI Accelerator in full as $7,500 today and Amplified Insiders trialing until May 3, 2027', () => {
-    const p = session('cohort-full');
-    expect(p.mode).toBe('subscription');
-    expect(p.line_items).toEqual([
-      { price: 'price_cff', quantity: 1 },
-      { price: 'price_mm', quantity: 1 },
-    ]);
-    // A fixed calendar date (unix 1809320400), never a relative trial that would bill in February.
-    expect(p.subscription_data?.trial_end).toBe(1809320400);
-    expect(p.subscription_data?.trial_period_days).toBeUndefined();
-    expect(p.payment_method_collection).toBe('always');
-    expect(p.subscription_data?.metadata).toMatchObject({ order_id: 'ord_1', ai_plan: 'cohort', ai_option: 'full' });
+  it('sells six carts, each through its own Payment Link setting, and no Skill Library', () => {
+    expect(Object.fromEntries(CART_IDS.map((id) => [id, [CARTS[id].plan, CARTS[id].option, CARTS[id].paymentLinkEnv]]))).toEqual({
+      'cohort-full': ['cohort', 'full', 'PAYMENT_LINK_COHORT_FULL'],
+      'cohort-two-pay': ['cohort', 'two_pay', 'PAYMENT_LINK_COHORT_TWO_PAY'],
+      'insiders-year': ['membership', 'year_upfront', 'PAYMENT_LINK_INSIDERS_YEAR'],
+      'insiders-monthly': ['membership', 'monthly', 'PAYMENT_LINK_INSIDERS_MONTHLY'],
+      'agents-upto15': ['agents', 'upto15', 'PAYMENT_LINK_TEAM_UPTO15_PREPAY'],
+      'agents-16to40': ['agents', '16to40', 'PAYMENT_LINK_TEAM_16TO40_PREPAY'],
+    });
+    expect(CARTS['insiders-year'].items).toEqual(['membership_year_upfront', 'membership_monthly']);
+    expect(CARTS['agents-upto15'].items).toEqual(['agents_upto15_prepay3', 'agents_upto15_founding']);
+    // Founding prices close for the AI Accelerator and the Team Plan; Insiders has none.
+    expect(CART_IDS.filter((id) => CARTS[id].founding)).toEqual(['cohort-full', 'cohort-two-pay', 'agents-upto15', 'agents-16to40']);
   });
 
-  it('never passes payment method types or automatic tax (Stripe chooses cards and wallets; tax waits on David)', () => {
-    for (const id of CART_IDS) {
-      const p = session(id) as Record<string, unknown>;
-      expect(p.payment_method_types, id).toBeUndefined();
-      expect(p.automatic_tax, id).toBeUndefined();
-    }
+  it('reads a link\'s metadata into its cart, and a Team Plan link only with billing=forum_prepay', () => {
+    expect(cartForMetadata({ ai_plan: 'membership', ai_option: 'year_upfront' })?.id).toBe('insiders-year');
+    expect(cartForMetadata({ ai_plan: 'membership', ai_option: 'monthly' })?.id).toBe('insiders-monthly');
+    expect(cartForMetadata({ ai_plan: 'agents', ai_option: '16to40', billing: 'forum_prepay' })?.id).toBe('agents-16to40');
+    expect(cartForMetadata({ ai_plan: 'agents', ai_option: 'upto15' })).toBeNull();
+    expect(cartForMetadata({ ai_plan: 'cohort', ai_option: 'two_pay' })?.id).toBe('cohort-two-pay');
+    expect(cartForMetadata({ ai_plan: 'library', ai_option: 'upfront' })).toBeNull();
   });
 
-  it('builds the library as $2,000 today and the $197 on a 30-day trial', () => {
-    const p = session('library');
-    expect(p.mode).toBe('subscription');
-    expect(p.line_items).toEqual([
-      { price: 'price_lu', quantity: 1 },
-      { price: 'price_mm', quantity: 1 },
-    ]);
-    expect(p.subscription_data?.trial_period_days).toBe(30);
-    expect(p.subscription_data?.metadata).toMatchObject({ order_id: 'ord_1', ai_plan: 'library', ai_option: 'upfront' });
+  it('pins the dates Ampy set: Insiders from May 4, the Team Plan billed from Apr 4, founding closing Nov 30 Mountain', () => {
+    expect(INSIDERS_FIRST_CHARGE_AT / 1000).toBe(1809406800);
+    expect(AGENTS_FIRST_CHARGE_AT / 1000).toBe(1806814800);
+    expect(Date.parse(DEFAULT_FOUNDING_CLOSES_AT) / 1000).toBe(1796108340);
+    expect(dayIn(INSIDERS_FIRST_CHARGE_AT, 'America/Chicago')).toBe('Tuesday, May 4, 2027');
+    expect(dayIn(AGENTS_FIRST_CHARGE_AT, 'America/Chicago')).toBe('Sunday, April 4, 2027');
+    expect(mountainDeadline(Date.parse(DEFAULT_FOUNDING_CLOSES_AT))).toBe('Monday, November 30 at 11:59 PM Mountain');
+    expect(pinnedFirstCharge(CARTS['agents-upto15'])).toBe(AGENTS_FIRST_CHARGE_AT);
+    expect(pinnedFirstCharge(CARTS['cohort-full'])).toBe(INSIDERS_FIRST_CHARGE_AT);
+    expect([pinnedFirstCharge(CARTS['cohort-two-pay']), pinnedFirstCharge(CARTS['insiders-year'])]).toEqual([null, null]);
   });
 
-  it('builds an agent plan with nothing charged until Jan 26 and the card saved', () => {
-    for (const id of ['agents-upto15', 'agents-16to40'] as const) {
-      const p = session(id);
-      expect(p.subscription_data?.trial_end).toBe(1800943200);
-      expect(new Date(AGENTS_FIRST_CHARGE_AT).toISOString()).toBe('2027-01-26T06:00:00.000Z');
-      expect(p.payment_method_collection).toBe('always');
-    }
+  it('builds cohort one on Wednesdays, Dec 2 to Feb 3, with Insiders 90 days after the last build', () => {
+    expect(dayIn(COHORT_ONE.firstBuildAt, 'America/Chicago')).toBe('Wednesday, December 2, 2026');
+    expect(dayIn(COHORT_ONE.lastBuildAt, 'America/Chicago')).toBe('Wednesday, February 3, 2027');
+    const lastBuildDay = Date.parse('2027-02-03T00:00:00-06:00');
+    expect(Math.round((INSIDERS_FIRST_CHARGE_AT - lastBuildDay) / DAY)).toBe(90);
+    expect(COHORT_ONE_LIVE_UNTIL).toBe(INSIDERS_FIRST_CHARGE_AT);
   });
 
-  it('builds two-pay as a plain monthly subscription the webhook ends', () => {
-    const p = session('cohort-two-pay');
-    expect(p.mode).toBe('subscription');
-    expect(p.line_items).toEqual([{ price: 'price_c2', quantity: 1 }]);
-    expect(p.subscription_data?.trial_end).toBeUndefined();
-    expect(CARTS['cohort-two-pay'].installments).toBe(2);
+  it('dates each new plan as it is sold', () => {
+    expect(initialPlanDates(CARTS['cohort-full'], NOW)).toMatchObject({ paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, cohortId: 'dec26' });
+    expect(initialPlanDates(CARTS['insiders-year'], NOW)).toMatchObject({ startsAt: NOW, paidThrough: NOW + 365 * DAY, minimumUntil: null });
+    expect(initialPlanDates(CARTS['insiders-monthly'], NOW)).toMatchObject({ paidThrough: addMonths(NOW, 1), minimumUntil: addMonths(NOW, 3) });
+    // The Team Plan: logins now, agent skills from Dec 14, paid through the start of monthly billing, nothing locked.
+    expect(initialPlanDates(CARTS['agents-16to40'], NOW)).toMatchObject({ startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, minimumUntil: null });
+    expect(initialPlanDates(CARTS['agents-16to40'], AGENTS_SKILLS_FROM + DAY).startsAt).toBe(AGENTS_SKILLS_FROM + DAY);
   });
 
-  it('gives every session the order id, the metadata, the welcome page and an hour', () => {
-    for (const id of CART_IDS) {
-      const p = session(id, { campaign: 'forum' });
-      expect(p.client_reference_id).toBe('ord_1');
-      expect(p.metadata).toEqual({ order_id: 'ord_1', ai_plan: CARTS[id].plan, ai_option: CARTS[id].option, origin: 'offer', campaign: 'forum' });
-      expect(p.success_url).toBe('https://www.amplifiedimpact.io/offer/welcome?session_id={CHECKOUT_SESSION_ID}');
-      expect(p.expires_at).toBe(Math.floor(NOW / 1000) + 3600);
-      expect(p.customer_email).toBe('pat@example.com');
-      expect(p.phone_number_collection?.enabled).toBe(true);
-    }
-  });
-
-  it('reuses an existing customer instead of the email', () => {
-    const p = session('library', { customerId: 'cus_9' });
-    expect(p.customer).toBe('cus_9');
-    expect(p.customer_email).toBeUndefined();
-  });
-
-  it('dates the cohort and the agent plan as the offer says', () => {
-    expect(COHORT_ONE_LIVE_UNTIL).toBe(1809320400 * 1000);
-    expect(initialPlanDates('library', NOW).paidThrough).toBe(NOW + 30 * DAY);
-    expect(initialPlanDates('agents', NOW)).toMatchObject({ paidThrough: null, minimumUntil: addMonths(AGENTS_FIRST_CHARGE_AT, 3) });
-  });
-
-  it('words each later charge with its amount, its start and how to cancel', () => {
-    const amounts = { membership: 19700, recurring: 49700 };
-    expect(renewalText(CARTS.library, amounts, NOW)).toContain('$197 a month');
-    expect(renewalText(CARTS.library, amounts, NOW)).toContain('December 14, 2026');
-    expect(renewalText(CARTS['agents-upto15'], amounts, NOW)).toContain('$497 a month');
-    expect(renewalText(CARTS['agents-upto15'], amounts, NOW)).toContain('Tuesday, January 26, 2027');
-    expect(renewalText(CARTS['agents-upto15'], amounts, NOW)).toContain('3-month minimum');
-    expect(renewalText(CARTS['cohort-two-pay'], { membership: 19700, recurring: 375000 }, NOW)).toContain('$3,750 on December 14, 2026');
-    for (const id of CART_IDS) {
-      const words = renewalText(CARTS[id], amounts, NOW);
-      expect(words).not.toMatch(/[—–!]/);
-      // Members cancel themselves in the billing portal, never only by email (Connor, 2026-11-10).
-      expect(words).toContain('billing portal');
-      expect(words).not.toContain('emailing');
-    }
-    for (const id of ['cohort-full', 'cohort-two-pay'] as const) {
-      const words = renewalText(CARTS[id], { membership: 19700, recurring: 375000 }, NOW);
-      expect(words).toContain('Amplified Insiders member at $197 a month');
-      expect(words).toContain('Monday, May 3, 2027');
-      expect(words).toContain('30 days');
-      expect(words).toContain('keep every skill already released');
-    }
-    expect(dollars(19700)).toBe('$197');
-    expect(dollars(200000)).toBe('$2,000');
-  });
-});
-
-describe('the checkout form (D-077)', () => {
-  const ok = { cart: 'library', name: 'Pat Buyer', email: 'Pat@Example.com', agree: 'on', renew: 'on' };
-
-  it('accepts a complete form and normalizes it', () => {
-    const v = validateCheckout(ok);
-    expect(v.kind).toBe('valid');
-    if (v.kind === 'valid') expect(v.entry).toMatchObject({ email: 'pat@example.com', renew: true, sms: false, campaign: null });
-  });
-
-  it('refuses an unticked agreement or renewal box', () => {
-    expect(validateCheckout({ ...ok, agree: undefined })).toEqual({ kind: 'invalid', code: 'agree', cart: 'library' });
-    expect(validateCheckout({ ...ok, renew: undefined })).toEqual({ kind: 'invalid', code: 'renew', cart: 'library' });
-  });
-
-  it('keeps the cohort to Follow Up Boss teams', () => {
-    expect(validateCheckout({ ...ok, cart: 'cohort-full' })).toMatchObject({ code: 'crmMissing' });
-    expect(validateCheckout({ ...ok, cart: 'cohort-full', crm: 'other' })).toMatchObject({ code: 'crm' });
-    expect(validateCheckout({ ...ok, cart: 'cohort-full', crm: 'follow_up_boss' }).kind).toBe('valid');
-    expect(CHECKOUT_ERRORS.crm).toContain('Skill Library');
-  });
-
-  it('requires the Amplified Insiders box on both AI Accelerator carts', () => {
-    for (const cart of ['cohort-full', 'cohort-two-pay']) {
-      expect(validateCheckout({ ...ok, cart, crm: 'follow_up_boss', renew: undefined }), cart).toEqual({ kind: 'invalid', code: 'renew', cart });
-    }
-  });
-
-  it('needs a number for texts, and only records the forum campaign', () => {
-    expect(validateCheckout({ ...ok, sms: 'on' })).toMatchObject({ code: 'sms' });
-    const v = validateCheckout({ ...ok, campaign: 'anything', src: 'qr' });
-    if (v.kind !== 'valid') throw new Error('expected valid');
-    expect([v.entry.campaign, v.entry.src]).toEqual([null, 'qr']);
-  });
-
-  it('treats a filled honeypot as spam', () => {
-    expect(validateCheckout({ ...ok, website: 'x' })).toEqual({ kind: 'spam' });
-  });
-
-  it('writes every refusal without an em dash or an exclamation mark', () => {
-    for (const msg of Object.values(CHECKOUT_ERRORS)) expect(msg).not.toMatch(/[—!]/);
+  it('words each price in the checkout\'s own terms', () => {
+    const w = priceWords(AMOUNTS);
+    expect([w.headline.cohort, w.headline.membership, w.headline.agents]).toEqual(['$7,500', '$1,997', '$1,491']);
+    expect(w.terms.cohort).toBe('or 2 monthly payments of $3,750. Then $197 a month as Amplified Insiders from May 4.');
+    expect(w.unit.membership).toBe('today for one year');
+    expect(w.terms.membership).toContain('Then $197 a month unless you cancel with 30 days’ notice.');
+    expect(w.terms.agents).toBe('or $2,391 for 16 to 40. Today covers Jan 4 to Apr 3, 2027; monthly billing at $497 ($797) starts Sunday, April 4, 2027.');
+    // A missing price leaves the card's words empty, never half a sentence.
+    expect(priceWords({}).headline.agents).toBe('');
   });
 });
 
 describe('the access rule (D-079)', () => {
   const skill = (over: Partial<SkillAccess> = {}): SkillAccess => ({ sets: 'owner_ops', free: false, releasedAt: NOW - 10 * DAY, status: 'published', ...over });
-  const library = (over: Partial<PlanAccess> = {}): PlanAccess => ({ kind: 'library', status: 'active', paidThrough: NOW + 20 * DAY, liveUntil: NOW + 20 * DAY, ...over });
+  const library = (over: Partial<PlanAccess> = {}): PlanAccess => ({ kind: 'membership', status: 'active', paidThrough: NOW + 20 * DAY, liveUntil: NOW + 20 * DAY, ...over });
 
-  it('opens the library set to a library buyer and locks the agent set', () => {
+  it('opens the owner and operations set to an Amplified Insiders member and locks the agent set', () => {
     expect(canOpenSkill([library()], skill(), NOW)).toBe(true);
     expect(canOpenSkill([library()], skill({ sets: 'agent' }), NOW)).toBe(false);
     expect(canOpenSkill([library()], skill({ sets: 'both' }), NOW)).toBe(true);
@@ -253,9 +185,12 @@ describe('the access rule (D-079)', () => {
     expect(canOpenSkill([library()], skill({ status: 'hidden' }), NOW)).toBe(false);
   });
 
-  it('opens an agent plan to nothing until its first charge', () => {
-    const trial: PlanAccess = { kind: 'agents', status: 'trialing', paidThrough: null, liveUntil: null };
-    expect(canOpenSkill([trial], skill({ sets: 'agent' }), NOW)).toBe(false);
+  it('opens a Team Plan\'s agent skills on Dec 14, with the starter path, not at purchase', () => {
+    const team: PlanAccess = { kind: 'agents', status: 'active', startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null };
+    expect(canOpenSkill([team], skill({ sets: 'agent' }), NOW)).toBe(false);
+    expect(canOpenSkill([team], skill({ sets: 'agent' }), AGENTS_SKILLS_FROM)).toBe(true);
+    // A free skill opens for them at once.
+    expect(canOpenSkill([team], skill({ sets: 'agent', free: true }), NOW)).toBe(true);
   });
 });
 
@@ -321,6 +256,11 @@ describe('buyer tags (D-076)', () => {
     expect(buyerTags({ ...base, plan: 'agents', option: 'upto15', status: 'trialing', paidAt: null })).toEqual(['offer-buyer', 'plan-agents']);
   });
 
+  it('tags an Amplified Insiders buyer by how they pay (D-104)', () => {
+    expect(buyerTags({ ...base, plan: 'membership', option: 'year_upfront' })).toEqual(['offer-buyer', 'plan-membership', 'pay-year']);
+    expect(buyerTags({ ...base, plan: 'membership', option: 'monthly' })).toEqual(['offer-buyer', 'plan-membership', 'pay-monthly']);
+  });
+
   it('adds the follow-up tags as things happen, and never tags a pending order', () => {
     expect(buyerTags({ ...base, status: 'expired', paidAt: null })).toEqual(['checkout-abandoned-cohort']);
     expect(buyerTags({ ...base, paymentFailedAt: NOW })).toContain('payment-failed');
@@ -343,38 +283,70 @@ describe('webhook helpers', () => {
   });
 });
 
-describe('the offer page values (D-075)', () => {
-  const config = readOfferConfig({ OFFER_OPEN: 'true', PAYMENT_LINK_COHORT_FULL: 'https://buy.stripe.com/test_x' });
-
-  it('opens every cart with prices and Stripe, and closes founding carts after the close', () => {
-    expect(Object.values(cartStates(config, PRICES, true, NOW))).toEqual(['checkout', 'checkout', 'checkout', 'checkout', 'checkout']);
-    const after = cartStates(config, PRICES, true, DEFAULT_FOUNDING + 1);
-    expect(after.library).toBe('checkout');
-    expect([after['cohort-full'], after['cohort-two-pay'], after['agents-upto15']]).toEqual(['closed', 'closed', 'closed']);
+describe('the offer page values (D-075, D-104)', () => {
+  const config = readOfferConfig({
+    OFFER_OPEN: 'true',
+    PAYMENT_LINK_COHORT_FULL: 'https://buy.stripe.com/test_cohort_full',
+    PAYMENT_LINK_COHORT_TWO_PAY: 'https://buy.stripe.com/test_cohort_two',
+    PAYMENT_LINK_INSIDERS_YEAR: 'https://buy.stripe.com/test_insiders_year',
+    PAYMENT_LINK_TEAM_UPTO15_PREPAY: 'https://buy.stripe.com/test_team15',
+    // Names no cart reads any more.
+    PAYMENT_LINK_LIBRARY: 'https://buy.stripe.com/test_old_library',
+    PAYMENT_LINK_AGENTS_UPTO15: 'https://buy.stripe.com/test_old_agents',
   });
 
-  it('falls back to the Payment Links with no Stripe, and to "soon" with neither', () => {
-    const states = cartStates(config, null, false, NOW);
-    expect(states['cohort-full']).toBe('link');
-    expect(states.library).toBe('soon');
-    expect(Object.values(cartStates(readOfferConfig({}), PRICES, true, NOW)).every((s) => s === 'soon')).toBe(true);
+  it('reads each cart\'s link by its own name, and none of the retired ones', () => {
+    expect(config.paymentLinks).toEqual({
+      'cohort-full': 'https://buy.stripe.com/test_cohort_full',
+      'cohort-two-pay': 'https://buy.stripe.com/test_cohort_two',
+      'insiders-year': 'https://buy.stripe.com/test_insiders_year',
+      'agents-upto15': 'https://buy.stripe.com/test_team15',
+    });
+    expect(config.foundingClosesAt).toBe(DEFAULT_FOUNDING);
+  });
+
+  it('sells a cart with a link, says "soon" without one, and closes the founding carts after Nov 30', () => {
+    expect(cartStates(config, NOW, 0)).toEqual({
+      'cohort-full': 'link',
+      'cohort-two-pay': 'link',
+      'insiders-year': 'link',
+      'insiders-monthly': 'soon',
+      'agents-upto15': 'link',
+      'agents-16to40': 'soon',
+    });
+    const after = cartStates(config, DEFAULT_FOUNDING + 1, 0);
+    expect([after['cohort-full'], after['cohort-two-pay'], after['agents-upto15'], after['agents-16to40']]).toEqual(['closed', 'closed', 'closed', 'closed']);
+    expect(after['insiders-year']).toBe('link');
+    expect(Object.values(cartStates(readOfferConfig({}), NOW, 0)).every((x) => x === 'soon')).toBe(true);
+  });
+
+  it('sells both AI Accelerator links out together at 15 seats, and nothing else', () => {
+    const at14 = cartStates(config, NOW, 14);
+    expect([at14['cohort-full'], at14['cohort-two-pay']]).toEqual(['link', 'link']);
+    const at15 = cartStates(config, NOW, 15);
+    expect([at15['cohort-full'], at15['cohort-two-pay'], at15['insiders-year'], at15['agents-upto15']]).toEqual(['soldout', 'soldout', 'link', 'link']);
+  });
+
+  it('fills the page: links only while they sell, the deadline in Mountain time, and the prices', () => {
+    const v = offerValues({ config, prices: PRICES, now: NOW, src: 'forum', seatsSold: 0 });
+    expect([v['offer-state'], v.founding, v['founding-closes'], v.src]).toEqual(['links', 'open', 'Monday, November 30 at 11:59 PM Mountain', 'forum']);
+    expect([v['link:cohort-full'], v['link:insiders-monthly']]).toEqual(['https://buy.stripe.com/test_cohort_full', '']);
+    expect([v['headline:membership'], v['unit:agents']]).toEqual(['$1,997', 'today, up to 15 agents']);
+    expect(Object.values(v).join(' ')).not.toContain('test_old_');
+    const soldOut = offerValues({ config, prices: PRICES, now: NOW, src: null, seatsSold: 15 });
+    expect([soldOut['state:cohort-full'], soldOut['link:cohort-full'], soldOut['link:insiders-year']]).toEqual(['soldout', '', 'https://buy.stripe.com/test_insiders_year']);
   });
 
   it('fills tokens escaped, and empties the ones it does not know', () => {
-    expect(fillTokens('<p>%%v-name%%</p><a href="%%link:library%%">%%nope%%</a>', { 'v-name': '<b>"x"</b>', 'link:library': 'https://a.b/?q=1&r=2' })).toBe(
+    expect(fillTokens('<p>%%v-name%%</p><a href="%%link:insiders-year%%">%%nope%%</a>', { 'v-name': '<b>"x"</b>', 'link:insiders-year': 'https://a.b/?q=1&r=2' })).toBe(
       '<p>&lt;b&gt;&quot;x&quot;&lt;/b&gt;</p><a href="https://a.b/?q=1&amp;r=2"></a>',
     );
-    const values = offerValues({ config, prices: PRICES, stripeReady: true, now: NOW, campaign: 'forum', src: 'qr', selected: 'agents-16to40', error: null });
-    expect(values['price:library_upfront']).toBe('$2,000');
-    expect(values['checked:agents-16to40']).toBe('checked');
-    expect(values['checked:library']).toBe('');
-    expect(values['page-path']).toBe('/forum');
-    expect(values['founding-closes']).toBe('Sunday, November 15');
   });
 
   it('says when the login arrives: Monday before it, minutes after', () => {
-    expect(welcomeValues({ state: 'confirmed', plan: 'library', sessionId: null, now: NOW, config }).login).toContain('Monday, November 16');
-    expect(welcomeValues({ state: 'confirmed', plan: 'library', sessionId: null, now: config.invitesFrom + 1, config }).login).toContain('within a few minutes');
+    expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: NOW, config }).login).toContain('Monday, November 16');
+    expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: config.invitesFrom + 1, config }).login).toContain('within a few minutes');
+    expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: NOW, config })['plan-name']).toBe('Amplified Insiders');
   });
 
   it('reports a key only by its mode', () => {

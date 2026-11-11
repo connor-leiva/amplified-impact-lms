@@ -22,13 +22,16 @@ import { errorReason } from '../billing/webhook';
 
 export const PORTAL_PATH = '/api/billing/portal';
 
-/** Whether cancelling should be off for this account right now. */
+/**
+ * Whether cancelling should be off for this account right now: a plan inside its minimum (Amplified
+ * Insiders paid monthly, D-104), or two payments before the second.
+ */
 export async function insideCommitment(accountId: string, now: number): Promise<boolean> {
   const db = getDb();
   const [minimum] = await db
     .select({ id: plans.id })
     .from(plans)
-    .where(and(eq(plans.accountId, accountId), eq(plans.kind, 'agents'), gt(plans.minimumUntil, now)))
+    .where(and(eq(plans.accountId, accountId), gt(plans.minimumUntil, now)))
     .limit(1);
   if (minimum) return true;
   const [twoPay] = await db

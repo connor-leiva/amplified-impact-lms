@@ -198,8 +198,8 @@ export const orders = pgTable('orders', {
   createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('orders_stripe_session_idx').on(t.stripeSessionId),
-  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents')`),
-  check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40')`),
+  check('orders_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership')`),
+  check('orders_option', sql`${t.option} in ('full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly')`),
   check('orders_origin', sql`${t.origin} in ('offer', 'payment_link')`),
   check('orders_status', sql`${t.status} in ('pending', 'paid', 'trialing', 'expired', 'failed', 'refunded')`),
   check('orders_crm', sql`${t.crm} is null or ${t.crm} in ('follow_up_boss', 'other')`),
@@ -239,7 +239,7 @@ export const plans = pgTable('plans', {
   stripeSubscriptionId: text('stripe_subscription_id'), orderId: text('order_id').notNull(), createdAt: ts('created_at').notNull(),
 }, (t) => [
   uniqueIndex('plans_order_idx').on(t.orderId),
-  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents')`),
+  check('plans_kind', sql`${t.kind} in ('library', 'cohort', 'agents', 'membership')`),
   check('plans_status', sql`${t.status} in ('trialing', 'active', 'past_due', 'canceled', 'ended')`),
 ]);
 

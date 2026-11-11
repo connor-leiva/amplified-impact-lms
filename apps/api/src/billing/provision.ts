@@ -27,7 +27,7 @@ import { accounts, orders, plans, users } from '../db/schema';
 import { randomIds } from '../lib/clock';
 import { dispatchEffects, pendingSendsFor } from '../routes/mutate';
 import type { PendingSend } from '../routes/mutate';
-import { COHORT_ONE, COHORT_SOFT_SEATS, cartFor, initialPlanDates } from './catalog';
+import { COHORT_ONE, COHORT_SEATS, cartFor, initialPlanDates } from './catalog';
 import type { PlanStatus } from './catalog';
 
 export interface BillingLog {
@@ -50,7 +50,7 @@ const OWNER_COHORT = COHORT_ONE.id;
  */
 const OWNER_TIER = 'team' as const;
 
-/** The plan's status from the order's: an agent plan is trialing until Jan 26. */
+/** The plan's status from the order's: `trialing` only for a checkout with nothing due today. */
 const planStatusFor = (orderStatus: string): PlanStatus => (orderStatus === 'trialing' ? 'trialing' : 'active');
 
 const lock = (tx: { execute: Database['execute'] }) => tx.execute(sql`select pg_advisory_xact_lock(42)`);
@@ -133,7 +133,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     let [plan] = await tx.select().from(plans).where(eq(plans.orderId, order.id)).limit(1);
     const createdPlan = !plan;
     if (!plan) {
-      const dates = initialPlanDates(cart.plan, now);
+      const dates = initialPlanDates(cart, now);
       [plan] = await tx
         .insert(plans)
         .values({
@@ -148,8 +148,8 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
           paidThrough: dates.paidThrough,
           liveUntil: dates.liveUntil,
           minimumUntil: dates.minimumUntil,
-          // The library's, the Team Plan's and the AI Accelerator-in-full's subscription is the plan's
-          // own (the last carries Amplified Insiders). Two payments are the order's subscription; its
+          // Insiders', the Team Plan's and the AI Accelerator-in-full's subscription is the plan's own
+          // (the last carries Amplified Insiders). Two payments are the order's subscription; its
           // Insiders is a separate one, attached by the webhook (`ensureInsiders`).
           stripeSubscriptionId: cart.option === 'two_pay' ? null : order.stripeSubscriptionId,
           orderId: order.id,
@@ -159,14 +159,15 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     }
     if (order.accountId !== acct.id) await tx.update(orders).set({ accountId: acct.id }).where(eq(orders.id, order.id));
 
-    // Ten cohort seats, soft: the 11th sale goes through and tells Connor to book a tech assistant.
+    // Fifteen founding seats (D-104). The sale that fills the last one tells Connor and Ampy: the offer
+    // page has already switched to the waitlist, and the two Stripe links are turned off by hand. A
+    // checkout already open when it sold can still finish: that 16th seat is reported too.
     if (createdPlan && cart.plan === 'cohort') {
-      const [{ n }] = (await tx
-        .select({ n: sql<number>`count(*)::int` })
-        .from(plans)
-        .where(and(eq(plans.kind, 'cohort'), ne(plans.status, 'ended')))) as [{ n: number }];
-      if (n > COHORT_SOFT_SEATS) {
-        log.error({ order: order.id, seat: n }, `cohort seat ${n} sold, past the ${COHORT_SOFT_SEATS} planned: book a tech assistant`);
+      const n = await cohortSeatsSold(tx);
+      if (n === COHORT_SEATS) {
+        log.error({ order: order.id, seat: n }, `AI Accelerator sold out: seat ${n} of ${COHORT_SEATS}. The page shows the waitlist; turn off both Accelerator Payment Links in Stripe`);
+      } else if (n > COHORT_SEATS) {
+        log.error({ order: order.id, seat: n }, `AI Accelerator seat ${n} sold, past the ${COHORT_SEATS} seats: Connor follows up`);
       }
     }
 
@@ -199,6 +200,18 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     log[outcome.reason === 'not-paid' ? 'info' : 'error']({ order: orderId, reason: outcome.reason }, 'order not provisioned');
   }
   return outcome;
+}
+
+/**
+ * AI Accelerator seats sold: cohort plans not ended (a refund ends one and frees its seat). Paid in
+ * full or after the first of two payments, both links count toward the same 15 (D-104).
+ */
+export async function cohortSeatsSold(db: Pick<Database, 'select'>): Promise<number> {
+  const [{ n }] = (await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(plans)
+    .where(and(eq(plans.kind, 'cohort'), ne(plans.status, 'ended')))) as [{ n: number }];
+  return n;
 }
 
 /** Send every invite that was held for `INVITES_FROM`. Returns how many went out. */

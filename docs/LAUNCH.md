@@ -186,9 +186,9 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
    | `STRIPE_SECRET_KEY` | the restricted key `website-checkout` (`rk_test_…`, then `rk_live_…`) |
    | `STRIPE_WEBHOOK_SECRET` | the endpoint's `whsec_…`, same mode as the key |
    | `OFFER_OPEN` | `true` when the carts open; anything else shows "The carts open soon" |
-   | `FOUNDING_CLOSES_AT` | `2026-11-15T23:59:00-06:00` unless Spring picks another zone |
-   | `PAYMENT_LINK_LIBRARY`, `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`, `PAYMENT_LINK_AGENTS_UPTO15`, `PAYMENT_LINK_AGENTS_16TO40` | Grokbok's fallback links |
-   | `INTAKE_URL_LIBRARY`, `INTAKE_URL_COHORT`, `INTAKE_URL_AGENTS` | Sarah O.'s intake forms; without them the welcome page says the form comes by email |
+   | `FOUNDING_CLOSES_AT` | optional; defaults to `2026-11-30T23:59:00-07:00` (Mon, Nov 30, 11:59 PM Mountain) for the AI Accelerator and the Team Plan (D-104) |
+   | `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`, `PAYMENT_LINK_INSIDERS_YEAR`, `PAYMENT_LINK_INSIDERS_MONTHLY`, `PAYMENT_LINK_TEAM_UPTO15_PREPAY`, `PAYMENT_LINK_TEAM_16TO40_PREPAY` | Ampy's Payment Links, the only way to buy since D-104; an unset one shows "Opens soon." |
+   | `INTAKE_URL_COHORT`, `INTAKE_URL_MEMBERSHIP`, `INTAKE_URL_AGENTS` | Sarah O.'s intake forms for the AI Accelerator, Amplified Insiders and the Team Plan; without them the welcome page says the form comes by email |
    | `INVITES_FROM` | optional; defaults to Mon, Nov 16, 8:00 am Central |
    | `STRIPE_PORTAL_LOGIN_URL` | the billing portal's login page, where members cancel themselves; Manage Billing falls back to it |
    | `STRIPE_PORTAL_CONFIG_LOCKED` | the `bpc_…` id of the portal configuration with cancelling off, from Grokbok (`docs/STRIPE-HANDOFF.md` § 4) |

@@ -1,4 +1,6 @@
-// The offer, as data: the plans, the carts and the Stripe contract (DECISIONS.md D-073, D-074, D-078).
+// The offer, as data: the plans, the carts and the Stripe contract (DECISIONS.md D-073, D-074, D-078,
+// and D-104 for the Phase 1 offers: Amplified Insiders sold on its own, the Team Plan's first 3 months
+// paid at checkout, the Skill Library retired).
 //
 // THIS FILE IS THE LINE BETWEEN THE CODE AND STRIPE. Grokbok's handoff (docs/STRIPE-HANDOFF.md) uses
 // the same names, so either side can be built without waiting for the other. The code never stores a
@@ -10,12 +12,19 @@
 // Pure, with no imports: the API (apps/api/src/billing), the www pages' build (apps/web/src/offer) and the
 // tests all read this one copy. Not exported from the core barrel: import `@ai/core/offer`.
 
-/** The three paid plans sold now. A plan is what an account holds; it is also an order's `plan`. */
-export const PLAN_KINDS = ['library', 'cohort', 'agents'] as const;
+/**
+ * The paid plans. A plan is what an account holds; it is also an order's `plan`, and Stripe's `ai_plan`.
+ * `membership` is Amplified Insiders. `library` (the Amplified Skill Library) is retired (D-104): no cart
+ * sells it, and it stays here only so a row written before then still reads.
+ */
+export const PLAN_KINDS = ['library', 'cohort', 'agents', 'membership'] as const;
 export type PlanKind = (typeof PLAN_KINDS)[number];
 
-/** How a plan is bought. `upto15` and `16to40` are the agent plan's two tiers. */
-export const ORDER_OPTIONS = ['full', 'two_pay', 'upfront', 'upto15', '16to40'] as const;
+/**
+ * How a plan is bought. `upto15` and `16to40` are the Team Plan's two tiers; `year_upfront` and
+ * `monthly` are Amplified Insiders' two ways to pay. `upfront` was the retired library's.
+ */
+export const ORDER_OPTIONS = ['full', 'two_pay', 'upfront', 'upto15', '16to40', 'year_upfront', 'monthly'] as const;
 export type OrderOption = (typeof ORDER_OPTIONS)[number];
 
 export const ORDER_ORIGINS = ['offer', 'payment_link'] as const;
@@ -40,8 +49,10 @@ export type Crm = (typeof CRMS)[number];
 export const LOOKUP_KEYS = [
   'cohort_founding_full',
   'cohort_founding_two_pay',
-  'library_upfront',
+  'membership_year_upfront',
   'membership_monthly',
+  'agents_upto15_prepay3',
+  'agents_16to40_prepay3',
   'agents_upto15_founding',
   'agents_16to40_founding',
 ] as const;
@@ -50,17 +61,28 @@ export type LookupKey = (typeof LOOKUP_KEYS)[number];
 /** The `ai_plan` metadata values Stripe objects carry. `test` is the $1 smoke test, recorded and ignored. */
 export const AI_PLANS = ['library', 'cohort', 'agents', 'membership', 'test'] as const;
 /** The `ai_option` values. */
-export const AI_OPTIONS = ['full', 'two_pay', 'upfront', 'monthly', 'upto15', '16to40', 'test'] as const;
+export const AI_OPTIONS = ['full', 'two_pay', 'upfront', 'year_upfront', 'monthly', 'upto15', '16to40', 'test'] as const;
+
+/**
+ * The `billing` metadata the Team Plan's Payment Links carry (Ampy, 2026-11-10): the first 3 months paid
+ * at checkout, then monthly. A Team Plan session without it is from an older link, and is not
+ * provisioned on terms it was not sold on.
+ */
+export const FORUM_PREPAY = 'forum_prepay';
 
 // --- dates -----------------------------------------------------------------------------------------
 
 const DAY = 24 * 60 * 60_000;
 
 /**
- * Founding prices close at 11:59 pm Sunday, Nov 15, Central time, unless `FOUNDING_CLOSES_AT` says
- * otherwise (the spec assumes Central, the platform's own zone; Spring may pick another).
+ * Founding prices close at 11:59 PM Monday, Nov 30, 2026, Mountain time (unix 1796108340), for the AI
+ * Accelerator and the Team Plan alike, unless `FOUNDING_CLOSES_AT` says otherwise (Spring's plan and
+ * Ampy's Stripe update, 2026-11-10). Amplified Insiders has no founding price.
  */
-export const DEFAULT_FOUNDING_CLOSES_AT = '2026-11-15T23:59:00-06:00';
+export const DEFAULT_FOUNDING_CLOSES_AT = '2026-11-30T23:59:00-07:00';
+
+/** The zone the founding deadline is said in: Spring's plan says "11:59 PM Mountain". */
+export const DEADLINE_TZ = 'America/Denver';
 
 /**
  * When the owner's invite may go out. Sales over the Forum weekend create the account at once but
@@ -69,117 +91,97 @@ export const DEFAULT_FOUNDING_CLOSES_AT = '2026-11-15T23:59:00-06:00';
 export const DEFAULT_INVITES_FROM = '2026-11-16T08:00:00-06:00';
 
 /**
- * The Amplified Team Plan's first charge: Tuesday, Jan 26, 2027, 00:00 America/Chicago (unix
- * 1800943200). Every agent subscription's `trial_end` is pinned here, so every buyer hits the same day.
+ * The Amplified Team Plan's first monthly charge: Sunday, Apr 4, 2027, 00:00 America/Chicago (unix
+ * 1806814800). The first 3 months, Jan 4 to Apr 3, are paid at checkout; every Team Plan
+ * subscription's `trial_end` is pinned here, so every buyer's monthly billing starts the same day.
  */
-export const AGENTS_FIRST_CHARGE_AT = Date.parse('2027-01-26T00:00:00-06:00');
+export const AGENTS_FIRST_CHARGE_AT = Date.parse('2027-04-04T00:00:00-05:00');
 
 /**
- * The first Amplified Insiders charge for cohort one: Monday, May 3, 2027, 00:00 America/Chicago (unix
- * 1809320400), the cohort's last build (Feb 2) plus its 90 included days. Never `trial_period_days=90`,
- * which would count from checkout and bill in February.
+ * When a Team Plan's agent skills open: Monday, Dec 14, 2026, 00:00 America/Chicago, with the agent
+ * starter path (Connor, 2026-11-10). The owner's and the agents' logins open at purchase, as for every
+ * plan; the skills wait for this day.
  */
-export const INSIDERS_FIRST_CHARGE_AT = Date.parse('2027-05-03T00:00:00-05:00');
-/** The agent plan's minimum term, a contract term rather than a Stripe setting (the handoff, section 5). */
-export const AGENTS_MINIMUM_MONTHS = 3;
-
-/** The library's $197 starts on day 31: a 30-day trial on `membership_monthly`. */
-export const LIBRARY_TRIAL_DAYS = 30;
+export const AGENTS_SKILLS_FROM = Date.parse('2026-12-14T00:00:00-06:00');
 
 /**
- * Cohort one, as the platform's `dec26` cohort: 8 Tuesday builds from Dec 1, the last on Feb 2, then
- * 90 days of new skills and office hours. Its later $197 begins when those 90 days end (early May).
+ * The first Amplified Insiders charge for cohort one: Tuesday, May 4, 2027, 00:00 America/Chicago (unix
+ * 1809406800), 90 days after the last build on Wednesday, Feb 3. Never `trial_period_days=90`, which
+ * would count from checkout and bill in February.
+ */
+export const INSIDERS_FIRST_CHARGE_AT = Date.parse('2027-05-04T00:00:00-05:00');
+/** Monthly minimums, a contract term rather than a Stripe setting: Amplified Insiders paid monthly. */
+export const MINIMUM_MONTHS = 3;
+
+/** Amplified Insiders paid for a year: $1,997 today, then `membership_monthly` after a 365-day trial. */
+export const INSIDERS_YEAR_DAYS = 365;
+
+/**
+ * Cohort one, as the platform's `dec26` cohort: 8 Wednesday builds, Dec 2, 9 and 16, Jan 6, 13, 20 and
+ * 27, and Feb 3 (no builds Dec 23 or 30), then 90 days of new skills and office hours. 1 PM Central is
+ * a placeholder until the build time is set (Connor, 2026-11-10).
  */
 export const COHORT_ONE = {
   id: 'dec26',
-  firstBuildAt: Date.parse('2026-12-01T13:00:00-06:00'),
-  lastBuildAt: Date.parse('2027-02-02T13:00:00-06:00'),
+  firstBuildAt: Date.parse('2026-12-02T13:00:00-06:00'),
+  lastBuildAt: Date.parse('2027-02-03T13:00:00-06:00'),
   afterDays: 90,
 } as const;
-/**
- * When cohort one's 90 included days end and Amplified Insiders begins: the start of May 3, 2027 in
- * Central time, which is the last build plus `afterDays`, rounded to the day Stripe charges.
- */
+/** When cohort one's 90 included days end and Amplified Insiders begins: the start of May 4, 2027, Central. */
 export const COHORT_ONE_LIVE_UNTIL = INSIDERS_FIRST_CHARGE_AT;
 
-/** Ten seats, soft: the 11th sale is not refused, it alerts Connor to book a tech assistant. */
-export const COHORT_SOFT_SEATS = 10;
-
 /**
- * The cohort rolls into Amplified Insiders automatically (Connor, 2026-11-10), so its consent box is
- * required: a later charge always has its own box at checkout, never a hidden one.
+ * Fifteen founding seats across both AI Accelerator links (Connor, 2026-11-10). At 15 the offer page
+ * hides both links and offers the waitlist, and the sale that fills the last seat alerts Connor; Ampy
+ * turns the Stripe links off by hand (each has its own sales limit of 15). The code never changes Stripe.
  */
-export const COHORT_RENEWAL: 'required' | 'optional' = 'required';
+export const COHORT_SEATS = 15;
 
-/** The membership every cohort buyer rolls into, and the library's monthly name. */
+/** The membership every cohort buyer rolls into, and Amplified Insiders' name. */
 export const MEMBERSHIP_NAME = 'Amplified Insiders';
-
-/**
- * How a member cancels (Connor, 2026-11-10): themselves, in Stripe's billing portal, at the end of the
- * period they paid for, with 30 days' notice, keeping every skill already released. One sentence,
- * used by every renewal box, Stripe's checkout page and the welcome page.
- */
-export const CANCEL_WORDS =
-  'Cancel anytime in the billing portal with 30 days\u2019 notice. It ends at the close of the period you paid for, and you keep every skill already released.';
 
 /** Who answers questions and cancellations, as the legal pages name it. */
 export const SUPPORT_EMAIL = 'admin@amplifiedimpact.io';
 
 // --- carts -----------------------------------------------------------------------------------------
 
-export const CART_IDS = ['library', 'cohort-full', 'cohort-two-pay', 'agents-upto15', 'agents-16to40'] as const;
+export const CART_IDS = ['cohort-full', 'cohort-two-pay', 'insiders-year', 'insiders-monthly', 'agents-upto15', 'agents-16to40'] as const;
 export type CartId = (typeof CART_IDS)[number];
 
 export interface Cart {
   id: CartId;
   plan: PlanKind;
   option: OrderOption;
-  /** The Checkout Session's mode. */
+  /** The Checkout Session's mode, as its Payment Link sells it. */
   mode: 'payment' | 'subscription';
-  /** Its line items, by lookup key, in order. */
+  /** Its prices, by lookup key, in order. */
   items: readonly LookupKey[];
   /** Sold only until founding closes. */
   founding: boolean;
-  /**
-   * A later charge the buyer consents to beside its own box: `required` for every cart that charges
-   * again (the library's $197, the second of two payments, the agent plan), `optional` for the
-   * cohort's $197 while Spring has not made it automatic.
-   */
-  renewal: 'required' | 'optional';
   /** Logins the plan gives: the owner plus an operations lead, or the agents plus the owner. */
   seats: number;
   /** Payments before a two-pay subscription ends. */
   installments?: number;
+  /** Months the buyer commits to (Amplified Insiders paid monthly); cancelling is off until then. */
+  minimumMonths?: number;
+  /** The `billing` metadata its link must carry: a Team Plan link without it is an older one. */
+  billing?: typeof FORUM_PREPAY;
   /** The cohort is for Follow Up Boss teams only. */
   requiresFollowUpBoss: boolean;
-  /** Where its fallback Payment Link's URL lives in the environment. */
+  /** Where its Payment Link's URL lives in the environment (Ampy sets them in Railway). */
   paymentLinkEnv: string;
 }
 
 export const CARTS: Readonly<Record<CartId, Cart>> = {
-  library: {
-    id: 'library',
-    plan: 'library',
-    option: 'upfront',
-    // $2,000 today and $197 on day 31: one subscription, a one-time item and a trialing monthly one.
-    mode: 'subscription',
-    items: ['library_upfront', 'membership_monthly'],
-    founding: false,
-    renewal: 'required',
-    seats: 2,
-    requiresFollowUpBoss: false,
-    paymentLinkEnv: 'PAYMENT_LINK_LIBRARY',
-  },
   'cohort-full': {
     id: 'cohort-full',
     plan: 'cohort',
     option: 'full',
-    // $7,500 today and Amplified Insiders trialing until May 3, 2027: one subscription, a one-time item
-    // and a monthly one, with `trial_end` pinned (the Stripe-side requirements, section A).
+    // $7,500 today and Amplified Insiders trialing until May 4, 2027: one subscription, a one-time item
+    // and a monthly one, with `trial_end` pinned by the webhook.
     mode: 'subscription',
     items: ['cohort_founding_full', 'membership_monthly'],
     founding: true,
-    renewal: COHORT_RENEWAL,
     seats: 2,
     requiresFollowUpBoss: true,
     paymentLinkEnv: 'PAYMENT_LINK_COHORT_FULL',
@@ -191,42 +193,89 @@ export const CARTS: Readonly<Record<CartId, Cart>> = {
     mode: 'subscription',
     items: ['cohort_founding_two_pay'],
     founding: true,
-    // The second payment is a later charge: the box says when, and that it stops on its own.
-    renewal: 'required',
     seats: 2,
     installments: 2,
     requiresFollowUpBoss: true,
     paymentLinkEnv: 'PAYMENT_LINK_COHORT_TWO_PAY',
   },
+  'insiders-year': {
+    id: 'insiders-year',
+    plan: 'membership',
+    option: 'year_upfront',
+    // $1,997 today for one year, then $197 a month until cancelled: one subscription, a one-time item
+    // and `membership_monthly` on a 365-day trial. Not an annual price that renews.
+    mode: 'subscription',
+    items: ['membership_year_upfront', 'membership_monthly'],
+    founding: false,
+    seats: 2,
+    requiresFollowUpBoss: false,
+    paymentLinkEnv: 'PAYMENT_LINK_INSIDERS_YEAR',
+  },
+  'insiders-monthly': {
+    id: 'insiders-monthly',
+    plan: 'membership',
+    option: 'monthly',
+    mode: 'subscription',
+    items: ['membership_monthly'],
+    founding: false,
+    seats: 2,
+    minimumMonths: MINIMUM_MONTHS,
+    requiresFollowUpBoss: false,
+    paymentLinkEnv: 'PAYMENT_LINK_INSIDERS_MONTHLY',
+  },
   'agents-upto15': {
     id: 'agents-upto15',
     plan: 'agents',
     option: 'upto15',
+    // $1,491 today for Jan 4 to Apr 3, 2027, then $497 a month from Apr 4: a one-time item and the
+    // founding monthly price, trialing until the pinned first charge.
     mode: 'subscription',
-    items: ['agents_upto15_founding'],
+    items: ['agents_upto15_prepay3', 'agents_upto15_founding'],
     founding: true,
-    renewal: 'required',
     seats: 16,
+    billing: FORUM_PREPAY,
     requiresFollowUpBoss: false,
-    paymentLinkEnv: 'PAYMENT_LINK_AGENTS_UPTO15',
+    paymentLinkEnv: 'PAYMENT_LINK_TEAM_UPTO15_PREPAY',
   },
   'agents-16to40': {
     id: 'agents-16to40',
     plan: 'agents',
     option: '16to40',
     mode: 'subscription',
-    items: ['agents_16to40_founding'],
+    items: ['agents_16to40_prepay3', 'agents_16to40_founding'],
     founding: true,
-    renewal: 'required',
     seats: 41,
+    billing: FORUM_PREPAY,
     requiresFollowUpBoss: false,
-    paymentLinkEnv: 'PAYMENT_LINK_AGENTS_16TO40',
+    paymentLinkEnv: 'PAYMENT_LINK_TEAM_16TO40_PREPAY',
   },
 };
 
 /** The cart for a plan and option, or null for a pair no cart sells. */
 export function cartFor(plan: string, option: string): Cart | null {
   return Object.values(CARTS).find((c) => c.plan === plan && c.option === option) ?? null;
+}
+
+/**
+ * The cart a Payment Link's session metadata names: its plan and option, and for a cart sold on a
+ * billing arrangement (the Team Plan's `forum_prepay`) that arrangement too. Null for anything else.
+ */
+export function cartForMetadata(meta: { ai_plan?: string; ai_option?: string; billing?: string }): Cart | null {
+  const cart = cartFor(meta.ai_plan ?? '', meta.ai_option ?? '');
+  if (!cart) return null;
+  return (cart.billing ?? null) === (meta.billing ?? null) ? cart : null;
+}
+
+/**
+ * The fixed calendar date a cart's subscription first charges its monthly price, whatever relative
+ * trial its Payment Link set: the Team Plan on Apr 4, 2027, the AI Accelerator in full (whose
+ * subscription carries Amplified Insiders) on May 4, 2027. Null for the others: two payments roll into
+ * a separate Insiders subscription, and Insiders paid yearly keeps its link's 365 days.
+ */
+export function pinnedFirstCharge(cart: Cart): number | null {
+  if (cart.plan === 'agents') return AGENTS_FIRST_CHARGE_AT;
+  if (cart.id === 'cohort-full') return INSIDERS_FIRST_CHARGE_AT;
+  return null;
 }
 
 /** The `ai_plan`/`ai_option` metadata a cart's Stripe objects carry. */
@@ -244,7 +293,7 @@ export function longDate(t: number): string {
   return new Intl.DateTimeFormat('en-US', { timeZone: BILLING_TZ, month: 'long', day: 'numeric', year: 'numeric' }).format(t);
 }
 
-/** "Tuesday, January 26, 2027". */
+/** "Sunday, April 4, 2027". */
 export function longDay(t: number): string {
   return new Intl.DateTimeFormat('en-US', {
     timeZone: BILLING_TZ,
@@ -263,8 +312,23 @@ export function dollars(cents: number): string {
     : `$${whole.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-/** When a library bought at `now` first charges its $197: day 31. */
-export const libraryFirstMembershipCharge = (now: number): number => now + LIBRARY_TRIAL_DAYS * DAY;
+/** "Monday, November 30 at 11:59 PM Mountain": the founding deadline, built from parts so it reads the same on every ICU. */
+export function mountainDeadline(t: number): string {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: DEADLINE_TZ,
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+      .formatToParts(t)
+      .map((part) => [part.type, part.value]),
+  ) as Record<string, string>;
+  return `${parts.weekday}, ${parts.month} ${parts.day} at ${parts.hour}:${parts.minute} ${parts.dayPeriod?.toUpperCase()} Mountain`;
+}
 
 /** One month after `t`, the way Stripe bills a monthly price (same day of the month, clamped). */
 export function addMonths(t: number, months: number): number {
@@ -275,46 +339,6 @@ export function addMonths(t: number, months: number): number {
   const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
   d.setUTCDate(Math.min(day, last));
   return d.getTime();
-}
-
-/** The amounts a renewal sentence needs: the cart's later charge, in cents. */
-export interface RenewalAmounts {
-  /** `membership_monthly`. */
-  membership: number;
-  /** The cart's own recurring price (two-pay's installment, an agent tier's monthly). */
-  recurring?: number;
-}
-
-/**
- * The words beside a cart's renewal box: the amount, when it starts and how to cancel. They are
- * stored with the order as the proof of what was agreed to (`renewal_consent_text`), so the page and
- * the checkout route both build them here, from the same prices.
- */
-export function renewalText(cart: Cart, amounts: RenewalAmounts, now: number): string {
-  const insiders =
-    `When the 90 included days end, I continue as an ${MEMBERSHIP_NAME} member at ${dollars(amounts.membership)} a month, ` +
-    `charged to this card starting ${longDay(INSIDERS_FIRST_CHARGE_AT)}, until I cancel.`;
-  switch (cart.id) {
-    case 'library':
-      return (
-        `I agree to ${dollars(amounts.membership)} a month for new skills and office hours, charged to this card ` +
-        `starting ${longDate(libraryFirstMembershipCharge(now))} (day 31) until I cancel. ${CANCEL_WORDS}`
-      );
-    case 'cohort-two-pay':
-      return (
-        `I agree to a second payment of ${dollars(amounts.recurring ?? 0)} on ${longDate(addMonths(now, 1))}; ` +
-        `the payments stop on their own after the second one. ${insiders} ${CANCEL_WORDS}`
-      );
-    case 'cohort-full':
-      return `${insiders.replace(/^When/, 'I agree that when')} ${CANCEL_WORDS}`;
-    case 'agents-upto15':
-    case 'agents-16to40':
-      return (
-        `I agree to ${dollars(amounts.recurring ?? 0)} a month, charged to this card starting ` +
-        `${longDay(AGENTS_FIRST_CHARGE_AT)}, until I cancel, with a ${AGENTS_MINIMUM_MONTHS}-month minimum. ` +
-        `Nothing is charged today. After the third payment, cancel anytime in the billing portal with 30 days\u2019 notice.`
-      );
-  }
 }
 
 /** The plan's dates once it is paid for, as provisioning records them. */
@@ -329,24 +353,30 @@ export interface PlanDates {
 }
 
 /**
- * A new plan's dates. The library is paid through day 30 (its $197 then moves it a month at a time);
- * the cohort through the end of its 90 days; an agent plan has paid for nothing until its first
- * charge on Jan 26, which `invoice.paid` records.
+ * A new plan's dates (D-104):
+ *   - the AI Accelerator: paid through the end of cohort one's 90 days;
+ *   - Amplified Insiders by the year: paid through day 365, when its $197 a month begins;
+ *   - Amplified Insiders by the month: paid through one month, with a 3-month minimum;
+ *   - the Team Plan: paid at checkout through Apr 3, 2027, its first monthly charge on Apr 4. Its agent
+ *     skills open on Dec 14 (`startsAt`, which the access rule reads); its 3-month minimum is paid up
+ *     front, so nothing locks cancelling.
  */
-export function initialPlanDates(plan: PlanKind, now: number): PlanDates {
-  switch (plan) {
-    case 'library':
-      return { startsAt: now, paidThrough: libraryFirstMembershipCharge(now), liveUntil: libraryFirstMembershipCharge(now), minimumUntil: null, cohortId: null };
+export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option'>, now: number): PlanDates {
+  switch (cart.plan) {
     case 'cohort':
       return { startsAt: now, paidThrough: COHORT_ONE_LIVE_UNTIL, liveUntil: COHORT_ONE_LIVE_UNTIL, minimumUntil: null, cohortId: COHORT_ONE.id };
+    case 'membership': {
+      if (cart.option === 'year_upfront') {
+        const year = now + INSIDERS_YEAR_DAYS * DAY;
+        return { startsAt: now, paidThrough: year, liveUntil: null, minimumUntil: null, cohortId: null };
+      }
+      return { startsAt: now, paidThrough: addMonths(now, 1), liveUntil: null, minimumUntil: addMonths(now, MINIMUM_MONTHS), cohortId: null };
+    }
     case 'agents':
-      return {
-        startsAt: AGENTS_FIRST_CHARGE_AT,
-        paidThrough: null,
-        liveUntil: null,
-        minimumUntil: addMonths(AGENTS_FIRST_CHARGE_AT, AGENTS_MINIMUM_MONTHS),
-        cohortId: null,
-      };
+      return { startsAt: Math.max(now, AGENTS_SKILLS_FROM), paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null, minimumUntil: null, cohortId: null };
+    case 'library':
+      // Retired (D-104): no cart sells it. A row made before then keeps whatever it was given.
+      return { startsAt: now, paidThrough: null, liveUntil: null, minimumUntil: null, cohortId: null };
   }
 }
 
@@ -355,13 +385,15 @@ export const PLAN_SETS: Readonly<Record<PlanKind, readonly ('owner_ops' | 'agent
   library: ['owner_ops'],
   cohort: ['owner_ops', 'agent'],
   agents: ['agent'],
+  membership: ['owner_ops'],
 };
 
-/** The plans' names (Connor, 2026-11-10). They print on receipts and on every page that names a plan. */
+/** The plans' names (Connor, 2026-11-10). They print on every page that names a plan. */
 export const PLAN_NAMES: Readonly<Record<PlanKind, string>> = {
   library: 'Amplified Skill Library',
   cohort: 'Amplified AI Accelerator',
   agents: 'Amplified Team Plan',
+  membership: MEMBERSHIP_NAME,
 };
 
 // --- the page's tokens -----------------------------------------------------------------------------
@@ -373,20 +405,16 @@ export const PLAN_NAMES: Readonly<Record<PlanKind, string>> = {
 export const token = (name: string): string => `%%${name}%%`;
 export const TOKEN_PATTERN = /%%([a-z0-9:_-]+)%%/g;
 
-/** What a cart shows: its form (`checkout`), its Payment Link (`link`), closed, or "opens soon". */
-export type CartState = 'checkout' | 'link' | 'closed' | 'soon';
+/**
+ * What a cart shows: its Payment Link (`link`), closed with founding prices, sold out (the AI
+ * Accelerator's 15 seats), or "opens soon". The site's own checkout is retired (D-104).
+ */
+export type CartState = 'link' | 'closed' | 'soldout' | 'soon';
 
 export const OFFER_TOKENS = {
   state: (cart: CartId) => token(`state:${cart}`),
-  price: (key: LookupKey) => token(`price:${key}`),
-  renewal: (cart: CartId) => token(`renewal:${cart}`),
   link: (cart: CartId) => token(`link:${cart}`),
-  checked: (cart: CartId) => token(`checked:${cart}`),
-  error: token('error'),
-  errorField: token('error-field'),
-  campaign: token('campaign'),
   src: token('src'),
-  pagePath: token('page-path'),
   offerState: token('offer-state'),
   founding: token('founding'),
   foundingCloses: token('founding-closes'),
@@ -403,74 +431,56 @@ export const WELCOME_TOKENS = {
   portalUrl: token('portal-url'),
 } as const;
 
-/** The three plan cards on the page, in plan order. */
-export const CARDS: readonly PlanKind[] = ['library', 'cohort', 'agents'];
+/** The three plan cards on the page, in the plan's order: the AI Accelerator, Insiders, the Team Plan. */
+export const CARDS: readonly PlanKind[] = ['cohort', 'membership', 'agents'];
 
-/** The carts each card sells, in the order the form lists them. */
-export const CARD_CARTS: Readonly<Record<PlanKind, readonly CartId[]>> = {
-  library: ['library'],
+/** The carts each card sells, its button's first. */
+export const CARD_CARTS: Readonly<Partial<Record<PlanKind, readonly CartId[]>>> = {
   cohort: ['cohort-full', 'cohort-two-pay'],
+  membership: ['insiders-year', 'insiders-monthly'],
   agents: ['agents-upto15', 'agents-16to40'],
 };
 
 /** An amount by lookup key, in cents: all the page's price words need. */
 export type Amounts = Partial<Record<LookupKey, number>>;
 
-/** "January 26" for the agent plan's first charge. */
-const firstCharge = (): string => longDate(AGENTS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '');
+/** "May 4" and "April 4" without the year. */
+const shortDate = (t: number): string => longDate(t).replace(/, \d{4}$/, '');
 
 /**
- * The words the page prints for each card and each cart, from the live amounts. Empty strings when an
- * amount is missing, so the page can show its "price on the payment page" line instead (D-074: the
- * code holds no amounts of its own).
+ * The words the page prints for each card, from the live amounts, in the checkout's own terms (Ampy's
+ * submit texts, 2026-11-10). Empty strings when an amount is missing, so the page can show its "price
+ * on the payment page" line instead (D-074: the code holds no amounts of its own).
  */
 export function priceWords(a: Amounts): {
-  headline: Record<PlanKind, string>;
-  /** What the headline amount is per, beside it: "a month" for the agent plan, nothing for one-time prices. */
-  unit: Record<PlanKind, string>;
-  terms: Record<PlanKind, string>;
-  cartline: Record<CartId, string>;
+  headline: Partial<Record<PlanKind, string>>;
+  /** What the headline amount is for, beside it. */
+  unit: Partial<Record<PlanKind, string>>;
+  terms: Partial<Record<PlanKind, string>>;
 } {
   const $ = (key: LookupKey): string | null => (a[key] === undefined ? null : dollars(a[key]!));
-  const lu = $('library_upfront'), mm = $('membership_monthly'), cf = $('cohort_founding_full'), c2 = $('cohort_founding_two_pay');
-  const a15 = $('agents_upto15_founding'), a40 = $('agents_16to40_founding');
+  const cf = $('cohort_founding_full'), c2 = $('cohort_founding_two_pay'), mm = $('membership_monthly'), my = $('membership_year_upfront');
+  const p15 = $('agents_upto15_prepay3'), p40 = $('agents_16to40_prepay3'), m15 = $('agents_upto15_founding'), m40 = $('agents_16to40_founding');
   const all = (...xs: (string | null)[]) => xs.every((x) => x !== null);
+  const cohort = all(cf, c2, mm), insiders = all(my, mm), team = all(p15, p40, m15, m40);
   return {
-    headline: {
-      library: all(lu, mm) ? lu! : '',
-      cohort: all(cf, c2) ? cf! : '',
-      agents: all(a15, a40) ? a15! : '',
-    },
-    unit: { library: '', cohort: '', agents: all(a15, a40) ? 'a month' : '' },
+    headline: { cohort: cohort ? cf! : '', membership: insiders ? my! : '', agents: team ? p15! : '' },
+    unit: { cohort: '', membership: insiders ? 'today for one year' : '', agents: team ? 'today, up to 15 agents' : '' },
     terms: {
-      library: all(lu, mm) ? `today, then ${mm} a month from day 31` : '',
-      cohort: all(cf, c2, mm) ? `or 2 monthly payments of ${c2}. Then ${mm} a month as ${MEMBERSHIP_NAME} from ${longDate(INSIDERS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '')}.` : '',
-      agents: all(a15, a40) ? `for up to 15 agents, or ${a40} a month for 16 to 40. First charge ${firstCharge()}.` : '',
-    },
-    cartline: {
-      library: all(lu, mm) ? `${lu} today, then ${mm} a month` : '',
-      'cohort-full': all(cf, mm) ? `${cf} today, then ${mm} a month from ${longDate(INSIDERS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '')}` : '',
-      'cohort-two-pay': all(c2, mm) ? `2 monthly payments of ${c2}, then ${mm} a month from ${longDate(INSIDERS_FIRST_CHARGE_AT).replace(/, \d{4}$/, '')}` : '',
-      'agents-upto15': a15 ? `${a15} a month from ${firstCharge()}` : '',
-      'agents-16to40': a40 ? `${a40} a month from ${firstCharge()}` : '',
+      cohort: cohort ? `or 2 monthly payments of ${c2}. Then ${mm} a month as ${MEMBERSHIP_NAME} from ${shortDate(INSIDERS_FIRST_CHARGE_AT)}.` : '',
+      membership: insiders
+        ? `Then ${mm} a month unless you cancel with 30 days\u2019 notice. Or ${mm} a month from today, with a ${MINIMUM_MONTHS}-month minimum.`
+        : '',
+      agents: team
+        ? `or ${p40} for 16 to 40. Today covers Jan 4 to Apr 3, 2027; monthly billing at ${m15} (${m40}) starts ${longDay(AGENTS_FIRST_CHARGE_AT)}.`
+        : '',
     },
   };
 }
-
-/** What each cart is called in the form's plan list. */
-export const CART_NAMES: Readonly<Record<CartId, string>> = {
-  library: 'Amplified Skill Library',
-  'cohort-full': 'Amplified AI Accelerator, paid in full',
-  'cohort-two-pay': 'Amplified AI Accelerator, two payments',
-  'agents-upto15': 'Amplified Team Plan, up to 15 agents',
-  'agents-16to40': 'Amplified Team Plan, 16 to 40 agents',
-};
-
 
 export const PRICE_TOKENS = {
   headline: (card: PlanKind) => token(`headline:${card}`),
   unit: (card: PlanKind) => token(`unit:${card}`),
   terms: (card: PlanKind) => token(`terms:${card}`),
-  cartline: (cart: CartId) => token(`cartline:${cart}`),
   paidLine: token('paid-line'),
 } as const;
