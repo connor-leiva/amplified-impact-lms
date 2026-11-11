@@ -49,10 +49,10 @@
 // Vite rewrites both files on every build, and a hash that drifted from the bytes would fail the
 // same silent way. `app.ts`'s `cspScriptHashes` is the pure function; this is its one caller.
 
-import fastifyStatic from '@fastify/static';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { build, cspScriptHashes, installShutdown } from './app';
+import { registerStaticFiles } from './static';
 import { readDatabaseUrl } from './db/client';
 import { startScheduler } from './jobs/scheduler';
 import { startGhlSync } from './jobs/ghl-sync';
@@ -61,8 +61,6 @@ import { SALES_PAGES } from './routes/offer';
 import type { SalesPath } from './routes/offer';
 import { describeOfferConfig, readOfferConfig } from './billing/config';
 import { startBillingLoop } from './jobs/billing';
-import { PAID_DOWNLOADS } from './billing/skills-catalog';
-import { PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
 
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
@@ -147,55 +145,8 @@ const app = await build({
   waitlist: databaseConfigured(),
 });
 
-if (existsSync(webDist)) {
-  await app.register(fastifyStatic, {
-    root: webDist,
-    wildcard: false,
-    // `wildcard: false` registers a route for every file in `dist/`, which would serve the /ai101
-    // page a second time at `/ai101.html` — under § 9.4's global limit and helmet's `no-referrer`,
-    // i.e. without the two things `routes/ai101.ts` serves it with (its no-JS form would 403 from
-    // there). One URL for the page; `/ai101.html` falls through to the SPA like any unknown path.
-    // The legal pages likewise: one URL each, `/terms` and `/privacy` (`routes/legal.ts`).
-    // And the free guides (D-038, D-039), whose route sets the Referrer-Policy their no-JS opt-in needs.
-    globIgnore: [
-      'ai101.html',
-      'terms.html',
-      'privacy.html',
-      'library.html',
-      // The offer's pages have one URL each (routes/offer.ts, routes/legal.ts), filled per request.
-      'offer.html',
-      'offer-welcome.html',
-      'agreement.html',
-      // So do the www sales pages (D-111): `/pricing` and the rest of `SALES_PAGES`.
-      ...Object.values(SALES_PAGES).map((name) => `${name}.html`),
-      // www's homepage has one URL, `/` on the marketing host (routes/marketing.ts), and none on learn.
-      'home.html',
-      ...GUIDE_SLUGS.map((slug) => `${slug}.html`),
-      // Paid skills are not public files (D-082): they live in the bucket and open through the
-      // platform's library. `PAID_DOWNLOADS` names them; `test/paid-skills.test.ts` holds the list.
-      ...PAID_DOWNLOADS.map((file) => `downloads/${file}`),
-      // So are the paid Grok Bot templates (D-100), from their own list, not the skills'.
-      ...PAID_GROK_DOWNLOADS.map((file) => `downloads/${file}`),
-    ],
-    // The guides' files (D-038, D-039; the Reel Editor's ZIP, D-045) are lead magnets behind an opt-in:
-    // kept out of search results.
-    setHeaders: (res, path) => {
-      if (path.replace(/\\/g, '/').includes('/downloads/')) res.setHeader('x-robots-tag', 'noindex');
-    },
-  });
-  // Every non-API path is a client route — `/sign-in`, `/invite/:token`, `/employees/:id` — so it
-  // gets `index.html` and the router takes over. An unknown `/api/` path stays a JSON 404, because
-  // a repository handed an HTML document would throw a parse error instead of the `{ error }`
-  // `apps/web/src/data/http.ts` knows how to read.
-  app.setNotFoundHandler((req, reply) =>
-    req.url.startsWith('/api/')
-      ? reply.code(404).send({ error: 'Not found' })
-      : // A file no route serves, such as a paid skill's old ZIP (D-082), is a plain 404, never the SPA.
-        req.url.startsWith('/downloads/')
-        ? reply.code(404).type('text/plain; charset=utf-8').send('Not found')
-        : reply.sendFile('index.html'),
-  );
-}
+// The SPA's files and its client routes, outside the API's rate limit (D-137): `static.ts`.
+if (existsSync(webDist)) await registerStaticFiles(app, webDist);
 
 // § 9.4's "Handle SIGTERM gracefully (close Fastify, drain SSE) so redeploys don't drop requests".
 // Installed here and not in `build()`: a process listener per built app would leak across a test
