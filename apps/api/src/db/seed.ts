@@ -178,6 +178,48 @@ export async function applyCurriculum(db: Database, opts: CurriculumOptions = {}
   });
 }
 
+/**
+ * The Owner, alone, for a database that has buyers but never had the launch seed (Ampy, 2026-11-11).
+ *
+ * `db:seed:prod` is the only other way an Owner gets in, and it refuses a database with users, which
+ * every paid order writes. This adds the one account that can sign in to the console, and, only if
+ * the permissions table is empty, the launch seed's role matrix (the Owner passes every check
+ * without it; the other staff roles need it). Nothing else: no learner, team, order, plan, progress,
+ * cohort, module, price or reminder row is read for writing or written.
+ *
+ * Guarded like the launch seed: the name and address are flags with no default and are never read
+ * from the environment (`seedProduction` validates them). It refuses, writing nothing, when the
+ * database already has a different Owner or the address already signs in here as someone else. Run
+ * twice with the same address it writes nothing the second time.
+ */
+export class OwnerRefused extends Error {
+  readonly name = 'OwnerRefused';
+}
+
+export async function addOwner(db: Database, opts: { owner: { name: string; email: string } }): Promise<number> {
+  const launch = seedProduction({ owner: opts.owner });
+  const owner = launch.staff.find((x) => x.role === 'Owner')!;
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(42)`);
+    const before = await loadDb(tx);
+    const same = (email: string): boolean => email.trim().toLowerCase() === owner.email;
+    const current = before.staff.find((x) => x.role === 'Owner');
+    if (current && same(current.email)) return 0;
+    if (current) throw new OwnerRefused('This database already has an Owner. Nothing was written; change the Owner from Staff & Roles in the console.');
+    if (before.users.some((u) => same(u.email)) || before.staff.some((x) => same(x.email))) {
+      throw new OwnerRefused(`${owner.email} already signs in here as someone else. Nothing was written.`);
+    }
+    if (before.staff.some((x) => x.id === owner.id)) throw new OwnerRefused(`A staff row already has the id ${owner.id}. Nothing was written.`);
+    const after: Db = structuredClone(before);
+    after.staff.push(owner);
+    const noPerms = Object.values(before.perms ?? {}).every((byPerm) => Object.keys(byPerm ?? {}).length === 0);
+    if (noPerms) after.perms = launch.perms;
+    const changes = diffSnapshot(before, after).length;
+    await persistDiff(tx, before, after);
+    return changes;
+  });
+}
+
 // ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
@@ -211,6 +253,13 @@ const USAGE = [
   '',
   '  --if-missing applies it only to a database that has none of it, and otherwise writes nothing,',
   '  so staff edits to the course survive. The deploy runs this form (db:curriculum:ensure).',
+  '',
+  '  tsx src/db/seed.ts --owner --owner-name "Full Name" --owner-email name@example.com',
+  '',
+  '  --owner adds ONLY the Owner (and the staff role matrix, if it is empty) to a database that has',
+  '  buyers but never had the launch seed. It refuses if a different Owner exists or the address',
+  '  already signs in here. Safe to run twice. The flags have no defaults and are never read from',
+  '  the environment.',
 ].join('\n');
 
 /**
@@ -221,7 +270,11 @@ const USAGE = [
  */
 export function parseSeedArgs(
   argv: readonly string[],
-): { mode: 'live' } | { mode: 'launch'; opts: ProductionSeedOptions } | { mode: 'curriculum'; opts: CurriculumOptions } {
+):
+  | { mode: 'live' }
+  | { mode: 'launch'; opts: ProductionSeedOptions }
+  | { mode: 'curriculum'; opts: CurriculumOptions }
+  | { mode: 'owner'; opts: { owner: { name: string; email: string } } } {
   const flag = (name: string): string | undefined => {
     const i = argv.indexOf(`--${name}`);
     if (i === -1) return undefined;
@@ -231,6 +284,22 @@ export function parseSeedArgs(
     if (value === undefined || value.startsWith('--')) throw new Error(`--${name} needs a value\n\n${USAGE}`);
     return value;
   };
+
+  const owners = (verb: string) => {
+    const name = flag('owner-name');
+    const email = flag('owner-email');
+    const missing = [name === undefined ? '--owner-name' : null, email === undefined ? '--owner-email' : null].filter(
+      (x): x is string => x !== null,
+    );
+    if (missing.length > 0) throw new Error(`${verb} requires ${missing.join(' and ')}\n\n${USAGE}`);
+    return { name: name as string, email: email as string };
+  };
+
+  if (argv.includes('--owner')) {
+    // Its own command: the launch seed already brings an Owner, and the curriculum never touches staff.
+    if (argv.includes('--launch') || argv.includes('--curriculum')) throw new Error(`--owner cannot be combined with --launch or --curriculum\n\n${USAGE}`);
+    return { mode: 'owner', opts: { owner: owners('--owner') } };
+  }
 
   if (argv.includes('--curriculum')) {
     // One or the other: the launch seed loads an empty database, the curriculum updates a live one.
@@ -244,12 +313,7 @@ export function parseSeedArgs(
 
   if (!argv.includes('--launch')) return { mode: 'live' };
 
-  const name = flag('owner-name');
-  const email = flag('owner-email');
-  const missing = [name === undefined ? '--owner-name' : null, email === undefined ? '--owner-email' : null].filter(
-    (x): x is string => x !== null,
-  );
-  if (missing.length > 0) throw new Error(`--launch requires ${missing.join(' and ')}\n\n${USAGE}`);
+  const { name, email } = owners('--launch');
 
   const instructor = flag('instructor');
   const cohortId = flag('cohort');
@@ -259,7 +323,7 @@ export function parseSeedArgs(
   return {
     mode: 'launch',
     opts: {
-      owner: { name: name as string, email: email as string },
+      owner: { name, email },
       ...(instructor === undefined ? {} : { instructor }),
       ...(cohortId === undefined ? {} : { cohortId }),
     },
@@ -288,6 +352,7 @@ export interface SeedDeps {
   live: (db: Database) => Promise<number>;
   launch: (db: Database, opts: ProductionSeedOptions) => Promise<number>;
   curriculum: (db: Database, opts: CurriculumOptions) => Promise<number>;
+  owner: (db: Database, opts: { owner: { name: string; email: string } }) => Promise<number>;
   close: () => Promise<void>;
   name: () => string;
   write: (line: string) => void;
@@ -298,6 +363,7 @@ const REAL: SeedDeps = {
   live: (db) => seedLive(db),
   launch: (db, opts) => seedForLaunch(db, opts),
   curriculum: (db, opts) => applyCurriculum(db, opts),
+  owner: (db, opts) => addOwner(db, opts),
   close,
   name: () => databaseNameOf(readDatabaseUrl()),
   write: (line) => process.stdout.write(line),
@@ -315,6 +381,17 @@ export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): P
       const changes = await deps.curriculum(db, parsed.opts);
       deps.write(`${changes} rows changed. Users, teams, progress and staff were not touched.\n`);
       if (ifMissing && changes === 0) deps.write('The curriculum is already here, so staff edits to it stay. To re-apply it over them, run db:curriculum.\n');
+      return;
+    }
+    if (parsed.mode === 'owner') {
+      // Named out loud before anything is written, like the launch seed.
+      deps.write(`Adding the Owner ${parsed.opts.owner.email} to ${name}, and the staff role matrix if it is empty.\n`);
+      const changes = await deps.owner(db, parsed.opts);
+      deps.write(
+        changes === 0
+          ? 'That address is already the Owner here. Nothing was written.\n'
+          : `${changes} rows changed. Learners, teams, orders, plans, progress and the course were not touched.\n`,
+      );
       return;
     }
     if (parsed.mode === 'launch') {

@@ -16,8 +16,8 @@ import type { SeedDeps } from '../src/db/seed';
 import type { Database } from '../src/db/client';
 
 /** Substituted collaborators. No connection is opened and no row is written. */
-function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; curriculum: unknown[]; closed: number; out: string[] } } {
-  const calls = { live: 0, launch: [] as unknown[], curriculum: [] as unknown[], closed: 0, out: [] as string[] };
+function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; curriculum: unknown[]; owner: unknown[]; closed: number; out: string[] } } {
+  const calls = { live: 0, launch: [] as unknown[], curriculum: [] as unknown[], owner: [] as unknown[], closed: 0, out: [] as string[] };
   return {
     calls,
     db: () => ({}) as Database,
@@ -32,6 +32,10 @@ function fakeDeps(): SeedDeps & { calls: { live: number; launch: unknown[]; curr
     curriculum: async (_db, opts) => {
       calls.curriculum.push(opts);
       return 3;
+    },
+    owner: async (_db, opts) => {
+      calls.owner.push(opts);
+      return 2;
     },
     close: async () => {
       calls.closed += 1;
@@ -239,5 +243,35 @@ describe('§9.5 the seed CLI @g9', () => {
     expect(pre.split(' && ')).toEqual(['pnpm --filter @ai/api db:migrate', 'pnpm --filter @ai/api db:curriculum:ensure']);
     expect(pre).not.toMatch(/--upload|S3_/);
     expect(pre).not.toMatch(/db:seed|--launch|db:curriculum(?!:ensure)/);
+  });
+
+  // --- the Owner alone, for a database with buyers and no launch seed (Ampy, 2026-11-11) -----------
+
+  it('--owner needs both flags, never reads them from the environment, and stands alone @g9', () => {
+    expect(() => parseSeedArgs(['--owner'])).toThrow(/--owner requires --owner-name and --owner-email/);
+    expect(() => parseSeedArgs(['--owner', '--owner-name', 'A B'])).toThrow(/--owner-email/);
+    expect(() => parseSeedArgs(['--owner', '--owner-name', '--owner-email', 'a@b.co'])).toThrow(/--owner-name needs a value/);
+    expect(() => parseSeedArgs(['--owner', '--launch', '--owner-name', 'A B', '--owner-email', 'a@b.co'])).toThrow(/cannot be combined/);
+    expect(() => parseSeedArgs(['--owner', '--curriculum', '--owner-name', 'A B', '--owner-email', 'a@b.co'])).toThrow(/cannot be combined/);
+    const before = { ...process.env };
+    process.env.OWNER_EMAIL = 'someone@else.test';
+    try {
+      expect(() => parseSeedArgs(['--owner'])).toThrow(/--owner requires/);
+    } finally {
+      process.env = before;
+    }
+    expect(parseSeedArgs(['--owner', '--owner-name', 'A B', '--owner-email', 'a@b.co'])).toEqual({ mode: 'owner', opts: { owner: { name: 'A B', email: 'a@b.co' } } });
+  });
+
+  it('db:owner routes to the Owner alone and names the address before writing @g9', async () => {
+    const pkg = (await import('../package.json', { with: { type: 'json' } })).default as { scripts: Record<string, string> };
+    expect(pkg.scripts['db:owner']).toBe('tsx src/db/seed.ts --owner');
+    const deps = fakeDeps();
+    await runSeed(['--owner', '--owner-name', 'A B', '--owner-email', 'a@b.co'], deps);
+    expect(deps.calls.owner).toEqual([{ owner: { name: 'A B', email: 'a@b.co' } }]);
+    expect([deps.calls.live, deps.calls.launch, deps.calls.curriculum]).toEqual([0, [], []]);
+    expect(deps.calls.out[0]).toContain('Adding the Owner a@b.co to ai_lms_test');
+    expect(deps.calls.out[1]).toContain('Learners, teams, orders, plans, progress and the course were not touched');
+    expect(deps.calls.closed).toBe(1);
   });
 });
