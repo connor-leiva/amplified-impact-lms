@@ -42,7 +42,9 @@ export default defineRailway((ctx) => {
   // registration entirely when VITE_DATA_SOURCE is 'fixture', which is what makes that safe rather
   // than merely cheap.
   const db = demo ? null : postgres('postgres');
-  const files = demo ? null : bucket('files', { region: 'iad' });
+  // `skills` is the bucket's name in production (created 2026-11-11): web's S3_* variables are
+  // references to it, so an `apply` naming anything else would make a second, empty bucket.
+  const files = demo ? null : bucket('skills', { region: 'iad' });
   if (db) resources.push(db);
   if (files) resources.push(files);
 
@@ -56,15 +58,20 @@ export default defineRailway((ctx) => {
     // RAILWAY DOES NOT READ THIS LINE ON DEPLOY. This file is applied only by `railway config apply`;
     // a push changes nothing here. The live command is the service's Pre-deploy Command in the Railway
     // dashboard (web → Settings → Deploy), set by hand on 2026-11-11 to exactly this string. Change
-    // both together (docs/LAUNCH.md § 6). Two steps, each safe to repeat on every deploy:
+    // both together (docs/LAUNCH.md § 6). Three steps, each safe to repeat on every deploy:
     //   1. the migrations;
     //   2. the AI Accelerator's curriculum, applied only to a database that has none of it
     //      (`--if-missing`: once there, staff edits to the course stay; db:seed:prod cannot load it
-    //      once a buyer exists, D-110).
-    // Not here: `skills --upload`. It needs the bucket and the S3_* variables, which production does
-    // not have yet, so it would fail every deploy. It is a by-hand step until the bucket exists
-    // (docs/LAUNCH.md § 8, step 3).
-    ...(demo ? {} : { preDeploy: 'pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure' }),
+    //      once a buyer exists, D-110);
+    //   3. the Library: every skill's ZIP into the bucket (the same bytes under the same keys), then
+    //      the `skills` rows that differ from the catalogs (0 on a repeat run). It needs the bucket's
+    //      S3_* variables below, which production has had since 2026-11-11.
+    ...(demo
+      ? {}
+      : {
+          preDeploy:
+            'pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure && pnpm --filter @ai/api skills --upload',
+        }),
     healthcheck: '/api/health',
     healthcheckTimeout: 60,
     // Production answers to TWO names on this one service, told apart by `Host` inside the process
