@@ -4274,3 +4274,23 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **`/login` and www's Log In** (Connor's addendum). `learn.amplifiedimpact.io/login` renders the same screen as `/sign-in`. `/sign-in` stays, because the emailed links and the app's 401 redirect use it. Every www page's header nav now ends in Log In, an outlined button after About and before Get 5 Free Skills. On a phone it sits in the nav's wrapped row. It also links from the footer's Site list. It's one entry in `SITE.nav` (`apps/web/src/site/content.ts`). No parity golden covers www.
 - **Per-offer tests.** `apps/api/test/offer.test.ts` runs each of the 8 carts end to end: webhook, held email, welcome-page button, set password from the emailed link, then email and password sign-in.
 - **Not changed:** `/agreement`, prices, Stripe products and Payment Links, seats, the magic link's own flow and limits.
+
+## D-137 · The rate limit counts the API only; hashed files are cached for a year; a missing file is a real 404
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), for Connor, 2026-11-11: "Rapid reloads of learn.amplifiedimpact.io/employees/marketing got 429 on /assets/*.js and *.css, and some /assets responses came back as application/json (a rate-limit JSON body), so the SPA never booted and showed a blank page. A room of buyers on one conference Wi-Fi IP will hit this. Fix: exempt static assets (/assets/*, fonts, images, index.html) from the API rate limiter. Scope limits to /api/* (stricter ones for auth endpoints are fine). Serve hashed assets with Cache-Control: public, max-age=31536000, immutable. Never answer an /assets request with JSON; a missing asset returns a real 404. Same check on www.amplifiedimpact.io. Add a test: 200 parallel asset GETs from one IP all return 200 with the right MIME type. Also: the CSP font-src 'self' blocks data: fonts (console noise). Add data: to font-src or self-host those fonts."
+**Status:** on a pull request.
+**Scope:** `apps/api/src/app.ts` (`isApiPath`, the limiter's `allowList`, a boot-time guard, the error handler, `font-src`); `apps/api/src/static.ts` (new: the static files and the not-found handler, moved out of `server.ts`); `apps/api/src/server.ts`; tests (`static.test.ts` new, `routes.test.ts`, `library.test.ts`).
+
+- **Cause.** § 9.4's global limit (`GLOBAL_RATE_MAX`, 100 a minute per session or IP) counted every request, files included. One cold load of the app is about twenty files, and a room on one Wi-Fi is one IP. Measured against this branch's parent, serving the real build: 300 parallel file requests from one address got 100 answers of 200 and 200 answers of `429 application/json`. A missing `/assets/` file was answered `200 text/html` with the app shell.
+- **The limit is for the API.** The limiter's `allowList` skips every path outside `/api/`: files, the app shell, client routes, and every www page, on both hosts. A skipped request is not counted and gets no `x-ratelimit-*` headers. Everything under `/api/` is limited exactly as before, and the stricter limits (sign-in link, password sign-in, Forgot Password, the waitlists, order status) are all under `/api/` and unchanged.
+- **A guard.** A route's own limit inherits that `allowList`, so a stricter limit on a path outside `/api/` would silently be none. `build()` now refuses to register such a route.
+- **Caching.**
+  - Files under `/assets/` (Vite names each by its content): `public, max-age=31536000, immutable`.
+  - `index.html`: `no-cache`, so a deploy's new file names are picked up on the next load.
+  - Every other file keeps `public, max-age=0`, as before.
+  - The static plugin's own `Cache-Control` is off, because `send` wrote `public, max-age=0` over anything `setHeaders` set.
+- **No JSON, no app shell for a file.** A request under `/assets/` that matches no file answers `404 Not found` as plain text. An error on one (a 5xx) answers plain text too. Unknown `/api/` paths stay the JSON 404 the web client reads.
+- **`font-src 'self' data:`.** `@fontsource`'s smallest `.woff` subsets are under Vite's inline limit, so the built stylesheet carries four fonts as `data:font/woff` URLs, and the CSP blocked them. `data:` is not a network origin, so § 9.4's "no Google domains" holds, and the test that no `https:` is allowed stays.
+- **After, same measurement:** 300 of 300 file requests answered 200 with their own type (`application/javascript`, `text/css`, `font/woff2`), 200 parallel reloads of `/employees/marketing` all 200 `text/html`, and `/api/health` still had 99 of 100 left.
+- **Not changed:** the limit's size, its key, its window, any route's own limit, `/agreement`, prices.

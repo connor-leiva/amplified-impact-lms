@@ -64,6 +64,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyRateLimit from '@fastify/rate-limit';
 import { createHash } from 'node:crypto';
+import { STATUS_CODES } from 'node:http';
 import type { FastifyError, FastifyInstance, FastifyRequest, FastifyServerOptions } from 'fastify';
 import { createSession, decorateViewer, readSessionSecret, SESSION_COOKIE, settleEmails } from './auth';
 import { close as closeDatabase, getDb } from './db/client';
@@ -111,6 +112,18 @@ export const TRUST_ONE_HOP = (_address: string, hop: number): boolean => hop ===
 /** § 9.4: "100 requests per minute per session". */
 export const GLOBAL_RATE_MAX = 100;
 export const GLOBAL_RATE_WINDOW = '1 minute';
+
+/**
+ * Whether a request is for the API, the only thing the global limit counts (D-137). Files and pages
+ * are not: a cold load of the SPA is about twenty files, and a room of people on one conference
+ * Wi-Fi shares one IP, so counting them locked the room out (429s on `/assets/*.js`, a blank page).
+ * Routes with their own limits (`/api/auth/request`, the waitlists, password sign-in) are all under
+ * `/api/` and keep them.
+ */
+export function isApiPath(url: string): boolean {
+  const path = url.split('?')[0] ?? url;
+  return path === '/api' || path.startsWith('/api/');
+}
 
 export interface BuildOptions {
   /**
@@ -269,8 +282,10 @@ export function cspDirectives(
     'media-src': ["'self'", 'blob:', ...video],
     'connect-src': ["'self'"],
     // § 9.4: "Self-hosted fonts mean no Google domains." helmet's default here is
-    // `'self' https: data:`; the `https:` is what would have let a Google domain back in.
-    'font-src': ["'self'"],
+    // `'self' https: data:`; the `https:` is what would have let a Google domain back in. `data:`
+    // is allowed (D-137): fonts inlined into a stylesheet as data URLs were blocked, which filled the
+    // console on every load. It is not a domain, so the rule above still holds.
+    'font-src': ["'self'", 'data:'],
   };
 }
 
@@ -414,12 +429,24 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     max: GLOBAL_RATE_MAX,
     timeWindow: GLOBAL_RATE_WINDOW,
     keyGenerator: rateLimitKey,
+    // The API only (D-137). A request this answers true for is never counted and gets no
+    // `x-ratelimit-*` headers: every file, every page, on learn and on www.
+    allowList: (req) => !isApiPath(req.url),
     // No `errorResponseBuilder`. The plugin THROWS whatever the builder returns, and its default
     // returns an `Error` carrying `statusCode: 429` — which `setErrorHandler` below turns into
     // `{ error: 'Rate limit exceeded, retry in 1 hour' }` with the right status, i.e. exactly the
     // `{ error }` shape `apps/web/src/data/http.ts` reads. A builder returning a plain object
     // instead (the obvious reading of its name) is thrown WITHOUT a `statusCode`, and the error
     // handler answers 500: measured, and the reason this comment exists.
+  });
+  // A route's own limit inherits that `allowList`, so a stricter limit outside `/api/` would
+  // silently be no limit at all. Every route that has one is under `/api/` today; refuse to boot
+  // rather than let a new one slip out from under it.
+  app.addHook('onRoute', (route) => {
+    const own = (route.config as { rateLimit?: unknown } | undefined)?.rateLimit;
+    if (own && typeof own === 'object' && !isApiPath(route.url)) {
+      throw new Error(`${route.url} has its own rate limit, but limits apply under /api/ only (D-137)`);
+    }
   });
 
   decorateViewer(app);
@@ -435,6 +462,12 @@ export async function build(options: BuildOptions = {}): Promise<App> {
    */
   app.setErrorHandler((err: FastifyError, req, reply) => {
     const status = err.statusCode ?? 500;
+    // A file request is never answered with JSON (D-137): a browser that asked for a script or a
+    // stylesheet gets plain text it will not try to run.
+    if ((req.url.split('?')[0] ?? '').startsWith('/assets/')) {
+      if (status >= 500) req.log.error({ err }, 'request failed');
+      return reply.code(status).type('text/plain; charset=utf-8').send(status >= 500 ? 'Something went wrong.' : (STATUS_CODES[status] ?? 'Not found'));
+    }
     if (status >= 500) {
       req.log.error({ err }, 'request failed');
       return reply.code(500).send({ error: 'Something went wrong.' });

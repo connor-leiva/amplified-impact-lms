@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { build, cspScriptHashes, type App } from '../src/app';
+import { staticIgnores } from '../src/static';
 import { LIBRARY_ALIASES } from '../src/routes/library';
 
 // The free library's page (D-050). Its words and its script are the web app's
@@ -77,7 +78,8 @@ describe('its inline script', () => {
     // `server.ts` boots the real process, so no test can import it. Read, as the page's own wiring.
     const server = readFileSync(new URL('../src/server.ts', import.meta.url), 'utf8');
     expect(server).toMatch(/cspScriptHashes\(\[[^\]]*libraryPage[^\]]*\]\)/);
-    expect(server).toMatch(/globIgnore: \[[^\]]*'library\.html'/);
+    // The static plugin's ignore list moved to `static.ts` (D-137); it is a function, so ask it.
+    expect(staticIgnores()).toContain('library.html');
     expect(server).toMatch(/\n\s+libraryPage,\n/);
   });
 });

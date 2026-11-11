@@ -616,7 +616,9 @@ describe('§ 9.4 · the Content-Security-Policy @g7', () => {
     expect(csp).toContain("img-src 'self' data:");
     expect(csp).toContain("media-src 'self' blob:");
     expect(csp).toContain("connect-src 'self'");
-    expect(csp).toContain("font-src 'self'");
+    // `data:` too (D-137): a stylesheet's inlined font is a `data:` URL, and without it the console
+    // logged a blocked font on every load. Still no network origin but our own.
+    expect(csp).toContain("font-src 'self' data:");
     // "Self-hosted fonts mean no Google domains." helmet's own default `font-src` is
     // `'self' https: data:`, and the `https:` is what would have let one back in.
     expect(csp).not.toMatch(/font-src[^;]*https:/);
