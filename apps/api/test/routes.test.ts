@@ -720,6 +720,8 @@ describe('§ 9.4 · the log and the cookie @g7', () => {
     expect(scrubUrl('/invite/abc123?ref=email')).toBe('/invite/:token?ref=email');
     // § 9.4 names emails in URLs and presigned URLs in the same sentence.
     expect(scrubUrl('/x?email=a@b.co')).toBe('/x?email=REDACTED');
+    // D-139: Google's callback carries a one-time code and the CSRF state.
+    expect(scrubUrl('/api/auth/google/callback?state=s1&code=4%2F0Ab&scope=email')).toBe('/api/auth/google/callback?state=REDACTED&code=REDACTED&scope=email');
     expect(scrubUrl('/f?X-Amz-Signature=deadbeef')).toBe('/f?X-Amz-Signature=REDACTED');
     // Everything else is left exactly as it was, byte for byte.
     expect(scrubUrl('/api/snapshot')).toBe('/api/snapshot');

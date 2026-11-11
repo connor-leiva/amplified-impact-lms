@@ -4415,3 +4415,39 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **Fixture mode is unchanged.** The eye button still switches persona with `?as=`, as the reference does. The flag works there too (`?as=admin&preview=agent`), which is how the e2e tests run in fixture mode.
 - **Not done:** the audited `POST /api/admin/impersonate`, which the brief leaves for later.
 - **Not changed:** the API, `/agreement`, prices.
+
+## D-139 · Continue With Google on the LMS sign-in, for accounts that already exist
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), for Connor, 2026-11-11, in the brief "Continue with Google on the LMS login": a "Continue with Google" button on /login (and the set-password or sign-up screens if they exist) under the email and password form; server-side OAuth 2.0 authorization code with PKCE and a `state` cookie, against Google's OpenID Connect endpoints, verifying the ID token's issuer, audience and expiry and requiring `email_verified=true`; match the verified email, case-insensitively, to an existing user, including checkout-created accounts with no password, and link the Google `sub`; create no account with entitlements; let staff in only on an exact email match; `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, with the button hidden and the routes 404 while either is missing; unit tests with Google mocked.
+**Status:** on a pull request.
+**Scope:** `apps/api/src/auth/google.ts` (new), `apps/api/src/routes/google.ts` (new), `apps/api/src/app.ts`, `apps/api/src/db/schema.ts` and migration `0011_google_identities.sql`; `apps/web/src/routes/auth/shared.tsx`, `SignIn.tsx`, `SetPassword.tsx`, `SignIn.module.css`; tests (`apps/api/test/google.test.ts` new, `authz.test.ts`, `schema.test.ts`, `SignIn.test.tsx`, `Password.test.tsx`); README; `docs/LAUNCH.md` section 9.
+
+- **Routes.**
+  - `GET /api/auth/providers` answers `{ google }`, which the screens read to show or hide the button.
+  - `GET /api/auth/google` redirects to Google's chooser (`prompt=select_account`, scopes `openid email profile`).
+  - `GET /api/auth/google/callback` signs the person in and redirects to `/`, or to `/login?google=<why>`.
+  - The redirect URI is `${APP_URL}/api/auth/google/callback`, which in production is exactly `https://learn.amplifiedimpact.io/api/auth/google/callback`.
+- **Off until configured.** It needs `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `APP_URL`. Without all three, both Google routes are 404 and `providers` says `false`.
+- **Checks.**
+  - `state`, the PKCE `code_verifier` (S256) and an OpenID `nonce` travel in one signed, httpOnly, Lax cookie, scoped to `/api/auth/google`, that lasts ten minutes and is spent by the callback.
+  - A callback whose `state` doesn't match is refused before Google is asked anything.
+  - The ID token's RS256 signature is checked against Google's published keys (cached for an hour, refetched for an unknown `kid`).
+  - Then `iss` (either Google form), `aud` (and `azp` when `aud` is a list), `exp` and `iat` (one minute of skew), `nonce`, and `email_verified` exactly `true`.
+- **No account, no sign-in.** The brief said to pick whichever matches current behavior. This app has no accounts without a purchase or an invite: `/api/auth/request` sends nothing to an unknown address, and nothing else makes a user. So an unknown address gets the brief's words ("We couldn’t find an account for that email. Use the email you bought with, or sign in with your password.") and nothing is created.
+- **Matching.**
+  - A linked Google account (`google_identities.sub`) opens its user, even if either email later changes. Otherwise the verified email is matched case-insensitively, as every other sign-in does, and the Google account is linked.
+  - One Google account per user. A second one is refused ("That account is linked to a different Google account…").
+  - If a linked user was removed, the link is dropped and the email is matched again.
+- **Staff.** In only when Google's email equals the account's character for character, on every sign-in, even once linked. Anything else gets the same "couldn't find an account" words, so the reply doesn't reveal a staff address.
+- **First sign-in.** An `invited` learner (such as an account a checkout made) becomes `active`, as a set password or an accepted invite makes them: a Google-verified address is the same proof of the inbox. The held "Set your password" email then skips them, as it already skips owners who set a password early. This opens nothing the email sign-in link didn't already: it signs in an `invited` buyer before `INVITES_FROM` today, and no date is changed.
+- **Session.** Password sign-in's, with "Keep me signed in" on (the screen's default): 30 days, rolling, for staff and learners alike.
+- **The screens.**
+  - On `/login` and `/sign-in`, the button sits under the password form, set apart by a rule. The form, Forgot Password and "Email Me a Sign-In Link Instead" are unchanged.
+  - On `/set-password` it sits under the new-password form.
+  - There is no sign-up screen: `/invite/:token` signs in by itself and has no form.
+- **Two copy calls.**
+  - The label is "Continue With Google", capitalized like the screen's other labels ("Sign In With a Password Instead").
+  - It's a text button with no Google "G" mark: icons come only from `ICONS`, and the mark's colors aren't tokens. Adding the mark is one icon and a DECISIONS entry, if Google's review ever asks for it.
+- **Never logged:** an address, a name, a token or a `sub`. A refusal logs its code only.
+- **Not changed:** checkout, Stripe, GHL (a first Google sign-in counts as a first sign-in through the existing rule), prices, the shared header and footer, the homepage, `/agreement`.

@@ -77,6 +77,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-132: passwords and the lockout, outside `users` and outside `Db`.
   userPasswords: { table: 'user_passwords', columns: ['hash', 'updated_at', 'user_id'] },
   loginFailures: { table: 'login_failures', columns: ['failures', 'first_at', 'key', 'locked_until'] },
+  // D-139: the Google account linked to a user, outside `users` and outside `Db`.
+  googleIdentities: { table: 'google_identities', columns: ['linked_at', 'sub', 'user_id'] },
   // § 8.5: "Record sends in a `job_runs(job, key, sent_at)` table with a unique `(job, key)`."
   // Three columns and no more. An `id` here would be a second way to identify a row that the
   // unique pair already identifies, and anything else would be duplicating the key's own segments.
@@ -332,6 +334,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   authSessions: { unit: 'timestamp', why: '§7.5 internals: expires_at is compared with now() and never reaches core' },
   userPasswords: { unit: 'timestamp', why: 'D-132 internals: updated_at is written and never compared or read by core' },
   loginFailures: { unit: 'timestamp', why: 'D-132 internals: first_at/locked_until are compared with now() and never reach core' },
+  googleIdentities: { unit: 'timestamp', why: 'D-139 internals: linked_at is written and never compared or read by core' },
   jobRuns: { unit: 'epoch-ms', why: '§8.5: sent_at is the scheduler clock dueWork compares its windows against' },
   // Nothing in core reads `created_at`, so `timestamp` would have been allowed here. It is epoch ms
   // because that is what `clock.now()` returns — the route writes it with no conversion, and a test

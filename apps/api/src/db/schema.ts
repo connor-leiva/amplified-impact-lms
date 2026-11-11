@@ -80,6 +80,12 @@ export const authSessions = pgTable('auth_sessions', { id: text('id').primaryKey
 // parameters, salt and digest), never the password.
 export const userPasswords = pgTable('user_passwords', { userId: text('user_id').primaryKey(), hash: text('hash').notNull(), updatedAt: timestamp('updated_at').notNull() });
 
+// "Continue With Google" (D-139): which Google account, by its OpenID `sub`, is linked to which user.
+// Its own table, like `user_passwords`, so no read of `users` carries it, and outside `Db`. One
+// Google account per user and one user per Google account. Written the first time a verified email
+// matches an account; later sign-ins match on `sub`, so a changed address on either side keeps it.
+export const googleIdentities = pgTable('google_identities', { sub: text('sub').primaryKey(), userId: text('user_id').notNull().unique(), linkedAt: timestamp('linked_at').notNull() });
+
 // Failed password sign-ins, for the lockout (D-132). Keyed by a sha256 of the address typed, so an
 // address with no account is counted and locked exactly like one with an account (nothing tells
 // the two apart) and no address is stored in the clear.

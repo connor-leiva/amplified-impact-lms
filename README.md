@@ -78,8 +78,16 @@ page links it: Log In, after About in the header nav (on a phone too) and in the
 - **Passwords** are argon2id hashes in `user_passwords`, never on `users`, never logged.
 - **Lockout:** 5 failed sign-ins in 15 minutes locks the address for 15 minutes. Unknown addresses are counted the same way, so the lockout doesn't reveal whether an account exists. Routes and rules: `apps/api/src/routes/password.ts`.
 
+**Continue With Google (D-139).** A button under the password form on `/login` and `/set-password`, shown only when Railway has `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (with `APP_URL`); without them the button is hidden and `/api/auth/google` answers 404.
+- **Where to register it.** In the Google Cloud OAuth client, the authorized redirect URI is exactly `https://learn.amplifiedimpact.io/api/auth/google/callback`.
+- **How it signs in.** Server-side authorization code with PKCE and a signed `state` cookie. The ID token's signature, issuer, audience, expiry and nonce are checked, and the email must be verified.
+- **Which account.** It opens the account with that verified email, including a checkout-made account that never set a password, and links the Google account for next time. It never creates an account: an address with no account gets "We couldn’t find an account for that email…".
+- **Staff** are only let in when Google's email matches the account's exactly.
+- Routes and rules: `apps/api/src/routes/google.ts` and `apps/api/src/auth/google.ts`.
+
 ```bash
 pnpm --filter @ai/api exec vitest run test/password.test.ts   # the API's flows, against Postgres
+pnpm --filter @ai/api exec vitest run test/google.test.ts     # Continue With Google, against a fake Google
 pnpm --filter @ai/web exec vitest run src/routes/auth         # the screens
 ```
 

@@ -344,3 +344,20 @@ invites land in spam.
 - A Tap to Pay sale at the table never reaches the website: set up the buyer's account and tags by
   hand that night, as Grokbok's handoff section 9 says.
 - The 11th cohort sale goes through and logs `cohort seat 11 sold … book a tech assistant`.
+
+## 9. Continue With Google on the sign-in screen (D-139)
+
+The button stays hidden, and `/api/auth/google` answers 404, until both keys are on the Web service.
+Nothing else needs to change, and deploying before the keys exist is safe.
+
+1. **Create the client.** In Google Cloud, go to **APIs & Services → Credentials → Create credentials →
+   OAuth client ID**, with type **Web application**.
+   - **Authorized redirect URI:** exactly `https://learn.amplifiedimpact.io/api/auth/google/callback`.
+   - **Consent screen:** the scopes are `openid`, `email` and `profile`, which are non-sensitive, so
+     no Google review is needed. Add `amplifiedimpact.io` as an authorized domain.
+2. **Add the keys in Railway.** Under **Variables** on the Web service, add `GOOGLE_CLIENT_ID` and
+   `GOOGLE_CLIENT_SECRET`. `APP_URL` is already set, and the redirect URI is built from it.
+3. **Check it.** After the deploy, `https://learn.amplifiedimpact.io/api/auth/providers` answers
+   `{"google":true}` and `/login` shows the button. Sign in with a Google account whose email
+   already has an account. Any other email gets "We couldn’t find an account for that email…";
+   nothing is created.

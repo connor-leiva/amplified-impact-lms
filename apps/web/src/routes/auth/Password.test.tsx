@@ -14,9 +14,14 @@ import Account, { COPY as ACCOUNT } from './Account';
 let fetchMock: Mock;
 const json = (status: number, body: unknown) => ({ ok: status >= 200 && status < 300, status, json: async () => body }) as unknown as Response;
 
+// `GET /api/auth/providers` (D-139) answers outside `fetchMock`, so its call indexes stay the screens' own.
+let providers: { google: boolean } = { google: false };
 beforeEach(() => {
   fetchMock = vi.fn(async () => json(200, { ok: true }));
-  vi.stubGlobal('fetch', fetchMock);
+  providers = { google: false };
+  vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
+    url === '/api/auth/providers' ? Promise.resolve(json(200, providers)) : fetchMock(url, init),
+  );
 });
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -203,5 +208,22 @@ describe('/account', () => {
     fetchMock.mockImplementationOnce(async () => json(401, { error: 'unauthorized' }));
     at('/account', <Account />, '/account');
     await waitFor(() => expect(assign).toHaveBeenCalledWith('/sign-in'));
+  });
+});
+
+describe('/set-password and Continue With Google (D-139)', () => {
+  it('offers Google under the new-password form when it is on, and not when it is off', async () => {
+    fetchMock.mockImplementation(async () => json(200, { ok: true, purpose: 'set' }));
+    providers = { google: true };
+    at('/set-password?token=abc', <SetPassword />, '/set-password');
+    expect(await screen.findByRole('button', { name: 'Continue With Google' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: SET.submit })).toBeTruthy();
+  });
+
+  it('is hidden without the keys', async () => {
+    fetchMock.mockImplementation(async () => json(200, { ok: true, purpose: 'set' }));
+    at('/set-password?token=abc', <SetPassword />, '/set-password');
+    await screen.findByRole('button', { name: SET.submit });
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Continue With Google' })).toBeNull());
   });
 });

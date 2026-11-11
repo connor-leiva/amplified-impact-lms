@@ -21,9 +21,18 @@ let fetchMock: Mock;
 const ok = (extra: Record<string, unknown> = {}) =>
   ({ ok: true, status: 200, json: async () => ({ ok: true, ...extra }) }) as unknown as Response;
 
+/**
+ * `GET /api/auth/providers` (D-139), which every sign-in screen asks once on mount, answers here and
+ * not through `fetchMock`, so the request counts below are still exactly the screen's own calls.
+ * Off by default: no Google button, as on a deploy without the keys.
+ */
+let providers: { google: boolean } = { google: false };
 beforeEach(() => {
   fetchMock = vi.fn(async () => ok());
-  vi.stubGlobal('fetch', fetchMock);
+  providers = { google: false };
+  vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
+    url === '/api/auth/providers' ? Promise.resolve({ ok: true, status: 200, json: async () => providers } as unknown as Response) : fetchMock(url, init),
+  );
 });
 
 afterEach(() => {
@@ -197,5 +206,53 @@ describe('SignIn with a link token @g7', () => {
     fetchMock.mockImplementation(() => Promise.reject(new Error('Failed to fetch')));
     renderVerify();
     expect(await screen.findByRole('alert')).toHaveTextContent(expired);
+  });
+});
+
+// --- "Continue With Google" (D-139) ------------------------------------------------------------------
+
+describe('Continue With Google', () => {
+  const GOOGLE = 'Continue With Google';
+
+  it('is hidden when the deploy has no Google keys, and the password form stays the way in', async () => {
+    renderSignIn('');
+    await screen.findByRole('button', { name: 'Sign In' });
+    // Give the providers answer time to land, then check it changed nothing.
+    await waitFor(() => expect(screen.queryByRole('button', { name: GOOGLE })).toBeNull());
+    expect(screen.getByLabelText('Password')).toBeTruthy();
+  });
+
+  it('shows under the password form when it is on, and goes to the API start route', async () => {
+    providers = { google: true };
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    const { container } = renderSignIn('');
+    const button = await screen.findByRole('button', { name: GOOGLE });
+    // Under the form: the Sign In button comes first.
+    const order = [...container.querySelectorAll('button')].map((b) => b.textContent);
+    expect(order.indexOf('Sign In')).toBeLessThan(order.indexOf(GOOGLE));
+    await userEvent.click(button);
+    expect(assign).toHaveBeenCalledWith('/api/auth/google');
+    // The magic link is still offered as the backup.
+    expect(screen.getByRole('button', { name: 'Email Me a Sign-In Link Instead' })).toBeTruthy();
+  });
+
+  it('says why when Google sign-in came back refused', async () => {
+    const cases: [string, RegExp][] = [
+      ['no-account', /^We couldn’t find an account for that email\. Use the email you bought with, or sign in with your password\.$/],
+      ['unverified', /^Google hasn’t verified that email address\./],
+      ['linked-elsewhere', /^That account is linked to a different Google account\./],
+      ['failed', /^Google sign-in didn’t finish\. Try again, or sign in with your password\.$/],
+    ];
+    for (const [why, words] of cases) {
+      const { unmount } = renderSignIn(`?google=${why}`);
+      expect((await screen.findByRole('alert')).textContent, why).toMatch(words);
+      unmount();
+    }
+    // Anything else, or nothing, says nothing.
+    const { unmount } = renderSignIn('?google=whatever');
+    await screen.findByRole('button', { name: 'Sign In' });
+    expect(screen.getByRole('alert').textContent).toBe('');
+    unmount();
   });
 });
