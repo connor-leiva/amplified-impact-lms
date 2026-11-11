@@ -4000,6 +4000,27 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Not changed:** the skill pages' layout (D-071), whose eyebrow at 12px and two footer links under 44px predate this; and `/appointment-follow-up` at 320px, where that eyebrow's letter-spacing overflows the screen by 2px now that the card is locked. Spring's "rewrite every skill card and skill page" (Phase 3) is where those change. Grok Bot stays in the Library (`[OPEN]`).
 - **Tested:** core, web and API suites, with the old free lists' tests rewritten to the new ones (16 paid templates, the free five and the catalog's list held together, every card's access word, the locked card's plan by set, the filters' rows and data, the free five first, the site's header and footer, no retired name). In Chromium against the built server on the marketing host: `/library` and `/library?show=free` with zero axe violations, no sideways scroll, no text under 16px and no tap under 44px at 320, 390, 768 and 1440.
 
+## D-116 · Free Resources at `/free`
+
+**Date:** 2026-11-11
+**Approved by:** Connor, via the PM (Ampy) in chat on 2026-11-11, the overnight brief: "`/free`: Link `/voice-profile`, `/ai101`, `/ops-time-audit`, `/retool`, `/task-sync-starter`, and `ai.springb.co`." Spring's plan: "Free Resources (/free): two columns, For Agents and For Team Owners. Each resource opens its own opt-in", and "Keep the existing /voice-profile page and AI 101 registration (ai.springb.co) and link both from Free Resources."
+**Status:** the words wait on Spring's review; on a pull request, stacked on D-114's.
+**Scope:** `apps/web/src/free/` (new), `apps/web/free.html`, `SITE_PAGES` and `SALES_PAGES` (served like the sales pages, with no token), `scripts/check-css-colors.mjs`, the tests.
+
+- **Two columns, Spring's.** For Agents: Sounds Like You (the voice profile), AI 101 for Agents (`/ai101`) and "Register for AI 101" (`https://ai.springb.co`). For Team Owners: The Ops Time Audit, the Task Sync Starter Kit and Retool, Don't Replace. Each card is its Library card's title and line, so this page and the Library cannot name one two ways, and the whole card is the link to the resource's own page, where its opt-in is. The homepage lists the same five (a test holds the two together).
+- **The 5 free skills are not these:** a section points to them ("Get 5 Free Skills", `/library?show=free`) and to the programs. No GoHighLevel tags or new opt-ins are built here; each page's existing opt-in stands (Spring's per-resource opt-in pages and their agent/owner question are a later step, with Connor's GHL work).
+- **Tested:** web tests on the parsed DOM (the columns, exactly the six links the brief names, each by its Library card and never locked, the homepage's same five, the two buttons, no script or token, the house rules); API tests for `/free` on www exactly and its trailing-slash redirect, and the route inventories. In Chromium against the built server on the marketing host: zero axe violations, no sideways scroll, no text under 16px and no tap under 44px at 320, 390, 768 and 1440.
+
+## D-117 · About at `/about`: Spring and Connor, the Utah Life story, and why we built this
+
+**Date:** 2026-11-11
+**Approved by:** Connor, via the PM (Ampy) in chat on 2026-11-11, the overnight brief: "`/about`: Spring and Connor, the Utah Life story, why we built this. Use the bios." with the draft bios, and "Do not mention 'Forum' on public pages." Spring's plan: "About (/about): Spring as the face, Connor as co-founder, the Utah Life story, why we built this."
+**Status:** the words wait on Spring's review; on a pull request, with D-116.
+**Scope:** `apps/web/src/about/` (new), `apps/web/about.html`, `SITE_PAGES` and `SALES_PAGES`, `scripts/check-css-colors.mjs`, the tests (and `marketing.test.ts`, whose `/about` to the homepage redirect is gone now that it is a page).
+
+- **Spring first, then Connor**, each with their own photo (Spring's Live Utah portrait, `spring-bengtzen-2.jpg`, here; the homepage uses her other one) and the brief's bio **word for word, with one cut**: Spring's "founded The Forum and Activated Agents" reads "founded Activated Agents", because no public page may say "Forum". A test holds both bios to the brief's text.
+- **The Utah Life story** carries the homepage's proof line ("Built inside The Utah Life Real Estate Group", "100 agents, 700+ homes a year") and says no more than Spring's plan does: an eXp Realty team in Farmington with mortgage, title and coaching beside it, "where we put AI to work first". **Why we built this** is Spring's positioning in her voice: AI doing real work, built into how we run, written down as skills and taught live, real estate first because it's the business we know. No testimonials, no results claims.
+- **Tested:** web tests on the parsed DOM (the order, the photos from this site, both bios against the brief's, the proof line, the buttons, no "Forum", no script or token, the house rules); API tests as for `/free`. In Chromium against the built server on the marketing host: zero axe violations, no sideways scroll, no text under 16px and no tap under 44px at 320, 390, 768 and 1440.
 
 
 ## D-118 · The prototype's post-cohort card says "Your instructor", not an invented name

@@ -284,18 +284,19 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     // strand a visitor on the placeholder after the real site replaced it.
     const a = await serve(WWW);
 
-    const res = await get(a, '/about', WWW);
+    // Not `/about`, which is a page now (D-117): a path that still has none.
+    const res = await get(a, '/somewhere-later', WWW);
     expect(res.statusCode).toBe(302);
     expect(res.statusCode).not.toBe(301);
   });
 
-  it('sends /pricing/ to Programs and Pricing (D-111), and /about and /contact to the homepage, on www only (D-102) @g9', async () => {
+  it('sends /pricing/ to Programs and Pricing (D-111), and /contact and lookalikes to the homepage, on www only (D-102) @g9', async () => {
     const a = await serve(WWW, PAGE, asServed);
 
     // `/pricing` itself is a page now (routes/offer.ts, D-111): www lets it through to its route.
     const slash = await get(a, '/pricing/', WWW);
     expect([slash.statusCode, slash.headers.location]).toEqual([302, '/pricing']);
-    for (const url of ['/about', '/contact', '/pricing/old', '/pricingx']) {
+    for (const url of ['/contact', '/about/us', '/freebies', '/pricing/old', '/pricingx']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(302);
       expect(res.headers.location, url).toBe('/');

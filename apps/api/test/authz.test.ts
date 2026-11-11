@@ -574,6 +574,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/teams', methods: 'GET, HEAD', guard: 'page' },
   // The Amplified Agent Plan's sales page (D-114), filled the same way.
   { path: '/agents', methods: 'GET, HEAD', guard: 'page' },
+  // Free Resources and About (D-116, D-117): the site's pages, served the same way, with no token.
+  { path: '/free', methods: 'GET, HEAD', guard: 'page' },
+  { path: '/about', methods: 'GET, HEAD', guard: 'page' },
   { path: '/agreement', methods: 'GET, HEAD', guard: 'page' },
   { path: '/api/offer', methods: 'GET, HEAD', guard: 'open' },
   { path: '/api/offer/order-status', methods: 'GET, HEAD', guard: 'open' },
@@ -1103,6 +1106,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             '/team-build',
             '/teams',
             '/agents',
+            '/free',
+            '/about',
             '/ai-101',
             '/ai101',
             '/ai101/',
