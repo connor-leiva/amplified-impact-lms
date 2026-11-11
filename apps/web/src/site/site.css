@@ -266,6 +266,40 @@ img {
   height: 16px;
 }
 
+.section-more {
+  margin-top: 28px;
+}
+
+/* --- Meet Spring and Connor (people.ts): Home, the sales pages and About ---------------------- */
+
+.people {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+.person-card {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.person-card-photo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+.person-card h3 {
+  font-size: 20px;
+}
+.person-role {
+  margin-top: 2px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
 /* --- The footer -------------------------------------------------------------------------------- */
 
 .site-foot {
@@ -322,6 +356,16 @@ img {
   }
   .site-foot-in {
     grid-template-columns: 2fr 1fr 1fr;
+  }
+  .people {
+    grid-template-columns: 1fr 1fr;
+  }
+  .person-card {
+    grid-template-columns: 128px 1fr;
+  }
+  .person-card-photo {
+    width: 128px;
+    height: 128px;
   }
 }
 

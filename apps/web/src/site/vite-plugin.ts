@@ -11,7 +11,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import { fill, ssrLoadForBuild } from '../ai101/vite-plugin.ts';
 
 /** Each page by its folder under `src/`, and so its HTML entry `<name>.html` and its file in `dist/`. */
-export const SITE_PAGES = ['pricing'] as const;
+export const SITE_PAGES = ['pricing', 'team-build'] as const;
 export type SitePage = (typeof SITE_PAGES)[number];
 
 /** The HTML entries, relative to the web app's root (`apps/api/src/server.ts` reads them from `dist/`). */

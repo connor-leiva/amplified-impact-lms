@@ -91,12 +91,12 @@ function exactPaths(withSlash: readonly string[], asWritten: readonly string[]):
 const ROOT = new Set(['/', '/index.html']);
 
 /**
- * Paths with a page of their own under another spelling. `/pricing` sent visitors to `/offer` (D-102)
- * until it became Programs and Pricing (D-111); its trailing-slash spelling now goes to it. `/about`
- * and `/contact` keep the catch-all's 302 to `/` until their pages land. 302, as below: a 301 would be
- * cached past the next change.
+ * Paths with a page of their own under another spelling: each sales page's trailing-slash spelling goes
+ * to the page (D-111). `/pricing` itself sent visitors to `/offer` (D-102) until it became Programs and
+ * Pricing. `/about` and `/contact` keep the catch-all's 302 to `/` until their pages land. 302, as
+ * below: a 301 would be cached past the next change.
  */
-const MOVED: ReadonlyMap<string, string> = new Map([['/pricing/', '/pricing']]);
+const MOVED: ReadonlyMap<string, string> = new Map(Object.keys(SALES_PAGES).map((path) => [`${path}/`, path]));
 
 /**
  * A request for a file rather than a page: anything whose last segment carries an extension.
