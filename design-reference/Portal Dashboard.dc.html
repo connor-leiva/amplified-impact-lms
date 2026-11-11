@@ -214,7 +214,7 @@ class Component extends DCLogic {
     const nextWed = (() => { let t = Date.parse(new Date(now - 6 * 3600e3).toISOString().slice(0, 10) + 'T11:00:00-06:00'); while (new Date(t - 6 * 3600e3).getUTCDay() !== 3 || t < now) t += 86400e3; return t; })();
     const ohIcs = t => lib.ics([{ id: 'oh' + t, title: 'Amplified Impact office hours', start: t, end: t + 3600e3, url: 'https://zoom.us/j/8841299001' }]);
     const post = isPost ? {
-      ended: F.date(co.end), host: 'Your instructor', next: `${F.day(nextWed)} · ${F.time(nextWed)}`,
+      ended: F.date(co.end), host: 'your instructor', next: `${F.day(nextWed)} · ${F.time(nextWed)}`,
       cal: () => act.download('office-hours.ics', ohIcs(nextWed), 'text/calendar', 'Office hours added to your calendar'), rewatch: () => act.nav('sessions'),
     } : null;
     const openMod = id => { const m = db.modules.find(x => x.id === id); if (!m) return act.nav('sessions'); if (!lib.canAccess(user, m)) return act.openLocked(m.id); act.nav('workspace', m.id); };

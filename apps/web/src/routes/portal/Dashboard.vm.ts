@@ -199,7 +199,7 @@ const officeHourFile = (oh: Session, stamp: number): DownloadSpec => ({
 /** No scheduled office hour yet: said, not invented. */
 const SCHEDULE_TBA = 'Schedule TBA';
 /** The host when no module of a cohort with its own office hours names an instructor (Ampy, 2026-11-11). */
-export const INSTRUCTOR_FALLBACK = 'Your instructor';
+export const INSTRUCTOR_FALLBACK = 'your instructor';
 
 const officeHoursFile = (t: number, stamp: number): DownloadSpec => ({
   name: 'office-hours.ics',
@@ -319,8 +319,9 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
   const ohNext = series
     ? (accessibleSessions(db, user).find((x) => sessionKind(x) === 'office_hours' && sessionEnd(x) > now) ?? null)
     : null;
-  // No module names an instructor: "Your instructor", never the prototype's invented name (Ampy,
-  // 2026-11-11). The prototype's own post card says "Your instructor" too (D-118).
+  // No module names an instructor: "your instructor", never the prototype's invented name (Ampy,
+  // 2026-11-11). The prototype's own post card says "your instructor" too (D-118). Lowercase because it
+  // only ever ends a sentence: "Drop-In Build Help with your instructor".
   const host = series ? (vis.find((m) => m.instructor)?.instructor ?? INSTRUCTOR_FALLBACK) : INSTRUCTOR_FALLBACK;
   const post: DashboardPost | null =
     isPost && co

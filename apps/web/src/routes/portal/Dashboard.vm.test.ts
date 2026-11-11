@@ -327,7 +327,7 @@ describe('dashboardVM @g5', () => {
       expect(jamie.post).toEqual({
         ended: 'Jan 8',
         title: 'Office Hours Continue Wednesdays',
-        host: 'Your instructor',
+        host: 'your instructor',
         next: 'Wed, Jan 13 · 11:00 AM CT',
         cal: {
           name: 'office-hours.ics',
@@ -440,11 +440,11 @@ describe('Dashboard · the AI Accelerator cohort', () => {
     expect(JSON.stringify(vm)).not.toContain('Jordan Hale');
   });
 
-  it('says "Your instructor" when no module names one, never the prototype’s name (Ampy, 2026-11-11)', () => {
+  it('says "your instructor" when no module names one, never the prototype’s name (Ampy, 2026-11-11)', () => {
     const bare: Db = { ...prod, modules: prod.modules.map((m) => ({ ...m, instructor: '' })) };
     const vm = dashboardVM(bare, buyer, CT('2027-02-10T09:00'));
     expect(vm.post?.host).toBe(INSTRUCTOR_FALLBACK);
-    expect(INSTRUCTOR_FALLBACK).toBe('Your instructor');
+    expect(INSTRUCTOR_FALLBACK).toBe('your instructor');
     expect(JSON.stringify(vm)).not.toContain('Jordan Hale');
   });
 });
