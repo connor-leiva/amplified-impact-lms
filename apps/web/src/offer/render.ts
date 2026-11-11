@@ -229,6 +229,12 @@ function extras(list: readonly StepExtra[]): string {
       `<p class="intake-link"><a class="button primary" href="${W.intakeUrl}" target="_blank" rel="noopener">${esc(THANKS_PARTS.intakeButton)}</a></p>`,
     );
   }
+  // The starter path's link, on the LMS host (the buyer signs in there with the login from their email).
+  for (const kind of ['course', 'library'] as const) {
+    if (!list.includes(kind)) continue;
+    const link = THANKS_PARTS[kind];
+    out.push(`<p class="start-link"><a class="button primary" href="${link.href}">${esc(link.label)}</a></p>`);
+  }
   const cal = THANKS_PARTS.calendar;
   const links = [
     ...(list.includes('calendar-builds') ? [`<a class="button secondary" href="${W.calendarBuilds}" target="_blank" rel="noopener">${esc(cal.builds)}</a>`] : []),

@@ -229,7 +229,13 @@ export const WAITLIST = {
 // --- /offer/welcome --------------------------------------------------------------------------------
 
 /** The pieces a thank-you step can carry besides its sentences. */
-export type StepExtra = 'login' | 'intake' | 'calendar-builds' | 'calendar-office-hours';
+export type StepExtra = 'login' | 'intake' | 'calendar-builds' | 'calendar-office-hours' | 'course' | 'library';
+
+/** The platform, where a buyer signs in with the login from their email (the LMS host, not www). */
+export const LEARN_ORIGIN = 'https://learn.amplifiedimpact.io';
+/** The starter path's two first steps on the Agent Plan and the Team Plan, by their Library names. */
+const FIRST_STEPS = 'Start with AI Brain Setup, then Sounds Like You: Your AI Voice Profile, then your first 3 agent skills.';
+const SIGN_IN_FIRST = 'Sign in with the login from your email first.';
 
 export interface ThanksStep {
   title: string;
@@ -255,6 +261,7 @@ export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
     lede: 'Thanks for joining. Stripe emailed your receipt. Here’s what happens next.',
     steps: [
       { title: 'Watch your email', body: [], extras: ['login'] },
+      { title: 'Start with Week 0', body: [`Week 0 is your setup path. ${SIGN_IN_FIRST} Then open your course.`], extras: ['course'] },
       { title: 'Fill out your intake form', body: ['It comes with your welcome email.'], extras: ['intake'] },
       {
         title: 'Save the dates',
@@ -278,6 +285,7 @@ export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
     lede: 'Thanks for joining. Stripe emailed your receipt. Here’s what happens next.',
     steps: [
       { title: 'Watch your email', body: [], extras: ['login'] },
+      { title: 'Open your Skill Library', body: [`${SIGN_IN_FIRST} Every skill in your plan is there, each with its setup guide.`], extras: ['library'] },
       { title: 'Fill out your intake form', body: ['It comes with your welcome email.'], extras: ['intake'] },
       {
         title: 'Save the dates',
@@ -299,12 +307,13 @@ export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
     lede: 'Thanks for joining. Stripe emailed your receipt. Here’s what happens next.',
     steps: [
       { title: 'Watch your email', body: ['From there, you invite your agents.'], extras: ['login'] },
+      { title: 'Your starter path', body: [`${SIGN_IN_FIRST} ${FIRST_STEPS}`, 'Your agents’ skills open Monday, December 14.'], extras: ['library'] },
       { title: 'Fill out your intake form', body: ['It comes with your welcome email.'], extras: ['intake'] },
       {
         title: 'Your December bonuses',
         body: [
           'Thursday, December 10: our year-end AI goal planning Zoom.',
-          'Monday, December 14: your agents get the starter path and the 5 free skills. We’ll email you the starter path link that day.',
+          'Monday, December 14: your agents’ skills open, with the starter path and the 5 free skills.',
           'Thursday, December 17: a second goal planning Zoom. Your agents are invited.',
         ],
       },
@@ -332,6 +341,11 @@ export const AGENT_PLAN_THANKS: ThanksCopy = {
   lede: 'Thanks for joining. Here’s what happens next.',
   steps: [
     { title: 'Watch your email', body: [], extras: ['login'] },
+    {
+      title: 'Your starter path',
+      body: [`${SIGN_IN_FIRST} ${FIRST_STEPS}`, 'AI Brain Setup and Sounds Like You are free, so you can start today.'],
+      extras: ['library'],
+    },
     { title: 'Nothing is charged yet', body: ['Your card is saved. Your first charge is Monday, January 4, 2027, when your agent skills open.'] },
     {
       title: 'The week of January 4',
@@ -352,6 +366,9 @@ export const THANKS_PARTS = {
     sent: 'Your welcome email and login are on their way.',
   },
   intakeButton: 'Open Intake Form',
+  /** The starter path's way in, on the LMS host: the course for the Accelerator, the Skill Library for the rest. */
+  course: { label: 'Open Your Course', href: `${LEARN_ORIGIN}/course` },
+  library: { label: 'Open the Skill Library', href: `${LEARN_ORIGIN}/skill-library` },
   calendar: {
     builds: 'Add Builds to Calendar',
     officeHours: 'Add Office Hours to Calendar',

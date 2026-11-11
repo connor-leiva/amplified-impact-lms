@@ -4150,6 +4150,20 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **The footer** gets a Programs column with the four links. The Site column keeps Home, Programs (/pricing), The Library, Free Resources and About.
 - **Unchanged:** every buy button's Payment Link token, every price, the picker and its anchors. A test pins the buttons' tokens and the four amounts.
 
+## D-124 · The welcome page's calendar files, served by www, and its starter path links
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), the offer-pages polish brief of 2026-11-11, item 1 (calendar `.ics` files and the `/offer/welcome` fixes), shipped as its own pull request.
+**Status:** on a pull request.
+**Scope:** `apps/api/src/routes/offer-calendar.ts` (new), `apps/api/src/routes/offer.ts` (two routes and the welcome page's calendar values), `apps/web/src/offer/content.ts` and `render.ts` (the starter path's link), the route table in `apps/api/test/authz.test.ts`, their tests, and `docs/LAUNCH.md`'s `CALENDAR_URL_*` row.
+
+- **Two open routes on www,** like the sprint's calendar: `GET /calendar/builds.ics` (the Accelerator's eight Wednesday builds, 1:00 to 2:30 PM Central) and `GET /calendar/office-hours.ics` (the eight Thursdays, 1:00 to 2:00 PM Central, with Dec 10 and Dec 17 titled as the goal planning sessions). Both are `text/calendar`, built from `ACCELERATOR_CALENDAR`, so the files and the course share one set of dates. No events on Dec 23, 24, 30 or 31.
+- **Central time, not floating:** every event carries `TZID=America/Chicago` and the file carries that zone's VTIMEZONE.
+- **No join link.** No Zoom or Meet URL and no "TBA": each description says the link comes by email and will be in the LMS at learn.amplifiedimpact.io.
+- **Never an empty button.** The welcome page's calendar buttons link these files. A `CALENDAR_URL_*` variable still overrides.
+- **The starter path's link,** on the LMS host: "Open Your Course" for the Accelerator (Week 0), "Open the Skill Library" for Insiders, with the first steps named for the Team Plan and the Agent Plan. The intake button stays hidden while no form URL is set.
+- **Classified** in the route table as open pages, with every other public page.
+
 ## D-125 · /pricing: the owner's second card, proof under every card's buttons, the single-skill answer, a share image
 
 **Date:** 2026-11-11

@@ -9,6 +9,7 @@
 // refund. Its sessions are shaped from the links' metadata contract (D-104, D-106), not from Stripe
 // sandbox fixtures, which the repository does not have.
 
+import { BUILDS_ICS, OFFICE_HOURS_ICS } from '../src/routes/offer-calendar';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import Stripe from 'stripe';
 import { eq } from 'drizzle-orm';
@@ -714,6 +715,15 @@ describe('www routing (D-075, D-051)', () => {
       const slash = await get(`${page}/`);
       expect([slash.statusCode, slash.headers.location], page).toEqual([302, page]);
     }
+    // The welcome page's calendar files are real `text/calendar` responses on www; a lookalike is not.
+    for (const [url, body] of [
+      ['/calendar/builds.ics', BUILDS_ICS],
+      ['/calendar/office-hours.ics', OFFICE_HOURS_ICS],
+    ] as const) {
+      const res = await get(url);
+      expect([res.statusCode, res.headers['content-type'], res.body], url).toEqual([200, 'text/calendar; charset=utf-8', body]);
+    }
+    expect((await get('/calendar/other.ics')).statusCode).toBe(404);
   });
 });
 

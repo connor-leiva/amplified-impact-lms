@@ -410,19 +410,24 @@ describe('the offer page values (D-075, D-104)', () => {
     expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: NOW, config })['plan-name']).toBe('Amplified Insiders');
   });
 
-  it('picks the thank-you section by the confirmed plan, with the calendar links when set (D-105)', () => {
+  it('picks the thank-you section by the confirmed plan, with the calendar links: the site\'s files unless one is set (D-105)', () => {
     const cal = readOfferConfig({ CALENDAR_URL_OFFICE_HOURS: 'https://cal.example.com/office-hours' });
     const done = welcomeValues({ state: 'confirmed', plan: 'agents', sessionId: null, now: NOW, config: cal });
     expect([done.product, done.invites, done['calendar-builds'], done['calendar-office-hours'], done['calendar-state']]).toEqual([
       'agents',
       'held',
-      '',
+      'https://www.amplifiedimpact.io/calendar/builds.ics',
       'https://cal.example.com/office-hours',
       'links',
     ]);
     // No section before the webhook confirms the order.
     expect(welcomeValues({ state: 'pending', plan: 'agents', sessionId: null, now: NOW, config }).product).toBe('');
-    expect(welcomeValues({ state: 'confirmed', plan: 'cohort', sessionId: null, now: NOW, config })['calendar-state']).toBe('email');
+    // With no CALENDAR_URL_* set, both buttons download the site's own files, so they always show.
+    expect(welcomeValues({ state: 'confirmed', plan: 'cohort', sessionId: null, now: NOW, config })).toMatchObject({
+      'calendar-builds': 'https://www.amplifiedimpact.io/calendar/builds.ics',
+      'calendar-office-hours': 'https://www.amplifiedimpact.io/calendar/office-hours.ics',
+      'calendar-state': 'links',
+    });
   });
 
   it('says what was charged: a receipt for a payment, and the Agent Plan\'s Jan 4 first charge for its trial (D-106)', () => {

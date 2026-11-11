@@ -250,7 +250,7 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
    | `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`, `PAYMENT_LINK_INSIDERS_YEAR`, `PAYMENT_LINK_INSIDERS_MONTHLY`, `PAYMENT_LINK_TEAM_UPTO15_PREPAY`, `PAYMENT_LINK_TEAM_16TO40_PREPAY` | Ampy's Payment Links, the only way to buy since D-104; an unset one shows "Opens soon." |
    | `PAYMENT_LINK_AGENT_MONTHLY`, `PAYMENT_LINK_AGENT_YEARLY` | the Amplified Agent Plan's two links, $79 a month and $790 a year, first charge Jan 4, 2027 (D-106). Paste the URLs from Stripe; the code holds only these names |
    | `INTAKE_URL_COHORT`, `INTAKE_URL_MEMBERSHIP`, `INTAKE_URL_AGENTS`, `INTAKE_URL_AGENT_PLAN` | Sarah O.'s intake forms for the AI Accelerator, Amplified Insiders, the Team Plan and the Agent Plan; without them the welcome page says the form comes by email |
-   | `CALENDAR_URL_BUILDS`, `CALENDAR_URL_OFFICE_HOURS` | optional; the thank-you pages' "add to calendar" buttons (D-105). Unset, they say the invites come by email |
+   | `CALENDAR_URL_BUILDS`, `CALENDAR_URL_OFFICE_HOURS` | optional; the thank-you pages' "add to calendar" buttons (D-105). Unset, they download the site's own files, `https://www.amplifiedimpact.io/calendar/builds.ics` and `/calendar/office-hours.ics` (the course's dates, 1:00 PM Central, no join link) |
    | `TEAM_CALL_URL` | optional; where "Let's talk" goes for a team over 40 agents (D-105). Unset, an email to support@amplifiedimpact.io |
    | `INVITES_FROM` | optional; defaults to Mon, Nov 16, 8:00 am Central |
    | `STRIPE_PORTAL_LOGIN_URL` | the billing portal's login page, where members cancel themselves; Manage Billing falls back to it |
