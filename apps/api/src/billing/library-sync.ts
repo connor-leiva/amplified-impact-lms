@@ -1,8 +1,7 @@
 // The `skills` table from the two catalogs (D-079, D-100), and their ZIPs into the bucket. What
-// `pnpm --filter @ai/api skills [--upload]` runs, and what the deploy's pre-deploy step runs on every
-// deploy (.railway/railway.ts), so a deploy keeps the table and the bucket in step with the catalogs.
-//
-// Run on every deploy, it has to be safe to repeat and quiet when nothing changed:
+// `pnpm --filter @ai/api skills [--upload]` runs. It is a by-hand step until production has a bucket
+// (docs/LAUNCH.md § 8, step 3), and is built to join the pre-deploy command after that, so it has to
+// be safe to repeat and quiet when nothing changed:
 //   - a row is written only when it differs from the catalog's, so a second run changes 0 rows;
 //   - every ZIP is checked BEFORE any is uploaded, so a missing file stops the run with nothing half
 //     uploaded, and no row ever names a file the bucket does not have (files go up before rows);
