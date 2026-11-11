@@ -27,6 +27,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { App } from '../app';
 import { GUIDE_ALIASES, GUIDE_SLUGS } from './guide-list';
+import { SALES_PAGES } from './offer';
 
 /**
  * Paths that reach their real handler on the marketing host rather than the homepage.
@@ -72,6 +73,8 @@ const PUBLIC_PREFIX = exactPaths(
   [
     'AI101', 'ai-101', ...Object.values(GUIDE_ALIASES).flatMap((aliases) => (aliases ?? []).map((a) => a.slice(1))), 'terms', 'privacy',
     'offer', 'forum', 'offer/welcome', 'agreement',
+    // The sales pages (D-111), from `/pricing` on: exact, so `/pricing/x` and `/pricingx` stay off them.
+    ...Object.keys(SALES_PAGES).map((path) => path.slice(1)),
   ],
 );
 
@@ -88,14 +91,12 @@ function exactPaths(withSlash: readonly string[], asWritten: readonly string[]):
 const ROOT = new Set(['/', '/index.html']);
 
 /**
- * Old marketing paths that now have a page of their own (D-102). `/pricing` is the plans and prices,
- * `/offer` (D-075). `/about` and `/contact` keep the catch-all's 302 to `/`, the homepage, which is
- * the closest thing to either. 302, as below: a 301 would be cached past the next change.
+ * Paths with a page of their own under another spelling. `/pricing` sent visitors to `/offer` (D-102)
+ * until it became Programs and Pricing (D-111); its trailing-slash spelling now goes to it. `/about`
+ * and `/contact` keep the catch-all's 302 to `/` until their pages land. 302, as below: a 301 would be
+ * cached past the next change.
  */
-const MOVED: ReadonlyMap<string, string> = new Map([
-  ['/pricing', '/offer'],
-  ['/pricing/', '/offer'],
-]);
+const MOVED: ReadonlyMap<string, string> = new Map([['/pricing/', '/pricing']]);
 
 /**
  * A request for a file rather than a page: anything whose last segment carries an extension.

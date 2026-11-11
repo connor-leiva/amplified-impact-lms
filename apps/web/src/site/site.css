@@ -89,6 +89,18 @@ img {
 .skip:focus {
   top: 12px;
 }
+/* Words for a screen reader that the layout already shows another way (a table's caption). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 /* --- Buttons: Title Case (D-048), one green per section --------------------------------------- */
 

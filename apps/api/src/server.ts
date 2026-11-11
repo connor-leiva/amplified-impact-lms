@@ -57,6 +57,8 @@ import { readDatabaseUrl } from './db/client';
 import { startScheduler } from './jobs/scheduler';
 import { startGhlSync } from './jobs/ghl-sync';
 import { GUIDE_SLUGS } from './routes/guide-list';
+import { SALES_PAGES } from './routes/offer';
+import type { SalesPath } from './routes/offer';
 import { describeOfferConfig, readOfferConfig } from './billing/config';
 import { startBillingLoop } from './jobs/billing';
 import { PAID_DOWNLOADS } from './billing/skills-catalog';
@@ -122,6 +124,10 @@ const libraryPage = readBuilt(fileURLToPath(new URL('../../web/dist/library.html
 // carries none since its checkout form was retired, and the agreement is a legal page.
 const offerPage = readBuilt(fileURLToPath(new URL('../../web/dist/offer.html', import.meta.url)));
 const welcomePage = readBuilt(fileURLToPath(new URL('../../web/dist/offer-welcome.html', import.meta.url)));
+// The www sales pages (D-111), filled per request like the offer page: no script.
+const salesPages = Object.fromEntries(
+  Object.entries(SALES_PAGES).map(([path, name]) => [path, readBuilt(fileURLToPath(new URL(`../../web/dist/${name}.html`, import.meta.url)))]),
+) as Record<SalesPath, string | null>;
 const agreementHtml = fileURLToPath(new URL('../../web/dist/agreement.html', import.meta.url));
 // Read once, here, so a malformed FOUNDING_CLOSES_AT stops the deploy before it serves a wrong price.
 const offerConfig = readOfferConfig();
@@ -136,7 +142,7 @@ const app = await build({
   guidePages,
   libraryPage,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml), agreement: readBuilt(agreementHtml) },
-  offer: { pages: { offer: offerPage, welcome: welcomePage }, config: offerConfig },
+  offer: { pages: { offer: offerPage, welcome: welcomePage, sales: salesPages }, config: offerConfig },
   marketingPage: readBuilt(homeHtml),
   waitlist: databaseConfigured(),
 });
@@ -160,6 +166,8 @@ if (existsSync(webDist)) {
       'offer.html',
       'offer-welcome.html',
       'agreement.html',
+      // So do the www sales pages (D-111): `/pricing` and the rest of `SALES_PAGES`.
+      ...Object.values(SALES_PAGES).map((name) => `${name}.html`),
       // www's homepage has one URL, `/` on the marketing host (routes/marketing.ts), and none on learn.
       'home.html',
       ...GUIDE_SLUGS.map((slug) => `${slug}.html`),

@@ -288,23 +288,22 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     expect(res.statusCode).not.toBe(301);
   });
 
-  it('sends /pricing to the plans and prices, and /about and /contact to the homepage, on www only (D-102) @g9', async () => {
+  it('sends /pricing/ to Programs and Pricing (D-111), and /about and /contact to the homepage, on www only (D-102) @g9', async () => {
     const a = await serve(WWW, PAGE, asServed);
 
-    for (const url of ['/pricing', '/pricing/', '/pricing?ref=old-link']) {
-      const res = await get(a, url, WWW);
-      expect(res.statusCode, url).toBe(302);
-      expect(res.headers.location, url).toBe('/offer');
-    }
+    // `/pricing` itself is a page now (routes/offer.ts, D-111): www lets it through to its route.
+    const slash = await get(a, '/pricing/', WWW);
+    expect([slash.statusCode, slash.headers.location]).toEqual([302, '/pricing']);
     for (const url of ['/about', '/contact', '/pricing/old', '/pricingx']) {
       const res = await get(a, url, WWW);
       expect(res.statusCode, url).toBe(302);
       expect(res.headers.location, url).toBe('/');
     }
-    // The app host is the app's: no marketing redirect reaches it.
+    // The app host gets no marketing redirect: `/pricing` there is the page's own route, like /offer,
+    // which answers 404 here because this test builds no page.
     const learn = await get(a, '/pricing', APP);
-    expect(learn.statusCode).toBe(200);
-    expect(learn.body).toBe(SHELL);
+    expect([learn.statusCode, learn.headers.location]).toEqual([404, undefined]);
+    expect(learn.body).not.toBe(SHELL);
   });
 
   it('leaves real files alone, and answers a missing one 404, never with a redirect or the app (D-051) @g9', async () => {
