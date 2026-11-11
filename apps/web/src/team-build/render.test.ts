@@ -128,7 +128,7 @@ describe('the weeks: the course brief’s map, not the draft list', () => {
     expect(text($('.week-support', weeks[0]))).toBe('With The Ops Time Audit');
   });
 
-  it('links every skill the Library has, and shows Morning Brief by name until it lands (then it must link it)', () => {
+  it('links every skill on the map to its Library page, Morning Brief and New Agent Onboarding Plan included', () => {
     for (const w of WEEKS.items) {
       for (const slug of [...w.skills, ...(w.support ?? [])]) {
         const entry = libraryEntry(slug);
