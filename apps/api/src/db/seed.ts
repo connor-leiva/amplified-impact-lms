@@ -194,6 +194,13 @@ export async function applyCurriculum(db: Database, opts: CurriculumOptions = {}
  */
 export class OwnerRefused extends Error {
   readonly name = 'OwnerRefused';
+  /** Why, as a word: the deploy's step logs this and never the message, which names the address. */
+  constructor(
+    message: string,
+    readonly reason: 'other-owner' | 'address-taken' | 'id-taken',
+  ) {
+    super(message);
+  }
 }
 
 export async function addOwner(db: Database, opts: { owner: { name: string; email: string } }): Promise<number> {
@@ -205,11 +212,11 @@ export async function addOwner(db: Database, opts: { owner: { name: string; emai
     const same = (email: string): boolean => email.trim().toLowerCase() === owner.email;
     const current = before.staff.find((x) => x.role === 'Owner');
     if (current && same(current.email)) return 0;
-    if (current) throw new OwnerRefused('This database already has an Owner. Nothing was written; change the Owner from Staff & Roles in the console.');
+    if (current) throw new OwnerRefused('This database already has an Owner. Nothing was written; change the Owner from Staff & Roles in the console.', 'other-owner');
     if (before.users.some((u) => same(u.email)) || before.staff.some((x) => same(x.email))) {
-      throw new OwnerRefused(`${owner.email} already signs in here as someone else. Nothing was written.`);
+      throw new OwnerRefused(`${owner.email} already signs in here as someone else. Nothing was written.`, 'address-taken');
     }
-    if (before.staff.some((x) => x.id === owner.id)) throw new OwnerRefused(`A staff row already has the id ${owner.id}. Nothing was written.`);
+    if (before.staff.some((x) => x.id === owner.id)) throw new OwnerRefused(`A staff row already has the id ${owner.id}. Nothing was written.`, 'id-taken');
     const after: Db = structuredClone(before);
     after.staff.push(owner);
     const noPerms = Object.values(before.perms ?? {}).every((byPerm) => Object.keys(byPerm ?? {}).length === 0);
@@ -218,6 +225,56 @@ export async function addOwner(db: Database, opts: { owner: { name: string; emai
     await persistDiff(tx, before, after);
     return changes;
   });
+}
+
+/**
+ * The deploy's Owner (Connor, 2026-11-11): the account that signs in to the console, made by the
+ * pre-deploy command on every deploy, after the migrations and the curriculum (`db:owner:ensure`).
+ *
+ * IN THE CODE, NOT THE ENVIRONMENT. Like the launch seed's flags, it is never read from a variable: an
+ * Owner inherited from a shell, a .env or a Railway variable is how production ends up owned by the
+ * wrong address. Changing it is a pull request. Once an Owner exists, changing it here does nothing
+ * (the step skips a database with a different Owner); change the Owner from Staff & Roles instead.
+ */
+export const DEPLOY_OWNER = { name: 'Connor Leiva', email: 'connor@springb.com' } as const;
+
+/** What `ensureOwner` did. `skipped` wrote nothing; `reason` is a word, never the address. */
+export type OwnerEnsureOutcome =
+  | { status: 'created'; changes: number }
+  | { status: 'unchanged' }
+  | { status: 'skipped'; reason: OwnerRefused['reason'] | 'error'; detail?: string };
+
+/**
+ * `addOwner` for the deploy: the same writes (the Owner, and the staff role matrix only if it is
+ * empty; no learner, team, order, plan, seat, progress or course row), with every refusal and every
+ * error turned into an outcome instead of a throw. A deploy must never fail over the Owner: if this
+ * database already has a different Owner, or the address already signs in as someone else, it says
+ * so and writes nothing, and the deploy goes on. `addOwner` runs in one transaction, so an error
+ * part way writes nothing either.
+ */
+export async function ensureOwner(db: Database, owner: { name: string; email: string } = DEPLOY_OWNER): Promise<OwnerEnsureOutcome> {
+  try {
+    const changes = await addOwner(db, { owner });
+    return changes === 0 ? { status: 'unchanged' } : { status: 'created', changes };
+  } catch (e) {
+    if (e instanceof OwnerRefused) return { status: 'skipped', reason: e.reason };
+    // The class only: a message can carry the address (seedProduction's "not a usable email").
+    return { status: 'skipped', reason: 'error', detail: e instanceof Error ? e.name : typeof e };
+  }
+}
+
+/** The deploy log's one line for an outcome. Never the Owner's name or address, nor the database's. */
+export function ownerEnsureLine(out: OwnerEnsureOutcome): string {
+  const kept = 'Learners, teams, orders, plans, seats and the course were not touched.';
+  if (out.status === 'created') return `Owner: created the console’s Owner (${out.changes} rows, with the staff role matrix if it was empty). ${kept}\n`;
+  if (out.status === 'unchanged') return 'Owner: already set. Nothing was written.\n';
+  const why = {
+    'other-owner': 'this database already has a different Owner. Change the Owner from Staff & Roles in the console.',
+    'address-taken': 'the Owner’s address already signs in here as another account.',
+    'id-taken': 'a staff row already has the Owner’s id.',
+    error: `an error stopped it (${out.detail ?? 'unknown'}).`,
+  }[out.reason];
+  return `Owner: skipped, ${why} Nothing was written, and the deploy goes on.\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -260,6 +317,12 @@ const USAGE = [
   '  buyers but never had the launch seed. It refuses if a different Owner exists or the address',
   '  already signs in here. Safe to run twice. The flags have no defaults and are never read from',
   '  the environment.',
+  '',
+  '  tsx src/db/seed.ts --owner-ensure',
+  '',
+  '  --owner-ensure is the deploy\'s form (db:owner:ensure): --owner for DEPLOY_OWNER, which is in the',
+  '  code. It takes no flags, prints neither the name nor the address, and never fails: a database',
+  '  with a different Owner, or with that address on another account, is logged and skipped.',
 ].join('\n');
 
 /**
@@ -274,7 +337,8 @@ export function parseSeedArgs(
   | { mode: 'live' }
   | { mode: 'launch'; opts: ProductionSeedOptions }
   | { mode: 'curriculum'; opts: CurriculumOptions }
-  | { mode: 'owner'; opts: { owner: { name: string; email: string } } } {
+  | { mode: 'owner'; opts: { owner: { name: string; email: string } } }
+  | { mode: 'owner-ensure' } {
   const flag = (name: string): string | undefined => {
     const i = argv.indexOf(`--${name}`);
     if (i === -1) return undefined;
@@ -294,6 +358,13 @@ export function parseSeedArgs(
     if (missing.length > 0) throw new Error(`${verb} requires ${missing.join(' and ')}\n\n${USAGE}`);
     return { name: name as string, email: email as string };
   };
+
+  if (argv.includes('--owner-ensure')) {
+    // The deploy's Owner is in the code (DEPLOY_OWNER), so this takes nothing, and stands alone.
+    const others = ['--owner', '--launch', '--curriculum', '--owner-name', '--owner-email'].filter((f) => argv.includes(f));
+    if (others.length) throw new Error(`--owner-ensure takes no other flags (got ${others.join(', ')})\n\n${USAGE}`);
+    return { mode: 'owner-ensure' };
+  }
 
   if (argv.includes('--owner')) {
     // Its own command: the launch seed already brings an Owner, and the curriculum never touches staff.
@@ -353,6 +424,7 @@ export interface SeedDeps {
   launch: (db: Database, opts: ProductionSeedOptions) => Promise<number>;
   curriculum: (db: Database, opts: CurriculumOptions) => Promise<number>;
   owner: (db: Database, opts: { owner: { name: string; email: string } }) => Promise<number>;
+  ownerEnsure: (db: Database) => Promise<OwnerEnsureOutcome>;
   close: () => Promise<void>;
   name: () => string;
   write: (line: string) => void;
@@ -364,6 +436,7 @@ const REAL: SeedDeps = {
   launch: (db, opts) => seedForLaunch(db, opts),
   curriculum: (db, opts) => applyCurriculum(db, opts),
   owner: (db, opts) => addOwner(db, opts),
+  ownerEnsure: (db) => ensureOwner(db),
   close,
   name: () => databaseNameOf(readDatabaseUrl()),
   write: (line) => process.stdout.write(line),
@@ -372,6 +445,7 @@ const REAL: SeedDeps = {
 export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): Promise<void> {
   // Parsed BEFORE anything connects, so a usage error costs nothing and cannot half-write.
   const parsed = parseSeedArgs(argv);
+  if (parsed.mode === 'owner-ensure') return runOwnerEnsure(deps);
   const name = deps.name();
   const db = deps.db();
   try {
@@ -409,6 +483,29 @@ export async function runSeed(argv: readonly string[], deps: SeedDeps = REAL): P
     deps.write(`Seeded ${rows} rows into ${name} from seedForDatabase('live').\n`);
   } finally {
     await deps.close();
+  }
+}
+
+/**
+ * The deploy's Owner step. It never throws, so the pre-deploy command never stops on it: not on a
+ * refusal, not on an error (the database name is not even read, since the steps before it already
+ * reached the database). One line goes to the deploy log, naming no one.
+ */
+async function runOwnerEnsure(deps: SeedDeps): Promise<void> {
+  const failed = (e: unknown) => ownerEnsureLine({ status: 'skipped', reason: 'error', detail: e instanceof Error ? e.name : typeof e });
+  let db: Database;
+  try {
+    db = deps.db();
+  } catch (e) {
+    deps.write(failed(e));
+    return;
+  }
+  try {
+    deps.write(ownerEnsureLine(await deps.ownerEnsure(db)));
+  } catch (e) {
+    deps.write(failed(e));
+  } finally {
+    await deps.close().catch(() => undefined);
   }
 }
 

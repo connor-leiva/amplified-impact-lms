@@ -125,11 +125,23 @@ migrations, `pnpm --filter @ai/api db:curriculum:ensure`: it applies the AI Acce
 curriculum (cohort `dec26`, its sixteen sessions and the nine course modules; the prototype's six
 AI Employees become drafts) to a database that has **none** of it, and on every later deploy writes
 **0 rows**. It never touches users, teams, progress or staff. The Owner, the price list and the
-reminder toggles still come only from `db:seed:prod`: if production has buyers but never had the
-launch seed, the course is there after a deploy and the Owner is not.
+reminder toggles still come only from `db:seed:prod`.
 
-**The Owner without the launch seed.** For exactly that case, Connor runs, with production's
-`DATABASE_URL` in his own shell (nothing here sets or prints it):
+**The Owner comes with the deploy too (D-129).** Next, the pre-deploy command runs
+`pnpm --filter @ai/api db:owner:ensure`. It adds the console's Owner, `DEPLOY_OWNER` in
+`apps/api/src/db/seed.ts` (Connor Leiva, `connor@springb.com`), and the staff role matrix if that
+table is empty, to a database that has no Owner. On every later deploy it writes nothing. If the
+database already has a different Owner, or the address already signs in as another account, it logs
+one line saying so, writes nothing, and exits 0, so the deploy goes on. It never prints the name or
+the address. It writes no learner, team, order, plan, seat, progress, course, price or reminder row.
+The Owner is in the code, not in a variable, so a stray `OWNER_EMAIL` cannot change who owns
+production; to change it before it exists, change `DEPLOY_OWNER` in a pull request, and after it
+exists, from Staff & Roles in the console. Then sign in at `https://learn.amplifiedimpact.io/sign-in`
+with that address: the link lands on `/admin`, and `/course` shows Week 0 to Week 8 as a staff
+preview.
+
+**The Owner by hand.** The same thing, for any address, for anyone with production's `DATABASE_URL`
+in their own shell (nothing here sets or prints it):
 
 ```bash
 pnpm --filter @ai/api db:owner -- --owner-name "Your Name" --owner-email you@amplifiedimpact.io
@@ -147,11 +159,12 @@ on deploy (only `railway config apply` does), so a push never changes it. It is 
 **Pre-deploy Command** (Railway → **web** → Settings → Deploy), and it must be exactly:
 
 ```bash
-pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure && pnpm --filter @ai/api skills --upload
+pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure && pnpm --filter @ai/api db:owner:ensure && pnpm --filter @ai/api skills --upload
 ```
 
 `.railway/railway.ts` holds the same string, and a test pins it there; change the dashboard and the
-file together. The last step is the Library upload (section 8, step 3), which needs the bucket.
+file together. The third step is the Owner (above). The last step is the Library upload (section 8,
+step 3), which needs the bucket.
 
 The deploy never re-applies the curriculum over a live course, because the full overlay rewrites
 every course row: a session staff moved goes back to its old time and loses its Zoom link,
@@ -236,7 +249,8 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
 
 1. Migrate: `pnpm --filter @ai/api db:migrate` (migration 0006 adds `orders`, `stripe_events`,
    `accounts`, `plans` and `skills`; 0008 lets them hold the Agent Plan, D-106). The deploy's
-   pre-deploy command (section 6, set in Railway by hand) already runs it, then the curriculum.
+   pre-deploy command (section 6, set in Railway by hand) already runs it, then the curriculum,
+   then the Owner.
 2. Railway → **web** → Variables. **The test-mode values go in by Wednesday morning, and the live ones
    on Thursday after Spring confirms the prices.** Paste each secret straight from Stripe into
    Railway, never into chat:

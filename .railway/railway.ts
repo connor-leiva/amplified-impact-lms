@@ -58,20 +58,24 @@ export default defineRailway((ctx) => {
     //
     // RAILWAY DOES NOT READ THIS LINE ON DEPLOY. This file is applied only by `railway config apply`;
     // a push changes nothing here. The live command is the service's Pre-deploy Command in the Railway
-    // dashboard (web → Settings → Deploy), set by hand on 2026-11-11 to exactly this string. Change
-    // both together (docs/LAUNCH.md § 6). Three steps, each safe to repeat on every deploy:
+    // dashboard (web → Settings → Deploy), set by hand to exactly this string. Change both together
+    // (docs/LAUNCH.md § 6). Four steps, each safe to repeat on every deploy:
     //   1. the migrations;
     //   2. the AI Accelerator's curriculum, applied only to a database that has none of it
     //      (`--if-missing`: once there, staff edits to the course stay; db:seed:prod cannot load it
     //      once a buyer exists, D-110);
-    //   3. the Library: every skill's ZIP into the bucket (the same bytes under the same keys), then
+    //   3. the console's Owner (D-129): `DEPLOY_OWNER` added if this database has no Owner, nothing
+    //      written if it is already the Owner, and logged and skipped (exit 0) if a different Owner
+    //      exists or the address is another account's. It never stops the deploy and never prints
+    //      the name or the address;
+    //   4. the Library: every skill's ZIP into the bucket (the same bytes under the same keys), then
     //      the `skills` rows that differ from the catalogs (0 on a repeat run). It needs the bucket's
     //      S3_* variables below, which production has had since 2026-11-11.
     ...(demo
       ? {}
       : {
           preDeploy:
-            'pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure && pnpm --filter @ai/api skills --upload',
+            'pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure && pnpm --filter @ai/api db:owner:ensure && pnpm --filter @ai/api skills --upload',
         }),
     healthcheck: '/api/health',
     healthcheckTimeout: 60,

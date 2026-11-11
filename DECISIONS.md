@@ -4214,3 +4214,19 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Over 40** keeps its conversation: the "Let’s Talk" button and the closing "Let’s talk" link both stay on the existing `team-call` token. No new booking URL.
 - **The share image** is the homepage's, Spring's real headshot, so `twitter:card` is `summary_large_image`.
 - **Unchanged:** prices, carts, the founding switch to the waitlist, December 14, the 3 month minimum, the FAQ.
+
+## D-129 · The console's Owner comes with every deploy: `db:owner:ensure` in the pre-deploy command
+
+**Date:** 2026-11-11
+**Approved by:** Connor, 2026-11-11: "open a PR that makes the owner account part of the Railway pre-deploy, the same way db:curriculum:ensure works: after db:migrate and db:curriculum:ensure, run db:owner idempotently for owner name 'Connor Leiva' and email connor@springb.com (read them from non-secret env vars OWNER_NAME / OWNER_EMAIL with those values as the documented defaults, or hardcode them, your call). It must be a no-op if the Owner already exists, must never fail the deploy if the owner exists as someone else (log and skip)." His correction the same evening: "skip the learner enrollment ... The pre-deploy step should only create the Owner (Connor Leiva, connor@springb.com) idempotently; Staff preview already opens Week 0 to 8."
+**Status:** on a pull request. The pre-deploy command is set by hand in Railway (LAUNCH.md § 6), so it takes effect only once the dashboard's string matches the file's.
+**Scope:** `apps/api/src/db/seed.ts` (`DEPLOY_OWNER`, `ensureOwner`, `ownerEnsureLine`, the `--owner-ensure` mode, `OwnerRefused.reason`), `apps/api/package.json` (`db:owner:ensure`), `.railway/railway.ts` (the pre-deploy string), `docs/LAUNCH.md` § 6 and § 8, `apps/api/test/owner.test.ts`, `apps/api/test/seed-cli.test.ts`.
+
+- **Why.** Production has buyers and never had the launch seed, so it has no Owner, and nobody can sign in to the console. `db:owner` (by hand) exists, but nobody will run a command in a production shell. The deploy can.
+- **Hardcoded, not read from the environment.** `DEPLOY_OWNER` is Connor Leiva, `connor@springb.com`, in the code. The launch seed's rule holds: an Owner inherited from a shell, a .env or a Railway variable is how production ends up owned by the wrong address. Changing it is a pull request; once an Owner exists, it is changed from Staff & Roles.
+- **The same writes as `db:owner`:** the Owner, and the staff role matrix only if that table is empty. No learner, team, order, plan, seat, progress, course, price or reminder row. A test counts `accounts`, `plans` and `orders` before and after.
+- **Idempotent.** Already the Owner: "Owner: already set. Nothing was written." on every later deploy.
+- **Never fails the deploy.** A different Owner, the address on another account, or any error: one log line saying which, nothing written (one transaction), exit 0. A test runs the real CLI against Postgres and checks the exit code.
+- **Names no one in the log.** The line never has the name, the address or the database name, because the deploy log is kept by Railway (the "never log names or emails" rule). `OwnerRefused` now carries a `reason` word for this; its messages, which name the address, are only for the hand-run `db:owner`.
+- **No learner enrollment.** One address is either staff or a learner (`users.kind`, unique email), so enrolling the Owner's address would take away the console. A cohort plan without a purchase would also count as an AI Accelerator seat sold and add a buyer that never paid. Staff preview at `/course` already opens Week 0 to Week 8.
+- **Where it runs.** Production and staging (both run the pre-deploy command); demo has no database.
