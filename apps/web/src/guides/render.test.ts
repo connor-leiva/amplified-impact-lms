@@ -73,6 +73,20 @@ const EXPECTED = {
   },
 } as const;
 
+// "Nothing scrolls sideways" at 320px (Spring's plan). An eyebrow keeps its audience together with
+// no-break spaces, so its longest unbreakable run has to fit the hero at the narrowest phone: 280px of
+// text (320 less 20px on each side) at 12px mono, uppercase, 0.08em tracking. Measured in Chromium at
+// 8.2px a character ("For Buyer’s Agents and Listing Agents", 37 characters, was 302px and scrolled
+// /appointment-follow-up sideways by 2px), so 34 characters is the most that fits.
+describe('every skill page’s eyebrow fits a 320px phone', () => {
+  it('has no unbreakable run longer than 34 characters', () => {
+    const tooLong = Object.entries(GUIDES)
+      .map(([slug, g]) => [slug, g.hero.eyebrow, Math.max(...g.hero.eyebrow.split(/[ ·]+/).map((run) => run.length))] as const)
+      .filter(([, , longest]) => longest > 34);
+    expect(tooLong).toEqual([]);
+  });
+});
+
 describe('the list of guides', () => {
   it('has every guide, each with a shell the build reads and the API serves by the same slug', () => {
     expect(Object.keys(GUIDES)).toEqual([

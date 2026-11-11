@@ -58,7 +58,7 @@ export const APPOINTMENT_FOLLOW_UP: Guide = skillPage({
   },
 
   // Non-breaking spaces keep the audience on one line at phone width, as /counter-explainer does.
-  eyebrow: 'Free AI Skill · For Buyer’s Agents and Listing Agents',
+  eyebrow: 'Free AI Skill · For Buyer’s Agents and Listing Agents',
   // page-notes.md, "One-Line Promise", with the actor named. The flags lead "What you get back".
   lede: 'Attach or paste the transcript from tonight’s buyer consult or listing appointment, and the AI hands back your recap email, a Follow Up Boss note ready to paste, and next steps with real dates.',
   outcome: { n: '03', title: 'Follow Up Tonight', body: 'An email to read and send, a note to paste, and dated next steps.' },
