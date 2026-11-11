@@ -14,11 +14,13 @@ import {
   accessibleSessions,
   canAccess,
   fmt,
+  hasOfficeHoursSeries,
   joinMode,
   moduleForSession,
   nextSession,
   sessionEnd,
   sessionEvent,
+  sessionKind,
   sessionState,
 } from '@ai/core';
 import type { Db, IcsEvent, IconName, Learner } from '@ai/core';
@@ -90,8 +92,13 @@ export interface SessionsRow {
 
 export interface OfficeHoursRow {
   label: string;
-  /** Past hours show `Recording Posted`; upcoming ones get the Add to Calendar link. */
+  /** Past hours are dimmed; upcoming ones get the Add to Calendar link. */
   past: boolean;
+  /**
+   * `Recording Posted`. The prototype says it of every past hour; a cohort with its own series says
+   * it only when that hour's replay is actually up (D-110).
+   */
+  posted: boolean;
   download?: IcsDownload;
 }
 
@@ -99,6 +106,8 @@ export interface SessionsVM {
   sub: string;
   calAll: IcsDownload;
   rows: SessionsRow[];
+  /** "Wednesdays" for the prototype's drop-in hours; the weekday of a cohort's own series (D-110). */
+  ohDays: string;
   ohTime: string;
   oh: OfficeHoursRow[];
   att: { attended: number; held: number };
@@ -119,8 +128,13 @@ const PRIMARY = 'primary' as const;
 
 export function sessionsVM(db: Db, user: Learner | null, now: number): SessionsVM {
   const co = db.cohorts.find((x) => x.id === user?.cohortId) ?? db.cohorts[0] ?? null;
+  // A cohort with its own office-hours series (the AI Accelerator, D-110): the builds are the rows and
+  // the series is the Office Hours card. Every prototype cohort has none, so nothing changes for it.
+  const series = !!co && hasOfficeHoursSeries(db.sessions, co.id);
   const list = co
-    ? db.sessions.filter((s) => s.cohortId === co.id).sort((a, b) => a.start - b.start)
+    ? db.sessions
+        .filter((s) => s.cohortId === co.id && (!series || sessionKind(s) === 'build'))
+        .sort((a, b) => a.start - b.start)
     : [];
   const next = nextSession(db, user, now);
 
@@ -205,11 +219,31 @@ export function sessionsVM(db: Db, user: Learner | null, now: number): SessionsV
   const firstOh = wed(co ? Math.min(back, Math.max(co.start - DAY_MS, back)) : back);
   const ohDays = [firstOh, firstOh + WEEK_MS, firstOh + 2 * WEEK_MS];
 
-  const oh: OfficeHoursRow[] = ohDays.map((t) => {
+  const ownOh = series ? accessible.filter((s) => sessionKind(s) === 'office_hours') : [];
+  const oh: OfficeHoursRow[] = series
+    ? ownOh.map((s) => {
+        const past = sessionEnd(s) < now;
+        return {
+          label: fmt.when(s.start),
+          past,
+          posted: past && s.replay === 'ready',
+          ...(past
+            ? {}
+            : {
+                download: {
+                  name: 'office-hours.ics',
+                  events: [sessionEvent(s)],
+                  toast: 'Office hours added to your calendar',
+                },
+              }),
+        };
+      })
+    : ohDays.map((t) => {
     const past = t + OH_MS < now;
     return {
       label: fmt.when(t),
       past,
+      posted: past,
       ...(past
         ? {}
         : {
@@ -225,15 +259,19 @@ export function sessionsVM(db: Db, user: Learner | null, now: number): SessionsV
   const held = accessible.filter((s) => sessionEnd(s) < now).length;
   const first = list[0];
 
+  const firstOwn = ownOh[0];
   return {
     rows,
     oh,
-    ohTime: fmt.time(firstOh),
+    ohDays: series && firstOwn ? `${fmt.weekday(firstOwn.start)}s` : 'Wednesdays',
+    ohTime: series ? (firstOwn ? fmt.time(firstOwn.start) : '') : fmt.time(firstOh),
     // Jamie missed one: the seed carries no per-learner attendance, so the reference docks her one.
     att: { attended: Math.max(0, held - (user?.id === 'u_jamie' && held > 1 ? 1 : 0)), held },
     sub:
       co && first
-        ? `${co.name} Cohort · ${list.length} live builds · Tue & Thu · ${fmt.time(first.start)}`
+        ? series
+          ? `${co.name} Cohort · ${list.length} live builds · ${co.cadence}`
+          : `${co.name} Cohort · ${list.length} live builds · Tue & Thu · ${fmt.time(first.start)}`
         : '',
     calAll: {
       name: 'amplified-impact-sessions.ics',

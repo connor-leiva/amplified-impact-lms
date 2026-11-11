@@ -85,6 +85,27 @@ function keepSessionState(next: Session, prev: Session | undefined, demo: Set<st
   return out;
 }
 
+/**
+ * Equal in content, whatever the key order. A database hands JSON columns back with their keys
+ * re-ordered (Postgres sorts JSONB keys), so a module rebuilt here and the same module loaded from a
+ * live database differ only in order. The overlay keeps the loaded object when they are equal, which
+ * is what makes a second run write nothing.
+ */
+const canon = (v: unknown): unknown =>
+  Array.isArray(v)
+    ? v.map(canon)
+    : v && typeof v === 'object'
+      ? Object.fromEntries(
+          Object.keys(v as object)
+            .filter((k) => (v as Record<string, unknown>)[k] !== undefined)
+            .sort()
+            .map((k) => [k, canon((v as Record<string, unknown>)[k])]),
+        )
+      : v;
+const sameData = (a: unknown, b: unknown): boolean => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
+/** `next`, unless `prev` already says the same thing: then `prev`, untouched. */
+const settle = <T>(next: T, prev: T | undefined): T => (prev !== undefined && sameData(next, prev) ? prev : next);
+
 /** A course module, keeping a recording staff attached to the existing row (its transcript and length). */
 function keepRecording(next: AIEmployee, prev: AIEmployee | undefined): AIEmployee {
   if (!prev) return next;
@@ -115,17 +136,17 @@ export function applyAccelerator(db: Db, opts: { instructor?: string } = {}): Db
   const fresh = acceleratorCohort();
   const prevCohort = out.cohorts.find((c) => c.id === ACCELERATOR_COHORT_ID);
   const cohort: Cohort = prevCohort ? { ...fresh, status: prevCohort.status, enrolled: prevCohort.enrolled } : fresh;
-  out.cohorts = [...out.cohorts.filter((c) => c.id !== ACCELERATOR_COHORT_ID), cohort];
+  out.cohorts = [...out.cohorts.filter((c) => c.id !== ACCELERATOR_COHORT_ID), settle(cohort, prevCohort)];
 
   const prevSessions = new Map(out.sessions.filter((s) => s.cohortId === ACCELERATOR_COHORT_ID).map((s) => [s.id, s]));
   out.sessions = [
     ...out.sessions.filter((s) => s.cohortId !== ACCELERATOR_COHORT_ID),
-    ...acceleratorSessions().map((s) => keepSessionState(s, prevSessions.get(s.id), demo)),
+    ...acceleratorSessions().map((s) => settle(keepSessionState(s, prevSessions.get(s.id), demo), prevSessions.get(s.id))),
   ];
 
   const prototype = new Set(seed('live').modules.map((m) => m.id));
   const prevModules = new Map(out.modules.map((m) => [m.id, m]));
-  const course = acceleratorModules(instructor).map((m) => keepRecording(m, prevModules.get(m.id)));
+  const course = acceleratorModules(instructor).map((m) => settle(keepRecording(m, prevModules.get(m.id)), prevModules.get(m.id)));
   out.modules = [
     ...out.modules
       .filter((m) => !isAcceleratorModule(m.id))

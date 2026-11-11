@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import clsx from 'clsx';
-import { ics } from '@ai/core';
+import { ics, sessionLabel } from '@ai/core';
 import type { Learner } from '@ai/core';
 
 import { Icon } from '../../components/Icon';
@@ -100,7 +100,7 @@ export function Component() {
                 <div className={s.mid}>
                   <div className={s.titleRow}>
                     <span className={s.title}>
-                      Session {r.n} · {r.title}
+                      {sessionLabel({ id: r.id, n: r.n })} · {r.title}
                     </span>
                     <StatusToken
                       kind={r.token.kind}
@@ -152,14 +152,16 @@ export function Component() {
           <section className={s.card}>
             <div>
               <div className={s.cardTitle}>Office Hours</div>
-              <div className={s.cardSub}>Drop-In Build Help · Wednesdays · {vm.ohTime}</div>
+              <div className={s.cardSub}>
+                Drop-In Build Help · {vm.ohDays} · {vm.ohTime}
+              </div>
             </div>
             {vm.oh.map((o) => {
               const dl = o.download;
               return (
                 <div key={o.label} className={s.ohRow} data-past={o.past || undefined}>
                   <span className={s.ohLabel}>{o.label}</span>
-                  {o.past ? <span className={s.ohPosted}>Recording Posted</span> : null}
+                  {o.posted ? <span className={s.ohPosted}>Recording Posted</span> : null}
                   {dl ? (
                     <button type="button" className={s.ohLink} onClick={() => save(dl)}>
                       Add to Calendar

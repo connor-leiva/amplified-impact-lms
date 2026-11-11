@@ -29,7 +29,7 @@ Revised against the latest supplied meeting recap and the six-page “AI Offers 
 dated November 9, 2026. External research was checked November 11, 2026; curriculum,
 staffing thresholds, completion standards, and economic examples are recommendations, not
 validated cohort results. Platform documentation is subject to change before January.
-Reconciliation of the new context
+Reconciliation of the new context
 The recap and PDF cannot both be treated as the approved offer. For curriculum design, this
 revision follows the user's latest explicit January-to-March direction, treats commercial
 differences as unresolved, and uses the PDF's event dates only as planning inputs.
@@ -97,7 +97,7 @@ The March 14–16 Spring Break dates and February 23–25 bootcamp dates below c
 supplied PDF, not independent event verification. Confirm them with the event owner before
 publishing schedules. Do not send the PDF's December schedule, automatic subscriptions, or
 FUB restriction to buyers as though this revision had endorsed them.
-What I would change before selling it
+What I would change before selling it
     Make an operating partner the default, not a casual guest. Every team names a workflow
     maintainer. An owner may fill both roles, but must explicitly commit the operator’s
     implementation time too.
@@ -136,7 +136,7 @@ Graduation should require:
     Four core routines in use: Daily prioritization, weekly numbers review, weekly decision-to-
     task follow-through, and pipeline exception review. Each must show at least three real
     operating cycles, with daily cycles acceptable for the daily routine.
-    One checked economics review: A completed baseline, a documented data-quality
+    One checked economics review: A completed baseline, a documented data-quality
     assessment, and at least one source decision or a justified decision to collect more data.
     One coaching and one delegation example: Actual use with a team member, not just a
     generated document.
@@ -173,7 +173,7 @@ a booked calendar.
 This leaves 12 days between the last build and the PDF's March 14 Spring Break opening, and 10
 days after the final office hour. Use the buffer for corrections, result verification, permissions,
 and case-study preparation, not an unadvertised ninth week of required work.
-  Week        Live build        Operating question              Main build                 Evidence due after use
+  Week        Live build        Operating question              Main build                 Evidence due after use
 
                                                                                      One checked source analysis,
                               What are we paying for    Lead-Source Economics
@@ -239,7 +239,7 @@ For every week, distinguish “working by the end of the live session” from �
 end of the week.” Members receive the finished base skill in advance; live building means
 configuring, testing, and installing it into their business. Actual use, review, and a repeatable
 trigger establish implementation.
-Week 1: Know the numbers without pretending the data is cleaner than it is
+Week 1: Know the numbers without pretending the data is cleaner than it is
     Build: A one-page weekly production scorecard plus a scoped economics review covering
     the team total and its three largest identifiable lead sources. Use a prepared calculation
     template, not arithmetic invented in chat.
@@ -280,7 +280,7 @@ Week 2: Own the day without creating another inbox
     inbox.
     Why it matters: The goal is not a prettier summary. It is fewer unowned commitments and
     a consistent way for the owner to decide what deserves attention.
-    How to use it: The operator refreshes the inputs at a fixed time. The owner reviews the
+    How to use it: The operator refreshes the inputs at a fixed time. The owner reviews the
     brief for ten minutes and accepts only tasks with a named owner, due date, and definition
     of done.
     Live exercise: Include a transcript saying “someone should follow up next week.” The skill
@@ -321,7 +321,7 @@ Week 3: Make the weekly meeting produce a decision
     the same task system used in week 2.
     Between-session assignment: Compare preparation time with baseline and verify follow-
     through at the next meeting. Count closed decisions and overdue actions, not the number
-    of generated pages.
+    of generated pages.
 Use a deliberately flawed issue statement during class. Members should challenge the diagnosis
 before asking AI to polish it.
 
@@ -361,7 +361,7 @@ Week 5: Turn the scorecard into a coaching conversation
     Why it matters: Owners need to diagnose the difference between missing activity, weak
     conversion, poor process, and incomplete tracking. AI should help prepare a better
     conversation, not issue automated judgments about people.
-    How to use it: Run before the existing 1:1. Verify the numbers, ask the agent about context,
+    How to use it: Run before the existing 1:1. Verify the numbers, ask the agent about context,
     agree on one behavior to change, and set the next review date.
     Live exercise: Compare two agents with similar closings but different activities and
     opportunity mix. Members explain why the same coaching prescription may be wrong.
@@ -401,7 +401,7 @@ Week 6: Delegate the deliverable, not just the task
     task. Collect a before-and-after example and ask what supervision was still necessary.
 Do not label owner review time as eliminated if it has merely moved from drafting to
 correction. That distinction belongs in both the learning and the value calculation.
-Week 7: Make onboarding repeatable without depending on the instructor
+Week 7: Make onboarding repeatable without depending on the instructor
     Build: Configure a finished New Agent Onboarding Plan around the team's standards,
     responsibilities, checkpoints, and first 30 days of work. Teams actively recruiting but not
     onboarding may use the recruiting interview-preparation variant, with the same test
@@ -440,7 +440,7 @@ Week 8: Prove what works and plan the next quarter
     How to use it: Review which routines were used, which outputs were accepted, what
     changed, what broke, and what remains unproven. Assign maintenance and the next
     monthly review.
-    Working at the end of class: A concise evidence-backed scorecard; a keep/fix/retire
+    Working at the end of class: A concise evidence-backed scorecard; a keep/fix/retire
     decision for each workflow; and a 90-day plan with owners, dates, and measures.
     Working by week’s end: Final corrections completed, skills and runbooks handed off,
     support boundaries understood, and the first post-cohort operating review on the calendar.
@@ -488,7 +488,7 @@ participant should be penalized for needing the supplied scaffold.
     Advanced path: The same business outcome, plus a harder reconciliation, edge-case test,
     or safely scoped connection. Do not reward sophistication with an unrelated second
     curriculum.
-    Owner requirement: Explain one financial or operating conclusion and approve an action.
+    Owner requirement: Explain one financial or operating conclusion and approve an action.
     The operator cannot complete this element on the owner's behalf.
     Operator requirement: Refresh the input, reproduce an output, identify a failure, and
     follow the repair procedure.
@@ -530,7 +530,7 @@ Score each dimension 0, 1, or 2: not demonstrated, needs correction, or meets st
                Evidence quality   Required facts trace to inputs; missing information is visible
 
                Output quality     Meets the team’s actual acceptance standard
-                 Dimension                                      Meets-standard test
+                 Dimension                                      Meets-standard test
 
                Control                Human approval, access boundaries, and safe failure behavior are explicit
 
@@ -578,7 +578,7 @@ practice.
     Maintainer commitment: Name the operator or explicitly assign both roles to the owner.
     Time disclosure: Budget about 2–2.5 hours weekly for the owner, including the 90-minute
     build and actual use/review; about 3–4 hours for the operator, including build, practice,
-    refresh, and office hours if needed. These are planning estimates, not guaranteed
+    refresh, and office hours if needed. These are planning estimates, not guaranteed
     workloads.
     Access: Confirm authorized access to the relevant CRM, task system, reports, and AI
     workspace.
@@ -618,7 +618,7 @@ small manual extract when a platform cannot supply a clean report.
        Input                        Preferred scope               Minimum acceptable starting point
 
   Production      Prior 12 months plus current pipeline    Last 90 days, explicitly labeled provisional
-       Input                         Preferred scope                              Minimum acceptable starting point
+       Input                         Preferred scope                              Minimum acceptable starting point
 
                    Monthly P&L for the prior 12 months, reporting basis   Latest closed monthly P&L and known spend for
   Accounting
@@ -669,7 +669,7 @@ documented adapters between each system and that structure; do not teach four CR
 interfaces simultaneously during the live build.
 Use these common fields where relevant: record ID, source system, extract timestamp, contact
 or deal ID, assigned owner, created date, stage, last meaningful activity, next action, next-action
-date, lead source, close date, team revenue, and cost fields. Not every workflow needs every
+date, lead source, close date, team revenue, and cost fields. Not every workflow needs every
 field; collect only what the workflow actually requires.
 Publish a field dictionary and an explicit missing-data policy. Normalize timezone, date format,
 stage meaning, source naming, duplicate rules, and what counts as a lead before comparing
@@ -735,7 +735,7 @@ Verified platform constraints
                 automation history is not included (HighLevel contact
                                                                               information when needed.
                 exports).
-    Platform           What the current official material establishes                    Curriculum consequence
+    Platform           What the current official material establishes                    Curriculum consequence
 
                                                                               Export coverage remains unverified. Obtain
                 The public FAQ describes source attribution and               and test a member-authorized sample or
@@ -778,7 +778,7 @@ reference the calculated values.
      Period cost per closing: Source acquisition spend during a period divided by source-
      attributed closings during that period. Label it as a period indicator, not the actual
      acquisition cost of the leads that closed.
-     Cohort conversion: Closings arising from a specified lead-created cohort divided by
+     Cohort conversion: Closings arising from a specified lead-created cohort divided by
      eligible leads in that same cohort. State the follow-up window and how many leads remain
      immature.
      Team-retained commission: Begin with the team’s defined commission revenue and
@@ -818,7 +818,7 @@ internal comparison point. The cohort must not be the same product with more mee
               Offer                              Core buyer job                           What it should not imply
   Free skills gift, final count   Discover a useful workflow and experience a   Business-specific implementation or
   pending                         small win                                     assessment
-             Offer                             Core buyer job                                    What it should not imply
+             Offer                             Core buyer job                                    What it should not imply
 
                                                                                       Weekly evidence review, a team-specific
   Gated library + 30 days of   Self-directed access to reusable assets and
@@ -875,7 +875,7 @@ The strongest value case is several durable improvements working together: faste
 fewer missed actions, more informed spending decisions, and better delegation. It is still
 possible for a member to complete the training without earning back the price financially;
 acknowledge that rather than inventing a closing to make the math work.
-Validate before committing the whole Forum
+Validate before committing the whole Forum
 Before Saturday, prioritize rehearsal of the three actual demo skills and their fallbacks. Before
 January delivery, run the week 1 and week 2 curriculum with three representative
 owner/operator pairs, including one messy-data case and, if eligibility is broadened, one non-
@@ -917,7 +917,7 @@ businesses; pay for or delegate that capacity rather than assuming Spring's part
        facilitators; the budget counts their separate work.
        No private coaching: Use standardized acceptance feedback, a shared issue queue, and
        group troubleshooting. Do not introduce a backchannel of custom builds or individualized
-     consulting.
+     consulting.
      Feedback target: Return rubric status within two business days of the deadline, with one
      revision per build. Publish that service level only after the actual review capacity is
      funded.
@@ -962,7 +962,7 @@ revenue, collected cash, minimum-term agent commitments, and monthly recurring r
 Agent pricing is unresolved, so do not reverse-engineer a promise that it will close the gap. If
 charging begins in January, a November commitment is not November cash; the one-sheet
 should route buyers by fit rather than by the revenue needed.
-The week 8 agent-training transition
+The week 8 agent-training transition
 
 Start with a pilot, not a sales slide
 Begin the small pilot in week 5, run it in weeks 6–7, and review it in week 8. Choose one agent-
@@ -996,7 +996,7 @@ you prefer to lead it yourselves, use the plan you completed today.”
 Keep the commercial invitation separate from graduation assessment. No surprise paywall, no
 automatic enrollment, and no suggestion that the owner program is incomplete without the
 purchase.
-Accommodate January agent training without forcing the sequence
+Accommodate January agent training without forcing the sequence
 I am correcting the earlier implication that all cohort buyers should wait for a spring agent
 intake. These are parallel offers: a ready team can start agent training in January while the
 owner builds management workflows; it should not have to finish the owner cohort first.
@@ -1055,7 +1055,7 @@ Risks to completion and results
 
   Agent training feels like a      Owners think they must pay again      Deliver full self-led rollout materials and offer guided
   withheld final step              to finish                             training separately
-                Risk                            Early signal                                    Reduction strategy
+                Risk                            Early signal                                    Reduction strategy
 
                                     Feedback late; build time becomes         Staff to enrolled teams, add facilitated groups and
   Capacity oversold
@@ -1111,7 +1111,7 @@ improved visibility separately from improved economics.
 If a January baseline cannot be reconstructed reliably, record it as unavailable. Do not turn a
 March recollection into a measured pre-program baseline; self-reported estimates must remain
 labeled as such.
-Evidence timetable
+Evidence timetable
     Jan 12: Lock the baseline and define the team's primary reporting task and financial metric.
     Weeks 2–7: Keep a short run log and retain representative before/after outputs.
     Feb 23–25 bootcamp, if retained: Use interim examples with an explicit cutoff date. At that
@@ -1159,7 +1159,7 @@ candidates, not skills whose reliability has been tested in this session.
 The first demo fulfills the finance-first commitment. The second gives beginners a fast, usable
 build; the third shows how owner judgment and ongoing use make the cohort different from a
 library.
-Attendee build scope
+Attendee build scope
 Aim for one finance starter skill and, if time permits, one Task Sync starter. Use a small
 approved input pack or synthetic data so attendees do not spend the room's build time trying to
 access accounting systems.
@@ -1198,7 +1198,7 @@ Use the member spotlights as attributed demonstrations of experience, not indepe
 verified performance claims. Demo the existing LMS after the room has experienced the work,
 and show the weekly skill, runbook, and implementation checklist rather than making library
 size the headline.
-What must be ready before the first cohort
+What must be ready before the first cohort
 
 Before Saturday's one-sheet and invitation
 Connor can supply the recommended dates, eight weekly outcomes, three rehearsed demo
@@ -1237,7 +1237,7 @@ Minimum launch kit
     homework.
     Reviewed skill packages: Versioned instructions, data requirements, expected outputs, and
     permitted actions.
-    A normalized data template: Field dictionary, calculation definitions, mapping guides, and
+    A normalized data template: Field dictionary, calculation definitions, mapping guides, and
     a synthetic dataset.
     Test cases: At least a normal case, a missing-input case, and a misleading/conflicting-input
     case per core workflow.
@@ -1272,4 +1272,3 @@ Give members the finished tools, then make the business thinking substantive, th
 implementation checks dependable, and the benefit claims conservative. That is a stronger
 foundation for the working $5,000 offer than either adding more skills or making simple builds
 feel artificially complicated.
-

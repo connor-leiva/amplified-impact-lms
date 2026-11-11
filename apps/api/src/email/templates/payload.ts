@@ -48,7 +48,8 @@ export interface BodyData {
   'session-1h': { start: number; zone?: string | null; appUrl?: string | null };
   'replay-ready': { employee: string; moduleId: string; appUrl?: string | null };
   'build-reminder': { moduleId: string; steps: number; total?: number; appUrl?: string | null };
-  'weekly-digest': { appUrl?: string | null };
+  /** `before`: the day to review before. Absent: Thursday, the prototype's. The AI Accelerator's is its build day (D-110). */
+  'weekly-digest': { appUrl?: string | null; before?: string };
 }
 
 /**

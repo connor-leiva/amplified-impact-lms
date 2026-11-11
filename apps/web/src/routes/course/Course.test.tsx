@@ -1,0 +1,92 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router';
+import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
+import { acceleratorSessions } from '@ai/core/accelerator';
+import { courseContent } from '@ai/core/accelerator-content';
+import Course from './Course';
+import { COPY } from './Course.vm';
+
+// /course (D-110): the screen over `GET /api/course`, in each state the API can answer.
+
+let fetchMock: Mock;
+const answer = (status: number, body: unknown) => ({ ok: status < 400, status, json: async () => body }) as unknown as Response;
+const payload = {
+  open: true,
+  preview: false,
+  course: courseContent(),
+  sessions: acceleratorSessions().map((s) => ({ id: s.id, n: s.n, kind: sessionKind(s), week: sessionWeek(s), title: s.title, start: s.start, mins: s.mins })),
+};
+
+const at = (path: string) =>
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route path="/course" element={<Course />} />
+        <Route path="/course/:week" element={<Course />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+beforeEach(() => {
+  delete document.body.dataset.appReady;
+  setViewerZone('America/Chicago');
+  fetchMock = vi.fn();
+  vi.stubGlobal('fetch', fetchMock);
+});
+afterEach(() => {
+  vi.unstubAllGlobals();
+  setViewerZone(null);
+});
+
+describe('the course screen', () => {
+  it('shows a week: its question, its skills’ guided setups in a new tab, the build, the rubric and the evidence packet', async () => {
+    fetchMock.mockResolvedValue(answer(200, payload));
+    at('/course/week-1');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Week 1 · Know the Business' })).toBeInTheDocument();
+    expect(screen.getByText('What are we paying for leads, and what can we trust?')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith('/api/course', expect.objectContaining({ credentials: 'include' }));
+
+    const skills = screen.getByRole('region', { name: COPY.skills });
+    const guides = within(skills).getAllByRole('link', { name: COPY.guidedSetup });
+    expect(guides.map((a) => a.getAttribute('href'))).toEqual([
+      'https://www.amplifiedimpact.io/lead-source-roi',
+      'https://www.amplifiedimpact.io/fub-pipeline-review',
+      'https://www.amplifiedimpact.io/team-pnl-review',
+    ]);
+    for (const a of guides) expect(a).toHaveAttribute('target', '_blank');
+    expect(within(skills).getByRole('link', { name: COPY.download })).toHaveAttribute('href', '/skill-library');
+
+    const live = screen.getByRole('region', { name: COPY.liveBuild });
+    expect(within(live).getByText(/Wed, Dec 2 · 1:00 PM CT · 90 Minutes · Zoom link TBA/)).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: COPY.rubric })).toHaveTextContent('Evidence Quality');
+    expect(screen.getByRole('region', { name: COPY.evidence })).toHaveTextContent('Three-Sentence Account');
+    expect(screen.getByRole('region', { name: COPY.media })).toHaveTextContent('[VIDEO: week 1 Lead-Source ROI demo, to be recorded]');
+    expect(screen.getByRole('button', { name: COPY.worksheet })).toBeInTheDocument();
+    expect(document.body.dataset.appReady).toBe('true');
+  });
+
+  it('shows the overview with all nine weeks', async () => {
+    fetchMock.mockResolvedValue(answer(200, payload));
+    at('/course');
+    const weeks = await screen.findByRole('region', { name: COPY.weeks });
+    expect(within(weeks).getAllByRole('link')).toHaveLength(9);
+    expect(screen.getByRole('region', { name: COPY.calendar })).toHaveTextContent('Goal-Planning Session 2 and Office Hours');
+  });
+
+  it('tells a buyer on another plan the course isn’t in it, and points to their Skill Library', async () => {
+    fetchMock.mockResolvedValue(answer(403, { open: false, error: 'x' }));
+    at('/course/week-1');
+    expect(await screen.findByText(COPY.locked)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: COPY.library })).toHaveAttribute('href', '/skill-library');
+    expect(screen.queryByText('What are we paying for leads, and what can we trust?')).toBeNull();
+  });
+
+  it('asks a signed-out visitor to sign in', async () => {
+    fetchMock.mockResolvedValue(answer(401, { error: 'Not signed in' }));
+    at('/course');
+    expect(await screen.findByText(COPY.signedOut)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: COPY.signIn })).toHaveAttribute('href', '/sign-in');
+  });
+});

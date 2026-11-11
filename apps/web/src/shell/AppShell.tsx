@@ -260,7 +260,7 @@ function Shell() {
   }, [collapsed, db, empOpen, isAdmin, now, route, user]);
 
   const cohort = db.cohorts.find((c) => c.id === (user?.cohortId ?? DEFAULT_COHORT)) ?? db.cohorts[0];
-  const contextLine = !cohort ? '' : isAdmin ? `Admin Console · ${cohort.name} Cohort` : cohortLine(cohort, now);
+  const contextLine = !cohort ? '' : isAdmin ? `Admin Console · ${cohort.name} Cohort` : cohortLine(cohort, now, db.sessions);
 
   const sbToggleLabel = collapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
   const toggleSidebar = useCallback(() => {

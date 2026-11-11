@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { phaseNow, seed, setViewerZone } from '@ai/core';
+import { phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
 import { cardAction, dashboardVM, nextWednesday } from './Dashboard.vm';
 
@@ -326,6 +326,7 @@ describe('dashboardVM @g5', () => {
       expect(jamie.watch).toBeNull();
       expect(jamie.post).toEqual({
         ended: 'Jan 8',
+        title: 'Office Hours Continue Wednesdays',
         host: 'Jordan Hale',
         next: 'Wed, Jan 13 · 11:00 AM CT',
         cal: {
@@ -409,3 +410,32 @@ describe('dashboardVM @g5', () => {
     });
   });
 });
+
+// The AI Accelerator (D-110): the office-hours quick link and the post-cohort card follow the
+// cohort's own Thursday series and its real instructor, never the prototype's Wednesday hour, its
+// Zoom link or its invented instructor.
+describe('Dashboard · the AI Accelerator cohort', () => {
+  beforeAll(() => setViewerZone('America/Chicago'));
+  afterAll(() => setViewerZone(null));
+  const prod = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
+  const buyer: Learner = { id: 'u_b', name: 'B', email: 'b@example.test', tier: 'team', role: 'Team Owner', teamId: 't_b', cohortId: 'dec26', joined: 0, last: null, status: 'active', progress: {} };
+  const CT = (s: string): number => Date.parse(`${s}-06:00`);
+
+  it('points the Office Hours link at the next real Thursday', () => {
+    const vm = dashboardVM(prod, buyer, CT('2026-12-08T09:00'));
+    const oh = vm.links.find((l) => l.key === 'office-hours')!;
+    expect(oh.sub).toBe('Thursdays · 1:00 PM CT');
+    expect(JSON.stringify(oh)).toContain('Goal-Planning Session 1 and Office Hours');
+    expect(JSON.stringify(vm)).not.toContain('zoom.us');
+    expect(JSON.stringify(vm)).not.toContain('Jordan Hale');
+    expect(vm.session).toMatchObject({ instructor: 'Connor Leiva', title: 'Morning Brief Live Build' });
+  });
+
+  it('after the cohort, names the real instructor and invents no next office hour', () => {
+    const vm = dashboardVM(prod, buyer, CT('2027-02-10T09:00'));
+    expect(vm.post).toEqual({ ended: 'Feb 4', title: 'Office Hours Continue', host: 'Connor Leiva', next: 'Schedule TBA', cal: null, rewatch: { kind: 'nav', to: '/sessions' } });
+    expect(vm.links.find((l) => l.key === 'office-hours')).toMatchObject({ sub: 'Schedule TBA', action: { kind: 'nav', to: '/sessions' } });
+    expect(JSON.stringify(vm)).not.toContain('Jordan Hale');
+  });
+});
+

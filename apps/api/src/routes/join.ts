@@ -98,11 +98,13 @@
 // `sessions`+`modules`+`users` read through the same codec, not a second decoder.
 
 import { canAccess, joinMode, moduleForSession } from '@ai/core';
+import { isAcceleratorModule } from '@ai/core/accelerator';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { requireSession, viewerOrThrow } from '../auth';
 import { getDb } from '../db/client';
 import { loadDb } from '../db/io';
 import { clock } from '../lib/clock';
+import { acceleratorAccess } from '../lib/course-access';
 
 /**
  * § 8.4's 409 body, verbatim and exact.
@@ -144,6 +146,14 @@ export function registerJoinRoute(app: FastifyInstance): void {
       // reason) a session cookie whose learner row has since been deleted. See the header on why
       // they must be indistinguishable.
       if (!me || !session || session.cohortId !== me.cohortId) {
+        return reply.code(404).send({ error: `No session ${id}` });
+      }
+
+      // An AI Accelerator session for a plan that does not open the course (D-110). Every paid buyer
+      // is in this cohort, so the cohort check above cannot catch it. The same 404 as another
+      // cohort's session, because the snapshot leaves these sessions out for this viewer entirely.
+      const owner = moduleForSession(db, session);
+      if (owner && isAcceleratorModule(owner.id) && !(await acceleratorAccess(getDb(), me.id, clock.now()))) {
         return reply.code(404).send({ error: `No session ${id}` });
       }
 

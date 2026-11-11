@@ -32,6 +32,8 @@ export const COPY = {
   failed: "Your skills didn't load. Refresh the page to try again.",
   /** The owner's way into Stripe's billing portal (cards, invoices, cancelling). */
   billing: 'Manage Billing',
+  /** An AI Accelerator plan's way to its course pages (D-110). */
+  course: 'Open the AI Accelerator',
 } as const;
 
 type SkillState = 'open' | 'locked' | 'upcoming';
@@ -49,15 +51,19 @@ export interface LibrarySkill {
   files: FileKind[];
 }
 
-type Load = { kind: 'loading' } | { kind: 'ready'; skills: LibrarySkill[] } | { kind: 'signed-out' } | { kind: 'failed' };
+type Load = { kind: 'loading' } | { kind: 'ready'; skills: LibrarySkill[]; course: boolean } | { kind: 'signed-out' } | { kind: 'failed' };
+
+/** An AI Accelerator plan, by the plans `/api/skills` reports: only the AI Accelerator is a `cohort` plan. */
+const holdsCourse = (plans: { kind?: string; status?: string }[] | undefined): boolean =>
+  (plans ?? []).some((p) => p.kind === 'cohort' && p.status !== 'ended');
 
 async function loadSkills(): Promise<Load> {
   try {
     const res = await fetch('/api/skills', { credentials: 'include', headers: { accept: 'application/json' } });
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
     if (!res.ok) return { kind: 'failed' };
-    const body = (await res.json()) as { skills?: LibrarySkill[] };
-    return { kind: 'ready', skills: body.skills ?? [] };
+    const body = (await res.json()) as { skills?: LibrarySkill[]; plans?: { kind?: string; status?: string }[] };
+    return { kind: 'ready', skills: body.skills ?? [], course: holdsCourse(body.plans) };
   } catch {
     return { kind: 'signed-out' };
   }
@@ -141,9 +147,16 @@ export function Component() {
         <h1 className={s.h1}>{COPY.title}</h1>
         <p className={s.sub}>{COPY.sub}</p>
         {load.kind === 'ready' ? (
-          <a className={s.secondary} href="/api/billing/portal">
-            {COPY.billing}
-          </a>
+          <div className={s.actions}>
+            {load.course ? (
+              <a className={s.primary} href="/course">
+                {COPY.course}
+              </a>
+            ) : null}
+            <a className={s.secondary} href="/api/billing/portal">
+              {COPY.billing}
+            </a>
+          </div>
         ) : null}
       </header>
 

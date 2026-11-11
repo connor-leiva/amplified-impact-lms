@@ -579,6 +579,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/skills/:id/download/:kind', methods: 'GET, HEAD', guard: 'session' },
   // Manage Billing (D-077): the owner's way into Stripe's billing portal, signed in.
   { path: '/api/billing/portal', methods: 'GET, HEAD', guard: 'session' },
+  // The AI Accelerator's pages (D-110): signed in, then gated by plan.
+  { path: '/api/course', methods: 'GET, HEAD', guard: 'session' },
 ];
 
 /**
@@ -974,6 +976,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/skills': () => app.inject({ method: 'GET', url: '/api/skills' }),
           '/api/skills/:id/download/:kind': () => app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/download/claude' }),
           '/api/billing/portal': () => app.inject({ method: 'GET', url: '/api/billing/portal' }),
+          '/api/course': () => app.inject({ method: 'GET', url: '/api/course' }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1133,13 +1136,15 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // 11, not 7: phase 08 added four session-guarded routes (the two file downloads, upload-url and
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
-    // 13 with the skill library's two (D-079), 14 with Manage Billing (D-077).
-    expect(EXECUTED.unauthenticated).toBe(14);
+    // 13 with the skill library's two (D-079), 14 with Manage Billing (D-077), 15 with the AI
+    // Accelerator's course (D-110).
+    expect(EXECUTED.unauthenticated).toBe(15);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077).
     expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length + 5);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5);
+    // The last + 1: the AI Accelerator's course route (D-110), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1);
   });
 });

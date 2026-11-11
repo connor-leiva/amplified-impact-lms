@@ -1,0 +1,376 @@
+/* /course: net-new (D-110), outside the shell like /skill-library. No reference file, so the values
+   are the house ones /skill-library and the sign-in card already use: radius 10, 12 and 16, a 1px
+   --line-default border, --bg-surface cards on --bg-canvas, 40px buttons. Tokens only. */
+
+.page {
+  min-height: 100dvh;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.h1 {
+  margin: 8px 0 0;
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 600;
+}
+.sub,
+.question {
+  margin: 0;
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text-link);
+}
+.previewTag {
+  align-self: flex-start;
+  margin: 0;
+  padding: 2px 10px;
+  border: 1px solid var(--status-attention-line);
+  border-radius: 999px;
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--line-default);
+  border-radius: 16px;
+  background: var(--bg-surface);
+}
+.h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.h3 {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.text,
+.note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+.note {
+  color: var(--text-secondary);
+}
+.placeholder {
+  margin: 0;
+  padding: 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+  background: var(--bg-sunken);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+.when {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.bullets {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rowLabel {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.rowText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cards,
+.list,
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card {
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-canvas);
+}
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.cardLink:hover {
+  background: var(--bg-hover);
+  text-decoration: none;
+}
+.cardTitle {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.cardQuestion {
+  font-size: 14px;
+  line-height: 20px;
+}
+.cardMeta {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-subtle);
+}
+.lineLabel {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.lineTitle {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.lineMeta {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.skill {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-canvas);
+}
+.skillText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.skillName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.tag,
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+.tag {
+  border: 1px solid var(--status-neutral-line);
+  background: var(--status-neutral-bg);
+  color: var(--status-neutral-text);
+}
+.badge {
+  border: 1px solid var(--status-success-line);
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.stepN {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.stepText {
+  padding-top: 2px;
+}
+.stepText a {
+  color: var(--text-link);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.primary {
+  border: 1px solid var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.primary:hover {
+  background: var(--action-primary-hover);
+  color: var(--action-on-primary);
+  text-decoration: none;
+}
+.secondary {
+  border: 1px solid var(--action-secondary-line);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+}
+.secondary:hover {
+  background: var(--action-secondary-hover);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.primary:focus-visible,
+.secondary:focus-visible,
+.cardLink:focus-visible,
+.back:focus-visible,
+.stepText a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.flip {
+  transform: rotate(180deg);
+}
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+}
+.status p {
+  margin: 0;
+}
+.spin {
+  animation: ai-spin 0.9s linear infinite;
+}
+
+@media (min-width: 640px) {
+  .row {
+    flex-direction: row;
+    gap: 16px;
+  }
+  .rowLabel {
+    flex: 0 0 180px;
+  }
+  .skill {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .line {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    column-gap: 16px;
+  }
+  .lineMeta {
+    grid-column: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}

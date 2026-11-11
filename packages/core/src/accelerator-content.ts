@@ -985,7 +985,7 @@ export const COURSE_INTRO = {
   support: `Questions? Write to ${ACCELERATOR_SUPPORT_EMAIL}.`,
   instructor: ACCELERATOR_INSTRUCTOR,
   holiday: 'Holiday break: no sessions on Dec 23 or Dec 30. No new build until Jan 6.',
-  zoom: 'Zoom link TBA',
+  joinLink: 'Zoom link TBA',
 } as const;
 
 // --- the portal's AI Employees -----------------------------------------------------------------------

@@ -13,6 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts",
     "db:seed:prod": "tsx src/db/seed.ts --launch",
+    "db:curriculum": "tsx src/db/seed.ts --curriculum",
     "provision": "tsx src/billing/cli.ts provision",
     "skills": "tsx src/billing/cli.ts skills"
   },

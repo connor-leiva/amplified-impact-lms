@@ -67,11 +67,14 @@
 // no error of their own. Fixing it is a product decision, not something to quietly do in a job, so
 // this file is deliberately consistent with the rest of the app instead of accidentally better.
 import {
+  PROGRAM_TZ,
   buildOf,
   canAccess,
   fmt,
+  hasOfficeHoursSeries,
   moduleForSession,
   sessionEnd,
+  sessionKind,
   sessionState,
 } from '@ai/core';
 import type { AIEmployee, Announcement, Db, Learner, Session } from '@ai/core';
@@ -450,6 +453,19 @@ function buildNotFinished48h(db: Db, now: number): Send[] {
  * An owner whose `teamId` has no team row gets nothing: the digest is about a roster, and there is
  * no roster to report on.
  */
+/**
+ * The day an owner's weekly digest says to review before (D-110). For a cohort with its own office-hours
+ * series (the AI Accelerator) it is the weekday of the cohort's next build, in the program's zone;
+ * for every other cohort it is absent, and the template keeps the prototype's Thursday.
+ */
+export function digestDay(db: Db, u: Learner, now: number): string | undefined {
+  if (!hasOfficeHoursSeries(db.sessions, u.cohortId)) return undefined;
+  const next = db.sessions
+    .filter((s) => s.cohortId === u.cohortId && sessionKind(s) === 'build' && s.start > now)
+    .sort((a, b) => a.start - b.start)[0];
+  return next ? new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: PROGRAM_TZ }).format(next.start) : undefined;
+}
+
 function weeklyDigest(db: Db, now: number): Send[] {
   const monday = mondayOf(now);
   if (!isDue(now, monday, monday + WEEK)) return [];
@@ -473,7 +489,7 @@ function weeklyDigest(db: Db, now: number): Send[] {
       // the key (`weekly-digest:2026-12-07:u_alex`) — they simply are not things an inbox sees.
       // When the template grows a roster, `BodyData['weekly-digest']` grows with it and this line
       // stops compiling until it supplies one, which is the whole point of the tightened type.
-      data: {},
+      data: ((day) => (day ? { before: day } : {}))(digestDay(db, u, now)),
     });
   }
   return out;

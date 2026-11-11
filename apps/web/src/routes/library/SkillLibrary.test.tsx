@@ -96,4 +96,16 @@ describe('the skill library screen', () => {
     render(<SkillLibrary />);
     expect(await screen.findByRole('alert')).toHaveTextContent(COPY.failed);
   });
+
+  it('links an AI Accelerator plan to its course, and no other plan (D-110)', async () => {
+    fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'cohort', status: 'active' }], skills: [skill({})] }));
+    const { unmount } = render(<SkillLibrary />);
+    expect(await screen.findByRole('link', { name: COPY.course })).toHaveAttribute('href', '/course');
+    unmount();
+
+    fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'membership', status: 'active' }], skills: [skill({})] }));
+    render(<SkillLibrary />);
+    expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: COPY.course })).toBeNull();
+  });
 });

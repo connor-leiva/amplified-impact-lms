@@ -31,12 +31,18 @@ import { ROUTES, absolute } from './links';
 export interface WeeklyDigestEmailProps {
   subject: string;
   appUrl?: string | null;
+  /**
+   * The day the week's review is for. Thursday by default, as above; the AI Accelerator's cohort
+   * builds on Wednesdays, so its digest names its next build's day instead (D-110, the follow-up
+   * this header flagged).
+   */
+  before?: string;
 }
 
-export function WeeklyDigestEmail({ subject, appUrl }: WeeklyDigestEmailProps) {
+export function WeeklyDigestEmail({ subject, appUrl, before = 'Thursday' }: WeeklyDigestEmailProps) {
   return (
     <EmailLayout subject={subject} cta={{ label: 'Open Team Hub', href: absolute(ROUTES.team, appUrl) }}>
-      <Para>Who has built, who is stuck, and what to review before Thursday.</Para>
+      <Para>{`Who has built, who is stuck, and what to review before ${before}.`}</Para>
     </EmailLayout>
   );
 }
