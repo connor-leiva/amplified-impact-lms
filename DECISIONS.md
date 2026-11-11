@@ -4085,3 +4085,25 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
   - The Team Hub's breakdown, role caps, seat note and slot count for 16 and 41 seats.
   - Through the API on a real purchase of each Team Plan size: the owner invites 15 or 40 Sales Agents, and the next one is refused with the seat count's message.
 
+
+## D-121 · `GET /api/health/curriculum`: is the AI Accelerator's curriculum in the database, as counts
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy) in chat on 2026-11-11, 6:30 AM Central: "confirm, without handling or printing any secret, whether production now has cohort dec26 and the 9 modules, e.g. by signing in as a test Accelerator buyer on learn.amplifiedimpact.io or via a safe read-only admin endpoint". The open route, rather than a staff-only one, is this pull request's choice, for Ampy's review.
+**Status:** on a pull request.
+**Scope:** `apps/api/src/routes/curriculum-status.ts` (new), one line in `apps/api/src/app.ts`, the route table in `apps/api/test/authz.test.ts`, tests in `apps/api/test/course.test.ts`.
+
+- **Why it exists.** The pre-deploy command applies the curriculum once (`db:curriculum:ensure`, D-110, set in Railway by hand), and Railway's logs did not show that step's output. Nobody outside the database could tell whether production has the course without signing in, and a sign-in for a test buyer would mean a real account and an emailed link.
+- **What it answers.** With no session:
+  - `ok`;
+  - `cohort`: whether cohort `dec26` exists;
+  - `modules` and `published`: how many of the nine course modules exist, and how many are published;
+  - `sessions`: how many sessions the cohort has;
+  - `expected`: 9 modules and 16 sessions.
+
+  `ok` is true when all of them match. Nothing else: no names, dates, links, text or learner data. It reads only those course rows, never users, teams, progress, staff, orders or plans. The same facts (one cohort, nine weeks, sixteen sessions) are public on /team-build.
+- **Why open, and not on `/api/health`.** Open so it can be checked from anywhere after a deploy, like `/api/health` and `/api/offer`. Gate 7's 401 rule lists the open exceptions, and this is one more, in the route table with this entry. It is not folded into `/api/health` itself: that is Railway's healthcheck and touches nothing, so a slow database can never fail a deploy through it.
+- **Tested:**
+  - On a database with the curriculum it answers `ok` with 9, 9 and 16, and exactly those keys.
+  - It answers not ok, with the short count, before the curriculum is applied and after staff draft one week.
+  - It needs no cookie, and the route table classifies it as open.
