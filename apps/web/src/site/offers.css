@@ -1,0 +1,250 @@
+/* The www sales pages' shared pieces (DECISIONS.md D-111), for `offers.ts`: the offer card, its states,
+   the founding banner and the questions. Each sales page's stylesheet imports this one.
+
+   STATES ARE ATTRIBUTES, as on /offer (D-105). The API writes `data-founding` and `data-seats` on
+   <body> and `data-state` on each card; the rules below show what fits. A link with an empty href does
+   not sell today and is hidden.
+
+   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+
+@import './site.css';
+
+/* --- States ----------------------------------------------------------------------------------- */
+
+body[data-founding='open'] .founding-closed,
+body[data-founding='closed'] .founding-open,
+body[data-seats='left'] .seats-soldout,
+body[data-seats='soldout'] .seats-left {
+  display: none !important;
+}
+
+.plan .act-link,
+.plan .act-soon,
+.plan .act-closed,
+.plan .act-soldout {
+  display: none;
+}
+.plan[data-state='link'] .act-link {
+  display: flex;
+}
+/* Anything but a live link, a close or a sell-out says "Opens soon.": an unset cart, OFFER_OPEN off. */
+.plan:not([data-state='link']):not([data-state='closed']):not([data-state='soldout']) .act-soon,
+.plan[data-state='closed'] .act-closed,
+.plan[data-state='soldout'] .act-soldout {
+  display: block;
+}
+.plan a[href=''] {
+  display: none !important;
+}
+
+/* --- The founding banner ----------------------------------------------------------------------- */
+
+.founding {
+  border-top: 1px solid var(--line-default);
+  border-bottom: 1px solid var(--line-default);
+  background: var(--action-primary-tint);
+}
+.founding-in {
+  display: grid;
+  gap: 12px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.countdown {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.founding-facts {
+  display: grid;
+  gap: 4px;
+}
+.founding-facts strong {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- The cards --------------------------------------------------------------------------------- */
+
+.plan-grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  scroll-margin-top: 16px;
+}
+.plan:target {
+  box-shadow: inset 0 0 0 2px var(--action-primary);
+}
+.plan-name {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.facts {
+  display: grid;
+  gap: 14px;
+}
+.fact dt {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.fact dd {
+  display: grid;
+  gap: 4px;
+  margin-top: 2px;
+}
+.lines {
+  display: grid;
+  gap: 6px;
+}
+.lines li {
+  position: relative;
+  padding-left: 18px;
+}
+.lines li::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 8px;
+  height: 2px;
+  background: var(--action-primary);
+}
+.price {
+  padding-top: 16px;
+  border-top: 1px solid var(--line-default);
+}
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.amount {
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.unit,
+.terms {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+.terms {
+  margin-top: 6px;
+}
+.terms.deadline {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.plan-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+}
+.act-link {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+.act-link .btn,
+.plan-actions > .btn {
+  width: 100%;
+}
+.act-soon {
+  font-weight: 500;
+}
+.note,
+.every,
+.not-ready {
+  font-size: 16px;
+}
+.note {
+  color: var(--text-secondary);
+}
+.note a,
+.not-ready a {
+  display: inline-block;
+  padding: 11px 0;
+  font-weight: 500;
+  line-height: 22px;
+  text-decoration: underline;
+}
+.every {
+  font-weight: 500;
+}
+.not-ready {
+  margin-top: -10px;
+  color: var(--text-secondary);
+}
+
+/* --- The questions ----------------------------------------------------------------------------- */
+
+.faq-list {
+  display: grid;
+  margin-top: 20px;
+  border-top: 1px solid var(--line-default);
+}
+.faq-list li {
+  border-bottom: 1px solid var(--line-default);
+}
+.faq-list summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 8px 0;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+.faq-list summary::-webkit-details-marker {
+  display: none;
+}
+.faq-list summary::after {
+  content: '+';
+  flex: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  font-weight: 400;
+}
+.faq-list details[open] summary::after {
+  content: '\2212';
+}
+.answer {
+  display: grid;
+  gap: 8px;
+  max-width: 62ch;
+  padding-bottom: 20px;
+  color: var(--text-secondary);
+}
+
+/* --- Wider screens ----------------------------------------------------------------------------- */
+
+@media (min-width: 640px) {
+  .plan-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 960px) {
+  .founding-in {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 40px;
+  }
+  .plan-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

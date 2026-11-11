@@ -19,7 +19,8 @@
 // after founding (the card goes to the waitlist, Connor 2026-11-10), and no $37 checkout until Ampy
 // makes one.
 
-import type { OfferCopy } from '../offer/content';
+import { CARD_IDS } from '../site/offers-content';
+import type { Faq } from '../site/offers-content';
 
 export const PRICING_META = {
   title: 'Programs and Pricing · Amplified Impact',
@@ -34,14 +35,6 @@ export const PRICING_HERO = {
   lede: 'Build it live with us. Train your agents. Or get every skill and go at your own pace. Every price is on this page.',
 } as const;
 
-/** The card ids, so a link from another page (`/pricing#insiders`) lands on its card. */
-export const CARD_IDS = {
-  cohort: 'accelerator',
-  agentPlan: 'agent-plan',
-  agents: 'team-plan',
-  membership: 'insiders',
-} as const;
-
 /** "Which one is right for me?": three buttons, each scrolls to its card (Spring's plan). */
 export const PICKER = {
   heading: 'Which one is right for me?',
@@ -52,41 +45,7 @@ export const PICKER = {
   ],
 } as const;
 
-/**
- * The founding banner (Spring's plan: "a live countdown to November 30, and seats left for the
- * Amplified AI Accelerator"). The countdown, the deadline and the seats are filled per request.
- */
-export const FOUNDING = {
-  label: 'Founding prices',
-  endsBefore: 'Founding prices end ',
-  endsAfter: '.',
-  seatsAfter: ' Amplified AI Accelerator seats left.',
-  seatsOf: ' of ',
-  soldout: 'All Amplified AI Accelerator founding seats are taken.',
-} as const;
-
 export const PLANS_HEADING = 'Four ways in';
-
-/** The Amplified Agent Plan's card, in the same five answers as the other three. */
-export const AGENT_PLAN: OfferCopy = {
-  forWho: 'Agents who want AI to help with leads, listings, buyers and their week.',
-  lines: [
-    'Every agent skill',
-    'A short recorded starter path for your first week',
-    'One live training a week, 60 minutes',
-    'Weekly office hours, 60 minutes on Thursdays',
-  ],
-  howItRuns: 'Start with the recorded starter path. Then join one live training a week. The topic changes each week of the month, so you cover every topic in 4 weeks.',
-  // [OPEN: the day and time of the weekly agent training]. Spring's placeholder stands until Connor sets it.
-  starts: ['Weekly training starts the week of January 4.', 'Join any day.'],
-  price: {
-    amount: '$79',
-    unit: 'a month',
-    terms: ['Or $790 a year.', 'Your first charge is Monday, January 4, 2027.', 'Cancel anytime.'],
-  },
-  button: 'Get Amplified Agent Plan',
-  more: {},
-};
 
 /**
  * The comparison table under the cards (Spring's plan, "Pricing (/pricing)", item 5). A cell is words,
@@ -130,13 +89,6 @@ export const COMPARE = {
     },
   ] as readonly { label: string; cells: readonly Cell[] }[],
 } as const;
-
-/** Spring's FAQ, her questions in her order. Each answer is a few short sentences; a link is a plain text link. */
-export interface Faq {
-  q: string;
-  a: readonly string[];
-  link?: { label: string; href: string };
-}
 
 export const FAQ: { heading: string; items: readonly Faq[] } = {
   heading: 'Questions',

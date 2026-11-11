@@ -7,7 +7,8 @@ import { FOUNDING_TOKENS } from '@ai/core/founding';
 import { ENTRIES } from '../library/content';
 import { HOME } from '../home/content';
 import { OFFERS } from '../offer/content';
-import { AGENT_PLAN, CARD_IDS, COMPARE, END, FAQ, PICKER, PRICING_HERO } from './content';
+import { AGENT_PLAN, CARD_IDS } from '../site/offers-content';
+import { COMPARE, END, FAQ, PICKER, PRICING_HERO } from './content';
 import { CARD_NAMES, CARD_ORDER, renderBody, renderHead, renderPricingBody, renderPricingHead, WAITLIST_HREF } from './render';
 
 // /pricing, Programs and Pricing (D-111), on the parsed DOM: Spring's seven parts in her order, the
@@ -221,7 +222,7 @@ describe('the words and the tokens', () => {
 });
 
 describe('the stylesheet', () => {
-  const css = read('./pricing.css') + read('../site/site.css');
+  const css = read('./pricing.css') + read('../site/offers.css') + read('../site/site.css');
 
   it('keeps text legible on a phone and taps thumb-sized', () => {
     const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
