@@ -42,10 +42,11 @@ const PRICE_LIST: PriceInfo[] = [
 const OFFER_PAGE = [
   '<!doctype html><html lang="en"><head><title>Plans</title></head><body data-offer="%%offer-state%%" data-founding="%%founding%%">',
   '<li data-state="%%state:cohort-full%%"><a href="%%link:cohort-full%%">x</a><a href="%%link:cohort-two-pay%%">y</a></li>',
-  '<p class="price">%%headline:membership%% %%unit:membership%%</p><p class="closes">%%founding-closes%%</p>',
+  '<p class="call">%%team-call%% %%invites%%</p><p class="closes">%%founding-closes%%</p>',
   '<form method="post" action="/api/offer/waitlist"><input type="hidden" name="src" value="%%src%%"></form></body></html>',
 ].join('');
-const WELCOME_PAGE = '<!doctype html><html><body data-state="%%welcome-state%%"><h1>%%plan-name%%</h1><p>%%login%%</p><a href="%%intake-url%%">i</a></body></html>';
+const WELCOME_PAGE =
+  '<!doctype html><html><body data-state="%%welcome-state%%" data-product="%%product%%"><h1>%%plan-name%%</h1><p>%%login%%</p><a href="%%intake-url%%">i</a></body></html>';
 
 interface Stub {
   client: BillingStripe;
@@ -115,6 +116,8 @@ const CONFIG: OfferConfig = {
   intakeUrls: { membership: 'https://forms.example.com/insiders' },
   portalLoginUrl: 'https://billing.stripe.com/p/login/test_portal',
   portalLockedConfig: 'bpc_locked',
+  calendarUrls: { builds: null, officeHours: null },
+  teamCallUrl: null,
 };
 
 let app: App;
@@ -212,12 +215,12 @@ describe('POST /api/checkout, retired (D-104)', () => {
 describe('the offer pages (D-075, D-104)', () => {
   beforeEach(async () => void (await fresh()));
 
-  it('fills each cart\'s link and state, the live prices and the Mountain deadline, with no form-action exception', async () => {
+  it('fills each cart\'s link and state, the Mountain deadline and the 40+ call, with no form-action exception', async () => {
     const offer = await app.inject({ method: 'GET', url: '/offer' });
     expect(offer.statusCode).toBe(200);
     expect(offer.body).toContain('data-offer="links" data-founding="open"');
     expect(offer.body).toContain('<li data-state="link"><a href="https://buy.stripe.com/test_cohort_full">x</a><a href="https://buy.stripe.com/test_cohort_two">y</a></li>');
-    expect(offer.body).toContain('<p class="price">$1,997 today for one year</p>');
+    expect(offer.body).toContain('<p class="call">mailto:support@amplifiedimpact.io held</p>');
     expect(offer.body).toContain('<p class="closes">Monday, November 30 at 11:59 PM Mountain</p>');
     expect(offer.body).not.toContain('%%');
     expect(offer.headers['cache-control']).toBe('no-store');
@@ -274,7 +277,7 @@ describe('the offer pages (D-075, D-104)', () => {
     expect(pending.body).toContain('data-state="pending"');
     await deliver('checkout.session.completed', { ...session, subscription: 'sub_ins' });
     const done = await app.inject({ method: 'GET', url: `/offer/welcome?session_id=${session.id}` });
-    expect(done.body).toContain('data-state="confirmed"');
+    expect(done.body).toContain('data-state="confirmed" data-product="membership"');
     expect(done.body).toContain('<h1>Amplified Insiders</h1>');
     expect(done.body).toContain('Monday, November 16');
     expect(done.body).toContain('href="https://forms.example.com/insiders"');

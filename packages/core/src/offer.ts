@@ -143,6 +143,9 @@ export const MEMBERSHIP_NAME = 'Amplified Insiders';
 /** Who answers questions and cancellations, as the legal pages name it. */
 export const SUPPORT_EMAIL = 'admin@amplifiedimpact.io';
 
+/** The support address on the offer and thank-you pages (docs/SPRING-PLAN.md: "Support on thank-you pages"). */
+export const HELP_EMAIL = 'support@amplifiedimpact.io';
+
 // --- carts -----------------------------------------------------------------------------------------
 
 export const CART_IDS = ['cohort-full', 'cohort-two-pay', 'insiders-year', 'insiders-monthly', 'agents-upto15', 'agents-16to40'] as const;
@@ -418,7 +421,11 @@ export const OFFER_TOKENS = {
   offerState: token('offer-state'),
   founding: token('founding'),
   foundingCloses: token('founding-closes'),
+  /** `held` before INVITES_FROM, `sent` after. On <body data-invites>; the login line has a version for each. */
+  invites: token('invites'),
   loginDay: token('login-day'),
+  /** Where "Let's talk" goes for a team over 40 agents. */
+  teamCall: token('team-call'),
 } as const;
 
 export const WELCOME_TOKENS = {
@@ -429,6 +436,14 @@ export const WELCOME_TOKENS = {
   intakeState: token('intake-state'),
   sessionId: token('session-id'),
   portalUrl: token('portal-url'),
+  /** The confirmed order's plan, which picks its thank-you section. On <body data-product>. */
+  product: token('product'),
+  invites: token('invites'),
+  loginDay: token('login-day'),
+  /** The add-to-calendar links, each a URL or empty, and `links` when either is set, else `email`. */
+  calendarBuilds: token('calendar-builds'),
+  calendarOfficeHours: token('calendar-office-hours'),
+  calendarState: token('calendar-state'),
 } as const;
 
 /** The three plan cards on the page, in the plan's order: the AI Accelerator, Insiders, the Team Plan. */
@@ -441,46 +456,5 @@ export const CARD_CARTS: Readonly<Partial<Record<PlanKind, readonly CartId[]>>> 
   agents: ['agents-upto15', 'agents-16to40'],
 };
 
-/** An amount by lookup key, in cents: all the page's price words need. */
-export type Amounts = Partial<Record<LookupKey, number>>;
-
-/** "May 4" and "April 4" without the year. */
-const shortDate = (t: number): string => longDate(t).replace(/, \d{4}$/, '');
-
-/**
- * The words the page prints for each card, from the live amounts, in the checkout's own terms (Ampy's
- * submit texts, 2026-11-10). Empty strings when an amount is missing, so the page can show its "price
- * on the payment page" line instead (D-074: the code holds no amounts of its own).
- */
-export function priceWords(a: Amounts): {
-  headline: Partial<Record<PlanKind, string>>;
-  /** What the headline amount is for, beside it. */
-  unit: Partial<Record<PlanKind, string>>;
-  terms: Partial<Record<PlanKind, string>>;
-} {
-  const $ = (key: LookupKey): string | null => (a[key] === undefined ? null : dollars(a[key]!));
-  const cf = $('cohort_founding_full'), c2 = $('cohort_founding_two_pay'), mm = $('membership_monthly'), my = $('membership_year_upfront');
-  const p15 = $('agents_upto15_prepay3'), p40 = $('agents_16to40_prepay3'), m15 = $('agents_upto15_founding'), m40 = $('agents_16to40_founding');
-  const all = (...xs: (string | null)[]) => xs.every((x) => x !== null);
-  const cohort = all(cf, c2, mm), insiders = all(my, mm), team = all(p15, p40, m15, m40);
-  return {
-    headline: { cohort: cohort ? cf! : '', membership: insiders ? my! : '', agents: team ? p15! : '' },
-    unit: { cohort: '', membership: insiders ? 'today for one year' : '', agents: team ? 'today, up to 15 agents' : '' },
-    terms: {
-      cohort: cohort ? `or 2 monthly payments of ${c2}. Then ${mm} a month as ${MEMBERSHIP_NAME} from ${shortDate(INSIDERS_FIRST_CHARGE_AT)}.` : '',
-      membership: insiders
-        ? `Then ${mm} a month unless you cancel with 30 days\u2019 notice. Or ${mm} a month from today, with a ${MINIMUM_MONTHS}-month minimum.`
-        : '',
-      agents: team
-        ? `or ${p40} for 16 to 40. Today covers Jan 4 to Apr 3, 2027; monthly billing at ${m15} (${m40}) starts ${longDay(AGENTS_FIRST_CHARGE_AT)}.`
-        : '',
-    },
-  };
-}
-
-export const PRICE_TOKENS = {
-  headline: (card: PlanKind) => token(`headline:${card}`),
-  unit: (card: PlanKind) => token(`unit:${card}`),
-  terms: (card: PlanKind) => token(`terms:${card}`),
-  paidLine: token('paid-line'),
-} as const;
+// The prices are words in apps/web/src/offer/content.ts since Spring's page (D-105): every price shows,
+// even when Stripe cannot be asked. `GET /api/offer` still reports Stripe's live amounts.
