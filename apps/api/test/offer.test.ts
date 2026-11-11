@@ -742,6 +742,16 @@ describe('Manage Billing (D-077, Connor 2026-11-10)', () => {
     expect(stub.portals.at(-1)?.configuration).toBe('bpc_locked');
   });
 
+  it('lets an Amplified Agent Plan member cancel anytime: never the locked configuration, trial or paid', async () => {
+    stub.subs.set('sub_ap', { id: 'sub_ap', status: 'trialing', customer: 'cus_1', trialEnd: 1799042400 * 1000, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    await buy('agent-monthly', {}, { subscription: 'sub_ap', payment_status: 'no_payment_required', amount_total: 0 });
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan).toMatchObject({ kind: 'agent_plan', minimumUntil: null });
+    const res = await app.inject({ method: 'GET', url: '/api/billing/portal', headers: { cookie: await ownerCookie() } });
+    expect(res.statusCode).toBe(303);
+    expect(stub.portals.at(-1)?.configuration).toBeUndefined();
+  });
+
   it('sends a team member who is not the owner away, and anyone without a session to sign in', async () => {
     expect((await app.inject({ method: 'GET', url: '/api/billing/portal' })).statusCode).toBe(401);
     await buy('insiders-year', {}, { subscription: 'sub_ins' });

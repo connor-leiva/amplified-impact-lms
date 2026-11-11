@@ -193,6 +193,9 @@ describe('/offer/welcome markup', () => {
     expect(text(agent.querySelector('h1'))).toBe('Welcome to the Amplified Agent Plan.');
     expect(text(agent)).toContain('Your first charge is Monday, January 4, 2027, when your agent skills open.');
     expect(text(agent)).not.toMatch(/receipt|intake/i);
+    // Its billing words are its own: cancel anytime, never the Insiders' notice period or minimum.
+    expect(text(agent)).toContain('$79 a month, or $790 a year. Cancel anytime.');
+    expect(text(agent)).not.toMatch(/notice|minimum|30 days/i);
     expect(readFileSync(resolve(HERE, './offer.css'), 'utf8')).toContain(`[data-product='agent_plan'] .t-agent_plan`);
     const shell = readFileSync(resolve(HERE, '../../offer-welcome.html'), 'utf8');
     expect(shell).toContain('data-state="%%welcome-state%%" data-product="%%product%%" data-invites="%%invites%%" data-intake="%%intake-state%%" data-calendar="%%calendar-state%%"');
