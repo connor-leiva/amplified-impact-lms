@@ -76,6 +76,7 @@ import { registerLegalPages } from './routes/legal';
 import { registerGuidePages, type GuidePages } from './routes/guides';
 import { registerLibraryPage } from './routes/library';
 import type { LegalPages } from './routes/legal';
+import { registerApexRedirect } from './routes/apex';
 import { registerMarketingHost } from './routes/marketing';
 import { registerAuthRoutes } from './routes/auth';
 import { registerPasswordRoutes } from './routes/password';
@@ -399,6 +400,10 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // through a presigned PUT, so they never pass through here.)
     bodyLimit: 1024 * 1024,
   }) as unknown as App;
+
+  // The bare domain, before anything at all (D-133): `amplifiedimpact.io/<path>?<query>` 301s to
+  // www with both kept. Inert unless MARKETING_HOST is set and starts with `www.`.
+  registerApexRedirect(app);
 
   // The www/learn split, before anything else: on the marketing host this answers with a static
   // page or a redirect and needs neither a parsed cookie nor a rate-limit bucket. Inert unless
