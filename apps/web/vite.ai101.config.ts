@@ -35,11 +35,14 @@ export default defineConfig({
     libraryRender(),
     // The offer's pages (D-075), filled per request by the API.
     offerRender(),
-    // www's homepage (D-102): no script, its stylesheet inlined.
+    // www's homepage (D-102): its stylesheet inlined, its one script kept as a same-origin file (the
+    // API hashes no inline script on it, so `script-src 'self'` must admit it as a file).
     homeRender(),
     // The rest of Spring's site map (D-111): one plugin, a page per `SITE_PAGES` entry, no script.
     siteRender(),
-    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML, ...SITE_HTML]),
+    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML, ...SITE_HTML], {
+      externalScripts: [HOME_HTML],
+    }),
   ],
   resolve: {
     // vite.config.ts's aliases, verbatim. The subpath alias must come first: '@ai/core/mutations'

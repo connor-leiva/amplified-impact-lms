@@ -1,7 +1,7 @@
 // The Vite plugin behind www's homepage (D-102), exactly as the library's: it fills
 // `apps/web/home.html`'s two markers with what `render.ts` renders from `content.ts`, and
-// `ai101Inline()` then inlines its stylesheet, so the page is one response. In both configs, so
-// `pnpm dev` shows it at /home.html.
+// `ai101Inline()` then inlines its stylesheet and keeps its one script (`client/main.ts`) a
+// same-origin file. In both configs, so `pnpm dev` shows it at /home.html.
 
 import type { Plugin, ResolvedConfig } from 'vite';
 import { fill, ssrLoadForBuild } from '../ai101/vite-plugin.ts';
