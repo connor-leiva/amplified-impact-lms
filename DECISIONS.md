@@ -4421,7 +4421,7 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 **Date:** 2026-11-11
 **Approved by:** the PM (Ampy), for Connor, 2026-11-11, in the brief "Continue with Google on the LMS login": a "Continue with Google" button on /login (and the set-password or sign-up screens if they exist) under the email and password form; server-side OAuth 2.0 authorization code with PKCE and a `state` cookie, against Google's OpenID Connect endpoints, verifying the ID token's issuer, audience and expiry and requiring `email_verified=true`; match the verified email, case-insensitively, to an existing user, including checkout-created accounts with no password, and link the Google `sub`; create no account with entitlements; let staff in only on an exact email match; `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, with the button hidden and the routes 404 while either is missing; unit tests with Google mocked.
 **Status:** on a pull request.
-**Scope:** `apps/api/src/auth/google.ts` (new), `apps/api/src/routes/google.ts` (new), `apps/api/src/app.ts`, `apps/api/src/db/schema.ts` and migration `0011_google_identities.sql`; `apps/web/src/routes/auth/shared.tsx`, `SignIn.tsx`, `SetPassword.tsx`, `SignIn.module.css`; tests (`apps/api/test/google.test.ts` new, `authz.test.ts`, `schema.test.ts`, `SignIn.test.tsx`, `Password.test.tsx`); README; `docs/LAUNCH.md` section 9.
+**Scope:** `apps/api/src/auth/google.ts` (new), `apps/api/src/routes/google.ts` (new), `apps/api/src/app.ts` (and its log redaction), `apps/api/src/server.ts` (its logger), `apps/api/src/db/schema.ts` and migration `0011_google_identities.sql`; `apps/web/src/routes/auth/shared.tsx`, `SignIn.tsx`, `SetPassword.tsx`, `SignIn.module.css`; tests (`apps/api/test/google.test.ts` new, `authz.test.ts`, `routes.test.ts`, `schema.test.ts`, `SignIn.test.tsx`, `Password.test.tsx`); README; `docs/LAUNCH.md` section 9; the two 390px screenshots in `docs/screenshots/`.
 
 - **Routes.**
   - `GET /api/auth/providers` answers `{ google }`, which the screens read to show or hide the button.
@@ -4450,4 +4450,8 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - The label is "Continue With Google", capitalized like the screen's other labels ("Sign In With a Password Instead").
   - It's a text button with no Google "G" mark: icons come only from `ICONS`, and the mark's colors aren't tokens. Adding the mark is one icon and a DECISIONS entry, if Google's review ever asks for it.
 - **Never logged:** an address, a name, a token or a `sub`. A refusal logs its code only.
+- **The production log now redacts URLs, as § 9.4 meant.**
+  - `server.ts` passed `logger: true`, which replaced `productionLogger()` with Fastify's default. So production logged raw URLs, including `/sign-in?token=…`, since Phase 07.
+  - It now passes `productionLogger()`, and `code` and `state` join the redacted URL parameters, so Google's one-time code on the callback is never logged.
+  - Checked on a local server: the callback logs as `?code=REDACTED&state=REDACTED`, and `/sign-in?token=` as `?token=REDACTED`.
 - **Not changed:** checkout, Stripe, GHL (a first Google sign-in counts as a first sign-in through the existing rule), prices, the shared header and footer, the homepage, `/agreement`.
