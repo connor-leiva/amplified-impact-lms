@@ -9,6 +9,7 @@
 import { CARD_CARTS, OFFER_TOKENS as T, PLAN_NAMES, token } from '@ai/core/offer';
 import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { esc } from '../ai101/render';
+import { HOME, PHOTOS } from '../home/content';
 import { CARD_STATES as S, EVERY_CARD, FACT_LABELS, NOTES, OFFERS } from '../offer/content';
 import type { OfferCopy } from '../offer/content';
 import { FREE_SKILLS_HREF, PROGRAM_PAGES } from './content';
@@ -44,6 +45,15 @@ export const linkToken = (cart: string): string => token(`link:${cart}`);
 
 /** The plain-text link under a card's button for each of its other carts. */
 const moreOf = (card: OfferCard): Readonly<Record<string, string>> => (card === 'agentPlan' ? AGENT_PLAN_MORE : (copyOf(card).more as Record<string, string>));
+
+/**
+ * The proof, next to every buy button (the offer-pages brief, Nov 11): "Built inside The Utah Life Real
+ * Estate Group" and "100 agents, 700+ homes a year", the homepage's own words (`HOME.proof`).
+ */
+export const proofLine = (): string => `<p class="proof-line"><span>${esc(HOME.proof.label)}</span> <strong>${esc(HOME.proof.figure)}</strong></p>`;
+
+/** Every sales page's share image: the homepage's, Spring's real headshot, so a shared link shows a face. */
+export const SHARE_IMAGE = PHOTOS.spring;
 
 /** Where every "Join the Waitlist" on this page goes: /offer's waitlist form, the one that exists. */
 export const WAITLIST_HREF = '/offer#waitlist';
@@ -99,9 +109,10 @@ export const CARD_PAGES: Readonly<Record<OfferCard, string>> = PROGRAM_PAGES;
 /**
  * The card's one button and its plain-text links, or what it says instead: soon, closed, sold out.
  * `details` adds "See Full Details" under them, in every state, to the program's own page: /pricing's
- * cards have it, and /team-build's own price block (which is that page) does not.
+ * cards have it, and /team-build's own price block (which is that page) does not. `proof` puts the
+ * proof line right under the buy buttons, so it shows exactly when they do.
  */
-export function offerActions(card: OfferCard, { details = false } = {}): string {
+export function offerActions(card: OfferCard, { details = false, proof = false } = {}): string {
   const c = copyOf(card);
   const [first, ...rest] = cartsOf(card);
   const waitlist = (cls: string) => `<a class="btn btn-secondary ${cls}" href="${WAITLIST_HREF}">${esc(S.waitlist)}</a>`;
@@ -118,6 +129,7 @@ export function offerActions(card: OfferCard, { details = false } = {}): string 
           `<div class="act-link">`,
           `<a class="btn btn-primary" href="${linkToken(first)}">${esc(c.button)}</a>`,
           ...rest.map((id) => (moreOf(card)[id] ? `<a class="text-link more" href="${linkToken(id)}">${esc(moreOf(card)[id]!)}</a>` : '')),
+          ...(proof ? [proofLine()] : []),
           `</div>`,
         ]
       : []),
@@ -154,7 +166,7 @@ export function offerCard(card: OfferCard): string {
     fact(FACT_LABELS.starts, c.starts.map((s) => `<p>${esc(s)}</p>`).join('')),
     `</dl>`,
     offerPrice(card),
-    offerActions(card, { details: true }),
+    offerActions(card, { details: true, proof: true }),
     `<p class="every">${esc(EVERY_CARD.officeHours)}</p>`,
     `<p class="not-ready">${esc(EVERY_CARD.notReadyBefore)}<a href="${esc(FREE_SKILLS_HREF)}">${esc(EVERY_CARD.notReadyLink)}</a>.</p>`,
     `</li>`,
