@@ -10,24 +10,27 @@
 import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { OFFER_TOKENS as T } from '@ai/core/offer';
 import { esc } from '../ai101/render';
-import { HOME } from '../home/content';
 import { CARD_STATES as S } from '../offer/content';
 import { faqSection, WAITLIST_HREF } from '../site/offers';
 import { siteFooter, siteHead, siteHeader, skipLink } from '../site/render';
+import { proofLine, SHARE_IMAGE } from '../site/offers';
 import { AGENTS_GET, BILLING, JOIN, OWNER_GETS, TEAMS_END, TEAMS_FAQ, TEAMS_HERO, TEAMS_META, TIERS } from './content';
 import type { Tier } from './content';
 
 export function renderTeamsHead(): string {
-  return siteHead(TEAMS_META);
+  return siteHead({ ...TEAMS_META, image: SHARE_IMAGE });
 }
 
 const list = (items: readonly string[], cls = 'ticks') => `<ul class="${cls}" role="list">${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`;
 
-/** One team size: its price and what the owner gets, then its button, or what it says instead. */
+/**
+ * One team size: its price and what the owner gets, then its button, or what it says instead. The two
+ * sizes with a cart have the proof line right under their button, showing exactly when it does.
+ */
 function tier(t: Tier): string {
   const actions = t.cart
     ? [
-        `<div class="act-link"><a class="btn btn-primary" href="${T.link(t.cart)}" aria-describedby="${t.id}-name">${esc(t.button)}</a></div>`,
+        `<div class="act-link"><a class="btn btn-primary" href="${T.link(t.cart)}" aria-describedby="${t.id}-name">${esc(t.button)}</a>${proofLine()}</div>`,
         `<p class="act-soon">${esc(S.soon)}</p>`,
         `<p class="act-closed">${esc(S.teamClosedBefore)}${T.foundingCloses}${esc(S.teamClosedAfter)}</p>`,
         `<a class="btn btn-secondary act-closed" href="${WAITLIST_HREF}">${esc(S.waitlist)}</a>`,
@@ -49,7 +52,6 @@ function tier(t: Tier): string {
 
 function hero(): string {
   const h = TEAMS_HERO;
-  const p = HOME.proof;
   return [
     `<section class="teams-hero" aria-labelledby="teams-title">`,
     `<div class="wrap">`,
@@ -58,7 +60,7 @@ function hero(): string {
     `<p class="lede">${esc(h.lede)}</p>`,
     `<p class="teams-founding founding-open"><strong>${F.countdown}</strong>${esc(h.countdownAfter)}${T.foundingCloses}${esc(h.countdownEnd)}</p>`,
     `<p class="teams-founding founding-closed">${esc(h.closedBefore)}${T.foundingCloses}${esc(h.closedAfter)}</p>`,
-    `<p class="proof-line"><span>${esc(p.label)}</span> <strong>${esc(p.figure)}</strong></p>`,
+    proofLine(),
     `</div>`,
     `</section>`,
   ].join('\n');
@@ -123,6 +125,7 @@ function end(): string {
     `<div class="wrap">`,
     `<h2 id="end-title">${esc(e.heading)}</h2>`,
     `<p class="end-action"><a class="btn btn-primary" href="#sizes">${esc(e.button)}</a></p>`,
+    proofLine(),
     `<p class="end-more">${esc(e.moreBefore)}<a href="${T.teamCall}">${esc(e.moreLink)}</a>${esc(e.moreAfter)}</p>`,
     `</div>`,
     `</section>`,
