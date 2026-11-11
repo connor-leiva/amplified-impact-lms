@@ -4149,3 +4149,16 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **The table.** Each program's name in the header links to its page, with the site's 44px text-link room. The header shows from 960px; on a phone the table stacks and the cards carry the links.
 - **The footer** gets a Programs column with the four links. The Site column keeps Home, Programs (/pricing), The Library, Free Resources and About.
 - **Unchanged:** every buy button's Payment Link token, every price, the picker and its anchors. A test pins the buttons' tokens and the four amounts.
+
+## D-125 · /pricing: the owner's second card, proof under every card's buttons, the single-skill answer, a share image
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), the offer-pages polish brief of 2026-11-11, item 2: "/pricing: picker Team Plan target, proof next to each card's buttons, single-skill FAQ, share image."
+**Status:** on a pull request, stacked on D-123's (it changes the same card code).
+**Scope:** `apps/web/src/pricing/content.ts` (`PICKER`, the FAQ's last answer), `apps/web/src/pricing/render.ts`, `apps/web/src/pricing/pricing.css`, `apps/web/src/site/offers.ts` (`proofLine`, `SHARE_IMAGE`, `offerActions`' `proof`), `apps/web/src/site/offers.css`, and the page's tests.
+
+- **The picker.** "I Own a Team" still lands on the Amplified AI Accelerator, and a link under it, "Or the Amplified Team Plan", lands on the Team Plan's card. The hint says "Amplified AI Accelerator", so together the two say what the hint said before. The cards keep Spring's order.
+- **Proof under every card's buy buttons:** "Built inside The Utah Life Real Estate Group" and "100 agents, 700+ homes a year", the homepage's words, from one helper (`proofLine`) the other sales pages can reuse. It sits in the block the stylesheet shows only for a live cart, so it shows exactly when the buttons do.
+- **"Can I buy one skill?"** now answers, word for word from the brief: "Not right now. Single-skill checkout is not open. If you want every owner and ops skill, Amplified Insiders includes them. Anyone can start with the 5 free skills." with the Library link. No "$37" and no "opens soon" anywhere on the page. The other six answers are unchanged.
+- **The share image** is the homepage's, Spring's real headshot (`/img/team/spring-bengtzen.jpg`, 890 by 1113, alt "Spring Bengtzen"), so `twitter:card` is `summary_large_image`. No new graphic.
+- **Unchanged:** prices, Payment Link tokens, the founding banner, the comparison table, `/agreement`.

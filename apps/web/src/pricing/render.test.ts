@@ -60,6 +60,18 @@ describe('the picker', () => {
     expect(picks.map((a) => a.getAttribute('href'))).toEqual([`#${CARD_IDS.agentPlan}`, `#${CARD_IDS.cohort}`, `#${CARD_IDS.membership}`]);
   });
 
+  it('takes an owner to both of an owner’s cards: the button to the Accelerator, a link to the Team Plan', () => {
+    const owner = $$('.pick-list > li')[1]!;
+    expect(text($('.pick-label', owner))).toBe('I Own a Team');
+    expect([text($('.pick-hint', owner)), $('a.pick', owner)?.getAttribute('href')]).toEqual(['Amplified AI Accelerator', `#${CARD_IDS.cohort}`]);
+    const also = $('a.pick-also', owner)!;
+    expect([text(also), also.getAttribute('href')]).toEqual(['Or the Amplified Team Plan', `#${CARD_IDS.agents}`]);
+    expect($(also.getAttribute('href')!)?.querySelector('.plan-name')?.textContent).toBe(PLAN_NAMES.agents);
+    // The other two choices have one target each, and the cards keep Spring's order.
+    expect($$('a.pick-also')).toHaveLength(1);
+    expect($$('.plan').map((c) => c.id)).toEqual(['accelerator', 'agent-plan', 'team-plan', 'insiders']);
+  });
+
   it('keeps the homepage’s link to Amplified Insiders landing on its card', () => {
     const fromHome = HOME.ways.cards.find((c) => c.name === 'Amplified Insiders')!.button.href;
     expect(fromHome).toBe('/pricing#insiders');
@@ -124,6 +136,17 @@ describe('the four cards', () => {
       expect(a.closest('.act-link, .act-soon, .act-closed, .act-soldout'), c.id).toBeNull();
       expect(a.parentElement?.classList.contains('plan-actions'), c.id).toBe(true);
     }
+  });
+
+  it('put the proof right under each card’s buy buttons, showing exactly when they do', () => {
+    for (const c of cards) {
+      const proof = $('.act-link .proof-line', c);
+      expect(text(proof), c.id).toBe('Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year');
+      expect(text($('strong', proof!)), c.id).toBe('100 agents, 700+ homes a year');
+      // After the card's last buy link, inside the block the stylesheet shows only for a live cart.
+      expect(proof!.previousElementSibling?.matches('a.btn, a.more'), c.id).toBe(true);
+    }
+    expect(text($('.pricing-hero .proof-line'))).toBe('Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year');
   });
 
   it('sell each plan through its first cart’s link, one button each, named exactly', () => {
@@ -211,6 +234,17 @@ describe('the questions', () => {
     expect($$('.faq details')).toHaveLength(7);
   });
 
+  it('say single-skill checkout is not open, with no price and no “opens soon”', () => {
+    const item = $$('.faq-list li').find((li) => text($('summary', li)) === 'Can I buy one skill?')!;
+    expect($$('.answer p', item).map(text)).toEqual([
+      'Not right now. Single-skill checkout is not open. If you want every owner and ops skill, Amplified Insiders includes them. Anyone can start with the 5 free skills.',
+      'See the Library',
+    ]);
+    expect($('.answer a', item)?.getAttribute('href')).toBe('/library');
+    expect(html).not.toContain('$37');
+    expect(html).not.toMatch(/That checkout opens soon/i);
+  });
+
   it('answer from the Library’s own cards: most skills run in Claude or ChatGPT', () => {
     const both = ENTRIES.filter((e) => e.tools.includes('claude') && e.tools.includes('chatgpt')).length;
     expect(both).toBeGreaterThan(ENTRIES.length / 2);
@@ -245,6 +279,20 @@ describe('the links to the programs’ own pages', () => {
   it('leave the buttons and prices as they were', () => {
     expect($$('.plan .act-link .btn').map((b) => b.getAttribute('href'))).toEqual(['%%link:cohort-full%%', '%%link:agent-monthly%%', '%%link:agents-upto15%%', '%%link:insiders-year%%']);
     expect($$('.plan .price:not(.founding-closed) .amount').map(text)).toEqual(['$7,500', '$79', '$1,491', '$1,997']);
+  });
+});
+
+describe('the share tags', () => {
+  it('carry the title, description, canonical address and Spring’s real headshot, as a large card', () => {
+    const meta = (sel: string) => $(sel)?.getAttribute('content');
+    expect(text($('title'))).toBe('Programs and Pricing · Amplified Impact');
+    expect(meta('meta[name="description"]')).toMatch(/^Pick the way you want to learn AI\./);
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/pricing');
+    expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/pricing');
+    expect(meta('meta[property="og:title"]')).toBe('Programs and Pricing · Amplified Impact');
+    expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
+    expect([meta('meta[property="og:image:width"]'), meta('meta[property="og:image:height"]'), meta('meta[property="og:image:alt"]')]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });
 

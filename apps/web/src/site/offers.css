@@ -30,6 +30,10 @@
   color: var(--text-primary);
   font-weight: 500;
 }
+/* Under a card's buy buttons, close to them. */
+.act-link .proof-line {
+  margin-top: 6px;
+}
 /* --- Ticked lists and two columns, for any sales page ------------------------------------------- */
 
 .ticks {

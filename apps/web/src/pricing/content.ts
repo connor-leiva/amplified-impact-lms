@@ -16,8 +16,8 @@
 //
 // OPEN DECISIONS STAY OPEN (docs/SPRING-PLAN.md, "Open decisions"): no day or time for the weekly agent
 // training ("weekly, starting the week of January 4"), no payment plan for $9,997, no Team Plan price
-// after founding (the card goes to the waitlist, Connor 2026-11-10), and no $37 checkout until Ampy
-// makes one.
+// after founding (the card goes to the waitlist, Connor 2026-11-10), and no single-skill checkout (Ampy,
+// 2026-11-11: there is no single-skill cart, and the page never prices one or says it opens soon).
 
 import { CARD_IDS } from '../site/offers-content';
 import type { Faq } from '../site/offers-content';
@@ -36,14 +36,24 @@ export const PRICING_HERO = {
 } as const;
 
 /** "Which one is right for me?": three buttons, each scrolls to its card (Spring's plan). */
-export const PICKER = {
+export const PICKER: {
+  heading: string;
+  choices: readonly { label: string; hint: string; href: string; also?: { label: string; href: string } }[];
+} = {
   heading: 'Which one is right for me?',
   choices: [
     { label: 'I’m an Agent', hint: 'Amplified Agent Plan', href: `#${CARD_IDS.agentPlan}` },
-    { label: 'I Own a Team', hint: 'Amplified AI Accelerator or Amplified Team Plan', href: `#${CARD_IDS.cohort}` },
+    // An owner has two cards (the offer-pages brief, Nov 11): the button still lands on the Accelerator,
+    // and a link under it reaches the Team Plan's. Together they say what the hint said before.
+    {
+      label: 'I Own a Team',
+      hint: 'Amplified AI Accelerator',
+      href: `#${CARD_IDS.cohort}`,
+      also: { label: 'Or the Amplified Team Plan', href: `#${CARD_IDS.agents}` },
+    },
     { label: 'I Just Want the Skills', hint: 'Amplified Insiders', href: `#${CARD_IDS.membership}` },
   ],
-} as const;
+};
 
 export const PLANS_HEADING = 'Four ways in';
 
@@ -137,8 +147,11 @@ export const FAQ: { heading: string; items: readonly Faq[] } = {
     },
     {
       q: 'Can I buy one skill?',
-      // [OPEN: the $37 single-skill checkout]. Spring's plan prices it; Ampy has not made the cart yet.
-      a: ['Single skills are $37 each. That checkout opens soon. Want them all? Amplified Insiders gets you every owner and ops skill.'],
+      // The offer-pages brief's answer, word for word (Nov 11). No price and no "opens soon": there is no
+      // single-skill cart, and Ampy decided not to invent one.
+      a: [
+        'Not right now. Single-skill checkout is not open. If you want every owner and ops skill, Amplified Insiders includes them. Anyone can start with the 5 free skills.',
+      ],
       link: { label: 'See the Library', href: '/library' },
     },
   ],

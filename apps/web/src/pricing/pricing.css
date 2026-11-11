@@ -51,6 +51,11 @@
   font-size: 16px;
   font-weight: 400;
 }
+/* "Or the Amplified Team Plan": the owner's second card, a thumb-sized link under the button. */
+.pick-also {
+  min-height: 48px;
+  padding: 0 16px;
+}
 
 /* --- The comparison table: a list per row on a phone, a table from 960px ----------------------- */
 

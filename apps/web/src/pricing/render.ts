@@ -13,9 +13,8 @@
 // Every string from content goes through `esc()`.
 
 import { esc } from '../ai101/render';
-import { HOME } from '../home/content';
 import { FREE_SKILLS_HREF } from '../site/content';
-import { CARD_NAMES, CARD_ORDER, CARD_PAGES, faqSection, foundingBanner, offerCard } from '../site/offers';
+import { CARD_NAMES, CARD_ORDER, CARD_PAGES, faqSection, foundingBanner, offerCard, proofLine, SHARE_IMAGE } from '../site/offers';
 import { icon, siteFooter, siteHead, siteHeader, skipLink } from '../site/render';
 import { COMPARE, END, FAQ, PICKER, PLANS_HEADING, PRICING_HERO, PRICING_META } from './content';
 import type { Cell } from './content';
@@ -24,14 +23,18 @@ import type { Cell } from './content';
 export { CARD_NAMES, CARD_ORDER, WAITLIST_HREF } from '../site/offers';
 
 export function renderPricingHead(): string {
-  return siteHead(PRICING_META);
+  return siteHead({ ...PRICING_META, image: SHARE_IMAGE });
 }
 
 function hero(): string {
   const h = PRICING_HERO;
-  const p = HOME.proof;
   const choices = PICKER.choices
-    .map((c) => `<li><a class="btn btn-secondary pick" href="${esc(c.href)}"><span class="pick-label">${esc(c.label)}</span><span class="pick-hint">${esc(c.hint)}</span></a></li>`)
+    .map(
+      (c) =>
+        `<li><a class="btn btn-secondary pick" href="${esc(c.href)}"><span class="pick-label">${esc(c.label)}</span><span class="pick-hint">${esc(c.hint)}</span></a>${
+          c.also ? `<a class="text-link pick-also" href="${esc(c.also.href)}">${esc(c.also.label)}</a>` : ''
+        }</li>`,
+    )
     .join('');
   return [
     `<section class="pricing-hero" aria-labelledby="pricing-title">`,
@@ -39,7 +42,7 @@ function hero(): string {
     `<p class="eyebrow">${esc(h.eyebrow)}</p>`,
     `<h1 id="pricing-title">${esc(h.title)}</h1>`,
     `<p class="lede">${esc(h.lede)}</p>`,
-    `<p class="proof-line"><span>${esc(p.label)}</span> <strong>${esc(p.figure)}</strong></p>`,
+    proofLine(),
     `<nav class="picker" aria-labelledby="picker-title">`,
     `<h2 id="picker-title">${esc(PICKER.heading)}</h2>`,
     `<ul class="pick-list" role="list">${choices}</ul>`,
