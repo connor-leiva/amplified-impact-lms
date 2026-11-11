@@ -1,0 +1,323 @@
+/* What every www page shares. DECISIONS.md D-107.
+
+   The homepage's look (D-102), kept: the warm paper ground, plain cards with a hairline, headings at
+   weight 500, the brand green as the one accent (actions, the free tag). Spring's mobile rules
+   (docs/SPRING-PLAN.md, "Design and copy rules"): thumb-sized buttons (48px, a small one 44px), no text
+   under 16px, nothing wider than the screen. Mobile first; wider layouts from 768px and 960px, and
+   1200px as the widest the page grows.
+
+   COLOURS are tokens only (`scripts/check-css-colors.mjs` scans this file). Each page's stylesheet
+   imports this one, and the build inlines the result. */
+
+@import '@fontsource/hanken-grotesk/400.css';
+@import '@fontsource/hanken-grotesk/500.css';
+@import '@fontsource/dm-mono/400.css';
+@import '../styles/tokens.css';
+@import '../styles/global.css';
+
+:root {
+  --site-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+h1,
+h2,
+h3 {
+  font-weight: 500;
+  text-wrap: balance;
+}
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 3px;
+}
+main:focus {
+  outline: none;
+}
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.skip {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 10;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-pop);
+  font-weight: 500;
+  text-decoration: none;
+}
+.skip:focus {
+  top: 12px;
+}
+
+/* --- Buttons: Title Case (D-048), one green per section --------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 10px;
+  font: 500 17px/1.2 var(--font-sans);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--site-ease),
+    transform 160ms var(--site-ease);
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn-primary {
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.btn-primary:hover {
+  background: var(--action-primary-hover);
+  color: var(--action-on-primary);
+}
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.btn-secondary:hover {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+.btn-sm {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+/* A plain-text link that still gives a thumb room. */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+/* --- The header: logo, nav, button. The nav wraps to its own row on a phone. -------------------- */
+
+.site-top {
+  border-bottom: 1px solid var(--line-default);
+  background: var(--bg-canvas);
+}
+.site-top-in {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    'brand cta'
+    'nav nav';
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+.site-brand {
+  grid-area: brand;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.site-logo {
+  display: block;
+  width: 150px;
+  height: auto;
+}
+.site-cta {
+  grid-area: cta;
+}
+.site-nav {
+  grid-area: nav;
+}
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+}
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.site-nav a:hover,
+.site-nav a[aria-current='page'] {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+/* --- Sections and the parts the pages share ---------------------------------------------------- */
+
+.section {
+  padding: 56px 0;
+}
+.section + .section {
+  border-top: 1px solid var(--line-default);
+}
+.eyebrow {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.section h2 {
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.section-lede {
+  max-width: 62ch;
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+.card {
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--line-default);
+}
+
+/* The free tag and the lock, as the Library shows them. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+  white-space: nowrap;
+}
+.tag-free {
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+}
+.tag-lock {
+  background: var(--bg-sunken);
+  color: var(--text-secondary);
+}
+.tag-lock svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- The footer -------------------------------------------------------------------------------- */
+
+.site-foot {
+  margin-top: 24px;
+  padding: 40px 0 56px;
+  border-top: 1px solid var(--line-default);
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+.site-foot-in {
+  display: grid;
+  gap: 24px;
+}
+.site-foot-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.site-foot-about {
+  display: grid;
+  gap: 6px;
+}
+.site-foot ul {
+  display: grid;
+  gap: 0;
+}
+.site-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.site-contact a {
+  overflow-wrap: anywhere;
+}
+
+/* --- Wider screens ----------------------------------------------------------------------------- */
+
+@media (min-width: 960px) {
+  .site-top-in {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'brand nav cta';
+    gap: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .site-nav ul {
+    justify-content: center;
+    gap: 0 28px;
+  }
+  .section {
+    padding: 80px 0;
+  }
+  .section h2 {
+    font-size: 38px;
+  }
+  .site-foot-in {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  .btn:active {
+    transform: none;
+  }
+}
