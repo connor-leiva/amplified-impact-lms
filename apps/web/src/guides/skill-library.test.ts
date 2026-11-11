@@ -106,7 +106,8 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
 
   it('shows the same guided setup as the free page, under the card (D-101)', () => {
     const d = guide.download;
-    const lists = [d.setup ?? [], ...(d.chatgpt ? [d.chatgpt.setup] : [])];
+    // A Grok Bot lane comes first in the switch (D-108).
+    const lists = [...(d.grok ? [d.grok.setup] : []), d.setup ?? [], ...(d.chatgpt ? [d.chatgpt.setup] : [])];
     const boxes = Array.from(card?.querySelectorAll(':scope > .library-setup [data-guided]') ?? []);
     expect(boxes).toHaveLength(lists.length);
     expect(lists[0]?.length, 'a paid page with steps').toBeGreaterThan(3);

@@ -1,0 +1,25 @@
+PRACTICE FILE: made-up example. Saved from the Lead-Source ROI chat in Grok Bot on Thursday, November 5, 2026.
+
+Lead-Source ROI for October 2026. Spend from QuickBooks Online marketing and lead-gen accounts. Closings from Follow Up Boss by close date.
+
+October totals: mapped spend $5,860.00, 5 closings with a source, volume $2,045,000, GCI present on 5 of 5 closes, totaling $55,410.00.
+
+| Source | Spend | Closes | Volume | GCI | Cost / close | Spend / GCI $ |
+| --- | --- | --- | --- | --- | --- | --- |
+| Zillow Flex | $2,600.00 | 2 | $830,000 | $22,410.00 | $1,300.00 | $0.12 |
+| Google Ads | $1,450.00 | 1 | $395,000 | $10,665.00 | $1,450.00 | $0.14 |
+| Sphere | $120.00 | 1 | $440,000 | $11,880.00 | $120.00 | $0.01 |
+| Open house | $380.00 | 1 | $380,000 | $10,455.00 | $380.00 | $0.04 |
+| Facebook Ads | $1,310.00 | 0 | $0 | $0.00 | None | None |
+| Untagged spend | $340.00 | None | None | None | None | None |
+| Closings with no source | None | 2 | None | None | None | None |
+
+Untagged spend: $340.00 Zillow charge on Oct 9, still uncategorized in QuickBooks. Not mapped, not assigned to Zillow Flex.
+
+Closings with no source: 2 October closings in Follow Up Boss have a blank lead source.
+
+Facebook Ads shows spend and no October closes; that is a fact about this month, not a recommendation to cancel the source.
+
+Nothing was changed in QuickBooks or Follow Up Boss.
+
+Bookkeeping support only, not tax or investment advice. GCI was not estimated.

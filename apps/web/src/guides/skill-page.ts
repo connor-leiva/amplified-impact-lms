@@ -40,6 +40,16 @@ export function chatgptPaste(name: string): string {
   return readFileSync(join(dir, 'skills', name, 'chatgpt', 'paste.txt'), 'utf8');
 }
 
+/**
+ * A skill's own Grok Bot template (D-108), `skills/<name>/grok/SKILL.md`, read at build time like the
+ * ChatGPT words above, so its page and its ZIP can never say two different things.
+ */
+export function skillGrokTemplate(name: string): string {
+  let dir = process.cwd();
+  while (!existsSync(join(dir, 'skills', 'README.md')) && dirname(dir) !== dir) dir = dirname(dir);
+  return readFileSync(join(dir, 'skills', name, 'grok', 'SKILL.md'), 'utf8');
+}
+
 const ORIGIN = 'https://www.amplifiedimpact.io';
 
 export interface SkillPage {

@@ -1,0 +1,14 @@
+Objective checks: case-1 / output.md
+- PASS  No em or en dashes
+- PASS  Check Before Sending section
+- PASS  Title Case subject lines: An Owner And A Date Needed For Two Items
+- PASS  Bottom line three sentences or fewer: 3 sentences
+- PASS  At most three in Today's Three: 3
+- PASS  Today's Three as expected, in order: Sign off on the Q1 marketing calendar | Decide on the dialer renewal (Dialtone Example) | Approve Marlowe's open house signage order
+- PASS  Every number over 20 in the inputs (smaller ones graded by hand): all found
+- PASS  Every weekday matches its date in 2026: all match
+- PASS  Every owner in Next Owned Actions is a name from the inputs: Thimble Oakhurst, Caspian Dewberry, Marlowe Fenwick
+- PASS  No words judging a person: none
+- PASS  No account or routing numbers
+- PASS  Must-appear strings present: 7 found
+- PASS  Never-appear strings absent: 4 absent

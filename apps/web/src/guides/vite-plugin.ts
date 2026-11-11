@@ -68,6 +68,7 @@ export const GUIDE_HTML = [
   'closing-week-checklist.html',
   'listing-to-live.html',
   'post-close-file-closeout.html',
+  'morning-brief.html',
 ] as const;
 
 /** `render.ts`, as a URL from the app's root: what `ssrLoadModule` takes. */

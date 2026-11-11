@@ -17,6 +17,8 @@ skills/
       instructions.md      the full instructions, uploaded as a project file
       paste.txt            the short text pasted into the Project's Instructions box
       *.md                 up to 3 more files to upload
+    grok/                  a Grok Bot template of the same skill (only Morning Brief so far, D-108)
+      SKILL.md             in the Grok Bot templates' shape (D-100), saved in Grok Bot as a skill
     practice/              the made-up practice files, offered on the page
     evals/
       evals.json           the test cases
@@ -33,8 +35,9 @@ skills/
 | The Claude skill | `SKILL.md`, `references/`, every other file at the root except the ones below, plus `_shared/` files listed in `skill.json` (into `references/`) | `<name>.zip`, one folder `<name>/` at its root |
 | The ChatGPT Project version | `chatgpt/` | `<name>-chatgpt.zip`, one folder `<name>-chatgpt/` |
 | The practice files | `practice/` | `<name>-practice.zip`, one folder `<name>-practice/` |
+| The Grok Bot template (D-108) | `grok/SKILL.md` | `<name>-grok.zip`, one folder `<name>-grok/` |
 
-Never shipped: `skill.json`, `chatgpt/`, `practice/`, `evals/`, `sample.md`, `page-notes.md`.
+Never shipped in the Claude skill: `skill.json`, `chatgpt/`, `grok/`, `practice/`, `evals/`, `sample.md`, `page-notes.md`.
 
 ## skill.json
 
@@ -52,7 +55,16 @@ Never shipped: `skill.json`, `chatgpt/`, `practice/`, `evals/`, `sample.md`, `pa
 `name` is the folder and the skill's `name`. `page` is the page slug, which is also the sign-up source
 and the GoHighLevel tag; it equals `name` except where a skill already had another name
 (`content-opportunity-research` is the Content Strategist, at `/content-strategist`). `apps` lists
-`chatgpt` only when `chatgpt/` exists.
+`chatgpt` only when `chatgpt/` exists, and `grok` only when `grok/` exists.
+
+## grok/ (D-108)
+
+A skill whose brief asks for a Grok Bot template ships one beside the Claude skill: `grok/SKILL.md`,
+nothing else in the folder, in the shape the Grok Bot shelf's templates have (its sections in order,
+a routine with a schedule, an example cron and a prompt to save, and no dashes; `node scripts/skills.mjs
+check` holds it to that with the same check as `scripts/grok-templates.mjs`). Its page puts Grok Bot
+first in the app switch, with the shelf's seven steps (`grokSetup`). The skill stays one catalog row
+with a `grok` file; it is not on the Grok Bot shelf, whose templates have no Claude version.
 
 ## SKILL.md rules (checked by `node scripts/skills.mjs check`)
 

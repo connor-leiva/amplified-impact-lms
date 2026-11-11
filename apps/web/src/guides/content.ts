@@ -79,6 +79,7 @@ import { STALLED_ITEM_FOLLOW_UP } from './stalled-item-follow-up';
 import { CLOSING_WEEK_CHECKLIST } from './closing-week-checklist';
 import { LISTING_TO_LIVE } from './listing-to-live';
 import { POST_CLOSE_FILE_CLOSEOUT } from './post-close-file-closeout';
+import { MORNING_BRIEF } from './morning-brief';
 
 /** A run of inline copy: text, `{ strong }`, or `{ link }` (a new tab, unless `sameTab`). */
 export type Inline = string | { strong: string } | { link: string; href: string; sameTab?: boolean };
@@ -222,6 +223,18 @@ export interface OtherApp {
 }
 
 /**
+ * A skill that also ships a Grok Bot template (Morning Brief, D-108): its guided setup in Grok Bot, the
+ * first of three choices in the app switch, checked to start, before Claude and ChatGPT. The steps are
+ * the Grok Bot shelf's own (`grokSetup` in `grok-page.ts`): copied words toast "Paste it into Grok
+ * Bot", and no button opens an app.
+ */
+export interface GrokLane {
+  /** The switch's label: "Grok Bot". */
+  label: string;
+  setup: readonly SetupStep[];
+}
+
+/**
  * On a phone, the line that says to finish on a computer, and the button that gets the page there:
  * the share sheet where there is one (`share`), otherwise `href`, a `mailto:` that works with no
  * script.
@@ -265,6 +278,8 @@ export interface Guide {
     setup?: readonly SetupStep[];
     /** With `setup`, the same skill's steps in ChatGPT, behind a Claude / ChatGPT switch (D-052). */
     chatgpt?: OtherApp;
+    /** With `chatgpt`, a Grok Bot lane first in the switch (D-108). */
+    grok?: GrokLane;
     handoff?: Handoff;
     inApp?: string;
   };
@@ -340,6 +355,7 @@ const WRITTEN: Readonly<Record<string, Guide>> = {
   [CLOSING_WEEK_CHECKLIST.slug]: CLOSING_WEEK_CHECKLIST,
   [LISTING_TO_LIVE.slug]: LISTING_TO_LIVE,
   [POST_CLOSE_FILE_CLOSEOUT.slug]: POST_CLOSE_FILE_CLOSEOUT,
+  [MORNING_BRIEF.slug]: MORNING_BRIEF,
 };
 
 /**

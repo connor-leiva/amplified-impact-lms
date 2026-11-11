@@ -15,14 +15,10 @@
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DOWNLOADS_DIR, ROOT, shellFor, zip } from './skills.mjs';
+import { DOWNLOADS_DIR, grokFrontmatter, grokSection, grokTemplateErrors, ROOT, shellFor, zip } from './skills.mjs';
 
 export const TEMPLATES_DIR = join(ROOT, 'content', 'grok-bot-templates');
 export const COLLECTIONS = ['bookkeeping', 'transactions'];
-
-const DASHES = /[–—]/;
-/** The sections every template has, in this order (the README's last paragraph). */
-const SECTIONS = ['Who it\'s for', 'What it connects to', 'Guardrails', 'Setup questions', 'Recommended routine', 'Procedure', 'Output format', 'Sample output (EXAMPLE DATA ONLY)'];
 
 /** Every template, as `{ id, collection }`, in folder order within each collection. */
 export function listTemplates() {
@@ -42,67 +38,22 @@ export function templatePath(id) {
   return join(TEMPLATES_DIR, found.collection, id, 'SKILL.md');
 }
 
-/** The frontmatter's `name` and `description` (a plain or folded `>-` scalar), or null. */
-export function frontmatterOf(text) {
-  const m = /^---\n([\s\S]*?)\n---\n/.exec(text);
-  if (!m) return null;
-  const lines = m[1].split('\n');
-  const out = {};
-  for (let i = 0; i < lines.length; i++) {
-    const kv = /^([a-z-]+):\s*(.*)$/.exec(lines[i]);
-    if (!kv) continue;
-    let value = kv[2];
-    if (value === '>-' || value === '>' || value === '|') {
-      const block = [];
-      while (i + 1 < lines.length && /^\s+\S/.test(lines[i + 1])) block.push(lines[++i].trim());
-      value = block.join(' ');
-    }
-    out[kv[1]] = value.replace(/^["']|["']$/g, '');
-  }
-  return out;
-}
+/**
+ * The frontmatter's `name` and `description`, a `## heading` section's text, and the shape check: in
+ * `scripts/skills.mjs` since a skill can ship a Grok Bot template of its own (D-108), which is checked
+ * the same way.
+ */
+export const frontmatterOf = grokFrontmatter;
+export const sectionOf = grokSection;
 
 export function check(id) {
-  const errors = [];
-  const err = (m) => errors.push(`${id}: ${m}`);
   let text;
   try {
     text = readFileSync(templatePath(id), 'utf8');
   } catch (e) {
     return { errors: [`${id}: ${e.message}`] };
   }
-  const fm = frontmatterOf(text);
-  if (!fm) err('SKILL.md has no frontmatter between --- lines');
-  else {
-    if (!fm.name) err('frontmatter needs a name');
-    if (!fm.description) err('frontmatter needs a description');
-  }
-  const lines = text.split('\n');
-  lines.forEach((line, i) => {
-    if (DASHES.test(line)) err(`line ${i + 1} has an em or en dash (the house rule)`);
-  });
-  const headings = lines.filter((l) => l.startsWith('## ')).map((l) => l.slice(3));
-  let at = -1;
-  for (const s of SECTIONS) {
-    const i = headings.findIndex((h, k) => k > at && h.startsWith(s));
-    if (i < 0) err(`no "## ${s}" section after the ones before it`);
-    else at = i;
-  }
-  const routine = sectionOf(text, 'Recommended routine');
-  if (!/\*\*Schedule:\*\*/.test(routine)) err('the routine has no **Schedule:** line');
-  if (!/\*\*Cron \([^)]*\):\*\* `[^`]+`/.test(routine)) err('the routine has no **Cron (...):** line');
-  if (!/\*\*Routine prompt to save:\*\*\s*\n+```\n[\s\S]+?\n```/.test(routine)) err('the routine has no prompt to save in a code block');
-  return { errors };
-}
-
-/** A `## heading` section's text, without its heading, up to the next `## `. */
-export function sectionOf(text, heading) {
-  const lines = text.split('\n');
-  const start = lines.findIndex((l) => l.startsWith(`## ${heading}`));
-  if (start < 0) return '';
-  const rest = lines.slice(start + 1);
-  const end = rest.findIndex((l) => l.startsWith('## '));
-  return (end < 0 ? rest : rest.slice(0, end)).join('\n');
+  return { errors: grokTemplateErrors(text).map((m) => `${id}: ${m}`) };
 }
 
 /** What `build` writes for a template: one ZIP holding its SKILL.md, in a folder named for it. */

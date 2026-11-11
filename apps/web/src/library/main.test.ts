@@ -193,13 +193,15 @@ describe('the Grok Bot shelf (D-100)', () => {
   const shelf = () => $('[data-shelf]');
   const collection = (c: string) => $(`[data-collection="${c}"]`);
 
-  it('shows only the templates on the Grok Bot pill, and hides the main list’s cards', async () => {
+  it('shows only the templates and Morning Brief on the Grok Bot pill, and hides the main list’s other cards', async () => {
     await boot();
     chip('tool', 'grok').click();
     expect(visible()).toEqual(titles((e) => e.tools.includes('grok')));
-    expect(visible()).toHaveLength(16);
+    // The shelf's 16, and Morning Brief in the main list: a skill with a Grok Bot lane (D-108).
+    expect(visible()).toHaveLength(17);
+    expect(visible().filter((t) => ENTRIES.find((e) => e.title === t)?.collection === undefined)).toEqual(['Morning Brief']);
     expect(shelf().hidden).toBe(false);
-    expect($('#library-count').textContent).toBe('Showing 16 resources');
+    expect($('#library-count').textContent).toBe('Showing 17 resources');
   });
 
   it('hides a collection with nothing left in it, and the shelf when both are empty', async () => {

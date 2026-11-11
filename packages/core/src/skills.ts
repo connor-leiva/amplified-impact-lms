@@ -12,6 +12,10 @@
 // and the time audit are guides, not ZIPs, and stay public as they are. Every other ZIP is paid:
 // `server.ts` stops serving it from `/downloads`, and its page shows a preview and the guided setup
 // with the Skill Library card instead of the download (D-082, D-101).
+//
+// A SKILL WITH A GROK BOT TEMPLATE (D-108). Morning Brief ships one Grok Bot template beside its Claude
+// skill and ChatGPT Project, built from its own `grok/SKILL.md`: one catalog row, one page, four files.
+// It is not on the Grok Bot shelf (`grok-templates.ts`), which holds templates with no skill.
 
 import type { SkillSet } from './offer';
 
@@ -21,8 +25,11 @@ export interface CatalogSkill {
   /** One line for the library screen. */
   summary: string;
   sets: SkillSet;
-  /** The ZIPs this skill ships as, by kind; the file names under `apps/web/public/downloads`. */
-  files: { claude?: string; chatgpt?: string; practice?: string };
+  /**
+   * The ZIPs this skill ships as, by kind; the file names under `apps/web/public/downloads`. `grok` is
+   * the Grok Bot template a skill ships beside itself (D-108), the platform's "Download for Grok Bot".
+   */
+  files: { claude?: string; chatgpt?: string; practice?: string; grok?: string };
   /** Its www page's path, when it is not the id (D-101): where its guided setup is. */
   page?: string;
 }
@@ -69,6 +76,15 @@ export const SKILL_CATALOG: readonly CatalogSkill[] = [
   { id: 'tc-file-audit', title: 'TC File Audit', summary: 'Crosses one transaction file against the brokerage checklist and the contract dates, and drafts the asks.', sets: 'owner_ops', files: zips('tc-file-audit', true) },
   // The AI Accelerator's week 7 flagship (D-109): paid, in the owner and operations set.
   { id: 'new-agent-onboarding-plan', title: 'New Agent Onboarding Plan', summary: "Writes down the team's onboarding once, then dates each new hire's first 30 days with owners and checkpoints.", sets: 'owner_ops', files: zips('new-agent-onboarding-plan', true) },
+  // The AI Accelerator's week 2 flagship, the Team Owner version (D-108): a Grok Bot template first, with
+  // the same brief for Claude and a ChatGPT Project.
+  {
+    id: 'morning-brief',
+    title: 'Morning Brief',
+    summary: "A team owner's one page each morning: the top three, the decisions waiting, and who owns each next step.",
+    sets: 'owner_ops',
+    files: { ...zips('morning-brief', true), grok: 'morning-brief-grok.zip' },
+  },
   // For everyone.
   { id: 'ai-brain-setup', title: 'AI Brain Setup', summary: 'Interviews an agent or team leader and builds their Claude workspace: instructions, a business file and memory.', sets: 'both', files: zips('ai-brain-setup', true) },
   { id: 'ai-brain-tuneup', title: 'AI Brain Tune-Up', summary: "Audits the AI's project instructions, files and memory, and hands back clean instructions to paste in.", sets: 'both', files: zips('ai-brain-tuneup', true) },

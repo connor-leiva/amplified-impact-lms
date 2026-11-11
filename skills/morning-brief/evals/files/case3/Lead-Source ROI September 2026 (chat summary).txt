@@ -1,0 +1,19 @@
+EVAL FILE: made-up example. Saved from the Lead-Source ROI chat in Grok Bot on Monday, October 5, 2026.
+
+Lead-Source ROI for September 2026. Spend from QuickBooks Online marketing and lead-gen accounts. Closings from Follow Up Boss by close date.
+
+September totals: mapped spend $3,940.00, 4 closings with a source, volume $1,610,000, GCI present on 4 of 4 closes, totaling $43,470.00.
+
+| Source | Spend | Closes | Volume | GCI | Cost / close | Spend / GCI $ |
+| --- | --- | --- | --- | --- | --- | --- |
+| Realtor.com | $1,800.00 | 2 | $760,000 | $20,520.00 | $900.00 | $0.09 |
+| Google Ads | $1,240.00 | 1 | $455,000 | $12,285.00 | $1,240.00 | $0.10 |
+| Sphere | $0.00 | 1 | $395,000 | $10,665.00 | None | None |
+| Mailers | $900.00 | 0 | $0 | $0.00 | None | None |
+| Untagged spend | $410.00 | None | None | None | None | None |
+
+Untagged spend: $410.00 on Sep 14, still uncategorized in QuickBooks.
+
+Nothing was changed in QuickBooks or Follow Up Boss.
+
+Bookkeeping support only, not tax or investment advice. GCI was not estimated.

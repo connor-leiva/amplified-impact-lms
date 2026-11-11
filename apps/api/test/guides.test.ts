@@ -171,6 +171,7 @@ it('serves the guides there are, by slug', () => {
       'closing-week-checklist',
       'listing-to-live',
       'post-close-file-closeout',
+      'morning-brief',
     ]);
 });
 

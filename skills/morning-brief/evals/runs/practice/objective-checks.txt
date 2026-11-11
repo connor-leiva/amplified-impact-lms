@@ -1,0 +1,14 @@
+Objective checks: practice / output.md
+- PASS  No em or en dashes
+- PASS  Check Before Sending section
+- PASS  Title Case subject lines: Owners And Dates Needed For Five Items
+- PASS  Bottom line three sentences or fewer: 3 sentences
+- PASS  At most three in Today's Three: 3
+- PASS  Today's Three as expected, in order: Approve the Lantern Moss Lane marketing budget | Review October lead-source numbers with the bookkeeper | Decide on the Zillow Flex renewal
+- PASS  Every number over 20 in the inputs (smaller ones graded by hand): all found
+- PASS  Every weekday matches its date in 2026: all match
+- PASS  Every owner in Next Owned Actions is a name from the inputs: Odette Bramblecombe, Nettle Ashcombe, Tobin Fernsby, Juno Pebblewick, Pip Larkhaven, Saffron Quillby
+- PASS  No words judging a person: none
+- PASS  No account or routing numbers
+- PASS  Must-appear strings present: 6 found
+- PASS  Never-appear strings absent: 5 absent

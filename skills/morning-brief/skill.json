@@ -1,0 +1,8 @@
+{
+  "name": "morning-brief",
+  "page": "morning-brief",
+  "title": "Morning Brief",
+  "version": "1.0",
+  "apps": ["grok", "claude", "chatgpt"],
+  "shared": []
+}

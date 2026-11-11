@@ -65,17 +65,33 @@
   cursor: pointer;
 }
 #app-claude:checked ~ .app-switch label[for='app-claude'],
-#app-chatgpt:checked ~ .app-switch label[for='app-chatgpt'] {
+#app-chatgpt:checked ~ .app-switch label[for='app-chatgpt'],
+#app-grok:checked ~ .app-switch label[for='app-grok'] {
   background: var(--action-primary);
   color: var(--action-on-primary);
 }
 #app-claude:focus-visible ~ .app-switch label[for='app-claude'],
-#app-chatgpt:focus-visible ~ .app-switch label[for='app-chatgpt'] {
+#app-chatgpt:focus-visible ~ .app-switch label[for='app-chatgpt'],
+#app-grok:focus-visible ~ .app-switch label[for='app-grok'] {
   outline: 3px solid var(--action-primary-line);
   outline-offset: 2px;
 }
 #app-claude:checked ~ .app-setup-chatgpt,
 #app-chatgpt:checked ~ .app-setup-claude {
+  display: none;
+}
+/* A skill with a Grok Bot lane (D-108): three buttons, Grok Bot first, one list showing. */
+.app-switch-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.app-switch-3 label {
+  padding: 0 6px;
+  text-align: center;
+}
+#app-grok:checked ~ .app-setup-claude,
+#app-grok:checked ~ .app-setup-chatgpt,
+#app-claude:checked ~ .app-setup-grok,
+#app-chatgpt:checked ~ .app-setup-grok {
   display: none;
 }
 /* The switch names the app, so its heading is for a screen reader. With no CSS, it shows. */
@@ -555,6 +571,9 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--text-secondary);
+}
+.sk .app-switch-3 label {
+  padding: 0 6px;
 }
 
 /* --- The setup as a checklist ---------------------------------------------------------------------
