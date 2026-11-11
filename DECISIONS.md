@@ -4162,3 +4162,15 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **"Can I buy one skill?"** now answers, word for word from the brief: "Not right now. Single-skill checkout is not open. If you want every owner and ops skill, Amplified Insiders includes them. Anyone can start with the 5 free skills." with the Library link. No "$37" and no "opens soon" anywhere on the page. The other six answers are unchanged.
 - **The share image** is the homepage's, Spring's real headshot (`/img/team/spring-bengtzen.jpg`, 890 by 1113, alt "Spring Bengtzen"), so `twitter:card` is `summary_large_image`. No new graphic.
 - **Unchanged:** prices, Payment Link tokens, the founding banner, the comparison table, `/agreement`.
+
+## D-126 · /team-build: recordings in the Library, proof under the price section's buttons, a share image
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), the offer-pages polish brief of 2026-11-11, item 3: "/team-build: recordings line, proof on the bottom price block, share image."
+**Status:** on a pull request, stacked on D-125's (it reuses `proofLine` and `SHARE_IMAGE`).
+**Scope:** `apps/web/src/team-build/content.ts` (`HOW`'s Recordings line), `apps/web/src/team-build/render.ts`, and the page's tests.
+
+- **Recordings.** "Every build is recorded, and the recordings live in the Library. A missed week isn’t a lost week." (Spring: "recordings in the library".)
+- **Proof under the price section's buy buttons.** `buy()` takes `proof`, and only the price section's block passes it: the hero's proof already sits beside the hero's block, so the hero doesn't show it twice. The two blocks still come from one function, with the same prices, states and links; the test now says "identical but for the proof line".
+- **The share image** is the homepage's, Spring's real headshot, so `twitter:card` is `summary_large_image`.
+- **Unchanged:** the week-to-skill map (Week 0 and the eight flagships), the calendar, the FAQ, prices and Payment Link tokens.

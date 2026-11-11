@@ -8,6 +8,7 @@ import { HOME } from '../home/content';
 import { OFFERS } from '../offer/content';
 import { NEW_SKILLS, TB_FAQ, TB_HERO, WEEKS } from './content';
 import { libraryEntry, renderBody, renderHead, renderTeamBuildBody, renderTeamBuildHead } from './render';
+import { proofLine } from '../site/offers';
 
 // /team-build, the Amplified AI Accelerator's sales page (D-112), on the parsed DOM: Spring's outline in
 // her order, the course brief's week-to-skill map and calendar, the buy block's states, and the house
@@ -60,7 +61,8 @@ describe('the hero', () => {
   it('has a buy block with the countdown, the seats left and the Accelerator’s two links, filled per request', () => {
     const buys = $$('.buy');
     expect(buys).toHaveLength(2);
-    expect(buys[0]!.outerHTML).toBe(buys[1]!.outerHTML);
+    // One function: the same prices, states and links, the price section's with the proof line added.
+    expect(buys[0]!.outerHTML).toBe(buys[1]!.outerHTML.replace(new DOMParser().parseFromString(proofLine(), 'text/html').body.innerHTML, ''));
     const b = buys[0]!;
     const [full, two] = CARD_CARTS.cohort!;
     expect(b.getAttribute('data-state')).toBe(`%%state:${full}%%`);
@@ -147,6 +149,20 @@ describe('the weeks: the course brief’s map, not the draft list', () => {
   });
 });
 
+describe('the proof next to the buy buttons', () => {
+  it('sits under the price section’s buttons, inside the block shown only for a live cart', () => {
+    const bottom = $('#price .buy')!;
+    const proof = $('.act-link .proof-line', bottom)!;
+    expect([text($('span', proof)), text($('strong', proof))]).toEqual(['Built inside The Utah Life Real Estate Group', '100 agents, 700+ homes a year']);
+    expect(proof.previousElementSibling?.getAttribute('href')).toBe(`%%link:${CARD_CARTS.cohort![1]}%%`);
+  });
+
+  it('stays beside the hero’s buy block, once', () => {
+    expect($$('.tb-hero .proof-line').map(text)).toEqual(['Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year']);
+    expect($('.tb-hero .buy .proof-line')).toBeNull();
+  });
+});
+
 describe('how it runs and what you get', () => {
   it('says the locked calendar: Wednesday builds and Thursday office hours at 1:00 PM Central, 90 and 60 minutes', () => {
     const how = text($('.how-list'));
@@ -154,6 +170,11 @@ describe('how it runs and what you get', () => {
     expect(how).toContain('Thursdays at 1:00 PM Central, 60 minutes.');
     expect(how).toContain('Thursday, December 10');
     expect(how).toContain('Thursday, December 17');
+  });
+
+  it('says the recordings live in the Library', () => {
+    const rec = $$('.how-list .how-item').find((i) => text($('dt', i)) === 'Recordings')!;
+    expect(text($('dd', rec))).toBe('Every build is recorded, and the recordings live in the Library. A missed week isn’t a lost week.');
   });
 
   it('lists /offer’s own lines for what you get', () => {
@@ -171,6 +192,19 @@ describe('Spring and Connor, and the questions', () => {
   it('answers the questions a team owner asks, pointing to the agreement for refunds', () => {
     expect($$('.faq summary').map(text)).toEqual(TB_FAQ.items.map((f) => f.q));
     expect($$('.faq a').map((a) => a.getAttribute('href'))).toEqual(['/offer#waitlist', '/agreement']);
+  });
+});
+
+describe('the share tags', () => {
+  it('carry the title, description, canonical address and Spring’s real headshot, as a large card', () => {
+    const meta = (sel: string) => $(sel)?.getAttribute('content');
+    expect(text($('title'))).toBe('Amplified AI Accelerator · Amplified Impact');
+    expect(meta('meta[name="description"]')?.length).toBeGreaterThan(50);
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/team-build');
+    expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/team-build');
+    expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
+    expect([meta('meta[property="og:image:width"]'), meta('meta[property="og:image:height"]'), meta('meta[property="og:image:alt"]')]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });
 

@@ -7,7 +7,9 @@
 // Accelerator's state and Payment Links, the deadline, the countdown and the seats left. No script.
 //
 // The buy block appears twice, in the hero and in the price section, from one function, so the two can
-// never show different prices or states. Every string goes through `esc()`.
+// never show different prices or states. The price section's has the proof line under its buttons (the
+// offer-pages brief, Nov 11); the hero's proof sits beside its block already. Every string goes
+// through `esc()`.
 
 import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { CARD_CARTS, OFFER_TOKENS as T } from '@ai/core/offer';
@@ -15,7 +17,7 @@ import { esc } from '../ai101/render';
 import { HOME } from '../home/content';
 import { ENTRIES, type Entry } from '../library/content';
 import { OFFERS } from '../offer/content';
-import { faqSection, offerActions, offerPrice, WAITLIST_HREF } from '../site/offers';
+import { faqSection, offerActions, offerPrice, proofLine, SHARE_IMAGE, WAITLIST_HREF } from '../site/offers';
 import { meetSection } from '../site/people';
 import { siteFooter, siteHead, siteHeader, skipLink } from '../site/render';
 import { BUY, GET, HOW, NEW_SKILLS, PRICE, PROOF, TB_FAQ, TB_HERO, TEAM_BUILD_META, WEEKS, WHO } from './content';
@@ -28,11 +30,14 @@ export function libraryEntry(slug: string): Entry | null {
 }
 
 export function renderTeamBuildHead(): string {
-  return siteHead(TEAM_BUILD_META);
+  return siteHead({ ...TEAM_BUILD_META, image: SHARE_IMAGE });
 }
 
-/** The price, the countdown and seats, and the buttons, with the card's state from its first cart. */
-function buy(): string {
+/**
+ * The price, the countdown and seats, and the buttons, with the card's state from its first cart.
+ * `proof` puts the proof line under the buttons, showing exactly when they do.
+ */
+function buy({ proof = false } = {}): string {
   const first = CARD_CARTS.cohort![0]!;
   return [
     `<div class="plan buy" data-state="${T.state(first)}">`,
@@ -41,14 +46,13 @@ function buy(): string {
     `<p><strong>${F.countdown}</strong>${esc(BUY.countdownAfter)}</p>`,
     `<p class="seats-left"><strong>${F.seatsLeft}</strong>${esc(BUY.seatsOf)}${F.seatsTotal}${esc(BUY.seatsAfter)}</p>`,
     `</div>`,
-    offerActions('cohort'),
+    offerActions('cohort', { proof }),
     `</div>`,
   ].join('');
 }
 
 function hero(): string {
   const h = TB_HERO;
-  const p = HOME.proof;
   return [
     `<section class="tb-hero" aria-labelledby="tb-title">`,
     `<div class="wrap tb-hero-in">`,
@@ -57,7 +61,7 @@ function hero(): string {
     `<h1 id="tb-title">${esc(h.title)}</h1>`,
     `<p class="lede">${esc(h.lede)}</p>`,
     `<p class="first">${esc(h.first)}</p>`,
-    `<p class="proof-line"><span>${esc(p.label)}</span> <strong>${esc(p.figure)}</strong></p>`,
+    proofLine(),
     `</div>`,
     buy(),
     `</div>`,
@@ -143,7 +147,7 @@ function price(): string {
     `<section class="section price-section" id="price" aria-labelledby="price-title">`,
     `<div class="wrap price-in">`,
     `<div><h2 id="price-title">${esc(PRICE.heading)}</h2><p class="section-lede">${esc(PRICE.lede)}</p></div>`,
-    buy(),
+    buy({ proof: true }),
     `</div>`,
     `</section>`,
   ].join('\n');
