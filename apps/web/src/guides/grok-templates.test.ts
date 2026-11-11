@@ -177,7 +177,7 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
       expect(doc.querySelector('#skill-library')).not.toBeNull();
       expect(doc.querySelector('form')).toBeNull();
       expect(doc.body.innerHTML).not.toContain(`/downloads/${template.file}`);
-      expect(guide.facts?.[0]).toBe('In the Amplified Skill Library');
+      expect(guide.facts?.[0]).toBe('Locked');
       // The guided setup shows (D-101), and the template's own procedure stays in the Skill Library.
       expect(doc.querySelectorAll('#skill-library .library-setup .setup-step')).toHaveLength(7);
       const procedure = (source.split('\n## Procedure')[1] ?? '').split('\n## ')[0] ?? '';

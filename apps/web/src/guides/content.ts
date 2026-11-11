@@ -377,7 +377,8 @@ function asPaid(guide: Guide): Guide {
     ...guide,
     meta: { title: unfree(guide.meta.title), description: unfree(guide.meta.description) },
     hero: { ...guide.hero, eyebrow: unfree(guide.hero.eyebrow) },
-    ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'In the Amplified Skill Library' : f)) } : {}),
+    // "Locked", as its Library card says (D-115): "Amplified Skill Library" is a retired name.
+    ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'Locked' : f)) } : {}),
   };
 }
 

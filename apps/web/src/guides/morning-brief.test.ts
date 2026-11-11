@@ -55,7 +55,7 @@ describe('the page', () => {
     expect(guide.grok).toBeUndefined();
     expect(inSkillLibrary(guide)).toBe(true);
     expect(text(doc.querySelector('h1'))).toBe('Morning Brief');
-    expect(guide.facts).toEqual(['In the Amplified Skill Library', 'About 15 minutes to set up', 'Grok Bot, Claude or ChatGPT']);
+    expect(guide.facts).toEqual(['Locked', 'About 15 minutes to set up', 'Grok Bot, Claude or ChatGPT']);
     expect(doc.getElementById(SHARED.skillLibrary.anchor)).not.toBeNull();
     expect($$('form, a[download], a[href^="/downloads/"]')).toEqual([]);
     expect(doc.title).toBe('Morning Brief: A Grok Bot Template and AI Skill · Amplified Impact');
@@ -149,7 +149,7 @@ describe('the page', () => {
 describe('the library card', () => {
   const lib = new DOMParser().parseFromString(`<!doctype html><body>${renderLibraryBody()}</body>`, 'text/html');
 
-  it('is in the main list, not on the shelf, and names all three apps and the Skill Library', () => {
+  it('is in the main list, not on the shelf, and names all three apps, and says Locked (D-115)', () => {
     const entry = ENTRIES.find((e) => e.href === '/morning-brief');
     expect(entry?.title).toBe('Morning Brief');
     expect(entry?.collection).toBeUndefined();
@@ -161,7 +161,7 @@ describe('the library card', () => {
       'Grok Bot Template',
       'Claude',
       'ChatGPT',
-      'In the Amplified Skill Library',
+      'Locked',
     ]);
   });
 });
