@@ -155,7 +155,7 @@ export const OFFERS: Readonly<Record<CardPlan, OfferCopy>> = {
         'Then $497 or $797 a month, starting Sunday, April 4, 2027.',
       ],
     },
-    button: 'Get Team Plan, Up to 15 Agents',
+    button: 'Get Amplified Team Plan',
     more: { 'agents-16to40': 'Or get it for 16 to 40 agents' },
   },
 };

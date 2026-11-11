@@ -159,6 +159,10 @@ describe('the facts (docs/SPRING-PLAN.md, "Facts to use everywhere")', () => {
     expect(OFFERS.membership.button).toBe('Get Amplified Insiders');
   });
 
+  it('names each plan exactly on its button, as the cart and the LMS name it (the overnight brief)', () => {
+    for (const plan of PLANS) expect(OFFERS[plan].button, plan).toMatch(new RegExp(`^Get ${PLAN_NAMES[plan]}(,|$)`));
+  });
+
   it('prices the Team Plan’s first 3 months today, then monthly from Sunday, April 4, 2027', () => {
     const c = card('agents');
     for (const s of ['$1,491 today, up to 15 agents', '$2,391 today for 16 to 40 agents', 'January 4 to April 3, 2027', '$497 or $797 a month, starting Sunday, April 4, 2027', 'the week of January 4', 'December 14', 'December 17']) {
@@ -228,7 +232,7 @@ describe('the words (house rules and Spring’s voice)', () => {
     expect(bad).toEqual([]);
   });
 
-  it('writes buttons in Title Case, seven words at most (the Team Plan’s names its tier)', () => {
+  it('writes buttons in Title Case, seven words at most', () => {
     const buttons = [
       ...PLANS.map((o) => OFFERS[o].button),
       WAITLIST.submit,
