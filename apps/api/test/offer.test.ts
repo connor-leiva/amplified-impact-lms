@@ -697,21 +697,23 @@ describe('www routing (D-075, D-051)', () => {
       logger: false,
       marketingPage: '<!doctype html><title>Holding</title>',
       legalPages: { agreement: '<!doctype html><title>Agreement</title>' },
-      offer: { pages: { offer: OFFER_PAGE, welcome: WELCOME_PAGE, sales: { '/pricing': PRICING_PAGE } }, config: CONFIG, stripe: stub.client, verify: stripeVerifier(), prices: createPriceCache(() => stub.client) },
+      offer: { pages: { offer: OFFER_PAGE, welcome: WELCOME_PAGE, sales: { '/pricing': PRICING_PAGE, '/team-build': PRICING_PAGE } }, config: CONFIG, stripe: stub.client, verify: stripeVerifier(), prices: createPriceCache(() => stub.client) },
     });
     const get = (url: string) => app.inject({ method: 'GET', url, headers: { host: 'www.amplifiedimpact.io' } });
-    for (const url of ['/offer', '/forum', '/offer?cart=library', '/offer/welcome?session_id=cs_test_session0001', '/agreement', '/pricing', '/pricing?ref=ig']) {
+    for (const url of ['/offer', '/forum', '/offer?cart=library', '/offer/welcome?session_id=cs_test_session0001', '/agreement', '/pricing', '/pricing?ref=ig', '/team-build', '/team-build?src=ig']) {
       expect((await get(url)).statusCode, url).toBe(200);
     }
-    for (const url of ['/offer/', '/Offer', '/offer.html', '/offer/welcome/x', '/forum/', '/FORUM', '/agreement/', '/pricing.html', '/pricing/x', '/Pricing']) {
+    for (const url of ['/offer/', '/Offer', '/offer.html', '/offer/welcome/x', '/forum/', '/FORUM', '/agreement/', '/pricing.html', '/pricing/x', '/Pricing', '/team-build.html', '/team-build/x', '/Team-Build']) {
       const res = await get(url);
       expect([302, 404], url).toContain(res.statusCode);
       expect(res.body, url).not.toContain('data-offer');
       expect(res.body, url).not.toContain('data-seats');
     }
-    // `/pricing/` is the one other spelling that reaches the page: a redirect to it.
-    const slash = await get('/pricing/');
-    expect([slash.statusCode, slash.headers.location]).toEqual([302, '/pricing']);
+    // A sales page's trailing-slash spelling is the one other that reaches it: a redirect to it.
+    for (const page of ['/pricing', '/team-build']) {
+      const slash = await get(`${page}/`);
+      expect([slash.statusCode, slash.headers.location], page).toEqual([302, page]);
+    }
   });
 });
 

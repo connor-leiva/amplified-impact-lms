@@ -1,0 +1,209 @@
+/* /team-build, the Amplified AI Accelerator's sales page. DECISIONS.md D-112.
+
+   The site's look and the sales pages' shared pieces (`../site/offers.css`: the card's price and
+   buttons with their states, the questions). This file is the page's own: the hero with its buy block,
+   who it's for, the eight weeks, how it runs, the proof and the price section. Mobile first, no text
+   under 16px, every tap 44px or more, nothing wider than the screen.
+
+   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+
+@import '../site/offers.css';
+
+/* --- The hero and its buy block --------------------------------------------------------------- */
+
+.tb-hero {
+  padding: 40px 0 48px;
+}
+.tb-hero-in {
+  display: grid;
+  gap: 32px;
+}
+.tb-hero h1 {
+  max-width: 16ch;
+  margin-top: 8px;
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.first {
+  margin-top: 16px;
+  font-weight: 500;
+}
+.buy {
+  align-self: start;
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--line-default);
+}
+.buy .price {
+  padding-top: 0;
+  border-top: 0;
+}
+.buy-facts {
+  display: grid;
+  gap: 4px;
+}
+.buy-facts strong {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Ticked lists: who it's for, what you get -------------------------------------------------- */
+
+.ticks {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.ticks li {
+  position: relative;
+  padding-left: 18px;
+}
+.ticks li::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 8px;
+  height: 2px;
+  background: var(--action-primary);
+}
+.who-cols,
+.how-cols {
+  display: grid;
+  gap: 40px;
+}
+.who-waitlist {
+  margin-top: 16px;
+  color: var(--text-secondary);
+}
+
+/* --- The eight weeks --------------------------------------------------------------------------- */
+
+.week-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+.week {
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--line-default);
+}
+.week-when {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+.week-n {
+  color: var(--action-primary);
+  font-weight: 500;
+}
+.week h3 {
+  margin-top: 4px;
+  font-size: 20px;
+  line-height: 1.25;
+}
+.week-q {
+  margin-top: 6px;
+}
+.week-skills,
+.week-support,
+.week-note {
+  margin-top: 10px;
+  font-size: 16px;
+  line-height: 1.75;
+}
+.week-skills {
+  font-weight: 500;
+}
+.week-skills a,
+.week-support a,
+.who-waitlist a {
+  padding: 12px 0;
+  font-weight: 500;
+  text-decoration: underline;
+}
+.week-support,
+.week-note {
+  color: var(--text-secondary);
+}
+.skill-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.weeks-holiday {
+  margin-top: 20px;
+  font-weight: 500;
+}
+
+/* --- How it runs ------------------------------------------------------------------------------- */
+
+.how-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+.how-item dt {
+  font-weight: 500;
+}
+.how-item dd {
+  color: var(--text-secondary);
+}
+
+/* --- Proof and the price ----------------------------------------------------------------------- */
+
+.proof-figure {
+  display: grid;
+  gap: 2px;
+  margin-top: 16px;
+}
+.proof-figure span {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.proof-figure strong {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.price-in {
+  display: grid;
+  gap: 24px;
+}
+
+/* --- Wider screens ----------------------------------------------------------------------------- */
+
+@media (min-width: 640px) {
+  .week-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 960px) {
+  .tb-hero {
+    padding: 64px 0 72px;
+  }
+  .tb-hero-in {
+    grid-template-columns: 1.3fr 1fr;
+    align-items: start;
+    gap: 56px;
+  }
+  .tb-hero h1 {
+    font-size: 54px;
+  }
+  .who-cols,
+  .how-cols,
+  .price-in {
+    grid-template-columns: 1fr 1fr;
+  }
+  .week-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

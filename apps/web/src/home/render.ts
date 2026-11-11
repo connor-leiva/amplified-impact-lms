@@ -15,6 +15,7 @@ import { ENTRIES, type Entry } from '../library/content';
 import { paid } from '../library/render';
 import { freeTag, lockTag, siteFooter, siteHead, siteHeader, skipLink } from '../site/render';
 import { FREE_SKILLS_HREF } from '../site/content';
+import { meetSection, photoTag } from '../site/people';
 import { HOME, PHOTOS } from './content';
 
 /** The library's live cards: the ones with a page. */
@@ -32,8 +33,7 @@ export function renderHomeHead(): string {
   return siteHead({ ...HOME.meta, image: { src: p.src, width: p.width, height: p.height, alt: p.alt } });
 }
 
-const photo = (p: { src: string; width: number; height: number; alt: string }, cls: string, eager = false) =>
-  `<img class="${cls}" src="${esc(p.src)}" alt="${esc(p.alt)}" width="${p.width}" height="${p.height}" decoding="async"${eager ? ' fetchpriority="high"' : ' loading="lazy"'} />`;
+const photo = photoTag;
 
 /** The contract checkbox: ticked for what the AI does, empty for what the person owns. Drawn only. */
 const box = (done: boolean) => `<span class="box${done ? ' on' : ''}" aria-hidden="true"></span>`;
@@ -189,25 +189,6 @@ function free(): string {
   ].join('\n');
 }
 
-function meet(): string {
-  const m = HOME.meet;
-  const people = m.people
-    .map(
-      (p) =>
-        `<li class="card person-card">${photo(PHOTOS[p.photo], 'person-card-photo')}<div><h3>${esc(p.name)}</h3><p class="person-role">${esc(p.role)}</p><p>${esc(p.body)}</p></div></li>`,
-    )
-    .join('');
-  return [
-    `<section class="section meet" aria-labelledby="meet-title">`,
-    `<div class="wrap">`,
-    `<h2 id="meet-title">${esc(m.heading)}</h2>`,
-    `<ul class="people" role="list">${people}</ul>`,
-    `<p class="section-more"><a class="text-link" href="${esc(m.more.href)}">${esc(m.more.label)}</a></p>`,
-    `</div>`,
-    `</section>`,
-  ].join('\n');
-}
-
 function end(): string {
   const e = HOME.end;
   return [
@@ -237,7 +218,7 @@ export function renderHomeBody(): string {
     library(),
     trust(),
     free(),
-    meet(),
+    meetSection(),
     end(),
     `</main>`,
     siteFooter(),
