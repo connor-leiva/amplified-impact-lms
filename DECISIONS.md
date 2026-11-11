@@ -4187,3 +4187,16 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Proof under the closing "Get Amplified Agent Plan" button**, from the shared `proofLine()`. The hero's proof beside the buy block is unchanged.
 - **The share image** is the homepage's, Spring's real headshot, so `twitter:card` is `summary_large_image`.
 - **Unchanged:** prices, carts, the invite-hold pairing (`data-invites`), the FAQ. No testimonials, no Meet section.
+
+## D-128 · /teams: office hours at 1:00 PM Central, proof under the paid sizes' and the closing buttons, a share image
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy), the offer-pages polish brief of 2026-11-11, item 5: "/teams: office hours time, proof next to tier and closing buttons, share image."
+**Status:** on a pull request, stacked on D-127's.
+**Scope:** `apps/web/src/teams/content.ts` (`AGENTS_GET`'s office hours line), `apps/web/src/teams/render.ts`, and the page's tests.
+
+- **What your agents get:** "Weekly office hours, Thursdays at 1:00 PM Central, 60 minutes". The weekly training's day and time stay open.
+- **Proof under the two paid sizes' buy buttons** (up to 15, 16 to 40), inside the block the stylesheet shows only for a live cart, and **under the closing "Pick Your Team Size" button**, from the shared `proofLine()`. The hero's proof is unchanged.
+- **Over 40** keeps its conversation: the "Let’s Talk" button and the closing "Let’s talk" link both stay on the existing `team-call` token. No new booking URL.
+- **The share image** is the homepage's, Spring's real headshot, so `twitter:card` is `summary_large_image`.
+- **Unchanged:** prices, carts, the founding switch to the waitlist, December 14, the 3 month minimum, the FAQ.

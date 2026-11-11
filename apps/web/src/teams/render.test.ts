@@ -68,6 +68,13 @@ describe('the three sizes', () => {
     for (const t of tiers) expect($('.act-link a', t)?.getAttribute('aria-describedby')).toBe(`${t.id}-name`);
   });
 
+  it('put the proof line right under the two paid sizes’ buy buttons, and leave Over 40 its conversation', () => {
+    const proof = 'Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year';
+    expect(tiers.map((t) => $$('.act-link .proof-line', t).map(text))).toEqual([[proof], [proof], []]);
+    for (const t of tiers.slice(0, 2)) expect($('.act-link .proof-line', t)!.previousElementSibling?.matches('a.btn-primary'), t.id).toBe(true);
+    expect($('#size-more .act-link a')?.getAttribute('href')).toBe('%%team-call%%');
+  });
+
   it('price the first 3 months today and the monthly price after, exactly as /offer and the checkout do', () => {
     const offer = [OFFERS.agents.price.amount, ...OFFERS.agents.price.terms].join(' ');
     expect(tiers.slice(0, 2).map((t) => text($('.amount', t)))).toEqual(['$1,491', '$2,391']);
@@ -94,6 +101,7 @@ describe('what agents and the owner get, and how agents join', () => {
   it('gives an agent on a team exactly what the Amplified Agent Plan gives a solo agent', () => {
     expect(AGENTS_GET.lines.slice(0, 1)).toEqual(AGENT_PLAN.lines.slice(0, 1));
     expect(text($('.gets'))).toContain('The same as the Amplified Agent Plan.');
+    expect(text($('.gets'))).toContain('Weekly office hours, Thursdays at 1:00 PM Central, 60 minutes');
     expect($$('.rotation li').map(text)).toEqual(['Week 1: Leads and follow-up', 'Week 2: Listings', 'Week 3: Buyers and contracts', 'Week 4: Content and your week']);
   });
 
@@ -122,6 +130,26 @@ describe('the questions and the end', () => {
       ['Let’s talk', '%%team-call%%'],
     ]);
     expect(TIERS.items.map((t) => t.id)).toContain('size-more');
+  });
+
+  it('put the proof line right under the closing Pick Your Team Size button', () => {
+    const proof = $('.end .end-action + .proof-line')!;
+    expect([text($('span', proof)), text($('strong', proof))]).toEqual(['Built inside The Utah Life Real Estate Group', '100 agents, 700+ homes a year']);
+    expect(text($('a.btn', proof.previousElementSibling!))).toBe('Pick Your Team Size');
+    expect($$('.teams-hero .proof-line')).toHaveLength(1);
+  });
+});
+
+describe('the share tags', () => {
+  it('carry the title, description, canonical address and Spring’s real headshot, as a large card', () => {
+    const meta = (sel: string) => $(sel)?.getAttribute('content');
+    expect(text($('title'))).toBe('Amplified Team Plan · Amplified Impact');
+    expect(meta('meta[name="description"]')?.length).toBeGreaterThan(50);
+    expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/teams');
+    expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/teams');
+    expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
+    expect([meta('meta[property="og:image:width"]'), meta('meta[property="og:image:height"]'), meta('meta[property="og:image:alt"]')]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });
 
