@@ -59,7 +59,10 @@ describe('the course screen', () => {
     expect(within(skills).getByRole('link', { name: COPY.download })).toHaveAttribute('href', '/skill-library');
 
     const live = screen.getByRole('region', { name: COPY.liveBuild });
-    expect(within(live).getByText(/Wed, Dec 2 · 1:00 PM CT · 90 Minutes · Zoom link TBA/)).toBeInTheDocument();
+    const join = within(live).getByRole('link', { name: 'Join in Sessions' });
+    expect(join).toHaveAttribute('href', '/sessions');
+    expect(join.closest('p')).toHaveTextContent('Wed, Dec 2 · 1:00 PM CT · 90 Minutes · Join in Sessions (opens 15 min before)');
+    expect(document.body.textContent).not.toMatch(/TBA/);
     expect(screen.getByRole('region', { name: COPY.rubric })).toHaveTextContent('Evidence Quality');
     expect(screen.getByRole('region', { name: COPY.evidence })).toHaveTextContent('Three-Sentence Account');
     expect(screen.getByRole('region', { name: COPY.media })).toHaveTextContent('[VIDEO: week 1 Lead-Source ROI demo, to be recorded]');

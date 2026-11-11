@@ -93,8 +93,8 @@ export const officeHoursN = (week: number): number => 100 + week;
 
 /**
  * The sixteen sessions: eight builds and eight Thursdays, in date order. No Zoom URL is invented:
- * `zoom` is empty until staff set the real link ("Zoom link TBA" on the course page), and the join
- * route reads an empty URL as shut.
+ * `zoom` is empty until staff set the real link (the course page says "Join in Sessions"), and the
+ * join route reads an empty URL as shut.
  */
 export function acceleratorSessions(): Session[] {
   const out: Session[] = [];

@@ -76,11 +76,13 @@ describe('every week’s page', () => {
     }
   });
 
-  it('gives weeks 1 to 8 a 90-minute live build and a 60-minute office hour, Zoom link TBA', () => {
+  it('gives weeks 1 to 8 a 90-minute live build and a 60-minute office hour, joined from Sessions', () => {
+    const join = { label: 'Join in Sessions', note: 'opens 15 min before', href: '/sessions' };
     for (const w of weeks().slice(1)) {
       expect(w.live!.mins).toBe('90 Minutes');
       expect(w.live!.when).toMatch(/^Wed, (Dec|Jan|Feb) \d+ · 1:00 PM CT$/);
-      expect(w.live!.join).toBe('Zoom link TBA');
+      expect(w.live!.join).toEqual(join);
+      expect(w.officeHours!.join).toEqual(join);
       expect(w.live!.agenda[0]!.label).toBe('0 to 10 min');
       expect(w.officeHours!.mins).toBe('60 Minutes');
       expect(w.officeHours!.when).toMatch(/^Thu, (Dec|Jan|Feb) \d+ · 1:00 PM CT$/);

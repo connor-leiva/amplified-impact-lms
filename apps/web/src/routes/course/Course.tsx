@@ -255,7 +255,7 @@ function Week({ vm }: { vm: WeekVM }) {
           <>
             <p className={s.when}>
               <Icon name="calendar" size={16} />
-              {vm.live.when} · {vm.live.mins} · {vm.live.join}
+              {vm.live.when} · {vm.live.mins} · <a href={vm.live.join.href}>{vm.live.join.label}</a> ({vm.live.join.note})
             </p>
             <h3 className={s.h3}>{COPY.agenda}</h3>
             <Rows rows={vm.live.agenda} />
@@ -282,7 +282,8 @@ function Week({ vm }: { vm: WeekVM }) {
         <Section id="office-hours" title={COPY.officeHours}>
           <p className={s.when}>
             <Icon name="calendar" size={16} />
-            {vm.officeHours.title} · {vm.officeHours.when} · {vm.officeHours.mins} · {vm.officeHours.join}
+            {vm.officeHours.title} · {vm.officeHours.when} · {vm.officeHours.mins} ·{' '}
+            <a href={vm.officeHours.join.href}>{vm.officeHours.join.label}</a> ({vm.officeHours.join.note})
           </p>
           <p className={s.text}>{vm.officeHours.note}</p>
           {vm.officeHours.format.length ? <Rows rows={vm.officeHours.format} /> : null}

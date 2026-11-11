@@ -985,7 +985,12 @@ export const COURSE_INTRO = {
   support: `Questions? Write to ${ACCELERATOR_SUPPORT_EMAIL}.`,
   instructor: ACCELERATOR_INSTRUCTOR,
   holiday: 'Holiday break: no sessions on Dec 23 or Dec 30. No new build until Jan 6.',
-  joinLink: 'Zoom link TBA',
+  /**
+   * How a learner joins a live session: from the portal's Sessions page, whose Join opens 15 minutes
+   * before (the join route's window, `JOIN_WINDOW_SHUT`). Never a Zoom URL here: staff set it on the
+   * session, and only the join route hands it out, inside that window.
+   */
+  join: { label: 'Join in Sessions', note: 'opens 15 min before', path: '/sessions' },
 } as const;
 
 // --- the portal's AI Employees -----------------------------------------------------------------------

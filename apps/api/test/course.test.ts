@@ -143,7 +143,8 @@ describe('an AI Accelerator buyer opens Week 0 and all eight weeks', () => {
     expect(body.sessions).toHaveLength(16);
     expect(body.sessions.filter((s) => s.kind === 'build').map((s) => s.mins)).toEqual(Array(8).fill(90));
     expect(body.sessions.filter((s) => s.kind === 'office_hours').map((s) => s.mins)).toEqual(Array(8).fill(60));
-    // No Zoom URL ever leaves this route ("Zoom link TBA" is the course's own words).
+    // No Zoom URL ever leaves this route: the course says "Join in Sessions", and the join route hands
+    // the URL out only inside its window.
     expect(res.body).not.toMatch(/"zoom"|zoom\.us|https?:\/\/[^"]*zoom/i);
   });
 
