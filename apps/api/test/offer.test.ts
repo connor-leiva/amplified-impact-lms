@@ -1090,6 +1090,8 @@ describe('every offer, end to end (D-106)', () => {
         const verified = await post('/api/auth/verify', { token: link! });
         expect(verified.statusCode, verified.body).toBe(200);
         expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: sessionCookie(verified.headers['set-cookie']) } })).statusCode).toBe(200);
+      });
+
       it('reaches GoHighLevel with its alias, its fields and a Purchased opportunity, then the buyer’s first sign-in (D-134)', async () => {
         await purchase(c);
         const crm = fakeCrm();
