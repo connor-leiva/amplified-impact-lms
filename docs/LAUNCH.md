@@ -108,13 +108,24 @@ Owner. No learners, teams, requests or activity.
 `users` row, and every paid order writes its buyer into `users` (D-078). After the first purchase it
 can no longer run as it is (D-106 lists this as open).
 
-**The curriculum does not depend on it.** Every deploy's `preDeploy` (`.railway/railway.ts`) runs,
-after the migrations, `pnpm --filter @ai/api db:curriculum:ensure`: it applies the AI Accelerator's
+**The curriculum does not depend on it.** Every deploy's pre-deploy command runs, after the
+migrations, `pnpm --filter @ai/api db:curriculum:ensure`: it applies the AI Accelerator's
 curriculum (cohort `dec26`, its sixteen sessions and the nine course modules; the prototype's six
 AI Employees become drafts) to a database that has **none** of it, and on every later deploy writes
 **0 rows**. It never touches users, teams, progress or staff. The Owner, the price list and the
 reminder toggles still come only from `db:seed:prod`: if production has buyers but never had the
 launch seed, the course is there after a deploy and the Owner is not, so ask the developer.
+
+**The pre-deploy command is set in Railway, by hand.** Railway does not read `.railway/railway.ts`
+on deploy (only `railway config apply` does), so a push never changes it. It is the web service's
+**Pre-deploy Command** (Railway → **web** → Settings → Deploy), and it must be exactly:
+
+```bash
+pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure
+```
+
+`.railway/railway.ts` holds the same string, and a test pins it there; change the dashboard and the
+file together. It does not run `skills --upload` (section 8, step 3): that needs the bucket.
 
 The deploy never re-applies the curriculum over a live course, because the full overlay rewrites
 every course row: a session staff moved goes back to its old time and loses its Zoom link,
@@ -199,7 +210,7 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
 
 1. Migrate: `pnpm --filter @ai/api db:migrate` (migration 0006 adds `orders`, `stripe_events`,
    `accounts`, `plans` and `skills`; 0008 lets them hold the Agent Plan, D-106). The deploy's
-   `preDeploy` already runs it, then the curriculum (section 6) and the skills (step 3).
+   pre-deploy command (section 6, set in Railway by hand) already runs it, then the curriculum.
 2. Railway → **web** → Variables. **The test-mode values go in by Wednesday morning, and the live ones
    on Thursday after Spring confirms the prices.** Paste each secret straight from Stripe into
    Railway, never into chat:
@@ -221,18 +232,28 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
 
    The boot log line `offer configuration` says what is on and the key's mode (`test` or `live`),
    never a value.
-3. The skills load themselves: every deploy's `preDeploy` runs `pnpm --filter @ai/api skills --upload`.
-   It puts every skill's ZIPs (the 36 skills in `SKILL_CATALOG`, Morning Brief's Grok Bot template
-   among its files, D-108) and the 16 Grok Bot templates' (`GROK_TEMPLATES`, D-100) in the bucket,
-   then writes the `skills` rows that differ from the two catalogs. Repeated, it uploads the same
-   bytes under the same keys (122 files, 4.4 MB) and changes **0 rows**; it checks every ZIP before
-   uploading any, and never touches users, teams or progress. It needs `DATABASE_URL` and the `S3_*`
-   settings (section 2) and nothing else; **without the `S3_*` settings the deploy stops** with the
-   missing name in the log, and the previous version keeps serving. Run it by hand the same way.
-   Change a skill's set or make it free in `packages/core/src/skills.ts` first, and a template's in
-   `packages/core/src/grok-templates.ts`; the next deploy carries it. Free today (D-115): AI Brain
-   Setup, AI Brain Tune-Up, Perfect Week and Inbox and Meeting Follow-Through, the free five with the
-   voice profile, which is a guide. No Grok Bot template is free.
+3. Load the skills, by hand: `pnpm --filter @ai/api skills --upload`. It puts every skill's ZIPs
+   (the 36 skills in `SKILL_CATALOG`, Morning Brief's Grok Bot template among its files, D-108) and
+   the 16 Grok Bot templates' (`GROK_TEMPLATES`, D-100) in the bucket, then writes the `skills` rows
+   that differ from the two catalogs. Repeated, it uploads the same bytes under the same keys (122
+   files, 4.4 MB) and changes **0 rows**; it checks every ZIP before uploading any, and never touches
+   users, teams or progress.
+
+   **It needs the bucket, and production does not have one yet** (no bucket on the project and no
+   `S3_*` variables on web, section 2). Until it does:
+   - **every Skill Library download fails for buyers** (a 500): the download route hands out a
+     five-minute link to the file in the bucket, and with no `S3_*` settings it cannot;
+   - so this step is **not** in the pre-deploy command, where it would stop every deploy.
+
+   What is missing, in order: create the bucket in the Railway project; put its five `S3_*` values on
+   web (section 2); redeploy; run this step once. After that it is safe to add
+   `&& pnpm --filter @ai/api skills --upload` to the pre-deploy command (in Railway and in
+   `.railway/railway.ts`). Without `--upload` it writes only the rows and needs only `DATABASE_URL`:
+   that is what lists the skills in the Skill Library, so if the Library shows none, the table is
+   empty and `pnpm --filter @ai/api skills` fills it. Change a skill's set or make it free in
+   `packages/core/src/skills.ts` first, and a template's in `packages/core/src/grok-templates.ts`.
+   Free today (D-115): AI Brain Setup, AI Brain Tune-Up, Perfect Week and Inbox and Meeting
+   Follow-Through, the free five with the voice profile, which is a guide. No Grok Bot template is free.
 4. Print `/forum-qr.svg` (it encodes `https://www.amplifiedimpact.io/forum?src=qr`). It decodes at
    3 cm; scan the printed one on an iPhone and an Android, on cellular.
 

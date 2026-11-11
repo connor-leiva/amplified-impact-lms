@@ -51,21 +51,20 @@ export default defineRailway((ctx) => {
     build: 'pnpm build',
     start: 'pnpm start',
     // Runs before the healthcheck, so a failing step stops the deploy and the previous version keeps
-    // serving (§ 9.3). The demo environment has no database to migrate. Three steps, each safe to
-    // repeat on every deploy (docs/LAUNCH.md § 8):
+    // serving (§ 9.3). The demo environment has no database to migrate.
+    //
+    // RAILWAY DOES NOT READ THIS LINE ON DEPLOY. This file is applied only by `railway config apply`;
+    // a push changes nothing here. The live command is the service's Pre-deploy Command in the Railway
+    // dashboard (web → Settings → Deploy), set by hand on 2026-11-11 to exactly this string. Change
+    // both together (docs/LAUNCH.md § 6). Two steps, each safe to repeat on every deploy:
     //   1. the migrations;
     //   2. the AI Accelerator's curriculum, applied only to a database that has none of it
     //      (`--if-missing`: once there, staff edits to the course stay; db:seed:prod cannot load it
-    //      once a buyer exists, D-110);
-    //   3. the Library: the `skills` rows that differ from the catalogs, and every skill's ZIP into
-    //      the bucket (the same bytes under the same keys). It needs DATABASE_URL and the S3_*
-    //      variables below, and nothing else.
-    ...(demo
-      ? {}
-      : {
-          preDeploy:
-            'pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure && pnpm --filter @ai/api skills --upload',
-        }),
+    //      once a buyer exists, D-110).
+    // Not here: `skills --upload`. It needs the bucket and the S3_* variables, which production does
+    // not have yet, so it would fail every deploy. It is a by-hand step until the bucket exists
+    // (docs/LAUNCH.md § 8, step 3).
+    ...(demo ? {} : { preDeploy: 'pnpm --filter @ai/api db:migrate && pnpm --filter @ai/api db:curriculum:ensure' }),
     healthcheck: '/api/health',
     healthcheckTimeout: 60,
     // Production answers to TWO names on this one service, told apart by `Host` inside the process
