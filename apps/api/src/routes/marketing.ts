@@ -2,8 +2,9 @@
 //
 // `www.amplifiedimpact.io` and `learn.amplifiedimpact.io` point at one Railway service, and they are
 // two different sites: `learn` is the LMS behind an invite-only sign-in, `www` is public. This file
-// is the split, and it is deliberately the smallest thing that can express it — a placeholder page
-// and a redirect, with the real marketing page still to be designed.
+// is the split, and it is deliberately the smallest thing that can express it: the homepage at `/`
+// (D-102, `apps/web/src/home/`, which replaced the "under construction" placeholder of D-029) and a
+// redirect for everything else that is not a public page.
 //
 // WHY A HOOK AND NOT A ROUTE. Registering `GET /` would claim that path for EVERY host, and on the
 // app host `/` belongs to `@fastify/static`'s index — the SPA. Fastify has no clean way for a route
@@ -19,7 +20,7 @@
 // www on this service at all rather than parking it elsewhere: `www.amplifiedimpact.io/ai101` is the
 // URL on the printed QR code's successor, and it has to work without a session.
 //
-// OFF UNLESS `MARKETING_HOST` IS SET. No default. A wrong default would serve a placeholder in
+// OFF UNLESS `MARKETING_HOST` IS SET. No default. A wrong default would serve the homepage in
 // place of the product, which is the most expensive possible failure for this file, so it does
 // nothing at all until an environment names the host.
 
@@ -28,7 +29,7 @@ import type { App } from '../app';
 import { GUIDE_ALIASES, GUIDE_SLUGS } from './guide-list';
 
 /**
- * Paths that reach their real handler on the marketing host rather than the placeholder.
+ * Paths that reach their real handler on the marketing host rather than the homepage.
  *
  * `/ai101` because it is public by design, and its two other spellings, `/AI101` and `/ai-101`, because
  * the slides and the room type them: `routes/ai101.ts` answers each with its own 301 to `/ai101`, and
@@ -45,7 +46,7 @@ import { GUIDE_ALIASES, GUIDE_SLUGS } from './guide-list';
  * own. `/library`, the free library that lists them all (D-050), with `/guides` and `/skills`, the
  * other words someone would type for it (`routes/library.ts` 301s both). `/terms` and `/privacy`
  * because the waitlist on it links to them, and a visitor on www must land on the page, not on the
- * placeholder (`routes/legal.ts`).
+ * homepage (`routes/legal.ts`).
  * Built from `GUIDE_SLUGS` and `GUIDE_ALIASES` (D-052), so a guide added there is public on www with
  * nothing more to edit, and matched exactly like the rest.
  *
@@ -83,14 +84,24 @@ function exactPaths(withSlash: readonly string[], asWritten: readonly string[]):
   return new RegExp(`^/((${alt(withSlash)})/?|${alt(asWritten)})($|\\?)|^/api/`);
 }
 
-/** The placeholder's own path, and the only two spellings of it. */
+/** The homepage's own path, and the only two spellings of it. */
 const ROOT = new Set(['/', '/index.html']);
+
+/**
+ * Old marketing paths that now have a page of their own (D-102). `/pricing` is the plans and prices,
+ * `/offer` (D-075). `/about` and `/contact` keep the catch-all's 302 to `/`, the homepage, which is
+ * the closest thing to either. 302, as below: a 301 would be cached past the next change.
+ */
+const MOVED: ReadonlyMap<string, string> = new Map([
+  ['/pricing', '/offer'],
+  ['/pricing/', '/offer'],
+]);
 
 /**
  * A request for a file rather than a page: anything whose last segment carries an extension.
  *
  * A real one is left alone, so an image, a font, a guide's PDF or the sprint's `.ics` resolves
- * normally instead of being bounced to the placeholder. One that no route serves answers a plain 404
+ * normally instead of being bounced to the homepage. One that no route serves answers a plain 404
  * (D-051): the page itself requests nothing — it is one self-contained response — but a browser asks
  * for `/favicon.ico` unprompted, and a 302 on that is a pointless round trip on every load. Before
  * D-051 such a path fell through to the app's not-found handler, which answers with the LMS's
@@ -99,15 +110,16 @@ const ROOT = new Set(['/', '/index.html']);
 const LOOKS_LIKE_A_FILE = /\/[^/]+\.[a-z0-9]+$/i;
 
 export interface MarketingOptions {
-  /** `apps/web/dist/holding.html`, read once by `server.ts`. `null` when it has not been built. */
+  /** `apps/web/dist/home.html`, the homepage (D-102), read once by `server.ts`. `null` when it has not been built. */
   page: string | null;
 }
 
 /**
- * Serve the marketing host's placeholder, and keep the app off that host.
+ * Serve the marketing host's homepage (D-102), and keep the app off that host.
  *
- * Everything that is not the placeholder, a public page in `PUBLIC_PREFIX`, `/api/` or a real file
- * redirects to `/` — so a link to `www.amplifiedimpact.io/vault` lands on the placeholder rather than
+ * Everything that is not the homepage, a public page in `PUBLIC_PREFIX`, `/api/` or a real file
+ * redirects to `/` (or, for an old path in `MOVED`, to its page) — so a link to
+ * `www.amplifiedimpact.io/vault` lands on the homepage rather than
  * on the LMS sign-in screen, which is what a visitor who has never heard of the product would
  * otherwise be shown. A missing file answers 404. Nothing on this host reaches the app's shell.
  *
@@ -119,16 +131,16 @@ export function registerMarketingHost(app: App, options: MarketingOptions): void
   const host = (process.env.MARKETING_HOST ?? '').trim().toLowerCase();
   if (host === '') return;
 
-  // The one failure this file cannot catch in a test: `server.ts` reads the placeholder from
-  // `apps/web/dist/holding.html`, which gets there because vite copies `public/` verbatim. If that
-  // ever stops happening — a changed `publicDir`, a build that did not run, a partial deploy — the
+  // The one failure this file cannot catch in a test: `server.ts` reads the homepage from
+  // `apps/web/dist/home.html`, which the static pages' build writes (vite.ai101.config.ts). If that
+  // ever stops happening — a dropped input, a build that did not run, a partial deploy — the
   // marketing host answers 404 at `/` and NOTHING says why. The tests below inject the page
   // directly, by design, so they cannot see it either. `error` and not `warn` because that is what
   // it is from a visitor's side, and because it is the level that stands out in Railway's log view.
   if (options.page === null) {
     app.log.error(
       { host },
-      'MARKETING_HOST is set but apps/web/dist/holding.html could not be read: the marketing host will answer 404 at /. Did `pnpm --filter @ai/web build` run?',
+      'MARKETING_HOST is set but apps/web/dist/home.html could not be read: the marketing host will answer 404 at /. Did `pnpm --filter @ai/web build` run?',
     );
   }
 
@@ -137,7 +149,7 @@ export function registerMarketingHost(app: App, options: MarketingOptions): void
     const requested = (req.headers.host ?? '').toLowerCase().split(':')[0];
     if (requested !== host) return;
 
-    // The placeholder first: `/index.html` also looks like a file, and is one (the app's own), so
+    // The homepage first: `/index.html` also looks like a file, and is one (the app's own), so
     // checked after the file rule below it served the app's shell on www (until D-051).
     const path = req.url.split('?')[0] ?? '/';
     if (ROOT.has(path)) {
@@ -146,8 +158,8 @@ export function registerMarketingHost(app: App, options: MarketingOptions): void
         await reply.code(404).type('text/plain; charset=utf-8').send('Not found');
         return;
       }
-      // `no-store` would be wrong — this page is static and wants caching — but it is also about to
-      // be replaced, so a short max-age keeps a visitor from holding the placeholder for a week.
+      // `no-store` would be wrong — this page is static and wants caching — but it changes with every
+      // deploy, so a short max-age keeps a visitor from holding an old homepage for a week.
       await reply
         .code(200)
         .type('text/html; charset=utf-8')
@@ -165,6 +177,12 @@ export function registerMarketingHost(app: App, options: MarketingOptions): void
       // app's `index.html`.
       if (!req.is404) return;
       await reply.code(404).type('text/plain; charset=utf-8').send('Not found');
+      return;
+    }
+
+    const moved = MOVED.get(path);
+    if (moved) {
+      await reply.code(302).redirect(moved, 302);
       return;
     }
 

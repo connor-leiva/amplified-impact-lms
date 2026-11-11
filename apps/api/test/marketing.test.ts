@@ -287,6 +287,25 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     expect(res.statusCode).not.toBe(301);
   });
 
+  it('sends /pricing to the plans and prices, and /about and /contact to the homepage, on www only (D-102) @g9', async () => {
+    const a = await serve(WWW, PAGE, asServed);
+
+    for (const url of ['/pricing', '/pricing/', '/pricing?ref=old-link']) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(302);
+      expect(res.headers.location, url).toBe('/offer');
+    }
+    for (const url of ['/about', '/contact', '/pricing/old', '/pricingx']) {
+      const res = await get(a, url, WWW);
+      expect(res.statusCode, url).toBe(302);
+      expect(res.headers.location, url).toBe('/');
+    }
+    // The app host is the app's: no marketing redirect reaches it.
+    const learn = await get(a, '/pricing', APP);
+    expect(learn.statusCode).toBe(200);
+    expect(learn.body).toBe(SHELL);
+  });
+
   it('leaves real files alone, and answers a missing one 404, never with a redirect or the app (D-051) @g9', async () => {
     const a = await serve(WWW, PAGE, asServed);
 
@@ -396,7 +415,7 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     });
     await app.ready();
 
-    const complaint = lines.find((l) => l.includes('holding.html'));
+    const complaint = lines.find((l) => l.includes('home.html'));
     expect(complaint, 'nothing was logged about the missing page').toBeDefined();
     // pino's numeric level for `error`. A `warn` here would scroll past unnoticed.
     expect(JSON.parse(complaint as string).level).toBe(50);
@@ -416,7 +435,7 @@ describe('§9.1 the marketing host serves its own site @g9', () => {
     });
     await app.ready();
 
-    expect(lines.join('')).not.toContain('holding.html');
+    expect(lines.join('')).not.toContain('home.html');
   });
 
   it('answers 404 rather than looping when the placeholder has not been built @g9', async () => {
