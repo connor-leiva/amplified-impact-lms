@@ -4022,15 +4022,16 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **The Utah Life story** carries the homepage's proof line ("Built inside The Utah Life Real Estate Group", "100 agents, 700+ homes a year") and says no more than Spring's plan does: an eXp Realty team in Farmington with mortgage, title and coaching beside it, "where we put AI to work first". **Why we built this** is Spring's positioning in her voice: AI doing real work, built into how we run, written down as skills and taught live, real estate first because it's the business we know. No testimonials, no results claims.
 - **Tested:** web tests on the parsed DOM (the order, the photos from this site, both bios against the brief's, the proof line, the buttons, no "Forum", no script or token, the house rules); API tests as for `/free`. In Chromium against the built server on the marketing host: zero axe violations, no sideways scroll, no text under 16px and no tap under 44px at 320, 390, 768 and 1440.
 
-## D-118 · The prototype's post-cohort card says "Your instructor", not an invented name
+## D-118 · The prototype's post-cohort card says "your instructor", not an invented name
 
 **Date:** 2026-11-11
 **Approved by:** the PM (Ampy) in chat on 2026-11-11: "yes, remove the second "Jordan Hale" from the demo card and regenerate that golden. The name must never ship anywhere." (and earlier, 3:20 AM Central: "replace the 'Jordan Hale' fallback host in apps/web/src/routes/portal/Dashboard.vm.ts with an empty string or "Your instructor". We never ship that name.")
 **Status:** a reference change, so it goes through this entry and a re-capture, never a hand edit.
 **Scope:** `design-reference/Portal Dashboard.dc.html` (the post card's `host`), `apps/web/src/routes/portal/Dashboard.vm.ts` (the prototype branch's `host`), its test, and the `dash-agent-post` goldens, re-captured with `pnpm compliance:capture`.
 
-- **The change.** After a prototype cohort ends, the dashboard's office-hours card named "Jordan Hale", a name the prototype invented. It now says "Your instructor", the same words the production card uses when no module names an instructor (`INSTRUCTOR_FALLBACK`, D-110). One string in the reference, the same string in the port, and the two `dash-agent-post` goldens that render it. Nothing else on the card moves.
+- **The change.** After a prototype cohort ends, the dashboard's office-hours card named "Jordan Hale", a name the prototype invented. It now says "your instructor", the same words the production card uses when no module names an instructor (`INSTRUCTOR_FALLBACK`, D-110). One string in the reference, the same string in the port, and the two `dash-agent-post` goldens that render it. Nothing else on the card moves.
 - **Not changed, for Ampy and Connor to decide.** The same invented name is still the prototype's instructor on its six modules and the staff list (`design-reference/lms-data.js`, `packages/core/src/seed.ts` and its fixtures), so the demo seed's session cards say "with Jordan Hale" in fixture mode and in about thirty goldens. It is never in production data (`seedProduction` names Connor Leiva). Scrubbing it is a wider reference change and a wider re-capture, so it waits on a yes.
+- **Lowercased, 2026-11-11.** Ampy, 7:25 AM Central: "Yes, lowercase to "your instructor"." The words only ever end a sentence ("Drop-In Build Help with your instructor"), so the reference, the port and the two `dash-agent-post` goldens were changed again the same way: the reference first, then a re-capture in CI's image.
 
 ## D-119 · A plan that opens no AI Employee: the portal is the Skill Library
 
