@@ -1,0 +1,97 @@
+/* /agents, the Amplified Agent Plan's sales page. DECISIONS.md D-114.
+
+   The site's look and the sales pages' shared pieces (`../site/offers.css`: the buy block and its
+   states, numbered steps, two columns, the login line's two versions, the questions, the end). This
+   file is the page's own: the hero and the four week calendar. Mobile first, no text under 16px,
+   every tap 44px or more, nothing wider than the screen.
+
+   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+
+@import '../site/offers.css';
+
+.ag-hero {
+  padding: 40px 0 48px;
+}
+.ag-hero-in {
+  display: grid;
+  gap: 32px;
+}
+.ag-hero h1 {
+  max-width: 20ch;
+  margin-top: 8px;
+  font-size: 36px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.buy {
+  scroll-margin-top: 16px;
+}
+
+/* --- The starter path's steps carry a skill's link as their title ------------------------------ */
+
+.starter .steps h3 a {
+  padding: 12px 0;
+  text-decoration: underline;
+}
+
+/* --- The four week calendar -------------------------------------------------------------------- */
+
+.rotation-when {
+  margin-top: 12px;
+  font-weight: 500;
+}
+.week-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+.week {
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--line-default);
+}
+.week-n {
+  color: var(--action-primary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.week h3 {
+  margin-top: 4px;
+  font-size: 20px;
+  line-height: 1.25;
+}
+.week-skills {
+  display: grid;
+  margin-top: 8px;
+}
+.week-skills a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 16px;
+  text-decoration: underline;
+}
+
+@media (min-width: 640px) {
+  .week-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 960px) {
+  .ag-hero {
+    padding: 64px 0 72px;
+  }
+  .ag-hero-in {
+    grid-template-columns: 1.3fr 1fr;
+    align-items: start;
+    gap: 56px;
+  }
+  .ag-hero h1 {
+    font-size: 52px;
+  }
+  .week-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

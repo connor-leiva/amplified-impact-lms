@@ -322,6 +322,27 @@ export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
   },
 };
 
+/**
+ * The Amplified Agent Plan's thank-you section (D-114). Its plan kind, `agent_plan`, comes with the LMS
+ * wiring (D-106): the page shows this section when the confirmed order's plan is that kind. Nothing is
+ * charged until January 4, so it says nothing about a receipt.
+ */
+export const AGENT_PLAN_THANKS: ThanksCopy = {
+  heading: 'Welcome to the Amplified Agent Plan.',
+  lede: 'Thanks for joining. Here’s what happens next.',
+  steps: [
+    { title: 'Watch your email', body: [], extras: ['login'] },
+    { title: 'Nothing is charged yet', body: ['Your card is saved. Your first charge is Monday, January 4, 2027, when your agent skills open.'] },
+    {
+      title: 'The week of January 4',
+      // [OPEN: the day and time of the weekly agent training].
+      body: ['Start the recorded starter path. Then join one live training a week.', 'Office hours run every Thursday.'],
+      extras: ['calendar-office-hours'],
+    },
+    { title: 'Your plan', body: ['$79 a month, or $790 a year. Cancel anytime.', 'If you cancel, you keep what you’ve downloaded.'] },
+  ],
+};
+
 /** The thank-you pages' shared pieces. */
 export const THANKS_PARTS = {
   title: 'Welcome | Amplified Impact',

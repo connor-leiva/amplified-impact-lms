@@ -50,6 +50,9 @@ export const AGENT_PLAN: OfferCopy = {
   more: {},
 };
 
+/** The Agent Plan's link under its button, for its yearly cart (D-114). */
+export const AGENT_PLAN_MORE: Readonly<Record<string, string>> = { 'agent-yearly': 'Or pay $790 a year' };
+
 /** Spring's FAQ, her questions in her order. Each answer is a few short sentences; a link is a plain text link. */
 export interface Faq {
   q: string;

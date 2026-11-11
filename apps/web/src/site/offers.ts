@@ -6,14 +6,13 @@
 // `data-founding` and `data-seats` on <body> (`apps/api/src/routes/offer.ts`), and `offers.css` shows
 // what fits. Every string from content goes through `esc()`; the tokens are escaped by the API.
 
-import { CARD_CARTS, OFFER_TOKENS as T, PLAN_NAMES } from '@ai/core/offer';
-import type { CartId } from '@ai/core/offer';
+import { CARD_CARTS, OFFER_TOKENS as T, PLAN_NAMES, token } from '@ai/core/offer';
 import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { esc } from '../ai101/render';
 import { CARD_STATES as S, EVERY_CARD, FACT_LABELS, NOTES, OFFERS } from '../offer/content';
 import type { OfferCopy } from '../offer/content';
 import { FREE_SKILLS_HREF } from './content';
-import { AGENT_PLAN, CARD_IDS, FOUNDING } from './offers-content';
+import { AGENT_PLAN, AGENT_PLAN_MORE, CARD_IDS, FOUNDING } from './offers-content';
 import type { Faq } from './offers-content';
 
 /** The four cards in Spring's order. `agentPlan` is the Amplified Agent Plan; `agents` is the Team Plan. */
@@ -30,11 +29,21 @@ export const CARD_NAMES: Readonly<Record<OfferCard, string>> = {
 const copyOf = (card: OfferCard): OfferCopy => (card === 'agentPlan' ? AGENT_PLAN : OFFERS[card]);
 
 /**
- * A card's carts, its first one's state being the card's. The Agent Plan has none here yet: its carts
- * (`agent-monthly`, `agent-yearly`) and its thank-you page land with the LMS wiring (D-106) and the
- * /agents page (D-114), so until then its card says "Opens soon." whatever the API holds.
+ * The Amplified Agent Plan's two carts (D-106, D-114), by the names the LMS wiring gives them. Until
+ * that wiring is on `main` the API knows no such carts and fills their tokens with nothing, so the card
+ * says "Opens soon." with no link; once it is, they sell like any other cart.
  */
-const cartsOf = (card: OfferCard): readonly CartId[] => (card === 'agentPlan' ? [] : (CARD_CARTS[card] ?? []));
+export const AGENT_CARTS = ['agent-monthly', 'agent-yearly'] as const;
+
+/** A card's carts, its first one's state being the card's. */
+export const cartsOf = (card: OfferCard): readonly string[] => (card === 'agentPlan' ? AGENT_CARTS : (CARD_CARTS[card] ?? []));
+
+/** A cart's state and Payment Link tokens, by cart id (`OFFER_TOKENS` takes only the carts this build knows). */
+export const stateToken = (cart: string): string => token(`state:${cart}`);
+export const linkToken = (cart: string): string => token(`link:${cart}`);
+
+/** The plain-text link under a card's button for each of its other carts. */
+const moreOf = (card: OfferCard): Readonly<Record<string, string>> => (card === 'agentPlan' ? AGENT_PLAN_MORE : (copyOf(card).more as Record<string, string>));
 
 /** Where every "Join the Waitlist" on this page goes: /offer's waitlist form, the one that exists. */
 export const WAITLIST_HREF = '/offer#waitlist';
@@ -97,8 +106,8 @@ export function offerActions(card: OfferCard): string {
     ...(first
       ? [
           `<div class="act-link">`,
-          `<a class="btn btn-primary" href="${T.link(first)}">${esc(c.button)}</a>`,
-          ...rest.map((id) => (c.more[id] ? `<a class="text-link more" href="${T.link(id)}">${esc(c.more[id]!)}</a>` : '')),
+          `<a class="btn btn-primary" href="${linkToken(first)}">${esc(c.button)}</a>`,
+          ...rest.map((id) => (moreOf(card)[id] ? `<a class="text-link more" href="${linkToken(id)}">${esc(moreOf(card)[id]!)}</a>` : '')),
           `</div>`,
         ]
       : []),
@@ -125,7 +134,7 @@ export function offerCard(card: OfferCard): string {
   const first = cartsOf(card)[0];
   const fact = (label: string, body: string) => `<div class="fact"><dt>${esc(label)}</dt><dd>${body}</dd></div>`;
   return [
-    `<li class="card plan" id="${id}" data-state="${first ? T.state(first) : 'soon'}" aria-labelledby="${id}-name">`,
+    `<li class="card plan" id="${id}" data-state="${first ? stateToken(first) : 'soon'}" aria-labelledby="${id}-name">`,
     `<h3 class="plan-name" id="${id}-name">${esc(CARD_NAMES[card])}</h3>`,
     `<dl class="facts">`,
     fact(FACT_LABELS.forWho, esc(c.forWho)),

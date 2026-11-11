@@ -517,6 +517,7 @@ a.button[href=''] {
 body[data-state='confirmed'][data-product='cohort'] .t-cohort,
 body[data-state='confirmed'][data-product='membership'] .t-membership,
 body[data-state='confirmed'][data-product='agents'] .t-agents,
+body[data-state='confirmed'][data-product='agent_plan'] .t-agent_plan,
 body[data-state='pending'] .w-pending,
 body[data-state='unknown'] .w-unknown {
   display: flex;
