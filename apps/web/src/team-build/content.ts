@@ -57,9 +57,9 @@ export const WHO = {
 
 /**
  * The course brief's week-to-skill map, by Library slug. A skill whose Library card exists is a link to
- * its page; the two new ones (Morning Brief, New Agent Onboarding Plan) are on their own pull requests,
- * so until they merge they show by name, tagged New, with no link to follow. A test holds that the day
- * either one lands in the Library, it becomes a link.
+ * its page. Morning Brief is on its own pull request (D-108), so until it merges it shows by name,
+ * tagged New, with no link to follow; a test holds that the day it lands in the Library, it becomes a
+ * link. New Agent Onboarding Plan (D-109) has merged and is a link like the rest.
  */
 export interface Week {
   n: number;
@@ -121,10 +121,9 @@ export const WEEKS = {
   ] as readonly Week[],
 } as const;
 
-/** The two new Library items the map names before they merge (their own pull requests, D-108 and D-109). */
+/** The new Library item the map names before it merges (its own pull request, D-108). */
 export const NEW_SKILLS: Readonly<Record<string, string>> = {
   'morning-brief': 'Morning Brief',
-  'new-agent-onboarding-plan': 'New Agent Onboarding Plan',
 };
 
 export const HOW = {
