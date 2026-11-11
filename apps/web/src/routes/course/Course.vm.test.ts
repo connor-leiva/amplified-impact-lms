@@ -103,7 +103,7 @@ describe('every week’s page', () => {
   it('numbers the setup order, each skill step opening its guided setup on the Library page', () => {
     const w1 = weekVM(payload(), 1)!;
     expect(w1.setup.map((s) => s.n)).toEqual([1, 2, 3, 4, 5, 6]);
-    expect(w1.setup[0]!.link).toEqual({ label: 'Open the Guided Setup', href: 'https://www.amplifiedimpact.io/lead-source-roi' });
+    expect(w1.setup[0]!.links).toEqual([{ label: 'Open the Guided Setup', href: 'https://www.amplifiedimpact.io/lead-source-roi' }]);
     expect(w1.skills[0]).toEqual({ title: 'Lead-Source ROI', role: 'Flagship', use: expect.any(String), free: false, href: 'https://www.amplifiedimpact.io/lead-source-roi' });
     expect(w1.libraryHref).toBe('/skill-library');
     expect(w1.downloads.map((d) => d.name)).toEqual(['week-1-worksheet.csv', 'week-1-practice-set.csv', 'use-log.csv']);
@@ -138,6 +138,25 @@ describe('every flagship href exists in the Library catalog', () => {
   const library = new Map(ENTRIES.filter((e) => e.href).map((e) => [`https://www.amplifiedimpact.io${e.href}`, e.title]));
   const pending = new Set(LIBRARY_ROUTES_PENDING_MERGE.map((r) => `https://www.amplifiedimpact.io${r}`));
 
+  it('links each skill a setup step names: one guided setup plainly, several by their Library titles', () => {
+    const www = 'https://www.amplifiedimpact.io';
+    const w4 = weekVM(payload(), 4)!;
+    expect(w4.setup[4]!.text).toBe('Optional: open Contract-to-Close Deadline Tracker, Stalled Lender, Title & Escrow Follow-Up or TC File Audit for the transaction side.');
+    expect(w4.setup[4]!.links).toEqual([
+      { label: 'Contract-to-Close Deadline Tracker', href: `${www}/contract-to-close-deadlines` },
+      { label: 'Stalled Lender, Title & Escrow Follow-Up', href: `${www}/stalled-item-follow-up` },
+      { label: 'TC File Audit', href: `${www}/tc-file-audit` },
+    ]);
+    expect(w4.setup[5]!.links).toEqual([{ label: 'Open the Guided Setup', href: `${www}/database-health-check` }]);
+    const w5 = weekVM(payload(), 5)!;
+    expect(w5.setup[5]!.links).toEqual([
+      { label: 'Listing Appointment Prep', href: `${www}/listing-appointment-prep` },
+      { label: 'Appointment Follow-Up', href: `${www}/appointment-follow-up` },
+    ]);
+    // Every label a step's links carry is its skill's Library title, so each link says where it goes.
+    for (const w of weeks()) for (const s of w.setup) if (s.links.length > 1) for (const l of s.links) expect(library.get(l.href), l.href).toBe(l.label);
+  });
+
   it('every skill and every setup link on every week is a Library page, by its Library title', () => {
     const missing: string[] = [];
     for (const w of weeks()) {
@@ -146,7 +165,7 @@ describe('every flagship href exists in the Library catalog', () => {
         if (!library.has(k.href)) missing.push(`${w.heading}: ${k.href}`);
         else expect(k.title, k.href).toBe(library.get(k.href));
       }
-      for (const s of w.setup) if (s.link && !pending.has(s.link.href) && !library.has(s.link.href)) missing.push(`${w.heading}: ${s.link.href}`);
+      for (const s of w.setup) for (const l of s.links) if (!pending.has(l.href) && !library.has(l.href)) missing.push(`${w.heading}: ${l.href}`);
     }
     expect(missing).toEqual([]);
   });

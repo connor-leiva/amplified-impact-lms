@@ -86,6 +86,8 @@ export const COPY = {
   inClass: 'In Class',
   noLive: 'No live session this week. Week 0 is on your own time.',
   guidedSetup: 'Open the Guided Setup',
+  /** Before the links of a step that names several skills, each link its skill's Library title. */
+  guidedSetups: 'Open a Guided Setup:',
   download: 'Download in Your Skill Library',
   free: 'Free',
   worksheet: 'Download the Week 1 Worksheet',
@@ -115,7 +117,11 @@ export interface SkillVM {
 export interface StepVM {
   n: number;
   text: string;
-  link: { label: string; href: string } | null;
+  /**
+   * The step's guided setups: none, one ("Open the Guided Setup"), or, for a step that names several
+   * skills, one per skill, each by its Library title after "Open a Guided Setup:".
+   */
+  links: { label: string; href: string }[];
 }
 
 export interface Row {
@@ -242,6 +248,13 @@ export interface JoinVM {
 }
 const joinVM = (j: { label: string; note: string; path: string }): JoinVM => ({ label: j.label, note: j.note, href: j.path });
 
+/** A setup step's guided-setup links: one plainly labeled, or several, each by its skill's Library title. */
+function setupLinks(step: { route?: string; also?: readonly string[] }, skills: readonly { title: string; route: string }[]): StepVM['links'] {
+  const routes = step.route ? [step.route, ...(step.also ?? [])] : [];
+  if (routes.length === 1) return [{ label: COPY.guidedSetup, href: libraryHref(routes[0]!) }];
+  return routes.map((r) => ({ label: skills.find((k) => k.route === r)?.title ?? r, href: libraryHref(r) }));
+}
+
 /** The week number in `/course/week-3`, or null for anything else. */
 export function weekFromParam(param: string | undefined): number | null {
   const m = /^week-(\d)$/.exec(param ?? '');
@@ -278,7 +291,7 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
     setup: w.setup.map((step, k) => ({
       n: k + 1,
       text: step.text,
-      link: step.route ? { label: COPY.guidedSetup, href: libraryHref(step.route) } : null,
+      links: setupLinks(step, w.skills),
     })),
     live:
       w.liveBuild && build

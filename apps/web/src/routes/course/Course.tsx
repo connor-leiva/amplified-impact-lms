@@ -7,7 +7,7 @@
 //
 // Markup only: every string and every time is computed in Course.vm.ts.
 
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useParams } from 'react-router';
 import { BrandSlot } from '../../shell/BrandSlot';
@@ -235,12 +235,25 @@ function Week({ vm }: { vm: WeekVM }) {
               <span className={s.stepN}>{step.n}</span>
               <span className={s.stepText}>
                 {step.text}
-                {step.link ? (
+                {step.links.length === 1 ? (
                   <>
                     {' '}
-                    <a href={step.link.href} target="_blank" rel="noopener">
-                      {step.link.label}
+                    <a href={step.links[0]!.href} target="_blank" rel="noopener">
+                      {step.links[0]!.label}
                     </a>
+                  </>
+                ) : step.links.length > 1 ? (
+                  <>
+                    {' '}
+                    {COPY.guidedSetups}{' '}
+                    {step.links.map((l, i) => (
+                      <Fragment key={l.href}>
+                        {i ? ' · ' : ''}
+                        <a href={l.href} target="_blank" rel="noopener">
+                          {l.label}
+                        </a>
+                      </Fragment>
+                    ))}
                   </>
                 ) : null}
               </span>

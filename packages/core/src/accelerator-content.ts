@@ -45,10 +45,15 @@ export interface CourseSkill {
   free?: boolean;
 }
 
-/** One numbered setup step. `route` opens that Library item's guided setup. */
+/**
+ * One numbered setup step. `route` opens that Library item's guided setup. A step that names more
+ * than one of the week's skills ("open X, Y or Z") links each of them: `route` for the first,
+ * `also` for the rest, in the order the step names them.
+ */
 export interface SetupStep {
   text: string;
   route?: string;
+  also?: readonly string[];
 }
 
 export interface AgendaItem {
@@ -626,7 +631,11 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
       { text: 'Export your active deals and one small priority segment. Not the whole database.' },
       { text: 'Run it and rank the exceptions: overdue next actions, missing owners, stale stages, unconfirmed dates and records that disagree.' },
       { text: 'Run the three tests. It has to stop and ask about look-alike names and conflicting dates.' },
-      { text: 'Optional: open Contract-to-Close Deadline Tracker, Stalled Lender, Title & Escrow Follow-Up or TC File Audit for the transaction side.', route: '/contract-to-close-deadlines' },
+      {
+        text: 'Optional: open Contract-to-Close Deadline Tracker, Stalled Lender, Title & Escrow Follow-Up or TC File Audit for the transaction side.',
+        route: '/contract-to-close-deadlines',
+        also: ['/stalled-item-follow-up', '/tc-file-audit'],
+      },
       { text: 'Only if your identifiers are messy: open Database Health Check.', route: '/database-health-check' },
     ],
     liveBuild: {
@@ -701,7 +710,11 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
       { text: 'Add context from your Week 4 FUB Pipeline Review.', route: '/fub-pipeline-review' },
       { text: 'Build one packet: facts, hypotheses and questions, kept apart.' },
       { text: 'Run the three tests, then have the owner approve the packet.' },
-      { text: 'Pick the pilot task: Listing Appointment Prep or Appointment Follow-Up. In January agent training already? Use that work for the pilot instead of doing it twice.', route: '/listing-appointment-prep' },
+      {
+        text: 'Pick the pilot task: Listing Appointment Prep or Appointment Follow-Up. In January agent training already? Use that work for the pilot instead of doing it twice.',
+        route: '/listing-appointment-prep',
+        also: ['/appointment-follow-up'],
+      },
     ],
     liveBuild: {
       sessionId: buildSessionId(5),
