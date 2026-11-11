@@ -114,6 +114,10 @@ body[data-invites='sent'] .invites-held {
 .end-action {
   margin-top: 20px;
 }
+/* The proof, right under a closing button. */
+.end-action + .proof-line {
+  margin-top: 12px;
+}
 .end-more {
   margin-top: 8px;
   color: var(--text-secondary);

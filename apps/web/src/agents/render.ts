@@ -9,13 +9,13 @@
 
 import { OFFER_TOKENS as T } from '@ai/core/offer';
 import { esc } from '../ai101/render';
-import { HOME } from '../home/content';
 import { ENTRIES, type Entry } from '../library/content';
 import { CARD_STATES as S } from '../offer/content';
 import { FREE_SKILLS_HREF } from '../site/content';
 import { AGENT_CARTS, faqSection, linkToken, stateToken } from '../site/offers';
 import { AGENT_PLAN, AGENT_PLAN_MORE } from '../site/offers-content';
 import { siteFooter, siteHead, siteHeader, skipLink } from '../site/render';
+import { proofLine, SHARE_IMAGE } from '../site/offers';
 import { AFTER_BUY, AGENTS_END, AGENTS_FAQ, AGENTS_HERO, AGENTS_META, OFFICE_HOURS, ROTATION, STARTER } from './content';
 
 /** The Library card for a slug: a build error when there is none, so a link never names a missing page. */
@@ -31,7 +31,7 @@ const skill = (slug: string) => {
 };
 
 export function renderAgentsHead(): string {
-  return siteHead(AGENTS_META);
+  return siteHead({ ...AGENTS_META, image: SHARE_IMAGE });
 }
 
 /** The price and the two carts' buttons, in the hero; "Opens soon." until the carts sell. */
@@ -57,7 +57,6 @@ function buy(): string {
 
 function hero(): string {
   const h = AGENTS_HERO;
-  const p = HOME.proof;
   return [
     `<section class="ag-hero" aria-labelledby="ag-title">`,
     `<div class="wrap ag-hero-in">`,
@@ -65,7 +64,7 @@ function hero(): string {
     `<p class="eyebrow">${esc(h.eyebrow)}</p>`,
     `<h1 id="ag-title">${esc(h.title)}</h1>`,
     `<p class="lede">${esc(h.lede)}</p>`,
-    `<p class="proof-line"><span>${esc(p.label)}</span> <strong>${esc(p.figure)}</strong></p>`,
+    proofLine(),
     `</div>`,
     buy(),
     `</div>`,
@@ -141,6 +140,7 @@ function end(): string {
     `<div class="wrap">`,
     `<h2 id="end-title">${esc(e.heading)}</h2>`,
     `<p class="end-action"><a class="btn btn-primary" href="#join">${esc(e.button)}</a></p>`,
+    proofLine(),
     `<p class="end-more">${esc(e.notReadyBefore)}<a href="${esc(FREE_SKILLS_HREF)}">${esc(e.notReadyLink)}</a>${esc(e.notReadyAfter)}</p>`,
     `</div>`,
     `</section>`,
