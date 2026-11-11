@@ -18,6 +18,7 @@ import { requirePerm } from './can';
 import { EXEC_CATEGORIES, PERMS, PROGRAM_TZ } from './constants';
 import { buildOf, canAccess, isOpen, progressOf, runtimeOf } from './status';
 import { fmt } from './time';
+import { seatCaps } from './seats';
 import { downgradeUser, upgradeUser } from './tiers';
 import type {
   AIEmployee,
@@ -396,8 +397,8 @@ export function inviteMember(
     return { db, error: 'That person is already on your team.' };
   if (mem.length >= team.seats)
     return { db, error: 'All seats are assigned. Remove a seat or contact us to add more.' };
-  const caps = { 'Operations Lead': 1, 'Sales Agent': 5, 'Team Owner': 1 } as const,
-    cap = caps[args.role];
+  // The plan's seats, shared (D-081, D-120): 15 or 40 agents on the Team Plan, five in the prototype.
+  const cap = seatCaps(db, team)[args.role];
   if (mem.filter((u) => u.role === args.role).length >= cap)
     return { db, error: `Your plan includes ${cap} ${args.role}${cap > 1 ? 's' : ''}.` };
   const name = args.name?.trim() || nameFromEmail(email);

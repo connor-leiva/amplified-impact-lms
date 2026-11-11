@@ -1191,8 +1191,12 @@ describe('the Team Plan\'s owner adds agents from the Team Hub (D-081, D-106)', 
     expect(await states()).toEqual({ 'team-pnl-review': 'locked', 'offer-strategy': 'open' });
   });
 
-  it('caps Sales Agents at 5 today, short of the plan\'s 15 (D-081 is not built yet)', async () => {
-    await buy('agents-upto15', {}, { subscription: 'sub_team' });
+  // D-081, built in D-120: the owner adds agents up to the plan's seats, then the seat count stops it.
+  it.each([
+    ['agents-upto15', 15, 16],
+    ['agents-16to40', 40, 41],
+  ] as const)('%s: the owner adds the plan\'s %i Sales Agents from the Team Hub, and no more (D-120)', async (cart, agents, seats) => {
+    await buy(cart, {}, { subscription: 'sub_team' });
     const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
     const cookie = await app.signInAs(owner!.id);
     // A second apart: under FIXED_NOW each request's ids come from the clock (lib/clock.ts).
@@ -1200,11 +1204,12 @@ describe('the Team Plan\'s owner adds agents from the Team Hub (D-081, D-106)', 
       process.env.FIXED_NOW = new Date(NOW_MS + i * 1000).toISOString();
       return app.inject({ method: 'POST', url: '/api/mutate/inviteMember', headers: { cookie }, payload: { email: `agent${i}@example.com`, role: 'Sales Agent' } });
     };
-    for (let i = 1; i <= 5; i += 1) expect((await invite(i)).statusCode).toBe(200);
-    expect((await (await db()).select().from(users)).filter((u) => u.role === 'Sales Agent')).toHaveLength(5);
-    const sixth = await invite(6);
-    expect(sixth.body).toContain('Your plan includes 5 Sales Agents.');
+    for (let i = 1; i <= agents; i += 1) expect((await invite(i)).statusCode, `agent ${i}`).toBe(200);
+    expect((await (await db()).select().from(users)).filter((u) => u.role === 'Sales Agent')).toHaveLength(agents);
+    const over = await invite(agents + 1);
+    expect(over.body).toContain('All seats are assigned.');
+    expect((await (await db()).select().from(users)).filter((u) => u.role === 'Sales Agent')).toHaveLength(agents);
     const [team] = await (await db()).select().from(teams);
-    expect(team!.seats).toBe(16);
+    expect(team!.seats).toBe(seats);
   });
 });

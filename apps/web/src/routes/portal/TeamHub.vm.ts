@@ -15,6 +15,7 @@ import {
   fmt,
   nextSession,
   runtimeOf,
+  seatCaps,
   sessionFor,
   statusOf,
   visibleModules,
@@ -162,7 +163,7 @@ export interface TeamHubVM {
     used: number;
     total: number;
     slots: SeatSlot[];
-    /** `Owner 1 · Operations Lead 1 · Agents {n} of 5`. */
+    /** `Owner 1 · Operations Lead 1 · Agents {n} of {cap}`, the cap from `seatCaps` (D-120). */
     breakdown: string;
   };
   dep: { total: number; rows: DeploymentRow[] };
@@ -187,9 +188,6 @@ export interface TeamHubVM {
 
 /** The reference's sort: Team Owner, then Operations Lead, then Sales Agent, then by join date. */
 const ROLE_ORDER: Record<string, number> = { 'Team Owner': 0, 'Operations Lead': 1, 'Sales Agent': 2 };
-
-/** Seat caps per role. Identical to the `caps` map `inviteMember` enforces in @ai/core. */
-const CAPS: Record<InviteRole, number> = { 'Operations Lead': 1, 'Sales Agent': 5, 'Team Owner': 1 };
 
 const ROLE_DEFS: readonly [InviteRole, string][] = [
   ['Operations Lead', 'Runs the build schedule and the executive modules'],
@@ -299,11 +297,13 @@ export function teamHubVM(
   });
 
   const cnt = (r: string): number => mem.filter((u) => u.role === r).length;
+  // The plan's seats, shared (D-081, D-120): the same numbers `inviteMember` enforces.
+  const caps = seatCaps(db, team);
   const seats = {
     used: mem.length,
     total: team.seats,
     slots,
-    breakdown: `Owner ${cnt('Team Owner')} · Operations Lead ${cnt('Operations Lead')} · Agents ${cnt('Sales Agent')} of 5`,
+    breakdown: `Owner ${cnt('Team Owner')} · Operations Lead ${cnt('Operations Lead')} · Agents ${cnt('Sales Agent')} of ${caps['Sales Agent']}`,
   };
 
   // ---- Team Deployments ----------------------------------------------------------------------
@@ -363,7 +363,7 @@ export function teamHubVM(
     err: ui.err,
     seatsNote: left > 0 ? `${left} of ${team.seats} seats available` : 'All seats are assigned',
     roles: ROLE_DEFS.map(([label, sub]): InviteRoleOption => {
-      const cap = CAPS[label];
+      const cap = caps[label];
       const used = cnt(label);
       return { label, sub, cap: `${used} of ${cap} used`, capFull: used >= cap, on: ui.role === label };
     }),

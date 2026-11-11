@@ -35,6 +35,30 @@ describe('teamHubVM @g5', () => {
     expect(teamHubVM(db, jamie, phaseNow('live'), TEAM_HUB_UI)).toBeNull();
   });
 
+  it('shows a Team Plan’s seats: 15 or 40 agents, and an operations lead taking one (D-120)', () => {
+    setViewerZone(CT);
+    for (const [seats, agents] of [[16, 15], [41, 40]] as const) {
+      const db = seed('live');
+      const alex = db.users.find((u) => u.id === 'u_alex')!;
+      const team = db.teams.find((t) => t.id === alex.teamId)!;
+      team.seats = seats;
+      // The team as a Team Plan buys it: the owner alone.
+      db.users = db.users.filter((u) => u.teamId !== team.id || u.id === alex.id);
+      const vm = teamHubVM(db, alex, phaseNow('live'), TEAM_HUB_UI)!;
+      expect(vm.seats.total).toBe(seats);
+      expect(vm.seats.slots).toHaveLength(seats);
+      expect(vm.seats.breakdown).toBe(`Owner 1 · Operations Lead 0 · Agents 0 of ${agents}`);
+      expect(vm.inv.seatsNote).toBe(`${seats - 1} of ${seats} seats available`);
+      expect(vm.inv.roles.map((r) => [r.label, r.cap])).toEqual([
+        ['Operations Lead', '0 of 1 used'],
+        ['Sales Agent', `0 of ${agents} used`],
+        ['Team Owner', '1 of 1 used'],
+      ]);
+      db.users.push({ ...alex, id: 'u_ops', email: 'ops@example.test', name: 'Ops Lead', role: 'Operations Lead' });
+      expect(teamHubVM(db, alex, phaseNow('live'), TEAM_HUB_UI)!.seats.breakdown).toBe(`Owner 1 · Operations Lead 1 · Agents 0 of ${agents - 1}`);
+    }
+  });
+
   it('is null when there is no viewer at all', () => {
     setViewerZone(CT);
     expect(teamHubVM(seed('live'), null, phaseNow('live'), TEAM_HUB_UI)).toBeNull();
