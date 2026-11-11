@@ -69,10 +69,12 @@ export const ORDER_STATUS_RATE_MAX = 600;
 export const WEBHOOK_BODY_LIMIT = 256 * 1024;
 
 /**
- * The www sales pages filled per request like /offer (D-111): their path, and the name of their built
- * file (`apps/web/dist/<name>.html`, from `apps/web/src/site/vite-plugin.ts`'s `SITE_PAGES`).
+ * The www site's pages served from here (D-111): their path, and the name of their built file
+ * (`apps/web/dist/<name>.html`, from `apps/web/src/site/vite-plugin.ts`'s `SITE_PAGES`). The sales pages
+ * are filled per request like /offer; a page with no token, like /free (D-116), passes through the
+ * same fill unchanged.
  */
-export const SALES_PAGES = { '/pricing': 'pricing', '/team-build': 'team-build', '/teams': 'teams', '/agents': 'agents' } as const;
+export const SALES_PAGES = { '/pricing': 'pricing', '/team-build': 'team-build', '/teams': 'teams', '/agents': 'agents', '/free': 'free', '/about': 'about' } as const;
 export type SalesPath = keyof typeof SALES_PAGES;
 
 export interface OfferPages {
