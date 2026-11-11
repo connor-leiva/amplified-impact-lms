@@ -421,7 +421,9 @@ describe('every week’s words', () => {
     expect(all).not.toContain('Jordan Hale');
     expect(all).not.toMatch(/guarantee(d)? (results|income)/i);
     expect(all).toContain('support@amplifiedimpact.io');
-    expect(all).toContain('Zoom link TBA');
+    // No placeholder join link: a session is joined from Sessions, whose Join opens 15 min before.
+    expect(all).not.toMatch(/TBA/);
+    expect(course.intro.join).toEqual({ label: 'Join in Sessions', note: 'opens 15 min before', path: '/sessions' });
   });
 
   it('lists no Library item as expected but not merged: both flagships are in the Library', () => {

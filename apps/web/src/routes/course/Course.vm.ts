@@ -151,7 +151,7 @@ export interface WeekVM {
   live: null | {
     when: string;
     mins: string;
-    join: string;
+    join: JoinVM;
     agenda: Row[];
     lesson: string;
     exercise: string;
@@ -165,7 +165,7 @@ export interface WeekVM {
     title: string;
     when: string;
     mins: string;
-    join: string;
+    join: JoinVM;
     note: string;
     format: Row[];
     outputs: readonly string[];
@@ -234,6 +234,14 @@ const sessionLine = (s: CourseSession): SessionLineVM => ({
 const WORKSHEET: DownloadVM = { label: COPY.worksheet, name: 'week-1-worksheet.csv', content: worksheetCsv(BLANK_WORKSHEET) };
 const PRACTICE: DownloadVM = { label: COPY.practice, name: 'week-1-practice-set.csv', content: worksheetCsv(PRACTICE_SET) };
 
+/** Where a live session is joined: the portal's Sessions page, and when its Join opens. Never a Zoom URL. */
+export interface JoinVM {
+  label: string;
+  note: string;
+  href: string;
+}
+const joinVM = (j: { label: string; note: string; path: string }): JoinVM => ({ label: j.label, note: j.note, href: j.path });
+
 /** The week number in `/course/week-3`, or null for anything else. */
 export function weekFromParam(param: string | undefined): number | null {
   const m = /^week-(\d)$/.exec(param ?? '');
@@ -277,7 +285,7 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
         ? {
             when: fmt.when(build.start),
             mins: mins(build.mins),
-            join: course.intro.joinLink,
+            join: joinVM(course.intro.join),
             agenda: w.liveBuild.agenda.map((a) => ({ label: span(a.from, a.to), text: `${a.activity}. ${a.why}` })),
             lesson: w.liveBuild.lesson,
             exercise: w.liveBuild.exercise,
@@ -294,7 +302,7 @@ export function weekVM(p: CoursePayload, week: number): WeekVM | null {
             title: oh.title,
             when: fmt.when(oh.start),
             mins: mins(oh.mins),
-            join: course.intro.joinLink,
+            join: joinVM(course.intro.join),
             note: w.officeHours.note,
             format: (w.officeHours.format ?? []).map((a) => ({ label: span(a.from, a.to), text: `${a.activity}. ${a.why}` })),
             outputs: w.officeHours.outputs ?? [],

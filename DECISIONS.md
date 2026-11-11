@@ -4230,3 +4230,15 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Names no one in the log.** The line never has the name, the address or the database name, because the deploy log is kept by Railway (the "never log names or emails" rule). `OwnerRefused` now carries a `reason` word for this; its messages, which name the address, are only for the hand-run `db:owner`.
 - **No learner enrollment.** One address is either staff or a learner (`users.kind`, unique email), so enrolling the Owner's address would take away the console. A cohort plan without a purchase would also count as an AI Accelerator seat sold and add a buyer that never paid. Staff preview at `/course` already opens Week 0 to Week 8.
 - **Where it runs.** Production and staging (both run the pre-deploy command); demo has no database.
+
+## D-130 · The course's session rows say where to join, not "Zoom link TBA"
+
+**Date:** 2026-11-11
+**Approved by:** Connor, 2026-11-11: "continue polishing the written course Week 0 to Week 8 for any empty or placeholder sections (link existing Library skills; don't rewrite them), one PR per item."
+**Status:** on a pull request.
+**Scope:** `packages/core/src/accelerator-content.ts` (`COURSE_INTRO.join`, was `joinLink`), a comment in `packages/core/src/accelerator.ts`, `apps/web/src/routes/course/Course.vm.ts` and `Course.tsx`, and their tests.
+
+- **The placeholder.** Every live build and office hour on `/course/week-1` to `week-8` ended "· Zoom link TBA". That was the only placeholder the course showed a learner, apart from the video slots, which stay marked "to be recorded" until recordings exist.
+- **Now:** "· Join in Sessions (opens 15 min before)", with "Join in Sessions" linking `/sessions`. That is where a learner really joins: the Sessions page's Join button, which the join route opens 15 minutes before the start (`JOIN_WINDOW_SHUT`, "Join opens 15 min before").
+- **Still no Zoom URL** in the course's words or in `GET /api/course`. Staff set it on the session, and only the join route hands it out, inside its window.
+- **Not changed:** the course plan's words, the Library skills and their pages, the dates and times, the video placeholders. Weeks 2, 4 and 5 list no course materials because the course plan names none for them; nothing was invented to fill them.
