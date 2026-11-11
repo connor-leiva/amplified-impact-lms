@@ -19,7 +19,8 @@
     "db:owner:ensure": "tsx src/db/seed.ts --owner-ensure",
     "provision": "tsx src/billing/cli.ts provision",
     "skills": "tsx src/billing/cli.ts skills",
-    "ghl:status": "tsx src/integrations/ghl-cli.ts status"
+    "ghl:status": "tsx src/integrations/ghl-cli.ts status",
+    "ghl:setup": "tsx src/integrations/ghl-cli.ts setup"
   },
   "dependencies": {
     "@ai/core": "workspace:*",

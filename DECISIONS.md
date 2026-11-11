@@ -4365,3 +4365,18 @@ The existing client, queue and tag-union rules are extended, not rewritten. The 
 - **`.railway/railway.ts`**: `GHL_LOCATION_ID` is now `preserve()`, like the token. A value in code would undo Connor's swap on the next `railway config apply`.
 - **Not changed:** `/agreement`, prices, seats, Stripe, and Spring's forms, workflows and pipelines.
 
+## D-135 · Amplified Impact's own GHL sub-account, made ready: `ghl:setup`
+
+**Date:** 2026-11-11
+**Approved by:** Ampy (PM for Connor), Connor's update of 12:26 PM. Its own PR, after D-134's.
+
+Connor is moving this app's GHL work off Spring's location to a dedicated Amplified Impact sub-account. The sync keeps writing to the current `GHL_LOCATION_ID` until Connor swaps it in Railway.
+
+- **`pnpm --filter @ai/api ghl:setup`** gets the new location ready. It reads `GHL_TO_TOKEN` and `GHL_TO_LOCATION_ID`, set for the run only.
+  - It creates the pipeline "Amplified Impact" with Lead, Free Skills, Checkout Started, Buyer and Refunded/Canceled.
+  - It creates every tag this app writes, and the five contact fields: AI Offer (text), AI Cohort (text), AI Amount (monetary), AI Purchase Date (date), LMS Login (text).
+  - Anything that already exists by name is used as it is. It never edits an existing pipeline; a missing stage is reported for Connor to add.
+  - It prints the `GHL_PIPELINE_ID`, `GHL_STAGE_*` and `GHL_FIELD_*` lines to paste. Canceled and Refunded share one stage.
+  - There is no Payment Failed stage in Connor's list, so `GHL_STAGE_PAYMENT_FAILED` stays unset.
+- **A dry run unless given `--apply`**, and safe to run again. One call at a time, a 429 waited out, a 5xx retried, a refused token stops it.
+- **It never prints a token or a contact, and never touches Spring's location.**
