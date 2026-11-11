@@ -7,6 +7,9 @@
 //   INVITES_FROM           when held owner invites go out; defaults to Mon, Nov 16, 8:00 am Central
 //   PAYMENT_LINK_*         Ampy's Payment Links, one per cart (catalog.ts names them): the only way to buy
 //   INTAKE_URL_*           Sarah O.'s intake form per plan, shown on /offer/welcome
+//   CALENDAR_URL_BUILDS, CALENDAR_URL_OFFICE_HOURS  "add to calendar" links on the thank-you pages (D-105);
+//                          unset, the page says the invites come by email
+//   TEAM_CALL_URL          where "Let's talk" goes for a team over 40 agents (D-105); unset, an email to support
 //   STRIPE_PORTAL_LOGIN_URL      the billing portal's login page, where members cancel themselves
 //   STRIPE_PORTAL_CONFIG_LOCKED  a portal configuration with cancelling off, for buyers inside a commitment
 //
@@ -40,6 +43,10 @@ export interface OfferConfig {
    * 3-month minimum. Unset, those customers get the default configuration.
    */
   portalLockedConfig: string | null;
+  /** "Add to calendar" links for the Wednesday builds and the Thursday office hours (D-105). */
+  calendarUrls: { builds: string | null; officeHours: string | null };
+  /** Where "Let's talk" goes for a team over 40 agents; null sends an email to support (D-105). */
+  teamCallUrl: string | null;
 }
 
 export class OfferConfigError extends Error {
@@ -98,6 +105,8 @@ export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConf
     intakeUrls,
     portalLoginUrl: httpsUrl(env.STRIPE_PORTAL_LOGIN_URL),
     portalLockedConfig: /^bpc_[A-Za-z0-9]+$/.test((env.STRIPE_PORTAL_CONFIG_LOCKED ?? '').trim()) ? env.STRIPE_PORTAL_CONFIG_LOCKED!.trim() : null,
+    calendarUrls: { builds: httpsUrl(env.CALENDAR_URL_BUILDS), officeHours: httpsUrl(env.CALENDAR_URL_OFFICE_HOURS) },
+    teamCallUrl: httpsUrl(env.TEAM_CALL_URL),
   };
 }
 
@@ -124,5 +133,7 @@ export function describeOfferConfig(config: OfferConfig): Record<string, unknown
     paymentLinks: Object.keys(config.paymentLinks),
     portal: { login: config.portalLoginUrl !== null, lockedConfig: config.portalLockedConfig !== null },
     intakeForms: Object.keys(config.intakeUrls),
+    calendars: { builds: config.calendarUrls.builds !== null, officeHours: config.calendarUrls.officeHours !== null },
+    teamCall: config.teamCallUrl !== null,
   };
 }

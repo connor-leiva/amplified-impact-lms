@@ -1,24 +1,45 @@
-// /offer (and /forum) and /offer/welcome, as strings, from `content.ts` (DECISIONS.md D-075).
+// /offer (and /forum) and /offer/welcome, as strings, from `content.ts` (DECISIONS.md D-075, D-104, D-105).
 //
 // Built once by `vite-plugin.ts` into `dist/offer.html` and `dist/offer-welcome.html`, then filled per
-// request by the API: every price, date and state is a `%%token%%` (`OFFER_TOKENS` and `PRICE_TOKENS`
-// in @ai/core/offer) that `apps/api/src/routes/offer.ts` replaces with an escaped value. So the page
-// is one response with live prices, it works with no script, and its inline script's CSP hash does
-// not change with the prices (no token sits inside the script).
+// request by the API: every link, state and date is a `%%token%%` (`OFFER_TOKENS` and `WELCOME_TOKENS`
+// in @ai/core/offer) that `apps/api/src/routes/offer.ts` replaces with an escaped value.
 //
-// STATES WITHOUT A SCRIPT. The API writes each card's state (`link`, `closed`, `soldout`, `soon`) into a
-// `data-state` attribute and the page's own state into `<body data-offer>`; the stylesheet shows what
-// fits. Every plan is bought through its Stripe Payment Link (D-104): the site's own checkout form, and
-// the script that drove it, are gone.
+// STATES WITHOUT A SCRIPT. The API writes each card's state (`link`, `soon`, `closed` or, for the
+// Accelerator's 15 seats, `soldout`) into its `data-state`, and the page's own into <body data-offer>,
+// `data-founding` and `data-invites`; the stylesheet shows what fits. A link that does not sell today
+// has an empty href, which the stylesheet hides. The offer page carries no script at all; the welcome
+// page's one script polls until the webhook confirms the order, and holds no token.
+//
+// ONE CARD, THREE TIMES (docs/SPRING-PLAN.md, "Design and copy rules"): who it's for, what you get,
+// how it runs, when it starts, the price, one button, then "Every program includes weekly office
+// hours." and "Not ready? Start with 5 free skills".
 //
 // ESCAPING. Every string from `content.ts` goes through `esc()`; the tokens are escaped by the API.
 
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
 import { esc, HONEYPOT_LABEL, logo } from '../ai101/render';
-import { CARD_CARTS, CARDS, OFFER_TOKENS as T, PLAN_NAMES, PRICE_TOKENS as P, WELCOME_TOKENS as W } from '@ai/core/offer';
-import type { PlanKind } from '@ai/core/offer';
-import { AFTER, CARD_STATES, CARDS_COPY, CHROME, HERO, META, PLANS_HEADING, WAITLIST, WELCOME } from './content';
-import type { CardPlan } from './content';
+import { CARD_CARTS, CARDS, HELP_EMAIL, OFFER_TOKENS as T, PLAN_NAMES, WELCOME_TOKENS as W } from '@ai/core/offer';
+import {
+  AFTER,
+  CARD_STATES as S,
+  CHROME,
+  EVERY_CARD,
+  FACT_LABELS,
+  HERO,
+  META,
+  NOTES,
+  OFFERS,
+  PLANS_HEADING,
+  THANKS,
+  THANKS_PARTS,
+  WAITLIST,
+  WELCOME,
+} from './content';
+import type { CardPlan, StepExtra, ThanksStep } from './content';
+
+/** The cards, in the plan's order: the AI Accelerator, Amplified Insiders, the Team Plan. */
+const PLANS = CARDS as readonly CardPlan[];
+const cartsOf = (plan: CardPlan) => CARD_CARTS[plan] ?? [];
 
 const head = (title: string, description: string): string =>
   [
@@ -31,15 +52,23 @@ const head = (title: string, description: string): string =>
 const brand = (): string =>
   `<header class="top"><div class="inner"><a class="brand" href="/library" data-brand-slot="signature">${logo(signatureSvg, CHROME.logoLabel, 'brand-logo')}</a></div></header>`;
 
+/** "Questions? Write to support@amplifiedimpact.io." with the address as a link: in the footer, so every page and state has it once. */
+const contact = (cls: string): string =>
+  `<p class="${cls}">${esc(CHROME.contactBefore)}<a href="mailto:${esc(HELP_EMAIL)}">${esc(HELP_EMAIL)}</a>${esc(CHROME.contactAfter)}</p>`;
+
 const footer = (): string =>
   [
     `<footer class="foot"><div class="inner">`,
     `<nav aria-label="${esc(CHROME.footerLabel)}"><ul class="foot-links" role="list">`,
     ...CHROME.footerLinks.map((l) => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`),
     `</ul></nav>`,
-    `<p>${esc(CHROME.contact)}</p>`,
+    contact('foot-contact'),
     `</div></footer>`,
   ].join('');
+
+/** Two versions of a sentence, by whether logins still wait for INVITES_FROM (<body data-invites>). */
+const loginLine = (held: { before: string; after: string }, sent: string, day: string): string =>
+  `<span class="invites-held">${esc(held.before)}${day}${esc(held.after)}</span><span class="invites-sent">${esc(sent)}</span>`;
 
 // --- /offer ----------------------------------------------------------------------------------------
 
@@ -47,72 +76,100 @@ export function renderOfferHead(): string {
   return head(META.title, META.description);
 }
 
-/** One plan card. Its actions depend on its first cart's state; a card's carts share one state. */
-function card(plan: PlanKind): string {
-  const copy = CARDS_COPY[plan as CardPlan];
-  const carts = CARD_CARTS[plan] ?? [];
-  const first = carts[0]!;
-  const lines = copy.lines.map((l) => `<li>${esc(l)}</li>`).join('');
-  const payLinks = carts
-    .map((id, i) => {
-      const label = copy.pay[id];
-      return label ? `<a class="button ${i === 0 ? 'primary' : 'secondary'}" href="${T.link(id)}">${esc(label)}</a>` : '';
-    })
-    .join('');
-  // Founding prices close for the AI Accelerator and the Team Plan; both then offer the waitlist.
-  const founding = plan === 'cohort' || plan === 'agents';
+/**
+ * The price block. The Accelerator has a second one for after its founding deadline (<body
+ * data-founding>); the Accelerator and the Team Plan both say when founding prices end.
+ */
+function price(plan: CardPlan): string {
+  const p = OFFERS[plan].price;
+  const accelerator = plan === 'cohort';
+  const figure = (amount: string, unit: string) =>
+    `<p class="figure"><span class="amount">${esc(amount)}</span> <span class="unit">${esc(unit)}</span></p>`;
+  const deadline =
+    plan === 'cohort'
+      ? [`<p class="terms deadline">${esc(S.deadlineBefore)}${T.foundingCloses}${esc(S.deadlineAfter)}</p>`]
+      : plan === 'agents'
+        ? [`<p class="terms deadline founding-open">${esc(S.teamDeadlineBefore)}${T.foundingCloses}${esc(S.teamDeadlineAfter)}</p>`]
+        : [];
   return [
-    `<li class="plan" id="plan-${plan}" data-state="${T.state(first)}" aria-labelledby="plan-${plan}-name">`,
-    `<h3 class="plan-name" id="plan-${plan}-name">${esc(PLAN_NAMES[plan])}</h3>`,
-    `<p class="plan-for">${esc(copy.forWho)}</p>`,
-    `<p class="price"><span class="figure"><span class="amount">${P.headline(plan)}</span> <span class="unit">${P.unit(plan)}</span></span><span class="terms">${P.terms(plan)}</span></p>`,
-    `<p class="price-missing">${esc(CARD_STATES.priceOnStripe)}</p>`,
-    `<ul class="lines" role="list">${lines}</ul>`,
+    `<div class="price${accelerator ? ' founding-open' : ''}">`,
+    figure(p.amount, p.unit),
+    ...p.terms.map((t) => `<p class="terms">${esc(t)}</p>`),
+    ...deadline,
+    `</div>`,
+    ...(accelerator ? [`<div class="price founding-closed">${figure(S.closedAmount, S.closedUnit)}</div>`] : []),
+  ].join('');
+}
+
+/** The card's actions: its button and other links, "opens soon", closed or sold out (then the waitlist). */
+function actions(plan: CardPlan): string {
+  const c = OFFERS[plan];
+  const [first, ...rest] = cartsOf(plan);
+  const waitlist = (cls: string) => `<a class="button secondary ${cls}" href="#waitlist">${esc(S.waitlist)}</a>`;
+  const note =
+    plan === 'cohort'
+      ? `<p class="note">${esc(NOTES.fubBefore)}<a href="#waitlist">${esc(NOTES.fubLink)}</a>.</p>`
+      : plan === 'agents'
+        ? `<p class="note">${esc(NOTES.bigTeamBefore)}<a href="${T.teamCall}">${esc(NOTES.bigTeamLink)}</a>.</p>`
+        : '';
+  return [
     `<div class="plan-actions">`,
-    `<div class="act-link">${payLinks}</div>`,
-    ...(founding
-      ? [
-          `<p class="act-closed">${esc(CARD_STATES.closed)} ${T.foundingCloses}.</p>`,
-          `<a class="button secondary act-closed" href="#waitlist">${esc(CARD_STATES.waitlist)}</a>`,
-        ]
-      : []),
+    `<div class="act-link">`,
+    `<a class="button primary" href="${T.link(first!)}">${esc(c.button)}</a>`,
+    ...rest.map((id) => (c.more[id] ? `<a class="more" href="${T.link(id)}">${esc(c.more[id]!)}</a>` : '')),
+    `</div>`,
+    `<p class="act-soon">${esc(S.soon)}</p>`,
     ...(plan === 'cohort'
       ? [
-          `<p class="act-soldout">${esc(CARD_STATES.soldout)}</p>`,
-          `<a class="button secondary act-soldout" href="#waitlist">${esc(CARD_STATES.waitlist)}</a>`,
+          `<p class="act-closed">${esc(S.closedBefore)}${T.foundingCloses}${esc(S.closedAfter)}</p>`,
+          waitlist('act-closed'),
+          `<p class="act-soldout">${esc(S.soldout)}</p>`,
+          waitlist('act-soldout'),
         ]
-      : []),
-    `<p class="act-soon">${esc(CARD_STATES.soon)}</p>`,
+      : plan === 'agents'
+        ? [`<p class="act-closed">${esc(S.teamClosedBefore)}${T.foundingCloses}${esc(S.teamClosedAfter)}</p>`, waitlist('act-closed')]
+        : []),
+    note,
     `</div>`,
+  ].join('');
+}
+
+/** One offer card. Its state is its first cart's: a card's carts share one state. */
+function card(plan: CardPlan): string {
+  const c = OFFERS[plan];
+  const fact = (label: string, body: string) => `<div class="fact"><dt>${esc(label)}</dt><dd>${body}</dd></div>`;
+  return [
+    `<li class="plan" id="plan-${plan}" data-state="${T.state(cartsOf(plan)[0]!)}" aria-labelledby="plan-${plan}-name">`,
+    `<h3 class="plan-name" id="plan-${plan}-name">${esc(PLAN_NAMES[plan])}</h3>`,
+    `<dl class="facts">`,
+    fact(FACT_LABELS.forWho, esc(c.forWho)),
+    fact(FACT_LABELS.lines, `<ul class="lines" role="list">${c.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>`),
+    fact(FACT_LABELS.howItRuns, esc(c.howItRuns)),
+    fact(FACT_LABELS.starts, c.starts.map((s) => `<p>${esc(s)}</p>`).join('')),
+    `</dl>`,
+    price(plan),
+    actions(plan),
+    `<p class="every">${esc(EVERY_CARD.officeHours)}</p>`,
+    `<p class="not-ready">${esc(EVERY_CARD.notReadyBefore)}<a href="${esc(EVERY_CARD.notReadyHref)}">${esc(EVERY_CARD.notReadyLink)}</a>.</p>`,
     `</li>`,
   ].join('');
 }
 
-export function renderOfferBody(): string {
+function after(): string {
+  const steps = AFTER.steps.map((s) => {
+    const body = 'body' in s ? esc(s.body) : loginLine(s.held, s.sent, T.loginDay);
+    return `<li><h3>${esc(s.title)}</h3><p>${body}</p></li>`;
+  });
   return [
-    `<a class="skip" href="#plans">${esc(CHROME.skip)}</a>`,
-    brand(),
-    `<main id="main">`,
-    `<section class="hero" aria-labelledby="offer-title"><div class="inner">`,
-    `<p class="eyebrow"><span class="when-open">${esc(HERO.eyebrowOpen)}</span><span class="when-closed">${esc(HERO.eyebrowClosed)}</span> ${T.foundingCloses}</p>`,
-    `<h1 id="offer-title">${esc(HERO.title)}</h1>`,
-    `<p class="lede">${esc(HERO.lede)}</p>`,
-    `<p class="soon-note">${esc(HERO.soon)}</p>`,
-    `</div></section>`,
-    `<section class="plans" id="plans" aria-labelledby="plans-title"><div class="inner">`,
-    `<h2 id="plans-title">${esc(PLANS_HEADING)}</h2>`,
-    `<ol class="plan-grid" role="list">${CARDS.map(card).join('')}</ol>`,
-    `</div></section>`,
-    // What happens once Stripe has the payment.
-    `<section class="checkout after" id="after" aria-labelledby="after-title"><div class="inner">`,
+    `<section class="after" aria-labelledby="after-title"><div class="inner">`,
     `<h2 id="after-title">${esc(AFTER.heading)}</h2>`,
-    `<ol class="steps" role="list">`,
-    ...AFTER.steps.map(
-      (s) =>
-        `<li><h3>${esc(s.title)}</h3><p>${'body' in s ? esc(s.body) : `${esc(s.before)}${T.loginDay}${esc(s.after)}`}</p></li>`,
-    ),
-    `</ol>`,
+    `<ol class="steps" role="list">${steps.join('')}</ol>`,
     `</div></section>`,
+  ].join('');
+}
+
+function waitlist(): string {
+  return [
     `<section class="waitlist" id="waitlist" aria-labelledby="waitlist-title"><div class="inner narrow">`,
     `<h2 id="waitlist-title">${esc(WAITLIST.heading)}</h2>`,
     `<p class="section-lede">${esc(WAITLIST.body)}</p>`,
@@ -129,6 +186,26 @@ export function renderOfferBody(): string {
     `<p class="consent">${esc(WAITLIST.consent)}</p>`,
     `</form>`,
     `</div></section>`,
+  ].join('');
+}
+
+export function renderOfferBody(): string {
+  return [
+    `<a class="skip" href="#plans">${esc(CHROME.skip)}</a>`,
+    brand(),
+    `<main id="main">`,
+    `<section class="hero" aria-labelledby="offer-title"><div class="inner">`,
+    `<p class="eyebrow">${esc(HERO.eyebrow)}</p>`,
+    `<h1 id="offer-title">${esc(HERO.title)}</h1>`,
+    `<p class="lede">${esc(HERO.lede)}</p>`,
+    `<p class="soon-note">${esc(HERO.soon)}</p>`,
+    `</div></section>`,
+    `<section class="plans" id="plans" aria-labelledby="plans-title"><div class="inner">`,
+    `<h2 id="plans-title">${esc(PLANS_HEADING)}</h2>`,
+    `<ol class="plan-grid" role="list">${PLANS.map(card).join('')}</ol>`,
+    `</div></section>`,
+    after(),
+    waitlist(),
     `</main>`,
     footer(),
   ].join('\n');
@@ -137,35 +214,63 @@ export function renderOfferBody(): string {
 // --- /offer/welcome --------------------------------------------------------------------------------
 
 export function renderWelcomeHead(): string {
-  return head(WELCOME.title, WELCOME.description);
+  return head(THANKS_PARTS.title, THANKS_PARTS.description);
+}
+
+/** A thank-you step's extra pieces, after its sentences. */
+function extras(list: readonly StepExtra[]): string {
+  const out: string[] = [];
+  if (list.includes('login')) {
+    out.push(`<p>${loginLine(THANKS_PARTS.login.held, THANKS_PARTS.login.sent, W.loginDay)}</p>`);
+  }
+  if (list.includes('intake')) {
+    out.push(
+      `<p class="intake-link"><a class="button primary" href="${W.intakeUrl}" target="_blank" rel="noopener">${esc(THANKS_PARTS.intakeButton)}</a></p>`,
+    );
+  }
+  const cal = THANKS_PARTS.calendar;
+  const links = [
+    ...(list.includes('calendar-builds') ? [`<a class="button secondary" href="${W.calendarBuilds}" target="_blank" rel="noopener">${esc(cal.builds)}</a>`] : []),
+    ...(list.includes('calendar-office-hours')
+      ? [`<a class="button secondary" href="${W.calendarOfficeHours}" target="_blank" rel="noopener">${esc(cal.officeHours)}</a>`]
+      : []),
+  ];
+  if (links.length) out.push(`<p class="cal-links">${links.join('')}</p>`, `<p class="cal-email">${esc(cal.email)}</p>`);
+  return out.join('');
+}
+
+/** A step: its title, its sentences, then its pieces. The login comes first in "Watch your email". */
+function thanksStep(s: ThanksStep): string {
+  const lines = s.body.map((b) => `<p>${esc(b)}</p>`);
+  const more = extras(s.extras ?? []);
+  const loginFirst = s.extras?.includes('login') ?? false;
+  return `<li><h2>${esc(s.title)}</h2>${loginFirst ? more + lines.join('') : lines.join('') + more}</li>`;
+}
+
+function thanks(plan: CardPlan): string {
+  const t = THANKS[plan];
+  return [
+    `<section class="w-thanks t-${plan}" aria-labelledby="t-${plan}-title">`,
+    `<h1 id="t-${plan}-title">${esc(t.heading)}</h1>`,
+    `<p class="lede">${esc(t.lede)}</p>`,
+    `<ol class="steps" role="list">${t.steps.map(thanksStep).join('')}</ol>`,
+    `</section>`,
+  ].join('');
 }
 
 export function renderWelcomeBody(): string {
-  const c = WELCOME.confirmed;
   return [
     brand(),
     `<main id="main" class="welcome" data-session="${W.sessionId}"><div class="inner narrow">`,
-    // Confirmed: the plan, the login, the intake form.
-    `<section class="w-confirmed" aria-labelledby="w-confirmed-title">`,
-    `<h1 id="w-confirmed-title">${esc(c.headingBefore)}${W.planName}</h1>`,
-    `<p class="lede">${P.paidLine}</p>`,
-    `<ol class="steps" role="list">`,
-    `<li><h2>${esc(c.loginTitle)}</h2><p>${W.login}</p></li>`,
-    `<li><h2>${esc(c.intakeTitle)}</h2>`,
-    `<p class="intake-email">${esc(c.intakeEmail)}</p>`,
-    `<p class="intake-link"><a class="button primary" href="${W.intakeUrl}" target="_blank" rel="noopener">${esc(c.intakeButton)}</a></p></li>`,
-    `<li><h2>${esc(c.billingTitle)}</h2><p>${esc(c.billingBody)}</p>`,
-    `<p><a class="button secondary" href="${W.portalUrl}" target="_blank" rel="noopener">${esc(c.billingButton)}</a></p></li>`,
-    `</ol>`,
-    `<p class="contact">${esc(WELCOME.contact)}</p>`,
-    `</section>`,
+    // Confirmed by the webhook: the next steps for the plan bought, one section per plan.
+    ...PLANS.map(thanks),
     // Pending: the webhook has not landed yet.
     `<section class="w-pending" aria-labelledby="w-pending-title">`,
     `<h1 id="w-pending-title">${esc(WELCOME.pending.heading)}</h1>`,
     `<p class="lede" role="status">${esc(WELCOME.pending.body)}</p>`,
     `<noscript><p>${esc(WELCOME.pending.noscript)}</p></noscript>`,
     `</section>`,
-    // Unknown: no such checkout. No success line without a verified session.
+    // Unknown: no such checkout. No success line without a session id from Stripe.
     `<section class="w-unknown" aria-labelledby="w-unknown-title">`,
     `<h1 id="w-unknown-title">${esc(WELCOME.unknown.heading)}</h1>`,
     `<p class="lede">${esc(WELCOME.unknown.body)}</p>`,
@@ -175,4 +280,3 @@ export function renderWelcomeBody(): string {
     footer(),
   ].join('\n');
 }
-

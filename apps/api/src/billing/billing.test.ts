@@ -24,10 +24,8 @@ import {
   initialPlanDates,
   mountainDeadline,
   pinnedFirstCharge,
-  priceWords,
 } from './catalog';
 import { keyMode, readOfferConfig } from './config';
-import type { PriceMap } from './prices';
 import { crmOf, planStatusOf, teamSizeOfAgents } from './webhook';
 import { buyerTags } from '../integrations/ghl';
 import { cartStates, fillTokens, offerValues, welcomeValues } from '../routes/offer';
@@ -41,19 +39,6 @@ const NOW = Date.parse('2026-11-14T15:00:00-06:00'); // Saturday at the Forum
 const DAY = 86_400_000;
 const DEFAULT_FOUNDING = Date.parse(DEFAULT_FOUNDING_CLOSES_AT);
 
-const price = (lookupKey: string, unitAmount: number, interval: 'month' | null) => ({ lookupKey, id: `price_${lookupKey}`, unitAmount, currency: 'usd', interval, productName: 'x' });
-const PRICES: PriceMap = {
-  cohort_founding_full: price('cohort_founding_full', 750000, null),
-  cohort_founding_two_pay: price('cohort_founding_two_pay', 375000, 'month'),
-  membership_year_upfront: price('membership_year_upfront', 199700, null),
-  membership_monthly: price('membership_monthly', 19700, 'month'),
-  agents_upto15_prepay3: price('agents_upto15_prepay3', 149100, null),
-  agents_16to40_prepay3: price('agents_16to40_prepay3', 239100, null),
-  agents_upto15_founding: price('agents_upto15_founding', 49700, 'month'),
-  agents_16to40_founding: price('agents_16to40_founding', 79700, 'month'),
-};
-/** The page's price words read amounts in cents by lookup key. */
-const AMOUNTS = Object.fromEntries(Object.entries(PRICES).map(([k, v]) => [k, v!.unitAmount]));
 
 const dayIn = (t: number, timeZone: string) =>
   new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(t);
@@ -142,16 +127,7 @@ describe('the Stripe contract (D-073, D-074, D-104)', () => {
     expect(initialPlanDates(CARTS['agents-16to40'], AGENTS_SKILLS_FROM + DAY).startsAt).toBe(AGENTS_SKILLS_FROM + DAY);
   });
 
-  it('words each price in the checkout\'s own terms', () => {
-    const w = priceWords(AMOUNTS);
-    expect([w.headline.cohort, w.headline.membership, w.headline.agents]).toEqual(['$7,500', '$1,997', '$1,491']);
-    expect(w.terms.cohort).toBe('or 2 monthly payments of $3,750. Then $197 a month as Amplified Insiders from May 4.');
-    expect(w.unit.membership).toBe('today for one year');
-    expect(w.terms.membership).toContain('Then $197 a month unless you cancel with 30 days’ notice.');
-    expect(w.terms.agents).toBe('or $2,391 for 16 to 40. Today covers Jan 4 to Apr 3, 2027; monthly billing at $497 ($797) starts Sunday, April 4, 2027.');
-    // A missing price leaves the card's words empty, never half a sentence.
-    expect(priceWords({}).headline.agents).toBe('');
-  });
+
 });
 
 describe('the access rule (D-079)', () => {
@@ -327,13 +303,16 @@ describe('the offer page values (D-075, D-104)', () => {
     expect([at15['cohort-full'], at15['cohort-two-pay'], at15['insiders-year'], at15['agents-upto15']]).toEqual(['soldout', 'soldout', 'link', 'link']);
   });
 
-  it('fills the page: links only while they sell, the deadline in Mountain time, and the prices', () => {
-    const v = offerValues({ config, prices: PRICES, now: NOW, src: 'forum', seatsSold: 0 });
+  it('fills the page: links only while they sell, the deadline in Mountain time, logins and the 40+ call', () => {
+    const v = offerValues({ config, now: NOW, src: 'forum', seatsSold: 0 });
     expect([v['offer-state'], v.founding, v['founding-closes'], v.src]).toEqual(['links', 'open', 'Monday, November 30 at 11:59 PM Mountain', 'forum']);
     expect([v['link:cohort-full'], v['link:insiders-monthly']]).toEqual(['https://buy.stripe.com/test_cohort_full', '']);
-    expect([v['headline:membership'], v['unit:agents']]).toEqual(['$1,997', 'today, up to 15 agents']);
+    expect([v.invites, v['login-day'], v['team-call']]).toEqual(['held', 'Monday, November 16', 'mailto:support@amplifiedimpact.io']);
+    expect(offerValues({ config, now: config.invitesFrom, src: null, seatsSold: 0 }).invites).toBe('sent');
+    const booked = readOfferConfig({ TEAM_CALL_URL: 'https://cal.example.com/team' });
+    expect(offerValues({ config: booked, now: NOW, src: null, seatsSold: 0 })['team-call']).toBe('https://cal.example.com/team');
     expect(Object.values(v).join(' ')).not.toContain('test_old_');
-    const soldOut = offerValues({ config, prices: PRICES, now: NOW, src: null, seatsSold: 15 });
+    const soldOut = offerValues({ config, now: NOW, src: null, seatsSold: 15 });
     expect([soldOut['state:cohort-full'], soldOut['link:cohort-full'], soldOut['link:insiders-year']]).toEqual(['soldout', '', 'https://buy.stripe.com/test_insiders_year']);
   });
 
@@ -347,6 +326,21 @@ describe('the offer page values (D-075, D-104)', () => {
     expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: NOW, config }).login).toContain('Monday, November 16');
     expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: config.invitesFrom + 1, config }).login).toContain('within a few minutes');
     expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: NOW, config })['plan-name']).toBe('Amplified Insiders');
+  });
+
+  it('picks the thank-you section by the confirmed plan, with the calendar links when set (D-105)', () => {
+    const cal = readOfferConfig({ CALENDAR_URL_OFFICE_HOURS: 'https://cal.example.com/office-hours' });
+    const done = welcomeValues({ state: 'confirmed', plan: 'agents', sessionId: null, now: NOW, config: cal });
+    expect([done.product, done.invites, done['calendar-builds'], done['calendar-office-hours'], done['calendar-state']]).toEqual([
+      'agents',
+      'held',
+      '',
+      'https://cal.example.com/office-hours',
+      'links',
+    ]);
+    // No section before the webhook confirms the order.
+    expect(welcomeValues({ state: 'pending', plan: 'agents', sessionId: null, now: NOW, config }).product).toBe('');
+    expect(welcomeValues({ state: 'confirmed', plan: 'cohort', sessionId: null, now: NOW, config })['calendar-state']).toBe('email');
   });
 
   it('reports a key only by its mode', () => {

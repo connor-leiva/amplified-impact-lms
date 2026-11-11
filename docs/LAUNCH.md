@@ -189,6 +189,8 @@ left needs an account, a credential or a person. Grokbok's part is in `docs/STRI
    | `FOUNDING_CLOSES_AT` | optional; defaults to `2026-11-30T23:59:00-07:00` (Mon, Nov 30, 11:59 PM Mountain) for the AI Accelerator and the Team Plan (D-104) |
    | `PAYMENT_LINK_COHORT_FULL`, `PAYMENT_LINK_COHORT_TWO_PAY`, `PAYMENT_LINK_INSIDERS_YEAR`, `PAYMENT_LINK_INSIDERS_MONTHLY`, `PAYMENT_LINK_TEAM_UPTO15_PREPAY`, `PAYMENT_LINK_TEAM_16TO40_PREPAY` | Ampy's Payment Links, the only way to buy since D-104; an unset one shows "Opens soon." |
    | `INTAKE_URL_COHORT`, `INTAKE_URL_MEMBERSHIP`, `INTAKE_URL_AGENTS` | Sarah O.'s intake forms for the AI Accelerator, Amplified Insiders and the Team Plan; without them the welcome page says the form comes by email |
+   | `CALENDAR_URL_BUILDS`, `CALENDAR_URL_OFFICE_HOURS` | optional; the thank-you pages' "add to calendar" buttons (D-105). Unset, they say the invites come by email |
+   | `TEAM_CALL_URL` | optional; where "Let's talk" goes for a team over 40 agents (D-105). Unset, an email to support@amplifiedimpact.io |
    | `INVITES_FROM` | optional; defaults to Mon, Nov 16, 8:00 am Central |
    | `STRIPE_PORTAL_LOGIN_URL` | the billing portal's login page, where members cancel themselves; Manage Billing falls back to it |
    | `STRIPE_PORTAL_CONFIG_LOCKED` | the `bpc_…` id of the portal configuration with cancelling off, from Grokbok (`docs/STRIPE-HANDOFF.md` § 4) |

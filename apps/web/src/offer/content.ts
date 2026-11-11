@@ -1,29 +1,40 @@
-// Every word on /offer (and /forum) and /offer/welcome (DECISIONS.md D-075).
-//
-// D-104 (Ampy's Stripe update, 2026-11-10) changed the terms under these words: the cards now say
-// what the live Payment Links' own checkout text says (Wednesdays from Dec 2, Insiders from May 4,
-// the Team Plan's first 3 months paid today, billing from Apr 4, 15 founding seats), the Amplified
-// Skill Library card is Amplified Insiders, and the site's own checkout form is gone. Spring's
-// rewrite of this page is its own pull request.
+// Every word on /offer and /forum (one page: the Forum's QR code opens /forum) and on /offer/welcome
+// (DECISIONS.md D-075, D-104, D-105).
 //
 // THE ONLY FILE TO EDIT WHEN THE WORDS CHANGE. `render.ts` turns it into HTML at build time; the API
-// fills the prices and dates per request (`%%tokens%%`, @ai/core/offer). Nothing here is markup.
+// fills the links, the states and the dates per request (`%%tokens%%`, @ai/core/offer). Nothing here
+// is markup.
 //
-// House rules: no em dashes, no exclamation marks, short plain sentences. Labels and buttons in Title
-// Case, descriptions in sentence case. Each plan's lines say only what the spec's plan table says: no
-// counts, ratings or claims the offer does not make. The plan names are working names until Spring
-// names them; they live in @ai/core/offer (`PLAN_NAMES`), which Stripe's receipts share.
+// THE SOURCE IS SPRING'S PLAN, as Ampy rewrote it with Connor's offer names: docs/SPRING-PLAN.md,
+// Phase 1 and "Facts to use everywhere", held to the live Payment Links' own checkout text (Ampy's
+// Stripe update, D-104): Insiders by the year is $1,997 for one year, then $197 a month unless
+// cancelled with 30 days' notice; the Team Plan's first 3 months are paid today, with monthly billing
+// from Sunday, April 4, 2027; 15 founding seats. Spring reviews these words before they go live, so
+// they ship on a pull request, never straight to main.
+//
+// Spring's voice: contractions, short sentences, about a 4th grade reading level, lead with a
+// statement, no victim language. No em dashes, no exclamation marks. Labels and buttons in Title Case,
+// sentences in sentence case. Never "Forum" on this page: anyone can buy a founding seat while they
+// last. Every price shows; never "the price shows on the payment page".
+//
+// OPEN DECISIONS STAY OPEN (docs/SPRING-PLAN.md, "Open decisions"). Where these words step around one,
+// a comment beside them says `[OPEN: ...]`. None is invented: no training day or time, no payment plan
+// for $9,997.
 
-import { SUPPORT_EMAIL } from '@ai/core/offer';
+import { HELP_EMAIL } from '@ai/core/offer';
 import type { CartId } from '@ai/core/offer';
 
+/** The three cards, by plan: the AI Accelerator (`cohort`), Amplified Insiders (`membership`), the Team Plan (`agents`). */
+export type CardPlan = 'cohort' | 'membership' | 'agents';
+
 export const META = {
-  title: 'Plans and Prices | Amplified Impact',
-  description: 'The Amplified AI Accelerator, Amplified Insiders and the Amplified Team Plan: AI training software for real estate teams.',
+  title: 'Programs and Prices | Amplified Impact',
+  description:
+    'AI coaching and training for team owners and their agents. The Amplified AI Accelerator, Amplified Insiders and the Amplified Team Plan, with every price showing.',
 } as const;
 
 export const CHROME = {
-  skip: 'Skip to Plans',
+  skip: 'Skip to Programs',
   logoLabel: 'Amplified Impact',
   footerLabel: 'Legal',
   footerLinks: [
@@ -31,114 +42,305 @@ export const CHROME = {
     { label: 'Privacy Policy', href: '/privacy' },
     { label: 'Terms of Service', href: '/terms' },
   ],
-  contact: `Questions about a plan: ${SUPPORT_EMAIL}`,
+  contactBefore: 'Questions? Write to ',
+  contactAfter: '.',
 } as const;
 
 export const HERO = {
-  /** One of these shows, by whether founding prices are still on sale. The date is filled per request. */
-  eyebrowOpen: 'Founding prices until',
-  eyebrowClosed: 'Founding prices closed',
-  title: 'AI training software for real estate teams',
-  lede: 'Each plan opens a set of skills in the Amplified Impact platform, with logins for your team and live sessions. You pay on Stripe, and your login arrives by email.',
-  soon: 'The carts open soon. This page shows the prices and the checkout as soon as they do.',
+  eyebrow: 'AI coaching and training',
+  title: 'Pick the way you want to learn AI.',
+  lede: 'Build it live with us. Get every skill and go at your own pace. Or train your whole team.',
+  /** Shows while no button can be bought yet: `OFFER_OPEN` off, or no Payment Link set. */
+  soon: 'Checkout opens soon. The buy buttons show up here when it does.',
 } as const;
 
-export interface CardCopy {
-  /** Who the plan is for, in one sentence. */
+export const PLANS_HEADING = 'Three ways to start';
+
+/** The labels for the five things every card answers, in the same order (docs/SPRING-PLAN.md, "Make the choice easy"). */
+export const FACT_LABELS = {
+  forWho: 'Who it’s for',
+  lines: 'What you get',
+  howItRuns: 'How it runs',
+  starts: 'When it starts',
+} as const;
+
+export interface OfferCopy {
   forWho: string;
-  /** What it includes: three to seven plain lines, in the checkout's own terms. */
+  /** What you get: plain lines, each one from the plan's facts. */
   lines: readonly string[];
-  /** The Payment Link buttons, one per cart, the first the primary one. */
-  pay: Partial<Record<CartId, string>>;
+  howItRuns: string;
+  starts: readonly string[];
+  price: {
+    amount: string;
+    unit: string;
+    /** The lines under the amount: the other ways to pay and the terms. */
+    terms: readonly string[];
+  };
+  /** The card's one button, for its first cart's Payment Link. */
+  button: string;
+  /** Plain-text links for its other carts' Payment Links. */
+  more: Partial<Record<CartId, string>>;
 }
 
-/** The three cards, by plan: the AI Accelerator, Amplified Insiders, the Team Plan. */
-export type CardPlan = 'cohort' | 'membership' | 'agents';
-
-export const CARDS_COPY: Readonly<Record<CardPlan, CardCopy>> = {
+export const OFFERS: Readonly<Record<CardPlan, OfferCopy>> = {
   cohort: {
-    forWho: 'For Follow Up Boss teams who want to build the skills live, as a group, over eight weeks.',
+    forWho: 'Team owners and ops leads on Follow Up Boss.',
     lines: [
-      'Both skill sets: owner and operations, and agent',
-      'Eight weekly 90-minute builds on Wednesdays from December 2',
-      'Weekly 60-minute office hours',
-      'Then 90 days of new skills and office hours',
-      'Then Amplified Insiders at $197 a month from May 4, until you cancel',
-      '15 founding seats',
+      'Both skill sets: owner and ops, and agent',
+      '8 live builds, 90 minutes each',
+      'Weekly office hours, 60 minutes',
+      '90 days of new skills and office hours after your last build',
+      'Then Amplified Insiders at $197 a month, from Tuesday, May 4, 2027, until you cancel',
     ],
-    pay: { 'cohort-full': 'Pay in Full', 'cohort-two-pay': 'Pay in Two Payments' },
+    howItRuns: 'Live, with a small group of owners. You build on Wednesdays. Office hours are on Thursdays.',
+    // [OPEN: the time of day for the builds and office hours]. Not set yet, so no time is named.
+    starts: [
+      'Wednesday, December 2.',
+      'Then December 9 and 16, January 6, 13, 20 and 27, and February 3. No builds on December 23 or 30.',
+    ],
+    price: {
+      amount: '$7,500',
+      unit: 'founding price',
+      terms: ['Or 2 payments of $3,750.', '15 founding seats.'],
+    },
+    button: 'Get Amplified AI Accelerator',
+    more: { 'cohort-two-pay': 'Or pay in 2 payments of $3,750' },
   },
   membership: {
-    forWho: 'For owners and operations leads who want every skill and office hours, at their own pace.',
+    forWho: 'Owners and ops leads who want to go at their own pace.',
     lines: [
-      'Every owner and operations skill in the platform',
-      'Two new skills a month',
-      'Weekly office hours',
-      'A year paid up front counts in full toward the Amplified AI Accelerator; monthly payments do not',
-      'Paid monthly, a 3-month minimum',
-      'Cancel with 30 days\u2019 notice and keep what you have downloaded',
+      'Every owner and ops skill',
+      '2 new skills every month',
+      'Weekly office hours, 60 minutes on Thursdays',
+      'If you cancel, you keep what you’ve downloaded',
     ],
-    pay: { 'insiders-year': 'Pay for One Year', 'insiders-monthly': 'Pay Monthly' },
+    howItRuns: 'Self-paced. Use the skills when you want. Bring your questions to office hours.',
+    starts: ['Join any day. Your login comes by email.'],
+    // One year, then monthly: not a price that renews every year (the checkout's own words).
+    price: {
+      amount: '$1,997',
+      unit: 'today for one year',
+      terms: [
+        '2 months free. It counts in full toward the Amplified AI Accelerator.',
+        'After your year, $197 a month unless you cancel with 30 days’ notice.',
+        'Or $197 a month from today, with a 3 month minimum. Monthly payments don’t count toward the Accelerator.',
+      ],
+    },
+    button: 'Get Amplified Insiders',
+    more: { 'insiders-monthly': 'Or pay $197 a month' },
   },
   agents: {
-    forWho: 'For teams who want every agent on the agent skills, with weekly coaching.',
+    forWho: 'Team owners who want every agent using AI.',
     lines: [
-      'Every agent skill in the platform, from December 14',
-      'A recorded starter path, so a new hire starts the week they join',
-      'A weekly live agent coaching session from the week of January 4',
-      'Logins for your agents and for you',
-      'Today covers January 4 to April 3, 2027; monthly billing starts April 4, 2027',
+      'Every agent skill',
+      'A short recorded starter path for each agent',
+      'One live agent training a week',
+      'Logins for your agents, and a usage view for you',
+      '16 to 40 agents: a monthly owner call on who’s using it',
     ],
-    pay: { 'agents-upto15': 'Buy 15-Agent Plan', 'agents-16to40': 'Buy 40-Agent Plan' },
+    howItRuns: 'Your agents start with the recorded starter path. Then they join one live training a week, on a 4 week rotation.',
+    // [OPEN: the day and time of the weekly agent training]. Spring's placeholder stands until Connor sets it.
+    starts: [
+      'Weekly training starts the week of January 4.',
+      'December bonus: your agents get the starter path and the 5 free skills on December 14, plus a goal planning Zoom on December 17.',
+    ],
+    // Founding prices for the Team Plan end Nov 30 with the Accelerator's (Ampy's Stripe update, D-104);
+    // the deadline line under the card's price says so.
+    price: {
+      amount: '$1,491',
+      unit: 'today, up to 15 agents',
+      terms: [
+        'Or $2,391 today for 16 to 40 agents.',
+        'Today covers your first 3 months, January 4 to April 3, 2027.',
+        'Then $497 or $797 a month, starting Sunday, April 4, 2027.',
+      ],
+    },
+    button: 'Get Amplified Team Plan',
+    more: { 'agents-16to40': 'Or get it for 16 to 40 agents' },
   },
 };
 
+/** What a card says around its button. The dates in `closed` and the deadlines are filled per request. */
 export const CARD_STATES = {
-  /** The founding carts after the close. The date is filled per request. */
-  closed: 'Founding prices closed on',
-  /** The AI Accelerator once its 15 seats are sold, across both links. */
-  soldout: 'All 15 founding seats are taken.',
   soon: 'Opens soon.',
-  /** When Stripe could not say a price: the payment page still shows it. */
-  priceOnStripe: 'The price shows on the payment page.',
+  /** Before the Accelerator's founding deadline: "Founding price ends <date>. Then it’s $9,997." */
+  deadlineBefore: 'Founding price ends ',
+  deadlineAfter: '. Then it’s $9,997.',
+  /** Before the Team Plan's: "Founding prices end <date>." */
+  teamDeadlineBefore: 'Founding prices end ',
+  teamDeadlineAfter: '.',
+  /** After it. [OPEN: a payment plan for $9,997], so there is no button for it: the waitlist instead. */
+  closedAmount: '$9,997',
+  closedUnit: 'next cohort',
+  closedBefore: 'The founding price ended ',
+  closedAfter: '. Join the waitlist to hear first about the next cohort.',
+  /** The Team Plan after Nov 30 (Connor, 2026-11-10): the waitlist. */
+  teamClosedBefore: 'Founding prices ended ',
+  teamClosedAfter: '. Join the waitlist to hear what’s next.',
+  /** The Accelerator once its 15 seats are sold, across both links. */
+  soldout: 'All 15 founding seats are taken. Join the waitlist to hear first about the next cohort.',
   waitlist: 'Join the Waitlist',
 } as const;
 
-export const PLANS_HEADING = 'Plans and prices';
+/** The lines every card ends with (docs/SPRING-PLAN.md, "Office hours" and "Make the choice easy"). */
+export const EVERY_CARD = {
+  officeHours: 'Every program includes weekly office hours.',
+  notReadyBefore: 'Not ready? ',
+  notReadyLink: 'Start with 5 free skills',
+  notReadyHref: '/library',
+} as const;
+
+/** One card's own note under its button. */
+export const NOTES = {
+  /** The Accelerator: Follow Up Boss only; everyone else joins the waitlist. */
+  fubBefore: 'Requires Follow Up Boss. On another CRM? ',
+  fubLink: 'Join the waitlist',
+  /** The Team Plan over 40 agents: no cart, a conversation. */
+  bigTeamBefore: 'Over 40 agents? ',
+  bigTeamLink: 'Let’s talk',
+} as const;
 
 export const AFTER = {
-  heading: 'After you pay',
+  heading: 'After you buy',
   steps: [
-    { title: 'Your receipt', body: 'Stripe emails your receipt, and an invoice for a one-time payment.' },
-    { title: 'Your login', before: 'Your login arrives by email on ', after: '. After that day, it arrives within minutes.' },
-    { title: 'Your intake form', body: 'A short intake form for your plan comes with your welcome email.' },
+    { title: 'Your receipt', body: 'Stripe emails your receipt right away.' },
+    {
+      title: 'Your login',
+      held: { before: 'Your welcome email and login come on ', after: '.' },
+      sent: 'Your welcome email and login come by email.',
+    },
+    { title: 'Your intake form', body: 'A short intake form comes with your welcome email.' },
+    { title: 'Goal planning', body: 'Every buyer is invited to our year-end AI goal planning Zoom on Thursday, December 10.' },
   ],
 } as const;
 
 export const WAITLIST = {
-  heading: 'Accelerator waitlist',
-  body: 'The Amplified AI Accelerator is built on Follow Up Boss. Teams on another CRM, and anyone who missed the founding seats or the founding prices, can join the waitlist.',
+  heading: 'Join the waitlist',
+  body: 'The Amplified AI Accelerator requires Follow Up Boss. On another CRM, or missed a seat or a founding price? Join the waitlist. You’ll hear first when the next one opens.',
   firstName: 'First Name',
   email: 'Email',
   submit: 'Join the Waitlist',
-  joined: "You're on the Accelerator waitlist. We'll email you when the next cohort opens.",
+  joined: 'You’re on the waitlist. We’ll email you when the next cohort opens.',
   error: "That didn't go through. Check your name and email, then try again.",
+  // Kept word for word from the waitlist form before D-104 (docs/SPRING-PLAN.md, "Checkout rules").
   consent: 'By joining, you agree to our Terms of Service and Privacy Policy and to emails from Amplified Impact, LLC. Unsubscribe anytime.',
 } as const;
 
-export const WELCOME = {
-  title: 'Welcome | Amplified Impact',
-  description: 'Your plan, your login and your intake form.',
-  confirmed: {
-    headingBefore: 'Welcome to the ',
-    loginTitle: 'Your login',
-    intakeTitle: 'Your intake form',
-    intakeButton: 'Open Intake Form',
-    intakeEmail: 'Your intake form arrives with your welcome email.',
-    billingTitle: 'Your billing',
-    billingBody: 'Update your card, see invoices or cancel yourself in the billing portal, with 30 days\u2019 notice. You keep every skill already released.',
-    billingButton: 'Manage Billing',
+// --- /offer/welcome --------------------------------------------------------------------------------
+
+/** The pieces a thank-you step can carry besides its sentences. */
+export type StepExtra = 'login' | 'intake' | 'calendar-builds' | 'calendar-office-hours';
+
+export interface ThanksStep {
+  title: string;
+  body: readonly string[];
+  extras?: readonly StepExtra[];
+}
+
+export interface ThanksCopy {
+  heading: string;
+  lede: string;
+  steps: readonly ThanksStep[];
+}
+
+/**
+ * The thank-you page per plan (docs/SPRING-PLAN.md: "what happens next, login email note, add to
+ * calendar buttons for Wednesday builds and Thursday office hours, the starter path link, and a
+ * support email"). A Payment Link returns to `/offer/welcome?session_id=...`; once the webhook has
+ * confirmed the order, the page shows the section for its plan.
+ */
+export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
+  cohort: {
+    heading: 'You’re in the Amplified AI Accelerator.',
+    lede: 'Thanks for joining. Stripe emailed your receipt. Here’s what happens next.',
+    steps: [
+      { title: 'Watch your email', body: [], extras: ['login'] },
+      { title: 'Fill out your intake form', body: ['It comes with your welcome email.'], extras: ['intake'] },
+      {
+        title: 'Save the dates',
+        body: [
+          'Wednesday, December 2: your first build. Builds run every Wednesday through February 3, with no builds on December 23 or 30.',
+          'Thursday, December 10: our year-end AI goal planning Zoom.',
+          'Office hours run every Thursday.',
+        ],
+        extras: ['calendar-builds', 'calendar-office-hours'],
+      },
+      {
+        title: 'After your last build',
+        body: [
+          'After February 3, you get 90 days of new skills and office hours. Then you move to Amplified Insiders at $197 a month, starting Tuesday, May 4, 2027, until you cancel.',
+        ],
+      },
+    ],
   },
+  membership: {
+    heading: 'Welcome to Amplified Insiders.',
+    lede: 'Thanks for joining. Stripe emailed your receipt. Here’s what happens next.',
+    steps: [
+      { title: 'Watch your email', body: [], extras: ['login'] },
+      { title: 'Fill out your intake form', body: ['It comes with your welcome email.'], extras: ['intake'] },
+      {
+        title: 'Save the dates',
+        body: ['Thursday, December 10: our year-end AI goal planning Zoom.', 'Office hours run every Thursday.'],
+        extras: ['calendar-office-hours'],
+      },
+      {
+        title: 'Your plan',
+        body: [
+          'Paid for a year? Your $1,997 counts in full toward the Amplified AI Accelerator. After your year, it’s $197 a month unless you cancel with 30 days’ notice.',
+          'Paid monthly? Your plan has a 3 month minimum.',
+          'If you cancel, you keep what you’ve downloaded.',
+        ],
+      },
+    ],
+  },
+  agents: {
+    heading: 'Welcome to the Amplified Team Plan.',
+    lede: 'Thanks for joining. Stripe emailed your receipt. Here’s what happens next.',
+    steps: [
+      { title: 'Watch your email', body: ['From there, you invite your agents.'], extras: ['login'] },
+      { title: 'Fill out your intake form', body: ['It comes with your welcome email.'], extras: ['intake'] },
+      {
+        title: 'Your December bonuses',
+        body: [
+          'Thursday, December 10: our year-end AI goal planning Zoom.',
+          'Monday, December 14: your agents get the starter path and the 5 free skills. We’ll email you the starter path link that day.',
+          'Thursday, December 17: a second goal planning Zoom. Your agents are invited.',
+        ],
+      },
+      {
+        title: 'Save the dates',
+        // [OPEN: the day and time of the weekly agent training].
+        body: ['Weekly agent training starts the week of January 4.', 'Office hours run every Thursday.'],
+        extras: ['calendar-office-hours'],
+      },
+      {
+        title: 'Your billing',
+        body: ['Today’s payment covers your first 3 months, January 4 to April 3, 2027. Monthly billing starts Sunday, April 4, 2027.'],
+      },
+    ],
+  },
+};
+
+/** The thank-you pages' shared pieces. */
+export const THANKS_PARTS = {
+  title: 'Welcome | Amplified Impact',
+  description: 'What happens next, your login and your intake form.',
+  login: {
+    held: { before: 'Your welcome email and login come on ', after: '.' },
+    sent: 'Your welcome email and login are on their way.',
+  },
+  intakeButton: 'Open Intake Form',
+  calendar: {
+    builds: 'Add Builds to Calendar',
+    officeHours: 'Add Office Hours to Calendar',
+    // [OPEN: the build and office hours times]. Until a calendar link is set, the invites are Connor's emails.
+    email: 'Your calendar invites come by email.',
+  },
+} as const;
+
+/** The welcome page's other states: the webhook has not landed yet, or there is no such checkout. */
+export const WELCOME = {
   pending: {
     heading: 'Confirming your payment',
     body: 'This usually takes a few seconds. The page updates on its own.',
@@ -146,8 +348,7 @@ export const WELCOME = {
   },
   unknown: {
     heading: 'No checkout found',
-    body: `If you paid, Stripe has emailed your receipt and your login is on its way. Write to ${SUPPORT_EMAIL} and we'll check your order.`,
+    body: `If you paid, Stripe has emailed your receipt and your login is on its way. Write to ${HELP_EMAIL} and we'll check your order.`,
   },
-  back: 'Back to Plans',
-  contact: `Write to ${SUPPORT_EMAIL} with any question about your plan.`,
+  back: 'Back to Programs',
 } as const;

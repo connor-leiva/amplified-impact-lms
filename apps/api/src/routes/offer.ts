@@ -17,8 +17,9 @@
 // (the AI Accelerator and the Team Plan, Nov 30 at 11:59 PM Mountain), not once the Accelerator's 15
 // seats are sold (both of its links, counted together), and not while `OFFER_OPEN` is off.
 //
-// THE PAGES ARE BUILT ONCE AND FILLED PER REQUEST. Prices live in Stripe and change without a deploy,
-// founding closes at a configured instant and seats sell. So `apps/web` builds the page with
+// THE PAGES ARE BUILT ONCE AND FILLED PER REQUEST. The links are set in Railway and change without a
+// deploy, founding closes at a configured instant and seats sell. The prices are words in the page
+// itself (Spring's page, D-105); `GET /api/offer` still reports Stripe's live amounts. So `apps/web` builds the page with
 // `%%token%%`s (`OFFER_TOKENS` in @ai/core/offer) and this file replaces each with an escaped value.
 // The page is one response with no request to Stripe from the browser and no script.
 //
@@ -32,17 +33,16 @@ import { getDb } from '../db/client';
 import { orders } from '../db/schema';
 import { clock } from '../lib/clock';
 import {
-  CARDS,
   CARTS,
   CART_IDS,
   COHORT_SEATS,
+  HELP_EMAIL,
   PLAN_NAMES,
   TOKEN_PATTERN,
   longDay,
   mountainDeadline,
-  priceWords,
 } from '../billing/catalog';
-import type { CartId, CartState, LookupKey, PlanKind } from '../billing/catalog';
+import type { CartId, CartState, PlanKind } from '../billing/catalog';
 import { foundingOpen } from '../billing/config';
 import type { OfferConfig } from '../billing/config';
 import type { PriceCache, PriceMap } from '../billing/prices';
@@ -117,7 +117,6 @@ const dayOfYear = (t: number): string => longDay(t).replace(/, \d{4}$/, '');
 
 export interface OfferFill {
   config: OfferConfig;
-  prices: PriceMap | null;
   now: number;
   /** Where the visit came from: the link's `src`, or `forum` on /forum. */
   src: string | null;
@@ -131,18 +130,11 @@ export function offerValues(f: OfferFill): Record<string, string> {
     'offer-state': offerState(states),
     founding: foundingOpen(f.config, f.now) ? 'open' : 'closed',
     'founding-closes': mountainDeadline(f.config.foundingClosesAt),
+    invites: f.now < f.config.invitesFrom ? 'held' : 'sent',
     'login-day': dayOfYear(f.config.invitesFrom),
+    'team-call': f.config.teamCallUrl ?? `mailto:${HELP_EMAIL}`,
     src: f.src ?? '',
   };
-  const amounts = Object.fromEntries(
-    Object.entries(f.prices ?? {}).flatMap(([k, p]) => (p ? [[k, p.unitAmount]] : [])),
-  ) as Partial<Record<LookupKey, number>>;
-  const words = priceWords(amounts);
-  for (const card of CARDS) {
-    values[`headline:${card}`] = words.headline[card] ?? '';
-    values[`unit:${card}`] = words.unit[card] ?? '';
-    values[`terms:${card}`] = words.terms[card] ?? '';
-  }
   for (const id of CART_IDS) {
     values[`state:${id}`] = states[id];
     // A link shows only while it sells: a closed, sold-out or unset one is an empty href the page hides.
@@ -166,8 +158,16 @@ export interface WelcomeFill {
 export function welcomeValues(w: WelcomeFill): Record<string, string> {
   const intake = w.plan ? w.config.intakeUrls[w.plan] : undefined;
   const held = w.now < w.config.invitesFrom;
+  const { builds, officeHours } = w.config.calendarUrls;
   return {
     'welcome-state': w.state,
+    // The thank-you section for the plan bought (D-105): only once the webhook has confirmed it.
+    product: w.state === 'confirmed' && w.plan ? w.plan : '',
+    invites: held ? 'held' : 'sent',
+    'login-day': dayOfYear(w.config.invitesFrom),
+    'calendar-builds': builds ?? '',
+    'calendar-office-hours': officeHours ?? '',
+    'calendar-state': builds || officeHours ? 'links' : 'email',
     'plan-name': w.plan ? PLAN_NAMES[w.plan] : '',
     login: held
       ? `Your login arrives by email on ${dayOfYear(w.config.invitesFrom)}, with your welcome email.`
@@ -231,7 +231,6 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
       const q = queryOf(req);
       const values = offerValues({
         config,
-        prices: await currentPrices(),
         now: now(),
         src: q.src && SRC.test(q.src) ? q.src : campaign,
         seatsSold: await seatsSold(),
