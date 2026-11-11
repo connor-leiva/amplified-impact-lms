@@ -288,3 +288,31 @@ describe('the deploy’s curriculum step (db:curriculum:ensure, --if-missing)', 
     expect(reverted.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[5])!.name).not.toBe('Edited by staff');
   });
 });
+
+describe('GET /api/health/curriculum (D-121): counts only, no session', () => {
+  const status = async () => {
+    const res = await app.inject({ method: 'GET', url: '/api/health/curriculum' });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['cache-control']).toBe('no-store');
+    return res.json() as Record<string, unknown>;
+  };
+
+  it('says ok on a database with the curriculum, and says nothing but counts', async () => {
+    await resetDatabase(seedForDatabase('live'));
+    await applyCurriculum(handle);
+    const body = await status();
+    expect(body).toEqual({ ok: true, cohort: true, modules: 9, published: 9, sessions: 16, expected: { modules: 9, sessions: 16 } });
+  });
+
+  it('says not ok, with the counts that are short, before the curriculum and after staff draft a week', async () => {
+    await resetDatabase(seedForDatabase('live'));
+    expect(await status()).toMatchObject({ ok: false, modules: 0, published: 0 });
+    await applyCurriculum(handle);
+    const before = await loadDb();
+    const after = structuredClone(before);
+    after.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[3])!.status = 'draft';
+    await persistDiff(handle, before, after);
+    expect(await status()).toMatchObject({ ok: false, modules: 9, published: 8, sessions: 16 });
+  });
+});
+

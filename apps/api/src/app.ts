@@ -86,6 +86,7 @@ import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
 import { registerOfferRoutes } from './routes/offer';
 import { registerSkillRoutes } from './routes/skills';
+import { registerCurriculumStatusRoute } from './routes/curriculum-status';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import type { OfferPages } from './routes/offer';
@@ -511,6 +512,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerBillingRoutes(app, { stripe: offerStripe, config: offerConfig });
     // The AI Accelerator's pages (D-110): signed in, and only for a plan that opens the course.
     registerCourseRoute(app);
+    // Whether its curriculum is in this database, as counts and nothing else (D-121): open.
+    registerCurriculumStatusRoute(app);
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

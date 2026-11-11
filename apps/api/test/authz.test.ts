@@ -498,6 +498,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // auth routes are how a visitor with no session gets one; `/api/events` is the SSE stream the
   // SPA opens before it knows whether it is signed in.
   { path: '/api/health', methods: 'GET, HEAD', guard: 'open' },
+  // D-121: whether the AI Accelerator's curriculum is in the database, as counts only.
+  { path: '/api/health/curriculum', methods: 'GET, HEAD', guard: 'open' },
   { path: '/api/events', methods: 'GET, HEAD', guard: 'open-stream' },
   { path: '/api/auth/request', methods: 'POST', guard: 'open' },
   { path: '/api/auth/verify', methods: 'POST', guard: 'open' },
