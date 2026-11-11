@@ -9,6 +9,9 @@ import { MEMBERSHIP_NAME, PLAN_NAMES } from '@ai/core/offer';
 /** The public contact on every www page (the overnight brief: "replace admin@"). /agreement keeps its own. */
 export const HELP_EMAIL = 'support@amplifiedimpact.io';
 
+/** Where Log In goes (D-132): the LMS's email and password sign-in, on learn. */
+export const LOGIN_URL = 'https://learn.amplifiedimpact.io/login';
+
 /** Where "Get 5 Free Skills" goes: the Library, showing the five free skills first. */
 export const FREE_SKILLS_HREF = '/library?show=free';
 
@@ -39,7 +42,7 @@ export const SITE = {
   logoAlt: 'Amplified Impact',
   skip: 'Skip to Content',
   /**
-   * Spring's site map: Programs, The Library, Free Resources, About, and a Get 5 Free Skills button.
+   * Spring's site map: Programs, The Library, Free Resources, About, Log In and a Get 5 Free Skills button.
    * Programs opens a menu of the four programs and /pricing (a <details>, so a tap opens it with no
    * script); its `href` is where the footer's "Programs" goes.
    */
@@ -51,6 +54,8 @@ export const SITE = {
       { label: 'Free Resources', href: '/free' },
       { label: 'About', href: '/about' },
     ],
+    /** Last in the nav, so between About and the Get 5 Free Skills button, and on a phone's second row too (D-132). */
+    login: { label: 'Log In', href: LOGIN_URL },
     cta: { label: 'Get 5 Free Skills', href: FREE_SKILLS_HREF },
   },
   footer: {

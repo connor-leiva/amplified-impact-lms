@@ -35,8 +35,12 @@
 
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
-/** § 7.2's `auth_tokens.purpose` enum. */
-export type TokenPurpose = 'sign_in' | 'invite';
+/**
+ * § 7.2's `auth_tokens.purpose` enum, and D-132's two password links: `set_password` (an account
+ * with no password yet: a checkout's buyer, or anyone who asks; 72 hours) and `reset_password`
+ * ("Forgot password?" for an account that has one; 1 hour). Both are single use, like the rest.
+ */
+export type TokenPurpose = 'sign_in' | 'invite' | 'set_password' | 'reset_password';
 
 /** § 7.5: "valid for 15 minutes". */
 export const SIGN_IN_TTL_MS = 15 * 60 * 1000;
@@ -44,10 +48,18 @@ export const SIGN_IN_TTL_MS = 15 * 60 * 1000;
 /** § 7.5: "`purpose:'invite'` tokens valid for 7 days". */
 export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** D-132: "Set your password" links last 72 hours. */
+export const SET_PASSWORD_TTL_MS = 72 * 60 * 60 * 1000;
+
+/** D-132: "Forgot password?" links last 1 hour. */
+export const RESET_PASSWORD_TTL_MS = 60 * 60 * 1000;
+
 /** How long a freshly minted token of each purpose is good for. */
 export const TTL_MS: Record<TokenPurpose, number> = {
   sign_in: SIGN_IN_TTL_MS,
   invite: INVITE_TTL_MS,
+  set_password: SET_PASSWORD_TTL_MS,
+  reset_password: RESET_PASSWORD_TTL_MS,
 };
 
 /** The instant a token minted at `now` stops working. */

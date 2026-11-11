@@ -1,5 +1,5 @@
 // The pieces every www page shares, as strings (DECISIONS.md D-107): the skip link, the header with
-// the main nav and the Get 5 Free Skills button, the footer, and the head's share tags.
+// the main nav, Log In (D-132) and the Get 5 Free Skills button, the footer, and the head's share tags.
 //
 // No script anywhere: on a phone the nav wraps onto a second row under the logo and the button, and
 // Programs opens its menu as a <details>, by a tap, a click or the keyboard. Every string goes through
@@ -54,7 +54,8 @@ type NavLink = { label: string; href: string };
 type NavItem = NavLink & { menu?: readonly NavLink[] };
 
 /**
- * The header: the logo (home), the main nav and the Get 5 Free Skills button. `current` is the page's
+ * The header: the logo (home), the main nav ending in Log In (an outlined button to the LMS's sign-in,
+ * D-132) and the Get 5 Free Skills button. `current` is the page's
  * own path; its link carries `aria-current="page"`, once. A top-level link wins: on /library that's
  * The Library, not the menu's Amplified Insiders. When the page is in the Programs menu, its link is
  * marked and so is the menu's summary (`data-current`), so the nav shows where you are while closed.
@@ -81,7 +82,7 @@ export function siteHeader(current: string): string {
     `<header class="site-top">`,
     `<div class="wrap site-top-in">`,
     `<a class="site-brand" href="/" data-brand-slot="signature"${current === '/' ? ' aria-current="page"' : ''}>${logo(signatureSvg, SITE.logoAlt, 'site-logo')}</a>`,
-    `<nav class="site-nav" aria-label="${esc(n.label)}"><ul role="list">${items.map(item).join('')}</ul></nav>`,
+    `<nav class="site-nav" aria-label="${esc(n.label)}"><ul role="list">${items.map(item).join('')}<li class="site-login-item"><a class="site-login" href="${esc(n.login.href)}">${esc(n.login.label)}</a></li></ul></nav>`,
     `<a class="btn btn-primary btn-sm site-cta" href="${esc(n.cta.href)}">${esc(n.cta.label)}</a>`,
     `</div>`,
     `</header>`,
@@ -105,7 +106,7 @@ export function siteFooter(): string {
     contactLine(),
     `</div>`,
     `<nav aria-label="${esc(f.programsLabel)}">${list(PROGRAMS)}</nav>`,
-    `<nav aria-label="${esc(f.siteLabel)}">${list([{ label: 'Home', href: '/' }, ...SITE.nav.links])}</nav>`,
+    `<nav aria-label="${esc(f.siteLabel)}">${list([{ label: 'Home', href: '/' }, ...SITE.nav.links, SITE.nav.login])}</nav>`,
     `<nav aria-label="${esc(f.legalLabel)}">${list(f.legal)}</nav>`,
     `</div>`,
     `</footer>`,

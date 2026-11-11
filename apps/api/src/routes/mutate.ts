@@ -62,6 +62,7 @@ import * as M from '@ai/core/mutations';
 import { sql } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { expiryFor, hashToken, mintToken, requireJsonSameOrigin, requireSession, viewerOrThrow } from '../auth';
+import type { TokenPurpose } from '../auth';
 import { getDb } from '../db/client';
 import { authTokens } from '../db/schema';
 import { loadDb, persistDiff } from '../db/io';
@@ -86,13 +87,21 @@ import { schemaFor } from './schemas';
 type MutationFn = (db: Db, actor: Actor, args: never, ctx: Ctx) => Outcome;
 const MUTATIONS = M as unknown as Record<string, MutationFn | undefined>;
 
-/** The templates whose body needs a magic-link token minted for the recipient (§ 7.5). */
-const INVITE_TEMPLATES = ['team-invite', 'staff-invite'] as const satisfies readonly TemplateName[];
+/**
+ * The templates whose body needs a single-use token minted for the recipient, and the token's
+ * purpose: § 7.5's invites (7 days), and D-132's set-password link (72 hours), which a checkout's
+ * new account gets in place of the owner invite.
+ */
+const TOKEN_TEMPLATES = {
+  'team-invite': 'invite',
+  'staff-invite': 'invite',
+  'set-password': 'set_password',
+} as const satisfies Partial<Record<TemplateName, TokenPurpose>>;
 
 const isTemplateName = (value: string): value is TemplateName =>
   (TEMPLATE_NAMES as readonly string[]).includes(value);
 
-const isInviteTemplate = (value: TemplateName): boolean => (INVITE_TEMPLATES as readonly string[]).includes(value);
+const tokenPurposeOf = (value: TemplateName): TokenPurpose | null => (TOKEN_TEMPLATES as Partial<Record<TemplateName, TokenPurpose>>)[value] ?? null;
 
 /** One email, for one recipient, ready to hand to the transport once the transaction has committed. */
 export interface PendingSend {
@@ -132,13 +141,14 @@ export async function pendingSendsFor(
     const template = effect.template;
     for (const to of effect.to) {
       const data: Record<string, unknown> = { ...(effect.data ?? {}) };
-      if (isInviteTemplate(template)) {
+      const purpose = tokenPurposeOf(template);
+      if (purpose) {
         const token = mintToken();
         await tx.insert(authTokens).values({
           tokenHash: hashToken(token),
           email: to,
-          purpose: 'invite',
-          expiresAt: expiryFor('invite', now),
+          purpose,
+          expiresAt: expiryFor(purpose, now),
         });
         data.token = token;
       }

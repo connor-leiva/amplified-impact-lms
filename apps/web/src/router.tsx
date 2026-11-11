@@ -35,7 +35,15 @@ export const router = createBrowserRouter([
       ]
     : []),
   { path: '/sign-in', lazy: () => import('./routes/auth/SignIn') },
+  // D-132: learn.amplifiedimpact.io/login, the address www's Log In button links. The same screen as
+  // /sign-in (email and password first), at the address people expect. /sign-in stays, because every
+  // emailed sign-in link and the app's 401 redirect use it.
+  { path: '/login', lazy: () => import('./routes/auth/SignIn') },
   { path: '/invite/:token', lazy: () => import('./routes/auth/AcceptInvite') },
+  // D-132: password sign-in's three screens, net-new and outside the shell like the two above.
+  { path: '/forgot-password', lazy: () => import('./routes/auth/ForgotPassword') },
+  { path: '/set-password', lazy: () => import('./routes/auth/SetPassword') },
+  { path: '/account', lazy: () => import('./routes/auth/Account') },
   // The skill library (D-079): net-new, outside the shell like the two above, so no portal golden moves.
   { path: '/skill-library', lazy: () => import('./routes/library/SkillLibrary') },
   // The AI Accelerator's pages (D-110): net-new and outside the shell for the same reason.

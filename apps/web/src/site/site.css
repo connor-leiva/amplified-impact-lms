@@ -210,6 +210,19 @@ img {
   text-decoration: underline;
 }
 
+/* Log In (D-132): the nav's last item, outlined like a secondary button, so it reads as one. */
+.site-nav a.site-login {
+  padding: 0 14px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--text-primary);
+}
+.site-nav a.site-login:hover {
+  background: var(--bg-canvas);
+  text-decoration: none;
+}
+
 /* Programs: a menu a tap, a click or Enter opens, with no script (a <details>). It floats under its
    summary, inside the page's width at 320px, and its links are 48px tall for a thumb. */
 .site-menu {

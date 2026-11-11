@@ -51,6 +51,8 @@ import { BuildReminderEmail } from './build-reminder';
 import { ReplayReadyEmail } from './replay-ready';
 import { Session1hEmail } from './session-1h';
 import { Session24hEmail } from './session-24h';
+import { ResetPasswordEmail } from './reset-password';
+import { SetPasswordEmail } from './set-password';
 import { SignInEmail } from './sign-in';
 import { StaffInviteEmail } from './staff-invite';
 import { TeamInviteEmail } from './team-invite';
@@ -58,7 +60,7 @@ import { WeeklyDigestEmail } from './weekly-digest';
 import { whenFor } from './recipient';
 
 export { CONTENT_WIDTH, EmailLayout, Para } from './layout';
-export { ROUTES, absolute, appBase, employeePath, invitePath, signInPath } from './links';
+export { ROUTES, absolute, appBase, employeePath, invitePath, setPasswordPath, signInPath } from './links';
 export { whenFor, zoneFor } from './recipient';
 export type { RecipientZone } from './recipient';
 
@@ -130,6 +132,18 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
       const token = str(template, data, 'token');
       const subject = SUBJECTS['sign-in']({});
       return { subject, element: <SignInEmail subject={subject} token={token} appUrl={appUrl} /> };
+    }
+
+    case 'set-password': {
+      const token = str(template, data, 'token');
+      const subject = SUBJECTS['set-password']({});
+      return { subject, element: <SetPasswordEmail subject={subject} token={token} appUrl={appUrl} /> };
+    }
+
+    case 'reset-password': {
+      const token = str(template, data, 'token');
+      const subject = SUBJECTS['reset-password']({});
+      return { subject, element: <ResetPasswordEmail subject={subject} token={token} appUrl={appUrl} /> };
     }
 
     case 'team-invite': {

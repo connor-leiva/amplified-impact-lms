@@ -77,6 +77,7 @@ import { registerLibraryPage } from './routes/library';
 import type { LegalPages } from './routes/legal';
 import { registerMarketingHost } from './routes/marketing';
 import { registerAuthRoutes } from './routes/auth';
+import { registerPasswordRoutes } from './routes/password';
 import { registerEventsRoute } from './routes/events';
 import type { EventHub } from './routes/events';
 import { registerFilesRoutes } from './routes/files';
@@ -504,6 +505,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // be re-wired at every call site; it also lets a test observe the call.
     const broadcast = (): void => events?.broadcast();
     registerAuthRoutes(app, { broadcast });
+    // Email and password sign-in, set and reset links, the account page's change (D-132).
+    registerPasswordRoutes(app, { broadcast, invitesFrom: offerConfig.invitesFrom });
     registerSnapshotRoute(app);
     registerJoinRoute(app);
     registerFilesRoutes(app);

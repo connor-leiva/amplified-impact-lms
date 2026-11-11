@@ -94,12 +94,20 @@ import { expectAccessible } from '../../lib/a11y';
 // broken and the two page checks have nothing to say.
 test.describe.configure({ mode: 'serial' });
 
-/** Every string on this screen, verbatim from phase 07 § 7.5 and `routes/auth/SignIn.tsx`'s COPY. */
+/**
+ * Every string on this screen, verbatim from phase 07 § 7.5 and `routes/auth/SignIn.tsx`'s COPY.
+ * D-132 made email and password the first form and the § 7.5 link the second (`?method=link`).
+ */
 const COPY = {
   h1: 'Sign In',
+  sub: 'Use your work email and password.',
   // U+2019, not an ASCII apostrophe. CLAUDE.md: "Copy is exact."
-  sub: 'We’ll email you a secure sign-in link.',
+  linkSub: 'We’ll email you a secure sign-in link.',
   label: 'Work Email',
+  password: 'Password',
+  signIn: 'Sign In',
+  forgot: 'Forgot Password?',
+  useLink: 'Email Me a Sign-In Link Instead',
   submit: 'Email Me a Sign-In Link',
   sentH1: 'Check Your Email',
   sent: (email: string) => `We sent a link to ${email}. It expires in 15 minutes.`,
@@ -243,21 +251,38 @@ test('/sign-in renders § 7.5s card @g7 @smoke', async () => {
   const page = await freshPage();
   await openSignIn(page);
 
-  // The heading and the sub, exactly. These are the two strings § 7.5 dictates and the two a
-  // well-meaning rewrite would touch first.
+  // The heading and the sub, exactly: the password form first (D-132).
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(COPY.h1);
   await expect(page.getByText(COPY.sub, { exact: true })).toBeVisible();
 
-  // The field is reached BY ITS LABEL, which is also the accessibility contract: `getByLabel`
+  // The fields are reached BY THEIR LABELS, which is also the accessibility contract: `getByLabel`
   // resolves through the `label`/`for` pair `Field` renders, so a field that lost its label fails
   // here rather than only in the axe check.
   await expect(page.getByLabel(COPY.label)).toBeVisible();
+  await expect(page.getByLabel(COPY.password, { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: COPY.signIn, exact: true })).toBeEnabled();
+  await expect(page.getByRole('link', { name: COPY.forgot })).toBeVisible();
+
+  // § 7.5's link, one click away.
+  await page.getByRole('button', { name: COPY.useLink }).click();
+  await expect(page.getByText(COPY.linkSub, { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: COPY.submit })).toBeEnabled();
 
   // CLAUDE.md's brand landmark. § 7.5 had a mark and a wordmark at the top; the brand guide puts the
   // single `ai academy` app lockup on login screens (D-031), so there is one. tests/e2e/brand.spec.ts
   // checks that the variant shown matches the theme.
   await expect(page.locator('[data-brand-slot]')).toHaveCount(1);
+  await page.close();
+});
+
+test('/login is the same email and password screen, the address www’s Log In links @g7 @smoke', async () => {
+  const page = await freshPage();
+  await openSignIn(page, '/login');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(COPY.h1);
+  await expect(page.getByText(COPY.sub, { exact: true })).toBeVisible();
+  await expect(page.getByLabel(COPY.label)).toBeVisible();
+  await expect(page.getByLabel(COPY.password, { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: COPY.signIn, exact: true })).toBeEnabled();
   await page.close();
 });
 
@@ -278,7 +303,7 @@ test('/sign-in passes the axe check @g7 @smoke', async () => {
 test('an unknown address is answered exactly like a known one @g7', async () => {
   test.skip(LIVE_API_BASE === null, 'Needs a real /api/auth/request. Run with GATE=7 or HTTP_PARITY=1.');
   const page = await freshPage();
-  await openSignIn(page);
+  await openSignIn(page, '/sign-in?method=link');
   const before = HAS_TEST_ROUTES ? (await outbox()).length : null;
 
   await page.getByLabel(COPY.label).fill(UNKNOWN);
@@ -309,7 +334,7 @@ test('jamie@ortizhomes.com gets one link, it lands on `/`, and the second click 
   test.setTimeout(120_000);
 
   const page = await freshPage();
-  await openSignIn(page);
+  await openSignIn(page, '/sign-in?method=link');
   const before = await outbox();
 
   await page.getByLabel(COPY.label).fill(JAMIE);

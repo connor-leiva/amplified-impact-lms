@@ -64,6 +64,13 @@
       "when": 1794384631138,
       "tag": "0008_agent_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794419284098,
+      "tag": "0009_passwords",
+      "breakpoints": true
     }
   ]
 }

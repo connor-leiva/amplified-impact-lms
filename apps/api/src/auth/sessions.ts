@@ -44,7 +44,7 @@
 // § 8.5's scheduler is where a prune would belong if it is ever worth writing.
 
 import { randomBytes } from 'node:crypto';
-import { eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 import type { CookieSerializeOptions } from '@fastify/cookie';
 import type { Database } from '../db/client';
 import { authSessions } from '../db/schema';
@@ -58,6 +58,13 @@ export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 /** How much of the window must be used up before `expires_at` is rewritten. See the header. */
 export const ROLL_AFTER_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * D-132: a password sign-in without "Keep me signed in" — a browser-session cookie (no `maxAge`)
+ * and a row that lasts 12 hours and never rolls. Every other sign-in (a link, a new password,
+ * "Keep me signed in") is the 30-day rolling session above.
+ */
+export const SHORT_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+
 /** One `auth_sessions` row. */
 export type SessionRow = typeof authSessions.$inferSelect;
 
@@ -67,14 +74,15 @@ export type SessionRow = typeof authSessions.$inferSelect;
  * `path: '/'` because the SPA is served from the root and the cookie has to reach `/api/*` from any
  * route. `maxAge` in seconds, as the header wants it.
  */
-export function sessionCookieOptions(env: NodeJS.ProcessEnv = process.env): CookieSerializeOptions {
+export function sessionCookieOptions(env: NodeJS.ProcessEnv = process.env, { remember = true }: { remember?: boolean } = {}): CookieSerializeOptions {
   return {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
     secure: env.NODE_ENV === 'production' ? true : 'auto',
     signed: true,
-    maxAge: Math.floor(SESSION_TTL_MS / 1000),
+    // Without "Keep me signed in" the cookie has no `maxAge`: the browser drops it when it closes.
+    ...(remember ? { maxAge: Math.floor(SESSION_TTL_MS / 1000) } : {}),
   };
 }
 
@@ -97,10 +105,10 @@ export function clearCookieOptions(env: NodeJS.ProcessEnv = process.env): Cookie
  */
 export const mintSessionId = (): string => `s_${randomBytes(32).toString('base64url')}`;
 
-/** § 7.5: create the row. Returns the id that goes in the cookie. */
-export async function createSession(db: Database, userId: string, now: number): Promise<string> {
+/** § 7.5: create the row. Returns the id that goes in the cookie. `remember: false` is D-132's short session. */
+export async function createSession(db: Database, userId: string, now: number, { remember = true }: { remember?: boolean } = {}): Promise<string> {
   const id = mintSessionId();
-  await db.insert(authSessions).values({ id, userId, expiresAt: new Date(now + SESSION_TTL_MS) });
+  await db.insert(authSessions).values({ id, userId, remember, expiresAt: new Date(now + (remember ? SESSION_TTL_MS : SHORT_SESSION_TTL_MS)) });
   return id;
 }
 
@@ -114,7 +122,7 @@ export async function readSession(db: Database, id: string, now: number): Promis
 
 /** Whether this row has consumed enough of its window to be worth rewriting. See the header. */
 export const needsRoll = (row: SessionRow, now: number): boolean =>
-  row.expiresAt.getTime() - now < SESSION_TTL_MS - ROLL_AFTER_MS;
+  row.remember !== false && row.expiresAt.getTime() - now < SESSION_TTL_MS - ROLL_AFTER_MS;
 
 /** Push `expires_at` back out to 30 days from `now`. Only called when `needsRoll` says so. */
 export async function rollSession(db: Database, id: string, now: number): Promise<void> {
@@ -127,4 +135,14 @@ export async function rollSession(db: Database, id: string, now: number): Promis
 /** § 7.5's sign-out. Idempotent: deleting a session that is already gone is success. */
 export async function deleteSession(db: Database, id: string): Promise<void> {
   await db.delete(authSessions).where(eq(authSessions.id, id));
+}
+
+/**
+ * D-132: a new password signs out every other session of that user (a reset is often because
+ * someone else got in). `keep` is the session to leave alone: the one changing it.
+ */
+export async function deleteOtherSessions(db: Database, userId: string, keep: string | null): Promise<void> {
+  await db
+    .delete(authSessions)
+    .where(keep === null ? eq(authSessions.userId, userId) : and(eq(authSessions.userId, userId), ne(authSessions.id, keep)));
 }

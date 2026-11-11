@@ -55,6 +55,8 @@ import type { BillingStripe } from '../billing/stripe';
 import { errorReason, handleStripeEvent, markEvent, recordEvent } from '../billing/webhook';
 import type { BillingLog } from '../billing/provision';
 import { cohortSeatsSold } from '../billing/provision';
+import { absolute } from '../email/templates/links';
+import { checkoutPasswordUser } from './password';
 
 export const OFFER_PATH = '/offer';
 export const FORUM_PATH = '/forum';
@@ -174,6 +176,8 @@ export interface WelcomeFill {
   sessionId: string | null;
   now: number;
   config: OfferConfig;
+  /** D-132: where this buyer sets a password, when `checkoutPasswordUser` allows it; else absent. */
+  setPasswordUrl?: string;
 }
 
 /**
@@ -213,10 +217,20 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     'session-id': w.sessionId ?? '',
     'portal-url': w.config.portalLoginUrl ?? '',
     'paid-line': paidLine(w),
+    'set-password': w.setPasswordUrl ?? '',
   };
 }
 
 // --- helpers ---------------------------------------------------------------------------------------
+
+/** A path on the LMS host (`APP_URL`), or undefined when it is not configured: no link beats a dead one. */
+function learnUrl(path: string): string | undefined {
+  try {
+    return absolute(path);
+  } catch {
+    return undefined;
+  }
+}
 
 const SRC = /^[a-z0-9_-]{1,32}$/i;
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
@@ -329,9 +343,15 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
         state = 'pending';
       }
     }
+    // D-132: the "Set Your Password" button, only for a session whose brand-new account may set one.
+    let setPasswordUrl: string | undefined;
+    if (state === 'confirmed' && sessionId && options.database) {
+      const user = await checkoutPasswordUser(getDb(), sessionId, now(), config.invitesFrom);
+      if (user) setPasswordUrl = learnUrl(`/set-password?checkout=${encodeURIComponent(sessionId)}`);
+    }
     return sendPage(
       reply,
-      fillTokens(welcomePage, welcomeValues({ state, plan, sessionId, now: now(), config, trialing })),
+      fillTokens(welcomePage, welcomeValues({ state, plan, sessionId, now: now(), config, trialing, setPasswordUrl })),
     );
   });
 

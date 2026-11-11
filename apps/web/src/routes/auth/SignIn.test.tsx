@@ -30,7 +30,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function renderSignIn(search = '') {
+/** The link form (D-132 made the password form the default; `?method=link` opens the link one). */
+function renderSignIn(search = '?method=link') {
   return render(
     <MemoryRouter initialEntries={[`/sign-in${search}`]}>
       <SignIn />

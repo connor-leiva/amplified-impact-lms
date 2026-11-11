@@ -39,6 +39,9 @@ export const TEMPLATE_NAMES = [
   'replay-ready',
   'build-reminder',
   'weekly-digest',
+  // D-132: the two password links, after § 8.1's nine.
+  'set-password',
+  'reset-password',
 ] as const;
 
 export type TemplateName = (typeof TEMPLATE_NAMES)[number];
@@ -66,6 +69,8 @@ export type NoSubjectData = Record<never, never>;
  */
 export interface SubjectData {
   'sign-in': NoSubjectData;
+  'set-password': NoSubjectData;
+  'reset-password': NoSubjectData;
   'team-invite': { inviter: string; team: string };
   'staff-invite': NoSubjectData;
   announcement: { title: string };
@@ -95,6 +100,8 @@ const sessionLine = (data: { n: number; title: string; label?: string }) => `${d
  */
 export const SUBJECTS: { [K in TemplateName]: (data: SubjectData[K]) => string } = {
   'sign-in': () => 'Your Amplified Impact sign-in link',
+  'set-password': () => 'Set your Amplified Impact password',
+  'reset-password': () => 'Reset your Amplified Impact password',
   'team-invite': (d) => `${d.inviter} invited you to ${d.team} on Amplified Impact`,
   // U+2019, not ASCII "'". See the header note.
   'staff-invite': () => 'You’ve been added to the Amplified Impact admin console',

@@ -64,12 +64,17 @@ const planStatusFor = (orderStatus: string): PlanStatus => (orderStatus === 'tri
 
 const lock = (tx: { execute: Database['execute'] }) => tx.execute(sql`select pg_advisory_xact_lock(42)`);
 
-/** An invite for the owner: the `team-invite` template, whose token `pendingSendsFor` mints in the transaction. */
-const inviteEffect = (email: string, team: string): Effect => ({
+/**
+ * The owner's first email (D-132): "Set your password", whose single-use 72-hour token
+ * `pendingSendsFor` mints in the transaction. Choosing a password signs them in and makes them
+ * active, as accepting the invite it replaces did. It keeps the invite's timing: held until
+ * `INVITES_FROM`, then at once.
+ */
+const inviteEffect = (email: string): Effect => ({
   type: 'email',
-  template: 'team-invite',
+  template: 'set-password',
   to: [email],
-  data: { team, inviter: 'Amplified Impact' },
+  data: {},
 });
 
 export interface ProvisionOptions {
@@ -189,7 +194,7 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
         // Already signed in once (a buyer who was a learner before): nothing to send.
         await tx.update(accounts).set({ inviteSentAt: now }).where(eq(accounts.id, acct.id));
       } else if (options.invitesEnabled !== false && (now >= options.invitesFrom || options.inviteNow)) {
-        sends = await pendingSendsFor(tx, [inviteEffect(email, acct.name)], now, log as never);
+        sends = await pendingSendsFor(tx, [inviteEffect(email)], now, log as never);
         await tx.update(accounts).set({ inviteSentAt: now }).where(eq(accounts.id, acct.id));
         invite = 'sent';
       } else {
@@ -237,7 +242,7 @@ export async function sendHeldInvites(options: { db?: Database; log: BillingLog;
       const [acct] = await tx.select().from(accounts).where(and(eq(accounts.id, id), isNull(accounts.inviteSentAt))).limit(1);
       if (!acct) return;
       const [owner] = await tx.select({ status: users.status, email: users.email }).from(users).where(eq(users.id, acct.ownerUserId)).limit(1);
-      if (owner?.status === 'invited') sends = await pendingSendsFor(tx, [inviteEffect(owner.email, acct.name)], options.now, options.log as never);
+      if (owner?.status === 'invited') sends = await pendingSendsFor(tx, [inviteEffect(owner.email)], options.now, options.log as never);
       await tx.update(accounts).set({ inviteSentAt: options.now }).where(eq(accounts.id, acct.id));
     });
     if (sends.length) {

@@ -63,7 +63,7 @@ import {
   userById,
   viewerOrThrow,
 } from '../auth';
-import type { ViewerPrefs } from '../auth';
+import type { TokenPurpose, ViewerPrefs } from '../auth';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { authTokens, teams, users } from '../db/schema';
@@ -133,8 +133,8 @@ export async function issueSignInLink(email: string): Promise<void> {
 }
 
 /** What `/api/auth/verify` decided about a token. */
-type Claim =
-  | { ok: true; email: string; purpose: 'sign_in' | 'invite' }
+export type Claim =
+  | { ok: true; email: string; purpose: TokenPurpose }
   | { ok: false; code: 'used' | 'expired' };
 
 /**
@@ -145,7 +145,12 @@ type Claim =
  * token race on one row and Postgres hands the row to exactly one of them. A read-then-write would
  * let both pass, which is the failure a shared magic link in a team inbox produces on its own.
  */
-async function claimToken(db: Database, token: string, now: number): Promise<Claim> {
+export async function claimToken(
+  db: Database,
+  token: string,
+  now: number,
+  purposes: readonly TokenPurpose[] = ['sign_in', 'invite'],
+): Promise<Claim> {
   const hash = hashToken(token);
   const [row] = await db.select().from(authTokens).where(eq(authTokens.tokenHash, hash)).limit(1);
 
@@ -154,6 +159,9 @@ async function claimToken(db: Database, token: string, now: number): Promise<Cla
   // Belt and braces over the SQL equality, and the line that keeps the comparison honest if anyone
   // ever "simplifies" the lookup to fetch by email and compare the token itself. See tokens.ts.
   if (!sameHash(row.tokenHash, hash)) return { ok: false, code: 'expired' };
+  // D-132: each route claims only its own kind of link, and a link of another kind is neither
+  // honoured nor spent here. A password link posted to /api/auth/verify does not sign anyone in.
+  if (!purposes.includes(row.purpose)) return { ok: false, code: 'expired' };
   // Checked before the expiry so a link that was used and has since expired still reads as used:
   // "That link was already used" is the more actionable of the two messages.
   if (row.usedAt !== null) return { ok: false, code: 'used' };

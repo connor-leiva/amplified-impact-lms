@@ -60,6 +60,29 @@ Open the prototype at
 header to switch persona and cohort phase. `States.dc.html` shows every component state and
 `Responsive.dc.html` shows the 1024 px and 390 px frames.
 
+## Signing in (D-132)
+
+`learn.amplifiedimpact.io/login` (the same screen as `/sign-in`) is email and password first, with the
+magic link one click away ("Email Me a Sign-In Link Instead", or `/sign-in?method=link`). Every www
+page links it: Log In, after About in the header nav (on a phone too) and in the footer.
+
+| Screen | What it does |
+|---|---|
+| `/login`, `/sign-in` | Email, password and "Keep me signed in for 30 days". Without it, the session is a browser-session cookie and lasts 12 hours. |
+| `/forgot-password` | Always answers "If that email has an account, we sent a link." An account with a password gets a reset link (1 hour); one without gets a set-password link (72 hours). |
+| `/set-password?token=…` | Sets the password from either link, signs the person in, and ends their other sessions. Each link works once. |
+| `/set-password?checkout=…` | The welcome page's "Set Your Password" button, for a brand-new account from that Stripe Checkout Session only. |
+| `/account` | Signed in: set a first password, or change it with the current one. |
+
+- **Accounts from checkout** get a "Set your password" email in place of the old owner invite, on the same schedule (held until `INVITES_FROM`, then at once).
+- **Passwords** are argon2id hashes in `user_passwords`, never on `users`, never logged.
+- **Lockout:** 5 failed sign-ins in 15 minutes locks the address for 15 minutes. Unknown addresses are counted the same way, so the lockout doesn't reveal whether an account exists. Routes and rules: `apps/api/src/routes/password.ts`.
+
+```bash
+pnpm --filter @ai/api exec vitest run test/password.test.ts   # the API's flows, against Postgres
+pnpm --filter @ai/web exec vitest run src/routes/auth         # the screens
+```
+
 ## Gates
 
 A phase ships only when `pnpm gate <n>` is green locally **and** in CI.
@@ -148,7 +171,7 @@ that commit, so protection is not blocked by the known first-run diff.
 | 04 | Router, sidebar, header, profile menu, data layer | ✅ shipped |
 | 05 | Portal: Dashboard, Employee detail, Sessions, Team Hub, Vault, Team Tier | ✅ shipped |
 | 06 | Admin: Overview, Curriculum, Module Builder, Cohorts, Learners, Vault, Announcements, Tiers, Staff | ✅ shipped |
-| 07 | Postgres schema, magic-link auth, scoped snapshot, mutation API | — |
+| 07 | Postgres schema, magic-link auth (email and password added in D-132), scoped snapshot, mutation API | — |
 | 08 | Email, file storage, HLS replays, Zoom join window, scheduler | — |
 | 09 | production / staging / demo environments, hardening, launch seed | — |
 
