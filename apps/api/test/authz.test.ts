@@ -607,6 +607,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/billing/portal', methods: 'GET, HEAD', guard: 'session' },
   // The AI Accelerator's pages (D-110): signed in, then gated by plan.
   { path: '/api/course', methods: 'GET, HEAD', guard: 'session' },
+  // The CRM sync log (D-134): signed in, then the Owner and Admins only.
+  { path: '/api/admin/crm-sync', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/admin/crm-sync/retry', methods: 'POST', guard: 'session' },
 ];
 
 /**
@@ -1007,6 +1010,14 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/auth/password': () => app.inject({ method: 'GET', url: '/api/auth/password' }),
           '/api/auth/password/change': () =>
             app.inject({ method: 'POST', url: '/api/auth/password/change', payload: { password: 'a long enough password' } }),
+          '/api/admin/crm-sync': () => app.inject({ method: 'GET', url: '/api/admin/crm-sync' }),
+          '/api/admin/crm-sync/retry': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/admin/crm-sync/retry',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { kind: 'order', id: 'o-1' },
+            }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1180,15 +1191,17 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // the join window) and each one is probed cold. The route-inventory test is what forced them to
     // be classified here rather than shipping unguarded.
     // 13 with the skill library's two (D-079), 14 with Manage Billing (D-077), 15 with the AI
-    // Accelerator's course (D-110), 17 with the account page's two password routes (D-132).
-    expect(EXECUTED.unauthenticated).toBe(17);
+    // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), and 19
+    // with the CRM sync log and its retry (D-134).
+    expect(EXECUTED.unauthenticated).toBe(19);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
     expect(EXECUTED.exempt).toBe(7 + GUIDE_SLUGS.length + 5 + 5);
     const total = Object.values(EXECUTED).reduce((a, b) => a + b, 0);
     // The + 1: the AI Accelerator's course route (D-110), probed unauthenticated. The + 7: D-132's
-    // password routes, two probed unauthenticated and five as exempt.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7);
+    // password routes, two probed unauthenticated and five as exempt. The + 2: the CRM sync log and its
+    // retry (D-134), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2);
   });
 });

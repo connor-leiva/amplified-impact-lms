@@ -83,6 +83,41 @@ pnpm --filter @ai/api exec vitest run test/password.test.ts   # the API's flows,
 pnpm --filter @ai/web exec vitest run src/routes/auth         # the screens
 ```
 
+## GoHighLevel (D-033, D-076, D-134)
+
+The app is the only writer into GHL. Sign-ups, orders and learners' first sign-ins are rows in
+Postgres; a background loop copies them into the location in `GHL_LOCATION_ID` once a minute, and a
+GHL outage never blocks a sign-up, a checkout or a sign-in. Stripe is never connected to GHL.
+
+**Railway variables** (names only; Connor pastes the values in the dashboard):
+
+| Variable | What it does |
+|---|---|
+| `GHL_TOKEN`, `GHL_LOCATION_ID` | Both set: the loop runs. Either missing: it is off. |
+| `GHL_SYNC_ENABLED` | Exactly `false` pauses the loop without deleting the token. Anything else, or unset: no effect. |
+| `GHL_FIELD_OFFER`, `GHL_FIELD_COHORT`, `GHL_FIELD_AMOUNT`, `GHL_FIELD_PURCHASE_DATE`, `GHL_FIELD_LMS_LOGIN` | Contact custom field ids. Each is written only when its id is set. |
+| `GHL_PIPELINE_ID`, `GHL_STAGE_LEAD`, `GHL_STAGE_FREE_SKILLS`, `GHL_STAGE_CHECKOUT_STARTED`, `GHL_STAGE_PURCHASED`, `GHL_STAGE_PAYMENT_FAILED`, `GHL_STAGE_CANCELED`, `GHL_STAGE_REFUNDED` | One opportunity per contact in that pipeline, only when the pipeline and the stage's id are set. Free Skills and Checkout Started fall back to Lead. |
+
+The token needs `contacts.write` (and `contacts.readonly`); for the pipeline, `opportunities.readonly`
+and `opportunities.write`. A token without the pipeline's scopes keeps syncing contacts and tags, and
+the log shows the opportunity as waiting.
+
+**Tags.** The existing ones are unchanged. D-134 adds `ai-lead-free-skills`, `ai-buyer-accelerator`,
+`ai-buyer-insiders`, `ai-buyer-agent-plan`, `ai-buyer-team-plan`, `ai-refunded`, `ai-canceled` and
+`lms-logged-in` (see `docs/LMS-DELIVERY.md`).
+
+**Backfill is automatic.** Each synced row keeps a stamp of what its sync wrote. When the stamp
+changes (this release, a new field or stage id, a new `GHL_LOCATION_ID`), the loop sends every row
+once more, 25 per kind per minute, pausing on a rate limit. Learners who signed in before this shipped
+are queued on the first tick. To watch it:
+
+```bash
+pnpm --filter @ai/api ghl:status     # counts per kind, and the rows that are retrying or gave up
+```
+
+The Owner and Admins see the same at `learn.amplifiedimpact.io/admin/crm-sync`, with a Retry for a
+row that gave up.
+
 ## Gates
 
 A phase ships only when `pnpm gate <n>` is green locally **and** in CI.

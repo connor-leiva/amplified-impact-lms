@@ -1,9 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { FREE_SKILLS } from '@ai/core/skills';
 import {
+  FREE_SKILL_SOURCES,
   GHL_API_VERSION,
   GHL_BASE_URL,
+  buyerTags,
+  chicagoDate,
+  ghlSyncPaused,
   isTextable,
+  orderFieldValues,
   readGhlConfig,
+  setContactFields,
+  syncLoginContact,
+  syncStamp,
+  upsertOpportunity,
   SOURCE_TAGS,
   srcTag,
   syncWaitlistContact,
@@ -79,7 +89,8 @@ describe('tags @g9', () => {
     // The Ops Time Audit (D-039): its own tag, so its own workflow.
     expect(waitlistTags('ig', false, 'ops-time-audit')).toEqual(['ops-time-audit', 'src-ig']);
     // The voice profile setup (D-040), Spring's: its own tag too.
-    expect(waitlistTags('ig', false, 'voice-profile')).toEqual(['voice-profile', 'src-ig']);
+    // One of the five free skills (D-134): its slug, then the pack's alias.
+    expect(waitlistTags('ig', false, 'voice-profile')).toEqual(['voice-profile', 'ai-lead-free-skills', 'src-ig']);
     // The Reel Editor (D-045), the first Claude skill: its own tag, so it can start its own workflow.
     expect(waitlistTags('ig', false, 'reel-editor')).toEqual(['reel-editor', 'src-ig']);
     // A source nobody mapped gets no form tag, so it can trigger no workflow, the waitlist's least of all.
@@ -131,7 +142,8 @@ describe('tags @g9', () => {
     // A guide added to the list is tagged without a second list to keep: its slug, then the channel.
     for (const slug of GUIDE_SLUGS) {
       expect(SOURCE_TAGS[slug], slug).toEqual([slug]);
-      expect(waitlistTags('ig', false, slug).slice(0, 2), slug).toEqual([slug, 'src-ig']);
+      // The five free skills carry the pack's alias between the two (D-134).
+      expect(waitlistTags('ig', false, slug), slug).toEqual(FREE_SKILL_SOURCES.includes(slug) ? [slug, 'ai-lead-free-skills', 'src-ig'] : [slug, 'src-ig']);
     }
   });
 
@@ -152,7 +164,7 @@ describe('tags @g9', () => {
 
 describe('configuration @g9', () => {
   it('is on only when BOTH variables are set', () => {
-    expect(readGhlConfig({ GHL_TOKEN: ' pit-x ', GHL_LOCATION_ID: ' loc ' })).toEqual({ token: 'pit-x', locationId: 'loc' });
+    expect(readGhlConfig({ GHL_TOKEN: ' pit-x ', GHL_LOCATION_ID: ' loc ' })).toEqual({ token: 'pit-x', locationId: 'loc', fields: {}, pipeline: null });
     expect(readGhlConfig({ GHL_TOKEN: 'pit-x' })).toBeNull();
     expect(readGhlConfig({ GHL_LOCATION_ID: 'loc' })).toBeNull();
     expect(readGhlConfig({ GHL_TOKEN: '  ', GHL_LOCATION_ID: 'loc' })).toBeNull();
@@ -314,5 +326,205 @@ describe('syncWaitlistContact @g9', () => {
       const text = JSON.stringify(await syncWaitlistContact(pat, { config, fetch: ghl.fetch }));
       for (const secret of ['Pat', 'pat@example.com', 'pit-test-token-123', 'Northline', '8605551234']) expect(text).not.toContain(secret);
     }
+  });
+});
+
+// --- D-134 ------------------------------------------------------------------------------------------
+
+describe('D-134: the marketing aliases @g9', () => {
+  it('adds ai-lead-free-skills to the five free skills, after their own slug, and to nothing else', () => {
+    // The same five as the Library's FREE_FIVE: core's FREE_SKILLS and the Voice Profile, each a guide.
+    expect([...FREE_SKILL_SOURCES].sort()).toEqual([...FREE_SKILLS, 'voice-profile'].sort());
+    for (const slug of FREE_SKILL_SOURCES) {
+      expect(GUIDE_SLUGS, slug).toContain(slug);
+      expect(waitlistTags(null, false, slug)).toEqual([slug, 'ai-lead-free-skills', 'src-direct']);
+    }
+    for (const source of ['expcon-2026-ai101', 'cohort-waitlist', 'task-sync-starter', 'retool'])
+      expect(waitlistTags(null, false, source), source).not.toContain('ai-lead-free-skills');
+  });
+
+  it('adds each plan’s alias beside its existing tags, which stay exactly as they were', () => {
+    const base = { option: 'full', status: 'paid', paidAt: 1, paymentFailedAt: null, membershipEndedAt: null, refundedAt: null, campaign: null, smsConsent: false, phone: null };
+    expect(buyerTags({ ...base, plan: 'cohort' })).toEqual(['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator']);
+    expect(buyerTags({ ...base, plan: 'membership', option: 'year_upfront' })).toEqual(['offer-buyer', 'plan-membership', 'pay-year', 'ai-buyer-insiders']);
+    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'monthly' })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-monthly', 'ai-buyer-agent-plan']);
+    expect(buyerTags({ ...base, plan: 'agents', option: 'upto15' })).toEqual(['offer-buyer', 'plan-agents', 'ai-buyer-team-plan']);
+    // A full refund and an ended membership: the old tag, then its alias.
+    expect(buyerTags({ ...base, plan: 'cohort', refundedAt: 2 })).toEqual(['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator', 'refunded', 'ai-refunded']);
+    expect(buyerTags({ ...base, plan: 'membership', option: 'monthly', membershipEndedAt: 2 })).toEqual(['offer-buyer', 'plan-membership', 'pay-monthly', 'ai-buyer-insiders', 'membership-ended', 'ai-canceled']);
+    // Abandoned checkout, payment failed and the forum are as they were, with no alias.
+    expect(buyerTags({ ...base, plan: 'cohort', status: 'expired', paidAt: null })).toEqual(['checkout-abandoned-cohort']);
+    expect(buyerTags({ ...base, plan: 'cohort', campaign: 'forum' })).toEqual(['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator', 'event-forum-nov-2026']);
+    // The Skill Library has no alias.
+    expect(buyerTags({ ...base, plan: 'library' })).toEqual(['offer-buyer', 'plan-library']);
+  });
+
+  it('still writes every tag Spring already has, by its exact name', () => {
+    const all = new Set([
+      ...waitlistTags('qr', true, 'expcon-2026-ai101', { teamSize: '1-10', decemberInterest: true }),
+      ...waitlistTags('ig', false, 'expcon-2026-ai101'),
+      ...waitlistTags(null, false, 'retool', { teamSize: '11-25' }),
+      ...['task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor'].flatMap((s) => waitlistTags(null, false, s)),
+    ]);
+    for (const tag of ['ai101-waitlist', 'event-expcon-2026', 'src-qr', 'src-ig', 'src-direct', 'sms-consent', 'task-sync-starter', 'ops-time-audit', 'voice-profile', 'reel-editor', 'retool', 'december-interest', 'team-size-1-10', 'team-size-11-25'])
+      expect(all, tag).toContain(tag);
+  });
+});
+
+describe('D-134: configuration @g9', () => {
+  const env = { GHL_TOKEN: 'pit-test-token-123', GHL_LOCATION_ID: 'loc-abc' };
+
+  it('reads each field id and the pipeline only from their own variables, with no defaults', () => {
+    expect(readGhlConfig(env)).toEqual({ token: 'pit-test-token-123', locationId: 'loc-abc', fields: {}, pipeline: null });
+    expect(
+      readGhlConfig({ ...env, GHL_FIELD_OFFER: ' f-offer ', GHL_FIELD_LMS_LOGIN: 'f-login', GHL_FIELD_AMOUNT: '  ', GHL_PIPELINE_ID: 'p1', GHL_STAGE_LEAD: 's-lead', GHL_STAGE_PURCHASED: 's-buy' }),
+    ).toEqual({
+      token: 'pit-test-token-123',
+      locationId: 'loc-abc',
+      fields: { offer: 'f-offer', lmsLogin: 'f-login' },
+      pipeline: { id: 'p1', stages: { lead: 's-lead', purchased: 's-buy' } },
+    });
+    // A pipeline id with no stage ids, or stage ids with no pipeline, is no pipeline.
+    expect(readGhlConfig({ ...env, GHL_PIPELINE_ID: 'p1' })?.pipeline).toBeNull();
+    expect(readGhlConfig({ ...env, GHL_STAGE_LEAD: 's-lead' })?.pipeline).toBeNull();
+    // Field and stage ids alone never switch the integration on.
+    expect(readGhlConfig({ GHL_FIELD_OFFER: 'f', GHL_PIPELINE_ID: 'p', GHL_STAGE_LEAD: 's' })).toBeNull();
+  });
+
+  it('pauses only for GHL_SYNC_ENABLED=false, exactly', () => {
+    expect(ghlSyncPaused({ GHL_SYNC_ENABLED: 'false' })).toBe(true);
+    for (const v of [undefined, '', 'true', '0', 'no', 'FALSE', 'off']) expect(ghlSyncPaused(v === undefined ? {} : { GHL_SYNC_ENABLED: v }), String(v)).toBe(false);
+  });
+
+  it('stamps what a sync wrote, changing with the location, a field id or the pipeline, and never holding one', () => {
+    const plain = readGhlConfig(env)!;
+    const stamp = syncStamp(plain);
+    expect(syncStamp(readGhlConfig(env)!)).toBe(stamp);
+    expect(syncStamp(readGhlConfig({ ...env, GHL_LOCATION_ID: 'loc-new' })!)).not.toBe(stamp);
+    expect(syncStamp(readGhlConfig({ ...env, GHL_FIELD_OFFER: 'f-offer' })!)).not.toBe(stamp);
+    expect(syncStamp(readGhlConfig({ ...env, GHL_FIELD_OFFER: 'f-other' })!)).not.toBe(syncStamp(readGhlConfig({ ...env, GHL_FIELD_OFFER: 'f-offer' })!));
+    expect(syncStamp(readGhlConfig({ ...env, GHL_PIPELINE_ID: 'p1', GHL_STAGE_LEAD: 's' })!)).not.toBe(stamp);
+    const full = syncStamp(readGhlConfig({ ...env, GHL_FIELD_OFFER: 'f-offer', GHL_PIPELINE_ID: 'p1', GHL_STAGE_LEAD: 's-lead' })!);
+    for (const raw of ['loc-abc', 'f-offer', 'p1', 's-lead', 'pit-test-token-123']) expect(full).not.toContain(raw);
+  });
+});
+
+describe('D-134: custom fields @g9', () => {
+  const withFields: GhlConfig = { ...config, fields: { offer: 'f-offer', cohort: 'f-cohort', amount: 'f-amount', purchaseDate: 'f-date', lmsLogin: 'f-login' } };
+
+  it('reads each plan’s values: its name, the Accelerator’s cohort, the amount in dollars and the day it was paid in Chicago', () => {
+    // 2026-11-15T03:30Z is still Nov 14 in Chicago.
+    const paidAt = Date.parse('2026-11-15T03:30:00Z');
+    expect(orderFieldValues({ plan: 'cohort', amountTotal: 99700, paidAt })).toEqual({ offer: 'Amplified AI Accelerator', cohort: 'dec26', amount: 997, purchaseDate: '2026-11-14' });
+    expect(orderFieldValues({ plan: 'membership', amountTotal: 19700, paidAt })).toEqual({ offer: 'Amplified Insiders', amount: 197, purchaseDate: '2026-11-14' });
+    expect(orderFieldValues({ plan: 'agent_plan', amountTotal: 0, paidAt: null })).toEqual({ offer: 'Amplified Agent Plan' });
+    expect(orderFieldValues({ plan: 'agents', amountTotal: null, paidAt: null })).toEqual({ offer: 'Amplified Team Plan' });
+    expect(chicagoDate(Date.parse('2026-07-01T04:59:00Z'))).toBe('2026-06-30');
+  });
+
+  it('writes only the fields that have an id and a value, by id, and never an empty one', async () => {
+    const ghl = fakeGhl([{ status: 200, body: { succeeded: true } }]);
+    const r = await setContactFields('c-1', { offer: 'Amplified Insiders', cohort: '', amount: 0, purchaseDate: '2026-11-14' }, { config: withFields, fetch: ghl.fetch });
+    expect(r).toEqual({ ok: true, action: 'written' });
+    expect(ghl.seen).toHaveLength(1);
+    expect(ghl.seen[0]!.method).toBe('PUT');
+    expect(ghl.seen[0]!.url).toBe(`${GHL_BASE_URL}/contacts/c-1`);
+    // Only customFields: nothing else on the contact is sent, so nothing else can change.
+    expect(ghl.seen[0]!.body).toEqual({ customFields: [{ id: 'f-offer', field_value: 'Amplified Insiders' }, { id: 'f-date', field_value: '2026-11-14' }] });
+  });
+
+  it('makes no call at all when no field id is set, or no value is', async () => {
+    const ghl = fakeGhl([]);
+    expect(await setContactFields('c-1', { offer: 'Amplified Insiders' }, { config, fetch: ghl.fetch })).toEqual({ ok: true, action: 'skipped' });
+    expect(await setContactFields('c-1', {}, { config: withFields, fetch: ghl.fetch })).toEqual({ ok: true, action: 'skipped' });
+    expect(ghl.seen).toEqual([]);
+  });
+
+  it('reports a refused field write as step "fields", with a kind and a status only', async () => {
+    const ghl = fakeGhl([{ status: 422, body: { message: 'pat@example.com bad field f-offer' } }]);
+    const r = await setContactFields('c-1', { offer: 'Amplified Insiders' }, { config: withFields, fetch: ghl.fetch });
+    expect(r).toEqual({ ok: false, kind: 'rejected', status: 422, step: 'fields' });
+  });
+});
+
+describe('D-134: the opportunity @g9', () => {
+  const pipeline = { id: 'p1', stages: { lead: 's-lead', freeSkills: 's-free', purchased: 's-buy', refunded: 's-refund', canceled: 's-refund' } };
+  const withPipeline: GhlConfig = { ...config, pipeline };
+  const none = { status: 200, body: { opportunities: [], meta: { total: 0 } } };
+  const one = (stage: string, extra: Record<string, unknown> = {}) => ({
+    status: 200,
+    body: { opportunities: [{ id: 'o-1', contactId: 'c-1', pipelineId: 'p1', pipelineStageId: stage, name: 'Amplified Impact', status: 'open', ...extra }] },
+  });
+
+  it('does nothing at all without a pipeline, or without an id for the stage', async () => {
+    const ghl = fakeGhl([]);
+    expect(await upsertOpportunity('c-1', { stage: 'purchased', name: 'x' }, { config, fetch: ghl.fetch })).toEqual({ ok: true, action: 'skipped' });
+    expect(await upsertOpportunity('c-1', { stage: 'paymentFailed', name: 'x' }, { config: withPipeline, fetch: ghl.fetch })).toEqual({ ok: true, action: 'skipped' });
+    expect(ghl.seen).toEqual([]);
+  });
+
+  it('finds it by contact and pipeline in the configured location only, and creates one when there is none', async () => {
+    const ghl = fakeGhl([none, { status: 201, body: { opportunity: { id: 'o-1' } } }]);
+    const r = await upsertOpportunity('c-1', { stage: 'purchased', name: 'Amplified AI Accelerator', monetaryValue: 997 }, { config: withPipeline, fetch: ghl.fetch });
+    expect(r).toEqual({ ok: true, action: 'created' });
+    const search = new URL(ghl.seen[0]!.url);
+    expect([ghl.seen[0]!.method, search.pathname]).toEqual(['GET', '/opportunities/search']);
+    expect(Object.fromEntries(search.searchParams)).toEqual({ location_id: 'loc-abc', pipeline_id: 'p1', contact_id: 'c-1', limit: '1' });
+    expect([ghl.seen[1]!.method, ghl.seen[1]!.url]).toEqual(['POST', `${GHL_BASE_URL}/opportunities/`]);
+    expect(ghl.seen[1]!.body).toEqual({ pipelineId: 'p1', locationId: 'loc-abc', contactId: 'c-1', name: 'Amplified AI Accelerator', status: 'won', pipelineStageId: 's-buy', monetaryValue: 997 });
+  });
+
+  it('writes nothing when it is already where it belongs: a second sync is a no-op', async () => {
+    const ghl = fakeGhl([one('s-buy', { name: 'Amplified AI Accelerator', monetaryValue: 997 })]);
+    expect(await upsertOpportunity('c-1', { stage: 'purchased', name: 'Amplified AI Accelerator', monetaryValue: 997 }, { config: withPipeline, fetch: ghl.fetch })).toEqual({ ok: true, action: 'unchanged' });
+    expect(ghl.seen).toHaveLength(1);
+  });
+
+  it('moves a lead forward to Purchased, with the plan’s name and value', async () => {
+    const ghl = fakeGhl([one('s-lead'), { status: 200, body: { opportunity: { id: 'o-1' } } }]);
+    expect(await upsertOpportunity('c-1', { stage: 'purchased', name: 'Amplified Insiders', monetaryValue: 197 }, { config: withPipeline, fetch: ghl.fetch })).toEqual({ ok: true, action: 'moved' });
+    expect([ghl.seen[1]!.method, ghl.seen[1]!.url]).toEqual(['PUT', `${GHL_BASE_URL}/opportunities/o-1`]);
+    expect(ghl.seen[1]!.body).toEqual({ pipelineId: 'p1', pipelineStageId: 's-buy', status: 'won', name: 'Amplified Insiders', monetaryValue: 197 });
+  });
+
+  it('never moves a purchase back to a lead stage, nor a stage this app does not know', async () => {
+    for (const stage of ['s-buy', 's-refund', 's-connor-added']) {
+      const ghl = fakeGhl([one(stage)]);
+      expect(await upsertOpportunity('c-1', { stage: 'freeSkills', name: 'Amplified Impact' }, { config: withPipeline, fetch: ghl.fetch }), stage).toEqual({ ok: true, action: 'unchanged' });
+      expect(ghl.seen, stage).toHaveLength(1);
+    }
+  });
+
+  it('follows the orders among the purchase stages: Purchased to Refunded, and back only for a new paid order', async () => {
+    const refund = fakeGhl([one('s-buy'), { status: 200, body: {} }]);
+    expect(await upsertOpportunity('c-1', { stage: 'refunded', name: 'Amplified Insiders' }, { config: withPipeline, fetch: refund.fetch })).toEqual({ ok: true, action: 'moved' });
+    expect(refund.seen[1]!.body).toMatchObject({ pipelineStageId: 's-refund', status: 'lost' });
+    // `contactTarget` says Purchased again only when a paid order that is not refunded exists.
+    const rebuy = fakeGhl([one('s-refund'), { status: 200, body: {} }]);
+    expect(await upsertOpportunity('c-1', { stage: 'purchased', name: 'Amplified Agent Plan' }, { config: withPipeline, fetch: rebuy.fetch })).toEqual({ ok: true, action: 'moved' });
+    // A stage Connor added is moved by a purchase, never by a lead.
+    const custom = fakeGhl([one('s-connor-added'), { status: 200, body: {} }]);
+    expect(await upsertOpportunity('c-1', { stage: 'purchased', name: 'Amplified Agent Plan' }, { config: withPipeline, fetch: custom.fetch })).toEqual({ ok: true, action: 'moved' });
+  });
+
+  it('moves Free Skills to Lead’s stage when only Lead is set, and reports a failure as step "opportunity"', async () => {
+    const leadOnly: GhlConfig = { ...config, pipeline: { id: 'p1', stages: { lead: 's-lead' } } };
+    const ghl = fakeGhl([none, { status: 201, body: {} }]);
+    await upsertOpportunity('c-1', { stage: 'freeSkills', name: 'Amplified Impact' }, { config: leadOnly, fetch: ghl.fetch });
+    expect(ghl.seen[1]!.body).toMatchObject({ pipelineStageId: 's-lead', status: 'open' });
+    for (const [status, kind] of [[401, 'unauthorized'], [422, 'rejected'], [429, 'rate-limited'], [503, 'server']] as const) {
+      const failing = fakeGhl([{ status, body: { message: 'contact pat@example.com' } }]);
+      expect(await upsertOpportunity('c-1', { stage: 'purchased', name: 'x' }, { config: withPipeline, fetch: failing.fetch })).toEqual({ ok: false, kind, status, step: 'opportunity' });
+    }
+  });
+});
+
+describe('D-134: a learner’s first sign-in @g9', () => {
+  it('upserts the learner by email with their name and no phone, then adds lms-logged-in to their tags', async () => {
+    const ghl = fakeGhl([upserted('c-9', ['spring-client']), tagged(['spring-client', 'lms-logged-in'])]);
+    const r = await syncLoginContact({ email: 'jamie@ortizhomes.com', name: 'Jamie Ortiz' }, { config, fetch: ghl.fetch });
+    expect(r).toEqual({ ok: true, contactId: 'c-9', created: true, tagsDropped: [] });
+    expect(ghl.seen[0]!.body).toEqual({ locationId: 'loc-abc', email: 'jamie@ortizhomes.com', firstName: 'Jamie', lastName: 'Ortiz' });
+    expect(ghl.seen[1]!.body).toEqual({ tags: ['spring-client', 'lms-logged-in'] });
   });
 });

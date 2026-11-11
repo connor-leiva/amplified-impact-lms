@@ -40,7 +40,16 @@
 //
 // PRIVACY. Nothing this file returns or throws contains the visitor's name, address or phone, the
 // token, or a response body (which can echo them). Failures are reported as a kind and a status.
+//
+// D-134 ADDS, AND CHANGES NOTHING ABOVE: marketing aliases next to the existing tags (`ai-lead-free-
+// skills`, `ai-buyer-*`, `ai-refunded`, `ai-canceled`), `lms-logged-in` for a learner's first sign-in,
+// contact custom fields and one opportunity in one pipeline. The last two are off until Connor sets
+// their ids (GHL_FIELD_*, GHL_PIPELINE_ID and GHL_STAGE_*), and a failure in either never undoes or
+// blocks the contact and its tags, which are written first. They live at the end of this file.
 
+import { createHash } from 'node:crypto';
+import { ACCELERATOR_COHORT_ID } from '@ai/core/accelerator';
+import { PLAN_NAMES } from '@ai/core/offer';
 import { GUIDE_SLUGS } from '../routes/guide-list';
 
 /** The API host for v2. */
@@ -119,6 +128,17 @@ export function teamSizeTag(teamSize: string | null | undefined): string | null 
 export const DECEMBER_INTEREST_TAG = 'december-interest';
 
 /**
+ * The five free skills' sign-up sources ("Get 5 Free Skills", D-134). Each keeps its own slug tag; this
+ * adds one pack tag beside it, so marketing can filter the pack without listing five slugs. The same
+ * five as the Library's `FREE_FIVE` (apps/web) and core's `FREE_SKILLS` plus the Voice Profile.
+ */
+export const FREE_SKILL_SOURCES: readonly string[] = ['ai-brain-setup', 'voice-profile', 'ai-brain-tuneup', 'perfect-week', 'inbox-meeting-follow-through'];
+export const FREE_SKILLS_TAG = 'ai-lead-free-skills';
+
+/** A learner's first sign-in to the LMS (D-134). */
+export const LMS_LOGGED_IN_TAG = 'lms-logged-in';
+
+/**
  * Every tag one sign-up should carry in GHL. HighLevel stores tags lowercase; these already are.
  * `source` defaults to the waitlist's, which every row had before D-038. `team` is the row's team
  * size and December box (D-046), which only /retool's rows have; left out, it adds nothing.
@@ -132,6 +152,7 @@ export function waitlistTags(
   const size = teamSizeTag(team.teamSize);
   return [
     ...(SOURCE_TAGS[source] ?? []),
+    ...(FREE_SKILL_SOURCES.includes(source) ? [FREE_SKILLS_TAG] : []),
     srcTag(src),
     ...(size === null ? [] : [size]),
     ...(team.decemberInterest === true ? [DECEMBER_INTEREST_TAG] : []),
@@ -146,6 +167,10 @@ export const isTextable = (c: Pick<WaitlistContact, 'phone' | 'smsConsent'>): bo
 export interface GhlConfig {
   token: string;
   locationId: string;
+  /** D-134: contact custom field ids, by what they hold. A field with no id is never written. */
+  fields?: Partial<Record<FieldKey, string>>;
+  /** D-134: the one pipeline this app writes to, and its stage ids. Null or absent: no opportunities. */
+  pipeline?: GhlPipeline | null;
 }
 
 /**
@@ -158,8 +183,15 @@ export function readGhlConfig(env: NodeJS.ProcessEnv = process.env): GhlConfig |
   const token = (env.GHL_TOKEN ?? '').trim();
   const locationId = (env.GHL_LOCATION_ID ?? '').trim();
   if (token === '' || locationId === '') return null;
-  return { token, locationId };
+  return { token, locationId, fields: readFieldIds(env), pipeline: readPipeline(env) };
 }
+
+/**
+ * The pause switch (D-134): `GHL_SYNC_ENABLED=false`, exactly, stops the loop without deleting the
+ * token from Railway. Unset, or any other value, changes nothing: the loop runs whenever
+ * `readGhlConfig` is on, as it did before this switch existed.
+ */
+export const ghlSyncPaused = (env: NodeJS.ProcessEnv = process.env): boolean => (env.GHL_SYNC_ENABLED ?? '').trim() === 'false';
 
 /** One sign-up, as the sync job reads it from the waitlist row. */
 export interface WaitlistContact {
@@ -200,7 +232,10 @@ export type GhlResult =
       /** Tags the contact had before that the response no longer lists. Should always be empty. */
       tagsDropped: string[];
     }
-  | { ok: false; kind: GhlFailureKind; status?: number; step: 'upsert' | 'tags' };
+  | { ok: false; kind: GhlFailureKind; status?: number; step: GhlStep };
+
+/** Which call failed. `fields` and `opportunity` are D-134's, and come after the contact and its tags. */
+export type GhlStep = 'upsert' | 'tags' | 'fields' | 'opportunity';
 
 export type Fetch = typeof fetch;
 
@@ -217,21 +252,22 @@ function kindForStatus(status: number): GhlFailureKind {
   return 'rejected';
 }
 
-type CallResult = { ok: true; body: unknown } | { ok: false; kind: GhlFailureKind; status?: number };
+export type CallResult = { ok: true; body: unknown } | { ok: false; kind: GhlFailureKind; status?: number };
 
-async function call(path: string, body: unknown, options: SyncOptions): Promise<CallResult> {
+/** One v2 call. Exported for one-time scripts; the sync goes through the functions above. */
+export async function call(path: string, body: unknown, options: SyncOptions, method: 'POST' | 'PUT' | 'GET' = 'POST'): Promise<CallResult> {
   const doFetch = options.fetch ?? fetch;
   let res: Response;
   try {
     res = await doFetch(`${GHL_BASE_URL}${path}`, {
-      method: 'POST',
+      method,
       headers: {
         Authorization: `Bearer ${options.config.token}`,
         Version: GHL_API_VERSION,
-        'Content-Type': 'application/json',
+        ...(method === 'GET' ? {} : { 'Content-Type': 'application/json' }),
         Accept: 'application/json',
       },
-      body: JSON.stringify(body),
+      ...(method === 'GET' ? {} : { body: JSON.stringify(body) }),
       signal: AbortSignal.timeout(options.timeoutMs ?? GHL_TIMEOUT_MS),
     });
   } catch (err) {
@@ -294,6 +330,13 @@ export const BUYER_TAGS = {
   payMonthly: 'pay-monthly',
   /** The Amplified Agent Plan paid yearly, a price that renews each year (D-106). Not Insiders' `pay-year`. */
   payYearly: 'pay-yearly',
+  /**
+   * D-134's marketing aliases, beside the tags above (which stay exactly as they are): one per plan
+   * sold, and one each for a full refund and an ended membership. The Skill Library has none.
+   */
+  alias: { cohort: 'ai-buyer-accelerator', membership: 'ai-buyer-insiders', agent_plan: 'ai-buyer-agent-plan', agents: 'ai-buyer-team-plan' } as Readonly<Record<string, string>>,
+  refundedAlias: 'ai-refunded',
+  canceledAlias: 'ai-canceled',
   abandoned: (plan: string) => `checkout-abandoned-${tagWord(plan)}`,
   paymentFailed: 'payment-failed',
   membershipEnded: 'membership-ended',
@@ -327,12 +370,13 @@ export function buyerTags(o: BuyerFacts): string[] {
     if (o.plan === 'cohort') tags.push(o.option === 'two_pay' ? BUYER_TAGS.payTwo : BUYER_TAGS.payFull);
     if (o.plan === 'membership') tags.push(o.option === 'year_upfront' ? BUYER_TAGS.payYear : BUYER_TAGS.payMonthly);
     if (o.plan === 'agent_plan') tags.push(o.option === 'yearly' ? BUYER_TAGS.payYearly : BUYER_TAGS.payMonthly);
+    if (Object.hasOwn(BUYER_TAGS.alias, o.plan)) tags.push(BUYER_TAGS.alias[o.plan]!);
   } else if (o.status === 'expired') {
     tags.push(BUYER_TAGS.abandoned(o.plan));
   }
   if (o.paymentFailedAt !== null) tags.push(BUYER_TAGS.paymentFailed);
-  if (o.membershipEndedAt !== null) tags.push(BUYER_TAGS.membershipEnded);
-  if (o.refundedAt !== null) tags.push(BUYER_TAGS.refunded);
+  if (o.membershipEndedAt !== null) tags.push(BUYER_TAGS.membershipEnded, BUYER_TAGS.canceledAlias);
+  if (o.refundedAt !== null) tags.push(BUYER_TAGS.refunded, BUYER_TAGS.refundedAlias);
   if (tags.length && o.campaign === 'forum') tags.push(BUYER_TAGS.forum);
   if (tags.length && isTextable(o)) tags.push(SMS_CONSENT_TAG);
   return tags;
@@ -359,7 +403,7 @@ export async function syncBuyerContact(contact: BuyerContact, options: SyncOptio
 }
 
 /** The upsert, then the tags as a union with what the contact already has (see the header). */
-async function upsertAndTag(upsertBody: Record<string, unknown>, ours: readonly string[], options: SyncOptions): Promise<GhlResult> {
+export async function upsertAndTag(upsertBody: Record<string, unknown>, ours: readonly string[], options: SyncOptions): Promise<GhlResult> {
   const upserted = await call('/contacts/upsert', upsertBody, options);
   if (!upserted.ok) return { ok: false, kind: upserted.kind, step: 'upsert', ...statusOf(upserted) };
 
@@ -385,4 +429,236 @@ async function upsertAndTag(upsertBody: Record<string, unknown>, ours: readonly 
 
 function statusOf(r: { status?: number }): { status?: number } {
   return r.status === undefined ? {} : { status: r.status };
+}
+
+// --- D-134: a learner's first sign-in ---------------------------------------------------------------
+
+/** The learner as the login queue reads them: no phone, so the number rule cannot even come up. */
+export interface LoginContact {
+  email: string;
+  name: string | null;
+}
+
+/** Create or update the learner's contact and add `lms-logged-in`. Idempotent, like the others. */
+export async function syncLoginContact(contact: LoginContact, options: SyncOptions): Promise<GhlResult> {
+  const upsertBody: Record<string, unknown> = { locationId: options.config.locationId, email: contact.email, ...nameParts(contact.name) };
+  return upsertAndTag(upsertBody, [LMS_LOGGED_IN_TAG], options);
+}
+
+/** "Pat Q. Buyer" as GHL's first and last name. Nothing at all for no name: an empty one would blank it. */
+function nameParts(name: string | null): Record<string, string> {
+  const [first, ...rest] = (name ?? '').trim().split(/\s+/).filter(Boolean);
+  if (!first) return {};
+  return rest.length ? { firstName: first, lastName: rest.join(' ') } : { firstName: first };
+}
+
+// --- D-134: custom fields and the pipeline, each off until its ids are set ---------------------------
+//
+// IDS, NEVER NAMES. Connor creates the fields and the pipeline in GHL and pastes
+// their ids into Railway. The code has no default for any of them, so a deploy before he does writes
+// exactly what it wrote before: the contact and its tags.
+//
+// NEVER BLANK A FIELD. A value is sent only when there is one: no empty string, no null, no zero
+// amount. An existing contact's field is therefore never cleared by this app.
+//
+// ONE OPPORTUNITY PER CONTACT, IN ONE PIPELINE. Found by contact and pipeline, created if missing, and
+// moved only forward: a lead stage never replaces a purchase stage, and among the purchase stages it
+// follows what the contact's orders say now (`contactTarget` in jobs/ghl-extras.ts), so a refunded
+// opportunity goes back to Purchased only when a paid order that is not refunded exists. A stage this
+// app does not know (one Connor added and moved the deal to) is left alone by any lead stage.
+
+/** The contact custom fields, and the Railway variable that holds each one's id. */
+export const FIELD_ENV = {
+  offer: 'GHL_FIELD_OFFER',
+  cohort: 'GHL_FIELD_COHORT',
+  amount: 'GHL_FIELD_AMOUNT',
+  purchaseDate: 'GHL_FIELD_PURCHASE_DATE',
+  lmsLogin: 'GHL_FIELD_LMS_LOGIN',
+} as const;
+export type FieldKey = keyof typeof FIELD_ENV;
+
+/** The pipeline's stages, and the variable that holds each one's id. Only `GHL_PIPELINE_ID` and the ones set are used. */
+export const STAGE_ENV = {
+  lead: 'GHL_STAGE_LEAD',
+  freeSkills: 'GHL_STAGE_FREE_SKILLS',
+  checkoutStarted: 'GHL_STAGE_CHECKOUT_STARTED',
+  purchased: 'GHL_STAGE_PURCHASED',
+  paymentFailed: 'GHL_STAGE_PAYMENT_FAILED',
+  canceled: 'GHL_STAGE_CANCELED',
+  refunded: 'GHL_STAGE_REFUNDED',
+} as const;
+export type StageKey = keyof typeof STAGE_ENV;
+
+export interface GhlPipeline {
+  id: string;
+  stages: Partial<Record<StageKey, string>>;
+}
+
+/** The value `LMS Login` gets after a learner's first sign-in. */
+export const LMS_SIGNED_IN = 'signed-in';
+
+function readFieldIds(env: NodeJS.ProcessEnv): Partial<Record<FieldKey, string>> {
+  const out: Partial<Record<FieldKey, string>> = {};
+  for (const [key, name] of Object.entries(FIELD_ENV) as [FieldKey, string][]) {
+    const id = (env[name] ?? '').trim();
+    if (id !== '') out[key] = id;
+  }
+  return out;
+}
+
+function readPipeline(env: NodeJS.ProcessEnv): GhlPipeline | null {
+  const id = (env.GHL_PIPELINE_ID ?? '').trim();
+  if (id === '') return null;
+  const stages: Partial<Record<StageKey, string>> = {};
+  for (const [key, name] of Object.entries(STAGE_ENV) as [StageKey, string][]) {
+    const stage = (env[name] ?? '').trim();
+    if (stage !== '') stages[key] = stage;
+  }
+  return Object.keys(stages).length ? { id, stages } : null;
+}
+
+/** Bumped when what a sync writes changes, so every row is synced again once (D-134). */
+export const SYNC_VERSION = 2;
+
+const shortHash = (v: unknown): string => createHash('sha256').update(JSON.stringify(v)).digest('hex').slice(0, 10);
+
+/**
+ * What a completed sync of a row wrote, as a short string the row keeps (`ghl_sync_stamp`). A row
+ * whose stamp differs from today's is synced again ONCE, through the same loop, batch and backoff as
+ * any other: that is the backfill when this code ships, when Connor adds a field or the pipeline, and
+ * when `GHL_LOCATION_ID` moves to the new sub-account. Hashes, so neither the location nor an id is
+ * ever written to the database or a log.
+ */
+export function syncStamp(config: GhlConfig): string {
+  const fields = Object.entries(config.fields ?? {}).sort();
+  const pipeline = config.pipeline ? [config.pipeline.id, Object.entries(config.pipeline.stages).sort()] : null;
+  return `v${SYNC_VERSION}.${shortHash(config.locationId)}.${fields.length ? shortHash(fields) : '-'}.${pipeline ? shortHash(pipeline) : '-'}`;
+}
+
+/** What a contact's fields should say. Each is optional: a missing one is not sent. */
+export interface FieldValues {
+  offer?: string;
+  cohort?: string;
+  /** Dollars. */
+  amount?: number;
+  /** YYYY-MM-DD, in America/Chicago. */
+  purchaseDate?: string;
+  lmsLogin?: string;
+}
+
+/** A day in America/Chicago, as GHL's date fields take it. */
+export function chicagoDate(ms: number): string {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ms));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}
+
+/** Each plan's display name (`PLAN_NAMES`), keyed by any string so an unknown plan reads as undefined. */
+export const PLAN_NAMES_FOR_GHL: Readonly<Record<string, string>> = PLAN_NAMES;
+
+/** An order's field values: its plan's name, the cohort for the Accelerator, the amount and the day it was paid. */
+export function orderFieldValues(o: { plan: string; amountTotal: number | null; paidAt: number | null }): FieldValues {
+  const out: FieldValues = {};
+  if (Object.hasOwn(PLAN_NAMES_FOR_GHL, o.plan)) out.offer = PLAN_NAMES_FOR_GHL[o.plan]!;
+  if (o.plan === 'cohort') out.cohort = ACCELERATOR_COHORT_ID;
+  if (typeof o.amountTotal === 'number' && o.amountTotal > 0) out.amount = Math.round(o.amountTotal) / 100;
+  if (typeof o.paidAt === 'number') out.purchaseDate = chicagoDate(o.paidAt);
+  return out;
+}
+
+/** The custom-field items for the fields that have both an id and a value. Empty values never go. */
+export function fieldItems(values: FieldValues, ids: Partial<Record<FieldKey, string>> = {}): { id: string; field_value: string | number }[] {
+  const items: { id: string; field_value: string | number }[] = [];
+  for (const key of Object.keys(FIELD_ENV) as FieldKey[]) {
+    const id = ids[key];
+    const value = values[key];
+    if (!id) continue;
+    if (typeof value === 'string' && value.trim() !== '') items.push({ id, field_value: value.trim() });
+    else if (typeof value === 'number' && Number.isFinite(value) && value > 0) items.push({ id, field_value: value });
+  }
+  return items;
+}
+
+export type ExtraResult = { ok: true; action: 'skipped' | 'written' | 'created' | 'moved' | 'unchanged' } | { ok: false; kind: GhlFailureKind; status?: number; step: GhlStep };
+
+/** Write the contact's custom fields: `PUT /contacts/{id}` with only `customFields`, so nothing else on it changes. */
+export async function setContactFields(contactId: string, values: FieldValues, options: SyncOptions): Promise<ExtraResult> {
+  const items = fieldItems(values, options.config.fields);
+  if (items.length === 0) return { ok: true, action: 'skipped' };
+  const res = await call(`/contacts/${encodeURIComponent(contactId)}`, { customFields: items }, options, 'PUT');
+  if (!res.ok) return { ok: false, kind: res.kind, step: 'fields', ...statusOf(res) };
+  return { ok: true, action: 'written' };
+}
+
+/** Where a contact belongs in the pipeline, and what its opportunity is called and worth. */
+export interface OpportunityTarget {
+  stage: StageKey;
+  name: string;
+  /** Dollars, from the order behind the stage, when there is one. */
+  monetaryValue?: number;
+}
+
+/**
+ * Forward only: a move happens when the target's rank is at least the current stage's. The lead
+ * stages rank below every purchase stage; the purchase stages share a rank, so among them the
+ * opportunity follows the orders. A stage this app does not know sits between the two.
+ */
+export const STAGE_RANK: Readonly<Record<StageKey, number>> = { lead: 0, freeSkills: 1, checkoutStarted: 2, purchased: 4, paymentFailed: 4, canceled: 4, refunded: 4 };
+const UNKNOWN_STAGE_RANK = 3;
+
+/** Free Skills and Checkout Started fall back to Lead when only Lead is set. The others have no fallback. */
+export function stageId(pipeline: GhlPipeline, stage: StageKey): string | null {
+  return pipeline.stages[stage] ?? (stage === 'freeSkills' || stage === 'checkoutStarted' ? (pipeline.stages.lead ?? null) : null);
+}
+
+export const opportunityStatus = (stage: StageKey): 'open' | 'won' | 'lost' =>
+  stage === 'purchased' ? 'won' : stage === 'canceled' || stage === 'refunded' ? 'lost' : 'open';
+
+/**
+ * The contact's one opportunity in the pipeline: found by contact and pipeline, created if there is
+ * none, otherwise moved forward and its value kept current. A call is made only when something
+ * changes, so syncing the same row twice writes nothing the second time.
+ */
+export async function upsertOpportunity(contactId: string, target: OpportunityTarget, options: SyncOptions): Promise<ExtraResult> {
+  const { pipeline, locationId } = options.config;
+  if (!pipeline) return { ok: true, action: 'skipped' };
+  const stage = stageId(pipeline, target.stage);
+  if (!stage) return { ok: true, action: 'skipped' };
+
+  const query = new URLSearchParams({ location_id: locationId, pipeline_id: pipeline.id, contact_id: contactId, limit: '1' });
+  const found = await call(`/opportunities/search?${query.toString()}`, undefined, options, 'GET');
+  if (!found.ok) return { ok: false, kind: found.kind, step: 'opportunity', ...statusOf(found) };
+  const list = asRecord(found.body)?.opportunities;
+  const existing = Array.isArray(list) ? list.map(asRecord).find((o) => o !== null && (o.contactId === undefined || o.contactId === contactId) && (o.pipelineId === undefined || o.pipelineId === pipeline.id)) ?? null : null;
+  const value = typeof target.monetaryValue === 'number' && target.monetaryValue > 0 ? { monetaryValue: target.monetaryValue } : {};
+
+  if (!existing) {
+    const created = await call(
+      '/opportunities/',
+      { pipelineId: pipeline.id, locationId, contactId, name: target.name, status: opportunityStatus(target.stage), pipelineStageId: stage, ...value },
+      options,
+    );
+    if (!created.ok) return { ok: false, kind: created.kind, step: 'opportunity', ...statusOf(created) };
+    return { ok: true, action: 'created' };
+  }
+
+  const id = typeof existing.id === 'string' ? existing.id : null;
+  if (!id) return { ok: false, kind: 'malformed', step: 'opportunity' };
+  const currentStage = typeof existing.pipelineStageId === 'string' ? existing.pipelineStageId : null;
+  const currentKey = (Object.keys(STAGE_ENV) as StageKey[]).find((k) => pipeline.stages[k] !== undefined && pipeline.stages[k] === currentStage);
+  const currentRank = currentKey ? STAGE_RANK[currentKey] : UNKNOWN_STAGE_RANK;
+  const move = currentStage !== stage && STAGE_RANK[target.stage] >= currentRank;
+
+  const patch: Record<string, unknown> = {};
+  if (move) {
+    patch.pipelineStageId = stage;
+    patch.status = opportunityStatus(target.stage);
+    if (STAGE_RANK[target.stage] === STAGE_RANK.purchased && existing.name !== target.name) patch.name = target.name;
+  }
+  if (value.monetaryValue !== undefined && existing.monetaryValue !== value.monetaryValue && (move || STAGE_RANK[target.stage] >= currentRank)) patch.monetaryValue = value.monetaryValue;
+  if (Object.keys(patch).length === 0) return { ok: true, action: 'unchanged' };
+
+  const updated = await call(`/opportunities/${encodeURIComponent(id)}`, { pipelineId: pipeline.id, ...patch }, options, 'PUT');
+  if (!updated.ok) return { ok: false, kind: updated.kind, step: 'opportunity', ...statusOf(updated) };
+  return { ok: true, action: move ? 'moved' : 'written' };
 }

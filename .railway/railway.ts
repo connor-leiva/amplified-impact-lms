@@ -109,9 +109,11 @@ export default defineRailway((ctx) => {
       // inert when unset, so they serve the app at every name they are pointed at.
       ...(env === 'production' ? { MARKETING_HOST: `www.${DOMAIN}` } : {}),
       // The /ai101 waitlist's copy into GoHighLevel (D-033). PRODUCTION ONLY: staging has its own
-      // waitlist rows (test sign-ups) and must never write them into the real CRM. The location id
-      // is not a secret (it is in every GHL URL); the token is, and is set in the dashboard.
-      ...(env === 'production' ? { GHL_LOCATION_ID: '4l4e5c7LuLR87EdUv2QK', GHL_TOKEN: preserve() } : {}),
+      // waitlist rows (test sign-ups) and must never write them into the real CRM. Both are set in the
+      // dashboard (D-134): the location moves to Amplified Impact's own sub-account when Connor swaps
+      // it there, and a value written here would put the old one back on the next `config apply`. The
+      // optional GHL_SYNC_ENABLED, GHL_FIELD_*, GHL_PIPELINE_ID and GHL_STAGE_* are dashboard-only too.
+      ...(env === 'production' ? { GHL_LOCATION_ID: preserve(), GHL_TOKEN: preserve() } : {}),
       VITE_DATA_SOURCE: demo ? 'fixture' : 'http',
       VITE_DEMO_MODE: demo ? 'true' : 'false',
       // The /__states and /__tokens specimen routes: a debugging aid, not a feature. Off in

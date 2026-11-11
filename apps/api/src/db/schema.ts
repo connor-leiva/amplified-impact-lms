@@ -143,6 +143,10 @@ export const ai101Waitlist = pgTable('ai101_waitlist', {
   ghlContactId: text('ghl_contact_id'), ghlSyncedAt: ts('ghl_synced_at'),
   ghlAttempts: integer('ghl_attempts').notNull().default(0), ghlNextAttemptAt: ts('ghl_next_attempt_at'),
   ghlError: text('ghl_error'),
+  // D-134: which version of the sync last completed for this row (`syncStamp` in integrations/ghl.ts),
+  // and when the loop last tried it. A row whose stamp differs from today's is synced again once, which
+  // is how new tags, custom fields and the pipeline reach rows that were already in GHL.
+  ghlSyncStamp: text('ghl_sync_stamp'), ghlLastAttemptAt: ts('ghl_last_attempt_at'),
   // Consent (D-034, the /ai101 redesign). Added in the same migration as the GHL columns so the two
   // branches share one. Joining IS email consent plus agreeing to the Terms and Privacy policy, so
   // every row carries those; `terms_version` records WHICH version (null for the sign-ups that
@@ -207,6 +211,7 @@ export const orders = pgTable('orders', {
   paidAt: ts('paid_at'), paymentFailedAt: ts('payment_failed_at'), membershipEndedAt: ts('membership_ended_at'), refundedAt: ts('refunded_at'),
   ghlContactId: text('ghl_contact_id'), ghlSyncedAt: ts('ghl_synced_at'),
   ghlAttempts: integer('ghl_attempts').notNull().default(0), ghlNextAttemptAt: ts('ghl_next_attempt_at'), ghlError: text('ghl_error'),
+  ghlSyncStamp: text('ghl_sync_stamp'), ghlLastAttemptAt: ts('ghl_last_attempt_at'), // D-134, as on ai101_waitlist
   accountId: text('account_id'),
   createdAt: ts('created_at').notNull(),
 }, (t) => [
@@ -225,6 +230,18 @@ export const orders = pgTable('orders', {
 // One row per Stripe event (D-075). Inserted before anything else happens, keyed by Stripe's own id,
 // so a redelivered event that was already processed is skipped. `error` holds a short reason for an
 // event that failed and will be retried by Stripe, never a payload.
+// D-134: a learner's first LMS sign-in, queued for GoHighLevel (`lms-logged-in`, and the LMS Login
+// field when it is configured). One row per learner, ever: the GHL loop adds it on its next tick for
+// any learner with a session or an `active` status, so nothing runs on the sign-in path itself and a GHL
+// outage can never slow a login. `first_login_at` is when the loop first saw it (within a tick of the
+// sign-in itself). The rest are the same bookkeeping columns as `orders`.
+export const ghlLogins = pgTable('ghl_logins', {
+  userId: text('user_id').primaryKey(), firstLoginAt: ts('first_login_at').notNull(),
+  ghlContactId: text('ghl_contact_id'), ghlSyncedAt: ts('ghl_synced_at'),
+  ghlAttempts: integer('ghl_attempts').notNull().default(0), ghlNextAttemptAt: ts('ghl_next_attempt_at'), ghlError: text('ghl_error'),
+  ghlSyncStamp: text('ghl_sync_stamp'), ghlLastAttemptAt: ts('ghl_last_attempt_at'),
+});
+
 export const stripeEvents = pgTable('stripe_events', {
   id: text('id').primaryKey(), type: text('type').notNull(),
   receivedAt: ts('received_at').notNull(), processedAt: ts('processed_at'), error: text('error'),

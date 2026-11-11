@@ -13,14 +13,20 @@
 //     not yet anyone GHL should write to.
 //
 // PRIVACY: row ids, counts and status codes in the log; never a name, an address or a phone number.
+//
+// D-134: the same stamp, custom fields and opportunity as the waitlist's loop (see ghl-sync.ts's
+// header and jobs/ghl-extras.ts). An order already in GHL is synced once more after this ships, so its
+// buyer gets the new `ai-*` alias tags; the claim's LEASE and BATCH are what keep that rate-limited.
 
 import { eq, sql } from 'drizzle-orm';
 import type { Database } from '../db/client';
 import { orders } from '../db/schema';
 import { clock } from '../lib/clock';
-import { buyerTags, syncBuyerContact } from '../integrations/ghl';
+import { buyerTags, syncBuyerContact, syncStamp } from '../integrations/ghl';
 import type { Fetch, GhlConfig, GhlFailureKind } from '../integrations/ghl';
-import { BACKOFF_MS, BATCH, LEASE_MS, MAX_ATTEMPTS, SYSTEMIC_PAUSE_MS, UNAUTHORIZED_PAUSE_MS } from './ghl-sync';
+import { BACKOFF_MS, BATCH, MAX_ATTEMPTS, SYSTEMIC_PAUSE_MS, UNAUTHORIZED_PAUSE_MS, claimSet, dueWhere, noteExtras } from './ghl-sync';
+import { afterContact, extrasError, syncExtras } from './ghl-extras';
+import type { ExtrasTick } from './ghl-extras';
 import type { GhlSyncLog, GhlSyncRun } from './ghl-sync';
 
 const SYSTEMIC: ReadonlySet<GhlFailureKind> = new Set(['unauthorized', 'rate-limited', 'server', 'timeout', 'network']);
@@ -46,17 +52,15 @@ interface ClaimedOrder {
 
 const num = (v: string | number | null): number | null => (v === null ? null : Number(v));
 
-export async function claimDueOrders(db: Database, now: number, batch: number = BATCH): Promise<ClaimedOrder[]> {
+export async function claimDueOrders(db: Database, now: number, batch: number = BATCH, stamp: string | null = null): Promise<ClaimedOrder[]> {
   const rows = (await db.execute(sql`
     update ${orders}
-       set ghl_attempts = ghl_attempts + 1,
-           ghl_next_attempt_at = ${now + LEASE_MS}
+       set ${claimSet(now)}
      where id in (
        select id from ${orders}
-        where ghl_synced_at is null
+        where ${dueWhere(stamp)}
           and status <> 'pending'
           and email is not null
-          and ghl_attempts < ${MAX_ATTEMPTS}
           and (ghl_next_attempt_at is null or ghl_next_attempt_at <= ${now})
         order by created_at, id
         limit ${batch}
@@ -73,8 +77,10 @@ const errorCode = (r: { kind: GhlFailureKind; status?: number; step: string }): 
 export async function runGhlOrderSync(options: { db: Database; log: GhlSyncLog; config: GhlConfig; fetch?: Fetch }): Promise<GhlSyncRun> {
   const { db, log, config } = options;
   const run: GhlSyncRun = { ran: true, claimed: 0, synced: 0, created: 0, failed: 0, gaveUp: 0 };
-  const rows = await claimDueOrders(db, clock.now());
+  const stamp = syncStamp(config);
+  const rows = await claimDueOrders(db, clock.now(), BATCH, stamp);
   run.claimed = rows.length;
+  const tick: ExtrasTick = { scopeBlocked: null };
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]!;
@@ -93,7 +99,7 @@ export async function runGhlOrderSync(options: { db: Database; log: GhlSyncLog; 
     const now = clock.now();
     if (buyerTags(facts).length === 0) {
       // Nothing to say about this order yet (an expired link session with no plan we sell).
-      await db.update(orders).set({ ghlSyncedAt: now, ghlNextAttemptAt: null, ghlError: null }).where(eq(orders.id, row.id));
+      await db.update(orders).set({ ghlSyncedAt: now, ghlSyncStamp: stamp, ghlNextAttemptAt: null, ghlError: null }).where(eq(orders.id, row.id));
       continue;
     }
     const result = await syncBuyerContact(
@@ -102,14 +108,37 @@ export async function runGhlOrderSync(options: { db: Database; log: GhlSyncLog; 
     );
 
     if (result.ok) {
+      // D-134: the fields and the opportunity, now that the contact and its tags are in.
+      const extras = await syncExtras(db, result.contactId, row.email, 'order', { config, ...(options.fetch ? { fetch: options.fetch } : {}) }, tick);
+      const after = afterContact(extras, {
+        now: clock.now(),
+        contactId: result.contactId,
+        stamp,
+        attempts: row.ghl_attempts,
+        backoffMs: BACKOFF_MS,
+        maxAttempts: MAX_ATTEMPTS,
+        pauseMs: { unauthorized: UNAUTHORIZED_PAUSE_MS, systemic: SYSTEMIC_PAUSE_MS },
+      });
       await db
         .update(orders)
-        .set({ ghlContactId: result.contactId, ghlSyncedAt: now, ghlNextAttemptAt: null, ghlError: null })
+        .set({ ...after.set, ...(after.handBack ? { ghlAttempts: sql`greatest(${orders.ghlAttempts} - 1, 0)` } : {}) })
         .where(eq(orders.id, row.id));
       run.synced += 1;
       if (result.created) run.created += 1;
       if (result.tagsDropped.length) {
         log.error({ order: row.id, contact: result.contactId, dropped: result.tagsDropped }, 'GHL dropped tags this buyer already had; restore them in GHL');
+      }
+      if (extras.kind !== 'done') noteExtras(run, log, extras, { order: row.id, attempts: row.ghl_attempts }, after.gaveUp);
+      if (extras.kind === 'systemic') {
+        const deferred = rows.slice(i + 1).map((r) => r.id);
+        for (const id of deferred) {
+          await db
+            .update(orders)
+            .set({ ghlAttempts: sql`greatest(${orders.ghlAttempts} - 1, 0)`, ghlNextAttemptAt: now + SYSTEMIC_PAUSE_MS, ghlError: extrasError(extras.failure) })
+            .where(eq(orders.id, id));
+        }
+        run.paused = { kind: extras.failure.kind, ...(extras.failure.status === undefined ? {} : { status: extras.failure.status }), rowsDeferred: deferred.length };
+        break;
       }
       continue;
     }

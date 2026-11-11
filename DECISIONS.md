@@ -4321,3 +4321,47 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **In Railway:** the apex joins `learn` and `www` in production's domain list in `.railway/railway.ts`. The dashboard and DNS steps are LAUNCH.md § 1b, with a no-code alternative (a path-keeping redirect at the DNS host).
 - **Not changed:** `/agreement`, prices, the marketing pages, `learn`.
 
+
+## D-134 · GoHighLevel: marketing aliases, custom fields, one pipeline, first sign-ins, a sync log, and a pause switch
+
+**Date:** 2026-11-11
+**Approved by:** Ampy (PM for Connor), the GHL brief. Connor's update of 12:26 PM is D-135 (the new sub-account's setup) and D-136 (the dry-run copy), each its own PR.
+
+The existing client, queue and tag-union rules are extended, not rewritten. The app stays the only writer into GHL, on the location in `GHL_LOCATION_ID` (today Spring's). Nothing is sent from GHL, no workflow is created or enrolled, and Stripe is never connected to it.
+
+- **Aliases.** Beside the existing tags, which are unchanged:
+  - `ai-lead-free-skills` on the five free skills' sign-ups.
+  - `ai-buyer-accelerator`, `ai-buyer-insiders`, `ai-buyer-agent-plan` and `ai-buyer-team-plan`, one per plan bought.
+  - `ai-refunded` beside `refunded`, and `ai-canceled` beside `membership-ended`.
+- **Custom fields, only when their id is set.** AI Offer, AI Cohort, AI Amount, AI Purchase Date (America/Chicago) and LMS Login.
+  - They are written with `PUT /contacts/{id}` carrying only `customFields`, after the contact and its tags.
+  - An empty value is never sent, so an existing field is never blanked.
+- **One opportunity per contact, only when the pipeline and stage ids are set.**
+  - It's found by contact and pipeline, created if missing, and written only when something changes.
+  - Its stage comes from everything we hold for the email, so a later free guide never moves a buyer back to a lead.
+  - A refunded opportunity returns to Purchased only when a paid order that isn't refunded exists.
+  - A stage this app doesn't know is left alone by a lead stage.
+  - Purchased is `won`, Refunded and Canceled are `lost`, the rest `open`.
+- **A field or opportunity failure never undoes the contact and its tags.**
+  - The row keeps its contact and retries on the backoff.
+  - A 401 or 403 on those calls (a missing scope) pauses only the extras, without spending attempts.
+  - Any other outage pauses the tick, as before.
+- **First sign-ins: no code on the sign-in path.**
+  - Each tick queues (`ghl_logins`) every learner with a session or an `active` status. That covers email links and invites today, and password sign-in once D-132 merges.
+  - Not `joined`: core sets that at the invite, so it would tag people who never signed in.
+  - The queued learner gets `lms-logged-in`, plus LMS Login when its id is set.
+  - Staff are not queued.
+  - This is also the backfill.
+- **The stamp (`ghl_sync_stamp`) is the backfill for everything else.**
+  - A synced row records a hash of what its sync wrote: the code's version, the location, and the field and pipeline ids.
+  - A row whose stamp differs is sent once more through the same loop: on this release, when Connor adds an id, and when `GHL_LOCATION_ID` moves.
+  - A re-sync starts its attempts at 1. No ids are stored, only hashes.
+- **The sync log.** `/admin/crm-sync` for the Owner and Admins.
+  - Counts per kind, the rows retrying or given up, and the latest activity.
+  - A Retry for a row that gave up resets its attempts and clears its lock.
+  - It's net-new, outside the shell, with no sidebar item, so no golden moves. It's reached by its URL.
+  - Its API never returns an id or the token.
+- **`GHL_SYNC_ENABLED=false`, exactly, pauses the loop.** Anything else changes nothing.
+- **`.railway/railway.ts`**: `GHL_LOCATION_ID` is now `preserve()`, like the token. A value in code would undo Connor's swap on the next `railway config apply`.
+- **Not changed:** `/agreement`, prices, seats, Stripe, and Spring's forms, workflows and pipelines.
+
