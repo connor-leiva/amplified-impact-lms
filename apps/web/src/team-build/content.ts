@@ -131,7 +131,8 @@ export const HOW = {
     { title: 'Live builds', body: 'Wednesdays at 1:00 PM Central, 90 minutes. One outcome each week, plus a harder option if you want it.' },
     { title: 'Office hours', body: 'Thursdays at 1:00 PM Central, 60 minutes. Bring a real file and get unstuck.' },
     { title: 'Goal planning', body: 'Thursday, December 10: a year-end AI goal planning Zoom. Thursday, December 17: a second one, with your agents invited.' },
-    { title: 'Recordings', body: 'Every build is recorded, so a missed week isn’t a lost week.' },
+    // Spring: "recordings in the library" (the offer-pages brief, Nov 11).
+    { title: 'Recordings', body: 'Every build is recorded, and the recordings live in the Library. A missed week isn’t a lost week.' },
     { title: 'Holiday break', body: 'No builds or office hours on December 23 or 30.' },
   ],
 } as const;
