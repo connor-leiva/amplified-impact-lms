@@ -49,6 +49,9 @@ export const router = createBrowserRouter([
   // The AI Accelerator's pages (D-110): net-new and outside the shell for the same reason.
   { path: '/course', lazy: () => import('./routes/course/Course') },
   { path: '/course/:week', lazy: () => import('./routes/course/Course') },
+  // The CRM sync log (D-134): the Owner and Admins only, net-new and outside the shell for the same
+  // reason. A static path, so it ranks above the shell's `admin` children and its catch-all.
+  { path: '/admin/crm-sync', lazy: () => import('./routes/crm/CrmSync') },
   {
     path: '/',
     lazy: () => import('./shell/AppShell'),

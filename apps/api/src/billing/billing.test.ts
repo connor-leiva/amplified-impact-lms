@@ -298,20 +298,20 @@ describe('buyer tags (D-076)', () => {
   const base = { plan: 'cohort', option: 'two_pay', status: 'paid', paidAt: NOW, paymentFailedAt: null, membershipEndedAt: null, refundedAt: null, campaign: null, smsConsent: false, phone: null };
 
   it('tags a buyer by plan and payment, and the forum when it came through /forum', () => {
-    expect(buyerTags(base)).toEqual(['offer-buyer', 'plan-cohort', 'pay-two']);
-    expect(buyerTags({ ...base, option: 'full', campaign: 'forum' })).toEqual(['offer-buyer', 'plan-cohort', 'pay-full', 'event-forum-nov-2026']);
-    expect(buyerTags({ ...base, plan: 'agents', option: 'upto15', status: 'trialing', paidAt: null })).toEqual(['offer-buyer', 'plan-agents']);
+    expect(buyerTags(base)).toEqual(['offer-buyer', 'plan-cohort', 'pay-two', 'ai-buyer-accelerator']);
+    expect(buyerTags({ ...base, option: 'full', campaign: 'forum' })).toEqual(['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator', 'event-forum-nov-2026']);
+    expect(buyerTags({ ...base, plan: 'agents', option: 'upto15', status: 'trialing', paidAt: null })).toEqual(['offer-buyer', 'plan-agents', 'ai-buyer-team-plan']);
   });
 
   it('tags an Amplified Agent Plan buyer as plan-agent-plan, by how they pay (D-106)', () => {
-    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'monthly', status: 'trialing', paidAt: null })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-monthly']);
-    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'yearly', status: 'trialing', paidAt: null, campaign: 'forum' })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-yearly', 'event-forum-nov-2026']);
+    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'monthly', status: 'trialing', paidAt: null })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-monthly', 'ai-buyer-agent-plan']);
+    expect(buyerTags({ ...base, plan: 'agent_plan', option: 'yearly', status: 'trialing', paidAt: null, campaign: 'forum' })).toEqual(['offer-buyer', 'plan-agent-plan', 'pay-yearly', 'ai-buyer-agent-plan', 'event-forum-nov-2026']);
     expect(buyerTags({ ...base, plan: 'agent_plan', option: 'monthly', paymentFailedAt: NOW })).toContain('payment-failed');
   });
 
   it('tags an Amplified Insiders buyer by how they pay (D-104)', () => {
-    expect(buyerTags({ ...base, plan: 'membership', option: 'year_upfront' })).toEqual(['offer-buyer', 'plan-membership', 'pay-year']);
-    expect(buyerTags({ ...base, plan: 'membership', option: 'monthly' })).toEqual(['offer-buyer', 'plan-membership', 'pay-monthly']);
+    expect(buyerTags({ ...base, plan: 'membership', option: 'year_upfront' })).toEqual(['offer-buyer', 'plan-membership', 'pay-year', 'ai-buyer-insiders']);
+    expect(buyerTags({ ...base, plan: 'membership', option: 'monthly' })).toEqual(['offer-buyer', 'plan-membership', 'pay-monthly', 'ai-buyer-insiders']);
   });
 
   it('adds the follow-up tags as things happen, and never tags a pending order', () => {

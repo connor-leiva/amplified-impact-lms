@@ -32,14 +32,26 @@
 //
 // PRIVACY. Log lines carry row ids, counts, status codes and tag names — never a first name or an
 // email address, and never a GHL response body. The CRM contact id is logged; it is an opaque key.
+//
+// D-134 ADDS:
+//   - THE STAMP. A synced row also records `syncStamp(config)`; a row whose stamp is not today's is
+//     claimed again, once, like an unsynced one. That re-sends rows synced before the aliases, and
+//     again whenever Connor sets a field or pipeline id or moves `GHL_LOCATION_ID`. Its earlier
+//     attempts don't count against it: it starts again at 1.
+//   - THE EXTRAS (jobs/ghl-extras.ts): custom fields and the opportunity, after the contact and tags.
+//   - LOGINS (jobs/ghl-logins.ts): a learner's first sign-in, after the buyers, on the same tick.
+//   - THE PAUSE: `GHL_SYNC_ENABLED=false` does not start the loop.
 
 import { sql, eq } from 'drizzle-orm';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { ai101Waitlist } from '../db/schema';
 import { clock } from '../lib/clock';
-import { readGhlConfig, syncWaitlistContact } from '../integrations/ghl';
+import { ghlSyncPaused, readGhlConfig, syncStamp, syncWaitlistContact } from '../integrations/ghl';
 import { runGhlOrderSync } from './ghl-orders';
+import { enqueueLogins, runGhlLoginSync } from './ghl-logins';
+import { afterContact, syncExtras } from './ghl-extras';
+import type { ExtrasOutcome, ExtrasTick } from './ghl-extras';
 import type { Fetch, GhlConfig, GhlFailureKind } from '../integrations/ghl';
 
 /** Rows claimed per tick. Sequential calls at a few hundred ms each: a room's sign-ups in minutes. */
@@ -94,6 +106,13 @@ export interface GhlSyncRun {
   gaveUp: number;
   /** Set when the tick stopped early on a systemic failure. */
   paused?: { kind: GhlFailureKind; status?: number; rowsDeferred: number };
+  /**
+   * D-134: rows whose contact and tags went in but whose fields or opportunity did not. They keep
+   * their contact and are tried again: `extrasFailed` on their own backoff, `extrasDeferred` after a
+   * pause (a missing scope, or GHL unavailable), without using an attempt.
+   */
+  extrasFailed?: number;
+  extrasDeferred?: number;
 }
 
 interface ClaimedRow {
@@ -114,16 +133,32 @@ interface ClaimedRow {
   created_at: string | number;
 }
 
-/** Step 1: claim due rows, atomically, and commit. Exported for the test of the claim itself. */
-export async function claimDueRows(db: Database, now: number, batch: number = BATCH): Promise<ClaimedRow[]> {
+/**
+ * D-134: the claim's shared pieces. A row is due when it was never synced, or (given today's stamp)
+ * when its stamp differs. A row that completed a sync starts its attempts again at 1, so a re-sync is
+ * never refused for attempts an earlier sync used; one that is mid-retry keeps counting.
+ */
+export const dueWhere = (stamp: string | null) =>
+  stamp === null
+    ? sql`ghl_synced_at is null and ghl_attempts < ${MAX_ATTEMPTS}`
+    : sql`(ghl_synced_at is null or ghl_sync_stamp is distinct from ${stamp})
+          and (ghl_attempts < ${MAX_ATTEMPTS} or (ghl_synced_at is not null and ghl_error is null))`;
+export const claimSet = (now: number) =>
+  sql`ghl_attempts = case when ghl_synced_at is not null and ghl_error is null then 1 else ghl_attempts + 1 end,
+      ghl_next_attempt_at = ${now + LEASE_MS},
+      ghl_last_attempt_at = ${now}`;
+
+/**
+ * Step 1: claim due rows, atomically, and commit. Exported for the test of the claim itself. `stamp`
+ * is today's `syncStamp`; without one, only rows never synced are due, as before D-134.
+ */
+export async function claimDueRows(db: Database, now: number, batch: number = BATCH, stamp: string | null = null): Promise<ClaimedRow[]> {
   const rows = (await db.execute(sql`
     update ${ai101Waitlist}
-       set ghl_attempts = ghl_attempts + 1,
-           ghl_next_attempt_at = ${now + LEASE_MS}
+       set ${claimSet(now)}
      where id in (
        select id from ${ai101Waitlist}
-        where ghl_synced_at is null
-          and ghl_attempts < ${MAX_ATTEMPTS}
+        where ${dueWhere(stamp)}
           and (ghl_next_attempt_at is null or ghl_next_attempt_at <= ${now})
         order by created_at, id
         limit ${batch}
@@ -147,8 +182,10 @@ export async function runGhlSync(options: GhlSyncOptions = {}): Promise<GhlSyncR
 
   const db = options.db ?? getDb();
   const log = options.log ?? CONSOLE_LOG;
-  const rows = await claimDueRows(db, clock.now());
+  const stamp = syncStamp(config);
+  const rows = await claimDueRows(db, clock.now(), BATCH, stamp);
   run.claimed = rows.length;
+  const tick: ExtrasTick = { scopeBlocked: null };
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]!;
@@ -169,9 +206,20 @@ export async function runGhlSync(options: GhlSyncOptions = {}): Promise<GhlSyncR
     const now = clock.now();
 
     if (result.ok) {
+      // D-134: the fields and the opportunity, now that the contact and its tags are in.
+      const extras = await syncExtras(db, result.contactId, row.email, 'waitlist', { config, ...(options.fetch ? { fetch: options.fetch } : {}) }, tick);
+      const after = afterContact(extras, {
+        now: clock.now(),
+        contactId: result.contactId,
+        stamp,
+        attempts: row.ghl_attempts,
+        backoffMs: BACKOFF_MS,
+        maxAttempts: MAX_ATTEMPTS,
+        pauseMs: { unauthorized: UNAUTHORIZED_PAUSE_MS, systemic: SYSTEMIC_PAUSE_MS },
+      });
       await db
         .update(ai101Waitlist)
-        .set({ ghlContactId: result.contactId, ghlSyncedAt: now, ghlNextAttemptAt: null, ghlError: null })
+        .set({ ...after.set, ...(after.handBack ? { ghlAttempts: sql`greatest(${ai101Waitlist.ghlAttempts} - 1, 0)` } : {}) })
         .where(eq(ai101Waitlist.id, row.id));
       run.synced += 1;
       if (result.created) run.created += 1;
@@ -182,6 +230,12 @@ export async function runGhlSync(options: GhlSyncOptions = {}): Promise<GhlSyncR
           { row: row.id, contact: result.contactId, dropped: result.tagsDropped },
           'GHL dropped tags this contact already had; restore them in GHL',
         );
+      }
+      if (extras.kind !== 'done') noteExtras(run, log, extras, { row: row.id, attempts: row.ghl_attempts }, after.gaveUp);
+      if (extras.kind === 'systemic') {
+        await deferRest(db, rows.slice(i + 1).map((r) => r.id), now + SYSTEMIC_PAUSE_MS, `${extras.failure.step}:${extras.failure.kind}${extras.failure.status === undefined ? '' : `:${extras.failure.status}`}`);
+        run.paused = { kind: extras.failure.kind, ...(extras.failure.status === undefined ? {} : { status: extras.failure.status }), rowsDeferred: rows.length - i - 1 };
+        break;
       }
       continue;
     }
@@ -234,6 +288,55 @@ export async function runGhlSync(options: GhlSyncOptions = {}): Promise<GhlSyncR
   return run;
 }
 
+/** Hand back the attempts of rows a tick claimed and did not reach, and pause them. */
+async function deferRest(db: Database, ids: readonly string[], until: number, error: string): Promise<void> {
+  for (const id of ids) {
+    await db
+      .update(ai101Waitlist)
+      .set({ ghlAttempts: sql`greatest(${ai101Waitlist.ghlAttempts} - 1, 0)`, ghlNextAttemptAt: until, ghlError: error })
+      .where(eq(ai101Waitlist.id, id));
+  }
+}
+
+/**
+ * D-134: count and log a row whose contact and tags went in but whose fields or opportunity did not.
+ * Shared with the buyers' and logins' loops. Ids, kinds and status codes only.
+ */
+export function noteExtras(
+  run: GhlSyncRun,
+  log: GhlSyncLog,
+  extras: Exclude<ExtrasOutcome, { kind: 'done' }>,
+  ids: Record<string, unknown>,
+  gaveUp: boolean,
+): void {
+  const where = { ...ids, step: extras.failure.step, kind: extras.failure.kind, status: extras.failure.status };
+  if (extras.kind === 'row') {
+    run.extrasFailed = (run.extrasFailed ?? 0) + 1;
+    log[gaveUp ? 'error' : 'warn'](where, gaveUp ? 'GHL refused a custom field or opportunity on its last attempt; the contact and its tags are in GHL' : 'GHL refused a custom field or opportunity; the contact and its tags are in GHL, and it will be retried');
+    return;
+  }
+  run.extrasDeferred = (run.extrasDeferred ?? 0) + 1;
+  // Once per tick for a missing scope: every row after the first carries the same reason.
+  if (extras.kind === 'scope' && run.extrasDeferred === 1)
+    log.error(where, 'GHL rejected the token for custom fields or opportunities (check its scopes); contacts and tags still sync, and these retry after a pause');
+  if (extras.kind === 'systemic') log.warn(where, 'GHL is unavailable for custom fields or opportunities; paused, nothing lost');
+}
+
+/**
+ * One whole tick, as the loop runs it: the sign-ups, then the offer's buyers (D-076), then learners'
+ * first sign-ins (D-134), queued from the database just before. Same token, one after the other.
+ */
+export async function runGhlTick(options: GhlSyncOptions & { config: GhlConfig }): Promise<{ waitlist: GhlSyncRun; buyers: GhlSyncRun; queued: number; logins: GhlSyncRun }> {
+  const db = options.db ?? getDb();
+  const log = options.log ?? CONSOLE_LOG;
+  const shared = { db, log, config: options.config, ...(options.fetch ? { fetch: options.fetch } : {}) };
+  const waitlist = await runGhlSync(shared);
+  const buyers = await runGhlOrderSync(shared);
+  const queued = await enqueueLogins(db, clock.now());
+  const logins = await runGhlLoginSync(shared);
+  return { waitlist, buyers, queued, logins };
+}
+
 export interface GhlSync {
   readonly running: boolean;
   stop(): Promise<void>;
@@ -242,6 +345,8 @@ export interface GhlSync {
 export interface StartGhlSyncOptions extends GhlSyncOptions {
   /** Whether a database is configured, as server.ts already computes it for the waitlist. */
   waitlist: boolean;
+  /** D-134: defaults to `ghlSyncPaused()`, true only for `GHL_SYNC_ENABLED=false`. */
+  paused?: boolean;
   intervalMs?: number;
   signals?: readonly NodeJS.Signals[];
 }
@@ -257,6 +362,10 @@ const OFF: GhlSync = { running: false, stop: async () => {} };
 export function startGhlSync(options: StartGhlSyncOptions): GhlSync {
   const log = options.log ?? CONSOLE_LOG;
   if (!options.waitlist) return OFF;
+  if (options.paused ?? ghlSyncPaused()) {
+    log.info({}, 'GHL sync paused: GHL_SYNC_ENABLED is false. Rows wait in the database and sync when it is unset');
+    return OFF;
+  }
   const config = options.config === undefined ? readGhlConfig() : options.config;
   if (!config) {
     log.info({}, 'GHL sync not started: GHL_TOKEN and GHL_LOCATION_ID are not both set');
@@ -269,12 +378,12 @@ export function startGhlSync(options: StartGhlSyncOptions): GhlSync {
 
   const fire = (): void => {
     if (inFlight) return; // a tick that outlasts the interval is a slow GHL, not news
-    inFlight = runGhlSync({ ...options, config, log })
-      .then(async (run) => {
-        if (run.claimed > 0) log.info({ ...run, paused: run.paused?.kind }, 'GHL sync tick');
-        // The offer's buyers (D-076), after the sign-ups, on the same tick and the same token.
-        const buyers = await runGhlOrderSync({ db: options.db ?? getDb(), log, config, ...(options.fetch ? { fetch: options.fetch } : {}) });
-        if (buyers.claimed > 0) log.info({ ...buyers, paused: buyers.paused?.kind }, 'GHL buyer sync tick');
+    inFlight = runGhlTick({ ...options, config, log })
+      .then((t) => {
+        if (t.waitlist.claimed > 0) log.info({ ...t.waitlist, paused: t.waitlist.paused?.kind }, 'GHL sync tick');
+        if (t.buyers.claimed > 0) log.info({ ...t.buyers, paused: t.buyers.paused?.kind }, 'GHL buyer sync tick');
+        if (t.queued > 0) log.info({ queued: t.queued }, 'GHL login sync queued first sign-ins');
+        if (t.logins.claimed > 0) log.info({ ...t.logins, paused: t.logins.paused?.kind }, 'GHL login sync tick');
       })
       .then(
         () => {},

@@ -1,0 +1,216 @@
+/* /admin/crm-sync: net-new (D-134), outside the shell like /course. No reference file, so the values
+   are the house ones /course and /skill-library use: radius 8, 10 and 12, a 1px --line-default border,
+   --bg-surface panels on --bg-canvas. Tokens only. A table scrolls inside its panel on a phone. */
+
+.page {
+  min-height: 100dvh;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--text-link);
+}
+.back:hover {
+  color: var(--text-link-hover);
+}
+.h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 600;
+}
+.sub {
+  margin: 0;
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+.spin {
+  animation: ai-spin 0.9s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
+.notice {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  min-width: 0;
+}
+.h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.empty {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.fact {
+  display: grid;
+  gap: 2px;
+}
+.fact dt {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.fact dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 20px;
+}
+.table th,
+.table td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--line-subtle);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.table thead th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.table tbody th {
+  font-weight: 600;
+}
+.table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.email {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+}
+.success {
+  border-color: var(--status-success-line);
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+}
+.neutral {
+  border-color: var(--status-neutral-line);
+  background: var(--status-neutral-bg);
+  color: var(--status-neutral-text);
+}
+.progress {
+  border-color: var(--status-progress-line);
+  background: var(--status-progress-bg);
+  color: var(--status-progress-text);
+}
+.attention {
+  border-color: var(--status-attention-line);
+  background: var(--status-attention-bg);
+  color: var(--status-attention-text);
+}
+
+.button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--action-secondary-line);
+  border-radius: 8px;
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.button:hover {
+  background: var(--action-secondary-hover);
+}
+
+/* Visible focus on everything a keyboard reaches, the house ring /course uses. A table that scrolls
+   sideways is focusable itself, so a keyboard can scroll it. */
+.back:focus-visible,
+.button:focus-visible,
+.scroll:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (min-width: 720px) {
+  .facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

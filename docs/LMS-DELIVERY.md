@@ -55,6 +55,12 @@ how they pay: `pay-full`, `pay-two`, `pay-year` (Insiders' year), `pay-monthly` 
 Plan monthly), `pay-yearly` (the Agent Plan yearly). Follow-ups add `payment-failed`, `membership-ended`,
 `refunded` and `event-forum-nov-2026`. New in D-106: `plan-agent-plan` and `pay-yearly`.
 
+D-134 adds marketing aliases beside those, which stay as they are: `ai-buyer-accelerator`,
+`ai-buyer-insiders`, `ai-buyer-agent-plan` and `ai-buyer-team-plan` (one per plan bought),
+`ai-refunded` beside `refunded`, `ai-canceled` beside `membership-ended`, `ai-lead-free-skills` on a
+sign-up for any of the five free skills, and `lms-logged-in` after a learner's first sign-in. The
+README's "GoHighLevel" section has the rest.
+
 ## The solo agent
 
 An Agent Plan buyer is the Team Owner of a team of one, at Agent tier. The account model needs a team:

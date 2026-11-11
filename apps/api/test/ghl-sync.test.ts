@@ -5,9 +5,16 @@
 // nothing it logs carries a visitor's name or address. The HTTP shape is integrations/ghl.test.ts's.
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { ai101Waitlist } from '../src/db/schema';
-import { BACKOFF_MS, LEASE_MS, MAX_ATTEMPTS, SYSTEMIC_PAUSE_MS, UNAUTHORIZED_PAUSE_MS, claimDueRows, runGhlSync, startGhlSync } from '../src/jobs/ghl-sync';
+import { seedForDatabase } from '@ai/core';
+import { build } from '../src/app';
+import { settleEmails } from '../src/auth';
+import { outbox, resetOutbox } from '../src/email/transport';
+import { ai101Waitlist, authSessions, ghlLogins, orders, users } from '../src/db/schema';
+import { BACKOFF_MS, LEASE_MS, MAX_ATTEMPTS, SYSTEMIC_PAUSE_MS, UNAUTHORIZED_PAUSE_MS, claimDueRows, runGhlSync, runGhlTick, startGhlSync } from '../src/jobs/ghl-sync';
+import { enqueueLogins, runGhlLoginSync } from '../src/jobs/ghl-logins';
+import { fakeCrm } from './fake-ghl';
 import type { GhlSyncLog } from '../src/jobs/ghl-sync';
+import { syncStamp } from '../src/integrations/ghl';
 import type { Fetch, GhlConfig } from '../src/integrations/ghl';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -107,7 +114,8 @@ describe('the GHL sync job @g9', () => {
   });
 
   it('never sends a synced sign-up again', async () => {
-    await insert(signUp('wl1', 'a@example.com', NOW - 1000, { ghlSyncedAt: NOW - 500, ghlContactId: 'c-old', ghlAttempts: 1 }));
+    // Synced by TODAY's sync (D-134's stamp): nothing to send. See the stamp tests below for a stale one.
+    await insert(signUp('wl1', 'a@example.com', NOW - 1000, { ghlSyncedAt: NOW - 500, ghlContactId: 'c-old', ghlAttempts: 1, ghlSyncStamp: syncStamp(config) }));
     const ghl = fakeGhl();
     const run = await runGhlSync({ db: await testDatabase(), config, fetch: ghl.fetch });
     expect(run.claimed).toBe(0);
@@ -302,5 +310,266 @@ describe('the GHL sync job @g9', () => {
     expect(armed.running).toBe(true);
     await armed.stop();
     expect(armed.running).toBe(false);
+  });
+});
+
+// --- D-134: the stamp, the extras, first sign-ins and the pause ---------------------------------------
+
+const FIELDS = { offer: 'f-offer', cohort: 'f-cohort', amount: 'f-amount', purchaseDate: 'f-date', lmsLogin: 'f-login' };
+const PIPELINE = { id: 'p1', stages: { lead: 's-lead', freeSkills: 's-free', checkoutStarted: 's-checkout', purchased: 's-buy', canceled: 's-gone', refunded: 's-gone' } };
+const full: GhlConfig = { ...config, fields: FIELDS, pipeline: PIPELINE };
+
+/** An order as the webhook leaves it. */
+async function order(id: string, email: string, extra: Partial<typeof orders.$inferInsert> = {}) {
+  await (await testDatabase()).insert(orders).values({
+    id, plan: 'cohort', option: 'full', origin: 'payment_link', status: 'paid', name: 'Pat Buyer', email,
+    amountTotal: 99700, paidAt: NOW - 60_000, createdAt: NOW - 120_000, ...extra,
+  });
+}
+const orderRow = async (id: string) => (await (await testDatabase()).select().from(orders).where(eq(orders.id, id)))[0]!;
+const loginRow = async (userId: string) => (await (await testDatabase()).select().from(ghlLogins).where(eq(ghlLogins.userId, userId)))[0];
+const writes = (calls: { method: string; path: string }[]) => calls.filter((c) => c.method !== 'GET');
+
+describe('D-134: the stamp re-syncs what was already in GHL, once @g9', () => {
+  it('sends a sign-up synced before this shipped again, with its new pack tag, and then never again', async () => {
+    await insert(signUp('wl1', 'free@example.com', NOW - 1000, { source: 'perfect-week', src: null, ghlSyncedAt: NOW - 500, ghlContactId: 'c-old', ghlAttempts: 6 }));
+    const db = await testDatabase();
+    const crm = fakeCrm();
+    expect(await runGhlSync({ db, config, fetch: crm.fetch, log: capture() })).toMatchObject({ claimed: 1, synced: 1 });
+    expect(crm.tagsOf('free@example.com')).toEqual(['perfect-week', 'ai-lead-free-skills', 'src-direct']);
+    // Its earlier attempts don't count against the re-sync: it starts again at 1.
+    expect(await row('wl1')).toMatchObject({ ghlSyncStamp: syncStamp(config), ghlAttempts: 1, ghlError: null, ghlLastAttemptAt: NOW });
+    expect((await runGhlSync({ db, config, fetch: crm.fetch, log: capture() })).claimed).toBe(0);
+  });
+
+  it('re-sends a paid order already in GHL so its buyer gets the alias, and again when Connor adds a field id', async () => {
+    await order('o1', 'pat@example.com', { ghlSyncedAt: NOW - 500, ghlContactId: 'c-old', ghlAttempts: 1 });
+    const db = await testDatabase();
+    const crm = fakeCrm();
+    await runGhlTick({ db, config, fetch: crm.fetch, log: capture() });
+    expect(crm.tagsOf('pat@example.com')).toEqual(['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator']);
+    expect(await orderRow('o1')).toMatchObject({ ghlSyncStamp: syncStamp(config), ghlError: null });
+    // Nothing configured for fields or a pipeline: no call beyond the contact and its tags.
+    expect(crm.calls.map((c) => `${c.method} ${c.path.split('?')[0]}`)).toEqual(['POST /contacts/upsert', `POST /contacts/${crm.calls[1]!.path.split('/')[2]}/tags`]);
+
+    // Connor sets GHL_FIELD_OFFER: the stamp changes, so the order goes once more and the field is written.
+    const withOffer: GhlConfig = { ...config, fields: { offer: 'f-offer' } };
+    await runGhlTick({ db, config: withOffer, fetch: crm.fetch, log: capture() });
+    expect(crm.fieldsOf('pat@example.com')).toEqual({ 'f-offer': 'Amplified AI Accelerator' });
+    expect(await orderRow('o1')).toMatchObject({ ghlSyncStamp: syncStamp(withOffer) });
+  });
+});
+
+describe('D-134: custom fields and the opportunity @g9', () => {
+  it('writes the order’s fields and creates its opportunity, then writes nothing on a second sync', async () => {
+    await order('o1', 'pat@example.com');
+    const db = await testDatabase();
+    const crm = fakeCrm();
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log: capture() });
+    expect(crm.fieldsOf('pat@example.com')).toEqual({ 'f-offer': 'Amplified AI Accelerator', 'f-cohort': 'dec26', 'f-amount': 997, 'f-date': '2026-10-08' });
+    expect(crm.oppOf('pat@example.com')).toMatchObject({ pipelineId: 'p1', pipelineStageId: 's-buy', status: 'won', name: 'Amplified AI Accelerator', monetaryValue: 997 });
+    expect(await orderRow('o1')).toMatchObject({ ghlSyncStamp: syncStamp(full), ghlError: null });
+
+    // The webhook re-queues the same order with nothing new: tags and fields again (idempotent), no opportunity write.
+    await (await testDatabase()).update(orders).set({ ghlSyncedAt: null, ghlAttempts: 0 }).where(eq(orders.id, 'o1'));
+    const before = crm.calls.length;
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log: capture() });
+    expect(writes(crm.calls.slice(before)).filter((c) => c.path.startsWith('/opportunities'))).toEqual([]);
+  });
+
+  it('moves the opportunity to Refunded on a refund, and a later free guide never moves it back to a lead', async () => {
+    await order('o1', 'pat@example.com');
+    const db = await testDatabase();
+    const crm = fakeCrm();
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log: capture() });
+    // The webhook's refund: `refunded`, and back to the queue.
+    await db.update(orders).set({ status: 'refunded', refundedAt: NOW, ghlSyncedAt: null, ghlAttempts: 0 }).where(eq(orders.id, 'o1'));
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log: capture() });
+    expect(crm.oppOf('pat@example.com')).toMatchObject({ pipelineStageId: 's-gone', status: 'lost' });
+    expect(crm.tagsOf('pat@example.com')).toEqual(expect.arrayContaining(['refunded', 'ai-refunded']));
+    // A free skill sign-up for the same address: the pack tag, and the opportunity stays put.
+    await insert(signUp('wl1', 'pat@example.com', NOW, { source: 'ai-brain-setup', src: null }));
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log: capture() });
+    expect(crm.tagsOf('pat@example.com')).toContain('ai-lead-free-skills');
+    expect(crm.oppOf('pat@example.com')).toMatchObject({ pipelineStageId: 's-gone' });
+    // A new paid order that is not refunded brings it back to Purchased.
+    await order('o2', 'pat@example.com', { plan: 'agent_plan', option: 'monthly', amountTotal: 9700, paidAt: NOW, createdAt: NOW });
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log: capture() });
+    expect(crm.oppOf('pat@example.com')).toMatchObject({ pipelineStageId: 's-buy', status: 'won', name: 'Amplified Agent Plan' });
+  });
+
+  it('a sign-up with no order becomes a lead in Free Skills; one with an order is left to the order', async () => {
+    await insert(signUp('wl1', 'lead@example.com', NOW - 1000, { source: 'voice-profile', src: null }), signUp('wl2', 'list@example.com', NOW - 500));
+    const crm = fakeCrm();
+    await runGhlTick({ db: await testDatabase(), config: full, fetch: crm.fetch, log: capture() });
+    expect(crm.oppOf('lead@example.com')).toMatchObject({ pipelineStageId: 's-free', status: 'open', name: 'Amplified Impact' });
+    expect(crm.oppOf('list@example.com')).toMatchObject({ pipelineStageId: 's-lead' });
+    // A sign-up writes no fields: it has no purchase to put in them.
+    expect(crm.calls.filter((c) => c.method === 'PUT' && c.path.startsWith('/contacts/'))).toEqual([]);
+  });
+
+  it('keeps the contact and its tags when GHL refuses a field, and retries the field on the backoff', async () => {
+    await order('o1', 'pat@example.com');
+    const db = await testDatabase();
+    const log = capture();
+    const refusing = fakeCrm({ fields: 422 });
+    const run = await runGhlTick({ db, config: full, fetch: refusing.fetch, log });
+    expect(refusing.tagsOf('pat@example.com')).toContain('ai-buyer-accelerator');
+    // In GHL: synced, with its contact. Not stamped: the field is still owed.
+    expect(await orderRow('o1')).toMatchObject({ ghlSyncedAt: NOW, ghlContactId: 'c-1', ghlSyncStamp: null, ghlError: 'fields:rejected:422', ghlNextAttemptAt: NOW + BACKOFF_MS[0]! });
+    expect(log.lines.some((l) => l.includes('the contact and its tags are in GHL'))).toBe(true);
+    expect(run).toBeDefined();
+
+    setNow(NOW + BACKOFF_MS[0]!);
+    const fixed = fakeCrm();
+    await runGhlTick({ db, config: full, fetch: fixed.fetch, log: capture() });
+    expect(await orderRow('o1')).toMatchObject({ ghlSyncStamp: syncStamp(full), ghlError: null, ghlNextAttemptAt: null });
+    expect(fixed.fieldsOf('pat@example.com')['f-offer']).toBe('Amplified AI Accelerator');
+  });
+
+  it('on a 403 for the fields (a missing scope), keeps syncing contacts and tags, skips the extras, and burns no attempt', async () => {
+    await order('o1', 'a@example.com', { createdAt: NOW - 3000 });
+    await order('o2', 'b@example.com', { createdAt: NOW - 2000 });
+    const db = await testDatabase();
+    const log = capture();
+    const crm = fakeCrm({ fields: 403 });
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log });
+    for (const [id, email] of [['o1', 'a@example.com'], ['o2', 'b@example.com']] as const) {
+      expect(crm.tagsOf(email), email).toContain('offer-buyer');
+      expect(await orderRow(id), id).toMatchObject({ ghlSyncedAt: NOW, ghlSyncStamp: null, ghlAttempts: 0, ghlError: 'fields:unauthorized:403', ghlNextAttemptAt: NOW + UNAUTHORIZED_PAUSE_MS });
+    }
+    // One field call, the first; the second order's extras were skipped for the rest of the tick.
+    expect(crm.calls.filter((c) => c.method === 'PUT' && c.path.startsWith('/contacts/'))).toHaveLength(1);
+    expect(log.lines.filter((l) => l.startsWith('error') && l.includes('scopes'))).toHaveLength(1);
+  });
+
+  it('pauses the rest of the tick when the pipeline is unavailable, without using anyone’s attempts', async () => {
+    await order('o1', 'a@example.com', { createdAt: NOW - 3000 });
+    await order('o2', 'b@example.com', { createdAt: NOW - 2000 });
+    const db = await testDatabase();
+    const crm = fakeCrm({ search: 503 });
+    await runGhlTick({ db, config: full, fetch: crm.fetch, log: capture() });
+    expect(await orderRow('o1')).toMatchObject({ ghlSyncedAt: NOW, ghlSyncStamp: null, ghlAttempts: 0, ghlError: 'opportunity:server:503', ghlNextAttemptAt: NOW + SYSTEMIC_PAUSE_MS });
+    // The second order was claimed and never reached: handed back and paused, contact not even written.
+    expect(await orderRow('o2')).toMatchObject({ ghlSyncedAt: null, ghlAttempts: 0, ghlNextAttemptAt: NOW + SYSTEMIC_PAUSE_MS });
+    expect(crm.calls.filter((c) => c.body?.email === 'b@example.com')).toEqual([]);
+  });
+
+  it('never logs a name, an address, the token or an id from the environment on the new paths', async () => {
+    await order('o1', 'zelda@example.com', { name: 'Zelda Hyrule', phone: '+18605559999', createdAt: NOW - 3000 });
+    await order('o2', 'link@example.com', { name: 'Link Kokiri', createdAt: NOW - 2000 });
+    const db = await testDatabase();
+    const log = capture();
+    await runGhlTick({ db, config: full, fetch: fakeCrm({ fields: 422 }).fetch, log });
+    setNow(NOW + 3600_000);
+    await runGhlTick({ db, config: full, fetch: fakeCrm({ fields: 403 }).fetch, log });
+    setNow(NOW + 7200_000);
+    await runGhlTick({ db, config: full, fetch: fakeCrm({ search: 503 }).fetch, log });
+    expect(log.lines.length).toBeGreaterThan(0);
+    for (const line of log.lines)
+      for (const pii of ['zelda@example.com', 'link@example.com', 'Zelda', 'Hyrule', 'Link Kokiri', 'pit-test-token-123', '8605559999', 'f-offer', 's-buy', 'loc-abc']) expect(line).not.toContain(pii);
+  });
+});
+
+describe('D-134: a learner’s first sign-in @g9', () => {
+  async function people() {
+    const db = await testDatabase();
+    await db.insert(users).values([
+      { id: 'u-joined', email: 'joined@example.com', name: 'Joan Joined', kind: 'learner', status: 'active', joined: NOW - 5000 },
+      { id: 'u-session', email: 'session@example.com', name: 'Sam', kind: 'learner', status: 'active' },
+      // Invited, with the `joined` date core gives every invite, and never signed in.
+      { id: 'u-invited', email: 'invited@example.com', name: 'Ivy Invited', kind: 'learner', status: 'invited', joined: NOW - 9000 },
+      { id: 'u-staff', email: 'staff@example.com', name: 'Casey Staff', kind: 'staff', staffRole: 'Owner' },
+    ]);
+    await db.insert(authSessions).values([
+      { id: 's1', userId: 'u-session', expiresAt: new Date(NOW + 86_400_000) },
+      { id: 's2', userId: 'u-staff', expiresAt: new Date(NOW + 86_400_000) },
+    ]);
+    return db;
+  }
+
+  it('queues every learner who has signed in, once, and never a staff member or someone only invited', async () => {
+    const db = await people();
+    expect(await enqueueLogins(db, NOW)).toBe(2);
+    expect(await enqueueLogins(db, NOW + 1000)).toBe(0);
+    expect(await loginRow('u-joined')).toMatchObject({ firstLoginAt: NOW, ghlSyncedAt: null });
+    expect(await loginRow('u-session')).toMatchObject({ firstLoginAt: NOW });
+    expect(await loginRow('u-invited')).toBeUndefined();
+    expect(await loginRow('u-staff')).toBeUndefined();
+  });
+
+  it('tags lms-logged-in and sets LMS Login when its id is set, once per learner', async () => {
+    const db = await people();
+    await enqueueLogins(db, NOW);
+    const crm = fakeCrm();
+    const run = await runGhlLoginSync({ db, log: capture(), config: full, fetch: crm.fetch });
+    expect(run).toMatchObject({ claimed: 2, synced: 2 });
+    expect(crm.tagsOf('joined@example.com')).toEqual(['lms-logged-in']);
+    expect(crm.fieldsOf('joined@example.com')).toEqual({ 'f-login': 'signed-in' });
+    // No opportunity for a sign-in: the orders decide that.
+    expect(crm.calls.filter((c) => c.path.startsWith('/opportunities'))).toEqual([]);
+    expect(await loginRow('u-joined')).toMatchObject({ ghlSyncStamp: syncStamp(full), ghlError: null });
+    expect((await runGhlLoginSync({ db, log: capture(), config: full, fetch: crm.fetch })).claimed).toBe(0);
+    // Without the field's id: the tag alone.
+    await (await testDatabase()).update(ghlLogins).set({ ghlSyncedAt: null });
+    const tagOnly = fakeCrm();
+    await runGhlLoginSync({ db, log: capture(), config, fetch: tagOnly.fetch });
+    expect(tagOnly.calls.filter((c) => c.method === 'PUT')).toEqual([]);
+  });
+
+  it('runs on the loop’s own tick: a sign-in by email link succeeds while GHL is down, and reaches GHL after', async () => {
+    await resetDatabase(seedForDatabase('live'));
+    process.env.APP_URL = 'https://learn.example.com';
+    resetOutbox();
+    const app = await build({ logger: false });
+    const down = (async () => {
+      throw new Error('connect ECONNREFUSED');
+    }) as Fetch;
+    const sync = startGhlSync({ waitlist: true, config, db: await testDatabase(), fetch: down, log: capture(), signals: [], intervalMs: 5 });
+    try {
+      const requested = await app.inject({ method: 'POST', url: '/api/auth/request', payload: { email: 'jamie@ortizhomes.com' } });
+      expect(requested.statusCode).toBe(200);
+      await settleEmails();
+      const token = outbox().find((m) => m.template === 'sign-in')!.data.token as string;
+      const verified = await app.inject({ method: 'POST', url: '/api/auth/verify', payload: { token } });
+      expect(verified.statusCode, verified.body).toBe(200);
+      expect(String(verified.headers['set-cookie'])).toContain('ai_sid=');
+    } finally {
+      await sync.stop();
+      await app.close();
+      delete process.env.APP_URL;
+    }
+    // GHL was down the whole time: nothing reached it, the sign-in is queued, and the next good tick sends it.
+    const db = await testDatabase();
+    await enqueueLogins(db, NOW);
+    setNow(NOW + 3600_000);
+    const crm = fakeCrm();
+    await runGhlLoginSync({ db, log: capture(), config, fetch: crm.fetch });
+    expect(crm.tagsOf('jamie@ortizhomes.com')).toEqual(['lms-logged-in']);
+  });
+});
+
+describe('D-134: GHL_SYNC_ENABLED @g9', () => {
+  it('does not start the loop when it is exactly "false", and starts it for anything else', async () => {
+    const saved = process.env.GHL_SYNC_ENABLED;
+    try {
+      const log = capture();
+      process.env.GHL_SYNC_ENABLED = 'false';
+      expect(startGhlSync({ waitlist: true, config, db: await testDatabase(), log, signals: [], intervalMs: 3_600_000 }).running).toBe(false);
+      expect(log.lines.some((l) => l.includes('GHL_SYNC_ENABLED is false'))).toBe(true);
+      for (const v of ['true', '', 'FALSE']) {
+        process.env.GHL_SYNC_ENABLED = v;
+        const armed = startGhlSync({ waitlist: true, config, db: await testDatabase(), log: capture(), signals: [], intervalMs: 3_600_000 });
+        expect(armed.running, v).toBe(true);
+        await armed.stop();
+      }
+      // Paused, the rows simply wait: a sign-up made meanwhile is synced once it is unset.
+      delete process.env.GHL_SYNC_ENABLED;
+      await insert(signUp('wl1', 'a@example.com', NOW - 1000));
+      expect((await runGhlSync({ db: await testDatabase(), config, fetch: fakeCrm().fetch, log: capture() })).synced).toBe(1);
+    } finally {
+      if (saved === undefined) delete process.env.GHL_SYNC_ENABLED;
+      else process.env.GHL_SYNC_ENABLED = saved;
+    }
   });
 });

@@ -30,6 +30,9 @@ import {
 import type { CartId, PlanKind } from '../src/billing/catalog';
 import { handleStripeEvent } from '../src/billing/webhook';
 import { buyerTags } from '../src/integrations/ghl';
+import type { GhlConfig } from '../src/integrations/ghl';
+import { runGhlTick } from '../src/jobs/ghl-sync';
+import { fakeCrm } from './fake-ghl';
 import type { OfferConfig } from '../src/billing/config';
 import { createPriceCache } from '../src/billing/prices';
 import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
@@ -828,7 +831,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'cohort', option: 'full', seats: 2, status: 'active', cohortId: 'dec26', startsAt: NOW_MS, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
     tier: 'team',
     pin: 1809406800,
-    tags: ['offer-buyer', 'plan-cohort', 'pay-full'],
+    tags: ['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator'],
     opens: { owner_ops: NOW_MS, agent: NOW_MS },
   },
   {
@@ -837,7 +840,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'cohort', option: 'two_pay', seats: 2, status: 'active', cohortId: 'dec26', startsAt: NOW_MS, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
     tier: 'team',
     pin: null,
-    tags: ['offer-buyer', 'plan-cohort', 'pay-two'],
+    tags: ['offer-buyer', 'plan-cohort', 'pay-two', 'ai-buyer-accelerator'],
     opens: { owner_ops: NOW_MS, agent: NOW_MS },
   },
   {
@@ -846,7 +849,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'membership', option: 'year_upfront', seats: 2, status: 'active', cohortId: null, startsAt: NOW_MS, paidThrough: NOW_MS + 365 * DAY, liveUntil: null, minimumUntil: null },
     tier: 'team',
     pin: null,
-    tags: ['offer-buyer', 'plan-membership', 'pay-year'],
+    tags: ['offer-buyer', 'plan-membership', 'pay-year', 'ai-buyer-insiders'],
     opens: { owner_ops: NOW_MS, agent: null },
   },
   {
@@ -855,7 +858,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'membership', option: 'monthly', seats: 2, status: 'active', cohortId: null, startsAt: NOW_MS, paidThrough: addMonths(NOW_MS, 1), liveUntil: null, minimumUntil: addMonths(NOW_MS, 3) },
     tier: 'team',
     pin: null,
-    tags: ['offer-buyer', 'plan-membership', 'pay-monthly'],
+    tags: ['offer-buyer', 'plan-membership', 'pay-monthly', 'ai-buyer-insiders'],
     opens: { owner_ops: NOW_MS, agent: null },
   },
   {
@@ -864,7 +867,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'agents', option: 'upto15', seats: 16, status: 'active', cohortId: null, startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null, minimumUntil: null },
     tier: 'team',
     pin: 1806814800,
-    tags: ['offer-buyer', 'plan-agents'],
+    tags: ['offer-buyer', 'plan-agents', 'ai-buyer-team-plan'],
     opens: { owner_ops: null, agent: AGENTS_SKILLS_FROM },
   },
   {
@@ -873,7 +876,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'agents', option: '16to40', seats: 41, status: 'active', cohortId: null, startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, liveUntil: null, minimumUntil: null },
     tier: 'team',
     pin: 1806814800,
-    tags: ['offer-buyer', 'plan-agents'],
+    tags: ['offer-buyer', 'plan-agents', 'ai-buyer-team-plan'],
     opens: { owner_ops: null, agent: AGENTS_SKILLS_FROM },
   },
   {
@@ -882,7 +885,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'agent_plan', option: 'monthly', seats: 1, status: 'trialing', cohortId: null, startsAt: JAN4, paidThrough: null, liveUntil: null, minimumUntil: null },
     tier: 'agent',
     pin: 1799042400,
-    tags: ['offer-buyer', 'plan-agent-plan', 'pay-monthly'],
+    tags: ['offer-buyer', 'plan-agent-plan', 'pay-monthly', 'ai-buyer-agent-plan'],
     opens: { owner_ops: null, agent: JAN4 },
     firstCharge: { amount: 7900, periodEnd: addMonths(JAN4, 1) },
   },
@@ -892,7 +895,7 @@ const OFFER_CASES: OfferCase[] = [
     plan: { kind: 'agent_plan', option: 'yearly', seats: 1, status: 'trialing', cohortId: null, startsAt: JAN4, paidThrough: null, liveUntil: null, minimumUntil: null },
     tier: 'agent',
     pin: 1799042400,
-    tags: ['offer-buyer', 'plan-agent-plan', 'pay-yearly'],
+    tags: ['offer-buyer', 'plan-agent-plan', 'pay-yearly', 'ai-buyer-agent-plan'],
     opens: { owner_ops: null, agent: JAN4 },
     firstCharge: { amount: 79000, periodEnd: addMonths(JAN4, 12) },
   },
@@ -1087,6 +1090,40 @@ describe('every offer, end to end (D-106)', () => {
         const verified = await post('/api/auth/verify', { token: link! });
         expect(verified.statusCode, verified.body).toBe(200);
         expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: sessionCookie(verified.headers['set-cookie']) } })).statusCode).toBe(200);
+      it('reaches GoHighLevel with its alias, its fields and a Purchased opportunity, then the buyer’s first sign-in (D-134)', async () => {
+        await purchase(c);
+        const crm = fakeCrm();
+        const quiet = { info: () => {}, warn: () => {}, error: () => {} };
+        const ghl: GhlConfig = {
+          token: 'pit-test-token-123',
+          locationId: 'loc-test',
+          fields: { offer: 'f-offer', cohort: 'f-cohort', amount: 'f-amount', purchaseDate: 'f-date', lmsLogin: 'f-login' },
+          pipeline: { id: 'p1', stages: { lead: 's-lead', purchased: 's-buy', refunded: 's-gone', canceled: 's-gone' } },
+        };
+        const tick = await runGhlTick({ db: await db(), config: ghl, fetch: crm.fetch, log: quiet });
+        expect(tick.buyers).toMatchObject({ claimed: 1, synced: 1, failed: 0 });
+        // The order's tags, its plan's alias among them, exactly as buyerTags says.
+        expect(crm.tagsOf('pat@example.com')).toEqual(buyerTags(await one()));
+        const alias: Record<string, string> = { cohort: 'ai-buyer-accelerator', membership: 'ai-buyer-insiders', agents: 'ai-buyer-team-plan', agent_plan: 'ai-buyer-agent-plan' };
+        expect(crm.tagsOf('pat@example.com')).toContain(alias[c.plan.kind]);
+        // The fields: the plan's name, the cohort for the Accelerator only, and what was paid and when, if anything was.
+        const paid = c.paymentStatus === 'paid';
+        expect(crm.fieldsOf('pat@example.com')).toEqual({
+          'f-offer': PLAN_NAMES[c.plan.kind],
+          ...(c.plan.kind === 'cohort' ? { 'f-cohort': 'dec26' } : {}),
+          ...(paid ? { 'f-amount': 1, 'f-date': '2026-11-14' } : {}),
+        });
+        expect(crm.oppOf('pat@example.com')).toMatchObject({ pipelineStageId: 's-buy', status: 'won', name: PLAN_NAMES[c.plan.kind], ...(paid ? { monetaryValue: 1 } : {}) });
+        expect(await one()).toMatchObject({ ghlError: null, ghlContactId: 'c-1' });
+
+        // The buyer signs in: the next tick adds lms-logged-in and LMS Login, and moves nothing in the pipeline.
+        const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+        await app.signInAs(owner!.id);
+        const next = await runGhlTick({ db: await db(), config: ghl, fetch: crm.fetch, log: quiet });
+        expect(next).toMatchObject({ queued: 1, logins: { claimed: 1, synced: 1 } });
+        expect(crm.tagsOf('pat@example.com')).toContain('lms-logged-in');
+        expect(crm.fieldsOf('pat@example.com')['f-login']).toBe('signed-in');
+        expect(crm.oppOf('pat@example.com')).toMatchObject({ pipelineStageId: 's-buy' });
       });
 
       it('a failed payment makes the plan past_due and tags payment-failed', async () => {
@@ -1125,7 +1162,7 @@ describe('every offer, end to end (D-106)', () => {
         const end = before!.paidThrough ?? cancelAt;
         expect(plan).toMatchObject({ status: 'canceled', paidThrough: before!.paidThrough, liveUntil: before!.liveUntil === null ? end : Math.min(before!.liveUntil, Math.max(end, cancelAt)) });
         expect((await one()).membershipEndedAt).toBe(cancelAt);
-        expect(buyerTags(await one())).toContain('membership-ended');
+        expect(buyerTags(await one())).toEqual(expect.arrayContaining(['membership-ended', 'ai-canceled']));
 
         // What was released while it was paid stays open; a skill released after it does not.
         await seedSkills();
@@ -1151,7 +1188,7 @@ describe('every offer, end to end (D-106)', () => {
         const [plan] = await (await db()).select().from(plans);
         expect(plan).toMatchObject({ status: 'ended', liveUntil: refundAt });
         expect(await one()).toMatchObject({ status: 'refunded', refundedAt: refundAt });
-        expect(buyerTags(await one())).toContain('refunded');
+        expect(buyerTags(await one())).toEqual(expect.arrayContaining(['refunded', 'ai-refunded']));
         expect(stub.cancels.sort()).toEqual([...new Set([subOf(c), planSubOf(c)])].sort());
         await seedSkills();
         process.env.FIXED_NOW = new Date(after(JAN4) + DAY).toISOString();

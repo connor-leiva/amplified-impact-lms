@@ -87,17 +87,23 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // other form's row; `test/guides.test.ts` holds the CHECK that keeps the size to its four values.
   ai101Waitlist: {
     table: 'ai101_waitlist',
-    columns: ['brokerage', 'created_at', 'december_interest', 'email', 'first_name', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_next_attempt_at', 'ghl_synced_at', 'id', 'phone', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'source', 'src', 'team_size', 'terms_version'],
+    columns: ['brokerage', 'created_at', 'december_interest', 'email', 'first_name', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'id', 'phone', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'source', 'src', 'team_size', 'terms_version'],
     gate: 9,
   },
   // The offer (D-075, D-078, D-079): billing state outside `Db`, like the waitlist. Gate 9 is where
   // the public pages sit; these are their tables.
   orders: {
     table: 'orders',
-    columns: ['account_id', 'agreement_accepted_at', 'agreement_version', 'amount_total', 'campaign', 'company', 'created_at', 'crm', 'currency', 'email', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_next_attempt_at', 'ghl_synced_at', 'id', 'membership_ended_at', 'name', 'option', 'origin', 'paid_at', 'payment_failed_at', 'payments_made', 'phone', 'plan', 'refunded_at', 'renewal_consent_at', 'renewal_consent_text', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'src', 'status', 'stripe_customer_id', 'stripe_payment_intent_id', 'stripe_session_id', 'stripe_subscription_id', 'team_size'],
+    columns: ['account_id', 'agreement_accepted_at', 'agreement_version', 'amount_total', 'campaign', 'company', 'created_at', 'crm', 'currency', 'email', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'id', 'membership_ended_at', 'name', 'option', 'origin', 'paid_at', 'payment_failed_at', 'payments_made', 'phone', 'plan', 'refunded_at', 'renewal_consent_at', 'renewal_consent_text', 'sms_consent', 'sms_consent_at', 'sms_consent_text', 'src', 'status', 'stripe_customer_id', 'stripe_payment_intent_id', 'stripe_session_id', 'stripe_subscription_id', 'team_size'],
     gate: 9,
   },
   stripeEvents: { table: 'stripe_events', columns: ['error', 'id', 'processed_at', 'received_at', 'type'], gate: 9 },
+  // D-134: a learner's first sign-in, queued for GoHighLevel. Not a `Db` record, like `orders`.
+  ghlLogins: {
+    table: 'ghl_logins',
+    columns: ['first_login_at', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'user_id'],
+    gate: 9,
+  },
   accounts: {
     table: 'accounts',
     columns: ['created_at', 'crm', 'id', 'invite_sent_at', 'name', 'owner_email', 'owner_user_id', 'stripe_customer_id', 'team_id'],
@@ -281,6 +287,9 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['orders', 'agreementAcceptedAt'], ['orders', 'renewalConsentAt'], ['orders', 'smsConsentAt'],
   ['orders', 'paidAt'], ['orders', 'paymentFailedAt'], ['orders', 'membershipEndedAt'], ['orders', 'refundedAt'],
   ['orders', 'ghlSyncedAt'], ['orders', 'ghlNextAttemptAt'], ['orders', 'createdAt'],
+  // D-134: the sync's last try, on every row it copies, and a learner's first sign-in.
+  ['ai101Waitlist', 'ghlLastAttemptAt'], ['orders', 'ghlLastAttemptAt'],
+  ['ghlLogins', 'firstLoginAt'], ['ghlLogins', 'ghlSyncedAt'], ['ghlLogins', 'ghlNextAttemptAt'], ['ghlLogins', 'ghlLastAttemptAt'],
   ['stripeEvents', 'receivedAt'], ['stripeEvents', 'processedAt'],
   ['accounts', 'createdAt'], ['accounts', 'inviteSentAt'],
   ['plans', 'startsAt'], ['plans', 'paidThrough'], ['plans', 'liveUntil'], ['plans', 'minimumUntil'], ['plans', 'createdAt'],
@@ -330,6 +339,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   ai101Waitlist: { unit: 'epoch-ms', why: 'D-028: created_at is clock.now() as written by routes/ai101.ts; no reader converts it' },
   orders: { unit: 'epoch-ms', why: 'D-075: clock.now() as written by checkout and the webhook' },
   stripeEvents: { unit: 'epoch-ms', why: 'D-075: clock.now() as written by the webhook' },
+  ghlLogins: { unit: 'epoch-ms', why: 'D-134: clock.now() as written by the GHL loop' },
   accounts: { unit: 'epoch-ms', why: 'D-078: created_at and invite_sent_at, compared with INVITES_FROM' },
   plans: { unit: 'epoch-ms', why: 'D-079: paid_through is compared with skills.released_at by canOpenSkill' },
   skills: { unit: 'epoch-ms', why: 'D-079: released_at is compared with plans.paid_through by canOpenSkill' },

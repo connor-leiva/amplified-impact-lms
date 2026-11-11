@@ -71,6 +71,13 @@
       "when": 1794419284098,
       "tag": "0009_passwords",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794428114944,
+      "tag": "0010_ghl_sync",
+      "breakpoints": true
     }
   ]
 }
