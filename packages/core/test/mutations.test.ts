@@ -510,16 +510,20 @@ describe('8 · inviteMember @g2', () => {
     );
   });
 
-  it('error 4/4 · pluralizes the Sales Agent cap @g2', () => {
-    // The seat check runs BEFORE the role cap, and the 7-seat plan fills at the 5th sales agent.
-    // Widening the plan is the only way to reach the plural branch, so this test does that.
+  it('error 4/4 · the Sales Agent cap is the plan’s seats, so the seat count is what stops a full team (D-120) @g2', () => {
+    // Widened to nine seats with Priya as operations lead: 9 - owner - operations lead = 7 agents.
     const wide = core.seed('live');
     wide.teams.find((t) => t.id === 'northline')!.seats = 9;
-    const cur = M.inviteMember(wide, ALEX, { email: 'agent5@northlinerealty.com', role: 'Sales Agent' }, mkCtx()).db;
-    expect(cur.users.filter((u) => u.teamId === 'northline' && u.role === 'Sales Agent')).toHaveLength(5);
-    expect(cur.users.filter((u) => u.teamId === 'northline').length).toBeLessThan(9);
-    expect(M.inviteMember(cur, ALEX, { email: 'agent6@northlinerealty.com', role: 'Sales Agent' }, mkCtx()).error).toBe(
-      'Your plan includes 5 Sales Agents.',
+    expect(core.seatCaps(wide, wide.teams.find((t) => t.id === 'northline')!)['Sales Agent']).toBe(7);
+    let cur = wide;
+    for (let i = 5; i <= 7; i += 1) {
+      const out = M.inviteMember(cur, ALEX, { email: `agent${i}@northlinerealty.com`, role: 'Sales Agent' }, mkCtx());
+      expect(out.error, `agent ${i}`).toBeUndefined();
+      cur = out.db;
+    }
+    expect(cur.users.filter((u) => u.teamId === 'northline' && u.role === 'Sales Agent')).toHaveLength(7);
+    expect(M.inviteMember(cur, ALEX, { email: 'agent8@northlinerealty.com', role: 'Sales Agent' }, mkCtx()).error).toBe(
+      'All seats are assigned. Remove a seat or contact us to add more.',
     );
   });
 

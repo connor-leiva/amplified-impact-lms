@@ -11,6 +11,7 @@ export * from './sessions';
 export * from './cards';
 export * from './files';
 export * from './tiers';
+export * from './seats';
 export * from './seed';
 export * from './seed-production';
 export * from './can';

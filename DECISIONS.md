@@ -4022,7 +4022,6 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **The Utah Life story** carries the homepage's proof line ("Built inside The Utah Life Real Estate Group", "100 agents, 700+ homes a year") and says no more than Spring's plan does: an eXp Realty team in Farmington with mortgage, title and coaching beside it, "where we put AI to work first". **Why we built this** is Spring's positioning in her voice: AI doing real work, built into how we run, written down as skills and taught live, real estate first because it's the business we know. No testimonials, no results claims.
 - **Tested:** web tests on the parsed DOM (the order, the photos from this site, both bios against the brief's, the proof line, the buttons, no "Forum", no script or token, the house rules); API tests as for `/free`. In Chromium against the built server on the marketing host: zero axe violations, no sideways scroll, no text under 16px and no tap under 44px at 320, 390, 768 and 1440.
 
-
 ## D-118 · The prototype's post-cohort card says "Your instructor", not an invented name
 
 **Date:** 2026-11-11
@@ -4063,3 +4062,26 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
     - The Team Hub and the Vault open for Team tier.
     - The AI Accelerator buyer's portal is unchanged.
     - Zero serious or critical axe violations.
+
+## D-120 · Seats by plan, built: the Team Plan's 15 or 40 agents in the Team Hub
+
+**Date:** 2026-11-11
+**Approved by:** Connor, D-081 (2026-11-10, "Seats by plan"); the PM (Ampy) in chat on 2026-11-11, 5:25 AM Central: "Team Plan seats (#23 gap 5): lift the Team Hub cap so an owner can add up to the plan's seats (15 or 40 agents), with tests."
+**Status:** on a pull request.
+**Scope:** `packages/core/src/seats.ts` (new), `inviteMember` in `packages/core/src/mutations.ts`, `apps/web/src/routes/portal/TeamHub.vm.ts` and `TeamHub.module.css`, `docs/LMS-DELIVERY.md`.
+
+- **The rule (`seatCaps`, one function for the mutation and the screen).** A team's seats come from its plan (D-078): the Team Plan's 16 or 41, and 2 for Amplified Insiders and the AI Accelerator. They are shared:
+  - one Team Owner;
+  - at most one Operations Lead;
+  - every other seat a Sales Agent: the seats, less the owner's, less an operations lead's when the team has one.
+  So a Team Plan owner adds 15 or 40 agents, or 14 or 39 alongside an operations lead. The seat count ("All seats are assigned. Remove a seat or contact us to add more.") stays the limit that stops a full team.
+- **The prototype reads as before, so no golden moves.** D-081 expected to re-capture the Team Hub goldens; this does not need to. The prototype's teams have seven seats and an operations lead, which this rule turns into the same five agents: "Agents 4 of 5", "4 of 5 used", every seat slot.
+  - The one edge that differs from the reference: a prototype team that removes its operations lead can now fill that seat with a sixth agent rather than leave it empty.
+  - The differential suite does not cover invites.
+- **The Team Hub handles 41 seats.** The seat row wraps (`flex-wrap`) instead of running off the side of the card. The prototype's seven fit on one row as before.
+- **Tested:**
+  - `seatCaps` for 7, 16, 41 and 2 seats, with and without an operations lead.
+  - `inviteMember` on a widened prototype team.
+  - The Team Hub's breakdown, role caps, seat note and slot count for 16 and 41 seats.
+  - Through the API on a real purchase of each Team Plan size: the owner invites 15 or 40 Sales Agents, and the next one is refused with the seat count's message.
+

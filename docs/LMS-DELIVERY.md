@@ -67,8 +67,9 @@ the agent set. A buyer who also holds a Team tier plan stays Team tier.
 - **Agent coaching.** No coaching sessions exist in the LMS. The portal lists cohort `dec26`'s builds
   to every buyer (all are placed in that cohort), and the join route checks the tier, not the plan.
 - **The $37 single skill.** No cart, price or lookup key exists.
-- **The Team Plan's seats in the Team Hub.** `inviteMember` still caps 1 operations lead and 5 sales
-  agents (D-081, not built), short of the 15 or 40 the plan sells. No skill usage view for owners.
+- **The Team Plan's seats in the Team Hub.** Built (D-081, D-120): the owner adds up to the plan's 15
+  or 40 Sales Agents (`seatCaps`; an operations lead, if added, takes one of those seats). Still no
+  skill usage view for owners.
 - **An agent already on a team** who buys the Agent Plan is recorded and paid but not provisioned
   (`member-of-another-team`): staff sort it out.
 - **Fixture-exact tests.** The sessions in the tests follow the metadata contract above, not Stripe
