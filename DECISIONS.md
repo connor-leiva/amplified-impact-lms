@@ -4322,10 +4322,10 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Not changed:** `/agreement`, prices, the marketing pages, `learn`.
 
 
-## D-134 · GoHighLevel: marketing aliases, custom fields, one pipeline, first sign-ins, a sync log, and the move to Amplified Impact's own sub-account
+## D-134 · GoHighLevel: marketing aliases, custom fields, one pipeline, first sign-ins, a sync log, and a pause switch
 
 **Date:** 2026-11-11
-**Approved by:** Ampy (PM for Connor), the GHL brief and Connor's update of 12:26 PM. One PR.
+**Approved by:** Ampy (PM for Connor), the GHL brief. Connor's update of 12:26 PM is D-135 (the new sub-account's setup) and D-136 (the dry-run copy), each its own PR.
 
 The existing client, queue and tag-union rules are extended, not rewritten. The app stays the only writer into GHL, on the location in `GHL_LOCATION_ID` (today Spring's). Nothing is sent from GHL, no workflow is created or enrolled, and Stripe is never connected to it.
 
@@ -4362,11 +4362,6 @@ The existing client, queue and tag-union rules are extended, not rewritten. The 
   - It's net-new, outside the shell, with no sidebar item, so no golden moves. It's reached by its URL.
   - Its API never returns an id or the token.
 - **`GHL_SYNC_ENABLED=false`, exactly, pauses the loop.** Anything else changes nothing.
-- **The new sub-account.** `ghl:setup` and `ghl:copy` (README) are dry runs unless given `--apply`.
-  - Setup creates the pipeline, every app tag and the five fields by name if missing, and never edits an existing pipeline.
-  - Copy moves this app's contacts and only this app's tags from the old location to the new one.
-  - Copy doesn't take phone numbers: consent given to Spring isn't this app's to move.
-  - Neither ever deletes, or writes to the old location.
 - **`.railway/railway.ts`**: `GHL_LOCATION_ID` is now `preserve()`, like the token. A value in code would undo Connor's swap on the next `railway config apply`.
 - **Not changed:** `/agreement`, prices, seats, Stripe, and Spring's forms, workflows and pipelines.
 
