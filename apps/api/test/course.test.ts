@@ -241,3 +241,50 @@ describe('the curriculum on a database that is already live (db:curriculum)', ()
     expect(await applyCurriculum(handle)).toBe(0);
   });
 });
+
+describe('the deploy’s curriculum step (db:curriculum:ensure, --if-missing)', () => {
+  it('applies the course to the old launch database exactly as db:curriculum does, then writes 0 rows', async () => {
+    await resetDatabase(seedForDatabase('live'));
+    const before = await loadDb();
+    expect(await applyCurriculum(handle, { ifMissing: true })).toBeGreaterThan(0);
+    const once = await loadDb();
+    expect(once.users).toEqual(before.users); // learners and every one of their progress rows
+    expect(once.teams).toEqual(before.teams);
+    expect(once.staff).toEqual(before.staff);
+    expect(once.modules.filter((m) => isAcceleratorModule(m.id)).map((m) => m.id)).toEqual(ACCELERATOR_MODULE_IDS);
+
+    // The same database through the full overlay lands in the same place.
+    await resetDatabase(seedForDatabase('live'));
+    await applyCurriculum(handle);
+    expect(await loadDb()).toEqual(once);
+
+    // And again, and again: nothing.
+    expect(await applyCurriculum(handle, { ifMissing: true })).toBe(0);
+    expect(await applyCurriculum(handle, { ifMissing: true })).toBe(0);
+    expect(await loadDb()).toEqual(once);
+  });
+
+  it('keeps what staff changed since, where the full overlay would undo it', async () => {
+    await resetDatabase(seedForDatabase('live'));
+    await applyCurriculum(handle);
+    // Staff move Week 3's build a day and give it a Zoom link, and retitle Week 5's AI Employee.
+    const live = await loadDb();
+    const edited = structuredClone(live);
+    const s3 = edited.sessions.find((s) => s.id === 'dec26-s3')!;
+    s3.start += 24 * 3600e3;
+    s3.zoom = 'https://example.test/j/123';
+    const w5 = edited.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[5])!;
+    w5.name = 'Edited by staff';
+    await persistDiff(handle, live, edited);
+    const staffEdited = await loadDb();
+
+    expect(await applyCurriculum(handle, { ifMissing: true })).toBe(0);
+    expect(await loadDb()).toEqual(staffEdited);
+
+    // Why the deploy does not run the full overlay: it puts the session back and drops its link.
+    expect(await applyCurriculum(handle)).toBeGreaterThan(0);
+    const reverted = await loadDb();
+    expect(reverted.sessions.find((s) => s.id === 'dec26-s3')).toMatchObject({ start: live.sessions.find((s) => s.id === 'dec26-s3')!.start, zoom: '' });
+    expect(reverted.modules.find((m) => m.id === ACCELERATOR_MODULE_IDS[5])!.name).not.toBe('Edited by staff');
+  });
+});

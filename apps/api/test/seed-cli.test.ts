@@ -213,5 +213,32 @@ describe('§9.5 the seed CLI @g9', () => {
     const pkg = (await import('../package.json', { with: { type: 'json' } })).default as { scripts: Record<string, string> };
     const argvOf = (script: string) => script.split(/\s+/).slice(2);
     expect(parseSeedArgs(argvOf(pkg.scripts['db:curriculum']!))).toEqual({ mode: 'curriculum', opts: {} });
+    // The deploy's form: applied only to a database with none of it.
+    expect(parseSeedArgs(argvOf(pkg.scripts['db:curriculum:ensure']!))).toEqual({ mode: 'curriculum', opts: { ifMissing: true } });
+  });
+
+  it('--if-missing says so, and says how to re-apply over staff edits when it wrote nothing @g9', async () => {
+    const deps = fakeDeps();
+    deps.curriculum = async (_db, opts) => {
+      deps.calls.curriculum.push(opts);
+      return 0;
+    };
+    await runSeed(['--curriculum', '--if-missing'], deps);
+    expect(deps.calls.curriculum).toEqual([{ ifMissing: true }]);
+    expect(deps.calls.out[0]).toContain('to ai_lms_test if it has none');
+    expect(deps.calls.out[1]).toContain('0 rows changed');
+    expect(deps.calls.out[2]).toContain('run db:curriculum');
+  });
+
+  it('the deploy runs, after the migrations, the curriculum if missing and the Library sync, and nothing that seeds learners @g9', async () => {
+    const { readFileSync } = await import('node:fs');
+    const railway = readFileSync(new URL('../../../.railway/railway.ts', import.meta.url), 'utf8');
+    const pre = /preDeploy:\s*'([^']+)'/.exec(railway)?.[1] ?? '';
+    expect(pre.split(' && ')).toEqual([
+      'pnpm --filter @ai/api db:migrate',
+      'pnpm --filter @ai/api db:curriculum:ensure',
+      'pnpm --filter @ai/api skills --upload',
+    ]);
+    expect(pre).not.toMatch(/db:seed|--launch|db:curriculum(?!:ensure)/);
   });
 });
