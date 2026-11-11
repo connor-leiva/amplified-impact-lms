@@ -327,7 +327,7 @@ describe('dashboardVM @g5', () => {
       expect(jamie.post).toEqual({
         ended: 'Jan 8',
         title: 'Office Hours Continue Wednesdays',
-        host: 'Jordan Hale',
+        host: 'Your instructor',
         next: 'Wed, Jan 13 · 11:00 AM CT',
         cal: {
           name: 'office-hours.ics',
@@ -337,6 +337,8 @@ describe('dashboardVM @g5', () => {
         },
         rewatch: { kind: 'nav', to: '/sessions' },
       });
+      // D-118: the prototype's host was an invented name, and that name never ships (Ampy, 2026-11-11).
+      expect(JSON.stringify(jamie.post)).not.toContain('Jordan Hale');
     });
 
     it('shows everything built, with no Next Up left', () => {

@@ -3955,3 +3955,13 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 - **Tested:** core, web and API suites, with the old free lists' tests rewritten to the new ones (16 paid templates, the free five and the catalog's list held together, every card's access word, the locked card's plan by set, the filters' rows and data, the free five first, the site's header and footer, no retired name). In Chromium against the built server on the marketing host: `/library` and `/library?show=free` with zero axe violations, no sideways scroll, no text under 16px and no tap under 44px at 320, 390, 768 and 1440.
 
 
+
+## D-118 · The prototype's post-cohort card says "Your instructor", not an invented name
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy) in chat on 2026-11-11: "yes, remove the second "Jordan Hale" from the demo card and regenerate that golden. The name must never ship anywhere." (and earlier, 3:20 AM Central: "replace the 'Jordan Hale' fallback host in apps/web/src/routes/portal/Dashboard.vm.ts with an empty string or "Your instructor". We never ship that name.")
+**Status:** a reference change, so it goes through this entry and a re-capture, never a hand edit.
+**Scope:** `design-reference/Portal Dashboard.dc.html` (the post card's `host`), `apps/web/src/routes/portal/Dashboard.vm.ts` (the prototype branch's `host`), its test, and the `dash-agent-post` goldens, re-captured with `pnpm compliance:capture`.
+
+- **The change.** After a prototype cohort ends, the dashboard's office-hours card named "Jordan Hale", a name the prototype invented. It now says "Your instructor", the same words the production card uses when no module names an instructor (`INSTRUCTOR_FALLBACK`, D-110). One string in the reference, the same string in the port, and the two `dash-agent-post` goldens that render it. Nothing else on the card moves.
+- **Not changed, for Ampy and Connor to decide.** The same invented name is still the prototype's instructor on its six modules and the staff list (`design-reference/lms-data.js`, `packages/core/src/seed.ts` and its fixtures), so the demo seed's session cards say "with Jordan Hale" in fixture mode and in about thirty goldens. It is never in production data (`seedProduction` names Connor Leiva). Scrubbing it is a wider reference change and a wider re-capture, so it waits on a yes.

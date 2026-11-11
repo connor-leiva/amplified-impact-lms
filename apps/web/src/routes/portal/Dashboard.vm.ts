@@ -319,8 +319,9 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
   const ohNext = series
     ? (accessibleSessions(db, user).find((x) => sessionKind(x) === 'office_hours' && sessionEnd(x) > now) ?? null)
     : null;
-  // No module names an instructor: "Your instructor", never the prototype's invented one (Ampy, 2026-11-11).
-  const host = series ? (vis.find((m) => m.instructor)?.instructor ?? INSTRUCTOR_FALLBACK) : 'Jordan Hale';
+  // No module names an instructor: "Your instructor", never the prototype's invented name (Ampy,
+  // 2026-11-11). The prototype's own post card says "Your instructor" too (D-118).
+  const host = series ? (vis.find((m) => m.instructor)?.instructor ?? INSTRUCTOR_FALLBACK) : INSTRUCTOR_FALLBACK;
   const post: DashboardPost | null =
     isPost && co
       ? series
@@ -335,7 +336,7 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
         : {
             ended: fmt.date(co.end),
             title: 'Office Hours Continue Wednesdays',
-            host: 'Jordan Hale',
+            host,
             next: `${fmt.day(wed)} · ${fmt.time(wed)}`,
             cal: officeHoursFile(wed, now),
             rewatch: { kind: 'nav', to: '/sessions' },
