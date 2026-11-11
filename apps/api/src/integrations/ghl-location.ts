@@ -1,21 +1,29 @@
-// Amplified Impact's own GHL sub-account (D-135, Connor's update of Nov 11): a one-time script that
-// gets the new location ready before the move off Spring's. It does not run in the app; `ghl-cli.ts`
-// runs it, by hand. It is a DRY RUN unless given `--apply`, and safe to run again: it looks before it
-// writes.
+// Amplified Impact's own GHL sub-account (D-134, Connor's update of Nov 11): two one-time scripts for
+// the move off Spring's location. Neither runs in the app; `ghl-cli.ts` runs them, by hand. Both are
+// DRY RUNS unless given `--apply`, and both are safe to run again: they look before they write.
 //
 //   SETUP (`ghl:setup`): in the NEW location, the pipeline (Amplified Impact: Lead, Free Skills,
 //   Checkout Started, Buyer, Refunded/Canceled), every tag this app writes, and the five contact
 //   custom fields. Anything that already exists by name is used, never changed or duplicated. It
 //   prints the ids as Railway variable lines for Connor to paste.
 //
-// RATE LIMITS. HighLevel allows about 100 calls per 10 seconds per location. The script makes one
+//   COPY (`ghl:copy`): this app's contacts, from the OLD location (Spring) into the new one, with only
+//   this app's tags. A contact is "this app's" when it carries one of `ANCHOR_TAGS`; Spring's own tags
+//   on it (hundreds of them, for Forum, Be Collective and events) stay in Spring. It never deletes,
+//   never writes to the old location, and never touches a form, a workflow or a pipeline in either.
+//   It copies the email, name and company, never the phone: a number in Spring may have been given
+//   to Spring for Spring's texts, so it is not this app's to move. Once Connor moves GHL_LOCATION_ID,
+//   the sync itself re-sends every row this app holds (the stamp), with a number where our own
+//   consent record allows one.
+//
+// RATE LIMITS. HighLevel allows about 100 calls per 10 seconds per location. These scripts make one
 // call at a time with a pause between them, wait out a 429 (its Retry-After, or 10 seconds), retry a
 // 5xx a few times, and stop on a rejected token.
 //
-// PRIVACY. What it prints is counts, tag names, ids of things Connor created, and step names. Never a
-// token.
+// PRIVACY. What they print is counts, tag names, ids of things Connor created, and step names. Never
+// a contact's name, email or phone, and never a token.
 
-import { BUYER_TAGS, DECEMBER_INTEREST_TAG, FIELD_ENV, FREE_SKILLS_TAG, STAGE_ENV, LMS_LOGGED_IN_TAG, SMS_CONSENT_TAG, SOURCE_TAGS, SRC_TAGS, TEAM_SIZE_TAGS, call } from './ghl';
+import { BUYER_TAGS, DECEMBER_INTEREST_TAG, FIELD_ENV, FREE_SKILLS_TAG, STAGE_ENV, LMS_LOGGED_IN_TAG, SMS_CONSENT_TAG, SOURCE_TAGS, SRC_TAGS, TEAM_SIZE_TAGS, call, upsertAndTag } from './ghl';
 import type { CallResult, Fetch, FieldKey, GhlConfig, StageKey } from './ghl';
 
 const PLANS = ['library', 'cohort', 'agents', 'membership', 'agent_plan'] as const;
@@ -49,6 +57,31 @@ export const APP_TAGS: readonly string[] = [
     LMS_LOGGED_IN_TAG,
   ]),
 ];
+
+/**
+ * The tags that make a contact this app's: a form's own tag, a purchase or checkout, an alias, a
+ * sign-in. Not the shared words (`sms-consent`, `src-*`, team sizes, `pay-*`, the event tags), which
+ * Spring's own contacts can carry for Spring's reasons.
+ */
+const SHARED = new Set<string>([
+  SMS_CONSENT_TAG,
+  ...Object.values(SRC_TAGS),
+  'src-direct',
+  'src-other',
+  ...Object.values(TEAM_SIZE_TAGS),
+  DECEMBER_INTEREST_TAG,
+  BUYER_TAGS.payFull,
+  BUYER_TAGS.payTwo,
+  BUYER_TAGS.payYear,
+  BUYER_TAGS.payMonthly,
+  BUYER_TAGS.payYearly,
+  BUYER_TAGS.paymentFailed,
+  BUYER_TAGS.membershipEnded,
+  BUYER_TAGS.refunded,
+  BUYER_TAGS.forum,
+  'event-expcon-2026',
+]);
+export const ANCHOR_TAGS: readonly string[] = APP_TAGS.filter((t) => !SHARED.has(t));
 
 /** The new location's pipeline, as Connor's update names it, and which of the sync's stages each one is. */
 export const PIPELINE_NAME = 'Amplified Impact';
@@ -84,7 +117,7 @@ const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 /**
  * A fetch that keeps to HighLevel's limits: one call at a time, spaced, a 429 waited out (Retry-After,
- * else 10s, up to 6 times), a 5xx retried 3 times. The script passes it to the client's `call`.
+ * else 10s, up to 6 times), a 5xx retried 3 times. The scripts pass it to the client's `call`.
  */
 export function politeFetch(inner: Fetch, spacingMs: number, sleep: (ms: number) => Promise<void>): Fetch {
   let last = 0;
@@ -197,5 +230,72 @@ export async function setupLocation(o: ScriptOptions & { apply: boolean }): Prom
     out.env[FIELD_ENV[f.key]] = typeof found?.id === 'string' ? found.id : NEW;
   }
   print(`${o.apply ? 'Created' : 'Would create'} ${out.created.fields.length} custom fields: ${out.created.fields.join(', ') || 'none'}.`);
+  return out;
+}
+
+export interface CopyResult {
+  applied: boolean;
+  /** How many contacts in the old location carry each anchor tag. */
+  byTag: Record<string, number>;
+  contacts: number;
+  copied: number;
+  skippedNoEmail: number;
+  failed: number;
+}
+
+/** COPY: this app's contacts and only this app's tags, from the old location into the new one. See the header. */
+export async function copyContacts(o: { from: ScriptOptions; to: ScriptOptions; apply: boolean; pageLimit?: number }): Promise<CopyResult> {
+  const print = o.from.print ?? (() => {});
+  const from = client(o.from);
+  const out: CopyResult = { applied: o.apply, byTag: {}, contacts: 0, copied: 0, skippedNoEmail: 0, failed: 0 };
+  const found = new Map<string, Record<string, unknown>>();
+
+  for (const tag of ANCHOR_TAGS) {
+    let searchAfter: unknown = undefined;
+    let count = 0;
+    for (;;) {
+      const body = {
+        locationId: o.from.config.locationId,
+        pageLimit: o.pageLimit ?? 100,
+        filters: [{ field: 'tags', operator: 'eq', value: tag }],
+        ...(searchAfter ? { searchAfter } : {}),
+      };
+      const page = list(rec(await from.post('/contacts/search', body, `Searching the old location for "${tag}"`)).contacts);
+      for (const c of page) if (typeof c.id === 'string') found.set(c.id, c);
+      count += page.length;
+      if (page.length < (o.pageLimit ?? 100)) break;
+      searchAfter = page[page.length - 1]!.searchAfter;
+      if (!Array.isArray(searchAfter)) break;
+    }
+    if (count) out.byTag[tag] = count;
+  }
+  out.contacts = found.size;
+  print(`Found ${out.contacts} contacts in the old location with one of this app's ${ANCHOR_TAGS.length} anchor tags.`);
+  for (const [tag, n] of Object.entries(out.byTag)) print(`  ${tag}: ${n}`);
+
+  const appTags = new Set(APP_TAGS);
+  const to = client(o.to);
+  for (const c of found.values()) {
+    const email = typeof c.email === 'string' ? c.email.trim() : '';
+    if (!email) {
+      out.skippedNoEmail += 1;
+      continue;
+    }
+    if (!o.apply) continue;
+    const ours = (Array.isArray(c.tags) ? c.tags : []).filter((t): t is string => typeof t === 'string').map((t) => t.toLowerCase()).filter((t) => appTags.has(t));
+    const body: Record<string, unknown> = { locationId: o.to.config.locationId, email };
+    if (typeof c.firstName === 'string' && c.firstName.trim()) body.firstName = c.firstName.trim();
+    if (typeof c.lastName === 'string' && c.lastName.trim()) body.lastName = c.lastName.trim();
+    if (typeof c.companyName === 'string' && c.companyName.trim()) body.companyName = c.companyName.trim();
+    const result = await upsertAndTag(body, ours, to.options);
+    if (result.ok) out.copied += 1;
+    else if (result.kind === 'unauthorized') throw new ScriptStopped(`Copying: the new location's token was refused (${result.status ?? ''}). ${out.copied} copied before it stopped; run again to continue.`);
+    else out.failed += 1;
+  }
+  print(
+    o.apply
+      ? `Copied ${out.copied} contacts with their app tags; ${out.failed} refused, ${out.skippedNoEmail} without an email skipped. Nothing was deleted or changed in the old location.`
+      : `Dry run: would copy ${out.contacts - out.skippedNoEmail} contacts (${out.skippedNoEmail} have no email). Run with --apply to copy.`,
+  );
   return out;
 }

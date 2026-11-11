@@ -4380,3 +4380,16 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - There is no Payment Failed stage in Connor's list, so `GHL_STAGE_PAYMENT_FAILED` stays unset.
 - **A dry run unless given `--apply`**, and safe to run again. One call at a time, a 429 waited out, a 5xx retried, a refused token stops it.
 - **It never prints a token or a contact, and never touches Spring's location.**
+
+## D-136 · The dry-run copy into the new sub-account: `ghl:copy`
+
+**Date:** 2026-11-11
+**Approved by:** Ampy (PM for Connor), Connor's update of 12:26 PM. Its own PR, after D-135's.
+
+- **`pnpm --filter @ai/api ghl:copy`** copies this app's contacts from the current location (`GHL_FROM_TOKEN`, `GHL_FROM_LOCATION_ID`) into the new one (`GHL_TO_TOKEN`, `GHL_TO_LOCATION_ID`), set for the run only.
+  - A contact is this app's when it carries one of this app's own tags (a form's tag, a purchase, an abandoned checkout, an alias, a sign-in). Shared words such as `sms-consent`, `src-*` or `pay-*` never qualify one.
+  - It copies only this app's tags. Spring's own tags stay in Spring.
+  - It copies the email, name and company, never the phone: consent given to Spring isn't this app's to move.
+- **A dry run unless given `--apply`.** The dry run only searches the current location and reports counts per tag.
+- **It never deletes, never writes to the current location, and never touches a form, a workflow or a pipeline.** Upserts and tag unions, so running it again is safe.
+- **After the swap**, the sync's stamp (D-134) re-sends every row this app holds to the new location, with a phone only where our own consent record allows.
