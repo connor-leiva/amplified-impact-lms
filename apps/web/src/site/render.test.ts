@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HELP_EMAIL, SITE } from './content';
+import { HELP_EMAIL, PROGRAMS, SITE } from './content';
 import { freeTag, lockTag, siteFooter, siteHead, siteHeader } from './render';
 
 // The pieces every www page shares (D-107): Spring's main nav, the footer and the share tags.
@@ -7,11 +7,25 @@ import { freeTag, lockTag, siteFooter, siteHead, siteHeader } from './render';
 const parse = (html: string) => new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html');
 const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
 
+const PROGRAM_LINKS = [
+  ['Amplified AI Accelerator', '/team-build'],
+  ['Amplified Team Plan', '/teams'],
+  ['Amplified Agent Plan', '/agents'],
+  ['Amplified Insiders', '/library'],
+];
+const links = (root: ParentNode, selector: string) => [...root.querySelectorAll(selector)].map((a) => [text(a), a.getAttribute('href')]);
+
 describe('the header', () => {
   it('has Spring’s main nav: Programs, The Library, Free Resources, About, and a Get 5 Free Skills button', () => {
     const doc = parse(siteHeader('/library'));
-    expect([...doc.querySelectorAll('nav[aria-label="Main"] a')].map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Programs', '/pricing'],
+    const nav = doc.querySelector('nav[aria-label="Main"]')!;
+    expect([...nav.querySelectorAll(':scope > ul > li')].map((li) => text(li.querySelector('summary') ?? li.querySelector('a')))).toEqual([
+      'Programs',
+      'The Library',
+      'Free Resources',
+      'About',
+    ]);
+    expect(links(nav, ':scope > ul > li > a')).toEqual([
       ['The Library', '/library'],
       ['Free Resources', '/free'],
       ['About', '/about'],
@@ -21,9 +35,35 @@ describe('the header', () => {
     expect(doc.querySelector('[data-brand-slot]')?.getAttribute('href')).toBe('/');
   });
 
+  it('opens Programs as a menu of the four programs and Compare All Programs, with no script', () => {
+    const doc = parse(siteHeader('/'));
+    const menu = doc.querySelector('nav[aria-label="Main"] li.site-menu > details')!;
+    expect(text(menu.querySelector('summary'))).toBe('Programs');
+    expect(menu.hasAttribute('open')).toBe(false);
+    expect(links(menu, '.site-menu-list a')).toEqual([...PROGRAM_LINKS, ['Compare All Programs', '/pricing']]);
+    // The arrow is drawn from the house icons and hidden; the summary says "Programs" in words.
+    expect(menu.querySelector('summary svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(siteHeader('/')).not.toMatch(/<script|onclick|role="menu"/i);
+  });
+
   it('marks the page the visitor is on', () => {
     const doc = parse(siteHeader('/about'));
     expect([...doc.querySelectorAll('[aria-current="page"]')].map(text)).toEqual(['About']);
+    expect(doc.querySelector('details[data-current]')).toBeNull();
+  });
+
+  it('marks a program’s page inside the menu, and the menu’s summary while it’s closed', () => {
+    for (const [label, href] of [...PROGRAM_LINKS.slice(0, 3), ['Compare All Programs', '/pricing']]) {
+      const doc = parse(siteHeader(href!));
+      expect([...doc.querySelectorAll('[aria-current="page"]')].map(text), href!).toEqual([label]);
+      expect(doc.querySelector('details[data-current] .site-menu-list [aria-current="page"]'), href!).not.toBeNull();
+    }
+  });
+
+  it('marks The Library once on /library, not the menu’s Amplified Insiders too', () => {
+    const doc = parse(siteHeader('/library'));
+    expect([...doc.querySelectorAll('[aria-current="page"]')].map(text)).toEqual(['The Library']);
+    expect(doc.querySelector('details[data-current]')).toBeNull();
   });
 });
 
@@ -33,7 +73,20 @@ describe('the footer', () => {
     expect(doc.querySelector('.site-contact a')?.getAttribute('href')).toBe(`mailto:${HELP_EMAIL}`);
     expect(HELP_EMAIL).toBe('support@amplifiedimpact.io');
     expect([...doc.querySelectorAll('nav[aria-label="Legal"] a')].map((a) => a.getAttribute('href'))).toEqual(['/terms', '/privacy', '/agreement']);
+    expect(links(doc, 'nav[aria-label="Site"] a')).toEqual([
+      ['Home', '/'],
+      ['Programs', '/pricing'],
+      ['The Library', '/library'],
+      ['Free Resources', '/free'],
+      ['About', '/about'],
+    ]);
     expect(siteFooter()).not.toContain('admin@');
+  });
+
+  it('links the four programs’ own pages', () => {
+    const doc = parse(siteFooter());
+    expect(links(doc, 'nav[aria-label="Programs"] a')).toEqual(PROGRAM_LINKS);
+    expect(PROGRAMS.map((p) => [p.label, p.href])).toEqual(PROGRAM_LINKS);
   });
 });
 

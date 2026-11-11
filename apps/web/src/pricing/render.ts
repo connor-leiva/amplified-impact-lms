@@ -15,7 +15,7 @@
 import { esc } from '../ai101/render';
 import { HOME } from '../home/content';
 import { FREE_SKILLS_HREF } from '../site/content';
-import { CARD_NAMES, CARD_ORDER, faqSection, foundingBanner, offerCard } from '../site/offers';
+import { CARD_NAMES, CARD_ORDER, CARD_PAGES, faqSection, foundingBanner, offerCard } from '../site/offers';
 import { icon, siteFooter, siteHead, siteHeader, skipLink } from '../site/render';
 import { COMPARE, END, FAQ, PICKER, PLANS_HEADING, PRICING_HERO, PRICING_META } from './content';
 import type { Cell } from './content';
@@ -71,13 +71,14 @@ function cell(c: Cell): string {
 /**
  * The comparison table. A real table, with roles spelled out, because on a phone each row stacks into a
  * list (no sideways scroll) and `display: block` would otherwise drop the table's meaning in some
- * browsers. Each cell carries its program's name for that stacked view.
+ * browsers. Each cell carries its program's name for that stacked view. Each column's name links to
+ * its program's page (the header shows from 960px; on a phone the cards' "See Full Details" do it).
  */
 function compare(): string {
   const names = CARD_ORDER.map((c) => CARD_NAMES[c]);
-  const head = `<tr role="row"><th role="columnheader" scope="col"><span class="sr-only">${esc(COMPARE.rowLabel)}</span></th>${names
-    .map((n) => `<th role="columnheader" scope="col">${esc(n)}</th>`)
-    .join('')}</tr>`;
+  const head = `<tr role="row"><th role="columnheader" scope="col"><span class="sr-only">${esc(COMPARE.rowLabel)}</span></th>${CARD_ORDER.map(
+    (c) => `<th role="columnheader" scope="col"><a class="text-link" href="${esc(CARD_PAGES[c])}">${esc(CARD_NAMES[c])}</a></th>`,
+  ).join('')}</tr>`;
   const rows = COMPARE.rows
     .map(
       (r) =>

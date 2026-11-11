@@ -29,7 +29,8 @@ describe('the page', () => {
     expect([renderHead, renderBody]).toEqual([renderPricingHead, renderPricingBody]);
     expect(text($('title'))).toBe('Programs and Pricing · Amplified Impact');
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/pricing');
-    expect(text($('nav[aria-label="Main"] [aria-current="page"]'))).toBe('Programs');
+    expect(text($('nav[aria-label="Main"] details[data-current] summary'))).toBe('Programs');
+    expect($$('nav[aria-label="Main"] [aria-current="page"]').map(text)).toEqual(['Compare All Programs']);
     expect($('a.skip')?.getAttribute('href')).toBe('#main');
   });
 
@@ -109,6 +110,22 @@ describe('the four cards', () => {
     }
   });
 
+  it('link to each program’s own page, See Full Details, under the button in every state', () => {
+    expect(cards.map((c) => [c.id, text($('.plan-actions a.details', c)), $('.plan-actions a.details', c)?.getAttribute('href')])).toEqual([
+      ['accelerator', 'See Full Details', '/team-build'],
+      ['agent-plan', 'See Full Details', '/agents'],
+      ['team-plan', 'See Full Details', '/teams'],
+      ['insiders', 'See Full Details', '/library'],
+    ]);
+    for (const c of cards) {
+      const a = $('a.details', c)!;
+      // Four links with one name: each says which program it is through its card's heading.
+      expect(a.getAttribute('aria-describedby'), c.id).toBe(`${c.id}-name`);
+      expect(a.closest('.act-link, .act-soon, .act-closed, .act-soldout'), c.id).toBeNull();
+      expect(a.parentElement?.classList.contains('plan-actions'), c.id).toBe(true);
+    }
+  });
+
   it('sell each plan through its first cart’s link, one button each, named exactly', () => {
     for (const [plan, id] of [['cohort', 'accelerator'], ['agents', 'team-plan'], ['membership', 'insiders']] as const) {
       const card = $(`#${id}`)!;
@@ -157,6 +174,15 @@ describe('the comparison table', () => {
     for (const row of $$('tbody tr', table)) expect($$('td', row)).toHaveLength(4);
   });
 
+  it('links each program’s name to its own page', () => {
+    expect($$('thead th a', table).map((a) => [text(a), a.getAttribute('href')])).toEqual([
+      ['Amplified AI Accelerator', '/team-build'],
+      ['Amplified Agent Plan', '/agents'],
+      ['Amplified Team Plan', '/teams'],
+      ['Amplified Insiders', '/library'],
+    ]);
+  });
+
   it('names each cell’s program for the stacked phone view, and never marks with a symbol alone', () => {
     for (const row of $$('tbody tr', table)) expect($$('td', row).map((td) => td.getAttribute('data-label'))).toEqual(CARD_ORDER.map((c) => CARD_NAMES[c]));
     for (const m of $$('.mark-yes', table)) expect(text(m)).toBe('Included');
@@ -203,6 +229,22 @@ describe('the last line', () => {
   it('is Spring’s, with the free skills button', () => {
     expect(text($('.end h2'))).toBe('Not ready? Start with 5 free skills.');
     expect($$('.end a').map((a) => [text(a), a.getAttribute('href')])).toEqual([['Get 5 Free Skills', '/library?show=free']]);
+  });
+});
+
+describe('the links to the programs’ own pages', () => {
+  it('reach /team-build, /teams and /agents from the page itself, not only from the nav and footer', () => {
+    const hrefs = new Set($$('main a').map((a) => a.getAttribute('href')));
+    for (const page of ['/team-build', '/teams', '/agents', '/library']) expect(hrefs.has(page), page).toBe(true);
+    for (const page of ['/team-build', '/teams', '/agents']) {
+      expect($(`header nav[aria-label="Main"] a[href="${page}"]`), `nav ${page}`).not.toBeNull();
+      expect($(`footer nav[aria-label="Programs"] a[href="${page}"]`), `footer ${page}`).not.toBeNull();
+    }
+  });
+
+  it('leave the buttons and prices as they were', () => {
+    expect($$('.plan .act-link .btn').map((b) => b.getAttribute('href'))).toEqual(['%%link:cohort-full%%', '%%link:agent-monthly%%', '%%link:agents-upto15%%', '%%link:insiders-year%%']);
+    expect($$('.plan .price:not(.founding-closed) .amount').map(text)).toEqual(['$7,500', '$79', '$1,491', '$1,997']);
   });
 });
 
