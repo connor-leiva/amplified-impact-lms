@@ -4133,3 +4133,19 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
   - The sample is a paid skill's file.
   - The route answers with no session.
   - `S3_URL_STYLE`: path by default, virtual puts a dotless bucket in the host and still signs, and anything else is refused.
+
+## D-123 · The programs' own pages, linked: /pricing's cards and table, a Programs menu, the footer
+
+**Date:** 2026-11-11
+**Approved by:** Connor, relayed by the PM (Ampy) on 2026-11-11 as its own small PR, first: "/pricing has no links to the individual offer pages. Today it links only to /library." Asked for: a "See full details" link next to each card's buy button (the Accelerator to /team-build, the Team Plan to /teams, the Agent Plan to /agents, Insiders to /library); each program name in the comparison table's header linked to its page; the main nav's Programs as a dropdown (a tap menu on mobile) listing the four and "Compare all programs" (/pricing); the same four links in the footer; a test that /pricing links to /team-build, /teams and /agents; the checkout buttons and prices unchanged.
+**Status:** on a pull request.
+**Scope:** `apps/web/src/site/content.ts` (`PROGRAM_PAGES`, `PROGRAMS`, the nav's Programs menu, `footer.programsLabel`), `apps/web/src/site/render.ts` (`siteHeader`, `siteFooter`), `apps/web/src/site/site.css`, `apps/web/src/site/offers.ts` (`SEE_DETAILS`, `CARD_PAGES`, `offerActions`' `details`), `apps/web/src/pricing/render.ts` (the table's header), and their tests.
+
+- **One list.** `PROGRAM_PAGES` and `PROGRAMS` in `site/content.ts` hold the four pages, in Connor's order, by `PLAN_NAMES`. The menu, the footer, the cards and the table read them, so no two can disagree.
+- **Labels in Title Case**, as the house rule says (D-048): "See Full Details", "Compare All Programs".
+- **The menu is a `<details>`.** www has no script (D-107), so a tap, a click or Enter opens it and closes it, and a link inside goes to its page. No `role="menu"`: it's a list of links, read as one. It floats under Programs, inside a 320px screen, with 48px links at 16px, on the page's surface and shadow tokens.
+- **Where you are.** A program's page marks its menu link with `aria-current="page"` and underlines Programs while the menu is closed (`data-current`). On /library, The Library is marked, once, not the menu's Amplified Insiders too.
+- **The cards.** "See Full Details" sits under each card's buttons in every state (link, opens soon, closed, sold out), so a card that cannot sell still points to its page. `aria-describedby` names its program, since four links share one name. /team-build's own price block, which is that page, doesn't get one.
+- **The table.** Each program's name in the header links to its page, with the site's 44px text-link room. The header shows from 960px; on a phone the table stacks and the cards carry the links.
+- **The footer** gets a Programs column with the four links. The Site column keeps Home, Programs (/pricing), The Library, Free Resources and About.
+- **Unchanged:** every buy button's Payment Link token, every price, the picker and its anchors. A test pins the buttons' tokens and the four amounts.

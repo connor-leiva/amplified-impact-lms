@@ -210,6 +210,66 @@ img {
   text-decoration: underline;
 }
 
+/* Programs: a menu a tap, a click or Enter opens, with no script (a <details>). It floats under its
+   summary, inside the page's width at 320px, and its links are 48px tall for a thumb. */
+.site-menu {
+  position: relative;
+}
+.site-menu summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+  list-style: none;
+  cursor: pointer;
+}
+.site-menu summary::-webkit-details-marker {
+  display: none;
+}
+.site-menu summary svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+.site-menu details[open] summary svg {
+  transform: rotate(180deg);
+}
+.site-menu summary:hover,
+.site-menu details[open] summary,
+.site-menu details[data-current] summary {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+.site-nav .site-menu-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  display: grid;
+  gap: 0;
+  width: max-content;
+  min-width: 240px;
+  max-width: calc(100vw - 40px);
+  padding: 8px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-pop);
+}
+.site-nav .site-menu-list a {
+  display: flex;
+  min-height: 48px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: var(--text-primary);
+}
+.site-nav .site-menu-list a:hover {
+  background: var(--bg-canvas);
+}
+
 /* --- Sections and the parts the pages share ---------------------------------------------------- */
 
 .section {
@@ -355,7 +415,7 @@ img {
     font-size: 38px;
   }
   .site-foot-in {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1.6fr 1.2fr 1fr 1fr;
   }
   .people {
     grid-template-columns: 1fr 1fr;

@@ -1,15 +1,16 @@
 // The pieces every www page shares, as strings (DECISIONS.md D-107): the skip link, the header with
 // the main nav and the Get 5 Free Skills button, the footer, and the head's share tags.
 //
-// No script anywhere: on a phone the nav wraps onto a second row under the logo and the button, so it
-// needs no menu to open. Every string goes through `esc()`. Each page imports `site.css` from its own
+// No script anywhere: on a phone the nav wraps onto a second row under the logo and the button, and
+// Programs opens its menu as a <details>, by a tap, a click or the keyboard. Every string goes through
+// `esc()`. Each page imports `site.css` from its own
 // stylesheet, so the build inlines one stylesheet per page.
 
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
 import { ICONS } from '@ai/core/icons';
 import type { IconName } from '@ai/core/icons';
 import { esc, logo } from '../ai101/render';
-import { HELP_EMAIL, SITE } from './content';
+import { HELP_EMAIL, PROGRAMS, SITE } from './content';
 
 /** A page's head lines: title, description, canonical address and the Open Graph and Twitter tags. */
 export interface PageMeta {
@@ -49,19 +50,38 @@ export function siteHead(m: PageMeta): string {
 /** The skip link: off screen until a keyboard reaches it. */
 export const skipLink = (): string => `<a class="skip" href="#main">${esc(SITE.skip)}</a>`;
 
+type NavLink = { label: string; href: string };
+type NavItem = NavLink & { menu?: readonly NavLink[] };
+
 /**
  * The header: the logo (home), the main nav and the Get 5 Free Skills button. `current` is the page's
- * own path; its link carries `aria-current="page"`.
+ * own path; its link carries `aria-current="page"`, once. A top-level link wins: on /library that's
+ * The Library, not the menu's Amplified Insiders. When the page is in the Programs menu, its link is
+ * marked and so is the menu's summary (`data-current`), so the nav shows where you are while closed.
  */
 export function siteHeader(current: string): string {
   const n = SITE.nav;
-  const link = (l: { label: string; href: string }) =>
-    `<li><a href="${esc(l.href)}"${l.href === current ? ' aria-current="page"' : ''}>${esc(l.label)}</a></li>`;
+  const items: readonly NavItem[] = n.links;
+  const top = new Set(items.filter((l) => !l.menu).map((l) => l.href));
+  const here = (href: string) => href === current;
+  const a = (l: NavLink, mark: boolean) => `<a href="${esc(l.href)}"${mark ? ' aria-current="page"' : ''}>${esc(l.label)}</a>`;
+  const item = (l: NavItem) => {
+    if (!l.menu) return `<li>${a(l, here(l.href))}</li>`;
+    const marked = (m: NavLink) => here(m.href) && !top.has(m.href);
+    return [
+      `<li class="site-menu">`,
+      `<details${l.menu.some(marked) ? ' data-current' : ''}>`,
+      `<summary>${esc(l.label)}${icon('chevD')}</summary>`,
+      `<ul class="site-menu-list" role="list">${l.menu.map((m) => `<li>${a(m, marked(m))}</li>`).join('')}</ul>`,
+      `</details>`,
+      `</li>`,
+    ].join('');
+  };
   return [
     `<header class="site-top">`,
     `<div class="wrap site-top-in">`,
     `<a class="site-brand" href="/" data-brand-slot="signature"${current === '/' ? ' aria-current="page"' : ''}>${logo(signatureSvg, SITE.logoAlt, 'site-logo')}</a>`,
-    `<nav class="site-nav" aria-label="${esc(n.label)}"><ul role="list">${n.links.map(link).join('')}</ul></nav>`,
+    `<nav class="site-nav" aria-label="${esc(n.label)}"><ul role="list">${items.map(item).join('')}</ul></nav>`,
     `<a class="btn btn-primary btn-sm site-cta" href="${esc(n.cta.href)}">${esc(n.cta.label)}</a>`,
     `</div>`,
     `</header>`,
@@ -84,6 +104,7 @@ export function siteFooter(): string {
     `<p>${esc(f.tagline)}</p>`,
     contactLine(),
     `</div>`,
+    `<nav aria-label="${esc(f.programsLabel)}">${list(PROGRAMS)}</nav>`,
     `<nav aria-label="${esc(f.siteLabel)}">${list([{ label: 'Home', href: '/' }, ...SITE.nav.links])}</nav>`,
     `<nav aria-label="${esc(f.legalLabel)}">${list(f.legal)}</nav>`,
     `</div>`,

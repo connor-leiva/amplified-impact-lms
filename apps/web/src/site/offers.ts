@@ -11,7 +11,7 @@ import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { esc } from '../ai101/render';
 import { CARD_STATES as S, EVERY_CARD, FACT_LABELS, NOTES, OFFERS } from '../offer/content';
 import type { OfferCopy } from '../offer/content';
-import { FREE_SKILLS_HREF } from './content';
+import { FREE_SKILLS_HREF, PROGRAM_PAGES } from './content';
 import { AGENT_PLAN, AGENT_PLAN_MORE, CARD_IDS, FOUNDING } from './offers-content';
 import type { Faq } from './offers-content';
 
@@ -90,8 +90,18 @@ export function offerPrice(card: OfferCard): string {
   ].join('');
 }
 
-/** The card's one button and its plain-text links, or what it says instead: soon, closed, sold out. */
-export function offerActions(card: OfferCard): string {
+/** What links a /pricing card to its program's own page, next to its button. */
+export const SEE_DETAILS = 'See Full Details';
+
+/** Each card's program page (`PROGRAM_PAGES`): the Accelerator's is /team-build, Insiders' the Library. */
+export const CARD_PAGES: Readonly<Record<OfferCard, string>> = PROGRAM_PAGES;
+
+/**
+ * The card's one button and its plain-text links, or what it says instead: soon, closed, sold out.
+ * `details` adds "See Full Details" under them, in every state, to the program's own page: /pricing's
+ * cards have it, and /team-build's own price block (which is that page) does not.
+ */
+export function offerActions(card: OfferCard, { details = false } = {}): string {
   const c = copyOf(card);
   const [first, ...rest] = cartsOf(card);
   const waitlist = (cls: string) => `<a class="btn btn-secondary ${cls}" href="${WAITLIST_HREF}">${esc(S.waitlist)}</a>`;
@@ -122,6 +132,7 @@ export function offerActions(card: OfferCard): string {
       : card === 'agents'
         ? [`<p class="act-closed">${esc(S.teamClosedBefore)}${T.foundingCloses}${esc(S.teamClosedAfter)}</p>`, waitlist('act-closed')]
         : []),
+    ...(details ? [`<a class="text-link details" href="${esc(CARD_PAGES[card])}" aria-describedby="${CARD_IDS[card]}-name">${esc(SEE_DETAILS)}</a>`] : []),
     note,
     `</div>`,
   ].join('');
@@ -143,7 +154,7 @@ export function offerCard(card: OfferCard): string {
     fact(FACT_LABELS.starts, c.starts.map((s) => `<p>${esc(s)}</p>`).join('')),
     `</dl>`,
     offerPrice(card),
-    offerActions(card),
+    offerActions(card, { details: true }),
     `<p class="every">${esc(EVERY_CARD.officeHours)}</p>`,
     `<p class="not-ready">${esc(EVERY_CARD.notReadyBefore)}<a href="${esc(FREE_SKILLS_HREF)}">${esc(EVERY_CARD.notReadyLink)}</a>.</p>`,
     `</li>`,
