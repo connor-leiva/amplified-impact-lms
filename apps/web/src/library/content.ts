@@ -37,6 +37,40 @@ export const TOPICS = {
 } as const;
 export type Topic = keyof typeof TOPICS;
 
+/**
+ * The free five, in Spring's order (the overnight brief: "Free five: AI Brain Setup; Sounds Like You: AI
+ * Voice Profile; AI Brain Tune-Up; Perfect Week; Inbox and Meeting Follow-Through"), by page. Four are
+ * `FREE_SKILLS`; the voice profile is a guide. A test holds the two lists together.
+ */
+export const FREE_FIVE: readonly string[] = ['ai-brain-setup', 'voice-profile', 'ai-brain-tuneup', 'perfect-week', 'inbox-meeting-follow-through'];
+
+/** Spring's Track filter: Real Estate or General, so a Mortgage or Coaching track can come later. */
+export const TRACKS = { 'real-estate': 'Real Estate', general: 'General' } as const;
+export type Track = keyof typeof TRACKS;
+
+/**
+ * The General track, by page: the free five ("for anyone, agent, team owner or not in real estate at
+ * all") and the general skills Spring names ("voice profile, meeting follow-through, P&L review, L10
+ * prep"). Everything else is Real Estate. [OPEN: Spring and Connor may move more here.]
+ */
+export const GENERAL_TRACK: readonly string[] = [...FREE_FIVE, 'team-pnl-review', 'l10-meeting-prep'];
+
+/** Spring's Who filter: Agents or Team Owners. */
+export const WHO = { agents: 'Agents', owners: 'Team Owners' } as const;
+export type Who = keyof typeof WHO;
+
+/**
+ * Who a guide that is not in a catalog is for (D-115): Spring's Free Resources table tags each one
+ * agent or team owner. A skill's or template's comes from its set in its catalog.
+ */
+export const GUIDE_WHO: Readonly<Record<string, readonly Who[]>> = {
+  'voice-profile': ['agents', 'owners'],
+  ai101: ['agents'],
+  'ops-time-audit': ['owners'],
+  'task-sync-starter': ['owners'],
+  retool: ['owners'],
+};
+
 export interface Entry {
   title: string;
   /** One or two plain sentences on what the reader gets. */
@@ -674,21 +708,29 @@ export const LIBRARY = {
     // own card (Connor, 2026-11-11, D-103). The homepage's nav says the same (D-102).
     title: 'The Library · Amplified Impact',
     description:
-      'Guides, Claude skills, Grok Bot templates and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
+      'Claude skills, Grok Bot templates, guides and setups for real estate teams. 5 skills are free for anyone. The rest come with a plan.',
     url: 'https://www.amplifiedimpact.io/library',
     siteName: 'Amplified Impact',
   },
   logoAlt: 'Amplified Impact',
   eyebrow: 'The Library',
   title: 'Put AI to work on your team.',
-  // Said here so a card that opens on a sign-up form is no surprise: five of the six live pages ask.
-  lede: 'Guides, Claude skills, Grok Bot templates and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
+  // Spring's plan: "Show all 56 so people see the depth. Make 5 free and lock everything else" (D-115).
+  // "Amplified Skill Library" is a retired product name, so the lede says "a plan".
+  lede: 'Claude skills, Grok Bot templates, guides and setups for real estate teams. 5 skills are free for anyone. The rest come with a plan.',
+  /** The free five, first on the page (D-115). "Get 5 Free Skills" lands here (`/library?show=free`). */
+  free: {
+    heading: 'Start with 5 free skills',
+    body: 'Free for anyone, in real estate or not. They make AI useful in your day first. Each one asks for your name and email.',
+  },
   // Never seen: it names the list for a screen reader, under the page's one heading.
   listHeading: 'Everything in the library',
   filters: {
     label: 'Filter the library',
     tool: 'By AI tool',
     topic: 'By topic',
+    track: 'By track',
+    who: 'For',
     all: 'All',
     search: 'Search',
     searchPlaceholder: 'Try a task, like reels or meetings',
@@ -702,11 +744,12 @@ export const LIBRARY = {
   clear: 'Clear filters',
   soon: 'Coming soon',
   /**
-   * The tag on a paid skill's card (D-082): its page is a preview, and the skill is in the Skill
-   * Library on the platform. Which skills are paid is the catalog's call (`FREE_SKILLS` in
-   * `@ai/core/skills`), read through the skill's page, so this file names none.
+   * What a card says about getting it (D-115): one of the free five, a free guide or kit (a lead magnet,
+   * Spring's "Free Resources", separate from the five), or locked, which a lock beside it says too, in
+   * the arrow's place. Which skills are locked is the catalog's call (`FREE_SKILLS` in
+   * `@ai/core/skills`), read through the skill's page.
    */
-  paid: 'In the Amplified Skill Library',
+  access: { free: 'Free', resource: 'Free Resource', locked: 'Locked' },
   /**
    * The library's general note, under everything (D-101): the compliance rules in the skills and
    * templates are the house's conservative defaults (Connor, 2026-11-10), each also said on its page.

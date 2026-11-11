@@ -1,4 +1,4 @@
-/* /library, the library. DECISIONS.md D-050 and D-103.
+/* /library, the library. DECISIONS.md D-050, D-103 and D-115.
 
    A forest hero, then pill filters and a grid of cards on the guides' cream and paper. Mobile first,
    for a link opened on a phone; two columns from 640px, three from 1024px.
@@ -14,6 +14,8 @@
 @import '@fontsource/dm-mono/400.css';
 @import '../styles/tokens.css';
 @import '../styles/global.css';
+/* The site's header and footer, with Spring's nav (D-107, D-115). This page's own rules below win. */
+@import '../site/site.css';
 
 :root {
   --lib-mint: oklch(0.793 0.116 162);
@@ -81,7 +83,7 @@ ul {
 }
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--lib-mint);
@@ -121,7 +123,7 @@ ul {
 .filter-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 16px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -248,11 +250,10 @@ a.item-body:hover {
   order: -1;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 4px 12px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  /* 16px, not the 12px mono caps of D-050: Spring's phone rule (D-115). */
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .item-tags li:first-child {
@@ -286,7 +287,7 @@ a.item-body:hover {
   background: transparent;
 }
 .item-soon-tag {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -320,7 +321,7 @@ a.item-body:hover {
 }
 .collection-title {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -343,7 +344,7 @@ a.item-body:hover {
   margin-top: 32px;
   padding-top: 20px;
   border-top: 1px solid var(--line-default);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .clear {
@@ -367,7 +368,7 @@ a.item-body:hover {
   max-width: 1120px;
   margin: 0 auto;
   padding: 0 20px 40px;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .foot-links a {
@@ -427,5 +428,85 @@ a.item-body:hover {
 @media (min-width: 1024px) {
   .items {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* --- The free five, first (D-115) ------------------------------------------------------------- */
+
+.free-five {
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--action-primary-line);
+}
+.free-five h2 {
+  font-size: 24px;
+  line-height: 1.2;
+}
+.free-body {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+.free-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.free-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+.free-card:hover .free-title {
+  text-decoration: underline;
+}
+
+/* --- Free, Free Resource, Locked: in words, the lock drawn beside "Locked" ---------------------- */
+
+.item-tags .item-access {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.item-access.item-free {
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--action-primary-tint);
+  color: var(--action-primary);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 26px;
+}
+.item-access.item-locked {
+  color: var(--text-secondary);
+}
+.item-access svg,
+.item-lock svg {
+  width: 16px;
+  height: 16px;
+}
+.item-lock svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (min-width: 640px) {
+  .free-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .free-list {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

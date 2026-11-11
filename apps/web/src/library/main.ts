@@ -1,7 +1,7 @@
 // /library's only script. DECISIONS.md D-050.
 //
-// It turns the list the markup already holds into a filterable one: the tool and topic pills, the
-// search and the sort. With JavaScript off, or if this throws, every card still shows, newest first,
+// It turns the list the markup already holds into a filterable one: the tool, topic, track and who
+// pills (Track and Who are Spring's, D-115), the search and the sort. With JavaScript off, or if this throws, every card still shows, newest first,
 // and every link works, because the controls stay `hidden` until the last line of `boot`.
 //
 // Inlined into the page as one `<script type="module">` (`ai101Inline`), so it imports nothing: a
@@ -12,6 +12,9 @@
 export const countLabel = (n: number): string => `Showing ${n} ${n === 1 ? 'resource' : 'resources'}`;
 
 const wordsOf = (el: Element, attr: string) => (el.getAttribute(attr) ?? '').split(' ').filter(Boolean);
+
+/** Each pill row by its `data-filter` name, and the card attribute it matches (D-050, D-115). */
+export const FILTER_ATTRS: Readonly<Record<string, string>> = { tool: 'data-tools', topic: 'data-topics', track: 'data-track', who: 'data-who' };
 
 function boot(doc: Document): void {
   const list = doc.getElementById('library-items');
@@ -36,14 +39,13 @@ function boot(doc: Document): void {
       order,
       added: el.getAttribute('data-added') ?? '',
       soon: el.classList.contains('item-soon'),
-      tools: wordsOf(el, 'data-tools'),
-      topics: wordsOf(el, 'data-topics'),
+      values: Object.fromEntries(Object.entries(FILTER_ATTRS).map(([name, attr]) => [name, wordsOf(el, attr)])) as Record<string, string[]>,
       text: `${el.textContent ?? ''} ${el.getAttribute('data-words') ?? ''}`.toLowerCase(),
     }));
   const collections = Array.from(doc.querySelectorAll<HTMLElement>('[data-collection]'));
   const shelf = doc.querySelector<HTMLElement>('[data-shelf]');
   const chips = Array.from(doc.querySelectorAll<HTMLButtonElement>('button[data-filter]'));
-  const picked: Record<string, string> = { tool: '', topic: '' };
+  const picked: Record<string, string> = Object.fromEntries(Object.keys(FILTER_ATTRS).map((name) => [name, '']));
 
   const apply = () => {
     // iOS types a curly apostrophe; the cards have straight ones.
@@ -55,8 +57,7 @@ function boot(doc: Document): void {
     let showing = 0;
     for (const c of cards) {
       const show =
-        (picked.tool === '' || c.tools.indexOf(picked.tool!) >= 0) &&
-        (picked.topic === '' || c.topics.indexOf(picked.topic!) >= 0) &&
+        Object.keys(picked).every((name) => picked[name] === '' || (c.values[name] ?? []).indexOf(picked[name]!) >= 0) &&
         terms.every((t) => c.text.indexOf(t) >= 0);
       c.el.hidden = !show;
       if (show) showing += 1;
@@ -98,8 +99,7 @@ function boot(doc: Document): void {
   });
   sort.addEventListener('change', applySort);
   clear.addEventListener('click', () => {
-    picked.tool = '';
-    picked.topic = '';
+    for (const name of Object.keys(picked)) picked[name] = '';
     search.value = '';
     apply();
     // A button, not the search: focusing a field from a tap opens a phone's keyboard over the list.

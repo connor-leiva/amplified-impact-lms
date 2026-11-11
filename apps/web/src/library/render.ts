@@ -8,11 +8,12 @@
 //
 // Every string goes through `esc()`; nothing here runs in the browser.
 
-import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
-import { esc, logo } from '../ai101/render';
-import { GUIDES, inSkillLibrary, SHARED } from '../guides/content';
-import { GROK_COLLECTIONS } from '@ai/core/grok-templates';
-import { ENTRIES, LIBRARY, TOOLS, TOPICS, type Entry } from './content';
+import { esc } from '../ai101/render';
+import { GUIDES, inSkillLibrary } from '../guides/content';
+import { GROK_COLLECTIONS, GROK_TEMPLATES } from '@ai/core/grok-templates';
+import { SKILL_CATALOG } from '@ai/core/skills';
+import { icon, siteFooter, siteHeader, skipLink } from '../site/render';
+import { ENTRIES, FREE_FIVE, GENERAL_TRACK, GUIDE_WHO, LIBRARY, TOOLS, TOPICS, TRACKS, WHO, type Entry, type Track, type Who } from './content';
 
 /** The <head> lines that come from `content.ts`: the title and the link-preview metadata. */
 export function renderLibraryHead(): string {
@@ -74,13 +75,38 @@ function controls(): string {
       TOPICS,
       inUse(TOPICS, (e) => e.topics),
     ),
+    // Spring's two filters (D-115): Real Estate or General, and Agents or Team Owners.
+    pills('track', f.track, TRACKS, inUse(TRACKS, (e) => [trackOf(e)])),
+    pills('who', f.who, WHO, inUse(WHO, (e) => whoOf(e))),
     `<div class="finder"><label class="filter-label" for="library-search">${esc(f.search)}</label>` +
       `<input id="library-search" type="search" placeholder="${esc(f.searchPlaceholder)}" autocomplete="off" enterkeyhint="search"></div>`,
     `</section>`,
   ].join('\n');
 }
 
-/** Whether a card's page is a paid skill's, in the Skill Library rather than a download (D-082). */
+/** A card's page, without its slash: the key the free five, the tracks and the catalogs use. */
+const slugOf = (entry: Entry): string => (entry.href ?? '').replace(/^\//, '');
+
+/** One of the free five, a free guide or kit, or locked (D-115). */
+export function access(entry: Entry): 'free' | 'resource' | 'locked' {
+  if (paid(entry)) return 'locked';
+  return FREE_FIVE.includes(slugOf(entry)) ? 'free' : 'resource';
+}
+
+/** Spring's Track: General for the free five and the general skills she names, else Real Estate. */
+export const trackOf = (entry: Entry): Track => (GENERAL_TRACK.includes(slugOf(entry)) ? 'general' : 'real-estate');
+
+/** Spring's Who, from the skill's or template's set in its catalog, or a guide's own (`GUIDE_WHO`). */
+export function whoOf(entry: Entry): readonly Who[] {
+  const slug = slugOf(entry);
+  const sets = SKILL_CATALOG.find((s) => s.id === slug || s.page === slug)?.sets ?? GROK_TEMPLATES.find((t) => t.id === slug)?.sets;
+  if (sets === 'agent') return ['agents'];
+  if (sets === 'owner_ops') return ['owners'];
+  if (sets === 'both') return ['agents', 'owners'];
+  return GUIDE_WHO[slug] ?? ['agents', 'owners'];
+}
+
+/** Whether a card's page is a paid skill's, locked behind a plan rather than a download (D-082). */
 export function paid(entry: Entry): boolean {
   const guide = entry.href === null ? undefined : GUIDES[entry.href.replace(/^\//, '')];
   return guide !== undefined && inSkillLibrary(guide);
@@ -89,7 +115,8 @@ export function paid(entry: Entry): boolean {
 /**
  * One card. A live one is one big link; one that is not up yet is the same card with no link and
  * "Coming soon" where the arrow goes. The tags say what it is, which apps it works in, who it is for
- * when one group above all (D-100) and, for a paid skill or template, that it is in the Skill Library.
+ * when one group above all (D-100), and whether it is free or locked (D-115); a locked card has a
+ * lock where the arrow goes.
  * `level` is its title's heading level: 3 in the main list, 4 on the Grok Bot shelf, under a collection.
  */
 function card(entry: Entry, level: 3 | 4 = 3): string {
@@ -98,23 +125,27 @@ function card(entry: Entry, level: 3 | 4 = 3): string {
     entry.kind,
     ...entry.tools.map((t) => TOOLS[t]).filter((label) => !entry.kind.includes(label)),
     ...(entry.audience ? [entry.audience] : []),
-    ...(paid(entry) ? [LIBRARY.paid] : []),
   ];
+  const a = access(entry);
   // The title first in the markup, so a screen reader names the link by it, not by the tags two cards
   // share. The CSS draws the tags above it.
   const inner =
     `<h${level} class="item-title">${esc(entry.title)}</h${level}>` +
-    `<ul class="item-tags" role="list">${tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` +
+    `<ul class="item-tags" role="list">${tags.map((t) => `<li>${esc(t)}</li>`).join('')}` +
+    // Free, Free Resource or Locked, in words: the lock in the arrow's place never says it alone.
+    `<li class="item-access item-${a}">${a === 'locked' ? icon('lock') : ''}${esc(LIBRARY.access[a])}</li></ul>` +
     `<p class="item-desc">${esc(entry.description)}</p>`;
   const attrs =
     ` data-item data-added="${esc(entry.added)}" data-tools="${esc(entry.tools.join(' '))}"` +
-    ` data-topics="${esc(entry.topics.join(' '))}" data-words="${esc([...entry.topics.map((t) => TOPICS[t]), entry.keywords].join(' '))}"`;
+    ` data-topics="${esc(entry.topics.join(' '))}" data-track="${esc(trackOf(entry))}" data-who="${esc(whoOf(entry).join(' '))}"` +
+    ` data-access="${a}" data-words="${esc([...entry.topics.map((t) => TOPICS[t]), entry.keywords].join(' '))}"`;
   if (entry.href === null) {
     return `<li class="item item-soon"${attrs}><div class="item-body">${inner}<p class="item-soon-tag">${esc(LIBRARY.soon)}</p></div></li>`;
   }
   return (
     `<li class="item"${attrs}><a class="item-body" href="${esc(entry.href)}">${inner}` +
-    `<span class="item-arrow" aria-hidden="true">&rarr;</span></a></li>`
+    (a === 'locked' ? `<span class="item-arrow item-lock" aria-hidden="true">${icon('lock')}</span>` : `<span class="item-arrow" aria-hidden="true">&rarr;</span>`) +
+    `</a></li>`
   );
 }
 
@@ -149,12 +180,21 @@ function grokShelf(): string {
   ].join('\n');
 }
 
-function footer(): string {
-  const f = SHARED.footer;
-  const links = f.links
-    .map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.link)}</a>`)
-    .join('<span aria-hidden="true"> · </span>');
-  return `<footer class="foot"><p>${esc(f.byline)}</p><p class="foot-links">${links}</p></footer>`;
+/** The free five, first (D-115): what "Get 5 Free Skills" (`/library?show=free`) lands on. */
+function freeFive(): string {
+  const f = LIBRARY.free;
+  const cards = FREE_FIVE.map((slug) => {
+    const e = ENTRIES.find((x) => x.href === `/${slug}`);
+    if (!e) throw new Error(`The free five name /${slug}, but no Library card links to it. Fix src/library/content.ts.`);
+    return `<li><a class="free-card" href="${esc(e.href!)}"><span class="free-title">${esc(e.title)}</span><span class="item-access item-free">${esc(LIBRARY.access.free)}</span></a></li>`;
+  }).join('');
+  return [
+    `<section class="free-five" id="free" aria-labelledby="free-title">`,
+    `<h2 id="free-title">${esc(f.heading)}</h2>`,
+    `<p class="free-body">${esc(f.body)}</p>`,
+    `<ol class="free-list" role="list">${cards}</ol>`,
+    `</section>`,
+  ].join('\n');
 }
 
 /** Everything inside <body>. */
@@ -162,13 +202,16 @@ export function renderLibraryBody(): string {
   // The main list holds everything that is not on the Grok Bot shelf; the count is of both.
   const entries = newestFirst(ENTRIES.filter((e) => e.collection === undefined));
   return [
-    `<header class="hero">`,
-    logo(signatureReversedSvg, LIBRARY.logoAlt, 'logo'),
+    skipLink(),
+    // The site's header, with Spring's nav (D-107), above the Library's own forest hero (D-115).
+    siteHeader('/library'),
+    `<section class="hero" aria-labelledby="library-title">`,
     `<p class="eyebrow">${esc(LIBRARY.eyebrow)}</p>`,
-    `<h1>${esc(LIBRARY.title)}</h1>`,
+    `<h1 id="library-title">${esc(LIBRARY.title)}</h1>`,
     `<p class="lede">${esc(LIBRARY.lede)}</p>`,
-    `</header>`,
-    `<main class="page">`,
+    `</section>`,
+    `<main class="page" id="main" tabindex="-1">`,
+    freeFive(),
     controls(),
     `<h2 class="visually-hidden">${esc(LIBRARY.listHeading)}</h2>`,
     // The sort sits with the count, just above what it sorts, so it costs a phone no row of its own.
@@ -186,6 +229,6 @@ export function renderLibraryBody(): string {
     // The general note (D-101), after every list, so no filter ever hides it.
     `<p class="library-note">${esc(LIBRARY.note)}</p>`,
     `</main>`,
-    footer(),
+    siteFooter(),
   ].join('\n');
 }

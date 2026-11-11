@@ -33,13 +33,12 @@ export interface GrokTemplate {
   file: string;
 }
 
-/** Connor's picks (2026-11-10): two from each collection. Fails closed: a template not named is paid. */
-export const FREE_GROK_TEMPLATES: readonly string[] = [
-  'card-bank-feed-audit',
-  'quarterly-tax-profit-first',
-  'contract-to-close-deadlines',
-  'new-contract-intake',
-];
+/**
+ * Free Grok Bot templates: none since D-115 (the overnight brief: "Lock everything else, including
+ * what's free today", which Spring's plan names: Weekly Card and Bank Audit, Quarterly Tax Set-Aside,
+ * Contract-to-Close Deadline Tracker and New Contract Intake). Fails closed: a template not named is paid.
+ */
+export const FREE_GROK_TEMPLATES: readonly string[] = [];
 
 const t = (id: string, title: string, summary: string, collection: GrokCollection, sets: SkillSet, audience?: 'brokers'): GrokTemplate => ({
   id,

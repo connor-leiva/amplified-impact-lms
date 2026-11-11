@@ -85,9 +85,9 @@ describe.each(SKILLS)('skills/%s', (name) => {
 });
 
 it('links only to pages that exist, so a skill page never ships pointing at one still to come', () => {
-  // The other public pages a guide may link to (D-028, D-040, D-046, D-050, D-035), the offer a paid
-  // skill's page sends to (D-075, D-082), and every guide.
-  const pages = new Set(['/library', '/ai101', '/voice-profile', '/retool', '/terms', '/privacy', '/offer', ...Object.keys(GUIDES).map((s) => `/${s}`)]);
+  // The other public pages a guide may link to (D-028, D-040, D-046, D-050, D-035), the offer and the
+  // plans and prices a paid skill's page sends to (D-075, D-082, D-115), and every guide.
+  const pages = new Set(['/library', '/ai101', '/voice-profile', '/retool', '/terms', '/privacy', '/offer', '/pricing', ...Object.keys(GUIDES).map((s) => `/${s}`)]);
   const html = Object.values(GUIDES).map((g) => renderGuideBody(g));
   for (const page of html) {
     for (const match of page.matchAll(/href="(\/[^"#?]*)/g)) {

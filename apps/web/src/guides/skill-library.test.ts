@@ -1,7 +1,7 @@
 import { GROK_TEMPLATES, isFreeGrokTemplate, PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
 import { isFreeSkill, PAID_DOWNLOADS, SETUP_GUIDE_ORIGIN, setupGuideHref, SKILL_CATALOG } from '@ai/core/skills';
 import { describe, expect, it } from 'vitest';
-import { GUIDES, inSkillLibrary, SHARED, type Guide } from './content';
+import { GUIDES, inSkillLibrary, SHARED, unlockFor, type Guide } from './content';
 import { renderGuideBody, renderGuideHead } from './render';
 
 // The skill pages after the launch (D-080, D-082, D-101), as they ship: no mocks. A paid skill's page
@@ -50,7 +50,7 @@ describe('the catalog and the pages', () => {
     expect(PAID.length).toBeGreaterThan(0);
     expect(FREE.length).toBeGreaterThan(0);
     for (const g of Object.values(GUIDES)) expect(inSkillLibrary(g), g.slug).toBe(PAID.includes(g) || PAID_GROK.includes(g));
-    expect(PAID_GROK).toHaveLength(12);
+    expect(PAID_GROK).toHaveLength(16);
     // A guide that is not a skill (a PDF) is never in the Skill Library.
     expect(inSkillLibrary(GUIDES['ops-time-audit'] as Guide)).toBe(false);
   });
@@ -88,15 +88,17 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
     } else {
       expect(doc.querySelector('main.page')?.firstElementChild).toBe(card);
     }
-    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Amplified Skill Library');
-    expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Amplified Skill Library in the Amplified Impact platform.');
+    // The plan that opens it (D-115): Amplified Insiders, or the Amplified Agent Plan for an agent-only skill.
+    const plan = SHARED.skillLibrary[unlockFor(guide)];
+    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('Get this skill');
+    expect(text(card?.querySelector('h2 + p'))).toBe(plan.body);
     const top = card?.querySelector(':scope > .locked');
     const links = Array.from(top?.querySelectorAll('a') ?? []).map((a) => [text(a), a.getAttribute('href'), a.hasAttribute('target')]);
     expect(links).toEqual([
-      ['See Plans', '/offer#plans', false],
+      [plan.label, plan.href, false],
       ['Sign In', 'https://learn.amplifiedimpact.io/skill-library', false],
     ]);
-    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe('/offer#plans');
+    expect(top?.querySelector('a.btn.btn-primary')?.getAttribute('href')).toBe(plan.href);
   });
 
   it('links no paid ZIP, and no download at all: no file to save, no hand-off to a download', () => {
@@ -144,7 +146,8 @@ describe.each([...PAID, ...PAID_GROK].map((g) => [g.slug, g] as const))('paid /%
     expect($$('a[href^="#get-"], a[href="#download"]')).toEqual([]);
     const lower = $$('main a.btn').filter((a) => !card?.contains(a));
     expect(lower.length, 'a page with a "What you need" button').toBe(guide.sections.filter((s) => s.kind === 'tiles' && s.cta).length);
-    for (const a of lower) expect([text(a), a.getAttribute('href')]).toEqual(['See Plans', '/offer#plans']);
+    const plan = SHARED.skillLibrary[unlockFor(guide)];
+    for (const a of lower) expect([text(a), a.getAttribute('href')]).toEqual([plan.label, plan.href]);
     expect(doc.querySelector('[data-sk-bar]')).toBeNull();
     expect(doc.body.textContent).not.toMatch(/Get the (Free )?Skill/);
   });
@@ -175,19 +178,42 @@ describe.each(FREE.map((g) => [g.slug, g] as const))('free /%s', (slug, guide) =
 
 describe('the card’s words', () => {
   const l = SHARED.skillLibrary;
-  const words = [l.heading, l.body, l.plans.label, l.signIn.lead, l.signIn.label, l.get.label];
+  const words = [l.heading, l.insiders.body, l.insiders.label, l.agentPlan.body, l.agentPlan.label, l.signIn.lead, l.signIn.label, l.get.label];
 
-  it('follow the house rules: no em dashes, no exclamation marks, no slop words', () => {
+  it('follow the house rules: no em dashes, no exclamation marks, no slop words, no retired name', () => {
     for (const w of words) {
       expect(w).not.toMatch(/[–—!]/);
       expect(w).not.toMatch(/\b(unlock|seamless|simply)\b/i);
+      expect(w).not.toMatch(/Skill Library/);
     }
   });
 
-  it('give the buttons Title Case labels, and the sentence a full stop', () => {
-    expect([l.plans.label, l.signIn.label, l.get.label]).toEqual(['See Plans', 'Sign In', 'Get It in the Skill Library']);
-    // The setup's button goes where the sign-in goes: the platform's Skill Library.
+  it('give the buttons the plans’ exact names in Title Case, and each sentence a full stop', () => {
+    expect([l.insiders.label, l.agentPlan.label, l.signIn.label, l.get.label]).toEqual([
+      'Get Amplified Insiders',
+      'Get Amplified Agent Plan',
+      'Sign In',
+      'Download After You Sign In',
+    ]);
+    expect([l.insiders.href, l.agentPlan.href]).toEqual(['/pricing#insiders', '/pricing#agent-plan']);
+    // The setup's button goes where the sign-in goes: the platform's library.
     expect(l.get.href).toBe(l.signIn.href);
-    expect(l.body).toMatch(/^[A-Z][^.]*\.$/);
+    for (const b of [l.insiders.body, l.agentPlan.body]) expect(b).toMatch(/^[A-Z][^.]*\.$/);
+  });
+});
+
+describe('which plan opens a paid skill (D-115)', () => {
+  it('is the Amplified Agent Plan for an agent-only skill or template, and Amplified Insiders for the rest', () => {
+    for (const g of PAID) {
+      const sets = SKILL_CATALOG.find((s) => s.id === g.skill)?.sets;
+      expect(unlockFor(g), g.slug).toBe(sets === 'agent' ? 'agentPlan' : 'insiders');
+    }
+    for (const g of PAID_GROK) {
+      const sets = GROK_TEMPLATES.find((t) => t.id === g.grok)?.sets;
+      expect(unlockFor(g), g.slug).toBe(sets === 'agent' ? 'agentPlan' : 'insiders');
+    }
+    const byId = (id: string) => Object.values(GUIDES).find((g) => g.skill === id)!;
+    expect(unlockFor(byId('offer-strategy'))).toBe('agentPlan');
+    expect(unlockFor(byId('team-ai-brain'))).toBe('insiders');
   });
 });
