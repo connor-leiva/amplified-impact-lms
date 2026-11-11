@@ -209,7 +209,8 @@ describe('the Grok Bot templates in the library (D-100)', () => {
   });
 
   it('keep their paid ZIPs off www, and every ZIP they name is built', () => {
-    expect(PAID_GROK_DOWNLOADS).toHaveLength(12);
+    // Every template is paid since D-115.
+    expect(PAID_GROK_DOWNLOADS).toHaveLength(16);
     expect(PAID_GROK_DOWNLOADS.some((f) => PAID_DOWNLOADS.includes(f))).toBe(false);
     const dir = fileURLToPath(new URL('../../../web/public/downloads/', import.meta.url));
     const missing = GROK_TEMPLATES.map((g) => g.file).filter((f) => {

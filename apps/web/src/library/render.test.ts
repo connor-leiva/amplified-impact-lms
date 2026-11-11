@@ -5,9 +5,13 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GUIDES } from '../guides/content';
-import { ENTRIES, LIBRARY, TOOLS, TOPICS } from './content';
+import { renderGuideBody, renderGuideHead } from '../guides/render';
+import { renderHomeBody, renderHomeHead } from '../home/render';
+import { ENTRIES, FREE_FIVE, GENERAL_TRACK, GUIDE_WHO, LIBRARY, TOOLS, TOPICS } from './content';
 import { countLabel } from './main';
-import { renderLibraryBody, renderLibraryHead } from './render';
+import { access, renderLibraryBody, renderLibraryHead, trackOf, whoOf } from './render';
+import { FREE_SKILLS } from '@ai/core/skills';
+import { FREE_GROK_TEMPLATES } from '@ai/core/grok-templates';
 
 // /library's markup contract (D-050), on the parsed DOM. What the script does with it is
 // `main.test.ts`'s; that the API serves it is `apps/api/test/library.test.ts`'s.
@@ -30,9 +34,28 @@ const GUIDE_SLUGS = [
   ),
 ].map((m) => m[1]!);
 
+describe('the name (D-103)', () => {
+  it('is "The Library" on www: no page calls it the free library, and every skill page’s breadcrumb says so', () => {
+    // Most of the library is paid now (D-080, D-082); each free item says so on its own card or page.
+    const pages: Array<[string, string]> = [
+      ['/library', renderLibraryHead() + renderLibraryBody()],
+      ['/', renderHomeHead() + renderHomeBody()],
+      ...Object.values(GUIDES).map((g): [string, string] => [`/${g.slug}`, renderGuideHead(g) + renderGuideBody(g)]),
+    ];
+    for (const [path, html] of pages) expect(html, path).not.toMatch(/free\s+library/i);
+    expect(text($('.eyebrow'))).toBe('The Library');
+    for (const g of Object.values(GUIDES).filter((guide) => guide.layout === 'skill')) {
+      const page = new DOMParser().parseFromString(`<body>${renderGuideBody(g)}</body>`, 'text/html');
+      const crumb = page.querySelector('nav[aria-label="Breadcrumb"] a[href="/library"]');
+      expect(crumb?.textContent?.trim(), g.slug).toBe('The Library');
+    }
+  });
+});
+
 describe('the head', () => {
   it('names the page and its canonical address', () => {
-    expect(text($('title'))).toBe('The Free Library · Amplified Impact');
+    expect(text($('title'))).toBe('The Library · Amplified Impact');
+    expect($('meta[property="og:title"]')?.getAttribute('content')).toBe('The Library · Amplified Impact');
     expect($('meta[property="og:url"]')?.getAttribute('content')).toBe('https://www.amplifiedimpact.io/library');
     expect($('meta[name="description"]')?.getAttribute('content')).toBe(LIBRARY.meta.description);
   });
@@ -99,11 +122,14 @@ describe('a card', () => {
     expect(link.hasAttribute('target')).toBe(false);
     expect(text(link.querySelector('.item-title'))).toBe('Reel Editor');
     expect(text(link.querySelector('.item-desc'))).toBe(entry.description);
-    // The Reel Editor is paid, so its card says where it is now (D-082).
-    expect(Array.from(link.querySelectorAll('.item-tags li')).map((li) => text(li))).toEqual(['Claude Skill', 'In the Amplified Skill Library']);
+    // The Reel Editor is paid, so its card says Locked, and a lock takes the arrow's place (D-115).
+    expect(Array.from(link.querySelectorAll('.item-tags li')).map((li) => text(li))).toEqual(['Claude Skill', 'Locked']);
+    expect(link.querySelector('.item-access svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(link.querySelector('.item-arrow.item-lock svg')).not.toBeNull();
     const item = link.closest('[data-item]')!;
     expect(item.getAttribute('data-tools')).toBe('claude');
     expect(item.getAttribute('data-topics')).toBe('skills content');
+    expect([item.getAttribute('data-track'), item.getAttribute('data-who'), item.getAttribute('data-access')]).toEqual(['real-estate', 'agents owners', 'locked']);
     expect(item.getAttribute('data-added')).toBe('2026-10-20');
   });
 
@@ -116,7 +142,7 @@ describe('a card', () => {
     }
   });
 
-  it('says "In the Amplified Skill Library" on every paid skill’s and template’s card, and on no other (D-082, D-100)', () => {
+  it('says Locked on every paid skill’s and template’s card, Free on the free five, and Free Resource on a free guide (D-115)', () => {
     // Paid is the catalog's call, read through the skill a page names (the ZIP's name, not always the
     // slug), or the Grok Bot template, by its own free list.
     const paidSkill = (href: string | null) => {
@@ -127,23 +153,40 @@ describe('a card', () => {
       const grok = href === null ? undefined : GUIDES[href.slice(1)]?.grok;
       return grok !== undefined && !isFreeGrokTemplate(grok);
     };
-    const tagged = (href: string) =>
-      Array.from(doc.querySelectorAll(`a.item-body[href="${href}"] .item-tags li`)).map((li) => text(li)).includes('In the Amplified Skill Library');
-    for (const e of ENTRIES) if (e.href !== null) expect(tagged(e.href), e.title).toBe(paidSkill(e.href) || paidTemplate(e.href));
-    // One card for each paid skill in the catalog: every one is labelled, under whichever slug.
+    const said = (href: string) =>
+      text(doc.querySelector(`#library-items a.item-body[href="${href}"] .item-access, [data-shelf] a.item-body[href="${href}"] .item-access`));
+    for (const e of ENTRIES) {
+      if (e.href === null) continue;
+      const want = paidSkill(e.href) || paidTemplate(e.href) ? 'Locked' : FREE_FIVE.includes(e.href.slice(1)) ? 'Free' : 'Free Resource';
+      expect(said(e.href), e.title).toBe(want);
+      expect(LIBRARY.access[access(e)]).toBe(want);
+    }
+    // One card for each paid skill in the catalog: every one is locked, under whichever slug.
     expect(ENTRIES.filter((e) => paidSkill(e.href))).toHaveLength(SKILL_CATALOG.filter((s) => !isFreeSkill(s.id)).length);
     expect(ENTRIES.filter((e) => paidTemplate(e.href))).toHaveLength(GROK_TEMPLATES.filter((g) => !isFreeGrokTemplate(g.id)).length);
-    expect(tagged('/content-strategist')).toBe(!isFreeSkill('content-opportunity-research'));
-    expect(tagged('/appointment-follow-up')).toBe(!isFreeSkill('appointment-follow-up'));
-    // AI Brain Setup is free (Connor, 2026-11-10, D-101): its card is a free one.
-    expect(isFreeSkill('ai-brain-setup')).toBe(true);
-    expect(tagged('/ai-brain-setup')).toBe(false);
-    expect(LIBRARY.paid).toBe('In the Amplified Skill Library');
+    expect(said('/content-strategist')).toBe('Locked');
+    // Locked now, free before D-115 (the overnight brief: "Lock the rest").
+    for (const href of ['/appointment-follow-up', '/database-health-check', '/team-pnl-review', '/card-bank-feed-audit', '/new-contract-intake']) {
+      expect(said(href), href).toBe('Locked');
+    }
+    // Free: the five, and the guides that are lead magnets.
+    for (const href of ['/ai-brain-setup', '/voice-profile', '/ai-brain-tuneup', '/perfect-week', '/inbox-meeting-follow-through']) {
+      expect(said(href), href).toBe('Free');
+    }
+    for (const href of ['/ops-time-audit', '/task-sync-starter', '/retool', '/ai101']) expect(said(href), href).toBe('Free Resource');
+  });
+
+  it('keeps the free five and the catalog’s free list together: four skills and the voice profile, no template', () => {
+    expect(FREE_FIVE).toHaveLength(5);
+    const skills = FREE_FIVE.map((slug) => GUIDES[slug]?.skill).filter(Boolean);
+    expect([...skills].sort()).toEqual([...FREE_SKILLS].sort());
+    expect(GUIDES['voice-profile']?.skill).toBeUndefined();
+    expect(FREE_GROK_TEMPLATES).toEqual([]);
   });
 
   it('names its tools when its kind does not already', () => {
     const tags = $('a.item-body[href="/ops-time-audit"] .item-tags');
-    expect(Array.from(tags?.querySelectorAll('li') ?? []).map((li) => text(li))).toEqual(['Guide', 'Claude']);
+    expect(Array.from(tags?.querySelectorAll('li') ?? []).map((li) => text(li))).toEqual(['Guide', 'Claude', 'Free Resource']);
   });
 
   it('puts the title first in the markup, so a screen reader names the link by it', () => {
@@ -195,7 +238,7 @@ describe('the Grok Bot shelf (D-100)', () => {
       expect(el.querySelector('.item-title')?.tagName).toBe('H4');
     }
     const trust = $('a.item-body[href="/trust-earnest-watch"]');
-    expect(Array.from(trust?.querySelectorAll('.item-tags li') ?? []).map((li) => text(li))).toEqual(['Grok Bot', 'For Brokers', 'In the Amplified Skill Library']);
+    expect(Array.from(trust?.querySelectorAll('.item-tags li') ?? []).map((li) => text(li))).toEqual(['Grok Bot', 'For Brokers', 'Locked']);
   });
 
   it('tells a template’s reader to add it to Grok Bot, never the skills’ Claude closer', () => {
@@ -226,7 +269,10 @@ describe('the controls', () => {
       'Bookkeeping',
       'Transactions',
     ]);
-    for (const name of ['tool', 'topic']) {
+    // Spring's two (D-115).
+    expect(chips('track').map((b) => text(b))).toEqual(['All', 'Real Estate', 'General']);
+    expect(chips('who').map((b) => text(b))).toEqual(['All', 'Agents', 'Team Owners']);
+    for (const name of ['tool', 'topic', 'track', 'who']) {
       expect(chips(name).map((b) => b.getAttribute('aria-pressed'))[0]).toBe('true');
       expect(chips(name).filter((b) => b.getAttribute('aria-pressed') === 'true')).toHaveLength(1);
       expect(chips(name)[0]!.getAttribute('data-value')).toBe('');
@@ -249,7 +295,7 @@ describe('the controls', () => {
   });
 
   it('labels each group, the search and the sort', () => {
-    expect($$('.filter[role="group"]')).toHaveLength(2);
+    expect($$('.filter[role="group"]')).toHaveLength(4);
     for (const group of $$('.filter[role="group"]')) {
       expect($(`#${group.getAttribute('aria-labelledby')}`)).not.toBeNull();
     }
@@ -269,7 +315,7 @@ describe('the controls', () => {
 describe('the page', () => {
   it('has one h1, and a heading under it for the list', () => {
     expect($$('h1').map((h) => text(h))).toEqual(['Put AI to work on your team.']);
-    expect(text($('h2'))).toBe('Everything in the library');
+    expect($$('h2').map((h) => text(h)).slice(0, 2)).toEqual(['Start with 5 free skills', 'Everything in the library']);
   });
 
   it('follows the house rule: no em dashes', () => {
@@ -301,8 +347,13 @@ describe('the page', () => {
     expect($$('input[type="email"]')).toEqual([]);
   });
 
-  it("carries the guides' footer, with the Terms and the Privacy Policy", () => {
-    expect($$('.foot-links a').map((a) => a.getAttribute('href'))).toEqual(['/terms', '/privacy']);
+  it('carries the site’s header with Spring’s nav, The Library marked, and the site’s footer (D-115)', () => {
+    expect($('a.skip')?.getAttribute('href')).toBe('#main');
+    expect($('main')?.id).toBe('main');
+    expect(text($('nav[aria-label="Main"] [aria-current="page"]'))).toBe('The Library');
+    expect($('[data-brand-slot]')?.getAttribute('href')).toBe('/');
+    expect($$('nav[aria-label="Legal"] a').map((a) => a.getAttribute('href'))).toEqual(['/terms', '/privacy', '/agreement']);
+    expect(renderLibraryBody()).not.toContain('admin@');
   });
 });
 
@@ -317,5 +368,40 @@ describe('the stylesheet and the shell', () => {
     expect(shell).toContain('<!--library:body-->');
     expect(shell).toContain('href="/src/library/library.css"');
     expect(shell).toContain('src="/src/library/main.ts"');
+  });
+});
+
+describe('the free five and Spring’s filters (D-115)', () => {
+  it('lists the free five first, in Spring’s order, each a link to its page, tagged Free', () => {
+    const free = $('#free')!;
+    expect(text(free.querySelector('h2'))).toBe('Start with 5 free skills');
+    expect(Array.from(free.querySelectorAll('a')).map((a) => a.getAttribute('href'))).toEqual(FREE_FIVE.map((slug) => `/${slug}`));
+    expect(Array.from(free.querySelectorAll('.free-title')).map(text)).toEqual(FREE_FIVE.map((slug) => ENTRIES.find((e) => e.href === `/${slug}`)!.title));
+    for (const tag of Array.from(free.querySelectorAll('.item-access'))) expect(text(tag)).toBe('Free');
+    // Before the controls and every list: what "Get 5 Free Skills" lands on.
+    const html = renderLibraryBody();
+    expect(html.indexOf('id="free"')).toBeLessThan(html.indexOf('id="library-items"'));
+  });
+
+  it('puts every card on a track, General only for the free five and the skills Spring names', () => {
+    expect(GENERAL_TRACK).toEqual([...FREE_FIVE, 'team-pnl-review', 'l10-meeting-prep']);
+    for (const e of ENTRIES.filter((x) => x.href !== null)) {
+      expect(trackOf(e), e.title).toBe(GENERAL_TRACK.includes(e.href!.slice(1)) ? 'general' : 'real-estate');
+    }
+  });
+
+  it('says who each card is for from its catalog set, or the guide’s own', () => {
+    const by = (href: string) => [...whoOf(ENTRIES.find((e) => e.href === href)!)];
+    expect(by('/offer-strategy')).toEqual(['agents']);
+    expect(by('/team-ai-brain')).toEqual(['owners']);
+    expect(by('/ai-brain-setup')).toEqual(['agents', 'owners']);
+    expect(by('/listing-to-live')).toEqual(['agents']);
+    expect(by('/ops-time-audit')).toEqual(['owners']);
+    expect(by('/ai101')).toEqual(['agents']);
+    for (const slug of Object.keys(GUIDE_WHO)) expect(ENTRIES.some((e) => e.href === `/${slug}`), slug).toBe(true);
+  });
+
+  it('never names the retired Skill Library', () => {
+    expect(renderLibraryBody() + renderLibraryHead()).not.toMatch(/Amplified Skill Library|In the Skill Library/);
   });
 });

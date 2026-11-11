@@ -658,10 +658,10 @@ describe('a paid skill page (D-082, D-101)', () => {
     box.querySelector<HTMLButtonElement>('[data-guided-next]')?.click();
     expect(current()).toBe('2');
     expect(localStorage.getItem('pcp-unlocked-step-claude')).toBe('2');
-    // The download step's button goes to the Skill Library, in a new tab.
+    // The download step's button goes to the platform's library, in a new tab.
     const get = box.querySelector('.setup-step[data-current] a.btn');
     expect([get?.textContent, get?.getAttribute('href'), get?.getAttribute('target')]).toEqual([
-      'Get It in the Skill Library',
+      'Download After You Sign In',
       'https://learn.amplifiedimpact.io/skill-library',
       '_blank',
     ]);

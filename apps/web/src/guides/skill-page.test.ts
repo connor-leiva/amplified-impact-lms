@@ -305,12 +305,12 @@ describe('the skill layout (D-071)', () => {
     expect([...doc.querySelectorAll('.sk-facts li')].map(text)).toEqual(['Free', 'About 5 minutes to set up', 'Claude or ChatGPT']);
   });
 
-  it('opens with a top bar: the logo, then the breadcrumb back to the free library', () => {
+  it('opens with a top bar: the logo, then the breadcrumb back to the library', () => {
     const top = doc.querySelector('header.sk-top');
     expect(top?.querySelector('svg[role="img"]')?.getAttribute('aria-label')).toBe('Amplified Impact');
     const crumbs = top?.querySelector('nav[aria-label="Breadcrumb"]');
     expect(crumbs?.querySelector('a')?.getAttribute('href')).toBe('/library');
-    expect(text(crumbs?.querySelector('a'))).toBe('Free Library');
+    expect(text(crumbs?.querySelector('a'))).toBe('The Library');
     const here = crumbs?.querySelector('[aria-current="page"]');
     // The slash is drawn, never read.
     expect(here?.querySelector('[aria-hidden="true"]')?.textContent).toBe('/');
@@ -449,15 +449,16 @@ describe('a paid skill’s page (D-082, D-101)', () => {
     const card = hero?.querySelector('.optin');
     expect(card?.id).toBe('skill-library');
     expect(card?.hasAttribute('data-skill-library')).toBe(true);
-    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('In the Amplified Skill Library');
-    expect(text(card?.querySelector('h2 + p'))).toBe('This skill is part of the Amplified Skill Library in the Amplified Impact platform.');
+    // A made-up skill has no catalog row, so it opens with Amplified Insiders (D-115, `unlockFor`).
+    expect(text(doc.getElementById(card?.getAttribute('aria-labelledby') ?? ''))).toBe('Get this skill');
+    expect(text(card?.querySelector('h2 + p'))).toBe('It’s part of Amplified Insiders: every owner and ops skill, 2 new skills a month, and weekly office hours.');
     const top = card?.querySelector(':scope > .locked');
     const links = [...(top?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
     expect(links).toEqual([
-      ['See Plans', '/offer#plans', 'btn btn-primary', null],
+      ['Get Amplified Insiders', '/pricing#insiders', 'btn btn-primary', null],
       ['Sign In', 'https://learn.amplifiedimpact.io/skill-library', null, null],
     ]);
-    expect(text(top?.querySelector('.legal'))).toBe('Already bought a plan? Sign In');
+    expect(text(top?.querySelector('.legal'))).toBe('Already a member? Sign In');
   });
 
   it('has no opt-in and no download: nothing to post, and no ZIP in the markup', () => {
@@ -475,7 +476,7 @@ describe('a paid skill’s page (D-082, D-101)', () => {
     expect(titles(guided[1])).toEqual(guide.download.chatgpt?.setup.map((s) => s.title));
     const step = (g: Element | undefined, title: string) => [...(g?.querySelectorAll('.setup-step') ?? [])].find((li) => text(li.querySelector('h3')) === title);
     const buttons = (li: Element | undefined) => [...(li?.querySelectorAll('a.btn') ?? [])].map((a) => [text(a), a.getAttribute('href')]);
-    const get = ['Get It in the Skill Library', 'https://learn.amplifiedimpact.io/skill-library'];
+    const get = ['Download After You Sign In', 'https://learn.amplifiedimpact.io/skill-library'];
     expect(buttons(step(guided[0], 'Download the Skill'))).toEqual([get]);
     expect(buttons(step(guided[1], 'Download the ChatGPT Version'))).toEqual([get]);
     expect(buttons(step(guided[0], 'Practise on the Made-Up Example'))[0]).toEqual(get);
@@ -486,7 +487,7 @@ describe('a paid skill’s page (D-082, D-101)', () => {
 
   it('sends "What you need" to the plans, has no sign-up bar, and says when its setup words are copied', () => {
     const cta = doc.querySelector('.sk-band-cards a.btn');
-    expect([text(cta), cta?.getAttribute('href'), cta?.className]).toEqual(['See Plans', '/offer#plans', 'btn btn-primary sk-cta']);
+    expect([text(cta), cta?.getAttribute('href'), cta?.className]).toEqual(['Get Amplified Insiders', '/pricing#insiders', 'btn btn-primary sk-cta']);
     expect(doc.querySelector('a[href^="#get-"]')).toBeNull();
     expect(doc.querySelector('[data-sk-bar]')).toBeNull();
     expect(doc.getElementById('guide-live')?.getAttribute('role')).toBe('status');

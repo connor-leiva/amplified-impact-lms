@@ -273,7 +273,7 @@
   text-wrap: balance;
 }
 
-/* --- The top bar: the logo, then "Free Library / <the skill>" ----------------------------------- */
+/* --- The top bar: the logo, then "The Library / <the skill>" ------------------------------------ */
 
 .sk-top {
   background: var(--bg-surface);

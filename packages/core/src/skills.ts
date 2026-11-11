@@ -6,10 +6,10 @@
 // load it. Every skill already built counts as released at launch; anything after these follows the
 // two-new-skills-a-month rule with its own date.
 //
-// FREE FAILS CLOSED. A skill is free only when it is listed in `FREE_SKILLS`: Appointment Follow-Up
-// (the Follow Up Boss follow-up skill), Connor's two picks, Database Health Check and Team P&L Review
-// (2026-11-10), and AI Brain Setup, the foundation the other skills build on (D-101). The voice profile
-// and the time audit are guides, not ZIPs, and stay public as they are. Every other ZIP is paid:
+// FREE FAILS CLOSED. A skill is free only when it is listed in `FREE_SKILLS`: the overnight brief's free
+// five (D-115), AI Brain Setup, AI Brain Tune-Up, Perfect Week and Inbox and Meeting Follow-Through, with
+// the voice profile, which is a guide. The voice profile and the time audit are guides, not ZIPs, and
+// stay public as they are. Every other ZIP is paid:
 // `server.ts` stops serving it from `/downloads`, and its page shows a preview and the guided setup
 // with the Skill Library card instead of the download (D-082, D-101).
 //
@@ -40,16 +40,14 @@ export interface CatalogSkill {
  */
 export const LAUNCH_RELEASE = Date.parse('2026-11-01T00:00:00-05:00');
 
-/** Connor's picks go here (D-082). Fails closed: a skill not named is paid. */
-export const FREE_SKILLS: readonly string[] = [
-  // The Follow Up Boss follow-up skill (the spec's free 5).
-  'appointment-follow-up',
-  // Connor's two picks (2026-11-10).
-  'database-health-check',
-  'team-pnl-review',
-  // The library's foundation, which the other skills build on (Connor, 2026-11-10, D-101).
-  'ai-brain-setup',
-];
+/**
+ * The free skills (D-115), the overnight brief's free five less the voice profile, which is a guide:
+ * "Free five: AI Brain Setup; Sounds Like You: AI Voice Profile; AI Brain Tune-Up; Perfect Week; Inbox
+ * and Meeting Follow-Through. Lock the rest." Fails closed: a skill not named is paid. Before D-115 the
+ * list was Appointment Follow-Up, Database Health Check and Team P&L Review (D-082) and AI Brain Setup
+ * (D-101); the first three are paid now.
+ */
+export const FREE_SKILLS: readonly string[] = ['ai-brain-setup', 'ai-brain-tuneup', 'perfect-week', 'inbox-meeting-follow-through'];
 
 const zips = (id: string, withChatgpt: boolean, withPractice = true): CatalogSkill['files'] => ({
   claude: `${id}.zip`,

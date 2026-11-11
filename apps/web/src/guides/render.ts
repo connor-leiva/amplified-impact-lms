@@ -25,6 +25,7 @@ import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
 import {
   GUIDES,
   inSkillLibrary,
+  unlockFor,
   SHARED,
   SITE,
   type GrokLane,
@@ -297,8 +298,8 @@ function setupSteps(guide: Guide): string {
 }
 
 /**
- * A paid skill's card (D-082), where the opt-in was: where the skill is now, the plans, and the
- * platform's sign-in for people who already bought one. Under it, the same guided setup as the free
+ * A paid skill's card (D-082), where the opt-in was: the plan that unlocks it (D-115, `unlockFor`), and
+ * the platform's sign-in for people who already have one. Under it, the same guided setup as the free
  * page (D-101), with every file a button to the Skill Library (`setupAction`), so the page links no
  * ZIP. No form and no `data-unlock-key`, so the sign-up script leaves it alone. It wears the opt-in
  * card's classes (`optin`, `locked`, `form`, `legal`) to sit and look the same: guides.css and
@@ -306,14 +307,15 @@ function setupSteps(guide: Guide): string {
  */
 function libraryCard(guide: Guide): string {
   const l = SHARED.skillLibrary;
+  const plan = l[unlockFor(guide)];
   const how = setupSteps(guide);
   return [
     `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library>`,
     `<div class="locked">`,
     `<h2 id="library-heading">${esc(l.heading)}</h2>`,
-    `<p>${esc(l.body)}</p>`,
+    `<p>${esc(plan.body)}</p>`,
     `<div class="form">`,
-    `<a class="btn btn-primary" href="${esc(l.plans.href)}">${esc(l.plans.label)}</a>`,
+    `<a class="btn btn-primary" href="${esc(plan.href)}">${esc(plan.label)}</a>`,
     `<p class="legal">${esc(l.signIn.lead)} <a href="${esc(l.signIn.href)}">${esc(l.signIn.label)}</a></p>`,
     `</div>`,
     `</div>`,
@@ -330,8 +332,8 @@ function libraryCard(guide: Guide): string {
  */
 function needCta(guide: Guide, className: string): string {
   if (inSkillLibrary(guide)) {
-    const plans = SHARED.skillLibrary.plans;
-    return `<a class="${esc(className)}" href="${esc(plans.href)}">${esc(plans.label)}</a>`;
+    const plan = SHARED.skillLibrary[unlockFor(guide)];
+    return `<a class="${esc(className)}" href="${esc(plan.href)}">${esc(plan.label)}</a>`;
   }
   return `<a class="${esc(className)}" href="#${esc(guide.optIn.anchor)}">${esc(guide.optIn.button)}</a>`;
 }
@@ -603,7 +605,7 @@ export function renderGuideBody(guide: Guide): string {
 // that `main.ts` and the gate's CSS read is unchanged, so the opt-in, the unlock, the copy buttons and
 // the guided setup work as before. All of it styled in `skills.css` under `.sk`.
 
-/** The top bar: the logo, then "Free Library / <the skill>". */
+/** The top bar: the logo, then "The Library / <the skill>". */
 function skillTop(guide: Guide): string {
   const lib = SHARED.skill.library;
   return [

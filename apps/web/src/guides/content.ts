@@ -23,8 +23,8 @@
 // Nothing here is markup: `render.ts` escapes every string. House rules: no em dashes, short plain
 // sentences.
 
-import { isFreeGrokTemplate } from '@ai/core/grok-templates';
-import { isFreeSkill } from '@ai/core/skills';
+import { GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
+import { isFreeSkill, SKILL_CATALOG } from '@ai/core/skills';
 import { OPS_TIME_AUDIT } from './ops-time-audit';
 import { REEL_EDITOR } from './reel-editor';
 import { TASK_SYNC_STARTER } from './task-sync-starter';
@@ -377,7 +377,8 @@ function asPaid(guide: Guide): Guide {
     ...guide,
     meta: { title: unfree(guide.meta.title), description: unfree(guide.meta.description) },
     hero: { ...guide.hero, eyebrow: unfree(guide.hero.eyebrow) },
-    ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'In the Amplified Skill Library' : f)) } : {}),
+    // "Locked", as its Library card says (D-115): "Amplified Skill Library" is a retired name.
+    ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'Locked' : f)) } : {}),
   };
 }
 
@@ -396,6 +397,15 @@ export function inSkillLibrary(guide: Guide): boolean {
   // A Grok Bot template (D-100) by its own free list, never `FREE_SKILLS`.
   if (guide.grok !== undefined) return !isFreeGrokTemplate(guide.grok);
   return false;
+}
+
+/**
+ * Which plan unlocks a paid guide (D-115), by its set: an agent-only skill or template opens with the
+ * Amplified Agent Plan, anything for owners and ops (or both) with Amplified Insiders.
+ */
+export function unlockFor(guide: Guide): 'insiders' | 'agentPlan' {
+  const sets = guide.skill !== undefined ? SKILL_CATALOG.find((s) => s.id === guide.skill)?.sets : guide.grok !== undefined ? GROK_TEMPLATES.find((g) => g.id === guide.grok)?.sets : undefined;
+  return sets === 'agent' ? 'agentPlan' : 'insiders';
 }
 
 export const SITE = { name: 'Amplified Impact', origin: 'https://www.amplifiedimpact.io' } as const;
@@ -439,24 +449,37 @@ export const SHARED = {
   // A skill page in the library's look (D-071): the breadcrumb back to the library, the checklist's
   // label, the sample's toggle (filled in by `main.ts` from the button) and the phone's sign-up bar.
   skill: {
-    library: { label: 'Free Library', href: '/library' },
+    // "The Library", as on the homepage and /library itself (D-103): most of it is paid now.
+    library: { label: 'The Library', href: '/library' },
     setupTitle: 'Your setup',
     sampleMore: 'See the Full Example',
     sampleLess: 'Show Less',
     bar: 'Get the Free Skill',
   },
-  // A paid skill's page (D-082): the card in the sign-up's place, which says where the skill is now.
-  // "See Plans" goes to the offer's plans (D-075); "Sign In" is the platform's own sign-in, for
-  // people who already bought a plan. Also the button under "What you need".
+  // A paid skill's page (D-082): the card in the sign-up's place, which says how to unlock the skill
+  // (D-115). The overnight brief's locked-skill buttons are "Buy this skill for $37" or "Get Amplified
+  // Insiders": no $37 cart exists yet, so the card has the plan's button alone. Which plan is the
+  // skill's set's: Amplified Insiders opens the owner and ops skills and the ones for both, and an
+  // agent-only skill opens with the Amplified Agent Plan, so its button says that plan's exact name
+  // (`unlockFor`). "Sign In" is the platform's own sign-in, for people who already have a plan. Also
+  // the button under "What you need".
   skillLibrary: {
     anchor: 'skill-library',
-    heading: 'In the Amplified Skill Library',
-    body: 'This skill is part of the Amplified Skill Library in the Amplified Impact platform.',
-    plans: { label: 'See Plans', href: '/offer#plans' },
-    signIn: { lead: 'Already bought a plan?', label: 'Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
-    // A setup step's file, on a paid page (D-101): the same step, with its file in the Skill Library,
-    // which is where a paid ZIP is downloaded.
-    get: { label: 'Get It in the Skill Library', href: 'https://learn.amplifiedimpact.io/skill-library' },
+    heading: 'Get this skill',
+    insiders: {
+      body: 'It’s part of Amplified Insiders: every owner and ops skill, 2 new skills a month, and weekly office hours.',
+      label: 'Get Amplified Insiders',
+      href: '/pricing#insiders',
+    },
+    agentPlan: {
+      body: 'It’s part of the Amplified Agent Plan: every agent skill, and live training every week.',
+      label: 'Get Amplified Agent Plan',
+      href: '/pricing#agent-plan',
+    },
+    signIn: { lead: 'Already a member?', label: 'Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
+    // A setup step's file, on a paid page (D-101): the same step, with its file in the platform's
+    // library, which is where a paid ZIP is downloaded.
+    get: { label: 'Download After You Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
   },
   footer: {
     byline: 'By Connor Leiva',

@@ -29,11 +29,11 @@ describe('the catalog', () => {
     expect(existsSync(join(templatePath('card-bank-feed-audit'), '..', '..', '..', 'README.md'))).toBe(true);
   });
 
-  it('frees exactly Connor’s four, two from each collection, and nothing else', () => {
-    expect([...FREE_GROK_TEMPLATES].sort()).toEqual(['card-bank-feed-audit', 'contract-to-close-deadlines', 'new-contract-intake', 'quarterly-tax-profit-first']);
-    expect(GROK_TEMPLATES.filter((g) => isFreeGrokTemplate(g.id)).map((g) => g.collection).sort()).toEqual(['bookkeeping', 'bookkeeping', 'transactions', 'transactions']);
-    expect(PAID_GROK_DOWNLOADS).toHaveLength(12);
-    for (const id of FREE_GROK_TEMPLATES) expect(PAID_GROK_DOWNLOADS).not.toContain(`${id}.zip`);
+  it('frees none since D-115: every template is locked, the four free before it too', () => {
+    expect([...FREE_GROK_TEMPLATES]).toEqual([]);
+    expect(GROK_TEMPLATES.filter((g) => isFreeGrokTemplate(g.id))).toEqual([]);
+    expect(PAID_GROK_DOWNLOADS).toHaveLength(16);
+    for (const id of ['card-bank-feed-audit', 'contract-to-close-deadlines', 'new-contract-intake', 'quarterly-tax-profit-first']) expect(PAID_GROK_DOWNLOADS).toContain(`${id}.zip`);
     expect(isFreeGrokTemplate('trust-earnest-watch')).toBe(false);
   });
 
@@ -177,7 +177,7 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
       expect(doc.querySelector('#skill-library')).not.toBeNull();
       expect(doc.querySelector('form')).toBeNull();
       expect(doc.body.innerHTML).not.toContain(`/downloads/${template.file}`);
-      expect(guide.facts?.[0]).toBe('In the Amplified Skill Library');
+      expect(guide.facts?.[0]).toBe('Locked');
       // The guided setup shows (D-101), and the template's own procedure stays in the Skill Library.
       expect(doc.querySelectorAll('#skill-library .library-setup .setup-step')).toHaveLength(7);
       const procedure = (source.split('\n## Procedure')[1] ?? '').split('\n## ')[0] ?? '';
