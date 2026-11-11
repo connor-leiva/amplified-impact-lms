@@ -98,7 +98,7 @@
 //    `boundedExpiresIn` makes the bound structural. Both failures are invisible in a green suite,
 //    which is why each has a test that names the mechanism it is guarding.
 
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'node:crypto';
 
@@ -181,7 +181,11 @@ export interface EnvLike {
   readonly S3_ACCESS_KEY_ID?: string | undefined;
   readonly S3_SECRET_ACCESS_KEY?: string | undefined;
   readonly S3_BUCKET?: string | undefined;
+  readonly S3_URL_STYLE?: string | undefined;
 }
+
+/** How the bucket is addressed: in the path (`<endpoint>/<bucket>/<key>`) or in the host (`<bucket>.<endpoint>/<key>`). */
+export type S3UrlStyle = 'path' | 'virtual';
 
 export interface S3Config {
   region: string;
@@ -190,6 +194,14 @@ export interface S3Config {
   bucket: string;
   accessKeyId: string;
   secretAccessKey: string;
+  /**
+   * `S3_URL_STYLE`: `path` (the default) or `virtual`. Railway's buckets created since its move to
+   * virtual-hosted URLs are addressed in the host; older ones in the path. The bucket's Credentials
+   * tab says which. Production's `skills` bucket takes path-style uploads (the 2026-11-11 pre-deploy
+   * uploaded through it), so path stays the default and `virtual` is the switch for a bucket that
+   * needs it. With a dot in the bucket name the SDK addresses it in the path either way.
+   */
+  urlStyle: S3UrlStyle;
 }
 
 /** Present and not whitespace. `''` is what an unfilled Railway variable gives you, and decision 1 is about what that costs. */
@@ -218,6 +230,10 @@ export function readS3Config(env: EnvLike = process.env): S3Config {
 
   const region = blank(env.S3_REGION) ? 'auto' : env.S3_REGION!.trim();
   const endpoint = blank(env.S3_ENDPOINT) ? undefined : env.S3_ENDPOINT!.trim();
+  const style = blank(env.S3_URL_STYLE) ? 'path' : env.S3_URL_STYLE!.trim().toLowerCase();
+  if (style !== 'path' && style !== 'virtual') {
+    throw new StorageConfigError(`File storage is not configured: S3_URL_STYLE is ${JSON.stringify(env.S3_URL_STYLE)}; use 'path' or 'virtual'.`);
+  }
   if (endpoint === undefined && region === 'auto') {
     throw new StorageConfigError(
       'File storage is not configured: with no S3_ENDPOINT the bucket is addressed on AWS S3, ' +
@@ -231,6 +247,7 @@ export function readS3Config(env: EnvLike = process.env): S3Config {
     bucket: env.S3_BUCKET!.trim(),
     accessKeyId: env.S3_ACCESS_KEY_ID!.trim(),
     secretAccessKey: env.S3_SECRET_ACCESS_KEY!.trim(),
+    urlStyle: style,
   };
 }
 
@@ -239,7 +256,7 @@ let cached: { config: S3Config; client: S3Client } | null = null;
 /**
  * The client and the bucket name, built on first presign and kept.
  *
- * `forcePathStyle` is § 8.2's, and it is not a style preference: a Railway bucket name contains
+ * `forcePathStyle` is § 8.2's default, and it is not a style preference: a Railway bucket name contains
  * dots (`bucket-production-ab12.up.railway.app`-style names are common, and the gate calls this
  * out), and virtual-hosted addressing would put those dots in the HOST — `my.bucket.endpoint` —
  * where a one-level wildcard certificate does not match and TLS fails before any request is made.
@@ -257,6 +274,10 @@ let cached: { config: S3Config; client: S3Client } | null = null;
  * So a test whose bucket name has a dot passes with the flag deleted, and deleting it breaks every
  * download and upload at the TLS handshake with the suite green. Only a DOTLESS bucket name makes
  * this flag the one thing deciding the URL shape, which is what `storage.test.ts` pins.
+ *
+ * Railway's newer buckets are documented as virtual-hosted (the bucket in the host). For one of
+ * those, `S3_URL_STYLE=virtual` clears the flag; the default stays path, which production's bucket
+ * accepts.
  */
 function s3(): { config: S3Config; client: S3Client } {
   if (cached) return cached;
@@ -264,7 +285,8 @@ function s3(): { config: S3Config; client: S3Client } {
   const client = new S3Client({
     region: config.region,
     endpoint: config.endpoint,
-    forcePathStyle: true,
+    // `S3_URL_STYLE` (default `path`): see `S3Config.urlStyle` and the note above.
+    forcePathStyle: config.urlStyle === 'path',
     // Decision 2. Both default to 'WHEN_SUPPORTED' and both add signed query parameters that a
     // presigned URL cannot satisfy or a compatible store may not implement.
     requestChecksumCalculation: 'WHEN_REQUIRED',
@@ -400,6 +422,25 @@ export async function putObject(key: string, body: Uint8Array, contentType: stri
   const { client, config } = s3();
   await client.send(new PutObjectCommand({ Bucket: config.bucket, Key: requireKey(key), Body: body, ContentType: contentType }));
 }
+
+/**
+ * Every key under `prefix`, paging through ListObjectsV2. For the read-only Library check (D-122):
+ * it reads names only, never an object.
+ */
+export async function listKeys(prefix: string): Promise<string[]> {
+  const { client, config } = s3();
+  const keys: string[] = [];
+  let token: string | undefined;
+  do {
+    const out = await client.send(new ListObjectsV2Command({ Bucket: config.bucket, Prefix: prefix, ContinuationToken: token }));
+    for (const o of out.Contents ?? []) if (o.Key) keys.push(o.Key);
+    token = out.IsTruncated ? out.NextContinuationToken : undefined;
+  } while (token);
+  return keys;
+}
+
+/** The configured `S3_URL_STYLE`, for the Library check to report. Throws `StorageConfigError` like any other use. */
+export const storageUrlStyle = (): S3UrlStyle => s3().config.urlStyle;
 
 export function moduleFileKey(moduleId: string, fileName: string): string {
   return `modules/${requireSafe('module id', moduleId)}/${requireSafe('file name', fileName)}`;

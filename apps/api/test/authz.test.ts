@@ -500,6 +500,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/health', methods: 'GET, HEAD', guard: 'open' },
   // D-121: whether the AI Accelerator's curriculum is in the database, as counts only.
   { path: '/api/health/curriculum', methods: 'GET, HEAD', guard: 'open' },
+  // D-122: whether a Skill Library download link resolves, as counts and a status code only.
+  { path: '/api/health/library', methods: 'GET, HEAD', guard: 'open' },
   { path: '/api/events', methods: 'GET, HEAD', guard: 'open-stream' },
   { path: '/api/auth/request', methods: 'POST', guard: 'open' },
   { path: '/api/auth/verify', methods: 'POST', guard: 'open' },

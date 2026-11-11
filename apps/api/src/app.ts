@@ -87,6 +87,7 @@ import { isTestEnv, registerTestRoutes } from './routes/test';
 import { registerOfferRoutes } from './routes/offer';
 import { registerSkillRoutes } from './routes/skills';
 import { registerCurriculumStatusRoute } from './routes/curriculum-status';
+import { registerLibraryStatusRoute } from './routes/library-status';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import type { OfferPages } from './routes/offer';
@@ -514,6 +515,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerCourseRoute(app);
     // Whether its curriculum is in this database, as counts and nothing else (D-121): open.
     registerCurriculumStatusRoute(app);
+    // Whether a Skill Library download link resolves, as counts and a status code (D-122): open.
+    registerLibraryStatusRoute(app);
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

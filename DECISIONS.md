@@ -4107,3 +4107,28 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
   - On a database with the curriculum it answers `ok` with 9, 9 and 16, and exactly those keys.
   - It answers not ok, with the short count, before the curriculum is applied and after staff draft one week.
   - It needs no cookie, and the route table classifies it as open.
+
+## D-122 · `GET /api/health/library`, and `S3_URL_STYLE`: is a Skill Library download link resolving?
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy) in chat on 2026-11-11, 7:25 AM Central: "(b) check the S3 client works with a Railway bucket's virtual-hosted URL style (not path-style), and fix it if not; (c) confirm with a safe read-only check (no secrets printed) that a Skill Library download link resolves for a paying plan." The open route, like D-121's, is this pull request's choice, for Ampy's review.
+**Status:** on a pull request.
+**Scope:** `apps/api/src/storage.ts` (`S3_URL_STYLE`, `listKeys`, `storageUrlStyle`), `apps/api/src/routes/library-status.ts` (new), one line in `apps/api/src/app.ts`, the route table in `apps/api/test/authz.test.ts`, `apps/api/src/storage.test.ts`, `apps/api/test/library-status.test.ts` (new), `docs/LAUNCH.md` § 2.
+
+- **The URL style.** The client forced path-style addressing (§ 8.2), so it could not address a bucket in the host.
+  - Railway's docs say its buckets created since its move to virtual-hosted URLs are addressed in the host, older ones in the path, and each bucket's Credentials tab says which.
+  - Production's new `skills` bucket took the 2026-11-11 pre-deploy's path-style uploads.
+  - So path stays the default, and `S3_URL_STYLE=virtual` (validated with the other `S3_*` variables; anything else is refused by name) addresses a dotless bucket in the host.
+  - With a dot in the name the SDK keeps it in the path either way, which is what § 8.2 guarded against.
+- **The check.** A download is the plan check, then `presignGet` on the file's key, then a 302 to that link. Proving it end to end from outside needs a paying buyer's session; the plan check is pinned per cart in `offer.test.ts`. This checks everything after it, with no session:
+  - how many of the catalogs' `skills` rows are published;
+  - how many of the catalogs' 122 ZIPs are in the bucket (a listing by name; no object is read);
+  - one real link: `presignGet` for a paid skill's Claude file, exactly as the route calls it, fetched for one byte (`Range: bytes=0-0`). Only the status code comes back.
+- **What it never says.** It returns counts, the URL style, that status, and a fixed word for a failed step: never the link, a key, a credential or an error message. Its answer is kept for a minute, so a loop of calls cannot become bucket traffic. Like `/api/health/curriculum` (D-121) it is open, one more exception to Gate 7's 401 rule, classified in the route table.
+- **Tested:**
+  - `ok` with every row, every ZIP and a 206.
+  - Not ok for a missing ZIP, a 403, unpublished rows, or no `S3_*` settings (and then it touches nothing else).
+  - Each failed step named by its word, with no message, link or credential in the answer.
+  - The sample is a paid skill's file.
+  - The route answers with no session.
+  - `S3_URL_STYLE`: path by default, virtual puts a dotless bucket in the host and still signs, and anything else is refused.

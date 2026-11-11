@@ -118,7 +118,15 @@ describe('§ 8.2 S3 configuration @g8', () => {
       bucket: 'ai-lms.production',
       accessKeyId: 'AKIA',
       secretAccessKey: 'shhh',
+      urlStyle: 'path',
     });
+  });
+
+  it('reads S3_URL_STYLE: path by default, virtual when a bucket needs it, and nothing else', () => {
+    expect(readS3Config({ ...ENV, S3_URL_STYLE: undefined }).urlStyle).toBe('path');
+    expect(readS3Config({ ...ENV, S3_URL_STYLE: ' Virtual ' }).urlStyle).toBe('virtual');
+    expect(() => readS3Config({ ...ENV, S3_URL_STYLE: 'hosted' })).toThrow(StorageConfigError);
+    expect(() => readS3Config({ ...ENV, S3_URL_STYLE: 'hosted' })).toThrow(/S3_URL_STYLE.*'path' or 'virtual'/);
   });
 
   it('defaults the region to ‘auto’, as § 8.2’s snippet does', () => {
@@ -258,6 +266,17 @@ describe('§ 8.2 presignGet @g8', () => {
     expect(parsed.pathname).toBe(`/${DOTLESS_BUCKET}/resources/r2`);
     // And the URL is still a real signed URL rather than something that failed differently.
     expect(q(parsed.href, 'X-Amz-Signature')).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  // S3_URL_STYLE=virtual (Railway's newer buckets): the bucket moves into the host for a dotless name.
+  it('addresses a dotless bucket in the HOST with S3_URL_STYLE=virtual, and still signs the link', async () => {
+    process.env.S3_URL_STYLE = 'virtual';
+    withBucket(DOTLESS_BUCKET);
+    const parsed = new URL(await presignGet('resources/r2', 'x.pdf', { signingDate: AT }));
+    expect(parsed.host).toBe(`${DOTLESS_BUCKET}.${new URL(ENV.S3_ENDPOINT).host}`);
+    expect(parsed.pathname).toBe('/resources/r2');
+    expect(q(parsed.href, 'X-Amz-Signature')).toMatch(/^[0-9a-f]{64}$/);
+    delete process.env.S3_URL_STYLE;
   });
 
   it('measures why a dotted bucket name cannot pin forcePathStyle at all', async () => {
