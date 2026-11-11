@@ -424,7 +424,7 @@ describe('every week’s words', () => {
     expect(all).toContain('Zoom link TBA');
   });
 
-  it('lists exactly the two Library items that are expected but not merged yet', () => {
-    expect(LIBRARY_ROUTES_PENDING_MERGE).toEqual(['/morning-brief', '/new-agent-onboarding-plan']);
+  it('lists exactly the Library item that is expected but not merged yet', () => {
+    expect(LIBRARY_ROUTES_PENDING_MERGE).toEqual(['/morning-brief']);
   });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
-import { cardAction, dashboardVM, nextWednesday } from './Dashboard.vm';
+import { cardAction, dashboardVM, INSTRUCTOR_FALLBACK, nextWednesday } from './Dashboard.vm';
 
 // Expectations are HARD-CODED, never recomputed from the same helpers the view-model uses: a test
 // that recomputes its own answer proves only that the code agrees with itself. The strings below
@@ -435,6 +435,14 @@ describe('Dashboard · the AI Accelerator cohort', () => {
     const vm = dashboardVM(prod, buyer, CT('2027-02-10T09:00'));
     expect(vm.post).toEqual({ ended: 'Feb 4', title: 'Office Hours Continue', host: 'Connor Leiva', next: 'Schedule TBA', cal: null, rewatch: { kind: 'nav', to: '/sessions' } });
     expect(vm.links.find((l) => l.key === 'office-hours')).toMatchObject({ sub: 'Schedule TBA', action: { kind: 'nav', to: '/sessions' } });
+    expect(JSON.stringify(vm)).not.toContain('Jordan Hale');
+  });
+
+  it('says "Your instructor" when no module names one, never the prototype’s name (Ampy, 2026-11-11)', () => {
+    const bare: Db = { ...prod, modules: prod.modules.map((m) => ({ ...m, instructor: '' })) };
+    const vm = dashboardVM(bare, buyer, CT('2027-02-10T09:00'));
+    expect(vm.post?.host).toBe(INSTRUCTOR_FALLBACK);
+    expect(INSTRUCTOR_FALLBACK).toBe('Your instructor');
     expect(JSON.stringify(vm)).not.toContain('Jordan Hale');
   });
 });

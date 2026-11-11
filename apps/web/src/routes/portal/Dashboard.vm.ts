@@ -198,6 +198,8 @@ const officeHourFile = (oh: Session, stamp: number): DownloadSpec => ({
 
 /** No scheduled office hour yet: said, not invented. */
 const SCHEDULE_TBA = 'Schedule TBA';
+/** The host when no module of a cohort with its own office hours names an instructor (Ampy, 2026-11-11). */
+export const INSTRUCTOR_FALLBACK = 'Your instructor';
 
 const officeHoursFile = (t: number, stamp: number): DownloadSpec => ({
   name: 'office-hours.ics',
@@ -317,7 +319,8 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
   const ohNext = series
     ? (accessibleSessions(db, user).find((x) => sessionKind(x) === 'office_hours' && sessionEnd(x) > now) ?? null)
     : null;
-  const host = (series && vis.find((m) => m.instructor)?.instructor) || 'Jordan Hale';
+  // No module names an instructor: "Your instructor", never the prototype's invented one (Ampy, 2026-11-11).
+  const host = series ? (vis.find((m) => m.instructor)?.instructor ?? INSTRUCTOR_FALLBACK) : 'Jordan Hale';
   const post: DashboardPost | null =
     isPost && co
       ? series
