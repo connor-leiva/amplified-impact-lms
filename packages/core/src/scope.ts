@@ -12,7 +12,9 @@
 //      says string, so the web app's existing screens keep rendering.
 //   3. Nothing reads the clock or a random source, so two calls on the same db are deep-equal.
 
+import { isAcceleratorModule } from './accelerator';
 import { can } from './can';
+import { moduleForSession } from './sessions';
 import { canAccess, visibleModules } from './status';
 import { ZERO_BASE } from './types';
 import type { Actor } from './mutations';
@@ -106,8 +108,31 @@ const denyAll = (db: Db): Db => ({
   activity: [],
 });
 
+/**
+ * What the snapshot route knows about a learner that the `Db` does not: their account's plans.
+ *
+ * `accelerator` is `acceleratorOpen(plans, now)` (D-110). The course's nine AI Employees and the
+ * sessions that belong to them are the AI Accelerator's, and every paid buyer sits in cohort `dec26`,
+ * so cohort membership cannot be the gate: the plan is. Absent, nothing is filtered, which is how
+ * every caller behaved before the course existed and how the demo (which has no course) still runs.
+ */
+export interface ViewerAccess {
+  accelerator: boolean;
+}
+
+/** Drop the course for a learner whose plan does not open it: its modules and the sessions behind them. */
+function withoutAccelerator(db: Db, modules: AIEmployee[], sessions: Session[]): { modules: AIEmployee[]; sessions: Session[] } {
+  return {
+    modules: modules.filter((m) => !isAcceleratorModule(m.id)),
+    sessions: sessions.filter((s) => {
+      const m = moduleForSession(db, s);
+      return !m || !isAcceleratorModule(m.id);
+    }),
+  };
+}
+
 /** `db` is already this call's private clone, so these reads and spreads cannot reach the caller. */
-function scopeForLearner(db: Db, userId: string): Db {
+function scopeForLearner(db: Db, userId: string, access?: ViewerAccess): Db {
   const me = db.users.find((u) => u.id === userId);
   if (!me) return denyAll(db);
 
@@ -115,14 +140,20 @@ function scopeForLearner(db: Db, userId: string): Db {
   const showEmail = seesTeamEmails(me);
   const mine = `${me.id}:`;
 
+  // Their own cohort's sessions only, with the join URL withheld.
+  let sessions = db.sessions.filter((s) => s.cohortId === me.cohortId).map(redactSession);
+  // Published and scheduled modules; a draft never appears. Blanked where `canAccess` is false.
+  let modules = visibleModules(db).map((m) => (canAccess(me, m) ? m : redactModule(m)));
+  // The AI Accelerator, only for a plan that opens it (D-110). Dropped, not redacted: a redacted
+  // module keeps its notes and checklist, which here are the course itself.
+  if (access && !access.accelerator) ({ modules, sessions } = withoutAccelerator(db, modules, sessions));
+
   return {
     v: db.v,
     phase: db.phase,
     cohorts: db.cohorts,
-    // Their own cohort's sessions only, with the join URL withheld.
-    sessions: db.sessions.filter((s) => s.cohortId === me.cohortId).map(redactSession),
-    // Published and scheduled modules; a draft never appears. Blanked where `canAccess` is false.
-    modules: visibleModules(db).map((m) => (canAccess(me, m) ? m : redactModule(m))),
+    sessions,
+    modules,
     // Themselves, plus their team's roster. An Agent-tier learner with no team sees only themselves.
     users: db.users
       .filter((u) => u.id === me.id || (teamId !== null && u.teamId === teamId))
@@ -158,7 +189,7 @@ function scopeForStaff(db: Db, staffId: string): Db {
  * Pure and total. The input is never mutated and the result shares no object with it.
  * `base` is always `ZERO_BASE`: the demo aggregates are fixture-only.
  */
-export function scopeSnapshot(db: Db, actor: Actor): Db {
+export function scopeSnapshot(db: Db, actor: Actor, access?: ViewerAccess): Db {
   const copy = structuredClone(db);
-  return actor.kind === 'staff' ? scopeForStaff(copy, actor.staffId) : scopeForLearner(copy, actor.userId);
+  return actor.kind === 'staff' ? scopeForStaff(copy, actor.staffId) : scopeForLearner(copy, actor.userId, access);
 }
