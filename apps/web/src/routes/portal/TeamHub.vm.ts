@@ -151,6 +151,12 @@ export interface DrawerMember {
 
 export interface TeamHubVM {
   teamName: string;
+  /**
+   * The reference's "December 2026 Cohort" line, shown only to a learner whose snapshot carries the
+   * cohort's AI Employees. A plan that opens none (Amplified Insiders, the Team Plan, D-119) is not
+   * in a cohort as far as its buyer can see, so the line says nothing about one.
+   */
+  inCohort: boolean;
   members: MemberRow[];
   seats: {
     used: number;
@@ -395,6 +401,7 @@ export function teamHubVM(
 
   return {
     teamName: team.name,
+    inCohort: visibleModules(db).length > 0,
     members,
     seats,
     dep,

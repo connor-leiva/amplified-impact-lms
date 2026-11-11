@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { blankModule, phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
-import { adminNav, portalNav, type NavEntry, type NavGroup } from './navModel';
+import { SKILL_LIBRARY_PATH, adminNav, hasPortal, noPortalRedirect, portalNav, type NavEntry, type NavGroup } from './navModel';
 
 // Week 2 of the December 2026 Cohort — the instant the goldens were captured in.
 const NOW = phaseNow('live');
@@ -210,6 +210,44 @@ describe('navModel @g4', () => {
     it('still shows the children when the group is toggled closed, because the header is gone', () => {
       const closed = portalNav(db, alex, { pathname: '/' }, NOW, true, false);
       expect(keys(closed[1]!)).toHaveLength(6);
+    });
+  });
+
+  // D-119: a buyer whose plan opens no AI Employee (Amplified Insiders, the Team Plan, the Agent Plan).
+  // `scopeSnapshot` drops the course from their snapshot, so it carries no module at all.
+  describe('portalNav · a learner whose plan opens no AI Employee (D-119)', () => {
+    const prod = seedProduction({ owner: { name: 'Connor Leiva', email: 'connor@amplifiedimpact.io' } });
+    const db: Db = { ...prod, modules: [], sessions: [] };
+    const owner: Learner = { id: 'u_b', name: 'B', email: 'b@example.test', tier: 'team', role: 'Team Owner', teamId: 't_b', cohortId: 'dec26', joined: 0, last: null, status: 'active', progress: {} };
+    const agent: Learner = { ...owner, id: 'u_a', tier: 'agent' };
+
+    it('has no portal, where every prototype learner has one', () => {
+      expect(hasPortal(db)).toBe(false);
+      expect(hasPortal(seed('live'))).toBe(true);
+    });
+
+    it('shows the Skill Library, then the Team Hub for Team tier, then the Vault: no Dashboard, Sessions or AI Employees', () => {
+      const nav = portalNav(db, owner, { pathname: '/team' }, NOW, false, true);
+      expect(nav).toHaveLength(1);
+      expect(keys(nav[0]!)).toEqual(['library', 'team', 'vault']);
+      expect(row(nav[0]!, 'library')).toMatchObject({ label: 'Skill Library', icon: 'book', action: { to: SKILL_LIBRARY_PATH }, active: false });
+      expect(row(nav[0]!, 'team').active).toBe(true);
+      expect(keys(portalNav(db, agent, { pathname: '/vault' }, NOW, false, true)[0]!)).toEqual(['library', 'vault']);
+    });
+
+    it('in the rail, keeps two groups and no empty one for children', () => {
+      const nav = portalNav(db, owner, { pathname: '/vault' }, NOW, true, true);
+      expect(nav.map(keys)).toEqual([['library'], ['team', 'vault']]);
+    });
+
+    it('sends every cohort screen to the Skill Library, and keeps the Team Hub and the Vault', () => {
+      for (const p of ['/', '/sessions', '/sessions/', '/employees/accel-w1', '/team-tier', '/admin']) expect(noPortalRedirect(db, p), p).toBe(SKILL_LIBRARY_PATH);
+      for (const p of ['/team', '/team/', '/vault']) expect(noPortalRedirect(db, p), p).toBeNull();
+    });
+
+    it('never redirects a learner who has a portal: the prototype and an AI Accelerator buyer', () => {
+      for (const p of ['/', '/sessions', '/employees/marketing', '/team-tier']) expect(noPortalRedirect(seed('live'), p), p).toBeNull();
+      expect(noPortalRedirect(prod, '/')).toBeNull();
     });
   });
 
