@@ -11,7 +11,7 @@
 //       and bucket keys. With --upload, also puts each ZIP from apps/web/public/downloads into the bucket
 //       under skills/<id>/, which needs the S3_* settings. Writes only the rows that differ, and checks
 //       every ZIP before uploading any (billing/library-sync.ts), so it is safe to repeat: a second run
-//       changes 0 rows. By hand until production has a bucket (docs/LAUNCH.md § 8, step 3).
+//       changes 0 rows. The pre-deploy command runs it on every deploy (docs/LAUNCH.md § 8, step 3).
 
 import { getDb, close } from '../db/client';
 import { clock } from '../lib/clock';

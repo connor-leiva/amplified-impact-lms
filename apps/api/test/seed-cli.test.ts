@@ -230,14 +230,17 @@ describe('§9.5 the seed CLI @g9', () => {
     expect(deps.calls.out[2]).toContain('run db:curriculum');
   });
 
-  it('the deploy runs, after the migrations, the curriculum if missing, and nothing that seeds learners or needs the bucket @g9', async () => {
+  it('the deploy runs, after the migrations, the curriculum if missing and the Library upload, and nothing that seeds learners @g9', async () => {
     // The string Railway runs is set by hand in its dashboard (it does not read this file on deploy);
     // this pins the file to what is live, so the two can be compared at a glance.
     const { readFileSync } = await import('node:fs');
     const railway = readFileSync(new URL('../../../.railway/railway.ts', import.meta.url), 'utf8');
     const pre = /preDeploy:\s*'([^']+)'/.exec(railway)?.[1] ?? '';
-    expect(pre.split(' && ')).toEqual(['pnpm --filter @ai/api db:migrate', 'pnpm --filter @ai/api db:curriculum:ensure']);
-    expect(pre).not.toMatch(/--upload|S3_/);
+    expect(pre.split(' && ')).toEqual([
+      'pnpm --filter @ai/api db:migrate',
+      'pnpm --filter @ai/api db:curriculum:ensure',
+      'pnpm --filter @ai/api skills --upload',
+    ]);
     expect(pre).not.toMatch(/db:seed|--launch|db:curriculum(?!:ensure)/);
   });
 });
