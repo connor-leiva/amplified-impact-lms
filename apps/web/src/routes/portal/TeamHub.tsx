@@ -115,7 +115,9 @@ function TeamHub() {
         <div className={s.head}>
           <div>
             <h1 className={s.h1}>Team Hub</h1>
-            <p className={s.sub}>{vm.teamName} · Team Tier · December 2026 Cohort</p>
+            <p className={s.sub}>
+              {vm.teamName} · Team Tier{vm.inCohort ? ' · December 2026 Cohort' : ''}
+            </p>
           </div>
           <div className={s.headActions}>
             <button

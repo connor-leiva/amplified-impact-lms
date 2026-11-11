@@ -33,16 +33,17 @@ const NOT_FOUND = 'Not found';
 type SkillRow = typeof skills.$inferSelect;
 
 /** The learner, their role and their account's plans, for the access rule. */
-async function accessOf(userId: string): Promise<{ role: string | null; plans: PlanAccess[] } | null> {
+async function accessOf(userId: string): Promise<{ role: string | null; tier: string | null; plans: PlanAccess[] } | null> {
   const db = getDb();
-  const [user] = await db.select({ teamId: users.teamId, role: users.role, kind: users.kind }).from(users).where(eq(users.id, userId)).limit(1);
+  const [user] = await db.select({ teamId: users.teamId, role: users.role, tier: users.tier, kind: users.kind }).from(users).where(eq(users.id, userId)).limit(1);
   if (!user || user.kind !== 'learner') return null;
-  if (!user.teamId) return { role: user.role, plans: [] };
+  if (!user.teamId) return { role: user.role, tier: user.tier, plans: [] };
   const accts = await db.select({ id: accounts.id }).from(accounts).where(eq(accounts.teamId, user.teamId));
-  if (!accts.length) return { role: user.role, plans: [] };
+  if (!accts.length) return { role: user.role, tier: user.tier, plans: [] };
   const rows = await db.select().from(plans).where(inArray(plans.accountId, accts.map((a) => a.id)));
   return {
     role: user.role,
+    tier: user.tier,
     plans: rows.map((p) => ({ kind: p.kind as PlanKind, status: p.status as PlanStatus, startsAt: p.startsAt, paidThrough: p.paidThrough, liveUntil: p.liveUntil })),
   };
 }
@@ -71,6 +72,8 @@ export function registerSkillRoutes(app: FastifyInstance): void {
     const rows = await getDb().select().from(skills).where(eq(skills.status, 'published'));
     return reply.send({
       plans: access.plans.map((p) => ({ kind: p.kind, status: p.status, paidThrough: p.paidThrough })),
+      // The portal shows the Team Hub to a Team tier learner; so does this page's link to it (D-119).
+      teamHub: access.tier === 'team',
       skills: rows
         .sort((a, b) => a.releasedAt - b.releasedAt || a.title.localeCompare(b.title))
         .map((s) => ({

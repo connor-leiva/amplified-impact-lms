@@ -69,6 +69,33 @@ export const employeePath = (id: string): string => `/employees/${id}`;
 /** The AI Accelerator's pages (D-110). Outside the shell, so not one of `NAV_PATHS`' screens. */
 export const COURSE_PATH = '/course';
 
+/** The Skill Library (D-079). Outside the shell, like the course. */
+export const SKILL_LIBRARY_PATH = '/skill-library';
+
+/**
+ * Whether this learner's portal has anything in it (D-119): an AI Employee in their snapshot.
+ *
+ * The server sends a learner only what their plan opens (`scopeSnapshot`, D-110), and every paid
+ * buyer sits in cohort `dec26`. So a buyer of Amplified Insiders, the Amplified Team Plan or the
+ * Amplified Agent Plan, whose plan opens no AI Employee, gets none: their portal would be an empty
+ * cohort dashboard and the prototype's invented office hours. Their portal is their Skill Library
+ * instead. Every learner in the prototype has six, so the demo and its goldens never take this path.
+ */
+export const hasPortal = (db: Db): boolean => visibleModules(db).length > 0;
+
+/** The shell screens a learner with no portal keeps (D-119): the Team Hub, to invite their team, and the Resource Vault. */
+const NO_PORTAL_KEEPS: readonly string[] = [NAV_PATHS.team, NAV_PATHS.vault];
+
+/**
+ * Where a learner with no portal goes instead of a cohort screen (D-119): the Skill Library, from the
+ * Dashboard, Sessions, an AI Employee or anything else but the two screens they keep. Null when the
+ * learner has a portal, or is on a screen they keep.
+ */
+export function noPortalRedirect(db: Db, pathname: string): string | null {
+  if (hasPortal(db)) return null;
+  return NO_PORTAL_KEEPS.includes(norm(pathname)) ? null : SKILL_LIBRARY_PATH;
+}
+
 const EMP_PREFIX = '/employees/';
 
 /** Trailing slashes are not a different screen. `/sessions/` is `/sessions`. */
@@ -196,6 +223,18 @@ export function portalNav(
     ...(user.tier === 'team' ? [item('team', 'Team Hub', 'users', NAV_PATHS.team, at(NAV_PATHS.team))] : []),
     item('vault', 'Resource Vault', 'archive', NAV_PATHS.vault, at(NAV_PATHS.vault)),
   ];
+
+  // No AI Employee in the snapshot (D-119): no Dashboard, Sessions or AI Employees to show, so none
+  // is shown. The Skill Library, their plan's page, leads; the Team Hub and the Vault follow.
+  if (mods.length === 0) {
+    const library = [item('library', 'Skill Library', 'book', SKILL_LIBRARY_PATH, false)];
+    return collapsed
+      ? [
+          { showLabel: false, items: library },
+          { showLabel: false, items: tail },
+        ]
+      : [{ showLabel: false, items: [...library, ...tail] }];
+  }
 
   return collapsed
     ? [

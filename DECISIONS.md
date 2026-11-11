@@ -4032,3 +4032,34 @@ The Offer Launch website spec (Nov 9, 2026) lists ten decisions as D-071 to D-08
 
 - **The change.** After a prototype cohort ends, the dashboard's office-hours card named "Jordan Hale", a name the prototype invented. It now says "Your instructor", the same words the production card uses when no module names an instructor (`INSTRUCTOR_FALLBACK`, D-110). One string in the reference, the same string in the port, and the two `dash-agent-post` goldens that render it. Nothing else on the card moves.
 - **Not changed, for Ampy and Connor to decide.** The same invented name is still the prototype's instructor on its six modules and the staff list (`design-reference/lms-data.js`, `packages/core/src/seed.ts` and its fixtures), so the demo seed's session cards say "with Jordan Hale" in fixture mode and in about thirty goldens. It is never in production data (`seedProduction` names Connor Leiva). Scrubbing it is a wider reference change and a wider re-capture, so it waits on a yes.
+
+## D-119 · A plan that opens no AI Employee: the portal is the Skill Library
+
+**Date:** 2026-11-11
+**Approved by:** the PM (Ampy) in chat on 2026-11-11, 5:25 AM Central: "Portal plan-awareness (#23 gap 4): make sure Insiders, Team Plan and Agent Plan buyers never see the Accelerator builds or course anywhere in the portal. #29 says acceleratorOpen covers snapshot, join, /api/course and reminders; confirm Dashboard and Sessions too, and fix any leak." The way it is fixed below is this pull request's, for Ampy's review.
+**Status:** on a pull request.
+**Scope:** `apps/web/src/shell/` (`navModel.ts`, `AppShell.tsx`), `apps/web/src/routes/library/SkillLibrary.tsx`, `apps/web/src/routes/portal/TeamHub.*`, `apps/api/src/routes/skills.ts`.
+
+- **What was confirmed.** The course never reaches these buyers: `scopeSnapshot` drops its modules and sessions (D-110), so the Dashboard and Sessions show no build, no Zoom link and no course link, and `/course` says it is not in their plan.
+- **What leaked instead.** With nothing in the snapshot, the portal fell back to the prototype. Signed in as an Amplified Insiders, Team Plan or Agent Plan buyer against a launch-seeded database:
+  - the Dashboard showed "Progress 0 of 0" and the prototype's Quick Links ("Cohort Community · 148 members · 23 new posts today", "Office Hours · Wednesdays · 11:00 AM CT");
+  - Sessions listed Wednesday 11:00 AM office hours that do not exist, dated relative to today, one marked "Recording Posted";
+  - the sidebar header said "December 2026 Cohort · Starts Dec 2".
+  None of it is theirs, and none of it is real.
+- **The rule.** A learner whose snapshot holds no AI Employee has no portal of their own (`hasPortal`). Every prototype learner has six and every AI Accelerator learner nine, so the demo, its goldens and the course are untouched.
+  - **Where they go.** The Dashboard, Sessions, any AI Employee, Team Tier and anything else in the shell send them to `/skill-library`, the page their plan bought. That includes sign-in, which lands on `/`.
+  - **What they keep.** The Team Hub, which is where an Insiders or Team Plan owner invites their people, and the Resource Vault.
+  - **Their sidebar** shows Skill Library, Team Hub (Team tier, as before) and Resource Vault. It has no Dashboard, Sessions or AI Employees, and no cohort line under the logo.
+  - **The Team Hub's line** reads "{team} · Team Tier", without "December 2026 Cohort".
+- **One new link.** The Skill Library is outside the shell and had no way back into it. It now shows "Open Team Hub" beside "Manage Billing" for a Team tier learner (`GET /api/skills` says `teamHub`, by the same rule the sidebar uses). An Agent Plan buyer, at Agent tier, has no Team Hub and gets no link.
+- **Not added.** No placeholder for agent coaching (Ampy: show nothing until Connor decides), and no other new copy.
+- **Tested:**
+  - The nav model: rows, rail groups and every redirect, for a learner with and without a portal.
+  - The Skill Library's link, for both cases.
+  - Each of the eight carts' `/api/skills` `teamHub` against its tier.
+  - The Team Hub's line.
+  - In Chromium against the real API (an http build over a launch-seeded database, one buyer per plan, at 390 and 1280):
+    - Insiders, Team Plan and Agent Plan land on the Skill Library from `/`, `/sessions`, `/team-tier` and an AI Employee's URL.
+    - The Team Hub and the Vault open for Team tier.
+    - The AI Accelerator buyer's portal is unchanged.
+    - Zero serious or critical axe violations.

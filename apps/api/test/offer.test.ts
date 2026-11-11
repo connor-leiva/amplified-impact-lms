@@ -934,6 +934,9 @@ describe('every offer, end to end (D-106)', () => {
         expect(accts[0]).toMatchObject({ ownerEmail: 'pat@example.com', inviteSentAt: null, stripeCustomerId: 'cus_1' });
         const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
         expect(owner).toMatchObject({ role: 'Team Owner', tier: c.tier, status: 'invited', teamId: accts[0]!.teamId, cohortId: 'dec26' });
+        // The skill library links the Team Hub exactly when the portal shows it: Team tier (D-119).
+        const library = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie: await app.signInAs(owner!.id) } });
+        expect(library.json().teamHub, c.cart).toBe(c.tier === 'team');
         const [team] = await (await db()).select().from(teams);
         expect(team).toMatchObject({ ownerId: owner!.id, seats: c.plan.seats });
 

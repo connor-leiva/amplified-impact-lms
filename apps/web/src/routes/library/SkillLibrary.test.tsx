@@ -97,6 +97,18 @@ describe('the skill library screen', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(COPY.failed);
   });
 
+  it('links a Team tier learner to the Team Hub, where an owner invites their team, and no one else (D-119)', async () => {
+    fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agents', status: 'active' }], teamHub: true, skills: [skill({})] }));
+    const { unmount } = render(<SkillLibrary />);
+    expect(await screen.findByRole('link', { name: COPY.teamHub })).toHaveAttribute('href', '/team');
+    unmount();
+
+    fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agent_plan', status: 'trialing' }], teamHub: false, skills: [skill({})] }));
+    render(<SkillLibrary />);
+    expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: COPY.teamHub })).toBeNull();
+  });
+
   it('links an AI Accelerator plan to its course, and no other plan (D-110)', async () => {
     fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'cohort', status: 'active' }], skills: [skill({})] }));
     const { unmount } = render(<SkillLibrary />);

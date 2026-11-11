@@ -40,6 +40,13 @@ describe('teamHubVM @g5', () => {
     expect(teamHubVM(seed('live'), null, phaseNow('live'), TEAM_HUB_UI)).toBeNull();
   });
 
+  it('names the cohort only for a learner who has its AI Employees, never a plan that opens none (D-119)', () => {
+    expect(at('live').vm.inCohort).toBe(true);
+    const db = seed('live');
+    const alex = db.users.find((u) => u.id === 'u_alex')!;
+    expect(teamHubVM({ ...db, modules: [], sessions: [] }, alex, phaseNow('live'), TEAM_HUB_UI)!.inCohort).toBe(false);
+  });
+
   // ---- Week 0 --------------------------------------------------------------------------------
   describe('Week 0 · Alex Morgan (Team Owner)', () => {
     it('seats six of seven, one open slot, and the role breakdown', () => {

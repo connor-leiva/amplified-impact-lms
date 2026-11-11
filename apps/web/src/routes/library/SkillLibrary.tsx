@@ -34,6 +34,8 @@ export const COPY = {
   billing: 'Manage Billing',
   /** An AI Accelerator plan's way to its course pages (D-110). */
   course: 'Open the AI Accelerator',
+  /** A Team tier learner's way to the Team Hub, where an owner invites their team (D-119). */
+  teamHub: 'Open Team Hub',
 } as const;
 
 type SkillState = 'open' | 'locked' | 'upcoming';
@@ -51,7 +53,7 @@ export interface LibrarySkill {
   files: FileKind[];
 }
 
-type Load = { kind: 'loading' } | { kind: 'ready'; skills: LibrarySkill[]; course: boolean } | { kind: 'signed-out' } | { kind: 'failed' };
+type Load = { kind: 'loading' } | { kind: 'ready'; skills: LibrarySkill[]; course: boolean; teamHub: boolean } | { kind: 'signed-out' } | { kind: 'failed' };
 
 /** An AI Accelerator plan, by the plans `/api/skills` reports: only the AI Accelerator is a `cohort` plan. */
 const holdsCourse = (plans: { kind?: string; status?: string }[] | undefined): boolean =>
@@ -62,8 +64,8 @@ async function loadSkills(): Promise<Load> {
     const res = await fetch('/api/skills', { credentials: 'include', headers: { accept: 'application/json' } });
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
     if (!res.ok) return { kind: 'failed' };
-    const body = (await res.json()) as { skills?: LibrarySkill[]; plans?: { kind?: string; status?: string }[] };
-    return { kind: 'ready', skills: body.skills ?? [], course: holdsCourse(body.plans) };
+    const body = (await res.json()) as { skills?: LibrarySkill[]; plans?: { kind?: string; status?: string }[]; teamHub?: boolean };
+    return { kind: 'ready', skills: body.skills ?? [], course: holdsCourse(body.plans), teamHub: body.teamHub === true };
   } catch {
     return { kind: 'signed-out' };
   }
@@ -151,6 +153,11 @@ export function Component() {
             {load.course ? (
               <a className={s.primary} href="/course">
                 {COPY.course}
+              </a>
+            ) : null}
+            {load.teamHub ? (
+              <a className={s.secondary} href="/team">
+                {COPY.teamHub}
               </a>
             ) : null}
             <a className={s.secondary} href="/api/billing/portal">

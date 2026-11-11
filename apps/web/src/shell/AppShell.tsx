@@ -16,7 +16,7 @@ import { ConfettiProvider } from './Confetti';
 import { DemoControls } from './DemoControls';
 import { ProfileMenu } from './ProfileMenu';
 import { ShellProvider } from './ShellContext';
-import { adminNav, portalNav, type NavAction, type NavGroup } from './navModel';
+import { adminNav, noPortalRedirect, portalNav, type NavAction, type NavGroup } from './navModel';
 import s from './AppShell.module.css';
 
 // The frame every screen lives in, ported from design-reference/Amplified Impact LMS.dc.html.
@@ -212,6 +212,12 @@ function Shell() {
       return;
     }
     if (!user) return;
+    // A plan that opens no AI Employee has no cohort screens to show (D-119): its Skill Library.
+    const away = noPortalRedirect(db, path);
+    if (away) {
+      replace(away);
+      return;
+    }
     if (isAdminPath) {
       replace('/');
       return;
@@ -237,7 +243,7 @@ function Shell() {
     const first = mods.find((x) => canAccess(user, x));
     replace(first ? `${EMP_PREFIX}${first.id}` : '/');
     openLocked(m.id);
-  }, [employeeId, isAdmin, isAdminPath, isTeam, mods, navigate, openLocked, path, user]);
+  }, [db, employeeId, isAdmin, isAdminPath, isTeam, mods, navigate, openLocked, path, user]);
 
   // ---- Escape closes every layer the shell owns -----------------------------------------------
   useEffect(() => {
@@ -260,7 +266,13 @@ function Shell() {
   }, [collapsed, db, empOpen, isAdmin, now, route, user]);
 
   const cohort = db.cohorts.find((c) => c.id === (user?.cohortId ?? DEFAULT_COHORT)) ?? db.cohorts[0];
-  const contextLine = !cohort ? '' : isAdmin ? `Admin Console · ${cohort.name} Cohort` : cohortLine(cohort, now, db.sessions);
+  // A learner with no AI Employee (D-119) has no cohort line: nothing in the cohort is theirs.
+  const contextLine =
+    !cohort || (!isAdmin && mods.length === 0)
+      ? ''
+      : isAdmin
+        ? `Admin Console · ${cohort.name} Cohort`
+        : cohortLine(cohort, now, db.sessions);
 
   const sbToggleLabel = collapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
   const toggleSidebar = useCallback(() => {
@@ -307,7 +319,7 @@ function Shell() {
             ) : null}
           </div>
 
-          {expanded ? <div className={s.context}>{contextLine}</div> : null}
+          {expanded && contextLine ? <div className={s.context}>{contextLine}</div> : null}
 
           <nav aria-label="Main" className={s.nav}>
             {groups.map((g, gi) => (
