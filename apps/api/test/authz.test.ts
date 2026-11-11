@@ -566,6 +566,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/offer', methods: 'GET, HEAD', guard: 'page' },
   { path: '/forum', methods: 'GET, HEAD', guard: 'page' },
   { path: '/offer/welcome', methods: 'GET, HEAD', guard: 'page' },
+  // Programs and Pricing (D-111), filled per request like /offer.
+  { path: '/pricing', methods: 'GET, HEAD', guard: 'page' },
   { path: '/agreement', methods: 'GET, HEAD', guard: 'page' },
   { path: '/api/offer', methods: 'GET, HEAD', guard: 'open' },
   { path: '/api/offer/order-status', methods: 'GET, HEAD', guard: 'open' },
@@ -1088,6 +1090,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             '/forum',
             '/offer',
             '/offer/welcome',
+            '/pricing',
             '/ai-101',
             '/ai101',
             '/ai101/',

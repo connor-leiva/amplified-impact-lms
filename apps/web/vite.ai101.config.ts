@@ -8,6 +8,7 @@ import { RETOOL_HTML, retoolRender } from './src/retool/vite-plugin.ts';
 import { LIBRARY_HTML, libraryRender } from './src/library/vite-plugin.ts';
 import { OFFER_HTML, offerRender } from './src/offer/vite-plugin.ts';
 import { HOME_HTML, homeRender } from './src/home/vite-plugin.ts';
+import { SITE_HTML, siteRender } from './src/site/vite-plugin.ts';
 
 // The /ai101 page's own build (DECISIONS.md D-028), run after the SPA's by `pnpm build` into the
 // same `dist/` (or `dist-fixture/`, from `--outDir`). Its own config and not a second input to
@@ -36,7 +37,9 @@ export default defineConfig({
     offerRender(),
     // www's homepage (D-102): no script, its stylesheet inlined.
     homeRender(),
-    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML]),
+    // The rest of Spring's site map (D-111): one plugin, a page per `SITE_PAGES` entry, no script.
+    siteRender(),
+    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML, ...SITE_HTML]),
   ],
   resolve: {
     // vite.config.ts's aliases, verbatim. The subpath alias must come first: '@ai/core/mutations'
@@ -78,6 +81,7 @@ export default defineConfig({
         fileURLToPath(new URL(`./${LIBRARY_HTML}`, import.meta.url)),
         ...OFFER_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
         fileURLToPath(new URL(`./${HOME_HTML}`, import.meta.url)),
+        ...SITE_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
       ],
     },
   },

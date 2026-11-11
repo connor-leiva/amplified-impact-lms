@@ -45,6 +45,13 @@ const OFFER_PAGE = [
   '<p class="call">%%team-call%% %%invites%%</p><p class="closes">%%founding-closes%%</p>',
   '<form method="post" action="/api/offer/waitlist"><input type="hidden" name="src" value="%%src%%"></form></body></html>',
 ].join('');
+/** /pricing's tokens (D-111): the offer's, plus the founding countdown and the Accelerator's seats. */
+const PRICING_PAGE = [
+  '<!doctype html><html lang="en"><head><title>Pricing</title></head><body data-founding="%%founding%%" data-seats="%%seats%%">',
+  '<p class="countdown">%%countdown%%</p><p class="seats">%%seats-left%% of %%seats-total%%</p><p class="closes">%%founding-closes%%</p>',
+  '<li id="accelerator" data-state="%%state:cohort-full%%"><a href="%%link:cohort-full%%">x</a><a href="%%link:cohort-two-pay%%">y</a></li>',
+  '<li id="team-plan" data-state="%%state:agents-upto15%%"><a href="%%link:agents-upto15%%">z</a></li><p class="call">%%team-call%%</p></body></html>',
+].join('');
 const WELCOME_PAGE =
   '<!doctype html><html><body data-state="%%welcome-state%%" data-product="%%product%%"><h1>%%plan-name%%</h1><p>%%login%%</p><a href="%%intake-url%%">i</a></body></html>';
 
@@ -128,7 +135,7 @@ async function fresh(config: Partial<OfferConfig> = {}): Promise<App> {
   app = await build({
     logger: false,
     offer: {
-      pages: { offer: OFFER_PAGE, welcome: WELCOME_PAGE },
+      pages: { offer: OFFER_PAGE, welcome: WELCOME_PAGE, sales: { '/pricing': PRICING_PAGE } },
       config: { ...CONFIG, ...config },
       stripe: stub.client,
       verify: stripeVerifier(),
@@ -259,6 +266,40 @@ describe('the offer pages (D-075, D-104)', () => {
     expect(body.carts.filter((c: { plan: string }) => c.plan === 'cohort').map((c: { state: string }) => c.state)).toEqual(['soldout', 'soldout']);
     expect(body.carts.find((c: { id: string }) => c.id === 'insiders-year').state).toBe('link');
     expect((await app.inject({ method: 'GET', url: '/offer' })).body).toContain('<li data-state="soldout"><a href="">x</a><a href="">y</a></li>');
+  });
+
+  it('fills /pricing like the offer page, with the founding countdown and the seats left (D-111)', async () => {
+    // Sat, Nov 14, 3:00 PM Central: 16 days and some hours before Nov 30, 11:59 PM Mountain.
+    const page = await app.inject({ method: 'GET', url: '/pricing' });
+    expect(page.statusCode).toBe(200);
+    expect(page.body).toContain('data-founding="open" data-seats="left"');
+    expect(page.body).toContain('<p class="countdown">16 days left</p><p class="seats">15 of 15</p>');
+    expect(page.body).toContain('<p class="closes">Monday, November 30 at 11:59 PM Mountain</p>');
+    expect(page.body).toContain('<li id="accelerator" data-state="link"><a href="https://buy.stripe.com/test_cohort_full">x</a><a href="https://buy.stripe.com/test_cohort_two">y</a></li>');
+    // An unset Payment Link "opens soon", with no href to follow.
+    expect(page.body).toContain('<li id="team-plan" data-state="soon"><a href="">z</a></li>');
+    expect(page.body).toContain('<p class="call">mailto:support@amplifiedimpact.io</p>');
+    expect(page.body).not.toContain('%%');
+    expect(page.headers['cache-control']).toBe('no-store');
+
+    // The last day counts hours; after the deadline the banner's words are gone and the page is closed.
+    process.env.FIXED_NOW = '2026-11-30T20:30:00-07:00';
+    expect((await app.inject({ method: 'GET', url: '/pricing' })).body).toContain('<p class="countdown">3 hours left</p>');
+    process.env.FIXED_NOW = '2026-12-01T07:00:00Z';
+    const closed = (await app.inject({ method: 'GET', url: '/pricing' })).body;
+    expect(closed).toContain('data-founding="closed"');
+    expect(closed).toContain('<p class="countdown"></p>');
+    expect(closed).toContain('<li id="accelerator" data-state="closed"><a href="">x</a><a href="">y</a></li>');
+  });
+
+  it('counts /pricing\'s seats from the sales, and says sold out at 15', async () => {
+    for (let i = 1; i <= 3; i += 1) await buy('cohort-full', { email: `seat${i}@example.com` }, { customer: `cus_s${i}` });
+    expect((await app.inject({ method: 'GET', url: '/pricing' })).body).toContain('<p class="seats">12 of 15</p>');
+    for (let i = 4; i <= 15; i += 1) await buy('cohort-two-pay', { email: `seat${i}@example.com` }, { customer: `cus_s${i}` });
+    const soldOut = (await app.inject({ method: 'GET', url: '/pricing' })).body;
+    expect(soldOut).toContain('data-seats="soldout"');
+    expect(soldOut).toContain('<p class="seats">0 of 15</p>');
+    expect(soldOut).toContain('<li id="accelerator" data-state="soldout">');
   });
 
   it('GET /api/offer lists the six carts with live prices and their links', async () => {
@@ -625,17 +666,21 @@ describe('www routing (D-075, D-051)', () => {
       logger: false,
       marketingPage: '<!doctype html><title>Holding</title>',
       legalPages: { agreement: '<!doctype html><title>Agreement</title>' },
-      offer: { pages: { offer: OFFER_PAGE, welcome: WELCOME_PAGE }, config: CONFIG, stripe: stub.client, verify: stripeVerifier(), prices: createPriceCache(() => stub.client) },
+      offer: { pages: { offer: OFFER_PAGE, welcome: WELCOME_PAGE, sales: { '/pricing': PRICING_PAGE } }, config: CONFIG, stripe: stub.client, verify: stripeVerifier(), prices: createPriceCache(() => stub.client) },
     });
     const get = (url: string) => app.inject({ method: 'GET', url, headers: { host: 'www.amplifiedimpact.io' } });
-    for (const url of ['/offer', '/forum', '/offer?cart=library', '/offer/welcome?session_id=cs_test_session0001', '/agreement']) {
+    for (const url of ['/offer', '/forum', '/offer?cart=library', '/offer/welcome?session_id=cs_test_session0001', '/agreement', '/pricing', '/pricing?ref=ig']) {
       expect((await get(url)).statusCode, url).toBe(200);
     }
-    for (const url of ['/offer/', '/Offer', '/offer.html', '/offer/welcome/x', '/forum/', '/FORUM', '/agreement/']) {
+    for (const url of ['/offer/', '/Offer', '/offer.html', '/offer/welcome/x', '/forum/', '/FORUM', '/agreement/', '/pricing.html', '/pricing/x', '/Pricing']) {
       const res = await get(url);
       expect([302, 404], url).toContain(res.statusCode);
       expect(res.body, url).not.toContain('data-offer');
+      expect(res.body, url).not.toContain('data-seats');
     }
+    // `/pricing/` is the one other spelling that reaches the page: a redirect to it.
+    const slash = await get('/pricing/');
+    expect([slash.statusCode, slash.headers.location]).toEqual([302, '/pricing']);
   });
 });
 

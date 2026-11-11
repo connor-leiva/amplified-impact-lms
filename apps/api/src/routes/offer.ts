@@ -3,6 +3,8 @@
 //
 //   GET  /offer, /forum              → the offer page, filled per request (prices, dates, which carts
 //                                      sell); /forum also records `src` = `forum` on a waitlist sign-up
+//   GET  /pricing                    → Programs and Pricing (D-111), filled the same way, plus the
+//                                      founding countdown and the Accelerator's seats left
 //   GET  /offer/welcome              → after Stripe: the plan, when the login arrives, the intake form
 //   GET  /api/offer                  → the same facts as JSON: carts, live prices, founding, seats
 //   GET  /api/offer/order-status     → `{ status, plan }` for a `session_id`, nothing personal
@@ -44,6 +46,7 @@ import {
 } from '../billing/catalog';
 import type { CartId, CartState, PlanKind } from '../billing/catalog';
 import { foundingOpen } from '../billing/config';
+import { foundingValues } from '@ai/core/founding';
 import type { OfferConfig } from '../billing/config';
 import type { PriceCache, PriceMap } from '../billing/prices';
 import type { BillingStripe } from '../billing/stripe';
@@ -64,9 +67,18 @@ export const ORDER_STATUS_RATE_MAX = 600;
 /** Stripe's events are small; a Checkout Session with every field expanded is a few KB. */
 export const WEBHOOK_BODY_LIMIT = 256 * 1024;
 
+/**
+ * The www sales pages filled per request like /offer (D-111): their path, and the name of their built
+ * file (`apps/web/dist/<name>.html`, from `apps/web/src/site/vite-plugin.ts`'s `SITE_PAGES`).
+ */
+export const SALES_PAGES = { '/pricing': 'pricing' } as const;
+export type SalesPath = keyof typeof SALES_PAGES;
+
 export interface OfferPages {
   offer?: string | null;
   welcome?: string | null;
+  /** The sales pages by path; one that is missing or null answers 404. */
+  sales?: Partial<Record<SalesPath, string | null>>;
 }
 
 export interface OfferRouteOptions {
@@ -141,6 +153,11 @@ export function offerValues(f: OfferFill): Record<string, string> {
     values[`link:${id}`] = states[id] === 'link' ? (f.config.paymentLinks[id] ?? '') : '';
   }
   return values;
+}
+
+/** A sales page's tokens (D-111): the offer's, plus the founding countdown and the seats left. */
+export function salesValues(f: OfferFill): Record<string, string> {
+  return { ...offerValues(f), ...foundingValues(f.now, f.config.foundingClosesAt, f.seatsSold) };
 }
 
 /** The welcome page's facts for one Checkout Session. */
@@ -236,6 +253,22 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
         seatsSold: await seatsSold(),
       });
       return sendPage(reply, fillTokens(offerPage, values));
+    });
+  }
+
+  // The sales pages (D-111): filled like the offer page, with the countdown and seats left besides.
+  for (const path of Object.keys(SALES_PAGES) as SalesPath[]) {
+    const page = options.pages?.sales?.[path] ?? null;
+    app.get(path, { config: { rateLimit: false } }, async (req, reply): Promise<FastifyReply> => {
+      if (page === null) return reply.code(404).send({ error: 'Not found' });
+      const q = queryOf(req);
+      const values = salesValues({
+        config,
+        now: now(),
+        src: q.src && SRC.test(q.src) ? q.src : null,
+        seatsSold: await seatsSold(),
+      });
+      return sendPage(reply, fillTokens(page, values));
     });
   }
 
