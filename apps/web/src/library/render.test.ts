@@ -5,6 +5,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GUIDES } from '../guides/content';
+import { renderGuideBody, renderGuideHead } from '../guides/render';
+import { renderHomeBody, renderHomeHead } from '../home/render';
 import { ENTRIES, LIBRARY, TOOLS, TOPICS } from './content';
 import { countLabel } from './main';
 import { renderLibraryBody, renderLibraryHead } from './render';
@@ -30,9 +32,28 @@ const GUIDE_SLUGS = [
   ),
 ].map((m) => m[1]!);
 
+describe('the name (D-103)', () => {
+  it('is "The Library" on www: no page calls it the free library, and every skill page’s breadcrumb says so', () => {
+    // Most of the library is paid now (D-080, D-082); each free item says so on its own card or page.
+    const pages: Array<[string, string]> = [
+      ['/library', renderLibraryHead() + renderLibraryBody()],
+      ['/', renderHomeHead() + renderHomeBody()],
+      ...Object.values(GUIDES).map((g): [string, string] => [`/${g.slug}`, renderGuideHead(g) + renderGuideBody(g)]),
+    ];
+    for (const [path, html] of pages) expect(html, path).not.toMatch(/free\s+library/i);
+    expect(text($('.eyebrow'))).toBe('The Library');
+    for (const g of Object.values(GUIDES).filter((guide) => guide.layout === 'skill')) {
+      const page = new DOMParser().parseFromString(`<body>${renderGuideBody(g)}</body>`, 'text/html');
+      const crumb = page.querySelector('nav[aria-label="Breadcrumb"] a[href="/library"]');
+      expect(crumb?.textContent?.trim(), g.slug).toBe('The Library');
+    }
+  });
+});
+
 describe('the head', () => {
   it('names the page and its canonical address', () => {
-    expect(text($('title'))).toBe('The Free Library · Amplified Impact');
+    expect(text($('title'))).toBe('The Library · Amplified Impact');
+    expect($('meta[property="og:title"]')?.getAttribute('content')).toBe('The Library · Amplified Impact');
     expect($('meta[property="og:url"]')?.getAttribute('content')).toBe('https://www.amplifiedimpact.io/library');
     expect($('meta[name="description"]')?.getAttribute('content')).toBe(LIBRARY.meta.description);
   });

@@ -1,4 +1,4 @@
-// Every word on /library, the free library: one page that lists every guide, skill and setup on the
+// Every word on /library, the library: one page that lists every guide, skill and setup on the
 // site, so people can find them without a link from a talk or a DM. DECISIONS.md D-050.
 //
 // THIS IS THE ONE FILE TO EDIT WHEN THE LIBRARY CHANGES. To list something new, add one record to
@@ -646,14 +646,16 @@ export const ENTRIES: readonly Entry[] = [
 
 export const LIBRARY = {
   meta: {
-    title: 'The Free Library · Amplified Impact',
+    // "The Library", not "The Free Library": most of it is paid now, and each free item says so on its
+    // own card (Connor, 2026-11-11, D-103). The homepage's nav says the same (D-102).
+    title: 'The Library · Amplified Impact',
     description:
       'Guides, Claude skills, Grok Bot templates and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',
     url: 'https://www.amplifiedimpact.io/library',
     siteName: 'Amplified Impact',
   },
   logoAlt: 'Amplified Impact',
-  eyebrow: 'The Free Library',
+  eyebrow: 'The Library',
   title: 'Put AI to work on your team.',
   // Said here so a card that opens on a sign-up form is no surprise: five of the six live pages ask.
   lede: 'Guides, Claude skills, Grok Bot templates and setups for real estate teams. The free ones ask for your name and email. The rest are in the Amplified Skill Library.',

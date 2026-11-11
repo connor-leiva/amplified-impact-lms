@@ -8,7 +8,7 @@ import { LIBRARY_ALIASES } from '../src/routes/library';
 // (`apps/web/src/library/`); this file is that the API serves it the way it serves the guides. The www
 // allow-list is `marketing.test.ts`'s.
 
-const PAGE = '<!doctype html><title>The Free Library</title>';
+const PAGE = '<!doctype html><title>The Library</title>';
 
 describe('GET /library', () => {
   let app: App;
