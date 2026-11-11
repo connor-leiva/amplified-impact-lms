@@ -53,6 +53,14 @@ describe('/sign-in, email and password', () => {
     expect(screen.getByLabelText(SIGN_IN.password)).toBeVisible();
   });
 
+  it('is the same screen at /login, the address www’s Log In links', async () => {
+    at('/login', <SignIn />, '/login');
+    expect(screen.getByRole('heading', { level: 1, name: SIGN_IN.h1 })).toBeVisible();
+    expect(screen.getByLabelText(SIGN_IN.label)).toHaveAttribute('type', 'email');
+    expect(screen.getByLabelText(SIGN_IN.password)).toHaveAttribute('type', 'password');
+    expect(screen.getByRole('button', { name: SIGN_IN.signIn })).toBeEnabled();
+  });
+
   it('signs in and lands on the app, sending "Keep me signed in"', async () => {
     const router = at('/sign-in', <SignIn />, '/sign-in');
     await userEvent.type(screen.getByLabelText(SIGN_IN.label), 'jamie@ortizhomes.com');

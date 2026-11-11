@@ -62,12 +62,13 @@ header to switch persona and cohort phase. `States.dc.html` shows every componen
 
 ## Signing in (D-132)
 
-`learn.amplifiedimpact.io/sign-in` is email and password first, with the magic link one click away
-("Email Me a Sign-In Link Instead", or `/sign-in?method=link`).
+`learn.amplifiedimpact.io/login` (the same screen as `/sign-in`) is email and password first, with the
+magic link one click away ("Email Me a Sign-In Link Instead", or `/sign-in?method=link`). Every www
+page links it: Log In, after About in the header nav (on a phone too) and in the footer.
 
 | Screen | What it does |
 |---|---|
-| `/sign-in` | Email, password and "Keep me signed in for 30 days". Without it, the session is a browser-session cookie and lasts 12 hours. |
+| `/login`, `/sign-in` | Email, password and "Keep me signed in for 30 days". Without it, the session is a browser-session cookie and lasts 12 hours. |
 | `/forgot-password` | Always answers "If that email has an account, we sent a link." An account with a password gets a reset link (1 hour); one without gets a set-password link (72 hours). |
 | `/set-password?token=…` | Sets the password from either link, signs the person in, and ends their other sessions. Each link works once. |
 | `/set-password?checkout=…` | The welcome page's "Set Your Password" button, for a brand-new account from that Stripe Checkout Session only. |

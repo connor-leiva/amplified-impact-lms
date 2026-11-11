@@ -275,6 +275,17 @@ test('/sign-in renders § 7.5s card @g7 @smoke', async () => {
   await page.close();
 });
 
+test('/login is the same email and password screen, the address www’s Log In links @g7 @smoke', async () => {
+  const page = await freshPage();
+  await openSignIn(page, '/login');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(COPY.h1);
+  await expect(page.getByText(COPY.sub, { exact: true })).toBeVisible();
+  await expect(page.getByLabel(COPY.label)).toBeVisible();
+  await expect(page.getByLabel(COPY.password, { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: COPY.signIn, exact: true })).toBeEnabled();
+  await page.close();
+});
+
 test('/sign-in passes the axe check @g7 @smoke', async () => {
   const page = await freshPage();
   await openSignIn(page);

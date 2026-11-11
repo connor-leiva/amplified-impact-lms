@@ -16,7 +16,7 @@ const PROGRAM_LINKS = [
 const links = (root: ParentNode, selector: string) => [...root.querySelectorAll(selector)].map((a) => [text(a), a.getAttribute('href')]);
 
 describe('the header', () => {
-  it('has Spring’s main nav: Programs, The Library, Free Resources, About, and a Get 5 Free Skills button', () => {
+  it('has Spring’s main nav: Programs, The Library, Free Resources, About, Log In, and a Get 5 Free Skills button', () => {
     const doc = parse(siteHeader('/library'));
     const nav = doc.querySelector('nav[aria-label="Main"]')!;
     expect([...nav.querySelectorAll(':scope > ul > li')].map((li) => text(li.querySelector('summary') ?? li.querySelector('a')))).toEqual([
@@ -24,12 +24,19 @@ describe('the header', () => {
       'The Library',
       'Free Resources',
       'About',
+      'Log In',
     ]);
     expect(links(nav, ':scope > ul > li > a')).toEqual([
       ['The Library', '/library'],
       ['Free Resources', '/free'],
       ['About', '/about'],
+      ['Log In', 'https://learn.amplifiedimpact.io/login'],
     ]);
+    // Log In comes after About and before the button, in source order too, so a phone shows it as well.
+    const order = [...doc.querySelectorAll('a')].map(text);
+    expect(order.indexOf('About')).toBeLessThan(order.indexOf('Log In'));
+    expect(order.indexOf('Log In')).toBeLessThan(order.indexOf('Get 5 Free Skills'));
+    expect(nav.querySelector('a.site-login')?.textContent).toBe('Log In');
     const cta = doc.querySelector('a.site-cta');
     expect([text(cta), cta?.getAttribute('href'), cta?.className]).toEqual(['Get 5 Free Skills', '/library?show=free', 'btn btn-primary btn-sm site-cta']);
     expect(doc.querySelector('[data-brand-slot]')?.getAttribute('href')).toBe('/');
@@ -79,6 +86,7 @@ describe('the footer', () => {
       ['The Library', '/library'],
       ['Free Resources', '/free'],
       ['About', '/about'],
+      ['Log In', 'https://learn.amplifiedimpact.io/login'],
     ]);
     expect(siteFooter()).not.toContain('admin@');
   });

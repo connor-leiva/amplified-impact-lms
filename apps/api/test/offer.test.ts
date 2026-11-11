@@ -36,6 +36,7 @@ import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
 import type { BillingStripe, PriceInfo, SubscriptionInfo } from '../src/billing/stripe';
 import { stripeVerifier } from '../src/billing/stripe';
 import { outboxFor, resetOutbox } from '../src/email/transport';
+import { SESSION_COOKIE, settleEmails } from '../src/auth';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = '2026-11-14T15:00:00-06:00';
@@ -71,7 +72,7 @@ const PRICING_PAGE = [
   '<li id="team-plan" data-state="%%state:agents-upto15%%"><a href="%%link:agents-upto15%%">z</a></li><p class="call">%%team-call%%</p></body></html>',
 ].join('');
 const WELCOME_PAGE =
-  '<!doctype html><html><body data-state="%%welcome-state%%" data-product="%%product%%"><h1>%%plan-name%%</h1><p class="paid">%%paid-line%%</p><p>%%login%%</p><a href="%%intake-url%%">i</a></body></html>';
+  '<!doctype html><html><body data-state="%%welcome-state%%" data-product="%%product%%"><h1>%%plan-name%%</h1><p class="paid">%%paid-line%%</p><p>%%login%%</p><a href="%%intake-url%%">i</a><a class="pw" href="%%set-password%%">p</a></body></html>';
 
 interface Stub {
   client: BillingStripe;
@@ -179,6 +180,12 @@ afterEach(async () => {
 });
 
 const db = () => testDatabase();
+/** The `ai_sid=…` pair a sign-in response set. */
+const sessionCookie = (setCookie: string | string[] | undefined): string => {
+  const line = (Array.isArray(setCookie) ? setCookie.join('\n') : (setCookie ?? '')).split('\n').find((l) => l.startsWith(`${SESSION_COOKIE}=`));
+  expect(line, 'the response set no ai_sid cookie').toBeTruthy();
+  return line!.split(';')[0]!;
+};
 const orderRows = async () => (await db()).select().from(orders);
 const one = async () => (await orderRows())[0]!;
 
@@ -1005,6 +1012,41 @@ describe('every offer, end to end (D-106)', () => {
         }
         process.env.FIXED_NOW = new Date(after(JAN4)).toISOString();
         expectOpen(await skillStates(), c, after(JAN4));
+      });
+
+      it('signs the buyer in with a password: the welcome page’s Set Your Password, then the emailed link (D-132)', async () => {
+        const order = await purchase(c);
+        const welcomeHref = async () =>
+          /<a class="pw" href="([^"]*)"/.exec((await app.inject({ method: 'GET', url: `/offer/welcome?session_id=${order.stripeSessionId}` })).body)![1];
+
+        // During the hold the account can't be used yet, so the welcome page offers nothing.
+        expect(await welcomeHref()).toBe('');
+
+        // Monday morning: the held email goes out, and the welcome page offers a password for this new account.
+        const monday = CONFIG.invitesFrom + 3_600_000;
+        process.env.FIXED_NOW = new Date(monday).toISOString();
+        const log = { info: () => {}, warn: () => {}, error: () => {} };
+        expect(await sendHeldInvites({ log, now: CONFIG.invitesFrom, invitesFrom: CONFIG.invitesFrom })).toBe(1);
+        expect(await welcomeHref()).toBe(`https://learn.amplifiedimpact.io/set-password?checkout=${order.stripeSessionId}`);
+
+        // The emailed link sets the password and signs the buyer in.
+        await settleEmails();
+        const [mail] = outboxFor({ to: 'pat@example.com', template: 'set-password' });
+        const token = /\/set-password\?token=([A-Za-z0-9_-]+)/.exec(mail!.html ?? '')![1]!;
+        const set = await app.inject({ method: 'POST', url: '/api/auth/password/set', payload: { token, password: 'pats own password' } });
+        expect(set.statusCode, set.body).toBe(200);
+        const me = await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: sessionCookie(set.headers['set-cookie']) } });
+        expect(me.statusCode).toBe(200);
+        const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+        expect(owner).toMatchObject({ status: 'active', tier: c.tier });
+
+        // From then on: email and password at /login, and the welcome page's button is gone.
+        const login = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { email: 'pat@example.com', password: 'pats own password' } });
+        expect(login.statusCode, login.body).toBe(200);
+        expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: sessionCookie(login.headers['set-cookie']) } })).statusCode).toBe(200);
+        expect(await welcomeHref()).toBe('');
+        const wrong = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { email: 'pat@example.com', password: 'not the password' } });
+        expect(wrong.statusCode).toBe(400);
       });
 
       it('a failed payment makes the plan past_due and tags payment-failed', async () => {
