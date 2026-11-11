@@ -21,6 +21,7 @@ import { esc, HONEYPOT_LABEL, logo } from '../ai101/render';
 import { CARD_CARTS, CARDS, HELP_EMAIL, OFFER_TOKENS as T, PLAN_NAMES, WELCOME_TOKENS as W } from '@ai/core/offer';
 import {
   AFTER,
+  AGENT_PLAN_THANKS,
   CARD_STATES as S,
   CHROME,
   EVERY_CARD,
@@ -247,8 +248,11 @@ function thanksStep(s: ThanksStep): string {
   return `<li><h2>${esc(s.title)}</h2>${loginFirst ? more + lines.join('') : lines.join('') + more}</li>`;
 }
 
-function thanks(plan: CardPlan): string {
-  const t = THANKS[plan];
+/** The plan kind the LMS wiring gives the Amplified Agent Plan (D-106), as `data-product` says it. */
+export const AGENT_PLAN_PRODUCT = 'agent_plan';
+
+function thanks(plan: CardPlan | typeof AGENT_PLAN_PRODUCT): string {
+  const t = plan === AGENT_PLAN_PRODUCT ? AGENT_PLAN_THANKS : THANKS[plan];
   return [
     `<section class="w-thanks t-${plan}" aria-labelledby="t-${plan}-title">`,
     `<h1 id="t-${plan}-title">${esc(t.heading)}</h1>`,
@@ -264,6 +268,7 @@ export function renderWelcomeBody(): string {
     `<main id="main" class="welcome" data-session="${W.sessionId}"><div class="inner narrow">`,
     // Confirmed by the webhook: the next steps for the plan bought, one section per plan.
     ...PLANS.map(thanks),
+    thanks(AGENT_PLAN_PRODUCT),
     // Pending: the webhook has not landed yet.
     `<section class="w-pending" aria-labelledby="w-pending-title">`,
     `<h1 id="w-pending-title">${esc(WELCOME.pending.heading)}</h1>`,

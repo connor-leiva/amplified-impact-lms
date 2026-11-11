@@ -54,55 +54,6 @@
   margin-top: 8px;
   color: var(--text-secondary);
 }
-.steps {
-  display: grid;
-  gap: 16px;
-  margin-top: 16px;
-  counter-reset: step;
-}
-.steps li {
-  position: relative;
-  padding-left: 40px;
-  counter-increment: step;
-}
-.steps li::before {
-  content: counter(step);
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--action-primary-tint);
-  color: var(--action-primary);
-  font-size: 16px;
-  font-weight: 500;
-}
-.steps h3 {
-  font-size: 18px;
-  line-height: 1.4;
-}
-.steps p {
-  color: var(--text-secondary);
-}
-
-/* --- The end ----------------------------------------------------------------------------------- */
-
-.end-action {
-  margin-top: 20px;
-}
-.end-more {
-  margin-top: 8px;
-  color: var(--text-secondary);
-}
-.end-more a {
-  padding: 12px 0;
-  font-weight: 500;
-  text-decoration: underline;
-}
-
 /* --- Wider screens ----------------------------------------------------------------------------- */
 
 @media (min-width: 960px) {

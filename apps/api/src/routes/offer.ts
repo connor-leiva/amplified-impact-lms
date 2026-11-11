@@ -72,7 +72,7 @@ export const WEBHOOK_BODY_LIMIT = 256 * 1024;
  * The www sales pages filled per request like /offer (D-111): their path, and the name of their built
  * file (`apps/web/dist/<name>.html`, from `apps/web/src/site/vite-plugin.ts`'s `SITE_PAGES`).
  */
-export const SALES_PAGES = { '/pricing': 'pricing', '/team-build': 'team-build', '/teams': 'teams' } as const;
+export const SALES_PAGES = { '/pricing': 'pricing', '/team-build': 'team-build', '/teams': 'teams', '/agents': 'agents' } as const;
 export type SalesPath = keyof typeof SALES_PAGES;
 
 export interface OfferPages {

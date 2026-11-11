@@ -183,10 +183,17 @@ describe('/offer/welcome markup', () => {
       'w-thanks t-cohort',
       'w-thanks t-membership',
       'w-thanks t-agents',
+      'w-thanks t-agent_plan',
       'w-pending',
       'w-unknown',
     ]);
     for (const s of all(welcome, 'section')) expect(s.querySelectorAll('h1')).toHaveLength(1);
+    // The Amplified Agent Plan's (D-114): no receipt, nothing charged until January 4, and no intake form.
+    const agent = welcome.querySelector('.t-agent_plan')!;
+    expect(text(agent.querySelector('h1'))).toBe('Welcome to the Amplified Agent Plan.');
+    expect(text(agent)).toContain('Your first charge is Monday, January 4, 2027, when your agent skills open.');
+    expect(text(agent)).not.toMatch(/receipt|intake/i);
+    expect(readFileSync(resolve(HERE, './offer.css'), 'utf8')).toContain(`[data-product='agent_plan'] .t-agent_plan`);
     const shell = readFileSync(resolve(HERE, '../../offer-welcome.html'), 'utf8');
     expect(shell).toContain('data-state="%%welcome-state%%" data-product="%%product%%" data-invites="%%invites%%" data-intake="%%intake-state%%" data-calendar="%%calendar-state%%"');
   });

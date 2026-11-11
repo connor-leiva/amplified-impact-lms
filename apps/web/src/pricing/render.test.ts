@@ -120,12 +120,16 @@ describe('the four cards', () => {
     }
   });
 
-  it('show the Amplified Agent Plan’s price and terms, and "Opens soon." until its carts are wired (D-114)', () => {
+  it('sell the Amplified Agent Plan through its two carts (D-114), saying "Opens soon." until the API knows them', () => {
     const card = $('#agent-plan')!;
     expect(text($('.figure', card))).toBe('$79 a month');
     expect($$('.price .terms', card).map(text)).toEqual(['Or $790 a year.', 'Your first charge is Monday, January 4, 2027.', 'Cancel anytime.']);
-    expect(card.getAttribute('data-state')).toBe('soon');
-    expect($('.act-link', card)).toBeNull();
+    expect(card.getAttribute('data-state')).toBe('%%state:agent-monthly%%');
+    expect($$('.act-link a', card).map((a) => [text(a), a.getAttribute('href')])).toEqual([
+      ['Get Amplified Agent Plan', '%%link:agent-monthly%%'],
+      ['Or pay $790 a year', '%%link:agent-yearly%%'],
+    ]);
+    // An empty state (a cart the API does not know yet) shows "Opens soon.", never a dead button.
     expect(text($('.act-soon', card))).toBe('Opens soon.');
     expect(AGENT_PLAN.button).toBe('Get Amplified Agent Plan');
     expect(text(card)).toContain('Weekly training starts the week of January 4.');
@@ -216,7 +220,7 @@ describe('the words and the tokens', () => {
   it('uses only tokens the API fills', () => {
     const known = new Set(['founding', 'founding-closes', 'team-call', 'seats', 'countdown', 'seats-left', 'seats-total']);
     for (const [, name] of html.matchAll(TOKEN_PATTERN)) {
-      expect(known.has(name!) || /^(state|link):(cohort-full|cohort-two-pay|insiders-year|insiders-monthly|agents-upto15|agents-16to40)$/.test(name!), name).toBe(true);
+      expect(known.has(name!) || /^(state|link):(cohort-full|cohort-two-pay|insiders-year|insiders-monthly|agents-upto15|agents-16to40|agent-monthly|agent-yearly)$/.test(name!), name).toBe(true);
     }
   });
 });
