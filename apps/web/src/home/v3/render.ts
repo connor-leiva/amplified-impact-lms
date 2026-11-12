@@ -18,6 +18,9 @@ import { renderHomeHead } from '../render';
 import { sprite } from './icons';
 import { resolvePending } from './pending';
 import { hero } from './sections/hero';
+import { howItWorks } from './sections/how';
+import { monday } from './sections/monday';
+import { whatsASkill } from './sections/skill';
 import { video } from './sections/video';
 
 /** The head: the live homepage's own (title, description, canonical address, share image). */
@@ -32,6 +35,9 @@ export function renderV3Body({ preview }: { preview: boolean }): string {
     `<main id="main" tabindex="-1" class="v3">`,
     hero(),
     video(),
+    whatsASkill(),
+    monday(),
+    howItWorks(),
     `</main>`,
     kitFooter(),
   ].join('\n');
