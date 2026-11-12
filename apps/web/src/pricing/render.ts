@@ -54,7 +54,7 @@ function hero(): string {
 
 function plans(): string {
   return [
-    `<section class="section plans" id="plans" aria-labelledby="plans-title">`,
+    `<section class="section plans" id="plans" data-theme="light" aria-labelledby="plans-title">`,
     `<div class="wrap">`,
     `<h2 id="plans-title">${esc(PLANS_HEADING)}</h2>`,
     `<ol class="plan-grid" role="list">${CARD_ORDER.map(offerCard).join('')}</ol>`,

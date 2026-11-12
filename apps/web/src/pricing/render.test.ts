@@ -332,3 +332,23 @@ describe('the stylesheet', () => {
     expect(css).toMatch(/\.plan a\[href=''\]/);
   });
 });
+
+describe('in the site’s look (`design/site-pricing`)', () => {
+  it('opts the page into the look, keeping the attributes the API fills', () => {
+    expect(read('../../pricing.html')).toMatch(/<body class="site" data-app-ready="true" data-founding="%%founding%%" data-seats="%%seats%%">/);
+    expect(doc.querySelector('section.plans')?.getAttribute('data-theme')).toBe('light');
+  });
+
+  it('opens each card with its program’s logo and number, as the homepage’s cards do, and says nothing new', () => {
+    const cards = [...doc.querySelectorAll('.plan-grid > li.plan')];
+    expect(cards.map((c) => c.firstElementChild?.className)).toEqual(['plan-top', 'plan-top', 'plan-top', 'plan-top']);
+    expect(cards.map((c) => c.querySelector('.plan-logo')?.getAttribute('data-program'))).toEqual(['accelerator', 'agent-plan', 'team-plan', 'insiders']);
+    for (const c of cards) {
+      expect(c.querySelector('.plan-logo svg')?.getAttribute('aria-hidden')).toBe('true');
+      expect(c.querySelector('.plan-idx')?.getAttribute('aria-hidden')).toBe('true');
+      // The name is still the card's label, right after the top row.
+      expect(c.querySelector('.plan-top + h3.plan-name')).not.toBeNull();
+    }
+    expect(cards.map((c) => text(c.querySelector('.plan-idx')))).toEqual(['01', '02', '03', '04']);
+  });
+});

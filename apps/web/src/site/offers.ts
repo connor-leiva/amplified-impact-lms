@@ -9,6 +9,7 @@
 import { CARD_CARTS, OFFER_TOKENS as T, PLAN_NAMES, token } from '@ai/core/offer';
 import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { esc } from '../ai101/render';
+import { programLogo, type ProgramKey } from '../home/program-logo';
 import { HOME, PHOTOS } from '../home/content';
 import { CARD_STATES as S, EVERY_CARD, FACT_LABELS, NOTES, OFFERS } from '../offer/content';
 import type { OfferCopy } from '../offer/content';
@@ -150,6 +151,24 @@ export function offerActions(card: OfferCard, { details = false, proof = false }
   ].join('');
 }
 
+/** Each card's program logo (Connor's symbols, `../home/program-logo.ts`), as the homepage's cards open with. */
+export const CARD_LOGOS: Readonly<Record<OfferCard, ProgramKey>> = {
+  cohort: 'accelerator',
+  agentPlan: 'agent-plan',
+  agents: 'team-plan',
+  membership: 'insiders',
+};
+
+/**
+ * A card's top row, as on the homepage's program cards: its program's logo and its number ("01"), both
+ * drawings for the eye only (the logo has no title, the number is hidden from a screen reader), so the
+ * card says nothing new.
+ */
+const cardTop = (card: OfferCard): string =>
+  `<div class="plan-top"><span class="plan-logo" data-program="${CARD_LOGOS[card]}">${programLogo(CARD_LOGOS[card], { size: 40, title: '' })}</span><p class="plan-idx" aria-hidden="true">${String(
+    CARD_ORDER.indexOf(card) + 1,
+  ).padStart(2, '0')}</p></div>`;
+
 /** One offer card, its id from `CARD_IDS` so another page can link to it. */
 export function offerCard(card: OfferCard): string {
   const c = copyOf(card);
@@ -158,6 +177,7 @@ export function offerCard(card: OfferCard): string {
   const fact = (label: string, body: string) => `<div class="fact"><dt>${esc(label)}</dt><dd>${body}</dd></div>`;
   return [
     `<li class="card plan" id="${id}" data-state="${first ? stateToken(first) : 'soon'}" aria-labelledby="${id}-name">`,
+    cardTop(card),
     `<h3 class="plan-name" id="${id}-name">${esc(CARD_NAMES[card])}</h3>`,
     `<dl class="facts">`,
     fact(FACT_LABELS.forWho, esc(c.forWho)),
