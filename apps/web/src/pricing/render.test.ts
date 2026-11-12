@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CARD_CARTS, PLAN_NAMES, TOKEN_PATTERN } from '@ai/core/offer';
 import { FOUNDING_TOKENS } from '@ai/core/founding';
-import { ENTRIES } from '../library/content';
+import { ENTRIES, FREE_FIVE } from '../library/content';
 import { HOME } from '../home/content';
 import { OFFERS } from '../offer/content';
 import { AGENT_PLAN, CARD_IDS } from '../site/offers-content';
@@ -34,19 +34,23 @@ describe('the page', () => {
     expect($('a.skip')?.getAttribute('href')).toBe('#main');
   });
 
-  it('has its shell, with the states on <body> and no script anywhere', () => {
+  it('has its shell, with the states on <body>, the kit’s dark theme, and only the kit’s one script, a file', () => {
     const shell = read('../../pricing.html');
     expect(shell).toContain('<!--x:head-->');
     expect(shell).toContain('<!--x:body-->');
-    expect(shell).toContain('data-founding="%%founding%%" data-seats="%%seats%%"');
-    expect(shell).not.toMatch(/<script/i);
+    expect(shell).toContain('<body class="aiw" data-theme="dark" data-app-ready="true" data-founding="%%founding%%" data-seats="%%seats%%">');
+    // One script, the kit's, as a same-origin module file (the CSP's `script-src 'self'`): nothing inline.
+    expect([...shell.matchAll(/<script\b[^>]*>/gi)].map((m) => m[0])).toEqual(['<script type="module" src="/src/kit/client/main.ts">']);
     expect(html).not.toMatch(/<script/i);
+    expect(shell + html).not.toMatch(/\son[a-z]+=/i);
   });
 
-  it('runs in Spring’s order: headline, picker, founding banner, four cards, comparison, questions, the last line', () => {
+  it('runs in Spring’s order: headline and the countdown, picker, four cards, comparison, questions, the last line', () => {
     expect($$('h1').map(text)).toEqual([PRICING_HERO.title]);
     expect($$('main h2').map(text)).toEqual([PICKER.heading, 'Four ways in', COMPARE.heading, FAQ.heading, END.heading]);
-    const order = ['class="picker"', 'class="founding ', 'class="section plans"', 'class="section compare"', 'class="section faq"', 'class="section end"'].map((s) => html.indexOf(s));
+    const order = ['class="sec cp-hero"', 'class="picker"', 'class="sec ways plans"', 'class="sec ctable compare"', 'class="sec faq"', 'class="sec close end"'].map((s) =>
+      html.indexOf(s),
+    );
     expect(order.every((n, i) => n > 0 && (i === 0 || n > order[i - 1]!)), String(order)).toBe(true);
     expect([text($('.proof-line span')), text($('.proof-line strong'))]).toEqual([HOME.proof.label, HOME.proof.figure]);
   });
@@ -79,14 +83,43 @@ describe('the picker', () => {
   });
 });
 
-describe('the founding banner', () => {
-  it('counts down to the deadline and shows the seats left, all filled per request', () => {
-    const banner = $('.founding')!;
-    expect(banner.classList.contains('founding-open')).toBe(true);
-    expect(text($('.countdown', banner))).toBe(FOUNDING_TOKENS.countdown);
-    expect(text(banner)).toContain('Founding prices end %%founding-closes%%.');
-    expect(text($('.seats-left', banner))).toBe('%%seats-left%% of %%seats-total%% Amplified AI Accelerator seats left.');
-    expect(text($('.seats-soldout', banner))).toBe('All Amplified AI Accelerator founding seats are taken.');
+describe('every price in a row', () => {
+  it('is the comparison’s own Price row, each figure linking to its card, the founding ones with their after-November-30 twins', () => {
+    const rungs = $$('.ladder .rung');
+    expect(rungs.map((a) => a.getAttribute('href'))).toEqual(CARD_ORDER.map((c) => `#${CARD_IDS[c]}`));
+    expect(rungs.map((a) => text($('.rung-name', a)))).toEqual(CARD_ORDER.map((c) => CARD_NAMES[c]));
+    const shown = (cls: string) => rungs.map((a) => $$(`.rung-price${cls}, .rung-note${cls}`, a).map(text).join(' '));
+    expect(shown(':not(.founding-closed)')).toEqual([
+      '$7,500 founding price',
+      '$79 a month, or $790 a year',
+      '$1,491 today for 3 months, up to 15 agents',
+      '$1,997 today for one year, or $197 a month',
+    ]);
+    expect(shown('.founding-closed')).toEqual(['$9,997 next cohort', '', 'Waitlist', '']);
+  });
+});
+
+describe('the founding window', () => {
+  // The founding banner's words, where the mockup puts them: the countdown and the deadline in the hero,
+  // the seats in the Accelerator's card. All filled per request.
+  it('counts down to the deadline in the hero, and says when it has passed', () => {
+    const hero = $('.cp-founding')!;
+    expect(text($('.countdown', hero))).toBe(FOUNDING_TOKENS.countdown);
+    expect(text($('.founding-open', hero))).toBe(`${FOUNDING_TOKENS.countdown}. Founding prices end %%founding-closes%%.`);
+    expect(text($('.founding-closed', hero))).toBe('Founding prices ended %%founding-closes%%.');
+  });
+
+  it('shows the Accelerator’s seats left in its card, drawn and in words, or that they are gone', () => {
+    const card = $('#accelerator')!;
+    const meter = $('.seatm', card)!;
+    expect(meter.getAttribute('data-left')).toBe(FOUNDING_TOKENS.seatsLeft);
+    expect(meter.getAttribute('aria-label')).toBe('%%seats-left%% of %%seats-total%% Amplified AI Accelerator seats left.');
+    expect(text($('p.seats-left', card))).toBe(`${FOUNDING_TOKENS.countdown} · %%seats-left%% of %%seats-total%% Amplified AI Accelerator seats left.`);
+    expect(text($('.seats-soldout', card))).toBe('All Amplified AI Accelerator founding seats are taken.');
+    expect($('.pc-status', card)?.classList.contains('founding-open')).toBe(true);
+    // Only the Accelerator has seats; every card keeps the slot, so the rows line up across the four.
+    expect($$('.pc-slot')).toHaveLength(4);
+    expect($$('.seatm')).toHaveLength(1);
   });
 });
 
@@ -146,7 +179,8 @@ describe('the four cards', () => {
       // After the card's last buy link, inside the block the stylesheet shows only for a live cart.
       expect(proof!.previousElementSibling?.matches('a.btn, a.more'), c.id).toBe(true);
     }
-    expect(text($('.pricing-hero .proof-line'))).toBe('Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year');
+    // And over the four cards, as the mockup's eyebrow.
+    expect(text($('.ways-head .eb'))).toBe('Built inside The Utah Life Real Estate Group · 100 agents, 700+ homes a year');
   });
 
   it('sell each plan through its first cart’s link, one button each, named exactly', () => {
@@ -262,7 +296,10 @@ describe('the questions', () => {
 describe('the last line', () => {
   it('is Spring’s, with the free skills button', () => {
     expect(text($('.end h2'))).toBe('Not ready? Start with 5 free skills.');
-    expect($$('.end a').map((a) => [text(a), a.getAttribute('href')])).toEqual([['Get 5 Free Skills', '/library?show=free']]);
+    expect(text($('.end .lead'))).toBe(END.body);
+    expect($$('.end .close-copy a').map((a) => [text(a), a.getAttribute('href')])).toEqual([['Get 5 Free Skills', '/library?show=free']]);
+    // Beside it, the mockup's list of the five, by their Library cards.
+    expect($$('.end .free-item').map((a) => a.getAttribute('href'))).toEqual(FREE_FIVE.map((s) => `/${s}`));
   });
 });
 
@@ -316,18 +353,20 @@ describe('the words and the tokens', () => {
 });
 
 describe('the stylesheet', () => {
-  const css = read('./pricing.css') + read('../site/offers.css') + read('../site/site.css');
+  const css = read('./pricing.css') + read('../kit/kit.css');
 
-  it('keeps text legible on a phone and taps thumb-sized', () => {
+  it('builds on the kit, and keeps text legible on a phone and taps thumb-sized', () => {
+    expect(read('./pricing.css')).toContain("@import '../kit/kit.css';");
     const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
-    expect(css).toMatch(/\.faq-list summary \{[^}]*min-height: 56px;/);
-    expect(css).toMatch(/\.pick \{[^}]*min-height: 64px;/);
+    expect(css).toMatch(/\.aiw \.persona-rec \{[^}]*min-height: 52px;/);
+    expect(css).toMatch(/\.aiw \.pc \.text-link \{[^}]*min-height: 44px;/);
+    expect(css).toMatch(/\.aiw \.pc \.btn \{[^}]*min-height: 52px;/);
   });
 
   it('shows each state only when the API says so', () => {
-    expect(css).toMatch(/body\[data-founding='closed'\] \.founding-open/);
-    expect(css).toMatch(/body\[data-seats='soldout'\] \.seats-left/);
+    expect(css).toMatch(/\.aiw\[data-founding='closed'\] \.founding-open/);
+    expect(css).toMatch(/\.aiw\[data-seats='soldout'\] \.seats-left/);
     expect(css).toMatch(/\.plan\[data-state='link'\] \.act-link/);
     expect(css).toMatch(/\.plan a\[href=''\]/);
   });
