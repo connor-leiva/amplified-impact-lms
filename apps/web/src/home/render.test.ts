@@ -99,22 +99,24 @@ describe('the head and the shell', () => {
     expect(shell).toContain('rel="icon" type="image/svg+xml" href="data:image/svg+xml,');
     expect(shell).toContain('<link rel="stylesheet" href="/src/home/home.css" />');
     expect(shell.match(/<script\b[^>]*>/g)).toEqual(['<script type="module" src="/src/home/client/main.ts">']);
-    expect(shell).toMatch(/<body class="hp"/);
+    // `site` is the site's look (`../site/site.css`), `hp` this page's own sections (`home.css`).
+    expect(shell).toMatch(/<body class="site hp"/);
     expect(renderHomeBody()).not.toMatch(/<script/i);
   });
 
-  it('self-hosts Geist and Geist Mono, with their licence beside them', () => {
-    const css = read('./home.css');
+  it('self-hosts Geist and Geist Mono, with their licence beside them (the site’s fonts, in `../site/`)', () => {
+    const css = read('../site/site.css');
+    expect(read('./home.css')).toContain("@import '../site/site.css';");
     expect(css).toContain("src: url('./fonts/geist-latin-wght-normal.woff2') format('woff2')");
     expect(css).toContain("src: url('./fonts/geist-mono-latin-wght-normal.woff2') format('woff2')");
     for (const f of ['geist-latin-wght-normal.woff2', 'geist-mono-latin-wght-normal.woff2']) {
-      const bytes = readFileSync(resolve(HERE, 'fonts', f));
+      const bytes = readFileSync(resolve(HERE, '../site/fonts', f));
       expect(bytes.subarray(0, 4).toString('latin1'), f).toBe('wOF2');
       expect(bytes.length, f).toBeLessThan(40_000);
     }
-    expect(read('./fonts/OFL.txt')).toContain('SIL Open Font License, Version 1.1');
+    expect(read('../site/fonts/OFL.txt')).toContain('SIL Open Font License, Version 1.1');
     // No font or stylesheet from anywhere else: § 9.4's `font-src 'self'`.
-    expect(css).not.toMatch(/fonts\.googleapis|fonts\.gstatic|url\(['"]?https?:/);
+    for (const sheet of [css, read('./home.css')]) expect(sheet).not.toMatch(/fonts\.googleapis|fonts\.gstatic|url\(['"]?https?:/);
   });
 });
 
@@ -465,6 +467,7 @@ describe('the words', () => {
 
 describe('the stylesheet', () => {
   const css = read('./home.css');
+  const site = read('../site/site.css');
 
   it('keeps every word at 16px or more (Spring’s rule, D-107/D-111), the shared stylesheet’s included', () => {
     const sizes = [...(css + read('../site/site.css')).matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
@@ -474,7 +477,8 @@ describe('the stylesheet', () => {
   });
 
   it('draws a visible focus ring, honors reduced motion, and lets the marquee be paused (WCAG 2.2.2)', () => {
-    expect(css).toMatch(/\.hp :focus-visible \{\s*outline: 2px solid var\(--focus-ring\);/);
+    // The focus ring is the site's (`../site/site.css`), on this page's `.site` body.
+    expect(site).toMatch(/\.site :focus-visible \{\s*outline: 2px solid var\(--focus-ring\);/);
     expect(css).toMatch(
       /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.hp \.mq-track,[\s\S]*animation: none !important;/,
     );
@@ -489,13 +493,14 @@ describe('the stylesheet', () => {
 
   it('gives a thumb 44px: text links, the offer plan’s rows, the tabs, the pause control and the resource links', () => {
     for (const rule of [
-      /\.hp \.cta-link \{[^}]*min-height: 44px;/,
       /\.hp \.term \{[^}]*min-height: 48px;/,
       /\.hp \.tab \{[^}]*min-height: 56px;/,
       /\.hp \.mq-pause \{[^}]*min-height: 44px;/,
       /\.hp \.part-title \{[^}]*min-height: 44px;/,
     ])
       expect(css).toMatch(rule);
+    // The text links are the site's buttons (`../site/site.css`).
+    expect(site).toMatch(/\.site \.cta-link \{[^}]*min-height: 44px;/);
   });
 
   it('never fades the shift’s rows with opacity: they fade by colour, which stays AA', () => {

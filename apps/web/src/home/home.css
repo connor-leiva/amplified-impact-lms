@@ -4,7 +4,7 @@
    THE WORDS AND LINKS ARE THE LIVE HOMEPAGE'S (`content.ts`, main's file unchanged). THE LOOK IS
    CONNOR'S REFERENCE: a near-black ground with a fine grain, bone sections in between, one mint signal,
    Geist and Geist Mono, hairlines instead of cards, and its motion. The reference's stylesheet is ported
-   here under `.hp` (the homepage's <body>), with these changes:
+   here under `.hp` (the homepage's <body>, `site hp`), with these changes:
      - no text under 16px (Spring's rule, D-107/D-111), the reference's mono labels included;
      - every tap target is 44px or more on a phone;
      - text never fades below WCAG AA (4.5:1) wherever the page comes to rest: a fading row's text moves
@@ -13,241 +13,36 @@
        phone it is stacked and nothing is sticky, so iOS Safari has nothing to jank;
      - the marquee has a Pause control (WCAG 2.2.2), and reduced motion stops everything that moves.
 
-   THE SITE'S HEADER AND FOOTER are kept as they are on every www page (`../site/render.ts`); only their
-   look changes, here, so the homepage reads as one piece. No shared file changes.
+   THE SITE'S HEADER AND FOOTER are the ones on every www page (`../site/render.ts`), and since
+   `design/site-system` so is their look: `../site/site.css` draws them, with the palette, the fonts and
+   the parts every page builds from (`.site`). This file is the homepage's own sections.
 
-   COLOURS are this page's own custom properties, in oklch, converted exactly from the reference's hex
-   (`scripts/check-css-colors.mjs` scans this file: no hex, no rgb functions, no named colours), as /library and
-   /ai101 do for theirs. Inlined at build time; the font files are this folder's, self-hosted. */
+   COLOURS are the site's custom properties, in oklch, converted exactly from the reference's hex
+   (`scripts/check-css-colors.mjs` scans this file: no hex, no rgb functions, no named colours). Inlined
+   at build time. */
 
 @import '../site/site.css';
 
-/* --- Geist and Geist Mono, latin, variable weight (fonts/OFL.txt) ------------------------------- */
+/* --- The site's look: `../site/site.css` -------------------------------------------------------
+   Geist and Geist Mono, the palette, the dark and bone grounds, the base, the type scale, the
+   drawings, the eyebrows, the buttons, reveal-on-scroll and the shared header and footer all live
+   there now, under `.site` (this page's <body> is `site hp`), so every www page shares them. What's
+   below is this page's own: its sections, its motion and their phone and reduced-motion fallbacks. */
 
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 100 900;
-  src: url('./fonts/geist-latin-wght-normal.woff2') format('woff2');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
-    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Geist Mono';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 100 900;
-  src: url('./fonts/geist-mono-latin-wght-normal.woff2') format('woff2');
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
-    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* --- The palette (the reference's, in oklch) ---------------------------------------------------- */
-
-:root {
-  --hp-black: oklch(0.1552 0.0053 173.53);
-  --hp-raised-dark: oklch(0.1941 0.0087 169.28);
-  --hp-cream: oklch(0.9693 0.004 106.47);
-  --hp-sage: oklch(0.7336 0.0107 164.76);
-  --hp-sage-muted: oklch(0.6077 0.013 161.81);
-  --hp-mint: oklch(0.7934 0.1162 162.2);
-  --hp-hairline-dark: oklch(0.2564 0.0115 167.68);
-  --hp-control-dark: oklch(0.5028 0.0156 166.68);
-  --hp-paper: oklch(1 0 0);
-  --hp-bone: oklch(0.9545 0.0067 97.35);
-  --hp-raised-light: oklch(0.9843 0.004 106.47);
-  --hp-slate: oklch(0.4358 0.0091 164.59);
-  --hp-slate-muted: oklch(0.497 0.0088 164.67);
-  --hp-forest: oklch(0.3838 0.0555 172.15);
-  --hp-energy: oklch(0.5632 0.1182 159.45);
-  --hp-hairline-light: oklch(0.8816 0.011 95.18);
-  --hp-grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  --hp-grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-}
 html {
-  background: var(--hp-black);
+  background: var(--site-black);
   color-scheme: dark;
   scroll-behavior: smooth;
 }
 
-/* The dark theme is the page's; a section with `data-theme="light"` is the bone one. */
-.hp {
-  --forest: var(--hp-forest);
-  --energy-bright: var(--hp-mint);
-  --on-forest: var(--hp-cream);
-  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, monospace;
-  --space-12: 12px;
-  --space-16: 16px;
-  --space-20: 20px;
-  --space-24: 24px;
-  --space-28: 28px;
-  --space-36: 36px;
-  --space-64: 64px;
-  --space-72: 72px;
-  --radius-control: 6px;
-  --radius-panel: 8px;
-  --ripple-1: 0.16;
-  --ripple-2: 0.13;
-  --ripple-3: 0.1;
-  --ripple-4: 0.08;
-  --ripple-5: 0.06;
-  --ripple-6: 0.04;
-  --page: 1280px;
-  --gutter: var(--space-64);
-  --section: 136px;
-  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-.hp,
-.hp [data-theme='dark'] {
-  --surface: var(--hp-black);
-  --surface-raised: var(--hp-raised-dark);
-  --ink: var(--hp-cream);
-  --ink-secondary: var(--hp-sage);
-  --ink-muted: var(--hp-sage-muted);
-  --accent: var(--hp-mint);
-  --signal: var(--hp-mint);
-  --action: var(--hp-mint);
-  --on-action: var(--hp-black);
-  --line: var(--hp-hairline-dark);
-  --line-control: var(--hp-control-dark);
-  --outline: var(--hp-control-dark);
-  --ripple: var(--hp-paper);
-  --focus-ring: var(--hp-mint);
-  --grain: var(--hp-grain-dark);
-  color-scheme: dark;
-}
-.hp [data-theme='light'] {
-  --surface: var(--hp-bone);
-  --surface-raised: var(--hp-raised-light);
-  --ink: var(--hp-black);
-  --ink-secondary: var(--hp-slate);
-  --ink-muted: var(--hp-slate-muted);
-  --accent: var(--hp-forest);
-  --signal: var(--hp-energy);
-  --action: var(--hp-black);
-  --on-action: var(--hp-bone);
-  --line: var(--hp-hairline-light);
-  --line-control: var(--hp-sage-muted);
-  --outline: var(--hp-black);
-  --ripple: var(--hp-black);
-  --focus-ring: var(--hp-forest);
-  --grain: var(--hp-grain-light);
-  color-scheme: light;
-}
-
 /* --- Base ------------------------------------------------------------------------------------ */
 
-body.hp {
-  background-color: var(--surface);
-  background-image: var(--grain);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-.hp *,
-.hp *::before,
-.hp *::after {
-  box-sizing: border-box;
-}
-.hp [hidden] {
-  display: none !important;
-}
-.hp a {
-  color: inherit;
-}
-/* The site's stylesheet balances every heading; the reference balances only its section titles. */
-.hp :where(h1, h2, h3) {
-  text-wrap: wrap;
-}
-.hp button {
-  font: inherit;
-  color: inherit;
-}
-.hp :focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-.hp section[id] {
-  scroll-margin-top: 64px;
-}
 .hp-main {
   position: relative;
   /* `clip`, not `hidden`: a sideways overflow is cut without making a scroll box, so the pinned
      sections inside stay sticky. */
   overflow-x: hidden;
   overflow-x: clip;
-}
-.hp .mono {
-  font-family: var(--font-mono);
-  font-size: 16px;
-  line-height: 1.4;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.hp .tnum {
-  font-variant-numeric: tabular-nums;
-}
-.hp .wrap {
-  width: 100%;
-  max-width: var(--page);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
-.hp .sec {
-  position: relative;
-  background-color: var(--surface);
-  background-image: var(--grain);
-  color: var(--ink);
-}
-.hp .skip {
-  position: fixed;
-  left: 16px;
-  top: -80px;
-  z-index: 300;
-  padding: 10px 14px;
-  border-radius: var(--radius-control);
-  background: var(--action);
-  color: var(--on-action);
-  box-shadow: none;
-  font-weight: 500;
-  text-decoration: none;
-  transition: top 0.2s;
-}
-.hp .skip:focus {
-  top: 16px;
-}
-.hp .h-section {
-  font-size: clamp(40px, 5vw, 64px);
-  line-height: 0.98;
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  text-wrap: balance;
-}
-.hp .lead {
-  max-width: 560px;
-  color: var(--ink-secondary);
-  font-size: 20px;
-  line-height: 1.5;
-}
-.hp .intro {
-  max-width: 460px;
-  color: var(--ink-secondary);
-  font-size: 18px;
-  line-height: 1.55;
-}
-.hp .actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-24);
 }
 .hp .caret {
   display: inline-block;
@@ -268,337 +63,6 @@ body.hp {
     opacity: 0;
     transform: translateY(18px);
   }
-}
-
-/* --- Drawings: the monogram, the icons, the ring and dot, the ripple --------------------------- */
-
-.hp .mg,
-.hp .ic,
-.hp .gl,
-.hp .ringdot {
-  display: inline-block;
-  flex: none;
-  vertical-align: middle;
-}
-.hp .mg-ground {
-  fill: var(--forest);
-}
-.hp .mg-letters {
-  fill: var(--on-forest);
-}
-.hp .mg-ring {
-  fill: none;
-  stroke: var(--energy-bright);
-}
-.hp .mg-dot {
-  fill: var(--energy-bright);
-}
-.hp .ic-line {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.75;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.hp .ic-dot {
-  fill: currentColor;
-  transition: fill 0.3s;
-}
-.hp .is-on .ic-dot,
-.hp .is-active .ic-dot,
-.hp .is-done .ic-dot {
-  fill: var(--signal);
-}
-.hp .rd-ring {
-  fill: none;
-  stroke: var(--signal);
-  stroke-width: 1.5;
-}
-.hp .rd-dot {
-  fill: var(--signal);
-}
-.hp .rp {
-  display: block;
-  overflow: visible;
-  pointer-events: none;
-}
-.hp .rp-ring {
-  fill: none;
-  stroke: var(--ripple);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.hp .rp-ring-1 {
-  stroke-opacity: var(--ripple-1);
-}
-.hp .rp-ring-2 {
-  stroke-opacity: var(--ripple-2);
-}
-.hp .rp-ring-3 {
-  stroke-opacity: var(--ripple-3);
-}
-.hp .rp-ring-4 {
-  stroke-opacity: var(--ripple-4);
-}
-.hp .rp-ring-5 {
-  stroke-opacity: var(--ripple-5);
-}
-.hp .rp-ring-6 {
-  stroke-opacity: var(--ripple-6);
-}
-.hp .rp-center {
-  fill: none;
-  stroke: var(--signal);
-  stroke-width: 2;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.hp .rp-dot {
-  fill: var(--signal);
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.hp .rp-quiet {
-  opacity: 0.75;
-}
-.hp .rp-intro .rp-dot {
-  animation: hp-land 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 0.22s both;
-}
-.hp .rp-intro .rp-center {
-  animation: hp-draw 0.7s var(--ease) 0.48s both;
-}
-.hp .rp-intro .rp-ring {
-  animation: hp-wave 1.5s var(--ease) both;
-  animation-delay: calc(0.6s + var(--i) * 110ms);
-}
-@keyframes hp-land {
-  from {
-    transform: scale(0);
-  }
-}
-@keyframes hp-draw {
-  from {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-}
-@keyframes hp-wave {
-  from {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-}
-
-/* --- Eyebrows and buttons ---------------------------------------------------------------------- */
-
-.hp .eb {
-  display: flex;
-  align-items: center;
-  gap: var(--space-12);
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 16px;
-  line-height: 1.4;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.hp .eb-mark {
-  color: var(--ink-secondary);
-}
-.hp .cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid transparent;
-  border-radius: var(--radius-control);
-  font-family: var(--font-sans);
-  font-weight: 500;
-  line-height: 1.3;
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    transform 0.3s var(--ease),
-    background-color 0.3s,
-    border-color 0.3s,
-    color 0.3s;
-}
-.hp .cta-lg {
-  min-height: 52px;
-  padding: 0 var(--space-24);
-  font-size: 16px;
-}
-.hp .cta-primary {
-  background: var(--action);
-  color: var(--on-action);
-}
-.hp .cta-primary:hover {
-  color: var(--on-action);
-  transform: translateY(-2px);
-}
-.hp .cta-secondary {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--outline);
-}
-.hp .cta-secondary:hover {
-  border-color: var(--ink);
-  transform: translateY(-2px);
-}
-/* The reference draws this underline as a border 2px under the words; as text-decoration it stays
-   there while the link itself is 44px tall for a thumb. */
-.hp .cta-link {
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: 400;
-  text-decoration: underline;
-  text-decoration-color: var(--outline);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 5px;
-}
-.hp .cta-link:hover {
-  color: var(--accent);
-  text-decoration-color: currentColor;
-}
-
-/* Reveal on scroll: the script holds back what starts below the fold and lets it rise in. */
-.hp .rv {
-  transition:
-    opacity 1s var(--ease) var(--d, 0ms),
-    transform 1s var(--ease) var(--d, 0ms);
-}
-.hp .rv-wait {
-  opacity: 0;
-  transform: translateY(36px);
-}
-
-/* --- The site's header, in the reference's dress --------------------------------------------------- */
-
-.hp .site-top {
-  position: relative;
-  z-index: 60;
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
-  -webkit-backdrop-filter: saturate(140%) blur(16px);
-  backdrop-filter: saturate(140%) blur(16px);
-  color: var(--ink);
-}
-.hp .site-logo path {
-  stroke: var(--ink);
-}
-.hp .site-logo circle:nth-of-type(-n + 2) {
-  fill: var(--ink);
-}
-.hp .site-logo circle:nth-of-type(3) {
-  fill: var(--signal);
-}
-.hp .site-logo circle:nth-of-type(4) {
-  stroke: var(--signal);
-}
-.hp .site-nav a,
-.hp .site-menu summary {
-  position: relative;
-  color: var(--ink-secondary);
-  font-size: 16px;
-  font-weight: 400;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.hp .site-nav a:hover,
-.hp .site-nav a[aria-current='page'],
-.hp .site-menu summary:hover,
-.hp .site-menu details[open] summary,
-.hp .site-menu details[data-current] summary {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 6px;
-}
-.hp .site-nav a.site-login {
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  background: transparent;
-  box-shadow: none;
-  color: var(--ink);
-}
-.hp .site-nav a.site-login:hover {
-  border-color: var(--outline);
-  background: transparent;
-  text-decoration: none;
-}
-.hp .site-nav .site-menu-list {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--surface-raised);
-  box-shadow: none;
-}
-.hp .site-nav .site-menu-list a {
-  border-radius: var(--radius-control);
-  color: var(--ink);
-}
-.hp .site-nav .site-menu-list a:hover {
-  background: var(--surface);
-}
-.hp .site-cta.btn {
-  min-height: 44px;
-  white-space: nowrap;
-  padding: 0 18px;
-  border: 1px solid var(--outline);
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: 500;
-  transition:
-    transform 0.3s var(--ease),
-    border-color 0.3s;
-}
-.hp .site-cta.btn:hover {
-  border-color: var(--ink);
-  background: transparent;
-  color: var(--ink);
-  transform: translateY(-2px);
-}
-
-/* --- The site's footer, in the reference's dress ----------------------------------------------- */
-
-.hp .site-foot {
-  margin-top: 0;
-  padding: 96px 0 40px;
-  border-top: 1px solid var(--line);
-  background-color: var(--surface);
-  background-image: var(--grain);
-  color: var(--ink-secondary);
-  font-size: 16px;
-}
-.hp .site-foot-name {
-  color: var(--ink);
-}
-.hp .site-foot-about {
-  align-content: start;
-}
-.hp .site-foot a {
-  color: var(--ink-secondary);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.hp .site-foot a:hover {
-  color: var(--ink);
-}
-.hp .site-foot .site-contact a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-color: var(--outline);
-  text-underline-offset: 4px;
 }
 
 /* --- 1. The hero: the live headline, and Spring and Connor ----------------------------------------- */
@@ -1743,18 +1207,6 @@ body.hp {
   margin-top: 8px;
 }
 
-/* --- Wide: the header pins once it is one row ---------------------------------------------------- */
-
-@media (min-width: 960px) {
-  .hp .site-top {
-    position: sticky;
-    top: 0;
-  }
-  .hp .site-top-in {
-    min-height: 64px;
-  }
-}
-
 /* --- Tablets and phones ------------------------------------------------------------------------ */
 
 @media (max-width: 1100px) {
@@ -1779,9 +1231,6 @@ body.hp {
   }
 }
 @media (max-width: 980px) {
-  .hp {
-    --section: 96px;
-  }
   .hp .hero-grid,
   .hp .skills-grid,
   .hp .start-grid,
@@ -1817,10 +1266,6 @@ body.hp {
   }
 }
 @media (max-width: 640px) {
-  .hp {
-    --gutter: var(--space-24);
-    --section: 80px;
-  }
   .hp .hero {
     min-height: 0;
   }
@@ -1829,9 +1274,6 @@ body.hp {
   }
   .hp .hero-person:nth-child(2) {
     margin-top: 32px;
-  }
-  .hp .lead {
-    font-size: 18px;
   }
   .hp .offer,
   .hp .dcs-stage {
@@ -1873,9 +1315,6 @@ body.hp {
   .hp .part-title {
     font-size: 20px;
   }
-  .hp .site-foot {
-    padding-top: 64px;
-  }
 }
 
 /* --- Reduced motion: nothing moves on its own, and nothing plays on scroll ------------------------ */
@@ -1909,9 +1348,5 @@ body.hp {
   }
   .hp .hero-ripple {
     transform: translate(-50%, -50%);
-  }
-  .hp .rv-wait {
-    opacity: 1;
-    transform: none;
   }
 }

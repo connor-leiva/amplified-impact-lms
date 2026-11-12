@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { HELP_EMAIL, PROGRAMS, SITE } from './content';
 import { freeTag, lockTag, siteFooter, siteHead, siteHeader } from './render';
@@ -114,5 +117,48 @@ describe('the tags and the head', () => {
 
   it('has no em dash anywhere', () => {
     expect(siteHeader('/') + siteFooter()).not.toMatch(/[–—]/);
+  });
+});
+
+describe('the stylesheet (`site.css`): the homepage’s look, site-wide', () => {
+  const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'site.css'), 'utf8');
+  /** The block of a rule written for `selector` alone (not one in a list of selectors). */
+  const rule = (selector: string) => {
+    let at = css.indexOf(`\n${selector} {`);
+    while (at > -1 && css[at - 1] === ',') at = css.indexOf(`\n${selector} {`, at + 1);
+    expect(at, selector).toBeGreaterThan(-1);
+    return css.slice(at, css.indexOf('}', at));
+  };
+
+  it('draws the header, the footer and the skip link in the dark look on every page, opted in or not', () => {
+    // Unscoped: no `.site` or `.hp` in front, so a page still on the paper look gets them too.
+    expect(rule('.site-top')).toContain('border-bottom: 1px solid var(--line);');
+    expect(rule('.site-foot')).toContain('background-image: var(--grain);');
+    expect(rule('.skip')).toContain('background: var(--action);');
+    // They carry the dark ground's colours and Geist themselves.
+    const own = css.slice(css.indexOf('\n.site,\n.site-top,\n.site-foot,\n.skip {'));
+    expect(own).toMatch(/^\n\.site,\n\.site-top,\n\.site-foot,\n\.skip \{[^}]*--font-sans: 'Geist'/);
+    expect(css).toMatch(/\n\.site,\n\.site \[data-theme='dark'\],\n\.site-top,\n\.site-foot,\n\.skip \{[^}]*--surface: var\(--site-black\);/);
+  });
+
+  it('keeps every word at 16px or more, taps at 44px, and a visible focus ring', () => {
+    const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
+    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
+    expect(css).not.toMatch(/font: [^;]*\b(1[0-5]|[0-9])px/);
+    for (const selector of ['.site-brand', '.site-foot a', '.site .cta-link']) expect(rule(selector)).toContain('min-height: 44px;');
+    expect(css).toMatch(/\.site-menu summary \{[^}]*min-height: 44px;/);
+    expect(rule('.site-nav .site-menu-list a')).toContain('min-height: 48px;');
+    expect(css).toMatch(/\.site-top :focus-visible,\n\.site-foot :focus-visible,\n\.skip:focus-visible \{\s*outline: 2px solid var\(--focus-ring\);/);
+    expect(css).toMatch(/\.site :focus-visible \{\s*outline: 2px solid var\(--focus-ring\);/);
+  });
+
+  it('stops everything that moves under reduced motion, the chrome included', () => {
+    const reduced = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce) {\n  html:has'));
+    expect(reduced).toMatch(/\.site \*,[\s\S]*\.skip,\n\s*\.site-top,\n\s*\.site-top \*,\n\s*\.site-foot \* \{[^}]*transition-duration: 0\.001ms !important;/);
+  });
+
+  it('self-hosts its fonts, from this folder only', () => {
+    expect(css).toContain("src: url('./fonts/geist-latin-wght-normal.woff2') format('woff2')");
+    expect(css).not.toMatch(/fonts\.googleapis|fonts\.gstatic|url\(['"]?https?:/);
   });
 });
