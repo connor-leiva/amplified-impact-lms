@@ -691,10 +691,14 @@ describe('the skill library (D-079)', () => {
     await (await db()).insert(skills).values([{ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } }]);
     const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
     const cookie = await app.signInAs(owner!.id);
-    const state = async () => (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().skills[0].state;
-    expect(await state()).toBe('locked');
+    const first = async () => {
+      const s = (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().skills[0];
+      return [s.state, s.opensAt];
+    };
+    // D-140: coming on Dec 14, not "not in your plan".
+    expect(await first()).toEqual(['upcoming', AGENTS_SKILLS_FROM]);
     process.env.FIXED_NOW = '2026-12-14T08:00:00-06:00';
-    expect(await state()).toBe('open');
+    expect(await first()).toEqual(['open', null]);
   });
 });
 
@@ -945,7 +949,8 @@ describe('every offer, end to end (D-106)', () => {
   }
 
   const expectOpen = (states: Record<string, string>, c: OfferCase, at: number) => {
-    const open = (when: number | null) => (when !== null && at >= when ? 'open' : 'locked');
+    // Open from its day; before it, `upcoming` (D-140): the plan was paid for and opens it later.
+    const open = (when: number | null) => (when === null ? 'locked' : at >= when ? 'open' : 'upcoming');
     expect(states, `${c.cart} at ${new Date(at).toISOString()}`).toEqual({
       'team-pnl-review': open(c.opens.owner_ops),
       'offer-strategy': open(c.opens.agent),
@@ -1319,7 +1324,8 @@ describe('the Team Plan\'s owner adds agents from the Team Hub (D-081, D-106)', 
     const agentCookie = await app.signInAs(agent!.id);
     const states = async () =>
       Object.fromEntries((await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie: agentCookie } })).json().skills.map((s: { id: string; state: string }) => [s.id, s.state]));
-    expect(await states()).toEqual({ 'team-pnl-review': 'locked', 'offer-strategy': 'locked' });
+    // Before Dec 14 the agent skill is coming (D-140); the owner set is never theirs.
+    expect(await states()).toEqual({ 'team-pnl-review': 'locked', 'offer-strategy': 'upcoming' });
     process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
     expect(await states()).toEqual({ 'team-pnl-review': 'locked', 'offer-strategy': 'open' });
   });

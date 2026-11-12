@@ -18,7 +18,7 @@ import { getDb } from '../db/client';
 import { accounts, plans, skills, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
-import { skillState } from '../billing/access';
+import { skillOpensAt, skillState } from '../billing/access';
 import type { PlanAccess, SkillAccess } from '../billing/access';
 import type { PlanKind, PlanStatus, SkillSet } from '../billing/catalog';
 
@@ -55,11 +55,20 @@ const asSkill = (s: SkillRow): SkillAccess => ({
   status: s.status as SkillAccess['status'],
 });
 
-/** A sales agent opens the agent set, never an owner-and-ops-only skill. */
+/**
+ * A sales agent opens the agent set, never an owner-and-ops-only skill: not today, and not on their
+ * plan's first day either, so such a skill is never `upcoming` for them unless it is unreleased.
+ */
 function stateFor(role: string | null, planList: readonly PlanAccess[], s: SkillRow, now: number) {
   const state = skillState(planList, asSkill(s), now);
-  if (state === 'open' && !s.free && role === 'Sales Agent' && s.sets === 'owner_ops') return 'locked' as const;
+  const barred = !s.free && role === 'Sales Agent' && s.sets === 'owner_ops';
+  if (barred && (state === 'open' || (state === 'upcoming' && s.releasedAt <= now))) return 'locked' as const;
   return state;
+}
+
+/** When an `upcoming` skill opens for this viewer (D-140); null for any other state. */
+function opensAtFor(state: ReturnType<typeof stateFor>, planList: readonly PlanAccess[], s: SkillRow, now: number): number | null {
+  return state === 'upcoming' ? skillOpensAt(planList, asSkill(s), now) : null;
 }
 
 export function registerSkillRoutes(app: FastifyInstance): void {
@@ -76,16 +85,21 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       teamHub: access.tier === 'team',
       skills: rows
         .sort((a, b) => a.releasedAt - b.releasedAt || a.title.localeCompare(b.title))
-        .map((s) => ({
-          id: s.id,
-          title: s.title,
-          summary: s.summary,
-          sets: s.sets,
-          free: s.free,
-          releasedAt: s.releasedAt,
-          state: stateFor(access.role, access.plans, s, now),
-          files: FILE_KINDS.filter((k) => typeof s.files[k] === 'string'),
-        })),
+        .map((s) => {
+          const state = stateFor(access.role, access.plans, s, now);
+          return {
+            id: s.id,
+            title: s.title,
+            summary: s.summary,
+            sets: s.sets,
+            free: s.free,
+            releasedAt: s.releasedAt,
+            state,
+            // The day the screen's "Coming …" names: the release, or the plan's first day (D-140).
+            opensAt: opensAtFor(state, access.plans, s, now),
+            files: FILE_KINDS.filter((k) => typeof s.files[k] === 'string'),
+          };
+        }),
     });
   });
 

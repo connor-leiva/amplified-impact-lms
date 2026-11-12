@@ -4455,3 +4455,21 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - It now passes `productionLogger()`, and `code` and `state` join the redacted URL parameters, so Google's one-time code on the callback is never logged.
   - Checked on a local server: the callback logs as `?code=REDACTED&state=REDACTED`, and `/sign-in?token=` as `?token=REDACTED`.
 - **Not changed:** checkout, Stripe, GHL (a first Google sign-in counts as a first sign-in through the existing rule), prices, the shared header and footer, the homepage, `/agreement`.
+
+## D-140 · The Skill Library shows a paid plan's skills as coming on its first day, not "Not in your plan"
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "check claude-overnight.md and claude-course.md against main … Then start on the top unfinished item." The audit's top item is the 16 sessions' Zoom links, which staff enter in the Admin Console, so this is the top item code can finish. It is the overnight brief's LMS wiring (unlock dates).
+**Status:** on a pull request.
+**Scope:** `apps/api/src/billing/access.ts` (`planOpensAt`, `skillOpensAt`, `skillState`), `apps/api/src/routes/skills.ts` (`opensAt` on each skill, the Sales Agent rule); `apps/web/src/routes/library/SkillLibrary.tsx`; tests (`billing.test.ts`, `offer.test.ts`, `SkillLibrary.test.tsx`).
+
+- **What buyers saw.** The access rule answered `locked` for any skill a viewer couldn't open yet, including one their own plan opens later. So until Dec 14 a Team Plan owner and their agents saw every paid agent skill as "Not in your plan." with "See Plans". An Agent Plan buyer saw the same until Jan 4, on the screen that is their home after sign-in (D-119). The welcome page had just told them the opposite: "Your agents’ skills open Monday, December 14." and "Your first charge is Monday, January 4, 2027, when your agent skills open."
+- **Now:** a released skill that a plan the viewer holds covers, and that plan's `startsAt` is still ahead, reads `upcoming`. `/api/skills` adds `opensAt`, which is that `startsAt`, or the release date for a skill not yet released. The screen shows the existing words, "Coming December 14." or "Coming January 4.", in place of the lock. No new copy.
+- **Still `locked`:**
+  - A cancelled or refunded plan: a trial cancelled before Jan 4 never starts.
+  - A plan that has started and still doesn't open the skill: on Jan 4 with the first charge unpaid, it says nothing is paid for, as before.
+  - A skill the plan doesn't cover, such as owner-and-ops skills for a Team Plan or Agent Plan.
+  - An owner-and-ops skill for a Sales Agent, on any date.
+- **"See Plans"** goes to `/pricing`, which compares all four programs (D-123). `/offer#plans` had no Agent Plan card.
+- **What opens and when is unchanged.** `canOpenSkill` and the download route's check are untouched: a skill opens on exactly the day it did before. The per-offer tests now expect `upcoming` where they expected `locked` before each cart's day.
+- **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
