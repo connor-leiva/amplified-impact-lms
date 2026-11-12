@@ -770,6 +770,39 @@ body {
   font-weight: 500;
 }
 
+/* --- Offer states: attributes the API writes, no script (D-105, as in ../site/offers.css) -------- */
+
+/* `data-founding` and `data-seats` on <body>, `data-state` on each card. A card shows its buy buttons
+   only while its cart sells (`link`); otherwise "Opens soon.", the close or the sell-out says why. A
+   link with an empty href does not sell today and is hidden. */
+.aiw[data-founding='open'] .founding-closed,
+.aiw[data-founding='closed'] .founding-open,
+.aiw[data-seats='left'] .seats-soldout,
+.aiw[data-seats='soldout'] .seats-left {
+  display: none !important;
+}
+.aiw .plan .act-link,
+.aiw .plan .act-soon,
+.aiw .plan .act-closed,
+.aiw .plan .act-soldout {
+  display: none;
+}
+.aiw .plan[data-state='link'] .act-link {
+  display: flex;
+}
+.aiw .plan:not([data-state='link']):not([data-state='closed']):not([data-state='soldout']) .act-soon,
+.aiw .plan[data-state='closed'] .act-closed,
+.aiw .plan[data-state='soldout'] .act-soldout {
+  display: block;
+}
+.aiw .plan[data-state='closed'] a.act-closed,
+.aiw .plan[data-state='soldout'] a.act-soldout {
+  display: inline-flex;
+}
+.aiw .plan a[href=''] {
+  display: none !important;
+}
+
 /* --- Seat meter: a ring with a dot is open, a filled circle is taken --------------------------- */
 
 /* The API writes the seats left into `data-left` per request (`%%seats-left%%`), so the meter is
