@@ -37,8 +37,9 @@ describe('/about', () => {
     expect(doc.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://www.amplifiedimpact.io/about',
     );
+    // The branded share image, never a headshot: the photos stay in the page.
     expect(doc.querySelector('meta[property="og:image"]')?.getAttribute('content')).toBe(
-      'https://www.amplifiedimpact.io/img/team/spring-bengtzen-2.jpg',
+      'https://www.amplifiedimpact.io/img/og/amplified-impact.png',
     );
     expect(text(doc.querySelector('nav[aria-label="Main"] [aria-current="page"]'))).toBe('About');
     const shell = read('../../about.html');

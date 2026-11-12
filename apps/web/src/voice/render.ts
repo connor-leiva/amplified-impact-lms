@@ -30,6 +30,7 @@ import {
 } from '../ai101/render';
 import { UI } from '../ai101/content';
 import { VOICE } from './content';
+import { shareImageTags } from '../site/share';
 
 const screen = (index: number, body: string[], className = '', extraAttrs = '') =>
   screenSection(VOICE.screens[index]!, index, body, className, extraAttrs);
@@ -46,7 +47,7 @@ export function renderVoiceHead(): string {
     `<meta property="og:type" content="website" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:site_name" content="${esc(siteName)}" />`,
-    `<meta name="twitter:card" content="summary" />`,
+    ...shareImageTags(),
   ].join('\n    ');
 }
 

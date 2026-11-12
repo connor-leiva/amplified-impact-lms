@@ -4563,3 +4563,19 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **Kept, every word and button:** each setup step, download button, copy-to-clipboard prompt, "Copy & Open" button, the descriptions, the summaries, the guided setup inside the card (D-101) and the app switch.
 - **Not on their own pages:** /voice-profile, /ai101, /retool and /ops-time-audit are guides, not skills, with their own layouts. Their cards on /library and /free carry the lead.
 - **Not changed:** the homepage, sign-in, the kit's header, nav, footer, CSS and tokens, prices, carts, Payment Links, entitlements, gating, `/agreement`, goldens.
+
+## D-147 · Every www link preview is the branded share image, never a headshot
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "link previews show Spring's headshot (og:image) ... Connor wants a proper branded preview."
+**Status:** on a pull request.
+**Scope:** `apps/web/src/site/share.ts` (the default image and its tags), `site/og-image.ts` (the image's template), `apps/web/scripts/og-image.mjs` (renders it), `apps/web/public/img/og/amplified-impact.png`; the heads in `site/render.ts` (`siteHead`), `library/render.ts`, `guides/render.ts` (and `Guide.meta.image` in `guides/content.ts`), `voice/render.ts`, `retool/render.ts` and `ai101/render.ts`; the share image in `home/render.ts`, `about/render.ts` and `site/offers.ts`; tests.
+
+- **What links showed.** The homepage, /about and the five sales pages set `og:image` to a portrait headshot of Spring (890 by 1113), as a large card, so iMessage, Slack and LinkedIn previews of the business looked like a profile. The Library, the skill and guide pages, the voice profile, Retool and AI 101 set no image at all.
+- **Now:** one branded card, 1200 by 630, for every www page that writes Open Graph tags (67 pages built). It shows the kit's Logo 1, the homepage's tagline "AI Coaching and Training for Business Owners and Their Teams" and amplifiedimpact.io on the kit's dark ground. It uses the kit's tokens and Geist only, with no photo and no number, and everything sits inside the middle 1000 by 500.
+  - `og:image`, `og:image:width` 1200, `og:image:height` 630 and `og:image:alt` "Amplified Impact".
+  - `twitter:card` `summary_large_image` and `twitter:image`, all absolute on `https://www.amplifiedimpact.io`.
+- **Re-rendered from the repo:** `node apps/web/scripts/og-image.mjs` serves the template through Vite, with the kit's stylesheet and fonts, screenshots it at 1200 by 630 with Playwright, and fails if anything leaves the safe area. The same machine renders the same bytes.
+- **A page can override it** through its page data (`PageMeta.image`, `Guide.meta.image`). None does.
+- **The headshots stay in the pages** (the homepage hero, /about, the sales pages' founders); only the share tags changed. A test holds every www head to the new image and none to `/img/team/`.
+- **Not changed:** the legal pages (/terms, /privacy, /agreement) and the two noindex offer pages, which write no Open Graph tags. learn.amplifiedimpact.io's app shell writes none either. Also unchanged: the homepage layout, the header, nav and footer, the kit's CSS, prices and gating.

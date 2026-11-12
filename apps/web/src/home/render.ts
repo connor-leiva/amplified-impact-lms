@@ -24,7 +24,7 @@
 
 import { kitHeader } from '../kit/render';
 import { siteFooter, siteHead, skipLink } from '../site/render';
-import { HOME, PHOTOS } from './content';
+import { HOME } from './content';
 import { entryFor, liveEntries } from './library-data';
 import { compare } from './sections/compare';
 import { end } from './sections/end';
@@ -39,8 +39,7 @@ import { trust } from './sections/trust';
 export { entryFor, liveEntries };
 
 export function renderHomeHead(): string {
-  const p = PHOTOS.spring;
-  return siteHead({ ...HOME.meta, image: { src: p.src, width: p.width, height: p.height, alt: p.alt } });
+  return siteHead(HOME.meta);
 }
 
 /** The kit's header for `/`, in its own `.aiw` scope: dark, like the page, and drawing no box. */

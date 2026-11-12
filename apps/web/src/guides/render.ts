@@ -38,6 +38,7 @@ import {
   type SetupStep,
 } from './content';
 import { UI } from './ui';
+import { shareImageTags } from '../site/share';
 import { LEAD, leadFor } from '../library/content';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -88,7 +89,8 @@ export function renderGuideHead(guide: Guide): string {
     `<meta property="og:type" content="website" />`,
     `<meta property="og:url" content="${esc(`${SITE.origin}/${guide.slug}`)}" />`,
     `<meta property="og:site_name" content="${esc(SITE.name)}" />`,
-    `<meta name="twitter:card" content="summary" />`,
+    // The branded share image (`../site/share.ts`), unless the guide names its own.
+    ...shareImageTags(guide.meta.image),
   ].join('\n    ');
 }
 

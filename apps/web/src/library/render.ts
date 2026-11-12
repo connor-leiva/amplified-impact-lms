@@ -14,6 +14,7 @@ import { GROK_COLLECTIONS, GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { icon } from '../site/render';
 import { SITE } from '../site/content';
+import { shareImageTags } from '../site/share';
 import { eyebrow, headline, button, pad2 } from '../kit/parts';
 import { kitFooter, kitHeader, kitSkip } from '../kit/render';
 import { ENTRIES, FREE_FIVE, GENERAL_TRACK, GUIDE_WHO, LEAD, LIBRARY, TOOLS, TOPICS, TRACKS, WHO, type Entry, type Lead, type Track, type Who } from './content';
@@ -50,7 +51,7 @@ export function renderLibraryHead(): string {
     `<meta property="og:type" content="website" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:site_name" content="${esc(siteName)}" />`,
-    `<meta name="twitter:card" content="summary" />`,
+    ...shareImageTags(),
   ].join('\n    ');
 }
 

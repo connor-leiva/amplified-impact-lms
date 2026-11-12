@@ -26,6 +26,7 @@
 import { GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
 import { isFreeSkill, SKILL_CATALOG } from '@ai/core/skills';
 import { LEAD } from '../library/content';
+import type { ShareImage } from '../site/share';
 import { OPS_TIME_AUDIT } from './ops-time-audit';
 import { REEL_EDITOR } from './reel-editor';
 import { TASK_SYNC_STARTER } from './task-sync-starter';
@@ -262,7 +263,8 @@ export interface Guide {
    * `inSkillLibrary` says, the same way a paid skill is.
    */
   grok?: string;
-  meta: { title: string; description: string };
+  /** `image`: the page's own share image (`../site/share.ts`), when it has one; none does today. */
+  meta: { title: string; description: string; image?: ShareImage };
   hero: { eyebrow: string; title: string; lede: string; steps: readonly Step[] };
   /** The opt-in. Its anchor is the link a slide or a DM can point at. */
   optIn: { anchor: string; heading: string; body: string; button: string };
@@ -376,7 +378,7 @@ function asPaid(guide: Guide): Guide {
   if (!inSkillLibrary(guide)) return guide;
   return {
     ...guide,
-    meta: { title: unfree(guide.meta.title), description: unfree(guide.meta.description) },
+    meta: { ...guide.meta, title: unfree(guide.meta.title), description: unfree(guide.meta.description) },
     hero: { ...guide.hero, eyebrow: unfree(guide.hero.eyebrow) },
     // "Locked", as its Library card says (D-115): "Amplified Skill Library" is a retired name.
     ...(guide.facts ? { facts: guide.facts.map((f) => (f === 'Free' ? 'Locked' : f)) } : {}),

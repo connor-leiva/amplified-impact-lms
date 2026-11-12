@@ -107,10 +107,19 @@ describe('the tags and the head', () => {
     expect(lock.querySelector('svg path')?.getAttribute('d')).toMatch(/^M8 10.5H16/);
   });
 
-  it('writes the canonical address and share tags from a path', () => {
+  it('writes the canonical address and share tags from a path, with the branded share image by default', () => {
     const head = parse(siteHead({ title: 'T', description: 'D', path: '/about' })).body;
     expect(head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(`${SITE.url}/about`);
-    expect(head.querySelector('meta[name="twitter:card"]')?.getAttribute('content')).toBe('summary');
+    expect(head.querySelector('meta[property="og:image"]')?.getAttribute('content')).toBe('https://www.amplifiedimpact.io/img/og/amplified-impact.png');
+    expect(head.querySelector('meta[name="twitter:card"]')?.getAttribute('content')).toBe('summary_large_image');
+  });
+
+  it('lets a page name its own share image in its page data', () => {
+    const image = { src: '/img/og/other.png', width: 1200, height: 630, alt: 'Other' };
+    const head = parse(siteHead({ title: 'T', description: 'D', path: '/x', image })).body;
+    expect(head.querySelector('meta[property="og:image"]')?.getAttribute('content')).toBe(`${SITE.url}/img/og/other.png`);
+    expect(head.querySelector('meta[name="twitter:image"]')?.getAttribute('content')).toBe(`${SITE.url}/img/og/other.png`);
+    expect(head.querySelector('meta[property="og:image:alt"]')?.getAttribute('content')).toBe('Other');
   });
 
   it('has no em dash anywhere', () => {
