@@ -42,3 +42,7 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
   head (the PR's base, with the G), `after/` the branch head. The fixture build at 2x with reduced
   motion and the auth API answered in the browser (Google on; a refused password; a link sent).
   Each state in the light and the dark theme: `<state>-<theme>-<width>.jpg`.
+- `v2-insiders/`: /insiders, a new page (no `before/`: `main` has no /insiders). The branch head served by
+  the real API at 2x with reduced motion: checkout open with the live Payment Links (`after/`), checkout
+  not open yet (`after-soon/`), the light theme (`after-light/`), and the Programs menu, the phone
+  menu, the light theme and the page with no script (`after-states/`).
