@@ -9,6 +9,8 @@ export default tseslint.config(
       '**/dist-fixture/**',
       'design-reference/**',
       'handoff-starter/**',
+      // Design handoffs kept verbatim for reference (the mockup's own markup, styles and script).
+      'docs/design/**/handoff/**',
       'compliance/goldens/**',
       'compliance/report/**',
       '**/coverage/**',
