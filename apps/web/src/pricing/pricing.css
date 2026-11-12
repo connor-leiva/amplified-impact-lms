@@ -85,7 +85,7 @@
 
 /* --- The cards' heads: the program's stacked lockup is the heading, as on the homepage's cards ------
    Inline, the lockup draws in the ground's ink and signal: dark on the bone ground here, light on the
-   black one. 24px type, the README's clear space (one x-height, 13px) beside it before the number. The
+   dark one. 24px type, the README's clear space (one x-height, 13px) beside it before the number. The
    name is in the <h3>, visually hidden (`offers.ts`). */
 
 .plan-top {
