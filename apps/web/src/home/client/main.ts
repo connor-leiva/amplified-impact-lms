@@ -1,6 +1,7 @@
 // The homepage's one script (see `../render.ts`): a same-origin module file, never inlined, so the CSP's
 // `script-src 'self'` admits it. It only adds to a page that already reads in full without it.
 
+import { initHeader } from './header';
 import { canPin, reducedMotion } from './motion';
 import { initOfferCard } from './offer-card';
 import { initPlans } from './plans';
@@ -10,6 +11,9 @@ import { initTabs } from './tabs';
 
 function init(): void {
   const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector);
+
+  // The kit's header (Logo 1, Programs, the phone menu), with the kit's own behaviour.
+  initHeader(document);
 
   const card = $('[data-offer]');
   if (card) initOfferCard(card);

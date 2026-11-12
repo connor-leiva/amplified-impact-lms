@@ -487,93 +487,14 @@ body.hp {
   transform: none;
 }
 
-/* --- The site's header, in the reference's dress --------------------------------------------------- */
+/* --- The header: the v2 kit's, exactly as on every kit page ------------------------------------- */
 
-.hp .site-top {
-  position: relative;
-  z-index: 60;
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
-  -webkit-backdrop-filter: saturate(140%) blur(16px);
-  backdrop-filter: saturate(140%) blur(16px);
-  color: var(--ink);
-}
-.hp .site-logo path {
-  stroke: var(--ink);
-}
-.hp .site-logo circle:nth-of-type(-n + 2) {
-  fill: var(--ink);
-}
-.hp .site-logo circle:nth-of-type(3) {
-  fill: var(--signal);
-}
-.hp .site-logo circle:nth-of-type(4) {
-  stroke: var(--signal);
-}
-.hp .site-nav a,
-.hp .site-menu summary {
-  position: relative;
-  color: var(--ink-secondary);
-  font-size: 16px;
-  font-weight: 400;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.hp .site-nav a:hover,
-.hp .site-nav a[aria-current='page'],
-.hp .site-menu summary:hover,
-.hp .site-menu details[open] summary,
-.hp .site-menu details[data-current] summary {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 6px;
-}
-.hp .site-nav a.site-login {
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  background: transparent;
-  box-shadow: none;
-  color: var(--ink);
-}
-.hp .site-nav a.site-login:hover {
-  border-color: var(--outline);
-  background: transparent;
-  text-decoration: none;
-}
-.hp .site-nav .site-menu-list {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--surface-raised);
-  box-shadow: none;
-}
-.hp .site-nav .site-menu-list a {
-  border-radius: var(--radius-control);
-  color: var(--ink);
-}
-.hp .site-nav .site-menu-list a:hover {
-  background: var(--surface);
-}
-.hp .site-cta.btn {
-  min-height: 44px;
-  white-space: nowrap;
-  padding: 0 18px;
-  border: 1px solid var(--outline);
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: 500;
-  transition:
-    transform 0.3s var(--ease),
-    border-color 0.3s;
-}
-.hp .site-cta.btn:hover {
-  border-color: var(--ink);
-  background: transparent;
-  color: var(--ink);
-  transform: translateY(-2px);
+/* `kitHeader('/')` (`../kit/render.ts`), styled by the kit's own stylesheet (`../kit/kit.css`, loaded
+   after this one by `page.css`): Logo 1, Programs and its panel, the phone menu, the same height,
+   spacing and states. It sits in an `.aiw` scope of its own, dark like the page, and that scope draws
+   no box: the header takes the kit's tokens and rules, and nothing else on the page does. */
+.hp .hp-chrome {
+  display: contents;
 }
 
 /* --- The site's footer, in the reference's dress ----------------------------------------------- */
@@ -610,10 +531,13 @@ body.hp {
 
 /* --- 1. The hero: the live headline, and Spring and Connor ----------------------------------------- */
 
+/* The kit's header is fixed over the top 88px, as on every kit page, so the hero starts under it (as
+   /pricing's does) and still fills the screen. */
 .hp .hero {
   display: flex;
   flex-direction: column;
-  min-height: max(calc(100vh - 65px), 680px);
+  min-height: max(100vh, 768px);
+  padding-top: 88px;
   overflow: hidden;
 }
 .hp .hero-ripple {
@@ -1806,18 +1730,6 @@ body.hp {
 }
 .hp .end .actions {
   margin-top: 8px;
-}
-
-/* --- Wide: the header pins once it is one row ---------------------------------------------------- */
-
-@media (min-width: 960px) {
-  .hp .site-top {
-    position: sticky;
-    top: 0;
-  }
-  .hp .site-top-in {
-    min-height: 64px;
-  }
 }
 
 /* --- Tablets and phones ------------------------------------------------------------------------ */

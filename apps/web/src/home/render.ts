@@ -15,10 +15,15 @@
 // `script-src 'self'` admits it with no hash for the API to compute. Everything here reads in full
 // without it.
 //
-// The header, the footer and the share tags are the site's own (`../site/render.ts`), unchanged: the
-// homepage restyles them in `home.css` only. Every string goes through `esc()`.
+// THE HEADER IS THE V2 KIT'S (`../kit/render.ts`'s `kitHeader`), the same markup every kit page renders:
+// Logo 1, Programs and its panel, the phone menu, from the same nav data (`../site/content.ts`). It sits
+// in an `.aiw` scope of its own (`hp-chrome`, dark like the page, drawing no box), so the kit's own
+// stylesheet styles it exactly as on /pricing; `client/header.ts` is the kit's header script. The
+// footer and the share tags are the site's own (`../site/render.ts`), unchanged, restyled in `home.css`.
+// Every string goes through `esc()`.
 
-import { siteFooter, siteHead, siteHeader, skipLink } from '../site/render';
+import { kitHeader } from '../kit/render';
+import { siteFooter, siteHead, skipLink } from '../site/render';
 import { HOME, PHOTOS } from './content';
 import { entryFor, liveEntries } from './library-data';
 import { compare } from './sections/compare';
@@ -38,11 +43,14 @@ export function renderHomeHead(): string {
   return siteHead({ ...HOME.meta, image: { src: p.src, width: p.width, height: p.height, alt: p.alt } });
 }
 
-/** Everything inside <body>: Spring's nine sections, in her order, between the site's own header and footer. */
+/** The kit's header for `/`, in its own `.aiw` scope: dark, like the page, and drawing no box. */
+export const homeHeader = (): string => `<div class="aiw hp-chrome" data-theme="dark">\n${kitHeader('/')}\n</div>`;
+
+/** Everything inside <body>: Spring's nine sections, in her order, between the kit's header and the site's footer. */
 export function renderHomeBody(): string {
   return [
     skipLink(),
-    siteHeader('/'),
+    homeHeader(),
     `<main id="main" tabindex="-1" class="hp-main">`,
     hero(),
     proof(),
