@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { safeLanding } from '@ai/core/landing';
+import type { LandingPath } from '@ai/core/landing';
 import { Icon } from '../../components/Icon';
 import { BrandSlot } from '../../shell/BrandSlot';
 import s from './AcceptInvite.module.css';
@@ -21,7 +23,7 @@ const COPY = {
   used: 'That link was already used. Request a new one.',
 } as const;
 
-type InviteResult = { ok: true; team: string | null } | { ok: false; failure: 'expired' | 'used' };
+type InviteResult = { ok: true; team: string | null; landing: LandingPath } | { ok: false; failure: 'expired' | 'used' };
 
 /**
  * `POST /api/auth/verify { token }` for an `invite`-purpose token.
@@ -39,8 +41,8 @@ async function acceptInvite(token: string): Promise<InviteResult> {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ token }),
     });
-    const body = (await res.json().catch(() => null)) as { error?: string; team?: string } | null;
-    if (res.ok) return { ok: true, team: body?.team ?? null };
+    const body = (await res.json().catch(() => null)) as { error?: string; team?: string; landing?: unknown } | null;
+    if (res.ok) return { ok: true, team: body?.team ?? null, landing: safeLanding(body?.landing) };
     return { ok: false, failure: body?.error === 'used' ? 'used' : 'expired' };
   } catch {
     return { ok: false, failure: 'expired' };
@@ -71,8 +73,9 @@ export function Component() {
       if (!alive) return;
       if (result.ok) {
         if (result.team) setTeam(result.team);
-        // `replace`, so Back does not return to a spent invite.
-        navigate('/', { replace: true });
+        // `replace`, so Back does not return to a spent invite. D-150: the Skill Library for a
+        // teammate with no cohort portal.
+        navigate(result.landing, { replace: true });
         return;
       }
       setError(result.failure === 'used' ? COPY.used : COPY.expired);

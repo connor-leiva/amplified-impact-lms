@@ -192,6 +192,74 @@
   animation: ai-spin 0.9s linear infinite;
 }
 
+/* D-150: an access group's first-run welcome, at the top of the page, in the skill rows' own card:
+   radius 12, a 1px --line-default border, --bg-surface. Its words at 16px, its dismiss a 40px button. */
+.welcome {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+}
+.welcomeText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.welcomeTitle {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.welcomeBody {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-primary);
+}
+.welcomeLink {
+  font-weight: 600;
+  color: var(--text-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.welcomeLink:hover {
+  color: var(--text-link-hover);
+}
+.welcomeLink svg {
+  display: inline-block;
+  margin-left: 2px;
+  vertical-align: -1px;
+}
+.dismiss {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: -8px -8px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.dismiss:hover {
+  background: var(--action-secondary-hover);
+  color: var(--text-primary);
+}
+.dismiss:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 2px;
+}
+
 /* A skill's row stays one column at every width, so its downloads come under its lead, never beside it. */
 @media (min-width: 640px) {
   .head .actions {

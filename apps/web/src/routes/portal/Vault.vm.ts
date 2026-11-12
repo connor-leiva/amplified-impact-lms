@@ -97,6 +97,11 @@ export interface VaultVM {
   chips: VaultChip[];
   rows: VaultRow[];
   empty: boolean;
+  /**
+   * D-150: no published resource at all, in either tab. The screen says "Nothing here yet" in place of
+   * an empty list and its filters. Never true for the prototype, whose vault has thirteen.
+   */
+  nothingYet: boolean;
   /** False only on the executive tab at Agent tier, where the upsell panel replaces the list. */
   showList: boolean;
   execLocked: boolean;
@@ -204,6 +209,7 @@ export function vaultVM(db: Db, user: Learner, now: number, ui: VaultUi): VaultV
     chips,
     rows,
     empty: !rows.length,
+    nothingYet: published.length === 0,
     showList: !execLocked,
     execLocked,
     // The preview list is every executive resource in seed order, unsorted and unfiltered.

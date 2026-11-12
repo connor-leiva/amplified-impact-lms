@@ -305,7 +305,7 @@ describe('POST /api/auth/verify @g7', () => {
     const res = await post('/api/auth/verify', { token });
 
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({ ok: true, team: null });
+    expect(res.json()).toEqual({ ok: true, team: null, landing: '/' });
 
     const setCookie = Array.isArray(res.headers['set-cookie'])
       ? res.headers['set-cookie'].join('\n')
@@ -420,7 +420,7 @@ describe('POST /api/auth/verify @g7', () => {
     const res = await post('/api/auth/verify', { token });
     expect(res.statusCode).toBe(200);
     // `AcceptInvite.tsx` reads `body.team` for "Joining {Team or Amplified Impact}…".
-    expect(res.json()).toEqual({ ok: true, team: 'Northline Realty Team' });
+    expect(res.json()).toEqual({ ok: true, team: 'Northline Realty Team', landing: '/' });
 
     const after = await loadDb();
     const seat = after.users.find((u) => u.id === 'u_new');
@@ -440,7 +440,7 @@ describe('POST /api/auth/verify @g7', () => {
     const res = await post('/api/auth/verify', { token });
     expect(res.statusCode).toBe(200);
     // `null`, which `AcceptInvite.tsx` renders as the `Amplified Impact` fallback.
-    expect(res.json()).toEqual({ ok: true, team: null });
+    expect(res.json()).toEqual({ ok: true, team: null, landing: '/' });
 
     const me = await app.inject({
       method: 'GET',

@@ -3,7 +3,7 @@
 //
 //   GET /api/auth/providers         → { google: boolean }   whether the sign-in screens show the button
 //   GET /api/auth/google            → 302 to Google's account chooser, with a signed flow cookie
-//   GET /api/auth/google/callback   → 302 to `/` signed in, or to `/login?google=<why>`
+//   GET /api/auth/google/callback   → 302 to `/` signed in (`/skill-library` with no cohort portal, D-150), or to `/login?google=<why>`
 //
 // OFF UNTIL CONFIGURED. Without `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `APP_URL` the two
 // Google routes answer 404 and `providers` says `google: false`, so the button stays hidden.
@@ -44,6 +44,7 @@ import type { Database } from '../db/client';
 import { googleIdentities, users } from '../db/schema';
 import { domainGroupsOf, emailDomainOf, recordVerified } from '../billing/access-groups';
 import { clock } from '../lib/clock';
+import { landingFor } from '../lib/landing';
 import { accountForGroupAddress } from './auth';
 import { LOGIN_IP_MAX, LOGIN_IP_WINDOW } from './password';
 
@@ -186,7 +187,8 @@ export function registerGoogleRoutes(app: FastifyInstance, { broadcast, config }
       reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions(process.env, { remember: true }));
       // An activated owner changes a `users` row, which every teammate's Team Hub shows.
       if (activated) broadcast();
-      return reply.redirect('/', 302);
+      // D-150: a learner with no cohort portal (an access group's member) goes straight to the Skill Library.
+      return reply.redirect(await landingFor(db, user, now), 302);
     },
   );
 }

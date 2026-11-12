@@ -9,6 +9,7 @@
 // /sign-in. In the fixture build there is no API, so it says the library opens when you sign in.
 
 import { useEffect, useState } from 'react';
+import type React from 'react';
 import { SETUP_GUIDE_ORIGIN, setupGuideHref } from '@ai/core/skills';
 import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
@@ -21,12 +22,26 @@ export const COPY = {
   sets: { owner_ops: 'Owner and Operations Skills', agent: 'Agent Skills', both: 'Skills for Everyone' },
   free: 'Free',
   locked: 'Not in your plan.',
+  /** D-150: an access group's member, on a skill their group doesn't open. A fact, not an upsell. */
+  notIncluded: (group: string) => `Not included with ${group} access`,
   seePlans: 'See Plans',
   upcoming: (date: string) => `Coming ${date}.`,
   // `grok`: a Grok Bot template's one file (D-100).
   files: { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', practice: 'Practice Files', grok: 'Download for Grok Bot' },
   // The skill's www page, with its guided setup step by step (D-101), in a new tab.
   guide: 'Setup Guide',
+  /** D-150: said beside every link that opens the main site in a new tab (an icon, and these words for screen readers and on hover). */
+  newTab: '(opens in a new tab)',
+  newTabTitle: 'Opens in a new tab',
+  /** D-150: an access group's first-run welcome, at the top of the page until the member dismisses it. */
+  welcome: {
+    title: (group: string) => `Welcome, ${group}`,
+    count: (n: number) => `Your team access includes ${n} agent ${n === 1 ? 'skill' : 'skills'}.`,
+    startWith: 'Start with',
+    and: 'and',
+    guides: 'Each Setup Guide opens a step-by-step walkthrough in a new tab; come back here to download the files.',
+    dismiss: 'Dismiss',
+  },
   loading: 'Loading your skills',
   unavailable: 'The skill library opens when you sign in.',
   signIn: 'Sign In',
@@ -66,7 +81,16 @@ export interface LibrarySkill {
 export interface AccessGroupInfo {
   id: string;
   name: string;
+  /** D-150: how many agent skills the group's own grant opens today, from the API (never typed in). */
+  skills?: number;
+  /** D-150: whether the group's welcome panel is still to be shown to this learner. */
+  welcome?: boolean;
 }
+
+/** D-150: the skills a group's welcome names first, in order: today's training. Shown only if open. */
+export const START_WITH: Readonly<Record<string, readonly string[]>> = {
+  'utah-life': ['appointment-follow-up', 'repair-request-response'],
+};
 
 type Load =
   | { kind: 'loading' }
@@ -141,16 +165,86 @@ function Lead({ id }: { id: string }) {
 }
 
 /**
- * Whether a locked row may offer the plans. Not to an access group's member on an agent or `both` skill
- * (D-148): their group already gives them the Agent Plan's skills, so a plan upsell there would be
- * selling them what they have. Owner and ops skills, which the Agent Plan doesn't include, keep it.
+ * Whether a locked row may offer the plans. Never to an access group's member (D-150, Connor): their
+ * team gave them their skills, so a locked row says plainly it isn't included with their group's
+ * access (`COPY.notIncluded`), with no upsell. Everyone else is offered the plans, as before.
  */
-export const offersPlans = (skill: Pick<LibrarySkill, 'sets'>, member: boolean): boolean => !member || skill.sets === 'owner_ops';
+export const offersPlans = (member: boolean): boolean => !member;
 
 /** An access group's member who bought nothing (D-148): the team of one their account sits on is plumbing, not a team. */
 export const groupOnly = (load: { groups: readonly AccessGroupInfo[]; paidPlans: boolean }): boolean => load.groups.length > 0 && !load.paidPlans;
 
-function SkillRow({ skill, member }: { skill: LibrarySkill; member: boolean }) {
+/**
+ * A link to the main site that opens in a new tab, and says so (D-150): an icon after its words, a
+ * hover title, and a name that is its visible label then "(opens in a new tab)" for screen readers.
+ */
+function NewTabLink({ href, className, label, children }: { href: string; className?: string; label: string; children: React.ReactNode }) {
+  return (
+    <a className={className} href={href} target="_blank" rel="noopener" title={COPY.newTabTitle} aria-label={`${label} ${COPY.newTab}`}>
+      {children}
+      <Icon name="ext" size={14} />
+    </a>
+  );
+}
+
+/**
+ * D-150: an access group's first-run welcome, at the top of the page. Its count is the group's own
+ * grant's, from the API. The skills it names link to their Setup Guides. Dismissed for good per
+ * learner (`POST /api/skills/welcome/dismiss`, kept on the server, so on every device).
+ */
+function Welcome({ group, skills, onDismiss }: { group: AccessGroupInfo; skills: readonly LibrarySkill[]; onDismiss: () => void }) {
+  const titleId = `welcome-${group.id}`;
+  const count = group.skills ?? skills.filter((k) => k.state === 'open' && k.sets !== 'owner_ops').length;
+  const start = (START_WITH[group.id] ?? [])
+    .map((id) => skills.find((k) => k.id === id && k.state === 'open'))
+    .filter((k): k is LibrarySkill => k !== undefined);
+  return (
+    <section className={s.welcome} aria-labelledby={titleId} data-welcome={group.id}>
+      <div className={s.welcomeText}>
+        <h2 className={s.welcomeTitle} id={titleId}>
+          {COPY.welcome.title(group.name)}
+        </h2>
+        <p className={s.welcomeBody}>
+          {COPY.welcome.count(count)}{' '}
+          {start.length ? (
+            <>
+              {COPY.welcome.startWith}{' '}
+              {start.map((k, i) => (
+                <span key={k.id}>
+                  {i > 0 ? ` ${COPY.welcome.and} ` : null}
+                  <NewTabLink className={s.welcomeLink} href={setupGuideHref(k.id)} label={k.title}>
+                    {k.title}
+                  </NewTabLink>
+                </span>
+              ))}
+              .{' '}
+            </>
+          ) : null}
+          {COPY.welcome.guides}
+        </p>
+      </div>
+      <button type="button" className={s.dismiss} aria-label={COPY.welcome.dismiss} title={COPY.welcome.dismiss} onClick={onDismiss}>
+        <Icon name="x" size={16} />
+      </button>
+    </section>
+  );
+}
+
+/** Put a group's welcome away for good. Best effort: hidden at once, and kept by the server when it answers. */
+async function dismissWelcome(group: string): Promise<void> {
+  try {
+    await fetch('/api/skills/welcome/dismiss', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ group }),
+    });
+  } catch {
+    /* Offline: it is hidden for this visit and shows again on the next. */
+  }
+}
+
+function SkillRow({ skill, member }: { skill: LibrarySkill; member: string | null }) {
   const setupId = `setup-${skill.id}`;
   return (
     <li className={s.skill} data-state={skill.state}>
@@ -181,19 +275,19 @@ function SkillRow({ skill, member }: { skill: LibrarySkill; member: boolean }) {
                 {COPY.files[kind]}
               </a>
             ))}
-            <a className={s.secondary} href={setupGuideHref(skill.id)} target="_blank" rel="noopener">
+            <NewTabLink className={s.secondary} href={setupGuideHref(skill.id)} label={COPY.guide}>
               <Icon name="listChecks" size={16} />
               {COPY.guide}
-            </a>
+            </NewTabLink>
           </>
         ) : skill.state === 'locked' ? (
           <>
             <span className={s.note}>
               <Icon name="lock" size={16} />
-              {COPY.locked}
+              {member === null ? COPY.locked : COPY.notIncluded(member)}
             </span>
             {/* Every program, the Agent Plan included (D-140): `/offer#plans` lists three of the four. */}
-            {offersPlans(skill, member) ? (
+            {offersPlans(member !== null) ? (
               <a className={s.secondary} href={PLANS_URL}>
                 {COPY.seePlans}
               </a>
@@ -212,6 +306,8 @@ function SkillRow({ skill, member }: { skill: LibrarySkill; member: boolean }) {
 
 export function Component() {
   const [load, setLoad] = useState<Load>({ kind: 'loading' });
+  // D-150: welcomes put away in this visit, hidden before the server has answered.
+  const [dismissed, setDismissed] = useState<readonly string[]>([]);
 
   useEffect(() => {
     let alive = true;
@@ -269,6 +365,22 @@ export function Component() {
         ) : null}
       </header>
 
+      {load.kind === 'ready'
+        ? load.groups
+            .filter((g) => g.welcome !== false && !dismissed.includes(g.id))
+            .map((g) => (
+              <Welcome
+                key={g.id}
+                group={g}
+                skills={load.skills}
+                onDismiss={() => {
+                  setDismissed((d) => [...d, g.id]);
+                  void dismissWelcome(g.id);
+                }}
+              />
+            ))
+        : null}
+
       {load.kind === 'loading' ? (
         <div className={s.status} role="status" aria-busy="true">
           <Icon name="spinner" size={20} strokeWidth={2.2} className={s.spin} label={COPY.loading} />
@@ -294,7 +406,7 @@ export function Component() {
               {load.skills
                 .filter((k) => k.sets === set)
                 .map((k) => (
-                  <SkillRow key={k.id} skill={k} member={load.groups.length > 0} />
+                  <SkillRow key={k.id} skill={k} member={load.groups[0]?.name ?? null} />
                 ))}
             </ul>
           </section>

@@ -318,3 +318,18 @@ describe('vaultVM @g5', () => {
     });
   });
 });
+
+describe('a vault with nothing published yet (D-150)', () => {
+  beforeAll(() => setViewerZone('America/Chicago'));
+  afterAll(() => setViewerZone(null));
+
+  it('says so, in either tab, and never for the prototype', () => {
+    const db = seed('live');
+    const now = phaseNow('live');
+    const jamie = learner(db, 'u_jamie');
+    expect(vaultVM(db, jamie, now, ui()).nothingYet).toBe(false);
+    const drafts: Db = { ...db, resources: db.resources.map((r) => ({ ...r, status: 'hidden' as const })) };
+    expect(vaultVM(drafts, jamie, now, ui()).nothingYet).toBe(true);
+    expect(vaultVM({ ...db, resources: [] }, jamie, now, ui({ tab: 'exec' })).nothingYet).toBe(true);
+  });
+});

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
+import { safeLanding } from '@ai/core/landing';
+import type { LandingPath } from '@ai/core/landing';
 import { BrandSlot } from '../../shell/BrandSlot';
 import s from './SignIn.module.css';
 
@@ -21,6 +23,15 @@ export const post = (url: string, body: unknown) =>
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   });
+
+/**
+ * Where a successful sign-in's answer says to go (D-150): the Skill Library for a learner with no
+ * cohort portal, otherwise `/`. Checked by `safeLanding`, so it is never anywhere else.
+ */
+export async function landingOf(res: Response): Promise<LandingPath> {
+  const body = (await res.json().catch(() => null)) as { landing?: unknown } | null;
+  return safeLanding(body?.landing);
+}
 
 /** The `error` a JSON answer carries, or null. */
 export async function errorOf(res: Response): Promise<string | null> {

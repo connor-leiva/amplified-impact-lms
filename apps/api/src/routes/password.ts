@@ -70,6 +70,7 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { accounts, authSessions, authTokens, orders, userPasswords, users } from '../db/schema';
 import { clock } from '../lib/clock';
+import { landingFor } from '../lib/landing';
 import { AUTH_REQUEST_IP_MAX, AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, accountForGroupAddress, claimToken } from './auth';
 import { domainGroupsOf, groupsOf } from '../billing/access-groups';
 
@@ -234,7 +235,8 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
 
       await clearFailures(db, email);
       await signIn(db, reply, user.id, now, remember);
-      return reply.code(200).send({ ok: true });
+      // D-150: where to go next, so a learner with no cohort portal lands on the Skill Library.
+      return reply.code(200).send({ ok: true, landing: await landingFor(db, user, now) });
     },
   );
 
@@ -286,7 +288,7 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
     const changed = await finishPasswordSet(db, user, parsed.data.password, now, null);
     await signIn(db, reply, user.id, now, true);
     if (changed) broadcast();
-    return reply.code(200).send({ ok: true });
+    return reply.code(200).send({ ok: true, landing: await landingFor(db, user, now) });
   });
 
   app.post(
@@ -312,7 +314,7 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
       const changed = await finishPasswordSet(db, user, null, now, null);
       await signIn(db, reply, user.id, now, true);
       if (changed) broadcast();
-      return reply.code(200).send({ ok: true });
+      return reply.code(200).send({ ok: true, landing: await landingFor(db, user, now) });
     },
   );
 

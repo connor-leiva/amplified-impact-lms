@@ -14,7 +14,7 @@ import type { GoogleConfig } from '../src/auth/google';
 import { groupAccessOf, provisionGroupMember } from '../src/billing/access-groups';
 import { readOfferConfig } from '../src/billing/config';
 import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
-import { accessGroups, accounts, authSessions, emailVerifications, googleIdentities, orders, plans, userPasswords, users } from '../src/db/schema';
+import { accessGroups, accounts, authSessions, emailVerifications, googleIdentities, modules, orders, plans, userPasswords, users } from '../src/db/schema';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import { GOOGLE_FLOW_COOKIE } from '../src/routes/google';
 import { resetDatabase, testDatabase } from './helpers';
@@ -441,6 +441,17 @@ describe('an access group’s address, verified by Google (D-149)', () => {
     const again = await signInWithGoogle('new.agent@liveutah.com');
     expect((await me(again))!.json().viewer.actor).toEqual({ kind: 'learner', userId: u!.id });
     expect(await db.select().from(users).where(eq(users.email, 'new.agent@liveutah.com'))).toHaveLength(1);
+  });
+
+  it('lands a member with no cohort portal straight on the Skill Library (D-150)', async () => {
+    // Production's portal is the AI Accelerator's, which the grant never opens: here, drafts.
+    await db.update(modules).set({ status: 'draft' });
+    const res = await signInWithGoogle('landing.agent@liveutah.com');
+    expect([res.statusCode, res.headers.location]).toEqual([302, '/skill-library']);
+    expect(cookieOf(res, SESSION_COOKIE)).toBeDefined();
+    // Someone with a portal still lands on `/` (the seed's learner, with the AI Employees published).
+    await db.update(modules).set({ status: 'published' });
+    expect((await signInWithGoogle(JAMIE)).headers.location).toBe('/');
   });
 
   it('does not need Google’s Workspace domain (`hd`): it is logged, not required', async () => {

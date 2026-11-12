@@ -69,6 +69,7 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { authTokens, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
+import { landingFor } from '../lib/landing';
 import { groupsOf, provisionGroupMember, recordVerified } from '../billing/access-groups';
 
 /** § 7.5's "Rate limit: 5 per hour per email and IP", and § 9.4's repeat of it: the per-email half. */
@@ -312,7 +313,8 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     // Hub's seat list goes from Invited to Active without a refresh.
     if (joined) broadcast();
 
-    return reply.code(200).send({ ok: true, team });
+    // D-150: where to go next, so a learner with no cohort portal lands on the Skill Library.
+    return reply.code(200).send({ ok: true, team, landing: await landingFor(db, user, now) });
   });
 
   /**

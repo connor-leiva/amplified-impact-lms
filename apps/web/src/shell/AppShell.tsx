@@ -95,9 +95,11 @@ function usePrefs(): Prefs {
 }
 
 /** `data-app-ready` goes on the body once this component has rendered — so the snapshot has
- *  resolved, because `useDb()` suspends until it has — and the fonts have settled. */
-function useAppReady(): void {
+ *  resolved, because `useDb()` suspends until it has — and the fonts have settled. Not while the
+ *  shell is only passing a learner on to the Skill Library (D-150), which marks itself. */
+function useAppReady(enabled = true): void {
   useEffect(() => {
+    if (!enabled) return;
     let alive = true;
     const mark = () => {
       if (alive) document.body.dataset.appReady = 'true';
@@ -108,7 +110,7 @@ function useAppReady(): void {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [enabled]);
 }
 
 function Shell() {
@@ -121,7 +123,6 @@ function Shell() {
 
   const vw = useViewportWidth();
   const prefs = usePrefs();
-  useAppReady();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -147,6 +148,13 @@ function Shell() {
     actor.kind === 'staff' ? (db.staff.find((x) => x.id === actor.staffId) ?? db.staff[0] ?? null) : null;
   const isTeam = user?.tier === 'team';
   const person = isAdmin ? staff : user;
+
+  // A plan that opens no AI Employee has no cohort screens to show (D-119): its Skill Library.
+  // Worked out while rendering, not after, so the shell draws nothing on its way there and a direct
+  // visit to `/` never flashes the empty cohort dashboard first (D-150).
+  const path = location.pathname;
+  const away = !isAdmin && user ? noPortalRedirect(db, path) : null;
+  useAppReady(away === null);
 
   const mods = useMemo(() => visibleModules(db), [db]);
 
@@ -202,7 +210,6 @@ function Shell() {
     [go, openLocked],
   );
 
-  const path = location.pathname;
   const isAdminPath = path === ADMIN_ROOT || path.startsWith(`${ADMIN_ROOT}/`);
   const employeeId = segmentAfter(path, EMP_PREFIX);
 
@@ -217,8 +224,6 @@ function Shell() {
       return;
     }
     if (!user) return;
-    // A plan that opens no AI Employee has no cohort screens to show (D-119): its Skill Library.
-    const away = noPortalRedirect(db, path);
     if (away) {
       replace(away);
       return;
@@ -248,7 +253,7 @@ function Shell() {
     const first = mods.find((x) => canAccess(user, x));
     replace(first ? `${EMP_PREFIX}${first.id}` : '/');
     openLocked(m.id);
-  }, [db, employeeId, isAdmin, isAdminPath, isTeam, mods, navigate, openLocked, path, user]);
+  }, [away, employeeId, isAdmin, isAdminPath, isTeam, mods, navigate, openLocked, path, user]);
 
   // ---- Escape closes every layer the shell owns -----------------------------------------------
   useEffect(() => {
@@ -302,6 +307,9 @@ function Shell() {
   }, [toast]);
 
   const shellApi = useMemo(() => ({ openLocked, sidebarMode: mode, vw }), [mode, openLocked, vw]);
+
+  // On the way to the Skill Library (D-150): nothing of the portal is drawn, not even for a frame.
+  if (away) return null;
 
   return (
     <ShellProvider value={shellApi}>

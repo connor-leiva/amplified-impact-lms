@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/primitives/Button';
+import type { LandingPath } from '@ai/core/landing';
 import { Field, Input } from '../../components/primitives/Field';
-import { AuthCard, EMAIL, GoogleSignIn, errorOf, googleRefusal, post, useAppReady, useGoogleSignIn } from './shared';
+import { AuthCard, EMAIL, GoogleSignIn, errorOf, googleRefusal, landingOf, post, useAppReady, useGoogleSignIn } from './shared';
 import s from './SignIn.module.css';
 
 // /sign-in — net-new. Phase 07 § 7.5 specified the magic link; D-132 makes email and password the
@@ -64,26 +65,28 @@ async function requestSignInLink(email: string): Promise<void> {
 }
 
 type LinkFailure = 'expired' | 'used';
+/** Where a sign-in goes (D-150), or why it failed. */
+type Signed<F> = { landing: LandingPath } | { failure: F };
 
-/** `POST /api/auth/verify { token }`. Null on success, otherwise which failure string to show. */
-async function verifySignInToken(token: string): Promise<LinkFailure | null> {
+/** `POST /api/auth/verify { token }`. Where to go on success, otherwise which failure string to show. */
+async function verifySignInToken(token: string): Promise<Signed<LinkFailure>> {
   try {
     const res = await post('/api/auth/verify', { token });
-    if (res.ok) return null;
-    return (await errorOf(res)) === 'used' ? 'used' : 'expired';
+    if (res.ok) return { landing: await landingOf(res) };
+    return { failure: (await errorOf(res)) === 'used' ? 'used' : 'expired' };
   } catch {
-    return 'expired';
+    return { failure: 'expired' };
   }
 }
 
-/** `POST /api/auth/login`. Null on success, otherwise the words to show (the API's own). */
-async function signInWithPassword(email: string, password: string, remember: boolean): Promise<string | null> {
+/** `POST /api/auth/login`. Where to go on success, otherwise the words to show (the API's own). */
+async function signInWithPassword(email: string, password: string, remember: boolean): Promise<Signed<string>> {
   try {
     const res = await post('/api/auth/login', { email, password, remember });
-    if (res.ok) return null;
-    return (await errorOf(res)) ?? COPY.failed;
+    if (res.ok) return { landing: await landingOf(res) };
+    return { failure: (await errorOf(res)) ?? COPY.failed };
   } catch {
-    return COPY.failed;
+    return { failure: COPY.failed };
   }
 }
 
@@ -119,7 +122,7 @@ export function Component() {
 
   // A sign-in token is single use, so it may be spent exactly once, even when StrictMode mounts
   // effects twice: each run attaches a fresh handler to the one in-flight request.
-  const pending = useRef<{ token: string; result: Promise<LinkFailure | null> } | null>(null);
+  const pending = useRef<{ token: string; result: Promise<Signed<LinkFailure>> } | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -127,14 +130,15 @@ export function Component() {
     let alive = true;
     setMode('verifying');
     setError(null);
-    void pending.current.result.then((failure) => {
+    void pending.current.result.then((out) => {
       if (!alive) return;
-      if (!failure) {
-        // `replace`, so Back does not return to a spent token.
-        navigate('/', { replace: true });
+      if ('landing' in out) {
+        // `replace`, so Back does not return to a spent token. D-150: straight to the Skill Library
+        // for a learner with no cohort portal, so `/` is never drawn first.
+        navigate(out.landing, { replace: true });
         return;
       }
-      setError(failure === 'used' ? COPY.used : COPY.expired);
+      setError(out.failure === 'used' ? COPY.used : COPY.expired);
       // Back on the link form, where "Request a new one." is one click away.
       setMode('link');
     });
@@ -176,14 +180,14 @@ export function Component() {
     }
     setError(null);
     setBusy(true);
-    void signInWithPassword(value, password, remember).then((failure) => {
+    void signInWithPassword(value, password, remember).then((out) => {
       setBusy(false);
-      if (!failure) {
-        navigate('/', { replace: true });
+      if ('landing' in out) {
+        navigate(out.landing, { replace: true });
         return;
       }
       setPassword('');
-      setError(failure);
+      setError(out.failure);
     });
   };
 

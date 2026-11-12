@@ -13,7 +13,7 @@ import type { AccessGroup } from '../src/billing/access-groups';
 import { readOfferConfig } from '../src/billing/config';
 import type { BillingStripe } from '../src/billing/stripe';
 import type { Database } from '../src/db/client';
-import { accessGroupMembers, accessGroups, accounts, authTokens, emailVerifications, orders, plans, skills, users } from '../src/db/schema';
+import { accessGroupMembers, accessGroups, accounts, authTokens, dismissals, emailVerifications, modules, orders, plans, skills, users } from '../src/db/schema';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import type { OutboxEntry } from '../src/email/transport';
 import { NO_PASSWORD_YET, WRONG_PASSWORD } from '../src/routes/password';
@@ -152,7 +152,8 @@ describe('a Utah Life agent with no account, on the training day', () => {
     expect(user).toMatchObject({ kind: 'learner', tier: 'agent', role: 'Team Owner', status: 'active' });
     const lib = await library(cookie);
     expect(lib.states).toEqual(AGENT_PLAN);
-    expect(lib.groups).toEqual([{ id: 'utah-life', name: 'Utah Life' }]);
+    // D-150: with the agent skills its own grant opens today (the two, and perfect-week), and its welcome still to show.
+    expect(lib.groups).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true }]);
     // A group's grant is not a plan to bill.
     expect(lib.plans).toEqual([]);
     expect(await download(cookie, 'appointment-follow-up')).toBe(302);
@@ -338,5 +339,78 @@ describe('password sign-in for a group address with no password yet (Nov 12, 202
     expect(await login('agent@liveutah.com.evil.com')).toEqual([400, WRONG_PASSWORD]);
     expect(await login('agent@notliveutah.com')).toEqual([400, WRONG_PASSWORD]);
     expect(await login('nobody@example.com')).toEqual([400, WRONG_PASSWORD]);
+  });
+});
+
+// --- D-150: the landing and the first-run welcome ----------------------------------------------------
+
+describe('where a member lands, by every sign-in path (D-150)', () => {
+  // Production's portal is the AI Accelerator's nine AI Employees, which a member's grant never opens,
+  // so their scoped snapshot holds none. Here the seed's AI Employees are drafts, to the same effect.
+  beforeEach(async () => {
+    await db.update(modules).set({ status: 'draft' });
+  });
+
+  it('a sign-in link lands a first-time member on the Skill Library', async () => {
+    expect((await post('/api/auth/request', { email: 'first.time@liveutah.com' })).statusCode).toBe(200);
+    const res = await post('/api/auth/verify', { token: await linkToken('first.time@liveutah.com', 'sign-in') });
+    expect(res.json()).toMatchObject({ ok: true, landing: '/skill-library' });
+  });
+
+  it('Forgot Password’s link, and then a typed password, land there too', async () => {
+    expect((await post('/api/auth/password/forgot', { email: 'reset.me@liveutah.com' })).statusCode).toBe(200);
+    const set = await post('/api/auth/password/set', { token: await linkToken('reset.me@liveutah.com', 'set-password'), password: 'a long enough password' });
+    expect([set.statusCode, set.json()]).toEqual([200, { ok: true, landing: '/skill-library' }]);
+    const login = await post('/api/auth/login', { email: 'reset.me@liveutah.com', password: 'a long enough password' });
+    expect([login.statusCode, login.json()]).toEqual([200, { ok: true, landing: '/skill-library' }]);
+  });
+
+  it('a learner with a portal still lands on `/`', async () => {
+    await db.update(modules).set({ status: 'published' });
+    expect((await post('/api/auth/request', { email: 'jamie@ortizhomes.com' })).statusCode).toBe(200);
+    const res = await post('/api/auth/verify', { token: await linkToken('jamie@ortizhomes.com', 'sign-in') });
+    expect(res.json()).toMatchObject({ ok: true, landing: '/' });
+  });
+});
+
+describe('the first-run welcome’s count and its dismissal (D-150)', () => {
+  const groupsOf = async (cookie: string) => {
+    const res = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
+    expect(res.statusCode).toBe(200);
+    return (res.json() as { accessGroups: { id: string; name: string; skills: number; welcome: boolean }[] }).accessGroups;
+  };
+  const dismiss = (cookie: string, payload: unknown, origin = 'http://localhost') =>
+    app.inject({ method: 'POST', url: '/api/skills/welcome/dismiss', payload: payload as Record<string, unknown>, headers: { cookie, origin } });
+
+  it('counts the agent skills the group’s own grant opens today: not owner and ops, not one released later', async () => {
+    await db.insert(skills).values({ id: 'later-agent-skill', title: 'Later', sets: 'agent', releasedAt: NOW + 5 * DAY, files: { claude: 'later.zip' } });
+    const cookie = await account('counted@liveutah.com', { verified: true });
+    // appointment-follow-up, repair-request-response (agent) and perfect-week (both); never team-pnl-review.
+    expect(await groupsOf(cookie)).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true }]);
+  });
+
+  it('is put away for good for that member, and only for them', async () => {
+    const a = await account('a.agent@liveutah.com', { verified: true });
+    const b = await account('b.agent@liveutah.com', { verified: true });
+    expect((await dismiss(a, { group: 'utah-life' })).statusCode).toBe(200);
+    // Twice is fine: the row is already there.
+    expect((await dismiss(a, { group: 'utah-life' })).statusCode).toBe(200);
+    expect((await groupsOf(a))[0]?.welcome).toBe(false);
+    expect((await groupsOf(b))[0]?.welcome).toBe(true);
+    const rows = await db.select().from(dismissals);
+    expect(rows.filter((r) => r.announcementId === 'welcome-utah-life')).toHaveLength(1);
+  });
+
+  it('refuses a group the learner is not in, a bad body, and a cross-site request', async () => {
+    const member = await account('c.agent@liveutah.com', { verified: true });
+    expect((await dismiss(member, { group: 'someone-else' })).statusCode).toBe(404);
+    expect((await dismiss(member, { group: 42 })).statusCode).toBe(400);
+    expect((await dismiss(member, { group: 'utah-life', extra: 1 })).statusCode).toBe(400);
+    expect((await dismiss(member, { group: 'utah-life' }, 'https://evil.example.com')).statusCode).toBe(403);
+    // Not a member at all (unverified): nothing to dismiss, and no welcome.
+    const unverified = await account('d.agent@liveutah.com', { verified: false });
+    expect((await dismiss(unverified, { group: 'utah-life' })).statusCode).toBe(404);
+    expect(await groupsOf(unverified)).toEqual([]);
+    expect(await db.select().from(dismissals)).toEqual([]);
   });
 });
