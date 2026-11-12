@@ -43,6 +43,7 @@ SKILLS, GUIDES AND TEMPLATES
 - Ops: Commission Tie-Out · For ops leads · Reports to: Your ops lead · Desk: Not needed · Shift: Every closing · Rounding: Never · After today’s closing: Deposit matched to the CDA / Split and cap checked / Fees tied out / 1 difference flagged for you
 
 ## S2 Video  (`section.vid`, theme: dark)
+**Connor, Nov 12 (conflicts.md D5):** no video. A real still photo replaces it, so the heading and caption below stay, and the video-only lines ("90 SECONDS…", the player's clock and placeholder, "SB", "SPRING ON CAMERA") go. Pending `video-still` until the photo is chosen.
 ```
 Watch it run in a real business.
 90 SECONDS · SPRING’S ACTUAL MORNING
@@ -215,7 +216,7 @@ S
 People
 People and AI
 12
-people
+seats
 29
 skills working for them
 Person
@@ -278,6 +279,8 @@ Market Update Email
 Sphere Touch Plan
 Database Health Check
 ```
+
+**Connor, Nov 12 (conflicts.md D4):** the org chart's "12 people" is now "12 seats".
 
 ## S8 In Spring’s words  (`section.qt`, theme: light)
 ```
