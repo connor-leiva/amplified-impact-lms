@@ -16,7 +16,28 @@ import { icon } from '../site/render';
 import { SITE } from '../site/content';
 import { eyebrow, headline, button, pad2 } from '../kit/parts';
 import { kitFooter, kitHeader, kitSkip } from '../kit/render';
-import { ENTRIES, FREE_FIVE, GENERAL_TRACK, GUIDE_WHO, LIBRARY, TOOLS, TOPICS, TRACKS, WHO, type Entry, type Track, type Who } from './content';
+import { ENTRIES, FREE_FIVE, GENERAL_TRACK, GUIDE_WHO, LEAD, LIBRARY, TOOLS, TOPICS, TRACKS, WHO, type Entry, type Lead, type Track, type Who } from './content';
+
+/**
+ * A card's lead (`LEAD` in `content.ts`), first under its title and tags, before the description: the
+ * problem, what it does for you, and who it's for. Classes are `<prefix>-lead`, `-problem`, `-outcome`
+ * and `-for`, so each page styles it in its own look. `span` for a card drawn of spans (a `<p>` cannot
+ * sit in one), else a `div` of paragraphs. Also /free's cards (`../free/render.ts`).
+ */
+export function cardLead(lead: Lead, prefix: string, inline = false): string {
+  const box = inline ? 'span' : 'div';
+  const line = inline ? 'span' : 'p';
+  const who = lead.forRole
+    ? `<${line} class="${prefix}-for"><span class="${prefix}-for-k">${esc(LEAD.forRole)}:</span> ${esc(lead.forRole)}</${line}>`
+    : '';
+  return (
+    `<${box} class="${prefix}-lead">` +
+    `<${line} class="${prefix}-problem">${esc(lead.problem)}</${line}>` +
+    `<${line} class="${prefix}-outcome">${esc(lead.outcome)}</${line}>` +
+    who +
+    `</${box}>`
+  );
+}
 
 /** The <head> lines that come from `content.ts`: the title and the link-preview metadata. */
 export function renderLibraryHead(): string {
@@ -137,6 +158,8 @@ function card(entry: Entry, level: 3 | 4 = 3): string {
     `<ul class="item-tags" role="list">${tags.map((t) => `<li>${esc(t)}</li>`).join('')}` +
     // Free, Free Resource or Locked, in words: the lock in the arrow's place never says it alone.
     `<li class="item-access item-${a}">${a === 'locked' ? icon('lock') : ''}${esc(LIBRARY.access[a])}</li></ul>` +
+    // The lead first (`LEAD`): the problem it fixes and what it does for you, before how it works.
+    cardLead(entry, 'item') +
     `<p class="item-desc">${esc(entry.description)}</p>`;
   const attrs =
     ` data-item data-added="${esc(entry.added)}" data-tools="${esc(entry.tools.join(' '))}"` +
@@ -196,7 +219,7 @@ function freeFive(): string {
     const tools = e.tools.map((t) => `<li>${esc(TOOLS[t])}</li>`).join('');
     return `<li><a class="free-card" href="${esc(e.href!)}"><span class="free-n" aria-hidden="true">${pad2(i + 1)}</span><span class="free-title">${esc(e.title)}</span><span class="item-access item-free">${esc(
       LIBRARY.access.free,
-    )}</span><span class="mono free-kind">${esc(e.kind)}</span><span class="free-desc">${esc(e.description)}</span><ul class="free-tools" role="list">${tools}</ul></a></li>`;
+    )}</span><span class="mono free-kind">${esc(e.kind)}</span>${cardLead(e, 'free', true)}<span class="free-desc">${esc(e.description)}</span><ul class="free-tools" role="list">${tools}</ul></a></li>`;
   }).join('');
   return [
     `<section class="sec free-five inverse" id="free" aria-labelledby="free-title">`,

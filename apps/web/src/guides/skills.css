@@ -317,17 +317,19 @@
 }
 
 /* --- The hero: the words, the sample and the sign-up ---------------------------------------------
-   One column on a phone: the words, the sample, then the card; once unlocked, the setup comes
-   before the sample. From 960px the card is the right column, beside the words and the sample, and
-   stays in view while the visitor reads, until it holds the setup. */
+   One column on a phone: the words and their lead (`LEAD`), the card, then the sample. The card
+   comes before the sample so the lead above it never pushes it lower than it sat before the lead
+   (D-146); once unlocked, the setup is in the card, so it comes before the sample too. From 960px the
+   card is the right column, beside the words and the sample, and stays in view while the visitor
+   reads, until it holds the setup. */
 
 .sk-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     'intro'
-    'sample'
-    'optin';
+    'optin'
+    'sample';
   gap: 32px;
   padding-top: 28px;
   padding-bottom: 48px;
@@ -349,6 +351,35 @@
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.03em;
+}
+/* The lead (`LEAD` in ../library/content.ts), first under the title: the problem, what it does for
+   you, who it's for. Set off by a green rule, the problem the largest line on the page after the title. */
+.sk-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 34em;
+  margin: 4px 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--action-primary);
+}
+.sk-lead dt {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+  color: var(--action-primary);
+}
+.sk-lead dd {
+  margin: 2px 0 0;
+  font-size: 17px;
+  line-height: 26px;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+.sk-lead-problem dd {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
 }
 .sk-lede {
   max-width: 34em;
@@ -587,9 +618,10 @@
   gap: 12px;
   margin: 8px 4px 4px;
 }
+/* "Set it up" (`LEAD.setup`): the setup's own heading, under the lead. */
 .sk .guided-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
 }
 .sk .guided-progress {
   margin: 0;
@@ -1081,21 +1113,6 @@
   }
 }
 
-@media (max-width: 959px) {
-  .sk-hero:has(.optin[data-state='unlocked']) {
-    grid-template-areas:
-      'intro'
-      'optin'
-      'sample';
-  }
-  .sk-hero:has(.unlocked:target) {
-    grid-template-areas:
-      'intro'
-      'optin'
-      'sample';
-  }
-}
-
 @media (min-width: 960px) {
   .sk-wrap,
   .sk-foot {
@@ -1153,6 +1170,14 @@
   .sk-lede {
     font-size: 20px;
     line-height: 30px;
+  }
+  .sk-lead dd {
+    font-size: 19px;
+    line-height: 28px;
+  }
+  .sk-lead-problem dd {
+    font-size: 24px;
+    line-height: 32px;
   }
   .sk-facts li {
     min-height: 32px;

@@ -200,6 +200,36 @@
   position: absolute;
   inset: 0;
 }
+/* The lead first (`LEAD` in ../library/content.ts), as on the Library's cards: the problem and what
+   it does, in full ink, then who it's for. The description follows, quieter. */
+.aiw .fr-lead,
+.aiw .own-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .fr-problem,
+.aiw .fr-outcome,
+.aiw .own-problem,
+.aiw .own-outcome {
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.aiw .fr-problem,
+.aiw .own-problem {
+  font-weight: 500;
+}
+.aiw .fr-for,
+.aiw .own-for {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.aiw .fr-for-k,
+.aiw .own-for-k {
+  font-weight: 600;
+}
 .aiw .fr-text,
 .aiw .own-text {
   color: var(--ink-secondary);

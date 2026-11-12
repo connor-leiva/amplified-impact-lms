@@ -99,7 +99,7 @@
   height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-rows: auto auto auto auto 1fr auto;
   align-content: start;
   gap: 10px 8px;
   padding: 22px;
@@ -144,16 +144,55 @@
   font-weight: 500;
   letter-spacing: -0.015em;
 }
-.aiw .free-desc {
+/* The lead first (`LEAD`), as on the cards below. */
+.aiw .free-lead {
   grid-column: 1 / -1;
   grid-row: 4;
-  color: var(--ink-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .free-problem,
+.aiw .free-outcome,
+.aiw .free-for {
+  display: block;
   font-size: 16px;
   line-height: 1.5;
 }
-.aiw .free-tools {
+.aiw .free-problem {
+  color: var(--ink);
+  font-weight: 500;
+}
+.aiw .free-outcome {
+  color: var(--ink);
+}
+.aiw .free-for {
+  color: var(--ink-secondary);
+}
+.aiw .free-for-k {
+  font-weight: 600;
+}
+.aiw .free-desc {
   grid-column: 1 / -1;
   grid-row: 5;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+  /* Two lines under the lead, so the cards stay short; the whole description is still in the link for a
+     screen reader, and in full on the skill's page. At the top of its row, which stretches to keep the
+     tools at the foot of the card, so the box is the two lines and no more. */
+  align-self: start;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.aiw .free-tools {
+  grid-column: 1 / -1;
+  grid-row: 6;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -331,10 +370,42 @@ a.item-body:hover {
   font-weight: 500;
   letter-spacing: -0.015em;
 }
-.aiw .item-desc {
+/* The lead first (`LEAD`): the problem and what it does, in full ink, then who it's for. How it works,
+   the description, follows under a hairline, quieter. */
+.aiw .item-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .item-problem,
+.aiw .item-outcome {
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .item-problem {
+  font-weight: 500;
+}
+.aiw .item-for {
   color: var(--ink-secondary);
   font-size: 16px;
   line-height: 1.5;
+}
+.aiw .item-for-k {
+  font-weight: 600;
+}
+.aiw .item-desc {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+  /* Two lines under the lead, as on the free five above. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 .aiw .item-arrow,
 .aiw .item-soon-tag {

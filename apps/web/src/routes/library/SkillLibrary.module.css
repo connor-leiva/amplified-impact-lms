@@ -70,8 +70,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
-  line-height: 20px;
+  /* 18px, so the name stays above its 16px lead. */
+  font-size: 18px;
+  line-height: 24px;
   font-weight: 600;
 }
 .badge {
@@ -84,10 +85,41 @@
   line-height: 16px;
   font-weight: 600;
 }
+/* The lead (`LEAD`), first under the name: the problem, what it does for you, who it's for. Every
+   line 16px, in the tokens the screen already uses, so it reads the same in light and dark. */
+.lead {
+  margin: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lead dt {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+  color: var(--action-primary);
+}
+.lead dd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-primary);
+}
+.leadProblem dd {
+  font-weight: 600;
+}
 .summary {
   margin: 0;
   font-size: 14px;
   color: var(--text-secondary);
+}
+/* "Set it up" (`LEAD.setup`), over an open skill's downloads and Setup Guide, under the lead. */
+.setupLabel {
+  margin: 0 0 -4px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
 }
 .actions {
   display: flex;
@@ -147,13 +179,9 @@
   animation: ai-spin 0.9s linear infinite;
 }
 
+/* A skill's row stays one column at every width, so its downloads come under its lead, never beside it. */
 @media (min-width: 640px) {
-  .skill {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .actions {
+  .head .actions {
     justify-content: flex-end;
     flex-shrink: 0;
   }

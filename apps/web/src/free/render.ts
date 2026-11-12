@@ -7,6 +7,7 @@
 
 import { esc } from '../ai101/render';
 import { ENTRIES, type Entry } from '../library/content';
+import { cardLead } from '../library/render';
 import { FREE_SKILLS_HREF } from '../site/content';
 import { siteHead } from '../site/render';
 import { brandIcon, glyph, ringDot, ripple, type BrandIconName } from '../kit/icons';
@@ -92,7 +93,7 @@ function agentCard(e: Entry, slug: string, examples: boolean, i: number): string
     : '';
   return `<li class="fr-card card res rv" style="--d:${i * 100}ms">${pv}<div class="fr-body"><p class="mono fr-type">${esc(e.kind)}</p><h3 class="fr-name"><a href="${esc(
     e.href!,
-  )}">${esc(e.title)}</a></h3><p class="fr-text">${esc(e.description)}</p><p class="fr-open res-open" aria-hidden="true">${esc(OPEN_LABEL)} ${glyph('arrow', 18)}</p></div></li>`;
+  )}">${esc(e.title)}</a></h3>${cardLead(e, 'fr')}<p class="fr-text">${esc(e.description)}</p><p class="fr-open res-open" aria-hidden="true">${esc(OPEN_LABEL)} ${glyph('arrow', 18)}</p></div></li>`;
 }
 
 function agents(examples: boolean): string {
@@ -169,7 +170,7 @@ function owners(examples: boolean): string {
       const e = resource(slug);
       return `<li class="own-step card res"><span class="own-ic">${brandIcon(OWNER_ICONS[i]!, 20)}</span><div class="own-txt"><p class="mono own-type">${esc(e.kind)}</p><h3 class="own-name"><a href="${esc(
         e.href!,
-      )}">${esc(e.title)}</a></h3><p class="own-text">${esc(e.description)}</p></div><p class="own-open res-open" aria-hidden="true">${esc(OPEN_LABEL)} ${glyph('arrow', 16)}</p></li>`;
+      )}">${esc(e.title)}</a></h3>${cardLead(e, 'own')}<p class="own-text">${esc(e.description)}</p></div><p class="own-open res-open" aria-hidden="true">${esc(OPEN_LABEL)} ${glyph('arrow', 16)}</p></li>`;
     })
     .join('');
   return [
