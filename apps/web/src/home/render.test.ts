@@ -105,8 +105,10 @@ describe('the head and the shell', () => {
   });
 
   it('self-hosts Geist and Geist Mono, with their licence beside them (the site’s fonts, in `../site/`)', () => {
-    const css = read('../site/site.css');
+    // The fonts are the look's foundation (`../site/look.css`), which `site.css` imports.
+    const css = read('../site/look.css');
     expect(read('./home.css')).toContain("@import '../site/site.css';");
+    expect(read('../site/site.css')).toContain("@import './look.css';");
     expect(css).toContain("src: url('./fonts/geist-latin-wght-normal.woff2') format('woff2')");
     expect(css).toContain("src: url('./fonts/geist-mono-latin-wght-normal.woff2') format('woff2')");
     for (const f of ['geist-latin-wght-normal.woff2', 'geist-mono-latin-wght-normal.woff2']) {

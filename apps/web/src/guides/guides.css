@@ -16,6 +16,7 @@
 @import '@fontsource/dm-mono/400.css';
 @import '../styles/tokens.css';
 @import '../styles/global.css';
+@import '../site/look.css';
 
 :root {
   --tss-mint: oklch(0.793 0.116 162);
@@ -87,7 +88,7 @@ blockquote {
 }
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--tss-mint);
@@ -123,7 +124,7 @@ blockquote {
 }
 .step-n {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--tss-mint);
 }
 .steps strong {
@@ -209,7 +210,7 @@ blockquote {
   border-color: var(--status-attention);
 }
 .field-error {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--status-attention-text);
 }
@@ -217,7 +218,7 @@ blockquote {
   display: none;
 }
 .legal {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .legal a {
@@ -229,7 +230,7 @@ blockquote {
    `#tss-error`), `[data-shown]` is main.ts. */
 .form-error {
   display: none;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--status-attention-text);
 }
@@ -261,7 +262,7 @@ blockquote {
   outline: none;
 }
 .in-app {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -320,7 +321,7 @@ blockquote {
   background: var(--action-primary);
   color: var(--action-on-primary);
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 16px;
 }
 .setup-body {
   display: flex;
@@ -339,7 +340,7 @@ blockquote {
 }
 .setup-body .setup-note,
 .setup-body .in-app {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -358,7 +359,7 @@ blockquote {
 .guided-progress {
   margin: 12px 0 0;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -418,7 +419,7 @@ blockquote {
   object-fit: contain;
 }
 .clip figcaption {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.4;
   color: var(--text-secondary);
 }
@@ -426,7 +427,7 @@ blockquote {
   display: block;
   margin-bottom: 2px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--action-primary);
@@ -442,7 +443,7 @@ blockquote {
 .group-label {
   margin: 10px 0 0;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -482,7 +483,7 @@ blockquote {
 .chip-tag {
   flex: none;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -650,7 +651,7 @@ blockquote {
 .quote figcaption {
   margin-top: 6px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 .task-title {
@@ -667,7 +668,7 @@ blockquote {
 }
 .task dt {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -718,7 +719,7 @@ blockquote {
 }
 .note {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 .tiles {
@@ -734,13 +735,13 @@ blockquote {
 }
 .tile-label {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--action-primary);
 }
 .tiles .tile-tag {
   margin-top: 6px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -801,7 +802,7 @@ blockquote {
 .report-table .hrs {
   grid-area: hrs;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 16px;
   white-space: nowrap;
 }
 .report-table .ev {
@@ -813,7 +814,7 @@ blockquote {
 }
 .report-table .ready {
   grid-area: ready;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .tag {
@@ -821,7 +822,7 @@ blockquote {
   padding: 2px 10px;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
 }
 .tag-run {
   background: var(--action-primary);
@@ -861,7 +862,7 @@ blockquote {
   padding-top: 28px;
   padding-bottom: 40px;
   border-top: 1px solid var(--line-default);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .logo-foot {
@@ -925,7 +926,7 @@ blockquote {
   .report-table thead th {
     padding-bottom: 8px;
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 16px;
     color: var(--text-tertiary);
     vertical-align: bottom;
   }
@@ -961,4 +962,78 @@ blockquote {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ================================================================================================
+   IN THE SITE'S LOOK (`../site/look.css`), design/site-library: every guide and skill page opts in
+   with `class="site"` on its <body>. The token map draws its colours on the dark ground and Geist sets
+   its words; the rules below redraw what the map alone can't: the cover as the dark ground instead of
+   the green one, the logo in the ground's ink, headings at Geist's weight, controls with the look's
+   corners and hairlines, and eyebrows that may wrap at the narrowest phones now that every word is
+   16px or more. Words, forms, field names, their POST targets and every script hook are unchanged.
+   ================================================================================================ */
+
+body.site {
+  background-color: var(--surface);
+  background-image: var(--grain);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.site :is(h1, h2, h3) {
+  font-weight: 500;
+}
+.site h1 {
+  letter-spacing: -0.04em;
+}
+.site h2 {
+  letter-spacing: -0.03em;
+}
+.site :focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.site .hero {
+  border-bottom: 1px solid var(--line);
+  background-color: var(--surface);
+  background-image: var(--grain);
+  color: var(--ink);
+}
+.site .eyebrow,
+.site .eyebrow-dark {
+  overflow-wrap: anywhere;
+}
+.site .btn {
+  border-radius: var(--radius-control);
+  font-weight: 500;
+}
+.site .field label {
+  font-weight: 500;
+}
+.site .field input {
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+}
+.site .field input:focus-visible {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 30%, transparent);
+}
+.site .field input[aria-invalid='true'] {
+  border-color: var(--status-attention);
+}
+/* The signature, drawn in the ground's ink with the signal's dot, as the site's header draws it. */
+.site :is(.logo-foot, .sk-logo) path {
+  stroke: var(--ink);
+}
+.site :is(.logo-foot, .sk-logo) circle:nth-of-type(-n + 2) {
+  fill: var(--ink);
+}
+.site :is(.logo-foot, .sk-logo) circle:nth-of-type(3) {
+  fill: var(--signal);
+}
+.site :is(.logo-foot, .sk-logo) circle:nth-of-type(4) {
+  stroke: var(--signal);
 }

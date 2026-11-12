@@ -120,8 +120,10 @@ describe('the tags and the head', () => {
   });
 });
 
-describe('the stylesheet (`site.css`): the homepage’s look, site-wide', () => {
-  const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'site.css'), 'utf8');
+describe('the stylesheet (`site.css`, and the look’s foundation it imports, `look.css`): the homepage’s look, site-wide', () => {
+  const here = (file: string) => readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), file), 'utf8');
+  // `site.css` imports `look.css` (the fonts, the palette, the grounds and the token map) first.
+  const css = here('look.css') + here('site.css');
   /** The block of a rule written for `selector` alone (not one in a list of selectors). */
   const rule = (selector: string) => {
     let at = css.indexOf(`\n${selector} {`);
@@ -174,8 +176,16 @@ describe('the pages in the site’s look', () => {
     expect(shell('team-build')).toContain('data-founding="%%founding%%" data-seats="%%seats%%"');
   });
 
+  it('opts in the Library and the guides that have their own shells (the skill pages’ come from `shellFor`)', () => {
+    for (const name of ['library', 'ops-time-audit', 'task-sync-starter', 'reel-editor']) expect(shell(name), name).toMatch(/<body class="site" data-app-ready="true">/);
+    // The guides' stylesheet takes the look's foundation, without the shared pages' component rules.
+    const guides = readFileSync(resolve(root, 'src/guides/guides.css'), 'utf8');
+    expect(guides).toContain("@import '../site/look.css';");
+    expect(guides).not.toContain("@import '../site/site.css';");
+  });
+
   it('draws a page’s own tokens in the look on every ground, and leaves the homepage’s alone', () => {
-    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'site.css'), 'utf8');
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'look.css'), 'utf8');
     expect(css).toMatch(/\.site:not\(\.hp\),\n\.site:not\(\.hp\) \[data-theme='dark'\],\n\.site:not\(\.hp\) \[data-theme='light'\] \{[^}]*--text-secondary: var\(--ink-secondary\);/);
   });
 });

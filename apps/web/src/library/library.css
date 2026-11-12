@@ -510,3 +510,58 @@ a.item-body:hover {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ================================================================================================
+   IN THE SITE'S LOOK (`../site/site.css`), design/site-library: the page's <body> is `site`. The
+   token map draws the filters, the cards and the tags on the dark ground; these rules redraw what it
+   can't: the hero on the dark ground instead of the green one, left-aligned to the header's measure,
+   in the homepage's display type. Every filter, its script hook, the count and the cards' links are
+   unchanged.
+   ================================================================================================ */
+
+.site .hero {
+  align-items: flex-start;
+  gap: 0;
+  padding: 96px max(var(--gutter), calc((100% - var(--page)) / 2 + var(--gutter))) 56px;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--surface);
+  background-image: var(--grain);
+  color: var(--ink);
+  text-align: left;
+}
+.site .hero h1 {
+  max-width: 14ch;
+  font-size: clamp(40px, 5.6vw, 76px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.site .hero .lede {
+  max-width: 560px;
+  margin-top: var(--space-28);
+  color: var(--ink-secondary);
+  font-size: 20px;
+  line-height: 1.5;
+}
+.site .page :is(h2, h3) {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.site .chip {
+  border-radius: var(--radius-control);
+  font-weight: 500;
+}
+.site .item-title {
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .site .hero .lede {
+    font-size: 18px;
+  }
+}
+@media (min-width: 960px) {
+  .site .hero {
+    padding-top: 136px;
+    padding-bottom: 72px;
+  }
+}

@@ -543,7 +543,8 @@ export function shellFor(page) {
     '    <link rel="stylesheet" href="/src/guides/skills.css" />',
     '    <script type="module" src="/src/guides/main.ts"></script>',
     '  </head>',
-    '  <body data-app-ready="true">',
+    // `site`: the site's look (apps/web/src/site/look.css), design/site-library.
+    '  <body class="site" data-app-ready="true">',
     '    <!--guide:body-->',
     '  </body>',
     '</html>',

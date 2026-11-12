@@ -122,7 +122,7 @@
 .chip-block-text {
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -181,7 +181,7 @@
 .sample-table table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.4;
 }
 /* Four columns or more scroll sideways inside the card on a phone rather than squeeze. */
@@ -191,7 +191,7 @@
 .sample-table caption {
   padding: 10px 12px 0;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.04em;
   text-align: left;
   text-transform: uppercase;
@@ -224,7 +224,7 @@
 }
 .sample-subject-label {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -299,7 +299,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 15px;
+  font-size: 16px;
 }
 .sk-crumbs a {
   color: var(--text-secondary);
@@ -340,7 +340,7 @@
   gap: 12px;
 }
 .sk .eyebrow {
-  font-size: 12px;
+  font-size: 16px;
   line-height: 16px;
   letter-spacing: 0.08em;
   color: var(--action-primary);
@@ -374,7 +374,7 @@
   border-radius: 999px;
   background: var(--bg-surface);
   box-shadow: inset 0 0 0 1px var(--line-default);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -456,7 +456,7 @@
   letter-spacing: -0.01em;
 }
 .sk .locked > p {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 22px;
   opacity: 0.88;
 }
@@ -474,7 +474,7 @@
   gap: 4px;
 }
 .sk .field label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 .sk .field input {
@@ -497,7 +497,7 @@
 }
 .sk .locked .field-error,
 .sk .locked .form-error {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--action-on-primary);
 }
 .sk .locked .btn-primary {
@@ -512,7 +512,7 @@
   }
 }
 .sk .legal {
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.45;
   color: var(--action-on-primary);
   opacity: 0.85;
@@ -532,7 +532,7 @@
 .sk .unlocked > p,
 .sk .handoff,
 .sk .in-app {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 22px;
 }
 .sk .unlocked > p {
@@ -557,7 +557,7 @@
   gap: 8px;
 }
 .sk .apps-q {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -568,7 +568,7 @@
 .sk .app-switch label {
   min-height: 40px;
   border-radius: 9px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -589,12 +589,12 @@
   margin: 8px 4px 4px;
 }
 .sk .guided-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
 }
 .sk .guided-progress {
   margin: 0;
-  font-size: 12px;
+  font-size: 16px;
   letter-spacing: 0;
   text-transform: none;
   color: var(--text-secondary);
@@ -612,7 +612,7 @@
 .sk .setup-n {
   width: 28px;
   height: 28px;
-  font-size: 13px;
+  font-size: 16px;
 }
 .sk .setup-body {
   gap: 8px;
@@ -624,12 +624,12 @@
   line-height: 24px;
 }
 .sk .setup-body p {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 22px;
   color: var(--text-secondary);
 }
 .sk .setup-body .setup-note {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 20px;
 }
 .sk [data-guided-on] .setup-step {
@@ -652,11 +652,11 @@
   height: 24px;
   background: var(--line-default);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 16px;
 }
 .sk [data-guided-on] .setup-step:not([data-current]) h3 {
   padding-top: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 24px;
 }
@@ -695,7 +695,7 @@
   flex: 0 0 auto;
   min-height: 40px;
   padding: 0 16px;
-  font-size: 15px;
+  font-size: 16px;
 }
 .sk .guided-nav [data-guided-next],
 .sk .guided-nav [data-guided-restart] {
@@ -721,7 +721,7 @@
   border-radius: 12px;
   background: var(--bg-surface);
   box-shadow: inset 0 0 0 1px var(--line-default);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.45;
   transition: box-shadow 160ms var(--sk-ease);
@@ -733,13 +733,13 @@
 }
 .sk .chip-tag {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
 }
 .sk .chip-block-text {
-  font-size: 13px;
+  font-size: 16px;
 }
 /* A long block (a Project's instructions, the Task Sync prompt) shows its first lines, fading out, so
    Back and Next stay near the step (D-072). The button still copies every word, and a screen reader
@@ -777,7 +777,7 @@
   gap: 6px;
 }
 .sk .sample-head .note {
-  font-size: 12px;
+  font-size: 16px;
   line-height: 16px;
 }
 .sk .sample-title {
@@ -792,10 +792,10 @@
 .sk .sample-p,
 .sk .sample-list,
 .sk .sample-email {
-  font-size: 15px;
+  font-size: 16px;
 }
 .sk .sample-table table {
-  font-size: 14px;
+  font-size: 16px;
 }
 .sk .sample-bottom {
   display: flex;
@@ -820,7 +820,7 @@
   background: none;
   color: var(--action-primary);
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -862,10 +862,10 @@
   box-shadow: var(--shadow-pop);
 }
 .sk-compare figcaption {
-  font-size: 14px;
+  font-size: 16px;
 }
 .sk-compare .clip-label {
-  font-size: 12px;
+  font-size: 16px;
 }
 
 /* --- The Task Sync Starter Kit's example, as a sheet (D-072) ---------------------------------------
@@ -884,7 +884,7 @@
   line-height: 1.4;
 }
 .sk-example .quote figcaption {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .sk-task {
@@ -901,10 +901,10 @@
   grid-template-columns: 76px minmax(0, 1fr);
   padding: 8px 0;
   border-top-color: var(--action-primary-line);
-  font-size: 14px;
+  font-size: 16px;
 }
 .sk-task dt {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -961,7 +961,7 @@
 }
 .sk-list span,
 .sk-body {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 /* Who does what: open columns, the last (what stays the person's) marked in green. */
@@ -980,7 +980,7 @@
 }
 .sk-role,
 .sk-label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--action-primary);
 }
@@ -1007,7 +1007,7 @@
 }
 .sk-tag {
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .sk .sk-cta {
@@ -1028,7 +1028,7 @@
 }
 .sk .sk-group {
   margin: 20px 0 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -1042,7 +1042,7 @@
   font-weight: 600;
 }
 .sk .faq-item p {
-  font-size: 15px;
+  font-size: 16px;
 }
 .sk-band-note .crosslink {
   font-size: 16px;
@@ -1158,7 +1158,7 @@
   .sk-facts li {
     min-height: 32px;
     padding: 0 14px;
-    font-size: 14px;
+    font-size: 16px;
   }
   .sk .sample-doc {
     padding: 24px;
@@ -1221,4 +1221,53 @@
   .sk-bar {
     display: none;
   }
+}
+
+/* ================================================================================================
+   IN THE SITE'S LOOK (`../site/look.css`, and `guides.css`'s own layer), design/site-library: the
+   sign-up card is a raised panel ringed in the signal instead of a green card, its button the look's
+   filled one, and the unlocked card and the steps take the look's corners. What shows when (the gate,
+   the steps, the app switch) is unchanged. Every selector still starts at `.sk`, as this file's do: the
+   look is `:where(.site *)`, which adds nothing to a rule's weight.
+   ================================================================================================ */
+
+.sk:where(.site *) .locked {
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--signal);
+  color: var(--ink);
+}
+.sk:where(.site *) .locked > p {
+  color: var(--ink-secondary);
+  opacity: 1;
+}
+.sk:where(.site *) .legal {
+  color: var(--ink-secondary);
+  opacity: 1;
+}
+.sk:where(.site *) .legal a {
+  color: var(--ink);
+}
+.sk:where(.site *) .locked :focus-visible,
+.sk:where(.site *) .field input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+}
+.sk:where(.site *) .locked .field-error,
+.sk:where(.site *) .locked .form-error {
+  color: var(--ink);
+  font-weight: 500;
+}
+.sk:where(.site *) .locked .btn-primary,
+.sk:where(.site *) .locked .btn-primary:hover {
+  background: var(--action);
+  color: var(--on-action);
+}
+.sk:where(.site *) .field input {
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.sk:where(.site *) .unlocked {
+  border-radius: var(--radius-panel);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
