@@ -2,22 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CART_IDS, COHORT_SEATS, DEFAULT_FOUNDING_CLOSES_AT } from '@ai/core/offer';
+import { DEFAULT_FOUNDING_CLOSES_AT } from '@ai/core/offer';
 import { ENTRIES } from '../library/content';
 import { paid } from '../library/render';
-import { WAITLIST_HREF } from '../site/offers';
+import { CARD_STATES } from '../offer/content';
+import { FOUNDING } from '../site/offers-content';
 import { HELP_EMAIL } from '../site/content';
 import { fill } from './client/fill';
-import { HOME, PAGE } from './content';
-import { dollarsIn, PRICES } from './prices';
+import { HOME, PHOTOS } from './content';
+import { dollarsIn, PRICES, usd } from './prices';
 import { PROGRAMS } from './program-logo';
 import { entryFor, liveEntries, renderHomeBody, renderHomeHead } from './render';
+import { PAUSE, splitProof } from './sections/proof';
 
-// www's homepage, redesigned from Connor's reference (`design/home-redesign`), on the parsed DOM: the
-// reference's sections in its order and in its words, the Library's real count, prices read from the
-// offer's own words, where every link goes, and the buy buttons waiting for /api/offer. What the script
-// does with them is `client/*.test.ts`'s; that the API serves the page at `/` on www only is
-// `apps/api/test/marketing.test.ts`'s.
+// www's homepage, restyled from Connor's reference with the LIVE homepage's content (`design/home-redesign`,
+// Addendum 2: "content comes from the live site, the look comes from the mockup"). `content.ts` is main's
+// file, unchanged; these tests hold the page to it: the same nine sections in Spring's order, the same
+// words, the same links, the same two headshots, and nothing the live page doesn't say but one word,
+// the marquee's "Pause". That the API serves it at `/` on www only is `apps/api/test/marketing.test.ts`'s.
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (path: string) => readFileSync(resolve(HERE, path), 'utf8');
@@ -32,6 +34,57 @@ const $$ = (selector: string) => [...doc.querySelectorAll(selector)];
 const meta = (key: string) =>
   doc.querySelector(`meta[name="${key}"], meta[property="${key}"]`)?.getAttribute('content') ?? null;
 const n = liveEntries().length;
+
+/** Every link in the live homepage's body, section by section, in order (main's render; checked against
+ *  www.amplifiedimpact.io, Nov 11). In the Library and Free resources the reference's layout puts the
+ *  "See All" link in the section's opening column, so there it comes before the list rather than after. */
+const LIVE_LINKS: Record<string, ReadonlyArray<[string, string]>> = {
+  hero: [
+    ['Get 5 Free Skills', '/library?show=free'],
+    ['See the Programs', '/pricing'],
+  ],
+  plans: [
+    ['See the Accelerator', '/team-build'],
+    ['See the Agent Plan', '/agents'],
+    ['See the Team Plan', '/teams'],
+    ['Get Amplified Insiders', '/pricing#insiders'],
+    ['Start with 5 free skills', '/library?show=free'],
+  ],
+  skills: [
+    [`See All ${n}`, '/library'],
+    ['Showing Tour Prep', '/showing-tour-prep'],
+    ['Offer Strategy', '/offer-strategy'],
+    ['Due Diligence Review', '/due-diligence-review'],
+    ['New Construction Review', '/new-construction-review'],
+    ['Pricing Conversation Prep', '/pricing-conversation-prep'],
+    ['Offer Comparison', '/offer-comparison'],
+    ['Repair Request Response', '/repair-request-response'],
+    ['Low Appraisal Response', '/low-appraisal-response'],
+    ['Database Health Check', '/database-health-check'],
+    ['Recruiting Prep', '/recruiting-prep'],
+    ['Team Playbook Builder', '/team-playbook-builder'],
+    ['Team P&L Review', '/team-pnl-review'],
+    ['Content Strategist', '/content-strategist'],
+    ['Reel Editor', '/reel-editor'],
+    ['Perfect Week', '/perfect-week'],
+    ['Inbox and Meeting Follow-Through', '/inbox-meeting-follow-through'],
+  ],
+  start: [
+    ['See All Free Resources', '/free'],
+    ['Sounds Like You: Your AI Voice Profile', '/voice-profile'],
+    ['AI 101 for Agents', '/ai101'],
+    ['The Ops Time Audit', '/ops-time-audit'],
+    ["Retool, Don't Replace", '/retool'],
+    ['Task Sync Starter Kit', '/task-sync-starter'],
+  ],
+  meet: [['Read Our Story', '/about']],
+  end: [
+    ['Get 5 Free Skills', '/library?show=free'],
+    ['See the Programs', '/pricing'],
+  ],
+};
+/** A link's words: a skill row's name, without its row number and tag. */
+const label = (a: Element) => text(a.querySelector('.skill-name') ?? a);
 
 describe('the head and the shell', () => {
   it('keeps the page’s title, description, canonical address and share image', () => {
@@ -87,192 +140,223 @@ describe('the site’s own header and footer, unchanged', () => {
   });
 });
 
-describe('the reference’s sections, in its order', () => {
-  it('runs hero, Built inside, two ways, Run/Draft/Own, the Library, For Team Owners, Plans and Prices, AI 101', () => {
+describe('the live homepage, in its order', () => {
+  it('has Spring’s nine sections in her order, with the live headings', () => {
     expect($$('main > section').map((s) => s.className.split(' ')[1])).toEqual([
       'hero',
       'proof',
       'cmp',
-      'dcs',
-      'skills',
-      'team',
       'plans',
+      'skills',
+      'dcs',
       'start',
+      'meet',
+      'end',
     ]);
-    expect($$('h1').map(text)).toEqual(['AI that drafts the paperwork. You keep the decisions.']);
-    // The offer plan's address is a heading in the reference too, inside the hero.
+    expect($$('h1').map(text)).toEqual([HOME.hero.title]);
     expect($$('main h2').map(text)).toEqual([
-      '2286 E Pretend Poppy Ln',
       'Use AI as a tool, or run a business where AI does real work.',
-      'The AI drafts. You check, then send.',
-      'Skills for the work you do this week',
-      'Amplified Team Plan',
       'Four ways in',
-      'Sounds like you. Looks like you.',
+      'The Library',
+      'The AI drafts. You check, then send.',
+      'Free resources',
+      'Meet Spring and Connor',
+      'Start with 5 free skills.',
     ]);
+    expect($('#programs')?.classList.contains('plans')).toBe(true);
   });
 
-  it('opens with the reference’s lead and its two links', () => {
-    expect(text($('.hero-lead'))).toBe(PAGE.hero.lead);
-    expect($$('.hero-actions a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Browse the Library', '/library'],
-      ['Start AI 101', '/ai101'],
-    ]);
-  });
-
-  it('draws the made-up offer plan as five real checkboxes, the hint and its words for the script', () => {
-    const card = $('[data-offer]')!;
-    expect(card.getAttribute('aria-label')).toBe('Offer plan, a made-up example');
-    expect(
-      $$('.term').map((t) => [
-        text(t.querySelector('.term-label')),
-        text(t.querySelector('.term-value')),
-        t.querySelector('input[type="checkbox"]') !== null,
-      ]),
-    ).toEqual([
-      ['Price', '$562,500', true],
-      ['Seller’s contribution', '$5,000', true],
-      ['Earnest money', '$5,000', true],
-      ['Due diligence', '10 days', true],
-      ['Settlement', 'Dec 11, 2026', true],
-    ]);
-    expect(fill(card.getAttribute('data-hint-some')!, { n: 2, total: 5 })).toBe('2 of 5 checked');
-    const sample = read('../../../../skills/offer-strategy/sample.md');
-    for (const s of ['$562,500', '$5,000', '2286 E Pretend Poppy Ln', 'December 11']) expect(sample).toContain(s);
-  });
-
-  it('has no photos of people: no image in the page at all', () => {
-    expect($$('main img')).toHaveLength(0);
-  });
-});
-
-describe('the Library’s real count', () => {
-  it('is counted from the Library’s live cards, in the ticker, the ghosted figure, the intro and See All', () => {
-    expect(n).toBe(ENTRIES.filter((e) => e.href !== null).length);
-    expect(n).not.toBe(56);
-    expect(text($$('.meta-strip li')[0])).toBe(`${n} guides, skills and templates`);
-    expect(text($('.big-num'))).toBe(String(n));
-    expect(text($('.skills-intro .intro'))).toMatch(
-      new RegExp(`^${n} guides, skills and templates for real estate teams\\.`),
+  it('links exactly where the live homepage links, section by section, and nowhere else', () => {
+    const sections = $$('main > section');
+    expect(sections.flatMap((s) => [...s.querySelectorAll('a[href]')])).toEqual($$('main a[href]'));
+    const found = Object.fromEntries(
+      sections
+        .map(
+          (s) =>
+            [
+              s.className.split(' ')[1]!,
+              [...s.querySelectorAll('a[href]')].map((a) => [label(a), a.getAttribute('href')]),
+            ] as const,
+        )
+        .filter(([, links]) => links.length > 0),
     );
-    expect([text($('.skills-intro .cta')), $('.skills-intro .cta')?.getAttribute('href')]).toEqual([
-      `See All ${n}`,
-      '/library',
+    expect(found).toEqual(LIVE_LINKS);
+  });
+
+  it('opens with the live headline, lede and buttons, and Spring and Connor named under their photos', () => {
+    const h = HOME.hero;
+    expect(text($('.hero-lead'))).toBe(h.lede);
+    expect($$('.hero-actions a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
+      [h.primary.label, h.primary.href],
+      [h.secondary.label, h.secondary.href],
+    ]);
+    expect(
+      $$('.hero-person').map((f) => [f.querySelector('img')?.getAttribute('src'), text(f.querySelector('figcaption'))]),
+    ).toEqual([
+      [PHOTOS.spring.src, PHOTOS.spring.alt],
+      [PHOTOS.connor.src, PHOTOS.connor.alt],
     ]);
   });
 
-  it('shows four skills per role behind tabs, each a link to its page, named and tagged free by its own card', () => {
-    expect($$('[role="tab"]').map(text)).toEqual([
-      'Buyer’s agents',
-      'Listing agents',
-      'Team owners',
-      'Content and your week',
-    ]);
-    expect($$('[role="tabpanel"]').map((p) => p.hasAttribute('hidden'))).toEqual([false, true, true, true]);
-    for (const role of PAGE.library.roles) {
-      const panel = $(`#hp-panel-${role.id}`)!;
-      expect(panel.getAttribute('aria-labelledby')).toBe(`hp-tab-${role.id}`);
-      const links = [...panel.querySelectorAll('a.skill')];
-      expect(links).toHaveLength(role.slugs.length);
-      role.slugs.forEach((slug, i) => {
-        const e = entryFor(slug);
-        expect(links[i]!.getAttribute('href'), slug).toBe(`/${slug}`);
-        expect(text(links[i]!.querySelector('.skill-name')), slug).toBe(e.title);
-        expect(links[i]!.querySelector('.free-tag') !== null, slug).toBe(!paid(e));
-        expect(existsSync(resolve(HERE, `../../${slug}.html`)), `${slug}.html`).toBe(true);
-      });
-    }
-    expect(() => entryFor('not-a-page')).toThrow(/no library card/);
-  });
-});
-
-describe('Built inside', () => {
-  it('says the same figures as the proof line every buy button carries', () => {
+  it('says the live proof, in its words: Built inside The Utah Life Real Estate Group, 100 agents, 700+ homes a year', () => {
+    const p = splitProof();
+    expect(`${p.lead} ${p.name}`).toBe(HOME.proof.label);
+    expect(p.stats.map((s) => `${s.value}${s.plus ? '+' : ''} ${s.label}`).join(', ')).toBe(HOME.proof.figure);
+    expect($('.proof')?.getAttribute('aria-label')).toBe(HOME.proof.label);
+    expect(text($('.proof-name'))).toBe(p.name);
     expect($$('.proof-stat').map((s) => text(s.querySelector('.proof-label')))).toEqual([
       '100 agents',
       '700+ homes a year',
     ]);
-    expect(HOME.proof.figure).toBe('100 agents, 700+ homes a year');
-    expect(text($('.proof-name'))).toBe(HOME.proof.label.replace('Built inside ', ''));
+  });
+
+  it('draws the shift with the live columns’ words', () => {
+    const s = HOME.shift;
+    expect(text($('.cmp-tool .cmp-label'))).toBe(`01${s.before.title}`);
+    expect($$('.bubble').map(text)).toEqual([...s.before.items]);
+    expect($$('.work-item').map(text)).toEqual([...s.after.items]);
+    expect(text($('.composer'))).toBe('');
+  });
+
+  it('shows the four live programs, each with its live words, its figure from the offer’s constants, and its button', () => {
+    const cards = $$('.plan');
+    expect(cards.map((c) => text(c.querySelector('h3')))).toEqual(HOME.ways.cards.map((c) => c.name));
+    HOME.ways.cards.forEach((c, i) => {
+      const card = cards[i]!;
+      expect(text(card.querySelector('.plan-who')), c.name).toBe(c.forWho);
+      expect(text(card.querySelector('.plan-line')), c.name).toBe(c.line);
+      const open = card.querySelector('.founding-open') ?? card;
+      expect([text(open.querySelector('.price')), text(open.querySelector('.price-unit'))], c.name).toEqual([
+        c.amount,
+        c.unit,
+      ]);
+      expect(card.querySelector('.cta')?.getAttribute('href'), c.name).toBe(c.button.href);
+    });
+    expect($$('.plans-free p').map(text)).toEqual([
+      HOME.ways.every,
+      `${HOME.ways.notReadyBefore}${HOME.ways.notReadyLink}`,
+    ]);
+  });
+
+  it('previews the Library from its own cards: each skill a link to its page, tagged Free or Locked', () => {
+    const l = HOME.library;
+    expect(n).toBe(ENTRIES.filter((e) => e.href !== null).length);
+    expect(text($('.skills-intro .intro'))).toBe(l.body(n));
+    expect(text($('.big-num'))).toBe(String(n));
+    expect($$('[role="tab"]').map(text)).toEqual(l.rows.map((r) => r.heading));
+    expect($$('[role="tabpanel"]').map((p) => p.hasAttribute('hidden'))).toEqual([false, true, true, true]);
+    l.rows.forEach((r, i) => {
+      const panel = $(`#hp-panel-${i + 1}`)!;
+      expect(text(panel.querySelector('.tp-count'))).toBe(l.count(r.slugs.length));
+      r.slugs.forEach((slug) => {
+        const e = entryFor(slug);
+        const a = panel.querySelector(`a[href="/${slug}"]`)!;
+        expect(text(a.querySelector('.skill-name')), slug).toBe(e.title);
+        expect(text(a.querySelector('.tag')), slug).toBe(paid(e) ? l.locked : l.free);
+        expect(existsSync(resolve(HERE, `../../${slug}.html`)), `${slug}.html`).toBe(true);
+      });
+    });
+    for (const lock of $$('.tag-lock')) expect(lock.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('keeps Run, Draft and Own (the AI’s two marked done) beside the live offer plan, ticked as the live sheet ticks it', () => {
+    expect(
+      $$('.dcs-step').map((li) => [
+        text(li.querySelector('.dcs-name')),
+        text(li.querySelector('.dcs-text')),
+        li.classList.contains('is-done'),
+      ]),
+    ).toEqual(HOME.trust.items.map((it) => [it.label, it.body, it.done]));
+    const s = HOME.sheet;
+    expect($('[data-offer]')?.getAttribute('aria-label')).toBe(s.label);
+    expect([
+      text($('.offer-kicker')),
+      text($('.offer-addr')),
+      text($('.offer-rec')),
+      text($('.offer-sign-text')),
+    ]).toEqual([s.meta, s.title, s.recommendation, s.initials]);
+    expect(
+      $$('.term').map((t) => [
+        text(t.querySelector('.term-label')),
+        text(t.querySelector('.term-value')),
+        (t.querySelector('input') as HTMLInputElement).checked,
+      ]),
+    ).toEqual(s.terms.map((t) => [t.term, t.value, t.done]));
+  });
+
+  it('lists the live free resources, by their Library titles and descriptions', () => {
+    expect($$('.part-head').map(text)).toEqual(HOME.free.columns.map((c) => c.heading));
+    const slugs = HOME.free.columns.flatMap((c) => [...c.slugs]);
+    expect($$('.part').map((p) => [text(p.querySelector('a')), text(p.querySelector('.part-text'))])).toEqual(
+      slugs.map((slug) => [entryFor(slug).title, entryFor(slug).description]),
+    );
+    expect(text($('.free .lead'))).toBe(HOME.free.lede);
+  });
+
+  it('introduces Spring and Connor in their real headshots, with their live bios', () => {
+    expect(
+      $$('.person').map((p) => [
+        p.querySelector('img')?.getAttribute('src'),
+        text(p.querySelector('h3')),
+        text(p.querySelector('.person-role')),
+        text(p.querySelector('.person-body')),
+      ]),
+    ).toEqual(HOME.meet.people.map((p) => [PHOTOS[p.photo].src, p.name, p.role, p.body]));
+  });
+
+  it('ends with the live close', () => {
+    expect([text($('.end h2')), text($('.end .lead'))]).toEqual([HOME.end.heading, HOME.end.body]);
   });
 });
 
-describe('prices, read from the offer’s own words', () => {
-  it('are the figures Connor’s brief names', () => {
+describe('the headshots: real photos, and no other image', () => {
+  it('shows exactly Spring’s and Connor’s headshots, twice each (the hero and Meet), from files on this site', () => {
+    const srcs = $$('main img').map((i) => i.getAttribute('src'));
+    expect(srcs).toEqual([PHOTOS.spring.src, PHOTOS.connor.src, PHOTOS.spring.src, PHOTOS.connor.src]);
+    for (const img of $$('main img')) {
+      const p = Object.values(PHOTOS).find((x) => x.src === img.getAttribute('src'))!;
+      expect([img.getAttribute('alt'), img.getAttribute('width'), img.getAttribute('height')]).toEqual([
+        p.alt,
+        String(p.width),
+        String(p.height),
+      ]);
+    }
+    for (const p of Object.values(PHOTOS)) {
+      const file = readFileSync(resolve(HERE, `../../public${p.src}`));
+      expect([file[0], file[1]], p.src).toEqual([0xff, 0xd8]);
+    }
+  });
+});
+
+describe('prices and the live offer state', () => {
+  const card = (logo: string) => $(`.plan[data-card="${logo}"]`)!;
+
+  it('read the figures from the offer’s constants, and they are the live homepage’s', () => {
+    expect([
+      usd(PRICES.accelerator.founding),
+      usd(PRICES.agentPlan.monthly),
+      usd(PRICES.teamPlan.today[0]),
+      usd(PRICES.insiders.yearly),
+    ]).toEqual(HOME.ways.cards.map((c) => c.amount));
     expect(PRICES.accelerator).toEqual({ founding: 7500, standard: 9997, twoPay: 3750 });
     expect(PRICES.agentPlan).toEqual({ monthly: 79, yearly: 790 });
     expect(PRICES.teamPlan.today).toEqual([1491, 2391]);
-    expect(PRICES.teamPlan.monthly).toEqual([497, 797]);
-    expect(PRICES.teamPlan.monthlyFrom).toBe('April 4, 2027');
     expect(PRICES.insiders).toEqual({ yearly: 1997, monthly: 197 });
     expect(dollarsIn('Then $497 or $797 a month')).toEqual([497, 797]);
   });
 
-  it('show on each card as the page loads, and each switch carries its other option', () => {
-    const price = (card: string) => $$(`.plan[data-card="${card}"] .price[data-price]`).map(text);
-    expect(price('accelerator')).toEqual(['$7,500', '$9,997']);
-    expect(text($('.plan[data-card="accelerator"] .founding-open .price-after'))).toBe('Standard price $9,997.');
-    expect(price('agentPlan')).toEqual(['$79']);
-    expect(price('teamPlan')).toEqual(['$1,491']);
-    expect(price('insiders')).toEqual(['$1,997']);
-    const options = (card: string) =>
-      $$(`.plan[data-card="${card}"] [data-toggle] button`).map((b) => [
-        text(b),
-        b.getAttribute('data-option-price'),
-        b.getAttribute('data-option-after'),
-        b.getAttribute('data-option-cart'),
-      ]);
-    expect(options('agentPlan')).toEqual([
-      ['Monthly', '79', 'Or $790 a year.', null],
-      ['Yearly', '790', 'Twelve months for the price of ten.', null],
-    ]);
-    expect(options('insiders')).toEqual([
-      ['Yearly', '1997', 'Two months free, counted toward the Accelerator.', 'insiders-year'],
-      ['Monthly', '197', 'Three-month minimum.', 'insiders-monthly'],
-    ]);
-  });
-
-  it('give the calculator both tiers’ figures and words, starting at 12 agents', () => {
-    const calc = $('[data-calc]')!;
-    expect(calc.getAttribute('data-today')).toBe('1491,2391');
-    expect(calc.getAttribute('data-tiers')).toBe('Up to 15 agents|16 to 40 agents');
-    expect(calc.getAttribute('data-after')).toBe(
-      'January 4 to April 3, 2027. Then $497 a month from April 4, 2027.|January 4 to April 3, 2027. Then $797 a month from April 4, 2027.',
+  it('shows the Accelerator’s seats in /pricing’s words once /api/offer counts them, and /pricing’s next-cohort price after founding', () => {
+    const block = $('[data-seats]')!;
+    expect(block.hasAttribute('hidden')).toBe(true);
+    expect(block.querySelectorAll('.seatbar span')).toHaveLength(15);
+    expect(fill(block.getAttribute('data-left')!, { left: 12, total: 15 })).toBe(
+      `12${FOUNDING.seatsOf}15${FOUNDING.seatsAfter}`,
     );
-    expect($('#hp-agents')?.getAttribute('value')).toBe('12');
-    expect($$('.seat.is-on')).toHaveLength(12);
-    expect(text($('[data-calc-price]'))).toBe('$1,491');
-  });
-});
-
-describe('Plans and Prices: live from /api/offer, like /pricing', () => {
-  const card = (name: string) => $(`.plan[data-card="${name}"]`)!;
-
-  it('sells each card’s real cart, and every buy button waits with no address until /api/offer gives one', () => {
-    expect(
-      ['accelerator', 'teamPlan', 'insiders'].map((c) => [
-        card(c).getAttribute('data-cart'),
-        card(c).getAttribute('data-state'),
-      ]),
-    ).toEqual([
-      ['cohort-full', 'loading'],
-      ['agents-upto15', 'loading'],
-      ['insiders-year', 'loading'],
-    ]);
-    for (const b of $$('[data-buy], [data-buy-more]')) expect(b.hasAttribute('href'), text(b)).toBe(false);
-    expect($$('[data-buy]').map(text)).toEqual([
-      'Get Amplified AI Accelerator',
-      'Get Amplified Team Plan',
-      'Get Amplified Insiders',
-    ]);
-    expect([text($('[data-buy-more]')), $('[data-buy-more]')?.getAttribute('data-buy-more')]).toEqual([
-      'Or pay in 2 payments of $3,750',
-      'cohort-two-pay',
-    ]);
-    for (const c of [...$$('[data-cart]'), ...$$('[data-option-cart]'), ...$$('[data-buy-more]')]) {
-      const id = c.getAttribute('data-cart') ?? c.getAttribute('data-option-cart') ?? c.getAttribute('data-buy-more');
-      expect(CART_IDS as readonly string[]).toContain(id);
-    }
+    expect(block.getAttribute('data-taken')).toBe(FOUNDING.soldout);
+    expect([
+      text(card('accelerator').querySelector('.founding-closed .price')),
+      text(card('accelerator').querySelector('.founding-closed .price-unit')),
+    ]).toEqual([CARD_STATES.closedAmount, CARD_STATES.closedUnit]);
     const plans = $('[data-plans]')!;
     expect([plans.getAttribute('data-founding'), plans.getAttribute('data-closes-at')]).toEqual([
       'open',
@@ -280,72 +364,29 @@ describe('Plans and Prices: live from /api/offer, like /pricing', () => {
     ]);
   });
 
-  it('puts the proof line right under every buy button', () => {
-    for (const b of $$('[data-buy]')) {
+  it('puts the one buying button, Get Amplified Insiders, under /api/offer: shown, or /pricing’s “Opens soon.”', () => {
+    const ins = card('insiders');
+    expect(ins.getAttribute('data-cart')).toBe('insiders-year');
+    expect(ins.hasAttribute('data-state')).toBe(false);
+    expect([
+      text(ins.querySelector('.act-link .cta')),
+      ins.querySelector('.act-link .cta')?.getAttribute('href'),
+    ]).toEqual(['Get Amplified Insiders', '/pricing#insiders']);
+    expect(text(ins.querySelector('.act-soon'))).toBe(CARD_STATES.soon);
+    expect($$('.plan[data-cart]')).toHaveLength(1);
+  });
+
+  it('puts the proof line right under every card’s button', () => {
+    for (const b of $$('.plan .cta')) {
       const next = b.nextElementSibling;
       expect(next?.className, text(b)).toBe('proof-line');
       expect(text(next)).toBe(`${HOME.proof.label} ${HOME.proof.figure}`);
     }
   });
-
-  it('links every card to its own page, and the Agent Plan’s button is its page', () => {
-    expect(
-      ['accelerator', 'teamPlan', 'insiders'].map((c) => card(c).querySelector('a.details')?.getAttribute('href')),
-    ).toEqual(['/team-build', '/teams', '/library']);
-    expect($$('.plan[data-card="agentPlan"] a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['See the Agent Plan', '/agents'],
-    ]);
-  });
-
-  it('has /pricing’s words for every other state, and the waitlist where /pricing has it', () => {
-    expect(text(card('accelerator').querySelector('.act-soon'))).toBe('Opens soon.');
-    expect(text(card('accelerator').querySelector('.act-closed .act-note'))).toBe(
-      'The founding price ended Monday, November 30 at 11:59 PM Mountain. Join the waitlist to hear first about the next cohort.',
-    );
-    expect(text(card('teamPlan').querySelector('.act-closed .act-note'))).toBe(
-      'Founding prices ended Monday, November 30 at 11:59 PM Mountain. Join the waitlist to hear what’s next.',
-    );
-    expect($$('.act-closed a, .act-soldout a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Join the Waitlist', WAITLIST_HREF],
-      ['Join the Waitlist', WAITLIST_HREF],
-      ['Join the Waitlist', WAITLIST_HREF],
-    ]);
-    expect(card('insiders').querySelector('.act-closed, .act-soldout')).toBeNull();
-  });
-
-  it('keeps the Accelerator’s 15 seats hidden until they are known, with both of its labels', () => {
-    const block = $('[data-seats]')!;
-    expect(block.hasAttribute('hidden')).toBe(true);
-    expect(block.querySelectorAll('.seatbar span')).toHaveLength(COHORT_SEATS);
-    expect(fill(block.getAttribute('data-left')!, { left: 12, total: 15 })).toBe('12 of 15 founding seats left');
-    expect(fill(block.getAttribute('data-taken')!, { total: 15 })).toBe('15 of 15 founding seats taken');
-  });
-
-  it('points For Team Owners at the Team Plan’s page and all the programs', () => {
-    expect($$('.team-copy .actions a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['See the Team Plan', '/teams'],
-      ['All Plans and Prices', '/pricing'],
-    ]);
-    expect($('.plan-adjust')?.getAttribute('href')).toBe('#team-owners');
-    expect($('#team-owners')).not.toBeNull();
-  });
-
-  it('ends with the free skills line and AI 101', () => {
-    expect([text($('.plans-free p')), $('.plans-free a')?.getAttribute('href')]).toEqual([
-      'Five free skills to start. The free ones ask for your name and email.',
-      '/library',
-    ]);
-    expect($$('.start .actions a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Start AI 101', '/ai101'],
-      ['Browse the Library', '/library'],
-    ]);
-  });
 });
 
 describe('the program logos (Connor’s, from `program-logo.ts`)', () => {
-  const plan = (name: string) => $(`.plan[data-card="${name}"]`)!;
-
-  it('open each plan card: its own program’s symbol, 40px, above the name written out as text', () => {
+  it('open each card: its own program’s symbol, 40px, hidden beside the name written out as text', () => {
     const cards = $$('.plan');
     expect(cards.map((c) => c.querySelector('.plan-top .plan-logo')?.getAttribute('data-program'))).toEqual([
       'accelerator',
@@ -357,48 +398,26 @@ describe('the program logos (Connor’s, from `program-logo.ts`)', () => {
       const holder = card.querySelector('.plan-logo')!;
       const key = holder.getAttribute('data-program')!;
       const svg = holder.querySelector('svg')!;
-      expect([svg.getAttribute('viewBox'), svg.getAttribute('width')], key).toEqual(['0 0 48 48', '40']);
+      expect([svg.getAttribute('viewBox'), svg.getAttribute('width'), svg.getAttribute('aria-hidden')], key).toEqual([
+        '0 0 48 48',
+        '40',
+        'true',
+      ]);
       expect(text(card.querySelector('.plan-name')), key).toBe(PROGRAMS.find((p) => p.key === key)!.name);
     }
-    expect(plan('accelerator').querySelectorAll('svg[viewBox="0 0 48 48"]')).toHaveLength(1);
   });
 
-  it('mark the Team Plan’s own section, in its eyebrow, over the heading that names it', () => {
-    const eyebrow = $('#team-owners .eb')!;
-    expect(eyebrow.querySelector('.eb-logo svg')?.getAttribute('width')).toBe('32');
-    expect(eyebrow.querySelector('.ringdot')).toBeNull();
-    expect(eyebrow.nextElementSibling?.tagName).toBe('H2');
-    expect(text(eyebrow.nextElementSibling)).toBe('Amplified Team Plan');
-  });
-
-  it('are hidden from screen readers where the name is written beside them, and no drawing is an unnamed image', () => {
-    const logos = $$('.plan-logo svg, .eb-logo svg');
-    expect(logos).toHaveLength(5);
-    for (const svg of logos) {
-      expect(svg.getAttribute('aria-hidden')).toBe('true');
-      expect(svg.hasAttribute('role')).toBe(false);
+  it('take the section’s colours (bone here: the “-light” logo), and no drawing on the page is an unnamed image', () => {
+    expect($('#programs')!.getAttribute('data-theme')).toBe('light');
+    for (const svg of $$('.plan-logo svg')) {
+      const [ink, signal] = [...svg.querySelectorAll('path')];
+      expect(ink!.getAttribute('fill')).toBe('currentColor');
+      expect(signal!.getAttribute('style')).toBe('fill:var(--signal, currentColor)');
     }
     for (const svg of $$('main svg')) {
       const named = svg.getAttribute('role') === 'img' && !!svg.getAttribute('aria-label');
       expect(named || svg.getAttribute('aria-hidden') === 'true').toBe(true);
     }
-  });
-
-  it('take the section’s colours: the “-dark” logo on the near-black Plans, the “-light” one on the bone Team section', () => {
-    expect($('#plans')!.closest('[data-theme="light"]')).toBeNull();
-    expect($('#team-owners')!.getAttribute('data-theme')).toBe('light');
-    for (const svg of $$('.plan-logo svg, .eb-logo svg')) {
-      const [ink, signal] = [...svg.querySelectorAll('path')];
-      expect(ink!.getAttribute('fill')).toBe('currentColor');
-      expect(signal!.getAttribute('style')).toBe('fill:var(--signal, currentColor)');
-    }
-    const css = read('./home.css');
-    expect(css).toContain('.hp .plan-logo {\n  color: var(--ink);\n}');
-    expect(css).toContain('.hp .eb-logo {\n  color: var(--ink);\n}');
-  });
-
-  it('don’t put the Programs menu’s lines on the page (new copy, for the menu follow-up)', () => {
-    for (const p of PROGRAMS) expect(text(doc.body), p.tagline).not.toContain(p.tagline);
   });
 });
 
@@ -406,44 +425,82 @@ describe('the words', () => {
   const body = renderHomeBody();
   const words = text(doc.body);
 
-  it('follow the house rules: no em dashes, no “Forum”, no income or results promises, never “free library”', () => {
+  it('follow the house rules: no em dashes, no “Forum”, no income or results promises, no retired name', () => {
     expect(body + renderHomeHead()).not.toMatch(/[–—]/);
     expect(words).not.toMatch(/forum/i);
     expect(words).not.toMatch(
       /guarantee|\bincome\b|\bearn(s|ings)?\b|revenue|\broi\b|double|10x|save \d|close more|more deals/i,
     );
-    expect(words).not.toMatch(/free\s+library/i);
+    expect(words).not.toMatch(/skill library|free library/i);
+  });
+
+  it('say nothing the live site doesn’t, but the marquee’s “Pause”', () => {
+    const l = HOME.library;
+    const live = [
+      JSON.stringify(HOME),
+      l.body(n),
+      l.all(n),
+      ...l.rows.map((r) => l.count(r.slugs.length)),
+      ...ENTRIES.flatMap((e) => [e.title, e.description]),
+      ...Object.values(PHOTOS).map((p) => p.alt),
+      ...Object.values(CARD_STATES).map(String),
+      ...Object.values(FOUNDING).map(String),
+    ].map((s) => s.replace(/\\"/g, '"'));
+    const said: string[] = [];
+    const walk = (node: Node) => {
+      if (node.nodeType === 3) {
+        const t = node.textContent!.replace(/\s+/g, ' ').trim();
+        if (t) said.push(t);
+      }
+      node.childNodes.forEach(walk);
+    };
+    walk($('main')!);
+    for (const el of $$('main [aria-label], main img[alt]'))
+      said.push(el.getAttribute('aria-label') ?? el.getAttribute('alt')!);
+    const unknown = said.filter((t) => !/^[\d$,.+]+$/.test(t) && t !== PAUSE && !live.some((s) => s.includes(t)));
+    expect(unknown).toEqual([]);
+    expect(said).toContain(PAUSE);
   });
 });
 
 describe('the stylesheet', () => {
   const css = read('./home.css');
 
-  it('draws a visible focus ring, and honors reduced motion', () => {
+  it('keeps every word at 16px or more (Spring’s rule, D-107/D-111), the shared stylesheet’s included', () => {
+    const sizes = [...(css + read('../site/site.css')).matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
+    expect(sizes.length).toBeGreaterThan(30);
+    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
+    expect(css).not.toMatch(/font: [^;]*\b(1[0-5]|[0-9])px/);
+  });
+
+  it('draws a visible focus ring, honors reduced motion, and lets the marquee be paused (WCAG 2.2.2)', () => {
     expect(css).toMatch(/\.hp :focus-visible \{\s*outline: 2px solid var\(--focus-ring\);/);
     expect(css).toMatch(
       /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.hp \.mq-track,[\s\S]*animation: none !important;/,
     );
+    expect(css).toContain('.hp .mq-band:has(.mq-pause input:checked) .mq-track {\n  animation-play-state: paused;');
+    const pause = $('.mq-pause')!;
+    expect([pause.tagName, pause.querySelector('input')?.getAttribute('type'), text(pause)]).toEqual([
+      'LABEL',
+      'checkbox',
+      PAUSE,
+    ]);
   });
 
-  it('gives a thumb 44px on a phone: text links, the offer plan’s rows, the tabs, the switches, the tier link and the slider', () => {
-    expect(css).toMatch(/\.hp \.cta-link \{[^}]*min-height: 44px;/);
-    expect(css).toMatch(/\.hp \.term \{[^}]*min-height: 48px;/);
-    expect(css).toMatch(/\.hp \.tab \{[^}]*min-height: 56px;/);
-    const phone = css.slice(css.indexOf('@media (max-width: 640px), (pointer: coarse)'));
+  it('gives a thumb 44px: text links, the offer plan’s rows, the tabs, the pause control and the resource links', () => {
     for (const rule of [
-      /\.hp \.seg-toggle button \{\s*min-height: 44px;/,
-      /\.hp \.plan-adjust \{\s*min-height: 44px;/,
-      /\.hp \.range \{\s*height: 44px;/,
+      /\.hp \.cta-link \{[^}]*min-height: 44px;/,
+      /\.hp \.term \{[^}]*min-height: 48px;/,
+      /\.hp \.tab \{[^}]*min-height: 56px;/,
+      /\.hp \.mq-pause \{[^}]*min-height: 44px;/,
+      /\.hp \.part-title \{[^}]*min-height: 44px;/,
     ])
-      expect(phone).toMatch(rule);
+      expect(css).toMatch(rule);
   });
 
-  it('never fades text with opacity in the scroll-played rows: they fade by colour, which stays AA', () => {
-    for (const sel of ['.hp .q {', '.hp .work-item {', '.hp .dcs-step {']) {
-      const rule = css.slice(css.indexOf(sel), css.indexOf('}', css.indexOf(sel)));
-      expect(rule, sel).not.toMatch(/opacity/);
-    }
+  it('never fades the shift’s rows with opacity: they fade by colour, which stays AA', () => {
+    const rule = css.slice(css.indexOf('.hp .work-item {'), css.indexOf('}', css.indexOf('.hp .work-item {')));
+    expect(rule).not.toMatch(/opacity/);
     expect(css).toMatch(/color-mix\(in srgb, var\(--ink\) calc\(var\(--k\) \* 100%\), var\(--ink-muted\)\)/);
   });
 });
