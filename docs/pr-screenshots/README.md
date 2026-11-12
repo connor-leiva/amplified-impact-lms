@@ -49,3 +49,7 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
 - `v2-skill-pages/`: the skill, Grok Bot, guide, AI 101, voice profile and Retool pages on the kit's
   tokens. `before/` is `main`, `after/` the branch head, full pages at 2x with reduced motion, for seven
   of the 59 pages: a skill, a Grok Bot template, two guides, /ai101, /voice-profile and /retool.
+- `v2-kit-logo/`: the kit header with the live signature (`before-*`, /pricing at the old head) and
+  with Logo 1 (`after-*`, /pricing at the new head), at 1280 and 390 at 2x, and the footer's logo.
+- `v2-pricing-r2/`: /pricing after Ampy's review (no reveal on the plan cards), founding open, full
+  page at 2x with reduced motion.
