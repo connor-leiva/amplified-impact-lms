@@ -53,7 +53,8 @@ describe('the skill library screen', () => {
     expect(within(agent).queryByRole('link', { name: COPY.files.claude })).toBeNull();
     expect(within(agent).queryByRole('link', { name: COPY.guide })).toBeNull();
     expect(within(agent).getByText(COPY.locked)).toBeInTheDocument();
-    expect(within(agent).getByRole('link', { name: COPY.seePlans })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/offer#plans');
+    // /pricing compares all four programs; /offer#plans had no Agent Plan (D-140).
+    expect(within(agent).getByRole('link', { name: COPY.seePlans })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/pricing');
 
     const both = screen.getByRole('region', { name: COPY.sets.both });
     expect(within(both).getByText('Coming December 15.')).toBeInTheDocument();
@@ -61,6 +62,20 @@ describe('the skill library screen', () => {
     // The ready mark is set in an effect after the list renders, so wait for it rather than race it.
     await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
     expect(screen.getByRole('link', { name: COPY.billing })).toHaveAttribute('href', '/api/billing/portal');
+  });
+
+  it('names the plan\'s first day for a skill the buyer has paid for but can\'t open yet (D-140)', async () => {
+    // A Team Plan owner before Dec 14: the skill is released, and their plan opens it on its first day.
+    fetchMock.mockResolvedValue(
+      answer(200, {
+        skills: [skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'upcoming', opensAt: Date.parse('2026-12-14T00:00:00-06:00') })],
+      }),
+    );
+    render(<SkillLibrary />);
+    const agent = await screen.findByRole('region', { name: COPY.sets.agent });
+    expect(within(agent).getByText('Coming December 14.')).toBeInTheDocument();
+    expect(within(agent).queryByText(COPY.locked)).toBeNull();
+    expect(within(agent).queryByRole('link', { name: COPY.seePlans })).toBeNull();
   });
 
   it('sends a signed-out visitor to sign in', async () => {

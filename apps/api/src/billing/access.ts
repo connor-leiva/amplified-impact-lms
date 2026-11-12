@@ -64,10 +64,41 @@ export function liveSessionsOpen(plan: PlanAccess, now: number): boolean {
   return plan.status !== 'canceled' && plan.paidThrough !== null && now <= plan.paidThrough;
 }
 
-/** A skill's state on the library screen. `upcoming` is announced but not yet released. */
+/**
+ * A skill's state on the library screen. `upcoming` is announced but not yet released, or (D-140)
+ * released and covered by a plan this viewer holds whose skills open on a later day: a Team Plan's
+ * agent skills on Dec 14, an Agent Plan's on Jan 4. Before D-140 those read `locked`, so a buyer
+ * who had just paid saw "Not in your plan." on every skill they had bought.
+ */
 export type SkillState = 'open' | 'locked' | 'upcoming';
+
+/**
+ * When a plan this viewer holds will open a released skill it doesn't open yet: the earliest
+ * `startsAt` still ahead among the plans that cover the skill and are still going to start. Null
+ * when none will. A cancelled plan is not going to start, and neither is an ended one. A plan that
+ * has started and still doesn't open the skill (an Agent Plan whose Jan 4 charge isn't paid, a
+ * lapsed one) is not "coming" either: that skill is `locked`.
+ */
+export function planOpensAt(plans: readonly PlanAccess[], skill: SkillAccess, now: number): number | null {
+  if (skill.status !== 'published' || skill.free) return null;
+  let at: number | null = null;
+  for (const p of plans) {
+    if (p.status === 'ended' || p.status === 'canceled') continue;
+    if (p.startsAt === undefined || p.startsAt <= now) continue;
+    if (!planCovers(p.kind, skill.sets)) continue;
+    if (at === null || p.startsAt < at) at = p.startsAt;
+  }
+  return at;
+}
 
 export function skillState(plans: readonly PlanAccess[], skill: SkillAccess, now: number): SkillState {
   if (skill.releasedAt > now) return 'upcoming';
-  return canOpenSkill(plans, skill, now) ? 'open' : 'locked';
+  if (canOpenSkill(plans, skill, now)) return 'open';
+  return planOpensAt(plans, skill, now) !== null ? 'upcoming' : 'locked';
+}
+
+/** The day an `upcoming` skill opens: its release, or else its plan's first day (D-140). */
+export function skillOpensAt(plans: readonly PlanAccess[], skill: SkillAccess, now: number): number | null {
+  if (skill.releasedAt > now) return skill.releasedAt;
+  return canOpenSkill(plans, skill, now) ? null : planOpensAt(plans, skill, now);
 }

@@ -2,7 +2,7 @@
 // each cart is sold on, the access rule, the buyer tags and the page's tokens.
 
 import { describe, expect, it } from 'vitest';
-import { canOpenSkill, liveSessionsOpen, skillState } from './access';
+import { canOpenSkill, liveSessionsOpen, skillOpensAt, skillState } from './access';
 import type { PlanAccess, SkillAccess } from './access';
 import {
   AGENT_PLAN_FIRST_CHARGE_AT,
@@ -228,6 +228,37 @@ describe('the access rule (D-079)', () => {
     expect(canOpenSkill([cancelled], skill({ sets: 'agent' }), AGENT_PLAN_FIRST_CHARGE_AT + 90 * DAY)).toBe(true);
     expect(canOpenSkill([cancelled], skill({ sets: 'agent', releasedAt: AGENT_PLAN_FIRST_CHARGE_AT + 60 * DAY }), AGENT_PLAN_FIRST_CHARGE_AT + 90 * DAY)).toBe(false);
     expect(liveSessionsOpen(cancelled, AGENT_PLAN_FIRST_CHARGE_AT + 90 * DAY)).toBe(false);
+  });
+
+  it('shows a paid plan\'s skills as coming on its first day, not "not in your plan" (D-140)', () => {
+    const agentSkill = skill({ sets: 'agent', releasedAt: NOW - 10 * DAY });
+    const view = (plans: PlanAccess[], sk: SkillAccess, at: number) => [skillState(plans, sk, at), skillOpensAt(plans, sk, at)];
+
+    // A Team Plan bought today: its agent skills open on Dec 14. Owner-and-ops skills aren't in it at all.
+    const team: PlanAccess = { kind: 'agents', status: 'active', startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_SKILLS_FROM + 120 * DAY, liveUntil: null };
+    const before = AGENTS_SKILLS_FROM - 3 * DAY;
+    expect(view([team], agentSkill, before)).toEqual(['upcoming', AGENTS_SKILLS_FROM]);
+    expect(view([team], skill({ sets: 'both', releasedAt: NOW - 10 * DAY }), before)).toEqual(['upcoming', AGENTS_SKILLS_FROM]);
+    expect(view([team], skill({ releasedAt: NOW - 10 * DAY }), before)).toEqual(['locked', null]);
+    expect(view([team], agentSkill, AGENTS_SKILLS_FROM)).toEqual(['open', null]);
+
+    // An Agent Plan's trial: coming on Jan 4. On Jan 4 itself, with that charge unpaid, it is locked, not "coming".
+    const trial: PlanAccess = { kind: 'agent_plan', status: 'trialing', startsAt: AGENT_PLAN_FIRST_CHARGE_AT, paidThrough: null, liveUntil: null };
+    expect(view([trial], agentSkill, NOW)).toEqual(['upcoming', AGENT_PLAN_FIRST_CHARGE_AT]);
+    expect(view([trial], skill({ sets: 'owner_ops' }), NOW)).toEqual(['locked', null]);
+    expect(view([trial], agentSkill, AGENT_PLAN_FIRST_CHARGE_AT + 60_000)).toEqual(['locked', null]);
+
+    // A trial cancelled before Jan 4 never starts, and a refunded plan is over: both locked.
+    expect(view([{ ...trial, status: 'canceled' }], agentSkill, NOW)).toEqual(['locked', null]);
+    expect(view([{ ...team, status: 'ended' }], agentSkill, before)).toEqual(['locked', null]);
+
+    // A plan that opens it today wins over one that starts later; a free skill is open to everyone.
+    expect(view([trial, { ...team, startsAt: NOW - DAY }], agentSkill, NOW)).toEqual(['open', null]);
+    expect(view([trial], skill({ sets: 'agent', free: true }), NOW)).toEqual(['open', null]);
+
+    // Not yet released at all: still "coming" on its release day, as before.
+    const unreleased = skill({ sets: 'agent', releasedAt: NOW + 5 * DAY });
+    expect(view([trial], unreleased, NOW)).toEqual(['upcoming', NOW + 5 * DAY]);
   });
 
   it('opens a Team Plan\'s agent skills on Dec 14, with the starter path, not at purchase', () => {

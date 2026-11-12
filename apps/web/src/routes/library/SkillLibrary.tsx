@@ -50,6 +50,8 @@ export interface LibrarySkill {
   free: boolean;
   releasedAt: number;
   state: SkillState;
+  /** The day an `upcoming` skill opens: its release, or the viewer's plan's first day (D-140). */
+  opensAt?: number | null;
   files: FileKind[];
 }
 
@@ -72,6 +74,8 @@ async function loadSkills(): Promise<Load> {
 }
 
 const ORDER: SetName[] = ['owner_ops', 'agent', 'both'];
+/** Where "See Plans" goes: /pricing compares all four programs (D-123). */
+export const PLANS_URL = 'https://www.amplifiedimpact.io/pricing';
 const dateOf = (t: number): string =>
   new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' }).format(t);
 
@@ -109,14 +113,15 @@ function SkillRow({ skill }: { skill: LibrarySkill }) {
               <Icon name="lock" size={16} />
               {COPY.locked}
             </span>
-            <a className={s.secondary} href="https://www.amplifiedimpact.io/offer#plans">
+            {/* Every program, the Agent Plan included (D-140): `/offer#plans` lists three of the four. */}
+            <a className={s.secondary} href={PLANS_URL}>
               {COPY.seePlans}
             </a>
           </>
         ) : (
           <span className={s.note}>
             <Icon name="clock" size={16} />
-            {COPY.upcoming(dateOf(skill.releasedAt))}
+            {COPY.upcoming(dateOf(skill.opensAt ?? skill.releasedAt))}
           </span>
         )}
       </div>
