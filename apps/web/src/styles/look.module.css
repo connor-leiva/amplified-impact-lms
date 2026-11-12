@@ -1,0 +1,239 @@
+/* The homepage look for the LMS screens that render outside AppShell: www's `/`
+   (apps/web/src/home/home.css, PR #65), applied to learn.amplifiedimpact.io.
+
+   WHAT IT IS: Geist and Geist Mono; a near-black ground with a fine grain; bone panels; one mint
+   signal; hairlines instead of shadows; 6px controls and 8px panels; a 2px focus outline offset 2px.
+   The colours are home.css's own, in oklch, converted exactly from Connor's reference (this file is
+   scanned by scripts/check-css-colors.mjs, so no hex, no rgb functions and no named colours).
+
+   HOW A SCREEN USES IT: `composes: ground from '…/styles/look.module.css'` on the page, and
+   `composes: bone` on a light panel inside it (or `composes: bone` on the page itself for an all-bone
+   screen). Each scope re-points the LMS's own semantic tokens (tokens.css, untouched) to this
+   palette, so the shared primitives inside it (Button, Field, Icon) draw in the new look with no
+   change to their files, their markup or their tests.
+
+   THE LOOK IS THE SAME IN THE LIGHT AND DARK THEMES, as the homepage has one look. Every token a
+   scope uses is set here, so `:root[data-theme='dark']` changes nothing inside it.
+
+   The house rules (Spring's, D-107/D-111, as on the homepage): no text under 16px, 44px tap targets,
+   WCAG AA contrast at rest, `:focus-visible`, and nothing moves under reduced motion.
+
+   The font files are the homepage's (apps/web/src/home/fonts, OFL.txt), not copies. */
+
+/* --- Geist and Geist Mono, latin, variable weight ----------------------------------------------- */
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../home/fonts/geist-latin-wght-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../home/fonts/geist-mono-latin-wght-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --- The palette: home.css's `--hp-*`, unchanged ---------------------------------------------- */
+
+.palette {
+  --look-near-black: oklch(0.1552 0.0053 173.53);
+  --look-raised-dark: oklch(0.1941 0.0087 169.28);
+  --look-cream: oklch(0.9693 0.004 106.47);
+  --look-sage: oklch(0.7336 0.0107 164.76);
+  --look-sage-muted: oklch(0.6077 0.013 161.81);
+  --look-mint: oklch(0.7934 0.1162 162.2);
+  --look-hairline-dark: oklch(0.2564 0.0115 167.68);
+  --look-control-dark: oklch(0.5028 0.0156 166.68);
+  --look-bone: oklch(0.9545 0.0067 97.35);
+  --look-raised-light: oklch(0.9843 0.004 106.47);
+  --look-slate: oklch(0.4358 0.0091 164.59);
+  --look-slate-muted: oklch(0.497 0.0088 164.67);
+  --look-forest: oklch(0.3838 0.0555 172.15);
+  --look-energy: oklch(0.5632 0.1182 159.45);
+  --look-hairline-light: oklch(0.8816 0.011 95.18);
+  --look-grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --look-grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --look-radius-control: 6px;
+  --look-radius-panel: 8px;
+  --look-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- The near-black ground (the homepage's dark sections) ------------------------------------- */
+
+.ground {
+  composes: palette;
+
+  --look-surface: var(--look-near-black);
+  --look-surface-raised: var(--look-raised-dark);
+  --look-ink: var(--look-cream);
+  --look-ink-secondary: var(--look-sage);
+  --look-ink-muted: var(--look-sage-muted);
+  --look-signal: var(--look-mint);
+  --look-line: var(--look-hairline-dark);
+  --look-line-control: var(--look-control-dark);
+  --look-focus: var(--look-mint);
+
+  /* The LMS's tokens, re-pointed. */
+  --bg-canvas: var(--look-near-black);
+  --bg-surface: var(--look-raised-dark);
+  --bg-raised: var(--look-raised-dark);
+  --bg-sunken: var(--look-near-black);
+  --bg-hover: var(--look-raised-dark);
+  --bg-selected: var(--look-raised-dark);
+  --text-primary: var(--look-cream);
+  --text-secondary: var(--look-sage);
+  --text-tertiary: var(--look-sage-muted);
+  --text-disabled: var(--look-control-dark);
+  --text-link: var(--look-cream);
+  --text-link-hover: var(--look-mint);
+  --line-subtle: var(--look-hairline-dark);
+  --line-default: var(--look-hairline-dark);
+  --line-strong: var(--look-control-dark);
+  --action-primary: var(--look-mint);
+  --action-primary-hover: var(--look-mint);
+  --action-on-primary: var(--look-near-black);
+  --action-secondary: transparent;
+  --action-secondary-hover: transparent;
+  --action-secondary-line: var(--look-control-dark);
+  --focus-ring: transparent;
+  --shadow-card: none;
+  /* Status and access colours: tokens.css's dark-theme values, verbatim, so a chip or a status word
+     passes AA on this ground in either theme. Neutral is the look's own ink. */
+  --status-success-text: oklch(0.8 0.12 145);
+  --status-success-bg: oklch(0.7 0.14 145 / 0.14);
+  --status-success-line: oklch(0.7 0.14 145 / 0.38);
+  --status-progress-text: oklch(0.8 calc(var(--progress-c) * 0.7) var(--progress-h));
+  --status-progress-bg: oklch(0.68 var(--progress-c) var(--progress-h) / 0.15);
+  --status-progress-line: oklch(0.68 var(--progress-c) var(--progress-h) / 0.4);
+  --status-attention-text: oklch(0.8 0.11 32);
+  --status-attention-bg: oklch(0.68 0.16 32 / 0.14);
+  --status-attention-line: oklch(0.68 0.16 32 / 0.4);
+  --access-locked-text: oklch(0.85 0.12 80);
+  --access-locked-bg: oklch(0.79 0.14 75 / 0.12);
+  --access-locked-line: oklch(0.79 0.14 75 / 0.36);
+  --status-neutral-text: var(--look-sage);
+  --status-neutral-bg: var(--look-raised-dark);
+  --status-neutral-line: var(--look-control-dark);
+
+  color-scheme: dark;
+  background-color: var(--look-near-black);
+  background-image: var(--look-grain-dark);
+  color: var(--look-cream);
+}
+
+/* --- A bone panel (the homepage's light sections) --------------------------------------------- */
+
+.bone {
+  composes: palette;
+
+  --look-surface: var(--look-bone);
+  --look-surface-raised: var(--look-raised-light);
+  --look-ink: var(--look-near-black);
+  --look-ink-secondary: var(--look-slate);
+  --look-ink-muted: var(--look-slate-muted);
+  --look-signal: var(--look-energy);
+  --look-line: var(--look-hairline-light);
+  --look-line-control: var(--look-sage-muted);
+  --look-focus: var(--look-forest);
+
+  /* The LMS's tokens, re-pointed. Fields sit on the raised bone; the card itself is `--look-surface`. */
+  --bg-canvas: var(--look-bone);
+  --bg-surface: var(--look-raised-light);
+  --bg-raised: var(--look-raised-light);
+  --bg-sunken: var(--look-bone);
+  --bg-hover: var(--look-hairline-light);
+  --bg-selected: var(--look-hairline-light);
+  --text-primary: var(--look-near-black);
+  --text-secondary: var(--look-slate);
+  --text-tertiary: var(--look-slate-muted);
+  --text-disabled: var(--look-sage-muted);
+  --text-link: var(--look-near-black);
+  --text-link-hover: var(--look-forest);
+  --line-subtle: var(--look-hairline-light);
+  --line-default: var(--look-hairline-light);
+  --line-strong: var(--look-sage-muted);
+  --action-primary: var(--look-near-black);
+  --action-primary-hover: var(--look-near-black);
+  --action-on-primary: var(--look-bone);
+  --action-secondary: transparent;
+  --action-secondary-hover: transparent;
+  --action-secondary-line: var(--look-near-black);
+  --focus-ring: transparent;
+  --shadow-card: none;
+  /* Status and access colours: tokens.css's light-theme values, verbatim, so a chip or a status word
+     passes AA on bone in either theme. Neutral is the look's own ink. */
+  --status-success-text: oklch(0.47 0.11 145);
+  --status-success-bg: oklch(0.958 0.03 145);
+  --status-success-line: oklch(0.86 0.07 145);
+  --status-progress-text: oklch(0.48 var(--progress-c) var(--progress-h));
+  --status-progress-bg: oklch(0.958 calc(var(--progress-c) * 0.2) var(--progress-h));
+  --status-progress-line: oklch(0.85 calc(var(--progress-c) * 0.45) var(--progress-h));
+  --status-attention-text: oklch(0.5 0.15 32);
+  --status-attention-bg: oklch(0.962 0.022 32);
+  --status-attention-line: oklch(0.87 0.06 32);
+  --access-locked-text: oklch(0.5 0.1 65);
+  --access-locked-bg: oklch(0.966 0.032 85);
+  --access-locked-line: oklch(0.87 0.08 80);
+  --status-neutral-text: var(--look-slate);
+  --status-neutral-bg: var(--look-raised-light);
+  --status-neutral-line: var(--look-hairline-light);
+
+  color-scheme: light;
+  background-color: var(--look-bone);
+  background-image: var(--look-grain-light);
+  color: var(--look-near-black);
+}
+
+/* The AI Academy lockup stays the one drawn for a light ground on bone, whatever the app's theme:
+   BrandSlot hides it under `:root[data-theme='dark']`, and its reversed twin would vanish on bone. */
+.bone [data-brand-slot='lockup'] img:first-child {
+  display: block;
+}
+.bone [data-brand-slot='lockup'] img:nth-child(2) {
+  display: none;
+}
+
+/* --- Focus: the homepage's, a 2px outline offset 2px, mint on the ground and forest on bone ------ */
+
+.ground :focus-visible,
+.bone :focus-visible {
+  outline: 2px solid var(--look-focus);
+  outline-offset: 2px;
+}
+
+/* --- Form controls: never under 16px (16px also stops iOS zooming into a field) ----------------
+   `:is` so this outranks a primitive's own one-class size (Field's 13px label, Button's 13/14px); a
+   screen that wants larger says so with two classes. */
+
+.ground :is(label, input, select, textarea, button),
+.bone :is(label, input, select, textarea, button) {
+  font-size: 16px;
+}
+
+/* --- Motion -------------------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ground *,
+  .bone * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

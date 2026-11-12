@@ -1,46 +1,71 @@
-/* /skill-library: net-new (D-079), outside the shell like /sign-in. No reference file, so the values
-   are the house ones the portal and the sign-in card already use: radius 12 and 16, a 1px
-   --line-default border, --bg-surface cards on --bg-canvas, 40px buttons. Tokens only. */
+/* /skill-library (D-079), outside the shell like /sign-in, in the homepage look (www's `/`, PR #65;
+   ../../styles/look.module.css): the near-black ground with the heading and the plan's buttons on it,
+   then each set of skills as a bone panel of hairline rows, as the homepage's Library list. Geist,
+   the homepage's buttons and its outlined Free tag. Still tokens and the look's custom properties
+   only: not a colour in this file. Every class name is the one the screen already uses.
+
+   The house rules, as on the homepage: no text under 16px, 44px tap targets (buttons 48px), AA
+   contrast, `:focus-visible` (the look's outline, mint on the ground and forest on bone), and nothing
+   moves under reduced motion. */
 
 .page {
+  composes: ground from '../../styles/look.module.css';
   min-height: 100dvh;
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 32px 16px 64px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  background: var(--bg-canvas);
+  gap: 24px;
+  /* Full bleed for the ground; the column stays 880px. */
+  padding: 48px max(16px, calc((100% - 880px) / 2)) 96px;
+}
+
+/* The AI Academy lockup on the ground is the brand package's reversed drawing, in either theme. */
+.head [data-brand-slot='lockup'] img:first-child {
+  display: none;
+}
+.head [data-brand-slot='lockup'] img:nth-child(2) {
+  display: block;
 }
 
 .head {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
+  gap: 16px;
+  padding-bottom: 16px;
 }
+/* The homepage's section title and lede. */
 .h1 {
-  margin: 8px 0 0;
-  font-size: 28px;
-  line-height: 34px;
-  font-weight: 600;
+  margin: 16px 0 0;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.04;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+  color: var(--look-ink);
 }
 .sub {
   margin: 0;
-  font-size: 15px;
-  color: var(--text-secondary);
+  max-width: 640px;
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--look-ink-secondary);
 }
 
+/* One set of skills: a bone panel. */
 .group {
+  composes: bone from '../../styles/look.module.css';
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  padding: 32px;
+  border-radius: var(--look-radius-panel);
 }
 .h2 {
-  margin: 0;
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 600;
+  margin: 0 0 8px;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 .list {
   margin: 0;
@@ -48,16 +73,15 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
+/* A skill: a hairline row, its words first and its buttons under them, so four 16px buttons never
+   squeeze the title. */
 .skill {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid var(--line-default);
-  border-radius: 12px;
-  background: var(--bg-surface);
+  gap: 16px;
+  padding: 20px 0;
+  border-top: 1px solid var(--look-line);
 }
 .text {
   display: flex;
@@ -68,94 +92,116 @@
 .name {
   margin: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  line-height: 20px;
-  font-weight: 600;
+  gap: 8px 12px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
+/* The homepage's Free tag: outlined in the signal. */
 .badge {
-  padding: 2px 8px;
-  border: 1px solid var(--status-success-line);
-  border-radius: 999px;
-  background: var(--status-success-bg);
-  color: var(--status-success-text);
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 600;
+  padding: 2px 10px;
+  border: 1px solid var(--look-signal);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--look-forest);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 .summary {
   margin: 0;
-  font-size: 14px;
-  color: var(--text-secondary);
+  max-width: 640px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--look-ink-secondary);
 }
 .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
+/* The homepage's buttons: 48px, 16px Geist 500, 6px radius, a 2px lift on hover. The primary is the
+   scope's action (mint on the ground, near-black on bone); the secondary is outlined. */
 .primary,
 .secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--look-radius-control);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
   text-decoration: none;
+  transition:
+    transform 0.3s var(--look-ease),
+    border-color 0.3s;
 }
 .primary {
+  border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
 }
 .primary:hover {
-  background: var(--action-primary-hover);
   color: var(--action-on-primary);
   text-decoration: none;
+  transform: translateY(-2px);
 }
 .secondary {
   border: 1px solid var(--action-secondary-line);
-  background: var(--action-secondary);
-  color: var(--text-primary);
+  background: transparent;
+  color: var(--look-ink);
 }
 .secondary:hover {
-  background: var(--action-secondary-hover);
-  color: var(--text-primary);
+  border-color: var(--look-ink);
+  color: var(--look-ink);
   text-decoration: none;
+  transform: translateY(-2px);
 }
 .note {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--text-secondary);
+  gap: 8px;
+  min-height: 48px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--look-ink-secondary);
 }
+
+/* Loading, signed out, failed: on the ground, in the lede's size. */
 .status {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
-  font-size: 15px;
+  gap: 16px;
+  padding-top: 24px;
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--look-ink);
 }
 .status p {
   margin: 0;
 }
 .spin {
+  color: var(--look-ink-muted);
   animation: ai-spin 0.9s linear infinite;
 }
 
-@media (min-width: 640px) {
-  .skill {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+@media (max-width: 639px) {
+  .group {
+    padding: 24px 20px;
   }
-  .actions {
-    justify-content: flex-end;
-    flex-shrink: 0;
+  .page {
+    padding-top: 32px;
+    padding-bottom: 64px;
   }
 }
 
