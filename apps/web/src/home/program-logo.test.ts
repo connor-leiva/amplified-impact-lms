@@ -21,6 +21,28 @@ describe('the artwork', () => {
     );
   });
 
+  it('pins each variant on its own: the symbols (and tiles, the same marks), the horizontal lockups and the stacked ones', () => {
+    // sha256 of JSON.stringify of the four programs' artwork for one variant, in menu order, as ported
+    // byte for byte from ProgramLogo.tsx (re-checked against it on Nov 12, 2026 for the homepage's cards,
+    // which use the stacked lockups). A change here means that variant's artwork changed.
+    const pin = (variant: 'symbol' | 'tile' | 'lockup' | 'stacked') =>
+      createHash('sha256')
+        .update(JSON.stringify(keys.map((k) => ART[k][variant])))
+        .digest('hex');
+    expect(pin('symbol')).toBe('8429b5e53b8e44bc006caf8a64f720bb09dd558de2fbf3be669161853b7a4683');
+    expect(pin('tile')).toBe('8429b5e53b8e44bc006caf8a64f720bb09dd558de2fbf3be669161853b7a4683');
+    expect(pin('lockup')).toBe('1b7b65062f7e2b20b0e3cca08217cc5ec4c998275e80d39b5f5685680e5ed158');
+    expect(pin('stacked')).toBe('43c49677d6253f08c5e85584c656e10fc963aa7284af2b8f602ce30cae9edb3f');
+  });
+
+  it('draws every stacked lockup the same height at a given type size, and the horizontal ones too', () => {
+    for (const variant of ['stacked', 'lockup'] as const) {
+      const heights = keys.map((k) => svg(programLogo(k, { variant, size: 24 })).getAttribute('height'));
+      expect(new Set(heights).size, variant).toBe(1);
+    }
+    expect(svg(programLogo('accelerator', { variant: 'stacked', size: 24 })).getAttribute('height')).toBe('45.15');
+  });
+
   it('names each program exactly as the live offer does, in menu order', () => {
     expect(PROGRAMS.map((p) => [p.key, p.name])).toEqual([
       ['accelerator', PLAN_NAMES.cohort],

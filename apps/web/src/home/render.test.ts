@@ -11,8 +11,9 @@ import { HELP_EMAIL } from '../site/content';
 import { fill } from './client/fill';
 import { HOME, PHOTOS } from './content';
 import { dollarsIn, PRICES, usd } from './prices';
-import { PROGRAMS } from './program-logo';
+import { ART, PROGRAMS, programLogo, type ProgramKey } from './program-logo';
 import { entryFor, liveEntries, renderHomeBody, renderHomeHead } from './render';
+import { LOCKUP_TYPE } from './sections/plans';
 import { PAUSE, splitProof } from './sections/proof';
 
 // www's homepage, restyled from Connor's reference with the LIVE homepage's content (`design/home-redesign`,
@@ -385,34 +386,62 @@ describe('prices and the live offer state', () => {
   });
 });
 
-describe('the program logos (Connor’s, from `program-logo.ts`)', () => {
-  it('open each card: its own program’s symbol, 40px, hidden beside the name written out as text', () => {
+describe('the program lockups (Connor’s, from `program-logo.ts`)', () => {
+  it('head each card in place of a symbol and a typed name: its own program’s stacked lockup, the exact name in the h3', () => {
     const cards = $$('.plan');
-    expect(cards.map((c) => c.querySelector('.plan-top .plan-logo')?.getAttribute('data-program'))).toEqual([
+    expect(cards.map((c) => c.querySelector('.plan-top h3 .plan-logo')?.getAttribute('data-program'))).toEqual([
       'accelerator',
       'agent-plan',
       'team-plan',
       'insiders',
     ]);
+    expect(cards.map((c) => text(c.querySelector('h3')))).toEqual([
+      'Amplified AI Accelerator',
+      'Amplified Agent Plan',
+      'Amplified Team Plan',
+      'Amplified Insiders',
+    ]);
     for (const card of cards) {
-      const holder = card.querySelector('.plan-logo')!;
-      const key = holder.getAttribute('data-program')!;
-      const svg = holder.querySelector('svg')!;
-      expect([svg.getAttribute('viewBox'), svg.getAttribute('width'), svg.getAttribute('aria-hidden')], key).toEqual([
-        '0 0 48 48',
-        '40',
+      const h3 = card.querySelector('h3')!;
+      const key = h3.querySelector('.plan-logo')!.getAttribute('data-program') as ProgramKey;
+      // The name is the heading's only text, visually hidden: the lockup draws it.
+      expect([...h3.childNodes].filter((n) => n.nodeType === 3 && n.textContent!.trim())).toEqual([]);
+      expect([h3.querySelector('.sr-only')?.textContent, h3.id, card.getAttribute('aria-labelledby')], key).toEqual([
+        PROGRAMS.find((p) => p.key === key)!.name,
+        card.getAttribute('aria-labelledby'),
+        h3.id,
+      ]);
+      // The stacked lockup at 24px type, hidden from screen readers since the h3 says the name. Every
+      // stacked lockup is the same height, so the cards' first row lines up.
+      const svg = h3.querySelector('svg')!;
+      expect([svg.getAttribute('viewBox'), svg.getAttribute('height'), svg.getAttribute('aria-hidden')], key).toEqual([
+        ART[key].stacked.viewBox.join(' '),
+        '45.15',
         'true',
       ]);
-      expect(text(card.querySelector('.plan-name')), key).toBe(PROGRAMS.find((p) => p.key === key)!.name);
+      expect(svg.outerHTML, key).toBe(
+        new DOMParser().parseFromString(
+          programLogo(key, { variant: 'stacked', size: LOCKUP_TYPE, title: '' }),
+          'text/html',
+        ).body.firstElementChild!.outerHTML,
+      );
+      expect(Number(svg.getAttribute('width')), key).toBeLessThanOrEqual(186);
+      // No symbol on its own, and no typed name, anywhere in the card.
+      expect(card.querySelectorAll('svg[viewBox="0 0 48 48"]'), key).toHaveLength(0);
     }
+    expect(LOCKUP_TYPE).toBeGreaterThanOrEqual(18);
+    // The numbers stay.
+    expect($$('.plan .plan-idx').map(text)).toEqual(['01', '02', '03', '04']);
   });
 
-  it('take the section’s colours (bone here: the “-light” logo), and no drawing on the page is an unnamed image', () => {
+  it('take the section’s colours (bone here: the dark-on-Bone “-light” lockup), and no drawing on the page is an unnamed image', () => {
     expect($('#programs')!.getAttribute('data-theme')).toBe('light');
     for (const svg of $$('.plan-logo svg')) {
-      const [ink, signal] = [...svg.querySelectorAll('path')];
+      const [ink, signal, ...letters] = [...svg.querySelectorAll('path')];
       expect(ink!.getAttribute('fill')).toBe('currentColor');
       expect(signal!.getAttribute('style')).toBe('fill:var(--signal, currentColor)');
+      expect(letters.length).toBeGreaterThan(0);
+      for (const l of letters) expect(l.getAttribute('fill')).toBe('currentColor');
     }
     for (const svg of $$('main svg')) {
       const named = svg.getAttribute('role') === 'img' && !!svg.getAttribute('aria-label');
@@ -496,6 +525,43 @@ describe('the stylesheet', () => {
       /\.hp \.part-title \{[^}]*min-height: 44px;/,
     ])
       expect(css).toMatch(rule);
+  });
+
+  it('lines up every row of the four cards side by side (a subgrid), and lets them flow once they wrap', () => {
+    const wide = css.slice(css.indexOf('@media (min-width: 1200px) {'));
+    const block = wide.slice(0, wide.indexOf('\n}\n') + 2);
+    expect(block).toContain('@supports (grid-template-rows: subgrid) {');
+    expect(block).toMatch(
+      /\.hp \.plan \{\s*display: grid;\s*grid-row: span 7;\s*grid-template-rows: subgrid;\s*row-gap: 0;\s*align-items: start;\s*\}/,
+    );
+    // Each row by number: a card without seats still puts its button in the sixth row.
+    const rows = [
+      ['.hp .plan-top', 1],
+      ['.hp .plan-who', 2],
+      ['.hp .plan-price', 3],
+      ['.hp .plan-line', 4],
+      ['.hp .seat-block', 5],
+      ['.hp .plan .act-soon', 6],
+      ['.hp .plan .proof-line', 7],
+    ] as const;
+    for (const [selector, row] of rows) {
+      const at = block.lastIndexOf(`${selector} {`);
+      expect(at, selector).toBeGreaterThan(-1);
+      expect(block.slice(at, block.indexOf('}', at)), selector).toContain(`grid-row: ${row};`);
+    }
+    expect(block).toMatch(/\.hp \.plan \.cta,\s*\.hp \.plan \.act-soon \{\s*grid-row: 6;/);
+    // The same gap between the price and its unit on every card, the Accelerator's one level deeper.
+    expect(css).toMatch(
+      /\.hp \.plan-price,\s*\.hp \.plan-price > \.founding-open,\s*\.hp \.plan-price > \.founding-closed \{\s*display: flex;\s*flex-direction: column;\s*gap: 6px;/,
+    );
+    // Without subgrid the line under the divider takes the slack, so the buttons still line up.
+    expect(block).toMatch(/^@media \(min-width: 1200px\) \{\s*\.hp \.plan-line \{\s*flex: 1;\s*\}/);
+    // Below 1200px: two across, then one, and no reserved space (no minimum heights, no slack).
+    expect(css).toMatch(
+      /@media \(max-width: 1199px\) \{\s*\.hp \.plans-grid \{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/,
+    );
+    expect(css.slice(0, css.indexOf('@media (min-width: 1200px) {'))).not.toMatch(/\.hp \.plan-line \{[^}]*flex: 1/);
+    expect(css).not.toMatch(/\.hp \.plan-who \{[^}]*min-height/);
   });
 
   it('never fades the shift’s rows with opacity: they fade by colour, which stays AA', () => {
