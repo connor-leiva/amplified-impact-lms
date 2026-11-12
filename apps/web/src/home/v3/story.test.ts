@@ -177,6 +177,21 @@ describe('the stylesheet, for S3 to S5', () => {
     expect(/\.aiw \.how-panels \{([^}]*)\}/.exec(css)?.[1]).toMatch(/display: grid;/);
   });
 
+  it('never lets S5’s panel outgrow a phone: a track that can shrink, and a tag that wraps (the 390 clip)', () => {
+    // The browser check is compliance/tests/e2e/home-v3.spec.ts; these hold the two causes.
+    expect(/\.aiw \.how-panels \{([^}]*)\}/.exec(css)?.[1]).toMatch(/grid-template-columns: minmax\(0, 1fr\);/);
+    expect(/\.aiw \.how-panel \{([^}]*)\}/.exec(css)?.[1]).toMatch(/min-width: 0;/);
+    expect(/\.aiw \.how-bar \.ex-tag \{([^}]*)\}/.exec(css)?.[1]).toMatch(/white-space: normal;/);
+  });
+
+  it('keeps S4’s chip checks on a phone, as the mockup does; only under 360 do they give way to the 16px words', () => {
+    const hides = [...css.matchAll(/@media \(max-width: (\d+)px\) \{((?:[^{}]*\{[^}]*\})*)[^{}]*\}/g)]
+      .filter((m) => /\.aiw \.mon-b-ok \{[^}]*display: none/.test(m[2]!))
+      .map((m) => Number(m[1]));
+    expect(hides).toEqual([359]);
+    expect(/\.aiw \.mon-b-ok \{[^}]*display: none/.test(css.slice(0, css.indexOf('@media')))).toBe(false);
+  });
+
   it('sets S5’s step numbers on the accent, not the signal green: no ink reaches AA on the light theme’s signal', () => {
     for (const sel of ['.aiw .how-step.is-active .how-n', '.aiw .brief-n']) {
       const rule = new RegExp(`${sel.replace(/[.]/g, '\\.')} \\{([^}]*)\\}`).exec(css)?.[1] ?? '';

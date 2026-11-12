@@ -1082,10 +1082,13 @@
   display: none;
 }
 /* The panels share one grid cell, so the box is as tall as the tallest panel: at the 16px floor the
-   second and third outgrow the mockup's 520px, which stays the least it can be. */
+   second and third outgrow the mockup's 520px, which stays the least it can be. The cell's track is
+   `minmax(0, 1fr)`, never `auto`: an auto track grows to its content's widest unbreakable line, and at
+   390 that pushed the panel past the screen, where the stage's clip cut it off. */
 .aiw .how-panels {
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   min-height: 520px;
   border-radius: var(--radius-panel);
   background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ripple) 14%, transparent) 1px, transparent 1.6px);
@@ -1097,6 +1100,7 @@
 .aiw .how-panel {
   position: relative;
   grid-area: 1 / 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -1140,6 +1144,11 @@ html:not(.aiw-js) .aiw .how-panel {
   gap: 8px 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--line);
+}
+/* The panels' tags may wrap: at 16px, "Made-up example · Morning Brief" is wider than a phone's panel. */
+.aiw .how-bar .ex-tag {
+  min-width: 0;
+  white-space: normal;
 }
 .aiw .how-tag {
   color: var(--accent);
@@ -1535,13 +1544,15 @@ html:not(.aiw-js) .aiw .how-panel {
   .aiw .mon-b-t {
     display: none;
   }
+  /* The mockup's phone chip: a 16px check, 6px gap and padding. The words keep the 16px floor. */
   .aiw .mon-b-done {
     padding: 0 6px;
     gap: 6px;
     line-height: 1.15;
   }
   .aiw .mon-b-ok {
-    display: none;
+    width: 16px;
+    height: 16px;
   }
   .aiw .mon-open {
     padding: 16px;
@@ -1577,6 +1588,29 @@ html:not(.aiw-js) .aiw .how-panel {
   }
   .aiw .mail-row {
     grid-template-columns: 80px minmax(0, 1fr);
+  }
+}
+/* Narrower phones: S4's chips give back a little room around the check, so their longest word
+   ("answered", about 73px at 16px) still fits inside the chip. Under 360 the check gives way. */
+@media (max-width: 389px) {
+  .aiw .mon-b-done {
+    padding: 0 4px;
+    gap: 4px;
+  }
+}
+@media (max-width: 374px) {
+  .aiw .mon-b-done {
+    padding: 0 3px;
+    gap: 3px;
+  }
+  .aiw .mon-b-ok {
+    width: 14px;
+    height: 14px;
+  }
+}
+@media (max-width: 359px) {
+  .aiw .mon-b-ok {
+    display: none;
   }
 }
 
