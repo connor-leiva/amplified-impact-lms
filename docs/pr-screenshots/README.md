@@ -46,3 +46,6 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
   the real API at 2x with reduced motion: checkout open with the live Payment Links (`after/`), checkout
   not open yet (`after-soon/`), the light theme (`after-light/`), and the Programs menu, the phone
   menu, the light theme and the page with no script (`after-states/`).
+- `v2-skill-pages/`: the skill, Grok Bot, guide, AI 101, voice profile and Retool pages on the kit's
+  tokens. `before/` is `main`, `after/` the branch head, full pages at 2x with reduced motion, for seven
+  of the 59 pages: a skill, a Grok Bot template, two guides, /ai101, /voice-profile and /retool.
