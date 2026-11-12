@@ -11,6 +11,7 @@ import { initCountUps } from './count';
 import { initEnter } from './enter';
 import { initInView, initPhoneMenu, initPrograms, initScrollExit, initScrolled, initTheme } from './kit';
 import { initChat, initHow, initMonday } from './pinned';
+import { initArrival, initOrgChart, initQuote } from './proof';
 
 export function init(): void {
   document.documentElement.classList.add('aiw-js');
@@ -37,6 +38,11 @@ export function init(): void {
   if (mon) initMonday(mon);
   const how = page.querySelector<HTMLElement>('[data-pin="how"]');
   if (how) initHow(how);
+  for (const el of page.querySelectorAll<HTMLElement>('[data-band], [data-pst]')) initArrival(el);
+  const chart = page.querySelector<HTMLElement>('[data-oc]');
+  if (chart) initOrgChart(chart);
+  const quote = page.querySelector<HTMLElement>('[data-qt]');
+  if (quote) initQuote(quote);
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });

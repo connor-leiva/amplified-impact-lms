@@ -51,14 +51,17 @@ function textNodes(el: Element): string[] {
 }
 
 describe('the order of the page', () => {
-  it('runs hero, S2, S3, S4, S5, as the mockup does (S2 only in a preview)', () => {
-    expect([...prod.querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual(['hh', 'wsk', 'mon', 'how']);
+  it('runs hero, S2, S3 to S8, as the mockup does (S2 and S8, which wait on Connor and Spring, only in a preview)', () => {
+    expect([...prod.querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual(['hh', 'wsk', 'mon', 'how', 'band', 'prf']);
     expect([...parse(renderV3Body({ preview: true })).querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual([
       'hh',
       'vid',
       'wsk',
       'mon',
       'how',
+      'band',
+      'prf',
+      'qt',
     ]);
   });
 

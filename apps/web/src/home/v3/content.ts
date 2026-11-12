@@ -245,3 +245,201 @@ export const HOW = {
     ownsList: ['Money', 'Contracts', 'Fair housing', 'Decisions about people'],
   },
 } as const;
+
+/**
+ * S6, "Off your plate" (`section.band`, forest). Each row is a job and the Library skill that takes it,
+ * by its page's slug: the link comes from the Library's own record (brief § 4: every skill name in S6,
+ * S7, S8 and S13 links to its live page), and the name is the mockup's, which here is the record's title.
+ */
+export const BAND = {
+  title: 'Each skill takes one job off your plate. Add a few and you get your week back.',
+  sub: 'It doesn’t take lunch. It does take direction.',
+  cta: { label: 'Try 5 Skills Free', href: '#free' },
+  plate: 'Off your plate',
+  rows: [
+    ['Prep the weekly meeting', 'L10 Meeting Prep', 'l10-meeting-prep'],
+    ['Answer the new lead', 'Speed to Lead Reply', 'speed-to-lead-reply'],
+    ['Tie out the commission', 'Commission Tie-Out', 'commission-tie-out'],
+    ['Chase the file deadlines', 'Contract-to-Close Deadline Tracker', 'contract-to-close-deadlines'],
+    ['Prep the listing appointment', 'Listing Appointment Prep', 'listing-appointment-prep'],
+  ],
+} as const;
+
+/** One skill on the org chart: its name as the chart says it, and its Library page, or `null` when it was built for our team. */
+export interface ChartSkill {
+  name: string;
+  slug: string | null;
+}
+
+/** One box on the org chart: a person or a seat, and the skills that work for them. */
+export interface ChartNode {
+  kicker: 'Visionary' | 'Integrator' | 'Seat' | 'Human';
+  name: string;
+  /** The line over the CEO's skills. */
+  aiLabel?: string;
+  skills: readonly ChartSkill[];
+}
+
+const own = (name: string): ChartSkill => ({ name, slug: null });
+const lib = (name: string, slug: string): ChartSkill => ({ name, slug });
+
+/**
+ * S7, the proof (`section.prf`, #proof). The three tiles' figures are cleared (Connor's D3: no source
+ * needed). The chart is The Utah Life Real Estate Group's, box for box as the mockup draws it; its
+ * counts ("12 seats", "29 skills") are worked out from it (`chartCounts`), never typed. The intro's
+ * first sentence waits on Spring (C8, `spring-approval`).
+ */
+export const PROOF = {
+  eyebrow: 'The proof is our own team',
+  title: 'We didn’t read about this. We run on it.',
+  /** C8: part of Spring's approval (D2). The production render leaves it out until she approves it. */
+  introClaim: 'This is the real EOS chart at The Utah Life Real Estate Group.',
+  intro: 'Every seat is a person. Under each person are the skills that work for them.',
+  stats: {
+    production: { figure: 38, label: 'More production than last year, and AI is a big part of why', lastYear: 'Last year', thisYear: 'This year' },
+    finance: { figure: 95, label: 'Of our finance work done by AI. Our bookkeepers add the human 5%.', ai: 'AI', human: 'Human' },
+    daily: { figure: 'Daily', label: 'Reports that run on their own, every morning', days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'] },
+  },
+  toggleLabel: 'Show the chart with',
+  people: 'People',
+  peopleAndAi: 'People and AI',
+  /** Connor's D4: "12 people" is "12 seats". */
+  seats: 'seats',
+  skills: 'skills working for them',
+  legendLabel: 'Key',
+  legend: { person: 'Person', library: 'Skill in the Library', own: 'Built for our team' },
+  chart: {
+    top: [
+      {
+        kicker: 'Visionary',
+        name: 'CEO',
+        aiLabel: 'Her AI executive assistant',
+        skills: [
+          own('Daily Sisu reports'),
+          own('Morning Debrief'),
+          lib('Inbox and Meeting Follow-Through', 'inbox-meeting-follow-through'),
+          lib('Tasks synced to ClickUp', 'task-sync-starter'),
+          lib('Perfect Week', 'perfect-week'),
+        ],
+      },
+      {
+        kicker: 'Integrator',
+        name: 'Runs the business',
+        skills: [
+          lib('L10 Meeting Prep', 'l10-meeting-prep'),
+          lib('Team P&L Review', 'team-pnl-review'),
+          lib('Morning Brief', 'morning-brief'),
+          lib('Lead-Source ROI', 'lead-source-roi'),
+        ],
+      },
+    ],
+    seats: [
+      {
+        seat: { kicker: 'Seat', name: 'Operations', skills: [lib('New Agent Onboarding Plan', 'new-agent-onboarding-plan')] },
+        people: [
+          {
+            kicker: 'Human',
+            name: 'Transaction Coordinator',
+            skills: [
+              lib('TC File Audit', 'tc-file-audit'),
+              lib('Contract-to-Close Deadline Tracker', 'contract-to-close-deadlines'),
+              lib('Closing-Week Checklist', 'closing-week-checklist'),
+            ],
+          },
+          {
+            kicker: 'Human',
+            name: 'Bookkeepers',
+            skills: [
+              lib('Weekly Card & Bank Audit', 'card-bank-feed-audit'),
+              lib('Commission Tie-Out', 'commission-tie-out'),
+              lib('Month-End Close Packet', 'month-end-close'),
+            ],
+          },
+        ],
+      },
+      {
+        seat: { kicker: 'Seat', name: 'Sales Leader', skills: [] },
+        people: [
+          {
+            kicker: 'Human',
+            name: 'Team Leads',
+            skills: [own('Team activity reports'), lib('Agent 1:1 Prep', 'agent-1on1-prep'), lib('FUB Pipeline Review', 'fub-pipeline-review')],
+          },
+          {
+            kicker: 'Human',
+            name: 'Agents',
+            skills: [
+              lib('Sounds Like You', 'voice-profile'),
+              lib('Speed to Lead Reply', 'speed-to-lead-reply'),
+              lib('Offer Strategy', 'offer-strategy'),
+              lib('Listing Appointment Prep', 'listing-appointment-prep'),
+              lib('Market Update Email', 'market-update-email'),
+            ],
+          },
+          { kicker: 'Human', name: 'Recruiter', skills: [lib('Recruiting Prep', 'recruiting-prep')] },
+        ],
+      },
+      {
+        seat: { kicker: 'Seat', name: 'Marketing', skills: [] },
+        people: [
+          {
+            kicker: 'Human',
+            name: 'Content Creator',
+            skills: [lib('Content Strategist', 'content-strategist'), lib('Reel Editor', 'reel-editor'), lib('Sounds Like You', 'voice-profile')],
+          },
+          {
+            kicker: 'Human',
+            name: 'Social and Database',
+            skills: [
+              lib('Market Update Email', 'market-update-email'),
+              lib('Sphere Touch Plan', 'sphere-touch-plan'),
+              lib('Database Health Check', 'database-health-check'),
+            ],
+          },
+        ],
+      },
+    ],
+  },
+} as const;
+
+/** Every box on the chart, top to bottom and left to right. */
+export const chartNodes = (): readonly ChartNode[] => [
+  ...(PROOF.chart.top as readonly ChartNode[]),
+  ...PROOF.chart.seats.flatMap((s): ChartNode[] => [s.seat as ChartNode, ...(s.people as readonly ChartNode[])]),
+];
+
+/**
+ * The chart's counts, worked out from it: every box is a seat (12, Connor's D4), every skill counts
+ * once however many seats use it (29), and the ones with a Library page are "in the Library" (26).
+ */
+export function chartCounts(): { seats: number; skills: number; inLibrary: number } {
+  const nodes = chartNodes();
+  const skills = new Map<string, string | null>();
+  for (const n of nodes) for (const s of n.skills) skills.set(s.name, s.slug);
+  return { seats: nodes.length, skills: skills.size, inLibrary: [...skills.values()].filter(Boolean).length };
+}
+
+/**
+ * S8, "In Spring’s words" (`section.qt`). The whole section waits on Spring (Connor's D2,
+ * `spring-approval`): her quote, its four steps (two of which repeat the quote's 95% and 38%), and the
+ * line under them. The production render leaves it out until she approves it. Each step lights when
+ * the highlight reaches its word in the quote (`at`); the quote's `keys` are marked as they light.
+ */
+export const QUOTE = {
+  heading: 'In Spring’s words',
+  text: 'It started with our Sisu data. I connected it to Claude, built skills, and now my reports show up every morning. Then we moved into finance. AI runs 95% of it now, and our bookkeepers add the human part. Now it’s in sales, recruiting and marketing. Our production is up 38% over last year, and AI is a big reason why.',
+  keys: ['95%', '38%'],
+  name: 'Spring Bengtzen',
+  role: 'Co-founder, Amplified Impact · CEO, The Utah Life Real Estate Group',
+  pathLabel: 'Where AI went next at The Utah Life Real Estate Group',
+  stops: [
+    { k: 'Reports', t: 'Sisu data, every morning', at: 'reports' },
+    { k: 'Finance', t: '95% run by AI', at: 'finance.' },
+    { k: 'Sales, recruiting, marketing', t: 'AI in every seat', at: 'sales,' },
+    { k: 'Production', t: 'Up 38% over last year', at: '38%' },
+  ],
+  foot: 'Almost every skill on this chart is in our library. You can build the same thing in your business, one seat at a time.',
+  /** "26 of 29 are in the Library": the counts are the chart's (`chartCounts`). */
+  inLibrary: (n: number, of: number) => `${n} of ${of} are in the Library`,
+  library: { label: 'Browse the Library', href: '/library' },
+} as const;

@@ -17,9 +17,12 @@ import { kitFooter, kitHeader, kitSkip } from '../../kit/render';
 import { renderHomeHead } from '../render';
 import { sprite } from './icons';
 import { resolvePending } from './pending';
+import { band } from './sections/band';
 import { hero } from './sections/hero';
 import { howItWorks } from './sections/how';
 import { monday } from './sections/monday';
+import { proof } from './sections/proof';
+import { quote } from './sections/quote';
 import { whatsASkill } from './sections/skill';
 import { video } from './sections/video';
 
@@ -38,6 +41,9 @@ export function renderV3Body({ preview }: { preview: boolean }): string {
     whatsASkill(),
     monday(),
     howItWorks(),
+    band(),
+    proof(),
+    quote(),
     `</main>`,
     kitFooter(),
   ].join('\n');

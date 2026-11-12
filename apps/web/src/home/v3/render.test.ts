@@ -154,7 +154,7 @@ describe('the site’s rules (brief § 6)', () => {
       const all = ctas(doc);
       expect(all.length).toBeGreaterThan(0);
       for (const a of all) {
-        const group = a.closest('.hh-cta, .cta-group, .plan-actions');
+        const group = a.closest('.hh-cta, .band-cta, .cta-group, .plan-actions');
         expect(group, text(a)).not.toBeNull();
         expect(text(group?.querySelector('.proof-line')), text(a)).toBe('Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year');
       }
@@ -184,7 +184,7 @@ describe('pending placeholders (conflicts.md, Decisions)', () => {
 
   it('shows each one, marked, in a preview: S2’s photo slot, empty, with copy.md’s heading and caption', () => {
     const html = renderV3Body({ preview: true });
-    expect(pendingKeysIn(html)).toEqual(['video-still']);
+    expect(pendingKeysIn(html)).toEqual(['video-still', 'spring-approval']);
     const vid = preview.querySelector('section.vid');
     expect(vid?.getAttribute('data-pending')).toBe('video-still');
     // The slot itself is marked too, and holds no image at all until the real one is chosen: never a

@@ -124,8 +124,39 @@ for (const theme of THEMES) {
     expect(await cuts(page, 'section.mon', '.mon-b-done > span', '.mon-b')).toEqual([]);
   });
 
-  test(`no words, picture or control in S1 to S5 runs off a 390 screen or out of a box that clips it, ${theme} @g9`, async ({ page }) => {
+  test(`no words, picture or control in S1 to S7 runs off a 390 screen or out of a box that clips it, ${theme} @g9`, async ({ page }) => {
     await open(page, theme, 390);
     expect(await cuts(page, 'main', 'section *', undefined, true)).toEqual([]);
   });
+
+  for (const width of [390, 1280]) {
+    test(`every link and button in S1 to S7 is a 44px tap (Spring's mobile rule) at ${width}, ${theme} @g9`, async ({ page }) => {
+      await open(page, theme, width);
+      const small = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('main a[href], main button')]
+          .map((el) => [el, el.getBoundingClientRect()] as const)
+          .filter(([, r]) => r.width > 0 && r.height < 44)
+          .map(([el, r]) => `${(el.textContent ?? '').trim().slice(0, 32)} (${Math.round(r.height)}px)`),
+      );
+      expect(small).toEqual([]);
+    });
+  }
 }
+
+test('S7’s “People” closes the skills and takes them out of the keyboard’s reach; “People and AI” brings them back @g9', async ({ page }) => {
+  await open(page, 'dark', 390);
+  const count = page.locator('[data-oc-skills]');
+  await expect(count).toHaveText('29');
+  await page.locator('[data-oc-mode="people"]').click();
+  await expect(page.locator('[data-oc-mode="people"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(count).toHaveText('0');
+  // From the toggle, Tab goes past every hidden chip: the next stop is outside the chart.
+  await page.locator('[data-oc-mode="ai"]').focus();
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement?.closest('.oc') === null)).toBe(true);
+  await page.locator('[data-oc-mode="ai"]').click();
+  await expect(count).toHaveText('29');
+  await page.locator('[data-oc-mode="ai"]').focus();
+  await page.keyboard.press('Tab');
+  await expect(page.locator(':focus')).toHaveText('Inbox and Meeting Follow-Through');
+});

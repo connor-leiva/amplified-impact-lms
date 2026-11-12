@@ -16,7 +16,9 @@ const stroke = (d: string) =>
 
 const SYMBOLS = {
   ringdot:
-    '<symbol id="v3-ringdot" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9.5" style="fill:none;stroke:var(--signal);stroke-width:1.5"/><circle cx="11" cy="11" r="4" style="fill:var(--signal)"/></symbol>',
+    // `--rd-ring`, `--rd-dash` and `--rd-dot` restyle one copy (S7's "Built for our team" ring is dashed and
+    // muted); unset, they are the kit's colours.
+    '<symbol id="v3-ringdot" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9.5" style="fill:none;stroke:var(--rd-ring,var(--signal));stroke-width:1.5;stroke-dasharray:var(--rd-dash,none)"/><circle cx="11" cy="11" r="4" style="fill:var(--rd-dot,var(--signal))"/></symbol>',
   check: `<symbol id="v3-check" viewBox="0 0 24 24">${stroke(GLYPHS.check)}</symbol>`,
   arrow: `<symbol id="v3-arrow" viewBox="0 0 24 24">${stroke(GLYPHS.arrow)}</symbol>`,
 } as const;
