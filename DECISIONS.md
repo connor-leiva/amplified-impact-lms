@@ -4473,3 +4473,65 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **"See Plans"** goes to `/pricing`, which compares all four programs (D-123). `/offer#plans` had no Agent Plan card.
 - **What opens and when is unchanged.** `canOpenSkill` and the download route's check are untouched: a skill opens on exactly the day it did before. The per-offer tests now expect `upcoming` where they expected `locked` before each cart's day.
 - **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
+## D-142 · The AI Accelerator's Dashboard drops the prototype's invented community and support details
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "Accelerator Dashboard placeholders: remove '148 members', 'under 2 hours' and 'Luis from Support' now. No invented numbers or names. Use neutral text with no figures (e.g. 'Your cohort', 'We reply within one business day' only if that's already stated elsewhere on the site; otherwise just drop the line). Log as a D-entry."
+**Status:** on a pull request.
+**Scope:** `apps/web/src/routes/portal/Dashboard.vm.ts` (the quick links, a `mail` action), `Dashboard.tsx` (carries it out); `Dashboard.vm.test.ts`.
+
+- **What an Accelerator buyer saw:**
+  - **Cohort Community** "148 members · 23 new posts today", whose link showed a toast "Opening the cohort community". There is no cohort community.
+  - **Technical Support** "Typical reply in under 2 hours", whose link showed a toast "Support chat opened. Luis from Support will reply here." There is no chat and no Luis.
+- **Now, for the AI Accelerator's cohort:**
+  - The community card is gone. Nothing real stands behind it, and the site names no community to point at.
+  - Technical Support's line is the address the course already gives learners ("Questions? Write to support@amplifiedimpact.io."). Its link opens an email to that address.
+  - No reply time is stated: nothing on the site promises one, so per the PM the line is dropped rather than replaced.
+- **How it's scoped.** Same switch as D-110's real office hours: a cohort with its own office-hours series, which only the AI Accelerator has. The prototype's cohorts, which the reference and its parity goldens are built from, keep the reference's cards, so no golden changes.
+- **Not changed:** the Office Hours link, the course, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
+## D-143 · A two-pay AI Accelerator pauses when its second payment fails, and reopens when it's paid
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "Two-pay Accelerator, failed second payment: pause access (the overnight brief says failed payments pause access). Restore automatically when the invoice is paid. Add the e2e case." The overnight brief: "Handle cancel, refund, and failed payment (revoke or pause per cancel-and-keep)."
+**Status:** on a pull request.
+**Scope:** `packages/core/src/accelerator.ts` (`pausedForPayment`, `acceleratorPaused`, `acceleratorOpen`); `apps/api/src/billing/access.ts` (`canOpenSkill`, `liveSessionsOpen`), `billing/webhook.ts` (`invoicePaid`), `routes/course.ts`, `routes/skills.ts`, `lib/course-access.ts`; `apps/web/src/routes/course/` and `routes/library/` (what the screens say); tests.
+
+- **Before:** a failed second installment set the plan `past_due`, and nothing read that. The course, its skills and its live sessions stayed open until May 4, so the second payment was optional in practice. A retry that later went through didn't even set the plan back to `active`: the installment subscription isn't the plan's own subscription (that one is the Insiders roll-on), so a paid installment never reached the plan, while a failed one did, through the order.
+- **Now:**
+  - **What pauses.** A `cohort` plan bought `two_pay` that is `past_due` is paused (`pausedForPayment`). `acceleratorOpen`, `canOpenSkill` and `liveSessionsOpen` all exclude it, so everything that reads them pauses together:
+    - the course (`GET /api/course`);
+    - the course's AI Employees and sessions in the snapshot, so the portal sends the buyer and their teammates to the Skill Library (D-119);
+    - Skill Library listing and downloads;
+    - the Accelerator's reminder emails.
+  - **What restores it.** A paid invoice on the installment subscription sets that plan back to `active` (`two-pay-resumed`), and everything reopens with no one doing anything.
+  - **When Stripe gives up** and ends the subscription before the last payment, the plan stays `past_due` (paused), and the existing error log tells Connor to follow up.
+- **What the buyer sees.** "The AI Accelerator isn’t in your plan." would be false, so:
+  - the course says "Your AI Accelerator is paused until your payment goes through.", then "Your second payment didn’t go through. Update your card in Manage Billing and the course opens again on its own.", with a Manage Billing button;
+  - the Skill Library shows "Your second payment didn’t go through, so your AI Accelerator skills are paused. Update your card in Manage Billing and they open again on their own."
+- **Only this plan.** The AI Accelerator in full, Amplified Insiders, the Team Plan and the Agent Plan keep their access while past due, as before. The PM's decision covered the two-pay second payment, and Stripe's retries already handle those subscriptions. Pausing them the same way is the same one-line rule, if wanted.
+- **Not changed:** what is charged and when, the roll-on to Amplified Insiders on May 4, refunds (still end everything), cancel and keep, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
+## D-145 · "A view of who's using it": the Team Hub's Last Active is real
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "continue with the top unfinished item from claude-overnight.md / claude-course.md as one PR". The overnight brief asks for the Team Plan's "owner seats, owner view, and agent invites". `/teams`, `/pricing` and Home sell the Team Plan with "a view of who's using it". The PM's standing rule covers the call: "make the call yourself, log it in DECISIONS.md, and keep going."
+**Status:** on a pull request.
+**Scope:** `apps/api/src/auth/sessions.ts` (`markActive`), `auth/guard.ts` (`requireSession`), `auth/index.ts`, `routes/auth.ts`, `routes/password.ts`, `routes/google.ts`; tests in `apps/api/test/auth.test.ts`, `password.test.ts`, `google.test.ts` and `routes.test.ts`.
+
+- **The gap.** The Team Hub already has a Last Active column, from the reference. It reads `users.last`, which only an AI Employee step wrote (`mutations.ts`). A Team Plan agent has no AI Employees: they sign in and use the Skill Library. So every real agent showed a dash there, and an owner could not see who was using what they paid for. The console's Learners and Staff screens and the Overview's at-risk list read the same field, and were wrong the same way. Staff read "Invite pending" forever.
+- **The call: "who's using it" is Last Active, made real.** No new screen, column or copy. The owner's Team Hub lists each seat: Invited or active, when they joined, and when they were last active.
+- **What counts as active:**
+  - a real sign-in: password, a set or reset password link, an emailed sign-in link, or Google;
+  - a session in use on a later day, which is when it rolls (`needsRoll`, at most once a day per session).
+
+  Requests in between write nothing, so the busiest row in the database gets no extra writes. Last Active is accurate to the day, which is what `fmt.ago` shows.
+- **What doesn't count:**
+  - `createSession` itself, so the test-only `POST /api/test/session` and the API tests' `signInAs` stamp nothing. The http parity run signs in that way, so its Team Hub and Learners screenshots keep the seed's values and the shared goldens are unaffected.
+  - A stamp never moves backwards and writes no other column.
+- **Who sees it.** Exactly who saw the column before: every Team tier member's Team Hub, as in the reference. Teammates' email addresses stay visible only to the Team Owner and the Operations Lead (`scopeSnapshot`). Nothing is broadcast; the owner's next snapshot shows it.
+- **Not built, each needing a spec or a person:**
+  - counts of skills downloaded or opened per agent (a new column and copy, which the reference doesn't have);
+  - the 16 to 40 tier's "monthly owner call on who's using it" (a calendar item for Connor).
+- **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`, goldens.

@@ -433,6 +433,23 @@ describe('Dashboard · the AI Accelerator cohort', () => {
     expect(vm.session).toMatchObject({ instructor: 'Connor Leiva', title: 'Morning Brief Live Build' });
   });
 
+  it('shows no invented community, reply time or support person: Support emails the course\'s address (D-142)', () => {
+    for (const at of [CT('2026-12-08T09:00'), CT('2027-02-10T09:00')]) {
+      const vm = dashboardVM(prod, buyer, at);
+      expect(vm.links.map((l) => l.key)).toEqual(['office-hours', 'support']);
+      expect(vm.links.find((l) => l.key === 'support')).toEqual({
+        key: 'support',
+        icon: 'headset',
+        title: 'Technical Support',
+        sub: 'support@amplifiedimpact.io',
+        arrow: 'chevR',
+        action: { kind: 'mail', to: 'support@amplifiedimpact.io' },
+      });
+      const all = JSON.stringify(vm);
+      for (const invented of ['148 members', '23 new posts', 'Cohort Community', 'under 2 hours', 'Luis']) expect(all).not.toContain(invented);
+    }
+  });
+
   it('after the cohort, names the real instructor and invents no next office hour', () => {
     const vm = dashboardVM(prod, buyer, CT('2027-02-10T09:00'));
     expect(vm.post).toEqual({ ended: 'Feb 4', title: 'Office Hours Continue', host: 'Connor Leiva', next: 'Schedule TBA', cal: null, rewatch: { kind: 'nav', to: '/sessions' } });

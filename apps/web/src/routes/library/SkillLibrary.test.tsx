@@ -78,6 +78,17 @@ describe('the skill library screen', () => {
     expect(within(agent).queryByRole('link', { name: COPY.seePlans })).toBeNull();
   });
 
+  it('says why a paused two-pay AI Accelerator\'s skills are locked, and only then (D-143)', async () => {
+    fetchMock.mockResolvedValue(answer(200, { paused: true, skills: [skill({ state: 'locked' })] }));
+    const { unmount } = render(<SkillLibrary />);
+    expect(await screen.findByText(COPY.paused)).toBeInTheDocument();
+    unmount();
+    fetchMock.mockResolvedValue(answer(200, { skills: [skill({ state: 'locked' })] }));
+    render(<SkillLibrary />);
+    await screen.findByRole('region', { name: COPY.sets.owner_ops });
+    expect(screen.queryByText(COPY.paused)).toBeNull();
+  });
+
   it('sends a signed-out visitor to sign in', async () => {
     fetchMock.mockResolvedValue(answer(401, { error: 'Sign in' }));
     render(<SkillLibrary />);

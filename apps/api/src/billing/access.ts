@@ -16,11 +16,14 @@
 //
 // Pure, and every check goes through it: the library screen, `/api/skills` and every download.
 
+import { pausedForPayment } from '@ai/core/accelerator';
 import { PLAN_SETS } from './catalog';
 import type { PlanKind, PlanStatus, SkillSet } from './catalog';
 
 export interface PlanAccess {
   kind: PlanKind;
+  /** How it was bought (`full`, `two_pay`, …): a two-pay AI Accelerator pauses on a failed payment (D-143). */
+  option?: string | null;
   status: PlanStatus;
   /** When the plan's skills open. Absent: from the start. */
   startsAt?: number;
@@ -47,6 +50,7 @@ export function canOpenSkill(plans: readonly PlanAccess[], skill: SkillAccess, n
   return plans.some(
     (p) =>
       p.status !== 'ended' &&
+      !pausedForPayment(p) &&
       p.paidThrough !== null &&
       (p.startsAt === undefined || now >= p.startsAt) &&
       planCovers(p.kind, skill.sets) &&
@@ -59,7 +63,7 @@ export function canOpenSkill(plans: readonly PlanAccess[], skill: SkillAccess, n
  * `live_until` has them until then; one without has them while it is paid up and not cancelled.
  */
 export function liveSessionsOpen(plan: PlanAccess, now: number): boolean {
-  if (plan.status === 'ended') return false;
+  if (plan.status === 'ended' || pausedForPayment(plan)) return false;
   if (plan.liveUntil !== null) return now < plan.liveUntil;
   return plan.status !== 'canceled' && plan.paidThrough !== null && now <= plan.paidThrough;
 }

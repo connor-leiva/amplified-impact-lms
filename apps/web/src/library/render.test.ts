@@ -329,7 +329,7 @@ describe('the page', () => {
   });
 
   it('ends with the general note: the compliance rules are conservative defaults to calibrate with counsel (D-101)', () => {
-    const note = $('main > p.library-note');
+    const note = $('main .lb-all p.library-note');
     expect(text(note)).toBe(LIBRARY.note);
     expect(LIBRARY.note).toMatch(/conservative defaults/);
     expect(LIBRARY.note).toMatch(/your own legal counsel\.$/);
@@ -359,7 +359,9 @@ describe('the page', () => {
 
 describe('the stylesheet and the shell', () => {
   it('lets `hidden` win, so the controls stay away until the script shows them', () => {
-    expect(read('./library.css')).toMatch(/\[hidden\] \{\s*display: none !important;/);
+    // The kit's rule, which this page's stylesheet imports first.
+    expect(read('./library.css')).toContain("@import '../kit/kit.css';");
+    expect(read('../kit/kit.css')).toMatch(/\.aiw \[hidden\] \{\s*display: none !important;/);
   });
 
   it('fills its own markers and runs its own script', () => {

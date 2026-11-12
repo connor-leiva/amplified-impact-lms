@@ -16,13 +16,17 @@ import { COPY, courseView } from './Course.vm';
 import type { CoursePayload, DownloadVM, OverviewVM, Row, WeekVM } from './Course.vm';
 import s from './Course.module.css';
 
-type Load = { kind: 'loading' } | { kind: 'ready'; payload: CoursePayload } | { kind: 'signed-out' } | { kind: 'locked' } | { kind: 'failed' };
+type Load = { kind: 'loading' } | { kind: 'ready'; payload: CoursePayload } | { kind: 'signed-out' } | { kind: 'locked' } | { kind: 'paused' } | { kind: 'failed' };
 
 export async function loadCourse(): Promise<Load> {
   try {
     const res = await fetch('/api/course', { credentials: 'include', headers: { accept: 'application/json' } });
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
-    if (res.status === 403) return { kind: 'locked' };
+    if (res.status === 403) {
+      // D-143: paused until a payment goes through, which says something different from "not in your plan".
+      const body = (await res.json().catch(() => null)) as { paused?: unknown } | null;
+      return body?.paused === true ? { kind: 'paused' } : { kind: 'locked' };
+    }
     if (!res.ok) return { kind: 'failed' };
     return { kind: 'ready', payload: (await res.json()) as CoursePayload };
   } catch {
@@ -418,6 +422,17 @@ export function Component() {
           <p className={s.note}>{COPY.lockedNote}</p>
           <a className={s.secondary} href="/skill-library">
             {COPY.library}
+          </a>
+        </div>
+      ) : load.kind === 'paused' ? (
+        <div className={s.status}>
+          <BrandSlot kind="lockup" />
+          <p>
+            <Icon name="lock" size={16} /> {COPY.paused}
+          </p>
+          <p className={s.note}>{COPY.pausedNote}</p>
+          <a className={s.primary} href="/api/billing/portal">
+            {COPY.billing}
           </a>
         </div>
       ) : load.kind === 'failed' ? (

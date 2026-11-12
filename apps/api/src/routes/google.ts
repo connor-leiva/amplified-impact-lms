@@ -30,7 +30,7 @@
 
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { createSession, SESSION_COOKIE, sessionCookieOptions, userByEmail, userById } from '../auth';
+import { createSession, markActive, SESSION_COOKIE, sessionCookieOptions, userByEmail, userById } from '../auth';
 import type { UserRow } from '../auth';
 import { authorizationUrl, googleClient, newFlow, sameString } from '../auth/google';
 import type { FlowSecrets, GoogleConfig, GoogleIdentity } from '../auth/google';
@@ -165,6 +165,7 @@ export function registerGoogleRoutes(app: FastifyInstance, { broadcast, config }
         activated = true;
       }
       const sessionId = await createSession(db, user.id, now, { remember: true });
+      await markActive(db, user.id, now);
       reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions(process.env, { remember: true }));
       // An activated owner changes a `users` row, which every teammate's Team Hub shows.
       if (activated) broadcast();

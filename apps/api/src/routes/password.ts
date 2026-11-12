@@ -46,6 +46,7 @@ import {
   hashPassword,
   hashToken,
   lockedUntil,
+  markActive,
   mintToken,
   normalizeEmail,
   passwordHashOf,
@@ -143,6 +144,7 @@ async function finishPasswordSet(db: Database, user: UserRow, password: string |
 
 async function signIn(db: Database, reply: FastifyReply, userId: string, now: number, remember: boolean): Promise<void> {
   const sessionId = await createSession(db, userId, now, { remember });
+  await markActive(db, userId, now);
   reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions(process.env, { remember }));
 }
 

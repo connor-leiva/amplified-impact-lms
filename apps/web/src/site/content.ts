@@ -28,12 +28,18 @@ export const PROGRAM_PAGES = {
   membership: '/library',
 } as const;
 
-/** The four programs, in Connor's order, by their exact names. */
+/**
+ * Amplified Insiders' own page (Connor, Nov 11). Only the nav's Programs menu and the footer link to it
+ * (`PROGRAMS` below); /pricing's card and table still link to the Library (`PROGRAM_PAGES`), unchanged.
+ */
+export const INSIDERS_PAGE = '/insiders';
+
+/** The four programs, in Connor's order, by their exact names: the nav's Programs menu and the footer. */
 export const PROGRAMS = [
   { label: PLAN_NAMES.cohort, href: PROGRAM_PAGES.cohort },
   { label: PLAN_NAMES.agents, href: PROGRAM_PAGES.agents },
   { label: PLAN_NAMES.agent_plan, href: PROGRAM_PAGES.agentPlan },
-  { label: MEMBERSHIP_NAME, href: PROGRAM_PAGES.membership },
+  { label: MEMBERSHIP_NAME, href: INSIDERS_PAGE },
 ] as const;
 
 export const SITE = {

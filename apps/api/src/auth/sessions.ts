@@ -44,10 +44,10 @@
 // § 8.5's scheduler is where a prune would belong if it is ever worth writing.
 
 import { randomBytes } from 'node:crypto';
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, isNull, lt, ne, or } from 'drizzle-orm';
 import type { CookieSerializeOptions } from '@fastify/cookie';
 import type { Database } from '../db/client';
-import { authSessions } from '../db/schema';
+import { authSessions, users } from '../db/schema';
 
 /** § 7.5's cookie name, verbatim. The web app never reads it (it is `httpOnly`). */
 export const SESSION_COOKIE = 'ai_sid';
@@ -130,6 +130,27 @@ export async function rollSession(db: Database, id: string, now: number): Promis
     .update(authSessions)
     .set({ expiresAt: new Date(now + SESSION_TTL_MS) })
     .where(eq(authSessions.id, id));
+}
+
+/**
+ * "Last Active" (D-145): stamp `users.last` with `now`. The Team Hub's Last Active column, the
+ * console's Learners and Staff screens and the Overview's at-risk list all read it, and before this
+ * only an AI Employee step ever wrote it, so a Team Plan agent, an Insiders member or a staff
+ * member who only signed in and used the Skill Library showed as never active.
+ *
+ * Called on a REAL sign-in (password, set or reset password, emailed link, Google) and when a
+ * session rolls (`requireSession`), which `needsRoll` throttles to at most once a day per session.
+ * Not called by `createSession` itself, so the test-only session route and `signInAs` stamp
+ * nothing: the http parity run's seeded "Last Active" values stay the reference's.
+ *
+ * Never moves `last` backwards, and writes no other column. Nothing is broadcast: the next
+ * snapshot an owner loads shows it.
+ */
+export async function markActive(db: Database, userId: string, now: number): Promise<void> {
+  await db
+    .update(users)
+    .set({ last: now })
+    .where(and(eq(users.id, userId), or(isNull(users.last), lt(users.last, now))));
 }
 
 /** § 7.5's sign-out. Idempotent: deleting a session that is already gone is success. */

@@ -192,8 +192,25 @@ export function acceleratorOpen(plans: readonly AcceleratorPlan[], now: number, 
       p.option !== null &&
       ACCELERATOR_OPTIONS.includes(p.option) &&
       p.status !== 'ended' &&
+      !pausedForPayment(p) &&
       (p.startsAt === undefined || p.startsAt === null || now >= p.startsAt),
   );
+}
+
+/**
+ * D-143: a plan whose access is paused until a payment goes through. The AI Accelerator bought in
+ * two payments, once its second payment fails: Stripe marks the subscription past due and keeps
+ * retrying, and the webhook mirrors that as `past_due`. The course, its sessions, its skills and its
+ * live sessions close until that invoice is paid, which sets the plan `active` again and reopens
+ * everything with no one doing anything. Every other `past_due` plan keeps its access as before.
+ */
+export function pausedForPayment(p: { kind: string; option?: string | null; status: string }): boolean {
+  return p.kind === 'cohort' && p.option === 'two_pay' && p.status === 'past_due';
+}
+
+/** Whether the course is closed only because a payment is due (D-143): what the screen says instead of "not in your plan". */
+export function acceleratorPaused(plans: readonly AcceleratorPlan[], now: number, opensAt: number = COURSE_OPENS_AT): boolean {
+  return !acceleratorOpen(plans, now, opensAt) && plans.some(pausedForPayment);
 }
 
 // --- the Library it piggybacks on ------------------------------------------------------------------

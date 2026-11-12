@@ -11,7 +11,8 @@ const PROGRAM_LINKS = [
   ['Amplified AI Accelerator', '/team-build'],
   ['Amplified Team Plan', '/teams'],
   ['Amplified Agent Plan', '/agents'],
-  ['Amplified Insiders', '/library'],
+  // Its own page since Connor's Nov 11 yes; the Library before.
+  ['Amplified Insiders', '/insiders'],
 ];
 const links = (root: ParentNode, selector: string) => [...root.querySelectorAll(selector)].map((a) => [text(a), a.getAttribute('href')]);
 

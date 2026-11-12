@@ -8,7 +8,7 @@ import { RETOOL_HTML, retoolRender } from './src/retool/vite-plugin.ts';
 import { LIBRARY_HTML, libraryRender } from './src/library/vite-plugin.ts';
 import { OFFER_HTML, offerRender } from './src/offer/vite-plugin.ts';
 import { HOME_HTML, homeRender } from './src/home/vite-plugin.ts';
-import { SITE_HTML, siteRender } from './src/site/vite-plugin.ts';
+import { KIT_HTML, SITE_HTML, siteRender } from './src/site/vite-plugin.ts';
 
 // The /ai101 page's own build (DECISIONS.md D-028), run after the SPA's by `pnpm build` into the
 // same `dist/` (or `dist-fixture/`, from `--outDir`). Its own config and not a second input to
@@ -41,7 +41,8 @@ export default defineConfig({
     // The rest of Spring's site map (D-111): one plugin, a page per `SITE_PAGES` entry, no script.
     siteRender(),
     ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML, ...SITE_HTML], {
-      externalScripts: [HOME_HTML],
+      // And the pages built on the v2 kit, which share its one script (`src/kit/client/main.ts`).
+      externalScripts: [HOME_HTML, ...KIT_HTML],
     }),
   ],
   resolve: {

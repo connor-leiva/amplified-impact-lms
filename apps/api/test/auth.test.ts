@@ -510,6 +510,76 @@ describe('the ai_sid cookie @g7', () => {
 });
 
 // ------------------------------------------------------------------------------------------------
+// Last Active (D-145)
+// ------------------------------------------------------------------------------------------------
+
+describe('Last Active (D-145)', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const lastOf = async (id: string): Promise<number | null> =>
+    (await (await testDatabase()).select({ last: users.last }).from(users).where(eq(users.id, id)))[0]!.last;
+  const setLast = async (id: string, last: number | null): Promise<void> => {
+    await (await testDatabase()).update(users).set({ last }).where(eq(users.id, id));
+  };
+
+  it('stamps a sign-in from an emailed link', async () => {
+    await setLast('u_jamie', NOW - 3 * DAY);
+    const token = await requestLink(JAMIE);
+    expect((await post('/api/auth/verify', { token })).statusCode).toBe(200);
+    expect(await lastOf('u_jamie')).toBe(NOW);
+  });
+
+  it('stamps a session in daily use when it rolls, once a day, and not on the requests between', async () => {
+    await setLast('u_jamie', NOW - 3 * DAY);
+    // `signInAs` mints a session the way the test-only route does for the http parity run: it is
+    // not a sign-in by the person, so it stamps nothing, and the run's seeded values stay put.
+    const cookie = await app.signInAs('u_jamie');
+    expect(await lastOf('u_jamie')).toBe(NOW - 3 * DAY);
+
+    // An hour later: the session doesn't roll, so nothing is written.
+    process.env.FIXED_NOW = new Date(NOW + 60 * 60 * 1000).toISOString();
+    expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie } })).statusCode).toBe(200);
+    expect(await lastOf('u_jamie')).toBe(NOW - 3 * DAY);
+
+    // Two days later: it rolls, and the day counts.
+    const later = NOW + 2 * DAY;
+    process.env.FIXED_NOW = new Date(later).toISOString();
+    expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie } })).statusCode).toBe(200);
+    expect(await lastOf('u_jamie')).toBe(later);
+  });
+
+  it('stamps a learner who was never active, and never moves the stamp backwards', async () => {
+    await setLast('u_jamie', null);
+    expect((await post('/api/auth/verify', { token: await requestLink(JAMIE) })).statusCode).toBe(200);
+    expect(await lastOf('u_jamie')).toBe(NOW);
+
+    await setLast('u_jamie', NOW + DAY);
+    resetOutbox();
+    app = await build({ logger: false });
+    expect((await post('/api/auth/verify', { token: await requestLink(JAMIE) })).statusCode).toBe(200);
+    expect(await lastOf('u_jamie')).toBe(NOW + DAY);
+  });
+
+  it('writes only the signed-in user\'s row', async () => {
+    const db = await testDatabase();
+    const before = await db.select({ id: users.id, last: users.last }).from(users);
+    expect((await post('/api/auth/verify', { token: await requestLink(JAMIE) })).statusCode).toBe(200);
+    const after = await db.select({ id: users.id, last: users.last }).from(users);
+    const changed = after.filter((u) => before.find((b) => b.id === u.id)!.last !== u.last).map((u) => u.id);
+    expect(changed).toEqual(before.find((b) => b.id === 'u_jamie')!.last === NOW ? [] : ['u_jamie']);
+  });
+
+  it('shows in the Team Owner\'s snapshot, which the Team Hub\'s Last Active column reads', async () => {
+    // Lena, a Sales Agent on Alex's Northline team, signs in from her emailed link.
+    await setLast('u_lena', NOW - 8 * DAY);
+    expect((await post('/api/auth/verify', { token: await requestLink('lena@northlinerealty.com') })).statusCode).toBe(200);
+    const snap = await app.inject({ method: 'GET', url: '/api/snapshot', headers: { cookie: await app.signInAs('u_alex') } });
+    expect(snap.statusCode).toBe(200);
+    const row = (snap.json() as { users: { id: string; last: number | null }[] }).users.find((u) => u.id === 'u_lena');
+    expect(row?.last).toBe(NOW);
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
 // POST /api/auth/sign-out
 // ------------------------------------------------------------------------------------------------
 
