@@ -237,7 +237,8 @@ describe('Gate 8 · inviteMember → one team-invite email, and its link signs t
     });
     expect(verified.statusCode, verified.body).toBe(200);
     // § 7.5's body: `{ ok: true, team }` — the team name the invite-accept screen greets them with.
-    expect(verified.json()).toEqual({ ok: true, team: 'Northline Realty Team' });
+    // `landing` (D-150): `/` for a learner with a portal, as this seeded team's is.
+    expect(verified.json()).toEqual({ ok: true, team: 'Northline Realty Team', landing: '/' });
 
     // The cookie the screen is signed in with. Asserted by USING it, not by parsing attributes:
     // `routes.test.ts` owns the attribute set, and what this file cares about is that the invite
