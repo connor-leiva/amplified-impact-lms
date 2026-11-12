@@ -13,9 +13,14 @@
 //   - Otherwise the verified email is matched to an existing user, case-insensitively, the same
 //     lookup as every other sign-in. That includes an account a checkout made whose owner never set
 //     a password. The Google account is then linked, so later sign-ins match on `sub`.
-//   - No account for the email: nobody is created. This app has no accounts without a purchase or
-//     an invite (`/api/auth/request` sends nothing to an unknown address, and nothing else makes a
-//     user), so the screen says "We couldn't find an account for that email…".
+//   - An address in an access group's DOMAIN (D-148: exactly `liveutah.com`, any case), which Google
+//     says is verified (D-149): Google has proven the inbox, as a spent sign-in link does. It is
+//     recorded as verified, so the group's skills open, and a member with no account gets one the
+//     way a link makes it (`accountForGroupAddress`: Agent tier, team of one, no Stripe, no email),
+//     then is signed in. Google's Workspace domain (`hd`) is logged as matching or not, not required.
+//   - Any other address with no account: nobody is created. This app has no accounts without a
+//     purchase, an invite or an access group, so the screen says "We couldn't find an account for
+//     that email…" and points to Email Me a Sign-In Link Instead and Forgot Password?.
 //   - Staff (the Owner and every other console role): only when Google's email is exactly the one
 //     on the account, character for character, every time, even once linked.
 //   - A user already linked to a different Google account is refused, and says so.
@@ -37,7 +42,9 @@ import type { FlowSecrets, GoogleConfig, GoogleIdentity } from '../auth/google';
 import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { googleIdentities, users } from '../db/schema';
+import { domainGroupsOf, emailDomainOf, recordVerified } from '../billing/access-groups';
 import { clock } from '../lib/clock';
+import { accountForGroupAddress } from './auth';
 import { LOGIN_IP_MAX, LOGIN_IP_WINDOW } from './password';
 
 /** The flow's cookie: the state, the PKCE verifier and the nonce, signed, for ten minutes. */
@@ -155,6 +162,16 @@ export function registerGoogleRoutes(app: FastifyInstance, { broadcast, config }
       if (!result.ok) return refuse(result.problem === 'unverified' ? 'unverified' : 'failed', result.problem);
 
       const db = getDb();
+      // D-149: an access group's address, verified by Google (`finish` refuses any other). Recorded
+      // as proven, as a spent link records it, and given its account if it has none. Logs group ids
+      // and whether Google's Workspace domain matches; never the address.
+      const groups = await domainGroupsOf(db, result.identity.email, now);
+      if (groups.length > 0) {
+        await recordVerified(db, result.identity.email, now);
+        const made = await accountForGroupAddress(db, result.identity.email, now);
+        const hd = result.identity.hd?.trim().toLowerCase() ?? null;
+        req.log.info({ groups: groups.map((g) => g.id), made, hd: hd === null ? 'none' : hd === emailDomainOf(result.identity.email) ? 'match' : 'other' }, 'google sign-in for an access group');
+      }
       const match = await matchGoogleUser(db, result.identity, now);
       if ('refused' in match) return refuse(match.refused, match.refused);
       const { user } = match;

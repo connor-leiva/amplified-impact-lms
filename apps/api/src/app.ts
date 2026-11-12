@@ -104,6 +104,7 @@ import { createPriceCache } from './billing/prices';
 import type { PriceCache } from './billing/prices';
 import { stripeClient, stripeVerifier } from './billing/stripe';
 import type { BillingStripe } from './billing/stripe';
+import { clientIpEvidence, clientIpHeaderFor, clientIpOf } from './lib/client-ip';
 
 /**
  * Fastify's `trustProxy`, as the one-hop function the comment at the call site argues for.
@@ -198,6 +199,12 @@ export interface BuildOptions {
    * `GOOGLE_CLIENT_SECRET` and `APP_URL`; a test passes one with a fake `fetch`, or null for off.
    */
   google?: GoogleConfig | null;
+  /**
+   * The request header that carries the visitor's own IP address (`lib/client-ip.ts`), or null for
+   * `req.ip` alone. Left out, it is `clientIpHeaderFor(process.env)`: Railway's `x-real-ip` on
+   * Railway, nothing elsewhere. A test passes `'x-real-ip'` to stand in for Railway's edge.
+   */
+  clientIpHeader?: string | null;
   offer?: {
     pages?: OfferPages;
     config?: OfferConfig;
@@ -336,7 +343,7 @@ export function scrubUrl(url: string): string {
 }
 
 /** § 9.4's logger: JSON (pino's default), a request id, and nothing secret in it. */
-export function productionLogger(): FastifyServerOptions['logger'] {
+export function productionLogger(ipHeader: string | null = clientIpHeaderFor()): FastifyServerOptions['logger'] {
   return {
     level: process.env.LOG_LEVEL ?? 'info',
     // Headers are logged wholesale by the default serializer, and `cookie` holds the session.
@@ -348,8 +355,9 @@ export function productionLogger(): FastifyServerOptions['logger'] {
       req: (req: FastifyRequest) => ({
         method: req.method,
         url: scrubUrl(req.url),
-        // `req.ip` honours `trustProxy`, so this is the client rather than Railway's edge.
-        remoteAddress: req.ip,
+        // The visitor, not Railway's proxy (`lib/client-ip.ts`). Worked out here rather than read from
+        // `req.clientIp`, because this line is written before any hook has run.
+        remoteAddress: clientIpOf(req, ipHeader),
       }),
     },
   };
@@ -359,7 +367,9 @@ export function productionLogger(): FastifyServerOptions['logger'] {
  * The global limiter's key. § 9.4: "100 requests per minute per session."
  *
  * The session cookie when there is one, so two learners behind one office NAT get their own
- * budget, and `req.ip` otherwise, which is what covers sign-in and the event stream. The cookie is
+ * budget, and the visitor's own address otherwise (`req.clientIp`, `lib/client-ip.ts`: on Railway,
+ * not `req.ip`, which is Railway's proxy for everyone), which is what covers sign-in, Forgot Password
+ * and the event stream. Every route's own limit uses this key too. The cookie is
  * HASHED into the key rather than used raw: a limiter key reaches `errorResponseBuilder` and any
  * store a future deploy swaps in, and a session id is a bearer credential — § 9.4's "never log
  * tokens" applies to wherever else a key might end up, too.
@@ -383,13 +393,14 @@ export function rateLimitKey(req: FastifyRequest): string {
       return `s:${createHash('sha256').update(unsigned.value).digest('hex').slice(0, 24)}`;
     }
   }
-  return `ip:${req.ip}`;
+  return `ip:${req.clientIp ?? req.ip}`;
 }
 
 // --- build ---------------------------------------------------------------------------------------
 
 export async function build(options: BuildOptions = {}): Promise<App> {
   const fixtureOnly = options.fixtureOnly ?? false;
+  const ipHeader = options.clientIpHeader !== undefined ? options.clientIpHeader : clientIpHeaderFor();
 
   const app = Fastify({
     logger: options.logger ?? (process.env.NODE_ENV === 'test' ? false : productionLogger()),
@@ -399,6 +410,9 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // for § 9.4's global limit. `hop === 0` trusts exactly the socket's peer, which on Railway is
     // the edge that actually sets the header, and stops there: the address it yields is the last
     // entry the edge wrote, which a client cannot forge.
+    //
+    // On Railway that is still not the visitor (Nov 12, 2026: `req.ip` was Railway's proxy,
+    // 152.233.39.33, for every request), so the limits and the logs key on `req.clientIp` below.
     trustProxy: TRUST_ONE_HOP,
     // § 9.4's "JSON logs with a request id": pino emits `reqId` on every line, and this makes the
     // id the one the proxy already assigned when there is one, so a log line can be matched to an
@@ -438,6 +452,21 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // (§ 8.4), and COEP would require every such resource to opt in. Off, which is helmet's own
     // default; stated here so a future reader does not turn it on and break the join button.
     crossOriginEmbedderPolicy: false,
+  });
+
+  // The visitor's own address (`lib/client-ip.ts`), for the limiter's key and the event stream's
+  // fingerprint. A getter, so it is right whichever hook asks first.
+  app.decorateRequest('clientIp', {
+    getter(this: FastifyRequest) {
+      return clientIpOf(this, ipHeader);
+    },
+  });
+  // One line per sign-in request, with every candidate for the visitor's address side by side, so
+  // production can confirm the header against Railway's edge log. No body, cookie or email.
+  app.addHook('onRequest', async (req) => {
+    if (req.method === 'POST' && (req.url.split('?')[0] ?? '').startsWith('/api/auth/')) {
+      req.log.info({ clientIp: clientIpEvidence(req, ipHeader) }, 'auth request client ip');
+    }
   });
 
   await app.register(fastifyRateLimit, {

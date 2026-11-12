@@ -121,6 +121,8 @@ export type GoogleProblem =
 export interface GoogleIdentity {
   sub: string;
   email: string;
+  /** The Google Workspace domain (`hd`) the account belongs to, or null for a consumer account. */
+  hd?: string | null;
 }
 
 export type GoogleResult = { ok: true; identity: GoogleIdentity } | { ok: false; problem: GoogleProblem };
@@ -208,7 +210,7 @@ export function googleClient(config: GoogleConfig): GoogleClient {
     if (typeof claims.email !== 'string' || claims.email === '') return { ok: false, problem: 'no-email' };
     // Exactly `true`: an absent claim, `false` or the string "false" is an address Google has not verified.
     if (claims.email_verified !== true) return { ok: false, problem: 'unverified' };
-    return { ok: true, identity: { sub: claims.sub, email: claims.email } };
+    return { ok: true, identity: { sub: claims.sub, email: claims.email, hd: typeof claims.hd === 'string' ? claims.hd : null } };
   }
 
   async function finish(code: string, flow: FlowSecrets, now: number): Promise<GoogleResult> {

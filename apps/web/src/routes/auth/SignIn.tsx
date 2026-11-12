@@ -18,8 +18,9 @@ import s from './SignIn.module.css';
 //   /sign-in?method=link   — ask for an email, POST /api/auth/request, show "Check Your Email".
 //   /sign-in?token=…       — verify the link, POST /api/auth/verify, then land on `/`.
 //
-// NO ACCOUNT ENUMERATION. The password form shows the API's one answer for every mismatch, and the
-// link form shows "Check Your Email" whatever the API says (§ 7.5).
+// NO ACCOUNT ENUMERATION. The password form shows the API's one answer for every mismatch (the one
+// exception, D-149: an access group's address with no password yet is pointed to Forgot Password?),
+// and the link form shows "Check Your Email" whatever the API says (§ 7.5).
 
 /** Every string on this screen. § 7.5's for the link, D-132's for the password. */
 export const COPY = {

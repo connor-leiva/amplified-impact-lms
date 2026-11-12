@@ -8,12 +8,13 @@ import { eq } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
-import { SESSION_COOKIE } from '../src/auth';
+import { SESSION_COOKIE, settleEmails } from '../src/auth';
 import { GOOGLE_JWKS_URL, GOOGLE_TOKEN_URL, readGoogleConfig } from '../src/auth/google';
 import type { GoogleConfig } from '../src/auth/google';
+import { groupAccessOf, provisionGroupMember } from '../src/billing/access-groups';
 import { readOfferConfig } from '../src/billing/config';
 import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
-import { authSessions, googleIdentities, orders, userPasswords, users } from '../src/db/schema';
+import { accessGroups, accounts, authSessions, emailVerifications, googleIdentities, orders, plans, userPasswords, users } from '../src/db/schema';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import { GOOGLE_FLOW_COOKIE } from '../src/routes/google';
 import { resetDatabase, testDatabase } from './helpers';
@@ -402,5 +403,84 @@ describe('which account it opens', () => {
     // INVITES_FROM: the held email goes only to owners still `invited`, so not to this one.
     await sendHeldInvites({ log: { info: () => {}, warn: () => {}, error: () => {} }, now: INVITES_FROM, invitesFrom: INVITES_FROM });
     expect(outboxFor({ to: 'lee@example.com' })).toEqual([]);
+  });
+});
+
+// --- an access group's address (D-149) ----------------------------------------------------------------
+
+describe('an access group’s address, verified by Google (D-149)', () => {
+  const UTAH_LIFE = { id: 'utah-life', name: 'Utah Life', plan: 'agent_plan', emailDomain: 'liveutah.com', expiresAt: null as number | null, createdAt: NOW - 86_400_000 };
+  const AGENT_PLAN = { plans: [{ kind: 'agent_plan', status: 'active', paidThrough: Number.MAX_SAFE_INTEGER, liveUntil: null }], groups: [{ id: 'utah-life', name: 'Utah Life' }] };
+  const NONE = { plans: [], groups: [] };
+  const verified = async () => (await db.select({ email: emailVerifications.email }).from(emailVerifications)).map((r) => r.email);
+
+  beforeEach(async () => {
+    // The migration seeds the group; the suite's reset empties every table, so it is put back here.
+    await db.insert(accessGroups).values(UTAH_LIFE);
+  });
+  afterEach(async () => {
+    // Not a customer: no account, order or plan row, and no email to anyone.
+    expect(await db.select().from(accounts)).toEqual([]);
+    expect(await db.select().from(orders)).toEqual([]);
+    expect(await db.select().from(plans)).toEqual([]);
+    await settleEmails();
+    expect(outboxFor({})).toEqual([]);
+  });
+
+  it('signs a first-time member up and in, verified, holding the Agent Plan’s skills', async () => {
+    const res = await signInWithGoogle('New.Agent@LiveUtah.com', { hd: 'liveutah.com' });
+    expect([res.statusCode, res.headers.location]).toEqual([302, '/']);
+    const [u] = await db.select().from(users).where(eq(users.email, 'new.agent@liveutah.com'));
+    expect(u).toMatchObject({ kind: 'learner', status: 'active', tier: 'agent' });
+    expect((await me(res))!.json().viewer.actor).toEqual({ kind: 'learner', userId: u!.id });
+    expect(await verified()).toEqual(['new.agent@liveutah.com']);
+    expect(await groupAccessOf(db, 'new.agent@liveutah.com', NOW)).toEqual(AGENT_PLAN);
+    expect(await db.select({ userId: googleIdentities.userId }).from(googleIdentities)).toEqual([{ userId: u!.id }]);
+
+    // The next visit is an ordinary Google sign-in: the same account, nothing new made.
+    const again = await signInWithGoogle('new.agent@liveutah.com');
+    expect((await me(again))!.json().viewer.actor).toEqual({ kind: 'learner', userId: u!.id });
+    expect(await db.select().from(users).where(eq(users.email, 'new.agent@liveutah.com'))).toHaveLength(1);
+  });
+
+  it('does not need Google’s Workspace domain (`hd`): it is logged, not required', async () => {
+    const res = await signInWithGoogle('agent@liveutah.com');
+    expect(res.headers.location).toBe('/');
+    expect(await groupAccessOf(db, 'agent@liveutah.com', NOW)).toEqual(AGENT_PLAN);
+  });
+
+  it('opens the group’s access for a member’s existing account, as a spent link does', async () => {
+    const id = await provisionGroupMember(db, 'old.agent@liveutah.com', NOW);
+    expect(await groupAccessOf(db, 'old.agent@liveutah.com', NOW)).toEqual(NONE);
+    const res = await signInWithGoogle('Old.Agent@liveutah.com');
+    expect(res.headers.location).toBe('/');
+    expect((await me(res))!.json().viewer.actor).toEqual({ kind: 'learner', userId: id });
+    expect(await groupAccessOf(db, 'old.agent@liveutah.com', NOW)).toEqual(AGENT_PLAN);
+  });
+
+  it('still refuses look-alike domains: no account, nothing recorded', async () => {
+    const before = (await db.select().from(users)).length;
+    for (const email of ['agent@liveutah.com.evil.com', 'agent@notliveutah.com', 'agent@mail.liveutah.com', 'agent@liveutah.co']) {
+      const res = await signInWithGoogle(email);
+      expect(res.headers.location, email).toBe('/login?google=no-account');
+      expect(cookieOf(res, SESSION_COOKIE), email).toBeUndefined();
+    }
+    expect((await db.select().from(users)).length).toBe(before);
+    expect(await verified()).toEqual([]);
+    expect(await db.select().from(googleIdentities)).toEqual([]);
+  });
+
+  it('refuses an address Google has not verified, even in the domain', async () => {
+    const res = await signInWithGoogle('agent@liveutah.com', { email_verified: false });
+    expect(res.headers.location).toBe('/login?google=unverified');
+    expect(await db.select().from(users).where(eq(users.email, 'agent@liveutah.com'))).toEqual([]);
+    expect(await verified()).toEqual([]);
+  });
+
+  it('opens nothing once the group has expired', async () => {
+    await db.update(accessGroups).set({ expiresAt: NOW - 1 }).where(eq(accessGroups.id, 'utah-life'));
+    const res = await signInWithGoogle('agent@liveutah.com');
+    expect(res.headers.location).toBe('/login?google=no-account');
+    expect(await verified()).toEqual([]);
   });
 });
