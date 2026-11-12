@@ -86,15 +86,8 @@
   position: relative;
   transform: translateY(calc(var(--p, 0) * -120px));
 }
-.aiw .acc-ticket-in {
-  animation: aiw-card-in 1.2s var(--ease) 0.35s both;
-}
-@keyframes aiw-card-in {
-  from {
-    opacity: 0;
-    transform: translateY(48px) scale(0.98);
-  }
-}
+/* The ticket holds the price and the seat counter, so it never starts hidden (Ampy's rule): no entry
+   animation. It still drifts with the hero's scroll (`.acc-ticket-move`). */
 .aiw .ticket {
   position: relative;
   display: flex;

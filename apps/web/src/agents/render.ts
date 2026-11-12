@@ -45,7 +45,7 @@ export function renderAgentsHead(): string {
 /** The price and the two carts' links, both showing, the proof right under them; "Opens soon." until they sell. */
 function buy(): string {
   return [
-    `<div class="plan buy ag-buy fade-2" id="join" data-state="${stateToken(AGENT_CARTS[0])}">`,
+    `<div class="plan buy ag-buy" id="join" data-state="${stateToken(AGENT_CARTS[0])}">`,
     offerPrice('agentPlan'),
     offerActions('agentPlan', { proof: true }),
     `</div>`,
