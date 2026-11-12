@@ -12,6 +12,10 @@ import { eq } from 'drizzle-orm';
 import { seedForDatabase, seedProduction } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
 import { ACCELERATOR_MODULE_IDS, isAcceleratorModule, libraryHref } from '@ai/core/accelerator';
+import { courseContent } from '@ai/core/accelerator-content';
+import { FREE_SKILLS, SKILL_CATALOG } from '@ai/core/skills';
+import { GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
+import { GUIDE_SLUGS } from '../src/routes/guide-list';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { provisionOrder } from '../src/billing/provision';
@@ -317,3 +321,40 @@ describe('GET /api/health/curriculum (D-121): counts only, no session', () => {
   });
 });
 
+// D-144: the course's "Free" badge says what the Library charges, from the lists the pages are built
+// from. A catalog skill is free when the free list (D-115) names it; a Grok Bot template (D-100) when
+// its own catalog says so; any other guide is a free opt-in page (the voice profile, Task Sync
+// Starter, the Ops Time Audit). A guide page that is also a paid skill or template (Database Health
+// Check, Lead-Source ROI) is that paid item's page now.
+describe('the course\'s Free badges match the Library (D-144)', () => {
+  const freeInLibrary = (slug: string): boolean => {
+    if (SKILL_CATALOG.some((sk) => sk.id === slug)) return FREE_SKILLS.includes(slug);
+    if (GROK_TEMPLATES.some((t) => t.id === slug)) return isFreeGrokTemplate(slug);
+    return (GUIDE_SLUGS as readonly string[]).includes(slug);
+  };
+
+  /** Every skill the course links: objects with a `route` and a `role`, anywhere in its content. */
+  const linked: { title: string; route: string; free?: boolean }[] = [];
+  const walk = (v: unknown): void => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') {
+      const o = v as Record<string, unknown>;
+      if (typeof o.route === 'string' && typeof o.role === 'string') linked.push(o as { title: string; route: string; free?: boolean });
+      Object.values(o).forEach(walk);
+    }
+  };
+  walk(courseContent());
+
+  it('marks Free exactly the skills that are free, and no paid one', () => {
+    expect(linked.length).toBeGreaterThan(20);
+    for (const sk of linked) expect(sk.free === true, `${sk.title} (${sk.route})`).toBe(freeInLibrary(sk.route.slice(1)));
+  });
+
+  it('no longer calls the three skills D-115 locked free', () => {
+    for (const route of ['/team-pnl-review', '/database-health-check', '/appointment-follow-up']) {
+      const refs = linked.filter((sk) => sk.route === route);
+      expect(refs.length, route).toBeGreaterThan(0);
+      expect(refs.every((sk) => sk.free !== true), route).toBe(true);
+    }
+  });
+});
