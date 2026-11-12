@@ -255,6 +255,35 @@ describe('who the group grants to', () => {
   });
 });
 
+describe('what a member sees on the Skill Library (Design’s follow-up to D-148)', () => {
+  const teamHubOf = async (cookie: string) => (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().teamHub as boolean;
+
+  it('offers no Team Hub to a member who bought nothing, even at Team tier; a Team tier learner off the group keeps it', async () => {
+    const member = await account('jane@liveutah.com', { verified: true });
+    await db.update(users).set({ tier: 'team' }).where(eq(users.email, 'jane@liveutah.com'));
+    expect(await teamHubOf(member)).toBe(false);
+    const owner = await account('owner@example.com', { verified: true });
+    await db.update(users).set({ tier: 'team' }).where(eq(users.email, 'owner@example.com'));
+    expect(await teamHubOf(owner)).toBe(true);
+  });
+
+  it('never shows a member an agent or `both` skill as locked, so no plan upsell can reach one; owner and ops skills stay locked', async () => {
+    const cookie = await account('jane@liveutah.com', { verified: true });
+    await db.insert(skills).values([
+      { id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW - 400 * DAY, files: { claude: 'offer-strategy.zip' } },
+      { id: 'content-strategist', title: 'Content Strategist', sets: 'both', releasedAt: NOW - 1, files: { claude: 'content-strategist.zip' } },
+      { id: 'sphere-touch-plan', title: 'Sphere Touch Plan', sets: 'agent', releasedAt: NOW + 5 * DAY, files: { claude: 'sphere-touch-plan.zip' } },
+      { id: 'tc-file-audit', title: 'TC File Audit', sets: 'owner_ops', releasedAt: NOW - DAY, files: { claude: 'tc-file-audit.zip' } },
+    ]);
+    const res = (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json() as { skills: { id: string; sets: string; state: string }[] };
+    for (const sk of res.skills.filter((x) => x.sets !== 'owner_ops')) expect(['open', 'upcoming'], sk.id).toContain(sk.state);
+    expect(res.skills.filter((x) => x.sets === 'owner_ops').map((x) => [x.id, x.state])).toEqual([
+      ['team-pnl-review', 'locked'],
+      ['tc-file-audit', 'locked'],
+    ]);
+  });
+});
+
 describe('the rule, pure', () => {
   const group = (over: Partial<AccessGroup> = {}): AccessGroup => ({ id: 'utah-life', name: 'Utah Life', plan: 'agent_plan', emailDomain: 'liveutah.com', expiresAt: null, ...over });
 

@@ -108,7 +108,9 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       // that invoice is paid; the screen says why, and where to fix it.
       paused: access.plans.some(pausedForPayment),
       // The portal shows the Team Hub to a Team tier learner; so does this page's link to it (D-119).
-      teamHub: access.tier === 'team',
+      // Not for an access group's member who bought nothing (D-148): their account's team of one is how
+      // an account is made, not a team they run.
+      teamHub: access.tier === 'team' && !(access.groups.length > 0 && access.paidPlans.length === 0),
       skills: rows
         .sort((a, b) => a.releasedAt - b.releasedAt || a.title.localeCompare(b.title))
         .map((s) => {
