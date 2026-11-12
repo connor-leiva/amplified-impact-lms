@@ -407,6 +407,10 @@ body.hp {
 .hp .eb-mark {
   color: var(--ink-secondary);
 }
+/* A program's logo in place of the ring and dot: at full ink, never the eyebrow's quieter colour. */
+.hp .eb-logo {
+  color: var(--ink);
+}
 .hp .cta {
   display: inline-flex;
   align-items: center;
@@ -1879,27 +1883,20 @@ body.hp {
 .hp .plan:hover {
   background: var(--surface-raised);
 }
-.hp .plan::before {
-  content: '';
-  position: absolute;
-  left: 24px;
-  top: 27px;
-  width: 9px;
-  height: 9px;
-  border: 1.5px solid var(--signal);
-  border-radius: 50%;
-  background: transparent;
-  transition:
-    background-color 0.3s,
-    transform 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+/* Each card opens with its program's logo (Connor's symbol, `program-logo.ts`) where the reference had
+   a ring and dot, then its number. Inline, the logo draws in the section's ink and signal: on this
+   near-black ground, the README's "-dark" colours. 40px keeps the Agent Plan's empty seats visible
+   (they fade below 24px by design), and the row's gap is its clear space. */
+.hp .plan-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
 }
-.hp .plan:hover::before,
-.hp .plan-featured::before {
-  background: var(--signal);
-  transform: scale(1.15);
+.hp .plan-logo {
+  color: var(--ink);
 }
 .hp .plan-idx {
-  padding-left: 18px;
   color: var(--ink-muted);
 }
 .hp .plan-name {
@@ -2258,9 +2255,6 @@ body.hp {
     padding-inline: 0;
     border-right: 0;
     border-bottom: 1px solid var(--line);
-  }
-  .hp .plan::before {
-    left: 0;
   }
   .hp .plan-price,
   .hp .plan-who {

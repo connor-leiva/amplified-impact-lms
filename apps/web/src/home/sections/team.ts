@@ -7,6 +7,7 @@
 
 import { PAGE } from '../content';
 import { ringDot } from '../icons';
+import { programLogo } from '../program-logo';
 import { PRICES, usd } from '../prices';
 import { cta, esc, eyebrow, pad2 } from '../parts';
 
@@ -61,7 +62,9 @@ export function team(): string {
     `<section id="team-owners" class="sec team" data-theme="light" aria-labelledby="team-title">`,
     `<div class="wrap team-grid">`,
     `<div class="team-copy rv">`,
-    eyebrow(t.eyebrow, { mark: true }),
+    // The Team Plan's logo where the eyebrow's ring and dot would be, over its name: hidden from screen
+    // readers, since the heading right under it says it. On this bone section it is the "-light" logo.
+    eyebrow(t.eyebrow, { mark: true, logo: programLogo('team-plan', { size: 32, title: '' }) }),
     `<h2 id="team-title" class="h-section">${esc(t.heading)}</h2>`,
     `<p class="intro">${esc(t.intro)}</p>`,
     `<ol class="fl" role="list">${items}</ol>`,

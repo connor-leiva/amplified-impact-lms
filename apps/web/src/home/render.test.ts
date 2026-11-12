@@ -10,6 +10,7 @@ import { HELP_EMAIL } from '../site/content';
 import { fill } from './client/fill';
 import { HOME, PAGE } from './content';
 import { dollarsIn, PRICES } from './prices';
+import { PROGRAMS } from './program-logo';
 import { entryFor, liveEntries, renderHomeBody, renderHomeHead } from './render';
 
 // www's homepage, redesigned from Connor's reference (`design/home-redesign`), on the parsed DOM: the
@@ -338,6 +339,66 @@ describe('Plans and Prices: live from /api/offer, like /pricing', () => {
       ['Start AI 101', '/ai101'],
       ['Browse the Library', '/library'],
     ]);
+  });
+});
+
+describe('the program logos (Connor’s, from `program-logo.ts`)', () => {
+  const plan = (name: string) => $(`.plan[data-card="${name}"]`)!;
+
+  it('open each plan card: its own program’s symbol, 40px, above the name written out as text', () => {
+    const cards = $$('.plan');
+    expect(cards.map((c) => c.querySelector('.plan-top .plan-logo')?.getAttribute('data-program'))).toEqual([
+      'accelerator',
+      'agent-plan',
+      'team-plan',
+      'insiders',
+    ]);
+    for (const card of cards) {
+      const holder = card.querySelector('.plan-logo')!;
+      const key = holder.getAttribute('data-program')!;
+      const svg = holder.querySelector('svg')!;
+      expect([svg.getAttribute('viewBox'), svg.getAttribute('width')], key).toEqual(['0 0 48 48', '40']);
+      expect(text(card.querySelector('.plan-name')), key).toBe(PROGRAMS.find((p) => p.key === key)!.name);
+    }
+    expect(plan('accelerator').querySelectorAll('svg[viewBox="0 0 48 48"]')).toHaveLength(1);
+  });
+
+  it('mark the Team Plan’s own section, in its eyebrow, over the heading that names it', () => {
+    const eyebrow = $('#team-owners .eb')!;
+    expect(eyebrow.querySelector('.eb-logo svg')?.getAttribute('width')).toBe('32');
+    expect(eyebrow.querySelector('.ringdot')).toBeNull();
+    expect(eyebrow.nextElementSibling?.tagName).toBe('H2');
+    expect(text(eyebrow.nextElementSibling)).toBe('Amplified Team Plan');
+  });
+
+  it('are hidden from screen readers where the name is written beside them, and no drawing is an unnamed image', () => {
+    const logos = $$('.plan-logo svg, .eb-logo svg');
+    expect(logos).toHaveLength(5);
+    for (const svg of logos) {
+      expect(svg.getAttribute('aria-hidden')).toBe('true');
+      expect(svg.hasAttribute('role')).toBe(false);
+    }
+    for (const svg of $$('main svg')) {
+      const named = svg.getAttribute('role') === 'img' && !!svg.getAttribute('aria-label');
+      expect(named || svg.getAttribute('aria-hidden') === 'true').toBe(true);
+    }
+  });
+
+  it('take the section’s colours: the “-dark” logo on the near-black Plans, the “-light” one on the bone Team section', () => {
+    expect($('#plans')!.closest('[data-theme="light"]')).toBeNull();
+    expect($('#team-owners')!.getAttribute('data-theme')).toBe('light');
+    for (const svg of $$('.plan-logo svg, .eb-logo svg')) {
+      const [ink, signal] = [...svg.querySelectorAll('path')];
+      expect(ink!.getAttribute('fill')).toBe('currentColor');
+      expect(signal!.getAttribute('style')).toBe('fill:var(--signal, currentColor)');
+    }
+    const css = read('./home.css');
+    expect(css).toContain('.hp .plan-logo {\n  color: var(--ink);\n}');
+    expect(css).toContain('.hp .eb-logo {\n  color: var(--ink);\n}');
+  });
+
+  it('don’t put the Programs menu’s lines on the page (new copy, for the menu follow-up)', () => {
+    for (const p of PROGRAMS) expect(text(doc.body), p.tagline).not.toContain(p.tagline);
   });
 });
 

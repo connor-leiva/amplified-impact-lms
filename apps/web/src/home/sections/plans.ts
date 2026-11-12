@@ -18,6 +18,7 @@ import { CARD_STATES, OFFERS } from '../../offer/content';
 import { proofLine, SEE_DETAILS, WAITLIST_HREF } from '../../site/offers';
 import { HREFS, PAGE } from '../content';
 import { glyph } from '../icons';
+import { programLogo, type ProgramKey } from '../program-logo';
 import { PRICES, usd } from '../prices';
 import { cta, esc, eyebrow } from '../parts';
 import { tierOf } from './team';
@@ -34,8 +35,15 @@ const priceLine = (amount: number, note: string) =>
 const list = (items: readonly string[]) =>
   `<ul class="plan-list" role="list">${items.map((i) => `<li>${glyph('check', 16)}<span>${esc(i)}</span></li>`).join('')}</ul>`;
 
-const head = (id: string, index: string, name: string, who: string) =>
-  `<p class="mono plan-idx" aria-hidden="true">${esc(index)}</p><h3 id="${id}" class="plan-name">${esc(name)}</h3><p class="plan-who">${esc(who)}</p>`;
+/**
+ * The top of a card: the program's logo (Connor's symbol, 40px) and its number, then its name as text.
+ * The logo is hidden from screen readers (`title: ''`): the name is written right under it. Inline, it
+ * takes the section's ink and signal, so on this near-black section it is the README's "-dark" logo.
+ */
+const head = (id: string, index: string, name: string, who: string, logo: ProgramKey) =>
+  `<div class="plan-top"><span class="plan-logo" data-program="${logo}">${programLogo(logo, { size: 40, title: '' })}</span><p class="mono plan-idx" aria-hidden="true">${esc(
+    index,
+  )}</p></div><h3 id="${id}" class="plan-name">${esc(name)}</h3><p class="plan-who">${esc(who)}</p>`;
 
 /** A Monthly/Yearly switch. Each button carries its option's price and words, so the script only swaps them. */
 function toggle(
@@ -90,7 +98,7 @@ function accelerator(): string {
   const dots = Array.from({ length: a.seats }, (_, i) => `<span style="--si:${i}"></span>`).join('');
   return [
     `<article class="plan rv" aria-labelledby="${id}" data-card="accelerator" data-cart="cohort-full" data-state="loading">`,
-    head(id, a.index, a.name, a.who),
+    head(id, a.index, a.name, a.who, 'accelerator'),
     `<div class="plan-price">`,
     `<div class="founding-open">${priceLine(PRICES.accelerator.founding, a.note)}<p class="price-after">${esc(a.after)}</p></div>`,
     `<div class="founding-closed">${priceLine(PRICES.accelerator.standard, a.closedNote)}</div>`,
@@ -118,7 +126,7 @@ function agentPlan(): string {
   const options = a.options.map((o, i) => ({ ...o, price: prices[i]! }));
   return [
     `<article class="plan rv" style="--d:80ms" aria-labelledby="${id}" data-card="agentPlan">`,
-    head(id, a.index, a.name, a.who),
+    head(id, a.index, a.name, a.who, 'agent-plan'),
     `<div class="plan-price">${toggle(a.billing, options)}${priceLine(options[0]!.price, options[0]!.note)}<p class="price-after" data-after>${esc(options[0]!.after)}</p></div>`,
     list(a.items),
     `<div class="plan-actions"><div class="act-always">${cta(a.button.label, a.button.href, { variant: 'secondary', cls: 'cta-lg' })}${proofLine()}</div></div>`,
@@ -134,7 +142,7 @@ function teamPlan(): string {
   return [
     `<article class="plan plan-featured rv" style="--d:160ms" aria-labelledby="${id}" data-card="teamPlan" data-cart="${tier ? 'agents-16to40' : 'agents-upto15'}" data-state="loading"`,
     ` data-tier-today="${T.today.join(',')}" data-tier-after="${esc(T.monthly.map((m) => t.after(m)).join('|'))}">`,
-    head(id, t.index, t.name, t.who),
+    head(id, t.index, t.name, t.who, 'team-plan'),
     `<div class="plan-price">`,
     `<a class="mono plan-adjust" href="${HREFS.teamOwners}"><span><span data-tier-label>${esc(PAGE.team.calc.tiers[tier])}</span>${esc(t.change)}</span></a>`,
     priceLine(T.today[tier], t.note),
@@ -161,7 +169,7 @@ function insiders(): string {
   const options = p.options.map((o, i) => ({ ...o, price: prices[i]!, cart: carts[i]! }));
   return [
     `<article class="plan rv" style="--d:240ms" aria-labelledby="${id}" data-card="insiders" data-cart="${carts[0]}" data-state="loading">`,
-    head(id, p.index, p.name, p.who),
+    head(id, p.index, p.name, p.who, 'insiders'),
     `<div class="plan-price">${toggle(p.billing, options)}${priceLine(options[0]!.price, options[0]!.note)}<p class="price-after" data-after>${esc(options[0]!.after)}</p></div>`,
     list(p.items),
     `<div class="plan-actions">`,

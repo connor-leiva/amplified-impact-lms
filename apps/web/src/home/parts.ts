@@ -6,9 +6,12 @@ import { ringDot } from './icons';
 
 export { esc };
 
-/** The mono label over a section's heading; `mark` puts the ring and dot before it and quiets its colour. */
-export const eyebrow = (text: string, { mark = false, cls = '' } = {}): string =>
-  `<p class="eb${mark ? ' eb-mark' : ''}${cls ? ` ${cls}` : ''}">${mark ? ringDot(22) : ''}<span>${esc(text)}</span></p>`;
+/**
+ * The mono label over a section's heading; `mark` puts the ring and dot before it and quiets its colour.
+ * `logo` puts a program's logo there instead (an SVG string from `programLogo()`), at full ink.
+ */
+export const eyebrow = (text: string, { mark = false, cls = '', logo = '' } = {}): string =>
+  `<p class="eb${mark ? ' eb-mark' : ''}${cls ? ` ${cls}` : ''}">${logo ? `<span class="eb-logo">${logo}</span>` : mark ? ringDot(22) : ''}<span>${esc(text)}</span></p>`;
 
 export type CtaVariant = 'primary' | 'secondary' | 'link';
 
