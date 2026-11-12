@@ -1271,3 +1271,15 @@
   border-radius: var(--radius-panel);
   box-shadow: inset 0 0 0 1px var(--line);
 }
+/* The sample sheet keeps its edge on the dark ground with a hairline, and the lines that were set for
+   12 to 15px get room to breathe at 16px. */
+.sk:where(.site *) .sample-doc {
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.sk:where(.site *) .eyebrow,
+.sk:where(.site *) .sample-head .note {
+  line-height: 1.4;
+}
+.sk:where(.site *) .setup-body .setup-note {
+  line-height: 1.45;
+}
