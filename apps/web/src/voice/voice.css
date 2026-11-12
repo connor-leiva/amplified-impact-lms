@@ -16,7 +16,7 @@
   flex-direction: column;
   gap: 16px;
   padding: 26px 22px;
-  border-radius: 18px;
+  border-radius: 8px;
   background: var(--action-primary);
   color: var(--action-on-primary);
 }

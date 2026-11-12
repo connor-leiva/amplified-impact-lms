@@ -191,3 +191,13 @@ export const TB_FAQ: { heading: string; items: readonly Faq[] } = {
     },
   ],
 };
+
+/**
+ * NEW COPY FROM THE V2 MOCKUP, for Spring's review: the labels on its two drawings of facts this page
+ * already states in words (the hours from `WHO`, the week from `HOW`). Both drawings are hidden from
+ * screen readers, since the words beside them say the same thing.
+ */
+export const V2_DRAWINGS = {
+  hours: { title: 'Hours a week', note: 'Our estimates', owner: 'Owner', ops: 'Ops lead', unit: 'hours' },
+  week: { title: 'A normal week', zone: 'Central time', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['11 AM', '12 PM', '1 PM', '2 PM', '3 PM'] },
+} as const;

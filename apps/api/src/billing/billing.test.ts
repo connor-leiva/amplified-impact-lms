@@ -204,6 +204,17 @@ describe('the access rule (D-079)', () => {
     expect(liveSessionsOpen(lapsed, NOW)).toBe(false);
   });
 
+  it('pauses a two-pay AI Accelerator\'s skills and live sessions while its second payment is past due (D-143)', () => {
+    const twoPay: PlanAccess = { kind: 'cohort', option: 'two_pay', status: 'active', paidThrough: COHORT_ONE_LIVE_UNTIL, liveUntil: COHORT_ONE_LIVE_UNTIL };
+    const pastDue: PlanAccess = { ...twoPay, status: 'past_due' };
+    expect([canOpenSkill([twoPay], skill(), NOW), liveSessionsOpen(twoPay, NOW)]).toEqual([true, true]);
+    expect([canOpenSkill([pastDue], skill(), NOW), canOpenSkill([pastDue], skill({ sets: 'agent' }), NOW), liveSessionsOpen(pastDue, NOW)]).toEqual([false, false, false]);
+    // A free skill is still free, and the AI Accelerator in full keeps its access while past due.
+    expect(canOpenSkill([pastDue], skill({ free: true }), NOW)).toBe(true);
+    const full: PlanAccess = { ...pastDue, option: 'full' };
+    expect([canOpenSkill([full], skill(), NOW), liveSessionsOpen(full, NOW)]).toEqual([true, true]);
+  });
+
   it('a refund ends everything; a free skill opens for anyone; an unreleased one for no one', () => {
     expect(canOpenSkill([library({ status: 'ended' })], skill(), NOW)).toBe(false);
     expect(canOpenSkill([], skill({ free: true }), NOW)).toBe(true);
