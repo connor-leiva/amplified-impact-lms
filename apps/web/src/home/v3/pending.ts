@@ -10,10 +10,10 @@
 // When a question is answered, its key comes out of `PENDING` and every call that uses it is replaced by
 // the decided content; the compiler then finds any that are left.
 
-/** The open questions, by key (Connor's names, Nov 12), with who or what each one waits on. */
+/** The open questions, by key (Connor's names, Nov 12), with who or what each one waits on. `stat-source`
+ *  is answered (D3: Connor cleared the 38% and 95% figures, no source needed), so it is no key any more. */
 export const PENDING = {
   'spring-approval': 'C5/C8: Spring’s quote, until Spring approves its words and numbers',
-  'stat-source': 'C6/C13: the 38% and 95% figures, until Connor gives their source',
   'video-still': 'C9: the real still photo that replaces the video, until Connor chooses it',
   'team-plan-dec14': 'C14: the Team Plan’s December 14 line, until it is decided',
 } as const;
