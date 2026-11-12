@@ -650,3 +650,10 @@ body[data-seats='soldout'] .seats-left {
     gap: 72px;
   }
 }
+
+/* A waitlist button the closed or sold-out state shows: centred like every button, in that state only
+   (the state rules above choose what shows; this only lays it out). */
+.site .plan[data-state='closed'] a.btn.act-closed,
+.site .plan[data-state='soldout'] a.btn.act-soldout {
+  display: flex;
+}
