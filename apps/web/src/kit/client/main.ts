@@ -285,6 +285,38 @@ export function initChooser(chooser: HTMLElement, page: ParentNode): void {
   }
 }
 
+/**
+ * A size slider (`[data-sizer]`, /teams): hidden in the markup, shown here. Dragging it counts the seats,
+ * shows the price of the size that fits (its `[data-max]` panel) and marks that size's card (by
+ * `data-tier`, the card's id). The cards and their links stay as they are: it never swaps an href.
+ */
+export function initSizer(sizer: HTMLElement, page: ParentNode): void {
+  const input = sizer.querySelector<HTMLInputElement>('input[type="range"]');
+  const out = sizer.querySelector<HTMLOutputElement>('output');
+  if (!input || !out) return;
+  const max = Number(input.max);
+  const seats = [...sizer.querySelectorAll<HTMLElement>('.seat:not(.seat-more)')];
+  const more = sizer.querySelector<HTMLElement>('.seat-more');
+  const panels = [...sizer.querySelectorAll<HTMLElement>('[data-max]')];
+  const update = () => {
+    const n = Number(input.value);
+    const over = n >= max;
+    out.textContent = over ? `${max - 1}+` : String(n);
+    input.style.setProperty('--fill', `${((n - 1) / (max - 1)) * 100}%`);
+    seats.forEach((s, i) => s.classList.toggle('is-on', i < n));
+    more?.classList.toggle('is-on', over);
+    const fit = panels.find((p) => n <= Number(p.dataset.max)) ?? panels[panels.length - 1];
+    for (const p of panels) {
+      p.hidden = p !== fit;
+      const card = p.dataset.tier ? page.querySelector<HTMLElement>(`#${CSS.escape(p.dataset.tier)}`) : null;
+      card?.classList.toggle('is-on', p === fit);
+    }
+  };
+  input.addEventListener('input', update);
+  sizer.hidden = false;
+  update();
+}
+
 /** `[data-scroll="exit"]`: writes how far the block has scrolled off the top (0 to 1) as `--p`, once a frame. */
 export function initScrollExit(root: ParentNode): void {
   if (reducedMotion()) return;
@@ -320,6 +352,7 @@ export function init(): void {
     if (phone) initPhoneMenu(header, phone);
   }
   for (const chooser of page.querySelectorAll<HTMLElement>('[data-chooser]')) initChooser(chooser, page);
+  for (const sizer of page.querySelectorAll<HTMLElement>('[data-sizer]')) initSizer(sizer, page);
   initScrollExit(page);
   initInView(page);
 }

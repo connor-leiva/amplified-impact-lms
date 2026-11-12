@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { KIT } from '../content';
 import { seatMeter } from '../parts';
 import { kitFooter, kitHeader } from '../render';
-import { init, initInView, initPhoneMenu, initPrograms, initTheme, savedTheme } from './main';
+import { init, initInView, initPhoneMenu, initPrograms, initSizer, initTheme, savedTheme } from './main';
 
 // The kit's script on the kit's own markup, in jsdom: what it adds to a page that already works without
 // it, and nothing it takes away.
@@ -124,6 +124,38 @@ describe('the phone menu', () => {
     expect(menu.open).toBe(false);
     expect(btn.getAttribute('aria-label')).toBe(KIT.menuOpen);
     expect(document.documentElement.style.overflow).toBe('');
+  });
+});
+
+describe('the size slider', () => {
+  it('shows itself, counts the seats, shows the fitting size’s price and marks its card, never touching a link', () => {
+    document.body.className = 'aiw';
+    document.body.innerHTML = [
+      '<div data-sizer hidden><input type="range" min="1" max="41" value="12"><output></output>',
+      '<span class="seat"></span><span class="seat"></span><span class="seat"></span><span class="seat seat-more"></span>',
+      '<div data-tier="size-15" data-max="15">A</div><div data-tier="size-40" data-max="40" hidden>B</div><div data-tier="size-more" data-max="41" hidden>C</div></div>',
+      '<ol><li id="size-15"><a href="%%link:agents-upto15%%">Buy</a></li><li id="size-40"><a href="%%link:agents-16to40%%">Buy</a></li><li id="size-more"><a href="%%team-call%%">Talk</a></li></ol>',
+    ].join('');
+    const sizer = document.querySelector<HTMLElement>('[data-sizer]')!;
+    const input = sizer.querySelector<HTMLInputElement>('input')!;
+    const hrefs = () => [...document.querySelectorAll('a')].map((a) => a.getAttribute('href'));
+    const before = hrefs();
+    initSizer(sizer, document);
+    expect(sizer.hidden).toBe(false);
+    expect(sizer.querySelector('output')?.textContent).toBe('12');
+    const shown = () => [...sizer.querySelectorAll<HTMLElement>('[data-max]')].filter((p) => !p.hidden).map((p) => p.dataset.tier);
+    expect(shown()).toEqual(['size-15']);
+    expect(document.getElementById('size-15')?.classList.contains('is-on')).toBe(true);
+    input.value = '25';
+    input.dispatchEvent(new Event('input'));
+    expect(shown()).toEqual(['size-40']);
+    expect(document.getElementById('size-40')?.classList.contains('is-on')).toBe(true);
+    expect(document.getElementById('size-15')?.classList.contains('is-on')).toBe(false);
+    input.value = '41';
+    input.dispatchEvent(new Event('input'));
+    expect(sizer.querySelector('output')?.textContent).toBe('40+');
+    expect(shown()).toEqual(['size-more']);
+    expect(hrefs()).toEqual(before);
   });
 });
 
