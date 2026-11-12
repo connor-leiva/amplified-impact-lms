@@ -11,7 +11,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import { fill, ssrLoadForBuild } from '../ai101/vite-plugin.ts';
 
 /** Each page by its folder under `src/`, and so its HTML entry `<name>.html` and its file in `dist/`. */
-export const SITE_PAGES = ['pricing', 'team-build', 'teams', 'agents', 'free', 'about'] as const;
+export const SITE_PAGES = ['pricing', 'team-build', 'teams', 'agents', 'free', 'about', 'insiders'] as const;
 export type SitePage = (typeof SITE_PAGES)[number];
 
 /** The HTML entries, relative to the web app's root (`apps/api/src/server.ts` reads them from `dist/`). */
@@ -21,7 +21,7 @@ export const SITE_HTML: readonly string[] = SITE_PAGES.map((name) => `${name}.ht
  * The pages built on the v2 kit (`src/kit/`). Each loads the kit's one script as a same-origin file
  * (`/assets/main-[hash].js`), never inlined, so the CSP's `script-src 'self'` admits it.
  */
-export const KIT_PAGES: readonly SitePage[] = ['pricing', 'team-build', 'agents', 'teams', 'free', 'about'];
+export const KIT_PAGES: readonly SitePage[] = ['pricing', 'team-build', 'agents', 'teams', 'free', 'about', 'insiders'];
 export const KIT_HTML: readonly string[] = KIT_PAGES.map((name) => `${name}.html`);
 
 export const HEAD_MARKER = '<!--x:head-->';

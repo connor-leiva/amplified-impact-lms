@@ -77,7 +77,7 @@ export const WEBHOOK_BODY_LIMIT = 256 * 1024;
  * are filled per request like /offer; a page with no token, like /free (D-116), passes through the
  * same fill unchanged.
  */
-export const SALES_PAGES = { '/pricing': 'pricing', '/team-build': 'team-build', '/teams': 'teams', '/agents': 'agents', '/free': 'free', '/about': 'about' } as const;
+export const SALES_PAGES = { '/pricing': 'pricing', '/team-build': 'team-build', '/teams': 'teams', '/agents': 'agents', '/free': 'free', '/about': 'about', '/insiders': 'insiders' } as const;
 export type SalesPath = keyof typeof SALES_PAGES;
 
 export interface OfferPages {
