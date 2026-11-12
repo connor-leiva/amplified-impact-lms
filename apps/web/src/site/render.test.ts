@@ -184,6 +184,14 @@ describe('the pages in the site’s look', () => {
     expect(guides).not.toContain("@import '../site/site.css';");
   });
 
+  it('opts in AI 101 and the two pages built from it, /voice-profile and /retool', () => {
+    for (const name of ['ai101', 'voice-profile', 'retool']) expect(shell(name), name).toMatch(/<body class="site" data-app-ready="true">/);
+    const ai101 = readFileSync(resolve(root, 'src/ai101/ai101.css'), 'utf8');
+    expect(ai101).toContain("@import '../site/look.css';");
+    // Its tints are made from the tokens at :root, so the look makes them again from the mapped ones.
+    expect(ai101).toMatch(/\n\.site \{[^}]*--ai101-line: color-mix\(in oklch, var\(--text-primary\) 15%, transparent\);/);
+  });
+
   it('draws a page’s own tokens in the look on every ground, and leaves the homepage’s alone', () => {
     const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'look.css'), 'utf8');
     expect(css).toMatch(/\.site:not\(\.hp\),\n\.site:not\(\.hp\) \[data-theme='dark'\],\n\.site:not\(\.hp\) \[data-theme='light'\] \{[^}]*--text-secondary: var\(--ink-secondary\);/);
