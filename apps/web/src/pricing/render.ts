@@ -82,7 +82,8 @@ function ladder(): string {
   };
   const rungs = CARD_ORDER.map((card, i) => {
     const c = prices.cells[i]!;
-    if (typeof c === 'boolean') throw new Error(`The Price row's ${CARD_NAMES[card]} cell is a mark, not a price. Fix src/pricing/content.ts.`);
+    if (typeof c === 'boolean')
+      throw new Error(`The Price row's ${CARD_NAMES[card]} cell is a mark, not a price. Fix src/pricing/content.ts.`);
     const body =
       typeof c === 'string' ? rung(c) : `${rung(c.open, ' founding-open')}${rung(c.closed, ' founding-closed')}`;
     return `<li style="--li:${i}"><a class="rung" href="#${CARD_IDS[card]}"><span class="rung-top">${brandIcon(ICON[card], 20)}<span class="rung-name">${esc(
@@ -175,7 +176,7 @@ function card(card: OfferCard, i: number): string {
   const fact = (label: string, body: string, cls = '') =>
     `<div class="fact${cls}"><dt class="mono">${esc(label)}</dt><dd>${body}</dd></div>`;
   return [
-    `<li class="card plan pc rv" style="--d:${i * 80}ms" id="${id}" data-state="${first ? stateToken(first) : 'soon'}" aria-labelledby="${id}-name">`,
+    `<li class="card plan pc" id="${id}" data-state="${first ? stateToken(first) : 'soon'}" aria-labelledby="${id}-name">`,
     `<div class="pc-top"><span class="mono pc-idx" aria-hidden="true">${pad2(i + 1)}</span><span class="pc-ic">${brandIcon(ICON[card], 22)}</span></div>`,
     `<h3 class="plan-name pc-name" id="${id}-name">${esc(CARD_NAMES[card])}</h3>`,
     `<dl class="facts pc-who-list">${fact(FACT_LABELS.forWho, esc(c.forWho), ' pc-who')}</dl>`,
