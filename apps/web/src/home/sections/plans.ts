@@ -1,5 +1,15 @@
 // "Four ways in": the live homepage's four programs (`HOME.ways`), word for word and link for link, in
-// the reference's four-column cards, each opening with Connor's logo for its program.
+// the reference's four-column cards, each headed by its program's logo lockup.
+//
+// THE LOCKUP IS THE HEADING (Connor, Nov 11: "use the real logo lockups for the products, not the
+// small icon plus typed name"). Each card's <h3> holds the exact offer name, visually hidden, and the
+// program's stacked lockup from `program-logo.ts` (Connor's artwork, byte for byte), hidden from screen
+// readers because the heading already says the name. 24px type: the size the typed name was, above the
+// README's 18px floor, and every stacked lockup is the same height at it, so the first row lines up.
+//
+// THE ROWS LINE UP across the four cards (the lockup, who it's for, the price and its unit, the line
+// under the divider, the Accelerator's seats, the button and the proof line): on a wide screen each card
+// is a CSS subgrid of the grid's seven rows (`home.css`).
 //
 // THE PRICES come from the offer's own constants (`../prices.ts`); a test holds them to the live
 // homepage's figures. THE BUTTONS go where the live homepage's go: each program's own page, and
@@ -24,6 +34,9 @@ import { PRICES, usd } from '../prices';
 import { cta, esc, pad2 } from '../parts';
 
 type Card = (typeof HOME.ways.cards)[number];
+
+/** The lockups' type size on the cards, in px: the README's floor is 18. */
+export const LOCKUP_TYPE = 24;
 
 /** Each live card's logo, figure and, for the two that change with the offer, what changes. */
 const LOOK: ReadonlyArray<{ name: string; logo: ProgramKey; amount: number }> = [
@@ -68,10 +81,11 @@ function card(c: Card, i: number): string {
     `<article class="plan${featured ? ' plan-featured' : ''} rv" style="--d:${i * 80}ms" aria-labelledby="${id}" data-card="${look.logo}"${
       insiders ? ' data-cart="insiders-year"' : ''
     }>`,
-    `<div class="plan-top"><span class="plan-logo" data-program="${look.logo}">${programLogo(look.logo, { size: 40, title: '' })}</span><p class="mono plan-idx" aria-hidden="true">${pad2(
+    `<div class="plan-top"><h3 id="${id}" class="plan-name"><span class="sr-only">${esc(c.name)}</span><span class="plan-logo" data-program="${
+      look.logo
+    }">${programLogo(look.logo, { variant: 'stacked', size: LOCKUP_TYPE, title: '' })}</span></h3><p class="mono plan-idx" aria-hidden="true">${pad2(
       i + 1,
     )}</p></div>`,
-    `<h3 id="${id}" class="plan-name">${esc(c.name)}</h3>`,
     `<p class="plan-who">${esc(c.forWho)}</p>`,
     `<div class="plan-price">`,
     accelerator

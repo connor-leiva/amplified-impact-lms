@@ -1057,34 +1057,36 @@ body.hp {
 .hp .plan:hover {
   background: var(--surface-raised);
 }
-/* Each card opens with its program's logo (Connor's symbol, `program-logo.ts`), then its number.
-   Inline, the logo draws in the section's ink and signal: on this bone ground, the README's "-light"
-   colours. 40px keeps the Agent Plan's empty seats visible (they fade below 24px by design), and the
-   row's gap is its clear space. */
+/* Each card is headed by its program's stacked lockup (Connor's, `program-logo.ts`), its name in the
+   <h3> for screen readers, then its number. Inline, the lockup draws in the section's ink and signal:
+   on this bone ground, the README's dark-on-Bone ("-light") colours. 24px type; the README's clear
+   space is one x-height (0.53 of the type, 13px) on every side: the card's padding above and beside
+   it, the row's gap before the number, and the card's gap below. */
 .hp .plan-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-16);
+  gap: 13px;
+}
+.hp .plan-name {
+  margin: 0;
 }
 .hp .plan-logo {
+  display: block;
   color: var(--ink);
 }
 .hp .plan-idx {
   color: var(--ink-muted);
-}
-.hp .plan-name {
-  font-size: 24px;
-  line-height: 1.2;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  line-height: 1.25;
 }
 .hp .plan-who {
-  min-height: 48px;
   color: var(--ink-secondary);
   font-size: 16px;
   line-height: 1.5;
 }
+/* The same 6px between the price and its unit on every card (the Accelerator's price is one level
+   deeper, in its founding and next-cohort pair), so the units line up. */
+.hp .plan-price,
 .hp .plan-price > .founding-open,
 .hp .plan-price > .founding-closed {
   display: flex;
@@ -1109,9 +1111,7 @@ body.hp {
   font-size: 16px;
   line-height: 1.45;
 }
-/* The card's line takes the slack, so every card's button sits on the same line, as in the reference. */
 .hp .plan-line {
-  flex: 1;
   padding-top: 16px;
   border-top: 1px solid var(--line);
   color: var(--ink-secondary);
@@ -1210,6 +1210,64 @@ body.hp {
 .hp .plans-free p:first-child {
   color: var(--ink);
   font-weight: 500;
+}
+
+/* The four cards side by side: every row lines up across them (Connor, Nov 11). Each card is a
+   subgrid of the grid's seven rows, so a row is as tall as its tallest card's: the lockup, who it's
+   for, the price and its unit, the line under the divider, the Accelerator's seats (empty on the other
+   three), the button, then the proof line. Placement is by row number, so a card without seats still
+   puts its button in the sixth. The button and the proof line come out of their wrappers
+   (`display: contents`) to take a row each, so the proof lines line up even if a button wraps. Spacing
+   between rows is the items' own top margins, so an empty row adds no gap.
+   Below 1200px the cards wrap (two across, then one) and flow as they are, with no reserved space.
+   Without subgrid, the line under the divider takes the slack, so the buttons still line up. */
+@media (min-width: 1200px) {
+  .hp .plan-line {
+    flex: 1;
+  }
+  @supports (grid-template-rows: subgrid) {
+    .hp .plan {
+      display: grid;
+      grid-row: span 7;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+      align-items: start;
+    }
+    .hp .plan-top {
+      grid-row: 1;
+    }
+    .hp .plan-who {
+      grid-row: 2;
+      margin-top: 16px;
+    }
+    .hp .plan-price {
+      grid-row: 3;
+      margin-top: 16px;
+    }
+    .hp .plan-line {
+      grid-row: 4;
+      margin-top: 16px;
+    }
+    .hp .seat-block {
+      grid-row: 5;
+      margin-top: 16px;
+    }
+    .hp .plan-actions,
+    .hp .plan:not([data-state='soon']):not([data-state='closed']):not([data-state='soldout']) .act-link,
+    .hp .act-always {
+      display: contents;
+    }
+    .hp .plan .cta,
+    .hp .plan .act-soon {
+      grid-row: 6;
+      justify-self: start;
+      margin-top: 24px;
+    }
+    .hp .plan .proof-line {
+      grid-row: 7;
+      margin-top: 10px;
+    }
+  }
 }
 
 /* --- 5. The Library ------------------------------------------------------------------------------- */
@@ -1757,7 +1815,9 @@ body.hp {
 
 /* --- Tablets and phones ------------------------------------------------------------------------ */
 
-@media (max-width: 1100px) {
+/* Four ways in: two across below 1200px, where four cards would leave a lockup less than its clear
+   space beside its number (the Accelerator's is 185px at 24px type, plus 13px and the number). */
+@media (max-width: 1199px) {
   .hp .plans-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1767,6 +1827,8 @@ body.hp {
   .hp .plan:nth-child(-n + 2) {
     border-bottom: 1px solid var(--line);
   }
+}
+@media (max-width: 1100px) {
   .hp .tabs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1850,9 +1912,6 @@ body.hp {
   }
   .hp .plan:hover {
     background: transparent;
-  }
-  .hp .plan-who {
-    min-height: 0;
   }
   .hp .tabs {
     grid-template-columns: minmax(0, 1fr);
