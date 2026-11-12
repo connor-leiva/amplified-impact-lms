@@ -18,12 +18,20 @@ import { renderHomeHead } from '../render';
 import { sprite } from './icons';
 import { resolvePending } from './pending';
 import { band } from './sections/band';
+import { close } from './sections/close';
+import { favorites } from './sections/favorites';
+import { founders } from './sections/founders';
+import { free } from './sections/free';
 import { hero } from './sections/hero';
+import { hours } from './sections/hours';
 import { howItWorks } from './sections/how';
 import { monday } from './sections/monday';
+import { programs } from './sections/programs';
 import { proof } from './sections/proof';
+import { questions } from './sections/questions';
 import { quote } from './sections/quote';
 import { whatsASkill } from './sections/skill';
+import { timeline } from './sections/timeline';
 import { video } from './sections/video';
 
 /** The head: the live homepage's own (title, description, canonical address, share image). */
@@ -44,6 +52,14 @@ export function renderV3Body({ preview }: { preview: boolean }): string {
     band(),
     proof(),
     quote(),
+    hours(),
+    free(),
+    programs(),
+    timeline(),
+    favorites(),
+    founders(),
+    questions(),
+    close(),
     `</main>`,
     kitFooter(),
   ].join('\n');

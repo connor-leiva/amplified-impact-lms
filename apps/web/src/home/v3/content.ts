@@ -443,3 +443,314 @@ export const QUOTE = {
   inLibrary: (n: number, of: number) => `${n} of ${of} are in the Library`,
   library: { label: 'Browse the Library', href: '/library' },
 } as const;
+
+/**
+ * S9, the hours calculator (`section.hrs`): its words and defaults. The brief's arithmetic is in
+ * `client/hours.ts` (`hoursMath`), which prints the defaults' results into the markup and recounts them
+ * as you slide.
+ */
+export const HOURS = {
+  eyebrow: 'Do the math',
+  title: 'How many hours could AI give you back?',
+  intro: 'Slide each bar to the hours you or your leaders spend in a normal week. Then type in what an hour of your time is really worth. Be honest. Nobody’s watching.',
+  rows: [
+    ['numbers', 'Pulling numbers: P&L, lead conversion, production', 4],
+    ['meetings', 'Prepping L10s, 1:1s and leadership meetings', 3],
+    ['email', 'Email, meeting notes and follow-ups', 6],
+    ['chasing', 'Chasing tasks, deadlines and team updates', 3],
+    ['books', 'Reviewing the books and month-end close', 2],
+    ['recruit', 'Recruiting and onboarding new agents', 2],
+    ['marketing', 'Marketing, content and your database', 3],
+  ],
+  max: 20,
+  /** A slider's value; `n` is a number, or the `{n}` the script fills in. */
+  perWeek: (n: number | string) => `${n} hrs a week`,
+  perWeekSaid: (n: number | string) => `${n} hours a week`,
+  rateLabel: 'What’s one hour of your time worth?',
+  rate: 250,
+  rateMax: 100000,
+  rateUnit: 'an hour',
+  out: 'Your hours back',
+  bigK: 'hours back every week',
+  year: 'Hours back a year',
+  weeks: 'Full work weeks back',
+  dollars: 'Your time, in dollars',
+  yearK: 'Your 50 work weeks. The lit ones come back.',
+  cellsSaid: (weeks: string) => `${weeks} of 50 work weeks back`,
+  said: (week: string, year: string, dollars: string) => `${week} hours back every week, ${year} a year, worth ${dollars}.`,
+  cta: { label: 'Start Getting Them Back, Free', href: '#free' },
+  note: 'We assume AI drafts about half of this work and you check it. Based on 50 work weeks a year. Your results will vary.',
+} as const;
+
+/** S10, the five free skills (`section.fh`, #free): in the Library's order (`FREE_FIVE`), the mockup's words for each. */
+export const FREE = {
+  eyebrow: 'Free to start',
+  title: 'Five free hires. No interviews.',
+  intro: 'These work for anyone with a calendar, an inbox and a business. Agent, owner or neither.',
+  cta: 'Get the 5 Free Skills',
+  items: [
+    { slug: 'ai-brain-setup', name: 'AI Brain Setup', text: 'Teaches your AI who you are, what you sell and how you work. Everything you do after this gets smarter. Think of it as day-one onboarding.' },
+    { slug: 'voice-profile', name: 'Sounds Like You', text: 'Your AI voice profile. So your drafts sound like you on a good day, not a robot that just discovered exclamation points.' },
+    { slug: 'ai-brain-tuneup', name: 'AI Brain Tune-Up', text: 'Finds the stale, vague or conflicting lines in your AI setup. It changes nothing. It just tells on them.' },
+    { slug: 'perfect-week', name: 'Perfect Week', text: 'Fits your calendar and your task list into the hours you actually have. Adds nothing without your OK.' },
+    {
+      slug: 'inbox-meeting-follow-through',
+      name: 'Inbox and Meeting Follow-Through',
+      text: 'Pulls out the decisions, replies and promises you made, then drafts the follow-ups. Never sends. You’ll finally remember what you said yes to.',
+    },
+  ],
+  foot: 'Works in Claude or ChatGPT · Perfect Week and Follow-Through need a paid Claude plan',
+} as const;
+
+/**
+ * S11, the programs (`section.pg`, #programs). Every button goes to the program's own page, never to
+ * Stripe (Connor's D1), with the proof line beside it. The prices, dates and seats are not here: the
+ * section reads them from /pricing's own sources (`../prices.ts`, `@ai/core/offer`).
+ */
+export const PROGRAMS = {
+  eyebrow: 'Programs',
+  title: 'Four ways to hire AI. Here’s the simple version.',
+  intro: 'Every program comes with weekly office hours: a live Q&A call where you pop on and ask us anything, so you’re never stuck. Every price is right here. No “book a call to find out.”',
+  indexLabel: 'The four programs',
+  details: 'Details',
+  detailsSaid: (name: string) => `${name}: see full details`,
+  seatsWord: 'founding seats left',
+  cards: {
+    accelerator: {
+      kicker: 'We build it with you',
+      short: 'AI Accelerator',
+      who: 'Team owners and ops leads',
+      href: '/team-build',
+      text: 'Every Wednesday for eight weeks, you and your ops lead get on a live call with us. We build one skill together, on your real business. By the end, eight jobs run without you. Then you keep going, with new skills and office hours for 90 days after your last build.',
+      list: [
+        '8 live builds, 90 minutes each',
+        'Every owner, ops and agent skill',
+        'Weekly office hours: a live Q&A, ask us anything',
+        'New skills and office hours for 90 days after your last build',
+        'Every build recorded, so a missed week isn’t a lost week',
+      ],
+      best: 'Best if you want it done right, done fast, and done with a coach in the room. Needs Follow Up Boss.',
+      note: 'founding price',
+      /** The figures go in from /pricing's sources: "2 payments of $3,750. Then $9,997. Ends Nov 30." */
+      after: (twoPay: string, then: string, ends: string) =>
+        `For an owner and an ops lead, or 2 payments of ${twoPay}. Then ${then}. Ends ${ends}.`,
+      cta: 'Claim a Founding Seat',
+      alt: (twoPay: string) => `Or 2 payments of ${twoPay}`,
+    },
+    insiders: {
+      kicker: 'You build it yourself',
+      short: 'Insiders',
+      who: 'Team owners and ops leads',
+      href: '/insiders',
+      text: 'The same owner skills we use, ready to download. Each one is a job description for your AI, with a short guide that walks you through setup. You set them up on your own time. Get stuck? Bring it to office hours and we’ll help.',
+      list: [
+        'Every owner and ops skill, like Morning Brief, L10 Meeting Prep and Team P&L Review',
+        '2 new skills added every month',
+        'Weekly office hours: ask questions, or sit in and learn with other team owners',
+        'Every session recorded in the Academy',
+        'Keep everything you download, even if you leave',
+      ],
+      best: 'Best if you like to figure things out yourself and want the whole toolbox for less.',
+      toggle: { label: 'Insiders billing', a: 'Yearly', b: 'Monthly' },
+      notes: ['a year', 'a month'],
+      after: (monthly: string) => `Counts fully toward the Accelerator later. Or ${monthly} a month, with a 3-month minimum.`,
+      cta: 'Join Insiders',
+    },
+    team: {
+      kicker: 'We train your agents',
+      short: 'Team Plan',
+      who: 'Team owners',
+      href: '/teams',
+      text: 'You want every agent using AI, but you don’t have time to teach it. So we do. Every agent gets the agent skills and a live class with us each week. You get a view of who’s actually using it. You don’t teach a thing.',
+      list: [
+        'Every agent skill, for every agent on your team',
+        'A short starter path so each agent is set up in week one',
+        'A weekly live agent class, plus office hours to ask us anything',
+        'Every class recorded, so agents can catch up anytime in the Academy',
+        'Your owner view of who’s using it, and how much',
+      ],
+      best: 'Best if you want a smarter team without becoming the AI teacher.',
+      /** Connor's D7: undecided, pending `team-plan-dec14`. */
+      bestDec14: 'Skills open December 14, and live classes start the week of January 4.',
+      toggle: { label: 'Team size', a: 'Up to 15', b: '16 to 40' },
+      note: 'first 3 months',
+      after: (upTo: number, monthly: string, from: string) => `For up to ${upTo} agents. Then ${monthly} a month, from ${from}.`,
+      afterWide: (from16: number, upTo: number, monthly: string, from: string) =>
+        `For ${from16} to ${upTo} agents. Then ${monthly} a month, from ${from}.`,
+      cta: 'Train My Team',
+      over: 'Over 40 agents? Let’s talk',
+    },
+    agent: {
+      kicker: 'Just for you, the agent',
+      short: 'Agent Plan',
+      who: 'Agents',
+      href: '/agents',
+      text: 'Same training as the Team Plan, for one agent. You get every agent skill and a live class each week that covers leads, listings, buyers and planning your week. It costs less than one missed follow-up.',
+      list: [
+        'Every agent skill, like Speed to Lead Reply and Offer Strategy',
+        'A short starter path to get you set up',
+        'A weekly live class, recorded so you never miss one',
+        'Weekly office hours: a live Q&A, ask us anything',
+      ],
+      best: 'Best if your team owner hasn’t jumped in yet, or you just want to get ahead.',
+      toggle: { label: 'Agent Plan billing', a: 'Monthly', b: 'Yearly' },
+      notes: ['a month', 'a year'],
+      after: (yearly: string, first: string) => `Or ${yearly} a year. Join any day, cancel anytime. First charge ${first}.`,
+      cta: 'Start the Agent Plan',
+    },
+  },
+  foot: 'Still not sure? Start with the 5 free skills. You’ll know in a week which program fits.',
+  compare: { label: 'Compare Every Program', href: '/pricing' },
+} as const;
+
+/**
+ * S12, the Accelerator's eight Wednesdays (`section.wed`). The dates are /team-build's (`WEEKS`), short;
+ * the names and lines are the mockup's. The ring counts the eight builds and, settled, is full.
+ */
+export const TIMELINE = {
+  eyebrow: (starts: string) => `Amplified AI Accelerator · Starts ${starts}`,
+  title: 'Eight Wednesdays. Eight AI employees.',
+  intro: 'Each week we build one skill live, on your real business, in Follow Up Boss. You leave every session with something that works on Thursday. Then the support keeps going: new skills and office hours for 90 days after your last build.',
+  built: 'of 8 built',
+  builds: 8,
+  cta: 'Claim a Founding Seat',
+  more: { label: 'See the Accelerator', href: '/team-build' },
+  weekLabel: (n: number) => `Week ${n}`,
+  weeks: [
+    { n: 0, name: 'Setup', text: 'Your AI Brain, your voice profile and a Team AI Brain, plus a 30-minute orientation.' },
+    { n: 1, name: 'Lead-Source ROI', text: 'What every lead source really costs you, and which numbers you can trust.' },
+    { n: 2, name: 'Morning Brief', text: 'One page every morning. What needs you today and who owns the next step.' },
+    { n: 3, name: 'L10 Meeting Prep', text: 'Your scorecard checked and a short list of problems to solve, before anyone sits down.' },
+    { n: 4, name: 'FUB Pipeline Review', text: 'Where follow-through is slipping in your pipeline, and what to decide this week.' },
+    { n: 5, name: 'Agent 1:1 Prep', text: 'Coaching prep built on what each agent actually did, not what they remember doing.' },
+    { n: 6, name: 'Team Playbook Builder', text: 'Your SOPs turned into a playbook, so work leaves your desk and your standards stay.' },
+    { n: 7, name: 'New Agent Onboarding Plan', text: 'Standards, checkpoints and a dated first 30 days for every new hire.' },
+    { n: 8, name: 'Sustain and Expand', text: 'Keep, fix or retire each workflow, then leave with your 90-day plan.' },
+  ],
+  /** The holiday break, between weeks 3 and 4. */
+  pause: { label: 'Break', date: 'Dec 23, 30', text: 'No builds or office hours over the holidays.' },
+  after: {
+    label: 'After',
+    date: '90 days',
+    name: 'Keep building',
+    text: (price: string, from: string) =>
+      `New skills and office hours for 90 days after your last build. Then Amplified Insiders at ${price} a month, from ${from}, until you cancel.`,
+  },
+  meta: ['Builds Wed 2:00 PM ET (1:00 PM CT), 90 minutes', 'Office hours Thu 2:00 PM ET (1:00 PM CT)', 'No builds Dec 23 or 30'],
+} as const;
+
+/** S13, Library favorites (`section.fav`, #library): four columns, by Library slug, the mockup's line for each. */
+export const FAVORITES = {
+  eyebrow: 'The Library',
+  title: (n: number) => `${n} skills and guides, sorted by who you are.`,
+  intro: 'Every skill says what it does, what you hand it and what tools it needs. A few favorites:',
+  columns: [
+    {
+      h: 'Buyer’s agents',
+      items: [
+        ['showing-tour-prep', 'A tour sheet for your buyer and questions for every listing agent.'],
+        ['offer-strategy', 'A recommended offer, the risk in each term and an email to your buyer.'],
+        ['due-diligence-review', 'What matters in the inspection, seller requests and every deadline.'],
+        ['new-construction-review', 'Reads the builder’s contract for money at risk. Builders love this one less.'],
+      ],
+    },
+    {
+      h: 'Listing agents',
+      items: [
+        ['listing-appointment-prep', 'A one-page plan, seller questions, a marketing menu and a net sheet.'],
+        ['pricing-conversation-prep', 'Your price, your talk track and answers for “but Zillow says.”'],
+        ['offer-comparison', 'Every offer side by side for your seller, escalation math included.'],
+        ['listing-description-writer', 'MLS remarks and headlines, with a fair housing check built in.'],
+      ],
+    },
+    {
+      h: 'Team owners',
+      items: [
+        ['team-pnl-review', 'Where the money went, plus the questions to ask your bookkeeper.'],
+        ['agent-1on1-prep', 'Coaching prep with pace math against each agent’s goal.'],
+        ['recruiting-prep', 'A clean, tiered recruit list and first-touch emails.'],
+        ['database-health-check', 'A health report and cleanup list for your CRM. Never touches your data.'],
+      ],
+    },
+    {
+      h: 'Content and your week',
+      items: [
+        ['content-strategist', 'Weekly reel ideas built from your own stories.'],
+        ['reel-editor', 'Turns a talking-head video into a finished Reel.'],
+        ['speed-to-lead-reply', 'A personal first reply, text and call opener for every new lead.'],
+        ['sphere-touch-plan', 'A year of touches for your sphere, tied to real details about them.'],
+      ],
+    },
+  ],
+  all: (n: number) => `See All ${n}`,
+  allHref: '/library',
+} as const;
+
+/** S14, the founders (`section.fd`, #founders): the mockup's words (Connor's D6) with their real photos. */
+export const FOUNDERS = {
+  eyebrow: 'Who’s behind it',
+  title: 'Built by people who run real estate, not people who read about it.',
+  intro: 'Most AI courses are made by tech people guessing what agents need. Ours are made by a real estate data expert who knows the numbers and a CEO who runs a team on these tools every day.',
+  people: [
+    {
+      photo: 'connor',
+      role: 'Co-founder',
+      name: 'Connor Leiva',
+      tag: 'Real estate’s numbers person, now building its AI.',
+      bio: 'Connor has spent more than a decade in the corporate side of real estate, at RE/MAX Headquarters, Realogy and PLACE. With an MBA in data analytics, he knows the numbers behind a team better than almost anyone: the finances, the leads, conversion and the health of the database. So when he builds a skill, it isn’t a generic prompt. It’s built by someone who lives and breathes real estate and knows what the numbers should say.',
+      facts: ['MBA, data analytics', 'Finance and P&L', 'Lead conversion', 'Database health', 'Team operations'],
+    },
+    {
+      photo: 'spring',
+      role: 'Co-founder',
+      name: 'Spring Bengtzen',
+      tag: 'She runs a real business. Every skill gets tested there first.',
+      bio: 'Spring is the CEO of The Utah Life Real Estate Group, a 100-agent team closing 700+ homes a year. She uses these skills in her own company every day. AI runs her daily reports, most of her finance work and big parts of sales, recruiting and marketing. Her production is up 38% year over year, and she credits a big part of that to AI.',
+      facts: ['CEO, 100-agent team', '700+ homes a year', '20+ years in real estate', 'Founder of The Forum'],
+    },
+  ],
+  venn: {
+    a: { n: 'Spring', t: 'What a team needs to grow' },
+    mid: 'Every skill',
+    b: { n: 'Connor', t: 'The numbers, leads and systems' },
+  },
+  vennTitle: 'The perfect combo for AI in a real estate business.',
+  vennText: 'Spring knows what a team needs to grow. Connor knows the numbers, leads and systems underneath it. Together, every skill is built by people who know this business inside out, then proven in a real team before it reaches yours.',
+  more: { label: 'Read Our Story', href: '/about' },
+} as const;
+
+/** S15, the questions (`section.faq`, #questions), in the mockup's order, with its answers. */
+export const QUESTIONS = {
+  title: 'Good questions. Straight answers.',
+  aside: 'Still wondering about something? Email us and a real person will answer.',
+  items: [
+    { q: 'I’m not techy. Can I really do this?', a: ['Yes. If you can send an email, you can run a skill. Every skill comes with a short setup guide, and weekly office hours are there if you get stuck.'] },
+    { q: 'Is my client data safe?', a: ['Your data stays in your own AI account and your own tools. Skills read and draft. Nothing sends, and nothing changes in your CRM, until you approve it.'] },
+    { q: 'Will my agents actually use it?', a: ['That’s what the Team Plan is for. We teach them live every week, every class is recorded, and you can see who’s using it and how much.'] },
+    {
+      q: 'Do I need Claude or ChatGPT?',
+      a: ['Yes, one of them. Most skills work in either. A few, like Perfect Week and Inbox and Meeting Follow-Through, need a paid Claude plan. Every skill tells you what it needs.'],
+    },
+    { q: 'What if I miss a week?', a: ['Every build and class is recorded in the Academy. Watch it when you can, then bring your questions to office hours.'] },
+    { q: 'Do I need Follow Up Boss?', a: ['Only for the Accelerator, because we build on your real Follow Up Boss data. Everything else works with any CRM.'] },
+    {
+      q: 'Which program should I pick?',
+      a: [
+        'Want it built with you, live? The Accelerator. Want to build it yourself? Insiders. Want your agents trained for you? The Team Plan. Just you, as an agent? The Agent Plan. Still not sure? Start with the 5 free skills.',
+      ],
+      link: { label: 'Compare Every Program', href: '/pricing' },
+    },
+    {
+      q: 'Can I cancel?',
+      a: ['The Agent Plan cancels anytime. Insiders monthly has a 3-month minimum. The Team Plan’s first 3 months are paid up front, then it’s monthly. You keep every skill you’ve downloaded.'],
+    },
+  ],
+} as const;
+
+/** S16, the close (`section.close`, forest): the free button with its proof line, and the programs. */
+export const CLOSE = {
+  title: 'Make your first hire today.',
+  lead: 'Five free skills, ready to run. No interview, no desk, no awkward first day.',
+  free: 'Get 5 Free Skills',
+  programs: { label: 'See the Programs', href: '#programs' },
+} as const;

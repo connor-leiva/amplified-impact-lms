@@ -124,13 +124,13 @@ for (const theme of THEMES) {
     expect(await cuts(page, 'section.mon', '.mon-b-done > span', '.mon-b')).toEqual([]);
   });
 
-  test(`no words, picture or control in S1 to S7 runs off a 390 screen or out of a box that clips it, ${theme} @g9`, async ({ page }) => {
+  test(`no words, picture or control in S1 to S16 runs off a 390 screen or out of a box that clips it, ${theme} @g9`, async ({ page }) => {
     await open(page, theme, 390);
     expect(await cuts(page, 'main', 'section *', undefined, true)).toEqual([]);
   });
 
   for (const width of [390, 1280]) {
-    test(`every link and button in S1 to S7 is a 44px tap (Spring's mobile rule) at ${width}, ${theme} @g9`, async ({ page }) => {
+    test(`every link and button in S1 to S16 is a 44px tap (Spring's mobile rule) at ${width}, ${theme} @g9`, async ({ page }) => {
       await open(page, theme, width);
       const small = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>('main a[href], main button')]
@@ -159,4 +159,46 @@ test('S7’s “People” closes the skills and takes them out of the keyboard�
   await page.locator('[data-oc-mode="ai"]').focus();
   await page.keyboard.press('Tab');
   await expect(page.locator(':focus')).toHaveText('Inbox and Meeting Follow-Through');
+});
+
+test('S15 opens one question at a time, natively: opening the second closes the first @g9', async ({ page }) => {
+  await open(page, 'dark', 1280);
+  const items = page.locator('section.faq details');
+  await expect(items.nth(0)).toHaveAttribute('open', '');
+  await items.nth(1).locator('summary').click();
+  await expect(items.nth(1)).toHaveAttribute('open', '');
+  await expect(items.nth(0)).not.toHaveAttribute('open', '');
+});
+
+test('S9 recounts from the keyboard: a slider moved with the arrow key changes the hours back @g9', async ({ page }) => {
+  await open(page, 'dark', 390);
+  const first = page.locator('section.hrs input[type="range"]').first();
+  await first.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(first).toHaveAttribute('aria-valuetext', '5 hours a week');
+  await expect(page.locator('[data-v3-out="week"]')).toHaveText('12');
+  await expect(page.locator('[data-v3-out="dollars"]')).toHaveText('$150,000');
+});
+
+test('S11 and S12 follow /api/offer: the seats once counted, then sold out with the waiting list, the proof line beside it @g9', async ({ page }) => {
+  const facts = (left: number) => ({
+    open: true,
+    founding: { open: true, closesAt: '2026-11-30T23:59:00-07:00' },
+    seats: { total: 15, sold: 15 - left, left },
+    carts: [],
+  });
+  let left = 9;
+  await open(page, 'dark', 1280);
+  // Registered after `open()`'s stand-in for the API, so it answers first (Playwright runs the newest route first).
+  await page.route('**/api/offer', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(facts(left)) }));
+  await page.reload();
+  await expect(page.locator('#p-accelerator [data-v3-seats]')).toBeVisible();
+  await expect(page.locator('#p-accelerator .status')).toContainText('9 of 15 founding seats left');
+  await expect(page.locator('#p-accelerator .seatm')).toHaveAttribute('data-left', '9');
+  left = 0;
+  await page.reload();
+  await expect(page.locator('section.pg')).toHaveAttribute('data-acc', 'soldout');
+  await expect(page.locator('#p-accelerator .pg-cta a:visible')).toHaveText(['Join the Waitlist']);
+  await expect(page.locator('#p-accelerator .pg-cta .proof-line')).toBeVisible();
+  await expect(page.locator('section.wed .wed-cta .proof-line')).toBeVisible();
 });

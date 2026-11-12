@@ -25,7 +25,7 @@ function onArrival(el: Element, go: () => void, threshold: number): void {
 }
 
 /** Whether `el` plays its arrival: a wide screen, motion allowed, and `el` still below the fold. */
-const plays = (el: Element): boolean =>
+export const plays = (el: Element): boolean =>
   pinnable() && 'IntersectionObserver' in window && el.getBoundingClientRect().top >= window.innerHeight;
 
 /** S6's plate and S7's tiles: reset, then drawn (`is-in`) as they arrive. */
@@ -105,4 +105,50 @@ export function initQuote(sec: HTMLElement): void {
       if (live) sec.style.setProperty('--p', passOf(sec).toFixed(4));
     },
   );
+}
+
+/**
+ * S12: the ring counts the builds up from 0 to 8 once, week by week, as the section arrives, and ends
+ * on 8 (it never rests on a part, brief § 5). Settled at 8 of 8 otherwise, as the markup has it.
+ */
+export function initTimeline(sec: HTMLElement): void {
+  const rows = [...sec.querySelectorAll<HTMLElement>('.wed-row[data-wk]')];
+  const ring = sec.querySelector<SVGElement>('.wed-ring-fg');
+  const count = sec.querySelector<HTMLElement>('[data-v3-built]');
+  const total = Number(count?.textContent ?? 8);
+  if (!rows.length || !ring || !count || !plays(sec)) return;
+  const show = (lit: number) => {
+    // Week 0 is set-up: a build is a week from 1, so `lit` weeks on is `lit - 1` builds, never above 8.
+    const built = Math.min(total, Math.max(0, lit - 1));
+    rows.forEach((r, i) => r.classList.toggle('is-on', i < lit));
+    ring.style.setProperty('--k', String(built / total));
+    count.textContent = String(built);
+  };
+  show(0);
+  onArrival(
+    sec.querySelector('.wed-list') ?? sec,
+    () => {
+      let lit = 0;
+      const next = () => {
+        show(++lit);
+        if (lit < rows.length) window.setTimeout(next, 160);
+      };
+      next();
+    },
+    0.2,
+  );
+}
+
+/** S11's jump bar: the card it jumps to flashes once, on a wide screen with motion allowed. */
+export function initJumps(sec: HTMLElement): void {
+  for (const a of sec.querySelectorAll<HTMLAnchorElement>('.pg-jump')) {
+    a.addEventListener('click', () => {
+      const card = sec.querySelector<HTMLElement>(a.getAttribute('href') ?? '');
+      if (!card || !pinnable()) return;
+      card.classList.remove('is-flash');
+      void card.offsetWidth;
+      card.classList.add('is-flash');
+      window.setTimeout(() => card.classList.remove('is-flash'), 1400);
+    });
+  }
 }

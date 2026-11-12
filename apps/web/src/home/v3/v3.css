@@ -2506,6 +2506,1184 @@ html:not(.aiw-js) .aiw .how-panel {
   }
 }
 
+/* --- S9 Hours calculator (hrs): seven sliders, a rate, and the hours back ------------------------- */
+/* The results are printed for the defaults; the script recounts them. The results panel is forest. */
+
+.aiw .hrs {
+  padding-block: var(--section);
+}
+.aiw .hrs-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: end;
+  margin-bottom: 48px;
+}
+.aiw .hrs-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .hrs-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.aiw .hrs-in {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 32px 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .hrs-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 16px;
+  padding: 16px 0 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .hrs-label {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.aiw .hrs-val {
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.aiw .hrs-row .range {
+  grid-column: 1 / -1;
+}
+/* A 44px tap (Spring's mobile rule) around the mockup's 2px track. */
+.aiw .range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.aiw .range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--signal) var(--fill), var(--line-control) var(--fill));
+}
+.aiw .range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -11px;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--signal) 0 4.5px, var(--surface-raised) 5px);
+  transition: transform 0.25s var(--ease);
+}
+.aiw .range:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+}
+.aiw .range::-moz-range-track {
+  height: 2px;
+  background: var(--line-control);
+}
+.aiw .range::-moz-range-progress {
+  height: 2px;
+  background: var(--signal);
+}
+.aiw .range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--signal) 0 4.5px, var(--surface-raised) 5px);
+}
+.aiw .range:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.aiw .hrs-rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding-top: 24px;
+}
+.aiw .hrs-money {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: 18px;
+  font-weight: 500;
+}
+.aiw .hrs-money:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.aiw .hrs-money input {
+  width: 96px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.aiw .hrs-money .mono {
+  color: var(--ink-muted);
+}
+.aiw .hrs-out {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px;
+  border-radius: var(--radius-panel);
+  background-color: var(--surface);
+  background-image: var(--grain);
+  color: var(--ink);
+}
+.aiw .hrs-out-k {
+  color: var(--ink-secondary);
+}
+.aiw .hrs-big {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .hrs-big-n {
+  font-size: clamp(72px, 8vw, 112px);
+  line-height: 0.9;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+.aiw .hrs-big-k {
+  font-size: 17px;
+  color: var(--ink-secondary);
+}
+.aiw .hrs-dl {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.aiw .hrs-dl div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .hrs-dl dt {
+  font-size: 16px;
+  color: var(--ink-secondary);
+}
+.aiw .hrs-dl dd {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .hrs-year {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .hrs-cells {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+.aiw .hrs-cells i {
+  position: relative;
+  height: 14px;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.aiw .hrs-cells i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+  transform: scaleX(var(--f));
+  transform-origin: left;
+}
+.aiw .hrs-year-k {
+  color: var(--ink-muted);
+}
+.aiw .hrs-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+.aiw .hrs-note {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+/* --- S10 Five free skills (fh): the Library's free five, a row each -------------------------------- */
+/* Settled in the markup (`.fh-list.is-in`); the script resets a list below the fold on a wide screen
+   with motion allowed, and the rows rise in as it arrives. */
+
+.aiw .fh {
+  padding-block: var(--section);
+}
+.aiw .fh-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 32px 56px;
+  align-items: end;
+  margin-bottom: 48px;
+}
+.aiw .fh-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .fh-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.aiw .fh-list {
+  border-top: 1px solid var(--ink);
+}
+.aiw .fh-list li {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.7s var(--ease);
+  transition-delay: calc(var(--i) * 90ms);
+}
+.aiw .fh-list.is-in li {
+  opacity: 1;
+  transform: none;
+}
+.aiw .fh-row {
+  display: grid;
+  grid-template-columns: 36px 28px minmax(0, 4fr) minmax(0, 6fr) 184px 20px;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+.aiw .fh-idx {
+  color: var(--ink-muted);
+}
+.aiw .fh-mark {
+  display: grid;
+  place-items: center;
+}
+.aiw .fh-name {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  transition: transform 0.4s var(--ease);
+}
+.aiw .fh-row:hover .fh-name {
+  transform: translateX(6px);
+}
+.aiw .fh-text {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
+.aiw .fh-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.aiw .fh-tool {
+  padding: 3px 7px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+.aiw .fh-arrow {
+  color: var(--ink-muted);
+  transition:
+    transform 0.4s var(--ease),
+    color 0.2s;
+}
+.aiw .fh-row:hover .fh-arrow {
+  color: var(--signal);
+  transform: translateX(4px);
+}
+.aiw .fh-foot {
+  margin-top: 24px;
+  color: var(--ink-muted);
+}
+
+/* --- S11 Programs (pg): four cards, every price, each button to its program's page (D1) ----------- */
+/* The live parts (`data-when`) show for the state the script finds; the markup starts on "open". */
+
+.aiw .pg {
+  padding-block: var(--section);
+}
+.aiw .pg-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: end;
+  margin-bottom: 44px;
+}
+.aiw .pg-head-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .pg-index {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 24px;
+  border-top: 1px solid var(--ink);
+}
+.aiw .pg-jump {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 16px;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 18px 16px 18px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.aiw .pg-index li + li .pg-jump {
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+}
+.aiw .pg-jump-ic {
+  grid-row: 1 / span 2;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  transition: border-color 0.3s;
+}
+.aiw .pg-jump-k {
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+}
+.aiw .pg-jump-n {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .pg-jump-go {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  color: var(--ink-muted);
+  transform: rotate(90deg);
+  transition:
+    transform 0.4s var(--ease),
+    color 0.2s;
+}
+.aiw .pg-jump:hover .pg-jump-ic {
+  border-color: var(--signal);
+}
+.aiw .pg-jump:hover .pg-jump-go {
+  color: var(--signal);
+  transform: rotate(90deg) translateX(4px);
+}
+.aiw .pg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .pg-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background-color: var(--surface-raised);
+  color: var(--ink);
+  scroll-margin-top: 96px;
+}
+.aiw .pg-card.is-featured {
+  border-color: transparent;
+  background-color: var(--surface);
+  background-image: var(--grain);
+}
+/* The jump bar's target, once, on a wide screen with motion allowed. */
+.aiw .pg-card.is-flash {
+  animation: pg-flash 1.2s var(--ease);
+}
+@keyframes pg-flash {
+  20% {
+    box-shadow: 0 0 0 3px var(--signal);
+  }
+}
+.aiw .pg-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.aiw .pg-ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+}
+.aiw .pg-kick {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.aiw .pg-kicker {
+  color: var(--accent);
+}
+.aiw .pg-who {
+  color: var(--ink-muted);
+}
+.aiw .pg-more {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--ink-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.aiw .pg-more:hover {
+  color: var(--ink);
+}
+.aiw .pg-more .gl {
+  transition: transform 0.3s var(--ease);
+}
+.aiw .pg-more:hover .gl {
+  transform: translateX(3px);
+}
+.aiw .pg-name {
+  font-size: clamp(26px, 2.4vw, 32px);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .pg-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+}
+.aiw .pg-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.aiw .pg-list li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.aiw .pg-list .gl {
+  margin-top: 3px;
+  color: var(--signal);
+}
+.aiw .pg-best {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.aiw .pg-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+.aiw .pg-state,
+.aiw .pg-alt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.aiw .pg-price .price-big {
+  font-size: 48px;
+}
+.aiw .pg-seats,
+.aiw .wed-seats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding-top: 4px;
+}
+.aiw .pg-cta,
+.aiw .wed-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.aiw .pg-cta-acts,
+.aiw .wed-cta-acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+}
+.aiw .pg-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px 16px;
+  margin-top: 36px;
+  font-size: 16px;
+  color: var(--ink-secondary);
+  text-align: center;
+}
+
+/* --- S12 Eight Wednesdays (wed): the weeks, the ring, the founding offer ---------------------------- */
+/* Settled in the markup: every week lit (`is-on`) and the ring full at 8. While the script counts the
+   builds in, a week not lit yet is in the quieter ink, never faded (AA). */
+
+.aiw .wed {
+  padding-block: var(--section);
+}
+.aiw .wed-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .wed-side {
+  position: sticky;
+  top: 104px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.aiw .wed-side .h-section {
+  font-size: clamp(36px, 3.8vw, 54px);
+}
+.aiw .wed-meter {
+  position: relative;
+  width: 128px;
+  height: 128px;
+}
+.aiw .wed-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.aiw .wed-ring circle {
+  fill: none;
+  stroke-width: 3;
+}
+.aiw .wed-ring-bg {
+  stroke: var(--line);
+}
+.aiw .wed-ring-fg {
+  stroke: var(--signal);
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--k));
+  transition: stroke-dashoffset 0.6s var(--ease);
+}
+.aiw .wed-ring-in {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+.aiw .wed-ring-n {
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.aiw .wed-ring-in .mono {
+  max-width: 96px;
+  color: var(--ink-muted);
+  line-height: 1.2;
+}
+.aiw .wed-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.aiw .wed-list {
+  border-top: 1px solid var(--ink);
+}
+.aiw .wed-row,
+.aiw .wed-brk {
+  display: grid;
+  grid-template-columns: 76px 140px minmax(0, 1fr) 22px;
+  grid-template-areas: 'wk date body mark';
+  align-items: start;
+  gap: 16px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .wed-wk {
+  grid-area: wk;
+}
+.aiw .wed-date {
+  grid-area: date;
+}
+.aiw .wed-body,
+.aiw .wed-brk-t {
+  grid-area: body;
+}
+.aiw .wed-mark {
+  grid-area: mark;
+  padding-top: 3px;
+  --rd-ring: var(--line-control);
+  --rd-dot: transparent;
+}
+.aiw .wed-wk,
+.aiw .wed-date {
+  padding-top: 4px;
+  color: var(--ink-muted);
+}
+.aiw .wed-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aiw .wed-name {
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--ink-muted);
+  transition: color 0.4s;
+}
+.aiw .wed-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  transition: color 0.4s;
+}
+.aiw .wed-row.is-on .wed-name {
+  color: var(--ink);
+}
+.aiw .wed-row.is-on .wed-text {
+  color: var(--ink-secondary);
+}
+.aiw .wed-row.is-on .wed-mark {
+  --rd-ring: var(--signal);
+  --rd-dot: var(--signal);
+}
+.aiw .wed-row.is-after.is-on .wed-name {
+  color: var(--accent);
+}
+.aiw .wed-brk {
+  padding: 14px 0;
+}
+.aiw .wed-brk-t {
+  padding-top: 3px;
+  font-size: 16px;
+  color: var(--ink-muted);
+}
+.aiw .wed-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-top: 24px;
+}
+.aiw .wed-meta li {
+  color: var(--ink-muted);
+}
+
+/* --- S13 Library favorites (fav): four columns, each skill to its page ------------------------------ */
+
+.aiw .fav {
+  padding-block: var(--section);
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .fav-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 48px;
+  align-items: end;
+  margin-bottom: 48px;
+}
+.aiw .fav-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .fav-big {
+  justify-self: end;
+}
+.aiw .fav-num {
+  display: block;
+  font-size: clamp(140px, 17vw, 250px);
+  line-height: 0.78;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--line-control);
+}
+.aiw .fav-cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .fav-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 22px 22px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .fav-h {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+  color: var(--accent);
+}
+.aiw .fav-col li + li .fav-item {
+  border-top: 1px solid var(--line);
+}
+.aiw .fav-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.aiw .fav-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .fav-go {
+  color: var(--ink-muted);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.25s,
+    transform 0.3s var(--ease),
+    color 0.2s;
+}
+.aiw .fav-item:hover .fav-go,
+.aiw .fav-item:focus-visible .fav-go {
+  color: var(--signal);
+  opacity: 1;
+  transform: none;
+}
+.aiw .fav-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.aiw .fav-foot {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+
+/* --- S14 Founders (fd): their real photos (D6), their words, and the Venn ------------------------- */
+
+.aiw .fd {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .fd-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: end;
+  margin-bottom: 56px;
+}
+.aiw .fd-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .fd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .fd-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .fd-portrait {
+  aspect-ratio: 16 / 9;
+  max-width: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+/* The photo fills the mockup's 16:9 frame, never sets its height: it sits inside it, cropped. */
+.aiw .fd-portrait .portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+.aiw .fd-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px;
+}
+.aiw .fd-role {
+  color: var(--accent);
+}
+.aiw .fd-name {
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .fd-tag {
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .fd-bio {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-secondary);
+}
+.aiw .fd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.aiw .fd-tags li {
+  padding: 5px 9px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+}
+.aiw .fd-foot {
+  margin-top: 40px;
+}
+.aiw .vn {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: center;
+  margin-top: 72px;
+  padding-top: 56px;
+  border-top: 1px solid var(--line);
+}
+.aiw .vn-art {
+  position: relative;
+  aspect-ratio: 600 / 340;
+}
+.aiw .vn-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.aiw .vn-c {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.6s var(--ease);
+}
+.aiw .vn-b {
+  stroke: var(--signal);
+  transition-delay: 0.25s;
+}
+.aiw .vn.is-in .vn-c {
+  stroke-dashoffset: 0;
+}
+.aiw .vn-overlap {
+  fill: var(--signal);
+  fill-opacity: 0.16;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease) 1.3s;
+}
+.aiw .vn.is-in .vn-overlap {
+  opacity: 1;
+}
+.aiw .vn-l {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 26%;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.6s var(--ease) 0.9s;
+}
+.aiw .vn.is-in .vn-l {
+  opacity: 1;
+}
+.aiw .vn-l-a {
+  left: 25%;
+}
+.aiw .vn-l-mid {
+  left: 50%;
+  max-width: 18%;
+  transition-delay: 1.5s;
+}
+.aiw .vn-l-b {
+  left: 75%;
+}
+.aiw .vn-l-n {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.aiw .vn-l-mid .vn-l-n {
+  font-size: 16px;
+}
+.aiw .vn-l-t {
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--ink-secondary);
+}
+.aiw .vn-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .vn-title {
+  font-size: clamp(26px, 2.6vw, 34px);
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.aiw .vn-text {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+}
+
+/* --- S15 Questions and S16 Close: the kit's own, as the mockup draws them ------------------------- */
+/* The email beside the questions, and a link in an answer: padding above and below, given back by
+   the margins, for a 44px tap. */
+.aiw .faq-aside .inline-link,
+.aiw .faq-a .inline-link {
+  display: inline-block;
+  padding-block: 11px;
+  margin-block: -11px;
+}
+.aiw .close-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+/* --- S9 to S16 on tablets and phones ------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .aiw .fh-row {
+    grid-template-columns: 36px 28px minmax(0, 1fr) auto 20px;
+    grid-template-areas:
+      'idx mark name tools arrow'
+      '. . text text .';
+    row-gap: 6px;
+  }
+  .aiw .fh-idx {
+    grid-area: idx;
+  }
+  .aiw .fh-mark {
+    grid-area: mark;
+  }
+  .aiw .fh-name {
+    grid-area: name;
+  }
+  .aiw .fh-text {
+    grid-area: text;
+  }
+  .aiw .fh-tools {
+    grid-area: tools;
+  }
+  .aiw .fh-arrow {
+    grid-area: arrow;
+  }
+  .aiw .fav-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 980px) {
+  .aiw .hrs-head,
+  .aiw .hrs-grid,
+  .aiw .pg-head,
+  .aiw .wed-grid,
+  .aiw .fav-head,
+  .aiw .fd-head,
+  .aiw .vn {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .aiw .fh-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .pg-index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aiw .pg-index li:nth-child(3) .pg-jump {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .aiw .pg-index li:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+  .aiw .pg-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .wed-side {
+    position: relative;
+    top: 0;
+  }
+  .aiw .wed-meter {
+    display: none;
+  }
+  .aiw .fav-big {
+    display: none;
+  }
+  .aiw .vn-art {
+    max-width: 560px;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .hrs-in {
+    padding: 6px 20px 22px;
+  }
+  .aiw .hrs-out {
+    padding: 24px;
+  }
+  .aiw .fh-row {
+    grid-template-columns: 28px minmax(0, 1fr) 20px;
+    grid-template-areas:
+      'mark name arrow'
+      '. text .'
+      '. tools .';
+    column-gap: 14px;
+  }
+  .aiw .fh-idx {
+    display: none;
+  }
+  .aiw .fh-tools {
+    justify-content: flex-start;
+  }
+  .aiw .fh-name {
+    font-size: 20px;
+  }
+  .aiw .pg-index {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .pg-index li + li .pg-jump {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .aiw .pg-index li + li {
+    border-top: 1px solid var(--line);
+  }
+  .aiw .pg-jump {
+    padding: 12px 0;
+  }
+  .aiw .pg-card {
+    padding: 24px;
+  }
+  .aiw .pg-more .mono {
+    display: none;
+  }
+  .aiw .pg-top {
+    align-items: flex-start;
+  }
+  .aiw .pg-price .price-big {
+    font-size: 42px;
+  }
+  .aiw .wed-row,
+  .aiw .wed-brk {
+    grid-template-columns: auto minmax(0, 1fr) 22px;
+    grid-template-areas:
+      'wk date mark'
+      'body body mark';
+    row-gap: 6px;
+    column-gap: 12px;
+  }
+  .aiw .wed-wk,
+  .aiw .wed-date {
+    padding-top: 0;
+  }
+  .aiw .fav-cols,
+  .aiw .fd-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .fd-body {
+    padding: 22px;
+  }
+  .aiw .vn-l-t {
+    display: none;
+  }
+}
+
 /* --- Tablets and phones ------------------------------------------------------------------------ */
 
 @media (max-width: 980px) {

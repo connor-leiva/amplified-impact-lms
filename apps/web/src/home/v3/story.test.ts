@@ -51,8 +51,9 @@ function textNodes(el: Element): string[] {
 }
 
 describe('the order of the page', () => {
-  it('runs hero, S2, S3 to S8, as the mockup does (S2 and S8, which wait on Connor and Spring, only in a preview)', () => {
-    expect([...prod.querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual(['hh', 'wsk', 'mon', 'how', 'band', 'prf']);
+  it('runs all sixteen in the mockup’s order (S2 and S8, which wait on Connor and Spring, only in a preview)', () => {
+    const rest = ['hrs', 'fh', 'pg', 'wed', 'fav', 'fd', 'faq', 'close'];
+    expect([...prod.querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual(['hh', 'wsk', 'mon', 'how', 'band', 'prf', ...rest]);
     expect([...parse(renderV3Body({ preview: true })).querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual([
       'hh',
       'vid',
@@ -62,6 +63,7 @@ describe('the order of the page', () => {
       'band',
       'prf',
       'qt',
+      ...rest,
     ]);
   });
 
