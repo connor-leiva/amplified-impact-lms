@@ -1,90 +1,622 @@
-/* /free, Free Resources. DECISIONS.md D-116.
+/* /free, Free Resources. DECISIONS.md D-116; the v2 mockup's FreeResourcesPage.
 
-   The site's look (`../site/site.css`): two columns of resource cards, For Agents and For Team Owners,
-   then the way to the 5 free skills. Mobile first, no text under 16px, every tap 44px or more.
+   THE KIT (`../kit/kit.css`): tokens, type, header, footer and the close. This file is the page's own,
+   the mockup's rules in its order, with Spring's 16px floor and 44px taps. Each resource card is one
+   link: its title's link covers the card.
 
    COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
 
-@import '../site/site.css';
+@import '../kit/kit.css';
 
-.free-hero {
-  padding: 40px 0 24px;
+.aiw #agents,
+.aiw #owners {
+  scroll-margin-top: 64px;
 }
-.free-hero h1 {
-  max-width: 18ch;
-  margin-top: 8px;
-  font-size: 38px;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+
+/* --- Hero: two doors -------------------------------------------------------------------------------- */
+
+.aiw .fr-hero {
+  padding-top: 88px;
+  padding-bottom: 96px;
+  overflow: hidden;
+  overflow: clip;
 }
-.free-cols {
-  display: grid;
-  gap: 32px;
-  padding-bottom: 56px;
+.aiw .fr-hero-in {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-28);
+  padding-block: 64px 56px;
+  transform: translateY(calc(var(--p, 0) * -60px));
+  opacity: calc(1 - var(--p, 0) * 1.4);
 }
-.free-col h2 {
-  font-size: 24px;
+.aiw .fr-hero-in .eb {
+  animation: aiw-fade-up 0.8s var(--ease) both;
 }
-.res-list {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
+.aiw .fr-title {
+  font-size: clamp(48px, 6.4vw, 96px);
 }
-.res {
+.aiw .doors {
   position: relative;
-  display: grid;
-  gap: 8px;
+  display: flex;
+  gap: 16px;
+  animation: aiw-fade-up 1.1s var(--ease) 0.5s both;
 }
-.res h3 {
-  font-size: 20px;
-  line-height: 1.25;
+.aiw .doors-rp {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
-/* The whole card is the link's target, for a thumb. */
-.res h3 a {
+.aiw .door {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 380px;
+  padding: 32px;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+  text-decoration: none;
+  transition:
+    flex-grow 0.8s var(--ease),
+    border-color 0.4s;
+}
+.aiw .door:hover {
+  flex-grow: 1.35;
+  border-color: var(--signal);
+}
+.aiw .door-top {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  justify-content: space-between;
+}
+.aiw .door-n {
+  color: var(--accent);
+}
+.aiw .door-ic {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+}
+.aiw .door-name {
+  margin-top: auto;
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.aiw .door-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.aiw .door-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .door-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .door-go .gl {
+  transition: transform 0.4s var(--ease);
+}
+.aiw .door:hover .door-go .gl {
+  transform: translateX(6px);
+}
+
+/* --- For Agents ----------------------------------------------------------------------------------- */
+
+.aiw .fr-agents {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .fr-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  margin-bottom: 56px;
+}
+.aiw .fr-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .fr-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  transition: border-color 0.3s;
+}
+.aiw .fr-card:hover {
+  border-color: var(--line-control);
+}
+.aiw .fr-pv {
+  position: relative;
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
+  background-color: var(--surface);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--ripple) 12%, transparent) 1px,
+    transparent 1.6px
+  );
+  background-size: 18px 18px;
+}
+.aiw .fr-pv-tag {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+}
+.aiw .fr-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+}
+.aiw .fr-type,
+.aiw .own-type {
+  color: var(--accent);
+}
+.aiw .fr-name {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+/* The title's link covers its card, so the whole card opens the resource. */
+.aiw .fr-name a,
+.aiw .own-name a {
   text-decoration: none;
 }
-.res h3 a::after {
+.aiw .fr-name a::after,
+.aiw .own-name a::after {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 14px;
 }
-.res h3 a:focus-visible {
-  outline: none;
+.aiw .fr-text,
+.aiw .own-text {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.55;
 }
-.res:focus-within {
-  outline: 2px solid var(--action-primary);
-  outline-offset: 3px;
-}
-.res:hover {
-  box-shadow: inset 0 0 0 1px var(--action-primary);
-}
-.res p {
-  color: var(--text-secondary);
-}
-.res-open {
-  color: var(--action-primary) !important;
+.aiw .fr-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 16px;
   font-weight: 500;
 }
-.free-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 24px;
+.aiw .fr-open .gl {
+  transition: transform 0.4s var(--ease);
+}
+.aiw .fr-card:hover .fr-open {
+  color: var(--accent);
+}
+.aiw .fr-card:hover .fr-open .gl {
+  transform: translateX(4px);
 }
 
-@media (min-width: 960px) {
-  .free-hero {
-    padding: 64px 0 32px;
+/* The agents' previews (made up, off unless `EXAMPLES_ON`). */
+.aiw .pv-voice {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.aiw .pv-who {
+  color: var(--ink-muted);
+}
+.aiw .pv-quote {
+  color: var(--ink-muted);
+  font-size: 17px;
+  line-height: 1.5;
+}
+.aiw .pv-quote.is-you {
+  color: var(--ink);
+}
+.aiw .pv-car {
+  display: grid;
+  place-items: center;
+}
+.aiw .pv-slide {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 6px;
+  background: var(--forest);
+  color: var(--on-forest);
+}
+.aiw .pv-slide-k {
+  color: var(--energy-bright);
+}
+.aiw .pv-slide-t {
+  font-size: 19px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .pv-live {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .pv-live-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--ink-muted);
+}
+.aiw .pv-live-on {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+.aiw .pv-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+  animation: aiw-pulse 1.8s var(--ease) infinite;
+}
+.aiw .pv-live-t {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .pv-live-host {
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-control);
+  color: var(--ink-muted);
+}
+
+/* --- For Team Owners, on the other theme ---------------------------------------------------------- */
+
+.aiw .fr-owners {
+  padding-block: var(--section);
+}
+.aiw .own-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .own-copy,
+.aiw .own-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.aiw .own-head {
+  gap: var(--space-20);
+}
+/* With the panels off, the heading takes the left and the three the right. */
+.aiw .own-grid.is-solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+.aiw .own-grid.is-solo .own-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .own-steps {
+  border-top: 1px solid var(--ink);
+}
+.aiw .own-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  padding: 18px 88px 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .own-ic {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  transition: border-color 0.4s;
+}
+.aiw .own-step:hover .own-ic {
+  border-color: var(--signal);
+}
+.aiw .own-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aiw .own-name {
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.aiw .own-open {
+  position: absolute;
+  right: 0;
+  top: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .own-step:hover .own-open {
+  color: var(--accent);
+}
+
+/* The owners' panels (made up, off unless `EXAMPLES_ON`), shown together. */
+.aiw .own-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .panel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .panel-tag {
+  color: var(--accent);
+}
+.aiw .panel-meta {
+  color: var(--ink-muted);
+}
+.aiw .audit li {
+  display: grid;
+  grid-template-columns: minmax(0, 190px) minmax(0, 1fr) 40px minmax(0, 150px);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+}
+.aiw .audit-t {
+  color: var(--ink-secondary);
+}
+.aiw .audit li.is-ai .audit-t {
+  color: var(--ink);
+}
+.aiw .audit-bar {
+  height: 10px;
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 5px;
+  background: var(--line);
+}
+.aiw .audit-bar span {
+  display: block;
+  width: calc(var(--w) * 100%);
+  height: 100%;
+  border-radius: 5px;
+  background: var(--line-control);
+}
+.aiw .audit li.is-ai .audit-bar span {
+  background: var(--signal);
+}
+.aiw .audit-h {
+  color: var(--ink);
+  text-align: right;
+}
+.aiw .audit-tag {
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.aiw .audit-sum {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.4;
+}
+.aiw .audit-big {
+  min-width: 1.3em;
+  color: var(--ink);
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.aiw .sync-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.aiw .sync-k {
+  color: var(--ink-muted);
+}
+.aiw .sync-line {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .sync-who {
+  color: var(--ink);
+  font-weight: 500;
+}
+.aiw .sync-said {
+  background: color-mix(in srgb, var(--signal) 30%, transparent);
+}
+.aiw .sync-tasks li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .sync-check {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--line-control);
+  border-radius: 4px;
+}
+.aiw .sync-task {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aiw .sync-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .sync-next {
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .sync-owner {
+  min-width: 34px;
+  padding: 3px 6px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+  text-align: center;
+}
+.aiw .sync-due {
+  color: var(--accent);
+  text-align: right;
+}
+.aiw .rt-step {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .rt-step:last-child {
+  border-bottom: 0;
+}
+.aiw .rt-n {
+  grid-row: span 2;
+  padding-top: 4px;
+  color: var(--ink-muted);
+}
+.aiw .rt-t {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .rt-emp {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  padding: 10px 14px;
+  border: 1px solid var(--signal);
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  font-size: 16px;
+}
+
+/* --- Tablets and phones --------------------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+  .aiw .fr-hero-in {
+    transform: none;
+    opacity: 1;
   }
-  .free-hero h1 {
-    font-size: 54px;
+  .aiw .doors {
+    flex-direction: column;
   }
-  .free-cols {
-    grid-template-columns: 1fr 1fr;
+  .aiw .door {
+    flex: none;
+    min-height: 0;
+  }
+  .aiw .door:hover {
+    flex-grow: 0;
+  }
+  .aiw .fr-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .own-grid,
+  .aiw .own-grid.is-solo,
+  .aiw .own-grid.is-solo .own-copy {
+    grid-template-columns: minmax(0, 1fr);
     gap: 40px;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .door {
+    padding: 24px;
+  }
+  .aiw .own-step {
+    padding-right: 0;
+    padding-bottom: 52px;
+  }
+  .aiw .own-open {
+    top: auto;
+    bottom: 18px;
+    left: 60px;
+    right: auto;
+  }
+  .aiw .audit li {
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+  .aiw .audit-bar,
+  .aiw .audit-tag {
+    display: none;
   }
 }
