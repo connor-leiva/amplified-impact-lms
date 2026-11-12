@@ -106,6 +106,11 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     columns: ['first_login_at', 'ghl_attempts', 'ghl_contact_id', 'ghl_error', 'ghl_last_attempt_at', 'ghl_next_attempt_at', 'ghl_sync_stamp', 'ghl_synced_at', 'user_id'],
     gate: 9,
   },
+  // D-148: access groups (the Utah Life team) and the addresses whose owners have followed a link
+  // emailed to them. Not `Db` records, like `orders`.
+  accessGroups: { table: 'access_groups', columns: ['created_at', 'email_domain', 'expires_at', 'id', 'name', 'plan'], gate: 9 },
+  accessGroupMembers: { table: 'access_group_members', columns: ['added_at', 'email', 'group_id', 'name'], gate: 9 },
+  emailVerifications: { table: 'email_verifications', columns: ['email', 'verified_at'], gate: 9 },
   accounts: {
     table: 'accounts',
     columns: ['created_at', 'crm', 'id', 'invite_sent_at', 'name', 'owner_email', 'owner_user_id', 'stripe_customer_id', 'team_id'],
@@ -296,6 +301,7 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['accounts', 'createdAt'], ['accounts', 'inviteSentAt'],
   ['plans', 'startsAt'], ['plans', 'paidThrough'], ['plans', 'liveUntil'], ['plans', 'minimumUntil'], ['plans', 'createdAt'],
   ['skills', 'releasedAt'],
+  ['accessGroups', 'expiresAt'], ['accessGroups', 'createdAt'], ['accessGroupMembers', 'addedAt'], ['emailVerifications', 'verifiedAt'],
 ];
 
 /**
@@ -346,6 +352,9 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   accounts: { unit: 'epoch-ms', why: 'D-078: created_at and invite_sent_at, compared with INVITES_FROM' },
   plans: { unit: 'epoch-ms', why: 'D-079: paid_through is compared with skills.released_at by canOpenSkill' },
   skills: { unit: 'epoch-ms', why: 'D-079: released_at is compared with plans.paid_through by canOpenSkill' },
+  accessGroups: { unit: 'epoch-ms', why: 'D-148: expires_at is compared with clock.now() by inGroup' },
+  accessGroupMembers: { unit: 'epoch-ms', why: 'D-148: added_at is clock.now() as written; no reader converts it' },
+  emailVerifications: { unit: 'epoch-ms', why: 'D-148: verified_at is clock.now() as written by claimToken; no reader converts it' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -498,6 +507,8 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   // one. The test below (`no single-column primaryKey`) is the one that matters here: a primary key
   // on `job` alone would record the first send of a job and suppress every later one.
   jobRuns: ['job', 'key'],
+  // D-148: an address is on a group's list once. The pair is the key, so listing it twice is a no-op.
+  accessGroupMembers: ['group_id', 'email'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {

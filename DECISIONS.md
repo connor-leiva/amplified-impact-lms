@@ -4579,3 +4579,26 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **A page can override it** through its page data (`PageMeta.image`, `Guide.meta.image`). None does.
 - **The headshots stay in the pages** (the homepage hero, /about, the sales pages' founders); only the share tags changed. A test holds every www head to the new image and none to `/img/team/`.
 - **Not changed:** the legal pages (/terms, /privacy, /agreement) and the two noindex offer pages, which write no Open Graph tags. learn.amplifiedimpact.io's app shell writes none either. Also unchanged: the homepage layout, the header, nav and footer, the kit's CSS, prices and gating.
+
+## D-148 · Access groups: every verified @liveutah.com address holds the Agent Plan's skills, free
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: Utah Life's agents get full Amplified Agent Plan access on learn.amplifiedimpact.io at no charge, for that day's training on /appointment-follow-up and /repair-request-response. Connor's update the same day: "use DOMAIN-based access instead of a roster ... allowed domain = liveutah.com ... grant only to a VERIFIED email."
+**Status:** on a pull request.
+**Scope:** `apps/api/src/db/schema.ts` and `drizzle/0012_access_groups.sql` (`access_groups`, `access_group_members`, `email_verifications`; the `utah-life` group), `src/billing/access-groups.ts`, `src/routes/skills.ts`, `src/routes/auth.ts` (`claimToken`, `issueSignInLink`, `/api/auth/verify`), `src/routes/password.ts`; `apps/web/src/routes/library/SkillLibrary.tsx`; tests in `apps/api/test/access-groups.test.ts` and `SkillLibrary.test.tsx`.
+
+- **An access group** grants a plan's entitlement at no charge to the people in it.
+  - **Who is in it:** an address at its `email_domain` exactly, or one listed in `access_group_members`. Addresses are trimmed and lower-cased; there is no subdomain match.
+  - **Utah Life:** the group `utah-life` has domain `liveutah.com`, plan `agent_plan` and no end, and the migration creates it. `x.liveutah.com`, `liveutah.com.evil.com` and `notliveutah.com` are out.
+  - **The list:** an optional add-on for addresses outside the domain. It is empty, and no roster is loaded or committed.
+- **Only a verified address.** The grant needs a row in `email_verifications`, and only `claimToken` writes one, when a link emailed to that address is followed: a sign-in link, an invite, or a set or reset password link.
+  - Typing an address proves nothing. The welcome page's checkout button and Google sign-in don't count.
+  - The migration backfills addresses that had already followed a sign-in link or an invite. Set and reset links are left out, because finishing a password spends them unfollowed.
+  - Anyone else needs one email-link sign-in ("Email me a link" or "Forgot Password?") before their access shows.
+- **What it grants:** one more plan in the access rule's list: the group's kind, active, started, paid through for good. `canOpenSkill` treats a member exactly as an Agent Plan buyer. That opens the agent set and `both` from today, not from Jan 4, and every skill released later, with no change. The grant is worked out on every request, so removing a domain or an address, or ending the group, removes access at once.
+- **A member with no account makes one themselves.** On learn's sign-in screen, "Email me a link" (or "Forgot Password?") sends the link they asked for. Following it makes the account the way an Agent Plan buyer's is made, as the owner of a team of one at Agent tier. It is active from that first link, which also verifies the address.
+  - There is no account, order or plan row and nothing in Stripe. A member is not a paid seat and doesn't count against the 15-seat cap.
+  - Nobody is sent anything they didn't ask for: no invites, no welcome emails.
+- **On screen** (learn's Skill Library): a member sees "Included with your Utah Life team" where Manage Billing was, since they have nothing to bill. A member who also bought a plan keeps Manage Billing beside the note.
+  - The www skill pages are static and can't see learn's session, so their card still reads "Get Amplified Agent Plan" for everyone. Its "Download After You Sign In" leads members to learn, where their skills are open.
+- **Not changed:** Stripe, prices, Payment Links, the 15-seat cap, the Nov 30 close, `/agreement`, the homepage, the header, nav and footer, and the kit's CSS.

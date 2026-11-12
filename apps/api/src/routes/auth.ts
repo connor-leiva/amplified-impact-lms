@@ -69,6 +69,7 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { authTokens, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
+import { groupsOf, provisionGroupMember, recordVerified } from '../billing/access-groups';
 
 /** § 7.5's "Rate limit: 5 per hour per email and IP", and § 9.4's repeat of it. */
 export const AUTH_REQUEST_MAX = 5;
@@ -115,22 +116,37 @@ export function isTimeZone(tz: string): boolean {
  */
 export async function issueSignInLink(email: string): Promise<void> {
   const db = getDb();
-  const user = await userByEmail(db, email);
-  if (!user) return;
-
   const now = clock.now();
+  const user = await userByEmail(db, email);
+  // D-148: an access group's address (an @liveutah.com one) may ask for its first link before it has
+  // an account; the account is made when the link is spent, which is what proves the address. The
+  // person asked for this email: nothing is ever sent to a group's people unasked.
+  const to = user?.email ?? ((await groupsOf(db, email, now)).length > 0 ? email : null);
+  if (!to) return;
+
   const token = mintToken();
   await db.insert(authTokens).values({
     tokenHash: hashToken(token),
     // The account's own address, not the one that was typed: the token belongs to the row.
-    email: user.email,
+    email: to,
     purpose: 'sign_in',
     expiresAt: expiryFor('sign_in', now),
   });
   // `templates/links.ts` builds `${APP_URL}/sign-in?token=…` from this and refuses to render
   // against a missing APP_URL, so a misconfigured deploy logs a named error rather than mailing a
   // dead button.
-  queueEmail({ template: 'sign-in', to: user.email, data: { token } });
+  queueEmail({ template: 'sign-in', to, data: { token } });
+}
+
+/**
+ * D-148: make the account for an access group's address that has none, once a link emailed to it has
+ * been spent. True when it made one; false when the address has an account already, is in no group,
+ * or core refused (a staff address).
+ */
+export async function accountForGroupAddress(db: Database, email: string, now: number): Promise<boolean> {
+  if (await userByEmail(db, email)) return false;
+  if ((await groupsOf(db, email, now)).length === 0) return false;
+  return (await provisionGroupMember(db, email, now)) !== null;
 }
 
 /** What `/api/auth/verify` decided about a token. */
@@ -175,6 +191,10 @@ export async function claimToken(
     .returning({ tokenHash: authTokens.tokenHash });
   // Lost the race: another request spent it between the select and the update.
   if (spent.length === 0) return { ok: false, code: 'used' };
+
+  // Every token is delivered by email, so spending one proves the person reads that address: what an
+  // access group needs before it grants anything (D-148).
+  await recordVerified(db, row.email, now);
 
   return { ok: true, email: row.email, purpose: row.purpose };
 }
@@ -254,6 +274,9 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     const claim = await claimToken(db, parsed.data.token, now);
     if (!claim.ok) return reply.code(400).send({ error: claim.code });
 
+    // D-148: an access group's address with no account yet. The link it just spent proves the
+    // address is theirs, so the account is made now, the way an Agent Plan buyer's is.
+    const made = await accountForGroupAddress(db, claim.email, now);
     const user = await userByEmail(db, claim.email);
     // The token was valid and is now spent, but the account is gone (`removeMember`,
     // `removeStaff`). Nothing to sign in to, and nothing to say about it beyond "ask for another".
@@ -261,9 +284,9 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
 
     // § 7.5: "`/invite/:token` verifies the token, sets `status: 'active'` and `joined`, and signs
     // the user in." Learners only — `status` and `joined` are § 7.2's learner columns and a staff
-    // row carries neither.
+    // row carries neither. An account made from an access group's link joins the same way.
     let joined = false;
-    if (claim.purpose === 'invite' && user.kind === 'learner') {
+    if ((claim.purpose === 'invite' || made) && user.kind === 'learner') {
       await db
         .update(users)
         // `joined` is kept if it is already set: the invite is single use, but a row seeded as
