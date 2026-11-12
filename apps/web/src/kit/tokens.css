@@ -1,0 +1,68 @@
+/* The kit's tokens for the www pages that keep their own layout: every skill and Grok Bot template
+   page, the free guides, /ai101, /voice-profile and /retool (the v2 brief: "take kit tokens, keep the
+   gate forms exactly"). Imported after `../styles/tokens.css`, it re-points the LMS tokens those pages
+   read to the kit's palette and type, so no page's markup, words or forms change.
+
+   THE PALETTE is the kit's light theme (`./kit.css`, `--aiw-*`, the homepage's `--hp-*`): bone ground,
+   lighter panels, near-black ink, slate secondary text, hairlines in place of shadows, and forest as
+   the action colour, the light theme's accent. These pages are light only. In oklch, so
+   `scripts/check-css-colors.mjs` passes. THE TYPE is Geist and Geist Mono, from the homepage's own font
+   files (`../home/fonts`, OFL.txt), not copies. */
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../home/fonts/geist-latin-wght-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../home/fonts/geist-mono-latin-wght-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* The kit's light palette, as in kit.css. */
+  --kit-black: oklch(0.1552 0.0053 173.53);
+  --kit-bone: oklch(0.9545 0.0067 97.35);
+  --kit-raised: oklch(0.9843 0.004 106.47);
+  --kit-slate: oklch(0.4358 0.0091 164.59);
+  --kit-slate-muted: oklch(0.497 0.0088 164.67);
+  --kit-sage-muted: oklch(0.6077 0.013 161.81);
+  --kit-forest: oklch(0.3838 0.0555 172.15);
+  --kit-mint: oklch(0.7934 0.1162 162.2);
+  --kit-energy: oklch(0.5632 0.1182 159.45);
+  --kit-hairline: oklch(0.8816 0.011 95.18);
+
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+
+  --paper: var(--kit-raised);
+  --bg-canvas: var(--kit-bone);
+  --bg-surface: var(--kit-raised);
+  --bg-sunken: var(--kit-bone);
+  --text-primary: var(--kit-black);
+  --text-secondary: var(--kit-slate);
+  --text-tertiary: var(--kit-slate-muted);
+  --line-subtle: var(--kit-hairline);
+  --line-default: var(--kit-hairline);
+  --line-strong: var(--kit-sage-muted);
+  --action-primary: var(--kit-forest);
+  --action-primary-hover: var(--kit-black);
+  --action-on-primary: var(--kit-bone);
+  --action-primary-tint: color-mix(in oklch, var(--kit-mint) 18%, var(--kit-raised));
+  --action-primary-line: color-mix(in oklch, var(--kit-forest) 40%, var(--kit-raised));
+  /* Hairlines in place of shadows: a 1px ring, so a card keeps its edge on the bone ground. */
+  --shadow-xs: 0 0 0 1px var(--kit-hairline);
+  --shadow-card: 0 0 0 1px var(--kit-hairline);
+  --shadow-pop: 0 0 0 1px var(--kit-hairline);
+}
