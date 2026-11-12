@@ -365,24 +365,22 @@ body {
 
 /* --- The logo, the monogram, the icons and the ripple ------------------------------------------ */
 
-/* The live signature (D-031), the homepage's own colouring of it: letters in the ink, the ring and
+/* Logo 1 (`./logo.ts`, Connor's decision for the kit, Nov 12): the letters in the ink, the ring and
    dot over the second i in the signal. */
-.aiw .sig {
+.aiw .wm {
   display: block;
   flex: none;
   overflow: visible;
 }
-.aiw .sig path {
-  stroke: currentColor;
-}
-.aiw .sig circle:nth-of-type(-n + 2) {
+.aiw .wm-letters {
   fill: currentColor;
 }
-.aiw .sig circle:nth-of-type(3) {
-  fill: var(--signal);
-}
-.aiw .sig circle:nth-of-type(4) {
+.aiw .wm-ring {
+  fill: none;
   stroke: var(--signal);
+}
+.aiw .wm-dot {
+  fill: var(--signal);
 }
 .aiw .mg {
   display: block;
@@ -935,9 +933,9 @@ html:not(.aiw-js) .aiw .hdr {
   min-height: 44px;
   color: var(--ink);
 }
-.aiw .hdr-logo .sig {
+.aiw .hdr-logo .wm {
   width: auto;
-  height: 28px;
+  height: 31px;
 }
 .aiw .hdr-nav {
   display: flex;
@@ -1610,14 +1608,14 @@ html:not(.aiw-js) .aiw .hdr {
   padding-bottom: 28px;
   color: var(--ink);
 }
-.aiw .foot-mark .sig {
+.aiw .foot-mark .wm {
   position: relative;
   width: 100%;
   height: auto;
   clip-path: inset(0 0 0 0);
   transition: clip-path 1.4s var(--ease);
 }
-.aiw-js .aiw .foot-mark:not(.is-in) .sig {
+.aiw-js .aiw .foot-mark:not(.is-in) .wm {
   clip-path: inset(100% 0 0 0);
 }
 .aiw .foot-ripple {
