@@ -1,0 +1,751 @@
+/* Homepage v3 (docs/design/home-v3/brief.md): the v2 kit's stylesheet, then v3's own sections, ported
+   from the Claude Design handoff (`docs/design/home-v3/handoff/home-v3.css`).
+
+   PORTED, NOT PASTED, as the kit was:
+     - the mockup's tokens are the kit's, one for one in name and value, so its rules read the kit's
+       (`--surface`, `--ink`, `--signal`, `--space-*`…). No new colour: the one theme the kit lacks,
+       the forest band, is built from the kit's palette (`--aiw-*`);
+     - no Google Fonts: Geist and Geist Mono are the kit's self-hosted files;
+     - no text under 16px (Spring's rule, D-107, and the brief's acceptance test): the mockup's 9.5 to
+       15px labels are lifted to 16px, as the kit lifted its own;
+     - nothing buy, seat or proof related waits or fades (the kit's NEVER_HIDDEN rule and its `:has()`
+       backstop, in `kit.css`);
+     - `prefers-reduced-motion` stops everything that moves (the kit's last rule). */
+
+@import '../../kit/kit.css';
+
+/* --- The forest band (S6 and S16): the mockup's third theme, on the kit's palette ---------------- */
+
+.aiw [data-theme='forest'] {
+  --surface: var(--aiw-forest);
+  --surface-raised: color-mix(in srgb, var(--aiw-forest) 92%, var(--aiw-mint));
+  --ink: var(--aiw-cream);
+  --ink-secondary: color-mix(in srgb, var(--aiw-cream) 80%, transparent);
+  --ink-muted: color-mix(in srgb, var(--aiw-cream) 66%, transparent);
+  --accent: var(--aiw-mint);
+  --signal: var(--aiw-mint);
+  --action: var(--aiw-mint);
+  --on-action: var(--aiw-black);
+  --line: color-mix(in srgb, var(--aiw-cream) 16%, transparent);
+  --line-control: color-mix(in srgb, var(--aiw-cream) 42%, transparent);
+  --outline: color-mix(in srgb, var(--aiw-cream) 55%, transparent);
+  --ripple: var(--aiw-cream);
+  --focus-ring: var(--aiw-mint);
+  --grain: var(--aiw-grain-dark);
+  color-scheme: dark;
+}
+
+/* --- The shared drawings (`icons.ts`): one copy of each, out of the way ------------------------- */
+
+.v3-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* --- S1 Hero (hh): the headline, the AI-employee badge and the stat strip ----------------------- */
+
+.aiw .hh {
+  min-height: max(100vh, 860px);
+  padding-top: 88px;
+  overflow: hidden;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+}
+.aiw .hh-ripple {
+  position: absolute;
+  left: calc(50% + 340px);
+  top: calc(50% - 20px);
+  transform: translate(-50%, -50%) scale(calc(1 + var(--p, 0) * 0.4));
+  opacity: calc(1 - var(--p, 0) * 1.1);
+  pointer-events: none;
+}
+.aiw .hh-grid {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 48px;
+  align-items: center;
+  padding-block: 48px 56px;
+}
+.aiw .hh-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  transform: translateY(calc(var(--p, 0) * -60px));
+  opacity: calc(1 - var(--p, 0) * 1.3);
+}
+.aiw .hh-eb {
+  animation: aiw-fade-up 0.8s var(--ease) both;
+}
+.aiw .hh-title {
+  font-size: clamp(40px, 5.3vw, 76px);
+  line-height: 0.96;
+}
+.aiw .hh-copy .lead {
+  max-width: 540px;
+}
+/* The buttons and the proof line, one group: never faded, never held back (they hold proof). */
+.aiw .hh-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .hh-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  transform: translateY(calc(var(--p, 0) * 50px));
+}
+.aiw .hh-stats {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  margin-bottom: 44px;
+}
+.aiw .hh-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 24px 0 0;
+}
+.aiw .hh-stat + .hh-stat {
+  padding-left: 24px;
+  border-left: 1px solid var(--line);
+}
+.aiw .hh-num {
+  font-size: clamp(34px, 3.4vw, 48px);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.aiw .hh-label {
+  color: var(--ink-muted);
+}
+
+/* The badge, on its lanyard, over two ghost cards. */
+.aiw .bdg-wrap {
+  position: relative;
+  width: min(100%, 410px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 26px;
+  padding-top: 40px;
+}
+.aiw .bdg-strap {
+  position: absolute;
+  left: 50%;
+  top: -36px;
+  width: 1px;
+  height: 88px;
+  background: var(--line-control);
+}
+.aiw .bdg-strap::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--line-control);
+  border-radius: 50%;
+  background: var(--surface);
+}
+.aiw .bdg-deck {
+  position: relative;
+  display: grid;
+}
+.aiw .bdg-ghost {
+  grid-area: 1 / 1;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-raised);
+}
+.aiw .bdg-ghost-1 {
+  transform: translate(16px, 12px) rotate(4deg);
+  opacity: 0.6;
+}
+.aiw .bdg-ghost-2 {
+  transform: translate(-14px, 18px) rotate(-3.5deg);
+  opacity: 0.35;
+}
+.aiw .bdg {
+  grid-area: 1 / 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 30px 26px 24px;
+  border: 1px solid var(--line-control);
+  border-radius: 14px;
+  background: var(--surface-raised);
+  transform-origin: 50% -60px;
+  animation: bdg-swing 1.5s var(--ease) both;
+}
+.aiw .bdg[hidden] {
+  display: none;
+}
+.aiw .bdg-slot {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 46px;
+  height: 9px;
+  margin-left: -23px;
+  border: 1px solid var(--line-control);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.aiw .bdg-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding-top: 8px;
+}
+.aiw .bdg-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+.aiw .bdg-id {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+.aiw .bdg-photo {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.aiw .bdg-rings {
+  width: 64px;
+  height: 64px;
+  overflow: visible;
+}
+.aiw .bdg-rings circle {
+  fill: none;
+  stroke: var(--ripple);
+  stroke-opacity: 0.14;
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.aiw .bdg-rings circle:nth-child(2) {
+  stroke-opacity: 0.24;
+}
+.aiw .bdg-rings circle:first-child {
+  animation: bdg-breathe 3.2s var(--ease) infinite;
+}
+.aiw .bdg-rings .bdg-ring-in {
+  stroke: var(--signal);
+  stroke-opacity: 1;
+  stroke-width: 2;
+}
+.aiw .bdg-rings .bdg-dot {
+  fill: var(--signal);
+  stroke: none;
+}
+.aiw .bdg-name {
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.aiw .bdg-role {
+  margin-top: 6px;
+  color: var(--ink-muted);
+}
+.aiw .bdg-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+.aiw .bdg-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  animation: aiw-fade-up 0.6s var(--ease) both;
+  animation-delay: calc(0.25s + var(--j) * 70ms);
+}
+.aiw .bdg-fact:nth-child(even) {
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+}
+.aiw .bdg-fact dt {
+  color: var(--ink-muted);
+}
+.aiw .bdg-fact dd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+.aiw .bdg-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.aiw .bdg-feed-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-secondary);
+}
+.aiw .bdg-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+  animation: aiw-pulse 1.8s var(--ease) infinite;
+}
+.aiw .bdg-feed ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .bdg-feed li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  font-size: 16px;
+  line-height: 1.4;
+  animation: bdg-in 0.5s var(--ease) both;
+  animation-delay: calc(0.6s + var(--j) * 260ms);
+}
+.aiw .bdg-check {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--signal) 16%, transparent);
+  color: var(--signal);
+}
+.aiw .bdg-check .gl {
+  animation: aiw-pop 0.4s var(--spring) both;
+  animation-delay: calc(0.75s + var(--j) * 260ms);
+}
+.aiw .bdg-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.aiw .bdg-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--ink-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.aiw .bdg-tab:hover,
+.aiw .bdg-tab[aria-pressed='true'] {
+  color: var(--ink);
+}
+.aiw .bdg-tab-track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--line);
+}
+/* The pressed tab's track: full when the tabs don't take turns, filling while they do (the script). */
+.aiw .bdg-tab[aria-pressed='true'] .bdg-tab-track {
+  background: var(--signal);
+}
+.aiw .bdg-tab[aria-pressed='true'] .bdg-tab-track:has(.bdg-tab-fill) {
+  background: var(--line);
+}
+.aiw .bdg-tab-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+  transform-origin: left;
+  animation: bdg-fill 6.8s linear both;
+}
+.aiw .bdg-wrap:hover .bdg-tab-fill,
+.aiw .bdg-wrap:focus-within .bdg-tab-fill,
+.aiw .bdg-wrap.is-paused .bdg-tab-fill {
+  animation-play-state: paused;
+}
+
+@keyframes bdg-swing {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) rotate(-5deg);
+  }
+  30% {
+    opacity: 1;
+    transform: rotate(2.4deg);
+  }
+  55% {
+    transform: rotate(-1.2deg);
+  }
+  78% {
+    transform: rotate(0.5deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes bdg-breathe {
+  0%,
+  100% {
+    transform: scale(0.9);
+    stroke-opacity: 0.08;
+  }
+  50% {
+    transform: scale(1.06);
+    stroke-opacity: 0.24;
+  }
+}
+@keyframes bdg-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+@keyframes bdg-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* --- S2 Video (vid): a placeholder until the recording exists (pending `video`) --------------- */
+
+.aiw .vid {
+  padding-block: 32px var(--section);
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .vid-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 40px;
+  margin-bottom: 28px;
+}
+.aiw .vid-meta {
+  color: var(--ink-muted);
+}
+/* Grows to full size as it comes into view (`--p`, the script); settled with no script or no motion. */
+.aiw .vid-frame {
+  --s: min(1, calc(var(--p, 1) / 0.4));
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: calc(8px + 16px * (1 - var(--s)));
+  background: var(--surface-raised);
+  transform: scale(calc(0.86 + 0.14 * var(--s)));
+  transform-origin: 50% 0;
+}
+.aiw .vid-ph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.aiw .vid-chrome {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .vid-chrome > span:not(.vid-clock) {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--line-control);
+  border-radius: 50%;
+}
+.aiw .vid-clock {
+  margin-left: auto;
+  color: var(--ink-muted);
+}
+.aiw .vid-screen {
+  position: absolute;
+  inset: 42px 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 4%;
+  padding: 5% 6%;
+  opacity: 0.55;
+}
+.aiw .vid-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .vid-doc-k {
+  color: var(--accent);
+}
+.aiw .vid-ln {
+  display: block;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--line);
+}
+.aiw .vid-ln-h {
+  width: 60%;
+  height: 18px;
+  background: var(--line-control);
+  opacity: 0.5;
+}
+.aiw .vid-ln-s {
+  width: 44%;
+}
+.aiw .vid-ln-m {
+  width: 70%;
+}
+.aiw .vid-item {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+.aiw .vid-item i {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--signal);
+  border-radius: 50%;
+}
+.aiw .vid-item .vid-ln {
+  width: calc(90% - var(--k) * 14%);
+}
+.aiw .vid-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+}
+.aiw .vid-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 38%;
+  min-height: 40px;
+  margin-top: auto;
+}
+.aiw .vid-bars i {
+  flex: 1;
+  height: calc(var(--v) * 100%);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--signal) 55%, transparent);
+}
+.aiw .vid-play {
+  position: relative;
+  z-index: 2;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--action);
+  color: var(--on-action);
+}
+.aiw .vid-play::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border: 1px solid var(--signal);
+  border-radius: 50%;
+  animation: vid-ring 2.6s var(--ease) infinite;
+}
+.aiw .vid-play svg {
+  margin-left: 4px;
+}
+.aiw .vid-ph-label {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.aiw .vid-cam {
+  position: absolute;
+  right: 4%;
+  bottom: 10%;
+  z-index: 2;
+  width: clamp(110px, 13vw, 168px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.aiw .vid-cam-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overflow: clip;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  background: var(--surface);
+}
+.aiw .vid-cam-initials {
+  font-size: clamp(30px, 3.6vw, 46px);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line-control);
+}
+.aiw .vid-cam-ring {
+  position: absolute;
+  inset: -10px;
+  border: 1px solid var(--signal);
+  border-radius: 50%;
+  opacity: 0;
+  animation: vid-ring 3.2s var(--ease) infinite;
+}
+.aiw .vid-cam-ring-2 {
+  animation-delay: 1.6s;
+}
+.aiw .vid-cam-label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translateX(-50%);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+.aiw .vid-caption {
+  max-width: 640px;
+  margin-top: 24px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
+
+@keyframes vid-ring {
+  from {
+    transform: scale(0.82);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* --- Tablets and phones ------------------------------------------------------------------------ */
+
+@media (max-width: 980px) {
+  .aiw .hh {
+    min-height: 0;
+  }
+  .aiw .hh-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 72px;
+    padding-block: 40px 56px;
+  }
+  .aiw .hh-title {
+    font-size: clamp(40px, 9vw, 72px);
+  }
+  .aiw .hh-ripple {
+    left: 50%;
+    top: auto;
+    bottom: 470px;
+    transform: translate(-50%, 50%);
+    opacity: 0.8;
+  }
+  .aiw .hh-ripple .rp-center,
+  .aiw .hh-ripple .rp-dot {
+    display: none;
+  }
+  .aiw .bdg-strap {
+    top: -60px;
+    height: 110px;
+  }
+}
+@media (max-width: 640px) {
+  /* Three columns of 16px labels would wrap to four or five lines at 390, where the mockup's labels
+     are 9.5px: on a phone each figure sits on its own row, its label beside it. */
+  .aiw .hh-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .hh-stat {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: baseline;
+    gap: 12px;
+    padding: 16px 0;
+  }
+  .aiw .hh-stat + .hh-stat {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .aiw .hh-num {
+    font-size: 30px;
+  }
+  .aiw .bdg {
+    padding: 28px 20px 20px;
+  }
+  .aiw .bdg-name {
+    font-size: 22px;
+  }
+  .aiw .vid-play {
+    width: 56px;
+    height: 56px;
+  }
+  .aiw .vid-play svg {
+    width: 22px;
+    height: 22px;
+  }
+  .aiw .vid-ph-label,
+  .aiw .vid-cam-label,
+  .aiw .vid-side {
+    display: none;
+  }
+  .aiw .vid-screen {
+    grid-template-columns: minmax(0, 1fr);
+    inset: 30px 0 0;
+  }
+  .aiw .vid-cam {
+    width: 72px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .aiw .vid-cam-initials {
+    font-size: 22px;
+  }
+  .aiw .vid-chrome {
+    height: 30px;
+  }
+}

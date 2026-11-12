@@ -8,7 +8,12 @@ import { RETOOL_HTML, retoolRender } from './src/retool/vite-plugin.ts';
 import { LIBRARY_HTML, libraryRender } from './src/library/vite-plugin.ts';
 import { OFFER_HTML, offerRender } from './src/offer/vite-plugin.ts';
 import { HOME_HTML, homeRender } from './src/home/vite-plugin.ts';
+import { HOME_V3_HTML, homeV3Render, v3Mode } from './src/home/v3/vite-plugin.ts';
 import { KIT_HTML, SITE_HTML, siteRender } from './src/site/vite-plugin.ts';
+
+// Homepage v3's preview (docs/design/home-v3/brief.md): built only when `V3_PREVIEW` is set, so an
+// ordinary build is exactly main's until the switch-over PR (`src/home/v3/vite-plugin.ts`).
+const V3_HTML = v3Mode() === 'off' ? [] : [HOME_V3_HTML];
 
 // The /ai101 page's own build (DECISIONS.md D-028), run after the SPA's by `pnpm build` into the
 // same `dist/` (or `dist-fixture/`, from `--outDir`). Its own config and not a second input to
@@ -38,11 +43,12 @@ export default defineConfig({
     // www's homepage (D-102): its stylesheet inlined, its one script kept as a same-origin file (the
     // API hashes no inline script on it, so `script-src 'self'` must admit it as a file).
     homeRender(),
+    homeV3Render(),
     // The rest of Spring's site map (D-111): one plugin, a page per `SITE_PAGES` entry, no script.
     siteRender(),
-    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML, ...SITE_HTML], {
+    ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML, ...V3_HTML, ...SITE_HTML], {
       // And the pages built on the v2 kit, which share its one script (`src/kit/client/main.ts`).
-      externalScripts: [HOME_HTML, ...KIT_HTML],
+      externalScripts: [HOME_HTML, ...V3_HTML, ...KIT_HTML],
     }),
   ],
   resolve: {
@@ -85,6 +91,7 @@ export default defineConfig({
         fileURLToPath(new URL(`./${LIBRARY_HTML}`, import.meta.url)),
         ...OFFER_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
         fileURLToPath(new URL(`./${HOME_HTML}`, import.meta.url)),
+        ...V3_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
         ...SITE_HTML.map((html) => fileURLToPath(new URL(`./${html}`, import.meta.url))),
       ],
     },
