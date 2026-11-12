@@ -175,3 +175,9 @@ export const TEAMS_END = {
   moreLink: 'Let’s talk',
   moreAfter: '.',
 } as const;
+
+/**
+ * NEW COPY FROM THE V2 MOCKUP, for Spring's review: the team-size slider's label. The slider is the
+ * kit script's, hidden with no script; the three sizes' cards say everything without it.
+ */
+export const V2_SIZER = { label: 'Agents on your team' } as const;

@@ -8,7 +8,7 @@ import { HOME } from '../home/content';
 import { OFFERS } from '../offer/content';
 import { NEW_SKILLS, TB_FAQ, TB_HERO, WEEKS } from './content';
 import { libraryEntry, renderBody, renderHead, renderTeamBuildBody, renderTeamBuildHead } from './render';
-import { proofLine } from '../site/offers';
+import { EXAMPLES_ON } from './examples';
 
 // /team-build, the Amplified AI Accelerator's sales page (D-112), on the parsed DOM: Spring's outline in
 // her order, the course brief's week-to-skill map and calendar, the buy block's states, and the house
@@ -25,14 +25,22 @@ const $$ = (selector: string, root: ParentNode = doc) => [...root.querySelectorA
 
 describe('the page', () => {
   it('is what the site plugin builds, with its canonical address and the site nav', () => {
-    expect([renderHead, renderBody]).toEqual([renderTeamBuildHead, renderTeamBuildBody]);
+    expect(renderHead).toBe(renderTeamBuildHead);
+    expect(renderBody()).toBe(renderTeamBuildBody());
     expect(text($('title'))).toBe('Amplified AI Accelerator · Amplified Impact');
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/team-build');
     expect($('nav[aria-label="Main"]')).not.toBeNull();
     const shell = read('../../team-build.html');
-    expect(shell).toContain('data-founding="%%founding%%" data-seats="%%seats%%"');
+    expect(shell).toContain(
+      '<body class="aiw" data-theme="dark" data-app-ready="true" data-founding="%%founding%%" data-seats="%%seats%%">',
+    );
     expect(shell).toContain('/src/team-build/team-build.css');
-    expect(shell + html).not.toMatch(/<script/i);
+    // Only the kit's one script, a same-origin module file: nothing inline, no inline handler.
+    expect([...shell.matchAll(/<script\b[^>]*>/gi)].map((m) => m[0])).toEqual([
+      '<script type="module" src="/src/kit/client/main.ts">',
+    ]);
+    expect(html).not.toMatch(/<script/i);
+    expect(shell + html).not.toMatch(/\son[a-z]+=/i);
   });
 
   it('runs in Spring’s order: hero, who, the weeks, how it runs and what you get, proof, Spring and Connor, price, questions', () => {
@@ -43,11 +51,15 @@ describe('the page', () => {
       'One skill a week',
       'How it runs',
       'What you get',
-      'Built inside our own business',
+      'The Utah Life Real Estate Group',
       'Meet Spring and Connor',
-      'Founding price',
+      'One price for the owner and the ops lead.',
       'Questions',
+      'Not ready? Start with 5 free skills.',
     ]);
+    // The proof's and the price's live headings sit over them as the mockup's eyebrows.
+    expect(text($('.proof .eb'))).toBe('Built inside our own business');
+    expect(text($('#price .eb'))).toBe('Founding price');
   });
 });
 
@@ -55,25 +67,41 @@ describe('the hero', () => {
   it('says the first build’s date and time, with the proof line', () => {
     expect(text($('.first'))).toBe('First build: Wednesday, December 2 at 1:00 PM Central.');
     expect(TB_HERO.first).toContain('1:00 PM Central');
-    expect([text($('.tb-hero .proof-line span')), text($('.tb-hero .proof-line strong'))]).toEqual([HOME.proof.label, HOME.proof.figure]);
+    expect([text($('.tb-hero .proof-line span')), text($('.tb-hero .proof-line strong'))]).toEqual([
+      HOME.proof.label,
+      HOME.proof.figure,
+    ]);
   });
 
   it('has a buy block with the countdown, the seats left and the Accelerator’s two links, filled per request', () => {
     const buys = $$('.buy');
     expect(buys).toHaveLength(2);
-    // One function: the same prices, states and links, the price section's with the proof line added.
-    expect(buys[0]!.outerHTML).toBe(buys[1]!.outerHTML.replace(new DOMParser().parseFromString(proofLine(), 'text/html').body.innerHTML, ''));
+    // The same pieces in both, from the same functions: price, countdown and seats, buttons and proof.
+    for (const part of ['.tk-price', '.tk-status', '.plan-actions'])
+      expect($(part, buys[0])!.outerHTML, part).toBe($(part, buys[1])!.outerHTML);
+    expect(buys.map((b) => b.getAttribute('data-state'))).toEqual([
+      `%%state:${CARD_CARTS.cohort![0]}%%`,
+      `%%state:${CARD_CARTS.cohort![0]}%%`,
+    ]);
     const b = buys[0]!;
     const [full, two] = CARD_CARTS.cohort!;
     expect(b.getAttribute('data-state')).toBe(`%%state:${full}%%`);
     expect(text($('.amount', b))).toBe(OFFERS.cohort.price.amount);
-    expect($$('.buy-facts p', b).map(text)).toEqual(['%%countdown%% at the founding price.', '%%seats-left%% of %%seats-total%% seats left.']);
+    expect([text($('.tk-row', b)), text($('.status.seats-left', b))]).toEqual([
+      '%%seats-left%% of %%seats-total%% seats left.',
+      '%%countdown%% at the founding price.',
+    ]);
+    expect($('.seatm', b)?.getAttribute('data-left')).toBe('%%seats-left%%');
+    expect($('.tk-status', b)?.classList.contains('founding-open')).toBe(true);
     expect($$('.act-link a', b).map((a) => [text(a), a.getAttribute('href')])).toEqual([
       ['Get Amplified AI Accelerator', `%%link:${full}%%`],
       ['Or pay in 2 payments of $3,750', `%%link:${two}%%`],
     ]);
     // Closed or sold out: the waitlist instead of the links.
-    expect($$('a.act-closed, a.act-soldout', b).map((a) => a.getAttribute('href'))).toEqual(['/offer#waitlist', '/offer#waitlist']);
+    expect($$('a.act-closed, a.act-soldout', b).map((a) => a.getAttribute('href'))).toEqual([
+      '/offer#waitlist',
+      '/offer#waitlist',
+    ]);
     expect(text($('.price.founding-closed', b))).toBe('$9,997 next cohort');
   });
 });
@@ -82,7 +110,9 @@ describe('who it’s for', () => {
   it('names Follow Up Boss, the owner and ops lead pair with their time estimates, and the waitlist', () => {
     const who = $('.who')!;
     expect(text(who)).toContain('Team owners and ops leads on Follow Up Boss.');
-    expect(text(who)).toContain('about 2 to 2.5 hours a week, with an ops lead at about 3 to 4. Those are our estimates.');
+    expect(text(who)).toContain(
+      'about 2 to 2.5 hours a week, with an ops lead at about 3 to 4. Those are our estimates.',
+    );
     expect($('.who-waitlist a', who)?.getAttribute('href')).toBe('/offer#waitlist');
   });
 });
@@ -91,7 +121,17 @@ describe('the weeks: the course brief’s map, not the draft list', () => {
   const weeks = $$('.week');
 
   it('are week 0 and the eight builds, on the locked Wednesdays, with nothing on December 23 or 30', () => {
-    expect(weeks.map((w) => text($('.week-n', w)))).toEqual(['Week 0', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8']);
+    expect(weeks.map((w) => text($('.week-n', w)))).toEqual([
+      'Week 0',
+      'Week 1',
+      'Week 2',
+      'Week 3',
+      'Week 4',
+      'Week 5',
+      'Week 6',
+      'Week 7',
+      'Week 8',
+    ]);
     expect(WEEKS.items.slice(1).map((w) => w.date)).toEqual([
       'Wednesday, December 2',
       'Wednesday, December 9',
@@ -153,13 +193,20 @@ describe('the proof next to the buy buttons', () => {
   it('sits under the price section’s buttons, inside the block shown only for a live cart', () => {
     const bottom = $('#price .buy')!;
     const proof = $('.act-link .proof-line', bottom)!;
-    expect([text($('span', proof)), text($('strong', proof))]).toEqual(['Built inside The Utah Life Real Estate Group', '100 agents, 700+ homes a year']);
+    expect([text($('span', proof)), text($('strong', proof))]).toEqual([
+      'Built inside The Utah Life Real Estate Group',
+      '100 agents, 700+ homes a year',
+    ]);
     expect(proof.previousElementSibling?.getAttribute('href')).toBe(`%%link:${CARD_CARTS.cohort![1]}%%`);
   });
 
-  it('stays beside the hero’s buy block, once', () => {
-    expect($$('.tb-hero .proof-line').map(text)).toEqual(['Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year']);
-    expect($('.tb-hero .buy .proof-line')).toBeNull();
+  it('sits under the hero’s buttons too, once', () => {
+    expect($$('.tb-hero .proof-line').map(text)).toEqual([
+      'Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year',
+    ]);
+    expect($('.tb-hero .buy .act-link .proof-line')?.previousElementSibling?.getAttribute('href')).toBe(
+      `%%link:${CARD_CARTS.cohort![1]}%%`,
+    );
   });
 });
 
@@ -174,24 +221,67 @@ describe('how it runs and what you get', () => {
 
   it('says the recordings live in the Library', () => {
     const rec = $$('.how-list .how-item').find((i) => text($('dt', i)) === 'Recordings')!;
-    expect(text($('dd', rec))).toBe('Every build is recorded, and the recordings live in the Library. A missed week isn’t a lost week.');
+    expect(text($('dd', rec))).toBe(
+      'Every build is recorded, and the recordings live in the Library. A missed week isn’t a lost week.',
+    );
   });
 
   it('lists /offer’s own lines for what you get', () => {
-    expect($$('.how-cols .ticks li').map(text)).toEqual([...OFFERS.cohort.lines]);
+    expect($$('.get .fl-title').map(text)).toEqual([...OFFERS.cohort.lines]);
+  });
+
+  it('draws a normal week only from what the list says, and hides the drawing from screen readers', () => {
+    const cal = $('.cal')!;
+    expect(cal.getAttribute('aria-hidden')).toBe('true');
+    expect($$('.cal-ev-t', cal).map(text)).toEqual(['Live builds', 'Office hours']);
+    // Wednesday from 1 PM for 1.5 hours, Thursday from 1 PM for 1 hour (11 AM is row 0).
+    expect($$('.cal-ev', cal).map((e) => e.getAttribute('style'))).toEqual([
+      '--c:2;--s:2;--l:1.5;--ei:0',
+      '--c:3;--s:2;--l:1;--ei:1',
+    ]);
+    expect($('.hours')?.getAttribute('aria-hidden')).toBe('true');
+    expect($$('.hours-row .hours-val').map(text)).toEqual(['2 to 2.5 hours', '3 to 4 hours']);
+  });
+});
+
+describe('the made-up week previews', () => {
+  it('are off: no preview and no “Made-up example” on the page', () => {
+    expect(EXAMPLES_ON).toBe(false);
+    expect($$('.wk-pv')).toHaveLength(0);
+    expect(html).not.toContain('Made-up example');
+  });
+
+  it('when on, sit on the week cards only, each but week 0 tagged “Made-up example”, never by a price or a button', () => {
+    const on = new DOMParser().parseFromString(renderTeamBuildBody({ examples: true }), 'text/html');
+    const pvs = [...on.querySelectorAll('.wk-pv')];
+    expect(pvs).toHaveLength(9);
+    expect(pvs.map((p) => p.querySelector('.ex-tag')?.textContent ?? null)).toEqual([
+      null,
+      ...Array(8).fill('Made-up example'),
+    ]);
+    for (const p of pvs) {
+      expect(p.closest('.weeks')).not.toBeNull();
+      expect(p.closest('.buy, .plan')).toBeNull();
+    }
+    expect(on.querySelectorAll('.weeks .btn, .weeks .amount')).toHaveLength(0);
   });
 });
 
 describe('Spring and Connor, and the questions', () => {
   it('reuses the homepage’s people, their own photos and the link to their story', () => {
-    expect($$('.person-card h3').map(text)).toEqual(['Spring Bengtzen', 'Connor Leiva']);
-    expect($$('.person-card img').map((i) => i.getAttribute('src'))).toEqual(['/img/team/spring-bengtzen.jpg', '/img/team/connor-leiva.jpg']);
-    expect($('.meet .section-more a')?.getAttribute('href')).toBe('/about');
+    expect($$('.founder-name').map(text)).toEqual(['Spring Bengtzen', 'Connor Leiva']);
+    expect($$('.founder img').map((i) => i.getAttribute('src'))).toEqual([
+      '/img/team/spring-bengtzen.jpg',
+      '/img/team/connor-leiva.jpg',
+    ]);
+    expect($('.founders-foot a')?.getAttribute('href')).toBe('/about');
   });
 
   it('answers the questions a team owner asks, pointing to the agreement for refunds', () => {
     expect($$('.faq summary').map(text)).toEqual(TB_FAQ.items.map((f) => f.q));
-    expect($$('.faq a').map((a) => a.getAttribute('href'))).toEqual(['/offer#waitlist', '/agreement']);
+    expect($$('.faq-list a').map((a) => a.getAttribute('href'))).toEqual(['/offer#waitlist', '/agreement']);
+    // Beside them, the site's live contact line.
+    expect(text($('.faq-aside'))).toBe('Questions? Write to support@amplifiedimpact.io.');
   });
 });
 
@@ -203,7 +293,11 @@ describe('the share tags', () => {
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/team-build');
     expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/team-build');
     expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
-    expect([meta('meta[property="og:image:width"]'), meta('meta[property="og:image:height"]'), meta('meta[property="og:image:alt"]')]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    expect([
+      meta('meta[property="og:image:width"]'),
+      meta('meta[property="og:image:height"]'),
+      meta('meta[property="og:image:alt"]'),
+    ]).toEqual(['890', '1113', 'Spring Bengtzen']);
     expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });
@@ -214,7 +308,9 @@ describe('the words and the tokens', () => {
   it('follow the house rules: no em dashes, no “Forum”, no testimonials, no results promises, no Jordan Hale', () => {
     expect(html).not.toMatch(/[–—]/);
     expect(words).not.toMatch(/forum/i);
-    expect(words).not.toMatch(/testimonial|guarantee|\bincome\b|\bearn(s|ings)?\b|\broi\b(?!.*lead)|10x|close more|more deals|jordan/i);
+    expect(words).not.toMatch(
+      /testimonial|guarantee|\bincome\b|\bearn(s|ings)?\b|\broi\b(?!.*lead)|10x|close more|more deals|jordan/i,
+    );
     expect(words).not.toMatch(/!/);
     expect(words).not.toMatch(/Team Owner AI Build|FUB Automation Audit/);
   });
@@ -227,8 +323,26 @@ describe('the words and the tokens', () => {
   });
 
   it('keeps text legible on a phone', () => {
-    const css = read('./team-build.css') + read('../site/offers.css') + read('../site/site.css');
+    const css = read('./team-build.css') + read('../kit/kit.css');
+    expect(read('./team-build.css')).toContain("@import '../kit/kit.css';");
     const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
+  });
+});
+
+describe('never hidden (Ampy’s rule)', () => {
+  it('puts no buy button, payment link, plan actions, seat counter or proof line inside a reveal or a fade', () => {
+    const held = '.rv, .fade-1, .fade-2, .fade-3';
+    const buying = [
+      ...doc.querySelectorAll(
+        'a[href*="buy.stripe.com"], a[href^="%%link:"], .plan-actions, .seatm, .tk-seats, .proof-line',
+      ),
+    ];
+    expect(buying.length).toBeGreaterThan(8);
+    for (const el of buying) expect(el.closest(held), el.outerHTML.slice(0, 80)).toBeNull();
+  });
+
+  it('lets the hero’s ticket, with its price and seats, show from the start', () => {
+    expect(read('./team-build.css')).not.toMatch(/\.acc-ticket-in \{[^}]*animation/);
   });
 });

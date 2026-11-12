@@ -225,8 +225,9 @@ export const holdsBuying = (el: Element): boolean =>
   el.matches(NEVER_HIDDEN) || el.querySelector(NEVER_HIDDEN) !== null;
 
 /**
- * What moves as you scroll: `.rv` blocks below the fold rise in, `[data-count]` figures count up, and
- * the footer's Logo 1 draws up with its ripple. A block holding a buy button, a payment link, a seat
+ * What moves as you scroll: `.rv` blocks below the fold rise in, `[data-count]` figures count up, the
+ * footer's Logo 1 draws up with its ripple, and any `[data-in]` drawing (a page's chart) gets `is-in`
+ * as it arrives. A block holding a buy button, a payment link, a seat
  * counter or the proof line is never held back (`NEVER_HIDDEN`), and the seat meter's marks are drawn
  * from the start. Under reduced motion, or with no IntersectionObserver, everything is simply shown,
  * as the markup already has it.
@@ -237,7 +238,7 @@ export function initInView(root: ParentNode): void {
     el.classList.add('is-in');
     el.querySelector('.rp')?.classList.add('rp-intro');
   };
-  for (const el of root.querySelectorAll('.seatm, .foot-mark')) {
+  for (const el of root.querySelectorAll('.seatm, .foot-mark, [data-in]')) {
     if (still) el.classList.add('is-in');
     else onView(el, () => arrive(el), { rootMargin: '0px 0px -15% 0px' });
   }
@@ -305,6 +306,38 @@ export function initChooser(chooser: HTMLElement, page: ParentNode): void {
   }
 }
 
+/**
+ * A size slider (`[data-sizer]`, /teams): hidden in the markup, shown here. Dragging it counts the seats,
+ * shows the price of the size that fits (its `[data-max]` panel) and marks that size's card (by
+ * `data-tier`, the card's id). The cards and their links stay as they are: it never swaps an href.
+ */
+export function initSizer(sizer: HTMLElement, page: ParentNode): void {
+  const input = sizer.querySelector<HTMLInputElement>('input[type="range"]');
+  const out = sizer.querySelector<HTMLOutputElement>('output');
+  if (!input || !out) return;
+  const max = Number(input.max);
+  const seats = [...sizer.querySelectorAll<HTMLElement>('.seat:not(.seat-more)')];
+  const more = sizer.querySelector<HTMLElement>('.seat-more');
+  const panels = [...sizer.querySelectorAll<HTMLElement>('[data-max]')];
+  const update = () => {
+    const n = Number(input.value);
+    const over = n >= max;
+    out.textContent = over ? `${max - 1}+` : String(n);
+    input.style.setProperty('--fill', `${((n - 1) / (max - 1)) * 100}%`);
+    seats.forEach((s, i) => s.classList.toggle('is-on', i < n));
+    more?.classList.toggle('is-on', over);
+    const fit = panels.find((p) => n <= Number(p.dataset.max)) ?? panels[panels.length - 1];
+    for (const p of panels) {
+      p.hidden = p !== fit;
+      const card = p.dataset.tier ? page.querySelector<HTMLElement>(`#${CSS.escape(p.dataset.tier)}`) : null;
+      card?.classList.toggle('is-on', p === fit);
+    }
+  };
+  input.addEventListener('input', update);
+  sizer.hidden = false;
+  update();
+}
+
 /** `[data-scroll="exit"]`: writes how far the block has scrolled off the top (0 to 1) as `--p`, once a frame. */
 export function initScrollExit(root: ParentNode): void {
   if (reducedMotion()) return;
@@ -340,6 +373,7 @@ export function init(): void {
     if (phone) initPhoneMenu(header, phone);
   }
   for (const chooser of page.querySelectorAll<HTMLElement>('[data-chooser]')) initChooser(chooser, page);
+  for (const sizer of page.querySelectorAll<HTMLElement>('[data-sizer]')) initSizer(sizer, page);
   initScrollExit(page);
   initInView(page);
 }

@@ -1,180 +1,1053 @@
-/* /team-build, the Amplified AI Accelerator's sales page. DECISIONS.md D-112.
+/* /team-build, the Amplified AI Accelerator's sales page. DECISIONS.md D-112; the v2 mockup's
+   AcceleratorPage.
 
-   The site's look and the sales pages' shared pieces (`../site/offers.css`: the card's price and
-   buttons with their states, the questions). This file is the page's own: the hero with its buy block,
-   who it's for, the eight weeks, how it runs, the proof and the price section. Mobile first, no text
-   under 16px, every tap 44px or more, nothing wider than the screen.
+   THE KIT (`../kit/kit.css`): tokens, type, header, footer, the price block and buttons with their
+   states, the proof, founders, questions and the close. This file is the page's own, the mockup's rules
+   in its order, with Spring's 16px floor and 44px taps (the mockup's 10 to 15px labels are raised).
 
    COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
 
-@import '../site/offers.css';
+@import '../kit/kit.css';
 
-/* --- The hero and its buy block --------------------------------------------------------------- */
-
-.tb-hero {
-  padding: 40px 0 48px;
-}
-.tb-hero-in {
-  display: grid;
-  gap: 32px;
-}
-.tb-hero h1 {
-  max-width: 16ch;
-  margin-top: 8px;
-  font-size: 38px;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-}
-.first {
-  margin-top: 16px;
+.aiw .status strong {
   font-weight: 500;
 }
-.buy-facts {
+
+/* --- Hero ------------------------------------------------------------------------------------- */
+
+.aiw .acc-hero {
+  min-height: max(100vh, 860px);
+  display: flex;
+  flex-direction: column;
+  padding-top: 88px;
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .acc-hero-in {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 44px;
+  padding-block: 36px 48px;
+}
+.aiw .acc-hero-top {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  transform: translateY(calc(var(--p, 0) * -60px));
+  opacity: calc(1 - var(--p, 0) * 1.3);
+}
+.aiw .acc-hero-top .eb {
+  animation: aiw-fade-up 0.8s var(--ease) both;
+}
+.aiw .acc-title {
+  font-size: clamp(50px, 6.6vw, 100px);
+}
+.aiw .acc-hero-grid {
   display: grid;
-  gap: 4px;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 64px;
+  align-items: start;
 }
-.buy-facts strong {
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
+.aiw .acc-hero-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-28);
+  padding-top: 8px;
+  transform: translateY(calc(var(--p, 0) * -80px));
+  opacity: calc(1 - var(--p, 0) * 1.3);
 }
-
-/* --- Who it's for -------------------------------------------------------------------------------- */
-
-.who-cols,
-.how-cols {
-  display: grid;
-  gap: 40px;
+.aiw .first {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-secondary);
+  font-size: 16px;
 }
-.who-waitlist {
-  margin-top: 16px;
-  color: var(--text-secondary);
+.aiw .acc-actions .plan-actions {
+  gap: 18px;
 }
-
-/* --- The eight weeks --------------------------------------------------------------------------- */
-
-.week-list {
-  display: grid;
+.aiw .acc-aside {
+  position: relative;
+}
+.aiw .acc-ripple {
+  position: absolute;
+  left: calc(50% + 480px);
+  top: 318px;
+  transform: translate(-50%, -50%) scale(calc(1 + var(--p, 0) * 0.6));
+  opacity: calc(1 - var(--p, 0));
+  pointer-events: none;
+}
+.aiw .acc-ticket-move {
+  position: relative;
+  transform: translateY(calc(var(--p, 0) * -120px));
+}
+/* The ticket holds the price and the seat counter, so it never starts hidden (Ampy's rule): no entry
+   animation. It still drifts with the hero's scroll (`.acc-ticket-move`). */
+.aiw .ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .ticket-kicker {
+  color: var(--accent);
+}
+.aiw .ticket .amount {
+  font-size: 64px;
+  letter-spacing: -0.04em;
+}
+.aiw .ticket-perf {
+  position: relative;
+  height: 0;
+  margin: 2px -28px;
+  border-top: 1px dashed var(--line-control);
+}
+.aiw .ticket-perf::before,
+.aiw .ticket-perf::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+}
+.aiw .ticket-perf::before {
+  left: -12px;
+  clip-path: inset(0 0 0 50%);
+}
+.aiw .ticket-perf::after {
+  right: -12px;
+  clip-path: inset(0 50% 0 0);
+}
+.aiw .tk-status {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .tk-seats {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  margin-top: 28px;
 }
-.week {
-  padding: 20px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  box-shadow: inset 0 0 0 1px var(--line-default);
+.aiw .tk-row {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--ink);
 }
-.week-when {
+.aiw .tk-status .status {
+  align-items: baseline;
+}
+
+/* The cohort's calendar strip. */
+.aiw .strip {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+.aiw .strip-cell {
+  position: relative;
+  border-left: 1px solid var(--line);
+  animation: aiw-fade-up 0.7s var(--ease) both;
+  animation-delay: calc(0.9s + var(--ci) * 60ms);
+}
+.aiw .strip-cell:first-child {
+  border-left: 0;
+}
+.aiw .strip-cell::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: aiw-grow-x 0.5s var(--ease) both;
+  animation-delay: calc(1.2s + var(--ci) * 80ms);
+}
+@keyframes aiw-grow-x {
+  to {
+    transform: scaleX(1);
+  }
+}
+.aiw .strip-btn {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px 24px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+.aiw .strip-btn:hover {
+  background: var(--surface-raised);
+}
+.aiw .strip-cell:first-child .strip-btn {
+  padding-left: 0;
+}
+.aiw .strip-cell:first-child .strip-btn:hover {
+  background: none;
+}
+.aiw .strip-n {
+  color: var(--accent);
+}
+.aiw .strip-date {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .strip-theme {
+  color: var(--ink-muted);
+  font-size: 16px;
+  line-height: 1.35;
+  transition: color 0.2s;
+}
+.aiw .strip-btn:hover .strip-theme {
+  color: var(--ink-secondary);
+}
+
+/* --- Who it's for, with the hours as a small chart ---------------------------------------------- */
+
+.aiw .fit {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .fit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px 72px;
+}
+.aiw .fit-col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.aiw .fit-col .checks li {
+  font-size: 18px;
+}
+.aiw .fit-not {
+  margin-left: -36px;
+  padding-left: 72px;
+  border-left: 1px solid var(--line);
+}
+.aiw .who-waitlist {
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .hours {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 32px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .hours-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-muted);
+}
+.aiw .hours-row,
+.aiw .hours-axis {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: 20px;
+}
+.aiw .hours-who {
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .hours-track {
+  position: relative;
+  height: 12px;
+  border-bottom: 1px solid var(--line);
+  background-image: linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 20% 100%;
+}
+.aiw .hours-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--from) * 100%);
+  width: calc((var(--to) - var(--from)) * 100%);
+  border-radius: 6px;
+  background: var(--signal);
+}
+.aiw-js .aiw .hours:not(.is-in) .hours-bar {
+  transform: scaleX(0);
+}
+.aiw .hours-bar {
+  transform-origin: left;
+  transition: transform 0.9s var(--ease);
+  transition-delay: calc(0.2s + var(--hi) * 0.15s);
+}
+.aiw .hours-val {
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .hours-ticks {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-muted);
+}
+.aiw .hours-ticks .mono {
+  width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* --- One skill a week --------------------------------------------------------------------------- */
+
+.aiw .weeks {
+  border-top: 1px solid var(--line);
+}
+.aiw .weeks.is-static {
+  padding-block: var(--section);
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .weeks-stick {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.aiw .weeks-eight {
+  position: absolute;
+  right: 2vw;
+  top: 50%;
+  transform: translateY(-50%);
+  color: transparent;
+  font-size: clamp(360px, 44vw, 660px);
+  line-height: 0.8;
+  font-weight: 600;
+  letter-spacing: -0.08em;
+  -webkit-text-stroke: 1px var(--line-control);
+  opacity: 0.32;
+  pointer-events: none;
+}
+.aiw .weeks-head {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.aiw .weeks-head-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .weeks-view {
+  position: relative;
+}
+.aiw .weeks-track {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: 16px;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.aiw .wk[id] {
+  scroll-margin-top: 88px;
+}
+.aiw .wk-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  transition: border-color 0.5s var(--ease);
+}
+.aiw .wk:target .wk-card {
+  border-color: color-mix(in srgb, var(--signal) 70%, var(--line));
+}
+.aiw .wk-top {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px 10px;
-  color: var(--text-secondary);
+  justify-content: space-between;
+  gap: 4px 12px;
+  color: var(--ink-muted);
+}
+.aiw .wk-n {
+  color: var(--accent);
+}
+.aiw .wk-theme {
+  font-size: 32px;
+  line-height: 1.06;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .wk-q {
+  color: var(--ink-secondary);
+  font-size: 18px;
+  line-height: 1.45;
+}
+.aiw .wk-note {
+  color: var(--ink-secondary);
   font-size: 16px;
+  line-height: 1.5;
 }
-.week-n {
-  color: var(--action-primary);
-  font-weight: 500;
-}
-.week h3 {
-  margin-top: 4px;
-  font-size: 20px;
-  line-height: 1.25;
-}
-.week-q {
-  margin-top: 6px;
-}
-.week-skills,
-.week-support,
-.week-note {
-  margin-top: 10px;
-  font-size: 16px;
-  line-height: 1.75;
-}
-.week-skills {
-  font-weight: 500;
-}
-.week-skills a,
-.week-support a,
-.who-waitlist a {
-  padding: 12px 0;
-  font-weight: 500;
-  text-decoration: underline;
-}
-.week-support,
-.week-note {
-  color: var(--text-secondary);
-}
-.skill-new {
-  display: inline-flex;
+.aiw .wk-skills {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
-.weeks-holiday {
-  margin-top: 20px;
+.aiw .wk-with {
+  color: var(--ink-muted);
+}
+.aiw .wk-skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 7px 12px;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  font-size: 16px;
   font-weight: 500;
+  text-decoration: none;
+  transition:
+    border-color 0.3s,
+    transform 0.3s var(--ease);
+}
+a.wk-skill:hover {
+  border-color: var(--signal);
+  transform: translateY(-2px);
+}
+.aiw .wk-pv {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: auto;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background-color: var(--surface);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--ripple) 10%, transparent) 1px,
+    transparent 1.6px
+  );
+  background-size: 16px 16px;
+}
+.aiw .wk-pv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-muted);
+}
+.aiw .wk-break-in {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  border: 1px dashed var(--line-control);
+  border-radius: var(--radius-panel);
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 8px,
+    color-mix(in srgb, var(--ink) 5%, transparent) 8px 9px
+  );
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-/* --- How it runs ------------------------------------------------------------------------------- */
-
-.how-list {
+/* The week previews (made up, off unless `EXAMPLES_ON`). */
+.aiw .pv {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .pv-cap {
+  color: var(--ink-muted);
+}
+.aiw .pv-bar {
   display: grid;
-  gap: 16px;
-  margin-top: 16px;
+  grid-template-columns: 112px minmax(0, 1fr) 72px;
+  align-items: center;
+  gap: 10px;
 }
-.how-item dt {
+.aiw .pv-track {
+  height: 8px;
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 4px;
+  background: var(--line);
+}
+.aiw .pv-track span {
+  display: block;
+  width: calc(var(--w) * 100%);
+  height: 100%;
+  border-radius: 4px;
+  background: var(--ink);
+}
+.aiw .pv-v {
+  color: var(--ink);
   font-weight: 500;
+  text-align: right;
 }
-.how-item dd {
-  color: var(--text-secondary);
+.aiw .pv-flag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 16px;
 }
-
-/* --- Proof and the price ----------------------------------------------------------------------- */
-
-.proof-figure {
+.aiw .pv-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+}
+.aiw .pv-rows {
+  display: flex;
+  flex-direction: column;
+}
+.aiw .pv-rows li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+.aiw .pv-rows li:last-child {
+  border-bottom: 0;
+}
+.aiw .pv-owner,
+.aiw .pv-verdict {
+  min-width: 34px;
+  padding: 3px 8px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+  text-align: center;
+  white-space: nowrap;
+}
+.aiw .pv-owner.is-none,
+.aiw .pv-verdict.is-keep {
+  border-color: var(--signal);
+  color: var(--accent);
+}
+.aiw .pv-verdict.is-fix {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
+}
+.aiw .pv-i {
+  margin-right: 10px;
+  color: var(--ink-muted);
+}
+.aiw .pv-src {
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.aiw .pv-agenda {
+  display: flex;
+  height: 34px;
+  gap: 3px;
+}
+.aiw .pv-seg {
+  flex: var(--m) 1 0;
+  min-width: 8px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 4px;
+  background: var(--line-control);
+  color: var(--surface);
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.aiw .pv-seg.is-big {
+  background: var(--ink);
+}
+.aiw .pv-tick {
+  width: 20px;
+  height: 20px;
   display: grid;
-  gap: 2px;
-  margin-top: 16px;
+  place-items: center;
+  border: 1.5px solid var(--signal);
+  border-radius: 50%;
+  background: var(--signal);
+  color: var(--surface);
 }
-.proof-figure span {
-  color: var(--text-secondary);
+.aiw .pv-cols {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: end;
+  gap: 10px;
+  height: 128px;
+}
+.aiw .pv-col {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 4px;
+  height: 100%;
+}
+.aiw .pv-colbar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: calc(var(--h) * 64px + 4px);
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 4px 4px 0 0;
+  background: var(--ink);
+}
+.aiw .pv-colold {
+  height: calc(var(--old) * 100%);
+  background: repeating-linear-gradient(135deg, var(--signal) 0 3px, transparent 3px 6px);
+}
+.aiw .pv-coln {
+  color: var(--ink);
+  letter-spacing: 0;
+}
+.aiw .pv-colt {
+  overflow: hidden;
+  overflow: clip;
+  color: var(--ink-muted);
+  font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.aiw .pv-pace {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.aiw .pv-pace > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface-raised);
+}
+.aiw .pv-pace .mono {
+  color: var(--ink-muted);
+}
+.aiw .pv-big {
+  color: var(--ink);
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .pv-pace .is-flag {
+  border-color: var(--signal);
+}
+.aiw .pv-pace .is-flag .pv-big {
+  color: var(--accent);
+}
+.aiw .pv-days {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding-top: 10px;
+}
+.aiw .pv-days::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 12%;
+  top: 16px;
+  height: 1px;
+  background: var(--line-control);
+}
+.aiw .pv-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aiw .pv-node {
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid var(--signal);
+  border-radius: 50%;
+  background: var(--signal);
+}
+.aiw .pv-dayt {
+  color: var(--ink);
   font-size: 16px;
   font-weight: 500;
 }
-.proof-figure strong {
-  font-size: 28px;
-  font-weight: 500;
-  line-height: 1.2;
+.aiw .pv-dayo {
+  color: var(--ink-muted);
 }
-.price-in {
+
+/* --- How it runs, on the other theme, with a normal week drawn out ------------------------------ */
+
+.aiw .runs {
+  padding-block: var(--section);
+}
+.aiw .runs-grid {
   display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .runs-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.aiw .runs-list {
+  margin-top: 12px;
+  border-top: 1px solid var(--ink);
+}
+.aiw .runs-row {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .runs-row dt {
+  padding-top: 2px;
+  color: var(--accent);
+}
+.aiw .runs-row dd {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.aiw .cal {
+  position: sticky;
+  top: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .cal-top {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-muted);
+}
+.aiw .cal-grid {
+  display: grid;
+  grid-template-columns: 64px repeat(5, minmax(0, 1fr));
+  row-gap: 10px;
+}
+.aiw .cal-day {
+  color: var(--ink-secondary);
+  text-align: center;
+}
+.aiw .cal-times {
+  display: grid;
+  grid-template-rows: repeat(5, 84px);
+  color: var(--ink-muted);
+}
+.aiw .cal-times .mono {
+  letter-spacing: 0;
+  transform: translateY(-9px);
+}
+.aiw .cal-area {
+  position: relative;
+  grid-column: 2 / -1;
+  height: 420px;
+  border-bottom: 1px solid var(--line);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px);
+  background-size: 100% 84px;
+}
+.aiw .cal-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--c) * 20%);
+  width: 20%;
+  border-left: 1px solid var(--line);
+}
+.aiw .cal-ev {
+  position: absolute;
+  left: calc(var(--c) * 20% + 5px);
+  top: calc(var(--s) * 84px + 3px);
+  width: calc(20% - 10px);
+  height: calc(var(--l) * 84px - 6px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: 16px;
+}
+.aiw .cal-ev.is-build {
+  border-color: var(--signal);
+  background: color-mix(in srgb, var(--signal) 14%, var(--surface));
+}
+.aiw .cal-ev .ic {
+  color: var(--ink);
+}
+.aiw .cal-ev-t {
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.25;
+}
+.aiw .cal-ev .mono {
+  color: var(--ink-secondary);
+  letter-spacing: 0;
+}
+
+/* --- What you get --------------------------------------------------------------------------------- */
+
+.aiw .get {
+  padding-block: var(--section);
+}
+.aiw .get-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .get-head {
+  position: sticky;
+  top: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+.aiw .fl {
+  border-top: 1px solid var(--ink);
+}
+.aiw .fl-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: baseline;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .fl-idx {
+  color: var(--ink-secondary);
+}
+.aiw .fl-title {
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* --- Founding price ------------------------------------------------------------------------------- */
+
+.aiw .founding {
+  padding-block: var(--section);
+  overflow: hidden;
+  overflow: clip;
+  border-top: 1px solid var(--line);
+}
+.aiw .founding-ripple {
+  position: absolute;
+  left: 76%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.aiw .founding-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 72px;
+  align-items: center;
+}
+.aiw .founding-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.aiw .founding-panel {
+  display: flex;
+  flex-direction: column;
   gap: 24px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .founding-panel .amount {
+  font-size: 72px;
+  letter-spacing: -0.045em;
 }
 
-/* --- Wider screens ----------------------------------------------------------------------------- */
+/* --- Tablets and phones --------------------------------------------------------------------------- */
 
-@media (min-width: 640px) {
-  .week-list {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 1180px) {
+  .aiw .strip {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .aiw .strip-cell:nth-child(6) {
+    border-left: 0;
+  }
+  .aiw .strip-cell:nth-child(6) .strip-btn {
+    padding-left: 0;
+  }
+  .aiw .strip-cell:nth-child(n + 6) {
+    border-top: 1px solid var(--line);
   }
 }
-
-@media (min-width: 960px) {
-  .tb-hero {
-    padding: 64px 0 72px;
+@media (max-width: 980px) {
+  .aiw .acc-hero {
+    min-height: 0;
   }
-  .tb-hero-in {
-    grid-template-columns: 1.3fr 1fr;
-    align-items: start;
-    gap: 56px;
+  .aiw .acc-hero-grid,
+  .aiw .runs-grid,
+  .aiw .get-grid,
+  .aiw .founding-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
   }
-  .tb-hero h1 {
-    font-size: 54px;
+  .aiw .acc-hero-copy,
+  .aiw .acc-hero-top,
+  .aiw .acc-ticket-move {
+    transform: none;
+    opacity: 1;
   }
-  .who-cols,
-  .how-cols,
-  .price-in {
-    grid-template-columns: 1fr 1fr;
+  .aiw .acc-aside {
+    max-width: 520px;
   }
-  .week-list {
-    grid-template-columns: repeat(3, 1fr);
+  .aiw .acc-ripple {
+    left: 88%;
+    top: 200px;
+  }
+  .aiw .fit-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .fit-not {
+    margin-left: 0;
+    padding-top: 40px;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+  .aiw .cal,
+  .aiw .get-head {
+    position: relative;
+    top: 0;
+  }
+  .aiw .weeks-eight {
+    top: 120px;
+    right: -20px;
+    font-size: 300px;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aiw .strip-cell {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+  .aiw .strip-cell:nth-child(odd) .strip-btn {
+    padding-left: 0;
+  }
+  .aiw .strip-cell:nth-child(even) {
+    border-left: 1px solid var(--line);
+  }
+  .aiw .ticket {
+    padding: 22px;
+  }
+  .aiw .ticket .amount {
+    font-size: 52px;
+  }
+  .aiw .ticket-perf {
+    margin-inline: -22px;
+  }
+  .aiw .hours {
+    padding: 20px;
+  }
+  .aiw .hours-row,
+  .aiw .hours-axis {
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .aiw .hours-val {
+    grid-column: 2;
+    margin-top: -6px;
+  }
+  .aiw .hours-axis .hours-val {
+    display: none;
+  }
+  .aiw .wk-card {
+    padding: 20px;
+  }
+  .aiw .wk-theme {
+    font-size: 26px;
+  }
+  .aiw .pv-bar {
+    grid-template-columns: 96px minmax(0, 1fr) 64px;
+  }
+  .aiw .runs-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .aiw .cal {
+    padding: 16px;
+  }
+  .aiw .cal-grid {
+    grid-template-columns: 48px repeat(5, minmax(0, 1fr));
+  }
+  .aiw .cal-times .mono {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+  .aiw .cal-ev {
+    padding: 6px;
+  }
+  .aiw .cal-ev .ic,
+  .aiw .cal-ev .mono {
+    display: none;
+  }
+  .aiw .founding-panel {
+    padding: 24px;
+  }
+  .aiw .founding-panel .amount {
+    font-size: 56px;
   }
 }
