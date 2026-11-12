@@ -4600,5 +4600,8 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - There is no account, order or plan row and nothing in Stripe. A member is not a paid seat and doesn't count against the 15-seat cap.
   - Nobody is sent anything they didn't ask for: no invites, no welcome emails.
 - **On screen** (learn's Skill Library): a member sees "Included with your Utah Life team" where Manage Billing was, since they have nothing to bill. A member who also bought a plan keeps Manage Billing beside the note.
+  - Design's follow-up (2026-11-12): the note has its own class, 16px with no margin, at the buttons' 40px row, so the skill list sits where it does for everyone else.
+  - A member who bought nothing sees no Team Hub. Their team of one is how the account is made, not a team they run; the API says `teamHub: false` and the screen hides it too.
+  - A member is never offered the plans on an agent or `both` skill (those are never locked for them). Owner and ops skills keep "See Plans".
   - The www skill pages are static and can't see learn's session, so their card still reads "Get Amplified Agent Plan" for everyone. Its "Download After You Sign In" leads members to learn, where their skills are open.
 - **Not changed:** Stripe, prices, Payment Links, the 15-seat cap, the Nov 30 close, `/agreement`, the homepage, the header, nav and footer, and the kit's CSS.
