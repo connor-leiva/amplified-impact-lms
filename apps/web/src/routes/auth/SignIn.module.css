@@ -1,32 +1,173 @@
-/* /sign-in — net-new (phase 07 § 7.5). There is no reference file for this screen, so the values
-   here are the ones § 7.5 names (400 wide, padding 32, radius 16, --shadow-card, a 1px
-   --line-default border, brand gap 10, H1 26/32, sub 14 secondary, a full-width 40px primary) and
-   nothing else. The 6/16/24 stack gaps are the house values the portal screens already use.
+/* The sign-in screens (/sign-in and /login, /forgot-password, /set-password, /account), in the v2
+   mockup's SignInPage look: one panel over a quiet ripple on the grained ground, Geist, hairlines in
+   place of shadows, 6px controls and an 8px panel. Every screen that renders `AuthCard` shares it.
 
-   The card is hand-rolled rather than `<Card>`: that primitive only offers radius 12 or 14 and the
-   reference's padding presets, and NEVER normalise a size the spec states. Dark mode and the focus
-   ring come entirely from tokens.css — there is not a colour in this file. */
+   THE PALETTE is the www kit's (apps/web/src/kit/kit.css, the homepage's `--hp-*`), in oklch, so this
+   file holds no hex, no rgb or hsl functions and no named colour (scripts/check-css-colors.mjs). The page re-points
+   the LMS's own tokens (tokens.css, untouched) to it, so `Button`, `Field`, `Input` and `Icon` draw in
+   the look with no change to their files. The app's stored theme picks light or dark, as everywhere
+   else in the LMS (`:root[data-theme]`, set before first paint by index.html).
+
+   SPRING'S RULES (D-107, as on www): no text under 16px, 44px tap targets, AA contrast, a visible
+   focus ring, and nothing moves under reduced motion. The font files are the homepage's
+   (apps/web/src/home/fonts, OFL.txt), not copies. */
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../home/fonts/geist-latin-wght-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --- The page: the kit's palette, light by default and dark under the app's dark theme ------------ */
 
 .page {
+  --v2-black: oklch(0.1552 0.0053 173.53);
+  --v2-raised-dark: oklch(0.1941 0.0087 169.28);
+  --v2-cream: oklch(0.9693 0.004 106.47);
+  --v2-sage: oklch(0.7336 0.0107 164.76);
+  --v2-sage-muted: oklch(0.6077 0.013 161.81);
+  --v2-mint: oklch(0.7934 0.1162 162.2);
+  --v2-hairline-dark: oklch(0.2564 0.0115 167.68);
+  --v2-control-dark: oklch(0.5028 0.0156 166.68);
+  --v2-paper: oklch(1 0 0);
+  --v2-bone: oklch(0.9545 0.0067 97.35);
+  --v2-raised-light: oklch(0.9843 0.004 106.47);
+  --v2-slate: oklch(0.4358 0.0091 164.59);
+  --v2-slate-muted: oklch(0.497 0.0088 164.67);
+  --v2-forest: oklch(0.3838 0.0555 172.15);
+  --v2-energy: oklch(0.5632 0.1182 159.45);
+  --v2-hairline-light: oklch(0.8816 0.011 95.18);
+
+  /* Light: bone ground, a lighter panel, near-black ink and buttons, forest focus. */
+  --v2-surface: var(--v2-bone);
+  --v2-panel: var(--v2-raised-light);
+  --v2-ripple: var(--v2-black);
+  --v2-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --bg-canvas: var(--v2-bone);
+  --bg-surface: var(--v2-bone);
+  --bg-sunken: var(--v2-bone);
+  --bg-hover: var(--v2-bone);
+  --text-primary: var(--v2-black);
+  --text-secondary: var(--v2-slate);
+  --text-tertiary: var(--v2-slate-muted);
+  --text-link: var(--v2-black);
+  --text-link-hover: var(--v2-forest);
+  --line-subtle: var(--v2-hairline-light);
+  --line-default: var(--v2-hairline-light);
+  --line-strong: var(--v2-sage-muted);
+  --action-primary: var(--v2-black);
+  --action-primary-hover: var(--v2-forest);
+  --action-on-primary: var(--v2-bone);
+  --action-secondary: transparent;
+  --action-secondary-hover: var(--v2-raised-light);
+  --action-secondary-line: var(--v2-sage-muted);
+  --focus-ring: var(--v2-forest);
+  --shadow-card: none;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+
+  position: relative;
   min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
-  background: var(--bg-canvas);
+  padding: 104px 16px 120px;
+  overflow: hidden;
+  overflow: clip;
+  background-color: var(--v2-surface);
+  background-image: var(--v2-grain);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: light;
 }
 
+/* Dark: the near-black ground, a raised panel, cream ink, mint buttons and focus. tokens.css's own
+   dark values stay for the error and status colours, which pass AA on this ground. */
+:global(:root[data-theme='dark']) .page {
+  --v2-surface: var(--v2-black);
+  --v2-panel: var(--v2-raised-dark);
+  --v2-ripple: var(--v2-paper);
+  --v2-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --bg-canvas: var(--v2-black);
+  --bg-surface: var(--v2-black);
+  --bg-sunken: var(--v2-black);
+  --bg-hover: var(--v2-raised-dark);
+  --text-primary: var(--v2-cream);
+  --text-secondary: var(--v2-sage);
+  --text-tertiary: var(--v2-sage-muted);
+  --text-link: var(--v2-cream);
+  --text-link-hover: var(--v2-mint);
+  --line-subtle: var(--v2-hairline-dark);
+  --line-default: var(--v2-hairline-dark);
+  --line-strong: var(--v2-control-dark);
+  --action-primary: var(--v2-mint);
+  --action-primary-hover: var(--v2-mint);
+  --action-on-primary: var(--v2-black);
+  --action-secondary-hover: var(--v2-raised-dark);
+  --action-secondary-line: var(--v2-control-dark);
+  --focus-ring: var(--v2-mint);
+  color-scheme: dark;
+}
+
+/* The quiet ripple behind the panel: the homepage's four outer rings, a picture only. */
+.ripple {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.ripple svg {
+  display: block;
+  overflow: visible;
+}
+.ripple circle {
+  fill: none;
+  stroke: var(--v2-ripple);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ripple circle:nth-child(1) {
+  stroke-opacity: 0.11;
+}
+.ripple circle:nth-child(2) {
+  stroke-opacity: 0.08;
+}
+.ripple circle:nth-child(3) {
+  stroke-opacity: 0.06;
+}
+.ripple circle:nth-child(4) {
+  stroke-opacity: 0.04;
+}
+
+/* --- The panel ------------------------------------------------------------------------------------ */
+
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  width: 400px;
-  max-width: 100%;
-  padding: 32px;
-  border-radius: 16px;
+  gap: 22px;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  border-radius: 8px;
   border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  box-shadow: var(--shadow-card);
+  background: var(--v2-panel);
+  animation: v2-rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+}
+
+@keyframes v2-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 
 .brand {
@@ -38,39 +179,74 @@
 .head {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .h1 {
   margin: 0;
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 /* `overflow-wrap` because the success sub carries an address the viewer typed, which can be longer
-   than the 400px card. */
+   than the panel. */
 .sub {
   margin: 0;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 1.55;
   color: var(--text-secondary);
   text-wrap: pretty;
   overflow-wrap: anywhere;
 }
 
+/* The fields, the mockup's TextField: a 16px label over a 48px input with a 6px radius. The input
+   sits on the ground's colour inside the panel. */
+.card label {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+/* The Field primitive's own helper and error rows (`<id>-helper`, `<id>-error`), at the floor. */
+.card [id$='-helper'],
+.card [id$='-error'] {
+  font-size: 16px;
+  line-height: 1.45;
+}
+.card input:not([type='checkbox']) {
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font: 400 16px/1.4 var(--font-sans);
+  transition: border-color 0.2s;
+}
+.card input:not([type='checkbox']):hover {
+  border-color: var(--text-secondary);
+}
+
+/* The buttons, the mockup's 48px, 6px radius, 16px type. A link-style button keeps its own look but
+   is 44px tall for a thumb. */
+.card button {
+  height: 48px;
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* Matches `Field`'s own error row (13px, --access-locked-text); this one is a live region instead.
-   It is always mounted so a screen reader announces the insertion, and `:empty` keeps it out of
-   the field's 6px stack until there is something to say. */
+/* A live region, always mounted so a screen reader announces the insertion; `:empty` keeps it out
+   of the field's stack until there is something to say. */
 .error {
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 500;
   color: var(--access-locked-text);
 }
 .error:empty {
@@ -81,8 +257,16 @@
   width: 100%;
 }
 
-.again {
+.card .again {
   align-self: flex-start;
+  height: auto;
+  min-height: 44px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.card .again:hover {
+  color: var(--text-link-hover);
 }
 
 .pending {
@@ -97,26 +281,27 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spin {
+  .spin,
+  .card {
     animation: none;
   }
 }
 
-/* D-132: the password form's extras. "Keep me signed in", and the two ways out of the form under it.
-   Sizes are the house 13/14 used on the card already; colour and focus come from tokens.css. */
+/* D-132: the password form's extras. "Keep me signed in", and the two ways out of the form under it. */
 .check {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  line-height: 20px;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 16px;
+  line-height: 1.4;
   color: var(--text-secondary);
   cursor: pointer;
 }
 
 .check input {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   margin: 0;
   accent-color: var(--action-primary);
 }
@@ -126,60 +311,62 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
+  gap: 0 16px;
 }
 
 .textLink {
-  font-size: 14px;
-  line-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 500;
   color: var(--text-link);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
+}
+.textLink:hover {
+  color: var(--text-link-hover);
 }
 
 /* The rules for a new password, under its field. */
 .hint {
   margin: 0;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 16px;
+  line-height: 1.45;
   color: var(--text-secondary);
 }
 
 /* "Your password is saved." on the account page: a status, not an error. */
 .done {
   margin: 0;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 1.45;
   color: var(--status-success-text);
 }
 
-/* D-139: "Continue With Google", under the form and set apart from it by a rule. The secondary
-   button keeps email and password the primary way in. */
+/* D-139: "Continue With Google", under the form and set apart from it by a rule. */
 .alt {
   display: flex;
   flex-direction: column;
-  padding-top: 24px;
+  padding-top: 22px;
   border-top: 1px solid var(--line-subtle);
 }
 
 /* Google's light-theme button (its Sign-In branding guidelines). The four colours are Google's, set
-   as `--google-*` beside the G in shared.tsx, so this file still holds no raw colour. Full width,
-   radius 8 and 14px type match the card's other buttons. 44px tall for a thumb. The G sits 12px
-   left of the label, and the two are centred together. It stays light in the dark theme: Google's
-   light button is allowed on a dark background, and the G must sit on its light fill. */
-.google {
+   as `--google-*` beside the G in shared.tsx, so this file still holds no raw colour. Full width and
+   48px tall like Sign In, with the same radius and type. The G sits 12px left of the label, and the
+   two are centred together. It stays light in the dark theme: Google's light button is allowed on a
+   dark background, and the G must sit on its light fill. */
+.card .google {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   width: 100%;
-  height: 44px;
   padding: 0 12px;
-  border-radius: 8px;
   border: 1px solid var(--google-stroke);
   background: var(--google-fill);
   color: var(--google-text);
-  font-size: 14px;
   line-height: 20px;
   font-weight: 500;
   white-space: nowrap;
@@ -189,10 +376,10 @@
 }
 
 /* Google's state layer (`--google-state`) at 8% on hover, 12% when pressed. */
-.google:hover {
+.card .google:hover {
   background: color-mix(in srgb, var(--google-state) 8%, var(--google-fill));
 }
-.google:active {
+.card .google:active {
   background: color-mix(in srgb, var(--google-state) 12%, var(--google-fill));
 }
 
@@ -206,4 +393,14 @@
   display: block;
   width: 18px;
   height: 18px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding-top: 88px;
+    padding-bottom: 88px;
+  }
+  .card {
+    padding: 28px;
+  }
 }
