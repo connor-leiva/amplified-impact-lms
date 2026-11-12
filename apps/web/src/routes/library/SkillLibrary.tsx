@@ -140,7 +140,17 @@ function Lead({ id }: { id: string }) {
   );
 }
 
-function SkillRow({ skill }: { skill: LibrarySkill }) {
+/**
+ * Whether a locked row may offer the plans. Not to an access group's member on an agent or `both` skill
+ * (D-148): their group already gives them the Agent Plan's skills, so a plan upsell there would be
+ * selling them what they have. Owner and ops skills, which the Agent Plan doesn't include, keep it.
+ */
+export const offersPlans = (skill: Pick<LibrarySkill, 'sets'>, member: boolean): boolean => !member || skill.sets === 'owner_ops';
+
+/** An access group's member who bought nothing (D-148): the team of one their account sits on is plumbing, not a team. */
+export const groupOnly = (load: { groups: readonly AccessGroupInfo[]; paidPlans: boolean }): boolean => load.groups.length > 0 && !load.paidPlans;
+
+function SkillRow({ skill, member }: { skill: LibrarySkill; member: boolean }) {
   const setupId = `setup-${skill.id}`;
   return (
     <li className={s.skill} data-state={skill.state}>
@@ -183,9 +193,11 @@ function SkillRow({ skill }: { skill: LibrarySkill }) {
               {COPY.locked}
             </span>
             {/* Every program, the Agent Plan included (D-140): `/offer#plans` lists three of the four. */}
-            <a className={s.secondary} href={PLANS_URL}>
-              {COPY.seePlans}
-            </a>
+            {offersPlans(skill, member) ? (
+              <a className={s.secondary} href={PLANS_URL}>
+                {COPY.seePlans}
+              </a>
+            ) : null}
           </>
         ) : (
           <span className={s.note}>
@@ -229,7 +241,7 @@ export function Component() {
                 {COPY.course}
               </a>
             ) : null}
-            {load.teamHub ? (
+            {load.teamHub && !groupOnly(load) ? (
               <a className={s.secondary} href="/team">
                 {COPY.teamHub}
               </a>
@@ -241,7 +253,7 @@ export function Component() {
               </a>
             ) : null}
             {load.groups.map((g) => (
-              <p key={g.id} className={s.note}>
+              <p key={g.id} className={s.included}>
                 <Icon name="checkCircle" size={16} />
                 {COPY.included(g.name)}
               </p>
@@ -282,7 +294,7 @@ export function Component() {
               {load.skills
                 .filter((k) => k.sets === set)
                 .map((k) => (
-                  <SkillRow key={k.id} skill={k} />
+                  <SkillRow key={k.id} skill={k} member={load.groups.length > 0} />
                 ))}
             </ul>
           </section>

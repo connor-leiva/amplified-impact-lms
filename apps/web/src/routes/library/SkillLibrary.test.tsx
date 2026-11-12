@@ -3,7 +3,10 @@ import type { Mock } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
-import SkillLibrary, { COPY, leadOf } from './SkillLibrary';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import SkillLibrary, { COPY, groupOnly, leadOf, offersPlans } from './SkillLibrary';
 import type { LibrarySkill } from './SkillLibrary';
 import { ENTRIES, LEAD } from '../../library/content';
 
@@ -175,6 +178,69 @@ describe('the skill library screen', () => {
     render(<SkillLibrary />);
     expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
     expect(screen.queryByText(/Included with your/)).toBeNull();
+  });
+
+  describe('for an access group’s member (Design’s follow-up to D-148)', () => {
+    const UTAH = [{ id: 'utah-life', name: 'Utah Life' }];
+
+    it('gives the note its own class: 16px, no margin, the buttons’ 40px row, colour from a token', async () => {
+      fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, skills: [skill({})] }));
+      render(<SkillLibrary />);
+      const note = await screen.findByText('Included with your Utah Life team');
+      expect(note.tagName).toBe('P');
+      expect(note.className).toMatch(/included/);
+      expect(note.className).not.toMatch(/note/);
+      const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'SkillLibrary.module.css'), 'utf8');
+      const rule = /\.included \{([^}]*)\}/.exec(css)?.[1] ?? '';
+      expect(rule).toMatch(/margin: 0;/);
+      expect(rule).toMatch(/font-size: 16px;/);
+      expect(rule).toMatch(/min-height: 40px;/);
+      expect(rule).toMatch(/color: var\(--[a-z-]+\);/);
+      expect(rule).not.toMatch(/#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
+    });
+
+    it('shows no Team Hub to a member who bought nothing, even when the API says Team tier', async () => {
+      fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, teamHub: true, skills: [skill({})] }));
+      const { unmount } = render(<SkillLibrary />);
+      await screen.findByText('Included with your Utah Life team');
+      expect(screen.queryByRole('link', { name: COPY.teamHub })).toBeNull();
+      unmount();
+
+      // A member whose team bought a plan has a real team, and keeps it.
+      fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agents', status: 'active' }], accessGroups: UTAH, teamHub: true, skills: [skill({})] }));
+      render(<SkillLibrary />);
+      expect(await screen.findByRole('link', { name: COPY.teamHub })).toHaveAttribute('href', '/team');
+      expect(groupOnly({ groups: UTAH, paidPlans: false })).toBe(true);
+      expect(groupOnly({ groups: UTAH, paidPlans: true })).toBe(false);
+      expect(groupOnly({ groups: [], paidPlans: false })).toBe(false);
+    });
+
+    it('keeps See Plans on owner and ops skills, and never offers a member the plans on an agent or `both` skill', async () => {
+      fetchMock.mockResolvedValue(
+        answer(200, {
+          plans: [],
+          accessGroups: UTAH,
+          skills: [
+            skill({ id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', state: 'locked' }),
+            // Neither should ever be locked for a member (the API test holds that); if one were, still no upsell.
+            skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'locked' }),
+            skill({ id: 'perfect-week', title: 'Perfect Week', sets: 'both', state: 'locked' }),
+          ],
+        }),
+      );
+      render(<SkillLibrary />);
+      const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
+      expect(within(owner).getByRole('link', { name: COPY.seePlans })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/pricing');
+      expect(within(screen.getByRole('region', { name: COPY.sets.agent })).queryByRole('link', { name: COPY.seePlans })).toBeNull();
+      expect(within(screen.getByRole('region', { name: COPY.sets.both })).queryByRole('link', { name: COPY.seePlans })).toBeNull();
+      expect(screen.getAllByRole('link', { name: COPY.seePlans })).toHaveLength(1);
+      expect(document.body.textContent).not.toMatch(/Agent Plan/);
+      // Everyone else is offered the plans on any locked skill, as before.
+      expect(offersPlans({ sets: 'agent' }, false)).toBe(true);
+      expect(offersPlans({ sets: 'agent' }, true)).toBe(false);
+      expect(offersPlans({ sets: 'both' }, true)).toBe(false);
+      expect(offersPlans({ sets: 'owner_ops' }, true)).toBe(true);
+    });
   });
 
   it('says so when the list fails to load', async () => {
