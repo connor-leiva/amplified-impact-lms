@@ -15,6 +15,10 @@
 // homepage's figures. THE BUTTONS go where the live homepage's go: each program's own page, and
 // Amplified Insiders' "Get Amplified Insiders" to /pricing#insiders. The proof line sits under each.
 //
+// NEVER HIDDEN (Ampy's rule, as on the v2 kit's pages): the cards hold the buttons, the proof line and
+// the seats, so they carry no `.rv` and never wait below the fold to rise in. The heading above them and
+// the note below still do. `client/reveal.ts` skips any such block too, and `home.css` backs both up.
+//
 // LIVE, LIKE /pricing (`GET /api/offer`, the same facts /pricing is filled from):
 //   - the Accelerator shows its seats left, in /pricing's own words, once the API has counted them;
 //   - after founding closes (the API's word, or the deadline written here if it can't be reached) the
@@ -78,7 +82,7 @@ function card(c: Card, i: number): string {
     ? `<div class="act act-link">${button}${proofLine()}</div><p class="act act-soon">${esc(CARD_STATES.soon)}</p>`
     : `<div class="act-always">${button}${proofLine()}</div>`;
   return [
-    `<article class="plan${featured ? ' plan-featured' : ''} rv" style="--d:${i * 80}ms" aria-labelledby="${id}" data-card="${look.logo}"${
+    `<article class="plan${featured ? ' plan-featured' : ''}" aria-labelledby="${id}" data-card="${look.logo}"${
       insiders ? ' data-cart="insiders-year"' : ''
     }>`,
     `<div class="plan-top"><h3 id="${id}" class="plan-name"><span class="sr-only">${esc(c.name)}</span><span class="plan-logo" data-program="${
