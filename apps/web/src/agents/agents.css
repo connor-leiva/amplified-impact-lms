@@ -1,97 +1,805 @@
-/* /agents, the Amplified Agent Plan's sales page. DECISIONS.md D-114.
+/* /agents, the Amplified Agent Plan's sales page. DECISIONS.md D-114; the v2 mockup's AgentPlanPage.
 
-   The site's look and the sales pages' shared pieces (`../site/offers.css`: the buy block and its
-   states, numbered steps, two columns, the login line's two versions, the questions, the end). This
-   file is the page's own: the hero and the four week calendar. Mobile first, no text under 16px,
-   every tap 44px or more, nothing wider than the screen.
+   THE KIT (`../kit/kit.css`): tokens, type, header, footer, the price block and buttons with their
+   states (and the login line's two versions), the proof, questions and the close. This file is the
+   page's own, the mockup's rules in its order, with Spring's 16px floor and 44px taps.
 
    COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
 
-@import '../site/offers.css';
+@import '../kit/kit.css';
 
-.ag-hero {
-  padding: 40px 0 48px;
+.aiw #join {
+  scroll-margin-top: 88px;
 }
-.ag-hero-in {
+
+/* --- Hero ------------------------------------------------------------------------------------- */
+
+.aiw .ag-hero {
+  min-height: max(100vh, 820px);
+  display: flex;
+  flex-direction: column;
+  padding-top: 88px;
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .ag-ripple {
+  position: absolute;
+  left: 76%;
+  top: 52%;
+  transform: translate(-50%, -50%) scale(calc(1 + var(--p, 0) * 0.5));
+  opacity: calc(1 - var(--p, 0));
+  pointer-events: none;
+}
+.aiw .ag-hero-grid {
+  position: relative;
+  flex: 1;
   display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: center;
+  padding-block: 40px 72px;
+}
+.aiw .ag-hero-grid.is-solo {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+}
+.aiw .ag-hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-28);
+  transform: translateY(calc(var(--p, 0) * -80px));
+  opacity: calc(1 - var(--p, 0) * 1.3);
+}
+.aiw .ag-hero-copy .eb {
+  animation: aiw-fade-up 0.8s var(--ease) both;
+}
+.aiw .ag-title {
+  font-size: clamp(42px, 4.6vw, 66px);
+  line-height: 0.98;
+}
+.aiw .ag-buy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.aiw .ag-hero-art {
+  position: relative;
+  transform: translateY(calc(var(--p, 0) * -140px));
+}
+
+/* The fan of skill cards (made up, off unless `EXAMPLES_ON`). */
+.aiw .fan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  animation: aiw-fade-up 1.2s var(--ease) 0.4s both;
+}
+.aiw .fan-stage {
+  position: relative;
+  width: 100%;
+  height: 440px;
+}
+.aiw .fan-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .fan-card.is-front {
+  z-index: 3;
+  border-color: color-mix(in srgb, var(--signal) 60%, var(--line));
+  transform: translate(-50%, -50%);
+}
+.aiw .fan-card.is-right {
+  z-index: 2;
+  opacity: 0.55;
+  transform: translate(calc(-50% + 150px), calc(-50% + 22px)) rotate(7deg) scale(0.9);
+}
+.aiw .fan-card.is-left {
+  z-index: 1;
+  opacity: 0.55;
+  transform: translate(calc(-50% - 150px), calc(-50% + 22px)) rotate(-7deg) scale(0.9);
+}
+.aiw .fan-card:not(.is-front) * {
+  pointer-events: none;
+}
+.aiw .fan-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .fan-tag {
+  color: var(--accent);
+}
+.aiw .fan-name {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  text-decoration: none;
+}
+.aiw .fan-meta {
+  color: var(--ink-muted);
+}
+.aiw .fan-bubble {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px 10px 10px 2px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .fan-copy {
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.aiw .fan-terms > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+}
+.aiw .fan-terms dt {
+  color: var(--ink-secondary);
+}
+.aiw .fan-terms dd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.aiw .fan-risk {
+  color: var(--accent);
+}
+.aiw .fan-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .fan-foot li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.aiw .fan-foot .gl {
+  color: var(--signal);
+}
+
+/* --- Your first week ------------------------------------------------------------------------------ */
+
+.aiw .first {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .first-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  margin-bottom: 64px;
+}
+.aiw .first-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  max-width: 640px;
+  color: var(--ink-secondary);
+  font-size: 18px;
+}
+.aiw .first-steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 32px;
 }
-.ag-hero h1 {
-  max-width: 20ch;
-  margin-top: 8px;
-  font-size: 36px;
-  line-height: 1.1;
+.aiw .first-steps::before,
+.aiw .first-steps::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  right: calc((100% - 64px) / 3 - 22px);
+  top: 22px;
+  height: 1px;
+  background: var(--line-control);
+}
+.aiw .first-steps::after {
+  background: var(--signal);
+  transform-origin: left;
+  transition: transform 1.6s var(--ease) 0.2s;
+}
+.aiw-js .aiw .first-steps:not(.is-in)::after {
+  transform: scaleX(0);
+}
+.aiw .fs {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aiw .fs-node {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border: 1px solid var(--signal);
+  border-radius: 50%;
+  background: var(--signal);
+  color: var(--surface);
+  letter-spacing: 0;
+  transition:
+    background-color 0.4s,
+    border-color 0.4s,
+    color 0.4s;
+  transition-delay: calc(0.3s + var(--si) * 0.45s);
+}
+.aiw-js .aiw .first-steps:not(.is-in) .fs-node {
+  border-color: var(--line-control);
+  background: var(--surface);
+  color: var(--ink-secondary);
+}
+.aiw .fs-name {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 500;
   letter-spacing: -0.02em;
 }
-.buy {
-  scroll-margin-top: 16px;
+.aiw .fs-name a {
+  text-decoration: none;
 }
-
-/* --- The starter path's steps carry a skill's link as their title ------------------------------ */
-
-.starter .steps h3 a {
-  padding: 12px 0;
-  text-decoration: underline;
+.aiw .fs-name a:hover {
+  color: var(--accent);
 }
-
-/* --- The four week calendar -------------------------------------------------------------------- */
-
-.rotation-when {
-  margin-top: 12px;
-  font-weight: 500;
-}
-.week-grid {
-  display: grid;
-  gap: 12px;
-  margin-top: 24px;
-}
-.week {
-  padding: 20px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  box-shadow: inset 0 0 0 1px var(--line-default);
-}
-.week-n {
-  color: var(--action-primary);
+.aiw .fs-text {
+  color: var(--ink-secondary);
   font-size: 16px;
-  font-weight: 500;
+  line-height: 1.55;
 }
-.week h3 {
-  margin-top: 4px;
-  font-size: 20px;
-  line-height: 1.25;
+.aiw .fs-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 196px;
+  margin-top: 12px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
 }
-.week-skills {
-  display: grid;
-  margin-top: 8px;
+.aiw .fs-brain > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
 }
-.week-skills a {
+.aiw .fs-brain > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.aiw .fs-brain dt,
+.aiw .fs-who {
+  color: var(--ink-muted);
+}
+.aiw .fs-brain dd {
+  color: var(--ink);
+  font-size: 16px;
+}
+.aiw .fs-say {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aiw .fs-quote {
+  color: var(--ink-muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.aiw .fs-quote.is-you {
+  color: var(--ink);
+}
+.aiw .fs-count {
+  color: var(--accent);
+}
+.aiw .fs-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.aiw .fs-chip {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--line-control);
+  border-radius: 99px;
+  color: var(--ink-secondary);
   font-size: 16px;
-  text-decoration: underline;
+  font-weight: 500;
+}
+.aiw .fs-chip.is-on {
+  border-color: var(--signal);
+  background: var(--signal);
+  color: var(--surface);
 }
 
-@media (min-width: 640px) {
-  .week-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+/* --- One live training a week: the four weeks, and the wheel ------------------------------------ */
+
+.aiw .rot {
+  padding-block: var(--section);
+  overflow: hidden;
+  overflow: clip;
+  border-top: 1px solid var(--line);
+}
+.aiw .rot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 56px;
+  align-items: start;
+}
+.aiw .rot-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.aiw .rot-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 12px;
+}
+.aiw .rot-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aiw .rot-k {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.6em;
+  color: var(--accent);
+}
+.aiw .rot-topic {
+  font-weight: 400;
+}
+.aiw .rot-topic::before {
+  content: '·';
+  margin-right: 0.6em;
+}
+.aiw .rot-skills {
+  border-top: 1px solid var(--ink);
+}
+.aiw .rot-skill {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20px;
+  gap: 4px 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+.aiw .rot-sn {
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  transition: transform 0.4s var(--ease);
+}
+.aiw .rot-st {
+  grid-column: 1;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .rot-go {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--ink-muted);
+  transition:
+    transform 0.4s var(--ease),
+    color 0.2s;
+}
+.aiw .rot-skill:hover .rot-sn {
+  transform: translateX(6px);
+}
+.aiw .rot-skill:hover .rot-go {
+  color: var(--signal);
+  transform: translateX(4px);
+}
+.aiw .rot-art {
+  position: sticky;
+  top: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.aiw .ring {
+  --R: 238px;
+  position: relative;
+  width: 600px;
+  max-width: 100%;
+  height: 600px;
+}
+.aiw .ring-rp {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.aiw .ring-rot {
+  position: absolute;
+  inset: 0;
+}
+.aiw .station {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--a)) translateY(calc(var(--R) * -1)) rotate(calc(var(--a) * -1));
+}
+.aiw .station-in {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  opacity: 0.62;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+.aiw .station-in .mono {
+  color: var(--ink-muted);
+}
+.aiw .station-t {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .station-in.is-on {
+  border-color: var(--signal);
+  background: var(--surface);
+  opacity: 1;
+}
+.aiw .station-in.is-on .mono {
+  color: var(--accent);
+}
+.aiw .ring-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--ink-muted);
+  transform: translate(-50%, -50%);
+}
+.aiw .ring-num {
+  color: var(--ink);
+  font-size: 120px;
+  line-height: 0.9;
+  font-weight: 500;
+  letter-spacing: -0.06em;
 }
 
-@media (min-width: 960px) {
-  .ag-hero {
-    padding: 64px 0 72px;
+/* --- Office hours: the hour, drawn ------------------------------------------------------------- */
+
+.aiw .oh {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .oh-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 72px;
+  align-items: center;
+}
+.aiw .oh-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.aiw .clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.aiw .clock svg {
+  width: min(340px, 100%);
+  height: auto;
+  overflow: visible;
+}
+.aiw .clock-face {
+  fill: var(--surface-raised);
+  stroke: var(--line);
+}
+.aiw .clock-tick {
+  stroke: var(--line-control);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.aiw .clock-tick.is-major {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+.aiw .clock-arc {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 0;
+  opacity: 0.9;
+  transition: stroke-dashoffset 2.2s var(--ease) 0.3s;
+}
+.aiw .clock-hour,
+.aiw .clock-min {
+  stroke: var(--ink);
+  stroke-linecap: round;
+  transform-box: view-box;
+  transform-origin: 160px 160px;
+  transition: transform 2.2s var(--ease) 0.3s;
+}
+.aiw .clock-hour {
+  stroke-width: 6;
+  transform: rotate(60deg);
+}
+.aiw .clock-min {
+  stroke-width: 3.5;
+  transform: rotate(360deg);
+}
+.aiw-js .aiw .clock:not(.is-in) .clock-arc {
+  stroke-dashoffset: 1;
+}
+.aiw-js .aiw .clock:not(.is-in) .clock-hour {
+  transform: rotate(30deg);
+}
+.aiw-js .aiw .clock:not(.is-in) .clock-min {
+  transform: rotate(0deg);
+}
+.aiw .clock-hub {
+  fill: var(--signal);
+}
+.aiw .clock-label {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  color: var(--ink-muted);
+}
+.aiw .clock-t {
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* --- What happens after you buy, on the other theme ---------------------------------------------- */
+
+.aiw .after {
+  padding-block: var(--section);
+}
+.aiw .after-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .after-head {
+  position: sticky;
+  top: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+.aiw .after-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .after-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 24px;
+  padding-bottom: 40px;
+}
+.aiw .after-node {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-control);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-secondary);
+  letter-spacing: 0;
+}
+.aiw .after-step:nth-child(1) .after-node {
+  border-color: var(--signal);
+}
+.aiw .after-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+}
+.aiw .after-name {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .after-text {
+  max-width: 520px;
+  color: var(--ink-secondary);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.aiw .after-rail {
+  position: absolute;
+  left: 23.5px;
+  top: 24px;
+  bottom: 64px;
+  width: 1px;
+  background: var(--line);
+}
+.aiw .after-rail span {
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+}
+
+/* --- The close ------------------------------------------------------------------------------------ */
+
+.aiw .end .actions .proof-line {
+  flex-basis: 100%;
+}
+.aiw .end-more {
+  flex-basis: 100%;
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+
+/* --- Tablets and phones --------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .aiw .ring {
+    --R: 200px;
+    width: 520px;
+    height: 520px;
   }
-  .ag-hero-in {
-    grid-template-columns: 1.3fr 1fr;
-    align-items: start;
-    gap: 56px;
+  .aiw .ring-rp .rp {
+    width: 560px;
+    height: 560px;
   }
-  .ag-hero h1 {
-    font-size: 52px;
+}
+@media (max-width: 980px) {
+  .aiw .ag-hero {
+    min-height: 0;
   }
-  .week-grid {
-    grid-template-columns: repeat(4, 1fr);
+  .aiw .ag-hero-grid,
+  .aiw .ag-hero-grid.is-solo,
+  .aiw .rot-grid,
+  .aiw .oh-grid,
+  .aiw .after-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+  .aiw .ag-hero-copy,
+  .aiw .ag-hero-art {
+    transform: none;
+    opacity: 1;
+  }
+  .aiw .first-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+  .aiw .first-steps::before,
+  .aiw .first-steps::after {
+    left: 22px;
+    right: auto;
+    top: 22px;
+    bottom: 40%;
+    width: 1px;
+    height: auto;
+  }
+  .aiw .first-steps::after {
+    transform-origin: top;
+  }
+  .aiw-js .aiw .first-steps:not(.is-in)::after {
+    transform: scaleY(0);
+  }
+  .aiw .fs {
+    padding-left: 68px;
+  }
+  .aiw .fs-node {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+  }
+  .aiw .rot-art,
+  .aiw .after-head {
+    position: relative;
+    top: 0;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .fan-stage {
+    height: 400px;
+  }
+  .aiw .fan-card {
+    width: min(300px, 84vw);
+  }
+  .aiw .fan-card.is-right {
+    transform: translate(calc(-50% + 60px), calc(-50% + 18px)) rotate(6deg) scale(0.88);
+  }
+  .aiw .fan-card.is-left {
+    transform: translate(calc(-50% - 60px), calc(-50% + 18px)) rotate(-6deg) scale(0.88);
+  }
+  .aiw .ring {
+    --R: 132px;
+    width: 340px;
+    height: 340px;
+  }
+  .aiw .ring-rp .rp {
+    width: 380px;
+    height: 380px;
+  }
+  .aiw .station-in {
+    padding: 8px 10px;
+  }
+  .aiw .station-t {
+    max-width: 120px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+  }
+  .aiw .ring-num {
+    font-size: 72px;
+  }
+  .aiw .after-step {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .aiw .after-node {
+    width: 40px;
+    height: 40px;
+  }
+  .aiw .after-rail {
+    left: 19.5px;
   }
 }
