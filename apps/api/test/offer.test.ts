@@ -1352,3 +1352,125 @@ describe('the Team Plan\'s owner adds agents from the Team Hub (D-081, D-106)', 
     expect(team!.seats).toBe(seats);
   });
 });
+
+// The payment paths the per-offer block doesn't reach (the audit of Nov 12): a bank payment that
+// fails or clears, a link session that expires, a cancel inside the 3-month minimum, an Agent Plan
+// trial cancelled before Jan 4, and who the course is shut to (and stays open for) over HTTP.
+describe('payment paths outside the per-offer block', () => {
+  beforeEach(async () => void (await fresh()));
+
+  const capture = () => {
+    const errors: { obj: Record<string, unknown>; msg: string }[] = [];
+    return { errors, log: { info: () => {}, warn: () => {}, error: (obj: Record<string, unknown>, msg: string) => void errors.push({ obj, msg }) } };
+  };
+  const event = async (type: string, object: Record<string, unknown>, log: ReturnType<typeof capture>['log']) =>
+    handleStripeEvent({ id: `evt_${++eventN}`, object: 'event', type, data: { object } } as unknown as Stripe.Event, {
+      stripe: stub.client,
+      config: CONFIG,
+      prices: createPriceCache(() => stub.client),
+      log,
+      now: () => Date.parse(process.env.FIXED_NOW ?? NOW),
+      db: await db(),
+    });
+  const courseFor = async (email = 'pat@example.com') => {
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, email));
+    const cookie = await app.signInAs(owner!.id);
+    return app.inject({ method: 'GET', url: '/api/course', headers: { cookie } });
+  };
+
+  it('a bank payment that fails after checkout records the order as failed and provisions nothing', async () => {
+    const session = { ...linkSession('insiders-year'), payment_status: 'unpaid', subscription: 'sub_bank' };
+    const { log } = capture();
+    expect(await event('checkout.session.completed', session, log)).toBe('awaiting-payment');
+    expect(await (await db()).select().from(plans)).toEqual([]);
+    expect(await event('checkout.session.async_payment_failed', session, log)).toBe('failed');
+    const [order] = await (await db()).select().from(orders);
+    expect(order).toMatchObject({ status: 'failed', paymentFailedAt: NOW_MS });
+    expect(await (await db()).select().from(plans)).toEqual([]);
+    expect(await (await db()).select().from(users)).toEqual([]);
+    await settleEmails();
+    expect(outboxFor({ to: 'pat@example.com' })).toEqual([]);
+  });
+
+  it('a bank payment that clears provisions the plan then, once', async () => {
+    const session = { ...linkSession('insiders-year'), payment_status: 'unpaid', subscription: 'sub_bank' };
+    const { log } = capture();
+    expect(await event('checkout.session.completed', session, log)).toBe('awaiting-payment');
+    expect(await event('checkout.session.async_payment_succeeded', { ...session, payment_status: 'paid' }, log)).toBe('paid');
+    expect(await event('checkout.session.async_payment_succeeded', { ...session, payment_status: 'paid' }, log)).not.toBe('failed');
+    const all = await (await db()).select().from(plans);
+    expect(all).toHaveLength(1);
+    expect(all[0]).toMatchObject({ kind: 'membership', status: 'active' });
+  });
+
+  it('an expired Payment Link session writes nothing: no order was made for it', async () => {
+    const { log } = capture();
+    expect(await event('checkout.session.expired', { ...linkSession('cohort-full'), status: 'expired', payment_status: 'unpaid' }, log)).toBe('ignored');
+    expect(await (await db()).select().from(orders)).toEqual([]);
+  });
+
+  it('a cancel inside Amplified Insiders\' 3-month minimum is logged for Connor, by ids only, and the plan is cancelled', async () => {
+    const order = await buy('insiders-monthly', {}, { subscription: 'sub_mo' });
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan!.minimumUntil).not.toBeNull();
+    const { errors, log } = capture();
+    expect(await event('customer.subscription.deleted', { id: 'sub_mo', object: 'subscription', status: 'canceled', metadata: { order_id: order.id } }, log)).toBe('canceled');
+    expect(errors.map((e) => e.msg)).toEqual(['a plan was cancelled inside its 3-month minimum: Connor follows up']);
+    expect(errors[0]!.obj).toMatchObject({ plan: plan!.id, order: order.id, subscription: 'sub_mo', kind: 'membership' });
+    expect(JSON.stringify(errors)).not.toContain('pat@example.com');
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('canceled');
+  });
+
+  it('a cancel after the minimum is not an alert', async () => {
+    const order = await buy('insiders-monthly', {}, { subscription: 'sub_mo' });
+    const [plan] = await (await db()).select().from(plans);
+    process.env.FIXED_NOW = new Date(plan!.minimumUntil! + DAY).toISOString();
+    const { errors, log } = capture();
+    expect(await event('customer.subscription.deleted', { id: 'sub_mo', object: 'subscription', status: 'canceled', metadata: { order_id: order.id } }, log)).toBe('canceled');
+    expect(errors).toEqual([]);
+  });
+
+  it('an Agent Plan trial cancelled before Jan 4 is never charged and never opens anything', async () => {
+    stub.subs.set('sub_ap', { id: 'sub_ap', status: 'trialing', customer: 'cus_1', trialEnd: AGENT_PLAN_FIRST_CHARGE_AT + 3 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    const order = await buy('agent-monthly', {}, { subscription: 'sub_ap', payment_status: 'no_payment_required' });
+    expect(order.status).toBe('trialing');
+    await (await db()).insert(skills).values([{ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } }]);
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+    // Signed in afresh at each date: the clock jumps further than a session lasts.
+    const state = async () => {
+      const cookie = await app.signInAs(owner!.id);
+      return (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().skills[0].state;
+    };
+    expect(await state()).toBe('upcoming');
+
+    process.env.FIXED_NOW = '2026-12-20T09:00:00-06:00';
+    const res = await deliver('customer.subscription.deleted', { id: 'sub_ap', object: 'subscription', status: 'canceled', metadata: { order_id: order.id } });
+    expect(res.statusCode).toBe(200);
+    const [plan] = await (await db()).select().from(plans);
+    expect(plan).toMatchObject({ kind: 'agent_plan', status: 'canceled', paidThrough: null });
+    expect((await one()).paymentsMade).toBe(0);
+    // Not "coming" any more, and nothing opens on Jan 4 or after.
+    expect(await state()).toBe('locked');
+    process.env.FIXED_NOW = new Date(AGENT_PLAN_FIRST_CHARGE_AT + 10 * DAY).toISOString();
+    expect(await state()).toBe('locked');
+  });
+
+  it.each(['agent-monthly', 'insiders-monthly', 'agents-16to40'] as const)('%s: the course stays shut over HTTP, "not in your plan", never "paused"', async (cart) => {
+    const sub = `sub_${cart.replace(/-/g, '_')}`;
+    stub.subs.set(sub, { id: sub, status: 'trialing', customer: 'cus_1', trialEnd: AGENT_PLAN_FIRST_CHARGE_AT + 3 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
+    await buy(cart, {}, { subscription: sub, ...(cart === 'agent-monthly' ? { payment_status: 'no_payment_required' } : {}) });
+    process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
+    const res = await courseFor();
+    expect(res.statusCode).toBe(403);
+    expect(res.json()).toEqual({ open: false, error: 'The AI Accelerator isn’t in your plan.' });
+  });
+
+  it('cancel and keep: the AI Accelerator in full stays open after its roll-on is cancelled', async () => {
+    const order = await buy('cohort-full', {}, { subscription: 'sub_full' });
+    process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
+    expect((await courseFor()).statusCode).toBe(200);
+    await deliver('customer.subscription.deleted', { id: 'sub_full', object: 'subscription', status: 'canceled', metadata: { order_id: order.id } });
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('canceled');
+    expect((await courseFor()).statusCode).toBe(200);
+  });
+});
