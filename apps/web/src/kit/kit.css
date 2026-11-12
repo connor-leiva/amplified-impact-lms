@@ -775,13 +775,16 @@ body {
 
 /* --- Offer states: attributes the API writes, no script (D-105, as in ../site/offers.css) -------- */
 
-/* `data-founding` and `data-seats` on <body>, `data-state` on each card. A card shows its buy buttons
+/* `data-founding`, `data-seats` and `data-invites` (the login line's two versions) on <body>,
+   `data-state` on each card. A card shows its buy buttons
    only while its cart sells (`link`); otherwise "Opens soon.", the close or the sell-out says why. A
    link with an empty href does not sell today and is hidden. */
 .aiw[data-founding='open'] .founding-closed,
 .aiw[data-founding='closed'] .founding-open,
 .aiw[data-seats='left'] .seats-soldout,
-.aiw[data-seats='soldout'] .seats-left {
+.aiw[data-seats='soldout'] .seats-left,
+.aiw[data-invites='held'] .invites-sent,
+.aiw[data-invites='sent'] .invites-held {
   display: none !important;
 }
 .aiw .plan .act-link,
