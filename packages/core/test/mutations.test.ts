@@ -487,6 +487,16 @@ describe('8 · inviteMember @g2', () => {
     expect(out.db).toEqual(db);
   });
 
+  it('rejects an address that already has an account on another team or on staff, in any case (D-141)', () => {
+    for (const email of ['natasha@harborpine.com', 'Natasha@HarborPine.COM', '  marcus@keystonecollective.com ', 'CASEY@amplifiedimpact.com']) {
+      const out = pure(db, () => M.inviteMember(db, ALEX, { email, role: 'Sales Agent' }, c));
+      expect(out.error, email).toBe(M.ALREADY_HAS_ACCOUNT);
+      expect(out.db, email).toEqual(db);
+      expect(out.effects, email).toBeUndefined();
+    }
+    expect(M.ALREADY_HAS_ACCOUNT).toBe('That email already has an Amplified Impact account. Invite them with a different email, or write to support@amplifiedimpact.io.');
+  });
+
   it('error 3/4 · rejects an invite once every seat is assigned @g2', () => {
     // Northline has 7 seats and 6 members. One more invite fills it.
     expect(db.users.filter((u) => u.teamId === 'northline')).toHaveLength(6);
