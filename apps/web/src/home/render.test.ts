@@ -94,7 +94,7 @@ describe('the head and the shell', () => {
     expect(text($('title'))).toBe('Amplified Impact · AI Coaching and Training for Business Owners and Their Teams');
     expect(meta('description')).toMatch(/^AI coaching and training for business owners and their teams/);
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/');
-    expect(meta('og:image')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
+    expect(meta('og:image')).toBe('https://www.amplifiedimpact.io/img/og/amplified-impact.png');
   });
 
   it('loads its stylesheet and exactly one script, as a module file (never inline), and the body opts into the page’s look', () => {

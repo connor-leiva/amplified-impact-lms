@@ -16,8 +16,7 @@ import { kitFooter, kitHeader, kitSkip } from '../kit/render';
 import { ABOUT_END, ABOUT_HERO, ABOUT_META, ABOUT_PHOTOS, BIOS, STORY, V2_RINGS, WHY } from './content';
 
 export function renderAboutHead(): string {
-  const p = ABOUT_PHOTOS.spring;
-  return siteHead({ ...ABOUT_META, image: { src: p.src, width: p.width, height: p.height, alt: p.alt } });
+  return siteHead(ABOUT_META);
 }
 
 type Who = 'spring' | 'connor';

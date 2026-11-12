@@ -1484,11 +1484,14 @@ describe('<head>', () => {
     expect(meta('meta[property="og:type"]')).toBe('website');
     expect(meta('meta[property="og:url"]')).toBe('https://learn.amplifiedimpact.io/ai101');
     expect(meta('meta[property="og:site_name"]')).toBe('Amplified Impact');
-    expect(meta('meta[name="twitter:card"]')).toBe('summary');
+    // The site's branded share image (`../site/share.ts`), as a large card: a link preview, which the
+    // page itself never fetches.
+    expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/og/amplified-impact.png');
+    expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 
-  it('is only those lines: no stylesheet, script, or image to fetch', () => {
-    expect(Array.from(doc.head.children).map((el) => el.tagName)).toEqual(['TITLE', ...Array<string>(7).fill('META')]);
-    expect(doc.head.querySelector('meta[property="og:image"]')).toBeNull();
+  it('is only those lines: no stylesheet or script to fetch', () => {
+    expect(Array.from(doc.head.children).map((el) => el.tagName)).toEqual(['TITLE', ...Array<string>(13).fill('META')]);
+    expect(doc.head.querySelector('link, script, style')).toBeNull();
   });
 });

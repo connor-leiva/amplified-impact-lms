@@ -11,6 +11,7 @@ import { ICONS } from '@ai/core/icons';
 import type { IconName } from '@ai/core/icons';
 import { esc, logo } from '../ai101/render';
 import { HELP_EMAIL, PROGRAMS, SITE } from './content';
+import { shareImageTags, type ShareImage } from './share';
 
 /** A page's head lines: title, description, canonical address and the Open Graph and Twitter tags. */
 export interface PageMeta {
@@ -18,8 +19,8 @@ export interface PageMeta {
   description: string;
   /** The page's path on www, e.g. `/pricing`. */
   path: string;
-  /** The share image, a path on www, with its size and what it shows. */
-  image?: { src: string; width: number; height: number; alt: string };
+  /** The page's own share image, a path on www, with its size and what it shows. Without one, the default. */
+  image?: ShareImage;
 }
 
 const absolute = (path: string) => new URL(path, SITE.url).toString();
@@ -35,15 +36,8 @@ export function siteHead(m: PageMeta): string {
     `<meta property="og:type" content="website" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:site_name" content="${esc(SITE.name)}" />`,
-    ...(m.image
-      ? [
-          `<meta property="og:image" content="${esc(absolute(m.image.src))}" />`,
-          `<meta property="og:image:width" content="${m.image.width}" />`,
-          `<meta property="og:image:height" content="${m.image.height}" />`,
-          `<meta property="og:image:alt" content="${esc(m.image.alt)}" />`,
-          `<meta name="twitter:card" content="summary_large_image" />`,
-        ]
-      : [`<meta name="twitter:card" content="summary" />`]),
+    // The branded share image (`./share.ts`), unless the page names its own.
+    ...shareImageTags(m.image),
   ].join('\n    ');
 }
 

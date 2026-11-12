@@ -432,19 +432,19 @@ describe('the links to the programs’ own pages', () => {
 });
 
 describe('the share tags', () => {
-  it('carry the title, description, canonical address and Spring’s real headshot, as a large card', () => {
+  it('carry the title, description, canonical address and the branded share image, as a large card', () => {
     const meta = (sel: string) => $(sel)?.getAttribute('content');
     expect(text($('title'))).toBe('Programs and Pricing · Amplified Impact');
     expect(meta('meta[name="description"]')).toMatch(/^Pick the way you want to learn AI\./);
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/pricing');
     expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/pricing');
     expect(meta('meta[property="og:title"]')).toBe('Programs and Pricing · Amplified Impact');
-    expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
+    expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/og/amplified-impact.png');
     expect([
       meta('meta[property="og:image:width"]'),
       meta('meta[property="og:image:height"]'),
       meta('meta[property="og:image:alt"]'),
-    ]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    ]).toEqual(['1200', '630', 'Amplified Impact']);
     expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });

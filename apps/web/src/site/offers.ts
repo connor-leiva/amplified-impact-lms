@@ -9,7 +9,7 @@
 import { CARD_CARTS, OFFER_TOKENS as T, PLAN_NAMES, token } from '@ai/core/offer';
 import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { esc } from '../ai101/render';
-import { HOME, PHOTOS } from '../home/content';
+import { HOME } from '../home/content';
 import { CARD_STATES as S, EVERY_CARD, FACT_LABELS, NOTES, OFFERS } from '../offer/content';
 import type { OfferCopy } from '../offer/content';
 import { FREE_SKILLS_HREF, PROGRAM_PAGES } from './content';
@@ -52,8 +52,8 @@ const moreOf = (card: OfferCard): Readonly<Record<string, string>> => (card === 
  */
 export const proofLine = (): string => `<p class="proof-line"><span>${esc(HOME.proof.label)}</span> <strong>${esc(HOME.proof.figure)}</strong></p>`;
 
-/** Every sales page's share image: the homepage's, Spring's real headshot, so a shared link shows a face. */
-export const SHARE_IMAGE = PHOTOS.spring;
+/** Every sales page's share image: the site's branded one (`./share.ts`), as on every other page. */
+export { SHARE_IMAGE } from './share';
 
 /** Where every "Join the Waitlist" on this page goes: /offer's waitlist form, the one that exists. */
 export const WAITLIST_HREF = '/offer#waitlist';

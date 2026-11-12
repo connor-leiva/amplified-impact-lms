@@ -44,6 +44,7 @@ import {
   type Prompt,
   type Screen,
 } from './content';
+import { shareImageTags } from '../site/share';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
@@ -111,7 +112,7 @@ export function renderAi101Head(): string {
     `<meta property="og:type" content="website" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:site_name" content="${esc(siteName)}" />`,
-    `<meta name="twitter:card" content="summary" />`,
+    ...shareImageTags(),
   ].join('\n    ');
 }
 
