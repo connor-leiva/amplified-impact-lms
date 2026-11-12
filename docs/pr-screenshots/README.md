@@ -18,3 +18,6 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
 - `site-library/`: /library and the 55 skill, Grok Bot template and free guide pages. `pairs/` has one
   image per page and width, before (`main`) on the left and after on the right, full page at 1x (the
   1280 ones scaled to half); `crops/` has the first screen at 2x for five of the layouts.
+- `site-ai101/`: /ai101, /voice-profile and /retool. `before/` and `after/` are full pages at 2x (the
+  first screen, as the step-through shows one at a time) and `*-all-390.jpg`, every screen at once as
+  the page reads without its script; `crops/` puts the first screen side by side.
