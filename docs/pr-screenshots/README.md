@@ -12,3 +12,6 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
 - `site-pricing/`: /pricing in its three offer states: live (`pricing-*`), founding closed
   (`pricing-closed-*`, FOUNDING_CLOSES_AT in the past) and not open (`pricing-soon-*`, OFFER_OPEN off).
   `crops/` has the first screen side by side and the cards in each state.
+- `site-pricing-lockups/`: /pricing after the card fix (stacked lockups as the heading, rows lined up).
+  `after/` is the full page per state and width; `crops/` is the cards' section cut from it (full-page
+  captures, so the sticky header covers nothing).
