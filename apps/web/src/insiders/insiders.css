@@ -1,0 +1,60 @@
+/* /insiders, Amplified Insiders' own page.
+
+   PLACEHOLDER LAYOUT. The page's look comes from Connor's Claude Design mockup (its InsidersPage), on
+   top of the site kit, once both are in hand; until then it is laid out with the sales pages' shared
+   pieces (`../site/offers.css`: the buy block and its states, the proof line, the ticked lines), so the
+   words, links and states can be checked first. Mobile first, no text under 16px.
+
+   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+
+@import '../site/offers.css';
+
+.ins-hero {
+  padding: 40px 0 48px;
+}
+.ins-hero-in {
+  display: grid;
+  gap: 32px;
+}
+.ins-hero h1 {
+  max-width: 20ch;
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.ins-facts-in {
+  display: grid;
+  gap: 32px;
+}
+.ins-facts h2 {
+  font-size: 22px;
+  line-height: 1.25;
+}
+.ins-facts .lines,
+.ins-facts .fact p {
+  margin-top: 12px;
+}
+.ins-facts .every {
+  margin-top: 32px;
+}
+.ins-facts .not-ready {
+  margin-top: 4px;
+}
+
+@media (min-width: 960px) {
+  .ins-hero {
+    padding: 64px 0 72px;
+  }
+  .ins-hero-in {
+    grid-template-columns: 1.3fr 1fr;
+    align-items: start;
+    gap: 56px;
+  }
+  .ins-hero h1 {
+    font-size: 54px;
+  }
+  .ins-facts-in {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+  }
+}
