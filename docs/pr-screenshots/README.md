@@ -9,3 +9,6 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
   footer side by side.
 - `site-marketing/`: /about, /free, /agents, /teams and /team-build. `before/` is `main`'s build, `after/`
   the PR's, as above. `crops/` puts each page's first screen side by side.
+- `site-pricing/`: /pricing in its three offer states: live (`pricing-*`), founding closed
+  (`pricing-closed-*`, FOUNDING_CLOSES_AT in the past) and not open (`pricing-soon-*`, OFFER_OPEN off).
+  `crops/` has the first screen side by side and the cards in each state.
