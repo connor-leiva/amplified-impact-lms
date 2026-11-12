@@ -481,6 +481,1105 @@
   color: var(--ink-secondary);
 }
 
+/* --- S3 What a skill is (wsk): a chat that starts over, a skill set up once ------------------- */
+
+.aiw .wsk {
+  padding-block: var(--section);
+}
+.aiw .wsk-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 72px;
+  align-items: center;
+}
+.aiw .wsk-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .wsk-copy .h-section {
+  margin-bottom: 8px;
+}
+.aiw .cvs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .cvs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 380px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .cvs-skill {
+  border-color: color-mix(in srgb, var(--signal) 50%, var(--line));
+}
+.aiw .cvs-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .cvs-tag {
+  color: var(--ink-secondary);
+}
+.aiw .cvs-skill .cvs-tag {
+  color: var(--accent);
+}
+.aiw .cvs-meta {
+  color: var(--ink-muted);
+}
+.aiw .cvs-new {
+  animation: aiw-fade-up 0.5s var(--ease) both;
+}
+.aiw .cvs-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.aiw .cvs-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 16px;
+  line-height: 1.45;
+  transition:
+    opacity 0.45s var(--ease),
+    transform 0.45s var(--ease);
+}
+/* Secondary, not muted: on the bubble's tint, muted ink falls under AA in the dark theme. */
+.aiw .cvs-msg .mono {
+  color: var(--ink-secondary);
+}
+.aiw .cvs-you {
+  align-self: flex-end;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.aiw .cvs-ai {
+  align-self: flex-start;
+  border: 1px solid var(--line);
+}
+.aiw .cvs-thread[data-beat='1'] .cvs-ai {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.aiw .cvs-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.aiw .cvs-n {
+  flex: none;
+  min-width: 1.2em;
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.aiw .cvs-chat .cvs-n {
+  animation: cvs-tick 0.5s var(--spring) both;
+}
+.aiw .cvs-skill .cvs-n {
+  color: var(--accent);
+}
+.aiw .cvs-k {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--ink-secondary);
+}
+.aiw .cvs-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.aiw .cvs-learned {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .cvs-learned li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: var(--ink-secondary);
+}
+.aiw .cvs-ok {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--signal) 16%, transparent);
+  color: var(--signal);
+}
+.aiw .cvs-week {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .cvs-week-k {
+  color: var(--ink-muted);
+}
+.aiw .cvs-days {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.aiw .cvs-day {
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink-muted);
+}
+@keyframes cvs-tick {
+  from {
+    transform: translateY(-40%);
+    opacity: 0;
+  }
+}
+
+/* --- S4 Picture your Monday (mon): pinned on a wide screen with motion allowed, static otherwise --- */
+
+/* `--m` (0 = without skills, 1 = with them) eases when the static toggle flips it. */
+@property --m {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+.aiw .mon.is-pinned {
+  height: 280vh;
+}
+.aiw .mon.is-static {
+  transition:
+    --m 1.6s var(--ease),
+    background-color 0.6s var(--ease),
+    color 0.6s var(--ease);
+}
+.aiw .mon-stick {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 760px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .mon.is-static .mon-stick {
+  position: relative;
+  height: auto;
+  min-height: 0;
+  display: block;
+  padding-block: var(--section);
+  overflow: visible;
+}
+.aiw .mon-in {
+  padding-top: 56px;
+}
+.aiw .mon.is-static .mon-in {
+  padding-top: 0;
+}
+.aiw .mon-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 40px;
+  margin-bottom: 36px;
+}
+.aiw .mon-title {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.aiw .mon-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.aiw .mon-hint {
+  color: var(--ink-muted);
+  opacity: clamp(0, calc(1 - var(--m) * 3), 1);
+}
+/* The hint is for scrolling: static, there is nothing to scroll through. */
+.aiw .mon.is-static .mon-hint {
+  display: none;
+}
+.aiw .mon-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 56px;
+}
+.aiw .mon-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.aiw .mon-col-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.aiw .mon-lane-k {
+  color: var(--accent);
+  opacity: calc(0.35 + var(--m) * 0.65);
+}
+/* Rows and the hour column are a little roomier than the mockup's, for 16px type. */
+.aiw .mon-stage {
+  --row: clamp(56px, 6.8vh, 68px);
+  --lane: 56px;
+  --gap: 26px;
+  --tc: 72px;
+  position: relative;
+  height: calc(var(--lane) + var(--gap) + 4 * var(--row) + 12px);
+}
+.aiw .mon-lane {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--lane);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.aiw .mon-slot {
+  border: 1px dashed var(--line-control);
+  border-radius: 6px;
+  opacity: calc(0.75 - var(--m) * 0.6);
+}
+.aiw .mon-grid {
+  position: absolute;
+  left: var(--tc);
+  right: 0;
+  top: calc(var(--lane) + var(--gap));
+  height: calc(4 * var(--row));
+}
+.aiw .mon-hr {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--h) * var(--row));
+  border-top: 1px solid var(--line);
+}
+.aiw .mon-hr .mono {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: -10px;
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.aiw .mon-b {
+  --mm: clamp(0, calc(var(--m) * 1.25 - var(--k) * 0.125), 1);
+  position: absolute;
+  z-index: 2;
+  top: calc((var(--lane) + var(--gap) + var(--s) * var(--row) + 3px) * (1 - var(--mm)));
+  height: calc((var(--d) * var(--row) - 6px) * (1 - var(--mm)) + var(--lane) * var(--mm));
+  left: calc(var(--tc) * (1 - var(--mm)) + var(--k) * (100% + 8px) / 3 * var(--mm));
+  width: calc((100% - var(--tc)) * (1 - var(--mm)) + (100% - 16px) / 3 * var(--mm));
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-raised);
+}
+.aiw .mon-b::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  bottom: -1px;
+  width: 3px;
+  border-radius: 6px 0 0 6px;
+  background: var(--ink-muted);
+  opacity: calc(1 - var(--mm));
+}
+.aiw .mon-b::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px solid color-mix(in srgb, var(--signal) 60%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--signal) 14%, transparent);
+  opacity: var(--mm);
+  pointer-events: none;
+}
+.aiw .mon-b-busy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: center;
+  column-gap: 8px;
+  row-gap: 2px;
+  padding: 4px 12px 4px 14px;
+  opacity: clamp(0, calc(1.5 - var(--mm) * 2.5), 1);
+}
+.aiw .mon-b-t {
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+}
+.aiw .mon-b-l {
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.aiw .mon-b-s {
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.aiw .mon-b-done {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 500;
+  opacity: clamp(0, calc(var(--mm) * 2.5 - 1.1), 1);
+}
+.aiw .mon-b-ok {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--signal);
+  color: var(--surface);
+}
+.aiw .mon-open {
+  --o: clamp(0, calc(var(--m) * 2.4 - 1.3), 1);
+  position: absolute;
+  left: var(--tc);
+  right: 0;
+  top: calc(var(--lane) + var(--gap) + 3px);
+  height: calc(4 * var(--row) - 6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 24px;
+  border: 1px solid color-mix(in srgb, var(--signal) 55%, transparent);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--signal) 8%, transparent);
+  opacity: var(--o);
+  transform: scale(calc(0.96 + var(--o) * 0.04));
+}
+.aiw .mon-open-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-secondary);
+}
+.aiw .mon-open-l {
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .mon-open-s {
+  max-width: 380px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+.aiw .mon-say {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aiw .mon-p {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+  transition: color 0.5s;
+}
+.aiw .mon-p.is-on {
+  color: var(--ink);
+}
+.aiw .mon-p-k {
+  color: var(--ink-muted);
+}
+.aiw .mon-p.is-on .mon-p-k {
+  color: var(--accent);
+}
+
+/* --- S5 How it works (how): pinned on a wide screen with motion allowed, static otherwise --------- */
+
+.aiw .how.is-pinned {
+  height: 340vh;
+}
+.aiw .how.is-static {
+  --q: 1 !important;
+}
+.aiw .how-stick {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 760px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .how.is-static .how-stick {
+  position: relative;
+  height: auto;
+  min-height: 0;
+  padding-block: var(--section);
+}
+.aiw .how-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 72px;
+  align-items: center;
+  padding-top: 56px;
+}
+.aiw .how.is-static .how-grid {
+  padding-top: 0;
+}
+.aiw .how-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.aiw .how-copy .h-section {
+  font-size: clamp(36px, 3.8vw, 54px);
+}
+.aiw .how-steps {
+  border-top: 1px solid var(--ink);
+}
+.aiw .how-step {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  padding: 20px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.aiw .how-steps li:last-child .how-step {
+  border-bottom: 0;
+}
+/* A step that isn't showing reads quieter by colour, never by fading: its words stay AA. */
+.aiw .how-step:not(.is-active) .how-name {
+  color: var(--ink-secondary);
+}
+.aiw .how-n {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-control);
+  border-radius: 50%;
+  color: var(--ink-secondary);
+  transition:
+    background-color 0.4s,
+    border-color 0.4s,
+    color 0.4s;
+}
+/* The accent, not the signal: on the light theme's signal green no ink reaches AA at 16px. */
+.aiw .how-step.is-active .how-n {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--surface);
+}
+.aiw .how-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+}
+.aiw .how-name {
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .how-text {
+  max-width: 440px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
+.aiw .how-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .how-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.aiw .how-seg {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--line);
+}
+.aiw .how-seg > span {
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+  transform-origin: left;
+  transform: scaleX(clamp(0, calc(var(--p, 0) * 3 - var(--i)), 1));
+}
+.aiw .how.is-static .how-progress {
+  display: none;
+}
+/* The panels share one grid cell, so the box is as tall as the tallest panel: at the 16px floor the
+   second and third outgrow the mockup's 520px, which stays the least it can be. */
+.aiw .how-panels {
+  position: relative;
+  display: grid;
+  min-height: 520px;
+  border-radius: var(--radius-panel);
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ripple) 14%, transparent) 1px, transparent 1.6px);
+  background-size: 22px 22px;
+}
+.aiw .how.is-static .how-panels {
+  min-height: 0;
+}
+.aiw .how-panel {
+  position: relative;
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(28px) scale(0.97);
+  transition:
+    opacity 0.6s var(--ease),
+    transform 0.7s var(--ease),
+    visibility 0s 0.7s;
+}
+.aiw .how-panel.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.6s var(--ease),
+    transform 0.7s var(--ease),
+    visibility 0s;
+}
+/* With no script, every panel shows, one under another. */
+html:not(.aiw-js) .aiw .how-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+html:not(.aiw-js) .aiw .how-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.aiw .how-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .how-tag {
+  color: var(--accent);
+}
+.aiw .how-meta {
+  color: var(--ink-muted);
+}
+/* A part arrives as its panel plays (`--q`, the script); settled at 1 with no script or static. */
+.aiw .q {
+  --k: clamp(0, calc((var(--q, 1) - var(--o, 0)) * 4), 1);
+  opacity: calc(0.12 + var(--k) * 0.88);
+  transform: translateY(calc((1 - var(--k)) * 12px));
+}
+.aiw .how.is-static .how-panel.is-on .q {
+  animation: aiw-fade-up 0.6s var(--ease) both;
+  animation-delay: calc(var(--o, 0) * 700ms);
+}
+.aiw .how-wire {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 0.9fr);
+  align-items: center;
+  padding-block: 6px;
+}
+.aiw .how-ins {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.aiw .how-in {
+  position: relative;
+  min-height: 66px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.aiw .how-in-k {
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .how-in-v {
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+}
+.aiw .how-line {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: 22px;
+  height: 1px;
+}
+.aiw .how-line i {
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+  transform-origin: left;
+  transform: scaleX(clamp(0, calc((var(--q, 1) - var(--o)) * 5), 1));
+}
+.aiw .how-panel.is-on .how-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--signal);
+  opacity: 0;
+  animation: how-flow 1.7s linear infinite;
+  animation-delay: var(--fd, 0s);
+}
+.aiw .how-bus {
+  position: relative;
+  justify-self: center;
+  width: 1px;
+  height: 160px;
+}
+.aiw .how-bus i {
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+  transform-origin: top;
+  transform: scaleY(clamp(0, calc((var(--q, 1) - 0.5) * 5), 1));
+}
+.aiw .how-core {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--signal);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.aiw .how-core::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 22px;
+  height: 1px;
+  background: var(--signal);
+}
+.aiw .how-core-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+.aiw .how-core-name {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.aiw .how-core-k {
+  color: var(--ink-muted);
+}
+.aiw .how-note {
+  margin-top: auto;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
+.aiw .brief {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.aiw .brief-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .brief-n {
+  min-width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--surface);
+}
+.aiw .brief-li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--ink-secondary);
+}
+.aiw .brief-li strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.aiw .brief-why {
+  margin-left: auto;
+  font-size: 16px;
+  color: var(--ink-muted);
+  text-align: right;
+}
+.aiw .brief-box {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--line-control);
+  border-radius: 4px;
+}
+.aiw .brief-flag {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--ink-secondary);
+  border-radius: 50%;
+}
+.aiw .brief-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--ink);
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .brief-row + .brief-row {
+  border-top-color: var(--line);
+}
+.aiw .brief-meter {
+  flex: 1;
+  height: 4px;
+  overflow: hidden;
+  overflow: clip;
+  border-radius: 2px;
+  background: var(--line);
+}
+.aiw .brief-meter i {
+  display: block;
+  height: 100%;
+  background: var(--signal);
+  transform-origin: left;
+  transform: scaleX(clamp(0, calc((var(--q, 1) - 0.58) * 4), 1));
+}
+.aiw .brief-of {
+  color: var(--ink-secondary);
+}
+.aiw .brief-chip {
+  margin-left: auto;
+  padding: 4px 8px;
+  border: 1px solid var(--signal);
+  border-radius: 4px;
+  color: var(--accent);
+}
+.aiw .how-state {
+  --lit: clamp(0, calc((var(--q, 1) - 0.7) * 6), 1);
+  display: inline-grid;
+  padding: 4px 8px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+}
+.aiw .how-state-a,
+.aiw .how-state-b {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+.aiw .how-state-a {
+  color: var(--ink-secondary);
+  opacity: calc(1 - var(--lit));
+}
+.aiw .how-state-b {
+  color: var(--accent);
+  opacity: var(--lit);
+}
+.aiw .mail {
+  display: flex;
+  flex-direction: column;
+}
+.aiw .mail-row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+}
+.aiw .mail-row .mono {
+  color: var(--ink-muted);
+}
+.aiw .mail-body {
+  min-height: 112px;
+  padding-top: 14px;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.aiw .how-send {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+.aiw .send {
+  --lit: clamp(0, calc((var(--q, 1) - 0.7) * 6), 1);
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  height: 44px;
+  padding: 0 26px;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-control);
+  font-weight: 500;
+}
+.aiw .send::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--action);
+  opacity: var(--lit);
+}
+.aiw .send-a,
+.aiw .send-b {
+  position: relative;
+  grid-area: 1 / 1;
+}
+.aiw .send-a {
+  color: var(--ink);
+  opacity: calc(1 - var(--lit));
+}
+.aiw .send-b {
+  color: var(--on-action);
+  opacity: var(--lit);
+}
+.aiw .how-send-k {
+  color: var(--ink-muted);
+}
+.aiw .how-own {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.aiw .how-own-h {
+  margin-bottom: 10px;
+  color: var(--ink-muted);
+}
+.aiw .how-own ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.aiw .how-own li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+}
+@keyframes how-flow {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(44px);
+    opacity: 0;
+  }
+}
+
+/* --- S3 to S5 on tablets and phones --------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+  .aiw .wsk-grid,
+  .aiw .how-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .aiw .mon-head {
+    display: contents;
+  }
+  .aiw .mon-title {
+    margin-bottom: 24px;
+  }
+  .aiw .mon-toggle {
+    position: sticky;
+    top: 64px;
+    z-index: 6;
+    align-items: flex-start;
+    margin: 0 calc(var(--gutter) * -1) 28px;
+    padding: 12px var(--gutter);
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .aiw .mon-cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 72px;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .cvs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .cvs-panel {
+    min-height: 0;
+  }
+  .aiw .cvs-thread {
+    min-height: 170px;
+  }
+  .aiw .mon-stage {
+    --row: 60px;
+    --tc: 64px;
+    --lane: 76px;
+  }
+  .aiw .mon-b-busy {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 4px 10px 4px 12px;
+  }
+  .aiw .mon-b-t {
+    display: none;
+  }
+  .aiw .mon-b-done {
+    padding: 0 6px;
+    gap: 6px;
+    line-height: 1.15;
+  }
+  .aiw .mon-b-ok {
+    display: none;
+  }
+  .aiw .mon-open {
+    padding: 16px;
+  }
+  .aiw .how-panel {
+    padding: 20px;
+  }
+  .aiw .how-wire {
+    grid-template-columns: minmax(0, 1fr) 32px minmax(0, 0.9fr);
+  }
+  .aiw .how-line,
+  .aiw .how-core::before {
+    width: 16px;
+  }
+  .aiw .how-in {
+    padding: 8px 10px;
+  }
+  .aiw .how-in-v {
+    display: none;
+  }
+  .aiw .how-core {
+    padding: 14px;
+  }
+  .aiw .how-core-name {
+    font-size: 18px;
+  }
+  .aiw .how-core-mark {
+    width: 40px;
+    height: 40px;
+  }
+  .aiw .brief-why {
+    display: none;
+  }
+  .aiw .mail-row {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+}
+
 /* --- Tablets and phones ------------------------------------------------------------------------ */
 
 @media (max-width: 980px) {

@@ -10,6 +10,7 @@ import { initBadges } from './badges';
 import { initCountUps } from './count';
 import { initEnter } from './enter';
 import { initInView, initPhoneMenu, initPrograms, initScrollExit, initScrolled, initTheme } from './kit';
+import { initChat, initHow, initMonday } from './pinned';
 
 export function init(): void {
   document.documentElement.classList.add('aiw-js');
@@ -30,6 +31,12 @@ export function init(): void {
   initEnter(page);
   const badges = page.querySelector<HTMLElement>('[data-badges]');
   if (badges) initBadges(badges);
+  const chat = page.querySelector<HTMLElement>('[data-chat]');
+  if (chat) initChat(chat);
+  const mon = page.querySelector<HTMLElement>('[data-pin="mon"]');
+  if (mon) initMonday(mon);
+  const how = page.querySelector<HTMLElement>('[data-pin="how"]');
+  if (how) initHow(how);
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
