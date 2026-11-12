@@ -1,29 +1,34 @@
-/* /invite/:token — net-new (phase 07 § 7.5), "Same card shell" as /sign-in.
+/* /invite/:token — net-new (phase 07 § 7.5), "Same card shell" as /sign-in, in the same homepage look
+   (../../styles/look.module.css): a bone card on the near-black ground.
 
    The shell rules are duplicated from SignIn.module.css on purpose: both screens are CSS Modules,
    and a shared stylesheet would be a third file that phase 07's file list does not create. Keep the
    two `.page` / `.card` / `.brand` / `.h1` blocks identical — they are one spec. */
 
 .page {
+  composes: ground from '../../styles/look.module.css';
   min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
-  background: var(--bg-canvas);
+  padding: 48px 16px;
 }
 
 .card {
+  composes: bone from '../../styles/look.module.css';
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  width: 400px;
+  gap: 28px;
+  width: 440px;
   max-width: 100%;
-  padding: 32px;
-  border-radius: 16px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  box-shadow: var(--shadow-card);
+  padding: 40px;
+  border-radius: var(--look-radius-panel);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 32px 24px;
+  }
 }
 
 .brand {
@@ -35,16 +40,18 @@
 /* `overflow-wrap` because the heading carries a team name the staff typed. */
 .h1 {
   margin: 0;
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 32px;
+  line-height: 36px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--look-ink);
   text-wrap: pretty;
   overflow-wrap: anywhere;
 }
 
 .error {
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 24px;
   color: var(--access-locked-text);
 }
 
@@ -55,7 +62,7 @@
 }
 
 .spin {
-  color: var(--text-tertiary);
+  color: var(--look-ink-muted);
   animation: ai-spin 900ms linear infinite;
 }
 

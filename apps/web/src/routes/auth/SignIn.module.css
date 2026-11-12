@@ -1,32 +1,37 @@
-/* /sign-in — net-new (phase 07 § 7.5). There is no reference file for this screen, so the values
-   here are the ones § 7.5 names (400 wide, padding 32, radius 16, --shadow-card, a 1px
-   --line-default border, brand gap 10, H1 26/32, sub 14 secondary, a full-width 40px primary) and
-   nothing else. The 6/16/24 stack gaps are the house values the portal screens already use.
+/* /sign-in, /login, /forgot-password, /set-password and /account (D-132), all in `AuthCard`, in
+   the homepage look (www's `/`, PR #65): a bone card on the near-black ground, Geist, hairlines, the
+   homepage's buttons and its focus outline. The palette and the re-pointed tokens come from
+   ../../styles/look.module.css; this file holds the card's layout and sizes only, and still not a
+   colour. Every class name is the one the screens already use.
 
-   The card is hand-rolled rather than `<Card>`: that primitive only offers radius 12 or 14 and the
-   reference's padding presets, and NEVER normalise a size the spec states. Dark mode and the focus
-   ring come entirely from tokens.css — there is not a colour in this file. */
+   The house rules, as on the homepage: no text under 16px, every tap target 44px or more, AA
+   contrast, `:focus-visible`, and no movement under reduced motion. The AI Academy lockup stays as it
+   is (Connor's decision), drawn for a light ground on the bone card. */
 
 .page {
+  composes: ground from '../../styles/look.module.css';
   min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
-  background: var(--bg-canvas);
+  padding: 48px 16px;
 }
 
 .card {
+  composes: bone from '../../styles/look.module.css';
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  width: 400px;
+  gap: 28px;
+  width: 440px;
   max-width: 100%;
-  padding: 32px;
-  border-radius: 16px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  box-shadow: var(--shadow-card);
+  padding: 40px;
+  border-radius: var(--look-radius-panel);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 32px 24px;
+  }
 }
 
 .brand {
@@ -38,24 +43,26 @@
 .head {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
+/* The homepage's section title, at a card's size: Geist 500, tight tracking. */
 .h1 {
   margin: 0;
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 32px;
+  line-height: 36px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--look-ink);
 }
 
 /* `overflow-wrap` because the success sub carries an address the viewer typed, which can be longer
-   than the 400px card. */
+   than the card. */
 .sub {
   margin: 0;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--look-ink-secondary);
   text-wrap: pretty;
   overflow-wrap: anywhere;
 }
@@ -63,22 +70,84 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-/* Matches `Field`'s own error row (13px, --access-locked-text); this one is a live region instead.
-   It is always mounted so a screen reader announces the insertion, and `:empty` keeps it out of
-   the field's 6px stack until there is something to say. */
+/* The fields (`Field`/`Input`): 16px labels in ink, 48px controls with the homepage's 6px radius and
+   a control-weight hairline. Focus is the look's outline. */
+.form label {
+  font-weight: 500;
+  color: var(--look-ink);
+}
+.form input:not([type='checkbox']) {
+  height: 48px;
+  padding: 0 14px;
+  border-radius: var(--look-radius-control);
+  border-color: var(--look-line-control);
+}
+
+/* Matches `Field`'s own error row; this one is a live region instead. It is always mounted so a
+   screen reader announces the insertion, and `:empty` keeps it out of the field's stack until there
+   is something to say. */
 .error {
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 24px;
   color: var(--access-locked-text);
 }
 .error:empty {
   display: none;
 }
 
+/* The homepage's large button (`.cta-lg`): 52px, 16px Geist 500, 6px radius, a 2px lift on hover. */
 .submit {
   width: 100%;
+}
+.card .submit,
+.card .alt button {
+  min-height: 52px;
+  height: auto;
+  padding: 0 24px;
+  border-radius: var(--look-radius-control);
+  font-size: 16px;
+  font-weight: 500;
+  transition:
+    transform 0.3s var(--look-ease),
+    border-color 0.3s;
+}
+.card .submit:hover,
+.card .alt button:hover {
+  transform: translateY(-2px);
+}
+.card .submit[aria-disabled='true']:hover {
+  transform: none;
+}
+
+/* The homepage's text link (`.cta-link`): underlined 5px under the words, 44px tall for a thumb. */
+.again,
+.textLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: var(--look-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--look-line-control);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+.card .again {
+  height: auto;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--look-ink);
+}
+.card .again:hover,
+.textLink:hover {
+  color: var(--look-forest);
+  text-decoration-color: currentColor;
 }
 
 .again {
@@ -92,7 +161,7 @@
 }
 
 .spin {
-  color: var(--text-tertiary);
+  color: var(--look-ink-muted);
   animation: ai-spin 900ms linear infinite;
 }
 
@@ -102,23 +171,25 @@
   }
 }
 
-/* D-132: the password form's extras. "Keep me signed in", and the two ways out of the form under it.
-   Sizes are the house 13/14 used on the card already; colour and focus come from tokens.css. */
-.check {
+/* D-132: the password form's extras. "Keep me signed in" is a 44px row, with a 20px box. */
+.card .check {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--text-secondary);
+  gap: 12px;
+  min-height: 44px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: var(--look-ink-secondary);
   cursor: pointer;
 }
 
 .check input {
-  width: 16px;
-  height: 16px;
+  flex: none;
+  width: 20px;
+  height: 20px;
   margin: 0;
-  accent-color: var(--action-primary);
+  accent-color: var(--look-ink);
 }
 
 .links {
@@ -126,30 +197,22 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
-}
-
-.textLink {
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--text-link);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  gap: 0 24px;
 }
 
 /* The rules for a new password, under its field. */
 .hint {
   margin: 0;
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--look-ink-secondary);
 }
 
 /* "Your password is saved." on the account page: a status, not an error. */
 .done {
   margin: 0;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 24px;
   color: var(--status-success-text);
 }
 
