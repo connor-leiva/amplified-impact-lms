@@ -90,7 +90,7 @@ function hero(examples: boolean): string {
     `<h1 id="teams-title" class="h-hero tm-title">${headline(h.title)}</h1>`,
     `<p class="lead lede fade-1">${esc(h.lede)}</p>`,
     `<div class="actions fade-2">${button(TEAMS_END.button, '#sizes')}</div>`,
-    `<div class="tm-sales fade-3">${salesLine()}${proofLine()}</div>`,
+    `<div class="tm-sales">${salesLine()}${proofLine()}</div>`,
     `</div>`,
     examples ? `<div class="tm-hero-art"><div class="tm-art-in">${usage()}</div></div>` : '',
     `</div>`,
@@ -118,13 +118,13 @@ function sizer(): string {
   const tiers = TIERS.items;
   const caps = tiers.map(maxOf);
   const first = caps[0];
-  if (first === null || first === undefined) throw new Error('The first team size names no top size. Fix src/teams/content.ts.');
+  if (first === null || first === undefined)
+    throw new Error('The first team size names no top size. Fix src/teams/content.ts.');
   const top = Math.max(...caps.filter((c): c is number => c !== null));
   const start = 12;
   const seats = Array.from(
     { length: top },
-    (_, i) =>
-      `<span class="seat${i < start ? ' is-on' : ''}${i >= first ? ' tier-2' : ''}" style="--si:${i}"></span>`,
+    (_, i) => `<span class="seat${i < start ? ' is-on' : ''}${i >= first ? ' tier-2' : ''}" style="--si:${i}"></span>`,
   ).join('');
   const panels = tiers
     .map(
@@ -164,7 +164,7 @@ function tier(t: Tier, i: number): string {
         `<div class="act-link"><a class="btn btn-secondary" href="${T.teamCall}" aria-describedby="${t.id}-name">${esc(t.button)}</a></div>`,
       ];
   return [
-    `<li class="card plan tier rv" style="--d:${i * 90}ms" id="${t.id}" data-state="${t.cart ? T.state(t.cart) : 'link'}" aria-labelledby="${t.id}-name">`,
+    `<li class="card plan tier" id="${t.id}" data-state="${t.cart ? T.state(t.cart) : 'link'}" aria-labelledby="${t.id}-name">`,
     `<p class="mono tier-idx" aria-hidden="true">${pad2(i + 1)}</p>`,
     `<h3 class="plan-name tier-name" id="${t.id}-name">${esc(t.name)}</h3>`,
     `<div class="tier-price">${priceOf(t)}</div>`,

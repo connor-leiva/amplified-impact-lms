@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { KIT } from '../content';
-import { seatMeter } from '../parts';
+import { proofLine, seatMeter } from '../parts';
 import { kitFooter, kitHeader } from '../render';
-import { init, initInView, initPhoneMenu, initPrograms, initSizer, initTheme, savedTheme } from './main';
+import { holdsBuying, init, initInView, initPhoneMenu, initPrograms, initSizer, initTheme, savedTheme } from './main';
 
 // The kit's script on the kit's own markup, in jsdom: what it adds to a page that already works without
 // it, and nothing it takes away.
@@ -167,6 +170,46 @@ describe('what moves as you scroll', () => {
     expect(page.querySelector('.seatm')?.classList.contains('is-in')).toBe(true);
     expect(page.querySelector('.foot-mark')?.classList.contains('is-in')).toBe(true);
     expect(page.querySelectorAll('.rv-wait').length).toBe(0);
+  });
+
+  it('never holds back a buy button, a payment link, a seat counter or the proof line below the fold', () => {
+    // A scrolling browser: IntersectionObserver exists, and everything here sits below the fold.
+    const observed: Element[] = [];
+    class FakeObserver {
+      observe(el: Element) {
+        observed.push(el);
+      }
+      disconnect() {}
+    }
+    vi.stubGlobal('IntersectionObserver', FakeObserver);
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({ top: 5000 } as DOMRect);
+    document.body.className = 'aiw';
+    document.body.innerHTML = [
+      `<main id="main">`,
+      `<li class="card plan rv" data-state="link"><div class="plan-actions"><div class="act-link"><a class="btn btn-primary" href="https://buy.stripe.com/test_year">Buy</a><a class="text-link more" href="https://buy.stripe.com/test_month">Or pay monthly</a>${proofLine()}</div></div></li>`,
+      `<div class="rv proof-only">${proofLine()}</div>`,
+      `<div class="rv seats">${seatMeter('12', 'Seats')}</div>`,
+      `<div class="rv link-only"><a href="https://buy.stripe.com/test_link">Pay</a></div>`,
+      `<div class="rv plain"><h2>Questions</h2></div>`,
+      `</main>`,
+    ].join('');
+    initInView(document.body);
+    const held = [...document.querySelectorAll('.rv-wait')];
+    // The plain heading is held back, as before: the guard is narrow.
+    expect(held.map((el) => el.className)).toEqual(['rv plain rv-wait']);
+    for (const sel of ['a[href*="buy.stripe.com"]', '.proof-line', '.seatm', '.plan-actions']) {
+      for (const el of document.querySelectorAll(sel)) expect(el.closest('.rv-wait'), sel).toBeNull();
+    }
+    expect(holdsBuying(document.querySelector('.plain')!)).toBe(false);
+    expect(holdsBuying(document.querySelector('.card')!)).toBe(true);
+    vi.unstubAllGlobals();
+  });
+
+  it('draws the seat counter’s marks from the start, and the CSS backs the rule up', () => {
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../kit.css'), 'utf8');
+    expect(css).not.toMatch(/\.seatm:not\(\.is-in\) \.seatm-s/);
+    expect(css).toMatch(/\.aiw \.rv-wait:has\(\.proof-line, \.plan-actions, \.seatm/);
+    expect(css).toMatch(/\.aiw :is\(\.fade-1, \.fade-2, \.fade-3\):has\(\.proof-line, \.plan-actions, \.seatm/);
   });
 
   it('marks the page as scripted, and leaves a page without the kit alone', () => {
