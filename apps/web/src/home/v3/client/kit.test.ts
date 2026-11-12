@@ -24,20 +24,23 @@ const line = (src: string, name: string) => src.split('\n').find((l) => new RegE
 
 describe('the kit’s script, copied', () => {
   it('is the kit’s, character for character', () => {
-    for (const name of ['initScrolled', 'close', 'initPrograms', 'initPhoneMenu', 'onView', 'NEVER_HIDDEN', 'holdsBuying', 'initInView', 'initScrollExit']) {
+    for (const name of ['savedTheme', 'saveTheme', 'initTheme', 'initScrolled', 'close', 'initPrograms', 'initPhoneMenu', 'onView', 'NEVER_HIDDEN', 'holdsBuying', 'initInView', 'initScrollExit']) {
       expect(block(COPY, name), name).toBe(block(KIT, name));
     }
-    for (const name of ['REDUCE', 'HOVER', 'DESKTOP', 'matches', 'reducedMotion']) {
+    for (const name of ['REDUCE', 'HOVER', 'DESKTOP', 'THEME_KEY', 'matches', 'reducedMotion']) {
       expect(line(COPY, name), name).toBe(line(KIT, name));
     }
+    expect(COPY).toContain("type Theme = 'dark' | 'light';");
+    expect(KIT).toContain("type Theme = 'dark' | 'light';");
   });
 
-  it('starts as the kit’s `init()` does, but for the theme switch, and never imports the kit’s module', () => {
+  it('starts as the kit’s `init()` does, theme switch included (D8), and never imports the kit’s module', () => {
     const kitInit = block(KIT, 'init');
     const v3Init = block(MAIN, 'init');
     for (const l of [
       "document.documentElement.classList.add('aiw-js');",
       "const page = document.querySelector<HTMLElement>('.aiw');",
+      'initTheme(page);',
       'initScrolled(header);',
       'if (programs) initPrograms(header, programs);',
       'if (phone) initPhoneMenu(header, phone);',
@@ -47,8 +50,6 @@ describe('the kit’s script, copied', () => {
       expect(kitInit, l).toContain(l);
       expect(v3Init, l).toContain(l);
     }
-    expect(kitInit).toContain('initTheme(page);');
-    expect(v3Init).not.toContain('initTheme');
     for (const src of [COPY, MAIN, source('./badges.ts'), source('./count.ts'), source('./enter.ts')]) {
       expect(src).not.toMatch(/from ['"][^'"]*(kit\/client|\.\.\/client|home\/client)/);
     }

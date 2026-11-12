@@ -50,7 +50,7 @@ const REGION = /<!--pending:([a-z0-9-]+)-->([\s\S]*?)<!--pending:\1:else-->([\s\
 const PREVIEW_STYLE = `<style>
 .aiw [${MARKER}]{outline:2px dashed var(--signal);outline-offset:-2px}
 .aiw section[${MARKER}]{position:relative}
-.aiw section[${MARKER}]::before{content:'Pending · ' attr(${MARKER});position:absolute;top:12px;left:12px;z-index:5;padding:4px 10px;border-radius:4px;background:var(--signal);color:var(--on-action);font-family:var(--font-mono);font-size:16px;letter-spacing:.08em;text-transform:uppercase}
+.aiw section[${MARKER}]::before{content:'Pending · ' attr(${MARKER});position:absolute;top:12px;right:12px;z-index:5;padding:4px 10px;border-radius:4px;background:var(--signal);color:var(--on-action);font-family:var(--font-mono);font-size:16px;letter-spacing:.08em;text-transform:uppercase}
 </style>`;
 
 /**

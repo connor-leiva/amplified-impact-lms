@@ -1,18 +1,91 @@
 // The v2 kit's script, the parts homepage v3 uses, COPIED from `../../../kit/client/main.ts`, NOT
-// IMPORTED: that module starts the kit's whole script when it loads (the theme switch included, which
-// `/` keeps hidden), and a module two pages' scripts both imported would become a shared chunk, which
-// `ai101Inline()` refuses. `kit.test.ts` holds every copy below to the kit's, character for character.
+// IMPORTED: that module starts the kit's whole script when it loads, and a module two pages' scripts
+// both imported would become a shared chunk, which `ai101Inline()` refuses. `kit.test.ts` holds every
+// copy below to the kit's, character for character.
 //
-// What they do, as on every kit page: the header turning solid as you scroll, Programs and the phone
-// menu, the `.rv` reveal that never holds back a buy button, seat counter or proof line (NEVER_HIDDEN),
-// the seat meter's and footer mark's arrival (`is-in`), and the hero's exit progress (`--p`).
+// What they do, as on every kit page: the theme switch (Connor's D8, the kit's own, saved under the
+// kit's key so the choice carries across the site), the header turning solid as you scroll, Programs
+// and the phone menu, the `.rv` reveal that never holds back a buy button, seat counter or proof line
+// (NEVER_HIDDEN), the seat meter's and footer mark's arrival (`is-in`), and the hero's exit progress.
 
 const REDUCE = '(prefers-reduced-motion: reduce)';
 const HOVER = '(hover: hover) and (pointer: fine)';
 const DESKTOP = '(min-width: 1081px)';
+const THEME_KEY = 'aiw-theme';
+
+type Theme = 'dark' | 'light';
 
 const matches = (q: string): boolean => typeof window.matchMedia === 'function' && window.matchMedia(q).matches;
 export const reducedMotion = (): boolean => matches(REDUCE);
+
+/** Reads the theme saved on this browser, if any (storage can be blocked: then there is none). */
+export function savedTheme(): Theme | null {
+  try {
+    const t = window.localStorage.getItem(THEME_KEY);
+    return t === 'light' || t === 'dark' ? t : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveTheme(t: Theme): void {
+  try {
+    window.localStorage.setItem(THEME_KEY, t);
+  } catch {
+    // A private window or blocked storage: the switch still works for this page.
+  }
+}
+
+/**
+ * The theme switch: shown (it is `hidden` in the markup, since it can't work without a script), named by
+ * the theme it switches to, and kept on this browser. The new theme spreads from the button like a
+ * ripple where the browser has view transitions and motion is allowed; otherwise it simply changes.
+ */
+export function initTheme(page: HTMLElement): void {
+  const saved = savedTheme();
+  if (saved) page.dataset.theme = saved;
+  const btn = page.querySelector<HTMLButtonElement>('.theme-btn');
+  if (!btn) return;
+  const label = () => {
+    const next: Theme = page.dataset.theme === 'light' ? 'dark' : 'light';
+    const name = btn.dataset[next === 'light' ? 'labelLight' : 'labelDark'] ?? '';
+    btn.setAttribute('aria-label', name);
+    btn.title = name;
+  };
+  label();
+  btn.hidden = false;
+  btn.addEventListener('click', () => {
+    const next: Theme = page.dataset.theme === 'light' ? 'dark' : 'light';
+    const apply = () => {
+      page.dataset.theme = next;
+      label();
+    };
+    saveTheme(next);
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => { ready: Promise<void>; finished: Promise<void> };
+    };
+    if (!doc.startViewTransition || reducedMotion()) {
+      apply();
+      return;
+    }
+    const r = btn.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const radius = Math.hypot(Math.max(cx, window.innerWidth - cx), Math.max(cy, window.innerHeight - cy));
+    const root = document.documentElement;
+    root.classList.add('aiw-vt');
+    const vt = doc.startViewTransition(apply);
+    vt.finished.finally(() => root.classList.remove('aiw-vt'));
+    vt.ready
+      .then(() => {
+        root.animate(
+          { clipPath: [`circle(0px at ${cx}px ${cy}px)`, `circle(${radius}px at ${cx}px ${cy}px)`] },
+          { duration: 760, easing: 'cubic-bezier(.2,.7,.2,1)', pseudoElement: '::view-transition-new(root)' },
+        );
+      })
+      .catch(() => undefined);
+  });
+}
 
 /** The header turns solid once the page has scrolled past its first 24px. */
 export function initScrolled(header: HTMLElement): void {

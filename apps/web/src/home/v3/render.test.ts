@@ -72,7 +72,7 @@ describe('the page', () => {
       (h?.outerHTML ?? '').replace(/ aria-current="page"/g, '').replace(/ data-current(="")?/g, '').replace(/ is-current/g, '');
     expect(unmarked(header)).toBe(unmarked(parse(renderPricingBody()).querySelector('header.hdr')));
     expect(prod.querySelector('footer')?.outerHTML).toBe(parse(kitFooter()).querySelector('footer')?.outerHTML);
-    // The theme switch is in the header's markup, hidden, as on every kit page: `/` stays dark (C16).
+    // The theme switch is in the header's markup, hidden until the script shows it, as on every kit page (D8).
     expect(prod.querySelector<HTMLButtonElement>('.theme-btn')?.hidden).toBe(true);
   });
 

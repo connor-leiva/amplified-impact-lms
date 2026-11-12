@@ -2,18 +2,20 @@
 // admits it. It only adds to a page that already reads in full without it: every figure is printed,
 // every buy button, seat and proof line is shown, and the badge's first tab is the one that shows.
 //
-// The kit's `init()` (`./kit.ts`, its own functions, copied), but for one thing: the theme switch. `/`
-// stays dark (conflict C16), so the switch stays hidden and no saved theme is applied.
+// The kit's `init()` (`./kit.ts`, its own functions, copied), theme switch included: Connor's D8 gives
+// `/` a working light/dark switch, the kit's own. Dark (the mockup's look) until someone picks light,
+// and a theme picked on any kit page carries here, and back.
 
 import { initBadges } from './badges';
 import { initCountUps } from './count';
 import { initEnter } from './enter';
-import { initInView, initPhoneMenu, initPrograms, initScrollExit, initScrolled } from './kit';
+import { initInView, initPhoneMenu, initPrograms, initScrollExit, initScrolled, initTheme } from './kit';
 
 export function init(): void {
   document.documentElement.classList.add('aiw-js');
   const page = document.querySelector<HTMLElement>('.aiw');
   if (!page) return;
+  initTheme(page);
   const header = page.querySelector<HTMLElement>('.hdr');
   if (header) {
     initScrolled(header);

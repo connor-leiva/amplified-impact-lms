@@ -42,13 +42,32 @@ afterEach(() => {
 });
 
 describe('the page with the script', () => {
-  it('marks the page scripted, keeps it dark whatever theme was saved, and leaves the switch hidden (C16)', () => {
-    window.localStorage.setItem('aiw-theme', 'light');
+  it('is dark until someone picks light: the switch shows, named for the theme it turns on (D8)', () => {
     const page = mount();
     init();
     expect(document.documentElement.classList.contains('aiw-js')).toBe(true);
     expect(page.dataset.theme).toBe('dark');
-    expect($<HTMLButtonElement>('.theme-btn').hidden).toBe(true);
+    const btn = $<HTMLButtonElement>('.theme-btn');
+    expect([btn.hidden, btn.getAttribute('aria-label')]).toEqual([false, btn.dataset.labelLight]);
+  });
+
+  it('switches to light and back, keeps the choice on this browser, and takes a choice made on any kit page', () => {
+    const page = mount();
+    init();
+    const btn = $<HTMLButtonElement>('.theme-btn');
+    btn.click();
+    expect([page.dataset.theme, window.localStorage.getItem('aiw-theme'), btn.getAttribute('aria-label')]).toEqual([
+      'light',
+      'light',
+      btn.dataset.labelDark,
+    ]);
+    btn.click();
+    expect([page.dataset.theme, window.localStorage.getItem('aiw-theme')]).toEqual(['dark', 'dark']);
+    // A theme saved on /pricing (the same key) is the homepage's too.
+    window.localStorage.setItem('aiw-theme', 'light');
+    const again = mount();
+    init();
+    expect(again.dataset.theme).toBe('light');
   });
 
   it('holds back nothing that buys or proves: the hero’s buttons, proof line and figures stay as printed', () => {

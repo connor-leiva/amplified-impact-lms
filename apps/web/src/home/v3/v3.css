@@ -10,7 +10,10 @@
        15px labels are lifted to 16px, as the kit lifted its own;
      - nothing buy, seat or proof related waits or fades (the kit's NEVER_HIDDEN rule and its `:has()`
        backstop, in `kit.css`);
-     - `prefers-reduced-motion` stops everything that moves (the kit's last rule). */
+     - `prefers-reduced-motion` stops everything that moves (the kit's last rule);
+     - light and dark (Connor's D8) are the kit's own: every rule here reads the theme's tokens, so a
+       section follows the page (`body[data-theme]`, the kit's switch), a band the mockup draws light
+       is `.inverse` and swaps with it, and the forest band is forest in both. */
 
 @import '../../kit/kit.css';
 
