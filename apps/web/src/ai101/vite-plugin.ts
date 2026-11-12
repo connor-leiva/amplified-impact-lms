@@ -120,8 +120,14 @@ const UNSAFE_IN_STYLE = /<\/style/i;
  * `pages` are the HTML entries to make self-contained. /ai101 alone by default; the page build
  * (`vite.ai101.config.ts`) also passes the /terms and /privacy shells, which are built in the same
  * run and get the same treatment: their stylesheet inlined, and nothing left to load but fonts.
+ *
+ * `externalScripts` names pages among `pages` whose script stays a file (`/assets/<name>-[hash].js`)
+ * while their stylesheet is still inlined. www's homepage is one: the API serves it with no
+ * `script-src` hash (`apps/api/src/server.ts` hashes only the pages it fills), so an inlined script
+ * there would be blocked, while a same-origin file is admitted by `'self'`. Its chunk must stand alone,
+ * like an inlined one: no import of a chunk another page shares.
  */
-export function ai101Inline(pages: readonly string[] = [AI101_HTML]): Plugin {
+export function ai101Inline(pages: readonly string[] = [AI101_HTML], { externalScripts = [] as readonly string[] } = {}): Plugin {
   let base = '/';
   return {
     name: 'ai101-inline',
@@ -137,24 +143,31 @@ export function ai101Inline(pages: readonly string[] = [AI101_HTML]): Plugin {
       // Removed from the bundle only after every page is done: /terms and /privacy share one
       // stylesheet, and each of them gets its own inline copy of it.
       const inlined = new Set<string>();
+      // The chunks `externalScripts` pages load as files: kept in the bundle, and so in `dist/`.
+      const external = new Set<string>();
 
       for (const name of pages) {
         const page = bundle[name];
         if (!page || page.type !== 'asset') return this.error(`${name} is not in the bundle.`);
         let html = typeof page.source === 'string' ? page.source : new TextDecoder().decode(page.source);
+        const keepScript = externalScripts.includes(name);
 
         // <script type="module" crossorigin src="/assets/ai101-[hash].js"></script> → inline.
         html = html.replace(/<script\b[^>]*\ssrc="([^"]+)"[^>]*><\/script>/g, (tag, url: string) => {
           const chunk = bundle[fileOf(url)];
           if (!chunk || chunk.type !== 'chunk') return tag;
-          if (UNSAFE_IN_SCRIPT.test(chunk.code)) this.error(`${chunk.fileName} contains text that cannot be inlined.`);
           // A chunk that imports another (a module two pages' scripts share, split out by the bundler)
           // would ask for a file this page does not have once inlined. Caught here, not in production.
           if (chunk.imports.length || chunk.dynamicImports.length) {
             this.error(
-              `${chunk.fileName} imports ${[...chunk.imports, ...chunk.dynamicImports].join(', ')}; an inlined script cannot.`,
+              `${chunk.fileName} imports ${[...chunk.imports, ...chunk.dynamicImports].join(', ')}; ${keepScript ? 'a page script' : 'an inlined script'} cannot.`,
             );
           }
+          if (keepScript) {
+            external.add(chunk.fileName);
+            return tag;
+          }
+          if (UNSAFE_IN_SCRIPT.test(chunk.code)) this.error(`${chunk.fileName} contains text that cannot be inlined.`);
           inlined.add(chunk.fileName);
           // `.trimEnd()` only: the API hashes these exact bytes for its CSP (`inlineScriptHashes`), so
           // what is inlined here is precisely what is served.
@@ -172,17 +185,20 @@ export function ai101Inline(pages: readonly string[] = [AI101_HTML]): Plugin {
           return `<style>${css.trimEnd()}</style>`;
         });
 
-        if (/\b(?:src|href)="[^"]*\.(?:m?js|css)"/.test(html)) {
+        // A kept script's own tag is the one reference allowed; anything else must be gone.
+        const rest = keepScript ? html.replace(/<script\b[^>]*\ssrc="[^"]+"[^>]*><\/script>/g, '') : html;
+        if (/\b(?:src|href)="[^"]*\.(?:m?js|css)"/.test(rest)) {
           this.error(`${name} still references a script or stylesheet after inlining.`);
         }
 
         page.source = html;
       }
-      for (const file of inlined) delete bundle[file];
+      for (const file of inlined) if (!external.has(file)) delete bundle[file];
 
       // Whatever is left must not be a script or a stylesheet: one would be a second request (a
-      // dynamic import, a shared chunk, a preload) that these pages promised not to make.
-      const leftover = Object.keys(bundle).filter((file) => /\.(?:m?js|css)$/.test(file));
+      // dynamic import, a shared chunk, a preload) that these pages promised not to make. The kept
+      // page scripts are the only exception, one file each.
+      const leftover = Object.keys(bundle).filter((file) => /\.(?:m?js|css)$/.test(file) && !external.has(file));
       if (leftover.length) this.error(`${pages.join(', ')} would load more than itself: ${leftover.join(', ')}`);
     },
   };
