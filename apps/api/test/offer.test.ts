@@ -543,6 +543,73 @@ describe('POST /api/stripe/webhook (D-075, D-077, D-078)', () => {
     expect((await one()).paymentFailedAt).toBe(NOW_MS);
   });
 
+  // D-143: what the buyer and their teammates can open, around a failed second payment.
+  async function twoPayView(email = 'pat@example.com') {
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, email));
+    const cookie = await app.signInAs(owner!.id);
+    const course = await app.inject({ method: 'GET', url: '/api/course', headers: { cookie } });
+    const lib = (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json();
+    return {
+      course: course.statusCode,
+      coursePaused: course.statusCode === 403 && course.json().paused === true,
+      skills: Object.fromEntries(lib.skills.map((sk: { id: string; state: string }) => [sk.id, sk.state])),
+      libraryPaused: lib.paused,
+    };
+  }
+  const OPEN = { course: 200, coursePaused: false, skills: { 'team-pnl-review': 'open', 'offer-strategy': 'open' }, libraryPaused: false };
+  const PAUSED = { course: 403, coursePaused: true, skills: { 'team-pnl-review': 'locked', 'offer-strategy': 'locked' }, libraryPaused: true };
+
+  it('6b: a failed second payment pauses the course and its skills, and paying it reopens them by itself (D-143)', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    await (await db()).insert(skills).values([
+      { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: NOW_MS - DAY, files: { claude: 'team-pnl-review.zip' } },
+      { id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } },
+    ]);
+    // Dec 14, the second payment's day: the course has been open since Nov 16.
+    process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
+    expect(await twoPayView()).toEqual(OPEN);
+
+    await deliver('invoice.payment_failed', invoice('sub_two', 0, NOW_MS + 61 * DAY, { order_id: order.id }));
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('past_due');
+    expect(await twoPayView()).toEqual(PAUSED);
+    // The download route agrees with the list.
+    const [owner] = await (await db()).select().from(users).where(eq(users.email, 'pat@example.com'));
+    const cookie = await app.signInAs(owner!.id);
+    expect((await app.inject({ method: 'GET', url: '/api/skills/offer-strategy/download/claude', headers: { cookie } })).statusCode).toBe(403);
+
+    // Stripe's retry goes through: the plan is active again, and so is everything it opens.
+    process.env.FIXED_NOW = '2026-12-17T09:00:00-06:00';
+    await deliver('invoice.paid', invoice('sub_two', 375000, NOW_MS + 61 * DAY, { order_id: order.id }));
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('active');
+    expect(await twoPayView()).toEqual(OPEN);
+  });
+
+  it('6c: when Stripe gives up on the second payment, the course stays paused and Connor is told (D-143)', async () => {
+    const order = await buy('cohort-two-pay', {}, { subscription: 'sub_two' });
+    await (await db()).insert(skills).values([
+      { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: NOW_MS - DAY, files: { claude: 'team-pnl-review.zip' } },
+      { id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } },
+    ]);
+    process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
+    await deliver('invoice.payment_failed', invoice('sub_two', 0, NOW_MS + 61 * DAY, { order_id: order.id }));
+    const res = await deliver('customer.subscription.deleted', { id: 'sub_two', status: 'canceled', metadata: { order_id: order.id } });
+    expect(res.statusCode).toBe(200);
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('past_due');
+    expect(await twoPayView()).toEqual(PAUSED);
+  });
+
+  it('6d: only the two-pay AI Accelerator pauses: the AI Accelerator in full keeps its course while past due', async () => {
+    const order = await buy('cohort-full', {}, { subscription: 'sub_full' });
+    await (await db()).insert(skills).values([
+      { id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', releasedAt: NOW_MS - DAY, files: { claude: 'team-pnl-review.zip' } },
+      { id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW_MS - DAY, files: { claude: 'offer-strategy.zip' } },
+    ]);
+    process.env.FIXED_NOW = '2026-12-14T09:00:00-06:00';
+    await deliver('invoice.payment_failed', invoice('sub_full', 0, NOW_MS + 61 * DAY, { order_id: order.id }));
+    expect((await (await db()).select().from(plans))[0]!.status).toBe('past_due');
+    expect(await twoPayView()).toEqual(OPEN);
+  });
+
   it('7: a Team Plan pays its first 3 months today, holds 41 logins, and bills monthly from Apr 4, 2027', async () => {
     stub.subs.set('sub_agents', { id: 'sub_agents', status: 'trialing', customer: 'cus_1', trialEnd: AGENTS_FIRST_CHARGE_AT + 9 * DAY, defaultPaymentMethod: 'pm_1', metadata: {}, cancelAt: null, currentPeriodEnd: null });
     const order = await buy('agents-16to40', {}, { subscription: 'sub_agents' });

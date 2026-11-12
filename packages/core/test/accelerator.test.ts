@@ -24,6 +24,8 @@ import {
   LIBRARY_ROUTES_PENDING_MERGE,
   acceleratorCohort,
   acceleratorOpen,
+  acceleratorPaused,
+  pausedForPayment,
   acceleratorSessions,
   isAcceleratorModule,
 } from '../src/accelerator';
@@ -206,8 +208,22 @@ describe('who can open the course', () => {
   it('opens for the AI Accelerator in full and in two payments', () => {
     expect(acceleratorOpen([plan('cohort', 'full')], AFTER)).toBe(true);
     expect(acceleratorOpen([plan('cohort', 'two_pay')], AFTER)).toBe(true);
-    expect(acceleratorOpen([plan('cohort', 'two_pay', 'past_due')], AFTER)).toBe(true);
+    expect(acceleratorOpen([plan('cohort', 'full', 'past_due')], AFTER)).toBe(true);
     expect(acceleratorOpen([plan('membership', 'year_upfront'), plan('cohort', 'full')], AFTER)).toBe(true);
+  });
+
+  it('pauses the two-pay AI Accelerator while its second payment is past due, and says so (D-143)', () => {
+    const paused = [plan('cohort', 'two_pay', 'past_due')];
+    expect(acceleratorOpen(paused, AFTER)).toBe(false);
+    expect(acceleratorPaused(paused, AFTER)).toBe(true);
+    expect(pausedForPayment({ kind: 'cohort', option: 'two_pay', status: 'past_due' })).toBe(true);
+    // Paid again: open, and not paused.
+    expect(acceleratorOpen([plan('cohort', 'two_pay', 'active')], AFTER)).toBe(true);
+    expect(acceleratorPaused([plan('cohort', 'two_pay', 'active')], AFTER)).toBe(false);
+    // Only the two-pay Accelerator pauses; a refund is ended, not paused; another open plan wins.
+    for (const p of [plan('cohort', 'full', 'past_due'), plan('membership', 'monthly', 'past_due'), plan('agents', 'upto15', 'past_due')]) expect(pausedForPayment(p), JSON.stringify(p)).toBe(false);
+    expect(acceleratorPaused([plan('cohort', 'two_pay', 'ended')], AFTER)).toBe(false);
+    expect(acceleratorPaused([...paused, plan('cohort', 'full')], AFTER)).toBe(false);
   });
 
   it('stays shut for every other plan, for no plan, and for a refunded Accelerator', () => {
