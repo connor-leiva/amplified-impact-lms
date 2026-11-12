@@ -4656,5 +4656,9 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - **Dismissed for good, per learner, on every device.** `POST /api/skills/welcome/dismiss { group }` writes a `dismissals` row with id `welcome-<group>`, and `accessGroups[].welcome` reads it back. It is same-origin JSON only, and only for a group the learner is in.
 - **The Setup Guide says it opens a new tab**: an external-link icon after the label, a hover title "Opens in a new tab", and the accessible name "Setup Guide (opens in a new tab)". The welcome's two links do the same.
 - **Locked rows for a member** read "Not included with Utah Life access", with no See Plans, on every set. Everyone else keeps "Not in your plan." and See Plans. This replaces D-148's follow-up, which kept See Plans on owner and ops skills for members.
+  - **The group it names**, for a learner in more than one: the group whose grant covers that skill's set (`accessGroups[].covers`, from `planCovers`), or else the first. `GET /api/skills` sends only active groups (unexpired, address verified), sorted by name then id, so "the first" is stable.
+- **Design's look check (PR #100):**
+  - The welcome's dismiss is a 44px tap target, with margin `-10px -10px 0 0` so the X stays in the corner.
+  - The member's locked label (its own class, `.notIncluded`) and the page subtitle are at DESIGN.md's "lead" step, 16 / 24. The type scale is literal px values; there is no type variable. Everyone else's notes stay 14px. No new colours.
 - **Resource Vault with nothing published**: the heading, then "Nothing here yet", instead of an empty list with search, tabs and zero-count filters. The prototype's vault always has resources, so its goldens are unchanged.
 - **Not changed:** the `utah-life` grant (Agent Plan skills only), `PLAN_SETS`, `groupAccessOf`, entitlements, course access, Stripe, prices, the seat cap, `/agreement`, shared styles, the nav and the homepage. No emails.

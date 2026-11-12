@@ -7,7 +7,7 @@ import { SKILL_CATALOG } from '@ai/core/skills';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import SkillLibrary, { COPY, START_WITH, groupOnly, leadOf, offersPlans } from './SkillLibrary';
+import SkillLibrary, { COPY, START_WITH, groupForSkill, groupOnly, leadOf, offersPlans } from './SkillLibrary';
 import type { LibrarySkill } from './SkillLibrary';
 import { ENTRIES, LEAD } from '../../library/content';
 
@@ -24,6 +24,9 @@ const skill = (over: Partial<LibrarySkill>): LibrarySkill => ({
   files: ['claude', 'chatgpt', 'practice'],
   ...over,
 });
+
+/** The screen's stylesheet, for the rules Design checks by value. */
+const CSS = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'SkillLibrary.module.css'), 'utf8');
 
 /** The Setup Guide link's accessible name: its label, then that it opens a new tab (D-150). */
 const GUIDE = `${COPY.guide} ${COPY.newTab}`;
@@ -252,6 +255,54 @@ describe('the skill library screen', () => {
       expect(offersPlans(true)).toBe(false);
     });
 
+    it('sets the member’s locked label at the 16 / 24 "lead" step in its own class, with no colour of its own (Design, PR #100)', async () => {
+      fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, skills: [skill({ state: 'locked' })] }));
+      const { unmount } = render(<SkillLibrary />);
+      const label = (await screen.findByText('Not included with Utah Life access')).closest('span')!;
+      expect(label.className).toMatch(/note/);
+      expect(label.className).toMatch(/notIncluded/);
+      unmount();
+      const rule = /\.notIncluded \{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+      expect(rule).toMatch(/font-size: 16px;/);
+      expect(rule).toMatch(/line-height: 24px;/);
+      expect(rule).not.toMatch(/color|#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
+      // Everyone else's note is unchanged.
+      fetchMock.mockResolvedValue(answer(200, { skills: [skill({ state: 'locked' })] }));
+      render(<SkillLibrary />);
+      expect((await screen.findByText(COPY.locked)).closest('span')!.className).not.toMatch(/notIncluded/);
+    });
+
+    it('names the group that applies to each locked skill when a learner is in more than one (Design, PR #100)', async () => {
+      // Two active groups, in the API's fixed order. Only the second covers owner and ops skills.
+      const TWO = [
+        { id: 'acme', name: 'Acme Brokerage', covers: ['agent', 'both'] },
+        { id: 'utah-life', name: 'Utah Life', covers: ['owner_ops', 'both'] },
+      ];
+      expect(groupForSkill({ sets: 'owner_ops' }, TWO as never)?.name).toBe('Utah Life');
+      expect(groupForSkill({ sets: 'agent' }, TWO as never)?.name).toBe('Acme Brokerage');
+      expect(groupForSkill({ sets: 'both' }, TWO as never)?.name).toBe('Acme Brokerage');
+      // No group covers it: the first active one, never one picked at random.
+      expect(groupForSkill({ sets: 'owner_ops' }, [TWO[0]!, { id: 'x', name: 'Xavier' }] as never)?.name).toBe('Acme Brokerage');
+      // Groups from an older API with no `covers`: the first.
+      expect(groupForSkill({ sets: 'agent' }, [{ id: 'utah-life', name: 'Utah Life' }])?.name).toBe('Utah Life');
+      expect(groupForSkill({ sets: 'agent' }, [])).toBeNull();
+
+      fetchMock.mockResolvedValue(
+        answer(200, {
+          plans: [],
+          accessGroups: TWO,
+          skills: [
+            skill({ id: 'team-pnl-review', title: 'Team P&L Review', sets: 'owner_ops', state: 'locked' }),
+            skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'locked' }),
+          ],
+        }),
+      );
+      render(<SkillLibrary />);
+      const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
+      expect(within(owner).getByText('Not included with Utah Life access')).toBeInTheDocument();
+      expect(within(screen.getByRole('region', { name: COPY.sets.agent })).getByText('Not included with Acme Brokerage access')).toBeInTheDocument();
+    });
+
     it('keeps "Not in your plan." and See Plans for everyone else', async () => {
       fetchMock.mockResolvedValue(answer(200, { skills: [skill({ state: 'locked' }), skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'locked' })] }));
       render(<SkillLibrary />);
@@ -264,6 +315,18 @@ describe('the skill library screen', () => {
   });
 
   describe('the first-run welcome for an access group’s member (D-150)', () => {
+    it('gives the dismiss a 44px tap target, its X still in the corner, and the subtitle the 16 / 24 "lead" step (Design, PR #100)', () => {
+      const dismiss = /\.dismiss \{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+      expect(dismiss).toMatch(/width: 44px;/);
+      expect(dismiss).toMatch(/height: 44px;/);
+      expect(dismiss).toMatch(/margin: -10px -10px 0 0;/);
+      expect(CSS).toMatch(/its dismiss a 44px button/);
+      const sub = /\n\.sub \{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+      expect(sub).toMatch(/font-size: 16px;/);
+      expect(sub).toMatch(/line-height: 24px;/);
+      expect(sub).toMatch(/color: var\(--text-secondary\);/);
+    });
+
     const TRAINING = [
       skill({ id: 'appointment-follow-up', title: 'Appointment Follow-Up', sets: 'agent' }),
       skill({ id: 'repair-request-response', title: 'Repair Request Response', sets: 'agent' }),

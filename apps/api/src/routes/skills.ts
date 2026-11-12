@@ -22,7 +22,7 @@ import { accounts, dismissals, plans, skills, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
 import { pausedForPayment } from '@ai/core/accelerator';
-import { skillOpensAt, skillState } from '../billing/access';
+import { planCovers, skillOpensAt, skillState } from '../billing/access';
 import { groupAccessOf } from '../billing/access-groups';
 import type { GroupMembership } from '../billing/access-groups';
 import type { PlanAccess, SkillAccess } from '../billing/access';
@@ -34,6 +34,7 @@ const FILE_KINDS = ['claude', 'chatgpt', 'practice', 'grok'] as const;
 type FileKind = (typeof FILE_KINDS)[number];
 
 const LOCKED = 'This skill is not in your plan.';
+const SKILL_SETS: readonly SkillSet[] = ['owner_ops', 'agent', 'both'];
 
 /**
  * D-150: an access group's welcome panel, dismissed, as a row in `dismissals` (the table that holds
@@ -128,15 +129,20 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       // D-148: the access groups whose entitlement this viewer holds ("Included with your Utah Life team").
       // D-150: with how many agent skills the group's own grant opens today (its welcome panel's
       // count, never a number typed into the page), and whether that panel is still to be shown.
-      accessGroups: access.groups.map((g, i) => {
-        const grant = access.groupPlans[i];
-        return {
-          id: g.id,
-          name: g.name,
-          skills: grant ? rows.filter((s) => s.sets !== 'owner_ops' && skillState([grant], asSkill(s), now) === 'open').length : 0,
-          welcome: !hidden.has(welcomeDismissalId(g.id)),
-        };
-      }),
+      // Only active groups (`groupAccessOf`: unexpired, address verified), in a fixed order (name, then
+      // id), each with the sets its grant covers, so a locked row can name the group that applies.
+      accessGroups: access.groups
+        .map((g, i) => {
+          const grant = access.groupPlans[i];
+          return {
+            id: g.id,
+            name: g.name,
+            skills: grant ? rows.filter((s) => s.sets !== 'owner_ops' && skillState([grant], asSkill(s), now) === 'open').length : 0,
+            welcome: !hidden.has(welcomeDismissalId(g.id)),
+            covers: grant ? SKILL_SETS.filter((set) => planCovers(grant.kind, set)) : [],
+          };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id)),
       // D-143: a two-pay AI Accelerator whose second payment failed. Its skills read locked until
       // that invoice is paid; the screen says why, and where to fix it.
       paused: access.plans.some(pausedForPayment),

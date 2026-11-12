@@ -85,6 +85,17 @@ export interface AccessGroupInfo {
   skills?: number;
   /** D-150: whether the group's welcome panel is still to be shown to this learner. */
   welcome?: boolean;
+  /** The skill sets the group's grant covers (`planCovers`): which skills it "applies" to. */
+  covers?: SetName[];
+}
+
+/**
+ * The group a member's locked row names (Design, PR #100): the one whose grant covers that skill's
+ * set, or else the first. The API sends only active groups (unexpired, address verified), in a fixed
+ * order, so "the first" is the same on every load. Null for a learner in no group.
+ */
+export function groupForSkill(skill: Pick<LibrarySkill, 'sets'>, groups: readonly AccessGroupInfo[]): AccessGroupInfo | null {
+  return groups.find((g) => g.covers?.includes(skill.sets)) ?? groups[0] ?? null;
 }
 
 /** D-150: the skills a group's welcome names first, in order: today's training. Shown only if open. */
@@ -244,7 +255,8 @@ async function dismissWelcome(group: string): Promise<void> {
   }
 }
 
-function SkillRow({ skill, member }: { skill: LibrarySkill; member: string | null }) {
+function SkillRow({ skill, groups }: { skill: LibrarySkill; groups: readonly AccessGroupInfo[] }) {
+  const member = groupForSkill(skill, groups)?.name ?? null;
   const setupId = `setup-${skill.id}`;
   return (
     <li className={s.skill} data-state={skill.state}>
@@ -282,7 +294,7 @@ function SkillRow({ skill, member }: { skill: LibrarySkill; member: string | nul
           </>
         ) : skill.state === 'locked' ? (
           <>
-            <span className={s.note}>
+            <span className={member === null ? s.note : `${s.note} ${s.notIncluded}`}>
               <Icon name="lock" size={16} />
               {member === null ? COPY.locked : COPY.notIncluded(member)}
             </span>
@@ -406,7 +418,7 @@ export function Component() {
               {load.skills
                 .filter((k) => k.sets === set)
                 .map((k) => (
-                  <SkillRow key={k.id} skill={k} member={load.groups[0]?.name ?? null} />
+                  <SkillRow key={k.id} skill={k} groups={load.groups} />
                 ))}
             </ul>
           </section>

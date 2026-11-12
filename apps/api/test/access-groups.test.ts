@@ -153,7 +153,7 @@ describe('a Utah Life agent with no account, on the training day', () => {
     const lib = await library(cookie);
     expect(lib.states).toEqual(AGENT_PLAN);
     // D-150: with the agent skills its own grant opens today (the two, and perfect-week), and its welcome still to show.
-    expect(lib.groups).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true }]);
+    expect(lib.groups).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true, covers: ['agent', 'both'] }]);
     // A group's grant is not a plan to bill.
     expect(lib.plans).toEqual([]);
     expect(await download(cookie, 'appointment-follow-up')).toBe(302);
@@ -377,7 +377,7 @@ describe('the first-run welcome’s count and its dismissal (D-150)', () => {
   const groupsOf = async (cookie: string) => {
     const res = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
     expect(res.statusCode).toBe(200);
-    return (res.json() as { accessGroups: { id: string; name: string; skills: number; welcome: boolean }[] }).accessGroups;
+    return (res.json() as { accessGroups: { id: string; name: string; skills: number; welcome: boolean; covers: string[] }[] }).accessGroups;
   };
   const dismiss = (cookie: string, payload: unknown, origin = 'http://localhost') =>
     app.inject({ method: 'POST', url: '/api/skills/welcome/dismiss', payload: payload as Record<string, unknown>, headers: { cookie, origin } });
@@ -386,7 +386,20 @@ describe('the first-run welcome’s count and its dismissal (D-150)', () => {
     await db.insert(skills).values({ id: 'later-agent-skill', title: 'Later', sets: 'agent', releasedAt: NOW + 5 * DAY, files: { claude: 'later.zip' } });
     const cookie = await account('counted@liveutah.com', { verified: true });
     // appointment-follow-up, repair-request-response (agent) and perfect-week (both); never team-pnl-review.
-    expect(await groupsOf(cookie)).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true }]);
+    expect(await groupsOf(cookie)).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true, covers: ['agent', 'both'] }]);
+  });
+
+  it('lists only active groups, in a fixed order, each with the sets its grant covers (Design, PR #100)', async () => {
+    // A second group on the same domain, granting owner and ops skills; and a third, expired.
+    await db.insert(accessGroups).values([
+      { id: 'zeta', name: 'Zeta Partners', plan: 'membership', emailDomain: 'liveutah.com', expiresAt: null, createdAt: NOW - DAY },
+      { id: 'acme', name: 'Acme Brokerage', plan: 'membership', emailDomain: 'liveutah.com', expiresAt: NOW - 1, createdAt: NOW - DAY },
+    ]);
+    const cookie = await account('two.groups@liveutah.com', { verified: true });
+    expect((await groupsOf(cookie)).map((g) => [g.id, g.covers])).toEqual([
+      ['utah-life', ['agent', 'both']],
+      ['zeta', ['owner_ops', 'both']],
+    ]);
   });
 
   it('is put away for good for that member, and only for them', async () => {

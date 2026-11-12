@@ -27,7 +27,9 @@
 }
 .sub {
   margin: 0;
-  font-size: 15px;
+  /* DESIGN.md's "lead" step, 16 / 24 (Design's look check on PR 100). */
+  font-size: 16px;
+  line-height: 24px;
   color: var(--text-secondary);
 }
 
@@ -165,6 +167,12 @@
   font-size: 14px;
   color: var(--text-secondary);
 }
+/* D-150: a member's locked row, "Not included with Utah Life access", at DESIGN.md's "lead" step,
+   16 / 24 (Design's look check on PR 100). The note's own colour and layout; everyone else's notes stay 14px. */
+.notIncluded {
+  font-size: 16px;
+  line-height: 24px;
+}
 /* "Included with your Utah Life team" (D-148), in the actions row where Manage Billing would be: no
    margin of its own, 16px, and the buttons' 40px height, so the list below sits where it does for
    everyone else. The screen's own token for quiet text. */
@@ -193,7 +201,7 @@
 }
 
 /* D-150: an access group's first-run welcome, at the top of the page, in the skill rows' own card:
-   radius 12, a 1px --line-default border, --bg-surface. Its words at 16px, its dismiss a 40px button. */
+   radius 12, a 1px --line-default border, --bg-surface. Its words at 16px, its dismiss a 44px button. */
 .welcome {
   display: flex;
   align-items: flex-start;
@@ -241,9 +249,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  margin: -8px -8px 0 0;
+  width: 44px;
+  height: 44px;
+  margin: -10px -10px 0 0;
   padding: 0;
   border: 0;
   border-radius: 10px;
