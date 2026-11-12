@@ -1364,8 +1364,10 @@ html:not(.aiw-js) .aiw .how-panel {
   transform-origin: left;
   transform: scaleX(clamp(0, calc((var(--q, 1) - 0.58) * 4), 1));
 }
+/* A figure never splits: at 16px on a phone, "11 of 11" broke after "of". The label wraps instead. */
 .aiw .brief-of {
   color: var(--ink-secondary);
+  white-space: nowrap;
 }
 .aiw .brief-chip {
   margin-left: auto;
