@@ -18,6 +18,7 @@ import { getDb } from '../db/client';
 import { accounts, plans, skills, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
+import { pausedForPayment } from '@ai/core/accelerator';
 import { skillOpensAt, skillState } from '../billing/access';
 import type { PlanAccess, SkillAccess } from '../billing/access';
 import type { PlanKind, PlanStatus, SkillSet } from '../billing/catalog';
@@ -44,7 +45,7 @@ async function accessOf(userId: string): Promise<{ role: string | null; tier: st
   return {
     role: user.role,
     tier: user.tier,
-    plans: rows.map((p) => ({ kind: p.kind as PlanKind, status: p.status as PlanStatus, startsAt: p.startsAt, paidThrough: p.paidThrough, liveUntil: p.liveUntil })),
+    plans: rows.map((p) => ({ kind: p.kind as PlanKind, option: p.option, status: p.status as PlanStatus, startsAt: p.startsAt, paidThrough: p.paidThrough, liveUntil: p.liveUntil })),
   };
 }
 
@@ -81,6 +82,9 @@ export function registerSkillRoutes(app: FastifyInstance): void {
     const rows = await getDb().select().from(skills).where(eq(skills.status, 'published'));
     return reply.send({
       plans: access.plans.map((p) => ({ kind: p.kind, status: p.status, paidThrough: p.paidThrough })),
+      // D-143: a two-pay AI Accelerator whose second payment failed. Its skills read locked until
+      // that invoice is paid; the screen says why, and where to fix it.
+      paused: access.plans.some(pausedForPayment),
       // The portal shows the Team Hub to a Team tier learner; so does this page's link to it (D-119).
       teamHub: access.tier === 'team',
       skills: rows

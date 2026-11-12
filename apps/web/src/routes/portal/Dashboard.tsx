@@ -76,6 +76,7 @@ function Dashboard() {
       if (action.kind === 'nav') navigate(action.to);
       else if (action.kind === 'locked') openLocked(action.moduleId);
       else if (action.kind === 'toast') toast(action.msg, action.tone);
+      else if (action.kind === 'mail') window.location.assign(`mailto:${action.to}`);
       else {
         saveFile(action.file);
         toast(action.file.toast, 'success');

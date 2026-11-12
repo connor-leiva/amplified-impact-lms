@@ -32,6 +32,7 @@ export const COPY = {
   failed: "Your skills didn't load. Refresh the page to try again.",
   /** The owner's way into Stripe's billing portal (cards, invoices, cancelling). */
   billing: 'Manage Billing',
+  paused: 'Your second payment didn’t go through, so your AI Accelerator skills are paused. Update your card in Manage Billing and they open again on their own.',
   /** An AI Accelerator plan's way to its course pages (D-110). */
   course: 'Open the AI Accelerator',
   /** A Team tier learner's way to the Team Hub, where an owner invites their team (D-119). */
@@ -55,7 +56,7 @@ export interface LibrarySkill {
   files: FileKind[];
 }
 
-type Load = { kind: 'loading' } | { kind: 'ready'; skills: LibrarySkill[]; course: boolean; teamHub: boolean } | { kind: 'signed-out' } | { kind: 'failed' };
+type Load = { kind: 'loading' } | { kind: 'ready'; skills: LibrarySkill[]; course: boolean; teamHub: boolean; paused: boolean } | { kind: 'signed-out' } | { kind: 'failed' };
 
 /** An AI Accelerator plan, by the plans `/api/skills` reports: only the AI Accelerator is a `cohort` plan. */
 const holdsCourse = (plans: { kind?: string; status?: string }[] | undefined): boolean =>
@@ -66,8 +67,8 @@ async function loadSkills(): Promise<Load> {
     const res = await fetch('/api/skills', { credentials: 'include', headers: { accept: 'application/json' } });
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
     if (!res.ok) return { kind: 'failed' };
-    const body = (await res.json()) as { skills?: LibrarySkill[]; plans?: { kind?: string; status?: string }[]; teamHub?: boolean };
-    return { kind: 'ready', skills: body.skills ?? [], course: holdsCourse(body.plans), teamHub: body.teamHub === true };
+    const body = (await res.json()) as { skills?: LibrarySkill[]; plans?: { kind?: string; status?: string }[]; teamHub?: boolean; paused?: boolean };
+    return { kind: 'ready', skills: body.skills ?? [], course: holdsCourse(body.plans), teamHub: body.teamHub === true, paused: body.paused === true };
   } catch {
     return { kind: 'signed-out' };
   }
@@ -169,6 +170,13 @@ export function Component() {
               {COPY.billing}
             </a>
           </div>
+        ) : null}
+        {load.kind === 'ready' && load.paused ? (
+          // D-143: why the AI Accelerator's skills read locked, and where to fix it.
+          <p className={s.note} role="status">
+            <Icon name="lock" size={16} />
+            {COPY.paused}
+          </p>
         ) : null}
       </header>
 

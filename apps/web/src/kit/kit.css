@@ -1,0 +1,1843 @@
+/* The v2 site kit: the look every www page past the homepage shares, ported from the Claude Design
+   mockup's SiteKit.jsx (`KIT_CSS`), scoped under `.aiw` as there (the page's <body>).
+
+   PORTED, NOT PASTED. The mockup's rules, in its order, with these changes:
+     - no Google Fonts import: Geist and Geist Mono are self-hosted, the homepage's own files
+       (`../home/fonts/`, left where they are);
+     - its hex colours are the homepage's palette, converted to oklch exactly (`../home/home.css`;
+       `scripts/check-css-colors.mjs` scans this file: no hex, no rgb functions, no named colours);
+     - no text under 16px and no tap target under 44px (Spring's rules, D-107), as on the homepage: the
+       mono labels, small buttons, tags and footer links are raised to fit;
+     - nothing waits for the script: the header is solid, the Programs menu and the phone menu are
+       <details>, the seat meter and the footer's wordmark are drawn, and the questions open, all with
+       no script. `html.aiw-js` (set by `client/main.ts`) turns on what only the script can do;
+     - `prefers-reduced-motion` stops everything that moves, as the mockup's last rule does. */
+
+/* --- Geist and Geist Mono, latin, variable weight (../home/fonts/OFL.txt) ---------------------- */
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../home/fonts/geist-latin-wght-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../home/fonts/geist-mono-latin-wght-normal.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --- The palette: the homepage's, value for value (a test holds the two together) -------------- */
+
+:root {
+  --aiw-black: oklch(0.1552 0.0053 173.53);
+  --aiw-raised-dark: oklch(0.1941 0.0087 169.28);
+  --aiw-cream: oklch(0.9693 0.004 106.47);
+  --aiw-sage: oklch(0.7336 0.0107 164.76);
+  --aiw-sage-muted: oklch(0.6077 0.013 161.81);
+  --aiw-mint: oklch(0.7934 0.1162 162.2);
+  --aiw-hairline-dark: oklch(0.2564 0.0115 167.68);
+  --aiw-control-dark: oklch(0.5028 0.0156 166.68);
+  --aiw-paper: oklch(1 0 0);
+  --aiw-bone: oklch(0.9545 0.0067 97.35);
+  --aiw-raised-light: oklch(0.9843 0.004 106.47);
+  --aiw-slate: oklch(0.4358 0.0091 164.59);
+  --aiw-slate-muted: oklch(0.497 0.0088 164.67);
+  --aiw-forest: oklch(0.3838 0.0555 172.15);
+  --aiw-energy: oklch(0.5632 0.1182 159.45);
+  --aiw-hairline-light: oklch(0.8816 0.011 95.18);
+  --aiw-grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --aiw-grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background: var(--aiw-black);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+:root:has(> body.aiw[data-theme='light']) {
+  background: var(--aiw-bone);
+  color-scheme: light;
+}
+body {
+  margin: 0;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.aiw-vt .aiw,
+.aiw-vt .aiw * {
+  transition: none !important;
+}
+
+.aiw {
+  --forest: var(--aiw-forest);
+  --energy: var(--aiw-energy);
+  --energy-bright: var(--aiw-mint);
+  --on-forest: var(--aiw-cream);
+  --font-sans: 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-22: 22px;
+  --space-24: 24px;
+  --space-28: 28px;
+  --space-36: 36px;
+  --space-40: 40px;
+  --space-64: 64px;
+  --space-72: 72px;
+  --space-88: 88px;
+  --radius-control: 6px;
+  --radius-panel: 8px;
+  --ripple-1: 0.16;
+  --ripple-2: 0.13;
+  --ripple-3: 0.1;
+  --ripple-4: 0.08;
+  --ripple-5: 0.06;
+  --ripple-6: 0.04;
+  --page: 1280px;
+  --gutter: var(--space-64);
+  --section: 136px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --spring: cubic-bezier(0.3, 1.6, 0.5, 1);
+  position: relative;
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* A section marked `.inverse` takes the other theme, and swaps with the page's (the mockup's inverse). */
+.aiw[data-theme='dark'],
+.aiw [data-theme='dark'],
+.aiw[data-theme='light'] .inverse {
+  --surface: var(--aiw-black);
+  --surface-raised: var(--aiw-raised-dark);
+  --ink: var(--aiw-cream);
+  --ink-secondary: var(--aiw-sage);
+  --ink-muted: var(--aiw-sage-muted);
+  --accent: var(--aiw-mint);
+  --signal: var(--aiw-mint);
+  --action: var(--aiw-mint);
+  --on-action: var(--aiw-black);
+  --line: var(--aiw-hairline-dark);
+  --line-control: var(--aiw-control-dark);
+  --outline: var(--aiw-control-dark);
+  --ripple: var(--aiw-paper);
+  --focus-ring: var(--aiw-mint);
+  --grain: var(--aiw-grain-dark);
+  color-scheme: dark;
+}
+.aiw[data-theme='light'],
+.aiw [data-theme='light'],
+.aiw[data-theme='dark'] .inverse {
+  --surface: var(--aiw-bone);
+  --surface-raised: var(--aiw-raised-light);
+  --ink: var(--aiw-black);
+  --ink-secondary: var(--aiw-slate);
+  --ink-muted: var(--aiw-slate-muted);
+  --accent: var(--aiw-forest);
+  --signal: var(--aiw-energy);
+  --action: var(--aiw-black);
+  --on-action: var(--aiw-bone);
+  --line: var(--aiw-hairline-light);
+  --line-control: var(--aiw-sage-muted);
+  --outline: var(--aiw-black);
+  --ripple: var(--aiw-black);
+  --focus-ring: var(--aiw-forest);
+  --grain: var(--aiw-grain-light);
+  color-scheme: light;
+}
+
+/* --- Base ------------------------------------------------------------------------------------ */
+
+.aiw *,
+.aiw *::before,
+.aiw *::after {
+  box-sizing: border-box;
+}
+.aiw [hidden] {
+  display: none !important;
+}
+.aiw :where(h1, h2, h3, h4, p, ul, ol, dl, dd, figure) {
+  margin: 0;
+}
+.aiw :where(ul, ol) {
+  padding: 0;
+  list-style: none;
+}
+.aiw a {
+  color: inherit;
+}
+.aiw button {
+  font: inherit;
+  color: inherit;
+}
+.aiw img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.aiw :focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.aiw main:focus {
+  outline: none;
+}
+.aiw section[id],
+.aiw [id].sec {
+  scroll-margin-top: 64px;
+}
+.aiw .mono {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.aiw .tnum {
+  font-variant-numeric: tabular-nums;
+}
+.aiw .wrap {
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.aiw .sec {
+  position: relative;
+  background-color: var(--surface);
+  background-image: var(--grain);
+  color: var(--ink);
+  transition:
+    background-color 0.6s var(--ease),
+    color 0.6s var(--ease);
+}
+.aiw .skip {
+  position: fixed;
+  left: 16px;
+  top: -80px;
+  z-index: 300;
+  padding: 10px 14px;
+  border-radius: var(--radius-control);
+  background: var(--action);
+  color: var(--on-action);
+  font-weight: 500;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+.aiw .skip:focus {
+  top: 16px;
+}
+.aiw .h-hero {
+  font-size: clamp(46px, 6.6vw, 96px);
+  line-height: 0.95;
+  font-weight: 500;
+  letter-spacing: -0.045em;
+}
+.aiw .h-section {
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.98;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.aiw .h-sub {
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.08;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .lead {
+  max-width: 560px;
+  color: var(--ink-secondary);
+  font-size: 20px;
+  line-height: 1.5;
+}
+.aiw .intro {
+  max-width: 520px;
+  color: var(--ink-secondary);
+  font-size: 18px;
+  line-height: 1.55;
+}
+.aiw .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-24);
+}
+.aiw .inline-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-underline-offset: 3px;
+  transition:
+    color 0.2s,
+    text-decoration-color 0.2s;
+}
+.aiw .inline-link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+.aiw .caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--signal);
+  animation: aiw-blink 1.1s steps(2, start) infinite;
+}
+@keyframes aiw-blink {
+  to {
+    visibility: hidden;
+  }
+}
+@keyframes aiw-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes aiw-pop {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes aiw-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+/* --- Hero words: each rises into place on load (CSS only) -------------------------------------- */
+
+.aiw .w {
+  display: inline-block;
+  overflow: hidden;
+  overflow: clip;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+  vertical-align: top;
+}
+.aiw .w > span {
+  display: inline-block;
+  animation: aiw-rise 1s var(--ease) both;
+  animation-delay: calc(140ms + var(--wi) * 55ms);
+}
+@keyframes aiw-rise {
+  from {
+    transform: translateY(112%);
+  }
+}
+.aiw .hero-line {
+  display: block;
+  text-wrap: balance;
+}
+.aiw .hero-line-2 {
+  color: var(--ink-secondary);
+}
+.aiw .fade-1 {
+  animation: aiw-fade-up 0.9s var(--ease) 0.55s both;
+}
+.aiw .fade-2 {
+  animation: aiw-fade-up 0.9s var(--ease) 0.7s both;
+}
+.aiw .fade-3 {
+  animation: aiw-fade-up 0.9s var(--ease) 0.85s both;
+}
+
+/* --- The logo, the monogram, the icons and the ripple ------------------------------------------ */
+
+/* Logo 1 (`./logo.ts`, Connor's decision for the kit, Nov 12): the letters in the ink, the ring and
+   dot over the second i in the signal. */
+.aiw .wm {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+.aiw .wm-letters {
+  fill: currentColor;
+}
+.aiw .wm-ring {
+  fill: none;
+  stroke: var(--signal);
+}
+.aiw .wm-dot {
+  fill: var(--signal);
+}
+.aiw .mg {
+  display: block;
+  flex: none;
+}
+.aiw .mg-ground {
+  fill: var(--forest);
+}
+.aiw .mg-letters {
+  fill: var(--on-forest);
+}
+.aiw .mg-ring {
+  fill: none;
+  stroke: var(--energy-bright);
+}
+.aiw .mg-dot {
+  fill: var(--energy-bright);
+}
+.aiw .ic,
+.aiw .gl,
+.aiw .ringdot {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+}
+.aiw .ic-i {
+  fill: currentColor;
+}
+.aiw .ic-s {
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.aiw .ic-d {
+  fill: var(--signal);
+  transition: fill 0.3s;
+}
+.aiw .ic-k {
+  fill: var(--icon-knockout, var(--surface));
+}
+.aiw .ic-ks {
+  stroke: var(--icon-knockout, var(--surface));
+}
+.aiw .rd-ring {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 1.5;
+}
+.aiw .rd-dot {
+  fill: var(--signal);
+}
+.aiw .rp {
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+.aiw .rp-ring {
+  fill: none;
+  stroke: var(--ripple);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.aiw .rp-ring-1 {
+  stroke-opacity: var(--ripple-1);
+}
+.aiw .rp-ring-2 {
+  stroke-opacity: var(--ripple-2);
+}
+.aiw .rp-ring-3 {
+  stroke-opacity: var(--ripple-3);
+}
+.aiw .rp-ring-4 {
+  stroke-opacity: var(--ripple-4);
+}
+.aiw .rp-ring-5 {
+  stroke-opacity: var(--ripple-5);
+}
+.aiw .rp-ring-6 {
+  stroke-opacity: var(--ripple-6);
+}
+.aiw .rp-center {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.aiw .rp-dot {
+  fill: var(--signal);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.aiw .rp-quiet {
+  opacity: 0.75;
+}
+.aiw .rp-intro .rp-dot {
+  animation: aiw-land 0.6s var(--spring) 0.22s both;
+}
+.aiw .rp-intro .rp-center {
+  animation: aiw-draw 0.7s var(--ease) 0.48s both;
+}
+.aiw .rp-intro .rp-ring {
+  animation: aiw-wave 1.5s var(--ease) both;
+  animation-delay: calc(0.6s + var(--i) * 110ms);
+}
+@keyframes aiw-land {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes aiw-draw {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+@keyframes aiw-wave {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* --- Eyebrows, buttons, toggles and lists ------------------------------------------------------ */
+
+.aiw .eb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.aiw .eb-mark {
+  color: var(--ink-secondary);
+}
+.aiw .eb-icon {
+  color: var(--ink-secondary);
+}
+.aiw .eb-icon .ic {
+  color: var(--ink);
+}
+.aiw .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.3s var(--ease),
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s,
+    opacity 0.3s;
+}
+.aiw .btn-lg {
+  min-height: 52px;
+  padding: 0 var(--space-24);
+  font-size: 16px;
+}
+.aiw .btn-md {
+  min-height: 48px;
+  padding: 0 var(--space-24);
+  font-size: 16px;
+}
+.aiw .btn-sm {
+  min-height: 44px;
+  padding: 0 18px;
+  font-size: 16px;
+}
+.aiw .btn-primary {
+  background: var(--action);
+  color: var(--on-action);
+}
+.aiw .btn-primary:hover {
+  transform: translateY(-2px);
+}
+.aiw .btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--outline);
+}
+.aiw .btn-secondary:hover {
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+/* The mockup draws this underline as a border 2px under the words; as text-decoration it stays there
+   while the link itself is 44px tall for a thumb, as on the homepage. */
+.aiw .btn-link {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+.aiw .btn-link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+.aiw .btn.is-disabled {
+  background: transparent;
+  color: var(--ink-muted);
+  border: 1px dashed var(--line-control);
+  cursor: not-allowed;
+  transform: none;
+}
+.aiw .seg-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+}
+.aiw .seg-toggle button {
+  min-height: 44px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+.aiw .seg-toggle button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--surface);
+}
+.aiw .checks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aiw .checks li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.aiw .checks-mark {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  margin-top: -1px;
+  border-radius: 50%;
+}
+.aiw .checks-check .checks-mark {
+  background: color-mix(in srgb, var(--signal) 16%, transparent);
+  color: var(--signal);
+}
+.aiw .checks-dash .checks-mark {
+  border: 1px solid var(--line-control);
+  color: var(--ink-muted);
+}
+.aiw .price-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+}
+.aiw .price-big {
+  color: var(--ink);
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .price-note {
+  color: var(--ink-secondary);
+}
+.aiw .price-after {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.aiw .status-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+}
+.aiw .status-live .status-dot {
+  animation: aiw-pulse 1.8s var(--ease) infinite;
+}
+.aiw .status-muted {
+  color: var(--ink-secondary);
+}
+.aiw .status-muted .status-dot {
+  background: transparent;
+  border: 1.5px solid var(--line-control);
+}
+.aiw .status-closed {
+  color: var(--ink-secondary);
+}
+.aiw .status-closed .status-dot {
+  background: var(--ink-muted);
+}
+.aiw .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  overflow: clip;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.aiw .ex-tag {
+  display: inline-flex;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink-muted);
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.aiw .gb-tag {
+  padding: 2px 7px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  white-space: nowrap;
+}
+.aiw .free-tag {
+  padding: 2px 7px;
+  border: 1px solid var(--signal);
+  border-radius: 4px;
+  color: var(--accent);
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* --- The proof line, right next to every buy button (the brief: on light and dark sections) ----- */
+
+.aiw .proof-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.aiw .proof-line strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* --- Offer states: attributes the API writes, no script (D-105, as in ../site/offers.css) -------- */
+
+/* `data-founding`, `data-seats` and `data-invites` (the login line's two versions) on <body>,
+   `data-state` on each card. A card shows its buy buttons
+   only while its cart sells (`link`); otherwise "Opens soon.", the close or the sell-out says why. A
+   link with an empty href does not sell today and is hidden. */
+.aiw[data-founding='open'] .founding-closed,
+.aiw[data-founding='closed'] .founding-open,
+.aiw[data-seats='left'] .seats-soldout,
+.aiw[data-seats='soldout'] .seats-left,
+.aiw[data-invites='held'] .invites-sent,
+.aiw[data-invites='sent'] .invites-held {
+  display: none !important;
+}
+.aiw .plan .act-link,
+.aiw .plan .act-soon,
+.aiw .plan .act-closed,
+.aiw .plan .act-soldout {
+  display: none;
+}
+.aiw .plan[data-state='link'] .act-link {
+  display: flex;
+}
+.aiw .plan:not([data-state='link']):not([data-state='closed']):not([data-state='soldout']) .act-soon,
+.aiw .plan[data-state='closed'] .act-closed,
+.aiw .plan[data-state='soldout'] .act-soldout {
+  display: block;
+}
+.aiw .plan[data-state='closed'] a.act-closed,
+.aiw .plan[data-state='soldout'] a.act-soldout {
+  display: inline-flex;
+}
+.aiw .plan a[href=''] {
+  display: none !important;
+}
+
+/* --- The shared price block and buttons (`../site/offers.ts`), in the kit's look ---------------- */
+
+/* `offerPrice()`: the figure big with its unit in mono beside it, then the terms. `offerActions()`: the
+   one button, the other ways to pay as underlined links, the proof right under them, then what shows
+   instead when the cart doesn't sell. A page can redraw any of it (/pricing's cards do). */
+.aiw .plan .price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.aiw .plan .figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+}
+.aiw .plan .amount {
+  color: var(--ink);
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.aiw .plan .unit {
+  color: var(--ink-secondary);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.aiw .plan .terms {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .plan .plan-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.aiw .plan .act-link {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 24px;
+}
+.aiw .plan .act-link .proof-line {
+  flex-basis: 100%;
+}
+.aiw .plan .btn {
+  min-height: 52px;
+  padding: 0 var(--space-24);
+  font-size: 16px;
+  white-space: normal;
+}
+.aiw .plan .text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: 16px;
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+.aiw .plan .text-link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+.aiw .plan .act-soon,
+.aiw .plan .act-closed,
+.aiw .plan .act-soldout,
+.aiw .plan .note {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .plan .note a {
+  color: var(--ink);
+  text-underline-offset: 3px;
+}
+
+/* --- Seat meter: a ring with a dot is open, a filled circle is taken --------------------------- */
+
+/* The API writes the seats left into `data-left` per request (`%%seats-left%%`), so the meter is
+   right with no script: every seat after the first `data-left` is taken. One rule per count, 0 to 15
+   (`COHORT_SEATS`, a test holds them together). */
+.aiw .seatm {
+  display: grid;
+  grid-template-columns: repeat(15, minmax(0, 1fr));
+  gap: 6px;
+  max-width: 300px;
+}
+.aiw .seatm-s {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1.5px solid var(--signal);
+  border-radius: 50%;
+}
+.aiw .seatm-s::after {
+  content: '';
+  position: absolute;
+  inset: 28%;
+  border-radius: 50%;
+  background: var(--signal);
+}
+.aiw .seatm[data-left='0'] .seatm-s,
+.aiw .seatm[data-left='1'] .seatm-s:nth-child(n + 2),
+.aiw .seatm[data-left='2'] .seatm-s:nth-child(n + 3),
+.aiw .seatm[data-left='3'] .seatm-s:nth-child(n + 4),
+.aiw .seatm[data-left='4'] .seatm-s:nth-child(n + 5),
+.aiw .seatm[data-left='5'] .seatm-s:nth-child(n + 6),
+.aiw .seatm[data-left='6'] .seatm-s:nth-child(n + 7),
+.aiw .seatm[data-left='7'] .seatm-s:nth-child(n + 8),
+.aiw .seatm[data-left='8'] .seatm-s:nth-child(n + 9),
+.aiw .seatm[data-left='9'] .seatm-s:nth-child(n + 10),
+.aiw .seatm[data-left='10'] .seatm-s:nth-child(n + 11),
+.aiw .seatm[data-left='11'] .seatm-s:nth-child(n + 12),
+.aiw .seatm[data-left='12'] .seatm-s:nth-child(n + 13),
+.aiw .seatm[data-left='13'] .seatm-s:nth-child(n + 14),
+.aiw .seatm[data-left='14'] .seatm-s:nth-child(n + 15),
+.aiw .seatm[data-left='15'] .seatm-s:nth-child(n + 16) {
+  border-color: var(--line-control);
+  background: var(--line-control);
+}
+.aiw .seatm[data-left='0'] .seatm-s::after,
+.aiw .seatm[data-left='1'] .seatm-s:nth-child(n + 2)::after,
+.aiw .seatm[data-left='2'] .seatm-s:nth-child(n + 3)::after,
+.aiw .seatm[data-left='3'] .seatm-s:nth-child(n + 4)::after,
+.aiw .seatm[data-left='4'] .seatm-s:nth-child(n + 5)::after,
+.aiw .seatm[data-left='5'] .seatm-s:nth-child(n + 6)::after,
+.aiw .seatm[data-left='6'] .seatm-s:nth-child(n + 7)::after,
+.aiw .seatm[data-left='7'] .seatm-s:nth-child(n + 8)::after,
+.aiw .seatm[data-left='8'] .seatm-s:nth-child(n + 9)::after,
+.aiw .seatm[data-left='9'] .seatm-s:nth-child(n + 10)::after,
+.aiw .seatm[data-left='10'] .seatm-s:nth-child(n + 11)::after,
+.aiw .seatm[data-left='11'] .seatm-s:nth-child(n + 12)::after,
+.aiw .seatm[data-left='12'] .seatm-s:nth-child(n + 13)::after,
+.aiw .seatm[data-left='13'] .seatm-s:nth-child(n + 14)::after,
+.aiw .seatm[data-left='14'] .seatm-s:nth-child(n + 15)::after,
+.aiw .seatm[data-left='15'] .seatm-s:nth-child(n + 16)::after {
+  display: none;
+}
+/* The seat counter never starts hidden (Ampy's rule): its marks are drawn from the start. */
+
+/* --- Reveal on scroll: the script holds back what starts below the fold and lets it rise in ---- */
+
+.aiw .rv {
+  transition:
+    opacity 1s var(--ease) var(--d, 0ms),
+    transform 1s var(--ease) var(--d, 0ms);
+}
+.aiw .rv-wait {
+  opacity: 0;
+  transform: translateY(36px);
+}
+/* AMPY'S RULE: no buy button, payment link, seat counter or proof line may ever start hidden. The
+   script never holds such a block back (`initInView`), and pages keep `.rv` and `.fade-*` off them;
+   these two rules are the backstop, in case a page ever wraps one by mistake. */
+.aiw .rv-wait:has(.proof-line, .plan-actions, .seatm, [data-seats], a[href*='buy.stripe.com']) {
+  opacity: 1;
+  transform: none;
+}
+.aiw :is(.fade-1, .fade-2, .fade-3):has(.proof-line, .plan-actions, .seatm, [data-seats], a[href*='buy.stripe.com']) {
+  animation: none;
+}
+
+/* --- Header ---------------------------------------------------------------------------------- */
+
+/* Fixed over the page, clear at the top and solid once you scroll (`is-scrolled`, the script's).
+   With no script it is solid from the start, so nothing scrolls under clear glass. */
+.aiw .hdr {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 60;
+  border-bottom: 1px solid transparent;
+  color: var(--ink);
+  transition:
+    background-color 0.4s,
+    border-color 0.4s;
+}
+.aiw .hdr.is-scrolled,
+html:not(.aiw-js) .aiw .hdr {
+  border-bottom-color: var(--line);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  -webkit-backdrop-filter: saturate(140%) blur(16px);
+  backdrop-filter: saturate(140%) blur(16px);
+}
+/* An open menu sits on a solid header, with no backdrop filter (which would trap the phone menu's
+   fixed panel inside the header's box). */
+.aiw .hdr:has(details[open]),
+.aiw .hdr.is-open {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.aiw .hdr-in {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+  transition: height 0.4s var(--ease);
+}
+.aiw .hdr.is-scrolled .hdr-in,
+.aiw .hdr:has(details[open]) .hdr-in {
+  height: 64px;
+}
+.aiw .hdr-logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+}
+.aiw .hdr-logo .wm {
+  width: auto;
+  height: 31px;
+}
+.aiw .hdr-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.aiw .hdr-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.aiw .hdr-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease);
+}
+.aiw .hdr-link:hover,
+.aiw .hdr-link[aria-current='page'],
+.aiw .hdr-link.is-current,
+.aiw .hdr-programs[open] > .hdr-trigger {
+  color: var(--ink);
+}
+.aiw .hdr-link:hover::after,
+.aiw .hdr-link[aria-current='page']::after {
+  transform: scaleX(1);
+}
+.aiw .hdr-trigger {
+  list-style: none;
+}
+.aiw .hdr-trigger::-webkit-details-marker {
+  display: none;
+}
+.aiw .hdr-trigger::after {
+  right: 20px;
+}
+.aiw .hdr-trigger .gl {
+  transition: transform 0.4s var(--ease);
+}
+.aiw .hdr-programs[open] > .hdr-trigger .gl {
+  transform: rotate(180deg);
+}
+.aiw .hdr-trigger.is-current::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: var(--signal);
+}
+.aiw .hdr-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+.aiw .icon-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+  transition: border-color 0.2s;
+}
+.aiw .icon-btn::-webkit-details-marker {
+  display: none;
+}
+.aiw .icon-btn:hover {
+  border-color: var(--ink);
+}
+.aiw .theme-gl {
+  transition: transform 0.7s var(--ease);
+}
+.aiw[data-theme='light'] .theme-gl {
+  transform: rotate(180deg);
+}
+.aiw .hdr-mobile {
+  display: none;
+}
+.aiw .menu-btn .gl-close,
+.aiw .hdr-mobile[open] .menu-btn .gl-menu {
+  display: none;
+}
+.aiw .hdr-mobile[open] .menu-btn .gl-close {
+  display: inline-block;
+}
+
+/* --- Programs menu: a <details> under Programs, the panel across the header -------------------- */
+
+.aiw .pm {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 1;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  clip-path: inset(0 0 0 0);
+  animation: aiw-pm-open 0.5s var(--ease) both;
+}
+.aiw .hdr-programs.is-closing .pm {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.5s var(--ease);
+}
+@keyframes aiw-pm-open {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+.aiw .pm-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 0.82fr);
+  padding-block: 24px 28px;
+}
+.aiw .pm-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 22px 22px;
+  border-left: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  animation: aiw-fade-up 0.55s var(--ease) both;
+  animation-delay: calc(80ms + var(--pi) * 45ms);
+  transition: background-color 0.3s var(--ease);
+}
+.aiw .pm-card:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+.aiw .pm-card:hover {
+  background: var(--surface-raised);
+}
+.aiw .pm-card:first-child:hover {
+  background: none;
+}
+.aiw .pm-ic {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  transition: border-color 0.3s;
+}
+.aiw .pm-card:hover .pm-ic,
+.aiw .pm-card[aria-current='page'] .pm-ic {
+  border-color: var(--signal);
+}
+.aiw .pm-name {
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .pm-who {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.aiw .pm-all {
+  justify-content: flex-end;
+  margin-left: 12px;
+  border-left: 0;
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--surface-raised) 60%, transparent);
+}
+.aiw .pm-go {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--action);
+  color: var(--on-action);
+  transition: transform 0.4s var(--ease);
+}
+.aiw .pm-all:hover .pm-go {
+  transform: translateX(6px);
+}
+
+/* --- Phone menu: a <details> behind the menu button, the panel under the header ----------------- */
+
+.aiw .menu {
+  position: fixed;
+  inset: 64px 0 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.aiw .menu-in {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-block: 24px 40px;
+}
+.aiw .menu-label {
+  padding-bottom: 4px;
+  color: var(--ink-muted);
+}
+.aiw .menu-programs {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.aiw .menu-programs li,
+.aiw .menu-nav li {
+  animation: aiw-fade-up 0.5s var(--ease) both;
+  animation-delay: calc(var(--mi) * 45ms);
+}
+.aiw .menu-program {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.aiw .menu-program[aria-current='page'] {
+  color: var(--accent);
+}
+.aiw .menu-nav ul {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+}
+.aiw .menu-nav a {
+  display: block;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+.aiw .menu-nav a[aria-current='page'] {
+  color: var(--accent);
+}
+.aiw .menu-cta {
+  align-self: stretch;
+  margin-top: 24px;
+}
+
+/* --- Built inside: the proof section ------------------------------------------------------------ */
+
+.aiw .proof {
+  border-top: 1px solid var(--line);
+}
+.aiw .proof-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) repeat(2, minmax(0, 3fr));
+  gap: var(--space-24);
+  align-items: end;
+  padding-block: 104px 96px;
+}
+.aiw .proof-where {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+.aiw .proof-name {
+  max-width: 520px;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+.aiw .proof-text {
+  max-width: 500px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.aiw .proof-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: var(--space-24);
+  border-left: 1px solid var(--line);
+}
+.aiw .proof-num {
+  font-size: clamp(56px, 7vw, 104px);
+  line-height: 0.9;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+}
+.aiw .proof-label {
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+
+/* --- Founders: Spring and Connor, each with a real photo (never initials) ----------------------- */
+
+.aiw .founders {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .founders-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  margin-bottom: 56px;
+}
+.aiw .founders-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+}
+.aiw .founder {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: var(--space-28);
+  align-items: start;
+}
+.aiw .portrait {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background-color: var(--surface-raised);
+}
+.aiw .portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.aiw .founder-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+.aiw .founder-name {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.aiw .founder-role {
+  margin-bottom: 6px;
+  color: var(--accent);
+}
+.aiw .founder-bio {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.aiw .founders-foot {
+  margin-top: 48px;
+}
+
+/* --- Questions: a list of <details>, the first one open ---------------------------------------- */
+
+.aiw .faq {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .faq-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .faq-head {
+  position: sticky;
+  top: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.aiw .faq-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .faq-list {
+  border-top: 1px solid var(--ink);
+  counter-reset: aiw-faq;
+}
+.aiw .faq-item {
+  border-bottom: 1px solid var(--line);
+  counter-increment: aiw-faq;
+}
+.aiw .faq-q {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: var(--space-12);
+  padding: 24px 0;
+  list-style: none;
+  text-align: left;
+  cursor: pointer;
+}
+.aiw .faq-q::-webkit-details-marker {
+  display: none;
+}
+.aiw .faq-idx {
+  color: var(--ink-muted);
+  transition: color 0.3s;
+}
+.aiw .faq-idx::before {
+  content: counter(aiw-faq, decimal-leading-zero);
+}
+.aiw .faq-qt {
+  font-size: 21px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  transition: transform 0.45s var(--ease);
+}
+.aiw .faq-q:hover .faq-qt {
+  transform: translateX(6px);
+}
+.aiw .faq-item > details[open] .faq-idx {
+  color: var(--accent);
+}
+.aiw .faq-pm {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line-control);
+  border-radius: 50%;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+.aiw .faq-pm::before,
+.aiw .faq-pm::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 1.5px;
+  margin: -0.75px 0 0 -5px;
+  background: var(--ink);
+  transition:
+    transform 0.45s var(--ease),
+    background-color 0.3s;
+}
+.aiw .faq-pm::after {
+  transform: rotate(90deg);
+}
+.aiw .faq-item > details[open] .faq-pm {
+  border-color: var(--signal);
+  background: var(--signal);
+}
+.aiw .faq-item > details[open] .faq-pm::before,
+.aiw .faq-item > details[open] .faq-pm::after {
+  background: var(--surface);
+}
+.aiw .faq-item > details[open] .faq-pm::after {
+  transform: rotate(0deg);
+}
+.aiw .faq-a {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0 36px 28px 56px;
+  color: var(--ink-secondary);
+  font-size: 17px;
+  line-height: 1.6;
+  animation: aiw-faq-open 0.5s var(--ease) both;
+}
+@keyframes aiw-faq-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.aiw .faq-a a:not(.btn) {
+  color: var(--ink);
+  text-decoration-color: var(--outline);
+  text-underline-offset: 3px;
+}
+
+/* --- The closing call to action, with the five free skills beside it ---------------------------- */
+
+.aiw .close {
+  padding-block: 152px;
+  overflow: hidden;
+  overflow: clip;
+  border-top: 1px solid var(--line);
+}
+.aiw .close-ripple {
+  position: absolute;
+  left: 28%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.aiw .close-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 72px;
+  align-items: end;
+}
+.aiw .close-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-28);
+}
+.aiw .close-grid:has(> :only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.aiw .close-title {
+  font-size: clamp(44px, 6vw, 88px);
+  line-height: 0.96;
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.aiw .close-copy .actions {
+  margin-top: 8px;
+}
+.aiw .free {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.aiw .free-h {
+  color: var(--ink-muted);
+}
+.aiw .free-list {
+  border-top: 1px solid var(--ink);
+}
+.aiw .free-item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.aiw .free-idx {
+  color: var(--ink-muted);
+}
+.aiw .free-name {
+  transition: transform 0.4s var(--ease);
+}
+.aiw .free-item:hover .free-name {
+  transform: translateX(8px);
+}
+.aiw .free-arrow {
+  color: var(--ink-muted);
+  transition:
+    transform 0.4s var(--ease),
+    color 0.2s;
+}
+.aiw .free-item:hover .free-arrow {
+  color: var(--signal);
+  transform: translateX(4px);
+}
+
+/* --- Footer: the ripple starts from the signature's ring and dot -------------------------------- */
+
+.aiw .foot {
+  padding-top: 96px;
+  overflow: hidden;
+  overflow: clip;
+  border-top: 1px solid var(--line);
+}
+.aiw .foot-top {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: 48px;
+  padding-bottom: 72px;
+}
+.aiw .foot-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.aiw .foot-line {
+  max-width: 340px;
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.aiw .foot-contact {
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .foot-mail {
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--outline);
+  color: var(--ink-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.aiw .foot-mail:hover {
+  color: var(--ink);
+}
+.aiw .foot-cols {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 24px;
+}
+.aiw .foot-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.aiw .foot-col ul {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.aiw .foot-h {
+  margin-bottom: 4px;
+  color: var(--ink-muted);
+}
+.aiw .foot-col a {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.aiw .foot-col a:hover {
+  color: var(--ink);
+}
+.aiw .foot-mark {
+  position: relative;
+  padding-bottom: 28px;
+  color: var(--ink);
+}
+.aiw .foot-mark .wm {
+  position: relative;
+  width: 100%;
+  height: auto;
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.4s var(--ease);
+}
+.aiw-js .aiw .foot-mark:not(.is-in) .wm {
+  clip-path: inset(100% 0 0 0);
+}
+.aiw .foot-ripple {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.aiw-js .aiw .foot-mark:not(.is-in) .foot-ripple {
+  opacity: 0;
+}
+.aiw .foot-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 28px 0 40px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: 16px;
+}
+
+/* --- Tablets and phones ------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .aiw .pm-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, 0.9fr);
+  }
+  .aiw .pm-card:nth-child(3) {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .aiw .pm-all {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+@media (max-width: 1080px) {
+  .aiw .hdr-nav,
+  .aiw .hdr-cta,
+  .aiw .hdr-login {
+    display: none;
+  }
+  .aiw .hdr-mobile {
+    display: block;
+  }
+}
+@media (max-width: 980px) {
+  .aiw {
+    --section: 96px;
+  }
+  .aiw .proof-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aiw .proof-where {
+    grid-column: 1 / -1;
+  }
+  .aiw .proof-where + .proof-stat {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .aiw .founders-grid,
+  .aiw .faq-grid,
+  .aiw .close-grid,
+  .aiw .foot-top {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+  .aiw .faq-head {
+    position: relative;
+    top: 0;
+  }
+}
+@media (max-width: 640px) {
+  .aiw {
+    --gutter: var(--space-24);
+    --section: 80px;
+  }
+  .aiw .lead {
+    font-size: 18px;
+  }
+  .aiw .price-big {
+    font-size: 48px;
+  }
+  .aiw .founder {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .portrait {
+    max-width: 220px;
+  }
+  .aiw .faq-q {
+    grid-template-columns: 32px minmax(0, 1fr) 24px;
+  }
+  .aiw .faq-qt {
+    font-size: 18px;
+  }
+  .aiw .faq-a {
+    padding: 0 0 24px 44px;
+    font-size: 16px;
+  }
+  .aiw .close {
+    padding-block: 104px;
+  }
+  .aiw .foot-cols {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .aiw .foot-col:first-child {
+    grid-column: 1 / -1;
+  }
+  /* A thumb's worth of height on every footer link. */
+  .aiw .foot-col ul {
+    gap: 0;
+  }
+  .aiw .foot-col a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    scroll-behavior: auto;
+  }
+  .aiw *,
+  .aiw *::before,
+  .aiw *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+}

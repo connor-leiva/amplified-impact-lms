@@ -132,7 +132,7 @@ export const INSIDERS_YEAR_DAYS = 365;
 /**
  * Cohort one, as the platform's `dec26` cohort: 8 Wednesday builds, Dec 2, 9 and 16, Jan 6, 13, 20 and
  * 27, and Feb 3 (no builds Dec 23 or 30), then 90 days of new skills and office hours. 1 PM Central is
- * a placeholder until the build time is set (Connor, 2026-11-10).
+ * the locked build time (the course calendar in `accelerator.ts`, D-110).
  */
 export const COHORT_ONE = {
   id: 'dec26',

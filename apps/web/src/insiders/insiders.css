@@ -1,0 +1,548 @@
+/* /insiders, Amplified Insiders' own page: the v2 mockup's InsidersPage.
+
+   THE KIT (`../kit/kit.css`): tokens, type, header, footer, the buy block and its states, the proof
+   line and section, the questions and the close. This file is the page's own, the mockup's rules in
+   its order, with Spring's 16px floor and 44px taps (D-107).
+
+   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+
+@import '../kit/kit.css';
+
+.aiw #what,
+.aiw #pricing,
+.aiw #join,
+.aiw .igroup {
+  scroll-margin-top: 80px;
+}
+
+/* --- Hero: the live words and buy block, beside the owner and ops shelf -------------------------- */
+
+.aiw .in-hero {
+  min-height: max(100vh, 820px);
+  padding-top: 88px;
+  overflow: hidden;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+}
+.aiw .in-ripple {
+  position: absolute;
+  left: 74%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(calc(1 + var(--p, 0) * 0.5));
+  opacity: calc(1 - var(--p, 0));
+  pointer-events: none;
+}
+.aiw .in-hero-grid {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: center;
+  padding-block: 40px 72px;
+}
+.aiw .in-hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-28);
+  transform: translateY(calc(var(--p, 0) * -80px));
+  opacity: calc(1 - var(--p, 0) * 1.3);
+}
+.aiw .in-hero-copy .eb {
+  animation: aiw-fade-up 0.8s var(--ease) both;
+}
+.aiw .in-title {
+  font-size: clamp(40px, 4.4vw, 64px);
+  line-height: 0.98;
+}
+.aiw .in-buy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.aiw .in-buy .terms {
+  max-width: 520px;
+}
+.aiw .in-starts {
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .in-hero-art {
+  position: relative;
+  transform: translateY(calc(var(--p, 0) * -140px));
+  animation: aiw-fade-up 1.2s var(--ease) 0.4s both;
+}
+.aiw .shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .shelf-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .shelf-k {
+  color: var(--ink-muted);
+}
+.aiw .shelf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--signal);
+  border-radius: 99px;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 500;
+}
+.aiw .shelf-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  height: 430px;
+  overflow: hidden;
+  overflow: clip;
+  -webkit-mask-image: linear-gradient(transparent, var(--ink) 14%, var(--ink) 86%, transparent);
+  mask-image: linear-gradient(transparent, var(--ink) 14%, var(--ink) 86%, transparent);
+}
+.aiw .shelf-track {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: aiw-shelf 46s linear infinite;
+}
+.aiw .shelf-col-1 .shelf-track {
+  animation-duration: 58s;
+  animation-direction: reverse;
+}
+.aiw .shelf:hover .shelf-track {
+  animation-play-state: paused;
+}
+@keyframes aiw-shelf {
+  to {
+    transform: translateY(calc(-50% - 5px));
+  }
+}
+.aiw .shelf-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 500;
+}
+.aiw .shelf-item svg {
+  flex: none;
+  color: var(--ink-muted);
+}
+
+/* --- What you get: every owner and ops skill, by group -------------------------------------------- */
+
+.aiw .inside {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .inside-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  margin-bottom: 56px;
+}
+.aiw .inside-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: 56px;
+  align-items: start;
+}
+.aiw .inside-tabs {
+  position: sticky;
+  top: 112px;
+  border-top: 1px solid var(--ink);
+}
+.aiw .itab {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 16px 12px 16px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-secondary);
+  text-decoration: none;
+  transition:
+    color 0.25s,
+    padding 0.4s var(--ease);
+}
+.aiw .itab:hover {
+  color: var(--ink);
+  padding-left: 12px;
+  box-shadow: inset 2px 0 0 var(--signal);
+}
+.aiw .itab-label {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .itab-n {
+  color: var(--ink-muted);
+}
+.aiw .inside-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.aiw .igroup-h {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .igroup-h svg {
+  color: var(--accent);
+}
+.aiw .ilist {
+  border-top: 1px solid var(--line);
+}
+.aiw .iskill {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+.aiw .iskill-idx {
+  color: var(--ink-muted);
+}
+.aiw .iskill-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aiw .iskill-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  transition: transform 0.4s var(--ease);
+}
+.aiw .iskill-desc {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.aiw .iskill-go {
+  color: var(--ink-muted);
+  transition:
+    transform 0.4s var(--ease),
+    color 0.2s;
+}
+.aiw .iskill:hover .iskill-name {
+  transform: translateX(6px);
+}
+.aiw .iskill:hover .iskill-go {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+/* --- How it runs ---------------------------------------------------------------------------------- */
+
+.aiw .in-runs {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .in-runs-head {
+  margin-bottom: 56px;
+}
+.aiw .in-runs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--ink);
+}
+.aiw .irun {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px 24px 32px;
+  border-right: 1px solid var(--line);
+}
+.aiw .irun:first-child {
+  padding-left: 0;
+}
+.aiw .irun:last-child {
+  border-right: 0;
+}
+.aiw .irun-idx {
+  color: var(--accent);
+}
+.aiw .irun-k {
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .irun-t {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+/* --- Two ways to pay, on the other theme ---------------------------------------------------------- */
+
+.aiw .in-pricing {
+  padding-block: var(--section);
+}
+.aiw .in-pricing-head {
+  margin-bottom: 56px;
+}
+.aiw .in-plans {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.aiw .in-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .in-plan.is-year {
+  border-color: var(--signal);
+}
+.aiw .in-plan .price-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+}
+.aiw .in-plan .price {
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.aiw .in-plan .price-note {
+  color: var(--ink-secondary);
+}
+.aiw .in-plan .checks {
+  flex: 1;
+}
+.aiw .in-plan .plan-actions {
+  align-items: flex-start;
+}
+.aiw .stub {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  margin-top: 40px;
+  padding: 26px 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.aiw .stub-l,
+.aiw .stub-r {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aiw .stub .mono {
+  color: var(--ink-muted);
+}
+.aiw .stub-amt {
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .stub-perf {
+  align-self: stretch;
+  width: 0;
+  margin-block: -26px;
+  border-left: 1px dashed var(--line-control);
+}
+.aiw .stub-to {
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .in-cancel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+
+/* --- Who it's for, and which plan --------------------------------------------------------------- */
+
+.aiw .in-fit {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .in-fit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 72px;
+}
+.aiw .in-fit-col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.aiw .in-fit-col .checks li {
+  font-size: 18px;
+}
+.aiw .in-fit-not {
+  padding-left: 72px;
+  margin-left: -36px;
+  border-left: 1px solid var(--line);
+}
+.aiw .elsewhere {
+  border-top: 1px solid var(--line);
+}
+.aiw .else {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+.aiw .else-who {
+  color: var(--ink-secondary);
+  font-size: 16px;
+}
+.aiw .else-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  transition: color 0.2s;
+}
+.aiw .else-go .gl {
+  transition: transform 0.4s var(--ease);
+}
+.aiw .else:hover .else-go {
+  color: var(--accent);
+}
+.aiw .else:hover .else-go .gl {
+  transform: translateX(4px);
+}
+
+/* --- Tablets and phones --------------------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+  .aiw .in-hero {
+    min-height: 0;
+  }
+  .aiw .in-hero-grid,
+  .aiw .inside-grid,
+  .aiw .in-plans,
+  .aiw .in-fit-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .aiw .in-hero-copy,
+  .aiw .in-hero-art {
+    transform: none;
+    opacity: 1;
+  }
+  .aiw .inside-tabs {
+    position: relative;
+    top: 0;
+  }
+  .aiw .in-runs-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .irun {
+    padding-inline: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .aiw .in-fit-not {
+    padding-left: 0;
+    margin-left: 0;
+    border-left: 0;
+    padding-top: 40px;
+    border-top: 1px solid var(--line);
+  }
+  .aiw .stub {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .stub-perf {
+    display: none;
+  }
+  .aiw .stub-r {
+    grid-column: 1;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .shelf-cols {
+    height: 320px;
+  }
+  .aiw .iskill {
+    grid-template-columns: 32px minmax(0, 1fr) 18px;
+  }
+  .aiw .iskill-name {
+    font-size: 18px;
+  }
+  .aiw .in-plan {
+    padding: 24px;
+  }
+  .aiw .in-plan .price {
+    font-size: 52px;
+  }
+  .aiw .stub {
+    padding: 22px;
+    gap: 16px;
+  }
+  .aiw .stub-amt {
+    font-size: 32px;
+  }
+  .aiw .stub-to {
+    font-size: 19px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aiw .shelf-track {
+    animation: none;
+  }
+}

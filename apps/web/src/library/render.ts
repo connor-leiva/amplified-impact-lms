@@ -12,7 +12,10 @@ import { esc } from '../ai101/render';
 import { GUIDES, inSkillLibrary } from '../guides/content';
 import { GROK_COLLECTIONS, GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
-import { icon, siteFooter, siteHeader, skipLink } from '../site/render';
+import { icon } from '../site/render';
+import { SITE } from '../site/content';
+import { eyebrow, headline, button, pad2 } from '../kit/parts';
+import { kitFooter, kitHeader, kitSkip } from '../kit/render';
 import { ENTRIES, FREE_FIVE, GENERAL_TRACK, GUIDE_WHO, LIBRARY, TOOLS, TOPICS, TRACKS, WHO, type Entry, type Track, type Who } from './content';
 
 /** The <head> lines that come from `content.ts`: the title and the link-preview metadata. */
@@ -180,21 +183,39 @@ function grokShelf(): string {
   ].join('\n');
 }
 
-/** The free five, first (D-115): what "Get 5 Free Skills" (`/library?show=free`) lands on. */
+/**
+ * The free five, first (D-115): what "Get 5 Free Skills" (`/library?show=free`) lands on. The mockup's
+ * cards on the other theme: each one's number, kind, title, its card's description and tools, and
+ * "Free", all the Library's own words.
+ */
 function freeFive(): string {
   const f = LIBRARY.free;
-  const cards = FREE_FIVE.map((slug) => {
+  const cards = FREE_FIVE.map((slug, i) => {
     const e = ENTRIES.find((x) => x.href === `/${slug}`);
     if (!e) throw new Error(`The free five name /${slug}, but no Library card links to it. Fix src/library/content.ts.`);
-    return `<li><a class="free-card" href="${esc(e.href!)}"><span class="free-title">${esc(e.title)}</span><span class="item-access item-free">${esc(LIBRARY.access.free)}</span></a></li>`;
+    const tools = e.tools.map((t) => `<li>${esc(TOOLS[t])}</li>`).join('');
+    return `<li><a class="free-card" href="${esc(e.href!)}"><span class="free-n" aria-hidden="true">${pad2(i + 1)}</span><span class="free-title">${esc(e.title)}</span><span class="item-access item-free">${esc(
+      LIBRARY.access.free,
+    )}</span><span class="mono free-kind">${esc(e.kind)}</span><span class="free-desc">${esc(e.description)}</span><ul class="free-tools" role="list">${tools}</ul></a></li>`;
   }).join('');
   return [
-    `<section class="free-five" id="free" aria-labelledby="free-title">`,
-    `<h2 id="free-title">${esc(f.heading)}</h2>`,
-    `<p class="free-body">${esc(f.body)}</p>`,
+    `<section class="sec free-five inverse" id="free" aria-labelledby="free-title">`,
+    `<div class="wrap">`,
+    `<div class="free-head"><h2 id="free-title" class="h-section">${esc(f.heading)}</h2><p class="free-body">${esc(f.body)}</p></div>`,
     `<ol class="free-list" role="list">${cards}</ol>`,
+    `</div>`,
     `</section>`,
   ].join('\n');
+}
+
+/** The mockup's grid of the Library's cards beside the hero, one tile each, the free ones lit. A drawing. */
+function tiles(): string {
+  const all = [...newestFirst(ENTRIES.filter((e) => e.collection === undefined)), ...newestFirst(ENTRIES.filter((e) => e.collection !== undefined))];
+  const free = new Set(FREE_FIVE.map((s) => `/${s}`));
+  const sorted = [...all.filter((e) => free.has(e.href ?? '')), ...all.filter((e) => !free.has(e.href ?? ''))];
+  return `<div class="lb-tiles" aria-hidden="true">${sorted
+    .map((e, i) => `<span class="lb-tile${free.has(e.href ?? '') ? ' is-free' : ''}${e.collection ? ' is-grok' : ''}" style="--ti:${i}"></span>`)
+    .join('')}</div>`;
 }
 
 /** Everything inside <body>. */
@@ -202,18 +223,26 @@ export function renderLibraryBody(): string {
   // The main list holds everything that is not on the Grok Bot shelf; the count is of both.
   const entries = newestFirst(ENTRIES.filter((e) => e.collection === undefined));
   return [
-    skipLink(),
-    // The site's header, with Spring's nav (D-107), above the Library's own forest hero (D-115).
-    siteHeader('/library'),
-    `<section class="hero" aria-labelledby="library-title">`,
-    `<p class="eyebrow">${esc(LIBRARY.eyebrow)}</p>`,
-    `<h1 id="library-title">${esc(LIBRARY.title)}</h1>`,
-    `<p class="lede">${esc(LIBRARY.lede)}</p>`,
-    `</section>`,
+    kitSkip(),
+    // The kit's header, with Spring's nav (D-107), above the mockup's hero.
+    kitHeader('/library'),
     `<main class="page" id="main" tabindex="-1">`,
+    `<section class="sec lb-hero hero" aria-labelledby="library-title" data-scroll="exit">`,
+    `<div class="wrap lb-hero-grid">`,
+    `<div class="lb-hero-copy">`,
+    eyebrow(LIBRARY.eyebrow, { icon: 'modules', cls: 'eyebrow' }),
+    `<h1 id="library-title" class="h-hero lb-title">${headline(LIBRARY.title)}</h1>`,
+    `<p class="lead lede fade-1">${esc(LIBRARY.lede)}</p>`,
+    `<div class="actions fade-2">${button(SITE.nav.cta.label, '#free')}</div>`,
+    `</div>`,
+    `<div class="lb-hero-art">${tiles()}</div>`,
+    `</div>`,
+    `</section>`,
     freeFive(),
+    `<section class="sec lb-all" aria-labelledby="library-list-title">`,
+    `<div class="wrap">`,
+    `<h2 class="h-section lb-all-title" id="library-list-title">${esc(LIBRARY.listHeading)}</h2>`,
     controls(),
-    `<h2 class="visually-hidden">${esc(LIBRARY.listHeading)}</h2>`,
     // The sort sits with the count, just above what it sorts, so it costs a phone no row of its own.
     `<div class="list-head">`,
     `<p class="count" id="library-count" role="status" aria-live="polite">${esc(LIBRARY.count(ENTRIES.length))}</p>`,
@@ -228,7 +257,9 @@ export function renderLibraryBody(): string {
       `<button type="button" class="clear" id="library-clear">${esc(LIBRARY.clear)}</button></div>`,
     // The general note (D-101), after every list, so no filter ever hides it.
     `<p class="library-note">${esc(LIBRARY.note)}</p>`,
+    `</div>`,
+    `</section>`,
     `</main>`,
-    siteFooter(),
+    kitFooter(),
   ].join('\n');
 }

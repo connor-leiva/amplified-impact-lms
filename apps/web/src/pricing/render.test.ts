@@ -4,12 +4,20 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CARD_CARTS, PLAN_NAMES, TOKEN_PATTERN } from '@ai/core/offer';
 import { FOUNDING_TOKENS } from '@ai/core/founding';
-import { ENTRIES } from '../library/content';
+import { ENTRIES, FREE_FIVE } from '../library/content';
 import { HOME } from '../home/content';
 import { OFFERS } from '../offer/content';
 import { AGENT_PLAN, CARD_IDS } from '../site/offers-content';
 import { COMPARE, END, FAQ, PICKER, PRICING_HERO } from './content';
-import { CARD_NAMES, CARD_ORDER, renderBody, renderHead, renderPricingBody, renderPricingHead, WAITLIST_HREF } from './render';
+import {
+  CARD_NAMES,
+  CARD_ORDER,
+  renderBody,
+  renderHead,
+  renderPricingBody,
+  renderPricingHead,
+  WAITLIST_HREF,
+} from './render';
 
 // /pricing, Programs and Pricing (D-111), on the parsed DOM: Spring's seven parts in her order, the
 // four cards' facts, the states the API fills, and the house rules. That the API serves it at
@@ -34,20 +42,42 @@ describe('the page', () => {
     expect($('a.skip')?.getAttribute('href')).toBe('#main');
   });
 
-  it('has its shell, with the states on <body> and no script anywhere', () => {
+  it('has its shell, with the states on <body>, the kit’s dark theme, and only the kit’s one script, a file', () => {
     const shell = read('../../pricing.html');
     expect(shell).toContain('<!--x:head-->');
     expect(shell).toContain('<!--x:body-->');
-    expect(shell).toContain('data-founding="%%founding%%" data-seats="%%seats%%"');
-    expect(shell).not.toMatch(/<script/i);
+    expect(shell).toContain(
+      '<body class="aiw" data-theme="dark" data-app-ready="true" data-founding="%%founding%%" data-seats="%%seats%%">',
+    );
+    // One script, the kit's, as a same-origin module file (the CSP's `script-src 'self'`): nothing inline.
+    expect([...shell.matchAll(/<script\b[^>]*>/gi)].map((m) => m[0])).toEqual([
+      '<script type="module" src="/src/kit/client/main.ts">',
+    ]);
     expect(html).not.toMatch(/<script/i);
+    expect(shell + html).not.toMatch(/\son[a-z]+=/i);
   });
 
-  it('runs in Spring’s order: headline, picker, founding banner, four cards, comparison, questions, the last line', () => {
+  it('runs in Spring’s order: headline and the countdown, picker, four cards, comparison, questions, the last line', () => {
     expect($$('h1').map(text)).toEqual([PRICING_HERO.title]);
-    expect($$('main h2').map(text)).toEqual([PICKER.heading, 'Four ways in', COMPARE.heading, FAQ.heading, END.heading]);
-    const order = ['class="picker"', 'class="founding ', 'class="section plans"', 'class="section compare"', 'class="section faq"', 'class="section end"'].map((s) => html.indexOf(s));
-    expect(order.every((n, i) => n > 0 && (i === 0 || n > order[i - 1]!)), String(order)).toBe(true);
+    expect($$('main h2').map(text)).toEqual([
+      PICKER.heading,
+      'Four ways in',
+      COMPARE.heading,
+      FAQ.heading,
+      END.heading,
+    ]);
+    const order = [
+      'class="sec cp-hero"',
+      'class="picker"',
+      'class="sec ways plans"',
+      'class="sec ctable compare"',
+      'class="sec faq"',
+      'class="sec close end"',
+    ].map((s) => html.indexOf(s));
+    expect(
+      order.every((n, i) => n > 0 && (i === 0 || n > order[i - 1]!)),
+      String(order),
+    ).toBe(true);
     expect([text($('.proof-line span')), text($('.proof-line strong'))]).toEqual([HOME.proof.label, HOME.proof.figure]);
   });
 });
@@ -55,15 +85,26 @@ describe('the page', () => {
 describe('the picker', () => {
   it('has three buttons, each one scrolling to its card', () => {
     const picks = $$('.pick');
-    expect(picks.map((a) => text(a.querySelector('.pick-label')))).toEqual(['I’m an Agent', 'I Own a Team', 'I Just Want the Skills']);
+    expect(picks.map((a) => text(a.querySelector('.pick-label')))).toEqual([
+      'I’m an Agent',
+      'I Own a Team',
+      'I Just Want the Skills',
+    ]);
     for (const a of picks) expect($(a.getAttribute('href')!), a.getAttribute('href')!).not.toBeNull();
-    expect(picks.map((a) => a.getAttribute('href'))).toEqual([`#${CARD_IDS.agentPlan}`, `#${CARD_IDS.cohort}`, `#${CARD_IDS.membership}`]);
+    expect(picks.map((a) => a.getAttribute('href'))).toEqual([
+      `#${CARD_IDS.agentPlan}`,
+      `#${CARD_IDS.cohort}`,
+      `#${CARD_IDS.membership}`,
+    ]);
   });
 
   it('takes an owner to both of an owner’s cards: the button to the Accelerator, a link to the Team Plan', () => {
     const owner = $$('.pick-list > li')[1]!;
     expect(text($('.pick-label', owner))).toBe('I Own a Team');
-    expect([text($('.pick-hint', owner)), $('a.pick', owner)?.getAttribute('href')]).toEqual(['Amplified AI Accelerator', `#${CARD_IDS.cohort}`]);
+    expect([text($('.pick-hint', owner)), $('a.pick', owner)?.getAttribute('href')]).toEqual([
+      'Amplified AI Accelerator',
+      `#${CARD_IDS.cohort}`,
+    ]);
     const also = $('a.pick-also', owner)!;
     expect([text(also), also.getAttribute('href')]).toEqual(['Or the Amplified Team Plan', `#${CARD_IDS.agents}`]);
     expect($(also.getAttribute('href')!)?.querySelector('.plan-name')?.textContent).toBe(PLAN_NAMES.agents);
@@ -79,14 +120,49 @@ describe('the picker', () => {
   });
 });
 
-describe('the founding banner', () => {
-  it('counts down to the deadline and shows the seats left, all filled per request', () => {
-    const banner = $('.founding')!;
-    expect(banner.classList.contains('founding-open')).toBe(true);
-    expect(text($('.countdown', banner))).toBe(FOUNDING_TOKENS.countdown);
-    expect(text(banner)).toContain('Founding prices end %%founding-closes%%.');
-    expect(text($('.seats-left', banner))).toBe('%%seats-left%% of %%seats-total%% Amplified AI Accelerator seats left.');
-    expect(text($('.seats-soldout', banner))).toBe('All Amplified AI Accelerator founding seats are taken.');
+describe('every price in a row', () => {
+  it('is the comparison’s own Price row, each figure linking to its card, the founding ones with their after-November-30 twins', () => {
+    const rungs = $$('.ladder .rung');
+    expect(rungs.map((a) => a.getAttribute('href'))).toEqual(CARD_ORDER.map((c) => `#${CARD_IDS[c]}`));
+    expect(rungs.map((a) => text($('.rung-name', a)))).toEqual(CARD_ORDER.map((c) => CARD_NAMES[c]));
+    const shown = (cls: string) => rungs.map((a) => $$(`.rung-price${cls}, .rung-note${cls}`, a).map(text).join(' '));
+    expect(shown(':not(.founding-closed)')).toEqual([
+      '$7,500 founding price',
+      '$79 a month, or $790 a year',
+      '$1,491 today for 3 months, up to 15 agents',
+      '$1,997 today for one year, or $197 a month',
+    ]);
+    expect(shown('.founding-closed')).toEqual(['$9,997 next cohort', '', 'Waitlist', '']);
+  });
+});
+
+describe('the founding window', () => {
+  // The founding banner's words, where the mockup puts them: the countdown and the deadline in the hero,
+  // the seats in the Accelerator's card. All filled per request.
+  it('counts down to the deadline in the hero, and says when it has passed', () => {
+    const hero = $('.cp-founding')!;
+    expect(text($('.countdown', hero))).toBe(FOUNDING_TOKENS.countdown);
+    expect(text($('.founding-open', hero))).toBe(
+      `${FOUNDING_TOKENS.countdown}. Founding prices end %%founding-closes%%.`,
+    );
+    expect(text($('.founding-closed', hero))).toBe('Founding prices ended %%founding-closes%%.');
+  });
+
+  it('shows the Accelerator’s seats left in its card, drawn and in words, or that they are gone', () => {
+    const card = $('#accelerator')!;
+    const meter = $('.seatm', card)!;
+    expect(meter.getAttribute('data-left')).toBe(FOUNDING_TOKENS.seatsLeft);
+    expect(meter.getAttribute('aria-label')).toBe(
+      '%%seats-left%% of %%seats-total%% Amplified AI Accelerator seats left.',
+    );
+    expect(text($('p.seats-left', card))).toBe(
+      `${FOUNDING_TOKENS.countdown} · %%seats-left%% of %%seats-total%% Amplified AI Accelerator seats left.`,
+    );
+    expect(text($('.seats-soldout', card))).toBe('All Amplified AI Accelerator founding seats are taken.');
+    expect($('.pc-status', card)?.classList.contains('founding-open')).toBe(true);
+    // Only the Accelerator has seats; every card keeps the slot, so the rows line up across the four.
+    expect($$('.pc-slot')).toHaveLength(4);
+    expect($$('.seatm')).toHaveLength(1);
   });
 });
 
@@ -105,7 +181,12 @@ describe('the four cards', () => {
 
   it('answer the same five things in the same order, then the office hours and the free skills', () => {
     for (const c of cards) {
-      expect($$('.fact dt', c).map(text), c.id).toEqual(['Who it’s for', 'What you get', 'How it runs', 'When it starts']);
+      expect($$('.fact dt', c).map(text), c.id).toEqual([
+        'Who it’s for',
+        'What you get',
+        'How it runs',
+        'When it starts',
+      ]);
       expect($('.price .amount', c), c.id).not.toBeNull();
       expect(text($('.every', c))).toBe('Every program includes weekly office hours.');
       expect(text($('.not-ready', c))).toBe('Not ready? Start with 5 free skills.');
@@ -114,7 +195,11 @@ describe('the four cards', () => {
   });
 
   it('say /offer’s words for the three plans it sells, so the two pages cannot disagree', () => {
-    for (const [plan, id] of [['cohort', 'accelerator'], ['agents', 'team-plan'], ['membership', 'insiders']] as const) {
+    for (const [plan, id] of [
+      ['cohort', 'accelerator'],
+      ['agents', 'team-plan'],
+      ['membership', 'insiders'],
+    ] as const) {
       const card = $(`#${id}`)!;
       expect(text($('.fact dd', card))).toBe(OFFERS[plan].forWho);
       expect($$('.lines li', card).map(text)).toEqual([...OFFERS[plan].lines]);
@@ -123,7 +208,13 @@ describe('the four cards', () => {
   });
 
   it('link to each program’s own page, See Full Details, under the button in every state', () => {
-    expect(cards.map((c) => [c.id, text($('.plan-actions a.details', c)), $('.plan-actions a.details', c)?.getAttribute('href')])).toEqual([
+    expect(
+      cards.map((c) => [
+        c.id,
+        text($('.plan-actions a.details', c)),
+        $('.plan-actions a.details', c)?.getAttribute('href'),
+      ]),
+    ).toEqual([
       ['accelerator', 'See Full Details', '/team-build'],
       ['agent-plan', 'See Full Details', '/agents'],
       ['team-plan', 'See Full Details', '/teams'],
@@ -146,15 +237,46 @@ describe('the four cards', () => {
       // After the card's last buy link, inside the block the stylesheet shows only for a live cart.
       expect(proof!.previousElementSibling?.matches('a.btn, a.more'), c.id).toBe(true);
     }
-    expect(text($('.pricing-hero .proof-line'))).toBe('Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year');
+    // And over the four cards, as the mockup's eyebrow.
+    expect(text($('.ways-head .eb'))).toBe(
+      'Built inside The Utah Life Real Estate Group · 100 agents, 700+ homes a year',
+    );
+  });
+
+  it('never start hidden: no buy button, payment link, seat block or proof line sits inside a reveal or a fade', () => {
+    // Ampy's rule. `.rv` is held back below the fold by the script, and `.fade-*` waits on a delay.
+    const held = '.rv, .fade-1, .fade-2, .fade-3';
+    const buying = $$('.plan-actions a.btn, a[href^="%%link:"], .seatm, .seats-left, .proof-line, .plan-actions');
+    expect(buying.length).toBeGreaterThan(10);
+    for (const el of buying) expect(el.closest(held), el.outerHTML.slice(0, 80)).toBeNull();
+    // The reveal stays on the heads and panels with nothing to buy in them, and on the kit's
+    // questions and free-skills list.
+    expect($$('.rv').map((el) => el.classList[0])).toEqual([
+      'chooser-head',
+      'persona',
+      'persona',
+      'persona',
+      'ways-head',
+      'ctable-head',
+      'ct-scroll',
+      'faq-head',
+      'faq-list',
+      'free',
+    ]);
   });
 
   it('sell each plan through its first cart’s link, one button each, named exactly', () => {
-    for (const [plan, id] of [['cohort', 'accelerator'], ['agents', 'team-plan'], ['membership', 'insiders']] as const) {
+    for (const [plan, id] of [
+      ['cohort', 'accelerator'],
+      ['agents', 'team-plan'],
+      ['membership', 'insiders'],
+    ] as const) {
       const card = $(`#${id}`)!;
       const [first, ...rest] = CARD_CARTS[plan]!;
       expect(card.getAttribute('data-state')).toBe(`%%state:${first}%%`);
-      expect($$('.act-link .btn', card).map((b) => [text(b), b.getAttribute('href')])).toEqual([[OFFERS[plan].button, `%%link:${first}%%`]]);
+      expect($$('.act-link .btn', card).map((b) => [text(b), b.getAttribute('href')])).toEqual([
+        [OFFERS[plan].button, `%%link:${first}%%`],
+      ]);
       expect(text($('.act-link .btn', card))).toMatch(new RegExp(`^Get ${PLAN_NAMES[plan]}$`));
       expect($$('.act-link .more', card).map((a) => a.getAttribute('href'))).toEqual(rest.map((r) => `%%link:${r}%%`));
     }
@@ -163,7 +285,11 @@ describe('the four cards', () => {
   it('sell the Amplified Agent Plan through its two carts (D-114), saying "Opens soon." until the API knows them', () => {
     const card = $('#agent-plan')!;
     expect(text($('.figure', card))).toBe('$79 a month');
-    expect($$('.price .terms', card).map(text)).toEqual(['Or $790 a year.', 'Your first charge is Monday, January 4, 2027.', 'Cancel anytime.']);
+    expect($$('.price .terms', card).map(text)).toEqual([
+      'Or $790 a year.',
+      'Your first charge is Monday, January 4, 2027.',
+      'Cancel anytime.',
+    ]);
     expect(card.getAttribute('data-state')).toBe('%%state:agent-monthly%%');
     expect($$('.act-link a', card).map((a) => [text(a), a.getAttribute('href')])).toEqual([
       ['Get Amplified Agent Plan', '%%link:agent-monthly%%'],
@@ -193,7 +319,16 @@ describe('the comparison table', () => {
 
   it('has a column per program and Spring’s eight rows', () => {
     expect($$('thead th', table).slice(1).map(text)).toEqual(CARD_ORDER.map((c) => CARD_NAMES[c]));
-    expect($$('tbody th', table).map(text)).toEqual(['Skills included', 'Live training', 'Office hours', 'Owner view', 'Owner call', 'Starts', 'Price', 'Commitment']);
+    expect($$('tbody th', table).map(text)).toEqual([
+      'Skills included',
+      'Live training',
+      'Office hours',
+      'Owner view',
+      'Owner call',
+      'Starts',
+      'Price',
+      'Commitment',
+    ]);
     for (const row of $$('tbody tr', table)) expect($$('td', row)).toHaveLength(4);
   });
 
@@ -207,7 +342,8 @@ describe('the comparison table', () => {
   });
 
   it('names each cell’s program for the stacked phone view, and never marks with a symbol alone', () => {
-    for (const row of $$('tbody tr', table)) expect($$('td', row).map((td) => td.getAttribute('data-label'))).toEqual(CARD_ORDER.map((c) => CARD_NAMES[c]));
+    for (const row of $$('tbody tr', table))
+      expect($$('td', row).map((td) => td.getAttribute('data-label'))).toEqual(CARD_ORDER.map((c) => CARD_NAMES[c]));
     for (const m of $$('.mark-yes', table)) expect(text(m)).toBe('Included');
     for (const m of $$('.mark-no', table)) expect(text(m)).toBe('Not included');
     expect($$('.mark-yes svg', table).every((s) => s.getAttribute('aria-hidden') === 'true')).toBe(true);
@@ -215,7 +351,10 @@ describe('the comparison table', () => {
 
   it('switches the founding prices with the page', () => {
     const price = $$('tbody tr', table).find((r) => text($('th', r)) === 'Price')!;
-    expect($$('td .founding-open', price).map(text)).toEqual(['$7,500 founding price', '$1,491 today for 3 months, up to 15 agents']);
+    expect($$('td .founding-open', price).map(text)).toEqual([
+      '$7,500 founding price',
+      '$1,491 today for 3 months, up to 15 agents',
+    ]);
     expect($$('td .founding-closed', price).map(text)).toEqual(['$9,997, next cohort', 'Waitlist']);
   });
 });
@@ -262,7 +401,12 @@ describe('the questions', () => {
 describe('the last line', () => {
   it('is Spring’s, with the free skills button', () => {
     expect(text($('.end h2'))).toBe('Not ready? Start with 5 free skills.');
-    expect($$('.end a').map((a) => [text(a), a.getAttribute('href')])).toEqual([['Get 5 Free Skills', '/library?show=free']]);
+    expect(text($('.end .lead'))).toBe(END.body);
+    expect($$('.end .close-copy a').map((a) => [text(a), a.getAttribute('href')])).toEqual([
+      ['Get 5 Free Skills', '/library?show=free'],
+    ]);
+    // Beside it, the mockup's list of the five, by their Library cards.
+    expect($$('.end .free-item').map((a) => a.getAttribute('href'))).toEqual(FREE_FIVE.map((s) => `/${s}`));
   });
 });
 
@@ -277,7 +421,12 @@ describe('the links to the programs’ own pages', () => {
   });
 
   it('leave the buttons and prices as they were', () => {
-    expect($$('.plan .act-link .btn').map((b) => b.getAttribute('href'))).toEqual(['%%link:cohort-full%%', '%%link:agent-monthly%%', '%%link:agents-upto15%%', '%%link:insiders-year%%']);
+    expect($$('.plan .act-link .btn').map((b) => b.getAttribute('href'))).toEqual([
+      '%%link:cohort-full%%',
+      '%%link:agent-monthly%%',
+      '%%link:agents-upto15%%',
+      '%%link:insiders-year%%',
+    ]);
     expect($$('.plan .price:not(.founding-closed) .amount').map(text)).toEqual(['$7,500', '$79', '$1,491', '$1,997']);
   });
 });
@@ -291,7 +440,11 @@ describe('the share tags', () => {
     expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/pricing');
     expect(meta('meta[property="og:title"]')).toBe('Programs and Pricing · Amplified Impact');
     expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
-    expect([meta('meta[property="og:image:width"]'), meta('meta[property="og:image:height"]'), meta('meta[property="og:image:alt"]')]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    expect([
+      meta('meta[property="og:image:width"]'),
+      meta('meta[property="og:image:height"]'),
+      meta('meta[property="og:image:alt"]'),
+    ]).toEqual(['890', '1113', 'Spring Bengtzen']);
     expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });
@@ -308,26 +461,42 @@ describe('the words and the tokens', () => {
   });
 
   it('uses only tokens the API fills', () => {
-    const known = new Set(['founding', 'founding-closes', 'team-call', 'seats', 'countdown', 'seats-left', 'seats-total']);
+    const known = new Set([
+      'founding',
+      'founding-closes',
+      'team-call',
+      'seats',
+      'countdown',
+      'seats-left',
+      'seats-total',
+    ]);
     for (const [, name] of html.matchAll(TOKEN_PATTERN)) {
-      expect(known.has(name!) || /^(state|link):(cohort-full|cohort-two-pay|insiders-year|insiders-monthly|agents-upto15|agents-16to40|agent-monthly|agent-yearly)$/.test(name!), name).toBe(true);
+      expect(
+        known.has(name!) ||
+          /^(state|link):(cohort-full|cohort-two-pay|insiders-year|insiders-monthly|agents-upto15|agents-16to40|agent-monthly|agent-yearly)$/.test(
+            name!,
+          ),
+        name,
+      ).toBe(true);
     }
   });
 });
 
 describe('the stylesheet', () => {
-  const css = read('./pricing.css') + read('../site/offers.css') + read('../site/site.css');
+  const css = read('./pricing.css') + read('../kit/kit.css');
 
-  it('keeps text legible on a phone and taps thumb-sized', () => {
+  it('builds on the kit, and keeps text legible on a phone and taps thumb-sized', () => {
+    expect(read('./pricing.css')).toContain("@import '../kit/kit.css';");
     const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
-    expect(css).toMatch(/\.faq-list summary \{[^}]*min-height: 56px;/);
-    expect(css).toMatch(/\.pick \{[^}]*min-height: 64px;/);
+    expect(css).toMatch(/\.aiw \.persona-rec \{[^}]*min-height: 52px;/);
+    expect(css).toMatch(/\.aiw \.pc \.text-link \{[^}]*min-height: 44px;/);
+    expect(css).toMatch(/\.aiw \.pc \.btn \{[^}]*min-height: 52px;/);
   });
 
   it('shows each state only when the API says so', () => {
-    expect(css).toMatch(/body\[data-founding='closed'\] \.founding-open/);
-    expect(css).toMatch(/body\[data-seats='soldout'\] \.seats-left/);
+    expect(css).toMatch(/\.aiw\[data-founding='closed'\] \.founding-open/);
+    expect(css).toMatch(/\.aiw\[data-seats='soldout'\] \.seats-left/);
     expect(css).toMatch(/\.plan\[data-state='link'\] \.act-link/);
     expect(css).toMatch(/\.plan a\[href=''\]/);
   });

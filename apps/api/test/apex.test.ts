@@ -39,7 +39,7 @@ const at = (a: App, host: string, url: string, method: 'GET' | 'HEAD' | 'POST' =
 describe('the bare domain (D-133)', () => {
   it('301s every public path to www, keeping the path', async () => {
     const a = await boot(WWW);
-    for (const path of ['/', '/pricing', '/team-build', '/teams', '/agents', '/free', '/about', '/library', '/ai101', '/forum', '/terms', '/agreement', '/calendar/builds.ics', '/some/old/link']) {
+    for (const path of ['/', '/pricing', '/team-build', '/teams', '/agents', '/free', '/about', '/insiders', '/library', '/ai101', '/forum', '/terms', '/agreement', '/calendar/builds.ics', '/some/old/link']) {
       const res = await at(a, APEX, path);
       expect([res.statusCode, res.headers.location], path).toEqual([301, `https://${WWW}${path}`]);
     }

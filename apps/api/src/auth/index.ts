@@ -36,6 +36,7 @@ export {
   createSession,
   deleteOtherSessions,
   deleteSession,
+  markActive,
   mintSessionId,
   needsRoll,
   readSession,
