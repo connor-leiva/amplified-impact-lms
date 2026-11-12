@@ -17,6 +17,13 @@ export type SitePage = (typeof SITE_PAGES)[number];
 /** The HTML entries, relative to the web app's root (`apps/api/src/server.ts` reads them from `dist/`). */
 export const SITE_HTML: readonly string[] = SITE_PAGES.map((name) => `${name}.html`);
 
+/**
+ * The pages built on the v2 kit (`src/kit/`). Each loads the kit's one script as a same-origin file
+ * (`/assets/main-[hash].js`), never inlined, so the CSP's `script-src 'self'` admits it.
+ */
+export const KIT_PAGES: readonly SitePage[] = [];
+export const KIT_HTML: readonly string[] = KIT_PAGES.map((name) => `${name}.html`);
+
 export const HEAD_MARKER = '<!--x:head-->';
 export const BODY_MARKER = '<!--x:body-->';
 
