@@ -326,8 +326,12 @@
   grid-column: 10;
   border-style: dotted;
 }
+/* Over 40: the plus in the accent on a ring, so it reads at 4.5:1 or more on both themes. */
 .aiw .seat-more.is-on {
-  color: var(--surface);
+  border-color: var(--signal);
+  border-style: solid;
+  background: transparent;
+  color: var(--accent);
   transform: scale(0.9);
 }
 .aiw .sizer-math .price {

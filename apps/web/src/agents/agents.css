@@ -243,9 +243,11 @@
   display: grid;
   place-items: center;
   margin-bottom: 12px;
-  border: 1px solid var(--signal);
+  /* The accent, not the signal: its number stays 4.5:1 or more on both themes (the signal green under
+     bone text is 3.8:1). */
+  border: 1px solid var(--accent);
   border-radius: 50%;
-  background: var(--signal);
+  background: var(--accent);
   color: var(--surface);
   letter-spacing: 0;
   transition:
