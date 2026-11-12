@@ -4535,3 +4535,31 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - counts of skills downloaded or opened per agent (a new column and copy, which the reference doesn't have);
   - the 16 to 40 tier's "monthly owner call on who's using it" (a calendar item for Connor).
 - **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`, goldens.
+
+## D-146 · Every skill leads with the problem it solves, before any setup
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12 (overnight task): Spring opened a skill in the Library and froze, because it was all "click here, go to settings". Her ask: "every skill lead with the problem it solves, in simple language that a 4th grader could understand." Spring's plan says the same under "Skill pages and cards: lead with what it does" (docs/SPRING-PLAN.md).
+**Status:** on a pull request.
+**Scope:** `apps/web/src/library/content.ts` (`problem`, `outcome` and `forRole` on all 58 entries; `LEAD`, `FOR_ROLES`, `leadFor`), `library/render.ts` and `library.css` (the cards and the free five), `free/render.ts` and `free.css` (/free's cards), `guides/render.ts`, `guides/content.ts` and `guides/skills.css` (every skill and Grok Bot template page), `routes/library/SkillLibrary.tsx` and its CSS module (the platform's Skill Library); tests in `library/lead-copy.test.ts`, `library/lead-render.test.ts`, `guides/skill-page.test.ts` and `routes/library/SkillLibrary.test.tsx`.
+
+- **The lead.** Every Library entry (skills, free and locked, guides, kits and the 16 Grok Bot templates) now has:
+  - **The problem:** one or two short sentences, in the buyer's words, about the pain it fixes;
+  - **What it does for you:** one plain sentence about the outcome, not the mechanism;
+  - **Who it's for:** one role (Agent, Team owner, Ops/admin, Broker or Anyone), never one the catalog's set contradicts.
+- **One place to edit.** The words live on each entry in `library/content.ts`, beside its title. Every card, page and the platform read them from there, so they can't drift. NEW COPY FOR SPRING'S REVIEW: the pull request lists all 58.
+- **The rules, which a test holds:** about a 4th grade reading level (a rough Flesch-Kincaid grade, 8 or under each and 5 or under on average); no MCP, API, prompt, connector or token; no hype; no em or en dashes; no number except a thing's own name (1099, W-9, L10); never "it sends", "posts" or "decides".
+- **Where it shows, first:**
+  - `/library`: each card and each of the free five says the lead under its title and tags, before its description. The description sits under a hairline, clamped to two lines on screen; the whole of it is still in the card's link and on the skill's page.
+  - `/free`: each resource card, the same way, with its description in full.
+  - Every skill and Grok Bot template page: the lead right under the title, before the lede and the facts, in the title's column. The setup checklist inside the card (D-101) is titled "Set it up" (was "Your setup").
+  - learn.amplifiedimpact.io/skill-library: each skill's lead under its name, then its summary, then its downloads and Setup Guide under "Set it up". A row stays one column at every width.
+- **The buy or sign-up card never moves down for the lead** (revised 2026-11-12 after the PM's design review). The first version ran the title and lead across the full width from 960px, which pushed the card down more than 600px at 1280 by 900, below the fold on free pages. That is undone:
+  - From 960px the card is the right column from the top, exactly as before the lead. At 1280 by 900 its first button is exactly where main has it on all 54 skill and template pages: for example 248px on /tc-file-audit and 395px on /ai-brain-setup, and never lower than 417px.
+  - On a phone the card now comes right after the title and the lead, then the sample. One column can't fit the lead above the card without moving something, and the sample is the one block that can go below it. The card sits 62px to 328px higher than before, by page, and never lower. Main already used this order once a free skill was unlocked.
+  - So on a wide screen, a paid page's setup steps sit in the card beside the lead, as they did before. The lead is still first in reading order, and first on a phone.
+- **The look:** each page's existing tokens only, with no new colour. The lead's few new classes sit in each page's own stylesheet; no kit file changes. Every line of the lead and "Set it up" is 16px or more. On the platform, the skill's name goes from 15px to 18px so it stays above its lead. It works in light and dark at 1280px and 390px: the kit pages and the platform follow their theme, and the skill pages stay light-only, as the kit's tokens set them. A test holds the sizes and the tokens.
+- **Two commits:** the copy and content data first, then the templates and CSS, so a template change can be reviewed or reverted on its own.
+- **Kept, every word and button:** each setup step, download button, copy-to-clipboard prompt, "Copy & Open" button, the descriptions, the summaries, the guided setup inside the card (D-101) and the app switch.
+- **Not on their own pages:** /voice-profile, /ai101, /retool and /ops-time-audit are guides, not skills, with their own layouts. Their cards on /library and /free carry the lead.
+- **Not changed:** the homepage, sign-in, the kit's header, nav, footer, CSS and tokens, prices, carts, Payment Links, entitlements, gating, `/agreement`, goldens.

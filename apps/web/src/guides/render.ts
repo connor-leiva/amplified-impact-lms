@@ -38,6 +38,7 @@ import {
   type SetupStep,
 } from './content';
 import { UI } from './ui';
+import { LEAD, leadFor } from '../library/content';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
@@ -621,7 +622,28 @@ function skillTop(guide: Guide): string {
   ].join('\n');
 }
 
-/** The hero's words: the page's one eyebrow, the title, the lede and the facts. */
+/**
+ * The lead (`LEAD` in `../library/content.ts`), first under the title and above everything about
+ * setting it up: the problem it fixes, what it does for you, and who it's for, in its Library card's
+ * own words (`leadFor`). A page no card links to has none.
+ */
+function skillLead(guide: Guide): string {
+  const lead = leadFor(guide.slug);
+  if (!lead) return '';
+  const row = (key: 'problem' | 'outcome' | 'forRole', value: string) =>
+    `<div class="sk-lead-row sk-lead-${key}"><dt>${esc(LEAD[key])}</dt><dd>${esc(value)}</dd></div>`;
+  return [
+    `<dl class="sk-lead" data-lead>`,
+    row('problem', lead.problem),
+    row('outcome', lead.outcome),
+    lead.forRole ? row('forRole', lead.forRole) : '',
+    `</dl>`,
+  ]
+    .filter(Boolean)
+    .join('');
+}
+
+/** The hero's words: the page's one eyebrow, the title, the lead, the lede and the facts. */
 function skillIntro(guide: Guide): string {
   const h = guide.hero;
   const facts = (guide.facts ?? []).map((f) => `<li>${esc(f)}</li>`).join('');
@@ -629,6 +651,7 @@ function skillIntro(guide: Guide): string {
     `<div class="sk-intro">`,
     `<p class="eyebrow">${esc(h.eyebrow)}</p>`,
     `<h1>${esc(h.title)}</h1>`,
+    skillLead(guide),
     `<p class="sk-lede">${esc(h.lede)}</p>`,
     facts ? `<ul class="sk-facts" role="list">${facts}</ul>` : '',
     `</div>`,

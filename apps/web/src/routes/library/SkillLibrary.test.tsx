@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
-import SkillLibrary, { COPY } from './SkillLibrary';
+import { GROK_TEMPLATES } from '@ai/core/grok-templates';
+import { SKILL_CATALOG } from '@ai/core/skills';
+import SkillLibrary, { COPY, leadOf } from './SkillLibrary';
 import type { LibrarySkill } from './SkillLibrary';
+import { ENTRIES, LEAD } from '../../library/content';
 
 // /skill-library (D-079): open skills download, locked ones point to the plans, upcoming ones say when.
 
@@ -115,6 +118,38 @@ describe('the skill library screen', () => {
     );
     render(<SkillLibrary />);
     expect(await screen.findByRole('link', { name: COPY.guide })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/content-strategist');
+  });
+
+  it('leads every skill with the problem it fixes, in its Library card’s words, above its downloads under "Set it up"', async () => {
+    fetchMock.mockResolvedValue(
+      answer(200, {
+        skills: [skill({}), skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'locked', files: ['claude'] })],
+      }),
+    );
+    render(<SkillLibrary />);
+    const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
+    const card = ENTRIES.find((e) => e.href === '/team-pnl-review')!;
+    const row = within(owner).getByRole('listitem');
+    const lead = row.querySelector('[data-lead]');
+    expect([...(lead?.querySelectorAll('dt') ?? [])].map((dt) => dt.textContent)).toEqual([LEAD.problem, LEAD.outcome, LEAD.forRole]);
+    expect([...(lead?.querySelectorAll('dd') ?? [])].map((dd) => dd.textContent)).toEqual([card.problem, card.outcome, card.forRole]);
+    // The downloads and the Setup Guide, named "Set it up", come after the lead and the summary, all kept.
+    const setup = within(row).getByRole('group', { name: LEAD.setup });
+    expect(within(setup).getByRole('link', { name: COPY.files.claude })).toBeInTheDocument();
+    expect(within(setup).getByRole('link', { name: COPY.guide })).toBeInTheDocument();
+    expect(lead!.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(row).getByText("Reviews the team's profit and loss.")).toBeInTheDocument();
+    // A locked skill leads the same way, with nothing to set up yet.
+    const agent = screen.getByRole('region', { name: COPY.sets.agent });
+    expect(within(agent).getByText(ENTRIES.find((e) => e.href === '/offer-strategy')!.problem)).toBeInTheDocument();
+    expect(within(agent).queryByRole('group', { name: LEAD.setup })).toBeNull();
+  });
+
+  it('has a lead for every skill and Grok Bot template the platform serves, found by its www page', () => {
+    for (const s of SKILL_CATALOG) expect(leadOf(s.id), s.id).toBeDefined();
+    for (const g of GROK_TEMPLATES) expect(leadOf(g.id), g.id).toBeDefined();
+    // A skill whose page has another name (D-101) reads that page's card.
+    expect(leadOf('content-opportunity-research')?.problem).toBe(ENTRIES.find((e) => e.href === '/content-strategist')?.problem);
   });
 
   it('says so when the list fails to load', async () => {

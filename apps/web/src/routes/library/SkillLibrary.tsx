@@ -9,7 +9,8 @@
 // /sign-in. In the fixture build there is no API, so it says the library opens when you sign in.
 
 import { useEffect, useState } from 'react';
-import { setupGuideHref } from '@ai/core/skills';
+import { SETUP_GUIDE_ORIGIN, setupGuideHref } from '@ai/core/skills';
+import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
 import s from './SkillLibrary.module.css';
@@ -80,7 +81,38 @@ export const PLANS_URL = 'https://www.amplifiedimpact.io/pricing';
 const dateOf = (t: number): string =>
   new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' }).format(t);
 
+/**
+ * A skill's lead (`LEAD` in the www Library's content): the problem it fixes, what it does for you, and
+ * who it's for, in the same words as its Library card and its www page, first under its name and above
+ * how to set it up. Found by the skill's www page, which is not always its id (/content-strategist).
+ */
+export const leadOf = (id: string) => leadFor(setupGuideHref(id).replace(`${SETUP_GUIDE_ORIGIN}/`, ''));
+
+function Lead({ id }: { id: string }) {
+  const lead = leadOf(id);
+  if (!lead) return null;
+  return (
+    <dl className={s.lead} data-lead>
+      <div className={s.leadProblem}>
+        <dt>{LEAD.problem}</dt>
+        <dd>{lead.problem}</dd>
+      </div>
+      <div>
+        <dt>{LEAD.outcome}</dt>
+        <dd>{lead.outcome}</dd>
+      </div>
+      {lead.forRole ? (
+        <div>
+          <dt>{LEAD.forRole}</dt>
+          <dd>{lead.forRole}</dd>
+        </div>
+      ) : null}
+    </dl>
+  );
+}
+
 function SkillRow({ skill }: { skill: LibrarySkill }) {
+  const setupId = `setup-${skill.id}`;
   return (
     <li className={s.skill} data-state={skill.state}>
       <div className={s.text}>
@@ -88,9 +120,16 @@ function SkillRow({ skill }: { skill: LibrarySkill }) {
           {skill.title}
           {skill.free ? <span className={s.badge}>{COPY.free}</span> : null}
         </h3>
+        <Lead id={skill.id} />
         <p className={s.summary}>{skill.summary}</p>
       </div>
-      <div className={s.actions}>
+      {/* The downloads and the Setup Guide, under the lead, named "Set it up" (`LEAD.setup`). */}
+      {skill.state === 'open' ? (
+        <p className={s.setupLabel} id={setupId}>
+          {LEAD.setup}
+        </p>
+      ) : null}
+      <div className={s.actions} {...(skill.state === 'open' ? { role: 'group', 'aria-labelledby': setupId } : {})}>
         {skill.state === 'open' ? (
           <>
             {skill.files.map((kind, i) => (
