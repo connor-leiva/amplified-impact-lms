@@ -198,15 +198,20 @@ describe('pending placeholders (conflicts.md, Decisions)', () => {
   });
 
   it('knows exactly Connor’s open questions, and refuses any other key or a region left open', () => {
-    expect(Object.keys(PENDING).sort()).toEqual(['spring-approval', 'stat-source', 'team-plan-dec14', 'video-still']);
+    expect(Object.keys(PENDING).sort()).toEqual(['spring-approval', 'team-plan-dec14', 'video-still']);
     expect(resolvePending(pending('spring-approval', '<p>Q</p>', '<p>F</p>'), { preview: false })).toBe('<p>F</p>');
-    expect(resolvePending(pending('stat-source', '38%'), { preview: true })).toMatch(
-      /^<style>[\s\S]*<\/style>\n<span data-pending="stat-source">38%<\/span>$/,
+    expect(resolvePending(pending('team-plan-dec14', 'December 14'), { preview: true })).toMatch(
+      /^<style>[\s\S]*<\/style>\n<span data-pending="team-plan-dec14">December 14<\/span>$/,
     );
     expect(() => resolvePending('<!--pending:nope--><p></p><!--pending:nope:else--><!--pending:nope:end-->', { preview: true })).toThrow(
       /Unknown pending key/,
     );
-    expect(() => resolvePending('<!--pending:stat-source--><p>', { preview: false })).toThrow(/unresolved/);
+    expect(() => resolvePending('<!--pending:team-plan-dec14--><p>', { preview: false })).toThrow(/unresolved/);
+  });
+
+  it('holds back the 38% and 95% no longer: `stat-source` is answered (D3), so a region still using it is refused', () => {
+    const old = '<!--pending:stat-source--><span>38%</span><!--pending:stat-source:else--><!--pending:stat-source:end-->';
+    for (const preview of [true, false]) expect(() => resolvePending(old, { preview })).toThrow(/Unknown pending key "stat-source"/);
   });
 
   it('builds v3 only on purpose: an ordinary build has no v3 page; V3_PREVIEW=1 a preview, =0 the production render', () => {
