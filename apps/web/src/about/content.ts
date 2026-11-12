@@ -12,7 +12,8 @@
 
 export const ABOUT_META = {
   title: 'About · Amplified Impact',
-  description: 'Spring Bengtzen and Connor Leiva, and why we built Amplified Impact: AI coaching and training for business owners and their teams.',
+  description:
+    'Spring Bengtzen and Connor Leiva, and why we built Amplified Impact: AI coaching and training for business owners and their teams.',
   path: '/about',
 } as const;
 
@@ -59,6 +60,19 @@ export const WHY = {
     'Real estate comes first because it’s the business we know. The skills that aren’t about real estate work for any owner.',
   ],
 } as const;
+
+/**
+ * The v2 mockup's rings beside "Why we built this", center out: a drawing, hidden from screen readers.
+ * NEW COPY FOR SPRING'S REVIEW, each a short form of the live words above (the center keeps the group's
+ * full name, never "Utah Life" alone).
+ */
+export const V2_RINGS = [
+  'The Utah Life Real Estate Group',
+  'Mortgage, title and coaching',
+  'Skills anyone can set up',
+  'Taught live',
+  'Any owner',
+] as const;
 
 export const ABOUT_END = {
   heading: 'Start with 5 free skills.',
