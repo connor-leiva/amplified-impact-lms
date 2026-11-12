@@ -228,6 +228,9 @@ describe('Continue With Google', () => {
     vi.stubGlobal('location', { ...window.location, assign });
     const { container } = renderSignIn('');
     const button = await screen.findByRole('button', { name: GOOGLE });
+    // Google's G is decorative: hidden from assistive tech, so the button's name is the label alone.
+    expect(button.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(button).toHaveAccessibleName(GOOGLE);
     // Under the form: the Sign In button comes first.
     const order = [...container.querySelectorAll('button')].map((b) => b.textContent);
     expect(order.indexOf('Sign In')).toBeLessThan(order.indexOf(GOOGLE));
