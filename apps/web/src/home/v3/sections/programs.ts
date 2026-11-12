@@ -6,11 +6,11 @@
 // stays on the program's page.
 //
 // EVERY FIGURE IS /pricing's: the amounts from `../../prices.ts` (read from the offer's own words), the
-// dates from `@ai/core/offer`, the seats and days left from `GET /api/offer`. The sentences around them
+// dates from `@ai/core/offer`, the seats left from `GET /api/offer` once it counts. The sentences around them
 // are the mockup's (`PROGRAMS`); a test holds the result to copy.md.
 //
 // LIVE (`client/offer.ts`): the Accelerator open, sold out or closed, and the Team Plan open or closed,
-// in /pricing's words (`CARD_STATES`); the seats and days left once the API has counted them.
+// in /pricing's words (`CARD_STATES`). The seat meter and its line show from the start (`./offer.ts`).
 //
 // The Team Plan's "Skills open December 14…" waits on Connor (D7, `team-plan-dec14`): production
 // leaves that sentence out.

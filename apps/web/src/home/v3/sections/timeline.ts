@@ -10,7 +10,8 @@
 // section arriving from below counts its builds up from 0 to 8 once, week by week, and ends on 8.
 //
 // THE OFFER: "Claim a Founding Seat" goes to /team-build (Connor's D1), the proof line beside it; the
-// seats wait for the API, and the sold-out and closed states are /pricing's (`./offer.ts`).
+// seat meter and its line show from the start, and the sold-out and closed states are /pricing's
+// (`./offer.ts`).
 //
 // The light band the mockup draws is `.inverse`, so it swaps with the page's theme (D8).
 

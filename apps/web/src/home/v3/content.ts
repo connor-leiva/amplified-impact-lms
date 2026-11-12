@@ -514,7 +514,14 @@ export const PROGRAMS = {
   indexLabel: 'The four programs',
   details: 'Details',
   detailsSaid: (name: string) => `${name}: see full details`,
+  /** The seat line's words once the API has counted: "12 of 15 founding seats left". */
   seatsWord: 'founding seats left',
+  /**
+   * What the line can say before anything is counted (Design, 5:20 PM CT Nov 12): the written cap, "15 of
+   * 15 founding seats", and the deadline's day as the Accelerator's own line puts it, "Ends Nov 30".
+   */
+  seatsCap: 'founding seats',
+  seatsEnds: (day: string) => `Ends ${day}`,
   cards: {
     accelerator: {
       kicker: 'We build it with you',

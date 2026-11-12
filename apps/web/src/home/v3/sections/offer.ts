@@ -7,9 +7,12 @@
 // before the founding deadline, as the live homepage's does; the deadline written into the page
 // (`data-closes-at`) moves it to "closed" even if the API can't be reached.
 //
-// THE SEATS: a static page can't know how many are left, so the meter and its line wait, `hidden`,
-// until the API has counted them, as the live homepage's seats do. Nothing else waits: the buttons and
-// the proof line beside them are always shown.
+// THE SEATS ARE SHOWN FROM THE START (rule: no buy, seat or proof element starts hidden). A static page
+// can't know how many are left, so with no script the meter and its line say only what the page knows
+// for certain: the deadline's day and the 15-seat cap ("Ends Nov 30 · 15 of 15 founding seats"). The
+// script puts the days left in from the deadline written into the page ("18 days left"), and the API's
+// count when it answers ("12 of 15 founding seats left"). Sold out or closed, /pricing's line takes
+// their place. The buttons and the proof line beside them are always shown.
 
 import { COHORT_SEATS, DEFAULT_FOUNDING_CLOSES_AT } from '@ai/core/offer';
 import { esc } from '../../../ai101/render';
@@ -37,15 +40,23 @@ const foundingLongDay = (): string =>
 /** The section attributes that carry the live state: the states it starts on, and the deadline. */
 export const offerAttrs = (): string => `data-v3-offer data-acc="open" data-team="open" data-closes-at="${esc(DEFAULT_FOUNDING_CLOSES_AT)}"`;
 
-/** The seat meter and its line ("18 days left · 15 of 15 founding seats left"), waiting for the API. */
+/**
+ * The seat meter and its line, shown in the "open" state from the start: "Ends Nov 30 · 15 of 15
+ * founding seats", the deadline's day and the written cap. The script fills in the days left
+ * (`data-v3-days`) and, once the API has counted, the seats left and the line's last word (each part's
+ * `data-said`): "18 days left · 12 of 15 founding seats left".
+ */
 export function seatBlock(cls: string): string {
-  const dots = Array.from({ length: COHORT_SEATS }, (_, i) => `<span class="seatm-s" style="--si:${i}"></span>`).join('');
+  const n = COHORT_SEATS;
+  const dots = Array.from({ length: n }, (_, i) => `<span class="seatm-s" style="--si:${i}"></span>`).join('');
   return [
-    `<div class="${cls}" data-v3-seats hidden>`,
-    `<div class="seatm" data-left="${COHORT_SEATS}" data-said="{left} of {total} seats left" role="img" aria-label="${COHORT_SEATS} of ${COHORT_SEATS} seats left">${dots}</div>`,
-    `<p class="status status-live"><span class="status-dot" aria-hidden="true"></span><span><strong data-v3-days></strong> · <span data-v3-left>${COHORT_SEATS}</span> of <span data-v3-total>${COHORT_SEATS}</span> ${esc(
-      PROGRAMS.seatsWord,
-    )}</span></p>`,
+    `<div class="${cls}" data-v3-seats data-when="acc-open">`,
+    `<div class="seatm" data-left="${n}" data-said="{left} of {total} seats left" role="img" aria-label="${n} of ${n} ${esc(PROGRAMS.seatsCap)}">${dots}</div>`,
+    `<p class="status status-live"><span class="status-dot" aria-hidden="true"></span><span><strong data-v3-days>${esc(
+      PROGRAMS.seatsEnds(foundingDay()),
+    )}</strong> · <span data-v3-left>${n}</span> of <span data-v3-total>${n}</span> <span data-v3-seats-word data-said="${esc(PROGRAMS.seatsWord)}">${esc(
+      PROGRAMS.seatsCap,
+    )}</span></span></p>`,
     `</div>`,
   ].join('');
 }

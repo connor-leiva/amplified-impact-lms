@@ -43,7 +43,10 @@ function expectInOrder(el: Element | null, lines: string[]) {
   }
 }
 
-/** copy.md's live seat line ("18 days left · 15 of 15 founding seats left"): the API fills it (below). */
+/**
+ * copy.md's live seat line ("18 days left · 15 of 15 founding seats left"): the script fills in the days
+ * and the API the seats. With no script the line says the deadline's day and the cap (below).
+ */
 const SEAT_LINE = /days left · \d+ of \d+ founding seats left/;
 
 describe('every section, word for word', () => {
@@ -133,14 +136,23 @@ describe('the live offer (S11, S12)', () => {
     }
   });
 
-  it('keeps the seats and days left waiting, hidden, until the API counts them: nothing it can’t know yet', () => {
+  it('shows the seat meter and its line from the start, saying only what it knows: the deadline’s day and the written cap', () => {
     for (const cls of ['pg', 'wed']) {
       const block = sec(prod, cls)!.querySelector('[data-v3-seats]')!;
-      expect(block.hasAttribute('hidden')).toBe(true);
+      expect(block.closest('[hidden]'), cls).toBeNull();
+      expect(block.getAttribute('data-when')).toBe('acc-open');
       expect(block.querySelectorAll('.seatm-s')).toHaveLength(COHORT_SEATS);
-      expect(block.querySelector('.seatm')?.getAttribute('data-said')).toBe('{left} of {total} seats left');
-      expect(text(block.querySelector('.status'))).toBe(`· ${COHORT_SEATS} of ${COHORT_SEATS} ${PROGRAMS.seatsWord}`);
+      const meter = block.querySelector('.seatm')!;
+      expect([meter.getAttribute('data-left'), meter.getAttribute('aria-label'), meter.getAttribute('data-said')]).toEqual([
+        String(COHORT_SEATS),
+        `${COHORT_SEATS} of ${COHORT_SEATS} founding seats`,
+        '{left} of {total} seats left',
+      ]);
+      // "Nov 30" as the Accelerator's own line prints it ("… Ends Nov 30."); the cap, never a count.
+      expect(text(block.querySelector('.status'))).toBe(`Ends Nov 30 · ${COHORT_SEATS} of ${COHORT_SEATS} founding seats`);
+      expect(block.querySelector('[data-v3-seats-word]')?.getAttribute('data-said')).toBe(PROGRAMS.seatsWord);
     }
+    expect(text(sec(prod, 'pg')!.querySelector('#p-accelerator'))).toContain('Ends Nov 30.');
   });
 
   it('has /pricing’s sold-out and closed words ready, hidden, with the waiting list to the program’s page', () => {
@@ -154,6 +166,54 @@ describe('the live offer (S11, S12)', () => {
     expect([...pg.querySelectorAll('[data-when="acc-soldout acc-closed"] a')].map((a) => [text(a), a.getAttribute('href')])).toEqual([
       [CARD_STATES.waitlist, '/team-build'],
     ]);
+  });
+});
+
+/**
+ * S11's and S12's program buttons in the state the page starts on, "open", each to its page (D1). The
+ * sold-out and closed states' waiting-list buttons are the only ones that start hidden.
+ */
+const OPEN_CTAS: Record<'pg' | 'wed', [string, string][]> = {
+  pg: [
+    ['Claim a Founding Seat', '/team-build'],
+    ['Or 2 payments of $3,750', '/team-build'],
+    ['Join Insiders', '/insiders'],
+    ['Train My Team', '/teams'],
+    ['Over 40 agents? Let’s talk', `mailto:${HELP_EMAIL}`],
+    ['Start the Agent Plan', '/agents'],
+  ],
+  wed: [
+    ['Claim a Founding Seat', '/team-build'],
+    ['See the Accelerator', '/team-build'],
+  ],
+};
+
+/** What keeps `el` from showing, in the markup: `hidden`, `inert`, `aria-hidden`, a reveal class or an inline style. */
+function heldBack(el: Element): string[] {
+  const out: string[] = [];
+  for (let e: Element | null = el; e; e = e.parentElement) {
+    const name = `${e.tagName.toLowerCase()}.${(e.getAttribute('class') ?? '').trim().replace(/\s+/g, '.')}`;
+    for (const attr of ['hidden', 'inert']) if (e.hasAttribute(attr)) out.push(`${name} is ${attr}`);
+    if (e.getAttribute('aria-hidden') === 'true') out.push(`${name} is aria-hidden`);
+    if (/(^|\s)(rv|rv-wait|fade-\d)(\s|$)/.test(e.getAttribute('class') ?? '')) out.push(`${name} is a reveal`);
+    if (/opacity|visibility|display/.test(e.getAttribute('style') ?? '')) out.push(`${name} is styled out`);
+  }
+  return out;
+}
+
+describe('no buy, seat or proof element starts hidden (S11, S12): the page with no script', () => {
+  it.each(['pg', 'wed'] as const)('section.%s: the seat meter, its seats left, every proof line and every program button show', (cls) => {
+    const s = sec(prod, cls)!;
+    const meters = [...s.querySelectorAll('.seatm')];
+    const left = [...s.querySelectorAll('[data-left]')];
+    const proofs = [...s.querySelectorAll('.proof-line')];
+    expect([meters.length, left.length, proofs.length]).toEqual([1, 1, cls === 'pg' ? 4 : 1]);
+    for (const el of [...meters, ...left, ...proofs]) expect(heldBack(el), `${el.className} "${text(el).slice(0, 30)}"`).toEqual([]);
+    expect(left[0]!.getAttribute('data-left')).toBe(String(COHORT_SEATS));
+    // Every program button of the "open" state shows; only the other states' waiting lists are held back.
+    const ctas = [...s.querySelectorAll('.cta-group a')];
+    expect(ctas.filter((a) => !heldBack(a).length).map((a) => [text(a), a.getAttribute('href')])).toEqual(OPEN_CTAS[cls]);
+    for (const a of ctas.filter((x) => heldBack(x).length)) expect(a.closest('[data-when]')?.getAttribute('data-when')).toMatch(/^(acc|team)-(soldout|closed)/);
   });
 });
 

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { CARD_STATES } from '../../../offer/content';
 import { renderV3Body } from '../render';
 import { hoursMath, readRate, initHours } from './hours';
+import { init } from './main';
 import { accState, initOffer, initSwitches, type OfferFacts } from './offer';
 import { initTimeline } from './proof';
 
@@ -36,6 +37,29 @@ const mount = () => {
 };
 const $ = <T extends Element = HTMLElement>(s: string) => document.querySelector<T>(s)!;
 const shown = (sel: string) => [...document.querySelectorAll<HTMLElement>(sel)].filter((el) => !el.closest('[hidden]'));
+const said = (el: Element | null) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
+/** The seat lines that show, in S11 then S12. */
+const lines = () => shown('[data-v3-seats] .status').map(said);
+const settle = () => new Promise((r) => setTimeout(r, 0));
+/** /api/offer answers with `facts`, or with an error for null. */
+const answer = (facts: OfferFacts | null) =>
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => Promise.resolve({ ok: facts !== null, json: () => Promise.resolve(facts) })),
+  );
+
+/** What keeps `el` from showing: `hidden`, `inert`, `aria-hidden`, a reveal class or an inline style (as `../rest.test.ts`). */
+function heldBack(el: Element): string[] {
+  const out: string[] = [];
+  for (let e: Element | null = el; e; e = e.parentElement) {
+    const name = `${e.tagName.toLowerCase()}.${(e.getAttribute('class') ?? '').trim().replace(/\s+/g, '.')}`;
+    for (const attr of ['hidden', 'inert']) if (e.hasAttribute(attr)) out.push(`${name} is ${attr}`);
+    if (e.getAttribute('aria-hidden') === 'true') out.push(`${name} is aria-hidden`);
+    if (/(^|\s)(rv|rv-wait|fade-\d)(\s|$)/.test(e.getAttribute('class') ?? '')) out.push(`${name} is a reveal`);
+    if (/opacity|visibility|display/.test(e.getAttribute('style') ?? '')) out.push(`${name} is styled out`);
+  }
+  return out;
+}
 
 const FACTS = (over: Partial<{ open: boolean; founding: boolean; left: number }> = {}): OfferFacts => ({
   open: over.open ?? true,
@@ -74,26 +98,22 @@ describe('the live homepage’s reader, copied', () => {
 });
 
 describe('the live offer on the page (S11, S12)', () => {
-  const answer = (facts: OfferFacts | null) =>
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() => Promise.resolve({ ok: facts !== null, json: () => Promise.resolve(facts) })),
-    );
-  const settle = () => new Promise((r) => setTimeout(r, 0));
 
-  it('shows the seats and days left once the API counts them, in the page’s words', async () => {
+  it('says the days left at once, from the deadline in the page, and the seats left once the API counts them', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(Date.parse('2026-11-12T20:00:00Z'));
     mount();
     answer(FACTS({ left: 12 }));
     initOffer(document.body);
-    expect(shown('[data-v3-seats]')).toHaveLength(0);
+    // Before the answer: shown, with the days left and the written cap.
+    expect(lines()).toEqual(['18 days left · 15 of 15 founding seats', '18 days left · 15 of 15 founding seats']);
     await settle();
     await settle();
-    const lines = shown('[data-v3-seats] .status').map((p) => (p.textContent ?? '').replace(/\s+/g, ' ').trim());
-    expect(lines).toEqual(['18 days left · 12 of 15 founding seats left', '18 days left · 12 of 15 founding seats left']);
-    expect($('.seatm').getAttribute('data-left')).toBe('12');
-    expect($('.seatm').getAttribute('aria-label')).toBe('12 of 15 seats left');
+    expect(lines()).toEqual(['18 days left · 12 of 15 founding seats left', '18 days left · 12 of 15 founding seats left']);
+    expect([...document.querySelectorAll('.seatm')].map((m) => [m.getAttribute('data-left'), m.getAttribute('aria-label')])).toEqual([
+      ['12', '12 of 15 seats left'],
+      ['12', '12 of 15 seats left'],
+    ]);
   });
 
   it('once the seats are sold, says /pricing’s words and offers the waiting list, still to /team-build', async () => {
@@ -121,6 +141,58 @@ describe('the live offer on the page (S11, S12)', () => {
     expect(shown('#p-accelerator .price-big').map((p) => p.textContent)).toEqual([CARD_STATES.closedAmount]);
     expect(shown('#p-team .pg-cta a').map((a) => a.textContent)).toEqual([CARD_STATES.waitlist]);
     expect(shown('section.wed .status-closed')).toHaveLength(1);
+  });
+});
+
+describe('no buy, seat or proof element is hidden on load, with the script, while the API says nothing (S11, S12)', () => {
+  it.each([
+    ['never answers', () => new Promise<Response>(() => undefined)],
+    ['fails', () => Promise.reject(new TypeError('Failed to fetch'))],
+    ['answers 503', () => Promise.resolve({ ok: false, json: () => Promise.resolve({}) } as Response)],
+  ])('when /api/offer %s: the meter, its line, the proof lines and every program button stay shown', async (_, reply) => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.parse('2026-11-12T20:00:00Z'));
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.stubGlobal('fetch', vi.fn(reply));
+    mount();
+    // The whole script, as the page runs it (wide screen, motion allowed: every arrival armed).
+    init();
+    await settle();
+    await settle();
+    for (const cls of ['pg', 'wed']) {
+      const s = $(`section.${cls}`);
+      expect(s.dataset.acc, cls).toBe('open');
+      const parts = [...s.querySelectorAll('.seatm, [data-left], .proof-line')];
+      expect(parts.length, cls).toBe(cls === 'pg' ? 5 : 2);
+      for (const el of parts) expect(heldBack(el), `${cls} ${el.className}`).toEqual([]);
+      const ctas = [...s.querySelectorAll('.cta-group a')].filter((a) => !heldBack(a).length).map(said);
+      expect(ctas, cls).toEqual(
+        cls === 'pg'
+          ? ['Claim a Founding Seat', 'Or 2 payments of $3,750', 'Join Insiders', 'Train My Team', 'Over 40 agents? Let’s talk', 'Start the Agent Plan']
+          : ['Claim a Founding Seat', 'See the Accelerator'],
+      );
+      expect(s.querySelector('.seatm')?.getAttribute('data-left'), cls).toBe('15');
+    }
+    // The days left from the deadline written into the page; the seats are the written cap, not a count.
+    expect(lines()).toEqual(['18 days left · 15 of 15 founding seats', '18 days left · 15 of 15 founding seats']);
+  });
+
+  it('the API’s count changes only the numbers and the last word: the meter and line were already showing', async () => {
+    mount();
+    answer(FACTS({ left: 9 }));
+    const before = shown('[data-v3-seats]');
+    initOffer(document.body);
+    await settle();
+    await settle();
+    expect(shown('[data-v3-seats]')).toEqual(before);
+    expect(before).toHaveLength(2);
+    expect(lines().map((l) => l.replace(/^.* · /, ''))).toEqual(['9 of 15 founding seats left', '9 of 15 founding seats left']);
   });
 });
 

@@ -8,8 +8,11 @@
 //   - founding open or closed: the API's word, or the deadline written into the page if it can't be
 //     reached, so the page stops quoting founding prices after it whatever happens;
 //   - the Accelerator open, sold out (all 15 seats, across both its carts) or closed;
-//   - the seats left and the days left, shown once the API has counted them: a static page can't know
-//     them, so until then it says nothing about them rather than something that may be false.
+//   - the days left, from the deadline, at once;
+//   - the seats left, once the API has counted them. Until then the line keeps the written cap ("15 of
+//     15 founding seats"), never a count the page can't know.
+// The seat meter and its line are shown from the start, in the "open" state, script or not: nothing
+// here ever hides them except the state turning sold out or closed.
 
 import { countdownWords } from '@ai/core/founding';
 
@@ -93,11 +96,23 @@ export function applyState(root: HTMLElement, key: 'acc' | 'team', state: string
 }
 
 /**
- * The seat meter and its line, once the API has counted: the meter draws the seats left (`data-left`,
- * the kit's stylesheet), the line says the days left and the seats, in the page's own words (its
- * `data-said` templates). Shown only while the Accelerator is open.
+ * The days left before founding closes ("18 days left"), from `closesAt`, in place of the deadline's day
+ * the markup says ("Ends Nov 30"). Once founding has closed there are none to say, and the line is
+ * left as it is: the "closed" state hides it.
  */
-export function fillSeats(root: HTMLElement, facts: OfferFacts, now: number): void {
+export function fillDays(root: HTMLElement, closesAt: string, now: number): void {
+  const words = countdownWords(Date.parse(closesAt) - now);
+  if (!words) return;
+  for (const el of root.querySelectorAll<HTMLElement>('[data-v3-days]')) el.textContent = words;
+}
+
+/**
+ * The API's count, once it answers: the meter draws the seats left (`data-left`, the kit's stylesheet)
+ * and the line says them, "12 of 15 founding seats left", in the page's own words (each part's
+ * `data-said`). Only the numbers and words change: the block is shown from the start, and only the
+ * state (`applyState`) takes it away.
+ */
+export function fillSeats(root: HTMLElement, facts: OfferFacts): void {
   const block = root.querySelector<HTMLElement>('[data-v3-seats]');
   if (!block) return;
   const s = seatsView(facts);
@@ -109,13 +124,16 @@ export function fillSeats(root: HTMLElement, facts: OfferFacts, now: number): vo
     meter.dataset.left = String(s.left);
     meter.setAttribute('aria-label', (meter.dataset.said ?? '').replace('{left}', String(s.left)).replace('{total}', String(s.total)));
   }
-  fill(block.querySelector('[data-v3-days]'), countdownWords(Date.parse(facts.founding.closesAt) - now));
   fill(block.querySelector('[data-v3-left]'), String(s.left));
   fill(block.querySelector('[data-v3-total]'), String(s.total));
-  block.hidden = accState(facts, facts.founding.closesAt, now) !== 'open';
+  const word = block.querySelector<HTMLElement>('[data-v3-seats-word]');
+  if (word?.dataset.said) word.textContent = word.dataset.said;
 }
 
-/** Every live section: the deadline decides at once; the API's answer, when it comes, decides the rest. */
+/**
+ * Every live section: the deadline decides the state and the days left at once; the API's answer, when
+ * it comes, decides the rest and counts the seats.
+ */
 export function initOffer(page: HTMLElement): void {
   const sections = [...page.querySelectorAll<HTMLElement>('[data-v3-offer]')];
   if (!sections.length) return;
@@ -125,7 +143,8 @@ export function initOffer(page: HTMLElement): void {
       const closesAt = sec.dataset.closesAt ?? '';
       applyState(sec, 'acc', accState(facts, closesAt, now));
       applyState(sec, 'team', foundingOpen(facts, closesAt, now) ? 'open' : 'closed');
-      if (facts) fillSeats(sec, facts, now);
+      fillDays(sec, facts?.founding.closesAt ?? closesAt, now);
+      if (facts) fillSeats(sec, facts);
     }
   };
   apply(null);
