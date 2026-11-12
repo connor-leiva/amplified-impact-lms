@@ -8,6 +8,7 @@ import { OFFERS } from '../offer/content';
 import { AGENT_PLAN } from '../site/offers-content';
 import { AGENTS_GET, TEAMS_FAQ, TIERS } from './content';
 import { renderBody, renderHead, renderTeamsBody, renderTeamsHead } from './render';
+import { EXAMPLES_ON } from './examples';
 
 // /teams, the Amplified Team Plan's sales page (D-113), on the parsed DOM: Spring's outline in her
 // order, the three sizes and their carts, the dates the checkout already states, and the house rules.
@@ -23,18 +24,23 @@ const $ = (selector: string, root: ParentNode = doc) => root.querySelector(selec
 const $$ = (selector: string, root: ParentNode = doc) => [...root.querySelectorAll(selector)];
 
 describe('the page', () => {
-  it('is what the site plugin builds, with its canonical address, its shell and no script', () => {
-    expect([renderHead, renderBody]).toEqual([renderTeamsHead, renderTeamsBody]);
+  it('is what the site plugin builds, with its canonical address, its shell and only the kit’s script', () => {
+    expect(renderHead).toBe(renderTeamsHead);
+    expect(renderBody()).toBe(renderTeamsBody());
     expect(text($('title'))).toBe('Amplified Team Plan · Amplified Impact');
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/teams');
     const shell = read('../../teams.html');
-    expect(shell).toContain('data-founding="%%founding%%" data-invites="%%invites%%"');
-    expect(shell + html).not.toMatch(/<script/i);
+    expect(shell).toContain('<body class="aiw" data-theme="dark" data-app-ready="true" data-founding="%%founding%%" data-invites="%%invites%%">');
+    expect([...shell.matchAll(/<script\b[^>]*>/gi)].map((m) => m[0])).toEqual(['<script type="module" src="/src/kit/client/main.ts">']);
+    expect(html).not.toMatch(/<script/i);
+    expect(shell + html).not.toMatch(/\son[a-z]+=/i);
   });
 
   it('runs in Spring’s order: the hero, the sizes, what agents and the owner get, joining and billing, questions, the buttons', () => {
     expect($$('h1').map(text)).toEqual(['Let us train your team.']);
     expect($$('main h2').map(text)).toEqual([
+      // The mockup's proof section after the hero: /team-build's live words for it.
+      'The Utah Life Real Estate Group',
       'Pick your team size',
       'What your agents get',
       'What you get as the owner',
@@ -133,10 +139,33 @@ describe('the questions and the end', () => {
   });
 
   it('put the proof line right under the closing Pick Your Team Size button', () => {
-    const proof = $('.end .end-action + .proof-line')!;
+    const proof = $('.end .actions > a.btn + .proof-line')!;
     expect([text($('span', proof)), text($('strong', proof))]).toEqual(['Built inside The Utah Life Real Estate Group', '100 agents, 700+ homes a year']);
-    expect(text($('a.btn', proof.previousElementSibling!))).toBe('Pick Your Team Size');
+    expect(text(proof.previousElementSibling)).toBe('Pick Your Team Size');
+    expect(proof.previousElementSibling?.getAttribute('href')).toBe('#sizes');
     expect($$('.teams-hero .proof-line')).toHaveLength(1);
+  });
+
+  it('keeps the slider an enhancement: hidden with no script, all three sizes and their links in the markup', () => {
+    const sizer = $('[data-sizer]')!;
+    expect(sizer.hasAttribute('hidden')).toBe(true);
+    expect($$('[data-max]', sizer).map((p) => [p.getAttribute('data-tier'), p.getAttribute('data-max')])).toEqual([
+      ['size-15', '15'],
+      ['size-40', '40'],
+      ['size-more', '41'],
+    ]);
+    expect($$('a', sizer)).toHaveLength(0);
+    expect($$('.tier .act-link a').map((a) => a.getAttribute('href'))).toEqual(['%%link:agents-upto15%%', '%%link:agents-16to40%%', '%%team-call%%']);
+    expect(html).not.toMatch(/per agent a month/i);
+  });
+
+  it('keeps the made-up illustrations off, and when on, tags them and keeps them clear of the sizes', () => {
+    expect(EXAMPLES_ON).toBe(false);
+    expect(html).not.toContain('Made-up example');
+    const on = new DOMParser().parseFromString(renderTeamsBody({ examples: true }), 'text/html');
+    expect(on.querySelectorAll('.usage, .jp-stack')).toHaveLength(2);
+    expect([...on.querySelectorAll('.ex-tag')].map((t) => t.textContent)).toEqual(['Made-up example', 'Made-up example']);
+    for (const el of on.querySelectorAll('.usage, .jp-stack')) expect(el.closest('#sizes, .plan')).toBeNull();
   });
 });
 
@@ -171,7 +200,8 @@ describe('the words and the tokens', () => {
   });
 
   it('keeps text legible on a phone', () => {
-    const css = read('./teams.css') + read('../site/offers.css') + read('../site/site.css');
+    const css = read('./teams.css') + read('../kit/kit.css');
+    expect(read('./teams.css')).toContain("@import '../kit/kit.css';");
     expect(Math.min(...[...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1])))).toBeGreaterThanOrEqual(16);
   });
 });
