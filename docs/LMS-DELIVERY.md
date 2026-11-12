@@ -1,8 +1,9 @@
 # LMS delivery: what each purchase gives on learn.amplifiedimpact.io
 
-Updated Nov 11, 2026 (DECISIONS.md D-106). The code is the source of truth: `packages/core/src/offer.ts`
-(the catalog), `apps/api/src/billing/` (the webhook, provisioning and the access rule) and the end to end
-tests in `apps/api/test/offer.test.ts` ("every offer, end to end").
+Updated Nov 12, 2026 (DECISIONS.md D-106, with D-110, D-119, D-132 and D-140 since). The code is the
+source of truth: `packages/core/src/offer.ts` (the catalog), `apps/api/src/billing/` (the webhook,
+provisioning and the access rule) and the end to end tests in `apps/api/test/offer.test.ts` ("every
+offer, end to end").
 
 ## The path
 
@@ -13,19 +14,24 @@ tests in `apps/api/test/offer.test.ts` ("every offer, end to end").
 3. Provisioning finds the account by the buyer's email (lower case), or makes it: a team with the buyer
    as its Team Owner, an account, and one plan for the order. A second purchase by the same email lands
    on the same account and team. Seats and tier only ever go up.
-4. The owner's invite (the `team-invite` email, a 7-day link) is held until `INVITES_FROM` (Mon, Nov 16,
-   2026, 8:00 AM Central), then the billing loop sends it. After that day it goes at once. While the
-   platform runs in fixture mode every invite is held.
+4. The owner's first email is "Set your Amplified Impact password" (the `set-password` email, a
+   single-use 72-hour link, D-132). It is held until `INVITES_FROM` (Mon, Nov 16, 2026, 8:00 AM
+   Central), then the billing loop sends it. After that day it goes at once. While the platform runs in
+   fixture mode every one is held. Forgot Password on the sign-in screen sends a fresh link. Team
+   members the owner adds still get the `team-invite` email.
 5. Stripe sends the buyer to `/offer/welcome?session_id=...`. The page waits for the webhook, then shows
-   the plan's name, what was charged, when the login arrives, the intake form and Manage Billing.
+   the plan's name, what was charged, when the login arrives, the intake form and Manage Billing. Once
+   the hold is over, a new buyer also gets a Set Your Password button there (D-132).
 6. `/api/skills` (the `/skill-library` screen) opens each skill by one rule: free, or a plan that covers
-   its set, has started (`starts_at`) and is paid through its release date.
+   its set, has started (`starts_at`) and is paid through its release date. A paid skill whose plan
+   has not started yet shows as coming on that plan's date (D-140): Dec 14 for the Team Plan, Jan 4 for
+   the Agent Plan.
 
 ## The offers
 
 | Offer | Stripe metadata (`ai_plan` / `ai_option` / `billing`) | Lookup keys | Env var | LMS entitlement (plan kind, skill sets, seats) | Email (invite timing) | Unlock date | First charge / pin |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Amplified AI Accelerator, in full | `cohort` / `full` / none | `cohort_founding_full`, `membership_monthly` | `PAYMENT_LINK_COHORT_FULL` | `cohort`, owner_ops and agent, 2 seats (owner and ops lead), cohort `dec26`, paid and live through May 4, 2027 | Invite held to Nov 16, then at once | At purchase | $7,500 today. `trial_end` pinned to 1809406800 (Tue, May 4, 2027): Amplified Insiders on the same subscription |
+| Amplified AI Accelerator, in full | `cohort` / `full` / none | `cohort_founding_full`, `membership_monthly` | `PAYMENT_LINK_COHORT_FULL` | `cohort`, owner_ops and agent, 2 seats (owner and ops lead), cohort `dec26`, paid and live through May 4, 2027 | Set-password email held to Nov 16, then at once | At purchase | $7,500 today. `trial_end` pinned to 1809406800 (Tue, May 4, 2027): Amplified Insiders on the same subscription |
 | Amplified AI Accelerator, two payments | `cohort` / `two_pay` / none | `cohort_founding_two_pay` | `PAYMENT_LINK_COHORT_TWO_PAY` | Same as in full | Same | At purchase | $3,750 today and in a month, then the installments end. A separate Insiders subscription trials to 1809406800 |
 | Amplified Insiders, one year | `membership` / `year_upfront` / none | `membership_year_upfront`, `membership_monthly` | `PAYMENT_LINK_INSIDERS_YEAR` | `membership`, owner_ops, 2 seats, paid through day 365 | Same | At purchase | $1,997 today. The link's own 365-day trial, not pinned |
 | Amplified Insiders, monthly | `membership` / `monthly` / none | `membership_monthly` | `PAYMENT_LINK_INSIDERS_MONTHLY` | `membership`, owner_ops, 2 seats, paid a month at a time, 3-month minimum (locked portal) | Same | At purchase | $197 today, then monthly. No pin |
@@ -68,14 +74,21 @@ the plan reaches the buyer's login through it, and Manage Billing belongs to the
 tier means no Team Hub (the owner view is the Team Plan's). Their skills come from the plan, which opens
 the agent set. A buyer who also holds a Team tier plan stays Team tier.
 
+## Who sees the course
+
+Every buyer is placed in cohort `dec26`, but only an AI Accelerator plan opens its builds and the course
+(`acceleratorOpen`, D-110). The snapshot, the join route, `/api/course` and the session reminders all
+read the plan, not the cohort or the tier. A buyer whose plan opens no AI Employee (Amplified Insiders,
+the Team Plan, the Agent Plan) lands on the Skill Library and keeps the Team Hub and the Resource Vault
+(D-119).
+
 ## Not delivered yet
 
-- **Agent coaching.** No coaching sessions exist in the LMS. The portal lists cohort `dec26`'s builds
-  to every buyer (all are placed in that cohort), and the join route checks the tier, not the plan.
+- **Agent coaching.** No coaching sessions exist in the LMS.
 - **The $37 single skill.** No cart, price or lookup key exists.
-- **The Team Plan's seats in the Team Hub.** Built (D-081, D-120): the owner adds up to the plan's 15
-  or 40 Sales Agents (`seatCaps`; an operations lead, if added, takes one of those seats). Still no
-  skill usage view for owners.
+- **A skill usage view for Team Plan owners.** None yet. The seats themselves are built (D-081,
+  D-120): the owner adds up to the plan's 15 or 40 Sales Agents (`seatCaps`; an operations lead, if
+  added, takes one of those seats).
 - **An agent already on a team** who buys the Agent Plan is recorded and paid but not provisioned
   (`member-of-another-team`): staff sort it out.
 - **Fixture-exact tests.** The sessions in the tests follow the metadata contract above, not Stripe
