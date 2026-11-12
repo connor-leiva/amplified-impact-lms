@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
-import { SESSION_COOKIE, settleEmails } from '../src/auth';
+import { SESSION_COOKIE, settleEmails, storePassword } from '../src/auth';
 import { emailDomainOf, GROUP_FOREVER, groupGrant, inGroup, provisionGroupMember, recordVerified } from '../src/billing/access-groups';
 import type { AccessGroup } from '../src/billing/access-groups';
 import { readOfferConfig } from '../src/billing/config';
@@ -16,6 +16,7 @@ import type { Database } from '../src/db/client';
 import { accessGroupMembers, accessGroups, accounts, authTokens, emailVerifications, orders, plans, skills, users } from '../src/db/schema';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import type { OutboxEntry } from '../src/email/transport';
+import { NO_PASSWORD_YET, WRONG_PASSWORD } from '../src/routes/password';
 import { resetS3 } from '../src/storage';
 import { MIGRATIONS_FOLDER, resetDatabase, testDatabase } from './helpers';
 
@@ -314,5 +315,28 @@ describe('the migration', () => {
     expect(sql).toContain(`VALUES ('utah-life', 'Utah Life', 'agent_plan', 'liveutah.com', NULL,`);
     // Proof already given before the table existed: spent sign-in links and invites only.
     expect(sql).toMatch(/WHERE "purpose" IN \('sign_in', 'invite'\) AND "used_at" IS NOT NULL/);
+  });
+});
+
+describe('password sign-in for a group address with no password yet (Nov 12, 2026)', () => {
+  const login = async (email: string, password = 'not-the-password-1') => {
+    const res = await post('/api/auth/login', { email, password });
+    return [res.statusCode, (res.json() as { error?: string }).error];
+  };
+
+  it('points to Forgot Password? on a first visit, and for a member who has only used links', async () => {
+    expect(NO_PASSWORD_YET).toBe('There’s no password for that email yet. Choose Forgot Password? to set one.');
+    expect(await login('first.visit@LiveUtah.com')).toEqual([400, NO_PASSWORD_YET]);
+    await provisionGroupMember(db, 'link.only@liveutah.com', NOW);
+    expect(await login('link.only@liveutah.com')).toEqual([400, NO_PASSWORD_YET]);
+  });
+
+  it('keeps the one answer for a wrong password, a look-alike domain and everyone else', async () => {
+    const id = await provisionGroupMember(db, 'has.password@liveutah.com', NOW);
+    await storePassword(db, id!, 'the-right-password-1', NOW);
+    expect(await login('has.password@liveutah.com')).toEqual([400, WRONG_PASSWORD]);
+    expect(await login('agent@liveutah.com.evil.com')).toEqual([400, WRONG_PASSWORD]);
+    expect(await login('agent@notliveutah.com')).toEqual([400, WRONG_PASSWORD]);
+    expect(await login('nobody@example.com')).toEqual([400, WRONG_PASSWORD]);
   });
 });

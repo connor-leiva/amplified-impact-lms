@@ -8,9 +8,9 @@
 // nobody in it.
 //
 // ONLY A VERIFIED ADDRESS. Anyone can type an @liveutah.com address. A group grants nothing until the
-// address is in `email_verifications`, which only `claimToken` writes: its owner spent a link emailed
-// to it (a sign-in link, an invite, a set or reset password link). The welcome page's checkout button
-// and Google never write it.
+// address is in `email_verifications`: its owner spent a link emailed to it (`claimToken`: a sign-in
+// link, an invite, a set or reset password link), or Google verified an address in a group's domain
+// (`routes/google.ts`, D-149). The welcome page's checkout button never writes it.
 //
 // WHAT IT GRANTS. One more plan in the access rule's list, of the group's kind, started and paid
 // through for good, so `canOpenSkill` treats a member exactly as a buyer of that plan (the Agent Plan:
@@ -86,13 +86,25 @@ export async function groupsOf(db: Database, email: string, now: number): Promis
     .filter((g) => inGroup(g, address, onList.has(g.id), now));
 }
 
-/** Whether the address's owner has spent a link emailed to it. */
+/**
+ * The groups an address is in by its DOMAIN alone (the exact, case-insensitive rule above), not by
+ * the list. Google sign-in (D-149) proves an inbox for these only.
+ */
+export async function domainGroupsOf(db: Database, email: string, now: number): Promise<AccessGroup[]> {
+  const address = normalizeAddress(email);
+  const all = await db.select().from(accessGroups);
+  return all
+    .map((g): AccessGroup => ({ id: g.id, name: g.name, plan: g.plan as PlanKind, emailDomain: g.emailDomain, expiresAt: g.expiresAt }))
+    .filter((g) => inGroup(g, address, false, now));
+}
+
+/** Whether the address's owner has spent a link emailed to it, or Google verified it (D-149). */
 export async function isVerified(db: Database, email: string): Promise<boolean> {
   const [row] = await db.select({ email: emailVerifications.email }).from(emailVerifications).where(eq(emailVerifications.email, normalizeAddress(email))).limit(1);
   return !!row;
 }
 
-/** Record that the address's owner spent a link emailed to it. Keeps the first time. */
+/** Record that the address's owner proved it (a spent link, or Google for a group's domain). Keeps the first time. */
 export async function recordVerified(db: Pick<Database, 'insert'>, email: string, now: number): Promise<void> {
   await db.insert(emailVerifications).values({ email: normalizeAddress(email), verifiedAt: now }).onConflictDoNothing();
 }

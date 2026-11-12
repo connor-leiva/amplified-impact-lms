@@ -70,13 +70,19 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { accounts, authSessions, authTokens, orders, userPasswords, users } from '../db/schema';
 import { clock } from '../lib/clock';
-import { AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, accountForGroupAddress, claimToken } from './auth';
-import { groupsOf } from '../billing/access-groups';
+import { AUTH_REQUEST_IP_MAX, AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, accountForGroupAddress, claimToken } from './auth';
+import { domainGroupsOf, groupsOf } from '../billing/access-groups';
 
 // --- words -----------------------------------------------------------------------------------------
 
 /** One answer for every mismatch: unknown address, no password yet, wrong password. */
 export const WRONG_PASSWORD = 'That email and password don’t match.';
+/**
+ * The one exception (Nov 12, 2026): an address in an access group's domain (D-148) with no password
+ * yet, whether or not it has an account. A Utah Life agent's first visit has neither, and "don't
+ * match" sent them nowhere. Says nothing an address with no password could not already learn.
+ */
+export const NO_PASSWORD_YET = 'There’s no password for that email yet. Choose Forgot Password? to set one.';
 export const LOCKED_OUT = 'Too many tries. Wait 15 minutes, or reset your password.';
 export const WRONG_CURRENT = 'That’s not your current password.';
 export const NEED_CURRENT = 'Enter your current password.';
@@ -222,7 +228,8 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
       const ok = stored ? await verifyPassword(stored, password) : await burnVerify(password);
       if (!ok || !user) {
         await recordFailure(db, email, now);
-        return reply.code(400).send({ error: WRONG_PASSWORD });
+        const groupNoPassword = !stored && email !== '' && (await domainGroupsOf(db, email, now)).length > 0;
+        return reply.code(400).send({ error: groupNoPassword ? NO_PASSWORD_YET : WRONG_PASSWORD });
       }
 
       await clearFailures(db, email);
@@ -233,7 +240,7 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
 
   app.post(
     '/api/auth/password/forgot',
-    { config: { rateLimit: { max: AUTH_REQUEST_MAX, timeWindow: AUTH_REQUEST_WINDOW } } },
+    { config: { rateLimit: { max: AUTH_REQUEST_IP_MAX, timeWindow: AUTH_REQUEST_WINDOW } } },
     async (req, reply) => {
       const parsed = emailBody.safeParse(req.body);
       if (!parsed.success) return reply.code(400).send({ error: 'Expected a JSON body of { email }.' });

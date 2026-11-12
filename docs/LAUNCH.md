@@ -359,5 +359,6 @@ Nothing else needs to change, and deploying before the keys exist is safe.
    `GOOGLE_CLIENT_SECRET`. `APP_URL` is already set, and the redirect URI is built from it.
 3. **Check it.** After the deploy, `https://learn.amplifiedimpact.io/api/auth/providers` answers
    `{"google":true}` and `/login` shows the button. Sign in with a Google account whose email
-   already has an account. Any other email gets "We couldn’t find an account for that email…";
-   nothing is created.
+   already has an account. An address in an access group's domain (D-148, D-149: `liveutah.com`)
+   that Google has verified is signed up and in. Any other email gets "We couldn’t find an account
+   for that email…"; nothing is created.

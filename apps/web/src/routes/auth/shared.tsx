@@ -91,7 +91,7 @@ export const GOOGLE_START = '/api/auth/google';
 export const GOOGLE_COPY = {
   button: 'Continue With Google',
   'no-account':
-    'We couldn’t find an account for that email. Use the email you bought with, or sign in with your password.',
+    'We couldn’t find an account for that email. Enter the email you bought with or your work email, then choose Email Me a Sign-In Link Instead or Forgot Password?',
   unverified: 'Google hasn’t verified that email address. Sign in with your password or an email link.',
   'linked-elsewhere':
     'That account is linked to a different Google account. Sign in with your password or an email link.',

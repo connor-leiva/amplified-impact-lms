@@ -40,6 +40,7 @@ import {
   resetEphemeralSecret,
   sameHash,
 } from '../src/auth';
+import { AUTH_REQUEST_IP_MAX } from '../src/routes/auth';
 import { authSessions, authTokens, users } from '../src/db/schema';
 import { outbox, resetOutbox } from '../src/email/transport';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
@@ -267,11 +268,13 @@ describe('POST /api/auth/request @g7', () => {
     expect(other.statusCode).toBe(200);
   });
 
-  it('rate-limits 5 per hour per IP, across different addresses', async () => {
+  it('rate-limits 30 per hour per IP, across different addresses', async () => {
     // The IP axis: one host working through a domain's mailboxes. Without it a single machine
-    // could enumerate every address at a brokerage five requests at a time.
+    // could enumerate every address at a brokerage. 30, not 5, since Nov 12, 2026: a training room
+    // on one office address asks for a link or two each (`AUTH_REQUEST_IP_MAX`).
+    expect(AUTH_REQUEST_IP_MAX).toBe(30);
     const codes: number[] = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < AUTH_REQUEST_IP_MAX + 1; i++) {
       const res = await app.inject({
         method: 'POST',
         url: '/api/auth/request',
@@ -280,7 +283,8 @@ describe('POST /api/auth/request @g7', () => {
       });
       codes.push(res.statusCode);
     }
-    expect(codes).toEqual([200, 200, 200, 200, 200, 429]);
+    expect(codes.slice(0, AUTH_REQUEST_IP_MAX).every((c) => c === 200)).toBe(true);
+    expect(codes[AUTH_REQUEST_IP_MAX]).toBe(429);
   });
 });
 

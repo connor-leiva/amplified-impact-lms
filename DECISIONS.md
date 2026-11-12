@@ -4592,7 +4592,7 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - **Utah Life:** the group `utah-life` has domain `liveutah.com`, plan `agent_plan` and no end, and the migration creates it. `x.liveutah.com`, `liveutah.com.evil.com` and `notliveutah.com` are out.
   - **The list:** an optional add-on for addresses outside the domain. It is empty, and no roster is loaded or committed.
 - **Only a verified address.** The grant needs a row in `email_verifications`, and only `claimToken` writes one, when a link emailed to that address is followed: a sign-in link, an invite, or a set or reset password link.
-  - Typing an address proves nothing. The welcome page's checkout button and Google sign-in don't count.
+  - Typing an address proves nothing. The welcome page's checkout button doesn't count. Google sign-in counts for an address in the group's domain since D-149.
   - The migration backfills addresses that had already followed a sign-in link or an invite. Set and reset links are left out, because finishing a password spends them unfollowed.
   - Anyone else needs one email-link sign-in ("Email me a link" or "Forgot Password?") before their access shows.
 - **What it grants:** one more plan in the access rule's list: the group's kind, active, started, paid through for good. `canOpenSkill` treats a member exactly as an Agent Plan buyer. That opens the agent set and `both` from today, not from Jan 4, and every skill released later, with no change. The grant is worked out on every request, so removing a domain or an address, or ending the group, removes access at once.
@@ -4605,3 +4605,36 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - A member is never offered the plans on an agent or `both` skill (those are never locked for them). Owner and ops skills keep "See Plans".
   - The www skill pages are static and can't see learn's session, so their card still reads "Get Amplified Agent Plan" for everyone. Its "Download After You Sign In" leads members to learn, where their skills are open.
 - **Not changed:** Stripe, prices, Payment Links, the 15-seat cap, the Nov 30 close, `/agreement`, the homepage, the header, nav and footer, and the kit's CSS.
+
+## D-149 · Auth: rate limits key on the visitor's own IP, and Google signs access-group members up
+
+**Date:** 2026-11-12
+**Approved by:** Connor, 2026-11-12: the urgent fix after the Utah Life training ("Auth: real client IP for rate limits + Google sign-in for access groups").
+**Status:** on a pull request.
+**Scope:** `apps/api/src/lib/client-ip.ts`, `src/app.ts` (`rateLimitKey`, the logger, the `clientIp` request decorator), `src/routes/auth.ts` and `src/routes/password.ts` (`AUTH_REQUEST_IP_MAX`, `NO_PASSWORD_YET`), `src/routes/google.ts`, `src/billing/access-groups.ts` (`domainGroupsOf`), `src/auth/google.ts` (`hd`); `apps/web/src/routes/auth/shared.tsx` (the `no-account` words); tests in `apps/api/test/client-ip.test.ts`, `google.test.ts`, `access-groups.test.ts` and `auth.test.ts`.
+
+**Why.** About ten @liveutah.com agents couldn't sign in on Nov 12. The cause was two bugs:
+- **One rate-limit bucket for everyone.** Production logged `remoteAddress` 152.233.39.33 (Railway's proxy) for every request, while Railway's edge log showed each visitor's own address. `trustProxy: TRUST_ONE_HOP` yields Railway's internal proxy, so the per-IP limits on a sign-in link and Forgot Password (5 an hour) ran out site-wide after five requests. From 11:48 to 12:13 CT about 29 requests got 429, and password sign-in 429'd once.
+- **Google refused first-time members.** liveutah.com is Google Workspace, so agents clicked Google first. Google refused every address with no account (`no-account`, 19 times).
+
+**What changed.**
+- **The visitor's IP** (`req.clientIp`) is Railway's `X-Real-IP` when the app runs on Railway (Railway documents it as "for identifying client's remote IP") and it holds exactly one valid IP address. Otherwise it is `req.ip`, as before.
+  - The left-most `X-Forwarded-For` entry, which the client writes, is never used.
+  - `CLIENT_IP_HEADER` names another header, or `none` turns this off.
+  - It keys every rate limit (the global one and every route's own), the `remoteAddress` in each log line, and the event stream's tag.
+  - Each `POST /api/auth/*` logs one line, `auth request client ip`, with `X-Real-IP`, `X-Forwarded-For`, the socket's peer and the chosen address side by side, so production can confirm the header against Railway's edge log.
+- **Limits:**
+  - A sign-in link and Forgot Password allow 30 an hour per visitor (`AUTH_REQUEST_IP_MAX`), up from 5, and still 5 an hour per email.
+  - Password sign-in stays at 30 per 15 minutes per visitor.
+  - The welcome page's checkout button stays at 5 an hour, now per visitor.
+- **Google and access groups.** Google may sign someone in when its ID token says `email_verified: true` and the address's domain is exactly an active group's domain (D-148's rule: case-insensitive, no subdomains, not the allowlist). Then:
+  - the address is recorded as verified, as a spent link records it;
+  - a member with no account gets one the way a link makes it (`accountForGroupAddress`: Agent tier, a team of one, no Stripe, no email);
+  - they are signed in.
+
+  Google's Workspace domain (`hd`) is logged as `match`, `other` or `none` and is not required, because a secondary Workspace domain would carry a different `hd`. Any other address with no account is still refused.
+- **Words:**
+  - Google's `no-account` refusal now reads "We couldn’t find an account for that email. Enter the email you bought with or your work email, then choose Email Me a Sign-In Link Instead or Forgot Password?".
+  - Password sign-in for an address in a group's domain that has no password yet (with or without an account) answers "There’s no password for that email yet. Choose Forgot Password? to set one." Every other mismatch keeps the one answer, "That email and password don’t match."
+
+**Not changed:** Stripe, prices, the seat cap, `/agreement`, the homepage, the header, nav and footer, and shared styles. Nothing sends an email that wasn't asked for.
