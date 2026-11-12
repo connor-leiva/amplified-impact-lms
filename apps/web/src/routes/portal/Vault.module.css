@@ -127,6 +127,24 @@ select.typeSelect {
   font-size: 14px;
 }
 
+/* D-150: a vault with nothing published yet. The list's own quiet tokens, at 16px. */
+.nothingYet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  border: 1px dashed var(--line-default);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+}
+.nothingYet p {
+  margin: 0;
+}
+
 .row {
   display: flex;
   align-items: center;
