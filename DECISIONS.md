@@ -4474,6 +4474,23 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **What opens and when is unchanged.** `canOpenSkill` and the download route's check are untouched: a skill opens on exactly the day it did before. The per-offer tests now expect `upcoming` where they expected `locked` before each cart's day.
 - **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
 
+## D-142 · The AI Accelerator's Dashboard drops the prototype's invented community and support details
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "Accelerator Dashboard placeholders: remove '148 members', 'under 2 hours' and 'Luis from Support' now. No invented numbers or names. Use neutral text with no figures (e.g. 'Your cohort', 'We reply within one business day' only if that's already stated elsewhere on the site; otherwise just drop the line). Log as a D-entry."
+**Status:** on a pull request.
+**Scope:** `apps/web/src/routes/portal/Dashboard.vm.ts` (the quick links, a `mail` action), `Dashboard.tsx` (carries it out); `Dashboard.vm.test.ts`.
+
+- **What an Accelerator buyer saw:**
+  - **Cohort Community** "148 members · 23 new posts today", whose link showed a toast "Opening the cohort community". There is no cohort community.
+  - **Technical Support** "Typical reply in under 2 hours", whose link showed a toast "Support chat opened. Luis from Support will reply here." There is no chat and no Luis.
+- **Now, for the AI Accelerator's cohort:**
+  - The community card is gone. Nothing real stands behind it, and the site names no community to point at.
+  - Technical Support's line is the address the course already gives learners ("Questions? Write to support@amplifiedimpact.io."). Its link opens an email to that address.
+  - No reply time is stated: nothing on the site promises one, so per the PM the line is dropped rather than replaced.
+- **How it's scoped.** Same switch as D-110's real office hours: a cohort with its own office-hours series, which only the AI Accelerator has. The prototype's cohorts, which the reference and its parity goldens are built from, keep the reference's cards, so no golden changes.
+- **Not changed:** the Office Hours link, the course, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
 ## D-143 · A two-pay AI Accelerator pauses when its second payment fails, and reopens when it's paid
 
 **Date:** 2026-11-12
