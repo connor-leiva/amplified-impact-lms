@@ -4,9 +4,14 @@
 // pills (Track and Who are Spring's, D-115), the search and the sort. With JavaScript off, or if this throws, every card still shows, newest first,
 // and every link works, because the controls stay `hidden` until the last line of `boot`.
 //
-// Inlined into the page as one `<script type="module">` (`ai101Inline`), so it imports nothing: a
-// module shared with another page's script would be split into a chunk an inlined script cannot load.
+// Inlined into the page as one `<script type="module">` (`ai101Inline`), so it shares no module with
+// another page's script: a shared module would be split into a chunk an inlined script cannot load.
+// The v2 kit's script (the header, the theme switch, what moves as you scroll) comes in as its own
+// copy, `?copy`: the same file, a separate module to the bundler, so the kit pages' shared file
+// (`/assets/main-[hash].js`) and this page's inline script never share a chunk.
 // Built for es2019 / Safari 13, as /ai101's is, for the in-app browsers a shared link opens in.
+
+import '../kit/client/main.ts?copy';
 
 /** The script's copy of `LIBRARY.count`, which `render.test.ts` holds equal. */
 export const countLabel = (n: number): string => `Showing ${n} ${n === 1 ? 'resource' : 'resources'}`;
