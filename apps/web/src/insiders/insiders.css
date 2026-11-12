@@ -387,9 +387,6 @@
   line-height: 1;
   font-weight: 500;
   letter-spacing: -0.03em;
-  transition:
-    transform 0.9s var(--ease),
-    opacity 0.9s var(--ease);
 }
 .aiw .stub-perf {
   align-self: stretch;
@@ -402,10 +399,6 @@
   line-height: 1.25;
   font-weight: 500;
   letter-spacing: -0.02em;
-}
-.aiw-js .aiw .stub:not(.is-in) .stub-amt {
-  transform: translateX(-12px);
-  opacity: 0;
 }
 .aiw .in-cancel {
   display: flex;

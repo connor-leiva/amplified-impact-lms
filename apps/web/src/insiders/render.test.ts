@@ -174,4 +174,16 @@ describe('/insiders', () => {
     const css = read('./insiders.css') + read('../kit/kit.css');
     expect(Math.min(...[...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1])))).toBeGreaterThanOrEqual(16);
   });
+
+  it('never starts a buy button, payment link, plan actions or proof line hidden (Ampy’s rule)', () => {
+    const held = '.rv, .fade-1, .fade-2, .fade-3';
+    const buying = $$(
+      'a[href*="buy.stripe.com"], a[href^="%%link:"], .plan-actions, .proof-line, .in-plan .price, .stub',
+    );
+    expect(buying.length).toBeGreaterThan(8);
+    for (const el of buying) expect(el.closest(held), el.outerHTML.slice(0, 80)).toBeNull();
+    // The ticket's price is drawn from the start, not held back until it scrolls in.
+    expect($('.stub')?.hasAttribute('data-in')).toBe(false);
+    expect(read('./insiders.css')).not.toMatch(/\.stub:not\(\.is-in\)/);
+  });
 });

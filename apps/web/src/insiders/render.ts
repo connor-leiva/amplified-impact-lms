@@ -94,7 +94,7 @@ function shelf(skills: readonly InsidersSkill[]): string {
 function buy(): string {
   const first = cartsOf('membership')[0]!;
   return [
-    `<div class="plan buy in-buy fade-2" id="join" data-state="${stateToken(first)}">`,
+    `<div class="plan buy in-buy" id="join" data-state="${stateToken(first)}">`,
     offerPrice('membership'),
     offerActions('membership', { proof: true }),
     `<p class="in-starts">${esc(c.starts[0]!)}</p>`,
@@ -210,7 +210,7 @@ function plan(
   cls = '',
 ): string {
   return [
-    `<article class="in-plan plan${cls ? ` ${cls}` : ''} rv" data-state="${stateToken(cart)}">`,
+    `<article class="in-plan plan${cls ? ` ${cls}` : ''}" data-state="${stateToken(cart)}">`,
     `<p class="price-line"><span class="price tnum">${esc(amount)}</span> <span class="mono price-note">${esc(unit)}</span></p>`,
     checks(terms),
     `<div class="plan-actions"><div class="act-link"><a class="btn btn-${variant}" href="${linkToken(cart)}">${esc(label)}</a>${proofLine()}</div><p class="act-soon">${esc(CARD_STATES.soon)}</p></div>`,
@@ -235,7 +235,7 @@ function pricing(): string {
     plan(year, c.price.amount, c.price.unit, [yearTerm, afterYear], c.button, 'primary', 'is-year'),
     plan(monthly, mAmount, mUnit, [monthTerm], more, 'secondary'),
     `</div>`,
-    `<div class="stub" data-in aria-hidden="true">`,
+    `<div class="stub" aria-hidden="true">`,
     `<div class="stub-l"><span class="mono">${esc(c.price.unit)}</span><span class="stub-amt tnum">${esc(c.price.amount)}</span></div>`,
     `<div class="stub-perf"></div>`,
     `<div class="stub-r"><span class="mono">${esc(free)}</span><span class="stub-to">${esc(counts)}</span></div>`,
