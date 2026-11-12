@@ -386,6 +386,17 @@ describe('prices and the live offer state', () => {
   });
 });
 
+describe('never hidden (Ampy’s rule)', () => {
+  it('puts no plan card, card button, payment link, plan actions, seat counter or proof line inside a reveal', () => {
+    const buying = $$('.plan, .plan .cta, a[href*="buy.stripe.com"], .plan-actions, [data-seats], .proof-line');
+    expect(buying.length).toBeGreaterThan(12);
+    for (const el of buying) expect(el.closest('.rv'), el.outerHTML.slice(0, 80)).toBeNull();
+    // Narrow: the section's heading and the note under the cards still rise in.
+    expect($('.plans-head')?.classList.contains('rv')).toBe(true);
+    expect($('.plans-free')?.classList.contains('rv')).toBe(true);
+  });
+});
+
 describe('the program lockups (Connor’s, from `program-logo.ts`)', () => {
   it('head each card in place of a symbol and a typed name: its own program’s stacked lockup, the exact name in the h3', () => {
     const cards = $$('.plan');

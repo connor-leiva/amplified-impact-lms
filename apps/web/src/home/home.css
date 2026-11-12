@@ -479,6 +479,13 @@ body.hp {
   opacity: 0;
   transform: translateY(36px);
 }
+/* AMPY'S RULE, as in the v2 kit: no buy button, payment link, seat counter or proof line may ever start
+   hidden. The script never holds such a block back (`initReveal`), and the plan cards carry no `.rv`;
+   this is the backstop, in case a block ever wraps one by mistake. */
+.hp .rv-wait:has(.proof-line, .plan-actions, .act-link, .act-always, .seatm, [data-seats], [data-left], a[href*='buy.stripe.com']) {
+  opacity: 1;
+  transform: none;
+}
 
 /* --- The site's header, in the reference's dress --------------------------------------------------- */
 
