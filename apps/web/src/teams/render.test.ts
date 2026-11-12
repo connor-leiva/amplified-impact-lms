@@ -30,8 +30,12 @@ describe('the page', () => {
     expect(text($('title'))).toBe('Amplified Team Plan · Amplified Impact');
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/teams');
     const shell = read('../../teams.html');
-    expect(shell).toContain('<body class="aiw" data-theme="dark" data-app-ready="true" data-founding="%%founding%%" data-invites="%%invites%%">');
-    expect([...shell.matchAll(/<script\b[^>]*>/gi)].map((m) => m[0])).toEqual(['<script type="module" src="/src/kit/client/main.ts">']);
+    expect(shell).toContain(
+      '<body class="aiw" data-theme="dark" data-app-ready="true" data-founding="%%founding%%" data-invites="%%invites%%">',
+    );
+    expect([...shell.matchAll(/<script\b[^>]*>/gi)].map((m) => m[0])).toEqual([
+      '<script type="module" src="/src/kit/client/main.ts">',
+    ]);
     expect(html).not.toMatch(/<script/i);
     expect(shell + html).not.toMatch(/\son[a-z]+=/i);
   });
@@ -53,8 +57,12 @@ describe('the page', () => {
   });
 
   it('counts down to the founding deadline, and says the waitlist after it', () => {
-    expect(text($('.teams-founding.founding-open'))).toBe('%%countdown%% at founding prices. They end %%founding-closes%%.');
-    expect(text($('.teams-founding.founding-closed'))).toBe('Founding prices ended %%founding-closes%%. Join the waitlist to hear what’s next.');
+    expect(text($('.teams-founding.founding-open'))).toBe(
+      '%%countdown%% at founding prices. They end %%founding-closes%%.',
+    );
+    expect(text($('.teams-founding.founding-closed'))).toBe(
+      'Founding prices ended %%founding-closes%%. Join the waitlist to hear what’s next.',
+    );
   });
 });
 
@@ -62,9 +70,17 @@ describe('the three sizes', () => {
   const tiers = $$('.tier');
 
   it('sell up to 15 and 16 to 40 through their carts, and send over 40 to a conversation', () => {
-    expect(tiers.map((t) => text($('.plan-name', t)))).toEqual(['Up to 15 agents', '16 to 40 agents', 'Over 40 agents']);
+    expect(tiers.map((t) => text($('.plan-name', t)))).toEqual([
+      'Up to 15 agents',
+      '16 to 40 agents',
+      'Over 40 agents',
+    ]);
     expect(CARD_CARTS.agents).toEqual(['agents-upto15', 'agents-16to40']);
-    expect(tiers.map((t) => t.getAttribute('data-state'))).toEqual(['%%state:agents-upto15%%', '%%state:agents-16to40%%', 'link']);
+    expect(tiers.map((t) => t.getAttribute('data-state'))).toEqual([
+      '%%state:agents-upto15%%',
+      '%%state:agents-16to40%%',
+      'link',
+    ]);
     expect(tiers.map((t) => $$('.act-link a', t).map((a) => [text(a), a.getAttribute('href')]))).toEqual([
       [[`Get ${PLAN_NAMES.agents}`, '%%link:agents-upto15%%']],
       [[`Get ${PLAN_NAMES.agents}`, '%%link:agents-16to40%%']],
@@ -77,7 +93,8 @@ describe('the three sizes', () => {
   it('put the proof line right under the two paid sizes’ buy buttons, and leave Over 40 its conversation', () => {
     const proof = 'Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year';
     expect(tiers.map((t) => $$('.act-link .proof-line', t).map(text))).toEqual([[proof], [proof], []]);
-    for (const t of tiers.slice(0, 2)) expect($('.act-link .proof-line', t)!.previousElementSibling?.matches('a.btn-primary'), t.id).toBe(true);
+    for (const t of tiers.slice(0, 2))
+      expect($('.act-link .proof-line', t)!.previousElementSibling?.matches('a.btn-primary'), t.id).toBe(true);
     expect($('#size-more .act-link a')?.getAttribute('href')).toBe('%%team-call%%');
   });
 
@@ -93,13 +110,19 @@ describe('the three sizes', () => {
 
   it('close the two founding sizes after November 30: the waitlist instead', () => {
     for (const t of tiers.slice(0, 2)) {
-      expect(text($('p.act-closed', t))).toBe('Founding prices ended %%founding-closes%%. Join the waitlist to hear what’s next.');
+      expect(text($('p.act-closed', t))).toBe(
+        'Founding prices ended %%founding-closes%%. Join the waitlist to hear what’s next.',
+      );
       expect($('a.act-closed', t)?.getAttribute('href')).toBe('/offer#waitlist');
     }
   });
 
   it('name the monthly owner call only on the 16 to 40 size', () => {
-    expect(tiers.map((t) => $$('.tier-owner li', t).some((li) => /monthly owner call/.test(text(li))))).toEqual([false, true, false]);
+    expect(tiers.map((t) => $$('.tier-owner li', t).some((li) => /monthly owner call/.test(text(li))))).toEqual([
+      false,
+      true,
+      false,
+    ]);
   });
 });
 
@@ -108,7 +131,12 @@ describe('what agents and the owner get, and how agents join', () => {
     expect(AGENTS_GET.lines.slice(0, 1)).toEqual(AGENT_PLAN.lines.slice(0, 1));
     expect(text($('.gets'))).toContain('The same as the Amplified Agent Plan.');
     expect(text($('.gets'))).toContain('Weekly office hours, Thursdays at 1:00 PM Central, 60 minutes');
-    expect($$('.rotation li').map(text)).toEqual(['Week 1: Leads and follow-up', 'Week 2: Listings', 'Week 3: Buyers and contracts', 'Week 4: Content and your week']);
+    expect($$('.rotation li').map(text)).toEqual([
+      'Week 1: Leads and follow-up',
+      'Week 2: Listings',
+      'Week 3: Buyers and contracts',
+      'Week 4: Content and your week',
+    ]);
   });
 
   it('opens agents’ skills on Monday, December 14, as the plan’s access does', () => {
@@ -140,7 +168,10 @@ describe('the questions and the end', () => {
 
   it('put the proof line right under the closing Pick Your Team Size button', () => {
     const proof = $('.end .actions > a.btn + .proof-line')!;
-    expect([text($('span', proof)), text($('strong', proof))]).toEqual(['Built inside The Utah Life Real Estate Group', '100 agents, 700+ homes a year']);
+    expect([text($('span', proof)), text($('strong', proof))]).toEqual([
+      'Built inside The Utah Life Real Estate Group',
+      '100 agents, 700+ homes a year',
+    ]);
     expect(text(proof.previousElementSibling)).toBe('Pick Your Team Size');
     expect(proof.previousElementSibling?.getAttribute('href')).toBe('#sizes');
     expect($$('.teams-hero .proof-line')).toHaveLength(1);
@@ -155,7 +186,11 @@ describe('the questions and the end', () => {
       ['size-more', '41'],
     ]);
     expect($$('a', sizer)).toHaveLength(0);
-    expect($$('.tier .act-link a').map((a) => a.getAttribute('href'))).toEqual(['%%link:agents-upto15%%', '%%link:agents-16to40%%', '%%team-call%%']);
+    expect($$('.tier .act-link a').map((a) => a.getAttribute('href'))).toEqual([
+      '%%link:agents-upto15%%',
+      '%%link:agents-16to40%%',
+      '%%team-call%%',
+    ]);
     expect(html).not.toMatch(/per agent a month/i);
   });
 
@@ -164,7 +199,10 @@ describe('the questions and the end', () => {
     expect(html).not.toContain('Made-up example');
     const on = new DOMParser().parseFromString(renderTeamsBody({ examples: true }), 'text/html');
     expect(on.querySelectorAll('.usage, .jp-stack')).toHaveLength(2);
-    expect([...on.querySelectorAll('.ex-tag')].map((t) => t.textContent)).toEqual(['Made-up example', 'Made-up example']);
+    expect([...on.querySelectorAll('.ex-tag')].map((t) => t.textContent)).toEqual([
+      'Made-up example',
+      'Made-up example',
+    ]);
     for (const el of on.querySelectorAll('.usage, .jp-stack')) expect(el.closest('#sizes, .plan')).toBeNull();
   });
 });
@@ -177,7 +215,11 @@ describe('the share tags', () => {
     expect($('link[rel="canonical"]')?.getAttribute('href')).toBe('https://www.amplifiedimpact.io/teams');
     expect(meta('meta[property="og:url"]')).toBe('https://www.amplifiedimpact.io/teams');
     expect(meta('meta[property="og:image"]')).toBe('https://www.amplifiedimpact.io/img/team/spring-bengtzen.jpg');
-    expect([meta('meta[property="og:image:width"]'), meta('meta[property="og:image:height"]'), meta('meta[property="og:image:alt"]')]).toEqual(['890', '1113', 'Spring Bengtzen']);
+    expect([
+      meta('meta[property="og:image:width"]'),
+      meta('meta[property="og:image:height"]'),
+      meta('meta[property="og:image:alt"]'),
+    ]).toEqual(['890', '1113', 'Spring Bengtzen']);
     expect(meta('meta[name="twitter:card"]')).toBe('summary_large_image');
   });
 });
@@ -203,5 +245,18 @@ describe('the words and the tokens', () => {
     const css = read('./teams.css') + read('../kit/kit.css');
     expect(read('./teams.css')).toContain("@import '../kit/kit.css';");
     expect(Math.min(...[...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1])))).toBeGreaterThanOrEqual(16);
+  });
+});
+
+describe('never hidden (Ampy’s rule)', () => {
+  it('puts no buy button, payment link, plan actions, seat counter or proof line inside a reveal or a fade', () => {
+    const held = '.rv, .fade-1, .fade-2, .fade-3';
+    const buying = [
+      ...doc.querySelectorAll(
+        'a[href*="buy.stripe.com"], a[href^="%%link:"], .plan-actions, .seatm, .tk-seats, .proof-line',
+      ),
+    ];
+    expect(buying.length).toBeGreaterThan(6);
+    for (const el of buying) expect(el.closest(held), el.outerHTML.slice(0, 80)).toBeNull();
   });
 });
