@@ -32,3 +32,7 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
   head, full pages at 2x with reduced motion: founding open (`before/`, `after/`), founding closed
   (`*-closed/`), checkout not open yet (`*-soon/`), the light theme (`after-light/`), and the mockup's
   made-up illustrations switched on for this build only (`after-examples/`; off on the branch).
+- `v2-library-free/`: /library and /free on the v2 kit. `before/` is `main`, `after/` the branch head,
+  full pages at 2x with reduced motion, plus the light theme (`after-light/`) and /free's made-up
+  illustrations switched on for this build only (`after-examples/`; off on the branch).
+  `/library?show=free` renders the same page as /library, so it isn't shot twice.
