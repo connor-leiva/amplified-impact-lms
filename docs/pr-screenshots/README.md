@@ -15,3 +15,6 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
 - `site-pricing-lockups/`: /pricing after the card fix (stacked lockups as the heading, rows lined up).
   `after/` is the full page per state and width; `crops/` is the cards' section cut from it (full-page
   captures, so the sticky header covers nothing).
+- `site-library/`: /library and the 55 skill, Grok Bot template and free guide pages. `pairs/` has one
+  image per page and width, before (`main`) on the left and after on the right, full page at 1x (the
+  1280 ones scaled to half); `crops/` has the first screen at 2x for five of the layouts.
