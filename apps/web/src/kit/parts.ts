@@ -62,6 +62,19 @@ export function words(text: string, start = 0): string {
     .join(' ');
 }
 
+/**
+ * A live headline in the mockup's two lines, the second in the quieter ink: split before its last
+ * sentence when it has more than one ("8 weeks. 8 skills." / "Built live with us."), else at the
+ * middle word. The two lines are joined by a space, so the heading reads as the live words.
+ */
+export function headline(title: string): string {
+  const all = title.split(' ');
+  const lastSentence = all.slice(0, -1).reduce((at, w, i) => (/\.$/.test(w) ? i + 1 : at), 0);
+  const at = lastSentence > 0 ? lastSentence : Math.ceil(all.length / 2);
+  const [a, b] = [all.slice(0, at).join(' '), all.slice(at).join(' ')];
+  return `<span class="hero-line">${words(a)}</span> <span class="hero-line hero-line-2">${words(b, at)}</span>`;
+}
+
 /** A list with a check (or a dash, for what isn't included) in front of each line. */
 export function checks(
   items: readonly string[],

@@ -208,7 +208,8 @@ function onView(el: Element, onEnter: () => void, { rootMargin = '0px', threshol
 
 /**
  * What moves as you scroll: `.rv` blocks below the fold rise in, `[data-count]` figures count up, the
- * seat meter's marks pop in, and the footer's signature draws up with its ripple. Under reduced motion,
+ * seat meter's marks pop in, the footer's signature draws up with its ripple, and any `[data-in]`
+ * drawing (a page's chart) gets `is-in` as it arrives. Under reduced motion,
  * or with no IntersectionObserver, everything is simply shown, as the markup already has it.
  */
 export function initInView(root: ParentNode): void {
@@ -217,7 +218,7 @@ export function initInView(root: ParentNode): void {
     el.classList.add('is-in');
     el.querySelector('.rp')?.classList.add('rp-intro');
   };
-  for (const el of root.querySelectorAll('.seatm, .foot-mark')) {
+  for (const el of root.querySelectorAll('.seatm, .foot-mark, [data-in]')) {
     if (still) el.classList.add('is-in');
     else onView(el, () => arrive(el), { rootMargin: '0px 0px -15% 0px' });
   }
