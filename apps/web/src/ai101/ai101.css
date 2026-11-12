@@ -24,6 +24,7 @@
 @import '@fontsource/dm-mono/400.css';
 @import '../styles/tokens.css';
 @import '../styles/global.css';
+@import '../site/look.css';
 
 :root {
   /* The three accents (see the header). */
@@ -177,7 +178,7 @@ html:not(.steps-on) .screen + .screen {
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--action-primary);
@@ -219,7 +220,7 @@ html:not(.steps-on) .screen + .screen {
 .count {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 16px;
 }
 .stage {
   display: flex;
@@ -571,7 +572,7 @@ html:not(.steps-on) .screen + .screen {
   margin: 0;
   padding: 4px 20px 20px;
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -722,7 +723,7 @@ html:not(.steps-on) .path-panel + .path-panel {
 }
 .pair-label {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ai101-text-60);
@@ -770,7 +771,7 @@ html:not(.steps-on) .path-panel + .path-panel {
 .starter-tag {
   flex: none;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--action-primary);
@@ -832,7 +833,7 @@ html:not(.steps-on) .path-panel + .path-panel {
 }
 .week-label {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 16px;
   text-transform: uppercase;
   color: var(--action-primary);
 }
@@ -911,7 +912,7 @@ html:not(.steps-on) .waitlist {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.45;
   color: var(--ai101-on-dark-85);
 }
@@ -942,7 +943,7 @@ html:not(.steps-on) .waitlist {
   cursor: progress;
 }
 .wl-legal {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--ai101-on-dark-75);
 }
 .wl-legal a {
@@ -1118,4 +1119,111 @@ html:not(.steps-on) .toast {
   .wl-success {
     background: var(--action-primary-hover);
   }
+}
+
+/* ================================================================================================
+   IN THE SITE'S LOOK (`../site/look.css`), design/site-ai101: /ai101, /voice-profile and /retool opt
+   in with `class="site"` on <body>. The token map draws the page's colours on the dark ground and
+   Geist sets its words. The page's own tints are made from those tokens at :root, before the map can
+   reach them, so they are made again here, from the mapped tokens, the same way. The step-through,
+   the copy buttons, the checklist, the waitlist form and every script hook are unchanged.
+   ================================================================================================ */
+
+.site {
+  --ai101-green: var(--signal);
+  --ai101-mint: var(--site-mint);
+  --ai101-line: color-mix(in oklch, var(--text-primary) 15%, transparent);
+  --ai101-rule: color-mix(in oklch, var(--text-primary) 12%, transparent);
+  --ai101-field-line: color-mix(in oklch, var(--text-primary) 30%, transparent);
+  --ai101-text-80: color-mix(in oklch, var(--text-primary) 80%, transparent);
+  --ai101-text-70: color-mix(in oklch, var(--text-primary) 72%, transparent);
+  --ai101-text-60: color-mix(in oklch, var(--text-primary) 64%, transparent);
+  --ai101-track: color-mix(in oklch, var(--text-primary) 10%, transparent);
+  --ai101-seg: color-mix(in oklch, var(--text-primary) 7%, transparent);
+  --ai101-tip-bg: color-mix(in oklch, var(--ai101-mint) 14%, transparent);
+  --ai101-warn-bg: color-mix(in oklch, var(--ai101-terracotta) 18%, transparent);
+  --ai101-on-dark-85: color-mix(in oklch, var(--action-on-primary) 85%, transparent);
+  --ai101-on-dark-75: color-mix(in oklch, var(--action-on-primary) 75%, transparent);
+  --ai101-focus: var(--focus-ring);
+  --ai101-shadow: none;
+}
+body.site {
+  background-color: var(--surface);
+  background-image: var(--grain);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.site :is(h1, h2, h3) {
+  font-weight: 500;
+}
+.site h1 {
+  letter-spacing: -0.04em;
+}
+.site h2 {
+  letter-spacing: -0.03em;
+}
+.site :focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.site h1[tabindex='-1']:focus,
+.site h2[tabindex='-1']:focus {
+  outline: none;
+}
+/* The signature, drawn in the ground's ink with the signal's dot, as the site's header draws it. The
+   reversed one (on the forest panel) is already light. */
+.site .logo:not(.logo-reversed) path {
+  stroke: var(--ink);
+}
+.site .logo:not(.logo-reversed) circle:nth-of-type(-n + 2) {
+  fill: var(--ink);
+}
+.site .logo:not(.logo-reversed) circle:nth-of-type(3) {
+  fill: var(--signal);
+}
+.site .logo:not(.logo-reversed) circle:nth-of-type(4) {
+  stroke: var(--signal);
+}
+/* The waitlist, and /voice-profile's gate drawn like it (`../voice/voice.css`): a raised panel ringed
+   in the signal on the dark ground, instead of a green one. Its words in the ground's ink, its fields
+   on the ground with a hairline, its button the look's filled one. The form, its fields and its script
+   are unchanged. */
+.site .waitlist,
+.site .gate {
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--signal);
+  color: var(--ink);
+}
+.site .wl-body,
+.site .wl-sms {
+  color: var(--ink-secondary);
+}
+.site .wl-field input {
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+}
+.site .wl-field input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+}
+.site :is(.waitlist, .gate) .btn-cream {
+  border-radius: var(--radius-control);
+  background: var(--action);
+  color: var(--on-action);
+}
+.site :is(.waitlist, .gate) a {
+  color: var(--ink);
+}
+.site :is(.waitlist, .gate) .wl-legal {
+  color: var(--ink-secondary);
+}
+.site :is(.waitlist, .gate) .wl-legal a {
+  color: var(--ink);
+}
+.site :is(.waitlist, .gate) .field-error {
+  color: var(--ink);
 }
