@@ -28,3 +28,7 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
   2x with reduced motion: founding open (`before/`, `after/`), founding closed (`*-closed/`) and
   checkout not open yet (`*-soon/`). `after-states/` has Programs open, the phone menu open, the light
   theme, and the page with no script.
+- `v2-offers/`: /team-build, /agents and /teams on the v2 kit. `before*/` is `main`, `after*/` the branch
+  head, full pages at 2x with reduced motion: founding open (`before/`, `after/`), founding closed
+  (`*-closed/`), checkout not open yet (`*-soon/`), the light theme (`after-light/`), and the mockup's
+  made-up illustrations switched on for this build only (`after-examples/`; off on the branch).
