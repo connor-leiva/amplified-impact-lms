@@ -29,6 +29,7 @@ import {
   variantNow,
   visibleModules,
 } from '@ai/core';
+import { ACCELERATOR_SUPPORT_EMAIL } from '@ai/core/accelerator';
 import type {
   Announcement,
   BuildState,
@@ -60,7 +61,9 @@ export type DashAction =
   | { kind: 'nav'; to: string }
   | { kind: 'locked'; moduleId: string }
   | { kind: 'toast'; msg: string; tone: 'info' }
-  | { kind: 'download'; file: DownloadSpec };
+  | { kind: 'download'; file: DownloadSpec }
+  /** Opens the viewer's email app, addressed to `to` (D-142). */
+  | { kind: 'mail'; to: string };
 
 // ---------------------------------------------------------------------------------------------
 // View-model shape
@@ -394,15 +397,46 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
   // ---- the grid, the quick links and the schedule ---------------------------------------------
   const cards = vis.map((m) => cardVM(db, user, m, now));
 
+  // D-142: the prototype's community card ("148 members · 23 new posts today") and its support card
+  // ("Typical reply in under 2 hours", "Luis from Support") are invented. The AI Accelerator (the
+  // cohort with its own series, as above) has no cohort community, and nothing on the site promises a
+  // reply time, so for it the community card is gone and Support opens an email to the address the
+  // course already gives ("Questions? Write to …"). The prototype's cohorts keep the reference's cards,
+  // which its goldens pin.
+  const community: QuickLink | null = series
+    ? null
+    : {
+        key: 'community',
+        icon: 'chat',
+        title: 'Cohort Community',
+        sub: '148 members · 23 new posts today',
+        arrow: 'arrowUR',
+        action: { kind: 'toast', msg: 'Opening the cohort community', tone: 'info' },
+      };
+  const support: QuickLink = series
+    ? {
+        key: 'support',
+        icon: 'headset',
+        title: 'Technical Support',
+        sub: ACCELERATOR_SUPPORT_EMAIL,
+        arrow: 'chevR',
+        action: { kind: 'mail', to: ACCELERATOR_SUPPORT_EMAIL },
+      }
+    : {
+        key: 'support',
+        icon: 'headset',
+        title: 'Technical Support',
+        sub: 'Typical reply in under 2 hours',
+        arrow: 'chevR',
+        action: {
+          kind: 'toast',
+          msg: 'Support chat opened. Luis from Support will reply here.',
+          tone: 'info',
+        },
+      };
+
   const links: QuickLink[] = [
-    {
-      key: 'community',
-      icon: 'chat',
-      title: 'Cohort Community',
-      sub: '148 members · 23 new posts today',
-      arrow: 'arrowUR',
-      action: { kind: 'toast', msg: 'Opening the cohort community', tone: 'info' },
-    },
+    ...(community ? [community] : []),
     series
       ? {
           key: 'office-hours',
@@ -420,18 +454,7 @@ export function dashboardVM(db: Db, user: Learner, now: number, ui: DashboardUi 
           arrow: 'calPlus',
           action: { kind: 'download', file: officeHoursFile(wed, now) },
         },
-    {
-      key: 'support',
-      icon: 'headset',
-      title: 'Technical Support',
-      sub: 'Typical reply in under 2 hours',
-      arrow: 'chevR',
-      action: {
-        kind: 'toast',
-        msg: 'Support chat opened. Luis from Support will reply here.',
-        tone: 'info',
-      },
-    },
+    support,
   ];
 
   const nextS = nextSession(db, user, now);
