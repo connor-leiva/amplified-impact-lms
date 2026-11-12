@@ -4512,3 +4512,26 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - the Skill Library shows "Your second payment didn’t go through, so your AI Accelerator skills are paused. Update your card in Manage Billing and they open again on their own."
 - **Only this plan.** The AI Accelerator in full, Amplified Insiders, the Team Plan and the Agent Plan keep their access while past due, as before. The PM's decision covered the two-pay second payment, and Stripe's retries already handle those subscriptions. Pausing them the same way is the same one-line rule, if wanted.
 - **Not changed:** what is charged and when, the roll-on to Amplified Insiders on May 4, refunds (still end everything), cancel and keep, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
+## D-145 · "A view of who's using it": the Team Hub's Last Active is real
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "continue with the top unfinished item from claude-overnight.md / claude-course.md as one PR". The overnight brief asks for the Team Plan's "owner seats, owner view, and agent invites". `/teams`, `/pricing` and Home sell the Team Plan with "a view of who's using it". The PM's standing rule covers the call: "make the call yourself, log it in DECISIONS.md, and keep going."
+**Status:** on a pull request.
+**Scope:** `apps/api/src/auth/sessions.ts` (`markActive`), `auth/guard.ts` (`requireSession`), `auth/index.ts`, `routes/auth.ts`, `routes/password.ts`, `routes/google.ts`; tests in `apps/api/test/auth.test.ts`, `password.test.ts`, `google.test.ts` and `routes.test.ts`.
+
+- **The gap.** The Team Hub already has a Last Active column, from the reference. It reads `users.last`, which only an AI Employee step wrote (`mutations.ts`). A Team Plan agent has no AI Employees: they sign in and use the Skill Library. So every real agent showed a dash there, and an owner could not see who was using what they paid for. The console's Learners and Staff screens and the Overview's at-risk list read the same field, and were wrong the same way. Staff read "Invite pending" forever.
+- **The call: "who's using it" is Last Active, made real.** No new screen, column or copy. The owner's Team Hub lists each seat: Invited or active, when they joined, and when they were last active.
+- **What counts as active:**
+  - a real sign-in: password, a set or reset password link, an emailed sign-in link, or Google;
+  - a session in use on a later day, which is when it rolls (`needsRoll`, at most once a day per session).
+
+  Requests in between write nothing, so the busiest row in the database gets no extra writes. Last Active is accurate to the day, which is what `fmt.ago` shows.
+- **What doesn't count:**
+  - `createSession` itself, so the test-only `POST /api/test/session` and the API tests' `signInAs` stamp nothing. The http parity run signs in that way, so its Team Hub and Learners screenshots keep the seed's values and the shared goldens are unaffected.
+  - A stamp never moves backwards and writes no other column.
+- **Who sees it.** Exactly who saw the column before: every Team tier member's Team Hub, as in the reference. Teammates' email addresses stay visible only to the Team Owner and the Operations Lead (`scopeSnapshot`). Nothing is broadcast; the owner's next snapshot shows it.
+- **Not built, each needing a spec or a person:**
+  - counts of skills downloaded or opened per agent (a new column and copy, which the reference doesn't have);
+  - the 16 to 40 tier's "monthly owner call on who's using it" (a calendar item for Connor).
+- **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`, goldens.

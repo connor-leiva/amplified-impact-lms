@@ -316,6 +316,7 @@ describe('the ID token', () => {
 
 describe('which account it opens', () => {
   it('signs an existing learner in by their verified email, any case, and links the Google account', async () => {
+    await db.update(users).set({ last: NOW - 3 * 86_400_000 }).where(eq(users.id, 'u_jamie'));
     const res = await signInWithGoogle('Jamie@OrtizHomes.com');
     expect([res.statusCode, res.headers.location]).toEqual([302, '/']);
     const sid = cookieOf(res, SESSION_COOKIE)!;
@@ -324,6 +325,8 @@ describe('which account it opens', () => {
     const who = await me(res);
     expect(who!.json().viewer.actor).toEqual({ kind: 'learner', userId: 'u_jamie' });
     expect(await db.select({ userId: googleIdentities.userId }).from(googleIdentities)).toEqual([{ userId: 'u_jamie' }]);
+    // A Google sign-in is a sign-in: it stamps Last Active (D-145).
+    expect((await db.select({ last: users.last }).from(users).where(eq(users.id, 'u_jamie')))[0]!.last).toBe(NOW);
   });
 
   it('links the account a checkout made, whose owner never set a password, and makes it active', async () => {

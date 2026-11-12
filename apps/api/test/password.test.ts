@@ -122,6 +122,14 @@ describe('POST /api/auth/login', () => {
     }
   });
 
+  it('stamps the user\'s Last Active (D-145)', async () => {
+    await givePassword(JAMIE);
+    const id = await userId(JAMIE);
+    await db.update(users).set({ last: NOW - 3 * 86_400_000 }).where(eq(users.id, id));
+    expect((await login(JAMIE, PASSWORD)).statusCode).toBe(200);
+    expect((await db.select({ last: users.last }).from(users).where(eq(users.id, id)))[0]!.last).toBe(NOW);
+  });
+
   it('gives one answer for a wrong password, an unknown address and an account with no password', async () => {
     await givePassword(JAMIE);
     const wrong = await login(JAMIE, 'not the password');

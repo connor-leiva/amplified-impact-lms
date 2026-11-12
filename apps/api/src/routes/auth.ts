@@ -47,6 +47,7 @@ import {
   deleteSession,
   expiryFor,
   hashToken,
+  markActive,
   mintToken,
   normalizeEmail,
   normalizePrefs,
@@ -274,6 +275,7 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
 
     const team = await teamNameOf(db, user.teamId);
     const sessionId = await createSession(db, user.id, now);
+    await markActive(db, user.id, now);
     reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions());
 
     // An accepted invite changes a `users` row, which is in every teammate's snapshot — the Team

@@ -23,6 +23,7 @@
 
 import { describe, it, expect, afterAll, afterEach, beforeAll, beforeEach } from 'vitest';
 import { createHash } from 'node:crypto';
+import { eq } from 'drizzle-orm';
 import { get as httpGet } from 'node:http';
 import type { IncomingMessage } from 'node:http';
 import { scopeSnapshot, seedForDatabase } from '@ai/core';
@@ -30,7 +31,7 @@ import type { Db } from '@ai/core';
 import { build, cspDirectives, cspScriptHashes, inlineScriptHashes, scrubUrl, shutdown } from '../src/app';
 import type { App } from '../src/app';
 import { INVITE_TTL_MS, hashToken, sessionCookieOptions } from '../src/auth';
-import { authTokens } from '../src/db/schema';
+import { authTokens, users } from '../src/db/schema';
 import { outbox, resetOutbox } from '../src/email/transport';
 import { isTestEnv } from '../src/routes/test';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
@@ -539,6 +540,9 @@ describe('§ 7.7 · the test-only routes @g7', () => {
   beforeEach(seeded);
 
   it('signs a test in as a persona under NODE_ENV=test', async () => {
+    const lastOfAlex = async () =>
+      (await (await testDatabase()).select({ last: users.last }).from(users).where(eq(users.id, 'u_alex')))[0]!.last;
+    const seededLast = await lastOfAlex();
     const res = await app.inject({ method: 'POST', url: '/api/test/session', payload: { userId: 'u_alex' } });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ ok: true, userId: 'u_alex' });
@@ -546,6 +550,9 @@ describe('§ 7.7 · the test-only routes @g7', () => {
     const cookie = String(res.headers['set-cookie']).split(';')[0]!;
     const me = await app.inject({ method: 'GET', url: '/api/me', headers: { cookie } });
     expect(me.json()).toMatchObject({ viewer: { actor: { kind: 'learner', userId: 'u_alex' }, role: 'owner' } });
+    // Not a sign-in by the person, so no Last Active stamp (D-145): the http parity run signs in
+    // this way, and its Team Hub and Learners screenshots show the seed's values.
+    expect(await lastOfAlex()).toBe(seededLast);
   });
 
   it('refuses an id that is not a user', async () => {

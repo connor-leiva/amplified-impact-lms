@@ -52,7 +52,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
 import { getDb } from '../db/client';
 import { clock } from '../lib/clock';
-import { clearCookieOptions, deleteSession, needsRoll, readSession, rollSession, SESSION_COOKIE } from './sessions';
+import { clearCookieOptions, deleteSession, markActive, needsRoll, readSession, rollSession, SESSION_COOKIE } from './sessions';
 import { normalizePrefs, userById, viewerOf } from './viewer';
 import type { UserRow, Viewer, ViewerPrefs } from './viewer';
 
@@ -123,7 +123,11 @@ export const requireSession: preHandlerAsyncHookHandler = async (req, reply) => 
     return unauthorized(reply);
   }
 
-  if (needsRoll(session, now)) await rollSession(db, session.id, now);
+  // A session in use for another day: roll it, and count the day as activity (D-145).
+  if (needsRoll(session, now)) {
+    await rollSession(db, session.id, now);
+    await markActive(db, session.userId, now);
+  }
 
   req.viewer = {
     ...viewerOf(user),
