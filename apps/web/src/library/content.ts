@@ -723,7 +723,7 @@ export const LIBRARY = {
     heading: 'Start with 5 free skills',
     body: 'Free for anyone, in real estate or not. They make AI useful in your day first. Each one asks for your name and email.',
   },
-  // Never seen: it names the list for a screen reader, under the page's one heading.
+  // The full list's heading, over its filters (the v2 mockup shows it).
   listHeading: 'Everything in the library',
   filters: {
     label: 'Filter the library',
