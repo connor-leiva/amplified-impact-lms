@@ -1346,9 +1346,11 @@ html:not(.aiw-js) .aiw .hdr {
 }
 .aiw .faq-list {
   border-top: 1px solid var(--ink);
+  counter-reset: aiw-faq;
 }
 .aiw .faq-item {
   border-bottom: 1px solid var(--line);
+  counter-increment: aiw-faq;
 }
 .aiw .faq-q {
   width: 100%;
@@ -1367,6 +1369,9 @@ html:not(.aiw-js) .aiw .hdr {
 .aiw .faq-idx {
   color: var(--ink-muted);
   transition: color 0.3s;
+}
+.aiw .faq-idx::before {
+  content: counter(aiw-faq, decimal-leading-zero);
 }
 .aiw .faq-qt {
   font-size: 21px;

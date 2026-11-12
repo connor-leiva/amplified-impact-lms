@@ -160,7 +160,8 @@ export interface KitFaq {
 
 /**
  * Questions: the mockup's numbered accordion, as a list of <details> (they open and close with no
- * script). The first is open, as in the mockup. `aside` is markup the caller has already escaped.
+ * script). The first is open, as in the mockup. Each number is a CSS counter, so a <summary> says its
+ * question and nothing else. `aside` is markup the caller has already escaped.
  */
 export function faq(
   items: readonly KitFaq[],
@@ -169,9 +170,7 @@ export function faq(
   const list = items
     .map(
       (f, i) =>
-        `<li class="faq-item"><details${i === 0 ? ' open' : ''}><summary class="faq-q"><span class="mono faq-idx" aria-hidden="true">${pad2(
-          i + 1,
-        )}</span><span class="faq-qt">${esc(f.q)}</span><span class="faq-pm" aria-hidden="true"></span></summary><div class="faq-a">${f.a
+        `<li class="faq-item"><details${i === 0 ? ' open' : ''}><summary class="faq-q"><span class="mono faq-idx" aria-hidden="true"></span><span class="faq-qt">${esc(f.q)}</span><span class="faq-pm" aria-hidden="true"></span></summary><div class="faq-a answer">${f.a
           .map((a) => `<p>${esc(a)}</p>`)
           .join(
             '',
@@ -212,15 +211,18 @@ export function closeCta({
   lead,
   actions,
   free = false,
+  cls = '',
 }: {
   eyebrowText?: string;
   title: string;
   lead?: string;
   actions?: string;
   free?: string | boolean;
+  /** Another class on the section, for a page's own selector (/pricing's `end`). */
+  cls?: string;
 }): string {
   return [
-    `<section class="sec close" aria-labelledby="close-title">`,
+    `<section class="sec close${cls ? ` ${cls}` : ''}" aria-labelledby="close-title">`,
     `<div class="close-ripple" aria-hidden="true">${ripple(1180, { quiet: true })}</div>`,
     `<div class="wrap close-grid">`,
     `<div class="close-copy rv">${eyebrowText ? eyebrow(eyebrowText) : ''}<h2 id="close-title" class="close-title">${esc(title)}</h2>${

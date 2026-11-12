@@ -111,6 +111,7 @@ describe('the kit header', () => {
     expect(about.querySelector('.hdr-trigger.is-current')).toBeNull();
     const pricing = parse(kitHeader('/pricing'));
     expect(pricing.querySelector('.hdr-trigger.is-current')).not.toBeNull();
+    expect(text(pricing.querySelector('nav[aria-label="Main"] details[data-current] summary'))).toBe('Programs');
     expect([...pricing.querySelectorAll('.pm [aria-current="page"] .pm-name')].map(text)).toEqual([
       'Compare All Programs',
     ]);
@@ -138,11 +139,17 @@ describe('the kit footer', () => {
   const live = parse(siteFooter());
 
   it('has the live footer’s three columns, link for link, and the live contact line', () => {
+    // Each column named as the live footer names it, and headed the same for the eye.
     expect(
-      [...doc.querySelectorAll('nav.foot-col')].map((n) =>
-        text(doc.getElementById(n.getAttribute('aria-labelledby')!)),
-      ),
-    ).toEqual(['Programs', 'Site', 'Legal']);
+      [...doc.querySelectorAll('nav.foot-col')].map((n) => [
+        n.getAttribute('aria-label'),
+        text(n.querySelector('.foot-h')),
+      ]),
+    ).toEqual([
+      ['Programs', 'Programs'],
+      ['Site', 'Site'],
+      ['Legal', 'Legal'],
+    ]);
     const cols = [...doc.querySelectorAll('nav.foot-col')].map((n) => links(n, 'a'));
     expect(cols).toEqual([...live.querySelectorAll('nav')].map((n) => links(n, 'a')));
     expect(text(doc.querySelector('.foot-contact'))).toBe(
@@ -201,7 +208,9 @@ describe('the kit’s pieces', () => {
     const items = [...doc.querySelectorAll('.faq-item details')];
     expect(items.map((d) => d.hasAttribute('open'))).toEqual([true, false]);
     expect(items.map((d) => text(d.querySelector('.faq-qt')))).toEqual(['One?', 'Two?']);
-    expect([...doc.querySelectorAll('.faq-idx')].map(text)).toEqual(['01', '02']);
+    // Numbered by a CSS counter, so each summary says its question alone.
+    expect([...doc.querySelectorAll('.faq summary')].map(text)).toEqual(['One?', 'Two?']);
+    expect(read('./kit.css')).toContain('content: counter(aiw-faq, decimal-leading-zero);');
     expect(links(doc, '.faq-a a')).toEqual([['Join the Waitlist', '/offer#waitlist']]);
     expect(doc.querySelector('section')?.getAttribute('aria-labelledby')).toBe('questions-title');
   });

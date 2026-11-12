@@ -67,7 +67,7 @@ export function kitHeader(current: string): string {
   )}</span><span class="pm-go">${glyph('arrow', 20)}</span></a>`;
 
   const programs = [
-    `<details class="hdr-programs">`,
+    `<details class="hdr-programs"${menuHere ? ' data-current' : ''}>`,
     `<summary class="hdr-link hdr-trigger${menuHere ? ' is-current' : ''}">${esc(n.links[0].label)}${glyph('chevron', 16)}</summary>`,
     `<div class="pm"><div class="wrap pm-grid">${cards}${all}</div></div>`,
     `</details>`,
@@ -128,8 +128,10 @@ export function kitHeader(current: string): string {
  */
 export function kitFooter(): string {
   const f = SITE.footer;
-  const col = (id: string, label: string, links: readonly NavLink[]) =>
-    `<nav class="foot-col" aria-labelledby="foot-${id}"><p class="mono foot-h" id="foot-${id}">${esc(label)}</p><ul role="list">${links
+  // Each column is a nav named as the live footer names it (`nav[aria-label="Programs"]`); its visible
+  // heading says the same for the eye.
+  const col = (label: string, links: readonly NavLink[]) =>
+    `<nav class="foot-col" aria-label="${esc(label)}"><p class="mono foot-h" aria-hidden="true">${esc(label)}</p><ul role="list">${links
       .map((l) => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`)
       .join('')}</ul></nav>`;
   const t = tittle();
@@ -141,9 +143,9 @@ export function kitFooter(): string {
       HELP_EMAIL,
     )}">${esc(HELP_EMAIL)}</a>${esc(f.contactAfter)}</p></div>`,
     `<div class="foot-cols">`,
-    col('programs', f.programsLabel, PROGRAMS),
-    col('site', f.siteLabel, [{ label: 'Home', href: '/' }, ...SITE.nav.links, SITE.nav.login]),
-    col('legal', f.legalLabel, f.legal),
+    col(f.programsLabel, PROGRAMS),
+    col(f.siteLabel, [{ label: 'Home', href: '/' }, ...SITE.nav.links, SITE.nav.login]),
+    col(f.legalLabel, f.legal),
     `</div>`,
     `</div>`,
     `<div class="foot-mark">`,

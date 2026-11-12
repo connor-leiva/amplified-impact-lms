@@ -248,6 +248,63 @@ export function initInView(root: ParentNode): void {
   }
 }
 
+/**
+ * The picker (`[data-chooser]`): each panel names the programs that fit it (`data-show`, card ids).
+ * Following any link in a panel still goes to its card; the panel is marked, and the cards and the
+ * comparison's columns that fit come forward while the rest step back, as in the mockup. The same
+ * panel again puts everything back.
+ */
+export function initChooser(chooser: HTMLElement, page: ParentNode): void {
+  const panels = [...chooser.querySelectorAll<HTMLElement>('[data-show]')];
+  const cards = [...page.querySelectorAll<HTMLElement>('.pc[id]')];
+  const cols = [...page.querySelectorAll<HTMLElement>('[data-col]')];
+  let on: HTMLElement | null = null;
+  const show = (panel: HTMLElement | null) => {
+    on = panel;
+    const fit = new Set(panel?.dataset.show?.split(' ') ?? []);
+    for (const p of panels) {
+      p.classList.toggle('is-on', p === panel);
+      p.classList.toggle('is-off', !!panel && p !== panel);
+    }
+    for (const c of cards) {
+      c.classList.toggle('is-focus', !!panel && fit.has(c.id));
+      c.classList.toggle('is-dim', !!panel && !fit.has(c.id));
+    }
+    for (const c of cols) {
+      c.classList.toggle('is-focus', !!panel && fit.has(c.dataset.col ?? ''));
+      c.classList.toggle('is-dim', !!panel && !fit.has(c.dataset.col ?? ''));
+    }
+  };
+  for (const panel of panels) {
+    panel.addEventListener('click', (e) => {
+      const link = (e.target as Element).closest('a');
+      if (!link) return;
+      show(on === panel && link.classList.contains('persona-btn') ? null : panel);
+    });
+  }
+}
+
+/** `[data-scroll="exit"]`: writes how far the block has scrolled off the top (0 to 1) as `--p`, once a frame. */
+export function initScrollExit(root: ParentNode): void {
+  if (reducedMotion()) return;
+  const els = [...root.querySelectorAll<HTMLElement>('[data-scroll="exit"]')];
+  if (!els.length) return;
+  let frame = 0;
+  const update = () => {
+    frame = 0;
+    for (const el of els) {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--p', Math.min(1, Math.max(0, -r.top / Math.max(1, r.height))).toFixed(4));
+    }
+  };
+  update();
+  const later = () => {
+    if (!frame) frame = requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', later, { passive: true });
+  window.addEventListener('resize', later);
+}
+
 export function init(): void {
   document.documentElement.classList.add('aiw-js');
   const page = document.querySelector<HTMLElement>('.aiw');
@@ -261,6 +318,8 @@ export function init(): void {
     const phone = header.querySelector<HTMLDetailsElement>('details.hdr-mobile');
     if (phone) initPhoneMenu(header, phone);
   }
+  for (const chooser of page.querySelectorAll<HTMLElement>('[data-chooser]')) initChooser(chooser, page);
+  initScrollExit(page);
   initInView(page);
 }
 
