@@ -11,9 +11,6 @@
 
 import { GLYPHS } from '../../kit/icons';
 
-/** The play triangle on the video placeholder (the mockup's). */
-const PLAY = 'M8 5.5v13l10.5-6.5z';
-
 const stroke = (d: string) =>
   `<path d="${d}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>`;
 
@@ -22,7 +19,6 @@ const SYMBOLS = {
     '<symbol id="v3-ringdot" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9.5" style="fill:none;stroke:var(--signal);stroke-width:1.5"/><circle cx="11" cy="11" r="4" style="fill:var(--signal)"/></symbol>',
   check: `<symbol id="v3-check" viewBox="0 0 24 24">${stroke(GLYPHS.check)}</symbol>`,
   arrow: `<symbol id="v3-arrow" viewBox="0 0 24 24">${stroke(GLYPHS.arrow)}</symbol>`,
-  play: `<symbol id="v3-play" viewBox="0 0 24 24"><path d="${PLAY}" fill="currentColor"/></symbol>`,
 } as const;
 
 export type V3Icon = keyof typeof SYMBOLS;

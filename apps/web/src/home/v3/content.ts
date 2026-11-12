@@ -78,16 +78,17 @@ export const HERO = {
   },
 } as const;
 
-export const VIDEO = {
+/**
+ * S2. Connor's decision (Nov 12, C9): no video; a real still photo in its place, which he is choosing.
+ * The heading and caption are copy.md's; the video's own words (its length, the player, the
+ * "Spring on camera" bubble) are gone with it. Until the photo is chosen the section is pending
+ * (`video-still`), so these words show only in a preview, beside an empty slot: never a stock or AI image.
+ */
+export const STILL = {
   title: 'Watch it run in a real business.',
-  meta: '90 seconds · Spring’s actual morning',
-  clock: 'Monday · 6:04 AM',
-  doc: 'Morning Brief',
-  placeholder: 'Placeholder · Screen recording goes here',
-  /** The placeholder's name for screen readers (the mockup's). */
-  placeholderLabel: 'Placeholder for a 90-second screen recording of Spring’s morning',
-  camInitials: 'SB',
-  camLabel: 'Spring on camera',
   caption:
     'No stock footage. No demo account. This is Spring opening the reports, briefs and follow-ups that run her 100-agent team every morning.',
+  /** Preview only: what the empty slot says, and its name for screen readers. */
+  slot: 'Photo to come · Connor is choosing a real still',
+  slotLabel: 'Placeholder for a real photo of Spring’s morning, still being chosen',
 } as const;

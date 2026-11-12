@@ -171,33 +171,42 @@ describe('the site’s rules (brief § 6)', () => {
   });
 });
 
-describe('pending placeholders (brief § 7)', () => {
+describe('pending placeholders (conflicts.md, Decisions)', () => {
   it('leaves none in the production render: no marker, no placeholder words, not even in a stylesheet', () => {
     const html = renderV3Body({ preview: false });
-    expect(html).not.toMatch(/data-v3-pending|v3-pending/);
-    for (const css of [read('./v3.css'), read('../../kit/kit.css')]) expect(css).not.toMatch(/v3-pending/);
+    expect(html).not.toMatch(/data-pending|<!--pending:|v3-pending/);
+    for (const css of [read('./v3.css'), read('../../kit/kit.css')]) expect(css).not.toMatch(/data-pending/);
     expect(pendingKeysIn(html)).toEqual([]);
-    expect(html).not.toMatch(/Placeholder|Screen recording goes here|Spring on camera/);
-    // S2 has no recording yet (C9): the whole section is left out.
+    expect(html).not.toMatch(/Placeholder|Photo to come/);
+    // S2 waits for its photo (D5): until Connor chooses it, the whole section is left out.
     expect(prod.querySelector('section.vid')).toBeNull();
   });
 
-  it('shows each one, marked, in a preview: S2’s video, with copy.md’s words', () => {
+  it('shows each one, marked, in a preview: S2’s photo slot, empty, with copy.md’s heading and caption', () => {
     const html = renderV3Body({ preview: true });
-    expect(pendingKeysIn(html)).toEqual(['video']);
+    expect(pendingKeysIn(html)).toEqual(['video-still']);
     const vid = preview.querySelector('section.vid');
-    expect(vid?.getAttribute('data-v3-pending')).toBe('video');
-    expectInOrder(vid, copyLines('S2 Video'));
+    expect(vid?.getAttribute('data-pending')).toBe('video-still');
+    // The slot itself is marked too, and holds no image at all until the real one is chosen: never a
+    // stock or AI picture, and none of the mockup's video (D5).
+    const slot = vid?.querySelector('figure.vid-still');
+    expect(slot?.getAttribute('data-pending')).toBe('video-still');
+    expect(vid?.querySelectorAll('img, video, picture, svg')).toHaveLength(0);
+    const lines = copyLines('S2 Video');
+    expectInOrder(vid, [lines[0]!, lines.at(-1)!]);
+    expect(text(vid)).not.toMatch(/90 seconds|Screen recording|Spring on camera|6:04/i);
   });
 
-  it('knows exactly the brief’s open questions, and refuses any other key or a region left open', () => {
-    expect(Object.keys(PENDING).sort()).toEqual(['direct-buy', 'fd-claims', 'people-12', 'quote', 'stat-38', 'stat-95', 'video']);
-    expect(resolvePending(pending('quote', '<p>Q</p>', '<p>F</p>'), { preview: false })).toBe('<p>F</p>');
-    expect(resolvePending(pending('quote', 'Q'), { preview: true })).toMatch(/^<style>[\s\S]*<\/style>\n<span data-v3-pending="quote">Q<\/span>$/);
-    expect(() => resolvePending('<!--v3-pending:nope--><p></p><!--v3-pending:nope:else--><!--v3-pending:nope:end-->', { preview: true })).toThrow(
+  it('knows exactly Connor’s open questions, and refuses any other key or a region left open', () => {
+    expect(Object.keys(PENDING).sort()).toEqual(['spring-approval', 'stat-source', 'team-plan-dec14', 'video-still']);
+    expect(resolvePending(pending('spring-approval', '<p>Q</p>', '<p>F</p>'), { preview: false })).toBe('<p>F</p>');
+    expect(resolvePending(pending('stat-source', '38%'), { preview: true })).toMatch(
+      /^<style>[\s\S]*<\/style>\n<span data-pending="stat-source">38%<\/span>$/,
+    );
+    expect(() => resolvePending('<!--pending:nope--><p></p><!--pending:nope:else--><!--pending:nope:end-->', { preview: true })).toThrow(
       /Unknown pending key/,
     );
-    expect(() => resolvePending('<!--v3-pending:quote--><p>', { preview: false })).toThrow(/unresolved/);
+    expect(() => resolvePending('<!--pending:stat-source--><p>', { preview: false })).toThrow(/unresolved/);
   });
 
   it('builds v3 only on purpose: an ordinary build has no v3 page; V3_PREVIEW=1 a preview, =0 the production render', () => {
