@@ -1,0 +1,27 @@
+/* The homepage's one stylesheet (`../../home.html`; the build inlines it): its own look, and the v2
+   kit's for the header.
+
+   The header is the kit's (`kitHeader('/')`, in an `.aiw` scope of its own, `.hp-chrome`), and it has to
+   compute exactly as it does on a kit page, where only the browser's defaults and `kit.css` apply. So,
+   in three cascade layers, last wins:
+     1. `home`: the homepage's stylesheet and the site's it imports. Some of the site's rules are global
+        (`a`, `.btn-secondary`), and would otherwise reach into the header;
+     2. `header-guard`: everything inside the header goes back to the browser's defaults;
+     3. `kit`: the kit's stylesheet, untouched, as every kit page loads it. Every kit rule is under `.aiw`,
+        so nothing outside the header changes.
+   Custom properties aren't reset by `all`; the kit's are set on the `.aiw` scope, as on a kit page.
+   Drawings are left out of the guard: an SVG's own attributes (`d`, `fill`, `cx`…) count as author
+   styles, which `revert` would take away. */
+
+@layer home, header-guard, kit;
+
+@import './home.css' layer(home);
+@import '../kit/kit.css' layer(kit);
+
+@layer header-guard {
+  .hp-chrome :not(svg, svg *),
+  .hp-chrome :not(svg, svg *)::before,
+  .hp-chrome :not(svg, svg *)::after {
+    all: revert;
+  }
+}

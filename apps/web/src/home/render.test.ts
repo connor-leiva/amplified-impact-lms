@@ -6,8 +6,10 @@ import { DEFAULT_FOUNDING_CLOSES_AT } from '@ai/core/offer';
 import { ENTRIES } from '../library/content';
 import { paid } from '../library/render';
 import { CARD_STATES } from '../offer/content';
+import { kitHeader } from '../kit/render';
+import { renderPricingBody } from '../pricing/render';
 import { FOUNDING } from '../site/offers-content';
-import { HELP_EMAIL } from '../site/content';
+import { HELP_EMAIL, SITE } from '../site/content';
 import { fill } from './client/fill';
 import { HOME, PHOTOS } from './content';
 import { dollarsIn, PRICES, usd } from './prices';
@@ -98,7 +100,16 @@ describe('the head and the shell', () => {
   it('loads its stylesheet and exactly one script, as a module file (never inline), and the body opts into the page’s look', () => {
     const shell = read('../../home.html');
     expect(shell).toContain('rel="icon" type="image/svg+xml" href="data:image/svg+xml,');
-    expect(shell).toContain('<link rel="stylesheet" href="/src/home/home.css" />');
+    expect(shell).toContain('<link rel="stylesheet" href="/src/home/page.css" />');
+    // Its own look, then a guard that puts everything inside the kit's header back to the browser's
+    // defaults, then the kit's: the header computes as on a kit page, where only `kit.css` applies.
+    const page = read('./page.css');
+    expect(page).toContain('@layer home, header-guard, kit;');
+    expect([...page.matchAll(/@import '([^']+)' layer\((\w+)\)/g)].map((m) => [m[1], m[2]])).toEqual([
+      ['./home.css', 'home'],
+      ['../kit/kit.css', 'kit'],
+    ]);
+    expect(page).toMatch(/@layer header-guard \{\s*\.hp-chrome :not\(svg, svg \*\),[\s\S]*?all: revert;/);
     expect(shell.match(/<script\b[^>]*>/g)).toEqual(['<script type="module" src="/src/home/client/main.ts">']);
     expect(shell).toMatch(/<body class="hp"/);
     expect(renderHomeBody()).not.toMatch(/<script/i);
@@ -119,21 +130,59 @@ describe('the head and the shell', () => {
   });
 });
 
-describe('the site’s own header and footer, unchanged', () => {
-  it('has the shared nav, Log In and Get 5 Free Skills, and the footer’s legal links and support address', () => {
-    const nav = $$('header.site-top nav[aria-label="Main"] a').map((a) => [text(a), a.getAttribute('href')]);
-    expect(nav).toEqual(
-      expect.arrayContaining([
-        ['The Library', '/library'],
-        ['Free Resources', '/free'],
-        ['About', '/about'],
-        ['Log In', 'https://learn.amplifiedimpact.io/login'],
-      ]),
+describe('the kit’s header, and the site’s own footer', () => {
+  const parse = (html: string) => new DOMParser().parseFromString(`<!doctype html><html><body>${html}</body></html>`, 'text/html');
+  /** A header's markup without "you are here", the one thing that differs from page to page. */
+  const unmarked = (header: Element | null) =>
+    (header?.outerHTML ?? '').replace(/ aria-current="page"/g, '').replace(/ data-current(="")?/g, '').replace(/ is-current/g, '');
+  const pair = (a: Element | null) => [text(a), a?.getAttribute('href')];
+
+  it('renders the same header as a kit page: the kit’s own markup for `/`, and /pricing’s but for where you are', () => {
+    expect($$('header')).toHaveLength(1);
+    const header = $('header.hdr');
+    expect(header?.outerHTML).toBe(parse(kitHeader('/')).querySelector('header.hdr')?.outerHTML);
+    const pricing = parse(renderPricingBody()).querySelector('header.hdr');
+    expect(pricing).not.toBeNull();
+    expect(unmarked(header)).toBe(unmarked(pricing));
+    // On the homepage nothing in the nav is "here", as in the kit's own render for `/`.
+    expect($$('header [aria-current], header [data-current], header .is-current')).toHaveLength(0);
+    // In the kit's own scope, dark like the page, around the header and nothing else.
+    const scope = header!.parentElement!;
+    expect([scope.className, scope.getAttribute('data-theme'), scope.children.length]).toEqual(['aiw hp-chrome', 'dark', 1]);
+  });
+
+  it('keeps the nav’s entries, labels, links and order, from the same nav data', () => {
+    const n = SITE.nav;
+    expect(text($('.hdr-trigger'))).toBe(n.links[0].label);
+    expect($$('.hdr-programs .pm-card').map((a) => [text(a.querySelector('.pm-name')), a.getAttribute('href')])).toEqual(
+      n.links[0].menu.map((l) => [l.label, l.href]),
     );
-    expect([text($('.site-cta')), $('.site-cta')?.getAttribute('href')]).toEqual([
-      'Get 5 Free Skills',
-      '/library?show=free',
+    expect($$('.hdr-nav > a').map(pair)).toEqual(n.links.slice(1).map((l) => [l.label, l.href]));
+    expect(pair($('.hdr-login'))).toEqual([n.login.label, n.login.href]);
+    expect(pair($('.hdr-cta'))).toEqual([n.cta.label, n.cta.href]);
+    // The phone menu: the same programs, then the same links and Log In, then the same button.
+    expect($$('.menu-programs a').map(pair)).toEqual(n.links[0].menu.map((l) => [l.label, l.href]));
+    expect($$('.menu-nav a').map(pair)).toEqual([...n.links.slice(1), n.login].map((l) => [l.label, l.href]));
+    expect(pair($('.menu-cta'))).toEqual([n.cta.label, n.cta.href]);
+    // The live values, as the homepage linked them before.
+    expect($$('.hdr-nav > a, .hdr-login').map(pair)).toEqual([
+      ['The Library', '/library'],
+      ['Free Resources', '/free'],
+      ['About', '/about'],
+      ['Log In', 'https://learn.amplifiedimpact.io/login'],
     ]);
+    expect(pair($('.hdr-cta'))).toEqual(['Get 5 Free Skills', '/library?show=free']);
+  });
+
+  it('carries Logo 1 in the brand slot, once, and no longer the signature', () => {
+    expect($$('[data-brand-slot]').map((el) => [el.getAttribute('data-brand-slot'), el.getAttribute('href')])).toEqual([
+      ['logo-1', '/'],
+    ]);
+    expect($('[data-brand-slot] svg.wm')?.getAttribute('aria-label')).toBe(SITE.logoAlt);
+    expect(renderHomeBody()).not.toMatch(/data-brand-slot="signature"|site-top/);
+  });
+
+  it('keeps the site’s own footer, its legal links and support address, and the skip link', () => {
     expect($$('footer.site-foot a').map((a) => a.getAttribute('href'))).toEqual(
       expect.arrayContaining(['/agreement', '/terms', '/privacy', `mailto:${HELP_EMAIL}`]),
     );
