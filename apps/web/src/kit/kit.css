@@ -365,24 +365,22 @@ body {
 
 /* --- The logo, the monogram, the icons and the ripple ------------------------------------------ */
 
-/* The live signature (D-031), the homepage's own colouring of it: letters in the ink, the ring and
+/* Logo 1 (`./logo.ts`, Connor's decision for the kit, Nov 12): the letters in the ink, the ring and
    dot over the second i in the signal. */
-.aiw .sig {
+.aiw .wm {
   display: block;
   flex: none;
   overflow: visible;
 }
-.aiw .sig path {
-  stroke: currentColor;
-}
-.aiw .sig circle:nth-of-type(-n + 2) {
+.aiw .wm-letters {
   fill: currentColor;
 }
-.aiw .sig circle:nth-of-type(3) {
-  fill: var(--signal);
-}
-.aiw .sig circle:nth-of-type(4) {
+.aiw .wm-ring {
+  fill: none;
   stroke: var(--signal);
+}
+.aiw .wm-dot {
+  fill: var(--signal);
 }
 .aiw .mg {
   display: block;
@@ -864,13 +862,7 @@ body {
 .aiw .seatm[data-left='15'] .seatm-s:nth-child(n + 16)::after {
   display: none;
 }
-.aiw-js .aiw .seatm:not(.is-in) .seatm-s {
-  transform: scale(0);
-}
-.aiw .seatm.is-in .seatm-s {
-  animation: aiw-pop 0.5s var(--spring) both;
-  animation-delay: calc(var(--si) * 45ms);
-}
+/* The seat counter never starts hidden (Ampy's rule): its marks are drawn from the start. */
 
 /* --- Reveal on scroll: the script holds back what starts below the fold and lets it rise in ---- */
 
@@ -882,6 +874,16 @@ body {
 .aiw .rv-wait {
   opacity: 0;
   transform: translateY(36px);
+}
+/* AMPY'S RULE: no buy button, payment link, seat counter or proof line may ever start hidden. The
+   script never holds such a block back (`initInView`), and pages keep `.rv` and `.fade-*` off them;
+   these two rules are the backstop, in case a page ever wraps one by mistake. */
+.aiw .rv-wait:has(.proof-line, .plan-actions, .seatm, [data-seats], a[href*='buy.stripe.com']) {
+  opacity: 1;
+  transform: none;
+}
+.aiw :is(.fade-1, .fade-2, .fade-3):has(.proof-line, .plan-actions, .seatm, [data-seats], a[href*='buy.stripe.com']) {
+  animation: none;
 }
 
 /* --- Header ---------------------------------------------------------------------------------- */
@@ -931,9 +933,9 @@ html:not(.aiw-js) .aiw .hdr {
   min-height: 44px;
   color: var(--ink);
 }
-.aiw .hdr-logo .sig {
+.aiw .hdr-logo .wm {
   width: auto;
-  height: 28px;
+  height: 31px;
 }
 .aiw .hdr-nav {
   display: flex;
@@ -1606,14 +1608,14 @@ html:not(.aiw-js) .aiw .hdr {
   padding-bottom: 28px;
   color: var(--ink);
 }
-.aiw .foot-mark .sig {
+.aiw .foot-mark .wm {
   position: relative;
   width: 100%;
   height: auto;
   clip-path: inset(0 0 0 0);
   transition: clip-path 1.4s var(--ease);
 }
-.aiw-js .aiw .foot-mark:not(.is-in) .sig {
+.aiw-js .aiw .foot-mark:not(.is-in) .wm {
   clip-path: inset(100% 0 0 0);
 }
 .aiw .foot-ripple {

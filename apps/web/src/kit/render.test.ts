@@ -123,10 +123,16 @@ describe('the kit header', () => {
     expect(library.querySelectorAll('.pm [aria-current]').length).toBe(0);
   });
 
-  it('carries the brand slot once, the signature named for screen readers, and no inline handler or absolute www link', () => {
+  it('carries the brand slot once, Logo 1 named for screen readers, and no inline handler or absolute www link', () => {
     expect(doc.querySelectorAll('[data-brand-slot]').length).toBe(1);
-    const logo = doc.querySelector('[data-brand-slot] svg')!;
-    expect([logo.getAttribute('role'), logo.getAttribute('aria-label')]).toEqual(['img', SITE.logoAlt]);
+    const slot = doc.querySelector('[data-brand-slot]')!;
+    expect([slot.getAttribute('href'), slot.getAttribute('data-brand-slot')]).toEqual(['/', 'logo-1']);
+    const logo = slot.querySelector('svg.wm')!;
+    expect([logo.getAttribute('role'), logo.getAttribute('aria-label')]).toEqual(['img', 'Amplified Impact']);
+    expect(SITE.logoAlt).toBe('Amplified Impact');
+    // Logo 1: one path for the letters, and the ring and dot over the second i. Not the signature.
+    expect([...logo.children].map((c) => c.getAttribute('class'))).toEqual(['wm-letters', 'wm-ring', 'wm-dot']);
+    expect(kitHeader('/about') + kitFooter()).not.toMatch(/class="sig"/);
     const html = kitHeader('/about') + kitFooter() + kitSkip();
     expect(html).not.toMatch(/\son[a-z]+=/i);
     expect(html).not.toMatch(/amplifiedimpact\.io\/(?!login)/);
@@ -159,11 +165,11 @@ describe('the kit footer', () => {
     expect(text(doc.querySelector('.foot-line'))).toBe(SITE.footer.tagline);
   });
 
-  it('ends with the byline and the proof’s place, and draws the signature for the eye only', () => {
+  it('ends with the byline and the proof’s place, and draws Logo 1 for the eye only', () => {
     expect([...doc.querySelectorAll('.foot-bottom span')].map(text)).toEqual([SITE.footer.byline, HOME.proof.label]);
-    expect(doc.querySelector('.foot-mark svg.sig')?.getAttribute('aria-hidden')).toBe('true');
+    expect(doc.querySelector('.foot-mark svg.wm')?.getAttribute('aria-hidden')).toBe('true');
     expect(doc.querySelector('.foot-ripple')?.getAttribute('aria-hidden')).toBe('true');
-    // The ripple starts at the signature's ring and dot.
+    // The ripple starts at Logo 1's ring and dot.
     expect(doc.querySelector<HTMLElement>('.foot-ripple')!.getAttribute('style')).toMatch(
       /^left:\d+(\.\d+)?%;top:\d+(\.\d+)?%$/,
     );
@@ -221,6 +227,22 @@ describe('the kit’s pieces', () => {
     expect([...doc.querySelectorAll('.free-name')].map(text)).toEqual(FREE_FIVE.map((s) => entryFor(s).title));
     expect(doc.querySelector('.free-h')).toBeNull();
     expect(parse(closeCta({ title: 'T' })).querySelector('.free')).toBeNull();
+  });
+
+  it('never holds back the close’s copy when it carries buttons, a buy link or the proof line', () => {
+    const buy = `<a class="btn btn-primary" href="%%link:cohort-full%%">Reserve My Seat</a>${proofLine()}`;
+    const withActions = parse(closeCta({ title: 'T', actions: buy }));
+    expect(withActions.querySelector('.close-copy')?.classList.contains('rv')).toBe(false);
+    for (const el of withActions.querySelectorAll('.actions a, .proof-line')) expect(el.closest('.rv')).toBeNull();
+    // With nothing to press, the copy still rises in.
+    expect(
+      parse(closeCta({ title: 'T' }))
+        .querySelector('.close-copy')
+        ?.classList.contains('rv'),
+    ).toBe(true);
+    // The counting figures are their own section, never holding a button.
+    const proof = parse(proofSection({ heading: 'H', body: 'B' }));
+    expect(proof.querySelectorAll('a, button, .proof-line').length).toBe(0);
   });
 
   it('draws one seat per Accelerator seat, from the count the API writes', () => {

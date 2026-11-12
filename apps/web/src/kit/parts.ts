@@ -105,6 +105,9 @@ export const proofLine = (): string =>
  * split as the homepage splits them (`splitProof`); the eyebrow and the sentence are the page's own
  * live words (/team-build's `PROOF`, for one). The figures count up as they arrive (the script), and a
  * screen reader reads the settled one.
+ *
+ * NEVER BESIDE A BUY BUTTON (Ampy's rule): this section is its own block, and the figures that count
+ * never stand in for the proof line. Every buy button carries the static `proofLine()` under it.
  */
 export function proofSection({ heading, body }: { heading: string; body: string }): string {
   const p = splitProof();
@@ -225,7 +228,9 @@ export function closeCta({
     `<section class="sec close${cls ? ` ${cls}` : ''}" aria-labelledby="close-title">`,
     `<div class="close-ripple" aria-hidden="true">${ripple(1180, { quiet: true })}</div>`,
     `<div class="wrap close-grid">`,
-    `<div class="close-copy rv">${eyebrowText ? eyebrow(eyebrowText) : ''}<h2 id="close-title" class="close-title">${esc(title)}</h2>${
+    // Never `.rv` when it holds buttons: a buy button or the proof line beside it may never start
+    // hidden (Ampy's rule), so the close's copy with its actions is always shown as the markup has it.
+    `<div class="close-copy${actions ? '' : ' rv'}">${eyebrowText ? eyebrow(eyebrowText) : ''}<h2 id="close-title" class="close-title">${esc(title)}</h2>${
       lead ? `<p class="lead">${esc(lead)}</p>` : ''
     }${actions ? `<div class="actions">${actions}</div>` : ''}</div>`,
     ...(free === false ? [] : [freeSkills(typeof free === 'string' ? free : undefined)]),

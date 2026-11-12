@@ -207,9 +207,29 @@ function onView(el: Element, onEnter: () => void, { rootMargin = '0px', threshol
 }
 
 /**
- * What moves as you scroll: `.rv` blocks below the fold rise in, `[data-count]` figures count up, the
- * seat meter's marks pop in, and the footer's signature draws up with its ripple. Under reduced motion,
- * or with no IntersectionObserver, everything is simply shown, as the markup already has it.
+ * AMPY'S RULE: no buy button, alternate payment link, seat counter or proof line may ever start
+ * hidden. A `.rv` block that is one of these, or holds one, is never held back below the fold.
+ */
+export const NEVER_HIDDEN = [
+  '.proof-line',
+  '.plan-actions',
+  '.act-link',
+  '.seatm',
+  '[data-seats]',
+  '[data-left]',
+  'a[href*="buy.stripe.com"]',
+].join(', ');
+
+/** Whether `el` is, or holds, something that may never start hidden (`NEVER_HIDDEN`). */
+export const holdsBuying = (el: Element): boolean =>
+  el.matches(NEVER_HIDDEN) || el.querySelector(NEVER_HIDDEN) !== null;
+
+/**
+ * What moves as you scroll: `.rv` blocks below the fold rise in, `[data-count]` figures count up, and
+ * the footer's Logo 1 draws up with its ripple. A block holding a buy button, a payment link, a seat
+ * counter or the proof line is never held back (`NEVER_HIDDEN`), and the seat meter's marks are drawn
+ * from the start. Under reduced motion, or with no IntersectionObserver, everything is simply shown,
+ * as the markup already has it.
  */
 export function initInView(root: ParentNode): void {
   const still = reducedMotion() || !('IntersectionObserver' in window);
@@ -223,6 +243,7 @@ export function initInView(root: ParentNode): void {
   }
   if (still) return;
   for (const el of root.querySelectorAll<HTMLElement>('.rv')) {
+    if (holdsBuying(el)) continue;
     if (el.getBoundingClientRect().top < window.innerHeight * 0.92) continue;
     el.classList.add('rv-wait');
     onView(el, () => el.classList.remove('rv-wait'), { rootMargin: '0px 0px -8% 0px' });
