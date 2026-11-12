@@ -38,3 +38,7 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
   `/library?show=free` renders the same page as /library, so it isn't shot twice.
 - `v2-about/`: /about on the v2 kit. `before/` is `main`, `after/` the branch head, full pages at 2x
   with reduced motion, plus the light theme (`after-light/`).
+- `v2-signin/`: the sign-in screens in the v2 look. `before/` is connor-leiva/amplified-impact-lms#69's
+  head (the PR's base, with the G), `after/` the branch head. The fixture build at 2x with reduced
+  motion and the auth API answered in the browser (Google on; a refused password; a link sent).
+  Each state in the light and the dark theme: `<state>-<theme>-<width>.jpg`.
