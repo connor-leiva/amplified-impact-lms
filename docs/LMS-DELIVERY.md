@@ -1,6 +1,6 @@
 # LMS delivery: what each purchase gives on learn.amplifiedimpact.io
 
-Updated Nov 12, 2026 (DECISIONS.md D-106, with D-110, D-119, D-132 and D-140 since). The code is the
+Updated Nov 12, 2026 (DECISIONS.md D-106, with D-110, D-119, D-132, D-140 and D-143 since). The code is the
 source of truth: `packages/core/src/offer.ts` (the catalog), `apps/api/src/billing/` (the webhook,
 provisioning and the access rule) and the end to end tests in `apps/api/test/offer.test.ts` ("every
 offer, end to end").
@@ -48,8 +48,8 @@ The webhook pins only a date still ahead, since Stripe refuses a past `trial_end
 
 | Event | What the LMS does |
 | --- | --- |
-| `invoice.paid` | One more payment. The plan is `active` and paid through the invoice's period (never past a pin on a first invoice with a trial line). The Agent Plan's Jan 4 invoice is what opens its skills |
-| `invoice.payment_failed` | The plan is `past_due`, the buyer is tagged `payment-failed`. Access already paid for stays; the Agent Plan's first charge failing opens nothing |
+| `invoice.paid` | One more payment. The plan is `active` and paid through the invoice's period (never past a pin on a first invoice with a trial line). The Agent Plan's Jan 4 invoice is what opens its skills. A paid second installment reopens a paused two-pay AI Accelerator (D-143) |
+| `invoice.payment_failed` | The plan is `past_due`, the buyer is tagged `payment-failed`. Access already paid for stays, with two exceptions. A two-pay AI Accelerator whose second payment fails is paused (the course, its skills and its live sessions) until that payment goes through (D-143). The Agent Plan's first charge failing opens nothing |
 | Cancel (`customer.subscription.deleted`) | Cancel and keep: `paid_through` stays, live sessions end with the paid period, the buyer is tagged `membership-ended`. A plan cancelled inside a minimum is logged for Connor |
 | Full refund (`charge.refunded`) | The plan ends with its access, its subscriptions are cancelled, the buyer is tagged `refunded`. A refunded Accelerator frees its seat |
 | Accelerator roll-on | May 4, 2027: the first $197 Insiders invoice carries the Accelerator plan a month on (both sets, live sessions). Cancelling Insiders before then keeps the Accelerator to May 4. A buyer who already holds Insiders is not enrolled twice |
