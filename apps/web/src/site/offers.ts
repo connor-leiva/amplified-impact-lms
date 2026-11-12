@@ -159,13 +159,21 @@ export const CARD_LOGOS: Readonly<Record<OfferCard, ProgramKey>> = {
   membership: 'insiders',
 };
 
+/** The lockups' type size on the cards, in px, as on the homepage's cards: the README's floor is 18. */
+export const LOCKUP_TYPE = 24;
+
 /**
- * A card's top row, as on the homepage's program cards: its program's logo and its number ("01"), both
- * drawings for the eye only (the logo has no title, the number is hidden from a screen reader), so the
- * card says nothing new.
+ * A card's head, as the homepage's program cards draw theirs (Connor, Nov 11: "use the real logo
+ * lockups for the products, not the small icon plus typed name"). THE LOCKUP IS THE HEADING: the card's
+ * <h3> keeps its id (the card's `aria-labelledby` and the See Full Details link's `aria-describedby`
+ * point at it) and holds the exact offer name, visually hidden, then the program's stacked lockup
+ * (`../home/program-logo.ts`, Connor's artwork), hidden from screen readers because the heading
+ * already says the name. Then the card's number ("01"), for the eye only. The card says nothing new.
  */
 const cardTop = (card: OfferCard): string =>
-  `<div class="plan-top"><span class="plan-logo" data-program="${CARD_LOGOS[card]}">${programLogo(CARD_LOGOS[card], { size: 40, title: '' })}</span><p class="plan-idx" aria-hidden="true">${String(
+  `<div class="plan-top"><h3 class="plan-name" id="${CARD_IDS[card]}-name"><span class="sr-only">${esc(CARD_NAMES[card])}</span><span class="plan-logo" data-program="${
+    CARD_LOGOS[card]
+  }">${programLogo(CARD_LOGOS[card], { variant: 'stacked', size: LOCKUP_TYPE, title: '' })}</span></h3><p class="plan-idx" aria-hidden="true">${String(
     CARD_ORDER.indexOf(card) + 1,
   ).padStart(2, '0')}</p></div>`;
 
@@ -178,7 +186,6 @@ export function offerCard(card: OfferCard): string {
   return [
     `<li class="card plan" id="${id}" data-state="${first ? stateToken(first) : 'soon'}" aria-labelledby="${id}-name">`,
     cardTop(card),
-    `<h3 class="plan-name" id="${id}-name">${esc(CARD_NAMES[card])}</h3>`,
     `<dl class="facts">`,
     fact(FACT_LABELS.forWho, esc(c.forWho)),
     fact(FACT_LABELS.lines, `<ul class="lines" role="list">${c.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>`),

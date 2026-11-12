@@ -83,22 +83,29 @@
   padding: 0 0 12px;
 }
 
-/* --- The cards' top row: the program's logo and its number, as on the homepage ------------------- */
+/* --- The cards' heads: the program's stacked lockup is the heading, as on the homepage's cards ------
+   Inline, the lockup draws in the ground's ink and signal: dark on the bone ground here, light on the
+   black one. 24px type, the README's clear space (one x-height, 13px) beside it before the number. The
+   name is in the <h3>, visually hidden (`offers.ts`). */
 
 .plan-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-16);
+  gap: 13px;
+}
+.plan-top .plan-name {
+  margin: 0;
 }
 .plan-logo {
+  display: block;
   color: var(--ink);
 }
 .plan-idx {
   color: var(--ink-muted);
   font-family: var(--font-mono);
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.25;
   letter-spacing: 0.08em;
 }
 .plan .details {
@@ -177,6 +184,97 @@
   margin-top: 40px;
 }
 
+/* --- The four cards side by side: every row lines up across them ------------------------------------
+   As the homepage's cards do (Connor, Nov 11). From 1200px each card is a subgrid of the grid's 13
+   rows, so a row is as tall as its tallest card's: the head (1); who it's for, what you get, how it
+   runs and when it starts (2 to 5, the <dl> a subgrid of its own); the price (6); the buy button, its
+   other payment link and the proof line (7 to 9, the live state's block a subgrid of its own), or what
+   a card says instead (7) and its waitlist button (8); See Full Details (10); the note (11); office
+   hours (12); and "Not ready?" (13). Placement is by row number, so a card without a note still puts
+   office hours in row 12, and the proof lines line up even where a button wraps. Spacing between rows
+   is the items' own top margins, so an empty row adds no gap. What shows in each state is the state
+   rules' choice (`../site/offers.css`), unchanged: the live block is a grid only in the live state.
+   Below 1200px the cards wrap (two across, then one) and flow as they are. Without subgrid, they flow
+   too, the actions at each card's foot. */
+
+@media (min-width: 1200px) {
+  @supports (grid-template-rows: subgrid) {
+    .site .plans .plan-grid > .plan {
+      display: grid;
+      grid-row: span 13;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+      align-items: start;
+    }
+    .site .plans .plan-top {
+      grid-row: 1;
+    }
+    .site .plans .facts {
+      display: grid;
+      grid-row: 2 / span 4;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+    }
+    .site .plans .fact {
+      margin-top: 18px;
+    }
+    .site .plans .price {
+      grid-row: 6;
+      margin-top: 20px;
+    }
+    .site .plans .plan-actions {
+      display: contents;
+    }
+    .site .plans .plan[data-state='link'] .act-link {
+      display: grid;
+      grid-row: 7 / span 3;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+    }
+    .site .plans .act-link .btn {
+      grid-row: 1;
+      margin-top: 24px;
+    }
+    .site .plans .act-link .more {
+      grid-row: 2;
+      justify-self: start;
+      margin-top: 12px;
+    }
+    .site .plans .act-link .proof-line {
+      grid-row: 3;
+      margin-top: 10px;
+    }
+    .site .plans .act-soon,
+    .site .plans p.act-closed,
+    .site .plans p.act-soldout {
+      grid-row: 7;
+      margin-top: 24px;
+    }
+    .site .plans a.act-closed,
+    .site .plans a.act-soldout {
+      grid-row: 8;
+      margin-top: 12px;
+    }
+    .site .plans .details {
+      grid-row: 10;
+      justify-self: start;
+      margin-top: 12px;
+    }
+    .site .plans .note {
+      grid-row: 11;
+      margin-top: 8px;
+    }
+    .site .plans .every {
+      grid-row: 12;
+      margin-top: 20px;
+    }
+    .site .plans .not-ready {
+      grid-row: 13;
+      margin-top: 4px;
+    }
+  }
+}
+
 /* --- Wider screens ----------------------------------------------------------------------------- */
 
 @media (min-width: 640px) {
@@ -192,6 +290,21 @@
   }
   .pick-list > li:last-child {
     border-right: 0;
+  }
+}
+
+/* Two across below 1200px, where four cards would leave a lockup less than its clear space beside its
+   number (the Accelerator's is 185px wide at 24px type, plus 13px and the number), as on the homepage. */
+@media (min-width: 960px) and (max-width: 1199px) {
+  .site .plans .plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .site .plans .plan-grid > .plan {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .site .plans .plan-grid > .plan:nth-child(odd) {
+    border-right: 1px solid var(--line);
   }
 }
 

@@ -8,6 +8,7 @@ import { ENTRIES } from '../library/content';
 import { HOME } from '../home/content';
 import { OFFERS } from '../offer/content';
 import { AGENT_PLAN, CARD_IDS } from '../site/offers-content';
+import { ART } from '../home/program-logo';
 import { COMPARE, END, FAQ, PICKER, PRICING_HERO } from './content';
 import { CARD_NAMES, CARD_ORDER, renderBody, renderHead, renderPricingBody, renderPricingHead, WAITLIST_HREF } from './render';
 
@@ -339,16 +340,47 @@ describe('in the site’s look (`design/site-pricing`)', () => {
     expect(doc.querySelector('section.plans')?.getAttribute('data-theme')).toBe('light');
   });
 
-  it('opens each card with its program’s logo and number, as the homepage’s cards do, and says nothing new', () => {
+  it('heads each card with its program’s stacked lockup, the name visually hidden in the <h3>, as the homepage’s cards do', () => {
     const cards = [...doc.querySelectorAll('.plan-grid > li.plan')];
     expect(cards.map((c) => c.firstElementChild?.className)).toEqual(['plan-top', 'plan-top', 'plan-top', 'plan-top']);
     expect(cards.map((c) => c.querySelector('.plan-logo')?.getAttribute('data-program'))).toEqual(['accelerator', 'agent-plan', 'team-plan', 'insiders']);
-    for (const c of cards) {
-      expect(c.querySelector('.plan-logo svg')?.getAttribute('aria-hidden')).toBe('true');
+    cards.forEach((c, i) => {
+      const card = CARD_ORDER[i]!;
+      const h3 = c.querySelector(':scope > .plan-top > h3.plan-name')!;
+      // The heading keeps its id, so the card and See Full Details still point at it, and says the exact name.
+      expect(h3.id).toBe(`${CARD_IDS[card]}-name`);
+      expect(c.getAttribute('aria-labelledby')).toBe(h3.id);
+      expect(c.querySelector('a.details')?.getAttribute('aria-describedby')).toBe(h3.id);
+      expect(text(h3.querySelector('.sr-only'))).toBe(CARD_NAMES[card]);
+      expect(h3.textContent).toBe(CARD_NAMES[card]);
+      // The lockup is the stacked one at 24px type, drawn for the eye only.
+      const svg = h3.querySelector('.plan-logo svg')!;
+      const key = svg.closest('.plan-logo')!.getAttribute('data-program') as keyof typeof ART;
+      expect(svg.getAttribute('aria-hidden')).toBe('true');
+      expect(svg.getAttribute('viewBox')).toBe(ART[key].stacked.viewBox.join(' '));
       expect(c.querySelector('.plan-idx')?.getAttribute('aria-hidden')).toBe('true');
-      // The name is still the card's label, right after the top row.
-      expect(c.querySelector('.plan-top + h3.plan-name')).not.toBeNull();
-    }
+    });
     expect(cards.map((c) => text(c.querySelector('.plan-idx')))).toEqual(['01', '02', '03', '04']);
+    // No name typed beside the logo any more: the heading is the only place it is.
+    expect(doc.querySelectorAll('.plan-grid h3.plan-name').length).toBe(4);
+  });
+
+  it('lines up every row across the four cards when they sit side by side', () => {
+    const css = read('./pricing.css');
+    const wide = css.slice(css.indexOf('@media (min-width: 1200px) {'));
+    expect(wide).toMatch(/@supports \(grid-template-rows: subgrid\) \{\s*\.site \.plans \.plan-grid > \.plan \{[^}]*grid-row: span 13;\s*grid-template-rows: subgrid;/);
+    for (const [selector, row] of [
+      ['.site .plans .plan-top', '1'],
+      ['.site .plans .facts', '2 / span 4'],
+      ['.site .plans .price', '6'],
+      ['.site .plans .details', '10'],
+      ['.site .plans .every', '12'],
+      ['.site .plans .not-ready', '13'],
+    ] as const)
+      expect(wide, selector).toContain(`${selector} {\n      ${selector === '.site .plans .facts' ? 'display: grid;\n      ' : ''}grid-row: ${row};`);
+    // The live block keeps the button, its other payment link and the proof line a row each, in the live state only.
+    expect(wide).toMatch(/\.site \.plans \.plan\[data-state='link'\] \.act-link \{[^}]*grid-row: 7 \/ span 3;/);
+    // Two across below 1200px, where four would crowd the lockups.
+    expect(css).toMatch(/@media \(min-width: 960px\) and \(max-width: 1199px\) \{\s*\.site \.plans \.plan-grid \{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
   });
 });
