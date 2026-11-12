@@ -21,3 +21,10 @@ branch only, which is never merged, so no image lands in `main`. Each PR links t
 - `site-ai101/`: /ai101, /voice-profile and /retool. `before/` and `after/` are full pages at 2x (the
   first screen, as the step-through shows one at a time) and `*-all-390.jpg`, every screen at once as
   the page reads without its script; `crops/` puts the first screen side by side.
+- `v2-kit/`: the v2 kit's header and footer, before (`main`) and after, cropped from /pricing at 2x
+  (the kit's first page, `design/v2-pricing`); the open menus and the light theme are in
+  `v2-pricing/after-states/`.
+- `v2-pricing/`: /pricing on the v2 kit. `before*/` is `main`, `after*/` the branch head, full pages at
+  2x with reduced motion: founding open (`before/`, `after/`), founding closed (`*-closed/`) and
+  checkout not open yet (`*-soon/`). `after-states/` has Programs open, the phone menu open, the light
+  theme, and the page with no script.
