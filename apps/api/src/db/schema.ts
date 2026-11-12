@@ -293,3 +293,35 @@ export const skills = pgTable('skills', {
   check('skills_sets', sql`${t.sets} in ('owner_ops', 'agent', 'both')`),
   check('skills_status', sql`${t.status} in ('draft', 'published', 'hidden')`),
 ]);
+
+// Access groups (D-148): people who hold a plan's entitlement at no charge, by their VERIFIED email
+// address: everyone whose address is at `email_domain` (an exact match, never a subdomain), and anyone
+// listed in `access_group_members`. Not paid seats and not Stripe customers: no account, order or
+// plan row is written for them. The grant is worked out on every request (`billing/access-groups.ts`),
+// so taking a domain off a group, or an address off its list, takes the access away at once. `plan`
+// is the kind whose sets the group opens, through the same access rule as a bought plan, so a skill
+// released later opens for the group with no other change. `expires_at` null: no end.
+export const accessGroups = pgTable('access_groups', {
+  id: text('id').primaryKey(), name: text('name').notNull(), plan: text('plan').notNull(),
+  emailDomain: text('email_domain'), expiresAt: ts('expires_at'), createdAt: ts('created_at').notNull(),
+}, (t) => [
+  check('access_groups_plan', sql`${t.plan} in ('library', 'cohort', 'agents', 'membership', 'agent_plan')`),
+  check('access_groups_domain', sql`${t.emailDomain} is null or ${t.emailDomain} = lower(trim(${t.emailDomain}))`),
+]);
+
+// A group's listed addresses (D-148), lower-cased and trimmed. Personal data: loaded into the database,
+// never committed.
+export const accessGroupMembers = pgTable('access_group_members', {
+  groupId: text('group_id').notNull().references(() => accessGroups.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(), name: text('name').notNull().default(''), addedAt: ts('added_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.groupId, t.email] }),
+  check('access_group_members_email', sql`${t.email} = lower(trim(${t.email}))`),
+]);
+
+// An address its owner has proven they read (D-148): written when a link emailed to it is spent
+// (`claimToken`: a sign-in link, an invite, a set or reset password link), keeping the first time.
+// An access group grants only to a verified address, so typing someone else's address proves nothing.
+export const emailVerifications = pgTable('email_verifications', {
+  email: text('email').primaryKey(), verifiedAt: ts('verified_at').notNull(),
+});

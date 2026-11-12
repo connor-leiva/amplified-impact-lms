@@ -20,6 +20,8 @@ import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
 import { pausedForPayment } from '@ai/core/accelerator';
 import { skillOpensAt, skillState } from '../billing/access';
+import { groupAccessOf } from '../billing/access-groups';
+import type { GroupMembership } from '../billing/access-groups';
 import type { PlanAccess, SkillAccess } from '../billing/access';
 import type { PlanKind, PlanStatus, SkillSet } from '../billing/catalog';
 
@@ -33,20 +35,37 @@ const NOT_FOUND = 'Not found';
 
 type SkillRow = typeof skills.$inferSelect;
 
-/** The learner, their role and their account's plans, for the access rule. */
-async function accessOf(userId: string): Promise<{ role: string | null; tier: string | null; plans: PlanAccess[] } | null> {
+/**
+ * The learner, their role, and the plans the access rule reads: their account's (bought), and any an
+ * access group gives their verified address (D-148). `paidPlans` is the bought ones alone, for what
+ * the screen says about billing; `groups` names the groups.
+ */
+async function accessOf(userId: string): Promise<{
+  role: string | null;
+  tier: string | null;
+  plans: PlanAccess[];
+  paidPlans: PlanAccess[];
+  groups: GroupMembership[];
+} | null> {
   const db = getDb();
-  const [user] = await db.select({ teamId: users.teamId, role: users.role, tier: users.tier, kind: users.kind }).from(users).where(eq(users.id, userId)).limit(1);
+  const [user] = await db
+    .select({ teamId: users.teamId, role: users.role, tier: users.tier, kind: users.kind, email: users.email })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
   if (!user || user.kind !== 'learner') return null;
-  if (!user.teamId) return { role: user.role, tier: user.tier, plans: [] };
-  const accts = await db.select({ id: accounts.id }).from(accounts).where(eq(accounts.teamId, user.teamId));
-  if (!accts.length) return { role: user.role, tier: user.tier, plans: [] };
+  const group = await groupAccessOf(db, user.email, clock.now());
+  const paidPlans = await paidPlansOf(db, user.teamId);
+  return { role: user.role, tier: user.tier, plans: [...paidPlans, ...group.plans], paidPlans, groups: group.groups };
+}
+
+/** The plans the learner's team's accounts hold. */
+async function paidPlansOf(db: ReturnType<typeof getDb>, teamId: string | null): Promise<PlanAccess[]> {
+  if (!teamId) return [];
+  const accts = await db.select({ id: accounts.id }).from(accounts).where(eq(accounts.teamId, teamId));
+  if (!accts.length) return [];
   const rows = await db.select().from(plans).where(inArray(plans.accountId, accts.map((a) => a.id)));
-  return {
-    role: user.role,
-    tier: user.tier,
-    plans: rows.map((p) => ({ kind: p.kind as PlanKind, option: p.option, status: p.status as PlanStatus, startsAt: p.startsAt, paidThrough: p.paidThrough, liveUntil: p.liveUntil })),
-  };
+  return rows.map((p) => ({ kind: p.kind as PlanKind, option: p.option, status: p.status as PlanStatus, startsAt: p.startsAt, paidThrough: p.paidThrough, liveUntil: p.liveUntil }));
 }
 
 const asSkill = (s: SkillRow): SkillAccess => ({
@@ -81,7 +100,10 @@ export function registerSkillRoutes(app: FastifyInstance): void {
     const now = clock.now();
     const rows = await getDb().select().from(skills).where(eq(skills.status, 'published'));
     return reply.send({
-      plans: access.plans.map((p) => ({ kind: p.kind, status: p.status, paidThrough: p.paidThrough })),
+      // The bought plans only: an access group's grant is not a plan to bill or cancel.
+      plans: access.paidPlans.map((p) => ({ kind: p.kind, status: p.status, paidThrough: p.paidThrough })),
+      // D-148: the access groups whose entitlement this viewer holds ("Included with your Utah Life team").
+      accessGroups: access.groups,
       // D-143: a two-pay AI Accelerator whose second payment failed. Its skills read locked until
       // that invoice is paid; the screen says why, and where to fix it.
       paused: access.plans.some(pausedForPayment),

@@ -33,6 +33,11 @@ export const COPY = {
   failed: "Your skills didn't load. Refresh the page to try again.",
   /** The owner's way into Stripe's billing portal (cards, invoices, cancelling). */
   billing: 'Manage Billing',
+  /**
+   * D-148: what an access group's member sees in place of billing: their skills come with their team
+   * (Utah Life), not a plan they bought. Connor's words, with the group's own name.
+   */
+  included: (group: string) => `Included with your ${group} team`,
   paused: 'Your second payment didn’t go through, so your AI Accelerator skills are paused. Update your card in Manage Billing and they open again on their own.',
   /** An AI Accelerator plan's way to its course pages (D-110). */
   course: 'Open the AI Accelerator',
@@ -57,7 +62,17 @@ export interface LibrarySkill {
   files: FileKind[];
 }
 
-type Load = { kind: 'loading' } | { kind: 'ready'; skills: LibrarySkill[]; course: boolean; teamHub: boolean; paused: boolean } | { kind: 'signed-out' } | { kind: 'failed' };
+/** An access group whose entitlement the viewer holds (D-148). */
+export interface AccessGroupInfo {
+  id: string;
+  name: string;
+}
+
+type Load =
+  | { kind: 'loading' }
+  | { kind: 'ready'; skills: LibrarySkill[]; course: boolean; teamHub: boolean; paused: boolean; groups: AccessGroupInfo[]; paidPlans: boolean }
+  | { kind: 'signed-out' }
+  | { kind: 'failed' };
 
 /** An AI Accelerator plan, by the plans `/api/skills` reports: only the AI Accelerator is a `cohort` plan. */
 const holdsCourse = (plans: { kind?: string; status?: string }[] | undefined): boolean =>
@@ -68,8 +83,22 @@ async function loadSkills(): Promise<Load> {
     const res = await fetch('/api/skills', { credentials: 'include', headers: { accept: 'application/json' } });
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
     if (!res.ok) return { kind: 'failed' };
-    const body = (await res.json()) as { skills?: LibrarySkill[]; plans?: { kind?: string; status?: string }[]; teamHub?: boolean; paused?: boolean };
-    return { kind: 'ready', skills: body.skills ?? [], course: holdsCourse(body.plans), teamHub: body.teamHub === true, paused: body.paused === true };
+    const body = (await res.json()) as {
+      skills?: LibrarySkill[];
+      plans?: { kind?: string; status?: string }[];
+      teamHub?: boolean;
+      paused?: boolean;
+      accessGroups?: AccessGroupInfo[];
+    };
+    return {
+      kind: 'ready',
+      skills: body.skills ?? [],
+      course: holdsCourse(body.plans),
+      teamHub: body.teamHub === true,
+      paused: body.paused === true,
+      groups: body.accessGroups ?? [],
+      paidPlans: (body.plans ?? []).length > 0,
+    };
   } catch {
     return { kind: 'signed-out' };
   }
@@ -205,9 +234,18 @@ export function Component() {
                 {COPY.teamHub}
               </a>
             ) : null}
-            <a className={s.secondary} href="/api/billing/portal">
-              {COPY.billing}
-            </a>
+            {/* A team member who bought nothing has nothing to bill (D-148): the note says why it's theirs. */}
+            {load.paidPlans || load.groups.length === 0 ? (
+              <a className={s.secondary} href="/api/billing/portal">
+                {COPY.billing}
+              </a>
+            ) : null}
+            {load.groups.map((g) => (
+              <p key={g.id} className={s.note}>
+                <Icon name="checkCircle" size={16} />
+                {COPY.included(g.name)}
+              </p>
+            ))}
           </div>
         ) : null}
         {load.kind === 'ready' && load.paused ? (

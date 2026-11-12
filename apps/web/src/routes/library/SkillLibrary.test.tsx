@@ -152,6 +152,31 @@ describe('the skill library screen', () => {
     expect(leadOf('content-opportunity-research')?.problem).toBe(ENTRIES.find((e) => e.href === '/content-strategist')?.problem);
   });
 
+  it('tells a Utah Life member their skills are included with their team, in place of billing (D-148)', async () => {
+    fetchMock.mockResolvedValue(
+      answer(200, { plans: [], accessGroups: [{ id: 'utah-life', name: 'Utah Life' }], skills: [skill({ id: 'appointment-follow-up', title: 'Appointment Follow-Up', sets: 'agent' })] }),
+    );
+    const { unmount } = render(<SkillLibrary />);
+    expect(await screen.findByText('Included with your Utah Life team')).toBeInTheDocument();
+    expect(COPY.included('Utah Life')).toBe('Included with your Utah Life team');
+    // Not a customer: nothing to bill.
+    expect(screen.queryByRole('link', { name: COPY.billing })).toBeNull();
+    unmount();
+
+    // A member who also bought a plan keeps Manage Billing beside the note.
+    fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'membership', status: 'active' }], accessGroups: [{ id: 'utah-life', name: 'Utah Life' }], skills: [skill({})] }));
+    const again = render(<SkillLibrary />);
+    expect(await screen.findByText('Included with your Utah Life team')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: COPY.billing })).toBeInTheDocument();
+    again.unmount();
+
+    // Everyone else: Manage Billing as before, and no note.
+    fetchMock.mockResolvedValue(answer(200, { skills: [skill({})] }));
+    render(<SkillLibrary />);
+    expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
+    expect(screen.queryByText(/Included with your/)).toBeNull();
+  });
+
   it('says so when the list fails to load', async () => {
     fetchMock.mockResolvedValue(answer(500, {}));
     render(<SkillLibrary />);

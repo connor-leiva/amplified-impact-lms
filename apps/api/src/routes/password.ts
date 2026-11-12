@@ -70,7 +70,8 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { accounts, authSessions, authTokens, orders, userPasswords, users } from '../db/schema';
 import { clock } from '../lib/clock';
-import { AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, claimToken } from './auth';
+import { AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, accountForGroupAddress, claimToken } from './auth';
+import { groupsOf } from '../billing/access-groups';
 
 // --- words -----------------------------------------------------------------------------------------
 
@@ -107,14 +108,17 @@ const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
  */
 export async function issuePasswordLink(email: string): Promise<void> {
   const db = getDb();
-  const user = await userByEmail(db, email);
-  if (!user) return;
-  const has = (await passwordHashOf(db, user.id)) !== null;
-  const purpose = has ? 'reset_password' : 'set_password';
   const now = clock.now();
+  const user = await userByEmail(db, email);
+  // D-148: an access group's address with no account yet gets a set-password link, which they asked
+  // for; the account is made when it is spent (`/api/auth/password/set`), which proves the address.
+  const to = user?.email ?? ((await groupsOf(db, email, now)).length > 0 ? email : null);
+  if (!to) return;
+  const has = user ? (await passwordHashOf(db, user.id)) !== null : false;
+  const purpose = has ? 'reset_password' : 'set_password';
   const token = mintToken();
-  await db.insert(authTokens).values({ tokenHash: hashToken(token), email: user.email, purpose, expiresAt: expiryFor(purpose, now) });
-  queueEmail({ template: has ? 'reset-password' : 'set-password', to: user.email, data: { token } });
+  await db.insert(authTokens).values({ tokenHash: hashToken(token), email: to, purpose, expiresAt: expiryFor(purpose, now) });
+  queueEmail({ template: has ? 'reset-password' : 'set-password', to, data: { token } });
 }
 
 // --- the shared end of every "set a password" path -------------------------------------------------
@@ -268,6 +272,8 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
     const now = clock.now();
     const claim = await claimToken(db, parsed.data.token, now, ['set_password', 'reset_password']);
     if (!claim.ok) return reply.code(400).send({ error: claim.code });
+    // D-148: an access group's address with no account: the spent link proves it, so make it now.
+    await accountForGroupAddress(db, claim.email, now);
     const user = await userByEmail(db, claim.email);
     if (!user) return reply.code(400).send({ error: 'expired' });
     const changed = await finishPasswordSet(db, user, parsed.data.password, now, null);
