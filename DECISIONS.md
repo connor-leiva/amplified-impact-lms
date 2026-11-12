@@ -4495,3 +4495,22 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - the Skill Library shows "Your second payment didn’t go through, so your AI Accelerator skills are paused. Update your card in Manage Billing and they open again on their own."
 - **Only this plan.** The AI Accelerator in full, Amplified Insiders, the Team Plan and the Agent Plan keep their access while past due, as before. The PM's decision covered the two-pay second payment, and Stripe's retries already handle those subscriptions. Pausing them the same way is the same one-line rule, if wanted.
 - **Not changed:** what is charged and when, the roll-on to Amplified Insiders on May 4, refunds (still end everything), cancel and keep, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
+## D-144 · The course's "Free" badges match what the Library charges
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12, in the queue after the two-pay pause: "the wrong 'Free' badges on three course items".
+**Status:** on a pull request.
+**Scope:** `packages/core/src/accelerator-content.ts` (the `free` flag on the course's skill links); `apps/api/test/course.test.ts`.
+
+- **Wrong before:**
+  - Team P&L Review (Week 1), Database Health Check (Week 4) and Appointment Follow-Up (Week 5) said Free, but they've been paid since D-115. Their live pages say "Get Amplified Insiders" or "Get Amplified Agent Plan".
+  - Four links to free things had no badge: Inbox and Meeting Follow-Through (free since D-115) and Task Sync Starter Kit in two weeks each, and the Ops Time Audit once. The last two are free opt-in guides, like the Voice Profile the course already marked. Their live pages are opt-in forms.
+- **The rule, now a test.** A course link is Free exactly when the Library makes it free:
+  - a catalog skill if `FREE_SKILLS` names it;
+  - a Grok Bot template if its own catalog says so (Lead-Source ROI is paid);
+  - any other guide (the opt-in pages).
+
+  A guide page that is also a paid skill or template (Database Health Check, Recruiting Prep, Team Playbook Builder, Lead-Source ROI) is that paid item's page now. `course.test.ts` walks every skill link in the course and checks each badge against those lists, so a future change to the free list fails the test until the course follows. Against main's content, both new cases fail.
+- **Only the badge.** Who can open what is the access rule's (D-079, D-115), and Accelerator buyers open both sets anyway. No golden covers the course.
+- **Not changed:** any skill's price or set, the free list, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.

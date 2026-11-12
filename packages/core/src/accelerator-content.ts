@@ -341,7 +341,7 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
       { title: 'AI Brain Setup', route: '/ai-brain-setup', role: 'flagship', use: 'Your Claude or ChatGPT workspace: instructions, an About My Business file and memory.', free: true },
       { title: 'Sounds Like You: Your AI Voice Profile', route: '/voice-profile', role: 'flagship', use: 'So drafts sound like you, not like a robot.', free: true },
       { title: 'Team AI Brain', route: '/team-ai-brain', role: 'flagship', use: 'Your team’s shared workspace, built from your own SOPs and standards.' },
-      { title: 'The Ops Time Audit', route: '/ops-time-audit', role: 'supporting', use: 'Your time baseline, before anything changes.' },
+      { title: 'The Ops Time Audit', route: '/ops-time-audit', role: 'supporting', use: 'Your time baseline, before anything changes.', free: true },
     ],
     setup: [
       { text: 'Fill in the intake. Your intake form arrives with your welcome email.' },
@@ -400,7 +400,7 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
     skills: [
       { title: 'Lead-Source ROI', route: '/lead-source-roi', role: 'flagship', use: 'Your lead spend next to what closed, by source. A Grok Bot template.' },
       { title: 'FUB Pipeline Review', route: '/fub-pipeline-review', role: 'supporting', use: 'The weekly numbers view.' },
-      { title: 'Team P&L Review', route: '/team-pnl-review', role: 'supporting', use: 'The accounting input, from your latest closed month.', free: true },
+      { title: 'Team P&L Review', route: '/team-pnl-review', role: 'supporting', use: 'The accounting input, from your latest closed month.' },
     ],
     setup: [
       { text: 'Open Lead-Source ROI and follow its guided setup to the end.', route: '/lead-source-roi' },
@@ -477,8 +477,8 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
     time: WEEK_TIME,
     skills: [
       { title: 'Morning Brief', route: '/morning-brief', role: 'flagship', use: 'A one-page brief: up to three priorities, the exceptions that need a decision, and the next owned actions.' },
-      { title: 'Task Sync Starter Kit', route: '/task-sync-starter', role: 'supporting', use: 'Turns one authorized meeting or email thread into owned, dated tasks.' },
-      { title: 'Inbox and Meeting Follow-Through', route: '/inbox-meeting-follow-through', role: 'supporting', use: 'The daily pass over email and meetings, once the brief proves useful.' },
+      { title: 'Task Sync Starter Kit', route: '/task-sync-starter', role: 'supporting', use: 'Turns one authorized meeting or email thread into owned, dated tasks.', free: true },
+      { title: 'Inbox and Meeting Follow-Through', route: '/inbox-meeting-follow-through', role: 'supporting', use: 'The daily pass over email and meetings, once the brief proves useful.', free: true },
     ],
     setup: [
       { text: 'Open Morning Brief and follow its guided setup to the end.', route: '/morning-brief' },
@@ -550,7 +550,7 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
     time: WEEK_TIME,
     skills: [
       { title: 'L10 Meeting Prep', route: '/l10-meeting-prep', role: 'flagship', use: 'Preps the weekly meeting. Don’t run EOS? Call it your weekly leadership meeting. It works the same.' },
-      { title: 'Task Sync Starter Kit', route: '/task-sync-starter', role: 'supporting', use: 'Carries each decision into the same task system as Week 2.' },
+      { title: 'Task Sync Starter Kit', route: '/task-sync-starter', role: 'supporting', use: 'Carries each decision into the same task system as Week 2.', free: true },
     ],
     setup: [
       { text: 'Open L10 Meeting Prep and follow its guided setup to the end. Not on EOS? Use the weekly leadership meeting labels.', route: '/l10-meeting-prep' },
@@ -624,7 +624,7 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
       { title: 'Contract-to-Close Deadline Tracker', route: '/contract-to-close-deadlines', role: 'optional', use: 'What’s overdue and due soon across your files, with the date math shown.' },
       { title: 'Stalled Lender, Title & Escrow Follow-Up', route: '/stalled-item-follow-up', role: 'optional', use: 'Spots items that should have moved and drafts the follow-up.' },
       { title: 'TC File Audit', route: '/tc-file-audit', role: 'optional', use: 'One file against your checklist and its contract dates.' },
-      { title: 'Database Health Check', route: '/database-health-check', role: 'optional', use: 'Only if your identifiers are messy. A cleanup list, not a cleanup project.', free: true },
+      { title: 'Database Health Check', route: '/database-health-check', role: 'optional', use: 'Only if your identifiers are messy. A cleanup list, not a cleanup project.' },
     ],
     setup: [
       { text: 'Open FUB Pipeline Review and follow its guided setup to the end.', route: '/fub-pipeline-review' },
@@ -702,7 +702,7 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
       { title: 'Agent 1:1 Prep', route: '/agent-1on1-prep', role: 'flagship', use: 'Walk into the 1:1 with the pace math, last time’s commitments and the questions to ask.' },
       { title: 'FUB Pipeline Review', route: '/fub-pipeline-review', role: 'supporting', use: 'Context for the conversation, from Week 4.' },
       { title: 'Listing Appointment Prep', route: '/listing-appointment-prep', role: 'pilot', use: 'For the agent pilot, not a second class build.' },
-      { title: 'Appointment Follow-Up', route: '/appointment-follow-up', role: 'pilot', use: 'For the agent pilot, not a second class build.', free: true },
+      { title: 'Appointment Follow-Up', route: '/appointment-follow-up', role: 'pilot', use: 'For the agent pilot, not a second class build.' },
     ],
     setup: [
       { text: 'Open Agent 1:1 Prep and follow its guided setup to the end.', route: '/agent-1on1-prep' },
@@ -774,8 +774,8 @@ export const ACCELERATOR_WEEKS_CONTENT: readonly CourseWeek[] = [
     time: WEEK_TIME,
     skills: [
       { title: 'Team Playbook Builder', route: '/team-playbook-builder', role: 'flagship', use: 'Turns your SOPs into a playbook. This week you pull one responsibility card from it.' },
-      { title: 'Inbox and Meeting Follow-Through', route: '/inbox-meeting-follow-through', role: 'supporting', use: 'The drafting engine for the delegated deliverable.' },
-      { title: 'Task Sync Starter Kit', route: '/task-sync-starter', role: 'supporting', use: 'Carries approved work into the task system you already use.' },
+      { title: 'Inbox and Meeting Follow-Through', route: '/inbox-meeting-follow-through', role: 'supporting', use: 'The drafting engine for the delegated deliverable.', free: true },
+      { title: 'Task Sync Starter Kit', route: '/task-sync-starter', role: 'supporting', use: 'Carries approved work into the task system you already use.', free: true },
     ],
     setup: [
       { text: 'Open Team Playbook Builder and follow its guided setup to the end.', route: '/team-playbook-builder' },
