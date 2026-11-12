@@ -15,15 +15,13 @@
    sideways at 375px: the prompts wrap (`pre-wrap` plus `overflow-wrap: anywhere`).
 
    This file is inlined into the page's <style> at build time (vite-plugin.ts), @imports included.
-   Only the four font files are separate requests, the same four-request budget as before: Hanken
-   Grotesk 400, 700 and 800 and DM Mono 400 (the design's one DM Mono 500 is drawn at 400). */
+   THE KIT'S TOKENS (v2): `../kit/tokens.css` re-points the colour tokens to the kit's palette, drops the
+   shadows for hairlines, and sets Geist and Geist Mono, the homepage's own two font files, the only
+   separate requests. Panels take the kit's 8px radius and controls its 6px. */
 
-@import '@fontsource/hanken-grotesk/400.css';
-@import '@fontsource/hanken-grotesk/700.css';
-@import '@fontsource/hanken-grotesk/800.css';
-@import '@fontsource/dm-mono/400.css';
 @import '../styles/tokens.css';
 @import '../styles/global.css';
+@import '../kit/tokens.css';
 
 :root {
   /* The three accents (see the header). */
@@ -279,7 +277,7 @@ html:not(.steps-on) .screen + .screen {
   /* 16px a side, not the design's 22: at 375 that is what keeps "I Have My Samples" on one line,
      and a label that still wraps keeps clear of the button's edges. */
   padding: 6px 16px;
-  border-radius: 14px;
+  border-radius: 8px;
   line-height: 1.2;
   text-wrap: balance;
   font-size: 19px;
@@ -331,7 +329,7 @@ html:not(.steps-on) .screen + .screen {
   justify-content: center;
   min-height: 56px;
   padding: 0 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 19px;
   font-weight: 800;
   line-height: 1.2;
@@ -393,13 +391,13 @@ html:not(.steps-on) .screen + .screen {
   gap: 12px;
   padding: 20px;
   border: 1px solid var(--ai101-line);
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--bg-surface);
 }
 .card-roomy {
   gap: 14px;
   padding: 22px;
-  border-radius: 16px;
+  border-radius: 8px;
 }
 .card-accent {
   border: 2px solid var(--action-primary);
@@ -439,7 +437,7 @@ html:not(.steps-on) .screen + .screen {
   align-items: center;
   gap: 12px;
   padding: 16px 18px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 18px;
 }
 .callout::before {
@@ -617,7 +615,7 @@ html:not(.steps-on) .screen + .screen {
   min-height: 56px;
   padding: 12px 16px;
   border: 2px solid var(--ai101-field-line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--bg-surface);
   color: var(--text-primary);
   font-size: 19px;
@@ -651,14 +649,14 @@ html:not(.steps-on) .screen + .screen {
   display: flex;
   gap: 8px;
   padding: 6px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--ai101-seg);
 }
 .picker button {
   flex: 1;
   min-height: 52px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 6px;
   background: transparent;
   color: var(--action-primary);
   font-size: 18px;
@@ -754,7 +752,7 @@ html:not(.steps-on) .path-panel + .path-panel {
   min-height: 60px;
   padding: 14px 18px;
   border: 1px solid color-mix(in oklch, var(--text-primary) 20%, transparent);
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--bg-surface);
   color: var(--text-primary);
   font-size: 18px;
@@ -822,7 +820,7 @@ html:not(.steps-on) .path-panel + .path-panel {
 .week {
   gap: 2px;
   padding: 12px 8px;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 /* The smallest phones (an iPhone SE at 320): two weeks a row, so "Method" stays inside its card. */
 @media (max-width: 359px) {
@@ -851,7 +849,7 @@ html:not(.steps-on) .path-panel + .path-panel {
 .waitlist {
   gap: 18px;
   padding: 28px 22px;
-  border-radius: 18px;
+  border-radius: 8px;
   background: var(--action-primary);
   color: var(--action-on-primary);
 }
@@ -886,7 +884,7 @@ html:not(.steps-on) .waitlist {
   min-height: 56px;
   padding: 12px 16px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--bg-canvas);
   color: var(--text-primary);
   font-size: 19px;
@@ -972,7 +970,7 @@ html:not(.steps-on) .waitlist {
 .wl-success {
   display: none;
   padding: 18px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: color-mix(in oklch, var(--ai101-mint) 20%, transparent);
   font-weight: 700;
 }
@@ -1014,7 +1012,7 @@ html:not(.steps-on) .waitlist {
   max-width: calc(100vw - 32px);
   margin: 0;
   padding: 16px 22px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--text-primary);
   color: var(--bg-canvas);
   box-shadow: var(--ai101-shadow);
