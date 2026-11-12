@@ -25,6 +25,7 @@
 
 import { GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
 import { isFreeSkill, SKILL_CATALOG } from '@ai/core/skills';
+import { LEAD } from '../library/content';
 import { OPS_TIME_AUDIT } from './ops-time-audit';
 import { REEL_EDITOR } from './reel-editor';
 import { TASK_SYNC_STARTER } from './task-sync-starter';
@@ -451,7 +452,8 @@ export const SHARED = {
   skill: {
     // "The Library", as on the homepage and /library itself (D-103): most of it is paid now.
     library: { label: 'The Library', href: '/library' },
-    setupTitle: 'Your setup',
+    // "Set it up", under the lead (`LEAD` in ../library/content.ts), so how to set it up never comes first.
+    setupTitle: LEAD.setup,
     sampleMore: 'See the Full Example',
     sampleLess: 'Show Less',
     bar: 'Get the Free Skill',

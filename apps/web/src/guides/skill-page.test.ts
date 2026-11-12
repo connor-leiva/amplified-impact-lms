@@ -358,11 +358,11 @@ describe('the skill layout (D-071)', () => {
     expect(doc.getElementById('guide-live')?.getAttribute('role')).toBe('status');
   });
 
-  it('names each setup "Your setup", with the step count beside it', () => {
+  it('names each setup "Set it up", with the step count beside it', () => {
     const heads = [...doc.querySelectorAll('[data-guided] > .guided-head')];
     expect(heads).toHaveLength(2);
     for (const head of heads) {
-      expect(text(head.querySelector('.guided-title'))).toBe('Your setup');
+      expect(text(head.querySelector('.guided-title'))).toBe('Set it up');
       expect(head.querySelector('[data-guided-progress]')?.hasAttribute('hidden')).toBe(true);
     }
   });
