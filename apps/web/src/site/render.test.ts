@@ -162,3 +162,20 @@ describe('the stylesheet (`site.css`): the homepage’s look, site-wide', () => 
     expect(css).not.toMatch(/fonts\.googleapis|fonts\.gstatic|url\(['"]?https?:/);
   });
 });
+
+describe('the pages in the site’s look', () => {
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+  const shell = (name: string) => readFileSync(resolve(root, `${name}.html`), 'utf8');
+
+  it('opt in with `class="site"` on <body>, keeping every attribute the API fills', () => {
+    for (const name of ['about', 'free', 'agents', 'teams', 'team-build']) expect(shell(name), name).toMatch(/<body class="site" data-app-ready="true"/);
+    expect(shell('agents')).toContain('data-invites="%%invites%%"');
+    expect(shell('teams')).toContain('data-founding="%%founding%%" data-invites="%%invites%%"');
+    expect(shell('team-build')).toContain('data-founding="%%founding%%" data-seats="%%seats%%"');
+  });
+
+  it('draws a page’s own tokens in the look on every ground, and leaves the homepage’s alone', () => {
+    const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'site.css'), 'utf8');
+    expect(css).toMatch(/\.site:not\(\.hp\),\n\.site:not\(\.hp\) \[data-theme='dark'\],\n\.site:not\(\.hp\) \[data-theme='light'\] \{[^}]*--text-secondary: var\(--ink-secondary\);/);
+  });
+});

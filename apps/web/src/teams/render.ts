@@ -68,7 +68,7 @@ function hero(): string {
 
 function sizes(): string {
   return [
-    `<section class="section sizes" id="sizes" aria-labelledby="sizes-title">`,
+    `<section class="section sizes" id="sizes" data-theme="light" aria-labelledby="sizes-title">`,
     `<div class="wrap">`,
     `<h2 id="sizes-title">${esc(TIERS.heading)}</h2>`,
     `<ol class="plan-grid tier-grid" role="list">${TIERS.items.map(tier).join('')}</ol>`,
@@ -109,7 +109,7 @@ function join(): string {
     })
     .join('');
   return [
-    `<section class="section join" aria-labelledby="join-title">`,
+    `<section class="section join" data-theme="light" aria-labelledby="join-title">`,
     `<div class="wrap two-cols">`,
     `<div><h2 id="join-title">${esc(JOIN.heading)}</h2><ol class="steps" role="list">${steps}</ol></div>`,
     `<div><h2 id="billing-title">${esc(BILLING.heading)}</h2>${list(BILLING.lines)}</div>`,

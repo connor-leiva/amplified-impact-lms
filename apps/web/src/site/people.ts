@@ -26,7 +26,7 @@ export function meetSection(): string {
     )
     .join('');
   return [
-    `<section class="section meet" aria-labelledby="meet-title">`,
+    `<section class="section meet" data-theme="light" aria-labelledby="meet-title">`,
     `<div class="wrap">`,
     `<h2 id="meet-title">${esc(m.heading)}</h2>`,
     `<ul class="people" role="list">${cards}</ul>`,

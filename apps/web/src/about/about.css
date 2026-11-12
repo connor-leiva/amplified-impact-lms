@@ -1,97 +1,134 @@
-/* /about. DECISIONS.md D-117.
+/* /about. DECISIONS.md D-117; in the homepage's look on `design/site-marketing`.
 
-   The site's look (`../site/site.css`): the hero, Spring and Connor each with their own photo and full
-   bio, the Utah Life story, why we built this, and the two buttons. Mobile first, no text under 16px.
+   The site's look (`../site/site.css`, the page's <body> is `site`): the hero on the dark ground, Spring
+   and Connor each with their own photo and full bio in rows under an ink rule, the Utah Life story and
+   why we built this on the bone ground, and the two buttons to close. The words and the order are
+   `content.ts`'s, unchanged. Mobile first, no text under 16px.
 
-   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+   COLOURS. The site's custom properties only (`scripts/check-css-colors.mjs` scans this file). Inlined
+   at build time. */
 
 @import '../site/site.css';
 
 .about-hero {
-  padding: 40px 0 32px;
+  padding-block: 96px 72px;
 }
 .about-hero h1 {
-  max-width: 20ch;
-  margin-top: 8px;
-  font-size: 36px;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  max-width: 14ch;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
+
+/* --- Spring and Connor: rows under an ink rule, the photo beside the bio ------------------------ */
+
 .bios {
   display: grid;
-  gap: 24px;
-  padding-bottom: 56px;
+  padding-bottom: var(--section);
+}
+.bios > .bio:first-child {
+  border-top: 1px solid var(--ink);
 }
 .bio {
   display: grid;
-  gap: 16px;
-  padding: 20px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  box-shadow: inset 0 0 0 1px var(--line-default);
+  gap: var(--space-24);
+  padding-block: 40px;
+  border-bottom: 1px solid var(--line);
 }
 .bio-photo {
   width: 100%;
   max-width: 320px;
   aspect-ratio: 4 / 5;
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
   object-fit: cover;
   object-position: center 20%;
 }
+.bio-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 680px;
+}
 .bio h2 {
-  font-size: 26px;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
 }
 .bio-role {
-  margin: 2px 0 12px;
-  color: var(--text-secondary);
+  color: var(--ink-secondary);
   font-weight: 500;
+  line-height: 1.45;
 }
+.bio-text > p:last-child {
+  margin-top: 8px;
+  color: var(--ink-secondary);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* --- The story and why we built this, on the bone ground --------------------------------------- */
+
 .two-col {
   display: grid;
-  gap: 16px;
+  gap: 32px;
 }
 .prose {
   display: grid;
-  gap: 12px;
-  max-width: 62ch;
-  font-size: 18px;
+  gap: 16px;
+  max-width: 620px;
+  color: var(--ink-secondary);
+  font-size: 20px;
+  line-height: 1.55;
 }
 .about-proof {
   display: grid;
-  gap: 2px;
-  margin-top: 16px;
+  gap: 6px;
+  margin-top: 40px;
+  padding-left: var(--space-24);
+  border-left: 1px solid var(--line);
 }
 .about-proof span {
-  color: var(--text-secondary);
+  color: var(--ink-secondary);
+  font-family: var(--font-mono);
   font-size: 16px;
-  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .about-proof strong {
-  font-size: 26px;
+  font-size: clamp(30px, 3.4vw, 44px);
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+/* --- The close ------------------------------------------------------------------------------------ */
+
+.about-end h2 {
+  max-width: 14ch;
 }
 .about-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 20px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
 }
 
+@media (min-width: 760px) {
+  .bio {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 48px;
+  }
+}
 @media (min-width: 960px) {
   .about-hero {
-    padding: 64px 0 48px;
-  }
-  .about-hero h1 {
-    font-size: 52px;
-  }
-  .bio {
-    grid-template-columns: 280px 1fr;
-    gap: 32px;
-    padding: 28px;
+    padding-block: 136px 96px;
   }
   .two-col {
-    grid-template-columns: 1fr 1.4fr;
-    gap: 48px;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 72px;
   }
 }

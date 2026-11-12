@@ -46,7 +46,7 @@ export function renderFreeBody(): string {
     `<p class="section-lede">${esc(h.lede)}</p>`,
     `</div></section>`,
     `<div class="wrap free-cols">${COLUMNS.map(column).join('')}</div>`,
-    `<section class="section free-skills" aria-labelledby="skills-title"><div class="wrap">`,
+    `<section class="section free-skills" data-theme="light" aria-labelledby="skills-title"><div class="wrap">`,
     `<h2 id="skills-title">${esc(SKILLS.heading)}</h2>`,
     `<p class="section-lede">${esc(SKILLS.body)}</p>`,
     `<p class="free-actions"><a class="btn btn-primary" href="${esc(FREE_SKILLS_HREF)}">${esc(SKILLS.button)}</a> <a class="btn btn-secondary" href="/pricing">${esc(SKILLS.more)}</a></p>`,

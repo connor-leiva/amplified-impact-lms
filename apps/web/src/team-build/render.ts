@@ -73,7 +73,7 @@ function who(): string {
   const w = WHO;
   const list = (items: readonly string[]) => `<ul class="ticks" role="list">${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`;
   return [
-    `<section class="section who" aria-labelledby="who-title">`,
+    `<section class="section who" data-theme="light" aria-labelledby="who-title">`,
     `<div class="wrap who-cols">`,
     `<div><h2 id="who-title">${esc(w.heading)}</h2>${list(w.forItems)}</div>`,
     `<div><h2>${esc(w.notHeading)}</h2>${list(w.notItems)}<p class="who-waitlist">${esc(w.waitlistBefore)}<a href="${WAITLIST_HREF}">${esc(w.waitlistLink)}</a>${esc(w.waitlistAfter)}</p></div>`,
@@ -120,7 +120,7 @@ function how(): string {
   const items = HOW.items.map((i) => `<div class="how-item"><dt>${esc(i.title)}</dt><dd>${esc(i.body)}</dd></div>`).join('');
   const lines = OFFERS.cohort.lines.map((l) => `<li>${esc(l)}</li>`).join('');
   return [
-    `<section class="section how" aria-labelledby="how-title">`,
+    `<section class="section how" data-theme="light" aria-labelledby="how-title">`,
     `<div class="wrap how-cols">`,
     `<div><h2 id="how-title">${esc(HOW.heading)}</h2><dl class="how-list">${items}</dl></div>`,
     `<div><h2 id="get-title">${esc(GET.heading)}</h2><ul class="ticks" role="list">${lines}</ul></div>`,

@@ -5,103 +5,129 @@
    who it's for, the eight weeks, how it runs, the proof and the price section. Mobile first, no text
    under 16px, every tap 44px or more, nothing wider than the screen.
 
-   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+   COLOURS. The site's custom properties only (`scripts/check-css-colors.mjs` scans this file). Inlined
+   at build time. */
 
 @import '../site/offers.css';
 
 /* --- The hero and its buy block --------------------------------------------------------------- */
 
 .tb-hero {
-  padding: 40px 0 48px;
+  padding-block: 96px 72px;
 }
 .tb-hero-in {
   display: grid;
-  gap: 32px;
+  gap: 48px;
 }
 .tb-hero h1 {
-  max-width: 16ch;
-  margin-top: 8px;
-  font-size: 38px;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  max-width: 14ch;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 .first {
-  margin-top: 16px;
+  margin-top: var(--space-24);
+  color: var(--ink);
   font-weight: 500;
 }
 .buy-facts {
   display: grid;
-  gap: 4px;
+  gap: 6px;
+  color: var(--ink-secondary);
 }
 .buy-facts strong {
+  color: var(--ink);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
-/* --- Who it's for -------------------------------------------------------------------------------- */
+/* --- Who it's for, on the bone ground ----------------------------------------------------------- */
 
 .who-cols,
 .how-cols {
   display: grid;
-  gap: 40px;
+  gap: 56px;
+}
+.who-cols h2,
+.how-cols h2 {
+  font-size: clamp(32px, 3.6vw, 48px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
 }
 .who-waitlist {
-  margin-top: 16px;
-  color: var(--text-secondary);
+  margin-top: 24px;
+  color: var(--ink-secondary);
 }
 
-/* --- The eight weeks --------------------------------------------------------------------------- */
+/* --- The eight weeks: the homepage's plan row, three across ---------------------------------------- */
 
 .week-list {
   display: grid;
-  gap: 12px;
-  margin-top: 28px;
+  margin-top: 56px;
+  border-top: 1px solid var(--ink);
 }
 .week {
-  padding: 20px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  box-shadow: inset 0 0 0 1px var(--line-default);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 28px 0 32px;
+  border-bottom: 1px solid var(--line);
+  transition: background-color 0.4s var(--ease);
 }
 .week-when {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px 10px;
-  color: var(--text-secondary);
+  gap: 2px 12px;
+  color: var(--ink-secondary);
+  font-family: var(--font-mono);
   font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .week-n {
-  color: var(--action-primary);
-  font-weight: 500;
+  color: var(--accent);
 }
 .week h3 {
-  margin-top: 4px;
-  font-size: 20px;
-  line-height: 1.25;
+  margin-top: 6px;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 .week-q {
-  margin-top: 6px;
+  color: var(--ink-secondary);
 }
 .week-skills,
 .week-support,
 .week-note {
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: 16px;
   line-height: 1.75;
 }
 .week-skills {
-  font-weight: 500;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
 }
 .week-skills a,
 .week-support a,
 .who-waitlist a {
   padding: 12px 0;
-  font-weight: 500;
+  color: var(--ink);
   text-decoration: underline;
+  text-decoration-color: var(--line-control);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: color 0.2s;
+}
+.week-skills a:hover,
+.week-support a:hover,
+.who-waitlist a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
 }
 .week-support,
 .week-note {
-  color: var(--text-secondary);
+  color: var(--ink-secondary);
 }
 .skill-new {
   display: inline-flex;
@@ -109,44 +135,60 @@
   gap: 8px;
 }
 .weeks-holiday {
-  margin-top: 20px;
+  margin-top: 32px;
+  color: var(--ink);
   font-weight: 500;
 }
 
-/* --- How it runs ------------------------------------------------------------------------------- */
+/* --- How it runs, on the bone ground -------------------------------------------------------------- */
 
 .how-list {
   display: grid;
-  gap: 16px;
-  margin-top: 16px;
+  margin-top: 32px;
+  border-top: 1px solid var(--ink);
+}
+.how-item {
+  display: grid;
+  gap: 4px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
 }
 .how-item dt {
+  font-size: 20px;
   font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 .how-item dd {
-  color: var(--text-secondary);
+  color: var(--ink-secondary);
 }
 
 /* --- Proof and the price ----------------------------------------------------------------------- */
 
 .proof-figure {
   display: grid;
-  gap: 2px;
-  margin-top: 16px;
+  gap: 6px;
+  margin-top: 40px;
+  padding-left: var(--space-24);
+  border-left: 1px solid var(--line);
 }
 .proof-figure span {
-  color: var(--text-secondary);
+  color: var(--ink-secondary);
+  font-family: var(--font-mono);
   font-size: 16px;
-  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .proof-figure strong {
-  font-size: 28px;
+  font-size: clamp(40px, 5vw, 72px);
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
 }
 .price-in {
   display: grid;
-  gap: 24px;
+  gap: 48px;
 }
 
 /* --- Wider screens ----------------------------------------------------------------------------- */
@@ -155,26 +197,43 @@
   .week-list {
     grid-template-columns: 1fr 1fr;
   }
+  .week {
+    padding-inline: 24px;
+  }
+  .week:nth-child(odd) {
+    border-right: 1px solid var(--line);
+  }
+  .week:hover {
+    background: var(--surface-raised);
+  }
 }
 
 @media (min-width: 960px) {
   .tb-hero {
-    padding: 64px 0 72px;
+    padding-block: 136px 112px;
   }
   .tb-hero-in {
-    grid-template-columns: 1.3fr 1fr;
-    align-items: start;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: end;
     gap: 56px;
   }
-  .tb-hero h1 {
-    font-size: 54px;
-  }
   .who-cols,
-  .how-cols,
-  .price-in {
+  .how-cols {
     grid-template-columns: 1fr 1fr;
+    gap: 72px;
+  }
+  .price-in {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    align-items: start;
+    gap: 72px;
   }
   .week-list {
     grid-template-columns: repeat(3, 1fr);
+  }
+  .week:nth-child(odd) {
+    border-right: 0;
+  }
+  .week:not(:nth-child(3n)) {
+    border-right: 1px solid var(--line);
   }
 }

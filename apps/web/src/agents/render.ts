@@ -80,7 +80,7 @@ function starter(): string {
     })
     .join('');
   return [
-    `<section class="section starter" aria-labelledby="starter-title">`,
+    `<section class="section starter" data-theme="light" aria-labelledby="starter-title">`,
     `<div class="wrap">`,
     `<h2 id="starter-title">${esc(STARTER.heading)}</h2>`,
     `<p class="section-lede">${esc(STARTER.lede)}</p>`,
@@ -124,7 +124,7 @@ function officeHoursAndAfter(): string {
     })
     .join('');
   return [
-    `<section class="section after-buy" aria-labelledby="oh-title">`,
+    `<section class="section after-buy" data-theme="light" aria-labelledby="oh-title">`,
     `<div class="wrap two-cols">`,
     `<div><h2 id="oh-title">${esc(OFFICE_HOURS.heading)}</h2><p class="section-lede">${esc(OFFICE_HOURS.body)}</p><p class="section-lede">${esc(OFFICE_HOURS.recorded)}</p></div>`,
     `<div><h2 id="after-title">${esc(AFTER_BUY.heading)}</h2><ol class="steps" role="list">${steps}</ol></div>`,

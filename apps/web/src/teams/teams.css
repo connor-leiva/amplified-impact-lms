@@ -5,63 +5,65 @@
    own: the hero, the three team sizes, the join steps and the end. Mobile first, no text under 16px,
    every tap 44px or more, nothing wider than the screen.
 
-   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+   COLOURS. The site's custom properties only (`scripts/check-css-colors.mjs` scans this file). Inlined
+   at build time. */
 
 @import '../site/offers.css';
 
 .teams-hero {
-  padding: 40px 0 40px;
+  padding-block: 96px 72px;
 }
 .teams-hero h1 {
-  max-width: 16ch;
-  margin-top: 8px;
-  font-size: 38px;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  max-width: 14ch;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 .teams-founding {
-  margin-top: 16px;
+  margin-top: var(--space-24);
+  color: var(--ink-secondary);
+  font-size: 18px;
+  line-height: 1.5;
 }
 .teams-founding strong {
+  color: var(--ink);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
-/* --- The three sizes --------------------------------------------------------------------------- */
+/* --- The three sizes: the homepage's plan row, on the bone ground ------------------------------- */
 
 .tier-owner {
   padding-top: 16px;
-  border-top: 1px solid var(--line-default);
-}
-.tier-label {
-  color: var(--text-secondary);
-  font-size: 16px;
-  font-weight: 500;
+  border-top: 1px solid var(--line);
 }
 .tier-owner .ticks {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 /* --- What they get, how they join -------------------------------------------------------------- */
 
 .rotation-label {
-  margin-top: 20px;
+  margin-top: 32px;
+  color: var(--ink);
   font-weight: 500;
 }
 .rotation {
   display: grid;
-  gap: 6px;
-  margin-top: 8px;
-  color: var(--text-secondary);
+  margin-top: 12px;
+  border-top: 1px solid var(--ink);
+  color: var(--ink-secondary);
 }
+.rotation li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
 /* --- Wider screens ----------------------------------------------------------------------------- */
 
 @media (min-width: 960px) {
   .teams-hero {
-    padding: 64px 0 56px;
-  }
-  .teams-hero h1 {
-    font-size: 54px;
+    padding-block: 136px 112px;
   }
   .tier-grid {
     grid-template-columns: repeat(3, 1fr);

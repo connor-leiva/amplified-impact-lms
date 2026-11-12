@@ -1,97 +1,141 @@
-/* /agents, the Amplified Agent Plan's sales page. DECISIONS.md D-114.
+/* /agents, the Amplified Agent Plan's sales page. DECISIONS.md D-114; in the homepage's look on
+   `design/site-marketing`.
 
-   The site's look and the sales pages' shared pieces (`../site/offers.css`: the buy block and its
-   states, numbered steps, two columns, the login line's two versions, the questions, the end). This
-   file is the page's own: the hero and the four week calendar. Mobile first, no text under 16px,
-   every tap 44px or more, nothing wider than the screen.
+   The site's look (`../site/site.css`, the page's <body> is `site`) and the sales pages' shared pieces
+   (`../site/offers.css`: the buy block and its states, numbered steps, two columns, the login line's
+   two versions, the questions, the end). This file is the page's own: the hero and the four week
+   calendar, drawn as the homepage's plan row. The words, links, Payment Link tokens and states are
+   unchanged. Mobile first, no text under 16px, every tap 44px or more, nothing wider than the screen.
 
-   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+   COLOURS. The site's custom properties only (`scripts/check-css-colors.mjs` scans this file). Inlined
+   at build time. */
 
 @import '../site/offers.css';
 
 .ag-hero {
-  padding: 40px 0 48px;
+  padding-block: 96px 72px;
 }
 .ag-hero-in {
   display: grid;
-  gap: 32px;
+  gap: 48px;
 }
 .ag-hero h1 {
-  max-width: 20ch;
-  margin-top: 8px;
-  font-size: 36px;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  max-width: 14ch;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 .buy {
-  scroll-margin-top: 16px;
+  scroll-margin-top: 80px;
 }
 
 /* --- The starter path's steps carry a skill's link as their title ------------------------------ */
 
 .starter .steps h3 a {
-  padding: 12px 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   text-decoration: underline;
+  text-decoration-color: var(--line-control);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+.starter .steps h3 a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+.starter .steps li::before {
+  top: 32px;
 }
 
-/* --- The four week calendar -------------------------------------------------------------------- */
+/* --- The four week calendar: the homepage's plan row ---------------------------------------------- */
 
 .rotation-when {
-  margin-top: 12px;
+  margin-top: 16px;
+  color: var(--ink);
   font-weight: 500;
 }
 .week-grid {
   display: grid;
-  gap: 12px;
-  margin-top: 24px;
+  margin-top: 56px;
+  border-top: 1px solid var(--ink);
 }
 .week {
-  padding: 20px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  box-shadow: inset 0 0 0 1px var(--line-default);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 28px 0 32px;
+  border-bottom: 1px solid var(--line);
+  transition: background-color 0.4s var(--ease);
 }
 .week-n {
-  color: var(--action-primary);
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
   font-size: 16px;
-  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .week h3 {
-  margin-top: 4px;
-  font-size: 20px;
-  line-height: 1.25;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 .week-skills {
   display: grid;
   margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
 }
 .week-skills a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  color: var(--ink-secondary);
   font-size: 16px;
   text-decoration: underline;
+  text-decoration-color: var(--line-control);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: color 0.2s;
+}
+.week-skills a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
 }
 
 @media (min-width: 640px) {
   .week-grid {
     grid-template-columns: 1fr 1fr;
   }
+  .week {
+    padding-inline: 24px;
+  }
+  .week:nth-child(odd) {
+    border-right: 1px solid var(--line);
+  }
+  .week:hover {
+    background: var(--surface-raised);
+  }
 }
 
 @media (min-width: 960px) {
   .ag-hero {
-    padding: 64px 0 72px;
+    padding-block: 136px 112px;
   }
   .ag-hero-in {
-    grid-template-columns: 1.3fr 1fr;
-    align-items: start;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: end;
     gap: 56px;
-  }
-  .ag-hero h1 {
-    font-size: 52px;
   }
   .week-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+  .week {
+    border-bottom: 0;
+    border-right: 1px solid var(--line);
+  }
+  .week:last-child {
+    border-right: 0;
   }
 }

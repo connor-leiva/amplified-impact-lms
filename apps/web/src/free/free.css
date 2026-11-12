@@ -1,90 +1,117 @@
-/* /free, Free Resources. DECISIONS.md D-116.
+/* /free, Free Resources. DECISIONS.md D-116; in the homepage's look on `design/site-marketing`.
 
-   The site's look (`../site/site.css`): two columns of resource cards, For Agents and For Team Owners,
-   then the way to the 5 free skills. Mobile first, no text under 16px, every tap 44px or more.
+   The site's look (`../site/site.css`, the page's <body> is `site`): two lists of resources, For Agents
+   and For Team Owners, drawn as the homepage's Free resources (rows under an ink rule, each title a
+   link the whole row answers to), then the way to the 5 free skills on the bone ground. The words and
+   links are `content.ts`'s and the Library's, unchanged. Mobile first, no text under 16px, every tap
+   44px or more.
 
-   COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
+   COLOURS. The site's custom properties only (`scripts/check-css-colors.mjs` scans this file). Inlined
+   at build time. */
 
 @import '../site/site.css';
 
 .free-hero {
-  padding: 40px 0 24px;
+  padding-block: 96px 72px;
 }
 .free-hero h1 {
-  max-width: 18ch;
-  margin-top: 8px;
-  font-size: 38px;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  max-width: 16ch;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
+
+/* --- The resources: the homepage's Free resources list, under For Agents and For Team Owners ------ */
+
 .free-cols {
   display: grid;
-  gap: 32px;
-  padding-bottom: 56px;
+  gap: 56px;
+  padding-bottom: var(--section);
 }
 .free-col h2 {
-  font-size: 24px;
+  margin-bottom: 12px;
+  color: var(--ink-secondary);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .res-list {
   display: grid;
-  gap: 12px;
-  margin-top: 16px;
+  border-top: 1px solid var(--ink);
 }
-.res {
+.site .res {
   position: relative;
   display: grid;
-  gap: 8px;
+  gap: 6px;
+  padding: 20px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
 }
 .res h3 {
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1.25;
+  letter-spacing: -0.02em;
 }
-/* The whole card is the link's target, for a thumb. */
+/* The whole row is the link's target, for a thumb. */
 .res h3 a {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   min-height: 44px;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: var(--line-control);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: color 0.2s;
 }
 .res h3 a::after {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 14px;
 }
 .res h3 a:focus-visible {
   outline: none;
 }
 .res:focus-within {
-  outline: 2px solid var(--action-primary);
-  outline-offset: 3px;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
-.res:hover {
-  box-shadow: inset 0 0 0 1px var(--action-primary);
+.res:hover h3 a {
+  color: var(--accent);
+  text-decoration-color: currentColor;
 }
 .res p {
-  color: var(--text-secondary);
+  color: var(--ink-secondary);
+  line-height: 1.55;
 }
 .res-open {
-  color: var(--action-primary) !important;
-  font-weight: 500;
+  color: var(--accent) !important;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
+
+/* --- The free skills, on the bone ground --------------------------------------------------------- */
+
 .free-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 24px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 40px;
 }
 
 @media (min-width: 960px) {
   .free-hero {
-    padding: 64px 0 32px;
-  }
-  .free-hero h1 {
-    font-size: 54px;
+    padding-block: 136px 96px;
   }
   .free-cols {
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    gap: 72px;
   }
 }
