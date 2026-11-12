@@ -293,6 +293,14 @@
   }
 }
 
+/* Below 1200px the cards flow as they are, each button 24px under its card's own words (the card's
+   18px gap and 6px), with no space reserved to line it up with its neighbour's, as on the homepage. */
+@media (max-width: 1199px) {
+  .site .plans .plan-actions {
+    margin-top: 6px;
+  }
+}
+
 /* Two across below 1200px, where four cards would leave a lockup less than its clear space beside its
    number (the Accelerator's is 185px wide at 24px type, plus 13px and the number), as on the homepage. */
 @media (min-width: 960px) and (max-width: 1199px) {
