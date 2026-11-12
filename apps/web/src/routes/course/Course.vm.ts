@@ -37,6 +37,10 @@ export const COPY = {
   signIn: 'Sign In',
   locked: 'The AI Accelerator isn’t in your plan.',
   lockedNote: 'Your Skill Library is still open, with everything your plan includes.',
+  // D-143: a two-pay AI Accelerator whose second payment failed. It reopens once that payment goes through.
+  paused: 'Your AI Accelerator is paused until your payment goes through.',
+  pausedNote: 'Your second payment didn’t go through. Update your card in Manage Billing and the course opens again on its own.',
+  billing: 'Manage Billing',
   library: 'Open Your Skill Library',
   failed: 'Your course didn’t load. Refresh the page to try again.',
   preview: 'Staff preview',

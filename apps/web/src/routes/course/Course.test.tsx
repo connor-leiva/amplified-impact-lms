@@ -86,6 +86,16 @@ describe('the course screen', () => {
     expect(screen.queryByText('What are we paying for leads, and what can we trust?')).toBeNull();
   });
 
+  it('tells a two-pay buyer whose second payment failed that the course is paused, and where to fix it (D-143)', async () => {
+    fetchMock.mockResolvedValue(answer(403, { open: false, paused: true, error: 'x' }));
+    at('/course/week-1');
+    expect(await screen.findByText(COPY.paused)).toBeInTheDocument();
+    expect(screen.getByText(COPY.pausedNote)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: COPY.billing })).toHaveAttribute('href', '/api/billing/portal');
+    expect(screen.queryByText(COPY.locked)).toBeNull();
+    expect(screen.queryByText('What are we paying for leads, and what can we trust?')).toBeNull();
+  });
+
   it('asks a signed-out visitor to sign in', async () => {
     fetchMock.mockResolvedValue(answer(401, { error: 'Not signed in' }));
     at('/course');

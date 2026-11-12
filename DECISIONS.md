@@ -4473,3 +4473,25 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **"See Plans"** goes to `/pricing`, which compares all four programs (D-123). `/offer#plans` had no Agent Plan card.
 - **What opens and when is unchanged.** `canOpenSkill` and the download route's check are untouched: a skill opens on exactly the day it did before. The per-offer tests now expect `upcoming` where they expected `locked` before each cart's day.
 - **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
+## D-143 · A two-pay AI Accelerator pauses when its second payment fails, and reopens when it's paid
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "Two-pay Accelerator, failed second payment: pause access (the overnight brief says failed payments pause access). Restore automatically when the invoice is paid. Add the e2e case." The overnight brief: "Handle cancel, refund, and failed payment (revoke or pause per cancel-and-keep)."
+**Status:** on a pull request.
+**Scope:** `packages/core/src/accelerator.ts` (`pausedForPayment`, `acceleratorPaused`, `acceleratorOpen`); `apps/api/src/billing/access.ts` (`canOpenSkill`, `liveSessionsOpen`), `billing/webhook.ts` (`invoicePaid`), `routes/course.ts`, `routes/skills.ts`, `lib/course-access.ts`; `apps/web/src/routes/course/` and `routes/library/` (what the screens say); tests.
+
+- **Before:** a failed second installment set the plan `past_due`, and nothing read that. The course, its skills and its live sessions stayed open until May 4, so the second payment was optional in practice. A retry that later went through didn't even set the plan back to `active`: the installment subscription isn't the plan's own subscription (that one is the Insiders roll-on), so a paid installment never reached the plan, while a failed one did, through the order.
+- **Now:**
+  - **What pauses.** A `cohort` plan bought `two_pay` that is `past_due` is paused (`pausedForPayment`). `acceleratorOpen`, `canOpenSkill` and `liveSessionsOpen` all exclude it, so everything that reads them pauses together:
+    - the course (`GET /api/course`);
+    - the course's AI Employees and sessions in the snapshot, so the portal sends the buyer and their teammates to the Skill Library (D-119);
+    - Skill Library listing and downloads;
+    - the Accelerator's reminder emails.
+  - **What restores it.** A paid invoice on the installment subscription sets that plan back to `active` (`two-pay-resumed`), and everything reopens with no one doing anything.
+  - **When Stripe gives up** and ends the subscription before the last payment, the plan stays `past_due` (paused), and the existing error log tells Connor to follow up.
+- **What the buyer sees.** "The AI Accelerator isn’t in your plan." would be false, so:
+  - the course says "Your AI Accelerator is paused until your payment goes through.", then "Your second payment didn’t go through. Update your card in Manage Billing and the course opens again on its own.", with a Manage Billing button;
+  - the Skill Library shows "Your second payment didn’t go through, so your AI Accelerator skills are paused. Update your card in Manage Billing and they open again on their own."
+- **Only this plan.** The AI Accelerator in full, Amplified Insiders, the Team Plan and the Agent Plan keep their access while past due, as before. The PM's decision covered the two-pay second payment, and Stripe's retries already handle those subscriptions. Pausing them the same way is the same one-line rule, if wanted.
+- **Not changed:** what is charged and when, the roll-on to Amplified Insiders on May 4, refunds (still end everything), cancel and keep, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.

@@ -417,6 +417,16 @@ async function invoicePaid(invoice: InvoiceLike, deps: WebhookDeps, db: Database
       }
       result = 'two-pay-complete';
     }
+    // D-143: an installment paid after a failed one lifts the pause on the AI Accelerator it pays for
+    // (`invoiceFailed` reached that plan through the order, so this does too). Only the status: the
+    // plan's own dates run to May 4 whatever the installments' periods say.
+    if (cart?.installments) {
+      const cohortPlan = await planOfOrder(db, order.id);
+      if (cohortPlan && cohortPlan.status === 'past_due') {
+        await db.update(plans).set({ status: 'active' }).where(eq(plans.id, cohortPlan.id));
+        if (result === 'recorded') result = 'two-pay-resumed';
+      }
+    }
   }
 
   // The plan this subscription pays for: by its id, or the order's own (Insiders, the Team Plan).
