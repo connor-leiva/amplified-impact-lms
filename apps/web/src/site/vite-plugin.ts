@@ -21,7 +21,7 @@ export const SITE_HTML: readonly string[] = SITE_PAGES.map((name) => `${name}.ht
  * The pages built on the v2 kit (`src/kit/`). Each loads the kit's one script as a same-origin file
  * (`/assets/main-[hash].js`), never inlined, so the CSP's `script-src 'self'` admits it.
  */
-export const KIT_PAGES: readonly SitePage[] = ['pricing', 'team-build', 'agents', 'teams', 'free', 'about'];
+export const KIT_PAGES: readonly SitePage[] = ['pricing', 'team-build', 'agents', 'teams', 'free', 'about', 'insiders'];
 export const KIT_HTML: readonly string[] = KIT_PAGES.map((name) => `${name}.html`);
 
 export const HEAD_MARKER = '<!--x:head-->';
