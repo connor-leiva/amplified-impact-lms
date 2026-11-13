@@ -55,6 +55,8 @@ export interface GuideAnswer {
 type Load = { kind: 'loading' } | { kind: 'ready'; answer: GuideAnswer } | { kind: 'missing' } | { kind: 'failed' };
 
 const SIGN_IN = '/sign-in';
+/** How long the copy confirmation stays, as on www's guide pages. */
+export const TOAST_MS = 3200;
 const dateOf = (t: number): string => new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' }).format(t);
 
 /** A learn path for this guide, the one `next` the sign-in screen accepts (`safeNext`). */
@@ -172,19 +174,20 @@ function StepView({
           ) : null}
         </div>
       ) : null}
+      {/* The words first, then Copy & Open, for a line and a block alike (Design's look check on PR 105). */}
       {step.copyBlock !== undefined ? (
         <div className={s.copyRow}>
-          {opens ? (
-            <a className={s.primary} href={opens.href} target="_blank" rel="noopener" onClick={() => say(step.copyBlock!, opens.toast)}>
-              {opens.label}
-            </a>
-          ) : null}
           <button type="button" className={s.block} onClick={() => say(step.copyBlock!, toast)} aria-label={`${ui.copy.tag}: ${step.title}`}>
             <span className={s.blockText}>{step.copyBlock}</span>
             <span className={s.chipTag} aria-hidden="true">
               {ui.copy.tag}
             </span>
           </button>
+          {opens ? (
+            <a className={s.primary} href={opens.href} target="_blank" rel="noopener" onClick={() => say(step.copyBlock!, opens.toast)}>
+              {opens.label}
+            </a>
+          ) : null}
         </div>
       ) : null}
       {step.note ? (
@@ -225,10 +228,15 @@ function OpenGuide({ guide, ui }: { guide: SkillGuide; ui: GuideUi }) {
     if (moved.current) heading.current?.focus();
   }, [current]);
 
+  // The confirmation shows at the foot of the screen, wherever the words were, then clears.
+  const clearing = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(clearing.current), []);
   const say = useCallback((words: string, toast: string) => {
     void copyText(words).then((ok) => {
       setMessage('');
+      window.clearTimeout(clearing.current);
       window.setTimeout(() => setMessage(ok ? toast : COPY.copyFailed), 50);
+      clearing.current = window.setTimeout(() => setMessage(''), TOAST_MS);
     });
   }, []);
 

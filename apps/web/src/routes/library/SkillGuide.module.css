@@ -189,7 +189,8 @@
 }
 .progress {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 24px;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }
@@ -306,8 +307,8 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font-family: var(--font-mono);
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 16px;
+  line-height: 24px;
 }
 .chipTag {
   flex: none;
@@ -352,12 +353,31 @@
   color: var(--text-secondary);
 }
 
+/* The copy confirmation, as www's guide pages draw it: fixed at the foot of the screen, so it shows
+   wherever the words were copied, on a phone too. Hidden while empty. */
 .toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 10;
+  width: max-content;
+  max-width: calc(100vw - 32px);
   margin: 0;
-  min-height: 24px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--text-primary);
+  color: var(--bg-canvas);
+  box-shadow: var(--shadow-card);
   font-size: 16px;
   line-height: 24px;
-  color: var(--text-secondary);
+  font-weight: 600;
+  transform: translateX(-50%);
+}
+.toast:empty {
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: none;
 }
 
 .status {

@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { previewOf } from '@ai/core/skill-guides';
-import SkillGuide, { COPY } from './SkillGuide';
+import SkillGuide, { COPY, TOAST_MS } from './SkillGuide';
 import type { GuideAnswer } from './SkillGuide';
 import { GUIDES } from '../../guides/content';
 import { exportGuide, exportSkillGuides } from '../../guides/setup-export';
@@ -39,7 +42,13 @@ beforeEach(() => {
   fetchMock = vi.fn();
   vi.stubGlobal('fetch', fetchMock);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
+
+const CSS = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'SkillGuide.module.css'), 'utf8');
+const rule = (selector: string) => new RegExp(`\\n${selector.replace('.', '\\.')} \\{([^}]*)\\}`).exec(CSS)?.[1] ?? '';
 
 function at(slug: string) {
   const router = createMemoryRouter(
@@ -146,5 +155,63 @@ describe('the guided setup in learn (D-151)', () => {
     at('not-a-skill');
     expect(await screen.findByText(COPY.missing)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: COPY.back })).toHaveAttribute('href', '/skill-library');
+  });
+
+  describe('Design\u2019s look check on PR 105', () => {
+    it('puts the words first, then Copy & Open, for a line and a block alike', async () => {
+      fetchMock.mockResolvedValue(answer(200, open));
+      at('appointment-follow-up');
+      await screen.findByRole('heading', { level: 1, name: guide.title });
+      const before = (a: Element, b: Element) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      // A line: the Claude lane's practice step.
+      const claude = guide.lanes[0]!;
+      const sayAt = claude.steps.findIndex((x) => x.copy !== undefined);
+      const list = screen.getByRole('list', { name: FILE.ui.setupTitle });
+      fireEvent.click(within(list).getAllByRole('button')[sayAt]!);
+      const chip = screen.getByRole('button', { name: `${FILE.ui.copy.tag}: ${claude.steps[sayAt]!.copy}` });
+      expect(before(chip, screen.getByRole('link', { name: FILE.ui.copyOpen.claude.label }))).toBe(true);
+      // A block: the ChatGPT lane's Project instructions.
+      fireEvent.click(screen.getByRole('button', { name: 'ChatGPT' }));
+      const chatgpt = guide.lanes[1]!;
+      const blockAt = chatgpt.steps.findIndex((x) => x.copyBlock !== undefined);
+      fireEvent.click(within(screen.getByRole('list', { name: FILE.ui.setupTitle })).getAllByRole('button')[blockAt]!);
+      const block = screen.getByRole('button', { name: `${FILE.ui.copy.tag}: ${chatgpt.steps[blockAt]!.title}` });
+      expect(before(block, screen.getByRole('link', { name: FILE.ui.copyOpen.chatgpt.label }))).toBe(true);
+    });
+
+    it('confirms a copy at the foot of the screen, fixed, wherever the words were, then clears it', async () => {
+      fetchMock.mockResolvedValue(answer(200, open));
+      vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText: vi.fn(() => Promise.resolve()) } });
+      at('appointment-follow-up');
+      const first = guide.prompts[0]!.groups[0]!.items[0]!;
+      const chip = await screen.findByRole('button', { name: `${FILE.ui.copy.tag}: ${first}` });
+      vi.useFakeTimers();
+      await act(async () => {
+        fireEvent.click(chip);
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(60);
+      });
+      const toast = screen.getByRole('status');
+      expect(toast.textContent).toBe(FILE.ui.copy.copied);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(TOAST_MS);
+      });
+      expect(toast.textContent).toBe('');
+      const t = rule('.toast');
+      expect(t).toMatch(/position: fixed;/);
+      expect(t).toMatch(/bottom: 24px;/);
+      expect(t).toMatch(/font-size: 16px;/);
+      expect(t).not.toMatch(/#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
+    });
+
+    it('sets "Step n of N" and a block\u2019s words at 16 / 24; the step numbers and Copy tags stay 14px', () => {
+      for (const sel of ['.progress', '.blockText']) {
+        expect(rule(sel), sel).toMatch(/font-size: 16px;/);
+        expect(rule(sel), sel).toMatch(/line-height: 24px;/);
+      }
+      expect(rule('.stepN')).toMatch(/font-size: 14px;/);
+      expect(rule('.chipTag')).toMatch(/font-size: 14px;/);
+    });
   });
 });

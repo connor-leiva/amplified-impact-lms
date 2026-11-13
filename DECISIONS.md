@@ -4720,4 +4720,9 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
   - After a production build: 876 setup strings were scanned against all 212 built text files in `dist/`. No step, words to paste or routine prompt appears. The one match is a guardrail line shown on purpose in a template's public "What it never does" list.
   - No SPA source imports `src/guides/`.
   - There is no sitemap, and the meta and Open Graph text were already the hand-written descriptions.
+- **Design's look check (PR 105):**
+  - A guided page's signed-up panel ("We emailed you a sign-in link") shows only right after a sign-up, or on `#check-email`. It is never remembered. A key the old page remembered (`pw-unlocked`), set by someone who was never sent a link, no longer opens it: they get the form, which sends one.
+  - In learn, "Step n of N" and a block's words to paste are 16 / 24. The step numbers and the Copy tags stay 14px.
+  - The copy confirmation is fixed at the foot of the screen, as on www, and clears itself.
+  - A step's words always come first, then Copy & Open, for a line and a block alike.
 - **Not changed:** Stripe, prices, the seat cap, dates, `/agreement`, the homepage, the nav, and Design's homepage v3 files (#104: both Vite configs, `src/home/`, `eslint.config.js`). What search engines and archives already hold of the old pages stays there.

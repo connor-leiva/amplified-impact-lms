@@ -17,8 +17,10 @@
 //      its first screen with "See the Full Example", and on a phone a bar leads to the sign-up.
 //   9. On a guided page (D-151), whose setup is in learn behind sign-in: a visitor who arrives on
 //      `#download`, where the setup used to be (the handoff's emailed link, an old bookmark), goes on
-//      to the guide in learn, which signs them in first. Arriving on `#check-email`, the no-script
-//      sign-up's landing, shows the signed-up panel as `#download` does on any other guide.
+//      to the guide in learn, which signs them in first. Its signed-up panel ("We emailed you a
+//      sign-in link") shows only right after a sign-up, or on `#check-email`, the no-script sign-up's
+//      landing. It is never remembered, and an old page's remembered key (`pw-unlocked`) never opens
+//      it: that visitor was sent no link, so they get the form, which sends one.
 //
 // Written for the in-app WebViews that ManyChat's DM links open in: built for es2019 / Safari 13,
 // every feature in `guard()`, every storage access wrapped.
@@ -81,6 +83,12 @@ function rememberUnlocked(key: string): void {
     // Full or blocked: the download still shows for this visit.
   }
 }
+
+/**
+ * Whether the card is a guided page's (D-151): its signed-up panel is never remembered, and a key
+ * remembered by the old page never opens it.
+ */
+const guidedCard = (doc: Document): boolean => card(doc)?.hasAttribute('data-learn-guide') ?? false;
 
 /** Shows the download in place of the form. `focus` moves focus to it, after a sign-up. */
 function unlock(doc: Document, focus: boolean): void {
@@ -189,7 +197,7 @@ function initForm(doc: Document): void {
     })
       .then((res) => {
         if (res.ok) {
-          rememberUnlocked(key);
+          if (!guidedCard(doc)) rememberUnlocked(key);
           unlock(doc, true);
           return;
         }
@@ -541,7 +549,7 @@ function boot(doc: Document): void {
   if (leaving) return;
   guard(() => {
     const key = card(doc)?.getAttribute('data-unlock-key');
-    if (key && wasUnlocked(key)) unlock(doc, false);
+    if (key && !guidedCard(doc) && wasUnlocked(key)) unlock(doc, false);
     // `:target` already shows the card for a link to it. This keeps it showing for the visit once
     // another link on the page changes the address. Not remembered: this device never signed up.
     else if (arrivedOnDownload()) unlock(doc, false);

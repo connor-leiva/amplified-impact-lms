@@ -701,6 +701,28 @@ describe('a guided page as it ships (D-151)', () => {
     expect(replace).not.toHaveBeenCalled();
   });
 
+  it('never opens the signed-up panel from a remembered key, the old page\u2019s or its own, and remembers none (Design, PR 105)', async () => {
+    // Someone who signed up on the old page has `pw-unlocked`; no link was ever sent to them.
+    const key = guideFor('perfect-week').unlockKey;
+    expect(key).toBe('pw-unlocked');
+    await boot('/perfect-week', () => localStorage.setItem(key, '1'), 'perfect-week');
+    expect(unlocked()).toBe(false);
+    expect($('#guide-form').closest('.locked')).not.toBeNull();
+    // The form sends the link; the panel shows for this visit only.
+    localStorage.clear();
+    respond(201, { ok: true });
+    fill('Sam', 'sam@example.com');
+    submit();
+    await settle();
+    await settle();
+    expect(unlocked()).toBe(true);
+    expect(localStorage.getItem(key)).toBeNull();
+    expect(localStorage.length).toBe(0);
+    // A later visit gets the form again, to ask for another link.
+    await boot('/perfect-week', undefined, 'perfect-week');
+    expect(unlocked()).toBe(false);
+  });
+
   it('unlocks the signed-up panel on a sign-up, and for a visitor the no-script form lands on #check-email', async () => {
     await boot('/perfect-week', undefined, 'perfect-week');
     respond(201, { ok: true });
