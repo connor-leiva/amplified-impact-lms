@@ -437,7 +437,7 @@
   }
 }
 
-/* --- S2 (vid): Spring's headshot in the video's frame, until the screen recording is ready ------ */
+/* --- S2 (vid): the morning task sync, in the 16:9 frame ----------------------------------------- */
 
 .aiw .vid {
   padding-block: 32px var(--section);
@@ -461,21 +461,24 @@
   transform: scale(calc(0.86 + 0.14 * var(--s)));
   transform-origin: 50% 0;
 }
-/* The headshot whole and centred in the frame, never cropped. */
-.aiw .vid-photo {
+/* Fills the frame. The focus ring is drawn inside it: the frame clips overflow, so an offset ring
+   would be cut off. */
+.aiw .vid-frame video {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  background: var(--surface-raised);
 }
-.aiw .vid-note {
-  margin-top: 24px;
-  color: var(--ink-secondary);
+.aiw .vid-frame video:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -4px;
 }
 .aiw .vid-caption {
   max-width: 640px;
-  margin-top: 12px;
+  margin-top: 24px;
   font-size: 16px;
   line-height: 1.55;
   color: var(--ink-secondary);

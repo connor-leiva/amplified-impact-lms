@@ -43,16 +43,10 @@ SKILLS, GUIDES AND TEMPLATES
 - Ops: Commission Tie-Out · For ops leads · Reports to: Your ops lead · Desk: Not needed · Shift: Every closing · Rounding: Never · After today’s closing: Deposit matched to the CDA / Split and cap checked / Fees tied out / 1 difference flagged for you
 
 ## S2 Video  (`section.vid`, theme: dark)
-**Connor, Nov 12 (conflicts.md D5):** no video yet. The heading and caption below stay, and the video-only lines ("90 SECONDS…", the player's clock and placeholder, "SB", "SPRING ON CAMERA") go. **Cleared 4:41 PM MT:** until the 90-second screen recording is ready, Spring's real headshot (`/img/team/spring-bengtzen.jpg`) sits in the 16:9 frame, with this note under it: "Coming soon: a 90-second screen recording of Spring’s actual morning."
+**Connor, Nov 13:** the recording is in. The heading below stays. The frame is his morning task sync (`/media/morning-task-sync.mp4`, poster `/media/morning-task-sync.webp`): controls, inline, no autoplay. The mockup's video-only lines ("90 SECONDS…", the player's clock and placeholder, "SB", "SPRING ON CAMERA") stay off the page, and so does the "Coming soon" note. The caption under the frame is the line below the heading.
 ```
 Watch it run in a real business.
-90 SECONDS · SPRING’S ACTUAL MORNING
-MONDAY · 6:04 AM
-MORNING BRIEF
-PLACEHOLDER · SCREEN RECORDING GOES HERE
-SB
-SPRING ON CAMERA
-No stock footage. No demo account. This is Spring opening the reports, briefs and follow-ups that run her 100-agent team every morning.
+Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.
 ```
 
 ## S3 What a skill is  (`section.wsk`, #skills, theme: light)
