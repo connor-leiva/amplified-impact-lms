@@ -44,14 +44,14 @@ export const welcomeDismissalId = (groupId: string): string => `welcome-${groupI
 const welcomeBody = z.strictObject({ group: z.string().min(1).max(64) });
 const NOT_FOUND = 'Not found';
 
-type SkillRow = typeof skills.$inferSelect;
+export type SkillRow = typeof skills.$inferSelect;
 
 /**
  * The learner, their role, and the plans the access rule reads: their account's (bought), and any an
  * access group gives their verified address (D-148). `paidPlans` is the bought ones alone, for what
  * the screen says about billing; `groups` names the groups.
  */
-async function accessOf(userId: string): Promise<{
+export async function accessOf(userId: string): Promise<{
   role: string | null;
   tier: string | null;
   plans: PlanAccess[];
@@ -92,7 +92,7 @@ const asSkill = (s: SkillRow): SkillAccess => ({
  * A sales agent opens the agent set, never an owner-and-ops-only skill: not today, and not on their
  * plan's first day either, so such a skill is never `upcoming` for them unless it is unreleased.
  */
-function stateFor(role: string | null, planList: readonly PlanAccess[], s: SkillRow, now: number) {
+export function stateFor(role: string | null, planList: readonly PlanAccess[], s: SkillRow, now: number) {
   const state = skillState(planList, asSkill(s), now);
   const barred = !s.free && role === 'Sales Agent' && s.sets === 'owner_ops';
   if (barred && (state === 'open' || (state === 'upcoming' && s.releasedAt <= now))) return 'locked' as const;
@@ -100,8 +100,29 @@ function stateFor(role: string | null, planList: readonly PlanAccess[], s: Skill
 }
 
 /** When an `upcoming` skill opens for this viewer (D-140); null for any other state. */
-function opensAtFor(state: ReturnType<typeof stateFor>, planList: readonly PlanAccess[], s: SkillRow, now: number): number | null {
+export function opensAtFor(state: ReturnType<typeof stateFor>, planList: readonly PlanAccess[], s: SkillRow, now: number): number | null {
   return state === 'upcoming' ? skillOpensAt(planList, asSkill(s), now) : null;
+}
+
+/**
+ * The viewer's access groups as the screens read them (D-148, D-150): only active ones, in a fixed
+ * order (name, then id), each with the agent skills its own grant opens today, whether its welcome is
+ * still to show (`hidden` names the dismissed ones), and the sets its grant covers, so a locked row
+ * can name the group that applies. The guided setup's screen reads the same (D-151).
+ */
+export function groupsView(access: NonNullable<Awaited<ReturnType<typeof accessOf>>>, rows: readonly SkillRow[], now: number, hidden: ReadonlySet<string> = new Set()) {
+  return access.groups
+    .map((g, i) => {
+      const grant = access.groupPlans[i];
+      return {
+        id: g.id,
+        name: g.name,
+        skills: grant ? rows.filter((s) => s.sets !== 'owner_ops' && skillState([grant], asSkill(s), now) === 'open').length : 0,
+        welcome: !hidden.has(welcomeDismissalId(g.id)),
+        covers: grant ? SKILL_SETS.filter((set) => planCovers(grant.kind, set)) : [],
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
 }
 
 export function registerSkillRoutes(app: FastifyInstance): void {
@@ -131,18 +152,7 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       // count, never a number typed into the page), and whether that panel is still to be shown.
       // Only active groups (`groupAccessOf`: unexpired, address verified), in a fixed order (name, then
       // id), each with the sets its grant covers, so a locked row can name the group that applies.
-      accessGroups: access.groups
-        .map((g, i) => {
-          const grant = access.groupPlans[i];
-          return {
-            id: g.id,
-            name: g.name,
-            skills: grant ? rows.filter((s) => s.sets !== 'owner_ops' && skillState([grant], asSkill(s), now) === 'open').length : 0,
-            welcome: !hidden.has(welcomeDismissalId(g.id)),
-            covers: grant ? SKILL_SETS.filter((set) => planCovers(grant.kind, set)) : [],
-          };
-        })
-        .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id)),
+      accessGroups: groupsView(access, rows, now, hidden),
       // D-143: a two-pay AI Accelerator whose second payment failed. Its skills read locked until
       // that invoice is paid; the screen says why, and where to fix it.
       paused: access.plans.some(pausedForPayment),

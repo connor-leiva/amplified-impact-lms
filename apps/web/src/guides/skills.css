@@ -582,6 +582,18 @@
     var(--shadow-xs);
 }
 
+/* A guided page's preview (D-151): the setup's step titles only, in the checklist's own rows, and a
+   line under them that the rest is in the guided setup. 16px, the page's own quiet token. */
+.sk .guide-preview .setup-step {
+  padding: 10px 0;
+}
+.sk .guide-preview .setup-note {
+  margin: 4px 4px 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
 /* The app switch, quieter: a light track, the chosen app in green (the rules above). */
 .sk .apps {
   gap: 8px;

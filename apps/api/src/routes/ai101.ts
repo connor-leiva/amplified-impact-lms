@@ -122,7 +122,10 @@ import { z } from 'zod';
 import { createHash } from 'node:crypto';
 import { GUIDE_SLUGS, guideErrorLocation, guideJoinedLocation, guideSignUpPath } from './guide-list';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { isJsonContentType, JSON_CONTENT_TYPE, requireSameOrigin } from '../auth';
+import { isJsonContentType, JSON_CONTENT_TYPE, queueMailTask, requireSameOrigin } from '../auth';
+import { skillGuidePath } from '@ai/core/skill-guides';
+import { FREE_GUIDED_PAGES } from '../billing/self-serve';
+import { AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, issueSignInLink } from './auth';
 import { getDb } from '../db/client';
 import { ai101Waitlist } from '../db/schema';
 import { clock, randomIds } from '../lib/clock';
@@ -596,6 +599,18 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
       },
     );
 
+    // D-151: a free skill's sign-up also emails the person a sign-in link to its guided setup, at most
+    // `AUTH_REQUEST_MAX` an hour per address, like any sign-in link. Past that the sign-up is still
+    // stored and answered the same; only the email waits.
+    const guideLinkPerEmail = scope.createRateLimit({
+      max: AUTH_REQUEST_MAX,
+      timeWindow: AUTH_REQUEST_WINDOW,
+      keyGenerator: (req) => {
+        const body = req.body as { email?: unknown } | undefined;
+        return `guide-link:${typeof body?.email === 'string' ? body.email.trim().toLowerCase() : ''}`;
+      },
+    });
+
     for (const signUp of SIGN_UP_FORMS) {
       scope.post(
         signUp.path,
@@ -664,6 +679,18 @@ export async function registerAi101Waitlist(app: FastifyInstance): Promise<void>
             return kind === 'form'
               ? reply.redirect(signUp.error, 303)
               : reply.code(500).send({ error: 'Something went wrong.' });
+          }
+          // D-151: a free skill's guided setup is in learn, behind a free account. The row just stored
+          // lets this address have one, and the link it asked for makes it and lands on the guide.
+          if (FREE_GUIDED_PAGES.includes(signUp.source)) {
+            const linkLimit = await guideLinkPerEmail(req);
+            if (linkLimit.isAllowed || !linkLimit.isExceeded) {
+              const email = verdict.entry.email;
+              const next = skillGuidePath(signUp.source);
+              queueMailTask(`${signUp.label}: guide sign-in link`, () => issueSignInLink(email, next));
+            } else {
+              req.log.info(`${signUp.label}: guide link held back by its per-address limit`);
+            }
           }
           return accepted();
         },

@@ -9,12 +9,14 @@
 
 import { scopeSnapshot } from './scope';
 import type { ViewerAccess } from './scope';
+import { isGuidedPage } from './skill-guides';
 import { visibleModules } from './status';
 import type { Actor } from './mutations';
 import type { Db } from './types';
 
 /** The Skill Library (D-079): outside the portal's shell. */
 export const SKILL_LIBRARY_PATH = '/skill-library';
+const SKILL_GUIDE_PREFIX = `${SKILL_LIBRARY_PATH}/`;
 
 /** Every path a sign-in may land on. Anything else a client is handed is read as `/`. */
 export const LANDING_PATHS = ['/', SKILL_LIBRARY_PATH] as const;
@@ -32,3 +34,14 @@ export function landingPath(db: Db, actor: Actor, access?: ViewerAccess): Landin
 /** A landing a client was handed, checked: one of `LANDING_PATHS`, or `/`. Never an open redirect. */
 export const safeLanding = (value: unknown): LandingPath =>
   (LANDING_PATHS as readonly unknown[]).includes(value) ? (value as LandingPath) : '/';
+
+/**
+ * Where to go after signing in, when a page asked (D-151): a skill's guided setup in learn,
+ * `/skill-library/<page>`, for a page that has one. Anything else is null, and the sign-in lands where
+ * `landingPath` says. Checked on the server (the emailed link, Google) and in the browser alike.
+ */
+export function safeNext(value: unknown): string | null {
+  if (typeof value !== 'string' || !value.startsWith(SKILL_GUIDE_PREFIX)) return null;
+  const page = value.slice(SKILL_GUIDE_PREFIX.length);
+  return isGuidedPage(page) ? `${SKILL_GUIDE_PREFIX}${page}` : null;
+}

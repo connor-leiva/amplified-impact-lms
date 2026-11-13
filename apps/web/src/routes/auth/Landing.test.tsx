@@ -91,3 +91,55 @@ describe('where each sign-in lands (D-150)', () => {
     }
   });
 });
+
+describe('back to a guided setup after signing in (D-151)', () => {
+  const NEXT = '/skill-library/perfect-week';
+
+  function atWithGuide(path: string, route: string, element: React.ReactElement) {
+    const router = createMemoryRouter(
+      [
+        { path: route, element },
+        { path: '/', element: <p>the cohort dashboard</p> },
+        { path: '/skill-library', element: <p>the skill library</p> },
+        { path: '/skill-library/:slug', element: <p>the guided setup</p> },
+      ],
+      { initialEntries: [path] },
+    );
+    render(<RouterProvider router={router} />);
+    return router;
+  }
+
+  it('a sign-in link with `next` lands on that guide, whatever the API says', async () => {
+    const router = atWithGuide(`/sign-in?token=tok_g&next=${encodeURIComponent(NEXT)}`, '/sign-in', <SignIn />);
+    expect(await screen.findByText('the guided setup')).toBeVisible();
+    expect(router.state.location.pathname).toBe(NEXT);
+  });
+
+  it('a typed password with `next` does too', async () => {
+    const router = atWithGuide(`/sign-in?next=${encodeURIComponent(NEXT)}`, '/sign-in', <SignIn />);
+    await userEvent.type(screen.getByLabelText(SIGN_IN.label), 'sam@example.com');
+    await userEvent.type(screen.getByLabelText(SIGN_IN.password), 'correct horse battery staple');
+    await userEvent.click(screen.getByRole('button', { name: SIGN_IN.signIn }));
+    expect(await screen.findByText('the guided setup')).toBeVisible();
+    expect(router.state.location.pathname).toBe(NEXT);
+  });
+
+  it('asks for a link that carries `next`, so the emailed link lands there too', async () => {
+    atWithGuide(`/sign-in?method=link&next=${encodeURIComponent(NEXT)}`, '/sign-in', <SignIn />);
+    await userEvent.type(screen.getByLabelText(SIGN_IN.label), 'sam@example.com');
+    await userEvent.click(screen.getByRole('button', { name: SIGN_IN.submit }));
+    await screen.findByRole('heading', { level: 1, name: SIGN_IN.sentH1 });
+    const call = fetchMock.mock.calls.find(([url]) => url === '/api/auth/request');
+    expect(JSON.parse(String(call?.[1]?.body))).toEqual({ email: 'sam@example.com', next: NEXT });
+  });
+
+  it('ignores a `next` that is not a guided setup', async () => {
+    for (const next of ['https://evil.example.com', '/admin', '/skill-library/not-a-skill']) {
+      const router = atWithGuide(`/sign-in?token=tok_x&next=${encodeURIComponent(next)}`, '/sign-in', <SignIn />);
+      expect(await screen.findByText('the skill library')).toBeVisible();
+      expect(router.state.location.pathname).toBe('/skill-library');
+      router.dispose();
+      document.body.innerHTML = '';
+    }
+  });
+});

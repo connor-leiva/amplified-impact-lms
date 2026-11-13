@@ -13,10 +13,12 @@ import { DOWNLOADS_DIR, unzip } from '../../../../scripts/skills.mjs';
 import { ENTRIES } from '../library/content';
 import { GUIDES, inSkillLibrary, type Guide } from './content';
 import { guardrailsOf, nameOf, resultOf, routineOf } from './grok-page';
-import { renderGuideBody } from './render';
+import { renderGuideBody, renderSetup } from './render';
 import { GUIDE_HTML } from './vite-plugin';
 
 const parse = (guide: Guide) => new DOMParser().parseFromString(`<!doctype html><body>${renderGuideBody(guide)}</body>`, 'text/html');
+/** A template's whole setup, as its content carries it (D-151: in learn, not on its page). */
+const parseSetup = (guide: Guide) => new DOMParser().parseFromString(`<!doctype html><body>${renderSetup(guide)}</body>`, 'text/html');
 const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
 
 describe('the catalog', () => {
@@ -197,14 +199,14 @@ describe.each(GROK_TEMPLATES.map((g) => [g.id, g] as const))('%s', (id, template
     expect(guide.hero.eyebrow).toMatch(/Grok Bot Template · (Bookkeeping|Transactions)/);
   });
 
-  it('copies its words for Grok Bot, with no button that opens Claude or ChatGPT', () => {
+  it('copies its words for Grok Bot in its guided setup, with no button that opens Claude or ChatGPT, and none on its page (D-151)', () => {
     if (!guide) return;
-    const doc = parse(guide);
-    expect(doc.querySelector('a.copy-open, [data-copy-open]')).toBeNull();
-    const copies = Array.from(doc.querySelectorAll('[data-copy]'));
-    // Free or paid, the setup's words copy (D-101).
+    const setup = parseSetup(guide);
+    expect(setup.querySelector('a.copy-open, [data-copy-open]')).toBeNull();
+    const copies = Array.from(setup.querySelectorAll('[data-copy]'));
     expect(copies.length).toBeGreaterThan(0);
     for (const c of copies) expect(c.getAttribute('data-toast')).toBe('Copied. Paste it into Grok Bot.');
+    expect(parse(guide).querySelector('[data-copy], [data-copy-open]')).toBeNull();
   });
 });
 

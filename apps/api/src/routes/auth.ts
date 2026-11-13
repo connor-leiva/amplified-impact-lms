@@ -71,6 +71,8 @@ import { authTokens, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { landingFor } from '../lib/landing';
 import { groupsOf, provisionGroupMember, recordVerified } from '../billing/access-groups';
+import { selfServeAddress } from '../billing/self-serve';
+import { safeNext } from '@ai/core/landing';
 
 /** § 7.5's "Rate limit: 5 per hour per email and IP", and § 9.4's repeat of it: the per-email half. */
 export const AUTH_REQUEST_MAX = 5;
@@ -82,7 +84,9 @@ export const AUTH_REQUEST_WINDOW = '1 hour';
  */
 export const AUTH_REQUEST_IP_MAX = 30;
 
-const requestBody = z.strictObject({ email: z.string() });
+// `next` (D-151): a guided setup in learn to land on once signed in, `/skill-library/<page>`, carried
+// in the emailed link. Anything else is dropped (`safeNext`), never an error.
+const requestBody = z.strictObject({ email: z.string(), next: z.string().max(200).optional() });
 const verifyBody = z.strictObject({ token: z.string() });
 /**
  * § 7.5's `PATCH /api/me/prefs {tz?, theme?}`.
@@ -121,14 +125,15 @@ export function isTimeZone(tz: string): boolean {
  * and "there is no public sign-up, because the business sells seats through sales calls", so the
  * absence of a row is the ordinary case for a typo, not an error to report.
  */
-export async function issueSignInLink(email: string): Promise<void> {
+export async function issueSignInLink(email: string, next: string | null = null): Promise<void> {
   const db = getDb();
   const now = clock.now();
   const user = await userByEmail(db, email);
-  // D-148: an access group's address (an @liveutah.com one) may ask for its first link before it has
-  // an account; the account is made when the link is spent, which is what proves the address. The
-  // person asked for this email: nothing is ever sent to a group's people unasked.
-  const to = user?.email ?? ((await groupsOf(db, email, now)).length > 0 ? email : null);
+  // D-148, D-151: an access group's address (an @liveutah.com one), or one that signed up on a free
+  // skill's page, may ask for its first link before it has an account; the account is made when the
+  // link is spent, which is what proves the address. The person asked for this email: nothing is ever
+  // sent to anyone unasked.
+  const to = user?.email ?? ((await selfServeAddress(db, email, now)) ? email : null);
   if (!to) return;
 
   const token = mintToken();
@@ -142,7 +147,9 @@ export async function issueSignInLink(email: string): Promise<void> {
   // `templates/links.ts` builds `${APP_URL}/sign-in?token=…` from this and refuses to render
   // against a missing APP_URL, so a misconfigured deploy logs a named error rather than mailing a
   // dead button.
-  queueEmail({ template: 'sign-in', to, data: { token } });
+  // `next` (D-151), checked again here: the link lands on that guided setup once signed in.
+  const landing = safeNext(next);
+  queueEmail({ template: 'sign-in', to, data: landing ? { token, next: landing } : { token } });
 }
 
 /**
@@ -153,6 +160,18 @@ export async function issueSignInLink(email: string): Promise<void> {
 export async function accountForGroupAddress(db: Database, email: string, now: number): Promise<boolean> {
   if (await userByEmail(db, email)) return false;
   if ((await groupsOf(db, email, now)).length === 0) return false;
+  return (await provisionGroupMember(db, email, now)) !== null;
+}
+
+/**
+ * D-148 and D-151: the account for a self-serve address that has none (an access group's, or a free
+ * skill sign-up's, `selfServeAddress`), once a link emailed to it has been spent. Made the same way
+ * for both (the owner of a team of one, Agent tier, no account, order or plan row, no email). A free
+ * sign-up's account opens the free skills, as any learner's does, and nothing more. True when it made one.
+ */
+export async function accountForSelfServe(db: Database, email: string, now: number): Promise<boolean> {
+  if (await userByEmail(db, email)) return false;
+  if (!(await selfServeAddress(db, email, now))) return false;
   return (await provisionGroupMember(db, email, now)) !== null;
 }
 
@@ -268,7 +287,8 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
       // ANSWER FIRST. Everything below this line is off the request path; see the header.
       reply.code(200).send({ ok: true });
       const email = normalizeEmail(parsed.data.email);
-      queueMailTask(`sign-in link for ${email}`, () => issueSignInLink(email));
+      const next = safeNext(parsed.data.next);
+      queueMailTask(`sign-in link for ${email}`, () => issueSignInLink(email, next));
       return reply;
     },
   );
@@ -282,9 +302,9 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     const claim = await claimToken(db, parsed.data.token, now);
     if (!claim.ok) return reply.code(400).send({ error: claim.code });
 
-    // D-148: an access group's address with no account yet. The link it just spent proves the
-    // address is theirs, so the account is made now, the way an Agent Plan buyer's is.
-    const made = await accountForGroupAddress(db, claim.email, now);
+    // D-148, D-151: an access group's address, or a free skill sign-up's, with no account yet. The
+    // link it just spent proves the address is theirs, so the account is made now.
+    const made = await accountForSelfServe(db, claim.email, now);
     const user = await userByEmail(db, claim.email);
     // The token was valid and is now spent, but the account is gone (`removeMember`,
     // `removeStaff`). Nothing to sign in to, and nothing to say about it beyond "ask for another".

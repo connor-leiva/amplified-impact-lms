@@ -1,12 +1,15 @@
 import type * as Skills from '@ai/core/skills';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { validate } from './main';
+import { sendOldLinkToGuide, validate } from './main';
 import { guideFor, renderGuideBody } from './render';
+import type { Guide } from './content';
 
-// The Reel Editor and Offer Strategy are paid (D-082): their live pages show the Skill Library card, with
-// no sign-up and no setup (`skill-library.test.ts`). Their setup stays in their files for the day
-// `FREE_SKILLS` names them, and it is the fullest markup to run the script against, so this file draws
-// them as that day will: free. A paid page through the script is the last group below.
+// D-151: a skill's page never carries its setup (it is in learn, behind sign-in), so the script's copy
+// buttons, Copy & Open, step-by-step setup and share sheet now serve the pages that do carry one (the
+// Task Sync Starter Kit). The Reel Editor's and Offer Strategy's content is still the fullest markup to
+// run them against, so this file draws it as a page with no skill (`unguided`), free, the way the
+// renderer draws any page that carries its setup. A skill's page as it ships, guided, is the last
+// groups below: `#download` leads on to its guide in learn, and nothing on it copies.
 vi.mock('@ai/core/skills', async (importOriginal) => {
   const real = await importOriginal<typeof Skills>();
   return { ...real, isFreeSkill: (id: string) => ['reel-editor', 'offer-strategy'].includes(id) || real.isFreeSkill(id) };
@@ -19,9 +22,12 @@ vi.mock('@ai/core/skills', async (importOriginal) => {
 // (the route, the unlock key) from the page, so The Ops Time Audit works the same, and what the Reel
 // Editor adds (copy buttons, the share sheet, arriving on `#download`).
 
-async function boot(url = '/task-sync-starter', before?: () => void, slug = 'task-sync-starter'): Promise<void> {
+/** A guide drawn as a page that carries its setup: the same content with no skill named (D-151). */
+const unguided = (slug: string): Guide => ({ ...guideFor(slug), skill: undefined, grok: undefined });
+
+async function boot(url = '/task-sync-starter', before?: () => void, slug: string | Guide = 'task-sync-starter'): Promise<void> {
   window.history.replaceState(null, '', url);
-  document.body.innerHTML = renderGuideBody(guideFor(slug));
+  document.body.innerHTML = renderGuideBody(typeof slug === 'string' ? guideFor(slug) : slug);
   before?.();
   vi.resetModules();
   await import('./main');
@@ -282,7 +288,7 @@ describe('the in-app browser hint', () => {
 });
 
 describe('The Reel Editor, through the same script (D-045)', () => {
-  const bootReel = (url = '/reel-editor', before?: () => void) => boot(url, before, 'reel-editor');
+  const bootReel = (url = '/reel-editor', before?: () => void) => boot(url, before, unguided('reel-editor'));
   const chip = () => $<HTMLButtonElement>('#download .setup button[data-copy]');
   const toast = () => $('#guide-live').textContent;
 
@@ -532,7 +538,7 @@ describe('The Reel Editor, through the same script (D-045)', () => {
 
 describe('a skill page (D-071)', () => {
   // Offer Strategy: a skill with a ChatGPT version and a long sample, as every skill page is drawn.
-  const bootSkill = (before?: () => void) => boot('/offer-strategy', before, 'offer-strategy');
+  const bootSkill = (before?: () => void) => boot('/offer-strategy', before, unguided('offer-strategy'));
   const steps = () => Array.from(document.querySelectorAll<HTMLElement>('.app-setup-claude .setup-step'));
   const marks = (name: string) => steps().map((li) => li.hasAttribute(name));
 
@@ -647,24 +653,10 @@ describe('a paid skill page (D-082, D-101)', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('walks the setup one step at a time, as the free page does (D-101)', async () => {
+  it('shows only the setup\u2019s step titles, with nothing to walk, open or copy (D-151)', async () => {
     await bootPaid();
-    const boxes = Array.from(document.querySelectorAll<HTMLElement>('[data-skill-library] [data-guided]'));
-    expect(boxes.map((b) => b.getAttribute('data-guided-key'))).toEqual(['pcp-unlocked-step-claude', 'pcp-unlocked-step-chatgpt']);
-    const box = boxes[0] as HTMLElement;
-    expect(box.hasAttribute('data-guided-on')).toBe(true);
-    const current = () => box.querySelector('.setup-step[data-current]')?.getAttribute('data-step');
-    expect(current()).toBe('1');
-    box.querySelector<HTMLButtonElement>('[data-guided-next]')?.click();
-    expect(current()).toBe('2');
-    expect(localStorage.getItem('pcp-unlocked-step-claude')).toBe('2');
-    // The download step's button goes to the platform's library, in a new tab.
-    const get = box.querySelector('.setup-step[data-current] a.btn');
-    expect([get?.textContent, get?.getAttribute('href'), get?.getAttribute('target')]).toEqual([
-      'Download After You Sign In',
-      'https://learn.amplifiedimpact.io/skill-library',
-      '_blank',
-    ]);
+    expect(document.querySelectorAll('[data-guide-preview] .setup-step h3').length).toBeGreaterThan(3);
+    expect(document.querySelector('[data-guided], [data-guided-on], [data-copy], a[data-copy-open], #guide-live')).toBeNull();
   });
 
   it('still peeks the sample, which stays as the preview', async () => {
@@ -674,16 +666,56 @@ describe('a paid skill page (D-082, D-101)', () => {
     expect($('[data-peekable]').hasAttribute('data-peek')).toBe(false);
   });
 
-  it('still copies "What to say" with a tap, and says so', async () => {
-    vi.useFakeTimers();
-    stub(window, 'isSecureContext', true);
-    const written = vi.fn(() => Promise.resolve());
-    stub(navigator, 'clipboard', { writeText: written });
+  it('copies nothing: "What to say" is in the guided setup in learn (D-151)', async () => {
     await bootPaid();
-    const chip = $<HTMLButtonElement>('section.prompts button[data-copy]');
-    click(chip);
-    await vi.advanceTimersByTimeAsync(150);
-    expect(written).toHaveBeenCalledWith(chip.querySelector('[data-copy-text]')?.textContent);
-    expect($('#guide-live').textContent).toBe('Copied. Paste it into Claude.');
+    expect(document.querySelector('section.prompts, button[data-copy]')).toBeNull();
+  });
+});
+
+describe('a guided page as it ships (D-151)', () => {
+  const LEARN = 'https://learn.amplifiedimpact.io/skill-library/perfect-week';
+
+  it('sends a visitor who arrives on #download, where the setup was, on to the guide in learn', () => {
+    document.body.innerHTML = renderGuideBody(guideFor('perfect-week'));
+    const replace = vi.fn();
+    expect(sendOldLinkToGuide(document, { hash: '#download', replace })).toBe(true);
+    expect(replace).toHaveBeenCalledWith(LEARN);
+  });
+
+  it('leaves every other address alone, and a paid page’s too', () => {
+    document.body.innerHTML = renderGuideBody(guideFor('perfect-week'));
+    const replace = vi.fn();
+    for (const hash of ['', '#get-the-skill', '#check-email', '#guide-error']) expect(sendOldLinkToGuide(document, { hash, replace })).toBe(false);
+    document.body.innerHTML = renderGuideBody(guideFor('pricing-conversation-prep'));
+    expect(sendOldLinkToGuide(document, { hash: '#download', replace })).toBe(true);
+    expect(replace).toHaveBeenLastCalledWith('https://learn.amplifiedimpact.io/skill-library/pricing-conversation-prep');
+    expect(replace).toHaveBeenCalledTimes(1);
+  });
+
+  it('goes only to a guide in learn, whatever the page names', () => {
+    document.body.innerHTML = '<section data-learn-guide="https://evil.example.com/skill-library/x"></section>';
+    const replace = vi.fn();
+    expect(sendOldLinkToGuide(document, { hash: '#download', replace })).toBe(false);
+    document.body.innerHTML = renderGuideBody(guideFor('task-sync-starter'));
+    expect(sendOldLinkToGuide(document, { hash: '#download', replace })).toBe(false);
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('unlocks the signed-up panel on a sign-up, and for a visitor the no-script form lands on #check-email', async () => {
+    await boot('/perfect-week', undefined, 'perfect-week');
+    respond(201, { ok: true });
+    fill('Sam', 'sam@example.com');
+    submit();
+    await settle();
+    await settle();
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/perfect-week');
+    expect(unlocked()).toBe(true);
+    // Focus goes to the panel that says the link is in their inbox.
+    expect(document.activeElement).toBe($('#check-email'));
+    expect($('#check-email a').getAttribute('href')).toBe(LEARN);
+    localStorage.clear();
+
+    await boot('/perfect-week#check-email', undefined, 'perfect-week');
+    expect(unlocked()).toBe(true);
   });
 });

@@ -19,6 +19,7 @@
 import fastifyStatic from '@fastify/static';
 import type { FastifyInstance } from 'fastify';
 import { PAID_GROK_DOWNLOADS } from '@ai/core/grok-templates';
+import { GUIDED_DOWNLOADS, guidedPageOfFile, skillGuideUrl } from '@ai/core/skill-guides';
 import { PAID_DOWNLOADS } from './billing/skills-catalog';
 import { GUIDE_SLUGS } from './routes/guide-list';
 import { SALES_PAGES } from './routes/offer';
@@ -57,6 +58,9 @@ export function staticIgnores(): string[] {
     ...PAID_DOWNLOADS.map((file) => `downloads/${file}`),
     // So are the paid Grok Bot templates (D-100), from their own list, not the skills'.
     ...PAID_GROK_DOWNLOADS.map((file) => `downloads/${file}`),
+    // And, since D-151, every skill's and template's file, free ones too: each is part of its guided
+    // setup in learn, downloaded through the access-checked route (a free one needs a free account).
+    ...GUIDED_DOWNLOADS.map((file) => `downloads/${file}`),
   ];
 }
 
@@ -96,8 +100,14 @@ export async function registerStaticFiles(app: FastifyInstance, root: string): P
   app.setNotFoundHandler((req, reply) => {
     const path = pathOf(req.url);
     if (path.startsWith('/api/')) return reply.code(404).send({ error: 'Not found' });
-    // A file no route serves is a plain 404, never the SPA: a paid skill's old ZIP (D-082), or a
-    // hashed file an older or newer deploy named (D-137).
+    // A skill's or template's old ZIP link (D-151): on to its guided setup in learn, which signs the
+    // visitor in and checks the plan first. Its own page, by the catalog, never anywhere else.
+    if (path.startsWith('/downloads/')) {
+      const page = guidedPageOfFile(path.slice('/downloads/'.length));
+      if (page) return reply.redirect(skillGuideUrl(page), 302);
+    }
+    // A file no route serves is a plain 404, never the SPA: a hashed file an older or newer deploy
+    // named (D-137), or any other missing download.
     if (path.startsWith('/downloads/') || path.startsWith(HASHED_PREFIX)) return reply.code(404).type('text/plain; charset=utf-8').send('Not found');
     return reply.sendFile('index.html');
   });

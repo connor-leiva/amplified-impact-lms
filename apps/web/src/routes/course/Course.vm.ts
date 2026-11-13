@@ -9,7 +9,8 @@
 // unit-tested; times go through `fmt.*` (the viewer's zone first, the program's in parentheses).
 
 import { fmt } from '@ai/core';
-import { SKILL_LIBRARY_PATH, coursePath, libraryHref } from '@ai/core/accelerator';
+import { LIBRARY_ORIGIN, SKILL_LIBRARY_PATH, coursePath } from '@ai/core/accelerator';
+import { courseGuideHref } from '@ai/core/skill-guides';
 import type { CourseContent, CourseSkill, SkillRole } from '@ai/core/accelerator-content';
 import { BLANK_WORKSHEET, COURSE_TEMPLATES, PRACTICE_SET, templateCsv, worksheetCsv } from '@ai/core/worksheet';
 
@@ -224,12 +225,21 @@ export type CourseView =
 const mins = (n: number): string => `${n} Minutes`;
 const span = (from: number, to: number): string => `${from} to ${to} min`;
 
+/**
+ * Where a course link to a Library page goes (D-151): a skill's guided setup in learn,
+ * `/skill-library/<page>`, opened in the same tab; any other page (/voice-profile) on www, in a new one.
+ */
+export const guideHref = (route: string): string => courseGuideHref(route, LIBRARY_ORIGIN);
+/** Whether a course link leaves learn, and so opens in a new tab. */
+export const isExternal = (href: string): boolean => /^https?:\/\//.test(href);
+
 const skillVM = (s: CourseSkill): SkillVM => ({
   title: s.title,
   role: ROLE_LABEL[s.role],
   use: s.use,
   free: !!s.free,
-  href: libraryHref(s.route),
+  // A skill's guided setup in learn (D-151); a page that is not a skill is still on www.
+  href: guideHref(s.route),
 });
 
 /** `Week 3 · Live Build` or `Week 3 · Office Hours`, and the goal-planning title where it is one. */
@@ -255,8 +265,8 @@ const joinVM = (j: { label: string; note: string; path: string }): JoinVM => ({ 
 /** A setup step's guided-setup links: one plainly labeled, or several, each by its skill's Library title. */
 function setupLinks(step: { route?: string; also?: readonly string[] }, skills: readonly { title: string; route: string }[]): StepVM['links'] {
   const routes = step.route ? [step.route, ...(step.also ?? [])] : [];
-  if (routes.length === 1) return [{ label: COPY.guidedSetup, href: libraryHref(routes[0]!) }];
-  return routes.map((r) => ({ label: skills.find((k) => k.route === r)?.title ?? r, href: libraryHref(r) }));
+  if (routes.length === 1) return [{ label: COPY.guidedSetup, href: guideHref(routes[0]!) }];
+  return routes.map((r) => ({ label: skills.find((k) => k.route === r)?.title ?? r, href: guideHref(r) }));
 }
 
 /** The week number in `/course/week-3`, or null for anything else. */

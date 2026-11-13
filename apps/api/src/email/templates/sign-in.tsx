@@ -18,12 +18,14 @@ export interface SignInEmailProps {
   subject: string;
   /** The raw single-use token. § 7.5 stores only its `sha256`, so this is the only place it exists. */
   token: string;
+  /** D-151: the guided setup to land on once signed in, `/skill-library/<page>`, already checked. */
+  next?: string | null;
   appUrl?: string | null;
 }
 
-export function SignInEmail({ subject, token, appUrl }: SignInEmailProps) {
+export function SignInEmail({ subject, token, next, appUrl }: SignInEmailProps) {
   return (
-    <EmailLayout subject={subject} cta={{ label: 'Sign In', href: absolute(signInPath(token), appUrl) }}>
+    <EmailLayout subject={subject} cta={{ label: 'Sign In', href: absolute(signInPath(token, next), appUrl) }}>
       <Para>It expires in 15 minutes.</Para>
     </EmailLayout>
   );

@@ -13,7 +13,7 @@ import { ENTRIES } from '../library/content';
 import { renderLibraryBody } from '../library/render';
 import { GUIDES, inSkillLibrary, SHARED, type Guide } from './content';
 import { nameOf, routineOf } from './grok-page';
-import { renderGuideBody, renderGuideHead } from './render';
+import { renderGuideBody, renderGuideHead, renderSetup } from './render';
 
 const guide = GUIDES['morning-brief'] as Guide;
 const doc = new DOMParser().parseFromString(
@@ -21,6 +21,9 @@ const doc = new DOMParser().parseFromString(
   'text/html',
 );
 const $$ = (selector: string) => Array.from(doc.querySelectorAll(selector));
+/** Its whole setup, as its content carries it (D-151: in learn, behind sign-in, not on its page). */
+const setup = new DOMParser().parseFromString(`<!doctype html><body>${renderSetup(guide)}</body>`, 'text/html');
+const s$$ = (selector: string) => Array.from(setup.querySelectorAll(selector));
 const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
 const source = (rel: string) => readFileSync(join(SKILLS_DIR, 'morning-brief', rel), 'utf8');
 const template = source('grok/SKILL.md');
@@ -63,17 +66,19 @@ describe('the page', () => {
   });
 
   it('asks which app with three radio buttons, Grok Bot first and checked, then Claude and ChatGPT', () => {
-    const radios = $$('input.app-radio') as HTMLInputElement[];
+    // D-151: on its page, only the steps' titles; the switch is in its guided setup in learn.
+    expect($$('input.app-radio, .app-switch, [data-guided]')).toEqual([]);
+    const radios = s$$('input.app-radio') as HTMLInputElement[];
     expect(radios.map((r) => [r.id, r.checked])).toEqual([
       ['app-grok', true],
       ['app-claude', false],
       ['app-chatgpt', false],
     ]);
-    expect(doc.querySelector('.app-switch')?.classList.contains('app-switch-3')).toBe(true);
-    expect($$('.app-switch label').map((l) => text(l))).toEqual(['Grok Bot', 'Claude', 'ChatGPT']);
-    expect($$('.app-setup').map((d) => d.className)).toEqual(['app-setup app-setup-grok', 'app-setup app-setup-claude', 'app-setup app-setup-chatgpt']);
+    expect(setup.querySelector('.app-switch')?.classList.contains('app-switch-3')).toBe(true);
+    expect(s$$('.app-switch label').map((l) => text(l))).toEqual(['Grok Bot', 'Claude', 'ChatGPT']);
+    expect(s$$('.app-setup').map((d) => d.className)).toEqual(['app-setup app-setup-grok', 'app-setup app-setup-claude', 'app-setup app-setup-chatgpt']);
     // Each lane remembers its own place (D-070).
-    expect($$('[data-guided]').map((g) => g.getAttribute('data-guided-key'))).toEqual([
+    expect(s$$('[data-guided]').map((g) => g.getAttribute('data-guided-key'))).toEqual([
       'morning-brief-unlocked-step-grok',
       'morning-brief-unlocked-step-claude',
       'morning-brief-unlocked-step-chatgpt',
@@ -81,7 +86,7 @@ describe('the page', () => {
   });
 
   it('walks Grok Bot through the shelf’s seven steps on the skill’s own template', () => {
-    const lane = doc.querySelector('.app-setup-grok');
+    const lane = setup.querySelector('.app-setup-grok');
     expect(Array.from(lane?.querySelectorAll('.setup-step h3') ?? []).map((h) => text(h))).toEqual([
       'Create the Bot',
       'Save the Template as a Skill',
@@ -115,10 +120,12 @@ describe('the page', () => {
   });
 
   it('gives Claude and ChatGPT their own steps, with Copy & Open and the Project’s words as written', () => {
-    expect(doc.querySelector('.app-setup-claude [data-copy-open]')).not.toBeNull();
-    expect(doc.querySelector('.app-setup-chatgpt [data-copy-open]')).not.toBeNull();
+    expect(setup.querySelector('.app-setup-claude [data-copy-open]')).not.toBeNull();
+    expect(setup.querySelector('.app-setup-chatgpt [data-copy-open]')).not.toBeNull();
     const paste = source('chatgpt/paste.txt').trim();
-    expect(Array.from(doc.querySelectorAll('.app-setup-chatgpt [data-copy-text]')).map((el) => el.textContent)).toContain(paste);
+    expect(Array.from(setup.querySelectorAll('.app-setup-chatgpt [data-copy-text]')).map((el) => el.textContent)).toContain(paste);
+    // None of it on its page (D-151).
+    expect(doc.querySelector('[data-copy-open], [data-copy-text]')).toBeNull();
   });
 
   it('says Grok Bot, Claude or ChatGPT in the hero', () => {

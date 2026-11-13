@@ -610,6 +610,8 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   // The skill library (D-079): signed in, like the Vault.
   { path: '/api/skills', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/skills/:id/download/:kind', methods: 'GET, HEAD', guard: 'session' },
+  // D-151: a skill's guided setup, signed in, and only for a learner the access rule lets in.
+  { path: '/api/skill-guides/:slug', methods: 'GET, HEAD', guard: 'session' },
   // D-150: an access group's welcome panel, put away for good by the signed-in member.
   { path: '/api/skills/welcome/dismiss', methods: 'POST', guard: 'session' },
   // Manage Billing (D-077): the owner's way into Stripe's billing portal, signed in.
@@ -1013,6 +1015,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           // The skill library (D-079): a list of what an account can open, and a presigned download.
           '/api/skills': () => app.inject({ method: 'GET', url: '/api/skills' }),
           '/api/skills/:id/download/:kind': () => app.inject({ method: 'GET', url: '/api/skills/team-pnl-review/download/claude' }),
+          '/api/skill-guides/:slug': () => app.inject({ method: 'GET', url: '/api/skill-guides/appointment-follow-up' }),
           '/api/skills/welcome/dismiss': () =>
             app.inject({
               method: 'POST',
@@ -1209,8 +1212,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // be classified here rather than shipping unguarded.
     // 13 with the skill library's two (D-079), 14 with Manage Billing (D-077), 15 with the AI
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
-    // with the CRM sync log and its retry (D-134), and 20 with the welcome panel's dismiss (D-150).
-    expect(EXECUTED.unauthenticated).toBe(20);
+    // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
+    // with the guided setups (D-151).
+    expect(EXECUTED.unauthenticated).toBe(21);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1219,7 +1223,7 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // The + 1: the AI Accelerator's course route (D-110), probed unauthenticated. The + 7: D-132's
     // password routes, two probed unauthenticated and five as exempt. The + 2: the CRM sync log and its
     // retry (D-134), probed unauthenticated. The + 1 after that: the welcome panel's dismiss (D-150),
-    // probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1);
+    // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1);
   });
 });

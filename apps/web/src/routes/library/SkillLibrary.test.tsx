@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import { GROK_TEMPLATES } from '@ai/core/grok-templates';
 import { SKILL_CATALOG } from '@ai/core/skills';
 import { readFileSync } from 'node:fs';
@@ -28,8 +29,8 @@ const skill = (over: Partial<LibrarySkill>): LibrarySkill => ({
 /** The screen's stylesheet, for the rules Design checks by value. */
 const CSS = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'SkillLibrary.module.css'), 'utf8');
 
-/** The Setup Guide link's accessible name: its label, then that it opens a new tab (D-150). */
-const GUIDE = `${COPY.guide} ${COPY.newTab}`;
+/** The Setup Guide link's name (D-151: the guide in learn, in this tab). */
+const GUIDE = COPY.guide;
 
 let fetchMock: Mock;
 const answer = (status: number, body: unknown) => ({ ok: status < 400, status, json: async () => body }) as unknown as Response;
@@ -52,28 +53,23 @@ describe('the skill library screen', () => {
         ],
       }),
     );
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
     expect(within(owner).getByRole('link', { name: COPY.files.claude })).toHaveAttribute('href', '/api/skills/team-pnl-review/download/claude');
     expect(within(owner).getByRole('link', { name: COPY.files.practice })).toBeInTheDocument();
 
-    // Beside the downloads, the skill's guided setup on its www page, in a new tab (D-101), and it
-    // says so: an icon, the words for a screen reader, and a hover title (D-150).
+    // Beside the downloads, the skill's guided setup, here in learn, in this tab (D-151).
     const guide = within(owner).getByRole('link', { name: GUIDE });
-    expect(guide).toHaveAttribute('href', 'https://www.amplifiedimpact.io/team-pnl-review');
-    expect(guide).toHaveAttribute('target', '_blank');
-    expect(guide).toHaveAttribute('rel', 'noopener');
-    expect(guide).toHaveAttribute('title', 'Opens in a new tab');
-    expect(guide).toHaveAttribute('aria-label', 'Setup Guide (opens in a new tab)');
-    // Its words as before, then the new-tab icon after them.
+    expect(guide).toHaveAttribute('href', '/skill-library/team-pnl-review');
+    expect(guide).not.toHaveAttribute('target');
     expect(guide.textContent).toBe('Setup Guide');
-    expect(guide.querySelectorAll('svg')).toHaveLength(2);
-    expect(guide.lastElementChild?.tagName.toLowerCase()).toBe('svg');
 
     const agent = screen.getByRole('region', { name: COPY.sets.agent });
     expect(within(agent).queryByRole('link', { name: COPY.files.claude })).toBeNull();
     expect(within(agent).queryByRole('link', { name: GUIDE })).toBeNull();
     expect(within(agent).getByText(COPY.locked)).toBeInTheDocument();
+    // A locked skill's guide shows its steps' titles and what it takes to open it (D-151).
+    expect(within(agent).getByRole('link', { name: COPY.preview })).toHaveAttribute('href', '/skill-library/offer-strategy');
     // /pricing compares all four programs; /offer#plans had no Agent Plan (D-140).
     expect(within(agent).getByRole('link', { name: COPY.seePlans })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/pricing');
 
@@ -92,7 +88,7 @@ describe('the skill library screen', () => {
         skills: [skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'upcoming', opensAt: Date.parse('2026-12-14T00:00:00-06:00') })],
       }),
     );
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     const agent = await screen.findByRole('region', { name: COPY.sets.agent });
     expect(within(agent).getByText('Coming December 14.')).toBeInTheDocument();
     expect(within(agent).queryByText(COPY.locked)).toBeNull();
@@ -101,18 +97,18 @@ describe('the skill library screen', () => {
 
   it('says why a paused two-pay AI Accelerator\'s skills are locked, and only then (D-143)', async () => {
     fetchMock.mockResolvedValue(answer(200, { paused: true, skills: [skill({ state: 'locked' })] }));
-    const { unmount } = render(<SkillLibrary />);
+    const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByText(COPY.paused)).toBeInTheDocument();
     unmount();
     fetchMock.mockResolvedValue(answer(200, { skills: [skill({ state: 'locked' })] }));
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     await screen.findByRole('region', { name: COPY.sets.owner_ops });
     expect(screen.queryByText(COPY.paused)).toBeNull();
   });
 
   it('sends a signed-out visitor to sign in', async () => {
     fetchMock.mockResolvedValue(answer(401, { error: 'Sign in' }));
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByText(COPY.unavailable)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: COPY.signIn })).toHaveAttribute('href', '/sign-in');
   });
@@ -123,19 +119,19 @@ describe('the skill library screen', () => {
         skills: [skill({ id: 'month-end-close', title: 'Month-End Close Packet', sets: 'both', files: ['grok'] })],
       }),
     );
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     const link = await screen.findByRole('link', { name: COPY.files.grok });
     expect(link).toHaveAttribute('href', '/api/skills/month-end-close/download/grok');
     expect(COPY.files.grok).toBe('Download for Grok Bot');
-    expect(screen.getByRole('link', { name: GUIDE })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/month-end-close');
+    expect(screen.getByRole('link', { name: GUIDE })).toHaveAttribute('href', '/skill-library/month-end-close');
   });
 
   it('sends a skill whose page has another name to that page (D-101)', async () => {
     fetchMock.mockResolvedValue(
       answer(200, { skills: [skill({ id: 'content-opportunity-research', title: 'Content Strategist', sets: 'both', files: ['claude'] })] }),
     );
-    render(<SkillLibrary />);
-    expect(await screen.findByRole('link', { name: GUIDE })).toHaveAttribute('href', 'https://www.amplifiedimpact.io/content-strategist');
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
+    expect(await screen.findByRole('link', { name: GUIDE })).toHaveAttribute('href', '/skill-library/content-strategist');
   });
 
   it('leads every skill with the problem it fixes, in its Library card’s words, above its downloads under "Set it up"', async () => {
@@ -144,7 +140,7 @@ describe('the skill library screen', () => {
         skills: [skill({}), skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'locked', files: ['claude'] })],
       }),
     );
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
     const card = ENTRIES.find((e) => e.href === '/team-pnl-review')!;
     const row = within(owner).getByRole('listitem');
@@ -174,7 +170,7 @@ describe('the skill library screen', () => {
     fetchMock.mockResolvedValue(
       answer(200, { plans: [], accessGroups: [{ id: 'utah-life', name: 'Utah Life' }], skills: [skill({ id: 'appointment-follow-up', title: 'Appointment Follow-Up', sets: 'agent' })] }),
     );
-    const { unmount } = render(<SkillLibrary />);
+    const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByText('Included with your Utah Life team')).toBeInTheDocument();
     expect(COPY.included('Utah Life')).toBe('Included with your Utah Life team');
     // Not a customer: nothing to bill.
@@ -183,14 +179,14 @@ describe('the skill library screen', () => {
 
     // A member who also bought a plan keeps Manage Billing beside the note.
     fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'membership', status: 'active' }], accessGroups: [{ id: 'utah-life', name: 'Utah Life' }], skills: [skill({})] }));
-    const again = render(<SkillLibrary />);
+    const again = render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByText('Included with your Utah Life team')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: COPY.billing })).toBeInTheDocument();
     again.unmount();
 
     // Everyone else: Manage Billing as before, and no note.
     fetchMock.mockResolvedValue(answer(200, { skills: [skill({})] }));
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
     expect(screen.queryByText(/Included with your/)).toBeNull();
   });
@@ -200,7 +196,7 @@ describe('the skill library screen', () => {
 
     it('gives the note its own class: 16px, no margin, the buttons’ 40px row, colour from a token', async () => {
       fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, skills: [skill({})] }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       const note = await screen.findByText('Included with your Utah Life team');
       expect(note.tagName).toBe('P');
       expect(note.className).toMatch(/included/);
@@ -216,14 +212,14 @@ describe('the skill library screen', () => {
 
     it('shows no Team Hub to a member who bought nothing, even when the API says Team tier', async () => {
       fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, teamHub: true, skills: [skill({})] }));
-      const { unmount } = render(<SkillLibrary />);
+      const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
       await screen.findByText('Included with your Utah Life team');
       expect(screen.queryByRole('link', { name: COPY.teamHub })).toBeNull();
       unmount();
 
       // A member whose team bought a plan has a real team, and keeps it.
       fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agents', status: 'active' }], accessGroups: UTAH, teamHub: true, skills: [skill({})] }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       expect(await screen.findByRole('link', { name: COPY.teamHub })).toHaveAttribute('href', '/team');
       expect(groupOnly({ groups: UTAH, paidPlans: false })).toBe(true);
       expect(groupOnly({ groups: UTAH, paidPlans: true })).toBe(false);
@@ -243,7 +239,7 @@ describe('the skill library screen', () => {
           ],
         }),
       );
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
       expect(within(owner).getByText('Not included with Utah Life access')).toBeInTheDocument();
       expect(COPY.notIncluded('Utah Life')).toBe('Not included with Utah Life access');
@@ -257,7 +253,7 @@ describe('the skill library screen', () => {
 
     it('sets the member’s locked label at the 16 / 24 "lead" step in its own class, with no colour of its own (Design, PR #100)', async () => {
       fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, skills: [skill({ state: 'locked' })] }));
-      const { unmount } = render(<SkillLibrary />);
+      const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
       const label = (await screen.findByText('Not included with Utah Life access')).closest('span')!;
       expect(label.className).toMatch(/note/);
       expect(label.className).toMatch(/notIncluded/);
@@ -268,7 +264,7 @@ describe('the skill library screen', () => {
       expect(rule).not.toMatch(/color|#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
       // Everyone else's note is unchanged.
       fetchMock.mockResolvedValue(answer(200, { skills: [skill({ state: 'locked' })] }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       expect((await screen.findByText(COPY.locked)).closest('span')!.className).not.toMatch(/notIncluded/);
     });
 
@@ -297,7 +293,7 @@ describe('the skill library screen', () => {
           ],
         }),
       );
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       const owner = await screen.findByRole('region', { name: COPY.sets.owner_ops });
       expect(within(owner).getByText('Not included with Utah Life access')).toBeInTheDocument();
       expect(within(screen.getByRole('region', { name: COPY.sets.agent })).getByText('Not included with Acme Brokerage access')).toBeInTheDocument();
@@ -305,7 +301,7 @@ describe('the skill library screen', () => {
 
     it('keeps "Not in your plan." and See Plans for everyone else', async () => {
       fetchMock.mockResolvedValue(answer(200, { skills: [skill({ state: 'locked' }), skill({ id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', state: 'locked' })] }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       await screen.findByRole('region', { name: COPY.sets.owner_ops });
       expect(screen.getAllByText(COPY.locked)).toHaveLength(2);
       expect(screen.getAllByRole('link', { name: COPY.seePlans })).toHaveLength(2);
@@ -338,21 +334,19 @@ describe('the skill library screen', () => {
 
     it('greets the group, counts its skills from the API, and links the two to start with to their Setup Guides', async () => {
       fetchMock.mockResolvedValue(member());
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       const panel = await screen.findByRole('region', { name: 'Welcome, Utah Life' });
       expect(panel.textContent).toBe(
         'Welcome, Utah Life' +
           'Your team access includes 25 agent skills. ' +
           'Start with Appointment Follow-Up and Repair Request Response. ' +
-          'Each Setup Guide opens a step-by-step walkthrough in a new tab; come back here to download the files.',
+          'Each Setup Guide walks you through it step by step, with the downloads right in it.',
       );
-      const first = within(panel).getByRole('link', { name: `Appointment Follow-Up ${COPY.newTab}` });
-      expect(first).toHaveAttribute('href', 'https://www.amplifiedimpact.io/appointment-follow-up');
-      expect(first).toHaveAttribute('target', '_blank');
-      expect(within(panel).getByRole('link', { name: `Repair Request Response ${COPY.newTab}` })).toHaveAttribute(
-        'href',
-        'https://www.amplifiedimpact.io/repair-request-response',
-      );
+      // D-151: each one's guided setup, here in learn, in this tab.
+      const first = within(panel).getByRole('link', { name: 'Appointment Follow-Up' });
+      expect(first).toHaveAttribute('href', '/skill-library/appointment-follow-up');
+      expect(first).not.toHaveAttribute('target');
+      expect(within(panel).getByRole('link', { name: 'Repair Request Response' })).toHaveAttribute('href', '/skill-library/repair-request-response');
       expect(START_WITH['utah-life']).toEqual(['appointment-follow-up', 'repair-request-response']);
       // At the top: before the first set of skills.
       const first_set = screen.getByRole('region', { name: COPY.sets.owner_ops });
@@ -361,18 +355,18 @@ describe('the skill library screen', () => {
 
     it('takes the count from the group’s grant, whatever it is: never a number typed into the page', async () => {
       fetchMock.mockResolvedValue(member({ skills: 31 }));
-      const { unmount } = render(<SkillLibrary />);
+      const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
       expect(await screen.findByText(/Your team access includes 31 agent skills\./)).toBeInTheDocument();
       unmount();
       fetchMock.mockResolvedValue(member({ skills: 1 }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       expect(await screen.findByText(/Your team access includes 1 agent skill\./)).toBeInTheDocument();
       expect(COPY.welcome.count(25)).toBe('Your team access includes 25 agent skills.');
     });
 
     it('is only for a member: nobody else sees it', async () => {
       fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agents', status: 'active' }], skills: TRAINING }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       await screen.findByRole('region', { name: COPY.sets.agent });
       expect(screen.queryByRole('region', { name: /^Welcome/ })).toBeNull();
       expect(screen.queryByText(/Your team access includes/)).toBeNull();
@@ -380,7 +374,7 @@ describe('the skill library screen', () => {
 
     it('dismisses for good: hidden at once, kept by the server for this learner, and not shown again', async () => {
       fetchMock.mockImplementation(async (url: string) => (url === '/api/skills' ? member() : answer(200, { ok: true })));
-      const { unmount } = render(<SkillLibrary />);
+      const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
       const panel = await screen.findByRole('region', { name: 'Welcome, Utah Life' });
       await userEvent.click(within(panel).getByRole('button', { name: COPY.welcome.dismiss }));
       expect(screen.queryByRole('region', { name: 'Welcome, Utah Life' })).toBeNull();
@@ -391,14 +385,14 @@ describe('the skill library screen', () => {
 
       // The next visit: the API says it was put away, so it stays away.
       fetchMock.mockImplementation(async () => member({ welcome: false }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       await screen.findByText('Included with your Utah Life team');
       expect(screen.queryByRole('region', { name: 'Welcome, Utah Life' })).toBeNull();
     });
 
     it('names no skill to start with that the member can’t open', async () => {
       fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: [{ id: 'utah-life', name: 'Utah Life', skills: 2, welcome: true }], skills: [TRAINING[2]] }));
-      render(<SkillLibrary />);
+      render(<SkillLibrary />, { wrapper: MemoryRouter });
       const panel = await screen.findByRole('region', { name: 'Welcome, Utah Life' });
       expect(panel.textContent).not.toMatch(/Start with/);
       expect(within(panel).queryAllByRole('link')).toHaveLength(0);
@@ -407,30 +401,30 @@ describe('the skill library screen', () => {
 
   it('says so when the list fails to load', async () => {
     fetchMock.mockResolvedValue(answer(500, {}));
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByRole('alert')).toHaveTextContent(COPY.failed);
   });
 
   it('links a Team tier learner to the Team Hub, where an owner invites their team, and no one else (D-119)', async () => {
     fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agents', status: 'active' }], teamHub: true, skills: [skill({})] }));
-    const { unmount } = render(<SkillLibrary />);
+    const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByRole('link', { name: COPY.teamHub })).toHaveAttribute('href', '/team');
     unmount();
 
     fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'agent_plan', status: 'trialing' }], teamHub: false, skills: [skill({})] }));
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: COPY.teamHub })).toBeNull();
   });
 
   it('links an AI Accelerator plan to its course, and no other plan (D-110)', async () => {
     fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'cohort', status: 'active' }], skills: [skill({})] }));
-    const { unmount } = render(<SkillLibrary />);
+    const { unmount } = render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByRole('link', { name: COPY.course })).toHaveAttribute('href', '/course');
     unmount();
 
     fetchMock.mockResolvedValue(answer(200, { plans: [{ kind: 'membership', status: 'active' }], skills: [skill({})] }));
-    render(<SkillLibrary />);
+    render(<SkillLibrary />, { wrapper: MemoryRouter });
     expect(await screen.findByRole('link', { name: COPY.billing })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: COPY.course })).toBeNull();
   });

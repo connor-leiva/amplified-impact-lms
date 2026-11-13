@@ -1,5 +1,5 @@
 // The free guides the API serves (DECISIONS.md D-038, D-039, D-040, D-045, D-046), and where each one's pieces
-// live. No imports, so `routes/ai101.ts` (the opt-in route) and `routes/guides.ts` (the pages) can both read it.
+// live. Imports only `@ai/core`, so `routes/ai101.ts` (the opt-in route) and `routes/guides.ts` (the pages) can both read it.
 //
 // A guide's slug is its page (`/<slug>`), its opt-in route (`POST /api/<slug>`), its built file
 // (`apps/web/dist/<slug>.html`) and the `source` its sign-ups are stored under, which picks their
@@ -9,6 +9,8 @@
 // in routes/marketing.ts, and list it in the free library (`ENTRIES` in `apps/web/src/library/content.ts`,
 // D-050; a test fails until you do). A guide whose form asks for more than a name and an address says so in
 // `SIGN_UP_FORMS` (routes/ai101.ts): /retool's team size (D-046) is the only one so far.
+
+import { isGuidedPage } from '@ai/core/skill-guides';
 
 export const GUIDE_SLUGS = [
   'task-sync-starter',
@@ -95,7 +97,12 @@ export const GUIDE_ALIASES: Readonly<Partial<Record<GuideSlug, readonly string[]
 
 export const guidePagePath = (slug: GuideSlug): string => `/${slug}`;
 export const guideSignUpPath = (slug: GuideSlug): string => `/api/${slug}`;
-/** Where the no-JS form lands once the sign-up is stored. */
-export const guideJoinedLocation = (slug: GuideSlug): string => `/${slug}#${JOINED_FRAGMENT[slug] ?? 'download'}`;
+/**
+ * Where the no-JS form lands once the sign-up is stored. A guided page's (D-151) is its signed-up
+ * panel, `#check-email`: the setup that `#download` held is in learn now, and the page's script sends
+ * `#download` there.
+ */
+export const guideJoinedLocation = (slug: GuideSlug): string =>
+  `/${slug}#${isGuidedPage(slug) ? 'check-email' : (JOINED_FRAGMENT[slug] ?? 'download')}`;
 /** Where a refused no-JS form lands: the page's error line, shown the same way. */
 export const guideErrorLocation = (slug: GuideSlug): string => `/${slug}#guide-error`;

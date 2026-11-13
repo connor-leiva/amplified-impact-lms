@@ -534,3 +534,11 @@ describe('email templates · the transport seam @g8', () => {
     expect(appBase('https://host.test/lms/')).toBe('https://host.test/lms');
   });
 });
+
+describe('the sign-in link back to a guided setup (D-151)', () => {
+  it('carries `next` when there is one, and only a guided setup in learn', async () => {
+    const { signInPath } = await import('./links');
+    expect(signInPath('tok_1')).toBe('/sign-in?token=tok_1');
+    expect(signInPath('tok_1', '/skill-library/perfect-week')).toBe('/sign-in?token=tok_1&next=%2Fskill-library%2Fperfect-week');
+  });
+});

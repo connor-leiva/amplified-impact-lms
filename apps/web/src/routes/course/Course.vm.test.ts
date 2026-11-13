@@ -5,7 +5,7 @@ import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
 import { LIBRARY_ROUTES_PENDING_MERGE, acceleratorSessions } from '@ai/core/accelerator';
 import { courseContent } from '@ai/core/accelerator-content';
 import { ENTRIES } from '../../library/content';
-import { COPY, courseView, overviewVM, weekFromParam, weekVM } from './Course.vm';
+import { COPY, courseView, guideHref, isExternal, overviewVM, weekFromParam, weekVM } from './Course.vm';
 import type { CoursePayload, WeekVM } from './Course.vm';
 
 const payload = (preview = false): CoursePayload => ({
@@ -100,11 +100,11 @@ describe('every week’s page', () => {
     expect(w3.officeHours!.note).toMatch(/agents invited/);
   });
 
-  it('numbers the setup order, each skill step opening its guided setup on the Library page', () => {
+  it('numbers the setup order, each skill step opening its guided setup in learn (D-151)', () => {
     const w1 = weekVM(payload(), 1)!;
     expect(w1.setup.map((s) => s.n)).toEqual([1, 2, 3, 4, 5, 6]);
-    expect(w1.setup[0]!.links).toEqual([{ label: 'Open the Guided Setup', href: 'https://www.amplifiedimpact.io/lead-source-roi' }]);
-    expect(w1.skills[0]).toEqual({ title: 'Lead-Source ROI', role: 'Flagship', use: expect.any(String), free: false, href: 'https://www.amplifiedimpact.io/lead-source-roi' });
+    expect(w1.setup[0]!.links).toEqual([{ label: 'Open the Guided Setup', href: '/skill-library/lead-source-roi' }]);
+    expect(w1.skills[0]).toEqual({ title: 'Lead-Source ROI', role: 'Flagship', use: expect.any(String), free: false, href: '/skill-library/lead-source-roi' });
     expect(w1.libraryHref).toBe('/skill-library');
     expect(w1.downloads.map((d) => d.name)).toEqual(['week-1-worksheet.csv', 'week-1-practice-set.csv', 'use-log.csv']);
     expect(w1.downloads[0]!.content.split('\n')[0]).toMatch(/^"Source","Period","Spend \(\$\)"/);
@@ -135,11 +135,14 @@ describe('every week’s page', () => {
 describe('every flagship href exists in the Library catalog', () => {
   // `LIBRARY_ROUTES_PENDING_MERGE` (packages/core/src/accelerator.ts) was the one allowance while
   // Morning Brief and New Agent Onboarding Plan were on their own branches. It is empty now.
-  const library = new Map(ENTRIES.filter((e) => e.href).map((e) => [`https://www.amplifiedimpact.io${e.href}`, e.title]));
-  const pending = new Set(LIBRARY_ROUTES_PENDING_MERGE.map((r) => `https://www.amplifiedimpact.io${r}`));
+  // D-151: a skill's Library page opens as its guided setup in learn (`/skill-library/<page>`); a page
+  // that is not a skill (/voice-profile) is still on www.
+  const hrefOf = (route: string) => guideHref(route);
+  const library = new Map(ENTRIES.filter((e) => e.href).map((e) => [hrefOf(e.href!), e.title]));
+  const pending = new Set(LIBRARY_ROUTES_PENDING_MERGE.map((r) => hrefOf(r)));
 
   it('links each skill a setup step names: one guided setup plainly, several by their Library titles', () => {
-    const www = 'https://www.amplifiedimpact.io';
+    const www = '/skill-library';
     const w4 = weekVM(payload(), 4)!;
     expect(w4.setup[4]!.text).toBe('Optional: open Contract-to-Close Deadline Tracker, Stalled Lender, Title & Escrow Follow-Up or TC File Audit for the transaction side.');
     expect(w4.setup[4]!.links).toEqual([
@@ -172,9 +175,16 @@ describe('every flagship href exists in the Library catalog', () => {
 
   it('allows no route as expected-but-not-merged: Morning Brief and New Agent Onboarding Plan are Library pages', () => {
     expect([...pending]).toEqual([]);
-    for (const href of ['https://www.amplifiedimpact.io/morning-brief', 'https://www.amplifiedimpact.io/new-agent-onboarding-plan']) {
+    for (const href of ['/skill-library/morning-brief', '/skill-library/new-agent-onboarding-plan']) {
       expect(library.has(href), href).toBe(true);
     }
+  });
+
+  it('opens a skill in learn, in this tab, and any other page on www, in a new one (D-151)', () => {
+    expect(guideHref('/appointment-follow-up')).toBe('/skill-library/appointment-follow-up');
+    expect(guideHref('/voice-profile')).toBe('https://www.amplifiedimpact.io/voice-profile');
+    expect(isExternal(guideHref('/voice-profile'))).toBe(true);
+    expect(isExternal(guideHref('/appointment-follow-up'))).toBe(false);
   });
 });
 

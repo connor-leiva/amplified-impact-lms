@@ -5,8 +5,9 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { inflateRawSync } from 'node:zlib';
 import { CONSENT, SENDERS } from '../legal/content';
-import { GUIDE_SENDERS, GUIDES, inSkillLibrary, type Guide } from './content';
-import { esc, guideFor, renderGuideBody, renderGuideHead } from './render';
+import { GUIDE_SENDERS, GUIDES, inSkillLibrary, isGuided, type Guide } from './content';
+import { esc, guideFor, renderGuideBody, renderGuideHead, renderSetup } from './render';
+import { exportGuide } from './setup-export';
 import { GUIDE_HTML } from './vite-plugin';
 import { TASK_SYNC_MORNING_ADD_ON, TASK_SYNC_PROMPT } from './task-sync-starter';
 
@@ -17,9 +18,11 @@ import { TASK_SYNC_MORNING_ADD_ON, TASK_SYNC_PROMPT } from './task-sync-starter'
 // Values a visitor sees or a link depends on are typed out here, not read from the content files, so
 // a change to one is a change to this file too.
 //
-// The Reel Editor is paid (D-082): its live page shows the Skill Library card in place of the opt-in
-// and the setup, which `skill-library.test.ts` holds. Its opt-in and setup stay in `reel-editor.ts` for
-// the day `FREE_SKILLS` names it, so this file draws it as that day will, free, and holds them still.
+// The Reel Editor is a skill, so its page is a guided page (D-151): its setup is in learn, behind
+// sign-in, and its page shows the steps' titles (`gated.test.ts`, `skill-library.test.ts`). Its words
+// stay in `reel-editor.ts`, drawn here as the day `FREE_SKILLS` names it would, free, through
+// `renderSetup()`, the renderer that carries them, so they are still held word for word. The page
+// contract below is the two PDF guides'.
 vi.mock('@ai/core/skills', async (importOriginal) => {
   const real = await importOriginal<typeof Skills>();
   return { ...real, isFreeSkill: (id: string) => id === 'reel-editor' || real.isFreeSkill(id) };
@@ -58,18 +61,6 @@ const EXPECTED = {
     magic: '%PDF-',
     minBytes: 100_000,
     unlockKey: 'ota-unlocked',
-  },
-  'reel-editor': {
-    title: 'Reel Editor: A Free Claude Skill · Amplified Impact',
-    h1: 'Reel Editor',
-    anchor: 'get-the-skill',
-    button: 'Get the Skill',
-    file: '/downloads/reel-editor.zip',
-    filename: 'reel-editor.zip',
-    // A ZIP's local file header.
-    magic: 'PK\u0003\u0004',
-    minBytes: 20_000,
-    unlockKey: 're-unlocked',
   },
 } as const;
 
@@ -358,7 +349,11 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   const doc = parse(guide);
   const $ = (selector: string) => doc.querySelector(selector);
   const $$ = (selector: string) => Array.from(doc.querySelectorAll(selector));
-  const steps = () => $$('#download .setup > li');
+  // Its setup, as its content carries it (D-151: in learn, not on its page).
+  const setup = new DOMParser().parseFromString(`<!doctype html><body><div id="download">${renderSetup(guide)}</div></body>`, 'text/html');
+  const s$ = (selector: string) => setup.querySelector(selector);
+  const s$$ = (selector: string) => Array.from(setup.querySelectorAll(selector));
+  const steps = () => s$$('#download .setup > li');
 
   it('walks through setup in the unlocked card, numbered, with the download as step 2', () => {
     expect(steps().map((li) => [text(li.querySelector('.setup-n')), text(li.querySelector('h3'))])).toEqual([
@@ -375,7 +370,7 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   });
 
   it("opens Claude's own settings and skills pages in a new tab, from steps 1 and 3", () => {
-    const links = $$('#download .setup a:not([data-download]):not([data-copy-open])').map((a) => [
+    const links = s$$('#download .setup a:not([data-download]):not([data-copy-open])').map((a) => [
       text(a),
       a.getAttribute('href'),
       a.getAttribute('target'),
@@ -388,7 +383,7 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   });
 
   it('copies the first Reel prompt and opens a new Claude chat from its step, in a new tab (D-070)', () => {
-    const open = $$('#download .setup a[data-copy-open]');
+    const open = s$$('#download .setup a[data-copy-open]');
     expect(open.map((a) => [text(a), a.getAttribute('href'), a.getAttribute('target')])).toEqual([
       ['Copy & Open Claude', 'https://claude.ai/new', '_blank'],
     ]);
@@ -396,17 +391,17 @@ describe('The Reel Editor, its own parts (D-045)', () => {
   });
 
   it('walks the setup one step at a time once the script runs, with Back and Next in the markup (D-070)', () => {
-    const box = $('#download [data-guided]');
+    const box = s$('#download [data-guided]');
     expect(box?.getAttribute('data-guided-key')).toBe('re-unlocked-step-claude');
     expect(steps().map((li) => li.getAttribute('data-step'))).toEqual(['1', '2', '3', '4']);
     expect(box?.querySelector('[data-guided-progress]')?.getAttribute('data-guided-progress')).toBe('Step {n} of {total}');
-    expect($$('#download [data-guided-nav] button').map(text)).toEqual(['Back', 'Next', 'Start Over']);
+    expect(s$$('#download [data-guided-nav] button').map(text)).toEqual(['Back', 'Next', 'Start Over']);
     // Hidden until the script turns the list into steps: with no script, every step shows.
     expect(box?.querySelector('[data-guided-nav]')?.hasAttribute('hidden')).toBe(true);
   });
 
   it('says, in Instagram, to open the real browser, about a ZIP rather than a PDF', () => {
-    const hint = text($('#download [data-in-app]'));
+    const hint = text(s$('#download [data-in-app]'));
     expect(hint).toMatch(/Open in browser/);
     expect(hint).not.toMatch(/PDF/);
   });
@@ -422,18 +417,17 @@ describe('The Reel Editor, its own parts (D-045)', () => {
     expect(names).toContain('reel-editor/scripts/setup.sh');
   });
 
-  it("sends a phone to a computer: a mailto with the page, and the share sheet's title and link", () => {
-    const handoff = $('#download .handoff')!;
-    expect(handoff.compareDocumentPosition($('#download .setup')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    const link = handoff.querySelector('a[data-share]')!;
-    expect(text(link)).toBe('Send This to My Computer');
-    const href = link.getAttribute('href')!;
-    expect(href.startsWith('mailto:?')).toBe(true);
-    const params = new URLSearchParams(href.slice('mailto:?'.length));
+  it("keeps its phone-to-computer words, whose link now leads on to its guide in learn (D-151)", () => {
+    const h = guide.download.handoff!;
+    expect(h.label).toBe('Send This to My Computer');
+    expect(h.href.startsWith('mailto:?')).toBe(true);
+    const params = new URLSearchParams(h.href.slice('mailto:?'.length));
     expect(params.get('subject')).toBe('Reel Editor: add it to Claude on your computer');
+    // `#download` is where the setup was: the page's script sends it on to the guide in learn.
     expect(params.get('body')).toBe('Open this on your computer:\nhttps://www.amplifiedimpact.io/reel-editor#download');
-    expect(link.getAttribute('data-share-title')).toBe('Reel Editor: add it to Claude on your computer');
-    expect(link.getAttribute('data-share-url')).toBe('https://www.amplifiedimpact.io/reel-editor#download');
+    expect(h.share).toEqual({ title: 'Reel Editor: add it to Claude on your computer', url: 'https://www.amplifiedimpact.io/reel-editor#download' });
+    // The page itself draws no hand-off: there is nothing to set up on it.
+    expect($('.handoff')).toBeNull();
   });
 
   it('copies "Edit this into a Reel" from step 4, by a button named for what it does', () => {
@@ -445,15 +439,16 @@ describe('The Reel Editor, its own parts (D-045)', () => {
     expect(chip.getAttribute('data-toast')).toBe('Copied. Paste it into Claude.');
   });
 
-  it("lists what to say, in the README's three groups, each one a copy button", () => {
-    const section = $('section.prompts')!;
-    expect(text(section.querySelector('h2'))).toBe('What to say');
-    expect($$('section.prompts .sk-group').map(text)).toEqual([
+  it("lists what to say, in the README's three groups, in its guided setup (D-151), not on its page", () => {
+    expect($('section.prompts')).toBeNull();
+    const [prompts] = exportGuide(guide).prompts;
+    expect(prompts?.heading).toBe('What to say');
+    expect(prompts?.groups.map((g) => g.label)).toEqual([
       'To start',
       'Quick fixes, no full re-render',
       'Other changes',
     ]);
-    expect($$('section.prompts [data-copy-text]').map(text)).toEqual([
+    expect(prompts?.groups.flatMap((g) => g.items)).toEqual([
       'Edit this into a Reel',
       'Make this more engaging with animations, sound effects and music',
       'Make my voice louder',
@@ -465,10 +460,8 @@ describe('The Reel Editor, its own parts (D-045)', () => {
     ]);
   });
 
-  it('has the one live region the copy buttons report to', () => {
-    expect($$('[aria-live]').map((el) => [el.id, el.getAttribute('role'), el.getAttribute('aria-live')])).toEqual([
-      ['guide-live', 'status', 'polite'],
-    ]);
+  it('copies nothing on its page, so needs no live region for it (D-151)', () => {
+    expect($$('[aria-live], [data-copy]')).toEqual([]);
   });
 
   it('answers its questions in <details>, which open with no script', () => {
@@ -511,18 +504,16 @@ describe('The Reel Editor, its own parts (D-045)', () => {
     expect($$('.sk-roles')).toHaveLength(0);
   });
 
-  it('puts what to say beside the questions, after the tips for the best results (D-072)', () => {
+  it('ends on the questions, after the tips for the best results; "What to say" is in its guided setup (D-151)', () => {
     expect($$('main > .sk-band h2').map(text)).toEqual([
       'What you get back',
       'Graphics that explain, not decorate',
       'Two looks',
       'What you need',
       'For the best results',
-      'What to say',
       'Good to know',
     ]);
-    const pair = $('.sk-pair')!;
-    expect([...pair.children].map((c) => text(c.querySelector('h2')))).toEqual(['What to say', 'Good to know']);
+    expect($('.sk-pair')).toBeNull();
   });
 });
 
@@ -683,8 +674,10 @@ describe('the layouts (D-071)', () => {
       expect(doc.querySelectorAll('.sk-hero > .sk-intro, .sk-hero > .optin'), g.slug).toHaveLength(2);
       // The hero's picture: a skill's sample, the Reel Editor's before and after, the kit's example.
       expect(doc.querySelector('.sk-hero > section.sample, .sk-hero > section.sk-show'), g.slug).not.toBeNull();
-      // A paid skill (D-082) has the Skill Library card where a free one has its sign-up and setup.
+      // A paid skill (D-082) has the Skill Library card where a free one has its sign-up. A skill's
+      // page shows its setup's titles (D-151); the Task Sync kit, not a skill, its whole setup.
       if (inSkillLibrary(g)) expect(doc.querySelector('#skill-library'), g.slug).not.toBeNull();
+      if (isGuided(g)) expect(doc.querySelector('[data-guide-preview] .guided-head'), g.slug).not.toBeNull();
       else expect(doc.querySelector('[data-guided] .guided-head'), g.slug).not.toBeNull();
     }
     for (const g of looks.filter((x) => x.grok === undefined && x.sections.some((s) => s.kind === 'sample'))) {

@@ -46,6 +46,8 @@ export const router = createBrowserRouter([
   { path: '/account', lazy: () => import('./routes/auth/Account') },
   // The skill library (D-079): net-new, outside the shell like the two above, so no portal golden moves.
   { path: '/skill-library', lazy: () => import('./routes/library/SkillLibrary') },
+  // Each skill's guided setup (D-151), behind sign-in: outside the shell, like the library it opens from.
+  { path: '/skill-library/:slug', lazy: () => import('./routes/library/SkillGuide') },
   // The AI Accelerator's pages (D-110): net-new and outside the shell for the same reason.
   { path: '/course', lazy: () => import('./routes/course/Course') },
   { path: '/course/:week', lazy: () => import('./routes/course/Course') },

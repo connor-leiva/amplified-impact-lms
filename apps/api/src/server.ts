@@ -50,6 +50,8 @@
 // same silent way. `app.ts`'s `cspScriptHashes` is the pure function; this is its one caller.
 
 import { existsSync, readFileSync } from 'node:fs';
+import { SKILL_GUIDES_DIR, SKILL_GUIDES_FILE } from '@ai/core/skill-guides';
+import type { SkillGuidesFile } from '@ai/core/skill-guides';
 import { fileURLToPath } from 'node:url';
 import { build, cspScriptHashes, installShutdown, productionLogger } from './app';
 import { registerStaticFiles } from './static';
@@ -116,6 +118,9 @@ const fixtureOnly = process.env.VITE_DATA_SOURCE === 'fixture';
 // served under a hash computed from different bytes.
 const ai101Page = readBuilt(ai101Html);
 const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readBuilt(guideHtml(slug))]));
+// D-151: every skill's full guided setup, from the web build's server-only file (never under `dist/`).
+const skillGuidesJson = fileURLToPath(new URL(`../../web/${SKILL_GUIDES_DIR}/${SKILL_GUIDES_FILE}`, import.meta.url));
+const skillGuides = existsSync(skillGuidesJson) ? (JSON.parse(readFileSync(skillGuidesJson, 'utf8')) as SkillGuidesFile) : null;
 // The free library that lists them (D-050), which has an inline script of its own.
 const libraryPage = readBuilt(fileURLToPath(new URL('../../web/dist/library.html', import.meta.url)));
 // The offer's pages (D-075, D-104): the page after Stripe carries one inline script; the offer page
@@ -140,6 +145,7 @@ const app = await build({
   inlineScriptHashes: cspScriptHashes([readBuilt(indexHtml), ai101Page, ...Object.values(guidePages), libraryPage, offerPage, welcomePage]),
   ai101Page,
   guidePages,
+  skillGuides,
   libraryPage,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml), agreement: readBuilt(agreementHtml) },
   offer: { pages: { offer: offerPage, welcome: welcomePage, sales: salesPages }, config: offerConfig },

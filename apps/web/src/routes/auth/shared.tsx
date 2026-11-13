@@ -186,14 +186,16 @@ function GoogleG() {
  * light-theme button: white, a #747775 hairline, the G at the left of the label. It is as wide as
  * the card's other buttons, with the same radius, and 44px tall for a thumb.
  */
-export function GoogleSignIn() {
+export function GoogleSignIn({ next = null }: { next?: string | null } = {}) {
+  // D-151: the guided setup to land on once signed in, kept by the API in the flow's signed cookie.
+  const href = next ? `${GOOGLE_START}?next=${encodeURIComponent(next)}` : GOOGLE_START;
   return (
     <div className={s.alt}>
       <button
         type="button"
         className={s.google}
         style={GOOGLE_LIGHT}
-        onClick={() => window.location.assign(GOOGLE_START)}
+        onClick={() => window.location.assign(href)}
       >
         <GoogleG />
         <span>{GOOGLE_COPY.button}</span>
