@@ -1,9 +1,8 @@
 // S8, "In Spring’s words" (`section.qt`): her quote, word by word, with four steps under it (brief § 4,
 // S8; § 5).
 //
-// THE WHOLE SECTION WAITS ON SPRING (Connor's D2, `spring-approval`): her words, the steps that repeat
-// her 95% and 38%, and the line under them. A preview shows it, marked; the production render leaves it
-// out, as S2 is left out, and invents nothing in its place.
+// SPRING APPROVED IT (Connor's D2, cleared 4:41 PM MT Nov 12): her words, the steps that repeat her 95%
+// and 38%, and the line under them, "26 of 29 are in the Library", all render in production.
 //
 // SETTLED IN THE MARKUP: every word in full ink and every step on (no `--p`: the stylesheet reads it as
 // 1), which is what a phone, reduced motion or no script shows (brief § 5: "all words full ink"). On a
@@ -21,7 +20,6 @@ import { esc } from '../../../ai101/render';
 import { button } from '../../../kit/parts';
 import { PHOTOS } from '../../content';
 import { chartCounts, QUOTE } from '../content';
-import { pending } from '../pending';
 
 /** The quote's words, in order, as the highlight counts them. */
 export const quoteWords = (): string[] => QUOTE.text.split(' ');
@@ -53,23 +51,20 @@ export function quote(): string {
     .join('');
   const counts = chartCounts();
   const photo = PHOTOS.spring;
-  return pending(
-    'spring-approval',
-    [
-      `<section class="sec qt inverse" aria-labelledby="qt-title" style="--n:${words.length};--a0:${ats[0]!.toFixed(4)};--a1:${ats.at(-1)!.toFixed(4)}" data-qt>`,
-      `<h2 id="qt-title" class="sr-only">${esc(q.heading)}</h2>`,
-      `<div class="wrap">`,
-      `<figure class="qt-fig">${QUOTE_MARK}<blockquote class="qt-text"><p>${text}</p></blockquote>`,
-      `<figcaption class="qt-by"><span class="qt-face" aria-hidden="true"><img src="${esc(photo.src)}" alt="" width="56" height="56" loading="lazy" decoding="async"></span><span class="qt-who"><span class="qt-name">${esc(
-        q.name,
-      )}</span><span class="qt-role">${esc(q.role)}</span></span></figcaption>`,
-      `</figure>`,
-      `<ol class="qt-path" aria-label="${esc(q.pathLabel)}">${stops}</ol>`,
-      `<div class="qt-foot"><p class="qt-foot-t">${esc(q.foot)}</p><div class="qt-foot-a"><span class="mono qt-foot-k">${esc(
-        q.inLibrary(counts.inLibrary, counts.skills),
-      )}</span>${button(q.library.label, q.library.href, { variant: 'link' })}</div></div>`,
-      `</div>`,
-      `</section>`,
-    ].join(''),
-  );
+  return [
+    `<section class="sec qt inverse" aria-labelledby="qt-title" style="--n:${words.length};--a0:${ats[0]!.toFixed(4)};--a1:${ats.at(-1)!.toFixed(4)}" data-qt>`,
+    `<h2 id="qt-title" class="sr-only">${esc(q.heading)}</h2>`,
+    `<div class="wrap">`,
+    `<figure class="qt-fig">${QUOTE_MARK}<blockquote class="qt-text"><p>${text}</p></blockquote>`,
+    `<figcaption class="qt-by"><span class="qt-face" aria-hidden="true"><img src="${esc(photo.src)}" alt="" width="56" height="56" loading="lazy" decoding="async"></span><span class="qt-who"><span class="qt-name">${esc(
+      q.name,
+    )}</span><span class="qt-role">${esc(q.role)}</span></span></figcaption>`,
+    `</figure>`,
+    `<ol class="qt-path" aria-label="${esc(q.pathLabel)}">${stops}</ol>`,
+    `<div class="qt-foot"><p class="qt-foot-t">${esc(q.foot)}</p><div class="qt-foot-a"><span class="mono qt-foot-k">${esc(
+      q.inLibrary(counts.inLibrary, counts.skills),
+    )}</span>${button(q.library.label, q.library.href, { variant: 'link' })}</div></div>`,
+    `</div>`,
+    `</section>`,
+  ].join('');
 }

@@ -76,11 +76,10 @@ describe('S7, the proof', () => {
     expect([s?.id, s?.classList.contains('inverse'), s?.getAttribute('data-theme')]).toEqual(['proof', true, null]);
   });
 
-  it('holds back “the real EOS chart” sentence until Spring approves it (C8): marked in a preview, gone in production', () => {
-    const claim = p?.querySelector('.prf-intro [data-pending]');
-    expect([claim?.getAttribute('data-pending'), text(claim)]).toEqual(['spring-approval', PROOF.introClaim]);
-    expect(text(s?.querySelector('.prf-intro'))).toBe(PROOF.intro);
-    expect(text(s)).not.toContain('real EOS chart');
+  it('says “the real EOS chart” sentence in production, as Spring approved it (C8, D2), with no marker', () => {
+    expect(text(s?.querySelector('.prf-intro'))).toBe(`${PROOF.introClaim} ${PROOF.intro}`);
+    expect(s?.querySelector('.prf-intro [data-pending]')).toBeNull();
+    expect(p?.querySelector('.prf-intro')?.outerHTML).toBe(s?.querySelector('.prf-intro')?.outerHTML);
   });
 
   it('prints the 38% and 95% final, with no marker (D3), counting up only from below the fold', () => {
@@ -121,13 +120,13 @@ describe('S7, the proof', () => {
   });
 });
 
-describe('S8, in Spring’s words (pending `spring-approval`, D2)', () => {
-  const q = preview.querySelector('section.qt');
+describe('S8, in Spring’s words (approved by Spring: D2, cleared 4:41 PM MT Nov 12)', () => {
+  const q = prod.querySelector('section.qt');
 
-  it('is in a preview only, marked; production leaves the whole section out and invents nothing in its place', () => {
-    expect(q?.getAttribute('data-pending')).toBe('spring-approval');
-    expect(prod.querySelector('section.qt')).toBeNull();
-    expect(text(prod.querySelector('main'))).not.toContain('Sisu data');
+  it('is in production, unmarked, and a preview shows the very same section', () => {
+    expect(q).not.toBeNull();
+    expect(q?.hasAttribute('data-pending')).toBe(false);
+    expect(q?.outerHTML).toBe(preview.querySelector('section.qt')?.outerHTML);
   });
 
   it('says copy.md’s words, in order, with her real headshot in place of the “SB” initials (D6)', () => {

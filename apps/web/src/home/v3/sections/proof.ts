@@ -8,8 +8,7 @@
 // the skills in and out with the counter following (`client/proof.ts`); elsewhere it swaps at once.
 //
 // WORDS AND FIGURES. The 38% and 95% are cleared (Connor's D3). The intro's first sentence, "This is the
-// real EOS chart…", waits on Spring (C8, `spring-approval`): the production render leaves it out. The
-// chart's counts are worked out from the chart (`chartCounts`): 12 seats (D4), 29 skills. Every skill
+// real EOS chart…", is Spring's, approved (C8, D2: cleared 4:41 PM MT Nov 12). The chart's counts are worked out from the chart (`chartCounts`): 12 seats (D4), 29 skills. Every skill
 // with a Library page links to it (from the Library's record); the three built for our team don't, and
 // say so to a screen reader in the legend's words.
 //
@@ -19,7 +18,6 @@ import { esc } from '../../../ai101/render';
 import { chartCounts, PROOF, type ChartNode } from '../content';
 import { ringDot } from '../icons';
 import { skillHref } from '../library';
-import { pending } from '../pending';
 
 function tiles(): string {
   const { production: p, finance: f, daily: d } = PROOF.stats;
@@ -105,7 +103,7 @@ export function proof(): string {
     `<div class="rv prf-copy"><p class="eb eb-mark">${ringDot(22)}<span>${esc(c.eyebrow)}</span></p><h2 id="prf-title" class="h-section">${esc(
       c.title,
     )}</h2></div>`,
-    `<p class="rv intro prf-intro">${pending('spring-approval', `<span>${esc(c.introClaim)} </span>`)}${esc(c.intro)}</p>`,
+    `<p class="rv intro prf-intro">${esc(c.introClaim)} ${esc(c.intro)}</p>`,
     `</div>`,
     tiles(),
     chart(),

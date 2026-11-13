@@ -10,7 +10,7 @@ import { FREE_SKILLS_HREF } from '../../site/content';
 import { renderHomeHead } from '../render';
 import { splitProof } from '../sections/proof';
 import { HERO } from './content';
-import { PENDING, pending, pendingKeysIn, resolvePending } from './pending';
+import { PENDING, pendingKeysIn, resolvePending } from './pending';
 import { renderV3Body, renderV3Head } from './render';
 import { v3Mode } from './vite-plugin';
 
@@ -56,10 +56,8 @@ describe('the page', () => {
     expect(shell).toContain('<link rel="stylesheet" href="/src/home/v3/v3.css" />');
     expect(shell.match(/<script\b[^>]*>/g)).toEqual(['<script type="module" src="/src/home/v3/client/main.ts">']);
     expect(shell).toMatch(/<body class="aiw" data-theme="dark" data-app-ready="true">/);
-    expect(renderV3Body({ preview: false })).not.toMatch(/<script|<style/i);
-    // A preview carries one <style> of its own: the label on each placeholder.
-    expect(renderV3Body({ preview: true })).not.toMatch(/<script/i);
-    expect(renderV3Body({ preview: true }).match(/<style/g)).toHaveLength(1);
+    // With no placeholder left, a preview carries no <style> of its own either (it labelled them).
+    for (const preview of [false, true]) expect(renderV3Body({ preview })).not.toMatch(/<script|<style/i);
   });
 
   it('wears the kit’s header and Programs menu exactly as #94 left them, and the kit’s footer', () => {
@@ -171,47 +169,26 @@ describe('the site’s rules (brief § 6)', () => {
   });
 });
 
-describe('pending placeholders (conflicts.md, Decisions)', () => {
+describe('pending placeholders (conflicts.md, Decisions): none left', () => {
   it('leaves none in the production render: no marker, no placeholder words, not even in a stylesheet', () => {
     const html = renderV3Body({ preview: false });
     expect(html).not.toMatch(/data-pending|<!--pending:|v3-pending/);
     for (const css of [read('./v3.css'), read('../../kit/kit.css')]) expect(css).not.toMatch(/data-pending/);
     expect(pendingKeysIn(html)).toEqual([]);
     expect(html).not.toMatch(/Placeholder|Photo to come/);
-    // S2 waits for its photo (D5): until Connor chooses it, the whole section is left out.
-    expect(prod.querySelector('section.vid')).toBeNull();
   });
 
-  it('shows each one, marked, in a preview: S2’s photo slot, empty, with copy.md’s heading and caption', () => {
-    const html = renderV3Body({ preview: true });
-    expect(pendingKeysIn(html)).toEqual(['video-still', 'spring-approval', 'team-plan-dec14']);
-    const vid = preview.querySelector('section.vid');
-    expect(vid?.getAttribute('data-pending')).toBe('video-still');
-    // The slot itself is marked too, and holds no image at all until the real one is chosen: never a
-    // stock or AI picture, and none of the mockup's video (D5).
-    const slot = vid?.querySelector('figure.vid-still');
-    expect(slot?.getAttribute('data-pending')).toBe('video-still');
-    expect(vid?.querySelectorAll('img, video, picture, svg')).toHaveLength(0);
-    const lines = copyLines('S2 Video');
-    expectInOrder(vid, [lines[0]!, lines.at(-1)!]);
-    expect(text(vid)).not.toMatch(/90 seconds|Screen recording|Spring on camera|6:04/i);
+  it('has no key left (Connor cleared the last three, 4:41 PM MT Nov 12), so a preview is the production page, byte for byte', () => {
+    expect(Object.keys(PENDING)).toEqual([]);
+    expect(renderV3Body({ preview: true })).toBe(renderV3Body({ preview: false }));
   });
 
-  it('knows exactly Connor’s open questions, and refuses any other key or a region left open', () => {
-    expect(Object.keys(PENDING).sort()).toEqual(['spring-approval', 'team-plan-dec14', 'video-still']);
-    expect(resolvePending(pending('spring-approval', '<p>Q</p>', '<p>F</p>'), { preview: false })).toBe('<p>F</p>');
-    expect(resolvePending(pending('team-plan-dec14', 'December 14'), { preview: true })).toMatch(
-      /^<style>[\s\S]*<\/style>\n<span data-pending="team-plan-dec14">December 14<\/span>$/,
-    );
-    expect(() => resolvePending('<!--pending:nope--><p></p><!--pending:nope:else--><!--pending:nope:end-->', { preview: true })).toThrow(
-      /Unknown pending key/,
-    );
-    expect(() => resolvePending('<!--pending:team-plan-dec14--><p>', { preview: false })).toThrow(/unresolved/);
-  });
-
-  it('holds back the 38% and 95% no longer: `stat-source` is answered (D3), so a region still using it is refused', () => {
-    const old = '<!--pending:stat-source--><span>38%</span><!--pending:stat-source:else--><!--pending:stat-source:end-->';
-    for (const preview of [true, false]) expect(() => resolvePending(old, { preview })).toThrow(/Unknown pending key "stat-source"/);
+  it('refuses a region using any key, the answered ones included, or a region left open', () => {
+    for (const key of ['stat-source', 'spring-approval', 'video-still', 'team-plan-dec14', 'nope']) {
+      const old = `<!--pending:${key}--><span>x</span><!--pending:${key}:else--><!--pending:${key}:end-->`;
+      for (const preview of [true, false]) expect(() => resolvePending(old, { preview }), key).toThrow(`Unknown pending key "${key}"`);
+    }
+    expect(() => resolvePending('<!--pending:spring-approval--><p>', { preview: false })).toThrow(/unresolved/);
   });
 
   it('builds v3 only on purpose: an ordinary build has no v3 page; V3_PREVIEW=1 a preview, =0 the production render', () => {
@@ -221,6 +198,31 @@ describe('pending placeholders (conflicts.md, Decisions)', () => {
     expect(v3Mode({ V3_PREVIEW: '0' })).toBe('production');
     // The live homepage is still v2's until the switch-over PR.
     expect(read('../../../home.html')).toContain('<link rel="stylesheet" href="/src/home/page.css" />');
+  });
+});
+
+describe('S2, Spring’s headshot until the screen recording is ready (D5, cleared 4:41 PM MT Nov 12)', () => {
+  const vid = prod.querySelector('section.vid');
+
+  it('shows her real headshot, the one /about uses, whole in the 16:9 frame: nothing else, never a stock or AI image', () => {
+    const img = vid?.querySelector<HTMLImageElement>('figure.vid-frame img.vid-photo');
+    expect([img?.getAttribute('src'), img?.getAttribute('alt'), img?.getAttribute('width'), img?.getAttribute('height')]).toEqual([
+      '/img/team/spring-bengtzen.jpg',
+      'Spring Bengtzen',
+      '890',
+      '1113',
+    ]);
+    expect(readFileSync(resolve(HERE, '../../../public/img/team/spring-bengtzen.jpg')).length).toBeGreaterThan(10_000);
+    expect(vid?.querySelectorAll('img, video, picture, iframe, svg')).toHaveLength(1);
+    expect(read('./v3.css')).toMatch(/\.aiw \.vid-photo \{[^}]*object-fit: contain;/);
+  });
+
+  it('says the 90-second screen recording is coming, and keeps copy.md’s heading and caption', () => {
+    expect(text(vid?.querySelector('.vid-note'))).toBe('Coming soon: a 90-second screen recording of Spring’s actual morning.');
+    const lines = copyLines('S2 Video');
+    expect(text(vid?.querySelector('h2'))).toBe(lines[0]);
+    expect(text(vid?.querySelector('.vid-caption'))).toBe(lines.at(-1));
+    expect(text(vid)).not.toMatch(/Placeholder|goes here|Spring on camera|6:04/i);
   });
 });
 

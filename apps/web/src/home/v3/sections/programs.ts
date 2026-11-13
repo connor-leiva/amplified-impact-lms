@@ -12,8 +12,8 @@
 // LIVE (`client/offer.ts`): the Accelerator open, sold out or closed, and the Team Plan open or closed,
 // in /pricing's words (`CARD_STATES`). The seat meter and its line show from the start (`./offer.ts`).
 //
-// The Team Plan's "Skills open December 14…" waits on Connor (D7, `team-plan-dec14`): production
-// leaves that sentence out.
+// The Team Plan's dates are /pricing's (Connor's D7, 4:41 PM MT Nov 12): the starter path and the 5 free
+// skills on December 14, and live classes from the week of January 4.
 //
 // The cards hold buttons, seats and the proof line, so none of them is a reveal (`.rv`): they are
 // simply there. The Accelerator's card is the forest one, as in the mockup.
@@ -25,7 +25,6 @@ import { CARD_STATES } from '../../../offer/content';
 import { PRICES, usd } from '../../prices';
 import { PROGRAMS } from '../content';
 import { glyph, programIcon, ringDot, type ProgramIcon } from '../icons';
-import { pending } from '../pending';
 import { CENTRAL, ctaGroup, foundingDay, offerAttrs, seatBlock, shortDay, soldoutLine, closedLine, teamClosedLine, waitlistButton } from './offer';
 
 type Key = keyof typeof PROGRAMS.cards;
@@ -123,7 +122,7 @@ function actions(key: Key): string {
 function best(key: Key): string {
   const c = PROGRAMS.cards;
   if (key !== 'team') return `<p class="pg-best">${esc(c[key].best)}</p>`;
-  return `<p class="pg-best">${esc(c.team.best)}${pending('team-plan-dec14', `<span> ${esc(c.team.bestDec14)}</span>`)}</p>`;
+  return `<p class="pg-best">${esc(c.team.best)} ${esc(c.team.dates)}</p>`;
 }
 
 function card({ key, id, name, icon }: (typeof CARDS)[number]): string {

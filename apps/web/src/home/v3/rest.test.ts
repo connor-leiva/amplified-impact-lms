@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { COHORT_SEATS, DEFAULT_FOUNDING_CLOSES_AT, HELP_EMAIL } from '@ai/core/offer';
 import { ENTRIES, FREE_FIVE, TOOLS } from '../../library/content';
-import { CARD_STATES } from '../../offer/content';
+import { CARD_STATES, OFFERS } from '../../offer/content';
 import { FREE_SKILLS_HREF } from '../../site/content';
 import { PHOTOS } from '../content';
 import { PRICES, usd } from '../prices';
@@ -120,11 +120,18 @@ describe('the rules for buttons, prices and proof (brief § 6, Connor’s D1)', 
     }
   });
 
-  it('holds back the Team Plan’s "Skills open December 14…" (D7): marked in a preview, gone in production', () => {
-    const p = preview.querySelector('#p-team .pg-best [data-pending]');
-    expect([p?.getAttribute('data-pending'), text(p)]).toEqual(['team-plan-dec14', PROGRAMS.cards.team.bestDec14]);
-    expect(text(prod.querySelector('#p-team .pg-best'))).toBe(PROGRAMS.cards.team.best);
-    expect(text(prod.body)).not.toContain('December 14');
+  it('gives the Team Plan’s dates in /pricing’s words (D7): only the starter path and the 5 free skills on December 14', () => {
+    const { best, dates } = PROGRAMS.cards.team;
+    expect(text(prod.querySelector('#p-team .pg-best'))).toBe(`${best} ${dates}`);
+    expect(prod.querySelector('#p-team .pg-best [data-pending]')).toBeNull();
+    // Each half is /pricing's own: its December bonus line, and its first weekly training.
+    const [weekly, bonus] = OFFERS.agents.starts;
+    expect(bonus).toContain('your agents get the starter path and the 5 free skills on December 14');
+    expect(dates.toLowerCase()).toContain('your agents get the starter path and the 5 free skills on december 14');
+    expect(weekly).toContain('the week of January 4');
+    expect(dates).toMatch(/live classes start the week of January 4\.$/);
+    // Not the mockup's "Skills open December 14": the rest of the skills don't.
+    expect(text(prod.body)).not.toContain('Skills open December 14');
   });
 });
 

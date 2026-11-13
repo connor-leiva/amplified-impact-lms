@@ -79,18 +79,16 @@ export const HERO = {
 } as const;
 
 /**
- * S2. Connor's decision (Nov 12, C9): no video; a real still photo in its place, which he is choosing.
- * The heading and caption are copy.md's; the video's own words (its length, the player, the
- * "Spring on camera" bubble) are gone with it. Until the photo is chosen the section is pending
- * (`video-still`), so these words show only in a preview, beside an empty slot: never a stock or AI image.
+ * S2. Connor's decisions (Nov 12): no video yet (D5); until the 90-second screen recording is ready,
+ * Spring's real headshot (`PHOTOS.spring`, the one /about and the founders use) sits in the video's
+ * 16:9 frame (4:41 PM MT), with a note under it that the recording is coming. The heading and caption
+ * are copy.md's; the note borrows the mockup's own "Spring’s actual morning". Never a stock or AI image.
  */
 export const STILL = {
   title: 'Watch it run in a real business.',
+  note: 'Coming soon: a 90-second screen recording of Spring’s actual morning.',
   caption:
     'No stock footage. No demo account. This is Spring opening the reports, briefs and follow-ups that run her 100-agent team every morning.',
-  /** Preview only: what the empty slot says, and its name for screen readers. */
-  slot: 'Photo to come · Connor is choosing a real still',
-  slotLabel: 'Placeholder for a real photo of Spring’s morning, still being chosen',
 } as const;
 
 /**
@@ -287,12 +285,12 @@ const lib = (name: string, slug: string): ChartSkill => ({ name, slug });
  * S7, the proof (`section.prf`, #proof). The three tiles' figures are cleared (Connor's D3: no source
  * needed). The chart is The Utah Life Real Estate Group's, box for box as the mockup draws it; its
  * counts ("12 seats", "29 skills") are worked out from it (`chartCounts`), never typed. The intro's
- * first sentence waits on Spring (C8, `spring-approval`).
+ * first sentence is Spring's to approve, and she has (C8, D2: Connor, 4:41 PM MT Nov 12).
  */
 export const PROOF = {
   eyebrow: 'The proof is our own team',
   title: 'We didn’t read about this. We run on it.',
-  /** C8: part of Spring's approval (D2). The production render leaves it out until she approves it. */
+  /** C8: part of Spring's approval (D2), given on Nov 12. */
   introClaim: 'This is the real EOS chart at The Utah Life Real Estate Group.',
   intro: 'Every seat is a person. Under each person are the skills that work for them.',
   stats: {
@@ -420,10 +418,10 @@ export function chartCounts(): { seats: number; skills: number; inLibrary: numbe
 }
 
 /**
- * S8, "In Spring’s words" (`section.qt`). The whole section waits on Spring (Connor's D2,
- * `spring-approval`): her quote, its four steps (two of which repeat the quote's 95% and 38%), and the
- * line under them. The production render leaves it out until she approves it. Each step lights when
- * the highlight reaches its word in the quote (`at`); the quote's `keys` are marked as they light.
+ * S8, "In Spring’s words" (`section.qt`): her quote, its four steps (two of which repeat the quote's 95%
+ * and 38%), and the line under them, all approved by Spring (Connor's D2, cleared 4:41 PM MT Nov 12).
+ * Each step lights when the highlight reaches its word in the quote (`at`); the quote's `keys` are
+ * marked as they light.
  */
 export const QUOTE = {
   heading: 'In Spring’s words',
@@ -577,8 +575,12 @@ export const PROGRAMS = {
         'Your owner view of who’s using it, and how much',
       ],
       best: 'Best if you want a smarter team without becoming the AI teacher.',
-      /** Connor's D7: undecided, pending `team-plan-dec14`. */
-      bestDec14: 'Skills open December 14, and live classes start the week of January 4.',
+      /**
+       * The Team Plan's dates in /pricing's words (Connor's D7, 4:41 PM MT Nov 12): only the starter path
+       * and the 5 free skills open December 14, and live classes start the week of January 4. A test
+       * holds each half to /pricing's own lines (`OFFERS.agents.starts`).
+       */
+      dates: 'Your agents get the starter path and the 5 free skills on December 14, and live classes start the week of January 4.',
       toggle: { label: 'Team size', a: 'Up to 15', b: '16 to 40' },
       note: 'first 3 months',
       after: (upTo: number, monthly: string, from: string) => `For up to ${upTo} agents. Then ${monthly} a month, from ${from}.`,

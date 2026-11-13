@@ -51,20 +51,10 @@ function textNodes(el: Element): string[] {
 }
 
 describe('the order of the page', () => {
-  it('runs all sixteen in the mockup’s order (S2 and S8, which wait on Connor and Spring, only in a preview)', () => {
-    const rest = ['hrs', 'fh', 'pg', 'wed', 'fav', 'fd', 'faq', 'close'];
-    expect([...prod.querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual(['hh', 'wsk', 'mon', 'how', 'band', 'prf', ...rest]);
-    expect([...parse(renderV3Body({ preview: true })).querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual([
-      'hh',
-      'vid',
-      'wsk',
-      'mon',
-      'how',
-      'band',
-      'prf',
-      'qt',
-      ...rest,
-    ]);
+  it('runs all sixteen in the mockup’s order, in production and in a preview alike (nothing waits any more)', () => {
+    const all = ['hh', 'vid', 'wsk', 'mon', 'how', 'band', 'prf', 'qt', 'hrs', 'fh', 'pg', 'wed', 'fav', 'fd', 'faq', 'close'];
+    expect([...prod.querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual(all);
+    expect([...parse(renderV3Body({ preview: true })).querySelectorAll('main > section')].map((s) => s.classList[1])).toEqual(all);
   });
 
   it('carries no Stripe link and no buy button anywhere (Connor’s D1)', () => {
