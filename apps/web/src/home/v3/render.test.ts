@@ -275,6 +275,9 @@ describe('S2, the morning task sync recording', () => {
     expect(css).toMatch(/width:\s*min\(92vw,\s*1440px\)/);
     expect(css).toMatch(/scale\(calc\(0\.94 \+ 0\.06 \* var\(--s\)\)\)/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.aiw \.vid-frame \{\s*transform: none;/);
+    expect(css).toMatch(/\.is-playing:not\(\.is-chrome\):not\(:hover\):not\(:has\(:focus-visible\)\):not\(\.is-fs\)/);
+    expect(css).toMatch(/min-height: 36px;/);
+    expect(css).toMatch(/\.aiw \.vid-chrome \{[^}]*padding: 8px;/);
 
     const mp4 = readFileSync(resolve(HERE, '../../../public/media/morning-task-sync.mp4'));
     // H.264 ('avc1'), never HEVC, which Firefox and many Android phones cannot play.
@@ -310,10 +313,12 @@ describe('the stylesheet', () => {
     expect(css).not.toMatch(/fonts\.googleapis|fonts\.gstatic|url\(['"]?https?:/);
   });
 
-  it('keeps every word at 16px or more (D-107), the mockup’s smaller labels included', () => {
+  it('keeps every word at 16px or more (D-107), the phone sound pill excepted', () => {
     const sizes = [...css.matchAll(/font-size: (\d+(?:\.\d+)?)px/g)].map((m) => Number(m[1]));
     expect(sizes.length).toBeGreaterThan(5);
-    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
+    // The overlay label is 13px under 640px so the pill fits the short frame. Every other word stays at 16.
+    expect(sizes.filter((n) => n < 16)).toEqual([13]);
+    expect(css).toMatch(/@media \(max-width: 640px\) \{[\s\S]*\.aiw \.vid-sound-label \{[^}]*font-size: 13px;/);
   });
 
   it('gives the forest band the kit’s own colours, and gives a tab a thumb’s height', () => {

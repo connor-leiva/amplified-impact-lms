@@ -652,35 +652,22 @@
   height: 5px;
 }
 
-/* While it plays, the bar fades. The muted pill stays, so sound has an obvious way on. A keyboard
-   focus, a hover, or fullscreen brings the bar back. Touch screens keep it up: there is no hover. */
+/* The bar shows while paused, and for a short while after play (`.is-chrome`, the script). Hover,
+   keyboard focus, and fullscreen bring it back. The muted pill stays until it is tapped. */
 .aiw .vid-fade,
 .aiw .vid-scrim,
 .aiw .vid-sound {
   transition: opacity 0.28s var(--ease);
 }
-.aiw .vid-frame.is-playing .vid-fade,
-.aiw .vid-frame.is-playing .vid-scrim,
-.aiw .vid-frame.is-playing .vid-sound[aria-pressed='true'] {
+.aiw .vid-frame.is-playing:not(.is-chrome):not(:hover):not(:has(:focus-visible)):not(.is-fs) .vid-fade,
+.aiw .vid-frame.is-playing:not(.is-chrome):not(:hover):not(:has(:focus-visible)):not(.is-fs) .vid-scrim,
+.aiw
+  .vid-frame.is-playing:not(.is-chrome):not(:hover):not(:has(:focus-visible)):not(.is-fs)
+  .vid-sound[aria-pressed='true'] {
   opacity: 0;
   pointer-events: none;
 }
-.aiw .vid-frame.is-playing:hover .vid-fade,
-.aiw .vid-frame.is-playing:focus-within .vid-fade,
-.aiw .vid-frame.is-fs .vid-fade,
-.aiw .vid-frame.is-playing:hover .vid-scrim,
-.aiw .vid-frame.is-playing:focus-within .vid-scrim,
-.aiw .vid-frame.is-fs .vid-scrim,
-.aiw .vid-frame.is-playing:hover .vid-sound[aria-pressed='true'],
-.aiw .vid-frame.is-playing:focus-within .vid-sound[aria-pressed='true'],
-.aiw .vid-frame.is-fs .vid-sound[aria-pressed='true'] {
-  opacity: 1;
-  pointer-events: auto;
-}
-.aiw .vid-frame .vid-scrim,
-.aiw .vid-frame.is-playing:hover .vid-scrim,
-.aiw .vid-frame.is-playing:focus-within .vid-scrim,
-.aiw .vid-frame.is-fs .vid-scrim {
+.aiw .vid-scrim {
   pointer-events: none;
 }
 .aiw .vid-frame.is-fs {
@@ -694,17 +681,6 @@
   opacity: 1;
 }
 
-@media (hover: none) {
-  .aiw .vid-frame.is-playing .vid-fade,
-  .aiw .vid-frame.is-playing .vid-scrim,
-  .aiw .vid-frame.is-playing .vid-sound[aria-pressed='true'] {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .aiw .vid-frame.is-playing .vid-scrim {
-    pointer-events: none;
-  }
-}
 @media (max-width: 640px) {
   .aiw .vid {
     padding-block: 56px 72px;
@@ -718,21 +694,44 @@
   .aiw .vid-frame {
     border-radius: 12px;
   }
+  /* 36px controls, 8px from the corner, so they sit on the edge of the short frame. */
   .aiw .vid-chrome {
-    padding: 12px;
-    gap: 6px 8px;
+    padding: 8px;
+    gap: 4px 6px;
+  }
+  .aiw .vid-btn {
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 18px;
+  }
+  .aiw .vid-btn .vid-ic {
+    width: 16px;
+    height: 16px;
+  }
+  .aiw .vid-play,
+  .aiw .vid-full,
+  .aiw .vid-sound[aria-pressed='true'] {
+    width: 36px;
+    height: 36px;
+  }
+  .aiw .vid-sound {
+    padding: 0 8px 0 6px;
+    gap: 4px;
+  }
+  .aiw .vid-sound-label {
+    font-size: 13px;
+  }
+  .aiw .vid-seek {
+    height: 28px;
   }
   .aiw .vid-frame:not(.is-playing) .vid-play {
-    width: 60px;
-    height: 60px;
-    top: 42%;
+    width: 48px;
+    height: 48px;
+    top: 46%;
   }
-  /* The picture is short: the center button owns the pause, and the bar waits until it plays. */
-  .aiw .vid-frame:not(.is-playing) .vid-full,
-  .aiw .vid-frame:not(.is-playing) .vid-seek,
-  .aiw .vid-frame:not(.is-playing) .vid-scrim {
-    opacity: 0;
-    pointer-events: none;
+  .aiw .vid-frame:not(.is-playing) .vid-play .vid-ic {
+    width: 20px;
+    height: 20px;
   }
   .aiw .vid-caption {
     margin-top: 20px;

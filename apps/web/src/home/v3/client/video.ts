@@ -17,6 +17,8 @@ export const PLAY_AT = 0.5;
 export const PAUSE_BELOW = 0.25;
 /** Don't fetch the file until the frame is this close to the viewport. */
 export const PRIME_MARGIN = '200px';
+/** How long the bar stays up after play, a tap, or the pointer leaving. */
+export const CHROME_MS = 2500;
 
 const SEEK_STEP = 5;
 
@@ -46,10 +48,39 @@ export function initVideo(root: ParentNode): void {
   let soundOn = false;
   let ratio = 0;
   let dragging = false;
+  let chromeTimer = 0;
+  /** A tap that only brings the bar back must not also pause the film. */
+  let revealOnly = false;
+
+  const showChrome = () => {
+    frame.classList.add('is-chrome');
+  };
+  const scheduleHide = () => {
+    window.clearTimeout(chromeTimer);
+    chromeTimer = 0;
+    if (!frame.classList.contains('is-playing')) return;
+    chromeTimer = window.setTimeout(() => {
+      chromeTimer = 0;
+      if (!frame.isConnected || !frame.classList.contains('is-playing')) return;
+      frame.classList.remove('is-chrome');
+    }, CHROME_MS);
+  };
+  /** Show the bar now, and put it away again after CHROME_MS while playback continues. */
+  const reveal = () => {
+    showChrome();
+    scheduleHide();
+  };
+  const holdChrome = () => {
+    window.clearTimeout(chromeTimer);
+    chromeTimer = 0;
+    showChrome();
+  };
 
   const syncPlaying = (playing: boolean) => {
     frame.classList.toggle('is-playing', playing);
     playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    if (playing) reveal();
+    else holdChrome();
   };
   const syncSound = () => {
     video.muted = !soundOn;
@@ -121,6 +152,8 @@ export function initVideo(root: ParentNode): void {
   soundBtn.addEventListener('click', () => {
     soundOn = !soundOn;
     syncSound();
+    // Once sound is on, the pill hides with the bar. Muting again leaves it up (the stylesheet).
+    if (frame.classList.contains('is-playing')) reveal();
   });
   fullBtn.addEventListener('click', () => {
     if (document.fullscreenElement) {
@@ -134,10 +167,41 @@ export function initVideo(root: ParentNode): void {
     }
     (video as FullscreenVideo).webkitEnterFullscreen?.();
   });
+  const onControl = (t: EventTarget | null) => t instanceof Element && t.closest('button, .vid-seek') !== null;
+  frame.addEventListener('pointerdown', (e) => {
+    if (!frame.classList.contains('is-playing')) return;
+    const hidden = !frame.classList.contains('is-chrome') && !frame.matches(':focus-within');
+    if (hidden && !onControl(e.target)) revealOnly = true;
+    reveal();
+  });
+  frame.addEventListener('pointerenter', () => {
+    if (!frame.classList.contains('is-playing')) return;
+    window.clearTimeout(chromeTimer);
+    chromeTimer = 0;
+    showChrome();
+  });
+  frame.addEventListener('pointerleave', () => {
+    if (frame.classList.contains('is-playing')) reveal();
+  });
+  frame.addEventListener('focusin', () => {
+    showChrome();
+    window.clearTimeout(chromeTimer);
+    chromeTimer = 0;
+    // Keyboard focus pins the bar. A tap focuses the control too, and should still hide on the timer.
+    if (frame.matches(':has(:focus-visible)')) return;
+    if (frame.classList.contains('is-playing')) scheduleHide();
+  });
+  frame.addEventListener('focusout', () => {
+    if (frame.classList.contains('is-playing')) scheduleHide();
+  });
   frame.addEventListener('click', (e) => {
+    if (revealOnly) {
+      revealOnly = false;
+      return;
+    }
     const t = e.target;
     if (!(t instanceof Node)) return;
-    if (t instanceof Element && t.closest('button, .vid-seek')) return;
+    if (onControl(t)) return;
     if (frame.classList.contains('is-playing')) {
       held = true;
       stop();

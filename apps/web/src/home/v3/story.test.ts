@@ -157,7 +157,9 @@ describe('the stylesheet, for S3 to S5', () => {
     expect(css).toMatch(/\.aiw \.mon\.is-pinned \{\s*height: 280vh;/);
     expect(css).toMatch(/\.aiw \.how\.is-pinned \{\s*height: 340vh;/);
     expect(css).toMatch(/@property --m \{/);
-    expect(Math.min(...[...css.matchAll(/font-size: (\d+(?:\.\d+)?)px/g)].map((m) => Number(m[1])))).toBeGreaterThanOrEqual(16);
+    // 13px is only the phone video's "Tap for sound" label, so the pill fits the short frame.
+    const sizes = [...css.matchAll(/font-size: (\d+(?:\.\d+)?)px/g)].map((m) => Number(m[1]));
+    expect(sizes.filter((n) => n < 16)).toEqual([13]);
   });
 
   it('quiets what isn’t current by colour, never by fading its words (they stay AA)', () => {

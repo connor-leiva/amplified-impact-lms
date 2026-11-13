@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderV3Body } from '../render';
 import { init } from './main';
-import { PAUSE_BELOW, PLAY_AT, PRIME_MARGIN, initVideo } from './video';
+import { CHROME_MS, PAUSE_BELOW, PLAY_AT, PRIME_MARGIN, initVideo } from './video';
 
 // S2's player, in jsdom: what the script adds to the markup, and what it refuses to do on its own.
 
@@ -222,6 +222,38 @@ describe('the morning task sync player', () => {
     $<HTMLElement>('.vid-frame').requestFullscreen = req;
     $<HTMLButtonElement>('.vid-full').click();
     expect(req).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides the bar 2.5s after play, brings it back on a tap without pausing, and keeps it while paused', () => {
+    vi.useFakeTimers();
+    try {
+      mount();
+      initVideo(document);
+      const frame = $('section.vid .vid-frame');
+      fire(view(), 0.8);
+      expect(frame.classList.contains('is-chrome')).toBe(true);
+      vi.advanceTimersByTime(CHROME_MS);
+      expect(frame.classList.contains('is-chrome')).toBe(false);
+      // Still muted, so the pill is the one control that stays.
+      expect($('.vid-sound').getAttribute('aria-pressed')).toBe('false');
+
+      pause.mockClear();
+      frame.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      frame.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect([frame.classList.contains('is-chrome'), pause.mock.calls.length]).toEqual([true, 0]);
+
+      $<HTMLButtonElement>('.vid-sound').click();
+      expect($('.vid-sound').getAttribute('aria-pressed')).toBe('true');
+      vi.advanceTimersByTime(CHROME_MS);
+      expect(frame.classList.contains('is-chrome')).toBe(false);
+
+      $<HTMLButtonElement>('.vid-play').click();
+      expect(frame.classList.contains('is-playing')).toBe(false);
+      vi.advanceTimersByTime(CHROME_MS * 2);
+      expect(frame.classList.contains('is-chrome')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('is armed by the page script', () => {
