@@ -7,7 +7,7 @@ import { VOICE_HTML, voiceRender } from './src/voice/vite-plugin.ts';
 import { RETOOL_HTML, retoolRender } from './src/retool/vite-plugin.ts';
 import { LIBRARY_HTML, libraryRender } from './src/library/vite-plugin.ts';
 import { OFFER_HTML, offerRender } from './src/offer/vite-plugin.ts';
-import { HOME_HTML, homeRender } from './src/home/vite-plugin.ts';
+import { HOME_HTML, homeV3Render } from './src/home/v3/vite-plugin.ts';
 import { KIT_HTML, SITE_HTML, siteRender } from './src/site/vite-plugin.ts';
 
 // The /ai101 page's own build (DECISIONS.md D-028), run after the SPA's by `pnpm build` into the
@@ -35,9 +35,10 @@ export default defineConfig({
     libraryRender(),
     // The offer's pages (D-075), filled per request by the API.
     offerRender(),
-    // www's homepage (D-102): its stylesheet inlined, its one script kept as a same-origin file (the
-    // API hashes no inline script on it, so `script-src 'self'` must admit it as a file).
-    homeRender(),
+    // www's homepage (D-102), v3 (docs/design/home-v3/brief.md): its stylesheet inlined, its one
+    // script kept as a same-origin file (the API hashes no inline script on it, so `script-src 'self'`
+    // must admit it as a file). v2's plugin (`src/home/vite-plugin.ts`) is dev-only until v2 is removed.
+    homeV3Render(),
     // The rest of Spring's site map (D-111): one plugin, a page per `SITE_PAGES` entry, no script.
     siteRender(),
     ai101Inline([AI101_HTML, ...LEGAL_HTML, ...GUIDE_HTML, VOICE_HTML, RETOOL_HTML, LIBRARY_HTML, ...OFFER_HTML, HOME_HTML, ...SITE_HTML], {
