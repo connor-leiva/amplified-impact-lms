@@ -94,6 +94,26 @@ export function Component() {
 
   const vm = vaultVM(db, user, now, { tab, q, cat, type });
 
+  // D-150: nothing published yet, in either tab. Say so plainly, not with an empty list and filters.
+  if (vm.nothingYet) {
+    return (
+      <div className={s.page}>
+        <div className={s.header}>
+          <div>
+            <h1 className={s.h1}>Resource & Compliance Vault</h1>
+            <p className={s.sub}>
+              Templates, workflows and compliance guides for real estate AI. One click to download.
+            </p>
+          </div>
+        </div>
+        <div className={s.nothingYet} role="status">
+          <Icon name="archive" size={20} strokeWidth={1.8} />
+          <p>Nothing here yet</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={s.page}>
       <div className={s.header}>

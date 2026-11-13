@@ -7,15 +7,16 @@ import { eq } from 'drizzle-orm';
 import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
-import { SESSION_COOKIE, settleEmails } from '../src/auth';
+import { SESSION_COOKIE, settleEmails, storePassword } from '../src/auth';
 import { emailDomainOf, GROUP_FOREVER, groupGrant, inGroup, provisionGroupMember, recordVerified } from '../src/billing/access-groups';
 import type { AccessGroup } from '../src/billing/access-groups';
 import { readOfferConfig } from '../src/billing/config';
 import type { BillingStripe } from '../src/billing/stripe';
 import type { Database } from '../src/db/client';
-import { accessGroupMembers, accessGroups, accounts, authTokens, emailVerifications, orders, plans, skills, users } from '../src/db/schema';
+import { accessGroupMembers, accessGroups, accounts, authTokens, dismissals, emailVerifications, modules, orders, plans, skills, users } from '../src/db/schema';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import type { OutboxEntry } from '../src/email/transport';
+import { NO_PASSWORD_YET, WRONG_PASSWORD } from '../src/routes/password';
 import { resetS3 } from '../src/storage';
 import { MIGRATIONS_FOLDER, resetDatabase, testDatabase } from './helpers';
 
@@ -151,7 +152,8 @@ describe('a Utah Life agent with no account, on the training day', () => {
     expect(user).toMatchObject({ kind: 'learner', tier: 'agent', role: 'Team Owner', status: 'active' });
     const lib = await library(cookie);
     expect(lib.states).toEqual(AGENT_PLAN);
-    expect(lib.groups).toEqual([{ id: 'utah-life', name: 'Utah Life' }]);
+    // D-150: with the agent skills its own grant opens today (the two, and perfect-week), and its welcome still to show.
+    expect(lib.groups).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true, covers: ['agent', 'both'] }]);
     // A group's grant is not a plan to bill.
     expect(lib.plans).toEqual([]);
     expect(await download(cookie, 'appointment-follow-up')).toBe(302);
@@ -255,6 +257,35 @@ describe('who the group grants to', () => {
   });
 });
 
+describe('what a member sees on the Skill Library (Design’s follow-up to D-148)', () => {
+  const teamHubOf = async (cookie: string) => (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json().teamHub as boolean;
+
+  it('offers no Team Hub to a member who bought nothing, even at Team tier; a Team tier learner off the group keeps it', async () => {
+    const member = await account('jane@liveutah.com', { verified: true });
+    await db.update(users).set({ tier: 'team' }).where(eq(users.email, 'jane@liveutah.com'));
+    expect(await teamHubOf(member)).toBe(false);
+    const owner = await account('owner@example.com', { verified: true });
+    await db.update(users).set({ tier: 'team' }).where(eq(users.email, 'owner@example.com'));
+    expect(await teamHubOf(owner)).toBe(true);
+  });
+
+  it('never shows a member an agent or `both` skill as locked, so no plan upsell can reach one; owner and ops skills stay locked', async () => {
+    const cookie = await account('jane@liveutah.com', { verified: true });
+    await db.insert(skills).values([
+      { id: 'offer-strategy', title: 'Offer Strategy', sets: 'agent', releasedAt: NOW - 400 * DAY, files: { claude: 'offer-strategy.zip' } },
+      { id: 'content-strategist', title: 'Content Strategist', sets: 'both', releasedAt: NOW - 1, files: { claude: 'content-strategist.zip' } },
+      { id: 'sphere-touch-plan', title: 'Sphere Touch Plan', sets: 'agent', releasedAt: NOW + 5 * DAY, files: { claude: 'sphere-touch-plan.zip' } },
+      { id: 'tc-file-audit', title: 'TC File Audit', sets: 'owner_ops', releasedAt: NOW - DAY, files: { claude: 'tc-file-audit.zip' } },
+    ]);
+    const res = (await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } })).json() as { skills: { id: string; sets: string; state: string }[] };
+    for (const sk of res.skills.filter((x) => x.sets !== 'owner_ops')) expect(['open', 'upcoming'], sk.id).toContain(sk.state);
+    expect(res.skills.filter((x) => x.sets === 'owner_ops').map((x) => [x.id, x.state])).toEqual([
+      ['team-pnl-review', 'locked'],
+      ['tc-file-audit', 'locked'],
+    ]);
+  });
+});
+
 describe('the rule, pure', () => {
   const group = (over: Partial<AccessGroup> = {}): AccessGroup => ({ id: 'utah-life', name: 'Utah Life', plan: 'agent_plan', emailDomain: 'liveutah.com', expiresAt: null, ...over });
 
@@ -285,5 +316,114 @@ describe('the migration', () => {
     expect(sql).toContain(`VALUES ('utah-life', 'Utah Life', 'agent_plan', 'liveutah.com', NULL,`);
     // Proof already given before the table existed: spent sign-in links and invites only.
     expect(sql).toMatch(/WHERE "purpose" IN \('sign_in', 'invite'\) AND "used_at" IS NOT NULL/);
+  });
+});
+
+describe('password sign-in for a group address with no password yet (Nov 12, 2026)', () => {
+  const login = async (email: string, password = 'not-the-password-1') => {
+    const res = await post('/api/auth/login', { email, password });
+    return [res.statusCode, (res.json() as { error?: string }).error];
+  };
+
+  it('points to Forgot Password? on a first visit, and for a member who has only used links', async () => {
+    expect(NO_PASSWORD_YET).toBe('There’s no password for that email yet. Choose Forgot Password? to set one.');
+    expect(await login('first.visit@LiveUtah.com')).toEqual([400, NO_PASSWORD_YET]);
+    await provisionGroupMember(db, 'link.only@liveutah.com', NOW);
+    expect(await login('link.only@liveutah.com')).toEqual([400, NO_PASSWORD_YET]);
+  });
+
+  it('keeps the one answer for a wrong password, a look-alike domain and everyone else', async () => {
+    const id = await provisionGroupMember(db, 'has.password@liveutah.com', NOW);
+    await storePassword(db, id!, 'the-right-password-1', NOW);
+    expect(await login('has.password@liveutah.com')).toEqual([400, WRONG_PASSWORD]);
+    expect(await login('agent@liveutah.com.evil.com')).toEqual([400, WRONG_PASSWORD]);
+    expect(await login('agent@notliveutah.com')).toEqual([400, WRONG_PASSWORD]);
+    expect(await login('nobody@example.com')).toEqual([400, WRONG_PASSWORD]);
+  });
+});
+
+// --- D-150: the landing and the first-run welcome ----------------------------------------------------
+
+describe('where a member lands, by every sign-in path (D-150)', () => {
+  // Production's portal is the AI Accelerator's nine AI Employees, which a member's grant never opens,
+  // so their scoped snapshot holds none. Here the seed's AI Employees are drafts, to the same effect.
+  beforeEach(async () => {
+    await db.update(modules).set({ status: 'draft' });
+  });
+
+  it('a sign-in link lands a first-time member on the Skill Library', async () => {
+    expect((await post('/api/auth/request', { email: 'first.time@liveutah.com' })).statusCode).toBe(200);
+    const res = await post('/api/auth/verify', { token: await linkToken('first.time@liveutah.com', 'sign-in') });
+    expect(res.json()).toMatchObject({ ok: true, landing: '/skill-library' });
+  });
+
+  it('Forgot Password’s link, and then a typed password, land there too', async () => {
+    expect((await post('/api/auth/password/forgot', { email: 'reset.me@liveutah.com' })).statusCode).toBe(200);
+    const set = await post('/api/auth/password/set', { token: await linkToken('reset.me@liveutah.com', 'set-password'), password: 'a long enough password' });
+    expect([set.statusCode, set.json()]).toEqual([200, { ok: true, landing: '/skill-library' }]);
+    const login = await post('/api/auth/login', { email: 'reset.me@liveutah.com', password: 'a long enough password' });
+    expect([login.statusCode, login.json()]).toEqual([200, { ok: true, landing: '/skill-library' }]);
+  });
+
+  it('a learner with a portal still lands on `/`', async () => {
+    await db.update(modules).set({ status: 'published' });
+    expect((await post('/api/auth/request', { email: 'jamie@ortizhomes.com' })).statusCode).toBe(200);
+    const res = await post('/api/auth/verify', { token: await linkToken('jamie@ortizhomes.com', 'sign-in') });
+    expect(res.json()).toMatchObject({ ok: true, landing: '/' });
+  });
+});
+
+describe('the first-run welcome’s count and its dismissal (D-150)', () => {
+  const groupsOf = async (cookie: string) => {
+    const res = await app.inject({ method: 'GET', url: '/api/skills', headers: { cookie } });
+    expect(res.statusCode).toBe(200);
+    return (res.json() as { accessGroups: { id: string; name: string; skills: number; welcome: boolean; covers: string[] }[] }).accessGroups;
+  };
+  const dismiss = (cookie: string, payload: unknown, origin = 'http://localhost') =>
+    app.inject({ method: 'POST', url: '/api/skills/welcome/dismiss', payload: payload as Record<string, unknown>, headers: { cookie, origin } });
+
+  it('counts the agent skills the group’s own grant opens today: not owner and ops, not one released later', async () => {
+    await db.insert(skills).values({ id: 'later-agent-skill', title: 'Later', sets: 'agent', releasedAt: NOW + 5 * DAY, files: { claude: 'later.zip' } });
+    const cookie = await account('counted@liveutah.com', { verified: true });
+    // appointment-follow-up, repair-request-response (agent) and perfect-week (both); never team-pnl-review.
+    expect(await groupsOf(cookie)).toEqual([{ id: 'utah-life', name: 'Utah Life', skills: 3, welcome: true, covers: ['agent', 'both'] }]);
+  });
+
+  it('lists only active groups, in a fixed order, each with the sets its grant covers (Design, PR #100)', async () => {
+    // A second group on the same domain, granting owner and ops skills; and a third, expired.
+    await db.insert(accessGroups).values([
+      { id: 'zeta', name: 'Zeta Partners', plan: 'membership', emailDomain: 'liveutah.com', expiresAt: null, createdAt: NOW - DAY },
+      { id: 'acme', name: 'Acme Brokerage', plan: 'membership', emailDomain: 'liveutah.com', expiresAt: NOW - 1, createdAt: NOW - DAY },
+    ]);
+    const cookie = await account('two.groups@liveutah.com', { verified: true });
+    expect((await groupsOf(cookie)).map((g) => [g.id, g.covers])).toEqual([
+      ['utah-life', ['agent', 'both']],
+      ['zeta', ['owner_ops', 'both']],
+    ]);
+  });
+
+  it('is put away for good for that member, and only for them', async () => {
+    const a = await account('a.agent@liveutah.com', { verified: true });
+    const b = await account('b.agent@liveutah.com', { verified: true });
+    expect((await dismiss(a, { group: 'utah-life' })).statusCode).toBe(200);
+    // Twice is fine: the row is already there.
+    expect((await dismiss(a, { group: 'utah-life' })).statusCode).toBe(200);
+    expect((await groupsOf(a))[0]?.welcome).toBe(false);
+    expect((await groupsOf(b))[0]?.welcome).toBe(true);
+    const rows = await db.select().from(dismissals);
+    expect(rows.filter((r) => r.announcementId === 'welcome-utah-life')).toHaveLength(1);
+  });
+
+  it('refuses a group the learner is not in, a bad body, and a cross-site request', async () => {
+    const member = await account('c.agent@liveutah.com', { verified: true });
+    expect((await dismiss(member, { group: 'someone-else' })).statusCode).toBe(404);
+    expect((await dismiss(member, { group: 42 })).statusCode).toBe(400);
+    expect((await dismiss(member, { group: 'utah-life', extra: 1 })).statusCode).toBe(400);
+    expect((await dismiss(member, { group: 'utah-life' }, 'https://evil.example.com')).statusCode).toBe(403);
+    // Not a member at all (unverified): nothing to dismiss, and no welcome.
+    const unverified = await account('d.agent@liveutah.com', { verified: false });
+    expect((await dismiss(unverified, { group: 'utah-life' })).statusCode).toBe(404);
+    expect(await groupsOf(unverified)).toEqual([]);
+    expect(await db.select().from(dismissals)).toEqual([]);
   });
 });

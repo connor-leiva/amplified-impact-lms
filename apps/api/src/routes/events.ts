@@ -107,7 +107,7 @@ const frame = (event: string): string => `event: ${event}\ndata:\n\n`;
 
 /** A short, stable, non-reversible tag for a client, so a log line can correlate without an IP. */
 const tagOf = (req: FastifyRequest): string =>
-  createHash('sha256').update(`${req.ip}|${req.headers['user-agent'] ?? ''}`).digest('hex').slice(0, 8);
+  createHash('sha256').update(`${req.clientIp ?? req.ip}|${req.headers['user-agent'] ?? ''}`).digest('hex').slice(0, 8);
 
 export function registerEventsRoute(app: FastifyInstance): EventHub {
   /**

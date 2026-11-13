@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/primitives/Button';
 import { Field, Input } from '../../components/primitives/Field';
-import { AuthCard, GoogleSignIn, PASSWORD_MIN, errorOf, post, useAppReady, useGoogleSignIn } from './shared';
+import { AuthCard, GoogleSignIn, PASSWORD_MIN, errorOf, landingOf, post, useAppReady, useGoogleSignIn } from './shared';
 import s from './SignIn.module.css';
 
 // /set-password (D-132). Two ways in:
@@ -91,7 +91,8 @@ export function Component() {
       .then(async (res) => {
         setBusy(false);
         if (res.ok) {
-          navigate('/', { replace: true });
+          // D-150: straight to the Skill Library for a learner with no cohort portal.
+          navigate(await landingOf(res), { replace: true });
           return;
         }
         const why = await errorOf(res);

@@ -206,8 +206,9 @@ describe('Gate 7 · following the emailed link @g7', () => {
     const res = await verify(token);
     expect(res.statusCode).toBe(200);
     // `team: null` because Jamie is Agent tier with no team. `AcceptInvite.tsx` reads this field to
-    // write "Joining {Team or Amplified Impact}…", and `SignIn.tsx` ignores it and navigates to `/`.
-    expect(res.json()).toEqual({ ok: true, team: null });
+    // write "Joining {Team or Amplified Impact}…". `landing` is where `SignIn.tsx` navigates (D-150):
+    // `/` for Jamie, who has a portal.
+    expect(res.json()).toEqual({ ok: true, team: null, landing: '/' });
 
     const cookie = cookieFrom(res.headers['set-cookie']);
 

@@ -69,11 +69,18 @@ import { getDb } from '../db/client';
 import type { Database } from '../db/client';
 import { authTokens, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
+import { landingFor } from '../lib/landing';
 import { groupsOf, provisionGroupMember, recordVerified } from '../billing/access-groups';
 
-/** § 7.5's "Rate limit: 5 per hour per email and IP", and § 9.4's repeat of it. */
+/** § 7.5's "Rate limit: 5 per hour per email and IP", and § 9.4's repeat of it: the per-email half. */
 export const AUTH_REQUEST_MAX = 5;
 export const AUTH_REQUEST_WINDOW = '1 hour';
+/**
+ * The per-IP half for a sign-in link and Forgot Password: 30 an hour from one visitor's address
+ * (Nov 12, 2026). A training room's agents can share one office address, and each asks for a link
+ * or a reset once or twice; five an hour shut the room out. Each address keeps its own 5 an hour.
+ */
+export const AUTH_REQUEST_IP_MAX = 30;
 
 const requestBody = z.strictObject({ email: z.string() });
 const verifyBody = z.strictObject({ token: z.string() });
@@ -223,7 +230,8 @@ export interface AuthRouteOptions {
 export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRouteOptions): void {
   /**
    * The per-EMAIL half of § 7.5's rate limit. The per-IP half is the route's own `config.rateLimit`
-   * below, which the plugin applies with its default `req.ip` key.
+   * below (`AUTH_REQUEST_IP_MAX`), which the plugin keys on the visitor's own address
+   * (`rateLimitKey`, `req.clientIp`).
    *
    * Two limiters rather than one because the plugin takes a single `keyGenerator` per route, and
    * § 7.5 asks for both axes: per-IP alone lets a botnet hammer one mailbox, and per-email alone
@@ -240,7 +248,7 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
 
   app.post(
     '/api/auth/request',
-    { config: { rateLimit: { max: AUTH_REQUEST_MAX, timeWindow: AUTH_REQUEST_WINDOW } } },
+    { config: { rateLimit: { max: AUTH_REQUEST_IP_MAX, timeWindow: AUTH_REQUEST_WINDOW } } },
     async (req, reply) => {
       const parsed = requestBody.safeParse(req.body);
       // A body that is not `{ email }` is a client bug, not an account probe, so it is allowed to
@@ -305,7 +313,8 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     // Hub's seat list goes from Invited to Active without a refresh.
     if (joined) broadcast();
 
-    return reply.code(200).send({ ok: true, team });
+    // D-150: where to go next, so a learner with no cohort portal lands on the Skill Library.
+    return reply.code(200).send({ ok: true, team, landing: await landingFor(db, user, now) });
   });
 
   /**

@@ -242,7 +242,7 @@ describe('Continue With Google', () => {
 
   it('says why when Google sign-in came back refused', async () => {
     const cases: [string, RegExp][] = [
-      ['no-account', /^We couldn’t find an account for that email\. Use the email you bought with, or sign in with your password\.$/],
+      ['no-account', /^We couldn’t find an account for that email\. Enter the email you bought with or your work email, then choose Email Me a Sign-In Link Instead or Forgot Password\?$/],
       ['unverified', /^Google hasn’t verified that email address\./],
       ['linked-elsewhere', /^That account is linked to a different Google account\./],
       ['failed', /^Google sign-in didn’t finish\. Try again, or sign in with your password\.$/],

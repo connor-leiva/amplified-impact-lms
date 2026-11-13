@@ -4592,7 +4592,7 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - **Utah Life:** the group `utah-life` has domain `liveutah.com`, plan `agent_plan` and no end, and the migration creates it. `x.liveutah.com`, `liveutah.com.evil.com` and `notliveutah.com` are out.
   - **The list:** an optional add-on for addresses outside the domain. It is empty, and no roster is loaded or committed.
 - **Only a verified address.** The grant needs a row in `email_verifications`, and only `claimToken` writes one, when a link emailed to that address is followed: a sign-in link, an invite, or a set or reset password link.
-  - Typing an address proves nothing. The welcome page's checkout button and Google sign-in don't count.
+  - Typing an address proves nothing. The welcome page's checkout button doesn't count. Google sign-in counts for an address in the group's domain since D-149.
   - The migration backfills addresses that had already followed a sign-in link or an invite. Set and reset links are left out, because finishing a password spends them unfollowed.
   - Anyone else needs one email-link sign-in ("Email me a link" or "Forgot Password?") before their access shows.
 - **What it grants:** one more plan in the access rule's list: the group's kind, active, started, paid through for good. `canOpenSkill` treats a member exactly as an Agent Plan buyer. That opens the agent set and `both` from today, not from Jan 4, and every skill released later, with no change. The grant is worked out on every request, so removing a domain or an address, or ending the group, removes access at once.
@@ -4600,5 +4600,65 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - There is no account, order or plan row and nothing in Stripe. A member is not a paid seat and doesn't count against the 15-seat cap.
   - Nobody is sent anything they didn't ask for: no invites, no welcome emails.
 - **On screen** (learn's Skill Library): a member sees "Included with your Utah Life team" where Manage Billing was, since they have nothing to bill. A member who also bought a plan keeps Manage Billing beside the note.
+  - Design's follow-up (2026-11-12): the note has its own class, 16px with no margin, at the buttons' 40px row, so the skill list sits where it does for everyone else.
+  - A member who bought nothing sees no Team Hub. Their team of one is how the account is made, not a team they run; the API says `teamHub: false` and the screen hides it too.
+  - A member is never offered the plans on an agent or `both` skill (those are never locked for them). Owner and ops skills keep "See Plans".
   - The www skill pages are static and can't see learn's session, so their card still reads "Get Amplified Agent Plan" for everyone. Its "Download After You Sign In" leads members to learn, where their skills are open.
 - **Not changed:** Stripe, prices, Payment Links, the 15-seat cap, the Nov 30 close, `/agreement`, the homepage, the header, nav and footer, and the kit's CSS.
+
+## D-149 · Auth: rate limits key on the visitor's own IP, and Google signs access-group members up
+
+**Date:** 2026-11-12
+**Approved by:** Connor, 2026-11-12: the urgent fix after the Utah Life training ("Auth: real client IP for rate limits + Google sign-in for access groups").
+**Status:** on a pull request.
+**Scope:** `apps/api/src/lib/client-ip.ts`, `src/app.ts` (`rateLimitKey`, the logger, the `clientIp` request decorator), `src/routes/auth.ts` and `src/routes/password.ts` (`AUTH_REQUEST_IP_MAX`, `NO_PASSWORD_YET`), `src/routes/google.ts`, `src/billing/access-groups.ts` (`domainGroupsOf`), `src/auth/google.ts` (`hd`); `apps/web/src/routes/auth/shared.tsx` (the `no-account` words); tests in `apps/api/test/client-ip.test.ts`, `google.test.ts`, `access-groups.test.ts` and `auth.test.ts`.
+
+**Why.** About ten @liveutah.com agents couldn't sign in on Nov 12. The cause was two bugs:
+- **One rate-limit bucket for everyone.** Production logged `remoteAddress` 152.233.39.33 (Railway's proxy) for every request, while Railway's edge log showed each visitor's own address. `trustProxy: TRUST_ONE_HOP` yields Railway's internal proxy, so the per-IP limits on a sign-in link and Forgot Password (5 an hour) ran out site-wide after five requests. From 11:48 to 12:13 CT about 29 requests got 429, and password sign-in 429'd once.
+- **Google refused first-time members.** liveutah.com is Google Workspace, so agents clicked Google first. Google refused every address with no account (`no-account`, 19 times).
+
+**What changed.**
+- **The visitor's IP** (`req.clientIp`) is Railway's `X-Real-IP` when the app runs on Railway (Railway documents it as "for identifying client's remote IP") and it holds exactly one valid IP address. Otherwise it is `req.ip`, as before.
+  - The left-most `X-Forwarded-For` entry, which the client writes, is never used.
+  - `CLIENT_IP_HEADER` names another header, or `none` turns this off.
+  - It keys every rate limit (the global one and every route's own), the `remoteAddress` in each log line, and the event stream's tag.
+  - Each `POST /api/auth/*` logs one line, `auth request client ip`, with `X-Real-IP`, `X-Forwarded-For`, the socket's peer and the chosen address side by side, so production can confirm the header against Railway's edge log.
+- **Limits:**
+  - A sign-in link and Forgot Password allow 30 an hour per visitor (`AUTH_REQUEST_IP_MAX`), up from 5, and still 5 an hour per email.
+  - Password sign-in stays at 30 per 15 minutes per visitor.
+  - The welcome page's checkout button stays at 5 an hour, now per visitor.
+- **Google and access groups.** Google may sign someone in when its ID token says `email_verified: true` and the address's domain is exactly an active group's domain (D-148's rule: case-insensitive, no subdomains, not the allowlist). Then:
+  - the address is recorded as verified, as a spent link records it;
+  - a member with no account gets one the way a link makes it (`accountForGroupAddress`: Agent tier, a team of one, no Stripe, no email);
+  - they are signed in.
+
+  Google's Workspace domain (`hd`) is logged as `match`, `other` or `none` and is not required, because a secondary Workspace domain would carry a different `hd`. Any other address with no account is still refused.
+- **Words:**
+  - Google's `no-account` refusal now reads "We couldn’t find an account for that email. Enter the email you bought with or your work email, then choose Email Me a Sign-In Link Instead or Forgot Password?".
+  - Password sign-in for an address in a group's domain that has no password yet (with or without an account) answers "There’s no password for that email yet. Choose Forgot Password? to set one." Every other mismatch keeps the one answer, "That email and password don’t match."
+
+**Not changed:** Stripe, prices, the seat cap, `/agreement`, the homepage, the header, nav and footer, and shared styles. Nothing sends an email that wasn't asked for.
+
+## D-150 · Utah Life: direct landing and first-run orientation
+
+**Date:** 2026-11-12
+**Approved by:** Connor, 2026-11-12, 1:26 PM CT: "keep the utah-life grant exactly as is (Agent Plan skills only) ... Fix the landing and orientation for access-group members (and anyone signed in with no course access)."
+**Status:** on a pull request.
+**Scope:** `packages/core/src/landing.ts` (new); `apps/api/src/lib/landing.ts` (new), `src/routes/auth.ts`, `src/routes/password.ts`, `src/routes/google.ts`, `src/routes/skills.ts`; `apps/web/src/shell/AppShell.tsx`, `src/routes/auth/` (`shared.tsx`, `SignIn.tsx`, `SetPassword.tsx`, `AcceptInvite.tsx`), `src/routes/library/SkillLibrary.tsx` and its CSS module, `src/routes/portal/Vault.tsx`, `Vault.vm.ts` and its CSS module.
+
+- **Straight to the Skill Library.** D-119's rule is unchanged: a learner whose scoped snapshot holds no AI Employee has no cohort portal. What changed is when it runs.
+  - **On the server, at sign-in.** `landingPath` in core works it out (`visibleModules` of the snapshot `GET /api/snapshot` would send). Every sign-in answers with it as `landing`: a sign-in link and an invite (`/api/auth/verify`), a set or reset password link (`/api/auth/password/set`), the welcome page's password (`/api/auth/password/checkout`), and a typed password (`/api/auth/login`). Google's callback redirects to it. Each screen navigates there, so `/` is never drawn first. The client only accepts `/` or `/skill-library` (`safeLanding`), so this can't become an open redirect.
+  - **On a direct visit to `/`** (or any cohort screen), the shell works out the redirect while rendering and draws nothing on the way. It used to do this in an effect after the Dashboard had already painted once.
+  - Staff, and learners with a portal, still land on `/`.
+- **First-run welcome** at the top of `/skill-library`, for an access group's member only, until they dismiss it: "Welcome, Utah Life. Your team access includes {n} agent skills. Start with Appointment Follow-Up and Repair Request Response. Each Setup Guide opens a step-by-step walkthrough in a new tab; come back here to download the files."
+  - **{n}** comes from `GET /api/skills` (`accessGroups[].skills`): the published agent and `both` skills the group's own grant opens today. It is never a typed number.
+  - **The two skill names** link to their Setup Guides and are shown only if open (`START_WITH`).
+  - **Dismissed for good, per learner, on every device.** `POST /api/skills/welcome/dismiss { group }` writes a `dismissals` row with id `welcome-<group>`, and `accessGroups[].welcome` reads it back. It is same-origin JSON only, and only for a group the learner is in.
+- **The Setup Guide says it opens a new tab**: an external-link icon after the label, a hover title "Opens in a new tab", and the accessible name "Setup Guide (opens in a new tab)". The welcome's two links do the same.
+- **Locked rows for a member** read "Not included with Utah Life access", with no See Plans, on every set. Everyone else keeps "Not in your plan." and See Plans. This replaces D-148's follow-up, which kept See Plans on owner and ops skills for members.
+  - **The group it names**, for a learner in more than one: the group whose grant covers that skill's set (`accessGroups[].covers`, from `planCovers`), or else the first. `GET /api/skills` sends only active groups (unexpired, address verified), sorted by name then id, so "the first" is stable.
+- **Design's look check (PR #100):**
+  - The welcome's dismiss is a 44px tap target, with margin `-10px -10px 0 0` so the X stays in the corner.
+  - The member's locked label (its own class, `.notIncluded`) and the page subtitle are at DESIGN.md's "lead" step, 16 / 24. The type scale is literal px values; there is no type variable. Everyone else's notes stay 14px. No new colours.
+- **Resource Vault with nothing published**: the heading, then "Nothing here yet", instead of an empty list with search, tabs and zero-count filters. The prototype's vault always has resources, so its goldens are unchanged.
+- **Not changed:** the `utah-life` grant (Agent Plan skills only), `PLAN_SETS`, `groupAccessOf`, entitlements, course access, Stripe, prices, the seat cap, `/agreement`, shared styles, the nav and the homepage. No emails.
