@@ -210,28 +210,58 @@ describe('pending placeholders (conflicts.md, Decisions): none left', () => {
   });
 });
 
-describe('S2, Spring’s headshot until the screen recording is ready (D5, cleared 4:41 PM MT Nov 12)', () => {
+describe('S2, the morning task sync recording', () => {
   const vid = prod.querySelector('section.vid');
 
-  it('shows her real headshot, the one /about uses, whole in the 16:9 frame: nothing else, never a stock or AI image', () => {
-    const img = vid?.querySelector<HTMLImageElement>('figure.vid-frame img.vid-photo');
-    expect([img?.getAttribute('src'), img?.getAttribute('alt'), img?.getAttribute('width'), img?.getAttribute('height')]).toEqual([
-      '/img/team/spring-bengtzen.jpg',
-      'Spring Bengtzen',
-      '890',
-      '1113',
-    ]);
-    expect(readFileSync(resolve(HERE, '../../../public/img/team/spring-bengtzen.jpg')).length).toBeGreaterThan(10_000);
-    expect(vid?.querySelectorAll('img, video, picture, iframe, svg')).toHaveLength(1);
-    expect(read('./v3.css')).toMatch(/\.aiw \.vid-photo \{[^}]*object-fit: contain;/);
+  function mp4Boxes(buf: Buffer): string[] {
+    const boxes: string[] = [];
+    for (let at = 0; at + 8 <= buf.length; ) {
+      const size = buf.readUInt32BE(at);
+      boxes.push(buf.subarray(at + 4, at + 8).toString('latin1'));
+      if (size < 8) break;
+      at += size;
+    }
+    return boxes;
+  }
+
+  it('renders the video with its poster, inline controls, and no autoplay', () => {
+    const video = vid?.querySelector('figure.vid-frame video');
+    const source = video?.querySelector('source');
+    expect(source?.getAttribute('src')).toBe('/media/morning-task-sync.mp4');
+    expect(source?.getAttribute('type')).toBe('video/mp4');
+    expect(video?.getAttribute('poster')).toBe('/media/morning-task-sync.webp');
+    expect(video?.hasAttribute('controls')).toBe(true);
+    expect(video?.hasAttribute('playsinline')).toBe(true);
+    expect(video?.getAttribute('preload')).toBe('metadata');
+    expect(video?.hasAttribute('autoplay')).toBe(false);
+    expect([video?.getAttribute('width'), video?.getAttribute('height')]).toEqual(['1920', '1080']);
+    expect(video?.getAttribute('aria-label')).toBe(text(vid?.querySelector('.vid-caption')));
+    expect(vid?.querySelector('img, picture, iframe')).toBeNull();
+    expect(read('./v3.css')).toMatch(/\.aiw \.vid-frame video \{[^}]*object-fit: contain;/);
+
+    const mp4 = readFileSync(resolve(HERE, '../../../public/media/morning-task-sync.mp4'));
+    // H.264 ('avc1'), never HEVC, which Firefox and many Android phones cannot play.
+    expect(mp4.includes(Buffer.from('avc1'))).toBe(true);
+    expect(mp4.includes(Buffer.from('hvc1')) || mp4.includes(Buffer.from('hev1'))).toBe(false);
+    // `moov` before `mdat` ("faststart"): it plays before it has all downloaded.
+    const boxes = mp4Boxes(mp4);
+    expect(boxes.indexOf('moov')).toBeGreaterThanOrEqual(0);
+    expect(boxes.indexOf('moov')).toBeLessThan(boxes.indexOf('mdat'));
+    // The same size class as the Reel Editor clips already in this folder.
+    expect(mp4.length).toBeLessThan(15_000_000);
+
+    const poster = readFileSync(resolve(HERE, '../../../public/media/morning-task-sync.webp'));
+    expect(poster.subarray(0, 4).toString('latin1')).toBe('RIFF');
+    expect(poster.subarray(8, 12).toString('latin1')).toBe('WEBP');
+    expect(poster.length).toBeGreaterThan(10_000);
+    expect(poster.length).toBeLessThan(150_000);
   });
 
-  it('says the 90-second screen recording is coming, and keeps copy.md’s heading and caption', () => {
-    expect(text(vid?.querySelector('.vid-note'))).toBe('Coming soon: a 90-second screen recording of Spring’s actual morning.');
+  it('keeps copy.md’s heading and caption, and drops the “Coming soon” note', () => {
     const lines = copyLines('S2 Video');
     expect(text(vid?.querySelector('h2'))).toBe(lines[0]);
     expect(text(vid?.querySelector('.vid-caption'))).toBe(lines.at(-1));
-    expect(text(vid)).not.toMatch(/Placeholder|goes here|Spring on camera|6:04/i);
+    expect(text(vid)).not.toMatch(/Coming soon|Placeholder|goes here|Spring on camera|6:04/i);
   });
 });
 

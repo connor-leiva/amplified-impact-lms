@@ -146,6 +146,42 @@ async function cuts(page: Page, scope: string, selector: string, within?: string
   );
 }
 
+for (const width of [390, 1280]) {
+  test(`S2 renders the morning task sync video with its poster at ${width} @g9`, async ({ page }) => {
+    await open(page, 'dark', width);
+    const video = page.locator('section.vid video');
+    await expect(video).toBeVisible();
+    await expect(video).toHaveAttribute('poster', '/media/morning-task-sync.webp');
+    await expect(video).toHaveAttribute('preload', 'metadata');
+    await expect(video.locator('source')).toHaveAttribute('src', '/media/morning-task-sync.mp4');
+    await expect(video.locator('source')).toHaveAttribute('type', 'video/mp4');
+    const flags = await video.evaluate((el: HTMLVideoElement) => ({
+      autoplay: el.hasAttribute('autoplay'),
+      controls: el.hasAttribute('controls'),
+      playsinline: el.hasAttribute('playsinline'),
+      paused: el.paused,
+      label: el.getAttribute('aria-label'),
+    }));
+    expect(flags).toEqual({
+      autoplay: false,
+      controls: true,
+      playsinline: true,
+      paused: true,
+      label: 'Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.',
+    });
+    await expect(page.locator('section.vid h2')).toHaveText('Watch it run in a real business.');
+    await expect(page.locator('section.vid .vid-caption')).toHaveText(flags.label!);
+    const box = await video.boundingBox();
+    expect(box && box.width > 0 && Math.abs(box.width / box.height - 16 / 9) < 0.02).toBe(true);
+    const poster = await page.request.get(`${APP_BASE}/media/morning-task-sync.webp`);
+    expect(poster.status()).toBe(200);
+    expect(poster.headers()['content-type'] ?? '').toMatch(/image\/webp/);
+    const mp4 = await page.request.get(`${APP_BASE}/media/morning-task-sync.mp4`, { headers: { Range: 'bytes=0-1' } });
+    expect([200, 206]).toContain(mp4.status());
+    expect(mp4.headers()['content-type'] ?? '').toMatch(/video\/mp4/);
+  });
+}
+
 for (const theme of THEMES) {
   for (const width of [390, 1280]) {
     test(`S5's panels show their tag, card and words whole at ${width}, ${theme} @g9`, async ({ page }) => {

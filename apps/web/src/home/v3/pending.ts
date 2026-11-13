@@ -15,7 +15,7 @@
  * named on Nov 12 is answered, so a region still using one is refused (`resolvePending`).
  *   - `stat-source` (D3): the 38% and 95% need no source.
  *   - `spring-approval` (D2, 4:41 PM MT): Spring approved her quote, the EOS chart line and the founders' words.
- *   - `video-still` (D5, 4:41 PM MT): S2 shows her real headshot until the screen recording is ready.
+ *   - `video-still` (D5, 4:41 PM MT): S2 showed her real headshot until the recording was ready. It now plays the morning task sync.
  *   - `team-plan-dec14` (D7, 4:41 PM MT): the Team Plan's line is /pricing's wording.
  * A new question gets a key here, and a test names it, before any content waits on it.
  */

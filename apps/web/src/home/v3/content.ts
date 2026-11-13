@@ -79,16 +79,19 @@ export const HERO = {
 } as const;
 
 /**
- * S2. Connor's decisions (Nov 12): no video yet (D5); until the 90-second screen recording is ready,
- * Spring's real headshot (`PHOTOS.spring`, the one /about and the founders use) sits in the video's
- * 16:9 frame (4:41 PM MT), with a note under it that the recording is coming. The heading and caption
- * are copy.md's; the note borrows the mockup's own "Spring’s actual morning". Never a stock or AI image.
+ * S2. The frame is Connor's morning task sync, recorded live (the file he supplied, Nov 13): Claude
+ * reads ClickUp and Gmail and posts the day's plan. 1920×1080, H.264, about 60 seconds, under
+ * `/media/` the same way the Reel Editor's clips are. The heading and caption are copy.md's.
  */
-export const STILL = {
+export const VIDEO = {
   title: 'Watch it run in a real business.',
-  note: 'Coming soon: a 90-second screen recording of Spring’s actual morning.',
-  caption:
-    'No stock footage. No demo account. This is Spring opening the reports, briefs and follow-ups that run her 100-agent team every morning.',
+  caption: 'Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.',
+  /** Accessible name for the player. The caption under the frame is the same words, for sighted visitors. */
+  label: 'Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.',
+  src: '/media/morning-task-sync.mp4',
+  poster: '/media/morning-task-sync.webp',
+  width: 1920,
+  height: 1080,
 } as const;
 
 /**
