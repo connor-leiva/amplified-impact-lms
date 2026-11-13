@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
 import { acceleratorSessions } from '@ai/core/accelerator';
@@ -68,7 +68,9 @@ describe('the course screen', () => {
     expect(screen.getByRole('region', { name: COPY.evidence })).toHaveTextContent('Three-Sentence Account');
     expect(screen.getByRole('region', { name: COPY.media })).toHaveTextContent('[VIDEO: week 1 Lead-Source ROI demo, to be recorded]');
     expect(screen.getByRole('button', { name: COPY.worksheet })).toBeInTheDocument();
-    expect(document.body.dataset.appReady).toBe('true');
+    // Set in an effect after the week renders, so wait for it rather than race it (it raced once
+    // under a full suite's load).
+    await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
   });
 
   it('shows the overview with all nine weeks', async () => {
