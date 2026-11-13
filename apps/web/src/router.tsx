@@ -13,7 +13,7 @@ const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 
 //
 //   1. `AppShell` calls `useDb()`/`useViewer()`, which suspend on `/api/snapshot` and `/api/me`.
 //      Both answer 401 before there is a session, and `data/http.ts` turns a 401 into
-//      `location.assign('/sign-in')`. A /sign-in nested inside the shell would therefore reload
+//      `location.replace('/sign-in')`. A /sign-in nested inside the shell would therefore reload
 //      itself forever. Both screens' own headers say they must render outside the shell; this is
 //      the line that keeps that true.
 //   2. The shell's children end with `{ path: '*' }` → `<Navigate to="/" replace />`. Nested, a

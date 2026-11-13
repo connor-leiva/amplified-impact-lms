@@ -8,7 +8,8 @@ import { RouterProvider } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { router } from './router';
 import { bootPrefs } from './lib/prefs';
-import './data/boot'; // chooses the data source before anything renders
+import { isFixture } from './data/boot'; // chooses the data source before anything renders
+import { guardRestoredPages, onSignOut } from './data/session';
 
 bootPrefs();
 
@@ -20,7 +21,20 @@ const queryClient = new QueryClient({
   },
 });
 
-createRoot(document.getElementById('root')!).render(
+const root = createRoot(document.getElementById('root')!);
+
+// D-152: Sign Out forgets the viewer in this page before it leaves for /sign-in. Unmounting first
+// means nothing is left watching the cache, so emptying it starts no request, and no signed-in screen
+// stays in a page the back-forward cache keeps.
+onSignOut(() => {
+  root.unmount();
+  queryClient.clear();
+});
+// A signed-in page Back brings out of that cache is shown again only once the session is still live.
+// http mode only: fixture mode has no session to ask about.
+if (!isFixture) guardRestoredPages();
+
+root.render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <Suspense fallback={null}>

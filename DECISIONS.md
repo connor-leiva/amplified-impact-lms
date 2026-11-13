@@ -4729,3 +4729,37 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
   - A paid card's "Already own it? Sign In" has its own class (`.legal.owned`): 16px, and its link a 44px tap target (inline-block, 44px tall). The consent line under a sign-up form keeps the 13px `.legal`.
   - "Your guided setup is ready" (`.sk .unlocked`) is padded 24px, as the cards around it.
 - **Not changed:** Stripe, prices, the seat cap, dates, `/agreement`, the homepage, the nav, and Design's homepage v3 files (#104: both Vite configs, `src/home/`, `eslint.config.js`). What search engines and archives already hold of the old pages stays there.
+
+## D-152 · Sign Out signs out (the prototype's demo toast is gone)
+
+**Date:** 2026-11-13
+**Approved by:** Connor, 2026-11-13, 4:08 PM MST (an iPhone, Safari, learn.amplifiedimpact.io, the Owner in the Admin Console): tapping Sign Out showed "Signed out (demo)" and left him signed in. "Wire them all to the real sign-out … It has to work on mobile Safari."
+**Status:** on a pull request.
+**Scope:** `apps/web/src/data/session.ts` (new), `src/shell/AppShell.tsx`, `src/main.tsx`, `src/data/http.ts`, `src/router.tsx` (a comment); `apps/api/src/auth/guard.ts`.
+
+- **The deviation.** The prototype's `signOut` (`design-reference/Amplified Impact LMS.dc.html`) closes the profile menu and toasts "Signed out (demo)". The app copied it, so Sign Out never reached the server. That was the only demo sign-out: the profile menu's Sign Out is one button, shared by the Admin Console and the learner portal, on the sidebar and in the phone's drawer. It now:
+  1. **Ends the server session.** `POST /api/auth/sign-out` (§ 7.5, unchanged) deletes the `auth_sessions` row and clears `ai_sid` with the attributes it was set with: `Path=/`, no `Domain` (host-only) on either, `HttpOnly`, `SameSite=Lax`, and `Secure` in production, now expired (`Max-Age=0`).
+  2. **Forgets the viewer in the page.** It unmounts the app, which closes the live stream and leaves no signed-in screen in a page the browser keeps, then empties the query cache that held the snapshot.
+  3. **Replaces the page with /sign-in** (`location.replace`), so Back does not return to the screen just left.
+  - If the server does not end the session (offline, or any non-2xx), nothing changes: the page stays, and the toast says "Something went wrong. Try again.", the sign-in screens' own words for a failed request. Going to /sign-in with the session still live would only look like a sign-out.
+  - In fixture mode there is no server session, so Sign Out only forgets and leaves.
+  - The menu item's look is unchanged, so no golden moves. No compliance scenario clicks it.
+- **Back after Sign Out (iOS Safari's back-forward cache).**
+  - A signed-in page is hidden as the browser puts it away (`pagehide`, `persisted`).
+  - When Back brings it out (`pageshow`, `persisted`), it is shown again only once `GET /api/me` answers 200. Otherwise, or offline, it goes to /sign-in.
+  - A page that signed out goes straight to /sign-in, without asking.
+  - This runs in http mode only, and leaves /sign-in, /login, /invite, /forgot-password and /set-password alone.
+- **Nothing signed-in is cached.** Every response behind `requireSession` now carries `Cache-Control: private, no-store`, unless its handler sets its own header (`/api/course` and the download redirects keep `no-store`).
+- **A 401 replaces too.** The app's 401 redirect (`data/http.ts`) now uses `location.replace('/sign-in')` instead of `assign`, so Back from /sign-in does not return to the page that was just turned away.
+- **After sign-out:**
+  - The old cookie gets 401 from `/api/me`, `/api/snapshot`, `/api/skills`, `/api/skill-guides/:page` and every mutation.
+  - `/admin` and every portal screen go to /sign-in on that 401.
+  - `/skill-library/<slug>` goes to `/sign-in?next=…`, as before.
+- **Checked:**
+  - API tests: the cookie is cleared with the attributes a real sign-in set it with (and in production), the session row is gone, the old cookie gets 401 everywhere, and signed-in answers are `no-store`.
+  - Web tests:
+    - Sign Out in the Admin Console and from the phone drawer: the POST, then the teardown, then `/sign-in`.
+    - A failed sign-out stays put and says so.
+    - The back-forward cache guard.
+  - No file the app bundles has a "(demo)" string, and no built chunk or source map holds a demo sign-out.
+- **Not changed:** the sign-out route itself, the cookie's attributes, the sign-in screens, Stripe, prices, `/agreement`, homepage v3 and secrets. Other demo-only pieces (the fixture-mode demo controls, demo personas, the Module Builder's demo uploads) are listed on the PR and left as they are.
