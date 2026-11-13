@@ -151,9 +151,9 @@ for (const width of [390, 1280]) {
     await open(page, 'dark', width);
     const video = page.locator('section.vid video');
     await expect(video).toBeVisible();
-    await expect(video).toHaveAttribute('poster', '/media/morning-task-sync.webp');
+    await expect(video).toHaveAttribute('poster', '/media/morning-task-sync.webp?v=2');
     await expect(video).toHaveAttribute('preload', 'metadata');
-    await expect(video.locator('source')).toHaveAttribute('src', '/media/morning-task-sync.mp4');
+    await expect(video.locator('source')).toHaveAttribute('src', '/media/morning-task-sync.mp4?v=2');
     await expect(video.locator('source')).toHaveAttribute('type', 'video/mp4');
     const flags = await video.evaluate((el: HTMLVideoElement) => ({
       autoplay: el.hasAttribute('autoplay'),
@@ -173,10 +173,10 @@ for (const width of [390, 1280]) {
     await expect(page.locator('section.vid .vid-caption')).toHaveText(flags.label!);
     const box = await video.boundingBox();
     expect(box && box.width > 0 && Math.abs(box.width / box.height - 16 / 9) < 0.02).toBe(true);
-    const poster = await page.request.get(`${APP_BASE}/media/morning-task-sync.webp`);
+    const poster = await page.request.get(`${APP_BASE}/media/morning-task-sync.webp?v=2`);
     expect(poster.status()).toBe(200);
     expect(poster.headers()['content-type'] ?? '').toMatch(/image\/webp/);
-    const mp4 = await page.request.get(`${APP_BASE}/media/morning-task-sync.mp4`, { headers: { Range: 'bytes=0-1' } });
+    const mp4 = await page.request.get(`${APP_BASE}/media/morning-task-sync.mp4?v=2`, { headers: { Range: 'bytes=0-1' } });
     expect([200, 206]).toContain(mp4.status());
     expect(mp4.headers()['content-type'] ?? '').toMatch(/video\/mp4/);
   });

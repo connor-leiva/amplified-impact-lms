@@ -88,8 +88,8 @@ export const VIDEO = {
   caption: 'Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.',
   /** Accessible name for the player. The caption under the frame is the same words, for sighted visitors. */
   label: 'Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.',
-  src: '/media/morning-task-sync.mp4',
-  poster: '/media/morning-task-sync.webp',
+  src: '/media/morning-task-sync.mp4?v=2',
+  poster: '/media/morning-task-sync.webp?v=2',
   width: 1920,
   height: 1080,
 } as const;
