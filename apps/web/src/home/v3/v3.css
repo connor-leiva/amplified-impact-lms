@@ -2945,15 +2945,6 @@ html:not(.aiw-js) .aiw .how-panel {
   align-items: center;
   gap: 14px;
 }
-.aiw .pg-ic {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-}
 .aiw .pg-kick {
   display: flex;
   flex-direction: column;
@@ -2988,11 +2979,14 @@ html:not(.aiw-js) .aiw .how-panel {
 .aiw .pg-more:hover .gl {
   transform: translateX(3px);
 }
+/* The card's heading is the program's stacked lockup (PR #73's pattern): its own colours, ink and
+   signal, in the card's theme (forest on the Accelerator's), never recoloured. */
 .aiw .pg-name {
-  font-size: clamp(26px, 2.4vw, 32px);
-  line-height: 1.1;
-  font-weight: 500;
-  letter-spacing: -0.03em;
+  margin: 0;
+}
+.aiw .pg-logo {
+  display: block;
+  color: var(--ink);
 }
 .aiw .pg-text {
   font-size: 16px;

@@ -24,18 +24,31 @@ import { button } from '../../../kit/parts';
 import { CARD_STATES } from '../../../offer/content';
 import { PRICES, usd } from '../../prices';
 import { PROGRAMS } from '../content';
-import { glyph, programIcon, ringDot, type ProgramIcon } from '../icons';
+import { programLogo, type ProgramKey } from '../../program-logo';
+import { glyph, ringDot } from '../icons';
 import { CENTRAL, ctaGroup, foundingDay, offerAttrs, seatBlock, shortDay, soldoutLine, closedLine, teamClosedLine, waitlistButton } from './offer';
 
 type Key = keyof typeof PROGRAMS.cards;
 
-/** Each card's id, its name as the offer names it, and its icon (the kit's brand icons). */
-const CARDS: readonly { key: Key; id: string; name: string; icon: ProgramIcon }[] = [
-  { key: 'accelerator', id: 'p-accelerator', name: PLAN_NAMES.cohort, icon: 'sessions' },
-  { key: 'insiders', id: 'p-insiders', name: MEMBERSHIP_NAME, icon: 'resource-vault' },
-  { key: 'team', id: 'p-team', name: PLAN_NAMES.agents, icon: 'team-hub' },
-  { key: 'agent', id: 'p-agent', name: PLAN_NAMES.agent_plan, icon: 'ai-employee' },
+/**
+ * Each card's id, its name as the offer names it, and its logo: Connor's (`programLogo()`), as the
+ * homepage's cards had them (PR #73), never a generic icon or a typed name.
+ */
+const CARDS: readonly { key: Key; id: string; name: string; logo: ProgramKey }[] = [
+  { key: 'accelerator', id: 'p-accelerator', name: PLAN_NAMES.cohort, logo: 'accelerator' },
+  { key: 'insiders', id: 'p-insiders', name: MEMBERSHIP_NAME, logo: 'insiders' },
+  { key: 'team', id: 'p-team', name: PLAN_NAMES.agents, logo: 'team-plan' },
+  { key: 'agent', id: 'p-agent', name: PLAN_NAMES.agent_plan, logo: 'agent-plan' },
 ];
+
+/**
+ * THE LOCKUP IS THE HEADING (PR #73's pattern): each card's <h3> holds the offer's exact name, visually
+ * hidden, and the program's stacked lockup, hidden from screen readers since the heading says the name.
+ * 28px type: the typed name's size here (`clamp(26px, 2.4vw, 32px)`), and the widest lockup (the
+ * Accelerator's, 216px) fits the narrowest card with room to spare. Every stacked lockup is the same
+ * height at it, so the cards' rows still line up.
+ */
+export const CARD_LOGO_TYPE = 28;
 
 const priceLine = (amount: string, note: string) =>
   `<p class="price-line"><span class="price-big tnum">${esc(amount)}</span><span class="mono price-note">${esc(note)}</span></p>`;
@@ -125,7 +138,7 @@ function best(key: Key): string {
   return `<p class="pg-best">${esc(c.team.best)} ${esc(c.team.dates)}</p>`;
 }
 
-function card({ key, id, name, icon }: (typeof CARDS)[number]): string {
+function card({ key, id, name, logo }: (typeof CARDS)[number]): string {
   const c = PROGRAMS.cards[key];
   const featured = key === 'accelerator';
   const head = `${id.replace('p-', 'pg-')}`;
@@ -133,12 +146,16 @@ function card({ key, id, name, icon }: (typeof CARDS)[number]): string {
     `<article class="pg-card${featured ? ' is-featured' : ''}" id="${id}"${featured ? ' data-theme="forest"' : ''} aria-labelledby="${head}"${
       key === 'insiders' || key === 'agent' ? ' data-v3-switch-scope' : ''
     }>`,
-    `<div class="pg-top"><span class="pg-ic">${programIcon(icon, 22)}</span><span class="pg-kick"><span class="mono pg-kicker">${esc(
+    `<div class="pg-top"><span class="pg-kick"><span class="mono pg-kicker">${esc(
       c.kicker,
     )}</span><span class="mono pg-who">${esc(c.who)}</span></span><a href="${esc(c.href)}" class="pg-more" aria-label="${esc(
       PROGRAMS.detailsSaid(name),
     )}"><span class="mono">${esc(PROGRAMS.details)}</span>${glyph('arrow', 16)}</a></div>`,
-    `<h3 id="${head}" class="pg-name">${esc(name)}</h3>`,
+    `<h3 id="${head}" class="pg-name"><span class="sr-only">${esc(name)}</span><span class="pg-logo" data-program="${logo}">${programLogo(logo, {
+      variant: 'stacked',
+      size: CARD_LOGO_TYPE,
+      title: '',
+    })}</span></h3>`,
     `<p class="pg-text">${esc(c.text)}</p>`,
     `<ul class="pg-list" role="list">${c.list.map((l) => `<li>${glyph('check', 14)}<span>${esc(l)}</span></li>`).join('')}</ul>`,
     best(key),
@@ -151,8 +168,8 @@ function card({ key, id, name, icon }: (typeof CARDS)[number]): string {
 export function programs(): string {
   const p = PROGRAMS;
   const index = CARDS.map(
-    ({ key, id, icon }) =>
-      `<li><a href="#${id}" class="pg-jump"><span class="pg-jump-ic">${programIcon(icon, 20)}</span><span class="mono pg-jump-k">${esc(
+    ({ key, id, logo }) =>
+      `<li><a href="#${id}" class="pg-jump"><span class="pg-jump-ic">${programLogo(logo, { variant: 'symbol', title: '' })}</span><span class="mono pg-jump-k">${esc(
         p.cards[key].kicker,
       )}</span><span class="pg-jump-n">${esc(p.cards[key].short)}</span>${glyph('arrow', 16, 'pg-jump-go')}</a></li>`,
   ).join('');

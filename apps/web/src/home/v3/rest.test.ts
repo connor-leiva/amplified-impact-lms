@@ -2,15 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { COHORT_SEATS, DEFAULT_FOUNDING_CLOSES_AT, HELP_EMAIL } from '@ai/core/offer';
+import { COHORT_SEATS, DEFAULT_FOUNDING_CLOSES_AT, HELP_EMAIL, MEMBERSHIP_NAME, PLAN_NAMES } from '@ai/core/offer';
 import { ENTRIES, FREE_FIVE, TOOLS } from '../../library/content';
 import { CARD_STATES, OFFERS } from '../../offer/content';
 import { FREE_SKILLS_HREF } from '../../site/content';
 import { PHOTOS } from '../content';
+import { ART, programLogo, type ProgramKey } from '../program-logo';
 import { PRICES, usd } from '../prices';
 import { hoursMath } from './client/hours';
 import { FAVORITES, HOURS, PROGRAMS, QUESTIONS } from './content';
 import { renderV3Body } from './render';
+import { CARD_LOGO_TYPE } from './sections/programs';
 
 // S9 to S16 as the build renders them (docs/design/home-v3/brief.md § 4, § 5, § 6), held to copy.md,
 // to /pricing's own sources for every price, date and seat, and to Connor's decisions (conflicts.md:
@@ -132,6 +134,47 @@ describe('the rules for buttons, prices and proof (brief § 6, Connor’s D1)', 
     expect(dates).toMatch(/live classes start the week of January 4\.$/);
     // Not the mockup's "Skills open December 14": the rest of the skills don't.
     expect(text(prod.body)).not.toContain('Skills open December 14');
+  });
+});
+
+describe('S11’s program logos: Connor’s (`programLogo()`), as PR #73 put them on the homepage’s cards', () => {
+  const pg = sec(prod, 'pg')!;
+  const LOGOS: [ProgramKey, string][] = [
+    ['accelerator', PLAN_NAMES.cohort],
+    ['insiders', MEMBERSHIP_NAME],
+    ['team-plan', PLAN_NAMES.agents],
+    ['agent-plan', PLAN_NAMES.agent_plan],
+  ];
+  const svgOf = (html: string) => parse(html).querySelector('svg')!.outerHTML;
+
+  it('heads each card with its stacked lockup, the offer’s exact name only for screen readers, and no icon or typed name', () => {
+    const heads = [...pg.querySelectorAll('.pg-card h3.pg-name')];
+    expect(heads.map((h) => [h.querySelector('.pg-logo')?.getAttribute('data-program'), text(h.querySelector('.sr-only'))])).toEqual(LOGOS);
+    heads.forEach((h, i) => {
+      const key = LOGOS[i]![0];
+      expect([...h.children].map((e) => e.className)).toEqual(['sr-only', 'pg-logo']);
+      expect(h.querySelector('.pg-logo')!.innerHTML).toBe(svgOf(programLogo(key, { variant: 'stacked', size: CARD_LOGO_TYPE, title: '' })));
+      expect(h.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+      // Each card is still named by its heading, which says the offer's name.
+      expect(pg.querySelector(`[aria-labelledby="${h.id}"]`)?.classList.contains('pg-card')).toBe(true);
+    });
+    // 28px type, at least the 24px floor asked for (the README's floor for lockups is 18px).
+    expect(CARD_LOGO_TYPE).toBeGreaterThanOrEqual(24);
+    expect(pg.querySelectorAll('.pg-ic, svg.ic')).toHaveLength(0);
+    // The kit's four brand icons are gone from the page's sprite with them.
+    expect(prod.querySelectorAll('symbol#v3-sessions, symbol#v3-resource-vault, symbol#v3-team-hub, symbol#v3-ai-employee')).toHaveLength(0);
+  });
+
+  it('marks each jump with its symbol, beside the short name it already types', () => {
+    const jumps = [...pg.querySelectorAll('.pg-jump')];
+    expect(jumps.map((j) => [j.querySelector('.pg-jump-ic svg')?.getAttribute('viewBox'), text(j.querySelector('.pg-jump-n'))])).toEqual(
+      LOGOS.map(([key]) => ['0 0 48 48', PROGRAMS.cards[({ accelerator: 'accelerator', insiders: 'insiders', 'team-plan': 'team', 'agent-plan': 'agent' } as const)[key]].short]),
+    );
+    jumps.forEach((j, i) => {
+      expect(j.querySelector('.pg-jump-ic')!.innerHTML).toBe(svgOf(programLogo(LOGOS[i]![0], { variant: 'symbol', title: '' })));
+      expect(j.querySelector('.pg-jump-ic svg')?.getAttribute('aria-hidden')).toBe('true');
+    });
+    expect(ART.accelerator.symbol.ink.length).toBeGreaterThan(0);
   });
 });
 

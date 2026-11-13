@@ -9,7 +9,6 @@
 //
 // Every drawing is decorative and `aria-hidden`: the words beside it carry the meaning.
 
-import { BRAND_ICONS, type BrandPath } from '../../kit/brand-icons';
 import { GLYPHS } from '../../kit/icons';
 
 const stroke = (d: string) =>
@@ -24,30 +23,11 @@ const SYMBOLS = {
   arrow: `<symbol id="v3-arrow" viewBox="0 0 24 24">${stroke(GLYPHS.arrow)}</symbol>`,
 } as const;
 
-/**
- * S11's four program icons, the kit's brand icons (`BRAND_ICONS`, the mockup's own set), each drawn
- * twice (the jump bar and the card). The kit paints their paths by class (`.ic-i`, `.ic-s`, `.ic-d`,
- * `.ic-k`); a <use> copy can't be reached by class, so each path carries the same paint inline.
- */
-export const PROGRAM_ICONS = ['sessions', 'resource-vault', 'team-hub', 'ai-employee'] as const;
-export type ProgramIcon = (typeof PROGRAM_ICONS)[number];
-
-const paint = ([d, fill, line, width]: BrandPath): string => {
-  const f = fill === 'i' ? 'currentColor' : fill === 'd' ? 'var(--signal)' : fill === 'k' ? 'var(--icon-knockout,var(--surface))' : 'none';
-  const st = line === 'i' ? 'currentColor' : line === 'k' ? 'var(--icon-knockout,var(--surface))' : '';
-  const strokeStyle = st ? `;stroke:${st};stroke-width:${width};stroke-linecap:round;stroke-linejoin:round` : '';
-  return `<path d="${d}" style="fill:${f}${strokeStyle}"/>`;
-};
-
-const programSymbols = PROGRAM_ICONS.map(
-  (name) => `<symbol id="v3-${name}" viewBox="0 0 24 24">${(BRAND_ICONS[name] as readonly BrandPath[]).map(paint).join('')}</symbol>`,
-).join('');
-
 export type V3Icon = keyof typeof SYMBOLS;
 
 /** Every symbol, once, in an <svg> that takes no room and says nothing. */
 export const sprite = (): string =>
-  `<svg class="v3-sprite" width="0" height="0" aria-hidden="true" focusable="false">${Object.values(SYMBOLS).join('')}${programSymbols}</svg>`;
+  `<svg class="v3-sprite" width="0" height="0" aria-hidden="true" focusable="false">${Object.values(SYMBOLS).join('')}</svg>`;
 
 const use = (name: V3Icon, cls: string, size: number, viewBox: string) =>
   `<svg class="${cls}" width="${size}" height="${size}" viewBox="${viewBox}" aria-hidden="true" focusable="false"><use href="#v3-${name}"/></svg>`;
@@ -59,6 +39,3 @@ export const ringDot = (size = 16): string => use('ringdot', 'ringdot', size, '0
 export const glyph = (name: Exclude<V3Icon, 'ringdot'>, size = 18, cls = ''): string =>
   use(name, `gl${cls ? ` ${cls}` : ''}`, size, '0 0 24 24');
 
-/** A program's icon (S11), as the kit's `brandIcon()` draws it (class `ic`). */
-export const programIcon = (name: ProgramIcon, size = 22): string =>
-  `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#v3-${name}"/></svg>`;

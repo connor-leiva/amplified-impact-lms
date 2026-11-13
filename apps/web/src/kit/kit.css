@@ -1189,19 +1189,15 @@ html:not(.aiw-js) .aiw .hdr {
 .aiw .pm-card:first-child:hover {
   background: none;
 }
-.aiw .pm-ic {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  transition: border-color 0.3s;
+/* A program's logo, Connor's stacked lockup: its own colours (ink and signal), never recoloured. The
+   page you're on is marked by a signal line over its card, as the old icon's border was. */
+.aiw .pm-logo {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink);
 }
-.aiw .pm-card:hover .pm-ic,
-.aiw .pm-card[aria-current='page'] .pm-ic {
-  border-color: var(--signal);
+.aiw .pm-card[aria-current='page'] {
+  box-shadow: inset 0 2px 0 var(--signal);
 }
 .aiw .pm-name {
   font-size: 17px;
@@ -1278,6 +1274,13 @@ html:not(.aiw-js) .aiw .hdr {
 }
 .aiw .menu-program[aria-current='page'] {
   color: var(--accent);
+  box-shadow: inset 2px 0 0 var(--signal);
+  padding-left: 14px;
+}
+/* A program's logo, Connor's stacked lockup: never recoloured, so the accent above doesn't reach it. */
+.aiw .menu-logo {
+  display: block;
+  color: var(--ink);
 }
 .aiw .menu-nav ul {
   display: flex;
