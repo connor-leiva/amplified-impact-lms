@@ -98,7 +98,8 @@ describe('the head and the shell', () => {
   });
 
   it('loads its stylesheet and exactly one script, as a module file (never inline), and the body opts into the page’s look', () => {
-    const shell = read('../../home.html');
+    // v2's shell, unbuilt since the switch-over to v3 (`home.html`), until v2 is removed.
+    const shell = read('../../home-v2.html');
     expect(shell).toContain('rel="icon" type="image/svg+xml" href="data:image/svg+xml,');
     expect(shell).toContain('<link rel="stylesheet" href="/src/home/page.css" />');
     // Its own look, then a guard that puts everything inside the kit's header back to the browser's

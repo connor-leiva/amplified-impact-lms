@@ -3,8 +3,8 @@ import { APP_BASE } from '../../lib/prepare';
 
 // Homepage v3 (docs/design/home-v3), in a real browser: what jsdom cannot see, which is layout.
 //
-// The fixture build carries v3's production render at /home-v3.html (`V3_PREVIEW=0` in
-// `build:fixture`; an ordinary `pnpm build` has no v3 page). The page is settled here (reduced
+// The fixture build carries www's homepage, v3, at /home.html, built exactly as an ordinary
+// `pnpm build` builds it (the API serves that file at `/` on www). The page is settled here (reduced
 // motion), which at 390 is also what every phone gets.
 //
 // WHY BOXES, NOT SCROLL WIDTH. S4's and S5's stages clip their overflow (`overflow: clip`), so
@@ -32,7 +32,7 @@ async function open(
   await page.route('**/api/**', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
   // Playwright runs the newest route first: this one holds /api/offer's request open for good.
   if (offer === 'hangs') await page.route('**/api/offer', () => new Promise<void>(() => undefined));
-  await page.goto(`${APP_BASE}/home-v3.html`);
+  await page.goto(`${APP_BASE}/home.html`);
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator('body')).toHaveAttribute('data-theme', theme);
 }
@@ -236,7 +236,7 @@ test.describe('with no script', () => {
       await page.setViewportSize({ width, height: 844 });
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.route('**/api/**', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
-      await page.goto(`${APP_BASE}/home-v3.html`);
+      await page.goto(`${APP_BASE}/home.html`);
       await expect(page.locator('html')).not.toHaveClass(/aiw-js/);
       expect(await offerOnLoad(page)).toEqual({ counts: OFFER_PARTS, held: [] });
       // What the page knows for certain: the deadline's day and the written cap.

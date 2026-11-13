@@ -7,8 +7,9 @@
 // signal, its type scale, spacing, motion and components, and Connor's program logos. Where the
 // reference had a section the live page doesn't, it is gone; `sections/` draws the live ones.
 //
-// Built once by `vite-plugin.ts` into `dist/home.html`, its stylesheet inlined by `ai101Inline()`, and
-// served by `apps/api/src/routes/marketing.ts` at `/` on MARKETING_HOST only.
+// REPLACED BY V3 at `/` in the switch-over PR (`./v3/`). Not built any more: `pnpm dev` shows it at
+// /home-v2.html (`vite-plugin.ts`) until the live check passes and v2 is removed. v3 still uses
+// `renderHomeHead()`, the page's head, from here.
 //
 // ONE SCRIPT, AS A FILE (`client/main.ts`): the motion, the Library's tabs, the offer plan's progress and
 // the live offer state from /api/offer. A same-origin module file, never inlined, so § 9.4's

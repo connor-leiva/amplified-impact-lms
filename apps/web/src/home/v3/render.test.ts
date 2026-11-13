@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { KIT } from '../../kit/content';
@@ -12,7 +12,7 @@ import { splitProof } from '../sections/proof';
 import { HERO } from './content';
 import { PENDING, pendingKeysIn, resolvePending } from './pending';
 import { renderV3Body, renderV3Head } from './render';
-import { v3Mode } from './vite-plugin';
+import { HOME_HTML, v3Mode } from './vite-plugin';
 
 // Homepage v3, as the build renders it, held to the brief (docs/design/home-v3/brief.md) and to the
 // exact copy (copy.md): read here from the handoff itself, so the page can't drift from it unseen.
@@ -52,7 +52,7 @@ function expectInOrder(el: Element | null, lines: string[]) {
 describe('the page', () => {
   it('has the live homepage’s head, and the shell loads one stylesheet and one script, as a kit page, dark', () => {
     expect(renderV3Head()).toBe(renderHomeHead());
-    const shell = read('../../../home-v3.html');
+    const shell = read('../../../home.html');
     expect(shell).toContain('<link rel="stylesheet" href="/src/home/v3/v3.css" />');
     expect(shell.match(/<script\b[^>]*>/g)).toEqual(['<script type="module" src="/src/home/v3/client/main.ts">']);
     expect(shell).toMatch(/<body class="aiw" data-theme="dark" data-app-ready="true">/);
@@ -191,13 +191,22 @@ describe('pending placeholders (conflicts.md, Decisions): none left', () => {
     expect(() => resolvePending('<!--pending:spring-approval--><p>', { preview: false })).toThrow(/unresolved/);
   });
 
-  it('builds v3 only on purpose: an ordinary build has no v3 page; V3_PREVIEW=1 a preview, =0 the production render', () => {
-    expect(v3Mode({})).toBe('off');
-    expect(v3Mode({ V3_PREVIEW: '' })).toBe('off');
-    expect(v3Mode({ V3_PREVIEW: '1' })).toBe('preview');
-    expect(v3Mode({ V3_PREVIEW: '0' })).toBe('production');
-    // The live homepage is still v2's until the switch-over PR.
-    expect(read('../../../home.html')).toContain('<link rel="stylesheet" href="/src/home/page.css" />');
+  it('is www’s homepage: an ordinary build renders it at home.html, the production render unless V3_PREVIEW=1', () => {
+    expect([v3Mode({}), v3Mode({ V3_PREVIEW: '' }), v3Mode({ V3_PREVIEW: '0' }), v3Mode({ V3_PREVIEW: '1' })]).toEqual([
+      'production',
+      'production',
+      'production',
+      'preview',
+    ]);
+    // `apps/api/src/server.ts` reads `dist/home.html` and serves it at `/` on www.
+    expect(HOME_HTML).toBe('home.html');
+    const config = read('../../../vite.ai101.config.ts');
+    expect(config).toContain('homeV3Render(),');
+    expect(config).not.toMatch(/homeRender\(\)|V3_PREVIEW|home-v3\.html/);
+    expect(existsSync(resolve(HERE, '../../../home-v3.html'))).toBe(false);
+    // v2 stays in the tree, unbuilt, until the live check passes (brief § 2): its shell is home-v2.html.
+    expect(read('../../../home-v2.html')).toContain('<link rel="stylesheet" href="/src/home/page.css" />');
+    expect(read('../../../package.json')).not.toContain('V3_PREVIEW');
   });
 });
 

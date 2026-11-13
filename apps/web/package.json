@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && vite build -c vite.ai101.config.ts",
-    "build:fixture": "vite build --mode fixture --outDir dist-fixture && node ../../scripts/with-env.mjs V3_PREVIEW=0 vite build -c vite.ai101.config.ts --outDir dist-fixture",
+    "build:fixture": "vite build --mode fixture --outDir dist-fixture && vite build -c vite.ai101.config.ts --outDir dist-fixture",
     "preview:fixture": "pnpm build:fixture && vite preview --outDir dist-fixture",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

@@ -6,9 +6,8 @@
 // shows the switch. Bands the mockup draws light are `.inverse`, so they swap with the page; the forest
 // bands stay forest in both.
 //
-// NOT LIVE YET. `home.html` still renders v2 (`../render.ts`). This page is built only into a preview,
-// `home-v3.html`, when `V3_PREVIEW` is set (`./vite-plugin.ts`); the last PR of the series points
-// `home.html` here, in one step.
+// LIVE: www's homepage. `home.html` renders this page (`./vite-plugin.ts`), which the API serves at `/`
+// on the marketing host. v2 (`../render.ts`) stays in the tree, unbuilt, until the live check passes.
 //
 // PENDING. Whatever waits on Connor (`./pending.ts`) shows only in a preview (`V3_PREVIEW=1`); the
 // production render (`preview: false`) puts each one's fallback in its place and leaves no marker.
