@@ -437,7 +437,7 @@
   }
 }
 
-/* --- S2 (vid): a real still photo, which Connor is choosing (pending `video-still`) -------------- */
+/* --- S2 (vid): Spring's headshot in the video's frame, until the screen recording is ready ------ */
 
 .aiw .vid {
   padding-block: 32px var(--section);
@@ -461,21 +461,21 @@
   transform: scale(calc(0.86 + 0.14 * var(--s)));
   transform-origin: 50% 0;
 }
-/* Until the photo is chosen: an empty slot that says so (a preview only). Never a stock or AI image. */
-.aiw .vid-slot {
+/* The headshot whole and centred in the frame, never cropped. */
+.aiw .vid-photo {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
-.aiw .vid-slot-k {
-  color: var(--ink-muted);
+.aiw .vid-note {
+  margin-top: 24px;
+  color: var(--ink-secondary);
 }
 .aiw .vid-caption {
   max-width: 640px;
-  margin-top: 24px;
+  margin-top: 12px;
   font-size: 16px;
   line-height: 1.55;
   color: var(--ink-secondary);
@@ -1612,6 +1612,2074 @@ html:not(.aiw-js) .aiw .how-panel {
 }
 @media (max-width: 359px) {
   .aiw .mon-b-ok {
+    display: none;
+  }
+}
+
+/* --- S6 Off your plate (band, forest): a job struck for each skill ------------------------------- */
+/* Settled in the markup (`.band-plate.is-in`): every job struck, its skill showing. The script resets a
+   band below the fold on a wide screen with motion allowed, and the rows strike in turn as it arrives. */
+
+.aiw .band {
+  padding-block: 120px;
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .band-ripple {
+  position: absolute;
+  right: -220px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.aiw .band-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 72px;
+  align-items: center;
+}
+.aiw .band-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.aiw .band-title {
+  font-size: clamp(32px, 3.8vw, 52px);
+  line-height: 1.04;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.aiw .band-sub {
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink-secondary);
+}
+/* The free button and its proof line, together and never held back (rule). */
+.aiw .band-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+.aiw .band-plate {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 24px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--surface-raised) 70%, transparent);
+}
+.aiw .band-plate-h {
+  color: var(--ink-muted);
+}
+.aiw .band-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 2px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.aiw .band-tick {
+  grid-row: 1 / span 2;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-control);
+  border-radius: 50%;
+  color: transparent;
+  transition:
+    background-color 0.4s,
+    border-color 0.4s,
+    color 0.4s;
+  transition-delay: calc(0.5s + var(--i) * 240ms);
+}
+.aiw .band-job {
+  position: relative;
+  justify-self: start;
+  font-size: 17px;
+  font-weight: 500;
+  transition: color 0.4s;
+  transition-delay: calc(0.5s + var(--i) * 240ms);
+}
+.aiw .band-job::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 55%;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--ease);
+  transition-delay: calc(0.3s + var(--i) * 240ms);
+}
+/* The skill that takes the job: a link to its page (brief § 4). 11px above and below, given back by the
+   margins, make it a 44px tap (Spring's mobile rule) without moving a thing. */
+.aiw .band-by {
+  justify-self: start;
+  padding-block: 11px;
+  margin-block: -11px;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.4s,
+    transform 0.4s var(--ease);
+  transition-delay: calc(0.6s + var(--i) * 240ms);
+}
+.aiw .band-by:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.aiw .band-plate.is-in .band-tick {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--on-action);
+}
+.aiw .band-plate.is-in .band-job {
+  color: var(--ink-muted);
+}
+.aiw .band-plate.is-in .band-job::after {
+  transform: scaleX(1);
+}
+.aiw .band-plate.is-in .band-by {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- S7 The proof (prf): three tiles and the org chart -------------------------------------------- */
+/* Settled in the markup (`.pst.is-in`, `.oc.is-in.is-ai`): drawn, on "People and AI". The script resets
+   a chart below the fold on a wide screen with motion allowed; the toggle collapses the skills (`is-ai`
+   off) with the counter following, at once where motion isn't allowed. */
+
+.aiw .prf {
+  padding-block: var(--section) 112px;
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .prf-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: end;
+  margin-bottom: 56px;
+}
+.aiw .prf-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .pst {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 80px;
+  border-top: 1px solid var(--ink);
+}
+.aiw .pst-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px 28px 0 0;
+}
+.aiw .pst-item + .pst-item {
+  padding-left: 28px;
+  border-left: 1px solid var(--line);
+}
+.aiw .pst-num {
+  font-size: clamp(48px, 5.4vw, 76px);
+  line-height: 0.95;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  color: var(--accent);
+}
+.aiw .pst-label {
+  max-width: 300px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.aiw .pst-viz {
+  display: flex;
+  margin-top: 12px;
+}
+.aiw .pst-viz .mono {
+  color: var(--ink-muted);
+}
+.aiw .pst-bars {
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .pst-bar {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.aiw .pst-bar i {
+  width: calc(var(--w) * 100%);
+  height: 8px;
+  border-radius: 4px;
+  background: var(--line-control);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.1s var(--ease);
+  transition-delay: calc(0.2s + var(--b) * 260ms);
+}
+.aiw .pst-bar.is-now i {
+  background: var(--signal);
+}
+.aiw .pst.is-in .pst-bar i {
+  transform: none;
+}
+.aiw .pst-split {
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .pst-cells {
+  display: grid;
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  gap: 3px;
+}
+.aiw .pst-cells i {
+  height: 16px;
+  border-radius: 2px;
+  background: var(--signal);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s var(--spring);
+  transition-delay: calc(0.2s + var(--k) * 35ms);
+}
+.aiw .pst-cells i.is-human {
+  border: 1.5px solid var(--ink);
+  background: transparent;
+}
+.aiw .pst.is-in .pst-cells i {
+  transform: none;
+}
+.aiw .pst-split-k {
+  display: flex;
+  justify-content: space-between;
+}
+.aiw .pst-days {
+  gap: 10px;
+}
+.aiw .pst-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.aiw .pst-day i {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--line-control);
+  border-radius: 50%;
+  transition: border-color 0.3s;
+  transition-delay: calc(0.2s + var(--k) * 120ms);
+}
+.aiw .pst-day i::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--signal);
+  transform: scale(0);
+  transition: transform 0.4s var(--spring);
+  transition-delay: calc(0.25s + var(--k) * 120ms);
+}
+.aiw .pst.is-in .pst-day i {
+  border-color: var(--signal);
+}
+.aiw .pst.is-in .pst-day i::after {
+  transform: none;
+}
+
+.aiw .oc {
+  --oc-line: var(--line-control);
+  /* The middle of a person's card, where its branch meets it (at the 16px floor). */
+  --hc: 37px;
+  position: relative;
+}
+.aiw .oc-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-bottom: 44px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .oc-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 28px;
+}
+.aiw .oc-count-i {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--ink-secondary);
+}
+.aiw .oc-count-i strong {
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.aiw .oc-count-i.is-skills strong {
+  min-width: 1.3em;
+  color: var(--accent);
+}
+.aiw .oc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 16px;
+  color: var(--ink-secondary);
+}
+.aiw .oc-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.aiw .oc-person {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.aiw .oc-own-mark {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px dashed var(--ink-secondary);
+  border-radius: 50%;
+}
+.aiw .oc-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.aiw .oc-node {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+.aiw .oc-node-top {
+  align-items: center;
+}
+.aiw .oc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transition:
+    opacity 0.6s var(--ease),
+    transform 0.6s var(--spring);
+  transition-delay: calc(var(--row) * 150ms);
+}
+.aiw .oc.is-in .oc-card {
+  opacity: 1;
+  transform: none;
+}
+.aiw .oc-node-top .oc-card {
+  min-width: 260px;
+  align-items: center;
+  padding: 16px 28px;
+  border-color: var(--ink);
+  text-align: center;
+}
+.aiw .oc-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-muted);
+}
+.aiw .oc-name {
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .oc-node-top .oc-name {
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+/* The skills under a box: open on "People and AI" (`is-ai`), closed and out of reach (`inert`, by the
+   script) on "People". */
+.aiw .oc-ai {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.7s var(--ease);
+}
+.aiw .oc.is-ai .oc-ai {
+  grid-template-rows: 1fr;
+}
+.aiw .oc-ai-in {
+  min-height: 0;
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .oc-node:not(.oc-node-top) .oc-ai-in {
+  margin-left: 8px;
+  padding-left: 14px;
+  border-left: 1px dashed color-mix(in srgb, var(--signal) 60%, transparent);
+}
+.aiw .oc-node-top .oc-ai-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.aiw .oc-node-top .oc-ai-in::before {
+  content: '';
+  width: 0;
+  height: 12px;
+  border-left: 1px dashed color-mix(in srgb, var(--signal) 60%, transparent);
+}
+.aiw .oc-ai-k {
+  padding-top: 4px;
+  color: var(--accent);
+}
+.aiw .oc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  padding: 4px 2px 0;
+}
+.aiw .oc-node-top .oc-chips {
+  max-width: 760px;
+  justify-content: center;
+}
+.aiw .oc-chips li {
+  min-width: 0;
+  max-width: 100%;
+}
+/* A chip is a 44px tap (Spring's mobile rule) around the mockup's 32px pill: the pill is drawn behind
+   the words (`::before`, 6px in from the top and bottom), so the rows sit 12px apart and no two taps
+   overlap. */
+.aiw .oc-chip {
+  position: relative;
+  isolation: isolate;
+  max-width: 100%;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 11px 12px 6px;
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.25;
+  text-decoration: none;
+}
+.aiw .oc-chip::before {
+  content: '';
+  position: absolute;
+  inset: 6px 0;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, var(--signal) 45%, var(--line));
+  border-radius: 999px;
+  background: var(--surface);
+  transition:
+    background-color 0.25s,
+    border-color 0.25s;
+}
+.aiw .oc-chip > svg {
+  flex: none;
+}
+.aiw a.oc-chip:hover::before,
+.aiw a.oc-chip:focus-visible::before {
+  border-color: var(--signal);
+  background: color-mix(in srgb, var(--signal) 14%, var(--surface));
+}
+/* Built for our team: no page to link to, so a dashed chip and a dashed, quieter ring (`icons.ts`). */
+.aiw .oc-chip.is-own {
+  --rd-ring: var(--ink-muted);
+  --rd-dash: 2.6 2.4;
+  --rd-dot: var(--ink-muted);
+}
+.aiw .oc-chip.is-own::before {
+  border-style: dashed;
+  border-color: var(--line-control);
+}
+.aiw .oc.is-ai.is-plugging .oc-chip {
+  animation: oc-plug 0.55s var(--spring) both;
+  animation-delay: calc(0.15s + var(--ci) * 38ms);
+}
+@keyframes oc-plug {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.7);
+  }
+}
+.aiw .oc-v {
+  display: block;
+  width: 1px;
+  height: 32px;
+  background: var(--oc-line);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.5s var(--ease);
+  transition-delay: calc(var(--row) * 150ms + 100ms);
+}
+.aiw .oc.is-in .oc-v {
+  transform: none;
+}
+.aiw .oc-seats {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  padding-top: 28px;
+}
+.aiw .oc-seats::before {
+  content: '';
+  position: absolute;
+  left: calc((100% - 48px) / 6);
+  right: calc((100% - 48px) / 6);
+  top: 0;
+  height: 1px;
+  background: var(--oc-line);
+  transform: scaleX(0);
+  transition: transform 0.7s var(--ease) 0.4s;
+}
+.aiw .oc.is-in .oc-seats::before {
+  transform: none;
+}
+.aiw .oc-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.aiw .oc-col::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -28px;
+  width: 1px;
+  height: 28px;
+  background: var(--oc-line);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.4s var(--ease) 0.75s;
+}
+.aiw .oc.is-in .oc-col::before {
+  transform: none;
+}
+.aiw .oc-people {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aiw .oc-pl {
+  position: relative;
+  padding-left: 24px;
+}
+.aiw .oc-pl::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: -14px;
+  bottom: 0;
+  width: 1px;
+  background: var(--oc-line);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.4s var(--ease);
+  transition-delay: calc(var(--row) * 150ms);
+}
+.aiw .oc-pl:last-child::before {
+  bottom: auto;
+  height: calc(14px + var(--hc));
+}
+.aiw .oc-pl::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: var(--hc);
+  width: 16px;
+  height: 1px;
+  background: var(--oc-line);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+  transition-delay: calc(var(--row) * 150ms + 150ms);
+}
+.aiw .oc.is-in .oc-pl::before,
+.aiw .oc.is-in .oc-pl::after {
+  transform: none;
+}
+
+/* --- S8 In Spring's words (qt): her quote, approved (D2) ------------------------------------------ */
+/* `--p` is how far the section has scrolled through (the script, on a wide screen with motion allowed);
+   unset, it is 1 and every word is lit. A word not lit yet is in the quieter ink, never faded (AA). */
+
+.aiw .qt {
+  --r: clamp(0, calc((var(--p, 1) - 0.14) / 0.34), 1);
+  padding-block: 24px var(--section);
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .qt > .wrap {
+  border-top: 1px solid var(--line);
+}
+.aiw .qt-fig {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 1060px;
+  padding-top: 148px;
+}
+.aiw .qt-mark {
+  position: absolute;
+  left: -4px;
+  top: 8px;
+  width: 132px;
+  height: auto;
+  overflow: visible;
+  pointer-events: none;
+}
+.aiw .qt-mark path {
+  fill: none;
+  stroke: var(--line-control);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.aiw .qt-text {
+  position: relative;
+  margin: 0;
+  font-size: clamp(26px, 3.1vw, 44px);
+  line-height: 1.24;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.aiw .qt-w {
+  --lit: clamp(0, calc(var(--r) * var(--n) - var(--i)), 1);
+  position: relative;
+  color: color-mix(in srgb, var(--ink) calc(var(--lit) * 100%), var(--ink-muted));
+}
+/* The 95% and 38%: marked as they light (large text, so the signal green is AA). */
+.aiw .qt-w.is-key {
+  color: color-mix(in srgb, var(--signal) calc(var(--lit) * 100%), var(--ink-muted));
+}
+.aiw .qt-w.is-key::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.02em;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--signal);
+  transform: scaleX(var(--lit));
+  transform-origin: left;
+}
+.aiw .qt-by {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.aiw .qt-face {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line-control);
+  border-radius: 50%;
+}
+.aiw .qt-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+.aiw .qt-who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aiw .qt-name {
+  font-size: 18px;
+  font-weight: 500;
+}
+.aiw .qt-role {
+  font-size: 16px;
+  color: var(--ink-secondary);
+}
+.aiw .qt-path {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 72px;
+  padding-top: 32px;
+}
+.aiw .qt-path::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--line);
+}
+.aiw .qt-path::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--signal);
+  transform-origin: left;
+  transform: scaleX(clamp(0, calc((var(--r) - var(--a0)) / (var(--a1) - var(--a0)) * 0.77), 1));
+}
+.aiw .qt-stop {
+  --on: clamp(0, calc((var(--r) - var(--at)) * 30 + 1), 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aiw .qt-dot {
+  position: absolute;
+  left: 0;
+  top: -39px;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--line-control);
+  border-radius: 50%;
+  background: var(--surface);
+}
+.aiw .qt-dot::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border: 1.5px solid var(--signal);
+  border-radius: 50%;
+  opacity: var(--on);
+}
+.aiw .qt-dot i {
+  position: absolute;
+  inset: 2.5px;
+  border-radius: 50%;
+  background: var(--signal);
+  transform: scale(var(--on));
+}
+.aiw .qt-step {
+  color: var(--ink-muted);
+}
+.aiw .qt-k {
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-muted));
+}
+.aiw .qt-t {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+.aiw .qt-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 48px;
+  margin-top: 72px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.aiw .qt-foot-t {
+  max-width: 560px;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.aiw .qt-foot-a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+}
+.aiw .qt-foot-k {
+  color: var(--ink-muted);
+}
+
+/* --- S6 to S8 on tablets and phones --------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+  .aiw .band-grid,
+  .aiw .prf-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .aiw .pst {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .pst-item {
+    padding: 28px 0;
+  }
+  .aiw .pst-item + .pst-item {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .aiw .pst-viz {
+    max-width: 420px;
+  }
+  .aiw .oc-seats {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .aiw .oc-seats::before {
+    display: none;
+  }
+  .aiw .oc-col::before {
+    top: -40px;
+    height: 40px;
+    transition-delay: 0.5s;
+  }
+  .aiw .qt-path {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 40px;
+  }
+  .aiw .qt-path::after {
+    display: none;
+  }
+  .aiw .qt-dot {
+    position: relative;
+    top: 0;
+    margin-bottom: 4px;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .band {
+    padding-block: 88px;
+  }
+  .aiw .oc-node-top .oc-card {
+    min-width: 220px;
+  }
+  .aiw .qt-fig {
+    padding-top: 112px;
+  }
+  .aiw .qt-mark {
+    width: 96px;
+    top: 4px;
+  }
+  .aiw .qt-path {
+    column-gap: 16px;
+    row-gap: 28px;
+  }
+  .aiw .qt-k {
+    font-size: 16px;
+  }
+}
+
+/* --- S9 Hours calculator (hrs): seven sliders, a rate, and the hours back ------------------------- */
+/* The results are printed for the defaults; the script recounts them. The results panel is forest. */
+
+.aiw .hrs {
+  padding-block: var(--section);
+}
+.aiw .hrs-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: end;
+  margin-bottom: 48px;
+}
+.aiw .hrs-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .hrs-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.aiw .hrs-in {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 32px 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .hrs-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 16px;
+  padding: 16px 0 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .hrs-label {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.aiw .hrs-val {
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.aiw .hrs-row .range {
+  grid-column: 1 / -1;
+}
+/* A 44px tap (Spring's mobile rule) around the mockup's 2px track. */
+.aiw .range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.aiw .range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--signal) var(--fill), var(--line-control) var(--fill));
+}
+.aiw .range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -11px;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--signal) 0 4.5px, var(--surface-raised) 5px);
+  transition: transform 0.25s var(--ease);
+}
+.aiw .range:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+}
+.aiw .range::-moz-range-track {
+  height: 2px;
+  background: var(--line-control);
+}
+.aiw .range::-moz-range-progress {
+  height: 2px;
+  background: var(--signal);
+}
+.aiw .range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--signal) 0 4.5px, var(--surface-raised) 5px);
+}
+.aiw .range:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.aiw .hrs-rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding-top: 24px;
+}
+.aiw .hrs-money {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: 18px;
+  font-weight: 500;
+}
+.aiw .hrs-money:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.aiw .hrs-money input {
+  width: 96px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.aiw .hrs-money .mono {
+  color: var(--ink-muted);
+}
+.aiw .hrs-out {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px;
+  border-radius: var(--radius-panel);
+  background-color: var(--surface);
+  background-image: var(--grain);
+  color: var(--ink);
+}
+.aiw .hrs-out-k {
+  color: var(--ink-secondary);
+}
+.aiw .hrs-big {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .hrs-big-n {
+  font-size: clamp(72px, 8vw, 112px);
+  line-height: 0.9;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+.aiw .hrs-big-k {
+  font-size: 17px;
+  color: var(--ink-secondary);
+}
+.aiw .hrs-dl {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.aiw .hrs-dl div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .hrs-dl dt {
+  font-size: 16px;
+  color: var(--ink-secondary);
+}
+.aiw .hrs-dl dd {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.aiw .hrs-year {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aiw .hrs-cells {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+.aiw .hrs-cells i {
+  position: relative;
+  height: 14px;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.aiw .hrs-cells i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+  transform: scaleX(var(--f));
+  transform-origin: left;
+}
+.aiw .hrs-year-k {
+  color: var(--ink-muted);
+}
+.aiw .hrs-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+.aiw .hrs-note {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+/* --- S10 Five free skills (fh): the Library's free five, a row each -------------------------------- */
+/* Settled in the markup (`.fh-list.is-in`); the script resets a list below the fold on a wide screen
+   with motion allowed, and the rows rise in as it arrives. */
+
+.aiw .fh {
+  padding-block: var(--section);
+}
+.aiw .fh-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 32px 56px;
+  align-items: end;
+  margin-bottom: 48px;
+}
+.aiw .fh-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .fh-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.aiw .fh-list {
+  border-top: 1px solid var(--ink);
+}
+.aiw .fh-list li {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.7s var(--ease);
+  transition-delay: calc(var(--i) * 90ms);
+}
+.aiw .fh-list.is-in li {
+  opacity: 1;
+  transform: none;
+}
+.aiw .fh-row {
+  display: grid;
+  grid-template-columns: 36px 28px minmax(0, 4fr) minmax(0, 6fr) 184px 20px;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+.aiw .fh-idx {
+  color: var(--ink-muted);
+}
+.aiw .fh-mark {
+  display: grid;
+  place-items: center;
+}
+.aiw .fh-name {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  transition: transform 0.4s var(--ease);
+}
+.aiw .fh-row:hover .fh-name {
+  transform: translateX(6px);
+}
+.aiw .fh-text {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
+.aiw .fh-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.aiw .fh-tool {
+  padding: 3px 7px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+.aiw .fh-arrow {
+  color: var(--ink-muted);
+  transition:
+    transform 0.4s var(--ease),
+    color 0.2s;
+}
+.aiw .fh-row:hover .fh-arrow {
+  color: var(--signal);
+  transform: translateX(4px);
+}
+.aiw .fh-foot {
+  margin-top: 24px;
+  color: var(--ink-muted);
+}
+
+/* --- S11 Programs (pg): four cards, every price, each button to its program's page (D1) ----------- */
+/* The live parts (`data-when`) show for the state the script finds; the markup starts on "open". */
+
+.aiw .pg {
+  padding-block: var(--section);
+}
+.aiw .pg-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: end;
+  margin-bottom: 44px;
+}
+.aiw .pg-head-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .pg-index {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 24px;
+  border-top: 1px solid var(--ink);
+}
+.aiw .pg-jump {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 16px;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 18px 16px 18px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.aiw .pg-index li + li .pg-jump {
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+}
+.aiw .pg-jump-ic {
+  grid-row: 1 / span 2;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  transition: border-color 0.3s;
+}
+.aiw .pg-jump-k {
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+}
+.aiw .pg-jump-n {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .pg-jump-go {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  color: var(--ink-muted);
+  transform: rotate(90deg);
+  transition:
+    transform 0.4s var(--ease),
+    color 0.2s;
+}
+.aiw .pg-jump:hover .pg-jump-ic {
+  border-color: var(--signal);
+}
+.aiw .pg-jump:hover .pg-jump-go {
+  color: var(--signal);
+  transform: rotate(90deg) translateX(4px);
+}
+.aiw .pg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .pg-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background-color: var(--surface-raised);
+  color: var(--ink);
+  scroll-margin-top: 96px;
+}
+.aiw .pg-card.is-featured {
+  border-color: transparent;
+  background-color: var(--surface);
+  background-image: var(--grain);
+}
+/* The jump bar's target, once, on a wide screen with motion allowed. */
+.aiw .pg-card.is-flash {
+  animation: pg-flash 1.2s var(--ease);
+}
+@keyframes pg-flash {
+  20% {
+    box-shadow: 0 0 0 3px var(--signal);
+  }
+}
+.aiw .pg-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.aiw .pg-ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+}
+.aiw .pg-kick {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.aiw .pg-kicker {
+  color: var(--accent);
+}
+.aiw .pg-who {
+  color: var(--ink-muted);
+}
+.aiw .pg-more {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--ink-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.aiw .pg-more:hover {
+  color: var(--ink);
+}
+.aiw .pg-more .gl {
+  transition: transform 0.3s var(--ease);
+}
+.aiw .pg-more:hover .gl {
+  transform: translateX(3px);
+}
+.aiw .pg-name {
+  font-size: clamp(26px, 2.4vw, 32px);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .pg-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+}
+.aiw .pg-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.aiw .pg-list li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.aiw .pg-list .gl {
+  margin-top: 3px;
+  color: var(--signal);
+}
+.aiw .pg-best {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.aiw .pg-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+.aiw .pg-state,
+.aiw .pg-alt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.aiw .pg-price .price-big {
+  font-size: 48px;
+}
+.aiw .pg-seats,
+.aiw .wed-seats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding-top: 4px;
+}
+.aiw .pg-cta,
+.aiw .wed-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.aiw .pg-cta-acts,
+.aiw .wed-cta-acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+}
+.aiw .pg-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px 16px;
+  margin-top: 36px;
+  font-size: 16px;
+  color: var(--ink-secondary);
+  text-align: center;
+}
+
+/* --- S12 Eight Wednesdays (wed): the weeks, the ring, the founding offer ---------------------------- */
+/* Settled in the markup: every week lit (`is-on`) and the ring full at 8. While the script counts the
+   builds in, a week not lit yet is in the quieter ink, never faded (AA). */
+
+.aiw .wed {
+  padding-block: var(--section);
+}
+.aiw .wed-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 72px;
+  align-items: start;
+}
+.aiw .wed-side {
+  position: sticky;
+  top: 104px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.aiw .wed-side .h-section {
+  font-size: clamp(36px, 3.8vw, 54px);
+}
+.aiw .wed-meter {
+  position: relative;
+  width: 128px;
+  height: 128px;
+}
+.aiw .wed-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.aiw .wed-ring circle {
+  fill: none;
+  stroke-width: 3;
+}
+.aiw .wed-ring-bg {
+  stroke: var(--line);
+}
+.aiw .wed-ring-fg {
+  stroke: var(--signal);
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--k));
+  transition: stroke-dashoffset 0.6s var(--ease);
+}
+.aiw .wed-ring-in {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+.aiw .wed-ring-n {
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.aiw .wed-ring-in .mono {
+  max-width: 96px;
+  color: var(--ink-muted);
+  line-height: 1.2;
+}
+.aiw .wed-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.aiw .wed-list {
+  border-top: 1px solid var(--ink);
+}
+.aiw .wed-row,
+.aiw .wed-brk {
+  display: grid;
+  grid-template-columns: 76px 140px minmax(0, 1fr) 22px;
+  grid-template-areas: 'wk date body mark';
+  align-items: start;
+  gap: 16px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+.aiw .wed-wk {
+  grid-area: wk;
+}
+.aiw .wed-date {
+  grid-area: date;
+}
+.aiw .wed-body,
+.aiw .wed-brk-t {
+  grid-area: body;
+}
+.aiw .wed-mark {
+  grid-area: mark;
+  padding-top: 3px;
+  --rd-ring: var(--line-control);
+  --rd-dot: transparent;
+}
+.aiw .wed-wk,
+.aiw .wed-date {
+  padding-top: 4px;
+  color: var(--ink-muted);
+}
+.aiw .wed-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aiw .wed-name {
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--ink-muted);
+  transition: color 0.4s;
+}
+.aiw .wed-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  transition: color 0.4s;
+}
+.aiw .wed-row.is-on .wed-name {
+  color: var(--ink);
+}
+.aiw .wed-row.is-on .wed-text {
+  color: var(--ink-secondary);
+}
+.aiw .wed-row.is-on .wed-mark {
+  --rd-ring: var(--signal);
+  --rd-dot: var(--signal);
+}
+.aiw .wed-row.is-after.is-on .wed-name {
+  color: var(--accent);
+}
+.aiw .wed-brk {
+  padding: 14px 0;
+}
+.aiw .wed-brk-t {
+  padding-top: 3px;
+  font-size: 16px;
+  color: var(--ink-muted);
+}
+.aiw .wed-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-top: 24px;
+}
+.aiw .wed-meta li {
+  color: var(--ink-muted);
+}
+
+/* --- S13 Library favorites (fav): four columns, each skill to its page ------------------------------ */
+
+.aiw .fav {
+  padding-block: var(--section);
+  overflow: hidden;
+  overflow: clip;
+}
+.aiw .fav-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 48px;
+  align-items: end;
+  margin-bottom: 48px;
+}
+.aiw .fav-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .fav-big {
+  justify-self: end;
+}
+.aiw .fav-num {
+  display: block;
+  font-size: clamp(140px, 17vw, 250px);
+  line-height: 0.78;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--line-control);
+}
+.aiw .fav-cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .fav-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 22px 22px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .fav-h {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+  color: var(--accent);
+}
+.aiw .fav-col li + li .fav-item {
+  border-top: 1px solid var(--line);
+}
+.aiw .fav-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.aiw .fav-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .fav-go {
+  color: var(--ink-muted);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.25s,
+    transform 0.3s var(--ease),
+    color 0.2s;
+}
+.aiw .fav-item:hover .fav-go,
+.aiw .fav-item:focus-visible .fav-go {
+  color: var(--signal);
+  opacity: 1;
+  transform: none;
+}
+.aiw .fav-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+.aiw .fav-foot {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+
+/* --- S14 Founders (fd): their real photos (D6), their words, and the Venn ------------------------- */
+
+.aiw .fd {
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+}
+.aiw .fd-head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: end;
+  margin-bottom: 56px;
+}
+.aiw .fd-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.aiw .fd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.aiw .fd-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overflow: clip;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+}
+.aiw .fd-portrait {
+  aspect-ratio: 16 / 9;
+  max-width: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+/* The photo fills the mockup's 16:9 frame, never sets its height: it sits inside it, cropped. */
+.aiw .fd-portrait .portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+.aiw .fd-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px;
+}
+.aiw .fd-role {
+  color: var(--accent);
+}
+.aiw .fd-name {
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.aiw .fd-tag {
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.aiw .fd-bio {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-secondary);
+}
+.aiw .fd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.aiw .fd-tags li {
+  padding: 5px 9px;
+  border: 1px solid var(--line-control);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+}
+.aiw .fd-foot {
+  margin-top: 40px;
+}
+.aiw .vn {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 56px;
+  align-items: center;
+  margin-top: 72px;
+  padding-top: 56px;
+  border-top: 1px solid var(--line);
+}
+.aiw .vn-art {
+  position: relative;
+  aspect-ratio: 600 / 340;
+}
+.aiw .vn-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.aiw .vn-c {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.6s var(--ease);
+}
+.aiw .vn-b {
+  stroke: var(--signal);
+  transition-delay: 0.25s;
+}
+.aiw .vn.is-in .vn-c {
+  stroke-dashoffset: 0;
+}
+.aiw .vn-overlap {
+  fill: var(--signal);
+  fill-opacity: 0.16;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease) 1.3s;
+}
+.aiw .vn.is-in .vn-overlap {
+  opacity: 1;
+}
+.aiw .vn-l {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 26%;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.6s var(--ease) 0.9s;
+}
+.aiw .vn.is-in .vn-l {
+  opacity: 1;
+}
+.aiw .vn-l-a {
+  left: 25%;
+}
+.aiw .vn-l-mid {
+  left: 50%;
+  max-width: 18%;
+  transition-delay: 1.5s;
+}
+.aiw .vn-l-b {
+  left: 75%;
+}
+.aiw .vn-l-n {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+.aiw .vn-l-mid .vn-l-n {
+  font-size: 16px;
+}
+.aiw .vn-l-t {
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--ink-secondary);
+}
+.aiw .vn-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aiw .vn-title {
+  font-size: clamp(26px, 2.6vw, 34px);
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.aiw .vn-text {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+}
+
+/* --- S15 Questions and S16 Close: the kit's own, as the mockup draws them ------------------------- */
+/* The email beside the questions, and a link in an answer: padding above and below, given back by
+   the margins, for a 44px tap. */
+.aiw .faq-aside .inline-link,
+.aiw .faq-a .inline-link {
+  display: inline-block;
+  padding-block: 11px;
+  margin-block: -11px;
+}
+.aiw .close-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+/* --- S9 to S16 on tablets and phones ------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .aiw .fh-row {
+    grid-template-columns: 36px 28px minmax(0, 1fr) auto 20px;
+    grid-template-areas:
+      'idx mark name tools arrow'
+      '. . text text .';
+    row-gap: 6px;
+  }
+  .aiw .fh-idx {
+    grid-area: idx;
+  }
+  .aiw .fh-mark {
+    grid-area: mark;
+  }
+  .aiw .fh-name {
+    grid-area: name;
+  }
+  .aiw .fh-text {
+    grid-area: text;
+  }
+  .aiw .fh-tools {
+    grid-area: tools;
+  }
+  .aiw .fh-arrow {
+    grid-area: arrow;
+  }
+  .aiw .fav-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 980px) {
+  .aiw .hrs-head,
+  .aiw .hrs-grid,
+  .aiw .pg-head,
+  .aiw .wed-grid,
+  .aiw .fav-head,
+  .aiw .fd-head,
+  .aiw .vn {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .aiw .fh-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .pg-index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aiw .pg-index li:nth-child(3) .pg-jump {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .aiw .pg-index li:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+  .aiw .pg-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .wed-side {
+    position: relative;
+    top: 0;
+  }
+  .aiw .wed-meter {
+    display: none;
+  }
+  .aiw .fav-big {
+    display: none;
+  }
+  .aiw .vn-art {
+    max-width: 560px;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .hrs-in {
+    padding: 6px 20px 22px;
+  }
+  .aiw .hrs-out {
+    padding: 24px;
+  }
+  .aiw .fh-row {
+    grid-template-columns: 28px minmax(0, 1fr) 20px;
+    grid-template-areas:
+      'mark name arrow'
+      '. text .'
+      '. tools .';
+    column-gap: 14px;
+  }
+  .aiw .fh-idx {
+    display: none;
+  }
+  .aiw .fh-tools {
+    justify-content: flex-start;
+  }
+  .aiw .fh-name {
+    font-size: 20px;
+  }
+  .aiw .pg-index {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .pg-index li + li .pg-jump {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .aiw .pg-index li + li {
+    border-top: 1px solid var(--line);
+  }
+  .aiw .pg-jump {
+    padding: 12px 0;
+  }
+  .aiw .pg-card {
+    padding: 24px;
+  }
+  .aiw .pg-more .mono {
+    display: none;
+  }
+  .aiw .pg-top {
+    align-items: flex-start;
+  }
+  .aiw .pg-price .price-big {
+    font-size: 42px;
+  }
+  .aiw .wed-row,
+  .aiw .wed-brk {
+    grid-template-columns: auto minmax(0, 1fr) 22px;
+    grid-template-areas:
+      'wk date mark'
+      'body body mark';
+    row-gap: 6px;
+    column-gap: 12px;
+  }
+  .aiw .wed-wk,
+  .aiw .wed-date {
+    padding-top: 0;
+  }
+  .aiw .fav-cols,
+  .aiw .fd-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiw .fd-body {
+    padding: 22px;
+  }
+  .aiw .vn-l-t {
     display: none;
   }
 }

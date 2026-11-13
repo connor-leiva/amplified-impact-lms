@@ -139,12 +139,13 @@ describe('count-ups', () => {
     let now = 0;
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => setTimeout(() => cb((now += COUNT_MS / 3)), 0));
     initCountUps(document);
-    // The hero's three, and S3's 12 and 1.
+    // The hero's three, S3's 12 and 1, and S7's 38 and 95.
     expect(seen).toHaveLength(document.querySelectorAll('[data-v3-count]').length);
-    expect(seen.length).toBe(5);
+    expect(seen.length).toBe(7);
     for (const cb of seen) cb([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
     await new Promise((r) => setTimeout(r, 50));
     expect([...document.querySelectorAll('.hh-num')].map((n) => n.textContent)).toEqual(['100', '700+', '58']);
     expect([...document.querySelectorAll('.cvs-n')].map((n) => n.textContent)).toEqual(['12', '1']);
+    expect([...document.querySelectorAll('.pst-num')].map((n) => n.textContent)).toEqual(['38%', '95%', 'Daily']);
   });
 });

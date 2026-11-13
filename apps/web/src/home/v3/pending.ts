@@ -10,15 +10,18 @@
 // When a question is answered, its key comes out of `PENDING` and every call that uses it is replaced by
 // the decided content; the compiler then finds any that are left.
 
-/** The open questions, by key (Connor's names, Nov 12), with who or what each one waits on. `stat-source`
- *  is answered (D3: Connor cleared the 38% and 95% figures, no source needed), so it is no key any more. */
-export const PENDING = {
-  'spring-approval': 'C5/C8: Spring’s quote, until Spring approves its words and numbers',
-  'video-still': 'C9: the real still photo that replaces the video, until Connor chooses it',
-  'team-plan-dec14': 'C14: the Team Plan’s December 14 line, until it is decided',
-} as const;
+/**
+ * The open questions, by key, with who or what each one waits on. There are none left: every key Connor
+ * named on Nov 12 is answered, so a region still using one is refused (`resolvePending`).
+ *   - `stat-source` (D3): the 38% and 95% need no source.
+ *   - `spring-approval` (D2, 4:41 PM MT): Spring approved her quote, the EOS chart line and the founders' words.
+ *   - `video-still` (D5, 4:41 PM MT): S2 shows her real headshot until the screen recording is ready.
+ *   - `team-plan-dec14` (D7, 4:41 PM MT): the Team Plan's line is /pricing's wording.
+ * A new question gets a key here, and a test names it, before any content waits on it.
+ */
+export const PENDING: Readonly<Record<string, string>> = {};
 
-export type PendingKey = keyof typeof PENDING;
+export type PendingKey = never;
 
 /** The attribute that marks pending content in a preview. Never in a production page. */
 export const MARKER = 'data-pending';

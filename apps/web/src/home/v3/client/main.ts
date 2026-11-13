@@ -11,6 +11,9 @@ import { initCountUps } from './count';
 import { initEnter } from './enter';
 import { initInView, initPhoneMenu, initPrograms, initScrollExit, initScrolled, initTheme } from './kit';
 import { initChat, initHow, initMonday } from './pinned';
+import { initHours } from './hours';
+import { initOffer, initSwitches } from './offer';
+import { initArrival, initJumps, initOrgChart, initQuote, initTimeline } from './proof';
 
 export function init(): void {
   document.documentElement.classList.add('aiw-js');
@@ -37,6 +40,19 @@ export function init(): void {
   if (mon) initMonday(mon);
   const how = page.querySelector<HTMLElement>('[data-pin="how"]');
   if (how) initHow(how);
+  for (const el of page.querySelectorAll<HTMLElement>('[data-band], [data-pst], [data-fh], [data-vn]')) initArrival(el);
+  const chart = page.querySelector<HTMLElement>('[data-oc]');
+  if (chart) initOrgChart(chart);
+  const quote = page.querySelector<HTMLElement>('[data-qt]');
+  if (quote) initQuote(quote);
+  const calculator = page.querySelector<HTMLElement>('[data-v3-hours]');
+  if (calculator) initHours(calculator);
+  initOffer(page);
+  initSwitches(page);
+  const programs = page.querySelector<HTMLElement>('section.pg');
+  if (programs) initJumps(programs);
+  const weeks = page.querySelector<HTMLElement>('[data-v3-wed]');
+  if (weeks) initTimeline(weeks);
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });

@@ -39,7 +39,7 @@ function scrollFor(el: HTMLElement, p: number): number {
 }
 
 /** Runs `layout` now and whenever the screen's width or the motion setting changes; `update` once a frame on scroll. */
-function watch(layout: () => void, update: () => void): void {
+export function watch(layout: () => void, update: () => void): void {
   let frame = 0;
   const later = () => {
     if (!frame)

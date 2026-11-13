@@ -43,7 +43,7 @@ SKILLS, GUIDES AND TEMPLATES
 - Ops: Commission Tie-Out · For ops leads · Reports to: Your ops lead · Desk: Not needed · Shift: Every closing · Rounding: Never · After today’s closing: Deposit matched to the CDA / Split and cap checked / Fees tied out / 1 difference flagged for you
 
 ## S2 Video  (`section.vid`, theme: dark)
-**Connor, Nov 12 (conflicts.md D5):** no video. A real still photo replaces it, so the heading and caption below stay, and the video-only lines ("90 SECONDS…", the player's clock and placeholder, "SB", "SPRING ON CAMERA") go. Pending `video-still` until the photo is chosen.
+**Connor, Nov 12 (conflicts.md D5):** no video yet. The heading and caption below stay, and the video-only lines ("90 SECONDS…", the player's clock and placeholder, "SB", "SPRING ON CAMERA") go. **Cleared 4:41 PM MT:** until the 90-second screen recording is ready, Spring's real headshot (`/img/team/spring-bengtzen.jpg`) sits in the 16:9 frame, with this note under it: "Coming soon: a 90-second screen recording of Spring’s actual morning."
 ```
 Watch it run in a real business.
 90 SECONDS · SPRING’S ACTUAL MORNING
@@ -376,6 +376,7 @@ WORKS IN CLAUDE OR CHATGPT · PERFECT WEEK AND FOLLOW-THROUGH NEED A PAID CLAUDE
 ```
 
 ## S11 Programs  (`section.pg`, #programs, theme: dark)
+**Connor, Nov 12, 4:41 PM MT (conflicts.md D7):** the Team Plan's dates use /pricing's wording, since only the starter path and the 5 free skills open December 14. The mockup's "Skills open December 14, and live classes start the week of January 4." is replaced below.
 ```
 PROGRAMS
 Four ways to hire AI. Here’s the simple version.
@@ -432,7 +433,7 @@ A short starter path so each agent is set up in week one
 A weekly live agent class, plus office hours to ask us anything
 Every class recorded, so agents can catch up anytime in the Academy
 Your owner view of who’s using it, and how much
-Best if you want a smarter team without becoming the AI teacher. Skills open December 14, and live classes start the week of January 4.
+Best if you want a smarter team without becoming the AI teacher. Your agents get the starter path and the 5 free skills on December 14, and live classes start the week of January 4.
 Up to 15
 16 to 40
 $1,491
