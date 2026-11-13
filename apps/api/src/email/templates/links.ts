@@ -22,8 +22,12 @@ export const ROUTES = {
   team: '/team',
 } as const;
 
-/** Phase 07 § 7.5: the sign-in link is `${APP_URL}/sign-in?token=…`. */
-export const signInPath = (token: string): string => `/sign-in?token=${encodeURIComponent(token)}`;
+/**
+ * Phase 07 § 7.5: the sign-in link is `${APP_URL}/sign-in?token=…`. With `next` (D-151), a guided setup
+ * in learn the sign-in screen goes on to once signed in: `…&next=/skill-library/<page>`.
+ */
+export const signInPath = (token: string, next?: string | null): string =>
+  `/sign-in?token=${encodeURIComponent(token)}${next ? `&next=${encodeURIComponent(next)}` : ''}`;
 
 /** D-132: a set-password or reset link, `${APP_URL}/set-password?token=…`. */
 export const setPasswordPath = (token: string): string => `/set-password?token=${encodeURIComponent(token)}`;

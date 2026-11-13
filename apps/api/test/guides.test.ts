@@ -33,6 +33,7 @@ import { TEAM_SIZES, TERMS_VERSION } from '../src/routes/ai101';
 import { GUIDE_ALIASES, GUIDE_SLUGS, type GuideSlug } from '../src/routes/guide-list';
 import { withQuery } from '../src/routes/guides';
 import { resetDatabase, testDatabase } from './helpers';
+import { isGuidedPage } from '@ai/core/skill-guides';
 
 const NOW = Date.parse('2026-10-14T09:00:00-06:00');
 
@@ -109,8 +110,10 @@ afterEach(async () => {
  * its setup steps, D-045; D-052), lands on its download.
  */
 const STEP_THROUGHS: readonly GuideSlug[] = ['voice-profile', 'retool'];
+// D-151: a skill's or template's page lands on its signed-up panel, `#check-email`: its setup is in
+// learn, and the page sends `#download` there.
 const JOINED = Object.fromEntries(
-  GUIDE_SLUGS.map((slug) => [slug, STEP_THROUGHS.includes(slug) ? '#unlocked' : '#download']),
+  GUIDE_SLUGS.map((slug) => [slug, STEP_THROUGHS.includes(slug) ? '#unlocked' : isGuidedPage(slug) ? '#check-email' : '#download']),
 ) as Record<GuideSlug, string>;
 
 it('serves the guides there are, by slug', () => {

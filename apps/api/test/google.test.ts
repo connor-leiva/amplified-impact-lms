@@ -119,8 +119,8 @@ afterEach(async () => {
 const cookieOf = (res: { cookies: { name: string; value: string }[] }, name: string) => res.cookies.find((c) => c.name === name);
 
 /** Press the button: the start route's redirect, the flow cookie, and what Google was sent. */
-async function start() {
-  const res = await app.inject({ method: 'GET', url: '/api/auth/google' });
+async function start(query = '') {
+  const res = await app.inject({ method: 'GET', url: `/api/auth/google${query}` });
   expect(res.statusCode).toBe(302);
   const to = new URL(String(res.headers.location));
   const flow = cookieOf(res, GOOGLE_FLOW_COOKIE)!;
@@ -493,5 +493,28 @@ describe('an access group’s address, verified by Google (D-149)', () => {
     const res = await signInWithGoogle('agent@liveutah.com');
     expect(res.headers.location).toBe('/login?google=no-account');
     expect(await verified()).toEqual([]);
+  });
+});
+
+// --- back to a guided setup (D-151) -----------------------------------------------------------------
+
+describe('back to a guided setup after Google (D-151)', () => {
+  it('lands on the guide the visitor came from, kept in the signed flow cookie', async () => {
+    const s = await start(`?next=${encodeURIComponent('/skill-library/perfect-week')}`);
+    nextIdToken = claimsFor(JAMIE);
+    const res = await callback(`code=good-code&state=${encodeURIComponent(s.state)}`, s.cookie);
+    expect([res.statusCode, res.headers.location]).toEqual([302, '/skill-library/perfect-week']);
+    expect(cookieOf(res, SESSION_COOKIE)).toBeDefined();
+  });
+
+  it('ignores a `next` that is not a guided setup, and lands as before', async () => {
+    for (const next of ['https://evil.example.com', '/admin', '/skill-library/not-a-skill']) {
+      const s = await start(`?next=${encodeURIComponent(next)}`);
+      // Not even kept in the cookie.
+      expect(decodeURIComponent(s.flow.value)).not.toMatch(/evil|admin|not-a-skill/);
+      nextIdToken = claimsFor(JAMIE);
+      const res = await callback(`code=good-code&state=${encodeURIComponent(s.state)}`, s.cookie);
+      expect(res.headers.location, next).toBe('/');
+    }
   });
 });

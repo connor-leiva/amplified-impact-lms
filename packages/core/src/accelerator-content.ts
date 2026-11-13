@@ -24,9 +24,10 @@ import {
   acceleratorModuleId,
   buildSessionId,
   coursePath,
-  libraryHref,
+  LIBRARY_ORIGIN,
   officeHoursSessionId,
 } from './accelerator';
+import { courseGuideUrl } from './skill-guides';
 import type { IconName } from './icons';
 import type { AIEmployee, Step } from './types';
 
@@ -1028,7 +1029,8 @@ export function acceleratorModules(instructor: string = ACCELERATOR_INSTRUCTOR):
       `# Week ${w.week} · ${w.title}`,
       'The prompts for this week stay in the Library, not here.',
       'Open each guided setup and copy the prompts from there:',
-      ...flagships.map((s) => `- ${s.title}: ${libraryHref(s.route)}`),
+      // A skill's guided setup is in learn (D-151); a page that is not a skill is still on www.
+      ...flagships.map((s) => `- ${s.title}: ${courseGuideUrl(s.route, LIBRARY_ORIGIN)}`),
       '',
       `The full week is at ${coursePath(w.week)}.`,
     ];

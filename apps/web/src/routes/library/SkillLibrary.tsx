@@ -9,8 +9,8 @@
 // /sign-in. In the fixture build there is no API, so it says the library opens when you sign in.
 
 import { useEffect, useState } from 'react';
-import type React from 'react';
-import { SETUP_GUIDE_ORIGIN, setupGuideHref } from '@ai/core/skills';
+import { Link } from 'react-router';
+import { guidePageOf, skillGuidePath } from '@ai/core/skill-guides';
 import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
@@ -28,18 +28,18 @@ export const COPY = {
   upcoming: (date: string) => `Coming ${date}.`,
   // `grok`: a Grok Bot template's one file (D-100).
   files: { claude: 'Download for Claude', chatgpt: 'Download for ChatGPT', practice: 'Practice Files', grok: 'Download for Grok Bot' },
-  // The skill's www page, with its guided setup step by step (D-101), in a new tab.
+  // The skill's guided setup, step by step, here in learn (D-151): `/skill-library/<page>`, same tab.
   guide: 'Setup Guide',
-  /** D-150: said beside every link that opens the main site in a new tab (an icon, and these words for screen readers and on hover). */
-  newTab: '(opens in a new tab)',
-  newTabTitle: 'Opens in a new tab',
+  /** D-151: a locked skill's guide, which shows its steps' titles and what it would take to open it. */
+  preview: 'Preview the Setup',
   /** D-150: an access group's first-run welcome, at the top of the page until the member dismisses it. */
   welcome: {
     title: (group: string) => `Welcome, ${group}`,
     count: (n: number) => `Your team access includes ${n} agent ${n === 1 ? 'skill' : 'skills'}.`,
     startWith: 'Start with',
     and: 'and',
-    guides: 'Each Setup Guide opens a step-by-step walkthrough in a new tab; come back here to download the files.',
+    // D-151: the Setup Guide is here in learn now, with the downloads in it.
+    guides: 'Each Setup Guide walks you through it step by step, with the downloads right in it.',
     dismiss: 'Dismiss',
   },
   loading: 'Loading your skills',
@@ -150,7 +150,10 @@ const dateOf = (t: number): string =>
  * who it's for, in the same words as its Library card and its www page, first under its name and above
  * how to set it up. Found by the skill's www page, which is not always its id (/content-strategist).
  */
-export const leadOf = (id: string) => leadFor(setupGuideHref(id).replace(`${SETUP_GUIDE_ORIGIN}/`, ''));
+export const leadOf = (id: string) => leadFor(guidePageOf(id));
+
+/** A skill's guided setup in learn (D-151): `/skill-library/<page>`. */
+export const guideHrefOf = (id: string): string => skillGuidePath(guidePageOf(id));
 
 function Lead({ id }: { id: string }) {
   const lead = leadOf(id);
@@ -186,19 +189,6 @@ export const offersPlans = (member: boolean): boolean => !member;
 export const groupOnly = (load: { groups: readonly AccessGroupInfo[]; paidPlans: boolean }): boolean => load.groups.length > 0 && !load.paidPlans;
 
 /**
- * A link to the main site that opens in a new tab, and says so (D-150): an icon after its words, a
- * hover title, and a name that is its visible label then "(opens in a new tab)" for screen readers.
- */
-function NewTabLink({ href, className, label, children }: { href: string; className?: string; label: string; children: React.ReactNode }) {
-  return (
-    <a className={className} href={href} target="_blank" rel="noopener" title={COPY.newTabTitle} aria-label={`${label} ${COPY.newTab}`}>
-      {children}
-      <Icon name="ext" size={14} />
-    </a>
-  );
-}
-
-/**
  * D-150: an access group's first-run welcome, at the top of the page. Its count is the group's own
  * grant's, from the API. The skills it names link to their Setup Guides. Dismissed for good per
  * learner (`POST /api/skills/welcome/dismiss`, kept on the server, so on every device).
@@ -223,9 +213,9 @@ function Welcome({ group, skills, onDismiss }: { group: AccessGroupInfo; skills:
               {start.map((k, i) => (
                 <span key={k.id}>
                   {i > 0 ? ` ${COPY.welcome.and} ` : null}
-                  <NewTabLink className={s.welcomeLink} href={setupGuideHref(k.id)} label={k.title}>
+                  <Link className={s.welcomeLink} to={guideHrefOf(k.id)}>
                     {k.title}
-                  </NewTabLink>
+                  </Link>
                 </span>
               ))}
               .{' '}
@@ -287,10 +277,10 @@ function SkillRow({ skill, groups }: { skill: LibrarySkill; groups: readonly Acc
                 {COPY.files[kind]}
               </a>
             ))}
-            <NewTabLink className={s.secondary} href={setupGuideHref(skill.id)} label={COPY.guide}>
+            <Link className={s.secondary} to={guideHrefOf(skill.id)}>
               <Icon name="listChecks" size={16} />
               {COPY.guide}
-            </NewTabLink>
+            </Link>
           </>
         ) : skill.state === 'locked' ? (
           <>
@@ -298,6 +288,11 @@ function SkillRow({ skill, groups }: { skill: LibrarySkill; groups: readonly Acc
               <Icon name="lock" size={16} />
               {member === null ? COPY.locked : COPY.notIncluded(member)}
             </span>
+            {/* D-151: the guide shows the steps' titles and what it would take to open it. */}
+            <Link className={s.secondary} to={guideHrefOf(skill.id)}>
+              <Icon name="listChecks" size={16} />
+              {COPY.preview}
+            </Link>
             {/* Every program, the Agent Plan included (D-140): `/offer#plans` lists three of the four. */}
             {offersPlans(member !== null) ? (
               <a className={s.secondary} href={PLANS_URL}>

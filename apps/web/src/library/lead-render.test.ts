@@ -95,10 +95,11 @@ describe('the skill pages (www)', () => {
 
     it('renders the lead before the setup, which sits under "Set it up"', () => {
       const dl = doc.querySelector('[data-lead]');
+      // D-151: the setup's step titles (its preview; the setup itself is in learn).
       const steps = [...doc.querySelectorAll('.setup-step')];
       expect(steps.length, 'a skill page has its setup steps').toBeGreaterThan(3);
       for (const step of steps) expect(before(dl, step)).toBe(true);
-      const heads = [...doc.querySelectorAll('[data-guided] .guided-title')];
+      const heads = [...doc.querySelectorAll('[data-guide-preview] .guided-title, [data-guided] .guided-title')];
       expect(heads.length).toBeGreaterThan(0);
       for (const h of heads) expect(text(h)).toBe(LEAD.setup);
       // The opt-in or the Skill Library card, which holds the setup, also comes after the lead.

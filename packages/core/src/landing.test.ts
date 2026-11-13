@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { landingPath, safeLanding, SKILL_LIBRARY_PATH } from './landing';
+import { landingPath, safeLanding, safeNext, SKILL_LIBRARY_PATH } from './landing';
 import { seed } from './seed';
 import { ACCELERATOR_MODULE_IDS, isAcceleratorModule } from './accelerator';
 import { visibleModules } from './status';
@@ -38,6 +38,30 @@ describe('safeLanding', () => {
     expect(safeLanding('/skill-library')).toBe('/skill-library');
     for (const bad of ['https://evil.example.com', '//evil.example.com', '/admin', '/skill-library/../admin', undefined, null, 42]) {
       expect(safeLanding(bad)).toBe('/');
+    }
+  });
+});
+
+describe('safeNext (D-151)', () => {
+  it('passes a guided setup in learn, and nothing else', () => {
+    expect(safeNext('/skill-library/appointment-follow-up')).toBe('/skill-library/appointment-follow-up');
+    expect(safeNext('/skill-library/content-strategist')).toBe('/skill-library/content-strategist');
+    expect(safeNext('/skill-library/month-end-close')).toBe('/skill-library/month-end-close');
+    for (const bad of [
+      '/skill-library',
+      '/skill-library/',
+      '/skill-library/not-a-skill',
+      '/skill-library/content-opportunity-research', // the id, not the page
+      '/skill-library/../admin',
+      '/skill-library/appointment-follow-up?x=1',
+      '/skill-library/appointment-follow-up/extra',
+      'https://evil.example.com/skill-library/perfect-week',
+      '//evil.example.com',
+      '/admin',
+      undefined,
+      42,
+    ]) {
+      expect(safeNext(bad), String(bad)).toBeNull();
     }
   });
 });

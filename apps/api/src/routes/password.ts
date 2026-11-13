@@ -71,8 +71,9 @@ import type { Database } from '../db/client';
 import { accounts, authSessions, authTokens, orders, userPasswords, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { landingFor } from '../lib/landing';
-import { AUTH_REQUEST_IP_MAX, AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, accountForGroupAddress, claimToken } from './auth';
-import { domainGroupsOf, groupsOf } from '../billing/access-groups';
+import { AUTH_REQUEST_IP_MAX, AUTH_REQUEST_MAX, AUTH_REQUEST_WINDOW, accountForSelfServe, claimToken } from './auth';
+import { domainGroupsOf } from '../billing/access-groups';
+import { selfServeAddress } from '../billing/self-serve';
 
 // --- words -----------------------------------------------------------------------------------------
 
@@ -119,7 +120,7 @@ export async function issuePasswordLink(email: string): Promise<void> {
   const user = await userByEmail(db, email);
   // D-148: an access group's address with no account yet gets a set-password link, which they asked
   // for; the account is made when it is spent (`/api/auth/password/set`), which proves the address.
-  const to = user?.email ?? ((await groupsOf(db, email, now)).length > 0 ? email : null);
+  const to = user?.email ?? ((await selfServeAddress(db, email, now)) ? email : null);
   if (!to) return;
   const has = user ? (await passwordHashOf(db, user.id)) !== null : false;
   const purpose = has ? 'reset_password' : 'set_password';
@@ -281,8 +282,8 @@ export function registerPasswordRoutes(app: FastifyInstance, { broadcast, invite
     const now = clock.now();
     const claim = await claimToken(db, parsed.data.token, now, ['set_password', 'reset_password']);
     if (!claim.ok) return reply.code(400).send({ error: claim.code });
-    // D-148: an access group's address with no account: the spent link proves it, so make it now.
-    await accountForGroupAddress(db, claim.email, now);
+    // D-148, D-151: a self-serve address with no account: the spent link proves it, so make it now.
+    await accountForSelfServe(db, claim.email, now);
     const user = await userByEmail(db, claim.email);
     if (!user) return reply.code(400).send({ error: 'expired' });
     const changed = await finishPasswordSet(db, user, parsed.data.password, now, null);

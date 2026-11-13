@@ -15,6 +15,12 @@
 //   7. A setup shows one step at a time, with Back and Next, and remembers the place (D-070).
 //   8. On a skill page (D-071): the steps before the current one are marked done, the sample starts as
 //      its first screen with "See the Full Example", and on a phone a bar leads to the sign-up.
+//   9. On a guided page (D-151), whose setup is in learn behind sign-in: a visitor who arrives on
+//      `#download`, where the setup used to be (the handoff's emailed link, an old bookmark), goes on
+//      to the guide in learn, which signs them in first. Its signed-up panel ("We emailed you a
+//      sign-in link") shows only right after a sign-up, or on `#check-email`, the no-script sign-up's
+//      landing. It is never remembered, and an old page's remembered key (`pw-unlocked`) never opens
+//      it: that visitor was sent no link, so they get the form, which sends one.
 //
 // Written for the in-app WebViews that ManyChat's DM links open in: built for es2019 / Safari 13,
 // every feature in `guard()`, every storage access wrapped.
@@ -33,6 +39,8 @@ const ANNOUNCE_DELAY_MS = 100;
 const IN_APP = /Instagram|FBAN|FBAV|FB_IAB|LinkedInApp|musical_ly|TikTok/i;
 /** The id of the unlocked card: the no-JS 303's landing, and the link the handoff sends. */
 const DOWNLOAD_ID = 'download';
+/** A guided page's signed-up panel (D-151): its no-JS 303's landing. */
+const CHECK_EMAIL_ID = 'check-email';
 
 const FIELDS = ['firstName', 'email'] as const;
 type Field = (typeof FIELDS)[number];
@@ -76,10 +84,17 @@ function rememberUnlocked(key: string): void {
   }
 }
 
+/**
+ * Whether the card is a guided page's (D-151): its signed-up panel is never remembered, and a key
+ * remembered by the old page never opens it.
+ */
+const guidedCard = (doc: Document): boolean => card(doc)?.hasAttribute('data-learn-guide') ?? false;
+
 /** Shows the download in place of the form. `focus` moves focus to it, after a sign-up. */
 function unlock(doc: Document, focus: boolean): void {
   const el = card(doc);
-  const download = doc.getElementById(DOWNLOAD_ID);
+  // A guided page's (D-151) is its signed-up panel, `#check-email`.
+  const download = doc.getElementById(DOWNLOAD_ID) ?? doc.getElementById(CHECK_EMAIL_ID);
   if (!el || !download) return;
   el.setAttribute('data-state', 'unlocked');
   // A skill page's sign-up bar has nothing left to lead to (D-071).
@@ -182,7 +197,7 @@ function initForm(doc: Document): void {
     })
       .then((res) => {
         if (res.ok) {
-          rememberUnlocked(key);
+          if (!guidedCard(doc)) rememberUnlocked(key);
           unlock(doc, true);
           return;
         }
@@ -501,19 +516,40 @@ function initShare(doc: Document): void {
 
 // --- Boot -------------------------------------------------------------------------------------------
 
-/** Whether the visitor arrived on the unlocked card's own address. Never an error. */
-function arrivedOnDownload(): boolean {
+/** The address's fragment, or '' when it can't be read. Never an error. */
+function hash(): string {
   try {
-    return window.location.hash === `#${DOWNLOAD_ID}`;
+    return window.location.hash;
   } catch {
-    return false;
+    return '';
   }
 }
 
+/** Whether the visitor arrived on the unlocked card's own address. */
+const arrivedOnDownload = (): boolean => hash() === `#${DOWNLOAD_ID}` || hash() === `#${CHECK_EMAIL_ID}`;
+
+/**
+ * D-151: on a guided page, `#download` (where the setup was) now leads to the guide in learn, named by
+ * the card's `data-learn-guide`. Only an address that page drew, so never anywhere else. True when the
+ * visitor is on their way.
+ */
+export function sendOldLinkToGuide(doc: Document, location: Pick<Location, 'hash' | 'replace'>): boolean {
+  const learn = doc.querySelector<HTMLElement>('[data-learn-guide]')?.getAttribute('data-learn-guide');
+  if (!learn || !/^https:\/\/learn\.amplifiedimpact\.io\/skill-library\/[a-z0-9-]+$/.test(learn)) return false;
+  if (location.hash !== `#${DOWNLOAD_ID}`) return false;
+  location.replace(learn);
+  return true;
+}
+
 function boot(doc: Document): void {
+  let leaving = false;
+  guard(() => {
+    leaving = sendOldLinkToGuide(doc, window.location);
+  });
+  if (leaving) return;
   guard(() => {
     const key = card(doc)?.getAttribute('data-unlock-key');
-    if (key && wasUnlocked(key)) unlock(doc, false);
+    if (key && !guidedCard(doc) && wasUnlocked(key)) unlock(doc, false);
     // `:target` already shows the card for a link to it. This keeps it showing for the visit once
     // another link on the page changes the address. Not remembered: this device never signed up.
     else if (arrivedOnDownload()) unlock(doc, false);

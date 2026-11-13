@@ -1,7 +1,8 @@
 import type * as Skills from '@ai/core/skills';
 import { describe, expect, it, vi } from 'vitest';
 import type { Guide } from './content';
-import { renderGuideBody } from './render';
+import { skillGuideUrl } from '@ai/core/skill-guides';
+import { renderGuideBody, renderSetup } from './render';
 import { skillPage, type SkillPage } from './skill-page';
 
 // What every free skill's page shares (D-052), on a made-up skill: the steps `skillPage()` writes, in
@@ -10,12 +11,18 @@ import { skillPage, type SkillPage } from './skill-page';
 //
 // A skill is free only when `FREE_SKILLS` names it (D-080), so the made-up skills here are named free,
 // as a real one would be; one named nowhere is paid, and its page is the last group (D-082).
+//
+// D-151: no skill's page draws its setup any more (it is in learn, behind sign-in). The words each
+// setup carries are still `skillPage()`'s, so the setup checks read them from `renderSetup()`, the
+// renderer that draws them, and the page checks hold the public page to its preview.
 vi.mock('@ai/core/skills', async (importOriginal) => {
   const real = await importOriginal<typeof Skills>();
   return { ...real, isFreeSkill: (id: string) => ['made-up-skill', 'made-up-folder'].includes(id) || real.isFreeSkill(id) };
 });
 
 const parse = (guide: Guide) => new DOMParser().parseFromString(`<!doctype html><body>${renderGuideBody(guide)}</body>`, 'text/html');
+/** A guide's whole setup, as `renderSetup()` draws it: what the guide's content carries (D-151). */
+const parseSetup = (guide: Guide) => new DOMParser().parseFromString(`<!doctype html><body>${renderSetup(guide)}</body>`, 'text/html');
 const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
 
 const PASTE = 'For every request, follow made-up-skill-instructions.md.\nPaste your QUICK CARD below this line.';
@@ -55,29 +62,32 @@ const SPEC: SkillPage = {
 describe('a skill page with a ChatGPT version', () => {
   const guide = skillPage(SPEC);
   const doc = parse(guide);
-  const lists = () => [...doc.querySelectorAll('.app-setup')];
+  const setup = parseSetup(guide);
+  const lists = () => [...setup.querySelectorAll('.app-setup')];
   const titles = (setup: Element) => [...setup.querySelectorAll('.setup-step h3')].map(text);
 
   it('offers the skill, the ChatGPT version and the practice files, each saved under its own name', () => {
     expect(guide.download.href).toBe('/downloads/made-up-skill.zip');
-    const saved = [...doc.querySelectorAll('a[download]')].map((a) => [a.getAttribute('href'), a.getAttribute('download')]);
+    const saved = [...setup.querySelectorAll('a[download]')].map((a) => [a.getAttribute('href'), a.getAttribute('download')]);
     expect(saved).toContainEqual(['/downloads/made-up-skill.zip', 'made-up-skill.zip']);
     expect(saved).toContainEqual(['/downloads/made-up-skill-chatgpt.zip', 'made-up-skill-chatgpt.zip']);
     expect(saved).toContainEqual(['/downloads/made-up-skill-practice.zip', 'made-up-skill-practice.zip']);
     // A saved file opens nothing: no new tab.
-    for (const a of doc.querySelectorAll('a[download]')) expect(a.getAttribute('target')).toBeNull();
+    for (const a of setup.querySelectorAll('a[download]')) expect(a.getAttribute('target')).toBeNull();
+    // D-151: the public page links none of them.
+    expect(doc.querySelectorAll('a[download]')).toHaveLength(0);
   });
 
   it('asks which app with two radio buttons, Claude checked, each named by its label, no script needed', () => {
-    const radios = [...doc.querySelectorAll<HTMLInputElement>('input[type="radio"][name="app"]')];
+    const radios = [...setup.querySelectorAll<HTMLInputElement>('input[type="radio"][name="app"]')];
     expect(radios.map((r) => r.id)).toEqual(['app-claude', 'app-chatgpt']);
     expect(radios[0]?.hasAttribute('checked')).toBe(true);
     expect(radios[1]?.hasAttribute('checked')).toBe(false);
     for (const r of radios) {
-      expect(text(doc.querySelector(`label[for="${r.id}"]`))).toBe(r.id === 'app-claude' ? 'Claude' : 'ChatGPT');
+      expect(text(setup.querySelector(`label[for="${r.id}"]`))).toBe(r.id === 'app-claude' ? 'Claude' : 'ChatGPT');
       expect(r.getAttribute('aria-describedby')).toBe('apps-q');
     }
-    expect(text(doc.getElementById('apps-q'))).toBe('Which AI app do you use?');
+    expect(text(setup.getElementById('apps-q'))).toBe('Which AI app do you use?');
     // The inputs come before both lists, as their siblings: what `:checked ~` needs (skills.css).
     const parent = radios[0]?.parentElement;
     const kids = [...(parent?.children ?? [])];
@@ -139,13 +149,13 @@ describe('a skill page with a ChatGPT version', () => {
       ['Use It on Your Own Files', 'Copy & Open ChatGPT', 'https://chatgpt.com/'],
     ]);
     // Every one sits in a step with the words it copies.
-    for (const a of doc.querySelectorAll('a[data-copy-open]')) {
+    for (const a of setup.querySelectorAll('a[data-copy-open]')) {
       expect(a.closest('.setup-step')?.querySelector('[data-copy-text]')).not.toBeNull();
     }
   });
 
   it('remembers the place in each app apart: one guided setup per app, keyed by the page (D-070)', () => {
-    expect([...doc.querySelectorAll('[data-guided]')].map((g) => g.getAttribute('data-guided-key'))).toEqual([
+    expect([...setup.querySelectorAll('[data-guided]')].map((g) => g.getAttribute('data-guided-key'))).toEqual([
       'mus-unlocked-step-claude',
       'mus-unlocked-step-chatgpt',
     ]);
@@ -180,20 +190,21 @@ describe('a skill page with a ChatGPT version', () => {
   it('points both setups to AI Brain Setup, in a new tab like the voice guide, except on that page itself (D-097)', () => {
     const brainLinks = (d: Document) =>
       [...d.querySelectorAll('.app-setup a[href="/ai-brain-setup"]')].map((a) => [text(a), a.getAttribute('target')]);
-    expect(brainLinks(doc)).toEqual([
+    expect(brainLinks(setup)).toEqual([
       ['AI Brain', '_blank'],
       ['AI Brain', '_blank'],
     ]);
     const [claude] = lists() as [Element];
     expect(text(claude)).toContain('New to Claude? Set up your AI Brain first, so every skill starts out knowing your market, your team and your rules.');
-    expect(brainLinks(parse(skillPage({ ...SPEC, slug: 'ai-brain-setup' })))).toEqual([]);
+    expect(brainLinks(parseSetup(skillPage({ ...SPEC, slug: 'ai-brain-setup' })))).toEqual([]);
   });
 
-  it('copies the practice and real-file words with a tap, and has the live region that reports it', () => {
-    const chips = [...doc.querySelectorAll('button.chip:not(.chip-block) [data-copy-text]')].map(text);
+  it('copies the practice and real-file words with a tap, in both apps, and the public page copies nothing (D-151)', () => {
+    const chips = [...setup.querySelectorAll('button.chip:not(.chip-block) [data-copy-text]')].map(text);
     expect(chips.filter((c) => c === 'Review the practice file')).toHaveLength(2);
     expect(chips.filter((c) => c === 'Review this file')).toHaveLength(2);
-    expect(doc.getElementById('guide-live')?.getAttribute('aria-live')).toBe('polite');
+    expect(doc.querySelectorAll('[data-copy]')).toHaveLength(0);
+    expect(doc.getElementById('guide-live')).toBeNull();
   });
 
   it('says "Set It Up Once" in the hero, for either app', () => {
@@ -252,13 +263,13 @@ describe('a long prompt', () => {
 describe('a skill page for Claude only', () => {
   const { chatgpt: _none, ...claudeOnly } = SPEC;
   const guide = skillPage({ ...claudeOnly, skill: 'made-up-folder' });
-  const doc = parse(guide);
+  const setup = parseSetup(guide);
 
   it('has no switch and one list of steps, and names the ZIP by the skill, not the page', () => {
-    expect(doc.querySelector('input[name="app"]')).toBeNull();
-    expect(doc.querySelectorAll('ol.setup')).toHaveLength(1);
+    expect(setup.querySelector('input[name="app"]')).toBeNull();
+    expect(setup.querySelectorAll('ol.setup')).toHaveLength(1);
     expect(guide.download.href).toBe('/downloads/made-up-folder.zip');
-    expect(doc.querySelector('a[href="/downloads/made-up-folder-practice.zip"]')).not.toBeNull();
+    expect(setup.querySelector('a[href="/downloads/made-up-folder-practice.zip"]')).not.toBeNull();
     expect(guide.hero.steps[0]?.title).toBe('Add It to Claude');
   });
 });
@@ -346,25 +357,22 @@ describe('the skill layout (D-071)', () => {
     expect(more?.getAttribute('aria-controls')).toBe(sample?.querySelector('article.sample-doc')?.id);
   });
 
-  it('keeps every id and attribute the script and the gate read', () => {
+  it('keeps every id and attribute the script and the gate read, and the setup is in learn (D-151)', () => {
     const optin = doc.querySelector('section.optin');
     expect(optin?.id).toBe('get-the-skill');
     expect(optin?.getAttribute('data-unlock-key')).toBe('mus-unlocked');
+    expect(optin?.getAttribute('data-learn-guide')).toBe(skillGuideUrl('made-up-skill'));
     expect(optin?.querySelector('.locked #guide-form')?.getAttribute('action')).toBe('/api/made-up-skill');
-    expect(optin?.querySelector('#download.unlocked')).not.toBeNull();
-    expect(doc.querySelectorAll('[data-guided]')).toHaveLength(2);
-    expect(doc.querySelectorAll('a[data-copy-open]').length).toBeGreaterThan(0);
-    expect(doc.querySelector('#app-claude')).not.toBeNull();
-    expect(doc.getElementById('guide-live')?.getAttribute('role')).toBe('status');
+    expect(optin?.querySelector('#check-email.unlocked')).not.toBeNull();
+    expect(doc.querySelectorAll('#download, [data-guided], a[data-copy-open], #app-claude')).toHaveLength(0);
+    expect(doc.getElementById('guide-live')).toBeNull();
   });
 
-  it('names each setup "Set it up", with the step count beside it', () => {
-    const heads = [...doc.querySelectorAll('[data-guided] > .guided-head')];
-    expect(heads).toHaveLength(2);
-    for (const head of heads) {
-      expect(text(head.querySelector('.guided-title'))).toBe('Set it up');
-      expect(head.querySelector('[data-guided-progress]')?.hasAttribute('hidden')).toBe(true);
-    }
+  it('names the preview "Set it up", with its steps\u2019 titles only (D-151)', () => {
+    const preview = doc.querySelector('[data-guide-preview]');
+    expect(text(preview?.querySelector('.guided-title'))).toBe('Set it up');
+    expect([...(preview?.querySelectorAll('.setup-step h3') ?? [])].map(text)).toEqual(guide.download.setup?.map((s) => s.title));
+    expect(preview?.querySelector('[data-guided-progress], .setup-step p')).toBeNull();
   });
 
   it('draws each section below the hero as a band named by its heading', () => {
@@ -392,22 +400,20 @@ describe('the skill layout (D-071)', () => {
     expect(text(cta)).toBe('Get the Skill');
   });
 
-  it('puts what to say beside the questions, each its own named section, the words still copy buttons', () => {
-    const pair = doc.querySelector('.sk-band-pair .sk-pair');
-    const cols = [...(pair?.children ?? [])];
-    expect(cols.map((c) => [c.tagName, text(doc.getElementById(c.getAttribute('aria-labelledby') ?? ''))])).toEqual([
-      ['SECTION', 'What to say'],
-      ['SECTION', 'Good to know'],
-    ]);
-    expect(text(pair?.querySelector('.prompts button[data-copy] [data-copy-text]'))).toBe('Review this one');
-    expect(pair?.querySelector('.faq details summary')).not.toBeNull();
+  it('keeps the questions, and takes "What to say" into the guided setup (D-151)', () => {
+    expect(doc.querySelector('.prompts, .sk-pair')).toBeNull();
+    expect(doc.body.textContent).not.toContain('Review this one');
+    expect(doc.querySelector('.sk-band-pair .faq details summary')).not.toBeNull();
+    // Still the page's own words, for the guided setup in learn (`setup-export.ts`; a made-up skill has
+    // no catalog files, so it is not exported here).
+    expect(guide.sections.filter((x) => x.kind === 'prompts')).toHaveLength(1);
   });
 
   it("has the phone's sign-up bar, hidden until the script shows it, leading to the card", () => {
     const bar = doc.querySelector<HTMLElement>('[data-sk-bar]');
     expect(bar?.hidden).toBe(true);
     expect(bar?.querySelector('a')?.getAttribute('href')).toBe('#get-the-skill');
-    expect(text(bar)).toBe('Get the Free Skill');
+    expect(text(bar)).toBe('Unlock the Guided Setup');
   });
 
   it('follows the house rule: no em dashes anywhere on the page', () => {
@@ -454,43 +460,35 @@ describe('a paid skill’s page (D-082, D-101)', () => {
     expect(text(card?.querySelector('h2 + p'))).toBe('It’s part of Amplified Insiders: every owner and ops skill, 2 new skills a month, and weekly office hours.');
     const top = card?.querySelector(':scope > .locked');
     const links = [...(top?.querySelectorAll('a') ?? [])].map((a) => [text(a), a.getAttribute('href'), a.getAttribute('class'), a.getAttribute('target')]);
+    // D-151: "Unlock the Guided Setup" at the plans, and a buyer signs in to the guide in learn.
     expect(links).toEqual([
-      ['Get Amplified Insiders', '/pricing#insiders', 'btn btn-primary', null],
-      ['Sign In', 'https://learn.amplifiedimpact.io/skill-library', null, null],
+      ['Unlock the Guided Setup', '/pricing#insiders', 'btn btn-primary', null],
+      ['Sign In', skillGuideUrl('made-up-paid-skill'), null, null],
     ]);
-    expect(text(top?.querySelector('.legal'))).toBe('Already a member? Sign In');
+    expect(text(top?.querySelector('.legal'))).toBe('Already own it? Sign In');
   });
 
   it('has no opt-in and no download: nothing to post, and no ZIP in the markup', () => {
-    expect(doc.querySelector('form, input:not(.app-radio), [data-unlock-key], #download, .unlocked, .handoff, a[download]')).toBeNull();
+    expect(doc.querySelector('form, input, [data-unlock-key], #download, .unlocked, .handoff, a[download]')).toBeNull();
     expect(html).not.toContain('/downloads/');
     expect(html).not.toContain('/api/made-up-paid-skill');
   });
 
-  it('shows the whole guided setup under the card, each file a button to the Skill Library (D-101)', () => {
-    const setup = doc.querySelector('[data-skill-library] > .library-setup');
-    const guided = [...(setup?.querySelectorAll('[data-guided]') ?? [])];
-    expect(guided.map((g) => g.getAttribute('data-guided-key'))).toEqual(['mups-unlocked-step-claude', 'mups-unlocked-step-chatgpt']);
-    const titles = (g: Element | undefined) => [...(g?.querySelectorAll('.setup-step h3') ?? [])].map(text);
-    expect(titles(guided[0])).toEqual(guide.download.setup?.map((s) => s.title));
-    expect(titles(guided[1])).toEqual(guide.download.chatgpt?.setup.map((s) => s.title));
-    const step = (g: Element | undefined, title: string) => [...(g?.querySelectorAll('.setup-step') ?? [])].find((li) => text(li.querySelector('h3')) === title);
-    const buttons = (li: Element | undefined) => [...(li?.querySelectorAll('a.btn') ?? [])].map((a) => [text(a), a.getAttribute('href')]);
-    const get = ['Download After You Sign In', 'https://learn.amplifiedimpact.io/skill-library'];
-    expect(buttons(step(guided[0], 'Download the Skill'))).toEqual([get]);
-    expect(buttons(step(guided[1], 'Download the ChatGPT Version'))).toEqual([get]);
-    expect(buttons(step(guided[0], 'Practise on the Made-Up Example'))[0]).toEqual(get);
-    // The app links and the words to paste stay as on the free page.
-    expect(buttons(step(guided[0], 'Add It to Claude'))).toEqual([['Open Claude Skills', 'https://claude.ai/customize/skills']]);
-    expect(step(guided[0], 'Practise on the Made-Up Example')?.querySelector('[data-copy-text]')).not.toBeNull();
+  it('shows only the setup\u2019s step titles under the card: the setup itself is in learn (D-151)', () => {
+    const preview = doc.querySelector('[data-skill-library] > [data-guide-preview]');
+    expect([...(preview?.querySelectorAll('.setup-step h3') ?? [])].map(text)).toEqual(guide.download.setup?.map((s) => s.title));
+    expect(doc.querySelectorAll('[data-guided], [data-copy-text], a.btn[href*="skill-library"]:not(.btn-primary)')).toHaveLength(0);
+    // The whole setup is still the page's content, both apps, for learn's export.
+    expect(guide.download.setup?.length).toBeGreaterThan(3);
+    expect(guide.download.chatgpt?.setup.length).toBeGreaterThan(3);
   });
 
-  it('sends "What you need" to the plans, has no sign-up bar, and says when its setup words are copied', () => {
+  it('sends "What you need" to the plans, has no sign-up bar, and copies nothing (D-151)', () => {
     const cta = doc.querySelector('.sk-band-cards a.btn');
     expect([text(cta), cta?.getAttribute('href'), cta?.className]).toEqual(['Get Amplified Insiders', '/pricing#insiders', 'btn btn-primary sk-cta']);
     expect(doc.querySelector('a[href^="#get-"]')).toBeNull();
     expect(doc.querySelector('[data-sk-bar]')).toBeNull();
-    expect(doc.getElementById('guide-live')?.getAttribute('role')).toBe('status');
+    expect(doc.getElementById('guide-live')).toBeNull();
   });
 
   it('uses no id twice, and follows the house rule: no em dashes', () => {

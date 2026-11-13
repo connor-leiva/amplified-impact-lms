@@ -1,0 +1,399 @@
+/* /skill-library/:slug, a skill's guided setup (D-151): net-new, outside the shell like the Skill
+   Library. The Skill Library's own house values: radius 12 cards on --bg-canvas, a 1px
+   --line-default border, 40px buttons, 44px tap targets where a thumb steps through. Tokens only.
+   Every line of the setup is 16px or larger. */
+
+.page {
+  min-height: 100dvh;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--bg-canvas);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-link);
+  text-decoration: none;
+}
+.back:hover {
+  color: var(--text-link-hover);
+  text-decoration: underline;
+}
+.h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 600;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+}
+.h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+}
+.h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.h3:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 2px;
+}
+.intro,
+.text,
+.note {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+.intro,
+.note {
+  color: var(--text-secondary);
+}
+.text a,
+.note a {
+  color: var(--text-link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* The app switch: one button per app, the chosen one pressed. */
+.switch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.question {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.switchRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.switchButton {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--action-secondary-line);
+  border-radius: 10px;
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.switchButton[aria-pressed='true'] {
+  border-color: var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+
+/* Every step's title, a button to it: done ticked, the current one marked. */
+.steps,
+.previewSteps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stepTab,
+.previewSteps li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: left;
+}
+.stepTab {
+  cursor: pointer;
+}
+.stepTab:hover {
+  background: var(--action-secondary-hover);
+}
+.stepTab[aria-current='step'] {
+  font-weight: 700;
+  background: var(--action-secondary-hover);
+}
+.stepN {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line-default);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.stepTab[data-done='true'] .stepN,
+.stepTab[aria-current='step'] .stepN {
+  border-color: var(--action-primary);
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+
+/* The current step, opened. */
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-canvas);
+}
+.progress {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.copyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.primary,
+.secondary,
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.primary,
+.primaryButton {
+  border: 0;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+}
+.primary:hover,
+.primaryButton:hover {
+  background: var(--action-primary-hover);
+  color: var(--action-on-primary);
+  text-decoration: none;
+}
+.secondary,
+.secondaryButton {
+  border: 1px solid var(--action-secondary-line);
+  background: var(--action-secondary);
+  color: var(--text-primary);
+}
+.secondary:hover,
+.secondaryButton:hover {
+  background: var(--action-secondary-hover);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.secondaryButton:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.primary:focus-visible,
+.secondary:focus-visible,
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.switchButton:focus-visible,
+.stepTab:focus-visible,
+.chip:focus-visible,
+.block:focus-visible,
+.back:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 2px;
+}
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Words to copy: a chip for a line, a block for a Project's instructions. */
+.chip,
+.block {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-default);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: left;
+  cursor: pointer;
+}
+.chip:hover,
+.block:hover {
+  background: var(--action-secondary-hover);
+}
+.block {
+  width: 100%;
+}
+.chipText {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.blockText {
+  flex: 1;
+  min-width: 0;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 24px;
+}
+.chipTag {
+  flex: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-link);
+}
+
+.prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-default);
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.planRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.planLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+/* The copy confirmation, as www's guide pages draw it: fixed at the foot of the screen, so it shows
+   wherever the words were copied, on a phone too. Hidden while empty. */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 10;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--text-primary);
+  color: var(--bg-canvas);
+  box-shadow: var(--shadow-card);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  transform: translateX(-50%);
+}
+.toast:empty {
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  font-size: 16px;
+}
+.spin {
+  animation: ai-spin 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}

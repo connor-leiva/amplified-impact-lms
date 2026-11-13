@@ -18,13 +18,20 @@
 // opt-in card's place, with no form and no setup, so no link to a ZIP is in the markup at all; the
 // buttons that led back up to the opt-in go to the plans instead.
 //
+// A GUIDED PAGE (D-151). A skill's or a Grok Bot template's page sells its guided setup and never
+// carries it: the card's button unlocks it (the plans, or a free account), the page shows the steps'
+// titles only, and its "What to say" words are not drawn. The full setup is in learn, behind sign-in,
+// from the same content (`setup-export.ts`). A test holds that no step's words reach this HTML.
+//
 // Every string goes through `esc()`; nothing here runs in the browser.
 
 import signatureReversedSvg from '../assets/brand/amplified-impact-signature-reversed.svg?raw';
 import signatureSvg from '../assets/brand/amplified-impact-signature.svg?raw';
+import { skillGuideUrl } from '@ai/core/skill-guides';
 import {
   GUIDES,
   inSkillLibrary,
+  isGuided,
   unlockFor,
   SHARED,
   SITE,
@@ -295,6 +302,15 @@ function appSetups(guide: Guide, claude: readonly SetupStep[], other: OtherApp, 
  * ChatGPT, else the one list.
  */
 function setupSteps(guide: Guide): string {
+  return renderSetup(guide);
+}
+
+/**
+ * A guide's whole setup as markup. Drawn on the public page only for a guide that is not a skill (the
+ * Task Sync Starter Kit). A guided page (D-151) never draws it: learn shows the same words from the
+ * export, and the tests read the words a page's content carries from here.
+ */
+export function renderSetup(guide: Guide): string {
   const d = guide.download;
   if (d.setup && d.chatgpt) return appSetups(guide, d.setup, d.chatgpt, d.grok);
   return d.setup ? setup(guide, d.setup) : '';
@@ -330,6 +346,101 @@ function libraryCard(guide: Guide): string {
 }
 
 /**
+ * A guided page's preview (D-151): its setup's step titles, under "Set it up", and a line that says
+ * the rest is in the guided setup. The first lane's titles (Grok Bot's where it leads, as on the
+ * old page). No step's words, button, file or copy: those are in learn only.
+ */
+function guidePreview(guide: Guide): string {
+  const d = guide.download;
+  const steps = d.grok?.setup ?? d.setup ?? [];
+  if (!steps.length) return '';
+  const items = steps
+    .map(
+      (s, i) =>
+        `<li class="setup-step"><span class="setup-n" aria-hidden="true">${i + 1}</span><div class="setup-body"><h3>${esc(s.title)}</h3></div></li>`,
+    )
+    .join('\n');
+  return [
+    `<div class="library-setup guide-preview" data-guide-preview>`,
+    `<div class="guided">`,
+    `<div class="guided-head"><p class="guided-title">${esc(SHARED.skill.setupTitle)}</p></div>`,
+    `<ol class="setup" role="list">\n${items}\n</ol>`,
+    `<p class="setup-note">${esc(SHARED.guide.previewNote)}</p>`,
+    `</div>`,
+    `</div>`,
+  ].join('\n');
+}
+
+/**
+ * A guided page's card (D-151), where the opt-in or the Skill Library card was.
+ *
+ * Paid: the plan that unlocks it ("Unlock the Guided Setup", to the plans) and, for a buyer, "Already
+ * own it? Sign In" to the guide in learn. Free: the same sign-up form, whose button now unlocks the
+ * guided setup, and once signed up a line that the sign-in link is in their inbox, with a button to
+ * the guide (`#check-email`, which the API's no-script answer lands on too). Either way, under it,
+ * the preview. `data-learn-guide` is where `main.ts` sends an old link to `#download`.
+ */
+function guidedCard(guide: Guide): string {
+  const g = SHARED.guide;
+  const learn = skillGuideUrl(guide.slug);
+  if (inSkillLibrary(guide)) {
+    const l = SHARED.skillLibrary;
+    const plan = l[unlockFor(guide)];
+    return [
+      `<section id="${esc(l.anchor)}" class="card optin" aria-labelledby="library-heading" data-skill-library data-learn-guide="${esc(learn)}">`,
+      `<div class="locked">`,
+      `<h2 id="library-heading">${esc(l.heading)}</h2>`,
+      `<p>${esc(plan.body)}</p>`,
+      `<div class="form">`,
+      `<a class="btn btn-primary" href="${esc(plan.href)}">${esc(g.unlock)}</a>`,
+      `<p class="legal">${esc(g.owned.lead)} <a href="${esc(learn)}">${esc(g.owned.label)}</a></p>`,
+      `</div>`,
+      `</div>`,
+      guidePreview(guide),
+      `</section>`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }
+  const o = guide.optIn;
+  const form = [
+    `<form id="guide-form" class="form" method="post" action="/api/${esc(guide.slug)}">`,
+    field('firstName', SHARED.fields.firstName, 'type="text" required autocomplete="given-name" maxlength="80"'),
+    field('email', SHARED.fields.email, 'type="email" required autocomplete="email" maxlength="254" inputmode="email"'),
+    `<div class="field-website" aria-hidden="true"><label for="guide-website">${esc(HONEYPOT_LABEL)}</label>` +
+      `<input id="guide-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>`,
+    `<p class="form-error" id="guide-error" role="alert">${esc(UI.errors.generic)}</p>`,
+    `<button type="submit" class="btn btn-primary">${esc(g.unlock)}</button>`,
+    `<p class="legal">${inline(SHARED.legal)}</p>`,
+    `</form>`,
+  ].join('\n');
+  return [
+    `<section id="${esc(o.anchor)}" class="card optin" aria-labelledby="optin-heading" data-unlock-key="${esc(guide.unlockKey)}" data-learn-guide="${esc(learn)}">`,
+    `<div class="locked">`,
+    `<h2 id="optin-heading">${esc(o.heading)}</h2>`,
+    `<p>${esc(o.body)}</p>`,
+    form,
+    `</div>`,
+    `<div id="${CHECK_EMAIL_ID}" class="unlocked" tabindex="-1">`,
+    `<h2 id="download-heading">${esc(g.sentHeading)}</h2>`,
+    `<p>${esc(g.sentBody)}</p>`,
+    `<a class="btn btn-primary" href="${esc(learn)}">${esc(g.open)}</a>`,
+    `</div>`,
+    guidePreview(guide),
+    `</section>`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+/** The id of a guided page's signed-up panel: the no-script 303's landing (`guideJoinedLocation`). */
+export const CHECK_EMAIL_ID = 'check-email';
+
+/** A guided page's sections: "What to say" (words to paste) is part of the setup, so in learn only. */
+const publicSections = (guide: Guide): readonly Section[] =>
+  isGuided(guide) ? guide.sections.filter((s) => s.kind !== 'prompts') : guide.sections;
+
+/**
  * The button under "What you need": back up to the opt-in, or, for a paid skill, to the plans
  * (D-082).
  */
@@ -351,6 +462,7 @@ function needCta(guide: Guide, className: string): string {
  * `data-state="unlocked"` on the card, and remembers that under the card's `data-unlock-key`.
  */
 function optIn(guide: Guide): string {
+  if (isGuided(guide)) return guidedCard(guide);
   if (inSkillLibrary(guide)) return libraryCard(guide);
   const o = guide.optIn;
   const d = guide.download;
@@ -575,12 +687,13 @@ function footer(extraClass = ''): string {
   ].join('\n');
 }
 
-/** Whether anything on the page copies, and so needs the toast that says it did. A paid page draws its setup too (D-101). */
+/** Whether anything on the page copies, and so needs the toast that says it did. A guided page copies nothing (D-151). */
 const copies = (guide: Guide) =>
-  guide.sections.some((s) => s.kind === 'prompts') ||
+  !isGuided(guide) &&
+  (guide.sections.some((s) => s.kind === 'prompts') ||
   [...(guide.download.setup ?? []), ...(guide.download.chatgpt?.setup ?? []), ...(guide.download.grok?.setup ?? [])].some(
     (s) => s.copy !== undefined || s.copyBlock !== undefined,
-  );
+  ));
 
 /** Everything inside <body>. */
 export function renderGuideBody(guide: Guide): string {
@@ -589,7 +702,7 @@ export function renderGuideBody(guide: Guide): string {
     hero(guide),
     `<main class="page">`,
     optIn(guide),
-    ...guide.sections.map((s, i) => section(guide, s, i)),
+    ...publicSections(guide).map((s, i) => section(guide, s, i)),
     `</main>`,
     footer(),
     // One polite live region, drawn as a toast: "Copied", or how to copy by hand when that failed.
@@ -784,7 +897,7 @@ function skillSection(guide: Guide, s: Section, i: number): string {
 /** The sections below the hero, with "What to say" and the questions after it side by side. */
 function skillSections(guide: Guide, skip: number): string {
   const out: string[] = [];
-  const secs = guide.sections;
+  const secs = publicSections(guide);
   for (let i = 0; i < secs.length; i++) {
     const s = secs[i];
     if (!s || i === skip) continue;
@@ -858,14 +971,15 @@ function skillShowcase(s: Section | undefined, i: number): string {
 
 /** A page's <body> in the library's look. */
 function skillBody(guide: Guide): string {
-  const at = guide.sections.findIndex((s) => s.kind === 'sample' || s.kind === 'compare' || s.kind === 'example');
+  const secs = publicSections(guide);
+  const at = secs.findIndex((s) => s.kind === 'sample' || s.kind === 'compare' || s.kind === 'example');
   return [
     skillTop(guide),
     `<main class="sk">`,
     `<div class="sk-hero sk-wrap">`,
     skillIntro(guide),
     optIn(guide),
-    skillShowcase(guide.sections[at], at),
+    skillShowcase(secs[at], at),
     `</div>`,
     skillSections(guide, at),
     `</main>`,
@@ -873,10 +987,10 @@ function skillBody(guide: Guide): string {
     copies(guide) ? `<p id="guide-live" class="toast" role="status" aria-live="polite"></p>` : '',
     // On a phone, a way to the sign-up from anywhere on the page: shown by `main.ts` while the card is
     // out of view and the skill is not yet unlocked. A paid skill has no sign-up, and the script shows
-    // the bar only beside one.
+    // the bar only beside one. A free guided page's bar unlocks the guided setup, as its card does.
     inSkillLibrary(guide)
       ? ''
-      : `<div class="sk-bar" data-sk-bar hidden><a class="btn btn-primary" href="#${esc(guide.optIn.anchor)}">${esc(guide.bar ?? SHARED.skill.bar)}</a></div>`,
+      : `<div class="sk-bar" data-sk-bar hidden><a class="btn btn-primary" href="#${esc(guide.optIn.anchor)}">${esc(isGuided(guide) ? SHARED.guide.unlock : (guide.bar ?? SHARED.skill.bar))}</a></div>`,
   ]
     .filter(Boolean)
     .join('\n');

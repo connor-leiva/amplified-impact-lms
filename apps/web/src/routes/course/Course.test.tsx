@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { setViewerZone, sessionKind, sessionWeek } from '@ai/core';
 import { acceleratorSessions } from '@ai/core/accelerator';
@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 describe('the course screen', () => {
-  it('shows a week: its question, its skills’ guided setups in a new tab, the build, the rubric and the evidence packet', async () => {
+  it('shows a week: its question, its skills’ guided setups in learn (D-151), the build, the rubric and the evidence packet', async () => {
     fetchMock.mockResolvedValue(answer(200, payload));
     at('/course/week-1');
     expect(await screen.findByRole('heading', { level: 1, name: 'Week 1 · Know the Business' })).toBeInTheDocument();
@@ -50,12 +50,13 @@ describe('the course screen', () => {
 
     const skills = screen.getByRole('region', { name: COPY.skills });
     const guides = within(skills).getAllByRole('link', { name: COPY.guidedSetup });
+    // D-151: each skill's guided setup in learn, in this tab.
     expect(guides.map((a) => a.getAttribute('href'))).toEqual([
-      'https://www.amplifiedimpact.io/lead-source-roi',
-      'https://www.amplifiedimpact.io/fub-pipeline-review',
-      'https://www.amplifiedimpact.io/team-pnl-review',
+      '/skill-library/lead-source-roi',
+      '/skill-library/fub-pipeline-review',
+      '/skill-library/team-pnl-review',
     ]);
-    for (const a of guides) expect(a).toHaveAttribute('target', '_blank');
+    for (const a of guides) expect(a).not.toHaveAttribute('target');
     expect(within(skills).getByRole('link', { name: COPY.download })).toHaveAttribute('href', '/skill-library');
 
     const live = screen.getByRole('region', { name: COPY.liveBuild });
@@ -67,7 +68,9 @@ describe('the course screen', () => {
     expect(screen.getByRole('region', { name: COPY.evidence })).toHaveTextContent('Three-Sentence Account');
     expect(screen.getByRole('region', { name: COPY.media })).toHaveTextContent('[VIDEO: week 1 Lead-Source ROI demo, to be recorded]');
     expect(screen.getByRole('button', { name: COPY.worksheet })).toBeInTheDocument();
-    expect(document.body.dataset.appReady).toBe('true');
+    // Set in an effect after the week renders, so wait for it rather than race it (it raced once
+    // under a full suite's load).
+    await waitFor(() => expect(document.body.dataset.appReady).toBe('true'));
   });
 
   it('shows the overview with all nine weeks', async () => {

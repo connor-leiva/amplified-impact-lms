@@ -12,9 +12,12 @@ import type { ReactNode } from 'react';
 import { useParams } from 'react-router';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
-import { COPY, courseView } from './Course.vm';
+import { COPY, courseView, isExternal } from './Course.vm';
 import type { CoursePayload, DownloadVM, OverviewVM, Row, WeekVM } from './Course.vm';
 import s from './Course.module.css';
+
+/** A link that leaves learn opens in a new tab; a guided setup in learn (D-151) opens in this one. */
+const newTab = (href: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener' } : {});
 
 type Load = { kind: 'loading' } | { kind: 'ready'; payload: CoursePayload } | { kind: 'signed-out' } | { kind: 'locked' } | { kind: 'paused' } | { kind: 'failed' };
 
@@ -217,7 +220,7 @@ function Week({ vm }: { vm: WeekVM }) {
                 </span>
                 <span className={s.text}>{k.use}</span>
               </div>
-              <a className={s.secondary} href={k.href} target="_blank" rel="noopener">
+              <a className={s.secondary} href={k.href} {...newTab(k.href)}>
                 <Icon name="listChecks" size={16} />
                 {COPY.guidedSetup}
               </a>
@@ -242,7 +245,7 @@ function Week({ vm }: { vm: WeekVM }) {
                 {step.links.length === 1 ? (
                   <>
                     {' '}
-                    <a href={step.links[0]!.href} target="_blank" rel="noopener">
+                    <a href={step.links[0]!.href} {...newTab(step.links[0]!.href)}>
                       {step.links[0]!.label}
                     </a>
                   </>
@@ -253,7 +256,7 @@ function Week({ vm }: { vm: WeekVM }) {
                     {step.links.map((l, i) => (
                       <Fragment key={l.href}>
                         {i ? ' · ' : ''}
-                        <a href={l.href} target="_blank" rel="noopener">
+                        <a href={l.href} {...newTab(l.href)}>
                           {l.label}
                         </a>
                       </Fragment>

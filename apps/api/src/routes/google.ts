@@ -45,6 +45,7 @@ import { googleIdentities, users } from '../db/schema';
 import { domainGroupsOf, emailDomainOf, recordVerified } from '../billing/access-groups';
 import { clock } from '../lib/clock';
 import { landingFor } from '../lib/landing';
+import { safeNext } from '@ai/core/landing';
 import { accountForGroupAddress } from './auth';
 import { LOGIN_IP_MAX, LOGIN_IP_WINDOW } from './password';
 
@@ -66,15 +67,18 @@ const flowCookieOptions = (env: NodeJS.ProcessEnv = process.env) => ({
   signed: true,
 });
 
-function readFlow(req: FastifyRequest): FlowSecrets | null {
+/** The flow's secrets, and D-151's `next`: a guided setup to land on once signed in, already checked. */
+type Flow = FlowSecrets & { next: string | null };
+
+function readFlow(req: FastifyRequest): Flow | null {
   const raw = req.cookies[GOOGLE_FLOW_COOKIE];
   if (!raw) return null;
   const unsigned = req.unsignCookie(raw);
   if (!unsigned.valid || unsigned.value === null) return null;
   try {
-    const v = JSON.parse(unsigned.value) as Partial<FlowSecrets>;
+    const v = JSON.parse(unsigned.value) as Partial<FlowSecrets> & { next?: unknown };
     if (typeof v.state !== 'string' || typeof v.verifier !== 'string' || typeof v.nonce !== 'string') return null;
-    return { state: v.state, verifier: v.verifier, nonce: v.nonce };
+    return { state: v.state, verifier: v.verifier, nonce: v.nonce, next: safeNext(v.next) };
   } catch {
     return null;
   }
@@ -127,10 +131,12 @@ export function registerGoogleRoutes(app: FastifyInstance, { broadcast, config }
     return { google: client !== null };
   });
 
-  app.get(FLOW_PATH, async (_req, reply) => {
+  app.get(FLOW_PATH, async (req, reply) => {
     if (!client) return reply.code(404).send({ error: 'Not found' });
     const flow = newFlow();
-    reply.setCookie(GOOGLE_FLOW_COOKIE, JSON.stringify(flow), { ...flowCookieOptions(), maxAge: FLOW_TTL_S });
+    // D-151: `?next=/skill-library/<page>`, kept in the signed cookie for the callback. Anything else is dropped.
+    const next = safeNext((req.query as Record<string, unknown>).next);
+    reply.setCookie(GOOGLE_FLOW_COOKIE, JSON.stringify(next ? { ...flow, next } : flow), { ...flowCookieOptions(), maxAge: FLOW_TTL_S });
     reply.header('cache-control', 'no-store');
     return reply.redirect(authorizationUrl(client.config, flow), 302);
   });
@@ -187,8 +193,9 @@ export function registerGoogleRoutes(app: FastifyInstance, { broadcast, config }
       reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions(process.env, { remember: true }));
       // An activated owner changes a `users` row, which every teammate's Team Hub shows.
       if (activated) broadcast();
-      // D-150: a learner with no cohort portal (an access group's member) goes straight to the Skill Library.
-      return reply.redirect(await landingFor(db, user, now), 302);
+      // D-151: the guided setup the visitor came from, when there is one. Otherwise D-150: a learner with
+      // no cohort portal (an access group's member) goes straight to the Skill Library.
+      return reply.redirect(flow.next ?? (await landingFor(db, user, now)), 302);
     },
   );
 }

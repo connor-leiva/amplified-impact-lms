@@ -239,11 +239,6 @@
 .welcomeLink:hover {
   color: var(--text-link-hover);
 }
-.welcomeLink svg {
-  display: inline-block;
-  margin-left: 2px;
-  vertical-align: -1px;
-}
 .dismiss {
   flex: none;
   display: inline-flex;

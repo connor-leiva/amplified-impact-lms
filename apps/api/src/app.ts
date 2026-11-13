@@ -92,6 +92,8 @@ import { registerSnapshotRoute } from './routes/snapshot';
 import { isTestEnv, registerTestRoutes } from './routes/test';
 import { registerOfferRoutes } from './routes/offer';
 import { registerSkillRoutes } from './routes/skills';
+import { registerSkillGuideRoutes } from './routes/skill-guides';
+import type { SkillGuidesFile } from '@ai/core/skill-guides';
 import { registerCurriculumStatusRoute } from './routes/curriculum-status';
 import { registerLibraryStatusRoute } from './routes/library-status';
 import { registerCrmSyncRoutes } from './routes/crm-sync';
@@ -199,6 +201,12 @@ export interface BuildOptions {
    * `GOOGLE_CLIENT_SECRET` and `APP_URL`; a test passes one with a fake `fetch`, or null for off.
    */
   google?: GoogleConfig | null;
+  /**
+   * Every skill's full guided setup (D-151): `apps/web/dist-private/skill-guides.json`, which
+   * `server.ts` reads at boot. Absent or null, `GET /api/skill-guides/:slug` answers 503. A test
+   * passes its own.
+   */
+  skillGuides?: SkillGuidesFile | null;
   /**
    * The request header that carries the visitor's own IP address (`lib/client-ip.ts`), or null for
    * `req.ip` alone. Left out, it is `clientIpHeaderFor(process.env)`: Railway's `x-real-ip` on
@@ -591,6 +599,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerFilesRoutes(app);
     // The skill library (D-079): signed in, like the Vault beside it.
     registerSkillRoutes(app);
+    // Each skill's guided setup (D-151): signed in, and only for a learner the access rule lets in.
+    registerSkillGuideRoutes(app, { guides: options.skillGuides ?? null });
     // Manage Billing (D-077): the owner's way into Stripe's billing portal, where members cancel.
     registerBillingRoutes(app, { stripe: offerStripe, config: offerConfig });
     // The AI Accelerator's pages (D-110): signed in, and only for a plan that opens the course.

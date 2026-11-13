@@ -4662,3 +4662,67 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
   - The member's locked label (its own class, `.notIncluded`) and the page subtitle are at DESIGN.md's "lead" step, 16 / 24. The type scale is literal px values; there is no type variable. Everyone else's notes stay 14px. No new colours.
 - **Resource Vault with nothing published**: the heading, then "Nothing here yet", instead of an empty list with search, tabs and zero-count filters. The prototype's vault always has resources, so its goldens are unchanged.
 - **Not changed:** the `utah-life` grant (Agent Plan skills only), `PLAN_SETS`, `groupAccessOf`, entitlements, course access, Stripe, prices, the seat cap, `/agreement`, shared styles, the nav and the homepage. No emails.
+
+## D-151 · The guided setups are behind sign-in: www sells them, learn shows them
+
+**Date:** 2026-11-13
+**Approved by:** Connor, 2026-11-12, 1:34 PM CT: "the step-by-step guided setups are the core value proposition ('most sites give you a PDF; we guide you step by step and you just click the buttons') … Gate the guides." The plan's four questions were approved on 2026-11-13: the free account's sign-in link email is fine; the copy-paste prompts go behind the gate too; the one-time production migration for the course's links is in; and what search engines already hold is acknowledged.
+**Status:** on a pull request.
+**Scope:**
+- `packages/core/src/skill-guides.ts` (new), `landing.ts` (`safeNext`), `accelerator-content.ts`;
+- `apps/web/src/guides/` (`setup-export.ts`, new; `render.ts`, `content.ts`, `main.ts`, `skills.css`, `vite-plugin.ts`);
+- `apps/web/src/routes/library/` (`SkillGuide.tsx`, new; `SkillLibrary.tsx`), `routes/auth/` (`SignIn.tsx`, `shared.tsx`), `routes/course/` (`Course.tsx`, `Course.vm.ts`), `router.tsx`;
+- `apps/api/src/routes/skill-guides.ts` (new), `billing/self-serve.ts` (new), `routes/` (`ai101.ts`, `auth.ts`, `password.ts`, `google.ts`, `guide-list.ts`, `skills.ts`), `static.ts`, `server.ts`, `app.ts`, `email/templates/`;
+- `drizzle/0013_course_guide_links.sql`;
+- `.gitignore`.
+
+This amends D-082 and D-101: a skill's page no longer carries its guided setup.
+
+- **Where each part lives:**
+  - **The words:** each skill's page file under `apps/web/src/guides/`, unchanged. This is the one source of truth.
+  - **The public www page:** draws the preview from them.
+  - **`apps/web/dist-private/skill-guides.json`:** the build writes every guided page's full setup here, from the same objects (`setup-export.ts`, run by the guide plugin; no Vite config changed). It sits outside `dist/`, so no route serves it, and no browser bundle imports it.
+  - **The API:** reads that file at boot.
+- **www, for every skill's and Grok Bot template's page** (53 pages, 4 of them free):
+  - **Kept:** the problem it fixes, what it does, who it's for, the sample, what you get back, who does what, what you need, the questions.
+  - **Shown as a preview:** the setup's step titles only, under "Set it up", and "Every step, with what to click and the words to paste, is in the guided setup."
+  - **Removed:** every step's words, buttons and files, the words to paste, the app switch, and "What to say" (Connor: the copy-paste prompts go behind the gate too).
+  - **Paid:** "Unlock the Guided Setup" to the plans, and "Already own it? Sign In" to the guide in learn.
+  - **Free:** the same sign-up form, whose button is "Unlock the Guided Setup". Once signed up, "Your guided setup is ready" with "Open the Guided Setup".
+  - Public addresses are unchanged. The two PDF guides and the Task Sync Starter Kit, which are not skills, are drawn as before.
+- **learn, `/skill-library/<page>`** (`SkillGuide.tsx`), from `GET /api/skill-guides/:page`:
+  - **Signed out:** 401, and the screen sends the visitor to sign in and back (`next`).
+  - **Staff:** 403.
+  - **A learner:** always gets the title, the steps' titles and the state.
+  - **The full setup** (every step, its buttons, the words to paste, "What to say", the files through the checked download route) only when the skill library's one rule opens the skill for them. That is `stateFor`: `canOpenSkill`, and a Sales Agent never opens an owner-and-ops skill.
+  - **One step at a time:** "Step n of N", Back, Next and Start Over, each step's title a button, the place kept on the device, and Copy and Copy & Open as on www.
+  - **A locked skill** shows the titles and its plan line: "Not included with Utah Life access" for an access group's member (no upsell, D-150), or "Not in your plan." and See Plans for anyone else.
+- **Free skills** need a free account:
+  - The free page's sign-up still stores its lead row, so the GoHighLevel sync is unchanged.
+  - It then emails the person a sign-in link to that guide, at most 5 an hour per address. That is the one email, and the person asked for it.
+  - A free sign-up's address joins the self-serve addresses (`billing/self-serve.ts`, beside D-148's group addresses). The account is made when the link is spent, the same way a group member's is: a team of one, no account, order or plan row, no Stripe.
+  - The sign-in screen's "Email Me a Sign-In Link" and Forgot Password work for that address too.
+  - A free account opens the free skills, and nothing paid.
+- **Back to the guide after signing in:**
+  - `next=/skill-library/<page>` (`safeNext`: a real guided page, nothing else) is carried through the emailed link (`/sign-in?token=…&next=…`), a typed password, "Email Me a Sign-In Link", and Google (kept in the flow's signed cookie).
+  - Anything else is ignored, and the sign-in lands where D-150 says.
+- **Links into the guides:**
+  - The Skill Library's Setup Guide button opens the guide in learn, same tab. The "opens in a new tab" cue from D-150 is gone, and the welcome's last line now reads "Each Setup Guide walks you through it step by step, with the downloads right in it."
+  - A locked row adds "Preview the Setup".
+  - Course pages link each skill to its guide in learn, same tab. A page that is not a skill (/voice-profile) stays on www, in a new tab.
+  - Migration `0013_course_guide_links` rewrites the nine skill links in the course's seeded week prompts, once, exactly as a fresh seed now writes them.
+- **Old links:**
+  - `#download` on a guided page (where the setup was, and what "Send This to My Computer" emailed) goes on to its guide in learn, which signs the visitor in first.
+  - A no-script sign-up lands on `#check-email`.
+  - Every skill's and template's ZIP, free ones included, stops being a public file. An old `/downloads/<zip>` link gets a 302 to its guide in learn.
+- **Checked:**
+  - In tests: for all 53 pages, none of each setup's own words reach the public HTML.
+  - After a production build: 876 setup strings were scanned against all 212 built text files in `dist/`. No step, words to paste or routine prompt appears. The one match is a guardrail line shown on purpose in a template's public "What it never does" list.
+  - No SPA source imports `src/guides/`.
+  - There is no sitemap, and the meta and Open Graph text were already the hand-written descriptions.
+- **Design's look check (PR 105):**
+  - A guided page's signed-up panel ("We emailed you a sign-in link") shows only right after a sign-up, or on `#check-email`. It is never remembered. A key the old page remembered (`pw-unlocked`), set by someone who was never sent a link, no longer opens it: they get the form, which sends one.
+  - In learn, "Step n of N" and a block's words to paste are 16 / 24. The step numbers and the Copy tags stay 14px.
+  - The copy confirmation is fixed at the foot of the screen, as on www, and clears itself.
+  - A step's words always come first, then Copy & Open, for a line and a block alike.
+- **Not changed:** Stripe, prices, the seat cap, dates, `/agreement`, the homepage, the nav, and Design's homepage v3 files (#104: both Vite configs, `src/home/`, `eslint.config.js`). What search engines and archives already hold of the old pages stays there.

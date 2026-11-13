@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/primitives/Button';
+import { safeNext } from '@ai/core/landing';
 import type { LandingPath } from '@ai/core/landing';
 import { Field, Input } from '../../components/primitives/Field';
 import { AuthCard, EMAIL, GoogleSignIn, errorOf, googleRefusal, landingOf, post, useAppReady, useGoogleSignIn } from './shared';
@@ -56,9 +57,10 @@ const ERROR_ID = 'sign-in-error';
  * § 7.5's "does not reveal whether an account exists" only holds end to end if the UI also refuses
  * to branch, so a transport failure is swallowed and the caller always shows "Check Your Email".
  */
-async function requestSignInLink(email: string): Promise<void> {
+async function requestSignInLink(email: string, next: string | null): Promise<void> {
   try {
-    await post('/api/auth/request', { email });
+    // D-151: a guided setup to land on, carried in the emailed link.
+    await post('/api/auth/request', next ? { email, next } : { email });
   } catch {
     /* Offline, DNS, a 500 behind a proxy: indistinguishable from success, by design. */
   }
@@ -96,6 +98,9 @@ export function Component() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const token = params.get('token');
+  // D-151: where a guided setup sent the visitor from (`/skill-library/<page>`), to go back to once
+  // signed in. Checked: anything else is ignored, and the sign-in lands where the API says.
+  const next = safeNext(params.get('next'));
   const google = useGoogleSignIn();
 
   const [mode, setMode] = useState<Mode>(token ? 'verifying' : params.get('method') === 'link' ? 'link' : 'password');
@@ -135,7 +140,7 @@ export function Component() {
       if ('landing' in out) {
         // `replace`, so Back does not return to a spent token. D-150: straight to the Skill Library
         // for a learner with no cohort portal, so `/` is never drawn first.
-        navigate(out.landing, { replace: true });
+        navigate(next ?? out.landing, { replace: true });
         return;
       }
       setError(out.failure === 'used' ? COPY.used : COPY.expired);
@@ -159,7 +164,7 @@ export function Component() {
     }
     setError(null);
     setBusy(true);
-    void requestSignInLink(value).then(() => {
+    void requestSignInLink(value, next).then(() => {
       setSentTo(value);
       setBusy(false);
       setMode('sent');
@@ -183,7 +188,7 @@ export function Component() {
     void signInWithPassword(value, password, remember).then((out) => {
       setBusy(false);
       if ('landing' in out) {
-        navigate(out.landing, { replace: true });
+        navigate(next ?? out.landing, { replace: true });
         return;
       }
       setPassword('');
@@ -279,7 +284,7 @@ export function Component() {
               {COPY.signIn}
             </Button>
           </form>
-          {google ? <GoogleSignIn /> : null}
+          {google ? <GoogleSignIn next={next} /> : null}
           <div className={s.links}>
             <Link className={s.textLink} to="/forgot-password">
               {COPY.forgot}

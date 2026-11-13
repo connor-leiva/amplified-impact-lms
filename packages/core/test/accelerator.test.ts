@@ -1,6 +1,7 @@
 // The Amplified AI Accelerator (D-110): the locked calendar, who can open it, the portal's nine AI
 // Employees and the words every week must carry. Every instant below is written with its offset:
 // December to February in Central Time is CST, UTC-6.
+import { isGuidedPage } from '../src/skill-guides';
 import { describe, expect, it } from 'vitest';
 import {
   STEPS,
@@ -303,7 +304,11 @@ describe('the portal’s nine AI Employees', () => {
   it('point at the real Library skill instead of a course prompt pack', () => {
     for (const m of modules) {
       expect(m.prompt).toMatch(/The prompts for this week stay in the Library/);
-      expect(m.prompt).toMatch(/https:\/\/www\.amplifiedimpact\.io\/[a-z0-9-]+/);
+      // A skill's guided setup in learn (D-151); a page that is not a skill (/voice-profile) on www.
+      expect(m.prompt).toMatch(/https:\/\/(learn\.amplifiedimpact\.io\/skill-library|www\.amplifiedimpact\.io)\/[a-z0-9-]+/);
+      for (const url of m.prompt.match(/https:\/\/www\.amplifiedimpact\.io\/[a-z0-9-]+/g) ?? []) {
+        expect(isGuidedPage(url.split('/').pop()!), url).toBe(false);
+      }
       // The portal turns a step mentioning a system prompt or skill files into a download button for
       // a course file that does not exist. No step says either.
       for (const s of m.checklist) expect(s.text).not.toMatch(/system prompt|skill file/i);

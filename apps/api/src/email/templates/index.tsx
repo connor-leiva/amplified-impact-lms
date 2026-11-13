@@ -54,6 +54,7 @@ import { Session24hEmail } from './session-24h';
 import { ResetPasswordEmail } from './reset-password';
 import { SetPasswordEmail } from './set-password';
 import { SignInEmail } from './sign-in';
+import { safeNext } from '@ai/core/landing';
 import { StaffInviteEmail } from './staff-invite';
 import { TeamInviteEmail } from './team-invite';
 import { WeeklyDigestEmail } from './weekly-digest';
@@ -131,7 +132,9 @@ export function elementFor(template: TemplateName, data: Record<string, unknown>
     case 'sign-in': {
       const token = str(template, data, 'token');
       const subject = SUBJECTS['sign-in']({});
-      return { subject, element: <SignInEmail subject={subject} token={token} appUrl={appUrl} /> };
+      // D-151: a guided setup to land on, checked once more here (only `/skill-library/<page>`).
+      const next = safeNext(optStr(data, 'next'));
+      return { subject, element: <SignInEmail subject={subject} token={token} next={next} appUrl={appUrl} /> };
     }
 
     case 'set-password': {

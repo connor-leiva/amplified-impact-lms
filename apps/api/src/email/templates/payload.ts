@@ -34,7 +34,7 @@ import type { SubjectData, TemplateName } from '../subjects';
  * the variable phase 07 § 7.5 already names. A caller that knows the origin may override it.
  */
 export interface BodyData {
-  'sign-in': { token: string; appUrl?: string | null };
+  'sign-in': { token: string; next?: string | null; appUrl?: string | null };
   'set-password': { token: string; appUrl?: string | null };
   'reset-password': { token: string; appUrl?: string | null };
   'team-invite': { token: string; appUrl?: string | null };

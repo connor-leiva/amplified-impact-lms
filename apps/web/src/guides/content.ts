@@ -25,6 +25,7 @@
 
 import { GROK_TEMPLATES, isFreeGrokTemplate } from '@ai/core/grok-templates';
 import { isFreeSkill, SKILL_CATALOG } from '@ai/core/skills';
+import { LEARN_ORIGIN } from '@ai/core/skill-guides';
 import { LEAD } from '../library/content';
 import type { ShareImage } from '../site/share';
 import { OPS_TIME_AUDIT } from './ops-time-audit';
@@ -403,6 +404,13 @@ export function inSkillLibrary(guide: Guide): boolean {
 }
 
 /**
+ * Whether a page sells a skill or a Grok Bot template (D-151): its guided setup is then in learn,
+ * behind sign-in, and the page shows only the steps' titles. Every other guide (the PDF guides, the
+ * Task Sync Starter Kit) is drawn as before.
+ */
+export const isGuided = (guide: Pick<Guide, 'skill' | 'grok'>): boolean => guide.skill !== undefined || guide.grok !== undefined;
+
+/**
  * Which plan unlocks a paid guide (D-115), by its set: an agent-only skill or template opens with the
  * Amplified Agent Plan, anything for owners and ops (or both) with Amplified Insiders.
  */
@@ -480,10 +488,21 @@ export const SHARED = {
       label: 'Get Amplified Agent Plan',
       href: '/pricing#agent-plan',
     },
-    signIn: { lead: 'Already a member?', label: 'Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
+    signIn: { lead: 'Already a member?', label: 'Sign In', href: `${LEARN_ORIGIN}/skill-library` },
     // A setup step's file, on a paid page (D-101): the same step, with its file in the platform's
     // library, which is where a paid ZIP is downloaded.
-    get: { label: 'Download After You Sign In', href: 'https://learn.amplifiedimpact.io/skill-library' },
+    get: { label: 'Download After You Sign In', href: `${LEARN_ORIGIN}/skill-library` },
+  },
+  // D-151: a skill's or template's page sells its guided setup, which is in learn behind sign-in. The
+  // card's button unlocks it (the plans for a paid one, a free account for a free one), and the page
+  // shows the steps' titles under "Set it up". Connor, 2026-11-12: "Unlock the guided setup".
+  guide: {
+    unlock: 'Unlock the Guided Setup',
+    owned: { lead: 'Already own it?', label: 'Sign In' },
+    open: 'Open the Guided Setup',
+    previewNote: 'Every step, with what to click and the words to paste, is in the guided setup.',
+    sentHeading: 'Your guided setup is ready',
+    sentBody: 'We emailed you a sign-in link. Open it to see every step in your free Amplified Impact account.',
   },
   footer: {
     byline: 'By Connor Leiva',

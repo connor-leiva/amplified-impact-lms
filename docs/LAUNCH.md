@@ -345,6 +345,15 @@ invites land in spam.
   hand that night, as Grokbok's handoff section 9 says.
 - The 11th cohort sale goes through and logs `cohort seat 11 sold … book a tech assistant`.
 
+## 8b. The guided setups are behind sign-in (D-151)
+
+The web build writes every skill's full guided setup to `apps/web/dist-private/skill-guides.json`, outside
+`dist/`, and the API reads it at boot. A deploy whose build skipped it answers 503 on
+`/api/skill-guides/:page` and logs `skill guides: the build wrote no dist-private/skill-guides.json`.
+To check a deploy, sign in on learn and open `/skill-library/perfect-week`. A free account sees every step.
+Signed out, the www page shows the steps' titles only. Migration `0013_course_guide_links` runs in the
+pre-deploy step, like every migration.
+
 ## 9. Continue With Google on the sign-in screen (D-139)
 
 The button stays hidden, and `/api/auth/google` answers 404, until both keys are on the Web service.
