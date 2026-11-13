@@ -4725,4 +4725,7 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
   - In learn, "Step n of N" and a block's words to paste are 16 / 24. The step numbers and the Copy tags stay 14px.
   - The copy confirmation is fixed at the foot of the screen, as on www, and clears itself.
   - A step's words always come first, then Copy & Open, for a line and a block alike.
+- **Design's live recheck (after PR 105):**
+  - A paid card's "Already own it? Sign In" has its own class (`.legal.owned`): 16px, and its link a 44px tap target (inline-block, 44px tall). The consent line under a sign-up form keeps the 13px `.legal`.
+  - "Your guided setup is ready" (`.sk .unlocked`) is padded 24px, as the cards around it.
 - **Not changed:** Stripe, prices, the seat cap, dates, `/agreement`, the homepage, the nav, and Design's homepage v3 files (#104: both Vite configs, `src/home/`, `eslint.config.js`). What search engines and archives already hold of the old pages stays there.

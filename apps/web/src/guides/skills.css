@@ -550,9 +550,21 @@
 .sk .legal a {
   color: var(--action-on-primary);
 }
+/* A paid guided page's "Already own it? Sign In" (D-151): 16px, not the consent line's 13px, and its
+   link a 44px tap target on a phone (Design's live recheck of PR 105). The consent line is unchanged. */
+.sk .legal.owned {
+  font-size: 16px;
+  line-height: 24px;
+}
+.sk .legal.owned a {
+  display: inline-block;
+  min-height: 44px;
+  line-height: 44px;
+}
+/* 24px, as the cards around it (Design's live recheck of PR 105). */
 .sk .unlocked {
   gap: 12px;
-  padding: 20px;
+  padding: 24px;
   border-radius: 8px;
   background: var(--bg-surface);
   box-shadow:
