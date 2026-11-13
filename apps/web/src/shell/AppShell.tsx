@@ -10,6 +10,7 @@ import { Avatar } from '../components/primitives/Avatar';
 import { ToasterProvider, useToaster } from '../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../data/hooks';
 import { EXIT_PREVIEW_TO, PREVIEW_LABEL } from '../data/preview';
+import { SIGN_OUT_FAILED, signOut as endSession } from '../data/session';
 import { loadPrefs, savePrefs, type Prefs } from '../lib/prefs';
 import { BrandSlot } from './BrandSlot';
 import { Breadcrumbs } from './Breadcrumbs';
@@ -301,9 +302,13 @@ function Shell() {
 
   // ---- the profile menu -----------------------------------------------------------------------
   const sample = nextSession(db, user, now) ?? db.sessions[2] ?? db.sessions[0];
+  // D-152: the real sign-out (the prototype only toasted). On success the page is torn down and
+  // replaced by /sign-in; only a failure comes back here, and says so.
   const signOut = useCallback(() => {
     setProfileOpen(false);
-    toast('Signed out (demo)', 'info');
+    void endSession().then((ok) => {
+      if (!ok) toast(SIGN_OUT_FAILED, 'warn');
+    });
   }, [toast]);
 
   const shellApi = useMemo(() => ({ openLocked, sidebarMode: mode, vw }), [mode, openLocked, vw]);

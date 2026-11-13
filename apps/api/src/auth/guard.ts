@@ -135,6 +135,10 @@ export const requireSession: preHandlerAsyncHookHandler = async (req, reply) => 
     user,
     prefs: normalizePrefs(user.prefs),
   };
+  // D-152: what a signed-in viewer is answered is theirs alone and is never kept, by the browser or
+  // anything between, so nothing of it can be served again after Sign Out. A handler that means
+  // otherwise sets its own header, which replaces this one.
+  reply.header('cache-control', 'private, no-store');
   return undefined;
 };
 

@@ -18,11 +18,12 @@ import type {
  */
 /**
  * The 401 redirect, behind one indirection so `http.test.ts` can observe that it happens: in jsdom
- * `location.assign` is an unforgeable own property that cannot be spied on or replaced. A full page
+ * `location.replace` is an unforgeable own property that cannot be spied on or replaced. A full page
  * load is deliberate — it discards every cached snapshot belonging to the session that just ended.
+ * `replace` (D-152): Back from /sign-in does not return to the page that was just turned away.
  */
 export const navigation = {
-  toSignIn: () => location.assign('/sign-in'),
+  toSignIn: () => location.replace('/sign-in'),
 };
 
 async function parse(res: Response): Promise<unknown> {

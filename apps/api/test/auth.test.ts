@@ -34,11 +34,13 @@ import {
   SESSION_TTL_MS,
   SIGN_IN_TTL_MS,
   SessionSecretError,
+  clearCookieOptions,
   hashToken,
   mintToken,
   readSessionSecret,
   resetEphemeralSecret,
   sameHash,
+  sessionCookieOptions,
 } from '../src/auth';
 import { AUTH_REQUEST_IP_MAX } from '../src/routes/auth';
 import { authSessions, authTokens, users } from '../src/db/schema';
@@ -617,6 +619,78 @@ describe('POST /api/auth/sign-out @g7', () => {
     expect(res.statusCode).toBe(403);
     const db = await testDatabase();
     expect(await db.select().from(authSessions)).toHaveLength(1);
+  });
+
+  // D-152: the Admin Console's Sign Out now calls this route (it only toasted "(demo)" before).
+
+  /** The `ai_sid` line of a `set-cookie` header: its value and its attributes, names lower-cased. */
+  function sessionCookieLine(setCookie: string | string[] | undefined): { value: string; attrs: Map<string, string> } {
+    const raw = Array.isArray(setCookie) ? setCookie : [String(setCookie ?? '')];
+    const line = raw.flatMap((l) => l.split('\n')).find((l) => l.startsWith(`${SESSION_COOKIE}=`));
+    expect(line, 'the response set no ai_sid cookie').toBeTruthy();
+    const [pair, ...rest] = line!.split(';').map((x) => x.trim());
+    const attrs = new Map(rest.map((a) => [a.split('=')[0]!.toLowerCase(), a.includes('=') ? a.slice(a.indexOf('=') + 1) : 'true']));
+    return { value: pair!.slice(SESSION_COOKIE.length + 1), attrs };
+  }
+
+  it('clears the cookie with the attributes it was set with, from a real sign-in, and ends that session', async () => {
+    const signedIn = await post('/api/auth/verify', { token: await requestLink(JAMIE) });
+    expect(signedIn.statusCode).toBe(200);
+    const set = sessionCookieLine(signedIn.headers['set-cookie']);
+    const cookie = cookieFrom(signedIn.headers['set-cookie']);
+    const db = await testDatabase();
+    expect(await db.select().from(authSessions).where(eq(authSessions.userId, 'u_jamie'))).toHaveLength(1);
+
+    const res = await post('/api/auth/sign-out', undefined, { cookie });
+    expect(res.statusCode).toBe(200);
+    const cleared = sessionCookieLine(res.headers['set-cookie']);
+    expect(cleared.value).toBe('');
+    // A browser (iOS Safari included) replaces a cookie only when name, domain and path match: the
+    // same Path, no Domain on either (host-only), and the same HttpOnly / SameSite / Secure.
+    for (const name of ['path', 'domain', 'httponly', 'samesite', 'secure']) expect(cleared.attrs.get(name), name).toBe(set.attrs.get(name));
+    expect(cleared.attrs.get('path')).toBe('/');
+    expect(cleared.attrs.has('domain')).toBe(false);
+    // And it is already expired.
+    expect(cleared.attrs.get('max-age')).toBe('0');
+    expect(Date.parse(cleared.attrs.get('expires')!)).toBe(0);
+
+    // The session row is gone.
+    expect(await db.select().from(authSessions).where(eq(authSessions.userId, 'u_jamie'))).toHaveLength(0);
+  });
+
+  it('clears with the same attributes in production as well (Secure on both, no Domain on either)', () => {
+    const prod = { NODE_ENV: 'production' } as NodeJS.ProcessEnv;
+    const set = sessionCookieOptions(prod);
+    const clear = clearCookieOptions(prod);
+    for (const key of ['path', 'domain', 'httpOnly', 'sameSite', 'secure'] as const) expect(clear[key], key).toEqual(set[key]);
+    expect(clear.secure).toBe(true);
+    expect(set.domain).toBeUndefined();
+  });
+
+  it('turns the old cookie away everywhere after: /api/me, the snapshot, a mutation and a guided setup all answer 401', async () => {
+    const cookie = await app.signInAs('st1');
+    expect((await app.inject({ method: 'GET', url: '/api/me', headers: { cookie } })).statusCode).toBe(200);
+    expect((await post('/api/auth/sign-out', undefined, { cookie })).statusCode).toBe(200);
+
+    for (const url of ['/api/me', '/api/snapshot', '/api/skill-guides/perfect-week', '/api/skills']) {
+      expect((await app.inject({ method: 'GET', url, headers: { cookie } })).statusCode, url).toBe(401);
+    }
+    const mutate = await app.inject({
+      method: 'POST',
+      url: '/api/mutate/markAnnouncementRead',
+      headers: { cookie, 'content-type': 'application/json' },
+      payload: { id: 'a1' },
+    });
+    expect(mutate.statusCode).toBe(401);
+  });
+
+  it('never lets a signed-in answer be kept, so Back cannot be served one from a cache', async () => {
+    const cookie = await app.signInAs('st1');
+    for (const url of ['/api/me', '/api/snapshot']) {
+      const res = await app.inject({ method: 'GET', url, headers: { cookie } });
+      expect(res.statusCode, url).toBe(200);
+      expect(res.headers['cache-control'], url).toBe('private, no-store');
+    }
   });
 });
 
