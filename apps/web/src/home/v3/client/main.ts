@@ -10,6 +10,7 @@ import { initBadges } from './badges';
 import { initCountUps } from './count';
 import { initEnter } from './enter';
 import { initInView, initPhoneMenu, initPrograms, initScrollExit, initScrolled, initTheme } from './kit';
+import { initVideo } from './video';
 import { initChat, initHow, initMonday } from './pinned';
 import { initHours } from './hours';
 import { initOffer, initSwitches } from './offer';
@@ -32,6 +33,7 @@ export function init(): void {
   initInView(page);
   initCountUps(page);
   initEnter(page);
+  initVideo(page);
   const badges = page.querySelector<HTMLElement>('[data-badges]');
   if (badges) initBadges(badges);
   const chat = page.querySelector<HTMLElement>('[data-chat]');
