@@ -2,6 +2,9 @@ import { GROK_TEMPLATES, isFreeGrokTemplate, PAID_GROK_DOWNLOADS } from '@ai/cor
 import { isFreeSkill, PAID_DOWNLOADS, SETUP_GUIDE_ORIGIN, setupGuideHref, SKILL_CATALOG } from '@ai/core/skills';
 import { skillGuideUrl } from '@ai/core/skill-guides';
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { GUIDES, inSkillLibrary, SHARED, unlockFor, type Guide } from './content';
 import { renderGuideBody, renderGuideHead } from './render';
 
@@ -206,5 +209,32 @@ describe('which plan opens a paid skill (D-115)', () => {
     const byId = (id: string) => Object.values(GUIDES).find((g) => g.skill === id)!;
     expect(unlockFor(byId('offer-strategy'))).toBe('agentPlan');
     expect(unlockFor(byId('team-ai-brain'))).toBe('insiders');
+  });
+});
+
+describe('Design’s live recheck of PR 105', () => {
+  const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'skills.css'), 'utf8');
+  /** A rule's body, by its exact selector at the start of a line. */
+  const rule = (selector: string) => {
+    const at = css.indexOf(`\n${selector} {`);
+    return at === -1 ? '' : css.slice(at, css.indexOf('}', at));
+  };
+
+  it('gives "Already own it? Sign In" 16px and a 44px tap target, and leaves the consent line at 13px', () => {
+    expect(rule('.sk .legal.owned')).toMatch(/font-size: 16px;/);
+    const link = rule('.sk .legal.owned a');
+    expect(link).toMatch(/display: inline-block;/);
+    expect(link).toMatch(/min-height: 44px;/);
+    expect(link).toMatch(/line-height: 44px;/);
+    expect(rule('.sk .legal')).toMatch(/font-size: 13px;/);
+    for (const g of [...PAID, ...PAID_GROK]) {
+      const doc = parse(g);
+      expect(doc.querySelector('[data-skill-library] p.legal.owned a')?.textContent, g.slug).toBe('Sign In');
+    }
+    for (const g of FREE) expect(parse(g).querySelector('#guide-form .legal')?.classList.contains('owned'), g.slug).toBe(false);
+  });
+
+  it('pads the "Your guided setup is ready" panel 24px, as the cards around it', () => {
+    expect(rule('.sk .unlocked')).toMatch(/padding: 24px;/);
   });
 });

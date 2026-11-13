@@ -393,7 +393,8 @@ function guidedCard(guide: Guide): string {
       `<p>${esc(plan.body)}</p>`,
       `<div class="form">`,
       `<a class="btn btn-primary" href="${esc(plan.href)}">${esc(g.unlock)}</a>`,
-      `<p class="legal">${esc(g.owned.lead)} <a href="${esc(learn)}">${esc(g.owned.label)}</a></p>`,
+      // Its own class (Design, the live recheck of PR 105): 16px, and the link a 44px tap target.
+      `<p class="legal owned">${esc(g.owned.lead)} <a href="${esc(learn)}">${esc(g.owned.label)}</a></p>`,
       `</div>`,
       `</div>`,
       guidePreview(guide),
