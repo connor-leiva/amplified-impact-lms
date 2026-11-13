@@ -21,7 +21,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (path: string) => readFileSync(resolve(HERE, path), 'utf8');
 const COPY = read('../../../../../docs/design/home-v3/copy.md');
 
-const parse = (html: string) => new DOMParser().parseFromString(`<!doctype html><html><body>${html}</body></html>`, 'text/html');
+const parse = (html: string) =>
+  new DOMParser().parseFromString(`<!doctype html><html><body>${html}</body></html>`, 'text/html');
 const prod = parse(renderV3Body({ preview: false }));
 const preview = parse(renderV3Body({ preview: true }));
 const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
@@ -67,7 +68,10 @@ describe('the page', () => {
     expect(prod.querySelector('[data-brand-slot]')?.getAttribute('data-brand-slot')).toBe('logo-1');
     // The same header /pricing renders, but for where you are.
     const unmarked = (h: Element | null) =>
-      (h?.outerHTML ?? '').replace(/ aria-current="page"/g, '').replace(/ data-current(="")?/g, '').replace(/ is-current/g, '');
+      (h?.outerHTML ?? '')
+        .replace(/ aria-current="page"/g, '')
+        .replace(/ data-current(="")?/g, '')
+        .replace(/ is-current/g, '');
     expect(unmarked(header)).toBe(unmarked(parse(renderPricingBody()).querySelector('header.hdr')));
     expect(prod.querySelector('footer')?.outerHTML).toBe(parse(kitFooter()).querySelector('footer')?.outerHTML);
     // The theme switch is in the header's markup, hidden until the script shows it, as on every kit page (D8).
@@ -100,7 +104,11 @@ describe('S1, the hero', () => {
       expect(card?.hasAttribute('hidden')).toBe(true);
       expect(text(card?.querySelector('.bdg-name'))).toBe(name);
       expect(text(card?.querySelector('.bdg-role'))).toBe(role);
-      expect([...card!.querySelectorAll('.bdg-fact')].map((f) => `${text(f.querySelector('dt'))}: ${text(f.querySelector('dd'))}`)).toEqual(rest);
+      expect(
+        [...card!.querySelectorAll('.bdg-fact')].map(
+          (f) => `${text(f.querySelector('dt'))}: ${text(f.querySelector('dd'))}`,
+        ),
+      ).toEqual(rest);
       const [readyAt, items] = [last.slice(0, last.indexOf(': ')), last.slice(last.indexOf(': ') + 2)];
       expect(text(card?.querySelector('.bdg-feed-h'))).toBe(readyAt);
       expect([...card!.querySelectorAll('.bdg-feed li')].map(text)).toEqual(items.split(' / '));
@@ -124,7 +132,11 @@ describe('S1, the hero', () => {
 
   it('prints its figures final, from their sources: 100 and 700+ from the proof line, 58 from the Library', () => {
     const [agents, homes] = splitProof().stats;
-    expect([...hero!.querySelectorAll('.hh-num')].map(text)).toEqual([`${agents!.value}`, `${homes!.value}+`, `${ENTRIES.length}`]);
+    expect([...hero!.querySelectorAll('.hh-num')].map(text)).toEqual([
+      `${agents!.value}`,
+      `${homes!.value}+`,
+      `${ENTRIES.length}`,
+    ]);
     expect(ENTRIES.length).toBe(58);
     for (const n of hero!.querySelectorAll<HTMLElement>('[data-v3-count]')) {
       expect(text(n)).toBe(Number(n.dataset.v3Count).toLocaleString('en-US'));
@@ -133,7 +145,9 @@ describe('S1, the hero', () => {
   });
 
   it('links the buttons where the mockup does', () => {
-    expect([...hero!.querySelectorAll('.hh-cta a.btn')].map((a) => [text(a), a.getAttribute('href'), a.className])).toEqual([
+    expect(
+      [...hero!.querySelectorAll('.hh-cta a.btn')].map((a) => [text(a), a.getAttribute('href'), a.className]),
+    ).toEqual([
       ['Get 5 Free Skills', '#free', 'btn btn-primary btn-lg'],
       ['See the Programs', '#programs', 'btn btn-link'],
     ]);
@@ -144,7 +158,10 @@ describe('the site’s rules (brief § 6)', () => {
   /** Every free or buy button on the page: a Payment Link, or one that leads to the five free skills. */
   const ctas = (doc: Document) =>
     [...doc.querySelectorAll<HTMLAnchorElement>('main a')].filter(
-      (a) => /buy\.stripe\.com/.test(a.href) || a.getAttribute('href') === '#free' || a.getAttribute('href') === FREE_SKILLS_HREF,
+      (a) =>
+        /buy\.stripe\.com/.test(a.href) ||
+        a.getAttribute('href') === '#free' ||
+        a.getAttribute('href') === FREE_SKILLS_HREF,
     );
 
   it('puts the proof line in the same group as every free or buy button', () => {
@@ -154,7 +171,9 @@ describe('the site’s rules (brief § 6)', () => {
       for (const a of all) {
         const group = a.closest('.hh-cta, .band-cta, .cta-group, .plan-actions');
         expect(group, text(a)).not.toBeNull();
-        expect(text(group?.querySelector('.proof-line')), text(a)).toBe('Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year');
+        expect(text(group?.querySelector('.proof-line')), text(a)).toBe(
+          'Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year',
+        );
       }
     }
   });
@@ -162,7 +181,10 @@ describe('the site’s rules (brief § 6)', () => {
   it('never puts a buy or free button, a seat counter or a proof line inside a reveal or a fade', () => {
     const held = '.rv, .fade-1, .fade-2, .fade-3';
     for (const doc of [prod, preview]) {
-      const never = [...doc.querySelectorAll('main .proof-line, main .seatm, main [data-left], main .hh-stats'), ...ctas(doc)];
+      const never = [
+        ...doc.querySelectorAll('main .proof-line, main .seatm, main [data-left], main .hh-stats'),
+        ...ctas(doc),
+      ];
       expect(never.length).toBeGreaterThan(2);
       for (const el of never) expect(el.closest(held), el.outerHTML.slice(0, 80)).toBeNull();
     }
@@ -186,7 +208,8 @@ describe('pending placeholders (conflicts.md, Decisions): none left', () => {
   it('refuses a region using any key, the answered ones included, or a region left open', () => {
     for (const key of ['stat-source', 'spring-approval', 'video-still', 'team-plan-dec14', 'nope']) {
       const old = `<!--pending:${key}--><span>x</span><!--pending:${key}:else--><!--pending:${key}:end-->`;
-      for (const preview of [true, false]) expect(() => resolvePending(old, { preview }), key).toThrow(`Unknown pending key "${key}"`);
+      for (const preview of [true, false])
+        expect(() => resolvePending(old, { preview }), key).toThrow(`Unknown pending key "${key}"`);
     }
     expect(() => resolvePending('<!--pending:spring-approval--><p>', { preview: false })).toThrow(/unresolved/);
   });
@@ -215,7 +238,7 @@ describe('S2, the morning task sync recording', () => {
 
   function mp4Boxes(buf: Buffer): string[] {
     const boxes: string[] = [];
-    for (let at = 0; at + 8 <= buf.length; ) {
+    for (let at = 0; at + 8 <= buf.length;) {
       const size = buf.readUInt32BE(at);
       boxes.push(buf.subarray(at + 4, at + 8).toString('latin1'));
       if (size < 8) break;
@@ -224,20 +247,34 @@ describe('S2, the morning task sync recording', () => {
     return boxes;
   }
 
-  it('renders the video with its poster, inline controls, and no autoplay', () => {
+  it('renders the video with its poster, a scriptless player, and no autoplay', () => {
     const video = vid?.querySelector('figure.vid-frame video');
     const source = video?.querySelector('source');
     expect(source?.getAttribute('src')).toBe('/media/morning-task-sync.mp4?v=2');
     expect(source?.getAttribute('type')).toBe('video/mp4');
     expect(video?.getAttribute('poster')).toBe('/media/morning-task-sync.webp?v=2');
+    // Native controls stay in the markup so the film still plays with no script. The script takes them off.
     expect(video?.hasAttribute('controls')).toBe(true);
     expect(video?.hasAttribute('playsinline')).toBe(true);
-    expect(video?.getAttribute('preload')).toBe('metadata');
+    expect(video?.hasAttribute('muted')).toBe(true);
+    expect(video?.getAttribute('preload')).toBe('none');
     expect(video?.hasAttribute('autoplay')).toBe(false);
+    expect(video?.querySelector('track')).toBeNull();
     expect([video?.getAttribute('width'), video?.getAttribute('height')]).toEqual(['1920', '1080']);
     expect(video?.getAttribute('aria-label')).toBe(text(vid?.querySelector('.vid-caption')));
     expect(vid?.querySelector('img, picture, iframe')).toBeNull();
-    expect(read('./v3.css')).toMatch(/\.aiw \.vid-frame video \{[^}]*object-fit: contain;/);
+    expect(vid?.querySelector('.vid-chrome')?.hasAttribute('hidden')).toBe(true);
+    expect(vid?.querySelector('.vid-play')?.getAttribute('aria-label')).toBe('Play');
+    expect(vid?.querySelector('.vid-sound')?.getAttribute('aria-label')).toBe('Tap for sound');
+    expect(vid?.querySelector('.vid-sound-label')?.textContent).toBe('Tap for sound');
+    expect(vid?.querySelector('.vid-full')?.getAttribute('aria-label')).toBe('Full screen');
+    expect(vid?.querySelector('.vid-seek')?.getAttribute('role')).toBe('slider');
+    expect(text(vid)).not.toMatch(/100 agents|700\+ homes/);
+    const css = read('./v3.css');
+    expect(css).toMatch(/\.aiw \.vid-frame video \{[^}]*object-fit: contain;/);
+    expect(css).toMatch(/width:\s*min\(92vw,\s*1440px\)/);
+    expect(css).toMatch(/scale\(calc\(0\.94 \+ 0\.06 \* var\(--s\)\)\)/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.aiw \.vid-frame \{\s*transform: none;/);
 
     const mp4 = readFileSync(resolve(HERE, '../../../public/media/morning-task-sync.mp4'));
     // H.264 ('avc1'), never HEVC, which Firefox and many Android phones cannot play.

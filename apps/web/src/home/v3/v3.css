@@ -437,35 +437,45 @@
   }
 }
 
-/* --- S2 (vid): the morning task sync, in the 16:9 frame ----------------------------------------- */
+/* --- S2 (vid): the morning task sync, wide, with its own chrome --------------------------------- */
+/* The frame eases from 0.94 to full on `--p` (enter.ts) using transform and opacity only. With no
+   script, or under reduced motion, `--p` stays unset and the rule below forces full size. */
 
 .aiw .vid {
-  padding-block: 32px var(--section);
-  overflow: hidden;
-  overflow: clip;
+  padding-block: 88px calc(var(--section) + 16px);
 }
 .aiw .vid-head {
-  margin-bottom: 28px;
+  margin-bottom: 40px;
 }
-/* Grows to full size as it comes into view (`--p`, the script); settled with no script or no motion. */
+.aiw .vid-stage {
+  width: min(92vw, 1440px);
+  margin-inline: auto;
+}
 .aiw .vid-frame {
-  --s: min(1, calc(var(--p, 1) / 0.4));
+  --s: min(1, calc(var(--p, 1) / 0.45));
   position: relative;
   margin: 0;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   overflow: clip;
   border: 1px solid var(--line);
-  border-radius: calc(8px + 16px * (1 - var(--s)));
+  border-radius: 28px;
   background: var(--surface-raised);
-  transform: scale(calc(0.86 + 0.14 * var(--s)));
-  transform-origin: 50% 0;
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--aiw-cream) 14%, transparent),
+    0 22px 50px -18px color-mix(in srgb, var(--aiw-black) 55%, transparent),
+    0 52px 100px -36px color-mix(in srgb, var(--aiw-black) 42%, transparent);
+  transform: scale(calc(0.94 + 0.06 * var(--s)));
+  opacity: calc(0.94 + 0.06 * var(--s));
+  transform-origin: center;
+  cursor: pointer;
 }
 /* Fills the frame. The focus ring is drawn inside it: the frame clips overflow, so an offset ring
    would be cut off. */
 .aiw .vid-frame video {
   position: absolute;
   inset: 0;
+  z-index: 0;
   display: block;
   width: 100%;
   height: 100%;
@@ -478,10 +488,261 @@
 }
 .aiw .vid-caption {
   max-width: 640px;
-  margin-top: 24px;
+  margin-top: 32px;
   font-size: 16px;
   line-height: 1.55;
   color: var(--ink-secondary);
+}
+
+/* Chrome sits on the picture. Empty space passes clicks through to the frame (play or pause). */
+.aiw .vid-chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 18px 18px 14px;
+  pointer-events: none;
+}
+.aiw .vid-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  background: linear-gradient(to top, color-mix(in srgb, var(--aiw-black) 62%, transparent), transparent);
+  pointer-events: none;
+}
+.aiw .vid-btn,
+.aiw .vid-seek {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+.aiw .vid-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--aiw-cream) 34%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--aiw-black) 58%, transparent);
+  color: var(--aiw-cream);
+  cursor: pointer;
+}
+.aiw .vid-btn:hover {
+  background: color-mix(in srgb, var(--aiw-black) 74%, transparent);
+}
+.aiw .vid-ic {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.aiw .vid-ic-pause,
+.aiw .vid-ic-vol,
+.aiw .vid-ic-exit {
+  display: none;
+}
+.aiw .vid-sound {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  padding: 0 14px 0 12px;
+}
+.aiw .vid-sound-label {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.aiw .vid-sound[aria-pressed='true'] {
+  width: 44px;
+  padding: 0;
+}
+.aiw .vid-sound[aria-pressed='true'] .vid-ic-mute,
+.aiw .vid-sound[aria-pressed='true'] .vid-sound-label {
+  display: none;
+}
+.aiw .vid-sound[aria-pressed='true'] .vid-ic-vol {
+  display: block;
+}
+.aiw .vid-play {
+  grid-column: 1;
+  grid-row: 3;
+  justify-self: start;
+  align-self: end;
+  width: 44px;
+}
+.aiw .vid-full {
+  grid-column: 3;
+  grid-row: 3;
+  justify-self: end;
+  align-self: end;
+  width: 44px;
+}
+.aiw .vid-full[aria-pressed='true'] .vid-ic-enter {
+  display: none;
+}
+.aiw .vid-full[aria-pressed='true'] .vid-ic-exit {
+  display: block;
+}
+.aiw .vid-frame:not(.is-playing) .vid-play {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 2;
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--action);
+  color: var(--on-action);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 12px 32px -10px color-mix(in srgb, var(--aiw-black) 60%, transparent);
+}
+.aiw .vid-frame:not(.is-playing) .vid-play:hover {
+  background: var(--action);
+  filter: brightness(1.06);
+}
+.aiw .vid-frame:not(.is-playing) .vid-play .vid-ic {
+  width: 28px;
+  height: 28px;
+}
+.aiw .vid-frame.is-playing .vid-ic-play {
+  display: none;
+}
+.aiw .vid-frame.is-playing .vid-ic-pause {
+  display: block;
+}
+.aiw .vid-seek {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  display: flex;
+  align-items: flex-end;
+  height: 44px;
+  cursor: pointer;
+  touch-action: none;
+}
+.aiw .vid-seek-track {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--aiw-cream) 40%, transparent);
+}
+.aiw .vid-seek-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transform: scaleX(var(--q, 0));
+  transform-origin: left center;
+}
+.aiw .vid-seek:hover .vid-seek-track,
+.aiw .vid-seek:focus-visible .vid-seek-track {
+  height: 5px;
+}
+
+/* While it plays, the bar fades. The muted pill stays, so sound has an obvious way on. A keyboard
+   focus, a hover, or fullscreen brings the bar back. Touch screens keep it up: there is no hover. */
+.aiw .vid-fade,
+.aiw .vid-scrim,
+.aiw .vid-sound {
+  transition: opacity 0.28s var(--ease);
+}
+.aiw .vid-frame.is-playing .vid-fade,
+.aiw .vid-frame.is-playing .vid-scrim,
+.aiw .vid-frame.is-playing .vid-sound[aria-pressed='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+.aiw .vid-frame.is-playing:hover .vid-fade,
+.aiw .vid-frame.is-playing:focus-within .vid-fade,
+.aiw .vid-frame.is-fs .vid-fade,
+.aiw .vid-frame.is-playing:hover .vid-scrim,
+.aiw .vid-frame.is-playing:focus-within .vid-scrim,
+.aiw .vid-frame.is-fs .vid-scrim,
+.aiw .vid-frame.is-playing:hover .vid-sound[aria-pressed='true'],
+.aiw .vid-frame.is-playing:focus-within .vid-sound[aria-pressed='true'],
+.aiw .vid-frame.is-fs .vid-sound[aria-pressed='true'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.aiw .vid-frame .vid-scrim,
+.aiw .vid-frame.is-playing:hover .vid-scrim,
+.aiw .vid-frame.is-playing:focus-within .vid-scrim,
+.aiw .vid-frame.is-fs .vid-scrim {
+  pointer-events: none;
+}
+.aiw .vid-frame.is-fs {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: var(--aiw-black);
+  transform: none;
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .aiw .vid-frame.is-playing .vid-fade,
+  .aiw .vid-frame.is-playing .vid-scrim,
+  .aiw .vid-frame.is-playing .vid-sound[aria-pressed='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .aiw .vid-frame.is-playing .vid-scrim {
+    pointer-events: none;
+  }
+}
+@media (max-width: 640px) {
+  .aiw .vid {
+    padding-block: 56px 72px;
+  }
+  .aiw .vid-head {
+    margin-bottom: 24px;
+  }
+  .aiw .vid-stage {
+    width: calc(100% - 16px);
+  }
+  .aiw .vid-frame {
+    border-radius: 12px;
+  }
+  .aiw .vid-chrome {
+    padding: 12px;
+    gap: 6px 8px;
+  }
+  .aiw .vid-frame:not(.is-playing) .vid-play {
+    width: 60px;
+    height: 60px;
+    top: 42%;
+  }
+  /* The picture is short: the center button owns the pause, and the bar waits until it plays. */
+  .aiw .vid-frame:not(.is-playing) .vid-full,
+  .aiw .vid-frame:not(.is-playing) .vid-seek,
+  .aiw .vid-frame:not(.is-playing) .vid-scrim {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .aiw .vid-caption {
+    margin-top: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aiw .vid-frame {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 /* --- S3 What a skill is (wsk): a chat that starts over, a skill set up once ------------------- */
@@ -1094,7 +1355,11 @@
   grid-template-columns: minmax(0, 1fr);
   min-height: 520px;
   border-radius: var(--radius-panel);
-  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ripple) 14%, transparent) 1px, transparent 1.6px);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--ripple) 14%, transparent) 1px,
+    transparent 1.6px
+  );
   background-size: 22px 22px;
 }
 .aiw .how.is-static .how-panels {

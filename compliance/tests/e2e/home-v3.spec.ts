@@ -50,7 +50,8 @@ async function offerOnLoad(page: Page): Promise<{ counts: Record<string, number>
   return page.evaluate(() => {
     const held: string[] = [];
     const counts: Record<string, number> = {};
-    const name = (e: Element) => `${e.tagName.toLowerCase()}.${(e.getAttribute('class') ?? '').trim().split(/\s+/).join('.')}`;
+    const name = (e: Element) =>
+      `${e.tagName.toLowerCase()}.${(e.getAttribute('class') ?? '').trim().split(/\s+/).join('.')}`;
     const ofOpenState = (el: Element) => {
       const part = el.closest('[data-when]');
       return !part || (part.getAttribute('data-when') ?? '').split(' ').some((s) => s.endsWith('-open'));
@@ -66,7 +67,8 @@ async function offerOnLoad(page: Page): Promise<{ counts: Record<string, number>
       for (const el of els) {
         const label = `${cls}: ${name(el)} "${(el.textContent ?? '').trim().slice(0, 30)}"`;
         const r = el.getBoundingClientRect();
-        if (!el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }) || !r.width || !r.height) held.push(`${label} is not visible`);
+        if (!el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }) || !r.width || !r.height)
+          held.push(`${label} is not visible`);
         for (let a: Element | null = el; a; a = a.parentElement) {
           const o = getComputedStyle(a).opacity;
           if (o !== '1') held.push(`${label}: ${a === el ? 'its' : `${name(a)}'s`} opacity is ${o}`);
@@ -79,7 +81,8 @@ async function offerOnLoad(page: Page): Promise<{ counts: Record<string, number>
 
 /** S11 has its meter, 4 proof lines and 6 program buttons; S12 its meter, 1 proof line and 2 buttons. */
 const OFFER_PARTS = { pg: 11, wed: 4 };
-const seatLines = (page: Page) => page.locator('section.pg [data-v3-seats] .status, section.wed [data-v3-seats] .status');
+const seatLines = (page: Page) =>
+  page.locator('section.pg [data-v3-seats] .status, section.wed [data-v3-seats] .status');
 
 /**
  * For each element `selector` finds under `scope`: what keeps it from being whole on screen. An
@@ -90,7 +93,13 @@ const seatLines = (page: Page) => page.locator('section.pg [data-v3-seats] .stat
  * (the hero's ripple rings and stacked "ghost" cards are drawings that bleed past the section on
  * purpose, as in the mockup). A part that is missing altogether is reported.
  */
-async function cuts(page: Page, scope: string, selector: string, within?: string, wordsOnly = false): Promise<string[]> {
+async function cuts(
+  page: Page,
+  scope: string,
+  selector: string,
+  within?: string,
+  wordsOnly = false,
+): Promise<string[]> {
   return page.evaluate(
     ([scopeSel, sel, withinSel, onlyWords]) => {
       const out: string[] = [];
@@ -127,9 +136,11 @@ async function cuts(page: Page, scope: string, selector: string, within?: string
           [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '');
         if (onlyWords && !carries) continue;
         const text = `${name(el)} "${(el.textContent ?? '').trim().slice(0, 32)}"`;
-        if (r.left < -0.5 || r.right > innerWidth + 0.5) out.push(`${text} runs off the screen (${Math.round(r.left)}–${Math.round(r.right)} of ${innerWidth})`);
+        if (r.left < -0.5 || r.right > innerWidth + 0.5)
+          out.push(`${text} runs off the screen (${Math.round(r.left)}–${Math.round(r.right)} of ${innerWidth})`);
         const border = withinSel ? el.parentElement?.closest(withinSel) : null;
-        if (border && (offX(r, inner(border)) || offY(r, inner(border)))) out.push(`${text} is outside ${name(border)}`);
+        if (border && (offX(r, inner(border)) || offY(r, inner(border))))
+          out.push(`${text} is outside ${name(border)}`);
         for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
           const cs = getComputedStyle(a);
           const box = inner(a);
@@ -138,7 +149,8 @@ async function cuts(page: Page, scope: string, selector: string, within?: string
           }
         }
         const own = getComputedStyle(el);
-        if (own.overflowX !== 'visible' && el.scrollWidth > el.clientWidth + 1) out.push(`${text} cuts off its own words`);
+        if (own.overflowX !== 'visible' && el.scrollWidth > el.clientWidth + 1)
+          out.push(`${text} cuts off its own words`);
       }
       return out;
     },
@@ -152,23 +164,32 @@ for (const width of [390, 1280]) {
     const video = page.locator('section.vid video');
     await expect(video).toBeVisible();
     await expect(video).toHaveAttribute('poster', '/media/morning-task-sync.webp?v=2');
-    await expect(video).toHaveAttribute('preload', 'metadata');
+    await expect(video).toHaveAttribute('preload', /^(none|auto)$/);
     await expect(video.locator('source')).toHaveAttribute('src', '/media/morning-task-sync.mp4?v=2');
     await expect(video.locator('source')).toHaveAttribute('type', 'video/mp4');
     const flags = await video.evaluate((el: HTMLVideoElement) => ({
       autoplay: el.hasAttribute('autoplay'),
       controls: el.hasAttribute('controls'),
       playsinline: el.hasAttribute('playsinline'),
+      muted: el.muted,
       paused: el.paused,
       label: el.getAttribute('aria-label'),
     }));
     expect(flags).toEqual({
       autoplay: false,
-      controls: true,
+      controls: false,
       playsinline: true,
+      muted: true,
       paused: true,
-      label: 'Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.',
+      label:
+        'Connor’s morning task sync, recorded live: Claude reads ClickUp and Gmail and posts the day’s plan. 60 seconds.',
     });
+    await expect(page.getByRole('button', { name: 'Play' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Tap for sound' })).toBeVisible();
+    if (width === 1280) {
+      await expect(page.getByRole('button', { name: 'Full screen' })).toBeVisible();
+      await expect(page.getByRole('slider', { name: 'Playback position' })).toBeVisible();
+    }
     await expect(page.locator('section.vid h2')).toHaveText('Watch it run in a real business.');
     await expect(page.locator('section.vid .vid-caption')).toHaveText(flags.label!);
     const box = await video.boundingBox();
@@ -176,7 +197,9 @@ for (const width of [390, 1280]) {
     const poster = await page.request.get(`${APP_BASE}/media/morning-task-sync.webp?v=2`);
     expect(poster.status()).toBe(200);
     expect(poster.headers()['content-type'] ?? '').toMatch(/image\/webp/);
-    const mp4 = await page.request.get(`${APP_BASE}/media/morning-task-sync.mp4?v=2`, { headers: { Range: 'bytes=0-1' } });
+    const mp4 = await page.request.get(`${APP_BASE}/media/morning-task-sync.mp4?v=2`, {
+      headers: { Range: 'bytes=0-1' },
+    });
     expect([200, 206]).toContain(mp4.status());
     expect(mp4.headers()['content-type'] ?? '').toMatch(/video\/mp4/);
   });
@@ -205,23 +228,31 @@ for (const theme of THEMES) {
     });
   }
 
-  test(`S4's "done before 8 AM" chips keep their check at 390, the words inside the chip, ${theme} @g9`, async ({ page }) => {
+  test(`S4's "done before 8 AM" chips keep their check at 390, the words inside the chip, ${theme} @g9`, async ({
+    page,
+  }) => {
     await open(page, theme, 390);
     const checks = page.locator('section.mon .mon-b-ok');
     await expect(checks).toHaveCount(6);
-    for (const box of await checks.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON() as DOMRect))) {
+    for (const box of await checks.evaluateAll((els) =>
+      els.map((e) => e.getBoundingClientRect().toJSON() as DOMRect),
+    )) {
       expect([Math.round(box.width), Math.round(box.height)], 'the mockup’s 16px check').toEqual([16, 16]);
     }
     expect(await cuts(page, 'section.mon', '.mon-b-done > span', '.mon-b')).toEqual([]);
   });
 
-  test(`no words, picture or control in S1 to S16 runs off a 390 screen or out of a box that clips it, ${theme} @g9`, async ({ page }) => {
+  test(`no words, picture or control in S1 to S16 runs off a 390 screen or out of a box that clips it, ${theme} @g9`, async ({
+    page,
+  }) => {
     await open(page, theme, 390);
     expect(await cuts(page, 'main', 'section *', undefined, true)).toEqual([]);
   });
 
   for (const width of [390, 1280]) {
-    test(`every link and button in S1 to S16 is a 44px tap (Spring's mobile rule) at ${width}, ${theme} @g9`, async ({ page }) => {
+    test(`every link and button in S1 to S16 is a 44px tap (Spring's mobile rule) at ${width}, ${theme} @g9`, async ({
+      page,
+    }) => {
       await open(page, theme, width);
       const small = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>('main a[href], main button')]
@@ -246,7 +277,10 @@ for (const theme of THEMES) {
       await expect(page.locator('section.pg')).toHaveAttribute('data-acc', 'open');
       expect(await offerOnLoad(page)).toEqual({ counts: OFFER_PARTS, held: [] });
       // The days left from the deadline written into the page; the seats are the written cap, not a count.
-      await expect(seatLines(page)).toHaveText(['18 days left · 15 of 15 founding seats', '18 days left · 15 of 15 founding seats']);
+      await expect(seatLines(page)).toHaveText([
+        '18 days left · 15 of 15 founding seats',
+        '18 days left · 15 of 15 founding seats',
+      ]);
     });
   }
 
@@ -260,7 +294,10 @@ for (const theme of THEMES) {
     for (const cls of ['pg', 'wed']) await page.locator(`section.${cls}`).scrollIntoViewIfNeeded();
     await expect(page.locator('section.wed [data-v3-built]')).toHaveText('8');
     expect(await offerOnLoad(page)).toEqual({ counts: OFFER_PARTS, held: [] });
-    await expect(seatLines(page)).toHaveText(['18 days left · 15 of 15 founding seats', '18 days left · 15 of 15 founding seats']);
+    await expect(seatLines(page)).toHaveText([
+      '18 days left · 15 of 15 founding seats',
+      '18 days left · 15 of 15 founding seats',
+    ]);
   });
 }
 
@@ -268,7 +305,9 @@ test.describe('with no script', () => {
   test.use({ javaScriptEnabled: false });
 
   for (const width of [390, 1280]) {
-    test(`S11 and S12 show their seat meter, proof lines and program buttons on load, ${width} @g9`, async ({ page }) => {
+    test(`S11 and S12 show their seat meter, proof lines and program buttons on load, ${width} @g9`, async ({
+      page,
+    }) => {
       await page.setViewportSize({ width, height: 844 });
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.route('**/api/**', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
@@ -276,13 +315,22 @@ test.describe('with no script', () => {
       await expect(page.locator('html')).not.toHaveClass(/aiw-js/);
       expect(await offerOnLoad(page)).toEqual({ counts: OFFER_PARTS, held: [] });
       // What the page knows for certain: the deadline's day and the written cap.
-      await expect(seatLines(page)).toHaveText(['Ends Nov 30 · 15 of 15 founding seats', 'Ends Nov 30 · 15 of 15 founding seats']);
-      expect(await page.locator('section.pg .seatm, section.wed .seatm').evaluateAll((els) => els.map((e) => e.getAttribute('data-left')))).toEqual(['15', '15']);
+      await expect(seatLines(page)).toHaveText([
+        'Ends Nov 30 · 15 of 15 founding seats',
+        'Ends Nov 30 · 15 of 15 founding seats',
+      ]);
+      expect(
+        await page
+          .locator('section.pg .seatm, section.wed .seatm')
+          .evaluateAll((els) => els.map((e) => e.getAttribute('data-left'))),
+      ).toEqual(['15', '15']);
     });
   }
 });
 
-test('S7’s “People” closes the skills and takes them out of the keyboard’s reach; “People and AI” brings them back @g9', async ({ page }) => {
+test('S7’s “People” closes the skills and takes them out of the keyboard’s reach; “People and AI” brings them back @g9', async ({
+  page,
+}) => {
   await open(page, 'dark', 390);
   const count = page.locator('[data-oc-skills]');
   await expect(count).toHaveText('29');
@@ -309,7 +357,9 @@ test('S15 opens one question at a time, natively: opening the second closes the 
   await expect(items.nth(0)).not.toHaveAttribute('open', '');
 });
 
-test('S9 recounts from the keyboard: a slider moved with the arrow key changes the hours back @g9', async ({ page }) => {
+test('S9 recounts from the keyboard: a slider moved with the arrow key changes the hours back @g9', async ({
+  page,
+}) => {
   await open(page, 'dark', 390);
   const first = page.locator('section.hrs input[type="range"]').first();
   await first.focus();
@@ -319,7 +369,9 @@ test('S9 recounts from the keyboard: a slider moved with the arrow key changes t
   await expect(page.locator('[data-v3-out="dollars"]')).toHaveText('$150,000');
 });
 
-test('S11 and S12 follow /api/offer: the seats once counted, then sold out with the waiting list, the proof line beside it @g9', async ({ page }) => {
+test('S11 and S12 follow /api/offer: the seats once counted, then sold out with the waiting list, the proof line beside it @g9', async ({
+  page,
+}) => {
   const facts = (left: number) => ({
     open: true,
     founding: { open: true, closesAt: '2026-11-30T23:59:00-07:00' },
@@ -329,7 +381,9 @@ test('S11 and S12 follow /api/offer: the seats once counted, then sold out with 
   let left = 9;
   await open(page, 'dark', 1280);
   // Registered after `open()`'s stand-in for the API, so it answers first (Playwright runs the newest route first).
-  await page.route('**/api/offer', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(facts(left)) }));
+  await page.route('**/api/offer', (r) =>
+    r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(facts(left)) }),
+  );
   await page.reload();
   await expect(page.locator('#p-accelerator [data-v3-seats]')).toBeVisible();
   await expect(page.locator('#p-accelerator .status')).toContainText('9 of 15 founding seats left');
