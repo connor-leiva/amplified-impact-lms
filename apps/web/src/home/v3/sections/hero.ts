@@ -7,7 +7,8 @@
 //     seat or proof related starts hidden). The mockup fades both in on load;
 //   - the figures are final in the markup, from their sources: 100 and 700+ from the proof line,
 //     58 from the Library. The script may count them up only once they scroll into view;
-//   - the badge is an illustration, so "Made-up example" stays on it, on every tab.
+//   - the badge is an illustration. Each card's accessible name still says it is a made-up example.
+//     The visible "Made-up example" tag is not printed on the card.
 //
 // THE BADGE'S TABS work without the script as far as they can: Owners shows, and the other two badges
 // are in the markup, hidden. The script (`client/badges.ts`) switches them and, on a wide screen with
@@ -15,8 +16,7 @@
 
 import { esc } from '../../../ai101/render';
 import { ripple } from '../../../kit/icons';
-import { KIT } from '../../../kit/content';
-import { button, exTag, proofLine, words } from '../../../kit/parts';
+import { button, proofLine, words } from '../../../kit/parts';
 import { ENTRIES } from '../../../library/content';
 import { splitProof } from '../../sections/proof';
 import { HERO, type Badge } from '../content';
@@ -32,21 +32,26 @@ export function heroStats(): { value: number; plus: boolean; label: string }[] {
   ];
 }
 
-/** The badge's photo: rings around the ring and dot (the mockup's), breathing on the outside one. */
-const rings = () =>
-  '<svg viewBox="0 0 96 96" class="bdg-rings" aria-hidden="true" focusable="false"><circle cx="48" cy="48" r="44"/><circle cx="48" cy="48" r="32"/><circle class="bdg-ring-in" cx="48" cy="48" r="19"/><circle class="bdg-dot" cx="48" cy="48" r="7.5"/></svg>';
+/**
+ * The badge's photo: a head-and-shoulders silhouette on a light photo slot.
+ * Geometry only, so it cannot be read as a real or generated face.
+ */
+const avatar = () =>
+  '<svg viewBox="0 0 76 76" class="bdg-avatar" aria-hidden="true" focusable="false"><path class="bdg-avatar-shoulders" d="M38 39c-5.5 0-9.5 2.4-12.4 6.2C18.2 50.4 6.4 63 2.5 82h71C69.6 63 57.8 50.4 50.4 45.2 47.5 41.4 43.5 39 38 39z"/><circle class="bdg-avatar-head" cx="38" cy="27" r="13.5"/></svg>';
 
 function badge(b: Badge, shown: boolean): string {
   const label = `${b.name}, an AI employee ${b.role.charAt(0).toLowerCase()}${b.role.slice(1)}. A made-up example.`;
   return [
     `<article class="bdg" data-badge="${b.key}" aria-label="${esc(label)}"${shown ? '' : ' hidden'}>`,
-    `<span class="bdg-slot" aria-hidden="true"></span>`,
-    `<div class="bdg-top"><span class="mono bdg-kicker">${ringDot(14)}${esc(HERO.kicker)}</span>${exTag()}</div>`,
-    `<div class="bdg-id"><span class="bdg-photo" aria-hidden="true">${rings()}</span><div class="bdg-who"><p class="bdg-name">${esc(
+    `<span class="bdg-slot" aria-hidden="true"><span class="bdg-clip"></span></span>`,
+    `<div class="bdg-top"><span class="mono bdg-kicker">${ringDot(14)}${esc(HERO.kicker)}</span></div>`,
+    `<div class="bdg-id"><span class="bdg-photo" aria-hidden="true">${avatar()}</span><div class="bdg-who"><p class="bdg-name">${esc(
       b.name,
     )}</p><p class="mono bdg-role">${esc(b.role)}</p></div></div>`,
     `<dl class="bdg-facts">${b.facts
-      .map(([k, v], j) => `<div class="bdg-fact" style="--j:${j}"><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`)
+      .map(
+        ([k, v], j) => `<div class="bdg-fact" style="--j:${j}"><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`,
+      )
       .join('')}</dl>`,
     `<div class="bdg-feed"><p class="mono bdg-feed-h"><span class="bdg-live" aria-hidden="true"></span>${esc(b.readyAt)}</p><ul role="list">${b.ready
       .map(
@@ -119,6 +124,3 @@ export function hero(): string {
     `</section>`,
   ].join('');
 }
-
-/** The kit's word for the tag on every illustration, so a test can hold the badge to it. */
-export const EXAMPLE = KIT.example;

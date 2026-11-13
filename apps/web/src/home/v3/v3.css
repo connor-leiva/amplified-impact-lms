@@ -143,31 +143,75 @@
 .aiw .bdg-strap {
   position: absolute;
   left: 50%;
+  z-index: 1;
   top: -36px;
-  width: 1px;
-  height: 88px;
-  background: var(--line-control);
+  width: 22px;
+  height: 80px;
+  margin-left: -11px;
+  border-radius: 2px;
+  pointer-events: none;
+  background-color: var(--aiw-sage-muted);
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--aiw-black) 42%, var(--aiw-sage-muted)) 0 2px,
+    var(--aiw-sage-muted) 2px 4px,
+    color-mix(in srgb, var(--aiw-paper) 22%, var(--aiw-sage-muted)) 4px 5px
+  );
+  box-shadow:
+    inset 1px 0 0 color-mix(in srgb, var(--aiw-paper) 35%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--aiw-black) 22%, transparent),
+    2px 8px 10px -6px color-mix(in srgb, var(--aiw-black) 45%, transparent);
 }
 .aiw .bdg-strap::before {
   content: '';
   position: absolute;
-  left: -4px;
-  top: -4px;
-  width: 9px;
-  height: 9px;
-  border: 1.5px solid var(--line-control);
-  border-radius: 50%;
-  background: var(--surface);
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--aiw-paper) 28%, transparent);
 }
 .aiw .bdg-deck {
   position: relative;
   display: grid;
 }
 .aiw .bdg-ghost {
+  position: relative;
   grid-area: 1 / 1;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: var(--surface-raised);
+  background:
+    linear-gradient(var(--surface), var(--surface)) 50% 16px / 34px 8px no-repeat,
+    linear-gradient(128deg, color-mix(in srgb, var(--aiw-paper) 14%, transparent), transparent 42%),
+    var(--surface-raised);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--aiw-paper) 16%, transparent),
+    0 12px 22px -14px color-mix(in srgb, var(--aiw-black) 48%, transparent);
+}
+.aiw .bdg-ghost::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 42px;
+  width: 52px;
+  height: 64px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--aiw-hairline-light) 80%, var(--aiw-bone));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--aiw-slate) 25%, transparent);
+}
+.aiw .bdg-ghost::after {
+  content: '';
+  position: absolute;
+  left: 88px;
+  right: 22px;
+  top: 50px;
+  height: 64px;
+  background:
+    linear-gradient(var(--line-control), var(--line-control)) 0 4px / 78% 7px no-repeat,
+    linear-gradient(var(--line), var(--line)) 0 22px / 52% 6px no-repeat,
+    linear-gradient(var(--line), var(--line)) 0 40px / 92% 5px no-repeat,
+    linear-gradient(var(--line), var(--line)) 0 56px / 64% 5px no-repeat;
 }
 .aiw .bdg-ghost-1 {
   transform: translate(16px, 12px) rotate(4deg);
@@ -180,29 +224,122 @@
 .aiw .bdg {
   grid-area: 1 / 1;
   position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 18px;
   padding: 30px 26px 24px;
   border: 1px solid var(--line-control);
+  border-top-color: color-mix(in srgb, var(--aiw-paper) 28%, var(--line-control));
   border-radius: 14px;
   background: var(--surface-raised);
-  transform-origin: 50% -60px;
-  animation: bdg-swing 1.5s var(--ease) both;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--aiw-paper) 32%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--aiw-black) 28%, transparent),
+    0 1px 1px color-mix(in srgb, var(--aiw-black) 18%, transparent),
+    0 16px 28px -12px color-mix(in srgb, var(--aiw-black) 55%, transparent),
+    0 40px 56px -24px color-mix(in srgb, var(--aiw-black) 42%, transparent);
+  transform: rotate(-3deg);
+  transform-origin: 50% 18px;
+  animation:
+    bdg-swing 1.5s var(--ease) both,
+    bdg-sway 7s var(--ease) 1.5s infinite;
+}
+.aiw .bdg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      118deg,
+      color-mix(in srgb, var(--aiw-paper) 30%, transparent) 0%,
+      transparent 24%,
+      transparent 62%,
+      color-mix(in srgb, var(--aiw-paper) 10%, transparent) 82%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--aiw-paper) 12%, transparent),
+      transparent 30%,
+      transparent 74%,
+      color-mix(in srgb, var(--aiw-black) 14%, transparent)
+    ),
+    var(--grain);
+  background-size:
+    auto,
+    auto,
+    180px 180px;
 }
 .aiw .bdg[hidden] {
   display: none;
 }
 .aiw .bdg-slot {
   position: absolute;
+  z-index: 3;
   left: 50%;
-  top: 12px;
-  width: 46px;
-  height: 9px;
-  margin-left: -23px;
-  border: 1px solid var(--line-control);
-  border-radius: 9px;
-  background: var(--surface);
+  top: 16px;
+  width: 48px;
+  height: 12px;
+  margin-left: -24px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--aiw-black) 78%, var(--surface));
+  box-shadow:
+    inset 0 2px 3px color-mix(in srgb, var(--aiw-black) 70%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--aiw-paper) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--aiw-black) 40%, transparent);
+}
+.aiw .bdg-clip {
+  position: absolute;
+  left: 50%;
+  top: -16px;
+  width: 36px;
+  height: 16px;
+  margin-left: -18px;
+  border-radius: 4px 4px 3px 3px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--aiw-paper) 88%, var(--aiw-sage)) 0%,
+    color-mix(in srgb, var(--aiw-sage) 62%, var(--aiw-slate-muted)) 42%,
+    color-mix(in srgb, var(--aiw-slate) 75%, var(--aiw-black)) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--aiw-paper) 90%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--aiw-black) 35%, transparent),
+    0 1px 2px color-mix(in srgb, var(--aiw-black) 35%, transparent);
+}
+.aiw .bdg-clip::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--aiw-black) 28%, var(--aiw-slate));
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--aiw-black) 45%, transparent);
+}
+.aiw .bdg-clip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--aiw-sage) 35%, var(--aiw-slate));
+  background: radial-gradient(
+    circle at 50% 40%,
+    color-mix(in srgb, var(--aiw-paper) 55%, var(--aiw-sage)),
+    color-mix(in srgb, var(--aiw-slate) 80%, var(--aiw-black))
+  );
+  box-shadow:
+    inset 0 1px 1px color-mix(in srgb, var(--aiw-black) 40%, transparent),
+    0 1px 0 color-mix(in srgb, var(--aiw-paper) 40%, transparent);
 }
 .aiw .bdg-top {
   display: flex;
@@ -229,37 +366,29 @@
   height: 76px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--surface);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--aiw-slate) 32%, var(--aiw-hairline-light));
+  border-radius: 2px;
+  background: radial-gradient(
+    130% 110% at 50% 18%,
+    var(--aiw-bone),
+    var(--aiw-hairline-light) 62%,
+    color-mix(in srgb, var(--aiw-hairline-light) 72%, var(--aiw-sage-muted))
+  );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--aiw-paper) 55%, transparent),
+    inset 0 1px 2px color-mix(in srgb, var(--aiw-black) 16%, transparent);
 }
-.aiw .bdg-rings {
-  width: 64px;
-  height: 64px;
-  overflow: visible;
+.aiw .bdg-avatar {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
-.aiw .bdg-rings circle {
-  fill: none;
-  stroke: var(--ripple);
-  stroke-opacity: 0.14;
-  stroke-width: 1;
-  transform-box: fill-box;
-  transform-origin: center;
+.aiw .bdg-avatar-shoulders {
+  fill: color-mix(in srgb, var(--aiw-slate-muted) 78%, var(--aiw-sage));
 }
-.aiw .bdg-rings circle:nth-child(2) {
-  stroke-opacity: 0.24;
-}
-.aiw .bdg-rings circle:first-child {
-  animation: bdg-breathe 3.2s var(--ease) infinite;
-}
-.aiw .bdg-rings .bdg-ring-in {
-  stroke: var(--signal);
-  stroke-opacity: 1;
-  stroke-width: 2;
-}
-.aiw .bdg-rings .bdg-dot {
-  fill: var(--signal);
-  stroke: none;
+.aiw .bdg-avatar-head {
+  fill: var(--aiw-slate);
 }
 .aiw .bdg-name {
   font-size: 26px;
@@ -274,7 +403,9 @@
 .aiw .bdg-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
+  border-top: 1px solid color-mix(in srgb, var(--ink) 16%, var(--line));
+  background-image: var(--grain);
+  background-size: 140px 140px;
 }
 .aiw .bdg-fact {
   display: flex;
@@ -398,31 +529,35 @@
 @keyframes bdg-swing {
   0% {
     opacity: 0;
-    transform: translateY(-16px) rotate(-5deg);
+    transform: translateY(-16px) rotate(-8deg);
   }
   30% {
     opacity: 1;
-    transform: rotate(2.4deg);
+    transform: rotate(1.2deg);
   }
   55% {
-    transform: rotate(-1.2deg);
+    transform: rotate(-4.2deg);
   }
   78% {
-    transform: rotate(0.5deg);
+    transform: rotate(-2.2deg);
   }
   100% {
-    transform: none;
+    transform: rotate(-3deg);
   }
 }
-@keyframes bdg-breathe {
+@keyframes bdg-sway {
   0%,
   100% {
-    transform: scale(0.9);
-    stroke-opacity: 0.08;
+    transform: rotate(-3deg);
   }
   50% {
-    transform: scale(1.06);
-    stroke-opacity: 0.24;
+    transform: rotate(-1.6deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aiw .bdg {
+    animation-name: none;
+    transform: rotate(-3deg);
   }
 }
 @keyframes bdg-in {
@@ -3972,7 +4107,7 @@ html:not(.aiw-js) .aiw .how-panel {
   }
   .aiw .bdg-strap {
     top: -60px;
-    height: 110px;
+    height: 104px;
   }
 }
 @media (max-width: 640px) {

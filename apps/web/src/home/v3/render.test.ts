@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { KIT } from '../../kit/content';
 import { kitFooter, kitHeader } from '../../kit/render';
 import { ENTRIES } from '../../library/content';
 import { renderPricingBody } from '../../pricing/render';
@@ -91,7 +90,11 @@ describe('S1, the hero', () => {
   const hero = prod.querySelector('section.hh');
 
   it('says copy.md’s words, in order, with the Owners badge showing', () => {
-    expectInOrder(hero, copyLines('S1 Hero'));
+    // The visible "Made-up example" tag is off the badge. copy.md still lists that line.
+    expectInOrder(
+      hero,
+      copyLines('S1 Hero').filter((line) => line !== 'MADE-UP EXAMPLE'),
+    );
     expect(text(hero?.querySelector('h1'))).toBe('Your next employee doesn’t need a desk.');
   });
 
@@ -121,12 +124,17 @@ describe('S1, the hero', () => {
     expect(hero?.querySelector('.bdg-tabs')?.getAttribute('aria-label')).toBe(HERO.tabsLabel);
   });
 
-  it('tags every badge “Made-up example”: they are illustrations', () => {
-    const badges = [...hero!.querySelectorAll('.bdg')];
+  it('keeps each badge a made-up example in its name, with no visible tag', () => {
+    const badges = [...hero!.querySelectorAll('article.bdg')];
     expect(badges).toHaveLength(3);
     for (const b of badges) {
-      expect(text(b.querySelector('.ex-tag'))).toBe(KIT.example);
+      expect(b.querySelector('.ex-tag')).toBeNull();
+      expect(b.textContent).not.toMatch(/Made-up example/i);
       expect(b.getAttribute('aria-label')).toMatch(/A made-up example\.$/);
+      const photo = b.querySelector('.bdg-photo');
+      expect(photo?.getAttribute('aria-hidden')).toBe('true');
+      expect(photo?.querySelector('svg.bdg-avatar')).not.toBeNull();
+      expect(photo?.querySelector('.bdg-rings, img')).toBeNull();
     }
   });
 
@@ -326,5 +334,11 @@ describe('the stylesheet', () => {
     expect(forest).toContain('--surface: var(--aiw-forest);');
     expect(forest).not.toMatch(/#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i);
     expect(/\.aiw \.bdg-tab \{[^}]*min-height: 44px;/.test(css)).toBe(true);
+    expect(css).not.toMatch(/\.bdg-rings|bdg-breathe/);
+    expect(css).toMatch(/\.aiw \.bdg \{[^}]*transform: rotate\(-3deg\);/);
+    expect(css).toMatch(/@keyframes bdg-sway/);
+    expect(css).toMatch(
+      /@media \(prefers-reduced-motion: reduce\) \{\s*\.aiw \.bdg \{\s*animation-name: none;\s*transform: rotate\(-3deg\);/,
+    );
   });
 });
