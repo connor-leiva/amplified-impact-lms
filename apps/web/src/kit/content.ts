@@ -8,7 +8,7 @@ import { MEMBERSHIP_NAME, PLAN_NAMES } from '@ai/core/offer';
 import { OFFERS } from '../offer/content';
 import { PROGRAMS } from '../site/content';
 import { AGENT_PLAN } from '../site/offers-content';
-import type { BrandIconName } from './icons';
+import type { ProgramKey } from '../home/program-logo';
 
 /** The words the mockup adds, for controls only the kit has. */
 export const KIT = {
@@ -22,12 +22,15 @@ export const KIT = {
   example: 'Made-up example',
 } as const;
 
-/** Each program's line in the Programs menu: who it's for, /pricing's own words, and its brand icon. */
-const PROGRAM_LINES: Readonly<Record<string, { who: string; icon: BrandIconName }>> = {
-  [PLAN_NAMES.cohort]: { who: OFFERS.cohort.forWho, icon: 'sessions' },
-  [PLAN_NAMES.agents]: { who: OFFERS.agents.forWho, icon: 'team-hub' },
-  [PLAN_NAMES.agent_plan]: { who: AGENT_PLAN.forWho, icon: 'ai-employee' },
-  [MEMBERSHIP_NAME]: { who: OFFERS.membership.forWho, icon: 'resource-vault' },
+/**
+ * Each program's line in the Programs menu: who it's for, /pricing's own words, and its logo: Connor's
+ * lockup (`programLogo()` in `../home/program-logo.ts`, PR #73's artwork), never a generic icon.
+ */
+const PROGRAM_LINES: Readonly<Record<string, { who: string; logo: ProgramKey }>> = {
+  [PLAN_NAMES.cohort]: { who: OFFERS.cohort.forWho, logo: 'accelerator' },
+  [PLAN_NAMES.agents]: { who: OFFERS.agents.forWho, logo: 'team-plan' },
+  [PLAN_NAMES.agent_plan]: { who: AGENT_PLAN.forWho, logo: 'agent-plan' },
+  [MEMBERSHIP_NAME]: { who: OFFERS.membership.forWho, logo: 'insiders' },
 };
 
 /**

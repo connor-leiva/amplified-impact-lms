@@ -9,10 +9,11 @@ import { FREE_FIVE } from '../library/content';
 import { OFFERS } from '../offer/content';
 import { HELP_EMAIL, PROGRAMS, SITE } from '../site/content';
 import { AGENT_PLAN } from '../site/offers-content';
+import { ART, programLogo, type ProgramKey } from '../home/program-logo';
 import { siteFooter } from '../site/render';
 import { KIT, KIT_PROGRAMS } from './content';
 import { checks, closeCta, exTag, faq, founders, proofLine, proofSection, seatMeter, status } from './parts';
-import { kitFooter, kitHeader, kitSkip } from './render';
+import { MENU_LOGO, kitFooter, kitHeader, kitSkip } from './render';
 
 // The v2 kit (the Claude Design mockup's SiteKit, ported): its header and footer carry the live site's
 // words and links, its pieces render only what they're given, and its stylesheet keeps the homepage's
@@ -92,6 +93,41 @@ describe('the kit header', () => {
       ['Log In', LOGIN],
     ]);
     expect(links(menu, 'a.menu-cta')).toEqual([['Get 5 Free Skills', '/library?show=free']]);
+  });
+
+  it('draws each program as Connor’s logo (`programLogo()`, PR #73), never a kit icon or a typed name', () => {
+    const KEYS: ProgramKey[] = ['accelerator', 'team-plan', 'agent-plan', 'insiders'];
+    const NAMES = [PLAN_NAMES.cohort, PLAN_NAMES.agents, PLAN_NAMES.agent_plan, MEMBERSHIP_NAME];
+    const svgOf = (key: ProgramKey, o: { variant: 'stacked' | 'lockup'; size: number }) =>
+      parse(programLogo(key, { ...o, title: '' })).querySelector('svg')!.outerHTML;
+    // The panel: the stacked lockup, the name only for screen readers, the line on who it's for kept.
+    const cards = [...nav.querySelectorAll('.pm .pm-card:not(.pm-all)')];
+    expect(cards.map((c) => [c.querySelector('.pm-logo')?.getAttribute('data-program'), text(c.querySelector('.pm-name .sr-only'))])).toEqual(
+      KEYS.map((k, i) => [k, NAMES[i]]),
+    );
+    cards.forEach((c, i) => {
+      expect([...c.querySelector('.pm-name')!.children].map((e) => e.className)).toEqual(['sr-only', 'pm-logo']);
+      expect(c.querySelector('.pm-logo')!.innerHTML).toBe(svgOf(KEYS[i]!, MENU_LOGO.panel));
+      expect(c.querySelector('.pm-logo svg')?.getAttribute('aria-hidden')).toBe('true');
+      expect(c.querySelector('.pm-ic, svg.ic')).toBeNull();
+      expect(text(c.querySelector('.pm-who'))).not.toBe('');
+    });
+    // The phone menu: the same stacked lockup, the name only for screen readers.
+    const rows = [...doc.querySelectorAll('details.hdr-mobile .menu-program')].slice(0, 4);
+    rows.forEach((r, i) => {
+      expect([...r.children].map((e) => e.className)).toEqual(['sr-only', 'menu-logo']);
+      expect([text(r.querySelector('.sr-only')), r.querySelector('.menu-logo')?.getAttribute('data-program')]).toEqual([NAMES[i], KEYS[i]]);
+      expect(r.querySelector('.menu-logo')!.innerHTML).toBe(svgOf(KEYS[i]!, MENU_LOGO.phone));
+      expect(r.querySelector('svg.ic')).toBeNull();
+    });
+    // Connor's own stacked lockups, the same SVG in both menus (so gzip sends the second copy almost
+    // free), above the README's 18px floor for lockup type.
+    expect(cards.map((c) => c.querySelector('svg')?.getAttribute('viewBox'))).toEqual(KEYS.map((k) => ART[k].stacked.viewBox.join(' ')));
+    expect(rows.map((r) => r.querySelector('.menu-logo')!.innerHTML)).toEqual(cards.map((c) => c.querySelector('.pm-logo')!.innerHTML));
+    expect(MENU_LOGO.panel.size).toBeGreaterThanOrEqual(18);
+    // Never recoloured: each takes the ink and the signal, even where the menu marks the page you're on.
+    const css = read('./kit.css');
+    for (const sel of ['.aiw .pm-logo {', '.aiw .menu-logo {']) expect(css.slice(css.indexOf(sel)).split('}')[0]).toContain('color: var(--ink);');
   });
 
   it('keeps the theme switch hidden until the script can work it, named by the theme it turns on', () => {

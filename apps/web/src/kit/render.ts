@@ -13,10 +13,23 @@ import { esc } from '../ai101/render';
 import { HOME } from '../home/content';
 import { HELP_EMAIL, PROGRAMS, SITE } from '../site/content';
 import { KIT, KIT_PROGRAMS } from './content';
-import { brandIcon, glyph, ripple, themeGlyph } from './icons';
+import { programLogo } from '../home/program-logo';
+import { glyph, ripple, themeGlyph } from './icons';
 import { tittleAt, wordmark } from './logo';
 
 type NavLink = { label: string; href: string };
+
+/**
+ * The programs' logos in the menus: Connor's lockups (`programLogo()`), as on the homepage's cards (#73).
+ * THE STACKED LOCKUP AT 22px TYPE, in the panel and the phone menu alike. The panel's cards are narrow:
+ * four across from 1181px, where the first has 196px of room and the rest 174px, so the horizontal
+ * lockup (the Accelerator's is 208px wide at the README's 18px floor) doesn't fit; the stacked one does
+ * (170px at most), every program the same height. The phone menu takes the very same SVG, so gzip sends
+ * the second copy almost free (the header costs about 7 KB gzipped for its logos, not 12). Each is
+ * hidden from screen readers: the offer's name is written beside it, visually hidden (`title: ''`).
+ */
+const STACKED_22 = { variant: 'stacked', size: 22 } as const;
+export const MENU_LOGO = { panel: STACKED_22, phone: STACKED_22 } as const;
 
 const COMPARE = SITE.nav.links[0].menu.at(-1)!;
 const TOP: readonly NavLink[] = SITE.nav.links.slice(1);
@@ -40,9 +53,11 @@ export function kitHeader(current: string): string {
 
   const cards = KIT_PROGRAMS.map(
     (p, i) =>
-      `<a class="pm-card" href="${esc(p.href)}" style="--pi:${i}"${mark(inMenu(p.href))}><span class="pm-ic">${brandIcon(p.icon, 22)}</span><span class="pm-name">${esc(
+      `<a class="pm-card" href="${esc(p.href)}" style="--pi:${i}"${mark(inMenu(p.href))}><span class="pm-name"><span class="sr-only">${esc(
         p.label,
-      )}</span><span class="pm-who">${esc(p.who)}</span></a>`,
+      )}</span><span class="pm-logo" data-program="${p.logo}">${programLogo(p.logo, { ...MENU_LOGO.panel, title: '' })}</span></span><span class="pm-who">${esc(
+        p.who,
+      )}</span></a>`,
   ).join('');
   const all = `<a class="pm-card pm-all" href="${esc(COMPARE.href)}" style="--pi:${KIT_PROGRAMS.length}"${mark(inMenu(COMPARE.href))}><span class="pm-name">${esc(
     COMPARE.label,
@@ -66,7 +81,9 @@ export function kitHeader(current: string): string {
     `<p class="mono menu-label">${esc(n.links[0].label)}</p>`,
     `<ul class="menu-programs" role="list">${KIT_PROGRAMS.map(
       (p, i) =>
-        `<li style="--mi:${i}"><a class="menu-program" href="${esc(p.href)}"${mark(inMenu(p.href))}>${brandIcon(p.icon, 22)}<span>${esc(p.label)}</span></a></li>`,
+        `<li style="--mi:${i}"><a class="menu-program" href="${esc(p.href)}"${mark(inMenu(p.href))}><span class="sr-only">${esc(
+          p.label,
+        )}</span><span class="menu-logo" data-program="${p.logo}">${programLogo(p.logo, { ...MENU_LOGO.phone, title: '' })}</span></a></li>`,
     ).join(
       '',
     )}<li style="--mi:${KIT_PROGRAMS.length}"><a class="menu-program" href="${esc(COMPARE.href)}"${mark(inMenu(COMPARE.href))}>${glyph('arrow', 22)}<span>${esc(
