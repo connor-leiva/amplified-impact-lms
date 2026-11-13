@@ -227,9 +227,9 @@ describe('S2, the morning task sync recording', () => {
   it('renders the video with its poster, inline controls, and no autoplay', () => {
     const video = vid?.querySelector('figure.vid-frame video');
     const source = video?.querySelector('source');
-    expect(source?.getAttribute('src')).toBe('/media/morning-task-sync.mp4');
+    expect(source?.getAttribute('src')).toBe('/media/morning-task-sync.mp4?v=2');
     expect(source?.getAttribute('type')).toBe('video/mp4');
-    expect(video?.getAttribute('poster')).toBe('/media/morning-task-sync.webp');
+    expect(video?.getAttribute('poster')).toBe('/media/morning-task-sync.webp?v=2');
     expect(video?.hasAttribute('controls')).toBe(true);
     expect(video?.hasAttribute('playsinline')).toBe(true);
     expect(video?.getAttribute('preload')).toBe('metadata');
