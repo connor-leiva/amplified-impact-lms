@@ -62,6 +62,7 @@ import { GUIDE_SLUGS } from './routes/guide-list';
 import { SALES_PAGES } from './routes/offer';
 import type { SalesPath } from './routes/offer';
 import { describeOfferConfig, readOfferConfig } from './billing/config';
+import { withAnalytics } from './lib/analytics';
 import { startBillingLoop } from './jobs/billing';
 import { stripeClient } from './billing/stripe';
 
@@ -78,6 +79,12 @@ const guideHtml = (slug: string) => fileURLToPath(new URL(`../../web/dist/${slug
 // no script, so it has nothing to hash. `routes/marketing.ts` serves it at `/` on MARKETING_HOST and
 // nowhere else. It replaced the "under construction" placeholder, `public/holding.html` (D-029).
 const homeHtml = fileURLToPath(new URL('../../web/dist/home.html', import.meta.url));
+
+/**
+ * A www marketing page, read once: with the GA4 and Meta Pixel tag and its Buy buttons labelled
+ * (D-155, `lib/analytics.ts`). Only these pages: never the learn app's `index.html`, never a legal page.
+ */
+const readWww = (path: string): string | null => withAnalytics(readBuilt(path));
 
 /** A built page's contents, or `null` when it has not been built or cannot be read. */
 function readBuilt(path: string): string | null {
@@ -117,20 +124,20 @@ const fixtureOnly = process.env.VITE_DATA_SOURCE === 'fixture';
 // Read ONCE, and the same string goes to both places: `build()` serves it from memory and
 // `cspScriptHashes` hashes it, so a rebuild on disk while this process runs cannot leave the page
 // served under a hash computed from different bytes.
-const ai101Page = readBuilt(ai101Html);
-const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readBuilt(guideHtml(slug))]));
+const ai101Page = readWww(ai101Html);
+const guidePages = Object.fromEntries(GUIDE_SLUGS.map((slug) => [slug, readWww(guideHtml(slug))]));
 // D-151: every skill's full guided setup, from the web build's server-only file (never under `dist/`).
 const skillGuidesJson = fileURLToPath(new URL(`../../web/${SKILL_GUIDES_DIR}/${SKILL_GUIDES_FILE}`, import.meta.url));
 const skillGuides = existsSync(skillGuidesJson) ? (JSON.parse(readFileSync(skillGuidesJson, 'utf8')) as SkillGuidesFile) : null;
 // The free library that lists them (D-050), which has an inline script of its own.
-const libraryPage = readBuilt(fileURLToPath(new URL('../../web/dist/library.html', import.meta.url)));
+const libraryPage = readWww(fileURLToPath(new URL('../../web/dist/library.html', import.meta.url)));
 // The offer's pages (D-075, D-104): the page after Stripe carries one inline script; the offer page
 // carries none since its checkout form was retired, and the agreement is a legal page.
-const offerPage = readBuilt(fileURLToPath(new URL('../../web/dist/offer.html', import.meta.url)));
-const welcomePage = readBuilt(fileURLToPath(new URL('../../web/dist/offer-welcome.html', import.meta.url)));
+const offerPage = readWww(fileURLToPath(new URL('../../web/dist/offer.html', import.meta.url)));
+const welcomePage = readWww(fileURLToPath(new URL('../../web/dist/offer-welcome.html', import.meta.url)));
 // The www sales pages (D-111), filled per request like the offer page: no script.
 const salesPages = Object.fromEntries(
-  Object.entries(SALES_PAGES).map(([path, name]) => [path, readBuilt(fileURLToPath(new URL(`../../web/dist/${name}.html`, import.meta.url)))]),
+  Object.entries(SALES_PAGES).map(([path, name]) => [path, readWww(fileURLToPath(new URL(`../../web/dist/${name}.html`, import.meta.url)))]),
 ) as Record<SalesPath, string | null>;
 const agreementHtml = fileURLToPath(new URL('../../web/dist/agreement.html', import.meta.url));
 // Read once, here, so a malformed FOUNDING_CLOSES_AT stops the deploy before it serves a wrong price.
@@ -150,7 +157,7 @@ const app = await build({
   libraryPage,
   legalPages: { terms: readBuilt(termsHtml), privacy: readBuilt(privacyHtml), agreement: readBuilt(agreementHtml) },
   offer: { pages: { offer: offerPage, welcome: welcomePage, sales: salesPages }, config: offerConfig },
-  marketingPage: readBuilt(homeHtml),
+  marketingPage: readWww(homeHtml),
   waitlist: databaseConfigured(),
 });
 

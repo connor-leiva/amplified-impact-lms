@@ -78,6 +78,7 @@ import { registerLibraryPage } from './routes/library';
 import type { LegalPages } from './routes/legal';
 import { registerApexRedirect } from './routes/apex';
 import { registerMarketingHost } from './routes/marketing';
+import { ANALYTICS_CSP, loadsAnalytics, withAnalyticsCsp } from './lib/analytics';
 import { registerAuthRoutes } from './routes/auth';
 import { registerPasswordRoutes } from './routes/password';
 import { registerGoogleRoutes } from './routes/google';
@@ -294,18 +295,22 @@ export function cspScriptHashes(pages: readonly (string | null | undefined)[]): 
 export function cspDirectives(
   inlineHashes: readonly string[] = [],
   env: NodeJS.ProcessEnv = process.env,
+  { analytics = false }: { analytics?: boolean } = {},
 ): Record<string, string[]> {
   const host = env.VIDEO_HOST?.trim();
   const video = host ? [`https://*.${host.replace(/^https?:\/\//, '').replace(/^\*\./, '')}`] : [];
+  // D-155: GA4 and the Meta Pixel, only on a www page that loads `/analytics.js` (the hook in
+  // `build()` applies it per response). The learn app, the admin console and the API never get them.
+  const tags = (name: keyof typeof ANALYTICS_CSP): string[] => (analytics ? [...ANALYTICS_CSP[name]] : []);
   return {
     'default-src': ["'self'"],
-    'script-src': ["'self'", ...inlineHashes],
+    'script-src': ["'self'", ...inlineHashes, ...tags('script-src')],
     // See the header: `style-src-attr` falls back to this, and `style={{ '--w': … }}` is how the
     // reference's measured widths are expressed.
     'style-src': ["'self'", "'unsafe-inline'"],
-    'img-src': ["'self'", 'data:', ...video],
+    'img-src': ["'self'", 'data:', ...video, ...tags('img-src')],
     'media-src': ["'self'", 'blob:', ...video],
-    'connect-src': ["'self'"],
+    'connect-src': ["'self'", ...tags('connect-src')],
     // § 9.4: "Self-hosted fonts mean no Google domains." helmet's default here is
     // `'self' https: data:`; the `https:` is what would have let a Google domain back in. `data:`
     // is allowed (D-137): fonts inlined into a stylesheet as data URLs were blocked, which filled the
@@ -460,6 +465,16 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // (§ 8.4), and COEP would require every such resource to opt in. Off, which is helmet's own
     // default; stated here so a future reader does not turn it on and break the join button.
     crossOriginEmbedderPolicy: false,
+  });
+
+  // D-155: a www page that loads `/analytics.js` gets the policy above plus exactly what GA4 and the
+  // Meta Pixel need (`ANALYTICS_CSP`); nothing else ever does. A response with no policy (the www
+  // homepage, answered by the marketing hook before helmet runs) is left without one, as before.
+  app.addHook('onSend', async (_req, reply, payload) => {
+    if (!loadsAnalytics(payload)) return payload;
+    const csp = reply.getHeader('content-security-policy');
+    if (typeof csp === 'string' && csp !== '') reply.header('content-security-policy', withAnalyticsCsp(csp));
+    return payload;
   });
 
   // The visitor's own address (`lib/client-ip.ts`), for the limiter's key and the event stream's

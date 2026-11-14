@@ -43,10 +43,12 @@ import {
   HELP_EMAIL,
   PLAN_NAMES,
   TOKEN_PATTERN,
+  cartFor,
   longDay,
   mountainDeadline,
 } from '../billing/catalog';
 import type { CartId, CartState, PlanKind } from '../billing/catalog';
+import { cartItemName } from '../lib/analytics';
 import { foundingOpen } from '../billing/config';
 import { foundingValues } from '@ai/core/founding';
 import type { OfferConfig } from '../billing/config';
@@ -178,6 +180,11 @@ export interface WelcomeFill {
   config: OfferConfig;
   /** D-132: where this buyer sets a password, when `checkoutPasswordUser` allows it; else absent. */
   setPasswordUrl?: string;
+  /**
+   * D-155: what the order says was bought and paid, for the analytics `purchase` event: its cart, and
+   * Stripe's `amount_total` (cents) and currency. Absent, or a null amount, reports 0.
+   */
+  purchase?: { cart: CartId | null; amountTotal: number | null; currency: string | null };
 }
 
 /**
@@ -218,6 +225,28 @@ export function welcomeValues(w: WelcomeFill): Record<string, string> {
     'portal-url': w.config.portalLoginUrl ?? '',
     'paid-line': paidLine(w),
     'set-password': w.setPasswordUrl ?? '',
+    ...purchaseValues(w),
+  };
+}
+
+/**
+ * D-155: the confirmed order, for the `purchase` event `/analytics.js` sends once per Checkout Session:
+ * the session id (its transaction id), the amount Stripe charged (0 for a trial, and 0 rather than a
+ * guess when the order has none), the currency and the product. Empty until the order is confirmed,
+ * so a pending or unknown page reports nothing.
+ */
+function purchaseValues(w: WelcomeFill): Record<string, string> {
+  const cart = w.purchase?.cart ?? null;
+  if (w.state !== 'confirmed' || !w.sessionId || !cart) {
+    return { 'purchase-id': '', 'purchase-value': '', 'purchase-currency': '', 'purchase-item': '', 'purchase-name': '' };
+  }
+  const cents = w.purchase?.amountTotal ?? 0;
+  return {
+    'purchase-id': w.sessionId,
+    'purchase-value': (Math.max(0, cents) / 100).toFixed(2),
+    'purchase-currency': (w.purchase?.currency ?? 'usd').toUpperCase(),
+    'purchase-item': cart,
+    'purchase-name': cartItemName(cart),
   };
 }
 
@@ -323,15 +352,17 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     let state: WelcomeFill['state'] = 'unknown';
     let plan: PlanKind | null = null;
     let trialing = false;
+    let purchase: WelcomeFill['purchase'];
     if (sessionId && options.database) {
       const [order] = await getDb()
-        .select({ status: orders.status, plan: orders.plan })
+        .select({ status: orders.status, plan: orders.plan, option: orders.option, amountTotal: orders.amountTotal, currency: orders.currency })
         .from(orders)
         .where(eq(orders.stripeSessionId, sessionId))
         .limit(1);
       if (order) {
         plan = order.plan as PlanKind;
         trialing = order.status === 'trialing';
+        purchase = { cart: cartFor(order.plan, order.option ?? '')?.id ?? null, amountTotal: order.amountTotal, currency: order.currency };
         state =
           order.status === 'paid' || order.status === 'trialing'
             ? 'confirmed'
@@ -351,7 +382,7 @@ export async function registerOfferRoutes(app: FastifyInstance, options: OfferRo
     }
     return sendPage(
       reply,
-      fillTokens(welcomePage, welcomeValues({ state, plan, sessionId, now: now(), config, trialing, setPasswordUrl })),
+      fillTokens(welcomePage, welcomeValues({ state, plan, sessionId, now: now(), config, trialing, setPasswordUrl, purchase })),
     );
   });
 
