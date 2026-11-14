@@ -29,7 +29,7 @@ import {
   mountainDeadline,
   pinnedFirstCharge,
 } from './catalog';
-import { keyMode, readOfferConfig } from './config';
+import { ACCELERATOR_LINKS_LIVE, describeOfferConfig, keyMode, readOfferConfig } from './config';
 import { crmOf, planStatusOf, teamSizeOfAgents } from './webhook';
 import { buyerTags } from '../integrations/ghl';
 import { cartStates, fillTokens, offerValues, welcomeValues } from '../routes/offer';
@@ -506,5 +506,21 @@ describe('the offer page values (D-075, D-104)', () => {
 
   it('reports a key only by its mode', () => {
     expect([keyMode('rk_test_abc'), keyMode('rk_live_abc'), keyMode(null), keyMode('nope')]).toEqual(['test', 'live', 'unset', 'unknown']);
+  });
+
+  it('finds the two AI Accelerator Payment Links the 15-seat cap keeps (D-154): the live ones with a live key, a variable over either', () => {
+    expect(ACCELERATOR_LINKS_LIVE).toEqual({ full: 'plink_1UaNGZLAuFJaUU8qHyM5p82M', twoPay: 'plink_1UaNGcLAuFJaUU8qxAVTFih1' });
+    expect(readOfferConfig({ STRIPE_SECRET_KEY: 'rk_live_x' }).seatCapLinks).toEqual(['plink_1UaNGZLAuFJaUU8qHyM5p82M', 'plink_1UaNGcLAuFJaUU8qxAVTFih1']);
+    // A test key with no variable: none, so the cap never reaches for a live id in test mode.
+    expect(readOfferConfig({ STRIPE_SECRET_KEY: 'rk_test_x' }).seatCapLinks).toEqual([]);
+    expect(readOfferConfig({}).seatCapLinks).toEqual([]);
+    expect(readOfferConfig({ STRIPE_SECRET_KEY: 'rk_test_x', PAYMENT_LINK_ID_COHORT_FULL: ' plink_testFull ', PAYMENT_LINK_ID_COHORT_TWO_PAY: 'plink_testTwo' }).seatCapLinks).toEqual(['plink_testFull', 'plink_testTwo']);
+    expect(readOfferConfig({ STRIPE_SECRET_KEY: 'rk_live_x', PAYMENT_LINK_ID_COHORT_TWO_PAY: 'plink_other' }).seatCapLinks).toEqual(['plink_1UaNGZLAuFJaUU8qHyM5p82M', 'plink_other']);
+    // Not an id (a URL pasted by mistake): ignored.
+    expect(readOfferConfig({ STRIPE_SECRET_KEY: 'rk_test_x', PAYMENT_LINK_ID_COHORT_FULL: 'https://buy.stripe.com/x' }).seatCapLinks).toEqual([]);
+    // The boot line says how many, never which key.
+    const line = describeOfferConfig(readOfferConfig({ STRIPE_SECRET_KEY: 'rk_live_secret123' }));
+    expect(line.seatCapLinks).toBe(2);
+    expect(JSON.stringify(line)).not.toContain('secret123');
   });
 });

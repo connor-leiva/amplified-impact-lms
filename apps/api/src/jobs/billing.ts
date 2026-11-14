@@ -1,4 +1,6 @@
-// The offer's one timed job: owner invites held for Monday (D-078).
+// The offer's timed jobs: owner invites held for `INVITES_FROM` (D-078), and the AI Accelerator's
+// combined 15-seat cap on its two Stripe Payment Links (D-154), reconciled every tick as the backstop
+// to the webhook's.
 //
 // Provisioning creates the account the moment a sale is paid, but before `INVITES_FROM` (Mon, Nov 16,
 // 8 am Central) it holds the owner's invite, so the login arrives beside Sarah O.'s welcome email
@@ -10,6 +12,9 @@ import type { Database } from '../db/client';
 import { clock } from '../lib/clock';
 import { sendHeldInvites } from '../billing/provision';
 import type { BillingLog } from '../billing/provision';
+import { reconcileAcceleratorSeats } from '../billing/payment-links';
+import type { OfferConfig } from '../billing/config';
+import type { BillingStripe } from '../billing/stripe';
 
 export const BILLING_TICK_MS = 60_000;
 
@@ -24,6 +29,8 @@ export function startBillingLoop(options: {
   log: BillingLog;
   db?: Database;
   intervalMs?: number;
+  /** D-154: the Stripe client and the offer configuration the seat cap reads. Absent: no seat cap. */
+  seatCap?: { stripe: BillingStripe | null; config: Pick<OfferConfig, 'open' | 'foundingClosesAt' | 'seatCapLinks'> };
 }): BillingLoop {
   if (!options.database) return { running: false, stop: async () => {} };
   let inFlight: Promise<void> | null = null;
@@ -34,6 +41,10 @@ export function startBillingLoop(options: {
         () => {},
         (err: unknown) => options.log.error({ reason: (err as { code?: string }).code ?? 'error' }, 'held invites tick failed; the next tick retries'),
       )
+      // The seat cap never throws; it logs and waits for the next tick.
+      .then(async () => {
+        if (options.seatCap) await reconcileAcceleratorSeats({ ...options.seatCap, now: clock.now(), log: options.log, db: options.db });
+      })
       .finally(() => {
         inFlight = null;
       });

@@ -4799,3 +4799,43 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
   - Week 0, which is "due before the first build", opens at that same moment.
   - Opening at 12:45 PM Central is a one-constant change.
 - **Not changed:** Stripe, prices, Payment Links, the seat cap, `/agreement`, Railway variables, secrets and access groups. No emails are sent by hand.
+
+## D-154 · The AI Accelerator's 15 seats are one cap across both Payment Links, kept on Stripe
+
+**Date:** 2026-11-14
+**Approved by:** Connor, 2026-11-13, 11:20 PM MST: "reconcile the two Amplified AI Accelerator Payment Links so the combined cap is 15, not 15 per link (which could sell 30). At 15 combined paid seats, deactivate both links via the Stripe API; if a refund drops the count below 15, reactivate them." Connor adds Payment Links: Read and Write to the `website-checkout` restricted key.
+**Status:** on a pull request.
+**Supersedes:** D-104's "Ampy turns the Stripe links off by hand; the code never changes Stripe" (and the same words on `COHORT_SEATS`).
+**Scope:**
+- `apps/api/src/billing/payment-links.ts` (new), `src/billing/stripe.ts`, `src/billing/config.ts`, `src/billing/webhook.ts`, `src/billing/provision.ts` (a log line), `src/jobs/billing.ts`, `src/server.ts`.
+- `packages/core/src/offer.ts` (a comment).
+- `docs/STRIPE-HANDOFF.md`.
+
+- **One counter.** `cohortSeatsSold` (every `cohort` plan not `ended`, both options together; a refund ends one) is the only count, for the page and for Stripe alike. Each link's own `completed_sessions.limit = 15` stays as a backstop and is never changed.
+- **One desired state, nothing else** (`syncAcceleratorPaymentLinks`).
+  - At 15 or more sold, each link that is on goes off, with `inactive_message` "All 15 founding seats are taken. Join the waitlist at amplifiedimpact.io/offer to hear first about the next cohort." (the sales page's sold-out line) and metadata `ai_soldout=1`.
+  - Under 15, a link that is off and carries `ai_soldout=1` goes back on, and the mark is cleared. That happens only while `OFFER_OPEN` is true and founding prices still sell.
+  - A link that is off for any other reason (by hand, founding closed, a retired link) is never touched.
+  - A link whose metadata says another plan (`ai_plan` not `cohort`) is never touched, whatever a variable says.
+  - It reads each link first and changes only what differs, so a second run at the same count changes nothing.
+- **Which links.**
+  - `PAYMENT_LINK_ID_COHORT_FULL` and `PAYMENT_LINK_ID_COHORT_TWO_PAY` are optional. They default, with a live key only, to `plink_1UaNGZLAuFJaUU8qHyM5p82M` (paid in full) and `plink_1UaNGcLAuFJaUU8qxAVTFih1` (two payments).
+  - With a test key and no variable there are none, and the cap leaves Stripe alone.
+  - No Railway variable is needed or changed. The boot line reports only how many links there are.
+- **When it runs.**
+  - After every webhook event that can add or end an Accelerator plan: a completed checkout (or its async success), `invoice.paid`, `charge.refunded`, `customer.subscription.deleted`. This runs once the plan is committed.
+  - On the billing loop's 60-second tick, as the backstop for a missed or half-failed webhook.
+  - It never throws, so a Stripe failure never makes Stripe redeliver an event that was handled.
+- **Idempotency keys** are `accel-cap-{link}-{off|on}-{sold}-{minute}`. A retry within the minute is one change. A later flip at the same count (15, a refund to 14, a sale back to 15) is a new key, not Stripe replaying the first answer.
+- **Failures.**
+  - Each link is reconciled on its own, so one failure does not leave the other link on.
+  - The failed one is retried on every tick.
+  - A 403 (no Payment Links permission yet) is logged once an hour, naming the permission to add.
+  - A count that fails changes nothing; it is never read as 0.
+  - Logs carry counts, plan and order ids and link ids only.
+- **Races, accepted.**
+  - Provisioning holds an advisory lock, so two webhooks cannot both count 14.
+  - Stripe can still complete a Checkout that was open when the links went off, and the two links can complete at the same moment.
+  - That 16th seat is provisioned like any other (a paid checkout is never refused), the existing "seat 16 sold, past the 15 seats: Connor follows up" error is logged, and both links stay off. Nothing is refunded automatically; Connor follows up.
+- **Before it works in production:** Payment Links: Read and Write on the existing `website-checkout` restricted key, live and test. No new key, and no standard secret key.
+- **Not changed:** prices, products, trials, tax, terms, copy, `/agreement`, the Insiders, Team Plan and Agent Plan links, GHL, and emails.

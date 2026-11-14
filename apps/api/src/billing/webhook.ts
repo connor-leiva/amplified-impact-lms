@@ -34,6 +34,7 @@ import type { OfferConfig } from './config';
 import type { PriceCache } from './prices';
 import { provisionOrder } from './provision';
 import type { BillingLog } from './provision';
+import { reconcileAcceleratorSeats } from './payment-links';
 import { idOf, periodEndOfInvoice, subscriptionMetadataOfInvoice, subscriptionOfInvoice } from './stripe';
 import type { BillingStripe, InvoiceLike } from './stripe';
 
@@ -555,9 +556,28 @@ async function chargeRefunded(charge: Stripe.Charge, deps: WebhookDeps, db: Data
   return 'refunded';
 }
 
+/**
+ * D-154: the events that can add or end an AI Accelerator plan, after which the combined 15-seat cap
+ * is reconciled on Stripe at once (the billing loop's tick is the backstop).
+ */
+const SEAT_EVENTS: ReadonlySet<string> = new Set([
+  'checkout.session.completed',
+  'checkout.session.async_payment_succeeded',
+  'invoice.paid',
+  'charge.refunded',
+  'customer.subscription.deleted',
+]);
+
 /** One event. Returns a short word for the log; throws to have Stripe retry. */
 export async function handleStripeEvent(event: Stripe.Event, deps: WebhookDeps): Promise<string> {
   const db = deps.db ?? getDb();
+  const result = await handleEvent(event, deps, db);
+  // Never throws: a Stripe failure here must not make Stripe redeliver an event that was handled.
+  if (SEAT_EVENTS.has(event.type)) await reconcileAcceleratorSeats({ stripe: deps.stripe, config: deps.config, now: deps.now(), log: deps.log, db });
+  return result;
+}
+
+async function handleEvent(event: Stripe.Event, deps: WebhookDeps, db: Database): Promise<string> {
   switch (event.type) {
     case 'checkout.session.completed':
     case 'checkout.session.async_payment_succeeded':

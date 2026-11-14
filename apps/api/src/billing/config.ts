@@ -47,6 +47,12 @@ export interface OfferConfig {
   calendarUrls: { builds: string | null; officeHours: string | null };
   /** Where "Let's talk" goes for a team over 40 agents; null sends an email to support (D-105). */
   teamCallUrl: string | null;
+  /**
+   * D-154: the AI Accelerator's two Payment Links, by id, that the combined 15-seat cap turns off and
+   * on: `PAYMENT_LINK_ID_COHORT_FULL` and `PAYMENT_LINK_ID_COHORT_TWO_PAY`, each defaulting to the live
+   * link when the key is a live key. With a test key and no variable, none: the cap leaves Stripe alone.
+   */
+  seatCapLinks: string[];
 }
 
 export class OfferConfigError extends Error {
@@ -83,6 +89,29 @@ const secret = (raw: string | undefined): string | null => {
   return value === '' ? null : value;
 };
 
+/**
+ * D-154: the two live AI Accelerator Payment Links (paid in full, two payments), read-only confirmed
+ * 2026-11-13. Ids, not secrets. Each is used only with a live key, unless its variable names another.
+ */
+export const ACCELERATOR_LINKS_LIVE = {
+  full: 'plink_1UaNGZLAuFJaUU8qHyM5p82M',
+  twoPay: 'plink_1UaNGcLAuFJaUU8qxAVTFih1',
+} as const;
+
+const PLINK = /^plink_[A-Za-z0-9]+$/;
+
+function seatCapLinks(env: NodeJS.ProcessEnv): string[] {
+  const live = keyMode(secret(env.STRIPE_SECRET_KEY)) === 'live';
+  const pick = (raw: string | undefined, fallback: string): string | null => {
+    const value = (raw ?? '').trim();
+    if (PLINK.test(value)) return value;
+    return live ? fallback : null;
+  };
+  return [pick(env.PAYMENT_LINK_ID_COHORT_FULL, ACCELERATOR_LINKS_LIVE.full), pick(env.PAYMENT_LINK_ID_COHORT_TWO_PAY, ACCELERATOR_LINKS_LIVE.twoPay)].filter(
+    (id): id is string => id !== null,
+  );
+}
+
 export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConfig {
   const paymentLinks: Partial<Record<CartId, string>> = {};
   for (const id of CART_IDS) {
@@ -107,6 +136,7 @@ export function readOfferConfig(env: NodeJS.ProcessEnv = process.env): OfferConf
     portalLockedConfig: /^bpc_[A-Za-z0-9]+$/.test((env.STRIPE_PORTAL_CONFIG_LOCKED ?? '').trim()) ? env.STRIPE_PORTAL_CONFIG_LOCKED!.trim() : null,
     calendarUrls: { builds: httpsUrl(env.CALENDAR_URL_BUILDS), officeHours: httpsUrl(env.CALENDAR_URL_OFFICE_HOURS) },
     teamCallUrl: httpsUrl(env.TEAM_CALL_URL),
+    seatCapLinks: seatCapLinks(env),
   };
 }
 
@@ -135,5 +165,7 @@ export function describeOfferConfig(config: OfferConfig): Record<string, unknown
     intakeForms: Object.keys(config.intakeUrls),
     calendars: { builds: config.calendarUrls.builds !== null, officeHours: config.calendarUrls.officeHours !== null },
     teamCall: config.teamCallUrl !== null,
+    // D-154: how many Accelerator Payment Links the 15-seat cap turns off and on (ids, never a key).
+    seatCapLinks: config.seatCapLinks.length,
   };
 }

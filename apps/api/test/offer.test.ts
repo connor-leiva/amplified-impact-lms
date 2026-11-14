@@ -10,7 +10,7 @@
 // sandbox fixtures, which the repository does not have.
 
 import { BUILDS_ICS, OFFICE_HOURS_ICS } from '../src/routes/offer-calendar';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Stripe from 'stripe';
 import { eq } from 'drizzle-orm';
 import { build } from '../src/app';
@@ -36,8 +36,10 @@ import { runGhlTick } from '../src/jobs/ghl-sync';
 import { fakeCrm } from './fake-ghl';
 import type { OfferConfig } from '../src/billing/config';
 import { createPriceCache } from '../src/billing/prices';
-import { provisionOrder, sendHeldInvites } from '../src/billing/provision';
-import type { BillingStripe, PriceInfo, SubscriptionInfo } from '../src/billing/stripe';
+import { cohortSeatsSold, provisionOrder, sendHeldInvites } from '../src/billing/provision';
+import { SOLD_OUT_MARK, SOLD_OUT_MESSAGE, reconcileAcceleratorSeats, resetSeatCapLogForTests, syncAcceleratorPaymentLinks } from '../src/billing/payment-links';
+import { startBillingLoop } from '../src/jobs/billing';
+import type { BillingStripe, PaymentLinkChange, PaymentLinkInfo, PriceInfo, SubscriptionInfo } from '../src/billing/stripe';
 import { stripeVerifier } from '../src/billing/stripe';
 import { outboxFor, resetOutbox } from '../src/email/transport';
 import { SESSION_COOKIE, settleEmails } from '../src/auth';
@@ -90,10 +92,39 @@ interface Stub {
   /** Which subscription a payment intent paid an invoice of, for a refund of a subscription charge. */
   intents: Map<string, string>;
   fail: boolean;
+  /** D-154: the Payment Links in this Stripe account, and every change the seat cap made to one. */
+  links: Map<string, PaymentLinkInfo & { inactiveMessage?: string }>;
+  linkUpdates: { id: string; change: PaymentLinkChange; key: string }[];
+  /** Ids whose next calls answer 403, as a key without Payment Links permission does. */
+  linkForbidden: Set<string>;
 }
 
+/** The two Accelerator links (the cap's), and an Insiders link it must never touch. */
+const seedLinks = (): Stub['links'] =>
+  new Map([
+    ['plink_full', { id: 'plink_full', active: true, metadata: { ai_plan: 'cohort', ai_option: 'full' } }],
+    ['plink_two', { id: 'plink_two', active: true, metadata: { ai_plan: 'cohort', ai_option: 'two_pay' } }],
+    ['plink_insiders', { id: 'plink_insiders', active: true, metadata: { ai_plan: 'membership', ai_option: 'year_upfront' } }],
+  ]);
+
 function stubStripe(): Stub {
-  const stub: Stub = { portals: [], members: new Set(), updates: [], creates: [], cancels: [], subs: new Map(), intents: new Map(), fail: false, client: null as never };
+  const stub: Stub = {
+    portals: [],
+    members: new Set(),
+    updates: [],
+    creates: [],
+    cancels: [],
+    subs: new Map(),
+    intents: new Map(),
+    fail: false,
+    links: seedLinks(),
+    linkUpdates: [],
+    linkForbidden: new Set(),
+    client: null as never,
+  };
+  const forbidden = (id: string) => {
+    if (stub.linkForbidden.has(id)) throw Object.assign(new Error('forbidden'), { type: 'StripePermissionError', statusCode: 403 });
+  };
   const sub = (id: string, over: Partial<SubscriptionInfo> = {}): SubscriptionInfo => ({
     id,
     status: 'active',
@@ -126,6 +157,21 @@ function stubStripe(): Stub {
       stub.portals.push({ customer, returnUrl, ...(configuration ? { configuration } : {}) });
       return 'https://billing.stripe.com/p/session/test_portal';
     },
+    retrievePaymentLink: async (id) => {
+      forbidden(id);
+      const link = stub.links.get(id);
+      if (!link) throw Object.assign(new Error('No such payment link'), { code: 'resource_missing', statusCode: 404 });
+      return { id, active: link.active, metadata: { ...link.metadata } };
+    },
+    updatePaymentLink: async (id, change, key) => {
+      forbidden(id);
+      stub.linkUpdates.push({ id, change, key });
+      const link = stub.links.get(id)!;
+      const metadata = { ...link.metadata, ...change.metadata };
+      for (const [k, v] of Object.entries(change.metadata)) if (v === '') delete metadata[k];
+      stub.links.set(id, { id, active: change.active, metadata, inactiveMessage: change.inactive_message ?? link.inactiveMessage });
+      return { id, active: change.active, metadata };
+    },
     paymentMethodOfPaymentIntent: async () => 'pm_saved',
     subscriptionOfPaymentIntent: async (pi) => stub.intents.get(pi) ?? null,
     constructEvent: stripeVerifier(),
@@ -150,6 +196,7 @@ const CONFIG: OfferConfig = {
   portalLockedConfig: 'bpc_locked',
   calendarUrls: { builds: null, officeHours: null },
   teamCallUrl: null,
+  seatCapLinks: ['plink_full', 'plink_two'],
 };
 
 let app: App;
@@ -290,7 +337,7 @@ describe('the offer pages (D-075, D-104)', () => {
     const errors: string[] = [];
     const log = { info: () => {}, warn: () => {}, error: (_o: Record<string, unknown>, msg: string) => void errors.push(msg) };
     await provisionOrder(order!.id, { log, now: NOW_MS, invitesFrom: CONFIG.invitesFrom });
-    expect(errors).toEqual(['AI Accelerator sold out: seat 15 of 15. The page shows the waitlist; turn off both Accelerator Payment Links in Stripe']);
+    expect(errors).toEqual(['AI Accelerator sold out: seat 15 of 15. The page shows the waitlist; both Accelerator Payment Links are being turned off']);
 
     body = (await app.inject({ method: 'GET', url: '/api/offer' })).json();
     expect(body.seats).toEqual({ total: 15, sold: 15, left: 0 });
@@ -1543,5 +1590,166 @@ describe('payment paths outside the per-offer block', () => {
     await deliver('customer.subscription.deleted', { id: 'sub_full', object: 'subscription', status: 'canceled', metadata: { order_id: order.id } });
     expect((await (await db()).select().from(plans))[0]!.status).toBe('canceled');
     expect((await courseFor()).statusCode).toBe(200);
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
+// D-154: the combined 15-seat cap, kept on Stripe's two AI Accelerator Payment Links
+// ------------------------------------------------------------------------------------------------
+
+describe('the combined 15-seat cap on the Payment Links (D-154)', () => {
+  const quiet = { info: () => {}, warn: () => {}, error: () => {} };
+  /** Seats `from` to `from + n - 1`, alternating the two links, each with its own payment for a refund. */
+  const sell = async (n: number, from = 1) => {
+    for (let i = from; i < from + n; i += 1) {
+      await buy(i % 2 ? 'cohort-full' : 'cohort-two-pay', { email: `seat${i}@example.com` }, { customer: `cus_s${i}`, payment_intent: `pi_seat${i}` });
+    }
+  };
+  const refund = (i: number) => deliver('charge.refunded', { id: `ch_seat${i}`, object: 'charge', refunded: true, payment_intent: `pi_seat${i}` });
+  const linkStates = () => Object.fromEntries([...stub.links].map(([id, l]) => [id, [l.active, l.metadata[SOLD_OUT_MARK] ?? null]]));
+  const sold = async () => cohortSeatsSold(await db());
+
+  beforeEach(async () => {
+    resetSeatCapLogForTests();
+    await fresh();
+  });
+
+  it('leaves both links on through 14 seats, then turns both off at the 15th, with the waitlist line and its mark', async () => {
+    await sell(14);
+    expect(stub.linkUpdates).toEqual([]);
+    expect(linkStates()).toEqual({ plink_full: [true, null], plink_two: [true, null], plink_insiders: [true, null] });
+
+    // The 15th, on the paid-in-full link: both links go off, not only the one that sold it.
+    const last = linkSession('cohort-full', 'seat15@example.com');
+    const done = await deliver('checkout.session.completed', { ...last, customer: 'cus_s15', payment_intent: 'pi_seat15' }, 'evt_seat15');
+    expect(done.statusCode).toBe(200);
+    expect(await sold()).toBe(15);
+    expect(linkStates()).toEqual({ plink_full: [false, '1'], plink_two: [false, '1'], plink_insiders: [true, null] });
+    expect(stub.linkUpdates.map((u) => [u.id, u.change])).toEqual([
+      ['plink_full', { active: false, inactive_message: SOLD_OUT_MESSAGE, metadata: { ai_soldout: '1' } }],
+      ['plink_two', { active: false, inactive_message: SOLD_OUT_MESSAGE, metadata: { ai_soldout: '1' } }],
+    ]);
+    expect(stub.linkUpdates.map((u) => u.key)).toEqual([expect.stringMatching(/^accel-cap-plink_full-off-15-\d+$/), expect.stringMatching(/^accel-cap-plink_two-off-15-\d+$/)]);
+    expect(stub.links.get('plink_full')!.inactiveMessage).toBe('All 15 founding seats are taken. Join the waitlist at amplifiedimpact.io/offer to hear first about the next cohort.');
+    expect(SOLD_OUT_MESSAGE).not.toMatch(/\$|30|homes/);
+
+    // Stripe redelivers the same event: recorded once, and nothing changes.
+    const again = await deliver('checkout.session.completed', { ...last, customer: 'cus_s15', payment_intent: 'pi_seat15' }, 'evt_seat15');
+    expect(again.json()).toEqual({ received: true, duplicate: true });
+    expect(stub.linkUpdates).toHaveLength(2);
+
+    // The page agrees: both carts sold out.
+    const body = (await app.inject({ method: 'GET', url: '/api/offer' })).json();
+    expect(body.carts.filter((c: { plan: string }) => c.plan === 'cohort').map((c: { state: string }) => c.state)).toEqual(['soldout', 'soldout']);
+  });
+
+  it('changes nothing the second time it runs at the same count', async () => {
+    await sell(15);
+    const before = stub.linkUpdates.length;
+    const out = await reconcileAcceleratorSeats({ stripe: stub.client, config: CONFIG, now: NOW_MS, log: quiet });
+    expect(out).toEqual({ sold: 15, links: [{ id: 'plink_full', action: 'already-off' }, { id: 'plink_two', action: 'already-off' }] });
+    expect(stub.linkUpdates).toHaveLength(before);
+    // Below the cap, with both on: nothing either.
+    await refund(15);
+    const updates = stub.linkUpdates.length;
+    expect((await reconcileAcceleratorSeats({ stripe: stub.client, config: CONFIG, now: NOW_MS, log: quiet }))!.links.map((l) => l.action)).toEqual(['on', 'on']);
+    expect(stub.linkUpdates).toHaveLength(updates);
+  });
+
+  it('counts both options together, never an ended plan, and never another plan', async () => {
+    await sell(3);
+    await buy('insiders-year', { email: 'insider@example.com' }, { customer: 'cus_ins' });
+    expect(await sold()).toBe(3);
+    await refund(2);
+    expect(await sold()).toBe(2);
+  });
+
+  it('still provisions a 16th paid seat from a checkout that was already open, keeps both links off, and says so', async () => {
+    await sell(15);
+    const updates = stub.linkUpdates.length;
+    const late = linkSession('cohort-two-pay', 'seat16@example.com');
+    await deliver('checkout.session.completed', { ...late, payment_status: 'unpaid', customer: 'cus_s16' });
+    const [order] = await (await db()).select().from(orders).where(eq(orders.stripeSessionId, late.id));
+    await (await db()).update(orders).set({ status: 'paid' }).where(eq(orders.id, order!.id));
+    const errors: string[] = [];
+    const log = { info: () => {}, warn: () => {}, error: (_o: Record<string, unknown>, msg: string) => void errors.push(msg) };
+    expect((await provisionOrder(order!.id, { log, now: NOW_MS, invitesFrom: CONFIG.invitesFrom })).ok).toBe(true);
+    expect(errors).toEqual(['AI Accelerator seat 16 sold, past the 15 seats: Connor follows up']);
+    expect(await sold()).toBe(16);
+    await reconcileAcceleratorSeats({ stripe: stub.client, config: CONFIG, now: NOW_MS, log: quiet });
+    expect(stub.linkUpdates).toHaveLength(updates);
+    expect(linkStates()).toMatchObject({ plink_full: [false, '1'], plink_two: [false, '1'] });
+  });
+
+  it('turns back on, after a refund from 15 to 14, only a link the cap turned off', async () => {
+    await sell(14);
+    // Connor turned the two-payment link off by hand: not the cap's to reopen.
+    stub.links.set('plink_two', { ...stub.links.get('plink_two')!, active: false });
+    await sell(1, 15);
+    expect(linkStates()).toMatchObject({ plink_full: [false, '1'], plink_two: [false, null] });
+
+    expect((await refund(15)).statusCode).toBe(200);
+    expect(await sold()).toBe(14);
+    expect(linkStates()).toEqual({ plink_full: [true, null], plink_two: [false, null], plink_insiders: [true, null] });
+    expect(stub.linkUpdates.at(-1)).toEqual({ id: 'plink_full', change: { active: true, metadata: { ai_soldout: '' } }, key: expect.stringMatching(/^accel-cap-plink_full-on-14-\d+$/) });
+  });
+
+  it('leaves them off after a refund once founding prices have closed, or while the offer is closed', async () => {
+    await sell(15);
+    process.env.FIXED_NOW = '2026-12-01T07:00:00Z'; // after Nov 30, 11:59 PM Mountain
+    expect((await refund(15)).statusCode).toBe(200);
+    expect(await sold()).toBe(14);
+    expect(linkStates()).toMatchObject({ plink_full: [false, '1'], plink_two: [false, '1'] });
+    // `OFFER_OPEN` off, before the close: the same.
+    const out = await reconcileAcceleratorSeats({ stripe: stub.client, config: { ...CONFIG, open: false }, now: NOW_MS, log: quiet });
+    expect(out!.links.map((l) => l.action)).toEqual(['held-off', 'held-off']);
+    expect(linkStates()).toMatchObject({ plink_full: [false, '1'], plink_two: [false, '1'] });
+  });
+
+  it('turns the other link off when one fails, retries the failed one each tick, and logs a 403 once an hour', async () => {
+    await sell(14);
+    stub.linkForbidden.add('plink_two');
+    await sell(1, 15);
+    expect(linkStates()).toMatchObject({ plink_full: [false, '1'], plink_two: [true, null] });
+
+    resetSeatCapLogForTests();
+    const errors: string[] = [];
+    const log = { info: () => {}, warn: () => {}, error: (_o: Record<string, unknown>, msg: string) => void errors.push(msg) };
+    const tick = (t: number) => reconcileAcceleratorSeats({ stripe: stub.client, config: CONFIG, now: t, log });
+    expect((await tick(NOW_MS))!.links).toEqual([{ id: 'plink_full', action: 'already-off' }, { id: 'plink_two', action: 'failed' }]);
+    await tick(NOW_MS + 60_000);
+    expect(errors).toEqual(['seat cap: Stripe refused (403). Add Payment Links: Read and Write to the website-checkout restricted key; the next tick retries']);
+    await tick(NOW_MS + 61 * 60_000);
+    expect(errors).toHaveLength(2);
+
+    // Connor adds the permission: the next tick turns it off.
+    stub.linkForbidden.clear();
+    await tick(NOW_MS + 62 * 60_000);
+    expect(linkStates()).toMatchObject({ plink_full: [false, '1'], plink_two: [false, '1'] });
+  });
+
+  it('never touches a link that is not an AI Accelerator link, and does nothing without a key or link ids', async () => {
+    await sell(15);
+    const errors: string[] = [];
+    const log = { info: () => {}, warn: () => {}, error: (_o: Record<string, unknown>, msg: string) => void errors.push(msg) };
+    const out = await syncAcceleratorPaymentLinks({ sold: 15, stripe: stub.client, ids: ['plink_insiders'], mayReopen: true, now: NOW_MS, log });
+    expect(out.links).toEqual([{ id: 'plink_insiders', action: 'skipped:not-accelerator' }]);
+    expect(errors).toEqual(['seat cap: this Payment Link is not an AI Accelerator link; left alone']);
+    expect(stub.links.get('plink_insiders')!.active).toBe(true);
+    expect(stub.linkUpdates.some((u) => u.id === 'plink_insiders')).toBe(false);
+    expect(await reconcileAcceleratorSeats({ stripe: null, config: CONFIG, now: NOW_MS, log: quiet })).toBeNull();
+    expect(await reconcileAcceleratorSeats({ stripe: stub.client, config: { ...CONFIG, seatCapLinks: [] }, now: NOW_MS, log: quiet })).toBeNull();
+  });
+
+  it('runs on the billing loop’s tick too, so a missed webhook cannot leave the links on at 15', async () => {
+    await sell(15);
+    // As if the webhook's own reconcile never happened.
+    for (const id of ['plink_full', 'plink_two']) stub.links.set(id, { id, active: true, metadata: { ai_plan: 'cohort' } });
+    const loop = startBillingLoop({ database: true, invitesFrom: CONFIG.invitesFrom, log: quiet, intervalMs: 20, seatCap: { stripe: stub.client, config: CONFIG } });
+    try {
+      await vi.waitFor(() => expect(linkStates()).toMatchObject({ plink_full: [false, '1'], plink_two: [false, '1'] }), { timeout: 3000 });
+    } finally {
+      await loop.stop();
+    }
   });
 });
