@@ -4839,3 +4839,47 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
   - That 16th seat is provisioned like any other (a paid checkout is never refused), the existing "seat 16 sold, past the 15 seats: Connor follows up" error is logged, and both links stay off. Nothing is refunded automatically; Connor follows up.
 - **Before it works in production:** Payment Links: Read and Write on the existing `website-checkout` restricted key, live and test. No new key, and no standard secret key.
 - **Not changed:** prices, products, trials, tax, terms, copy, `/agreement`, the Insiders, Team Plan and Agent Plan links, GHL, and emails.
+
+## D-155 · Google Analytics 4 and the Meta Pixel on the www marketing pages only
+
+**Date:** 2026-11-14
+**Approved by:** Connor, 2026-11-14, about 1 AM MST: install GA4 (measurement id `G-TSQ5YB5BCP`, stream https://www.amplifiedimpact.io) and a Meta Pixel (`1835170747490806`, dataset "Amplified Impact" in the Spring B business portfolio) on the public www site; page views, checkout starts on the Buy buttons, and purchases on /offer/welcome; never on learn or the admin console.
+**Status:** on a pull request.
+**Scope:**
+- `apps/web/public/analytics.js` (new).
+- `apps/api/src/lib/analytics.ts` (new), `src/app.ts` (`cspDirectives` and one `onSend` hook), `src/server.ts`, `src/routes/offer.ts`.
+- `apps/web/offer-welcome.html` (five body attributes).
+
+- **One first-party file.** `analytics.js` is served at `/analytics.js` from `apps/web/public`, so `script-src 'self'` admits it. It adds no inline script and no new hash.
+  - It holds both ids as constants (public ids, not secrets).
+  - It runs only when the page's host is `www.amplifiedimpact.io`, so a public page opened on the learn host, a preview or a local build loads no tag.
+  - The ids are not in Railway; no variable changed.
+- **Which pages.** `server.ts` reads each www page once at boot through `withAnalytics`, which adds `<script src="/analytics.js" defer></script>` before `</head>`:
+  - the homepage;
+  - /offer and /forum, and /offer/welcome;
+  - the sales pages (/pricing, /team-build, /teams, /agents, /free, /about, /insiders);
+  - every skill and guide landing page, /library, and /ai101.
+  - Not the learn app's `index.html` (so not learn, nor the admin console), and not /agreement, /terms or /privacy.
+  - No HTML shell, render file or Vite config changed, so Design's homepage v3 and site files are untouched.
+- **Events.**
+  - **Every page:** GA4 `page_view` (gtag `config`) and Meta `PageView`.
+  - **A Buy button** (a Stripe Payment Link, labelled at read time with `data-ai-cart` and `data-ai-item`, e.g. "Amplified AI Accelerator, Paid in Full"): GA4 `begin_checkout` and Meta `InitiateCheckout`, with the cart id and product name. A sold-out, closed or "opens soon" button has no Stripe link and sends nothing.
+  - **/offer/welcome, once the order is confirmed:** GA4 `purchase` and Meta `Purchase`.
+    - Value and currency are Stripe's `amount_total` and currency from the order the page already looks up. A trial, or an order with no amount, sends 0, never a guess.
+    - The product is the cart's name.
+    - The Checkout Session id is GA4's `transaction_id` and Meta's `eventID`.
+    - It is sent once per session id: a `localStorage` mark means a reload, a second tab or Back sends nothing more. GA4's and Meta's own de-duplication cover a browser that refuses storage.
+  - No name, email or phone is ever sent.
+- **CSP.**
+  - `cspDirectives(…, { analytics: true })` adds exactly these: `script-src` `https://www.googletagmanager.com`, `https://connect.facebook.net`; `connect-src` `https://www.google-analytics.com`, `https://*.google-analytics.com`, `https://*.analytics.google.com`, `https://www.googletagmanager.com`, `https://www.facebook.com`, `https://connect.facebook.net`; `img-src` `https://www.google-analytics.com`, `https://www.googletagmanager.com`, `https://www.facebook.com`.
+  - **Only a response that carries the tag gets them** (an `onSend` hook extends helmet's header in place). The learn app, the admin console, the legal pages and every API answer keep the strict policy. This is deliberate: allowing googletagmanager.com is a known way around a CSP, because anyone can host a script in a GTM container, so the signed-in app must not allow it.
+  - The www homepage still has no CSP (the marketing hook answers before helmet); the tags load there anyway.
+- **Checked in a real browser (Chromium, desktop Chrome user agent), against the built site at its https addresses:**
+  - No CSP violation on /, /offer, /pricing, /forum, /appointment-follow-up or /offer/welcome.
+  - Each page sent its page views.
+  - The Buy button sent `begin_checkout` and `InitiateCheckout`.
+  - The welcome page sent one `purchase` and one `Purchase` with the session id, 7500 and USD, and nothing more after a reload.
+  - learn loaded no tag and made no third-party request.
+  - Every collect call was intercepted, so nothing reached Connor's GA4 property or Pixel.
+  - Meta's Pixel sends nothing from a headless or automated browser; that is Meta's own choice, not this code.
+- **Not changed:** `/agreement`, Railway variables, secrets, prices, Stripe, the learn app, and Design's files. There is no consent banner: none was asked for.
