@@ -261,7 +261,12 @@ export const THANKS: Readonly<Record<CardPlan, ThanksCopy>> = {
     lede: 'Thanks for joining. Stripe emailed your receipt. Here’s what happens next.',
     steps: [
       { title: 'Watch your email', body: [], extras: ['login'] },
-      { title: 'Start with Week 0', body: [`Week 0 is your setup path. ${SIGN_IN_FIRST} Then open your course.`], extras: ['course'] },
+      // D-153: the course, Week 0 with it, opens at the first build; the login works before then.
+      {
+        title: 'Start with Week 0',
+        body: [`Week 0 is your setup path. It opens with the rest of your course on Wednesday, December 2. ${SIGN_IN_FIRST} Your welcome is there now.`],
+        extras: ['course'],
+      },
       { title: 'Fill out your intake form', body: ['It comes with your welcome email.'], extras: ['intake'] },
       {
         title: 'Save the dates',

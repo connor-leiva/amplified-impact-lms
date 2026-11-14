@@ -14,6 +14,7 @@ import { guidePageOf, skillGuidePath } from '@ai/core/skill-guides';
 import { LEAD, leadFor } from '../../library/content';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
+import { PreLaunch } from './PreLaunch';
 import s from './SkillLibrary.module.css';
 
 export const COPY = {
@@ -105,7 +106,17 @@ export const START_WITH: Readonly<Record<string, readonly string[]>> = {
 
 type Load =
   | { kind: 'loading' }
-  | { kind: 'ready'; skills: LibrarySkill[]; course: boolean; teamHub: boolean; paused: boolean; groups: AccessGroupInfo[]; paidPlans: boolean }
+  | {
+      kind: 'ready';
+      skills: LibrarySkill[];
+      course: boolean;
+      teamHub: boolean;
+      paused: boolean;
+      groups: AccessGroupInfo[];
+      paidPlans: boolean;
+      /** D-153: when a bought AI Accelerator opens, while it has not; null otherwise. */
+      courseOpensAt: number | null;
+    }
   | { kind: 'signed-out' }
   | { kind: 'failed' };
 
@@ -124,6 +135,7 @@ async function loadSkills(): Promise<Load> {
       teamHub?: boolean;
       paused?: boolean;
       accessGroups?: AccessGroupInfo[];
+      courseOpensAt?: number | null;
     };
     return {
       kind: 'ready',
@@ -133,6 +145,7 @@ async function loadSkills(): Promise<Load> {
       paused: body.paused === true,
       groups: body.accessGroups ?? [],
       paidPlans: (body.plans ?? []).length > 0,
+      courseOpensAt: typeof body.courseOpensAt === 'number' ? body.courseOpensAt : null,
     };
   } catch {
     return { kind: 'signed-out' };
@@ -371,6 +384,9 @@ export function Component() {
           </p>
         ) : null}
       </header>
+
+      {/* D-153: bought, and opening at the first live build: why the course and the skills wait. */}
+      {load.kind === 'ready' && load.courseOpensAt !== null ? <PreLaunch opensAt={load.courseOpensAt} /> : null}
 
       {load.kind === 'ready'
         ? load.groups

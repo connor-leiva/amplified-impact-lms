@@ -90,10 +90,12 @@ export const DEFAULT_FOUNDING_CLOSES_AT = '2026-11-30T23:59:00-07:00';
 export const DEADLINE_TZ = 'America/Denver';
 
 /**
- * When the owner's invite may go out. Sales over the Forum weekend create the account at once but
- * hold the invite until Monday morning, so it lands with Sarah O.'s welcome email.
+ * When the owner's invite may go out, unless `INVITES_FROM` says otherwise. It was Monday, Nov 16, so
+ * the login landed with the welcome email; since D-153 (Connor, 2026-11-13) logins go out at once, so
+ * the default is in the past. What a buyer can open is held by the plan's `startsAt` and the course's
+ * `COURSE_OPENS_AT` instead, never by this.
  */
-export const DEFAULT_INVITES_FROM = '2026-11-16T08:00:00-06:00';
+export const DEFAULT_INVITES_FROM = '2026-11-13T00:00:00-07:00';
 
 /**
  * The Amplified Team Plan's first monthly charge: Sunday, Apr 4, 2027, 00:00 America/Chicago (unix
@@ -409,7 +411,8 @@ export interface PlanDates {
 
 /**
  * A new plan's dates (D-104, D-106):
- *   - the AI Accelerator: paid through the end of cohort one's 90 days;
+ *   - the AI Accelerator: paid through the end of cohort one's 90 days, and started at the first live
+ *     build (Dec 2, 1:00 PM Central, D-153), so its skills and its course open then and not at purchase;
  *   - Amplified Insiders by the year: paid through day 365, when its $197 a month begins;
  *   - Amplified Insiders by the month: paid through one month, with a 3-month minimum;
  *   - the Team Plan: paid at checkout through Apr 3, 2027, its first monthly charge on Apr 4. Its agent
@@ -424,7 +427,14 @@ export interface PlanDates {
 export function initialPlanDates(cart: Pick<Cart, 'plan' | 'option'>, now: number, chargedToday = true): PlanDates {
   switch (cart.plan) {
     case 'cohort':
-      return { startsAt: now, paidThrough: COHORT_ONE_LIVE_UNTIL, liveUntil: COHORT_ONE_LIVE_UNTIL, minimumUntil: null, cohortId: COHORT_ONE.id };
+      // D-153: the login works at once, and the course and its skills open at the first live build.
+      return {
+        startsAt: Math.max(now, COHORT_ONE.firstBuildAt),
+        paidThrough: COHORT_ONE_LIVE_UNTIL,
+        liveUntil: COHORT_ONE_LIVE_UNTIL,
+        minimumUntil: null,
+        cohortId: COHORT_ONE.id,
+      };
     case 'membership': {
       if (cart.option === 'year_upfront') {
         const year = now + INSIDERS_YEAR_DAYS * DAY;

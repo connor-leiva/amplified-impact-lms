@@ -21,7 +21,7 @@ import { getDb } from '../db/client';
 import { accounts, dismissals, plans, skills, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { presignGet, skillFileKey, StorageKeyError } from '../storage';
-import { pausedForPayment } from '@ai/core/accelerator';
+import { acceleratorUpcoming, pausedForPayment } from '@ai/core/accelerator';
 import { planCovers, skillOpensAt, skillState } from '../billing/access';
 import { groupAccessOf } from '../billing/access-groups';
 import type { GroupMembership } from '../billing/access-groups';
@@ -156,6 +156,9 @@ export function registerSkillRoutes(app: FastifyInstance): void {
       // D-143: a two-pay AI Accelerator whose second payment failed. Its skills read locked until
       // that invoice is paid; the screen says why, and where to fix it.
       paused: access.plans.some(pausedForPayment),
+      // D-153: an AI Accelerator bought and not open yet: when it opens (the first live build). The
+      // screen's pre-launch welcome reads it; null for everyone else, and from that instant on.
+      courseOpensAt: acceleratorUpcoming(access.paidPlans.map((p) => ({ ...p, option: p.option ?? null })), now),
       // The portal shows the Team Hub to a Team tier learner; so does this page's link to it (D-119).
       // Not for an access group's member who bought nothing (D-148): their account's team of one is how
       // an account is made, not a team they run.
