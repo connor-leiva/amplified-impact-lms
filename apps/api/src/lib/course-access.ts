@@ -11,7 +11,7 @@
 // and `GET /api/course`.
 
 import { eq, inArray } from 'drizzle-orm';
-import { acceleratorOpen, acceleratorPaused } from '@ai/core/accelerator';
+import { acceleratorOpen, acceleratorPaused, acceleratorUpcoming } from '@ai/core/accelerator';
 import type { AcceleratorPlan } from '@ai/core/accelerator';
 import type { Database } from '../db/client';
 import { accounts, plans, users } from '../db/schema';
@@ -34,6 +34,11 @@ export async function plansForLearner(db: Reader, userId: string): Promise<Accel
 /** Whether the course is closed to this learner only until a payment goes through (D-143). */
 export async function acceleratorPausedFor(db: Reader, userId: string, now: number): Promise<boolean> {
   return acceleratorPaused(await plansForLearner(db, userId), now);
+}
+
+/** D-153: when the course opens for a learner whose account bought it but cannot open it yet, or null. */
+export async function acceleratorUpcomingFor(db: Reader, userId: string, now: number): Promise<number | null> {
+  return acceleratorUpcoming(await plansForLearner(db, userId), now);
 }
 
 /** Whether this learner's account holds a plan that opens the course right now. */

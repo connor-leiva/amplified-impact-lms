@@ -23,6 +23,7 @@ import {
   AGENTS_SKILLS_FROM,
   CARTS,
   CART_IDS,
+  COHORT_ONE,
   INSIDERS_FIRST_CHARGE_AT,
   PLAN_NAMES,
   addMonths,
@@ -899,20 +900,22 @@ const OFFER_CASES: OfferCase[] = [
   {
     cart: 'cohort-full',
     paymentStatus: 'paid',
-    plan: { kind: 'cohort', option: 'full', seats: 2, status: 'active', cohortId: 'dec26', startsAt: NOW_MS, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
+    // D-153: bought tonight, the login works at once; its skills and course open at the first live build.
+    plan: { kind: 'cohort', option: 'full', seats: 2, status: 'active', cohortId: 'dec26', startsAt: COHORT_ONE.firstBuildAt, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
     tier: 'team',
     pin: 1809406800,
     tags: ['offer-buyer', 'plan-cohort', 'pay-full', 'ai-buyer-accelerator'],
-    opens: { owner_ops: NOW_MS, agent: NOW_MS },
+    opens: { owner_ops: COHORT_ONE.firstBuildAt, agent: COHORT_ONE.firstBuildAt },
   },
   {
     cart: 'cohort-two-pay',
     paymentStatus: 'paid',
-    plan: { kind: 'cohort', option: 'two_pay', seats: 2, status: 'active', cohortId: 'dec26', startsAt: NOW_MS, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
+    // D-153: bought tonight, the login works at once; its skills and course open at the first live build.
+    plan: { kind: 'cohort', option: 'two_pay', seats: 2, status: 'active', cohortId: 'dec26', startsAt: COHORT_ONE.firstBuildAt, paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, minimumUntil: null },
     tier: 'team',
     pin: null,
     tags: ['offer-buyer', 'plan-cohort', 'pay-two', 'ai-buyer-accelerator'],
-    opens: { owner_ops: NOW_MS, agent: NOW_MS },
+    opens: { owner_ops: COHORT_ONE.firstBuildAt, agent: COHORT_ONE.firstBuildAt },
   },
   {
     cart: 'insiders-year',
@@ -1288,9 +1291,10 @@ describe('every offer, end to end (D-106)', () => {
     const held = await (await db()).select().from(plans);
     expect(held.map((p) => `${p.kind}/${p.option}`).sort()).toEqual(OFFER_CASES.map((c) => `${c.plan.kind}/${c.plan.option}`).sort());
     expect(new Set(held.map((p) => p.accountId)).size).toBe(1);
-    // Insiders opens the owner set today; the Agent Plan adds nothing until its Jan 4 charge is paid.
+    // Insiders opens the owner set today; the AI Accelerator's agent set waits for its first build
+    // (D-153); the Agent Plan adds nothing until its Jan 4 charge is paid.
     await seedSkills();
-    expect(await skillStates()).toEqual({ 'team-pnl-review': 'open', 'offer-strategy': 'open', 'perfect-week': 'open' });
+    expect(await skillStates()).toEqual({ 'team-pnl-review': 'open', 'offer-strategy': 'upcoming', 'perfect-week': 'open' });
   });
 
   it('after INVITES_FROM, every offer\'s owner invite goes at once', async () => {

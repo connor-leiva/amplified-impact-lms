@@ -162,8 +162,14 @@ describe('the Stripe contract (D-073, D-074, D-104, D-106)', () => {
 
   it('dates each new plan as it is sold', () => {
     expect(initialPlanDates(CARTS['cohort-full'], NOW)).toMatchObject({ paidThrough: INSIDERS_FIRST_CHARGE_AT, liveUntil: INSIDERS_FIRST_CHARGE_AT, cohortId: 'dec26' });
+    // D-153: the AI Accelerator's login works at once; its skills and course start at the first build.
+    for (const id of ['cohort-full', 'cohort-two-pay'] as const) {
+      expect(initialPlanDates(CARTS[id], NOW).startsAt, id).toBe(COHORT_ONE.firstBuildAt);
+      expect(initialPlanDates(CARTS[id], COHORT_ONE.firstBuildAt + DAY).startsAt, id).toBe(COHORT_ONE.firstBuildAt + DAY);
+    }
+    expect(COHORT_ONE.firstBuildAt).toBe(Date.parse('2026-12-02T12:00:00-07:00'));
     expect(initialPlanDates(CARTS['insiders-year'], NOW)).toMatchObject({ startsAt: NOW, paidThrough: NOW + 365 * DAY, minimumUntil: null });
-    expect(initialPlanDates(CARTS['insiders-monthly'], NOW)).toMatchObject({ paidThrough: addMonths(NOW, 1), minimumUntil: addMonths(NOW, 3) });
+    expect(initialPlanDates(CARTS['insiders-monthly'], NOW)).toMatchObject({ startsAt: NOW, paidThrough: addMonths(NOW, 1), minimumUntil: addMonths(NOW, 3) });
     // The Team Plan: logins now, agent skills from Dec 14, paid through the start of monthly billing, nothing locked.
     expect(initialPlanDates(CARTS['agents-16to40'], NOW)).toMatchObject({ startsAt: AGENTS_SKILLS_FROM, paidThrough: AGENTS_FIRST_CHARGE_AT, minimumUntil: null });
     expect(initialPlanDates(CARTS['agents-16to40'], AGENTS_SKILLS_FROM + DAY).startsAt).toBe(AGENTS_SKILLS_FROM + DAY);
@@ -379,8 +385,12 @@ describe('webhook helpers', () => {
 });
 
 describe('the offer page values (D-075, D-104)', () => {
+  // A deploy whose `INVITES_FROM` still holds logins until Monday morning: the held copy. Since D-153
+  // the default is in the past, so a deploy without it sends at once (pinned below).
+  const HOLD = '2026-11-16T08:00:00-06:00';
   const config = readOfferConfig({
     OFFER_OPEN: 'true',
+    INVITES_FROM: HOLD,
     PAYMENT_LINK_COHORT_FULL: 'https://buy.stripe.com/test_cohort_full',
     PAYMENT_LINK_COHORT_TWO_PAY: 'https://buy.stripe.com/test_cohort_two',
     PAYMENT_LINK_INSIDERS_YEAR: 'https://buy.stripe.com/test_insiders_year',
@@ -452,8 +462,16 @@ describe('the offer page values (D-075, D-104)', () => {
     expect(welcomeValues({ state: 'confirmed', plan: 'membership', sessionId: null, now: NOW, config })['plan-name']).toBe('Amplified Insiders');
   });
 
+  it('sends logins at once by default (D-153): a deploy without INVITES_FROM says minutes, not Monday', () => {
+    const now = readOfferConfig({});
+    expect(now.invitesFrom).toBe(Date.parse('2026-11-13T00:00:00-07:00'));
+    expect(now.invitesFrom).toBeLessThan(NOW);
+    expect(offerValues({ config: now, now: NOW, src: null, seatsSold: 0 }).invites).toBe('sent');
+    expect(welcomeValues({ state: 'confirmed', plan: 'cohort', sessionId: null, now: NOW, config: now }).login).toContain('within a few minutes');
+  });
+
   it('picks the thank-you section by the confirmed plan, with the calendar links: the site\'s files unless one is set (D-105)', () => {
-    const cal = readOfferConfig({ CALENDAR_URL_OFFICE_HOURS: 'https://cal.example.com/office-hours' });
+    const cal = readOfferConfig({ CALENDAR_URL_OFFICE_HOURS: 'https://cal.example.com/office-hours', INVITES_FROM: HOLD });
     const done = welcomeValues({ state: 'confirmed', plan: 'agents', sessionId: null, now: NOW, config: cal });
     expect([done.product, done.invites, done['calendar-builds'], done['calendar-office-hours'], done['calendar-state']]).toEqual([
       'agents',

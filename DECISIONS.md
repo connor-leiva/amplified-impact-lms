@@ -4763,3 +4763,39 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
     - The back-forward cache guard.
   - No file the app bundles has a "(demo)" string, and no built chunk or source map holds a demo sign-out.
 - **Not changed:** the sign-out route itself, the cookie's attributes, the sign-in screens, Stripe, prices, `/agreement`, homepage v3 and secrets. Other demo-only pieces (the fixture-mode demo controls, demo personas, the Module Builder's demo uploads) are listed on the PR and left as they are.
+
+## D-153 · Logins go out now; paid AI Accelerator access waits for the first live build
+
+**Date:** 2026-11-14
+**Approved by:** Connor, 2026-11-13, 11:20 PM MST: login and set-password emails can go out immediately; buyers must be able to log in and see a welcome, but must not have access to much until everything is ungated at the start of the sessions, the first Accelerator live build on Wednesday, Dec 2, 2026, 12:00 PM MST (1:00 PM CT). 11:29 PM MST: Amplified Insiders skills stay open at purchase; lock only the Accelerator course and skills.
+**Status:** on a pull request.
+**Scope:**
+- `packages/core/src/accelerator.ts`, `src/offer.ts`.
+- `apps/api/drizzle/0014_cohort_starts_at_first_build.sql` (and its journal entry).
+- `apps/api/src/lib/course-access.ts`, `src/routes/course.ts`, `src/routes/skills.ts`.
+- `apps/web/src/routes/library/PreLaunch.tsx` and its CSS module (new), `src/routes/library/SkillLibrary.tsx`, `src/routes/course/Course.tsx`, `src/offer/content.ts`.
+
+- **The pins.**
+  - `COURSE_OPENS_AT = COHORT_ONE.firstBuildAt` = `2026-12-02T13:00:00-06:00` (12:00 PM Mountain). Until now it was `DEFAULT_INVITES_FROM` (Nov 16, 7:00 AM Mountain). It no longer follows the invite hold or the `INVITES_FROM` variable in any way. Week 0 and all eight weeks still open together at that instant, with no drip.
+  - A new AI Accelerator plan (`cohort`, in full or in two payments) starts at `max(now, COHORT_ONE.firstBuildAt)` instead of `now`. The access rule already reads `startsAt`, and the guided setups use the same rule, so every paid skill and its full guide read `upcoming`, "Coming December 2", until then.
+  - `paidThrough` and `liveUntil` are unchanged.
+  - Amplified Insiders, the Team Plan (Dec 14) and the Agent Plan (Jan 4) keep their dates.
+  - Free skills stay open, and access groups (Utah Life) are unchanged.
+- **Plans already sold.** Migration 0014 moves every `cohort` plan whose `starts_at` is before the build to the build, test and smoke accounts included. It runs in the deploy's pre-deploy migrate. After Dec 2 it changes nothing, and it is safe to run twice.
+- **The welcome after login.**
+  - Before the build, the course's modules and sessions are not in a buyer's snapshot, so sign-in already lands them on the Skill Library (D-150) and the portal is never drawn empty.
+  - The Skill Library and `/course` both show a pre-launch panel: "You're in the Amplified AI Accelerator. Live sessions start Wednesday, Dec 2, at 12:00 PM MT (1:00 PM CT). Your course and your skills open then. Questions? Email support@amplifiedimpact.io." The times go through `fmt.*`, in the viewer's zone first.
+  - The date comes from the API (`courseOpensAt` on `GET /api/skills`, and `upcoming` / `opensAt` on `/api/course`'s 403), from the plan rows, so it shows while the snapshot holds none of the course.
+  - `/course` no longer tells a buyer "The AI Accelerator isn't in your plan."
+  - There is no standalone orientation to link: the Dashboard's and the course's orientation are still placeholders.
+  - The panel has its own stylesheet, so neither page's CSS changes (Design is restyling both, PR 77).
+- **Login emails.**
+  - `DEFAULT_INVITES_FROM` moves to `2026-11-13T00:00:00-07:00`, in the past. A deploy without `INVITES_FROM` therefore sends held invites on the billing loop's first tick, and sends new ones at purchase, with the gating in the same deploy.
+  - If Railway sets `INVITES_FROM`, it still wins. Releasing the emails is then Connor's step: set it in the past and redeploy, because it is read once at boot.
+  - The thank-you page already switches on `invitesFrom`. Its Accelerator step "Start with Week 0 … Then open your course" was the one line now wrong, and it says Week 0 opens with the course on Wednesday, December 2.
+- **Known gap, to close before Dec 2.** At exactly 1:00 PM Central:
+  - The first build's Join opens at its start, not in the 15 minutes before: the session is not in a buyer's snapshot, and the join route checks access, until the course opens.
+  - Accelerator buyers get neither the 24-hour nor the 1-hour reminder for that build.
+  - Week 0, which is "due before the first build", opens at that same moment.
+  - Opening at 12:45 PM Central is a one-constant change.
+- **Not changed:** Stripe, prices, Payment Links, the seat cap, `/agreement`, Railway variables, secrets and access groups. No emails are sent by hand.

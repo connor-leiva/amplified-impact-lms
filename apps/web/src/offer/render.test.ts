@@ -187,7 +187,9 @@ describe('/offer/welcome: the starter path, the calendars and the empty links (o
       expect(hrefs(section(plan), '.start-link a'), plan).toEqual([['Open the Skill Library', 'https://learn.amplifiedimpact.io/skill-library']]);
       expect(text(section(plan)), plan).toContain('Sign in with the login from your email first.');
     }
-    expect(text(section('cohort'))).toContain('Week 0 is your setup path. Sign in with the login from your email first.');
+    expect(text(section('cohort'))).toContain(
+      'Week 0 is your setup path. It opens with the rest of your course on Wednesday, December 2. Sign in with the login from your email first. Your welcome is there now.',
+    );
   });
 
   it('gives every plan a Set Your Password button the API fills per buyer, hidden when it leaves it empty (D-132)', () => {

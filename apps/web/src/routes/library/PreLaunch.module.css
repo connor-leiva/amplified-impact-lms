@@ -1,0 +1,42 @@
+/* D-153: the pre-launch welcome on /skill-library and /course. The D-150 welcome panel's values (a
+   radius 12 card on --bg-surface, a 1px --line-default border, 16 / 24 text), in its own file so the
+   two pages' stylesheets do not change. Tokens only; nothing under 16px. */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+.title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+.link {
+  display: inline-block;
+  min-height: 44px;
+  line-height: 44px;
+  font-weight: 600;
+  color: var(--text-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.link:hover {
+  color: var(--text-link-hover);
+}
+.link:focus-visible {
+  outline: 2px solid var(--action-primary);
+  outline-offset: 2px;
+}

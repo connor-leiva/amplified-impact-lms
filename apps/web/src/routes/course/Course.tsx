@@ -12,6 +12,7 @@ import type { ReactNode } from 'react';
 import { useParams } from 'react-router';
 import { BrandSlot } from '../../shell/BrandSlot';
 import { Icon } from '../../components/Icon';
+import { PreLaunch } from '../library/PreLaunch';
 import { COPY, courseView, isExternal } from './Course.vm';
 import type { CoursePayload, DownloadVM, OverviewVM, Row, WeekVM } from './Course.vm';
 import s from './Course.module.css';
@@ -19,7 +20,15 @@ import s from './Course.module.css';
 /** A link that leaves learn opens in a new tab; a guided setup in learn (D-151) opens in this one. */
 const newTab = (href: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener' } : {});
 
-type Load = { kind: 'loading' } | { kind: 'ready'; payload: CoursePayload } | { kind: 'signed-out' } | { kind: 'locked' } | { kind: 'paused' } | { kind: 'failed' };
+type Load =
+  | { kind: 'loading' }
+  | { kind: 'ready'; payload: CoursePayload }
+  | { kind: 'signed-out' }
+  | { kind: 'locked' }
+  | { kind: 'paused' }
+  /** D-153: bought, and opening at the first live build. */
+  | { kind: 'upcoming'; opensAt: number }
+  | { kind: 'failed' };
 
 export async function loadCourse(): Promise<Load> {
   try {
@@ -27,8 +36,11 @@ export async function loadCourse(): Promise<Load> {
     if (res.status === 401 || res.status === 404) return { kind: 'signed-out' };
     if (res.status === 403) {
       // D-143: paused until a payment goes through, which says something different from "not in your plan".
-      const body = (await res.json().catch(() => null)) as { paused?: unknown } | null;
-      return body?.paused === true ? { kind: 'paused' } : { kind: 'locked' };
+      const body = (await res.json().catch(() => null)) as { paused?: unknown; upcoming?: unknown; opensAt?: unknown } | null;
+      if (body?.paused === true) return { kind: 'paused' };
+      // D-153: not "not in your plan" to someone who bought it: when it opens, and the welcome.
+      if (body?.upcoming === true && typeof body.opensAt === 'number') return { kind: 'upcoming', opensAt: body.opensAt };
+      return { kind: 'locked' };
     }
     if (!res.ok) return { kind: 'failed' };
     return { kind: 'ready', payload: (await res.json()) as CoursePayload };
@@ -423,6 +435,14 @@ export function Component() {
             <Icon name="lock" size={16} /> {COPY.locked}
           </p>
           <p className={s.note}>{COPY.lockedNote}</p>
+          <a className={s.secondary} href="/skill-library">
+            {COPY.library}
+          </a>
+        </div>
+      ) : load.kind === 'upcoming' ? (
+        <div className={s.status}>
+          <BrandSlot kind="lockup" />
+          <PreLaunch opensAt={load.opensAt} />
           <a className={s.secondary} href="/skill-library">
             {COPY.library}
           </a>

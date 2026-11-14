@@ -19,12 +19,15 @@ import { applyCurriculum } from '../src/db/seed';
 import { persistDiff } from '../src/db/io';
 import { orders, plans, users } from '../src/db/schema';
 import type { Database } from '../src/db/client';
-import { NOT_IN_PLAN } from '../src/routes/course';
+import { NOT_IN_PLAN, NOT_YET } from '../src/routes/course';
 import { acceleratorLearnerIds } from '../src/lib/course-access';
 import { loadDb, resetDatabase, testDatabase } from './helpers';
 
-const AFTER_HOLD = '2026-11-20T09:00:00-06:00';
-const BEFORE_HOLD = '2026-11-15T09:00:00-06:00';
+// D-153: bought tonight, at the Forum; the course opens at the first live build, Dec 2, 1:00 PM Central.
+const BOUGHT = '2026-11-14T15:00:00-06:00';
+const AFTER_HOLD = '2026-12-03T09:00:00-06:00';
+const BEFORE_HOLD = '2026-11-20T09:00:00-06:00';
+const OPENS = '2026-12-02T13:00:00-06:00';
 /** Ten minutes before Week 1's build: its join window is open. */
 const WEEK1_WINDOW = '2026-12-02T12:50:00-06:00';
 
@@ -67,7 +70,7 @@ const get = (url: string, who: string) => app.inject({ method: 'GET', url, heade
 async function provision(buyer: Buyer): Promise<string> {
   const b = BUYERS[buyer];
   const id = `ord_${buyer}`;
-  const now = Date.parse(AFTER_HOLD);
+  const now = Date.parse(BOUGHT);
   await handle.insert(orders).values({ id, plan: b.plan, option: b.option, origin: 'payment_link', status: 'paid', name: buyer, email: b.email, company: `${buyer} group`, crm: 'follow_up_boss', createdAt: now });
   const out = await provisionOrder(id, { db: handle, log: silent, now, invitesFrom: now, invitesEnabled: false });
   if (!out.ok) throw new Error(`provisioning ${buyer} failed: ${out.reason}`);
@@ -155,8 +158,12 @@ describe('an AI Accelerator buyer opens Week 0 and all eight weeks', () => {
     expect(snap.sessions).toHaveLength(16);
   });
 
-  it('can join Week 1’s build inside its window, with no invented Zoom link', async () => {
+  it('can join Week 1’s build once the course opens at its start, with no invented Zoom link', async () => {
+    // D-153, a known gap to close before Dec 2: the join window's first 15 minutes come before the
+    // course opens, so the first build cannot be joined early.
     at(WEEK1_WINDOW);
+    expect((await get('/api/sessions/dec26-s1/join', 'full')).statusCode).toBe(404);
+    at(OPENS);
     const res = await get('/api/sessions/dec26-s1/join', 'full');
     expect(res.statusCode).toBe(200);
     // Staff have not set the real link yet; the client reads an empty URL as shut.
@@ -184,11 +191,24 @@ describe('anyone else cannot open the course', () => {
     expect([res.statusCode, res.body.replace('dec26-s1', 'X')]).toEqual([none.statusCode, none.body.replace('dec26-nope', 'X')]);
   });
 
-  it('a buyer holds it until the Nov 16 invite hold, then opens it', async () => {
-    at(BEFORE_HOLD);
-    expect((await get('/api/course', 'full')).statusCode).toBe(403);
-    at(AFTER_HOLD);
+  it('a buyer signs in at once but holds the course until the first live build, then opens all of it (D-153)', async () => {
+    // Bought tonight: the plan starts at the build, not at purchase.
+    const [plan] = await handle.select({ startsAt: plans.startsAt }).from(plans).where(eq(plans.orderId, 'ord_full'));
+    expect(plan!.startsAt).toBe(Date.parse(OPENS));
+    for (const when of [BOUGHT, '2026-11-16T08:00:00-06:00', BEFORE_HOLD, '2026-12-02T12:59:59-06:00']) {
+      at(when);
+      const res = await get('/api/course', 'full');
+      expect(res.statusCode, when).toBe(403);
+      // Not "not in your plan": when it opens, for the pre-launch welcome.
+      expect(res.json(), when).toEqual({ open: false, upcoming: true, opensAt: Date.parse(OPENS), error: NOT_YET });
+      expect(res.body).not.toContain('What are we paying for leads');
+      const snap = (await get('/api/snapshot', 'full')).json() as Db;
+      expect(snap.modules.filter((m) => isAcceleratorModule(m.id)), when).toEqual([]);
+      expect(snap.sessions, when).toEqual([]);
+    }
+    at(OPENS);
     expect((await get('/api/course', 'full')).statusCode).toBe(200);
+    expect(((await get('/api/snapshot', 'full')).json() as Db).modules.map((m) => m.id)).toEqual(ACCELERATOR_MODULE_IDS);
   });
 
   it('a refunded AI Accelerator (its plan ended) closes the course', async () => {

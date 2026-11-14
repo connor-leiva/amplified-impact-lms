@@ -23,9 +23,11 @@ import {
   ACCELERATOR_MODULE_IDS,
   COURSE_OPENS_AT,
   LIBRARY_ROUTES_PENDING_MERGE,
+  WEEK0_DUE_AT,
   acceleratorCohort,
   acceleratorOpen,
   acceleratorPaused,
+  acceleratorUpcoming,
   pausedForPayment,
   acceleratorSessions,
   isAcceleratorModule,
@@ -42,7 +44,7 @@ import {
   courseContent,
   rubricResult,
 } from '../src/accelerator-content';
-import { DEFAULT_INVITES_FROM } from '../src/offer';
+import { COHORT_ONE, DEFAULT_INVITES_FROM } from '../src/offer';
 
 const CT = (s: string) => Date.parse(`${s}-06:00`);
 /** The Central wall clock of an instant, `YYYY-MM-DD HH:MM`, independent of the host zone. */
@@ -203,7 +205,8 @@ describe('the cohort line counts course weeks, not Mondays', () => {
 });
 
 describe('who can open the course', () => {
-  const AFTER = CT('2026-11-20T09:00');
+  // After the course opens (D-153: the first live build, Dec 2, 1:00 PM Central).
+  const AFTER = CT('2026-12-03T09:00');
   const plan = (kind: string, option: string | null, status = 'active', startsAt?: number) => ({ kind, option, status, startsAt });
 
   it('opens for the AI Accelerator in full and in two payments', () => {
@@ -242,11 +245,35 @@ describe('who can open the course', () => {
     expect(acceleratorOpen([plan('cohort', 'full', 'ended')], AFTER)).toBe(false);
   });
 
-  it('honours the Nov 16 invite hold and a plan that has not started', () => {
-    expect(COURSE_OPENS_AT).toBe(Date.parse(DEFAULT_INVITES_FROM));
-    expect(acceleratorOpen([plan('cohort', 'full')], COURSE_OPENS_AT - 1)).toBe(false);
-    expect(acceleratorOpen([plan('cohort', 'full')], COURSE_OPENS_AT)).toBe(true);
+  it('opens at the first live build, Week 0 and all eight weeks at once, and not at the invite (D-153)', () => {
+    expect(COURSE_OPENS_AT).toBe(COHORT_ONE.firstBuildAt);
+    expect(COURSE_OPENS_AT).toBe(Date.parse('2026-12-02T13:00:00-06:00')); // 12:00 PM Mountain
+    expect(COURSE_OPENS_AT).toBe(WEEK0_DUE_AT);
+    expect(COURSE_OPENS_AT).not.toBe(Date.parse(DEFAULT_INVITES_FROM));
+    // Bought tonight: signed in, nothing open until the build, then everything.
+    const bought = [plan('cohort', 'full', 'active', COHORT_ONE.firstBuildAt)];
+    for (const at of [CT('2026-11-14T09:00'), CT('2026-11-16T08:00'), COURSE_OPENS_AT - 1]) expect(acceleratorOpen(bought, at), new Date(at).toISOString()).toBe(false);
+    expect(acceleratorOpen(bought, COURSE_OPENS_AT)).toBe(true);
+    expect(acceleratorOpen([plan('cohort', 'two_pay')], COURSE_OPENS_AT - 1)).toBe(false);
+    expect(acceleratorOpen([plan('cohort', 'two_pay')], COURSE_OPENS_AT)).toBe(true);
+    // A plan's own later start still holds.
     expect(acceleratorOpen([plan('cohort', 'full', 'active', AFTER + 1)], AFTER)).toBe(false);
+  });
+
+  it('says when it opens to a buyer it is not open to yet, and to no one else (D-153)', () => {
+    const before = CT('2026-11-14T09:00');
+    expect(acceleratorUpcoming([plan('cohort', 'full', 'active', COHORT_ONE.firstBuildAt)], before)).toBe(COURSE_OPENS_AT);
+    expect(acceleratorUpcoming([plan('cohort', 'two_pay')], before)).toBe(COURSE_OPENS_AT);
+    // A later start wins over the course's.
+    expect(acceleratorUpcoming([plan('cohort', 'full', 'active', COURSE_OPENS_AT + 5)], before)).toBe(COURSE_OPENS_AT + 5);
+    // Open, refunded, paused, or not the course: nothing to say.
+    expect(acceleratorUpcoming([plan('cohort', 'full')], COURSE_OPENS_AT)).toBeNull();
+    expect(acceleratorUpcoming([plan('cohort', 'full', 'ended')], before)).toBeNull();
+    expect(acceleratorUpcoming([plan('cohort', 'two_pay', 'past_due')], before)).toBeNull();
+    for (const k of [plan('membership', 'year_upfront'), plan('agents', 'upto15'), plan('agent_plan', 'monthly'), plan('cohort', null)]) {
+      expect(acceleratorUpcoming([k], before), JSON.stringify(k)).toBeNull();
+    }
+    expect(acceleratorUpcoming([], before)).toBeNull();
   });
 });
 

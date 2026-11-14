@@ -19,7 +19,7 @@
 //
 // Pure: no clock, no random source. Every instant is a `Date.parse` of a literal.
 
-import { DEFAULT_INVITES_FROM } from './offer';
+import { COHORT_ONE } from './offer';
 import type { Cohort, Session } from './types';
 
 /** A bare `YYYY-MM-DDTHH:MM` read as Central Time. December to February is CST. */
@@ -48,10 +48,12 @@ export const SESSION_TIME_CT = '13:00';
 export const HOLIDAY_SKIPS: readonly string[] = ['2026-12-23', '2026-12-24', '2026-12-30', '2026-12-31'];
 
 /**
- * When Week 0 opens: the Nov 16 invite hold, the same instant owner invites go out (offer.ts). A buyer
- * can reach the sign-in page before then, so the course itself honours the hold too.
+ * When the course opens, Week 0 and all eight weeks at once: the first live build, Wednesday, Dec 2,
+ * 2026, 1:00 PM Central (12:00 PM Mountain), `COHORT_ONE.firstBuildAt` (D-153, Connor, 2026-11-13:
+ * logins go out now, and nothing paid opens until the sessions start). It used to be the Nov 16 invite
+ * hold; it no longer follows `INVITES_FROM` in any way.
  */
-export const COURSE_OPENS_AT = Date.parse(DEFAULT_INVITES_FROM);
+export const COURSE_OPENS_AT = COHORT_ONE.firstBuildAt;
 
 /** Week 0 is due before the first build. */
 export const WEEK0_DUE_AT = CT('2026-12-02T13:00');
@@ -195,6 +197,26 @@ export function acceleratorOpen(plans: readonly AcceleratorPlan[], now: number, 
       !pausedForPayment(p) &&
       (p.startsAt === undefined || p.startsAt === null || now >= p.startsAt),
   );
+}
+
+/**
+ * D-153: when the course opens for an account that has bought it but cannot open it yet, or null.
+ *
+ * A live AI Accelerator plan (not ended, not paused for a payment) whose course is closed only by
+ * time: before `opensAt`, or before the plan's own `startsAt`. The later of the two is when it opens.
+ * What the pre-launch welcome says ("sessions start Wednesday, Dec 2"), drawn from the plan rows, so it
+ * shows while the snapshot holds none of the course.
+ */
+export function acceleratorUpcoming(plans: readonly AcceleratorPlan[], now: number, opensAt: number = COURSE_OPENS_AT): number | null {
+  let at: number | null = null;
+  for (const p of plans) {
+    if (p.kind !== 'cohort' || p.option === null || !ACCELERATOR_OPTIONS.includes(p.option)) continue;
+    if (p.status === 'ended' || pausedForPayment(p)) continue;
+    const opens = Math.max(opensAt, p.startsAt ?? 0);
+    if (now >= opens) return null; // one plan already opens it
+    if (at === null || opens < at) at = opens;
+  }
+  return at;
 }
 
 /**
