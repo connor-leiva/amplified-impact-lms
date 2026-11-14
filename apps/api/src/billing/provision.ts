@@ -174,13 +174,14 @@ export async function provisionOrder(orderId: string, options: ProvisionOptions)
     }
     if (order.accountId !== acct.id) await tx.update(orders).set({ accountId: acct.id }).where(eq(orders.id, order.id));
 
-    // Fifteen founding seats (D-104). The sale that fills the last one tells Connor and Ampy: the offer
-    // page has already switched to the waitlist, and the two Stripe links are turned off by hand. A
-    // checkout already open when it sold can still finish: that 16th seat is reported too.
+    // Fifteen founding seats across both links (D-104). The sale that fills the last one tells Connor
+    // and Ampy: the offer page has already switched to the waitlist, and the webhook turns both Stripe
+    // links off once this commits (D-154, `payment-links.ts`). A checkout already open when it sold
+    // can still finish: that 16th seat is provisioned, and reported.
     if (createdPlan && cart.plan === 'cohort') {
       const n = await cohortSeatsSold(tx);
       if (n === COHORT_SEATS) {
-        log.error({ order: order.id, seat: n }, `AI Accelerator sold out: seat ${n} of ${COHORT_SEATS}. The page shows the waitlist; turn off both Accelerator Payment Links in Stripe`);
+        log.error({ order: order.id, seat: n }, `AI Accelerator sold out: seat ${n} of ${COHORT_SEATS}. The page shows the waitlist; both Accelerator Payment Links are being turned off`);
       } else if (n > COHORT_SEATS) {
         log.error({ order: order.id, seat: n }, `AI Accelerator seat ${n} sold, past the ${COHORT_SEATS} seats: Connor follows up`);
       }

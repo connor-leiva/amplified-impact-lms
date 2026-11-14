@@ -19,7 +19,7 @@ plan is bought through its Payment Link: the site's own checkout (`POST /api/che
 | **Amplified Team Plan** | `agents_upto15_prepay3` ($1,491) or `agents_16to40_prepay3` ($2,391) today with `agents_upto15_founding` / `agents_16to40_founding` trialing; the webhook pins `trial_end` to exactly `1806814800` (Sunday, Apr 4, 2027, 00:00 Central; no proration). The links carry `ai_option` = `upto15` / `16to40` **and `billing` = `forum_prepay`**; a Team Plan session without it is recorded and not provisioned. The plan is paid through Apr 3; logins open at purchase, agent skills on Dec 14. The 3-month minimum is paid up front, so nothing is locked. |
 | **Amplified Agent Plan** (D-106) | `agent_plan_monthly` ($79 a month) or `agent_plan_yearly` ($790 a year) on product `prod_VbjbJ10HdX1QqW`, sold on a trial with nothing due today. The webhook pins `trial_end` to exactly `1799042400` (Monday, Jan 4, 2027, 00:00 Central; no proration), only while that date is ahead. Metadata `ai_plan` = `agent_plan`, `ai_option` = `monthly` or `yearly`, no `billing`. The buyer gets one login at once; the plan is `trialing` and opens the agent skills on Jan 4, once the Jan 4 invoice is paid. Cancel anytime, no minimum, no founding price. A checkout that charges before Jan 4 means a link lost its trial: it is provisioned and logged for Connor. |
 | **Amplified Skill Library** | Retired (D-104). No cart sells it; `library_upfront` is not read. |
-| **AI Accelerator seats** | 15 across both links, counted from paid orders (a refund frees one). At 15 the offer page hides both links and shows the waitlist, and the log says "AI Accelerator sold out". Turn both links off in Stripe then; the website never changes Stripe. |
+| **AI Accelerator seats** | 15 across both links together, counted from paid orders (a refund frees one). At 15 the offer page hides both links and shows the waitlist, the log says "AI Accelerator sold out", and the website turns **both** Payment Links off through the API, with a waitlist line and metadata `ai_soldout=1` (D-154). A refund back under 15 turns on only a link it turned off, and only while `OFFER_OPEN` is on and founding prices sell. A link turned off by hand stays off. Each link's own limit of 15 stays as a backstop. |
 | **Buyer tags in GHL** | Done by the website. Please don't connect Stripe to GHL or QuickBooks. |
 | **The $1 `smoke_test`** | Recorded and ignored, refund included. |
 
@@ -60,7 +60,9 @@ the Stripe account to check it. Any of the keys above works, and a label contain
   website's log and Stripe retries it.
 - **Restricted key `website-checkout`:** the section 7 permissions, **plus Customer portal: Write**, so
   the platform's Manage Billing button can open a portal session. Without it, the button falls back to
-  the portal login page.
+  the portal login page. **Plus Payment Links: Read and Write** (D-154, live and test), so the 15-seat
+  cap can turn the two AI Accelerator links off and on. Without them the log says "Stripe refused
+  (403)" once an hour and the cap retries every minute; the offer page still hides the buttons.
 - **Railway variables Connor sets** (none of them is a secret except the first two):
 
 | Name | Value |

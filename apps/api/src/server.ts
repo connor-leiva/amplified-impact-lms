@@ -63,6 +63,7 @@ import { SALES_PAGES } from './routes/offer';
 import type { SalesPath } from './routes/offer';
 import { describeOfferConfig, readOfferConfig } from './billing/config';
 import { startBillingLoop } from './jobs/billing';
+import { stripeClient } from './billing/stripe';
 
 const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
 const indexHtml = fileURLToPath(new URL('../../web/dist/index.html', import.meta.url));
@@ -199,6 +200,12 @@ startGhlSync({ waitlist: databaseConfigured(), log: app.log });
 // owner invites held for Monday once Monday comes.
 app.log.info(describeOfferConfig(offerConfig), 'offer configuration');
 // Not in fixture mode: there is no sign-in to invite anyone to, so invites wait for the http deploy.
-startBillingLoop({ database: databaseConfigured() && offerConfig.invitesEnabled, invitesFrom: offerConfig.invitesFrom, log: app.log });
+// D-154: and keep both AI Accelerator Payment Links off at 15 seats sold, on again below it.
+startBillingLoop({
+  database: databaseConfigured() && offerConfig.invitesEnabled,
+  invitesFrom: offerConfig.invitesFrom,
+  log: app.log,
+  seatCap: { stripe: offerConfig.stripeSecretKey ? stripeClient(offerConfig.stripeSecretKey) : null, config: offerConfig },
+});
 
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 3000) });

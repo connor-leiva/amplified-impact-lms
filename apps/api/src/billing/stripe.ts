@@ -38,8 +38,27 @@ export interface SubscriptionInfo {
   currentPeriodEnd: number | null;
 }
 
+/** A Payment Link, as the seat cap reads it (D-154): whether it sells, and its metadata. */
+export interface PaymentLinkInfo {
+  id: string;
+  active: boolean;
+  metadata: Record<string, string>;
+}
+
+/** The one Payment Link change the seat cap makes: on or off, its sold-out line, and its mark. */
+export interface PaymentLinkChange {
+  active: boolean;
+  inactive_message?: string;
+  /** A key set to '' is removed, as Stripe does. */
+  metadata: Record<string, string>;
+}
+
 export interface BillingStripe {
   pricesByLookupKeys(keys: readonly string[]): Promise<PriceInfo[]>;
+  /** D-154: needs Payment Links: Read on the restricted key. */
+  retrievePaymentLink(id: string): Promise<PaymentLinkInfo>;
+  /** D-154: needs Payment Links: Write on the restricted key. The only Stripe write the seat cap makes. */
+  updatePaymentLink(id: string, change: PaymentLinkChange, idempotencyKey: string): Promise<PaymentLinkInfo>;
   retrieveSubscription(id: string): Promise<SubscriptionInfo>;
   updateSubscription(id: string, params: Stripe.SubscriptionUpdateParams, idempotencyKey?: string): Promise<SubscriptionInfo>;
   createSubscription(params: Stripe.SubscriptionCreateParams, idempotencyKey: string): Promise<SubscriptionInfo>;
@@ -115,6 +134,16 @@ export function stripeClient(secretKey: string): BillingStripe {
 
     async retrieveSubscription(id) {
       return subscriptionInfo(await stripe.subscriptions.retrieve(id));
+    },
+
+    async retrievePaymentLink(id) {
+      const link = await stripe.paymentLinks.retrieve(id);
+      return { id: link.id, active: link.active, metadata: { ...(link.metadata ?? {}) } };
+    },
+
+    async updatePaymentLink(id, change, idempotencyKey) {
+      const link = await stripe.paymentLinks.update(id, change, { idempotencyKey });
+      return { id: link.id, active: link.active, metadata: { ...(link.metadata ?? {}) } };
     },
 
     async updateSubscription(id, params, idempotencyKey) {

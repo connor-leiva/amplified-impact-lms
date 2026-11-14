@@ -146,9 +146,11 @@ export const COHORT_ONE = {
 export const COHORT_ONE_LIVE_UNTIL = INSIDERS_FIRST_CHARGE_AT;
 
 /**
- * Fifteen founding seats across both AI Accelerator links (Connor, 2026-11-10). At 15 the offer page
- * hides both links and offers the waitlist, and the sale that fills the last seat alerts Connor; Ampy
- * turns the Stripe links off by hand (each has its own sales limit of 15). The code never changes Stripe.
+ * Fifteen founding seats across both AI Accelerator links together (Connor, 2026-11-10), not 15 each.
+ * At 15 the offer page hides both links and offers the waitlist, the sale that fills the last seat
+ * alerts Connor, and the API turns both Stripe Payment Links off (D-154, superseding "by hand"); a
+ * refund that frees a seat turns back on only the links it turned off. Each link's own Stripe limit of
+ * 15 stays as a backstop.
  */
 export const COHORT_SEATS = 15;
 
