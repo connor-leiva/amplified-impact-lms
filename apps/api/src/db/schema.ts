@@ -367,3 +367,33 @@ export const auditLog = pgTable('audit_log', {
   // A staff row names its staff member; only the system acts without one.
   check('audit_log_staff_actor', sql`${t.actorSource} = 'system' or ${t.actorUserId} is not null`),
 ]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S STAFF NOTES (D-158, spec § 7.3)
+// ================================================================================================
+// Staff's own notes on a workspace (a `teams` row) or a user: internal, never shown to the workspace
+// or the user, and never in any snapshot (not part of a `Db` and not in the codec, like `audit_log`;
+// `test/console-support.test.ts` reads `/api/snapshot` to prove it).
+//
+// Immutable once written, and the database says so: migration 0016's trigger refuses any DELETE, and
+// any UPDATE but the one that soft-deletes a note, which only sets `deleted_at`, `deleted_by` and
+// `delete_reason`, once (an Owner, with a reason: spec § 7.3). The body, its author, its target and
+// its time never change. TRUNCATE is not covered, as on `audit_log`: the test harness empties every
+// table with it, and only the database owner can run it.
+//
+// `id` is a bigserial, so notes list in the order they were written. `created_at` and `deleted_at`
+// are `clock.now()`, epoch ms. A note's audit row records its length only, never its words.
+export const staffNotes = pgTable('staff_notes', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  targetType: text('target_type').notNull(), targetId: text('target_id').notNull(),
+  authorUserId: text('author_user_id').notNull(),
+  body: text('body').notNull(),
+  createdAt: ts('created_at').notNull(),
+  deletedAt: ts('deleted_at'), deletedBy: text('deleted_by'), deleteReason: text('delete_reason'),
+}, (t) => [
+  index('staff_notes_target_idx').on(t.targetType, t.targetId),
+  check('staff_notes_target_type', sql`${t.targetType} in ('workspace', 'user')`),
+  check('staff_notes_body', sql`char_length(${t.body}) between 1 and 2000`),
+  // A deletion is all three or none: when, by whom, and why (10 to 500 characters).
+  check('staff_notes_deleted', sql`(${t.deletedAt} is null and ${t.deletedBy} is null and ${t.deleteReason} is null) or (${t.deletedAt} is not null and ${t.deletedBy} is not null and char_length(${t.deleteReason}) between 10 and 500)`),
+]);

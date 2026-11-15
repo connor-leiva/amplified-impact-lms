@@ -33,23 +33,33 @@ export function staffActor(viewer: SessionViewer): Extract<AuditActor, { source:
 /** The route a request matched, for the audit row's target: `GET /api/console/audit`. */
 const routeOf = (req: FastifyRequest): string => `${req.method} ${req.routeOptions.url ?? (req.url.split('?')[0] ?? req.url)}`;
 
+/**
+ * The rule itself, for a signed-in viewer: true when they hold `cap`; otherwise the 403 is sent (and a
+ * staff refusal audited) and the answer is false. A handler whose capability depends on the request
+ * (a note's target, D-158) calls this directly and returns when it is false.
+ */
+export async function consoleAllows(req: FastifyRequest, reply: FastifyReply, viewer: SessionViewer, cap: ConsoleCap): Promise<boolean> {
+  const staff = staffActor(viewer);
+  if (staff && consoleCan(staff.role, cap)) return true;
+  if (staff) {
+    await audit(req, {
+      action: 'console.access_denied',
+      outcome: 'denied',
+      actor: staff,
+      target: { type: 'route', id: routeOf(req) },
+      after: { capability: cap },
+    });
+  }
+  consoleError(reply, 'console_forbidden');
+  return false;
+}
+
 export function requireConsole(cap: ConsoleCap): preHandlerAsyncHookHandler {
   return async (req, reply) => {
     // `requireSession` answered already (401). Its reply may still be on its way out, so `sent` alone
     // is not enough: no viewer means there is nothing here to decide.
     if (reply.sent || req.viewer === null) return;
-    const viewer = req.viewer;
-    const staff = staffActor(viewer);
-    if (staff && consoleCan(staff.role, cap)) return;
-    if (staff) {
-      await audit(req, {
-        action: 'console.access_denied',
-        outcome: 'denied',
-        actor: staff,
-        target: { type: 'route', id: routeOf(req) },
-        after: { capability: cap },
-      });
-    }
-    return consoleError(reply, 'console_forbidden');
+    if (await consoleAllows(req, reply, req.viewer, cap)) return;
+    return reply;
   };
 }

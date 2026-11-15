@@ -128,6 +128,12 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     columns: ['action', 'actor_role', 'actor_source', 'actor_user_id', 'after', 'at', 'before', 'id', 'ip', 'masquerade_session_id', 'outcome', 'reason', 'request_id', 'target_id', 'target_label', 'target_type', 'user_agent'],
     gate: 9,
   },
+  // D-158: the Admin Console's staff notes (spec § 7.3). Not a `Db` record, like `audit_log`.
+  staffNotes: {
+    table: 'staff_notes',
+    columns: ['author_user_id', 'body', 'created_at', 'delete_reason', 'deleted_at', 'deleted_by', 'id', 'target_id', 'target_type'],
+    gate: 9,
+  },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -310,6 +316,9 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['accessGroups', 'expiresAt'], ['accessGroups', 'createdAt'], ['accessGroupMembers', 'addedAt'], ['emailVerifications', 'verifiedAt'],
   // D-157: when a Console action happened, `clock.now()` as the audit writer stamps it.
   ['auditLog', 'at'],
+  // D-158: when a staff note was written, and when it was deleted, as `clock.now()` stamps them.
+  ['staffNotes', 'createdAt'],
+  ['staffNotes', 'deletedAt'],
 ];
 
 /**
@@ -364,6 +373,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   accessGroupMembers: { unit: 'epoch-ms', why: 'D-148: added_at is clock.now() as written; no reader converts it' },
   emailVerifications: { unit: 'epoch-ms', why: 'D-148: verified_at is clock.now() as written by claimToken; no reader converts it' },
   auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
+  staffNotes: { unit: 'epoch-ms', why: 'D-158: created_at and deleted_at are clock.now() as written by console/notes.ts, and fmt.* formats them' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -595,10 +605,16 @@ describe('unique indexes @g9', () => {
       { name: 'audit_log_action_idx', unique: false, columns: ['action'] },
       { name: 'audit_log_target_idx', unique: false, columns: ['target_type', 'target_id'] },
     ],
+    // D-158: a record's notes are read by their target.
+    staffNotes: [{ name: 'staff_notes_target_idx', unique: false, columns: ['target_type', 'target_id'] }],
   };
 
   it('gives the audit log its four lookup indexes, none unique @g9', () => {
     expect(indexesOf(tableOf('auditLog'))).toEqual(LOOKUP_INDEXES.auditLog);
+  });
+
+  it('gives staff notes their target index, not unique @g9', () => {
+    expect(indexesOf(tableOf('staffNotes'))).toEqual(LOOKUP_INDEXES.staffNotes);
   });
 
   it('finds no other table carrying an index @g9', () => {
