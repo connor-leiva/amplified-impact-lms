@@ -143,12 +143,15 @@ In drawer mode a 32 px close icon button sits at the right (`aria-label="Close m
 
 In rail mode the group header disappears. The groups render as `[Dashboard, Sessions]`, then `[each employee icon]`, then `[Team Hub?, Resource Vault]`.
 
-**Admin nav groups:**
-- `Insights`: `Overview` (`chart`)
-- `Content`: `Curriculum` (`layers`, badge `N Draft` when drafts exist), `Module Builder` (`pencil`), `Resource Vault` (`archive`)
-- `Delivery`: `Cohorts & Sessions` (`calendar`), `Announcements` (`send`)
-- `People`: `Learners & Teams` (`users`), `Staff & Roles` (`shield`)
+**Admin nav groups** (D-157, the Admin Console's groups, spec § 8):
+- `Health`: `Overview` (`chart`)
+- `Build`: `Curriculum` (`layers`, badge `N Draft` when drafts exist), `Module Builder` (`pencil`), `Resource Vault` (`archive`), `Cohorts & Sessions` (`calendar`), `Announcements` (`send`)
+- `Support`: `Learners & Teams` (`users`)
 - `Revenue`: `Tiers & Upgrades` (`card`, badge = count of `new` upgrade requests)
+- `Operations`: `Audit Log` (`listChecks`), for a role with `audit.read` (Owner, Admin, Support)
+- `Access`: `Roles & Permissions` (`lock`), for a role with `ops.read` (Owner, Admin); `Staff & Roles` (`shield`)
+
+A Console row shows only to a staff role whose Console capabilities open it (`consoleCan`, `@ai/core`), and a group with nothing in it is left out: Instructor and Content Editor see no `Operations` group. The reference renders the Owner's sidebar; it has no Audit Log or Roles screen, so those two rows open the Overview there.
 
 **NavItem.**
 - Row: height 32, radius 8, gap 10, padding `0 10` (depth 1: `0 10 0 24`; rail: 0, centered), 14px.

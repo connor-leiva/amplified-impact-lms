@@ -249,55 +249,18 @@ export function portalNav(
 }
 
 /**
- * Insights · Content · Delivery · People · Revenue. Group labels are hidden in the rail.
+ * The admin sidebar: the Admin Console's groups (D-157, spec § 8), Health · Build · Support · Revenue
+ * · Operations · Access, as design-reference/Amplified Impact LMS.dc.html renders them for the Owner.
  * Module Builder stays active for `/admin/curriculum/new` and for editing an existing AI Employee,
- * which is the prototype's single `builder` screen.
- */
-export function adminNav(db: Db, route: NavRoute, collapsed: boolean): NavGroup[] {
-  const path = norm(route.pathname);
-  const at = (p: string): boolean => path === p;
-  const inBuilder = path.startsWith(`${NAV_PATHS.curriculum}/`);
-
-  const newReq = db.requests.filter((q) => q.status === 'new').length;
-  const drafts = db.modules.filter((m) => m.status === 'draft').length;
-  const g = (label: string, items: NavEntry[]): NavGroup => ({ label, showLabel: !collapsed, items });
-
-  const draftBadge: Extra = drafts
-    ? { badge: `${drafts} Draft`, badgeTitle: `${drafts} draft AI Employee${drafts === 1 ? '' : 's'}` }
-    : {};
-  const reqBadge: Extra = newReq
-    ? { badge: String(newReq), badgeTitle: `${newReq} new upgrade request${newReq === 1 ? '' : 's'}` }
-    : {};
-
-  return [
-    g('Insights', [item('overview', 'Overview', 'chart', NAV_PATHS.overview, at(NAV_PATHS.overview))]),
-    g('Content', [
-      item('curriculum', 'Curriculum', 'layers', NAV_PATHS.curriculum, at(NAV_PATHS.curriculum), draftBadge),
-      item('builder', 'Module Builder', 'pencil', NAV_PATHS.builder, inBuilder),
-      item('avault', 'Resource Vault', 'archive', NAV_PATHS.avault, at(NAV_PATHS.avault)),
-    ]),
-    g('Delivery', [
-      item('cohorts', 'Cohorts & Sessions', 'calendar', NAV_PATHS.cohorts, at(NAV_PATHS.cohorts)),
-      item('announce', 'Announcements', 'send', NAV_PATHS.announce, at(NAV_PATHS.announce)),
-    ]),
-    g('People', [
-      item('learners', 'Learners & Teams', 'users', NAV_PATHS.learners, at(NAV_PATHS.learners)),
-      item('staff', 'Staff & Roles', 'shield', NAV_PATHS.staff, at(NAV_PATHS.staff)),
-    ]),
-    g('Revenue', [item('tiers', 'Tiers & Upgrades', 'card', NAV_PATHS.tiers, at(NAV_PATHS.tiers), reqBadge)]),
-  ];
-}
-
-/**
- * The Admin Console's grouped sidebar (D-157, spec § 8): Health · Build · Support · Revenue ·
- * Operations · Access. The existing admin screens keep their rows, labels, icons and badges, grouped
- * under these headings; a Console screen shows only to a role whose capabilities (`consoleCan`) open
- * it, and a heading with nothing under it is left out.
+ * which is the prototype's single `builder` screen. Group labels are hidden in the rail.
  *
- * NOT WIRED INTO THE SHELL. Every admin golden captures the sidebar (`shell-admin` and each `admin-*`
- * scenario), and these headings replace Insights · Content · Delivery · People · Revenue, so showing
- * it would move those goldens. The shell keeps `adminNav` until Connor decides how the Console's
- * screens join the sidebar (the PR's "Needs Connor's call"); this is the model either answer uses.
+ * A Console screen shows only to a role whose capabilities (`consoleCan`, the same rule the API
+ * authorizes with) open it, and a heading with nothing under it is left out: Support has no Roles &
+ * Permissions, and Instructor and Content Editor see neither Console row. The existing admin screens
+ * keep their rows, labels, icons and badges for every staff role, as before.
+ *
+ * It replaced Insights · Content · Delivery · People · Revenue in Console PR 1d, with the admin
+ * goldens re-captured from the regrouped reference (D-157).
  */
 export function consoleNav(db: Db, route: NavRoute, collapsed: boolean, role: string | null): NavGroup[] {
   const path = norm(route.pathname);
