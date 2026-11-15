@@ -3,8 +3,9 @@
 // delete (D12) and no masquerade yet (PR 3). Markup only: every word comes from Workspaces.vm.ts.
 
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import type { WorkspaceDetail } from '@ai/core';
+import { userPath } from '@ai/core';
 import { ConsolePage } from '../../components/console/ConsolePage';
 import { ConsoleTabs } from '../../components/console/ConsoleTabs';
 import { DataTable } from '../../components/console/DataTable';
@@ -26,6 +27,7 @@ type Load = { kind: 'loading' } | { kind: 'error'; failure: ConsoleFailure } | {
 const failureOf = (e: unknown): ConsoleFailure => (e instanceof ConsoleError ? e.kind : 'failed');
 
 function Panel({ vm, tab, api, role }: { vm: WorkspaceVM; tab: WorkspaceTab; api: ConsoleApi; role: string }) {
+  const navigate = useNavigate();
   if (tab === 'members') {
     return vm.members.length === 0 ? (
       <p className={s.sentence}>{WORKSPACE_COPY.members.empty}</p>
@@ -34,6 +36,8 @@ function Panel({ vm, tab, api, role }: { vm: WorkspaceVM; tab: WorkspaceTab; api
         caption={WORKSPACE_COPY.members.caption}
         rows={vm.members}
         rowKey={(r) => r.key}
+        onOpen={(r) => void navigate(userPath(r.key))}
+        openLabel={(r) => WORKSPACE_COPY.openMember(r.name)}
         columns={[
           { key: 'name', label: WORKSPACE_COPY.members.columns.name, render: (r) => r.name },
           { key: 'role', label: WORKSPACE_COPY.members.columns.role, render: (r) => r.role },

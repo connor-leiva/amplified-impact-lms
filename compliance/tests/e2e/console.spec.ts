@@ -291,11 +291,12 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
 });
 
 /**
- * D-158: the Admin Console's PR 2 Workspaces screens in the fixture build: the list, a record's tabs,
- * staff notes (written by any Console role, deleted by the Owner with a reason), Denied, the record
- * 404 and the shared states. Every screen and dialog passes axe in light and dark.
+ * D-158: the Admin Console's PR 2 screens in the fixture build: Workspaces and Users, each record's
+ * tabs, staff notes (written by any Console role, deleted by the Owner with a reason), the password
+ * reset's confirm, the users export, Denied, the record 404 and the shared states. Every screen and
+ * dialog passes axe in light and dark.
  */
-test.describe('the Admin Console: Workspaces (D-158) @g9 @console', () => {
+test.describe('the Admin Console: Workspaces and Users (D-158) @g9 @console', () => {
   test('Workspaces: the list, its filters, and a record’s five tabs, in both themes', async ({ browser }) => {
     for (const theme of ['light', 'dark'] as const) {
       const { page, close } = await openAt(browser, '/admin/workspaces', { theme });
@@ -376,11 +377,81 @@ test.describe('the Admin Console: Workspaces (D-158) @g9 @console', () => {
     }
   });
 
+  test('Users: the list, its filters, and the export for the roles that may export', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/users');
+    await expectShell(page);
+    await expect(page.getByRole('heading', { level: 1, name: 'Users' })).toBeVisible();
+    await expect(rows(page)).toHaveCount(18);
+    await expect(rows(page).filter({ hasText: 'Jamie Ortiz' })).toContainText('Individual');
+    await page.getByRole('combobox', { name: 'Kind' }).selectOption('staff');
+    await expect(rows(page)).toHaveCount(4);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
+    expect(download.suggestedFilename()).toBe('users-2026-12-07.csv');
+    const csv = await readFile((await download.path())!, 'utf8');
+    expect(csv.split('\r\n')[0]).toBe('"id","name","email","kind","role","team_id","workspace","status","joined","last_active"');
+    expect(csv.trimEnd().split('\r\n')).toHaveLength(5);
+    await expect(page.getByText('Export downloaded. The export is in the audit log.')).toBeVisible();
+    await expectAccessible(page);
+    await close();
+
+    const support = await openAt(browser, '/admin/users?console-role=Support');
+    await expect(rows(support.page)).toHaveCount(18);
+    await expect(support.page.getByRole('button', { name: 'Export CSV' })).toHaveCount(0);
+    await support.close();
+  });
+
+  test('A user: identity as existence only, the tabs, and the password reset’s confirm, in both themes', async ({ browser }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      const { page, close } = await openAt(browser, '/admin/users/u_alex', { theme });
+      await expect(page.getByRole('heading', { level: 1, name: 'Alex Morgan' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 2, name: 'Identity' })).toBeVisible();
+      await expect(page.locator('main')).toContainText('Email Link, Password, Google');
+      await expect(page.locator('main')).not.toContainText(/argon|hash/i);
+      await expectAccessible(page);
+      await page.getByRole('button', { name: 'Send Password Reset' }).click();
+      const dialog = page.getByRole('dialog', { name: 'Send a password reset to Alex Morgan?' });
+      await expect(dialog).toContainText('Emails a reset link to alex@northlinerealty.com.');
+      await expect(dialog).toContainText('This action is audit-logged.');
+      await expectAccessible(page);
+      if (theme === 'light') {
+        await dialog.getByRole('button', { name: 'Send Reset Email' }).click();
+        await expect(page.getByText('Reset email sent.')).toBeVisible();
+        await expect(dialog).toHaveCount(0);
+        const tabs = page.getByRole('tablist', { name: 'User sections' });
+        await expect(tabs.getByRole('tab')).toHaveText(['Profile', 'Orders', 'Progress', 'Notes']);
+        await tabs.getByRole('tab', { name: 'Orders' }).click();
+        await expect(rows(page)).toHaveCount(1);
+        await tabs.getByRole('tab', { name: 'Notes' }).click();
+        await expect(page.locator('main')).toContainText('Prefers email over calls. Mornings MST.');
+      } else {
+        await dialog.getByRole('button', { name: 'Cancel' }).click();
+        await expect(dialog).toHaveCount(0);
+      }
+      // No email change in PR 2.
+      await expect(page.getByRole('button', { name: /Change email/i })).toHaveCount(0);
+      await close();
+    }
+  });
+
+  test('A staff member’s password reset is offered to the Owner alone', async ({ browser }) => {
+    const owner = await openAt(browser, '/admin/users/st2');
+    await expect(owner.page.getByRole('heading', { level: 1, name: 'Jordan Hale' })).toBeVisible();
+    await expect(owner.page.getByRole('button', { name: 'Send Password Reset' })).toBeVisible();
+    await owner.close();
+    for (const role of ['Admin', 'Support']) {
+      const other = await openAt(browser, `/admin/users/st2?console-role=${role}`);
+      await expect(other.page.getByRole('heading', { level: 1, name: 'Jordan Hale' })).toBeVisible();
+      await expect(other.page.getByRole('button', { name: 'Send Password Reset' })).toHaveCount(0);
+      await other.close();
+    }
+  });
+
   test('Denied, the record 404, and the shared states', async ({ browser }) => {
     for (const [path, title] of [
       ['/admin/workspaces?console-role=Instructor', 'Your role can’t open Workspaces.'],
-      ['/admin/workspaces?console-role=Content%20Editor', 'Your role can’t open Workspaces.'],
+      ['/admin/users?console-role=Content%20Editor', 'Your role can’t open Users.'],
       ['/admin/workspaces/no-such-team', 'That Console page doesn’t exist.'],
+      ['/admin/users/no-such-user', 'That Console page doesn’t exist.'],
     ] as const) {
       const { page, close } = await openAt(browser, path);
       await expectShell(page);
@@ -392,7 +463,7 @@ test.describe('the Admin Console: Workspaces (D-158) @g9 @console', () => {
     const empty = await openAt(browser, '/admin/workspaces?console-state=empty');
     await expect(empty.page.getByText('No workspaces yet.')).toBeVisible();
     await empty.close();
-    const limited = await openAt(browser, '/admin/workspaces?console-state=rate_limited');
+    const limited = await openAt(browser, '/admin/users?console-state=rate_limited');
     await expect(limited.page.getByRole('alert')).toContainText('Too many requests.');
     await expect(limited.page.getByRole('button', { name: 'Retry' })).toBeVisible();
     await limited.close();

@@ -27,21 +27,24 @@ describe('crumbsFor', () => {
 
   it('names the Console’s records under their lists (D-158)', () => {
     expect(crumbsFor('/admin/workspaces')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Workspaces' }]);
+    expect(crumbsFor('/admin/users')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Users' }]);
     expect(crumbsFor('/admin/workspaces/northline', '', 'Northline Realty Team')).toEqual([
       { label: 'Admin', to: '/admin' },
       { label: 'Workspaces', to: '/admin/workspaces' },
       { label: 'Northline Realty Team' },
     ]);
-    expect(crumbsFor('/admin/workspaces/nobody/')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Workspaces', to: '/admin/workspaces' }, { label: 'Workspace' }]);
+    expect(crumbsFor('/admin/users/nobody/')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Users', to: '/admin/users' }, { label: 'User' }]);
     // Deeper than a record is no screen: the Console 404.
-    expect(crumbsFor('/admin/workspaces/northline/delete')).toEqual([{ label: 'Admin', to: '/admin' }, { label: ADMIN_NOT_FOUND }]);
+    expect(crumbsFor('/admin/users/u_alex/email')).toEqual([{ label: 'Admin', to: '/admin' }, { label: ADMIN_NOT_FOUND }]);
   });
 
   it('reads a record’s name from the snapshot', () => {
     const db = seed('live');
     expect(recordNameFor(db, '/admin/workspaces/northline')).toBe('Northline Realty Team');
-    expect(recordNameFor(db, '/admin/workspaces/nobody')).toBe('');
-    expect(recordNameFor(db, '/admin/workspaces/%E0')).toBe('');
+    expect(recordNameFor(db, '/admin/users/u_jamie')).toBe('Jamie Ortiz');
+    expect(recordNameFor(db, '/admin/users/st4')).toBe('Luis Romero');
+    expect(recordNameFor(db, '/admin/users/nobody')).toBe('');
+    expect(recordNameFor(db, '/admin/users/%E0')).toBe('');
     expect(recordNameFor(db, '/admin/audit')).toBe('');
   });
 });

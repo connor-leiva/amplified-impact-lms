@@ -14,9 +14,12 @@ import type {
   ConsoleErrorCode,
   ConsoleMe,
   ConsolePage,
+  ConsoleUserDetail,
+  ConsoleUserRow,
   RolesMatrix,
   StaffNote,
   StaffNoteTarget,
+  UserFilters,
   WorkspaceDetail,
   WorkspaceFilters,
   WorkspaceRow,
@@ -72,12 +75,17 @@ export interface ConsoleApi {
   /** The CSV and the file name the server gave it. */
   exportAudit(filters: AuditFilters): Promise<{ csv: string; filename: string }>;
   roles(): Promise<RolesMatrix>;
-  // PR 2 (D-158): workspaces and staff notes.
+  // PR 2 (D-158): workspaces, users, staff notes, the password reset and the users export.
   workspaces(filters: WorkspaceFilters, cursor?: string | null): Promise<ConsolePage<WorkspaceRow>>;
   workspace(teamId: string): Promise<WorkspaceDetail>;
+  users(filters: UserFilters, cursor?: string | null): Promise<ConsolePage<ConsoleUserRow>>;
+  user(userId: string): Promise<ConsoleUserDetail>;
   notes(targetType: StaffNoteTarget, targetId: string): Promise<StaffNote[]>;
   addNote(targetType: StaffNoteTarget, targetId: string, body: string): Promise<StaffNote>;
   deleteNote(noteId: string, reason: string): Promise<void>;
+  /** Which link went out: a reset, or a set-password link for someone with no password yet. */
+  resetPassword(userId: string): Promise<{ link: 'reset' | 'set' }>;
+  exportUsers(filters: UserFilters): Promise<{ csv: string; filename: string }>;
 }
 
 /** A query string of the set values, in the order given, then the cursor. */
@@ -155,11 +163,25 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     workspaces: async (f, cursor) =>
       json<ConsolePage<WorkspaceRow>>(await request(fetchImpl, `/api/console/workspaces${listQuery({ q: f.q, plan: f.plan, status: f.status }, cursor)}`)),
     workspace: async (teamId) => json<WorkspaceDetail>(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}`)),
+    users: async (f, cursor) => json<ConsolePage<ConsoleUserRow>>(await request(fetchImpl, `/api/console/users${listQuery({ q: f.q, role: f.role, kind: f.kind }, cursor)}`)),
+    user: async (userId) => json<ConsoleUserDetail>(await request(fetchImpl, `/api/console/users/${encodeURIComponent(userId)}`)),
     notes: async (targetType, targetId) =>
       (await json<{ rows: StaffNote[] }>(await request(fetchImpl, `/api/console/notes${listQuery({ targetType, targetId })}`))).rows,
     addNote: async (targetType, targetId, body) => json<StaffNote>(await request(fetchImpl, '/api/console/notes', JSON_POST({ targetType, targetId, body }))),
     deleteNote: async (noteId, reason) => {
       await request(fetchImpl, `/api/console/notes/${encodeURIComponent(noteId)}/delete`, JSON_POST({ reason }));
+    },
+    resetPassword: async (userId) => {
+      const out = await json<{ link: 'reset' | 'set' }>(await request(fetchImpl, `/api/console/users/${encodeURIComponent(userId)}/password-reset`, JSON_POST({})));
+      return { link: out.link };
+    },
+    exportUsers: async (f) => {
+      const res = await request(fetchImpl, '/api/console/users/export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/csv' },
+        body: JSON.stringify(f),
+      });
+      return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'users.csv') };
     },
   };
 }

@@ -11,13 +11,13 @@
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
 
-import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, consoleCan, consoleCaps, rolesMatrix } from '@ai/core';
+import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
 import type { AuditAction, AuditFilters, AuditRow, ConsoleMe, ConsolePage, StaffRole } from '@ai/core';
 import { clock } from '../lib/clock';
 import { fixtureRole } from './boot';
 import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
-import { fixtureNoteTargetExists, fixtureRecords, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
+import { fixtureNoteTargetExists, fixtureRecords, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -199,6 +199,18 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         if (!w) throw notFound();
         return w;
       }),
+    users: (filters, cursor) =>
+      settle(() => {
+        need('users.read');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureUserRows(records, filters), cursor);
+      }),
+    user: (userId) =>
+      settle(() => {
+        need('users.read');
+        const u = fixtureUser(records, userId);
+        if (!u) throw notFound();
+        return u;
+      }),
     notes: (targetType, targetId) =>
       settle(() => {
         need(targetType === 'workspace' ? 'workspaces.read' : 'users.read');
@@ -225,6 +237,23 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         if (!note) throw notFound();
         records.notes = records.notes.filter((n) => n.id !== id);
         record('note.delete', { type: note.targetType, id: note.targetId, label: null }, { noteId: id, length: note.body.length }, why);
+      }),
+    resetPassword: (userId) =>
+      settle(() => {
+        need('user.password_reset');
+        const u = fixtureUser(records, userId);
+        if (!u) throw notFound();
+        if (u.user.kind === 'staff' && role !== 'Owner') throw new ConsoleError('forbidden', 403, 'console_forbidden', 'Only the Owner can reset a staff member’s password.');
+        const link = u.identity.hasPassword ? ('reset' as const) : ('set' as const);
+        record('user.password_reset', { type: 'user', id: u.user.id, label: u.user.name }, { link, staff: u.user.kind === 'staff' });
+        return { link };
+      }),
+    exportUsers: (filters) =>
+      settle(() => {
+        need('export');
+        const picked = fixtureUserRows(records, filters).map((u) => ({ ...u, joined: fixtureUser(records, u.id)?.user.joined ?? null }));
+        record('user.export', { type: 'users', id: null, label: 'Users' }, { rows: picked.length, format: 'csv', filters });
+        return { csv: usersCsv(picked), filename: `users-${new Date(now()).toISOString().slice(0, 10)}.csv` };
       }),
   };
 }

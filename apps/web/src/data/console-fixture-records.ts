@@ -22,10 +22,12 @@ import type {
   ConsoleEntitlements,
   ConsoleOrder,
   ConsolePlan,
+  ConsoleUserDetail,
   ConsoleUserRow,
   Db,
   StaffNote,
   StaffNoteTarget,
+  UserFilters,
   WorkspaceActivity,
   WorkspaceDetail,
   WorkspaceFilters,
@@ -251,6 +253,48 @@ function everyone(r: FixtureRecords): (ConsoleUserRow & { joined: number | null;
   }));
   const staff = r.db.staff.map((s) => ({ id: s.id, name: s.name, email: s.email, kind: 'staff' as const, role: s.role, teamId: null, workspace: null, status: null, lastActive: s.last, joined: null, cohortId: null, tier: null }));
   return [...learners, ...staff].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()) || a.id.localeCompare(b.id));
+}
+
+export function fixtureUserRows(r: FixtureRecords, f: UserFilters): ConsoleUserRow[] {
+  return everyone(r)
+    .filter((u) => (f.q === undefined || u.id === f.q || has([u.name, u.email, u.workspace], f.q)) && (f.role === undefined || u.role === f.role) && (f.kind === undefined || u.kind === f.kind))
+    .map(({ joined: _j, cohortId: _c, tier: _t, ...row }) => row);
+}
+
+export function fixtureUser(r: FixtureRecords, userId: string): ConsoleUserDetail | null {
+  const u = everyone(r).find((x) => x.id === userId);
+  if (!u) return null;
+  const learner = r.db.users.find((x) => x.id === userId);
+  const progress = learner
+    ? r.db.modules
+        .filter((m) => learner.progress[m.id])
+        .map((m) => {
+          const p = learner.progress[m.id]!;
+          return { moduleId: m.id, moduleName: m.name, steps: p.steps.length, builtAt: p.builtAt, deployedAt: p.deployedAt };
+        })
+    : [];
+  const ownAccounts = r.accounts.filter((a) => a.ownerUserId === userId).map((a) => a.id);
+  return {
+    user: {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      kind: u.kind,
+      role: u.role,
+      staffRole: u.kind === 'staff' ? (r.db.staff.find((s) => s.id === u.id)?.role ?? null) : null,
+      tier: u.tier,
+      teamId: u.teamId,
+      workspace: u.workspace,
+      cohortId: u.cohortId,
+      status: u.status,
+      joined: u.joined,
+      lastActive: u.lastActive,
+    },
+    identity: r.identity[u.id] ?? { emailVerifiedAt: null, hasPassword: false, hasGoogle: false },
+    orders: r.orders.filter((o) => (o.accountId !== null && ownAccounts.includes(o.accountId)) || lower(o.email) === lower(u.email)),
+    progress,
+    entitlements: u.kind === 'learner' ? entitlementsOf(teamPlans(r, u.teamId), groupsOf(r, [u.email])) : { sets: [], course: false, groups: [] },
+  };
 }
 
 export const fixtureNoteTargetExists = (r: FixtureRecords, type: StaffNoteTarget, id: string): boolean =>

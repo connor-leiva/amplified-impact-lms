@@ -168,9 +168,12 @@ describe('the Console fixture (fixture build only)', () => {
     expect(north.members).toHaveLength(6);
     expect(north.billing.orders.every((o) => o.amountTotal === null)).toBe(true);
     await expect(owner.workspace('nope')).rejects.toMatchObject({ kind: 'not_found' });
+    expect((await owner.users({ q: 'ortiz' })).rows.map((u) => [u.id, u.workspace])).toEqual([['u_jamie', 'Individual']]);
+    expect((await owner.users({ kind: 'staff' })).rows.map((u) => u.role)).toEqual(['Owner', 'Instructor', 'Support', 'Content Editor']);
+    expect((await owner.user('u_alex')).identity).toEqual({ emailVerifiedAt: expect.any(Number), hasPassword: true, hasGoogle: true });
   });
 
-  it('writes and deletes notes as the API would, and audits each', async () => {
+  it('writes notes, resets and exports as the API would, and audits each', async () => {
     const owner = createConsoleFixture({ role: 'Owner', staff: true, state: null, now: () => NOW });
     const note = await owner.addNote('user', 'u_jamie', '  Prefers texts.  ');
     expect(note).toMatchObject({ body: 'Prefers texts.', author: { name: 'Casey Lin' } });
@@ -179,10 +182,17 @@ describe('the Console fixture (fixture build only)', () => {
     await expect(owner.deleteNote(note.id, 'short')).rejects.toMatchObject({ kind: 'invalid', code: 'reason_required' });
     await owner.deleteNote(note.id, 'Written on the wrong person.');
     expect(await owner.notes('user', 'u_jamie')).toEqual([]);
-    expect((await owner.audit({})).rows.slice(0, 2).map((r) => r.action)).toEqual(['note.delete', 'note.create']);
+    expect(await owner.resetPassword('u_jamie')).toEqual({ link: 'reset' });
+    const { csv, filename } = await owner.exportUsers({ kind: 'staff' });
+    expect(filename).toBe('users-2026-12-07.csv');
+    expect(csv.trimEnd().split('\r\n')).toHaveLength(5);
+    expect((await owner.audit({})).rows.slice(0, 4).map((r) => r.action)).toEqual(['user.export', 'user.password_reset', 'note.delete', 'note.create']);
 
     const support = createConsoleFixture({ role: 'Support', staff: true, state: null, now: () => NOW });
     await expect(support.deleteNote('12', 'A good enough reason.')).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(support.exportUsers({})).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(support.resetPassword('st2')).rejects.toMatchObject({ kind: 'forbidden' });
+    expect(await support.resetPassword('u_alex')).toEqual({ link: 'reset' });
     await expect(createConsoleFixture({ role: 'Instructor', staff: true, state: null }).workspaces({})).rejects.toMatchObject({ kind: 'forbidden' });
   });
 });
@@ -192,24 +202,34 @@ describe('the Console client, PR 2 (D-158)', () => {
     const calls: [string, RequestInit | undefined][] = [];
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       calls.push([url, init]);
+      if (url.endsWith('/password-reset')) return res(200, { ok: true, link: 'set' });
+      if (url === '/api/console/users/export') return res(200, '"id"\r\n', { 'content-disposition': 'attachment; filename="users-2026-12-07.csv"' });
       if (url.startsWith('/api/console/notes?')) return res(200, { rows: [] });
       return res(200, { rows: [], nextCursor: null });
     });
     const api = createConsoleHttp(fetchMock as unknown as typeof fetch);
     await api.workspaces({ q: 'a b', plan: 'agents' }, 'CUR');
     await api.workspace('north line');
+    await api.users({ role: 'Team Owner', kind: 'learner' });
+    await api.user('u/x');
     expect(await api.notes('workspace', 'northline')).toEqual([]);
     await api.addNote('user', 'u_jamie', 'Hi');
     await api.deleteNote('12', 'A good enough reason.');
+    expect(await api.resetPassword('u_jamie')).toEqual({ link: 'set' });
+    expect(await api.exportUsers({ kind: 'staff' })).toEqual({ csv: '"id"\r\n', filename: 'users-2026-12-07.csv' });
     expect(calls.map(([u]) => u)).toEqual([
       '/api/console/workspaces?q=a+b&plan=agents&cursor=CUR',
       '/api/console/workspaces/north%20line',
+      '/api/console/users?role=Team+Owner&kind=learner',
+      '/api/console/users/u%2Fx',
       '/api/console/notes?targetType=workspace&targetId=northline',
       '/api/console/notes',
       '/api/console/notes/12/delete',
+      '/api/console/users/u_jamie/password-reset',
+      '/api/console/users/export',
     ]);
-    expect(calls[3]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ targetType: 'user', targetId: 'u_jamie', body: 'Hi' }) });
-    expect(calls[4]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ reason: 'A good enough reason.' }) });
+    expect(calls[5]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ targetType: 'user', targetId: 'u_jamie', body: 'Hi' }) });
+    expect(calls[6]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ reason: 'A good enough reason.' }) });
     for (const [, init] of calls) expect(init?.credentials).toBe('include');
   });
 

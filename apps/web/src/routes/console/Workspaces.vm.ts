@@ -102,6 +102,7 @@ export const WORKSPACE_COPY = {
   noActivity: 'No activity yet.',
   activityCaption: 'Activity',
   notesInternal: 'Internal. Never shown to the workspace.',
+  openMember: (name: string) => `Open ${name}`,
 } as const;
 
 export interface WorkspaceVM {

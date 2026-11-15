@@ -44,11 +44,13 @@ const ADMIN: Record<string, string> = {
   '/admin/roles': 'Roles & Permissions',
   // Console PR 2 (D-158).
   '/admin/workspaces': 'Workspaces',
+  '/admin/users': 'Users',
 };
 
 /** A Console record's list (D-158): its crumb, and the record's own crumb when the shell can't name it. */
 const RECORDS: { prefix: string; list: string; to: string; fallback: string }[] = [
   { prefix: '/admin/workspaces/', list: 'Workspaces', to: '/admin/workspaces', fallback: 'Workspace' },
+  { prefix: '/admin/users/', list: 'Users', to: '/admin/users', fallback: 'User' },
 ];
 
 /** The crumb on the Console 404 (D-157): an `/admin/…` address that is no screen. */
@@ -100,8 +102,9 @@ export interface BreadcrumbsProps {
 }
 
 /**
- * A Console record's name from the snapshot (D-158): the team's for `/admin/workspaces/:teamId`.
- * Empty when the snapshot has no such row; the crumb then says "Workspace".
+ * A Console record's name from the snapshot (D-158): the team's for `/admin/workspaces/:teamId`, the
+ * person's for `/admin/users/:userId`. Empty when the snapshot has no such row; the crumb then says
+ * "Workspace" or "User".
  */
 export function recordNameFor(db: Pick<Db, 'teams' | 'users' | 'staff'>, pathname: string): string {
   const p = norm(pathname);
@@ -115,6 +118,8 @@ export function recordNameFor(db: Pick<Db, 'teams' | 'users' | 'staff'>, pathnam
   };
   const teamId = id('/admin/workspaces/');
   if (teamId) return db.teams.find((t) => t.id === teamId)?.name ?? '';
+  const userId = id('/admin/users/');
+  if (userId) return db.users.find((u) => u.id === userId)?.name ?? db.staff.find((x) => x.id === userId)?.name ?? '';
   return '';
 }
 
