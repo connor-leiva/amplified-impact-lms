@@ -69,25 +69,25 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Curriculum</h1>
       <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">{{ summary }}</p>
     </div>
-    <button onClick="{{ create }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
+    <button onClick="{{ create }}" style="height:36px; min-height:var(--tap-primary); padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
   </div>
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
-    <div style="overflow-x:auto">
-      <div style="min-width:1080px">
-        <div style="display:grid; grid-template-columns:64px minmax(260px,2.4fr) 190px 180px 150px 120px 232px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+    <div data-phone="tscroll" style="overflow-x:auto">
+      <div data-phone="tmin" style="min-width:1080px">
+        <div data-phone="thead" style="display:grid; grid-template-columns:64px minmax(260px,2.4fr) 190px 180px 150px 120px 232px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
           <span>Order</span><span>AI Employee</span><span>Tier Access</span><span>Live Session</span><span>Status</span><span>Deployed</span><span style="text-align:right">Actions</span>
         </div>
         <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
-          <div style="display:grid; grid-template-columns:64px minmax(260px,2.4fr) 190px 180px 150px 120px 232px; gap:12px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line-default)" style-hover="background:var(--bg-hover)">
-            <div style="display:flex; align-items:center; gap:4px">
+          <div data-phone="card" style="display:grid; grid-template-columns:64px minmax(260px,2.4fr) 190px 180px 150px 120px 232px; gap:12px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line-default)" style-hover="background:var(--bg-hover)">
+            <div data-phone="cell" data-label="Order" style="display:flex; align-items:center; gap:4px">
               <span style="font-family:var(--font-ui-mono); font-size:16px; color:var(--text-tertiary); width:16px">{{ r.order }}</span>
-              <div style="display:flex; flex-direction:column">
+              <div data-phone="chevs" style="display:flex; flex-direction:column">
                 <button onClick="{{ r.up }}" title="Move up" style="width:22px; height:16px; border:0; background:transparent; color:{{ r.upFg }}; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevU }}"></path></svg></button>
                 <button onClick="{{ r.down }}" title="Move down" style="width:22px; height:16px; border:0; background:transparent; color:{{ r.downFg }}; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevD }}"></path></svg></button>
               </div>
             </div>
-            <div style="display:flex; align-items:center; gap:12px; min-width:0">
+            <div data-phone="cell-lead" style="display:flex; align-items:center; gap:12px; min-width:0">
               <div style="width:36px; height:36px; flex:none; border-radius:9px; background:var(--action-primary-tint); border:1px solid var(--action-primary-line); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" style="width:17px; height:17px; fill:none; stroke:var(--text-link); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ r.icon }}"></path></svg></div>
               <div style="min-width:0">
                 <div style="font-size:16px; font-weight:500">{{ r.name }}</div>
@@ -98,19 +98,19 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
               <button onClick="{{ r.setAgent }}" style="height:26px; padding:0 9px; border:0; border-radius:6px; background:{{ r.aBg }}; color:{{ r.aFg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">Agent + Team</button>
               <button onClick="{{ r.setTeam }}" style="height:26px; padding:0 9px; border:0; border-radius:6px; background:{{ r.tBg }}; color:{{ r.tFg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">Team Only</button>
             </div>
-            <div style="font-size:16px; color:var(--text-secondary); line-height:1.4">{{ r.sess }}<div style="color:var(--text-tertiary); font-size:16px">{{ r.sessSub }}</div></div>
+            <div data-phone="cell" data-label="Live Session" style="font-size:16px; color:var(--text-secondary); line-height:1.4">{{ r.sess }}<div style="color:var(--text-tertiary); font-size:16px">{{ r.sessSub }}</div></div>
             <div style="display:flex; flex-direction:column; gap:3px; align-items:flex-start">
               <span style="display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 9px; border-radius:999px; font-size:16px; font-weight:600; background:{{ r.st.bg }}; color:{{ r.st.fg }}; border:1px solid {{ r.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ r.st.dot }}"></span>{{ r.st.label }}</span>
               <span style="font-size:16px; color:var(--text-tertiary)">{{ r.stSub }}</span>
             </div>
-            <div style="display:flex; align-items:center; gap:8px">
+            <div data-phone="cell" data-label="Deployed" style="display:flex; align-items:center; gap:8px">
               <div style="flex:1; height:5px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ r.dep }}; background:var(--status-success)"></div></div>
               <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums; width:34px; text-align:right">{{ r.dep }}</span>
             </div>
-            <div style="display:flex; justify-content:flex-end; gap:6px">
+            <div data-phone="cell-actions" style="display:flex; justify-content:flex-end; gap:6px">
               <button onClick="{{ r.preview }}" title="Preview as learner" style="width:30px; height:30px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--text-primary); background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.eye }}"></path></svg></button>
               <button onClick="{{ r.edit }}" title="Edit in builder" style="width:30px; height:30px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--text-primary); background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.pencil }}"></path></svg></button>
-              <button onClick="{{ r.act }}" style="height:30px; min-width:92px; padding:0 10px; border-radius:7px; border:1px solid {{ r.actBd }}; background:{{ r.actBg }}; color:{{ r.actFg }}; font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">{{ r.actLabel }}</button>
+              <button onClick="{{ r.act }}" style="height:30px; min-height:var(--tap-primary); min-width:92px; padding:0 10px; border-radius:7px; border:1px solid {{ r.actBd }}; background:{{ r.actBg }}; color:{{ r.actFg }}; font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">{{ r.actLabel }}</button>
             </div>
           </div>
         </sc-for>

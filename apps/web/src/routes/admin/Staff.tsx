@@ -78,6 +78,7 @@ function Staff() {
           <div className={s.inviteTitle}>Team Members</div>
           <input
             className={s.email}
+            data-phone="cell"
             type="text"
             value={vm.email}
             placeholder="name@amplifiedimpact.com"
@@ -112,7 +113,9 @@ function Staff() {
               <div className={s.name}>{r.name}</div>
               <div className={s.rowEmail}>{r.email}</div>
             </div>
-            <span className={s.last}>{r.last}</span>
+            <span className={s.last} data-phone="cell">
+              {r.last}
+            </span>
             <select
               className={s.rowRole}
               value={r.role}
@@ -147,9 +150,9 @@ function Staff() {
           </div>
           <div className={s.permSub}>Owner Permissions Are Fixed</div>
         </div>
-        <div className={s.scroll}>
-          <div className={s.matrix} role="table" aria-labelledby="staff-perms-title">
-            <div className={s.matrixHead} role="row">
+        <div className={s.scroll} data-phone="tscroll">
+          <div className={s.matrix} role="table" aria-labelledby="staff-perms-title" data-phone="tmin">
+            <div className={s.matrixHead} role="row" data-phone="thead">
               <span role="columnheader">Permission</span>
               {vm.roles.map((r) => (
                 <span key={r} role="columnheader" className={s.colHead}>
@@ -158,12 +161,12 @@ function Staff() {
               ))}
             </div>
             {vm.perms.map((p) => (
-              <div key={p.key} className={s.matrixRow} role="row" aria-label={p.label}>
-                <span role="cell" className={s.permLabel}>
+              <div key={p.key} className={s.matrixRow} role="row" aria-label={p.label} data-phone="card-grid">
+                <span role="cell" className={s.permLabel} data-phone="cell">
                   {p.label}
                 </span>
                 {p.cells.map((c) => (
-                  <div key={c.role} role="cell" className={s.cell}>
+                  <div key={c.role} role="cell" className={s.cell} data-phone="cell-inline" data-label={c.role}>
                     <button
                       type="button"
                       role="checkbox"

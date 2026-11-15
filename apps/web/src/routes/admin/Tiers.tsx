@@ -68,7 +68,7 @@ export function Component() {
         </div>
       </div>
 
-      <div className={s.cards}>
+      <div className={s.cards} data-phone="stack">
         {vm.tiers.map((t) => (
           <section key={t.id} className={s.card} data-team={t.team ? 'true' : undefined}>
             <div className={s.cardTop}>
@@ -119,7 +119,7 @@ export function Component() {
             <div className={s.panelSub}>Click an Agent cell to include or gate a module</div>
           </div>
 
-          <div className={s.colHead}>
+          <div className={s.colHead} data-phone="thead">
             <span>Included</span>
             <span className={s.center}>Agent</span>
             <span className={s.center}>Team</span>
@@ -130,9 +130,11 @@ export function Component() {
             // handler, so it is rendered as the plain box it behaves like.
             const toggle = m.toggle;
             return (
-              <div key={m.key} className={s.matrixRow}>
-                <span className={s.matrixLabel}>{m.label}</span>
-                <div className={s.cellWrap}>
+              <div key={m.key} className={s.matrixRow} data-phone="card-grid">
+                <span className={s.matrixLabel} data-phone="cell">
+                  {m.label}
+                </span>
+                <div className={s.cellWrap} data-phone="cell-inline" data-label="Agent">
                   {toggle ? (
                     <button
                       type="button"
@@ -151,7 +153,7 @@ export function Component() {
                   )}
                 </div>
                 {/* Every row is included in the Team tier, so the third column never varies. */}
-                <div className={s.cellWrap}>
+                <div className={s.cellWrap} data-phone="cell-inline" data-label="Team">
                   <span className={s.teamCell}>
                     <Icon name="check" size={14} strokeWidth={2.4} />
                   </span>
@@ -176,7 +178,7 @@ export function Component() {
             <div key={q.id} className={s.requestRow} data-new={q.isNew ? 'true' : undefined}>
               <Avatar id={q.avatarId} name={q.name} size={32} />
               <div className={s.requestMid}>
-                <div className={s.nameLine}>
+                <div className={s.nameLine} data-phone="wrap">
                   <span className={s.name}>{q.name}</span>
                   <span className={s.ago}>{q.ago}</span>
                 </div>
@@ -187,7 +189,7 @@ export function Component() {
               <span className={s.token} data-status={q.status}>
                 {q.statusLabel}
               </span>
-              <div className={s.actions}>
+              <div className={s.actions} data-phone="wrap">
                 {q.actions.map((a) => (
                   <button
                     key={a.status}

@@ -101,6 +101,7 @@
 
 /* The reference draws this primary at 13px and height 34, not the 14/36 of the Button primitive. */
 .invite {
+  min-height: var(--tap-primary);
   height: 34px;
   padding: 0 14px;
   border-radius: 8px;

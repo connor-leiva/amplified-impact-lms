@@ -38,6 +38,7 @@
 /* The reference draws the header primary at 13px, not the 14px of the Button primitive, and gives
    it no hover state. */
 .upload {
+  min-height: var(--tap-primary);
   height: 36px;
   padding: 0 14px;
   border-radius: 8px;
@@ -341,6 +342,7 @@ button.statusOff {
 }
 
 .publish {
+  min-height: var(--tap-primary);
   height: 36px;
   padding: 0 16px;
   border-radius: 8px;

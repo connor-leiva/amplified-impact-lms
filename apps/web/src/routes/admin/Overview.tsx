@@ -73,7 +73,7 @@ export function Component() {
           <h1 className={s.h1}>Overview</h1>
           <p className={s.sub}>{vm.subline}</p>
         </div>
-        <div className={s.headActions}>
+        <div className={s.headActions} data-phone="actions">
           <button type="button" className={s.export} onClick={exportReport}>
             <Icon name="download" size={15} strokeWidth={1.8} />
             Export Report
@@ -144,7 +144,7 @@ export function Component() {
         <section className={`${s.wide} ${s.funnelCard}`}>
           <div className={s.funnelHead}>
             <div className={s.cardTitle}>Build Funnel by AI Employee</div>
-            <div className={s.legend}>
+            <div className={s.legend} data-phone="wrap">
               <span className={s.legendItem}>
                 <span className={s.swatch} data-seg="deployed" />
                 Deployed
@@ -160,18 +160,18 @@ export function Component() {
             </div>
           </div>
           {vm.funnel.map((f) => (
-            <div key={f.key} className={s.funnelRow}>
-              <div className={s.funnelLabel}>
+            <div key={f.key} className={s.funnelRow} data-phone="funnel-row">
+              <div className={s.funnelLabel} data-phone="funnel-label">
                 <Icon name={f.icon} size={15} strokeWidth={1.8} color="var(--text-tertiary)" />
                 <span className={s.funnelName}>{f.name}</span>
                 {f.team ? <span className={s.teamTag}>Team</span> : null}
               </div>
-              <div className={s.bar}>
+              <div className={s.bar} data-phone="funnel-bar">
                 <div title="Deployed" className={s.segDeployed} style={{ '--w': f.wd } as CSSProperties} />
                 <div title="In progress" className={s.segProgress} style={{ '--w': f.wp } as CSSProperties} />
                 <div className={s.segRest} />
               </div>
-              <span className={s.funnelMeta}>
+              <span className={s.funnelMeta} data-phone="funnel-meta">
                 <span className={s.pct}>{f.pct}</span> · {f.d} of {f.n}
               </span>
             </div>

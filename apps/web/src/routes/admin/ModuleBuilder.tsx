@@ -330,15 +330,20 @@ export function Component() {
               </Select>
             </Field>
             {vm.sessWarn ? <div className={s.warn}>{vm.sessWarn}</div> : null}
-            <div className={s.replay}>
+            <div className={s.replay} data-phone="replay">
               <span className={s.replayTile} data-tone={vm.replay.tone}>
                 <Icon name={vm.replay.icon} size={17} strokeWidth={1.8} />
               </span>
-              <div className={s.replayMain}>
+              <div className={s.replayMain} data-phone="replay-main">
                 <div className={s.replayTitle}>{vm.replay.title}</div>
                 <div className={s.replaySub}>{vm.replay.sub}</div>
               </div>
-              <button type="button" className={s.smallBtn} onClick={() => toast(vm.replay.toast, 'info')}>
+              <button
+                type="button"
+                className={s.smallBtn}
+                data-phone="replay-btn"
+                onClick={() => toast(vm.replay.toast, 'info')}
+              >
                 <Icon name="upload" size={14} strokeWidth={1.9} />
                 {vm.replay.btn}
               </button>
@@ -357,8 +362,8 @@ export function Component() {
             {vm.steps.map((step) => {
               const i = step.n - 1;
               return (
-                <div key={i} className={s.step}>
-                  <div className={s.moveCol}>
+                <div key={i} className={s.step} data-phone="step">
+                  <div className={s.moveCol} data-phone="chevs">
                     <button
                       type="button"
                       aria-label="Move step up"
@@ -394,8 +399,10 @@ export function Component() {
                       <Icon name="chevD" size={13} strokeWidth={2.2} />
                     </button>
                   </div>
-                  <span className={s.stepN}>{step.n}.</span>
-                  <div className={s.stepMain}>
+                  <span className={s.stepN} data-phone="step-n">
+                    {step.n}.
+                  </span>
+                  <div className={s.stepMain} data-phone="step-main">
                     <Input
                       className={s.stepText}
                       value={step.text}
@@ -421,10 +428,11 @@ export function Component() {
                       }}
                     />
                     <div className={s.stepMetaRow}>
-                      <label className={s.inlineLabel}>
+                      <label className={s.inlineLabel} data-phone="step-ch">
                         Chapter
                         <Input
                           className={`${s.stepMeta} ${s.chInput}`}
+                          data-phone="step-ch-input"
                           value={step.ch}
                           onChange={(e) => {
                             const v = e.target.value;
@@ -596,7 +604,7 @@ export function Component() {
         <div className={s.right}>
           <div className={s.pvHead}>
             <span className={s.pvTitle}>Live Learner Preview</span>
-            <div className={s.pvSegs}>
+            <div className={s.pvSegs} data-phone="segs">
               <Segmented
                 label="Live Learner Preview"
                 className={s.pvSeg}

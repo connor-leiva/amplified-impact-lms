@@ -159,9 +159,9 @@ function Learners() {
 
         {vm.isLearners ? (
           <section className={s.card}>
-            <div className={s.scroll}>
-              <div className={s.table} role="table" aria-label="Learners">
-                <div className={s.headRow} role="row">
+            <div className={s.scroll} data-phone="tscroll">
+              <div className={s.table} role="table" aria-label="Learners" data-phone="tmin">
+                <div className={s.headRow} role="row" data-phone="thead">
                   <span role="columnheader">Learner</span>
                   <span role="columnheader">Tier</span>
                   <span role="columnheader">Team · Role</span>
@@ -177,6 +177,7 @@ function Learners() {
                     aria-label={r.name}
                     tabIndex={0}
                     className={s.row}
+                    data-phone="card"
                     data-persona={r.persona ? 'true' : undefined}
                     onClick={() => patch({ sel: r.id })}
                     onKeyDown={(e) => {
@@ -186,21 +187,21 @@ function Learners() {
                       }
                     }}
                   >
-                    <div role="cell" className={s.learnerCell}>
+                    <div role="cell" className={s.learnerCell} data-phone="cell-lead">
                       <Avatar id={r.id} name={r.name} size={30} invited={r.invited} />
                       <div className={s.nameStack}>
                         <div className={s.name}>{r.name}</div>
                         <div className={s.email}>{r.email}</div>
                       </div>
                     </div>
-                    <span role="cell" className={s.tierPill} data-tier={r.tierTone}>
+                    <span role="cell" className={s.tierPill} data-tier={r.tierTone} data-phone="cell-tag">
                       {r.tier}
                     </span>
-                    <div role="cell" className={s.teamCell}>
+                    <div role="cell" className={s.teamCell} data-phone="cell" data-label="Team · Role">
                       {r.team}
                       <div className={s.roleLine}>{r.role}</div>
                     </div>
-                    <div role="cell" className={s.employeesCell}>
+                    <div role="cell" className={s.employeesCell} data-phone="cell" data-label="AI Employees">
                       <div className={s.dots}>
                         {r.dots.map((d) => (
                           <span key={d.id} title={d.title} className={s.dot} data-tone={d.tone} />
@@ -208,14 +209,14 @@ function Learners() {
                       </div>
                       <span className={s.count}>{r.count}</span>
                     </div>
-                    <span role="cell" className={s.last}>
+                    <span role="cell" className={s.last} data-phone="cell" data-label="Last Active">
                       {r.last}
                     </span>
                     <span role="cell" className={s.statusCell} data-tone={r.statusTone}>
                       <span className={s.statusDot} />
                       {r.status}
                     </span>
-                    <span role="cell" className={s.chevCell}>
+                    <span role="cell" className={s.chevCell} data-phone="cell-chev">
                       <Icon name="chevR" size={16} strokeWidth={2} color="var(--text-tertiary)" />
                     </span>
                   </div>
@@ -228,9 +229,9 @@ function Learners() {
 
         {vm.isTeams ? (
           <section className={s.card}>
-            <div className={s.scroll}>
-              <div className={s.teamsTable} role="table" aria-label="Teams">
-                <div className={s.teamsHeadRow} role="row">
+            <div className={s.scroll} data-phone="tscroll">
+              <div className={s.teamsTable} role="table" aria-label="Teams" data-phone="tmin">
+                <div className={s.teamsHeadRow} role="row" data-phone="thead">
                   <span role="columnheader">Team</span>
                   <span role="columnheader">Owner</span>
                   <span role="columnheader">Seats</span>
@@ -238,23 +239,29 @@ function Learners() {
                   <span role="columnheader">Pending Invites</span>
                 </div>
                 {vm.teams.map((t) => (
-                  <div key={t.id} role="row" className={s.teamsRow}>
+                  <div key={t.id} role="row" className={s.teamsRow} data-phone="card">
                     <div role="cell" className={s.teamName}>
                       {t.name}
                     </div>
-                    <div role="cell" className={s.teamOwner}>
+                    <div role="cell" className={s.teamOwner} data-phone="cell" data-label="Owner">
                       {t.owner}
                     </div>
-                    <div role="cell" className={s.seatsCell}>
+                    <div role="cell" className={s.seatsCell} data-phone="cell" data-label="Seats">
                       <div className={s.seatsTrack}>
                         <div className={s.seatsFill} style={{ '--w': t.fill } as React.CSSProperties} />
                       </div>
                       <span className={s.seatsLabel}>{t.seats}</span>
                     </div>
-                    <span role="cell" className={s.teamDeployed}>
+                    <span role="cell" className={s.teamDeployed} data-phone="cell" data-label="Deployed">
                       {t.deployed}
                     </span>
-                    <span role="cell" className={s.teamInvites} data-pending={t.pending ? 'true' : undefined}>
+                    <span
+                      role="cell"
+                      className={s.teamInvites}
+                      data-pending={t.pending ? 'true' : undefined}
+                      data-phone="cell"
+                      data-label="Pending Invites"
+                    >
                       {t.invites}
                     </span>
                   </div>
@@ -307,8 +314,8 @@ function Learners() {
               <div className={s.dwModsLabel}>Build Progress</div>
               <div className={s.dwMods}>
                 {dp.mods.map((m) => (
-                  <div key={m.id} className={s.dwMod}>
-                    <span className={s.dwModName} data-locked={m.access ? undefined : 'true'}>
+                  <div key={m.id} className={s.dwMod} data-phone="wrap">
+                    <span className={s.dwModName} data-phone="cell" data-locked={m.access ? undefined : 'true'}>
                       {m.name}
                     </span>
                     {/*
