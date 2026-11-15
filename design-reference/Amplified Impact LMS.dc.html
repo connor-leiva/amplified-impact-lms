@@ -408,12 +408,15 @@ class Component extends DCLogic {
     } else {
       const newReq = db.requests.filter(q => q.status === 'new').length, drafts = db.modules.filter(m => m.status === 'draft').length;
       const g = (label, items) => ({ label, showLabel: !collapsed, items });
+      // D-157 (Console PR 1d): the Admin Console's groups (spec § 8), as the app's `consoleNav` renders them for
+      // the Owner. Audit Log and Roles & Permissions are Console screens the prototype does not have: here they open the Overview.
       nav = [
-        g('Insights', [item('overview', 'Overview', ic.chart)]),
-        g('Content', [item('curriculum', 'Curriculum', ic.layers, drafts ? { badge: `${drafts} Draft`, badgeTitle: `${drafts} draft AI Employee${drafts === 1 ? '' : 's'}` } : {}), item('builder', 'Module Builder', ic.pencil), item('avault', 'Resource Vault', ic.archive)]),
-        g('Delivery', [item('cohorts', 'Cohorts & Sessions', ic.calendar), item('announce', 'Announcements', ic.send)]),
-        g('People', [item('learners', 'Learners & Teams', ic.users), item('staff', 'Staff & Roles', ic.shield)]),
+        g('Health', [item('overview', 'Overview', ic.chart)]),
+        g('Build', [item('curriculum', 'Curriculum', ic.layers, drafts ? { badge: `${drafts} Draft`, badgeTitle: `${drafts} draft AI Employee${drafts === 1 ? '' : 's'}` } : {}), item('builder', 'Module Builder', ic.pencil), item('avault', 'Resource Vault', ic.archive), item('cohorts', 'Cohorts & Sessions', ic.calendar), item('announce', 'Announcements', ic.send)]),
+        g('Support', [item('learners', 'Learners & Teams', ic.users)]),
         g('Revenue', [item('tiers', 'Tiers & Upgrades', ic.card, newReq ? { badge: String(newReq), badgeTitle: `${newReq} new upgrade request${newReq === 1 ? '' : 's'}` } : {})]),
+        g('Operations', [item('audit', 'Audit Log', ic.listChecks, { go: () => this.nav('overview') })]),
+        g('Access', [item('roles', 'Roles & Permissions', ic.lock, { go: () => this.nav('overview') }), item('staff', 'Staff & Roles', ic.shield)]),
       ];
     }
 

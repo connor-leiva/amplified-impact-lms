@@ -230,3 +230,62 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
     }
   });
 });
+
+test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @console', () => {
+  const groupsOf = (page: Page) =>
+    page.locator('aside[aria-label="Primary"] nav[aria-label="Main"]').evaluate((nav) =>
+      Array.from(nav.children).map((g) => Array.from(g.children).map((el) => (el as HTMLElement).innerText.trim().split('\n')[0]!)),
+    );
+
+  const EXPECT: Record<string, string[][]> = {
+    Owner: [
+      ['Health', 'Overview'],
+      ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
+      ['Support', 'Learners & Teams'],
+      ['Revenue', 'Tiers & Upgrades'],
+      ['Operations', 'Audit Log'],
+      ['Access', 'Roles & Permissions', 'Staff & Roles'],
+    ],
+  };
+  EXPECT.Admin = EXPECT.Owner!;
+  EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions'));
+  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => x !== 'Roles & Permissions'));
+
+  for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
+    test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {
+      const { page, close } = await openAt(browser, `/admin?console-role=${role}`);
+      await expect.poll(() => groupsOf(page)).toEqual(EXPECT[role]);
+      if (role !== 'Instructor') {
+        await page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Audit Log' }).click();
+        await expect(page).toHaveURL(/\/admin\/audit/);
+        await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Audit Log');
+      }
+      await expectAccessible(page);
+      await close();
+    });
+  }
+
+  for (const width of [320, 390]) {
+    test(`the phone drawer at ${width}: every group, 44px rows, 16px type, nothing sideways`, async ({ browser }) => {
+      const { page, close } = await openAt(browser, '/admin/audit', { width });
+      await page.getByRole('button', { name: 'Open menu' }).click();
+      const aside = page.locator('aside[aria-label="Primary"]');
+      await expect(aside).toHaveAttribute('data-open', 'true');
+      await expect.poll(() => groupsOf(page)).toEqual(EXPECT.Owner);
+      const problems = await aside.evaluate((el) => {
+        const out: string[] = [];
+        if (el.scrollWidth > el.clientWidth + 1) out.push(`drawer ${el.scrollWidth} > ${el.clientWidth}`);
+        for (const b of Array.from(el.querySelectorAll('nav button'))) {
+          const r = b.getBoundingClientRect();
+          if (r.height < 43.5 || r.width < 43.5) out.push(`${(b as HTMLElement).innerText} ${Math.round(r.width)}x${Math.round(r.height)}`);
+          if (Number.parseFloat(getComputedStyle(b).fontSize) < 16) out.push(`${(b as HTMLElement).innerText} font`);
+        }
+        return out;
+      });
+      expect(problems).toEqual([]);
+      await expect(aside.locator('[aria-current="page"]')).toContainText('Audit Log');
+      await expectAccessible(page);
+      await close();
+    });
+  }
+});

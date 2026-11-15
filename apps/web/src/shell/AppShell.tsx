@@ -9,6 +9,7 @@ import { LockedEmployeePreview, type LockedItem } from '../components/LockedEmpl
 import { Avatar } from '../components/primitives/Avatar';
 import { ToasterProvider, useToaster } from '../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../data/hooks';
+import { fixtureConsoleRole } from '../data/console';
 import { EXIT_PREVIEW_TO, PREVIEW_LABEL } from '../data/preview';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../data/session';
 import { loadPrefs, savePrefs, type Prefs } from '../lib/prefs';
@@ -18,7 +19,7 @@ import { ConfettiProvider } from './Confetti';
 import { DemoControls } from './DemoControls';
 import { ProfileMenu } from './ProfileMenu';
 import { ShellProvider } from './ShellContext';
-import { adminNav, noPortalRedirect, portalNav, type NavAction, type NavGroup } from './navModel';
+import { consoleNav, noPortalRedirect, portalNav, type NavAction, type NavGroup } from './navModel';
 import s from './AppShell.module.css';
 
 // The frame every screen lives in, ported from design-reference/Amplified Impact LMS.dc.html.
@@ -150,6 +151,23 @@ function Shell() {
   const isTeam = user?.tier === 'team';
   const person = isAdmin ? staff : user;
 
+  // The staff role the sidebar's Console rows are filtered by (D-157): the viewer's own staff row, never
+  // the fallback above, so it is the `users.staff_role` the API authorizes with. The fixture build may
+  // preview another role (its role switch, in `data/console-fixture.ts`); the http build has none.
+  const staffRole = actor.kind === 'staff' ? (db.staff.find((x) => x.id === actor.staffId)?.role ?? null) : null;
+  const [previewRole, setPreviewRole] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isAdmin) return;
+    let alive = true;
+    void fixtureConsoleRole().then((r) => {
+      if (alive) setPreviewRole(r);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [isAdmin]);
+  const navRole = previewRole ?? staffRole;
+
   // A plan that opens no AI Employee has no cohort screens to show (D-119): its Skill Library.
   // Worked out while rendering, not after, so the shell draws nothing on its way there and a direct
   // visit to `/` never flashes the empty cohort dashboard first (D-150).
@@ -272,9 +290,9 @@ function Shell() {
   const route = useMemo(() => ({ pathname: path }), [path]);
 
   const groups = useMemo<NavGroup[]>(() => {
-    if (isAdmin) return adminNav(db, route, collapsed);
+    if (isAdmin) return consoleNav(db, route, collapsed, navRole);
     return user ? portalNav(db, user, route, now, collapsed, empOpen) : [];
-  }, [collapsed, db, empOpen, isAdmin, now, route, user]);
+  }, [collapsed, db, empOpen, isAdmin, navRole, now, route, user]);
 
   const cohort = db.cohorts.find((c) => c.id === (user?.cohortId ?? DEFAULT_COHORT)) ?? db.cohorts[0];
   // A learner with no AI Employee (D-119) has no cohort line: nothing in the cohort is theirs.

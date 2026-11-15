@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { blankModule, phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
-import { SKILL_LIBRARY_PATH, adminNav, consoleNav, hasPortal, noPortalRedirect, portalNav, type NavEntry, type NavGroup } from './navModel';
+import { SKILL_LIBRARY_PATH, consoleNav, hasPortal, noPortalRedirect, portalNav, type NavEntry, type NavGroup } from './navModel';
 
 // Week 2 of the December 2026 Cohort — the instant the goldens were captured in.
 const NOW = phaseNow('live');
@@ -251,19 +251,22 @@ describe('navModel @g4', () => {
     });
   });
 
-  describe('adminNav', () => {
+  // The admin sidebar (D-157, spec § 8): the Admin Console's groups, for the reference's viewer, the Owner.
+  describe('consoleNav · the Owner', () => {
     const db = seed('live');
+    const OWNER = 'Owner';
 
-    it('builds the five groups with their labels and rows', () => {
-      const nav = adminNav(db, { pathname: '/admin' }, false);
-      expect(nav.map((x) => x.label)).toEqual(['Insights', 'Content', 'Delivery', 'People', 'Revenue']);
-      expect(nav.map((x) => x.showLabel)).toEqual([true, true, true, true, true]);
+    it('builds the six groups with their labels and rows', () => {
+      const nav = consoleNav(db, { pathname: '/admin' }, false, OWNER);
+      expect(nav.map((x) => x.label)).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Operations', 'Access']);
+      expect(nav.map((x) => x.showLabel)).toEqual([true, true, true, true, true, true]);
       expect(nav.map(keys)).toEqual([
         ['overview'],
-        ['curriculum', 'builder', 'avault'],
-        ['cohorts', 'announce'],
-        ['learners', 'staff'],
+        ['curriculum', 'builder', 'avault', 'cohorts', 'announce'],
+        ['learners'],
         ['tiers'],
+        ['audit'],
+        ['roles', 'staff'],
       ]);
       expect(nav.flatMap((x) => x.items).map((i) => i.label)).toEqual([
         'Overview',
@@ -273,8 +276,10 @@ describe('navModel @g4', () => {
         'Cohorts & Sessions',
         'Announcements',
         'Learners & Teams',
-        'Staff & Roles',
         'Tiers & Upgrades',
+        'Audit Log',
+        'Roles & Permissions',
+        'Staff & Roles',
       ]);
       expect(nav.flatMap((x) => x.items).map((i) => i.icon)).toEqual([
         'chart',
@@ -284,13 +289,15 @@ describe('navModel @g4', () => {
         'calendar',
         'send',
         'users',
-        'shield',
         'card',
+        'listChecks',
+        'lock',
+        'shield',
       ]);
     });
 
     it('routes every row to its admin path', () => {
-      const all = adminNav(db, { pathname: '/admin' }, false).flatMap((x) => x.items);
+      const all = consoleNav(db, { pathname: '/admin' }, false, OWNER).flatMap((x) => x.items);
       expect(Object.fromEntries(all.map((i) => [i.key, i.action]))).toEqual({
         overview: { to: '/admin' },
         curriculum: { to: '/admin/curriculum' },
@@ -299,36 +306,36 @@ describe('navModel @g4', () => {
         cohorts: { to: '/admin/cohorts' },
         announce: { to: '/admin/announcements' },
         learners: { to: '/admin/learners' },
-        staff: { to: '/admin/staff' },
         tiers: { to: '/admin/tiers' },
+        audit: { to: '/admin/audit' },
+        roles: { to: '/admin/roles' },
+        staff: { to: '/admin/staff' },
       });
     });
 
     it('keeps the labels but hides them when collapsed', () => {
-      const nav = adminNav(db, { pathname: '/admin' }, true);
-      expect(nav.map((x) => x.label)).toEqual(['Insights', 'Content', 'Delivery', 'People', 'Revenue']);
-      expect(nav.map((x) => x.showLabel)).toEqual([false, false, false, false, false]);
-      expect(nav.map(keys)).toEqual([
-        ['overview'],
-        ['curriculum', 'builder', 'avault'],
-        ['cohorts', 'announce'],
-        ['learners', 'staff'],
-        ['tiers'],
-      ]);
+      const nav = consoleNav(db, { pathname: '/admin' }, true, OWNER);
+      expect(nav.map((x) => x.label)).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Operations', 'Access']);
+      expect(nav.map((x) => x.showLabel)).toEqual([false, false, false, false, false, false]);
+      expect(nav.flatMap(keys)).toHaveLength(11);
     });
 
     const active = (pathname: string): string[] =>
-      adminNav(db, { pathname }, false)
+      consoleNav(db, { pathname }, false, OWNER)
         .flatMap((x) => x.items)
         .filter((i) => i.active)
         .map((i) => i.key);
 
-    it('marks exactly one row active per admin path', () => {
+    it('marks exactly one row active per admin path, and none on the Console 404', () => {
       expect(active('/admin')).toEqual(['overview']);
       expect(active('/admin/curriculum')).toEqual(['curriculum']);
       expect(active('/admin/cohorts')).toEqual(['cohorts']);
       expect(active('/admin/vault')).toEqual(['avault']);
       expect(active('/admin/tiers')).toEqual(['tiers']);
+      expect(active('/admin/staff')).toEqual(['staff']);
+      expect(active('/admin/audit')).toEqual(['audit']);
+      expect(active('/admin/roles/')).toEqual(['roles']);
+      expect(active('/admin/no-such-page')).toEqual([]);
     });
 
     it('keeps Module Builder active for a new and for an existing AI Employee', () => {
@@ -337,34 +344,34 @@ describe('navModel @g4', () => {
     });
 
     it('has no Curriculum badge at Week 2, where nothing is a draft', () => {
-      const content = adminNav(db, { pathname: '/admin' }, false)[1]!;
-      expect(row(content, 'curriculum').badge).toBeUndefined();
-      expect(row(content, 'curriculum').badgeTitle).toBeUndefined();
+      const build = consoleNav(db, { pathname: '/admin' }, false, OWNER)[1]!;
+      expect(row(build, 'curriculum').badge).toBeUndefined();
+      expect(row(build, 'curriculum').badgeTitle).toBeUndefined();
     });
 
     it('badges Curriculum with the draft count, singular then plural', () => {
       const one = seed('live');
       one.modules.push(blankModule(7, NOW));
-      const c1 = adminNav(one, { pathname: '/admin' }, false)[1]!;
+      const c1 = consoleNav(one, { pathname: '/admin' }, false, OWNER)[1]!;
       expect(row(c1, 'curriculum').badge).toBe('1 Draft');
       expect(row(c1, 'curriculum').badgeTitle).toBe('1 draft AI Employee');
 
       const two = seed('live');
       two.modules.push(blankModule(7, NOW), blankModule(8, NOW + 1));
-      const c2 = adminNav(two, { pathname: '/admin' }, false)[1]!;
+      const c2 = consoleNav(two, { pathname: '/admin' }, false, OWNER)[1]!;
       expect(row(c2, 'curriculum').badge).toBe('2 Draft');
       expect(row(c2, 'curriculum').badgeTitle).toBe('2 draft AI Employees');
     });
 
     it('badges Tiers & Upgrades with the count of new requests only, singular then plural', () => {
-      const revenue = adminNav(db, { pathname: '/admin' }, false)[4]!;
+      const revenue = consoleNav(db, { pathname: '/admin' }, false, OWNER)[3]!;
       // Week 2 seeds one `new` request; `contacted` and `converted` do not count.
       expect(row(revenue, 'tiers').badge).toBe('1');
       expect(row(revenue, 'tiers').badgeTitle).toBe('1 new upgrade request');
 
       const two = seed('live');
       two.requests[1]!.status = 'new';
-      const r2 = adminNav(two, { pathname: '/admin' }, false)[4]!;
+      const r2 = consoleNav(two, { pathname: '/admin' }, false, OWNER)[3]!;
       expect(row(r2, 'tiers').badge).toBe('2');
       expect(row(r2, 'tiers').badgeTitle).toBe('2 new upgrade requests');
     });
@@ -374,7 +381,7 @@ describe('navModel @g4', () => {
       none.requests.forEach((q) => {
         if (q.status === 'new') q.status = 'contacted';
       });
-      const revenue = adminNav(none, { pathname: '/admin' }, false)[4]!;
+      const revenue = consoleNav(none, { pathname: '/admin' }, false, OWNER)[3]!;
       expect(row(revenue, 'tiers').badge).toBeUndefined();
       expect(row(revenue, 'tiers').badgeTitle).toBeUndefined();
     });
@@ -386,7 +393,7 @@ describe('navModel @g4', () => {
     expect(portalNav(db, jamie, { pathname: '/' }, NOW, false, true)).toEqual(
       portalNav(db, jamie, { pathname: '/' }, NOW, false, true),
     );
-    expect(adminNav(db, { pathname: '/admin' }, false)).toEqual(adminNav(db, { pathname: '/admin' }, false));
+    expect(consoleNav(db, { pathname: '/admin' }, false, 'Owner')).toEqual(consoleNav(db, { pathname: '/admin' }, false, 'Owner'));
   });
 
   describe('portalNav · the AI Accelerator (D-110)', () => {
@@ -410,58 +417,36 @@ describe('navModel @g4', () => {
     });
   });
 
-  // D-157: the Admin Console's grouped sidebar (spec § 8). Modelled and tested, not shown yet: the
-  // shell keeps `adminNav` above so no admin golden moves (see `consoleNav`'s header).
-  describe('consoleNav (D-157)', () => {
+  // D-157: which Console rows each staff role sees. The same `consoleCan` the API authorizes with, so a
+  // row is never offered to a role the server would refuse.
+  describe('consoleNav · by staff role', () => {
     const db = seed('live');
     const flat = (nav: NavGroup[]) => nav.flatMap((g) => g.items);
+    const navKeys = (role: string | null) => flat(consoleNav(db, { pathname: '/admin' }, false, role)).map((i) => i.key);
+    const EXISTING = ['overview', 'curriculum', 'builder', 'avault', 'cohorts', 'announce', 'learners', 'tiers', 'staff'];
 
-    it('groups the admin screens under Health, Build, Support, Revenue, Operations and Access for the Owner', () => {
-      const nav = consoleNav(db, { pathname: '/admin' }, false, 'Owner');
-      expect(nav.map((g) => g.label)).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Operations', 'Access']);
-      expect(nav.map((g) => g.showLabel)).toEqual([true, true, true, true, true, true]);
-      expect(nav.map(keys)).toEqual([
-        ['overview'],
-        ['curriculum', 'builder', 'avault', 'cohorts', 'announce'],
-        ['learners'],
-        ['tiers'],
-        ['audit'],
-        ['roles', 'staff'],
-      ]);
-      expect(Object.fromEntries(flat(nav).map((i) => [i.key, i.action]))).toMatchObject({ audit: { to: '/admin/audit' }, roles: { to: '/admin/roles' }, staff: { to: '/admin/staff' } });
-      expect(flat(nav).find((i) => i.key === 'audit')).toMatchObject({ label: 'Audit Log', icon: 'listChecks' });
-      expect(flat(nav).find((i) => i.key === 'roles')).toMatchObject({ label: 'Roles & Permissions', icon: 'lock' });
+    it('gives the Owner and an Admin both Console rows', () => {
+      for (const role of ['Owner', 'Admin']) expect(navKeys(role), role).toEqual([...EXISTING.slice(0, 8), 'audit', 'roles', 'staff']);
     });
 
-    it('keeps every existing admin row, with its label, icon, path and badge', () => {
-      const before = adminNav(db, { pathname: '/admin' }, false).flatMap((g) => g.items);
-      const after = flat(consoleNav(db, { pathname: '/admin' }, false, 'Owner'));
-      for (const row of before) expect(after.find((i) => i.key === row.key)).toEqual(row);
+    it('gives Support the Audit Log but not Roles & Permissions', () => {
+      expect(navKeys('Support')).toEqual([...EXISTING.slice(0, 8), 'audit', 'staff']);
     });
 
-    it('shows Support the audit log but not Roles; Instructor and Content Editor neither', () => {
-      expect(flat(consoleNav(db, { pathname: '/admin' }, false, 'Support')).map((i) => i.key)).toContain('audit');
-      expect(flat(consoleNav(db, { pathname: '/admin' }, false, 'Support')).map((i) => i.key)).not.toContain('roles');
-      for (const role of ['Instructor', 'Content Editor', null]) {
+    it('gives Instructor, Content Editor, an unknown role and no role neither Console row, and no Operations heading', () => {
+      for (const role of ['Instructor', 'Content Editor', 'Team Owner', null]) {
         const nav = consoleNav(db, { pathname: '/admin' }, false, role);
         expect(nav.map((g) => g.label), String(role)).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Access']);
-        expect(flat(nav).map((i) => i.key)).not.toContain('audit');
-        expect(flat(nav).map((i) => i.key)).not.toContain('roles');
+        expect(flat(nav).map((i) => i.key), String(role)).toEqual(EXISTING);
       }
     });
 
-    it('marks the Console screen the viewer is on, and hides the headings in the rail', () => {
-      const on = (pathname: string) => flat(consoleNav(db, { pathname }, false, 'Admin')).filter((i) => i.active).map((i) => i.key);
-      expect(on('/admin/audit')).toEqual(['audit']);
-      expect(on('/admin/roles')).toEqual(['roles']);
-      expect(on('/admin/curriculum/new')).toEqual(['builder']);
-      expect(on('/admin/nope')).toEqual([]);
-      expect(consoleNav(db, { pathname: '/admin' }, true, 'Owner').map((g) => g.showLabel)).toEqual([false, false, false, false, false, false]);
-    });
-
-    it('leaves the shell’s admin sidebar as it is today', () => {
-      expect(adminNav(db, { pathname: '/admin/audit' }, false).map((g) => g.label)).toEqual(['Insights', 'Content', 'Delivery', 'People', 'Revenue']);
-      expect(adminNav(db, { pathname: '/admin/audit' }, false).flatMap((g) => g.items).filter((i) => i.active)).toEqual([]);
+    it('keeps every existing row identical for every role', () => {
+      const owner = flat(consoleNav(db, { pathname: '/admin' }, false, 'Owner'));
+      for (const role of ['Admin', 'Support', 'Instructor', 'Content Editor']) {
+        const mine = flat(consoleNav(db, { pathname: '/admin' }, false, role));
+        for (const key of EXISTING) expect(mine.find((i) => i.key === key), `${role} ${key}`).toEqual(owner.find((i) => i.key === key));
+      }
     });
   });
 });
