@@ -234,3 +234,137 @@
     flex: 1 1 100%;
   }
 }
+
+/* --- search (D-158) ------------------------------------------------------------------------- */
+
+.searchBox {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+}
+.searchBox::placeholder {
+  color: var(--text-tertiary);
+}
+.searchBox:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.resultGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.groupHeading {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.resultList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.result {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px 12px;
+  min-height: var(--tap);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+a.result:hover {
+  background: var(--bg-hover);
+}
+a.result:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+.resultStatic {
+  cursor: default;
+}
+
+.resultDetail {
+  min-width: 0;
+  color: var(--text-tertiary);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.kbd {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.keys {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.keyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-default);
+}
+.keyRow:last-child {
+  border-bottom: 0;
+}
+.keyRow dt {
+  flex: 0 0 180px;
+}
+
+.keyWhat {
+  flex: 1 1 200px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-primary);
+}
+
+@media (max-width: 479px) {
+  .resultDetail {
+    flex: 1 1 100%;
+    text-align: left;
+  }
+  .keyRow dt {
+    flex: 1 1 100%;
+  }
+}

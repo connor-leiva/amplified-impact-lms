@@ -263,7 +263,7 @@ describe('navModel @g4', () => {
       expect(nav.map(keys)).toEqual([
         ['overview'],
         ['curriculum', 'builder', 'avault', 'cohorts', 'announce'],
-        ['learners'],
+        ['learners', 'workspaces', 'users', 'search'],
         ['tiers'],
         ['audit'],
         ['roles', 'staff'],
@@ -276,6 +276,9 @@ describe('navModel @g4', () => {
         'Cohorts & Sessions',
         'Announcements',
         'Learners & Teams',
+        'Workspaces',
+        'Users',
+        'Search',
         'Tiers & Upgrades',
         'Audit Log',
         'Roles & Permissions',
@@ -289,6 +292,9 @@ describe('navModel @g4', () => {
         'calendar',
         'send',
         'users',
+        'briefcase',
+        'userPlus',
+        'search',
         'card',
         'listChecks',
         'lock',
@@ -306,6 +312,9 @@ describe('navModel @g4', () => {
         cohorts: { to: '/admin/cohorts' },
         announce: { to: '/admin/announcements' },
         learners: { to: '/admin/learners' },
+        workspaces: { to: '/admin/workspaces' },
+        users: { to: '/admin/users' },
+        search: { to: '/admin/search' },
         tiers: { to: '/admin/tiers' },
         audit: { to: '/admin/audit' },
         roles: { to: '/admin/roles' },
@@ -317,7 +326,7 @@ describe('navModel @g4', () => {
       const nav = consoleNav(db, { pathname: '/admin' }, true, OWNER);
       expect(nav.map((x) => x.label)).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Operations', 'Access']);
       expect(nav.map((x) => x.showLabel)).toEqual([false, false, false, false, false, false]);
-      expect(nav.flatMap(keys)).toHaveLength(11);
+      expect(nav.flatMap(keys)).toHaveLength(14);
     });
 
     const active = (pathname: string): string[] =>
@@ -480,12 +489,26 @@ describe('navModel @g4', () => {
     const navKeys = (role: string | null) => flat(consoleNav(db, { pathname: '/admin' }, false, role)).map((i) => i.key);
     const EXISTING = ['overview', 'curriculum', 'builder', 'avault', 'cohorts', 'announce', 'learners', 'tiers', 'staff'];
 
-    it('gives the Owner and an Admin both Console rows', () => {
-      for (const role of ['Owner', 'Admin']) expect(navKeys(role), role).toEqual([...EXISTING.slice(0, 8), 'audit', 'roles', 'staff']);
+    // D-158: Workspaces, Users and Search follow Learners & Teams in Support.
+    const SUPPORT_ROWS = ['workspaces', 'users', 'search'];
+
+    it('gives the Owner and an Admin every Console row', () => {
+      for (const role of ['Owner', 'Admin']) expect(navKeys(role), role).toEqual([...EXISTING.slice(0, 7), ...SUPPORT_ROWS, 'tiers', 'audit', 'roles', 'staff']);
     });
 
-    it('gives Support the Audit Log but not Roles & Permissions', () => {
-      expect(navKeys('Support')).toEqual([...EXISTING.slice(0, 8), 'audit', 'staff']);
+    it('gives Support the Audit Log, Workspaces, Users and Search, but not Roles & Permissions', () => {
+      expect(navKeys('Support')).toEqual([...EXISTING.slice(0, 7), ...SUPPORT_ROWS, 'tiers', 'audit', 'staff']);
+    });
+
+    it('keeps a record’s list row active on the record itself (D-158)', () => {
+      const activeKeys = (pathname: string) => flat(consoleNav(db, { pathname }, false, 'Owner')).filter((i) => i.active).map((i) => i.key);
+      expect(activeKeys('/admin/workspaces')).toEqual(['workspaces']);
+      expect(activeKeys('/admin/workspaces/northline')).toEqual(['workspaces']);
+      expect(activeKeys('/admin/users/u_alex')).toEqual(['users']);
+      expect(activeKeys('/admin/search')).toEqual(['search']);
+      // A record's page opens Support, as any active page opens its group.
+      expect(consoleNav(db, { pathname: '/admin/users/u_alex' }, false, 'Owner').find((g) => g.label === 'Support')!.open).toBe(true);
+      expect(activeKeys('/admin/workspacesx')).toEqual([]);
     });
 
     it('gives Instructor, Content Editor, an unknown role and no role neither Console row, and no Operations heading', () => {

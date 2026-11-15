@@ -17,6 +17,7 @@ import type {
   ConsoleUserDetail,
   ConsoleUserRow,
   RolesMatrix,
+  SearchResults,
   StaffNote,
   StaffNoteTarget,
   UserFilters,
@@ -86,7 +87,16 @@ export interface ConsoleApi {
   /** Which link went out: a reset, or a set-password link for someone with no password yet. */
   resetPassword(userId: string): Promise<{ link: 'reset' | 'set' }>;
   exportUsers(filters: UserFilters): Promise<{ csv: string; filename: string }>;
+  /** Spec § 7.5: 2 to 100 characters; users, workspaces, orders and skills, five each. */
+  search(q: string): Promise<SearchResults>;
 }
+
+/**
+ * Whether a masquerade session is running (spec § 7.5: the palette is "disabled during a session").
+ * Masquerade is Console PR 3; until then there is never a session, and this is the one place PR 3
+ * answers it. The palette asks before it opens.
+ */
+export const masqueradeActive = (): boolean => false;
 
 /** A query string of the set values, in the order given, then the cursor. */
 export function listQuery(values: Record<string, string | number | undefined>, cursor?: string | null): string {
@@ -183,6 +193,7 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       });
       return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'users.csv') };
     },
+    search: async (q) => (await json<{ groups: SearchResults }>(await request(fetchImpl, `/api/console/search${listQuery({ q })}`))).groups,
   };
 }
 

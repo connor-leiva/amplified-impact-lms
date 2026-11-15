@@ -254,7 +254,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157) @g9 @console', () 
     Owner: [
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      ['Support', 'Learners & Teams'],
+      // D-158: Workspaces, Users and Search join Support.
+      ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Search'],
       ['Revenue', 'Tiers & Upgrades'],
       ['Operations', 'Audit Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
@@ -262,7 +263,7 @@ test.describe('the Admin Console: the grouped sidebar (D-157) @g9 @console', () 
   };
   EXPECT.Admin = EXPECT.Owner!;
   EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions'));
-  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => x !== 'Roles & Permissions'));
+  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Search'].includes(x)));
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {
@@ -616,6 +617,117 @@ test.describe('the Admin Console: Workspaces and Users (D-158) @g9 @console', ()
       expect(await page.locator('main thead').first().evaluate((el) => el.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
       await expect(page.locator('main tbody td[data-label="Status"]').first()).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+      await expectAccessible(page);
+      await close();
+    }
+  });
+});
+
+/**
+ * D-158: Search and the ⌘K command palette. The palette is a Modal named "Command palette" with one
+ * combobox: arrow keys move, Enter opens, Esc closes. Its Admin Pages are the viewer's own sidebar, so
+ * a page the role can't open is never offered. Axe in light and dark, and no sideways scroll on a phone.
+ */
+test.describe('the Admin Console: Search and the command palette (D-158) @g9 @console', () => {
+  test('Search: pages before a query, then grouped results that open their records, in both themes', async ({ browser }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      const { page, close } = await openAt(browser, '/admin/search', { theme });
+      await expectShell(page);
+      await expect(page.getByRole('heading', { level: 1, name: 'Search' })).toBeVisible();
+      await expect(page.getByText('Type 2 or more characters to search users, workspaces, orders, and skills.')).toBeVisible();
+      await expect(page.getByRole('heading', { level: 2, name: 'Admin Pages' })).toBeVisible();
+      await expectAccessible(page);
+      await page.getByRole('searchbox', { name: 'Search everything' }).fill('harbor');
+      await expect(page.getByRole('heading', { level: 2, name: 'Workspaces' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 2, name: 'Users' })).toBeVisible();
+      await expectAccessible(page);
+      if (theme === 'light') {
+        await page.getByRole('searchbox', { name: 'Search everything' }).fill('zzqq');
+        await expect(page.getByText('Nothing matches “zzqq”. Try a name, an email, or an order ID.')).toBeVisible();
+        await page.getByRole('searchbox', { name: 'Search everything' }).fill('Harbor & Pine');
+        await page.getByRole('link', { name: /Harbor & Pine Group/ }).click();
+        await expect(page).toHaveURL(/\/admin\/workspaces\/harbor$/);
+      }
+      await close();
+    }
+  });
+
+  test('The palette: Ctrl+K opens it anywhere in the shell; arrows, Enter and Esc work', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/curriculum');
+    await page.keyboard.press('Control+k');
+    const dialog = page.getByRole('dialog', { name: 'Command palette' });
+    await expect(dialog).toBeVisible();
+    const box = dialog.getByRole('combobox', { name: 'Command palette search' });
+    await expect(box).toBeFocused();
+    await expect(dialog.getByRole('group', { name: 'Admin Pages' }).getByRole('option')).toHaveCount(14);
+    await expectAccessible(page);
+    await box.fill('jamie');
+    const users = dialog.getByRole('group', { name: 'Users' });
+    await expect(users.getByRole('option')).toHaveCount(1);
+    await expect(dialog.getByRole('option').first()).toHaveAttribute('aria-selected', 'true');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowUp');
+    await expect(users.getByRole('option').first()).toHaveAttribute('aria-selected', 'true');
+    await page.keyboard.press('Enter');
+    await expect(dialog).toHaveCount(0);
+    await expect(page).toHaveURL(/\/admin\/users\/u_jamie$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Jamie Ortiz' })).toBeVisible();
+
+    // Esc closes it; ⌘K (Meta) opens it too; a page is reached by its name.
+    await page.keyboard.press('Meta+k');
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    await page.keyboard.press('Control+k');
+    await box.fill('audit');
+    await expect(dialog.getByRole('option')).toHaveText([/Audit Log/]);
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/admin\/audit$/);
+    await close();
+  });
+
+  test('The palette in dark, from the Search page’s button, and only the role’s pages', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/search', { theme: 'dark' });
+    await page.getByRole('button', { name: /Open Command Palette/ }).click();
+    const dialog = page.getByRole('dialog', { name: 'Command palette' });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('combobox', { name: 'Command palette search' }).fill('northline');
+    await expect(dialog.getByRole('group', { name: 'Workspaces' })).toBeVisible();
+    await expectAccessible(page);
+    await dialog.getByRole('button', { name: 'Close' }).click();
+    await expect(dialog).toHaveCount(0);
+    await close();
+
+    const support = await openAt(browser, '/admin/workspaces?console-role=Support');
+    await support.page.keyboard.press('Control+k');
+    const pages = support.page.getByRole('dialog', { name: 'Command palette' }).getByRole('group', { name: 'Admin Pages' });
+    await expect(pages.getByRole('option', { name: /Audit Log/ })).toHaveCount(1);
+    await expect(pages.getByRole('option', { name: /Roles & Permissions/ })).toHaveCount(0);
+    await support.close();
+
+    // A role with no Console capability gets no palette.
+    const instructor = await openAt(browser, '/admin?console-role=Instructor');
+    await instructor.page.keyboard.press('Control+k');
+    await expect(instructor.page.getByRole('dialog', { name: 'Command palette' })).toHaveCount(0);
+    await instructor.close();
+  });
+
+  test('The palette on a phone: no sideways scroll, 44px rows, 16px type', async ({ browser }) => {
+    for (const width of [320, 390]) {
+      const { page, close } = await openAt(browser, '/admin/workspaces', { width });
+      await page.keyboard.press('Control+k');
+      const dialog = page.getByRole('dialog', { name: 'Command palette' });
+      await dialog.getByRole('combobox', { name: 'Command palette search' }).fill('alex');
+      await expect(dialog.getByRole('group', { name: 'Users' })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+      const sizes = await dialog.locator('[role="option"], button, input').evaluateAll((els) => els.map((e) => [e.getBoundingClientRect().height, parseFloat(getComputedStyle(e).fontSize)]));
+      for (const [h, f] of sizes) {
+        expect(h).toBeGreaterThanOrEqual(44);
+        expect(f).toBeGreaterThanOrEqual(16);
+      }
+      const box = await dialog.boundingBox();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(width);
       await expectAccessible(page);
       await close();
     }

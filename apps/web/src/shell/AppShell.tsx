@@ -16,6 +16,7 @@ import { SIGN_OUT_FAILED, signOut as endSession } from '../data/session';
 import { loadNavGroups, loadPrefs, saveNavGroups, savePrefs, type Prefs } from '../lib/prefs';
 import { BrandSlot } from './BrandSlot';
 import { Breadcrumbs } from './Breadcrumbs';
+import { CommandPalette } from '../components/console/CommandPalette';
 import { ConfettiProvider } from './Confetti';
 import { DemoControls } from './DemoControls';
 import { ProfileMenu } from './ProfileMenu';
@@ -521,6 +522,9 @@ function Shell() {
             </div>
           </div>
         ) : null}
+
+        {/* The Console's ⌘K palette (D-158): staff only, never in a preview tab. */}
+        {isAdmin && !preview ? <CommandPalette role={navRole} onGo={go} /> : null}
       </div>
     </ShellProvider>
   );

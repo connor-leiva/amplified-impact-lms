@@ -11,6 +11,12 @@
 import {
   CONSOLE_PLAN_LABELS,
   INDIVIDUAL_LABEL,
+  ORDER_STATUS_LABELS,
+  SEARCH_GROUP_MAX,
+  SKILL_SET_LABELS,
+  consoleCan,
+  userPath,
+  workspacePath,
   LIVE_PLAN_STATUSES,
   mergeActivity,
   nearCap,
@@ -25,6 +31,7 @@ import type {
   ConsoleUserDetail,
   ConsoleUserRow,
   Db,
+  SearchResults,
   StaffNote,
   StaffNoteTarget,
   UserFilters,
@@ -34,6 +41,7 @@ import type {
   WorkspaceRow,
 } from '@ai/core';
 import type { PlanKind, PlanStatus } from '@ai/core/offer';
+import { SKILL_CATALOG } from '@ai/core/skills';
 
 const DAY = 86_400_000;
 
@@ -299,3 +307,36 @@ export function fixtureUser(r: FixtureRecords, userId: string): ConsoleUserDetai
 
 export const fixtureNoteTargetExists = (r: FixtureRecords, type: StaffNoteTarget, id: string): boolean =>
   type === 'workspace' ? r.db.teams.some((t) => t.id === id) : everyone(r).some((u) => u.id === id);
+
+/** Search as the API answers it (D-158, spec § 7.5): exact ids, words anywhere, five of each. */
+export function fixtureSearch(r: FixtureRecords, q: string, role: string | null): SearchResults {
+  const exact = (id: string | null | undefined) => !!id && id === q;
+  const out: SearchResults = { users: [], workspaces: [], orders: [], skills: [] };
+  if (consoleCan(role, 'users.read')) {
+    out.users = everyone(r)
+      .filter((u) => exact(u.id) || has([u.email, u.name], q))
+      .slice(0, SEARCH_GROUP_MAX)
+      .map((u) => ({ id: u.id, label: u.name, detail: u.email, href: userPath(u.id) }));
+  }
+  if (consoleCan(role, 'workspaces.read')) {
+    out.workspaces = fixtureWorkspaceRows(r, {})
+      .filter((w) => exact(w.teamId) || has([w.name, w.ownerEmail], q) || r.accounts.some((a) => a.teamId === w.teamId && (exact(a.id) || exact(a.stripeCustomerId))))
+      .slice(0, SEARCH_GROUP_MAX)
+      .map((w) => ({ id: w.teamId, label: w.name, detail: w.ownerEmail ?? '', href: workspacePath(w.teamId) }));
+  }
+  if (consoleCan(role, 'billing.read')) {
+    out.orders = r.orders
+      .filter((o) => exact(o.id) || exact(o.stripeCustomerId) || exact(o.stripeSubscriptionId) || has([o.email], q))
+      .slice(0, SEARCH_GROUP_MAX)
+      .map((o) => {
+        const teamId = r.accounts.find((a) => a.id === o.accountId)?.teamId ?? null;
+        return { id: o.id, label: o.id, detail: `${o.planLabel}, ${ORDER_STATUS_LABELS[o.status as keyof typeof ORDER_STATUS_LABELS] ?? o.status}`, href: teamId ? workspacePath(teamId) : null };
+      });
+  }
+  if (consoleCan(role, 'console.view')) {
+    out.skills = SKILL_CATALOG.filter((k) => exact(k.id) || has([k.title], q))
+      .slice(0, SEARCH_GROUP_MAX)
+      .map((k) => ({ id: k.id, label: k.title, detail: k.sets === 'both' ? `${SKILL_SET_LABELS.owner_ops}, ${SKILL_SET_LABELS.agent}` : SKILL_SET_LABELS[k.sets], href: null }));
+  }
+  return out;
+}

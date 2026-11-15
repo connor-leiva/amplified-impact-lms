@@ -233,6 +233,24 @@ describe('the Console client, PR 2 (D-158)', () => {
     for (const [, init] of calls) expect(init?.credentials).toBe('include');
   });
 
+  it('searches with the words as a query parameter, and answers the groups', async () => {
+    const fetchMock = vi.fn(async () => res(200, { q: 'a b', groups: { users: [], workspaces: [], orders: [], skills: [] } }));
+    const api = createConsoleHttp(fetchMock as unknown as typeof fetch);
+    expect(await api.search('a b')).toEqual({ users: [], workspaces: [], orders: [], skills: [] });
+    expect(fetchMock).toHaveBeenCalledWith('/api/console/search?q=a+b', expect.objectContaining({ credentials: 'include' }));
+  });
+
+  it('searches the fixture as the API does', async () => {
+    const owner = createConsoleFixture({ role: 'Owner', staff: true, state: null, now: () => Date.parse('2026-12-07T16:42:00Z') });
+    const r = await owner.search('northline');
+    expect(r.workspaces.map((w) => w.href)).toEqual(['/admin/workspaces/northline']);
+    expect(r.users.length).toBeLessThanOrEqual(5);
+    expect((await owner.search('cus_FxHarbor')).workspaces.map((w) => w.id)).toEqual(['harbor']);
+    expect((await owner.search('perfect week')).skills).toEqual([{ id: 'perfect-week', label: 'Perfect Week', detail: expect.any(String), href: null }]);
+    await expect(owner.search('a')).rejects.toMatchObject({ kind: 'invalid' });
+    await expect(createConsoleFixture({ role: 'Instructor', staff: true, state: null }).search('jamie')).rejects.toMatchObject({ kind: 'forbidden' });
+  });
+
   it('turns PR 2’s codes into states', () => {
     expect(failureOf(404, 'not_found')).toBe('not_found');
     expect(failureOf(400, 'invalid_body')).toBe('invalid');

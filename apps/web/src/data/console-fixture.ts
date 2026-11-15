@@ -11,13 +11,13 @@
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
 
-import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
+import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, cleanSearch, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
 import type { AuditAction, AuditFilters, AuditRow, ConsoleMe, ConsolePage, StaffRole } from '@ai/core';
 import { clock } from '../lib/clock';
 import { fixtureRole } from './boot';
 import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
-import { fixtureNoteTargetExists, fixtureRecords, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
+import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -254,6 +254,14 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         const picked = fixtureUserRows(records, filters).map((u) => ({ ...u, joined: fixtureUser(records, u.id)?.user.joined ?? null }));
         record('user.export', { type: 'users', id: null, label: 'Users' }, { rows: picked.length, format: 'csv', filters });
         return { csv: usersCsv(picked), filename: `users-${new Date(now()).toISOString().slice(0, 10)}.csv` };
+      }),
+    search: (q) =>
+      settle(() => {
+        need('console.view');
+        const words = cleanSearch(q);
+        if (words === null) throw new ConsoleError('invalid', 400, 'invalid_query', 'Search for 2 to 100 characters.');
+        if (state === 'empty') return { users: [], workspaces: [], orders: [], skills: [] };
+        return fixtureSearch(records, words, role);
       }),
   };
 }

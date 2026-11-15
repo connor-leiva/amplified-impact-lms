@@ -45,6 +45,7 @@ const ADMIN: Record<string, string> = {
   // Console PR 2 (D-158).
   '/admin/workspaces': 'Workspaces',
   '/admin/users': 'Users',
+  '/admin/search': 'Search',
 };
 
 /** A Console record's list (D-158): its crumb, and the record's own crumb when the shell can't name it. */

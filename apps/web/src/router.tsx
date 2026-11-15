@@ -82,6 +82,7 @@ export const router = createBrowserRouter([
       { path: 'admin/workspaces/:teamId', lazy: () => import('./routes/console/Workspace') },
       { path: 'admin/users', lazy: () => import('./routes/console/Users') },
       { path: 'admin/users/:userId', lazy: () => import('./routes/console/User') },
+      { path: 'admin/search', lazy: () => import('./routes/console/Search') },
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
       // other unknown address still goes home through the `*` below.
       { path: 'admin/*', lazy: () => import('./routes/console/NotFound') },

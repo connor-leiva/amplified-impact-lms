@@ -73,6 +73,8 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/users/u_alex?tab=notes'],
   ['admin', '/admin/users/st2'],
   ['admin', '/admin/users/no-such-user'],
+  ['admin', '/admin/search'],
+  ['admin', '/admin/search?console-role=Support'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

@@ -9,7 +9,7 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -17,6 +17,7 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   // PR 2 (D-158). A record's screen takes its list's capability.
   workspaces: { title: 'Workspaces', cap: 'workspaces.read', path: '/admin/workspaces' },
   users: { title: 'Users', cap: 'users.read', path: '/admin/users' },
+  search: { title: 'Search', cap: 'console.view', path: '/admin/search' },
 };
 
 /** The way out of Denied and the 404. */

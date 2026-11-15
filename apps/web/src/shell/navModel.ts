@@ -92,6 +92,10 @@ export const NAV_PATHS = {
   // The Admin Console (D-157).
   audit: '/admin/audit',
   roles: '/admin/roles',
+  // Console PR 2 (D-158).
+  workspaces: '/admin/workspaces',
+  users: '/admin/users',
+  search: '/admin/search',
 } as const;
 
 export const employeePath = (id: string): string => `/employees/${id}`;
@@ -296,6 +300,7 @@ export function consoleNav(db: Db, route: NavRoute, collapsed: boolean, role: st
   const path = norm(route.pathname);
   const at = (p: string): boolean => path === p;
   const inBuilder = path.startsWith(`${NAV_PATHS.curriculum}/`);
+  const under = (p: string): boolean => path === p || path.startsWith(`${p}/`);
   const allowed = (cap: ConsoleCap): boolean => consoleCan(role, cap);
 
   const newReq = db.requests.filter((q) => q.status === 'new').length;
@@ -319,7 +324,16 @@ export function consoleNav(db: Db, route: NavRoute, collapsed: boolean, role: st
         item('announce', 'Announcements', 'send', NAV_PATHS.announce, at(NAV_PATHS.announce)),
       ],
     ],
-    ['Support', [item('learners', 'Learners & Teams', 'users', NAV_PATHS.learners, at(NAV_PATHS.learners))]],
+    [
+      'Support',
+      [
+        item('learners', 'Learners & Teams', 'users', NAV_PATHS.learners, at(NAV_PATHS.learners)),
+        // Console PR 2 (D-158): a record's page keeps its list's row active.
+        ...(allowed('workspaces.read') ? [item('workspaces', 'Workspaces', 'briefcase', NAV_PATHS.workspaces, under(NAV_PATHS.workspaces))] : []),
+        ...(allowed('users.read') ? [item('users', 'Users', 'userPlus', NAV_PATHS.users, under(NAV_PATHS.users))] : []),
+        ...(allowed('console.view') ? [item('search', 'Search', 'search', NAV_PATHS.search, at(NAV_PATHS.search))] : []),
+      ],
+    ],
     ['Revenue', [item('tiers', 'Tiers & Upgrades', 'card', NAV_PATHS.tiers, at(NAV_PATHS.tiers), reqBadge)]],
     ['Operations', allowed('audit.read') ? [item('audit', 'Audit Log', 'listChecks', NAV_PATHS.audit, at(NAV_PATHS.audit))] : []],
     [

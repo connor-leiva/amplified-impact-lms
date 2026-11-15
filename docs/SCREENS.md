@@ -146,12 +146,12 @@ In rail mode the group header disappears. The groups render as `[Dashboard, Sess
 **Admin nav groups** (D-157, the Admin Console's groups, spec § 8):
 - `Health`: `Overview` (`chart`)
 - `Build`: `Curriculum` (`layers`, badge `N Draft` when drafts exist), `Module Builder` (`pencil`), `Resource Vault` (`archive`), `Cohorts & Sessions` (`calendar`), `Announcements` (`send`)
-- `Support`: `Learners & Teams` (`users`)
+- `Support`: `Learners & Teams` (`users`); `Workspaces` (`briefcase`), for a role with `workspaces.read`, and `Users` (`userPlus`), for a role with `users.read` (Owner, Admin, Support; D-158); `Search` (`search`), for a role with `console.view` (the same three)
 - `Revenue`: `Tiers & Upgrades` (`card`, badge = count of `new` upgrade requests)
 - `Operations`: `Audit Log` (`listChecks`), for a role with `audit.read` (Owner, Admin, Support)
 - `Access`: `Roles & Permissions` (`lock`), for a role with `ops.read` (Owner, Admin); `Staff & Roles` (`shield`)
 
-A Console row shows only to a staff role whose Console capabilities open it (`consoleCan`, `@ai/core`), and a group with nothing in it is left out: Instructor and Content Editor see no `Operations` group. The reference renders the Owner's sidebar; it has no Audit Log or Roles screen, so those two rows open the Overview there.
+A Console row shows only to a staff role whose Console capabilities open it (`consoleCan`, `@ai/core`), and a group with nothing in it is left out: Instructor and Content Editor see no `Operations` group. The reference renders the Owner's sidebar; it has no Audit Log, Roles, Workspaces, Users or Search screen, so those rows open the Overview there. In the app, a workspace's or a user's own page keeps its list's row active (D-158).
 
 **Admin groups fold** (D-157, collapsible groups). Expanded (desktop and the phone drawer), each group's label is a heading button: 16px/600 `--text-tertiary`, padding `4 10`, at least 44px tall, radius 8, the nav rows' hover (`--nav-hover`) and 2px focus ring. The label sits left, and the AI Employees row's chevron sits right (14px `chevD`, stroke 2, `--text-tertiary`, turned -90° when closed). It carries `aria-expanded` and `aria-controls` (the id of the group's row list), and Enter and Space toggle it. Its rows sit 2px apart under it, as before, and are not rendered while the group is closed.
 - **With no choice made**, only the group holding the active page is open, so every heading is in view.

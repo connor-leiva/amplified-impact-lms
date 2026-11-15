@@ -420,10 +420,11 @@ class Component extends DCLogic {
       };
       // D-157 (Console PR 1d): the Admin Console's groups (spec § 8), as the app's `consoleNav` renders them for
       // the Owner. Audit Log and Roles & Permissions are Console screens the prototype does not have: here they open the Overview.
+      // D-158 (Console PR 2): Workspaces, Users and Search join Support, and open the Overview here for the same reason.
       nav = [
         g('Health', [item('overview', 'Overview', ic.chart)]),
         g('Build', [item('curriculum', 'Curriculum', ic.layers, drafts ? { badge: `${drafts} Draft`, badgeTitle: `${drafts} draft AI Employee${drafts === 1 ? '' : 's'}` } : {}), item('builder', 'Module Builder', ic.pencil), item('avault', 'Resource Vault', ic.archive), item('cohorts', 'Cohorts & Sessions', ic.calendar), item('announce', 'Announcements', ic.send)]),
-        g('Support', [item('learners', 'Learners & Teams', ic.users)]),
+        g('Support', [item('learners', 'Learners & Teams', ic.users), item('workspaces', 'Workspaces', ic.briefcase, { go: () => this.nav('overview') }), item('users', 'Users', ic.userPlus, { go: () => this.nav('overview') }), item('search', 'Search', ic.search, { go: () => this.nav('overview') })]),
         g('Revenue', [item('tiers', 'Tiers & Upgrades', ic.card, newReq ? { badge: String(newReq), badgeTitle: `${newReq} new upgrade request${newReq === 1 ? '' : 's'}` } : {})]),
         g('Operations', [item('audit', 'Audit Log', ic.listChecks, { go: () => this.nav('overview') })]),
         g('Access', [item('roles', 'Roles & Permissions', ic.lock, { go: () => this.nav('overview') }), item('staff', 'Staff & Roles', ic.shield)]),
