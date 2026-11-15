@@ -119,7 +119,7 @@ function TeamHub() {
               {vm.teamName} · Team Tier{vm.inCohort ? ' · December 2026 Cohort' : ''}
             </p>
           </div>
-          <div className={s.headActions}>
+          <div className={s.headActions} data-phone="actions">
             <button
               type="button"
               className={s.export}
@@ -190,10 +190,12 @@ function TeamHub() {
             <div className={s.remHeadline}>{rem.headline}</div>
             <div className={s.remPeople}>
               {rem.people.map((p) => (
-                <div key={p.id} className={s.remPerson}>
+                <div key={p.id} className={s.remPerson} data-phone="remind-row">
                   <Avatar id={p.id} name={p.plainName} size={32} />
                   <span className={s.remName}>{p.name}</span>
-                  <span className={s.remGap}>{p.gap}</span>
+                  <span className={s.remGap} data-phone="remind-gap">
+                    {p.gap}
+                  </span>
                 </div>
               ))}
             </div>
@@ -207,13 +209,13 @@ function TeamHub() {
         </div>
 
         <section className={s.activity}>
-          <div className={s.activityHead}>
+          <div className={s.activityHead} data-phone="activity-head">
             <div className={s.activityTitle}>Team Activity</div>
             <span className={s.activityNote}>{members.length} Members · Click a Row to Manage</span>
           </div>
-          <div className={s.scroll}>
-            <div className={s.table} role="table" aria-label="Team Activity">
-              <div className={s.headRow} role="row">
+          <div className={s.scroll} data-phone="tscroll">
+            <div className={s.table} role="table" aria-label="Team Activity" data-phone="tmin">
+              <div className={s.headRow} role="row" data-phone="thead">
                 <span role="columnheader">Name</span>
                 <span role="columnheader">Role</span>
                 <span role="columnheader">Date Joined</span>
@@ -229,6 +231,7 @@ function TeamHub() {
                   aria-label={m.name}
                   tabIndex={0}
                   className={s.row}
+                  data-phone="trow"
                   onClick={() => patch({ sel: m.id })}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -247,13 +250,13 @@ function TeamHub() {
                       <div className={s.email}>{m.email}</div>
                     </div>
                   </div>
-                  <span role="cell" className={s.role}>
+                  <span role="cell" className={s.role} data-phone="tcell">
                     {m.role}
                   </span>
-                  <span role="cell" className={s.joined}>
+                  <span role="cell" className={s.joined} data-phone="tcell" data-label="Date Joined">
                     {m.joined}
                   </span>
-                  <div role="cell" className={s.builtCell}>
+                  <div role="cell" className={s.builtCell} data-phone="tcell" data-label="AI Employees Built">
                     <div className={s.dots}>
                       {m.dots.map((d) => (
                         <span key={d.id} title={d.title} className={s.dot} data-state={d.state} />
@@ -261,14 +264,14 @@ function TeamHub() {
                     </div>
                     <span className={s.count}>{m.count}</span>
                   </div>
-                  <div role="cell" className={s.statusCell} data-tone={m.tone}>
+                  <div role="cell" className={s.statusCell} data-tone={m.tone} data-phone="tcell">
                     <span className={s.statusDot} />
                     <span className={s.statusText}>{m.status}</span>
                   </div>
-                  <span role="cell" className={s.last}>
+                  <span role="cell" className={s.last} data-phone="tcell" data-label="Last Active">
                     {m.last}
                   </span>
-                  <span role="cell" className={s.chevCell}>
+                  <span role="cell" className={s.chevCell} data-phone="tchev">
                     <Icon name="chevR" size={16} strokeWidth={2} color="var(--text-tertiary)" />
                   </span>
                 </div>

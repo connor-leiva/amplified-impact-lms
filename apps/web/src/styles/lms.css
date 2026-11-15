@@ -9,3 +9,37 @@
 button,select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){min-height:var(--tap)}
 button{min-width:var(--tap)}
 button[style*="background:var(--action-primary)"]{min-height:var(--tap-primary)}
+
+/* Phone layouts (D-156), shared by the reference and the app: each rule targets a `data-phone` hook
+   that both sides put on the same element, so a phone layout cannot drift between them. `!important`
+   because the reference sets everything inline and the app's CSS modules load after this file; none
+   of it applies above 767px, where every golden but the 390px ones is taken. */
+@media (max-width:767px){
+[data-phone="banner"]{flex-wrap:wrap !important}
+[data-phone="banner-mid"]{flex-basis:calc(100% - 17px - 44px - 24px) !important}
+[data-phone="banner-action"]{order:3 !important;margin-left:29px !important}
+[data-phone="poster"]{aspect-ratio:4/3 !important}
+[data-phone="poster-text"]{padding:16px !important}
+[data-phone="poster-play"]{top:30% !important}
+[data-phone="controls"]{flex-wrap:wrap !important}
+[data-phone="chapter-now"]{order:9 !important;flex-basis:100% !important;padding:0 6px !important}
+[data-phone="rail"]{overflow-x:visible !important}
+[data-phone="rail-head"]{flex-direction:column !important;align-items:flex-start !important;gap:2px !important}
+[data-phone="rail-grid"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+[data-phone="tabs"]{flex-wrap:wrap !important}
+[data-phone="actions"]{flex-wrap:wrap !important}
+[data-phone="remind-row"]{flex-wrap:wrap !important}
+[data-phone="remind-gap"]{flex-basis:100% !important;margin-left:0 !important;padding-left:40px !important;white-space:normal !important}
+[data-phone="activity-head"]{flex-wrap:wrap !important}
+[data-phone="tscroll"]{overflow-x:visible !important}
+[data-phone="tmin"]{min-width:0 !important}
+[data-phone="thead"]{display:none !important}
+[data-phone="trow"]{grid-template-columns:minmax(0,1fr) 16px !important;column-gap:12px !important;row-gap:4px !important}
+[data-phone="tcell"]{grid-column:1 !important;padding-left:40px !important;min-width:0 !important}
+[data-phone="tcell"][data-label]::before{content:attr(data-label);margin-right:8px;color:var(--text-tertiary)}
+[data-phone="tchev"]{grid-column:2 !important;grid-row:1 !important;align-self:center !important}
+}
+@media (max-width:359px){
+[data-phone="poster"]{aspect-ratio:1/1 !important}
+[data-phone="poster-play"]{top:22% !important}
+}

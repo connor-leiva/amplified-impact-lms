@@ -4925,4 +4925,20 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
   - `compliance/goldens/linux/PROVENANCE.txt` is not edited (nothing in `compliance/goldens/` is edited by hand); this entry is the provenance of this capture.
   - `win32/` PNGs are stale until someone re-captures them on Windows (`pnpm compliance:capture`): Windows rasterization cannot be produced on Linux (D-020). Until then a local `pnpm compliance` on Windows fails on pixels while fingerprints pass; Linux is the authoritative set.
   - Before this change, local and container runs on `main` both failed the same 10 sidebar and dark-theme scenarios on pixels only: the app's brand lockup had drifted from the reference's. The wordmark replaces both, and those 10 pass.
+- **PR B1, the in-shell learner portal on a phone.** Phone layouts are written once, in `lms.css`, under `@media (max-width:767px)` (and `359px` for the narrowest phones). Each rule targets a `data-phone="…"` hook that the reference and the app put on the same element, so neither side can drift.
+  - The rules carry `!important`, because the reference sets everything inline and the app's CSS modules load after `lms.css`.
+  - None applies above 767px, so the only goldens they can move are the 390px ones.
+  - The hooks are attributes, not logic.
+  - **Dashboard:** the announcement banner's action moves under its text.
+  - **AI Employee page:**
+    - the poster is 4:3 (1:1 under 360px), with its play button raised clear of the title;
+    - the player's control row wraps instead of clipping;
+    - the chapter rail is a 2-column grid instead of a sideways scroller, with its note on its own line under "Chapters";
+    - the deployment card's "Open" link is 44px tall at every width;
+    - the session link in the meta line has a 45px tap area that takes no room (padding offset by margin).
+  - **Vault:** the two tabs wrap at 320.
+  - **Team Hub:**
+    - the header actions and the reminder rows wrap;
+    - Team Activity becomes stacked cards (the header row hides, and the date and count cells borrow the header's own names as labels) instead of a 920px sideways table.
+  - **Checker:** `lms-mobile.spec.ts` exempts an inline link with other words beside it in the same block, bare or in sibling spans, per WCAG 2.5.8's inline exception. The learner routes left `KNOWN`.
 - **Not changed:** Stripe and Payment Links, the seat cap (D-154), webhook behavior, course gating and invite logic (D-153), GA4 / Meta tags and `analytics.js` (D-155), `/agreement`, www's pages and CSS, the learner vocabulary (AI Employee, Session, Step, Built, Deployed), routes, view-models and copy. No product logic, no emails, no Railway variables, no secrets.

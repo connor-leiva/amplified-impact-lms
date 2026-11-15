@@ -325,12 +325,13 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
                   every other action it offers also has a labelled button in the controls below. */}
               <div
                 className={s.poster}
+                data-phone="poster"
                 data-playable={v.has ? 'true' : undefined}
                 onClick={() => {
                   if (v.has) togglePlay();
                 }}
               >
-                <div className={s.posterText}>
+                <div className={s.posterText} data-phone="poster-text">
                   <div className={s.kicker}>Amplified Impact · Session {v.n}</div>
                   <div className={s.posterTitle}>{v.title}</div>
                   <div className={s.posterSub}>{v.sub}</div>
@@ -339,7 +340,7 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
                 {v.has ? <span className={s.chip}>Replay · {v.speedLabel}</span> : null}
 
                 {v.showBigPlay ? (
-                  <div className={s.bigPlay}>
+                  <div className={s.bigPlay} data-phone="poster-play">
                     <Icon name="play" size={24} filled className={s.bigPlayGlyph} />
                   </div>
                 ) : null}
@@ -415,7 +416,7 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
                     <div className={s.thumb} style={{ '--pct': v.pct } as CSSProperties} />
                   </div>
 
-                  <div className={s.ctlRow}>
+                  <div className={s.ctlRow} data-phone="controls">
                     <button type="button" className={s.ctlBtn} aria-label={v.playTitle} onClick={togglePlay}>
                       <Icon name={v.playIcon} size={16} filled />
                     </button>
@@ -431,7 +432,9 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
                     <span className={s.time}>
                       {v.time} <span className={s.timeTotal}>/ {v.total}</span>
                     </span>
-                    <span className={s.chapterNow}>{v.chapter}</span>
+                    <span className={s.chapterNow} data-phone="chapter-now">
+                      {v.chapter}
+                    </span>
                     <button type="button" className={s.speedBtn} aria-label="Playback speed" onClick={cycleSpeed}>
                       {v.speedLabel}
                     </button>
@@ -458,12 +461,12 @@ function Workspace({ db, user, m }: { db: Db; user: Learner; m: AIEmployee }) {
                 </div>
               ) : null}
 
-              <div className={s.rail}>
-                <div className={s.railHead}>
+              <div className={s.rail} data-phone="rail">
+                <div className={s.railHead} data-phone="rail-head">
                   <span className={s.railTitle}>{vm.railTitle}</span>
                   <span className={s.railNote}>Chapters Follow the 6 Build Steps</span>
                 </div>
-                <div className={s.railGrid}>
+                <div className={s.railGrid} data-phone="rail-grid">
                   {vm.rail.map((ch) => (
                     <button
                       key={ch.n}

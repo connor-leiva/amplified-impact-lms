@@ -75,7 +75,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     </div>
   </div>
 
-  <div style="display:flex; gap:2px; border-bottom:1px solid var(--line-default)">
+  <div data-phone="tabs" style="display:flex; gap:2px; border-bottom:1px solid var(--line-default)">
     <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="2">
       <button onClick="{{ tb.go }}" style="height:42px; padding:0 14px; border:0; background:transparent; color:{{ tb.fg }}; font-size:16px; font-weight:500; cursor:pointer; box-shadow:{{ tb.sh }}; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="color:var(--text-primary)">
         <sc-if value="{{ tb.lock }}"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:var(--access-locked-text); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg></sc-if>
