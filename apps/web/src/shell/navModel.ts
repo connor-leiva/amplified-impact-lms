@@ -8,9 +8,9 @@
 // the Locked Employee Preview, or toggle the AI Employees group. That is what makes it structurally
 // impossible for a locked child to navigate (SCREENS § 2.1, phase 04 gate).
 
-import { ICONS, buildOf, canAccess, fmt, isOpen, visibleModules } from '@ai/core';
+import { ICONS, buildOf, canAccess, consoleCan, fmt, isOpen, visibleModules } from '@ai/core';
 import { isAcceleratorModule } from '@ai/core/accelerator';
-import type { AIEmployee, Db, IconName, Learner } from '@ai/core';
+import type { AIEmployee, ConsoleCap, Db, IconName, Learner } from '@ai/core';
 import type { NavItemToken } from '../components/NavItem';
 
 /** What a row does when it is clicked. The shell, not the model, carries this out. */
@@ -62,6 +62,9 @@ export const NAV_PATHS = {
   announce: '/admin/announcements',
   tiers: '/admin/tiers',
   staff: '/admin/staff',
+  // The Admin Console (D-157).
+  audit: '/admin/audit',
+  roles: '/admin/roles',
 } as const;
 
 export const employeePath = (id: string): string => `/employees/${id}`;
@@ -283,4 +286,57 @@ export function adminNav(db: Db, route: NavRoute, collapsed: boolean): NavGroup[
     ]),
     g('Revenue', [item('tiers', 'Tiers & Upgrades', 'card', NAV_PATHS.tiers, at(NAV_PATHS.tiers), reqBadge)]),
   ];
+}
+
+/**
+ * The Admin Console's grouped sidebar (D-157, spec § 8): Health · Build · Support · Revenue ·
+ * Operations · Access. The existing admin screens keep their rows, labels, icons and badges, grouped
+ * under these headings; a Console screen shows only to a role whose capabilities (`consoleCan`) open
+ * it, and a heading with nothing under it is left out.
+ *
+ * NOT WIRED INTO THE SHELL. Every admin golden captures the sidebar (`shell-admin` and each `admin-*`
+ * scenario), and these headings replace Insights · Content · Delivery · People · Revenue, so showing
+ * it would move those goldens. The shell keeps `adminNav` until Connor decides how the Console's
+ * screens join the sidebar (the PR's "Needs Connor's call"); this is the model either answer uses.
+ */
+export function consoleNav(db: Db, route: NavRoute, collapsed: boolean, role: string | null): NavGroup[] {
+  const path = norm(route.pathname);
+  const at = (p: string): boolean => path === p;
+  const inBuilder = path.startsWith(`${NAV_PATHS.curriculum}/`);
+  const allowed = (cap: ConsoleCap): boolean => consoleCan(role, cap);
+
+  const newReq = db.requests.filter((q) => q.status === 'new').length;
+  const drafts = db.modules.filter((m) => m.status === 'draft').length;
+  const draftBadge: Extra = drafts
+    ? { badge: `${drafts} Draft`, badgeTitle: `${drafts} draft AI Employee${drafts === 1 ? '' : 's'}` }
+    : {};
+  const reqBadge: Extra = newReq
+    ? { badge: String(newReq), badgeTitle: `${newReq} new upgrade request${newReq === 1 ? '' : 's'}` }
+    : {};
+
+  const groups: [string, NavEntry[]][] = [
+    ['Health', [item('overview', 'Overview', 'chart', NAV_PATHS.overview, at(NAV_PATHS.overview))]],
+    [
+      'Build',
+      [
+        item('curriculum', 'Curriculum', 'layers', NAV_PATHS.curriculum, at(NAV_PATHS.curriculum), draftBadge),
+        item('builder', 'Module Builder', 'pencil', NAV_PATHS.builder, inBuilder),
+        item('avault', 'Resource Vault', 'archive', NAV_PATHS.avault, at(NAV_PATHS.avault)),
+        item('cohorts', 'Cohorts & Sessions', 'calendar', NAV_PATHS.cohorts, at(NAV_PATHS.cohorts)),
+        item('announce', 'Announcements', 'send', NAV_PATHS.announce, at(NAV_PATHS.announce)),
+      ],
+    ],
+    ['Support', [item('learners', 'Learners & Teams', 'users', NAV_PATHS.learners, at(NAV_PATHS.learners))]],
+    ['Revenue', [item('tiers', 'Tiers & Upgrades', 'card', NAV_PATHS.tiers, at(NAV_PATHS.tiers), reqBadge)]],
+    ['Operations', allowed('audit.read') ? [item('audit', 'Audit Log', 'listChecks', NAV_PATHS.audit, at(NAV_PATHS.audit))] : []],
+    [
+      'Access',
+      [
+        ...(allowed('ops.read') ? [item('roles', 'Roles & Permissions', 'lock', NAV_PATHS.roles, at(NAV_PATHS.roles))] : []),
+        item('staff', 'Staff & Roles', 'shield', NAV_PATHS.staff, at(NAV_PATHS.staff)),
+      ],
+    ],
+  ];
+
+  return groups.filter(([, items]) => items.length > 0).map(([label, items]) => ({ label, showLabel: !collapsed, items }));
 }

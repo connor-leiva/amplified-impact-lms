@@ -37,7 +37,12 @@ const ADMIN: Record<string, string> = {
   '/admin/announcements': 'Announcements',
   '/admin/tiers': 'Tiers & Upgrades',
   '/admin/staff': 'Staff & Roles',
+  // The Admin Console (D-157).
+  '/admin/roles': 'Roles & Permissions',
 };
+
+/** The crumb on the Console 404 (D-157): an `/admin/…` address that is no screen. */
+export const ADMIN_NOT_FOUND = 'Page Not Found';
 
 /** Trailing slashes are not a different screen. */
 const norm = (pathname: string): string => {
@@ -66,8 +71,10 @@ export function crumbsFor(pathname: string, employeeName = ''): Crumb[] {
   }
   const admin = ADMIN[p];
   if (admin) return [{ label: 'Admin', to: '/admin' }, { label: admin }];
+  // Any other `/admin/…` address renders the Console 404 inside the shell (D-157).
+  if (p.startsWith('/admin/')) return [{ label: 'Admin', to: '/admin' }, { label: ADMIN_NOT_FOUND }];
 
-  // An unknown path cannot render: the router redirects it to `/` (phase 04 § 4.1).
+  // Any other unknown path cannot render: the router redirects it to `/` (phase 04 § 4.1).
   return [{ label: PORTAL[p] ?? 'Dashboard' }];
 }
 
