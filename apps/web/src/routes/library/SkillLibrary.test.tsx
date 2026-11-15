@@ -194,7 +194,7 @@ describe('the skill library screen', () => {
   describe('for an access group’s member (Design’s follow-up to D-148)', () => {
     const UTAH = [{ id: 'utah-life', name: 'Utah Life' }];
 
-    it('gives the note its own class: 16px, no margin, the buttons’ 40px row, colour from a token', async () => {
+    it('gives the note its own class: 16px, no margin, the buttons’ 48px row (D-156), colour from a token', async () => {
       fetchMock.mockResolvedValue(answer(200, { plans: [], accessGroups: UTAH, skills: [skill({})] }));
       render(<SkillLibrary />, { wrapper: MemoryRouter });
       const note = await screen.findByText('Included with your Utah Life team');
@@ -205,7 +205,8 @@ describe('the skill library screen', () => {
       const rule = /\.included \{([^}]*)\}/.exec(css)?.[1] ?? '';
       expect(rule).toMatch(/margin: 0;/);
       expect(rule).toMatch(/font-size: 16px;/);
-      expect(rule).toMatch(/min-height: 40px;/);
+      // D-156: the kit's buttons are 48px tall, so the note's row is too (it was 40px with the old buttons).
+      expect(rule).toMatch(/min-height: 48px;/);
       expect(rule).toMatch(/color: var\(--[a-z-]+\);/);
       expect(rule).not.toMatch(/#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
     });

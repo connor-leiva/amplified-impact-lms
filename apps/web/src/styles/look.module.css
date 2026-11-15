@@ -1,0 +1,132 @@
+/* The www kit's look for the learn screens that render outside AppShell: /course, /course/week-N,
+   /skill-library and /skill-library/:slug (DECISIONS.md D-156, PR B2). It redoes the intent of PR 77
+   (the homepage look on these screens) on top of D-156's foundation, which already sets Geist
+   (`--font-ui`, `--font-ui-mono`), the 16px floor and the 44 / 48px targets for the whole LMS.
+
+   WHAT IT IS: the kit's grained ground, raised panels edged by a hairline instead of a shadow, one
+   signal colour, 6px controls and 8px panels, and a 2px focus outline offset 2px. The colours are the
+   kit's own (kit/kit.css `--aiw-*`, the homepage's `--hp-*`), value for value, in oklch, so
+   scripts/check-css-colors.mjs passes: no hex, no rgb functions, no named colours.
+
+   IT FOLLOWS THE APP'S THEME (`:root[data-theme]`, the profile menu's Light / Dark, never the OS):
+     - light, the default: the kit's light theme. Bone ground, lighter panels, near-black ink, slate
+       secondary text, forest accent, the energy-green signal, near-black primary buttons;
+     - dark: PR 77's near-black ground with its grain, and the kit's dark theme on it. Raised-dark
+       panels, cream ink, sage secondary text, mint accent and signal, mint primary buttons.
+   WCAG AA in both: the ratios are in the PR (computed from these oklch values).
+
+   HOW A SCREEN USES IT: `composes: ground from '…/styles/look.module.css'` on the page. The scope
+   re-points the LMS's own semantic tokens (tokens.css, untouched) to the kit's, so what a screen's
+   stylesheet, a shared stylesheet (PreLaunch) or global.css draws inside it reads in the kit look
+   with no change to markup. Status colours are left to tokens.css, which already flips them with the
+   theme; they pass AA on both grounds. */
+
+.ground {
+  /* --- The kit's palette ------------------------------------------------------------------------ */
+  --look-near-black: oklch(0.1552 0.0053 173.53);
+  --look-raised-dark: oklch(0.1941 0.0087 169.28);
+  --look-cream: oklch(0.9693 0.004 106.47);
+  --look-sage: oklch(0.7336 0.0107 164.76);
+  --look-sage-muted: oklch(0.6077 0.013 161.81);
+  --look-mint: oklch(0.7934 0.1162 162.2);
+  --look-hairline-dark: oklch(0.2564 0.0115 167.68);
+  --look-control-dark: oklch(0.5028 0.0156 166.68);
+  --look-bone: oklch(0.9545 0.0067 97.35);
+  --look-raised-light: oklch(0.9843 0.004 106.47);
+  --look-slate: oklch(0.4358 0.0091 164.59);
+  --look-slate-muted: oklch(0.497 0.0088 164.67);
+  --look-forest: oklch(0.3838 0.0555 172.15);
+  --look-energy: oklch(0.5632 0.1182 159.45);
+  --look-hairline-light: oklch(0.8816 0.011 95.18);
+  --look-grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --look-grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --look-radius-control: 6px;
+  --look-radius-panel: 8px;
+  --look-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* --- Light: the kit's light theme (`.aiw[data-theme='light']`) -------------------------------- */
+  --look-surface: var(--look-bone);
+  --look-surface-raised: var(--look-raised-light);
+  --look-ink: var(--look-near-black);
+  --look-ink-secondary: var(--look-slate);
+  --look-ink-muted: var(--look-slate-muted);
+  --look-accent: var(--look-forest);
+  --look-signal: var(--look-energy);
+  --look-action: var(--look-near-black);
+  --look-on-action: var(--look-bone);
+  --look-line: var(--look-hairline-light);
+  --look-line-control: var(--look-sage-muted);
+  --look-outline: var(--look-near-black);
+  --look-focus: var(--look-forest);
+  --look-grain: var(--look-grain-light);
+
+  /* --- The LMS's tokens, re-pointed to the scope's ---------------------------------------------- */
+  --bg-canvas: var(--look-surface);
+  --bg-surface: var(--look-surface-raised);
+  --bg-raised: var(--look-surface-raised);
+  --bg-sunken: var(--look-surface);
+  --bg-hover: var(--look-line);
+  --bg-selected: var(--look-line);
+  --text-primary: var(--look-ink);
+  --text-secondary: var(--look-ink-secondary);
+  --text-tertiary: var(--look-ink-muted);
+  --text-disabled: var(--look-ink-muted);
+  --text-link: var(--look-ink);
+  --text-link-hover: var(--look-accent);
+  --line-subtle: var(--look-line);
+  --line-default: var(--look-line);
+  --line-strong: var(--look-line-control);
+  --action-primary: var(--look-action);
+  --action-primary-hover: var(--look-action);
+  --action-on-primary: var(--look-on-action);
+  --action-secondary: transparent;
+  --action-secondary-hover: var(--look-line);
+  --action-secondary-line: var(--look-outline);
+  --focus-ring: var(--look-focus);
+  --shadow-card: none;
+
+  color-scheme: light;
+  background-color: var(--look-surface);
+  background-image: var(--look-grain);
+  color: var(--look-ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Dark: PR 77's near-black ground, and the kit's dark theme on it (`.aiw[data-theme='dark']`) -- */
+:global(:root[data-theme='dark']) .ground {
+  --look-surface: var(--look-near-black);
+  --look-surface-raised: var(--look-raised-dark);
+  --look-ink: var(--look-cream);
+  --look-ink-secondary: var(--look-sage);
+  --look-ink-muted: var(--look-sage-muted);
+  --look-accent: var(--look-mint);
+  --look-signal: var(--look-mint);
+  --look-action: var(--look-mint);
+  --look-on-action: var(--look-near-black);
+  --look-line: var(--look-hairline-dark);
+  --look-line-control: var(--look-control-dark);
+  --look-outline: var(--look-control-dark);
+  --look-focus: var(--look-mint);
+  --look-grain: var(--look-grain-dark);
+
+  color-scheme: dark;
+}
+
+/* --- Focus: the kit's, a 2px outline offset 2px, forest in light and mint in dark ----------------- */
+.ground :focus-visible {
+  outline: 2px solid var(--look-focus);
+  outline-offset: 2px;
+}
+
+/* --- Motion: under reduced motion nothing lifts, fades or spins ---------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .ground *,
+  .ground *::before,
+  .ground *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
