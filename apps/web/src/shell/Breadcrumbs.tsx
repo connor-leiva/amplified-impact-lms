@@ -38,6 +38,7 @@ const ADMIN: Record<string, string> = {
   '/admin/tiers': 'Tiers & Upgrades',
   '/admin/staff': 'Staff & Roles',
   // The Admin Console (D-157).
+  '/admin/audit': 'Audit Log',
   '/admin/roles': 'Roles & Permissions',
 };
 

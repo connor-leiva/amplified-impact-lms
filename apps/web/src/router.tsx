@@ -75,6 +75,7 @@ export const router = createBrowserRouter([
       { path: 'admin/tiers', lazy: () => import('./routes/admin/Tiers') },
       { path: 'admin/staff', lazy: () => import('./routes/admin/Staff') },
       // The Admin Console (D-157): net-new screens inside the shell, by Console capability.
+      { path: 'admin/audit', lazy: () => import('./routes/console/AuditLog') },
       { path: 'admin/roles', lazy: () => import('./routes/console/Roles') },
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
       // other unknown address still goes home through the `*` below.

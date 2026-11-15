@@ -18,6 +18,7 @@ describe('crumbsFor', () => {
   });
 
   it('names the Console’s screens and its 404', () => {
+    expect(crumbsFor('/admin/audit')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Audit Log' }]);
     expect(crumbsFor('/admin/roles')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Roles & Permissions' }]);
     expect(crumbsFor('/admin/no-such-page')).toEqual([{ label: 'Admin', to: '/admin' }, { label: ADMIN_NOT_FOUND }]);
     expect(ADMIN_NOT_FOUND).toBe('Page Not Found');

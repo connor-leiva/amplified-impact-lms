@@ -1,0 +1,46 @@
+/* The Console's filters (D-157). 44px controls, 16px type, tokens only; full width under 768px. */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.control {
+  min-height: var(--tap);
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+}
+.control:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.search {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.search::placeholder {
+  color: var(--text-tertiary);
+}
+
+.select {
+  flex: 0 1 auto;
+}
+
+@media (max-width: 767px) {
+  .search,
+  .select {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
