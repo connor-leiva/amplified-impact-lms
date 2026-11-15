@@ -122,6 +122,12 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     gate: 9,
   },
   skills: { table: 'skills', columns: ['files', 'free', 'id', 'released_at', 'sets', 'status', 'summary', 'title'], gate: 9 },
+  // D-157: the Admin Console's append-only audit log (spec § 7.8). Not a `Db` record, like `orders`.
+  auditLog: {
+    table: 'audit_log',
+    columns: ['action', 'actor_role', 'actor_source', 'actor_user_id', 'after', 'at', 'before', 'id', 'ip', 'masquerade_session_id', 'outcome', 'reason', 'request_id', 'target_id', 'target_label', 'target_type', 'user_agent'],
+    gate: 9,
+  },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -302,6 +308,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['plans', 'startsAt'], ['plans', 'paidThrough'], ['plans', 'liveUntil'], ['plans', 'minimumUntil'], ['plans', 'createdAt'],
   ['skills', 'releasedAt'],
   ['accessGroups', 'expiresAt'], ['accessGroups', 'createdAt'], ['accessGroupMembers', 'addedAt'], ['emailVerifications', 'verifiedAt'],
+  // D-157: when a Console action happened, `clock.now()` as the audit writer stamps it.
+  ['auditLog', 'at'],
 ];
 
 /**
@@ -355,6 +363,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   accessGroups: { unit: 'epoch-ms', why: 'D-148: expires_at is compared with clock.now() by inGroup' },
   accessGroupMembers: { unit: 'epoch-ms', why: 'D-148: added_at is clock.now() as written; no reader converts it' },
   emailVerifications: { unit: 'epoch-ms', why: 'D-148: verified_at is clock.now() as written by claimToken; no reader converts it' },
+  auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -577,9 +586,24 @@ describe('unique indexes @g9', () => {
     });
   }
 
+  // D-157: the audit log's lookups (the Console's filters), none of them unique. Listed so an index
+  // added anywhere else still has to be argued for here.
+  const LOOKUP_INDEXES: Record<string, { name: string; unique: boolean; columns: string[] }[]> = {
+    auditLog: [
+      { name: 'audit_log_at_idx', unique: false, columns: ['at'] },
+      { name: 'audit_log_actor_idx', unique: false, columns: ['actor_user_id'] },
+      { name: 'audit_log_action_idx', unique: false, columns: ['action'] },
+      { name: 'audit_log_target_idx', unique: false, columns: ['target_type', 'target_id'] },
+    ],
+  };
+
+  it('gives the audit log its four lookup indexes, none unique @g9', () => {
+    expect(indexesOf(tableOf('auditLog'))).toEqual(LOOKUP_INDEXES.auditLog);
+  });
+
   it('finds no other table carrying an index @g9', () => {
     // A new index is a new rule about which rows may coexist, which is worth a line here.
     const indexed = tables.filter(([, t]) => getTableConfig(t).indexes.length > 0).map(([n]) => n);
-    expect(indexed.sort()).toEqual(Object.keys(UNIQUE_INDEXES).sort());
+    expect(indexed.sort()).toEqual([...Object.keys(UNIQUE_INDEXES), ...Object.keys(LOOKUP_INDEXES)].sort());
   });
 });

@@ -15,7 +15,7 @@
 // Four tables are the other way round — rows with no `Db` field at all: `auth_tokens` and
 // `auth_sessions` (§ 7.5), `job_runs` (§ 8.5, the scheduler's idempotence ledger) and
 // `ai101_waitlist` (the public /ai101 page's sign-ups, DECISIONS.md D-028).
-import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, uniqueIndex, check } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, jsonb, primaryKey, pgEnum, bigint, bigserial, uniqueIndex, index, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // ONE COLUMN THAT IS NOT IN `Db`: `seq`, on users, teams and resources.
@@ -325,3 +325,45 @@ export const accessGroupMembers = pgTable('access_group_members', {
 export const emailVerifications = pgTable('email_verifications', {
   email: text('email').primaryKey(), verifiedAt: ts('verified_at').notNull(),
 });
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S AUDIT LOG (D-157, spec § 7.8)
+// ================================================================================================
+// One row per Console write and per staff member refused by a Console route, kept forever (D6).
+// Append-only, and the database says so: migration 0015 adds a trigger that raises on any UPDATE or
+// DELETE statement against this table, whoever runs it. TRUNCATE is not covered, because the test
+// harness empties every table between tests with it (`test/helpers.ts`); only the database's owner
+// can run it in production, and the same owner could drop the trigger anyway.
+//
+// Not part of a `Db` and not in the snapshot codec, like `orders`: no snapshot write can touch it,
+// and no learner or staff snapshot carries it. `apps/api/src/console/audit.ts` is the only writer.
+//
+// `id` is a bigserial so the order rows were written in is the order they are listed in, and a page's
+// cursor is simply the last id it showed. `at` is `clock.now()`, epoch ms like every instant here.
+// `before` and `after` are what `redactAuditPayload` leaves: no secret, token or key, and 2 KB at
+// most. `ip` and `user_agent` (300 characters at most) are the request's; Support is never sent them.
+// `actor_role` is the staff role at the time, so a later role change does not rewrite history.
+export const auditLog = pgTable('audit_log', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  at: ts('at').notNull(),
+  actorUserId: text('actor_user_id'), actorRole: text('actor_role'), actorSource: text('actor_source').notNull(),
+  masqueradeSessionId: text('masquerade_session_id'),
+  action: text('action').notNull(),
+  targetType: text('target_type'), targetId: text('target_id'), targetLabel: text('target_label'),
+  reason: text('reason'),
+  before: jsonb('before'), after: jsonb('after'),
+  outcome: text('outcome').notNull(),
+  ip: text('ip'), userAgent: text('user_agent'), requestId: text('request_id'),
+}, (t) => [
+  index('audit_log_at_idx').on(t.at),
+  index('audit_log_actor_idx').on(t.actorUserId),
+  index('audit_log_action_idx').on(t.action),
+  index('audit_log_target_idx').on(t.targetType, t.targetId),
+  // The closed lists in `@ai/core/console` (AUDIT_OUTCOMES, AUDIT_ACTOR_SOURCES), typed out because
+  // drizzle-kit reads this file on its own. The action list grows with each Console PR, so it is
+  // checked by the writer rather than here, where every new action would need a migration.
+  check('audit_log_outcome', sql`${t.outcome} in ('ok', 'denied', 'blocked', 'failed')`),
+  check('audit_log_actor_source', sql`${t.actorSource} in ('staff', 'system')`),
+  // A staff row names its staff member; only the system acts without one.
+  check('audit_log_staff_actor', sql`${t.actorSource} = 'system' or ${t.actorUserId} is not null`),
+]);
