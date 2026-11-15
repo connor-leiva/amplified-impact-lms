@@ -54,20 +54,10 @@ const ROUTES: readonly [Persona, string][] = [
 ];
 
 /**
- * What PR A (the foundation) leaves for the learner (B) and admin (C) passes, as
- * `route|check|width`. Rebuilt with LMS_AUDIT=1.
+ * What is still out of line, as `route|check|width`, with the PR that owns it. The learner routes
+ * are clear since PR B1. Rebuilt with LMS_AUDIT=1.
  */
 const KNOWN: ReadonlySet<string> = new Set<string>([
-  // PR B, the learner routes: the vault and team hub at 320, and the employee page's chapter links.
-  '/employees/marketing|tap|1024',
-  '/employees/marketing|tap|1280',
-  '/employees/marketing|tap|320',
-  '/employees/marketing|tap|375',
-  '/employees/marketing|tap|390',
-  '/employees/marketing|tap|430',
-  '/employees/marketing|tap|768',
-  '/team|overflow|320',
-  '/vault|overflow|320',
   // PR C, the admin routes: overview, tiers, announcements and the builder at 320, and the builder's
   // two primary buttons (44 tall where a primary is 48).
   '/admin/announcements|overflow|320',
@@ -162,10 +152,12 @@ async function findings(page: Page): Promise<{ overflow: string[]; font: string[
     for (const el of Array.from(controls)) {
       if (!visible(el) || (el as HTMLButtonElement).disabled) continue;
       const cs = getComputedStyle(el);
-      // A link inside running text: inline, with words beside it in the same block.
+      // A link inside running text: inline, with other words beside it in the same block, bare or in
+      // sibling spans ("From Session 1 · <link> · 45 Min Build"). WCAG 2.5.8's inline exception: the
+      // target is "constrained by the line-height of non-target text".
       if (el.tagName === 'A' && cs.display === 'inline') {
         const block = el.parentElement;
-        const words = block ? Array.from(block.childNodes).some((c) => c !== el && c.nodeType === 3 && (c.textContent ?? '').trim()) : false;
+        const words = block ? Array.from(block.childNodes).some((c) => c !== el && /[\p{L}\p{N}]/u.test(c.textContent ?? '')) : false;
         if (words) continue;
       }
       // A visually hidden native input behind a styled control is measured through its label.

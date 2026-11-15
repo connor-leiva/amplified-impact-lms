@@ -140,7 +140,7 @@ export function Component() {
         tab/tablist roles — these switch a URL query (?tab=executive), so they behave more like
         navigation than a tabpanel, and the compliance scenario selects them by role="button".
       */}
-      <div className={s.tabRow}>
+      <div className={s.tabRow} data-phone="tabs">
         {vm.tabs.map((t) => (
           <button
             key={t.id}

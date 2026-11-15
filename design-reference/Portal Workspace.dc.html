@@ -75,7 +75,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       </div>
       <p style="margin:0; font-size:16px; line-height:24px; color:var(--text-primary); text-wrap:pretty">{{ m.outcome }}</p>
       <p style="margin:0; font-size:16px; color:var(--text-tertiary); display:flex; flex-wrap:wrap; gap:2px 6px">
-        <sc-if value="{{ meta.hasSession }}"><span>From Session {{ meta.n }}</span><span aria-hidden="true">·</span><a href="#" onClick="{{ meta.goSession }}" style="color:var(--text-link); font-weight:500">{{ meta.title }}</a><span aria-hidden="true">·</span></sc-if>
+        <sc-if value="{{ meta.hasSession }}"><span>From Session {{ meta.n }}</span><span aria-hidden="true">·</span><a href="#" onClick="{{ meta.goSession }}" style="padding:11px 0; margin:-11px 0; color:var(--text-link); font-weight:500">{{ meta.title }}</a><span aria-hidden="true">·</span></sc-if>
         <sc-if value="{{ meta.selfPaced }}"><span>Self-Paced</span><span aria-hidden="true">·</span></sc-if>
         <span>{{ m.build }} Min Build</span><span aria-hidden="true">·</span><span>For {{ m.forWho }}</span>
       </p>
@@ -91,8 +91,8 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start">
     <div style="flex:1.7 1 560px; min-width:0; display:flex; flex-direction:column; gap:16px">
       <section aria-label="Session replay" style="border-radius:14px; overflow:hidden; border:1px solid var(--line-default); background:var(--bg-surface)">
-        <div onClick="{{ v.posterClick }}" style="position:relative; aspect-ratio:16/9; background:var(--bg-poster); cursor:{{ v.posterCursor }}; overflow:hidden">
-          <div style="position:absolute; inset:0; padding:6% 7%; display:flex; flex-direction:column; justify-content:flex-end; gap:10px">
+        <div onClick="{{ v.posterClick }}" data-phone="poster" style="position:relative; aspect-ratio:16/9; background:var(--bg-poster); cursor:{{ v.posterCursor }}; overflow:hidden">
+          <div data-phone="poster-text" style="position:absolute; inset:0; padding:6% 7%; display:flex; flex-direction:column; justify-content:flex-end; gap:10px">
             <div style="font-family:var(--font-ui-mono); font-size:16px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-400)">Amplified Impact · Session {{ v.n }}</div>
             <div style="font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em; color:var(--ink-50); max-width:80%">{{ v.title }}</div>
             <div style="font-size:16px; color:var(--ink-400)">{{ v.sub }}</div>
@@ -101,7 +101,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
             <span style="position:absolute; top:14px; left:14px; height:24px; padding:0 8px; border-radius:6px; background:oklch(0 0 0 / 0.5); color:var(--ink-100); font-size:16px; font-weight:500; display:flex; align-items:center">Replay · {{ v.speedLabel }}</span>
           </sc-if>
           <sc-if value="{{ v.showBigPlay }}">
-            <div style="position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); width:64px; height:64px; border-radius:50%; background:var(--ink-50); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 32px oklch(0 0 0 / 0.4)">
+            <div data-phone="poster-play" style="position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); width:64px; height:64px; border-radius:50%; background:var(--ink-50); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 32px oklch(0 0 0 / 0.4)">
               <svg viewBox="0 0 24 24" aria-hidden="true" style="width:24px; height:24px; margin-left:3px; fill:var(--ink-900); stroke:none"><path d="M8 5.3v13.4a1 1 0 0 0 1.5.86l10.9-6.7a1 1 0 0 0 0-1.72L9.5 4.44A1 1 0 0 0 8 5.3z"></path></svg>
             </div>
           </sc-if>
@@ -127,20 +127,20 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
               <sc-for list="{{ rail }}" as="mk"><div title="{{ mk.label }}" style="position:absolute; left:{{ mk.left }}; top:4px; width:2px; height:8px; margin-left:-1px; border-radius:1px; background:{{ mk.markC }}"></div></sc-for>
               <div style="position:absolute; left:{{ v.pct }}; top:2px; width:12px; height:12px; margin-left:-6px; border-radius:50%; background:var(--bg-surface); border:2px solid var(--action-primary)"></div>
             </div>
-            <div style="display:flex; align-items:center; gap:4px">
+            <div data-phone="controls" style="display:flex; align-items:center; gap:4px">
               <button onClick="{{ v.toggle }}" aria-label="{{ v.playTitle }}" style="width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:currentColor; stroke:none"><path d="{{ v.playIcon }}"></path></svg></button>
               <button onClick="{{ v.back }}" aria-label="Back 10 seconds" style="width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.reset }}"></path></svg></button>
               <span style="font-family:var(--font-ui-mono); font-size:16px; color:var(--text-primary); font-variant-numeric:tabular-nums; padding:0 6px; white-space:nowrap">{{ v.time }} <span style="color:var(--text-tertiary)">/ {{ v.total }}</span></span>
-              <span style="flex:1; min-width:0; color:var(--text-tertiary); font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ v.chapter }}</span>
+              <span data-phone="chapter-now" style="flex:1; min-width:0; color:var(--text-tertiary); font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ v.chapter }}</span>
               <button onClick="{{ v.cycleSpeed }}" aria-label="Playback speed" style="height:28px; min-width:44px; padding:0 8px; border:1px solid var(--line-default); border-radius:7px; background:var(--bg-surface); color:var(--text-primary); cursor:pointer; font-family:var(--font-ui-mono); font-size:16px" style-hover="background:var(--bg-hover)">{{ v.speedLabel }}</button>
               <button onClick="{{ v.toggleCc }}" aria-pressed="{{ v.ccOn }}" aria-label="Captions" style="width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:{{ v.ccFg }}; cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.cc }}"></path></svg></button>
               <button onClick="{{ toggleTranscript }}" aria-pressed="{{ trOn }}" style="height:28px; padding:0 9px; border:1px solid {{ trBd }}; border-radius:7px; background:{{ trBg }}; color:var(--text-primary); cursor:pointer; font-size:16px; display:flex; align-items:center; gap:6px; white-space:nowrap" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round"><path d="{{ ic.lines }}"></path></svg>Transcript</button>
             </div>
           </div>
         </sc-if>
-        <div style="border-top:1px solid var(--line-subtle); padding:10px 10px 12px; overflow-x:auto">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; padding:0 4px 8px"><span style="font-size:16px; font-weight:600">{{ railTitle }}</span><span style="font-size:16px; color:var(--text-tertiary)">Chapters Follow the 6 Build Steps</span></div>
-          <div style="display:grid; grid-template-columns:repeat(6, minmax(112px, 1fr)); gap:6px">
+        <div data-phone="rail" style="border-top:1px solid var(--line-subtle); padding:10px 10px 12px; overflow-x:auto">
+          <div data-phone="rail-head" style="display:flex; justify-content:space-between; align-items:baseline; padding:0 4px 8px"><span style="font-size:16px; font-weight:600">{{ railTitle }}</span><span style="font-size:16px; color:var(--text-tertiary)">Chapters Follow the 6 Build Steps</span></div>
+          <div data-phone="rail-grid" style="display:grid; grid-template-columns:repeat(6, minmax(112px, 1fr)); gap:6px">
             <sc-for list="{{ rail }}" as="ch" hint-placeholder-count="6">
               <button onClick="{{ ch.go }}" aria-current="{{ ch.cur }}" title="{{ ch.tip }}" style="display:flex; flex-direction:column; gap:4px; padding:8px 10px; border-radius:9px; border:1px solid {{ ch.bd }}; background:{{ ch.bg }}; text-align:left; cursor:{{ ch.cursor }}; min-width:0" style-hover="border-color:var(--line-strong)">
                 <span style="display:flex; align-items:center; justify-content:space-between; gap:6px; font-size:16px; color:var(--text-tertiary); font-variant-numeric:tabular-nums"><span>Step {{ ch.n }} · {{ ch.t }}</span><sc-if value="{{ ch.done }}"><svg viewBox="0 0 24 24" aria-label="Verified" style="width:13px; height:13px; fill:none; stroke:var(--status-success); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"><path d="M5 12.6l4.4 4.4L19 7.4"></path></svg></sc-if></span>
@@ -217,7 +217,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
         <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-subtle)">
           <span style="width:30px; height:30px; flex:none; border-radius:8px; background:var(--bg-surface); border:1px solid var(--line-default); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:var(--text-secondary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.bot }}"></path></svg></span>
           <div style="flex:1; min-width:0"><div style="font-size:16px; color:var(--text-tertiary)">Platform</div><div style="font-size:16px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ m.platform }}</div></div>
-          <sc-if value="{{ dp.canOpen }}"><a href="#" onClick="{{ dp.open }}" style="font-size:16px; font-weight:500; white-space:nowrap; display:flex; align-items:center; gap:4px">Open<svg viewBox="0 0 24 24" aria-hidden="true" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 6.5h9.5V16M17.5 6.5 6.5 17.5"></path></svg></a></sc-if>
+          <sc-if value="{{ dp.canOpen }}"><a href="#" onClick="{{ dp.open }}" style="min-height:44px; font-size:16px; font-weight:500; white-space:nowrap; display:flex; align-items:center; gap:4px">Open<svg viewBox="0 0 24 24" aria-hidden="true" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 6.5h9.5V16M17.5 6.5 6.5 17.5"></path></svg></a></sc-if>
         </div>
         <sc-if value="{{ dp.when }}"><div title="{{ dp.whenAbs }}" style="font-size:16px; color:var(--text-secondary)">{{ dp.when }}</div></sc-if>
         <sc-if value="{{ dp.issue }}"><div style="display:flex; gap:8px; padding:10px 12px; border-radius:10px; background:var(--status-attention-bg); border:1px solid var(--status-attention-line); font-size:16px; color:var(--status-attention-text)">{{ dp.issue }}</div></sc-if>

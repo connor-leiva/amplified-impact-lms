@@ -44,11 +44,12 @@ export function AnnouncementBanner({
     <div
       role={warn ? 'alert' : 'status'}
       className={s.root}
+      data-phone="banner"
       data-severity={severity}
       data-force={force || undefined}
     >
       <Icon name={warn ? 'alert' : 'megaphone'} size={17} strokeWidth={1.8} className={s.icon} />
-      <div className={s.mid}>
+      <div className={s.mid} data-phone="banner-mid">
         <span className={s.title}>{title}</span>
         <span className={s.when} title={abs}>
           {when}
@@ -56,7 +57,7 @@ export function AnnouncementBanner({
         {body ? <div className={s.body}>{body}</div> : null}
       </div>
       {actionLabel ? (
-        <button type="button" className={s.action} onClick={() => onAction?.()}>
+        <button type="button" className={s.action} data-phone="banner-action" onClick={() => onAction?.()}>
           {actionLabel}
         </button>
       ) : null}

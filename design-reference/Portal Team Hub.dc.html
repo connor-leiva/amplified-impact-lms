@@ -69,7 +69,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Team Hub</h1>
       <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">{{ teamName }} · Team Tier · December 2026 Cohort</p>
     </div>
-    <div style="display:flex; gap:8px">
+    <div data-phone="actions" style="display:flex; gap:8px">
       <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">
         <svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export CSV
       </button>
@@ -110,9 +110,9 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <div style="font-size:16px; font-weight:600; line-height:1.35">{{ rem.headline }}</div>
       <div style="display:flex; flex-direction:column; gap:6px">
         <sc-for list="{{ rem.people }}" as="p">
-          <div style="display:flex; align-items:center; gap:8px; font-size:16px">
+          <div data-phone="remind-row" style="display:flex; align-items:center; gap:8px; font-size:16px">
             <span style="width:32px; height:32px; border-radius:50%; background:{{ p.av }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; flex:none; color:var(--ink-900)">{{ p.ini }}</span>
-            <span style="color:var(--text-primary)">{{ p.name }}</span><span style="color:var(--text-tertiary); margin-left:auto; white-space:nowrap">{{ p.gap }}</span>
+            <span style="color:var(--text-primary)">{{ p.name }}</span><span data-phone="remind-gap" style="color:var(--text-tertiary); margin-left:auto; white-space:nowrap">{{ p.gap }}</span>
           </div>
         </sc-for>
       </div>
@@ -125,17 +125,17 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   </div>
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default)">
+    <div data-phone="activity-head" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default)">
       <div style="font-size:16px; font-weight:600">Team Activity</div>
       <span style="font-size:16px; color:var(--text-tertiary)">{{ members.length }} Members · Click a Row to Manage</span>
     </div>
-    <div style="overflow-x:auto">
-      <div style="min-width:920px">
-        <div style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+    <div data-phone="tscroll" style="overflow-x:auto">
+      <div data-phone="tmin" style="min-width:920px">
+        <div data-phone="thead" style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
           <span>Name</span><span>Role</span><span>Date Joined</span><span>AI Employees Built</span><span>Deployment Status</span><span>Last Active</span><span></span>
         </div>
         <sc-for list="{{ members }}" as="u" hint-placeholder-count="6">
-          <div onClick="{{ u.open }}" style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line-default); cursor:pointer" style-hover="background:var(--bg-hover)">
+          <div onClick="{{ u.open }}" data-phone="trow" style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line-default); cursor:pointer" style-hover="background:var(--bg-hover)">
             <div style="display:flex; align-items:center; gap:10px; min-width:0">
               <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ u.av }}; border:{{ u.avBd }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ u.ini }}</span>
               <div style="min-width:0">
@@ -143,20 +143,20 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
                 <div style="font-size:16px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.email }}</div>
               </div>
             </div>
-            <span style="font-size:16px; color:var(--text-secondary)">{{ u.role }}</span>
-            <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ u.joined }}</span>
-            <div style="display:flex; align-items:center; gap:8px">
+            <span data-phone="tcell" style="font-size:16px; color:var(--text-secondary)">{{ u.role }}</span>
+            <span data-phone="tcell" data-label="Date Joined" style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ u.joined }}</span>
+            <div data-phone="tcell" data-label="AI Employees Built" style="display:flex; align-items:center; gap:8px">
               <div style="display:flex; gap:3px">
                 <sc-for list="{{ u.dots }}" as="d"><span title="{{ d.t }}" style="width:14px; height:14px; border-radius:4px; background:{{ d.c }}; border:1px solid {{ d.bd }}"></span></sc-for>
               </div>
               <span style="font-size:16px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ u.count }}</span>
             </div>
-            <div style="display:flex; align-items:center; gap:7px; min-width:0">
+            <div data-phone="tcell" style="display:flex; align-items:center; gap:7px; min-width:0">
               <span style="width:7px; height:7px; flex:none; border-radius:50%; background:{{ u.stDot }}"></span>
               <span style="font-size:16px; color:{{ u.stFg }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.status }}</span>
             </div>
-            <span style="font-size:16px; color:var(--text-tertiary)">{{ u.last }}</span>
-            <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg>
+            <span data-phone="tcell" data-label="Last Active" style="font-size:16px; color:var(--text-tertiary)">{{ u.last }}</span>
+            <svg data-phone="tchev" viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg>
           </div>
         </sc-for>
       </div>
