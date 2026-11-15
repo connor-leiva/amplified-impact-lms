@@ -49,6 +49,9 @@ const ROUTES: readonly [Persona, string][] = [
   // Two of its shared states (the fixture's own switches): Denied, and "Too many requests".
   ['admin', '/admin/roles?console-role=Support'],
   ['admin', '/admin/roles?console-state=rate_limited'],
+  // The Audit Log, and its "Too many requests".
+  ['admin', '/admin/audit'],
+  ['admin', '/admin/audit?console-state=rate_limited'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],
