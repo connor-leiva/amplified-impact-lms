@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { ICONS, avatarColor, canAccess, cohortLine, fmt, nextSession, sessionFor, visibleModules } from '@ai/core';
 import type { Learner, Staff } from '@ai/core';
@@ -12,14 +13,15 @@ import { useDb, useNow, useViewer } from '../data/hooks';
 import { fixtureConsoleRole } from '../data/console';
 import { EXIT_PREVIEW_TO, PREVIEW_LABEL } from '../data/preview';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../data/session';
-import { loadPrefs, savePrefs, type Prefs } from '../lib/prefs';
+import { loadNavGroups, loadPrefs, saveNavGroups, savePrefs, type Prefs } from '../lib/prefs';
 import { BrandSlot } from './BrandSlot';
 import { Breadcrumbs } from './Breadcrumbs';
 import { ConfettiProvider } from './Confetti';
 import { DemoControls } from './DemoControls';
 import { ProfileMenu } from './ProfileMenu';
 import { ShellProvider } from './ShellContext';
-import { consoleNav, noPortalRedirect, portalNav, type NavAction, type NavGroup } from './navModel';
+import { consoleNav, navGroupListId, noPortalRedirect, portalNav, revealActiveGroup, type NavAction, type NavGroup } from './navModel';
+import navItem from '../components/NavItem.module.css';
 import s from './AppShell.module.css';
 
 // The frame every screen lives in, ported from design-reference/Amplified Impact LMS.dc.html.
@@ -289,10 +291,29 @@ function Shell() {
   // ---- the sidebar's own contents -------------------------------------------------------------
   const route = useMemo(() => ({ pathname: path }), [path]);
 
+  // The admin sidebar's open and closed groups (D-157), remembered per staff member in this browser.
+  const navUserId = actor.kind === 'staff' ? actor.staffId : null;
+  const navOpen = useMemo(() => (navUserId ? loadNavGroups(navUserId, prefs) : {}), [navUserId, prefs]);
+  const toggleGroup = useCallback(
+    (label: string, open: boolean) => {
+      if (navUserId) saveNavGroups(navUserId, { ...loadNavGroups(navUserId), [label]: !open });
+    },
+    [navUserId],
+  );
+
   const groups = useMemo<NavGroup[]>(() => {
-    if (isAdmin) return consoleNav(db, route, collapsed, navRole);
+    if (isAdmin) return consoleNav(db, route, collapsed, navRole, navOpen);
     return user ? portalNav(db, user, route, now, collapsed, empOpen) : [];
-  }, [collapsed, db, empOpen, isAdmin, navRole, now, route, user]);
+  }, [collapsed, db, empOpen, isAdmin, navOpen, navRole, now, route, user]);
+
+  // Arriving on a page (by a row, a link or its URL) opens its group if the viewer had closed it, so the
+  // active row is always in view. Only on arrival: on the page itself, closing the group is their choice.
+  useEffect(() => {
+    if (!navUserId || collapsed) return;
+    const next = revealActiveGroup(groups, navOpen);
+    if (next !== navOpen) saveNavGroups(navUserId, next);
+    // Keyed by the page alone, deliberately: a toggle must not re-run this.
+  }, [path, navUserId, collapsed]);
 
   const cohort = db.cohorts.find((c) => c.id === (user?.cohortId ?? DEFAULT_COHORT)) ?? db.cohorts[0];
   // A learner with no AI Employee (D-119) has no cohort line: nothing in the cohort is theirs.
@@ -331,6 +352,25 @@ function Shell() {
 
   const shellApi = useMemo(() => ({ openLocked, sidebarMode: mode, vw }), [mode, openLocked, vw]);
 
+  const renderRow = (it: NavGroup['items'][number]) => (
+    <NavItem
+      key={it.key}
+      label={it.label}
+      icon={it.icon}
+      active={it.active}
+      locked={it.locked}
+      disabled={it.disabled}
+      depth={it.depth}
+      collapsed={collapsed}
+      token={it.token}
+      badge={it.badge}
+      badgeTitle={it.badgeTitle}
+      chev={it.chev}
+      title={it.title}
+      onClick={() => runAction(it.action)}
+    />
+  );
+
   // On the way to the Skill Library (D-150): nothing of the portal is drawn, not even for a frame.
   if (away) return null;
 
@@ -360,25 +400,29 @@ function Shell() {
           <nav aria-label="Main" className={s.nav}>
             {groups.map((g, gi) => (
               <div key={g.label ?? `group-${gi}`} className={s.group}>
-                {g.showLabel && g.label ? <div className={s.groupLabel}>{g.label}</div> : null}
-                {g.items.map((it) => (
-                  <NavItem
-                    key={it.key}
-                    label={it.label}
-                    icon={it.icon}
-                    active={it.active}
-                    locked={it.locked}
-                    disabled={it.disabled}
-                    depth={it.depth}
-                    collapsed={collapsed}
-                    token={it.token}
-                    badge={it.badge}
-                    badgeTitle={it.badgeTitle}
-                    chev={it.chev}
-                    title={it.title}
-                    onClick={() => runAction(it.action)}
-                  />
-                ))}
+                {g.collapsible && g.label ? (
+                  <>
+                    {/* D-157: a group heading folds its rows. A real button, named by the group's label. */}
+                    <button
+                      type="button"
+                      className={s.groupHead}
+                      aria-expanded={g.open ? 'true' : 'false'}
+                      aria-controls={navGroupListId(g.label)}
+                      onClick={() => toggleGroup(g.label!, !!g.open)}
+                    >
+                      <span className={s.groupHeadLabel}>{g.label}</span>
+                      <Icon name="chevD" size={14} strokeWidth={2} className={clsx(navItem.chev, !g.open && navItem.chevClosed)} />
+                    </button>
+                    <div id={navGroupListId(g.label)} className={s.groupList} data-open={g.open ? 'true' : 'false'}>
+                    {g.items.map(renderRow)}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {g.showLabel && g.label ? <div className={s.groupLabel}>{g.label}</div> : null}
+                    {g.items.map(renderRow)}
+                  </>
+                )}
               </div>
             ))}
           </nav>
