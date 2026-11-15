@@ -98,6 +98,7 @@ import type { SkillGuidesFile } from '@ai/core/skill-guides';
 import { registerCurriculumStatusRoute } from './routes/curriculum-status';
 import { registerLibraryStatusRoute } from './routes/library-status';
 import { registerCrmSyncRoutes } from './routes/crm-sync';
+import { registerConsoleRoutes } from './console/routes';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import type { OfferPages } from './routes/offer';
@@ -626,6 +627,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     registerLibraryStatusRoute(app);
     // The CRM sync log (D-134): the Owner and Admins only.
     registerCrmSyncRoutes(app);
+    // The Admin Console (D-157): its audit log, roles matrix and the viewer's capabilities, by role.
+    await registerConsoleRoutes(app, {});
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and
