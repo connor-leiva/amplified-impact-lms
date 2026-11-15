@@ -99,9 +99,9 @@ function Curriculum() {
       </div>
 
       <section aria-label="AI Employees" className={s.card}>
-        <div className={s.scroll}>
-          <div className={s.table}>
-            <div className={s.headRow}>
+        <div className={s.scroll} data-phone="tscroll">
+          <div className={s.table} data-phone="tmin">
+            <div className={s.headRow} data-phone="thead">
               <span>Order</span>
               <span>AI Employee</span>
               <span>Tier Access</span>
@@ -112,10 +112,10 @@ function Curriculum() {
             </div>
 
             {vm.rows.map((r) => (
-              <div key={r.id} className={s.row}>
-                <div className={s.orderCell}>
+              <div key={r.id} className={s.row} data-phone="card">
+                <div className={s.orderCell} data-phone="cell" data-label="Order">
                   <span className={s.orderNum}>{r.order}</span>
-                  <div className={s.chevs}>
+                  <div className={s.chevs} data-phone="chevs">
                     <button
                       type="button"
                       title="Move up"
@@ -139,7 +139,7 @@ function Curriculum() {
                   </div>
                 </div>
 
-                <div className={s.who}>
+                <div className={s.who} data-phone="cell-lead">
                   <div className={s.tile}>
                     <Icon name={r.icon} size={17} strokeWidth={1.8} color="var(--text-link)" />
                   </div>
@@ -172,7 +172,7 @@ function Curriculum() {
                   </button>
                 </div>
 
-                <div className={s.sess}>
+                <div className={s.sess} data-phone="cell" data-label="Live Session">
                   {r.sess}
                   <div className={s.sessSub}>{r.sessSub}</div>
                 </div>
@@ -185,14 +185,14 @@ function Curriculum() {
                   <span className={s.stSub}>{r.stSub}</span>
                 </div>
 
-                <div className={s.depCell}>
+                <div className={s.depCell} data-phone="cell" data-label="Deployed">
                   <div className={s.bar}>
                     <div className={s.fill} style={{ '--dep': r.dep } as React.CSSProperties} />
                   </div>
                   <span className={s.depNum}>{r.dep}</span>
                 </div>
 
-                <div className={s.actions}>
+                <div className={s.actions} data-phone="cell-actions">
                   <button
                     type="button"
                     title="Preview as learner"

@@ -4941,4 +4941,25 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
     - the header actions and the reminder rows wrap;
     - Team Activity becomes stacked cards (the header row hides, and the date and count cells borrow the header's own names as labels) instead of a 920px sideways table.
   - **Checker:** `lms-mobile.spec.ts` exempts an inline link with other words beside it in the same block, bare or in sibling spans, per WCAG 2.5.8's inline exception. The learner routes left `KNOWN`.
+- **PR C, the admin console and `/admin/crm-sync` on a phone.** The same mechanism as B1: rules once in `lms.css` under 767px, `data-phone` hooks on the same element in the reference and the app, `!important`.
+  - **Every table is stacked cards under 768px:** Curriculum, the cohort schedule, Learners and Teams, the Resource Vault, Announcements' History, Tiers' Access Matrix and Staff's Permissions. B1's `tscroll`, `tmin` and `thead` drop the sideways scroller and the header row; the row is a `card` whose cells wrap. A `cell` takes a line; a `cell-lead` opens the card, with a `cell-tag` and a `cell-chev` beside it; a `cell-grow` fills its line; a `cell-inline` keeps its width; a matrix row is a `card-grid` of two columns.
+  - Labels are the column headers' own text, through `data-label` and `::before`. In Staff's matrix the reference reads them as `roles[$index]`, a binding its template engine already supports, and the app reads `c.role`. At 768 and up the tables are the reference's, with their own scroll region where they are wider than the page.
+  - **Forms, drawers and the rest:**
+    - Announcements: the segmented tracks wrap.
+    - Module Builder: Build Steps put the arrows and the number on a row of their own, with the fields full width and Chapter filling its line. The replay row puts Replace under its text, and the preview tabs wrap.
+    - Overview: the header actions and the funnel legend wrap, and each funnel bar goes under its label.
+    - Tiers: the tier cards are one column, and the Upgrade Requests actions wrap.
+    - Drawers: Edit Session and Upload Resource stack their two-column pairs, and the learner drawer puts each build row's tokens under its name.
+  - **Primaries are 48px at every width, on both sides.** The reference's renderer rewrites a `style` attribute with a space (`background: var(--action-primary)`), so PR A's attribute rule never reached the console's primaries, and the app's own classes stopped at 44. Each one now carries `min-height: var(--tap-primary)`:
+    - Module Builder's Publish / Update Live Module;
+    - New AI Employee (Overview, Curriculum), and Curriculum's Publish Now / Unpublish;
+    - Cohorts: Open Enrollment, the schedule rows' Go Live / End Session / Publish Replay, and Save Session;
+    - Upload Resource, Publish to Vault, Send Now and Invite Staff.
+  - **One drift fixed:** in Tiers' Access Matrix a fixed feature's Agent cell is a button in the reference, so the global 44px rule sized it, while the app's span stayed 28. The span now takes the same 44px box. It sits below the fold of every golden, which is why parity never saw it.
+  - **`/admin/crm-sync`** has no reference, so only the app changes. Its CSS module stacks the three tables under 768px. The header row leaves the screen but stays for assistive technology, and an empty cell hides. Retry is 44 tall. The TSX gains only `data-label` attributes, taken from the view-model's own column copy.
+  - **Goldens:** 22 `linux/` PNGs re-captured with `pnpm compliance:capture` in the pinned container, twice, all 196 files byte-identical. The 48px primaries are visible at 1440 and 1024, so these moved:
+    - `admin-overview`, `admin-overview-dark`, `admin-overview-laptop`, `admin-curriculum`, `admin-cohorts`, `admin-avault`, `admin-staff`, `admin-builder`, `admin-builder-marketing` and `admin-builder-locked`, `main` and `page` each;
+    - the `admin-cohorts-edit` and `admin-vault-upload` drawers.
+  - No `.json` fingerprint moved. Parity in the container is 55 of 55. `win32/` stays stale, as PR A records.
+  - **Checker:** `KNOWN` is empty. Every LMS route is clear at all seven widths. At 320, 390 and 430 every `data-phone` element has the same box in the reference and the app, on every admin screen and drawer.
 - **Not changed:** Stripe and Payment Links, the seat cap (D-154), webhook behavior, course gating and invite logic (D-153), GA4 / Meta tags and `analytics.js` (D-155), `/agreement`, www's pages and CSS, the learner vocabulary (AI Employee, Session, Step, Built, Deployed), routes, view-models and copy. No product logic, no emails, no Railway variables, no secrets.

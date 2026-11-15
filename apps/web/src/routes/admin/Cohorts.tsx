@@ -194,9 +194,9 @@ export function Component() {
               </button>
             ) : null}
           </div>
-          <div className={s.scroller}>
-            <div className={s.table}>
-              <div className={s.tHead}>
+          <div className={s.scroller} data-phone="tscroll">
+            <div className={s.table} data-phone="tmin">
+              <div className={s.tHead} data-phone="thead">
                 <span>#</span>
                 <span>Session</span>
                 <span>Date &amp; Time</span>
@@ -206,15 +206,15 @@ export function Component() {
                 <span className={s.tHeadActions}>Actions</span>
               </div>
               {vm.rows.map((r) => (
-                <div key={r.id} className={s.row} data-next={r.isNext ? 'true' : undefined}>
+                <div key={r.id} className={s.row} data-next={r.isNext ? 'true' : undefined} data-phone="card">
                   <span className={s.n}>{r.n}</span>
 
-                  <div className={s.sessionCell}>
+                  <div className={s.sessionCell} data-phone="cell-grow">
                     <div className={s.sessionTitle}>{r.title}</div>
                     <div className={s.sessionModule}>{r.module}</div>
                   </div>
 
-                  <div className={s.whenCell}>
+                  <div className={s.whenCell} data-phone="cell" data-label="Date & Time">
                     {r.day}
                     <div className={s.whenTime}>{r.time}</div>
                   </div>
@@ -223,6 +223,7 @@ export function Component() {
                     type="button"
                     className={s.zoom}
                     title="Copy Zoom link"
+                    data-phone="cell"
                     onClick={() => copyZoom(r.zoomUrl)}
                   >
                     <span className={s.zoomText}>{r.zoom}</span>
@@ -238,9 +239,11 @@ export function Component() {
                     {r.statusLabel}
                   </span>
 
-                  <span className={s.att}>{r.att}</span>
+                  <span className={s.att} data-phone="cell" data-label="Attendance">
+                    {r.att}
+                  </span>
 
-                  <div className={s.actions}>
+                  <div className={s.actions} data-phone="cell-actions">
                     {r.primary ? (
                       <button
                         type="button"
@@ -285,7 +288,7 @@ export function Component() {
           <Input value={f.title} onChange={(e) => setField('title', e.target.value)} />
         </Field>
 
-        <div className={s.pair}>
+        <div className={s.pair} data-phone="stack">
           <Field label="Date" variant="sunken">
             <Input
               type="date"

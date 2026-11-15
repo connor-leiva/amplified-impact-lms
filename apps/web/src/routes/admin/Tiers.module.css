@@ -287,6 +287,12 @@
   border-color: var(--line-default);
   color: var(--text-disabled);
 }
+/* The reference draws a fixed feature's Agent cell as a button too, so it takes the same 44px box
+   (D-156's --tap) a toggle does. */
+span.cell {
+  min-width: var(--tap);
+  min-height: var(--tap);
+}
 /* Only an employee row's Agent cell toggles. */
 button.cell {
   cursor: pointer;

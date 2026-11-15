@@ -38,6 +38,39 @@ button[style*="background:var(--action-primary)"]{min-height:var(--tap-primary)}
 [data-phone="tcell"]{grid-column:1 !important;padding-left:40px !important;min-width:0 !important}
 [data-phone="tcell"][data-label]::before{content:attr(data-label);margin-right:8px;color:var(--text-tertiary)}
 [data-phone="tchev"]{grid-column:2 !important;grid-row:1 !important;align-self:center !important}
+/* Admin console (PR C). A table row is a `card`: `tscroll` / `tmin` / `thead` drop the sideways
+   scroller and the row's cells wrap. A `cell` takes a line of its own; a `cell-lead` opens the card
+   on a line it shares with a `cell-tag` and its `cell-chev`; a `cell-grow` fills the line it is on; a
+   `cell-inline` keeps its own width. A matrix row is a `card-grid`: its first cell spans two columns
+   of `cell-inline`s. Any cell with a `data-label` carries its column's own header text. */
+[data-phone="wrap"]{flex-wrap:wrap !important}
+[data-phone="stack"]{grid-template-columns:minmax(0,1fr) !important}
+[data-phone="card"]{display:flex !important;flex-wrap:wrap !important;align-items:center !important;gap:10px 12px !important}
+[data-phone="cell"],[data-phone="cell-actions"]{flex:1 1 100% !important;min-width:0 !important}
+[data-phone="cell-lead"]{order:-2 !important;flex:1 1 0 !important;min-width:0 !important}
+[data-phone="cell-tag"]{order:-2 !important}
+[data-phone="cell-chev"]{order:-1 !important}
+[data-phone="cell-grow"]{flex:1 1 0 !important;min-width:0 !important}
+[data-phone="cell-inline"]{flex:none !important;align-items:center !important;justify-content:flex-start !important}
+[data-phone="cell-actions"]{justify-content:flex-start !important;flex-wrap:wrap !important}
+[data-phone="card-grid"]{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;align-items:center !important;gap:8px 16px !important}
+[data-phone="card-grid"]>[data-phone="cell"]{grid-column:1/-1 !important}
+[data-phone="card-grid"]>[data-phone="cell-inline"]{justify-content:space-between !important}
+[data-phone^="cell"][data-label]::before{content:attr(data-label);margin-right:8px;color:var(--text-tertiary);font-weight:500}
+[data-phone="funnel-row"]{flex-wrap:wrap !important;row-gap:8px !important}
+[data-phone="funnel-label"]{flex:1 1 0 !important;width:auto !important}
+[data-phone="funnel-bar"]{order:3 !important;flex:1 1 100% !important}
+[data-phone="funnel-meta"]{width:auto !important}
+[data-phone="chevs"]{flex-direction:row !important;padding-top:0 !important}
+[data-phone="segs"]>*{flex-wrap:wrap !important;width:auto !important}
+[data-phone="replay"]{flex-wrap:wrap !important;align-items:flex-start !important}
+[data-phone="replay-main"]{flex-basis:calc(100% - 48px) !important}
+[data-phone="replay-btn"]{margin-left:48px !important}
+[data-phone="step"]{flex-wrap:wrap !important}
+[data-phone="step-n"]{align-self:center !important;padding-top:0 !important}
+[data-phone="step-main"]{flex:1 1 100% !important}
+[data-phone="step-ch"]{flex:1 1 100% !important;min-width:0 !important}
+[data-phone="step-ch-input"]{flex:1 1 0 !important;width:auto !important;min-width:0 !important}
 }
 @media (max-width:359px){
 [data-phone="poster"]{aspect-ratio:1/1 !important}

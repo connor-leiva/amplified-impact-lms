@@ -69,9 +69,9 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Overview</h1>
       <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">{{ cohortLine }} · Updated Live from Learner Activity</p>
     </div>
-    <div style="display:flex; gap:8px">
+    <div data-phone="actions" style="display:flex; gap:8px">
       <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export Report</button>
-      <button onClick="{{ goBuilder }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
+      <button onClick="{{ goBuilder }}" style="height:36px; min-height:var(--tap-primary); padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
     </div>
   </div>
 
@@ -119,25 +119,25 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <section style="flex:2 1 560px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
       <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap">
         <div style="font-size:16px; font-weight:600">Build Funnel by AI Employee</div>
-        <div style="display:flex; gap:14px; font-size:16px; color:var(--text-tertiary)">
+        <div data-phone="wrap" style="display:flex; gap:14px; font-size:16px; color:var(--text-tertiary)">
           <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--status-success)"></span>Deployed</span>
           <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--status-progress)"></span>In Progress</span>
           <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--line-strong)"></span>Not Started</span>
         </div>
       </div>
       <sc-for list="{{ funnel }}" as="f" hint-placeholder-count="6">
-        <div style="display:flex; align-items:center; gap:14px">
-          <div style="width:170px; flex:none; display:flex; align-items:center; gap:8px; min-width:0">
+        <div data-phone="funnel-row" style="display:flex; align-items:center; gap:14px">
+          <div data-phone="funnel-label" style="width:170px; flex:none; display:flex; align-items:center; gap:8px; min-width:0">
             <svg viewBox="0 0 24 24" style="width:15px; height:15px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ f.icon }}"></path></svg>
             <span style="font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</span>
             <sc-if value="{{ f.team }}"><span style="font-size:16px; font-weight:600; color:var(--access-locked-text); ">Team</span></sc-if>
           </div>
-          <div style="flex:1; display:flex; height:10px; border-radius:5px; overflow:hidden; background: var(--track); gap:2px">
+          <div data-phone="funnel-bar" style="flex:1; display:flex; height:10px; border-radius:5px; overflow:hidden; background: var(--track); gap:2px">
             <div title="Deployed" style="width:{{ f.wd }}; background:var(--status-success)"></div>
             <div title="In progress" style="width:{{ f.wp }}; background:var(--status-progress)"></div>
             <div style="flex:1; background:var(--track)"></div>
           </div>
-          <span style="width:110px; flex:none; text-align:right; font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums"><span style="color:var(--text-primary); font-weight:600">{{ f.pct }}</span> · {{ f.d }} of {{ f.n }}</span>
+          <span data-phone="funnel-meta" style="width:110px; flex:none; text-align:right; font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums"><span style="color:var(--text-primary); font-weight:600">{{ f.pct }}</span> · {{ f.d }} of {{ f.n }}</span>
         </div>
       </sc-for>
     </section>

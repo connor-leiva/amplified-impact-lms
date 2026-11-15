@@ -68,13 +68,15 @@ function Rows({ rows, label, empty, onRetry, notes }: { rows: RowVM[]; label: st
           {rows.map((r) => (
             <tr key={r.key}>
               <td className={s.email}>{r.email}</td>
-              <td>{r.kindLabel}</td>
-              <td>
+              <td data-label={COPY.rowColumns.kind}>{r.kindLabel}</td>
+              <td data-label={COPY.rowColumns.state}>
                 <span className={`${s.tag} ${s[r.tone]}`}>{r.state}</span>
               </td>
-              <td className={s.num}>{r.attempts}</td>
-              <td>{r.last}</td>
-              <td>{r.reason}</td>
+              <td className={s.num} data-label={COPY.rowColumns.attempts}>
+                {r.attempts}
+              </td>
+              <td data-label={COPY.rowColumns.last}>{r.last}</td>
+              <td data-label={COPY.rowColumns.reason}>{r.reason}</td>
               {onRetry ? (
                 <td>
                   {r.canRetry ? (
@@ -193,11 +195,21 @@ export function Component() {
                   {view.counts.map((c) => (
                     <tr key={c.kind}>
                       <th scope="row">{c.label}</th>
-                      <td className={s.num}>{c.synced}</td>
-                      <td className={s.num}>{c.waiting}</td>
-                      <td className={s.num}>{c.retrying}</td>
-                      <td className={s.num}>{c.gaveUp}</td>
-                      <td className={s.num}>{c.total}</td>
+                      <td className={s.num} data-label={COPY.columns.synced}>
+                        {c.synced}
+                      </td>
+                      <td className={s.num} data-label={COPY.columns.waiting}>
+                        {c.waiting}
+                      </td>
+                      <td className={s.num} data-label={COPY.columns.retrying}>
+                        {c.retrying}
+                      </td>
+                      <td className={s.num} data-label={COPY.columns.gaveUp}>
+                        {c.gaveUp}
+                      </td>
+                      <td className={s.num} data-label={COPY.columns.total}>
+                        {c.total}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

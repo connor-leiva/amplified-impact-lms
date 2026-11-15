@@ -54,35 +54,10 @@ const ROUTES: readonly [Persona, string][] = [
 ];
 
 /**
- * What is still out of line, as `route|check|width`, with the PR that owns it. The learner routes
- * are clear since PR B1. Rebuilt with LMS_AUDIT=1.
+ * What is still out of line, as `route|check|width`, with the PR that owns it. Empty since PR C (the
+ * admin console): every LMS route is clear at every width. Rebuilt with LMS_AUDIT=1.
  */
-const KNOWN: ReadonlySet<string> = new Set<string>([
-  // PR C, the admin routes: overview, tiers, announcements and the builder at 320, and the builder's
-  // two primary buttons (44 tall where a primary is 48).
-  '/admin/announcements|overflow|320',
-  '/admin/announcements|overflow|375',
-  '/admin/announcements|overflow|390',
-  '/admin/announcements|overflow|430',
-  '/admin/curriculum/marketing|overflow|320',
-  '/admin/curriculum/marketing|tap|1024',
-  '/admin/curriculum/marketing|tap|1280',
-  '/admin/curriculum/marketing|tap|320',
-  '/admin/curriculum/marketing|tap|375',
-  '/admin/curriculum/marketing|tap|390',
-  '/admin/curriculum/marketing|tap|430',
-  '/admin/curriculum/marketing|tap|768',
-  '/admin/curriculum/new|overflow|320',
-  '/admin/curriculum/new|tap|1024',
-  '/admin/curriculum/new|tap|1280',
-  '/admin/curriculum/new|tap|320',
-  '/admin/curriculum/new|tap|375',
-  '/admin/curriculum/new|tap|390',
-  '/admin/curriculum/new|tap|430',
-  '/admin/curriculum/new|tap|768',
-  '/admin/tiers|overflow|320',
-  '/admin|overflow|320',
-]);
+const KNOWN: ReadonlySet<string> = new Set<string>([]);
 
 async function openAt(browser: Browser, persona: Persona, path: string, width: number): Promise<{ page: Page; close: () => Promise<void> }> {
   const ctx = await browser.newContext({ timezoneId: 'America/Chicago', viewport: { width, height: 900 } });

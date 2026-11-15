@@ -109,7 +109,9 @@
   background: var(--action-secondary-hover);
 }
 
+/* D-156: a primary is 48 tall (--tap-primary), as the reference's publish button is. */
 .primary {
+  min-height: var(--tap-primary);
   padding: 0 14px;
   border: 1px solid transparent;
   background: var(--action-primary);

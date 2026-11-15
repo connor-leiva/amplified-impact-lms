@@ -101,7 +101,7 @@ export function Component() {
           <div className={s.controls}>
             <div className={s.group}>
               <span className={s.groupLabel}>Audience</span>
-              <div className={s.track} data-kind="plain" role="group" aria-label="Audience">
+              <div className={s.track} data-kind="plain" role="group" aria-label="Audience" data-phone="wrap">
                 {vm.audience.map((o) => (
                   <button
                     key={o.value}
@@ -143,7 +143,7 @@ export function Component() {
 
             <div className={s.group}>
               <span className={s.groupLabel}>Severity</span>
-              <div className={s.track} data-kind="seg" role="group" aria-label="Severity">
+              <div className={s.track} data-kind="seg" role="group" aria-label="Severity" data-phone="wrap">
                 {vm.severities.map((o) => (
                   <button
                     key={o.value}
@@ -161,7 +161,7 @@ export function Component() {
 
             <div className={s.group}>
               <span className={s.groupLabel}>Action Button</span>
-              <div className={s.track} data-kind="seg" role="group" aria-label="Action Button">
+              <div className={s.track} data-kind="seg" role="group" aria-label="Action Button" data-phone="wrap">
                 {vm.actions.map((o) => (
                   <button
                     key={o.value || 'none'}
@@ -179,8 +179,8 @@ export function Component() {
 
             <div className={s.group}>
               <span className={s.groupLabel}>When</span>
-              <div className={s.when}>
-                <div className={s.track} data-kind="plain" role="group" aria-label="When">
+              <div className={s.when} data-phone="wrap">
+                <div className={s.track} data-kind="plain" role="group" aria-label="When" data-phone="wrap">
                   {vm.whens.map((o) => (
                     <button
                       key={o.value}
@@ -260,9 +260,9 @@ export function Component() {
 
       <section className={s.history}>
         <div className={s.historyTitle}>History</div>
-        <div className={s.scroll}>
-          <div className={s.grid}>
-            <div className={s.headRow}>
+        <div className={s.scroll} data-phone="tscroll">
+          <div className={s.grid} data-phone="tmin">
+            <div className={s.headRow} data-phone="thead">
               <span>Announcement</span>
               <span>Audience</span>
               <span>Channels</span>
@@ -271,19 +271,27 @@ export function Component() {
               <span>Opened</span>
             </div>
             {vm.history.map((h) => (
-              <div key={h.id} className={s.histRow}>
+              <div key={h.id} className={s.histRow} data-phone="card">
                 <div className={s.histMain}>
                   <div className={s.histTitle}>{h.title}</div>
                   <div className={s.histBody}>{h.body}</div>
                 </div>
-                <span className={s.histAud}>{h.aud}</span>
-                <span className={s.histCh}>{h.ch}</span>
+                <span className={s.histAud} data-phone="cell" data-label="Audience">
+                  {h.aud}
+                </span>
+                <span className={s.histCh} data-phone="cell" data-label="Channels">
+                  {h.ch}
+                </span>
                 <span className={s.histStatus} data-sent={h.sent ? 'true' : undefined}>
                   <span className={s.dot} />
                   {h.status}
                 </span>
-                <span className={s.histAt}>{h.at}</span>
-                <span className={s.histOpens}>{h.opens}</span>
+                <span className={s.histAt} data-phone="cell" data-label="Date">
+                  {h.at}
+                </span>
+                <span className={s.histOpens} data-phone="cell" data-label="Opened">
+                  {h.opens}
+                </span>
               </div>
             ))}
           </div>

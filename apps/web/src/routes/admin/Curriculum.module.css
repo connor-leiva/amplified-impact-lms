@@ -46,6 +46,7 @@
 }
 
 .create {
+  min-height: var(--tap-primary);
   height: 36px;
   padding: 0 14px;
   border-radius: 8px;
@@ -354,6 +355,7 @@
 }
 
 .act {
+  min-height: var(--tap-primary);
   height: 30px;
   min-width: 92px;
   padding: 0 10px;

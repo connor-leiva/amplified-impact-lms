@@ -1,6 +1,7 @@
 /* /admin/crm-sync: net-new (D-134), outside the shell like /course. No reference file, so the values
    are the house ones /course and /skill-library use: radius 8, 10 and 12, a 1px --line-default border,
-   --bg-surface panels on --bg-canvas. Tokens only. A table scrolls inside its panel on a phone. */
+   --bg-surface panels on --bg-canvas. Tokens only. Under 768px each table row is a stacked card whose
+   cells borrow their column's own header text (data-label), as the console's tables do (D-156). */
 
 .page {
   min-height: 100dvh;
@@ -177,7 +178,7 @@
 }
 
 .button {
-  min-height: 36px;
+  min-height: var(--tap);
   padding: 0 12px;
   border: 1px solid var(--action-secondary-line);
   border-radius: 8px;
@@ -212,5 +213,51 @@
 @media (min-width: 720px) {
   .facts {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* A phone: no sideways table. The header row leaves the screen but stays in the accessibility tree,
+   each row is a card, and every cell after the first is labelled with its column's name. */
+@media (max-width: 767px) {
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .table tbody,
+  .table tr,
+  .table th,
+  .table td {
+    display: block;
+  }
+  .table tr {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-subtle);
+  }
+  .table tbody th,
+  .table td {
+    padding: 4px 0;
+    border-bottom: 0;
+    white-space: normal;
+  }
+  .table .num {
+    text-align: left;
+  }
+  .table td:empty {
+    display: none;
+  }
+  .table td[data-label]::before {
+    content: attr(data-label);
+    margin-right: 8px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .email {
+    max-width: none;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
 }

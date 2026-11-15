@@ -126,9 +126,9 @@ export function Component() {
         ) : null}
 
         <section className={s.card}>
-          <div className={s.scroll}>
-            <div className={s.grid}>
-              <div className={s.headRow}>
+          <div className={s.scroll} data-phone="tscroll">
+            <div className={s.grid} data-phone="tmin">
+              <div className={s.headRow} data-phone="thead">
                 <span>Resource</span>
                 <span>Category</span>
                 <span>Type</span>
@@ -139,13 +139,17 @@ export function Component() {
                 <span />
               </div>
               {vm.rows.map((r) => (
-                <div key={r.id} className={s.row} data-hidden={r.published ? undefined : 'true'}>
-                  <div className={s.resource}>
+                <div key={r.id} className={s.row} data-hidden={r.published ? undefined : 'true'} data-phone="card">
+                  <div className={s.resource} data-phone="cell-lead">
                     <div className={s.title}>{r.title}</div>
                     <div className={s.desc}>{r.desc}</div>
                   </div>
-                  <span className={s.cat}>{r.cat}</span>
-                  <span className={s.type}>{r.type}</span>
+                  <span className={s.cat} data-phone="cell" data-label="Category">
+                    {r.cat}
+                  </span>
+                  <span className={s.type} data-phone="cell" data-label="Type">
+                    {r.type}
+                  </span>
                   <button
                     type="button"
                     className={s.access}
@@ -155,8 +159,12 @@ export function Component() {
                   >
                     {r.access}
                   </button>
-                  <span className={s.dl}>{r.dl}</span>
-                  <span className={s.updated}>{r.updated}</span>
+                  <span className={s.dl} data-phone="cell" data-label="Downloads">
+                    {r.dl}
+                  </span>
+                  <span className={s.updated} data-phone="cell" data-label="Updated">
+                    {r.updated}
+                  </span>
                   <Switch
                     checked={r.published}
                     size="sm"
@@ -165,7 +173,7 @@ export function Component() {
                   >
                     {r.status}
                   </Switch>
-                  <div className={s.rowEnd}>
+                  <div className={s.rowEnd} data-phone="cell-chev">
                     <button
                       type="button"
                       className={s.del}
@@ -235,7 +243,7 @@ export function Component() {
           />
         </Field>
 
-        <div className={s.twoCol}>
+        <div className={s.twoCol} data-phone="stack">
           {/* The option values are the seed's own spellings; the labels are the reference's, which
               prefix the three executive categories with `Exec · ` and Title Case three types. */}
           <Field label="Category" variant="sunken">
