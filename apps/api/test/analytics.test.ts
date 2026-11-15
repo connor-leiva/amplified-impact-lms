@@ -13,9 +13,12 @@ import { CART_IDS } from '../src/billing/catalog';
 import { readOfferConfig } from '../src/billing/config';
 import type { OfferConfig } from '../src/billing/config';
 import { createPriceCache } from '../src/billing/prices';
-import { orders } from '../src/db/schema';
+import { orders, plans } from '../src/db/schema';
 import { ANALYTICS_CSP, ANALYTICS_TAG, GA4_MEASUREMENT_ID, META_PIXEL_ID, cartItemName, withAnalytics, withAnalyticsCsp } from '../src/lib/analytics';
 import { resetDatabase, testDatabase } from './helpers';
+import { renderOfferBody, renderOfferHead } from '../../web/src/offer/render';
+import { renderPricingBody, renderPricingHead } from '../../web/src/pricing/render';
+import { renderTeamBuildBody, renderTeamBuildHead } from '../../web/src/team-build/render';
 
 const OFFER = [
   '<!doctype html><html lang="en"><head>\n    <title>Plans</title>\n  </head><body data-offer="%%offer-state%%">',
@@ -215,5 +218,117 @@ describe('/offer/welcome: the purchase, from the order (D-155)', () => {
     const empty = { id: '', value: '', currency: '', item: '', name: '' };
     expect(attrs((await app.inject({ method: 'GET', url: '/offer/welcome?session_id=cs_test_pending000001' })).body)).toEqual(empty);
     expect(attrs((await app.inject({ method: 'GET', url: '/offer/welcome?session_id=cs_test_unknown000001' })).body)).toEqual(empty);
+  });
+});
+
+// D-159: the AI Accelerator's two equal buttons, on the real pages (rendered from apps/web as the build
+// renders them, then read through `withAnalytics` as `server.ts` reads them), served and filled per
+// request in every state the old single button and text link had.
+describe('the Accelerator’s two buttons on the real pages, filled per request (D-159)', () => {
+  const web = (path: string) => fileURLToPath(new URL(`../../web/${path}`, import.meta.url));
+  const shell = (file: string, markers: readonly [string, string], head: string, body: string) =>
+    withAnalytics(
+      readFileSync(web(file), 'utf8')
+        .replace(markers[0], () => head)
+        .replace(markers[1], () => body),
+    );
+  const pages = {
+    offer: shell('offer.html', ['<!--offer:head-->', '<!--offer:body-->'], renderOfferHead(), renderOfferBody()),
+    '/pricing': shell('pricing.html', ['<!--x:head-->', '<!--x:body-->'], renderPricingHead(), renderPricingBody()),
+    '/team-build': shell('team-build.html', ['<!--x:head-->', '<!--x:body-->'], renderTeamBuildHead(), renderTeamBuildBody()),
+  };
+  // Each page's Accelerator block(s), by the attribute the API writes its state into.
+  const BLOCKS: Record<string, { state: RegExp; blocks: number }> = {
+    '/offer': { state: /id="plan-cohort" data-state="([^"]*)"/g, blocks: 1 },
+    '/forum': { state: /id="plan-cohort" data-state="([^"]*)"/g, blocks: 1 },
+    '/pricing': { state: /id="accelerator" data-state="([^"]*)"/g, blocks: 1 },
+    '/team-build': { state: /class="[^"]*\bplan buy" data-state="([^"]*)"/g, blocks: 2 },
+  };
+  const LINKS = { full: 'https://buy.stripe.com/test_full', two: 'https://buy.stripe.com/test_two' };
+  /** Every pay-pair button: its analytics labels, its href and its words. */
+  const buttons = (html: string) =>
+    [...html.matchAll(/<a class="[^"]*\bpay-btn\b[^"]*"([^>]*)>([^<]*)<\/a>/g)].map(([, attrs, label]) => ({
+      cart: /data-ai-cart="([^"]*)"/.exec(attrs!)?.[1],
+      item: /data-ai-item="([^"]*)"/.exec(attrs!)?.[1],
+      href: /href="([^"]*)"/.exec(attrs!)?.[1],
+      label,
+    }));
+  const pair = (full: string, two: string) => [
+    { cart: 'cohort-full', item: 'Amplified AI Accelerator, Paid in Full', href: full, label: 'Pay in full · $7,500' },
+    { cart: 'cohort-two-pay', item: 'Amplified AI Accelerator, Two Payments', href: two, label: '2 payments · $3,750/mo' },
+  ];
+
+  async function serve(config: OfferConfig = CONFIG): Promise<App> {
+    app = await build({
+      logger: false,
+      offer: { pages: { offer: pages.offer, sales: { '/pricing': pages['/pricing'], '/team-build': pages['/team-build'] } }, config, stripe: null, verify: null, prices: createPriceCache(() => null) },
+    });
+    return app;
+  }
+
+  /** Each page in one state: its block(s) say it, and every pair button carries its labels and the href it should. */
+  async function expectState(state: string, hrefs: [string, string]) {
+    for (const [url, { state: re, blocks }] of Object.entries(BLOCKS)) {
+      const res = await app.inject({ method: 'GET', url });
+      expect(res.statusCode, url).toBe(200);
+      expect([...res.body.matchAll(re)].map((m) => m[1]), url).toEqual(Array(blocks).fill(state));
+      const want = pair(...hrefs);
+      expect(buttons(res.body), url).toEqual(Array.from({ length: blocks }, () => want).flat());
+      expect(res.body, url).toContain('One payment today');
+      expect(res.body, url).toContain('Today and again in 30 days');
+      expect(res.body, url).toContain('plus applicable tax');
+      expect(res.body, url).not.toMatch(/Get Amplified AI Accelerator|Or pay in 2 payments/);
+      expect(res.body, url).not.toContain('%%');
+      // Never a live Stripe link for the Accelerator outside its live state.
+      if (state !== 'link') expect(res.body, url).not.toMatch(/buy\.stripe\.com\/test_(full|two)/);
+    }
+  }
+
+  it('labels both buttons for GA4 and Meta at read time, and keeps their Payment Link tokens', () => {
+    for (const [name, page] of Object.entries(pages)) {
+      expect(buttons(page!).slice(0, 2), name).toEqual(pair('%%link:cohort-full%%', '%%link:cohort-two-pay%%'));
+      expect(page, name).toContain(ANALYTICS_TAG);
+    }
+  });
+
+  it('open: both are live, each its own Payment Link, on /offer, /forum, /pricing and /team-build', async () => {
+    await serve();
+    await expectState('link', [LINKS.full, LINKS.two]);
+  });
+
+  it('before launch (OFFER_OPEN off): neither is a link, and the card says it opens soon', async () => {
+    await serve({ ...CONFIG, open: false });
+    await expectState('soon', ['', '']);
+  });
+
+  it('after the founding deadline: neither is a link, and the card shows the waitlist', async () => {
+    process.env.FIXED_NOW = '2026-12-01T07:00:00Z';
+    await serve();
+    await expectState('closed', ['', '']);
+  });
+
+  it('at 15 seats sold (D-154, both links counted together): neither is a link, and the card shows the waitlist', async () => {
+    const db = await testDatabase();
+    const t = Date.parse('2026-11-14T12:00:00-06:00');
+    await db.insert(plans).values(
+      Array.from({ length: 15 }, (_, i) => ({
+        id: `pln_seat${i}`,
+        accountId: `acc_seat${i}`,
+        kind: 'cohort',
+        option: i % 2 ? 'two_pay' : 'full',
+        seats: 1,
+        status: 'active',
+        startsAt: t,
+        orderId: `ord_seat${i}`,
+        createdAt: t,
+      })),
+    );
+    await serve();
+    await expectState('soldout', ['', '']);
+  });
+
+  it('with only the paid-in-full link set: the card sells, and the 2 payments button has no link to follow', async () => {
+    await serve({ ...CONFIG, paymentLinks: { 'cohort-full': LINKS.full } });
+    await expectState('link', [LINKS.full, '']);
   });
 });

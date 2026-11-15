@@ -38,8 +38,8 @@ export const PRICES = {
     founding: figure(OFFERS.cohort.price.amount),
     /** $9,997, after founding closes. */
     standard: figure(CARD_STATES.closedAmount),
-    /** 2 payments of $3,750. */
-    twoPay: figure(OFFERS.cohort.more['cohort-two-pay']),
+    /** 2 payments of $3,750: the card's own terms ("Or 2 payments of $3,750."), since D-159's buttons replaced its text link. */
+    twoPay: figure(termWith(OFFERS.cohort.price.terms, /2 payments/)),
   },
   agentPlan: {
     /** $79 a month. */

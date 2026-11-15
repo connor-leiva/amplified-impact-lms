@@ -234,8 +234,9 @@ describe('the four cards', () => {
       const proof = $('.act-link .proof-line', c);
       expect(text(proof), c.id).toBe('Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year');
       expect(text($('strong', proof!)), c.id).toBe('100 agents, 700+ homes a year');
-      // After the card's last buy link, inside the block the stylesheet shows only for a live cart.
-      expect(proof!.previousElementSibling?.matches('a.btn, a.more'), c.id).toBe(true);
+      // After the card's last buy link (the Accelerator's: its pair's tax line, D-159), inside the block
+      // the stylesheet shows only for a live cart.
+      expect(proof!.previousElementSibling?.matches(c.id === 'accelerator' ? '.pay-tax' : 'a.btn, a.more'), c.id).toBe(true);
     }
     // And over the four cards, as the mockup's eyebrow.
     expect(text($('.ways-head .eb'))).toBe(
@@ -267,7 +268,6 @@ describe('the four cards', () => {
 
   it('sell each plan through its first cart’s link, one button each, named exactly', () => {
     for (const [plan, id] of [
-      ['cohort', 'accelerator'],
       ['agents', 'team-plan'],
       ['membership', 'insiders'],
     ] as const) {
@@ -280,6 +280,24 @@ describe('the four cards', () => {
       expect(text($('.act-link .btn', card))).toMatch(new RegExp(`^Get ${PLAN_NAMES[plan]}$`));
       expect($$('.act-link .more', card).map((a) => a.getAttribute('href'))).toEqual(rest.map((r) => `%%link:${r}%%`));
     }
+  });
+
+  it('sell the Accelerator through two equal buttons, one per cart, each with its line, and the tax line once (D-159)', () => {
+    const card = $('#accelerator')!;
+    const [full, two] = CARD_CARTS.cohort!;
+    expect(card.getAttribute('data-state')).toBe(`%%state:${full}%%`);
+    expect(
+      $$('.act-link .pay-choice', card).map((ch) => [text($('a', ch)), $('a', ch)?.getAttribute('href'), $('a', ch)?.className, text($('.pay-caption', ch))]),
+    ).toEqual([
+      ['Pay in full · $7,500', `%%link:${full}%%`, 'btn btn-primary pay-btn', 'One payment today'],
+      ['2 payments · $3,750/mo', `%%link:${two}%%`, 'btn btn-primary pay-btn', 'Today and again in 30 days'],
+    ]);
+    expect($$('.act-link .pay-tax', card).map(text)).toEqual(['plus applicable tax']);
+    // No single "Get" button and no text link: neither way to pay is the lesser one.
+    expect($$('.act-link .more, .act-link .text-link', card)).toHaveLength(0);
+    expect(text(card)).not.toMatch(/Get Amplified AI Accelerator|Or pay in 2 payments/);
+    // The pair is the Accelerator's alone.
+    expect($$('.pay-pair, .pay-tax').every((el) => el.closest('#accelerator'))).toBe(true);
   });
 
   it('sell the Amplified Agent Plan through its two carts (D-114), saying "Opens soon." until the API knows them', () => {
@@ -421,8 +439,10 @@ describe('the links to the programs’ own pages', () => {
   });
 
   it('leave the buttons and prices as they were', () => {
+    // The Accelerator's two equal buttons (D-159) are its two carts' links, the first one's as before.
     expect($$('.plan .act-link .btn').map((b) => b.getAttribute('href'))).toEqual([
       '%%link:cohort-full%%',
+      '%%link:cohort-two-pay%%',
       '%%link:agent-monthly%%',
       '%%link:agents-upto15%%',
       '%%link:insiders-year%%',

@@ -82,7 +82,27 @@ export interface OfferCopy {
   more: Partial<Record<CartId, string>>;
 }
 
-export const OFFERS: Readonly<Record<CardPlan, OfferCopy>> = {
+/** One of the AI Accelerator's two ways to pay (D-159): its button, with the amount put in, and the one line under it. */
+export interface PayChoice {
+  label: (amount: string) => string;
+  caption: string;
+}
+
+/**
+ * A card sold through two equal buttons, one per cart, instead of one button and a text link (D-159):
+ * the AI Accelerator. `full` is its first cart's (`CARD_CARTS`), `twoPay` its second's. The amounts go
+ * in from the card's own price (`../home/prices.ts`), so a button never quotes a price the card does not.
+ */
+export interface PairedOfferCopy extends Omit<OfferCopy, 'button' | 'more'> {
+  pay: {
+    full: PayChoice;
+    twoPay: PayChoice;
+    /** Said once, near the pair. */
+    tax: string;
+  };
+}
+
+export const OFFERS: Readonly<{ cohort: PairedOfferCopy } & Record<Exclude<CardPlan, 'cohort'>, OfferCopy>> = {
   cohort: {
     forWho: 'Team owners and ops leads on Follow Up Boss.',
     lines: [
@@ -103,8 +123,14 @@ export const OFFERS: Readonly<Record<CardPlan, OfferCopy>> = {
       unit: 'founding price',
       terms: ['Or 2 payments of $3,750.', '15 founding seats.'],
     },
-    button: 'Get Amplified AI Accelerator',
-    more: { 'cohort-two-pay': 'Or pay in 2 payments of $3,750' },
+    // D-159 (Connor, Nov 15, 2026): two equal buttons, so nobody who wants 2 payments is charged in
+    // full. Connor's words, exactly: the labels are not Title Case. `$7,500` is `price.amount` and
+    // `$3,750` the payment in `price.terms`.
+    pay: {
+      full: { label: (amount) => `Pay in full · ${amount}`, caption: 'One payment today' },
+      twoPay: { label: (amount) => `2 payments · ${amount}/mo`, caption: 'Today and again in 30 days' },
+      tax: 'plus applicable tax',
+    },
   },
   membership: {
     forWho: 'Owners and ops leads who want to go at their own pace.',

@@ -11,7 +11,8 @@ import { FOUNDING_TOKENS as F } from '@ai/core/founding';
 import { esc } from '../ai101/render';
 import { HOME } from '../home/content';
 import { CARD_STATES as S, EVERY_CARD, FACT_LABELS, NOTES, OFFERS } from '../offer/content';
-import type { OfferCopy } from '../offer/content';
+import type { OfferCopy, PairedOfferCopy } from '../offer/content';
+import { payPair } from '../offer/pay-pair';
 import { FREE_SKILLS_HREF, PROGRAM_PAGES } from './content';
 import { AGENT_PLAN, AGENT_PLAN_MORE, CARD_IDS, FOUNDING } from './offers-content';
 import type { Faq } from './offers-content';
@@ -27,7 +28,7 @@ export const CARD_NAMES: Readonly<Record<OfferCard, string>> = {
   membership: PLAN_NAMES.membership,
 };
 
-const copyOf = (card: OfferCard): OfferCopy => (card === 'agentPlan' ? AGENT_PLAN : OFFERS[card]);
+const copyOf = (card: OfferCard): OfferCopy | PairedOfferCopy => (card === 'agentPlan' ? AGENT_PLAN : OFFERS[card]);
 
 /**
  * The Amplified Agent Plan's two carts (D-106, D-114), by the names the LMS wiring gives them. Until
@@ -44,7 +45,11 @@ export const stateToken = (cart: string): string => token(`state:${cart}`);
 export const linkToken = (cart: string): string => token(`link:${cart}`);
 
 /** The plain-text link under a card's button for each of its other carts. */
-const moreOf = (card: OfferCard): Readonly<Record<string, string>> => (card === 'agentPlan' ? AGENT_PLAN_MORE : (copyOf(card).more as Record<string, string>));
+const moreOf = (card: OfferCard): Readonly<Record<string, string>> => {
+  if (card === 'agentPlan') return AGENT_PLAN_MORE;
+  const c = copyOf(card);
+  return 'more' in c ? (c.more as Record<string, string>) : {};
+};
 
 /**
  * The proof, next to every buy button (the offer-pages brief, Nov 11): "Built inside The Utah Life Real
@@ -107,7 +112,8 @@ export const SEE_DETAILS = 'See Full Details';
 export const CARD_PAGES: Readonly<Record<OfferCard, string>> = PROGRAM_PAGES;
 
 /**
- * The card's one button and its plain-text links, or what it says instead: soon, closed, sold out.
+ * The card's one button and its plain-text links (the Accelerator's two equal buttons, D-159), or what
+ * it says instead: soon, closed, sold out.
  * `details` adds "See Full Details" under them, in every state, to the program's own page: /pricing's
  * cards have it, and /team-build's own price block (which is that page) does not. `proof` puts the
  * proof line right under the buy buttons, so it shows exactly when they do.
@@ -115,6 +121,13 @@ export const CARD_PAGES: Readonly<Record<OfferCard, string>> = PROGRAM_PAGES;
 export function offerActions(card: OfferCard, { details = false, proof = false } = {}): string {
   const c = copyOf(card);
   const [first, ...rest] = cartsOf(card);
+  const buy =
+    'pay' in c
+      ? [payPair('btn btn-primary', linkToken)]
+      : [
+          `<a class="btn btn-primary" href="${linkToken(first!)}">${esc(c.button)}</a>`,
+          ...rest.map((id) => (moreOf(card)[id] ? `<a class="text-link more" href="${linkToken(id)}">${esc(moreOf(card)[id]!)}</a>` : '')),
+        ];
   const waitlist = (cls: string) => `<a class="btn btn-secondary ${cls}" href="${WAITLIST_HREF}">${esc(S.waitlist)}</a>`;
   const note =
     card === 'cohort'
@@ -127,8 +140,7 @@ export function offerActions(card: OfferCard, { details = false, proof = false }
     ...(first
       ? [
           `<div class="act-link">`,
-          `<a class="btn btn-primary" href="${linkToken(first)}">${esc(c.button)}</a>`,
-          ...rest.map((id) => (moreOf(card)[id] ? `<a class="text-link more" href="${linkToken(id)}">${esc(moreOf(card)[id]!)}</a>` : '')),
+          ...buy,
           ...(proof ? [proofLine()] : []),
           `</div>`,
         ]
