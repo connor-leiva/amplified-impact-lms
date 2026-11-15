@@ -1,0 +1,11 @@
+/* The LMS's own tokens and global rules (DECISIONS.md D-156): Geist at 16px, 44px / 48px tap targets.
+   design-reference/lms.css and apps/web/src/styles/lms.css are the same file, byte for byte
+   (scripts/reference-tokens.mjs --check). They are NOT in the shared token block, because the
+   www pages (site, offer, guides, AI 101, legal) inline tokens.css and global.css from that block
+   and must not change: only the reference's pages and the learn app load this. `:root` outranks
+   global.css's `html,body`, so the order the two load in does not matter. */
+:root{--font-ui:'Geist',ui-sans-serif,system-ui,sans-serif;--font-ui-mono:'Geist Mono',ui-monospace,monospace;--tap:44px;--tap-primary:48px}
+:root,:root body{font-family:var(--font-ui);font-size:16px}
+button,select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){min-height:var(--tap)}
+button{min-width:var(--tap)}
+button[style*="background:var(--action-primary)"]{min-height:var(--tap-primary)}

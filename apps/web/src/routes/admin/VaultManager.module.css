@@ -32,7 +32,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* The reference draws the header primary at 13px, not the 14px of the Button primitive, and gives
@@ -44,7 +44,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -76,7 +76,7 @@
   border-radius: 7px;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -115,7 +115,7 @@
 
 .headRow {
   padding: 10px 18px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-tertiary);
   border-bottom: 1px solid var(--line-default);
@@ -139,12 +139,12 @@
 }
 
 .title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .desc {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -153,7 +153,7 @@
 
 .cat,
 .type {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -165,7 +165,7 @@
   border: 1px solid var(--line-strong);
   background: var(--seg-active);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   width: max-content;
@@ -182,13 +182,13 @@
 }
 
 .dl {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
 .updated {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -240,7 +240,7 @@ button.statusOff {
   border: 1px dashed var(--line-strong);
   background: var(--bg-sunken);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   outline: none;
 }
@@ -253,7 +253,7 @@ button.statusOff {
 }
 
 .dropSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -272,7 +272,7 @@ button.statusOff {
 }
 
 .accessLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-weight: 500;
 }
@@ -294,7 +294,7 @@ button.statusOff {
   border-radius: 7px;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   white-space: nowrap;
   outline: none;
@@ -312,12 +312,12 @@ button.statusOff {
 }
 
 .execNote {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .error {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--access-locked-text);
 }
 
@@ -328,7 +328,7 @@ button.statusOff {
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   white-space: nowrap;
   outline: none;
@@ -347,7 +347,7 @@ button.statusOff {
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;

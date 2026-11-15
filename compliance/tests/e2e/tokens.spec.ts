@@ -13,7 +13,9 @@ const REF_URL = `${REF_BASE}/${encodeURIComponent('Status Token.dc.html')}`;
 // The reference defines exactly 75 :root custom properties: the handed-off 77, less --accent-h and
 // --accent-c, which the brand made vestigial (D-003, D-031). The count is asserted so an
 // accidentally-truncated tokens.css fails loudly instead of comparing two near-empty objects.
-const TOKEN_COUNT = 75;
+// D-156 added four in styles/lms.css (not tokens.css, which www inlines): --font-ui, --font-ui-mono,
+// --tap and --tap-primary.
+const TOKEN_COUNT = 79;
 
 async function readTokens(page: Page, url: string, prefs: Record<string, string>) {
   await page.addInitScript((p) => localStorage.setItem('ai-lms-prefs', JSON.stringify(p)), prefs);
@@ -66,9 +68,10 @@ test('body typography matches the reference @g1', async ({ browser }) => {
   const ref = await read(REF_URL);
   const app = await read(`${APP_BASE}/__tokens`);
   expect(app).toEqual(ref);
-  // getComputedStyle keeps the quoting, so the resolved stack reads: "Hanken Grotesk", ui-sans-serif, …
-  expect(app.family.replace(/["']/g, '')).toMatch(/^Hanken Grotesk,/);
-  expect(app.size).toBe('14px');
-  expect(app.line).toBe('20.3px');
+  // D-156: Geist at 16px, the www kit's face and the LMS floor. getComputedStyle keeps the quoting, so
+  // the resolved stack reads: Geist, ui-sans-serif, …
+  expect(app.family.replace(/["']/g, '')).toMatch(/^Geist,/);
+  expect(app.size).toBe('16px');
+  expect(app.line).toBe('23.2px');
   await ctx.close();
 });

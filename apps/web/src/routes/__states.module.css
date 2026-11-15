@@ -8,7 +8,7 @@
   gap: 56px;
   background: var(--bg-canvas);
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   min-width: max-content;
 }
 
@@ -34,7 +34,7 @@
 }
 .lede {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
   text-wrap: pretty;
 }
@@ -55,7 +55,7 @@
   background: transparent;
   box-shadow: none;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -83,7 +83,7 @@
 }
 .sectionNote {
   margin: 0;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -106,12 +106,12 @@
   align-items: baseline;
 }
 .variantId {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   color: var(--text-primary);
 }
 .variantRule {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -123,12 +123,12 @@
   align-items: start;
 }
 .colHead {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-tertiary);
 }
 .rowLabel {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -155,11 +155,11 @@
   border-radius: 7px;
   background: var(--bg-inverse);
   color: var(--text-inverse);
-  font-size: 12px;
+  font-size: 16px;
   box-shadow: var(--shadow-pop);
 }
 .note {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 .noteWide {
@@ -191,7 +191,7 @@
   align-items: center;
 }
 .catalogLabel {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-secondary);
 }
@@ -208,8 +208,8 @@
   align-items: flex-start;
 }
 .code {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 

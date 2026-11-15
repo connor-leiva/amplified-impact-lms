@@ -29,7 +29,7 @@
   border-radius: 50%;
   background: var(--pm-av);
   color: var(--ink-900);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -38,12 +38,12 @@
 }
 
 .name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .email {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .zoneLabel {
@@ -87,7 +87,7 @@
   border: 0;
   background: none;
   color: var(--text-link);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -118,7 +118,7 @@
   border-radius: 6px;
   background: transparent;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   text-align: left;
 }
@@ -160,7 +160,7 @@
 }
 
 .hint {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -173,7 +173,7 @@
 }
 
 .themeLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -189,7 +189,7 @@
   border-radius: 8px;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   text-align: left;
 }

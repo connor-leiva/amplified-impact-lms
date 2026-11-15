@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -68,28 +67,28 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Resource Vault</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ summary }}</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">{{ summary }}</p>
     </div>
-    <button onClick="{{ openUpload }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Upload Resource</button>
+    <button onClick="{{ openUpload }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Upload Resource</button>
   </div>
   <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default); width:max-content">
-    <sc-for list="{{ tabs }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
+    <sc-for list="{{ tabs }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
   </div>
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
     <div style="overflow-x:auto">
       <div style="min-width:1080px">
-        <div style="display:grid; grid-template-columns:minmax(280px,2.4fr) minmax(170px,1.2fr) 130px 130px 100px 100px 110px 80px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+        <div style="display:grid; grid-template-columns:minmax(280px,2.4fr) minmax(170px,1.2fr) 130px 130px 100px 100px 110px 80px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
           <span>Resource</span><span>Category</span><span>Type</span><span>Access</span><span>Downloads</span><span>Updated</span><span>Status</span><span></span>
         </div>
         <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
           <div style="display:grid; grid-template-columns:minmax(280px,2.4fr) minmax(170px,1.2fr) 130px 130px 100px 100px 110px 80px; gap:12px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line-default); opacity:{{ r.op }}" style-hover="background:var(--bg-hover)">
-            <div style="min-width:0"><div style="font-size:14px; font-weight:500">{{ r.title }}</div><div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.desc }}</div></div>
-            <span style="font-size:13px; color:var(--text-secondary)">{{ r.cat }}</span>
-            <span style="font-size:13px; color:var(--text-secondary)">{{ r.type }}</span>
-            <button onClick="{{ r.toggleTier }}" title="Change access" style="height:24px; padding:0 9px; border-radius:999px; border:1px solid {{ r.aBd }}; background:{{ r.aBg }}; color:{{ r.aFg }}; font-size:12px; font-weight:600; cursor:pointer; width:max-content; white-space:nowrap">{{ r.access }}</button>
-            <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ r.dl }}</span>
-            <span style="font-size:13px; color:var(--text-tertiary)">{{ r.updated }}</span>
-            <button onClick="{{ r.toggle }}" style="display:flex; align-items:center; gap:8px; border:0; background:none; padding:0; cursor:pointer; color:{{ r.sFg }}; font-size:13px">
+            <div style="min-width:0"><div style="font-size:16px; font-weight:500">{{ r.title }}</div><div style="font-size:16px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.desc }}</div></div>
+            <span style="font-size:16px; color:var(--text-secondary)">{{ r.cat }}</span>
+            <span style="font-size:16px; color:var(--text-secondary)">{{ r.type }}</span>
+            <button onClick="{{ r.toggleTier }}" title="Change access" style="height:24px; padding:0 9px; border-radius:999px; border:1px solid {{ r.aBd }}; background:{{ r.aBg }}; color:{{ r.aFg }}; font-size:16px; font-weight:600; cursor:pointer; width:max-content; white-space:nowrap">{{ r.access }}</button>
+            <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ r.dl }}</span>
+            <span style="font-size:16px; color:var(--text-tertiary)">{{ r.updated }}</span>
+            <button onClick="{{ r.toggle }}" style="display:flex; align-items:center; gap:8px; border:0; background:none; padding:0; cursor:pointer; color:{{ r.sFg }}; font-size:16px">
               <span style="width:30px; height:18px; border-radius:999px; background:{{ r.trackBg }}; position:relative; transition:background 150ms"><span style="position:absolute; top:2px; left:{{ r.knobL }}; width:14px; height:14px; border-radius:50%; background:var(--paper); transition:left 150ms"></span></span>{{ r.status }}
             </button>
             <div style="display:flex; justify-content:flex-end">
@@ -105,23 +104,23 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 <div onClick="{{ close }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
 <aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(460px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
   <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
-    <div style="flex:1"><div style="font-size:16px; font-weight:600">Upload Resource</div><div style="font-size:13px; color:var(--text-tertiary)">Appears in the learner vault as soon as you publish</div></div>
+    <div style="flex:1"><div style="font-size:16px; font-weight:600">Upload Resource</div><div style="font-size:16px; color:var(--text-tertiary)">Appears in the learner vault as soon as you publish</div></div>
     <button onClick="{{ close }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
   </div>
   <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:14px">
-    <button onClick="{{ pickFile }}" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; height:110px; border-radius:10px; border:1px dashed {{ fz.bd }}; background:{{ fz.bg }}; color:var(--text-secondary); font-size:13px; cursor:pointer">
+    <button onClick="{{ pickFile }}" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; height:110px; border-radius:10px; border:1px dashed {{ fz.bd }}; background:{{ fz.bg }}; color:var(--text-secondary); font-size:16px; cursor:pointer">
       <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:{{ fz.ic }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ fz.icon }}"></path></svg>
-      <span>{{ fz.label }}</span><span style="font-size:12px; color:var(--text-tertiary)">{{ fz.sub }}</span>
+      <span>{{ fz.label }}</span><span style="font-size:16px; color:var(--text-tertiary)">{{ fz.sub }}</span>
     </button>
-    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Title
-      <input value="{{ f.title }}" onChange="{{ f.setTitle }}" placeholder="e.g. Listing Appointment Prep Prompt" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Title
+      <input value="{{ f.title }}" onChange="{{ f.setTitle }}" placeholder="e.g. Listing Appointment Prep Prompt" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
     </label>
-    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Description
-      <input value="{{ f.desc }}" onChange="{{ f.setDesc }}" placeholder="One line learners see under the title" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Description
+      <input value="{{ f.desc }}" onChange="{{ f.setDesc }}" placeholder="One line learners see under the title" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
     </label>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Category
-        <select value="{{ f.cat }}" onChange="{{ f.setCat }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Category
+        <select value="{{ f.cat }}" onChange="{{ f.setCat }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none">
           <option value="MLS &amp; Fair Housing Compliance">MLS &amp; Fair Housing Compliance</option>
           <option value="Lead Generation Scripts">Lead Generation Scripts</option>
           <option value="Sisu &amp; CRM Webhook Guides">Sisu &amp; CRM Webhook Guides</option>
@@ -131,8 +130,8 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
           <option value="Finance Tracker Integrations">Exec · Finance Tracker Integrations</option>
         </select>
       </label>
-      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Type
-        <select value="{{ f.type }}" onChange="{{ f.setType }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Type
+        <select value="{{ f.type }}" onChange="{{ f.setType }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none">
           <option value="Claude Project">Claude Project</option>
           <option value="Workflow JSON">Workflow JSON</option>
           <option value="Prompt pack">Prompt Pack</option>
@@ -142,18 +141,18 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       </label>
     </div>
     <div style="display:flex; flex-direction:column; gap:6px">
-      <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Access</span>
+      <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Access</span>
       <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default); width:max-content">
-        <button onClick="{{ f.setAgent }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ f.aBg }}; color:{{ f.aFg }}; font-size:13px; cursor:pointer; white-space:nowrap">Agent + Team</button>
-        <button onClick="{{ f.setTeam }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ f.tBg }}; color:{{ f.tFg }}; font-size:13px; cursor:pointer; white-space:nowrap">Team Only</button>
+        <button onClick="{{ f.setAgent }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ f.aBg }}; color:{{ f.aFg }}; font-size:16px; cursor:pointer; white-space:nowrap">Agent + Team</button>
+        <button onClick="{{ f.setTeam }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ f.tBg }}; color:{{ f.tFg }}; font-size:16px; cursor:pointer; white-space:nowrap">Team Only</button>
       </div>
-      <sc-if value="{{ f.execNote }}"><span style="font-size:12px; color:var(--text-tertiary)">Executive categories are always Team only.</span></sc-if>
+      <sc-if value="{{ f.execNote }}"><span style="font-size:16px; color:var(--text-tertiary)">Executive categories are always Team only.</span></sc-if>
     </div>
-    <sc-if value="{{ f.err }}"><div style="font-size:13px; color:var(--access-locked-text)">{{ f.err }}</div></sc-if>
+    <sc-if value="{{ f.err }}"><div style="font-size:16px; color:var(--access-locked-text)">{{ f.err }}</div></sc-if>
   </div>
   <div style="display:flex; justify-content:flex-end; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default)">
-    <button onClick="{{ close }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
-    <button onClick="{{ publish }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">Publish to Vault</button>
+    <button onClick="{{ close }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
+    <button onClick="{{ publish }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">Publish to Vault</button>
   </div>
 </aside>
 </x-dc>

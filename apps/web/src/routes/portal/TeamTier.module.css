@@ -96,11 +96,11 @@
   font-weight: 600;
 }
 .addSess {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 .addHeadline {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
   text-wrap: pretty;
 }
@@ -114,7 +114,7 @@
 .output {
   display: flex;
   gap: 8px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .check {
@@ -132,7 +132,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 96px 96px;
   padding: 12px 18px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-tertiary);
   border-bottom: 1px solid var(--line-subtle);
@@ -148,7 +148,7 @@
   align-items: center;
   padding: 11px 18px;
   border-bottom: 1px solid var(--line-subtle);
-  font-size: 14px;
+  font-size: 16px;
 }
 .rowLabel {
   color: var(--text-primary);
@@ -206,7 +206,7 @@
 }
 .priceUnit {
   color: var(--text-tertiary);
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .features {
@@ -217,7 +217,7 @@
 .feature {
   display: flex;
   gap: 8px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -227,7 +227,7 @@
   border: 1px solid transparent;
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -253,7 +253,7 @@
 }
 
 .note {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   text-align: center;
 }

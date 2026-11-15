@@ -81,7 +81,7 @@
   background-color: var(--v2-surface);
   background-image: var(--v2-grain);
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
@@ -219,7 +219,7 @@
   height: 48px;
   padding: 0 14px;
   border-radius: 6px;
-  font: 400 16px/1.4 var(--font-sans);
+  font: 400 16px/1.4 var(--font-ui);
   transition: border-color 0.2s;
 }
 .card input:not([type='checkbox']):hover {
@@ -231,7 +231,7 @@
 .card button {
   height: 48px;
   border-radius: 6px;
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   font-size: 16px;
 }
 

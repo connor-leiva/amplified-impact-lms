@@ -33,19 +33,19 @@
   padding-top: 1px;
 }
 .title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
   text-wrap: pretty;
 }
 .when {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   white-space: nowrap;
 }
 .body {
   flex-basis: 100%;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   text-wrap: pretty;
 }
@@ -58,7 +58,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;

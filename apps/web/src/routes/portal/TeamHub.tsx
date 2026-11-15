@@ -191,7 +191,7 @@ function TeamHub() {
             <div className={s.remPeople}>
               {rem.people.map((p) => (
                 <div key={p.id} className={s.remPerson}>
-                  <Avatar id={p.id} name={p.plainName} size={22} />
+                  <Avatar id={p.id} name={p.plainName} size={32} />
                   <span className={s.remName}>{p.name}</span>
                   <span className={s.remGap}>{p.gap}</span>
                 </div>

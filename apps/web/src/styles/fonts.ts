@@ -1,8 +1,5 @@
-// Self-hosted through @fontsource. Same families and weights the reference loads from Google:
-// Hanken Grotesk 400-700 and DM Mono 400/500 — the brand's two typefaces (D-031).
-import '@fontsource/hanken-grotesk/400.css';
-import '@fontsource/hanken-grotesk/500.css';
-import '@fontsource/hanken-grotesk/600.css';
-import '@fontsource/hanken-grotesk/700.css';
-import '@fontsource/dm-mono/400.css';
-import '@fontsource/dm-mono/500.css';
+// The LMS's faces (D-156): Geist and Geist Mono, self-hosted from the homepage's own files, as the
+// www kit and the reference (design-reference/fonts/) load them. They replaced Hanken Grotesk and
+// DM Mono in the app (D-031), which www's skill, offer, AI 101 and legal pages still use from their
+// own stylesheets.
+import './geist.css';

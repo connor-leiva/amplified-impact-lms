@@ -64,7 +64,7 @@
 }
 
 .saveNote {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 /* `Unsaved changes` is amber. SCREENS § 4.3. */
@@ -76,7 +76,7 @@
 .barBtn {
   height: 34px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   white-space: nowrap;
   outline: none;
@@ -157,7 +157,7 @@
   border-radius: 12px;
   border: 1px solid var(--status-attention-line);
   background: var(--status-attention-bg);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--status-attention-text);
   display: flex;
   flex-direction: column;
@@ -185,13 +185,13 @@
 
 /* The bare label above the icon grid and the Tier Access track. */
 .fieldLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
 .note {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -238,8 +238,8 @@
 
 .ordinal {
   width: 20px;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -250,7 +250,7 @@ input.outputInput {
 
 /* --- Live Session & Replay ------------------------------------------------------------------ */
 .warn {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--access-locked-text);
 }
 
@@ -286,12 +286,12 @@ input.outputInput {
 }
 
 .replayTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .replaySub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -302,7 +302,7 @@ input.outputInput {
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -358,8 +358,8 @@ input.outputInput {
 .stepN {
   width: 22px;
   padding-top: 9px;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -386,7 +386,7 @@ input.stepHint {
   border-radius: 7px;
   border-color: var(--line-default);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .stepMetaRow {
@@ -399,7 +399,7 @@ input.stepHint {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -408,15 +408,15 @@ input.stepMeta {
   padding: 0 8px;
   border-radius: 6px;
   border-color: var(--line-default);
-  font-size: 13px;
+  font-size: 16px;
 }
 input.chInput {
   width: 170px;
 }
 input.tInput {
   width: 72px;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
 }
 input.minsInput {
   width: 64px;
@@ -429,8 +429,8 @@ textarea.prompt {
   padding: 12px 14px;
   border-radius: 10px;
   background: var(--bg-sunken);
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   line-height: 1.65;
 }
 
@@ -439,13 +439,13 @@ textarea.prompt {
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .varChip {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   color: var(--access-locked-text);
   background: var(--access-locked-bg);
   padding: 1px 6px;
@@ -466,13 +466,13 @@ textarea.prompt {
 .fileType {
   width: 44px;
   flex: none;
-  height: 22px;
+  height: 24px;
   border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   font-weight: 500;
   background: var(--bg-surface);
   border: 1px solid var(--line-default);
@@ -485,7 +485,7 @@ textarea.prompt {
 }
 
 .fileName {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -493,7 +493,7 @@ textarea.prompt {
 }
 
 .fileMeta {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -529,7 +529,7 @@ textarea.prompt {
   border: 1px dashed var(--line-strong);
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   outline: none;
 }
@@ -582,12 +582,12 @@ textarea.notes {
 }
 
 .choiceLabel {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .choiceSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -595,7 +595,7 @@ textarea.notes {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   flex-wrap: wrap;
 }
@@ -603,7 +603,7 @@ textarea.notes {
 input.opensInput {
   height: 34px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .opensAt {
@@ -620,7 +620,7 @@ input.opensInput {
 }
 
 .pvTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -633,7 +633,7 @@ input.opensInput {
 
 /* Both preview tracks run one step smaller than the shared control's 13px. */
 .pvSeg button {
-  font-size: 12px;
+  font-size: 16px;
 }
 
 /* The dotted canvas. SCREENS § 4.3. */
@@ -675,12 +675,12 @@ input.opensInput {
 }
 
 .headerOutcome {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-primary);
 }
 
 .headerMeta {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -690,7 +690,7 @@ input.opensInput {
   background: none;
   padding: 0;
   color: var(--text-link);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -720,7 +720,7 @@ input.opensInput {
 
 .discardBody {
   margin: 0;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 

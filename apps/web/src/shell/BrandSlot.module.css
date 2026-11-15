@@ -1,5 +1,6 @@
 /* The reference's brand row: `<div data-brand-slot style="flex:none; display:flex">` around one
-   `<img style="display:block; width:…; height:…">`, 161×34 for the lockup and 28×28 for the mark. */
+   `<img style="display:block; width:…; height:…">`: the 160×24 wordmark (D-156), 133×20 in the phone's top
+   bar, and the 28×28 mark. */
 
 .slot {
   flex: none;
@@ -11,8 +12,13 @@
 }
 
 .slot[data-kind='lockup'] .img {
-  width: 161px;
-  height: 34px;
+  width: 160px;
+  height: 24px;
+}
+
+.slot[data-kind='head'] .img {
+  width: 133px;
+  height: 20px;
 }
 
 .slot[data-kind='mark'] .img {

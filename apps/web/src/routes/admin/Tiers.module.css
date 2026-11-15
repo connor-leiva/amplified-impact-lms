@@ -42,7 +42,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* ---------- Tier cards ---------- */
@@ -89,12 +89,12 @@
 }
 
 .seats {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .licenses {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -139,12 +139,12 @@
 }
 
 .per {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .blurb {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -157,7 +157,7 @@
 .feature {
   display: flex;
   gap: 8px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -173,7 +173,7 @@
   justify-content: space-between;
   padding-top: 12px;
   border-top: 1px solid var(--line-default);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -214,12 +214,12 @@
 }
 
 .panelTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .panelSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   margin-top: 2px;
 }
@@ -235,7 +235,7 @@
 }
 
 .colHead {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -249,7 +249,7 @@
 }
 
 .matrixLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
@@ -320,14 +320,14 @@ button.cell:focus-visible {
 }
 
 .pipeline {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--access-locked-text);
 }
 
 .empty {
   padding: 18px;
   color: var(--text-tertiary);
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .requestRow {
@@ -356,17 +356,17 @@ button.cell:focus-visible {
 }
 
 .name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .ago {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .meta {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -374,10 +374,10 @@ button.cell:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 22px;
+  height: 24px;
   padding: 0 9px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   border: 1px solid;
 }
@@ -412,7 +412,7 @@ button.cell:focus-visible {
   padding: 0 10px;
   border-radius: 7px;
   border: 1px solid;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;

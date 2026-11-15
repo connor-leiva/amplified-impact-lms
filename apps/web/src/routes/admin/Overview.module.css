@@ -36,7 +36,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .headActions {
@@ -51,7 +51,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -70,7 +70,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -110,7 +110,7 @@
 }
 
 .kpiLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -124,7 +124,7 @@
 }
 
 .kpiSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   margin-top: 6px;
 }
@@ -166,12 +166,12 @@
 }
 
 .cardTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .cardSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   margin-top: 2px;
 }
@@ -190,7 +190,7 @@
 }
 
 .delta {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--status-success-text);
   font-variant-numeric: tabular-nums;
 }
@@ -224,7 +224,7 @@
 .chartLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -237,7 +237,7 @@
 
 .feedTitle {
   padding: 0 8px 10px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -275,7 +275,7 @@
 .feedText {
   flex: 1;
   min-width: 0;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.45;
   color: var(--text-secondary);
 }
@@ -286,7 +286,7 @@
 }
 
 .ago {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -308,7 +308,7 @@
 .legend {
   display: flex;
   gap: 14px;
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -349,14 +349,14 @@
 }
 
 .funnelName {
-  font-size: 13px;
+  font-size: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .teamTag {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--access-locked-text);
 }
@@ -390,7 +390,7 @@
   width: 110px;
   flex: none;
   text-align: right;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -426,7 +426,7 @@
 }
 
 .attLabel {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -452,12 +452,12 @@
 .attTick {
   flex: 1;
   text-align: center;
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .attFoot {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   border-top: 1px solid var(--line-default);
   padding-top: 10px;
@@ -489,7 +489,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -504,7 +504,7 @@
 .riskEmpty {
   padding: 18px;
   color: var(--text-tertiary);
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .riskRow {
@@ -525,17 +525,17 @@
 }
 
 .riskName {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .riskSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .riskReason {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--access-locked-text);
 }
 
@@ -546,7 +546,7 @@
   border: 1px solid var(--line-strong);
   background: transparent;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   white-space: nowrap;
 }

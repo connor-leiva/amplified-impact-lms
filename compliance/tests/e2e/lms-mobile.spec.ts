@@ -1,0 +1,206 @@
+import { test, expect, type Browser, type Page } from '@playwright/test';
+import { APP_BASE } from '../../lib/prepare';
+
+/**
+ * D-156: the LMS at www's phone quality, measured on every route in fixture mode (never a real
+ * account, never production data).
+ *
+ *   overflow   at 320, 375, 390, 430 and 768 / 1024 / 1280 CSS px, nothing scrolls sideways: not the
+ *              document, and not the shell's <main> (the LMS page scrolls inside it). An element that
+ *              is deliberately a scroll region (`overflow-x: auto | scroll`) is allowed to.
+ *   min font   every visible run of text is set at 16px or more.
+ *   tap        every visible control (button, link, input, select, textarea, [role=button|tab|link|
+ *              menuitem|switch|radio]) is at least 44×44, a primary button at least 48 tall. A link
+ *              inside a sentence is exempt (WCAG 2.5.8's inline exception).
+ *
+ * `KNOWN` names what is still out of line, per route, check and width, with the PR that owns it. A
+ * finding not listed fails; a listed one that no longer happens fails too, so the list only shrinks.
+ * `LMS_AUDIT=1` prints every finding instead of asserting, to rebuild the list.
+ */
+
+type Check = 'overflow' | 'font' | 'tap';
+type Persona = 'agent' | 'owner' | 'admin';
+
+const WIDTHS = [320, 375, 390, 430, 768, 1024, 1280] as const;
+const NOW = '2026-12-07T10:42:00-06:00';
+
+/** Every LMS route the fixture build serves, with the persona that reaches it. */
+const ROUTES: readonly [Persona, string][] = [
+  ['agent', '/'],
+  ['agent', '/sessions'],
+  ['agent', '/employees/marketing'],
+  ['agent', '/vault'],
+  ['agent', '/team-tier'],
+  ['owner', '/team'],
+  ['admin', '/admin'],
+  ['admin', '/admin/curriculum'],
+  ['admin', '/admin/curriculum/marketing'],
+  ['admin', '/admin/curriculum/new'],
+  ['admin', '/admin/cohorts'],
+  ['admin', '/admin/learners'],
+  ['admin', '/admin/vault'],
+  ['admin', '/admin/announcements'],
+  ['admin', '/admin/tiers'],
+  ['admin', '/admin/staff'],
+  ['admin', '/admin/crm-sync'],
+  ['agent', '/course'],
+  ['agent', '/skill-library'],
+  ['agent', '/skill-library/perfect-week'],
+  ['agent', '/sign-in'],
+  ['agent', '/forgot-password'],
+  ['agent', '/set-password'],
+  ['agent', '/account'],
+  ['agent', '/invite/fixture-token'],
+];
+
+/**
+ * What PR A (the foundation) leaves for the learner (B) and admin (C) passes, as
+ * `route|check|width`. Rebuilt with LMS_AUDIT=1.
+ */
+const KNOWN: ReadonlySet<string> = new Set<string>([
+  // PR B, the learner routes: the vault and team hub at 320, and the employee page's chapter links.
+  '/employees/marketing|tap|1024',
+  '/employees/marketing|tap|1280',
+  '/employees/marketing|tap|320',
+  '/employees/marketing|tap|375',
+  '/employees/marketing|tap|390',
+  '/employees/marketing|tap|430',
+  '/employees/marketing|tap|768',
+  '/team|overflow|320',
+  '/vault|overflow|320',
+  // PR C, the admin routes: overview, tiers, announcements and the builder at 320, and the builder's
+  // two primary buttons (44 tall where a primary is 48).
+  '/admin/announcements|overflow|320',
+  '/admin/announcements|overflow|375',
+  '/admin/announcements|overflow|390',
+  '/admin/announcements|overflow|430',
+  '/admin/curriculum/marketing|overflow|320',
+  '/admin/curriculum/marketing|tap|1024',
+  '/admin/curriculum/marketing|tap|1280',
+  '/admin/curriculum/marketing|tap|320',
+  '/admin/curriculum/marketing|tap|375',
+  '/admin/curriculum/marketing|tap|390',
+  '/admin/curriculum/marketing|tap|430',
+  '/admin/curriculum/marketing|tap|768',
+  '/admin/curriculum/new|overflow|320',
+  '/admin/curriculum/new|tap|1024',
+  '/admin/curriculum/new|tap|1280',
+  '/admin/curriculum/new|tap|320',
+  '/admin/curriculum/new|tap|375',
+  '/admin/curriculum/new|tap|390',
+  '/admin/curriculum/new|tap|430',
+  '/admin/curriculum/new|tap|768',
+  '/admin/tiers|overflow|320',
+  '/admin|overflow|320',
+]);
+
+async function openAt(browser: Browser, persona: Persona, path: string, width: number): Promise<{ page: Page; close: () => Promise<void> }> {
+  const ctx = await browser.newContext({ timezoneId: 'America/Chicago', viewport: { width, height: 900 } });
+  const page = await ctx.newPage();
+  await page.clock.setFixedTime(new Date(NOW));
+  await page.addInitScript(() => {
+    localStorage.setItem('ai-lms-prefs', JSON.stringify({ phase: 'live', theme: 'light', tz: null, sidebar: 'full' }));
+  });
+  const sep = path.includes('?') ? '&' : '?';
+  await page.goto(`${APP_BASE}${path}${sep}as=${persona}`);
+  await page.locator('[data-app-ready="true"]').first().waitFor({ timeout: 15_000 }).catch(() => undefined);
+  await page.evaluate(() => document.fonts.ready);
+  return { page, close: () => ctx.close() };
+}
+
+/** Every finding on the page as `check: detail`. Runs in the browser. */
+async function findings(page: Page): Promise<{ overflow: string[]; font: string[]; tap: string[] }> {
+  return page.evaluate(() => {
+    const visible = (el: Element) => {
+      for (let e: Element | null = el; e; e = e.parentElement) {
+        const cs = getComputedStyle(e);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) return false;
+        if (e.getAttribute('aria-hidden') === 'true' || (e as HTMLElement).inert) return false;
+      }
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && r.right > 0 && r.left < innerWidth;
+    };
+    const label = (el: Element) => {
+      const t = (el.getAttribute('aria-label') || (el as HTMLElement).innerText || el.getAttribute('title') || '').trim().replace(/\s+/g, ' ');
+      return `${el.tagName.toLowerCase()}${t ? ` "${t.slice(0, 40)}"` : ''}`;
+    };
+
+    // Overflow: the document, and the shell's scroller.
+    const overflow: string[] = [];
+    const doc = document.documentElement;
+    if (doc.scrollWidth > doc.clientWidth) overflow.push(`document ${doc.scrollWidth} > ${doc.clientWidth}`);
+    const main = document.querySelector('main');
+    // Only a <main> that scrolls can scroll sideways; one that clips (the sign-in art) cannot.
+    if (main && /auto|scroll/.test(getComputedStyle(main).overflowX) && main.scrollWidth > main.clientWidth + 1) {
+      // Allowed when the overflow is contained by an intentional scroll region inside it.
+      const regions = Array.from(main.querySelectorAll('*')).filter((e) => /auto|scroll/.test(getComputedStyle(e).overflowX) && e.scrollWidth > e.clientWidth);
+      const mainRect = main.getBoundingClientRect();
+      const escapees = Array.from(main.querySelectorAll('*')).filter((e) => {
+        if (regions.some((r) => r !== e && r.contains(e))) return false;
+        const r = e.getBoundingClientRect();
+        return r.width > 0 && r.right > mainRect.right + 1;
+      });
+      if (escapees.length) overflow.push(`main ${main.scrollWidth} > ${main.clientWidth}: ${escapees.slice(0, 3).map(label).join(', ')}`);
+    }
+
+    // Min font: every visible text node's typography.
+    const font = new Set<string>();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (!(n.textContent ?? '').trim()) continue;
+      const p = n.parentElement;
+      if (!p || p.closest('svg, script, style, noscript') || !visible(p)) continue;
+      const size = Number.parseFloat(getComputedStyle(p).fontSize);
+      if (size < 16) font.add(`${label(p)} ${size}px`);
+    }
+
+    // Tap targets.
+    const tap = new Set<string>();
+    const controls = document.querySelectorAll(
+      'a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=tab], [role=link], [role=menuitem], [role=switch], [role=radio], [role=checkbox]',
+    );
+    for (const el of Array.from(controls)) {
+      if (!visible(el) || (el as HTMLButtonElement).disabled) continue;
+      const cs = getComputedStyle(el);
+      // A link inside running text: inline, with words beside it in the same block.
+      if (el.tagName === 'A' && cs.display === 'inline') {
+        const block = el.parentElement;
+        const words = block ? Array.from(block.childNodes).some((c) => c !== el && c.nodeType === 3 && (c.textContent ?? '').trim()) : false;
+        if (words) continue;
+      }
+      // A visually hidden native input behind a styled control is measured through its label.
+      if (el.tagName === 'INPUT' && (el as HTMLInputElement).type !== 'text' && Number(cs.opacity) === 0) continue;
+      const r = el.getBoundingClientRect();
+      const primary = /\bprimary\b|_primary_/.test(el.className.toString()) || /--action-primary\)/.test(el.getAttribute('style') ?? '');
+      const minH = primary ? 48 : 44;
+      if (r.width < 44 - 0.5 || r.height < minH - 0.5) tap.add(`${label(el)} ${Math.round(r.width)}×${Math.round(r.height)}${primary ? ' (primary)' : ''}`);
+    }
+    return { overflow, font: [...font], tap: [...tap] };
+  });
+}
+
+for (const [persona, path] of ROUTES) {
+  test(`${path} as ${persona}: no sideways scroll, nothing under 16px, 44px targets @lms-mobile`, async ({ browser }) => {
+    const seen: string[] = [];
+    const report: string[] = [];
+    for (const width of WIDTHS) {
+      const { page, close } = await openAt(browser, persona, path, width);
+      const f = await findings(page);
+      await close();
+      for (const check of ['overflow', 'font', 'tap'] as Check[]) {
+        if (!f[check].length) continue;
+        const key = `${path}|${check}|${width}`;
+        seen.push(key);
+        report.push(`${key}: ${f[check].slice(0, 6).join('; ')}`);
+      }
+    }
+    if (process.env.LMS_AUDIT) {
+      console.log(report.length ? report.join('\n') : `${path}: clean`);
+      return;
+    }
+    const unexpected = seen.filter((k) => !KNOWN.has(k));
+    const fixed = [...KNOWN].filter((k) => k.startsWith(`${path}|`) && !seen.includes(k));
+    expect(unexpected, `new findings on ${path}:\n${report.filter((r) => unexpected.some((k) => r.startsWith(k))).join('\n')}`).toEqual([]);
+    expect(fixed, `${path}: these are fixed now; remove them from KNOWN`).toEqual([]);
+  });
+}

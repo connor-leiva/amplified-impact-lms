@@ -400,9 +400,13 @@ function Shell() {
         <div className={s.column}>
           <header className={s.header}>
             {drawer ? (
-              <button type="button" className={s.menu} aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
-                <Icon name="menu" size={18} strokeWidth={1.9} />
-              </button>
+              <>
+                <button type="button" className={s.menu} aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
+                  <Icon name="menu" size={18} strokeWidth={1.9} />
+                </button>
+                {/* D-156: on a phone the sidebar is hidden, so the top bar carries the wordmark. */}
+                <BrandSlot kind="head" />
+              </>
             ) : null}
             <Breadcrumbs pathname={path} employeeName={employeeName} onNavigate={go} />
             <DemoControls vw={vw} />

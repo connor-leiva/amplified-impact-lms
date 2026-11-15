@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -71,12 +70,12 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   </div>
 </sc-if>
 <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
-  <button onClick="{{ click }}" title="{{ tip }}" aria-current="{{ cur }}" aria-disabled="{{ dis }}" style="--hov:{{ hov }}; display:flex; align-items:center; gap:10px; width:100%; height:32px; padding:{{ pad }}; justify-content:{{ jc }}; border:0; border-radius:8px; background:{{ bg }}; color:{{ fg }}; box-shadow:{{ sh }}; cursor:{{ cursor }}; text-align:left; font-size:14px; font-weight:{{ fw }}; white-space:nowrap; outline:none; transition:background 120ms" style-hover="background:var(--hov)" style-focus="box-shadow:0 0 0 2px var(--focus-ring)">
+  <button onClick="{{ click }}" title="{{ tip }}" aria-current="{{ cur }}" aria-disabled="{{ dis }}" style="--hov:{{ hov }}; display:flex; align-items:center; gap:10px; width:100%; height:32px; padding:{{ pad }}; justify-content:{{ jc }}; border:0; border-radius:8px; background:{{ bg }}; color:{{ fg }}; box-shadow:{{ sh }}; cursor:{{ cursor }}; text-align:left; font-size:16px; font-weight:{{ fw }}; white-space:nowrap; outline:none; transition:background 120ms" style-hover="background:var(--hov)" style-focus="box-shadow:0 0 0 2px var(--focus-ring)">
     <sc-if value="{{ showIcon }}"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; flex:none; fill:none; stroke:{{ ifg }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ icon }}"></path></svg></sc-if>
     <sc-if value="{{ showLabel }}"><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis">{{ label }}</span></sc-if>
     <sc-if value="{{ showToken }}"><dc-import name="Status Token" kind="{{ token.kind }}" state="{{ token.state }}" n="{{ token.n }}" total="{{ token.total }}" label="{{ token.label }}" tone="{{ token.tone }}" icon="{{ token.icon }}" compact="{{ true }}" hint-size="36px,16px"></dc-import></sc-if>
     <sc-if value="{{ showLock }}"><span title="Team tier" style="display:flex; flex:none; color:var(--text-disabled)"><svg viewBox="0 0 16 16" aria-label="Team tier" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round"><path d="M4.5 7.5h7a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1zM5.75 7.5V5.6a2.25 2.25 0 0 1 4.5 0v1.9"></path></svg></span></sc-if>
-    <sc-if value="{{ showBadge }}"><span title="{{ badgeTip }}" style="height:20px; min-width:20px; padding:0 6px; flex:none; border-radius:999px; background:var(--bg-surface); border:1px solid var(--line-default); color:var(--text-secondary); font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums">{{ badge }}</span></sc-if>
+    <sc-if value="{{ showBadge }}"><span title="{{ badgeTip }}" style="height:24px; min-width:24px; padding:0 6px; flex:none; border-radius:999px; background:var(--bg-surface); border:1px solid var(--line-default); color:var(--text-secondary); font-size:16px; font-weight:500; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums">{{ badge }}</span></sc-if>
     <sc-if value="{{ showChev }}"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transform:{{ chevRot }}; transition:transform 150ms"><path d="M6 9.5l6 6 6-6"></path></svg></sc-if>
     <sc-if value="{{ spin }}"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; animation:ai-spin 900ms linear infinite"><path d="M20.5 12A8.5 8.5 0 1 1 14.91 4.01"></path></svg></sc-if>
   </button>

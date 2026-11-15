@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -77,18 +76,18 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
         <section style="display:flex; gap:16px; padding:18px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); flex-wrap:wrap">
           <div style="width:40px; height:40px; flex:none; border-radius:11px; display:flex; align-items:center; justify-content:center; background:var(--access-locked-bg); border:1px solid var(--access-locked-line)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:19px; height:19px; fill:none; stroke:var(--access-locked-text); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ a.icon }}"></path></svg></div>
           <div style="flex:1 1 300px; min-width:0; display:flex; flex-direction:column; gap:6px">
-            <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap"><span style="font-size:16px; font-weight:600">{{ a.name }}</span><span style="font-size:13px; color:var(--text-tertiary)">{{ a.sessLine }}</span></div>
-            <div style="font-size:14px; color:var(--text-secondary); text-wrap:pretty">{{ a.headline }}</div>
+            <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap"><span style="font-size:16px; font-weight:600">{{ a.name }}</span><span style="font-size:16px; color:var(--text-tertiary)">{{ a.sessLine }}</span></div>
+            <div style="font-size:16px; color:var(--text-secondary); text-wrap:pretty">{{ a.headline }}</div>
             <div style="display:flex; flex-direction:column; gap:5px; margin-top:4px">
-              <sc-for list="{{ a.outputs }}" as="o"><div style="display:flex; gap:8px; font-size:13px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; flex:none; margin-top:2px; fill:none; stroke:var(--status-success); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M5 12.6l4.4 4.4L19 7.4"></path></svg>{{ o }}</div></sc-for>
+              <sc-for list="{{ a.outputs }}" as="o"><div style="display:flex; gap:8px; font-size:16px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; flex:none; margin-top:2px; fill:none; stroke:var(--status-success); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M5 12.6l4.4 4.4L19 7.4"></path></svg>{{ o }}</div></sc-for>
             </div>
           </div>
         </section>
       </sc-for>
       <section style="border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
-        <div style="display:grid; grid-template-columns:minmax(0,1fr) 96px 96px; padding:12px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-subtle)"><span>Compare Tiers</span><span style="text-align:center">Agent</span><span style="text-align:center">Team</span></div>
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) 96px 96px; padding:12px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-subtle)"><span>Compare Tiers</span><span style="text-align:center">Agent</span><span style="text-align:center">Team</span></div>
         <sc-for list="{{ compare }}" as="r" hint-placeholder-count="6">
-          <div style="display:grid; grid-template-columns:minmax(0,1fr) 96px 96px; align-items:center; padding:11px 18px; border-bottom:1px solid var(--line-subtle); font-size:14px">
+          <div style="display:grid; grid-template-columns:minmax(0,1fr) 96px 96px; align-items:center; padding:11px 18px; border-bottom:1px solid var(--line-subtle); font-size:16px">
             <span style="color:var(--text-primary)">{{ r.label }}</span>
             <span style="text-align:center; color:{{ r.aFg }}; font-variant-numeric:tabular-nums">{{ r.a }}</span>
             <span style="text-align:center; color:var(--text-primary); font-weight:500; font-variant-numeric:tabular-nums">{{ r.t }}</span>
@@ -100,14 +99,14 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <aside style="flex:1 1 320px; min-width:0; position:sticky; top:24px; display:flex; flex-direction:column; gap:14px">
       <section style="padding:22px; border-radius:16px; border:1px solid var(--line-default); background:var(--bg-surface); box-shadow:var(--shadow-card); display:flex; flex-direction:column; gap:16px">
         <dc-import name="Status Token" kind="access" state="locked" label="Team tier" hint-size="90px,22px"></dc-import>
-        <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap"><span style="font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums">{{ price }}</span><span style="color:var(--text-tertiary); font-size:13px">per Team, per Cohort · {{ seats }} Seats</span></div>
+        <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap"><span style="font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums">{{ price }}</span><span style="color:var(--text-tertiary); font-size:16px">per Team, per Cohort · {{ seats }} Seats</span></div>
         <div style="display:flex; flex-direction:column; gap:8px">
-          <sc-for list="{{ features }}" as="ft"><div style="display:flex; gap:8px; font-size:14px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; flex:none; margin-top:2px; fill:none; stroke:var(--status-success); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M5 12.6l4.4 4.4L19 7.4"></path></svg>{{ ft }}</div></sc-for>
+          <sc-for list="{{ features }}" as="ft"><div style="display:flex; gap:8px; font-size:16px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; flex:none; margin-top:2px; fill:none; stroke:var(--status-success); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M5 12.6l4.4 4.4L19 7.4"></path></svg>{{ ft }}</div></sc-for>
         </div>
-        <button onClick="{{ request }}" style="--b-hov:{{ up.hov }}; height:42px; border-radius:9px; border:1px solid {{ up.bd }}; background:{{ up.bg }}; color:{{ up.fg }}; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; outline:none" style-hover="background:var(--b-hov)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">
+        <button onClick="{{ request }}" style="--b-hov:{{ up.hov }}; height:42px; border-radius:9px; border:1px solid {{ up.bd }}; background:{{ up.bg }}; color:{{ up.fg }}; font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; outline:none" style-hover="background:var(--b-hov)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">
           <svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ up.icon }}"></path></svg>{{ up.label }}
         </button>
-        <div style="font-size:12px; color:var(--text-tertiary); text-align:center">{{ up.note }}</div>
+        <div style="font-size:16px; color:var(--text-tertiary); text-align:center">{{ up.note }}</div>
       </section>
     </aside>
   </div>

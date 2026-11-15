@@ -1,6 +1,7 @@
 import './styles/fonts';
 import './styles/tokens.css';
 import './styles/global.css';
+import './styles/lms.css'; // D-156: the LMS's type and tap targets, never www's
 
 import { StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';

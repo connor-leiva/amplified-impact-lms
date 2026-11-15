@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -68,29 +67,29 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Staff &amp; Roles</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">Who can build, publish and manage the program.</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">Who can build, publish and manage the program.</p>
     </div>
   </div>
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
     <div style="display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
-      <div style="font-size:14px; font-weight:600; flex:1">Team Members</div>
-      <input value="{{ email }}" onChange="{{ setEmail }}" placeholder="name@amplifiedimpact.com" style="width:240px; height:34px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)">
-      <select value="{{ newRole }}" onChange="{{ setNewRole }}" style="height:34px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+      <div style="font-size:16px; font-weight:600; flex:1">Team Members</div>
+      <input value="{{ email }}" onChange="{{ setEmail }}" placeholder="name@amplifiedimpact.com" style="width:240px; height:34px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
+      <select value="{{ newRole }}" onChange="{{ setNewRole }}" style="height:34px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none">
         <option value="Admin">Admin</option>
         <option value="Instructor">Instructor</option>
         <option value="Content Editor">Content Editor</option>
         <option value="Support">Support</option>
       </select>
-      <button onClick="{{ invite }}" style="height:34px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.userPlus }}"></path></svg>Invite Staff</button>
+      <button onClick="{{ invite }}" style="height:34px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.userPlus }}"></path></svg>Invite Staff</button>
     </div>
-    <sc-if value="{{ err }}"><div style="padding:8px 18px 0; font-size:13px; color:var(--access-locked-text)">{{ err }}</div></sc-if>
+    <sc-if value="{{ err }}"><div style="padding:8px 18px 0; font-size:16px; color:var(--access-locked-text)">{{ err }}</div></sc-if>
     <sc-for list="{{ staff }}" as="s" hint-placeholder-count="4">
       <div style="display:flex; align-items:center; gap:12px; padding:12px 18px; border-top:{{ s.bt }}; flex-wrap:wrap">
-        <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ s.av }}; border:{{ s.avBd }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ s.ini }}</span>
-        <div style="flex:1; min-width:200px"><div style="font-size:14px; font-weight:500">{{ s.name }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ s.email }}</div></div>
-        <span style="font-size:13px; color:var(--text-tertiary); width:120px">{{ s.last }}</span>
-        <select value="{{ s.role }}" onChange="{{ s.setRole }}" disabled="{{ s.isOwner }}" style="height:32px; width:150px; padding:0 8px; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none">
+        <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ s.av }}; border:{{ s.avBd }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ s.ini }}</span>
+        <div style="flex:1; min-width:200px"><div style="font-size:16px; font-weight:500">{{ s.name }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ s.email }}</div></div>
+        <span style="font-size:16px; color:var(--text-tertiary); width:120px">{{ s.last }}</span>
+        <select value="{{ s.role }}" onChange="{{ s.setRole }}" disabled="{{ s.isOwner }}" style="height:32px; width:150px; padding:0 8px; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none">
           <option value="Owner">Owner</option>
           <option value="Admin">Admin</option>
           <option value="Instructor">Instructor</option>
@@ -103,15 +102,15 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   </section>
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
-    <div style="padding:14px 18px; border-bottom:1px solid var(--line-default)"><div style="font-size:14px; font-weight:600">Permissions</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">Owner Permissions Are Fixed</div></div>
+    <div style="padding:14px 18px; border-bottom:1px solid var(--line-default)"><div style="font-size:16px; font-weight:600">Permissions</div><div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">Owner Permissions Are Fixed</div></div>
     <div style="overflow-x:auto">
       <div style="min-width:760px">
-        <div style="display:grid; grid-template-columns:minmax(220px,1.6fr) repeat(5, 1fr); padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+        <div style="display:grid; grid-template-columns:minmax(220px,1.6fr) repeat(5, 1fr); padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
           <span>Permission</span><sc-for list="{{ roles }}" as="r"><span style="text-align:center">{{ r }}</span></sc-for>
         </div>
         <sc-for list="{{ perms }}" as="p" hint-placeholder-count="8">
           <div style="display:grid; grid-template-columns:minmax(220px,1.6fr) repeat(5, 1fr); align-items:center; padding:9px 18px; border-bottom:1px solid var(--line-default)">
-            <span style="font-size:13px; color:var(--text-secondary)">{{ p.label }}</span>
+            <span style="font-size:16px; color:var(--text-secondary)">{{ p.label }}</span>
             <sc-for list="{{ p.cells }}" as="cl">
               <div style="display:flex; justify-content:center">
                 <button onClick="{{ cl.go }}" style="width:22px; height:22px; border-radius:6px; border:1.5px solid {{ cl.bd }}; background:{{ cl.bg }}; cursor:{{ cl.cursor }}; display:flex; align-items:center; justify-content:center; padding:0; opacity:{{ cl.op }}">

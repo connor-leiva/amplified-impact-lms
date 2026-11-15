@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -68,7 +67,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Cohorts &amp; Sessions</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">Each cohort runs the same six live builds on its own schedule and roster.</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">Each cohort runs the same six live builds on its own schedule and roster.</p>
     </div>
   </div>
 
@@ -77,39 +76,39 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <button onClick="{{ co.pick }}" style="display:flex; flex-direction:column; gap:10px; padding:16px 18px; border-radius:12px; border:1px solid {{ co.bd }}; background:{{ co.bg }}; text-align:left; cursor:pointer; color:var(--text-primary)">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px">
           <span style="font-size:16px; font-weight:600">{{ co.name }}</span>
-          <span style="display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; background:{{ co.st.bg }}; color:{{ co.st.fg }}; border:1px solid {{ co.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ co.st.dot }}"></span>{{ co.st.label }}</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 9px; border-radius:999px; font-size:16px; font-weight:600; background:{{ co.st.bg }}; color:{{ co.st.fg }}; border:1px solid {{ co.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ co.st.dot }}"></span>{{ co.st.label }}</span>
         </div>
-        <div style="font-size:13px; color:var(--text-tertiary)">{{ co.range }} · {{ co.cadence }}</div>
+        <div style="font-size:16px; color:var(--text-tertiary)">{{ co.range }} · {{ co.cadence }}</div>
         <div style="display:flex; align-items:center; gap:10px">
           <div style="flex:1; height:5px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ co.fill }}; background:var(--action-primary)"></div></div>
-          <span style="font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums; white-space:nowrap">{{ co.enrolled }} / {{ co.capacity }}</span>
+          <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums; white-space:nowrap">{{ co.enrolled }} / {{ co.capacity }}</span>
         </div>
       </button>
     </sc-for>
-    <button onClick="{{ addCohort }}" style="display:flex; align-items:center; justify-content:center; gap:8px; min-height:112px; border-radius:12px; border:1px dashed var(--line-strong); background:transparent; color:var(--text-tertiary); font-size:13px; cursor:pointer" style-hover="border-color:var(--action-primary); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>New Cohort</button>
+    <button onClick="{{ addCohort }}" style="display:flex; align-items:center; justify-content:center; gap:8px; min-height:112px; border-radius:12px; border:1px dashed var(--line-strong); background:transparent; color:var(--text-tertiary); font-size:16px; cursor:pointer" style-hover="border-color:var(--action-primary); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>New Cohort</button>
   </div>
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
-      <div><div style="font-size:14px; font-weight:600">{{ sel.name }} Schedule</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">{{ sel.note }}</div></div>
-      <sc-if value="{{ sel.canOpen }}"><button onClick="{{ sel.open }}" style="height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">Open Enrollment</button></sc-if>
+      <div><div style="font-size:16px; font-weight:600">{{ sel.name }} Schedule</div><div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">{{ sel.note }}</div></div>
+      <sc-if value="{{ sel.canOpen }}"><button onClick="{{ sel.open }}" style="height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">Open Enrollment</button></sc-if>
     </div>
     <div style="overflow-x:auto">
       <div style="min-width:1060px">
-        <div style="display:grid; grid-template-columns:40px minmax(240px,2fr) 170px minmax(170px,1.2fr) 150px 110px 230px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+        <div style="display:grid; grid-template-columns:40px minmax(240px,2fr) 170px minmax(170px,1.2fr) 150px 110px 230px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
           <span>#</span><span>Session</span><span>Date &amp; Time</span><span>Zoom</span><span>Status</span><span>Attendance</span><span style="text-align:right">Actions</span>
         </div>
         <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
           <div style="display:grid; grid-template-columns:40px minmax(240px,2fr) 170px minmax(170px,1.2fr) 150px 110px 230px; gap:12px; align-items:center; padding:13px 18px; border-bottom:1px solid var(--line-default); background:{{ r.bg }}">
-            <span style="font-family:var(--font-mono); font-size:13px; color:var(--text-tertiary)">{{ r.n }}</span>
-            <div style="min-width:0"><div style="font-size:14px; font-weight:500">{{ r.title }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ r.module }}</div></div>
-            <div style="font-size:13px; color:var(--text-secondary); line-height:1.4">{{ r.day }}<div style="color:var(--text-tertiary); font-size:12px">{{ r.time }}</div></div>
-            <button onClick="{{ r.copyZoom }}" title="Copy Zoom link" style="display:flex; align-items:center; gap:6px; min-width:0; border:0; background:none; padding:0; color:var(--text-link); font-family:var(--font-mono); font-size:12px; cursor:pointer; text-align:left" style-hover="color:var(--status-progress-text)"><span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.zoom }}</span><svg viewBox="0 0 24 24" style="width:12px; height:12px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.copy }}"></path></svg></button>
-            <span style="display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; width:max-content; background:{{ r.st.bg }}; color:{{ r.st.fg }}; border:1px solid {{ r.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ r.st.dot }}; animation:{{ r.pulse }}"></span>{{ r.st.label }}</span>
-            <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ r.att }}</span>
+            <span style="font-family:var(--font-ui-mono); font-size:16px; color:var(--text-tertiary)">{{ r.n }}</span>
+            <div style="min-width:0"><div style="font-size:16px; font-weight:500">{{ r.title }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ r.module }}</div></div>
+            <div style="font-size:16px; color:var(--text-secondary); line-height:1.4">{{ r.day }}<div style="color:var(--text-tertiary); font-size:16px">{{ r.time }}</div></div>
+            <button onClick="{{ r.copyZoom }}" title="Copy Zoom link" style="display:flex; align-items:center; gap:6px; min-width:0; border:0; background:none; padding:0; color:var(--text-link); font-family:var(--font-ui-mono); font-size:16px; cursor:pointer; text-align:left" style-hover="color:var(--status-progress-text)"><span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ r.zoom }}</span><svg viewBox="0 0 24 24" style="width:12px; height:12px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.copy }}"></path></svg></button>
+            <span style="display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 9px; border-radius:999px; font-size:16px; font-weight:600; width:max-content; background:{{ r.st.bg }}; color:{{ r.st.fg }}; border:1px solid {{ r.st.bd }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ r.st.dot }}; animation:{{ r.pulse }}"></span>{{ r.st.label }}</span>
+            <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ r.att }}</span>
             <div style="display:flex; justify-content:flex-end; gap:6px">
-              <sc-if value="{{ r.primary }}"><button onClick="{{ r.primary.go }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid {{ r.primary.bd }}; background:{{ r.primary.bg }}; color:{{ r.primary.fg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">{{ r.primary.label }}</button></sc-if>
-              <button onClick="{{ r.edit }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.pencil }}"></path></svg>Edit</button>
+              <sc-if value="{{ r.primary }}"><button onClick="{{ r.primary.go }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid {{ r.primary.bd }}; background:{{ r.primary.bg }}; color:{{ r.primary.fg }}; font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">{{ r.primary.label }}</button></sc-if>
+              <button onClick="{{ r.edit }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.pencil }}"></path></svg>Edit</button>
             </div>
           </div>
         </sc-for>
@@ -121,32 +120,32 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 <div onClick="{{ close }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
 <aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(440px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
   <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
-    <div style="flex:1"><div style="font-size:16px; font-weight:600">Edit Session {{ dw.n }}</div><div style="font-size:13px; color:var(--text-tertiary)">{{ dw.cohort }} · Changes Appear in the Portal Immediately</div></div>
+    <div style="flex:1"><div style="font-size:16px; font-weight:600">Edit Session {{ dw.n }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ dw.cohort }} · Changes Appear in the Portal Immediately</div></div>
     <button onClick="{{ close }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
   </div>
   <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:14px">
-    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Title
-      <input value="{{ f.title }}" onChange="{{ f.setTitle }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Title
+      <input value="{{ f.title }}" onChange="{{ f.setTitle }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
     </label>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Date
-        <input type="date" value="{{ f.date }}" onChange="{{ f.setDate }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none; color-scheme:dark">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Date
+        <input type="date" value="{{ f.date }}" onChange="{{ f.setDate }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none; color-scheme:dark">
       </label>
-      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Start Time (CT)
-        <input type="time" value="{{ f.time }}" onChange="{{ f.setTime }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:13px; outline:none; color-scheme:dark">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Start Time (CT)
+        <input type="time" value="{{ f.time }}" onChange="{{ f.setTime }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none; color-scheme:dark">
       </label>
     </div>
-    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Duration (Minutes)
-      <input type="number" min="15" step="15" value="{{ f.mins }}" onChange="{{ f.setMins }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Duration (Minutes)
+      <input type="number" min="15" step="15" value="{{ f.mins }}" onChange="{{ f.setMins }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
     </label>
-    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Zoom Link
-      <input value="{{ f.zoom }}" onChange="{{ f.setZoom }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-family:var(--font-mono); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)">
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Zoom Link
+      <input value="{{ f.zoom }}" onChange="{{ f.setZoom }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-family:var(--font-ui-mono); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
     </label>
-    <div style="padding:12px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-default); font-size:13px; color:var(--text-tertiary); line-height:1.55">Learners with reminders on get the updated time and link automatically. The dashboard countdown updates as soon as you save.</div>
+    <div style="padding:12px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-default); font-size:16px; color:var(--text-tertiary); line-height:1.55">Learners with reminders on get the updated time and link automatically. The dashboard countdown updates as soon as you save.</div>
   </div>
   <div style="display:flex; justify-content:flex-end; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default)">
-    <button onClick="{{ close }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
-    <button onClick="{{ saveSession }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">Save Session</button>
+    <button onClick="{{ close }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
+    <button onClick="{{ saveSession }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">Save Session</button>
   </div>
 </aside>
 </x-dc>

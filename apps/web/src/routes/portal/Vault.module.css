@@ -31,7 +31,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* --- Search (340 wide, icon inset 11/10) --------------------------------------------------- */
@@ -72,7 +72,7 @@ input.search {
   border: 1px solid var(--line-default);
   background: var(--bg-surface);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -107,7 +107,7 @@ select.typeSelect {
   margin-left: auto;
   height: 30px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   border-color: var(--line-default);
 }
@@ -124,7 +124,7 @@ select.typeSelect {
   padding: 36px;
   text-align: center;
   color: var(--text-tertiary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* D-150: a vault with nothing published yet. The list's own quiet tokens, at 16px. */
@@ -194,31 +194,31 @@ select.typeSelect {
 }
 
 .title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .newChip {
-  height: 18px;
+  height: 24px;
   padding: 0 7px;
   border-radius: 999px;
   background: var(--action-primary-tint);
   color: var(--status-progress-text);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
 }
 
 .tierChip {
-  height: 18px;
+  height: 24px;
   white-space: nowrap;
   padding: 0 7px;
   border-radius: 999px;
   background: var(--access-locked-bg);
   color: var(--access-locked-text);
   border: 1px solid var(--access-locked-line);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -226,20 +226,20 @@ select.typeSelect {
 }
 
 .desc {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
   margin-top: 2px;
 }
 
 .cat {
   width: 200px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
 .meta {
   width: 130px;
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   line-height: 1.4;
 }
@@ -252,7 +252,7 @@ select.typeSelect {
   border: 1px solid var(--line-strong);
   background: var(--seg-active);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -278,7 +278,7 @@ select.typeSelect {
    buttons that could raise one are never rendered to a viewer who would fail the check — but
    `useMutate` hands `error` back to the caller to render, so it is rendered. */
 .error {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--access-locked-text);
 }
 
@@ -304,7 +304,7 @@ select.typeSelect {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -317,7 +317,7 @@ select.typeSelect {
 
 .upsellBody {
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
   max-width: 460px;
 }
@@ -331,7 +331,7 @@ select.typeSelect {
   border: 1px solid var(--access-locked);
   background: var(--access-locked);
   color: var(--access-locked-on);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -377,12 +377,12 @@ select.typeSelect {
 }
 
 .previewTitle {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 
 .previewSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -399,7 +399,7 @@ select.typeSelect {
   border: 0;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   box-shadow: none;
@@ -419,13 +419,13 @@ select.typeSelect {
   color: var(--access-locked-text);
 }
 .tabCount {
-  height: 18px;
-  min-width: 18px;
+  height: 24px;
+  min-width: 24px;
   padding: 0 6px;
   border-radius: 999px;
   background: var(--action-secondary);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;

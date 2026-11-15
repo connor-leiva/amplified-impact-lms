@@ -16,6 +16,8 @@
 //   2. tokens.css and global.css are exactly what this script would write from them, and
 //   3. every brand logo the app imports is byte-identical to the reference's copy (D-031) — the
 //      same drawing has to be on both sides for the unmasked brand row to mean anything.
+//   4. (D-156) the Geist files and lms.css, the LMS's own type and tap-target rules, are byte-identical
+//      on both sides. lms.css is not part of the shared block because www's pages inline global.css.
 //
 // The transform is the one the files were originally produced with, reconstructed and proven
 // byte-exact against them before anything else changed: tokens are the leading `:root…` /
@@ -33,6 +35,10 @@ const TOKENS = join(ROOT, 'apps/web/src/styles/tokens.css');
 const GLOBAL = join(ROOT, 'apps/web/src/styles/global.css');
 const REF_BRAND = join(REF, 'brand');
 const APP_BRAND = join(ROOT, 'apps/web/src/assets/brand');
+const REF_FONTS = join(REF, 'fonts');
+const APP_FONTS = join(ROOT, 'apps/web/src/home/fonts');
+const REF_LMS = join(REF, 'lms.css');
+const APP_LMS = join(ROOT, 'apps/web/src/styles/lms.css');
 const HEADER = '/* GENERATED verbatim from design-reference/*.dc.html <helmet><style> by scripts/reference-tokens.mjs. Do not hand-edit values. */';
 
 /** The token <style> of one reference file: the first <style> inside <helmet>. */
@@ -106,7 +112,28 @@ function main() {
       console.error(`reference-tokens: apps/web/src/assets/brand/{${drift.join(',')}} differ from design-reference/brand/ (or are missing there).`);
       process.exit(1);
     }
-    console.log(`reference-tokens: ok (${blocks.length} reference copies identical, ${md5(blocks[0].block)}; tokens.css, global.css and ${readdirSync(APP_BRAND).length} brand assets current)`);
+    // D-156: the reference and the app set the LMS in the same Geist files.
+    const fonts = readdirSync(REF_FONTS).filter((f) => f.endsWith('.woff2'));
+    const fontDrift = fonts.filter((f) => {
+      try {
+        return !readFileSync(join(REF_FONTS, f)).equals(readFileSync(join(APP_FONTS, f)));
+      } catch {
+        return true;
+      }
+    });
+    if (!fonts.length || fontDrift.length) {
+      console.error(`reference-tokens: design-reference/fonts/{${fontDrift.join(',')}} differ from apps/web/src/home/fonts/ (or are missing).`);
+      process.exit(1);
+    }
+    // D-156: the LMS's own global rules (type, tap targets) are one file on both sides, kept out of
+    // the shared block because www inlines global.css.
+    if (!readFileSync(REF_LMS).equals(readFileSync(APP_LMS))) {
+      console.error('reference-tokens: apps/web/src/styles/lms.css differs from design-reference/lms.css.');
+      process.exit(1);
+    }
+    console.log(
+      `reference-tokens: ok (${blocks.length} reference copies identical, ${md5(blocks[0].block)}; tokens.css, global.css, lms.css, ${readdirSync(APP_BRAND).length} brand assets and ${fonts.length} fonts current)`,
+    );
     return;
   }
   writeFileSync(TOKENS, tokens);

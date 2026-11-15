@@ -12,7 +12,7 @@
 
 /* `View As` and `Timeline`, in both layouts. */
 .label {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 /* The reference nudges only the second inline label away from the track before it. */
@@ -27,7 +27,7 @@
   border-radius: 8px;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
@@ -51,7 +51,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
@@ -101,7 +101,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   outline: none;
 }
