@@ -1,0 +1,17 @@
+/* Geist and Geist Mono for the reference (DECISIONS.md D-156): the www kit's faces, self-hosted from
+   the same files as apps/web/src/home/fonts (byte-identical; scripts/reference-tokens.mjs --check holds
+   them together). Latin, variable weight, as the homepage and the kit load them. */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./geist-latin-wght-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./geist-mono-latin-wght-normal.woff2') format('woff2');
+}

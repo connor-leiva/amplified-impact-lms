@@ -23,20 +23,21 @@
 .sm {
   height: 32px;
   padding: 0 12px;
-  font-size: 13px;
+  font-size: 16px;
 }
 .md {
   height: 36px;
   padding: 0 14px;
-  font-size: 14px;
+  font-size: 16px;
 }
 .lg {
   height: 40px;
   padding: 0 16px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .primary {
+  min-height: var(--tap-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
 }
@@ -60,7 +61,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-weight: 500;
-  font-size: 13px;
+  font-size: 16px;
 }
 .ghost:hover,
 .ghost[data-force='hover'] {

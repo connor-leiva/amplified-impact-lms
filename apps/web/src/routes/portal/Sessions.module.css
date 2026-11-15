@@ -37,7 +37,7 @@
 .sub {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .calAll {
@@ -47,7 +47,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -102,8 +102,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   color: var(--text-secondary);
 }
 .row[data-state='past'] .ring {
@@ -143,7 +143,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px 14px;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -161,7 +161,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -207,12 +207,12 @@
 }
 
 .cardTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .cardSub {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
   margin-top: 2px;
 }
@@ -229,7 +229,7 @@
 
 .ohLabel {
   flex: 1;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-primary);
 }
 .ohRow[data-past] .ohLabel {
@@ -237,7 +237,7 @@
 }
 
 .ohPosted {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -246,7 +246,7 @@
   background: none;
   padding: 0;
   color: var(--text-link);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
 }
 .ohLink:hover {
@@ -273,11 +273,11 @@
 
 .attOf {
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .attNote {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
   line-height: 1.5;
 }

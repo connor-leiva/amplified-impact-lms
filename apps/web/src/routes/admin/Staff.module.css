@@ -34,7 +34,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* ---- Both cards share the frame (SCREENS § 1.2; the reference draws these at radius 12) ----- */
@@ -46,7 +46,7 @@
 }
 
 .cardTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -62,7 +62,7 @@
 
 /* Same 14/600 as `.cardTitle`; `flex: 1` pushes the three controls to the right edge of the row. */
 .inviteTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   flex: 1;
 }
@@ -76,7 +76,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   outline: none;
 }
 .email:focus {
@@ -91,7 +91,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   outline: none;
 }
 .inviteRole:focus-visible {
@@ -107,7 +107,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -127,7 +127,7 @@
 /* SCREENS § 1.5: a validation error is 13px `--access-locked-text`, inline under the form. */
 .err {
   padding: 8px 18px 0;
-  font-size: 13px;
+  font-size: 16px;
   color: var(--access-locked-text);
 }
 
@@ -150,17 +150,17 @@
 }
 
 .name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .rowEmail {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .last {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
   width: 120px;
 }
@@ -173,7 +173,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   outline: none;
 }
 .rowRole:focus-visible {
@@ -213,7 +213,7 @@
 }
 
 .permSub {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   margin-top: 2px;
 }
@@ -235,7 +235,7 @@
 
 .matrixHead {
   padding: 10px 18px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -252,7 +252,7 @@
 }
 
 .permLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 

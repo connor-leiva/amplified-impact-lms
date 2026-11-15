@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -68,15 +67,15 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Learners &amp; Teams</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">December 2026 Cohort · seat and progress data syncs from the portal</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">December 2026 Cohort · seat and progress data syncs from the portal</p>
     </div>
-    <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export Roster</button>
+    <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export Roster</button>
   </div>
 
   <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px">
     <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
       <section style="padding:14px 16px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface)">
-        <div style="font-size:13px; color:var(--text-tertiary)">{{ s.label }}</div>
+        <div style="font-size:16px; color:var(--text-tertiary)">{{ s.label }}</div>
         <div style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin-top:4px; color:{{ s.fg }}">{{ s.value }}</div>
       </section>
     </sc-for>
@@ -84,15 +83,15 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 
   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
     <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default)">
-      <sc-for list="{{ tabs }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
+      <sc-for list="{{ tabs }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 12px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
     </div>
     <sc-if value="{{ isLearners }}">
       <div style="display:flex; padding:3px; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default)">
-        <sc-for list="{{ tierF }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:13px; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
+        <sc-for list="{{ tierF }}" as="t"><button onClick="{{ t.go }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ t.bg }}; color:{{ t.fg }}; font-size:16px; cursor:pointer; white-space:nowrap">{{ t.label }}</button></sc-for>
       </div>
       <div style="position:relative; margin-left:auto; width:min(300px, 100%)">
         <svg viewBox="0 0 24 24" style="position:absolute; left:10px; top:9px; width:15px; height:15px; fill:none; stroke:var(--text-tertiary); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.search }}"></path></svg>
-        <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search name, email or team" style="width:100%; height:34px; padding:0 10px 0 32px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search name, email or team" style="width:100%; height:34px; padding:0 10px 0 32px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
       </div>
     </sc-if>
   </div>
@@ -101,29 +100,29 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
       <div style="overflow-x:auto">
         <div style="min-width:1000px">
-          <div style="display:grid; grid-template-columns:minmax(240px,2fr) 110px minmax(160px,1.3fr) 170px 120px 120px 30px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+          <div style="display:grid; grid-template-columns:minmax(240px,2fr) 110px minmax(160px,1.3fr) 170px 120px 120px 30px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
             <span>Learner</span><span>Tier</span><span>Team · Role</span><span>AI Employees</span><span>Last Active</span><span>Status</span><span></span>
           </div>
           <sc-for list="{{ rows }}" as="u" hint-placeholder-count="10">
             <div onClick="{{ u.open }}" style="display:grid; grid-template-columns:minmax(240px,2fr) 110px minmax(160px,1.3fr) 170px 120px 120px 30px; gap:12px; align-items:center; padding:11px 18px; border-bottom:1px solid var(--line-default); cursor:pointer; background:{{ u.bg }}" style-hover="background:var(--bg-hover)">
               <div style="display:flex; align-items:center; gap:10px; min-width:0">
-                <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ u.av }}; border:{{ u.avBd }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ u.ini }}</span>
-                <div style="min-width:0"><div style="font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.name }}</div><div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.email }}</div></div>
+                <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ u.av }}; border:{{ u.avBd }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ u.ini }}</span>
+                <div style="min-width:0"><div style="font-size:16px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.name }}</div><div style="font-size:16px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.email }}</div></div>
               </div>
-              <span style="height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; width:max-content; background:{{ u.tBg }}; color:{{ u.tFg }}">{{ u.tier }}</span>
-              <div style="font-size:13px; color:var(--text-secondary); line-height:1.4; min-width:0">{{ u.team }}<div style="color:var(--text-tertiary); font-size:12px">{{ u.role }}</div></div>
+              <span style="height:24px; padding:0 9px; border-radius:999px; font-size:16px; font-weight:600; display:inline-flex; align-items:center; width:max-content; background:{{ u.tBg }}; color:{{ u.tFg }}">{{ u.tier }}</span>
+              <div style="font-size:16px; color:var(--text-secondary); line-height:1.4; min-width:0">{{ u.team }}<div style="color:var(--text-tertiary); font-size:16px">{{ u.role }}</div></div>
               <div style="display:flex; align-items:center; gap:8px">
                 <div style="display:flex; gap:3px"><sc-for list="{{ u.dots }}" as="d"><span title="{{ d.t }}" style="width:13px; height:13px; border-radius:4px; background:{{ d.c }}; border:1px solid {{ d.bd }}"></span></sc-for></div>
-                <span style="font-size:12px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ u.count }}</span>
+                <span style="font-size:16px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ u.count }}</span>
               </div>
-              <span style="font-size:13px; color:var(--text-tertiary)">{{ u.last }}</span>
-              <span style="display:flex; align-items:center; gap:6px; font-size:13px; color:{{ u.sFg }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ u.sDot }}"></span>{{ u.status }}</span>
+              <span style="font-size:16px; color:var(--text-tertiary)">{{ u.last }}</span>
+              <span style="display:flex; align-items:center; gap:6px; font-size:16px; color:{{ u.sFg }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ u.sDot }}"></span>{{ u.status }}</span>
               <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg>
             </div>
           </sc-for>
         </div>
       </div>
-      <div style="padding:12px 18px; font-size:13px; color:var(--text-tertiary)">{{ footNote }}</div>
+      <div style="padding:12px 18px; font-size:16px; color:var(--text-tertiary)">{{ footNote }}</div>
     </section>
   </sc-if>
 
@@ -131,21 +130,21 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
       <div style="overflow-x:auto">
         <div style="min-width:860px">
-          <div style="display:grid; grid-template-columns:minmax(220px,2fr) minmax(160px,1.4fr) 200px 140px 120px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+          <div style="display:grid; grid-template-columns:minmax(220px,2fr) minmax(160px,1.4fr) 200px 140px 120px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
             <span>Team</span><span>Owner</span><span>Seats</span><span>Deployed</span><span>Pending Invites</span>
           </div>
           <sc-for list="{{ teams }}" as="t" hint-placeholder-count="3">
             <div style="display:grid; grid-template-columns:minmax(220px,2fr) minmax(160px,1.4fr) 200px 140px 120px; gap:12px; align-items:center; padding:13px 18px; border-bottom:1px solid var(--line-default)">
-              <div style="font-size:14px; font-weight:500">{{ t.name }}</div>
-              <div style="font-size:13px; color:var(--text-secondary)">{{ t.owner }}</div>
-              <div style="display:flex; align-items:center; gap:10px"><div style="flex:1; height:6px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ t.fill }}; background:var(--action-primary)"></div></div><span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ t.seats }}</span></div>
-              <span style="font-size:13px; color:var(--status-success-text); font-variant-numeric:tabular-nums">{{ t.deployed }}</span>
-              <span style="font-size:13px; color:{{ t.invFg }}">{{ t.invites }}</span>
+              <div style="font-size:16px; font-weight:500">{{ t.name }}</div>
+              <div style="font-size:16px; color:var(--text-secondary)">{{ t.owner }}</div>
+              <div style="display:flex; align-items:center; gap:10px"><div style="flex:1; height:6px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ t.fill }}; background:var(--action-primary)"></div></div><span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ t.seats }}</span></div>
+              <span style="font-size:16px; color:var(--status-success-text); font-variant-numeric:tabular-nums">{{ t.deployed }}</span>
+              <span style="font-size:16px; color:{{ t.invFg }}">{{ t.invites }}</span>
             </div>
           </sc-for>
         </div>
       </div>
-      <div style="padding:12px 18px; font-size:13px; color:var(--text-tertiary)">{{ teamsNote }}</div>
+      <div style="padding:12px 18px; font-size:16px; color:var(--text-tertiary)">{{ teamsNote }}</div>
     </section>
   </sc-if>
 </div>
@@ -153,20 +152,20 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 <div onClick="{{ close }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
 <aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(440px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
   <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
-    <span style="width:40px; height:40px; flex:none; border-radius:50%; background:{{ dw.av }}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--ink-900)">{{ dw.ini }}</span>
-    <div style="flex:1; min-width:0"><div style="font-size:16px; font-weight:600">{{ dw.name }}</div><div style="font-size:13px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ dw.email }}</div></div>
+    <span style="width:40px; height:40px; flex:none; border-radius:50%; background:{{ dw.av }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ dw.ini }}</span>
+    <div style="flex:1; min-width:0"><div style="font-size:16px; font-weight:600">{{ dw.name }}</div><div style="font-size:16px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ dw.email }}</div></div>
     <button onClick="{{ close }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
   </div>
   <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:16px">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-      <sc-for list="{{ dw.facts }}" as="fa"><div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:12px; color:var(--text-tertiary); font-weight:500">{{ fa.k }}</div><div style="font-size:13px; margin-top:3px">{{ fa.v }}</div></div></sc-for>
+      <sc-for list="{{ dw.facts }}" as="fa"><div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:16px; color:var(--text-tertiary); font-weight:500">{{ fa.k }}</div><div style="font-size:16px; margin-top:3px">{{ fa.v }}</div></div></sc-for>
     </div>
     <div>
-      <div style="font-size:12px; color:var(--text-tertiary); font-weight:500; margin-bottom:8px">Build Progress</div>
+      <div style="font-size:16px; color:var(--text-tertiary); font-weight:500; margin-bottom:8px">Build Progress</div>
       <div style="display:flex; flex-direction:column; border:1px solid var(--line-default); border-radius:10px; overflow:hidden">
         <sc-for list="{{ dw.mods }}" as="dm">
           <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:{{ dm.bt }}">
-            <span style="flex:1; font-size:13px; color:{{ dm.fg }}">{{ dm.name }}</span>
+            <span style="flex:1; font-size:16px; color:{{ dm.fg }}">{{ dm.name }}</span>
             <sc-if value="{{ dm.ok }}"><dc-import name="Status Token" kind="build" state="{{ dm.b.state }}" n="{{ dm.b.n }}" total="{{ dm.b.total }}" compact="{{ true }}" hint-size="40px,16px"></dc-import><dc-import name="Status Token" kind="runtime" state="{{ dm.rt }}" hint-size="90px,22px"></dc-import></sc-if><sc-if value="{{ dm.no }}"><dc-import name="Status Token" kind="access" state="locked" hint-size="80px,22px"></dc-import></sc-if>
           </div>
         </sc-for>
@@ -174,8 +173,8 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     </div>
   </div>
   <div style="display:flex; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default); flex-wrap:wrap">
-    <button onClick="{{ dw.tierAct }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ dw.tierBd }}; background:{{ dw.tierBg }}; color:{{ dw.tierFg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">{{ dw.tierLabel }}</button>
-    <button onClick="{{ dw.nudge }}" style="margin-left:auto; height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer" style-hover="background:var(--action-secondary-hover)">{{ dw.nudgeLabel }}</button>
+    <button onClick="{{ dw.tierAct }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ dw.tierBd }}; background:{{ dw.tierBg }}; color:{{ dw.tierFg }}; font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">{{ dw.tierLabel }}</button>
+    <button onClick="{{ dw.nudge }}" style="margin-left:auto; height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; cursor:pointer" style-hover="background:var(--action-secondary-hover)">{{ dw.nudgeLabel }}</button>
   </div>
 </aside>
 </x-dc>

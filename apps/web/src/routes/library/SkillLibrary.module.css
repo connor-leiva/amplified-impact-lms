@@ -83,8 +83,8 @@
   border-radius: 999px;
   background: var(--status-success-bg);
   color: var(--status-success-text);
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 16px;
+  line-height: 20px;
   font-weight: 600;
 }
 /* The lead (`LEAD`), first under the name: the problem, what it does for you, who it's for. Every
@@ -113,7 +113,7 @@
 }
 .summary {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 /* "Set it up" (`LEAD.setup`), over an open skill's downloads and Setup Guide, under the lead. */
@@ -137,7 +137,7 @@
   min-height: 40px;
   padding: 0 14px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   text-decoration: none;
 }
@@ -164,7 +164,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
 }
 /* D-150: a member's locked row, "Not included with Utah Life access", at DESIGN.md's "lead" step,
@@ -191,7 +191,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
-  font-size: 15px;
+  font-size: 16px;
 }
 .status p {
   margin: 0;

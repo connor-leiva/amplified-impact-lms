@@ -205,13 +205,14 @@ describe('the guided setup in learn (D-151)', () => {
       expect(t).not.toMatch(/#[0-9a-f]{3,8}\b|rgb|hsl|oklch/i);
     });
 
-    it('sets "Step n of N" and a block\u2019s words at 16 / 24; the step numbers and Copy tags stay 14px', () => {
+    it('sets "Step n of N" and a block\u2019s words at 16 / 24, and since D-156 the step numbers and Copy tags at 16px too', () => {
       for (const sel of ['.progress', '.blockText']) {
         expect(rule(sel), sel).toMatch(/font-size: 16px;/);
         expect(rule(sel), sel).toMatch(/line-height: 24px;/);
       }
-      expect(rule('.stepN')).toMatch(/font-size: 14px;/);
-      expect(rule('.chipTag')).toMatch(/font-size: 14px;/);
+      // D-156: no LMS text under 16px; the 14px step numbers and Copy tags rose to the floor.
+      expect(rule('.stepN')).toMatch(/font-size: 16px;/);
+      expect(rule('.chipTag')).toMatch(/font-size: 16px;/);
     });
   });
 });

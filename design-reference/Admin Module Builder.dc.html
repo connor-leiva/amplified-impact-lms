@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -70,17 +69,17 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <div style="flex:1; min-width:200px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
       <span style="font-size:16px; font-weight:600; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ title }}</span>
       <dc-import name="Status Token" kind="custom" tone="{{ pill.tone }}" icon="{{ pill.icon }}" label="{{ pill.label }}" hint-size="80px,22px"></dc-import>
-      <span style="font-size:12px; color:{{ saveFg }}">{{ saveNote }}</span>
+      <span style="font-size:16px; color:{{ saveFg }}">{{ saveNote }}</span>
     </div>
-    <sc-if value="{{ canDelete }}"><button onClick="{{ remove }}" style="height:34px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background:transparent; color:var(--status-attention-text); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--status-attention-bg)">Delete Draft</button></sc-if>
-    <button onClick="{{ saveDraft }}" style="height:34px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">{{ saveLabel }}</button>
-    <button onClick="{{ publish }}" style="height:34px; padding:0 14px; border-radius:8px; border:1px solid transparent; background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-primary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.rocket }}"></path></svg>{{ publishLabel }}</button>
+    <sc-if value="{{ canDelete }}"><button onClick="{{ remove }}" style="height:34px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background:transparent; color:var(--status-attention-text); font-size:16px; cursor:pointer; white-space:nowrap" style-hover="background:var(--status-attention-bg)">Delete Draft</button></sc-if>
+    <button onClick="{{ saveDraft }}" style="height:34px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">{{ saveLabel }}</button>
+    <button onClick="{{ publish }}" style="height:34px; padding:0 14px; border-radius:8px; border:1px solid transparent; background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-primary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.rocket }}"></path></svg>{{ publishLabel }}</button>
   </div>
 
   <div style="padding:20px var(--page-pad-x) 56px; max-width:1480px; width:100%; margin:0 auto; display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start">
     <div style="flex:1.2 1 560px; min-width:0; display:flex; flex-direction:column; gap:14px">
       <sc-if value="{{ errors.length }}">
-        <div role="alert" style="padding:12px 14px; border-radius:12px; border:1px solid var(--status-attention-line); background:var(--status-attention-bg); font-size:13px; color:var(--status-attention-text); display:flex; flex-direction:column; gap:4px">
+        <div role="alert" style="padding:12px 14px; border-radius:12px; border:1px solid var(--status-attention-line); background:var(--status-attention-bg); font-size:16px; color:var(--status-attention-text); display:flex; flex-direction:column; gap:4px">
           <sc-for list="{{ errors }}" as="er"><div>{{ er }}</div></sc-for>
         </div>
       </sc-if>
@@ -88,50 +87,50 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
         <h2 style="margin:0; font-size:16px; font-weight:600">Basics</h2>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px">
-          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Name
-            <input value="{{ d.name }}" onChange="{{ set.name }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Name
+            <input value="{{ d.name }}" onChange="{{ set.name }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
           </label>
-          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Sidebar Label
-            <input value="{{ d.short }}" onChange="{{ set.short }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Sidebar Label
+            <input value="{{ d.short }}" onChange="{{ set.short }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
           </label>
         </div>
-        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Outcome Line <span style="font-weight:400; color:var(--text-tertiary)">Input → outputs. Shown under the title and on the card.</span>
-          <input value="{{ d.outcome }}" onChange="{{ set.outcome }}" placeholder="Paste an MLS listing → Fair-Housing-checked description, 5 social posts, 1 email." style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Outcome Line <span style="font-weight:400; color:var(--text-tertiary)">Input → outputs. Shown under the title and on the card.</span>
+          <input value="{{ d.outcome }}" onChange="{{ set.outcome }}" placeholder="Paste an MLS listing → Fair-Housing-checked description, 5 social posts, 1 email." style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
         </label>
-        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Outcome Headline <span style="font-weight:400; color:var(--text-tertiary)">Used in the locked preview and on the Team tier page.</span>
-          <input value="{{ d.headline }}" onChange="{{ set.headline }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Outcome Headline <span style="font-weight:400; color:var(--text-tertiary)">Used in the locked preview and on the Team tier page.</span>
+          <input value="{{ d.headline }}" onChange="{{ set.headline }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
         </label>
-        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">For <span style="font-weight:400; color:var(--text-tertiary)">Completes “For …” in the metadata line.</span>
-          <input value="{{ d.forWho }}" onChange="{{ set.forWho }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">For <span style="font-weight:400; color:var(--text-tertiary)">Completes “For …” in the metadata line.</span>
+          <input value="{{ d.forWho }}" onChange="{{ set.forWho }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
         </label>
         <div style="display:flex; flex-wrap:wrap; gap:18px">
           <div style="display:flex; flex-direction:column; gap:6px">
-            <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Icon</span>
+            <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Icon</span>
             <div style="display:flex; flex-wrap:wrap; gap:6px; max-width:330px">
               <sc-for list="{{ icons }}" as="io"><button onClick="{{ io.pick }}" aria-pressed="{{ io.on }}" style="width:34px; height:34px; border-radius:8px; border:1px solid {{ io.bd }}; background:{{ io.bg }}; cursor:pointer; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:{{ io.fg }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ io.d }}"></path></svg></button></sc-for>
             </div>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px">
-            <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Tier Access</span>
+            <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Tier Access</span>
             <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default); width:max-content">
-              <sc-for list="{{ tiers }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:28px; padding:0 12px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+              <sc-for list="{{ tiers }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:28px; padding:0 12px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
             </div>
-            <span style="font-size:12px; color:var(--text-tertiary)">{{ tierNote }}</span>
+            <span style="font-size:16px; color:var(--text-tertiary)">{{ tierNote }}</span>
           </div>
         </div>
       </section>
 
       <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
-        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">Outputs</h2><span style="font-size:12px; color:var(--text-tertiary)">Three bullets for the locked preview and Team tier page</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">Outputs</h2><span style="font-size:16px; color:var(--text-tertiary)">Three bullets for the locked preview and Team tier page</span></div>
         <sc-for list="{{ outputs }}" as="o" hint-placeholder-count="3">
-          <div style="display:flex; align-items:center; gap:10px"><span style="width:20px; font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary)">{{ o.n }}.</span><input value="{{ o.v }}" onChange="{{ o.set }}" placeholder="What it produces" style="flex:1; height:34px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></div>
+          <div style="display:flex; align-items:center; gap:10px"><span style="width:20px; font-family:var(--font-ui-mono); font-size:16px; color:var(--text-tertiary)">{{ o.n }}.</span><input value="{{ o.v }}" onChange="{{ o.set }}" placeholder="What it produces" style="flex:1; height:34px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></div>
         </sc-for>
       </section>
 
       <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
         <h2 style="margin:0; font-size:16px; font-weight:600">Live Session &amp; Replay</h2>
-        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Linked Session (Applies to Every Cohort)
-          <select value="{{ d.sessionStr }}" onChange="{{ setSession }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none">
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Linked Session (Applies to Every Cohort)
+          <select value="{{ d.sessionStr }}" onChange="{{ setSession }}" style="height:36px; padding:0 10px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none">
             <option value="">Self-Paced (No Live Session)</option>
             <option value="1">Session 1 · The Autonomous Agent</option>
             <option value="2">Session 2 · Speed to Lead</option>
@@ -141,30 +140,30 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
             <option value="6">Session 6 · Contract to Close</option>
           </select>
         </label>
-        <sc-if value="{{ sessWarn }}"><div style="font-size:13px; color:var(--access-locked-text)">{{ sessWarn }}</div></sc-if>
+        <sc-if value="{{ sessWarn }}"><div style="font-size:16px; color:var(--access-locked-text)">{{ sessWarn }}</div></sc-if>
         <div style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:10px; border:1px dashed var(--line-strong); background:var(--bg-sunken)">
           <span style="width:36px; height:36px; flex:none; border-radius:9px; background:var(--bg-surface); border:1px solid var(--line-default); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:17px; height:17px; fill:none; stroke:{{ replay.fg }}; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ replay.icon }}"></path></svg></span>
-          <div style="flex:1; min-width:0"><div style="font-size:14px; font-weight:500">{{ replay.title }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ replay.sub }}</div></div>
-          <button onClick="{{ uploadReplay }}" style="height:32px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>{{ replay.btn }}</button>
+          <div style="flex:1; min-width:0"><div style="font-size:16px; font-weight:500">{{ replay.title }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ replay.sub }}</div></div>
+          <button onClick="{{ uploadReplay }}" style="height:32px; padding:0 12px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:16px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>{{ replay.btn }}</button>
         </div>
       </section>
 
       <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
-        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">Build Steps</h2><span style="font-size:12px; color:var(--text-tertiary)">Six steps · each one is a chapter in the replay · {{ totalMins }} min total</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">Build Steps</h2><span style="font-size:16px; color:var(--text-tertiary)">Six steps · each one is a chapter in the replay · {{ totalMins }} min total</span></div>
         <sc-for list="{{ steps }}" as="s" hint-placeholder-count="6">
           <div style="display:flex; align-items:flex-start; gap:8px; padding:10px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-subtle)">
             <div style="display:flex; flex-direction:column; padding-top:4px">
               <button onClick="{{ s.up }}" aria-label="Move step up" style="width:22px; height:16px; border:0; background:transparent; color:{{ s.upFg }}; cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M6 14.5l6-6 6 6"></path></svg></button>
               <button onClick="{{ s.down }}" aria-label="Move step down" style="width:22px; height:16px; border:0; background:transparent; color:{{ s.downFg }}; cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="M6 9.5l6 6 6-6"></path></svg></button>
             </div>
-            <span style="width:22px; padding-top:9px; font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary)">{{ s.n }}.</span>
+            <span style="width:22px; padding-top:9px; font-family:var(--font-ui-mono); font-size:16px; color:var(--text-tertiary)">{{ s.n }}.</span>
             <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:6px">
-              <input value="{{ s.text }}" onChange="{{ s.setText }}" placeholder="What the learner does" aria-label="Step {{ s.n }} title" style="height:32px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary)">
-              <input value="{{ s.hint }}" onChange="{{ s.setHint }}" placeholder="Optional hint" aria-label="Step {{ s.n }} hint" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)">
+              <input value="{{ s.text }}" onChange="{{ s.setText }}" placeholder="What the learner does" aria-label="Step {{ s.n }} title" style="height:32px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
+              <input value="{{ s.hint }}" onChange="{{ s.setHint }}" placeholder="Optional hint" aria-label="Step {{ s.n }} hint" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)">
               <div style="display:flex; gap:8px; flex-wrap:wrap">
-                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-tertiary)">Chapter<input value="{{ s.ch }}" onChange="{{ s.setCh }}" style="width:170px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none" style-focus="border-color:var(--action-primary)"></label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-tertiary)">Replay At<input value="{{ s.t }}" onChange="{{ s.setT }}" style="width:72px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-family:var(--font-mono); font-size:12px; outline:none" style-focus="border-color:var(--action-primary)"></label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-tertiary)">Minutes<input type="number" min="1" value="{{ s.mins }}" onChange="{{ s.setMins }}" style="width:64px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none; font-variant-numeric:tabular-nums" style-focus="border-color:var(--action-primary)"></label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:16px; color:var(--text-tertiary)">Chapter<input value="{{ s.ch }}" onChange="{{ s.setCh }}" style="width:170px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)"></label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:16px; color:var(--text-tertiary)">Replay At<input value="{{ s.t }}" onChange="{{ s.setT }}" style="width:72px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-family:var(--font-ui-mono); font-size:16px; outline:none" style-focus="border-color:var(--action-primary)"></label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:16px; color:var(--text-tertiary)">Minutes<input type="number" min="1" value="{{ s.mins }}" onChange="{{ s.setMins }}" style="width:64px; height:28px; padding:0 8px; border-radius:6px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none; font-variant-numeric:tabular-nums" style-focus="border-color:var(--action-primary)"></label>
               </div>
             </div>
           </div>
@@ -172,10 +171,10 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       </section>
 
       <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
-        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">System Prompt</h2><span style="font-size:12px; color:var(--text-tertiary)">{{ promptStats }}</span></div>
-        <textarea value="{{ d.prompt }}" onChange="{{ set.prompt }}" spellcheck="false" aria-label="System prompt" style="min-height:280px; resize:vertical; padding:12px 14px; border-radius:10px; border:1px solid var(--line-strong); background:var(--bg-sunken); color:var(--text-primary); font-family:var(--font-mono); font-size:13px; line-height:1.65; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; color:var(--text-tertiary)">Variables Learners Fill In:
-          <sc-for list="{{ vars }}" as="vv"><span style="font-family:var(--font-mono); font-size:12px; color:var(--access-locked-text); background:var(--access-locked-bg); padding:1px 6px; border-radius:4px">{{ vv }}</span></sc-for>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap"><h2 style="margin:0; font-size:16px; font-weight:600">System Prompt</h2><span style="font-size:16px; color:var(--text-tertiary)">{{ promptStats }}</span></div>
+        <textarea value="{{ d.prompt }}" onChange="{{ set.prompt }}" spellcheck="false" aria-label="System prompt" style="min-height:280px; resize:vertical; padding:12px 14px; border-radius:10px; border:1px solid var(--line-strong); background:var(--bg-sunken); color:var(--text-primary); font-family:var(--font-ui-mono); font-size:16px; line-height:1.65; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:16px; color:var(--text-tertiary)">Variables Learners Fill In:
+          <sc-for list="{{ vars }}" as="vv"><span style="font-family:var(--font-ui-mono); font-size:16px; color:var(--access-locked-text); background:var(--access-locked-bg); padding:1px 6px; border-radius:4px">{{ vv }}</span></sc-for>
           <sc-if value="{{ noVars }}"><span>None yet. Wrap a placeholder in double braces, like {{ example }}.</span></sc-if>
         </div>
       </section>
@@ -184,37 +183,37 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
         <h2 style="margin:0; font-size:16px; font-weight:600">Skill Files &amp; Assets</h2>
         <sc-for list="{{ files }}" as="f">
           <div style="display:flex; align-items:center; gap:12px; padding:9px 10px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-subtle)">
-            <span style="width:44px; flex:none; height:22px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:500; background:var(--bg-surface); border:1px solid var(--line-default); color:var(--text-secondary)">{{ f.type }}</span>
-            <div style="flex:1; min-width:0"><div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</div><div style="font-size:12px; color:var(--text-tertiary)">{{ f.desc }} · {{ f.size }}</div></div>
+            <span style="width:44px; flex:none; height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:var(--font-ui-mono); font-size:16px; font-weight:500; background:var(--bg-surface); border:1px solid var(--line-default); color:var(--text-secondary)">{{ f.type }}</span>
+            <div style="flex:1; min-width:0"><div style="font-size:16px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ f.desc }} · {{ f.size }}</div></div>
             <button onClick="{{ f.remove }}" aria-label="Remove {{ f.name }}" style="width:28px; height:28px; border:0; border-radius:6px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="color:var(--status-attention-text); background:var(--status-attention-bg)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg></button>
           </div>
         </sc-for>
-        <button onClick="{{ addFile }}" style="display:flex; align-items:center; justify-content:center; gap:10px; height:60px; border-radius:10px; border:1px dashed var(--line-strong); background:transparent; color:var(--text-tertiary); font-size:13px; cursor:pointer" style-hover="border-color:var(--action-primary); color:var(--text-primary); background:var(--action-primary-tint)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Drop JSON or YAML skill files, or a Notion export</button>
+        <button onClick="{{ addFile }}" style="display:flex; align-items:center; justify-content:center; gap:10px; height:60px; border-radius:10px; border:1px dashed var(--line-strong); background:transparent; color:var(--text-tertiary); font-size:16px; cursor:pointer" style-hover="border-color:var(--action-primary); color:var(--text-primary); background:var(--action-primary-tint)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Drop JSON or YAML skill files, or a Notion export</button>
       </section>
 
       <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
         <h2 style="margin:0; font-size:16px; font-weight:600">Deployment</h2>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px">
-          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Platform
-            <input value="{{ d.platform }}" onChange="{{ set.platform }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Platform
+            <input value="{{ d.platform }}" onChange="{{ set.platform }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
           </label>
-          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Run Button Label
-            <input value="{{ d.runLabel }}" onChange="{{ set.runLabel }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Run Button Label
+            <input value="{{ d.runLabel }}" onChange="{{ set.runLabel }}" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
           </label>
         </div>
-        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Instructor Notes
-          <textarea value="{{ d.notes }}" onChange="{{ set.notes }}" placeholder="Tips learners see next to the checklist" style="min-height:84px; resize:vertical; padding:10px 12px; border-radius:9px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:14px; line-height:1.55; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Instructor Notes
+          <textarea value="{{ d.notes }}" onChange="{{ set.notes }}" placeholder="Tips learners see next to the checklist" style="min-height:84px; resize:vertical; padding:10px 12px; border-radius:9px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; line-height:1.55; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
         </label>
       </section>
 
       <section style="padding:18px 20px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:10px">
         <h2 style="margin:0; font-size:16px; font-weight:600">Publishing</h2>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:8px">
-          <sc-for list="{{ statuses }}" as="so"><button onClick="{{ so.pick }}" aria-pressed="{{ so.on }}" style="display:flex; flex-direction:column; gap:3px; padding:12px; border-radius:10px; border:1px solid {{ so.bd }}; background:{{ so.bg }}; text-align:left; cursor:pointer; color:var(--text-primary)"><span style="font-size:14px; font-weight:600">{{ so.label }}</span><span style="font-size:12px; color:var(--text-tertiary)">{{ so.sub }}</span></button></sc-for>
+          <sc-for list="{{ statuses }}" as="so"><button onClick="{{ so.pick }}" aria-pressed="{{ so.on }}" style="display:flex; flex-direction:column; gap:3px; padding:12px; border-radius:10px; border:1px solid {{ so.bd }}; background:{{ so.bg }}; text-align:left; cursor:pointer; color:var(--text-primary)"><span style="font-size:16px; font-weight:600">{{ so.label }}</span><span style="font-size:16px; color:var(--text-tertiary)">{{ so.sub }}</span></button></sc-for>
         </div>
         <sc-if value="{{ isScheduled }}">
-          <label style="display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-secondary); flex-wrap:wrap">Opens On
-            <input type="date" value="{{ opensDate }}" onChange="{{ setOpens }}" style="height:34px; padding:0 10px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:13px; outline:none">
+          <label style="display:flex; align-items:center; gap:10px; font-size:16px; color:var(--text-secondary); flex-wrap:wrap">Opens On
+            <input type="date" value="{{ opensDate }}" onChange="{{ setOpens }}" style="height:34px; padding:0 10px; border-radius:8px; border:1px solid var(--line-strong); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none">
             <span style="color:var(--text-tertiary)">at 9:00 AM CT</span>
           </label>
         </sc-if>
@@ -223,13 +222,13 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 
     <div style="flex:1 1 380px; min-width:0; position:sticky; top:76px; display:flex; flex-direction:column; gap:12px">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap">
-        <span style="font-size:14px; font-weight:600; color:var(--text-secondary)">Live Learner Preview</span>
+        <span style="font-size:16px; font-weight:600; color:var(--text-secondary)">Live Learner Preview</span>
         <div style="display:flex; gap:6px; flex-wrap:wrap">
           <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-            <sc-for list="{{ pvTabs }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+            <sc-for list="{{ pvTabs }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
           </div>
           <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-            <sc-for list="{{ pvTiers }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:12px; font-weight:500; cursor:pointer">{{ o.label }}</button></sc-for>
+            <sc-for list="{{ pvTiers }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer">{{ o.label }}</button></sc-for>
           </div>
         </div>
       </div>
@@ -239,12 +238,12 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
         <sc-if value="{{ pvHeader }}">
           <div style="padding:18px; border-radius:14px; background:var(--bg-surface); border:1px solid var(--line-default); display:flex; flex-direction:column; gap:6px">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap"><span style="font-size:20px; font-weight:600; letter-spacing:-0.015em">{{ d.name }}</span><dc-import name="Status Token" kind="runtime" state="not_deployed" hint-size="90px,22px"></dc-import></div>
-            <div style="font-size:14px; color:var(--text-primary)">{{ outcomeOrHint }}</div>
-            <div style="font-size:12px; color:var(--text-tertiary)">{{ metaLine }}</div>
+            <div style="font-size:16px; color:var(--text-primary)">{{ outcomeOrHint }}</div>
+            <div style="font-size:16px; color:var(--text-tertiary)">{{ metaLine }}</div>
           </div>
         </sc-if>
       </div>
-      <button onClick="{{ openPortal }}" style="align-self:flex-start; border:0; background:none; padding:0; color:var(--text-link); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px" style-hover="color:var(--text-link-hover)">Open in Learner Portal<svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 6.5h9.5V16M17.5 6.5 6.5 17.5"></path></svg></button>
+      <button onClick="{{ openPortal }}" style="align-self:flex-start; border:0; background:none; padding:0; color:var(--text-link); font-size:16px; cursor:pointer; display:flex; align-items:center; gap:6px" style-hover="color:var(--text-link-hover)">Open in Learner Portal<svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M8 6.5h9.5V16M17.5 6.5 6.5 17.5"></path></svg></button>
     </div>
   </div>
 </div>

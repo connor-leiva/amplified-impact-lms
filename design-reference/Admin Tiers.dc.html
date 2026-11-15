@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -68,7 +67,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Tiers &amp; Upgrades</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ summary }}</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">{{ summary }}</p>
     </div>
   </div>
 
@@ -76,32 +75,32 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="2">
       <section style="padding:20px; border-radius:12px; border:1px solid {{ t.bd }}; background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:6px 10px; flex-wrap:wrap">
-          <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap"><span style="font-size:16px; font-weight:600; white-space:nowrap">{{ t.name }} Tier</span><span style="font-size:12px; color:var(--text-tertiary)">{{ t.seatsLabel }}</span></div>
-          <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ t.licenses }}</span>
+          <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap"><span style="font-size:16px; font-weight:600; white-space:nowrap">{{ t.name }} Tier</span><span style="font-size:16px; color:var(--text-tertiary)">{{ t.seatsLabel }}</span></div>
+          <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ t.licenses }}</span>
         </div>
         <div style="display:flex; align-items:center; gap:10px">
           <div style="position:relative">
             <span style="position:absolute; left:10px; top:7px; font-size:20px; font-weight:600; color:var(--text-tertiary)">$</span>
             <input type="number" value="{{ t.price }}" onChange="{{ t.setPrice }}" style="width:150px; height:44px; padding:0 10px 0 26px; border-radius:9px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:26px; font-weight:600; font-variant-numeric:tabular-nums; outline:none" style-focus="border-color:var(--action-primary)">
           </div>
-          <span style="font-size:13px; color:var(--text-tertiary)">{{ t.per }}</span>
+          <span style="font-size:16px; color:var(--text-tertiary)">{{ t.per }}</span>
         </div>
-        <div style="font-size:13px; color:var(--text-secondary)">{{ t.blurb }}</div>
+        <div style="font-size:16px; color:var(--text-secondary)">{{ t.blurb }}</div>
         <div style="display:flex; flex-direction:column; gap:7px">
-          <sc-for list="{{ t.features }}" as="ft"><div style="display:flex; gap:8px; font-size:13px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; flex:none; margin-top:2px; fill:none; stroke:var(--status-success-text); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>{{ ft }}</div></sc-for>
+          <sc-for list="{{ t.features }}" as="ft"><div style="display:flex; gap:8px; font-size:16px; color:var(--text-secondary)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; flex:none; margin-top:2px; fill:none; stroke:var(--status-success-text); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>{{ ft }}</div></sc-for>
         </div>
-        <div style="display:flex; justify-content:space-between; padding-top:12px; border-top:1px solid var(--line-default); font-size:13px; color:var(--text-tertiary)"><span>Cohort Revenue</span><span style="color:var(--text-primary); font-weight:600; font-variant-numeric:tabular-nums">{{ t.revenue }}</span></div>
+        <div style="display:flex; justify-content:space-between; padding-top:12px; border-top:1px solid var(--line-default); font-size:16px; color:var(--text-tertiary)"><span>Cohort Revenue</span><span style="color:var(--text-primary); font-weight:600; font-variant-numeric:tabular-nums">{{ t.revenue }}</span></div>
       </section>
     </sc-for>
   </div>
 
   <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start">
     <section style="flex:1 1 420px; min-width:0; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
-      <div style="padding:14px 18px; border-bottom:1px solid var(--line-default)"><div style="font-size:14px; font-weight:600">Access Matrix</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">Click an Agent cell to include or gate a module</div></div>
-      <div style="display:grid; grid-template-columns:minmax(0,1fr) 90px 90px; padding:9px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)"><span>Included</span><span style="text-align:center">Agent</span><span style="text-align:center">Team</span></div>
+      <div style="padding:14px 18px; border-bottom:1px solid var(--line-default)"><div style="font-size:16px; font-weight:600">Access Matrix</div><div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">Click an Agent cell to include or gate a module</div></div>
+      <div style="display:grid; grid-template-columns:minmax(0,1fr) 90px 90px; padding:9px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)"><span>Included</span><span style="text-align:center">Agent</span><span style="text-align:center">Team</span></div>
       <sc-for list="{{ matrix }}" as="mx" hint-placeholder-count="9">
         <div style="display:grid; grid-template-columns:minmax(0,1fr) 90px 90px; align-items:center; padding:9px 18px; border-bottom:1px solid var(--line-default)">
-          <span style="font-size:13px; color:var(--text-secondary)">{{ mx.label }}</span>
+          <span style="font-size:16px; color:var(--text-secondary)">{{ mx.label }}</span>
           <div style="display:flex; justify-content:center"><button onClick="{{ mx.toggle }}" title="{{ mx.title }}" style="width:28px; height:28px; border-radius:7px; border:1px solid {{ mx.aBd }}; background:{{ mx.aBg }}; cursor:{{ mx.cursor }}; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:{{ mx.aFg }}; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"><path d="{{ mx.aIcon }}"></path></svg></button></div>
           <div style="display:flex; justify-content:center"><span style="width:28px; height:28px; border-radius:7px; background:var(--status-success-bg); display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:var(--status-success-text); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span></div>
         </div>
@@ -110,20 +109,20 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 
     <section style="flex:1.6 1 560px; min-width:0; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
-        <div><div style="font-size:14px; font-weight:600">Upgrade Requests</div><div style="font-size:12px; color:var(--text-tertiary); margin-top:2px">From locked modules and the Executive Vault in the portal</div></div>
-        <span style="font-size:13px; color:var(--access-locked-text)">{{ pipeline }}</span>
+        <div><div style="font-size:16px; font-weight:600">Upgrade Requests</div><div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">From locked modules and the Executive Vault in the portal</div></div>
+        <span style="font-size:16px; color:var(--access-locked-text)">{{ pipeline }}</span>
       </div>
-      <sc-if value="{{ noReq }}"><div style="padding:18px; color:var(--text-tertiary); font-size:13px">No requests yet.</div></sc-if>
+      <sc-if value="{{ noReq }}"><div style="padding:18px; color:var(--text-tertiary); font-size:16px">No requests yet.</div></sc-if>
       <sc-for list="{{ reqs }}" as="q" hint-placeholder-count="3">
         <div style="display:flex; align-items:center; gap:12px; padding:13px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap; background:{{ q.bg }}">
-          <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ q.av }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ q.ini }}</span>
+          <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ q.av }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ q.ini }}</span>
           <div style="flex:1; min-width:200px">
-            <div style="display:flex; align-items:center; gap:8px"><span style="font-size:14px; font-weight:500">{{ q.name }}</span><span style="font-size:12px; color:var(--text-tertiary)">{{ q.ago }}</span></div>
-            <div style="font-size:12px; color:var(--text-tertiary)">{{ q.email }} · {{ q.source }}</div>
+            <div style="display:flex; align-items:center; gap:8px"><span style="font-size:16px; font-weight:500">{{ q.name }}</span><span style="font-size:16px; color:var(--text-tertiary)">{{ q.ago }}</span></div>
+            <div style="font-size:16px; color:var(--text-tertiary)">{{ q.email }} · {{ q.source }}</div>
           </div>
-          <span style="display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px; font-size:12px; font-weight:600; background:{{ q.st.bg }}; color:{{ q.st.fg }}; border:1px solid {{ q.st.bd }}">{{ q.st.label }}</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 9px; border-radius:999px; font-size:16px; font-weight:600; background:{{ q.st.bg }}; color:{{ q.st.fg }}; border:1px solid {{ q.st.bd }}">{{ q.st.label }}</span>
           <div style="display:flex; gap:6px">
-            <sc-for list="{{ q.actions }}" as="a"><button onClick="{{ a.go }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid {{ a.bd }}; background:{{ a.bg }}; color:{{ a.fg }}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap">{{ a.label }}</button></sc-for>
+            <sc-for list="{{ q.actions }}" as="a"><button onClick="{{ a.go }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid {{ a.bd }}; background:{{ a.bg }}; color:{{ a.fg }}; font-size:16px; font-weight:600; cursor:pointer; white-space:nowrap">{{ a.label }}</button></sc-for>
           </div>
         </div>
       </sc-for>

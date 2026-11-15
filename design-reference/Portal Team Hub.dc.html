@@ -8,9 +8,8 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="./fonts/geist.css">
+<link rel="stylesheet" href="./lms.css">
 <script>try{var p=JSON.parse(localStorage.getItem('ai-lms-prefs')||'{}'),d=document.documentElement;d.dataset.theme=p.theme==='dark'?'dark':'light';}catch(e){}</script>
 <style>
 :root{color-scheme:light;
@@ -68,13 +67,13 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Team Hub</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:14px">{{ teamName }} · Team Tier · December 2026 Cohort</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">{{ teamName }} · Team Tier · December 2026 Cohort</p>
     </div>
     <div style="display:flex; gap:8px">
-      <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">
+      <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">
         <svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export CSV
       </button>
-      <button onClick="{{ openInvite }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap">
+      <button onClick="{{ openInvite }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap">
         <svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.userPlus }}"></path></svg>Invite Member
       </button>
     </div>
@@ -82,22 +81,22 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 
   <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:14px">
     <section style="padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
-      <div style="font-size:14px; font-weight:600; color:var(--text-secondary)">Seat Allocation</div>
+      <div style="font-size:16px; font-weight:600; color:var(--text-secondary)">Seat Allocation</div>
       <div style="display:flex; align-items:baseline; gap:8px"><span style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; line-height:1">{{ seats.used }} of {{ seats.total }}</span><span style="color:var(--text-secondary)">Seats Assigned</span></div>
       <div style="display:flex; gap:6px">
         <sc-for list="{{ seats.slots }}" as="sl" hint-placeholder-count="7">
-          <div title="{{ sl.title }}" onClick="{{ sl.go }}" style="width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; background:{{ sl.bg }}; border:1.5px {{ sl.bs }} {{ sl.bd }}; color:{{ sl.fg }}; cursor:pointer">{{ sl.ini }}</div>
+          <div title="{{ sl.title }}" onClick="{{ sl.go }}" style="width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; background:{{ sl.bg }}; border:1.5px {{ sl.bs }} {{ sl.bd }}; color:{{ sl.fg }}; cursor:pointer">{{ sl.ini }}</div>
         </sc-for>
       </div>
-      <div style="font-size:13px; color:var(--text-tertiary)">{{ seats.breakdown }}</div>
+      <div style="font-size:16px; color:var(--text-tertiary)">{{ seats.breakdown }}</div>
     </section>
 
     <section style="padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
-      <div style="font-size:14px; font-weight:600; color:var(--text-secondary)">Team Deployments</div>
+      <div style="font-size:16px; font-weight:600; color:var(--text-secondary)">Team Deployments</div>
       <div style="display:flex; align-items:baseline; gap:8px"><span style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; line-height:1">{{ dep.total }}</span><span style="color:var(--text-secondary)">AI Employees Deployed Across the Team</span></div>
       <div style="display:flex; flex-direction:column; gap:7px">
         <sc-for list="{{ dep.rows }}" as="dr" hint-placeholder-count="6">
-          <div style="display:flex; align-items:center; gap:10px; font-size:13px">
+          <div style="display:flex; align-items:center; gap:10px; font-size:16px">
             <span style="width:76px; flex:none; color:var(--text-secondary)">{{ dr.label }}</span>
             <div style="flex:1; height:6px; border-radius:3px; background: var(--track); overflow:hidden"><div style="height:100%; width:{{ dr.w }}; background:var(--status-success); border-radius:3px"></div></div>
             <span style="width:34px; text-align:right; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ dr.v }}</span>
@@ -107,18 +106,18 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     </section>
 
     <section style="padding:18px 20px; border-radius:12px; border:1px solid {{ rem.bd }}; background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
-      <div style="font-size:14px; font-weight:600; color:var(--text-secondary)">Before {{ rem.session }}</div>
+      <div style="font-size:16px; font-weight:600; color:var(--text-secondary)">Before {{ rem.session }}</div>
       <div style="font-size:16px; font-weight:600; line-height:1.35">{{ rem.headline }}</div>
       <div style="display:flex; flex-direction:column; gap:6px">
         <sc-for list="{{ rem.people }}" as="p">
-          <div style="display:flex; align-items:center; gap:8px; font-size:13px">
-            <span style="width:22px; height:22px; border-radius:50%; background:{{ p.av }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex:none; color:var(--ink-900)">{{ p.ini }}</span>
+          <div style="display:flex; align-items:center; gap:8px; font-size:16px">
+            <span style="width:32px; height:32px; border-radius:50%; background:{{ p.av }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; flex:none; color:var(--ink-900)">{{ p.ini }}</span>
             <span style="color:var(--text-primary)">{{ p.name }}</span><span style="color:var(--text-tertiary); margin-left:auto; white-space:nowrap">{{ p.gap }}</span>
           </div>
         </sc-for>
       </div>
       <sc-if value="{{ rem.any }}">
-        <button onClick="{{ remind }}" style="margin-top:auto; height:34px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px" style-hover="background:var(--action-secondary-hover)">
+        <button onClick="{{ remind }}" style="margin-top:auto; height:34px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px" style-hover="background:var(--action-secondary-hover)">
           <svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.bell }}"></path></svg>{{ rem.btn }}
         </button>
       </sc-if>
@@ -127,36 +126,36 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default)">
-      <div style="font-size:14px; font-weight:600">Team Activity</div>
-      <span style="font-size:13px; color:var(--text-tertiary)">{{ members.length }} Members · Click a Row to Manage</span>
+      <div style="font-size:16px; font-weight:600">Team Activity</div>
+      <span style="font-size:16px; color:var(--text-tertiary)">{{ members.length }} Members · Click a Row to Manage</span>
     </div>
     <div style="overflow-x:auto">
       <div style="min-width:920px">
-        <div style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; padding:10px 18px; font-size:13px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+        <div style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
           <span>Name</span><span>Role</span><span>Date Joined</span><span>AI Employees Built</span><span>Deployment Status</span><span>Last Active</span><span></span>
         </div>
         <sc-for list="{{ members }}" as="u" hint-placeholder-count="6">
           <div onClick="{{ u.open }}" style="display:grid; grid-template-columns:minmax(220px,2fr) 140px 110px 170px minmax(200px,2fr) 100px 40px; gap:12px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line-default); cursor:pointer" style-hover="background:var(--bg-hover)">
             <div style="display:flex; align-items:center; gap:10px; min-width:0">
-              <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ u.av }}; border:{{ u.avBd }}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--ink-900)">{{ u.ini }}</span>
+              <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ u.av }}; border:{{ u.avBd }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ u.ini }}</span>
               <div style="min-width:0">
-                <div style="font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.name }}<sc-if value="{{ u.isMe }}"><span style="color:var(--text-tertiary); font-weight:400"> (You)</span></sc-if></div>
-                <div style="font-size:12px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.email }}</div>
+                <div style="font-size:16px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.name }}<sc-if value="{{ u.isMe }}"><span style="color:var(--text-tertiary); font-weight:400"> (You)</span></sc-if></div>
+                <div style="font-size:16px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.email }}</div>
               </div>
             </div>
-            <span style="font-size:13px; color:var(--text-secondary)">{{ u.role }}</span>
-            <span style="font-size:13px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ u.joined }}</span>
+            <span style="font-size:16px; color:var(--text-secondary)">{{ u.role }}</span>
+            <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ u.joined }}</span>
             <div style="display:flex; align-items:center; gap:8px">
               <div style="display:flex; gap:3px">
                 <sc-for list="{{ u.dots }}" as="d"><span title="{{ d.t }}" style="width:14px; height:14px; border-radius:4px; background:{{ d.c }}; border:1px solid {{ d.bd }}"></span></sc-for>
               </div>
-              <span style="font-size:13px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ u.count }}</span>
+              <span style="font-size:16px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">{{ u.count }}</span>
             </div>
             <div style="display:flex; align-items:center; gap:7px; min-width:0">
               <span style="width:7px; height:7px; flex:none; border-radius:50%; background:{{ u.stDot }}"></span>
-              <span style="font-size:13px; color:{{ u.stFg }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.status }}</span>
+              <span style="font-size:16px; color:{{ u.stFg }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ u.status }}</span>
             </div>
-            <span style="font-size:13px; color:var(--text-tertiary)">{{ u.last }}</span>
+            <span style="font-size:16px; color:var(--text-tertiary)">{{ u.last }}</span>
             <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg>
           </div>
         </sc-for>
@@ -171,34 +170,34 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <div style="display:flex; align-items:flex-start; gap:12px; padding:20px 20px 0">
         <div style="flex:1">
           <div style="font-size:16px; font-weight:600">Invite a Team Member</div>
-          <div style="font-size:13px; color:var(--text-tertiary); margin-top:3px">{{ inv.seatsNote }}</div>
+          <div style="font-size:16px; color:var(--text-tertiary); margin-top:3px">{{ inv.seatsNote }}</div>
         </div>
         <button onClick="{{ closeInvite }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
       </div>
       <div style="padding:18px 20px; display:flex; flex-direction:column; gap:14px">
-        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Work Email
-          <input value="{{ inv.email }}" onChange="{{ setEmail }}" placeholder="name@yourteam.com" style="height:38px; padding:0 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Work Email
+          <input value="{{ inv.email }}" onChange="{{ setEmail }}" placeholder="name@yourteam.com" style="height:38px; padding:0 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
         </label>
-        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Full Name <span style="color:var(--text-tertiary); font-weight:400">Optional</span>
-          <input value="{{ inv.name }}" onChange="{{ setName }}" placeholder="Jordan Smith" style="height:38px; padding:0 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Full Name <span style="color:var(--text-tertiary); font-weight:400">Optional</span>
+          <input value="{{ inv.name }}" onChange="{{ setName }}" placeholder="Jordan Smith" style="height:38px; padding:0 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
         </label>
         <div style="display:flex; flex-direction:column; gap:6px">
-          <span style="font-size:13px; color:var(--text-secondary); font-weight:500">Role</span>
+          <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Role</span>
           <div style="display:flex; flex-direction:column; gap:6px">
             <sc-for list="{{ inv.roles }}" as="ro">
               <button onClick="{{ ro.pick }}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:9px; border:1px solid {{ ro.bd }}; background:{{ ro.bg }}; text-align:left; cursor:pointer; color:var(--text-primary)">
                 <span style="width:16px; height:16px; flex:none; border-radius:50%; border:1.5px solid {{ ro.ring }}; display:flex; align-items:center; justify-content:center"><span style="width:8px; height:8px; border-radius:50%; background:{{ ro.dot }}"></span></span>
-                <span style="flex:1"><span style="display:block; font-size:14px; font-weight:500">{{ ro.label }}</span><span style="display:block; font-size:12px; color:var(--text-tertiary)">{{ ro.sub }}</span></span>
-                <span style="font-size:12px; color:{{ ro.capFg }}; white-space:nowrap">{{ ro.cap }}</span>
+                <span style="flex:1"><span style="display:block; font-size:16px; font-weight:500">{{ ro.label }}</span><span style="display:block; font-size:16px; color:var(--text-tertiary)">{{ ro.sub }}</span></span>
+                <span style="font-size:16px; color:{{ ro.capFg }}; white-space:nowrap">{{ ro.cap }}</span>
               </button>
             </sc-for>
           </div>
         </div>
-        <sc-if value="{{ inv.err }}"><div style="font-size:13px; color:var(--access-locked-text)">{{ inv.err }}</div></sc-if>
+        <sc-if value="{{ inv.err }}"><div style="font-size:16px; color:var(--access-locked-text)">{{ inv.err }}</div></sc-if>
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; padding:14px 20px; border-top:1px solid var(--line-default)">
-        <button onClick="{{ closeInvite }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:13px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
-        <button onClick="{{ sendInvite }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid {{ inv.btnBd }}; background:{{ inv.btnBg }}; color:{{ inv.btnFg }}; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.send }}"></path></svg>Send Invite</button>
+        <button onClick="{{ closeInvite }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Cancel</button>
+        <button onClick="{{ sendInvite }}" style="height:36px; padding:0 16px; border-radius:8px; border:1px solid {{ inv.btnBd }}; background:{{ inv.btnBg }}; color:{{ inv.btnFg }}; font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.send }}"></path></svg>Send Invite</button>
       </div>
     </div>
   </div>
@@ -207,32 +206,32 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 <div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; z-index:60; background:var(--bg-overlay); opacity:{{ dw.op }}; pointer-events:{{ dw.pe }}; transition:opacity 200ms"></div>
 <aside style="position:fixed; top:0; right:0; bottom:0; z-index:61; width:min(440px, 100vw); background:var(--bg-surface); border-left:1px solid var(--line-default); box-shadow: var(--shadow-drawer); transform:{{ dw.tf }}; transition:transform 240ms cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column">
   <div style="display:flex; align-items:center; gap:12px; padding:18px; border-bottom:1px solid var(--line-default)">
-    <span style="width:40px; height:40px; flex:none; border-radius:50%; background:{{ dw.av }}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--ink-900)">{{ dw.ini }}</span>
+    <span style="width:40px; height:40px; flex:none; border-radius:50%; background:{{ dw.av }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ dw.ini }}</span>
     <div style="flex:1; min-width:0">
       <div style="font-size:16px; font-weight:600">{{ dw.name }}</div>
-      <div style="font-size:13px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ dw.email }}</div>
+      <div style="font-size:16px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ dw.email }}</div>
     </div>
     <button onClick="{{ closeDrawer }}" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background: var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
   </div>
   <div style="flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:18px">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-      <div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:12px; color:var(--text-tertiary); font-weight:500">Joined</div><div style="font-size:14px; margin-top:3px">{{ dw.joined }}</div></div>
-      <div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:12px; color:var(--text-tertiary); font-weight:500">Last Active</div><div style="font-size:14px; margin-top:3px">{{ dw.last }}</div></div>
+      <div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:16px; color:var(--text-tertiary); font-weight:500">Joined</div><div style="font-size:16px; margin-top:3px">{{ dw.joined }}</div></div>
+      <div style="padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)"><div style="font-size:16px; color:var(--text-tertiary); font-weight:500">Last Active</div><div style="font-size:16px; margin-top:3px">{{ dw.last }}</div></div>
     </div>
-    <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-secondary); font-weight:500">Role
-      <select value="{{ dw.role }}" onChange="{{ dw.setRole }}" disabled="{{ dw.isOwner }}" style="height:38px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:14px; outline:none">
+    <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Role
+      <select value="{{ dw.role }}" onChange="{{ dw.setRole }}" disabled="{{ dw.isOwner }}" style="height:38px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none">
         <option value="Team Owner">Team Owner</option>
         <option value="Operations Lead">Operations Lead</option>
         <option value="Sales Agent">Sales Agent</option>
       </select>
     </label>
     <div>
-      <div style="font-size:12px; color:var(--text-tertiary); font-weight:500; margin-bottom:8px">AI Employees</div>
+      <div style="font-size:16px; color:var(--text-tertiary); font-weight:500; margin-bottom:8px">AI Employees</div>
       <div style="display:flex; flex-direction:column; border:1px solid var(--line-default); border-radius:10px; overflow:hidden">
         <sc-for list="{{ dw.mods }}" as="dm">
           <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:{{ dm.bt }}">
             <svg viewBox="0 0 24 24" style="width:15px; height:15px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ dm.icon }}"></path></svg>
-            <span style="flex:1; font-size:13px">{{ dm.name }}</span>
+            <span style="flex:1; font-size:16px">{{ dm.name }}</span>
             <dc-import name="Status Token" kind="build" state="{{ dm.b.state }}" n="{{ dm.b.n }}" total="{{ dm.b.total }}" compact="{{ true }}" hint-size="40px,16px"></dc-import><dc-import name="Status Token" kind="runtime" state="{{ dm.rt }}" hint-size="90px,22px"></dc-import>
           </div>
         </sc-for>
@@ -241,9 +240,9 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   </div>
   <div style="display:flex; gap:8px; padding:14px 18px; border-top:1px solid var(--line-default)">
     <sc-if value="{{ dw.canRemove }}">
-      <button onClick="{{ dw.remove }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background:transparent; color:var(--status-attention-text); font-size:13px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--status-attention-bg)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg>Remove Seat</button>
+      <button onClick="{{ dw.remove }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background:transparent; color:var(--status-attention-text); font-size:16px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--status-attention-bg)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg>Remove Seat</button>
     </sc-if>
-    <button onClick="{{ dw.nudge }}" style="margin-left:auto; height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ dw.nudgeIcon }}"></path></svg>{{ dw.nudgeLabel }}</button>
+    <button onClick="{{ dw.nudge }}" style="margin-left:auto; height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ dw.nudgeIcon }}"></path></svg>{{ dw.nudgeLabel }}</button>
   </div>
 </aside>
 </x-dc>

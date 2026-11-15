@@ -85,7 +85,10 @@ export function Drawer({
             <Icon name="x" size={16} strokeWidth={2} />
           </button>
         </div>
-        <div className={s.body}>{children}</div>
+        {/* D-156: at 16px type a drawer's body scrolls, so a keyboard can reach it (axe scrollable-region-focusable). */}
+        <div className={s.body} tabIndex={0}>
+          {children}
+        </div>
         {footer ? <div className={s.footer}>{footer}</div> : null}
       </aside>
     </>

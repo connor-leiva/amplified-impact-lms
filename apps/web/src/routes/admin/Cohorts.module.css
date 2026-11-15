@@ -36,7 +36,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* ---- Cohort cards ------------------------------------------------------------------------- */
@@ -80,7 +80,7 @@
 }
 
 .cardMeta {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -105,7 +105,7 @@
 }
 
 .count {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -121,7 +121,7 @@
   border: 1px dashed var(--line-strong);
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
 }
 .newCohort:hover {
@@ -145,10 +145,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 22px;
+  height: 24px;
   padding: 0 9px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   background: var(--tk-bg);
   color: var(--tk-fg);
@@ -203,12 +203,12 @@
 }
 
 .panelTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .panelNote {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
   margin-top: 2px;
 }
@@ -220,7 +220,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -248,7 +248,7 @@
 
 .tHead {
   padding: 10px 18px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -267,8 +267,8 @@
 }
 
 .n {
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -277,24 +277,24 @@
 }
 
 .sessionTitle {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .sessionModule {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
 .whenCell {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   line-height: 1.4;
 }
 
 .whenTime {
   color: var(--text-tertiary);
-  font-size: 12px;
+  font-size: 16px;
 }
 
 .zoom {
@@ -306,8 +306,8 @@
   background: none;
   padding: 0;
   color: var(--text-link);
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
   cursor: pointer;
   text-align: left;
 }
@@ -330,7 +330,7 @@
 }
 
 .att {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -345,7 +345,7 @@
   height: 30px;
   padding: 0 10px;
   border-radius: 7px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -376,7 +376,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -405,13 +405,13 @@
    specificity would leave the winner to the bundle's source order. */
 .stamp.stamp {
   padding: 0 10px;
-  font-size: 13px;
+  font-size: 16px;
   color-scheme: dark;
 }
 
 .mono.mono {
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-family: var(--font-ui-mono);
+  font-size: 16px;
 }
 
 .info {
@@ -419,7 +419,7 @@
   border-radius: 10px;
   background: var(--bg-sunken);
   border: 1px solid var(--line-default);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
   line-height: 1.55;
 }
@@ -431,7 +431,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -449,7 +449,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -459,6 +459,6 @@
 }
 
 .error {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--access-locked-text);
 }

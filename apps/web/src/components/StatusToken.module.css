@@ -14,7 +14,7 @@
   line-height: 1;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  vertical-align: middle;
+  vertical-align: top;
   color: var(--tk-fg);
   background: var(--tk-bg);
   border: 1px solid var(--tk-line);
@@ -54,22 +54,22 @@
 
 /* Sizes. sm is the default pill; md is the detail header; compact is the sidebar row. */
 .pill[data-size='sm'] {
-  height: 22px;
+  height: 24px;
   padding: 0 8px 0 6px;
   gap: 5px;
-  font-size: 12px;
+  font-size: 16px;
 }
 .pill[data-size='md'] {
   height: 26px;
   padding: 0 10px 0 8px;
   gap: 5px;
-  font-size: 13px;
+  font-size: 16px;
 }
 .pill[data-compact='true'] {
-  height: 16px;
+  height: 24px;
   padding: 0;
   gap: 4px;
-  font-size: 12px;
+  font-size: 16px;
   background: transparent;
   border: 0;
 }
@@ -121,5 +121,5 @@
   border-radius: 999px;
   background: var(--bg-hover);
   animation: ai-skeleton 1.4s ease-in-out infinite;
-  vertical-align: middle;
+  vertical-align: top;
 }

@@ -39,7 +39,7 @@
   background: transparent;
   box-shadow: none;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -120,7 +120,7 @@
   text-wrap: pretty;
 }
 .sub {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -132,7 +132,7 @@
 .output {
   display: flex;
   gap: 10px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
   line-height: 1.45;
 }
@@ -151,7 +151,7 @@
   padding: 14px 24px 20px;
 }
 .note {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--text-tertiary);
 }
 
@@ -162,7 +162,7 @@
   border: 1px solid transparent;
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
