@@ -180,6 +180,20 @@ export function detailOf(r: AuditRow): string {
     if (r.outcome === 'failed') return n === null ? 'Refused: over 10,000 rows.' : `Refused: ${fmt.num(n)} rows is over 10,000.`;
     return n === null ? 'CSV.' : `CSV, ${fmt.num(n)} ${n === 1 ? 'row' : 'rows'}.`;
   }
+  // PR 2 (D-158): notes record their length, never their words.
+  const length = typeof after.length === 'number' ? after.length : null;
+  const chars = (n: number) => `${fmt.num(n)} ${n === 1 ? 'character' : 'characters'}`;
+  if (r.action === 'note.create') return length === null ? 'A note.' : `A note of ${chars(length)}.`;
+  if (r.action === 'note.delete') return length === null ? 'Deleted a note.' : `Deleted a note of ${chars(length)}.`;
+  if (r.action === 'user.password_reset') {
+    if (r.outcome === 'denied') return 'Refused: a staff member’s password is the Owner’s to reset.';
+    return after.link === 'set' ? 'Sent a set-password link.' : 'Sent a reset link.';
+  }
+  if (r.action === 'user.export') {
+    const n = typeof after.rows === 'number' ? after.rows : null;
+    if (r.outcome === 'failed') return n === null ? 'Refused: over 10,000 rows.' : `Refused: ${fmt.num(n)} rows is over 10,000.`;
+    return n === null ? 'CSV.' : `CSV, ${fmt.num(n)} ${n === 1 ? 'row' : 'rows'}.`;
+  }
   return r.reason ?? AUDIT_COPY.none;
 }
 

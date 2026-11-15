@@ -52,6 +52,18 @@ const ROUTES: readonly [Persona, string][] = [
   // The Audit Log, and its "Too many requests".
   ['admin', '/admin/audit'],
   ['admin', '/admin/audit?console-state=rate_limited'],
+  // Console PR 2 (D-158): Workspaces, each record's tabs, and their states.
+  ['admin', '/admin/workspaces'],
+  ['admin', '/admin/workspaces?console-state=empty'],
+  ['admin', '/admin/workspaces?console-state=error'],
+  ['admin', '/admin/workspaces?console-state=loading'],
+  ['admin', '/admin/workspaces/northline'],
+  ['admin', '/admin/workspaces/northline?tab=plan'],
+  ['admin', '/admin/workspaces/northline?tab=billing'],
+  ['admin', '/admin/workspaces/northline?tab=activity'],
+  ['admin', '/admin/workspaces/northline?tab=notes'],
+  ['admin', '/admin/workspaces/no-such-team'],
+  ['admin', '/admin/workspaces?console-role=Instructor'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

@@ -154,4 +154,68 @@ describe('the Console fixture (fixture build only)', () => {
     await expect(createConsoleFixture({ role: 'Owner', staff: true, state: 'error' }).roles()).rejects.toMatchObject({ kind: 'failed' });
     expect((await createConsoleFixture({ role: 'Owner', staff: true, state: 'empty' }).audit({})).rows).toEqual([]);
   });
+
+  it('answers PR 2’s records from the fixture build’s own people (D-158)', async () => {
+    const owner = createConsoleFixture({ role: 'Owner', staff: true, state: null, now: () => NOW });
+    const ws = await owner.workspaces({});
+    expect(ws.rows.map((w) => [w.teamId, w.planLabel, w.planStatus])).toEqual([
+      ['harbor', 'Team Plan', 'active'],
+      ['keystone', 'Insiders', 'past_due'],
+      ['northline', 'AI Accelerator', 'active'],
+    ]);
+    expect((await owner.workspaces({ plan: 'membership' })).rows.map((w) => w.teamId)).toEqual(['keystone']);
+    const north = await owner.workspace('northline');
+    expect(north.members).toHaveLength(6);
+    expect(north.billing.orders.every((o) => o.amountTotal === null)).toBe(true);
+    await expect(owner.workspace('nope')).rejects.toMatchObject({ kind: 'not_found' });
+  });
+
+  it('writes and deletes notes as the API would, and audits each', async () => {
+    const owner = createConsoleFixture({ role: 'Owner', staff: true, state: null, now: () => NOW });
+    const note = await owner.addNote('user', 'u_jamie', '  Prefers texts.  ');
+    expect(note).toMatchObject({ body: 'Prefers texts.', author: { name: 'Casey Lin' } });
+    expect((await owner.notes('user', 'u_jamie')).map((n) => n.body)).toEqual(['Prefers texts.']);
+    await expect(owner.addNote('user', 'u_jamie', '   ')).rejects.toMatchObject({ kind: 'invalid' });
+    await expect(owner.deleteNote(note.id, 'short')).rejects.toMatchObject({ kind: 'invalid', code: 'reason_required' });
+    await owner.deleteNote(note.id, 'Written on the wrong person.');
+    expect(await owner.notes('user', 'u_jamie')).toEqual([]);
+    expect((await owner.audit({})).rows.slice(0, 2).map((r) => r.action)).toEqual(['note.delete', 'note.create']);
+
+    const support = createConsoleFixture({ role: 'Support', staff: true, state: null, now: () => NOW });
+    await expect(support.deleteNote('12', 'A good enough reason.')).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(createConsoleFixture({ role: 'Instructor', staff: true, state: null }).workspaces({})).rejects.toMatchObject({ kind: 'forbidden' });
+  });
+});
+
+describe('the Console client, PR 2 (D-158)', () => {
+  it('asks each route with its params and query, and posts JSON for writes', async () => {
+    const calls: [string, RequestInit | undefined][] = [];
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push([url, init]);
+      if (url.startsWith('/api/console/notes?')) return res(200, { rows: [] });
+      return res(200, { rows: [], nextCursor: null });
+    });
+    const api = createConsoleHttp(fetchMock as unknown as typeof fetch);
+    await api.workspaces({ q: 'a b', plan: 'agents' }, 'CUR');
+    await api.workspace('north line');
+    expect(await api.notes('workspace', 'northline')).toEqual([]);
+    await api.addNote('user', 'u_jamie', 'Hi');
+    await api.deleteNote('12', 'A good enough reason.');
+    expect(calls.map(([u]) => u)).toEqual([
+      '/api/console/workspaces?q=a+b&plan=agents&cursor=CUR',
+      '/api/console/workspaces/north%20line',
+      '/api/console/notes?targetType=workspace&targetId=northline',
+      '/api/console/notes',
+      '/api/console/notes/12/delete',
+    ]);
+    expect(calls[3]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ targetType: 'user', targetId: 'u_jamie', body: 'Hi' }) });
+    expect(calls[4]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ reason: 'A good enough reason.' }) });
+    for (const [, init] of calls) expect(init?.credentials).toBe('include');
+  });
+
+  it('turns PR 2’s codes into states', () => {
+    expect(failureOf(404, 'not_found')).toBe('not_found');
+    expect(failureOf(400, 'invalid_body')).toBe('invalid');
+    expect(failureOf(422, 'reason_required')).toBe('invalid');
+  });
 });

@@ -1,4 +1,6 @@
 import { Fragment } from 'react';
+import type { Db } from '@ai/core';
+import { useDb } from '../data/hooks';
 
 import s from './Breadcrumbs.module.css';
 
@@ -40,7 +42,14 @@ const ADMIN: Record<string, string> = {
   // The Admin Console (D-157).
   '/admin/audit': 'Audit Log',
   '/admin/roles': 'Roles & Permissions',
+  // Console PR 2 (D-158).
+  '/admin/workspaces': 'Workspaces',
 };
+
+/** A Console record's list (D-158): its crumb, and the record's own crumb when the shell can't name it. */
+const RECORDS: { prefix: string; list: string; to: string; fallback: string }[] = [
+  { prefix: '/admin/workspaces/', list: 'Workspaces', to: '/admin/workspaces', fallback: 'Workspace' },
+];
 
 /** The crumb on the Console 404 (D-157): an `/admin/…` address that is no screen. */
 export const ADMIN_NOT_FOUND = 'Page Not Found';
@@ -57,7 +66,7 @@ const norm = (pathname: string): string => {
  * `employeeName` is the AI Employee the shell resolved for `/employees/:id` and for the Module
  * Builder, where an unsaved AI Employee is `New AI Employee` — the reference's `m ? m.name : …`.
  */
-export function crumbsFor(pathname: string, employeeName = ''): Crumb[] {
+export function crumbsFor(pathname: string, employeeName = '', recordName = ''): Crumb[] {
   const p = norm(pathname);
 
   if (p.startsWith('/employees/')) {
@@ -70,6 +79,9 @@ export function crumbsFor(pathname: string, employeeName = ''): Crumb[] {
       { label: employeeName || 'New AI Employee' },
     ];
   }
+  // A Console record (D-158): Admin › its list › its name, which the shell reads from the snapshot.
+  const record = RECORDS.find((r) => p.startsWith(r.prefix) && p.length > r.prefix.length && !p.slice(r.prefix.length).includes('/'));
+  if (record) return [{ label: 'Admin', to: '/admin' }, { label: record.list, to: record.to }, { label: recordName || record.fallback }];
   const admin = ADMIN[p];
   if (admin) return [{ label: 'Admin', to: '/admin' }, { label: admin }];
   // Any other `/admin/…` address renders the Console 404 inside the shell (D-157).
@@ -87,8 +99,28 @@ export interface BreadcrumbsProps {
   onNavigate: (to: string) => void;
 }
 
+/**
+ * A Console record's name from the snapshot (D-158): the team's for `/admin/workspaces/:teamId`.
+ * Empty when the snapshot has no such row; the crumb then says "Workspace".
+ */
+export function recordNameFor(db: Pick<Db, 'teams' | 'users' | 'staff'>, pathname: string): string {
+  const p = norm(pathname);
+  const id = (prefix: string): string | null => {
+    if (!p.startsWith(prefix)) return null;
+    try {
+      return decodeURIComponent(p.slice(prefix.length));
+    } catch {
+      return null;
+    }
+  };
+  const teamId = id('/admin/workspaces/');
+  if (teamId) return db.teams.find((t) => t.id === teamId)?.name ?? '';
+  return '';
+}
+
 export function Breadcrumbs({ pathname, employeeName = '', onNavigate }: BreadcrumbsProps) {
-  const crumbs = crumbsFor(pathname, employeeName);
+  const db = useDb();
+  const crumbs = crumbsFor(pathname, employeeName, recordNameFor(db, pathname));
 
   return (
     <nav aria-label="Breadcrumb" className={s.root}>

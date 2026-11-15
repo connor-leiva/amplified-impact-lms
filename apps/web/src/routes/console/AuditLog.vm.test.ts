@@ -104,6 +104,17 @@ describe('AuditLog.vm (D-157)', () => {
     expect(detailOf(row({ action: 'masquerade.expire', reason: null, after: null }))).toBe('None');
   });
 
+  it('describes PR 2’s rows: a note by its length only, the reset by its link, the users export (D-158)', () => {
+    expect(detailOf(row({ action: 'note.create', after: { noteId: '3', length: 48 } }))).toBe('A note of 48 characters.');
+    expect(detailOf(row({ action: 'note.create', after: { noteId: '3', length: 1 } }))).toBe('A note of 1 character.');
+    expect(detailOf(row({ action: 'note.delete', reason: 'Wrong workspace.', after: { noteId: '3', length: 1200 } }))).toBe('Deleted a note of 1,200 characters.');
+    expect(detailOf(row({ action: 'user.password_reset', after: { link: 'reset', staff: false } }))).toBe('Sent a reset link.');
+    expect(detailOf(row({ action: 'user.password_reset', after: { link: 'set', staff: false } }))).toBe('Sent a set-password link.');
+    expect(detailOf(row({ action: 'user.password_reset', outcome: 'denied', after: { staff: true } }))).toBe('Refused: a staff member’s password is the Owner’s to reset.');
+    expect(detailOf(row({ action: 'user.export', after: { rows: 14 } }))).toBe('CSV, 14 rows.');
+    expect(detailOf(row({ action: 'user.export', outcome: 'failed', after: { rows: 10001 } }))).toBe('Refused: 10,001 rows is over 10,000.');
+  });
+
   it('shows the Owner the IP and browser, and tells Support they are hidden', () => {
     const owner = Object.fromEntries(detailVM(row(), 'Owner').map((p) => [p.label, p.value]));
     expect(owner['IP Address']).toBe('203.0.113.9');

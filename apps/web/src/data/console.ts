@@ -8,7 +8,19 @@
 // never reach production: `console-build.test.ts` builds this module both ways and checks.
 
 import { isConsoleErrorCode } from '@ai/core';
-import type { AuditFilters, AuditRow, ConsoleErrorCode, ConsoleMe, ConsolePage, RolesMatrix } from '@ai/core';
+import type {
+  AuditFilters,
+  AuditRow,
+  ConsoleErrorCode,
+  ConsoleMe,
+  ConsolePage,
+  RolesMatrix,
+  StaffNote,
+  StaffNoteTarget,
+  WorkspaceDetail,
+  WorkspaceFilters,
+  WorkspaceRow,
+} from '@ai/core';
 import { navigation } from './http';
 
 /** What went wrong, as a screen needs to know it. */
@@ -45,7 +57,8 @@ export function failureOf(status: number, code: unknown): ConsoleFailure {
   if (code === 'console_forbidden') return 'forbidden';
   if (code === 'masquerade_blocked') return 'blocked';
   if (code === 'export_too_large') return 'too_large';
-  if (code === 'invalid_query') return 'invalid';
+  if (code === 'invalid_query' || code === 'invalid_body' || code === 'reason_required') return 'invalid';
+  if (code === 'not_found') return 'not_found';
   if (status === 429) return 'rate_limited';
   if (status === 404) return 'not_found';
   if (status === 403) return 'forbidden';
@@ -59,7 +72,24 @@ export interface ConsoleApi {
   /** The CSV and the file name the server gave it. */
   exportAudit(filters: AuditFilters): Promise<{ csv: string; filename: string }>;
   roles(): Promise<RolesMatrix>;
+  // PR 2 (D-158): workspaces and staff notes.
+  workspaces(filters: WorkspaceFilters, cursor?: string | null): Promise<ConsolePage<WorkspaceRow>>;
+  workspace(teamId: string): Promise<WorkspaceDetail>;
+  notes(targetType: StaffNoteTarget, targetId: string): Promise<StaffNote[]>;
+  addNote(targetType: StaffNoteTarget, targetId: string, body: string): Promise<StaffNote>;
+  deleteNote(noteId: string, reason: string): Promise<void>;
 }
+
+/** A query string of the set values, in the order given, then the cursor. */
+export function listQuery(values: Record<string, string | number | undefined>, cursor?: string | null): string {
+  const q = new URLSearchParams();
+  for (const [key, v] of Object.entries(values)) if (v !== undefined && v !== '') q.set(key, String(v));
+  if (cursor) q.set('cursor', cursor);
+  const s = q.toString();
+  return s ? `?${s}` : '';
+}
+
+const JSON_POST = (body: unknown): RequestInit => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 
 /** The audit list's query string: only the filters that are set, then the cursor. */
 export function auditQuery(filters: AuditFilters, cursor?: string | null): string {
@@ -122,6 +152,15 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'audit-log.csv') };
     },
     roles: async () => json<RolesMatrix>(await request(fetchImpl, '/api/console/roles')),
+    workspaces: async (f, cursor) =>
+      json<ConsolePage<WorkspaceRow>>(await request(fetchImpl, `/api/console/workspaces${listQuery({ q: f.q, plan: f.plan, status: f.status }, cursor)}`)),
+    workspace: async (teamId) => json<WorkspaceDetail>(await request(fetchImpl, `/api/console/workspaces/${encodeURIComponent(teamId)}`)),
+    notes: async (targetType, targetId) =>
+      (await json<{ rows: StaffNote[] }>(await request(fetchImpl, `/api/console/notes${listQuery({ targetType, targetId })}`))).rows,
+    addNote: async (targetType, targetId, body) => json<StaffNote>(await request(fetchImpl, '/api/console/notes', JSON_POST({ targetType, targetId, body }))),
+    deleteNote: async (noteId, reason) => {
+      await request(fetchImpl, `/api/console/notes/${encodeURIComponent(noteId)}/delete`, JSON_POST({ reason }));
+    },
   };
 }
 

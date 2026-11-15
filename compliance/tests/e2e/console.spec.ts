@@ -289,3 +289,132 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
     });
   }
 });
+
+/**
+ * D-158: the Admin Console's PR 2 Workspaces screens in the fixture build: the list, a record's tabs,
+ * staff notes (written by any Console role, deleted by the Owner with a reason), Denied, the record
+ * 404 and the shared states. Every screen and dialog passes axe in light and dark.
+ */
+test.describe('the Admin Console: Workspaces (D-158) @g9 @console', () => {
+  test('Workspaces: the list, its filters, and a record’s five tabs, in both themes', async ({ browser }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      const { page, close } = await openAt(browser, '/admin/workspaces', { theme });
+      await expectShell(page);
+      await expect(page.getByRole('heading', { level: 1, name: 'Workspaces' })).toBeVisible();
+      await expect(rows(page)).toHaveCount(3);
+      await expect(rows(page).first()).toContainText('Harbor & Pine Group');
+      await expectAccessible(page);
+      if (theme === 'light') {
+        await page.getByRole('combobox', { name: 'Plan' }).selectOption('membership');
+        await expect(rows(page)).toHaveCount(1);
+        await expect(rows(page).first()).toContainText('Insiders');
+        await expect(rows(page).first()).toContainText('Past Due');
+        await page.getByRole('combobox', { name: 'Plan' }).selectOption('');
+        await page.getByRole('searchbox', { name: 'Search Workspace or Owner' }).fill('alex@');
+        await expect(rows(page)).toHaveCount(1);
+        await page.getByRole('button', { name: 'Open Northline Realty Team' }).click();
+        await expect(page).toHaveURL(/\/admin\/workspaces\/northline$/);
+      } else {
+        await page.goto(`${APP_BASE}/admin/workspaces/northline?as=admin`);
+      }
+      await expect(page.getByRole('heading', { level: 1, name: 'Northline Realty Team' })).toBeVisible();
+      await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toContainText('Northline Realty Team');
+      const tabs = page.getByRole('tablist', { name: 'Workspace sections' });
+      await expect(tabs.getByRole('tab')).toHaveText(['Members', 'Plan & Entitlements', 'Billing', 'Activity', 'Staff Notes']);
+      await expect(rows(page)).toHaveCount(6);
+      await expectAccessible(page);
+      const panel = page.locator('main section[aria-label]');
+      for (const [tab, text] of [
+        ['Plan & Entitlements', 'Owner and Operations Skills, Agent Skills'],
+        ['Billing', 'cus_FxNorthline'],
+        ['Activity', 'Alex Morgan joined'],
+        ['Staff Notes', 'Internal. Never shown to the workspace.'],
+      ] as const) {
+        await tabs.getByRole('tab', { name: tab }).click();
+        await expect(panel).toHaveAttribute('aria-label', tab);
+        await expect(panel).toContainText(text);
+        await expectAccessible(page);
+      }
+      // No delete and no masquerade in PR 2.
+      await expect(page.getByRole('button', { name: /Delete workspace|Masquerade/i })).toHaveCount(0);
+      await close();
+    }
+  });
+
+  test('Staff notes: any Console role writes one; only the Owner deletes, with a reason', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/workspaces/northline?tab=notes');
+    const notes = page.getByRole('list', { name: 'Notes' });
+    await expect(notes.getByRole('listitem')).toHaveCount(2);
+    const save = page.getByRole('button', { name: 'Save Note' });
+    await expect(save).toBeDisabled();
+    await page.getByLabel('Add a Note').fill('Called the owner about seats.');
+    await expect(page.getByText('29 of 2,000 characters')).toBeVisible();
+    await save.click();
+    await expect(page.getByText('Note saved.')).toBeVisible();
+    await expect(notes.getByRole('listitem')).toHaveCount(3);
+    await expect(notes.getByRole('listitem').first()).toContainText('Called the owner about seats.');
+    await notes.getByRole('listitem').first().getByRole('button', { name: /^Delete the note by Casey Lin/ }).click();
+    const dialog = page.getByRole('dialog', { name: 'Delete this note?' });
+    await expect(dialog).toBeVisible();
+    const del = dialog.getByRole('button', { name: 'Delete Note' });
+    await expect(del).toBeDisabled();
+    await dialog.getByLabel('Reason (required)').fill('too short');
+    await expect(del).toBeDisabled();
+    await dialog.getByLabel('Reason (required)').fill('Written on the wrong workspace.');
+    await expectAccessible(page);
+    await del.click();
+    await expect(page.getByText('Note deleted.')).toBeVisible();
+    await expect(notes.getByRole('listitem')).toHaveCount(2);
+    await close();
+
+    for (const role of ['Admin', 'Support']) {
+      const other = await openAt(browser, `/admin/workspaces/northline?tab=notes&console-role=${role}`);
+      await expect(other.page.getByRole('list', { name: 'Notes' }).getByRole('listitem')).toHaveCount(2);
+      await expect(other.page.getByRole('button', { name: /^Delete the note/ })).toHaveCount(0);
+      await expect(other.page.getByLabel('Add a Note')).toBeVisible();
+      await other.close();
+    }
+  });
+
+  test('Denied, the record 404, and the shared states', async ({ browser }) => {
+    for (const [path, title] of [
+      ['/admin/workspaces?console-role=Instructor', 'Your role can’t open Workspaces.'],
+      ['/admin/workspaces?console-role=Content%20Editor', 'Your role can’t open Workspaces.'],
+      ['/admin/workspaces/no-such-team', 'That Console page doesn’t exist.'],
+    ] as const) {
+      const { page, close } = await openAt(browser, path);
+      await expectShell(page);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
+      await expect(page.getByRole('link', { name: 'Go to Overview' })).toBeVisible();
+      await expectAccessible(page);
+      await close();
+    }
+    const empty = await openAt(browser, '/admin/workspaces?console-state=empty');
+    await expect(empty.page.getByText('No workspaces yet.')).toBeVisible();
+    await empty.close();
+    const limited = await openAt(browser, '/admin/workspaces?console-state=rate_limited');
+    await expect(limited.page.getByRole('alert')).toContainText('Too many requests.');
+    await expect(limited.page.getByRole('button', { name: 'Retry' })).toBeVisible();
+    await limited.close();
+    const loading = await openAt(browser, '/admin/workspaces/northline?console-state=loading');
+    await expect(loading.page.getByRole('status', { name: 'Loading' })).toBeVisible();
+    await loading.close();
+  });
+
+  test('On a phone the tabs are one select, and tables are cards', async ({ browser }) => {
+    for (const width of [320, 390]) {
+      const { page, close } = await openAt(browser, '/admin/workspaces/northline', { width });
+      await expect(page.getByRole('tablist', { name: 'Workspace sections' })).toBeHidden();
+      const select = page.getByRole('combobox', { name: 'Workspace sections' });
+      await expect(select).toBeVisible();
+      await select.selectOption('billing');
+      await expect(page.locator('main section[aria-label]')).toHaveAttribute('aria-label', 'Billing');
+      // The header row leaves the screen (it stays for assistive technology); each cell carries its label.
+      expect(await page.locator('main thead').first().evaluate((el) => el.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
+      await expect(page.locator('main tbody td[data-label="Status"]').first()).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+      await expectAccessible(page);
+      await close();
+    }
+  });
+});

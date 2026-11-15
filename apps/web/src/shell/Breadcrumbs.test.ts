@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ADMIN_NOT_FOUND, crumbsFor } from './Breadcrumbs';
+import { ADMIN_NOT_FOUND, crumbsFor, recordNameFor } from './Breadcrumbs';
+import { seed } from '@ai/core';
 
 // SCREENS § 2.2's table, plus the Admin Console's screens (D-157).
 describe('crumbsFor', () => {
@@ -22,5 +23,25 @@ describe('crumbsFor', () => {
     expect(crumbsFor('/admin/roles')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Roles & Permissions' }]);
     expect(crumbsFor('/admin/no-such-page')).toEqual([{ label: 'Admin', to: '/admin' }, { label: ADMIN_NOT_FOUND }]);
     expect(ADMIN_NOT_FOUND).toBe('Page Not Found');
+  });
+
+  it('names the Console’s records under their lists (D-158)', () => {
+    expect(crumbsFor('/admin/workspaces')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Workspaces' }]);
+    expect(crumbsFor('/admin/workspaces/northline', '', 'Northline Realty Team')).toEqual([
+      { label: 'Admin', to: '/admin' },
+      { label: 'Workspaces', to: '/admin/workspaces' },
+      { label: 'Northline Realty Team' },
+    ]);
+    expect(crumbsFor('/admin/workspaces/nobody/')).toEqual([{ label: 'Admin', to: '/admin' }, { label: 'Workspaces', to: '/admin/workspaces' }, { label: 'Workspace' }]);
+    // Deeper than a record is no screen: the Console 404.
+    expect(crumbsFor('/admin/workspaces/northline/delete')).toEqual([{ label: 'Admin', to: '/admin' }, { label: ADMIN_NOT_FOUND }]);
+  });
+
+  it('reads a record’s name from the snapshot', () => {
+    const db = seed('live');
+    expect(recordNameFor(db, '/admin/workspaces/northline')).toBe('Northline Realty Team');
+    expect(recordNameFor(db, '/admin/workspaces/nobody')).toBe('');
+    expect(recordNameFor(db, '/admin/workspaces/%E0')).toBe('');
+    expect(recordNameFor(db, '/admin/audit')).toBe('');
   });
 });

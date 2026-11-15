@@ -12,8 +12,11 @@ import { fileURLToPath } from 'node:url';
 const WEB = fileURLToPath(new URL('../..', import.meta.url));
 const CORE = (p: string) => fileURLToPath(new URL(`../../../../packages/core/src/${p}`, import.meta.url));
 
-/** Strings only `console-fixture.ts` holds: its two query parameters and its documentation addresses. */
-const SENTINELS = ['console-role', 'console-state', '203.0.113.'];
+/**
+ * Strings only the fixture holds: `console-fixture.ts`'s two query parameters and its documentation
+ * addresses, and `console-fixture-records.ts`'s invented ids (D-158).
+ */
+const SENTINELS = ['console-role', 'console-state', '203.0.113.', 'acct_fx_', 'cus_Fx', 'grp_fx_harbor'];
 
 async function bundle(mode: 'production' | 'fixture'): Promise<string> {
   const out = (await build({

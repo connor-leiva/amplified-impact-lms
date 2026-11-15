@@ -1,0 +1,47 @@
+/* The Console's tabs (D-158): the house underline tabs, or one 44px select where five tabs would not
+   fit. Tokens only; 16px type. */
+
+.wrap {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.tabs {
+  display: block;
+}
+
+.select {
+  display: none;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+}
+.select:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@container (max-width: 679px) {
+  .tabs {
+    display: none;
+  }
+  .select {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .tabs {
+    display: none;
+  }
+  .select {
+    display: block;
+  }
+}

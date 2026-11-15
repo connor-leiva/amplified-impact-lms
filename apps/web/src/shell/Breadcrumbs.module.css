@@ -17,7 +17,10 @@
 
 .crumb {
   flex: 0 0 auto;
-  min-width: 0;
+  /* D-158: D-156's 44px floor for a button (lms.css), which `min-width: 0` here had switched off.
+     Every crumb before the Console's "Users" (42px) and "User" (36px, Console PR 2c) was wider than
+     44px, so none moves; the last crumb still shrinks and ellipsizes, down to 44px. */
+  min-width: var(--tap);
   border: 0;
   background: none;
   padding: 0;
