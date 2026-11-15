@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { viewerZone } from '@ai/core';
-import { PREFS_KEY, loadPrefs, savePrefs, applyPrefs, bootPrefs } from './prefs';
+import { PREFS_KEY, loadPrefs, savePrefs, applyPrefs, bootPrefs, loadNavGroups, saveNavGroups } from './prefs';
 
 describe('prefs @g1', () => {
   const root = () => document.documentElement;
@@ -70,5 +70,26 @@ describe('prefs @g1', () => {
     bootPrefs();
     expect(root().dataset.accent).toBeUndefined();
     expect(root().dataset.font).toBeUndefined();
+  });
+
+  // D-157: the admin sidebar's folded groups, per signed-in staff member, in this browser.
+  describe('admin sidebar groups', () => {
+    it('keeps two staff members’ groups apart, and every other preference', () => {
+      savePrefs({ theme: 'dark', sidebar: 'rail' });
+      saveNavGroups('st1', { Access: true });
+      saveNavGroups('st4', { Access: false, Build: true });
+      expect(loadNavGroups('st1')).toEqual({ Access: true });
+      expect(loadNavGroups('st4')).toEqual({ Access: false, Build: true });
+      expect(loadNavGroups('st2')).toEqual({});
+      saveNavGroups('st1', { Access: false });
+      expect(loadNavGroups('st4')).toEqual({ Access: false, Build: true });
+      expect(loadPrefs()).toMatchObject({ theme: 'dark', sidebar: 'rail' });
+    });
+
+    it('ignores anything stored that is not a true or false', () => {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ navGroups: { st1: { Access: 'yes', Build: false }, st2: 7 } }));
+      expect(loadNavGroups('st1')).toEqual({ Build: false });
+      expect(loadNavGroups('st2')).toEqual({});
+    });
   });
 });

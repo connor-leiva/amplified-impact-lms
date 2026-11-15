@@ -231,12 +231,25 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
   });
 });
 
-test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @console', () => {
-  const groupsOf = (page: Page) =>
-    page.locator('aside[aria-label="Primary"] nav[aria-label="Main"]').evaluate((nav) =>
-      Array.from(nav.children).map((g) => Array.from(g.children).map((el) => (el as HTMLElement).innerText.trim().split('\n')[0]!)),
-    );
+/** The admin sidebar as [heading, ...row titles] per group, folded rows included (they are in the DOM). */
+const groupsOf = (page: Page) =>
+  page.locator('aside[aria-label="Primary"] nav[aria-label="Main"]').evaluate((nav) =>
+    Array.from(nav.children).map((g) => {
+      const head = g.querySelector('button[aria-expanded]');
+      const rows = Array.from(g.querySelectorAll('[id^="nav-group-"] > button')).map((b) => b.getAttribute('title') ?? '');
+      return [head?.textContent?.trim() ?? '', ...rows];
+    }),
+  );
 
+/** Which groups are open, by heading. */
+const openGroups = (page: Page) =>
+  page.locator('aside[aria-label="Primary"] nav[aria-label="Main"] button[aria-expanded]').evaluateAll((bs) =>
+    Object.fromEntries(bs.map((b) => [b.textContent?.trim() ?? '', b.getAttribute('aria-expanded') === 'true'])),
+  );
+
+const header = (page: Page, name: string) => page.locator('aside[aria-label="Primary"]').getByRole('button', { name, exact: true });
+
+test.describe('the Admin Console: the grouped sidebar (D-157) @g9 @console', () => {
   const EXPECT: Record<string, string[][]> = {
     Owner: [
       ['Health', 'Overview'],
@@ -256,6 +269,7 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
       const { page, close } = await openAt(browser, `/admin?console-role=${role}`);
       await expect.poll(() => groupsOf(page)).toEqual(EXPECT[role]);
       if (role !== 'Instructor') {
+        await header(page, 'Operations').click();
         await page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Audit Log' }).click();
         await expect(page).toHaveURL(/\/admin\/audit/);
         await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Audit Log');
@@ -266,17 +280,22 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
   }
 
   for (const width of [320, 390]) {
-    test(`the phone drawer at ${width}: every group, 44px rows, 16px type, nothing sideways`, async ({ browser }) => {
+    test(`the phone drawer at ${width}: every heading, 44px headings and rows, 16px type, nothing sideways`, async ({ browser }) => {
       const { page, close } = await openAt(browser, '/admin/audit', { width });
       await page.getByRole('button', { name: 'Open menu' }).click();
       const aside = page.locator('aside[aria-label="Primary"]');
       await expect(aside).toHaveAttribute('data-open', 'true');
       await expect.poll(() => groupsOf(page)).toEqual(EXPECT.Owner);
+      // Folds like the desktop: Operations (the active page's group) open, the rest closed, until opened.
+      expect(await openGroups(page)).toEqual({ Health: false, Build: false, Support: false, Revenue: false, Operations: true, Access: false });
+      await header(page, 'Build').click();
+      await expect(header(page, 'Build')).toHaveAttribute('aria-expanded', 'true');
       const problems = await aside.evaluate((el) => {
         const out: string[] = [];
         if (el.scrollWidth > el.clientWidth + 1) out.push(`drawer ${el.scrollWidth} > ${el.clientWidth}`);
         for (const b of Array.from(el.querySelectorAll('nav button'))) {
           const r = b.getBoundingClientRect();
+          if (r.width === 0 && r.height === 0) continue; // a row inside a closed group
           if (r.height < 43.5 || r.width < 43.5) out.push(`${(b as HTMLElement).innerText} ${Math.round(r.width)}x${Math.round(r.height)}`);
           if (Number.parseFloat(getComputedStyle(b).fontSize) < 16) out.push(`${(b as HTMLElement).innerText} font`);
         }
@@ -288,4 +307,117 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
       await close();
     });
   }
+});
+
+/**
+ * D-157, collapsible groups (Connor, Nov 15, 2026, 11:24 AM MST). These contexts set the stored
+ * preferences only when there are none, so a reload keeps what the page itself saved.
+ */
+async function openKeeping(browser: Browser, path: string, opts: { width?: number; height?: number; theme?: 'light' | 'dark'; seed?: Record<string, unknown> } = {}) {
+  const ctx = await browser.newContext({ timezoneId: 'America/Chicago', viewport: { width: opts.width ?? 1280, height: opts.height ?? 900 } });
+  const page = await ctx.newPage();
+  await page.clock.setFixedTime(new Date(NOW));
+  await page.addInitScript(
+    ({ theme, seed }) => {
+      if (!localStorage.getItem('ai-lms-prefs')) localStorage.setItem('ai-lms-prefs', JSON.stringify({ phase: 'live', theme, tz: null, sidebar: 'full', ...seed }));
+    },
+    { theme: opts.theme ?? 'light', seed: opts.seed ?? {} },
+  );
+  const go = async (p: string) => {
+    await page.goto(`${APP_BASE}${p}${p.includes('?') ? '&' : '?'}as=admin`);
+    await page.locator('body[data-app-ready="true"]').waitFor({ timeout: 15_000 });
+  };
+  await go(path);
+  return { page, go, close: () => ctx.close() };
+}
+
+const stored = (page: Page) => page.evaluate(() => (JSON.parse(localStorage.getItem('ai-lms-prefs') ?? '{}') as { navGroups?: unknown }).navGroups ?? null);
+
+test.describe('the admin sidebar’s groups fold (D-157) @g9 @console', () => {
+  test('starts with only the active page’s group open, and Access in view at 1280×900 without scrolling', async ({ browser }) => {
+    const { page, close } = await openKeeping(browser, '/admin');
+    expect(await openGroups(page)).toEqual({ Health: true, Build: false, Support: false, Revenue: false, Operations: false, Access: false });
+    const nav = page.locator('aside[aria-label="Primary"] nav[aria-label="Main"]');
+    expect(await nav.evaluate((n) => n.scrollTop)).toBe(0);
+    const navBox = (await nav.boundingBox())!;
+    const access = (await header(page, 'Access').boundingBox())!;
+    expect(access.y + access.height).toBeLessThanOrEqual(navBox.y + navBox.height);
+    expect(access.y + access.height).toBeLessThanOrEqual(900);
+    await expect(header(page, 'Access')).toBeInViewport({ ratio: 1 });
+    await close();
+  });
+
+  test('a heading is a button the keyboard reaches with Tab and toggles with Enter and Space', async ({ browser }) => {
+    const { page, close } = await openKeeping(browser, '/admin');
+    const health = header(page, 'Health');
+    await expect(health).toHaveAttribute('aria-controls', 'nav-group-health');
+    await expect(page.locator('#nav-group-health')).toHaveCount(1);
+    await health.focus();
+    await page.keyboard.press('Tab'); // the Overview row, in the open Health group
+    await page.keyboard.press('Tab');
+    await expect(header(page, 'Build')).toBeFocused();
+    await expect(header(page, 'Build')).toHaveAttribute('aria-expanded', 'false');
+    await page.keyboard.press('Enter');
+    await expect(header(page, 'Build')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Curriculum' })).toBeVisible();
+    await page.keyboard.press('Space');
+    await expect(header(page, 'Build')).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Curriculum' })).toBeHidden();
+    // Visible focus, the nav rows' ring.
+    expect(await header(page, 'Build').evaluate((b) => getComputedStyle(b).boxShadow)).not.toBe('none');
+    const box = (await header(page, 'Build').boundingBox())!;
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    await close();
+  });
+
+  test('remembers the choice across a reload, per signed-in user', async ({ browser }) => {
+    const { page, go, close } = await openKeeping(browser, '/admin');
+    await header(page, 'Access').click();
+    await header(page, 'Build').click();
+    await header(page, 'Build').click();
+    expect(await stored(page)).toEqual({ st1: { Access: true, Build: false } });
+    await page.reload();
+    await page.locator('body[data-app-ready="true"]').waitFor();
+    expect(await openGroups(page)).toEqual({ Health: true, Build: false, Support: false, Revenue: false, Operations: false, Access: true });
+    await go('/admin/tiers');
+    expect(await openGroups(page)).toMatchObject({ Revenue: true, Access: true, Health: false });
+    await close();
+  });
+
+  test('two staff members on one browser keep separate states', async ({ browser }) => {
+    // Another staff member's choices are already in this browser.
+    const other = { st_other: { Access: true, Health: false, Build: true } };
+    const { page, close } = await openKeeping(browser, '/admin', { seed: { navGroups: other } });
+    expect(await openGroups(page)).toEqual({ Health: true, Build: false, Support: false, Revenue: false, Operations: false, Access: false });
+    await header(page, 'Revenue').click();
+    expect(await stored(page)).toEqual({ ...other, st1: { Revenue: true } });
+    await close();
+  });
+
+  test('arriving on a page whose group was closed opens it, by URL or by link', async ({ browser }) => {
+    const { page, go, close } = await openKeeping(browser, '/admin/staff', { seed: { navGroups: { st1: { Access: false, Build: true } } } });
+    await expect(header(page, 'Access')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toBeVisible();
+    expect(await stored(page)).toEqual({ st1: { Access: true, Build: true } });
+    // On the page itself, closing its group is the viewer's choice and stays.
+    await header(page, 'Access').click();
+    await expect(header(page, 'Access')).toHaveAttribute('aria-expanded', 'false');
+    // Then a link elsewhere (the Console 404's way out) and back by URL.
+    await go('/admin/no-such-page');
+    await page.getByRole('link', { name: 'Go to Overview' }).click();
+    await expect(header(page, 'Health')).toHaveAttribute('aria-expanded', 'true');
+    await go('/admin/roles');
+    await expect(header(page, 'Access')).toHaveAttribute('aria-expanded', 'true');
+    await close();
+  });
+
+  test('passes axe with groups open and closed, in light and dark', async ({ browser }) => {
+    for (const theme of ['light', 'dark'] as const) {
+      const { page, close } = await openKeeping(browser, '/admin/audit', { theme });
+      await header(page, 'Build').click();
+      await header(page, 'Build').focus();
+      await expectAccessible(page);
+      await close();
+    }
+  });
 });
