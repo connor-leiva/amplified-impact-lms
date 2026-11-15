@@ -137,7 +137,7 @@ export function consoleApi(): Promise<ConsoleApi> {
 }
 
 /**
- * The staff role the fixture build previews (`?console-role=`), for the shell's sidebar, so a role's
+ * The staff role the fixture build previews (its role switch, in `console-fixture.ts`), for the shell's sidebar, so a role's
  * sidebar can be seen and screenshotted there. Null in the http build, where this branch is dead and the
  * shell filters by the snapshot's own role: `users.staff_role`, the same column the API authorizes on.
  */

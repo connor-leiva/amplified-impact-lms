@@ -153,7 +153,7 @@ function Shell() {
 
   // The staff role the sidebar's Console rows are filtered by (D-157): the viewer's own staff row, never
   // the fallback above, so it is the `users.staff_role` the API authorizes with. The fixture build may
-  // preview another role (`?console-role=`); the http build has no such switch.
+  // preview another role (its role switch, in `data/console-fixture.ts`); the http build has none.
   const staffRole = actor.kind === 'staff' ? (db.staff.find((x) => x.id === actor.staffId)?.role ?? null) : null;
   const [previewRole, setPreviewRole] = useState<string | null>(null);
   useEffect(() => {
