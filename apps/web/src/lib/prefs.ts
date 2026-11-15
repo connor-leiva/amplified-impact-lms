@@ -15,6 +15,11 @@ export type Prefs = {
   tz?: string | null; // null/undefined = Auto
   sidebar?: 'full' | 'rail';
   phase?: 'week0' | 'live' | 'post'; // fixture/demo only
+  /**
+   * The admin sidebar's open and closed groups (D-157), by the signed-in staff member's user id, then
+   * by group label. Per user per browser: two staff members on one browser keep their own.
+   */
+  navGroups?: Record<string, Record<string, boolean>>;
 };
 
 export const loadPrefs = (): Prefs => {
@@ -48,4 +53,19 @@ export function bootPrefs(): Prefs {
   const stored = loadPrefs();
   applyPrefs(stored);
   return stored;
+}
+
+/** One staff member's remembered sidebar groups (D-157); empty when they have none. */
+export function loadNavGroups(userId: string, prefs: Prefs = loadPrefs()): Record<string, boolean> {
+  const mine = prefs.navGroups?.[userId];
+  if (!mine || typeof mine !== 'object') return {};
+  const out: Record<string, boolean> = {};
+  for (const [k, v] of Object.entries(mine)) if (typeof v === 'boolean') out[k] = v;
+  return out;
+}
+
+/** Remember one staff member's groups, leaving every other user's untouched. */
+export function saveNavGroups(userId: string, state: Record<string, boolean>): Prefs {
+  const all = loadPrefs().navGroups;
+  return savePrefs({ navGroups: { ...(all && typeof all === 'object' ? all : {}), [userId]: { ...state } } });
 }

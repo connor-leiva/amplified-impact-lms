@@ -153,6 +153,14 @@ In rail mode the group header disappears. The groups render as `[Dashboard, Sess
 
 A Console row shows only to a staff role whose Console capabilities open it (`consoleCan`, `@ai/core`), and a group with nothing in it is left out: Instructor and Content Editor see no `Operations` group. The reference renders the Owner's sidebar; it has no Audit Log or Roles screen, so those two rows open the Overview there.
 
+**Admin groups fold** (D-157, collapsible groups). Expanded (desktop and the phone drawer), each group's label is a heading button: 16px/600 `--text-tertiary`, padding `4 10`, at least 44px tall, radius 8, the nav rows' hover (`--nav-hover`) and 2px focus ring. The label sits left, and the AI Employees row's chevron sits right (14px `chevD`, stroke 2, `--text-tertiary`, turned -90° when closed). It carries `aria-expanded` and `aria-controls` (the id of the group's row list), and Enter and Space toggle it. Its rows sit 2px apart under it, as before, and are not rendered while the group is closed.
+- **With no choice made**, only the group holding the active page is open, so every heading is in view.
+- **A choice is remembered** per signed-in staff member, in this browser (`ai-lms-prefs` → `navGroups`), and it wins.
+- **Arriving on a page**, by a row, a link or its URL, opens that page's group if it was closed. On the page itself, closing it stays closed.
+- **In the rail**, groups have no headings and every row shows, as before.
+
+The learner nav does not fold. The reference keeps the open state in memory only.
+
 **NavItem.**
 - Row: height 32, radius 8, gap 10, padding `0 10` (depth 1: `0 10 0 24`; rail: 0, centered), 14px.
 - Weight: 500, or 600 when active.

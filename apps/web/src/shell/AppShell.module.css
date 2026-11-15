@@ -311,3 +311,48 @@
 .lockedBox {
   width: min(520px, 100%);
 }
+
+/* D-157: the admin sidebar's group headings fold their rows. Each is a real button with the same
+   type as the static label it replaced (16/600 tertiary), a 44px target, the nav rows' hover and their
+   2px focus ring, and the AI Employees row's chevron (NavItem.module.css .chev). Values are the
+   reference's (design-reference/Amplified Impact LMS.dc.html). */
+.groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+.groupHead:hover {
+  background: var(--nav-hover, var(--bg-hover));
+}
+.groupHead:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+.groupHeadLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The rows under a heading, 2px apart as in an unfolding group; gone while the group is closed. */
+.groupList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.groupList[data-open='false'] {
+  display: none;
+}

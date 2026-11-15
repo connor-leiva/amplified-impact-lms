@@ -37,7 +37,34 @@ export interface NavGroup {
   label?: string;
   showLabel: boolean;
   items: NavEntry[];
+  /**
+   * The admin sidebar's groups fold (D-157): the header is a button and the rows show only while
+   * `open`. Never in the rail, which has no headers, and never in the learner's nav.
+   */
+  collapsible?: boolean;
+  open?: boolean;
 }
+
+/** Which admin groups a staff member has opened or closed, by group label (D-157). */
+export type NavOpenState = Readonly<Record<string, boolean>>;
+
+/** The group holding the page the viewer is on, if any. */
+export const activeGroupLabel = (groups: readonly NavGroup[]): string | null =>
+  groups.find((g) => g.items.some((i) => i.active))?.label ?? null;
+
+/**
+ * The remembered state after a navigation: the group holding the new page is opened, so its active
+ * row is visible, if the viewer had closed it. Every other choice is kept. The same object comes
+ * back when nothing changes, so a caller can skip a write.
+ */
+export function revealActiveGroup(groups: readonly NavGroup[], state: NavOpenState): NavOpenState {
+  const label = activeGroupLabel(groups);
+  if (!label || state[label] !== false) return state;
+  return { ...state, [label]: true };
+}
+
+/** The id of a group's row list, for its header's `aria-controls`. */
+export const navGroupListId = (label: string): string => `nav-group-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
 /** Where the viewer is. `employeeId` is the `/employees/:employeeId` param when there is one. */
 export interface NavRoute {
@@ -261,8 +288,11 @@ export function portalNav(
  *
  * It replaced Insights · Content · Delivery · People · Revenue in Console PR 1d, with the admin
  * goldens re-captured from the regrouped reference (D-157).
+ *
+ * Each group folds (D-157, collapsible groups): `openState` is the staff member's remembered choices by
+ * group label, and a group with no remembered choice is open only when it holds the active page.
  */
-export function consoleNav(db: Db, route: NavRoute, collapsed: boolean, role: string | null): NavGroup[] {
+export function consoleNav(db: Db, route: NavRoute, collapsed: boolean, role: string | null, openState: NavOpenState = {}): NavGroup[] {
   const path = norm(route.pathname);
   const at = (p: string): boolean => path === p;
   const inBuilder = path.startsWith(`${NAV_PATHS.curriculum}/`);
@@ -301,5 +331,16 @@ export function consoleNav(db: Db, route: NavRoute, collapsed: boolean, role: st
     ],
   ];
 
-  return groups.filter(([, items]) => items.length > 0).map(([label, items]) => ({ label, showLabel: !collapsed, items }));
+  // Expanded, each group folds: the viewer's own choice when there is one, and otherwise open only when
+  // it holds the page they are on (so the sidebar starts short and every heading is in view). The rail
+  // has no headings, so every row shows there.
+  return groups
+    .filter(([, items]) => items.length > 0)
+    .map(([label, items]) => ({
+      label,
+      showLabel: !collapsed,
+      items,
+      collapsible: !collapsed,
+      open: collapsed ? true : (openState[label] ?? items.some((i) => i.active)),
+    }));
 }

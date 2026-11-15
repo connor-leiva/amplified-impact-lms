@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { blankModule, phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
-import { SKILL_LIBRARY_PATH, consoleNav, hasPortal, noPortalRedirect, portalNav, type NavEntry, type NavGroup } from './navModel';
+import { SKILL_LIBRARY_PATH, activeGroupLabel, consoleNav, hasPortal, navGroupListId, noPortalRedirect, portalNav, revealActiveGroup, type NavEntry, type NavGroup } from './navModel';
 
 // Week 2 of the December 2026 Cohort — the instant the goldens were captured in.
 const NOW = phaseNow('live');
@@ -419,6 +419,61 @@ describe('navModel @g4', () => {
 
   // D-157: which Console rows each staff role sees. The same `consoleCan` the API authorizes with, so a
   // row is never offered to a role the server would refuse.
+  // D-157, collapsible groups: each heading folds its rows; with no remembered choice, only the group
+  // holding the active page is open, so the sidebar starts short and every heading is in view.
+  describe('consoleNav · folding groups', () => {
+    const db = seed('live');
+    const state = (pathname: string, open: Record<string, boolean> = {}) =>
+      Object.fromEntries(consoleNav(db, { pathname }, false, 'Owner', open).map((g) => [g.label, g.open]));
+
+    it('makes every expanded group collapsible, and none in the rail', () => {
+      expect(consoleNav(db, { pathname: '/admin' }, false, 'Owner').every((g) => g.collapsible)).toBe(true);
+      const rail = consoleNav(db, { pathname: '/admin' }, true, 'Owner');
+      expect(rail.every((g) => !g.collapsible && g.open)).toBe(true);
+    });
+
+    it('opens only the group holding the active page by default', () => {
+      expect(state('/admin')).toEqual({ Health: true, Build: false, Support: false, Revenue: false, Operations: false, Access: false });
+      expect(state('/admin/staff')).toEqual({ Health: false, Build: false, Support: false, Revenue: false, Operations: false, Access: true });
+      expect(state('/admin/curriculum/new')).toMatchObject({ Build: true, Health: false });
+      expect(state('/admin/audit')).toMatchObject({ Operations: true, Access: false });
+      // The Console 404 holds no row, so every group starts closed.
+      expect(Object.values(state('/admin/no-such-page'))).toEqual([false, false, false, false, false, false]);
+    });
+
+    it('lets a remembered choice win, either way, including on the active group', () => {
+      expect(state('/admin', { Access: true, Health: false })).toMatchObject({ Health: false, Access: true, Build: false });
+      expect(state('/admin/staff', { Access: false })).toMatchObject({ Access: false });
+    });
+
+    it('keeps the rows in every group, open or not, and the model stays pure', () => {
+      const closed = consoleNav(db, { pathname: '/admin' }, false, 'Owner');
+      expect(closed.find((g) => g.label === 'Access')!.items.map((i) => i.key)).toEqual(['roles', 'staff']);
+      expect(consoleNav(db, { pathname: '/admin' }, false, 'Owner', { Build: true })).toEqual(consoleNav(db, { pathname: '/admin' }, false, 'Owner', { Build: true }));
+    });
+
+    it('opens the active page’s group on arrival when it had been closed, and keeps every other choice', () => {
+      const groups = consoleNav(db, { pathname: '/admin/staff' }, false, 'Owner', { Access: false, Build: true });
+      expect(activeGroupLabel(groups)).toBe('Access');
+      expect(revealActiveGroup(groups, { Access: false, Build: true })).toEqual({ Access: true, Build: true });
+      // Nothing to change: the same object comes back, so no write is needed.
+      const kept = { Build: false };
+      expect(revealActiveGroup(consoleNav(db, { pathname: '/admin/staff' }, false, 'Owner', kept), kept)).toBe(kept);
+      const none = {};
+      expect(revealActiveGroup(consoleNav(db, { pathname: '/admin/no-such-page' }, false, 'Owner', none), none)).toBe(none);
+    });
+
+    it('hides a group with no rows for the role, folded or not', () => {
+      const labels = consoleNav(db, { pathname: '/admin' }, false, 'Instructor', { Operations: true }).map((g) => g.label);
+      expect(labels).not.toContain('Operations');
+    });
+
+    it('names each group’s list for its heading’s aria-controls', () => {
+      expect(navGroupListId('Access')).toBe('nav-group-access');
+      expect(navGroupListId('Roles & Permissions')).toBe('nav-group-roles-permissions');
+    });
+  });
+
   describe('consoleNav · by staff role', () => {
     const db = seed('live');
     const flat = (nav: NavGroup[]) => nav.flatMap((g) => g.items);
