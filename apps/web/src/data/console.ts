@@ -1,0 +1,137 @@
+// The Admin Console's typed client (D-157). Built on `data/http.ts`: a 401 is its sign-in redirect,
+// unchanged, and every other refusal becomes a `ConsoleError` the screens turn into a state (Denied,
+// Too Many Requests, Error) by its `kind`.
+//
+// The fixture build (the compliance and screenshot target) answers from `console-fixture.ts` instead,
+// loaded with a dynamic import behind `import.meta.env.VITE_DATA_SOURCE`, which Vite replaces with a
+// constant at build time. In the http build that branch is dead, so the fixture's fictional people
+// never reach production: `console-build.test.ts` builds this module both ways and checks.
+
+import { isConsoleErrorCode } from '@ai/core';
+import type { AuditFilters, AuditRow, ConsoleErrorCode, ConsoleMe, ConsolePage, RolesMatrix } from '@ai/core';
+import { navigation } from './http';
+
+/** What went wrong, as a screen needs to know it. */
+export type ConsoleFailure =
+  /** 403 `console_forbidden`: the Denied state. */
+  | 'forbidden'
+  /** 403 `masquerade_blocked` (PR 3): the blocked dialog. */
+  | 'blocked'
+  /** 429: "Too many requests". */
+  | 'rate_limited'
+  /** 404. */
+  | 'not_found'
+  /** 422 `export_too_large`. */
+  | 'too_large'
+  /** 400 `invalid_query`. */
+  | 'invalid'
+  /** Anything else: a 5xx, a dropped connection, a body that isn't JSON. */
+  | 'failed';
+
+export class ConsoleError extends Error {
+  constructor(
+    readonly kind: ConsoleFailure,
+    readonly status: number,
+    readonly code: ConsoleErrorCode | null,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'ConsoleError';
+  }
+}
+
+/** A status and a code as a failure kind. The code wins where there is one. */
+export function failureOf(status: number, code: unknown): ConsoleFailure {
+  if (code === 'console_forbidden') return 'forbidden';
+  if (code === 'masquerade_blocked') return 'blocked';
+  if (code === 'export_too_large') return 'too_large';
+  if (code === 'invalid_query') return 'invalid';
+  if (status === 429) return 'rate_limited';
+  if (status === 404) return 'not_found';
+  if (status === 403) return 'forbidden';
+  return 'failed';
+}
+
+export interface ConsoleApi {
+  readonly source: 'http' | 'fixture';
+  me(): Promise<ConsoleMe>;
+  audit(filters: AuditFilters, cursor?: string | null): Promise<ConsolePage<AuditRow>>;
+  /** The CSV and the file name the server gave it. */
+  exportAudit(filters: AuditFilters): Promise<{ csv: string; filename: string }>;
+  roles(): Promise<RolesMatrix>;
+}
+
+/** The audit list's query string: only the filters that are set, then the cursor. */
+export function auditQuery(filters: AuditFilters, cursor?: string | null): string {
+  const q = new URLSearchParams();
+  for (const key of ['actor', 'action', 'target', 'outcome', 'from', 'to'] as const) {
+    const v = filters[key];
+    if (v !== undefined && v !== '') q.set(key, String(v));
+  }
+  if (cursor) q.set('cursor', cursor);
+  const s = q.toString();
+  return s ? `?${s}` : '';
+}
+
+async function refusal(res: Response): Promise<never> {
+  if (res.status === 401) {
+    navigation.toSignIn();
+    throw new ConsoleError('failed', 401, null, 'Not signed in');
+  }
+  const body = (await res.json().catch(() => ({}))) as { error?: unknown; code?: unknown };
+  const code = isConsoleErrorCode(body.code) ? body.code : null;
+  throw new ConsoleError(failureOf(res.status, body.code), res.status, code, typeof body.error === 'string' ? body.error : `HTTP ${res.status}`);
+}
+
+async function request(fetchImpl: typeof fetch, url: string, init?: RequestInit): Promise<Response> {
+  let res: Response;
+  try {
+    res = await fetchImpl(url, { credentials: 'include', ...init, headers: { accept: 'application/json', ...(init?.headers ?? {}) } });
+  } catch {
+    throw new ConsoleError('failed', 0, null, 'The request didn’t reach the server.');
+  }
+  if (!res.ok) await refusal(res);
+  return res;
+}
+
+const json = async <T>(res: Response): Promise<T> => {
+  try {
+    return (await res.json()) as T;
+  } catch {
+    throw new ConsoleError('failed', res.status, null, 'The answer wasn’t readable.');
+  }
+};
+
+/** The file name from `content-disposition`, or a dated default. */
+export function filenameOf(disposition: string | null, fallback: string): string {
+  const m = disposition ? /filename="([^"]+)"/.exec(disposition) : null;
+  return m?.[1] ?? fallback;
+}
+
+export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a)): ConsoleApi {
+  return {
+    source: 'http',
+    me: async () => json<ConsoleMe>(await request(fetchImpl, '/api/console/me')),
+    audit: async (filters, cursor) => json<ConsolePage<AuditRow>>(await request(fetchImpl, `/api/console/audit${auditQuery(filters, cursor)}`)),
+    exportAudit: async (filters) => {
+      const res = await request(fetchImpl, '/api/console/audit/export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/csv' },
+        body: JSON.stringify(filters),
+      });
+      return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'audit-log.csv') };
+    },
+    roles: async () => json<RolesMatrix>(await request(fetchImpl, '/api/console/roles')),
+  };
+}
+
+let api: Promise<ConsoleApi> | null = null;
+
+/** The Console client for this build: the API, or in the fixture build its fictional stand-in. */
+export function consoleApi(): Promise<ConsoleApi> {
+  api ??=
+    import.meta.env.VITE_DATA_SOURCE === 'fixture'
+      ? import('./console-fixture').then((m) => m.createConsoleFixture())
+      : Promise.resolve(createConsoleHttp());
+  return api;
+}

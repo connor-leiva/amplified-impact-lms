@@ -1,0 +1,123 @@
+/* The Console's shared states (D-157). Tokens only; 16px floor; the way out is a 48px primary. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--line-default);
+  border-radius: 14px;
+  background: var(--bg-surface);
+  min-width: 0;
+}
+
+.card[aria-busy='true'] {
+  align-items: stretch;
+}
+
+.sentence,
+.body {
+  margin: 0;
+  max-width: 560px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+.sentence {
+  color: var(--text-primary);
+}
+
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Denied and the 404: a page of their own, framed like a Console screen. */
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--page-pad-top) var(--page-pad-x) 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.mono {
+  font-family: var(--font-ui-mono);
+}
+
+.h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-primary);
+  min-width: var(--tap);
+  padding: 0 20px;
+  border-radius: 8px;
+  background: var(--action-primary);
+  color: var(--action-on-primary);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.primary:hover {
+  background: var(--action-primary-hover);
+}
+.primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+@media (max-width: 767px) {
+  .card {
+    padding: 16px;
+  }
+  .page {
+    gap: 20px;
+    padding-bottom: 56px;
+  }
+  .h1 {
+    font-size: 28px;
+    line-height: 34px;
+  }
+  .actions > * {
+    flex: 1 1 100%;
+  }
+}

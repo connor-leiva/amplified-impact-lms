@@ -1,0 +1,55 @@
+// @vitest-environment node
+//
+// D-157: the Console's fixture (fictional people, a role switch and state switches for screenshots)
+// must never reach production. `console.ts` loads it behind `import.meta.env.VITE_DATA_SOURCE ===
+// 'fixture'`, which Vite replaces with a constant; this builds `console.ts` both ways, with Vite and
+// this app's own aliases and env files, and reads what comes out.
+import { describe, expect, it } from 'vitest';
+import { build } from 'vite';
+import type { Rollup } from 'vite';
+import { fileURLToPath } from 'node:url';
+
+const WEB = fileURLToPath(new URL('../..', import.meta.url));
+const CORE = (p: string) => fileURLToPath(new URL(`../../../../packages/core/src/${p}`, import.meta.url));
+
+/** Strings only `console-fixture.ts` holds: its two query parameters and its documentation addresses. */
+const SENTINELS = ['console-role', 'console-state', '203.0.113.'];
+
+async function bundle(mode: 'production' | 'fixture'): Promise<string> {
+  const out = (await build({
+    root: WEB,
+    mode,
+    configFile: false,
+    logLevel: 'silent',
+    resolve: {
+      alias: [
+        { find: /^@ai\/core\/(.*)$/, replacement: CORE('$1.ts') },
+        { find: '@ai/core', replacement: CORE('index.ts') },
+      ],
+    },
+    build: {
+      write: false,
+      minify: false,
+      sourcemap: false,
+      lib: { entry: fileURLToPath(new URL('./console.ts', import.meta.url)), formats: ['es'], fileName: 'console' },
+    },
+  })) as Rollup.RollupOutput | Rollup.RollupOutput[];
+  const outputs = Array.isArray(out) ? out : [out];
+  return outputs
+    .flatMap((o) => o.output)
+    .map((f) => (f.type === 'chunk' ? f.code : typeof f.source === 'string' ? f.source : ''))
+    .join('\n');
+}
+
+describe('the Console fixture is not in the http build (D-157)', () => {
+  it('the http build has none of it', async () => {
+    const code = await bundle('production');
+    expect(code).toContain('/api/console/audit');
+    for (const s of SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture');
+    for (const s of SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+});

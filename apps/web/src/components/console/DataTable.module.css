@@ -1,0 +1,236 @@
+/* The Console's table (D-157). A card per row below 768px, or when the table's own container is under
+   600px (beside the sidebar at 768-1023). Tokens only, 16px floor, 52px rows. */
+
+.wrap {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.frame {
+  border: 1px solid var(--line-default);
+  border-radius: 14px;
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.table th {
+  height: 48px;
+  padding: 0 12px;
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line-default);
+}
+
+.table td {
+  height: 52px;
+  padding: 8px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line-default);
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+}
+
+.row:last-child td {
+  border-bottom: 0;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: 20px;
+}
+.table th:last-child,
+.table td:last-child {
+  padding-right: 16px;
+}
+
+.mono {
+  font-family: var(--font-ui-mono);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* The first cell, when it opens the row: a link-styled button with a 44px target. */
+.open {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.open:hover {
+  color: var(--text-link-hover);
+}
+.open:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Cards: the same rules twice, for a phone and for a narrow container. */
+@media (max-width: 767px) {
+  .frame {
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+  .thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .table,
+  .table tbody,
+  .row,
+  .table td {
+    display: block;
+  }
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    border: 1px solid var(--line-default);
+    border-radius: 14px;
+    background: var(--bg-surface);
+  }
+  .row + .row {
+    margin-top: 12px;
+  }
+  .table td,
+  .table td:first-child,
+  .table td:last-child {
+    height: auto;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+  .table td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .table td[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    color: var(--text-tertiary);
+    font-family: var(--font-ui);
+    font-weight: 500;
+  }
+  .table td[data-label] > .value {
+    text-align: right;
+    min-width: 0;
+  }
+  .lead {
+    font-weight: 600;
+  }
+  .more > * {
+    width: 100%;
+  }
+}
+
+@container (max-width: 599px) {
+  .frame {
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+  .thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .table,
+  .table tbody,
+  .row,
+  .table td {
+    display: block;
+  }
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    border: 1px solid var(--line-default);
+    border-radius: 14px;
+    background: var(--bg-surface);
+  }
+  .row + .row {
+    margin-top: 12px;
+  }
+  .table td,
+  .table td:first-child,
+  .table td:last-child {
+    height: auto;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+  .table td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .table td[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    color: var(--text-tertiary);
+    font-family: var(--font-ui);
+    font-weight: 500;
+  }
+  .table td[data-label] > .value {
+    text-align: right;
+    min-width: 0;
+  }
+  .lead {
+    font-weight: 600;
+  }
+  .more > * {
+    width: 100%;
+  }
+}

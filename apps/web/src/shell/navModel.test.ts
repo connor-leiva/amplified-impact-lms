@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { blankModule, phaseNow, seed, seedProduction, setViewerZone } from '@ai/core';
 import type { Db, Learner } from '@ai/core';
-import { SKILL_LIBRARY_PATH, adminNav, hasPortal, noPortalRedirect, portalNav, type NavEntry, type NavGroup } from './navModel';
+import { SKILL_LIBRARY_PATH, adminNav, consoleNav, hasPortal, noPortalRedirect, portalNav, type NavEntry, type NavGroup } from './navModel';
 
 // Week 2 of the December 2026 Cohort — the instant the goldens were captured in.
 const NOW = phaseNow('live');
@@ -407,6 +407,61 @@ describe('navModel @g4', () => {
       expect(keys(portalNav(demo, demo.users.find((u) => u.id === 'u_alex')!, { pathname: '/' }, phaseNow('live'), false, true))).not.toContain('course');
       const none = { ...prod, modules: [] };
       expect(keys(portalNav(none, buyer, { pathname: '/' }, phaseNow('live'), false, true))).not.toContain('course');
+    });
+  });
+
+  // D-157: the Admin Console's grouped sidebar (spec § 8). Modelled and tested, not shown yet: the
+  // shell keeps `adminNav` above so no admin golden moves (see `consoleNav`'s header).
+  describe('consoleNav (D-157)', () => {
+    const db = seed('live');
+    const flat = (nav: NavGroup[]) => nav.flatMap((g) => g.items);
+
+    it('groups the admin screens under Health, Build, Support, Revenue, Operations and Access for the Owner', () => {
+      const nav = consoleNav(db, { pathname: '/admin' }, false, 'Owner');
+      expect(nav.map((g) => g.label)).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Operations', 'Access']);
+      expect(nav.map((g) => g.showLabel)).toEqual([true, true, true, true, true, true]);
+      expect(nav.map(keys)).toEqual([
+        ['overview'],
+        ['curriculum', 'builder', 'avault', 'cohorts', 'announce'],
+        ['learners'],
+        ['tiers'],
+        ['audit'],
+        ['roles', 'staff'],
+      ]);
+      expect(Object.fromEntries(flat(nav).map((i) => [i.key, i.action]))).toMatchObject({ audit: { to: '/admin/audit' }, roles: { to: '/admin/roles' }, staff: { to: '/admin/staff' } });
+      expect(flat(nav).find((i) => i.key === 'audit')).toMatchObject({ label: 'Audit Log', icon: 'listChecks' });
+      expect(flat(nav).find((i) => i.key === 'roles')).toMatchObject({ label: 'Roles & Permissions', icon: 'lock' });
+    });
+
+    it('keeps every existing admin row, with its label, icon, path and badge', () => {
+      const before = adminNav(db, { pathname: '/admin' }, false).flatMap((g) => g.items);
+      const after = flat(consoleNav(db, { pathname: '/admin' }, false, 'Owner'));
+      for (const row of before) expect(after.find((i) => i.key === row.key)).toEqual(row);
+    });
+
+    it('shows Support the audit log but not Roles; Instructor and Content Editor neither', () => {
+      expect(flat(consoleNav(db, { pathname: '/admin' }, false, 'Support')).map((i) => i.key)).toContain('audit');
+      expect(flat(consoleNav(db, { pathname: '/admin' }, false, 'Support')).map((i) => i.key)).not.toContain('roles');
+      for (const role of ['Instructor', 'Content Editor', null]) {
+        const nav = consoleNav(db, { pathname: '/admin' }, false, role);
+        expect(nav.map((g) => g.label), String(role)).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Access']);
+        expect(flat(nav).map((i) => i.key)).not.toContain('audit');
+        expect(flat(nav).map((i) => i.key)).not.toContain('roles');
+      }
+    });
+
+    it('marks the Console screen the viewer is on, and hides the headings in the rail', () => {
+      const on = (pathname: string) => flat(consoleNav(db, { pathname }, false, 'Admin')).filter((i) => i.active).map((i) => i.key);
+      expect(on('/admin/audit')).toEqual(['audit']);
+      expect(on('/admin/roles')).toEqual(['roles']);
+      expect(on('/admin/curriculum/new')).toEqual(['builder']);
+      expect(on('/admin/nope')).toEqual([]);
+      expect(consoleNav(db, { pathname: '/admin' }, true, 'Owner').map((g) => g.showLabel)).toEqual([false, false, false, false, false, false]);
+    });
+
+    it('leaves the shell’s admin sidebar as it is today', () => {
+      expect(adminNav(db, { pathname: '/admin/audit' }, false).map((g) => g.label)).toEqual(['Insights', 'Content', 'Delivery', 'People', 'Revenue']);
+      expect(adminNav(db, { pathname: '/admin/audit' }, false).flatMap((g) => g.items).filter((i) => i.active)).toEqual([]);
     });
   });
 });

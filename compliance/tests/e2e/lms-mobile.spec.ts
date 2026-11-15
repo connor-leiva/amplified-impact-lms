@@ -43,6 +43,12 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/tiers'],
   ['admin', '/admin/staff'],
   ['admin', '/admin/crm-sync'],
+  // The Admin Console (D-157): Roles, and the Console 404 for any other `/admin/` address.
+  ['admin', '/admin/roles'],
+  ['admin', '/admin/no-such-page'],
+  // Two of its shared states (the fixture's own switches): Denied, and "Too many requests".
+  ['admin', '/admin/roles?console-role=Support'],
+  ['admin', '/admin/roles?console-state=rate_limited'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],
