@@ -162,7 +162,7 @@ export function Table<R>({
     ...(menu ? menu(r) : []),
   ];
   const more = (r: R, i: number, up: boolean, items: readonly MenuEntry[] | null = menu ? menu(r) : null) =>
-    items ? (
+    items && items.length ? (
       <Menu
         label={`Actions for ${String(cols[0]!.value(r))}`}
         items={items}
@@ -173,6 +173,11 @@ export function Table<R>({
           </button>
         )}
       />
+    ) : items ? (
+      // Nothing this row can do (R2-2b): the "…" is drawn and does nothing, as the mockup draws it.
+      <button type="button" className={k.ib} aria-label="More actions" aria-disabled="true" title="Not available yet">
+        <Icon name="r2More" size={16} strokeWidth={2.6} />
+      </button>
     ) : null;
 
   const head = !phone ? (

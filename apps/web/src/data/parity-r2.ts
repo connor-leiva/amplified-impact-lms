@@ -229,6 +229,25 @@ export const BUILDER_FILES = [
   ['review-checklist.pdf', 'Checklist', '412 KB'],
 ] as const;
 
+/** The Resource Vault's rows (its `R`, R2-2b): title, type, attached to, tier access, size, updated, opens. */
+export const VAULT = [
+  ['Listing appointment checklist', 'PDF', 'Listing AI Employee', 'Agent + Team', '412 KB', 'Dec 8', 86],
+  ['Standard chart of accounts', 'Sheet', 'Finance AI Employee', 'Team only', '88 KB', 'Dec 6', 31],
+  ['Fair Housing review checklist', 'PDF', 'Marketing AI Employee', 'Agent + Team', '240 KB', 'Dec 2', 128],
+  ['Session 1 replay', 'Video', 'Week 1 · Know the Business', 'Team only', '214 MB', 'Dec 2', 97],
+  ['Session 2 replay', 'Video', 'Week 2 · Own the Day', 'Team only', '198 MB', 'Dec 9', 64],
+  ['Skill install walkthrough', 'Video', 'Week 0 · Get Ready', 'Agent + Team', '96 MB', 'Nov 24', 141],
+  ['Morning brief prompt pack', 'Prompt', 'Week 2 · Own the Day', 'Team only', '9 KB', 'Dec 9', 52],
+] as const;
+
+/** Announcements' rows (its `rows`, R2-2b): title, audience, channels, status, send time. */
+export const ANNOUNCEMENTS = [
+  ['Session 2 replay is ready', 'Team Tier', 'In-app, email', 'Sent', 'Dec 9, 3:10 PM'],
+  ['New in the vault: listing appointment checklist', 'Everyone', 'In-app, email', 'Sent', 'Dec 8, 3:00 PM'],
+  ['Session 3 is Wednesday at 12:00 PM MST', 'Team Tier', 'Email', 'Scheduled', 'Dec 15, 12:00 PM'],
+  ['Database AI Employee opens Monday', 'Everyone', 'In-app', 'Draft', '—'],
+] as const;
+
 /** `INCIDENTS`' ids and statuses: Incidents' "1" counts the open ones. */
 export const INCIDENTS = [
   { id: 'INC-0007', st: 'Open' },

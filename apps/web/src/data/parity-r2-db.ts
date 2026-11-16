@@ -10,8 +10,8 @@
 // mockup's `dep` (66 of 100 is 66%).
 
 import { seed } from '@ai/core';
-import type { AIEmployee, Db, IconName, Session, SkillFile, Step, StepKind } from '@ai/core';
-import { BUILDER_FILES, BUILDER_STEPS, MODS0 } from './parity-r2';
+import type { AIEmployee, Announcement, Db, IconName, Resource, Session, SkillFile, Step, StepKind } from '@ai/core';
+import { ANNOUNCEMENTS, BUILDER_FILES, BUILDER_STEPS, MODS0, VAULT } from './parity-r2';
 
 /** An instant written in MST (America/Phoenix, UTC−7 all year). */
 const mst = (s: string): number => Date.parse(`${s}-07:00`);
@@ -87,6 +87,63 @@ function moduleOf(m: (typeof MODS0)[number], i: number): AIEmployee {
   };
 }
 
+const MONTHS: Record<string, string> = { Nov: '11', Dec: '12' };
+/** "Dec 9, 3:10 PM" or "Dec 8" (9:00 AM), in 2026, MST. */
+function stamp(s: string): number {
+  const m = /^(\w{3}) (\d+)(?:, (\d+):(\d+) (AM|PM))?$/.exec(s)!;
+  const h = m[3] ? (Number(m[3]) % 12) + (m[5] === 'PM' ? 12 : 0) : 9;
+  const pad = (n: number | string) => String(n).padStart(2, '0');
+  return mst(`2026-${MONTHS[m[1]!]}-${pad(m[2]!)}T${pad(h)}:${pad(m[4] ?? 0)}:00`);
+}
+
+/** The vault (`R`): each row attached to its AI Employee by name. */
+const resourceOf = (
+  [title, type, attached, tier, size, updated, opens]: (typeof VAULT)[number],
+  i: number,
+): Resource => ({
+  id: `r${i + 1}`,
+  title,
+  desc: '',
+  cat: 'Lead Generation Scripts',
+  type,
+  tier: tier === 'Team only' ? 'team' : 'agent',
+  size,
+  dl: opens,
+  updated: stamp(updated),
+  exec: false,
+  status: 'published',
+  module: MODS0.find((m) => m.n === attached)!.id,
+});
+
+const AUDIENCE: Record<string, Announcement['audience']> = {
+  Everyone: 'all',
+  'Team Tier': 'team',
+  'Agent Tier': 'agent',
+};
+const CHANNELS: Record<string, Announcement['channels']> = {
+  'In-app, email': ['inapp', 'email'],
+  Email: ['email'],
+  'In-app': ['inapp'],
+};
+
+/** Announcements (`rows`), newest first as `sendAnnouncement` keeps them. A draft has no send time. */
+const announcementOf = (
+  [title, audience, channels, status, at]: (typeof ANNOUNCEMENTS)[number],
+  i: number,
+): Announcement => ({
+  id: `a${i + 1}`,
+  title,
+  body: '',
+  severity: 'info',
+  action: null,
+  actionLabel: '',
+  audience: AUDIENCE[audience]!,
+  channels: CHANNELS[channels]!,
+  status: status === 'Sent' ? 'sent' : status === 'Scheduled' ? 'scheduled' : 'draft',
+  at: at === '—' ? stamp('Dec 10, 9:00 AM') : stamp(at),
+  opens: null,
+});
+
 /** The parity snapshot: the ordinary fixture with the mockup's Build data in place. */
 export function parityDb(): Db {
   const db = seed('live');
@@ -115,9 +172,13 @@ export function parityDb(): Db {
     views: 0,
   }));
   db.modules = MODS0.map(moduleOf);
+  db.resources = VAULT.map(resourceOf);
+  db.announcements = ANNOUNCEMENTS.map(announcementOf);
   db.users = [];
   db.base = {
     ...db.base,
+    // The 148 enrolled, none modelled one by one: the population attendance is a share of.
+    learners: 148,
     mod: Object.fromEntries(
       MODS0.filter((m) => 'dep' in m).map((m) => [m.id, [m.dep, 100 - m.dep, 0]]),
     ) as Db['base']['mod'],
