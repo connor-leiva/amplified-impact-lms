@@ -24,6 +24,8 @@ packages/*/**/*.d.ts
 # Playwright / compliance output (goldens ARE committed)
 compliance/report/
 compliance/test-results/
+# parity:admin-r2's report, diffs and side-by-sides (D-160): posted in a PR comment, never committed.
+compliance/parity/out/
 compliance/goldens/**/*-actual.png
 compliance/goldens/**/*-diff.png
 test-results/
