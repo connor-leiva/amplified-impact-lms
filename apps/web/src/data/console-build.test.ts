@@ -79,3 +79,22 @@ describe('the R2 parity fixture is not in the http build (D-160 R2-1b)', () => {
     expect(await bundle('fixture', '../routes/console/fixtureRoutes.ts')).toContain('admin/denied');
   }, 120_000);
 });
+
+/**
+ * D-160 R2-2: the parity snapshot (`parity-r2-db.ts`, the mockup's curriculum, sessions and cohort as
+ * the app's own snapshot) is loaded by `boot.ts` behind the same constant and `?parity=r2`.
+ */
+const SNAPSHOT_SENTINELS = ['Wednesdays, weekly', 'skill-file.zip', 'review-checklist.pdf', 'Recruiting AI Employee'];
+
+describe('the R2 parity snapshot is not in the http build (D-160 R2-2)', () => {
+  it('the http build of boot has none of it', async () => {
+    const code = await bundle('production', './boot.ts');
+    expect(code).toContain('createHttpRepository');
+    for (const s of SNAPSHOT_SENTINELS) expect(code, s).not.toContain(s);
+  }, 120_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture', './boot.ts');
+    for (const s of SNAPSHOT_SENTINELS) expect(code, s).toContain(s);
+  }, 120_000);
+});

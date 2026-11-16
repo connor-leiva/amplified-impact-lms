@@ -79,14 +79,23 @@ export interface Route {
 export const ROUTES: Partial<Record<Screen, Route>> = {
   missing: { path: '/admin/no-such-page' },
   denied: { path: '/admin/denied' },
+  // R2-2: the Build screens. The builder opens m1, as the mockup's `route.id || 'm1'` does.
+  curriculum: { path: '/admin/curriculum' },
+  builder: { path: '/admin/curriculum/m1' },
 };
 
 /**
  * The cells whose failure fails the run, as `cellId`s (`'curriculum-1280'`). A PR adds the cells for
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
- * `denied` at all four widths.
+ * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four.
  */
-export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [`missing-${w}`, `denied-${w}`]);
+export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
+  `missing-${w}`,
+  `denied-${w}`,
+  // R2-2a (D-160): Curriculum and the Module Builder, at all four widths.
+  `curriculum-${w}`,
+  `builder-${w}`,
+]);
 
 // ------------------------------------------------------------------------------------------------
 // The parity fixture seam (BUILD-SPEC § 6.1). Fixture mode only, never in the production bundle.

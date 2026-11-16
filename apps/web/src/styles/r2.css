@@ -120,6 +120,8 @@
   --r2-tile: 24px;
   --r2-ng: 28px;
   --r2-ct-lh: 16px;
+  /* R2-1c: the select's chevron (`select.in`), the mockup's data URI verbatim. */
+  --r2-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235F6A64' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 6.5 8 10l3.5-3.5'/%3E%3C/svg%3E");
 }
 
 /* Laptop: 768–1199px (`.ax.lap`). */

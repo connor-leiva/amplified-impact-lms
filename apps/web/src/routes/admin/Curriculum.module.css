@@ -1,385 +1,88 @@
-/* Ported from design-reference/Admin Curriculum.dc.html. Every value is the reference's inline
-   style; SCREENS § 1.1, § 1.8 and § 4.2.
-   The per-row colours the reference computes (`upFg`, `downFg`, `aBg`/`aFg`, `tBg`/`tFg`, `st.*`,
-   `actBg`/`actFg`/`actBd`) are keyed off `data-*` attributes here, and the one genuinely
-   per-instance value — the Deployed bar's width — arrives as the `--dep` custom property.
+/* Admin Curriculum on the Admin redesign R2 (D-160 R2-2): the mockup's `Curriculum` cells and phone
+   card (AdminRedesign.jsx). The table, pills, fields and type come from the R2 kit; these are the
+   screen's own inline styles there, rule for rule. Tokens only. */
 
-   Two deliberate departures from the shared patterns, because the reference draws this screen's
-   own controls inline and CLAUDE.md gives the reference precedence on pixels:
-   - the Tier Access track is 2px padding / radius 8 / no gap / 12px options, not § 1.4's
-     3 / 9 / 2 / 13, and its active Team Only option is amber rather than `--seg-active`;
-   - the Status pill is this screen's own 22px / 0 9px / gap 6 / 12-600 pill with a 6px dot, not
-     the StatusToken (which is 500 weight with a 13px glyph), so § 1.9 cannot be honoured here.
-   Hover is defined only where the reference carries a `style-hover`; focus rings are added
-   everywhere, as CLAUDE.md requires. */
-
-.page {
-  padding: var(--page-pad-top) var(--page-pad-x) 56px;
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+/* The AI Employee cell: the row number (1100px tables and wider), the icon tile, name over line. */
+.lead {
+  gap: 12px;
 }
-
-/* Header actions sit right and wrap under the title on narrow widths. */
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.h1 {
-  margin: 0;
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.sub {
-  margin: 4px 0 0;
-  color: var(--text-secondary);
-  font-size: var(--fs-14);
-}
-
-.create {
-  min-height: var(--tap-primary);
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 8px;
-  border: 1px solid var(--action-primary);
-  background: var(--action-primary);
-  color: var(--action-on-primary);
-  font-size: var(--fs-13);
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
+.leadTight {
   gap: 8px;
-  white-space: nowrap;
-  outline: none;
 }
-.create:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* ---------- The table ---------- */
-
-.card {
-  border-radius: 12px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  overflow: hidden;
-}
-
-.scroll {
-  overflow-x: auto;
-}
-
-.table {
-  min-width: 1080px;
-}
-
-.headRow,
-.row {
-  display: grid;
-  grid-template-columns: 64px minmax(260px, 2.4fr) 190px 180px 150px 120px 232px;
-  gap: 12px;
-}
-
-.headRow {
-  padding: 10px 18px;
-  font-size: var(--fs-13);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  border-bottom: 1px solid var(--line-default);
-}
-
-.right {
-  text-align: right;
-}
-
-/* The reference draws a border under every row, the last one included. */
-.row {
-  align-items: center;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--line-default);
-}
-.row:hover {
-  background: var(--bg-hover);
-}
-
-/* ---------- Order ---------- */
-
-.orderCell {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.orderNum {
-  font-family: var(--font-ui-mono);
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
+.order {
   width: 16px;
-}
-
-.chevs {
-  display: flex;
-  flex-direction: column;
-}
-
-.chev {
-  width: 22px;
-  height: 16px;
-  border: 0;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  outline: none;
-}
-.chev[data-off='true'] {
-  color: var(--text-disabled);
-  cursor: not-allowed;
-}
-.chev:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* ---------- AI Employee ---------- */
-
-.who {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-
-.tile {
-  width: 36px;
-  height: 36px;
+  text-align: right;
   flex: none;
-  border-radius: 9px;
-  background: var(--action-primary-tint);
-  border: 1px solid var(--action-primary-line);
+}
+.mt {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--r2-tint);
+  color: var(--r2-for);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: none;
+}
+.mtSmall {
+  width: 28px;
+  height: 28px;
+}
+.two {
+  padding: 6px 0;
 }
 
-.whoText {
-  min-width: 0;
+/* Live session at 1440: up to three lines, the date line wrapping. */
+.cl3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+}
+.wrap {
+  white-space: normal;
 }
 
-.name {
-  font-size: var(--fs-14);
-  font-weight: 500;
+/* Status at laptop width: Draft over its "Hidden" pill. */
+.hiddenStack {
+  gap: 2px;
+  align-items: flex-start;
 }
 
-.outcome {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
+/* Deployed: the bar and its figure. */
+.dep {
+  gap: 10px;
+}
+.pct {
+  min-width: 34px;
+  text-align: right;
+  flex: none;
+  white-space: nowrap;
+}
+
+/* The phone card. */
+.cardName {
+  font-size: 17px;
+  line-height: 24px;
+  margin: -10px 0;
+}
+.cl2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+}
+.cl1 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-/* ---------- Tier Access ---------- */
-
-.seg {
-  display: flex;
-  padding: 2px;
-  border-radius: 8px;
-  background: var(--bg-sunken);
-  border: 1px solid var(--line-default);
-  width: max-content;
-}
-
-.segOpt {
-  height: 26px;
-  padding: 0 9px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--fs-12);
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-}
-.segOpt[data-on='true'][data-opt='agent'] {
-  background: var(--seg-active);
-  color: var(--text-primary);
-}
-/* Team Only is the gated state, so its active fill is the amber access token, not `--seg-active`. */
-.segOpt[data-on='true'][data-opt='team'] {
-  background: var(--access-locked-bg);
-  color: var(--access-locked-text);
-}
-.segOpt:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* ---------- Live Session ---------- */
-
-/* `line-height: 1.4` is a factor, so the 12px sub line inherits 16.8px, as the reference does. */
-.sess {
-  font-size: var(--fs-13);
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.sessSub {
-  color: var(--text-tertiary);
-  font-size: var(--fs-12);
-}
-
-/* ---------- Status ---------- */
-
-.statusCell {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  align-items: flex-start;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: var(--bx-22);
-  padding: 0 9px;
-  border-radius: 999px;
-  font-size: var(--fs-12);
-  font-weight: 600;
-  background: var(--status-neutral-bg);
-  color: var(--status-neutral-text);
-  border: 1px solid var(--status-neutral-line);
-}
-.pill[data-status='published'] {
-  background: var(--status-success-bg);
-  color: var(--status-success-text);
-  border-color: var(--status-success-line);
-}
-.pill[data-status='scheduled'] {
-  background: var(--status-progress-bg);
-  color: var(--status-progress-text);
-  border-color: var(--status-progress-line);
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--status-neutral);
-}
-.pill[data-status='published'] .dot {
-  background: var(--status-success);
-}
-.pill[data-status='scheduled'] .dot {
-  background: var(--status-progress);
-}
-
-.stSub {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-/* ---------- Deployed ---------- */
-
-.depCell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bar {
-  flex: 1;
-  height: 5px;
-  border-radius: 3px;
-  background: var(--track);
-  overflow: hidden;
-}
-
-/* The reference sets the fill's width to the same string it prints, so an em dash leaves `width`
-   invalid and the bar falls back to `auto`. `var(--dep)` reproduces that exactly. */
-.fill {
-  height: 100%;
-  width: var(--dep);
-  background: var(--status-success);
-}
-
-.depNum {
-  font-size: var(--fs-12);
-  color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
-  width: 34px;
-  text-align: right;
-}
-
-/* ---------- Actions ---------- */
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
+.cardRow {
   gap: 6px;
 }
-
-.iconBtn {
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
-  border: 1px solid var(--line-strong);
-  background: var(--action-secondary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-.iconBtn:hover {
-  color: var(--text-primary);
-  background: var(--action-secondary-hover);
-}
-.iconBtn:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.act {
-  min-height: var(--tap-primary);
-  height: 30px;
-  min-width: 92px;
-  padding: 0 10px;
-  border-radius: 7px;
-  border: 1px solid var(--action-primary);
-  background: var(--action-primary);
-  color: var(--action-on-primary);
-  font-size: var(--fs-13);
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-}
-.act[data-variant='unpublish'] {
-  border-color: var(--line-strong);
-  background: transparent;
-  color: var(--text-secondary);
-}
-.act:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.note {
-  margin: 0;
-  font-size: var(--fs-13);
-  color: var(--text-tertiary);
+.cardRow .cardPublish {
+  padding: 0 12px;
 }

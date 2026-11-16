@@ -14,7 +14,7 @@
 //
 // Each R2 PR that rebuilds a screen removes its row here and retires its old checks in the same PR
 // (Connor, Nov 16, 2026): R2-2 the Curriculum, Module Builder, Resource Vault, Cohorts & Sessions and
-// Announcements rows; R2-3 the Overview, Learners & Teams, Tiers & Upgrades, Staff & Roles, Audit Log
+// Announcements rows (R2-2a removed Curriculum and the Module Builder); R2-3 the Overview, Learners & Teams, Tiers & Upgrades, Staff & Roles, Audit Log
 // and Roles & Permissions rows. When the list is empty, this module and both mechanisms go.
 //
 // Every other admin address (the Console 404, Denied, every screen rebuilt later) gets R2 throughout.
@@ -32,8 +32,6 @@ export interface LegacyScreen {
 
 export const LEGACY_SCREENS: readonly LegacyScreen[] = [
   { match: '/admin', geometry: true, rebuiltIn: 'R2-3' },
-  { match: '/admin/curriculum', geometry: true, rebuiltIn: 'R2-2' },
-  { match: '/admin/curriculum/*', geometry: true, rebuiltIn: 'R2-2' },
   { match: '/admin/cohorts', geometry: true, rebuiltIn: 'R2-2' },
   { match: '/admin/learners', geometry: true, rebuiltIn: 'R2-3' },
   { match: '/admin/vault', geometry: true, rebuiltIn: 'R2-2' },

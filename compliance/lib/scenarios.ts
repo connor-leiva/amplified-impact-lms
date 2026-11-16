@@ -225,13 +225,12 @@ export const SCENARIOS: Scenario[] = [
   // Phase 06: admin console. Each compares `main` only: the `page` region (the whole viewport, the
   // admin sidebar in it) was dropped by D-160 R2-1b, because the R2 shell replaced the prototype's and
   // is compared with the signed-off mockup by `pnpm parity:admin-r2` (Connor, Nov 16, 2026). Each
-  // scenario retires in the R2 PR that rebuilds its screen.
+  // scenario retires in the R2 PR that rebuilds its screen: R2-2a retired `admin-curriculum`,
+  // `admin-builder`, `admin-builder-marketing` and `admin-builder-locked` (Curriculum and the Module
+  // Builder are compared with the mockup by `pnpm parity:admin-r2`).
   ...(
     [
       ['overview', '/admin'],
-      ['curriculum', '/admin/curriculum'],
-      ['builder/marketing', '/admin/curriculum/marketing'],
-      ['builder', '/admin/curriculum/new'],
       ['cohorts', '/admin/cohorts'],
       ['learners', '/admin/learners'],
       ['avault', '/admin/vault'],
@@ -240,15 +239,6 @@ export const SCENARIOS: Scenario[] = [
       ['staff', '/admin/staff'],
     ] as const
   ).map(([ref, path]) => S({ id: `admin-${ref.replace('/', '-') || 'new'}`, gate: 6, role: 'admin', ref, path, regions: ['main'] })),
-  S({
-    id: 'admin-builder-locked',
-    gate: 6,
-    role: 'admin',
-    ref: 'builder/meetings',
-    path: '/admin/curriculum/meetings',
-    actions: [{ click: { role: 'button', name: 'Locked Preview' } }],
-    regions: ['main'],
-  }),
   S({
     id: 'admin-cohorts-edit',
     gate: 6,

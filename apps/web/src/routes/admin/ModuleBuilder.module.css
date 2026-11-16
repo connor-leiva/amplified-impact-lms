@@ -1,733 +1,186 @@
-/* Admin Module Builder. Every value is copied from the inline styles in
-   design-reference/Admin Module Builder.dc.html (SCREENS § 4.3); the reference's computed colours
-   become `[data-*]` rules rather than inline styles. */
+/* Admin Module Builder on the Admin redesign R2 (D-160 R2-2): the mockup's `Builder` (AdminRedesign.jsx)
+   — the `.bb` grid, the AI Employee list (`.ni` rows), the name card's in-place fields (`.ine`), the
+   step titles, the Files rows and the Settings card (`.kvs`). Tokens only. */
 
-/* --- Root: a column so the sticky bar sits above the body ---------------------------------- */
-.root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
+/* `.bb`: list, main column, settings under the main column; a third column from 1400px; one on a phone. */
+.bb {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
 }
-
-/* --- Sticky top bar ------------------------------------------------------------------------- */
-.bar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px var(--page-pad-x);
-  background: color-mix(in oklch, var(--bg-canvas) 92%, transparent);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line-default);
-  flex-wrap: wrap;
+.bb > :last-child {
+  grid-column: 2;
+}
+@media (min-width: 1400px) {
+  .bb {
+    grid-template-columns: 220px minmax(0, 1fr) 264px;
+  }
+  .bb > :last-child {
+    grid-column: auto;
+  }
 }
 
-.back {
-  width: 32px;
-  height: 32px;
-  flex: none;
-  border-radius: 8px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
+/* The AI Employee list: nav-item rows (`.ni`), each a status dot and a name. */
+.list {
+  padding: 4px;
+  max-height: 560px;
+  overflow: auto;
 }
-.back:hover {
-  border-color: var(--line-strong);
-}
-.back:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.barMain {
-  flex: 1;
-  min-width: 200px;
+.ni {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
-}
-
-.barTitle {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.saveNote {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-/* `Unsaved changes` is amber. SCREENS § 4.3. */
-.saveNote[data-dirty='true'] {
-  color: var(--access-locked-text);
-}
-
-/* The three bar actions. Heights are the reference's 34, not the 36 of a page button. */
-.barBtn {
-  height: 34px;
+  width: 100%;
+  height: var(--r2-c);
+  padding: 0 8px;
+  border: 0;
+  background: none;
   border-radius: 8px;
-  font-size: var(--fs-13);
   cursor: pointer;
+  text-align: left;
   white-space: nowrap;
-  outline: none;
+}
+.ni:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+.ni.on {
+  background: var(--r2-tint);
+  color: var(--r2-for);
+}
+
+/* The name card. */
+.pd {
+  padding: 20px;
+}
+/* The icon tile is the "Edit details" button; on a phone its 44px target reaches past the 32px tile. */
+.tile {
+  border: 0;
+  padding: 0;
+  background: none;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: none;
+  cursor: pointer;
 }
-.barBtn:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
+.mt {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--r2-tint);
+  color: var(--r2-for);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  cursor: pointer;
 }
-
-.danger {
-  padding: 0 12px;
-  border: 1px solid var(--line-strong);
+.mtOn {
+  box-shadow: inset 0 0 0 2px var(--r2-for);
+}
+/* `.ine`: a field that reads as text until hovered. The mockup's `.arx input` reset outranks its
+   weight and its -8px margin; the name's 15px / 600 is its own inline style. */
+.ine {
+  border-color: transparent;
   background: transparent;
-  color: var(--status-attention-text);
+  padding: 0 8px;
 }
-.danger:hover {
-  background: var(--status-attention-bg);
+.ine:hover {
+  border-color: var(--r2-line2);
+  background: var(--r2-sf);
 }
-
-.secondary {
-  padding: 0 12px;
-  border: 1px solid var(--action-secondary-line);
-  background: var(--action-secondary);
-  color: var(--text-primary);
-  font-weight: 500;
-}
-.secondary:hover {
-  background: var(--action-secondary-hover);
-}
-
-/* D-156: a primary is 48 tall (--tap-primary), as the reference's publish button is. */
-.primary {
-  min-height: var(--tap-primary);
-  padding: 0 14px;
-  border: 1px solid transparent;
-  background: var(--action-primary);
-  color: var(--action-on-primary);
+.name {
+  font-size: var(--r2-sh);
   font-weight: 600;
-  gap: 7px;
-}
-.primary:hover {
-  background: var(--action-primary-hover);
 }
 
-/* --- Body: SCREENS § 1.1, Module Builder body is max-width 1480, gap 20 --------------------- */
-.body {
-  padding: 20px var(--page-pad-x) 56px;
-  max-width: 1480px;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: flex-start;
+/* A step's title: a one-line textarea that grows with its words. */
+.step {
+  border-color: transparent;
+  background: transparent;
+  resize: none;
+  field-sizing: content;
+  white-space: normal;
+  display: block;
+  margin: 6px 0 6px -8px;
+  width: calc(100% + 8px);
+}
+.step:hover {
+  border-color: var(--r2-line2);
+  background: var(--r2-sf);
 }
 
-.left {
-  flex: 1.2 1 560px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+/* Files. */
+.size {
+  width: 56px;
+  text-align: right;
 }
 
-.right {
-  flex: 1 1 380px;
-  min-width: 0;
-  position: sticky;
-  top: 76px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* Settings: label over value (`.kvs .kv`). */
+.kvs > dl {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+.kvs > dl > dd {
+  margin-bottom: 10px;
+}
+.plain {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.linked {
+  gap: 6px;
 }
 
-/* --- The validation alert ------------------------------------------------------------------- */
+/* The publish checks' messages. */
 .alert {
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--status-attention-line);
-  background: var(--status-attention-bg);
-  font-size: var(--fs-13);
-  color: var(--status-attention-text);
+  background: var(--r2-badb);
+  color: var(--r2-bad);
+  border-radius: 8px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* --- Basics --------------------------------------------------------------------------------- */
-.pair {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-}
-
-.rowWrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-}
-
-.stack {
+/* The details dialogs' fields (`.lab`). */
+.lab {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-/* The bare label above the icon grid and the Tier Access track. */
-.fieldLabel {
-  font-size: var(--fs-13);
-  color: var(--text-secondary);
   font-weight: 500;
+  font-size: calc(var(--r2-t) - 1px);
 }
 
-.note {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.iconGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  max-width: 330px;
-}
-
-.iconToggle {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-.iconToggle[data-on='true'] {
-  border-color: var(--action-primary);
-  background: var(--action-primary-tint);
-  color: var(--action-primary);
-}
-.iconToggle:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* The Tier Access track is the 12px-padded variant of the shared Segmented control. */
-.tierSeg {
-  width: max-content;
-}
-
-/* --- Outputs -------------------------------------------------------------------------------- */
-.outputRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ordinal {
-  width: 20px;
-  font-family: var(--font-ui-mono);
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-input.outputInput {
-  flex: 1;
-  height: 34px;
-}
-
-/* --- Live Session & Replay ------------------------------------------------------------------ */
-.warn {
-  font-size: var(--fs-13);
-  color: var(--access-locked-text);
-}
-
-.replay {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px dashed var(--line-strong);
-  background: var(--bg-sunken);
-}
-
-.replayTile {
-  width: 36px;
-  height: 36px;
-  flex: none;
-  border-radius: 9px;
-  background: var(--bg-surface);
-  border: 1px solid var(--line-default);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-tertiary);
-}
-.replayTile[data-tone='success'] {
-  color: var(--status-success);
-}
-
-.replayMain {
-  flex: 1;
-  min-width: 0;
-}
-
-.replayTitle {
-  font-size: var(--fs-14);
-  font-weight: 500;
-}
-
-.replaySub {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.smallBtn {
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 8px;
-  border: 1px solid var(--action-secondary-line);
-  background: var(--action-secondary);
-  color: var(--text-primary);
-  font-size: var(--fs-13);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-  outline: none;
-}
-.smallBtn:hover {
-  background: var(--action-secondary-hover);
-}
-.smallBtn:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* --- Build Steps ---------------------------------------------------------------------------- */
-.step {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 10px;
-  background: var(--bg-sunken);
-  border: 1px solid var(--line-subtle);
-}
-
-.moveCol {
-  display: flex;
-  flex-direction: column;
-  padding-top: 4px;
-}
-
-.move {
-  width: 22px;
-  height: 16px;
-  border: 0;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-.move[data-off='true'] {
-  color: var(--text-disabled);
-  cursor: not-allowed;
-}
-.move:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.stepN {
-  width: 22px;
-  padding-top: 9px;
-  font-family: var(--font-ui-mono);
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.stepMain {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* The reference's step inputs change only their border colour on focus. `<Input>` adds the 3px
-   `--focus-ring` as well, and that is kept: CLAUDE.md requires visible focus on every interactive
-   element, and no parity scenario captures a focused field. */
-input.stepText {
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 7px;
-}
-
-input.stepHint {
-  height: 30px;
-  padding: 0 10px;
-  border-radius: 7px;
-  border-color: var(--line-default);
-  color: var(--text-secondary);
-  font-size: var(--fs-13);
-}
-
-.stepMetaRow {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.inlineLabel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-input.stepMeta {
-  height: 28px;
-  padding: 0 8px;
-  border-radius: 6px;
-  border-color: var(--line-default);
-  font-size: var(--fs-13);
-}
-input.chInput {
-  width: 170px;
-}
-input.tInput {
-  width: 72px;
-  font-family: var(--font-ui-mono);
-  font-size: var(--fs-12);
-}
-input.minsInput {
-  width: 64px;
-  font-variant-numeric: tabular-nums;
-}
-
-/* --- System Prompt -------------------------------------------------------------------------- */
-textarea.prompt {
-  min-height: 280px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: var(--bg-sunken);
-  font-family: var(--font-ui-mono);
-  font-size: var(--fs-13);
-  line-height: 1.65;
-}
-
-.varsRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.varChip {
-  font-family: var(--font-ui-mono);
-  font-size: var(--fs-12);
-  color: var(--access-locked-text);
-  background: var(--access-locked-bg);
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
-/* --- Skill Files & Assets ------------------------------------------------------------------- */
-.fileRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 10px;
-  border-radius: 9px;
-  background: var(--bg-sunken);
-  border: 1px solid var(--line-subtle);
-}
-
-.fileType {
-  width: 44px;
-  flex: none;
-  height: var(--bx-22);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-ui-mono);
-  font-size: var(--fs-11);
-  font-weight: 500;
-  background: var(--bg-surface);
-  border: 1px solid var(--line-default);
-  color: var(--text-secondary);
-}
-
-.fileMain {
-  flex: 1;
-  min-width: 0;
-}
-
-.fileName {
-  font-size: var(--fs-13);
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fileMeta {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.fileRemove {
-  width: 28px;
-  height: 28px;
-  flex: none;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-.fileRemove:hover {
-  color: var(--status-attention-text);
-  background: var(--status-attention-bg);
-}
-.fileRemove:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.drop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 60px;
-  border-radius: 10px;
-  border: 1px dashed var(--line-strong);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--fs-13);
-  cursor: pointer;
-  outline: none;
-}
-.drop:hover {
-  border-color: var(--action-primary);
-  color: var(--text-primary);
-  background: var(--action-primary-tint);
-}
-.drop:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* --- Deployment ----------------------------------------------------------------------------- */
-/* The reference textarea carries `font: inherit` and sits inside a 500-weight field wrapper, so
-   its content renders at 500. Stated explicitly here rather than relying on what it inherits. */
-textarea.notes {
-  min-height: 84px;
-  padding: 10px 12px;
-  border-radius: 9px;
-  line-height: 1.55;
-  font-weight: 500;
-}
-
-/* --- Publishing ----------------------------------------------------------------------------- */
-.choices {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 8px;
-}
-
-.choice {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  text-align: left;
-  cursor: pointer;
-  color: var(--text-primary);
-  outline: none;
-}
-.choice[data-on='true'] {
-  border-color: var(--action-primary);
-  background: var(--action-primary-tint);
-}
-.choice:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.choiceLabel {
-  font-size: var(--fs-14);
-  font-weight: 600;
-}
-
-.choiceSub {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.opensRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: var(--fs-13);
-  color: var(--text-secondary);
-  flex-wrap: wrap;
-}
-
-input.opensInput {
-  height: 34px;
-  padding: 0 10px;
-  font-size: var(--fs-13);
-}
-
-.opensAt {
-  color: var(--text-tertiary);
-}
-
-/* --- Live Learner Preview (right column) ---------------------------------------------------- */
-.pvHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.pvTitle {
-  font-size: var(--fs-14);
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.pvSegs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-/* Both preview tracks run one step smaller than the shared control's 13px. */
-.pvSeg button {
-  font-size: var(--fs-12);
-}
-
-/* The dotted canvas. SCREENS § 4.3. */
-.canvas {
-  padding: 20px;
-  border-radius: 16px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-sunken);
-  background-image: radial-gradient(var(--line-default) 1px, transparent 1px);
-  background-size: 16px 16px;
-}
-
-.cardWrap {
-  max-width: 320px;
-  margin: 0 auto;
-}
-
-.headerMock {
-  padding: 18px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  border: 1px solid var(--line-default);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.headerTop {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.headerName {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-}
-
-.headerOutcome {
-  font-size: var(--fs-14);
-  color: var(--text-primary);
-}
-
-.headerMeta {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.portalLink {
-  align-self: flex-start;
-  border: 0;
-  background: none;
-  padding: 0;
-  color: var(--text-link);
-  font-size: var(--fs-13);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  outline: none;
-}
-.portalLink:hover {
-  color: var(--text-link-hover);
-}
-.portalLink:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* --- The unsaved-changes prompt (net-new, DECISIONS.md D-015) -------------------------------- */
-.discard {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px;
-}
-
-.discardTitle {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.discardBody {
-  margin: 0;
-  font-size: var(--fs-13);
-  color: var(--text-tertiary);
-}
-
-.discardActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+@media (max-width: 767px) {
+  .bb,
+  .bb > :last-child {
+    grid-template-columns: minmax(0, 1fr);
+    grid-column: 1;
+  }
+  .pd {
+    padding: 16px;
+  }
+  .tile:not(.mt) {
+    margin: -6px;
+  }
+  /* Status's menu button: a 44px target over its 24px line, so the card keeps the mockup's rows. */
+  .plain {
+    min-height: 44px;
+    margin: -10px 0;
+    display: inline-flex;
+    align-items: center;
+  }
+  .step {
+    min-height: 44px;
+  }
+  .lab {
+    font-size: var(--r2-t);
+  }
 }
