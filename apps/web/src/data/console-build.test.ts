@@ -15,7 +15,7 @@ const CORE = (p: string) => fileURLToPath(new URL(`../../../../packages/core/src
 /** Strings only `console-fixture.ts` holds: its two query parameters and its documentation addresses. */
 const SENTINELS = ['console-role', 'console-state', '203.0.113.'];
 
-async function bundle(mode: 'production' | 'fixture'): Promise<string> {
+async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): Promise<string> {
   const out = (await build({
     root: WEB,
     mode,
@@ -31,7 +31,7 @@ async function bundle(mode: 'production' | 'fixture'): Promise<string> {
       write: false,
       minify: false,
       sourcemap: false,
-      lib: { entry: fileURLToPath(new URL('./console.ts', import.meta.url)), formats: ['es'], fileName: 'console' },
+      lib: { entry: fileURLToPath(new URL(entry, import.meta.url)), formats: ['es'], fileName: 'bundle' },
     },
   })) as Rollup.RollupOutput | Rollup.RollupOutput[];
   const outputs = Array.isArray(out) ? out : [out];
@@ -52,4 +52,30 @@ describe('the Console fixture is not in the http build (D-157)', () => {
     const code = await bundle('fixture');
     for (const s of SENTINELS) expect(code, s).toContain(s);
   }, 60_000);
+});
+
+/**
+ * D-160 R2-1b: the Admin redesign R2 parity fixture (`parity-r2.ts`, the mockup's own people and
+ * counts, selected by `?parity=r2`) and the fixture-only `/admin/denied` route are fixture-build only
+ * too. `admin-shell.ts` loads the fixture behind the same constant; `routes/console/fixtureRoutes.ts`
+ * holds the route behind it.
+ */
+const PARITY_SENTINELS = ['Connor Leiva', 'INC-0007', 'Kenji Watanabe', 'December 2026 Cohort'];
+
+describe('the R2 parity fixture is not in the http build (D-160 R2-1b)', () => {
+  it('the http build of the admin shell\'s data has none of it', async () => {
+    const code = await bundle('production', './admin-shell.ts');
+    expect(code).toContain('Amplified AI Accelerator');
+    for (const s of PARITY_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture', './admin-shell.ts');
+    for (const s of PARITY_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+
+  it('the http build has no /admin/denied route; the fixture build does', async () => {
+    expect(await bundle('production', '../routes/console/fixtureRoutes.ts')).not.toContain('admin/denied');
+    expect(await bundle('fixture', '../routes/console/fixtureRoutes.ts')).toContain('admin/denied');
+  }, 120_000);
 });

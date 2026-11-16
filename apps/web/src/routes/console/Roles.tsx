@@ -8,13 +8,14 @@ import type { RolesMatrix } from '@ai/core';
 import { ConsolePage } from '../../components/console/ConsolePage';
 import { DataTable } from '../../components/console/DataTable';
 import type { Column } from '../../components/console/DataTable';
-import { ErrorBlock, FullState, LoadingBlock } from '../../components/console/StateBlock';
+import { ErrorBlock, LoadingBlock } from '../../components/console/StateBlock';
 import { StatusBadge } from '../../components/console/StatusBadge';
 import { ConsoleError } from '../../data/console';
 import type { ConsoleApi, ConsoleFailure } from '../../data/console';
 import { ROLES_COPY, rolesVM } from './Roles.vm';
 import type { RolesRowVM } from './Roles.vm';
-import { deniedCopy, errorCopy } from './console.vm';
+import { CONSOLE_SCREENS, errorCopy } from './console.vm';
+import { Denied } from './Denied';
 import { useConsoleGate } from './useConsoleGate';
 import s from './Roles.module.css';
 
@@ -40,7 +41,7 @@ function Matrix({ api, role }: { api: ConsoleApi; role: string }) {
     };
   }, [api, attempt]);
 
-  if (load.kind === 'denied') return <FullState kind="denied" copy={deniedCopy('roles', role)} />;
+  if (load.kind === 'denied') return <Denied what={CONSOLE_SCREENS.roles.title} role={role} />;
 
   const vm = load.kind === 'ready' ? rolesVM(load.matrix) : null;
   const columns: Column<RolesRowVM>[] = [
@@ -88,7 +89,7 @@ function Matrix({ api, role }: { api: ConsoleApi; role: string }) {
 export function Component() {
   const gate = useConsoleGate('roles');
   if (gate.kind === 'hidden') return null;
-  if (gate.kind === 'denied') return <FullState kind="denied" copy={deniedCopy('roles', gate.role)} />;
+  if (gate.kind === 'denied') return <Denied what={CONSOLE_SCREENS.roles.title} role={gate.role} />;
   if (gate.kind === 'ready') return <Matrix api={gate.api} role={gate.me.role} />;
   return (
     <ConsolePage title={ROLES_COPY.title} description={ROLES_COPY.description}>

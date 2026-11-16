@@ -1,6 +1,14 @@
 import { createBrowserRouter, Navigate } from 'react-router';
+import { fixtureAdminRoutes } from './routes/console/fixtureRoutes';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
+
+/**
+ * An admin screen not yet rebuilt on the R2 design (D-160): the admin shell keeps the type and canvas
+ * it had in the old shell, so only its frame changes until its own R2 PR drops this. The Console's
+ * Audit Log and Roles are among them (D-157's look, until R2-3); their Denied state is R2's own.
+ */
+const legacy = { legacy: true } as const;
 
 // /sign-in and /invite/:token are MOUNTED now, which is the one thing that was missing: both
 // screens were built in phase 07 and left unmounted because they post to /api/auth/request and
@@ -64,19 +72,21 @@ export const router = createBrowserRouter([
       { path: 'team', lazy: () => import('./routes/portal/TeamHub') },
       { path: 'vault', lazy: () => import('./routes/portal/Vault') },
       { path: 'team-tier', lazy: () => import('./routes/portal/TeamTier') },
-      { path: 'admin', lazy: () => import('./routes/admin/Overview') },
-      { path: 'admin/curriculum', lazy: () => import('./routes/admin/Curriculum') },
+      { path: 'admin', handle: legacy, lazy: () => import('./routes/admin/Overview') },
+      { path: 'admin/curriculum', handle: legacy, lazy: () => import('./routes/admin/Curriculum') },
       // One route for both: `new` is the blank draft, anything else edits that AI Employee.
-      { path: 'admin/curriculum/:employeeId', lazy: () => import('./routes/admin/ModuleBuilder') },
-      { path: 'admin/cohorts', lazy: () => import('./routes/admin/Cohorts') },
-      { path: 'admin/learners', lazy: () => import('./routes/admin/Learners') },
-      { path: 'admin/vault', lazy: () => import('./routes/admin/VaultManager') },
-      { path: 'admin/announcements', lazy: () => import('./routes/admin/Announcements') },
-      { path: 'admin/tiers', lazy: () => import('./routes/admin/Tiers') },
-      { path: 'admin/staff', lazy: () => import('./routes/admin/Staff') },
+      { path: 'admin/curriculum/:employeeId', handle: legacy, lazy: () => import('./routes/admin/ModuleBuilder') },
+      { path: 'admin/cohorts', handle: legacy, lazy: () => import('./routes/admin/Cohorts') },
+      { path: 'admin/learners', handle: legacy, lazy: () => import('./routes/admin/Learners') },
+      { path: 'admin/vault', handle: legacy, lazy: () => import('./routes/admin/VaultManager') },
+      { path: 'admin/announcements', handle: legacy, lazy: () => import('./routes/admin/Announcements') },
+      { path: 'admin/tiers', handle: legacy, lazy: () => import('./routes/admin/Tiers') },
+      { path: 'admin/staff', handle: legacy, lazy: () => import('./routes/admin/Staff') },
       // The Admin Console (D-157): net-new screens inside the shell, by Console capability.
-      { path: 'admin/audit', lazy: () => import('./routes/console/AuditLog') },
-      { path: 'admin/roles', lazy: () => import('./routes/console/Roles') },
+      { path: 'admin/audit', handle: legacy, lazy: () => import('./routes/console/AuditLog') },
+      { path: 'admin/roles', handle: legacy, lazy: () => import('./routes/console/Roles') },
+      // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
+      ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
       // other unknown address still goes home through the `*` below.
       { path: 'admin/*', lazy: () => import('./routes/console/NotFound') },

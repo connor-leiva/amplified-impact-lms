@@ -9,7 +9,7 @@ import { DataTable } from '../../components/console/DataTable';
 import type { Column } from '../../components/console/DataTable';
 import { FilterBar, FilterSearch, FilterSelect } from '../../components/console/FilterBar';
 import { KeyValue } from '../../components/console/KeyValue';
-import { EmptyBlock, ErrorBlock, FullState, LoadingBlock } from '../../components/console/StateBlock';
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/console/StateBlock';
 import { StatusBadge } from '../../components/console/StatusBadge';
 import { Button } from '../../components/primitives/Button';
 import { Drawer } from '../../components/primitives/Drawer';
@@ -35,7 +35,8 @@ import {
   rowVM,
 } from './AuditLog.vm';
 import type { AuditFilterState, AuditRowVM, RangeKey } from './AuditLog.vm';
-import { deniedCopy, errorCopy } from './console.vm';
+import { CONSOLE_SCREENS, errorCopy } from './console.vm';
+import { Denied } from './Denied';
 import { useConsoleGate } from './useConsoleGate';
 
 type List =
@@ -191,7 +192,7 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
 export function Component() {
   const gate = useConsoleGate('audit');
   if (gate.kind === 'hidden') return null;
-  if (gate.kind === 'denied') return <FullState kind="denied" copy={deniedCopy('audit', gate.role)} />;
+  if (gate.kind === 'denied') return <Denied what={CONSOLE_SCREENS.audit.title} role={gate.role} />;
   if (gate.kind === 'ready') return <AuditLog api={gate.api} role={gate.me.role} />;
   return (
     <ConsolePage title={AUDIT_COPY.title} description={AUDIT_COPY.description}>

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { consoleCan } from '@ai/core';
 import { CONSOLE_HOME, CONSOLE_SCREENS, NOT_FOUND_COPY, deniedCopy, errorCopy } from './console.vm';
 
-describe('the Console’s shared states (D-157)', () => {
+describe('the Console’s shared states (D-157, D-160 R2-1b)', () => {
   it('opens each screen with its spec capability', () => {
     expect(CONSOLE_SCREENS.audit).toEqual({ title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' });
     expect(CONSOLE_SCREENS.roles).toEqual({ title: 'Roles & Permissions', cap: 'ops.read', path: '/admin/roles' });
@@ -11,23 +11,24 @@ describe('the Console’s shared states (D-157)', () => {
     expect(consoleCan('Support', CONSOLE_SCREENS.roles.cap)).toBe(false);
   });
 
-  it('says which screen and which role on Denied, and goes to the Overview', () => {
-    expect(deniedCopy('roles', 'Support')).toEqual({
-      eyebrow: 'Permission Needed',
-      title: 'Your role can’t open Roles & Permissions.',
-      body: 'You’re signed in as Support. Staff roles are set in Staff & Roles.',
+  it('says which page and which role on Denied, in the R2 mockup’s words, and goes to the Overview', () => {
+    expect(deniedCopy(CONSOLE_SCREENS.roles.title, 'Support')).toEqual({
+      title: "Your role can't open Roles & Permissions",
+      body: 'You are signed in as Support. An Owner can change this in Roles & Permissions.',
       action: { label: 'Go to Overview', to: '/admin' },
     });
-    expect(deniedCopy('audit', null).body).toBe('Staff roles are set in Staff & Roles.');
+    // The mockup's own Denied page names no page.
+    expect(deniedCopy(null, 'Owner').title).toBe("Your role can't open this page");
+    expect(deniedCopy('Audit Log', null).body).toBe('An Owner can change this in Roles & Permissions.');
     expect(CONSOLE_HOME.to).toBe('/admin');
   });
 
-  it('has the Console 404 in the mockup’s words', () => {
+  it('has the Console 404 in the R2 mockup’s words', () => {
     expect(NOT_FOUND_COPY).toEqual({
-      eyebrow: '404',
-      title: 'That Console page doesn’t exist.',
-      body: 'The link may be old, or the record was deleted.',
+      title: "This page doesn't exist",
+      body: 'The link may be old, or the record was removed. Error 404.',
       action: { label: 'Go to Overview', to: '/admin' },
+      search: 'Search the admin',
     });
   });
 
