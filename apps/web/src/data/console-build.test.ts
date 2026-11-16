@@ -84,7 +84,18 @@ describe('the R2 parity fixture is not in the http build (D-160 R2-1b)', () => {
  * D-160 R2-2: the parity snapshot (`parity-r2-db.ts`, the mockup's curriculum, sessions and cohort as
  * the app's own snapshot) is loaded by `boot.ts` behind the same constant and `?parity=r2`.
  */
-const SNAPSHOT_SENTINELS = ['Wednesdays, weekly', 'skill-file.zip', 'review-checklist.pdf', 'Recruiting AI Employee'];
+const SNAPSHOT_SENTINELS = [
+  'Wednesdays, weekly',
+  'skill-file.zip',
+  'review-checklist.pdf',
+  'Recruiting AI Employee',
+  // R2-3a: the Overview's, Learners & Teams' and Tiers & Upgrades' data.
+  'elena@northshoregroup.example',
+  'Lantern Street Partners',
+  'The same Team Tier, sized for larger teams.',
+  'Team · 16 seats → 41 seats',
+  'Sarah Collins',
+];
 
 describe('the R2 parity snapshot is not in the http build (D-160 R2-2)', () => {
   it('the http build of boot has none of it', async () => {

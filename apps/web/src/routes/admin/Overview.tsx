@@ -1,32 +1,31 @@
 import { useCallback, useMemo } from 'react';
-import type { CSSProperties } from 'react';
-import { useNavigate } from 'react-router';
+import clsx from 'clsx';
 
-import { Icon } from '../../components/Icon';
-import { Avatar } from '../../components/primitives/Avatar';
+import { Button, ButtonLink } from '../../components/r2/Button';
+import { Card } from '../../components/r2/Card';
+import { Empty } from '../../components/r2/Empty';
+import { Page } from '../../components/r2/Page';
+import { Status } from '../../components/r2/Status';
+import { Bar, PageHead, Stat, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
-import { useDb, useMutate, useNow } from '../../data/hooks';
-import { overviewVM } from './Overview.vm';
+import { useDb, useNow } from '../../data/hooks';
+import { useViewportWidth } from '../../shell/hooks';
+import { overviewR2VM, overviewVM } from './Overview.vm';
 import type { OverviewReport } from './Overview.vm';
 import s from './Overview.module.css';
 
-// Admin Overview `/admin`. Ported from design-reference/Admin Overview.dc.html.
-// Contract: SCREENS § 4.1, phase 06 § 6.1.
+// Admin Overview `/admin` on the Admin redesign R2 (D-160 R2-3): the signed-off mockup's `Overview`
+// (AdminRedesign.jsx), drawn from `overviewR2VM`. Markup only: every figure and word is the view-model's.
 //
-// MARKUP ONLY. Every number, string and tone comes from `overviewVM`; nothing here reads the clock,
-// aggregates a learner or decides what counts as at-risk. The three things a pure model cannot do
-// are all this file adds: write a Blob, navigate, and call a mutation.
-//
-// The persona is Casey Lin (st1, Owner), so every staff permission passes — but the nudges still go
-// through the `nudgeLearners` mutation rather than touching the snapshot, so the activity log, the
-// toast and the learner portal all see them.
+//   - Export report: the cohort report `overviewVM` makes, handed to the browser as a CSV.
+//   - New AI Employee: the Module Builder's new AI Employee.
+//   - Each tile goes where the mockup's does (Learners & Teams, Curriculum, Cohorts & Sessions, Tiers
+//     & Upgrades); Build completion only shows its figure.
+//   - The old Needs Attention list and Nudge All are not drawn: the mockup has no surface for them
+//     (Needs Connor's call, D-160 R2-3a). Each learner's nudge is in their details drawer on Learners &
+//     Teams.
 
-/**
- * The reference's `act.download`: a Blob, a synthetic anchor click, then the toast.
- *
- * Phase 08 § 8.2 does not touch this. Export Report is GENERATED — `overviewVM` renders it from the
- * snapshot — so there is no object in the bucket to presign.
- */
+/** Phase 08 § 8.2 does not touch this: the report is generated from the snapshot, never stored. */
 function saveFile(file: OverviewReport): void {
   try {
     const url = URL.createObjectURL(new Blob([file.content], { type: file.mime }));
@@ -38,205 +37,163 @@ function saveFile(file: OverviewReport): void {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
   } catch {
-    /* Download blocked. The reference toasts regardless, so the confirmation still appears. */
+    /* Download blocked: the toast still confirms, as before. */
   }
 }
 
-/** The relative times in the feed and the Needs Attention subs move on the minute. */
+/** The feed's relative times move on the minute. */
 const TICK_MS = 15000;
 
 export function Component() {
   const db = useDb();
   const now = useNow(TICK_MS);
-  const navigate = useNavigate();
-  const mutate = useMutate();
   const { toast } = useToaster();
-
-  const vm = useMemo(() => overviewVM(db, now), [db, now]);
+  const phone = useViewportWidth() < 768;
+  const vm = useMemo(() => overviewR2VM(db, now), [db, now]);
 
   const exportReport = useCallback(() => {
-    saveFile(vm.report);
-    toast(vm.report.toast);
-  }, [toast, vm.report]);
-
-  const nudge = useCallback(
-    (userIds: string[]) => {
-      if (userIds.length) void mutate('nudgeLearners', { userIds });
-    },
-    [mutate],
-  );
+    const { report } = overviewVM(db, now);
+    saveFile(report);
+    toast(report.toast);
+  }, [db, now, toast]);
 
   return (
-    <div className={s.page}>
-      <div className={s.head}>
-        <div>
-          <h1 className={s.h1}>Overview</h1>
-          <p className={s.sub}>{vm.subline}</p>
-        </div>
-        <div className={s.headActions} data-phone="actions">
-          <button type="button" className={s.export} onClick={exportReport}>
-            <Icon name="download" size={15} strokeWidth={1.8} />
-            Export Report
-          </button>
-          <button type="button" className={s.create} onClick={() => navigate(vm.newEmployeeTo)}>
-            <Icon name="plus" size={15} strokeWidth={2} />
-            New AI Employee
-          </button>
-        </div>
-      </div>
+    <Page>
+      <PageHead
+        title="Overview"
+        description={vm.subline}
+        right={
+          <>
+            <Button header icon="r2Download" onClick={exportReport}>
+              Export report
+            </Button>
+            <ButtonLink header kind="primary" icon="r2Plus" to="/admin/curriculum/new">
+              New AI Employee
+            </ButtonLink>
+          </>
+        }
+      />
 
-      <div className={s.kpis}>
-        {vm.kpis.map((k) => (
-          <section key={k.key} className={s.kpi}>
-            <div className={s.kpiLabel}>{k.label}</div>
-            <div className={s.kpiValue}>{k.value}</div>
-            <div className={s.kpiSub} data-tone={k.subTone}>
-              {k.sub}
-            </div>
-          </section>
+      <div className={k.g5}>
+        {vm.stats.map((t) => (
+          <Stat
+            key={t.key}
+            label={phone ? t.labelPhone : t.label}
+            value={t.value}
+            sub={phone ? t.subPhone : t.sub}
+            tone={t.tone}
+            to={t.to}
+          />
         ))}
       </div>
 
-      <div className={s.row}>
-        <section className={`${s.wide} ${s.chartCard}`}>
-          <div className={s.chartHead}>
+      <div className={k.gms}>
+        <Card
+          title="AI Employees deployed"
+          sub="Cumulative, all learners"
+          right={vm.chart ? <span className={clsx(k.w5, k.toneOk)}>{vm.chart.total}</span> : null}
+        >
+          {vm.chart ? (
             <div>
-              <div className={s.cardTitle}>AI Employees Deployed</div>
-              <div className={s.cardSub}>Cumulative, All Learners</div>
-            </div>
-            <span className={s.delta}>{vm.chart.delta}</span>
-          </div>
-          {/* 600 × 200 user space stretched to the card: the line keeps its 2px through
-              `vector-effect: non-scaling-stroke`. */}
-          <svg viewBox="0 0 600 200" preserveAspectRatio="none" className={s.chart} aria-hidden="true">
-            {vm.chart.grid.map((y) => (
-              <line key={y} x1="0" x2="600" y1={y} y2={y} className={s.grid} />
-            ))}
-            <path d={vm.chart.area} className={s.area} />
-            <path d={vm.chart.line} className={s.line} />
-          </svg>
-          <div className={s.chartLabels}>
-            {vm.chart.labels.map((l, i) => (
-              <span key={`${l}-${i}`}>{l}</span>
-            ))}
-          </div>
-        </section>
-
-        <section className={`${s.narrow} ${s.feedCard}`}>
-          <div className={s.feedTitle}>Live Activity</div>
-          {/* A scroll container with no focusable children needs its own tab stop to stay
-              keyboard-reachable (CLAUDE.md › Accessibility). No pixels change. */}
-          <div className={s.feedScroll} role="group" aria-label="Live Activity" tabIndex={0}>
-            {vm.feed.map((e) => (
-              <div key={e.key} className={s.feedRow}>
-                <span className={s.dot} data-tone={e.tone} />
-                <div className={s.feedText}>
-                  <span className={s.who}>{e.who}</span> {e.what}
-                </div>
-                <span className={s.ago}>{e.ago}</span>
+              <svg viewBox="0 0 600 200" preserveAspectRatio="none" className={s.chart} role="img" aria-label={vm.chart.label}>
+                {[50, 100, 150].map((y) => (
+                  <line key={y} x1="0" x2="600" y1={y} y2={y} className={s.grid} />
+                ))}
+                <polygon points={vm.chart.area} className={s.area} />
+                <polyline points={vm.chart.line} className={s.line} />
+              </svg>
+              <div className={clsx(k.row, k.nw, k.me, s.days)}>
+                {(phone ? vm.chart.labelsPhone : vm.chart.labels).map((d) => (
+                  <span key={d} className={k.nowrap}>
+                    {d}
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+          ) : (
+            <Empty
+              icon="r2Usage"
+              title="Not started"
+              body={vm.notStarted}
+            />
+          )}
+        </Card>
+
+        <Card title="Live activity" pad={false}>
+          {vm.feed.length ? (
+            vm.feed.map((e) => (
+              <div key={e.key} className={clsx(k.li, s.top)}>
+                <Status tone={e.tone} className={s.feedDot} />
+                <span className={s.feedText}>
+                  <span className={k.w5}>{e.who}</span> <span className={k.s2}>{e.what}</span>
+                </span>
+                <span className={clsx(k.me, s.ago)}>{e.ago}</span>
+              </div>
+            ))
+          ) : (
+            <Empty icon="r2Health" title="No activity yet" body="Learner activity appears here once the cohort opens." />
+          )}
+        </Card>
       </div>
 
-      <div className={s.row}>
-        <section className={`${s.wide} ${s.funnelCard}`}>
-          <div className={s.funnelHead}>
-            <div className={s.cardTitle}>Build Funnel by AI Employee</div>
-            <div className={s.legend} data-phone="wrap">
-              <span className={s.legendItem}>
-                <span className={s.swatch} data-seg="deployed" />
-                Deployed
+      <div className={k.gms}>
+        <Card
+          title="Build funnel by AI Employee"
+          pad={false}
+          right={
+            phone ? null : (
+              <span className={clsx(k.row, k.me, s.legend)}>
+                <Status tone="ok">Deployed</Status>
+                <Status tone="info">In progress</Status>
+                <Status className={s.notStarted}>Not started</Status>
               </span>
-              <span className={s.legendItem}>
-                <span className={s.swatch} data-seg="progress" />
-                In Progress
-              </span>
-              <span className={s.legendItem}>
-                <span className={s.swatch} data-seg="none" />
-                Not Started
-              </span>
-            </div>
-          </div>
-          {vm.funnel.map((f) => (
-            <div key={f.key} className={s.funnelRow} data-phone="funnel-row">
-              <div className={s.funnelLabel} data-phone="funnel-label">
-                <Icon name={f.icon} size={15} strokeWidth={1.8} color="var(--text-tertiary)" />
-                <span className={s.funnelName}>{f.name}</span>
-                {f.team ? <span className={s.teamTag}>Team</span> : null}
+            )
+          }
+        >
+          {vm.funnel.map((f) => {
+            const nums = vm.started ? (
+              <>
+                <span className={k.w5}>{f.pct}</span> <span className={k.mu}>{f.of}</span>
+              </>
+            ) : (
+              <span className={k.mu}>Not started</span>
+            );
+            const bar = <Bar pct={vm.started ? f.deployed : 0} pct2={vm.started ? f.progress : 0} />;
+            return phone ? (
+              <div key={f.key} className={clsx(k.li, s.stack)}>
+                <div className={clsx(k.row, k.nw, s.stackTop)}>
+                  <span className={clsx(k.w5, s.shrink)}>{f.name}</span>
+                  <span className={clsx(k.tn, s.numsPhone)}>{nums}</span>
+                </div>
+                <div className={s.flex}>{bar}</div>
               </div>
-              <div className={s.bar} data-phone="funnel-bar">
-                <div title="Deployed" className={s.segDeployed} style={{ '--w': f.wd } as CSSProperties} />
-                <div title="In progress" className={s.segProgress} style={{ '--w': f.wp } as CSSProperties} />
-                <div className={s.segRest} />
+            ) : (
+              <div key={f.key} className={k.li}>
+                <span className={clsx(k.w5, k.el, s.name)}>{f.name}</span>
+                {bar}
+                <span className={clsx(k.tn, s.nums)}>{nums}</span>
               </div>
-              <span className={s.funnelMeta} data-phone="funnel-meta">
-                <span className={s.pct}>{f.pct}</span> · {f.d} of {f.n}
-              </span>
+            );
+          })}
+        </Card>
+
+        <Card title="Live attendance" pad={false}>
+          {vm.attendance.map((a) => (
+            <div key={a.key} className={k.li}>
+              <span className={clsx(s.session, !phone && k.el, phone && k.nowrap)}>{a.label}</span>
+              {vm.started && a.pct !== null ? (
+                <>
+                  <Bar pct={a.pct} />
+                  <span className={clsx(k.w5, k.tn)}>{a.pct}%</span>
+                </>
+              ) : (
+                <span className={clsx(k.mu, k.sp, s.upcoming)}>Upcoming</span>
+              )}
             </div>
           ))}
-        </section>
-
-        <section className={`${s.narrow} ${s.attCard}`}>
-          <div className={s.cardTitle}>Live Attendance</div>
-          <div className={s.attBars}>
-            {vm.att.map((a) => (
-              <div key={a.key} title={a.title} className={s.attCol}>
-                <span className={s.attLabel}>{a.label}</span>
-                <div
-                  className={s.attBar}
-                  data-held={a.held ? 'true' : undefined}
-                  style={{ '--h': a.h } as CSSProperties}
-                />
-              </div>
-            ))}
-          </div>
-          <div className={s.attAxis}>
-            {vm.att.map((a) => (
-              <span key={a.key} className={s.attTick}>
-                S{a.n}
-              </span>
-            ))}
-          </div>
-          <div className={s.attFoot}>Replay Views: {vm.replayViews}</div>
-        </section>
+        </Card>
       </div>
-
-      <section className={s.riskCard}>
-        <div className={s.riskHead}>
-          <div>
-            <div className={s.cardTitle}>Needs Attention</div>
-            <div className={s.cardSub}>No build progress or inactive for 5+ days</div>
-          </div>
-          {vm.risk.length ? (
-            <button type="button" className={s.nudgeAll} onClick={() => nudge(vm.nudgeAllIds)}>
-              <Icon name="bell" size={14} strokeWidth={1.9} />
-              Nudge All
-            </button>
-          ) : null}
-        </div>
-        {vm.noRisk ? <div className={s.riskEmpty}>Everyone is moving. Nice.</div> : null}
-        {vm.risk.map((r) => (
-          <div key={r.id} className={s.riskRow} data-first={r.first ? 'true' : undefined}>
-            <Avatar id={r.id} name={r.name} size={30} />
-            <div className={s.riskMid}>
-              <div className={s.riskName}>{r.name}</div>
-              <div className={s.riskSub}>{r.sub}</div>
-            </div>
-            <span className={s.riskReason}>{r.reason}</span>
-            <button
-              type="button"
-              className={s.nudge}
-              data-nudged={r.nudged ? 'true' : undefined}
-              onClick={() => nudge([r.id])}
-            >
-              {r.btn}
-            </button>
-          </div>
-        ))}
-      </section>
-    </div>
+    </Page>
   );
 }
 

@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { CELLS_DIR, ENFORCED, MASKS_FILE, OUT_DIR, ROUTES, SCREENS, WIDTHS, cellId, loadMasks, type CellResult } from './admin-r2';
 import { APPROVED_EXCEPTIONS, EXCEPTION_DECISION, EXCEPTION_REASON, approvedException, ceilingText } from './admin-r2-exceptions';
+import { STRICT_CHANNEL_DELTA, STRICT_DIR, strictText, type StrictResult } from './admin-r2-strict';
 
 const readJson = <T>(p: string): T | null => (existsSync(p) ? (JSON.parse(readFileSync(p, 'utf8')) as T) : null);
 
@@ -20,7 +21,8 @@ function head(): string {
  * A cell with no route is "not built". A cell that has a route but no result (its test crashed) is
  * "no result", which reads as a failure, never as a pass. An approved exception (D-160,
  * `admin-r2-exceptions.ts`) is enforced at its recorded ceiling and reads "PASS (approved exception,
- * D-160)" when it is at or under it.
+ * D-160)" when it is at or under it. A second table holds the strict guard's counts (D-160 R2-3a,
+ * `admin-r2-strict.ts`): report-only, never a verdict.
  */
 export default function report() {
   mkdirSync(OUT_DIR, { recursive: true });
@@ -51,6 +53,11 @@ export default function report() {
     });
     return `| ${s} | ${cells.join(' | ')} |`;
   });
+  // The strict guard, per built cell: report-only (D-160 R2-3a).
+  const strictRows = SCREENS.filter((s) => ROUTES[s]).map((s) => {
+    const cells = WIDTHS.map((w) => strictText(readJson<StrictResult>(join(STRICT_DIR, `${cellId(s, w)}.json`))));
+    return `| ${s} | ${cells.join(' | ')} |`;
+  });
   const md = [
     '# parity:admin-r2',
     '',
@@ -66,6 +73,14 @@ export default function report() {
     `| screen | ${WIDTHS.join(' | ')} |`,
     `|---|${WIDTHS.map(() => '---').join('|')}|`,
     ...rows,
+    '',
+    `## Strict guard (report-only; never fails the run)`,
+    '',
+    `Per built cell: \`AA\` is pixelmatch at the same 0.1 threshold with \`includeAA: true\` (anti-aliased pixels counted), and \`Δ>${STRICT_CHANNEL_DELTA}\` the pixels where any RGB channel differs by more than ${STRICT_CHANNEL_DELTA}, with their bounding box (x and y in the capture, inclusive). A stray element shows here even when the pass rule reads a few pixels.`,
+    '',
+    `| screen | ${WIDTHS.join(' | ')} |`,
+    `|---|${WIDTHS.map(() => '---').join('|')}|`,
+    ...strictRows,
     '',
     'Evidence for each built cell: `app/<cell>.png` (the capture), `diff/<cell>.png` (pixelmatch output, when the dimensions match) and `side/<cell>.png` (app left, ref right).',
     '',

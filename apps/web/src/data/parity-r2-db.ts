@@ -5,13 +5,52 @@
 // `import.meta.env.VITE_DATA_SOURCE === 'fixture'` and `?parity=r2`, so the http build has none of it
 // (`console-build.test.ts`).
 //
-// Everything not drawn by the Build screens is the ordinary fixture's (`seed('live')`). No learner is
-// modelled one by one, so each published AI Employee's Deployed figure is its baseline, exactly the
-// mockup's `dep` (66 of 100 is 66%).
+// Everything not drawn by the R2 screens is the ordinary fixture's (`seed('live')`). R2-3 adds the
+// learners, teams, tiers, upgrade requests, staff and activity its screens read (`USERS`, `WS`, `T`,
+// `req`, `STAFF`); every Deployed figure is the baseline plus those learners' builds, and the baseline
+// is chosen so each prints the mockup's `dep` (66 of 100 is 66%).
+//
+// ONE SCREEN'S OWN FIGURES (R2-3). The mockup hard-codes each screen's numbers, and the Overview's
+// disagree with Curriculum's (its funnel has Week 1 at 33 of 44, 75%; Curriculum has 74%) and with
+// themselves (190 deployed, a funnel that adds to 200). So the Overview (`/admin`) gets its own
+// baseline: `overviewDb` gives it the funnel's, the chart's and the "+6" aggregates, opens the
+// Database AI Employee its funnel lists, and leaves the modelled learners' builds out of it. Every
+// figure is still the production view-model's, printed from this snapshot.
 
 import { seed } from '@ai/core';
-import type { AIEmployee, Announcement, Db, IconName, Resource, Session, SkillFile, Step, StepKind } from '@ai/core';
-import { ANNOUNCEMENTS, BUILDER_FILES, BUILDER_STEPS, MODS0, VAULT } from './parity-r2';
+import type {
+  AIEmployee,
+  Announcement,
+  Db,
+  IconName,
+  Learner,
+  Progress,
+  Resource,
+  Session,
+  SkillFile,
+  Staff,
+  Step,
+  StepKind,
+  Team,
+  TierDef,
+  UpgradeRequest,
+} from '@ai/core';
+import {
+  ANNOUNCEMENTS,
+  BUILDER_FILES,
+  BUILDER_STEPS,
+  MODS0,
+  OVERVIEW_ACTIVITY,
+  OVERVIEW_FUNNEL,
+  OVERVIEW_PTS,
+  OVERVIEW_RECENT,
+  STAFF,
+  TIER_CARDS,
+  UPGRADE_REQUESTS,
+  USERS,
+  VAULT,
+  WS,
+} from './parity-r2';
 
 /** An instant written in MST (America/Phoenix, UTC−7 all year). */
 const mst = (s: string): number => Date.parse(`${s}-07:00`);
@@ -50,7 +89,7 @@ function moduleOf(m: (typeof MODS0)[number], i: number): AIEmployee {
   return {
     id: m.id,
     name: m.n,
-    short: m.n,
+    short: m.n.replace(/ AI Employee$/, ''),
     tier: m.tier === 'both' ? 'agent' : 'team',
     icon: ICON(m.ic),
     forWho: '',
@@ -144,8 +183,103 @@ const announcementOf = (
   opens: null,
 });
 
-/** The parity snapshot: the ordinary fixture with the mockup's Build data in place. */
-export function parityDb(): Db {
+/** `STAFF`: the viewer (the fixture's admin persona, `st1`) is the Owner, Connor Leiva. */
+const staffOf = (st: (typeof STAFF)[number], i: number): Staff => ({
+  id: `st${i + 1}`,
+  name: st.n,
+  email: st.e,
+  role: st.role,
+  last: stamp(st.last),
+});
+
+/** Builds deployed, first to last, by each learner: the open builds of their tier, in curriculum order. */
+const OPEN_TEAM = ['m1', 'm2', 'm3', 'm4', 'm5'] as const;
+const OPEN_AGENT = ['m1', 'm4'] as const;
+
+function learnerOf(u: (typeof USERS)[number]): Learner {
+  const team = u.tier === 'Team';
+  const open: readonly string[] = team ? OPEN_TEAM : OPEN_AGENT;
+  const at = mst('2026-12-08T10:00:00');
+  const progress: Record<string, Progress> = Object.fromEntries(
+    open.slice(0, u.pr).map((id) => [
+      id,
+      { steps: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], builtAt: at, deployedAt: at, runtime: 'deployed' } satisfies Progress,
+    ]),
+  );
+  return {
+    id: u.id,
+    name: u.n,
+    email: u.e,
+    tier: team ? 'team' : 'agent',
+    role: u.role === 'Team owner' ? 'Team Owner' : 'Agent',
+    teamId: u.ws,
+    cohortId: COHORT,
+    joined: mst('2026-11-20T09:00:00'),
+    last: stamp(u.last),
+    status: 'active',
+    progress,
+  };
+}
+
+const teamOf = ([id, name, ownerId, seats]: (typeof WS)[number]): Team => ({ id, name, ownerId, seats });
+
+const tierOf = ([id, name, seats, price, blurb, features]: (typeof TIER_CARDS)[number]): TierDef => ({
+  id,
+  name,
+  seats,
+  price,
+  blurb,
+  features: [...features],
+});
+
+/** Tiers' requests (`req`): both pending ones new, the approved one converted. */
+const requestOf = ([name, ask, , at, st]: (typeof UPGRADE_REQUESTS)[number], i: number): UpgradeRequest => ({
+  id: `ur${i + 1}`,
+  userId: USERS.find((u) => u.n === name)?.id ?? null,
+  name,
+  email: `${name.split(' ')[0]!.toLowerCase()}@example.com`,
+  source: 'Team tier page',
+  at: stamp(at),
+  status: st === 'Pending' ? 'new' : 'converted',
+  ask,
+});
+
+/**
+ * The curriculum's baseline: each published AI Employee's `dep` of 100, the modelled learners' builds
+ * included (every learner may open m1 and m4; the five on Team Tier m2, m3 and m5 too).
+ */
+const CURRICULUM_BASE: Db['base']['mod'] = {
+  m1: [59, 34, 0],
+  m2: [87, 8, 0],
+  m3: [71, 24, 0],
+  m4: [32, 61, 0],
+  m5: [37, 58, 0],
+};
+
+/** The Overview's own figures (see above). */
+function overviewDb(db: Db): Db {
+  const pool = (id: string) => db.users.filter((u) => db.modules.find((m) => m.id === id)!.tier === 'agent' || u.tier === 'team').length;
+  for (const u of db.users) u.progress = {};
+  const m6 = db.modules.find((m) => m.id === 'm6')!;
+  Object.assign(m6, { status: 'published', opens: null });
+  db.base = {
+    ...db.base,
+    mod: {
+      ...Object.fromEntries(OVERVIEW_FUNNEL.map(([id, d, p, n]) => [id, [d, p, n - d - p - pool(id)]])),
+      // Week 0 is open, and counts toward the builds available, but nobody has started it.
+      m2: [0, 0, 44 - pool('m2')],
+    },
+    daily: [...OVERVIEW_PTS],
+    recent: OVERVIEW_RECENT,
+  };
+  return db;
+}
+
+/**
+ * The parity snapshot: the ordinary fixture with the mockup's data in place. `path` is the address the
+ * tab opened on: the Overview (`/admin`) gets its own figures (see above).
+ */
+export function parityDb(path = '/admin/curriculum'): Db {
   const db = seed('live');
   const cohort = db.cohorts.find((c) => c.id === COHORT)!;
   Object.assign(cohort, {
@@ -174,14 +308,27 @@ export function parityDb(): Db {
   db.modules = MODS0.map(moduleOf);
   db.resources = VAULT.map(resourceOf);
   db.announcements = ANNOUNCEMENTS.map(announcementOf);
-  db.users = [];
+  db.users = USERS.map(learnerOf);
+  db.teams = WS.map(teamOf);
+  db.tiers = TIER_CARDS.map(tierOf);
+  db.requests = UPGRADE_REQUESTS.map(requestOf);
+  db.staff = STAFF.map(staffOf);
+  const now = mst('2026-12-10T09:30:00');
+  db.activity = OVERVIEW_ACTIVITY.map(([who, what, mins, tone], i) => ({
+    id: `ev${i + 1}`,
+    t: now - mins * 60e3,
+    who,
+    what,
+    tone,
+  }));
   db.base = {
     ...db.base,
-    // The 148 enrolled, none modelled one by one: the population attendance is a share of.
-    learners: 148,
-    mod: Object.fromEntries(
-      MODS0.filter((m) => 'dep' in m).map((m) => [m.id, [m.dep, 100 - m.dep, 0]]),
-    ) as Db['base']['mod'],
+    // 148 enrolled: these 141 and the seven modelled learners, 104 on Agent Tier and 44 Team seats.
+    learners: 141,
+    agent: 102,
+    teamSeats: 39,
+    teams: 0,
+    mod: { ...CURRICULUM_BASE },
   };
-  return db;
+  return path.replace(/\/+$/, '') === '/admin' ? overviewDb(db) : db;
 }

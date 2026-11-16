@@ -62,7 +62,7 @@ if (isFixture) {
   // behind the build-time constant, so the http build has no trace of it (`console-build.test.ts`).
   const parity =
     import.meta.env.VITE_DATA_SOURCE === 'fixture' && qs.get('parity') === 'r2'
-      ? import('./parity-r2-db').then((m) => m.parityDb())
+      ? import('./parity-r2-db').then((m) => m.parityDb(location.pathname))
       : null;
   repo = createFixtureRepository(fixtureRole, fixturePhase, parity);
 } else {

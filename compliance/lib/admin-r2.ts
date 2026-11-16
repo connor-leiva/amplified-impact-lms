@@ -85,13 +85,18 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   vault: { path: '/admin/vault' },
   'cohorts-sessions': { path: '/admin/cohorts' },
   announce: { path: '/admin/announcements' },
+  // R2-3a: the Overview, Learners & Teams and Tiers & Upgrades.
+  overview: { path: '/admin' },
+  learners: { path: '/admin/learners' },
+  tiers: { path: '/admin/tiers' },
 };
 
 /**
  * The cells whose failure fails the run, as `cellId`s (`'curriculum-1280'`). A PR adds the cells for
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
  * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
- * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024.
+ * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
+ * and `tiers` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -105,6 +110,10 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `vault-${w}`,
   `announce-${w}`,
   ...(w === 390 ? [] : [`cohorts-sessions-${w}`]),
+  // R2-3a (D-160): the Overview, Learners & Teams and Tiers & Upgrades, at all four widths.
+  `overview-${w}`,
+  `learners-${w}`,
+  `tiers-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

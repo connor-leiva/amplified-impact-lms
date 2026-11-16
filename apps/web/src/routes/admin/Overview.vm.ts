@@ -10,7 +10,19 @@
 // mode the API returns `ZERO_BASE`, so the same code shows live numbers — nothing here branches on
 // where the data came from.
 
-import { canAccess, cohortLine, csv, fmt, sortedModules, statusOf } from '@ai/core';
+import {
+  ADMIN_ZONE,
+  adminDay,
+  adminMonthDay,
+  adminTime,
+  canAccess,
+  cohortLine,
+  csv,
+  fmt,
+  isOpen,
+  sortedModules,
+  statusOf,
+} from '@ai/core';
 import type { Baseline, Db, IconName, Learner, Tier } from '@ai/core';
 
 // ---------------------------------------------------------------------------------------------
@@ -316,5 +328,239 @@ export function overviewVM(db: Db, now: number): OverviewVM {
       toast: 'Cohort report exported',
     },
     newEmployeeTo: '/admin/curriculum/new',
+  };
+}
+
+// ================================================================================================
+// R2 (D-160 R2-3): the Overview of the signed-off Admin redesign (AdminRedesign.jsx `Overview`). The
+// same snapshot and the same `db.base` rule as above (every figure adds the unmodelled learners'
+// aggregate; the API's ZERO_BASE leaves the modelled rows alone); the words are the mockup's, its
+// times MST (BUILD-SPEC § 7). `overviewVM` still makes the report the screen exports and the list of
+// learners who need a nudge.
+// ================================================================================================
+
+export type R2StatTone = 'ok' | 'warn' | null;
+
+export interface OverviewR2Stat {
+  key: 'learners' | 'deployed' | 'completion' | 'attendance' | 'pipeline';
+  /** Desktop and laptop, then the phone's shorter words (the mockup's `ph ?` pairs). */
+  label: string;
+  labelPhone: string;
+  value: string;
+  sub: string;
+  subPhone: string;
+  tone: R2StatTone;
+  /** Where the tile goes, or null for a tile that only shows its figure. */
+  to: string | null;
+}
+
+export interface OverviewR2Funnel {
+  key: string;
+  name: string;
+  /** The deployed and in-progress segments, as percents of the eligible learners. */
+  deployed: number;
+  progress: number;
+  /** `66%`, and `· 98 of 148`. */
+  pct: string;
+  of: string;
+}
+
+export interface OverviewR2Attendance {
+  key: string;
+  /** `Session 1 · Dec 2`. */
+  label: string;
+  /** The rounded share once held (`82`), or null: `Upcoming`. */
+  pct: number | null;
+}
+
+export interface OverviewR2VM {
+  subline: string;
+  started: boolean;
+  stats: OverviewR2Stat[];
+  chart: {
+    /** `190 total`. */
+    total: string;
+    /** `points` of the polyline, in the SVG's 600 × 200 user space, and the area under it. */
+    line: string;
+    area: string;
+    /** "Deployed AI Employees rose from 22 on Dec 2 to 190 on Dec 8." */
+    label: string;
+    labels: string[];
+    /** The phone's labels: every other day. */
+    labelsPhone: string[];
+  } | null;
+  feed: { key: string; who: string; what: string; ago: string; tone: 'ok' | 'warn' | 'info' }[];
+  funnel: OverviewR2Funnel[];
+  attendance: OverviewR2Attendance[];
+  /** The chart's empty state before the cohort opens. */
+  notStarted: string;
+}
+
+/** The most deployed builds the funnel lists, and the most recent events the feed does. */
+export const FUNNEL_ROWS = 5;
+export const FEED_ROWS = 5;
+
+const FEED_TONE: Record<OverviewFeedRow['tone'], 'ok' | 'warn' | 'info'> = { success: 'ok', warn: 'warn', info: 'info' };
+
+export function overviewR2VM(db: Db, now: number): OverviewR2VM {
+  const B: Baseline = db.base;
+  const users = db.users.filter((u) => u.status !== 'invited');
+  const cohort = db.cohorts.find((c) => c.id === COHORT_ID) ?? db.cohorts[0] ?? null;
+  const started = !!cohort && now >= cohort.start;
+
+  const learners = B.learners + users.length;
+  const agents = B.agent + users.filter((u) => u.tier === 'agent').length;
+  const teamSeats = B.teamSeats + users.filter((u) => u.tier === 'team').length;
+
+  // ---- the builds open to learners now, and the funnel: the most deployed first --------------------
+  const open = sortedModules(db).filter((m) => isOpen(m, now));
+  const rows = open.map((m) => {
+    const b: [number, number, number] = B.mod[m.id] ?? [0, 0, 0];
+    const pool = users.filter((u) => canAccess(u, m));
+    const d = b[0] + pool.filter((u) => statusOf(u, m) === 'deployed').length;
+    const p = b[1] + pool.filter((u) => statusOf(u, m) === 'progress').length;
+    const n = b[0] + b[1] + b[2] + pool.length;
+    return { m, d, p, n };
+  });
+  const available = rows.reduce((a, r) => a + r.n, 0);
+  const funnel: OverviewR2Funnel[] = [...rows]
+    .sort((a, b) => b.d - a.d || b.n - a.n)
+    .slice(0, FUNNEL_ROWS)
+    .map((r) => ({
+      key: r.m.id,
+      name: r.m.short || r.m.name,
+      deployed: r.n ? (r.d / r.n) * 100 : 0,
+      progress: r.n ? (r.p / r.n) * 100 : 0,
+      pct: fmt.pct(r.n ? r.d / r.n : 0),
+      of: `· ${fmt.num(r.d)} of ${fmt.num(r.n)}`,
+    }));
+
+  // ---- deployments, cumulative, from the first build to the last day with one ----------------------
+  const start = cohort ? Date.parse(new Date(cohort.start - 7 * 3600e3).toISOString().slice(0, 10) + 'T00:00:00-07:00') : now;
+  const deployedAts = users.flatMap((u) =>
+    Object.values(u.progress ?? {})
+      .map((p) => p.deployedAt)
+      .filter((t): t is number => !!t),
+  );
+  const lastDay = Math.max(0, ...deployedAts.map((t) => Math.floor((t - start) / DAY)));
+  const days = Math.max(B.daily.length, lastDay + 1, 1);
+  const pts = Array.from({ length: days }, (_, i) => {
+    const end = start + (i + 1) * DAY;
+    return (B.daily[Math.min(i, B.daily.length - 1)] ?? 0) + deployedAts.filter((t) => t < end).length;
+  });
+  const total = pts[pts.length - 1] ?? 0;
+  const recent = (B.recent ?? 0) + deployedAts.filter((t) => now - t < DAY && t <= now).length;
+  const dayLabel = (i: number) => adminMonthDay(start + i * DAY + DAY / 2);
+  const step = days > 1 ? 600 / (days - 1) : 0;
+  // The old chart's scale: the top is the next 50 above the highest point (200 for 190, as the mockup's
+  // `200 - v * 0.95`), drawn 190 of the 200 units tall.
+  const top = Math.ceil(Math.max(...pts, 10) / 50) * 50;
+  const line = pts.map((v, i) => `${i * step},${200 - (v / top) * PLOT}`).join(' ');
+
+  // ---- live attendance: each session held, then the next one ----------------------------------------
+  const sessions = cohort ? db.sessions.filter((s) => s.cohortId === cohort.id).sort((a, b) => a.start - b.start) : [];
+  const held = sessions.filter((s) => s.attended);
+  const next = sessions.find((s) => !s.attended && s.start > (held[held.length - 1]?.start ?? -Infinity));
+  const lastHeld = held[held.length - 1] ?? null;
+  const share = (n: number) => (learners ? n / learners : 0);
+  const attendance: OverviewR2Attendance[] = [...held, ...(next ? [next] : [])].map((s) => ({
+    key: s.id,
+    label: `Session ${s.n} · ${adminMonthDay(s.start)}`,
+    pct: s.attended ? Math.round(share(s.attended) * 100) : null,
+  }));
+
+  // ---- the upgrade pipeline --------------------------------------------------------------------------
+  const pipe = db.requests.filter((q) => q.status === 'new' || q.status === 'contacted');
+  const priceOf = (id: Tier): number => db.tiers.find((t) => t.id === id)?.price ?? 0;
+  const uplift = priceOf('team') - priceOf('agent');
+  const openWord = `${pipe.length} open request${pipe.length === 1 ? '' : 's'}`;
+
+  const first = sessions[0] ?? null;
+  const stats: OverviewR2Stat[] = [
+    {
+      key: 'learners',
+      label: 'Active learners',
+      labelPhone: 'Active learners',
+      value: fmt.num(learners),
+      sub: `${agents} Agent · ${teamSeats} Team`,
+      subPhone: `${teamSeats} on Team Tier`,
+      tone: null,
+      to: '/admin/learners',
+    },
+    {
+      key: 'deployed',
+      label: 'AI Employees deployed',
+      labelPhone: 'Deployed',
+      value: started ? fmt.num(total) : '0',
+      sub: started ? `+${recent} in the last 24 hours` : cohort ? `Counting starts ${adminMonthDay(cohort.start)}` : '—',
+      subPhone: started ? `+${recent} in 24 hours` : cohort ? `Starts ${adminMonthDay(cohort.start)}` : '—',
+      tone: started ? 'ok' : null,
+      to: '/admin/curriculum',
+    },
+    {
+      key: 'completion',
+      label: 'Build completion',
+      labelPhone: 'Completion',
+      value: started ? fmt.pct(available ? total / available : 0) : '—',
+      sub: 'Of builds available',
+      subPhone: 'Of open builds',
+      tone: null,
+      to: null,
+    },
+    {
+      key: 'attendance',
+      label: 'Live attendance',
+      labelPhone: 'Attendance',
+      value: started && lastHeld ? fmt.pct(share(lastHeld.attended ?? 0)) : '—',
+      sub:
+        started && lastHeld
+          ? `Session ${lastHeld.n} · ${lastHeld.attended} attended`
+          : first
+            ? `Session ${first.n} is ${adminDay(first.start)}`
+            : '—',
+      subPhone: started && lastHeld ? `Session ${lastHeld.n}` : first ? `Opens ${adminMonthDay(first.start)}` : '—',
+      tone: null,
+      to: '/admin/cohorts',
+    },
+    {
+      key: 'pipeline',
+      label: 'Upgrade pipeline',
+      labelPhone: 'Upgrade pipeline',
+      value: fmt.money(pipe.length * uplift),
+      sub: openWord,
+      subPhone: openWord,
+      tone: pipe.length ? 'warn' : null,
+      to: '/admin/tiers',
+    },
+  ];
+
+  const subline = !cohort
+    ? ''
+    : started
+      ? `${cohortLine(cohort, now, db.sessions)} · Updated live from learner activity`
+      : `${cohort.name} Cohort · Opens ${adminDay(cohort.start)} at ${adminTime(cohort.start)} ${ADMIN_ZONE} · ${fmt.num(learners)} learners enrolled`;
+
+  return {
+    subline,
+    started,
+    stats,
+    chart: started
+      ? {
+          total: `${fmt.num(total)} total`,
+          line,
+          area: `0,200 ${line} 600,200`,
+          label: `Deployed AI Employees rose from ${fmt.num(pts[0] ?? 0)} on ${dayLabel(0)} to ${fmt.num(total)} on ${dayLabel(days - 1)}.`,
+          labels: pts.map((_, i) => dayLabel(i)),
+          labelsPhone: pts.map((_, i) => dayLabel(i)).filter((_, i) => i % 2 === 0),
+        }
+      : null,
+    feed: started
+      ? db.activity.slice(0, FEED_ROWS).map((e) => ({ key: e.id, who: e.who, what: e.what, ago: fmt.ago(e.t, now), tone: FEED_TONE[e.tone] }))
+      : [],
+    funnel,
+    attendance,
+    notStarted: cohort
+      ? `Deploys are counted from the first live build on ${adminDay(cohort.start)} at ${adminTime(cohort.start)} ${ADMIN_ZONE}.`
+      : 'Deploys are counted from the first live build.',
   };
 }

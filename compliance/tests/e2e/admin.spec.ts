@@ -147,7 +147,9 @@ test('a warning announcement reaches the learner as an alert banner @g6', async 
 test('converting an upgrade request unlocks the team employees for that learner @g6', async ({ browser }) => {
   const { admin, close } = await pair(browser);
   await open(admin, '/admin/tiers?as=admin');
-  await admin.getByRole('button', { name: 'Convert to Team' }).first().click();
+  // D-160 R2-3a: a request's actions are in its "…"; the first is the oldest open request's.
+  await admin.getByRole('table', { name: 'Upgrade requests' }).getByRole('button', { name: 'More actions' }).first().click();
+  await admin.getByRole('menuitem', { name: 'Convert to Team' }).click();
   await expect(admin.getByText(/is on Team Tier\. All six AI Employees are unlocked in their portal\./)).toBeVisible();
   await close();
 });
@@ -155,8 +157,9 @@ test('converting an upgrade request unlocks the team employees for that learner 
 test('the Owner permission column is fixed @g6', async ({ browser }) => {
   const { admin, close } = await pair(browser);
   await open(admin, '/admin/staff?as=admin');
+  // D-160 R2-3a: the Owner's box is fixed: checked, and disabled.
   const ownerCell = admin.getByRole('row', { name: /Publish modules/ }).getByRole('checkbox').first();
-  await ownerCell.click();
   await expect(ownerCell).toBeChecked();
+  await expect(ownerCell).toBeDisabled();
   await close();
 });

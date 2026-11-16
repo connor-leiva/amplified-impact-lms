@@ -104,12 +104,10 @@ export function AdminShell() {
   const band = bandOf(vw);
   // The rail toggle is remembered only while the window stays in the same band, as the mockup resets
   // it with the width: a laptop starts on the rail, a desktop expanded.
-  // A screen not yet rebuilt on R2 keeps its old type and, for now, its old frame geometry (legacy.ts):
-  // there the laptop also starts with the full sidebar, as the old shell did.
+  // A screen not yet rebuilt on R2 keeps its old type (legacy.ts).
   const legacy = legacyFor(path);
   const [railChoice, setRailChoice] = useState<{ band: Band; rail: boolean } | null>(null);
-  const rail =
-    band !== 'phone' && (railChoice?.band === band ? railChoice.rail : band === 'laptop' && !legacy.geometry);
+  const rail = band !== 'phone' && (railChoice?.band === band ? railChoice.rail : band === 'laptop');
   const mode: SidebarMode = band === 'phone' ? 'drawer' : rail ? 'rail' : 'full';
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -222,7 +220,7 @@ export function AdminShell() {
 
   return (
     <ShellProvider value={shellApi}>
-      <div className={s.frame} data-r2-shell="" data-legacy-geometry={legacy.geometry ? 'true' : undefined}>
+      <div className={s.frame} data-r2-shell="">
         <div className={s.shell}>
           {band === 'phone' ? null : <Sidebar mode={rail ? 'rail' : 'full'} {...sidebarProps} />}
           <div className={s.column}>

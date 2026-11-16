@@ -262,6 +262,67 @@ export const UPGRADE_REQUESTS = [
   ['Rosa Delgado', 'Agent → Team · 16 seats', '$4,000', 'Dec 4, 1:30 PM', 'Approved'],
 ] as const;
 
+/**
+ * `USERS` (R2-3): the learners Learners & Teams lists, verbatim but for Priya Raman, whose workspace
+ * is canceled (the mockup's table leaves her out, and the app has no canceled learner). `pr` of `of`
+ * is builds deployed of the builds open to that learner's tier.
+ */
+export const USERS = [
+  { id: 'u_1042', n: 'Elena Vargas', e: 'elena@northshoregroup.example', ws: 'ws_northshore', role: 'Team owner', tier: 'Team', last: 'Dec 10, 8:52 AM', pr: 4 },
+  { id: 'u_1043', n: 'Marcus Oyelaran', e: 'marcus@northshoregroup.example', ws: 'ws_northshore', role: 'Agent', tier: 'Team', last: 'Dec 9, 4:31 PM', pr: 3 },
+  { id: 'u_1061', n: 'Jordan Hale', e: 'jordan@halemarlowe.example', ws: 'ws_halemarlowe', role: 'Team owner', tier: 'Team', last: 'Dec 9, 6:10 PM', pr: 5 },
+  { id: 'u_1077', n: 'Noor Haddad', e: 'noor@redcliffcollective.example', ws: 'ws_redcliff', role: 'Team owner', tier: 'Agent', last: 'Dec 10, 12:41 AM', pr: 2 },
+  { id: 'u_1090', n: 'Devon Achterberg', e: 'devon@copperbasin.example', ws: 'ws_copperbasin', role: 'Team owner', tier: 'Team', last: 'Dec 9, 2:15 PM', pr: 2 },
+  { id: 'u_1104', n: 'Sam Whitlock', e: 'sam@tidewaterproperty.example', ws: 'ws_tidewater', role: 'Agent', tier: 'Agent', last: 'Dec 4, 9:03 AM', pr: 1 },
+  { id: 'u_1118', n: 'Tessa Lindqvist', e: 'tessa@lanternstreet.example', ws: 'ws_lantern', role: 'Team owner', tier: 'Team', last: 'Dec 9, 11:27 AM', pr: 1 },
+] as const;
+
+/**
+ * `WS` (R2-3), as teams: id, name, owner. The mockup's figures disagree (its Tiers screen counts five
+ * 16-seat teams and two 41-seat ones; `WS` lists seven workspaces on four plans), so the seats are
+ * the ones that print every figure it draws: 41 for Northshore and Red Cliff, 16 for the rest.
+ */
+export const WS = [
+  ['ws_northshore', 'Northshore Group', 'u_1042', 41],
+  ['ws_halemarlowe', 'Hale & Marlowe Realty', 'u_1061', 16],
+  ['ws_redcliff', 'Red Cliff Collective', 'u_1077', 41],
+  ['ws_copperbasin', 'Copper Basin Realty', 'u_1090', 16],
+  ['ws_tidewater', 'Tidewater Property Co.', 'u_1104', 16],
+  ['ws_lantern', 'Lantern Street Partners', 'u_1118', 16],
+  ['ws_fourthmeridian', 'Fourth Meridian', 'u_1125', 16],
+] as const;
+
+/** Tiers' cards (`T` in its `Tiers` screen): name, seats, price, blurb, features. */
+export const TIER_CARDS = [
+  ['agent', 'Agent', 1, 995, 'For individual agents building their own AI Employees.', ['Marketing, Sales and Database AI Employees', 'System prompts, skill files and checklists', 'Resource Vault']],
+  ['team', 'Team', 16, 4995, 'For teams that want every seat building, plus the leadership modules.', ['All 15 AI Employees and weekly live builds', '16 seats', 'Team progress tracking']],
+  ['team', 'Team', 41, 9995, 'The same Team Tier, sized for larger teams.', ['All 15 AI Employees and weekly live builds', '41 seats', 'Team progress tracking']],
+] as const;
+
+/** The Overview's chart (`pts`): AI Employees deployed, cumulative, Dec 2 to Dec 8. */
+export const OVERVIEW_PTS = [22, 58, 96, 121, 150, 178, 190] as const;
+
+/** The Overview's funnel (`funnel`): module id, deployed, in progress, eligible. */
+export const OVERVIEW_FUNNEL = [
+  ['m1', 98, 22, 148],
+  ['m4', 52, 31, 148],
+  ['m3', 33, 6, 44],
+  ['m5', 17, 12, 44],
+  ['m6', 0, 0, 148],
+] as const;
+
+/** The Overview's Live activity: who, what, minutes before "now", tone. */
+export const OVERVIEW_ACTIVITY = [
+  ['Sarah Collins', 'deployed Database AI Employee', 38, 'success'],
+  ['Rosa Delgado', 'deployed Sales AI Employee', 125, 'success'],
+  ['Natasha Reed', 'deployed Marketing AI Employee', 160, 'success'],
+  ['Devon Price', 'deployed Sales AI Employee', 850, 'success'],
+  ['Kenji Watanabe', 'requested a Team tier upgrade', 1108, 'warn'],
+] as const;
+
+/** The Overview's "+6 in the last 24 hours". */
+export const OVERVIEW_RECENT = 6;
+
 /** The parity fixture, as the shell reads it. */
 export interface ParityR2 {
   viewer: { name: string; role: string };

@@ -71,11 +71,114 @@ export function Pill({
   return <span className={clsx(k.pl, PILL_TONE[tone ?? status?.tone ?? 'neutral'])}>{children ?? status?.label}</span>;
 }
 
-/** `Bar`: 6px, green; amber when nearly full; grey when a fixed-seat plan is full. Never red. */
-export function Bar({ pct, kind = 'ok' }: { pct: number; kind?: SeatBar }) {
+/**
+ * `Bar`: 6px, green; amber when nearly full; grey when a fixed-seat plan is full. Never red. `pct2`
+ * is a second, blue segment after the first (the Overview funnel's "In progress", R2-3).
+ */
+export function Bar({ pct, pct2, kind = 'ok' }: { pct: number; pct2?: number; kind?: SeatBar }) {
   return (
     <span className={clsx(k.bar, kind === 'hot' && k.hot, kind === 'full' && k.full)}>
       <i style={{ width: `${pct}%` }} />
+      {pct2 !== undefined ? <i className={k.b2} style={{ width: `${pct2}%` }} /> : null}
+    </span>
+  );
+}
+
+/**
+ * `Stat` (R2-3): a KPI tile, the label over the figure over a muted line, which `tone` colours. A tile
+ * that goes somewhere is a link to it, drawn as the mockup's `button.stat`.
+ */
+export function Stat({
+  label,
+  value,
+  sub,
+  tone,
+  to,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: 'ok' | 'warn' | null;
+  to?: string | null;
+}) {
+  const body = (
+    <>
+      <span className={clsx(k.mu, k.stl)}>{label}</span>
+      <span className={k.fig}>{value}</span>
+      {sub ? <span className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn)}>{sub}</span> : null}
+    </>
+  );
+  return to ? (
+    <Link to={to} className={clsx(k.cd, k.stat, k.go)}>
+      {body}
+    </Link>
+  ) : (
+    <div className={clsx(k.cd, k.stat)}>{body}</div>
+  );
+}
+
+/** `Skel` (R2-3): a card of shimmering lines while a screen loads (the mockup's `Gate` loading state). */
+export function Skel({ lines = 5 }: { lines?: number }) {
+  return (
+    <div className={clsx(k.cd, k.skel)} role="status" aria-busy="true" aria-label="Loading">
+      {Array.from({ length: lines }).map((_, i) => (
+        <div key={i} className={k.sk} style={{ width: `${88 - i * 12}%` }} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * `TapCheck` (R2-3a): a checkbox in a 44px target, for a phone. The box is drawn by a decorative
+ * checkbox; the real control is a transparent one over the whole target (the table's phone pattern).
+ */
+export function TapCheck({
+  label,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <span className={k.tapBox}>
+      <input type="checkbox" className={k.chk} checked={checked} disabled={disabled} readOnly tabIndex={-1} aria-hidden="true" />
+      <input type="checkbox" className={k.hit} aria-label={label} checked={checked} disabled={disabled} onChange={onChange} />
+    </span>
+  );
+}
+
+/**
+ * `CheckCell` (R2-3): a permission matrix's box and its word ("Yes", "No"), read-only. A box that is
+ * fixed by product rules carries the lock and says so in its title and accessible name.
+ */
+export function CheckCell({
+  label,
+  on,
+  locked,
+  word,
+}: {
+  /** The box's accessible name: `{capability}, {role}`. */
+  label: string;
+  on: boolean;
+  locked?: boolean;
+  word: string;
+}) {
+  return (
+    <span className={clsx(k.row, k.nw, k.check)} title={locked ? 'Fixed by product rules' : undefined}>
+      <input
+        type="checkbox"
+        className={k.chk}
+        checked={on}
+        disabled
+        readOnly
+        aria-label={locked ? `${label}. Fixed by product rules` : label}
+      />
+      {locked ? <Icon name="r2Lock" size={14} strokeWidth={1.75} /> : null}
+      <span className={k.mu}>{word}</span>
     </span>
   );
 }

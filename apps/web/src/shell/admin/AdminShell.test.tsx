@@ -169,15 +169,9 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(screen.getByText('Production')).toBeInTheDocument();
   });
 
-  it('keeps an old screen’s type and, for now, its old frame geometry; R2 everywhere else', async () => {
+  it('keeps an old screen’s type; R2 everywhere else, at R2’s geometry (D-160 R2-3a)', async () => {
     const router = renderAt('/admin');
     await screen.findByText('the overview');
-    expect(document.querySelector('main')).toHaveAttribute('data-legacy', 'true');
-    expect(document.querySelector('[data-r2-shell]')).toHaveAttribute('data-legacy-geometry', 'true');
-    await act(async () => {
-      await router.navigate('/admin/no-such-page');
-    });
-    await screen.findByText('the 404');
     expect(document.querySelector('main')).not.toHaveAttribute('data-legacy');
     expect(document.querySelector('[data-r2-shell]')).not.toHaveAttribute('data-legacy-geometry');
     await act(async () => {
@@ -185,14 +179,13 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     });
     await screen.findByText('the audit log');
     expect(document.querySelector('main')).toHaveAttribute('data-legacy', 'true');
-    expect(document.querySelector('[data-r2-shell]')).not.toHaveAttribute('data-legacy-geometry');
   });
 
-  it('starts an old screen with the full sidebar at 1024, as the old shell did, and R2 screens on the rail', async () => {
+  it('starts every screen on the rail at 1024, the Overview included', async () => {
     setWidth(1024);
     const router = renderAt('/admin');
     await screen.findByText('the overview');
-    expect(aside()).toHaveAttribute('data-mode', 'full');
+    expect(aside()).toHaveAttribute('data-mode', 'rail');
     await act(async () => {
       await router.navigate('/admin/no-such-page');
     });
