@@ -275,7 +275,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
 
   const EXPECT: Record<string, string[][]> = {
     Owner: [
-      ['Health', 'Overview'],
+      // D-169: System Health is on in production (console.view: Owner, Admin, Support).
+      ['Health', 'Overview', 'System Health'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       // D-160 R2-1c: Workspaces and Users are on in production.
       ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
@@ -288,7 +289,7 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
   EXPECT.Admin = EXPECT.Owner!;
   EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions'));
   EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) =>
-    g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Billing'].includes(x)),
+    g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Billing', 'System Health'].includes(x)),
   );
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {

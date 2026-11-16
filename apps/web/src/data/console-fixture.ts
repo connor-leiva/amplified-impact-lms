@@ -11,6 +11,8 @@
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
 //                  |stripe_off|stripe_scope                         and Billing's (D-163): no Stripe key, a missing scope
+//   ?console-sample=off                                             System Health without the mockup's own tiles
+//                                                                   and cards: production's composition (D-169)
 
 import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, stripeScopeMessage, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, cleanSearch, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
 import type { AuditAction, AuditFilters, AuditRow, ConsoleMe, ConsolePage, StaffRole } from '@ai/core';
@@ -283,9 +285,11 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     health: () =>
       settle(() => {
         need('console.view');
-        return fixtureHealth(records, now(), state === 'empty');
+        const r = fixtureHealth(records, now(), state === 'empty');
+        // As the API: no deploys for a role without ops.read (D3).
+        return consoleCan(role, 'ops.read') ? r : { ...r, deploys: null };
       }),
-    healthSample: () => fixtureHealthSample(state === 'empty'),
+    ...(qs.get('console-sample') === 'off' ? {} : { healthSample: () => fixtureHealthSample(state === 'empty') }),
     skills: (cursor) =>
       settle(() => {
         need('console.view');

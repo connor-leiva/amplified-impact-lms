@@ -16,6 +16,7 @@ const CORE = (p: string) => fileURLToPath(new URL(`../../../../packages/core/src
 const SENTINELS = [
   'console-role',
   'console-state',
+  'console-sample',
   '203.0.113.',
   // R2-3b: the parity fixture's audit rows (`AUDIT0`).
   'in_1QxK5fFm0270',
