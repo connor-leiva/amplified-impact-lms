@@ -198,6 +198,58 @@ describe('Modal and Confirm (R2-2)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
     expect(onConfirm).toHaveBeenCalledOnce();
     expect(onClose).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText('This action is audit-logged.')).toBeNull();
+  });
+});
+
+describe('Modal and Confirm, R2-1c part 2', () => {
+  it('keeps Tab and Shift+Tab inside, skips what Tab never reaches, and gives focus back on close', () => {
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    outside.focus();
+    const { unmount } = render(
+      <Modal title="Keys" onClose={() => {}} foot={<button type="button">Save</button>}>
+        <input aria-label="Name" />
+        <button type="button" tabIndex={-1}>
+          Not in the tab order
+        </button>
+        <button type="button" disabled>
+          Disabled
+        </button>
+      </Modal>,
+    );
+    // In order: Close (the head), Name, Save (the foot); the -1 and the disabled button are skipped.
+    const name = screen.getByLabelText('Name');
+    const close = screen.getByRole('button', { name: 'Close' });
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(name).toHaveFocus();
+    save.focus();
+    expect(fireEvent.keyDown(save, { key: 'Tab' })).toBe(false);
+    expect(close).toHaveFocus();
+    expect(fireEvent.keyDown(close, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(save).toHaveFocus();
+    // Between the first and the last, Tab is the browser's own.
+    name.focus();
+    expect(fireEvent.keyDown(name, { key: 'Tab' })).toBe(true);
+    expect(name).toHaveFocus();
+    unmount();
+    expect(outside).toHaveFocus();
+    outside.remove();
+  });
+
+  it('an audited confirm ends with the mockup’s "This action is audit-logged."', () => {
+    render(
+      <Confirm
+        title="Send a password reset to Elena Vargas?"
+        body="Emails a reset link."
+        cta="Send reset email"
+        audited
+        onConfirm={() => {}}
+        onClose={() => {}}
+      />,
+    );
+    const dialog = screen.getByRole('dialog', { name: 'Send a password reset to Elena Vargas?' });
+    expect(within(dialog).getByText('This action is audit-logged.')).toBeInTheDocument();
   });
 });
 
