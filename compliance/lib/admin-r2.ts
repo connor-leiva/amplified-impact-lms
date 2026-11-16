@@ -155,7 +155,7 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `jobs-${w}`,
   // D-167: Incidents at all four widths; Incident at 1440, 1280 and 1024. `incident-390` is built and
   // reported, not enforced, for `workspace-detail-390`'s reason: its key-facts values, 15px in the
-  // mockup on a phone, 16px here (0.3635%, 1,538 px; 0.0399%, 169 px with 15px, all of it Add note).
+  // mockup on a phone, 16px here (its figures, and 0 px with 15px, are in D-167).
   `incidents-${w}`,
   ...(w === 390 ? [] : [`incident-${w}`]),
 ]);
