@@ -114,11 +114,12 @@ export const endMasquerade = (db: Database, req: FastifyRequest | null, id: stri
 /**
  * Put the staff member's own session back on `ai_sid` when `readSession` still finds it live, and
  * clear `ai_sid` otherwise; clear `ai_msq` either way. Returns where the browser goes next: the page
- * the session started from, or sign-in when there is no staff session to go back to.
+ * the session started from, or sign-in when there is no staff session to go back to. `proven` false
+ * restores nothing (see `masqueradeSessionGone`).
  */
-export async function restoreStaff(reply: FastifyReply, db: Database, row: MasqueradeRow, now: number): Promise<string> {
+export async function restoreStaff(reply: FastifyReply, db: Database, row: MasqueradeRow, now: number, proven = true): Promise<string> {
   reply.clearCookie(MASQUERADE_COOKIE, clearCookieOptions());
-  const staff = await readSession(db, row.staffAuthSessionId, now);
+  const staff = proven ? await readSession(db, row.staffAuthSessionId, now) : null;
   if (staff && staff.userId === row.staffUserId && staff.impersonating === null) {
     reply.setCookie(SESSION_COOKIE, staff.id, sessionCookieOptions(process.env, { remember: staff.remember }));
     return row.startedFrom ?? MASQUERADE_DEFAULT_RETURN;
@@ -138,25 +139,29 @@ export const masqueradeEnded = (reply: FastifyReply, redirect: string): FastifyR
  * A masquerade that is over, noticed by a request: ended here if nothing ended it yet (expired, or
  * `revoked` when its session or learner went before its time), the staff session put back, 409.
  */
-async function over(req: FastifyRequest, reply: FastifyReply, db: Database, row: MasqueradeRow, now: number, reason?: MasqueradeEndReason): Promise<FastifyReply> {
+async function over(req: FastifyRequest, reply: FastifyReply, db: Database, row: MasqueradeRow, now: number, opts: { reason?: MasqueradeEndReason; proven?: boolean } = {}): Promise<FastifyReply> {
   if (row.endedAt === null) {
-    const why = reason ?? (now >= row.expiresAt ? 'expired' : 'revoked');
+    const why = opts.reason ?? (now >= row.expiresAt ? 'expired' : 'revoked');
     await endMasquerade(db, req, row.id, { reason: why, action: 'masquerade.expire', actor: { source: 'system' }, now, after: { by: 'request' } });
   }
   // Exit and the sweep delete it; whatever ended the row, its session goes.
   await deleteSession(db, row.authSessionId);
-  return masqueradeEnded(reply, await restoreStaff(reply, db, row, now));
+  return masqueradeEnded(reply, await restoreStaff(reply, db, row, now, opts.proven ?? true));
 }
 
 /**
  * `requireSession`, for a signed session id that names no live session. When it was a masquerade's
- * (past its hard stop, swept, or deleted under it), answer 409 and true; otherwise false, and the
+ * (swept, past its hard stop, or deleted under it), answer 409 and true; otherwise false, and the
  * caller answers its ordinary 401.
+ *
+ * The staff session is put back only for the browser that held the masquerade: its `ai_msq` names
+ * the same row, and the hard stop has not passed (both cookies expire then). A dead impersonation
+ * cookie on its own, replayed later, never turns into the staff member's session.
  */
 export async function masqueradeSessionGone(req: FastifyRequest, reply: FastifyReply, db: Database, sessionId: string, now: number): Promise<boolean> {
   const row = await rowByAuthSession(db, sessionId);
   if (!row) return false;
-  await over(req, reply, db, row, now);
+  await over(req, reply, db, row, now, { proven: masqueradeCookieId(req) === row.id && now < row.hardExpiresAt });
   return true;
 }
 
@@ -185,7 +190,7 @@ export async function masqueradeOfSession(req: FastifyRequest, reply: FastifyRep
 
 /** `requireSession`, when a running masquerade's learner row is gone: the session is `revoked`. */
 export const masqueradeTargetGone = (req: FastifyRequest, reply: FastifyReply, db: Database, row: MasqueradeRow, now: number): Promise<FastifyReply> =>
-  over(req, reply, db, row, now, 'revoked');
+  over(req, reply, db, row, now, { reason: 'revoked' });
 
 /** Refuse a masquerading request: one `masquerade.blocked_action` row (the staff member acting) and 403. */
 export async function refuseForMasquerade(req: FastifyRequest, reply: FastifyReply, db: Database, row: MasqueradeRow): Promise<FastifyReply> {

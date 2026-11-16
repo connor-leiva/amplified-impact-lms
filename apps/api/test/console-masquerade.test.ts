@@ -293,13 +293,16 @@ describe('Extend and the 60-minute cap (D7) @console', () => {
     // A reason is required every time.
     expect((await browser.send('POST', MASQUERADE_PATHS.extend, { reason: 'short' })).statusCode).toBe(422);
 
-    // Live to the last millisecond; at the hard stop the session is gone and the answer is 409, not 401.
+    // Live to the last millisecond; at the hard stop the session is gone and the answer is 409, not
+    // 401. Both cookies expire then too, so nothing is put back: a browser still sending them is told
+    // to sign in.
     at(NOW + 60 * MIN - 1);
     expect((await browser.send('GET', '/api/me')).statusCode).toBe(200);
     at(NOW + 60 * MIN);
     const over = await browser.send('GET', '/api/me');
     expect(over.statusCode).toBe(409);
-    expect(over.json()).toMatchObject({ code: 'masquerade_ended', redirect: '/admin' });
+    expect(over.json()).toMatchObject({ code: 'masquerade_ended', redirect: '/sign-in' });
+    expect(cookieLine(over.headers['set-cookie'], SESSION_COOKIE)!.value).toBe('');
     expect((await rowsOf())[0]).toMatchObject({ endReason: 'expired' });
   });
 
@@ -392,8 +395,13 @@ describe('Lazy expiry and the sweep (spec § 6 rule 8) @console', () => {
     expect((await audits()).filter((a) => a.action === 'masquerade.expire')).toEqual([
       expect.objectContaining({ actorSource: 'system', actorUserId: null, masqueradeSessionId: row!.id, ip: null, after: expect.objectContaining({ by: 'sweep' }) }),
     ]);
-    // The swept browser's next request is the 409 with the staff session back, and no second audit row.
+    // The impersonation cookie alone, replayed: the 409, and never the staff member's session.
     at(NOW + 16 * MIN);
+    const replay = await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: `${SESSION_COOKIE}=${browser.jar.get(SESSION_COOKIE)!}` } });
+    expect(replay.statusCode).toBe(409);
+    expect(replay.json().redirect).toBe('/sign-in');
+    expect(cookieLine(replay.headers['set-cookie'], SESSION_COOKIE)!.value).toBe('');
+    // The swept browser's own next request is the 409 with the staff session back, and no second audit row.
     const res = await browser.send('GET', '/api/me');
     expect(res.statusCode).toBe(409);
     expect((await audits()).filter((a) => a.action === 'masquerade.expire')).toHaveLength(1);
