@@ -201,6 +201,8 @@
   position: absolute;
   left: -4px;
   top: 6px;
+  /* The mockup's 7px dot, its 1.5px ring inside it (its `*` and pseudo-elements are border-box). */
+  box-sizing: border-box;
   width: 7px;
   height: 7px;
   border-radius: 50%;

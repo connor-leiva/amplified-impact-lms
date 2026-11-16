@@ -139,7 +139,7 @@ export function Component() {
             vm.linked.map((l) => (
               <div key={l.key} className={k.li}>
                 <Icon name={l.icon} size={16} strokeWidth={1.75} />
-                <Link to={l.to} className={clsx(k.lk, k.w5, s.grow)}>
+                <Link to={l.to} className={clsx(k.lk, s.grow)}>
                   {l.label}
                 </Link>
                 <Icon name="r2Chev" size={16} strokeWidth={1.75} />
