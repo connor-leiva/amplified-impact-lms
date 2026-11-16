@@ -14,10 +14,10 @@
 // at once open each incident once.
 
 import { and, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
-import { NO_SIGNALS, observeIncidents, planIncidentWrites } from '@ai/core';
+import { INCIDENT_RULES, NO_SIGNALS, observeIncidents, planIncidentWrites } from '@ai/core';
 import type { ApiWindowFact, GhlGaveUpFact, IncidentSignals, JobTickFact, StripeErrorFact, UnresolvedIncident } from '@ai/core';
 import type { Database } from '../db/client';
-import { incidentEvents, incidents, stripeEvents } from '../db/schema';
+import { apiMetrics, incidentEvents, incidents, jobTicks, stripeEvents } from '../db/schema';
 import { crmSyncReport } from '../routes/crm-sync';
 import { lockNumbering, openIncident, signalIncident } from './incidents';
 
@@ -33,9 +33,22 @@ export interface IncidentSources {
 export type Reader = Pick<Database, 'select' | 'execute'>;
 type ReadTx = Reader & { transaction<T>(fn: (sp: Reader) => Promise<T>): Promise<T> };
 
+/** How many of each job's newest finished ticks are read: enough for any streak a signal reports. */
+const TICKS_PER_JOB = 50;
+
 export const DB_SOURCES: IncidentSources = {
-  // Wired to R2-5's `job_ticks` when it lands (D-165); until then there are no ticks to read.
-  jobTicks: async () => [],
+  // R2-5's `job_ticks` (D-165): each job's newest finished runs. `running` and `skipped` are not
+  // finished runs that succeeded or failed, so they neither make nor break a streak.
+  jobTicks: async (db) => {
+    const rows = (await db.execute(sql`
+      select job, status, finished_at from (
+        select ${jobTicks.job} as job, ${jobTicks.status} as status, ${jobTicks.finishedAt} as finished_at,
+               row_number() over (partition by ${jobTicks.job} order by ${jobTicks.startedAt} desc, ${jobTicks.id} desc) as rn
+          from ${jobTicks}
+         where ${jobTicks.status} in ('succeeded', 'failed') and ${jobTicks.finishedAt} is not null
+      ) t where rn <= ${TICKS_PER_JOB}`)) as unknown as { job: string; status: 'succeeded' | 'failed'; finished_at: string | number }[];
+    return rows.map((r) => ({ job: r.job, status: r.status, finishedAt: Number(r.finished_at) }));
+  },
   stripeErrors: async (db) =>
     db
       .select({ id: stripeEvents.id, type: stripeEvents.type, receivedAt: stripeEvents.receivedAt })
@@ -48,8 +61,14 @@ export const DB_SOURCES: IncidentSources = {
     const times = report.problems.filter((r) => r.state === 'gave-up' && r.lastAttemptAt !== null).map((r) => r.lastAttemptAt!);
     return { count, latestAt: times.length ? Math.max(...times) : null };
   },
-  // Wired to R2-5's `api_metrics` when it lands (D-165); until then there is no window to read.
-  api: async () => null,
+  // R2-5's `api_metrics` (D-165): every route's answers in the minutes flushed over the last 10.
+  api: async (db, now) => {
+    const [row] = await db
+      .select({ requests: sql<number>`coalesce(sum(${apiMetrics.count}), 0)::int`, errors5xx: sql<number>`coalesce(sum(${apiMetrics.errors5xx}), 0)::int` })
+      .from(apiMetrics)
+      .where(sql`${apiMetrics.minute} >= ${now - INCIDENT_RULES.apiWindowMs}`);
+    return { requests: Number(row?.requests ?? 0), errors5xx: Number(row?.errors5xx ?? 0) };
+  },
 };
 
 export interface IncidentRun {

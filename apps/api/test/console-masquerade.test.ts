@@ -496,6 +496,12 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: `${CONSOLE_PATHS.search}?q=jamie` },
       { method: 'POST', url: CONSOLE_PATHS.masqueradeStart },
       { method: 'GET', url: CONSOLE_PATHS.masqueradeSessions },
+      // PR 6 (D-165): API & Webhooks and Scheduled Jobs, reads and writes alike.
+      { method: 'GET', url: CONSOLE_PATHS.apiEndpoints },
+      { method: 'GET', url: CONSOLE_PATHS.webhooks },
+      { method: 'POST', url: CONSOLE_PATHS.ghlRetry },
+      { method: 'GET', url: CONSOLE_PATHS.jobs },
+      { method: 'POST', url: '/api/console/jobs/session-24h/run' },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);

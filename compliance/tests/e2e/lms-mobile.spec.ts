@@ -67,6 +67,11 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/users'],
   ['admin', '/admin/users/u_1042'],
   ['admin', '/admin/search?q=north'],
+  // API & Webhooks (both tabs) and Scheduled Jobs (D-165), and a Support viewer's Jobs (no Run Now).
+  ['admin', '/admin/api'],
+  ['admin', '/admin/api/hooks'],
+  ['admin', '/admin/jobs'],
+  ['admin', '/admin/jobs?console-role=Support'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

@@ -99,8 +99,8 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
         badge: 'incidents',
       }),
       row('audit', 'Audit Log', 'r2Audit', '/admin/audit', true, { cap: 'audit.read' }),
-      row('api', 'API & Webhooks', 'r2Api', '/admin/api', false, { cap: 'api.read' }),
-      row('jobs', 'Scheduled Jobs', 'r2Jobs', '/admin/jobs', false, { cap: 'jobs.read' }),
+      row('api', 'API & Webhooks', 'r2Api', '/admin/api', true, { cap: 'api.read' }),
+      row('jobs', 'Scheduled Jobs', 'r2Jobs', '/admin/jobs', true, { cap: 'jobs.read' }),
       row('email', 'Email Log', 'r2Email', '/admin/email', false, { cap: 'email.read' }),
       row('integrations', 'Integrations', 'r2Integrations', '/admin/integrations', false, { cap: 'ops.read' }),
       row('deploys', 'Deploys & Commits', 'r2Deploys', '/admin/deploys', false, { cap: 'ops.read' }),
@@ -144,6 +144,8 @@ const norm = (pathname: string): string => {
 export function activeRowId(pathname: string): string | null {
   const p = norm(pathname);
   if (p.startsWith('/admin/curriculum/')) return 'builder';
+  // API & Webhooks' deliveries tab has its own address (D-165, spec § 8: `admin/api[/:tab]`): one row, one page.
+  if (p.startsWith('/admin/api/')) return 'api';
   const parent = recordParent(p);
   if (parent) return parent;
   for (const [, rows] of R2_NAV) for (const r of rows) if (r.built && r.id !== 'builder' && r.path === p) return r.id;

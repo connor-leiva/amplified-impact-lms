@@ -280,7 +280,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
       // D-160 R2-1c: Workspaces and Users are on in production.
       ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
       ['Revenue', 'Tiers & Upgrades'],
-      ['Operations', 'Audit Log'],
+      // D-165: API & Webhooks and Scheduled Jobs are on in production (Support sees both, D3).
+      ['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ],
   };

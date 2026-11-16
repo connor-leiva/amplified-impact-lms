@@ -12,7 +12,7 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
-import { auditLog, staffNotes, users } from '../src/db/schema';
+import { auditLog, ghlLogins, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -37,7 +37,12 @@ type RouteName =
   | 'masqueradeCurrent'
   | 'masqueradeExtend'
   | 'masqueradeExit'
-  | 'masqueradeSessions';
+  | 'masqueradeSessions'
+  | 'apiEndpoints'
+  | 'webhooks'
+  | 'ghlRetry'
+  | 'jobs'
+  | 'jobRun';
 
 /** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
 const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
@@ -80,10 +85,16 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   },
   masqueradeExit: { path: CONSOLE_PATHS.masqueradeExit, url: CONSOLE_PATHS.masqueradeExit, method: 'POST', route: `POST ${CONSOLE_PATHS.masqueradeExit}` },
   masqueradeSessions: { path: CONSOLE_PATHS.masqueradeSessions, url: CONSOLE_PATHS.masqueradeSessions, method: 'GET', route: `GET ${CONSOLE_PATHS.masqueradeSessions}` },
+  // PR 6 (D-165). The retry resets the first sign-in below; Run Now runs the scheduler's tick.
+  apiEndpoints: { path: CONSOLE_PATHS.apiEndpoints, url: CONSOLE_PATHS.apiEndpoints, method: 'GET', route: `GET ${CONSOLE_PATHS.apiEndpoints}` },
+  webhooks: { path: CONSOLE_PATHS.webhooks, url: CONSOLE_PATHS.webhooks, method: 'GET', route: `GET ${CONSOLE_PATHS.webhooks}` },
+  ghlRetry: { path: CONSOLE_PATHS.ghlRetry, url: CONSOLE_PATHS.ghlRetry, method: 'POST', route: `POST ${CONSOLE_PATHS.ghlRetry}`, body: { kind: 'login', id: 'u_jamie' } },
+  jobs: { path: CONSOLE_PATHS.jobs, url: CONSOLE_PATHS.jobs, method: 'GET', route: `GET ${CONSOLE_PATHS.jobs}` },
+  jobRun: { path: CONSOLE_PATHS.jobRun, url: '/api/console/jobs/session-24h/run', method: 'POST', route: `POST ${CONSOLE_PATHS.jobRun}` },
 };
 
 /** The routes whose success writes its own audit row. */
-const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart']);
+const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart', 'ghlRetry', 'jobRun']);
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
 const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
@@ -108,20 +119,23 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // roles (Owner, Admin). `current` answers any signed-in viewer (null outside a session). Extend asks
 // the viewer's masquerade.extend first, then answers 409 `masquerade_ended`, as Exit does for
 // everyone, because none of these callers is in a session.
-const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v });
+// PR 6 (D-165): the API & Webhooks and Jobs reads are api.read and jobs.read (Owner, Admin, Support);
+// the GHL retry and Run Now are webhooks.retry and jobs.run_now (Owner, Admin).
+const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v, apiEndpoints: v, webhooks: v, jobs: v });
+const OPS = (v: number) => ({ ghlRetry: v, jobRun: v });
 const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeStart: start, masqueradeCurrent: 200, masqueradeExtend: extend, masqueradeExit: 409, masqueradeSessions: sessions });
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
-    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401,
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, ...OPS(401),
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200) },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200) },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), ...OPS(200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), ...OPS(200) },
 };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
@@ -145,6 +159,8 @@ beforeEach(async () => {
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });
   // Note 1, for the delete route to find.
   await db.insert(staffNotes).values({ targetType: 'workspace', targetId: 'northline', authorUserId: 'st4', body: 'Owner asked about seats.', createdAt: NOW - 3600_000 });
+  // A first sign-in GHL gave up on, for the retry route to reset (D-165).
+  await db.insert(ghlLogins).values({ userId: 'u_jamie', firstLoginAt: NOW - 86_400_000, ghlAttempts: 8, ghlError: 'contact:unauthorized:401' });
   app = await build({ logger: false });
 });
 afterEach(async () => {

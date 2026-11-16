@@ -16,9 +16,8 @@
 // PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
 // adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history; PR 8 (D-167)
 // adds incidents (`incidents.ts`): the list, its summary, one incident, create, ack, resolve and
-// notes. During a
-// masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
-// `requireSession`).
+// notes. During a masquerade every Console route but current, Extend and Exit answers 403
+// `masquerade_blocked` (D2, `requireSession`).
 //
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
@@ -35,6 +34,7 @@ import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   MASQUERADE_PATHS,
+  OPS_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCaps,
@@ -52,6 +52,8 @@ import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { registerMasqueradeRoutes } from './masquerade';
 import { INCIDENT_PATHS, registerIncidentRoutes } from './incidents';
 import type { MasqueradeDeps } from './masquerade';
+import { registerOpsRoutes } from './ops';
+import type { OpsDeps } from './ops';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -66,6 +68,8 @@ export const CONSOLE_PATHS = {
   masqueradeExtend: MASQUERADE_PATHS.extend,
   masqueradeExit: MASQUERADE_PATHS.exit,
   masqueradeSessions: MASQUERADE_PATHS.sessions,
+  // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
+  ...OPS_PATHS,
   // PR 8 (D-167): incidents.
   ...INCIDENT_PATHS,
 } as const;
@@ -76,7 +80,7 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
 /** What later Console PRs hand the routes (Stripe, the price cache, the event hub): masquerade's flag so far. */
-export type ConsoleDeps = Readonly<MasqueradeDeps>;
+export type ConsoleDeps = Readonly<MasqueradeDeps & { ops?: OpsDeps }>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -280,6 +284,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
 
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
+    registerOpsRoutes(scope, deps.ops ?? {}, { read: limit(CONSOLE_RATE.read), write: limit(CONSOLE_RATE.write) });
     registerIncidentRoutes(scope);
   });
 }
