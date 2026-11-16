@@ -1,19 +1,4 @@
-/* Incident (D-167): the two pieces the kit doesn't have. */
-
-/* "Add note" in the Timeline card's head: the mockup's card-head link (`.lk.a`, as its "View all"). */
-.add {
-  color: var(--r2-for);
-  font-weight: 500;
-}
-
-/* A Linked row's name takes the row, its chevron at the end (the mockup's `flex: 1`). */
+/* Incident (D-167): a Linked row's name takes the row, its chevron at the end (the mockup's `flex: 1`). */
 .grow {
   flex: 1;
-}
-
-@media (max-width: 767px) {
-  /* A 44px target that doesn't make the card head taller than the mockup's. */
-  .add {
-    margin-block: -12px;
-  }
 }

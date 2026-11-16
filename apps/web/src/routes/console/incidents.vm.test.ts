@@ -59,7 +59,7 @@ describe('one incident (the mockup’s Incident, INC-0007)', () => {
 
   it('offers Acknowledge while open and Resolve until resolved; Resolve never to Support (D3)', () => {
     expect([incidentVM(i7, 'Owner').canAck, incidentVM(i7, 'Owner').canResolve]).toEqual([true, true]);
-    expect([incidentVM(i7, 'Support').canAck, incidentVM(i7, 'Support').canResolve, incidentVM(i7, 'Support').canNote]).toEqual([true, false, true]);
+    expect([incidentVM(i7, 'Support').canAck, incidentVM(i7, 'Support').canResolve]).toEqual([true, false]);
     expect([incidentVM(i6, 'Admin').canAck, incidentVM(i6, 'Admin').canResolve]).toEqual([false, true]);
     expect([incidentVM(i5, 'Owner').canAck, incidentVM(i5, 'Owner').canResolve]).toEqual([false, false]);
   });

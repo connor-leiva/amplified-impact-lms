@@ -5,7 +5,8 @@ import { expectAccessible } from '../../lib/a11y';
 /**
  * D-167: Incidents and Incident on R2 (spec § 7.14), in the fixture build, on the R2 mockup's own
  * `INCIDENTS`. The behaviour: the list and its status filter, a row opening its incident, Acknowledge
- * and Resolve (with its required note) and Add note through the stack's R2 dialogs, the sidebar's
+ * and Resolve (with its required note) through the stack's R2 dialogs, no chrome the mockup doesn't
+ * draw (no Add note: the eye check), the sidebar's
  * "1 incident" following them, Support acknowledging but never resolving (D3), and the timeline
  * stacking on a phone. Every screen and dialog passes axe.
  */
@@ -58,6 +59,8 @@ test.describe('Incidents on R2 (D-167) @g9 @console', () => {
     await expect(aside.getByRole('button', { name: /Incidents/ })).toContainText('1');
     await expect(page.getByRole('heading', { level: 1, name: 'GHL order sync failing with 401' })).toBeVisible();
     for (const t of ['INC-0007', 'Open', 'Sev 2', 'Imani Brooks', 'Dec 9, 9:14 PM MST', 'Job ghl-orders', '3 webhook deliveries']) await expect(page.locator('main')).toContainText(t);
+    // Exactly the mockup's two actions, and no other control in the header or the cards' heads.
+    await expect(page.locator('main button')).toHaveText(['Acknowledge', 'Resolve']);
     await expectAccessible(page);
 
     await page.getByRole('button', { name: 'Acknowledge', exact: true }).click();
@@ -82,23 +85,10 @@ test.describe('Incidents on R2 (D-167) @g9 @console', () => {
     await close();
   });
 
-  test('Add note heads the timeline and adds the author’s line', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/incidents/INC-0006');
-    await timeline(page).getByRole('button', { name: 'Add note' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Add note' });
-    await expect(dialog.getByRole('button', { name: 'Save note' })).toBeDisabled();
-    await dialog.getByRole('textbox', { name: 'Note' }).fill('Stripe retried it; the subscription is current.');
-    await dialog.getByRole('button', { name: 'Save note' }).click();
-    await expect(toast(page, 'Note saved')).toBeVisible();
-    await expect(timeline(page)).toContainText('Casey Lin: Stripe retried it; the subscription is current.');
-    await close();
-  });
-
   test('Support acknowledges and never resolves (D3)', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/incidents/INC-0007?console-role=Support');
     await expect(page.getByRole('button', { name: 'Acknowledge', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Resolve', exact: true })).toHaveCount(0);
-    await expect(timeline(page).getByRole('button', { name: 'Add note' })).toBeVisible();
     await expectAccessible(page);
     await close();
   });

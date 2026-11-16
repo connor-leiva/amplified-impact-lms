@@ -4,7 +4,7 @@
 //
 // The words are the mockup's where it has them: the page's title and description, the status filter,
 // the columns, the empty state, the key facts, "Timeline", "Linked", Acknowledge and Resolve, and the
-// toasts ("INC-0007 is acknowledged"). The dialogs, Add note and the Linked card's empty line are new
+// toasts ("INC-0007 is acknowledged"). The two dialogs and the Linked card's empty line are new
 // (listed in D-167), the stack's R2 `Confirm` and `Modal`.
 
 import { INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_LABELS, adminStamp, consoleCan, incidentEventText, incidentLinked } from '@ai/core';
@@ -82,10 +82,8 @@ export const INCIDENT_COPY = {
   noLinks: 'Nothing linked yet.',
   ack: 'Acknowledge',
   resolve: 'Resolve',
-  addNote: 'Add note',
   acked: (id: string) => `${id} is acknowledged`,
   resolved: (id: string) => `${id} is resolved`,
-  noted: 'Note saved',
   ackConfirm: {
     title: (id: string) => `Acknowledge ${id}?`,
     body: 'You become its owner, and the timeline says you have it.',
@@ -96,12 +94,6 @@ export const INCIDENT_COPY = {
     label: 'What fixed it',
     placeholder: 'What changed, and how you checked it',
     cta: 'Resolve',
-  },
-  noteDialog: {
-    title: 'Add note',
-    label: 'Note',
-    placeholder: 'What you found or did',
-    cta: 'Save note',
   },
   cancel: 'Cancel',
   failed: 'That didn’t save. Nothing was changed.',
@@ -120,7 +112,6 @@ export interface IncidentVM {
   /** Acknowledge shows while it is open; Resolve until it is resolved, and only to a role that may (D3). */
   canAck: boolean;
   canResolve: boolean;
-  canNote: boolean;
 }
 
 export function incidentVM(d: IncidentDetail, role: string | null): IncidentVM {
@@ -134,6 +125,5 @@ export function incidentVM(d: IncidentDetail, role: string | null): IncidentVM {
     linked: incidentLinked(d.events).map((l) => ({ key: l.to, to: l.to, icon: LINK_ICON[l.icon], label: l.label })),
     canAck: d.status === 'open' && consoleCan(role, 'incidents.ack'),
     canResolve: d.status !== 'resolved' && consoleCan(role, 'incidents.resolve'),
-    canNote: consoleCan(role, 'notes.write'),
   };
 }

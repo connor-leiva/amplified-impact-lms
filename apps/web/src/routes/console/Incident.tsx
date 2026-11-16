@@ -22,10 +22,11 @@ import s from './Incidents.module.css';
 // /admin/incidents/:id on R2 (D-167, spec § 7.14): the mockup's `Incident()`. The severity pill, the
 // key facts, the timeline (stacked on a phone) and what it links to. Acknowledge (Owner, Admin and
 // Support) while it is open and Resolve (Owner and Admin; hidden for Support, D3) until it is resolved
-// sit where the mockup draws them; Resolve needs a note. "Add note" heads the timeline. Each is the
-// stack's R2 dialog, then one audited write; the answer is the incident as it now is.
+// sit where the mockup draws them; Resolve needs a note. Each is the stack's R2 dialog, then one
+// audited write; the answer is the incident as it now is. The notes endpoint has no control here: the
+// mockup draws no place for one (the eye check: no chrome it doesn't draw), so it waits for Connor.
 
-type Dialog = 'ack' | 'resolve' | 'note' | null;
+type Dialog = 'ack' | 'resolve' | null;
 
 export function Component() {
   const { id = '' } = useParams();
@@ -84,8 +85,7 @@ export function Component() {
   const submit = () => {
     const words = text.trim();
     if (!words) return;
-    if (dialog === 'resolve') write(() => gate.api.resolveIncident(vm.id, words), C.resolved(vm.id));
-    else write(() => gate.api.noteIncident(vm.id, words), C.noted);
+    write(() => gate.api.resolveIncident(vm.id, words), C.resolved(vm.id));
     close();
   };
 
@@ -122,16 +122,7 @@ export function Component() {
         ]}
       />
       <div className={k.gms}>
-        <Card
-          title={C.timeline}
-          right={
-            vm.canNote ? (
-              <button type="button" className={clsx(k.lk, s.add)} onClick={() => setDialog('note')}>
-                {C.addNote}
-              </button>
-            ) : null
-          }
-        >
+        <Card title={C.timeline}>
           <Timeline items={vm.timeline} />
         </Card>
         <Card title={C.linked} pad={false}>
@@ -160,26 +151,26 @@ export function Component() {
           onConfirm={() => write(() => gate.api.ackIncident(vm.id), C.acked(vm.id))}
         />
       ) : null}
-      {dialog === 'resolve' || dialog === 'note' ? (
+      {dialog === 'resolve' ? (
         <Modal
-          title={dialog === 'resolve' ? C.resolveDialog.title(vm.id) : C.noteDialog.title}
+          title={C.resolveDialog.title(vm.id)}
           onClose={close}
           foot={
             <>
               <Button onClick={close}>{C.cancel}</Button>
               <Button kind="primary" disabled={!text.trim()} onClick={submit}>
-                {dialog === 'resolve' ? C.resolveDialog.cta : C.noteDialog.cta}
+                {C.resolveDialog.cta}
               </Button>
             </>
           }
         >
           <label className={clsx(k.col, k.colS)}>
-            <span className={k.w5}>{dialog === 'resolve' ? C.resolveDialog.label : C.noteDialog.label}</span>
+            <span className={k.w5}>{C.resolveDialog.label}</span>
             <TextArea
               rows={4}
               maxLength={2000}
               value={text}
-              placeholder={dialog === 'resolve' ? C.resolveDialog.placeholder : C.noteDialog.placeholder}
+              placeholder={C.resolveDialog.placeholder}
               onChange={(e) => setText(e.target.value)}
             />
           </label>
