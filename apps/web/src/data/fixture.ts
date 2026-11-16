@@ -23,7 +23,12 @@ export type FixtureRole = keyof typeof PERSONA;
 /** Identical to the prototype's `dbKey`. */
 export const dbKey = (phase: Phase) => DB_KEY + (phase !== 'live' ? ':' + phase : '');
 
-export function createFixtureRepository(role: FixtureRole, phase: Phase): LmsRepository {
+/**
+ * `parity` (D-160 R2-2): the R2 parity snapshot, when the address asks for it (`boot.ts`). It replaces
+ * the stored database for this tab only: it is never written to localStorage and another tab's write
+ * never replaces it, so the ordinary fixture and the parity one never mix.
+ */
+export function createFixtureRepository(role: FixtureRole, phase: Phase, parity: Promise<Db> | null = null): LmsRepository {
   const load = (): Db => {
     try {
       const stored = JSON.parse(localStorage.getItem(dbKey(phase)) || 'null') as Db | null;
@@ -37,10 +42,13 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase): LmsRep
   let db = load();
   let n = 0;
   const listeners = new Set<() => void>();
+  const ready = parity?.then((p) => {
+    db = p;
+  });
 
   // Another tab (the admin console, or the prototype itself) wrote the database.
   window.addEventListener('storage', (e) => {
-    if (e.key === dbKey(phase)) {
+    if (e.key === dbKey(phase) && !parity) {
       db = load();
       listeners.forEach((f) => f());
     }
@@ -52,9 +60,11 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase): LmsRep
       return { actor: PERSONA[role], role };
     },
     async snapshot() {
+      await ready;
       return db;
     },
     async run<K extends MutationName>(name: K, args: MutationArgs<K>): Promise<MutationResult> {
+      await ready;
       const ctx = { now: clock.now(), id: (p: string) => `${p}${clock.now().toString(36)}${(n++).toString(36)}` };
       const fn = M[name] as (db: Db, a: typeof PERSONA[FixtureRole], args: MutationArgs<K>, c: typeof ctx) => ReturnType<typeof M.markDeployed>;
       let out;
@@ -69,7 +79,7 @@ export function createFixtureRepository(role: FixtureRole, phase: Phase): LmsRep
       if (!out.error) {
         db = out.db;
         try {
-          localStorage.setItem(dbKey(phase), JSON.stringify(db));
+          if (!parity) localStorage.setItem(dbKey(phase), JSON.stringify(db));
         } catch {
           /* over quota: the change still applies in memory for this tab */
         }

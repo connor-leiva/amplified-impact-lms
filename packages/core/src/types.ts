@@ -13,7 +13,9 @@ export type LearnerRole = 'Agent' | 'Team Owner' | 'Operations Lead' | 'Sales Ag
 export type StaffRole = 'Owner' | 'Admin' | 'Instructor' | 'Content Editor' | 'Support';
 export type PermKey = 'curriculum' | 'publish' | 'cohorts' | 'viewLearners' | 'seats' | 'announce' | 'billing' | 'staff';
 
-export interface Step { id: string; text: string; ch: string; mins: number; t: number; hint: string } // t = replay seconds
+/** What a step asks of the learner, as the R2 Module Builder's Type column draws it (D-160 R2-2). Optional: display only. */
+export type StepKind = 'Watch' | 'Read' | 'Build' | 'Check' | 'Ship';
+export interface Step { id: string; text: string; ch: string; mins: number; t: number; hint: string; kind?: StepKind } // t = replay seconds
 export interface SkillFile { name: string; type: 'JSON' | 'YAML' | 'Notion'; size: string; desc: string; steps: string[] }
 export interface ModuleResource { name: string; type: string; size: string }
 
