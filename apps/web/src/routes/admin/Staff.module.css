@@ -18,7 +18,8 @@
 .mrow {
   min-height: 44px;
 }
-.card {
+/* Every phone card is ruled below, the last one too (the kit rules the ones between). */
+.card:last-child {
   border-bottom: 1px solid var(--r2-line);
 }
 .cardRow {
