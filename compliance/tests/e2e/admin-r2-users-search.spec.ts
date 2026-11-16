@@ -104,7 +104,8 @@ test.describe('Users on R2 (D-160 R2-1c) @g9 @console', () => {
     await expectAccessible(page);
     for (const [tab, text] of [
       ['Progress', 'Week 2 · Own the Day'],
-      ['Emails sent', 'The email log isn’t built yet'],
+      // D-166: the email log for this person (the mockup's one email to Elena).
+      ['Emails sent', 'Tomorrow at 12:00 PM MST: Session 2 live build'],
       ['Activity', 'Account created'],
     ] as const) {
       await tabs.getByRole('tab', { name: tab }).click();
