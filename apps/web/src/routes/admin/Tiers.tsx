@@ -1,37 +1,45 @@
 import { useCallback, useMemo } from 'react';
+import clsx from 'clsx';
 
 import { Icon } from '../../components/Icon';
-import { Avatar } from '../../components/primitives/Avatar';
+import { Button } from '../../components/r2/Button';
+import { Box, Card } from '../../components/r2/Card';
+import { Empty } from '../../components/r2/Empty';
+import type { MenuEntry } from '../../components/r2/Menu';
+import { Page } from '../../components/r2/Page';
+import { Status } from '../../components/r2/Status';
+import { Table } from '../../components/r2/Table';
+import type { Column } from '../../components/r2/Table';
+import { PageHead, Pill, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
-import { useDb, useMutate, useNow } from '../../data/hooks';
-import { tiersVM } from './Tiers.vm';
-import type { MatrixRow, RequestAction } from './Tiers.vm';
+import { useDb, useMutate } from '../../data/hooks';
+import { useViewportWidth } from '../../shell/hooks';
+import { tiersR2VM } from './Tiers.vm';
+import type { AccessR2Row, RequestAction, RequestR2Row } from './Tiers.vm';
 import s from './Tiers.module.css';
 
-// Admin Tiers & Upgrades `/admin/tiers`, ported from design-reference/Admin Tiers.dc.html.
-// Contract: SCREENS § 4.8, phase 06 § 6.1-6.2.
+// Admin Tiers & Upgrades `/admin/tiers` on the Admin redesign R2 (D-160 R2-3): the signed-off mockup's
+// `Tiers` (AdminRedesign.jsx), drawn from `tiersR2VM`. Every write is the same @ai/core mutation as
+// before; only the presentation changed.
 //
-// MARKUP ONLY: every string, count, tone and action comes from `tiersVM`, including the licence
-// counts and revenue figures that add `db.base`. Nothing here reads the clock or multiplies a price.
-//
-// The persona is Casey Lin (st1, Owner), so `billing` and `curriculum` both pass — but the three
-// controls still run @ai/core mutations rather than touching the snapshot, so the toast copy, the
-// activity-log entry and `upgradeUser`'s side effects on the learner's portal are the same ones the
-// API writes.
+//   - A tier's price: `setTierPrice`, as typed (a price must stay above zero, as before).
+//   - Access matrix: an Agent cell includes or gates that AI Employee (`setModuleTier`); Team Tier
+//     always includes everything.
+//   - Upgrade requests: each request's "…" holds the old actions (`setRequestStatus`): Mark Contacted,
+//     Convert to Team, and Decline (the old Close). The mockup's Approve (an email with a checkout link)
+//     is drawn and does nothing: it would be a new production send and a Stripe link (Needs Connor's
+//     call, D-160 R2-3).
 
-/** The `ago` on each request row moves on the minute. */
-const TICK_MS = 15000;
+const NOT_YET = 'Not available yet';
 
 export function Component() {
   const db = useDb();
-  const now = useNow(TICK_MS);
   const mutate = useMutate();
   const { toast } = useToaster();
+  const phone = useViewportWidth() < 768;
+  const vm = useMemo(() => tiersR2VM(db), [db]);
 
-  const vm = useMemo(() => tiersVM(db, now), [db, now]);
-
-  // `useMutate` already raises the success toast. None of these three has an inline error slot in
-  // the reference, so a refusal is surfaced as a warning, exactly as on Admin Curriculum.
+  // `useMutate` raises the success toast; a refusal is a warning, as before.
   const run = useCallback(
     async (p: Promise<{ error?: string }>) => {
       const r = await p;
@@ -39,174 +47,152 @@ export function Component() {
     },
     [toast],
   );
-
-  /** The reference ignores anything that is not a positive number, so the field cannot be cleared. */
   const setPrice = useCallback(
     (tierId: string, raw: string) => {
-      const price = parseInt(raw, 10);
+      const price = parseInt(raw.replace(/\D/g, ''), 10);
       if (price > 0) void run(mutate('setTierPrice', { tierId, price }));
     },
     [mutate, run],
   );
-
-  const setTier = useCallback(
-    (toggle: NonNullable<MatrixRow['toggle']>) => void run(mutate('setModuleTier', toggle)),
-    [mutate, run],
-  );
-
   const setStatus = useCallback(
     (id: string, status: RequestAction['status']) => void run(mutate('setRequestStatus', { id, status })),
     [mutate, run],
   );
+  const toggle = useCallback((r: AccessR2Row) => void run(mutate('setModuleTier', r.toggle)), [mutate, run]);
+
+  const cols: Column<RequestR2Row>[] = [
+    { key: 'name', label: 'From', width: 'minmax(140px,1fr)', value: (r) => r.name, cell: (r) => <span className={k.w5}>{r.name}</span> },
+    { key: 'ask', label: 'Request', width: 'minmax(180px,1.4fr)', value: (r) => r.ask },
+    { key: 'value', label: 'Value', width: '80px', num: true, value: (r) => r.value },
+    { key: 'received', label: 'Received', width: '136px', noSort: true, hideLap: true, value: (r) => r.at, cell: (r) => r.received },
+    {
+      key: 'status',
+      label: 'Status',
+      width: '104px',
+      value: (r) => r.status.label,
+      cell: (r) => <Status tone={r.status.tone}>{r.status.label}</Status>,
+    },
+  ];
+
+  const menu = (r: RequestR2Row): MenuEntry[] =>
+    r.actions.flatMap((a): MenuEntry[] => [
+      ...(a.status === 'closed' && r.actions.length > 1 ? (['separator'] as const) : []),
+      { label: a.label, danger: a.status === 'closed', onSelect: () => setStatus(r.id, a.status) },
+    ]);
 
   return (
-    <div className={s.page}>
-      <div className={s.head}>
-        <div>
-          <h1 className={s.h1}>Tiers &amp; Upgrades</h1>
-          <p className={s.sub}>{vm.summary}</p>
-        </div>
-      </div>
+    <Page>
+      <PageHead title="Tiers & Upgrades" description={vm.summary} />
 
-      <div className={s.cards} data-phone="stack">
-        {vm.tiers.map((t) => (
-          <section key={t.id} className={s.card} data-team={t.team ? 'true' : undefined}>
-            <div className={s.cardTop}>
-              <div className={s.title}>
-                <span className={s.tierName}>{t.name} Tier</span>
-                <span className={s.seats}>{t.seatsLabel}</span>
+      {vm.cards.length ? (
+        <div className={k.g3}>
+          {vm.cards.map((t) => (
+            <section key={t.key} className={clsx(k.cd, k.col, s.card)}>
+              <div className={clsx(k.row, k.nw)}>
+                <h2 className={k.h2}>{t.title}</h2>
+                <Pill>{t.seats}</Pill>
+                <span className={k.sp} />
+                <span className={k.me}>{t.count}</span>
               </div>
-              <span className={s.licenses}>{t.licenses}</span>
-            </div>
-
-            <div className={s.priceRow}>
-              <div className={s.priceWrap}>
-                <span className={s.currency}>$</span>
-                <input
-                  type="number"
-                  className={s.price}
-                  aria-label={`${t.name} Tier price`}
-                  value={t.price}
-                  onChange={(e) => setPrice(t.id, e.target.value)}
-                />
-              </div>
-              <span className={s.per}>{t.per}</span>
-            </div>
-
-            <div className={s.blurb}>{t.blurb}</div>
-
-            <div className={s.features}>
-              {t.features.map((f) => (
-                <div key={f} className={s.feature}>
-                  <Icon name="check" size={14} strokeWidth={2.2} className={s.featureIcon} />
-                  {f}
-                </div>
-              ))}
-            </div>
-
-            <div className={s.revenue}>
-              <span>Cohort Revenue</span>
-              <span className={s.revenueValue}>{t.revenue}</span>
-            </div>
-          </section>
-        ))}
-      </div>
-
-      <div className={s.row}>
-        <section aria-label="Access Matrix" className={`${s.panel} ${s.matrixPanel}`}>
-          <div className={s.panelHead}>
-            <div className={s.panelTitle}>Access Matrix</div>
-            <div className={s.panelSub}>Click an Agent cell to include or gate a module</div>
-          </div>
-
-          <div className={s.colHead} data-phone="thead">
-            <span>Included</span>
-            <span className={s.center}>Agent</span>
-            <span className={s.center}>Team</span>
-          </div>
-
-          {vm.matrix.map((m) => {
-            // A fixed feature is not a module: the reference gives its cell no title and no
-            // handler, so it is rendered as the plain box it behaves like.
-            const toggle = m.toggle;
-            return (
-              <div key={m.key} className={s.matrixRow} data-phone="card-grid">
-                <span className={s.matrixLabel} data-phone="cell">
-                  {m.label}
+              <div className={clsx(k.row, k.nw, s.priceRow)}>
+                <span className={clsx(k.row, k.nw, s.price)}>
+                  <span className={k.mu}>$</span>
+                  <input
+                    className={clsx(k.tn, s.priceIn)}
+                    inputMode="numeric"
+                    aria-label={`${t.title} ${t.seats} price`}
+                    value={String(t.price)}
+                    onChange={(e) => setPrice(t.id, e.target.value)}
+                  />
                 </span>
-                <div className={s.cellWrap} data-phone="cell-inline" data-label="Agent">
-                  {toggle ? (
-                    <button
-                      type="button"
-                      title={m.title}
-                      aria-label={m.title}
-                      className={s.cell}
-                      data-state={m.state}
-                      onClick={() => setTier(toggle)}
-                    >
-                      <Icon name={m.icon} size={14} strokeWidth={2.4} />
-                    </button>
-                  ) : (
-                    <span className={s.cell} data-state={m.state}>
-                      <Icon name={m.icon} size={14} strokeWidth={2.4} />
+                <span className={k.me}>{t.per}</span>
+              </div>
+              <p className={clsx(k.p, k.s2)}>{t.blurb}</p>
+              <div className={clsx(k.col, s.features)}>
+                {t.features.map((f) => (
+                  <span key={f} className={clsx(k.row, k.nw, s.feature)}>
+                    <span className={s.tick}>
+                      <Icon name="r2Check" size={16} strokeWidth={1.75} />
                     </span>
-                  )}
-                </div>
-                {/* Every row is included in the Team tier, so the third column never varies. */}
-                <div className={s.cellWrap} data-phone="cell-inline" data-label="Team">
-                  <span className={s.teamCell}>
-                    <Icon name="check" size={14} strokeWidth={2.4} />
+                    <span>{f}</span>
                   </span>
-                </div>
-              </div>
-            );
-          })}
-        </section>
-
-        <section aria-label="Upgrade Requests" className={`${s.panel} ${s.requestsPanel}`}>
-          <div className={s.requestsHead}>
-            <div>
-              <div className={s.panelTitle}>Upgrade Requests</div>
-              <div className={s.panelSub}>From locked modules and the Executive Vault in the portal</div>
-            </div>
-            <span className={s.pipeline}>{vm.pipeline}</span>
-          </div>
-
-          {vm.noRequests ? <div className={s.empty}>No requests yet.</div> : null}
-
-          {vm.requests.map((q) => (
-            <div key={q.id} className={s.requestRow} data-new={q.isNew ? 'true' : undefined}>
-              <Avatar id={q.avatarId} name={q.name} size={32} />
-              <div className={s.requestMid}>
-                <div className={s.nameLine} data-phone="wrap">
-                  <span className={s.name}>{q.name}</span>
-                  <span className={s.ago}>{q.ago}</span>
-                </div>
-                <div className={s.meta}>
-                  {q.email} · {q.source}
-                </div>
-              </div>
-              <span className={s.token} data-status={q.status}>
-                {q.statusLabel}
-              </span>
-              <div className={s.actions} data-phone="wrap">
-                {q.actions.map((a) => (
-                  <button
-                    key={a.status}
-                    type="button"
-                    className={s.action}
-                    data-act={a.status}
-                    onClick={() => setStatus(q.id, a.status)}
-                  >
-                    {a.label}
-                  </button>
                 ))}
               </div>
+              <div className={clsx(k.row, k.nw, s.revenue)}>
+                <span className={k.mu}>Cohort revenue</span>
+                <span className={k.sp} />
+                <span className={clsx(k.w6, k.tn)}>{t.revenue}</span>
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <Box>
+          <Empty icon="r2Tiers" title="No tier prices yet" body="Tier prices are set in Stripe." />
+        </Box>
+      )}
+
+      <Table
+        title="Upgrade requests"
+        label="Upgrade requests"
+        cols={cols}
+        rows={vm.requests}
+        rowKey={(r) => r.id}
+        actionsWidth="124px"
+        primary={(r) =>
+          r.open ? (
+            <Button aria-disabled="true" title={NOT_YET}>
+              Approve
+            </Button>
+          ) : null
+        }
+        menu={menu}
+        empty={{ icon: 'r2Tiers', title: 'No upgrade requests' }}
+      />
+
+      <Card
+        title="Access matrix"
+        sub="Click an Agent cell to include or gate a module. Team Tier always includes everything."
+        pad={false}
+      >
+        <div role="table" aria-label="Access matrix">
+          {phone ? null : (
+            <div className={clsx(k.th, s.grid)} role="row">
+              <span role="columnheader">Included</span>
+              <span role="columnheader" className={s.center}>
+                Agent
+              </span>
+              <span role="columnheader" className={s.center}>
+                Team
+              </span>
+            </div>
+          )}
+          {vm.matrix.map((m) => (
+            <div key={m.id} className={clsx(k.tr, s.grid, s.mrow)} role="row">
+              <span role="cell" className={k.el}>
+                {m.name}
+              </span>
+              <span role="cell" className={s.center}>
+                <button
+                  type="button"
+                  className={clsx(s.mx, !m.agent && s.gated)}
+                  aria-label={`${m.name}, Agent Tier: ${m.agent ? 'included' : 'gated'}`}
+                  title={m.agent ? 'Gate to Team only' : 'Include in Agent Tier'}
+                  onClick={() => toggle(m)}
+                >
+                  <Icon name={m.agent ? 'r2Check' : 'r2Lock'} size={14} strokeWidth={1.75} />
+                </button>
+              </span>
+              <span role="cell" className={s.center}>
+                <button type="button" className={s.mx} disabled aria-label={`${m.name}, Team Tier: included`}>
+                  <Icon name="r2Check" size={14} strokeWidth={1.75} />
+                </button>
+              </span>
             </div>
           ))}
-        </section>
-      </div>
-    </div>
+        </div>
+      </Card>
+    </Page>
   );
 }
 

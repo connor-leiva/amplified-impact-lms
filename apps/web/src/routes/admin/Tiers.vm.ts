@@ -14,7 +14,7 @@
 // In http mode the API returns `ZERO_BASE`, so the same arithmetic shows live numbers. Nothing here
 // branches on where the data came from.
 
-import { fmt, sortedModules } from '@ai/core';
+import { adminStamp, fmt, sortedModules } from '@ai/core';
 import type { Db, IconName, Tier, UpgradeRequest } from '@ai/core';
 
 // ---------------------------------------------------------------------------------------------
@@ -207,5 +207,142 @@ export function tiersVM(db: Db, now: number): TiersVM {
     requests,
     noRequests: !requests.length,
     pipeline: openN ? `${openN} open · ${fmt.money(openN * uplift)} potential` : '',
+  };
+}
+
+// ================================================================================================
+// R2 (D-160 R2-3): Tiers & Upgrades on the signed-off Admin redesign (AdminRedesign.jsx `Tiers`). The
+// same snapshot and the same `db.base` rule as above; the words are the mockup's, its times MST
+// (`adminStamp`, BUILD-SPEC § 7). A Team Tier may come in more than one size (the mockup's 16 and 41
+// seats): each card then counts the teams of its size.
+// ================================================================================================
+
+export interface TierR2Card {
+  key: string;
+  id: Tier;
+  /** `Agent Tier`. */
+  title: string;
+  /** `1 seat`, `16 seats`. */
+  seats: string;
+  /** `104 licenses`, `5 teams`. */
+  count: string;
+  price: number;
+  per: string;
+  blurb: string;
+  features: string[];
+  revenue: string;
+}
+
+export interface RequestR2Row {
+  id: string;
+  name: string;
+  /** `Agent → Team · 16 seats`; without a recorded ask, `Agent → Team`. */
+  ask: string;
+  /** The Team Tier's price over the Agent Tier's, or `—` with no prices. */
+  value: string;
+  received: string;
+  at: number;
+  status: { label: 'Pending' | 'Contacted' | 'Approved' | 'Declined'; tone: 'warn' | 'info' | 'ok' | 'off' };
+  open: boolean;
+  /** What the "…" offers, the old screen's: each sets a status (`setRequestStatus`). */
+  actions: RequestAction[];
+}
+
+export interface AccessR2Row {
+  id: string;
+  name: string;
+  /** In the Agent Tier (`agent`), or Team only. */
+  agent: boolean;
+  /** `setModuleTier`'s arguments. */
+  toggle: { id: string; tier: Tier };
+}
+
+export interface TiersR2VM {
+  summary: string;
+  cards: TierR2Card[];
+  requests: RequestR2Row[];
+  matrix: AccessR2Row[];
+}
+
+const R2_REQUEST_STATUS: Record<UpgradeRequest['status'], RequestR2Row['status']> = {
+  new: { label: 'Pending', tone: 'warn' },
+  contacted: { label: 'Contacted', tone: 'info' },
+  converted: { label: 'Approved', tone: 'ok' },
+  closed: { label: 'Declined', tone: 'off' },
+};
+
+export function tiersR2VM(db: Db): TiersR2VM {
+  const B = db.base;
+  const users = db.users.filter((u) => u.status !== 'invited');
+  const agentN = B.agent + users.filter((u) => u.tier === 'agent').length;
+  const teamTiers = db.tiers.filter((t) => t.id === 'team').sort((a, b) => a.seats - b.seats);
+
+  /** The teams a Team Tier card counts: every team, or with several sizes, the teams of its size. */
+  const teamsFor = (seats: number): number => {
+    if (teamTiers.length <= 1) return B.teams + db.teams.length;
+    const i = teamTiers.findIndex((t) => t.seats === seats);
+    const below = i > 0 ? teamTiers[i - 1]!.seats : 0;
+    const last = i === teamTiers.length - 1;
+    return (i === 0 ? B.teams : 0) + db.teams.filter((t) => t.seats > below && (last || t.seats <= seats)).length;
+  };
+
+  const cards = db.tiers.map((t): TierR2Card => {
+    const team = t.id === 'team';
+    const n = team ? teamsFor(t.seats) : agentN;
+    return {
+      key: `${t.id}-${t.seats}`,
+      id: t.id,
+      title: `${t.name} Tier`,
+      seats: team ? `${t.seats} seats` : '1 seat',
+      count: `${n} ${team ? 'teams' : 'licenses'}`,
+      price: t.price,
+      per: team ? 'per team, per cohort' : 'per agent, per cohort',
+      blurb: t.blurb,
+      features: t.features,
+      revenue: fmt.money(n * t.price),
+    };
+  });
+  const revenue = db.tiers.reduce((a, t) => a + (t.id === 'team' ? teamsFor(t.seats) : agentN) * t.price, 0);
+  const teamN = B.teams + db.teams.length;
+  const cohort = db.cohorts.find((c) => c.id === 'dec26') ?? db.cohorts[0];
+
+  const agentPrice = db.tiers.find((t) => t.id === 'agent')?.price;
+  const teamPrice = teamTiers[0]?.price;
+  const value = agentPrice !== undefined && teamPrice !== undefined ? fmt.money(teamPrice - agentPrice) : '—';
+  const isOpenReq = (q: UpgradeRequest) => q.status === 'new' || q.status === 'contacted';
+
+  const requests = db.requests
+    .slice()
+    // The open ones first, oldest first (a queue); then the rest, newest first.
+    .sort((a, b) => Number(isOpenReq(b)) - Number(isOpenReq(a)) || (isOpenReq(a) ? a.at - b.at : b.at - a.at))
+    .map((q): RequestR2Row => {
+      const open = isOpenReq(q);
+      const actions: RequestAction[] = [];
+      if (q.status === 'new') actions.push({ status: 'contacted', label: 'Mark Contacted' });
+      if (open && q.userId) actions.push({ status: 'converted', label: 'Convert to Team' });
+      if (open) actions.push({ status: 'closed', label: 'Decline' });
+      return {
+        id: q.id,
+        name: q.name,
+        ask: q.ask ?? 'Agent → Team',
+        value,
+        received: adminStamp(q.at),
+        at: q.at,
+        status: R2_REQUEST_STATUS[q.status],
+        open,
+        actions,
+      };
+    });
+
+  return {
+    summary: `${cohort ? `${cohort.name} Cohort` : 'Cohort'} revenue ${db.tiers.length ? fmt.money(revenue) : '—'} · ${agentN} Agent licenses · ${teamN} teams`,
+    cards,
+    requests,
+    matrix: sortedModules(db).map((m) => ({
+      id: m.id,
+      name: m.name,
+      agent: m.tier === 'agent',
+      toggle: { id: m.id, tier: m.tier === 'agent' ? 'team' : 'agent' },
+    })),
   };
 }

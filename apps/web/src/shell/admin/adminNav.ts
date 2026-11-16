@@ -9,9 +9,9 @@
 //     its refs before every screen exists. A row whose screen is not built yet goes to its future
 //     address, which is the Console 404 today.
 //   - otherwise (production, and the ordinary fixture): only rows whose screen exists. Each later R2
-//     PR sets `built` on its row when its screen lands. Staff & Roles is not in the mockup's `NAV`
-//     (R2-3 folds it into Roles & Permissions); until then it stays under Access, so the screen that
-//     manages staff is still reachable.
+//     PR sets `built` on its row when its screen lands. Staff & Roles is not in the mockup's `NAV`,
+//     but D11 keeps roles and the `PermKey` matrix on `/admin/staff`, so its row stays under Access
+//     in production (`offMockup`; where it belongs in the R2 NAV is Connor's call, D-160 R2-3a).
 //   - by capability: a Console row shows only to a role `consoleCan` lets open it (the server still
 //     enforces), and a group with no rows is left out.
 
@@ -35,8 +35,8 @@ export interface R2NavDef {
   /** The Console capability that opens it; none for the existing admin screens. */
   cap?: ConsoleCap;
   badge?: BadgeKey;
-  /** Shown only outside the parity fixture: a screen the mockup's `NAV` does not list. */
-  legacy?: true;
+  /** Shown only outside the parity fixture: a screen the mockup's `NAV` does not list (Staff & Roles). */
+  offMockup?: true;
 }
 
 const row = (
@@ -112,7 +112,7 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     'Access',
     [
       row('roles', 'Roles & Permissions', 'r2Roles', '/admin/roles', true, { cap: 'ops.read' }),
-      row('staff', 'Staff & Roles', 'r2Users', '/admin/staff', true, { legacy: true }),
+      row('staff', 'Staff & Roles', 'r2Users', '/admin/staff', true, { offMockup: true }),
     ],
   ],
 ];
@@ -197,7 +197,7 @@ export function adminNav({ pathname, role, fullNav, counts, open }: AdminNavInpu
   const out: AdminNavGroup[] = [];
   for (const [label, defs] of R2_NAV) {
     const rows = defs
-      .filter((d) => (fullNav ? !d.legacy : d.built) && (!d.cap || consoleCan(role, d.cap)))
+      .filter((d) => (fullNav ? !d.offMockup : d.built) && (!d.cap || consoleCan(role, d.cap)))
       .map<AdminNavRow>((d) => {
         const badge = badgeText(d.badge, counts);
         return {

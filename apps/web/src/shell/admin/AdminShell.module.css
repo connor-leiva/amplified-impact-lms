@@ -355,14 +355,6 @@
   color: var(--r2-ink);
 }
 
-/* TRANSITIONAL (D-160 R2-1b, legacy.ts): on a screen not yet rebuilt, the old frame's content box,
-   a 248px sidebar and a 56px top bar, so `main` keeps the size its prototype golden was taken at.
-   Each R2 PR drops its screens from the list; when it is empty this rule goes. */
-.frame[data-legacy-geometry='true'] {
-  --r2-sidebar: 248px;
-  --r2-bar-h: 56px;
-}
-
 /* `.main`: the one scroll container. */
 .main {
   flex: 1;

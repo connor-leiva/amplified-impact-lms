@@ -214,3 +214,62 @@ test.describe('Module Builder on R2 (D-160 R2-2) @g9 @r2', () => {
     await close();
   });
 });
+
+test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on R2 (D-160 R2-3a) @g9 @r2', () => {
+  for (const path of ['/admin', '/admin/learners', '/admin/tiers', '/admin/staff'])
+    test(`${path} passes axe and keeps the landmarks, at 1440, 1280, 1024 and 390, with no CT`, async ({ browser }) => {
+      for (const width of [1440, 1280, 1024, 390]) {
+        const { page, close } = await openAt(browser, path, width);
+        await expectShell(page);
+        await expectAccessible(page);
+        await noCentral(page);
+        await close();
+      }
+    });
+
+  test('Overview: the mockup’s figures, from the snapshot; each tile goes where the mockup’s does', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin');
+    const main = page.locator('main');
+    await expect(main.getByText('December 2026 Cohort · Week 2 of 6 · Updated live from learner activity')).toBeVisible();
+    await expect(main.getByRole('link', { name: /Active learners\s*148\s*104 Agent · 44 Team/ })).toHaveAttribute('href', '/admin/learners');
+    await expect(main.getByRole('link', { name: /Upgrade pipeline\s*\$8,000\s*2 open requests/ })).toHaveAttribute('href', '/admin/tiers');
+    await expect(main.getByText('Build completion')).toBeVisible();
+    await expect(main.getByRole('img', { name: 'Deployed AI Employees rose from 22 on Dec 2 to 190 on Dec 8.' })).toBeVisible();
+    await expect(main.getByText('Session 3 · Dec 16')).toBeVisible();
+    await expect(main.getByText('Upcoming')).toBeVisible();
+    await close();
+  });
+
+  test('Learners: a row opens the learner’s details as a drawer; the page’s "…" keeps Export roster and Needs Attention', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/learners');
+    await page.getByRole('table', { name: 'Learners' }).getByText('Elena Vargas').click();
+    const drawer = page.locator('[data-drawer="open"]');
+    await expect(drawer).toHaveAttribute('role', 'dialog');
+    await expect(drawer.getByText('Build Progress')).toBeVisible();
+    await expect(drawer.getByRole('button', { name: 'Move to Agent Tier' })).toBeVisible();
+    await expectAccessible(page);
+    await page.keyboard.press('Escape');
+    await expect(drawer).toHaveCount(0);
+    await page.getByRole('button', { name: 'More actions' }).first().click();
+    await expect(page.getByRole('menuitem', { name: 'Export roster' })).toBeVisible();
+    await page.getByRole('menuitem', { name: 'Learners who need attention' }).click();
+    await expect(page.getByRole('dialog', { name: 'Needs Attention' })).toBeVisible();
+    await close();
+  });
+
+  test('Tiers: the access matrix gates a module; Approve is drawn and does nothing; the "…" keeps the old actions', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/tiers');
+    const cell = page.getByRole('button', { name: 'Marketing AI Employee, Agent Tier: included' });
+    await cell.click();
+    await expect(page.getByRole('button', { name: 'Marketing AI Employee, Agent Tier: gated' })).toBeVisible();
+    const approve = page.getByRole('button', { name: 'Approve' }).first();
+    await expect(approve).toHaveAttribute('aria-disabled', 'true');
+    await approve.dispatchEvent('click');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    const requests = page.getByRole('table', { name: 'Upgrade requests' });
+    await requests.getByRole('button', { name: 'More actions' }).first().click();
+    await expect(page.getByRole('menuitem', { name: 'Mark Contacted' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Decline' })).toBeVisible();
+    await close();
+  });
+});

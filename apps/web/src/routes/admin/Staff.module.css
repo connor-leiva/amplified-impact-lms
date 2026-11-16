@@ -1,289 +1,37 @@
-/* Admin Staff & Roles. Every value is copied from the inline styles in
-   design-reference/Admin Staff.dc.html. SCREENS § 1.1, § 1.5, § 1.8, § 1.9 and § 4.9.
-
-   Where the reference computes a colour per render it becomes a `[data-…]` rule here: the remove
-   button's `rmFg`, and the matrix cell's `bd`/`bg`/`cursor`/`opacity`. Nothing on this screen is
-   per-instance, so there is no inline custom property anywhere in it. */
-
-/* ---- Page shell (SCREENS § 1.1: Staff & Roles is max-width 1300, gap 18) -------------------- */
-.page {
-  padding: var(--page-pad-top) var(--page-pad-x) 56px;
-  max-width: 1300px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.h1 {
-  margin: 0;
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.sub {
-  margin: 4px 0 0;
-  color: var(--text-secondary);
-  font-size: var(--fs-14);
-}
-
-/* ---- Both cards share the frame (SCREENS § 1.2; the reference draws these at radius 12) ----- */
-.card {
-  border-radius: 12px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  overflow: hidden;
-}
-
-.cardTitle {
-  font-size: var(--fs-14);
-  font-weight: 600;
-}
-
-/* ---- Team Members: the invite row ----------------------------------------------------------- */
-.inviteRow {
-  display: flex;
-  align-items: center;
+/* Admin Staff & Roles on the R2 kit (D-160 R2-3; no mockup frame). Tokens only. */
+.who {
   gap: 10px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--line-default);
-  flex-wrap: wrap;
 }
-
-/* Same 14/600 as `.cardTitle`; `flex: 1` pushes the three controls to the right edge of the row. */
-.inviteTitle {
-  font-size: var(--fs-14);
-  font-weight: 600;
-  flex: 1;
-}
-
-/* SCREENS § 1.5: the admin screens use the sunken field, and this one is 34px, not the canonical 36. */
 .email {
-  width: 240px;
-  height: 34px;
-  padding: 0 11px;
-  border-radius: 8px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-sunken);
-  color: var(--text-primary);
-  font-size: var(--fs-13);
-  outline: none;
+  flex: 1 1 220px;
+  max-width: 320px;
 }
-.email:focus {
-  border-color: var(--action-primary);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.inviteRole {
-  height: 34px;
-  padding: 0 8px;
-  border-radius: 8px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-sunken);
-  color: var(--text-primary);
-  font-size: var(--fs-13);
-  outline: none;
-}
-.inviteRole:focus-visible {
-  border-color: var(--action-primary);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* The reference draws this primary at 13px and height 34, not the 14/36 of the Button primitive. */
-.invite {
-  min-height: var(--tap-primary);
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 8px;
-  border: 1px solid var(--action-primary);
-  background: var(--action-primary);
-  color: var(--action-on-primary);
-  font-size: var(--fs-13);
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-  outline: none;
-}
-.invite:hover {
-  background: var(--action-primary-hover);
-  border-color: var(--action-primary-hover);
-}
-.invite:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* SCREENS § 1.5: a validation error is 13px `--access-locked-text`, inline under the form. */
 .err {
-  padding: 8px 18px 0;
-  font-size: var(--fs-13);
-  color: var(--access-locked-text);
+  color: var(--r2-bad);
 }
-
-/* ---- Team Members: one row per staff member ------------------------------------------------- */
-.row {
-  display: flex;
+.role {
+  width: 100%;
+}
+.grid {
+  grid-template-columns: minmax(0, 1fr) repeat(5, 88px);
+}
+.mrow {
+  min-height: 44px;
+}
+.card {
+  border-bottom: 1px solid var(--r2-line);
+}
+.cardRow {
   align-items: center;
-  gap: 12px;
-  padding: 12px 18px;
-  flex-wrap: wrap;
+  min-height: 44px;
 }
-/* The reference's `bt`: every row but the first carries a subtle top border. */
-.row[data-divider='true'] {
-  border-top: 1px solid var(--line-subtle);
+@media (min-width: 768px) and (max-width: 1199px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr) repeat(5, 72px);
+  }
 }
-
-.nameStack {
-  flex: 1;
-  min-width: 200px;
-}
-
-.name {
-  font-size: var(--fs-14);
-  font-weight: 500;
-}
-
-.rowEmail {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.last {
-  font-size: var(--fs-13);
-  color: var(--text-tertiary);
-  width: 120px;
-}
-
-.rowRole {
-  height: 32px;
-  width: 150px;
-  padding: 0 8px;
-  border-radius: 7px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-sunken);
-  color: var(--text-primary);
-  font-size: var(--fs-13);
-  outline: none;
-}
-.rowRole:focus-visible {
-  border-color: var(--action-primary);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.remove {
-  width: 30px;
-  height: 30px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-/* The reference's `rmFg`: the Owner cannot be removed, so the icon reads as disabled — but the
-   button still takes the click, which is what raises the `The owner can’t be removed` toast. */
-.remove[data-tone='disabled'] {
-  color: var(--text-disabled);
-}
-.remove:hover {
-  background: var(--status-attention-bg);
-}
-.remove:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* ---- Permissions matrix (SCREENS § 1.8, § 4.9: min-width 760) ------------------------------- */
-.permHead {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--line-default);
-}
-
-.permSub {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-  margin-top: 2px;
-}
-
-.scroll {
-  overflow-x: auto;
-}
-
-.matrix {
-  min-width: 760px;
-}
-
-.matrixHead,
-.matrixRow {
-  display: grid;
-  grid-template-columns: minmax(220px, 1.6fr) repeat(5, 1fr);
-  border-bottom: 1px solid var(--line-default);
-}
-
-.matrixHead {
-  padding: 10px 18px;
-  font-size: var(--fs-13);
-  font-weight: 500;
-  color: var(--text-tertiary);
-}
-
-.colHead {
-  text-align: center;
-}
-
-/* The reference keeps the border-bottom on the last row too; `overflow: hidden` on the card leaves
-   it sitting just inside the card's own edge. Copied as drawn. */
-.matrixRow {
-  align-items: center;
-  padding: 9px 18px;
-}
-
-.permLabel {
-  font-size: var(--fs-13);
-  color: var(--text-secondary);
-}
-
-.cell {
-  display: flex;
-  justify-content: center;
-}
-
-.check {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 1.5px solid var(--line-strong);
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  outline: none;
-}
-.check[data-on='true'] {
-  border-color: var(--action-primary);
-  background: var(--action-primary);
-}
-/* The Owner column is fixed at 60% opacity and cannot be changed (SCREENS § 4.9). */
-.check[data-fixed='true'] {
-  cursor: default;
-  opacity: 0.6;
-}
-.check:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
+@media (max-width: 767px) {
+  .email {
+    max-width: none;
+  }
 }
