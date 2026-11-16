@@ -103,6 +103,20 @@ export const breakAt = (s: string): ReactNode =>
       ))
     : s;
 
+/** Hyphenated words stay whole when the line wraps ("Fair-Housing-checked"): the mockup's `nb` (R2-2). */
+export const keepHyphens = (s: string): ReactNode =>
+  s.includes('-')
+    ? s.split(/(\S+-\S+)/).map((p, i) =>
+        i % 2 ? (
+          <span key={i} className={k.nowrap}>
+            {p}
+          </span>
+        ) : (
+          p
+        ),
+      )
+    : s;
+
 /** `Two`: a name over a muted second line. `to` makes the name a link. */
 export function Two({ a, b, mono, to }: { a: string; b: string; mono?: boolean; to?: string }) {
   return (

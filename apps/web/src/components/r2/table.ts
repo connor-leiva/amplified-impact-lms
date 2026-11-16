@@ -18,6 +18,8 @@ export interface FitOptions {
   /** The viewport is a laptop (768–1199px). */
   laptop: boolean;
   phone: boolean;
+  /** A drag handle column (R2-2's `onMove`): 20px plus its gap. */
+  move?: boolean;
 }
 
 /** The width a column asks for: its first px number, or 120 (`need`'s fallback), plus the 16px gap. */
@@ -25,10 +27,11 @@ const ask = (c: FitColumn): number =>
   Number.parseInt((/(\d+)px/.exec(c.width ?? '') ?? [0, '120'])[1] as string, 10) + 16;
 
 /** The width the columns need: theirs, the row's 40px padding, the checkbox's 32 and the actions'. */
-export function need(cols: readonly FitColumn[], o: Pick<FitOptions, 'select' | 'actions'>): number {
+export function need(cols: readonly FitColumn[], o: Pick<FitOptions, 'select' | 'actions' | 'move'>): number {
   return (
     cols.reduce((a, c) => a + ask(c), 0) +
     40 +
+    (o.move ? 36 : 0) +
     (o.select ? 32 : 0) +
     (o.actions != null ? Number.parseInt(o.actions || '32', 10) + 16 : 0)
   );
@@ -53,8 +56,11 @@ export function fit<C extends FitColumn>(cols: readonly C[], tw: number, o: FitO
   const tracks = visible.map((c) =>
     (c.width ?? 'minmax(0,1fr)').replace(/minmax\(\d+px,/, (m) => (tight ? 'minmax(0,' : m)),
   );
-  const template = [...(o.select ? ['16px'] : []), ...tracks, ...(o.actions != null ? [o.actions || '32px'] : [])].join(
-    ' ',
-  );
+  const template = [
+    ...(o.move ? ['20px'] : []),
+    ...(o.select ? ['16px'] : []),
+    ...tracks,
+    ...(o.actions != null ? [o.actions || '32px'] : []),
+  ].join(' ');
   return { visible, drop, tight, template };
 }
