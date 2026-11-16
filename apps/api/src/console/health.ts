@@ -90,6 +90,8 @@ export interface HealthDeps {
   billing?: BillingDeps;
   /** A test's stand-ins, each replacing one real source. */
   sources?: Partial<HealthSources>;
+  /** A test's shorter `SOURCE_TIMEOUT_MS`. */
+  timeoutMs?: number;
 }
 
 /** How long one source may take before its tile reads unavailable. */
@@ -198,13 +200,13 @@ function reasonOf(e: unknown): HealthUnavailable {
   return 'failed';
 }
 
-async function settle<T>(req: FastifyRequest, name: string, read: () => T | Promise<T>): Promise<Settled<T>> {
+async function settleOne<T>(req: FastifyRequest, name: string, read: () => T | Promise<T>, timeoutMs: number): Promise<Settled<T>> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const value = await Promise.race([
       Promise.resolve().then(read),
       new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error('timeout')), SOURCE_TIMEOUT_MS);
+        timer = setTimeout(() => reject(new Error('timeout')), timeoutMs);
       }),
     ]);
     return { ok: true, value };
@@ -219,19 +221,20 @@ async function settle<T>(req: FastifyRequest, name: string, read: () => T | Prom
 }
 
 /** Every source at once, each settled on its own. */
-export async function readHealth(req: FastifyRequest, s: HealthSources, now: number, opsRead: boolean): Promise<HealthInputs> {
+export async function readHealth(req: FastifyRequest, s: HealthSources, now: number, opsRead: boolean, timeoutMs: number = SOURCE_TIMEOUT_MS): Promise<HealthInputs> {
   const since = now - HEALTH_WINDOW_MS;
+  const settle = <T>(name: string, read: () => T | Promise<T>) => settleOne(req, name, read, timeoutMs);
   const [browsers, signIns, billing, stripeWebhooks, ghl, jobs, incidents, seats, workspaces, deploys] = await Promise.all([
-    settle(req, 'browsers', () => s.browsers()),
-    settle(req, 'signIns', () => s.signIns(since)),
-    settle(req, 'billing', () => s.billing(now)),
-    settle(req, 'stripeWebhooks', () => s.stripeWebhooks()),
-    settle(req, 'ghl', () => s.ghl()),
-    settle(req, 'jobs', () => s.jobs(since)),
-    settle(req, 'incidents', () => s.incidents()),
-    settle(req, 'seats', () => s.seats()),
-    settle(req, 'workspaces', () => s.workspaces()),
-    opsRead ? settle(req, 'deploys', () => s.deploys()) : Promise.resolve(null),
+    settle('browsers', () => s.browsers()),
+    settle('signIns', () => s.signIns(since)),
+    settle('billing', () => s.billing(now)),
+    settle('stripeWebhooks', () => s.stripeWebhooks()),
+    settle('ghl', () => s.ghl()),
+    settle('jobs', () => s.jobs(since)),
+    settle('incidents', () => s.incidents()),
+    settle('seats', () => s.seats()),
+    settle('workspaces', () => s.workspaces()),
+    opsRead ? settle('deploys', () => s.deploys()) : Promise.resolve(null),
   ]);
   return { browsers, signIns, billing, stripeWebhooks, ghl, jobs, incidents, seats, workspaces, deploys };
 }
@@ -255,7 +258,7 @@ export function registerHealthRoutes(scope: FastifyInstance, deps: HealthDeps, r
 
   scope.get(HEALTH_PATHS.health, opts, async (req, reply): Promise<FastifyReply> => {
     const now = clock.now();
-    const inputs = await readHealth(req, sources, now, consoleCan(roleOf(req), 'ops.read'));
+    const inputs = await readHealth(req, sources, now, consoleCan(roleOf(req), 'ops.read'), deps.timeoutMs);
     return reply.send(composeHealth(inputs, now));
   });
 

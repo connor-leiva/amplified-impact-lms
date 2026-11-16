@@ -101,6 +101,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   user: { path: '/admin/users/u_1042' },
   // R2-4a (D-163): Billing's Summary tab, the mockup's default (`route.tab || 'summary'`).
   billing: { path: '/admin/billing' },
+  // Console PR 10 (D-169): System Health, the Console's home (D15).
+  health: { path: '/admin/health' },
 };
 
 /**
@@ -110,7 +112,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
  * and `tiers` at all four; R2-3b: `audit` at all four; R2-1c part 1: `workspaces` at all four,
  * `workspace-detail` at 1440, 1280 and 1024; R2-1c part 2: `users` at all four, `user` at 1440, 1280
- * and 1024; R2-4a: `billing` at all four.
+ * and 1024; R2-4a: `billing` at all four; Console PR 10: `health` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -145,6 +147,8 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   ...(w === 390 ? [] : [`user-${w}`]),
   // R2-4a (D-163): Billing's Summary at all four widths.
   `billing-${w}`,
+  // Console PR 10 (D-169): System Health at all four widths (Connor's must-pass set).
+  `health-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

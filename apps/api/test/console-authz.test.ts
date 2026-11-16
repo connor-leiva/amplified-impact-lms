@@ -39,6 +39,8 @@ type RouteName =
   | 'masqueradeExtend'
   | 'masqueradeExit'
   | 'masqueradeSessions'
+  | 'health'
+  | 'skills'
   | BillingRoute;
 
 // PR 4 (D-163): Billing, read-only, every route `billing.read`.
@@ -88,6 +90,9 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   masqueradeSessions: { path: CONSOLE_PATHS.masqueradeSessions, url: CONSOLE_PATHS.masqueradeSessions, method: 'GET', route: `GET ${CONSOLE_PATHS.masqueradeSessions}` },
   // PR 4 (D-163).
   ...(Object.fromEntries(BILLING.map((b) => [b, { path: CONSOLE_PATHS[b], url: CONSOLE_PATHS[b], method: 'GET', route: `GET ${CONSOLE_PATHS[b]}` }])) as Record<BillingRoute, { path: string; url: string; method: 'GET'; route: string }>),
+  // PR 10 (D-169): System Health and the Skills list, both console.view.
+  health: { path: CONSOLE_PATHS.health, url: CONSOLE_PATHS.health, method: 'GET', route: `GET ${CONSOLE_PATHS.health}` },
+  skills: { path: CONSOLE_PATHS.skills, url: CONSOLE_PATHS.skills, method: 'GET', route: `GET ${CONSOLE_PATHS.skills}` },
 };
 
 /** The routes whose success writes its own audit row. */
@@ -117,6 +122,7 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // the viewer's masquerade.extend first, then answers 409 `masquerade_ended`, as Exit does for
 // everyone, because none of these callers is in a session.
 // PR 4: every Billing route is billing.read: Owner, Admin and Support (Support reads, D3).
+// PR 10 (D-169): Health and the Skills list are console.view: Owner, Admin and Support.
 const ALL = (v: number) => ({
   workspaces: v,
   workspace: v,
@@ -126,6 +132,8 @@ const ALL = (v: number) => ({
   notesList: v,
   notesCreate: v,
   search: v,
+  health: v,
+  skills: v,
   ...(Object.fromEntries(BILLING.map((b) => [b, v])) as Record<BillingRoute, number>),
 });
 const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeStart: start, masqueradeCurrent: 200, masqueradeExtend: extend, masqueradeExit: 409, masqueradeSessions: sessions });
