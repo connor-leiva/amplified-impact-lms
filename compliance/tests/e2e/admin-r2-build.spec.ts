@@ -240,20 +240,27 @@ test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on
     await close();
   });
 
-  test('Learners: a row opens the learner’s details as a drawer; the page’s "…" keeps Export roster and Needs Attention', async ({ browser }) => {
+  test('Learners: a row opens the learner’s details as a drawer, with the nudge; the head is the mockup’s, with no page "…"', async ({ browser }) => {
+    for (const width of [1440, 390]) {
+      const { page, close } = await openAt(browser, '/admin/learners', width);
+      // D-160 R2-3a: the mockup's head has no page-level "…", so every "More actions" is a row's.
+      // The table's card (`section`), whose rows are a table on a desktop and cards on a phone.
+      const rows = page.locator('main section[aria-label="Learners"]').getByRole('button', { name: 'More actions' });
+      await expect(rows.first()).toBeVisible();
+      await expect(page.getByRole('button', { name: 'More actions' })).toHaveCount(await rows.count());
+      await expect(page.getByRole('menu', { name: 'Learners & Teams actions' })).toHaveCount(0);
+      await close();
+    }
     const { page, close } = await openAt(browser, '/admin/learners');
     await page.getByRole('table', { name: 'Learners' }).getByText('Elena Vargas').click();
     const drawer = page.locator('[data-drawer="open"]');
     await expect(drawer).toHaveAttribute('role', 'dialog');
     await expect(drawer.getByText('Build Progress')).toBeVisible();
     await expect(drawer.getByRole('button', { name: 'Move to Agent Tier' })).toBeVisible();
+    await expect(drawer.getByRole('button', { name: /Nudge|Resend Invite/ })).toBeVisible();
     await expectAccessible(page);
     await page.keyboard.press('Escape');
     await expect(drawer).toHaveCount(0);
-    await page.getByRole('button', { name: 'More actions' }).first().click();
-    await expect(page.getByRole('menuitem', { name: 'Export roster' })).toBeVisible();
-    await page.getByRole('menuitem', { name: 'Learners who need attention' }).click();
-    await expect(page.getByRole('dialog', { name: 'Needs Attention' })).toBeVisible();
     await close();
   });
 
