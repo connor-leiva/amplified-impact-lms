@@ -504,6 +504,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: CONSOLE_PATHS.billingFailed },
       { method: 'GET', url: CONSOLE_PATHS.billingRefunds },
       { method: 'GET', url: CONSOLE_PATHS.billingScopes },
+      // PR 10 (D-169).
+      { method: 'GET', url: CONSOLE_PATHS.health },
+      { method: 'GET', url: CONSOLE_PATHS.skills },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);
