@@ -380,6 +380,44 @@ export const INV = [
   { id: 'in_1QxK5fFm0270', c: 'Fourth Meridian', amt: '$695.00', st: 'Refunded', d: 'Nov 1, 2026', card: 'Visa ending 9034' },
 ] as const;
 
+// ---- D-163: Billing's Summary and lists, verbatim (`Billing()` in AdminRedesign.jsx) ------------------
+// The Console fixture (`console-fixture-billing.ts`) turns these into the API's shapes. Every figure is
+// the mockup's own sample, so the fixture also carries its "· sample" qualifiers (BUILD-SPEC § 6.1);
+// production (http) prints neither.
+
+/** The four stats, the plan lines' title and their qualifiers. */
+export const BILLING_SAMPLE = {
+  mrrLabel: 'MRR · sample',
+  mrr: '$18,516',
+  mrrSub: '+$695 this week',
+  subscriptions: 77,
+  failed: 3,
+  refunds30d: '$0',
+  plansTitle: 'Plan economics · sample figures',
+} as const;
+
+/** "Plan economics · sample figures": plan, price, active, MRR. */
+export const BILLING_PLANS = [
+  ['Team Plan · 16 seats', '$695 monthly', '5 teams', '$3,475'],
+  ['Team Plan · 41 seats', '$1,495 monthly', '2 teams', '$2,990'],
+  ['Agent Plan', '$29 per agent, monthly', '212 agents', '$6,148'],
+  ['Insiders', '$97 monthly', '61 members', '$5,917'],
+  ['AI Accelerator', '$7,500 or 2 × $3,750', '11 of 15 seats', 'One-time'],
+] as const;
+
+/** The AI Accelerator card: 11 of 15 sold, $67,500 collected, 4 × $3,750 = $15,000 still due. */
+export const BILLING_ACCELERATOR = { sold: 11, paidInFull: 7, twoPay: 4, collected: '$67,500', scheduled: '$15,000' } as const;
+
+/** The Failed payments tab: customer, amount, decline reason, attempts, next retry. */
+export const BILLING_FAILED = [
+  ['Tidewater Property Co.', '$97.00', 'card_declined: insufficient_funds', '2 of 4', 'Dec 11, 9:00 AM'],
+  ['Hale & Marlowe Realty', '$695.00', 'authentication_required', '1 of 4', 'Dec 11, 8:00 AM'],
+  ['Copper Basin Realty', '$3,750.00', 'card_declined: do_not_honor', '1 of 4', 'Dec 12, 12:00 PM'],
+] as const;
+
+/** The Refunds tab: refund, invoice, amount, reason, by, when. */
+export const BILLING_REFUNDS = [['re_3QxK5fFm70', 'in_1QxK5fFm0270', '$695.00', 'Canceled inside trial window', 'Connor Leiva', 'Nov 1, 4:44 PM']] as const;
+
 /** The Workspace screen's staff notes (on Northshore Group), newest first. */
 export const WORKSPACE_NOTES = [
   ['Imani Brooks', 'Dec 7, 3:40 PM', 'Owner asked how seats work when an agent leaves. Sent the seat reassignment guide.'],

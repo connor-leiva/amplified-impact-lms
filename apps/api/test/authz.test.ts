@@ -646,6 +646,14 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/masquerade/extend', methods: 'POST', guard: 'session' },
   { path: '/api/console/masquerade/exit', methods: 'POST', guard: 'session' },
   { path: '/api/console/masquerade/sessions', methods: 'GET, HEAD', guard: 'session' },
+  // Admin Console PR 4 (D-163): Billing, read-only. Signed in, then billing.read (`test/console-authz.test.ts`).
+  { path: '/api/console/billing/summary', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/billing/customers', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/billing/subscriptions', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/billing/invoices', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/billing/failed', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/billing/refunds', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/billing/scopes', methods: 'GET, HEAD', guard: 'session' },
 ];
 
 /**
@@ -1120,6 +1128,13 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/console/masquerade/exit': () =>
             app.inject({ method: 'POST', url: '/api/console/masquerade/exit', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
           '/api/console/masquerade/sessions': () => app.inject({ method: 'GET', url: '/api/console/masquerade/sessions' }),
+          // Admin Console PR 4 (D-163).
+          ...Object.fromEntries(
+            ['summary', 'customers', 'subscriptions', 'invoices', 'failed', 'refunds', 'scopes'].map((x) => [
+              `/api/console/billing/${x}`,
+              () => app.inject({ method: 'GET', url: `/api/console/billing/${x}` }),
+            ]),
+          ),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1297,8 +1312,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 34 with Console
-    // PR 2's nine (D-158), and 39 with masquerade's five (D-162).
-    expect(EXECUTED.unauthenticated).toBe(39);
+    // PR 2's nine (D-158), 39 with masquerade's five (D-162), and 46 with Billing's seven (D-163).
+    expect(EXECUTED.unauthenticated).toBe(46);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1309,7 +1324,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // retry (D-134), probed unauthenticated. The + 1 after that: the welcome panel's dismiss (D-150),
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 9 for Console PR 2's
-    // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5);
+    // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), and + 7 for Billing's (D-163),
+    // probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5 + 7);
   });
 });
