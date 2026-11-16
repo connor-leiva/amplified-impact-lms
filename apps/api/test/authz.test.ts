@@ -638,6 +638,14 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/notes', methods: 'GET, HEAD, POST', guard: 'session' },
   { path: '/api/console/notes/:id/delete', methods: 'POST', guard: 'session' },
   { path: '/api/console/search', methods: 'GET, HEAD', guard: 'session' },
+  // Admin Console PR 3a (D-162): masquerade. Signed in; Start and the history by capability, current
+  // for any viewer, Extend and Exit by the session's own masquerade (`test/console-authz.test.ts`,
+  // `test/console-masquerade.test.ts`).
+  { path: '/api/console/masquerade', methods: 'POST', guard: 'session' },
+  { path: '/api/console/masquerade/current', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/masquerade/extend', methods: 'POST', guard: 'session' },
+  { path: '/api/console/masquerade/exit', methods: 'POST', guard: 'session' },
+  { path: '/api/console/masquerade/sessions', methods: 'GET, HEAD', guard: 'session' },
   // Admin Console PR 4 (D-163): Billing, read-only. Signed in, then billing.read (`test/console-authz.test.ts`).
   { path: '/api/console/billing/summary', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/billing/customers', methods: 'GET, HEAD', guard: 'session' },
@@ -1101,6 +1109,25 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               payload: { reason: 'A reason long enough' },
             }),
           '/api/console/search': () => app.inject({ method: 'GET', url: '/api/console/search?q=jamie' }),
+          // Admin Console PR 3a (D-162).
+          '/api/console/masquerade': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/masquerade',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { targetUserId: 'u_jamie', reason: 'Checking the Week 2 steps for a ticket.' },
+            }),
+          '/api/console/masquerade/current': () => app.inject({ method: 'GET', url: '/api/console/masquerade/current' }),
+          '/api/console/masquerade/extend': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/masquerade/extend',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { reason: 'Still checking the Week 2 steps.' },
+            }),
+          '/api/console/masquerade/exit': () =>
+            app.inject({ method: 'POST', url: '/api/console/masquerade/exit', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          '/api/console/masquerade/sessions': () => app.inject({ method: 'GET', url: '/api/console/masquerade/sessions' }),
           // Admin Console PR 4 (D-163).
           ...Object.fromEntries(
             ['summary', 'customers', 'subscriptions', 'invoices', 'failed', 'refunds', 'scopes'].map((x) => [
@@ -1285,8 +1312,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 34 with Console
-    // PR 2's nine (D-158), and 41 with Billing's seven (D-163).
-    expect(EXECUTED.unauthenticated).toBe(41);
+    // PR 2's nine (D-158), 39 with masquerade's five (D-162), and 46 with Billing's seven (D-163).
+    expect(EXECUTED.unauthenticated).toBe(46);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1297,7 +1324,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // retry (D-134), probed unauthenticated. The + 1 after that: the welcome panel's dismiss (D-150),
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 9 for Console PR 2's
-    // (D-158), probed unauthenticated. And + 7 for Billing's (D-163), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 7);
+    // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), and + 7 for Billing's (D-163),
+    // probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5 + 7);
   });
 });

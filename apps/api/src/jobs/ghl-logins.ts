@@ -27,7 +27,8 @@ import type { ExtrasTick } from './ghl-extras';
 const SYSTEMIC: ReadonlySet<GhlFailureKind> = new Set(['unauthorized', 'rate-limited', 'server', 'timeout', 'network']);
 
 /**
- * Queue every learner who has signed in and is not queued yet: a session, or `status = 'active'`
+ * Queue every learner who has signed in and is not queued yet: a session of their own (D-162: never a
+ * masquerade's, which staff hold, so it is not the learner signing in), or `status = 'active'`
  * (which only accepting an invite or signing in sets; provisioning and invites create `invited`). One
  * statement, idempotent: a learner already in `ghl_logins` is left as they are. Rows for a learner
  * since removed are dropped, since there is no one left to copy. `first_login_at` is when the loop
@@ -40,7 +41,7 @@ export async function enqueueLogins(db: Database, now: number): Promise<number> 
     select u.id, ${now}
       from ${users} u
      where u.kind = 'learner'
-       and (u.status = 'active' or exists (select 1 from ${authSessions} s where s.user_id = u.id))
+       and (u.status = 'active' or exists (select 1 from ${authSessions} s where s.user_id = u.id and s.impersonating is null))
     on conflict (user_id) do nothing
     returning user_id`)) as unknown as { user_id: string }[];
   return added.length;
