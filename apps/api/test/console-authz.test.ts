@@ -32,7 +32,12 @@ type RouteName =
   | 'notesList'
   | 'notesCreate'
   | 'noteDelete'
-  | 'search';
+  | 'search'
+  | 'masqueradeStart'
+  | 'masqueradeCurrent'
+  | 'masqueradeExtend'
+  | 'masqueradeExit'
+  | 'masqueradeSessions';
 
 /** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
 const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
@@ -57,10 +62,28 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   },
   noteDelete: { path: CONSOLE_PATHS.noteDelete, url: '/api/console/notes/1/delete', method: 'POST', route: `POST ${CONSOLE_PATHS.noteDelete}`, body: { reason: 'Written on the wrong workspace.' } },
   search: { path: CONSOLE_PATHS.search, url: `${CONSOLE_PATHS.search}?q=jamie`, method: 'GET', route: `GET ${CONSOLE_PATHS.search}` },
+  // PR 3a (D-162). Each caller here is in no masquerade; `console-masquerade.test.ts` covers one in a session.
+  masqueradeStart: {
+    path: CONSOLE_PATHS.masqueradeStart,
+    url: CONSOLE_PATHS.masqueradeStart,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.masqueradeStart}`,
+    body: { targetUserId: 'u_jamie', reason: 'Checking the Week 2 steps for a ticket.' },
+  },
+  masqueradeCurrent: { path: CONSOLE_PATHS.masqueradeCurrent, url: CONSOLE_PATHS.masqueradeCurrent, method: 'GET', route: `GET ${CONSOLE_PATHS.masqueradeCurrent}` },
+  masqueradeExtend: {
+    path: CONSOLE_PATHS.masqueradeExtend,
+    url: CONSOLE_PATHS.masqueradeExtend,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.masqueradeExtend}`,
+    body: { reason: 'Still checking the Week 2 steps.' },
+  },
+  masqueradeExit: { path: CONSOLE_PATHS.masqueradeExit, url: CONSOLE_PATHS.masqueradeExit, method: 'POST', route: `POST ${CONSOLE_PATHS.masqueradeExit}` },
+  masqueradeSessions: { path: CONSOLE_PATHS.masqueradeSessions, url: CONSOLE_PATHS.masqueradeSessions, method: 'GET', route: `GET ${CONSOLE_PATHS.masqueradeSessions}` },
 };
 
 /** The routes whose success writes its own audit row. */
-const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete']);
+const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart']);
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
 const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
@@ -81,16 +104,24 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // and read with the target's read capability, a password reset is user.password_reset (all three
 // Console roles; a learner's here), search is console.view: Owner, Admin and Support. The users
 // export is export (Owner, Admin). Deleting a note is notes.delete: the Owner alone.
+// PR 3a (D-162): Start and the history are masquerade.start, and the history is read by the same
+// roles (Owner, Admin). `current` answers any signed-in viewer (null outside a session). Extend asks
+// the viewer's masquerade.extend first, then answers 409 `masquerade_ended`, as Exit does for
+// everyone, because none of these callers is in a session.
 const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v });
+const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeStart: start, masqueradeCurrent: 200, masqueradeExtend: extend, masqueradeExit: 409, masqueradeSessions: sessions });
 const EXPECT: Record<string, Record<RouteName, number>> = {
-  anon: { me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401 },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403 },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403 },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403 },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403 },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403 },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403 },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200 },
+  anon: {
+    me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401,
+  },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200) },
 };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
@@ -182,6 +213,12 @@ describe('the Console routes, by caller (D-157) @console', () => {
             // A learner is refused without a row.
             expect(after.length, `${persona.name} ${name} not audited`).toBe(before);
           }
+        } else if (want === 409) {
+          // D-162: Extend and Exit outside a session. Nothing happened, so nothing is written.
+          const body = JSON.parse(res.body) as { code: string; redirect: string };
+          expect(body.code).toBe('masquerade_ended');
+          expect(body.redirect).toBe(persona.staff ? '/admin' : '/');
+          expect(after.length, `${persona.name} ${name} not audited`).toBe(before);
         } else {
           // Reads write nothing; every write writes its own row.
           expect(after.length, `${persona.name} ${name} rows`).toBe(before + (WRITES.has(name) ? 1 : 0));

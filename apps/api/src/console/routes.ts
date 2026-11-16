@@ -13,6 +13,11 @@
 //   GET  /api/console/roles         the capability matrix, read-only, built from `CONSOLE_CAPS`, with
 //                                   the path of the Staff & Roles screen. `ops.read` (Owner, Admin).
 //
+// PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
+// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. During a
+// masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
+// `requireSession`).
+//
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
 // `{ error, code }`. Limits (spec § 7, D-137's limiter): reads 60 a minute, exports 5, per session.
@@ -27,6 +32,7 @@ import {
   AUDIT_EXPORT_MAX_ROWS,
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
+  MASQUERADE_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCaps,
@@ -41,6 +47,8 @@ import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
+import { registerMasqueradeRoutes } from './masquerade';
+import type { MasqueradeDeps } from './masquerade';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -49,6 +57,12 @@ export const CONSOLE_PATHS = {
   roles: '/api/console/roles',
   // PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export and search.
   ...SUPPORT_PATHS,
+  // PR 3a (D-162): masquerade.
+  masqueradeStart: MASQUERADE_PATHS.start,
+  masqueradeCurrent: MASQUERADE_PATHS.current,
+  masqueradeExtend: MASQUERADE_PATHS.extend,
+  masqueradeExit: MASQUERADE_PATHS.exit,
+  masqueradeSessions: MASQUERADE_PATHS.sessions,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -56,8 +70,8 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 /** A route's per-minute limit, per session (D-137's limiter). */
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
-/** What later Console PRs hand the routes (Stripe, the price cache, the event hub). Nothing yet. */
-export type ConsoleDeps = Readonly<Record<never, never>>;
+/** What later Console PRs hand the routes (Stripe, the price cache, the event hub): masquerade's flag so far. */
+export type ConsoleDeps = Readonly<MasqueradeDeps>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -179,7 +193,7 @@ const roleOfViewer = (req: FastifyRequest): string | null => {
 
 // --- the routes ----------------------------------------------------------------------------------
 
-export async function registerConsoleRoutes(app: FastifyInstance, _deps: ConsoleDeps): Promise<void> {
+export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleDeps): Promise<void> {
   await app.register(async (scope) => {
     // Every Console answer is the viewer's alone, refusals and 429s included (`requireSession` sets the
     // same header, but only once it has run, which a rate-limited request never reaches).
@@ -260,5 +274,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, _deps: Console
     );
 
     registerSupportRoutes(scope);
+    registerMasqueradeRoutes(scope, deps);
   });
 }

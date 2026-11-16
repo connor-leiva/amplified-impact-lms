@@ -70,6 +70,7 @@ import type { Database } from '../db/client';
 import { authTokens, teams, users } from '../db/schema';
 import { clock } from '../lib/clock';
 import { landingFor } from '../lib/landing';
+import { masqueradeSignOut } from '../auth/masquerade';
 import { groupsOf, provisionGroupMember, recordVerified } from '../billing/access-groups';
 import { selfServeAddress } from '../billing/self-serve';
 import { safeNext } from '@ai/core/landing';
@@ -341,19 +342,25 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
    * § 7.5's sign-out. No `requireSession`: a viewer whose cookie has already expired still clicked
    * Sign Out, and answering 401 would leave the dead cookie in their browser. Idempotent, 200
    * either way, and the cookie is always cleared.
+   *
+   * D-162: with a masquerade's session it is Exit (`signed_out`) and then a full sign-out, the staff
+   * member's own session included (`masqueradeSignOut`). It is on the masquerade allowlist.
    */
   app.post('/api/auth/sign-out', { preHandler: requireSameOrigin }, async (req, reply) => {
     const raw = req.cookies[SESSION_COOKIE];
+    let sessionId: string | null = null;
     if (raw !== undefined && raw !== '') {
       const unsigned = req.unsignCookie(raw);
       if (unsigned.valid && unsigned.value !== null) {
         const db = getDb();
+        sessionId = unsigned.value;
         // Resolved before deleting so a forged or stale id cannot delete somebody else's row —
         // `readSession` is the only thing that says this id is a live session.
         const session = await readSession(db, unsigned.value, clock.now());
         if (session) await deleteSession(db, session.id);
       }
     }
+    await masqueradeSignOut(req, reply, getDb(), sessionId, clock.now());
     reply.clearCookie(SESSION_COOKIE, clearCookieOptions());
     return reply.code(200).send({ ok: true });
   });
