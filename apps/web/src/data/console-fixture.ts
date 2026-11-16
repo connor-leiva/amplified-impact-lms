@@ -11,12 +11,13 @@
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
 
-import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, consoleCan, consoleCaps, rolesMatrix } from '@ai/core';
-import type { AuditFilters, AuditRow, ConsoleMe, StaffRole } from '@ai/core';
+import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, cleanSearch, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
+import type { AuditAction, AuditFilters, AuditRow, ConsoleMe, ConsolePage, StaffRole } from '@ai/core';
 import { clock } from '../lib/clock';
 import { fixtureRole } from './boot';
 import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
+import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -89,6 +90,15 @@ function readState(qs: URLSearchParams): FixtureConsoleState | null {
 
 const forbidden = () => new ConsoleError('forbidden', 403, 'console_forbidden', 'Your role can’t use this part of Console.');
 
+const notFound = () => new ConsoleError('not_found', 404, 'not_found', 'That record doesn’t exist.');
+
+/** A page of `all`, cut where the API would cut it, the cursor being the next row's position. */
+function pageOf<T>(all: T[], cursor: string | null | undefined): ConsolePage<T> {
+  const start = cursor ? Number(cursor) : 0;
+  const rows = all.slice(start, start + CONSOLE_PAGE_DEFAULT);
+  return { rows, nextCursor: start + CONSOLE_PAGE_DEFAULT < all.length ? String(start + CONSOLE_PAGE_DEFAULT) : null };
+}
+
 export interface ConsoleFixtureOptions {
   role?: StaffRole;
   state?: FixtureConsoleState | null;
@@ -105,6 +115,16 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   const now = opts.now ?? (() => clock.now());
   let rows = fixtureAuditRows(now());
   let next = 1001;
+  const records = fixtureRecords();
+  let noteId = 100;
+
+  /** What the API's write would audit, so the Audit Log shows it on the next load. */
+  const record = (action: AuditAction, target: AuditRow['target'], after: unknown, reason: string | null = null) => {
+    rows = [
+      { id: String(next++), at: now(), actor: { ...STAFF.casey, role, source: 'staff' }, masqueradeSessionId: null, action, target, reason, before: null, after, outcome: 'ok', ip: '203.0.113.10', userAgent: UA, requestId: null },
+      ...rows,
+    ];
+  };
 
   const settle = <T>(value: () => T): Promise<T> => {
     if (state === 'loading') return new Promise<T>(() => {});
@@ -166,6 +186,82 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
       settle(() => {
         need('ops.read');
         return rolesMatrix();
+      }),
+    workspaces: (filters, cursor) =>
+      settle(() => {
+        need('workspaces.read');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureWorkspaceRows(records, filters), cursor);
+      }),
+    workspace: (teamId) =>
+      settle(() => {
+        need('workspaces.read');
+        const w = fixtureWorkspace(records, teamId);
+        if (!w) throw notFound();
+        return w;
+      }),
+    users: (filters, cursor) =>
+      settle(() => {
+        need('users.read');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureUserRows(records, filters), cursor);
+      }),
+    user: (userId) =>
+      settle(() => {
+        need('users.read');
+        const u = fixtureUser(records, userId);
+        if (!u) throw notFound();
+        return u;
+      }),
+    notes: (targetType, targetId) =>
+      settle(() => {
+        need(targetType === 'workspace' ? 'workspaces.read' : 'users.read');
+        if (state === 'empty') return [];
+        return records.notes.filter((n) => n.targetType === targetType && n.targetId === targetId).sort((a, b) => b.createdAt - a.createdAt || Number(b.id) - Number(a.id));
+      }),
+    addNote: (targetType, targetId, body) =>
+      settle(() => {
+        need('notes.write');
+        const text = cleanNoteBody(body);
+        if (text === null) throw new ConsoleError('invalid', 400, 'invalid_body', 'A note is 1 to 2,000 characters.');
+        if (!fixtureNoteTargetExists(records, targetType, targetId)) throw notFound();
+        const note = { id: String(noteId++), targetType, targetId, author: { id: STAFF.casey.userId, name: STAFF.casey.name }, body: text, createdAt: now() };
+        records.notes = [note, ...records.notes];
+        record('note.create', { type: targetType, id: targetId, label: null }, { noteId: note.id, length: text.length });
+        return note;
+      }),
+    deleteNote: (id, reason) =>
+      settle(() => {
+        need('notes.delete');
+        const why = cleanReason(reason);
+        if (why === null) throw new ConsoleError('invalid', 422, 'reason_required', 'Give a reason of 10 to 500 characters.');
+        const note = records.notes.find((n) => n.id === id);
+        if (!note) throw notFound();
+        records.notes = records.notes.filter((n) => n.id !== id);
+        record('note.delete', { type: note.targetType, id: note.targetId, label: null }, { noteId: id, length: note.body.length }, why);
+      }),
+    resetPassword: (userId) =>
+      settle(() => {
+        need('user.password_reset');
+        const u = fixtureUser(records, userId);
+        if (!u) throw notFound();
+        if (u.user.kind === 'staff' && role !== 'Owner') throw new ConsoleError('forbidden', 403, 'console_forbidden', 'Only the Owner can reset a staff member’s password.');
+        const link = u.identity.hasPassword ? ('reset' as const) : ('set' as const);
+        record('user.password_reset', { type: 'user', id: u.user.id, label: u.user.name }, { link, staff: u.user.kind === 'staff' });
+        return { link };
+      }),
+    exportUsers: (filters) =>
+      settle(() => {
+        need('export');
+        const picked = fixtureUserRows(records, filters).map((u) => ({ ...u, joined: fixtureUser(records, u.id)?.user.joined ?? null }));
+        record('user.export', { type: 'users', id: null, label: 'Users' }, { rows: picked.length, format: 'csv', filters });
+        return { csv: usersCsv(picked), filename: `users-${new Date(now()).toISOString().slice(0, 10)}.csv` };
+      }),
+    search: (q) =>
+      settle(() => {
+        need('console.view');
+        const words = cleanSearch(q);
+        if (words === null) throw new ConsoleError('invalid', 400, 'invalid_query', 'Search for 2 to 100 characters.');
+        if (state === 'empty') return { users: [], workspaces: [], orders: [], skills: [] };
+        return fixtureSearch(records, words, role);
       }),
   };
 }

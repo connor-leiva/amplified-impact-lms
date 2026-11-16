@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { seed } from '@ai/core';
-import { INCIDENTS, MODS0_STATUS, PARITY_R2, STAFF, UPGRADE_REQUESTS, readParityR2 } from './parity-r2';
+import { INCIDENTS, INV, MODS0_STATUS, PARITY_R2, STAFF, UPGRADE_REQUESTS, USERS, WS, mockCents, mockStamp, readParityR2 } from './parity-r2';
 import { ENVIRONMENT, PROGRAM, initials, shellDataFrom, shellDataFromParity } from './admin-shell';
 
 // D-160 R2-1b: the R2 parity fixture is the mockup's own data, and the shell's data otherwise comes
@@ -61,5 +61,22 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
     expect(initials('Amplified AI Accelerator')).toBe('AA');
     expect(initials('Connor Leiva')).toBe('CL');
     expect(initials('Cher')).toBe('C');
+  });
+});
+
+describe('the Support records (D-160 R2-1c): the mockup’s WS, USERS and INV, and its stamps', () => {
+  it('copies the mockup’s records', () => {
+    expect(WS.map((w) => w.id)).toEqual(['ws_northshore', 'ws_halemarlowe', 'ws_redcliff', 'ws_copperbasin', 'ws_tidewater', 'ws_lantern', 'ws_fourthmeridian']);
+    expect(USERS.map((u) => u.id)).toEqual(['u_1042', 'u_1043', 'u_1061', 'u_1077', 'u_1090', 'u_1104', 'u_1118', 'u_1125']);
+    expect(INV).toHaveLength(6);
+  });
+
+  it('reads a mockup stamp as MST, and an amount as cents', () => {
+    expect(new Date(mockStamp('Dec 10, 8:52 AM')).toISOString()).toBe('2026-12-10T15:52:00.000Z');
+    expect(new Date(mockStamp('Dec 10, 12:41 AM')).toISOString()).toBe('2026-12-10T07:41:00.000Z');
+    expect(new Date(mockStamp('Nov 2, 4:40 PM')).toISOString()).toBe('2026-11-02T23:40:00.000Z');
+    expect(new Date(mockStamp('Jan 8, 2027')).toISOString()).toBe('2027-01-08T16:00:00.000Z');
+    expect(() => mockStamp('tomorrow')).toThrow();
+    expect(mockCents('$1,495.00')).toBe(149500);
   });
 });
