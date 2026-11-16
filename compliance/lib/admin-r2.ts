@@ -22,7 +22,7 @@ import type { Browser, Page } from '@playwright/test';
 // REPORT-ONLY until a cell is enforced. A built cell that fails is reported as FAIL and the run
 // still passes; an ENFORCED cell that fails fails the run. A cell with no built screen is reported
 // as "not built", never as a pass. R2-0 built nothing; R2-1b builds the shell, the 404 and Denied
-// and enforces their eight cells; R2-1c the Support records (Workspaces and Workspace in part 1); each
+// and enforces their eight cells; R2-1c the Support records (Workspaces, Workspace, Users, User); each
 // later R2 PR adds its screens to ROUTES and its cells to ENFORCED.
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -93,10 +93,12 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   // through a permission write, which D11 and spec § 7.16 forbid (Needs Connor's call, D-160 R2-3b).
   audit: { path: '/admin/audit' },
   roles: { path: '/admin/roles' },
-  // R2-1c (D-160): the Support records, on the mockup's own `WS` (the Console fixture answers with
-  // them): Northshore Group is the mockup's detail record.
+  // R2-1c (D-160): the Support records, on the mockup's own `WS` and `USERS` (the Console fixture
+  // answers with them): Northshore Group and Elena Vargas are the mockup's detail records.
   workspaces: { path: '/admin/workspaces' },
   'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
+  users: { path: '/admin/users' },
+  user: { path: '/admin/users/u_1042' },
 };
 
 /**
@@ -105,7 +107,8 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
  * and `tiers` at all four; R2-3b: `audit` at all four; R2-1c part 1: `workspaces` at all four,
- * `workspace-detail` at 1440, 1280 and 1024.
+ * `workspace-detail` at 1440, 1280 and 1024; R2-1c part 2: `users` at all four, `user` at 1440, 1280
+ * and 1024.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -133,6 +136,11 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // (BUILD-SPEC § 8), and those values are every pixel that differs.
   `workspaces-${w}`,
   ...(w === 390 ? [] : [`workspace-detail-${w}`]),
+  // R2-1c part 2 (D-160): Users at all four widths; User at 1440, 1280 and 1024. `user-390` is built and
+  // reported, not enforced, for `workspace-detail-390`'s reason: its key-facts values, 15px in the
+  // mockup on a phone, 16px here.
+  `users-${w}`,
+  ...(w === 390 ? [] : [`user-${w}`]),
 ]);
 
 // ------------------------------------------------------------------------------------------------
