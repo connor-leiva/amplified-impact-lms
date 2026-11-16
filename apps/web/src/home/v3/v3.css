@@ -16,6 +16,7 @@
        is `.inverse` and swaps with it, and the forest band is forest in both. */
 
 @import '../../kit/kit.css';
+@import '../../kit/clarity.css';
 
 /* --- The forest band (S6 and S16): the mockup's third theme, on the kit's palette ---------------- */
 

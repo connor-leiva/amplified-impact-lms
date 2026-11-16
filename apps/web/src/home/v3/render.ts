@@ -12,6 +12,7 @@
 // PENDING. Whatever waits on Connor (`./pending.ts`) shows only in a preview (`V3_PREVIEW=1`); the
 // production render (`preview: false`) puts each one's fallback in its place and leaves no marker.
 
+import { clarityCall } from '../../kit/clarity';
 import { kitFooter, kitHeader, kitSkip } from '../../kit/render';
 import { renderHomeHead } from '../render';
 import { sprite } from './icons';
@@ -60,6 +61,8 @@ export function renderV3Body({ preview }: { preview: boolean }): string {
     questions(),
     close(),
     `</main>`,
+    // The Clarity Call (D-161): after the close, above the footer.
+    clarityCall('kit'),
     kitFooter(),
   ].join('\n');
   return resolvePending(html, { preview });

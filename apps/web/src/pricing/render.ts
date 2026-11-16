@@ -36,6 +36,7 @@ import type { OfferCard } from '../site/offers';
 import { siteHead } from '../site/render';
 import { brandIcon, glyph, ringDot, ripple, type BrandIconName } from '../kit/icons';
 import { button, closeCta, eyebrow, faq, pad2, seatMeter, words } from '../kit/parts';
+import { clarityCall } from '../kit/clarity';
 import { kitFooter, kitHeader, kitSkip } from '../kit/render';
 import { HOME } from '../home/content';
 import { COMPARE, END, FAQ, PICKER, PLANS_HEADING, PRICING_HERO, PRICING_META } from './content';
@@ -281,6 +282,8 @@ export function renderPricingBody(): string {
     faq(FAQ.items, { title: FAQ.heading }),
     end(),
     `</main>`,
+    // The Clarity Call (D-161): after the plans and the close, above the footer.
+    clarityCall('kit'),
     kitFooter(),
   ].join('\n');
 }

@@ -15,6 +15,7 @@
 @import '@fontsource/hanken-grotesk/600.css';
 @import '../styles/tokens.css';
 @import '../styles/global.css';
+@import '../kit/clarity.css';
 
 [hidden] {
   display: none !important;

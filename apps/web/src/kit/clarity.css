@@ -1,0 +1,200 @@
+/* The Clarity Call (DECISIONS.md D-161): the quiet card `./clarity.ts` draws between a page's <main>
+   and its footer. Imported by each page's stylesheet that carries it: the homepage's (`v3.css`),
+   /pricing's, /team-build's, /offer's and the skill pages' (`skills.css`).
+
+   THE HOST'S TOKENS. The card names its few colours once, from the page it sits on: a skill page and
+   /offer use the LMS names (a skill page points them at the kit's palette and Geist, `./tokens.css`),
+   and a kit page (`.aiw`) its theme's, so the card follows the light and dark switch. A secondary call
+   to action: a raised panel with a hairline and an outlined button in the ink, never the Pay buttons'
+   fill.
+
+   PHONES (767px and under): the button runs the card's full width, 48px tall at least, its words 16px.
+   No text anywhere under 16px (D-107), a visible focus ring, and nothing that moves under reduced
+   motion. COLOURS are tokens only (`scripts/check-css-colors.mjs` scans this file). */
+
+.cc {
+  --cc-ground: var(--bg-canvas);
+  --cc-card: var(--bg-surface);
+  --cc-ink: var(--text-primary);
+  --cc-ink-2: var(--text-secondary);
+  --cc-line: var(--line-default);
+  --cc-outline: var(--line-strong);
+  --cc-focus: var(--action-primary);
+  --cc-weight: 600;
+  --cc-card-radius: 8px;
+  --cc-button-radius: 6px;
+  padding-block: 48px;
+  border-top: 1px solid var(--cc-line);
+  background-color: var(--cc-ground);
+  color: var(--cc-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+/* A kit page: its theme's tokens, its grain, its weight. */
+.aiw .cc {
+  --cc-ground: var(--surface);
+  --cc-card: var(--surface-raised);
+  --cc-ink: var(--ink);
+  --cc-ink-2: var(--ink-secondary);
+  --cc-line: var(--line);
+  --cc-outline: var(--outline);
+  --cc-focus: var(--focus-ring);
+  --cc-weight: 500;
+  background-image: var(--grain);
+}
+/* The offer page: its own cards' and buttons' corners (`../offer/offer.css`); its footer brings its own
+   64px above it. */
+.cc[data-host='offer'] {
+  --cc-card-radius: 16px;
+  --cc-button-radius: 12px;
+  padding-bottom: 0;
+}
+
+.cc *,
+.cc *::before,
+.cc *::after {
+  box-sizing: border-box;
+}
+.cc :where(h2, p) {
+  margin: 0;
+}
+
+.cc-card {
+  display: grid;
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid var(--cc-line);
+  border-radius: var(--cc-card-radius);
+  background: var(--cc-card);
+}
+.cc-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+}
+.cc-eyebrow {
+  color: var(--cc-ink-2);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+/* The offer page loads no mono face: its own eyebrow, in its own type. */
+.cc[data-host='offer'] .cc-eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.cc-title {
+  color: var(--cc-ink);
+  font-size: 28px;
+  font-weight: var(--cc-weight);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.cc-body {
+  color: var(--cc-ink-2);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.cc-act {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+.cc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 1px solid var(--cc-outline);
+  border-radius: var(--cc-button-radius);
+  background: transparent;
+  color: var(--cc-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: var(--cc-weight);
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+.cc-btn:hover {
+  border-color: var(--cc-ink);
+  color: var(--cc-ink);
+  text-decoration: none;
+}
+.cc-btn:focus-visible {
+  outline: 2px solid var(--cc-focus);
+  outline-offset: 3px;
+}
+.cc-fine {
+  color: var(--cc-ink-2);
+  font-size: 16px;
+  line-height: 1.45;
+}
+/* A fact moves to the next line whole while it fits on one, and wraps only on a screen narrower than it. */
+.cc-fact {
+  display: inline-block;
+}
+
+/* Tablets: the same stack, the button its own width. */
+@media (min-width: 768px) {
+  .cc {
+    padding-block: 64px;
+  }
+  .cc-card {
+    padding: 32px;
+  }
+  .cc-title {
+    font-size: 32px;
+  }
+  .cc-act {
+    align-items: flex-start;
+  }
+  .cc-btn {
+    width: auto;
+    padding-inline: 24px;
+  }
+}
+
+/* Wide screens: the words on the left, the button and its small print on the right. */
+@media (min-width: 1024px) {
+  .cc-card {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: center;
+    gap: 48px;
+    padding: 40px;
+  }
+  .cc-act {
+    align-items: stretch;
+  }
+  .cc-btn {
+    width: 100%;
+  }
+  /* In the narrow column, one fact a line, so no dot is left at a line's end. */
+  .cc-fact {
+    display: block;
+  }
+  .cc-sep {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-btn {
+    transition: none;
+  }
+}
