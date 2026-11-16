@@ -1331,7 +1331,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // retry (D-134), probed unauthenticated. The + 1 after that: the welcome panel's dismiss (D-150),
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 9 for Console PR 2's
-    // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5);
+    // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated. And
+    // + 6 for Console PR 9's Operations routes (D-168), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5 + 6);
   });
 });
