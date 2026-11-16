@@ -11,7 +11,13 @@ import {
   parseMinutes,
   parseReplayAt,
   seedDraft,
+  builderR2VM,
+  moveStepTo,
+  opensFrom,
+  opensInput,
 } from './ModuleBuilder.vm';
+import { parityDb } from '../../data/parity-r2-db';
+import { BUILDER_FILES, BUILDER_STEPS, MODS0 } from '../../data/parity-r2';
 import type { ModuleBuilderUi } from './ModuleBuilder.vm';
 
 // Differential test for the Admin Module Builder view-model (SCREENS § 4.3, phase 06 § 6.1).
@@ -569,5 +575,91 @@ describe('moduleBuilderVM @g6', () => {
       expect(without.metaLine).toBe(withBase.metaLine);
       expect(without.steps).toEqual(withBase.steps);
     });
+  });
+});
+
+// ================================================================================================
+// R2 (D-160 R2-2): the mockup's Module Builder.
+// ================================================================================================
+
+describe('builderR2VM (D-160 R2-2)', () => {
+  const NOW = Date.parse('2026-12-10T16:30:00Z');
+  const pdb = parityDb();
+  const m1 = seedDraft(pdb, 'm1', NOW);
+
+  it('draws m1 as the mockup does: its steps, files and settings', () => {
+    const vm = builderR2VM(pdb, m1, { dirty: false, saved: true }, NOW);
+    expect(vm.list.map((x) => x.name)).toEqual(MODS0.map((m) => m.n));
+    expect(vm.list.filter((x) => x.on).map((x) => x.id)).toEqual(['m1']);
+    expect(vm.list.map((x) => x.tone).slice(0, 10)).toEqual([
+      'ok',
+      'ok',
+      'ok',
+      'ok',
+      'ok',
+      'info',
+      'info',
+      'info',
+      'info',
+      'off',
+    ]);
+    expect(vm.name).toBe('Marketing AI Employee');
+    expect(vm.summary).toBe('Paste an MLS listing → Fair-Housing-checked copy');
+    expect(vm.steps.map((x) => [x.kind, x.text, x.length])).toEqual(BUILDER_STEPS.map((x) => [...x]));
+    expect(vm.files).toEqual(BUILDER_FILES.map(([name, desc, size]) => ({ name, desc, size })));
+    expect(vm.status).toEqual({ label: 'Published', tone: 'ok' });
+    expect(vm.session).toBeNull();
+    expect(vm.opens).toEqual({ text: 'Open now', muted: false });
+    expect(vm.linked).toBe(true);
+    expect(vm.saveLabel).toBe('Saved');
+    expect(builderR2VM(pdb, m1, { dirty: true, saved: true }, NOW).saveLabel).toBe('Save changes');
+    expect(builderR2VM(pdb, m1, { dirty: false, saved: false }, NOW).saveLabel).toBe('Save changes');
+  });
+
+  it('prints a live session and an opening day in MST', () => {
+    const m7 = builderR2VM(pdb, seedDraft(pdb, 'm7', NOW), { dirty: false, saved: true }, NOW);
+    expect(m7.session).toEqual({ title: 'Session 3 · Database Live Build', when: 'Wed, Dec 16 · 12:00 PM MST' });
+    expect(m7.opens).toEqual({ text: 'Dec 14', muted: false });
+    const m3 = builderR2VM(pdb, seedDraft(pdb, 'm3', NOW), { dirty: false, saved: true }, NOW);
+    expect(m3.session!.when).toBe('Wed, Dec 2 · 12:00 PM MST · Replay ready');
+    const m12 = builderR2VM(pdb, seedDraft(pdb, 'm12', NOW), { dirty: false, saved: true }, NOW);
+    expect(m12.opens).toEqual({ text: 'Not scheduled', muted: true });
+    expect(m12.linked).toBe(false);
+    expect(m12.steps.every((x) => x.kind === '')).toBe(true);
+    expect(m3.sessionOptions.map((o) => o.label)).toEqual([
+      'Self-paced',
+      'Session 1 · Lead-Source ROI Live Build',
+      'Session 2 · Morning Brief Live Build',
+      'Session 3 · Database Live Build',
+      'Session 4 · Scorecard Live Build',
+      'Session 5 · Contract to Close',
+      'Session 6 · Handoff',
+    ]);
+  });
+
+  it('drags a step to any place, one swap at a time', () => {
+    const steps = seedDraft(pdb, 'm1', NOW).checklist;
+    expect(moveStepTo(steps, 0, 3).map((x) => x.text)).toEqual([
+      'Before you start: what to have open',
+      'Install the skill file',
+      'Run it on your first real input',
+      'What this AI Employee does',
+      'Review the output against the checklist',
+      'Mark as deployed',
+    ]);
+    expect(
+      moveStepTo(steps, 5, 4)
+        .map((x) => x.text)
+        .slice(4),
+    ).toEqual(['Mark as deployed', 'Review the output against the checklist']);
+    expect(moveStepTo(steps, 2, 2)).toEqual(steps);
+  });
+
+  it('reads and writes the opening day in MST', () => {
+    const t = opensFrom('2026-12-14')!;
+    expect(t).toBe(Date.parse('2026-12-14T09:00:00-07:00'));
+    expect(opensInput(t)).toBe('2026-12-14');
+    expect(opensFrom('')).toBeNull();
+    expect(opensInput(null)).toBe('');
   });
 });

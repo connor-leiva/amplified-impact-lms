@@ -1,27 +1,52 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import clsx from 'clsx';
+import type { Tier } from '@ai/core';
 
 import { Icon } from '../../components/Icon';
 import { useToaster } from '../../components/primitives/Toaster';
+import { Button } from '../../components/r2/Button';
+import { Menu } from '../../components/r2/Menu';
+import type { MenuEntry } from '../../components/r2/Menu';
+import { Confirm } from '../../components/r2/Modal';
+import { Page } from '../../components/r2/Page';
+import { Status } from '../../components/r2/Status';
+import { Table } from '../../components/r2/Table';
+import type { Column } from '../../components/r2/Table';
+import { TierPill } from '../../components/r2/TierPill';
+import { Bar, Find, PageHead, Sel, k, keepHyphens } from '../../components/r2/kit';
+import { ButtonLink } from '../../components/r2/Button';
 import { isFixture } from '../../data/boot';
 import { useDb, useMutate, useNow } from '../../data/hooks';
-import { curriculumVM, previewUrl, type CurriculumRow } from './Curriculum.vm';
+import { useViewportWidth } from '../../shell/hooks';
+import { curriculumR2VM, movesFor, previewUrl, type CurriculumR2Row } from './Curriculum.vm';
 import s from './Curriculum.module.css';
 
-// Admin Curriculum `/admin/curriculum`, ported from design-reference/Admin Curriculum.dc.html.
-// Contract: SCREENS § 4.2, phase 06 § 6.1-6.4.
+// Admin Curriculum `/admin/curriculum` on the Admin redesign R2 (D-160 R2-2): the signed-off mockup's
+// `Curriculum` (AdminRedesign.jsx), drawn from `curriculumR2VM`. Reordering, tier access, publishing,
+// the learner preview and deleting a draft all go through the same @ai/core mutations and targets as
+// before; only the presentation changed.
 //
-// MARKUP ONLY: every string, flag and percentage comes from `curriculumVM`, including the
-// `db.base`-adjusted Deployed figures. The screen's own jobs are the three things a pure model
-// cannot do — run a mutation, navigate, and switch persona for the learner preview.
-//
-// Reordering, gating and publishing all go through @ai/core mutations rather than touching the
-// snapshot, so the toast copy and the activity-log entry are the same ones the API writes. The
-// reference's no-op clicks are preserved: the active tier option and the chevron at either end of
-// the list do nothing at all.
+//   - Reorder: the row's drag handle, Alt with an arrow key on it, or Move up / Move down in the
+//     phone's "…" menu (`moveModule`, one place a step). Not while a filter is on, as in the mockup.
+//   - Tier access: the tier pill's menu (`setModuleTier`).
+//   - Publish / Unpublish: the row's Publish button or its "…" menu, after the mockup's confirm.
+//   - Preview as Learner: the row's hover eye or its "…" menu (fixture: a persona switch; http: the
+//     read-only preview tab, D-138).
+//   - Delete (drafts): the "…" menu, after a confirm. The mockup draws no Delete; the old Module
+//     Builder's Delete Draft lives here now (Needs Connor's call, D-160 R2-2).
 
 /** Demo params a persona switch must keep, so a pinned clock survives the preview navigation. */
 const CARRY_PARAMS = ['phase', 'now', 'demo'] as const;
+const STATUSES = ['All statuses', 'Published', 'Scheduled', 'Draft'] as const;
+
+interface Ask {
+  title: string;
+  body: string;
+  cta: string;
+  danger?: boolean;
+  yes: () => void;
+}
 
 function Curriculum() {
   const db = useDb();
@@ -29,208 +54,276 @@ function Curriculum() {
   const mutate = useMutate();
   const navigate = useNavigate();
   const { toast } = useToaster();
+  const vw = useViewportWidth();
+  const phone = vw < 768;
+  const laptop = vw >= 768 && vw < 1200;
+  const wide = vw >= 1400;
 
-  const vm = useMemo(() => curriculumVM(db, now), [db, now]);
+  const vm = useMemo(() => curriculumR2VM(db, now), [db, now]);
+  const [q, setQ] = useState('');
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>('All statuses');
+  const [ask, setAsk] = useState<Ask | null>(null);
 
-  // `useMutate` already raises the success toast; a refused mutation has nowhere to render
-  // inline on this screen, so it is surfaced as a warning.
+  const filtered = q !== '' || status !== 'All statuses';
+  const rows = vm.rows.filter(
+    (r) => r.name.toLowerCase().includes(q.toLowerCase()) && (status === 'All statuses' || r.statusLabel === status),
+  );
+
+  const warn = useCallback((e?: string) => e && toast(e, 'warn'), [toast]);
+
   const move = useCallback(
-    async (id: string, dir: number) => {
-      const r = await mutate('moveModule', { id, dir });
-      if (r.error) toast(r.error, 'warn');
+    async (from: number, to: number) => {
+      const r = vm.rows[from];
+      if (!r) return;
+      const { dir, times } = movesFor(from, to);
+      for (let i = 0; i < times; i++) {
+        const out = await mutate('moveModule', { id: r.id, dir });
+        if (out.error) return warn(out.error);
+      }
     },
-    [mutate, toast],
+    [mutate, vm.rows, warn],
   );
 
   const setTier = useCallback(
-    async (id: string, tier: 'agent' | 'team') => {
-      const r = await mutate('setModuleTier', { id, tier });
-      if (r.error) toast(r.error, 'warn');
-    },
-    [mutate, toast],
+    async (id: string, tier: Tier) => warn((await mutate('setModuleTier', { id, tier })).error),
+    [mutate, warn],
   );
 
-  const setPublished = useCallback(
-    async (id: string, publishes: boolean) => {
-      const r = await mutate(publishes ? 'publishModule' : 'unpublishModule', { id });
-      if (r.error) toast(r.error, 'warn');
-    },
-    [mutate, toast],
-  );
+  const publish = (r: CurriculumR2Row, on: boolean) =>
+    setAsk({
+      title: `${on ? 'Publish' : 'Unpublish'} ${r.name}?`,
+      body: on
+        ? 'Learners with access see it in the portal right away.'
+        : 'It is hidden from learners right away. Their progress is kept.',
+      cta: on ? 'Publish' : 'Unpublish',
+      yes: () => void mutate(on ? 'publishModule' : 'unpublishModule', { id: r.id }).then((o) => warn(o.error)),
+    });
+
+  const remove = (r: CurriculumR2Row) =>
+    setAsk({
+      title: `Delete ${r.name}?`,
+      body: 'The draft and its steps are removed. Learners never saw it.',
+      cta: 'Delete draft',
+      danger: true,
+      yes: () => void mutate('deleteModule', { id: r.id }).then((o) => warn(o.error)),
+    });
 
   /**
-   * Preview as a learner. In fixture mode the prototype switches persona, and `?as=` is resolved
-   * once at boot, so this is a real navigation that carries the timeline params along. In http
-   * mode there is no persona to switch: the portal route opens in a second tab as a read-only
-   * Agent or Team Owner (D-138, `data/preview.ts`). Without the flag the shell sends staff back to
-   * the Admin Console, which is what this button used to do.
+   * Preview as a learner. Fixture mode switches persona (a real navigation that carries the timeline
+   * params); http mode opens the read-only preview tab (D-138, `previewUrl`).
    */
-  const preview = useCallback((r: CurriculumRow) => {
-    const path = `/employees/${r.id}`;
+  const preview = useCallback((r: CurriculumR2Row) => {
     if (!isFixture) {
       window.open(previewUrl(r), '_blank', 'noopener');
       return;
     }
-    const url = new URL(path, window.location.href);
+    const url = new URL(`/employees/${r.id}`, window.location.href);
     const current = new URLSearchParams(window.location.search);
-    for (const k of CARRY_PARAMS) {
-      const v = current.get(k);
-      if (v !== null) url.searchParams.set(k, v);
+    for (const key of CARRY_PARAMS) {
+      const v = current.get(key);
+      if (v !== null) url.searchParams.set(key, v);
     }
     url.searchParams.set('as', r.previewAs);
     window.location.assign(url.toString());
   }, []);
 
-  return (
-    <div className={s.page}>
-      <div className={s.head}>
-        <div>
-          <h1 className={s.h1}>Curriculum</h1>
-          <p className={s.sub}>{vm.summary}</p>
-        </div>
-        <button
-          type="button"
-          className={s.create}
-          onClick={() => void navigate('/admin/curriculum/new')}
-        >
-          <Icon name="plus" size={15} strokeWidth={2} />
-          New AI Employee
-        </button>
-      </div>
+  const edit = (r: CurriculumR2Row) => void navigate(`/admin/curriculum/${r.id}`);
 
-      <section aria-label="AI Employees" className={s.card}>
-        <div className={s.scroll} data-phone="tscroll">
-          <div className={s.table} data-phone="tmin">
-            <div className={s.headRow} data-phone="thead">
-              <span>Order</span>
-              <span>AI Employee</span>
-              <span>Tier Access</span>
-              <span>Live Session</span>
-              <span>Status</span>
-              <span>Deployed</span>
-              <span className={s.right}>Actions</span>
+  const menu = (r: CurriculumR2Row): MenuEntry[] => [
+    { label: 'Edit in Module Builder', icon: 'r2Builder', onSelect: () => edit(r) },
+    { label: 'Preview as Learner', icon: 'r2Eye', onSelect: () => preview(r) },
+    'separator',
+    r.publishes
+      ? { label: 'Publish', onSelect: () => publish(r, true) }
+      : { label: 'Unpublish', danger: true, onSelect: () => publish(r, false) },
+    ...(r.status === 'draft' ? [{ label: 'Delete', danger: true, onSelect: () => remove(r) }] : []),
+  ];
+
+  const cols: Column<CurriculumR2Row>[] = [
+    {
+      key: 'n',
+      label: 'AI Employee',
+      width: wide ? 'minmax(260px,1.6fr)' : 'minmax(194px,1fr)',
+      value: (r) => r.name,
+      cell: (r, f) => {
+        const big = f.tw >= 1100;
+        return (
+          <div className={clsx(k.row, k.nw, big ? s.lead : s.leadTight)}>
+            {big ? <span className={clsx(k.me, k.tn, s.order)}>{r.order}</span> : null}
+            <span className={clsx(s.mt, !big && s.mtSmall)}>
+              <Icon name={r.icon} size={16} strokeWidth={1.75} />
+            </span>
+            <div className={clsx(k.col, k.col0, s.two)}>
+              <button type="button" className={clsx(k.lk, big && k.el)} onClick={() => edit(r)}>
+                {r.name}
+              </button>
+              <span className={clsx(k.me, k.el)}>
+                {f.drop ? (r.session ? r.session.brief : 'Self-paced') : keepHyphens(r.desc)}
+              </span>
             </div>
-
-            {vm.rows.map((r) => (
-              <div key={r.id} className={s.row} data-phone="card">
-                <div className={s.orderCell} data-phone="cell" data-label="Order">
-                  <span className={s.orderNum}>{r.order}</span>
-                  <div className={s.chevs} data-phone="chevs">
-                    <button
-                      type="button"
-                      title="Move up"
-                      className={s.chev}
-                      data-off={r.canMoveUp ? undefined : 'true'}
-                      aria-disabled={r.canMoveUp ? undefined : true}
-                      onClick={r.canMoveUp ? () => void move(r.id, -1) : undefined}
-                    >
-                      <Icon name="chevU" size={13} strokeWidth={2.2} />
-                    </button>
-                    <button
-                      type="button"
-                      title="Move down"
-                      className={s.chev}
-                      data-off={r.canMoveDown ? undefined : 'true'}
-                      aria-disabled={r.canMoveDown ? undefined : true}
-                      onClick={r.canMoveDown ? () => void move(r.id, 1) : undefined}
-                    >
-                      <Icon name="chevD" size={13} strokeWidth={2.2} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className={s.who} data-phone="cell-lead">
-                  <div className={s.tile}>
-                    <Icon name={r.icon} size={17} strokeWidth={1.8} color="var(--text-link)" />
-                  </div>
-                  <div className={s.whoText}>
-                    <div className={s.name}>{r.name}</div>
-                    <div className={s.outcome}>{r.sub}</div>
-                  </div>
-                </div>
-
-                <div role="group" aria-label={`Tier access · ${r.name}`} className={s.seg}>
-                  <button
-                    type="button"
-                    className={s.segOpt}
-                    data-opt="agent"
-                    data-on={r.tier === 'agent' ? 'true' : undefined}
-                    aria-pressed={r.tier === 'agent'}
-                    onClick={r.tier === 'team' ? () => void setTier(r.id, 'agent') : undefined}
-                  >
-                    Agent + Team
-                  </button>
-                  <button
-                    type="button"
-                    className={s.segOpt}
-                    data-opt="team"
-                    data-on={r.tier === 'team' ? 'true' : undefined}
-                    aria-pressed={r.tier === 'team'}
-                    onClick={r.tier === 'agent' ? () => void setTier(r.id, 'team') : undefined}
-                  >
-                    Team Only
-                  </button>
-                </div>
-
-                <div className={s.sess} data-phone="cell" data-label="Live Session">
-                  {r.sess}
-                  <div className={s.sessSub}>{r.sessSub}</div>
-                </div>
-
-                <div className={s.statusCell}>
-                  <span className={s.pill} data-status={r.status}>
-                    <span aria-hidden="true" className={s.dot} />
-                    {r.statusLabel}
-                  </span>
-                  <span className={s.stSub}>{r.stSub}</span>
-                </div>
-
-                <div className={s.depCell} data-phone="cell" data-label="Deployed">
-                  <div className={s.bar}>
-                    <div className={s.fill} style={{ '--dep': r.dep } as React.CSSProperties} />
-                  </div>
-                  <span className={s.depNum}>{r.dep}</span>
-                </div>
-
-                <div className={s.actions} data-phone="cell-actions">
-                  <button
-                    type="button"
-                    title="Preview as learner"
-                    aria-label="Preview as learner"
-                    className={s.iconBtn}
-                    onClick={() => preview(r)}
-                  >
-                    <Icon name="eye" size={14} strokeWidth={1.9} />
-                  </button>
-                  <button
-                    type="button"
-                    title="Edit in builder"
-                    aria-label="Edit in builder"
-                    className={s.iconBtn}
-                    onClick={() => void navigate(`/admin/curriculum/${r.id}`)}
-                  >
-                    <Icon name="pencil" size={14} strokeWidth={1.9} />
-                  </button>
-                  <button
-                    type="button"
-                    className={s.act}
-                    data-variant={r.publishes ? 'publish' : 'unpublish'}
-                    onClick={() => void setPublished(r.id, r.publishes)}
-                  >
-                    {r.actLabel}
-                  </button>
-                </div>
-              </div>
-            ))}
           </div>
-        </div>
-      </section>
+        );
+      },
+    },
+    {
+      key: 'tier',
+      label: 'Tier access',
+      width: wide || laptop ? '124px' : '116px',
+      overflow: true,
+      value: (r) => r.tier,
+      cell: (r) => <TierPill tier={r.tier} onChange={(t) => void setTier(r.id, t)} />,
+    },
+    {
+      key: 'ses',
+      label: 'Live session',
+      width: wide ? 'minmax(250px,1.6fr)' : '132px',
+      hideLap: true,
+      value: (r) => r.session?.title ?? '',
+      cell: (r, f) =>
+        r.session ? (
+          <div className={clsx(k.col, k.col0, s.two)} title={r.session.full} aria-label={r.session.full}>
+            <span className={wide ? s.cl3 : k.el}>{wide ? keepHyphens(r.session.title) : r.session.short}</span>
+            <span className={clsx(k.me, wide ? s.wrap : k.el)}>{f.tw < 1100 ? r.session.date : r.session.when}</span>
+          </div>
+        ) : (
+          <span className={k.mu}>Self-paced</span>
+        ),
+    },
+    {
+      key: 'st',
+      label: 'Status',
+      width: laptop ? '112px' : wide ? '128px' : '120px',
+      value: (r) => r.statusLabel,
+      cell: (r) =>
+        r.status === 'draft' && laptop ? (
+          <div className={clsx(k.col, s.hiddenStack)}>
+            <Status tone={r.statusTone}>{r.statusLabel}</Status>
+            <span className={k.pl} title="Hidden from learners" aria-label="Hidden from learners">
+              Hidden
+            </span>
+          </div>
+        ) : (
+          <div className={clsx(k.col, k.col0)}>
+            <Status tone={r.statusTone}>{r.statusLabel}</Status>
+            <span className={clsx(k.me, k.nowrap)}>{r.statusLine}</span>
+          </div>
+        ),
+    },
+    {
+      key: 'dep',
+      label: 'Deployed',
+      width: '96px',
+      overflow: true,
+      value: (r) => r.deployed ?? -1,
+      cell: (r) =>
+        r.deployed === null ? (
+          <span className={k.mu}>{r.depLabel}</span>
+        ) : (
+          <span className={clsx(k.row, k.nw, s.dep)}>
+            <Bar pct={r.deployed} />
+            <span className={clsx(k.tn, k.w5, s.pct)}>{r.deployed}%</span>
+          </span>
+        ),
+    },
+  ];
 
-      <p className={s.note}>
-        Tier access and publish status update the learner portal immediately. Open the portal in a
-        second tab to watch it change.
+  return (
+    <Page>
+      <PageHead
+        title="Curriculum"
+        description={phone ? vm.summaryPhone : vm.summary}
+        right={
+          <ButtonLink header kind="primary" icon="r2Plus" to="/admin/curriculum/new">
+            New AI Employee
+          </ButtonLink>
+        }
+      />
+      <div className={k.row}>
+        <Find value={q} onChange={setQ} placeholder="Filter AI Employees" />
+        <Sel
+          aria-label="Status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as (typeof STATUSES)[number])}
+        >
+          {STATUSES.map((o) => (
+            <option key={o}>{o}</option>
+          ))}
+        </Sel>
+      </div>
+      <Table
+        label="AI Employees"
+        cols={cols}
+        rows={rows}
+        rowKey={(r) => r.id}
+        filtered={filtered}
+        onMove={filtered ? undefined : (a, b) => void move(a, b)}
+        actionsWidth="104px"
+        empty={{
+          icon: 'r2Curriculum',
+          title: 'No AI Employees yet',
+          body: 'Create the first one to start the curriculum.',
+        }}
+        quick={(r) => [{ label: 'Preview as Learner', icon: 'r2Eye', onClick: () => preview(r) }]}
+        primary={(r) =>
+          r.status === 'draft' ? (
+            <Button kind="primary" onClick={() => publish(r, true)}>
+              Publish
+            </Button>
+          ) : null
+        }
+        menu={menu}
+        card={(r, _i, items, up) => (
+          <>
+            <button type="button" className={clsx(k.lk, s.cardName)} onClick={() => edit(r)}>
+              {r.name}
+            </button>
+            <p className={clsx(k.p, k.s2, s.cl2)}>{keepHyphens(r.desc)}</p>
+            <span className={clsx(k.mu, s.cl1)}>{r.meta}</span>
+            <div className={clsx(k.row, k.nw, s.cardRow)}>
+              <span
+                title={r.status === 'draft' ? 'Hidden from learners' : undefined}
+                aria-label={r.status === 'draft' ? 'Draft. Hidden from learners' : undefined}
+              >
+                <Status tone={r.statusTone}>{r.statusLabel}</Status>
+              </span>
+              <TierPill tier={r.tier} onChange={(t) => void setTier(r.id, t)} />
+              <span className={k.sp} />
+              {r.status === 'draft' ? (
+                <Button kind="primary" className={s.cardPublish} onClick={() => publish(r, true)}>
+                  Publish
+                </Button>
+              ) : null}
+              <Menu
+                label={`Actions for ${r.name}`}
+                items={items}
+                placement={up ? 'above' : 'below-right'}
+                trigger={(t) => (
+                  <button type="button" className={k.ib} aria-label="More actions" {...t.props} onClick={t.toggle}>
+                    <Icon name="r2More" size={16} strokeWidth={2.6} />
+                  </button>
+                )}
+              />
+            </div>
+          </>
+        )}
+      />
+      <p className={clsx(k.p, k.me)}>
+        Tier access and publish status update the learner portal immediately. Session times are MST.{' '}
+        {phone
+          ? 'Reorder from the … menu.'
+          : 'Drag the handle, or focus it and press Alt with an arrow key, to reorder.'}
       </p>
-    </div>
+      {ask ? (
+        <Confirm
+          title={ask.title}
+          body={ask.body}
+          cta={ask.cta}
+          danger={ask.danger}
+          onConfirm={ask.yes}
+          onClose={() => setAsk(null)}
+        />
+      ) : null}
+    </Page>
   );
 }
 

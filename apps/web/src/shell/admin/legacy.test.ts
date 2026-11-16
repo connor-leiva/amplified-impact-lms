@@ -2,15 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { LEGACY_SCREENS, legacyFor } from './legacy';
 import { R2_NAV } from './adminNav';
 
-// D-160 R2-1b: the admin screens not yet rebuilt on R2, and what the shell keeps for them.
+// D-160 R2-1b: the admin screens not yet rebuilt on R2, and what the shell keeps for them. R2-2a
+// rebuilds Curriculum and the Module Builder, so their rows are gone.
 
 describe('the legacy screens (D-160 R2-1b)', () => {
-  it('keeps the old frame geometry on exactly the screens behind the 14 old `main` checks', () => {
+  it('keeps the old frame geometry on exactly the screens behind the old `main` checks still kept', () => {
     const geometry = LEGACY_SCREENS.filter((s) => s.geometry).map((s) => s.match);
     expect(geometry).toEqual([
       '/admin',
-      '/admin/curriculum',
-      '/admin/curriculum/*',
       '/admin/cohorts',
       '/admin/learners',
       '/admin/vault',
@@ -21,9 +20,6 @@ describe('the legacy screens (D-160 R2-1b)', () => {
     for (const p of [
       '/admin',
       '/admin/',
-      '/admin/curriculum',
-      '/admin/curriculum/new',
-      '/admin/curriculum/marketing',
       '/admin/cohorts',
       '/admin/learners',
       '/admin/vault',
@@ -39,8 +35,11 @@ describe('the legacy screens (D-160 R2-1b)', () => {
     expect(legacyFor('/admin/roles')).toEqual({ type: true, geometry: false });
   });
 
-  it('gives everything else R2 throughout: the 404, Denied, and screens not yet built', () => {
+  it('gives everything else R2 throughout: the 404, Denied, the rebuilt screens, and screens not yet built', () => {
     for (const p of [
+      '/admin/curriculum',
+      '/admin/curriculum/new',
+      '/admin/curriculum/marketing',
       '/admin/no-such-page',
       '/admin/denied',
       '/admin/health',
@@ -55,8 +54,6 @@ describe('the legacy screens (D-160 R2-1b)', () => {
     const rebuilt = Object.fromEntries(LEGACY_SCREENS.map((s) => [s.match, s.rebuiltIn]));
     expect(rebuilt).toEqual({
       '/admin': 'R2-3',
-      '/admin/curriculum': 'R2-2',
-      '/admin/curriculum/*': 'R2-2',
       '/admin/cohorts': 'R2-2',
       '/admin/learners': 'R2-3',
       '/admin/vault': 'R2-2',
