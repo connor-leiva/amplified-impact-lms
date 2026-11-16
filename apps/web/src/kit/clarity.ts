@@ -37,7 +37,7 @@ export const CLARITY_TITLE_ID = 'clarity-call-title';
 /** The Clarity Call card, for a page of kind `host`: an <aside> to sit between </main> and the footer. */
 export function clarityCall(host: ClarityHost): string {
   const c = CLARITY_CALL;
-  // Each fact kept whole where it fits, the dot kept with the fact before it, so a line breaks between them.
+  // One fact a line on screen (the stylesheet); the dots part them where there is no stylesheet.
   const details = c.details
     .map((d) => `<span class="cc-fact">${esc(d)}</span>`)
     .join('<span class="cc-sep" aria-hidden="true">&nbsp;·</span> ');

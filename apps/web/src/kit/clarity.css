@@ -145,9 +145,14 @@
   font-size: 16px;
   line-height: 1.45;
 }
-/* A fact moves to the next line whole while it fits on one, and wraps only on a screen narrower than it. */
+/* One fact a line: the three never fit one line beside or under the button, and a line that broke at
+   a dot would leave the dot hanging. The dots stay in the markup, hidden from screen readers, for a
+   reader that drops the stylesheet. */
 .cc-fact {
-  display: inline-block;
+  display: block;
+}
+.cc-sep {
+  display: none;
 }
 
 /* Tablets: the same stack, the button its own width. */
@@ -183,13 +188,6 @@
   }
   .cc-btn {
     width: 100%;
-  }
-  /* In the narrow column, one fact a line, so no dot is left at a line's end. */
-  .cc-fact {
-    display: block;
-  }
-  .cc-sep {
-    display: none;
   }
 }
 
