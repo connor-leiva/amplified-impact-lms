@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { avatarColor, fmt, nextSession } from '@ai/core';
 
 import '../../styles/r2.css';
@@ -17,6 +17,7 @@ import { ProfileMenu } from '../ProfileMenu';
 import { ShellProvider } from '../ShellContext';
 import { useAppReady, useViewportWidth } from '../hooks';
 import { adminNav, crumbTrail, toggleGroup, type R2Group } from './adminNav';
+import { AdminChromeProvider } from './chrome';
 import { legacyFor } from './legacy';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { Wordmark } from './Wordmark';
@@ -36,7 +37,10 @@ import s from './AdminShell.module.css';
 // `parity:admin-r2` harness captures, as the mockup harness captures `.ax`.
 //
 // THE ⌘K TRIGGER (and the 404's "Search the admin") render exactly and do nothing until the command
-// palette lands in R2-5: they are marked `aria-disabled`, and no shortcut is bound.
+// palette lands in R2-1c part 2: they are marked `aria-disabled`, and no shortcut is bound.
+//
+// A record's page names itself in the breadcrumb, and the R2 toast is the shell's (`chrome.ts`, D-160
+// R2-1c).
 
 const ADMIN_ROOT = '/admin';
 
@@ -114,6 +118,9 @@ export function AdminShell() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [record, setRecord] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mainRef = useRef<HTMLElement | null>(null);
   const menuRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
@@ -157,6 +164,13 @@ export function AdminShell() {
   }, [isAdminPath, navigate]);
 
   useAppReady(parity !== undefined);
+
+  const r2Toast = useCallback((m: string) => {
+    setToastMsg(m);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMsg(null), 3200);
+  }, []);
+  const chrome = useMemo(() => ({ setRecord, toast: r2Toast }), [r2Toast]);
 
   // Escape closes every layer the shell owns.
   useEffect(() => {
@@ -212,9 +226,25 @@ export function AdminShell() {
           <span aria-hidden="true">/</span>
           <span>{trail.group}</span>
           <span aria-hidden="true">/</span>
-          <b className={s.here} aria-current="page">
-            {trail.page}
-          </b>
+          {trail.parent ? (
+            <>
+              <Link to={trail.parent} className={s.crumbLink}>
+                {trail.page}
+              </Link>
+              {record ? (
+                <>
+                  <span aria-hidden="true">/</span>
+                  <b className={s.record} aria-current="page">
+                    {record}
+                  </b>
+                </>
+              ) : null}
+            </>
+          ) : (
+            <b className={s.here} aria-current="page">
+              {trail.page}
+            </b>
+          )}
         </>
       ) : null}
     </nav>
@@ -263,7 +293,9 @@ export function AdminShell() {
               )}
             </header>
             <main ref={mainRef} className={s.main} data-legacy={legacy.type ? 'true' : undefined}>
-              <Outlet />
+              <AdminChromeProvider value={chrome}>
+                <Outlet />
+              </AdminChromeProvider>
             </main>
           </div>
         </div>
@@ -282,6 +314,15 @@ export function AdminShell() {
               <Sidebar mode="drawer" {...sidebarProps} onClose={() => setDrawerOpen(false)} closeRef={closeRef} />
             </div>
           </Fragment>
+        ) : null}
+
+        {toastMsg ? (
+          <div className={s.toast} role="status">
+            <span className={s.toastGlyph}>
+              <Icon name="r2Check" size={16} strokeWidth={1.75} />
+            </span>
+            {toastMsg}
+          </div>
         ) : null}
 
         {profileOpen && person ? (

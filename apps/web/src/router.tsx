@@ -78,6 +78,9 @@ export const router = createBrowserRouter([
       // The Admin Console (D-157): net-new screens inside the shell, by Console capability.
       { path: 'admin/audit', lazy: () => import('./routes/console/AuditLog') },
       { path: 'admin/roles', lazy: () => import('./routes/console/Roles') },
+      // The Support records on R2 (D-160 R2-1c; spec § 7.3, D-158's API).
+      { path: 'admin/workspaces', lazy: () => import('./routes/console/Workspaces') },
+      { path: 'admin/workspaces/:teamId', lazy: () => import('./routes/console/Workspace') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
