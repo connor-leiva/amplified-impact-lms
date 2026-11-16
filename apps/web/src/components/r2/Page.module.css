@@ -1,6 +1,4 @@
-/* `.pg` in the R2 mockup (D-160): the page column inside `main`. It sets the frame's type and colour
-   itself, so an R2 page (Denied) inside a screen not yet rebuilt (`main[data-legacy]`) still reads as
-   R2. */
+/* `.pg` in the R2 mockup (D-160): the page column inside `main`, with the frame's type and colour. */
 .page {
   font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
   color: var(--r2-ink);

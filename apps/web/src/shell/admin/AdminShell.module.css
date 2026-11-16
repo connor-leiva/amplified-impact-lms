@@ -362,19 +362,6 @@
   min-height: 0;
   scrollbar-gutter: stable;
 }
-/* An admin screen not yet rebuilt on R2 keeps the type and canvas it had in the old shell, so only
-   its frame changes until its own R2 PR (D-160 R2-1b, legacy.ts). */
-.main[data-legacy='true'] {
-  font-family: var(--font-ui);
-  font-size: var(--fs-14);
-  line-height: 1.45;
-  color: var(--text-primary);
-  background: var(--bg-canvas);
-  hyphens: manual;
-  -webkit-hyphens: manual;
-  scrollbar-gutter: auto;
-}
-
 /* ---- the phone drawer (`.scrim`, `.drw`) ----------------------------------------------------- */
 
 .scrim {

@@ -1,0 +1,36 @@
+/* The Audit Log on R2 (D-160 R2-3b): what the mockup's `Audit` writes inline, on the R2 kit, and the
+   pieces it does not draw (the Outcome filter's "…", Load More, an empty state's action, the drawer's
+   JSON). Tokens only. */
+.more {
+  flex: none;
+}
+.cta {
+  margin-top: 10px;
+}
+.more2 {
+  display: flex;
+  justify-content: center;
+  padding: 12px 20px;
+  border-top: 1px solid var(--r2-line);
+}
+.pre {
+  font: 400 var(--r2-mo) / 20px var(--r2-font-mono);
+  background: var(--r2-hov);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  margin: 0;
+}
+/* The time is a button, so the keyboard can open the entry; it keeps the cell's mono letter-spacing,
+   which a button's own style would reset. */
+.time {
+  letter-spacing: inherit;
+}
+/* On a phone the time's 44px target overhangs its 21px line, so the card keeps the mockup's rows. */
+@media (max-width: 767px) {
+  .time {
+    margin: -11.5px 0;
+  }
+}
