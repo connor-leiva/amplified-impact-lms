@@ -18,6 +18,7 @@ import { requirePerm } from './can';
 import { EXEC_CATEGORIES, PERMS, PROGRAM_TZ } from './constants';
 import { buildOf, canAccess, isOpen, progressOf, runtimeOf } from './status';
 import { fmt } from './time';
+import { SUPPORT_EMAIL } from './offer';
 import { seatCaps } from './seats';
 import { downgradeUser, upgradeUser } from './tiers';
 import type {
@@ -380,6 +381,13 @@ export function downloadResource(db: Db, a: Actor, args: { id: string }, _c: Ctx
 // ---------------------------------------------------------------------------
 
 /** 8 · Portal Team Hub: invite a seat. Four inline errors before anything is written. */
+/**
+ * D-141: an invite to an address that already has an account, on another team or on staff. One
+ * address is one account (`users.email` is unique, and sign-in matches it in any case), and moving
+ * someone between teams is a decision for support, not for the invite form.
+ */
+export const ALREADY_HAS_ACCOUNT = `That email already has an Amplified Impact account. Invite them with a different email, or write to ${SUPPORT_EMAIL}.`;
+
 export function inviteMember(
   db: Db,
   a: Actor,
@@ -395,6 +403,11 @@ export function inviteMember(
   if (!EMAIL_RE.test(email)) return { db, error: 'Enter a valid email address.' };
   if (mem.some((u) => u.email.toLowerCase() === email.toLowerCase()))
     return { db, error: 'That person is already on your team.' };
+  // Anyone else with this address, in any case: a learner on another team, or staff. Without this
+  // the database's unique email answered 500, and a different case made a second account.
+  const lower = email.toLowerCase();
+  if (db.users.some((u) => u.email.toLowerCase() === lower) || db.staff.some((x) => x.email.toLowerCase() === lower))
+    return { db, error: ALREADY_HAS_ACCOUNT };
   if (mem.length >= team.seats)
     return { db, error: 'All seats are assigned. Remove a seat or contact us to add more.' };
   // The plan's seats, shared (D-081, D-120): 15 or 40 agents on the Team Plan, five in the prototype.

@@ -4474,6 +4474,20 @@ Connor is moving this app's GHL work off Spring's location to a dedicated Amplif
 - **What opens and when is unchanged.** `canOpenSkill` and the download route's check are untouched: a skill opens on exactly the day it did before. The per-offer tests now expect `upcoming` where they expected `locked` before each cart's day.
 - **Not changed:** prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
 
+## D-141 · A Team Hub invite to an address that already has an account is refused, in any case
+
+**Date:** 2026-11-12
+**Approved by:** the PM (Ampy), for Connor, 2026-11-12: "take the next unfinished item from your audit … (per-offer LMS wiring and e2e tests …) … Make reasonable calls yourself and log them in DECISIONS.md." It is the overnight brief's LMS wiring, account creation for the Team Plan.
+**Status:** on a pull request.
+**Scope:** `packages/core/src/mutations.ts` (`inviteMember`, `ALREADY_HAS_ACCOUNT`); tests (`packages/core/test/mutations.test.ts`, `apps/api/test/integrations/invite-email.test.ts`).
+
+- **Two bugs, both reproduced on main `8eef13b` over HTTP.** `inviteMember` only checked the inviter's own team for the address.
+  - Inviting someone who already has an account on another team (an agent who bought the Agent Plan, another owner's agent, a staff address) reached the database's unique `users.email` and answered **500**. The invite form showed "Something went wrong."
+  - The same address in different capitals (`Natasha@HarborPine.com` for `natasha@harborpine.com`) passed that unique check, which is case-sensitive. It answered **200** and made a **second account for the same inbox**, and sign-in, which matches email in any case, couldn't tell the two apart.
+- **Now:** after the existing "That person is already on your team." check, an address held by any learner or staff member, compared case-insensitively and trimmed, is refused before anything is written or emailed, with: "That email already has an Amplified Impact account. Invite them with a different email, or write to support@amplifiedimpact.io." The Team Hub shows it inline in the invite form, like the other invite errors. It's a 422, the same as those. Fixture mode and the API run the same mutation, so they behave the same.
+- **The call:** refuse, rather than move the person onto the inviting team. One address is one account, and moving someone off another team (or out of their own Agent Plan) is a decision for support, not the invite form. Letting one person belong to several teams is a product decision for Connor; the audit lists it.
+- **Not changed:** seats and seat caps, the invite email, the Agent Plan's provisioning, prices, the 15-seat cap, the Nov 30 close, unlock dates, `/agreement`.
+
 ## D-142 · The AI Accelerator's Dashboard drops the prototype's invented community and support details
 
 **Date:** 2026-11-12
