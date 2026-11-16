@@ -18,6 +18,9 @@ import type {
   BillingSubscriptionRow,
   BillingSummary,
   ConsoleErrorCode,
+  ConsoleSkillRow,
+  HealthResponse,
+  HealthTileKey,
   ConsoleMe,
   ConsolePage,
   ConsoleUserDetail,
@@ -109,6 +112,32 @@ export interface ConsoleApi {
    * http client has no such method, so production prints its own words (D-163).
    */
   billingSample?(): BillingSample;
+  // PR 10 (D-169): System Health and the Build hub's Skills list.
+  health(): Promise<HealthResponse>;
+  skills(cursor?: string | null): Promise<ConsolePage<ConsoleSkillRow>>;
+  /**
+   * FIXTURE ONLY: what the R2 mockup draws where production draws spec § 7.1's tiles and cards ("Live
+   * sessions", "p95 latency", "DB connections", "Services"). The http client has no such method.
+   */
+  healthSample?(): HealthSample;
+}
+
+/** A tile the mockup draws in production's place: its words, over the production tile's. */
+export interface HealthSampleTile {
+  label: string;
+  value?: string;
+  sub?: string;
+  tone?: 'ok' | 'bad' | null;
+  to?: string;
+}
+
+/** The fixture's mockup-only pieces of System Health (D-169). */
+export interface HealthSample {
+  tiles: Partial<Record<HealthTileKey, HealthSampleTile>>;
+  /** The "Services" card: name and status word. */
+  services: readonly (readonly [string, string])[];
+  /** How many deploys the mockup's card draws. */
+  deploys: number;
 }
 
 /** Billing's lists (spec § 7.6), by the tab that shows each. */
@@ -233,6 +262,8 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     search: async (q) => (await json<{ groups: SearchResults }>(await request(fetchImpl, `/api/console/search${listQuery({ q })}`))).groups,
     billingSummary: async () => json<BillingSummary>(await request(fetchImpl, '/api/console/billing/summary')),
     billingList: async (kind, cursor) => json(await request(fetchImpl, `/api/console/billing/${kind}${listQuery({}, cursor)}`)),
+    health: async () => json<HealthResponse>(await request(fetchImpl, '/api/console/health')),
+    skills: async (cursor) => json<ConsolePage<ConsoleSkillRow>>(await request(fetchImpl, `/api/console/skills${listQuery({}, cursor)}`)),
   };
 }
 

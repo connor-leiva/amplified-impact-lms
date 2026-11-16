@@ -20,6 +20,7 @@ import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
 import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
 import { BILLING_SAMPLE_LABELS, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
+import { fixtureHealth, fixtureHealthSample, fixtureSkills } from './console-fixture-health';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows } from './parity-r2-db';
 
@@ -278,6 +279,18 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureBillingRows()[kind] as never[], cursor);
       }),
     billingSample: () => ({ ...BILLING_SAMPLE_LABELS }),
+    // D-169: System Health (the mockup's, and its empty state) and the skill library, read-only.
+    health: () =>
+      settle(() => {
+        need('console.view');
+        return fixtureHealth(records, now(), state === 'empty');
+      }),
+    healthSample: () => fixtureHealthSample(state === 'empty'),
+    skills: (cursor) =>
+      settle(() => {
+        need('console.view');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureSkills(), cursor);
+      }),
     search: (q) =>
       settle(() => {
         need('console.view');

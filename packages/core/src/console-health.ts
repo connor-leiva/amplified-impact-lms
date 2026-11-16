@@ -12,7 +12,7 @@ import { nearCap } from './console-support';
 import type { WorkspaceRow } from './console-support';
 import { FIXED_SEAT_PLANS } from './console-view';
 import { COHORT_SEATS } from './offer';
-import type { PlanKind } from './offer';
+import type { PlanKind, SkillSet } from './offer';
 
 // ================================================================================================
 // The answer
@@ -96,14 +96,15 @@ export interface HealthSeatRow {
   teamId: string | null;
 }
 
-export type HealthDeployStatus = 'live' | 'succeeded' | 'failed' | 'building' | 'canceled';
+/** PR 9's deploy statuses (`DeployStatus`, D-168); null when the source can't say (GitHub's commits). */
+export type HealthDeployStatus = 'live' | 'succeeded' | 'failed' | 'building' | 'removed' | 'skipped';
 
 export interface HealthDeployRow {
   sha: string;
-  message: string | null;
+  message: string;
   author: string | null;
-  at: number | null;
-  status: HealthDeployStatus;
+  at: number;
+  status: HealthDeployStatus | null;
 }
 
 /**
@@ -323,8 +324,6 @@ export function healthHeadline(r: Pick<HealthResponse, 'tiles' | 'attention'>): 
 // The Build hub (spec § 7.2): the skill library, read-only
 // ================================================================================================
 
-export const SKILL_SETS = ['owner_ops', 'agent', 'both'] as const;
-export type SkillSet = (typeof SKILL_SETS)[number];
 export const SKILL_STATUSES = ['draft', 'published', 'hidden'] as const;
 export type SkillStatus = (typeof SKILL_STATUSES)[number];
 

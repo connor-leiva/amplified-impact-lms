@@ -31,9 +31,9 @@ import type {
   HealthUnavailable,
   HealthWorkspace,
   Settled,
-  SkillSet,
   SkillStatus,
 } from '@ai/core';
+import type { SkillSet } from '@ai/core/offer';
 import { requireSession, viewerOrThrow } from '../auth';
 import { cohortSeatsSold } from '../billing/provision';
 import { getDb } from '../db/client';

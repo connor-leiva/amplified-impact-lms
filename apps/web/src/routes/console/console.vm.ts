@@ -2,14 +2,14 @@
 // shared states (spec § 7): loading, empty, error (with "Too many requests" on a 429), Denied and the
 // Console 404. Pure; the components only render these.
 //
-// "Go to Overview": spec § 7 names the Denied state's way out "Go to Health", but `/admin/health` is
-// Console PR 10. Until it exists the action goes to the existing `/admin` Overview and says so, as the
-// mockup's own Denied and 404 do; PR 10 points it at Health.
+// "Go to Overview": spec § 7 names the Denied state's way out "Go to Health". The signed-off R2 mockup's
+// Denied and 404 both say "Go to Overview" and go to the Overview, and their cells are enforced, so
+// D-169 keeps the mockup's words and address now that Health exists (the mockup wins on what is drawn).
 
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'billing';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'billing' | 'health' | 'build';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -20,6 +20,9 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   search: { title: 'Search', cap: 'console.view', path: '/admin/search' },
   // D-163 (spec § 7.6).
   billing: { title: 'Billing', cap: 'billing.read', path: '/admin/billing' },
+  // D-169 (spec §§ 7.1–7.2): System Health, the Console's home (D15), and the Build hub.
+  health: { title: 'System Health', cap: 'console.view', path: '/admin/health' },
+  build: { title: 'Build', cap: 'console.view', path: '/admin/build' },
 };
 
 /** The way out of Denied and the 404. */

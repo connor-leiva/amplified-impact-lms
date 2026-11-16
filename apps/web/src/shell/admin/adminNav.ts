@@ -61,7 +61,7 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     'Health',
     [
       row('overview', 'Overview', 'r2Overview', '/admin', true),
-      row('health', 'System Health', 'r2Health', '/admin/health', false, { cap: 'console.view' }),
+      row('health', 'System Health', 'r2Health', '/admin/health', true, { cap: 'console.view' }),
     ],
   ],
   [
@@ -116,6 +116,30 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     ],
   ],
 ];
+
+/**
+ * A group's own landing page that the mockup's `NAV` has no row for (D-169): the Build hub,
+ * `/admin/build` (spec § 7.2). It gets no sidebar row, because the signed-off sidebar draws none and the
+ * eye check forbids drawing one; the viewer reaches it from the "Build" crumb on every Build screen and
+ * from the ⌘K palette's pages. Shown to a role that may open it, outside the parity fixture.
+ */
+export const GROUP_HUBS: Readonly<Partial<Record<R2Group, { id: string; label: string; icon: IconName; path: string; cap: ConsoleCap }>>> = {
+  Build: { id: 'build', label: 'Build', icon: 'r2Curriculum', path: '/admin/build', cap: 'console.view' },
+};
+
+/** The hub a group's crumb links to, for this viewer, or null. */
+export function groupHub(group: R2Group, role: string | null, fullNav: boolean): string | null {
+  const hub = GROUP_HUBS[group];
+  return hub && !fullNav && consoleCan(role, hub.cap) ? hub.path : null;
+}
+
+/** The hubs the viewer may open, as palette pages (after the sidebar's rows). */
+export function hubPages(role: string | null, fullNav: boolean): { id: string; label: string; icon: IconName; to: string }[] {
+  return R2_GROUPS.flatMap((g) => {
+    const hub = GROUP_HUBS[g];
+    return hub && groupHub(g, role, fullNav) ? [{ id: hub.id, label: hub.label, icon: hub.icon, to: hub.path }] : [];
+  });
+}
 
 /** The rail's one icon per group (`GIC` in the mockup). */
 export const GROUP_ICON: Readonly<Record<R2Group, IconName>> = {
@@ -257,6 +281,8 @@ function recordParent(p: string): string | null {
 export interface CrumbTrail {
   group: R2Group;
   page: string;
+  /** A group's hub (`/admin/build`): the trail is `Admin / {group}`, the group the current page. */
+  hub?: true;
   /** A record's page: the row's own address, which its crumb links back to. */
   parent?: string;
 }
@@ -267,6 +293,7 @@ export interface CrumbTrail {
  * A record's page adds its name after the row's (the shell reads the name from the page).
  */
 export function crumbTrail(pathname: string): CrumbTrail | null {
+  for (const g of R2_GROUPS) if (GROUP_HUBS[g]?.path === norm(pathname)) return { group: g, page: g, hub: true };
   const id = activeRowId(pathname);
   if (!id) return null;
   const record = recordParent(norm(pathname)) !== null;

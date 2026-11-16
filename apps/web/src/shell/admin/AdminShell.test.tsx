@@ -96,8 +96,8 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(within(aside()).getByRole('button', { name: /Curriculum/ })).toHaveTextContent(
       drafts ? `Curriculum${drafts} draft` : 'Curriculum',
     );
-    // Not built yet, so not in production's sidebar.
-    expect(within(aside()).queryByRole('button', { name: /System Health/ })).toBeNull();
+    // D-169: System Health is built, so production's sidebar lists it under Health.
+    expect(within(aside()).getByRole('button', { name: /System Health/ })).toBeInTheDocument();
     // The 404 is on no row: the breadcrumb is `Admin` alone.
     expect(document.querySelector('nav[aria-label="Breadcrumb"]')!.textContent).toBe('Admin');
   });

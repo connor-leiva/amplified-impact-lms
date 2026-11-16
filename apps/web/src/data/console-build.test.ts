@@ -63,6 +63,13 @@ const RECORD_SENTINELS = [
   '$29 per agent, monthly',
   'card_declined: do_not_honor',
   're_3QxK5fFm70',
+  // D-169: System Health's mockup-only tiles and card, and its Needs attention rows.
+  'Live sessions',
+  'p95 latency',
+  'DB connections',
+  'Web · Railway',
+  'Handler timeout after 10 s',
+  'Scope 16px floor and 44px targets to phone widths',
 ];
 
 describe('the Console fixture is not in the http build (D-157)', () => {
@@ -70,6 +77,14 @@ describe('the Console fixture is not in the http build (D-157)', () => {
     const code = await bundle('production', '../routes/console/billing.vm.ts');
     expect(code).toContain('Plan economics');
     for (const s of ['MRR · sample', 'Plan economics · sample figures', '+$695 this week', '$18,516', '$67,500'])
+      expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('D-169: the Health screen’s production view-model has none of the mockup’s own tiles or cards', async () => {
+    const code = await bundle('production', '../routes/console/health.vm.ts');
+    expect(code).toContain('Connected browsers');
+    expect(code).toContain('Seat pressure');
+    for (const s of ['Live sessions', 'on /api/events', 'p95 latency', '212 ms', 'DB connections', '14 / 100', 'Web · Railway', 'GoHighLevel'])
       expect(code, s).not.toContain(s);
   }, 60_000);
 

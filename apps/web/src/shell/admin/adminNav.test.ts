@@ -1,16 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ICONS } from '@ai/core';
-import {
-  DEFAULT_OPEN,
-  GROUP_ICON,
-  R2_GROUPS,
-  R2_NAV,
-  activeRowId,
-  adminNav,
-  crumbTrail,
-  isGroupOpen,
-  toggleGroup,
-} from './adminNav';
+import { DEFAULT_OPEN, GROUP_ICON, R2_GROUPS, R2_NAV, activeRowId, adminNav, crumbTrail, isGroupOpen, toggleGroup, groupHub, hubPages } from './adminNav';
 import type { AdminNavInput } from './adminNav';
 
 // D-160 R2-1b: the R2 admin sidebar's model (BUILD-SPEC § 4, `NAV` in AdminRedesign.jsx).
@@ -47,9 +37,9 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2); R2-4a (D-163) Billing.
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); R2-4a (D-163) Billing; D-169 System Health.
     expect(labels(nav({ fullNav: false }))).toEqual([
-      ['Health', 'Overview'],
+      ['Health', 'Overview', 'System Health'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
       ['Revenue', 'Tiers & Upgrades', 'Billing'],
@@ -128,10 +118,25 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(activeRowId('/admin/curriculum/new')).toBe('builder');
     expect(activeRowId('/admin/curriculum/marketing')).toBe('builder');
     expect(activeRowId('/admin/staff')).toBe('staff');
-    // Not built yet: the Console 404, with no row lit.
-    expect(activeRowId('/admin/health')).toBeNull();
+    // D-169: System Health is built. The Build hub has no row (the mockup's NAV draws none).
+    expect(activeRowId('/admin/health')).toBe('health');
+    expect(activeRowId('/admin/build')).toBeNull();
+    // The Console 404, with no row lit.
     expect(activeRowId('/admin/no-such-page')).toBeNull();
     expect(activeRowId('/admin/denied')).toBeNull();
+  });
+
+  it('D-169: the Build hub has no row; its crumb and the palette reach it, for a role that may open it', () => {
+    expect(R2_NAV.flatMap(([, rows]) => rows).some((r) => r.path === '/admin/build')).toBe(false);
+    expect(groupHub('Build', 'Owner', false)).toBe('/admin/build');
+    expect(groupHub('Build', 'Support', false)).toBe('/admin/build');
+    // `console.view`: Instructor and Content Editor build, but have no Console screen.
+    expect(groupHub('Build', 'Instructor', false)).toBeNull();
+    // The parity fixture draws the mockup's crumbs exactly.
+    expect(groupHub('Build', 'Owner', true)).toBeNull();
+    expect(groupHub('Support', 'Owner', false)).toBeNull();
+    expect(hubPages('Owner', false)).toEqual([{ id: 'build', label: 'Build', icon: 'r2Curriculum', to: '/admin/build' }]);
+    expect(hubPages('Content Editor', false)).toEqual([]);
   });
 
   it('builds the breadcrumb trail Admin / {group} / {page}', () => {
@@ -139,6 +144,9 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(crumbTrail('/admin/curriculum/new')).toEqual({ group: 'Build', page: 'Module Builder' });
     expect(crumbTrail('/admin')).toEqual({ group: 'Health', page: 'Overview' });
     expect(crumbTrail('/admin/no-such-page')).toBeNull();
+    // D-169: System Health, and the Build hub's own trail, `Admin / Build`.
+    expect(crumbTrail('/admin/health')).toEqual({ group: 'Health', page: 'System Health' });
+    expect(crumbTrail('/admin/build')).toEqual({ group: 'Build', page: 'Build', hub: true });
     // D-160 R2-1c: a record's page belongs to its row (the mockup's PARENT), and its crumb links back.
     expect(activeRowId('/admin/workspaces/ws_northshore')).toBe('workspaces');
     expect(activeRowId('/admin/users/u_1042')).toBe('users');
