@@ -1,0 +1,90 @@
+/* The Operations pages on R2 (D-168): Integrations, Deploys & Commits, DB Health and Environment
+   Flags, as the mockup draws them (`.g2`, `.g4`, `.pre`, and the list rows' inline widths). Tokens and
+   the mockup's literal px only. */
+.g2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.start {
+  align-items: start;
+}
+.g4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.pre {
+  font: 400 var(--r2-mo) / 20px var(--r2-font-mono);
+  background: var(--r2-hov);
+  border: 1px solid var(--r2-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  margin: 0;
+}
+.grow {
+  flex: 1;
+}
+.flagText {
+  flex: 1;
+  gap: 0;
+}
+.rowsCount {
+  width: 80px;
+  text-align: right;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.dotRow {
+  gap: 12px;
+}
+.liveRow {
+  gap: 8px;
+}
+.bad {
+  color: var(--r2-bad);
+}
+/* A Console flag's state is its own switch (D-168): drawn exactly as the mockup's status, a button
+   only to the keyboard's focus ring and the pointer. */
+.flip {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.flip:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--r2-mint);
+  text-underline-offset: 3px;
+}
+.flip:focus-visible {
+  box-shadow: var(--r2-focus);
+  outline: none;
+}
+/* An inert control the mockup draws (D-168: Check now is for Stripe and Resend only). */
+.inert {
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .g2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .g4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .flip {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    margin: -10px 0;
+  }
+}

@@ -47,15 +47,26 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2).
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-168 the four Operations pages.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
       ['Revenue', 'Tiers & Upgrades'],
-      ['Operations', 'Audit Log'],
+      ['Operations', 'Audit Log', 'Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ]);
+  });
+
+  it('D-168: turns the four Operations pages on by ops.read: Owner and Admin, never Support (D3)', () => {
+    const OPS = ['Integrations', 'Deploys & Commits', 'DB Health', 'Environment Flags'];
+    for (const role of ['Owner', 'Admin']) {
+      const ops = labels(nav({ role, fullNav: false })).find((g) => g[0] === 'Operations')!;
+      expect(ops.slice(-4), role).toEqual(OPS);
+    }
+    for (const role of ['Support', 'Instructor', 'Content Editor']) for (const x of OPS) expect(labels(nav({ role, fullNav: false })).flat(), `${role} ${x}`).not.toContain(x);
+    expect(activeRowId('/admin/db')).toBe('db');
+    expect(crumbTrail('/admin/flags')).toEqual({ group: 'Operations', page: 'Environment Flags' });
   });
 
   it('filters Console rows by capability, and leaves out a group with none', () => {

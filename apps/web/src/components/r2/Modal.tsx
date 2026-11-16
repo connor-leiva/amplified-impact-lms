@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import clsx from 'clsx';
 import { Icon } from '../Icon';
@@ -107,13 +107,20 @@ export interface ConfirmProps {
   danger?: boolean;
   /** The action writes an audit row: end with the mockup's "This action is audit-logged.". */
   audited?: boolean;
-  onConfirm: () => void;
+  /**
+   * D-168: typed confirmation, the mockup's `Confirm` field (`.lab` over `.in`): the action stays off
+   * until `word` is typed exactly, and `onConfirm` is handed what was typed.
+   */
+  typed?: { word: string; label: string } | null;
+  onConfirm: (typed?: string) => void;
   onClose: () => void;
 }
 
 export const AUDITED = 'This action is audit-logged.';
 
-export function Confirm({ title, body, cta, danger, audited, onConfirm, onClose }: ConfirmProps) {
+export function Confirm({ title, body, cta, danger, audited, typed, onConfirm, onClose }: ConfirmProps) {
+  const [text, setText] = useState('');
+  const ok = !typed || text.trim() === typed.word;
   return (
     <Modal
       title={title}
@@ -123,9 +130,10 @@ export function Confirm({ title, body, cta, danger, audited, onConfirm, onClose 
           <Button onClick={onClose}>Cancel</Button>
           <Button
             kind={danger ? 'primary-danger' : 'primary'}
+            disabled={!ok}
             onClick={() => {
               onClose();
-              onConfirm();
+              onConfirm(typed ? text.trim() : undefined);
             }}
           >
             {cta}
@@ -134,6 +142,20 @@ export function Confirm({ title, body, cta, danger, audited, onConfirm, onClose 
       }
     >
       <p className={s.body}>{body}</p>
+      {typed ? (
+        <label className={s.lab}>
+          {typed.label}
+          <input
+            className={k.in}
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            value={text}
+            placeholder={typed.word}
+            onChange={(e) => setText(e.target.value)}
+          />
+        </label>
+      ) : null}
       {audited ? <p className={clsx(k.p, k.me)}>{AUDITED}</p> : null}
     </Modal>
   );

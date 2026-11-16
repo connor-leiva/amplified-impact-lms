@@ -9,7 +9,7 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'integrations' | 'deploys' | 'db' | 'flags';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
@@ -18,6 +18,11 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
   workspaces: { title: 'Workspaces', cap: 'workspaces.read', path: '/admin/workspaces' },
   users: { title: 'Users', cap: 'users.read', path: '/admin/users' },
   search: { title: 'Search', cap: 'console.view', path: '/admin/search' },
+  // D-168 (spec §§ 7.11-7.13): the Operations pages, Owner and Admin (`ops.read`; Support none, D3).
+  integrations: { title: 'Integrations', cap: 'ops.read', path: '/admin/integrations' },
+  deploys: { title: 'Deploys & Commits', cap: 'ops.read', path: '/admin/deploys' },
+  db: { title: 'DB Health', cap: 'ops.read', path: '/admin/db' },
+  flags: { title: 'Environment Flags', cap: 'ops.read', path: '/admin/flags' },
 };
 
 /** The way out of Denied and the 404. */

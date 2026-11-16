@@ -82,3 +82,17 @@
   color: var(--r2-f2);
   text-wrap: pretty;
 }
+
+/* The confirm's typed field (`.lab`, D-168): its label over the input. */
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: calc(var(--r2-t) - 1px);
+}
+@media (max-width: 767px) {
+  .lab {
+    font-size: 16px;
+  }
+}

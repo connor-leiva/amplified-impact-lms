@@ -11,13 +11,14 @@
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
 
-import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, cleanSearch, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
+import { CONSOLE_FLAGS, CONSOLE_PAGE_DEFAULT, STAFF_ROLES, flagTypedOk, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, cleanSearch, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
 import type { AuditAction, AuditFilters, AuditRow, ConsoleMe, ConsolePage, StaffRole } from '@ai/core';
 import { clock } from '../lib/clock';
 import { fixtureRole } from './boot';
 import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
 import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
+import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from './console-fixture-ops';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows } from './parity-r2-db';
 
@@ -123,6 +124,8 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   let next = parity ? 2001 : 1001;
   const records = fixtureRecords();
   let noteId = 100;
+  // D-168: the Operations pages, the mockup's data; `masquerade_enabled` flips in memory.
+  const ops = fixtureOps(now, STAFF.casey.name);
 
   /** What the API's write would audit, so the Audit Log shows it on the next load. */
   const record = (action: AuditAction, target: AuditRow['target'], after: unknown, reason: string | null = null) => {
@@ -261,6 +264,46 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         const picked = fixtureUserRows(records, filters).map((u) => ({ ...u, joined: fixtureUser(records, u.id)?.user.joined ?? null }));
         record('user.export', { type: 'users', id: null, label: 'Users' }, { rows: picked.length, format: 'csv', filters });
         return { csv: usersCsv(picked), filename: `users-${new Date(now()).toISOString().slice(0, 10)}.csv` };
+      }),
+    // D-168: the Operations pages (ops.read). `?console-state=empty` is production's empty states: no
+    // deploy token, no pg_stat_statements.
+    opsEnv: () =>
+      settle(() => {
+        need('ops.read');
+        return ops.env();
+      }),
+    flipFlag: (key, on, typed) =>
+      settle(() => {
+        need('flags.write');
+        const def = CONSOLE_FLAGS.find((f) => f.key === key);
+        if (!def) throw notFound();
+        if (def.sensitive) need('flags.write_sensitive');
+        if (!flagTypedOk(def, typed)) throw new ConsoleError('invalid', 400, 'invalid_body', `Type ${def.key} to confirm.`);
+        const flag = ops.flip(key, on);
+        record('flag.flip', { type: 'flag', id: key, label: def.label }, { on, sensitive: def.sensitive });
+        return { flag };
+      }),
+    integrations: () =>
+      settle(() => {
+        need('ops.read');
+        return fixtureIntegrations();
+      }),
+    checkIntegration: (id) =>
+      settle(() => {
+        need('integrations.probe');
+        const result = ops.probe(id);
+        record('integration.probe', { type: 'integration', id, label: id === 'stripe' ? 'Stripe' : 'Resend' }, { outcome: result.outcome });
+        return result;
+      }),
+    deploys: () =>
+      settle(() => {
+        need('ops.read');
+        return fixtureDeploys(now(), state !== 'empty');
+      }),
+    dbHealth: () =>
+      settle(() => {
+        need('ops.read');
+        return fixtureDbHealth(now(), state !== 'empty');
       }),
     search: (q) =>
       settle(() => {
