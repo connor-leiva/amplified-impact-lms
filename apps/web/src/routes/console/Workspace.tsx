@@ -173,9 +173,7 @@ export function Component() {
               cols={memberCols}
               rows={vm.members}
               rowKey={(m) => m.key}
-              menu={(m) => [
-                { label: C.members.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} },
-              ]}
+              menu={() => [{ label: C.members.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} }]}
               empty={{ icon: 'r2Users', title: C.members.empty }}
             />
           ) : null}
