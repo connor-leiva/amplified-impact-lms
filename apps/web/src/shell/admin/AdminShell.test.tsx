@@ -36,7 +36,7 @@ function renderAt(path: string) {
         path: '/',
         element: <AppShell />,
         children: [
-          { path: 'admin', handle: { legacy: true }, element: <p>the overview</p> },
+          { path: 'admin', element: <p>the overview</p> },
           { path: 'admin/audit', element: <p>the audit log</p> },
           { path: 'admin/*', element: <p>the 404</p> },
           { path: 'sessions', element: <p>the sessions</p> },
@@ -131,11 +131,12 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     const router = renderAt('/admin/no-such-page');
     await screen.findByText('the 404');
     expect(aside()).toHaveAttribute('data-mode', 'rail');
-    const build = within(aside()).getByRole('button', { name: 'Build menu' });
-    fireEvent.click(build);
-    const menu = await screen.findByRole('menu', { name: 'Build' });
-    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Resource Vault' }));
-    await waitFor(() => expect(router.state.location.pathname).toBe('/admin/vault'));
+    const ops = within(aside()).getByRole('button', { name: 'Operations menu' });
+    fireEvent.click(ops);
+    const menu = await screen.findByRole('menu', { name: 'Operations' });
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Audit Log' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/admin/audit'));
+    expect(aside()).toHaveAttribute('data-mode', 'rail');
     fireEvent.click(within(aside()).getByRole('button', { name: 'Expand sidebar' }));
     await waitFor(() => expect(aside()).toHaveAttribute('data-mode', 'full'));
   });
@@ -168,10 +169,35 @@ describe('the R2 admin shell (D-160 R2-1b)', () => {
     expect(screen.getByText('Production')).toBeInTheDocument();
   });
 
-  it('keeps an old screen’s type and canvas until it is rebuilt', async () => {
-    renderAt('/admin');
+  it('keeps an old screen’s type and, for now, its old frame geometry; R2 everywhere else', async () => {
+    const router = renderAt('/admin');
     await screen.findByText('the overview');
     expect(document.querySelector('main')).toHaveAttribute('data-legacy', 'true');
+    expect(document.querySelector('[data-r2-shell]')).toHaveAttribute('data-legacy-geometry', 'true');
+    await act(async () => {
+      await router.navigate('/admin/no-such-page');
+    });
+    await screen.findByText('the 404');
+    expect(document.querySelector('main')).not.toHaveAttribute('data-legacy');
+    expect(document.querySelector('[data-r2-shell]')).not.toHaveAttribute('data-legacy-geometry');
+    await act(async () => {
+      await router.navigate('/admin/audit');
+    });
+    await screen.findByText('the audit log');
+    expect(document.querySelector('main')).toHaveAttribute('data-legacy', 'true');
+    expect(document.querySelector('[data-r2-shell]')).not.toHaveAttribute('data-legacy-geometry');
+  });
+
+  it('starts an old screen with the full sidebar at 1024, as the old shell did, and R2 screens on the rail', async () => {
+    setWidth(1024);
+    const router = renderAt('/admin');
+    await screen.findByText('the overview');
+    expect(aside()).toHaveAttribute('data-mode', 'full');
+    await act(async () => {
+      await router.navigate('/admin/no-such-page');
+    });
+    await screen.findByText('the 404');
+    expect(aside()).toHaveAttribute('data-mode', 'rail');
   });
 
   it('leaves the learner shell to learners', async () => {
