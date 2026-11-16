@@ -7,8 +7,13 @@
 // constant at build time. In the http build that branch is dead, so the fixture's fictional people
 // never reach production: `console-build.test.ts` builds this module both ways and checks.
 
-import { isConsoleErrorCode } from '@ai/core';
+import { OPS_PATHS, isConsoleErrorCode, jobRunPath } from '@ai/core';
 import type {
+  ApiEndpoints,
+  ConsoleJobs,
+  ConsoleWebhooks,
+  GhlRetryKind,
+  JobRunResult,
   AuditFilters,
   AuditRow,
   ConsoleErrorCode,
@@ -89,6 +94,14 @@ export interface ConsoleApi {
   exportUsers(filters: UserFilters): Promise<{ csv: string; filename: string }>;
   /** Spec § 7.5: 2 to 100 characters; users, workspaces, orders and skills, five each. */
   search(q: string): Promise<SearchResults>;
+  // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
+  apiEndpoints(): Promise<ApiEndpoints>;
+  webhooks(): Promise<ConsoleWebhooks>;
+  /** The CRM sync's own reset for one GHL row (D13). */
+  retryWebhook(kind: GhlRetryKind, id: string): Promise<void>;
+  jobs(): Promise<ConsoleJobs>;
+  /** Run Now (D14): the manual tick it recorded. */
+  runJob(job: string): Promise<JobRunResult>;
 }
 
 /**
@@ -194,6 +207,13 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'users.csv') };
     },
     search: async (q) => (await json<{ groups: SearchResults }>(await request(fetchImpl, `/api/console/search${listQuery({ q })}`))).groups,
+    apiEndpoints: async () => json<ApiEndpoints>(await request(fetchImpl, OPS_PATHS.apiEndpoints)),
+    webhooks: async () => json<ConsoleWebhooks>(await request(fetchImpl, OPS_PATHS.webhooks)),
+    retryWebhook: async (kind, id) => {
+      await request(fetchImpl, OPS_PATHS.ghlRetry, JSON_POST({ kind, id }));
+    },
+    jobs: async () => json<ConsoleJobs>(await request(fetchImpl, OPS_PATHS.jobs)),
+    runJob: async (job) => json<JobRunResult>(await request(fetchImpl, jobRunPath(job), JSON_POST({}))),
   };
 }
 

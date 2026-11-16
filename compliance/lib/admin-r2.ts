@@ -99,6 +99,10 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
   users: { path: '/admin/users' },
   user: { path: '/admin/users/u_1042' },
+  // D-165: API & Webhooks (its Endpoints tab, the mockup's default `route.tab || 'endpoints'`) and
+  // Scheduled Jobs, on the mockup's `ENDPOINTS`, `HOOKS` and `JOBS` (the Console fixture answers with them).
+  api: { path: '/admin/api' },
+  jobs: { path: '/admin/jobs' },
 };
 
 /**
@@ -108,7 +112,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
  * and `tiers` at all four; R2-3b: `audit` at all four; R2-1c part 1: `workspaces` at all four,
  * `workspace-detail` at 1440, 1280 and 1024; R2-1c part 2: `users` at all four, `user` at 1440, 1280
- * and 1024.
+ * and 1024; D-165: `api` and `jobs` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -141,6 +145,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // mockup on a phone, 16px here.
   `users-${w}`,
   ...(w === 390 ? [] : [`user-${w}`]),
+  // D-165: API & Webhooks and Scheduled Jobs, at all four widths.
+  `api-${w}`,
+  `jobs-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

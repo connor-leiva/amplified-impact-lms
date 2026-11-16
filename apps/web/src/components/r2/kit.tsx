@@ -99,14 +99,16 @@ export function Stat({
   label: string;
   value: string;
   sub?: string;
-  tone?: 'ok' | 'warn' | null;
+  tone?: 'ok' | 'warn' | 'bad' | null;
   to?: string | null;
 }) {
   const body = (
     <>
       <span className={clsx(k.mu, k.stl)}>{label}</span>
       <span className={k.fig}>{value}</span>
-      {sub ? <span className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn)}>{sub}</span> : null}
+      {sub ? (
+        <span className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn, tone === 'bad' && k.toneBad)}>{sub}</span>
+      ) : null}
     </>
   );
   return to ? (
