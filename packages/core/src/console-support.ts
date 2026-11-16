@@ -342,7 +342,7 @@ export const userCsvCells = (r: UserExportRow): unknown[] => [r.id, r.name, r.em
 export const usersCsv = (rows: readonly UserExportRow[]): string => toCsv([[...USERS_CSV_HEADER], ...rows.map(userCsvCells)]);
 
 // ================================================================================================
-// Staff notes (spec § 7.3, migration 0016)
+// Staff notes (spec § 7.3, migration 0017)
 // ================================================================================================
 
 export const STAFF_NOTE_TARGETS = ['workspace', 'user'] as const;

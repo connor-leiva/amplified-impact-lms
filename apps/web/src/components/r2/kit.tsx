@@ -167,9 +167,13 @@ export function TapCheck({
 }
 
 /**
- * `CheckCell` (R2-3b): a permission matrix's box and its word ("Yes", "No"), read-only (D11): every
- * box is disabled. A box fixed by product rules carries the lock and says so in its title and
- * accessible name. On a phone the word comes first ("Allowed", "Not allowed"), as the mockup's card.
+ * `CheckCell` (R2-3b): a permission matrix's box and its word ("Yes", "No"). With `onToggle` it is the
+ * mockup's toggle (D-160 R2-3b, editable Roles): a click asks the caller, which confirms before anything
+ * changes, so the box stays as it is until then. Without, it is disabled, with `title` saying why. A box
+ * fixed by product rules carries the lock and says so in its title and accessible name. On a phone the
+ * word comes first ("Allowed", "Not allowed"), as the mockup's card, and a toggle's real control is a
+ * transparent box over the whole 44px row (`TapCheck`'s pattern) behind the drawn one, so the drawing
+ * is the mockup's and the target is the row's.
  */
 export function CheckCell({
   label,
@@ -177,6 +181,8 @@ export function CheckCell({
   locked,
   word,
   phone,
+  title,
+  onToggle,
 }: {
   /** The box's accessible name: `{capability}, {role}`. */
   label: string;
@@ -184,17 +190,23 @@ export function CheckCell({
   locked?: boolean;
   word: string;
   phone?: boolean;
+  /** Why a disabled box is disabled. */
+  title?: string;
+  onToggle?: () => void;
 }) {
-  const box = (
-    <input
-      type="checkbox"
-      className={k.chk}
-      checked={on}
-      disabled
-      readOnly
-      aria-label={locked ? `${label}. Fixed by product rules` : label}
-    />
-  );
+  const live = !!onToggle && !locked;
+  const name = locked ? `${label}. Fixed by product rules` : label;
+  const box =
+    live && phone ? (
+      <>
+        <input type="checkbox" className={clsx(k.chk, k.drawn)} checked={on} readOnly tabIndex={-1} aria-hidden="true" />
+        <input type="checkbox" className={k.hit} aria-label={name} checked={on} onChange={onToggle} />
+      </>
+    ) : live ? (
+      <input type="checkbox" className={k.chk} checked={on} onChange={onToggle} aria-label={name} />
+    ) : (
+      <input type="checkbox" className={k.chk} checked={on} disabled readOnly aria-label={name} />
+    );
   const group = locked ? (
     <span className={clsx(k.row, k.nw, k.mu, k.lockGroup)}>
       {box}
@@ -203,16 +215,17 @@ export function CheckCell({
   ) : (
     box
   );
+  const why = locked ? 'Fixed by product rules' : live ? undefined : title;
   return phone ? (
-    <span className={clsx(k.row, k.nw, k.check)} title={locked ? 'Fixed by product rules' : undefined}>
+    <span className={clsx(k.row, k.nw, k.check)} title={why}>
       {word}
       {group}
     </span>
   ) : (
-    <span className={clsx(k.row, k.nw, k.check)} title={locked ? 'Fixed by product rules' : undefined}>
+    <label className={clsx(k.row, k.nw, k.check, live && k.live)} title={why}>
       {group}
       <span className={k.mu}>{word}</span>
-    </span>
+    </label>
   );
 }
 
