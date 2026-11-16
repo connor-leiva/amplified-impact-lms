@@ -22,8 +22,16 @@
 // scripts/reference-tokens.mjs generates tokens.css and global.css from it, and www's pages inline
 // global.css, so the LMS's body type and tap targets live in lms.css instead.
 //
+// R2-1a (DECISIONS.md D-160): this rule raised every size at EVERY width, which was the root cause of the
+// desktop admin's phone sizing. scripts/lms-type-scope.mjs turned each value it raised into a size token
+// (`var(--fs-13)`, `var(--bx-20)`, `var(--lh-18)`) that lms.css sets to the original value above 767px and
+// to the floor on a phone. The rewrite below is kept as it ran in #117 (lms-type-scope replays it to find
+// those declarations, and checks it byte for byte); new code writes a token, not a raw size under 16px.
+//
 // Usage: node scripts/lms-type-floor.mjs [--check]
-//   --check  exits 1 if any target still sets type under 16px or uses --font-sans / --font-mono.
+//   --check  exits 1 if any target sets type under 16px as a RAW literal (a size token is not raw), uses
+//            --font-sans / --font-mono, or uses a size token that lms.css does not define at or above the
+//            floor in its phone block. So on a phone the floor holds by construction.
 
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
@@ -112,13 +120,60 @@ export function liftTsx(src) {
   return faces(out.replace(/(font-size\s*:\s*)([0-9.]+)px/g, (m, pre, n) => (num(n) < FLOOR ? `${pre}${FLOOR}px` : m)));
 }
 
-/** What a file still sets under the floor, or the old faces it still uses: for --check. */
+/** A `font:` shorthand's size in CSS or an inline style (rule 2's second pattern). */
+const CSS_FONT = /\bfont\s*:\s*(?:[a-z-]+\s+)*?(?:[1-9]00\s+)?([0-9.]+)px/g;
+
+/**
+ * What a file still sets under the floor as a RAW literal, or the old faces it still uses: for --check.
+ * A size token (`var(--fs-13)`) is not raw: lms.css makes it 16px on a phone, which `tokenOffences`
+ * checks. Every form rule 2 lifts is covered: `font-size`, a `font:` shorthand in CSS, a style attribute
+ * or a React string, and a React `fontSize` number or px string.
+ */
 export function offences(text) {
   const found = [];
   for (const m of text.matchAll(/font-size\s*:\s*([0-9.]+)px/g)) if (num(m[1]) < FLOOR) found.push(m[0]);
-  for (const m of text.matchAll(/\bfontSize\s*:\s*([0-9.]+)\b/g)) if (num(m[1]) < FLOOR) found.push(m[0]);
+  for (const m of text.matchAll(/\bfontSize\s*:\s*['"`]?([0-9.]+)(?:px)?\b/g)) if (num(m[1]) < FLOOR) found.push(m[0]);
   for (const m of text.matchAll(TSX_FONT)) if (num(m[2]) < FLOOR) found.push(m[0]);
+  for (const m of text.matchAll(CSS_FONT)) if (num(m[1]) < FLOOR) found.push(m[0]);
   for (const m of text.matchAll(/var\(--font-(?:sans|mono)\)/g)) found.push(m[0]);
+  return found;
+}
+
+/** The size tokens' floors on a phone, by family: what rules 2 and 3 raise to. */
+const TOKEN_FLOOR = { fs: FLOOR, bx: MIN_BOX, lh: MIN_LINE };
+const SIZE_TOKEN = /--(fs|bx|lh)-([0-9]+(?:_[0-9]+)?)\s*:\s*([0-9.]+)px/g;
+
+/** lms.css's size tokens: their values outside any media query, and in its `max-width:767px` block. */
+export function sizeTokens(css) {
+  const at = css.indexOf('@media (max-width:767px){');
+  if (at < 0) return { desktop: new Map(), phone: new Map() };
+  let depth = 0;
+  let end = at;
+  for (let i = css.indexOf('{', at); i < css.length; i++) {
+    if (css[i] === '{') depth += 1;
+    else if (css[i] === '}' && --depth === 0) {
+      end = i + 1;
+      break;
+    }
+  }
+  const outside = css.slice(0, at).replace(/@media[^{]*\{[\s\S]*$/, '');
+  const read = (part) => new Map([...part.matchAll(SIZE_TOKEN)].map((m) => [`--${m[1]}-${m[2]}`, num(m[3])]));
+  return { desktop: read(outside), phone: read(css.slice(at, end)) };
+}
+
+/**
+ * Every size token a target uses must be defined in lms.css with its name's value outside the phone
+ * query (`--fs-13: 13px`, the point written `_`) and a value at or above its family's floor inside it.
+ */
+export function tokenOffences(css, used) {
+  const { desktop, phone } = sizeTokens(css);
+  const found = [];
+  for (const t of new Set([...used, ...desktop.keys(), ...phone.keys()])) {
+    const [, family, n] = /^--(fs|bx|lh)-(.+)$/.exec(t);
+    const want = num(n.replace('_', '.'));
+    if (desktop.get(t) !== want) found.push(`${t} is not ${want}px outside the phone query`);
+    if (!(phone.get(t) >= TOKEN_FLOOR[family])) found.push(`${t} is not at least ${TOKEN_FLOOR[family]}px in the phone query`);
+  }
   return found;
 }
 
@@ -127,10 +182,13 @@ function main() {
   const { ref, app } = targets();
   let bad = 0;
   let changed = 0;
+  const used = new Set();
   for (const file of [...ref, ...app]) {
     const text = readFileSync(file, 'utf8');
     if (check) {
-      const o = offences(file.endsWith('.dc.html') ? text.replace(SHARED, '') : text);
+      const body = file.endsWith('.dc.html') ? text.replace(SHARED, '') : text;
+      for (const m of body.matchAll(/var\((--(?:fs|bx|lh)-[0-9_]+)\)/g)) used.add(m[1]);
+      const o = offences(body);
       if (o.length) {
         bad += o.length;
         console.error(`${relative(ROOT, file)}: ${[...new Set(o)].join(', ')}`);
@@ -144,11 +202,20 @@ function main() {
     }
   }
   if (check) {
+    for (const css of [join(REF, 'lms.css'), join(ROOT, 'apps/web/src/styles/lms.css')]) {
+      const t = tokenOffences(readFileSync(css, 'utf8'), used);
+      if (t.length) {
+        bad += t.length;
+        console.error(`${relative(ROOT, css)}: ${t.join('; ')}`);
+      }
+    }
     if (bad) {
-      console.error(`lms-type-floor: ${bad} declaration(s) under ${FLOOR}px or on the old faces`);
+      console.error(`lms-type-floor: ${bad} declaration(s) under ${FLOOR}px, on the old faces, or on a size token under the floor`);
       process.exit(1);
     }
-    console.log(`lms-type-floor: ok (${ref.length} reference files, ${app.length} app files, nothing under ${FLOOR}px)`);
+    console.log(
+      `lms-type-floor: ok (${ref.length} reference files, ${app.length} app files, no raw size under ${FLOOR}px; ${used.size} size tokens, each at or above the floor on a phone)`,
+    );
   } else console.log(`lms-type-floor: rewrote ${changed} file(s)`);
 }
 
