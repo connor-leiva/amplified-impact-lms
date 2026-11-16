@@ -1,5 +1,5 @@
 {
-  "id": "bee30a39-7126-4949-825b-95dfc5cab68f",
+  "id": "cc7695e2-eb7e-4187-86a9-43287637069f",
   "prevId": "d21dd025-c300-4403-85e0-2578e7b33387",
   "version": "7",
   "dialect": "postgresql",
@@ -975,21 +975,6 @@
               "expression": "user_id",
               "isExpression": false,
               "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "email_log_to_idx": {
-          "name": "email_log_to_idx",
-          "columns": [
-            {
-              "expression": "lower(\"to\")",
-              "asc": true,
-              "isExpression": true,
               "nulls": "last"
             }
           ],

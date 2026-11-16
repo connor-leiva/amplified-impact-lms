@@ -12,7 +12,7 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
-import { auditLog, staffNotes, users } from '../src/db/schema';
+import { auditLog, emailLog, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -37,7 +37,11 @@ type RouteName =
   | 'masqueradeCurrent'
   | 'masqueradeExtend'
   | 'masqueradeExit'
-  | 'masqueradeSessions';
+  | 'masqueradeSessions'
+  | 'emailLog'
+  | 'emailLogOne'
+  | 'emailLogExport'
+  | 'usage';
 
 /** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
 const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
@@ -80,10 +84,15 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   },
   masqueradeExit: { path: CONSOLE_PATHS.masqueradeExit, url: CONSOLE_PATHS.masqueradeExit, method: 'POST', route: `POST ${CONSOLE_PATHS.masqueradeExit}` },
   masqueradeSessions: { path: CONSOLE_PATHS.masqueradeSessions, url: CONSOLE_PATHS.masqueradeSessions, method: 'GET', route: `GET ${CONSOLE_PATHS.masqueradeSessions}` },
+  // PR 7 (D-166). Row 1 is a logged send, inserted below.
+  emailLog: { path: CONSOLE_PATHS.emailLog, url: CONSOLE_PATHS.emailLog, method: 'GET', route: `GET ${CONSOLE_PATHS.emailLog}` },
+  emailLogOne: { path: CONSOLE_PATHS.emailLogOne, url: '/api/console/email/1', method: 'GET', route: `GET ${CONSOLE_PATHS.emailLogOne}` },
+  emailLogExport: { path: CONSOLE_PATHS.emailLogExport, url: CONSOLE_PATHS.emailLogExport, method: 'POST', route: `POST ${CONSOLE_PATHS.emailLogExport}` },
+  usage: { path: CONSOLE_PATHS.usage, url: `${CONSOLE_PATHS.usage}?from=2026-11-24&to=2026-12-07`, method: 'GET', route: `GET ${CONSOLE_PATHS.usage}` },
 };
 
 /** The routes whose success writes its own audit row. */
-const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart']);
+const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart', 'emailLogExport']);
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
 const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
@@ -110,18 +119,21 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // everyone, because none of these callers is in a session.
 const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v });
 const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeStart: start, masqueradeCurrent: 200, masqueradeExtend: extend, masqueradeExit: 409, masqueradeSessions: sessions });
+// PR 7 (D-166): the email log and usage are read with email.read and usage.read (Owner, Admin and
+// Support, D3: Support sees the email log); the export is export (Owner, Admin).
+const EU = (read: number, exp: number) => ({ emailLog: read, emailLogOne: read, emailLogExport: exp, usage: read });
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
-    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401,
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, ...EU(401, 401),
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200) },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200) },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...EU(403, 403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...EU(403, 403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...EU(403, 403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...EU(403, 403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...EU(200, 403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), ...EU(200, 200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), ...EU(200, 200) },
 };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
@@ -145,6 +157,8 @@ beforeEach(async () => {
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });
   // Note 1, for the delete route to find.
   await db.insert(staffNotes).values({ targetType: 'workspace', targetId: 'northline', authorUserId: 'st4', body: 'Owner asked about seats.', createdAt: NOW - 3600_000 });
+  // Email 1, for the detail route to find (D-166).
+  await db.insert(emailLog).values({ at: NOW - 3600_000, to: 'jamie@ortizhomes.com', userId: 'u_jamie', template: 'sign-in', subject: 'Your sign-in link', provider: 'outbox', status: 'skipped' });
   app = await build({ logger: false });
 });
 afterEach(async () => {

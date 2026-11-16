@@ -143,6 +143,14 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     ],
     gate: 9,
   },
+  // D-166: the Admin Console's email log (spec § 7.15), with no column for a body, and usage counts
+  // (spec § 7.7). Neither is a `Db` record, like `audit_log`.
+  emailLog: {
+    table: 'email_log',
+    columns: ['at', 'error_kind', 'id', 'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id'],
+    gate: 9,
+  },
+  usageDaily: { table: 'usage_daily', columns: ['count', 'day', 'kind', 'team_id', 'user_id'], gate: 9 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -333,6 +341,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['masqueradeSessions', 'expiresAt'],
   ['masqueradeSessions', 'hardExpiresAt'],
   ['masqueradeSessions', 'endedAt'],
+  // D-166: when a send was logged, as `clock.now()` stamps it.
+  ['emailLog', 'at'],
 ];
 
 /**
@@ -389,6 +399,8 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
   staffNotes: { unit: 'epoch-ms', why: 'D-158: created_at and deleted_at are clock.now() as written by console/notes.ts, and fmt.* formats them' },
   masqueradeSessions: { unit: 'epoch-ms', why: 'D-162: compared with clock.now() by masqueradeLive and the sweep, and counted down by the banner' },
+  emailLog: { unit: 'epoch-ms', why: 'D-166: at is clock.now() as written by email/log.ts, pruned against it, and printed in MST by the R2 admin' },
+  usageDaily: { unit: 'epoch-ms', why: 'D-166: no instant at all; `day` is a program-zone calendar day, YYYY-MM-DD' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -543,6 +555,8 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   jobRuns: ['job', 'key'],
   // D-148: an address is on a group's list once. The pair is the key, so listing it twice is a no-op.
   accessGroupMembers: ['group_id', 'email'],
+  // D-166: one count per learner, day and kind; each event upserts it (`on conflict … count + 1`).
+  usageDaily: ['day', 'user_id', 'kind'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {
@@ -624,6 +638,13 @@ describe('unique indexes @g9', () => {
     ],
     // D-158: a record's notes are read by their target.
     staffNotes: [{ name: 'staff_notes_target_idx', unique: false, columns: ['target_type', 'target_id'] }],
+    // D-166: the email log's list (newest first), a person's emails and the Template filter; usage by workspace.
+    emailLog: [
+      { name: 'email_log_at_idx', unique: false, columns: ['at'] },
+      { name: 'email_log_user_idx', unique: false, columns: ['user_id'] },
+      { name: 'email_log_template_idx', unique: false, columns: ['template'] },
+    ],
+    usageDaily: [{ name: 'usage_daily_team_idx', unique: false, columns: ['team_id', 'day'] }],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -638,6 +659,11 @@ describe('unique indexes @g9', () => {
 
   it('gives staff notes their target index, not unique @g9', () => {
     expect(indexesOf(tableOf('staffNotes'))).toEqual(LOOKUP_INDEXES.staffNotes);
+  });
+
+  it('gives the email log and usage their lookup indexes, none unique (D-166) @g9', () => {
+    expect(indexesOf(tableOf('emailLog'))).toEqual(LOOKUP_INDEXES.emailLog);
+    expect(indexesOf(tableOf('usageDaily'))).toEqual(LOOKUP_INDEXES.usageDaily);
   });
 
   it('finds no other table carrying an index @g9', () => {

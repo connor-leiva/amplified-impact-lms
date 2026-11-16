@@ -451,7 +451,6 @@ export const emailLog = pgTable('email_log', {
 }, (t) => [
   index('email_log_at_idx').on(t.at),
   index('email_log_user_idx').on(t.userId),
-  index('email_log_to_idx').on(sql`lower(${t.to})`),
   index('email_log_template_idx').on(t.template),
   // The closed lists in `@ai/core` (EMAIL_STATUSES, EMAIL_PROVIDERS, EMAIL_ERROR_KINDS), typed out
   // because drizzle-kit reads this file on its own.

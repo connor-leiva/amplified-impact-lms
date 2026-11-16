@@ -28,6 +28,5 @@ CREATE TABLE "usage_daily" (
 --> statement-breakpoint
 CREATE INDEX "email_log_at_idx" ON "email_log" USING btree ("at");--> statement-breakpoint
 CREATE INDEX "email_log_user_idx" ON "email_log" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "email_log_to_idx" ON "email_log" USING btree (lower("to"));--> statement-breakpoint
 CREATE INDEX "email_log_template_idx" ON "email_log" USING btree ("template");--> statement-breakpoint
 CREATE INDEX "usage_daily_team_idx" ON "usage_daily" USING btree ("team_id","day");

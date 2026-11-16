@@ -496,6 +496,11 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: `${CONSOLE_PATHS.search}?q=jamie` },
       { method: 'POST', url: CONSOLE_PATHS.masqueradeStart },
       { method: 'GET', url: CONSOLE_PATHS.masqueradeSessions },
+      // PR 7 (D-166): the email log and usage.
+      { method: 'GET', url: CONSOLE_PATHS.emailLog },
+      { method: 'GET', url: '/api/console/email/1' },
+      { method: 'POST', url: CONSOLE_PATHS.emailLogExport },
+      { method: 'GET', url: CONSOLE_PATHS.usage },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);
