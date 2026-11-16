@@ -89,6 +89,10 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   overview: { path: '/admin' },
   learners: { path: '/admin/learners' },
   tiers: { path: '/admin/tiers' },
+  // R2-3b: the Audit Log and Roles & Permissions. `roles-confirm` has no route: its dialog exists only
+  // through a permission write, which D11 and spec § 7.16 forbid (Needs Connor's call, D-160 R2-3b).
+  audit: { path: '/admin/audit' },
+  roles: { path: '/admin/roles' },
 };
 
 /**
@@ -96,7 +100,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
  * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
- * and `tiers` at all four.
+ * and `tiers` at all four; R2-3b: `audit` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -114,6 +118,10 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `overview-${w}`,
   `learners-${w}`,
   `tiers-${w}`,
+  // R2-3b (D-160): the Audit Log at all four widths. `roles` is not enforced: the matrix is drawn
+  // read-only (D11, spec § 7.16), which costs 0.21–0.50% (Needs Connor's call); `roles-confirm` is not
+  // built, its dialog existing only through a permission write the spec forbids.
+  `audit-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

@@ -273,3 +273,46 @@ test.describe('Overview, Learners & Teams, Tiers & Upgrades and Staff & Roles on
     await close();
   });
 });
+
+test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2', () => {
+  for (const path of ['/admin/audit', '/admin/roles'])
+    test(`${path} passes axe and keeps the landmarks, at 1440, 1280, 1024 and 390, with no CT`, async ({ browser }) => {
+      for (const width of [1440, 1280, 1024, 390]) {
+        const { page, close } = await openAt(browser, path, width);
+        await expectShell(page);
+        await expectAccessible(page);
+        await noCentral(page);
+        await close();
+      }
+    });
+
+  test('Audit Log: the times in MST; selecting rows draws Export selected, which does nothing; a row opens its entry', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/audit');
+    const table = page.getByRole('table', { name: 'Audit log entries' });
+    await expect(table.getByRole('button', { name: 'View the entry from Dec 10, 8:58 AM' })).toBeVisible();
+    await expect(table.getByText('CSV, last 7 days, 212 rows.')).toBeVisible();
+    await table.getByRole('checkbox', { name: 'Select row' }).first().check();
+    const exportSelected = page.getByRole('button', { name: 'Export selected' });
+    await expect(exportSelected).toHaveAttribute('aria-disabled', 'true');
+    await table.getByRole('button', { name: 'View the entry from Dec 9, 9:27 PM' }).click();
+    const drawer = page.locator('[data-drawer="open"]');
+    await expect(drawer).toContainText('masquerade.blocked_action');
+    await expect(drawer).toContainText('Dec 9, 2026, 9:27 PM MST');
+    await expectAccessible(page);
+    await close();
+  });
+
+  test('Roles & Permissions: read-only; the Owner column on; Support’s refund and masquerade locked', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/roles');
+    const matrix = page.getByRole('table', { name: 'Console permissions by role' });
+    await expect(matrix.locator('input[type="checkbox"]:not(:disabled)')).toHaveCount(0);
+    for (const cap of ['Edit curriculum, vault, sessions, announcements, tiers', 'Edit staff roles and this matrix'])
+      await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeChecked();
+    for (const cap of ['Start and extend masquerade', 'Refund or void an invoice'])
+      await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).not.toBeChecked();
+    await matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin' }).dispatchEvent('click');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(page.getByText('Connor Leiva (you)')).toBeVisible();
+    await close();
+  });
+});
