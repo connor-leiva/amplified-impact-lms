@@ -14,7 +14,9 @@
 //                                   the path of the Staff & Roles screen. `ops.read` (Owner, Admin).
 //
 // PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
-// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. During a
+// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. PR 4 (D-163) adds
+// Billing's reads (`billing.ts`), and PR 5 (D-164) its two confirmed writes, refund and void
+// (`billing-actions.ts`), each a preview and an execute with a confirm token. During a
 // masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
 // `requireSession`).
 //
@@ -49,6 +51,10 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { BILLING_PATHS, registerBillingRoutes } from './billing';
 import type { BillingDeps } from './billing';
+import { BILLING_ACTION_ROUTES, registerBillingActionRoutes, staleAfter } from './billing-actions';
+import { forgetConsoleStripe } from './stripe-read';
+import type { ConsoleStripe } from './stripe-read';
+import type { ConsoleStripeWrite } from './stripe-write';
 import { registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
 
@@ -67,6 +73,8 @@ export const CONSOLE_PATHS = {
   masqueradeSessions: MASQUERADE_PATHS.sessions,
   // PR 4 (D-163): Billing, read-only.
   ...BILLING_PATHS,
+  // PR 5 (D-164): Billing's confirmed refund and void.
+  ...BILLING_ACTION_ROUTES,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -79,7 +87,16 @@ export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute
  * client (null with no key), the offer's price cache and the key's mode (PR 4, D-163). Without
  * Billing's, Billing answers "Stripe isn't connected".
  */
-export type ConsoleDeps = Readonly<MasqueradeDeps & { billing?: BillingDeps }>;
+export type ConsoleDeps = Readonly<
+  MasqueradeDeps & {
+    billing?: BillingDeps;
+    /**
+     * PR 5 (D-164): the confirmed actions' Stripe clients: reads made fresh (never the cache) and the
+     * narrow write client. Without them the actions answer "Stripe isn't connected".
+     */
+    billingActions?: { read: ConsoleStripe | null; write: ConsoleStripeWrite | null };
+  }
+>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -286,6 +303,16 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
 
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
-    registerBillingRoutes(scope, deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' }, { config: limit(CONSOLE_RATE.read) });
+    const billing = deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' as const };
+    const memo = registerBillingRoutes(scope, billing, { config: limit(CONSOLE_RATE.read) });
+    registerBillingActionRoutes(scope, {
+      read: deps.billingActions?.read ?? null,
+      write: deps.billingActions?.write ?? null,
+      // The acted-on invoice's cached reads, and the summary, are read again (D-164).
+      afterWrite: (ref) => {
+        if (billing.stripe) forgetConsoleStripe(billing.stripe, staleAfter(ref));
+        memo.forgetSummary();
+      },
+    });
   });
 }

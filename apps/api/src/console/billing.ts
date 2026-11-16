@@ -34,6 +34,7 @@ import {
   planLine,
   primaryPlan,
   refundReasonOf,
+  seatTierOf,
   stripeDashboardUrl,
   stripeScopeMessage,
   subscriptionLine,
@@ -239,6 +240,7 @@ async function subscriptionRows(stripe: ConsoleStripe, refs: LocalRefs, mode: St
         status: s.status,
         mrrCents: line === 'cohort' ? null : Math.round(subscriptionMrr(s)),
         url: stripeDashboardUrl(mode, 'subscriptions', s.id),
+        seatTier: seatTierOf(line),
       };
     }),
     nextCursor: next,
@@ -374,7 +376,12 @@ function stripeRefusal(req: FastifyRequest, reply: FastifyReply, e: unknown): Fa
   throw e;
 }
 
-export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps, rate: { config: { rateLimit: { max: number; timeWindow: string } } }): void {
+/** What a confirmed write (D-164) calls afterwards: forget the cached summary, so its figures are read again. */
+export interface BillingMemo {
+  forgetSummary(): void;
+}
+
+export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps, rate: { config: { rateLimit: { max: number; timeWindow: string } } }): BillingMemo {
   const opts = { ...rate, preHandler: [requireSession, requireConsole('billing.read')] };
   // The summary itself is kept 10 minutes too, so its `asOf` says when it was read.
   let summary: { at: number; value: Promise<BillingSummary> } | null = null;
@@ -441,4 +448,10 @@ export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps,
     }
     return scopes.value;
   });
+
+  return {
+    forgetSummary: () => {
+      summary = null;
+    },
+  };
 }
