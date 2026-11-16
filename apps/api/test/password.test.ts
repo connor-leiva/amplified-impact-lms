@@ -18,6 +18,7 @@ import { outboxFor, resetOutbox } from '../src/email/transport';
 import type { OutboxEntry } from '../src/email/transport';
 import { LOCKED_OUT, NEED_CURRENT, WRONG_CURRENT, WRONG_PASSWORD } from '../src/routes/password';
 import { resetDatabase, testDatabase } from './helpers';
+import { clearUsage, usageRows, withoutUsageTable } from './usage-helpers';
 import type { Database } from '../src/db/client';
 
 const NOW = Date.parse('2026-12-07T10:42:00-06:00');
@@ -424,5 +425,37 @@ describe('the account page', () => {
   it('is behind the session', async () => {
     expect((await app.inject({ method: 'GET', url: '/api/auth/password' })).statusCode).toBe(401);
     expect((await post('/api/auth/password/change', { password: PASSWORD })).statusCode).toBe(401);
+  });
+});
+
+// D-166: the usage count a password sign-in makes (spec §§ 7.7, 9), in `signIn`, which login, set
+// and the checkout's set-password share.
+describe('POST /api/auth/login counts a sign-in (D-166) @console', () => {
+  beforeEach(clearUsage);
+
+  it('counts one sign-in for the learner and none for the Owner', async () => {
+    await givePassword(JAMIE);
+    await givePassword(CASEY);
+    expect((await login(JAMIE, PASSWORD)).statusCode).toBe(200);
+    expect((await login(CASEY, PASSWORD)).statusCode).toBe(200);
+    expect(await usageRows()).toEqual([expect.objectContaining({ user_id: await userId(JAMIE), kind: 'sign_in', count: 1 })]);
+    expect((await login(JAMIE, PASSWORD)).statusCode).toBe(200);
+    expect((await usageRows())[0]!.count).toBe(2);
+  });
+
+  it('answers exactly as before when the count cannot be written', async () => {
+    await givePassword(JAMIE);
+    const res = await withoutUsageTable(() => login(JAMIE, PASSWORD));
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true, landing: '/' });
+    const me = await app.inject({ method: 'GET', url: '/api/me', headers: { cookie: cookieFrom(res.headers['set-cookie']) } });
+    expect(me.statusCode).toBe(200);
+    expect(await usageRows()).toEqual([]);
+  });
+
+  it('counts nothing for a wrong password', async () => {
+    await givePassword(JAMIE);
+    expect((await login(JAMIE, 'not the password')).statusCode).toBe(400);
+    expect(await usageRows()).toEqual([]);
   });
 });
