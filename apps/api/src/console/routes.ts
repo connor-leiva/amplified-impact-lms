@@ -49,6 +49,8 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
+import { EMAIL_USAGE_PATHS, registerEmailUsageRoutes } from './email-usage';
+import type { UsageDeps } from './email-usage';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -63,6 +65,11 @@ export const CONSOLE_PATHS = {
   masqueradeExtend: MASQUERADE_PATHS.extend,
   masqueradeExit: MASQUERADE_PATHS.exit,
   masqueradeSessions: MASQUERADE_PATHS.sessions,
+  // PR 7 (D-166): the email log and usage.
+  emailLog: EMAIL_USAGE_PATHS.email,
+  emailLogOne: EMAIL_USAGE_PATHS.emailOne,
+  emailLogExport: EMAIL_USAGE_PATHS.emailExport,
+  usage: EMAIL_USAGE_PATHS.usage,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -70,8 +77,8 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 /** A route's per-minute limit, per session (D-137's limiter). */
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
-/** What later Console PRs hand the routes (Stripe, the price cache, the event hub): masquerade's flag so far. */
-export type ConsoleDeps = Readonly<MasqueradeDeps>;
+/** What later Console PRs hand the routes (Stripe, the price cache, the event hub): masquerade's flag and the bucket's size so far. */
+export type ConsoleDeps = Readonly<MasqueradeDeps & UsageDeps>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -275,5 +282,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
 
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
+    registerEmailUsageRoutes(scope, deps);
   });
 }

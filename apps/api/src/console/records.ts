@@ -84,11 +84,11 @@ export function decodeCursor(raw: unknown): NameCursor | null {
 const n = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
 
 /** `array['cohort', …]::text[]`, each kind a bound value: the order `primaryPlan` ranks by. */
-const priorityArray = sql`array[${sql.join(
+export const priorityArray = sql`array[${sql.join(
   PLAN_PRIORITY.map((k) => sql`${k}`),
   sql`, `,
 )}]::text[]`;
-const liveArray = sql`array[${sql.join(
+export const liveArray = sql`array[${sql.join(
   LIVE_PLAN_STATUSES.map((k) => sql`${k}`),
   sql`, `,
 )}]::text[]`;

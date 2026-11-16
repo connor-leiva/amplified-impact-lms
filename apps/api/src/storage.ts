@@ -439,6 +439,23 @@ export async function listKeys(prefix: string): Promise<string[]> {
   return keys;
 }
 
+/**
+ * The bucket's size in bytes: every object's `Size`, paging through ListObjectsV2. Read-only, names and
+ * sizes only, never an object. For the Console's Usage screen (D-166), which caches it for an hour.
+ * Throws `StorageConfigError` like any other use, which the screen shows as "Unavailable".
+ */
+export async function bucketBytes(): Promise<number> {
+  const { client, config } = s3();
+  let bytes = 0;
+  let token: string | undefined;
+  do {
+    const out = await client.send(new ListObjectsV2Command({ Bucket: config.bucket, ContinuationToken: token }));
+    for (const o of out.Contents ?? []) bytes += o.Size ?? 0;
+    token = out.IsTruncated ? out.NextContinuationToken : undefined;
+  } while (token);
+  return bytes;
+}
+
 /** The configured `S3_URL_STYLE`, for the Library check to report. Throws `StorageConfigError` like any other use. */
 export const storageUrlStyle = (): S3UrlStyle => s3().config.urlStyle;
 
