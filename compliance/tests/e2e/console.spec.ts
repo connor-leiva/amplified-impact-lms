@@ -241,15 +241,16 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
     await close();
   });
 
-  /** D-160 R2-3b: the Outcome filter, which the mockup does not draw, is in the filter row's "…". */
-  const outcome = async (page: Page, label: string) => {
-    await page.getByRole('button', { name: /^More filters/ }).click();
-    await page.getByRole('menuitem', { name: label }).click();
-  };
+  /**
+   * D-160 R2-3b: the mockup's filters only (search, Actor, Action, Date range); the Outcome filter's
+   * "…", which the mockup does not draw, is gone (the Nov 16 eye check), and none is offered.
+   */
+  const action = async (page: Page, group: string) => page.getByRole('combobox', { name: 'Action' }).selectOption(group);
 
   test('filters narrow the list, and Clear Filters brings it back', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
-    await outcome(page, 'Denied');
+    await expect(page.getByRole('button', { name: /More filters/ })).toHaveCount(0);
+    await action(page, 'console');
     await expect(rows(page).first()).toContainText('console.access_denied');
     const n = await rows(page).count();
     for (let i = 0; i < n; i++) await expect(rows(page).nth(i)).toContainText('console.access_denied');
@@ -263,16 +264,17 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
 
   test('Export CSV downloads the filtered rows, safe for a spreadsheet, and the export joins the log', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
-    await outcome(page, 'Failed');
-    await expect(rows(page)).toHaveCount(1);
+    await action(page, 'console');
+    await expect(rows(page)).toHaveCount(24);
     const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
     expect(download.suggestedFilename()).toBe('audit-log-2026-12-07.csv');
     const csv = await readFile((await download.path())!, 'utf8');
     const lines = csv.trimEnd().split('\r\n');
     expect(lines[0]).toMatch(/^"id","at","actor_user_id"/);
-    expect(lines).toHaveLength(2);
+    expect(lines).toHaveLength(25);
+    expect(lines.slice(1).every((l) => l.includes('"console.access_denied"'))).toBe(true);
     await expect(page.getByText('Export downloaded. The export is in the audit log.')).toBeVisible();
-    await outcome(page, 'Any outcome');
+    await action(page, '');
     await expect(rows(page).first()).toContainText('audit.export');
     // D-160 R2-3b: the time in MST (10:42 AM Central is 9:42 AM in Arizona).
     await expect(rows(page).first()).toContainText('9:42 AM');

@@ -248,7 +248,6 @@ export const AUDIT_R2_COPY = {
   exportSelected: 'Export selected',
   emptyTitle: 'No audit entries yet',
   emptyBody: 'Staff actions are recorded here as they happen.',
-  moreFilters: 'More filters',
 } as const;
 
 /** The R2 selects' options: the mockup's words, the API's values. */
@@ -259,8 +258,6 @@ export const actionOptionsR2 = (): Option[] => [{ value: '', label: 'Any action'
 
 export const RANGE_OPTIONS_R2: Option[] = RANGES.map((r) => ({ value: r.key, label: r.label.charAt(0) + r.label.slice(1).toLowerCase() }));
 
-/** The Outcome filter, which the mockup does not draw: in the filter row's "…". */
-export const OUTCOME_OPTIONS_R2: Option[] = OUTCOME_OPTIONS.map((o) => (o.value === '' ? { ...o, label: 'Any outcome' } : o));
 
 export interface AuditR2Row {
   key: string;

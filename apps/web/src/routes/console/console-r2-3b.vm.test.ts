@@ -3,7 +3,7 @@ import { CONSOLE_CAP_KEYS, ROLES_R2_ROWS, consoleCan, rolesMatrix, seed } from '
 import type { AuditRow } from '@ai/core';
 import { parityAuditRows, parityDb, parityRoleGrants } from '../../data/parity-r2-db';
 import { AUDIT0, PERMS0 } from '../../data/parity-r2';
-import { RANGE_OPTIONS_R2, OUTCOME_OPTIONS_R2, actionOptionsR2, actorOptionsR2, detailOf, detailR2, rowR2 } from './AuditLog.vm';
+import { AUDIT_R2_COPY, RANGE_OPTIONS_R2, actionOptionsR2, actorOptionsR2, detailOf, detailR2, rowR2 } from './AuditLog.vm';
 import { ROLES_R2_COPY, guardTitle, rolesMatrixR2, rolesStaffR2 } from './Roles.vm';
 
 // D-160 R2-3b: the Audit Log and Roles & Permissions view-models of the Admin redesign R2. On the
@@ -33,12 +33,13 @@ describe('the R2 Audit Log (D-160 R2-3b)', () => {
     expect(detailOf(made)).toBe('View billing: not allowed to allowed.');
   });
 
-  it('has the mockup’s select words over the API’s values; Outcome stays, in the "…"', () => {
+  it('has the mockup’s select words over the API’s values, and only the mockup’s filters', () => {
     expect(actorOptionsR2(parityDb().staff).map((o) => o.label)).toEqual(['Any actor', 'System', 'Avery Stone', 'Connor Leiva', 'Imani Brooks']);
     expect(actionOptionsR2()[0]).toEqual({ value: '', label: 'Any action' });
     expect(actionOptionsR2().slice(1).every((o) => o.value === o.label)).toBe(true);
     expect(RANGE_OPTIONS_R2.map((o) => o.label)).toEqual(['Last 24 hours', 'Last 7 days', 'Last 30 days']);
-    expect(OUTCOME_OPTIONS_R2.map((o) => o.label)).toEqual(['Any outcome', 'OK', 'Denied', 'Blocked', 'Failed']);
+    // No Outcome filter on the screen (the mockup draws none; the Nov 16 eye check).
+    expect(Object.keys(AUDIT_R2_COPY)).not.toContain('moreFilters');
   });
 
   it('dates the drawer’s entry in MST, with its year; Support still sees no IP', () => {
