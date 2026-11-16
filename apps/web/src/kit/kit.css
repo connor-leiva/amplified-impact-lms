@@ -880,6 +880,40 @@ body {
   color: var(--accent);
   text-decoration-color: currentColor;
 }
+/* D-159: the Accelerator's two ways to pay, two equal buttons (`../offer/pay-pair.ts`). Side by side
+   wherever both labels fit on one line, otherwise stacked, each full width; each with its line under
+   it, and the tax line once under the pair. A choice whose cart does not sell has an empty href: it
+   leaves, with its line, and the other takes the row. */
+.aiw .plan .pay-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 216px), 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.aiw .plan .pay-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.aiw .plan .pay-choice:has(> a[href='']),
+.aiw .plan a[href=''] + .pay-caption {
+  display: none;
+}
+.aiw .plan .btn.pay-btn {
+  width: 100%;
+  padding: 0 16px;
+}
+.aiw .plan .pay-caption,
+.aiw .plan .pay-tax {
+  color: var(--ink-secondary);
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: center;
+}
+.aiw .plan .pay-tax {
+  width: 100%;
+}
 .aiw .plan .act-soon,
 .aiw .plan .act-closed,
 .aiw .plan .act-soldout,

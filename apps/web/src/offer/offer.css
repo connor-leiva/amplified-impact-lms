@@ -329,6 +329,38 @@ body[data-invites='sent'] .invites-held {
   font-size: 16px;
   font-weight: 600;
 }
+/* D-159: the Accelerator's two ways to pay, two equal buttons (`./pay-pair.ts`). Side by side wherever
+   both labels fit on one line, otherwise stacked, each full width; each with its line under it, and the
+   tax line once under the pair. A choice whose cart does not sell has an empty href: it leaves, with
+   its line, and the other takes the row. */
+.pay-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 216px), 1fr));
+  gap: 12px;
+}
+.pay-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.pay-choice:has(> a[href='']),
+.plan-actions a[href=''] + .pay-caption {
+  display: none;
+}
+.plan-actions .pay-btn {
+  padding-inline: 16px;
+}
+.pay-caption,
+.pay-tax {
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.pay-tax {
+  margin-top: 10px;
+}
 .note a,
 .not-ready a {
   font-weight: 600;

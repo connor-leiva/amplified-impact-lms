@@ -4996,3 +4996,41 @@ This amends D-082 and D-101: a skill's page no longer carries its guided setup.
     - 30 files in all. Parity in the container on the new goldens: 55 of 55. Tolerances and masks are unchanged, nothing was edited by hand, and `PROVENANCE.txt` is not edited: this entry is the capture's provenance. `win32/` stays stale, as D-156 records.
 - **Masquerade is the audited impersonation D-138 left "Not done".** It is PR 3 (D-CON-3); PR 1 ships none of it. `?as=` stays fixture-only.
 - **Not changed:** checkout and Payment Links, the D-154 seat cap, the Stripe webhook and provisioning, GHL, course gating (D-153), GA4 and the Meta Pixel (D-155), `/agreement`, www, the existing admin screens, masks and tolerances; `design-reference/` and goldens except the admin sidebar in 1d. No emails, no Railway variables, no secrets. No Stripe scope is needed.
+
+## D-159 · The AI Accelerator's two ways to pay are two equal buttons on every www page that sells it
+
+**Date:** 2026-11-15
+**Approved by:** Connor, Sunday, Nov 15, 2026, 1:03 PM MST (America/Phoenix). On /forum (the offer page) the main "Get Amplified AI Accelerator" button went to the paid-in-full Payment Link and the two-payment option was only a small text link, and a buyer who wanted two payments clicked the big button and was charged in full. Wherever the Accelerator is sold, show a real, equal pair of buttons, in his exact words.
+**Number:** D-158 is taken by Console PR 2, in flight on other branches (`claude/console-2-*`), so this is D-159.
+**Status:** on a pull request.
+**Scope:**
+- `apps/web/src/offer/pay-pair.ts` (new: the pair, shared), `src/offer/content.ts` (the words), `src/offer/render.ts` and `src/offer/offer.css` (/offer and /forum).
+- `apps/web/src/site/offers.ts` (`offerActions`, which /pricing's Accelerator card and /team-build's two buy blocks render) and `src/kit/kit.css`.
+- `apps/web/src/home/prices.ts`: `twoPay` reads the card's own terms ("Or 2 payments of $3,750.") now that the text link it read is gone. Same figure, 3,750.
+- Tests: `apps/web/src/offer/render.test.ts`, `src/pricing/render.test.ts`, `src/team-build/render.test.ts`; `apps/api/test/analytics.test.ts`, with `test/web-raw.d.ts` (new: the `?raw` type the web render modules need in the API's typecheck).
+
+- **The pair, word for word** (Connor's strings, the middle dot included; not Title Case, on purpose):
+  - `Pay in full · $7,500`, with `One payment today` under it, to the `cohort-full` Payment Link.
+  - `2 payments · $3,750/mo`, with `Today and again in 30 days` under it, to the `cohort-two-pay` Payment Link.
+  - `plus applicable tax`, once, under the pair.
+  - The amounts are never typed again: `$7,500` is the card's `price.amount`, and `$3,750` is the payment in its `price.terms`, read by `home/prices.ts`.
+- **Removed:** the single "Get Amplified AI Accelerator" button and the "Or pay in 2 payments of $3,750" text link, on every page below. Every other word on those pages is unchanged, the price block's "Or 2 payments of $3,750." included.
+- **Equal weight.** Both buttons carry the page's one buy-button class (`button primary` on /offer, `btn btn-primary` on the kit's pages; /pricing draws that class outlined until its picker picks the card, as for every card there), the same size and the same weight. Neither is a primary beside a secondary, and neither is a "Get …" button.
+- **Layout.** A grid of two equal columns, `repeat(auto-fit, minmax(min(100%, 216px), 1fr))`: side by side wherever both labels fit on one line, otherwise stacked, each full width. Each is 48px tall on /offer and 52px on the kit's pages (their existing card buttons). Every caption is 16px. In the browser, at 320, 375, 390, 430, 768, 1024 and 1280 on /offer, /forum, /pricing and /team-build: no sideways scroll, every label and caption on one line, both buttons the same size.
+  - Side by side: /team-build's hero from 768 up, its price section at 768, /offer and /forum at 768 (one card a row).
+  - Stacked: on phones everywhere, and where the card is narrower than about 444px on a wide screen: /offer's three cards from 1024, /pricing's four (and two) per row, /team-build's price panel at 1024 and 1280. Side by side there, each button would be 120 to 150px wide and its words would break over two or three lines.
+- **Where the Accelerator is sold, and what changed:**
+  - **/offer and /forum** (one page, `offer.html`): the Accelerator card's button and text link become the pair.
+  - **/pricing**: the Accelerator card's button and text link become the pair.
+  - **/team-build**: both buy blocks (the hero's and the price section's, one function) become the pair.
+- **Checked, with no Accelerator buy button, so unchanged:**
+  - `/`, the homepage (v3): its Accelerator card ("Claim a Founding Seat", "Or 2 payments of $3,750") and its eight-Wednesdays section ("Claim a Founding Seat", "See the Accelerator") all link to /team-build. Under Connor's D1 for homepage v3 there is no Stripe link on `/`.
+  - /offer/welcome; /teams, /agents and /insiders (their own plans' carts only); /free, /about, /library and /ai101; the 57 skill and guide landing pages. The kit's header and footer link the Accelerator to /team-build on each.
+  - /agreement, /terms and /privacy were read only to check, and are not touched.
+- **Links, states and analytics, unchanged.**
+  - Each button's href is the same `%%link:<cart>%%` token the old button and link had, so the API fills them per request exactly as before.
+  - Both sit inside the card's `.act-link`, which shows only while the card's state (its first cart's) is `link`. Prelaunch (`OFFER_OPEN` off, "Opens soon."), founding closed after Nov 30 (the waitlist), and sold out at 15 seats across both links (D-154, the waitlist) all hide both. The API also leaves both hrefs empty then, so neither is a live link.
+  - If only one link were set, the card follows its first cart as before. A choice whose own link is empty hides with its caption (`:has()`, with a sibling rule for the caption), and the other takes the row.
+  - `withAnalytics` labels both at read time: `data-ai-cart="cohort-full"` / "Amplified AI Accelerator, Paid in Full", and `cohort-two-pay` / "Amplified AI Accelerator, Two Payments". `analytics.js` sends `begin_checkout` and `InitiateCheckout` for either. `analytics.test.ts` now renders the real /offer, /pricing and /team-build, serves them through the API, and checks both buttons' labels and hrefs in the open, prelaunch, closed, sold-out and one-link states.
+- **Tax.** The code never turns on `automatic_tax` (`docs/STRIPE-HANDOFF.md` § 1, "David decides"), and whether the Payment Links collect tax is a setting on the links in Stripe, which this repository cannot see. "plus applicable tax" is Connor's line, used as given.
+- **Not changed:** the Stripe Payment Link URLs and their variables, the seat cap (D-154) and its count, the webhook, checkout and provisioning, course gating (D-153), `analytics.js`, GA4, the Meta Pixel and where the tags load (D-155), `/agreement`, the homepage, the LMS app, `design-reference/` and every golden, and Railway. The proof line ("100 agents, 700+ homes a year") stays only where it was. No emails, no Railway variables, no secrets.

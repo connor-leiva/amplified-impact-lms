@@ -6,6 +6,8 @@ import { CARD_CARTS, CARDS, HELP_EMAIL, PLAN_NAMES, TOKEN_PATTERN } from '@ai/co
 import { AFTER, CARD_STATES, CHROME, EVERY_CARD, FACT_LABELS, HERO, NOTES, OFFERS, THANKS, THANKS_PARTS, WAITLIST, WELCOME } from './content';
 import type { CardPlan } from './content';
 import { renderOfferBody, renderOfferHead, renderWelcomeBody, renderWelcomeHead } from './render';
+import { ACCELERATOR_PAY } from './pay-pair';
+import { PRICES } from '../home/prices';
 
 // The markup contract for /offer and /offer/welcome (D-075, D-104, D-105), on the parsed DOM, plus the
 // house rules for their words and the facts from Spring's plan (docs/SPRING-PLAN.md), held to the live
@@ -69,11 +71,14 @@ describe('/offer markup', () => {
     for (const id of PLANS) {
       const card = offer.getElementById(`plan-${id}`)!;
       const [first, ...rest] = CARD_CARTS[id] ?? [];
-      const buttons = all(card, '.act-link .button');
-      expect(buttons.map((b) => [text(b), b.getAttribute('href'), b.className]), id).toEqual([[OFFERS[id].button, `%%link:${first}%%`, 'button primary']]);
-      expect(all(card, '.act-link a.more').map((a) => a.getAttribute('href')), id).toEqual(rest.map((r) => `%%link:${r}%%`));
       expect(card.getAttribute('data-state')).toBe(`%%state:${first}%%`);
       expect(text(card.querySelector('.act-soon'))).toBe('Opens soon.');
+      const c = OFFERS[id];
+      // The Accelerator sells through two equal buttons instead (D-159): "the Accelerator's two ways to pay" below.
+      if ('pay' in c) continue;
+      const buttons = all(card, '.act-link .button');
+      expect(buttons.map((b) => [text(b), b.getAttribute('href'), b.className]), id).toEqual([[c.button, `%%link:${first}%%`, 'button primary']]);
+      expect(all(card, '.act-link a.more').map((a) => a.getAttribute('href')), id).toEqual(rest.map((r) => `%%link:${r}%%`));
     }
   });
 
@@ -137,6 +142,62 @@ describe('/offer markup', () => {
   });
 });
 
+describe('the Accelerator’s two ways to pay, two equal buttons (D-159)', () => {
+  const acc = offer.getElementById('plan-cohort')!;
+  const [full, two] = CARD_CARTS.cohort!;
+  const css = readFileSync(resolve(HERE, './offer.css'), 'utf8');
+
+  it('are two buttons, each its own cart’s Payment Link, in Connor’s words, a line under each and the tax line once', () => {
+    const choices = all(acc, '.act-link > .pay-pair > .pay-choice');
+    expect(
+      choices.map((ch) => [text(ch.querySelector('a')), ch.querySelector('a')?.getAttribute('href'), text(ch.querySelector('a + .pay-caption'))]),
+    ).toEqual([
+      ['Pay in full · $7,500', `%%link:${full}%%`, 'One payment today'],
+      ['2 payments · $3,750/mo', `%%link:${two}%%`, 'Today and again in 30 days'],
+    ]);
+    expect(all(acc, '.pay-tax').map(text)).toEqual(['plus applicable tax']);
+    expect(acc.querySelector('.pay-pair + .pay-tax')).not.toBeNull();
+    // Only the Accelerator's card has a pair; the other cards keep one button and a text link.
+    expect(all(offer, '.pay-pair, .pay-tax, .pay-caption').every((el) => el.closest('#plan-cohort .act-link'))).toBe(true);
+  });
+
+  it('weigh the same: one class for both, no primary beside a secondary, and no single "Get" button or text link', () => {
+    expect(all(acc, '.act-link a').map((a) => a.className)).toEqual(['button primary pay-btn', 'button primary pay-btn']);
+    expect(all(acc, '.act-link a.more, .act-link .secondary')).toHaveLength(0);
+    expect(text(acc)).not.toMatch(/Get Amplified AI Accelerator|Or pay in 2 payments/);
+  });
+
+  it('take their amounts from the card’s own price, never a figure of their own', () => {
+    expect(ACCELERATOR_PAY.map((p) => [p.cart, p.label])).toEqual([
+      [full, `Pay in full · ${OFFERS.cohort.price.amount}`],
+      [two, '2 payments · $3,750/mo'],
+    ]);
+    expect(OFFERS.cohort.price.terms).toContain('Or 2 payments of $3,750.');
+    expect(PRICES.accelerator.twoPay).toBe(3750);
+    // The words hold no figure: new prices would flow into them.
+    expect([OFFERS.cohort.pay.full.label('$1'), OFFERS.cohort.pay.twoPay.label('$2')]).toEqual(['Pay in full · $1', '2 payments · $2/mo']);
+  });
+
+  it('show exactly when the one button did: only while the card sells, the waitlist instead when closed or sold out', () => {
+    // Both live in `.act-link`, which the stylesheet shows only for `data-state="link"`, and the API
+    // leaves a link empty (hidden) unless its cart sells.
+    for (const a of all(acc, 'a[href^="%%link:"]')) expect(a.closest('.act-link'), a.outerHTML).not.toBeNull();
+    expect(css).toMatch(/\.plan \.act-link,\s*\.plan \.act-soon,\s*\.plan \.act-closed,\s*\.plan \.act-soldout \{\s*display: none;/);
+    expect(css).toMatch(/\.plan\[data-state='link'\] \.act-link \{/);
+    expect(css).toMatch(/\.plan-actions a\[href=''\],\s*a\.button\[href=''\] \{\s*display: none !important;/);
+    // A choice whose own link is empty leaves with its line, and the other takes the row.
+    expect(css).toContain(".pay-choice:has(> a[href='']),\n.plan-actions a[href=''] + .pay-caption {\n  display: none;");
+    expect(all(acc, 'a.act-closed, a.act-soldout').map((a) => a.getAttribute('href'))).toEqual(['#waitlist', '#waitlist']);
+  });
+
+  it('sit side by side only where both labels fit on one line, else stacked full width, 48px tall, no text under 16px', () => {
+    expect(css).toMatch(/\.pay-pair \{\s*display: grid;\s*grid-template-columns: repeat\(auto-fit, minmax\(min\(100%, 216px\), 1fr\)\);/);
+    expect(css).toMatch(/\.plan-actions \.button \{\s*width: 100%;/);
+    expect(css).toMatch(/\.button \{[^}]*min-height: 48px;/);
+    expect(css).toMatch(/\.pay-caption,\s*\.pay-tax \{\s*font-size: 16px;/);
+  });
+});
+
 describe('the facts (docs/SPRING-PLAN.md, "Facts to use everywhere")', () => {
   const card = (id: string) => text(offer.getElementById(`plan-${id}`));
 
@@ -160,7 +221,9 @@ describe('the facts (docs/SPRING-PLAN.md, "Facts to use everywhere")', () => {
   });
 
   it('names each plan exactly on its button, as the cart and the LMS name it (the overnight brief)', () => {
-    for (const plan of PLANS) expect(OFFERS[plan].button, plan).toMatch(new RegExp(`^Get ${PLAN_NAMES[plan]}(,|$)`));
+    for (const plan of ['membership', 'agents'] as const) expect(OFFERS[plan].button, plan).toMatch(new RegExp(`^Get ${PLAN_NAMES[plan]}(,|$)`));
+    // The Accelerator's buttons say how you pay, not the plan (D-159); its card says the name.
+    expect('button' in OFFERS.cohort).toBe(false);
   });
 
   it('prices the Team Plan’s first 3 months today, then monthly from Sunday, April 4, 2027', () => {
@@ -292,8 +355,10 @@ describe('the words (house rules and Spring’s voice)', () => {
   });
 
   it('writes buttons in Title Case, seven words at most', () => {
+    // Not the Accelerator's two (D-159): they are Connor's exact words, "Pay in full · $7,500" and
+    // "2 payments · $3,750/mo", held word for word by "the Accelerator's two ways to pay".
     const buttons = [
-      ...PLANS.map((o) => OFFERS[o].button),
+      ...(['membership', 'agents'] as const).map((o) => OFFERS[o].button),
       WAITLIST.submit,
       THANKS_PARTS.intakeButton,
       THANKS_PARTS.calendar.builds,

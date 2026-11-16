@@ -93,10 +93,16 @@ describe('the hero', () => {
     ]);
     expect($('.seatm', b)?.getAttribute('data-left')).toBe('%%seats-left%%');
     expect($('.tk-status', b)?.classList.contains('founding-open')).toBe(true);
-    expect($$('.act-link a', b).map((a) => [text(a), a.getAttribute('href')])).toEqual([
-      ['Get Amplified AI Accelerator', `%%link:${full}%%`],
-      ['Or pay in 2 payments of $3,750', `%%link:${two}%%`],
+    // D-159: two equal buttons, each its own Payment Link with its line under it, and the tax line once.
+    expect($$('.act-link a', b).map((a) => [text(a), a.getAttribute('href'), a.className])).toEqual([
+      ['Pay in full · $7,500', `%%link:${full}%%`, 'btn btn-primary pay-btn'],
+      ['2 payments · $3,750/mo', `%%link:${two}%%`, 'btn btn-primary pay-btn'],
     ]);
+    expect($$('.act-link .pay-caption', b).map(text)).toEqual(['One payment today', 'Today and again in 30 days']);
+    expect($$('.act-link .pay-tax', b).map(text)).toEqual(['plus applicable tax']);
+    expect(text(b)).not.toMatch(/Get Amplified AI Accelerator|Or pay in 2 payments/);
+    // Both live in `.act-link`, shown only for a live cart; the waitlist when closed or sold out.
+    for (const a of $$('a[href^="%%link:"]', b)) expect(a.closest('.act-link'), a.outerHTML).not.toBeNull();
     // Closed or sold out: the waitlist instead of the links.
     expect($$('a.act-closed, a.act-soldout', b).map((a) => a.getAttribute('href'))).toEqual([
       '/offer#waitlist',
@@ -197,16 +203,17 @@ describe('the proof next to the buy buttons', () => {
       'Built inside The Utah Life Real Estate Group',
       '100 agents, 700+ homes a year',
     ]);
-    expect(proof.previousElementSibling?.getAttribute('href')).toBe(`%%link:${CARD_CARTS.cohort![1]}%%`);
+    // D-159: right under the pair's tax line, the pair ending with the 2 payments button.
+    expect(proof.previousElementSibling?.className).toBe('pay-tax');
+    expect($$('.pay-pair a', bottom).at(-1)?.getAttribute('href')).toBe(`%%link:${CARD_CARTS.cohort![1]}%%`);
   });
 
   it('sits under the hero’s buttons too, once', () => {
     expect($$('.tb-hero .proof-line').map(text)).toEqual([
       'Built inside The Utah Life Real Estate Group 100 agents, 700+ homes a year',
     ]);
-    expect($('.tb-hero .buy .act-link .proof-line')?.previousElementSibling?.getAttribute('href')).toBe(
-      `%%link:${CARD_CARTS.cohort![1]}%%`,
-    );
+    expect($('.tb-hero .buy .act-link .proof-line')?.previousElementSibling?.className).toBe('pay-tax');
+    expect($$('.tb-hero .buy .pay-pair a').at(-1)?.getAttribute('href')).toBe(`%%link:${CARD_CARTS.cohort![1]}%%`);
   });
 });
 
@@ -327,6 +334,17 @@ describe('the words and the tokens', () => {
     expect(read('./team-build.css')).toContain("@import '../kit/kit.css';");
     const sizes = [...css.matchAll(/font-size: (\d+)px/g)].map((m) => Number(m[1]));
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16);
+  });
+
+  it('lays the Accelerator’s pair out by the phone rules: side by side only where both fit, else stacked full width (D-159)', () => {
+    const kit = read('../kit/kit.css');
+    expect(kit).toMatch(/\.aiw \.plan \.pay-pair \{\s*display: grid;\s*grid-template-columns: repeat\(auto-fit, minmax\(min\(100%, 216px\), 1fr\)\);/);
+    expect(kit).toMatch(/\.aiw \.plan \.btn\.pay-btn \{\s*width: 100%;/);
+    // 52px tall, as every kit card button (over the 48px a primary needs).
+    expect(kit).toMatch(/\.aiw \.plan \.btn \{\s*min-height: 52px;/);
+    // A choice whose own link is empty leaves with its line; an empty link is hidden anyway.
+    expect(kit).toContain(".aiw .plan .pay-choice:has(> a[href='']),\n.aiw .plan a[href=''] + .pay-caption {\n  display: none;");
+    expect(kit).toMatch(/\.aiw \.plan a\[href=''\] \{\s*display: none !important;/);
   });
 });
 

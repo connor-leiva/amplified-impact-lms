@@ -11,8 +11,8 @@
 // page's one script polls until the webhook confirms the order, and holds no token.
 //
 // ONE CARD, THREE TIMES (docs/SPRING-PLAN.md, "Design and copy rules"): who it's for, what you get,
-// how it runs, when it starts, the price, one button, then "Every program includes weekly office
-// hours." and "Not ready? Start with 5 free skills".
+// how it runs, when it starts, the price, one button (the Accelerator's two equal ones, D-159), then
+// "Every program includes weekly office hours." and "Not ready? Start with 5 free skills".
 //
 // ESCAPING. Every string from `content.ts` goes through `esc()`; the tokens are escaped by the API.
 
@@ -37,6 +37,7 @@ import {
   WELCOME,
 } from './content';
 import type { CardPlan, StepExtra, ThanksStep } from './content';
+import { payPair } from './pay-pair';
 
 /** The cards, in the plan's order: the AI Accelerator, Amplified Insiders, the Team Plan. */
 const PLANS = CARDS as readonly CardPlan[];
@@ -102,10 +103,20 @@ function price(plan: CardPlan): string {
   ].join('');
 }
 
-/** The card's actions: its button and other links, "opens soon", closed or sold out (then the waitlist). */
+/**
+ * The card's actions: its button and other links, or the Accelerator's two equal buttons (D-159);
+ * "opens soon", closed or sold out (then the waitlist).
+ */
 function actions(plan: CardPlan): string {
   const c = OFFERS[plan];
   const [first, ...rest] = cartsOf(plan);
+  const buy =
+    'pay' in c
+      ? [payPair('button primary', T.link)]
+      : [
+          `<a class="button primary" href="${T.link(first!)}">${esc(c.button)}</a>`,
+          ...rest.map((id) => (c.more[id] ? `<a class="more" href="${T.link(id)}">${esc(c.more[id]!)}</a>` : '')),
+        ];
   const waitlist = (cls: string) => `<a class="button secondary ${cls}" href="#waitlist">${esc(S.waitlist)}</a>`;
   const note =
     plan === 'cohort'
@@ -116,8 +127,7 @@ function actions(plan: CardPlan): string {
   return [
     `<div class="plan-actions">`,
     `<div class="act-link">`,
-    `<a class="button primary" href="${T.link(first!)}">${esc(c.button)}</a>`,
-    ...rest.map((id) => (c.more[id] ? `<a class="more" href="${T.link(id)}">${esc(c.more[id]!)}</a>` : '')),
+    ...buy,
     `</div>`,
     `<p class="act-soon">${esc(S.soon)}</p>`,
     ...(plan === 'cohort'
