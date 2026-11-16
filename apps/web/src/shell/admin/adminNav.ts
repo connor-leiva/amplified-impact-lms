@@ -79,7 +79,7 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     [
       row('learners', 'Learners & Teams', 'r2Learners', '/admin/learners', true),
       row('workspaces', 'Workspaces', 'r2Workspaces', '/admin/workspaces', true, { cap: 'workspaces.read' }),
-      row('users', 'Users', 'r2Users', '/admin/users', false, { cap: 'users.read' }),
+      row('users', 'Users', 'r2Users', '/admin/users', true, { cap: 'users.read' }),
       row('masquerade', 'Masquerade', 'r2Masquerade', '/admin/masquerade', false, { cap: 'console.view' }),
     ],
   ],
@@ -239,9 +239,12 @@ export function toggleGroup(group: R2Group, active: boolean, open: OpenState): O
 
 /**
  * A record's page (D-160 R2-1c, the mockup's `PARENT`): `/admin/workspaces/:teamId` belongs to the
- * Workspaces row, so the row stays active and its group open.
+ * Workspaces row and `/admin/users/:userId` to Users, so their row stays active and their group open.
  */
-export const RECORD_PARENTS: Readonly<Record<string, string>> = { '/admin/workspaces/': 'workspaces' };
+export const RECORD_PARENTS: Readonly<Record<string, string>> = {
+  '/admin/workspaces/': 'workspaces',
+  '/admin/users/': 'users',
+};
 
 function recordParent(p: string): string | null {
   for (const [prefix, id] of Object.entries(RECORD_PARENTS))
