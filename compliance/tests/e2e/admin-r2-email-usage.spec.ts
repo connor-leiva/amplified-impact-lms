@@ -71,6 +71,14 @@ test.describe('the Email Log on R2 (D-166) @g9 @console', () => {
     await expect(rows(page)).toHaveCount(1);
     await expect(page.getByRole('textbox', { name: 'Filter recipient or subject' })).toHaveValue('sam@tidewaterproperty.example');
     await close();
+    // One workspace's people, named on a chip that clears it.
+    const ws = await openAt(browser, '/admin/email?teamId=ws_tidewater&workspace=Tidewater%20Property%20Co.');
+    await expect(rows(ws.page)).toHaveCount(1);
+    await expect(rows(ws.page).first()).toContainText('sam@tidewaterproperty.example');
+    await expectAccessible(ws.page);
+    await ws.page.getByRole('button', { name: 'Workspace: Tidewater Property Co.' }).click();
+    await expect(rows(ws.page)).toHaveCount(7);
+    await ws.close();
   });
 
   test('exports CSV, all or selected, for the Owner and Admin; Support reads and cannot export', async ({ browser }) => {

@@ -203,7 +203,7 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     },
     search: async (q) => (await json<{ groups: SearchResults }>(await request(fetchImpl, `/api/console/search${listQuery({ q })}`))).groups,
     emails: async (f, cursor) =>
-      json<EmailLogPage>(await request(fetchImpl, `/api/console/email${listQuery({ q: f.q, template: f.template, status: f.status, userId: f.userId, from: f.from, to: f.to }, cursor)}`)),
+      json<EmailLogPage>(await request(fetchImpl, `/api/console/email${listQuery({ q: f.q, template: f.template, status: f.status, userId: f.userId, teamId: f.teamId, from: f.from, to: f.to }, cursor)}`)),
     exportEmails: async (f) => {
       const res = await request(fetchImpl, '/api/console/email/export', {
         method: 'POST',

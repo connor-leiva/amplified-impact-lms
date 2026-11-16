@@ -18,6 +18,7 @@ export const EMAIL_COPY = {
   exported: 'Export started. It is in the audit log.',
   exportFailed: 'The export didn’t download. Nothing was changed.',
   filter: 'Filter recipient or subject',
+  clearWorkspace: 'Show every workspace',
   template: 'Template',
   status: 'Status',
   columns: { email: 'Email', template: 'Template', status: 'Status', sent: 'Sent', subject: 'Subject' },
@@ -42,17 +43,31 @@ export interface EmailFilterState {
   q: string;
   template: string;
   status: string;
+  /** One workspace's emails, and its name for the filter's chip (from Billing's "Open email log"). */
+  teamId: string;
+  workspace: string;
 }
 
-export const DEFAULT_EMAIL_FILTERS: EmailFilterState = { q: '', template: '', status: '' };
+export const DEFAULT_EMAIL_FILTERS: EmailFilterState = { q: '', template: '', status: '', teamId: '', workspace: '' };
 
-/** The filters a link may open the page with (`?q=`, `?template=`, `?status=`), Billing's "Open email log". */
+/**
+ * The filters a link may open the page with: `?q=`, `?template=`, `?status=`, and `?teamId=` with its
+ * `&workspace=` name (Billing's "Open email log" on a failed payment).
+ */
 export function emailFiltersFromSearch(search: string): EmailFilterState {
   const p = new URLSearchParams(search);
-  return { q: p.get('q') ?? '', template: p.get('template') ?? '', status: p.get('status') ?? '' };
+  const teamId = p.get('teamId') ?? '';
+  return { q: p.get('q') ?? '', template: p.get('template') ?? '', status: p.get('status') ?? '', teamId, workspace: teamId ? (p.get('workspace') ?? teamId) : '' };
 }
 
-export const isDefaultEmailFilters = (f: EmailFilterState): boolean => f.q.trim() === '' && f.template === '' && f.status === '';
+/** Billing's "Open email log": the log for one workspace's people, or the whole log with none. */
+export const emailLogHref = (workspace: { teamId: string; name: string } | null): string =>
+  workspace ? `/admin/email?${new URLSearchParams({ teamId: workspace.teamId, workspace: workspace.name }).toString()}` : '/admin/email';
+
+/** The workspace filter's chip, which clears it. */
+export const workspaceChip = (name: string): string => `Workspace: ${name}`;
+
+export const isDefaultEmailFilters = (f: EmailFilterState): boolean => f.q.trim() === '' && f.template === '' && f.status === '' && f.teamId === '';
 
 /** The filters as the API reads them: only what is set, the words trimmed to 100 characters. */
 export function emailFiltersFor(f: EmailFilterState): EmailLogFilters {
@@ -61,6 +76,7 @@ export function emailFiltersFor(f: EmailFilterState): EmailLogFilters {
   if (q) out.q = q;
   if (f.template) out.template = f.template;
   if (f.status) out.status = f.status;
+  if (f.teamId) out.teamId = f.teamId;
   return out;
 }
 

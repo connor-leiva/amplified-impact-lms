@@ -49,6 +49,10 @@ export function emailMatches(r: EmailLogRow, f: EmailLogFilters): boolean {
     const u = SUPPORT_USERS.find((x) => x.id === f.userId);
     if (r.userId !== f.userId && r.to !== u?.e) return false;
   }
+  if (f.teamId) {
+    const ws = SUPPORT_WS.find((w) => w.id === f.teamId);
+    if (!SUPPORT_USERS.some((u) => u.ws === ws?.n && (u.id === r.userId || u.e === r.to))) return false;
+  }
   if (f.ids && !f.ids.includes(r.id)) return false;
   return true;
 }

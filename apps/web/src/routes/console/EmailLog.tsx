@@ -26,6 +26,7 @@ import {
   isDefaultEmailFilters,
   statusOptions,
   templateOptions,
+  workspaceChip,
 } from './email.vm';
 import type { EmailRowVM } from './email.vm';
 
@@ -129,6 +130,11 @@ export function Component() {
             </option>
           ))}
         </Sel>
+        {filters.teamId ? (
+          <Button icon="r2X" title={C.clearWorkspace} onClick={() => set({ teamId: '', workspace: '' })}>
+            {workspaceChip(filters.workspace)}
+          </Button>
+        ) : null}
       </div>
       {gate.kind === 'error' ? (
         <LoadError failure={gate.failure} retry={gate.retry} />

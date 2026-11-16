@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { EmailLogRow } from '@ai/core';
 import { fixtureEmailPage, fixtureEmails } from '../../data/console-fixture-email-usage';
-import { emailDetailVM, emailFiltersFor, emailFiltersFromSearch, emailRowVM, isDefaultEmailFilters, statusOptions, templateOptions } from './email.vm';
+import { emailDetailVM, emailFiltersFor, emailFiltersFromSearch, emailLogHref, emailRowVM, isDefaultEmailFilters, statusOptions, templateOptions, workspaceChip } from './email.vm';
 
 const row: EmailLogRow = {
   id: '7',
@@ -20,10 +20,22 @@ const row: EmailLogRow = {
 
 describe('the Email Log’s filters @console', () => {
   it('sends only what is set, and opens from a link’s query', () => {
-    expect(emailFiltersFor({ q: '  ', template: '', status: '' })).toEqual({});
-    expect(emailFiltersFor({ q: ' jamie ', template: 'sign-in', status: 'failed' })).toEqual({ q: 'jamie', template: 'sign-in', status: 'failed' });
-    expect(emailFiltersFromSearch('?q=sam%40tidewater.example&template=payment-failed')).toEqual({ q: 'sam@tidewater.example', template: 'payment-failed', status: '' });
-    expect(isDefaultEmailFilters({ q: '', template: '', status: '' })).toBe(true);
+    const none = { q: '', template: '', status: '', teamId: '', workspace: '' };
+    expect(emailFiltersFor({ ...none, q: '  ' })).toEqual({});
+    expect(emailFiltersFor({ ...none, q: ' jamie ', template: 'sign-in', status: 'failed' })).toEqual({ q: 'jamie', template: 'sign-in', status: 'failed' });
+    expect(emailFiltersFromSearch('?q=sam%40tidewater.example&template=payment-failed')).toEqual({ ...none, q: 'sam@tidewater.example', template: 'payment-failed' });
+    expect(isDefaultEmailFilters(none)).toBe(true);
+  });
+  it('opens one workspace’s emails from Billing’s “Open email log”, and says which', () => {
+    const href = emailLogHref({ teamId: 'ws_tidewater', name: 'Tidewater Property Co.' });
+    expect(href).toBe('/admin/email?teamId=ws_tidewater&workspace=Tidewater+Property+Co.');
+    const f = emailFiltersFromSearch(href.slice(href.indexOf('?')));
+    expect(f).toMatchObject({ teamId: 'ws_tidewater', workspace: 'Tidewater Property Co.' });
+    expect(emailFiltersFor(f)).toEqual({ teamId: 'ws_tidewater' });
+    expect(isDefaultEmailFilters(f)).toBe(false);
+    expect(workspaceChip(f.workspace)).toBe('Workspace: Tidewater Property Co.');
+    expect(emailLogHref(null)).toBe('/admin/email');
+    expect(fixtureEmailPage(fixtureEmails(), { teamId: 'ws_tidewater' }).rows.map((r) => r.to)).toEqual(['sam@tidewaterproperty.example']);
   });
   it('offers the log’s templates and the API’s statuses, in words', () => {
     expect(templateOptions(['sign-in', 'team-invite'], '').map((o) => o.label)).toEqual(['Any template', 'sign-in', 'team-invite']);
