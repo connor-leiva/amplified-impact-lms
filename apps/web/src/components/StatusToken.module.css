@@ -14,7 +14,9 @@
   line-height: 1;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  vertical-align: top;
+  /* middle above 767px; top on a phone (lms.css `data-phone="token"`), where the 24px pill would
+     otherwise grow its row by a pixel (D-156, scoped by D-160 R2-1a). */
+  vertical-align: middle;
   color: var(--tk-fg);
   background: var(--tk-bg);
   border: 1px solid var(--tk-line);
@@ -54,22 +56,22 @@
 
 /* Sizes. sm is the default pill; md is the detail header; compact is the sidebar row. */
 .pill[data-size='sm'] {
-  height: 24px;
+  height: var(--bx-22);
   padding: 0 8px 0 6px;
   gap: 5px;
-  font-size: 16px;
+  font-size: var(--fs-12);
 }
 .pill[data-size='md'] {
   height: 26px;
   padding: 0 10px 0 8px;
   gap: 5px;
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 .pill[data-compact='true'] {
-  height: 24px;
+  height: var(--bx-16);
   padding: 0;
   gap: 4px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   background: transparent;
   border: 0;
 }
@@ -121,5 +123,5 @@
   border-radius: 999px;
   background: var(--bg-hover);
   animation: ai-skeleton 1.4s ease-in-out infinite;
-  vertical-align: top;
+  vertical-align: middle;
 }

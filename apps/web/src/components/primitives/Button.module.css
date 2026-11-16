@@ -23,17 +23,17 @@
 .sm {
   height: 32px;
   padding: 0 12px;
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 .md {
   height: 36px;
   padding: 0 14px;
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 .lg {
   height: 40px;
   padding: 0 16px;
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 .primary {
@@ -61,7 +61,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-weight: 500;
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 .ghost:hover,
 .ghost[data-force='hover'] {

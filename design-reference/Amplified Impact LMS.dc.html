@@ -63,22 +63,22 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 @keyframes ai-drawer-in{from{transform:translateX(-100%)}to{transform:none}}
 </style>
 </helmet>
-<div style="display:flex; height:100vh; min-height:480px; background:var(--bg-canvas); color:var(--text-primary); font-family:var(--font-ui); font-size:16px; line-height:1.45; overflow:hidden">
+<div style="display:flex; height:100vh; min-height:480px; background:var(--bg-canvas); color:var(--text-primary); font-family:var(--font-ui); font-size:var(--fs-14); line-height:1.45; overflow:hidden">
   <sc-if value="{{ drawerScrim }}"><div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; z-index:69; background:var(--bg-overlay); animation:ai-fade 160ms ease-out"></div></sc-if>
   <aside aria-label="Primary" style="--nav-hover:color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar)); --nav-active:var(--action-primary-tint); position:{{ sb.pos }}; top:0; left:0; bottom:0; z-index:{{ sb.z }}; transform:{{ sb.tf }}; transition:transform 220ms cubic-bezier(.2,.8,.2,1), width 180ms ease; flex:none; width:{{ sb.w }}; height:100%; display:flex; flex-direction:column; background:var(--bg-sidebar); border-right:1px solid var(--line-default); box-shadow:{{ sb.sh }}; overflow:hidden">
-    <div style="height:64px; flex:none; display:flex; align-items:center; gap:10px; padding:0 {{ sb.headPad }}; border-bottom:1px solid var(--line-default)">
+    <div data-phone="bar" style="height:56px; flex:none; display:flex; align-items:center; gap:10px; padding:0 {{ sb.headPad }}; border-bottom:1px solid var(--line-default)">
       <div data-brand-slot="" style="flex:none; display:flex"><img src="{{ brand.src }}" alt="" style="display:block; width:{{ brand.w }}px; height:{{ brand.h }}px"></div>
       <sc-if value="{{ drawer }}">
-        <button onClick="{{ closeDrawer }}" aria-label="Close menu" style="margin-left:auto; width:44px; height:44px; border:0; border-radius:8px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--nav-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button>
+        <button onClick="{{ closeDrawer }}" aria-label="Close menu" data-phone="bar-button" style="margin-left:auto; width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--nav-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button>
       </sc-if>
     </div>
     <sc-if value="{{ showContext }}">
-      <div style="flex:none; padding:14px 20px 0; font-size:16px; line-height:1.4; color:var(--text-tertiary)">{{ contextLine }}</div>
+      <div style="flex:none; padding:14px 20px 0; font-size:var(--fs-13); line-height:1.4; color:var(--text-tertiary)">{{ contextLine }}</div>
     </sc-if>
     <nav aria-label="Main" style="flex:1; overflow-y:auto; overflow-x:hidden; padding:10px; display:flex; flex-direction:column; gap:14px">
       <sc-for list="{{ nav }}" as="g" hint-placeholder-count="1">
         <div style="display:flex; flex-direction:column; gap:2px">
-          <sc-if value="{{ g.showLabel }}"><div style="padding:4px 10px; font-size:16px; font-weight:600; color:var(--text-tertiary); white-space:nowrap">{{ g.label }}</div></sc-if>
+          <sc-if value="{{ g.showLabel }}"><div style="padding:4px 10px; font-size:var(--fs-14); font-weight:600; color:var(--text-tertiary); white-space:nowrap">{{ g.label }}</div></sc-if>
           <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="5">
             <dc-import name="Nav Item" label="{{ it.label }}" icon="{{ it.icon }}" active="{{ it.active }}" locked="{{ it.locked }}" depth="{{ it.depth }}" collapsed="{{ collapsed }}" token="{{ it.token }}" badge="{{ it.badge }}" badge-title="{{ it.badgeTitle }}" chev="{{ it.chev }}" title="{{ it.title }}" on-click="{{ it.go }}" hint-size="100%,32px"></dc-import>
           </sc-for>
@@ -88,11 +88,11 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <div style="flex:none; border-top:1px solid var(--line-default); padding:10px; display:flex; flex-direction:column; gap:4px">
       <sc-if value="{{ canCollapse }}"><dc-import name="Nav Item" label="{{ sbToggleLabel }}" icon="{{ ic.panel }}" collapsed="{{ collapsed }}" title="{{ sbToggleLabel }}" on-click="{{ toggleSb }}" hint-size="100%,32px"></dc-import></sc-if>
       <button onClick="{{ toggleProfile }}" aria-haspopup="menu" aria-expanded="{{ profileOpenStr }}" title="{{ me.name }} · profile and settings" style="display:flex; align-items:center; gap:10px; width:100%; padding:6px; border:0; border-radius:10px; background:transparent; color:var(--text-primary); cursor:pointer; text-align:left; white-space:nowrap; overflow:hidden; justify-content:{{ profJc }}; outline:none" style-hover="background:var(--nav-hover)" style-focus="box-shadow:0 0 0 2px var(--focus-ring)">
-        <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ me.av }}; color:var(--ink-900); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600">{{ me.ini }}</span>
+        <span style="width:32px; height:32px; flex:none; border-radius:50%; background:{{ me.av }}; color:var(--ink-900); display:flex; align-items:center; justify-content:center; font-size:var(--fs-12); font-weight:600">{{ me.ini }}</span>
         <sc-if value="{{ expanded }}">
           <span style="flex:1; min-width:0; display:flex; flex-direction:column; gap:1px">
-            <span style="font-size:16px; font-weight:500; overflow:hidden; text-overflow:ellipsis">{{ me.name }}</span>
-            <span style="font-size:16px; color:var(--text-tertiary); overflow:hidden; text-overflow:ellipsis">{{ me.tag }}</span>
+            <span style="font-size:var(--fs-14); font-weight:500; overflow:hidden; text-overflow:ellipsis">{{ me.name }}</span>
+            <span style="font-size:var(--fs-12); color:var(--text-tertiary); overflow:hidden; text-overflow:ellipsis">{{ me.tag }}</span>
           </span>
           <svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="M7.5 9.5 12 5l4.5 4.5M7.5 14.5 12 19l4.5-4.5"></path></svg>
         </sc-if>
@@ -101,12 +101,12 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   </aside>
 
   <div style="flex:1; min-width:0; display:flex; flex-direction:column">
-    <header style="height:64px; flex:none; display:flex; align-items:center; gap:12px; padding:0 var(--page-pad-x); border-bottom:1px solid var(--line-default); background:var(--bg-canvas)">
+    <header data-phone="bar" style="height:56px; flex:none; display:flex; align-items:center; gap:12px; padding:0 var(--page-pad-x); border-bottom:1px solid var(--line-default); background:var(--bg-canvas)">
       <sc-if value="{{ drawer }}">
-        <button onClick="{{ openDrawer }}" aria-label="Open menu" style="width:44px; height:44px; flex:none; margin-left:-6px; border:0; border-radius:8px; background:transparent; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></button>
+        <button onClick="{{ openDrawer }}" aria-label="Open menu" data-phone="bar-button" style="width:34px; height:34px; flex:none; margin-left:-6px; border:0; border-radius:8px; background:transparent; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></button>
         <div data-brand-slot="" style="flex:none; display:flex"><img src="{{ brandHead.src }}" alt="" style="display:block; width:{{ brandHead.w }}px; height:{{ brandHead.h }}px"></div>
       </sc-if>
-      <nav aria-label="Breadcrumb" style="display:flex; align-items:center; gap:8px; min-width:0; flex:1; font-size:16px">
+      <nav aria-label="Breadcrumb" style="display:flex; align-items:center; gap:8px; min-width:0; flex:1; font-size:var(--fs-14)">
         <sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="1">
           <sc-if value="{{ c.sep }}"><span aria-hidden="true" style="color:var(--text-disabled)">/</span></sc-if>
           <button onClick="{{ c.go }}" style="flex:{{ c.flex }}; min-width:0; border:0; background:none; padding:0; color:{{ c.fg }}; font-weight:{{ c.fw }}; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ c.label }}</button>
@@ -114,25 +114,25 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       </nav>
       <sc-if value="{{ demoInline }}" hint-placeholder-val="{{ true }}">
         <div role="group" aria-label="Demo controls" style="display:flex; align-items:center; gap:10px; flex:none">
-          <span style="font-size:16px; color:var(--text-tertiary)">View As</span>
+          <span style="font-size:var(--fs-13); color:var(--text-tertiary)">View As</span>
           <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-            <sc-for list="{{ roles }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+            <sc-for list="{{ roles }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
           </div>
-          <span style="font-size:16px; color:var(--text-tertiary); margin-left:4px">Timeline</span>
+          <span style="font-size:var(--fs-13); color:var(--text-tertiary); margin-left:4px">Timeline</span>
           <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-            <sc-for list="{{ phases }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+            <sc-for list="{{ phases }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
           </div>
-          <button onClick="{{ resetDemo }}" style="height:32px; padding:0 10px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--bg-hover); color:var(--text-primary)">Reset Demo</button>
+          <button onClick="{{ resetDemo }}" style="height:32px; padding:0 10px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:var(--fs-13); font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--bg-hover); color:var(--text-primary)">Reset Demo</button>
         </div>
       </sc-if>
       <sc-if value="{{ demoCompact }}">
-        <button onClick="{{ toggleDemo }}" aria-expanded="{{ demoOpenStr }}" style="height:32px; padding:0 12px; flex:none; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Demo: {{ demoSummary }}</button>
+        <button onClick="{{ toggleDemo }}" aria-expanded="{{ demoOpenStr }}" style="height:32px; padding:0 12px; flex:none; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:var(--fs-13); font-weight:500; cursor:pointer; white-space:nowrap" style-hover="background:var(--action-secondary-hover)">Demo: {{ demoSummary }}</button>
       </sc-if>
     </header>
 
     <main ref="{{ mainRef }}" style="flex:1; min-height:0; overflow:auto; position:relative">
       <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
-        <div style="padding:32px; color:var(--text-tertiary); font-size:16px">Loading…</div>
+        <div style="padding:32px; color:var(--text-tertiary); font-size:var(--fs-14)">Loading…</div>
       </sc-if>
       <sc-if value="{{ r.dashboard }}"><dc-import name="Portal Dashboard" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
       <sc-if value="{{ r.sessions }}"><dc-import name="Portal Sessions" ctx="{{ ctx }}" hint-size="100%,900px"></dc-import></sc-if>
@@ -156,34 +156,34 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <div onClick="{{ closeMenus }}" style="position:fixed; inset:0; z-index:79"></div>
     <div role="menu" aria-label="Profile and settings" style="position:fixed; left:{{ pm.left }}; bottom:{{ pm.bottom }}; z-index:80; width:min(300px, calc(100vw - 24px)); padding:6px; border-radius:12px; background:var(--bg-raised); border:1px solid var(--line-default); box-shadow:var(--shadow-pop); animation:ai-pop 140ms ease-out">
       <div style="display:flex; align-items:center; gap:10px; padding:8px 8px 12px">
-        <span style="width:36px; height:36px; flex:none; border-radius:50%; background:{{ me.av }}; color:var(--ink-900); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600">{{ me.ini }}</span>
-        <div style="min-width:0"><div style="font-size:16px; font-weight:600">{{ me.name }}</div><div style="font-size:16px; color:var(--text-tertiary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ me.email }}</div></div>
+        <span style="width:36px; height:36px; flex:none; border-radius:50%; background:{{ me.av }}; color:var(--ink-900); display:flex; align-items:center; justify-content:center; font-size:var(--fs-13); font-weight:600">{{ me.ini }}</span>
+        <div style="min-width:0"><div style="font-size:var(--fs-14); font-weight:600">{{ me.name }}</div><div style="font-size:var(--fs-12); color:var(--text-tertiary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ me.email }}</div></div>
       </div>
       <div style="height:1px; background:var(--line-subtle); margin:0 4px"></div>
       <div style="padding:10px 8px; display:flex; flex-direction:column; gap:6px">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:16px">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:var(--fs-13)">
           <span style="color:var(--text-secondary)">Time Zone: <span style="color:var(--text-primary); font-weight:500">{{ tz.label }}</span></span>
-          <button onClick="{{ toggleTz }}" style="border:0; background:none; padding:0; color:var(--text-link); font-size:16px; font-weight:500; cursor:pointer" style-hover="color:var(--text-link-hover)">{{ tz.btn }}</button>
+          <button onClick="{{ toggleTz }}" style="border:0; background:none; padding:0; color:var(--text-link); font-size:var(--fs-13); font-weight:500; cursor:pointer" style-hover="color:var(--text-link-hover)">{{ tz.btn }}</button>
         </div>
         <sc-if value="{{ tzOpen }}">
           <div role="radiogroup" aria-label="Time zone" style="display:flex; flex-direction:column; gap:1px; margin:2px -4px; padding:4px; border-radius:8px; background:var(--bg-sunken); border:1px solid var(--line-subtle); max-height:210px; overflow:auto">
             <sc-for list="{{ tz.list }}" as="z">
-              <button role="radio" aria-checked="{{ z.on }}" onClick="{{ z.go }}" style="display:flex; align-items:center; gap:8px; height:30px; padding:0 8px; border:0; border-radius:6px; background:{{ z.bg }}; color:var(--text-primary); font-size:16px; cursor:pointer; text-align:left" style-hover="background:var(--bg-hover)">
+              <button role="radio" aria-checked="{{ z.on }}" onClick="{{ z.go }}" style="display:flex; align-items:center; gap:8px; height:30px; padding:0 8px; border:0; border-radius:6px; background:{{ z.bg }}; color:var(--text-primary); font-size:var(--fs-13); cursor:pointer; text-align:left" style-hover="background:var(--bg-hover)">
                 <span style="width:14px; height:14px; flex:none; border-radius:50%; border:1.5px solid {{ z.ring }}; display:flex; align-items:center; justify-content:center"><span style="width:6px; height:6px; border-radius:50%; background:{{ z.dot }}"></span></span>{{ z.label }}
               </button>
             </sc-for>
           </div>
         </sc-if>
-        <div style="font-size:16px; color:var(--text-tertiary)">Session Times Show as {{ tz.example }}</div>
+        <div style="font-size:var(--fs-12); color:var(--text-tertiary)">Session Times Show as {{ tz.example }}</div>
       </div>
       <div style="padding:6px 8px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px">
-        <span style="font-size:16px; color:var(--text-secondary)">Theme</span>
+        <span style="font-size:var(--fs-13); color:var(--text-secondary)">Theme</span>
         <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-          <sc-for list="{{ themes }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ o.icon }}"></path></svg>{{ o.label }}</button></sc-for>
+          <sc-for list="{{ themes }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:26px; padding:0 10px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ o.icon }}"></path></svg>{{ o.label }}</button></sc-for>
         </div>
       </div>
       <div style="height:1px; background:var(--line-subtle); margin:0 4px"></div>
-      <button role="menuitem" onClick="{{ signOut }}" style="display:flex; align-items:center; gap:10px; width:100%; height:34px; margin-top:4px; padding:0 8px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:16px; cursor:pointer; text-align:left" style-hover="background:var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.logout }}"></path></svg>Sign Out</button>
+      <button role="menuitem" onClick="{{ signOut }}" style="display:flex; align-items:center; gap:10px; width:100%; height:34px; margin-top:4px; padding:0 8px; border:0; border-radius:8px; background:transparent; color:var(--text-secondary); font-size:var(--fs-13); cursor:pointer; text-align:left" style-hover="background:var(--bg-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.logout }}"></path></svg>Sign Out</button>
     </div>
   </sc-if>
 
@@ -191,18 +191,18 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <div onClick="{{ closeMenus }}" style="position:fixed; inset:0; z-index:79"></div>
     <div role="dialog" aria-label="Demo controls" style="position:fixed; top:52px; right:12px; z-index:80; width:min(330px, calc(100vw - 24px)); padding:14px; border-radius:12px; background:var(--bg-raised); border:1px solid var(--line-default); box-shadow:var(--shadow-pop); display:flex; flex-direction:column; gap:12px; animation:ai-pop 140ms ease-out">
       <div style="display:flex; flex-direction:column; gap:6px">
-        <span style="font-size:16px; color:var(--text-tertiary)">View As</span>
+        <span style="font-size:var(--fs-13); color:var(--text-tertiary)">View As</span>
         <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-          <sc-for list="{{ roles }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="flex:1; height:28px; padding:0 8px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+          <sc-for list="{{ roles }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="flex:1; height:28px; padding:0 8px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
         </div>
       </div>
       <div style="display:flex; flex-direction:column; gap:6px">
-        <span style="font-size:16px; color:var(--text-tertiary)">Timeline</span>
+        <span style="font-size:var(--fs-13); color:var(--text-tertiary)">Timeline</span>
         <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-          <sc-for list="{{ phases }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="flex:1; height:28px; padding:0 8px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
+          <sc-for list="{{ phases }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="flex:1; height:28px; padding:0 8px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); font-weight:500; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for>
         </div>
       </div>
-      <button onClick="{{ resetDemo }}" style="align-self:flex-start; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:16px; cursor:pointer" style-hover="background:var(--action-secondary-hover)">Reset Demo Data</button>
+      <button onClick="{{ resetDemo }}" style="align-self:flex-start; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:var(--fs-13); cursor:pointer" style-hover="background:var(--action-secondary-hover)">Reset Demo Data</button>
     </div>
   </sc-if>
 
@@ -323,7 +323,7 @@ class Component extends DCLogic {
     return h('div', { role: 'status', 'aria-live': 'polite', style: { position: 'fixed', right: 20, bottom: 20, zIndex: 90, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end', pointerEvents: 'none' } },
       this.state.toasts.map(t => {
         const [c, d] = tones[t.tone] || tones.info;
-        return h('div', { key: t.id, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-inverse)', borderRadius: 10, boxShadow: 'var(--shadow-pop)', color: 'var(--text-inverse)', fontSize: 16, fontWeight: 500, animation: 'ai-toast-in 200ms ease-out', maxWidth: 'min(420px, calc(100vw - 40px))' } },
+        return h('div', { key: t.id, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-inverse)', borderRadius: 10, boxShadow: 'var(--shadow-pop)', color: 'var(--text-inverse)', fontSize: 'var(--fs-13)', fontWeight: 500, animation: 'ai-toast-in 200ms ease-out', maxWidth: 'min(420px, calc(100vw - 40px))' } },
           h('svg', { viewBox: '0 0 24 24', style: { width: 16, height: 16, flex: 'none', fill: 'none', stroke: c, strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' } }, h('path', { d })), t.msg);
       }));
   }

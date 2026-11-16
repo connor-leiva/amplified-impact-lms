@@ -67,20 +67,20 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Overview</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">{{ cohortLine }} · Updated Live from Learner Activity</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:var(--fs-14)">{{ cohortLine }} · Updated Live from Learner Activity</p>
     </div>
     <div data-phone="actions" style="display:flex; gap:8px">
-      <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export Report</button>
-      <button onClick="{{ goBuilder }}" style="height:36px; min-height:var(--tap-primary); padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
+      <button onClick="{{ exportCsv }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:var(--fs-13); font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.download }}"></path></svg>Export Report</button>
+      <button onClick="{{ goBuilder }}" style="height:36px; min-height:var(--tap-primary); padding:0 14px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:var(--fs-13); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>New AI Employee</button>
     </div>
   </div>
 
   <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px">
     <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
       <section style="padding:16px 18px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface)">
-        <div style="font-size:16px; color:var(--text-tertiary)">{{ k.label }}</div>
+        <div style="font-size:var(--fs-13); color:var(--text-tertiary)">{{ k.label }}</div>
         <div style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin-top:6px; line-height:1.1">{{ k.value }}</div>
-        <div style="font-size:16px; color:{{ k.subFg }}; margin-top:6px">{{ k.sub }}</div>
+        <div style="font-size:var(--fs-12); color:{{ k.subFg }}; margin-top:6px">{{ k.sub }}</div>
       </section>
     </sc-for>
   </div>
@@ -88,27 +88,27 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:stretch">
     <section style="flex:2 1 560px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
       <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
-        <div><div style="font-size:16px; font-weight:600">AI Employees Deployed</div><div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">Cumulative, All Learners</div></div>
-        <span style="font-size:16px; color:var(--status-success-text); font-variant-numeric:tabular-nums">{{ chart.delta }}</span>
+        <div><div style="font-size:var(--fs-14); font-weight:600">AI Employees Deployed</div><div style="font-size:var(--fs-12); color:var(--text-tertiary); margin-top:2px">Cumulative, All Learners</div></div>
+        <span style="font-size:var(--fs-13); color:var(--status-success-text); font-variant-numeric:tabular-nums">{{ chart.delta }}</span>
       </div>
       <svg viewBox="0 0 600 200" preserveAspectRatio="none" style="width:100%; height:200px; display:block; overflow:visible">
         <sc-for list="{{ chart.grid }}" as="gl"><line x1="0" x2="600" y1="{{ gl.y }}" y2="{{ gl.y }}" style="stroke:var(--line-default); stroke-width:1"></line></sc-for>
         <path d="{{ chart.area }}" style="fill:var(--action-primary-tint); stroke:none"></path>
         <path d="{{ chart.line }}" style="fill:none; stroke:var(--text-link); stroke-width:2; stroke-linejoin:round; vector-effect:non-scaling-stroke"></path>
       </svg>
-      <div style="display:flex; justify-content:space-between; font-size:16px; color:var(--text-tertiary); font-variant-numeric:tabular-nums">
+      <div style="display:flex; justify-content:space-between; font-size:var(--fs-12); color:var(--text-tertiary); font-variant-numeric:tabular-nums">
         <sc-for list="{{ chart.labels }}" as="cl"><span>{{ cl }}</span></sc-for>
       </div>
     </section>
 
     <section style="flex:1 1 320px; min-width:0; padding:18px 12px 10px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column">
-      <div style="padding:0 8px 10px; font-size:16px; font-weight:600">Live Activity</div>
+      <div style="padding:0 8px 10px; font-size:var(--fs-14); font-weight:600">Live Activity</div>
       <div style="flex:1; max-height:280px; overflow-y:auto">
         <sc-for list="{{ feed }}" as="e" hint-placeholder-count="6">
           <div style="display:flex; gap:10px; padding:8px; border-radius:8px">
             <span style="width:7px; height:7px; flex:none; margin-top:6px; border-radius:50%; background:{{ e.dot }}"></span>
-            <div style="flex:1; min-width:0; font-size:16px; line-height:1.45; color:var(--text-secondary)"><span style="color:var(--text-primary); font-weight:500">{{ e.who }}</span> {{ e.what }}</div>
-            <span style="font-size:16px; color:var(--text-tertiary); white-space:nowrap">{{ e.ago }}</span>
+            <div style="flex:1; min-width:0; font-size:var(--fs-13); line-height:1.45; color:var(--text-secondary)"><span style="color:var(--text-primary); font-weight:500">{{ e.who }}</span> {{ e.what }}</div>
+            <span style="font-size:var(--fs-12); color:var(--text-tertiary); white-space:nowrap">{{ e.ago }}</span>
           </div>
         </sc-for>
       </div>
@@ -118,8 +118,8 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:stretch">
     <section style="flex:2 1 560px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
       <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap">
-        <div style="font-size:16px; font-weight:600">Build Funnel by AI Employee</div>
-        <div data-phone="wrap" style="display:flex; gap:14px; font-size:16px; color:var(--text-tertiary)">
+        <div style="font-size:var(--fs-14); font-weight:600">Build Funnel by AI Employee</div>
+        <div data-phone="wrap" style="display:flex; gap:14px; font-size:var(--fs-12); color:var(--text-tertiary)">
           <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--status-success)"></span>Deployed</span>
           <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--status-progress)"></span>In Progress</span>
           <span style="display:flex; align-items:center; gap:6px"><span style="width:8px; height:8px; border-radius:2px; background:var(--line-strong)"></span>Not Started</span>
@@ -129,50 +129,50 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
         <div data-phone="funnel-row" style="display:flex; align-items:center; gap:14px">
           <div data-phone="funnel-label" style="width:170px; flex:none; display:flex; align-items:center; gap:8px; min-width:0">
             <svg viewBox="0 0 24 24" style="width:15px; height:15px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ f.icon }}"></path></svg>
-            <span style="font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</span>
-            <sc-if value="{{ f.team }}"><span style="font-size:16px; font-weight:600; color:var(--access-locked-text); ">Team</span></sc-if>
+            <span style="font-size:var(--fs-13); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ f.name }}</span>
+            <sc-if value="{{ f.team }}"><span style="font-size:var(--fs-12); font-weight:600; color:var(--access-locked-text); ">Team</span></sc-if>
           </div>
           <div data-phone="funnel-bar" style="flex:1; display:flex; height:10px; border-radius:5px; overflow:hidden; background: var(--track); gap:2px">
             <div title="Deployed" style="width:{{ f.wd }}; background:var(--status-success)"></div>
             <div title="In progress" style="width:{{ f.wp }}; background:var(--status-progress)"></div>
             <div style="flex:1; background:var(--track)"></div>
           </div>
-          <span data-phone="funnel-meta" style="width:110px; flex:none; text-align:right; font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums"><span style="color:var(--text-primary); font-weight:600">{{ f.pct }}</span> · {{ f.d }} of {{ f.n }}</span>
+          <span data-phone="funnel-meta" style="width:110px; flex:none; text-align:right; font-size:var(--fs-13); color:var(--text-secondary); font-variant-numeric:tabular-nums"><span style="color:var(--text-primary); font-weight:600">{{ f.pct }}</span> · {{ f.d }} of {{ f.n }}</span>
         </div>
       </sc-for>
     </section>
 
     <section style="flex:1 1 320px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
-      <div style="font-size:16px; font-weight:600">Live Attendance</div>
+      <div style="font-size:var(--fs-14); font-weight:600">Live Attendance</div>
       <div style="display:flex; align-items:flex-end; gap:10px; height:150px; padding-top:8px">
         <sc-for list="{{ att }}" as="a" hint-placeholder-count="6">
           <div title="{{ a.title }}" style="flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:6px">
-            <span style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ a.label }}</span>
+            <span style="font-size:var(--fs-12); color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ a.label }}</span>
             <div style="width:100%; max-width:36px; height:{{ a.h }}; border-radius:6px 6px 2px 2px; background:{{ a.bg }}; border:{{ a.bd }}"></div>
           </div>
         </sc-for>
       </div>
       <div style="display:flex; gap:10px">
-        <sc-for list="{{ att }}" as="a"><span style="flex:1; text-align:center; font-size:16px; color:var(--text-tertiary)">S{{ a.n }}</span></sc-for>
+        <sc-for list="{{ att }}" as="a"><span style="flex:1; text-align:center; font-size:var(--fs-12); color:var(--text-tertiary)">S{{ a.n }}</span></sc-for>
       </div>
-      <div style="font-size:16px; color:var(--text-tertiary); border-top:1px solid var(--line-default); padding-top:10px">Replay Views: {{ replayViews }}</div>
+      <div style="font-size:var(--fs-12); color:var(--text-tertiary); border-top:1px solid var(--line-default); padding-top:10px">Replay Views: {{ replayViews }}</div>
     </section>
   </div>
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-default); flex-wrap:wrap">
-      <div><div style="font-size:16px; font-weight:600">Needs Attention</div><div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">No build progress or inactive for 5+ days</div></div>
+      <div><div style="font-size:var(--fs-14); font-weight:600">Needs Attention</div><div style="font-size:var(--fs-12); color:var(--text-tertiary); margin-top:2px">No build progress or inactive for 5+ days</div></div>
       <sc-if value="{{ risk.length }}">
-        <button onClick="{{ nudgeAll }}" style="height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.bell }}"></path></svg>Nudge All</button>
+        <button onClick="{{ nudgeAll }}" style="height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--line-strong); background: var(--action-secondary); color:var(--text-primary); font-size:var(--fs-13); font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.bell }}"></path></svg>Nudge All</button>
       </sc-if>
     </div>
-    <sc-if value="{{ noRisk }}"><div style="padding:18px; color:var(--text-tertiary); font-size:16px">Everyone is moving. Nice.</div></sc-if>
+    <sc-if value="{{ noRisk }}"><div style="padding:18px; color:var(--text-tertiary); font-size:var(--fs-13)">Everyone is moving. Nice.</div></sc-if>
     <sc-for list="{{ risk }}" as="r">
       <div style="display:flex; align-items:center; gap:12px; padding:12px 18px; border-top:{{ r.bt }}; flex-wrap:wrap">
-        <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ r.av }}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--ink-900)">{{ r.ini }}</span>
-        <div style="flex:1; min-width:180px"><div style="font-size:16px; font-weight:500">{{ r.name }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ r.sub }}</div></div>
-        <span style="font-size:16px; color:var(--access-locked-text)">{{ r.reason }}</span>
-        <button onClick="{{ r.nudge }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background:transparent; color:{{ r.btnFg }}; font-size:16px; cursor:pointer; white-space:nowrap" style-hover="background: var(--bg-hover)">{{ r.btn }}</button>
+        <span style="width:30px; height:30px; flex:none; border-radius:50%; background:{{ r.av }}; display:flex; align-items:center; justify-content:center; font-size:var(--fs-12); font-weight:600; color:var(--ink-900)">{{ r.ini }}</span>
+        <div style="flex:1; min-width:180px"><div style="font-size:var(--fs-14); font-weight:500">{{ r.name }}</div><div style="font-size:var(--fs-12); color:var(--text-tertiary)">{{ r.sub }}</div></div>
+        <span style="font-size:var(--fs-13); color:var(--access-locked-text)">{{ r.reason }}</span>
+        <button onClick="{{ r.nudge }}" style="height:30px; padding:0 10px; border-radius:7px; border:1px solid var(--line-strong); background:transparent; color:{{ r.btnFg }}; font-size:var(--fs-13); cursor:pointer; white-space:nowrap" style-hover="background: var(--bg-hover)">{{ r.btn }}</button>
       </div>
     </sc-for>
   </section>

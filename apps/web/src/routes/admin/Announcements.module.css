@@ -25,7 +25,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 /* The composer and the reminders card share one wrapping row. */
@@ -50,7 +50,7 @@
 }
 
 .cardTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 
@@ -69,13 +69,13 @@
 
 /* Matches `Field`'s own label, which this screen's Title and Message use. */
 .groupLabel {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   font-weight: 500;
 }
 
 .reach {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -106,7 +106,7 @@
   border-radius: 7px;
   background: transparent;
   box-shadow: none;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 400;
   cursor: pointer;
   white-space: nowrap;
@@ -153,7 +153,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 400;
   cursor: pointer;
   display: flex;
@@ -197,13 +197,13 @@
    winner to the bundle's source order. */
 .at.at {
   padding: 0 8px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color-scheme: dark;
 }
 
 /* ---- Banner preview -------------------------------------------------------------------------- */
 .previewLabel {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -219,7 +219,7 @@
 
 /* ---- Error and the primary action ------------------------------------------------------------ */
 .error {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--access-locked-text);
 }
 
@@ -238,7 +238,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -268,13 +268,13 @@
 
 .remindersTitle {
   padding: 0 8px 4px;
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 
 .remindersSub {
   padding: 0 8px 10px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -310,13 +310,13 @@ button.row:hover {
 
 .rowLabel {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
 }
 
 .rowChannel {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -331,7 +331,7 @@ button.row:hover {
 .historyTitle {
   padding: 14px 18px;
   border-bottom: 1px solid var(--line-default);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 
@@ -353,7 +353,7 @@ button.row:hover {
 
 .headRow {
   padding: 10px 18px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -368,12 +368,12 @@ button.row:hover {
 }
 
 .histTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
 }
 
 .histBody {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -382,7 +382,7 @@ button.row:hover {
 
 .histAud,
 .histCh {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
 }
 
@@ -390,7 +390,7 @@ button.row:hover {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--status-progress-text);
 }
 .histStatus[data-sent='true'] {
@@ -409,12 +409,12 @@ button.row:hover {
 }
 
 .histAt {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }
 
 .histOpens {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }

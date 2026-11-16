@@ -153,6 +153,7 @@ function TeamHub() {
                   key={sl.key}
                   type="button"
                   className={s.slot}
+                  data-phone="seat"
                   data-kind={sl.kind}
                   title={sl.title}
                   aria-label={sl.title}
@@ -191,7 +192,7 @@ function TeamHub() {
             <div className={s.remPeople}>
               {rem.people.map((p) => (
                 <div key={p.id} className={s.remPerson} data-phone="remind-row">
-                  <Avatar id={p.id} name={p.plainName} size={32} />
+                  <Avatar id={p.id} name={p.plainName} size={22} data-phone="attention-avatar" />
                   <span className={s.remName}>{p.name}</span>
                   <span className={s.remGap} data-phone="remind-gap">
                     {p.gap}

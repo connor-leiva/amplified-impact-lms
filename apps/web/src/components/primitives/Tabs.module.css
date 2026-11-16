@@ -15,7 +15,7 @@
   border: 0;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   cursor: pointer;
   box-shadow: var(--tab-underline);
@@ -47,13 +47,13 @@
 }
 
 .count {
-  height: 24px;
-  min-width: 24px;
+  height: var(--bx-18);
+  min-width: var(--bx-18);
   padding: 0 6px;
   border-radius: 999px;
   background: var(--action-secondary);
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-12);
   display: flex;
   align-items: center;
   justify-content: center;

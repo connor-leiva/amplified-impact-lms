@@ -1,20 +1,42 @@
-/* The LMS's own tokens and global rules (DECISIONS.md D-156): Geist at 16px, 44px / 48px tap targets.
+/* The LMS's own tokens and global rules (DECISIONS.md D-156, scoped to phones by D-160 R2-1a): Geist at
+   every width; on a phone (767px and under) a 16px type floor and 44px / 48px tap targets.
    design-reference/lms.css and apps/web/src/styles/lms.css are the same file, byte for byte
    (scripts/reference-tokens.mjs --check). They are NOT in the shared token block, because the
    www pages (site, offer, guides, AI 101, legal) inline tokens.css and global.css from that block
    and must not change: only the reference's pages and the learn app load this. `:root` outranks
-   global.css's `html,body`, so the order the two load in does not matter. */
-:root{--font-ui:'Geist',ui-sans-serif,system-ui,sans-serif;--font-ui-mono:'Geist Mono',ui-monospace,monospace;--tap:44px;--tap-primary:48px}
-:root,:root body{font-family:var(--font-ui);font-size:16px}
-button,select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){min-height:var(--tap)}
-button{min-width:var(--tap)}
-button[style*="background:var(--action-primary)"]{min-height:var(--tap-primary)}
+   global.css's `html,body`, so the order the two load in does not matter.
+
+   Sizes (R2-1a). #117 first applied the phone sizes at every width. Each size it raised is now a token
+   that carries both values: `--fs-N` (a font-size of N px), `--bx-N` (a height or min-width of N px) and
+   `--lh-N` (a line-height of N px) are N px here and 16px / 24px / 20px in the phone block; `--tap` and
+   `--tap-primary` are 0 here, so a `min-height: var(--tap)` does nothing above 767px, and 44px / 48px
+   on a phone. scripts/lms-type-scope.mjs wrote every use and the two generated lines; the body's 16px
+   and the controls' minimum sizes are phone-only too. scripts/lms-type-floor.mjs --check fails on any
+   raw size under 16px and on any size token whose phone value is under the floor, so on a phone the
+   floor holds by construction. */
+:root{--font-ui:'Geist',ui-sans-serif,system-ui,sans-serif;--font-ui-mono:'Geist Mono',ui-monospace,monospace;--tap:0px;--tap-primary:0px}
+/* lms-type-scope: desktop values */
+:root{--bx-16:16px;--bx-18:18px;--bx-20:20px;--bx-22:22px;--fs-11:11px;--fs-11_5:11.5px;--fs-12:12px;--fs-12_5:12.5px;--fs-13:13px;--fs-14:14px;--fs-15:15px;--lh-16:16px;--lh-18:18px}
+:root,:root body{font-family:var(--font-ui)}
 
 /* Phone layouts (D-156), shared by the reference and the app: each rule targets a `data-phone` hook
    that both sides put on the same element, so a phone layout cannot drift between them. `!important`
    because the reference sets everything inline and the app's CSS modules load after this file; none
    of it applies above 767px, where every golden but the 390px ones is taken. */
 @media (max-width:767px){
+/* lms-type-scope: phone values */
+:root{--bx-16:24px;--bx-18:24px;--bx-20:24px;--bx-22:24px;--fs-11:16px;--fs-11_5:16px;--fs-12:16px;--fs-12_5:16px;--fs-13:16px;--fs-14:16px;--fs-15:16px;--lh-16:20px;--lh-18:20px}
+:root{--tap:44px;--tap-primary:48px}
+:root,:root body{font-size:16px}
+button,select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){min-height:var(--tap)}
+button{min-width:var(--tap)}
+button[style*="background:var(--action-primary)"]{min-height:var(--tap-primary)}
+/* #117's hand-set phone sizes (R2-1a): the desktop value is the element's own, the phone one is here. */
+[data-phone="bar"]{height:64px !important}
+[data-phone="bar-button"]{width:44px !important;height:44px !important}
+[data-phone="token"]{vertical-align:top !important}
+[data-phone="seat"]{width:44px !important;height:44px !important}
+[data-phone="attention-avatar"]{width:32px !important;height:32px !important}
 [data-phone="banner"]{flex-wrap:wrap !important}
 [data-phone="banner-mid"]{flex-basis:calc(100% - 17px - 44px - 24px) !important}
 [data-phone="banner-action"]{order:3 !important;margin-left:29px !important}

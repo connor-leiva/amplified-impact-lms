@@ -24,12 +24,15 @@ export interface AvatarProps {
   invited?: boolean;
   title?: string;
   className?: string;
+  /** A D-156 phone hook (lms.css), when this avatar takes another size on a phone. */
+  'data-phone'?: string;
 }
 
-export function Avatar({ id, name, size = 32, invited = false, title, className }: AvatarProps) {
+export function Avatar({ id, name, size = 32, invited = false, title, className, 'data-phone': phone }: AvatarProps) {
   return (
     <span
       title={title}
+      data-phone={phone}
       data-size={size}
       data-invited={invited ? 'true' : undefined}
       className={clsx(s.avatar, className)}

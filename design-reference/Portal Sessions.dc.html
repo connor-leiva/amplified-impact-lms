@@ -67,9 +67,9 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div style="display:flex; flex-direction:column; gap:4px">
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Sessions</h1>
-      <p style="margin:0; color:var(--text-secondary); font-size:16px">{{ sub }}</p>
+      <p style="margin:0; color:var(--text-secondary); font-size:var(--fs-14)">{{ sub }}</p>
     </div>
-    <button onClick="{{ calAll }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">
+    <button onClick="{{ calAll }}" style="height:36px; padding:0 14px; border-radius:8px; border:1px solid var(--action-secondary-line); background:var(--action-secondary); color:var(--text-primary); font-size:var(--fs-14); font-weight:500; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="background:var(--action-secondary-hover)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">
       <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.calPlus }}"></path></svg>Add All Sessions to Calendar
     </button>
   </div>
@@ -78,7 +78,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <section aria-label="Live sessions" style="flex:999 1 600px; min-width:0; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
         <div style="display:flex; align-items:center; gap:16px; padding:16px 18px; border-top:{{ r.bt }}; background:{{ r.bg }}; flex-wrap:wrap">
-          <span style="width:34px; height:34px; flex:none; border-radius:50%; border:1.5px solid {{ r.ringBd }}; background:{{ r.ringBg }}; display:flex; align-items:center; justify-content:center; font-family:var(--font-ui-mono); font-size:16px; color:{{ r.ringFg }}">
+          <span style="width:34px; height:34px; flex:none; border-radius:50%; border:1.5px solid {{ r.ringBd }}; background:{{ r.ringBg }}; display:flex; align-items:center; justify-content:center; font-family:var(--font-ui-mono); font-size:var(--fs-13); color:{{ r.ringFg }}">
             <sc-if value="{{ r.past }}"><svg viewBox="0 0 24 24" aria-label="Held" style="width:15px; height:15px; fill:none; stroke:var(--status-success); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"><path d="M5 12.6l4.4 4.4L19 7.4"></path></svg></sc-if>
             <sc-if value="{{ r.ahead }}">{{ r.n }}</sc-if>
           </span>
@@ -87,12 +87,12 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
               <span style="font-size:16px; font-weight:600; color:{{ r.fg }}">Session {{ r.n }} · {{ r.title }}</span>
               <dc-import name="Status Token" kind="{{ r.tk.kind }}" state="{{ r.tk.state }}" tone="{{ r.tk.tone }}" icon="{{ r.tk.icon }}" label="{{ r.tk.label }}" hint-size="90px,22px"></dc-import>
             </div>
-            <div style="display:flex; flex-wrap:wrap; gap:2px 14px; font-size:16px; color:var(--text-tertiary)"><span>{{ r.module }}</span><span>{{ r.when }}</span><span>{{ r.mins }} Min</span><sc-if value="{{ r.extra }}"><span>{{ r.extra }}</span></sc-if></div>
+            <div style="display:flex; flex-wrap:wrap; gap:2px 14px; font-size:var(--fs-13); color:var(--text-tertiary)"><span>{{ r.module }}</span><span>{{ r.when }}</span><span>{{ r.mins }} Min</span><sc-if value="{{ r.extra }}"><span>{{ r.extra }}</span></sc-if></div>
           </div>
           <div style="display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap">
             <sc-if value="{{ r.join }}"><dc-import name="Join Button" mode="{{ r.join.mode }}" hint="{{ r.join.hint }}" url="{{ r.join.url }}" stack="{{ true }}" on-join="{{ r.join.go }}" hint-size="130px,36px"></dc-import></sc-if>
             <sc-for list="{{ r.actions }}" as="a">
-              <button onClick="{{ a.go }}" style="--b-hov:{{ a.hov }}; height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ a.bd }}; background:{{ a.bg }}; color:{{ a.fg }}; font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; outline:none" style-hover="background:var(--b-hov)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">
+              <button onClick="{{ a.go }}" style="--b-hov:{{ a.hov }}; height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ a.bd }}; background:{{ a.bg }}; color:{{ a.fg }}; font-size:var(--fs-14); font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; outline:none" style-hover="background:var(--b-hov)" style-focus="box-shadow:0 0 0 3px var(--focus-ring)">
                 <svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ a.icon }}"></path></svg>{{ a.label }}
               </button>
             </sc-for>
@@ -103,19 +103,19 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 
     <aside style="flex:1 1 280px; min-width:0; display:flex; flex-direction:column; gap:14px">
       <section style="padding:16px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:12px">
-        <div><div style="font-size:16px; font-weight:600">Office Hours</div><div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">Drop-In Build Help · Wednesdays · {{ ohTime }}</div></div>
+        <div><div style="font-size:var(--fs-14); font-weight:600">Office Hours</div><div style="font-size:var(--fs-13); color:var(--text-tertiary); margin-top:2px">Drop-In Build Help · Wednesdays · {{ ohTime }}</div></div>
         <sc-for list="{{ oh }}" as="o" hint-placeholder-count="3">
           <div style="display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px; background:var(--bg-sunken); border:1px solid var(--line-subtle)">
-            <span style="flex:1; font-size:16px; color:{{ o.fg }}">{{ o.label }}</span>
-            <sc-if value="{{ o.past }}"><span style="font-size:16px; color:var(--text-tertiary)">Recording Posted</span></sc-if>
-            <sc-if value="{{ o.future }}"><button onClick="{{ o.go }}" style="border:0; background:none; padding:0; color:var(--text-link); font-size:16px; cursor:pointer" style-hover="color:var(--text-link-hover)">Add to Calendar</button></sc-if>
+            <span style="flex:1; font-size:var(--fs-13); color:{{ o.fg }}">{{ o.label }}</span>
+            <sc-if value="{{ o.past }}"><span style="font-size:var(--fs-12); color:var(--text-tertiary)">Recording Posted</span></sc-if>
+            <sc-if value="{{ o.future }}"><button onClick="{{ o.go }}" style="border:0; background:none; padding:0; color:var(--text-link); font-size:var(--fs-13); cursor:pointer" style-hover="color:var(--text-link-hover)">Add to Calendar</button></sc-if>
           </div>
         </sc-for>
       </section>
       <section style="padding:16px; border-radius:14px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:8px">
-        <div style="font-size:16px; font-weight:600">Your Attendance</div>
-        <div style="display:flex; align-items:baseline; gap:8px"><span style="font-size:26px; line-height:32px; font-weight:600; font-variant-numeric:tabular-nums">{{ att.attended }}</span><span style="color:var(--text-secondary); font-size:16px">of {{ att.held }} Sessions Attended Live</span></div>
-        <div style="font-size:16px; color:var(--text-tertiary); line-height:1.5">Missed one? Every replay has chapters for the 6 build steps and a searchable transcript.</div>
+        <div style="font-size:var(--fs-14); font-weight:600">Your Attendance</div>
+        <div style="display:flex; align-items:baseline; gap:8px"><span style="font-size:26px; line-height:32px; font-weight:600; font-variant-numeric:tabular-nums">{{ att.attended }}</span><span style="color:var(--text-secondary); font-size:var(--fs-14)">of {{ att.held }} Sessions Attended Live</span></div>
+        <div style="font-size:var(--fs-13); color:var(--text-tertiary); line-height:1.5">Missed one? Every replay has chapters for the 6 build steps and a searchable transcript.</div>
       </section>
     </aside>
   </div>

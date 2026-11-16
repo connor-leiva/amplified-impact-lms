@@ -54,7 +54,7 @@ export function Component() {
     <main style={{ padding: 32, maxWidth: 1360, margin: '0 auto', display: 'grid', gap: 40 }}>
       <header>
         <h1 style={{ font: '600 26px/32px var(--font-ui)', letterSpacing: '-0.02em', margin: 0 }}>Tokens</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 16, color: 'var(--text-secondary)' }}>
+        <p style={{ margin: '4px 0 0', fontSize: 'var(--fs-14)', color: 'var(--text-secondary)' }}>
           Every semantic token and the six type steps, resolved in the current theme.
         </p>
       </header>
@@ -63,15 +63,15 @@ export function Component() {
         <h2 style={{ font: '600 16px/24px var(--font-ui)', margin: 0 }}>Type Scale</h2>
         {TYPE_STEPS.map(([label, size, line, use]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
-            <code style={{ font: '500 16px/20px var(--font-ui-mono)', color: 'var(--text-tertiary)', width: 120 }}>
+            <code style={{ font: '500 var(--fs-12)/var(--lh-16) var(--font-ui-mono)', color: 'var(--text-tertiary)', width: 120 }}>
               {label} {size}/{line}
             </code>
             <span style={{ fontSize: size, lineHeight: `${line}px`, color: 'var(--text-primary)' }}>{use}</span>
           </div>
         ))}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
-          <code style={{ font: '500 16px/20px var(--font-ui-mono)', color: 'var(--text-tertiary)', width: 120 }}>mono</code>
-          <span style={{ font: '400 16px/20px var(--font-ui-mono)', color: 'var(--text-primary)' }}>12:34 / 58:24 · 3 of 6 Steps</span>
+          <code style={{ font: '500 var(--fs-12)/var(--lh-16) var(--font-ui-mono)', color: 'var(--text-tertiary)', width: 120 }}>mono</code>
+          <span style={{ font: '400 var(--fs-13)/var(--lh-18) var(--font-ui-mono)', color: 'var(--text-primary)' }}>12:34 / 58:24 · 3 of 6 Steps</span>
         </div>
       </section>
 
@@ -102,7 +102,7 @@ export function Component() {
                     border: '1px solid var(--line-default)',
                   }}
                 />
-                <code style={{ font: '400 16px/20px var(--font-ui-mono)', color: 'var(--text-secondary)' }}>--{t}</code>
+                <code style={{ font: '400 var(--fs-12)/var(--lh-16) var(--font-ui-mono)', color: 'var(--text-secondary)' }}>--{t}</code>
               </div>
             ))}
           </div>
@@ -126,7 +126,7 @@ export function Component() {
                 placeItems: 'center',
               }}
             >
-              <code style={{ font: '400 16px/20px var(--font-ui-mono)', color: 'var(--text-secondary)' }}>--{t}</code>
+              <code style={{ font: '400 var(--fs-12)/var(--lh-16) var(--font-ui-mono)', color: 'var(--text-secondary)' }}>--{t}</code>
             </div>
           ))}
         </div>

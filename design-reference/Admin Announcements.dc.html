@@ -66,69 +66,69 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 <div style="padding:var(--page-pad-top) var(--page-pad-x) 56px; max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:18px">
   <div>
     <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Announcements</h1>
-    <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">In-app banners and email for the December 2026 Cohort, plus automated reminders.</p>
+    <p style="margin:4px 0 0; color:var(--text-secondary); font-size:var(--fs-14)">In-app banners and email for the December 2026 Cohort, plus automated reminders.</p>
   </div>
   <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start">
     <section style="flex:1.4 1 520px; min-width:0; padding:18px 20px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); display:flex; flex-direction:column; gap:14px">
-      <div style="font-size:16px; font-weight:600">New Announcement</div>
-      <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Title
-        <input value="{{ f.title }}" onChange="{{ setTitle }}" placeholder="e.g. Office hours moved to 2:00 PM" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+      <div style="font-size:var(--fs-14); font-weight:600">New Announcement</div>
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:var(--fs-13); color:var(--text-secondary); font-weight:500">Title
+        <input value="{{ f.title }}" onChange="{{ setTitle }}" placeholder="e.g. Office hours moved to 2:00 PM" style="height:36px; padding:0 11px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:var(--fs-14); outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
       </label>
-      <label style="display:flex; flex-direction:column; gap:6px; font-size:16px; color:var(--text-secondary); font-weight:500">Message
-        <textarea value="{{ f.body }}" onChange="{{ setBody }}" placeholder="Keep it to two sentences for the banner." style="min-height:90px; resize:vertical; padding:10px 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; line-height:1.5; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:var(--fs-13); color:var(--text-secondary); font-weight:500">Message
+        <textarea value="{{ f.body }}" onChange="{{ setBody }}" placeholder="Keep it to two sentences for the banner." style="min-height:90px; resize:vertical; padding:10px 12px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:var(--fs-14); line-height:1.5; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)"></textarea>
       </label>
       <div style="display:flex; flex-wrap:wrap; gap:18px">
         <div style="display:flex; flex-direction:column; gap:6px">
-          <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Audience</span>
+          <span style="font-size:var(--fs-13); color:var(--text-secondary); font-weight:500">Audience</span>
           <div data-phone="wrap" style="display:flex; padding:3px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)">
-            <sc-for list="{{ aud }}" as="a"><button onClick="{{ a.go }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ a.bg }}; color:{{ a.fg }}; font-size:16px; cursor:pointer; white-space:nowrap">{{ a.label }}</button></sc-for>
+            <sc-for list="{{ aud }}" as="a"><button onClick="{{ a.go }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ a.bg }}; color:{{ a.fg }}; font-size:var(--fs-13); cursor:pointer; white-space:nowrap">{{ a.label }}</button></sc-for>
           </div>
-          <span style="font-size:16px; color:var(--text-tertiary)">{{ reach }}</span>
+          <span style="font-size:var(--fs-12); color:var(--text-tertiary)">{{ reach }}</span>
         </div>
         <div style="display:flex; flex-direction:column; gap:6px">
-          <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Channels</span>
+          <span style="font-size:var(--fs-13); color:var(--text-secondary); font-weight:500">Channels</span>
           <div style="display:flex; gap:6px">
             <sc-for list="{{ chans }}" as="ch">
-              <button onClick="{{ ch.go }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ ch.bd }}; background:{{ ch.bg }}; color:{{ ch.fg }}; font-size:16px; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap">
+              <button onClick="{{ ch.go }}" style="height:36px; padding:0 12px; border-radius:8px; border:1px solid {{ ch.bd }}; background:{{ ch.bg }}; color:{{ ch.fg }}; font-size:var(--fs-13); cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap">
                 <span style="width:16px; height:16px; border-radius:5px; border:1.5px solid {{ ch.boxBd }}; background:{{ ch.boxBg }}; display:flex; align-items:center; justify-content:center"><sc-if value="{{ ch.on }}"><svg viewBox="0 0 24 24" style="width:11px; height:11px; fill:none; stroke:var(--action-on-primary); stroke-width:3; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></sc-if></span>{{ ch.label }}
               </button>
             </sc-for>
           </div>
         </div>
         <div style="display:flex; flex-direction:column; gap:6px">
-          <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Severity</span>
-          <div data-phone="wrap" style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)"><sc-for list="{{ sevs }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for></div>
+          <span style="font-size:var(--fs-13); color:var(--text-secondary); font-weight:500">Severity</span>
+          <div data-phone="wrap" style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)"><sc-for list="{{ sevs }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for></div>
         </div>
         <div style="display:flex; flex-direction:column; gap:6px">
-          <span style="font-size:16px; color:var(--text-secondary); font-weight:500">Action Button</span>
-          <div data-phone="wrap" style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)"><sc-for list="{{ actions }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for></div>
+          <span style="font-size:var(--fs-13); color:var(--text-secondary); font-weight:500">Action Button</span>
+          <div data-phone="wrap" style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)"><sc-for list="{{ actions }}" as="o"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); cursor:pointer; white-space:nowrap">{{ o.label }}</button></sc-for></div>
         </div>
         <div style="display:flex; flex-direction:column; gap:6px">
-          <span style="font-size:16px; color:var(--text-secondary); font-weight:500">When</span>
+          <span style="font-size:var(--fs-13); color:var(--text-secondary); font-weight:500">When</span>
           <div data-phone="wrap" style="display:flex; gap:6px; align-items:center">
             <div data-phone="wrap" style="display:flex; padding:3px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)">
-              <sc-for list="{{ whens }}" as="w"><button onClick="{{ w.go }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ w.bg }}; color:{{ w.fg }}; font-size:16px; cursor:pointer; white-space:nowrap">{{ w.label }}</button></sc-for>
+              <sc-for list="{{ whens }}" as="w"><button onClick="{{ w.go }}" style="height:30px; padding:0 10px; border:0; border-radius:7px; background:{{ w.bg }}; color:{{ w.fg }}; font-size:var(--fs-13); cursor:pointer; white-space:nowrap">{{ w.label }}</button></sc-for>
             </div>
-            <sc-if value="{{ isSched }}"><input type="datetime-local" value="{{ f.at }}" onChange="{{ setAt }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:16px; outline:none; color-scheme:dark"></sc-if>
+            <sc-if value="{{ isSched }}"><input type="datetime-local" value="{{ f.at }}" onChange="{{ setAt }}" style="height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-sunken); color:var(--text-primary); font-size:var(--fs-13); outline:none; color-scheme:dark"></sc-if>
           </div>
         </div>
       </div>
       <div style="display:flex; flex-direction:column; gap:6px">
-        <span style="font-size:16px; font-weight:600; color:var(--text-secondary)">Banner Preview</span>
+        <span style="font-size:var(--fs-14); font-weight:600; color:var(--text-secondary)">Banner Preview</span>
         <div style="opacity:{{ pvOp }}"><dc-import name="Announcement Banner" severity="{{ f.severity }}" title="{{ pv.title }}" body="{{ pv.body }}" when="Just now" action-label="{{ pv.actionLabel }}" hint-size="100%,56px"></dc-import></div>
       </div>
-      <sc-if value="{{ err }}"><div style="font-size:16px; color:var(--access-locked-text)">{{ err }}</div></sc-if>
+      <sc-if value="{{ err }}"><div style="font-size:var(--fs-13); color:var(--access-locked-text)">{{ err }}</div></sc-if>
       <div style="display:flex; justify-content:flex-end; gap:8px; padding-top:4px">
-        <button onClick="{{ send }}" style="height:36px; min-height:var(--tap-primary); padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.send }}"></path></svg>{{ sendLabel }}</button>
+        <button onClick="{{ send }}" style="height:36px; min-height:var(--tap-primary); padding:0 16px; border-radius:8px; border:1px solid var(--action-primary); background:var(--action-primary); color:var(--action-on-primary); font-size:var(--fs-13); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap"><svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.send }}"></path></svg>{{ sendLabel }}</button>
       </div>
     </section>
 
     <section style="flex:1 1 340px; min-width:0; padding:18px 12px 8px; border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface)">
-      <div style="padding:0 8px 4px; font-size:16px; font-weight:600">Automated Reminders</div>
-      <div style="padding:0 8px 10px; font-size:16px; color:var(--text-tertiary)">Sent for every cohort on its own schedule</div>
+      <div style="padding:0 8px 4px; font-size:var(--fs-14); font-weight:600">Automated Reminders</div>
+      <div style="padding:0 8px 10px; font-size:var(--fs-12); color:var(--text-tertiary)">Sent for every cohort on its own schedule</div>
       <sc-for list="{{ reminders }}" as="r" hint-placeholder-count="5">
         <button onClick="{{ r.toggle }}" style="display:flex; align-items:center; gap:12px; width:100%; padding:10px 8px; border:0; border-radius:8px; background:transparent; text-align:left; cursor:pointer; color:var(--text-primary)" style-hover="background:var(--bg-hover)">
-          <div style="flex:1; min-width:0"><div style="font-size:16px; font-weight:500">{{ r.label }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ r.channel }}</div></div>
+          <div style="flex:1; min-width:0"><div style="font-size:var(--fs-13); font-weight:500">{{ r.label }}</div><div style="font-size:var(--fs-12); color:var(--text-tertiary)">{{ r.channel }}</div></div>
           <span style="width:34px; height:20px; flex:none; border-radius:999px; background:{{ r.track }}; position:relative; transition:background 150ms"><span style="position:absolute; top:2px; left:{{ r.knob }}; width:16px; height:16px; border-radius:50%; background:var(--paper); transition:left 150ms"></span></span>
         </button>
       </sc-for>
@@ -136,20 +136,20 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   </div>
 
   <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
-    <div style="padding:14px 18px; border-bottom:1px solid var(--line-default); font-size:16px; font-weight:600">History</div>
+    <div style="padding:14px 18px; border-bottom:1px solid var(--line-default); font-size:var(--fs-14); font-weight:600">History</div>
     <div data-phone="tscroll" style="overflow-x:auto">
       <div data-phone="tmin" style="min-width:900px">
-        <div data-phone="thead" style="display:grid; grid-template-columns:minmax(260px,2.4fr) 130px 150px 120px 150px 90px; gap:12px; padding:10px 18px; font-size:16px; font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
+        <div data-phone="thead" style="display:grid; grid-template-columns:minmax(260px,2.4fr) 130px 150px 120px 150px 90px; gap:12px; padding:10px 18px; font-size:var(--fs-13); font-weight:500; color:var(--text-tertiary); border-bottom:1px solid var(--line-default)">
           <span>Announcement</span><span>Audience</span><span>Channels</span><span>Status</span><span>Date</span><span>Opened</span>
         </div>
         <sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
           <div data-phone="card" style="display:grid; grid-template-columns:minmax(260px,2.4fr) 130px 150px 120px 150px 90px; gap:12px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--line-default)">
-            <div style="min-width:0"><div style="font-size:16px; font-weight:500">{{ h.title }}</div><div style="font-size:16px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ h.body }}</div></div>
-            <span data-phone="cell" data-label="Audience" style="font-size:16px; color:var(--text-secondary)">{{ h.aud }}</span>
-            <span data-phone="cell" data-label="Channels" style="font-size:16px; color:var(--text-secondary)">{{ h.ch }}</span>
-            <span style="display:flex; align-items:center; gap:6px; font-size:16px; color:{{ h.sFg }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ h.sDot }}"></span>{{ h.status }}</span>
-            <span data-phone="cell" data-label="Date" style="font-size:16px; color:var(--text-tertiary)">{{ h.at }}</span>
-            <span data-phone="cell" data-label="Opened" style="font-size:16px; color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ h.opens }}</span>
+            <div style="min-width:0"><div style="font-size:var(--fs-14); font-weight:500">{{ h.title }}</div><div style="font-size:var(--fs-12); color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ h.body }}</div></div>
+            <span data-phone="cell" data-label="Audience" style="font-size:var(--fs-13); color:var(--text-secondary)">{{ h.aud }}</span>
+            <span data-phone="cell" data-label="Channels" style="font-size:var(--fs-13); color:var(--text-secondary)">{{ h.ch }}</span>
+            <span style="display:flex; align-items:center; gap:6px; font-size:var(--fs-13); color:{{ h.sFg }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ h.sDot }}"></span>{{ h.status }}</span>
+            <span data-phone="cell" data-label="Date" style="font-size:var(--fs-13); color:var(--text-tertiary)">{{ h.at }}</span>
+            <span data-phone="cell" data-label="Opened" style="font-size:var(--fs-13); color:var(--text-secondary); font-variant-numeric:tabular-nums">{{ h.opens }}</span>
           </div>
         </sc-for>
       </div>

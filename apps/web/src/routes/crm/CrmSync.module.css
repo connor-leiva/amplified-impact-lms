@@ -26,7 +26,7 @@
   align-items: center;
   gap: 4px;
   min-height: 44px;
-  font-size: 16px;
+  font-size: var(--fs-14);
   color: var(--text-link);
 }
 .back:hover {
@@ -86,7 +86,7 @@
 }
 .empty {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--fs-15);
   color: var(--text-secondary);
 }
 
@@ -100,14 +100,14 @@
   gap: 2px;
 }
 .fact dt {
-  font-size: 16px;
-  line-height: 20px;
+  font-size: var(--fs-13);
+  line-height: var(--lh-18);
   font-weight: 600;
   color: var(--text-secondary);
 }
 .fact dd {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--fs-15);
   line-height: 22px;
 }
 
@@ -118,7 +118,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 16px;
+  font-size: var(--fs-14);
   line-height: 20px;
 }
 .table th,
@@ -130,7 +130,7 @@
   white-space: nowrap;
 }
 .table thead th {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -152,8 +152,8 @@
   padding: 1px 8px;
   border: 1px solid;
   border-radius: 999px;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: var(--fs-12);
+  line-height: var(--lh-18);
   font-weight: 600;
 }
 .success {

@@ -147,7 +147,7 @@ export function StatusToken(props: StatusTokenProps) {
   if (force === 'loading') {
     const skW = compact ? 36 : size === 'md' ? 96 : 76;
     const h = compact ? 16 : size === 'md' ? 26 : 22;
-    return <span aria-hidden="true" className={s.skeleton} style={{ width: skW, height: h }} />;
+    return <span aria-hidden="true" className={s.skeleton} data-phone="token" style={{ width: skW, height: h }} />;
   }
 
   const [sp, fp] = glyphPaths(icon, n, total);
@@ -156,6 +156,7 @@ export function StatusToken(props: StatusTokenProps) {
   return (
     <span
       className={s.pill}
+      data-phone="token"
       data-tone={tone}
       data-size={size}
       data-compact={compact ? 'true' : undefined}

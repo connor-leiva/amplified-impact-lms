@@ -10,7 +10,7 @@
   background: var(--bg-canvas);
   color: var(--text-primary);
   font-family: var(--font-ui);
-  font-size: 16px;
+  font-size: var(--fs-14);
   line-height: 1.45;
   overflow: hidden;
 }
@@ -63,8 +63,9 @@
   box-shadow: var(--shadow-pop);
 }
 
+/* 56px above 767px; 64px on a phone through lms.css's `data-phone="bar"` (D-156, scoped by D-160 R2-1a). */
 .brand {
-  height: 64px;
+  height: 56px;
   flex: none;
   display: flex;
   align-items: center;
@@ -78,10 +79,11 @@
   padding: 0 18px;
 }
 
+/* 32px above 767px; 44px on a phone through `data-phone="bar-button"`. */
 .close {
   margin-left: auto;
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   flex: none;
   border: 0;
   border-radius: 8px;
@@ -106,7 +108,7 @@
 .context {
   flex: none;
   padding: 14px 20px 0;
-  font-size: 16px;
+  font-size: var(--fs-13);
   line-height: 1.4;
   color: var(--text-tertiary);
 }
@@ -130,7 +132,7 @@
 
 .groupLabel {
   padding: 4px 10px;
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -194,14 +196,14 @@
 }
 
 .name {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .tag {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -220,8 +222,9 @@
   flex-direction: column;
 }
 
+/* 56px above 767px; 64px on a phone through `data-phone="bar"`. */
 .header {
-  height: 64px;
+  height: 56px;
   flex: none;
   display: flex;
   align-items: center;
@@ -231,9 +234,10 @@
   background: var(--bg-canvas);
 }
 
+/* 34px above 767px; 44px on a phone through `data-phone="bar-button"`. */
 .menu {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   flex: none;
   margin-left: -6px;
   border: 0;
@@ -265,7 +269,7 @@
   border-bottom: 1px solid var(--status-attention-line);
   background: var(--status-attention-bg);
   color: var(--status-attention-text);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
 }
 

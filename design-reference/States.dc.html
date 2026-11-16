@@ -68,22 +68,22 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <header style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px; max-width:1600px">
     <div style="display:flex; flex-direction:column; gap:6px; max-width:760px">
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">States</h1>
-      <p style="margin:0; font-size:16px; color:var(--text-secondary); text-wrap:pretty">Component states for the Implementation Hub. Every component on this sheet is the same file the app imports, rendered with forced states.</p>
+      <p style="margin:0; font-size:var(--fs-14); color:var(--text-secondary); text-wrap:pretty">Component states for the Implementation Hub. Every component on this sheet is the same file the app imports, rendered with forced states.</p>
     </div>
     <div style="display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--seg-track); border:1px solid var(--line-default)">
-      <sc-for list="{{ themes }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:28px; padding:0 12px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:16px; font-weight:500; cursor:pointer">{{ o.label }}</button></sc-for>
+      <sc-for list="{{ themes }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.go }}" aria-pressed="{{ o.on }}" style="height:28px; padding:0 12px; border:0; border-radius:6px; background:{{ o.bg }}; box-shadow:{{ o.sh }}; color:{{ o.fg }}; font-size:var(--fs-13); font-weight:500; cursor:pointer">{{ o.label }}</button></sc-for>
     </div>
   </header>
 
   <section style="display:flex; flex-direction:column; gap:14px">
     <div style="display:flex; flex-direction:column; gap:4px">
       <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Next Live Session · Five Variants</h2>
-      <p style="margin:0; font-size:16px; color:var(--text-tertiary)">Seconds hide when more than an hour remains. The Join button is the only link to the session. The countdown is a timer region that announces at hour, 10-minute and 1-minute boundaries.</p>
+      <p style="margin:0; font-size:var(--fs-13); color:var(--text-tertiary)">Seconds hide when more than an hour remains. The Join button is the only link to the session. The countdown is a timer region that announces at hour, 10-minute and 1-minute boundaries.</p>
     </div>
     <div style="display:flex; gap:20px; align-items:flex-start">
       <sc-for list="{{ variants }}" as="v" hint-placeholder-count="5">
         <div style="width:520px; flex:none; display:flex; flex-direction:column; gap:8px">
-          <div style="display:flex; gap:8px; align-items:baseline"><span style="font-family:var(--font-ui-mono); font-size:16px; color:var(--text-primary)">{{ v.id }}</span><span style="font-size:16px; color:var(--text-tertiary)">{{ v.rule }}</span></div>
+          <div style="display:flex; gap:8px; align-items:baseline"><span style="font-family:var(--font-ui-mono); font-size:var(--fs-12); color:var(--text-primary)">{{ v.id }}</span><span style="font-size:var(--fs-12); color:var(--text-tertiary)">{{ v.rule }}</span></div>
           <dc-import name="Session Card" vm="{{ v.vm }}" hint-size="100%,170px"></dc-import>
         </div>
       </sc-for>
@@ -94,33 +94,33 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Components × States</h2>
     <div style="display:grid; grid-template-columns:150px repeat(5, 300px); gap:20px 20px; align-items:start">
       <span></span>
-      <sc-for list="{{ cols }}" as="c" hint-placeholder-count="5"><span style="font-size:16px; font-weight:500; color:var(--text-tertiary)">{{ c }}</span></sc-for>
+      <sc-for list="{{ cols }}" as="c" hint-placeholder-count="5"><span style="font-size:var(--fs-13); font-weight:500; color:var(--text-tertiary)">{{ c }}</span></sc-for>
 
-      <span style="font-size:16px; font-weight:600; padding-top:10px">Nav Item</span>
+      <span style="font-size:var(--fs-14); font-weight:600; padding-top:10px">Nav Item</span>
       <sc-for list="{{ navStates }}" as="n" hint-placeholder-count="5">
         <div style="--nav-hover:color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar)); --nav-active:var(--action-primary-tint); width:248px; padding:10px; border-radius:12px; background:var(--bg-sidebar); border:1px solid var(--line-default)">
           <dc-import name="Nav Item" label="Sessions" icon="{{ ic.radio }}" force="{{ n.force }}" hint-size="100%,32px"></dc-import>
         </div>
       </sc-for>
 
-      <span style="font-size:16px; font-weight:600; padding-top:4px">Status Token</span>
+      <span style="font-size:var(--fs-14); font-weight:600; padding-top:4px">Status Token</span>
       <sc-for list="{{ tokenStates }}" as="t" hint-placeholder-count="5">
         <div style="display:flex; flex-direction:column; align-items:flex-start; gap:8px">
           <dc-import name="Status Token" kind="{{ t.kind }}" state="{{ t.state }}" n="{{ t.n }}" total="{{ six }}" force="{{ t.force }}" hint-size="100px,22px"></dc-import>
-          <sc-if value="{{ t.tip }}"><span style="padding:6px 9px; border-radius:7px; background:var(--bg-inverse); color:var(--text-inverse); font-size:16px; box-shadow:var(--shadow-pop)">{{ t.tip }}</span></sc-if>
-          <span style="font-size:16px; color:var(--text-tertiary); max-width:260px">{{ t.note }}</span>
+          <sc-if value="{{ t.tip }}"><span style="padding:6px 9px; border-radius:7px; background:var(--bg-inverse); color:var(--text-inverse); font-size:var(--fs-12); box-shadow:var(--shadow-pop)">{{ t.tip }}</span></sc-if>
+          <span style="font-size:var(--fs-12); color:var(--text-tertiary); max-width:260px">{{ t.note }}</span>
         </div>
       </sc-for>
 
-      <span style="font-size:16px; font-weight:600; padding-top:8px">Join Button</span>
+      <span style="font-size:var(--fs-14); font-weight:600; padding-top:8px">Join Button</span>
       <sc-for list="{{ joinStates }}" as="j" hint-placeholder-count="5">
         <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-start">
           <dc-import name="Join Button" mode="{{ j.mode }}" hint="{{ j.hint }}" stack="{{ true }}" force="{{ j.force }}" hint-size="140px,36px"></dc-import>
-          <span style="font-size:16px; color:var(--text-tertiary)">{{ j.note }}</span>
+          <span style="font-size:var(--fs-12); color:var(--text-tertiary)">{{ j.note }}</span>
         </div>
       </sc-for>
 
-      <span style="font-size:16px; font-weight:600; padding-top:8px">Employee Card</span>
+      <span style="font-size:var(--fs-14); font-weight:600; padding-top:8px">Employee Card</span>
       <sc-for list="{{ cardStates }}" as="k" hint-placeholder-count="5">
         <div style="width:290px"><dc-import name="Employee Card" card="{{ card }}" force="{{ k.force }}" hint-size="100%,250px"></dc-import></div>
       </sc-for>
@@ -130,12 +130,12 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <section style="display:flex; flex-direction:column; gap:14px">
     <div style="display:flex; flex-direction:column; gap:4px">
       <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Nav Item Variants</h2>
-      <p style="margin:0; font-size:16px; color:var(--text-tertiary)">Sidebar rows show access and build. Locked rows use text.disabled, open the locked preview on click and show “Team tier” on the lock tooltip.</p>
+      <p style="margin:0; font-size:var(--fs-13); color:var(--text-tertiary)">Sidebar rows show access and build. Locked rows use text.disabled, open the locked preview on click and show “Team tier” on the lock tooltip.</p>
     </div>
     <div style="display:flex; gap:20px; align-items:flex-start">
       <sc-for list="{{ navVariants }}" as="n" hint-placeholder-count="6">
         <div style="display:flex; flex-direction:column; gap:8px">
-          <span style="font-size:16px; color:var(--text-tertiary)">{{ n.note }}</span>
+          <span style="font-size:var(--fs-12); color:var(--text-tertiary)">{{ n.note }}</span>
           <div style="--nav-hover:color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar)); --nav-active:var(--action-primary-tint); width:{{ n.w }}; padding:10px; border-radius:12px; background:var(--bg-sidebar); border:1px solid var(--line-default)">
             <dc-import name="Nav Item" label="{{ n.label }}" icon="{{ n.icon }}" active="{{ n.active }}" locked="{{ n.locked }}" depth="{{ n.depth }}" collapsed="{{ n.collapsed }}" token="{{ n.token }}" badge="{{ n.badge }}" chev="{{ n.chev }}" title="{{ n.title }}" hint-size="100%,32px"></dc-import>
           </div>
@@ -147,17 +147,17 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <section style="display:flex; flex-direction:column; gap:14px">
     <div style="display:flex; flex-direction:column; gap:4px">
       <h2 style="margin:0; font-size:20px; font-weight:600; letter-spacing:-0.015em">Status Token Catalog</h2>
-      <p style="margin:0; font-size:16px; color:var(--text-tertiary)">Icon plus text label, never color alone. Access and build show in the sidebar; runtime shows in the detail header.</p>
+      <p style="margin:0; font-size:var(--fs-13); color:var(--text-tertiary)">Icon plus text label, never color alone. Access and build show in the sidebar; runtime shows in the detail header.</p>
     </div>
     <div style="display:flex; flex-direction:column; gap:12px">
       <sc-for list="{{ catalog }}" as="row" hint-placeholder-count="4">
         <div style="display:grid; grid-template-columns:150px 1fr; gap:20px; align-items:center">
-          <span style="font-size:16px; font-weight:500; color:var(--text-secondary)">{{ row.label }}</span>
+          <span style="font-size:var(--fs-13); font-weight:500; color:var(--text-secondary)">{{ row.label }}</span>
           <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap">
             <sc-for list="{{ row.items }}" as="t">
               <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start">
                 <dc-import name="Status Token" kind="{{ t.kind }}" state="{{ t.state }}" n="{{ t.n }}" total="{{ six }}" compact="{{ t.compact }}" size="{{ t.size }}" label="{{ t.label }}" hint-size="90px,22px"></dc-import>
-                <span style="font-family:var(--font-ui-mono); font-size:16px; color:var(--text-tertiary)">{{ t.code }}</span>
+                <span style="font-family:var(--font-ui-mono); font-size:var(--fs-11_5); color:var(--text-tertiary)">{{ t.code }}</span>
               </div>
             </sc-for>
           </div>

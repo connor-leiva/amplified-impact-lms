@@ -10,19 +10,19 @@
 }
 
 .label {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   color: var(--text-secondary);
 }
 
 .helper {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 400;
   color: var(--text-tertiary);
 }
 
 .error {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--access-locked-text);
 }
 
@@ -46,26 +46,26 @@
 .input {
   height: 36px;
   padding: 0 11px;
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 .textarea {
   min-height: 90px;
   resize: vertical;
   padding: 10px 12px;
-  font-size: 16px;
+  font-size: var(--fs-14);
   line-height: 1.5;
 }
 
 .select {
   height: 36px;
   padding: 0 10px;
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 /* The sunken selects are the 13px admin ones. */
 .select[data-variant='sunken'] {
   padding: 0 8px;
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 
 /* The reference has no hover state on a field; `force="hover"` is therefore a no-op here. */
