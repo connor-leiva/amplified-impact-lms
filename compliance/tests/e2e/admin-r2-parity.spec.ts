@@ -28,6 +28,7 @@ import {
   exceptionProblems,
   passesException,
 } from '../../lib/admin-r2-exceptions';
+import { STRICT_CHANNEL_DELTA, aaCount, channelDelta, strictCell, strictCompare, strictText } from '../../lib/admin-r2-strict';
 
 // Admin redesign R2 pixel parity (D-160, BUILD-SPEC § 6). Run with `pnpm parity:admin-r2`; it has
 // its own config (`compliance/admin-r2.config.ts`), and the main config ignores this file, so the
@@ -73,6 +74,39 @@ test.describe('admin-r2 setup', () => {
     expect(passesException(base, { dimsOk: true, appDims: dims, diffPx: base.ceilingPx })).toBe(true);
     expect(passesException(base, { dimsOk: true, appDims: dims, diffPx: base.ceilingPx + 1 })).toBe(false);
     expect(passesException(base, { dimsOk: false, appDims: `${base.width}×${base.height + 1}`, diffPx: undefined })).toBe(false);
+  });
+
+  // D-160 R2-3a: the strict guard (report-only). Its two counts on synthetic images.
+  test('strict guard: includeAA:true and channel-delta counts, with the box', () => {
+    const img = (w: number, h: number, rgb: [number, number, number]) => {
+      const p = new PNG({ width: w, height: h });
+      for (let i = 0; i < p.data.length; i += 4) p.data.set([...rgb, 255], i);
+      return p;
+    };
+    const put = (p: PNG, x: number, y: number, rgb: [number, number, number]) => p.data.set([...rgb, 255], (y * p.width + x) * 4);
+    const ref = img(20, 10, [255, 255, 255]);
+    // Identical: nothing counts.
+    expect(strictCompare(img(20, 10, [255, 255, 255]), ref)).toEqual({ dimsOk: true, aaPx: 0, aaPct: 0, deltaPx: 0, deltaPct: 0, deltaBox: null });
+    // A channel 60 off is not counted by the delta; 61 off is.
+    const soft = img(20, 10, [255, 255, 255]);
+    put(soft, 3, 4, [195, 255, 255]);
+    expect(channelDelta(soft, ref)).toEqual({ count: 0, box: null });
+    const hard = img(20, 10, [255, 255, 255]);
+    put(hard, 3, 4, [194, 255, 255]);
+    expect(channelDelta(hard, ref)).toEqual({ count: 1, box: { x0: 3, y0: 4, x1: 3, y1: 4 } });
+    // Two dark dots far apart: both counted, boxed together; pixelmatch with includeAA counts both too.
+    const dots = img(20, 10, [255, 255, 255]);
+    put(dots, 2, 1, [40, 40, 40]);
+    put(dots, 17, 8, [40, 40, 40]);
+    expect(channelDelta(dots, ref)).toEqual({ count: 2, box: { x0: 2, y0: 1, x1: 17, y1: 8 } });
+    expect(aaCount(dots, ref)).toBe(2);
+    const r = strictCompare(dots, ref);
+    expect(r).toMatchObject({ dimsOk: true, aaPx: 2, deltaPx: 2, deltaPct: 1, deltaBox: { x0: 2, y0: 1, x1: 17, y1: 8 } });
+    expect(strictText({ cell: 'x', ...r })).toBe(`AA 2 px (1.0000%) · Δ>${STRICT_CHANNEL_DELTA} 2 px [x 2–17, y 1–8]`);
+    // A masked rect is painted alike in both, so the dot under it no longer counts.
+    expect(strictCompare(dots, ref, [{ x: 0, y: 0, width: 5, height: 5 }])).toMatchObject({ deltaPx: 1, deltaBox: { x0: 17, y0: 8, x1: 17, y1: 8 } });
+    // Different sizes are reported, never compared.
+    expect(strictCompare(img(20, 11, [255, 255, 255]), ref)).toEqual({ dimsOk: false });
   });
 
   // The refs are the oracle. Every PNG MANIFEST.tsv lists must exist with exactly its width × height:
@@ -161,6 +195,12 @@ for (const screen of SCREENS) {
             browser: browser.version(),
           });
           const summary = r.dimsOk ? `${r.diffPct!.toFixed(4)}% (${r.diffPx} px)` : `dims ${r.appDims} vs ref ${r.refDims}`;
+          // The strict guard (D-160 R2-3a): report-only, so it can never fail the cell.
+          try {
+            test.info().annotations.push({ type: 'strict (report-only)', description: strictText(strictCell(cell, shot, rects)) });
+          } catch (e) {
+            test.info().annotations.push({ type: 'strict (report-only)', description: `not measured: ${String(e)}` });
+          }
           test.info().annotations.push({
             type: pass ? (exception ? 'parity pass (approved exception, D-160)' : 'parity pass') : 'parity FAIL',
             description: exception ? `${summary}; ceiling ${ceilingText(exception)}` : summary,
