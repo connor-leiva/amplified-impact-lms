@@ -47,7 +47,7 @@ import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
-import { registerMasqueradeRoutes } from './masquerade';
+import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
 
 export const CONSOLE_PATHS = {
@@ -206,7 +206,8 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
       const viewer = viewerOrThrow(req);
       const staff = staffActor(viewer);
       if (!staff) return consoleError(reply, 'console_forbidden');
-      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCaps(staff.role) };
+      // D-162 3b: and whether a masquerade may start (D8's flag), for the entry points.
+      const me: ConsoleMe = { role: staff.role as StaffRole, caps: consoleCaps(staff.role), masqueradeEnabled: await (deps.masqueradeEnabled ?? masqueradeEnabled)() };
       return reply.send(me);
     });
 

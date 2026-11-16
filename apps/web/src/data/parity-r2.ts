@@ -370,6 +370,16 @@ export const SUPPORT_USERS = [
   { id: 'u_1125', n: 'Priya Raman', e: 'priya@fourthmeridian.example', ws: 'Fourth Meridian', role: 'Team owner', tier: 'Team', last: 'Nov 2, 4:40 PM', st: 'Canceled', pr: 0, of: 5 },
 ] as const;
 
+/**
+ * D-162 3b: the Masquerade screen's "Recent sessions", verbatim (`Masquerade()`): staff, user, reason,
+ * started, length, ended. The console fixture turns each into the API's history row.
+ */
+export const MASQ_SESSIONS = [
+  ['Avery Stone', 'Sam Whitlock', 'Customer cannot see the Session 2 replay.', 'Dec 9, 9:25 PM', '6 min', 'Exited by staff'],
+  ['Avery Stone', 'Jordan Hale', 'Checking seat invite flow after upgrade request.', 'Dec 8, 2:02 PM', '15 min', 'Expired'],
+  ['Connor Leiva', 'Elena Vargas', 'Verifying Week 2 step order on her account.', 'Dec 6, 4:18 PM', '11 min', 'Exited by staff'],
+] as const;
+
 /** `INV`: the invoices, as the workspaces' orders. */
 export const INV = [
   { id: 'in_1QxT4mNs0291', c: 'Northshore Group', amt: '$1,495.00', st: 'Paid', d: 'Dec 8, 2026', card: 'Visa ending 4242' },

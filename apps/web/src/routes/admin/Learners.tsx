@@ -17,6 +17,7 @@ import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k } from '../../
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
+import { useMasqueradeEntry } from '../console/useMasqueradeEntry';
 import { overviewVM } from './Overview.vm';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
 import type { LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
@@ -31,7 +32,7 @@ import s from './Learners.module.css';
 //     Send Nudge / Resend Invite (`nudgeLearners`).
 //   - "Open user record" opens the learner's User page and the Teams tab's "Open workspace" the team's
 //     Workspace (D-160 R2-1c part 2): a learner's id is their `users.id` and a team's its `teams.id`,
-//     the ids those pages take. "Masquerade…" stays disabled until the Masquerade PR.
+//     the ids those pages take. "Masquerade…" opens the reason dialog (D-162 3b): Owner and Admin only.
 //   - The page's "…" keeps what the old screens offered and the mockup does not draw: Export roster,
 //     and the Overview's Needs Attention list with its nudges (Needs Connor's call, D-160 R2-3).
 
@@ -47,8 +48,6 @@ function downloadText(name: string, text: string, mime: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
-const NOT_YET = 'Not available yet';
-
 function Learners() {
   const db = useDb();
   const now = useNow();
@@ -56,6 +55,7 @@ function Learners() {
   const { toast } = useToaster();
   const phone = useViewportWidth() < 768;
   const navigate = useNavigate();
+  const entry = useMasqueradeEntry();
 
   const [tab, setTab] = useState<'learners' | 'teams'>('learners');
   const [q, setQ] = useState('');
@@ -161,7 +161,7 @@ function Learners() {
   const learnerMenu = (u: LearnerR2Row): MenuEntry[] => [
     { label: 'Open learner details', onSelect: () => setSel(u.id) },
     { label: 'Open user record', onSelect: () => navigate(userPath(u.id)) },
-    { label: 'Masquerade…', icon: 'r2Masquerade', disabled: true, title: NOT_YET, onSelect: () => {} },
+    ...entry.item('Masquerade…', { id: u.id, name: u.name, workspace: u.team }),
   ];
 
   const pageMenu: MenuEntry[] = [
@@ -308,6 +308,7 @@ function Learners() {
           )}
         </Modal>
       ) : null}
+      {entry.dialog}
     </Page>
   );
 }

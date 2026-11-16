@@ -80,7 +80,8 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
       row('learners', 'Learners & Teams', 'r2Learners', '/admin/learners', true),
       row('workspaces', 'Workspaces', 'r2Workspaces', '/admin/workspaces', true, { cap: 'workspaces.read' }),
       row('users', 'Users', 'r2Users', '/admin/users', true, { cap: 'users.read' }),
-      row('masquerade', 'Masquerade', 'r2Masquerade', '/admin/masquerade', false, { cap: 'console.view' }),
+      // D-162 3b: built, for the roles that can start one (spec § 6). Support reaches its lock card by address.
+      row('masquerade', 'Masquerade', 'r2Masquerade', '/admin/masquerade', true, { cap: 'masquerade.start' }),
     ],
   ],
   [
@@ -244,7 +245,12 @@ export function toggleGroup(group: R2Group, active: boolean, open: OpenState): O
 export const RECORD_PARENTS: Readonly<Record<string, string>> = {
   '/admin/workspaces/': 'workspaces',
   '/admin/users/': 'users',
+  // D-162 3b: the mockup's learner view (`as`) belongs to Masquerade.
+  '/admin/masquerade/': 'masquerade',
 };
+
+/** The mockup's learner view, whose parent crumb is drawn as the page's (bold), not as a link back. */
+export const LEARNER_VIEW_PATH = '/admin/masquerade/learner-view';
 
 function recordParent(p: string): string | null {
   for (const [prefix, id] of Object.entries(RECORD_PARENTS))
@@ -257,6 +263,8 @@ export interface CrumbTrail {
   page: string;
   /** A record's page: the row's own address, which its crumb links back to. */
   parent?: string;
+  /** False when the row's crumb is drawn bold rather than as that link (the learner view, as the mockup's). */
+  parentLink?: false;
 }
 
 /**
@@ -270,6 +278,8 @@ export function crumbTrail(pathname: string): CrumbTrail | null {
   const record = recordParent(norm(pathname)) !== null;
   for (const [group, defs] of R2_NAV) {
     const d = defs.find((x) => x.id === id);
+    if (d && record && norm(pathname) === LEARNER_VIEW_PATH)
+      return { group, page: d.label, parent: d.path, parentLink: false };
     if (d) return record ? { group, page: d.label, parent: d.path } : { group, page: d.label };
   }
   return null;

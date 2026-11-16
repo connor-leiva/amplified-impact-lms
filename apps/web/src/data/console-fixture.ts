@@ -10,6 +10,8 @@
 //   ?console-role=Owner|Admin|Support|Instructor|Content Editor   the viewer's staff role (default:
 //                                                                  the admin persona's, Owner)
 //   ?console-state=loading|empty|error|rate_limited                a list's state, for screenshots
+//   ?masquerade-flag=off                                           D8's flag off (D-162 3b): the entry
+//                                                                  points drawn disabled
 
 import { CONSOLE_PAGE_DEFAULT, STAFF_ROLES, auditActionGroup, auditCsv, auditRedactsNetwork, cleanNoteBody, cleanReason, cleanSearch, consoleCan, consoleCaps, rolesMatrix, usersCsv } from '@ai/core';
 import type { AuditAction, AuditFilters, AuditRow, ConsoleMe, ConsolePage, StaffRole } from '@ai/core';
@@ -17,7 +19,16 @@ import { clock } from '../lib/clock';
 import { fixtureRole } from './boot';
 import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
-import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
+import {
+  fixtureMasqueradeSessions,
+  fixtureNoteTargetExists,
+  fixtureRecords,
+  fixtureSearch,
+  fixtureUser,
+  fixtureUserRows,
+  fixtureWorkspace,
+  fixtureWorkspaceRows,
+} from './console-fixture-records';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows } from './parity-r2-db';
 
@@ -151,7 +162,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
     // The viewer is answered whatever the list's state, so a state screenshot shows the screen.
     me: () => {
       if (!staff) return Promise.reject(forbidden());
-      const me: ConsoleMe = { role, caps: consoleCaps(role) };
+      const me: ConsoleMe = { role, caps: consoleCaps(role), masqueradeEnabled: qs.get('masquerade-flag') !== 'off' };
       return Promise.resolve(me);
     },
     audit: (filters, cursor) =>
@@ -269,6 +280,11 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         if (words === null) throw new ConsoleError('invalid', 400, 'invalid_query', 'Search for 2 to 100 characters.');
         if (state === 'empty') return { users: [], workspaces: [], orders: [], skills: [] };
         return fixtureSearch(records, words, role);
+      }),
+    masqueradeSessions: (cursor) =>
+      settle(() => {
+        need('masquerade.start');
+        return state === 'empty' ? { rows: [], nextCursor: null } : pageOf(fixtureMasqueradeSessions(), cursor);
       }),
   };
 }
