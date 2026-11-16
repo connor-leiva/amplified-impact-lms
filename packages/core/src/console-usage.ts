@@ -77,6 +77,8 @@ export interface EmailLogFilters {
   status?: string;
   /** One person's emails: their user id, or their address. */
   userId?: string;
+  /** One workspace's emails: to any of its people, by id or address (Billing's "Open email log"). */
+  teamId?: string;
   /** Epoch ms, inclusive. */
   from?: number;
   to?: number;

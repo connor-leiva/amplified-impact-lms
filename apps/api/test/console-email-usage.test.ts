@@ -188,6 +188,13 @@ describe('GET /api/console/email (spec § 7.15) @console', () => {
     await logged([{ template: 'team-invite', subject: 'Invite', to: 'Alex@NorthlineRealty.com', userId: null }]);
     expect(await rows('?userId=u_alex')).toEqual(['Alex@NorthlineRealty.com team-invite', 'alex@northlinerealty.com sign-in']);
     await (await db()).execute(sql`delete from email_log where subject = 'Invite'`);
+    // A workspace's: to any of its people (Billing's "Open email log").
+    const northline = (await (await db()).select({ id: users.id }).from(users).where(sql`team_id = 'northline'`)).map((u) => u.id);
+    expect(northline).toContain('u_alex');
+    expect(northline).not.toContain('u_jamie');
+    // Priya is an invited Northline member: her invite (logged with no user) is the workspace's too.
+    expect(await rows('?teamId=northline')).toEqual(['alex@northlinerealty.com sign-in', 'priya@northlinerealty.com team-invite']);
+    expect((await get('/api/console/email?teamId=a%20b')).statusCode).toBe(400);
     expect(await rows('?q=%25')).toEqual([]);
     const first = (await get('/api/console/email?limit=3')).json() as EmailLogPage;
     expect(first.rows).toHaveLength(3);
