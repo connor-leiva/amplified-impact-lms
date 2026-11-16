@@ -5,13 +5,19 @@ import { APP_BASE } from '../../lib/prepare';
  * D-156: the LMS at www's phone quality, measured on every route in fixture mode (never a real
  * account, never production data).
  *
- *   overflow   at 320, 375, 390, 430 and 768 / 1024 / 1280 CSS px, nothing scrolls sideways: not the
- *              document, and not the shell's <main> (the LMS page scrolls inside it). An element that
- *              is deliberately a scroll region (`overflow-x: auto | scroll`) is allowed to.
- *   min font   every visible run of text is set at 16px or more.
- *   tap        every visible control (button, link, input, select, textarea, [role=button|tab|link|
- *              menuitem|switch|radio]) is at least 44×44, a primary button at least 48 tall. A link
- *              inside a sentence is exempt (WCAG 2.5.8's inline exception).
+ *   overflow   at 320, 375, 390, 430 and 768 / 1024 / 1280 / 1440 CSS px, nothing scrolls sideways: not
+ *              the document, and not the shell's <main> (the LMS page scrolls inside it). An element
+ *              that is deliberately a scroll region (`overflow-x: auto | scroll`) is allowed to.
+ *   min font   on a phone (under 768px), every visible run of text is set at 16px or more.
+ *   tap        on a phone, every visible control (button, link, input, select, textarea, [role=button|
+ *              tab|link|menuitem|switch|radio]) is at least 44×44, a primary button at least 48 tall. A
+ *              link inside a sentence is exempt (WCAG 2.5.8's inline exception).
+ *
+ * D-160 (R2-1a): the floor and the tap sizes are the PHONE standard. D-156 first applied them at every
+ * width, which was the root cause of the desktop admin's phone sizing; lms.css now sets them only under
+ * `@media (max-width:767px)`, so the font and tap checks run at the four phone widths and stop at 768,
+ * where desktop has its own, pre-D-156 sizes again. Overflow is still checked at every width, 1440
+ * added.
  *
  * `KNOWN` names what is still out of line, per route, check and width, with the PR that owns it. A
  * finding not listed fails; a listed one that no longer happens fails too, so the list only shrinks.
@@ -21,7 +27,9 @@ import { APP_BASE } from '../../lib/prepare';
 type Check = 'overflow' | 'font' | 'tap';
 type Persona = 'agent' | 'owner' | 'admin';
 
-const WIDTHS = [320, 375, 390, 430, 768, 1024, 1280] as const;
+const WIDTHS = [320, 375, 390, 430, 768, 1024, 1280, 1440] as const;
+/** lms.css's phone query is `max-width: 767px`: the font floor and the tap sizes hold below this. */
+const PHONE_BELOW = 768;
 const NOW = '2026-12-07T10:42:00-06:00';
 
 /** Every LMS route the fixture build serves, with the persona that reaches it. */
@@ -156,14 +164,15 @@ async function findings(page: Page): Promise<{ overflow: string[]; font: string[
 }
 
 for (const [persona, path] of ROUTES) {
-  test(`${path} as ${persona}: no sideways scroll, nothing under 16px, 44px targets @lms-mobile`, async ({ browser }) => {
+  test(`${path} as ${persona}: no sideways scroll; on a phone nothing under 16px, 44px targets @lms-mobile`, async ({ browser }) => {
     const seen: string[] = [];
     const report: string[] = [];
     for (const width of WIDTHS) {
       const { page, close } = await openAt(browser, persona, path, width);
       const f = await findings(page);
       await close();
-      for (const check of ['overflow', 'font', 'tap'] as Check[]) {
+      const checks: Check[] = width < PHONE_BELOW ? ['overflow', 'font', 'tap'] : ['overflow'];
+      for (const check of checks) {
         if (!f[check].length) continue;
         const key = `${path}|${check}|${width}`;
         seen.push(key);
