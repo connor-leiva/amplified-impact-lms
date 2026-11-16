@@ -66,10 +66,10 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 <div style="display:flex; height:100vh; min-height:480px; background:var(--bg-canvas); color:var(--text-primary); font-family:var(--font-ui); font-size:var(--fs-14); line-height:1.45; overflow:hidden">
   <sc-if value="{{ drawerScrim }}"><div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; z-index:69; background:var(--bg-overlay); animation:ai-fade 160ms ease-out"></div></sc-if>
   <aside aria-label="Primary" style="--nav-hover:color-mix(in oklch, var(--line-default) 70%, var(--bg-sidebar)); --nav-active:var(--action-primary-tint); position:{{ sb.pos }}; top:0; left:0; bottom:0; z-index:{{ sb.z }}; transform:{{ sb.tf }}; transition:transform 220ms cubic-bezier(.2,.8,.2,1), width 180ms ease; flex:none; width:{{ sb.w }}; height:100%; display:flex; flex-direction:column; background:var(--bg-sidebar); border-right:1px solid var(--line-default); box-shadow:{{ sb.sh }}; overflow:hidden">
-    <div style="height:64px; flex:none; display:flex; align-items:center; gap:10px; padding:0 {{ sb.headPad }}; border-bottom:1px solid var(--line-default)">
+    <div data-phone="bar" style="height:56px; flex:none; display:flex; align-items:center; gap:10px; padding:0 {{ sb.headPad }}; border-bottom:1px solid var(--line-default)">
       <div data-brand-slot="" style="flex:none; display:flex"><img src="{{ brand.src }}" alt="" style="display:block; width:{{ brand.w }}px; height:{{ brand.h }}px"></div>
       <sc-if value="{{ drawer }}">
-        <button onClick="{{ closeDrawer }}" aria-label="Close menu" style="margin-left:auto; width:44px; height:44px; border:0; border-radius:8px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--nav-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button>
+        <button onClick="{{ closeDrawer }}" aria-label="Close menu" data-phone="bar-button" style="margin-left:auto; width:32px; height:32px; border:0; border-radius:8px; background:transparent; color:var(--text-tertiary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--nav-hover); color:var(--text-primary)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg></button>
       </sc-if>
     </div>
     <sc-if value="{{ showContext }}">
@@ -101,9 +101,9 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   </aside>
 
   <div style="flex:1; min-width:0; display:flex; flex-direction:column">
-    <header style="height:64px; flex:none; display:flex; align-items:center; gap:12px; padding:0 var(--page-pad-x); border-bottom:1px solid var(--line-default); background:var(--bg-canvas)">
+    <header data-phone="bar" style="height:56px; flex:none; display:flex; align-items:center; gap:12px; padding:0 var(--page-pad-x); border-bottom:1px solid var(--line-default); background:var(--bg-canvas)">
       <sc-if value="{{ drawer }}">
-        <button onClick="{{ openDrawer }}" aria-label="Open menu" style="width:44px; height:44px; flex:none; margin-left:-6px; border:0; border-radius:8px; background:transparent; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></button>
+        <button onClick="{{ openDrawer }}" aria-label="Open menu" data-phone="bar-button" style="width:34px; height:34px; flex:none; margin-left:-6px; border:0; border-radius:8px; background:transparent; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center" style-hover="background:var(--bg-hover)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></button>
         <div data-brand-slot="" style="flex:none; display:flex"><img src="{{ brandHead.src }}" alt="" style="display:block; width:{{ brandHead.w }}px; height:{{ brandHead.h }}px"></div>
       </sc-if>
       <nav aria-label="Breadcrumb" style="display:flex; align-items:center; gap:8px; min-width:0; flex:1; font-size:var(--fs-14)">

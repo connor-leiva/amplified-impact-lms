@@ -64,10 +64,10 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
 </style>
 </helmet>
 <sc-if value="{{ loading }}">
-  <span aria-hidden="true" style="display:inline-block; width:{{ skW }}; height:{{ h }}; border-radius:999px; background:var(--bg-hover); animation:ai-skeleton 1.4s ease-in-out infinite; vertical-align:top"></span>
+  <span aria-hidden="true" data-phone="token" style="display:inline-block; width:{{ skW }}; height:{{ h }}; border-radius:999px; background:var(--bg-hover); animation:ai-skeleton 1.4s ease-in-out infinite; vertical-align:middle"></span>
 </sc-if>
 <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
-  <span title="{{ tip }}" style="display:inline-flex; align-items:center; gap:{{ gap }}; height:{{ h }}; padding:{{ pad }}; border-radius:999px; background:{{ bg }}; border:{{ bd }}; color:{{ fg }}; font-size:{{ fs }}; font-weight:500; line-height:1; white-space:nowrap; font-variant-numeric:tabular-nums; vertical-align:top">
+  <span title="{{ tip }}" data-phone="token" style="display:inline-flex; align-items:center; gap:{{ gap }}; height:{{ h }}; padding:{{ pad }}; border-radius:999px; background:{{ bg }}; border:{{ bd }}; color:{{ fg }}; font-size:{{ fs }}; font-weight:500; line-height:1; white-space:nowrap; font-variant-numeric:tabular-nums; vertical-align:middle">
     <sc-if value="{{ pulse }}"><span aria-hidden="true" style="width:7px; height:7px; margin:0 2px; flex:none; border-radius:50%; background:var(--status-success); animation:ai-pulse 1.6s infinite"></span></sc-if>
     <sc-if value="{{ svg }}"><svg viewBox="0 0 16 16" aria-hidden="true" style="width:{{ is }}; height:{{ is }}; flex:none; overflow:visible; color:{{ ic }}"><path d="{{ sp }}" style="fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round"></path><path d="{{ fp }}" style="fill:currentColor; stroke:none"></path></svg></sc-if>
     <span>{{ label }}</span>
@@ -133,8 +133,8 @@ class Component extends DCLogic {
       label: compact ? short : label, tip: p.title || tip, pulse: tone === 'live', svg: tone !== 'live',
       sp, fp, fg, ic: compact ? fg : v(T[3] === '--access-locked-text' ? T[0] : T[0]),
       bg: compact ? 'transparent' : v(T[1]), bd: compact ? '0' : `1px solid ${v(T[2])}`,
-      h: compact ? '24px' : md ? '26px' : '24px', pad: compact ? '0' : md ? '0 10px 0 8px' : '0 8px 0 6px',
-      gap: compact ? '4px' : '5px', fs: md ? '16px' : '16px', is: compact ? '13px' : md ? '14px' : '13px',
+      h: compact ? 'var(--bx-16)' : md ? '26px' : 'var(--bx-22)', pad: compact ? '0' : md ? '0 10px 0 8px' : '0 8px 0 6px',
+      gap: compact ? '4px' : '5px', fs: md ? 'var(--fs-13)' : 'var(--fs-12)', is: compact ? '13px' : md ? '14px' : '13px',
     };
   }
 }

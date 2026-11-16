@@ -346,10 +346,10 @@ function Shell() {
           data-open={drawer && drawerOpen ? 'true' : undefined}
           style={NAV_VARS}
         >
-          <div className={s.brand}>
+          <div className={s.brand} data-phone="bar">
             <BrandSlot kind={expanded ? 'lockup' : 'mark'} />
             {drawer ? (
-              <button type="button" className={s.close} aria-label="Close menu" onClick={() => setDrawerOpen(false)}>
+              <button type="button" className={s.close} aria-label="Close menu" data-phone="bar-button" onClick={() => setDrawerOpen(false)}>
                 <Icon name="x" size={16} strokeWidth={2} />
               </button>
             ) : null}
@@ -416,10 +416,10 @@ function Shell() {
         </aside>
 
         <div className={s.column}>
-          <header className={s.header}>
+          <header className={s.header} data-phone="bar">
             {drawer ? (
               <>
-                <button type="button" className={s.menu} aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
+                <button type="button" className={s.menu} aria-label="Open menu" data-phone="bar-button" onClick={() => setDrawerOpen(true)}>
                   <Icon name="menu" size={18} strokeWidth={1.9} />
                 </button>
                 {/* D-156: on a phone the sidebar is hidden, so the top bar carries the wordmark. */}

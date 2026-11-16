@@ -31,6 +31,12 @@
 button,select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){min-height:var(--tap)}
 button{min-width:var(--tap)}
 button[style*="background:var(--action-primary)"]{min-height:var(--tap-primary)}
+/* #117's hand-set phone sizes (R2-1a): the desktop value is the element's own, the phone one is here. */
+[data-phone="bar"]{height:64px !important}
+[data-phone="bar-button"]{width:44px !important;height:44px !important}
+[data-phone="token"]{vertical-align:top !important}
+[data-phone="seat"]{width:44px !important;height:44px !important}
+[data-phone="attention-avatar"]{width:32px !important;height:32px !important}
 [data-phone="banner"]{flex-wrap:wrap !important}
 [data-phone="banner-mid"]{flex-basis:calc(100% - 17px - 44px - 24px) !important}
 [data-phone="banner-action"]{order:3 !important;margin-left:29px !important}

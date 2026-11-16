@@ -140,9 +140,10 @@
   gap: 6px;
 }
 
+/* 34px above 767px; 44px on a phone through lms.css's `data-phone="seat"` (D-156, scoped by D-160 R2-1a). */
 .slot {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border-radius: 50%;
   display: flex;

@@ -85,7 +85,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <div style="display:flex; align-items:baseline; gap:8px"><span style="font-size:26px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; line-height:1">{{ seats.used }} of {{ seats.total }}</span><span style="color:var(--text-secondary)">Seats Assigned</span></div>
       <div style="display:flex; gap:6px">
         <sc-for list="{{ seats.slots }}" as="sl" hint-placeholder-count="7">
-          <div title="{{ sl.title }}" onClick="{{ sl.go }}" style="width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:var(--fs-12); font-weight:600; background:{{ sl.bg }}; border:1.5px {{ sl.bs }} {{ sl.bd }}; color:{{ sl.fg }}; cursor:pointer">{{ sl.ini }}</div>
+          <div title="{{ sl.title }}" onClick="{{ sl.go }}" data-phone="seat" style="width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:var(--fs-12); font-weight:600; background:{{ sl.bg }}; border:1.5px {{ sl.bs }} {{ sl.bd }}; color:{{ sl.fg }}; cursor:pointer">{{ sl.ini }}</div>
         </sc-for>
       </div>
       <div style="font-size:var(--fs-13); color:var(--text-tertiary)">{{ seats.breakdown }}</div>
@@ -111,7 +111,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
       <div style="display:flex; flex-direction:column; gap:6px">
         <sc-for list="{{ rem.people }}" as="p">
           <div data-phone="remind-row" style="display:flex; align-items:center; gap:8px; font-size:var(--fs-13)">
-            <span style="width:32px; height:32px; border-radius:50%; background:{{ p.av }}; display:flex; align-items:center; justify-content:center; font-size:var(--fs-12); font-weight:600; flex:none; color:var(--ink-900)">{{ p.ini }}</span>
+            <span data-phone="attention-avatar" style="width:22px; height:22px; border-radius:50%; background:{{ p.av }}; display:flex; align-items:center; justify-content:center; font-size:var(--fs-12); font-weight:600; flex:none; color:var(--ink-900)">{{ p.ini }}</span>
             <span style="color:var(--text-primary)">{{ p.name }}</span><span data-phone="remind-gap" style="color:var(--text-tertiary); margin-left:auto; white-space:nowrap">{{ p.gap }}</span>
           </div>
         </sc-for>
