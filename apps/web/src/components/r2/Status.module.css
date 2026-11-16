@@ -1,0 +1,34 @@
+/* `.st` and its 7px dot in the R2 mockup (D-160). The dot pairs with a text label, never colour alone. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--r2-dot-off);
+  flex: none;
+}
+.ok .dot {
+  background: var(--r2-dot-ok);
+}
+.info .dot {
+  background: var(--r2-dot-info);
+}
+.bad .dot {
+  background: var(--r2-dot-bad);
+}
+.warn .dot {
+  background: var(--r2-dot-warn);
+}
+.run .dot {
+  background: none;
+  border: 2px solid var(--r2-dot-info);
+}
+.off .dot {
+  background: none;
+  border: 1.5px solid var(--r2-dot-off);
+}

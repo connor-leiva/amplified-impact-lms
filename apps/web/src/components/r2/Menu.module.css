@@ -1,0 +1,71 @@
+/* `.menu` and `.pop` in the R2 mockup (D-160): a trigger and its popover menu. */
+.menu {
+  position: relative;
+  display: inline-flex;
+}
+.pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 30;
+  background: var(--r2-sf);
+  border: 1px solid var(--r2-line2);
+  border-radius: 10px;
+  padding: 4px;
+  min-width: 200px;
+  box-shadow: var(--r2-sh-pop);
+}
+.up {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+.left {
+  right: auto;
+  left: 0;
+}
+/* The rail's flyouts open to the right of their icon (`.pop.rt`). */
+.right {
+  left: calc(100% + 12px);
+  right: auto;
+  top: 0;
+}
+.item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  height: var(--r2-c);
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.item:hover {
+  background: var(--r2-sub);
+}
+.item.danger {
+  color: var(--r2-bad);
+}
+.item:disabled {
+  color: var(--r2-f3);
+  cursor: not-allowed;
+  background: none;
+}
+.check {
+  margin-left: auto;
+  display: flex;
+}
+.sep {
+  border: 0;
+  border-top: 1px solid var(--r2-line);
+  margin: 4px;
+}
+@media (max-width: 767px) {
+  .item {
+    font-size: var(--r2-t);
+  }
+}

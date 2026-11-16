@@ -19,29 +19,36 @@ export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: Consol
 /** The way out of Denied and the 404. */
 export const CONSOLE_HOME = { label: 'Go to Overview', to: '/admin' } as const;
 
+/**
+ * Denied and the Console 404 (D-160 R2-1b): the R2 mockup's `Denied` and `NotFound`, word for word.
+ * They replaced D-157's copy ("Permission Needed", "Your role can’t open … .", "That Console page
+ * doesn’t exist.", "… was deleted."); the mockup is Connor's signed-off design, so its strings win,
+ * straight apostrophes and all.
+ */
 export interface FullStateCopy {
-  eyebrow: string;
   title: string;
   body: string;
   action: { label: string; to: string };
 }
 
-/** Denied: the viewer's role lacks the screen's capability. */
-export function deniedCopy(screen: ConsoleScreen, role: string | null): FullStateCopy {
+/**
+ * Denied: the viewer's role lacks the page's capability. `what` names the page (`Roles & Permissions`);
+ * a page with no name of its own is "this page".
+ */
+export function deniedCopy(what: string | null, role: string | null): FullStateCopy {
   return {
-    eyebrow: 'Permission Needed',
-    title: `Your role can’t open ${CONSOLE_SCREENS[screen].title}.`,
-    body: role ? `You’re signed in as ${role}. Staff roles are set in Staff & Roles.` : 'Staff roles are set in Staff & Roles.',
+    title: `Your role can't open ${what ?? 'this page'}`,
+    body: role ? `You are signed in as ${role}. An Owner can change this in Roles & Permissions.` : 'An Owner can change this in Roles & Permissions.',
     action: { ...CONSOLE_HOME },
   };
 }
 
 /** The Console 404: an `/admin/…` address that is no screen. */
-export const NOT_FOUND_COPY: FullStateCopy = {
-  eyebrow: '404',
-  title: 'That Console page doesn’t exist.',
-  body: 'The link may be old, or the record was deleted.',
+export const NOT_FOUND_COPY: FullStateCopy & { search: string } = {
+  title: "This page doesn't exist",
+  body: 'The link may be old, or the record was removed. Error 404.',
   action: { ...CONSOLE_HOME },
+  search: 'Search the admin',
 };
 
 export interface ErrorCopy {

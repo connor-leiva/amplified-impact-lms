@@ -68,14 +68,16 @@ export const SCENARIOS: Scenario[] = [
     regions: ['page'],
   }),
 
-  // Phase 04: shell (sidebar + header only)
-  ...(['agent', 'owner', 'admin'] as const).map((role) =>
+  // Phase 04: shell (sidebar + header only). The learner shells only: `shell-admin` (its sidebar and
+  // header) was retired by D-160 R2-1b, which replaced the admin shell with the R2 design; the R2 shell
+  // is compared with the signed-off mockup by `pnpm parity:admin-r2` instead (Connor, Nov 16, 2026).
+  ...(['agent', 'owner'] as const).map((role) =>
     S({
       id: `shell-${role}`,
       gate: 4,
       role,
-      ref: role === 'admin' ? 'overview' : 'dashboard',
-      path: role === 'admin' ? '/admin' : '/',
+      ref: 'dashboard',
+      path: '/',
       regions: ['sidebar', 'header'],
     }),
   ),
@@ -220,7 +222,10 @@ export const SCENARIOS: Scenario[] = [
   }),
   S({ id: 'tier-agent', gate: 5, role: 'agent', ref: 'upgrade', path: '/team-tier' }),
 
-  // Phase 06: admin console
+  // Phase 06: admin console. Each compares `main` only: the `page` region (the whole viewport, the
+  // admin sidebar in it) was dropped by D-160 R2-1b, because the R2 shell replaced the prototype's and
+  // is compared with the signed-off mockup by `pnpm parity:admin-r2` (Connor, Nov 16, 2026). Each
+  // scenario retires in the R2 PR that rebuilds its screen.
   ...(
     [
       ['overview', '/admin'],
@@ -234,7 +239,7 @@ export const SCENARIOS: Scenario[] = [
       ['tiers', '/admin/tiers'],
       ['staff', '/admin/staff'],
     ] as const
-  ).map(([ref, path]) => S({ id: `admin-${ref.replace('/', '-') || 'new'}`, gate: 6, role: 'admin', ref, path })),
+  ).map(([ref, path]) => S({ id: `admin-${ref.replace('/', '-') || 'new'}`, gate: 6, role: 'admin', ref, path, regions: ['main'] })),
   S({
     id: 'admin-builder-locked',
     gate: 6,
@@ -242,6 +247,7 @@ export const SCENARIOS: Scenario[] = [
     ref: 'builder/meetings',
     path: '/admin/curriculum/meetings',
     actions: [{ click: { role: 'button', name: 'Locked Preview' } }],
+    regions: ['main'],
   }),
   S({
     id: 'admin-cohorts-edit',
@@ -259,6 +265,7 @@ export const SCENARIOS: Scenario[] = [
     ref: 'learners',
     path: '/admin/learners',
     actions: [{ click: { role: 'button', name: 'Teams' } }],
+    regions: ['main'],
   }),
   S({
     id: 'admin-learner-drawer',
@@ -278,6 +285,6 @@ export const SCENARIOS: Scenario[] = [
     actions: [{ click: { role: 'button', name: 'Upload Resource' } }],
     regions: ['drawer'],
   }),
-  S({ id: 'admin-overview-dark', gate: 6, role: 'admin', ref: 'overview', path: '/admin', theme: 'dark' }),
-  S({ id: 'admin-overview-laptop', gate: 6, role: 'admin', ref: 'overview', path: '/admin', viewport: 'laptop' }),
+  S({ id: 'admin-overview-dark', gate: 6, role: 'admin', ref: 'overview', path: '/admin', theme: 'dark', regions: ['main'] }),
+  S({ id: 'admin-overview-laptop', gate: 6, role: 'admin', ref: 'overview', path: '/admin', viewport: 'laptop', regions: ['main'] }),
 ];

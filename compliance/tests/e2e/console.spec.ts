@@ -1,4 +1,4 @@
-import { test, expect, type Browser, type Page } from '@playwright/test';
+import { test, expect, type Browser, type Locator, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { APP_BASE } from '../../lib/prepare';
 import { expectAccessible } from '../../lib/a11y';
@@ -58,12 +58,13 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
   });
 
   test('Denied: Support, Instructor and Content Editor on Roles, with the way back to the Overview', async ({ browser }) => {
+    // D-160 R2-1b: Denied is the R2 mockup's, in its words (straight apostrophe, no full stop).
     for (const theme of ['light', 'dark'] as const) {
       const { page, close } = await openAt(browser, '/admin/roles?console-role=Support', { theme });
       await expectShell(page);
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your role can’t open Roles & Permissions.');
-      await expect(page.locator('[data-console-state="denied"]')).toContainText('Permission Needed');
-      await expect(page.getByText('You’re signed in as Support.', { exact: false })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open Roles & Permissions");
+      await expect(page.getByText('You are signed in as Support. An Owner can change this in Roles & Permissions.')).toBeVisible();
+      await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toHaveText('Admin/Access/Roles & Permissions');
       await expectAccessible(page);
       if (theme === 'light') {
         await page.getByRole('link', { name: 'Go to Overview' }).click();
@@ -73,21 +74,33 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
     }
     for (const role of ['Instructor', 'Content Editor']) {
       const { page, close } = await openAt(browser, `/admin/roles?console-role=${encodeURIComponent(role)}`);
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your role can’t open Roles & Permissions.');
-      await expect(page.getByText(`You’re signed in as ${role}.`, { exact: false })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open Roles & Permissions");
+      await expect(page.getByText(`You are signed in as ${role}.`, { exact: false })).toBeVisible();
       await close();
     }
   });
 
   test('any other /admin/ address is the Console 404, inside the shell; a learner still goes home', async ({ browser }) => {
+    // D-160 R2-1b: the 404 is the R2 mockup's, and its breadcrumb is `Admin` alone, as there.
     const { page, close } = await openAt(browser, '/admin/no-such-page');
     await expectShell(page);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('That Console page doesn’t exist.');
-    await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toContainText('Page Not Found');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText("This page doesn't exist");
+    await expect(page.getByText('The link may be old, or the record was removed. Error 404.')).toBeVisible();
+    await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toHaveText('Admin');
+    // "Search the admin" opens the command palette, which is R2-5: until then it does nothing.
+    await expect(page.getByRole('button', { name: 'Search the admin' })).toHaveAttribute('aria-disabled', 'true');
     await expectAccessible(page);
     await page.getByRole('link', { name: 'Go to Overview' }).click();
-    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('That Console page doesn’t exist.');
+    await expect(page).toHaveURL(/\/admin(\?|$)/);
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText("This page doesn't exist");
     await close();
+
+    // The fixture's standalone Denied page (parity only) is the 404 nowhere but the fixture build;
+    // here, the fixture build, it is Denied with no page named.
+    const denied = await openAt(browser, '/admin/denied');
+    await expect(denied.page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open this page");
+    await expectAccessible(denied.page);
+    await denied.close();
 
     for (const path of ['/admin/roles', '/admin/no-such-page']) {
       const learner = await openAt(browser, path, { persona: 'agent' });
@@ -198,8 +211,9 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
   test('Instructor and Content Editor see Denied on the audit log', async ({ browser }) => {
     for (const role of ['Instructor', 'Content Editor']) {
       const { page, close } = await openAt(browser, `/admin/audit?console-role=${encodeURIComponent(role)}`);
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your role can’t open Audit Log.');
-      await expect(page.locator('[data-console-state="denied"]')).toContainText('Permission Needed');
+      // D-160 R2-1b: the R2 mockup's Denied, in its words.
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open Audit Log");
+      await expect(page.getByText(`You are signed in as ${role}.`, { exact: false })).toBeVisible();
       await close();
     }
   });
@@ -231,11 +245,16 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
   });
 });
 
-test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @console', () => {
-  const groupsOf = (page: Page) =>
-    page.locator('aside[aria-label="Primary"] nav[aria-label="Main"]').evaluate((nav) =>
-      Array.from(nav.children).map((g) => Array.from(g.children).map((el) => (el as HTMLElement).innerText.trim().split('\n')[0]!)),
+test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-160 R2-1b) @g9 @console', () => {
+  /** Open every closed group, then read each group's header and rows. */
+  const groupsOf = async (scope: Locator) => {
+    const nav = scope.locator('nav[aria-label="Admin"]');
+    const closed = nav.locator('button[aria-expanded="false"]');
+    while ((await closed.count()) > 0) await closed.first().click();
+    return nav.evaluate((el) =>
+      Array.from(el.children).map((g) => Array.from(g.children).map((x) => (x as HTMLElement).innerText.trim().split('\n')[0]!)),
     );
+  };
 
   const EXPECT: Record<string, string[][]> = {
     Owner: [
@@ -254,24 +273,48 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {
       const { page, close } = await openAt(browser, `/admin?console-role=${role}`);
-      await expect.poll(() => groupsOf(page)).toEqual(EXPECT[role]);
+      const aside = page.locator('aside[aria-label="Primary"]');
+      // Health (the Overview's group) and Build start open; the rest are closed until opened.
+      await expect(aside.getByRole('button', { name: 'Health', exact: true })).toHaveAttribute('aria-expanded', 'true');
+      await expect(aside.getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'true');
+      await expect(aside.getByRole('button', { name: 'Support', exact: true })).toHaveAttribute('aria-expanded', 'false');
+      await expect.poll(() => groupsOf(aside)).toEqual(EXPECT[role]);
       if (role !== 'Instructor') {
-        await page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Audit Log' }).click();
+        await aside.getByRole('button', { name: 'Audit Log' }).click();
         await expect(page).toHaveURL(/\/admin\/audit/);
-        await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Audit Log');
+        await expect(aside.locator('[aria-current="page"]')).toContainText('Audit Log');
+        // The active page's group cannot close while its page is open.
+        await aside.getByRole('button', { name: 'Operations', exact: true }).click();
+        await expect(aside.getByRole('button', { name: 'Operations', exact: true })).toHaveAttribute('aria-expanded', 'true');
       }
       await expectAccessible(page);
       await close();
     });
   }
 
+  test('a group the viewer closes stays closed on the next visit, in this browser', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/no-such-page');
+    const aside = page.locator('aside[aria-label="Primary"]');
+    await aside.getByRole('button', { name: 'Build', exact: true }).click();
+    await expect(aside.getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'false');
+    // A second visit in the same browser (a new tab: `openAt`'s init script, which seeds the
+    // preferences, belongs to the first page only).
+    const again = await page.context().newPage();
+    await again.goto(page.url());
+    await again.locator('body[data-app-ready="true"]').waitFor();
+    await expect(again.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'false');
+    await expect(again.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Health', exact: true })).toHaveAttribute('aria-expanded', 'true');
+    await close();
+  });
+
   for (const width of [320, 390]) {
     test(`the phone drawer at ${width}: every group, 44px rows, 16px type, nothing sideways`, async ({ browser }) => {
       const { page, close } = await openAt(browser, '/admin/audit', { width });
       await page.getByRole('button', { name: 'Open menu' }).click();
-      const aside = page.locator('aside[aria-label="Primary"]');
-      await expect(aside).toHaveAttribute('data-open', 'true');
-      await expect.poll(() => groupsOf(page)).toEqual(EXPECT.Owner);
+      const drawer = page.locator('[data-drawer="open"][role="dialog"]');
+      await expect(drawer).toHaveCount(1);
+      const aside = drawer.locator('aside[aria-label="Primary"]');
+      await expect.poll(() => groupsOf(aside)).toEqual(EXPECT.Owner);
       const problems = await aside.evaluate((el) => {
         const out: string[] = [];
         if (el.scrollWidth > el.clientWidth + 1) out.push(`drawer ${el.scrollWidth} > ${el.clientWidth}`);
@@ -285,6 +328,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
       expect(problems).toEqual([]);
       await expect(aside.locator('[aria-current="page"]')).toContainText('Audit Log');
       await expectAccessible(page);
+      await page.keyboard.press('Escape');
+      await expect(page.locator('[data-drawer="open"]')).toHaveCount(0);
       await close();
     });
   }
