@@ -227,27 +227,16 @@ export const SCENARIOS: Scenario[] = [
   // is compared with the signed-off mockup by `pnpm parity:admin-r2` (Connor, Nov 16, 2026). Each
   // scenario retires in the R2 PR that rebuilds its screen: R2-2a retired `admin-curriculum`,
   // `admin-builder`, `admin-builder-marketing` and `admin-builder-locked` (Curriculum and the Module
-  // Builder are compared with the mockup by `pnpm parity:admin-r2`).
+  // Builder are compared with the mockup by `pnpm parity:admin-r2`), and R2-2b `admin-cohorts`,
+  // `admin-cohorts-edit`, `admin-avault`, `admin-vault-upload` and `admin-announce`.
   ...(
     [
       ['overview', '/admin'],
-      ['cohorts', '/admin/cohorts'],
       ['learners', '/admin/learners'],
-      ['avault', '/admin/vault'],
-      ['announce', '/admin/announcements'],
       ['tiers', '/admin/tiers'],
       ['staff', '/admin/staff'],
     ] as const
   ).map(([ref, path]) => S({ id: `admin-${ref.replace('/', '-') || 'new'}`, gate: 6, role: 'admin', ref, path, regions: ['main'] })),
-  S({
-    id: 'admin-cohorts-edit',
-    gate: 6,
-    role: 'admin',
-    ref: 'cohorts',
-    path: '/admin/cohorts',
-    actions: [{ click: { role: 'button', name: 'Edit', nth: 2 } }],
-    regions: ['drawer'],
-  }),
   S({
     id: 'admin-learners-teams',
     gate: 6,
@@ -264,15 +253,6 @@ export const SCENARIOS: Scenario[] = [
     ref: 'learners',
     path: '/admin/learners',
     actions: [{ click: { role: 'row', name: /Jamie Ortiz/ } }],
-    regions: ['drawer'],
-  }),
-  S({
-    id: 'admin-vault-upload',
-    gate: 6,
-    role: 'admin',
-    ref: 'avault',
-    path: '/admin/vault',
-    actions: [{ click: { role: 'button', name: 'Upload Resource' } }],
     regions: ['drawer'],
   }),
   S({ id: 'admin-overview-dark', gate: 6, role: 'admin', ref: 'overview', path: '/admin', theme: 'dark', regions: ['main'] }),

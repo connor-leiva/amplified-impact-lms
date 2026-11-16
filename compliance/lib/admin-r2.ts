@@ -82,12 +82,16 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   // R2-2: the Build screens. The builder opens m1, as the mockup's `route.id || 'm1'` does.
   curriculum: { path: '/admin/curriculum' },
   builder: { path: '/admin/curriculum/m1' },
+  vault: { path: '/admin/vault' },
+  'cohorts-sessions': { path: '/admin/cohorts' },
+  announce: { path: '/admin/announcements' },
 };
 
 /**
  * The cells whose failure fails the run, as `cellId`s (`'curriculum-1280'`). A PR adds the cells for
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
- * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four.
+ * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
+ * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -95,6 +99,12 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // R2-2a (D-160): Curriculum and the Module Builder, at all four widths.
   `curriculum-${w}`,
   `builder-${w}`,
+  // R2-2b (D-160): the Resource Vault and Announcements at all four widths, Cohorts & Sessions at three.
+  // cohorts-sessions-390 is not enforced: the mockup draws its key-fact values at 15px on a phone
+  // (`.ph .fx>div>span:last-child`), under the 16px phone floor, which stays (Needs Connor's call).
+  `vault-${w}`,
+  `announce-${w}`,
+  ...(w === 390 ? [] : [`cohorts-sessions-${w}`]),
 ]);
 
 // ------------------------------------------------------------------------------------------------
