@@ -102,7 +102,10 @@ import { registerConsoleRoutes } from './console/routes';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import type { OfferPages } from './routes/offer';
-import { readOfferConfig } from './billing/config';
+import { keyMode, readOfferConfig } from './billing/config';
+import { cachedConsoleStripe, consoleStripeClient, scopedConsoleStripe } from './console/stripe-read';
+import type { ConsoleStripe } from './console/stripe-read';
+import type { StripeMode } from '@ai/core';
 import type { OfferConfig } from './billing/config';
 import { createPriceCache } from './billing/prices';
 import type { PriceCache } from './billing/prices';
@@ -215,6 +218,11 @@ export interface BuildOptions {
    * Railway, nothing elsewhere. A test passes `'x-real-ip'` to stand in for Railway's edge.
    */
   clientIpHeader?: string | null;
+  /**
+   * The Admin Console's Billing (D-163), for a test: its Stripe read client (a fake; null for "Stripe
+   * isn't connected") and the key's mode for its Dashboard links. Left out, both come from the key.
+   */
+  consoleBilling?: { stripe?: ConsoleStripe | null; mode?: StripeMode };
   offer?: {
     pages?: OfferPages;
     config?: OfferConfig;
@@ -571,16 +579,18 @@ export async function build(options: BuildOptions = {}): Promise<App> {
   const offerConfig = options.offer?.config ?? readOfferConfig();
   const offerStripe =
     options.offer?.stripe !== undefined ? options.offer.stripe : offerConfig.stripeSecretKey ? stripeClient(offerConfig.stripeSecretKey) : null;
+  // One price cache for the offer and the Console's Billing (D-163 reads its labels from it).
+  const offerPrices =
+    options.offer?.prices ??
+    createPriceCache(
+      () => offerStripe,
+      (err) => app.log.warn({ reason: (err as { code?: string; type?: string }).code ?? (err as { type?: string }).type }, 'Stripe prices could not be loaded'),
+    );
   {
     const config = offerConfig;
     const stripe = offerStripe;
     const verify = options.offer?.verify !== undefined ? options.offer.verify : config.stripeWebhookSecret ? stripeVerifier() : null;
-    const prices =
-      options.offer?.prices ??
-      createPriceCache(
-        () => stripe,
-        (err) => app.log.warn({ reason: (err as { code?: string; type?: string }).code ?? (err as { type?: string }).type }, 'Stripe prices could not be loaded'),
-      );
+    const prices = offerPrices;
     await registerOfferRoutes(app, {
       pages: options.offer?.pages ?? {},
       config,
@@ -628,7 +638,15 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // The CRM sync log (D-134): the Owner and Admins only.
     registerCrmSyncRoutes(app);
     // The Admin Console (D-157): its audit log, roles matrix and the viewer's capabilities, by role.
-    await registerConsoleRoutes(app, {});
+    // D-163: Billing reads Stripe through its own narrow, cached, read-only client, from the same key.
+    const consoleKey = offerConfig.stripeSecretKey;
+    const consoleStripe =
+      options.consoleBilling?.stripe !== undefined
+        ? options.consoleBilling.stripe && scopedConsoleStripe(options.consoleBilling.stripe)
+        : consoleKey
+          ? cachedConsoleStripe(scopedConsoleStripe(consoleStripeClient(consoleKey)), () => clock.now())
+          : null;
+    await registerConsoleRoutes(app, { billing: { stripe: consoleStripe, prices: offerPrices, mode: options.consoleBilling?.mode ?? keyMode(consoleKey) } });
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

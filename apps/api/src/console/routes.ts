@@ -41,6 +41,8 @@ import { clock } from '../lib/clock';
 import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
+import { BILLING_PATHS, registerBillingRoutes } from './billing';
+import type { BillingDeps } from './billing';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -49,6 +51,8 @@ export const CONSOLE_PATHS = {
   roles: '/api/console/roles',
   // PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export and search.
   ...SUPPORT_PATHS,
+  // PR 4 (D-163): Billing, read-only.
+  ...BILLING_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -56,8 +60,13 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 /** A route's per-minute limit, per session (D-137's limiter). */
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
-/** What later Console PRs hand the routes (Stripe, the price cache, the event hub). Nothing yet. */
-export type ConsoleDeps = Readonly<Record<never, never>>;
+/**
+ * What `app.ts` hands the routes. PR 4 (D-163): Billing's cached Stripe read client (null with no key),
+ * the offer's price cache and the key's mode. Absent, Billing answers "Stripe isn't connected".
+ */
+export interface ConsoleDeps {
+  billing?: BillingDeps;
+}
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -179,7 +188,10 @@ const roleOfViewer = (req: FastifyRequest): string | null => {
 
 // --- the routes ----------------------------------------------------------------------------------
 
-export async function registerConsoleRoutes(app: FastifyInstance, _deps: ConsoleDeps): Promise<void> {
+/** A price cache with nothing in it, for a Console registered without Billing's deps. */
+const NO_PRICES = { get: async () => null, reset: () => {} };
+
+export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleDeps): Promise<void> {
   await app.register(async (scope) => {
     // Every Console answer is the viewer's alone, refusals and 429s included (`requireSession` sets the
     // same header, but only once it has run, which a rate-limited request never reaches).
@@ -260,5 +272,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, _deps: Console
     );
 
     registerSupportRoutes(scope);
+    registerBillingRoutes(scope, deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' }, { config: limit(CONSOLE_RATE.read) });
   });
 }

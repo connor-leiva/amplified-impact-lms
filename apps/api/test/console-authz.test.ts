@@ -14,6 +14,7 @@ import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
 import { auditLog, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
+import { fakeConsoleStripe } from './fake-console-stripe';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
@@ -32,7 +33,12 @@ type RouteName =
   | 'notesList'
   | 'notesCreate'
   | 'noteDelete'
-  | 'search';
+  | 'search'
+  | BillingRoute;
+
+// PR 4 (D-163): Billing, read-only, every route `billing.read`.
+const BILLING = ['billingSummary', 'billingCustomers', 'billingSubscriptions', 'billingInvoices', 'billingFailed', 'billingRefunds', 'billingScopes'] as const;
+type BillingRoute = (typeof BILLING)[number];
 
 /** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
 const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
@@ -57,6 +63,7 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   },
   noteDelete: { path: CONSOLE_PATHS.noteDelete, url: '/api/console/notes/1/delete', method: 'POST', route: `POST ${CONSOLE_PATHS.noteDelete}`, body: { reason: 'Written on the wrong workspace.' } },
   search: { path: CONSOLE_PATHS.search, url: `${CONSOLE_PATHS.search}?q=jamie`, method: 'GET', route: `GET ${CONSOLE_PATHS.search}` },
+  ...(Object.fromEntries(BILLING.map((b) => [b, { path: CONSOLE_PATHS[b], url: CONSOLE_PATHS[b], method: 'GET', route: `GET ${CONSOLE_PATHS[b]}` }])) as Record<BillingRoute, { path: string; url: string; method: 'GET'; route: string }>),
 };
 
 /** The routes whose success writes its own audit row. */
@@ -81,7 +88,18 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // and read with the target's read capability, a password reset is user.password_reset (all three
 // Console roles; a learner's here), search is console.view: Owner, Admin and Support. The users
 // export is export (Owner, Admin). Deleting a note is notes.delete: the Owner alone.
-const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v });
+// PR 4: every Billing route is billing.read: Owner, Admin and Support (Support reads, D3).
+const ALL = (v: number) => ({
+  workspaces: v,
+  workspace: v,
+  users: v,
+  user: v,
+  passwordReset: v,
+  notesList: v,
+  notesCreate: v,
+  search: v,
+  ...(Object.fromEntries(BILLING.map((b) => [b, v])) as Record<BillingRoute, number>),
+});
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: { me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401 },
   learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403 },
@@ -114,7 +132,8 @@ beforeEach(async () => {
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });
   // Note 1, for the delete route to find.
   await db.insert(staffNotes).values({ targetType: 'workspace', targetId: 'northline', authorUserId: 'st4', body: 'Owner asked about seats.', createdAt: NOW - 3600_000 });
-  app = await build({ logger: false });
+  // Billing reads a fake Stripe (spec § 9: no live calls), so its routes answer 200 to who may read.
+  app = await build({ logger: false, consoleBilling: { stripe: fakeConsoleStripe().stripe, mode: 'test' } });
 });
 afterEach(async () => {
   await settleEmails();
