@@ -68,6 +68,10 @@
   box-shadow: var(--r2-focus);
   outline: none;
 }
+/* A list that is a keyboard stop (DB Health has no control): the focus ring follows the card's corners. */
+.region {
+  border-radius: 0 0 12px 12px;
+}
 /* An inert control the mockup draws (D-168: Check now is for Stripe and Resend only). */
 .inert {
   cursor: not-allowed;
@@ -81,10 +85,14 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
+  /* A 44px target (D-156) whose status stays where the mockup draws it: at the row's right edge, the
+     extra height taken back by the margins. */
   .flip {
     min-height: 44px;
+    min-width: 44px;
     display: inline-flex;
     align-items: center;
+    justify-content: flex-end;
     margin: -10px 0;
   }
 }

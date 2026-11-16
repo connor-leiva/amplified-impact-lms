@@ -48,10 +48,32 @@ async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): P
     .join('\n');
 }
 
-/** D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). */
-const RECORD_SENTINELS = ['ws_northshore', 'Elena Vargas', 'cus_Rk3NshoreA1', 'in_1QxT4mNs0291'];
+/**
+ * D-160 R2-1c: the Console fixture's records are the R2 mockup's people (fixture build only). D-168: the
+ * Operations pages' sample data (the mockup's deploys, slow queries, mockup-only flags and integration
+ * stamps) is fixture-only too.
+ */
+const RECORD_SENTINELS = [
+  'ws_northshore',
+  'Elena Vargas',
+  'cus_Rk3NshoreA1',
+  'in_1QxT4mNs0291',
+  'Scope 16px floor and 44px targets to phone widths',
+  'o.ghl_attempts, o.ghl_error',
+  'zoom_recording_webhook',
+  'maintenance_mode',
+  '1 hard bounce',
+  'Zoom OAuth client secret',
+];
 
 describe('the Console fixture is not in the http build (D-157)', () => {
+  it('D-168: the Operations pages’ view-model prints production’s own words, and none of the mockup’s data', async () => {
+    const code = await bundle('production', '../routes/console/ops.vm.ts');
+    expect(code).toContain('Not configured');
+    expect(code).toContain('www only (D-155)');
+    for (const s of ['Scope 16px floor', 'zoom_recording_webhook', 'maintenance_mode', '1 hard bounce', 'GHL orders: back off on 401']) expect(code, s).not.toContain(s);
+  }, 60_000);
+
   it('the http build has none of it', async () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');

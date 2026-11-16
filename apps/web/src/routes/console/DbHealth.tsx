@@ -2,7 +2,9 @@
 // transaction with a two-second limit and cached for a minute on the server: connections, size, the
 // largest tables, the migrations against the journal, and the slow queries only where
 // `pg_stat_statements` already exists (never turned on here). Nothing on this page can change data.
-// Owner and Admin (`ops.read`).
+// Owner and Admin (`ops.read`). The page has no control, so the two lists are keyboard stops (a
+// focusable region, as D-156's drawer body is): without one, a keyboard couldn't scroll it (axe's
+// `scrollable-region-focusable`).
 
 import clsx from 'clsx';
 import { Card } from '../../components/r2/Card';
@@ -45,22 +47,26 @@ export function Component() {
             </Card>
             <div className={s.g2}>
               <Card title={C.tables} pad={false}>
-                {vm.tables.map((t) => (
-                  <div key={t.name} className={k.li}>
-                    <span className={clsx(k.mo, s.grow)}>{t.name}</span>
-                    <span className={k.tn}>{t.size}</span>
-                    <span className={clsx(k.tn, k.mu, s.rowsCount)}>{t.rows}</span>
-                  </div>
-                ))}
+                <div className={s.region} role="region" aria-label={C.tables} tabIndex={0}>
+                  {vm.tables.map((t) => (
+                    <div key={t.name} className={k.li}>
+                      <span className={clsx(k.mo, s.grow)}>{t.name}</span>
+                      <span className={k.tn}>{t.size}</span>
+                      <span className={clsx(k.tn, k.mu, s.rowsCount)}>{t.rows}</span>
+                    </div>
+                  ))}
+                </div>
               </Card>
               <Card title={C.migrations} sub={C.migrationsSub} pad={false}>
-                {vm.migrations.map((m) => (
-                  <div key={m.tag} className={k.li}>
-                    <span className={clsx(k.mo, k.el, s.grow)}>{m.tag}</span>
-                    {m.pill ? <Pill tone={m.pill.tone}>{m.pill.label}</Pill> : null}
-                    {m.time ? <span className={clsx(k.me, s.nowrap)}>{m.time}</span> : null}
-                  </div>
-                ))}
+                <div className={s.region} role="region" aria-label={C.migrations} tabIndex={0}>
+                  {vm.migrations.map((m) => (
+                    <div key={m.tag} className={k.li}>
+                      <span className={clsx(k.mo, k.el, s.grow)}>{m.tag}</span>
+                      {m.pill ? <Pill tone={m.pill.tone}>{m.pill.label}</Pill> : null}
+                      {m.time ? <span className={clsx(k.me, s.nowrap)}>{m.time}</span> : null}
+                    </div>
+                  ))}
+                </div>
               </Card>
             </div>
           </>

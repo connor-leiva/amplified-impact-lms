@@ -99,6 +99,11 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
   users: { path: '/admin/users' },
   user: { path: '/admin/users/u_1042' },
+  // Console PR 9 (D-168): the Operations pages, on the mockup's data (the Console fixture answers with it).
+  integrations: { path: '/admin/integrations' },
+  deploys: { path: '/admin/deploys' },
+  db: { path: '/admin/db' },
+  flags: { path: '/admin/flags' },
 };
 
 /**
@@ -108,6 +113,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
  * and `tiers` at all four; R2-3b: `audit` at all four; R2-1c part 1: `workspaces` at all four,
  * `workspace-detail` at 1440, 1280 and 1024; R2-1c part 2: `users` at all four, `user` at 1440, 1280
+ * and 1024; Console PR 9 (D-168): `integrations`, `deploys` and `db` at all four, `flags` at 1440, 1280
  * and 1024.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
@@ -141,6 +147,14 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // mockup on a phone, 16px here.
   `users-${w}`,
   ...(w === 390 ? [] : [`user-${w}`]),
+  // Console PR 9 (D-168): Integrations, Deploys & Commits and DB Health at all four widths; Environment
+  // Flags at 1440, 1280 and 1024. `flags-390` is built and reported, not enforced (0.1979%, 1,290 px):
+  // its key-facts values, 15px in the mockup on a phone, 16px here, are every pixel that differs. It is
+  // not one of the three cells Connor's exceptions list names, so it is reported as not passing.
+  `integrations-${w}`,
+  `deploys-${w}`,
+  `db-${w}`,
+  ...(w === 390 ? [] : [`flags-${w}`]),
 ]);
 
 // ------------------------------------------------------------------------------------------------
