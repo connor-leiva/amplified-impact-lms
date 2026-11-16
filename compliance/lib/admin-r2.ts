@@ -100,8 +100,8 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `curriculum-${w}`,
   `builder-${w}`,
   // R2-2b (D-160): the Resource Vault and Announcements at all four widths, Cohorts & Sessions at three.
-  // cohorts-sessions-390 is not enforced: the mockup draws its key-fact values at 15px on a phone
-  // (`.ph .fx>div>span:last-child`), under the 16px phone floor, which stays (Needs Connor's call).
+  // cohorts-sessions-390 is not here: the mockup draws its key-fact values at 15px on a phone, under the
+  // 16px floor the build keeps, so it is an approved exception (`admin-r2-exceptions.ts`, D-160).
   `vault-${w}`,
   `announce-${w}`,
   ...(w === 390 ? [] : [`cohorts-sessions-${w}`]),
