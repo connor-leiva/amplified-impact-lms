@@ -115,7 +115,7 @@ async function mapLimit<T, U>(items: readonly T[], n: number, fn: (t: T) => Prom
 
 // --- local cross-references ----------------------------------------------------------------------
 
-interface LocalRefs {
+export interface LocalRefs {
   /** A Stripe customer's workspace, by its account (or an order that names it). */
   workspaceOf: (customerId: string | null) => BillingWorkspaceRef | null;
   /** A subscription's local plan and order. */
@@ -124,7 +124,7 @@ interface LocalRefs {
   customers: { customerId: string; name: string; workspace: BillingWorkspaceRef; plans: { kind: PlanKind; status: PlanStatus; seats: number; createdAt: number }[] }[];
 }
 
-async function localRefs(db: Database): Promise<LocalRefs> {
+export async function localRefs(db: Database): Promise<LocalRefs> {
   const accts = await db.select({ id: accounts.id, teamId: accounts.teamId, name: teams.name, own: accounts.name, customer: accounts.stripeCustomerId }).from(accounts).leftJoin(teams, eq(teams.id, accounts.teamId));
   const planRows = await db.select({ accountId: plans.accountId, kind: plans.kind, status: plans.status, seats: plans.seats, sub: plans.stripeSubscriptionId, orderId: plans.orderId, createdAt: plans.createdAt }).from(plans);
   const orderRows = await db.select({ id: orders.id, plan: orders.plan, accountId: orders.accountId, customer: orders.stripeCustomerId, sub: orders.stripeSubscriptionId }).from(orders);
@@ -161,7 +161,7 @@ const liveSubscriptions = async (stripe: ConsoleStripe): Promise<BillingSubscrip
     )
   ).flat();
 
-const openInvoices = (stripe: ConsoleStripe): Promise<ReadInvoice[]> =>
+export const openInvoices = (stripe: ConsoleStripe): Promise<ReadInvoice[]> =>
   readAll((after) => stripe.listInvoices({ status: 'open', limit: 100, startingAfter: after }), (i) => i.id);
 
 /** The AI Accelerator from the database: D-154's own counter (imported, never copied) and its seats' orders. */

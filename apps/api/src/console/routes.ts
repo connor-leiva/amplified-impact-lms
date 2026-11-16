@@ -49,6 +49,8 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { BILLING_PATHS, registerBillingRoutes } from './billing';
 import type { BillingDeps } from './billing';
+import { HEALTH_PATHS, registerHealthRoutes } from './health';
+import type { HealthDeps } from './health';
 import { registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
 
@@ -67,6 +69,8 @@ export const CONSOLE_PATHS = {
   masqueradeSessions: MASQUERADE_PATHS.sessions,
   // PR 4 (D-163): Billing, read-only.
   ...BILLING_PATHS,
+  // PR 10 (D-169): System Health and the Build hub's Skills list.
+  ...HEALTH_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -79,7 +83,7 @@ export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute
  * client (null with no key), the offer's price cache and the key's mode (PR 4, D-163). Without
  * Billing's, Billing answers "Stripe isn't connected".
  */
-export type ConsoleDeps = Readonly<MasqueradeDeps & { billing?: BillingDeps }>;
+export type ConsoleDeps = Readonly<MasqueradeDeps & { billing?: BillingDeps; health?: Omit<HealthDeps, 'billing'> }>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -287,5 +291,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
     registerBillingRoutes(scope, deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' }, { config: limit(CONSOLE_RATE.read) });
+    // PR 10 (D-169): Health reads Billing through the same deps, and the event hub's client count.
+    registerHealthRoutes(scope, { ...(deps.health ?? {}), billing: deps.billing }, { config: limit(CONSOLE_RATE.read) });
   });
 }

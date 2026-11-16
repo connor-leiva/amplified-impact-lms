@@ -660,6 +660,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     await registerConsoleRoutes(app, {
       ...(options.console ?? {}),
       billing: { stripe: consoleStripe, prices: offerPrices, mode: options.consoleBilling?.mode ?? keyMode(consoleKey) },
+      // PR 10 (D-169): System Health counts this server's `/api/events` browsers.
+      health: { events, ...(options.console?.health ?? {}) },
     });
     registerMutateRoute(app, { broadcast });
 
