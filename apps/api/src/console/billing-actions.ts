@@ -317,7 +317,8 @@ export function registerBillingActionRoutes(scope: FastifyInstance, deps: Billin
     let before: { chargeId: string | null; amountCents: number | null; refundedCents: number | null; refundableCents: number };
     try {
       // Re-read now: the amount is never more than Stripe has left to refund, whatever the preview said.
-      const charge = await deps.read!.retrieveCharge({ chargeId: ref.chargeId, paymentIntentId: ref.paymentIntentId });
+      // The same payment the refund goes to: the payment intent's charge when there is one.
+      const charge = await deps.read!.retrieveCharge({ chargeId: ref.paymentIntentId ? null : ref.chargeId, paymentIntentId: ref.paymentIntentId });
       const refundable = charge ? refundableOf(charge.amountCents, charge.refundedCents) : 0;
       before = { chargeId: charge?.id ?? ref.chargeId, amountCents: charge?.amountCents ?? null, refundedCents: charge?.refundedCents ?? null, refundableCents: refundable };
       if (amount > refundable) {
@@ -349,7 +350,9 @@ export function registerBillingActionRoutes(scope: FastifyInstance, deps: Billin
       id: claims.aid,
       outcome: 'ok',
       before,
-      after: { refundId: refund.id, amountCents: refund.amountCents, status: refund.status, full: amount >= before.refundableCents },
+      // No refund id: D-157's redactor drops any value starting `re_` (a Resend key's prefix, which a
+      // Stripe refund id shares). The refund names this row instead, by its `console_audit_id`.
+      after: { amountCents: refund.amountCents, status: refund.status, full: amount >= before.refundableCents },
     });
     deps.afterWrite(ref);
     const out: BillingActionResult = {

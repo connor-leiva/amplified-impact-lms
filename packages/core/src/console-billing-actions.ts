@@ -167,7 +167,9 @@ export function refundConsequences(f: RefundFacts): string[] {
   if (m.plan) out.push(`The ${planLine(m.plan.kind, m.plan.seats)} plan ends and its access ends now.`);
   if (m.subscriptions.length) {
     const one = m.subscriptions.length === 1;
-    out.push(`Subscription${one ? '' : 's'} ${list(m.subscriptions)} ${one ? 'is' : 'are'} cancelled in Stripe, so nothing more is charged.`);
+    out.push(
+      `Subscription${one ? '' : 's'} ${list(m.subscriptions)} ${one ? 'is' : 'are'} cancelled in Stripe (unless already cancelled), so nothing more is charged.`,
+    );
   }
   if (refundEndsSeat(f) && f.seatsSold !== null) {
     const after = Math.max(0, f.seatsSold - 1);
