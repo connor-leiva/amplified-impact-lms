@@ -51,7 +51,10 @@ function renderAt(path: string) {
   return router;
 }
 
-const openProfile = () => fireEvent.click(screen.getByTitle(/· profile and settings$/));
+// The learner shell's profile button is titled "… · profile and settings"; the R2 admin shell's user
+// chip (D-160 R2-1b) is named "{name}, {role}. Profile and settings", untitled as the mockup draws it.
+const openProfile = () =>
+  fireEvent.click(screen.queryByTitle(/· profile and settings$/) ?? screen.getByRole('button', { name: /\. Profile and settings$/ }));
 
 beforeEach(() => {
   resetSignOutForTests();
