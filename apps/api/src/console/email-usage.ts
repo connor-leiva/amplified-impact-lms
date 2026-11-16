@@ -2,7 +2,7 @@
 // `registerConsoleRoutes` inside its scope, so its `private, no-store` hook covers every answer here,
 // refusals and 429s included.
 //
-//   GET  /api/console/email          `?q&template&status&userId&from&to&cursor&limit` → a page, newest
+//   GET  /api/console/email          `?q&template&status&userId&teamId&from&to&cursor&limit` → a page, newest
 //                                    first, with the filters' options. email.read (Owner, Admin, Support)
 //   GET  /api/console/email/:id      one row. email.read
 //   POST /api/console/email/export   the same filters (and `ids`, for "Export selected") → CSV, 10,000
@@ -92,6 +92,10 @@ export function parseEmailFilters(input: Record<string, unknown>): Parsed<EmailL
     if (typeof input.userId !== 'string' || !ID.test(input.userId)) return { ok: false, field: 'userId' };
     out.userId = input.userId;
   }
+  if (present(input.teamId)) {
+    if (typeof input.teamId !== 'string' || !ID.test(input.teamId)) return { ok: false, field: 'teamId' };
+    out.teamId = input.teamId;
+  }
   for (const key of ['from', 'to'] as const) {
     if (!present(input[key])) continue;
     const n = int(input[key]);
@@ -117,6 +121,9 @@ function emailWhere(f: EmailLogFilters): SQL | undefined {
   if (f.status !== undefined) parts.push(eq(emailLog.status, f.status));
   // A person's emails: those logged with their id, or sent to their address before they had one.
   if (f.userId !== undefined) parts.push(or(eq(emailLog.userId, f.userId), sql`lower(${emailLog.to}) = (select u.email from ${users} u where u.id = ${f.userId})`));
+  // A workspace's emails: to any of its people, the same two ways.
+  if (f.teamId !== undefined)
+    parts.push(or(sql`${emailLog.userId} in (select u.id from ${users} u where u.team_id = ${f.teamId})`, sql`lower(${emailLog.to}) in (select u.email from ${users} u where u.team_id = ${f.teamId})`));
   if (f.from !== undefined) parts.push(gte(emailLog.at, f.from));
   if (f.to !== undefined) parts.push(lte(emailLog.at, f.to));
   if (f.ids !== undefined) parts.push(inArray(emailLog.id, f.ids.map(Number)));
