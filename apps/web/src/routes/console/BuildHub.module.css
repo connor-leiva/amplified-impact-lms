@@ -15,3 +15,11 @@
 .meta {
   white-space: nowrap;
 }
+
+/* On a phone the row wraps: the icon sits beside the name (its 44px link), not mid-row. */
+@media (max-width: 767px) {
+  .icon {
+    align-self: flex-start;
+    margin-top: 14px;
+  }
+}

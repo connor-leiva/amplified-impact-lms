@@ -12,7 +12,13 @@
 
 /* Seat pressure (production; the R1 mock's "Seat-cap pressure" row): name, bar, figures. */
 .seatName {
-  flex: 1 1 0;
+  flex: 0 1 136px;
+}
+/* On a phone the name takes its own line, then the bar and the figures (the Overview funnel's way). */
+@media (max-width: 767px) {
+  .seatName {
+    flex: 1 1 100%;
+  }
 }
 .seatText {
   white-space: nowrap;

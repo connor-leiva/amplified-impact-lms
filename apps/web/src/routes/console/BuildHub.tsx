@@ -51,51 +51,25 @@ export function Component() {
     <Page>
       <PageHead title={C.title} description={C.description} />
       <div className={k.gms}>
-        <div className={k.col}>
-          <Card title={C.screens} pad={false}>
-            {vm.links.map((l) => (
-              <div key={l.key} className={k.li}>
-                <span className={s.icon} aria-hidden="true">
-                  <Icon name={l.icon} size={16} strokeWidth={1.75} />
-                </span>
-                <div className={clsx(k.col, k.col0, s.what)}>
-                  <Link to={l.to} className={clsx(k.lk, k.w5)}>
-                    {l.label}
-                  </Link>
-                  <span className={k.me}>{l.description}</span>
-                </div>
-                {l.meta ? <span className={clsx(k.me, s.meta)}>{l.meta}</span> : null}
+        <Card title={C.screens} pad={false}>
+          {vm.links.map((l) => (
+            <div key={l.key} className={k.li}>
+              <span className={s.icon} aria-hidden="true">
+                <Icon name={l.icon} size={16} strokeWidth={1.75} />
+              </span>
+              <div className={clsx(k.col, k.col0, s.what)}>
+                <Link to={l.to} className={clsx(k.lk, k.w5)}>
+                  {l.label}
+                </Link>
+                <span className={k.me}>{l.description}</span>
               </div>
-            ))}
-          </Card>
-          {gate.kind === 'error' ? (
-            <LoadError failure={gate.failure} retry={gate.retry} />
-          ) : skills.status === 'error' && skills.failure ? (
-            <LoadError failure={skills.failure} retry={skills.retry} />
-          ) : (
-            <Table
-              title={C.skills}
-              label={C.skills}
-              cols={cols}
-              rows={skills.rows.map(skillVM)}
-              rowKey={(r) => r.id}
-              loading={skills.status === 'loading'}
-              empty={{ icon: 'r2File', title: C.skillsEmpty }}
-              footer={
-                skills.next ? (
-                  <div className={k.more}>
-                    <Button kind="quiet" onClick={skills.more} disabled={skills.loadingMore}>
-                      {C.more}
-                    </Button>
-                  </div>
-                ) : null
-              }
-            />
-          )}
-        </div>
+              {l.meta ? <span className={clsx(k.me, s.meta)}>{l.meta}</span> : null}
+            </div>
+          ))}
+        </Card>
         {vm.cohort ? (
           <Card title={vm.cohort.name} right={<Status tone={vm.cohort.status.tone}>{vm.cohort.status.label}</Status>}>
-            <KV rows={[...vm.cohort.rows, { label: C.cohort.cap, value: <Locked>{vm.cohort.cap}</Locked> }]} />
+            <KV stacked rows={[...vm.cohort.rows, { label: C.cohort.cap, value: <Locked>{vm.cohort.cap}</Locked> }]} />
           </Card>
         ) : (
           <Card>
@@ -103,6 +77,30 @@ export function Component() {
           </Card>
         )}
       </div>
+      {gate.kind === 'error' ? (
+        <LoadError failure={gate.failure} retry={gate.retry} />
+      ) : skills.status === 'error' && skills.failure ? (
+        <LoadError failure={skills.failure} retry={skills.retry} />
+      ) : (
+        <Table
+          title={C.skills}
+          label={C.skills}
+          cols={cols}
+          rows={skills.rows.map(skillVM)}
+          rowKey={(r) => r.id}
+          loading={skills.status === 'loading'}
+          empty={{ icon: 'r2File', title: C.skillsEmpty }}
+          footer={
+            skills.next ? (
+              <div className={k.more}>
+                <Button kind="quiet" onClick={skills.more} disabled={skills.loadingMore}>
+                  {C.more}
+                </Button>
+              </div>
+            ) : null
+          }
+        />
+      )}
     </Page>
   );
 }

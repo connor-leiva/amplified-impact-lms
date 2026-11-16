@@ -285,10 +285,10 @@ export function Facts({ items }: { items: readonly { label: string; value: React
   );
 }
 
-/** `KV`: label and value pairs. */
-export function KV({ rows }: { rows: readonly { label: string; value: ReactNode }[] }) {
+/** `KV`: label and value pairs. `stacked` is the mockup's `.kvs .kv`: each label over its value (D-169). */
+export function KV({ rows, stacked }: { rows: readonly { label: string; value: ReactNode }[]; stacked?: boolean }) {
   return (
-    <dl className={k.kv}>
+    <dl className={clsx(k.kv, stacked && k.kvs)}>
       {rows.map((r) => (
         <Fragment key={r.label}>
           <dt>{r.label}</dt>
