@@ -40,3 +40,8 @@ Thumbs.db
 # Python caches from the skills' generator scripts (skills/*/evals/make/, D-052).
 __pycache__/
 *.pyc
+
+# Admin redesign R2 (D-160): the mockup harness's own install (`npm install --prefix
+# design-reference/admin-redesign-r2`), which brings React 18 beside the app's React 19.
+design-reference/admin-redesign-r2/node_modules/
+design-reference/admin-redesign-r2/package-lock.json
