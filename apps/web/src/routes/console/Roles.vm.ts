@@ -2,7 +2,7 @@
 // (`CONSOLE_CAPS`, D11), so nothing here edits it; staff and their roles are managed on the existing
 // Staff & Roles screen, which this links to. Pure; Roles.tsx only renders it.
 
-import { ROLES_R2_ROWS, adminStamp, fmt, isEditableRole, permissionConfirmCopy } from '@ai/core';
+import { MOCKUP_LOCKED, ROLES_R2_ROWS, adminStamp, fmt, isEditableRole, permissionConfirmCopy } from '@ai/core';
 import type { ConsoleRole, Db, EditableRole, PermKey, RoleRowKey, RolesMatrix } from '@ai/core';
 import type { TokenGlyph, TokenTone } from '../../components/StatusToken';
 
@@ -69,9 +69,11 @@ export function rolesVM(m: RolesMatrix): RolesVM {
 // The staff table and the mockup's nine-row matrix (`ROLES_R2_ROWS`), EDITABLE by the Owner (Connor,
 // Nov 16, 2026, 8:27 AM MST, superseding D11): a box the ceiling (`CONSOLE_CAPS`) allows opens the
 // mockup's confirm, and the server makes the change (preview, then the confirm token) with one audit
-// row. A box past the ceiling is locked, "Fixed by product rules", as the mockup draws Support's refund
-// and masquerade; the `build` row is the `PermKey` matrix's (the one Staff & Roles edits), and its
-// change sets those four; everyone but the Owner sees the matrix read-only.
+// row. Past the ceiling, the mockup wins on visuals and the spec on safety (Connor's 8:29 rule 2): the
+// two boxes the mockup locks (Support's refund and masquerade) carry the lock, "Fixed by product rules";
+// the other five are drawn as the mockup draws them, plain unchecked toggles named "…, fixed by product
+// rules", whose confirm the server refuses and explains. The `build` row is the `PermKey` matrix's (the
+// one Staff & Roles edits), and its change sets those four. Everyone but the Owner sees it read-only.
 // ================================================================================================
 
 export const ROLES_R2_COPY = {
@@ -104,8 +106,12 @@ export interface RolesR2Staff {
 export interface RolesR2Cell {
   role: ConsoleRole;
   on: boolean;
-  /** Past the ceiling (`CONSOLE_CAPS`): the lock and "Fixed by product rules". */
+  /** One of the boxes the mockup locks (Support's refund and masquerade): the lock and "Fixed by product rules". */
   locked: boolean;
+  /** Past the ceiling (`CONSOLE_CAPS`): the server refuses any change; the box's name says so. */
+  fixed: boolean;
+  /** The box's accessible name: `{capability}, {role}`, and ", fixed by product rules" past the ceiling. */
+  aria: string;
   /** Not a toggle for this viewer: the Owner's column, a locked box, or a viewer who isn't the Owner. */
   disabled: boolean;
   /** Why it is disabled, in words (none for the Owner's column, which the card's sentence explains). */
@@ -163,10 +169,15 @@ export function rolesMatrixR2(m: RolesMatrix, db: Pick<Db, 'perms'>, viewer: { c
         const ceiling = caps.every((c) => !!cap(c)?.ceiling[role]);
         const on = role === 'Owner' || (caps.every((c) => !!cap(c)?.allowed[role]) && (r.perms ?? []).every((p) => permOn(p, role)));
         const word = { word: on ? 'Yes' : 'No', wordPhone: on ? 'Allowed' : 'Not allowed' };
-        if (role === 'Owner' || !isEditableRole(role)) return { role, on, locked: false, disabled: true, ...word };
-        if (!ceiling) return { role, on: false, locked: true, disabled: true, title: ROLES_R2_COPY.fixed, word: 'No', wordPhone: 'Not allowed' };
-        if (!viewer.canEdit) return { role, on, locked: false, disabled: true, title: guardTitle(viewer.role, role), ...word };
-        return { role, on, locked: false, disabled: false, ...word, change: { role, capability: r.key, allowed: !on, ...permissionConfirmCopy(r.label, role, on) } };
+        const aria = `${r.label}, ${role}`;
+        if (role === 'Owner' || !isEditableRole(role)) return { role, on, locked: false, fixed: false, aria, disabled: true, ...word };
+        if (!ceiling && MOCKUP_LOCKED[role]?.includes(r.key))
+          return { role, on: false, locked: true, fixed: true, aria, disabled: true, title: ROLES_R2_COPY.fixed, word: 'No', wordPhone: 'Not allowed' };
+        const fixed = !ceiling;
+        const cell = { role, on: fixed ? false : on, locked: false, fixed, aria: fixed ? `${aria}, fixed by product rules` : aria };
+        const words = fixed ? { word: 'No', wordPhone: 'Not allowed' } : word;
+        if (!viewer.canEdit) return { ...cell, disabled: true, title: guardTitle(viewer.role, role), ...words };
+        return { ...cell, disabled: false, ...words, change: { role, capability: r.key, allowed: !cell.on, ...permissionConfirmCopy(r.label, role, cell.on) } };
       }),
     })),
   };

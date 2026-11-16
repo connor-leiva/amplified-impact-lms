@@ -8,8 +8,10 @@ import {
   EDITABLE_ROLES,
   ROLES_R2_ROWS,
   ROLE_ROW_KEYS,
+  MOCKUP_LOCKED,
   checkRoleChange,
   consoleCan,
+  fixedByProductMessage,
   consoleCanWith,
   consoleCaps,
   consoleCapsWith,
@@ -177,6 +179,14 @@ describe('the mockup’s words @console', () => {
       body: 'View billing. Applies to every Support on staff right away.',
       cta: 'Allow',
     });
+  });
+
+  it('why a box is fixed by product rules, for the confirm; the mockup locks only two of them', () => {
+    expect(fixedByProductMessage('export')).toBe('Fixed by product rules. Only the Owner and Admins can export logs.');
+    expect(fixedByProductMessage('staff')).toBe('Fixed by product rules. Only the Owner can edit staff roles and this matrix.');
+    for (const r of ROLES_R2_ROWS)
+      for (const role of ['Admin', 'Support']) if (!roleRowCeiling(r, role)) expect(fixedByProductMessage(r.key), `${r.key} ${role}`).toMatch(/^Fixed by product rules\. \S/);
+    expect(MOCKUP_LOCKED).toEqual({ Support: ['masq', 'refund'] });
   });
 
   it('the audit detail', () => {

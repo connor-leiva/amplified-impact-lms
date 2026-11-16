@@ -42,7 +42,8 @@ const rows = (page: Page) => page.locator('main [role="table"] [role="row"]:has(
 test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (D-157) @g9 @console', () => {
   test('Roles: the matrix the Owner edits, with the way to Staff & Roles, in both themes', async ({ browser }) => {
     // D-160 R2-3b, editable (Connor, Nov 16, 2026): the mockup's nine rows; the Owner's column fixed,
-    // the boxes past `CONSOLE_CAPS` locked, the rest toggles (11).
+    // Support's refund and masquerade locked (the mockup's two locks), every other Admin and Support box
+    // a toggle (16), the five past `CONSOLE_CAPS` among them, named so and refused by the server.
     for (const theme of ['light', 'dark'] as const) {
       const { page, close } = await openAt(browser, '/admin/roles', { theme });
       await expectShell(page);
@@ -51,12 +52,12 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
       const matrix = page.getByRole('table', { name: 'Console permissions by role' });
       await expect(matrix.locator('[role="row"]:has([role="cell"])')).toHaveCount(9);
       await expect(matrix.locator('input[type="checkbox"]')).toHaveCount(27);
-      await expect(matrix.locator('input:not(:disabled)')).toHaveCount(11);
+      await expect(matrix.locator('input:not(:disabled)')).toHaveCount(16);
       const exportRow = matrix.getByRole('row', { name: 'Export audit and email logs' });
-      await expect(exportRow.getByRole('checkbox', { name: 'Export audit and email logs, Support. Fixed by product rules' })).toBeDisabled();
+      await expect(exportRow.getByRole('checkbox', { name: 'Export audit and email logs, Support, fixed by product rules' })).not.toBeChecked();
       await expect(matrix.getByRole('checkbox', { name: 'Refund or void an invoice, Support. Fixed by product rules' })).toBeDisabled();
       await expect(matrix.getByRole('checkbox', { name: 'Edit curriculum, vault, sessions, announcements, tiers, Admin' })).toBeEnabled();
-      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin. Fixed by product rules' })).toBeDisabled();
+      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' })).toBeEnabled();
       await expectAccessible(page);
       if (theme === 'light') {
         await page.getByRole('link', { name: 'Invite staff' }).click();
@@ -106,6 +107,15 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
     await build.click();
     await page.getByRole('dialog', { name: 'Remove this permission from Support?' }).getByRole('button', { name: 'Remove permission' }).click();
     await expect(build).not.toBeChecked();
+
+    // A box past the ceiling looks like the mockup's toggle; the server refuses it and the dialog says why.
+    await matrix.getByRole('checkbox', { name: 'Export audit and email logs, Support, fixed by product rules' }).click();
+    const fixed = page.getByRole('dialog', { name: 'Give this permission to Support?' });
+    await expect(fixed.getByRole('alert')).toHaveText('Fixed by product rules. Only the Owner and Admins can export logs.');
+    await expect(fixed.getByRole('button', { name: 'Allow' })).toBeDisabled();
+    await expectAccessible(page);
+    await fixed.getByRole('button', { name: 'Cancel' }).click();
+    await expect(matrix.getByRole('checkbox', { name: 'Export audit and email logs, Support, fixed by product rules' })).not.toBeChecked();
 
     // Every change is in the audit log, newest first, in the mockup's words.
     const sidebar = page.locator('aside[aria-label="Primary"]');

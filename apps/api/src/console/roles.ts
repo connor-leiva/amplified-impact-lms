@@ -16,7 +16,7 @@
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { eq, sql } from 'drizzle-orm';
-import { ROLE_CONFIRM_TTL_MS, checkRoleChange, isEditableRole, isRoleRowKey, permissionChangeSummary, roleRowOf } from '@ai/core';
+import { ROLE_CONFIRM_TTL_MS, checkRoleChange, fixedByProductMessage, isEditableRole, isRoleRowKey, permissionChangeSummary, roleRowOf } from '@ai/core';
 import type { Db, EditableRole, PermMatrix, RoleChangePreview, RoleGrant, RoleRowKey } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { getDb } from '../db/client';
@@ -95,7 +95,12 @@ export async function previewRoleChange(req: FastifyRequest, reply: FastifyReply
     grants: await roleGrants(),
     perms: await permsOf(body.role),
   });
-  if (!check.ok) return check.code === 'invalid_query' ? consoleError(reply, 'invalid_query', 'That change isn’t valid.') : consoleError(reply, check.code);
+  if (!check.ok) {
+    if (check.code === 'invalid_query') return consoleError(reply, 'invalid_query', 'That change isn’t valid.');
+    // Past the ceiling: the reason in words, which the confirm shows (D-160 R2-3b).
+    if (check.code === 'fixed_by_product' && isRoleRowKey(body.capability)) return consoleError(reply, 'fixed_by_product', fixedByProductMessage(body.capability));
+    return consoleError(reply, check.code);
+  }
   const exp = clock.now() + ROLE_CONFIRM_TTL_MS;
   const claims: RoleClaims = { action: ACTION, actor: actor.userId, exp, role: check.role, capability: check.row.key, before: check.before, after: check.after };
   const preview: RoleChangePreview = {

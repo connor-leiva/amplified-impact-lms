@@ -118,7 +118,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
  * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
- * and `tiers` at all four; R2-3b: `audit` at all four, `roles` at three and `roles-confirm` at four.
+ * and `tiers` at all four; R2-3b: `audit`, `roles` and `roles-confirm` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -137,12 +137,11 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `learners-${w}`,
   `tiers-${w}`,
   // R2-3b (D-160): the Audit Log at all four widths. Editable Roles (Connor, Nov 16, 2026, 8:27 AM
-  // MST) adds `roles` at 1440, 1280 and 1024 and `roles-confirm` at all four. roles-390 fails and is
-  // reported, not enforced: the five boxes past `CONSOLE_CAPS` that the mockup draws as plain toggles
-  // (Support's jobs, export and ops; Admin's and Support's last row) are locked, as the spec requires
-  // (the spec wins on safety), and on a phone each lock moves its box and word 18px: 0.2753%, 2,987 px.
+  // MST): `roles` and `roles-confirm` at all four. The five boxes past `CONSOLE_CAPS` that the mockup
+  // draws as plain toggles are drawn so (the server refuses them and the confirm says why); the only
+  // difference left is Support's Export box, which `PERMS0` checks and the ceiling refuses.
   `audit-${w}`,
-  ...(w === 390 ? [] : [`roles-${w}`]),
+  `roles-${w}`,
   `roles-confirm-${w}`,
 ]);
 

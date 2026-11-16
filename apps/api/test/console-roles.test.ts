@@ -210,9 +210,15 @@ describe('the guards, over HTTP @console', () => {
     expect(await refusal({ role: 'Instructor', capability: 'masq', allowed: true })).toEqual([403, 'role_fixed']);
   });
 
-  it('nothing past the ceiling: Support’s refund, masquerade, jobs, export and ops, and this matrix', async () => {
-    for (const capability of ['refund', 'masq', 'jobs', 'export', 'ops', 'staff']) expect(await refusal({ role: 'Support', capability, allowed: true }), capability).toEqual([403, 'fixed_by_product']);
+  it('nothing past the ceiling, whatever the UI sends: Support’s refund, masquerade, jobs, export and ops, and this matrix', async () => {
+    for (const capability of ['refund', 'masq', 'jobs', 'export', 'ops', 'staff'])
+      for (const allowed of [true, false]) expect(await refusal({ role: 'Support', capability, allowed }), capability).toEqual([403, 'fixed_by_product']);
     expect(await refusal({ role: 'Admin', capability: 'staff', allowed: true })).toEqual([403, 'fixed_by_product']);
+    // The reason, in words, for the confirm to show.
+    const res = await preview('st1', { role: 'Support', capability: 'export', allowed: true });
+    expect(body<{ error: string }>(res).error).toBe('Fixed by product rules. Only the Owner and Admins can export logs.');
+    expect(await grantRows()).toHaveLength(0);
+    expect(await auditRows()).toHaveLength(0);
   });
 
   it('a change must change something; a malformed one is 400', async () => {

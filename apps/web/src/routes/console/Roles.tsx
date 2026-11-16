@@ -12,7 +12,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import clsx from 'clsx';
-import { CONSOLE_ERRORS } from '@ai/core';
+import { CONSOLE_ERRORS, fixedByProductMessage } from '@ai/core';
 import type { ConsoleMe, RolesMatrix } from '@ai/core';
 import { Button, ButtonLink } from '../../components/r2/Button';
 import { Box, Card } from '../../components/r2/Card';
@@ -44,9 +44,13 @@ interface Dialog {
   error: string | null;
 }
 
-/** A refusal's sentence: the Console's own for a guard or a token (`CONSOLE_ERRORS`), else the generic one. */
-function refusalCopy(e: unknown): string {
+/**
+ * A refusal's sentence: past the ceiling, "Fixed by product rules." and why; otherwise the Console's own
+ * for a guard or a token (`CONSOLE_ERRORS`), else the generic one.
+ */
+function refusalCopy(e: unknown, change: Dialog['change']): string {
   if (e instanceof ConsoleError) {
+    if (e.code === 'fixed_by_product') return fixedByProductMessage(change.capability);
     const own = e.code ? CONSOLE_ERRORS[e.code].message : null;
     if (own && e.kind !== 'failed') return own;
     if (e.kind === 'rate_limited') return `${errorCopy('rate_limited').title} ${errorCopy('rate_limited').body}`;
@@ -94,7 +98,7 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
       setDialog({ change, token: null, busy: true, error: null });
       api.previewRole({ role: change.role, capability: change.capability, allowed: change.allowed }).then(
         (p) => setDialog((d) => (d && d.change === change ? { ...d, token: p.confirmToken, busy: false } : d)),
-        (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e) } : d)),
+        (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
       );
     },
     [api],
@@ -109,7 +113,7 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
         setDialog(null);
         toast(ROLES_R2_COPY.updated);
       },
-      (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e) } : d)),
+      (e: unknown) => setDialog((d) => (d && d.change === change ? { ...d, busy: false, error: refusalCopy(e, change) } : d)),
     );
   }, [api, dialog, toast]);
   const close = useCallback(() => setDialog(null), []);
@@ -198,7 +202,7 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
                       <span className={k.mu}>{c.role}</span>
                       <CheckCell
                         phone
-                        label={`${p.label}, ${c.role}`}
+                        label={c.aria}
                         on={c.on}
                         locked={c.locked}
                         word={c.wordPhone}
@@ -217,7 +221,7 @@ function Matrix({ api, me }: { api: ConsoleApi; me: ConsoleMe }) {
                     <Fragment key={c.role}>
                       <span role="cell">
                         <CheckCell
-                          label={`${p.label}, ${c.role}`}
+                          label={c.aria}
                           on={c.on}
                           locked={c.locked}
                           word={c.word}

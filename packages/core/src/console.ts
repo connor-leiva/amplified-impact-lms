@@ -377,6 +377,32 @@ export function checkRoleChange(input: {
   return { ok: true, role, row, before, after: allowed };
 }
 
+/**
+ * Why a row is past a role's ceiling, in words (D-160 R2-3b): what the confirm shows when the server
+ * refuses it, after "Fixed by product rules.". Each from the spec's rules (D1/D2, D3, D6, `roles.write`).
+ */
+const FIXED_REASONS: Partial<Record<RoleRowKey, string>> = {
+  masq: 'Support can’t start or extend masquerade.',
+  refund: 'Support can’t refund or void an invoice.',
+  jobs: 'Support can’t run jobs, retry webhooks or resolve incidents.',
+  export: 'Only the Owner and Admins can export logs.',
+  ops: 'Support doesn’t see the operations pages.',
+  staff: 'Only the Owner can edit staff roles and this matrix.',
+};
+
+/** "Fixed by product rules. Only the Owner and Admins can export logs." for a row past a role's ceiling. */
+export function fixedByProductMessage(row: RoleRowKey): string {
+  const reason = FIXED_REASONS[row];
+  return reason ? `Fixed by product rules. ${reason}` : 'Fixed by product rules.';
+}
+
+/**
+ * The boxes the mockup itself draws locked, with the lock (Support's masquerade and refund). Every other
+ * box past the ceiling is drawn as the mockup draws it, a plain toggle the server refuses (Connor's
+ * 8:29 rule 2: the mockup wins on visuals, the spec on safety).
+ */
+export const MOCKUP_LOCKED: Readonly<Partial<Record<ConsoleRole, readonly RoleRowKey[]>>> = { Support: ['masq', 'refund'] };
+
 /** "allowed" / "not allowed", as the mockup's audit rows word a permission. */
 const allowedWord = (on: boolean): string => (on ? 'allowed' : 'not allowed');
 

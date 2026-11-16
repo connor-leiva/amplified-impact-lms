@@ -302,7 +302,7 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
     await close();
   });
 
-  test('Roles & Permissions: the Owner column on; past the ceiling locked; a box opens the mockup’s confirm', async ({ browser }) => {
+  test('Roles & Permissions: the Owner column on; the mockup’s two locks; a box opens the mockup’s confirm', async ({ browser }) => {
     // D-160 R2-3b, editable (Connor, Nov 16, 2026, 8:27 AM MST).
     for (const width of [1440, 390]) {
       const { page, close } = await openAt(browser, '/admin/roles', width);
@@ -311,9 +311,12 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
         await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeChecked();
         await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeDisabled();
       }
-      for (const cap of ['Start and extend masquerade', 'Refund or void an invoice', 'Run a job now, retry a webhook, update incidents', 'Export audit and email logs', 'View integrations, deploys, DB health, flags, roles', 'Edit staff roles and this matrix'])
-        await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).not.toBeChecked();
-      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin. Fixed by product rules' })).toBeDisabled();
+      for (const cap of ['Start and extend masquerade', 'Refund or void an invoice'])
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).toBeDisabled();
+      // Past the ceiling but drawn as the mockup's toggles: named so, refused by the server.
+      for (const cap of ['Run a job now, retry a webhook, update incidents', 'Export audit and email logs', 'View integrations, deploys, DB health, flags, roles', 'Edit staff roles and this matrix'])
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Support, fixed by product rules` })).not.toBeChecked();
+      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' })).toBeEnabled();
       await matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true }).click();
       const dialog = page.getByRole('dialog', { name: 'Remove this permission from Admin?' });
       await expect(dialog).toContainText('Start and extend masquerade. Applies to every Admin on staff right away.');
@@ -323,6 +326,12 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog')).toHaveCount(0);
       await expect(matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true })).toBeChecked();
+      await matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin, fixed by product rules' }).click();
+      const fixed = page.getByRole('dialog', { name: 'Give this permission to Admin?' });
+      await expect(fixed.getByRole('alert')).toHaveText('Fixed by product rules. Only the Owner can edit staff roles and this matrix.');
+      await expect(fixed.getByRole('button', { name: 'Allow' })).toBeDisabled();
+      await expectAccessible(page);
+      await page.keyboard.press('Escape');
       await expect(page.getByText('Connor Leiva (you)')).toBeVisible();
       await close();
     }

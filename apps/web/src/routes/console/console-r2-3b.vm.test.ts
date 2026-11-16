@@ -65,7 +65,7 @@ describe('the R2 Roles & Permissions (D-160 R2-3b)', () => {
     expect(m.rows.map((r) => r.cells.map((c) => (c.on ? 1 : 0)))).toEqual(
       PERMS0.map(([key, , cells]) => (key === 'export' ? [1, 1, 0] : [...cells])),
     );
-    expect(cell('export', 'Support')).toMatchObject({ on: false, locked: true, word: 'No', wordPhone: 'Not allowed' });
+    expect(cell('export', 'Support')).toMatchObject({ on: false, fixed: true, word: 'No', wordPhone: 'Not allowed' });
     expect(cell('account', 'Support')).toMatchObject({ on: true, word: 'Yes', wordPhone: 'Allowed' });
   });
 
@@ -80,15 +80,44 @@ describe('the R2 Roles & Permissions (D-160 R2-3b)', () => {
         expect(cell(r.key, role).on, `${r.key} ${role}`).toBe(r.caps!.every((c) => consoleCan(role, c)));
   });
 
-  it('locks every box past the ceiling, fixed by product rules', () => {
+  it('locks the two boxes the mockup locks; the other five past the ceiling are the mockup’s toggles, named fixed', () => {
     const locked = m.rows.flatMap((r) => r.cells.filter((c) => c.locked).map((c) => `${r.key} ${c.role}`));
-    expect(locked).toEqual(['masq Support', 'refund Support', 'jobs Support', 'export Support', 'ops Support', 'staff Admin', 'staff Support']);
+    expect(locked).toEqual(['masq Support', 'refund Support']);
     for (const c of m.rows.flatMap((r) => r.cells.filter((x) => x.locked))) expect(c).toMatchObject({ disabled: true, title: 'Fixed by product rules', on: false });
+    const fixed = m.rows.flatMap((r) => r.cells.filter((c) => c.fixed && !c.locked).map((c) => `${r.key} ${c.role}`));
+    expect(fixed).toEqual(['jobs Support', 'export Support', 'ops Support', 'staff Admin', 'staff Support']);
+    expect(cell('export', 'Support')).toMatchObject({
+      on: false,
+      locked: false,
+      disabled: false,
+      aria: 'Export audit and email logs, Support, fixed by product rules',
+      word: 'No',
+      change: { allowed: true, title: 'Give this permission to Support?', cta: 'Allow' },
+    });
+    expect(cell('export', 'Support').title).toBeUndefined();
+    expect(cell('masq', 'Admin').aria).toBe('Start and extend masquerade, Admin');
   });
 
   it('the Owner toggles every other Admin and Support box, with the mockup’s confirm', () => {
     const live = m.rows.flatMap((r) => r.cells.filter((c) => !c.disabled).map((c) => `${r.key} ${c.role}`));
-    expect(live).toEqual(['build Admin', 'build Support', 'masq Admin', 'account Admin', 'account Support', 'billview Admin', 'billview Support', 'refund Admin', 'jobs Admin', 'export Admin', 'ops Admin']);
+    expect(live).toEqual([
+      'build Admin',
+      'build Support',
+      'masq Admin',
+      'account Admin',
+      'account Support',
+      'billview Admin',
+      'billview Support',
+      'refund Admin',
+      'jobs Admin',
+      'jobs Support',
+      'export Admin',
+      'export Support',
+      'ops Admin',
+      'ops Support',
+      'staff Admin',
+      'staff Support',
+    ]);
     // The parity capture's box: the third enabled one, as in the mockup, Admin's masquerade (BUILD-SPEC § 6.2).
     expect(cell('masq', 'Admin').change).toEqual({
       role: 'Admin',
