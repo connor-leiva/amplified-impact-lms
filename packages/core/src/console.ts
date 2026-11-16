@@ -317,6 +317,9 @@ export const CONSOLE_ERRORS = {
   stripe_permission_missing: { status: 503, message: null },
   job_not_runnable: { status: 403, message: null },
   scheduler_busy: { status: 409, message: null },
+  // PR 9 (D-168): a read the Console couldn't finish (DB health's two-second limit, a Check now with
+  // nothing to ask).
+  ops_unavailable: { status: 503, message: 'This didn’t finish. Try again in a minute.' },
 } as const satisfies Record<string, { status: number; message: string | null }>;
 
 export type ConsoleErrorCode = keyof typeof CONSOLE_ERRORS;

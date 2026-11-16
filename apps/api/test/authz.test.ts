@@ -646,6 +646,14 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/masquerade/extend', methods: 'POST', guard: 'session' },
   { path: '/api/console/masquerade/exit', methods: 'POST', guard: 'session' },
   { path: '/api/console/masquerade/sessions', methods: 'GET, HEAD', guard: 'session' },
+  // Admin Console PR 9 (D-168): Environment Flags, the flag flip, Integrations and Check now, Deploys
+  // and DB health. Signed in, then by capability (`test/console-authz.test.ts`).
+  { path: '/api/console/env', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/flags/:key', methods: 'POST', guard: 'session' },
+  { path: '/api/console/integrations', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/integrations/:id/check', methods: 'POST', guard: 'session' },
+  { path: '/api/console/deploys', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/db', methods: 'GET, HEAD', guard: 'session' },
 ];
 
 /**
@@ -1120,6 +1128,20 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/console/masquerade/exit': () =>
             app.inject({ method: 'POST', url: '/api/console/masquerade/exit', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
           '/api/console/masquerade/sessions': () => app.inject({ method: 'GET', url: '/api/console/masquerade/sessions' }),
+          // Admin Console PR 9 (D-168).
+          '/api/console/env': () => app.inject({ method: 'GET', url: '/api/console/env' }),
+          '/api/console/flags/:key': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/flags/masquerade_enabled',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { on: false, typed: 'masquerade_enabled' },
+            }),
+          '/api/console/integrations': () => app.inject({ method: 'GET', url: '/api/console/integrations' }),
+          '/api/console/integrations/:id/check': () =>
+            app.inject({ method: 'POST', url: '/api/console/integrations/resend/check', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          '/api/console/deploys': () => app.inject({ method: 'GET', url: '/api/console/deploys' }),
+          '/api/console/db': () => app.inject({ method: 'GET', url: '/api/console/db' }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1297,8 +1319,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 34 with Console
-    // PR 2's nine (D-158), and 39 with masquerade's five (D-162).
-    expect(EXECUTED.unauthenticated).toBe(39);
+    // PR 2's nine (D-158), 39 with masquerade's five (D-162), and 45 with Console PR 9's six (D-168).
+    expect(EXECUTED.unauthenticated).toBe(45);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.

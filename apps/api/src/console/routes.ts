@@ -33,6 +33,7 @@ import {
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
   MASQUERADE_PATHS,
+  OPS_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCaps,
@@ -49,6 +50,8 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
+import { registerOpsRoutes } from './ops-routes';
+import type { OpsDeps } from './ops-routes';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -63,6 +66,13 @@ export const CONSOLE_PATHS = {
   masqueradeExtend: MASQUERADE_PATHS.extend,
   masqueradeExit: MASQUERADE_PATHS.exit,
   masqueradeSessions: MASQUERADE_PATHS.sessions,
+  // PR 9 (D-168): Environment Flags, Integrations, Deploys and DB health.
+  opsEnv: OPS_PATHS.env,
+  flagFlip: OPS_PATHS.flagFlip,
+  integrations: OPS_PATHS.integrations,
+  integrationCheck: OPS_PATHS.integrationCheck,
+  deploys: OPS_PATHS.deploys,
+  dbHealth: OPS_PATHS.db,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -70,8 +80,11 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 /** A route's per-minute limit, per session (D-137's limiter). */
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
-/** What later Console PRs hand the routes (Stripe, the price cache, the event hub): masquerade's flag so far. */
-export type ConsoleDeps = Readonly<MasqueradeDeps>;
+/**
+ * What `app.ts` hands the routes: masquerade's flag (PR 3a, D-162; PR 9 reads it from `console_flags`),
+ * and the Operations pages' environment, fetch and Stripe scope probe (PR 9, D-168).
+ */
+export type ConsoleDeps = Readonly<MasqueradeDeps & { ops?: OpsDeps }>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -275,5 +288,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
 
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
+    // PR 9 (D-168): Check now shares the exports' and billing's 5 a minute (spec § 7).
+    registerOpsRoutes(scope, deps.ops ?? {}, { read: CONSOLE_RATE.read, write: CONSOLE_RATE.write, probe: CONSOLE_RATE.export });
   });
 }

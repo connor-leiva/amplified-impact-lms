@@ -143,6 +143,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     ],
     gate: 9,
   },
+  // D-168: the Admin Console's own flags (spec § 7.13). Not a `Db` record, like `audit_log`.
+  consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'updated_at', 'updated_by'], gate: 9 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -333,6 +335,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['masqueradeSessions', 'expiresAt'],
   ['masqueradeSessions', 'hardExpiresAt'],
   ['masqueradeSessions', 'endedAt'],
+  // D-168: when a Console flag was last flipped, as `clock.now()` stamps it.
+  ['consoleFlags', 'updatedAt'],
 ];
 
 /**
@@ -389,6 +393,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
   staffNotes: { unit: 'epoch-ms', why: 'D-158: created_at and deleted_at are clock.now() as written by console/notes.ts, and fmt.* formats them' },
   masqueradeSessions: { unit: 'epoch-ms', why: 'D-162: compared with clock.now() by masqueradeLive and the sweep, and counted down by the banner' },
+  consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at is clock.now() as written by console/flags.ts, and fmt.* formats it' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)

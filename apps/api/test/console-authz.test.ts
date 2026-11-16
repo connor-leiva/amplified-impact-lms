@@ -14,6 +14,8 @@ import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
 import { auditLog, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
+import { invalidateConsoleFlags } from '../src/console/flags';
+import { resetProbes } from '../src/console/ops-integrations';
 import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
@@ -37,7 +39,13 @@ type RouteName =
   | 'masqueradeCurrent'
   | 'masqueradeExtend'
   | 'masqueradeExit'
-  | 'masqueradeSessions';
+  | 'masqueradeSessions'
+  | 'opsEnv'
+  | 'flagFlip'
+  | 'integrations'
+  | 'integrationCheck'
+  | 'deploys'
+  | 'dbHealth';
 
 /** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
 const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
@@ -80,10 +88,23 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   },
   masqueradeExit: { path: CONSOLE_PATHS.masqueradeExit, url: CONSOLE_PATHS.masqueradeExit, method: 'POST', route: `POST ${CONSOLE_PATHS.masqueradeExit}` },
   masqueradeSessions: { path: CONSOLE_PATHS.masqueradeSessions, url: CONSOLE_PATHS.masqueradeSessions, method: 'GET', route: `GET ${CONSOLE_PATHS.masqueradeSessions}` },
+  // PR 9 (D-168). The flip turns masquerade off; Check now asks Resend, which has no key here (no network).
+  opsEnv: { path: CONSOLE_PATHS.opsEnv, url: CONSOLE_PATHS.opsEnv, method: 'GET', route: `GET ${CONSOLE_PATHS.opsEnv}` },
+  flagFlip: {
+    path: CONSOLE_PATHS.flagFlip,
+    url: '/api/console/flags/masquerade_enabled',
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.flagFlip}`,
+    body: { on: false, typed: 'masquerade_enabled' },
+  },
+  integrations: { path: CONSOLE_PATHS.integrations, url: CONSOLE_PATHS.integrations, method: 'GET', route: `GET ${CONSOLE_PATHS.integrations}` },
+  integrationCheck: { path: CONSOLE_PATHS.integrationCheck, url: '/api/console/integrations/resend/check', method: 'POST', route: `POST ${CONSOLE_PATHS.integrationCheck}` },
+  deploys: { path: CONSOLE_PATHS.deploys, url: CONSOLE_PATHS.deploys, method: 'GET', route: `GET ${CONSOLE_PATHS.deploys}` },
+  dbHealth: { path: CONSOLE_PATHS.dbHealth, url: CONSOLE_PATHS.dbHealth, method: 'GET', route: `GET ${CONSOLE_PATHS.dbHealth}` },
 };
 
 /** The routes whose success writes its own audit row. */
-const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart']);
+const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart', 'flagFlip', 'integrationCheck']);
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
 const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
@@ -110,18 +131,23 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // everyone, because none of these callers is in a session.
 const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v });
 const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeStart: start, masqueradeCurrent: 200, masqueradeExtend: extend, masqueradeExit: 409, masqueradeSessions: sessions });
+// PR 9 (D-168): every Operations route is ops.read (Owner, Admin; Support none, D3), Check now is
+// integrations.probe (Owner, Admin), and the flip of the sensitive `masquerade_enabled` is
+// flags.write_sensitive: the Owner alone (D8). An Admin's flip is refused, and audited, at that second step.
+const OPS = (read: number, flip: number, check: number) => ({ opsEnv: read, flagFlip: flip, integrations: read, integrationCheck: check, deploys: read, dbHealth: read });
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
     masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401,
+    ...OPS(401, 401, 401),
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403) },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200) },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200) },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403, 403, 403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403, 403, 403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403, 403, 403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403, 403, 403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403, 403, 403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), ...OPS(200, 403, 200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), ...OPS(200, 200, 200) },
 };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
@@ -145,7 +171,13 @@ beforeEach(async () => {
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });
   // Note 1, for the delete route to find.
   await db.insert(staffNotes).values({ targetType: 'workspace', targetId: 'northline', authorUserId: 'st4', body: 'Owner asked about seats.', createdAt: NOW - 3600_000 });
-  app = await build({ logger: false });
+  invalidateConsoleFlags();
+  resetProbes();
+  // PR 9 (D-168): the Operations routes read this environment, and nothing here reaches a network.
+  const noNetwork = async (): Promise<Response> => {
+    throw new Error('no network in this test');
+  };
+  app = await build({ logger: false, console: { ops: { env: {}, fetch: noNetwork } } });
 });
 afterEach(async () => {
   await settleEmails();
