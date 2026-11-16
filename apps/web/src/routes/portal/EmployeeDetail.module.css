@@ -81,7 +81,7 @@
 
 .metaRow {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
   display: flex;
   flex-wrap: wrap;
@@ -109,7 +109,7 @@
   border-radius: 12px;
   border: 1px solid var(--line-default);
   background: var(--bg-surface);
-  font-size: 16px;
+  font-size: var(--fs-14);
   color: var(--text-secondary);
 }
 
@@ -170,7 +170,7 @@
 
 .kicker {
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-400);
@@ -186,7 +186,7 @@
 }
 
 .posterSub {
-  font-size: 16px;
+  font-size: var(--fs-14);
   color: var(--ink-400);
 }
 
@@ -194,12 +194,12 @@
   position: absolute;
   top: 14px;
   left: 14px;
-  height: 24px;
+  height: var(--bx-22);
   padding: 0 8px;
   border-radius: 6px;
   background: oklch(0 0 0 / 0.5); /* poster chrome; no token */
   color: var(--ink-100);
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -235,7 +235,7 @@
   border-radius: 6px;
   background: oklch(0 0 0 / 0.72); /* poster chrome; no token */
   color: var(--ink-50);
-  font-size: 16px;
+  font-size: var(--fs-14);
   line-height: 1.4;
   text-align: center;
 }
@@ -252,7 +252,7 @@
 }
 
 .noneWhen {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--ink-300);
 }
 
@@ -269,7 +269,7 @@
   border: 1px solid oklch(1 0 0 / 0.2); /* poster chrome; no token */
   background: oklch(1 0 0 / 0.08); /* poster chrome; no token */
   color: var(--ink-50);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -283,7 +283,7 @@
 }
 
 .noneNote {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--ink-400);
 }
 
@@ -391,7 +391,7 @@
 
 .time {
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   padding: 0 6px;
@@ -405,7 +405,7 @@
   flex: 1;
   min-width: 0;
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -421,7 +421,7 @@
   color: var(--text-primary);
   cursor: pointer;
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12);
   outline: none;
 }
 .speedBtn:hover {
@@ -439,7 +439,7 @@
   background: var(--bg-surface);
   color: var(--text-primary);
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--fs-13);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -473,12 +473,12 @@
 }
 
 .railTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 
 .railNote {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -520,7 +520,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -530,7 +530,7 @@
 }
 
 .chapterName {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -578,7 +578,7 @@
   border: 1px solid var(--line-strong);
   background: var(--bg-surface);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   outline: none;
 }
 .trInput:focus {
@@ -587,7 +587,7 @@
 }
 
 .trCount {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -596,7 +596,7 @@
 .trEmpty {
   padding: 12px 8px;
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 
 .trList {
@@ -628,7 +628,7 @@
 
 .trTime {
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-link);
   width: 46px;
   flex: none;
@@ -638,7 +638,7 @@
 
 .trText {
   flex: 1;
-  font-size: 16px;
+  font-size: var(--fs-14);
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -691,7 +691,7 @@
 }
 
 .ckCount {
-  font-size: 16px;
+  font-size: var(--fs-14);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -742,7 +742,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12);
   border: 1.5px solid var(--line-strong);
   background: transparent;
   color: var(--text-tertiary);
@@ -766,7 +766,7 @@
 }
 
 .stepText {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   line-height: 1.4;
   color: var(--text-primary);
@@ -777,7 +777,7 @@
 }
 
 .stepHint {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
   text-wrap: pretty;
 }
@@ -788,7 +788,7 @@
   align-items: center;
   gap: 6px 12px;
   margin-top: 2px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -797,7 +797,7 @@
   background: none;
   padding: 0;
   color: var(--text-link);
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -820,7 +820,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -863,7 +863,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -935,12 +935,12 @@
 }
 
 .platformLabel {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
 .platformValue {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -949,7 +949,7 @@
 
 .openLink {
   min-height: 44px; /* D-156: a standalone link is a 44px target */
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   white-space: nowrap;
   display: flex;
@@ -958,7 +958,7 @@
 }
 
 .dpWhen {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
 }
 
@@ -969,7 +969,7 @@
   border-radius: 10px;
   background: var(--status-attention-bg);
   border: 1px solid var(--status-attention-line);
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--status-attention-text);
 }
 
@@ -983,7 +983,7 @@
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -998,12 +998,12 @@
 }
 
 .dpLastTitle {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
 }
 
 .dpLastPreview {
-  font-size: 16px;
+  font-size: var(--fs-13);
   line-height: 1.5;
   color: var(--text-secondary);
   display: -webkit-box;
@@ -1013,7 +1013,7 @@
 }
 
 .dpNote {
-  font-size: 16px;
+  font-size: var(--fs-13);
   line-height: 1.5;
   color: var(--text-tertiary);
 }
@@ -1032,7 +1032,7 @@
   border: 1px solid transparent;
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -1065,7 +1065,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -1095,7 +1095,7 @@
 }
 
 .kitNote {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -1122,12 +1122,12 @@
 }
 
 .promptTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 
 .promptStats {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -1138,7 +1138,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
   outline: none;
 }
@@ -1156,7 +1156,7 @@
   border: 1px solid transparent;
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -1185,13 +1185,13 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
 .varChip {
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-11_5);
   color: var(--access-locked-text);
   background: var(--access-locked-bg);
   padding: 1px 6px;
@@ -1219,13 +1219,13 @@
 .typeBadge {
   width: 44px;
   flex: none;
-  height: 24px;
+  height: var(--bx-22);
   border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-11);
   font-weight: 500;
   background: var(--bg-sunken);
   border: 1px solid var(--line-default);
@@ -1238,7 +1238,7 @@
 }
 
 .fileName {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -1249,7 +1249,7 @@
 }
 
 .fileDesc {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -1257,12 +1257,12 @@
 }
 
 .resName {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
 }
 
 .resSize {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -1340,18 +1340,18 @@
 
 .notesTitle {
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 .notesWho {
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-12);
 }
 
 .notesBody {
   margin: 6px 0 0;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   line-height: 1.6;
   text-wrap: pretty;
 }
@@ -1372,7 +1372,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -1396,7 +1396,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   font-weight: 500;
 }
@@ -1409,7 +1409,7 @@
   border: 1px solid var(--line-strong);
   background: var(--bg-surface);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   line-height: 1.5;
   outline: none;
 }
@@ -1422,7 +1422,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 16px;
+  font-size: var(--fs-14);
   color: var(--text-secondary);
 }
 
@@ -1443,13 +1443,13 @@
 }
 
 .runOutLabel {
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .runOutBody {
-  font-size: 16px;
+  font-size: var(--fs-14);
   line-height: 1.55;
   white-space: pre-wrap;
   text-wrap: pretty;
@@ -1462,7 +1462,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   cursor: pointer;
   outline: none;
 }
@@ -1480,7 +1480,7 @@
   border: 1px solid transparent;
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -1511,7 +1511,7 @@
   flex: 1;
   padding: 14px 0;
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12_5);
   line-height: 1.7;
 }
 
@@ -1560,7 +1560,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1581,7 +1581,7 @@
   border: 1px solid transparent;
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   cursor: pointer;
   display: flex;

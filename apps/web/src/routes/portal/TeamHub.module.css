@@ -34,7 +34,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 .headActions {
@@ -47,7 +47,7 @@
 .invite {
   height: 36px;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -110,7 +110,7 @@
 }
 
 .cardTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -148,7 +148,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 600;
   background: var(--av);
   border: 1.5px solid var(--bg-surface);
@@ -174,7 +174,7 @@
 }
 
 .breakdown {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }
 
@@ -189,7 +189,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 
 .depLabel {
@@ -237,7 +237,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 
 .remName {
@@ -257,7 +257,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -291,12 +291,12 @@
 }
 
 .activityTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 
 .activityNote {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }
 
@@ -318,7 +318,7 @@
 
 .headRow {
   padding: 10px 18px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -349,7 +349,7 @@
 }
 
 .name {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -362,7 +362,7 @@
 }
 
 .email {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -370,12 +370,12 @@
 }
 
 .role {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
 }
 
 .joined {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -408,7 +408,7 @@
 }
 
 .count {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -428,7 +428,7 @@
 }
 
 .statusText {
-  font-size: 16px;
+  font-size: var(--fs-13);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -466,7 +466,7 @@
 }
 
 .last {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }
 
@@ -495,7 +495,7 @@
 }
 
 .invNote {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
   margin-top: 3px;
 }
@@ -534,7 +534,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   font-weight: 500;
 }
@@ -551,7 +551,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   outline: none;
 }
 .input:focus {
@@ -566,7 +566,7 @@
 }
 
 .roleLabel {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   font-weight: 500;
 }
@@ -628,18 +628,18 @@
 
 .roleName {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
 }
 
 .roleSub {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
 .roleCap {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -648,7 +648,7 @@
 }
 
 .invError {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--access-locked-text);
 }
 
@@ -667,7 +667,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
   white-space: nowrap;
   outline: none;
@@ -683,7 +683,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -727,13 +727,13 @@
 }
 
 .factLabel {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   font-weight: 500;
 }
 
 .factValue {
-  font-size: 16px;
+  font-size: var(--fs-14);
   margin-top: 3px;
 }
 
@@ -744,7 +744,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   outline: none;
 }
 .select:focus-visible {
@@ -756,7 +756,7 @@
 }
 
 .dwModsLabel {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   font-weight: 500;
   margin-bottom: 8px;
@@ -782,7 +782,7 @@
 
 .dwModName {
   flex: 1;
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 
 .remove {
@@ -792,7 +792,7 @@
   border: 1px solid var(--line-strong);
   background: transparent;
   color: var(--status-attention-text);
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -812,7 +812,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   display: flex;

@@ -21,7 +21,7 @@
   border-radius: 10px;
   box-shadow: var(--shadow-pop);
   color: var(--text-inverse);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   animation: ai-toast-in 200ms ease-out;
   max-width: min(420px, calc(100vw - 40px));

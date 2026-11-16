@@ -107,7 +107,7 @@
 }
 
 .outcome {
-  font-size: 16px;
+  font-size: var(--fs-13);
   line-height: 1.45;
   color: var(--text-secondary);
   display: -webkit-box;
@@ -149,7 +149,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px 12px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -167,7 +167,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;

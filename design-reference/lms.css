@@ -16,7 +16,7 @@
    floor holds by construction. */
 :root{--font-ui:'Geist',ui-sans-serif,system-ui,sans-serif;--font-ui-mono:'Geist Mono',ui-monospace,monospace;--tap:0px;--tap-primary:0px}
 /* lms-type-scope: desktop values */
-:root{}
+:root{--bx-16:16px;--bx-18:18px;--bx-20:20px;--bx-22:22px;--fs-11:11px;--fs-11_5:11.5px;--fs-12:12px;--fs-12_5:12.5px;--fs-13:13px;--fs-14:14px;--fs-15:15px;--lh-16:16px;--lh-18:18px}
 :root,:root body{font-family:var(--font-ui)}
 
 /* Phone layouts (D-156), shared by the reference and the app: each rule targets a `data-phone` hook
@@ -25,7 +25,7 @@
    of it applies above 767px, where every golden but the 390px ones is taken. */
 @media (max-width:767px){
 /* lms-type-scope: phone values */
-:root{}
+:root{--bx-16:24px;--bx-18:24px;--bx-20:24px;--bx-22:24px;--fs-11:16px;--fs-11_5:16px;--fs-12:16px;--fs-12_5:16px;--fs-13:16px;--fs-14:16px;--fs-15:16px;--lh-16:20px;--lh-18:20px}
 :root{--tap:44px;--tap-primary:48px}
 :root,:root body{font-size:16px}
 button,select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){min-height:var(--tap)}

@@ -44,5 +44,5 @@
 }
 /* An aside card's title is one step down. SCREENS § 1.2. */
 .card[data-pad='aside'] .title {
-  font-size: 16px;
+  font-size: var(--fs-14);
 }

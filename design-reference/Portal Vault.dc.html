@@ -67,19 +67,19 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap">
     <div>
       <h1 style="margin:0; font-size:26px; line-height:32px; font-weight:600; letter-spacing:-0.02em">Resource &amp; Compliance Vault</h1>
-      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:16px">Templates, workflows and compliance guides for real estate AI. One click to download.</p>
+      <p style="margin:4px 0 0; color:var(--text-secondary); font-size:var(--fs-14)">Templates, workflows and compliance guides for real estate AI. One click to download.</p>
     </div>
     <div style="position:relative; width:min(340px, 100%)">
       <svg viewBox="0 0 24 24" style="position:absolute; left:11px; top:10px; width:16px; height:16px; fill:none; stroke:var(--text-tertiary); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.search }}"></path></svg>
-      <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search templates, scripts, workflows" style="width:100%; height:36px; padding:0 12px 0 34px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:16px; outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
+      <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search templates, scripts, workflows" style="width:100%; height:36px; padding:0 12px 0 34px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-primary); font-size:var(--fs-14); outline:none" style-focus="border-color:var(--action-primary); box-shadow:0 0 0 3px var(--focus-ring)">
     </div>
   </div>
 
   <div data-phone="tabs" style="display:flex; gap:2px; border-bottom:1px solid var(--line-default)">
     <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="2">
-      <button onClick="{{ tb.go }}" style="height:42px; padding:0 14px; border:0; background:transparent; color:{{ tb.fg }}; font-size:16px; font-weight:500; cursor:pointer; box-shadow:{{ tb.sh }}; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="color:var(--text-primary)">
+      <button onClick="{{ tb.go }}" style="height:42px; padding:0 14px; border:0; background:transparent; color:{{ tb.fg }}; font-size:var(--fs-14); font-weight:500; cursor:pointer; box-shadow:{{ tb.sh }}; display:flex; align-items:center; gap:8px; white-space:nowrap" style-hover="color:var(--text-primary)">
         <sc-if value="{{ tb.lock }}"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:var(--access-locked-text); stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg></sc-if>
-        {{ tb.label }}<span style="height:24px; min-width:24px; padding:0 6px; border-radius:999px; background: var(--action-secondary); color:var(--text-secondary); font-size:16px; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums">{{ tb.count }}</span>
+        {{ tb.label }}<span style="height:var(--bx-18); min-width:var(--bx-18); padding:0 6px; border-radius:999px; background: var(--action-secondary); color:var(--text-secondary); font-size:var(--fs-12); display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums">{{ tb.count }}</span>
       </button>
     </sc-for>
   </div>
@@ -87,9 +87,9 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <sc-if value="{{ showList }}">
     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
       <sc-for list="{{ chips }}" as="ch" hint-placeholder-count="5">
-        <button onClick="{{ ch.go }}" style="height:30px; padding:0 12px; border-radius:999px; border:1px solid {{ ch.bd }}; background:{{ ch.bg }}; color:{{ ch.fg }}; font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap">{{ ch.label }}<span style="color:{{ ch.cFg }}; font-variant-numeric:tabular-nums">{{ ch.count }}</span></button>
+        <button onClick="{{ ch.go }}" style="height:30px; padding:0 12px; border-radius:999px; border:1px solid {{ ch.bd }}; background:{{ ch.bg }}; color:{{ ch.fg }}; font-size:var(--fs-13); font-weight:500; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap">{{ ch.label }}<span style="color:{{ ch.cFg }}; font-variant-numeric:tabular-nums">{{ ch.count }}</span></button>
       </sc-for>
-      <select value="{{ type }}" onChange="{{ setType }}" style="margin-left:auto; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); font-size:16px; outline:none">
+      <select value="{{ type }}" onChange="{{ setType }}" style="margin-left:auto; height:30px; padding:0 10px; border-radius:8px; border:1px solid var(--line-default); background:var(--bg-surface); color:var(--text-secondary); font-size:var(--fs-13); outline:none">
         <option value="">All File Types</option>
         <option value="Claude Project">Claude Project</option>
         <option value="Workflow JSON">Workflow JSON</option>
@@ -100,7 +100,7 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
     </div>
 
     <section style="border-radius:12px; border:1px solid var(--line-default); background:var(--bg-surface); overflow:hidden">
-      <sc-if value="{{ empty }}"><div style="padding:36px; text-align:center; color:var(--text-tertiary); font-size:16px">No resources match. Try a different search or category.</div></sc-if>
+      <sc-if value="{{ empty }}"><div style="padding:36px; text-align:center; color:var(--text-tertiary); font-size:var(--fs-14)">No resources match. Try a different search or category.</div></sc-if>
       <sc-for list="{{ items }}" as="r" hint-placeholder-count="8">
         <div style="display:flex; align-items:center; gap:16px; padding:14px 18px; border-top:{{ r.bt }}; flex-wrap:wrap" style-hover="background:var(--bg-hover)">
           <div style="width:38px; height:38px; flex:none; border-radius:9px; background:{{ r.tBg }}; border:1px solid {{ r.tBd }}; display:flex; align-items:center; justify-content:center">
@@ -108,15 +108,15 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
           </div>
           <div style="flex:1; min-width:240px">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
-              <span style="font-size:16px; font-weight:500">{{ r.title }}</span>
-              <sc-if value="{{ r.isNew }}"><span style="height:24px; padding:0 7px; border-radius:999px; background:var(--action-primary-tint); color:var(--status-progress-text); font-size:16px; font-weight:600; display:flex; align-items:center">New</span></sc-if>
-              <sc-if value="{{ r.teamOnly }}"><span style="height:24px; white-space:nowrap; padding:0 7px; border-radius:999px; background:var(--access-locked-bg); color:var(--access-locked-text); border:1px solid var(--access-locked-line); font-size:16px; font-weight:600; display:flex; align-items:center; gap:4px">Team Tier</span></sc-if>
+              <span style="font-size:var(--fs-14); font-weight:500">{{ r.title }}</span>
+              <sc-if value="{{ r.isNew }}"><span style="height:var(--bx-18); padding:0 7px; border-radius:999px; background:var(--action-primary-tint); color:var(--status-progress-text); font-size:var(--fs-12); font-weight:600; display:flex; align-items:center">New</span></sc-if>
+              <sc-if value="{{ r.teamOnly }}"><span style="height:var(--bx-18); white-space:nowrap; padding:0 7px; border-radius:999px; background:var(--access-locked-bg); color:var(--access-locked-text); border:1px solid var(--access-locked-line); font-size:var(--fs-12); font-weight:600; display:flex; align-items:center; gap:4px">Team Tier</span></sc-if>
             </div>
-            <div style="font-size:16px; color:var(--text-tertiary); margin-top:2px">{{ r.desc }}</div>
+            <div style="font-size:var(--fs-13); color:var(--text-tertiary); margin-top:2px">{{ r.desc }}</div>
           </div>
-          <div style="width:200px; font-size:16px; color:var(--text-secondary)">{{ r.cat }}</div>
-          <div style="width:130px; font-size:16px; color:var(--text-tertiary); line-height:1.4">{{ r.type }}<br>{{ r.size }} · {{ r.updated }}</div>
-          <button onClick="{{ r.go }}" style="height:32px; min-width:118px; padding:0 12px; border-radius:7px; border:1px solid {{ r.bBd }}; background:{{ r.bBg }}; color:{{ r.bFg }}; font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; white-space:nowrap">
+          <div style="width:200px; font-size:var(--fs-13); color:var(--text-secondary)">{{ r.cat }}</div>
+          <div style="width:130px; font-size:var(--fs-12); color:var(--text-tertiary); line-height:1.4">{{ r.type }}<br>{{ r.size }} · {{ r.updated }}</div>
+          <button onClick="{{ r.go }}" style="height:32px; min-width:118px; padding:0 12px; border-radius:7px; border:1px solid {{ r.bBd }}; background:{{ r.bBg }}; color:{{ r.bFg }}; font-size:var(--fs-13); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; white-space:nowrap">
             <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ r.bIcon }}"></path></svg>{{ r.bLabel }}
           </button>
         </div>
@@ -127,16 +127,16 @@ input::placeholder,textarea::placeholder{color:var(--text-tertiary)}
   <sc-if value="{{ execLocked }}">
     <section style="display:flex; flex-wrap:wrap; gap:24px; padding:24px; border-radius:12px; border:1px solid var(--access-locked-line); background:var(--bg-surface)">
       <div style="flex:1 1 320px; display:flex; flex-direction:column; gap:12px">
-        <div style="display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:var(--text-secondary)"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg>Team Tier</div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:var(--fs-14); font-weight:600; color:var(--text-secondary)"><svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg>Team Tier</div>
         <div style="font-size:20px; font-weight:600; letter-spacing:-0.015em">Executive Build Vault</div>
-        <div style="color:var(--text-secondary); font-size:16px; line-height:1.6; max-width:460px">Organizational SOPs, leadership meeting frameworks and finance tracker integrations for team owners and operations leads.</div>
-        <button onClick="{{ request }}" style="align-self:flex-start; margin-top:6px; height:38px; padding:0 16px; border-radius:8px; border:1px solid {{ up.bd }}; background:{{ up.bg }}; color:{{ up.fg }}; font-size:16px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ up.icon }}"></path></svg>{{ up.label }}</button>
+        <div style="color:var(--text-secondary); font-size:var(--fs-14); line-height:1.6; max-width:460px">Organizational SOPs, leadership meeting frameworks and finance tracker integrations for team owners and operations leads.</div>
+        <button onClick="{{ request }}" style="align-self:flex-start; margin-top:6px; height:38px; padding:0 16px; border-radius:8px; border:1px solid {{ up.bd }}; background:{{ up.bg }}; color:{{ up.fg }}; font-size:var(--fs-14); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px"><svg viewBox="0 0 24 24" style="width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round"><path d="{{ up.icon }}"></path></svg>{{ up.label }}</button>
       </div>
       <div style="flex:1 1 320px; display:flex; flex-direction:column; gap:8px">
         <sc-for list="{{ execPreview }}" as="x">
           <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:9px; background:var(--bg-sunken); border:1px solid var(--line-default)">
             <svg viewBox="0 0 24 24" style="width:15px; height:15px; flex:none; fill:none; stroke:var(--text-tertiary); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg>
-            <div style="flex:1; min-width:0"><div style="font-size:16px; color:var(--text-secondary)">{{ x.title }}</div><div style="font-size:16px; color:var(--text-tertiary)">{{ x.cat }} · {{ x.type }}</div></div>
+            <div style="flex:1; min-width:0"><div style="font-size:var(--fs-13); color:var(--text-secondary)">{{ x.title }}</div><div style="font-size:var(--fs-12); color:var(--text-tertiary)">{{ x.cat }} · {{ x.type }}</div></div>
           </div>
         </sc-for>
       </div>

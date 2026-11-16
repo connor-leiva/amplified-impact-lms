@@ -27,7 +27,7 @@
 .subline {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 /* ---- the post-cohort card, which replaces the Session Card after the cohort wraps ---------- */
@@ -51,7 +51,7 @@
   gap: 6px;
 }
 .postKicker {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -63,7 +63,7 @@
   letter-spacing: -0.015em;
 }
 .postMeta {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }
 .postActions {
@@ -79,7 +79,7 @@
   border: 1px solid transparent;
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -98,7 +98,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -150,7 +150,7 @@
   gap: 6px;
 }
 .pgLabel {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -169,7 +169,7 @@
 }
 .pgBuilt {
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 .nextUp {
@@ -179,7 +179,7 @@
   border: 1px solid var(--action-secondary-line);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -230,7 +230,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-primary);
 }
 
@@ -242,7 +242,7 @@
   background: none;
   padding: 0;
   color: var(--text-link);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   cursor: pointer;
 }
@@ -268,7 +268,7 @@
   gap: 6px 10px;
   padding-top: 14px;
   border-top: 1px solid var(--line-subtle);
-  font-size: 16px;
+  font-size: var(--fs-14);
   color: var(--text-secondary);
 }
 .week0Dot {
@@ -279,7 +279,7 @@
   background: none;
   padding: 0;
   color: var(--text-link);
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -312,7 +312,7 @@
 }
 .empNote {
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 .grid {
   display: grid;
@@ -338,7 +338,7 @@
 }
 .asideTitle {
   padding: 0 8px 8px;
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 .schedHead {
@@ -348,7 +348,7 @@
   align-items: baseline;
 }
 .schedHeadLabel {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 .allSessions {
@@ -356,7 +356,7 @@
   background: none;
   padding: 0;
   color: var(--text-link);
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
 }
 .allSessions:hover {
@@ -401,12 +401,12 @@
 }
 .linkTitle {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
 }
 .linkSub {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 .linkArrow {
@@ -443,7 +443,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-secondary);
 }
 .schedText {
@@ -452,7 +452,7 @@
 }
 .schedTitle {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   color: var(--text-primary);
   white-space: nowrap;
@@ -464,6 +464,6 @@
 }
 .schedSub {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }

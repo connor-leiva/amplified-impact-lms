@@ -42,7 +42,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 .create {
@@ -53,7 +53,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -92,7 +92,7 @@
 
 .headRow {
   padding: 10px 18px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   color: var(--text-tertiary);
   border-bottom: 1px solid var(--line-default);
@@ -122,7 +122,7 @@
 
 .orderNum {
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   width: 16px;
 }
@@ -179,12 +179,12 @@
 }
 
 .name {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
 }
 
 .outcome {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -209,7 +209,7 @@
   border-radius: 6px;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -232,14 +232,14 @@
 
 /* `line-height: 1.4` is a factor, so the 12px sub line inherits 16.8px, as the reference does. */
 .sess {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   line-height: 1.4;
 }
 
 .sessSub {
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-12);
 }
 
 /* ---------- Status ---------- */
@@ -255,10 +255,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 24px;
+  height: var(--bx-22);
   padding: 0 9px;
   border-radius: 999px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 600;
   background: var(--status-neutral-bg);
   color: var(--status-neutral-text);
@@ -289,7 +289,7 @@
 }
 
 .stSub {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
@@ -318,7 +318,7 @@
 }
 
 .depNum {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   width: 34px;
@@ -363,7 +363,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -380,6 +380,6 @@
 
 .note {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }

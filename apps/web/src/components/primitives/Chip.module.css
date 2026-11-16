@@ -9,7 +9,7 @@
   border: 1px solid var(--line-default);
   background: var(--bg-sunken);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 500;
   white-space: nowrap;
   outline: none;

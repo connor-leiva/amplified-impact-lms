@@ -36,7 +36,7 @@
 .sub {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: var(--fs-14);
 }
 
 /* ---- Cohort cards ------------------------------------------------------------------------- */
@@ -80,7 +80,7 @@
 }
 
 .cardMeta {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }
 
@@ -105,7 +105,7 @@
 }
 
 .count {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -121,7 +121,7 @@
   border: 1px dashed var(--line-strong);
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
 }
 .newCohort:hover {
@@ -145,10 +145,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 24px;
+  height: var(--bx-22);
   padding: 0 9px;
   border-radius: 999px;
-  font-size: 16px;
+  font-size: var(--fs-12);
   font-weight: 600;
   background: var(--tk-bg);
   color: var(--tk-fg);
@@ -203,12 +203,12 @@
 }
 
 .panelTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 600;
 }
 
 .panelNote {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
   margin-top: 2px;
 }
@@ -221,7 +221,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -249,7 +249,7 @@
 
 .tHead {
   padding: 10px 18px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 500;
   color: var(--text-tertiary);
 }
@@ -269,7 +269,7 @@
 
 .n {
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
 }
 
@@ -278,24 +278,24 @@
 }
 
 .sessionTitle {
-  font-size: 16px;
+  font-size: var(--fs-14);
   font-weight: 500;
 }
 
 .sessionModule {
-  font-size: 16px;
+  font-size: var(--fs-12);
   color: var(--text-tertiary);
 }
 
 .whenCell {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   line-height: 1.4;
 }
 
 .whenTime {
   color: var(--text-tertiary);
-  font-size: 16px;
+  font-size: var(--fs-12);
 }
 
 .zoom {
@@ -308,7 +308,7 @@
   padding: 0;
   color: var(--text-link);
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-12);
   cursor: pointer;
   text-align: left;
 }
@@ -331,7 +331,7 @@
 }
 
 .att {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -347,7 +347,7 @@
   height: 30px;
   padding: 0 10px;
   border-radius: 7px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -378,7 +378,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -407,13 +407,13 @@
    specificity would leave the winner to the bundle's source order. */
 .stamp.stamp {
   padding: 0 10px;
-  font-size: 16px;
+  font-size: var(--fs-13);
   color-scheme: dark;
 }
 
 .mono.mono {
   font-family: var(--font-ui-mono);
-  font-size: 16px;
+  font-size: var(--fs-13);
 }
 
 .info {
@@ -421,7 +421,7 @@
   border-radius: 10px;
   background: var(--bg-sunken);
   border: 1px solid var(--line-default);
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--text-tertiary);
   line-height: 1.55;
 }
@@ -433,7 +433,7 @@
   border: 1px solid var(--line-strong);
   background: var(--action-secondary);
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -452,7 +452,7 @@
   border: 1px solid var(--action-primary);
   background: var(--action-primary);
   color: var(--action-on-primary);
-  font-size: 16px;
+  font-size: var(--fs-13);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -462,6 +462,6 @@
 }
 
 .error {
-  font-size: 16px;
+  font-size: var(--fs-13);
   color: var(--access-locked-text);
 }
