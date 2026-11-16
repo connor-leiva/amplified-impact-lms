@@ -35,12 +35,18 @@ test('publishing a new AI Employee appears in the portal without a reload @g6', 
   await open(learner, '/?as=agent');
   await open(admin, '/admin/curriculum/new?as=admin');
 
+  // D-160 R2-2: the R2 Module Builder. Name and Summary (the outcome line) edit in place; the outputs
+  // are in Edit details (the icon tile); Status's menu publishes.
   await admin.getByLabel('Name', { exact: true }).fill('Listing Coordinator AI Employee');
-  await admin.getByLabel(/Outcome Line/).fill('Paste a listing → a coordinator checklist.');
+  await admin.getByLabel('Summary', { exact: true }).fill('Paste a listing → a coordinator checklist.');
+  await admin.getByRole('button', { name: 'Edit details' }).click();
+  const details = admin.getByRole('dialog', { name: 'Edit details' });
   for (const [i, v] of ['Checklist', 'Vendor emails', 'Timeline'].entries())
-    await admin.getByPlaceholder('What it produces').nth(i).fill(v);
+    await details.getByLabel(`Output ${i + 1}`).fill(v);
+  await details.getByRole('button', { name: 'Done' }).click();
   for (let i = 0; i < 6; i++) await admin.getByRole('textbox', { name: `Step ${i + 1} title` }).fill(`Step ${i + 1}`);
-  await admin.getByRole('button', { name: 'Publish', exact: true }).click();
+  await admin.getByRole('button', { name: 'Status: Draft' }).click();
+  await admin.getByRole('menuitem', { name: 'Published' }).click();
 
   await expect(admin.getByText('Listing Coordinator AI Employee is live in the learner portal')).toBeVisible();
   await expect(learner.getByText('Listing Coordinator AI Employee').first()).toBeVisible();
@@ -50,7 +56,8 @@ test('publishing a new AI Employee appears in the portal without a reload @g6', 
 test('the builder blocks an incomplete draft with the exact messages @g6', async ({ browser }) => {
   const { admin, close } = await pair(browser);
   await open(admin, '/admin/curriculum/new?as=admin');
-  await admin.getByRole('button', { name: 'Publish', exact: true }).click();
+  await admin.getByRole('button', { name: 'Status: Draft' }).click();
+  await admin.getByRole('menuitem', { name: 'Published' }).click();
   for (const msg of ['Add the outcome line. Learners see it under the title.', 'Add all three outputs.'])
     await expect(admin.getByText(msg)).toBeVisible();
   await close();
@@ -61,7 +68,9 @@ test('gating an AI Employee to Team only locks it for agents @g6', async ({ brow
   await open(learner, '/?as=agent');
   await open(admin, '/admin/curriculum?as=admin');
 
-  await admin.getByRole('button', { name: 'Team Only' }).nth(2).click(); // the Database row
+  // D-160 R2-2: the tier pill is a menu. The Database row is the third Agent + Team one.
+  await admin.getByRole('button', { name: 'Tier access: Agent + Team' }).nth(2).click();
+  await admin.getByRole('menuitem', { name: 'Team only' }).click();
   await expect(
     learner.locator('aside[aria-label="Primary"]').getByRole('button', { name: /Database/ }).getByTitle('Team tier'),
   ).toBeVisible();
