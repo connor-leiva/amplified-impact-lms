@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { ICONS } from '@ai/core';
 
 const read = (p: string) => readFileSync(fileURLToPath(new URL(p, import.meta.url)), 'utf8');
 const R2 = read('./r2.css');
@@ -73,5 +74,13 @@ describe('the R2 tokens (D-160 R2-1b)', () => {
     expect(R2).not.toMatch(/^\s*(html|body)\b/m);
     for (const f of ['./tokens.css', './lms.css', './global.css'])
       expect(read(f), f).not.toMatch(/--r2-|data-r2-shell/);
+  });
+
+  it('carries the mockup’s icons verbatim, as r2* in ICONS', () => {
+    const body = /const P = \{([\s\S]*?)\n\};/.exec(JSX)![1]!;
+    const p = [...body.matchAll(/(\w+): '([^']*)'/g)].map((m) => [`r2${m[1]![0]!.toUpperCase()}${m[1]!.slice(1)}`, m[2]!] as const);
+    expect(p).toHaveLength(45);
+    for (const [name, d] of p) expect((ICONS as Record<string, string>)[name], name).toBe(d);
+    expect(Object.keys(ICONS).filter((k) => k.startsWith('r2'))).toHaveLength(45);
   });
 });
