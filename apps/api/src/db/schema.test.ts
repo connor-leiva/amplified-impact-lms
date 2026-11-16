@@ -143,6 +143,9 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     ],
     gate: 9,
   },
+  // D-165: the Admin Console's ops telemetry (spec §§ 7.9-7.10). Not `Db` records, like `audit_log`.
+  apiMetrics: { table: 'api_metrics', columns: ['count', 'errors_4xx', 'errors_5xx', 'hist', 'minute', 'route'], gate: 9 },
+  jobTicks: { table: 'job_ticks', columns: ['actor_user_id', 'error_kind', 'finished_at', 'id', 'job', 'started_at', 'status', 'trigger'], gate: 9 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -333,6 +336,10 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['masqueradeSessions', 'expiresAt'],
   ['masqueradeSessions', 'hardExpiresAt'],
   ['masqueradeSessions', 'endedAt'],
+  // D-165: the minute an API metric counts, and a job tick's start and end, as `clock.now()` stamps them.
+  ['apiMetrics', 'minute'],
+  ['jobTicks', 'startedAt'],
+  ['jobTicks', 'finishedAt'],
 ];
 
 /**
@@ -389,6 +396,8 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
   staffNotes: { unit: 'epoch-ms', why: 'D-158: created_at and deleted_at are clock.now() as written by console/notes.ts, and fmt.* formats them' },
   masqueradeSessions: { unit: 'epoch-ms', why: 'D-162: compared with clock.now() by masqueradeLive and the sweep, and counted down by the banner' },
+  apiMetrics: { unit: 'epoch-ms', why: 'D-165: a minute floored from clock.now(), read back over the last 24 hours' },
+  jobTicks: { unit: 'epoch-ms', why: 'D-165: a run’s start and end from clock.now(); the next run is the start plus an interval in ms' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -543,6 +552,8 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   jobRuns: ['job', 'key'],
   // D-148: an address is on a group's list once. The pair is the key, so listing it twice is a no-op.
   accessGroupMembers: ['group_id', 'email'],
+  // D-165: one row per minute and route template, which two replicas add to (`on conflict do update`).
+  apiMetrics: ['minute', 'route'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {
@@ -624,6 +635,11 @@ describe('unique indexes @g9', () => {
     ],
     // D-158: a record's notes are read by their target.
     staffNotes: [{ name: 'staff_notes_target_idx', unique: false, columns: ['target_type', 'target_id'] }],
+    // D-165: a job's latest ticks, and the 90-day prune by time.
+    jobTicks: [
+      { name: 'job_ticks_job_started_idx', unique: false, columns: ['job', 'started_at'] },
+      { name: 'job_ticks_started_idx', unique: false, columns: ['started_at'] },
+    ],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -638,6 +654,10 @@ describe('unique indexes @g9', () => {
 
   it('gives staff notes their target index, not unique @g9', () => {
     expect(indexesOf(tableOf('staffNotes'))).toEqual(LOOKUP_INDEXES.staffNotes);
+  });
+
+  it('gives job ticks their two lookup indexes, none unique @g9', () => {
+    expect(indexesOf(tableOf('jobTicks'))).toEqual(LOOKUP_INDEXES.jobTicks);
   });
 
   it('finds no other table carrying an index @g9', () => {

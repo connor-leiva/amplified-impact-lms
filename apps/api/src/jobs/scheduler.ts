@@ -132,6 +132,7 @@ import { jobOf } from './keys';
 import type { JobName } from './keys';
 import { acceleratorLearnerIds } from '../lib/course-access';
 import { sweepMasquerades } from '../console/masquerade';
+import { SCHEDULER_TICK_JOB, recordTick } from './ticks';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -629,7 +630,11 @@ export function startScheduler(options: StartOptions = {}): Scheduler {
     } catch (err) {
       log.error({ err }, 'masquerade sweep failed; the next tick retries');
     }
-    return runScheduledJobs(runOptions);
+    // D-165: observe-only. The tick is recorded in `job_ticks` (`jobs/ticks.ts`), which never throws and
+    // never changes what the tick does or returns. On the app's own database only: a caller that hands
+    // the scheduler a stand-in `db` gets the tick exactly as before.
+    if (options.db) return runScheduledJobs(runOptions);
+    return recordTick(SCHEDULER_TICK_JOB, () => runScheduledJobs(runOptions), { log, skipped: (run) => !run.ran });
   };
 
   const fire = (): void => {
