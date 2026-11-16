@@ -13,7 +13,7 @@
 // is pinned to `PgBigInt53`.
 import { describe, it, expect } from 'vitest';
 import { is, getTableColumns } from 'drizzle-orm';
-import { PgTable, getTableConfig } from 'drizzle-orm/pg-core';
+import { PgDialect, PgTable, getTableConfig } from 'drizzle-orm/pg-core';
 import { fmt, seed } from '@ai/core';
 import * as schema from './schema';
 
@@ -132,6 +132,15 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   staffNotes: {
     table: 'staff_notes',
     columns: ['author_user_id', 'body', 'created_at', 'delete_reason', 'deleted_at', 'deleted_by', 'id', 'target_id', 'target_type'],
+    gate: 9,
+  },
+  // D-162: the Admin Console's masquerade sessions (spec § 6). Not a `Db` record, like `audit_log`.
+  masqueradeSessions: {
+    table: 'masquerade_sessions',
+    columns: [
+      'auth_session_id', 'end_reason', 'ended_at', 'expires_at', 'extend_count', 'hard_expires_at', 'id', 'ip', 'reason',
+      'staff_auth_session_id', 'staff_user_id', 'started_at', 'started_from', 'target_user_id', 'user_agent',
+    ],
     gate: 9,
   },
 };
@@ -319,6 +328,11 @@ const EPOCH_COLUMNS: [string, string][] = [
   // D-158: when a staff note was written, and when it was deleted, as `clock.now()` stamps them.
   ['staffNotes', 'createdAt'],
   ['staffNotes', 'deletedAt'],
+  // D-162: a masquerade's start, its two deadlines and its end, as `clock.now()` stamps them.
+  ['masqueradeSessions', 'startedAt'],
+  ['masqueradeSessions', 'expiresAt'],
+  ['masqueradeSessions', 'hardExpiresAt'],
+  ['masqueradeSessions', 'endedAt'],
 ];
 
 /**
@@ -374,6 +388,7 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   emailVerifications: { unit: 'epoch-ms', why: 'D-148: verified_at is clock.now() as written by claimToken; no reader converts it' },
   auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
   staffNotes: { unit: 'epoch-ms', why: 'D-158: created_at and deleted_at are clock.now() as written by console/notes.ts, and fmt.* formats them' },
+  masqueradeSessions: { unit: 'epoch-ms', why: 'D-162: compared with clock.now() by masqueradeLive and the sweep, and counted down by the banner' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -579,6 +594,8 @@ const UNIQUE_INDEXES: Record<string, { name: string; columns: string[] }> = {
   accounts: { name: 'accounts_owner_email_idx', columns: ['owner_email'] },
   // D-078: one plan per order, so provisioning an order twice finds the plan it made.
   plans: { name: 'plans_order_idx', columns: ['order_id'] },
+  // D-162: one LIVE masquerade per staff member (spec § 6 rule 5). Partial: the test below pins its `where`.
+  masqueradeSessions: { name: 'masquerade_sessions_one_live_idx', columns: ['staff_user_id'] },
 };
 
 describe('unique indexes @g9', () => {
@@ -608,6 +625,12 @@ describe('unique indexes @g9', () => {
     // D-158: a record's notes are read by their target.
     staffNotes: [{ name: 'staff_notes_target_idx', unique: false, columns: ['target_type', 'target_id'] }],
   };
+
+  it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
+    const [idx] = getTableConfig(tableOf('masqueradeSessions')).indexes;
+    const where = new PgDialect().sqlToQuery(idx!.config.where!).sql;
+    expect(where).toBe('"masquerade_sessions"."ended_at" is null');
+  });
 
   it('gives the audit log its four lookup indexes, none unique @g9', () => {
     expect(indexesOf(tableOf('auditLog'))).toEqual(LOOKUP_INDEXES.auditLog);

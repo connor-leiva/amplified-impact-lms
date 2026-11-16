@@ -13,6 +13,11 @@
 //   GET  /api/console/roles         the capability matrix, read-only, built from `CONSOLE_CAPS`, with
 //                                   the path of the Staff & Roles screen. `ops.read` (Owner, Admin).
 //
+// PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
+// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. During a
+// masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
+// `requireSession`).
+//
 // Every response carries `Cache-Control: private, no-store`, refusals and 429s included (an onSend
 // hook in this plugin's scope, so it reaches what the rate limiter answers too). Errors are JSON
 // `{ error, code }`. Limits (spec § 7, D-137's limiter): reads 60 a minute, exports 5, per session.
@@ -27,6 +32,7 @@ import {
   AUDIT_EXPORT_MAX_ROWS,
   CONSOLE_PAGE_DEFAULT,
   CONSOLE_PAGE_MAX,
+  MASQUERADE_PATHS,
   auditCsv,
   auditRedactsNetwork,
   consoleCaps,
@@ -43,6 +49,8 @@ import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { BILLING_PATHS, registerBillingRoutes } from './billing';
 import type { BillingDeps } from './billing';
+import { registerMasqueradeRoutes } from './masquerade';
+import type { MasqueradeDeps } from './masquerade';
 
 export const CONSOLE_PATHS = {
   me: '/api/console/me',
@@ -51,6 +59,12 @@ export const CONSOLE_PATHS = {
   roles: '/api/console/roles',
   // PR 2 (D-158): workspaces, users, staff notes, the password reset, the users export and search.
   ...SUPPORT_PATHS,
+  // PR 3a (D-162): masquerade.
+  masqueradeStart: MASQUERADE_PATHS.start,
+  masqueradeCurrent: MASQUERADE_PATHS.current,
+  masqueradeExtend: MASQUERADE_PATHS.extend,
+  masqueradeExit: MASQUERADE_PATHS.exit,
+  masqueradeSessions: MASQUERADE_PATHS.sessions,
   // PR 4 (D-163): Billing, read-only.
   ...BILLING_PATHS,
 } as const;
@@ -61,12 +75,11 @@ export const CONSOLE_RATE = { read: 60, write: 20, export: 5, search: 30 } as co
 export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute' } });
 
 /**
- * What `app.ts` hands the routes. PR 4 (D-163): Billing's cached Stripe read client (null with no key),
- * the offer's price cache and the key's mode. Absent, Billing answers "Stripe isn't connected".
+ * What `app.ts` hands the routes: masquerade's flag (PR 3a, D-162), and Billing's cached Stripe read
+ * client (null with no key), the offer's price cache and the key's mode (PR 4, D-163). Without
+ * Billing's, Billing answers "Stripe isn't connected".
  */
-export interface ConsoleDeps {
-  billing?: BillingDeps;
-}
+export type ConsoleDeps = Readonly<MasqueradeDeps & { billing?: BillingDeps }>;
 
 // --- filters -------------------------------------------------------------------------------------
 
@@ -272,6 +285,7 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
     );
 
     registerSupportRoutes(scope);
+    registerMasqueradeRoutes(scope, deps);
     registerBillingRoutes(scope, deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' }, { config: limit(CONSOLE_RATE.read) });
   });
 }

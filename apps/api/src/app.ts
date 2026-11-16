@@ -99,6 +99,8 @@ import { registerCurriculumStatusRoute } from './routes/curriculum-status';
 import { registerLibraryStatusRoute } from './routes/library-status';
 import { registerCrmSyncRoutes } from './routes/crm-sync';
 import { registerConsoleRoutes } from './console/routes';
+import type { ConsoleDeps } from './console/routes';
+import { masqueradeWriteBlock } from './auth/masquerade';
 import { registerBillingRoutes } from './routes/billing';
 import { registerCourseRoute } from './routes/course';
 import type { OfferPages } from './routes/offer';
@@ -230,6 +232,8 @@ export interface BuildOptions {
     verify?: BillingStripe['constructEvent'] | null;
     prices?: PriceCache;
   };
+  /** What the Admin Console's routes are handed (`console/routes.ts`): masquerade's flag, for a test. */
+  console?: ConsoleDeps;
 }
 
 /** § 7.7's `build()`, with the two things Gate 7's snippet calls on the result. */
@@ -525,6 +529,12 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     }
   });
 
+  // D-162: a masquerade is look-only (spec § 6). Before every route, so a write under a running
+  // `ai_msq` is refused whatever it was for, checkout and the public forms included. A request with
+  // no such cookie (every server-to-server webhook) passes with no database read. Not in fixture
+  // mode, where no Console route exists to start one.
+  if (!fixtureOnly) app.addHook('onRequest', masqueradeWriteBlock);
+
   decorateViewer(app);
 
   /**
@@ -638,7 +648,8 @@ export async function build(options: BuildOptions = {}): Promise<App> {
     // The CRM sync log (D-134): the Owner and Admins only.
     registerCrmSyncRoutes(app);
     // The Admin Console (D-157): its audit log, roles matrix and the viewer's capabilities, by role.
-    // D-163: Billing reads Stripe through its own narrow, cached, read-only client, from the same key.
+    // PR 3a (D-162): masquerade's endpoints too. PR 4 (D-163): Billing reads Stripe through its own
+    // narrow, cached, read-only client, from the same key.
     const consoleKey = offerConfig.stripeSecretKey;
     const consoleStripe =
       options.consoleBilling?.stripe !== undefined
@@ -646,7 +657,10 @@ export async function build(options: BuildOptions = {}): Promise<App> {
         : consoleKey
           ? cachedConsoleStripe(scopedConsoleStripe(consoleStripeClient(consoleKey)), () => clock.now())
           : null;
-    await registerConsoleRoutes(app, { billing: { stripe: consoleStripe, prices: offerPrices, mode: options.consoleBilling?.mode ?? keyMode(consoleKey) } });
+    await registerConsoleRoutes(app, {
+      ...(options.console ?? {}),
+      billing: { stripe: consoleStripe, prices: offerPrices, mode: options.consoleBilling?.mode ?? keyMode(consoleKey) },
+    });
     registerMutateRoute(app, { broadcast });
 
     // § 7.7. The guard is the exact string `'test'`; `routes/test.ts` carries the argument and

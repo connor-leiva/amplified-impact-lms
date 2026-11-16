@@ -50,8 +50,11 @@
 // checklist line conditional on which header the test happened to send.
 
 import type { FastifyInstance, FastifyReply, FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
+import { masqueradeVerdict } from '@ai/core';
 import { getDb } from '../db/client';
 import { clock } from '../lib/clock';
+import { masqueradeOfSession, masqueradeSessionGone, masqueradeTargetGone, refuseForMasquerade, routeOf } from './masquerade';
+import type { MasqueradeRow } from './masquerade';
 import { clearCookieOptions, deleteSession, markActive, needsRoll, readSession, rollSession, SESSION_COOKIE } from './sessions';
 import { normalizePrefs, userById, viewerOf } from './viewer';
 import type { UserRow, Viewer, ViewerPrefs } from './viewer';
@@ -68,6 +71,8 @@ declare module 'fastify' {
   interface FastifyRequest {
     /** Set by `requireSession`; `null` on every route that does not use it. */
     viewer: SessionViewer | null;
+    /** D-162: the running masquerade this request's session belongs to, set by `requireSession`; `null` otherwise. */
+    masquerade: MasqueradeRow | null;
   }
 }
 
@@ -79,6 +84,7 @@ declare module 'fastify' {
  */
 export function decorateViewer(app: FastifyInstance): void {
   app.decorateRequest('viewer', null);
+  app.decorateRequest('masquerade', null);
 }
 
 const unauthorized = (reply: FastifyReply): FastifyReply => reply.code(401).send({ error: 'Not signed in' });
@@ -108,14 +114,22 @@ export const requireSession: preHandlerAsyncHookHandler = async (req, reply) => 
   const now = clock.now();
   const session = await readSession(db, unsigned.value, now);
   if (!session) {
+    // D-162: a masquerade's own session, gone (its hard stop, the sweep): the masquerade is over, and
+    // the answer is its 409 with the staff session put back, not a 401.
+    if (await masqueradeSessionGone(req, reply, db, unsigned.value, now)) return reply;
     // Expired or never existed. Clearing it stops the browser re-sending a dead cookie on every
     // request for the next 30 days.
     reply.clearCookie(SESSION_COOKIE, clearCookieOptions());
     return unauthorized(reply);
   }
 
+  // D-162: an impersonation session is good only while its masquerade runs; otherwise 409, sent.
+  const masquerade = session.impersonating === null ? null : await masqueradeOfSession(req, reply, db, session, now);
+  if (session.impersonating !== null && !masquerade) return reply;
+
   const user = await userById(db, session.userId);
   if (!user) {
+    if (masquerade) return masqueradeTargetGone(req, reply, db, masquerade, now);
     // `removeMember` and `removeStaff` delete the row but know nothing about sessions, so this is
     // the reachable case, not a corrupt-data case: the session is the stale thing and it goes.
     await deleteSession(db, session.id);
@@ -123,8 +137,9 @@ export const requireSession: preHandlerAsyncHookHandler = async (req, reply) => 
     return unauthorized(reply);
   }
 
-  // A session in use for another day: roll it, and count the day as activity (D-145).
-  if (needsRoll(session, now)) {
+  // A session in use for another day: roll it, and count the day as activity (D-145). Never a
+  // masquerade's: what staff do as a learner leaves the learner's Last Active where it was (D-162).
+  if (!masquerade && needsRoll(session, now)) {
     await rollSession(db, session.id, now);
     await markActive(db, session.userId, now);
   }
@@ -135,10 +150,14 @@ export const requireSession: preHandlerAsyncHookHandler = async (req, reply) => 
     user,
     prefs: normalizePrefs(user.prefs),
   };
+  req.masquerade = masquerade;
   // D-152: what a signed-in viewer is answered is theirs alone and is never kept, by the browser or
   // anything between, so nothing of it can be served again after Sign Out. A handler that means
   // otherwise sets its own header, which replaces this one.
   reply.header('cache-control', 'private, no-store');
+  // D-162: a masquerade is look-only. The global write block's rule, held here for the session itself
+  // and authoritatively: a request that dropped `ai_msq` is refused all the same.
+  if (masquerade && masqueradeVerdict(req.method, routeOf(req)) === 'block') return refuseForMasquerade(req, reply, db, masquerade);
   return undefined;
 };
 
