@@ -1,0 +1,13 @@
+{
+  "name": "admin-redesign-r2-reference",
+  "private": true,
+  "description": "Renders the signed-off admin mockup into parity reference PNGs. Not part of any workspace build.",
+  "type": "module",
+  "scripts": { "refs": "node harness/render-mockup.mjs" },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright-core": "^1.65.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}

@@ -21,7 +21,9 @@
     "compliance:docker": "docker run --rm --network host -v $PWD:/work -w /work mcr.microsoft.com/playwright:v$(node -p \"require('@playwright/test/package.json').version\")-noble bash -lc 'corepack enable && pnpm i --frozen-lockfile && pnpm \"$@\"' --",
     "gate": "node scripts/gate.mjs",
     "goldens:check": "node scripts/goldens-check.mjs",
-    "compliance:http": "playwright test -c compliance/playwright.config.ts --project=parity-http"
+    "compliance:http": "playwright test -c compliance/playwright.config.ts --project=parity-http",
+    "parity:admin-r2": "playwright test -c compliance/admin-r2.config.ts",
+    "parity:admin-r2:refs": "npm install --prefix design-reference/admin-redesign-r2 --no-package-lock --no-audit --no-fund && docker run --rm --network none -v $PWD:/work -w /work -e FONTCONFIG_FILE=/work/design-reference/admin-redesign-r2/harness/fonts.conf -e CHROME=/ms-playwright/chromium-1243/chrome-linux64/chrome mcr.microsoft.com/playwright:v1.63.0-noble node design-reference/admin-redesign-r2/harness/render-mockup.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.1",
@@ -30,6 +32,8 @@
     "@types/node": "^24.19.1",
     "eslint": "^9.39.1",
     "http-server": "^14.1.1",
+    "pixelmatch": "8.0.0",
+    "pngjs": "7.0.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2"

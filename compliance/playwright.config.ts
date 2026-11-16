@@ -136,6 +136,11 @@ const DETERMINISTIC_RENDER = [
 
 export default defineConfig({
   testDir: './tests',
+  // Admin redesign R2's pixel parity (D-160) has its own config, `admin-r2.config.ts`, run by
+  // `pnpm parity:admin-r2`. Its spec sits in `tests/e2e/` and its name ends in `parity.spec.ts`, so
+  // without this the `parity`, `parity-http` and `e2e` projects would all pick it up. No project here
+  // sets its own `testIgnore`, so each inherits this one and runs exactly the tests it ran before.
+  testIgnore: /admin-r2-parity\.spec\.ts$/,
   globalSetup: './lib/global-setup.ts',
   snapshotPathTemplate: '{testDir}/../goldens/{arg}{ext}',
   fullyParallel: true,
