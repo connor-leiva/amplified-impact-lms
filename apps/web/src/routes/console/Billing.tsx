@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate, useParams } from 'react-router';
-import { consoleCan } from '@ai/core';
+import { SEAT_TIER_GATED, consoleCan } from '@ai/core';
+import type { BillingActionResult } from '@ai/core';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import type { MenuEntry } from '../../components/r2/Menu';
@@ -10,8 +11,11 @@ import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Bar, KV, Locked, PageHead, Pill, Skel, Stat, Tabs, Two, k } from '../../components/r2/kit';
+import { masqueradeActive } from '../../data/console';
 import type { BillingListKind, BillingRows, ConsoleApi } from '../../data/console';
+import { useAdminChrome } from '../../shell/admin/chrome';
 import { useViewportWidth } from '../../shell/hooks';
+import { BillingActionDialog } from './BillingAction';
 import { Denied, NotFound } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
@@ -19,6 +23,7 @@ import { useConsolePages, useConsoleRecord } from './useConsoleData';
 import {
   BILLING_COPY as C,
   BILLING_TABS,
+  actionTarget,
   billingSummaryVM,
   billingTabPath,
   customerVM,
@@ -29,6 +34,7 @@ import {
   subscriptionVM,
 } from './billing.vm';
 import type {
+  ActionTarget,
   BillingSummaryVM,
   BillingTab,
   CustomerVM,
@@ -39,11 +45,13 @@ import type {
   SubscriptionVM,
 } from './billing.vm';
 
-// /admin/billing[/:tab] on R2 (D-163, spec § 7.6): the mockup's `Billing()`. Read-only: the Summary
-// (MRR, subscriptions, failed payments, refunds; the plan lines; the AI Accelerator with its D-154 seat
-// count and its view-only cap) and five lists from Stripe. A row opens its workspace when one matches;
-// its "…" offers "View in Stripe". The mockup's "Refund…" and "Void invoice…" are drawn and locked until
-// R2-4b (spec PR 5), and hidden for a role that can't use them (Support, spec § 7.6).
+// /admin/billing[/:tab] on R2 (D-163, spec § 7.6): the mockup's `Billing()`. The Summary (MRR,
+// subscriptions, failed payments, refunds; the plan lines; the AI Accelerator with its D-154 seat count
+// and its view-only cap) and five lists from Stripe. A row opens its workspace when one matches; its "…"
+// offers "View in Stripe". D-164: Invoices' "Refund…" and "Void invoice…" open their confirmed dialogs
+// for Owner and Admin (danger items, as the mockup draws them), are hidden for Support (spec § 7.6) and
+// locked during a masquerade; afterwards the lists and the summary are read again. A Team Plan
+// subscription's "Change seat tier…" is drawn disabled with its reason: its gate failed (spec § 15).
 
 const stripe = (url: string | null): MenuEntry[] =>
   url ? [{ label: C.menu.stripe, onSelect: () => void window.open(url, '_blank', 'noopener') }] : [];
@@ -55,7 +63,11 @@ export function Component() {
   const navigate = useNavigate();
   const phone = useViewportWidth() < 768;
   const api = gate.kind === 'ready' ? gate.api : null;
-  const summary = useConsoleRecord(api, (a) => a.billingSummary(), 'summary');
+  const { toast } = useAdminChrome();
+  // D-164: the open refund or void dialog, and a count that reads Billing again after one succeeds.
+  const [acting, setActing] = useState<ActionTarget | null>(null);
+  const [version, setVersion] = useState(0);
+  const summary = useConsoleRecord(api, (a) => a.billingSummary(), `summary:${version}`);
   // The fixture's sample qualifiers (the mockup's "· sample"); the http client has none.
   const vm = useMemo(
     () => (summary.data ? billingSummaryVM(summary.data, api?.billingSample?.() ?? null) : null),
@@ -68,6 +80,16 @@ export function Component() {
   // Support reads billing and changes nothing (D3): the head says so, and the actions are hidden.
   const canAct = gate.kind === 'ready' && consoleCan(gate.me.role, 'billing.refund');
   const ro = gate.kind === 'ready' && !canAct;
+  const can = {
+    refund: canAct,
+    void: gate.kind === 'ready' && consoleCan(gate.me.role, 'billing.void'),
+    tier: gate.kind === 'ready' && consoleCan(gate.me.role, 'billing.seat_tier'),
+  };
+  const done = (r: BillingActionResult) => {
+    setActing(null);
+    toast(C.action.toast[r.action]);
+    setVersion((n) => n + 1);
+  };
   const tabs = BILLING_TABS.map((id) => ({
     id,
     label: C.tabs[id],
@@ -91,10 +113,11 @@ export function Component() {
           <Summary vm={vm} />
         )
       ) : api ? (
-        <List key={tab} kind={tab} api={api} canAct={canAct} open={(href) => navigate(href)} />
+        <List key={tab} kind={tab} api={api} can={can} version={version} act={setActing} open={(href) => navigate(href)} />
       ) : (
         <Skel lines={3} />
       )}
+      {acting && api ? <BillingActionDialog api={api} target={acting} onClose={() => setActing(null)} onDone={done} /> : null}
     </Page>
   );
 }
@@ -170,15 +193,19 @@ const status = (s: { label: string; tone: Parameters<typeof Status>[0]['tone'] }
 function List({
   kind,
   api,
-  canAct,
+  can,
+  version,
+  act,
   open,
 }: {
   kind: BillingListKind;
   api: ConsoleApi;
-  canAct: boolean;
+  can: { refund: boolean; void: boolean; tier: boolean };
+  version: number;
+  act: (t: ActionTarget) => void;
   open: (href: string) => void;
 }) {
-  const list = useConsolePages(api, (a, cursor) => a.billingList(kind, cursor), kind);
+  const list = useConsolePages(api, (a, cursor) => a.billingList(kind, cursor), `${kind}:${version}`);
   if (list.status === 'error' && list.failure)
     return <LoadError failure={list.failure} detail={list.detail} retry={list.retry} />;
   const common = {
@@ -243,6 +270,10 @@ function List({
         cell: (r) => status(r.status),
       },
     ];
+    // D-164: the spec's seat tier (D4), drawn on a Team Plan subscription and disabled with its reason:
+    // the webhook doesn't re-derive seats on a tier change, so there is no endpoint (spec § 15).
+    const tier = (r: SubscriptionVM): MenuEntry[] =>
+      can.tier && r.teamPlan ? ['separator', { label: C.menu.seatTier, unavailable: SEAT_TIER_GATED, onSelect: () => {} }] : [];
     return (
       <Table
         label={C.tabs.subscriptions}
@@ -250,7 +281,7 @@ function List({
         rows={rows(subscriptionVM)}
         rowKey={(r) => r.key}
         onRow={openRow}
-        menu={(r) => [...customer(r), ...stripe(r.stripe)]}
+        menu={(r) => [...customer(r), ...stripe(r.stripe), ...tier(r)]}
         {...common}
       />
     );
@@ -270,15 +301,16 @@ function List({
       },
       { key: 'd', label: C.columns.date, width: '104px', noSort: true, value: (r) => r.at, cell: (r) => r.date },
     ];
-    // R2-4b's two actions, drawn as the mockup draws them and locked until then; hidden for Support.
-    const act = (r: InvoiceVM): MenuEntry[] =>
-      !canAct
-        ? []
-        : r.refund
-          ? ['separator', { label: C.menu.refund, locked: true, title: C.later, onSelect: () => {} }]
-          : r.void
-            ? ['separator', { label: C.menu.void, locked: true, title: C.later, onSelect: () => {} }]
-            : [];
+    // D-164: the two confirmed actions, danger items as the mockup draws them; hidden for Support (spec
+    // § 7.6); locked during a masquerade, as the mockup's guarded items are (the Console is paused then).
+    const item = (label: string, action: 'refund' | 'void', r: InvoiceVM): MenuEntry[] => [
+      'separator',
+      masqueradeActive()
+        ? { label, locked: true, title: C.blocked, onSelect: () => {} }
+        : { label, danger: true, onSelect: () => act(actionTarget(action, r)) },
+    ];
+    const actions = (r: InvoiceVM): MenuEntry[] =>
+      r.refund && can.refund ? item(C.menu.refund, 'refund', r) : r.void && can.void ? item(C.menu.void, 'void', r) : [];
     return (
       <Table
         label={C.tabs.invoices}
@@ -286,7 +318,7 @@ function List({
         rows={rows(invoiceVM)}
         rowKey={(r) => r.key}
         onRow={openRow}
-        menu={(r) => [...customer(r), ...stripe(r.stripe), ...act(r)]}
+        menu={(r) => [...customer(r), ...stripe(r.stripe), ...actions(r)]}
         {...common}
       />
     );

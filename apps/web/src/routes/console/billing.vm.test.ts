@@ -2,10 +2,15 @@
 // exactly; production's print its own, with no "· sample" and nothing the API can't back.
 import { describe, expect, it } from 'vitest';
 import type { BillingSummary } from '@ai/core';
-import { BILLING_SAMPLE_LABELS, fixtureBillingRows, fixtureBillingSummary } from '../../data/console-fixture-billing';
+import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary } from '../../data/console-fixture-billing';
+import { ConsoleError } from '../../data/console';
 import {
   BILLING_COPY,
   BILLING_TABS,
+  actionDialogVM,
+  actionErrorOf,
+  actionTarget,
+  canConfirm,
   billingSummaryVM,
   billingTabPath,
   customerVM,
@@ -109,6 +114,13 @@ describe('the lists', () => {
       status: { label: 'Active' },
     });
     expect(rows.subscriptions.map((r) => r.id)).not.toContain('—');
+    // D-164: the gated seat-tier control is drawn on the Team Plan subscriptions only.
+    expect(rows.subscriptions.map(subscriptionVM).filter((r) => r.teamPlan).map((r) => r.plan)).toEqual([
+      'Team Plan · 41 seats',
+      'Team Plan · 16 seats',
+      'Team Plan · 16 seats',
+      'Team Plan · 16 seats',
+    ]);
   });
   it('invoices: the mockup’s words, MST dates, and only the actions R2-4b may take', () => {
     const v = rows.invoices.map(invoiceVM);
@@ -145,5 +157,79 @@ describe('the lists', () => {
       when: 'Nov 1, 4:44 PM',
       href: null,
     });
+  });
+});
+
+describe('the refund and void dialogs (D-164)', () => {
+  const NOW_ = Date.parse('2026-12-10T16:30:00Z');
+  it('words the dialog as the mockup’s Confirm, from the row, then from the preview', () => {
+    const rows = fixtureBillingRows();
+    const paid = invoiceVM(rows.invoices[0]!);
+    const t = actionTarget('refund', paid);
+    expect(actionDialogVM(t, null)).toEqual({
+      title: 'Refund $1,495.00 to Northshore Group?',
+      body: 'Invoice in_1QxT4mNs0291, Visa ending 4242. The refund is sent to Stripe and cannot be reversed from the admin.',
+      cta: 'Refund $1,495.00',
+      typedLabel: 'Type $1,495.00 to confirm',
+      consequences: null,
+    });
+    const p = fixtureBillingPreview(rows, 'refund', t.invoiceId, NOW_);
+    const vm = actionDialogVM(t, p);
+    expect(vm.title).toBe('Refund $1,495.00 to Northshore Group?');
+    expect(vm.consequences).toEqual([
+      'Stripe refunds the whole $1,495.00 payment.',
+      'Order ord_northshore is marked refunded, and its CRM record in GoHighLevel is resynced.',
+      'The Team Plan · 41 seats plan ends and its access ends now.',
+      'Subscription sub_1Qn7NshoreT41 is cancelled in Stripe (unless already cancelled), so nothing more is charged.',
+    ]);
+    const v = actionTarget('void', invoiceVM(rows.invoices[4]!));
+    expect(actionDialogVM(v, null)).toMatchObject({
+      title: 'Void invoice in_1QxN1hHm0279?',
+      body: '$695.00 for Hale & Marlowe Realty. The customer will no longer be asked to pay it.',
+      cta: 'Void invoice',
+      typedLabel: 'Type in_1QxN1hHm0279 to confirm',
+    });
+    expect(BILLING_COPY.action.toast).toEqual({ refund: 'Refund sent to Stripe', void: 'Invoice voided' });
+  });
+
+  it('sends only with the preview in, a 10-character reason and the exact amount or id typed', () => {
+    const rows = fixtureBillingRows();
+    const p = fixtureBillingPreview(rows, 'refund', 'in_1QxT4mNs0291', NOW_);
+    expect(canConfirm('refund', 'Customer asked.', '1495', null)).toBe(false);
+    expect(canConfirm('refund', 'too short', '1495', p)).toBe(false);
+    expect(canConfirm('refund', 'Customer asked for it.', '1,495.01', p)).toBe(false);
+    expect(canConfirm('refund', 'Customer asked for it.', '$1,495.00', p)).toBe(true);
+    const v = fixtureBillingPreview(rows, 'void', 'in_1QxN1hHm0279', NOW_);
+    expect(canConfirm('void', 'Billed twice by mistake.', 'in_1QxN1hHm0279', v)).toBe(true);
+    expect(canConfirm('void', 'Billed twice by mistake.', 'in_1qxn1hhm0279', v)).toBe(false);
+  });
+
+  it('a refusal shows the server’s sentence; one the confirmation can’t get past offers Start again', () => {
+    const e = (status: number, code: string | null, m: string) => new ConsoleError('failed', status, code as never, m);
+    expect(actionErrorOf(e(410, 'confirm_expired', 'This confirmation expired after 5 minutes. Start again to see the current figures.'))).toEqual({
+      message: 'This confirmation expired after 5 minutes. Start again to see the current figures.',
+      restart: true,
+    });
+    for (const code of ['confirm_invalid', 'confirm_used', 'invoice_not_voidable', 'refund_too_large', 'stripe_refused']) expect(actionErrorOf(e(409, code, 'x')).restart, code).toBe(true);
+    // Stripe didn't answer, or a missing scope: the same confirmation may be sent again.
+    expect(actionErrorOf(e(502, 'stripe_unavailable', 'Stripe didn’t answer.')).restart).toBe(false);
+    expect(actionErrorOf(e(503, 'stripe_permission_missing', 'Add Write on Refunds to the key.'))).toEqual({ message: 'Add Write on Refunds to the key.', restart: false });
+    expect(actionErrorOf(e(429, null, 'Rate limit exceeded')).message).toBe('Too many requests.');
+  });
+
+  it('the fixture answers as the API does: the token, the reason, the typed amount, then the rows change', () => {
+    const rows = fixtureBillingRows();
+    const p = fixtureBillingPreview(rows, 'refund', 'in_1QxT4mNs0291', NOW_);
+    const body = { confirmToken: p.confirmToken, reason: 'Customer asked for it.', typed: '1495' };
+    expect(() => fixtureBillingExecute(rows, 'void', body, NOW_, null)).toThrow(/isn’t valid/);
+    expect(() => fixtureBillingExecute(rows, 'refund', body, NOW_ + 300_000, null)).toThrow(/expired/);
+    expect(() => fixtureBillingExecute(rows, 'refund', { ...body, typed: '1494' }, NOW_, null)).toThrow(/doesn’t match/);
+    expect(() => fixtureBillingExecute(rows, 'refund', body, NOW_, 'action_scope')).toThrow('Stripe’s restricted key can’t change Refunds. Add Write on Refunds to the key.');
+    expect(fixtureBillingExecute(rows, 'refund', body, NOW_, null).refund).toMatchObject({ amountCents: 149_500 });
+    expect(invoiceVM(rows.invoices[0]!)).toMatchObject({ status: { label: 'Refunded' }, refund: false });
+    expect(rows.refunds[0]).toMatchObject({ invoiceId: 'in_1QxT4mNs0291', reason: 'Customer asked for it.', byStaff: { name: 'Connor Leiva' } });
+    const v = fixtureBillingPreview(rows, 'void', 'in_1QxN1hHm0279', NOW_);
+    fixtureBillingExecute(rows, 'void', { confirmToken: v.confirmToken, reason: 'Billed twice by mistake.', typed: 'in_1QxN1hHm0279' }, NOW_, null);
+    expect(invoiceVM(rows.invoices[4]!)).toMatchObject({ status: { label: 'Void' }, void: false });
   });
 });
