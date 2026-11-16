@@ -56,9 +56,28 @@ test.describe('admin-r2 setup', () => {
     expect(bad, 'every ref must have the manifest width × height').toEqual([]);
   });
 
+  // The R2 renderer draws the two glyphs the self-hosted Geist lacks from fixed fonts (D-160, option
+  // A, `harness/fonts.conf`): → from FreeSans, ⌘ from IPAGothic. Probe it the way a screen sees it,
+  // through the mockup's own stack with Geist absent, against each font named outright. A browser
+  // launched without the file draws → from WenQuanYi Zen Hei, whose arrow is wider, and fails here.
   test('renderer', async ({ browser }) => {
-    mkdirSync(OUT_DIR, { recursive: true });
-    writeFileSync(join(OUT_DIR, 'renderer.json'), JSON.stringify({ browser: browser.version() }) + '\n');
+    const page = await browser.newPage();
+    try {
+      await page.setContent(
+        '<span id="a1">→</span><span id="a2" style="font-family:FreeSans">→</span>' +
+          '<span id="c1">⌘</span><span id="c2" style="font-family:IPAGothic">⌘</span>' +
+          '<style>span{font:400 100px Geist,system-ui,sans-serif;white-space:pre}</style>',
+      );
+      const w = await page.evaluate(() =>
+        Object.fromEntries(['a1', 'a2', 'c1', 'c2'].map((id) => [id, document.getElementById(id)!.getBoundingClientRect().width])),
+      );
+      mkdirSync(OUT_DIR, { recursive: true });
+      writeFileSync(join(OUT_DIR, 'renderer.json'), JSON.stringify({ browser: browser.version(), glyphWidths: w }) + '\n');
+      expect(w.a1, '→ must come from FreeSans (harness/fonts.conf)').toBe(w.a2);
+      expect(w.c1, '⌘ must come from IPAGothic').toBe(w.c2);
+    } finally {
+      await page.close();
+    }
   });
 });
 

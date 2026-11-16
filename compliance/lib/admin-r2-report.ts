@@ -51,7 +51,7 @@ export default function report() {
     '# parity:admin-r2',
     '',
     `- Head: \`${head()}\``,
-    `- Renderer: ${renderer?.browser ?? 'unknown'} (Playwright \`channel: 'chromium'\`, DPR 1)`,
+    `- Renderer: ${renderer?.browser ?? 'unknown'} (Playwright \`channel: 'chromium'\`, DPR 1), fallback fonts from \`design-reference/admin-redesign-r2/harness/fonts.conf\` (→ FreeSans, ⌘ IPAGothic)`,
     `- Rule: pixelmatch threshold 0.1, \`includeAA: false\`; pass = identical width × height AND ≤ 0.1% differing pixels.`,
     `- Refs: ${refs ? (refs.bad.length ? `**${refs.bad.length} of ${refs.total} do not match MANIFEST.tsv**: ${refs.bad.join('; ')}` : `${refs.total}/${refs.total} match MANIFEST.tsv width × height`) : 'not checked'}`,
     `- Masks (${MASKS_FILE.replace(/.*\/compliance\//, 'compliance/')}): ${masks.length ? masks.map((m) => `${m.screen} ${m.widths.join('/')} ${m.selector ?? JSON.stringify(m.rect)}: ${m.reason}`).join('; ') : 'none'}`,

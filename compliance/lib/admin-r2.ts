@@ -27,6 +27,11 @@ import type { Browser, Page } from '@playwright/test';
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 export const R2_DIR = join(ROOT, 'design-reference/admin-redesign-r2');
 export const REF_DIR = join(R2_DIR, 'ref');
+/**
+ * The R2 renderer's fallback fonts (D-160, option A): → from FreeSans, ⌘ from IPAGothic, because the
+ * self-hosted Geist latin subset has neither. The refs were rendered with it; every capture uses it.
+ */
+export const R2_FONTCONFIG = join(R2_DIR, 'harness/fonts.conf');
 export const OUT_DIR = join(ROOT, 'compliance/parity/out');
 export const CELLS_DIR = join(OUT_DIR, 'cells');
 export const MASKS_FILE = join(ROOT, 'compliance/parity/admin-r2-masks.json');

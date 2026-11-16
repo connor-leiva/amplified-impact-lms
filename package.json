@@ -22,7 +22,8 @@
     "gate": "node scripts/gate.mjs",
     "goldens:check": "node scripts/goldens-check.mjs",
     "compliance:http": "playwright test -c compliance/playwright.config.ts --project=parity-http",
-    "parity:admin-r2": "playwright test -c compliance/admin-r2.config.ts"
+    "parity:admin-r2": "playwright test -c compliance/admin-r2.config.ts",
+    "parity:admin-r2:refs": "npm install --prefix design-reference/admin-redesign-r2 --no-package-lock --no-audit --no-fund && docker run --rm --network none -v $PWD:/work -w /work -e FONTCONFIG_FILE=/work/design-reference/admin-redesign-r2/harness/fonts.conf -e CHROME=/ms-playwright/chromium-1243/chrome-linux64/chrome mcr.microsoft.com/playwright:v1.63.0-noble node design-reference/admin-redesign-r2/harness/render-mockup.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.1",
