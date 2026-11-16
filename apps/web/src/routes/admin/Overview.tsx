@@ -21,8 +21,9 @@ import s from './Overview.module.css';
 //   - New AI Employee: the Module Builder's new AI Employee.
 //   - Each tile goes where the mockup's does (Learners & Teams, Curriculum, Cohorts & Sessions, Tiers
 //     & Upgrades); Build completion only shows its figure.
-//   - The old Needs Attention list and its nudges are on Learners & Teams now (its "…"), where each
-//     learner's nudge already was (Needs Connor's call, D-160 R2-3).
+//   - The old Needs Attention list and Nudge All are not drawn: the mockup has no surface for them
+//     (Needs Connor's call, D-160 R2-3a). Each learner's nudge is in their details drawer on Learners &
+//     Teams.
 
 /** Phase 08 § 8.2 does not touch this: the report is generated from the snapshot, never stored. */
 function saveFile(file: OverviewReport): void {
