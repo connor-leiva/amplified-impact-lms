@@ -1,360 +1,44 @@
-/* Admin Resource Vault. Every value is copied from the inline styles in
-   design-reference/Admin Vault.dc.html (SCREENS § 4.6); the colours the reference recomputes per
-   render become `[data-*]` rules here. There is no per-instance numeric value on this screen, so
-   no inline custom property is needed. */
+/* Admin Resource Vault on the Admin redesign R2 (D-160 R2-2b): the mockup's `Vault` cell and the Add
+   resource dialog's fields, built from R2 parts (the mockup has no frame for the dialog). Tokens only. */
 
-/* ---- Page shell (SCREENS § 1.1: admin default is max-width 1400, gap 18) ------------------- */
-.page {
-  padding: var(--page-pad-top) var(--page-pad-x) 56px;
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+.lead {
+  gap: 10px;
 }
 
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.h1 {
-  margin: 0;
-  font-size: 26px;
-  line-height: 32px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.sub {
-  margin: 4px 0 0;
-  color: var(--text-secondary);
-  font-size: var(--fs-14);
-}
-
-/* The reference draws the header primary at 13px, not the 14px of the Button primitive, and gives
-   it no hover state. */
-.upload {
-  min-height: var(--tap-primary);
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 8px;
-  border: 1px solid var(--action-primary);
-  background: var(--action-primary);
-  color: var(--action-on-primary);
-  font-size: var(--fs-13);
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  outline: none;
-}
-.upload:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* ---- Tabs. The reference's own `seg()` helper: a --bg-surface track, no gap between options, no
-   shadow on the active one, and --text-tertiary when idle. Not the Segmented primitive, whose
-   track is --seg-track. ---------------------------------------------------------------------- */
-.tabs {
-  display: flex;
-  padding: 3px;
-  border-radius: 9px;
-  background: var(--bg-surface);
-  border: 1px solid var(--line-default);
-  width: max-content;
-}
-
-.tab {
-  height: 30px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--fs-13);
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-}
-.tab[data-on='true'] {
-  background: var(--seg-active);
-  color: var(--text-primary);
-}
-.tab:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* ---- Table (SCREENS § 1.8). Radius 12 and --line-default row rules, as drawn. -------------- */
-.card {
-  border-radius: 12px;
-  border: 1px solid var(--line-default);
-  background: var(--bg-surface);
-  overflow: hidden;
-}
-
-.scroll {
-  overflow-x: auto;
-}
-
-.grid {
-  min-width: 1080px;
-}
-
-.headRow,
-.row {
-  display: grid;
-  grid-template-columns: minmax(280px, 2.4fr) minmax(170px, 1.2fr) 130px 130px 100px 100px 110px 80px;
-  gap: 12px;
-}
-
-.headRow {
-  padding: 10px 18px;
-  font-size: var(--fs-13);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  border-bottom: 1px solid var(--line-default);
-}
-
-.row {
-  align-items: center;
-  padding: 12px 18px;
-  border-bottom: 1px solid var(--line-default);
-}
-.row:hover {
-  background: var(--bg-hover);
-}
-/* A hidden resource is still listed, at 55% opacity. */
-.row[data-hidden='true'] {
-  opacity: 0.55;
-}
-
-.resource {
-  min-width: 0;
-}
-
-.title {
-  font-size: var(--fs-14);
-  font-weight: 500;
-}
-
-.desc {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cat,
-.type {
-  font-size: var(--fs-13);
-  color: var(--text-secondary);
-}
-
-/* The access pill. Amber for Team only, neutral for Agent + Team. */
-.access {
-  height: 24px;
-  padding: 0 9px;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  background: var(--seg-active);
-  color: var(--text-secondary);
-  font-size: var(--fs-12);
-  font-weight: 600;
-  cursor: pointer;
-  width: max-content;
-  white-space: nowrap;
-  outline: none;
-}
-.access[data-team='true'] {
-  border-color: var(--access-locked-line);
-  background: var(--access-locked-bg);
-  color: var(--access-locked-text);
-}
-.access:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.dl {
-  font-size: var(--fs-13);
-  color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-.updated {
-  font-size: var(--fs-13);
-  color: var(--text-tertiary);
-}
-
-/* The Status switch's label colour. Element-qualified so it outranks `.root { color: inherit }` in
-   Switch.module.css whatever the sheet order. */
-button.statusOn {
-  color: var(--status-success-text);
-}
-button.statusOff {
-  color: var(--text-tertiary);
-}
-
-.rowEnd {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.del {
-  width: 30px;
-  height: 30px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-.del:hover {
-  color: var(--status-attention-text);
-  background: var(--status-attention-bg);
-}
-.del:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-/* ---- Upload drawer (460, `surface` variant). The Drawer primitive draws the frame, header,
-   body and footer; these are its contents. ---------------------------------------------------- */
+/* Add resource: the attach area, the fields (`.lab`), Category and Type side by side. */
 .drop {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 110px;
-  border-radius: 10px;
-  border: 1px dashed var(--line-strong);
-  background: var(--bg-sunken);
-  color: var(--text-secondary);
-  font-size: var(--fs-13);
+  gap: 4px;
+  padding: 16px;
+  border: 1px dashed var(--r2-line2);
+  border-radius: 8px;
+  background: var(--r2-hov);
   cursor: pointer;
-  outline: none;
+  text-align: center;
 }
 .drop[data-ready='true'] {
-  border-color: var(--status-success-line);
-  background: var(--status-success-bg);
+  border-style: solid;
+  border-color: var(--r2-for);
+  background: var(--r2-tint);
 }
-.drop:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.dropSub {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.twoCol {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-/* The Access control is a bare label plus a track, not a `<Field>`, because the control is a
-   segmented pair rather than a form element. */
-.accessGroup {
+.lab {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.accessLabel {
-  font-size: var(--fs-13);
-  color: var(--text-secondary);
   font-weight: 500;
+  font-size: calc(var(--r2-t) - 1px);
+}
+.pair > .lab {
+  flex: 1 1 180px;
+}
+.err {
+  color: var(--r2-bad);
 }
 
-.accessTrack {
-  display: flex;
-  padding: 3px;
-  border-radius: 9px;
-  background: var(--bg-sunken);
-  border: 1px solid var(--line-default);
-  width: max-content;
-}
-
-/* 13px at the inherited weight: the reference sets no font-weight on these two, unlike the tabs. */
-.accessOpt {
-  height: 30px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--fs-13);
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-}
-.accessOpt[data-kind='agent'][data-on='true'] {
-  background: var(--seg-active);
-  color: var(--text-primary);
-}
-.accessOpt[data-kind='team'][data-on='true'] {
-  background: var(--access-locked-bg);
-  color: var(--access-locked-text);
-}
-.accessOpt:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.execNote {
-  font-size: var(--fs-12);
-  color: var(--text-tertiary);
-}
-
-.error {
-  font-size: var(--fs-13);
-  color: var(--access-locked-text);
-}
-
-.cancel {
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 8px;
-  border: 1px solid var(--line-strong);
-  background: var(--action-secondary);
-  color: var(--text-primary);
-  font-size: var(--fs-13);
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-}
-.cancel:hover {
-  background: var(--action-secondary-hover);
-}
-.cancel:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.publish {
-  min-height: var(--tap-primary);
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
-  border: 1px solid var(--action-primary);
-  background: var(--action-primary);
-  color: var(--action-on-primary);
-  font-size: var(--fs-13);
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-}
-.publish:focus-visible {
-  box-shadow: 0 0 0 3px var(--focus-ring);
+@media (max-width: 767px) {
+  .lab {
+    font-size: var(--r2-t);
+  }
 }

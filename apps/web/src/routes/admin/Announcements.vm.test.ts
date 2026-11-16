@@ -1,7 +1,17 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ZERO_BASE, phaseNow, seed, setViewerZone } from '@ai/core';
 import type { Db } from '@ai/core';
-import { announcementsVM, blankAnnouncementForm } from './Announcements.vm';
+import {
+  announceR2Rows,
+  announcementsVM,
+  atForSend,
+  blankAnnouncementForm,
+  channelsFrom,
+  channelsOf,
+  defaultScheduleMst,
+} from './Announcements.vm';
+import { parityDb } from '../../data/parity-r2-db';
+import { ANNOUNCEMENTS } from '../../data/parity-r2';
 import type { AnnouncementForm, AnnouncementsUi, AnnouncementsVM } from './Announcements.vm';
 
 // Differential test for the Admin Announcements view-model (SCREENS § 4.7).
@@ -267,5 +277,36 @@ describe('announcementsVM @g6', () => {
       announcementsVM(db, ui());
       expect(db.announcements.map((a) => a.id)).toEqual(['a1', 'a2', 'a3']);
     });
+  });
+});
+
+// ================================================================================================
+// R2 (D-160 R2-2b): the mockup's Announcements, send times in MST.
+// ================================================================================================
+
+describe('announceR2Rows (D-160 R2-2b)', () => {
+  it('lists the announcements newest first, in the mockup’s words; a draft has no send time', () => {
+    expect(announceR2Rows(parityDb()).map((r) => [r.title, r.audience, r.channels, r.status.label, r.sendTime])).toEqual(
+      ANNOUNCEMENTS.map((r) => [...r]),
+    );
+    expect(announceR2Rows(parityDb()).map((r) => r.status.tone)).toEqual(['ok', 'ok', 'info', 'off']);
+  });
+
+  it('keeps the snapshot’s order, which is newest first', () => {
+    const db = seed('live');
+    expect(announceR2Rows(db).map((r) => r.id)).toEqual(db.announcements.map((a) => a.id));
+  });
+
+  it('maps the Channels select to the two switches and back', () => {
+    expect(channelsOf({ inapp: true, email: true })).toBe('both');
+    expect(channelsOf({ inapp: false, email: true })).toBe('email');
+    expect(channelsOf({ inapp: true, email: false })).toBe('inapp');
+    expect(channelsFrom('both')).toEqual({ inapp: true, email: true });
+    expect(channelsFrom('email')).toEqual({ inapp: false, email: true });
+  });
+
+  it('schedules in MST and hands sendAnnouncement the same instant in Central Time', () => {
+    expect(atForSend('2026-12-15T12:00')).toBe('2026-12-15T13:00');
+    expect(defaultScheduleMst(blankAnnouncementForm().at)).toBe('2026-12-09T08:00');
   });
 });
