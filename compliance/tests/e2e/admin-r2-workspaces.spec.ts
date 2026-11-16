@@ -62,9 +62,9 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
     await page.getByRole('textbox', { name: 'Filter workspace or owner' }).fill('');
     await expect(rows(page)).toHaveCount(7);
 
-    // A row's "…" holds its actions; masquerade is locked until the Masquerade screen exists.
+    // A row's "…" holds its actions; "Masquerade as owner…" is live since D-162 3b (Owner and Admin).
     await rows(page).nth(1).getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menuitem', { name: /Masquerade as owner/ })).toBeDisabled();
+    await expect(page.getByRole('menuitem', { name: /Masquerade as owner/ })).toBeEnabled();
     await page.keyboard.press('Escape');
     await rows(page).first().getByRole('cell').nth(2).click();
     await expect(page).toHaveURL(/\/admin\/workspaces\/ws_northshore(\?|$)/);
@@ -80,7 +80,8 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
     await expect(page.getByText('Active', { exact: true }).first()).toBeVisible();
     for (const t of ['ws_northshore', 'Team Plan · 41 seats', '33 of 41', '$1,495', 'Dec 10, 8:52 AM'])
       await expect(page.locator('main').getByText(t, { exact: true }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Masquerade as owner' })).toHaveAttribute('aria-disabled', 'true');
+    // Live since D-162 3b: it opens the reason dialog for the owner.
+    await expect(page.getByRole('button', { name: 'Masquerade as owner' })).toBeEnabled();
     const tabs = page.getByRole('tablist', { name: 'Section' });
     await expect(tabs.getByRole('tab')).toHaveText(['Members2', 'Plan & entitlements', 'Usage', 'Billing', 'Activity']);
     await expect(rows(page)).toHaveCount(2);
@@ -170,8 +171,9 @@ test.describe('Workspaces on R2 (D-160 R2-1c) @g9 @console', () => {
   }) => {
     const { page, close } = await openAt(browser, '/admin/workspaces');
     await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Workspaces' })).toBeVisible();
+    // D-162 3b: Masquerade is on in production too, for the Owner and Admins.
     await expect(page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Masquerade' })).toHaveCount(
-      0,
+      1,
     );
     await close();
   });
