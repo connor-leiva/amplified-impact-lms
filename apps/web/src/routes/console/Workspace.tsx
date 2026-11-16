@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useNavigate, useParams } from 'react-router';
 import { adminStamp, cleanNoteBody } from '@ai/core';
 import type { StaffNote } from '@ai/core';
-import { Button } from '../../components/r2/Button';
+import { Button, ButtonLink } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import { Empty } from '../../components/r2/Empty';
 import { Page } from '../../components/r2/Page';
@@ -214,24 +214,29 @@ export function Component() {
           ) : null}
           {tab === 'billing' ? (
             <Card>
-              <KV
-                rows={[
-                  { label: C.billing.customer, value: <span className={k.mo}>{vm.billing.customer}</span> },
-                  { label: C.billing.subscription, value: <span className={k.mo}>{vm.billing.subscription}</span> },
-                  { label: C.billing.mrr, value: vm.billing.mrr },
-                  {
-                    label: C.billing.invoice,
-                    value: vm.billing.invoice ? (
-                      <span className={k.row} style={{ gap: 8 }}>
-                        <span className={k.mo}>{vm.billing.invoice.id}</span>
-                        <Status tone={vm.billing.invoice.status.tone}>{vm.billing.invoice.status.label}</Status>
-                      </span>
-                    ) : (
-                      NONE
-                    ),
-                  },
-                ]}
-              />
+              <div className={k.col}>
+                <KV
+                  rows={[
+                    { label: C.billing.customer, value: <span className={k.mo}>{vm.billing.customer}</span> },
+                    { label: C.billing.subscription, value: <span className={k.mo}>{vm.billing.subscription}</span> },
+                    { label: C.billing.mrr, value: vm.billing.mrr },
+                    {
+                      label: C.billing.invoice,
+                      value: vm.billing.invoice ? (
+                        <span className={k.row} style={{ gap: 8 }}>
+                          <span className={k.mo}>{vm.billing.invoice.id}</span>
+                          <Status tone={vm.billing.invoice.status.tone}>{vm.billing.invoice.status.label}</Status>
+                        </span>
+                      ) : (
+                        NONE
+                      ),
+                    },
+                  ]}
+                />
+                <div>
+                  <ButtonLink to={C.billing.to}>{C.billing.open}</ButtonLink>
+                </div>
+              </div>
             </Card>
           ) : null}
           {tab === 'activity' ? (

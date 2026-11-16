@@ -47,12 +47,12 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2).
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); R2-4a (D-163) Billing.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
-      ['Revenue', 'Tiers & Upgrades'],
+      ['Revenue', 'Tiers & Upgrades', 'Billing'],
       ['Operations', 'Audit Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ]);
@@ -69,6 +69,13 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
     expect(instructor.find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams']);
     expect(instructor.at(-1)).toEqual(['Access', 'Staff & Roles']);
+    // Billing reads `billing.read`: Support has it (read-only, D3); an Instructor does not.
+    expect(instructor.find((g) => g[0] === 'Revenue')).toEqual(['Revenue', 'Tiers & Upgrades']);
+    expect(labels(nav({ role: 'Support', fullNav: false })).find((g) => g[0] === 'Revenue')).toEqual([
+      'Revenue',
+      'Tiers & Upgrades',
+      'Billing',
+    ]);
   });
 
   it('badges real work and alerts only, and hides each at zero', () => {
@@ -143,6 +150,10 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
       parent: '/admin/workspaces',
     });
     expect(crumbTrail('/admin/users/u_1042')).toEqual({ group: 'Support', page: 'Users', parent: '/admin/users' });
+    // D-163: Billing's tabs are one page with its own addresses, not records: no record crumb.
+    expect(activeRowId('/admin/billing')).toBe('billing');
+    expect(activeRowId('/admin/billing/invoices')).toBe('billing');
+    expect(crumbTrail('/admin/billing/failed')).toEqual({ group: 'Revenue', page: 'Billing' });
     expect(nav({ pathname: '/admin/users/u_1042' }).find((g) => g.label === 'Support')).toMatchObject({
       active: true,
       open: true,

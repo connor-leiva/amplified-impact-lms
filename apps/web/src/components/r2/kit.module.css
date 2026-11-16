@@ -668,6 +668,12 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
+/* D-163: Billing's four stats (`.g4`), and a stat's line in `--bad` ("Needs review"). */
+.g4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
 .stat {
   padding: 16px;
   display: flex;
@@ -702,6 +708,9 @@
 }
 .toneWarn {
   color: var(--r2-warn);
+}
+.toneBad {
+  color: var(--r2-bad);
 }
 .skel {
   padding: 20px;
@@ -766,6 +775,7 @@
   .g3 {
     grid-template-columns: minmax(0, 1fr);
   }
+  .g4,
   .g5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;

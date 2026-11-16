@@ -67,6 +67,10 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/users'],
   ['admin', '/admin/users/u_1042'],
   ['admin', '/admin/search?q=north'],
+  // Billing on R2 (D-163): the Summary, a list, and "Stripe isn't connected".
+  ['admin', '/admin/billing'],
+  ['admin', '/admin/billing/invoices'],
+  ['admin', '/admin/billing?console-state=stripe_off'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

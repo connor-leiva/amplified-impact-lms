@@ -87,7 +87,7 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     'Revenue',
     [
       row('tiers', 'Tiers & Upgrades', 'r2Tiers', '/admin/tiers', true, { badge: 'requests' }),
-      row('billing', 'Billing', 'r2Billing', '/admin/billing', false, { cap: 'billing.read' }),
+      row('billing', 'Billing', 'r2Billing', '/admin/billing', true, { cap: 'billing.read' }),
       row('usage', 'Usage', 'r2Usage', '/admin/usage', false, { cap: 'usage.read' }),
     ],
   ],
@@ -144,6 +144,8 @@ const norm = (pathname: string): string => {
 export function activeRowId(pathname: string): string | null {
   const p = norm(pathname);
   if (p.startsWith('/admin/curriculum/')) return 'builder';
+  // Billing's tabs have their own addresses (D-163, spec § 8: `admin/billing[/:tab]`): one row, one page.
+  if (p.startsWith('/admin/billing/')) return 'billing';
   const parent = recordParent(p);
   if (parent) return parent;
   for (const [, rows] of R2_NAV) for (const r of rows) if (r.built && r.id !== 'builder' && r.path === p) return r.id;

@@ -8,11 +8,14 @@ import type { ConsoleApi, ConsoleFailure } from '../../data/console';
 // one still in flight.
 
 const failureOf = (e: unknown): ConsoleFailure => (e instanceof ConsoleError ? e.kind : 'failed');
+/** The server's own sentence, for a failure whose words name something (D-163: the missing Stripe scope). */
+const detailOf = (e: unknown): string | null => (e instanceof ConsoleError && e.kind === 'stripe_scope' ? e.message : null);
 
 export interface Pages<T> {
   rows: T[];
   status: 'loading' | 'ready' | 'error';
   failure: ConsoleFailure | null;
+  detail?: string | null;
   next: string | null;
   loadingMore: boolean;
   more: () => void;
@@ -47,7 +50,7 @@ export function useConsolePages<T>(
         setState({ rows: p.rows, status: 'ready', failure: null, next: p.nextCursor, loadingMore: false }),
       (e: unknown) =>
         mine === seq.current &&
-        setState({ rows: [], status: 'error', failure: failureOf(e), next: null, loadingMore: false }),
+        setState({ rows: [], status: 'error', failure: failureOf(e), detail: detailOf(e), next: null, loadingMore: false }),
     );
   }, [api, key, attempt]);
 
@@ -71,6 +74,7 @@ export interface Record_<T> {
   data: T | null;
   status: 'loading' | 'ready' | 'error';
   failure: ConsoleFailure | null;
+  detail?: string | null;
   retry: () => void;
 }
 
@@ -90,7 +94,7 @@ export function useConsoleRecord<T>(
     setState({ data: null, status: 'loading', failure: null });
     reader.current(api).then(
       (data) => alive && setState({ data, status: 'ready', failure: null }),
-      (e: unknown) => alive && setState({ data: null, status: 'error', failure: failureOf(e) }),
+      (e: unknown) => alive && setState({ data: null, status: 'error', failure: failureOf(e), detail: detailOf(e) }),
     );
     return () => {
       alive = false;

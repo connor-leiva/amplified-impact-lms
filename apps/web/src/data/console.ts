@@ -11,6 +11,12 @@ import { isConsoleErrorCode } from '@ai/core';
 import type {
   AuditFilters,
   AuditRow,
+  BillingCustomerRow,
+  BillingFailedRow,
+  BillingInvoiceRow,
+  BillingRefundRow,
+  BillingSubscriptionRow,
+  BillingSummary,
   ConsoleErrorCode,
   ConsoleMe,
   ConsolePage,
@@ -41,6 +47,10 @@ export type ConsoleFailure =
   | 'too_large'
   /** 400 `invalid_query`. */
   | 'invalid'
+  /** 503 `stripe_not_connected` (PR 4, D-163): "Stripe isn't connected". */
+  | 'stripe_off'
+  /** 503 `stripe_permission_missing`: the key lacks a Read permission, which the error names. */
+  | 'stripe_scope'
   /** Anything else: a 5xx, a dropped connection, a body that isn't JSON. */
   | 'failed';
 
@@ -63,6 +73,8 @@ export function failureOf(status: number, code: unknown): ConsoleFailure {
   if (code === 'export_too_large') return 'too_large';
   if (code === 'invalid_query' || code === 'invalid_body' || code === 'reason_required') return 'invalid';
   if (code === 'not_found') return 'not_found';
+  if (code === 'stripe_not_connected') return 'stripe_off';
+  if (code === 'stripe_permission_missing') return 'stripe_scope';
   if (status === 429) return 'rate_limited';
   if (status === 404) return 'not_found';
   if (status === 403) return 'forbidden';
@@ -89,6 +101,31 @@ export interface ConsoleApi {
   exportUsers(filters: UserFilters): Promise<{ csv: string; filename: string }>;
   /** Spec § 7.5: 2 to 100 characters; users, workspaces, orders and skills, five each. */
   search(q: string): Promise<SearchResults>;
+  // PR 4 (D-163): Billing, read-only.
+  billingSummary(): Promise<BillingSummary>;
+  billingList<K extends BillingListKind>(kind: K, cursor?: string | null): Promise<ConsolePage<BillingRows[K]>>;
+  /**
+   * FIXTURE ONLY: the mockup's "· sample" qualifiers for its sample figures (BUILD-SPEC § 6.1). The
+   * http client has no such method, so production prints its own words (D-163).
+   */
+  billingSample?(): BillingSample;
+}
+
+/** Billing's lists (spec § 7.6), by the tab that shows each. */
+export interface BillingRows {
+  customers: BillingCustomerRow;
+  subscriptions: BillingSubscriptionRow;
+  invoices: BillingInvoiceRow;
+  failed: BillingFailedRow;
+  refunds: BillingRefundRow;
+}
+export type BillingListKind = keyof BillingRows;
+
+/** What the fixture's sample figures are labelled (the mockup's words), fixture build only. */
+export interface BillingSample {
+  mrrLabel: string;
+  mrrSub: string;
+  plansTitle: string;
 }
 
 /**
@@ -194,6 +231,8 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'users.csv') };
     },
     search: async (q) => (await json<{ groups: SearchResults }>(await request(fetchImpl, `/api/console/search${listQuery({ q })}`))).groups,
+    billingSummary: async () => json<BillingSummary>(await request(fetchImpl, '/api/console/billing/summary')),
+    billingList: async (kind, cursor) => json(await request(fetchImpl, `/api/console/billing/${kind}${listQuery({}, cursor)}`)),
   };
 }
 
