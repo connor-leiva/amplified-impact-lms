@@ -194,9 +194,9 @@ describe('the Console fixture, PR 2 (D-158, on the R2 mockup’s records since D
     await owner.deleteNote(note.id, 'Written on the wrong person.');
     expect(await owner.notes('user', 'u_1043')).toEqual([]);
     expect(await owner.resetPassword('u_1042')).toEqual({ link: 'reset' });
-    const { csv, filename } = await owner.exportUsers({ kind: 'staff' });
+    const { csv, filename } = await owner.exportUsers({ ids: ['u_1042', 'u_1104'] });
     expect(filename).toBe('users-2026-12-10.csv');
-    expect(csv.trimEnd().split('\r\n')).toHaveLength(4);
+    expect(csv.trimEnd().split('\r\n')).toHaveLength(3);
     expect((await owner.audit({})).rows.slice(0, 4).map((r) => r.action)).toEqual(['user.export', 'user.password_reset', 'note.delete', 'note.create']);
 
     const support = createConsoleFixture({ role: 'Support', staff: true, state: null, now: () => NOW });
@@ -239,7 +239,7 @@ describe('the Console client, PR 2 (D-158)', () => {
     await api.addNote('user', 'u_1042', 'Hi');
     await api.deleteNote('12', 'A good enough reason.');
     expect(await api.resetPassword('u_1042')).toEqual({ link: 'set' });
-    expect(await api.exportUsers({ kind: 'staff' })).toEqual({ csv: '"id"\r\n', filename: 'users-2026-12-10.csv' });
+    expect(await api.exportUsers({ ids: ['u_1042'] })).toEqual({ csv: '"id"\r\n', filename: 'users-2026-12-10.csv' });
     expect(calls.map(([u]) => u)).toEqual([
       '/api/console/workspaces?q=a+b&plan=agents&cursor=CUR',
       '/api/console/workspaces/north%20line',
@@ -253,7 +253,7 @@ describe('the Console client, PR 2 (D-158)', () => {
     ]);
     expect(calls[5]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ targetType: 'user', targetId: 'u_1042', body: 'Hi' }) });
     expect(calls[6]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ reason: 'A good enough reason.' }) });
-    expect(calls[8]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ kind: 'staff' }) });
+    expect(calls[8]![1]).toMatchObject({ method: 'POST', body: JSON.stringify({ ids: ['u_1042'] }) });
     for (const [, init] of calls) expect(init?.credentials).toBe('include');
   });
 
