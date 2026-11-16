@@ -17,15 +17,17 @@
 // Database AI Employee its funnel lists, and leaves the modelled learners' builds out of it. Every
 // figure is still the production view-model's, printed from this snapshot.
 
-import { seed } from '@ai/core';
+import { EDITABLE_ROLES, roleRowCeiling, roleRowOf, seed } from '@ai/core';
 import type {
   AIEmployee,
   Announcement,
+  AuditRow,
   Db,
   IconName,
   Learner,
   Progress,
   Resource,
+  RoleGrant,
   Session,
   SkillFile,
   Staff,
@@ -37,6 +39,7 @@ import type {
 } from '@ai/core';
 import {
   ANNOUNCEMENTS,
+  AUDIT0,
   BUILDER_FILES,
   BUILDER_STEPS,
   MODS0,
@@ -44,6 +47,8 @@ import {
   OVERVIEW_FUNNEL,
   OVERVIEW_PTS,
   OVERVIEW_RECENT,
+  PERMS0,
+  ROLES,
   STAFF,
   TIER_CARDS,
   UPGRADE_REQUESTS,
@@ -331,4 +336,64 @@ export function parityDb(path = '/admin/curriculum'): Db {
     mod: { ...CURRICULUM_BASE },
   };
   return path.replace(/\/+$/, '') === '/admin' ? overviewDb(db) : db;
+}
+
+/**
+ * The Roles & Permissions matrix's stored changes for `?parity=r2` (D-160 R2-3b): `PERMS0` within the
+ * ceiling. A box `PERMS0` leaves off that the ceiling allows is a removal; a box past the ceiling
+ * stores nothing, since the ceiling decides it anyway; the `build` row is the `PermKey` matrix's
+ * (`db.perms`). On the mockup's own data that is no change at all: `PERMS0` is the ceiling but for
+ * Support's export, which the ceiling refuses.
+ */
+export function parityRoleGrants(): RoleGrant[] {
+  const out: RoleGrant[] = [];
+  for (const [key, , cells] of PERMS0) {
+    const row = roleRowOf(key);
+    if (!row.caps?.length) continue;
+    for (const role of EDITABLE_ROLES) {
+      const on = cells[ROLES.indexOf(role)] === 1;
+      if (!on && roleRowCeiling(row, role)) out.push({ role, capability: key, allowed: false });
+    }
+  }
+  return out;
+}
+
+const AUDIT_TARGET: Record<string, string> = {
+  job: 'job',
+  masquerade: 'user',
+  audit: 'audit_log',
+  module: 'module',
+  permission: 'role',
+  tier: 'module',
+  email_log: 'email_log',
+  billing: 'invoice',
+};
+
+/**
+ * The Audit Log's rows (`AUDIT0`, R2-3b), as the console fixture serves them for `?parity=r2`. Each
+ * detail is the row's reason, but the export's, which the screen words from what was exported (its
+ * rows and its seven days), as it does for every export.
+ */
+export function parityAuditRows(): AuditRow[] {
+  return AUDIT0.map(([at, actor, action, target, detail], i): AuditRow => {
+    const t = stamp(at);
+    const st = STAFF.findIndex((s) => s.n === actor);
+    const group = action.split('.')[0]!;
+    const exp = action === 'audit.export';
+    return {
+      id: String(2000 - i),
+      at: t,
+      actor: { userId: `st${st + 1}`, name: actor, role: STAFF[st]!.role, source: 'staff' },
+      masqueradeSessionId: group === 'masquerade' ? 'msq_0412' : null,
+      action: action as AuditRow['action'],
+      target: { type: AUDIT_TARGET[group] ?? null, id: null, label: target },
+      reason: exp ? null : detail,
+      before: null,
+      after: exp ? { rows: 212, format: 'csv', filters: { from: t - 7 * 864e5 } } : null,
+      outcome: action === 'masquerade.blocked_action' ? 'blocked' : 'ok',
+      ip: '203.0.113.24',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+      requestId: `req-${(9000 - i * 37).toString(36)}`,
+    };
+  });
 }

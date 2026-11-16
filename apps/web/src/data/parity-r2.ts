@@ -28,6 +28,24 @@ export const STAFF = [
 export const ROLES = ['Owner', 'Admin', 'Support'] as const;
 
 /**
+ * `PERMS0` (R2-3b, editable Roles): the matrix, verbatim, one value per `ROLES` column. The parity
+ * fixture stores it as the Owner's changes (`parityRoleGrants`) within the ceiling, which `CONSOLE_CAPS`
+ * keeps in code: where `PERMS0` shows a box the ceiling forbids (Support's "Export audit and email
+ * logs"), the ceiling wins and the box is drawn locked, as production draws it.
+ */
+export const PERMS0 = [
+  ['build', 'Edit curriculum, vault, sessions, announcements, tiers', [1, 1, 0]],
+  ['masq', 'Start and extend masquerade', [1, 1, 0]],
+  ['account', 'Send password reset or change email', [1, 1, 1]],
+  ['billview', 'View billing', [1, 1, 1]],
+  ['refund', 'Refund or void an invoice', [1, 1, 0]],
+  ['jobs', 'Run a job now, retry a webhook, update incidents', [1, 1, 0]],
+  ['export', 'Export audit and email logs', [1, 1, 1]],
+  ['ops', 'View integrations, deploys, DB health, flags, roles', [1, 1, 0]],
+  ['staff', 'Edit staff roles and this matrix', [1, 0, 0]],
+] as const;
+
+/**
  * `MODS0` (R2-2): the curriculum, verbatim. `ses` is the live session's two lines as the mockup writes
  * them; the parity snapshot (`parity-r2-db.ts`) turns each row into the app's own AI Employee, session
  * and baseline, and the Curriculum and Module Builder screens print them back from those.
@@ -322,6 +340,24 @@ export const OVERVIEW_ACTIVITY = [
 
 /** The Overview's "+6 in the last 24 hours". */
 export const OVERVIEW_RECENT = 6;
+
+/**
+ * `AUDIT0` (R2-3b): the Audit Log's rows, newest first: time, actor, action, target, detail. Four of
+ * its actions (`masquerade.stop`, `module.publish`, `permission.change`, `tier.access_change`) are the
+ * mockup's and not yet in the app's closed `AUDIT_ACTIONS`; the console fixture serves them as written.
+ */
+export const AUDIT0 = [
+  ['Dec 10, 8:58 AM', 'Connor Leiva', 'job.run_now', 'ghl-orders', 'Manual run. Failed with 401.'],
+  ['Dec 9, 9:31 PM', 'Avery Stone', 'masquerade.stop', 'Sam Whitlock', 'Exited by staff after 6 min.'],
+  ['Dec 9, 9:27 PM', 'Avery Stone', 'masquerade.blocked_action', 'Sam Whitlock', 'Tried: Refund in_1QxP7tTw0283.'],
+  ['Dec 9, 9:25 PM', 'Avery Stone', 'masquerade.start', 'Sam Whitlock', 'Reason: Customer cannot see the Session 2 replay.'],
+  ['Dec 9, 5:02 PM', 'Imani Brooks', 'audit.export', 'Audit log', 'CSV, last 7 days, 212 rows.'],
+  ['Dec 9, 3:20 PM', 'Avery Stone', 'module.publish', 'Sales AI Employee', 'Draft to Published.'],
+  ['Dec 9, 2:10 PM', 'Connor Leiva', 'permission.change', 'Support', 'Refund or void an invoice: allowed to not allowed.'],
+  ['Dec 8, 4:44 PM', 'Connor Leiva', 'tier.access_change', 'Database AI Employee', 'Team only to Agent + Team.'],
+  ['Dec 8, 9:05 AM', 'Imani Brooks', 'email_log.export', 'Email log', 'CSV, template weekly-digest, 388 rows.'],
+  ['Nov 1, 4:44 PM', 'Connor Leiva', 'billing.refund', 'in_1QxK5fFm0270', '$695.00. Reason: canceled inside trial window.'],
+] as const;
 
 /** The parity fixture, as the shell reads it. */
 export interface ParityR2 {

@@ -17,13 +17,17 @@ import { resetDatabase, testDatabase } from './helpers';
 
 const NOW = Date.parse('2026-12-07T16:42:00Z');
 
-type RouteName = 'me' | 'audit' | 'export' | 'roles';
+type RouteName = 'me' | 'audit' | 'export' | 'roles' | 'preview' | 'change';
 
-const ROUTES: Record<RouteName, { path: string; method: 'GET' | 'POST'; route: string }> = {
+const ROUTES: Record<RouteName, { path: string; method: 'GET' | 'POST'; route: string; payload?: Record<string, unknown> }> = {
   me: { path: CONSOLE_PATHS.me, method: 'GET', route: `GET ${CONSOLE_PATHS.me}` },
   audit: { path: CONSOLE_PATHS.audit, method: 'GET', route: `GET ${CONSOLE_PATHS.audit}` },
   export: { path: CONSOLE_PATHS.auditExport, method: 'POST', route: `POST ${CONSOLE_PATHS.auditExport}` },
   roles: { path: CONSOLE_PATHS.roles, method: 'GET', route: `GET ${CONSOLE_PATHS.roles}` },
+  // D-160 R2-3b: the matrix change, the Owner's alone (`roles.write`). The Owner's change here carries
+  // no real token, so it is refused for that (`console-roles.test.ts` makes real changes).
+  preview: { path: CONSOLE_PATHS.rolesPreview, method: 'POST', route: `POST ${CONSOLE_PATHS.rolesPreview}`, payload: { role: 'Admin', capability: 'masq', allowed: false } },
+  change: { path: CONSOLE_PATHS.roles, method: 'POST', route: `POST ${CONSOLE_PATHS.roles}`, payload: { confirmToken: 'not-a-token' } },
 };
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
@@ -40,17 +44,20 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 
 // Spec § 5, by hand. `me` answers any staff member (with an empty list for Instructor and Content
 // Editor) and refuses a learner; `audit` is audit.read (Owner, Admin, Support); `export` is export
-// (Owner, Admin); `roles` is ops.read (Owner, Admin).
+// (Owner, Admin); `roles` is ops.read (Owner, Admin); `preview` and `change` are roles.write (the Owner).
 const EXPECT: Record<string, Record<RouteName, number>> = {
-  anon: { me: 401, audit: 401, export: 401, roles: 401 },
-  learner: { me: 403, audit: 403, export: 403, roles: 403 },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403 },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403 },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403 },
-  Support: { me: 200, audit: 200, export: 403, roles: 403 },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200 },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200 },
+  anon: { me: 401, audit: 401, export: 401, roles: 401, preview: 401, change: 401 },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, preview: 403, change: 403 },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, preview: 403, change: 403 },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, preview: 403, change: 403 },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, preview: 200, change: 403 },
 };
+
+/** A 403 that is not the capability's: the Owner's change with no real token. */
+const CODE: Partial<Record<string, Partial<Record<RouteName, string>>>> = { Owner: { change: 'confirm_invalid' } };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
 const SUPPORT_CAPS = ['console.view', 'workspaces.read', 'users.read', 'notes.write', 'user.password_reset', 'usage.read', 'api.read', 'jobs.read', 'incidents.read', 'email.read', 'incidents.ack', 'incidents.create', 'billing.read', 'audit.read'];
@@ -81,7 +88,7 @@ const call = async (name: RouteName, userId: string | null) => {
   if (userId) headers.cookie = await app.signInAs(userId);
   if (r.method === 'POST') {
     headers['content-type'] = 'application/json';
-    return app.inject({ method: 'POST', url: r.path, headers, payload: {} });
+    return app.inject({ method: 'POST', url: r.path, headers, payload: r.payload ?? {} });
   }
   return app.inject({ method: 'GET', url: r.path, headers });
 };
@@ -90,7 +97,7 @@ const auditRows = async () => (await testDatabase()).select().from(auditLog).ord
 
 describe('the Console routes, by caller (D-157) @console', () => {
   it('covers every PR 1 Console route', () => {
-    expect(Object.values(ROUTES).map((r) => r.path).sort()).toEqual(Object.values(CONSOLE_PATHS).sort());
+    expect([...new Set(Object.values(ROUTES).map((r) => r.path))].sort()).toEqual(Object.values(CONSOLE_PATHS).sort());
     expect(Object.keys(EXPECT)).toEqual(PERSONAS.map((p) => p.name));
   });
 
@@ -108,6 +115,10 @@ describe('the Console routes, by caller (D-157) @console', () => {
         if (want === 401) {
           // § 7.3's 401, unchanged.
           expect(JSON.parse(res.body)).toEqual({ error: 'Not signed in' });
+          expect(after.length).toBe(before);
+        } else if (want === 403 && CODE[persona.name]?.[name]) {
+          // Past the capability: refused for what it carries, and nothing written.
+          expect(JSON.parse(res.body).code).toBe(CODE[persona.name]![name]);
           expect(after.length).toBe(before);
         } else if (want === 403) {
           const body = JSON.parse(res.body) as { error: string; code: string };
@@ -142,6 +153,8 @@ describe('the Console routes, by caller (D-157) @console', () => {
             if (persona.name === 'Admin') expect(me.caps).toContain('export');
             if (persona.name === 'Admin') expect(me.caps).not.toContain('notes.delete');
             if (persona.name === 'Owner') expect(me.caps).toContain('flags.write_sensitive');
+            if (persona.name === 'Owner') expect(me.caps).toContain('roles.write');
+            if (persona.name === 'Admin') expect(me.caps).not.toContain('roles.write');
           }
         }
       }
