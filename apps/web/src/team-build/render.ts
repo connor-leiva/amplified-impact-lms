@@ -36,6 +36,7 @@ import {
   proofSection,
   seatMeter,
 } from '../kit/parts';
+import { clarityCall } from '../kit/clarity';
 import { kitFooter, kitHeader, kitSkip } from '../kit/render';
 import {
   BUY,
@@ -411,6 +412,8 @@ export function renderTeamBuildBody({ examples = EXAMPLES_ON } = {}): string {
     faq(TB_FAQ.items, { title: TB_FAQ.heading, aside: contact }),
     closeCta({ title: END.heading, lead: END.body, actions: button(END.button, FREE_SKILLS_HREF), free: true }),
     `</main>`,
+    // The Clarity Call (D-161): after the price section's buy block and the close, above the footer.
+    clarityCall('kit'),
     kitFooter(),
   ].join('\n');
 }

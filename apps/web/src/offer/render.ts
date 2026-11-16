@@ -38,6 +38,7 @@ import {
 } from './content';
 import type { CardPlan, StepExtra, ThanksStep } from './content';
 import { payPair } from './pay-pair';
+import { clarityCall } from '../kit/clarity';
 
 /** The cards, in the plan's order: the AI Accelerator, Amplified Insiders, the Team Plan. */
 const PLANS = CARDS as readonly CardPlan[];
@@ -218,6 +219,8 @@ export function renderOfferBody(): string {
     after(),
     waitlist(),
     `</main>`,
+    // The Clarity Call (D-161): after the cards and the waitlist, above the footer. Never on the welcome page.
+    clarityCall('offer'),
     footer(),
   ].join('\n');
 }

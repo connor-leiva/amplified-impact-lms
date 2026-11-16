@@ -46,6 +46,7 @@ import {
 } from './content';
 import { UI } from './ui';
 import { shareImageTags } from '../site/share';
+import { clarityCall } from '../kit/clarity';
 import { LEAD, leadFor } from '../library/content';
 
 const ENTITIES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -984,6 +985,8 @@ function skillBody(guide: Guide): string {
     `</div>`,
     skillSections(guide, at),
     `</main>`,
+    // The Clarity Call (D-161), on every skill page: after the page's sections, above the footer.
+    clarityCall('skill'),
     footer('sk-foot'),
     copies(guide) ? `<p id="guide-live" class="toast" role="status" aria-live="polite"></p>` : '',
     // On a phone, a way to the sign-up from anywhere on the page: shown by `main.ts` while the card is

@@ -14,6 +14,7 @@
    are Geist at 600, from the kit's variable font (`../kit/tokens.css`). */
 
 @import './guides.css';
+@import '../kit/clarity.css';
 
 /* --- Which app: two radio buttons and CSS, no script ----------------------------------------------
    The inputs come before both step lists as their siblings, so `:checked ~` can show one list. That

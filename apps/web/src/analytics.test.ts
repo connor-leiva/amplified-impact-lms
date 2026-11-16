@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { clarityCall } from './kit/clarity';
 
 // D-155: `public/analytics.js`, the one file that loads Google Analytics 4 and the Meta Pixel on the
 // www marketing pages. Run here as the browser runs it, against jsdom: no third-party script is ever
@@ -86,8 +87,72 @@ describe('analytics.js (D-155)', () => {
     ]);
   });
 
+  describe('the Clarity Call (D-161)', () => {
+    /** The real card, as every page that carries it draws it. */
+    const card = () => clarityCall('kit');
+    const clarity = () => document.querySelector<HTMLAnchorElement>('[data-clarity-call] a')!;
+    beforeEach(() => {
+      // jsdom does not open the new tab; a browser would, and this page stays to send.
+      document.addEventListener('click', (e) => e.preventDefault());
+    });
+
+    it('sends GA4 clarity_call_click and Meta’s custom ClarityCallClick, each with the page’s path, when its button is clicked', () => {
+      run('https://www.amplifiedimpact.io/pricing?src=ig');
+      document.body.innerHTML = card();
+      expect(clarity().getAttribute('data-ai-event')).toBe('clarity_call_click');
+      clarity().click();
+      expect(gtagCalls().slice(2)).toEqual([['event', 'clarity_call_click', { page: '/pricing' }]]);
+      expect(fbqCalls().slice(2)).toEqual([['trackCustom', 'ClarityCallClick', { page: '/pricing' }]]);
+    });
+
+    it('names the page it was clicked on: /forum is /forum, a skill page its own path', () => {
+      for (const path of ['/', '/offer', '/forum', '/team-build', '/appointment-follow-up']) {
+        reset();
+        run(`https://www.amplifiedimpact.io${path}`);
+        document.body.innerHTML = clarityCall(path === '/offer' || path === '/forum' ? 'offer' : path === '/appointment-follow-up' ? 'skill' : 'kit');
+        clarity().click();
+        expect(gtagCalls().filter((c) => c[1] === 'clarity_call_click'), path).toEqual([['event', 'clarity_call_click', { page: path }]]);
+        expect(fbqCalls().filter((c) => c[0] === 'trackCustom'), path).toEqual([['trackCustom', 'ClarityCallClick', { page: path }]]);
+      }
+    });
+
+    it('is no checkout: a Clarity Call click sends no begin_checkout, and a Buy click no Clarity Call', () => {
+      run();
+      document.body.innerHTML =
+        card() + '<a id="buy" data-ai-cart="cohort-full" data-ai-item="Amplified AI Accelerator, Paid in Full" href="https://buy.stripe.com/test_full">Pay in full</a>';
+      clarity().click();
+      document.querySelector<HTMLElement>('#buy')!.click();
+      expect(gtagCalls().slice(2).map((c) => c[1])).toEqual(['clarity_call_click', 'begin_checkout']);
+      expect(fbqCalls().slice(2).map((c) => [c[0], c[1]])).toEqual([
+        ['trackCustom', 'ClarityCallClick'],
+        ['track', 'InitiateCheckout'],
+      ]);
+    });
+
+    it('sends nothing for a name it does not know, for a plain link, or twice when the file is loaded twice', () => {
+      run();
+      document.body.innerHTML =
+        card() + '<a id="unknown" data-ai-event="something_else" href="/x">?</a><a id="proto" data-ai-event="toString" href="/y">?</a><a id="plain" href="/z">?</a>';
+      for (const id of ['unknown', 'proto', 'plain']) document.querySelector<HTMLElement>(`#${id}`)!.click();
+      expect(gtagCalls()).toHaveLength(2);
+      expect(fbqCalls()).toHaveLength(2);
+      new Function(SOURCE)();
+      clarity().click();
+      expect(gtagCalls().filter((c) => c[1] === 'clarity_call_click')).toHaveLength(1);
+      expect(fbqCalls().filter((c) => c[0] === 'trackCustom')).toHaveLength(1);
+    });
+
+    it('sends nothing off www: no tag, no queue', () => {
+      run('https://learn.amplifiedimpact.io/offer');
+      document.body.innerHTML = card();
+      clarity().click();
+      expect(win.dataLayer).toBeUndefined();
+      expect(win.fbq).toBeUndefined();
+    });
+  });
+
   describe('/offer/welcome', () => {
-    const confirmed = (id = 'cs_test_paid000000001', over: Record<string, string> = {}) => {
+    const confirmed =(id = 'cs_test_paid000000001', over: Record<string, string> = {}) => {
       const attrs: Record<string, string> = {
         'data-state': 'confirmed',
         'data-purchase-id': id,

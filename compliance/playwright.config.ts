@@ -76,6 +76,10 @@ const httpServer = {
     // fail for a reason that has nothing to do with sign-in. It must be THIS origin, because the
     // test then opens the emailed link in the browser.
     APP_URL: HTTP_BASE,
+    // www's homepage is served at `/` on the marketing host only (`routes/marketing.ts`), so
+    // `clarity-call.spec.ts` asks for it with this `Host` (D-161). Every other request here arrives
+    // as 127.0.0.1, which that hook stands aside for: the app host's `/` is still the SPA.
+    MARKETING_HOST: 'www.amplifiedimpact.io',
   },
 };
 

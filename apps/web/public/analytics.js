@@ -12,6 +12,8 @@
 //   - every page: GA4's page_view (gtag's `config`) and Meta's PageView;
 //   - a Buy button (a Stripe Payment Link, labelled by the API with `data-ai-cart` / `data-ai-item`):
 //     GA4 `begin_checkout` and Meta `InitiateCheckout`, with the plan's name;
+//   - the Clarity Call's button (`data-ai-event="clarity_call_click"`, D-161): GA4 `clarity_call_click`
+//     and Meta's custom `ClarityCallClick`, each with the page's path as `page`;
 //   - /offer/welcome once the order is confirmed: GA4 `purchase` and Meta `Purchase`, with the value,
 //     currency and product the server read from the order, and the Checkout Session id as the
 //     transaction id and the event id. Once per session id: a reload, a second tab or the back button
@@ -65,6 +67,28 @@
   }
   window.fbq('init', META_PIXEL_ID);
   window.fbq('track', 'PageView');
+
+  // --- A call to action that is not a Buy button (D-161) -------------------------------------------
+  // A link marked `data-ai-event="<name>"`, for a name listed here: GA4 gets that event with the page's
+  // path, and Meta the custom event beside it, as every GA4 event here has its Meta twin. Today only
+  // the Clarity Call card's button (`src/kit/clarity.ts`), which opens the booking page in a new tab,
+  // so this page stays to send it. An unlisted name sends nothing.
+  var CTA_EVENTS = { clarity_call_click: 'ClarityCallClick' };
+  document.addEventListener(
+    'click',
+    function (e) {
+      if (window.__aiAnalytics !== self) return; // a listener from an earlier load of this file
+      var target = e.target;
+      var a = target && target.closest ? target.closest('a[data-ai-event]') : null;
+      if (!a) return;
+      var name = a.getAttribute('data-ai-event');
+      if (!Object.prototype.hasOwnProperty.call(CTA_EVENTS, name)) return;
+      var page = location.pathname;
+      window.gtag('event', name, { page: page });
+      window.fbq('trackCustom', CTA_EVENTS[name], { page: page });
+    },
+    true,
+  );
 
   // --- Buy: a Stripe Payment Link -----------------------------------------------------------------
   document.addEventListener(

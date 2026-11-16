@@ -317,7 +317,8 @@ describe('the stylesheet', () => {
   const css = read('./v3.css');
 
   it('is the kit’s, then v3’s, with no font from anywhere else', () => {
-    expect(css.match(/@import '([^']+)'/g)).toEqual(["@import '../../kit/kit.css'"]);
+    // The kit's, and the kit's Clarity Call card (D-161), which sits between <main> and the footer.
+    expect(css.match(/@import '([^']+)'/g)).toEqual(["@import '../../kit/kit.css'", "@import '../../kit/clarity.css'"]);
     expect(css).not.toMatch(/fonts\.googleapis|fonts\.gstatic|url\(['"]?https?:/);
   });
 

@@ -8,6 +8,7 @@
    COLOURS. Tokens only (`scripts/check-css-colors.mjs` scans this file). Inlined at build time. */
 
 @import '../kit/kit.css';
+@import '../kit/clarity.css';
 
 .aiw .status strong {
   font-weight: 500;

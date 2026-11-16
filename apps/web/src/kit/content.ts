@@ -23,6 +23,28 @@ export const KIT = {
 } as const;
 
 /**
+ * The Clarity Call (D-161): a free 15-minute call with Connor, for a visitor who isn't ready to buy.
+ * Connor's words (Nov 15, 2026, "a button, not an embed"), polished lightly: the button in Title Case
+ * (D-048), the site's apostrophe, and the days and hours as the site writes them ("8 AM to noon",
+ * "1:00 PM Central"), with no dash of either kind (the www pages' house rule, which their tests hold).
+ * The PR lists each line beside his for his review. No proof line here: it is not a buy button.
+ *
+ * `href` is GoHighLevel's booking page, exactly as Connor gave it: a plain link that opens in a new tab.
+ * No GHL script, iframe, embed or API call anywhere.
+ */
+export const CLARITY_CALL = {
+  eyebrow: 'Still deciding?',
+  heading: 'Talk it through with Connor.',
+  body: 'Book a free 15-minute Clarity Call. We’ll look at where your business is today and whether this is the right next step. No pitch, no pressure.',
+  button: 'Book a Free Clarity Call',
+  /** The small print under the button, one fact a part, joined by middle dots. */
+  details: ['15 minutes', 'Monday to Friday, 9 AM to 5 PM Central', 'Zoom link sent automatically'],
+  href: 'https://api.leadconnectorhq.com/widget/booking/XNxUdrtETSpLzuFotwUH',
+  /** The GA4 event a click sends through `/analytics.js` (`data-ai-event`), with the page's path. */
+  event: 'clarity_call_click',
+} as const;
+
+/**
  * Each program's line in the Programs menu: who it's for, /pricing's own words, and its logo: Connor's
  * lockup (`programLogo()` in `../home/program-logo.ts`, PR #73's artwork), never a generic icon.
  */
