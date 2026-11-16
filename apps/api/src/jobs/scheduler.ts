@@ -132,6 +132,7 @@ import { jobOf } from './keys';
 import type { JobName } from './keys';
 import { acceleratorLearnerIds } from '../lib/course-access';
 import { sweepMasquerades } from '../console/masquerade';
+import { pruneEmailAndUsage } from './prune-logs';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -628,6 +629,13 @@ export function startScheduler(options: StartOptions = {}): Scheduler {
       if (swept > 0) log.info({ swept }, 'masquerade sweep');
     } catch (err) {
       log.error({ err }, 'masquerade sweep failed; the next tick retries');
+    }
+    // D-166: the email log's 180 days and usage's 400 (D6), the same way: its own try/catch, outside the lock.
+    try {
+      const pruned = await pruneEmailAndUsage(runOptions.db ?? getDb(), clock.now());
+      if (pruned.emails + pruned.usage > 0) log.info(pruned, 'email log and usage pruned');
+    } catch (err) {
+      log.error({ err }, 'email log and usage prune failed; the next tick retries');
     }
     return runScheduledJobs(runOptions);
   };
