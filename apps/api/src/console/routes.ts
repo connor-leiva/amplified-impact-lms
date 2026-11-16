@@ -14,7 +14,9 @@
 //                                   the path of the Staff & Roles screen. `ops.read` (Owner, Admin).
 //
 // PR 2 (D-158) adds workspaces, users, staff notes and search (`support-routes.ts`); PR 3a (D-162)
-// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history. During a
+// adds masquerade (`masquerade.ts`): Start, current, Extend, Exit and the history; PR 8 (D-167)
+// adds incidents (`incidents.ts`): the list, its summary, one incident, create, ack, resolve and
+// notes. During a
 // masquerade every Console route but current, Extend and Exit answers 403 `masquerade_blocked` (D2,
 // `requireSession`).
 //
@@ -48,6 +50,7 @@ import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
 import { registerMasqueradeRoutes } from './masquerade';
+import { INCIDENT_PATHS, registerIncidentRoutes } from './incidents';
 import type { MasqueradeDeps } from './masquerade';
 
 export const CONSOLE_PATHS = {
@@ -63,6 +66,8 @@ export const CONSOLE_PATHS = {
   masqueradeExtend: MASQUERADE_PATHS.extend,
   masqueradeExit: MASQUERADE_PATHS.exit,
   masqueradeSessions: MASQUERADE_PATHS.sessions,
+  // PR 8 (D-167): incidents.
+  ...INCIDENT_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -275,5 +280,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
 
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
+    registerIncidentRoutes(scope);
   });
 }

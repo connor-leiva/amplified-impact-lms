@@ -132,6 +132,7 @@ import { jobOf } from './keys';
 import type { JobName } from './keys';
 import { acceleratorLearnerIds } from '../lib/course-access';
 import { sweepMasquerades } from '../console/masquerade';
+import { evaluateIncidentRules } from '../console/incident-rules';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -629,7 +630,19 @@ export function startScheduler(options: StartOptions = {}): Scheduler {
     } catch (err) {
       log.error({ err }, 'masquerade sweep failed; the next tick retries');
     }
-    return runScheduledJobs(runOptions);
+    try {
+      return await runScheduledJobs(runOptions);
+    } finally {
+      // D-167: the incidents' auto-open rules (spec § 7.14), once per tick after the jobs, observe-only
+      // and in their own try/catch: whatever they do or throw, the tick answers exactly what
+      // `runScheduledJobs` answered, and no job ever waits on them for anything but time.
+      try {
+        const run = await evaluateIncidentRules(runOptions.db ?? getDb(), clock.now());
+        if (run.opened.length || run.signaled.length || run.failed.length) log.info({ ...run }, 'incident rules');
+      } catch (err) {
+        log.error({ err }, 'incident rules failed; the next tick retries');
+      }
+    }
   };
 
   const fire = (): void => {
