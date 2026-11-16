@@ -248,11 +248,55 @@ export const ANNOUNCEMENTS = [
   ['Database AI Employee opens Monday', 'Everyone', 'In-app', 'Draft', '—'],
 ] as const;
 
-/** `INCIDENTS`' ids and statuses: Incidents' "1" counts the open ones. */
+/**
+ * `INCIDENTS` (D-167), verbatim: Incidents' "1" counts the open ones. `links` are the "Linked" card's
+ * rows (the screen they open, and their words); `tl` the timeline, oldest first.
+ */
 export const INCIDENTS = [
-  { id: 'INC-0007', st: 'Open' },
-  { id: 'INC-0006', st: 'Acknowledged' },
-  { id: 'INC-0005', st: 'Resolved' },
+  {
+    id: 'INC-0007',
+    t: 'GHL order sync failing with 401',
+    sev: 'Sev 2',
+    st: 'Open',
+    o: 'Dec 9, 9:14 PM',
+    own: 'Imani Brooks',
+    links: [
+      ['jobs', 'Job ghl-orders'],
+      ['api', '3 webhook deliveries'],
+    ],
+    tl: [
+      ['Dec 9, 9:14 PM', 'Opened automatically after 3 failed runs of ghl-orders.'],
+      ['Dec 9, 9:20 PM', 'Imani Brooks confirmed orders are saved locally. Only the GHL copy is behind.'],
+      ['Dec 9, 10:42 PM', 'Deploy a3f91c2 went live. No change in error rate.'],
+    ],
+  },
+  {
+    id: 'INC-0006',
+    t: 'Stripe subscription.updated handler timeout',
+    sev: 'Sev 3',
+    st: 'Acknowledged',
+    o: 'Dec 8, 7:31 PM',
+    own: 'Avery Stone',
+    links: [['api', '1 webhook delivery']],
+    tl: [
+      ['Dec 8, 7:31 PM', 'Opened after a delivery used all 5 attempts.'],
+      ['Dec 8, 7:40 PM', 'Acknowledged by Avery Stone.'],
+    ],
+  },
+  {
+    id: 'INC-0005',
+    t: 'Weekly digest bounces above 2%',
+    sev: 'Sev 3',
+    st: 'Resolved',
+    o: 'Dec 7, 7:12 AM',
+    own: 'Connor Leiva',
+    links: [['email', 'Email log, weekly-digest']],
+    tl: [
+      ['Dec 7, 7:12 AM', 'Opened by Connor Leiva.'],
+      ['Dec 7, 2:05 PM', 'Canceled workspaces removed from the digest audience.'],
+      ['Dec 7, 2:10 PM', 'Resolved by Connor Leiva.'],
+    ],
+  },
 ] as const;
 
 /** Tiers' upgrade requests (`req` in its `Tiers` screen): "2" counts the pending ones. */

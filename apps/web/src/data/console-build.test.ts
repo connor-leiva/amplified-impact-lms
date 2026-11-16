@@ -145,3 +145,29 @@ describe('the ops fixture is not in the http build (D-165)', () => {
     for (const s of ['76,320', '41,208', '212 ms', '3 GHL, 1 Stripe', 'Every 5 min']) expect(code, s).not.toContain(s);
   }, 60_000);
 });
+
+/**
+ * D-167: the mockup's incidents (`INCIDENTS` in `parity-r2.ts`, shaped by
+ * `console-fixture-incidents.ts`) are fixture-build only; production shows real incidents or the
+ * empty state, and the screens' view-model holds none of the mockup's records.
+ */
+const INCIDENT_SENTINELS = ['GHL order sync failing with 401', 'INC-0007', 'Imani Brooks confirmed orders', 'Weekly digest bounces above 2%'];
+
+describe('the incidents fixture is not in the http build (D-167)', () => {
+  it('the http build has none of it', async () => {
+    const code = await bundle('production');
+    expect(code).toContain('/api/console/incidents');
+    for (const s of INCIDENT_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture');
+    for (const s of INCIDENT_SENTINELS) expect(code, s).toContain(s);
+  }, 60_000);
+
+  it('the screens’ production view-model has no sample record', async () => {
+    const code = await bundle('production', '../routes/console/incidents.vm.ts');
+    expect(code).toContain('What broke, who has it, and what it is linked to.');
+    for (const s of INCIDENT_SENTINELS) expect(code, s).not.toContain(s);
+  }, 60_000);
+});

@@ -103,6 +103,10 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   // Scheduled Jobs, on the mockup's `ENDPOINTS`, `HOOKS` and `JOBS` (the Console fixture answers with them).
   api: { path: '/admin/api' },
   jobs: { path: '/admin/jobs' },
+  // D-167: Incidents and the mockup's detail record, INC-0007, on its `INCIDENTS` (the Console fixture
+  // answers with them).
+  incidents: { path: '/admin/incidents' },
+  incident: { path: '/admin/incidents/INC-0007' },
 };
 
 /**
@@ -148,6 +152,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // D-165: API & Webhooks and Scheduled Jobs, at all four widths.
   `api-${w}`,
   `jobs-${w}`,
+  // D-167: Incidents and Incident, at all four widths.
+  `incidents-${w}`,
+  `incident-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

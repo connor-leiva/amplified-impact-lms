@@ -133,8 +133,10 @@ export type IncidentRuleId = (typeof INCIDENT_RULE_IDS)[number];
 /** Where each rule's evidence is, in the Console. A job's carries `?job=`. */
 export const INCIDENT_LINKS = {
   jobs: '/admin/jobs',
-  webhooks: '/admin/api/webhooks',
+  webhooks: '/admin/api/hooks',
   api: '/admin/api',
+  /** The Email Log, by template (`?template=`): a link staff evidence may carry, as the mockup's INC-0005 does. */
+  email: '/admin/email',
 } as const;
 
 /** One finished job tick (`job_ticks`, succeeded or failed). */
@@ -341,7 +343,7 @@ export function incidentEventText(e: Pick<IncidentEventView, 'kind' | 'actor' | 
 export interface IncidentLinked {
   /** `INCIDENT_LINKS`' page, with its query. */
   to: string;
-  icon: 'jobs' | 'api';
+  icon: 'jobs' | 'api' | 'email';
   label: string;
 }
 
@@ -356,8 +358,9 @@ const linkKey = (link: string): string => {
 
 /**
  * The "Linked" card: each distinct page the timeline's evidence links to, in first-seen order, with
- * the latest count a later line gave it. A job's is "Job ghl-orders" and the webhooks' "3 webhook
- * deliveries" (the mockup's words); the API's is its endpoints.
+ * the latest count a later line gave it. A job's is "Job ghl-orders", the webhooks' "3 webhook
+ * deliveries" and the Email Log's "Email log, weekly-digest" (the mockup's words); the API's is its
+ * endpoints.
  */
 export function incidentLinked(events: readonly Pick<IncidentEventView, 'link'>[]): IncidentLinked[] {
   const out: (IncidentLinked & { key: string })[] = [];
@@ -371,6 +374,7 @@ export function incidentLinked(events: readonly Pick<IncidentEventView, 'link'>[
     else if (path === INCIDENT_LINKS.webhooks)
       item = { to: e.link, icon: 'api', label: Number.isInteger(n) && n > 0 ? plural(n, 'webhook delivery', 'webhook deliveries') : 'Webhook deliveries' };
     else if (path === INCIDENT_LINKS.api) item = { to: e.link, icon: 'api', label: 'API endpoints' };
+    else if (path === INCIDENT_LINKS.email) item = { to: e.link, icon: 'email', label: q.get('template') ? `Email log, ${q.get('template')}` : 'Email log' };
     if (!item) continue;
     const key = linkKey(e.link);
     const at = out.findIndex((l) => l.key === key);

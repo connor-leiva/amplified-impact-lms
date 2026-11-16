@@ -19,6 +19,7 @@ import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
 import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
 import { fixtureEndpoints, fixtureJobRows, fixtureJobs, fixtureRunJob, fixtureWebhookRows, fixtureWebhooks } from './console-fixture-ops';
+import { FIXTURE_ME, fixtureIncidentChange, fixtureIncidentPage, fixtureIncidents, fixturePerson } from './console-fixture-incidents';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows } from './parity-r2-db';
 
@@ -127,6 +128,9 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   // D-165: the mockup's deliveries and jobs, changed by a retry or a Run Now as the API's would be.
   let hooks = fixtureWebhookRows();
   let jobs = fixtureJobRows();
+  // D-167: the mockup's incidents, changed by Acknowledge, Resolve and a note as the API's would be.
+  let incidents = fixtureIncidents();
+  const me = parity ? FIXTURE_ME : fixturePerson(STAFF.casey.name);
 
   /** What the API's write would audit, so the Audit Log shows it on the next load. */
   const record = (action: AuditAction, target: AuditRow['target'], after: unknown, reason: string | null = null) => {
@@ -149,6 +153,19 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   const need = (cap: string) => {
     if (!staff || !consoleCan(role, cap)) throw forbidden();
   };
+
+  /** Acknowledge, resolve or note one incident, as the API would, with its audit row. */
+  const changeIncident = (id: string, cap: string, action: AuditAction, what: { kind: 'acknowledged' | 'resolved' | 'note'; body?: string }) =>
+    settle(() => {
+      need(cap);
+      if (what.body !== undefined && (what.body.length < 1 || what.body.length > 2000)) throw new ConsoleError('invalid', 400, 'invalid_body', 'A note is 1 to 2,000 characters.');
+      const i = incidents.find((x) => x.id === id);
+      if (!i) throw notFound();
+      const next = fixtureIncidentChange(i, what, me, now());
+      incidents = incidents.map((x) => (x.id === id ? next : x));
+      record(action, { type: 'incident', id, label: i.title }, what.body === undefined ? { status: next.status } : { status: next.status, length: what.body.length });
+      return next;
+    });
 
   return {
     source: 'fixture',
@@ -300,6 +317,23 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         record('job.run_now', { type: 'job', id: job, label: job }, { status: 'succeeded' });
         return { job, status: 'succeeded' as const, startedAt: at, finishedAt: at };
       }),
+    incidents: (filters, cursor) =>
+      settle(() => {
+        need('incidents.read');
+        return state === 'empty' ? { rows: [], nextCursor: null } : fixtureIncidentPage(incidents, filters, cursor);
+      }),
+    // The shell's badge reads this whatever a list's state, as `me` is.
+    incidentSummary: () => (staff && consoleCan(role, 'incidents.read') ? Promise.resolve({ open: incidents.filter((i) => i.status === 'open').length }) : Promise.reject(forbidden())),
+    incident: (id) =>
+      settle(() => {
+        need('incidents.read');
+        const i = incidents.find((x) => x.id === id);
+        if (!i) throw notFound();
+        return i;
+      }),
+    ackIncident: (id) => changeIncident(id, 'incidents.ack', 'incident.ack', { kind: 'acknowledged' }),
+    resolveIncident: (id, note) => changeIncident(id, 'incidents.resolve', 'incident.resolve', { kind: 'resolved', body: note.trim() }),
+    noteIncident: (id, body) => changeIncident(id, 'notes.write', 'incident.note', { kind: 'note', body: body.trim() }),
     search: (q) =>
       settle(() => {
         need('console.view');

@@ -67,18 +67,19 @@ describe('ids and words (D-167)', () => {
       incidentLinked([
         { link: '/admin/jobs?job=ghl-orders' },
         { link: null },
-        { link: '/admin/api/webhooks?type=invoice.paid&n=1' },
+        { link: '/admin/api/hooks?type=invoice.paid&n=1' },
         { link: '/admin/jobs?job=ghl-orders' },
-        { link: '/admin/api/webhooks?type=invoice.paid&n=3' },
+        { link: '/admin/api/hooks?type=invoice.paid&n=3' },
         { link: '/admin/api' },
         { link: 'https://elsewhere.example/' },
       ]),
     ).toEqual([
       { to: '/admin/jobs?job=ghl-orders', icon: 'jobs', label: 'Job ghl-orders' },
-      { to: '/admin/api/webhooks?type=invoice.paid&n=3', icon: 'api', label: '3 webhook deliveries' },
+      { to: '/admin/api/hooks?type=invoice.paid&n=3', icon: 'api', label: '3 webhook deliveries' },
       { to: '/admin/api', icon: 'api', label: 'API endpoints' },
     ]);
-    expect(incidentLinked([{ link: '/admin/api/webhooks?source=ghl&n=1' }])[0]!.label).toBe('1 webhook delivery');
+    expect(incidentLinked([{ link: '/admin/api/hooks?source=ghl&n=1' }])[0]!.label).toBe('1 webhook delivery');
+    expect(incidentLinked([{ link: '/admin/email?template=weekly-digest' }])).toEqual([{ to: '/admin/email?template=weekly-digest', icon: 'email', label: 'Email log, weekly-digest' }]);
   });
 });
 
@@ -118,7 +119,7 @@ describe('the auto-open rules at their thresholds (D5)', () => {
       fingerprint: 'stripe:invoice.paid',
       severity: 'sev2',
       opened: 'Opened automatically after 2 invoice.paid deliveries errored and stayed unprocessed for over 15 minutes.',
-      link: '/admin/api/webhooks?type=invoice.paid&n=2',
+      link: '/admin/api/hooks?type=invoice.paid&n=2',
       evidenceAt: at(16) + 15 * MIN,
     });
   });

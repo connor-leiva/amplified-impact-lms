@@ -94,7 +94,7 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
   [
     'Operations',
     [
-      row('incidents', 'Incidents', 'r2Incidents', '/admin/incidents', false, {
+      row('incidents', 'Incidents', 'r2Incidents', '/admin/incidents', true, {
         cap: 'incidents.read',
         badge: 'incidents',
       }),
@@ -241,11 +241,14 @@ export function toggleGroup(group: R2Group, active: boolean, open: OpenState): O
 
 /**
  * A record's page (D-160 R2-1c, the mockup's `PARENT`): `/admin/workspaces/:teamId` belongs to the
- * Workspaces row and `/admin/users/:userId` to Users, so their row stays active and their group open.
+ * Workspaces row, `/admin/users/:userId` to Users and `/admin/incidents/:id` to Incidents (D-167), so
+ * their row stays active and their group open.
  */
 export const RECORD_PARENTS: Readonly<Record<string, string>> = {
   '/admin/workspaces/': 'workspaces',
   '/admin/users/': 'users',
+  // D-167: an incident belongs to the Incidents row (the mockup's `PARENT`: incident → incidents).
+  '/admin/incidents/': 'incidents',
 };
 
 function recordParent(p: string): string | null {

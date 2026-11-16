@@ -206,7 +206,7 @@ describe('the auto-open rules (D5) @console', () => {
     expect(await rows()).toEqual([expect.objectContaining({ fingerprint: 'stripe:invoice.paid', severity: 'sev2' })]);
     // Two minutes on, the second is past 15 minutes too: one signal.
     expect((await evaluateIncidentRules(d, NOW + 2 * MIN)).signaled).toEqual(['INC-0001']);
-    expect((await events()).map((e) => e.link)).toEqual(['/admin/api/webhooks?type=invoice.paid&n=1', '/admin/api/webhooks?type=invoice.paid&n=2']);
+    expect((await events()).map((e) => e.link)).toEqual(['/admin/api/hooks?type=invoice.paid&n=1', '/admin/api/hooks?type=invoice.paid&n=2']);
   });
 
   it('opens a sev3 when more than five GHL rows gave up, and not at five', async () => {
