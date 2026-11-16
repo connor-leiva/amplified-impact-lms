@@ -309,11 +309,19 @@ export const CONSOLE_ERRORS = {
   masquerade_max_reached: { status: 409, message: 'This session can’t go past 60 minutes.' },
   masquerade_disabled: { status: 403, message: 'Masquerade is turned off.' },
   masquerade_ended: { status: 409, message: 'This masquerade session has ended.' },
-  // Later PRs (spec § 7). Their sentences are written with them.
-  confirm_invalid: { status: 403, message: null },
-  confirm_expired: { status: 410, message: null },
-  invoice_not_voidable: { status: 409, message: null },
+  // PR 5 (D-164, spec § 7.6): the confirmed Billing actions. A token that isn't this staff member's
+  // for this action (or isn't one at all) is 403; a real one past its 5 minutes is 410.
+  confirm_invalid: { status: 403, message: 'This confirmation isn’t valid. Close this and start again.' },
+  confirm_expired: { status: 410, message: 'This confirmation expired after 5 minutes. Start again to see the current figures.' },
+  confirm_used: { status: 409, message: 'This confirmation was already used. Start again to make another change.' },
+  confirm_mismatch: { status: 422, message: 'What you typed doesn’t match. Type it exactly as shown.' },
+  invoice_not_voidable: { status: 409, message: 'Only an open or uncollectible invoice can be voided.' },
+  invoice_not_refundable: { status: 409, message: 'Only a paid invoice can be refunded.' },
+  refund_too_large: { status: 409, message: 'That’s more than this payment has left to refund.' },
+  stripe_refused: { status: 409, message: 'Stripe refused this change. Nothing was changed.' },
+  // The seat tier's (spec § 7.6). Unused: its gate failed, so it has no endpoint (D-164).
   seats_in_use: { status: 409, message: null },
+  // R2-4a's routes and PR 5's each give the sentence, naming the Read or Write permission.
   stripe_permission_missing: { status: 503, message: null },
   // PR 4 (D-163): Billing reads Stripe. With no key, the screen says "Stripe isn't connected"; a read
   // Stripe refused for some other reason (or never answered) is a 502 the screen can retry.

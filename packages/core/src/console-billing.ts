@@ -49,6 +49,17 @@ export const stripeDashboardUrl = (mode: StripeMode, kind: StripeObject, id: str
 export const stripeScopeMessage = (scope: string): string =>
   `Stripe’s restricted key can’t read ${scope}. Add Read on ${scope} to the key.`;
 
+/**
+ * The Write permissions the Console's confirmed actions need (D-164, spec § 7.6): a refund (Refunds) and
+ * a void (Invoices). Subscriptions: Write is the seat tier's, which is gated and has no endpoint.
+ */
+export const STRIPE_WRITE_SCOPES = ['Refunds', 'Invoices'] as const;
+export type StripeWriteScope = (typeof STRIPE_WRITE_SCOPES)[number];
+
+/** The sentence a missing Write permission answers with (503 `stripe_permission_missing`). */
+export const stripeWriteScopeMessage = (scope: string): string =>
+  `Stripe’s restricted key can’t change ${scope}. Add Write on ${scope} to the key.`;
+
 // ================================================================================================
 // MRR
 // ================================================================================================
@@ -343,7 +354,16 @@ export interface BillingSubscriptionRow {
   status: string;
   mrrCents: number | null;
   url: string;
+  /** A Team Plan subscription's seat tier (D-164: the gated seat-tier control is drawn on these). */
+  seatTier: TeamSeatTier | null;
 }
+
+/** The Team Plan's two tiers, as spec § 7.6's seat-tier action names them. */
+export type TeamSeatTier = 'upto15' | '16to40';
+
+/** A plan line's Team Plan tier, or null for every other line. */
+export const seatTierOf = (line: BillingLine | null): TeamSeatTier | null =>
+  line === 'agents16' ? 'upto15' : line === 'agents41' ? '16to40' : null;
 
 export const INVOICE_STATUSES = ['draft', 'open', 'paid', 'void', 'uncollectible'] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
