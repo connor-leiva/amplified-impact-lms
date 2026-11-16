@@ -6,7 +6,7 @@ import { Table } from './Table';
 import type { Column } from './Table';
 import { TierPill } from './TierPill';
 import { Confirm, Modal } from './Modal';
-import { keepHyphens } from './kit';
+import { Facts, keepHyphens } from './kit';
 import { fit, need } from './table';
 
 // D-160 R2-2: what the Build screens add to the R2 kit — the rest of the mockup's `Table` (reorder,
@@ -110,6 +110,24 @@ describe('Table, R2-2', () => {
     }
   });
 
+  it('draws a row’s "…" disabled when it has nothing to offer (R2-2b)', () => {
+    inRouter(
+      <Table
+        label="Things"
+        cols={COLS}
+        rows={ROWS}
+        rowKey={(r) => r.id}
+        menu={() => []}
+        empty={{ icon: 'r2File', title: 'None' }}
+      />,
+    );
+    const more = screen.getAllByRole('button', { name: 'More actions' });
+    expect(more).toHaveLength(3);
+    for (const b of more) expect(b).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(more[0]!);
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+
   it('counts the handle column in what the columns need, and leads the template with it', () => {
     expect(need([{ width: '100px' }], { move: true, actions: '104px' })).toBe(116 + 40 + 36 + 120);
     expect(fit([{ width: '100px' }], 2000, { move: true, actions: '32px', laptop: false, phone: false }).template).toBe(
@@ -180,6 +198,24 @@ describe('Modal and Confirm (R2-2)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
     expect(onConfirm).toHaveBeenCalledOnce();
     expect(onClose).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('Facts, R2-2b', () => {
+  it('marks a wide fact, which takes a phone’s whole row', () => {
+    render(
+      <Facts
+        items={[
+          { label: 'Cohort', value: 'December 2026' },
+          { label: 'Opens', value: 'Wed, Dec 2 · 12:00 PM MST', wide: true },
+        ]}
+      />,
+    );
+    const cohort = screen.getByText('Cohort').parentElement!;
+    const opens = screen.getByText('Opens').parentElement!;
+    expect(cohort.className).toBe('');
+    expect(opens.className).not.toBe('');
+    expect(opens).toHaveTextContent('Wed, Dec 2 · 12:00 PM MST');
   });
 });
 
