@@ -23,3 +23,4 @@ export type { MutationName, MutationArgs } from './catalog';
 export * from './provision';
 export * from './console';
 export * from './console-support';
+export * from './console-view';
