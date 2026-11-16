@@ -653,6 +653,14 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/webhooks/ghl/retry', methods: 'POST', guard: 'session' },
   { path: '/api/console/jobs', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/jobs/:job/run', methods: 'POST', guard: 'session' },
+  // Admin Console PR 8 (D-167): incidents. Signed in, then by capability (`test/console-authz.test.ts`,
+  // `test/console-incidents.test.ts`).
+  { path: '/api/console/incidents', methods: 'GET, HEAD, POST', guard: 'session' },
+  { path: '/api/console/incidents/summary', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/incidents/:id', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/incidents/:id/ack', methods: 'POST', guard: 'session' },
+  { path: '/api/console/incidents/:id/resolve', methods: 'POST', guard: 'session' },
+  { path: '/api/console/incidents/:id/notes', methods: 'POST', guard: 'session' },
 ];
 
 /**
@@ -1140,6 +1148,21 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           '/api/console/jobs': () => app.inject({ method: 'GET', url: '/api/console/jobs' }),
           '/api/console/jobs/:job/run': () =>
             app.inject({ method: 'POST', url: '/api/console/jobs/session-24h/run', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          // Admin Console PR 8 (D-167).
+          '/api/console/incidents': () => app.inject({ method: 'GET', url: '/api/console/incidents' }),
+          '/api/console/incidents/summary': () => app.inject({ method: 'GET', url: '/api/console/incidents/summary' }),
+          '/api/console/incidents/:id': () => app.inject({ method: 'GET', url: '/api/console/incidents/INC-0001' }),
+          '/api/console/incidents/:id/ack': () =>
+            app.inject({ method: 'POST', url: '/api/console/incidents/INC-0001/ack', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
+          '/api/console/incidents/:id/resolve': () =>
+            app.inject({
+              method: 'POST',
+              url: '/api/console/incidents/INC-0001/resolve',
+              headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+              payload: { note: 'Token rotated.' },
+            }),
+          '/api/console/incidents/:id/notes': () =>
+            app.inject({ method: 'POST', url: '/api/console/incidents/INC-0001/notes', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: { body: 'Checked.' } }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1317,9 +1340,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // Accelerator's course (D-110), 17 with the account page's two password routes (D-132), 19
     // with the CRM sync log and its retry (D-134), 20 with the welcome panel's dismiss (D-150), and 21
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 34 with Console
-    // PR 2's nine (D-158), 39 with masquerade's five (D-162), and 44 with API & Webhooks and
-    // Scheduled Jobs' five (D-165).
-    expect(EXECUTED.unauthenticated).toBe(44);
+    // PR 2's nine (D-158), 39 with masquerade's five (D-162), 44 with API & Webhooks and
+    // Scheduled Jobs' five (D-165), and 50 with the incidents' six paths (D-167).
+    expect(EXECUTED.unauthenticated).toBe(50);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1331,7 +1354,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 9 for Console PR 2's
     // (D-158), probed unauthenticated. And + 5 for masquerade's (D-162), probed unauthenticated. And
-    // + 5 for API & Webhooks and Scheduled Jobs (D-165), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5 + 5);
+    // + 5 for API & Webhooks and Scheduled Jobs (D-165), probed unauthenticated. And + 6 for the
+    // incidents' paths (D-167), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 9 + 5 + 5 + 6);
   });
 });

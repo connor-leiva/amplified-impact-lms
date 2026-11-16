@@ -146,6 +146,13 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
   // D-165: the Admin Console's ops telemetry (spec §§ 7.9-7.10). Not `Db` records, like `audit_log`.
   apiMetrics: { table: 'api_metrics', columns: ['count', 'errors_4xx', 'errors_5xx', 'hist', 'minute', 'route'], gate: 9 },
   jobTicks: { table: 'job_ticks', columns: ['actor_user_id', 'error_kind', 'finished_at', 'id', 'job', 'started_at', 'status', 'trigger'], gate: 9 },
+  // D-167: the Admin Console's incidents and their timelines (spec § 7.14). Not `Db` records, like `audit_log`.
+  incidents: {
+    table: 'incidents',
+    columns: ['acknowledged_at', 'acknowledged_by', 'fingerprint', 'id', 'opened_at', 'opened_by', 'resolved_at', 'resolved_by', 'severity', 'status', 'title'],
+    gate: 9,
+  },
+  incidentEvents: { table: 'incident_events', columns: ['actor_user_id', 'at', 'body', 'id', 'incident_id', 'kind', 'link'], gate: 9 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -340,6 +347,11 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['apiMetrics', 'minute'],
   ['jobTicks', 'startedAt'],
   ['jobTicks', 'finishedAt'],
+  // D-167: when an incident opened, was acknowledged and resolved, and when each timeline line was written.
+  ['incidents', 'openedAt'],
+  ['incidents', 'acknowledgedAt'],
+  ['incidents', 'resolvedAt'],
+  ['incidentEvents', 'at'],
 ];
 
 /**
@@ -398,6 +410,8 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   masqueradeSessions: { unit: 'epoch-ms', why: 'D-162: compared with clock.now() by masqueradeLive and the sweep, and counted down by the banner' },
   apiMetrics: { unit: 'epoch-ms', why: 'D-165: a minute floored from clock.now(), read back over the last 24 hours' },
   jobTicks: { unit: 'epoch-ms', why: 'D-165: a run’s start and end from clock.now(); the next run is the start plus an interval in ms' },
+  incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
+  incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -640,6 +654,13 @@ describe('unique indexes @g9', () => {
       { name: 'job_ticks_job_started_idx', unique: false, columns: ['job', 'started_at'] },
       { name: 'job_ticks_started_idx', unique: false, columns: ['started_at'] },
     ],
+    // D-167: one UNRESOLVED incident per fingerprint (partial: the test below pins its `where`), and
+    // the list's status filter; a timeline is read by its incident, in time order.
+    incidents: [
+      { name: 'incidents_fingerprint_unresolved_idx', unique: true, columns: ['fingerprint'] },
+      { name: 'incidents_status_idx', unique: false, columns: ['status'] },
+    ],
+    incidentEvents: [{ name: 'incident_events_incident_idx', unique: false, columns: ['incident_id', 'at'] }],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -658,6 +679,13 @@ describe('unique indexes @g9', () => {
 
   it('gives job ticks their two lookup indexes, none unique @g9', () => {
     expect(indexesOf(tableOf('jobTicks'))).toEqual(LOOKUP_INDEXES.jobTicks);
+  });
+
+  it('keeps one unresolved incident per fingerprint, and indexes timelines by incident @g9', () => {
+    expect(indexesOf(tableOf('incidents'))).toEqual(LOOKUP_INDEXES.incidents);
+    expect(indexesOf(tableOf('incidentEvents'))).toEqual(LOOKUP_INDEXES.incidentEvents);
+    const [idx] = getTableConfig(tableOf('incidents')).indexes;
+    expect(new PgDialect().sqlToQuery(idx!.config.where!).sql).toBe(`"incidents"."status" <> 'resolved'`);
   });
 
   it('finds no other table carrying an index @g9', () => {

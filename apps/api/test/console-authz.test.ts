@@ -12,7 +12,7 @@ import { seedForDatabase } from '@ai/core';
 import { build } from '../src/app';
 import type { App } from '../src/app';
 import { CONSOLE_PATHS } from '../src/console/routes';
-import { auditLog, ghlLogins, staffNotes, users } from '../src/db/schema';
+import { auditLog, ghlLogins, incidents, staffNotes, users } from '../src/db/schema';
 import { settleEmails } from '../src/auth';
 import { resetDatabase, testDatabase } from './helpers';
 
@@ -42,7 +42,14 @@ type RouteName =
   | 'webhooks'
   | 'ghlRetry'
   | 'jobs'
-  | 'jobRun';
+  | 'jobRun'
+  | 'incidents'
+  | 'incidentSummary'
+  | 'incident'
+  | 'incidentCreate'
+  | 'incidentAck'
+  | 'incidentResolve'
+  | 'incidentNote';
 
 /** `path` is the route as registered; `url` is what the probe asks for, with its params and query filled in. */
 const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'POST'; route: string; body?: Record<string, unknown> }> = {
@@ -91,10 +98,43 @@ const ROUTES: Record<RouteName, { path: string; url: string; method: 'GET' | 'PO
   ghlRetry: { path: CONSOLE_PATHS.ghlRetry, url: CONSOLE_PATHS.ghlRetry, method: 'POST', route: `POST ${CONSOLE_PATHS.ghlRetry}`, body: { kind: 'login', id: 'u_jamie' } },
   jobs: { path: CONSOLE_PATHS.jobs, url: CONSOLE_PATHS.jobs, method: 'GET', route: `GET ${CONSOLE_PATHS.jobs}` },
   jobRun: { path: CONSOLE_PATHS.jobRun, url: '/api/console/jobs/session-24h/run', method: 'POST', route: `POST ${CONSOLE_PATHS.jobRun}` },
+  // PR 8 (D-167). INC-0001 (below) is open: acknowledged first, then resolved, then noted.
+  incidents: { path: CONSOLE_PATHS.incidents, url: `${CONSOLE_PATHS.incidents}?status=open`, method: 'GET', route: `GET ${CONSOLE_PATHS.incidents}` },
+  incidentSummary: { path: CONSOLE_PATHS.incidentSummary, url: CONSOLE_PATHS.incidentSummary, method: 'GET', route: `GET ${CONSOLE_PATHS.incidentSummary}` },
+  incident: { path: CONSOLE_PATHS.incident, url: '/api/console/incidents/INC-0001', method: 'GET', route: `GET ${CONSOLE_PATHS.incident}` },
+  incidentCreate: {
+    path: CONSOLE_PATHS.incidents,
+    url: CONSOLE_PATHS.incidents,
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.incidents}`,
+    body: { title: 'Session 3 replay will not play', severity: 'sev3' },
+  },
+  incidentAck: { path: CONSOLE_PATHS.incidentAck, url: '/api/console/incidents/INC-0001/ack', method: 'POST', route: `POST ${CONSOLE_PATHS.incidentAck}` },
+  incidentResolve: {
+    path: CONSOLE_PATHS.incidentResolve,
+    url: '/api/console/incidents/INC-0001/resolve',
+    method: 'POST',
+    route: `POST ${CONSOLE_PATHS.incidentResolve}`,
+    body: { note: 'Token rotated; the job is green again.' },
+  },
+  incidentNote: { path: CONSOLE_PATHS.incidentNotes, url: '/api/console/incidents/INC-0001/notes', method: 'POST', route: `POST ${CONSOLE_PATHS.incidentNotes}`, body: { body: 'Checked the GHL copy.' } },
 };
 
 /** The routes whose success writes its own audit row. */
-const WRITES = new Set<RouteName>(['export', 'passwordReset', 'usersExport', 'notesCreate', 'noteDelete', 'masqueradeStart', 'ghlRetry', 'jobRun']);
+const WRITES = new Set<RouteName>([
+  'export',
+  'passwordReset',
+  'usersExport',
+  'notesCreate',
+  'noteDelete',
+  'masqueradeStart',
+  'ghlRetry',
+  'jobRun',
+  'incidentCreate',
+  'incidentAck',
+  'incidentResolve',
+  'incidentNote',
+]);
 
 /** Who calls, as a user id (null: no session), and whether a refusal is a staff one (audited). */
 const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
@@ -121,21 +161,33 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // everyone, because none of these callers is in a session.
 // PR 6 (D-165): the API & Webhooks and Jobs reads are api.read and jobs.read (Owner, Admin, Support);
 // the GHL retry and Run Now are webhooks.retry and jobs.run_now (Owner, Admin).
+// PR 8 (D-167): the incident reads are incidents.read, create incidents.create, Acknowledge
+// incidents.ack and a note notes.write (Owner, Admin, Support); Resolve is incidents.resolve (Owner,
+// Admin: D3, Support acknowledges and does not resolve).
 const ALL = (v: number) => ({ workspaces: v, workspace: v, users: v, user: v, passwordReset: v, notesList: v, notesCreate: v, search: v, apiEndpoints: v, webhooks: v, jobs: v });
 const OPS = (v: number) => ({ ghlRetry: v, jobRun: v });
+const INC = (read: number, write: number, resolve: number) => ({
+  incidents: read,
+  incidentSummary: read,
+  incident: read,
+  incidentCreate: write,
+  incidentAck: read,
+  incidentResolve: resolve,
+  incidentNote: write,
+});
 const MQ = (start: number, extend: number, sessions: number) => ({ masqueradeStart: start, masqueradeCurrent: 200, masqueradeExtend: extend, masqueradeExit: 409, masqueradeSessions: sessions });
 const EXPECT: Record<string, Record<RouteName, number>> = {
   anon: {
     me: 401, audit: 401, export: 401, roles: 401, ...ALL(401), usersExport: 401, notesCreate: 401, noteDelete: 401,
-    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, ...OPS(401),
+    masqueradeStart: 401, masqueradeCurrent: 401, masqueradeExtend: 401, masqueradeExit: 401, masqueradeSessions: 401, ...OPS(401), ...INC(401, 401, 401),
   },
-  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
-  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
-  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
-  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
-  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403) },
-  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), ...OPS(200) },
-  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), ...OPS(200) },
+  learner: { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
+  'team owner': { me: 403, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
+  Instructor: { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
+  'Content Editor': { me: 200, audit: 403, export: 403, roles: 403, ...ALL(403), usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(403, 403, 403) },
+  Support: { me: 200, audit: 200, export: 403, roles: 403, ...ALL(200), notesCreate: 201, usersExport: 403, noteDelete: 403, ...MQ(403, 403, 403), ...OPS(403), ...INC(200, 201, 403) },
+  Admin: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 403, ...MQ(201, 409, 200), ...OPS(200), ...INC(200, 201, 200) },
+  Owner: { me: 200, audit: 200, export: 200, roles: 200, ...ALL(200), notesCreate: 201, usersExport: 200, noteDelete: 200, ...MQ(201, 409, 200), ...OPS(200), ...INC(200, 201, 200) },
 };
 
 /** What `/me` lists for each staff role (spec § 5's rows). */
@@ -159,6 +211,8 @@ beforeEach(async () => {
   await db.insert(users).values({ id: 'st_admin', email: 'dana@amplifiedimpact.com', name: 'Dana Reyes', kind: 'staff', staffRole: 'Admin' });
   // Note 1, for the delete route to find.
   await db.insert(staffNotes).values({ targetType: 'workspace', targetId: 'northline', authorUserId: 'st4', body: 'Owner asked about seats.', createdAt: NOW - 3600_000 });
+  // INC-0001, open, for the incident routes to act on (D-167).
+  await db.insert(incidents).values({ id: 'INC-0001', title: 'Job ghl-orders is failing', severity: 'sev2', status: 'open', fingerprint: 'job:ghl-orders', openedAt: NOW - 3600_000 });
   // A first sign-in GHL gave up on, for the retry route to reset (D-165).
   await db.insert(ghlLogins).values({ userId: 'u_jamie', firstLoginAt: NOW - 86_400_000, ghlAttempts: 8, ghlError: 'contact:unauthorized:401' });
   app = await build({ logger: false });
