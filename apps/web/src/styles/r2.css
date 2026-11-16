@@ -1,0 +1,189 @@
+/* Admin redesign R2 (DECISIONS.md D-160, BUILD-SPEC § 3): the signed-off mockup's tokens.
+
+   The source of truth is the `CSS` constant in design-reference/admin-redesign-r2/AdminRedesign.jsx:
+   its `.ax` / `.ax.lap` / `.ax.ph` variables, every colour it writes as a raw hex, its shadows and its
+   phone sizes. Values are copied verbatim; names gain an `--r2-` prefix, because `--ink`, `--line`,
+   `--m`, `--h`, `--c` and `--row` already mean something else elsewhere in this app.
+
+   SCOPED TO THE ADMIN SHELL. Every token is set on `[data-r2-shell]`, the attribute the admin AppShell
+   puts on its root (the mockup's `.ax`), so no learner screen can read one, and learner tokens.css and
+   lms.css are unchanged. Component CSS modules use these as `var(--r2-…)` and never a raw colour
+   (scripts/check-css-colors.mjs).
+
+   BREAKPOINTS, as the mockup's frame classes: phone ≤ 767px (`.ph`), laptop 768–1199px (`.lap`, the
+   64px icon rail), desktop 1200–1399px, wide ≥ 1400px (`.wide`). The phone block is where the floor
+   holds by construction: every type token is 16px or more there, controls 44px and primaries 48px
+   (r2-tokens.test.ts reads this file and checks it). */
+
+[data-r2-shell] {
+  /* Colour (BUILD-SPEC § 3) */
+  --r2-ink: #15211d;
+  --r2-f2: #46524d;
+  --r2-f3: #5f6a64;
+  --r2-line: #e6e3da;
+  --r2-line2: #d3cfc3;
+  --r2-line-hover: #c4bfb1;
+  --r2-bg: #f4f2ec;
+  --r2-sf: #fff;
+  --r2-hov: #faf9f5;
+  --r2-sub: #f1efe8;
+  --r2-for: #1f4d40;
+  --r2-forh: #183e33;
+  --r2-mint: #6fd3a5;
+  --r2-tint: #e7f1eb;
+  --r2-on-for: #fff;
+  /* Status sets: text and soft background */
+  --r2-ok: #1d6b45;
+  --r2-okb: #e3f2e8;
+  --r2-info: #2b58a8;
+  --r2-infob: #e7eef9;
+  --r2-bad: #a93a25;
+  --r2-badb: #fae9e4;
+  --r2-warn: #7d5207;
+  --r2-warnb: #faefd6;
+  --r2-bad-line: #f0cfc6;
+  --r2-warn-line: #ebd9a8;
+  /* Status dots (7px) */
+  --r2-dot-ok: #2e9a63;
+  --r2-dot-info: #3b74d6;
+  --r2-dot-bad: #d0492f;
+  --r2-dot-warn: #d99a1c;
+  --r2-dot-off: #9aa39e;
+  /* Bars (6px, 3px radius): green, blue, hot (nearly full), full fixed-seat. Never red. */
+  --r2-bar: #2e9a63;
+  --r2-bar2: #3b74d6;
+  --r2-bar-hot: #d99a1c;
+  --r2-bar-full: #9aa39e;
+  /* Masquerade banner */
+  --r2-mq-bg: #f7e2a6;
+  --r2-mq-ink: #3d2a03;
+  --r2-mq-line: #ddbe66;
+  --r2-mq-button-line: #a8842a;
+  --r2-mq-button-hover: #f0d689;
+  --r2-mq-primary-hover: #2a1c02;
+  /* Wordmark (the brand file's own ink and tittle) */
+  --r2-wm-ink: #0a0d0c;
+  --r2-wm-tittle: #1f8a5c;
+  /* Tables and loading: row selected, drag grip, skeleton shimmer, the funnel's "not started" key */
+  --r2-row-selected: #f3f8f5;
+  --r2-grip: #a9b0ab;
+  --r2-skeleton: #efede6;
+  --r2-skeleton-shine: #f7f5f0;
+  --r2-not-started: #dad6cb;
+  /* Toast */
+  --r2-toast-bg: #15211d;
+  --r2-toast-ink: #f4f2ec;
+
+  /* Shadows and overlays (exact) */
+  --r2-sh-card: 0 1px 2px rgba(21, 33, 29, 0.03);
+  --r2-sh-button: 0 1px 1px rgba(21, 33, 29, 0.04);
+  --r2-sh-pop: 0 8px 24px rgba(21, 33, 29, 0.1), 0 1px 2px rgba(21, 33, 29, 0.06);
+  --r2-sh-toast: 0 8px 24px rgba(21, 33, 29, 0.2);
+  --r2-sh-modal: 0 24px 64px rgba(21, 33, 29, 0.22);
+  /* R2-3: a clickable KPI tile's hover (`button.stat:hover`). */
+  --r2-sh-lift: 0 2px 8px rgba(21, 33, 29, 0.06);
+  --r2-scrim: rgba(21, 33, 29, 0.38);
+  --r2-focus: 0 0 0 2px var(--r2-sf), 0 0 0 4px var(--r2-for);
+  --r2-focus-input: 0 0 0 3px rgba(111, 211, 165, 0.4);
+
+  /* Type: body, meta, mono, section, page title (the mockup's --t/--tl, --m/--ml, --mo, --sh, --h/--hl) */
+  --r2-font: Geist, system-ui, sans-serif;
+  --r2-font-mono: 'Geist Mono', ui-monospace, monospace;
+  --r2-t: 14px;
+  --r2-tl: 20px;
+  --r2-m: 12px;
+  --r2-ml: 16px;
+  --r2-mo: 13px;
+  --r2-sh: 15px;
+  --r2-h: 26px;
+  --r2-hl: 32px;
+  /* The shell's own small sizes, which the mockup writes as raw px with a phone override each:
+     the count pill and avatar (11), the cohort switcher's two lines (13/18, 12/16), the user chip's
+     (13/18, 12/16), the breadcrumb and environment label (13), the ⌘K hint (11/16). */
+  --r2-fs-11: 11px;
+  --r2-fs-12: 12px;
+  --r2-fs-13: 13px;
+  --r2-lh-16: 16px;
+  --r2-lh-18: 18px;
+
+  /* Sizes */
+  --r2-c: 32px;
+  --r2-cp: 36px;
+  --r2-row: 52px;
+  --r2-th: 40px;
+  --r2-pl: 22px;
+  --r2-bar-h: 52px;
+  --r2-pad: 32px;
+  --r2-sidebar: 244px;
+  --r2-rail: 64px;
+  --r2-drawer: 300px;
+  --r2-page-max: 1400px;
+  --r2-avatar: 28px;
+  --r2-tile: 24px;
+  --r2-ng: 28px;
+  --r2-ct-lh: 16px;
+  /* R2-1c: the select's chevron (`select.in`), the mockup's data URI verbatim. */
+  --r2-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235F6A64' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 6.5 8 10l3.5-3.5'/%3E%3C/svg%3E");
+}
+
+/* Laptop: 768–1199px (`.ax.lap`). */
+@media (min-width: 768px) and (max-width: 1199px) {
+  [data-r2-shell] {
+    --r2-pad: 24px;
+  }
+}
+
+/* Phone: 767px and under (`.ax.ph`, and every `.ph …` raw override). The floor, by construction. */
+@media (max-width: 767px) {
+  [data-r2-shell] {
+    --r2-t: 16px;
+    --r2-tl: 24px;
+    --r2-m: 16px;
+    --r2-ml: 22px;
+    --r2-mo: 16px;
+    --r2-sh: 17px;
+    --r2-h: 24px;
+    --r2-hl: 30px;
+    --r2-fs-11: 16px;
+    --r2-fs-12: 16px;
+    --r2-fs-13: 16px;
+    --r2-lh-16: 22px;
+    --r2-lh-18: 22px;
+    --r2-c: 44px;
+    --r2-cp: 48px;
+    --r2-pl: 28px;
+    --r2-bar-h: 56px;
+    --r2-pad: 16px;
+    --r2-avatar: 40px;
+    --r2-tile: 36px;
+    --r2-ng: 44px;
+    --r2-ct-lh: 24px;
+  }
+}
+
+/* The frame's base, as `.ax` and `.arx *` draw it. Zero specificity (`:where`), so a component's own
+   rule always wins over it. Every admin screen is on R2 (D-160 R2-3b), so the resets and the focus
+   ring hold throughout the frame. */
+:where([data-r2-shell]) {
+  background: var(--r2-bg);
+  color: var(--r2-ink);
+  font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
+  -webkit-font-smoothing: antialiased;
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+:where([data-r2-shell] *, [data-r2-shell] *::before, [data-r2-shell] *::after) {
+  box-sizing: border-box;
+}
+:where([data-r2-shell] :is(button, input, select, textarea)) {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+}
+:where([data-r2-shell] :focus) {
+  outline: none;
+}
+:where([data-r2-shell] :focus-visible) {
+  outline: none;
+  box-shadow: var(--r2-focus);
+}

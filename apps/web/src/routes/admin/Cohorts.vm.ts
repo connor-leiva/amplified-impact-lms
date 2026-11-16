@@ -14,7 +14,7 @@
 // reference computes it. In http mode the API returns `ZERO_BASE`, so this same arithmetic shows
 // live numbers. Nothing here branches on the data source.
 
-import { fmt, moduleForSession, sessionState } from '@ai/core';
+import { adminWhen, fmt, fromAdminLocal, moduleForSession, sessionState, toAdminLocal } from '@ai/core';
 import type { Cohort, Db, Session } from '@ai/core';
 
 /** The three tones this screen's pills use. They resolve to the status custom properties in CSS. */
@@ -208,4 +208,111 @@ export function cohortsVM(db: Db, now: number, selectedId: string): CohortsVM {
     rows,
     learners,
   };
+}
+
+// ================================================================================================
+// R2 (D-160 R2-2b): Cohorts & Sessions of the signed-off Admin redesign (AdminRedesign.jsx `Cohorts`).
+// The current cohort's key facts and its sessions, in MST; the Go Live, End Session and Publish
+// Replay actions and the attendance population are `cohortsVM`'s, above.
+// ================================================================================================
+
+const WEEK = 7 * 864e5;
+
+export type R2Tone = 'ok' | 'info' | 'run' | 'off';
+
+export interface CohortsR2Row {
+  id: string;
+  /** `Session 1 · Lead-Source ROI Live Build`. */
+  title: string;
+  /** `Wed, Dec 2 · 12:00 PM MST`. */
+  when: string;
+  /** The cohort week it falls in: `Week 1`. */
+  week: string;
+  /** Sent once the 24-hour reminder window opens, Scheduled before, Draft with no Zoom link. */
+  invite: { label: 'Sent' | 'Scheduled' | 'Draft'; tone: R2Tone };
+  /** Ready or Processing, or null ("—"). */
+  replay: { label: string; tone: R2Tone } | null;
+  /** `82%`, or null ("—"). */
+  attendance: string | null;
+  zoom: string;
+  primary: SchedulePrimaryVM | null;
+}
+
+export interface CohortsR2VM {
+  cohortId: string;
+  facts: {
+    cohort: string;
+    status: { label: string; tone: R2Tone };
+    opens: string;
+    week: string;
+    enrolled: string;
+    cadence: string;
+  };
+  rows: CohortsR2Row[];
+}
+
+export function cohortsR2VM(db: Db, now: number, cohortId: string): CohortsR2VM | null {
+  const co = db.cohorts.find((c) => c.id === cohortId) ?? db.cohorts[0] ?? null;
+  if (!co) return null;
+  const base = cohortsVM(db, now, co.id);
+  const started = now >= co.start;
+  const weeks = co.weeks ?? 6;
+  const weekOf = (t: number) => Math.max(1, Math.floor((t - co.start) / WEEK) + 1);
+  const list = db.sessions.filter((s) => s.cohortId === co.id).sort((a, b) => a.start - b.start);
+  return {
+    cohortId: co.id,
+    facts: {
+      cohort: co.name,
+      status:
+        co.status === 'completed'
+          ? { label: 'Completed', tone: 'off' }
+          : started && co.status === 'live'
+            ? { label: 'Active', tone: 'ok' }
+            : { label: 'Scheduled', tone: 'info' },
+      opens: adminWhen(co.start),
+      week: started ? `${Math.min(weeks, weekOf(now))} of ${weeks}` : 'Not started',
+      enrolled: `${co.enrolled} learners`,
+      cadence: co.cadence,
+    },
+    rows: list.map((s): CohortsR2Row => {
+      const row = base.rows.find((r) => r.id === s.id);
+      return {
+        id: s.id,
+        title: `Session ${s.n} · ${s.title}`,
+        when: adminWhen(s.start),
+        week: `Week ${weekOf(s.start)}`,
+        invite: !s.zoom
+          ? { label: 'Draft', tone: 'off' }
+          : now >= s.start - 864e5
+            ? { label: 'Sent', tone: 'ok' }
+            : { label: 'Scheduled', tone: 'info' },
+        replay:
+          s.replay === 'ready'
+            ? { label: 'Ready', tone: 'ok' }
+            : s.replay === 'processing'
+              ? { label: 'Processing', tone: 'run' }
+              : null,
+        attendance: s.attended && base.learners ? fmt.pct(s.attended / base.learners) : null,
+        zoom: s.zoom,
+        primary: row?.primary ?? null,
+      };
+    }),
+  };
+}
+
+/** The edit dialog's fields, the date and time in MST. */
+export const sessionFormR2 = (s: Session): SessionForm => {
+  const { date, time } = toAdminLocal(s.start);
+  return { title: s.title, date, time, mins: String(s.mins), zoom: s.zoom };
+};
+
+/**
+ * What `updateSession` takes: it reads `date` and `time` as Central Time (the program's zone), so the
+ * dialog's MST date and time become the same instant written in CT.
+ */
+export function sessionArgsR2(id: string, f: SessionForm) {
+  const t = fromAdminLocal(f.date, f.time);
+  return Number.isNaN(t)
+    ? { id, ...f }
+    : { id, title: f.title, date: fmt.isoDate(t), time: fmt.isoTime(t), mins: f.mins, zoom: f.zoom };
 }

@@ -19,6 +19,8 @@ import { ConfettiProvider } from './Confetti';
 import { DemoControls } from './DemoControls';
 import { ProfileMenu } from './ProfileMenu';
 import { ShellProvider } from './ShellContext';
+import { useAppReady, useViewportWidth } from './hooks';
+import { AdminShell } from './admin/AdminShell';
 import { consoleNav, noPortalRedirect, portalNav, type NavAction, type NavGroup } from './navModel';
 import s from './AppShell.module.css';
 
@@ -53,38 +55,6 @@ type SidebarMode = 'full' | 'rail' | 'drawer';
 const segmentAfter = (pathname: string, prefix: string): string =>
   pathname.startsWith(prefix) ? (pathname.slice(prefix.length).split('/')[0] ?? '') : '';
 
-/**
- * Viewport width.
- *
- * Read from BOTH a ResizeObserver on the documentElement AND `window.innerWidth` on every render,
- * exactly as the prototype does: it once got stuck in drawer mode when it started hidden, because
- * a `resize` event never arrived for a tab that was never resized.
- */
-function useViewportWidth(): number {
-  const [vw, setVw] = useState(() => window.innerWidth);
-
-  useEffect(() => {
-    const read = () => setVw(window.innerWidth);
-    window.addEventListener('resize', read);
-    read();
-    const raf = requestAnimationFrame(read);
-    let ro: ResizeObserver | undefined;
-    try {
-      ro = new ResizeObserver(read);
-      ro.observe(document.documentElement);
-    } catch {
-      /* no ResizeObserver: the resize listener alone still tracks the window */
-    }
-    return () => {
-      window.removeEventListener('resize', read);
-      cancelAnimationFrame(raf);
-      ro?.disconnect();
-    };
-  }, []);
-
-  return window.innerWidth || vw;
-}
-
 /** Preferences, re-read on the `ai-prefs` event so the rail toggle and the theme apply at once. */
 function usePrefs(): Prefs {
   const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
@@ -94,25 +64,6 @@ function usePrefs(): Prefs {
     return () => window.removeEventListener('ai-prefs', onPrefs);
   }, []);
   return prefs;
-}
-
-/** `data-app-ready` goes on the body once this component has rendered — so the snapshot has
- *  resolved, because `useDb()` suspends until it has — and the fonts have settled. Not while the
- *  shell is only passing a learner on to the Skill Library (D-150), which marks itself. */
-function useAppReady(enabled = true): void {
-  useEffect(() => {
-    if (!enabled) return;
-    let alive = true;
-    const mark = () => {
-      if (alive) document.body.dataset.appReady = 'true';
-    };
-    const fonts: FontFaceSet | undefined = document.fonts;
-    if (fonts) void fonts.ready.then(mark, mark);
-    else mark();
-    return () => {
-      alive = false;
-    };
-  }, [enabled]);
 }
 
 function Shell() {
@@ -491,10 +442,20 @@ export function Component() {
   return (
     <ToasterProvider>
       <ConfettiProvider>
-        <Shell />
+        <Frame />
       </ConfettiProvider>
     </ToasterProvider>
   );
+}
+
+/**
+ * Staff get the Admin redesign R2 shell (D-160 R2-1b, `admin/AdminShell.tsx`); everyone else, a staff
+ * member's "Preview as learner" tab included (its actor is the learner), gets the portal shell above,
+ * unchanged.
+ */
+function Frame() {
+  const viewer = useViewer();
+  return viewer.actor.kind === 'staff' ? <AdminShell /> : <Shell />;
 }
 
 export default Component;

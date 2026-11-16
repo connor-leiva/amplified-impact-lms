@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { phaseNow, seed, seedForDatabase, setViewerZone } from '@ai/core';
 import type { Session } from '@ai/core';
-import { cohortsVM, sessionForm, type CohortsVM } from './Cohorts.vm';
+import { cohortsR2VM, cohortsVM, sessionArgsR2, sessionForm, sessionFormR2, type CohortsVM } from './Cohorts.vm';
+import { parityDb } from '../../data/parity-r2-db';
 
 // Week 2 (`seed('live')`, `phaseNow('live')` = Mon 2026-12-07 10:42 CT), which is what the
 // `admin-cohorts` and `admin-cohorts-edit` parity scenarios capture.
@@ -234,5 +235,79 @@ describe('cohortsVM @g6', () => {
       });
       expect(Date.parse(`${f.date}T${f.time}:00-06:00`)).toBe(s.start);
     });
+  });
+});
+
+// ================================================================================================
+// R2 (D-160 R2-2b): the mockup's Cohorts & Sessions, every time in MST.
+// ================================================================================================
+
+describe('cohortsR2VM (D-160 R2-2b)', () => {
+  const NOW = Date.parse('2026-12-10T16:30:00Z');
+  const db = parityDb();
+  const vm = cohortsR2VM(db, NOW, 'dec26')!;
+
+  it('has the cohort’s key facts', () => {
+    expect(vm.facts).toEqual({
+      cohort: 'December 2026',
+      status: { label: 'Active', tone: 'ok' },
+      opens: 'Wed, Dec 2 · 12:00 PM MST',
+      week: '2 of 6',
+      enrolled: '148 learners',
+      cadence: 'Wednesdays, weekly',
+    });
+  });
+
+  it('lists the sessions as the mockup does: invite, replay and attendance, "—" when there is none', () => {
+    expect(
+      vm.rows.map((r) => [r.title, r.when, r.week, r.invite.label, r.replay?.label ?? '—', r.attendance ?? '—']),
+    ).toEqual([
+      ['Session 1 · Lead-Source ROI Live Build', 'Wed, Dec 2 · 12:00 PM MST', 'Week 1', 'Sent', 'Ready', '82%'],
+      ['Session 2 · Morning Brief Live Build', 'Wed, Dec 9 · 12:00 PM MST', 'Week 2', 'Sent', 'Ready', '74%'],
+      ['Session 3 · Database Live Build', 'Wed, Dec 16 · 12:00 PM MST', 'Week 3', 'Scheduled', '—', '—'],
+      ['Session 4 · Scorecard Live Build', 'Wed, Dec 23 · 12:00 PM MST', 'Week 4', 'Scheduled', '—', '—'],
+      ['Session 5 · Contract to Close', 'Wed, Dec 30 · 12:00 PM MST', 'Week 5', 'Draft', '—', '—'],
+      ['Session 6 · Handoff', 'Wed, Jan 6 · 12:00 PM MST', 'Week 6', 'Draft', '—', '—'],
+    ]);
+    expect(vm.rows.map((r) => r.primary?.label ?? null)).toEqual([null, null, 'Go Live', null, null, null]);
+    expect(JSON.stringify(vm)).not.toMatch(/\bCT\b|Central/);
+  });
+
+  it('sends the invite once the 24-hour reminder window opens', () => {
+    const day = cohortsR2VM(db, Date.parse('2026-12-15T19:30:00Z'), 'dec26')!;
+    expect(day.rows[2]!.invite).toEqual({ label: 'Sent', tone: 'ok' });
+    expect(day.rows[3]!.invite).toEqual({ label: 'Scheduled', tone: 'info' });
+  });
+
+  it('before the cohort opens: Scheduled, not started', () => {
+    const early = cohortsR2VM(db, Date.parse('2026-11-20T16:00:00Z'), 'dec26')!;
+    expect(early.facts.status).toEqual({ label: 'Scheduled', tone: 'info' });
+    expect(early.facts.week).toBe('Not started');
+  });
+
+  it('edits a session in MST and saves the same instant in Central Time, which updateSession reads', () => {
+    const s3 = db.sessions[2]!;
+    const form = sessionFormR2(s3);
+    expect(form).toEqual({
+      title: 'Database Live Build',
+      date: '2026-12-16',
+      time: '12:00',
+      mins: '60',
+      zoom: s3.zoom,
+    });
+    expect(sessionArgsR2(s3.id, { ...form, time: '14:00' })).toEqual({
+      id: s3.id,
+      title: 'Database Live Build',
+      date: '2026-12-16',
+      time: '15:00',
+      mins: '60',
+      zoom: s3.zoom,
+    });
+  });
+
+  it('reads the ordinary fixture too', () => {
+    const live = cohortsR2VM(seed('live'), phaseNow('live'), 'dec26')!;
+    expect(live.rows).toHaveLength(seed('live').sessions.filter((s) => s.cohortId === 'dec26').length);
+    expect(live.rows.some((r) => r.primary)).toBe(true);
   });
 });

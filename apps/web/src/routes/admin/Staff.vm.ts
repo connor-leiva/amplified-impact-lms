@@ -14,7 +14,7 @@
 // The reference's inline colours become semantic tones the stylesheet keys off: `rmFg` is
 // `removeTone`, and `bd`/`bg`/`cursor`/`op` collapse into the `on` and `fixed` booleans.
 
-import { fmt, PERMS, STAFF_ROLES } from '@ai/core';
+import { adminStamp, fmt, PERMS, STAFF_ROLES } from '@ai/core';
 import type { Db, PermKey, StaffRole } from '@ai/core';
 
 /**
@@ -123,5 +123,53 @@ export function staffVM(db: Db, now: number, ui: StaffUi = STAFF_UI): StaffVM {
     email: ui.email,
     newRole: ui.newRole,
     err: ui.err,
+  };
+}
+
+// ================================================================================================
+// R2 (D-160 R2-3): Staff & Roles on the Admin redesign's components. The mockup draws no Staff screen
+// (its `NAV` has none; D11 keeps roles and the `PermKey` matrix here), so this is the old screen's
+// content in the R2 kit: the same rows, roles and matrix as `staffVM`, the viewer's own row marked
+// "(you)", and times MST (`adminStamp`, BUILD-SPEC § 7).
+// ================================================================================================
+
+export interface StaffR2Row {
+  id: string;
+  /** With ` (you)` on the viewer's own row. */
+  name: string;
+  plainName: string;
+  email: string;
+  initials: string;
+  role: StaffRole;
+  isOwner: boolean;
+  /** `Dec 10, 9:22 AM`, or `Invite pending`. */
+  last: string;
+  lastAt: number;
+}
+
+export interface StaffR2VM {
+  rows: StaffR2Row[];
+  roles: StaffRole[];
+  inviteRoles: InviteRole[];
+  perms: PermRow[];
+}
+
+export function staffR2VM(db: Db, viewerId: string | null): StaffR2VM {
+  const base = staffVM(db, 0);
+  return {
+    rows: db.staff.map((st) => ({
+      id: st.id,
+      name: st.name + (st.id === viewerId ? ' (you)' : ''),
+      plainName: st.name,
+      email: st.email,
+      initials: fmt.initials(st.name),
+      role: st.role,
+      isOwner: st.role === 'Owner',
+      last: st.last ? adminStamp(st.last) : 'Invite pending',
+      lastAt: st.last ?? 0,
+    })),
+    roles: base.roles,
+    inviteRoles: base.inviteRoles,
+    perms: base.perms,
   };
 }

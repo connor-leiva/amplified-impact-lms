@@ -10,7 +10,7 @@
 // never touches `db.base` here. `VaultManager.vm.test.ts` pins that by asserting the identical
 // summary against a `ZERO_BASE` snapshot, which is what the API returns in http mode.
 
-import { EXEC_CATEGORIES, fmt } from '@ai/core';
+import { EXEC_CATEGORIES, adminMonthDay, fmt } from '@ai/core';
 import type { Db, IconName, Tier } from '@ai/core';
 
 export type VaultTabId = 'all' | 'library' | 'exec';
@@ -174,4 +174,55 @@ export function vaultManagerVM(db: Db, ui: VaultManagerUi): VaultManagerVM {
         },
     form: { ...form, tierEff: exec ? 'team' : form.tier, exec, err: ui.err },
   };
+}
+
+// ================================================================================================
+// R2 (D-160 R2-2b): the Resource Vault of the signed-off Admin redesign (AdminRedesign.jsx `Vault`).
+// The same snapshot; the rows in its own order (the vault's, as the mockup's), dates in MST.
+// ================================================================================================
+
+export interface VaultR2Row {
+  id: string;
+  title: string;
+  /** A replay or walkthrough: the play glyph instead of the file glyph. */
+  video: boolean;
+  type: string;
+  /** The AI Employee it is attached to, or "—". */
+  attached: string;
+  tier: Tier;
+  tierLabel: string;
+  size: string;
+  /** How many times learners opened it. */
+  opens: number;
+  /** `Dec 8`, MST. */
+  updated: string;
+  updatedAt: number;
+  hidden: boolean;
+  exec: boolean;
+}
+
+export interface VaultR2VM {
+  rows: VaultR2Row[];
+  /** The Type filter: "All types", then each type in the order the vault first lists it. */
+  types: string[];
+}
+
+export function vaultR2VM(db: Db): VaultR2VM {
+  const name = (id?: string) => (id ? db.modules.find((m) => m.id === id)?.name : undefined) ?? '—';
+  const rows = db.resources.map((r): VaultR2Row => ({
+    id: r.id,
+    title: r.title,
+    video: r.type === 'Video',
+    type: r.type,
+    attached: name(r.module),
+    tier: r.tier,
+    tierLabel: r.tier === 'team' ? 'Team only' : 'Agent + Team',
+    size: r.size,
+    opens: r.dl,
+    updated: adminMonthDay(r.updated),
+    updatedAt: r.updated,
+    hidden: r.status === 'hidden',
+    exec: r.exec,
+  }));
+  return { rows, types: ['All types', ...new Set(rows.map((r) => r.type))] };
 }

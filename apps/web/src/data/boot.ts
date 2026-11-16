@@ -58,7 +58,13 @@ if (isFixture) {
   // edge of the join window.
   const pinned = qs.get('now');
   clock.useDemo(pinned ? Date.parse(pinned) : phaseNow(fixturePhase));
-  repo = createFixtureRepository(fixtureRole, fixturePhase);
+  // The R2 parity snapshot (D-160 R2-2): the mockup's Build data, for `parity:admin-r2` only. Loaded
+  // behind the build-time constant, so the http build has no trace of it (`console-build.test.ts`).
+  const parity =
+    import.meta.env.VITE_DATA_SOURCE === 'fixture' && qs.get('parity') === 'r2'
+      ? import('./parity-r2-db').then((m) => m.parityDb(location.pathname))
+      : null;
+  repo = createFixtureRepository(fixtureRole, fixturePhase, parity);
 } else {
   clock.useReal();
   repo = createHttpRepository();

@@ -1,4 +1,4 @@
-import { test, expect, type Browser, type Page } from '@playwright/test';
+import { test, expect, type Browser, type Locator, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { APP_BASE } from '../../lib/prepare';
 import { expectAccessible } from '../../lib/a11y';
@@ -36,21 +36,27 @@ async function expectShell(page: Page) {
   await expect(page.locator('main')).toHaveCount(1);
 }
 
-const rows = (page: Page) => page.locator('main tbody tr');
+/** A list's data rows: the R2 table's (D-160 R2-3b), its header row left out. */
+const rows = (page: Page) => page.locator('main [role="table"] [role="row"]:has([role="cell"])');
 
 test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (D-157) @g9 @console', () => {
-  test('Roles: the read-only matrix, with a link to Staff & Roles, in both themes', async ({ browser }) => {
+  test('Roles: the read-only matrix, with the way to Staff & Roles, in both themes', async ({ browser }) => {
+    // D-160 R2-3b: the R2 matrix, the mockup's nine rows, every box disabled (D11: read-only).
     for (const theme of ['light', 'dark'] as const) {
       const { page, close } = await openAt(browser, '/admin/roles', { theme });
       await expectShell(page);
       await expect(page.getByRole('heading', { level: 1, name: 'Roles & Permissions' })).toBeVisible();
       await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toContainText('Roles & Permissions');
-      await expect(rows(page)).toHaveCount(28);
-      await expect(page.locator('main input, main select, main [role="switch"], main [role="checkbox"]')).toHaveCount(0);
-      await expect(rows(page).filter({ hasText: 'Export Logs as CSV' })).toContainText('No');
+      const matrix = page.getByRole('table', { name: 'Console permissions by role' });
+      await expect(matrix.locator('[role="row"]:has([role="cell"])')).toHaveCount(9);
+      await expect(matrix.locator('input[type="checkbox"]')).toHaveCount(27);
+      await expect(matrix.locator('input:not(:disabled), select, [role="switch"]')).toHaveCount(0);
+      const exportRow = matrix.getByRole('row', { name: 'Export audit and email logs' });
+      await expect(exportRow.getByRole('checkbox', { name: 'Export audit and email logs, Support' })).not.toBeChecked();
+      await expect(matrix.getByRole('checkbox', { name: 'Refund or void an invoice, Support. Fixed by product rules' })).toBeDisabled();
       await expectAccessible(page);
       if (theme === 'light') {
-        await page.getByRole('link', { name: 'Go to Staff & Roles' }).click();
+        await page.getByRole('link', { name: 'Invite staff' }).click();
         await expect(page).toHaveURL(/\/admin\/staff/);
       }
       await close();
@@ -58,12 +64,13 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
   });
 
   test('Denied: Support, Instructor and Content Editor on Roles, with the way back to the Overview', async ({ browser }) => {
+    // D-160 R2-1b: Denied is the R2 mockup's, in its words (straight apostrophe, no full stop).
     for (const theme of ['light', 'dark'] as const) {
       const { page, close } = await openAt(browser, '/admin/roles?console-role=Support', { theme });
       await expectShell(page);
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your role can’t open Roles & Permissions.');
-      await expect(page.locator('[data-console-state="denied"]')).toContainText('Permission Needed');
-      await expect(page.getByText('You’re signed in as Support.', { exact: false })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open Roles & Permissions");
+      await expect(page.getByText('You are signed in as Support. An Owner can change this in Roles & Permissions.')).toBeVisible();
+      await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toHaveText('Admin/Access/Roles & Permissions');
       await expectAccessible(page);
       if (theme === 'light') {
         await page.getByRole('link', { name: 'Go to Overview' }).click();
@@ -73,21 +80,33 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
     }
     for (const role of ['Instructor', 'Content Editor']) {
       const { page, close } = await openAt(browser, `/admin/roles?console-role=${encodeURIComponent(role)}`);
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your role can’t open Roles & Permissions.');
-      await expect(page.getByText(`You’re signed in as ${role}.`, { exact: false })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open Roles & Permissions");
+      await expect(page.getByText(`You are signed in as ${role}.`, { exact: false })).toBeVisible();
       await close();
     }
   });
 
   test('any other /admin/ address is the Console 404, inside the shell; a learner still goes home', async ({ browser }) => {
+    // D-160 R2-1b: the 404 is the R2 mockup's, and its breadcrumb is `Admin` alone, as there.
     const { page, close } = await openAt(browser, '/admin/no-such-page');
     await expectShell(page);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('That Console page doesn’t exist.');
-    await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toContainText('Page Not Found');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText("This page doesn't exist");
+    await expect(page.getByText('The link may be old, or the record was removed. Error 404.')).toBeVisible();
+    await expect(page.locator('header nav[aria-label="Breadcrumb"]')).toHaveText('Admin');
+    // "Search the admin" opens the command palette, which is R2-5: until then it does nothing.
+    await expect(page.getByRole('button', { name: 'Search the admin' })).toHaveAttribute('aria-disabled', 'true');
     await expectAccessible(page);
     await page.getByRole('link', { name: 'Go to Overview' }).click();
-    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('That Console page doesn’t exist.');
+    await expect(page).toHaveURL(/\/admin(\?|$)/);
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText("This page doesn't exist");
     await close();
+
+    // The fixture's standalone Denied page (parity only) is the 404 nowhere but the fixture build;
+    // here, the fixture build, it is Denied with no page named.
+    const denied = await openAt(browser, '/admin/denied');
+    await expect(denied.page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open this page");
+    await expectAccessible(denied.page);
+    await denied.close();
 
     for (const path of ['/admin/roles', '/admin/no-such-page']) {
       const learner = await openAt(browser, path, { persona: 'agent' });
@@ -138,7 +157,8 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
 
   test('a row opens the detail drawer, by mouse or keyboard, and Escape closes it', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
-    const first = rows(page).first().getByRole('button');
+    // D-160 R2-3b: a row's time is the button that opens it.
+    const first = rows(page).first().getByRole('button', { name: /^View the entry from / });
     await first.focus();
     await page.keyboard.press('Enter');
     const drawer = page.locator('[data-drawer="open"]');
@@ -152,14 +172,20 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
     await close();
   });
 
+  /** D-160 R2-3b: the Outcome filter, which the mockup does not draw, is in the filter row's "…". */
+  const outcome = async (page: Page, label: string) => {
+    await page.getByRole('button', { name: /^More filters/ }).click();
+    await page.getByRole('menuitem', { name: label }).click();
+  };
+
   test('filters narrow the list, and Clear Filters brings it back', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
-    await page.getByRole('combobox', { name: 'Outcome' }).selectOption('denied');
-    await expect(rows(page).first()).toContainText('Denied');
+    await outcome(page, 'Denied');
+    await expect(rows(page).first()).toContainText('console.access_denied');
     const n = await rows(page).count();
-    for (let i = 0; i < n; i++) await expect(rows(page).nth(i)).toContainText('Denied');
-    await page.getByRole('searchbox', { name: 'Search target' }).fill('zzz-nothing');
-    await expect(page.getByText('Nothing matches these filters.')).toBeVisible();
+    for (let i = 0; i < n; i++) await expect(rows(page).nth(i)).toContainText('console.access_denied');
+    await page.getByRole('textbox', { name: 'Filter target or detail' }).fill('zzz-nothing');
+    await expect(page.getByText('No matches')).toBeVisible();
     await expectAccessible(page);
     await page.getByRole('button', { name: 'Clear Filters' }).click();
     await expect(rows(page)).toHaveCount(50);
@@ -168,7 +194,7 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
 
   test('Export CSV downloads the filtered rows, safe for a spreadsheet, and the export joins the log', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit');
-    await page.getByRole('combobox', { name: 'Outcome' }).selectOption('failed');
+    await outcome(page, 'Failed');
     await expect(rows(page)).toHaveCount(1);
     const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export CSV' }).click()]);
     expect(download.suggestedFilename()).toBe('audit-log-2026-12-07.csv');
@@ -177,17 +203,19 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
     expect(lines[0]).toMatch(/^"id","at","actor_user_id"/);
     expect(lines).toHaveLength(2);
     await expect(page.getByText('Export downloaded. The export is in the audit log.')).toBeVisible();
-    await page.getByRole('combobox', { name: 'Outcome' }).selectOption('');
+    await outcome(page, 'Any outcome');
     await expect(rows(page).first()).toContainText('audit.export');
-    await expect(rows(page).first()).toContainText('10:42 AM');
+    // D-160 R2-3b: the time in MST (10:42 AM Central is 9:42 AM in Arizona).
+    await expect(rows(page).first()).toContainText('9:42 AM');
     await close();
   });
 
   test('Support reads the log without IP or browser, and cannot export', async ({ browser }) => {
     const { page, close } = await openAt(browser, '/admin/audit?console-role=Support');
     await expect(rows(page)).toHaveCount(50);
-    await expect(page.getByRole('button', { name: 'Export CSV' })).toHaveCount(0);
-    await rows(page).first().getByRole('button').click();
+    // D-160 R2-3b: drawn locked, as the mockup's guarded button, and it does nothing.
+    await expect(page.getByRole('button', { name: 'Export CSV' })).toHaveAttribute('aria-disabled', 'true');
+    await rows(page).first().getByRole('button', { name: /^View the entry from / }).click();
     const drawer = page.locator('[data-drawer="open"]');
     await expect(drawer).toContainText('Hidden for your role');
     await expect(drawer).not.toContainText('203.0.113.');
@@ -198,8 +226,9 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
   test('Instructor and Content Editor see Denied on the audit log', async ({ browser }) => {
     for (const role of ['Instructor', 'Content Editor']) {
       const { page, close } = await openAt(browser, `/admin/audit?console-role=${encodeURIComponent(role)}`);
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your role can’t open Audit Log.');
-      await expect(page.locator('[data-console-state="denied"]')).toContainText('Permission Needed');
+      // D-160 R2-1b: the R2 mockup's Denied, in its words.
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText("Your role can't open Audit Log");
+      await expect(page.getByText(`You are signed in as ${role}.`, { exact: false })).toBeVisible();
       await close();
     }
   });
@@ -211,7 +240,7 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
     await loading.close();
 
     const empty = await openAt(browser, '/admin/audit?console-state=empty');
-    await expect(empty.page.getByText('No audit entries in the last 7 days.')).toBeVisible();
+    await expect(empty.page.getByText('No audit entries yet')).toBeVisible();
     await expect(empty.page.getByRole('button', { name: 'Show Last 30 Days' })).toBeVisible();
     await expectAccessible(empty.page);
     await empty.close();
@@ -231,11 +260,16 @@ test.describe('the Admin Console: the Audit Log (D-157) @g9 @console', () => {
   });
 });
 
-test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @console', () => {
-  const groupsOf = (page: Page) =>
-    page.locator('aside[aria-label="Primary"] nav[aria-label="Main"]').evaluate((nav) =>
-      Array.from(nav.children).map((g) => Array.from(g.children).map((el) => (el as HTMLElement).innerText.trim().split('\n')[0]!)),
+test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-160 R2-1b) @g9 @console', () => {
+  /** Open every closed group, then read each group's header and rows. */
+  const groupsOf = async (scope: Locator) => {
+    const nav = scope.locator('nav[aria-label="Admin"]');
+    const closed = nav.locator('button[aria-expanded="false"]');
+    while ((await closed.count()) > 0) await closed.first().click();
+    return nav.evaluate((el) =>
+      Array.from(el.children).map((g) => Array.from(g.children).map((x) => (x as HTMLElement).innerText.trim().split('\n')[0]!)),
     );
+  };
 
   const EXPECT: Record<string, string[][]> = {
     Owner: [
@@ -254,24 +288,48 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {
       const { page, close } = await openAt(browser, `/admin?console-role=${role}`);
-      await expect.poll(() => groupsOf(page)).toEqual(EXPECT[role]);
+      const aside = page.locator('aside[aria-label="Primary"]');
+      // Health (the Overview's group) and Build start open; the rest are closed until opened.
+      await expect(aside.getByRole('button', { name: 'Health', exact: true })).toHaveAttribute('aria-expanded', 'true');
+      await expect(aside.getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'true');
+      await expect(aside.getByRole('button', { name: 'Support', exact: true })).toHaveAttribute('aria-expanded', 'false');
+      await expect.poll(() => groupsOf(aside)).toEqual(EXPECT[role]);
       if (role !== 'Instructor') {
-        await page.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Audit Log' }).click();
+        await aside.getByRole('button', { name: 'Audit Log' }).click();
         await expect(page).toHaveURL(/\/admin\/audit/);
-        await expect(page.locator('aside[aria-label="Primary"] [aria-current="page"]')).toContainText('Audit Log');
+        await expect(aside.locator('[aria-current="page"]')).toContainText('Audit Log');
+        // The active page's group cannot close while its page is open.
+        await aside.getByRole('button', { name: 'Operations', exact: true }).click();
+        await expect(aside.getByRole('button', { name: 'Operations', exact: true })).toHaveAttribute('aria-expanded', 'true');
       }
       await expectAccessible(page);
       await close();
     });
   }
 
+  test('a group the viewer closes stays closed on the next visit, in this browser', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/no-such-page');
+    const aside = page.locator('aside[aria-label="Primary"]');
+    await aside.getByRole('button', { name: 'Build', exact: true }).click();
+    await expect(aside.getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'false');
+    // A second visit in the same browser (a new tab: `openAt`'s init script, which seeds the
+    // preferences, belongs to the first page only).
+    const again = await page.context().newPage();
+    await again.goto(page.url());
+    await again.locator('body[data-app-ready="true"]').waitFor();
+    await expect(again.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Build', exact: true })).toHaveAttribute('aria-expanded', 'false');
+    await expect(again.locator('aside[aria-label="Primary"]').getByRole('button', { name: 'Health', exact: true })).toHaveAttribute('aria-expanded', 'true');
+    await close();
+  });
+
   for (const width of [320, 390]) {
     test(`the phone drawer at ${width}: every group, 44px rows, 16px type, nothing sideways`, async ({ browser }) => {
       const { page, close } = await openAt(browser, '/admin/audit', { width });
       await page.getByRole('button', { name: 'Open menu' }).click();
-      const aside = page.locator('aside[aria-label="Primary"]');
-      await expect(aside).toHaveAttribute('data-open', 'true');
-      await expect.poll(() => groupsOf(page)).toEqual(EXPECT.Owner);
+      const drawer = page.locator('[data-drawer="open"][role="dialog"]');
+      await expect(drawer).toHaveCount(1);
+      const aside = drawer.locator('aside[aria-label="Primary"]');
+      await expect.poll(() => groupsOf(aside)).toEqual(EXPECT.Owner);
       const problems = await aside.evaluate((el) => {
         const out: string[] = [];
         if (el.scrollWidth > el.clientWidth + 1) out.push(`drawer ${el.scrollWidth} > ${el.clientWidth}`);
@@ -285,6 +343,8 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d) @g9 @consol
       expect(problems).toEqual([]);
       await expect(aside.locator('[aria-current="page"]')).toContainText('Audit Log');
       await expectAccessible(page);
+      await page.keyboard.press('Escape');
+      await expect(page.locator('[data-drawer="open"]')).toHaveCount(0);
       await close();
     });
   }

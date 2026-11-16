@@ -51,6 +51,22 @@ export const BASE = 'c1e3921';
 const LMS_CSS = [join(ROOT, 'design-reference/lms.css'), join(ROOT, 'apps/web/src/styles/lms.css')];
 /** Rebuilt in the www kit's look by PR B2 (#119): 16px and 44 / 48px at every width by design. */
 export const KIT_LOOK = ['apps/web/src/routes/course/', 'apps/web/src/routes/library/'];
+/**
+ * Rebuilt on the Admin redesign R2 (D-160 R2-2, R2-3a): written anew on the R2 tokens (`--r2-*`, 16px and up
+ * on a phone by construction, `r2-tokens.test.ts`), so no declaration in them is the codemod's. The old
+ * file's marks would only land on unrelated new lines (a 16px row-number width).
+ */
+export const R2_REBUILT = [
+  'apps/web/src/routes/admin/Curriculum.',
+  'apps/web/src/routes/admin/ModuleBuilder.',
+  'apps/web/src/routes/admin/VaultManager.',
+  'apps/web/src/routes/admin/Cohorts.',
+  'apps/web/src/routes/admin/Announcements.',
+  'apps/web/src/routes/admin/Overview.',
+  'apps/web/src/routes/admin/Learners.',
+  'apps/web/src/routes/admin/Tiers.',
+  'apps/web/src/routes/admin/Staff.',
+];
 const FLOOR = 16;
 const MIN_BOX = 24;
 const MIN_LINE = 20;
@@ -294,6 +310,7 @@ export function scope() {
   for (const file of [...ref, ...app]) {
     const rel = relative(ROOT, file).split('\\').join('/');
     if (KIT_LOOK.some((d) => rel.startsWith(d))) continue;
+    if (R2_REBUILT.some((d) => rel.startsWith(d))) continue;
     const before = gitShow(rel);
     if (before === null) continue;
     const kind = KINDS.find((k) => k.test(file));

@@ -1,0 +1,49 @@
+/* `.cd`, `.cdh`, `.cdb` and `.cd.pd` in the R2 mockup (D-160). */
+.card {
+  background: var(--r2-sf);
+  border: 1px solid var(--r2-line);
+  border-radius: 12px;
+  box-shadow: var(--r2-sh-card);
+  min-width: 0;
+}
+.padded {
+  padding: 20px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--r2-line);
+  min-height: 52px;
+}
+.titles {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.title {
+  font: 600 var(--r2-sh) / 22px var(--r2-font);
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+.sub {
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+}
+.body {
+  padding: 16px 20px;
+}
+@media (max-width: 767px) {
+  .padded {
+    padding: 16px;
+  }
+  .head {
+    padding: 12px 16px;
+  }
+  .body {
+    padding: 12px 16px;
+  }
+}

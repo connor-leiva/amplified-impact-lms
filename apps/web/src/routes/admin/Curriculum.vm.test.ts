@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { phaseNow, seed, setViewerZone, ZERO_BASE } from '@ai/core';
 import type { Db } from '@ai/core';
-import { curriculumVM, previewUrl, type CurriculumRow } from './Curriculum.vm';
+import { curriculumR2VM, curriculumVM, movesFor, previewUrl, tierWords, type CurriculumRow } from './Curriculum.vm';
+import { parityDb } from '../../data/parity-r2-db';
+import { MODS0 } from '../../data/parity-r2';
 
 // Admin Curriculum at the three demo instants, Week 2 first (phase 06 § 6.1).
 //
@@ -35,14 +37,7 @@ describe('curriculumVM @g6', () => {
     });
 
     it('lists all six in curriculum order, numbered from 1', () => {
-      expect(vm.rows.map((r) => r.id)).toEqual([
-        'marketing',
-        'sales',
-        'database',
-        'meetings',
-        'finance',
-        'operations',
-      ]);
+      expect(vm.rows.map((r) => r.id)).toEqual(['marketing', 'sales', 'database', 'meetings', 'finance', 'operations']);
       expect(field(db, WEEK2, 'order')).toEqual([1, 2, 3, 4, 5, 6]);
       expect(field(db, WEEK2, 'name')).toEqual([
         'Marketing AI Employee',
@@ -52,14 +47,7 @@ describe('curriculumVM @g6', () => {
         'Finance AI Employee',
         'Operations AI Employee',
       ]);
-      expect(field(db, WEEK2, 'icon')).toEqual([
-        'megaphone',
-        'zap',
-        'database',
-        'mic',
-        'dollar',
-        'workflow',
-      ]);
+      expect(field(db, WEEK2, 'icon')).toEqual(['megaphone', 'zap', 'database', 'mic', 'dollar', 'workflow']);
     });
 
     it('disables the up chevron on the first row and the down chevron on the last', () => {
@@ -141,14 +129,7 @@ describe('curriculumVM @g6', () => {
     });
 
     it('previews a Team-only AI Employee as the Team Owner and the rest as an Agent', () => {
-      expect(field(db, WEEK2, 'previewAs')).toEqual([
-        'agent',
-        'agent',
-        'agent',
-        'owner',
-        'owner',
-        'owner',
-      ]);
+      expect(field(db, WEEK2, 'previewAs')).toEqual(['agent', 'agent', 'agent', 'owner', 'owner', 'owner']);
     });
 
     it('opens the http-mode preview tab with the preview flag, never ?as= (D-138)', () => {
@@ -189,9 +170,7 @@ describe('curriculumVM @g6', () => {
     const db = seed('week0');
 
     it('keeps the same subline, because no AI Employee is a draft yet', () => {
-      expect(curriculumVM(db, WEEK0).summary).toBe(
-        '6 AI Employees · 3 in Agent Tier, all in Team Tier',
-      );
+      expect(curriculumVM(db, WEEK0).summary).toBe('6 AI Employees · 3 in Agent Tier, all in Team Tier');
     });
 
     it('shows Session 3 on the date it was first scheduled, before the move to Wed Dec 9', () => {
@@ -245,15 +224,11 @@ describe('curriculumVM @g6', () => {
     const base = seed('live');
     const db: Db = {
       ...base,
-      modules: base.modules.map((m) =>
-        m.id === 'operations' ? { ...m, status: 'draft' as const } : m,
-      ),
+      modules: base.modules.map((m) => (m.id === 'operations' ? { ...m, status: 'draft' as const } : m)),
     };
 
     it('counts the draft in the subline', () => {
-      expect(curriculumVM(db, WEEK2).summary).toBe(
-        '6 AI Employees · 3 in Agent Tier, all in Team Tier · 1 draft',
-      );
+      expect(curriculumVM(db, WEEK2).summary).toBe('6 AI Employees · 3 in Agent Tier, all in Team Tier · 1 draft');
     });
 
     it('hides it from learners, offers Publish, and dashes out the Deployed column', () => {
@@ -272,9 +247,7 @@ describe('curriculumVM @g6', () => {
     const base = seed('live');
     const db: Db = {
       ...base,
-      modules: base.modules.map((m) =>
-        m.id === 'finance' ? { ...m, session: null, outcome: '' } : m,
-      ),
+      modules: base.modules.map((m) => (m.id === 'finance' ? { ...m, session: null, outcome: '' } : m)),
     };
 
     it('reads Self-paced, with the reference placeholder for a missing outcome line', () => {
@@ -290,12 +263,97 @@ describe('curriculumVM @g6', () => {
     it('puts the viewer zone first and the program zone in parentheses', () => {
       setViewerZone('America/New_York');
       try {
-        expect(field(seed('live'), WEEK2, 'sessSub')[2]).toBe(
-          'Wed, Dec 9 · 2:00 PM ET (1:00 PM CT)',
-        );
+        expect(field(seed('live'), WEEK2, 'sessSub')[2]).toBe('Wed, Dec 9 · 2:00 PM ET (1:00 PM CT)');
       } finally {
         setViewerZone('America/Chicago');
       }
     });
+  });
+});
+
+// ================================================================================================
+// R2 (D-160 R2-2): the mockup's Curriculum, from the parity snapshot and from the ordinary fixture.
+// ================================================================================================
+
+describe('curriculumR2VM (D-160 R2-2)', () => {
+  const NOW = Date.parse('2026-12-10T16:30:00Z'); // the mockup's "now": Thu, Dec 10, 9:30 AM MST
+  const vm = curriculumR2VM(parityDb(), NOW);
+  const row = (id: string) => vm.rows.find((r) => r.id === id)!;
+
+  it('has the mockup’s summary, with the drafts kept together', () => {
+    expect(vm.summary).toBe('15 AI Employees · 3 in Agent Tier, all in Team Tier · 6\u00A0draft');
+    expect(vm.summaryPhone).toBe('15 AI Employees · 3 in Agent\u00A0Tier\u00A0·\u00A06\u00A0draft');
+    expect(vm.started).toBe(true);
+  });
+
+  it('lists MODS0 in order, with statuses, lines and Deployed', () => {
+    expect(vm.rows.map((r) => r.name)).toEqual(MODS0.map((m) => m.n));
+    expect(vm.rows.map((r) => r.statusLabel)).toEqual(MODS0.map((m) => m.st));
+    expect(row('m1')).toMatchObject({
+      order: 1,
+      statusLine: '6 steps · 3 files',
+      deployed: 66,
+      tier: 'agent',
+      icon: 'r2Announce',
+    });
+    expect(row('m6')).toMatchObject({
+      statusLine: 'Opens Dec 14',
+      deployed: null,
+      depLabel: 'Not started',
+      statusTone: 'info',
+    });
+    expect(row('m10')).toMatchObject({
+      statusLine: 'Hidden from learners',
+      deployed: null,
+      depLabel: 'Not published',
+      statusTone: 'off',
+    });
+    expect(vm.rows.filter((r) => r.deployed !== null).map((r) => r.deployed)).toEqual([66, 91, 74, 35, 38]);
+  });
+
+  it('prints each live session in MST, in every form the table needs (BUILD-SPEC § 7)', () => {
+    expect(row('m3').session).toEqual({
+      title: 'Session 1 · Lead-Source ROI Live Build',
+      when: 'Wed, Dec 2 · 12:00 PM MST · Replay ready',
+      full: 'Session 1 · Lead-Source ROI Live Build · Wed, Dec 2 · 12:00 PM MST · Replay ready',
+      short: 'Lead-Source ROI',
+      date: 'Wed, Dec 2 · 12:00 PM',
+      brief: 'Session 1 · Wed, Dec 2 · 12:00 PM MST',
+      n: 'Session 1',
+      day: 'Wed, Dec 2',
+    });
+    expect(row('m7').session!.when).toBe('Wed, Dec 16 · 12:00 PM MST');
+    expect(row('m13').session!.short).toBe('Handoff');
+    expect(row('m1').session).toBeNull();
+    for (const r of vm.rows) expect(JSON.stringify(r)).not.toMatch(/\bCT\b|Central/);
+  });
+
+  it('writes the phone card’s meta line as the mockup does', () => {
+    expect(row('m1').meta).toBe('Self-paced · 66% deployed');
+    expect(row('m3').meta).toBe('Session 1 · Wed, Dec 2 · 74% deployed');
+    expect(row('m7').meta).toBe('Session 3 · Wed, Dec 16');
+    expect(row('m11').meta).toBe('Hidden from learners · Wed, Dec 30');
+    expect(row('m12').meta).toBe('Hidden from learners · Self-paced');
+  });
+
+  it('before the cohort opens, nothing is deployed yet', () => {
+    const early = curriculumR2VM(parityDb(), Date.parse('2026-11-20T16:00:00Z'));
+    expect(early.started).toBe(false);
+    expect(early.rows[0]).toMatchObject({ deployed: null, depLabel: 'Not started', meta: 'Self-paced · Not started' });
+  });
+
+  it('reads the ordinary fixture the same way, the baseline included (phase 06 § 6.2)', () => {
+    const live = curriculumR2VM(seed('live'), WEEK2);
+    expect(live.rows.map((r) => r.id)).toEqual(['marketing', 'sales', 'database', 'meetings', 'finance', 'operations']);
+    expect(live.rows.map((r) => r.publishes)).toEqual(curriculumVM(seed('live'), WEEK2).rows.map((r) => r.publishes));
+    const zero = curriculumR2VM({ ...seed('live'), base: ZERO_BASE, users: [] }, WEEK2);
+    expect(zero.rows.filter((r) => r.status === 'published').every((r) => r.deployed === 0)).toBe(true);
+  });
+
+  it('turns a drag into one-place moves', () => {
+    expect(movesFor(4, 1)).toEqual({ dir: -1, times: 3 });
+    expect(movesFor(0, 2)).toEqual({ dir: 1, times: 2 });
+    expect(tierWords('agent')).toBe('Agent + Team');
+    expect(tierWords('team')).toBe('Team only');
   });
 });

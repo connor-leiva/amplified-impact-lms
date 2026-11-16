@@ -11,7 +11,7 @@
 // The matrix is defined here and is read-only (D11): `/admin/roles` shows it, nothing edits it. The
 // prototype's `PermKey` matrix on `/admin/staff` is a different thing and is unchanged.
 
-import type { StaffRole } from './types';
+import type { PermKey, StaffRole } from './types';
 
 /** The two roles besides the Owner that hold Console capabilities. */
 type CapRole = 'Admin' | 'Support';
@@ -260,6 +260,27 @@ export function rolesMatrix(): RolesMatrix {
     staffPath: STAFF_ADMIN_PATH,
   };
 }
+
+/**
+ * The R2 Roles & Permissions matrix (D-160 R2-3b): the signed-off mockup's nine rows (`PERMS0`), each
+ * the Console capabilities (`caps`, from `CONSOLE_CAPS`) or the `PermKey`s (`perms`, the matrix D11
+ * keeps on `/admin/staff`) it stands for. A role holds a row only when it holds every one of them.
+ * Read-only, like the matrix it is drawn from (D11, spec § 7.16: no write endpoint).
+ */
+export const ROLES_R2_ROWS: readonly { key: string; label: string; caps?: readonly ConsoleCap[]; perms?: readonly PermKey[] }[] = [
+  { key: 'build', label: 'Edit curriculum, vault, sessions, announcements, tiers', perms: ['curriculum', 'publish', 'cohorts', 'announce'] },
+  { key: 'masq', label: 'Start and extend masquerade', caps: ['masquerade.start', 'masquerade.extend'] },
+  { key: 'account', label: 'Send password reset or change email', caps: ['user.password_reset'] },
+  { key: 'billview', label: 'View billing', caps: ['billing.read'] },
+  { key: 'refund', label: 'Refund or void an invoice', caps: ['billing.refund', 'billing.void'] },
+  { key: 'jobs', label: 'Run a job now, retry a webhook, update incidents', caps: ['jobs.run_now', 'webhooks.retry', 'incidents.resolve'] },
+  { key: 'export', label: 'Export audit and email logs', caps: ['export'] },
+  { key: 'ops', label: 'View integrations, deploys, DB health, flags, roles', caps: ['ops.read'] },
+  { key: 'staff', label: 'Edit staff roles and this matrix', perms: ['staff'] },
+];
+
+/** Product rules no matrix can change (spec D1/D2): Support never refunds, voids or masquerades. */
+export const FIXED_BY_PRODUCT: Readonly<Partial<Record<ConsoleRole, readonly string[]>>> = { Support: ['masq', 'refund'] };
 
 /** What `GET /api/console/me` answers. */
 export interface ConsoleMe {

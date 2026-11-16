@@ -16,7 +16,18 @@
 // There is deliberately NO branch on the data source: in http mode the API returns `ZERO_BASE`,
 // and this same arithmetic then reports the live numbers.
 
-import { canAccess, fmt, sessionFor, sessionState, sortedModules, statusOf } from '@ai/core';
+import {
+  adminDay,
+  adminMonthDay,
+  adminTime,
+  adminWhen,
+  canAccess,
+  fmt,
+  sessionFor,
+  sessionState,
+  sortedModules,
+  statusOf,
+} from '@ai/core';
 import type { Db, IconName, ModuleStatus, Tier } from '@ai/core';
 
 /** The reference's `stMap`: a `Draft` is `STATUS.none` relabelled, so its tone is neutral. */
@@ -128,3 +139,149 @@ export function curriculumVM(db: Db, now: number): CurriculumVM {
  */
 export const previewUrl = (r: Pick<CurriculumRow, 'id' | 'previewAs'>): string =>
   `/employees/${encodeURIComponent(r.id)}?preview=${r.previewAs}`;
+
+// ================================================================================================
+// R2 (D-160 R2-2): the Curriculum screen of the signed-off Admin redesign (AdminRedesign.jsx
+// `Curriculum`). Same snapshot, same `db.base` rule and the same publish and preview targets as above;
+// the words are the mockup's, its times MST (`adminWhen`, BUILD-SPEC § 7).
+// ================================================================================================
+
+/** A live session, in each of the forms the R2 table prints it. */
+export interface CurriculumR2Session {
+  /** `Session 1 · Lead-Source ROI Live Build`. */
+  title: string;
+  /** `Wed, Dec 2 · 12:00 PM MST · Replay ready`. */
+  when: string;
+  /** Both lines, for the 1280 cell's title and accessible name. */
+  full: string;
+  /** 1280's one-line name: `Lead-Source ROI`. */
+  short: string;
+  /** 1280's date line: `Wed, Dec 2 · 12:00 PM`. */
+  date: string;
+  /** Laptop's line under the name, the Live session column gone: `Session 1 · Wed, Dec 2 · 12:00 PM MST`. */
+  brief: string;
+  /** `Session 1`. */
+  n: string;
+  /** `Wed, Dec 2`. */
+  day: string;
+}
+
+export interface CurriculumR2Row {
+  id: string;
+  /** 1-based, in curriculum order (shown when the table is 1100px or wider). */
+  order: number;
+  name: string;
+  desc: string;
+  icon: IconName;
+  tier: Tier;
+  status: ModuleStatus;
+  statusLabel: string;
+  statusTone: 'ok' | 'info' | 'off';
+  /** `6 steps · 3 files`, `Opens Dec 14` or `Hidden from learners`. */
+  statusLine: string;
+  session: CurriculumR2Session | null;
+  /** The Deployed bar's percent, or null with `depLabel` in its place. */
+  deployed: number | null;
+  depLabel: string;
+  /** The phone card's meta line. */
+  meta: string;
+  previewAs: 'agent' | 'owner';
+  /** Publish (true) or Unpublish (false). */
+  publishes: boolean;
+}
+
+export interface CurriculumR2VM {
+  summary: string;
+  /** The phone's summary, its last words kept together. */
+  summaryPhone: string;
+  /** The cohort has opened. Before then nothing is deployed yet. */
+  started: boolean;
+  rows: CurriculumR2Row[];
+}
+
+const R2_STATUS: Record<ModuleStatus, ['Published' | 'Scheduled' | 'Draft', 'ok' | 'info' | 'off']> = {
+  published: ['Published', 'ok'],
+  scheduled: ['Scheduled', 'info'],
+  draft: ['Draft', 'off'],
+};
+
+/** The tier pill's words (the mockup's `TierPill`). */
+export const tierWords = (t: Tier): string => (t === 'agent' ? 'Agent + Team' : 'Team only');
+
+export function curriculumR2VM(db: Db, now: number): CurriculumR2VM {
+  const mods = sortedModules(db);
+  const users = db.users.filter((u) => u.status !== 'invited');
+  const cohort = db.cohorts.find((c) => c.id === COHORT_ID) ?? null;
+  const started = !!cohort && now >= cohort.start;
+
+  const rows = mods.map((m, i): CurriculumR2Row => {
+    const s = m.session ? sessionFor(db, COHORT_ID, m.session) : null;
+    const session: CurriculumR2Session | null = s
+      ? (() => {
+          const title = `Session ${s.n} · ${s.title}`;
+          const when = `${adminWhen(s.start)}${sessionState(s, now) === 'replay' ? ' · Replay ready' : ''}`;
+          return {
+            title,
+            when,
+            full: `${title} · ${when}`,
+            short: s.title.replace(/ Live Build$/, ''),
+            date: `${adminDay(s.start)} · ${adminTime(s.start)}`,
+            brief: `Session ${s.n} · ${adminWhen(s.start)}`,
+            n: `Session ${s.n}`,
+            day: adminDay(s.start),
+          };
+        })()
+      : null;
+    const b = db.base.mod[m.id] ?? [0, 0, 0];
+    const pool = users.filter((u) => canAccess(u, m));
+    const n = b[0] + b[1] + b[2] + pool.length;
+    const d = b[0] + pool.filter((u) => statusOf(u, m) === 'deployed').length;
+    const published = m.status === 'published';
+    const deployed = started && published ? (n ? Math.round((d / n) * 100) : 0) : null;
+    const [statusLabel, statusTone] = R2_STATUS[m.status];
+    const draft = m.status === 'draft';
+    const meta =
+      (draft ? 'Hidden from learners · ' : '') +
+      (session ? (draft ? '' : `${session.n} · `) + session.day : 'Self-paced') +
+      (deployed !== null ? ` · ${deployed}% deployed` : !started && published ? ' · Not started' : '');
+    return {
+      id: m.id,
+      order: i + 1,
+      name: m.name,
+      desc: m.outcome || 'No outcome line yet',
+      icon: m.icon,
+      tier: m.tier,
+      status: m.status,
+      statusLabel,
+      statusTone,
+      statusLine: draft
+        ? 'Hidden from learners'
+        : m.status === 'scheduled'
+          ? m.opens
+            ? `Opens ${adminMonthDay(m.opens)}`
+            : 'Not scheduled'
+          : `${m.checklist.length} steps · ${m.files.length} files`,
+      session,
+      deployed,
+      depLabel: draft ? 'Not published' : 'Not started',
+      meta,
+      previewAs: m.tier === 'team' ? 'owner' : 'agent',
+      publishes: !published,
+    };
+  });
+
+  const drafts = mods.filter((m) => m.status === 'draft').length;
+  const agent = mods.filter((m) => m.tier === 'agent').length;
+  return {
+    summary: `${mods.length} AI Employees · ${agent} in Agent Tier, all in Team Tier · ${drafts}\u00A0draft`,
+    summaryPhone: `${mods.length} AI Employees · ${agent} in Agent\u00A0Tier\u00A0·\u00A0${drafts}\u00A0draft`,
+    started,
+    rows,
+  };
+}
+
+/** The moves that take the row at `from` to `to`, one place at a time (`moveModule` moves one). */
+export const movesFor = (from: number, to: number): { dir: -1 | 1; times: number } => ({
+  dir: to < from ? -1 : 1,
+  times: Math.abs(to - from),
+});

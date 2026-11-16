@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { ZERO_BASE, phaseNow, seed, setViewerZone } from '@ai/core';
 import type { Db, Resource, Tier } from '@ai/core';
-import { blankUploadForm, vaultManagerVM } from './VaultManager.vm';
+import { blankUploadForm, vaultManagerVM, vaultR2VM } from './VaultManager.vm';
+import { parityDb } from '../../data/parity-r2-db';
+import { VAULT } from '../../data/parity-r2';
 import type { VaultManagerUi, VaultManagerVM, VaultTabId, VaultUploadForm } from './VaultManager.vm';
 
 // Differential test for the admin Resource Vault view-model (SCREENS § 4.6). Every expectation is
@@ -253,5 +255,32 @@ describe('vaultManagerVM @g6', () => {
       expect(vaultManagerVM(db, ui({ err: 'Attach a file first.' })).form.err).toBe('Attach a file first.');
       expect(vaultManagerVM(db, ui()).form.err).toBe('');
     });
+  });
+});
+
+// ================================================================================================
+// R2 (D-160 R2-2b): the mockup's Resource Vault.
+// ================================================================================================
+
+describe('vaultR2VM (D-160 R2-2b)', () => {
+  it('lists the vault in its own order, in the mockup’s words, dates in MST', () => {
+    const vm = vaultR2VM(parityDb());
+    expect(vm.rows.map((r) => [r.title, r.type, r.attached, r.tierLabel, r.size, r.updated, r.opens])).toEqual(
+      VAULT.map((r) => [...r]),
+    );
+    expect(vm.rows.map((r) => r.video)).toEqual([false, false, false, true, true, true, false]);
+    expect(vm.types).toEqual(['All types', 'PDF', 'Sheet', 'Video', 'Prompt']);
+  });
+
+  it('reads the ordinary fixture: nothing attached reads "—", hidden and executive items are flagged', () => {
+    const db = seed('live');
+    const vm = vaultR2VM(db);
+    expect(vm.rows.map((r) => r.id)).toEqual(db.resources.map((r) => r.id));
+    expect(vm.rows.every((r) => r.attached === '—')).toBe(true);
+    expect(vm.rows.filter((r) => r.hidden).map((r) => r.id)).toEqual(
+      db.resources.filter((r) => r.status === 'hidden').map((r) => r.id),
+    );
+    expect(vm.rows.filter((r) => r.exec)).toHaveLength(db.resources.filter((r) => r.exec).length);
+    expect(vm.types[0]).toBe('All types');
   });
 });

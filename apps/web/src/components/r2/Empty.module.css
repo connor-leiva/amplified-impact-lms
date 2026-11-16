@@ -1,0 +1,48 @@
+/* `.emp` and `.emp .ic` in the R2 mockup (D-160): an empty, error, 404 or Denied state's message. */
+.empty {
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--r2-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--r2-f3);
+  margin-bottom: 6px;
+  background: var(--r2-hov);
+}
+.bad {
+  color: var(--r2-bad);
+  background: var(--r2-badb);
+  border-color: var(--r2-bad-line);
+}
+/* The mockup's `<span className="w6" style={{ fontSize: 'var(--sh)' }}>`: 600 at the section size, on
+   the body's line height. Any heading level, so a page's message can be its h1. */
+.title {
+  margin: 0;
+  font: 600 var(--r2-sh) / var(--r2-tl) var(--r2-font);
+}
+.body {
+  margin: 0;
+  max-width: 380px;
+  color: var(--r2-f3);
+  text-wrap: pretty;
+}
+/* Actions under the message: `.row` centred, pulled up into the message's bottom padding. */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-bottom: 40px;
+  margin-top: -28px;
+}

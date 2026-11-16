@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router';
+import { fixtureAdminRoutes } from './routes/console/fixtureRoutes';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
@@ -77,6 +78,8 @@ export const router = createBrowserRouter([
       // The Admin Console (D-157): net-new screens inside the shell, by Console capability.
       { path: 'admin/audit', lazy: () => import('./routes/console/AuditLog') },
       { path: 'admin/roles', lazy: () => import('./routes/console/Roles') },
+      // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
+      ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
       // other unknown address still goes home through the `*` below.
       { path: 'admin/*', lazy: () => import('./routes/console/NotFound') },

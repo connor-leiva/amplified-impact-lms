@@ -21,8 +21,9 @@ import type { Browser, Page } from '@playwright/test';
 //
 // REPORT-ONLY until a cell is enforced. A built cell that fails is reported as FAIL and the run
 // still passes; an ENFORCED cell that fails fails the run. A cell with no built screen is reported
-// as "not built", never as a pass. R2-0 builds nothing and enforces nothing; each later R2 PR adds
-// its screens to ROUTES and its cells to ENFORCED.
+// as "not built", never as a pass. R2-0 built nothing; R2-1b builds the shell, the 404 and Denied
+// and enforces their eight cells; each later R2 PR adds its screens to ROUTES and its cells to
+// ENFORCED.
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 export const R2_DIR = join(ROOT, 'design-reference/admin-redesign-r2');
@@ -70,16 +71,58 @@ export interface Route {
 }
 
 /**
- * screen → app route. EMPTY in R2-0: nothing is built yet, so every cell reports "not built".
- * R2-1 fills this in with the parity fixture (below) and the routes its PR builds.
+ * screen → app route. R2-1b (D-160) builds the shell, the Console 404 and Denied: `missing` is any
+ * `/admin/…` address that is no screen, and `denied` is the mockup's standalone "Access denied" screen,
+ * which the fixture build serves at `/admin/denied` (fixture only; the http build has no such route).
+ * Each later R2 PR adds the screens it builds.
  */
-export const ROUTES: Partial<Record<Screen, Route>> = {};
+export const ROUTES: Partial<Record<Screen, Route>> = {
+  missing: { path: '/admin/no-such-page' },
+  denied: { path: '/admin/denied' },
+  // R2-2: the Build screens. The builder opens m1, as the mockup's `route.id || 'm1'` does.
+  curriculum: { path: '/admin/curriculum' },
+  builder: { path: '/admin/curriculum/m1' },
+  vault: { path: '/admin/vault' },
+  'cohorts-sessions': { path: '/admin/cohorts' },
+  announce: { path: '/admin/announcements' },
+  // R2-3a: the Overview, Learners & Teams and Tiers & Upgrades.
+  overview: { path: '/admin' },
+  learners: { path: '/admin/learners' },
+  tiers: { path: '/admin/tiers' },
+  // R2-3b: the Audit Log and Roles & Permissions. `roles-confirm` has no route: its dialog exists only
+  // through a permission write, which D11 and spec § 7.16 forbid (Needs Connor's call, D-160 R2-3b).
+  audit: { path: '/admin/audit' },
+  roles: { path: '/admin/roles' },
+};
 
 /**
- * The cells whose failure fails the run, as `cellId`s (`'curriculum-1280'`). EMPTY in R2-0. A PR
- * adds the cells for the screens it builds; enforcing a cell with no route is itself an error.
+ * The cells whose failure fails the run, as `cellId`s (`'curriculum-1280'`). A PR adds the cells for
+ * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
+ * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
+ * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
+ * and `tiers` at all four; R2-3b: `audit` at all four.
  */
-export const ENFORCED: readonly string[] = [];
+export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
+  `missing-${w}`,
+  `denied-${w}`,
+  // R2-2a (D-160): Curriculum and the Module Builder, at all four widths.
+  `curriculum-${w}`,
+  `builder-${w}`,
+  // R2-2b (D-160): the Resource Vault and Announcements at all four widths, Cohorts & Sessions at three.
+  // cohorts-sessions-390 is not enforced: the mockup draws its key-fact values at 15px on a phone
+  // (`.ph .fx>div>span:last-child`), under the 16px phone floor, which stays (Needs Connor's call).
+  `vault-${w}`,
+  `announce-${w}`,
+  ...(w === 390 ? [] : [`cohorts-sessions-${w}`]),
+  // R2-3a (D-160): the Overview, Learners & Teams and Tiers & Upgrades, at all four widths.
+  `overview-${w}`,
+  `learners-${w}`,
+  `tiers-${w}`,
+  // R2-3b (D-160): the Audit Log at all four widths. `roles` is not enforced: the matrix is drawn
+  // read-only (D11, spec § 7.16), which costs 0.21–0.50% (Needs Connor's call); `roles-confirm` is not
+  // built, its dialog existing only through a permission write the spec forbids.
+  `audit-${w}`,
+]);
 
 // ------------------------------------------------------------------------------------------------
 // The parity fixture seam (BUILD-SPEC § 6.1). Fixture mode only, never in the production bundle.
@@ -91,7 +134,7 @@ export const ENFORCED: readonly string[] = [];
  */
 export const PARITY_NOW = '2026-12-10T16:30:00.000Z';
 export const PARITY_TZ = 'America/Phoenix';
-/** The mockup's viewer: the Owner (Connor Leiva). */
+/** The mockup's viewer: the Owner (Connor Leiva), the fixture's admin persona. */
 export const PARITY_VIEWER = 'owner' as const;
 
 /**
@@ -102,28 +145,38 @@ export const APP_PORT = Number(process.env.APP_PORT ?? 4173);
 export const APP_BASE = `http://127.0.0.1:${APP_PORT}`;
 
 /**
- * The query string that selects the parity fixture and the Owner viewer. R2-1 defines it in the
- * fixture build (fixture mode only, like `?as=`); until then no route exists to use it.
+ * The query string that selects the parity fixture (D-160 R2-1b, `apps/web/src/data/parity-r2.ts`):
+ * the admin persona (`as=admin`, the fixture's Owner), the mockup's data (`parity=r2`) and the
+ * mockup's "now" on the app's own clock (`now=`), which Playwright's clock then freezes. All three are
+ * fixture-mode only: the http build reads none of them.
  */
+export const PARITY_QUERY = `as=admin&parity=r2&now=${encodeURIComponent(PARITY_NOW)}`;
+
 export function parityUrl(route: Route): string {
-  return `${APP_BASE}${route.path}`;
+  return `${APP_BASE}${route.path}${route.path.includes('?') ? '&' : '?'}${PARITY_QUERY}`;
 }
 
 /** Viewport height: W×900 on desktop, W×844 on a phone (BUILD-SPEC § 6.2, the harness's PHONE_H/DESK_H). */
 export const viewportFor = (w: Width) => ({ width: w, height: w < 768 ? 844 : 900 });
 
 /**
- * The test-only stylesheet that does what the harness's `FULL` CSS does to the mockup: the shell
- * grows to its content (height auto, min-height 0) and the main and table scrollers stop scrolling,
- * so a full-page screenshot is max(sidebar, content) tall, exactly like the refs.
+ * The admin shell's frame, the app's counterpart of the mockup's `.ax` (`data-r2-shell`, D-160 R2-1b).
+ * A full-frame cell is a screenshot of this element, as the harness's refs are screenshots of `.ax`.
+ */
+export const FRAME = '[data-r2-shell]';
+
+/**
+ * The test-only stylesheet that does what the harness's `FULL` CSS does to the mockup: the frame and
+ * the shell grow to their content (height auto, min-height 0) and the main and table scrollers stop
+ * scrolling, so the frame is max(sidebar, content) tall, exactly like the refs.
  *
- * Selectors are the required landmarks (CLAUDE.md), so they hold for any shell: the shell is the
- * element whose child is the Primary aside, the main column is the element whose child is `main`.
- * A table that scrolls inside its card carries `data-parity-scroll` (R2-1's Table primitive).
+ * Selectors are the frame and the required landmarks (CLAUDE.md), so they hold for any shell: the
+ * shell is the element whose child is the Primary aside, the main column is the element whose child is
+ * `main`. A table that scrolls inside its card carries `data-parity-scroll` (R2-1c's Table primitive).
  */
 export const PARITY_FULL_CSS = [
   'html,body,#root{height:auto!important;min-height:0!important;overflow:visible!important}',
-  ':has(> aside[aria-label="Primary"]),:has(> main){height:auto!important;min-height:0!important}',
+  `${FRAME},:has(> aside[aria-label="Primary"]),:has(> main){height:auto!important;min-height:0!important}`,
   'main,[data-parity-scroll]{overflow:visible!important}',
 ].join('\n');
 
@@ -149,11 +202,19 @@ export async function openCell(browser: Browser, route: Route, width: Width) {
   return { ctx, page };
 }
 
-/** Capture a cell the way the harness captured its ref. */
+/**
+ * Capture a cell the way the harness captured its ref: the frame element (the harness screenshots
+ * `.ax`), or the W×H viewport at the page top for a `viewport` cell.
+ *
+ * Not a full-page screenshot (D-160 R2-1b): Chromium's full page is never shorter than the viewport,
+ * so a screen shorter than 900px (the 404 and Denied are 609px at 1280) would come out 900px tall,
+ * while the ref, an element screenshot, is the frame's own height. The frame's box is the same
+ * max(sidebar, content) the full page would have been for anything taller.
+ */
 export async function capture(page: Page, route: Route, width: Width): Promise<Buffer> {
   const opts = { animations: 'disabled', caret: 'hide' } as const;
   if (route.frame === 'viewport') return page.screenshot({ ...opts, clip: { x: 0, y: 0, ...viewportFor(width) } });
-  return page.screenshot({ ...opts, fullPage: true });
+  return page.locator(FRAME).screenshot(opts);
 }
 
 // ------------------------------------------------------------------------------------------------

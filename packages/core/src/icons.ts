@@ -1,4 +1,5 @@
-// GENERATED from reference/lms-data.js ICONS. Custom Amplified Impact set.
+// GENERATED from reference/lms-data.js ICONS. Custom Amplified Impact set. The `r2*` entries at the end
+// are the Admin redesign R2 mockup's set (D-160), added by hand, path data verbatim from its JSX.
 // Render in a 24×24 viewBox: fill none, stroke currentColor, stroke-width 1.8, round caps and joins.
 export const ICONS = {
   grid: "M6 3.5H8A2.5 2.5 0 0 1 10.5 6V8A2.5 2.5 0 0 1 8 10.5H6A2.5 2.5 0 0 1 3.5 8V6A2.5 2.5 0 0 1 6 3.5Z M6 13.5H8A2.5 2.5 0 0 1 10.5 16V18A2.5 2.5 0 0 1 8 20.5H6A2.5 2.5 0 0 1 3.5 18V16A2.5 2.5 0 0 1 6 13.5Z M16 13.5H18A2.5 2.5 0 0 1 20.5 16V18A2.5 2.5 0 0 1 18 20.5H16A2.5 2.5 0 0 1 13.5 18V16A2.5 2.5 0 0 1 16 13.5Z M20.39 6.7A3.4 3.4 0 1 1 17.3 3.61 M19.4 4.6h.01",
@@ -82,6 +83,54 @@ export const ICONS = {
   lines: "M4 6.5h16M4 12h12M4 17.5h14",
   spinner: "M20.5 12A8.5 8.5 0 1 1 14.91 4.01",
   pauseCircle: "M20.27 8.99A8.8 8.8 0 1 1 15.01 3.73 M18.22 5.78h.01 M10 9.5v5 M14 9.5v5",
+  // Admin redesign R2 (D-160): the signed-off mockup's own set, copied verbatim from the `P` map in
+  // design-reference/admin-redesign-r2/AdminRedesign.jsx. Same 24 grid and round caps, drawn at a
+  // 1.75 stroke (2.6 for `r2More` and `r2Grip`), as the mockup's `I` draws them.
+  r2Overview: "M5 20v-8M12 20V5M19 20v-5",
+  r2Health: "M3 12h4l3-8 4 16 3-8h4",
+  r2Curriculum: "M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5",
+  r2Builder: "M4 20l1-5L16 4l4 4L9 19l-5 1z",
+  r2Vault: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z",
+  r2Cohorts: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+  r2Announce: "M21 3L10 14M21 3l-7 18-4-7-7-4 18-7z",
+  r2Learners: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 4a4 4 0 0 1 0 7M19 15a6 6 0 0 1 3 6",
+  r2Workspaces: "M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 10h4a1 1 0 0 1 1 1v10M3 21h18M8 8h3M8 12h3M8 16h3",
+  r2Users: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
+  r2Masquerade: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  r2Tiers: "M3 6h18v12H3zM3 10h18",
+  r2Billing: "M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6",
+  r2Usage: "M3 17l6-6 4 4 8-8M15 7h6v6",
+  r2Incidents: "M12 4l9 16H3l9-16zM12 10v4M12 17h.01",
+  r2Audit: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
+  r2Api: "M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16",
+  r2Jobs: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+  r2Email: "M3 6h18v12H3zM3 7l9 6 9-6",
+  r2Integrations: "M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8zM12 17v4",
+  r2Deploys: "M6 8v8M6 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 8v1a4 4 0 0 1-4 4H6",
+  r2Db: "M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3",
+  r2Flags: "M5 21V4M5 4h13l-2.5 4 2.5 4H5",
+  r2Roles: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z",
+  r2Search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM16.5 16.5L21 21",
+  r2X: "M6 6l12 12M18 6L6 18",
+  r2Menu: "M4 7h16M4 12h16M4 17h16",
+  r2More: "M5 12h.01M12 12h.01M19 12h.01",
+  r2Chev: "M9 6l6 6-6 6",
+  r2Back: "M15 6l-6 6 6 6",
+  r2Updown: "M8 9l4-4 4 4M8 15l4 4 4-4",
+  r2Chevd: "M6 9l6 6 6-6",
+  r2Plus: "M12 5v14M5 12h14",
+  r2Lock: "M6 11h12v9H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11",
+  r2Grip: "M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01",
+  r2Check: "M5 12.5l4.5 4.5L19 7",
+  r2Download: "M12 4v11M7 11l5 5 5-5M5 20h14",
+  r2Panel: "M4 5h16v14H4zM9 5v14",
+  r2Bolt: "M13 3L5 14h6l-1 7 8-11h-6l1-7z",
+  r2Eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  r2Up: "M12 19V5M6 11l6-6 6 6",
+  r2Down: "M12 5v14M6 13l6 6 6-6",
+  r2File: "M6 3h8l4 4v14H6zM14 3v4h4",
+  r2Play: "M7 5l12 7-12 7V5z",
+  r2Refresh: "M20 12a8 8 0 0 1-14 5M4 12a8 8 0 0 1 14-5M18 3v4h-4M6 21v-4h4",
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -1,0 +1,87 @@
+/* `.b` in the R2 mockup (D-160). Its font is the button's parent's: the mockup's `.arx button`
+   rule (`font: inherit; color: inherit`) outranks `.b`'s own size and weight, so every button
+   renders at the body size, weight 400, in the text colour, and so does this one. */
+.b {
+  height: var(--r2-c);
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--r2-line2);
+  background: var(--r2-sf);
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: var(--r2-sh-button);
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+.b:hover {
+  background: var(--r2-hov);
+  border-color: var(--r2-line-hover);
+  color: inherit;
+  text-decoration: none;
+}
+.b:active {
+  transform: translateY(0.5px);
+}
+
+/* A page-header action (`.hd .b`): the R2 "primary" size, `--r2-cp`, 36px and 48px on a phone, filled
+   or not. The forest fill is `.filled` (`.b.p`); a filled button elsewhere (the 404's Go to Overview)
+   is a control, 32px and 44px on a phone, as the mockup draws it. lms-mobile.spec.ts reads a class
+   named `primary` as a 48px primary, which is this. */
+.primary {
+  height: var(--r2-cp);
+  padding: 0 14px;
+}
+
+.filled {
+  background: var(--r2-for);
+  border-color: var(--r2-for);
+  color: var(--r2-on-for);
+}
+.filled:hover {
+  background: var(--r2-forh);
+  border-color: var(--r2-for);
+  color: var(--r2-on-for);
+}
+
+.danger {
+  color: var(--r2-bad);
+}
+.danger:hover {
+  color: var(--r2-bad);
+}
+.filled.danger,
+.filled.danger:hover {
+  background: var(--r2-bad);
+  border-color: var(--r2-bad);
+  color: var(--r2-on-for);
+}
+
+.quiet {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  color: var(--r2-f2);
+}
+.quiet:hover {
+  border-color: transparent;
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+
+.b:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .b {
+    padding: 0 16px;
+  }
+}
