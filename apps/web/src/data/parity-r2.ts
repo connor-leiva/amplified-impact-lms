@@ -323,6 +323,24 @@ export const OVERVIEW_ACTIVITY = [
 /** The Overview's "+6 in the last 24 hours". */
 export const OVERVIEW_RECENT = 6;
 
+/**
+ * `AUDIT0` (R2-3b): the Audit Log's rows, newest first: time, actor, action, target, detail. Four of
+ * its actions (`masquerade.stop`, `module.publish`, `permission.change`, `tier.access_change`) are the
+ * mockup's and not yet in the app's closed `AUDIT_ACTIONS`; the console fixture serves them as written.
+ */
+export const AUDIT0 = [
+  ['Dec 10, 8:58 AM', 'Connor Leiva', 'job.run_now', 'ghl-orders', 'Manual run. Failed with 401.'],
+  ['Dec 9, 9:31 PM', 'Avery Stone', 'masquerade.stop', 'Sam Whitlock', 'Exited by staff after 6 min.'],
+  ['Dec 9, 9:27 PM', 'Avery Stone', 'masquerade.blocked_action', 'Sam Whitlock', 'Tried: Refund in_1QxP7tTw0283.'],
+  ['Dec 9, 9:25 PM', 'Avery Stone', 'masquerade.start', 'Sam Whitlock', 'Reason: Customer cannot see the Session 2 replay.'],
+  ['Dec 9, 5:02 PM', 'Imani Brooks', 'audit.export', 'Audit log', 'CSV, last 7 days, 212 rows.'],
+  ['Dec 9, 3:20 PM', 'Avery Stone', 'module.publish', 'Sales AI Employee', 'Draft to Published.'],
+  ['Dec 9, 2:10 PM', 'Connor Leiva', 'permission.change', 'Support', 'Refund or void an invoice: allowed to not allowed.'],
+  ['Dec 8, 4:44 PM', 'Connor Leiva', 'tier.access_change', 'Database AI Employee', 'Team only to Agent + Team.'],
+  ['Dec 8, 9:05 AM', 'Imani Brooks', 'email_log.export', 'Email log', 'CSV, template weekly-digest, 388 rows.'],
+  ['Nov 1, 4:44 PM', 'Connor Leiva', 'billing.refund', 'in_1QxK5fFm0270', '$695.00. Reason: canceled inside trial window.'],
+] as const;
+
 /** The parity fixture, as the shell reads it. */
 export interface ParityR2 {
   viewer: { name: string; role: string };

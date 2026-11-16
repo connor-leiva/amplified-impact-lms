@@ -55,7 +55,7 @@ describe('Skel and CheckCell', () => {
     rerender(<CheckCell label="Refund or void an invoice, Support" on={false} locked word="No" />);
     const locked = screen.getByRole('checkbox', { name: 'Refund or void an invoice, Support. Fixed by product rules' });
     expect(locked).not.toBeChecked();
-    expect(locked.parentElement).toHaveAttribute('title', 'Fixed by product rules');
+    expect(locked.closest('[title]')).toHaveAttribute('title', 'Fixed by product rules');
   });
 });
 
@@ -113,5 +113,23 @@ describe('TapCheck (a phone checkbox in a 44px target)', () => {
     fireEvent.click(box);
     expect(change).toHaveBeenCalledTimes(1);
     expect(screen.getAllByRole('checkbox')).toHaveLength(1);
+  });
+});
+
+describe('ErrorState and CheckCell’s phone order (R2-3b)', () => {
+  it('ErrorState is an alert with the Console’s words and Retry', async () => {
+    const { ErrorState } = await import('./kit');
+    const retry = vi.fn();
+    render(<ErrorState copy={{ title: 'Too many requests.', body: 'Wait a minute, then try again.', retry: 'Retry' }} onRetry={retry} />);
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Too many requests.Wait a minute, then try again.Retry');
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(retry).toHaveBeenCalledTimes(1);
+  });
+
+  it('on a phone the word comes before the box', () => {
+    const { container } = render(<CheckCell phone label="View billing, Support" on word="Allowed" />);
+    expect(container.textContent).toBe('Allowed');
+    expect(container.firstElementChild!.firstChild!.nodeType).toBe(Node.TEXT_NODE);
   });
 });

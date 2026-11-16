@@ -4,7 +4,8 @@ import clsx from 'clsx';
 import { Link } from 'react-router';
 import type { AdminStatus, SeatBar } from '@ai/core';
 import { Icon } from '../Icon';
-import { ButtonLink } from './Button';
+import { Button, ButtonLink } from './Button';
+import { Empty } from './Empty';
 import k from './kit.module.css';
 
 // The R2 kit's small pieces (D-160 R2-1c), each the mockup's own (AdminRedesign.jsx): the page head
@@ -129,6 +130,20 @@ export function Skel({ lines = 5 }: { lines?: number }) {
 }
 
 /**
+ * `ErrorState` (R2-3b): the mockup's `ErrBox`, a list that didn't load, its words the Console's own
+ * (`errorCopy`: "Too many requests." on a 429), and Retry.
+ */
+export function ErrorState({ copy, onRetry }: { copy: { title: string; body: string; retry: string }; onRetry: () => void }) {
+  return (
+    <Empty icon="r2Incidents" tone="bad" role="alert" title={copy.title} body={copy.body}>
+      <Button icon="r2Refresh" className={k.retry} onClick={onRetry}>
+        {copy.retry}
+      </Button>
+    </Empty>
+  );
+}
+
+/**
  * `TapCheck` (R2-3a): a checkbox in a 44px target, for a phone. The box is drawn by a decorative
  * checkbox; the real control is a transparent one over the whole target (the table's phone pattern).
  */
@@ -152,32 +167,50 @@ export function TapCheck({
 }
 
 /**
- * `CheckCell` (R2-3): a permission matrix's box and its word ("Yes", "No"), read-only. A box that is
- * fixed by product rules carries the lock and says so in its title and accessible name.
+ * `CheckCell` (R2-3b): a permission matrix's box and its word ("Yes", "No"), read-only (D11): every
+ * box is disabled. A box fixed by product rules carries the lock and says so in its title and
+ * accessible name. On a phone the word comes first ("Allowed", "Not allowed"), as the mockup's card.
  */
 export function CheckCell({
   label,
   on,
   locked,
   word,
+  phone,
 }: {
   /** The box's accessible name: `{capability}, {role}`. */
   label: string;
   on: boolean;
   locked?: boolean;
   word: string;
+  phone?: boolean;
 }) {
-  return (
+  const box = (
+    <input
+      type="checkbox"
+      className={k.chk}
+      checked={on}
+      disabled
+      readOnly
+      aria-label={locked ? `${label}. Fixed by product rules` : label}
+    />
+  );
+  const group = locked ? (
+    <span className={clsx(k.row, k.nw, k.mu, k.lockGroup)}>
+      {box}
+      <Icon name="r2Lock" size={14} strokeWidth={1.75} />
+    </span>
+  ) : (
+    box
+  );
+  return phone ? (
     <span className={clsx(k.row, k.nw, k.check)} title={locked ? 'Fixed by product rules' : undefined}>
-      <input
-        type="checkbox"
-        className={k.chk}
-        checked={on}
-        disabled
-        readOnly
-        aria-label={locked ? `${label}. Fixed by product rules` : label}
-      />
-      {locked ? <Icon name="r2Lock" size={14} strokeWidth={1.75} /> : null}
+      {word}
+      {group}
+    </span>
+  ) : (
+    <span className={clsx(k.row, k.nw, k.check)} title={locked ? 'Fixed by product rules' : undefined}>
+      {group}
       <span className={k.mu}>{word}</span>
     </span>
   );

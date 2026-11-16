@@ -709,8 +709,8 @@
   flex-direction: column;
   gap: 18px;
 }
-.check {
-  gap: 8px;
+.retry {
+  margin-top: 10px;
 }
 .tapBox {
   position: relative;
@@ -728,8 +728,11 @@
   box-shadow: var(--r2-focus);
   border-radius: 4px;
 }
-.check:has(.chk:disabled:not(:checked)) {
+.check:has(.lockGroup) {
   cursor: not-allowed;
+}
+.lockGroup {
+  gap: 4px;
 }
 
 /* ---- laptop: 768–1199px (`.lap`) ------------------------------------------------------------------ */

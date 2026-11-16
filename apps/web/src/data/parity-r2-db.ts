@@ -21,6 +21,7 @@ import { seed } from '@ai/core';
 import type {
   AIEmployee,
   Announcement,
+  AuditRow,
   Db,
   IconName,
   Learner,
@@ -37,6 +38,7 @@ import type {
 } from '@ai/core';
 import {
   ANNOUNCEMENTS,
+  AUDIT0,
   BUILDER_FILES,
   BUILDER_STEPS,
   MODS0,
@@ -331,4 +333,44 @@ export function parityDb(path = '/admin/curriculum'): Db {
     mod: { ...CURRICULUM_BASE },
   };
   return path.replace(/\/+$/, '') === '/admin' ? overviewDb(db) : db;
+}
+
+const AUDIT_TARGET: Record<string, string> = {
+  job: 'job',
+  masquerade: 'user',
+  audit: 'audit_log',
+  module: 'module',
+  permission: 'role',
+  tier: 'module',
+  email_log: 'email_log',
+  billing: 'invoice',
+};
+
+/**
+ * The Audit Log's rows (`AUDIT0`, R2-3b), as the console fixture serves them for `?parity=r2`. Each
+ * detail is the row's reason, but the export's, which the screen words from what was exported (its
+ * rows and its seven days), as it does for every export.
+ */
+export function parityAuditRows(): AuditRow[] {
+  return AUDIT0.map(([at, actor, action, target, detail], i): AuditRow => {
+    const t = stamp(at);
+    const st = STAFF.findIndex((s) => s.n === actor);
+    const group = action.split('.')[0]!;
+    const exp = action === 'audit.export';
+    return {
+      id: String(2000 - i),
+      at: t,
+      actor: { userId: `st${st + 1}`, name: actor, role: STAFF[st]!.role, source: 'staff' },
+      masqueradeSessionId: group === 'masquerade' ? 'msq_0412' : null,
+      action: action as AuditRow['action'],
+      target: { type: AUDIT_TARGET[group] ?? null, id: null, label: target },
+      reason: exp ? null : detail,
+      before: null,
+      after: exp ? { rows: 212, format: 'csv', filters: { from: t - 7 * 864e5 } } : null,
+      outcome: action === 'masquerade.blocked_action' ? 'blocked' : 'ok',
+      ip: '203.0.113.24',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+      requestId: `req-${(9000 - i * 37).toString(36)}`,
+    };
+  });
 }
