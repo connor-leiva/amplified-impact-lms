@@ -88,7 +88,7 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     [
       row('tiers', 'Tiers & Upgrades', 'r2Tiers', '/admin/tiers', true, { badge: 'requests' }),
       row('billing', 'Billing', 'r2Billing', '/admin/billing', false, { cap: 'billing.read' }),
-      row('usage', 'Usage', 'r2Usage', '/admin/usage', false, { cap: 'usage.read' }),
+      row('usage', 'Usage', 'r2Usage', '/admin/usage', true, { cap: 'usage.read' }),
     ],
   ],
   [
@@ -101,7 +101,7 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
       row('audit', 'Audit Log', 'r2Audit', '/admin/audit', true, { cap: 'audit.read' }),
       row('api', 'API & Webhooks', 'r2Api', '/admin/api', false, { cap: 'api.read' }),
       row('jobs', 'Scheduled Jobs', 'r2Jobs', '/admin/jobs', false, { cap: 'jobs.read' }),
-      row('email', 'Email Log', 'r2Email', '/admin/email', false, { cap: 'email.read' }),
+      row('email', 'Email Log', 'r2Email', '/admin/email', true, { cap: 'email.read' }),
       row('integrations', 'Integrations', 'r2Integrations', '/admin/integrations', false, { cap: 'ops.read' }),
       row('deploys', 'Deploys & Commits', 'r2Deploys', '/admin/deploys', false, { cap: 'ops.read' }),
       row('db', 'DB Health', 'r2Db', '/admin/db', false, { cap: 'ops.read' }),

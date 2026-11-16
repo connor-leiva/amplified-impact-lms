@@ -60,7 +60,7 @@ const PLAN_OF: Record<string, PlanKind> = {
   'AI Accelerator': 'cohort',
   Insiders: 'membership',
 };
-const planKindOf = (plan: string): PlanKind => PLAN_OF[plan.split(' · ')[0]!] ?? 'library';
+export const planKindOf = (plan: string): PlanKind => PLAN_OF[plan.split(' · ')[0]!] ?? 'library';
 const STATUS_OF: Record<string, PlanStatus> = {
   Active: 'active',
   Trialing: 'trialing',

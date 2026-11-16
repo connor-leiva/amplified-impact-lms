@@ -180,10 +180,6 @@ export const WORKSPACE_COPY = {
   },
   oneTime: 'One-time purchase',
   billing: { customer: 'Stripe customer', subscription: 'Subscription', mrr: 'MRR', invoice: 'Last invoice' },
-  usage: {
-    title: 'Usage isn’t counted yet',
-    body: 'Sign-ins, lesson plays, guide views and storage show here once usage is tracked.',
-  },
   noActivity: 'No activity yet',
   notes: {
     title: 'Staff notes',

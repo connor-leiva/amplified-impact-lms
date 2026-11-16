@@ -20,6 +20,7 @@ import type { ConsoleApi } from './console';
 import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows } from './parity-r2-db';
+import { fixtureEmailCsv, fixtureEmailPage, fixtureEmails, fixtureUsage } from './console-fixture-email-usage';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -122,6 +123,7 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   let rows = parity ? parityAuditRows() : fixtureAuditRows(now());
   let next = parity ? 2001 : 1001;
   const records = fixtureRecords();
+  const emails = fixtureEmails();
   let noteId = 100;
 
   /** What the API's write would audit, so the Audit Log shows it on the next load. */
@@ -269,6 +271,26 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         if (words === null) throw new ConsoleError('invalid', 400, 'invalid_query', 'Search for 2 to 100 characters.');
         if (state === 'empty') return { users: [], workspaces: [], orders: [], skills: [] };
         return fixtureSearch(records, words, role);
+      }),
+    // PR 7 (D-166): the mockup's `EMAILS` and `Usage` figures.
+    emails: (filters) =>
+      settle(() => {
+        need('email.read');
+        const page = fixtureEmailPage(emails, filters);
+        return state === 'empty' ? { ...page, rows: [] } : page;
+      }),
+    exportEmails: (filters) =>
+      settle(() => {
+        need('export');
+        const { csv, count } = fixtureEmailCsv(emails, filters);
+        record('email_log.export', { type: 'email_log', id: null, label: 'Email log' }, { rows: count, format: 'csv', filters: { ...filters, ids: filters.ids?.length } });
+        return { csv, filename: `email-log-${new Date(now()).toISOString().slice(0, 10)}.csv` };
+      }),
+    usage: (query) =>
+      settle(() => {
+        need('usage.read');
+        const report = fixtureUsage(query, now());
+        return state === 'empty' ? { ...report, hasData: false, countingSince: query.to, workspaces: [] } : report;
       }),
   };
 }

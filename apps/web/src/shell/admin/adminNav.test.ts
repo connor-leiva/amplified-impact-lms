@@ -47,13 +47,13 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
-    // R2-1c turns on Workspaces (part 1) and Users (part 2).
+    // R2-1c turns on Workspaces (part 1) and Users (part 2); D-166 Usage and the Email Log.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
-      ['Revenue', 'Tiers & Upgrades'],
-      ['Operations', 'Audit Log'],
+      ['Revenue', 'Tiers & Upgrades', 'Usage'],
+      ['Operations', 'Audit Log', 'Email Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ]);
   });
@@ -69,6 +69,11 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
     expect(instructor.find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams']);
     expect(instructor.at(-1)).toEqual(['Access', 'Staff & Roles']);
+    // D-166: Usage and the Email Log read `usage.read` and `email.read`: Support has both (D3).
+    expect(instructor.find((g) => g[0] === 'Revenue')).toEqual(['Revenue', 'Tiers & Upgrades']);
+    const supportProd = labels(nav({ role: 'Support', fullNav: false }));
+    expect(supportProd.find((g) => g[0] === 'Revenue')).toContain('Usage');
+    expect(supportProd.find((g) => g[0] === 'Operations')).toContain('Email Log');
   });
 
   it('badges real work and alerts only, and hides each at zero', () => {
@@ -121,6 +126,8 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(activeRowId('/admin/curriculum/new')).toBe('builder');
     expect(activeRowId('/admin/curriculum/marketing')).toBe('builder');
     expect(activeRowId('/admin/staff')).toBe('staff');
+    expect(activeRowId('/admin/usage')).toBe('usage');
+    expect(activeRowId('/admin/email')).toBe('email');
     // Not built yet: the Console 404, with no row lit.
     expect(activeRowId('/admin/health')).toBeNull();
     expect(activeRowId('/admin/no-such-page')).toBeNull();

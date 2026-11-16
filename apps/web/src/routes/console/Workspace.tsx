@@ -5,7 +5,6 @@ import { adminStamp, cleanNoteBody } from '@ai/core';
 import type { StaffNote } from '@ai/core';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
-import { Empty } from '../../components/r2/Empty';
 import { Page } from '../../components/r2/Page';
 import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
@@ -31,13 +30,14 @@ import { Denied, NotFound } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
+import { WorkspaceUsageTab } from './RecordTabs';
 import { NONE, WORKSPACE_COPY as C, WORKSPACE_TABS, workspaceVM } from './workspaces.vm';
 import type { MemberVM, WorkspaceTab } from './workspaces.vm';
 
 // /admin/workspaces/:teamId on R2 (D-160 R2-1c, spec § 7.3): the mockup's `Workspace`. Key facts; the
 // tabs Members, Plan & entitlements, Usage, Billing and Activity; and Staff notes beside them. Billing
-// is the app's own order records (Stripe's reads are the Billing PR); Usage is counted from the Usage
-// PR on; "Masquerade as owner" is the Masquerade PR's, drawn and not yet live.
+// is the app's own order records (Stripe's reads are the Billing PR); Usage is the last 7 days' counts
+// (D-166); "Masquerade as owner" is the Masquerade PR's, drawn and not yet live.
 
 export function Component() {
   const { teamId = '' } = useParams();
@@ -207,11 +207,7 @@ export function Component() {
               />
             </Card>
           ) : null}
-          {tab === 'usage' ? (
-            <Card pad={false}>
-              <Empty icon="r2Usage" title={C.usage.title} body={C.usage.body} />
-            </Card>
-          ) : null}
+          {tab === 'usage' && api ? <WorkspaceUsageTab api={api} teamId={teamId} /> : null}
           {tab === 'billing' ? (
             <Card>
               <KV

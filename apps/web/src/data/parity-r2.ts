@@ -395,6 +395,34 @@ export const IDENTITY = { verified: 'Nov 24, 2026', password: true, google: true
 /** "Account created at checkout": the User screen's Activity, Nov 24, 9:30 AM. */
 export const JOINED = 'Nov 24, 9:30 AM';
 
+// ---- PR 7 (D-166): the Email Log's and Usage's figures, verbatim ----------------------------------------
+
+/** `EMAILS`, verbatim: recipient, template, subject, status, sent. */
+export const EMAILS = [
+  { to: 'elena@northshoregroup.example', tpl: 'session-24h', sub: 'Tomorrow at 12:00 PM MST: Session 2 live build', st: 'Delivered', t: 'Dec 8, 12:00 PM' },
+  { to: 'sam@tidewaterproperty.example', tpl: 'payment-failed', sub: 'Your Insiders payment did not go through', st: 'Delivered', t: 'Dec 4, 9:04 AM' },
+  { to: 'devon@copperbasin.example', tpl: 'replay-ready', sub: 'The Session 2 replay is ready', st: 'Opened', t: 'Dec 9, 3:10 PM' },
+  { to: 'tessa@lanternstreet.example', tpl: 'magic-link', sub: 'Your sign-in link', st: 'Delivered', t: 'Dec 9, 11:26 AM' },
+  { to: 'priya@fourthmeridian.example', tpl: 'weekly-digest', sub: 'This week: 2 new AI Employees', st: 'Bounced', t: 'Dec 7, 7:00 AM' },
+  { to: 'jordan@halemarlowe.example', tpl: 'receipt', sub: 'Receipt for Team Plan, 16 seats', st: 'Queued', t: 'Dec 10, 9:18 AM' },
+  { to: 'noor@redcliffcollective.example', tpl: 'announcement', sub: 'New in the vault: listing appointment checklist', st: 'Delivered', t: 'Dec 8, 3:00 PM' },
+] as const;
+
+/** The Email Log's Status options (`Sel` in `Email`), after "Any status". */
+export const EMAIL_STATUS_OPTIONS = ['Delivered', 'Opened', 'Queued', 'Bounced'] as const;
+
+/** `Usage`'s chart (`bars`), verbatim: each day's height in percent, Nov 27 to Dec 10. */
+export const USAGE_BARS = [62, 71, 68, 80, 77, 31, 28, 74, 85, 88, 92, 81, 36, 30] as const;
+
+/** `Usage`'s figures, per seat in use (`k`): sign-ins, lesson plays, skill-guide views and emails sent. */
+export const USAGE_PER_SEAT = { signIns: 16, lessonPlays: 43, guideViews: 74, emails: 29 } as const;
+
+/** The workspace's Usage tab, per seat in use, over 7 days, and its storage in GB per seat. */
+export const USAGE_TAB_PER_SEAT = { signIns: 6, lessonPlays: 4, guideViews: 9, storageGb: 0.2 } as const;
+
+/** `Usage`'s Storage tile: "41.2 GB", "of 100 GB bucket". */
+export const USAGE_STORAGE = { bytes: 41.2e9, capBytes: 100e9 } as const;
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /**

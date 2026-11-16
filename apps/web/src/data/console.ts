@@ -16,10 +16,14 @@ import type {
   ConsolePage,
   ConsoleUserDetail,
   ConsoleUserRow,
+  EmailLogFilters,
+  EmailLogPage,
   RolesMatrix,
   SearchResults,
   StaffNote,
   StaffNoteTarget,
+  UsageQuery,
+  UsageReport,
   UserFilters,
   WorkspaceDetail,
   WorkspaceFilters,
@@ -89,6 +93,10 @@ export interface ConsoleApi {
   exportUsers(filters: UserFilters): Promise<{ csv: string; filename: string }>;
   /** Spec § 7.5: 2 to 100 characters; users, workspaces, orders and skills, five each. */
   search(q: string): Promise<SearchResults>;
+  // PR 7 (D-166): the email log and usage.
+  emails(filters: EmailLogFilters, cursor?: string | null): Promise<EmailLogPage>;
+  exportEmails(filters: EmailLogFilters): Promise<{ csv: string; filename: string }>;
+  usage(query: UsageQuery): Promise<UsageReport>;
 }
 
 /**
@@ -194,6 +202,17 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
       return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'users.csv') };
     },
     search: async (q) => (await json<{ groups: SearchResults }>(await request(fetchImpl, `/api/console/search${listQuery({ q })}`))).groups,
+    emails: async (f, cursor) =>
+      json<EmailLogPage>(await request(fetchImpl, `/api/console/email${listQuery({ q: f.q, template: f.template, status: f.status, userId: f.userId, from: f.from, to: f.to }, cursor)}`)),
+    exportEmails: async (f) => {
+      const res = await request(fetchImpl, '/api/console/email/export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'text/csv' },
+        body: JSON.stringify(f),
+      });
+      return { csv: await res.text(), filename: filenameOf(res.headers.get('content-disposition'), 'email-log.csv') };
+    },
+    usage: async (u) => json<UsageReport>(await request(fetchImpl, `/api/console/usage${listQuery({ from: u.from, to: u.to, teamId: u.teamId, planKind: u.planKind })}`)),
   };
 }
 

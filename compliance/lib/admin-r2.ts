@@ -99,6 +99,9 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
   users: { path: '/admin/users' },
   user: { path: '/admin/users/u_1042' },
+  // Console PR 7 (D-166): the Email Log and Usage, on the mockup's own `EMAILS` and `Usage` figures.
+  email: { path: '/admin/email' },
+  usage: { path: '/admin/usage' },
 };
 
 /**
@@ -108,7 +111,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
  * and `tiers` at all four; R2-3b: `audit` at all four; R2-1c part 1: `workspaces` at all four,
  * `workspace-detail` at 1440, 1280 and 1024; R2-1c part 2: `users` at all four, `user` at 1440, 1280
- * and 1024.
+ * and 1024; Console PR 7 (D-166): `email` and `usage` at all four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -141,6 +144,9 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   // mockup on a phone, 16px here.
   `users-${w}`,
   ...(w === 390 ? [] : [`user-${w}`]),
+  // Console PR 7 (D-166): the Email Log and Usage at all four widths.
+  `email-${w}`,
+  `usage-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------

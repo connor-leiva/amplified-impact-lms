@@ -84,6 +84,9 @@ export const router = createBrowserRouter([
       { path: 'admin/users', lazy: () => import('./routes/console/Users') },
       { path: 'admin/users/:userId', lazy: () => import('./routes/console/User') },
       { path: 'admin/search', lazy: () => import('./routes/console/Search') },
+      // D-166: the Email Log and Usage (spec §§ 7.7, 7.15).
+      { path: 'admin/email', lazy: () => import('./routes/console/EmailLog') },
+      { path: 'admin/usage', lazy: () => import('./routes/console/Usage') },
       // The R2 mockup's standalone Denied screen, for parity: fixture build only (D-160 R2-1b).
       ...fixtureAdminRoutes,
       // The Console 404, after every specific admin route (React Router ranks a splat last). Every
