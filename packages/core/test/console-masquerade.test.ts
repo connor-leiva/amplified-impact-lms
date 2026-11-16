@@ -145,7 +145,7 @@ describe('what a masquerading request may do (D1, D2) @console', () => {
       ['/api/files/resource/:id', 'skip'],
       ['/api/files/module/:moduleId/:fileName', 'skip'],
       ['/api/skills/:id/download/:kind', 'allow'],
-      ['/api/skill-guides/:slug', 'allow'],
+      ['/api/skill-guides/:slug', 'skip'],
       ['/api/events', 'allow'],
     ]);
     for (const g of MASQUERADE_GET_WRITES) {

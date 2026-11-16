@@ -159,7 +159,7 @@ export const MASQUERADE_GET_WRITES: readonly { path: string; handling: Masquerad
   { path: '/api/files/resource/:id', handling: 'skip', why: 'Counts nothing: the count is POST /api/mutate/downloadResource, which the write block refuses.' },
   { path: '/api/files/module/:moduleId/:fileName', handling: 'skip', why: 'Counts nothing; the same as a Vault file.' },
   { path: '/api/skills/:id/download/:kind', handling: 'allow', why: 'Writes nothing but a log line.' },
-  { path: '/api/skill-guides/:slug', handling: 'allow', why: 'Writes nothing: no guide view is recorded anywhere.' },
+  { path: '/api/skill-guides/:slug', handling: 'skip', why: 'Counts a guide view (usage_daily, D-166), except during a masquerade, when the count is skipped.' },
   { path: '/api/events', handling: 'allow', why: 'The event stream (SSE). Writes nothing.' },
 ];
 
