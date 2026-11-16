@@ -5,8 +5,8 @@ import { APP_BASE, R2_FONTCONFIG, ROUTES } from './lib/admin-r2';
 // `pnpm parity:admin-r2`: the Admin redesign R2 pixel-parity run (D-160, BUILD-SPEC § 6).
 //
 // ITS OWN CONFIG, deliberately. The main config's `parity`, `parity-http` and `e2e` projects keep
-// their tests, goldens, tolerances and counts (55 / 24 / 112); that config ignores this spec, and
-// this one runs nothing else. Report-only until a cell is enforced (`lib/admin-r2.ts`).
+// their tests, goldens and tolerances; that config ignores this spec, and this one runs nothing else.
+// Report-only for every cell not in ENFORCED (`lib/admin-r2.ts`); R2-1b enforces the 404 and Denied.
 //
 // ONE RENDERER. The refs in `design-reference/admin-redesign-r2/ref/` are rendered by
 // `harness/render-mockup.mjs` in the pinned container (`mcr.microsoft.com/playwright:v1.63.0-noble`)
@@ -19,7 +19,7 @@ import { APP_BASE, R2_FONTCONFIG, ROUTES } from './lib/admin-r2';
 // draws them from a system font. `design-reference/admin-redesign-r2/harness/fonts.conf` fixes that
 // choice (→ FreeSans, ⌘ IPAGothic); the refs were rendered with it (`pnpm parity:admin-r2:refs`), and
 // this config hands the same file to the browser as FONTCONFIG_FILE. Only this browser gets it: the
-// main config's projects and their 55 goldens render exactly as before.
+// main config's projects and their goldens render exactly as before.
 //
 // Run it in the pinned container:
 //
@@ -51,7 +51,7 @@ export default defineConfig({
   reporter: [['list']],
   use: { channel: 'chromium', launchOptions: { args: HARNESS_ARGS, env: BROWSER_ENV } },
   projects: [{ name: 'admin-r2' }],
-  // The app's fixture build, only once a screen is built. R2-0 builds none, so no server starts.
+  // The app's fixture build, once a screen is built (R2-1b builds the shell, the 404 and Denied).
   webServer: built
     ? [{ command: 'pnpm --filter @ai/web preview:fixture', url: APP_BASE, reuseExistingServer: !process.env.CI, timeout: 180_000 }]
     : [],
