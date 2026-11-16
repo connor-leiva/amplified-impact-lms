@@ -89,10 +89,28 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
   overview: { path: '/admin' },
   learners: { path: '/admin/learners' },
   tiers: { path: '/admin/tiers' },
-  // R2-3b: the Audit Log and Roles & Permissions. `roles-confirm` has no route: its dialog exists only
-  // through a permission write, which D11 and spec § 7.16 forbid (Needs Connor's call, D-160 R2-3b).
+  // R2-3b: the Audit Log and Roles & Permissions, editable (Connor, Nov 16, 2026, 8:27 AM MST).
   audit: { path: '/admin/audit' },
   roles: { path: '/admin/roles' },
+  // BUILD-SPEC § 6.2: "viewport frame at page top with the 'Remove this permission from Admin?' dialog
+  // open (third enabled checkbox, i.e. Admin's 'Start and extend masquerade')". The harness clicks the
+  // mockup's third enabled box; here the same box (the third enabled one in the app too) by its name.
+  'roles-confirm': {
+    path: '/admin/roles',
+    frame: 'viewport',
+    prepare: async (page) => {
+      await page.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'Remove this permission from Admin?' });
+      await dialog.waitFor();
+      // The preview has answered: the action is on.
+      await dialog.getByRole('button', { name: 'Remove permission' }).and(page.locator(':enabled')).waitFor();
+      // The harness's `main.scrollTop = 0`: the frame is the page top with the dialog open.
+      await page.evaluate(() => {
+        for (const el of [document.scrollingElement, ...Array.from(document.querySelectorAll('*'))]) if (el && el.scrollTop) el.scrollTop = 0;
+      });
+      await page.mouse.move(0, 0);
+    },
+  },
 };
 
 /**
@@ -100,7 +118,7 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
  * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
  * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
- * and `tiers` at all four; R2-3b: `audit` at all four.
+ * and `tiers` at all four; R2-3b: `audit` at all four, `roles` at three and `roles-confirm` at four.
  */
 export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `missing-${w}`,
@@ -118,10 +136,14 @@ export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
   `overview-${w}`,
   `learners-${w}`,
   `tiers-${w}`,
-  // R2-3b (D-160): the Audit Log at all four widths. `roles` is not enforced: the matrix is drawn
-  // read-only (D11, spec § 7.16), which costs 0.21–0.50% (Needs Connor's call); `roles-confirm` is not
-  // built, its dialog existing only through a permission write the spec forbids.
+  // R2-3b (D-160): the Audit Log at all four widths. Editable Roles (Connor, Nov 16, 2026, 8:27 AM
+  // MST) adds `roles` at 1440, 1280 and 1024 and `roles-confirm` at all four. roles-390 fails and is
+  // reported, not enforced: the five boxes past `CONSOLE_CAPS` that the mockup draws as plain toggles
+  // (Support's jobs, export and ops; Admin's and Support's last row) are locked, as the spec requires
+  // (the spec wins on safety), and on a phone each lock moves its box and word 18px: 0.2753%, 2,987 px.
   `audit-${w}`,
+  ...(w === 390 ? [] : [`roles-${w}`]),
+  `roles-confirm-${w}`,
 ]);
 
 // ------------------------------------------------------------------------------------------------
@@ -195,7 +217,9 @@ export async function openCell(browser: Browser, route: Route, width: Width) {
   await page.clock.setFixedTime(new Date(PARITY_NOW));
   await page.goto(parityUrl(route));
   await page.locator('body[data-app-ready="true"]').waitFor();
-  await page.addStyleTag({ content: PARITY_FULL_CSS });
+  // A viewport frame is the screen as it opens, W×H, as the harness's confirm frame is: its frame is
+  // the viewport's height, not grown to its content.
+  if (route.frame !== 'viewport') await page.addStyleTag({ content: PARITY_FULL_CSS });
   if (route.prepare) await route.prepare(page);
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(400); // the harness's settle()
@@ -213,8 +237,32 @@ export async function openCell(browser: Browser, route: Route, width: Width) {
  */
 export async function capture(page: Page, route: Route, width: Width): Promise<Buffer> {
   const opts = { animations: 'disabled', caret: 'hide' } as const;
-  if (route.frame === 'viewport') return page.screenshot({ ...opts, clip: { x: 0, y: 0, ...viewportFor(width) } });
+  if (route.frame === 'viewport') return onStage(await page.screenshot({ ...opts, clip: { x: 0, y: 0, ...viewportFor(width) } }));
   return page.locator(FRAME).screenshot(opts);
+}
+
+/**
+ * Where the harness's viewport frame puts the mockup (`render-mockup.mjs`, the roles-confirm refs): it
+ * screenshots the PAGE at (0, 0), and on that page the artboard is not at x = 0. The mockup scales its
+ * artboard to the stage, `sc = (stage width − 32) / W`, and centres a `.hold` of `W × sc` in it; the
+ * harness's CSS undoes the scale (`transform: none`) but not the centring, so the full-width `.ax`
+ * starts 16px in. Every confirm ref is that: 16 columns of the stage's grey (#D9D5CA, which the scrim
+ * does not cover), then the frame's first W − 16 columns. The app's viewport capture is placed the
+ * same way. Not a mask: every app pixel still in the ref's frame is compared.
+ */
+export const STAGE_X = 16;
+export const STAGE_RGB = [0xd9, 0xd5, 0xca] as const;
+export function onStage(buf: Buffer): Buffer {
+  const app = PNG.sync.read(buf);
+  const out = new PNG({ width: app.width, height: app.height });
+  for (let i = 0; i < out.data.length; i += 4) {
+    out.data[i] = STAGE_RGB[0];
+    out.data[i + 1] = STAGE_RGB[1];
+    out.data[i + 2] = STAGE_RGB[2];
+    out.data[i + 3] = 255;
+  }
+  PNG.bitblt(app, out, 0, 0, app.width - STAGE_X, app.height, STAGE_X, 0);
+  return PNG.sync.write(out);
 }
 
 // ------------------------------------------------------------------------------------------------

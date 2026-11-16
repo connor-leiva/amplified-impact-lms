@@ -4,7 +4,7 @@
 // Times go through `fmt.*`: the viewer's zone first, the program zone in parentheses (CLAUDE.md).
 // Outcomes are a word and a glyph on a status token, never a colour alone.
 
-import { ADMIN_ZONE, AUDIT_ACTION_GROUPS, CONSOLE_CAP_LABELS, adminDate, adminStamp, adminTime, auditActionGroup, auditRedactsNetwork, consoleCan, fmt } from '@ai/core';
+import { ADMIN_ZONE, AUDIT_ACTION_GROUPS, CONSOLE_CAP_LABELS, adminDate, adminStamp, adminTime, auditActionGroup, auditRedactsNetwork, consoleCan, fmt, permissionChangeSummary } from '@ai/core';
 import type { AuditFilters, AuditOutcome, AuditRow, ConsoleCap, Staff } from '@ai/core';
 import type { TokenGlyph, TokenTone } from '../../components/StatusToken';
 import type { ConsoleFailure } from '../../data/console';
@@ -107,6 +107,8 @@ const GROUP_LABELS: Record<string, string> = {
   incident: 'Incidents',
   flag: 'Flags',
   integration: 'Integrations',
+  // D-160 R2-3b: Roles & Permissions changes.
+  permission: 'Permissions',
 };
 
 export const groupLabel = (group: string): string => GROUP_LABELS[group] ?? group;
@@ -184,6 +186,13 @@ export function detailOf(r: AuditRow): string {
     const range = from === null ? null : RANGES.find((x) => Math.abs(r.at - from - x.ms) < 60_000);
     const span = range ? `, ${range.label.toLowerCase()}` : '';
     return n === null ? `CSV${span}.` : `CSV${span}, ${fmt.num(n)} ${n === 1 ? 'row' : 'rows'}.`;
+  }
+  if (r.action === 'permission.change') {
+    // D-160 R2-3b: "Refund or void an invoice: allowed to not allowed." (the mockup's words), from the
+    // row's before and after; a row without them keeps its own words.
+    const b = (r.before ?? {}) as Record<string, unknown>;
+    if (typeof after.label === 'string' && typeof b.allowed === 'boolean' && typeof after.allowed === 'boolean')
+      return permissionChangeSummary(after.label, b.allowed, after.allowed);
   }
   return r.reason ?? AUDIT_COPY.none;
 }

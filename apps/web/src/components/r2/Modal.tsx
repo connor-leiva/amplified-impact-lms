@@ -74,9 +74,18 @@ export interface ConfirmProps {
   danger?: boolean;
   onConfirm: () => void;
   onClose: () => void;
+  /**
+   * D-160 R2-3b: the action is the server's two-step confirm. The dialog stays open on the action (the
+   * caller closes it once the change is made), the action waits while `busy`, and a refusal shows in
+   * the dialog (`error`, an alert) with the action off.
+   */
+  keepOpen?: boolean;
+  busy?: boolean;
+  error?: string | null;
 }
 
-export function Confirm({ title, body, cta, danger, onConfirm, onClose }: ConfirmProps) {
+/** The mockup's `Confirm`: the question, the sentence, "This action is audit-logged.", Cancel and the action. */
+export function Confirm({ title, body, cta, danger, onConfirm, onClose, keepOpen, busy, error }: ConfirmProps) {
   return (
     <Modal
       title={title}
@@ -86,8 +95,9 @@ export function Confirm({ title, body, cta, danger, onConfirm, onClose }: Confir
           <Button onClick={onClose}>Cancel</Button>
           <Button
             kind={danger ? 'primary-danger' : 'primary'}
+            disabled={!!busy || !!error}
             onClick={() => {
-              onClose();
+              if (!keepOpen) onClose();
               onConfirm();
             }}
           >
@@ -97,6 +107,12 @@ export function Confirm({ title, body, cta, danger, onConfirm, onClose }: Confir
       }
     >
       <p className={s.body}>{body}</p>
+      {error ? (
+        <p className={s.error} role="alert">
+          {error}
+        </p>
+      ) : null}
+      <p className={s.note}>This action is audit-logged.</p>
     </Modal>
   );
 }

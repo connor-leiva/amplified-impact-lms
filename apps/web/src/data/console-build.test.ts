@@ -20,6 +20,9 @@ const SENTINELS = [
   // R2-3b: the parity fixture's audit rows (`AUDIT0`).
   'in_1QxK5fFm0270',
   'Customer cannot see the Session 2 replay',
+  // R2-3b, editable Roles: the fixture's stand-in confirm tokens and its `PERMS0` (the parity matrix).
+  'fixture-${',
+  'parityRoleGrants',
 ];
 
 async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): Promise<string> {
@@ -52,6 +55,7 @@ describe('the Console fixture is not in the http build (D-157)', () => {
   it('the http build has none of it', async () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');
+    expect(code).toContain('/api/console/roles/preview');
     for (const s of SENTINELS) expect(code, s).not.toContain(s);
   }, 60_000);
 

@@ -355,12 +355,15 @@
   color: var(--r2-ink);
 }
 
-/* `.main`: the one scroll container. */
+/* `.main`: the one scroll container. A standard scrollbar, as the mockup's (D-160 R2-3b): a
+   `scrollbar-color` opts this element out of `global.css`'s 10px `::-webkit-scrollbar`, so its stable
+   gutter is the browser's own width, the mockup's, which the viewport-height frames (roles-confirm) show. */
 .main {
   flex: 1;
   overflow: auto;
   min-height: 0;
   scrollbar-gutter: stable;
+  scrollbar-color: var(--r2-line2) transparent;
 }
 /* ---- the phone drawer (`.scrim`, `.drw`) ----------------------------------------------------- */
 

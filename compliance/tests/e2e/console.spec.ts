@@ -40,8 +40,9 @@ async function expectShell(page: Page) {
 const rows = (page: Page) => page.locator('main [role="table"] [role="row"]:has([role="cell"])');
 
 test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (D-157) @g9 @console', () => {
-  test('Roles: the read-only matrix, with the way to Staff & Roles, in both themes', async ({ browser }) => {
-    // D-160 R2-3b: the R2 matrix, the mockup's nine rows, every box disabled (D11: read-only).
+  test('Roles: the matrix the Owner edits, with the way to Staff & Roles, in both themes', async ({ browser }) => {
+    // D-160 R2-3b, editable (Connor, Nov 16, 2026): the mockup's nine rows; the Owner's column fixed,
+    // the boxes past `CONSOLE_CAPS` locked, the rest toggles (11).
     for (const theme of ['light', 'dark'] as const) {
       const { page, close } = await openAt(browser, '/admin/roles', { theme });
       await expectShell(page);
@@ -50,10 +51,12 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
       const matrix = page.getByRole('table', { name: 'Console permissions by role' });
       await expect(matrix.locator('[role="row"]:has([role="cell"])')).toHaveCount(9);
       await expect(matrix.locator('input[type="checkbox"]')).toHaveCount(27);
-      await expect(matrix.locator('input:not(:disabled), select, [role="switch"]')).toHaveCount(0);
+      await expect(matrix.locator('input:not(:disabled)')).toHaveCount(11);
       const exportRow = matrix.getByRole('row', { name: 'Export audit and email logs' });
-      await expect(exportRow.getByRole('checkbox', { name: 'Export audit and email logs, Support' })).not.toBeChecked();
+      await expect(exportRow.getByRole('checkbox', { name: 'Export audit and email logs, Support. Fixed by product rules' })).toBeDisabled();
       await expect(matrix.getByRole('checkbox', { name: 'Refund or void an invoice, Support. Fixed by product rules' })).toBeDisabled();
+      await expect(matrix.getByRole('checkbox', { name: 'Edit curriculum, vault, sessions, announcements, tiers, Admin' })).toBeEnabled();
+      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin. Fixed by product rules' })).toBeDisabled();
       await expectAccessible(page);
       if (theme === 'light') {
         await page.getByRole('link', { name: 'Invite staff' }).click();
@@ -61,6 +64,72 @@ test.describe('the Admin Console: Roles, Denied, the 404 and the shared states (
       }
       await close();
     }
+  });
+
+  test('Roles: a change is confirmed, made, toasted and audit-logged; Cancel changes nothing', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/roles');
+    const matrix = page.getByRole('table', { name: 'Console permissions by role' });
+    const box = matrix.getByRole('checkbox', { name: 'View billing, Support', exact: true });
+    await expect(box).toBeChecked();
+
+    await box.click();
+    const dialog = page.getByRole('dialog', { name: 'Remove this permission from Support?' });
+    await expect(dialog).toContainText('View billing. Applies to every Support on staff right away.');
+    await expect(dialog).toContainText('This action is audit-logged.');
+    await expectAccessible(page);
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(box).toBeChecked();
+
+    await box.click();
+    await dialog.getByRole('button', { name: 'Remove permission' }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByText('Permission updated')).toBeVisible();
+    await expect(box).not.toBeChecked();
+    await expect(matrix.getByRole('row', { name: 'View billing' })).toContainText('No');
+
+    // Given back, with the other words.
+    await box.click();
+    const back = page.getByRole('dialog', { name: 'Give this permission to Support?' });
+    await back.getByRole('button', { name: 'Allow' }).click();
+    await expect(back).toHaveCount(0);
+    await expect(box).toBeChecked();
+
+    // The build row is the PermKey matrix's: giving it to Support sets its four PermKeys, which the
+    // matrix (and Staff & Roles) read from the snapshot.
+    const build = matrix.getByRole('checkbox', { name: 'Edit curriculum, vault, sessions, announcements, tiers, Support', exact: true });
+    await expect(build).not.toBeChecked();
+    await build.click();
+    await page.getByRole('dialog', { name: 'Give this permission to Support?' }).getByRole('button', { name: 'Allow' }).click();
+    await expect(build).toBeChecked();
+    await page.getByRole('dialog', { name: 'Give this permission to Support?' }).waitFor({ state: 'detached' });
+    await build.click();
+    await page.getByRole('dialog', { name: 'Remove this permission from Support?' }).getByRole('button', { name: 'Remove permission' }).click();
+    await expect(build).not.toBeChecked();
+
+    // Every change is in the audit log, newest first, in the mockup's words.
+    const sidebar = page.locator('aside[aria-label="Primary"]');
+    await sidebar.getByRole('button', { name: 'Operations' }).click();
+    await sidebar.getByRole('button', { name: 'Audit Log' }).click();
+    await expect(rows(page).first()).toContainText('permission.change');
+    await expect(rows(page).nth(0)).toContainText('Edit curriculum, vault, sessions, announcements, tiers: allowed to not allowed.');
+    await expect(rows(page).nth(1)).toContainText('Edit curriculum, vault, sessions, announcements, tiers: not allowed to allowed.');
+    await expect(rows(page).nth(2)).toContainText('View billing: not allowed to allowed.');
+    await expect(rows(page).nth(3)).toContainText('View billing: allowed to not allowed.');
+    await close();
+  });
+
+  test('Roles: read-only for Admin, each box saying why', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/roles?console-role=Admin');
+    const matrix = page.getByRole('table', { name: 'Console permissions by role' });
+    await expect(matrix.locator('input[type="checkbox"]')).toHaveCount(27);
+    await expect(matrix.locator('input:not(:disabled)')).toHaveCount(0);
+    const box = matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true });
+    await expect(box.locator('xpath=ancestor::*[@title][1]')).toHaveAttribute('title', "Your role (Admin) can't do this: Change Admin permission");
+    await box.dispatchEvent('click');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expectAccessible(page);
+    await close();
   });
 
   test('Denied: Support, Instructor and Content Editor on Roles, with the way back to the Overview', async ({ browser }) => {

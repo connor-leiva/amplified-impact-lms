@@ -302,17 +302,29 @@ test.describe('the Audit Log and Roles & Permissions on R2 (D-160 R2-3b) @g9 @r2
     await close();
   });
 
-  test('Roles & Permissions: read-only; the Owner column on; Support’s refund and masquerade locked', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/roles');
-    const matrix = page.getByRole('table', { name: 'Console permissions by role' });
-    await expect(matrix.locator('input[type="checkbox"]:not(:disabled)')).toHaveCount(0);
-    for (const cap of ['Edit curriculum, vault, sessions, announcements, tiers', 'Edit staff roles and this matrix'])
-      await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeChecked();
-    for (const cap of ['Start and extend masquerade', 'Refund or void an invoice'])
-      await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).not.toBeChecked();
-    await matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin' }).dispatchEvent('click');
-    await expect(page.getByRole('dialog')).toHaveCount(0);
-    await expect(page.getByText('Connor Leiva (you)')).toBeVisible();
-    await close();
+  test('Roles & Permissions: the Owner column on; past the ceiling locked; a box opens the mockup’s confirm', async ({ browser }) => {
+    // D-160 R2-3b, editable (Connor, Nov 16, 2026, 8:27 AM MST).
+    for (const width of [1440, 390]) {
+      const { page, close } = await openAt(browser, '/admin/roles', width);
+      const matrix = page.getByRole('table', { name: 'Console permissions by role' });
+      for (const cap of ['Edit curriculum, vault, sessions, announcements, tiers', 'Edit staff roles and this matrix']) {
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeChecked();
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Owner` })).toBeDisabled();
+      }
+      for (const cap of ['Start and extend masquerade', 'Refund or void an invoice', 'Run a job now, retry a webhook, update incidents', 'Export audit and email logs', 'View integrations, deploys, DB health, flags, roles', 'Edit staff roles and this matrix'])
+        await expect(matrix.getByRole('checkbox', { name: `${cap}, Support. Fixed by product rules` })).not.toBeChecked();
+      await expect(matrix.getByRole('checkbox', { name: 'Edit staff roles and this matrix, Admin. Fixed by product rules' })).toBeDisabled();
+      await matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'Remove this permission from Admin?' });
+      await expect(dialog).toContainText('Start and extend masquerade. Applies to every Admin on staff right away.');
+      await expect(dialog).toContainText('This action is audit-logged.');
+      await expect(dialog.getByRole('button', { name: 'Remove permission' })).toBeEnabled();
+      await expectAccessible(page);
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(matrix.getByRole('checkbox', { name: 'Start and extend masquerade, Admin', exact: true })).toBeChecked();
+      await expect(page.getByText('Connor Leiva (you)')).toBeVisible();
+      await close();
+    }
   });
 });
