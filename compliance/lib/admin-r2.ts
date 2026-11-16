@@ -22,8 +22,8 @@ import type { Browser, Page } from '@playwright/test';
 // REPORT-ONLY until a cell is enforced. A built cell that fails is reported as FAIL and the run
 // still passes; an ENFORCED cell that fails fails the run. A cell with no built screen is reported
 // as "not built", never as a pass. R2-0 built nothing; R2-1b builds the shell, the 404 and Denied
-// and enforces their eight cells; each later R2 PR adds its screens to ROUTES and its cells to
-// ENFORCED.
+// and enforces their eight cells; R2-1c the Support records (Workspaces and Workspace in part 1); each
+// later R2 PR adds its screens to ROUTES and its cells to ENFORCED.
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 export const R2_DIR = join(ROOT, 'design-reference/admin-redesign-r2');
@@ -79,6 +79,10 @@ export interface Route {
 export const ROUTES: Partial<Record<Screen, Route>> = {
   missing: { path: '/admin/no-such-page' },
   denied: { path: '/admin/denied' },
+  // R2-1c (D-160): the Support records, on the mockup's own `WS` (the Console fixture answers with
+  // them): Northshore Group is the mockup's detail record.
+  workspaces: { path: '/admin/workspaces' },
+  'workspace-detail': { path: '/admin/workspaces/ws_northshore' },
 };
 
 /**
@@ -86,7 +90,15 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
  * `denied` at all four widths.
  */
-export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [`missing-${w}`, `denied-${w}`]);
+export const ENFORCED: readonly string[] = [
+  ...WIDTHS.flatMap((w) => [`missing-${w}`, `denied-${w}`]),
+  // R2-1c (D-160): Workspaces at all four widths; Workspace at 1440, 1280 and 1024. `workspace-detail-390`
+  // is built and reported, not enforced: the mockup sets the key-facts values at 15px on a phone
+  // (`.ph .fx>div>span:last-child`), under the 16px phone floor the build keeps (BUILD-SPEC § 8), and
+  // those values are every pixel that differs.
+  ...WIDTHS.map((w) => `workspaces-${w}`),
+  ...([1440, 1280, 1024] as const).map((w) => `workspace-detail-${w}`),
+];
 
 // ------------------------------------------------------------------------------------------------
 // The parity fixture seam (BUILD-SPEC § 6.1). Fixture mode only, never in the production bundle.
