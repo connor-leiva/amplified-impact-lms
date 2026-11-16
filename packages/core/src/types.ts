@@ -47,11 +47,11 @@ export interface Resource { id: string; title: string; desc: string; cat: string
 export interface Announcement { id: string; sessionId?: string; title: string; body: string; severity: 'info' | 'warning'; action: 'calendar' | 'sessions' | null; actionLabel: string; audience: 'all' | 'agent' | 'team' | 'owners'; channels: ('inapp' | 'email')[]; /** `draft` (D-160 R2-2) is never sent: learners see `sent` only. */ status: 'sent' | 'scheduled' | 'draft'; at: number; opens: number | null }
 export interface Reminder { id: string; label: string; channel: string; on: boolean }
 export interface TierDef { id: Tier; name: string; price: number; seats: number; blurb: string; features: string[] }
-export interface UpgradeRequest { id: string; userId: string | null; name: string; email: string; source: string; at: number; status: 'new' | 'contacted' | 'converted' | 'closed' }
+export interface UpgradeRequest { id: string; userId: string | null; name: string; email: string; source: string; at: number; status: 'new' | 'contacted' | 'converted' | 'closed'; /** What is asked for, as the R2 Tiers screen's Request column prints it (D-160 R2-3), e.g. "Agent → Team · 16 seats". Optional: display only; without it the column reads "Agent → Team". */ ask?: string }
 export interface Staff { id: string; name: string; email: string; role: StaffRole; last: number | null }
 export interface ActivityEvent { id: string; t: number; who: string; what: string; tone: 'success' | 'warn' | 'info' }
 /** Aggregates for learners not modeled individually. Fixture/demo only; the API always returns ZERO_BASE. */
-export interface Baseline { learners: number; agent: number; teamSeats: number; teams: number; mod: Record<string, [number, number, number]>; daily: number[] }
+export interface Baseline { learners: number; agent: number; teamSeats: number; teams: number; mod: Record<string, [number, number, number]>; daily: number[]; /** Their deployments in the last 24 hours (the R2 Overview's "+N in the last 24 hours", D-160 R2-3). Optional: absent is 0. */ recent?: number }
 
 export interface Db {
   v: number; phase?: Phase;
