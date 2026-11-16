@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { avatarColor, fmt, nextSession } from '@ai/core';
 
 import '../../styles/r2.css';
@@ -7,7 +7,7 @@ import { Icon } from '../../components/Icon';
 import { Status } from '../../components/r2/Status';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
-import { fixtureConsoleRole } from '../../data/console';
+import { fixtureConsoleRole, masqueradeActive } from '../../data/console';
 import { PARITY_POSSIBLE, parityR2, shellDataFrom, shellDataFromParity } from '../../data/admin-shell';
 import type { ParityR2 } from '../../data/parity-r2';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../../data/session';
@@ -17,6 +17,8 @@ import { ProfileMenu } from '../ProfileMenu';
 import { ShellProvider } from '../ShellContext';
 import { useAppReady, useViewportWidth } from '../hooks';
 import { adminNav, crumbTrail, toggleGroup, type R2Group } from './adminNav';
+import { AdminChromeProvider } from './chrome';
+import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { Wordmark } from './Wordmark';
 import s from './AdminShell.module.css';
@@ -34,8 +36,10 @@ import s from './AdminShell.module.css';
 // `data-r2-shell` on the frame scopes the R2 tokens (styles/r2.css), and is the element the
 // `parity:admin-r2` harness captures, as the mockup harness captures `.ax`.
 //
-// THE ⌘K TRIGGER (and the 404's "Search the admin") render exactly and do nothing until the command
-// palette lands in R2-5: they are marked `aria-disabled`, and no shortcut is bound.
+// THE ⌘K PALETTE (D-160 R2-1c, spec § 7.5): the top bar's "Search or jump to…", the phone's Search,
+// the 404's "Search the admin" and ⌘K / Ctrl+K open it, unless a masquerade session is running
+// (`masqueradeActive`, the Masquerade PR's seam). A record's page names itself in the breadcrumb, and
+// the R2 toast is the shell's (`chrome.ts`).
 
 const ADMIN_ROOT = '/admin';
 
@@ -109,6 +113,10 @@ export function AdminShell() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [record, setRecord] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mainRef = useRef<HTMLElement | null>(null);
   const menuRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
@@ -153,12 +161,31 @@ export function AdminShell() {
 
   useAppReady(parity !== undefined);
 
-  // Escape closes every layer the shell owns.
+  const openPalette = useCallback(() => {
+    if (masqueradeActive()) return;
+    setDrawerOpen(false);
+    setProfileOpen(false);
+    setPaletteOpen(true);
+  }, []);
+  const r2Toast = useCallback((m: string) => {
+    setToastMsg(m);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMsg(null), 3200);
+  }, []);
+  const chrome = useMemo(() => ({ openPalette, setRecord, toast: r2Toast }), [openPalette, r2Toast]);
+
+  // Escape closes every layer the shell owns; ⌘K / Ctrl+K toggles the palette.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (!masqueradeActive()) setPaletteOpen((o) => !o);
+        return;
+      }
       if (e.key !== 'Escape') return;
       setProfileOpen(false);
       setDrawerOpen(false);
+      setPaletteOpen(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -207,9 +234,25 @@ export function AdminShell() {
           <span aria-hidden="true">/</span>
           <span>{trail.group}</span>
           <span aria-hidden="true">/</span>
-          <b className={s.here} aria-current="page">
-            {trail.page}
-          </b>
+          {trail.parent ? (
+            <>
+              <Link to={trail.parent} className={s.crumbLink}>
+                {trail.page}
+              </Link>
+              {record ? (
+                <>
+                  <span aria-hidden="true">/</span>
+                  <b className={s.record} aria-current="page">
+                    {record}
+                  </b>
+                </>
+              ) : null}
+            </>
+          ) : (
+            <b className={s.here} aria-current="page">
+              {trail.page}
+            </b>
+          )}
         </>
       ) : null}
     </nav>
@@ -237,7 +280,7 @@ export function AdminShell() {
                   <Wordmark />
                   {breadcrumb}
                   <span className={s.spacer} />
-                  <button type="button" className={s.iconButton} aria-label="Search" aria-disabled="true">
+                  <button type="button" className={s.iconButton} aria-label="Search" onClick={openPalette}>
                     <Icon name="r2Search" size={20} strokeWidth={1.75} />
                   </button>
                 </>
@@ -245,7 +288,7 @@ export function AdminShell() {
                 <>
                   {breadcrumb}
                   <span className={s.spacer} />
-                  <button type="button" className={s.search} aria-disabled="true">
+                  <button type="button" className={s.search} aria-haspopup="dialog" onClick={openPalette}>
                     <Icon name="r2Search" size={16} strokeWidth={1.75} />
                     <span className={s.searchLabel}>Search or jump to…</span>
                     <span className={s.kbd}>⌘K</span>
@@ -258,7 +301,9 @@ export function AdminShell() {
               )}
             </header>
             <main ref={mainRef} className={s.main}>
-              <Outlet />
+              <AdminChromeProvider value={chrome}>
+                <Outlet />
+              </AdminChromeProvider>
             </main>
           </div>
         </div>
@@ -277,6 +322,24 @@ export function AdminShell() {
               <Sidebar mode="drawer" {...sidebarProps} onClose={() => setDrawerOpen(false)} closeRef={closeRef} />
             </div>
           </Fragment>
+        ) : null}
+
+        {paletteOpen ? (
+          <Palette
+            pages={groups.flatMap((g) => g.rows.map((r) => ({ id: r.id, label: r.label, icon: r.icon, to: r.to })))}
+            modules={db.modules.map((m) => ({ id: m.id, name: m.name, status: m.status }))}
+            phone={band === 'phone'}
+            go={go}
+            onClose={() => setPaletteOpen(false)}
+          />
+        ) : null}
+        {toastMsg ? (
+          <div className={s.toast} role="status">
+            <span className={s.toastGlyph}>
+              <Icon name="r2Check" size={16} strokeWidth={1.75} />
+            </span>
+            {toastMsg}
+          </div>
         ) : null}
 
         {profileOpen && person ? (

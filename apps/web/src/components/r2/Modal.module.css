@@ -12,6 +12,16 @@
   font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
   color: var(--r2-ink);
 }
+/* `.scrim.top0` (R2-1c part 2, the ⌘K palette): the dialog near the top, not centred. */
+.top {
+  align-items: flex-start;
+  padding-top: 96px;
+}
+@media (max-width: 767px) {
+  .top {
+    padding-top: 16px;
+  }
+}
 .modal {
   background: var(--r2-sf);
   border-radius: 12px;

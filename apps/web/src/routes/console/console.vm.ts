@@ -9,11 +9,15 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
   roles: { title: 'Roles & Permissions', cap: 'ops.read', path: '/admin/roles' },
+  // D-160 R2-1c (spec §§ 7.3–7.5).
+  workspaces: { title: 'Workspaces', cap: 'workspaces.read', path: '/admin/workspaces' },
+  users: { title: 'Users', cap: 'users.read', path: '/admin/users' },
+  search: { title: 'Search', cap: 'console.view', path: '/admin/search' },
 };
 
 /** The way out of Denied and the 404. */

@@ -47,10 +47,11 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
   });
 
   it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
+    // R2-1c turns on Workspaces (part 1) and Users (part 2).
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
-      ['Support', 'Learners & Teams'],
+      ['Support', 'Learners & Teams', 'Workspaces', 'Users'],
       ['Revenue', 'Tiers & Upgrades'],
       ['Operations', 'Audit Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
@@ -65,6 +66,8 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(support.flat()).toContain('Audit Log');
     const instructor = labels(nav({ role: 'Instructor', fullNav: false }));
     expect(instructor.map((g) => g[0])).toEqual(['Health', 'Build', 'Support', 'Revenue', 'Access']);
+    // Workspaces and Users read `workspaces.read` and `users.read`, which an Instructor lacks.
+    expect(instructor.find((g) => g[0] === 'Support')).toEqual(['Support', 'Learners & Teams']);
     expect(instructor.at(-1)).toEqual(['Access', 'Staff & Roles']);
   });
 
@@ -129,5 +132,20 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     expect(crumbTrail('/admin/curriculum/new')).toEqual({ group: 'Build', page: 'Module Builder' });
     expect(crumbTrail('/admin')).toEqual({ group: 'Health', page: 'Overview' });
     expect(crumbTrail('/admin/no-such-page')).toBeNull();
+    // D-160 R2-1c: a record's page belongs to its row (the mockup's PARENT), and its crumb links back.
+    expect(activeRowId('/admin/workspaces/ws_northshore')).toBe('workspaces');
+    expect(activeRowId('/admin/users/u_1042')).toBe('users');
+    expect(activeRowId('/admin/users/u_1042/more')).toBeNull();
+    expect(crumbTrail('/admin/workspaces')).toEqual({ group: 'Support', page: 'Workspaces' });
+    expect(crumbTrail('/admin/workspaces/ws_northshore')).toEqual({
+      group: 'Support',
+      page: 'Workspaces',
+      parent: '/admin/workspaces',
+    });
+    expect(crumbTrail('/admin/users/u_1042')).toEqual({ group: 'Support', page: 'Users', parent: '/admin/users' });
+    expect(nav({ pathname: '/admin/users/u_1042' }).find((g) => g.label === 'Support')).toMatchObject({
+      active: true,
+      open: true,
+    });
   });
 });

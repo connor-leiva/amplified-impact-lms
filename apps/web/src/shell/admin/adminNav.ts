@@ -78,8 +78,8 @@ export const R2_NAV: readonly (readonly [R2Group, readonly R2NavDef[]])[] = [
     'Support',
     [
       row('learners', 'Learners & Teams', 'r2Learners', '/admin/learners', true),
-      row('workspaces', 'Workspaces', 'r2Workspaces', '/admin/workspaces', false, { cap: 'workspaces.read' }),
-      row('users', 'Users', 'r2Users', '/admin/users', false, { cap: 'users.read' }),
+      row('workspaces', 'Workspaces', 'r2Workspaces', '/admin/workspaces', true, { cap: 'workspaces.read' }),
+      row('users', 'Users', 'r2Users', '/admin/users', true, { cap: 'users.read' }),
       row('masquerade', 'Masquerade', 'r2Masquerade', '/admin/masquerade', false, { cap: 'console.view' }),
     ],
   ],
@@ -144,6 +144,8 @@ const norm = (pathname: string): string => {
 export function activeRowId(pathname: string): string | null {
   const p = norm(pathname);
   if (p.startsWith('/admin/curriculum/')) return 'builder';
+  const parent = recordParent(p);
+  if (parent) return parent;
   for (const [, rows] of R2_NAV) for (const r of rows) if (r.built && r.id !== 'builder' && r.path === p) return r.id;
   return null;
 }
@@ -236,15 +238,39 @@ export function toggleGroup(group: R2Group, active: boolean, open: OpenState): O
 }
 
 /**
+ * A record's page (D-160 R2-1c, the mockup's `PARENT`): `/admin/workspaces/:teamId` belongs to the
+ * Workspaces row and `/admin/users/:userId` to Users, so their row stays active and their group open.
+ */
+export const RECORD_PARENTS: Readonly<Record<string, string>> = {
+  '/admin/workspaces/': 'workspaces',
+  '/admin/users/': 'users',
+};
+
+function recordParent(p: string): string | null {
+  for (const [prefix, id] of Object.entries(RECORD_PARENTS))
+    if (p.startsWith(prefix) && p.length > prefix.length && !p.slice(prefix.length).includes('/')) return id;
+  return null;
+}
+
+export interface CrumbTrail {
+  group: R2Group;
+  page: string;
+  /** A record's page: the row's own address, which its crumb links back to. */
+  parent?: string;
+}
+
+/**
  * The breadcrumb's trail after `Admin` (`Admin / {group} / {page}`), when the address is a row's,
  * whether or not the viewer's role shows that row: Denied keeps the page's place, as the mockup's does.
+ * A record's page adds its name after the row's (the shell reads the name from the page).
  */
-export function crumbTrail(pathname: string): { group: R2Group; page: string } | null {
+export function crumbTrail(pathname: string): CrumbTrail | null {
   const id = activeRowId(pathname);
   if (!id) return null;
+  const record = recordParent(norm(pathname)) !== null;
   for (const [group, defs] of R2_NAV) {
     const d = defs.find((x) => x.id === id);
-    if (d) return { group, page: d.label };
+    if (d) return record ? { group, page: d.label, parent: d.path } : { group, page: d.label };
   }
   return null;
 }
