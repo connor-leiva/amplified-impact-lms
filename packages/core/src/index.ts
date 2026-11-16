@@ -25,4 +25,5 @@ export * from './console';
 export * from './console-support';
 export * from './console-masquerade';
 export * from './console-view';
+export * from './console-incidents';
 export * from './admin-build';

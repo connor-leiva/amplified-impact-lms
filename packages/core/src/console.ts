@@ -168,6 +168,8 @@ export const AUDIT_ACTIONS = [
   'incident.ack',
   'incident.resolve',
   'incident.note',
+  // D-167: a rule repeating on an open incident (the system's own line)
+  'incident.signal',
   // PR 9: flags and integrations
   'flag.flip',
   'integration.probe',
@@ -317,6 +319,8 @@ export const CONSOLE_ERRORS = {
   stripe_permission_missing: { status: 503, message: null },
   job_not_runnable: { status: 403, message: null },
   scheduler_busy: { status: 409, message: null },
+  // PR 8 (D-167): Acknowledge on an incident that isn't open, Resolve on one already resolved.
+  incident_state: { status: 409, message: 'This incident has already moved on. Reload it to see where it is.' },
 } as const satisfies Record<string, { status: number; message: string | null }>;
 
 export type ConsoleErrorCode = keyof typeof CONSOLE_ERRORS;
