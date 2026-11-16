@@ -78,7 +78,9 @@ describe('the R2 tokens (D-160 R2-1b)', () => {
 
   it('carries the mockup’s icons verbatim, as r2* in ICONS', () => {
     const body = /const P = \{([\s\S]*?)\n\};/.exec(JSX)![1]!;
-    const p = [...body.matchAll(/(\w+): '([^']*)'/g)].map((m) => [`r2${m[1]![0]!.toUpperCase()}${m[1]!.slice(1)}`, m[2]!] as const);
+    const p = [...body.matchAll(/(\w+): '([^']*)'/g)].map(
+      (m) => [`r2${m[1]![0]!.toUpperCase()}${m[1]!.slice(1)}`, m[2]!] as const,
+    );
     expect(p).toHaveLength(45);
     for (const [name, d] of p) expect((ICONS as Record<string, string>)[name], name).toBe(d);
     expect(Object.keys(ICONS).filter((k) => k.startsWith('r2'))).toHaveLength(45);
