@@ -17,7 +17,7 @@
 // In http mode the API returns `ZERO_BASE`, so the same arithmetic shows live numbers. Nothing here
 // branches on where the snapshot came from.
 
-import { fmt } from '@ai/core';
+import { adminStamp, fmt, fromAdminLocal, toAdminLocal } from '@ai/core';
 import type { Announcement, Db } from '@ai/core';
 
 // ---------------------------------------------------------------------------------------------
@@ -209,7 +209,7 @@ export function announcementsVM(db: Db, ui: AnnouncementsUi): AnnouncementsVM {
       // key total, so the lookup cannot miss and the fallback is unreachable.
       aud: AUDIENCE[a.audience],
       ch: a.channels.map((x) => (x === 'inapp' ? 'In-app' : 'Email')).join(' + '),
-      status: a.status === 'sent' ? 'Sent' : 'Scheduled',
+      status: a.status === 'sent' ? 'Sent' : a.status === 'draft' ? 'Draft' : 'Scheduled',
       sent: a.status === 'sent',
       at: `${fmt.date(a.at)}, ${fmt.time(a.at)}`,
       opens: a.opens != null ? fmt.pct(a.opens) : '—',
@@ -243,3 +243,83 @@ export function announcementsVM(db: Db, ui: AnnouncementsUi): AnnouncementsVM {
     history,
   };
 }
+
+// ================================================================================================
+// R2 (D-160 R2-2b): Announcements of the signed-off Admin redesign (AdminRedesign.jsx `Announce`).
+// The rows in the snapshot's order (newest first, as `sendAnnouncement` keeps them), send times MST.
+// ================================================================================================
+
+const R2_AUDIENCE: Record<AnnounceAudience, string> = {
+  all: 'Everyone',
+  agent: 'Agent Tier',
+  team: 'Team Tier',
+  owners: 'Team Owners',
+};
+
+export const R2_AUDIENCES: readonly { value: AnnounceAudience; label: string }[] = AUDIENCE_ORDER.map((value) => ({
+  value,
+  label: R2_AUDIENCE[value],
+}));
+
+/** The dialog's Channels select: its value is which channels are on. */
+export const R2_CHANNELS: readonly { value: 'inapp' | 'both' | 'email'; label: string }[] = [
+  { value: 'inapp', label: 'In-app' },
+  { value: 'both', label: 'In-app, email' },
+  { value: 'email', label: 'Email' },
+];
+
+export interface AnnounceR2Row {
+  id: string;
+  title: string;
+  audience: string;
+  /** `In-app, email`. */
+  channels: string;
+  status: { label: 'Sent' | 'Scheduled' | 'Draft'; tone: 'ok' | 'info' | 'off' };
+  /** `Dec 9, 3:10 PM` (MST), or "—" for a draft. */
+  sendTime: string;
+}
+
+export function announceR2Rows(db: Db): AnnounceR2Row[] {
+  return db.announcements.map((a) => {
+    const ch = a.channels.map((x) => (x === 'inapp' ? 'in-app' : 'email')).join(', ');
+    return {
+      id: a.id,
+      title: a.title,
+      audience: R2_AUDIENCE[a.audience],
+      channels: ch.charAt(0).toUpperCase() + ch.slice(1),
+      status:
+        a.status === 'sent'
+          ? { label: 'Sent', tone: 'ok' }
+          : a.status === 'scheduled'
+            ? { label: 'Scheduled', tone: 'info' }
+            : { label: 'Draft', tone: 'off' },
+      sendTime: a.status === 'draft' ? '—' : adminStamp(a.at),
+    };
+  });
+}
+
+/** The dialog's Channels value for a form, and the form's two switches for a value. */
+export const channelsOf = (f: Pick<AnnouncementForm, 'inapp' | 'email'>): 'inapp' | 'both' | 'email' =>
+  f.inapp && f.email ? 'both' : f.email ? 'email' : 'inapp';
+export const channelsFrom = (v: 'inapp' | 'both' | 'email'): Pick<AnnouncementForm, 'inapp' | 'email'> => ({
+  inapp: v !== 'email',
+  email: v !== 'inapp',
+});
+
+/**
+ * The scheduled send, typed in MST (`2026-12-15T12:00`), as `sendAnnouncement` reads it: a
+ * datetime-local value in Central Time, the program's zone. The same instant.
+ */
+export function atForSend(mstLocal: string): string {
+  const [date = '', time = ''] = mstLocal.split('T');
+  const t = fromAdminLocal(date, time);
+  return Number.isNaN(t) ? mstLocal : `${fmt.isoDate(t)}T${fmt.isoTime(t)}`;
+}
+
+/** The composer's default schedule, `2026-12-09T09:00` CT, in MST. */
+export const defaultScheduleMst = (ctLocal: string): string => {
+  const t = Date.parse(`${ctLocal}:00-06:00`);
+  if (Number.isNaN(t)) return ctLocal;
+  const { date, time } = toAdminLocal(t);
+  return `${date}T${time}`;
+};

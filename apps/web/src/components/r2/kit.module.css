@@ -688,7 +688,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .fx > div:last-child:nth-child(odd) {
+  .fx > div:last-child:nth-child(odd),
+  .fx > div.fxw {
     grid-column: 1 / -1;
   }
   .kv {

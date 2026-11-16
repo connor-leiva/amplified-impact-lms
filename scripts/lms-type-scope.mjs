@@ -56,7 +56,13 @@ export const KIT_LOOK = ['apps/web/src/routes/course/', 'apps/web/src/routes/lib
  * on a phone by construction, `r2-tokens.test.ts`), so no declaration in them is the codemod's. The old
  * file's marks would only land on unrelated new lines (a 16px row-number width).
  */
-export const R2_REBUILT = ['apps/web/src/routes/admin/Curriculum.', 'apps/web/src/routes/admin/ModuleBuilder.'];
+export const R2_REBUILT = [
+  'apps/web/src/routes/admin/Curriculum.',
+  'apps/web/src/routes/admin/ModuleBuilder.',
+  'apps/web/src/routes/admin/VaultManager.',
+  'apps/web/src/routes/admin/Cohorts.',
+  'apps/web/src/routes/admin/Announcements.',
+];
 const FLOOR = 16;
 const MIN_BOX = 24;
 const MIN_LINE = 20;

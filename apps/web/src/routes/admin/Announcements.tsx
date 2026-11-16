@@ -1,43 +1,66 @@
 import { useCallback, useState } from 'react';
-import { AnnouncementBanner } from '../../components/AnnouncementBanner';
-import { Icon } from '../../components/Icon';
-import { Field, Input, Textarea } from '../../components/primitives/Field';
-import { Switch } from '../../components/primitives/Switch';
+import clsx from 'clsx';
+import { Button } from '../../components/r2/Button';
+import { Modal } from '../../components/r2/Modal';
+import { Page } from '../../components/r2/Page';
+import { Status } from '../../components/r2/Status';
+import { Table } from '../../components/r2/Table';
+import type { Column } from '../../components/r2/Table';
+import { PageHead, Sel, TextArea, k } from '../../components/r2/kit';
 import { useDb, useMutate } from '../../data/hooks';
-import { announcementsVM, blankAnnouncementForm } from './Announcements.vm';
-import type { AnnouncementForm } from './Announcements.vm';
+import {
+  R2_AUDIENCES,
+  R2_CHANNELS,
+  announceR2Rows,
+  atForSend,
+  blankAnnouncementForm,
+  channelsFrom,
+  channelsOf,
+  defaultScheduleMst,
+} from './Announcements.vm';
+import type { AnnounceR2Row, AnnouncementForm } from './Announcements.vm';
 import s from './Announcements.module.css';
 
-// Admin Announcements `/admin/announcements`. Ported from design-reference/Admin Announcements.dc.html.
-// Contract: SCREENS § 4.7, phase 06 § 6.1.
+// Admin Announcements `/admin/announcements` on the Admin redesign R2 (D-160 R2-2b): the signed-off
+// mockup's `Announce` (AdminRedesign.jsx), drawn from `announceR2Rows`, send times in MST.
 //
-// MARKUP ONLY. Every string, count, label and tone comes from `announcementsVM`; the two validation
-// messages and the toast come from the `sendAnnouncement` mutation, which owns them. Nothing here
-// reads the clock: every stamp this screen shows is absolute and the preview's is the literal
-// `Just now`, so the VM takes no `now`.
-//
-// The segmented tracks are hand-rolled rather than built on the `Segmented` primitive because the
-// reference draws these options at 13/400 while the primitive is 13/500, and the fingerprint
-// compares weight. They keep the primitive's semantics — `aria-pressed` on a button inside a named
-// group — so the two read the same to assistive tech.
+// New announcement opens the mockup's dialog (Title, Message, Audience, Channels) with the composer's
+// other settings after them (severity, the banner's action button, send now or schedule, the schedule
+// typed in MST), and sends through `sendAnnouncement`, as before; its refusals show in the dialog.
+// The app has no announcement draft, edit or duplicate, so the dialog sends rather than saving a
+// draft, and each row's "…" is drawn and does nothing (`aria-disabled`). The automatic reminder
+// switches and the old history's open rates are not drawn. Needs Connor's call (D-160 R2-2b).
+
+const SEVERITIES = [
+  ['info', 'Info'],
+  ['warning', 'Warning'],
+] as const;
+const ACTIONS = [
+  ['', 'None'],
+  ['calendar', 'Update Calendar'],
+  ['sessions', 'Open Sessions'],
+] as const;
+
+const fresh = (): AnnouncementForm => {
+  const f = blankAnnouncementForm();
+  return { ...f, at: defaultScheduleMst(f.at) };
+};
 
 export function Component() {
   const db = useDb();
   const mutate = useMutate();
+  const rows = announceR2Rows(db);
 
-  const [form, setForm] = useState<AnnouncementForm>(blankAnnouncementForm);
-  /** The inline refusal under the composer. `sendAnnouncement` is the only author of its text. */
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<AnnouncementForm>(fresh);
   const [err, setErr] = useState('');
 
-  const vm = announcementsVM(db, { form, err });
-
-  // The reference's `up`: editing any control clears the validation message.
   const set = useCallback((patch: Partial<AnnouncementForm>) => {
     setForm((f) => ({ ...f, ...patch }));
     setErr('');
   }, []);
 
-  const onSend = useCallback(async () => {
+  const send = useCallback(async () => {
     const out = await mutate('sendAnnouncement', {
       title: form.title,
       body: form.body,
@@ -45,7 +68,7 @@ export function Component() {
       inapp: form.inapp,
       email: form.email,
       when: form.when,
-      at: form.at,
+      at: atForSend(form.at),
       severity: form.severity,
       action: form.action,
     });
@@ -53,251 +76,175 @@ export function Component() {
       setErr(out.error);
       return;
     }
-    // The reference keeps the audience, channels, severity, action and schedule; only the two
-    // text fields are cleared, so a follow-up announcement starts from the same settings.
-    setForm((f) => ({ ...f, title: '', body: '' }));
-    setErr('');
+    setOpen(false);
+    setForm(fresh());
   }, [form, mutate]);
 
-  const onReminder = useCallback(
-    async (id: string) => {
-      const out = await mutate('toggleReminder', { id });
-      // Owner always passes `announce`; a staff role that does not is refused, and the refusal
-      // lands in the composer's existing message slot rather than in a second one.
-      if (out.error) setErr(out.error);
+  const cols: Column<AnnounceR2Row>[] = [
+    {
+      key: 'title',
+      label: 'Announcement',
+      width: 'minmax(220px,2fr)',
+      value: (r) => r.title,
+      cell: (r) => <span className={clsx(k.w5, k.el, s.block)}>{r.title}</span>,
     },
-    [mutate],
-  );
+    { key: 'audience', label: 'Audience', width: '104px', value: (r) => r.audience },
+    { key: 'channels', label: 'Channels', width: '120px', hideLap: true, value: (r) => r.channels },
+    {
+      key: 'status',
+      label: 'Status',
+      width: '112px',
+      value: (r) => r.status.label,
+      cell: (r) => <Status tone={r.status.tone}>{r.status.label}</Status>,
+    },
+    { key: 'at', label: 'Send time', width: '136px', noSort: true, value: (r) => r.sendTime },
+  ];
 
   return (
-    <div className={s.page}>
-      <div>
-        <h1 className={s.h1}>Announcements</h1>
-        <p className={s.sub}>
-          In-app banners and email for the December 2026 Cohort, plus automated reminders.
-        </p>
-      </div>
+    <Page>
+      <PageHead
+        title="Announcements"
+        description="Messages to learners in the portal and by email."
+        right={
+          <Button
+            header
+            kind="primary"
+            icon="r2Plus"
+            onClick={() => {
+              setErr('');
+              setOpen(true);
+            }}
+          >
+            New announcement
+          </Button>
+        }
+      />
+      <Table
+        label="Announcements"
+        cols={cols}
+        rows={rows}
+        rowKey={(r) => r.id}
+        menu={() => []}
+        empty={{
+          icon: 'r2Announce',
+          title: 'No announcements yet',
+          body: 'Write the first one to tell learners what is new.',
+        }}
+      />
 
-      <div className={s.cols}>
-        <section className={s.composer}>
-          <div className={s.cardTitle}>New Announcement</div>
-
-          <Field label="Title" variant="sunken">
-            <Input
-              value={vm.form.title}
-              onChange={(e) => set({ title: e.target.value })}
-              placeholder="e.g. Office hours moved to 2:00 PM"
-            />
-          </Field>
-
-          <Field label="Message" variant="sunken">
-            <Textarea
-              value={vm.form.body}
-              onChange={(e) => set({ body: e.target.value })}
-              placeholder="Keep it to two sentences for the banner."
-            />
-          </Field>
-
-          <div className={s.controls}>
-            <div className={s.group}>
-              <span className={s.groupLabel}>Audience</span>
-              <div className={s.track} data-kind="plain" role="group" aria-label="Audience" data-phone="wrap">
-                {vm.audience.map((o) => (
-                  <button
-                    key={o.value}
-                    type="button"
-                    className={s.opt}
-                    data-on={o.on ? 'true' : undefined}
-                    aria-pressed={o.on}
-                    onClick={() => set({ audience: o.value })}
-                  >
+      {open ? (
+        <Modal
+          title="New announcement"
+          onClose={() => setOpen(false)}
+          foot={
+            <>
+              <Button onClick={() => setOpen(false)}>Cancel</Button>
+              <Button kind="primary" disabled={!form.title.trim()} onClick={() => void send()}>
+                {form.when === 'later' ? 'Schedule' : 'Send now'}
+              </Button>
+            </>
+          }
+        >
+          <label className={s.lab}>
+            Title
+            <input className={k.in} autoFocus value={form.title} onChange={(e) => set({ title: e.target.value })} />
+          </label>
+          <label className={s.lab}>
+            Message
+            <TextArea rows={4} value={form.body} onChange={(e) => set({ body: e.target.value })} />
+          </label>
+          <div className={clsx(k.row, s.pair)}>
+            <label className={s.lab}>
+              Audience
+              <Sel
+                className={k.full}
+                value={form.audience}
+                onChange={(e) => set({ audience: e.target.value as AnnouncementForm['audience'] })}
+              >
+                {R2_AUDIENCES.map((o) => (
+                  <option key={o.value} value={o.value}>
                     {o.label}
-                  </button>
+                  </option>
                 ))}
-              </div>
-              <span className={s.reach}>{vm.reach}</span>
-            </div>
-
-            <div className={s.group}>
-              <span className={s.groupLabel}>Channels</span>
-              <div className={s.channels} role="group" aria-label="Channels">
-                {vm.channels.map((c) => (
-                  <button
-                    key={c.value}
-                    type="button"
-                    className={s.channel}
-                    data-on={c.on ? 'true' : undefined}
-                    aria-pressed={c.on}
-                    onClick={() => set(c.value === 'inapp' ? { inapp: !c.on } : { email: !c.on })}
-                  >
-                    <span className={s.box}>
-                      {c.on ? (
-                        <Icon name="check" size={11} strokeWidth={3} color="var(--action-on-primary)" />
-                      ) : null}
-                    </span>
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={s.group}>
-              <span className={s.groupLabel}>Severity</span>
-              <div className={s.track} data-kind="seg" role="group" aria-label="Severity" data-phone="wrap">
-                {vm.severities.map((o) => (
-                  <button
-                    key={o.value}
-                    type="button"
-                    className={s.opt}
-                    data-on={o.on ? 'true' : undefined}
-                    aria-pressed={o.on}
-                    onClick={() => set({ severity: o.value })}
-                  >
+              </Sel>
+            </label>
+            <label className={s.lab}>
+              Channels
+              <Sel
+                className={k.full}
+                value={channelsOf(form)}
+                onChange={(e) => set(channelsFrom(e.target.value as 'inapp' | 'both' | 'email'))}
+              >
+                {R2_CHANNELS.map((o) => (
+                  <option key={o.value} value={o.value}>
                     {o.label}
-                  </button>
+                  </option>
                 ))}
-              </div>
-            </div>
-
-            <div className={s.group}>
-              <span className={s.groupLabel}>Action Button</span>
-              <div className={s.track} data-kind="seg" role="group" aria-label="Action Button" data-phone="wrap">
-                {vm.actions.map((o) => (
-                  <button
-                    key={o.value || 'none'}
-                    type="button"
-                    className={s.opt}
-                    data-on={o.on ? 'true' : undefined}
-                    aria-pressed={o.on}
-                    onClick={() => set({ action: o.value })}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={s.group}>
-              <span className={s.groupLabel}>When</span>
-              <div className={s.when} data-phone="wrap">
-                <div className={s.track} data-kind="plain" role="group" aria-label="When" data-phone="wrap">
-                  {vm.whens.map((o) => (
-                    <button
-                      key={o.value}
-                      type="button"
-                      className={s.opt}
-                      data-on={o.on ? 'true' : undefined}
-                      aria-pressed={o.on}
-                      onClick={() => set({ when: o.value })}
-                    >
-                      {o.label}
-                    </button>
-                  ))}
-                </div>
-                {/* The reference leaves this input unlabelled; it needs an accessible name, so it
-                    borrows the control's own word rather than introducing new visible copy. */}
-                {vm.scheduling ? (
-                  <Input
-                    type="datetime-local"
-                    variant="sunken"
-                    className={s.at}
-                    aria-label="Schedule"
-                    value={vm.form.at}
-                    onChange={(e) => set({ at: e.target.value })}
-                  />
-                ) : null}
-              </div>
-            </div>
+              </Sel>
+            </label>
           </div>
-
-          <div className={s.group}>
-            <span className={s.previewLabel}>Banner Preview</span>
-            {/* The real component, from the form. No dismiss: there is nothing to record here. */}
-            <div className={s.preview} data-dim={vm.preview.dim ? 'true' : undefined}>
-              <AnnouncementBanner
-                severity={vm.preview.severity}
-                title={vm.preview.title}
-                body={vm.preview.body}
-                when={vm.preview.when}
-                actionLabel={vm.preview.actionLabel}
-              />
-            </div>
+          <div className={clsx(k.row, s.pair)}>
+            <label className={s.lab}>
+              Severity
+              <Sel
+                className={k.full}
+                value={form.severity}
+                onChange={(e) => set({ severity: e.target.value as AnnouncementForm['severity'] })}
+              >
+                {SEVERITIES.map(([v, l]) => (
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
+                ))}
+              </Sel>
+            </label>
+            <label className={s.lab}>
+              Action button
+              <Sel
+                className={k.full}
+                value={form.action}
+                onChange={(e) => set({ action: e.target.value as AnnouncementForm['action'] })}
+              >
+                {ACTIONS.map(([v, l]) => (
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
+                ))}
+              </Sel>
+            </label>
           </div>
-
-          {vm.err ? (
-            <div role="alert" className={s.error}>
-              {vm.err}
-            </div>
+          <div className={clsx(k.row, s.pair)}>
+            <label className={s.lab}>
+              When
+              <Sel
+                className={k.full}
+                value={form.when}
+                onChange={(e) => set({ when: e.target.value as AnnouncementForm['when'] })}
+              >
+                <option value="now">Send now</option>
+                <option value="later">Schedule</option>
+              </Sel>
+            </label>
+            {form.when === 'later' ? (
+              <label className={s.lab}>
+                Send at (MST)
+                <input
+                  className={k.in}
+                  type="datetime-local"
+                  value={form.at}
+                  onChange={(e) => set({ at: e.target.value })}
+                />
+              </label>
+            ) : null}
+          </div>
+          {err ? (
+            <p role="alert" className={clsx(k.p, s.err)}>
+              {err}
+            </p>
           ) : null}
-
-          <div className={s.actions}>
-            <button type="button" className={s.send} onClick={() => void onSend()}>
-              <Icon name="send" size={14} strokeWidth={1.9} />
-              {vm.sendLabel}
-            </button>
-          </div>
-        </section>
-
-        <section className={s.reminders}>
-          <div className={s.remindersTitle}>Automated Reminders</div>
-          <div className={s.remindersSub}>Sent for every cohort on its own schedule</div>
-          {vm.reminders.map((r) => (
-            <Switch
-              key={r.id}
-              checked={r.on}
-              size="md"
-              className={s.row}
-              onChange={() => void onReminder(r.id)}
-            >
-              <span className={s.rowText}>
-                <span className={s.rowLabel}>{r.label}</span>
-                <span className={s.rowChannel}>{r.channel}</span>
-              </span>
-            </Switch>
-          ))}
-        </section>
-      </div>
-
-      <section className={s.history}>
-        <div className={s.historyTitle}>History</div>
-        <div className={s.scroll} data-phone="tscroll">
-          <div className={s.grid} data-phone="tmin">
-            <div className={s.headRow} data-phone="thead">
-              <span>Announcement</span>
-              <span>Audience</span>
-              <span>Channels</span>
-              <span>Status</span>
-              <span>Date</span>
-              <span>Opened</span>
-            </div>
-            {vm.history.map((h) => (
-              <div key={h.id} className={s.histRow} data-phone="card">
-                <div className={s.histMain}>
-                  <div className={s.histTitle}>{h.title}</div>
-                  <div className={s.histBody}>{h.body}</div>
-                </div>
-                <span className={s.histAud} data-phone="cell" data-label="Audience">
-                  {h.aud}
-                </span>
-                <span className={s.histCh} data-phone="cell" data-label="Channels">
-                  {h.ch}
-                </span>
-                <span className={s.histStatus} data-sent={h.sent ? 'true' : undefined}>
-                  <span className={s.dot} />
-                  {h.status}
-                </span>
-                <span className={s.histAt} data-phone="cell" data-label="Date">
-                  {h.at}
-                </span>
-                <span className={s.histOpens} data-phone="cell" data-label="Opened">
-                  {h.opens}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
+        </Modal>
+      ) : null}
+    </Page>
   );
 }
 

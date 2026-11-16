@@ -100,10 +100,15 @@ test('go live, end, publish replay flows through to the portal @g6', async ({ br
   await open(learner, '/?as=agent');
   await open(admin, '/admin/cohorts?as=admin');
 
-  await admin.getByRole('button', { name: 'Go Live' }).click();
+  // D-160 R2-2b: each step is in the session's "…" menu on the R2 Cohorts & Sessions screen.
+  const step = async (label: string) => {
+    await admin.getByRole('row').filter({ hasText: 'Session 3 ·' }).getByRole('button', { name: 'More actions' }).click();
+    await admin.getByRole('menuitem', { name: label }).click();
+  };
+  await step('Go Live');
   await expect(learner.getByText('Live Now').first()).toBeVisible();
-  await admin.getByRole('button', { name: 'End Session' }).click();
-  await admin.getByRole('button', { name: 'Publish Replay' }).click();
+  await step('End Session');
+  await step('Publish Replay');
   await expect(admin.getByText('Session 3 replay published to learners')).toBeVisible();
   await close();
 });
@@ -113,9 +118,11 @@ test('editing a session time moves the learner countdown @g6', async ({ browser 
   await open(learner, '/?as=agent');
   await open(admin, '/admin/cohorts?as=admin');
 
-  await admin.getByRole('button', { name: 'Edit' }).nth(2).click();
-  await admin.getByLabel('Start Time (CT)').fill('15:00');
-  await admin.getByRole('button', { name: 'Save Session' }).click();
+  // D-160 R2-2b: Edit session is in the session's "…" menu, and its time is MST (2:00 PM MST is 3:00 PM CT).
+  await admin.getByRole('row').filter({ hasText: 'Session 3 ·' }).getByRole('button', { name: 'More actions' }).click();
+  await admin.getByRole('menuitem', { name: 'Edit session' }).click();
+  await admin.getByLabel('Start time (MST)').fill('14:00');
+  await admin.getByRole('button', { name: 'Save session' }).click();
   await expect(learner.getByText(/Wed, Dec 9 · 3:00 PM CT/).first()).toBeVisible();
   await close();
 });
@@ -125,12 +132,13 @@ test('a warning announcement reaches the learner as an alert banner @g6', async 
   await open(learner, '/?as=agent');
   await open(admin, '/admin/announcements?as=admin');
 
-  await admin.getByLabel('Title').fill('Office hours moved to 2:00 PM');
-  await admin.getByLabel('Message').fill('Same link as always.');
-  await admin.getByRole('button', { name: 'Warning' }).click();
-  // 'Send Now' names two controls: the When segmented option and the submit button. Only the
-  // segmented option carries aria-pressed, which is the semantic difference between them.
-  await admin.locator('button:not([aria-pressed])').filter({ hasText: 'Send Now' }).click();
+  // D-160 R2-2b: the composer is the New announcement dialog.
+  await admin.getByRole('button', { name: 'New announcement' }).click();
+  const dialog = admin.getByRole('dialog', { name: 'New announcement' });
+  await dialog.getByLabel('Title').fill('Office hours moved to 2:00 PM');
+  await dialog.getByLabel('Message').fill('Same link as always.');
+  await dialog.getByLabel('Severity').selectOption('warning');
+  await dialog.getByRole('button', { name: 'Send now' }).click();
 
   await expect(learner.getByRole('alert').getByText('Office hours moved to 2:00 PM')).toBeVisible();
   await close();

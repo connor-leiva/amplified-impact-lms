@@ -3,30 +3,14 @@ import { LEGACY_SCREENS, legacyFor } from './legacy';
 import { R2_NAV } from './adminNav';
 
 // D-160 R2-1b: the admin screens not yet rebuilt on R2, and what the shell keeps for them. R2-2a
-// rebuilds Curriculum and the Module Builder, so their rows are gone.
+// rebuilds Curriculum and the Module Builder, and R2-2b the Vault, Cohorts and Announcements, so
+// their rows are gone.
 
 describe('the legacy screens (D-160 R2-1b)', () => {
   it('keeps the old frame geometry on exactly the screens behind the old `main` checks still kept', () => {
     const geometry = LEGACY_SCREENS.filter((s) => s.geometry).map((s) => s.match);
-    expect(geometry).toEqual([
-      '/admin',
-      '/admin/cohorts',
-      '/admin/learners',
-      '/admin/vault',
-      '/admin/announcements',
-      '/admin/tiers',
-      '/admin/staff',
-    ]);
-    for (const p of [
-      '/admin',
-      '/admin/',
-      '/admin/cohorts',
-      '/admin/learners',
-      '/admin/vault',
-      '/admin/announcements',
-      '/admin/tiers',
-      '/admin/staff',
-    ])
+    expect(geometry).toEqual(['/admin', '/admin/learners', '/admin/tiers', '/admin/staff']);
+    for (const p of ['/admin', '/admin/', '/admin/learners', '/admin/tiers', '/admin/staff'])
       expect(legacyFor(p), p).toEqual({ type: true, geometry: true });
   });
 
@@ -40,6 +24,9 @@ describe('the legacy screens (D-160 R2-1b)', () => {
       '/admin/curriculum',
       '/admin/curriculum/new',
       '/admin/curriculum/marketing',
+      '/admin/cohorts',
+      '/admin/vault',
+      '/admin/announcements',
       '/admin/no-such-page',
       '/admin/denied',
       '/admin/health',
@@ -54,10 +41,7 @@ describe('the legacy screens (D-160 R2-1b)', () => {
     const rebuilt = Object.fromEntries(LEGACY_SCREENS.map((s) => [s.match, s.rebuiltIn]));
     expect(rebuilt).toEqual({
       '/admin': 'R2-3',
-      '/admin/cohorts': 'R2-2',
       '/admin/learners': 'R2-3',
-      '/admin/vault': 'R2-2',
-      '/admin/announcements': 'R2-2',
       '/admin/tiers': 'R2-3',
       '/admin/staff': 'R2-3',
       '/admin/audit': 'R2-3',

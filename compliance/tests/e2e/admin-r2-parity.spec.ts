@@ -19,17 +19,60 @@ import {
   readManifest,
   writeCell,
 } from '../../lib/admin-r2';
+import {
+  ALLOWED_EXCEPTION_CELLS,
+  APPROVED_EXCEPTIONS,
+  EXCEPTION_CEILING_LIMIT_PCT,
+  approvedException,
+  ceilingText,
+  exceptionProblems,
+  passesException,
+} from '../../lib/admin-r2-exceptions';
 
 // Admin redesign R2 pixel parity (D-160, BUILD-SPEC § 6). Run with `pnpm parity:admin-r2`; it has
 // its own config (`compliance/admin-r2.config.ts`), and the main config ignores this file, so the
 // `parity`, `parity-http` and `e2e` projects are unchanged. See `lib/admin-r2.ts` for the rule.
 
 const masks = loadMasks();
+/** A cell is enforced when it is in ENFORCED or is an approved exception (D-160, `admin-r2-exceptions.ts`). */
+const isEnforced = (cell: string) => ENFORCED.includes(cell) || !!approvedException(cell);
 
 test.describe('admin-r2 setup', () => {
   test('enforced cells all have a built route', () => {
-    const unbuilt = ENFORCED.filter((c) => !SCREENS.some((s) => WIDTHS.some((w) => cellId(s, w) === c && ROUTES[s])));
+    const enforced = [...ENFORCED, ...APPROVED_EXCEPTIONS.map((e) => e.cell)];
+    const unbuilt = enforced.filter((c) => !SCREENS.some((s) => WIDTHS.some((w) => cellId(s, w) === c && ROUTES[s])));
     expect(unbuilt, 'an enforced cell must be a built screen × width').toEqual([]);
+  });
+
+  // D-160, Connor, Nov 16, 2026, 8:27 AM MST (decision A): the only parity exceptions allowed are the
+  // three 390 cells whose sole diff is the 15px vs 16px phone key-facts text. The list is closed.
+  test('approved exceptions are decision A’s closed list', () => {
+    const cells = APPROVED_EXCEPTIONS.map((e) => e.cell);
+    expect([...ALLOWED_EXCEPTION_CELLS].sort()).toEqual(['cohorts-sessions-390', 'user-390', 'workspace-detail-390']);
+    expect(cells.every((c) => (ALLOWED_EXCEPTION_CELLS as readonly string[]).includes(c)), `only ${ALLOWED_EXCEPTION_CELLS.join(', ')}`).toBe(true);
+    expect(new Set(cells).size, 'no cell listed twice').toBe(cells.length);
+    expect(exceptionProblems()).toEqual([]);
+    const manifest = new Map(readManifest().map((r) => [r.file, r]));
+    for (const e of APPROVED_EXCEPTIONS) {
+      expect(e.width, `${e.cell} is 390 wide`).toBe(390);
+      expect(ENFORCED, `${e.cell} is enforced at its ceiling, not by the 0.1% rule`).not.toContain(e.cell);
+      const ref = manifest.get(`${e.cell}.png`);
+      expect(ref && `${ref.width}×${ref.height}`, `${e.cell}: the recorded dims are the ref's`).toBe(`${e.width}×${e.height}`);
+      expect((100 * e.ceilingPx) / (e.width * e.height), `${e.cell}: ceiling under ${EXCEPTION_CEILING_LIMIT_PCT}%`).toBeLessThan(
+        EXCEPTION_CEILING_LIMIT_PCT,
+      );
+    }
+    // The closed list rejects anything else: another cell, another width, a ceiling at 0.5% or more.
+    const base = APPROVED_EXCEPTIONS[0]!;
+    expect(exceptionProblems([{ ...base, cell: 'roles-390' as never }])).not.toEqual([]);
+    expect(exceptionProblems([{ ...base, cell: 'cohorts-sessions-1440' as never, width: 1440 as never }])).not.toEqual([]);
+    expect(exceptionProblems([{ ...base, ceilingPx: Math.ceil(0.005 * base.width * base.height), ceilingPct: 0.5 }])).not.toEqual([]);
+    expect(exceptionProblems([base, base])).not.toEqual([]);
+    // A listed cell passes only with identical dims and at most its ceiling.
+    const dims = `${base.width}×${base.height}`;
+    expect(passesException(base, { dimsOk: true, appDims: dims, diffPx: base.ceilingPx })).toBe(true);
+    expect(passesException(base, { dimsOk: true, appDims: dims, diffPx: base.ceilingPx + 1 })).toBe(false);
+    expect(passesException(base, { dimsOk: false, appDims: `${base.width}×${base.height + 1}`, diffPx: undefined })).toBe(false);
   });
 
   // The refs are the oracle. Every PNG MANIFEST.tsv lists must exist with exactly its width × height:
@@ -86,7 +129,8 @@ for (const screen of SCREENS) {
     for (const width of WIDTHS) {
       const cell = cellId(screen, width);
       const route = ROUTES[screen];
-      const enforced = ENFORCED.includes(cell);
+      const exception = approvedException(cell);
+      const enforced = isEnforced(cell);
       test(`${cell}`, async ({ browser }) => {
         if (!route) {
           writeCell({ cell, screen, width, status: 'not built', enforced });
@@ -99,11 +143,14 @@ for (const screen of SCREENS) {
           const rects = await maskRects(page, mine);
           const shot = await capture(page, route, width);
           const r = compare(cell, shot, rects);
+          // An approved exception (D-160) passes at or under its recorded ceiling with identical dims;
+          // every other cell by the 0.1% rule.
+          const pass = exception ? passesException(exception, r) : r.pass;
           writeCell({
             cell,
             screen,
             width,
-            status: r.pass ? 'pass' : 'fail',
+            status: pass ? 'pass' : 'fail',
             enforced,
             dimsOk: r.dimsOk,
             appDims: r.appDims,
@@ -114,12 +161,17 @@ for (const screen of SCREENS) {
             browser: browser.version(),
           });
           const summary = r.dimsOk ? `${r.diffPct!.toFixed(4)}% (${r.diffPx} px)` : `dims ${r.appDims} vs ref ${r.refDims}`;
-          test.info().annotations.push({ type: r.pass ? 'parity pass' : 'parity FAIL', description: summary });
+          test.info().annotations.push({
+            type: pass ? (exception ? 'parity pass (approved exception, D-160)' : 'parity pass') : 'parity FAIL',
+            description: exception ? `${summary}; ceiling ${ceilingText(exception)}` : summary,
+          });
           // Report-only unless enforced: a failing cell that is not enforced is written to the report
           // as FAIL and does not fail the run. An enforced one does.
           if (enforced) {
             expect(r.dimsOk, `${cell}: app ${r.appDims}, ref ${r.refDims}`).toBe(true);
-            expect(r.pass, `${cell}: ${summary} differ, over 0.1%`).toBe(true);
+            if (exception)
+              expect(pass, `${cell}: ${summary} differ, over its approved ceiling of ${ceilingText(exception)} (D-160)`).toBe(true);
+            else expect(r.pass, `${cell}: ${summary} differ, over 0.1%`).toBe(true);
           }
         } finally {
           await ctx.close();

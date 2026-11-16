@@ -134,11 +134,11 @@ export function Two({ a, b, mono, to }: { a: string; b: string; mono?: boolean; 
 }
 
 /** `Facts`: the key-facts strip. */
-export function Facts({ items }: { items: readonly { label: string; value: ReactNode }[] }) {
+export function Facts({ items }: { items: readonly { label: string; value: ReactNode; wide?: boolean }[] }) {
   return (
     <div className={k.fx}>
       {items.map((f) => (
-        <div key={f.label}>
+        <div key={f.label} className={f.wide ? k.fxw : undefined}>
           <span className={k.me}>{f.label}</span>
           <span className={clsx(k.w5, k.el)}>{f.value}</span>
         </div>
