@@ -52,7 +52,7 @@ const LMS_CSS = [join(ROOT, 'design-reference/lms.css'), join(ROOT, 'apps/web/sr
 /** Rebuilt in the www kit's look by PR B2 (#119): 16px and 44 / 48px at every width by design. */
 export const KIT_LOOK = ['apps/web/src/routes/course/', 'apps/web/src/routes/library/'];
 /**
- * Rebuilt on the Admin redesign R2 (D-160 R2-2): written anew on the R2 tokens (`--r2-*`, 16px and up
+ * Rebuilt on the Admin redesign R2 (D-160 R2-2, R2-3a): written anew on the R2 tokens (`--r2-*`, 16px and up
  * on a phone by construction, `r2-tokens.test.ts`), so no declaration in them is the codemod's. The old
  * file's marks would only land on unrelated new lines (a 16px row-number width).
  */
@@ -62,6 +62,10 @@ export const R2_REBUILT = [
   'apps/web/src/routes/admin/VaultManager.',
   'apps/web/src/routes/admin/Cohorts.',
   'apps/web/src/routes/admin/Announcements.',
+  'apps/web/src/routes/admin/Overview.',
+  'apps/web/src/routes/admin/Learners.',
+  'apps/web/src/routes/admin/Tiers.',
+  'apps/web/src/routes/admin/Staff.',
 ];
 const FLOOR = 16;
 const MIN_BOX = 24;
