@@ -3,7 +3,8 @@
 // `parity:admin-r2` with no API. FIXTURE ONLY: only `console-fixture.ts` imports this, and `console.ts`
 // loads that behind `VITE_DATA_SOURCE`, so the http build has none of it (`console-build.test.ts`).
 //
-// The records are AdminRedesign.jsx's own (`parity-r2.ts`: `WS`, `USERS`, `STAFF`, `INV` and the notes),
+// The records are AdminRedesign.jsx's own (`parity-r2.ts`: `SUPPORT_WS` and `SUPPORT_USERS`, the mockup's
+// `WS` and `USERS`, and `STAFF`, `INV` and the notes),
 // fictional people at `.example` addresses, turned into the API's shapes (`@ai/core`
 // console-support.ts) so the screens' view-models print the mockup's words from what the API answers.
 // Two liberties, both the mockup's: the lists keep its order (the API sorts by name), and a learner's
@@ -43,15 +44,15 @@ import {
   IDENTITY,
   JOINED,
   STAFF,
+  SUPPORT_USERS,
+  SUPPORT_WS,
   USER_NOTES,
-  USERS,
   WORKSPACE_NOTES,
-  WS,
   mockCents,
   mockStamp,
 } from './parity-r2';
 
-type Ws = (typeof WS)[number];
+type Ws = (typeof SUPPORT_WS)[number];
 
 const PLAN_OF: Record<string, PlanKind> = {
   'Team Plan': 'agents',
@@ -89,13 +90,13 @@ const authorId = (name: string) => STAFF_IDS[STAFF.findIndex((s) => s.n === name
 /** The fixture's records. Fresh each time, so a test's writes stay its own. */
 export function fixtureRecords(): FixtureRecords {
   const joined = mockStamp(JOINED);
-  const learners: FixtureUser[] = USERS.map((u) => ({
+  const learners: FixtureUser[] = SUPPORT_USERS.map((u) => ({
     id: u.id,
     name: u.n,
     email: u.e,
     kind: 'learner',
     role: u.role,
-    teamId: WS.find((w) => w.n === u.ws)?.id ?? null,
+    teamId: SUPPORT_WS.find((w) => w.n === u.ws)?.id ?? null,
     workspace: u.ws,
     status: STATUS_OF[u.st] ?? 'active',
     lastActive: mockStamp(u.last),
@@ -115,7 +116,7 @@ export function fixtureRecords(): FixtureRecords {
     joined: null,
     tier: null,
   }));
-  const plans: ConsolePlan[] = WS.map((w) => {
+  const plans: ConsolePlan[] = SUPPORT_WS.map((w) => {
     const kind = planKindOf(w.plan);
     return {
       id: `plan_${w.id}`,
@@ -136,7 +137,7 @@ export function fixtureRecords(): FixtureRecords {
     };
   });
   const orders: ConsoleOrder[] = INV.map((v) => {
-    const w = WS.find((x) => x.n === v.c)!;
+    const w = SUPPORT_WS.find((x) => x.n === v.c)!;
     const kind = planKindOf(w.plan);
     const at = mockStamp(v.d);
     const status = ORDER_OF[v.st] ?? 'pending';
@@ -179,7 +180,7 @@ export function fixtureRecords(): FixtureRecords {
     ...WORKSPACE_NOTES.map((n, i) => note(String(20 - i), 'workspace', 'ws_northshore', n)),
     ...USER_NOTES.map((n, i) => note(String(10 - i), 'user', 'u_1042', n)),
   ];
-  return { ws: WS, users: [...learners, ...staff], plans, orders, notes };
+  return { ws: SUPPORT_WS, users: [...learners, ...staff], plans, orders, notes };
 }
 
 // --- reading them as the API does ---------------------------------------------------------------
@@ -316,7 +317,7 @@ export function fixtureUser(r: FixtureRecords, userId: string): ConsoleUserDetai
   if (!u) return null;
   const planList = r.plans.filter((p) => p.accountId === `acct_${u.teamId}`);
   const staffRole = u.kind === 'staff' ? (u.role as ConsoleUserDetail['user']['staffRole']) : null;
-  const mock = USERS.find((x) => x.id === u.id);
+  const mock = SUPPORT_USERS.find((x) => x.id === u.id);
   return {
     user: {
       id: u.id,

@@ -1,18 +1,27 @@
-// /admin/audit (D-157, spec § 7.8): the audit log. Filters, a table (cards on a phone), a detail
-// drawer, Load More, and Export CSV for the roles that may export. Net-new and not golden-pinned
-// (D-079, D-110). Markup only: every word and time comes from AuditLog.vm.ts.
+// /admin/audit (D-157, spec § 7.8) on the Admin redesign R2 (D-160 R2-3b): the signed-off mockup's
+// `Audit` (AdminRedesign.jsx). The filters, the table (cards on a phone), the detail drawer, Load
+// More and Export CSV for the roles that may export, as before. Markup only: every word and time comes
+// from AuditLog.vm.ts. `audit_log` stays append-only: nothing here writes to it but the export, which
+// the server audits.
+//
+//   - The mockup's row checkboxes are drawn; its "Export selected" does nothing (`aria-disabled`): the
+//     API exports by filter, not by row (Needs Connor's call, D-160 R2-3b).
+//   - The Outcome filter, which the mockup does not draw, is in the filter row's "…".
+//   - A row (or its time, by keyboard) opens the entry's detail in the R2 drawer.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 import type { AuditRow } from '@ai/core';
-import { ConsolePage } from '../../components/console/ConsolePage';
-import { DataTable } from '../../components/console/DataTable';
-import type { Column } from '../../components/console/DataTable';
-import { FilterBar, FilterSearch, FilterSelect } from '../../components/console/FilterBar';
-import { KeyValue } from '../../components/console/KeyValue';
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/console/StateBlock';
-import { StatusBadge } from '../../components/console/StatusBadge';
-import { Button } from '../../components/primitives/Button';
-import { Drawer } from '../../components/primitives/Drawer';
+import { Icon } from '../../components/Icon';
+import { Button } from '../../components/r2/Button';
+import { Box } from '../../components/r2/Card';
+import { Drawer } from '../../components/r2/Drawer';
+import { Empty } from '../../components/r2/Empty';
+import { Menu } from '../../components/r2/Menu';
+import { Page } from '../../components/r2/Page';
+import { Table } from '../../components/r2/Table';
+import type { Column } from '../../components/r2/Table';
+import { ErrorState, Find, KV, PageHead, Sel, Skel, k } from '../../components/r2/kit';
 import { useToaster } from '../../components/primitives/Toaster';
 import { ConsoleError } from '../../data/console';
 import type { ConsoleApi, ConsoleFailure } from '../../data/console';
@@ -20,24 +29,25 @@ import { useDb } from '../../data/hooks';
 import { clock } from '../../lib/clock';
 import {
   AUDIT_COPY,
+  AUDIT_R2_COPY,
   DEFAULT_FILTERS,
-  OUTCOME_OPTIONS,
-  RANGE_OPTIONS,
+  OUTCOME_OPTIONS_R2,
+  RANGE_OPTIONS_R2,
   actionGroupLabel,
-  actionOptions,
-  actorOptions,
+  actionOptionsR2,
+  actorOptionsR2,
   auditFiltersFor,
   canExport,
-  detailVM,
+  detailR2,
   exportFailure,
   isDefaultFilters,
-  rangeLabel,
-  rowVM,
+  rowR2,
 } from './AuditLog.vm';
-import type { AuditFilterState, AuditRowVM, RangeKey } from './AuditLog.vm';
+import type { AuditFilterState, AuditR2Row, RangeKey } from './AuditLog.vm';
 import { CONSOLE_SCREENS, errorCopy } from './console.vm';
 import { Denied } from './Denied';
 import { useConsoleGate } from './useConsoleGate';
+import s from './AuditLog.module.css';
 
 type List =
   | { kind: 'loading' }
@@ -45,6 +55,7 @@ type List =
   | { kind: 'ready'; rows: AuditRow[]; nextCursor: string | null; more: boolean };
 
 const failureOf = (e: unknown): ConsoleFailure => (e instanceof ConsoleError ? e.kind : 'failed');
+const NOT_YET = 'Not available yet';
 
 /** Hand the browser a file. A blob URL, so nothing leaves the page. */
 function download(csv: string, filename: string): void {
@@ -56,6 +67,18 @@ function download(csv: string, filename: string): void {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function ExportButton({ role, busy, onClick }: { role: string | null; busy?: boolean; onClick?: () => void }) {
+  return canExport(role) ? (
+    <Button header icon="r2Download" onClick={onClick} aria-busy={busy || undefined} aria-disabled={busy || undefined}>
+      {busy ? AUDIT_COPY.exporting : AUDIT_COPY.export}
+    </Button>
+  ) : (
+    <Button header icon="r2Lock" aria-disabled="true" title="Your role cannot do this">
+      {AUDIT_COPY.export}
+    </Button>
+  );
 }
 
 function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
@@ -102,6 +125,7 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
   }, [api, list, query, toast]);
 
   const runExport = useCallback(async () => {
+    if (exporting) return;
     setExporting(true);
     try {
       const { csv, filename } = await api.exportAudit(query);
@@ -113,7 +137,7 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
     } finally {
       setExporting(false);
     }
-  }, [api, query, toast]);
+  }, [api, exporting, query, toast]);
 
   const set = <K extends keyof AuditFilterState>(key: K, value: AuditFilterState[K]) => setFilters((f) => ({ ...f, [key]: value }));
   const clear = () => {
@@ -121,71 +145,152 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
     setFilters(DEFAULT_FILTERS);
   };
 
-  const staffOptions = useMemo(() => actorOptions(db.staff), [db.staff]);
-  const actions = useMemo(() => actionOptions(), []);
+  const actors = useMemo(() => actorOptionsR2(db.staff), [db.staff]);
+  const actions = useMemo(() => actionOptionsR2(), []);
   const byId = useMemo(() => new Map(list.kind === 'ready' ? list.rows.map((r) => [r.id, r]) : []), [list]);
+  const view = (r: AuditR2Row) => setOpen(byId.get(r.key) ?? null);
 
-  const columns: Column<AuditRowVM>[] = [
-    { key: 'time', label: AUDIT_COPY.columns.time, render: (r) => r.time },
-    { key: 'actor', label: AUDIT_COPY.columns.actor, render: (r) => r.actor },
-    { key: 'action', label: AUDIT_COPY.columns.action, render: (r) => r.action, mono: true },
-    { key: 'target', label: AUDIT_COPY.columns.target, render: (r) => r.target },
-    { key: 'outcome', label: AUDIT_COPY.columns.outcome, render: (r) => <StatusBadge {...r.outcome} />, nowrap: true },
+  const cols: Column<AuditR2Row>[] = [
+    {
+      key: 'time',
+      label: AUDIT_COPY.columns.time,
+      width: '136px',
+      noSort: true,
+      value: (r) => r.time,
+      cell: (r) => (
+        <span className={clsx(k.mo, k.s2)}>
+          <button type="button" className={clsx(k.lk, s.time)} aria-label={AUDIT_COPY.open(r.time)} onClick={() => view(r)}>
+            {r.time}
+          </button>
+        </span>
+      ),
+    },
+    { key: 'actor', label: AUDIT_COPY.columns.actor, width: '128px', value: (r) => r.actor },
+    { key: 'action', label: AUDIT_COPY.columns.action, width: 'minmax(210px,1.2fr)', mono: true, value: (r) => r.action },
+    { key: 'target', label: AUDIT_COPY.columns.target, width: 'minmax(110px,.9fr)', value: (r) => r.target },
+    {
+      key: 'detail',
+      label: 'Detail',
+      width: 'minmax(160px,1.6fr)',
+      noSort: true,
+      hideLap: true,
+      value: (r) => r.detail,
+      cell: (r) => <span className={k.s2}>{r.detail}</span>,
+    },
   ];
 
-  return (
-    <ConsolePage
-      title={AUDIT_COPY.title}
-      description={AUDIT_COPY.description}
-      actions={
-        canExport(role) ? (
-          <Button icon="download" onClick={() => void runExport()} disabled={exporting} aria-busy={exporting || undefined}>
-            {exporting ? AUDIT_COPY.exporting : AUDIT_COPY.export}
-          </Button>
-        ) : null
-      }
-    >
-      <FilterBar label="Filters">
-        <FilterSearch label={AUDIT_COPY.search} value={q} onChange={setQ} />
-        <FilterSelect label="Actor" value={filters.actor} options={staffOptions} onChange={(v) => set('actor', v)} />
-        <FilterSelect label="Action" value={filters.action} options={actions} onChange={(v) => set('action', v)} />
-        <FilterSelect label="Outcome" value={filters.outcome} options={OUTCOME_OPTIONS} onChange={(v) => set('outcome', v as AuditFilterState['outcome'])} />
-        <FilterSelect label="Date Range" value={filters.range} options={RANGE_OPTIONS} onChange={(v) => set('range', v as RangeKey)} />
-      </FilterBar>
+  const outcomeItems = OUTCOME_OPTIONS_R2.map((o) => ({
+    label: o.label,
+    checked: filters.outcome === o.value,
+    onSelect: () => set('outcome', o.value as AuditFilterState['outcome']),
+  }));
 
-      {list.kind === 'loading' ? (
-        <LoadingBlock />
-      ) : list.kind === 'error' ? (
-        <ErrorBlock copy={errorCopy(list.failure)} onRetry={() => setAttempt((n) => n + 1)} />
-      ) : list.rows.length === 0 ? (
-        isDefaultFilters(filters) ? (
-          <EmptyBlock message={AUDIT_COPY.emptyRange(rangeLabel(filters.range))} action={{ label: AUDIT_COPY.widen, onClick: () => set('range', '30d') }} />
-        ) : (
-          <EmptyBlock message={AUDIT_COPY.emptyFiltered} action={{ label: AUDIT_COPY.clear, onClick: clear }} />
-        )
+  return (
+    <Page>
+      <PageHead
+        title={AUDIT_COPY.title}
+        description={AUDIT_R2_COPY.description}
+        right={<ExportButton role={role} busy={exporting} onClick={() => void runExport()} />}
+      />
+      <div className={k.row}>
+        <Find value={q} onChange={setQ} placeholder={AUDIT_R2_COPY.search} />
+        <Sel aria-label="Actor" value={filters.actor} onChange={(e) => set('actor', e.target.value)}>
+          {actors.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </Sel>
+        <Sel aria-label="Action" value={filters.action} onChange={(e) => set('action', e.target.value)}>
+          {actions.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </Sel>
+        <Sel aria-label="Date range" value={filters.range} onChange={(e) => set('range', e.target.value as RangeKey)}>
+          {RANGE_OPTIONS_R2.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </Sel>
+        <Menu
+          label={AUDIT_R2_COPY.moreFilters}
+          items={outcomeItems}
+          placement="below-left"
+          className={s.more}
+          trigger={(t) => (
+            <button
+              type="button"
+              className={k.ib}
+              aria-label={filters.outcome ? `${AUDIT_R2_COPY.moreFilters}: Outcome ${filters.outcome}` : AUDIT_R2_COPY.moreFilters}
+              {...t.props}
+              onClick={t.toggle}
+            >
+              <Icon name="r2More" size={16} strokeWidth={2.6} />
+            </button>
+          )}
+        />
+      </div>
+
+      {list.kind === 'error' ? (
+        <Box>
+          <ErrorState copy={errorCopy(list.failure)} onRetry={() => setAttempt((n) => n + 1)} />
+        </Box>
+      ) : list.kind === 'ready' && list.rows.length === 0 ? (
+        <Box>
+          {isDefaultFilters(filters) ? (
+            <Empty icon="r2Audit" title={AUDIT_R2_COPY.emptyTitle} body={AUDIT_R2_COPY.emptyBody}>
+              <Button className={s.cta} onClick={() => set('range', '30d')}>
+                {AUDIT_COPY.widen}
+              </Button>
+            </Empty>
+          ) : (
+            <Empty icon="r2Search" title="No matches" body="Try a different search or clear the filters.">
+              <Button className={s.cta} onClick={clear}>
+                {AUDIT_COPY.clear}
+              </Button>
+            </Empty>
+          )}
+        </Box>
       ) : (
-        <DataTable
-          caption={AUDIT_COPY.caption}
-          columns={columns}
-          rows={list.rows.map(rowVM)}
+        <Table
+          label={AUDIT_COPY.caption}
+          cols={cols}
+          rows={list.kind === 'ready' ? list.rows.map(rowR2) : []}
+          loading={list.kind === 'loading'}
           rowKey={(r) => r.key}
-          onOpen={(r) => setOpen(byId.get(r.key) ?? null)}
-          openLabel={(r) => AUDIT_COPY.open(r.time)}
-          loadMore={list.nextCursor ? { label: AUDIT_COPY.loadMore, busyLabel: AUDIT_COPY.loadingMore, busy: list.more, onClick: loadMore } : null}
+          onRow={view}
+          bulk={() => (
+            <Button aria-disabled="true" title={NOT_YET}>
+              {AUDIT_R2_COPY.exportSelected}
+            </Button>
+          )}
+          empty={{ icon: 'r2Audit', title: AUDIT_R2_COPY.emptyTitle, body: AUDIT_R2_COPY.emptyBody }}
+          footer={
+            list.kind === 'ready' && list.nextCursor ? (
+              <div className={s.more2}>
+                <Button onClick={loadMore} aria-busy={list.more || undefined}>
+                  {list.more ? AUDIT_COPY.loadingMore : AUDIT_COPY.loadMore}
+                </Button>
+              </div>
+            ) : null
+          }
         />
       )}
 
-      <Drawer
-        open={open !== null}
-        onClose={() => setOpen(null)}
-        title={AUDIT_COPY.drawerTitle}
-        description={open ? actionGroupLabel(open.action) : undefined}
-        width={460}
-        variant="surface"
-      >
-        {open ? <KeyValue pairs={detailVM(open, role)} /> : null}
-      </Drawer>
-    </ConsolePage>
+      {open ? (
+        <Drawer title={AUDIT_COPY.drawerTitle} description={actionGroupLabel(open.action)} width={460} onClose={() => setOpen(null)}>
+          <KV
+            rows={detailR2(open, role).map((p) => ({
+              label: p.label,
+              value: p.pre ? <pre className={s.pre}>{p.value}</pre> : <span className={p.mono ? k.mo : undefined}>{p.value}</span>,
+            }))}
+          />
+        </Drawer>
+      ) : null}
+    </Page>
   );
 }
 
@@ -195,9 +300,16 @@ export function Component() {
   if (gate.kind === 'denied') return <Denied what={CONSOLE_SCREENS.audit.title} role={gate.role} />;
   if (gate.kind === 'ready') return <AuditLog api={gate.api} role={gate.me.role} />;
   return (
-    <ConsolePage title={AUDIT_COPY.title} description={AUDIT_COPY.description}>
-      {gate.kind === 'loading' ? <LoadingBlock /> : <ErrorBlock copy={errorCopy(gate.failure)} onRetry={gate.retry} />}
-    </ConsolePage>
+    <Page>
+      <PageHead title={AUDIT_COPY.title} description={AUDIT_R2_COPY.description} />
+      {gate.kind === 'loading' ? (
+        <Skel lines={8} />
+      ) : (
+        <Box>
+          <ErrorState copy={errorCopy(gate.failure)} onRetry={gate.retry} />
+        </Box>
+      )}
+    </Page>
   );
 }
 

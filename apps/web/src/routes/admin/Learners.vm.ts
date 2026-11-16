@@ -13,7 +13,7 @@
 // The reference's inline colours become semantic tones the stylesheet keys off. Only the seeded
 // avatar fill and the seat bar's width are genuinely per-instance, and they travel as values.
 
-import { buildOf, canAccess, csv, fmt, runtimeOf, statusOf, STATUS, visibleModules } from '@ai/core';
+import { adminDate, adminStamp, buildOf, canAccess, csv, fmt, isOpen, runtimeOf, statusOf, STATUS, visibleModules } from '@ai/core';
 import type { BuildState, Db, Learner, RuntimeState, Tier } from '@ai/core';
 
 export type LearnersTab = 'learners' | 'teams';
@@ -309,5 +309,141 @@ export function learnersVM(db: Db, now: number, ui: LearnersUi = LEARNERS_UI): L
         rows[i]?.status ?? '',
       ]),
     ]),
+  };
+}
+
+// ================================================================================================
+// R2 (D-160 R2-3): Learners & Teams on the signed-off Admin redesign (AdminRedesign.jsx `Learners`).
+// The same snapshot and the same `db.base` rule as above; the words are the mockup's, its times MST
+// (`adminStamp`, BUILD-SPEC § 7). Rows keep the snapshot's order (the table's headers sort them).
+// ================================================================================================
+
+export type R2TierFilter = 'All tiers' | 'Agent' | 'Team';
+export const R2_TIER_FILTERS: readonly R2TierFilter[] = ['All tiers', 'Agent', 'Team'];
+
+export interface LearnerR2Row {
+  id: string;
+  name: string;
+  email: string;
+  initials: string;
+  /** The team's name, or `Individual`. */
+  team: string;
+  tier: 'Agent' | 'Team';
+  /** Builds deployed, of the builds open to the learner's tier now. */
+  deployed: number;
+  of: number;
+  /** `Dec 10, 8:52 AM`, `Invite pending`, or `—`. */
+  last: string;
+  /** For sorting Last active. */
+  lastAt: number;
+}
+
+export interface TeamR2Row {
+  id: string;
+  name: string;
+  owner: string;
+  /** `16 seats`. */
+  plan: string;
+  used: number;
+  seats: number;
+  /** `None` or `2 pending`. */
+  invites: string;
+}
+
+export interface LearnersR2VM {
+  learnersCount: number;
+  teamsCount: number;
+  /** The cohort has opened: before then every learner's builds read "Not started". */
+  started: boolean;
+  rows: LearnerR2Row[];
+  teams: TeamR2Row[];
+}
+
+export function learnersR2VM(db: Db, now: number, ui: { tier: R2TierFilter; q: string }): LearnersR2VM {
+  const base = db.base;
+  const cohort = db.cohorts.find((c) => c.id === 'dec26') ?? db.cohorts[0] ?? null;
+  const open = visibleModules(db).filter((m) => isOpen(m, now));
+  const teamOf = (u: Learner) => (u.teamId ? db.teams.find((t) => t.id === u.teamId) : undefined);
+  const ql = ui.q.trim().toLowerCase();
+
+  const rows = db.users
+    .filter((u) => (ui.tier === 'All tiers' || (u.tier === 'team' ? 'Team' : 'Agent') === ui.tier))
+    .filter((u) => !ql || (u.name + u.email + (teamOf(u)?.name ?? '')).toLowerCase().includes(ql))
+    .map((u): LearnerR2Row => {
+      const acc = open.filter((m) => canAccess(u, m));
+      const invited = u.status === 'invited';
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        initials: fmt.initials(u.name),
+        team: teamOf(u)?.name ?? 'Individual',
+        tier: u.tier === 'team' ? 'Team' : 'Agent',
+        deployed: acc.filter((m) => statusOf(u, m) === 'deployed').length,
+        of: acc.length,
+        last: invited ? 'Invite pending' : u.last ? adminStamp(u.last) : '—',
+        lastAt: u.last ?? 0,
+      };
+    });
+
+  const teams = db.teams.map((t): TeamR2Row => {
+    const members = db.users.filter((u) => u.teamId === t.id);
+    const pending = members.filter((u) => u.status === 'invited').length;
+    return {
+      id: t.id,
+      name: t.name,
+      owner: db.users.find((u) => u.id === t.ownerId)?.name ?? '—',
+      plan: `${t.seats} seats`,
+      used: members.length,
+      seats: t.seats,
+      invites: pending ? `${pending} pending` : 'None',
+    };
+  });
+
+  return {
+    learnersCount: base.learners + db.users.length,
+    teamsCount: base.teams + db.teams.length,
+    started: !!cohort && now >= cohort.start,
+    rows,
+    teams,
+  };
+}
+
+/** A learner's details, as the R2 drawer shows them (the old drawer's, its times MST). */
+export interface LearnerR2Details {
+  facts: { label: string; value: string }[];
+  mods: { id: string; name: string; build: string; buildTone: 'ok' | 'info' | 'off'; runtime: string | null; access: boolean }[];
+}
+
+export function learnerR2Details(db: Db, p: DrawerPerson): LearnerR2Details {
+  const u = db.users.find((x) => x.id === p.id);
+  const team = u?.teamId ? db.teams.find((t) => t.id === u.teamId) : undefined;
+  const RUNTIME: Record<RuntimeState, string | null> = {
+    deployed: 'Deployed',
+    paused: 'Paused',
+    needs_attention: 'Needs Attention',
+    not_deployed: null,
+  };
+  return {
+    facts: [
+      { label: 'Tier', value: u?.tier === 'team' ? 'Team' : 'Agent' },
+      { label: 'Team', value: team?.name ?? 'Individual' },
+      { label: 'Joined', value: !u || u.status === 'invited' ? 'Invite pending' : adminDate(u.joined) },
+      { label: 'Last active', value: u?.last ? adminStamp(u.last) : '—' },
+    ],
+    mods: p.mods.map((m) => ({
+      id: m.id,
+      name: m.name,
+      access: m.access,
+      build: !m.access
+        ? 'Team Tier'
+        : m.build.state === 'verified'
+          ? 'Built'
+          : m.build.state === 'in_progress'
+            ? `${m.build.n} of ${m.build.total} Steps`
+            : 'Not Started',
+      buildTone: !m.access ? 'off' : m.build.state === 'verified' ? 'ok' : m.build.state === 'in_progress' ? 'info' : 'off',
+      runtime: m.access ? RUNTIME[m.runtime] : null,
+    })),
   };
 }

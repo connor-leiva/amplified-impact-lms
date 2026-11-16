@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { seed } from '@ai/core';
-import { INCIDENTS, INV, MODS0_STATUS, PARITY_R2, STAFF, UPGRADE_REQUESTS, USERS, WS, mockCents, mockStamp, readParityR2 } from './parity-r2';
+import { INCIDENTS, INV, MODS0_STATUS, PARITY_R2, STAFF, UPGRADE_REQUESTS, SUPPORT_USERS, SUPPORT_WS, mockCents, mockStamp, readParityR2 } from './parity-r2';
 import { ENVIRONMENT, PROGRAM, initials, shellDataFrom, shellDataFromParity } from './admin-shell';
 
 // D-160 R2-1b: the R2 parity fixture is the mockup's own data, and the shell's data otherwise comes
@@ -66,8 +66,8 @@ describe('the admin shell’s data (D-160 R2-1b)', () => {
 
 describe('the Support records (D-160 R2-1c): the mockup’s WS, USERS and INV, and its stamps', () => {
   it('copies the mockup’s records', () => {
-    expect(WS.map((w) => w.id)).toEqual(['ws_northshore', 'ws_halemarlowe', 'ws_redcliff', 'ws_copperbasin', 'ws_tidewater', 'ws_lantern', 'ws_fourthmeridian']);
-    expect(USERS.map((u) => u.id)).toEqual(['u_1042', 'u_1043', 'u_1061', 'u_1077', 'u_1090', 'u_1104', 'u_1118', 'u_1125']);
+    expect(SUPPORT_WS.map((w) => w.id)).toEqual(['ws_northshore', 'ws_halemarlowe', 'ws_redcliff', 'ws_copperbasin', 'ws_tidewater', 'ws_lantern', 'ws_fourthmeridian']);
+    expect(SUPPORT_USERS.map((u) => u.id)).toEqual(['u_1042', 'u_1043', 'u_1061', 'u_1077', 'u_1090', 'u_1104', 'u_1118', 'u_1125']);
     expect(INV).toHaveLength(6);
   });
 

@@ -1,0 +1,376 @@
+// The R2 parity snapshot (D-160 R2-2, BUILD-SPEC § 6.1): the mockup's Build data (`MODS0`, the
+// Module Builder's steps and files, the cohort and its sessions) as the app's own snapshot, so the
+// Curriculum and Module Builder screens draw the mockup's rows from the same view-models production
+// uses. FIXTURE ONLY: `boot.ts` imports this file dynamically behind
+// `import.meta.env.VITE_DATA_SOURCE === 'fixture'` and `?parity=r2`, so the http build has none of it
+// (`console-build.test.ts`).
+//
+// Everything not drawn by the R2 screens is the ordinary fixture's (`seed('live')`). R2-3 adds the
+// learners, teams, tiers, upgrade requests, staff and activity its screens read (`USERS`, `WS`, `T`,
+// `req`, `STAFF`); every Deployed figure is the baseline plus those learners' builds, and the baseline
+// is chosen so each prints the mockup's `dep` (66 of 100 is 66%).
+//
+// ONE SCREEN'S OWN FIGURES (R2-3). The mockup hard-codes each screen's numbers, and the Overview's
+// disagree with Curriculum's (its funnel has Week 1 at 33 of 44, 75%; Curriculum has 74%) and with
+// themselves (190 deployed, a funnel that adds to 200). So the Overview (`/admin`) gets its own
+// baseline: `overviewDb` gives it the funnel's, the chart's and the "+6" aggregates, opens the
+// Database AI Employee its funnel lists, and leaves the modelled learners' builds out of it. Every
+// figure is still the production view-model's, printed from this snapshot.
+
+import { seed } from '@ai/core';
+import type {
+  AIEmployee,
+  Announcement,
+  AuditRow,
+  Db,
+  IconName,
+  Learner,
+  Progress,
+  Resource,
+  Session,
+  SkillFile,
+  Staff,
+  Step,
+  StepKind,
+  Team,
+  TierDef,
+  UpgradeRequest,
+} from '@ai/core';
+import {
+  ANNOUNCEMENTS,
+  AUDIT0,
+  BUILDER_FILES,
+  BUILDER_STEPS,
+  MODS0,
+  OVERVIEW_ACTIVITY,
+  OVERVIEW_FUNNEL,
+  OVERVIEW_PTS,
+  OVERVIEW_RECENT,
+  STAFF,
+  TIER_CARDS,
+  UPGRADE_REQUESTS,
+  USERS,
+  VAULT,
+  WS,
+} from './parity-r2';
+
+/** An instant written in MST (America/Phoenix, UTC−7 all year). */
+const mst = (s: string): number => Date.parse(`${s}-07:00`);
+
+const COHORT = 'dec26';
+
+/** The cohort's six live builds (the mockup's Cohorts `S`), Wednesdays at 12:00 PM MST. */
+const SESSIONS: readonly [title: string, day: string, zoom: boolean, attended: number | null][] = [
+  ['Lead-Source ROI Live Build', '2026-12-02', true, 121],
+  ['Morning Brief Live Build', '2026-12-09', true, 109],
+  ['Database Live Build', '2026-12-16', true, null],
+  ['Scorecard Live Build', '2026-12-23', true, null],
+  ['Contract to Close', '2026-12-30', false, null],
+  ['Handoff', '2027-01-06', false, null],
+];
+
+const ICON = (ic: string): IconName => `r2${ic[0]!.toUpperCase()}${ic.slice(1)}` as IconName;
+const OPENS: Record<string, number> = {
+  'Opens Dec 14': mst('2026-12-14T09:00:00'),
+  'Opens Dec 21': mst('2026-12-21T09:00:00'),
+};
+
+const steps = (n: number): Step[] =>
+  Array.from({ length: n }, (_, i) => ({ id: `c${i + 1}`, text: `Step ${i + 1}`, ch: '', mins: 5, t: 0, hint: '' }));
+const files = (n: number): SkillFile[] =>
+  Array.from({ length: n }, (_, i) => ({
+    name: `file-${i + 1}.json`,
+    type: 'JSON',
+    size: '1 KB',
+    desc: '',
+    steps: [],
+  }));
+
+function moduleOf(m: (typeof MODS0)[number], i: number): AIEmployee {
+  const first = m.id === 'm1';
+  return {
+    id: m.id,
+    name: m.n,
+    short: m.n.replace(/ AI Employee$/, ''),
+    tier: m.tier === 'both' ? 'agent' : 'team',
+    icon: ICON(m.ic),
+    forWho: '',
+    headline: '',
+    outcome: m.d,
+    outputs: ['', '', ''],
+    platform: 'Claude Project',
+    runLabel: '',
+    build: 0,
+    session: m.ses ? Number(/^Session (\d+)/.exec(m.ses[0])![1]) : null,
+    status: m.st === 'Published' ? 'published' : m.st === 'Scheduled' ? 'scheduled' : 'draft',
+    opens: 'opens' in m ? OPENS[m.opens]! : null,
+    order: i + 1,
+    dur: 0,
+    instructor: '',
+    transcript: [],
+    notes: '',
+    prompt: '',
+    files: first
+      ? BUILDER_FILES.map(([name, desc, size]) => ({ name, type: 'JSON', size, desc, steps: [] }))
+      : files(m.files),
+    resources: [],
+    checklist: first
+      ? BUILDER_STEPS.map(([kind, text, len], j) => ({
+          id: `c${j + 1}`,
+          text,
+          ch: '',
+          mins: Number.parseInt(len, 10),
+          t: 0,
+          hint: '',
+          kind: kind as StepKind,
+        }))
+      : steps(m.steps),
+  };
+}
+
+const MONTHS: Record<string, string> = { Nov: '11', Dec: '12' };
+/** "Dec 9, 3:10 PM" or "Dec 8" (9:00 AM), in 2026, MST. */
+function stamp(s: string): number {
+  const m = /^(\w{3}) (\d+)(?:, (\d+):(\d+) (AM|PM))?$/.exec(s)!;
+  const h = m[3] ? (Number(m[3]) % 12) + (m[5] === 'PM' ? 12 : 0) : 9;
+  const pad = (n: number | string) => String(n).padStart(2, '0');
+  return mst(`2026-${MONTHS[m[1]!]}-${pad(m[2]!)}T${pad(h)}:${pad(m[4] ?? 0)}:00`);
+}
+
+/** The vault (`R`): each row attached to its AI Employee by name. */
+const resourceOf = (
+  [title, type, attached, tier, size, updated, opens]: (typeof VAULT)[number],
+  i: number,
+): Resource => ({
+  id: `r${i + 1}`,
+  title,
+  desc: '',
+  cat: 'Lead Generation Scripts',
+  type,
+  tier: tier === 'Team only' ? 'team' : 'agent',
+  size,
+  dl: opens,
+  updated: stamp(updated),
+  exec: false,
+  status: 'published',
+  module: MODS0.find((m) => m.n === attached)!.id,
+});
+
+const AUDIENCE: Record<string, Announcement['audience']> = {
+  Everyone: 'all',
+  'Team Tier': 'team',
+  'Agent Tier': 'agent',
+};
+const CHANNELS: Record<string, Announcement['channels']> = {
+  'In-app, email': ['inapp', 'email'],
+  Email: ['email'],
+  'In-app': ['inapp'],
+};
+
+/** Announcements (`rows`), newest first as `sendAnnouncement` keeps them. A draft has no send time. */
+const announcementOf = (
+  [title, audience, channels, status, at]: (typeof ANNOUNCEMENTS)[number],
+  i: number,
+): Announcement => ({
+  id: `a${i + 1}`,
+  title,
+  body: '',
+  severity: 'info',
+  action: null,
+  actionLabel: '',
+  audience: AUDIENCE[audience]!,
+  channels: CHANNELS[channels]!,
+  status: status === 'Sent' ? 'sent' : status === 'Scheduled' ? 'scheduled' : 'draft',
+  at: at === '—' ? stamp('Dec 10, 9:00 AM') : stamp(at),
+  opens: null,
+});
+
+/** `STAFF`: the viewer (the fixture's admin persona, `st1`) is the Owner, Connor Leiva. */
+const staffOf = (st: (typeof STAFF)[number], i: number): Staff => ({
+  id: `st${i + 1}`,
+  name: st.n,
+  email: st.e,
+  role: st.role,
+  last: stamp(st.last),
+});
+
+/** Builds deployed, first to last, by each learner: the open builds of their tier, in curriculum order. */
+const OPEN_TEAM = ['m1', 'm2', 'm3', 'm4', 'm5'] as const;
+const OPEN_AGENT = ['m1', 'm4'] as const;
+
+function learnerOf(u: (typeof USERS)[number]): Learner {
+  const team = u.tier === 'Team';
+  const open: readonly string[] = team ? OPEN_TEAM : OPEN_AGENT;
+  const at = mst('2026-12-08T10:00:00');
+  const progress: Record<string, Progress> = Object.fromEntries(
+    open.slice(0, u.pr).map((id) => [
+      id,
+      { steps: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], builtAt: at, deployedAt: at, runtime: 'deployed' } satisfies Progress,
+    ]),
+  );
+  return {
+    id: u.id,
+    name: u.n,
+    email: u.e,
+    tier: team ? 'team' : 'agent',
+    role: u.role === 'Team owner' ? 'Team Owner' : 'Agent',
+    teamId: u.ws,
+    cohortId: COHORT,
+    joined: mst('2026-11-20T09:00:00'),
+    last: stamp(u.last),
+    status: 'active',
+    progress,
+  };
+}
+
+const teamOf = ([id, name, ownerId, seats]: (typeof WS)[number]): Team => ({ id, name, ownerId, seats });
+
+const tierOf = ([id, name, seats, price, blurb, features]: (typeof TIER_CARDS)[number]): TierDef => ({
+  id,
+  name,
+  seats,
+  price,
+  blurb,
+  features: [...features],
+});
+
+/** Tiers' requests (`req`): both pending ones new, the approved one converted. */
+const requestOf = ([name, ask, , at, st]: (typeof UPGRADE_REQUESTS)[number], i: number): UpgradeRequest => ({
+  id: `ur${i + 1}`,
+  userId: USERS.find((u) => u.n === name)?.id ?? null,
+  name,
+  email: `${name.split(' ')[0]!.toLowerCase()}@example.com`,
+  source: 'Team tier page',
+  at: stamp(at),
+  status: st === 'Pending' ? 'new' : 'converted',
+  ask,
+});
+
+/**
+ * The curriculum's baseline: each published AI Employee's `dep` of 100, the modelled learners' builds
+ * included (every learner may open m1 and m4; the five on Team Tier m2, m3 and m5 too).
+ */
+const CURRICULUM_BASE: Db['base']['mod'] = {
+  m1: [59, 34, 0],
+  m2: [87, 8, 0],
+  m3: [71, 24, 0],
+  m4: [32, 61, 0],
+  m5: [37, 58, 0],
+};
+
+/** The Overview's own figures (see above). */
+function overviewDb(db: Db): Db {
+  const pool = (id: string) => db.users.filter((u) => db.modules.find((m) => m.id === id)!.tier === 'agent' || u.tier === 'team').length;
+  for (const u of db.users) u.progress = {};
+  const m6 = db.modules.find((m) => m.id === 'm6')!;
+  Object.assign(m6, { status: 'published', opens: null });
+  db.base = {
+    ...db.base,
+    mod: {
+      ...Object.fromEntries(OVERVIEW_FUNNEL.map(([id, d, p, n]) => [id, [d, p, n - d - p - pool(id)]])),
+      // Week 0 is open, and counts toward the builds available, but nobody has started it.
+      m2: [0, 0, 44 - pool('m2')],
+    },
+    daily: [...OVERVIEW_PTS],
+    recent: OVERVIEW_RECENT,
+  };
+  return db;
+}
+
+/**
+ * The parity snapshot: the ordinary fixture with the mockup's data in place. `path` is the address the
+ * tab opened on: the Overview (`/admin`) gets its own figures (see above).
+ */
+export function parityDb(path = '/admin/curriculum'): Db {
+  const db = seed('live');
+  const cohort = db.cohorts.find((c) => c.id === COHORT)!;
+  Object.assign(cohort, {
+    name: 'December 2026',
+    start: mst('2026-12-02T12:00:00'),
+    end: mst('2027-01-06T13:00:00'),
+    weeks: 6,
+    status: 'live',
+    enrolled: 148,
+    cadence: 'Wednesdays, weekly',
+  });
+  db.cohorts = [cohort];
+  db.sessions = SESSIONS.map(([title, day, zoom, attended], i): Session => ({
+    id: `${COHORT}-s${i + 1}`,
+    cohortId: COHORT,
+    n: i + 1,
+    title,
+    start: mst(`${day}T12:00:00`),
+    mins: 60,
+    zoom: zoom ? `https://zoom.us/j/88412${String(i + 1).padStart(5, '0')}` : '',
+    live: false,
+    attended,
+    replay: attended !== null ? 'ready' : null,
+    views: 0,
+  }));
+  db.modules = MODS0.map(moduleOf);
+  db.resources = VAULT.map(resourceOf);
+  db.announcements = ANNOUNCEMENTS.map(announcementOf);
+  db.users = USERS.map(learnerOf);
+  db.teams = WS.map(teamOf);
+  db.tiers = TIER_CARDS.map(tierOf);
+  db.requests = UPGRADE_REQUESTS.map(requestOf);
+  db.staff = STAFF.map(staffOf);
+  const now = mst('2026-12-10T09:30:00');
+  db.activity = OVERVIEW_ACTIVITY.map(([who, what, mins, tone], i) => ({
+    id: `ev${i + 1}`,
+    t: now - mins * 60e3,
+    who,
+    what,
+    tone,
+  }));
+  db.base = {
+    ...db.base,
+    // 148 enrolled: these 141 and the seven modelled learners, 104 on Agent Tier and 44 Team seats.
+    learners: 141,
+    agent: 102,
+    teamSeats: 39,
+    teams: 0,
+    mod: { ...CURRICULUM_BASE },
+  };
+  return path.replace(/\/+$/, '') === '/admin' ? overviewDb(db) : db;
+}
+
+const AUDIT_TARGET: Record<string, string> = {
+  job: 'job',
+  masquerade: 'user',
+  audit: 'audit_log',
+  module: 'module',
+  permission: 'role',
+  tier: 'module',
+  email_log: 'email_log',
+  billing: 'invoice',
+};
+
+/**
+ * The Audit Log's rows (`AUDIT0`, R2-3b), as the console fixture serves them for `?parity=r2`. Each
+ * detail is the row's reason, but the export's, which the screen words from what was exported (its
+ * rows and its seven days), as it does for every export.
+ */
+export function parityAuditRows(): AuditRow[] {
+  return AUDIT0.map(([at, actor, action, target, detail], i): AuditRow => {
+    const t = stamp(at);
+    const st = STAFF.findIndex((s) => s.n === actor);
+    const group = action.split('.')[0]!;
+    const exp = action === 'audit.export';
+    return {
+      id: String(2000 - i),
+      at: t,
+      actor: { userId: `st${st + 1}`, name: actor, role: STAFF[st]!.role, source: 'staff' },
+      masqueradeSessionId: group === 'masquerade' ? 'msq_0412' : null,
+      action: action as AuditRow['action'],
+      target: { type: AUDIT_TARGET[group] ?? null, id: null, label: target },
+      reason: exp ? null : detail,
+      before: null,
+      after: exp ? { rows: 212, format: 'csv', filters: { from: t - 7 * 864e5 } } : null,
+      outcome: action === 'masquerade.blocked_action' ? 'blocked' : 'ok',
+      ip: '203.0.113.24',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+      requestId: `req-${(9000 - i * 37).toString(36)}`,
+    };
+  });
+}

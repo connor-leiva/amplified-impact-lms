@@ -46,7 +46,7 @@ describe('the R2 admin nav (D-160 R2-1b)', () => {
     for (const g of R2_GROUPS) expect(ICONS[GROUP_ICON[g]], g).toBeTruthy();
   });
 
-  it('shows only built screens outside the parity fixture, and keeps Staff & Roles until R2-3', () => {
+  it('shows only built screens outside the parity fixture, and keeps Staff & Roles under Access (D11)', () => {
     // R2-1c part 1 turns on Workspaces.
     expect(labels(nav({ fullNav: false }))).toEqual([
       ['Health', 'Overview'],

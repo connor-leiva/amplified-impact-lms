@@ -18,6 +18,8 @@ import { fixtureRole } from './boot';
 import { ConsoleError } from './console';
 import type { ConsoleApi } from './console';
 import { fixtureNoteTargetExists, fixtureRecords, fixtureSearch, fixtureUser, fixtureUserRows, fixtureWorkspace, fixtureWorkspaceRows } from './console-fixture-records';
+import { readParityR2 } from './parity-r2';
+import { parityAuditRows } from './parity-r2-db';
 
 export const FIXTURE_CONSOLE_STATES = ['loading', 'empty', 'error', 'rate_limited'] as const;
 export type FixtureConsoleState = (typeof FIXTURE_CONSOLE_STATES)[number];
@@ -113,8 +115,12 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   const state = opts.state !== undefined ? opts.state : readState(qs);
   const staff = opts.staff ?? fixtureRole === 'admin';
   const now = opts.now ?? (() => clock.now());
-  let rows = fixtureAuditRows(now());
-  let next = 1001;
+  // The R2 parity fixture (D-160 R2-3b, `?parity=r2`): the mockup's ten rows (`AUDIT0`), answered
+  // whatever the date range, as the mockup draws them under "Last 7 days" (one of them, Nov 1, is
+  // older; the server would leave it out). Every other filter applies.
+  const parity = readParityR2() !== null;
+  let rows = parity ? parityAuditRows() : fixtureAuditRows(now());
+  let next = parity ? 2001 : 1001;
   const records = fixtureRecords();
   let noteId = 100;
 
@@ -153,7 +159,8 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         need('audit.read');
         if (state === 'empty') return { rows: [], nextCursor: null };
         const redact = auditRedactsNetwork(role);
-        const all = rows.filter((r) => matches(r, filters) && (!cursor || Number(r.id) < Number(cursor)));
+        const f = parity ? { ...filters, from: undefined, to: undefined } : filters;
+        const all = rows.filter((r) => matches(r, f) && (!cursor || Number(r.id) < Number(cursor)));
         const pageRows = all.slice(0, CONSOLE_PAGE_DEFAULT).map((r) => (redact ? { ...r, ip: null, userAgent: null } : r));
         return { rows: pageRows, nextCursor: all.length > CONSOLE_PAGE_DEFAULT ? pageRows[pageRows.length - 1]!.id : null };
       }),

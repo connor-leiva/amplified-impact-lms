@@ -4,7 +4,8 @@ import clsx from 'clsx';
 import { Link } from 'react-router';
 import type { AdminStatus, SeatBar } from '@ai/core';
 import { Icon } from '../Icon';
-import { ButtonLink } from './Button';
+import { Button, ButtonLink } from './Button';
+import { Empty } from './Empty';
 import k from './kit.module.css';
 
 // The R2 kit's small pieces (D-160 R2-1c), each the mockup's own (AdminRedesign.jsx): the page head
@@ -71,11 +72,146 @@ export function Pill({
   return <span className={clsx(k.pl, PILL_TONE[tone ?? status?.tone ?? 'neutral'])}>{children ?? status?.label}</span>;
 }
 
-/** `Bar`: 6px, green; amber when nearly full; grey when a fixed-seat plan is full. Never red. */
-export function Bar({ pct, kind = 'ok' }: { pct: number; kind?: SeatBar }) {
+/**
+ * `Bar`: 6px, green; amber when nearly full; grey when a fixed-seat plan is full. Never red. `pct2`
+ * is a second, blue segment after the first (the Overview funnel's "In progress", R2-3).
+ */
+export function Bar({ pct, pct2, kind = 'ok' }: { pct: number; pct2?: number; kind?: SeatBar }) {
   return (
     <span className={clsx(k.bar, kind === 'hot' && k.hot, kind === 'full' && k.full)}>
       <i style={{ width: `${pct}%` }} />
+      {pct2 !== undefined ? <i className={k.b2} style={{ width: `${pct2}%` }} /> : null}
+    </span>
+  );
+}
+
+/**
+ * `Stat` (R2-3): a KPI tile, the label over the figure over a muted line, which `tone` colours. A tile
+ * that goes somewhere is a link to it, drawn as the mockup's `button.stat`.
+ */
+export function Stat({
+  label,
+  value,
+  sub,
+  tone,
+  to,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: 'ok' | 'warn' | null;
+  to?: string | null;
+}) {
+  const body = (
+    <>
+      <span className={clsx(k.mu, k.stl)}>{label}</span>
+      <span className={k.fig}>{value}</span>
+      {sub ? <span className={clsx(k.me, tone === 'ok' && k.toneOk, tone === 'warn' && k.toneWarn)}>{sub}</span> : null}
+    </>
+  );
+  return to ? (
+    <Link to={to} className={clsx(k.cd, k.stat, k.go)}>
+      {body}
+    </Link>
+  ) : (
+    <div className={clsx(k.cd, k.stat)}>{body}</div>
+  );
+}
+
+/** `Skel` (R2-3): a card of shimmering lines while a screen loads (the mockup's `Gate` loading state). */
+export function Skel({ lines = 5 }: { lines?: number }) {
+  return (
+    <div className={clsx(k.cd, k.skel)} role="status" aria-busy="true" aria-label="Loading">
+      {Array.from({ length: lines }).map((_, i) => (
+        <div key={i} className={k.sk} style={{ width: `${88 - i * 12}%` }} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * `ErrorState` (R2-3b): the mockup's `ErrBox`, a list that didn't load, its words the Console's own
+ * (`errorCopy`: "Too many requests." on a 429), and Retry.
+ */
+export function ErrorState({ copy, onRetry }: { copy: { title: string; body: string; retry: string }; onRetry: () => void }) {
+  return (
+    <Empty icon="r2Incidents" tone="bad" role="alert" title={copy.title} body={copy.body}>
+      <Button icon="r2Refresh" className={k.retry} onClick={onRetry}>
+        {copy.retry}
+      </Button>
+    </Empty>
+  );
+}
+
+/**
+ * `TapCheck` (R2-3a): a checkbox in a 44px target, for a phone. The box is drawn by a decorative
+ * checkbox; the real control is a transparent one over the whole target (the table's phone pattern).
+ */
+export function TapCheck({
+  label,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <span className={k.tapBox}>
+      <input type="checkbox" className={k.chk} checked={checked} disabled={disabled} readOnly tabIndex={-1} aria-hidden="true" />
+      <input type="checkbox" className={k.hit} aria-label={label} checked={checked} disabled={disabled} onChange={onChange} />
+    </span>
+  );
+}
+
+/**
+ * `CheckCell` (R2-3b): a permission matrix's box and its word ("Yes", "No"), read-only (D11): every
+ * box is disabled. A box fixed by product rules carries the lock and says so in its title and
+ * accessible name. On a phone the word comes first ("Allowed", "Not allowed"), as the mockup's card.
+ */
+export function CheckCell({
+  label,
+  on,
+  locked,
+  word,
+  phone,
+}: {
+  /** The box's accessible name: `{capability}, {role}`. */
+  label: string;
+  on: boolean;
+  locked?: boolean;
+  word: string;
+  phone?: boolean;
+}) {
+  const box = (
+    <input
+      type="checkbox"
+      className={k.chk}
+      checked={on}
+      disabled
+      readOnly
+      aria-label={locked ? `${label}. Fixed by product rules` : label}
+    />
+  );
+  const group = locked ? (
+    <span className={clsx(k.row, k.nw, k.mu, k.lockGroup)}>
+      {box}
+      <Icon name="r2Lock" size={14} strokeWidth={1.75} />
+    </span>
+  ) : (
+    box
+  );
+  return phone ? (
+    <span className={clsx(k.row, k.nw, k.check)} title={locked ? 'Fixed by product rules' : undefined}>
+      {word}
+      {group}
+    </span>
+  ) : (
+    <span className={clsx(k.row, k.nw, k.check)} title={locked ? 'Fixed by product rules' : undefined}>
+      {group}
+      <span className={k.mu}>{word}</span>
     </span>
   );
 }
@@ -103,6 +239,20 @@ export const breakAt = (s: string): ReactNode =>
       ))
     : s;
 
+/** Hyphenated words stay whole when the line wraps ("Fair-Housing-checked"): the mockup's `nb` (R2-2). */
+export const keepHyphens = (s: string): ReactNode =>
+  s.includes('-')
+    ? s.split(/(\S+-\S+)/).map((p, i) =>
+        i % 2 ? (
+          <span key={i} className={k.nowrap}>
+            {p}
+          </span>
+        ) : (
+          p
+        ),
+      )
+    : s;
+
 /** `Two`: a name over a muted second line. `to` makes the name a link. */
 export function Two({ a, b, mono, to }: { a: string; b: string; mono?: boolean; to?: string }) {
   return (
@@ -120,11 +270,11 @@ export function Two({ a, b, mono, to }: { a: string; b: string; mono?: boolean; 
 }
 
 /** `Facts`: the key-facts strip. */
-export function Facts({ items }: { items: readonly { label: string; value: ReactNode }[] }) {
+export function Facts({ items }: { items: readonly { label: string; value: ReactNode; wide?: boolean }[] }) {
   return (
     <div className={k.fx}>
       {items.map((f) => (
-        <div key={f.label}>
+        <div key={f.label} className={f.wide ? k.fxw : undefined}>
           <span className={k.me}>{f.label}</span>
           <span className={clsx(k.w5, k.el)}>{f.value}</span>
         </div>

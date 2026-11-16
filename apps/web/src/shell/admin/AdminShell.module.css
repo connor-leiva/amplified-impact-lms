@@ -403,14 +403,6 @@
   color: var(--r2-ink);
 }
 
-/* TRANSITIONAL (D-160 R2-1b, legacy.ts): on a screen not yet rebuilt, the old frame's content box,
-   a 248px sidebar and a 56px top bar, so `main` keeps the size its prototype golden was taken at.
-   Each R2 PR drops its screens from the list; when it is empty this rule goes. */
-.frame[data-legacy-geometry='true'] {
-  --r2-sidebar: 248px;
-  --r2-bar-h: 56px;
-}
-
 /* `.main`: the one scroll container. */
 .main {
   flex: 1;
@@ -418,19 +410,6 @@
   min-height: 0;
   scrollbar-gutter: stable;
 }
-/* An admin screen not yet rebuilt on R2 keeps the type and canvas it had in the old shell, so only
-   its frame changes until its own R2 PR (D-160 R2-1b, legacy.ts). */
-.main[data-legacy='true'] {
-  font-family: var(--font-ui);
-  font-size: var(--fs-14);
-  line-height: 1.45;
-  color: var(--text-primary);
-  background: var(--bg-canvas);
-  hyphens: manual;
-  -webkit-hyphens: manual;
-  scrollbar-gutter: auto;
-}
-
 /* ---- the phone drawer (`.scrim`, `.drw`) ----------------------------------------------------- */
 
 .scrim {

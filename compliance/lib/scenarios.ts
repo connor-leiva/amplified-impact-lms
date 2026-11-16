@@ -222,69 +222,11 @@ export const SCENARIOS: Scenario[] = [
   }),
   S({ id: 'tier-agent', gate: 5, role: 'agent', ref: 'upgrade', path: '/team-tier' }),
 
-  // Phase 06: admin console. Each compares `main` only: the `page` region (the whole viewport, the
-  // admin sidebar in it) was dropped by D-160 R2-1b, because the R2 shell replaced the prototype's and
-  // is compared with the signed-off mockup by `pnpm parity:admin-r2` (Connor, Nov 16, 2026). Each
-  // scenario retires in the R2 PR that rebuilds its screen.
-  ...(
-    [
-      ['overview', '/admin'],
-      ['curriculum', '/admin/curriculum'],
-      ['builder/marketing', '/admin/curriculum/marketing'],
-      ['builder', '/admin/curriculum/new'],
-      ['cohorts', '/admin/cohorts'],
-      ['learners', '/admin/learners'],
-      ['avault', '/admin/vault'],
-      ['announce', '/admin/announcements'],
-      ['tiers', '/admin/tiers'],
-      ['staff', '/admin/staff'],
-    ] as const
-  ).map(([ref, path]) => S({ id: `admin-${ref.replace('/', '-') || 'new'}`, gate: 6, role: 'admin', ref, path, regions: ['main'] })),
-  S({
-    id: 'admin-builder-locked',
-    gate: 6,
-    role: 'admin',
-    ref: 'builder/meetings',
-    path: '/admin/curriculum/meetings',
-    actions: [{ click: { role: 'button', name: 'Locked Preview' } }],
-    regions: ['main'],
-  }),
-  S({
-    id: 'admin-cohorts-edit',
-    gate: 6,
-    role: 'admin',
-    ref: 'cohorts',
-    path: '/admin/cohorts',
-    actions: [{ click: { role: 'button', name: 'Edit', nth: 2 } }],
-    regions: ['drawer'],
-  }),
-  S({
-    id: 'admin-learners-teams',
-    gate: 6,
-    role: 'admin',
-    ref: 'learners',
-    path: '/admin/learners',
-    actions: [{ click: { role: 'button', name: 'Teams' } }],
-    regions: ['main'],
-  }),
-  S({
-    id: 'admin-learner-drawer',
-    gate: 6,
-    role: 'admin',
-    ref: 'learners',
-    path: '/admin/learners',
-    actions: [{ click: { role: 'row', name: /Jamie Ortiz/ } }],
-    regions: ['drawer'],
-  }),
-  S({
-    id: 'admin-vault-upload',
-    gate: 6,
-    role: 'admin',
-    ref: 'avault',
-    path: '/admin/vault',
-    actions: [{ click: { role: 'button', name: 'Upload Resource' } }],
-    regions: ['drawer'],
-  }),
-  S({ id: 'admin-overview-dark', gate: 6, role: 'admin', ref: 'overview', path: '/admin', theme: 'dark', regions: ['main'] }),
-  S({ id: 'admin-overview-laptop', gate: 6, role: 'admin', ref: 'overview', path: '/admin', viewport: 'laptop', regions: ['main'] }),
+  // Phase 06: admin console. Every admin scenario is retired: the R2 PRs rebuilt each admin screen on
+  // the signed-off mockup, which `pnpm parity:admin-r2` compares them with instead (Connor, Nov 16,
+  // 2026). R2-1b retired `shell-admin` and each admin scenario's `page` region; R2-2a `admin-curriculum`,
+  // `admin-builder`, `admin-builder-marketing` and `admin-builder-locked`; R2-2b `admin-cohorts`,
+  // `admin-cohorts-edit`, `admin-avault`, `admin-vault-upload` and `admin-announce`; and R2-3a the last
+  // eight, `admin-overview`, `admin-overview-dark`, `admin-overview-laptop`, `admin-learners`,
+  // `admin-learners-teams`, `admin-learner-drawer`, `admin-tiers` and `admin-staff` (D-160).
 ];

@@ -13,7 +13,14 @@ const WEB = fileURLToPath(new URL('../..', import.meta.url));
 const CORE = (p: string) => fileURLToPath(new URL(`../../../../packages/core/src/${p}`, import.meta.url));
 
 /** Strings only `console-fixture.ts` holds: its two query parameters and its documentation addresses. */
-const SENTINELS = ['console-role', 'console-state', '203.0.113.'];
+const SENTINELS = [
+  'console-role',
+  'console-state',
+  '203.0.113.',
+  // R2-3b: the parity fixture's audit rows (`AUDIT0`).
+  'in_1QxK5fFm0270',
+  'Customer cannot see the Session 2 replay',
+];
 
 async function bundle(mode: 'production' | 'fixture', entry = './console.ts'): Promise<string> {
   const out = (await build({
@@ -66,7 +73,7 @@ describe('the Console fixture is not in the http build (D-157)', () => {
 const PARITY_SENTINELS = ['Connor Leiva', 'INC-0007', 'Kenji Watanabe', 'December 2026 Cohort'];
 
 describe('the R2 parity fixture is not in the http build (D-160 R2-1b)', () => {
-  it('the http build of the admin shell\'s data has none of it', async () => {
+  it("the http build of the admin shell's data has none of it", async () => {
     const code = await bundle('production', './admin-shell.ts');
     expect(code).toContain('Amplified AI Accelerator');
     for (const s of PARITY_SENTINELS) expect(code, s).not.toContain(s);
@@ -80,5 +87,35 @@ describe('the R2 parity fixture is not in the http build (D-160 R2-1b)', () => {
   it('the http build has no /admin/denied route; the fixture build does', async () => {
     expect(await bundle('production', '../routes/console/fixtureRoutes.ts')).not.toContain('admin/denied');
     expect(await bundle('fixture', '../routes/console/fixtureRoutes.ts')).toContain('admin/denied');
+  }, 120_000);
+});
+
+/**
+ * D-160 R2-2: the parity snapshot (`parity-r2-db.ts`, the mockup's curriculum, sessions and cohort as
+ * the app's own snapshot) is loaded by `boot.ts` behind the same constant and `?parity=r2`.
+ */
+const SNAPSHOT_SENTINELS = [
+  'Wednesdays, weekly',
+  'skill-file.zip',
+  'review-checklist.pdf',
+  'Recruiting AI Employee',
+  // R2-3a: the Overview's, Learners & Teams' and Tiers & Upgrades' data.
+  'elena@northshoregroup.example',
+  'Lantern Street Partners',
+  'The same Team Tier, sized for larger teams.',
+  'Team · 16 seats → 41 seats',
+  'Sarah Collins',
+];
+
+describe('the R2 parity snapshot is not in the http build (D-160 R2-2)', () => {
+  it('the http build of boot has none of it', async () => {
+    const code = await bundle('production', './boot.ts');
+    expect(code).toContain('createHttpRepository');
+    for (const s of SNAPSHOT_SENTINELS) expect(code, s).not.toContain(s);
+  }, 120_000);
+
+  it('the fixture build has it, so the check above can fail', async () => {
+    const code = await bundle('fixture', './boot.ts');
+    for (const s of SNAPSHOT_SENTINELS) expect(code, s).toContain(s);
   }, 120_000);
 });

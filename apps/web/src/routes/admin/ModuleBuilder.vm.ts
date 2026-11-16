@@ -9,7 +9,20 @@
 // read off the draft or off the one linked session. `db` is consulted only for the linked session,
 // the session clash, and whether a module with this id is already saved.
 
-import { ICONS, MODULE_ICONS, blankModule, cardVM, fmt, sessionFor, sessionState } from '@ai/core';
+import {
+  ICONS,
+  MODULE_ICONS,
+  adminMonthDay,
+  adminWhen,
+  blankModule,
+  cardVM,
+  fmt,
+  fromAdminLocal,
+  sessionFor,
+  sessionState,
+  sortedModules,
+  toAdminLocal,
+} from '@ai/core';
 import type { AIEmployee, CardVM, Db, IconName, ModuleStatus, SkillFile, Step, Tier } from '@ai/core';
 import type { LockedItem } from '../../components/LockedEmployeePreview';
 import type { TokenGlyph, TokenTone } from '../../components/StatusToken';
@@ -400,3 +413,102 @@ export function moduleBuilderVM(db: Db, d: AIEmployee, now: number, ui: ModuleBu
     },
   };
 }
+
+// ================================================================================================
+// R2 (D-160 R2-2): the Module Builder of the signed-off Admin redesign (AdminRedesign.jsx `Builder`).
+// The same draft, `saveModule` and `normalizeSaved` as above; the words are the mockup's, its times
+// MST (`adminWhen`, BUILD-SPEC § 7).
+// ================================================================================================
+
+export interface BuilderR2Item {
+  id: string;
+  name: string;
+  tone: 'ok' | 'info' | 'off';
+  on: boolean;
+}
+
+export interface BuilderR2Step {
+  key: string;
+  text: string;
+  /** The step's type pill (`Watch`, `Build`, …), or '' when the step has none. */
+  kind: string;
+  /** `4 min`. */
+  length: string;
+}
+
+export interface BuilderR2VM {
+  list: BuilderR2Item[];
+  name: string;
+  summary: string;
+  icon: IconName;
+  steps: BuilderR2Step[];
+  files: { name: string; desc: string; size: string }[];
+  status: { label: 'Published' | 'Scheduled' | 'Draft'; tone: 'ok' | 'info' | 'off' };
+  tier: Tier;
+  session: { title: string; when: string } | null;
+  /** `Open now`, `Dec 14`, or a muted `Not scheduled`. */
+  opens: { text: string; muted: boolean };
+  /** A skill file is attached. */
+  linked: boolean;
+  /** `Saved`, or `Save changes` while there is something to save. */
+  saveLabel: string;
+  /** The live sessions a module can link to, for the details dialog. */
+  sessionOptions: { value: string; label: string }[];
+}
+
+const R2_TONE: Record<ModuleStatus, ['Published' | 'Scheduled' | 'Draft', 'ok' | 'info' | 'off']> = {
+  published: ['Published', 'ok'],
+  scheduled: ['Scheduled', 'info'],
+  draft: ['Draft', 'off'],
+};
+
+export function builderR2VM(db: Db, d: AIEmployee, ui: { dirty: boolean; saved: boolean }, now: number): BuilderR2VM {
+  const sess = d.session ? sessionFor(db, 'dec26', d.session) : null;
+  const [label, tone] = R2_TONE[d.status];
+  return {
+    list: sortedModules(db).map((m) => ({ id: m.id, name: m.name, tone: R2_TONE[m.status][1], on: m.id === d.id })),
+    name: d.name,
+    summary: d.outcome,
+    icon: d.icon,
+    steps: d.checklist.map((s, i) => ({ key: `${i}`, text: s.text, kind: s.kind ?? '', length: `${s.mins} min` })),
+    files: d.files.map((f) => ({ name: f.name, desc: f.desc, size: f.size })),
+    status: { label, tone },
+    tier: d.tier,
+    session: sess
+      ? {
+          title: `Session ${sess.n} · ${sess.title}`,
+          when: `${adminWhen(sess.start)}${sessionState(sess, now) === 'replay' ? ' · Replay ready' : ''}`,
+        }
+      : null,
+    opens:
+      d.status === 'scheduled'
+        ? d.opens
+          ? { text: adminMonthDay(d.opens), muted: false }
+          : { text: 'Not scheduled', muted: true }
+        : d.status === 'draft'
+          ? { text: 'Not scheduled', muted: true }
+          : { text: 'Open now', muted: false },
+    linked: d.files.length > 0,
+    saveLabel: ui.dirty || !ui.saved ? 'Save changes' : 'Saved',
+    sessionOptions: [
+      { value: '', label: 'Self-paced' },
+      ...db.sessions
+        .filter((s) => s.cohortId === 'dec26')
+        .sort((a, b) => a.n - b.n)
+        .map((s) => ({ value: String(s.n), label: `Session ${s.n} · ${s.title}` })),
+    ],
+  };
+}
+
+/** Move a step from `from` to `to` (a drag), one neighbour swap at a time, as `moveStep` does. */
+export function moveStepTo(list: readonly Step[], from: number, to: number): Step[] {
+  let out = list.slice();
+  const dir = to < from ? -1 : 1;
+  for (let i = from; i !== to; i += dir) out = moveStep(out, i, dir);
+  return out;
+}
+
+/** An `<input type="date">` value for the opening day, in MST. */
+export const opensInput = (t: number | null): string => (t ? toAdminLocal(t).date : '');
+/** The opening instant for an `<input type="date">` value: 9:00 AM MST that day. */
+export const opensFrom = (date: string): number | null => (date ? fromAdminLocal(date, '09:00') : null);

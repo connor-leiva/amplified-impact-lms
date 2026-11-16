@@ -18,10 +18,24 @@ import type { FitColumn } from './table';
 // `minmax` tracks tighten after that); headers sort; a row opens on click; a "…" menu holds its
 // actions; `select` adds checkboxes and the bulk bar. On a phone each row is a card of label and
 // value pairs, the first column its title.
+//
+// R2-2 adds the rest of the mockup's `Table`: `onMove` (a drag handle per row, Alt with an arrow key
+// on it, and Move up / Move down in the phone menu), `quick` (icon buttons that show on hover or
+// focus), `primary` (an always-visible control beside the "…"), `actionsWidth` (`aw`), a card head
+// (`title`, `right`) and `card` (a screen's own phone card).
 
 export interface CellFit {
   drop: boolean;
   phone: boolean;
+  /** The table's own width (`tw`), for a cell that changes with it (R2-2). */
+  tw: number;
+}
+
+/** A hover action (`quick`): an icon button with its name. */
+export interface QuickAction {
+  label: string;
+  icon: IconName;
+  onClick: () => void;
 }
 
 export interface Column<R> extends FitColumn {
@@ -32,6 +46,8 @@ export interface Column<R> extends FitColumn {
   mono?: boolean;
   /** Not sortable (`ns`). */
   noSort?: boolean;
+  /** The cell may draw past its column (`ov`), as a pill's menu does (R2-2). */
+  overflow?: boolean;
   /** The sort value, and the cell when there is no `cell`. */
   value: (r: R) => string | number;
   cell?: (r: R, f: CellFit) => ReactNode;
@@ -55,6 +71,19 @@ export interface TableProps<R> {
   loading?: boolean;
   /** Below the rows: "Load more". */
   footer?: ReactNode;
+  /** Reorder: a row moved from `from` to `to` (R2-2). Headers do not sort while rows can move. */
+  onMove?: (from: number, to: number) => void;
+  /** Icon buttons shown on hover or focus, before the "…" (R2-2). */
+  quick?: (r: R) => readonly QuickAction[];
+  /** An always-visible control in the actions cell, or null (R2-2). */
+  primary?: (r: R) => ReactNode;
+  /** The actions track (the mockup's `aw`): 32px by default. */
+  actionsWidth?: string;
+  /** A card head: the title and what sits at its right (R2-2). */
+  title?: string;
+  right?: ReactNode;
+  /** A screen's own phone card: the row, its index, its phone menu and whether that opens upward (R2-2). */
+  card?: (r: R, i: number, items: readonly MenuEntry[], up: boolean) => ReactNode;
 }
 
 export function Table<R>({
@@ -70,6 +99,13 @@ export function Table<R>({
   filtered,
   loading,
   footer,
+  onMove,
+  quick,
+  primary,
+  actionsWidth,
+  title,
+  right,
+  card,
 }: TableProps<R>) {
   const vw = useViewportWidth();
   const phone = vw < 768;
@@ -78,6 +114,8 @@ export function Table<R>({
   const [tw, setTw] = useState(9999);
   const [sort, setSort] = useState<{ i: number; dir: 1 | -1 } | null>(null);
   const [picked, setPicked] = useState<Record<string, boolean>>({});
+  const [drag, setDrag] = useState<number | null>(null);
+  const [over, setOver] = useState<number | null>(null);
 
   useEffect(() => {
     const el = box.current;
@@ -91,9 +129,10 @@ export function Table<R>({
   }, []);
 
   const select = !!bulk;
-  const actions = menu ? '32px' : null;
-  const f = fit(cols, tw, { select, actions, laptop, phone });
-  const cellFit: CellFit = { drop: f.drop, phone };
+  const hasActions = !!(menu || quick || primary);
+  const actions = hasActions ? (actionsWidth ?? '32px') : null;
+  const f = fit(cols, tw, { select, actions, laptop, phone, move: !!onMove });
+  const cellFit: CellFit = { drop: f.drop, phone, tw };
   const open = (r: R) => (onRow ? onRow(r) : undefined);
   const click = (e: MouseEvent, r: R) => {
     if (!(e.target as HTMLElement).closest('button,a,input,select,label')) open(r);
@@ -101,21 +140,32 @@ export function Table<R>({
   const keys = rows.map(rowKey);
   const chosen = keys.filter((x) => picked[x]);
   const clear = () => setPicked({});
-  const data = sort
-    ? [...rows].sort((a, b) => {
-        const c = f.visible[sort.i]!;
-        const x = c.value(a);
-        const y = c.value(b);
-        return (x > y ? 1 : x < y ? -1 : 0) * sort.dir;
-      })
-    : rows;
+  const data =
+    sort && !onMove
+      ? [...rows].sort((a, b) => {
+          const c = f.visible[sort.i]!;
+          const x = c.value(a);
+          const y = c.value(b);
+          return (x > y ? 1 : x < y ? -1 : 0) * sort.dir;
+        })
+      : rows;
 
   const cell = (c: Column<R>, r: R): ReactNode => (c.cell ? c.cell(r, cellFit) : c.value(r));
-  const more = (r: R, i: number, up: boolean) =>
-    menu ? (
+  /** The phone's one menu (the mockup's `pm`): the hover actions, Move up / Move down, then `menu`. */
+  const phoneItems = (r: R, i: number): MenuEntry[] => [
+    ...(quick ? quick(r).map((q) => ({ label: q.label, icon: q.icon, onSelect: q.onClick })) : []),
+    ...(onMove && i > 0 ? [{ label: 'Move up', icon: 'r2Up' as const, onSelect: () => onMove(i, i - 1) }] : []),
+    ...(onMove && i < rows.length - 1
+      ? [{ label: 'Move down', icon: 'r2Down' as const, onSelect: () => onMove(i, i + 1) }]
+      : []),
+    ...(onMove && menu ? (['separator'] as const) : []),
+    ...(menu ? menu(r) : []),
+  ];
+  const more = (r: R, i: number, up: boolean, items: readonly MenuEntry[] | null = menu ? menu(r) : null) =>
+    items && items.length ? (
       <Menu
         label={`Actions for ${String(cols[0]!.value(r))}`}
-        items={menu(r)}
+        items={items}
         placement={up ? 'above' : 'below-right'}
         trigger={(t) => (
           <button type="button" className={k.ib} aria-label="More actions" {...t.props} onClick={t.toggle}>
@@ -123,10 +173,20 @@ export function Table<R>({
           </button>
         )}
       />
+    ) : items ? (
+      // Nothing this row can do (R2-2b): the "…" is drawn and does nothing, as the mockup draws it.
+      <button type="button" className={k.ib} aria-label="More actions" aria-disabled="true" title="Not available yet">
+        <Icon name="r2More" size={16} strokeWidth={2.6} />
+      </button>
     ) : null;
 
   const head = !phone ? (
     <div className={k.th} role="row" style={{ gridTemplateColumns: f.template }}>
+      {onMove ? (
+        <span role="columnheader">
+          <span className={k.srOnly}>Order</span>
+        </span>
+      ) : null}
       {select ? (
         <span role="columnheader" className={k.box1}>
           <input
@@ -145,7 +205,7 @@ export function Table<R>({
           className={c.num ? k.r : undefined}
           aria-sort={sort && sort.i === i ? (sort.dir > 0 ? 'ascending' : 'descending') : undefined}
         >
-          {c.noSort ? (
+          {c.noSort || onMove ? (
             c.label
           ) : (
             <button
@@ -161,7 +221,7 @@ export function Table<R>({
           )}
         </span>
       ))}
-      {menu ? (
+      {hasActions ? (
         <span role="columnheader">
           <span className={k.srOnly}>Actions</span>
         </span>
@@ -171,6 +231,12 @@ export function Table<R>({
 
   const wrap = (body: ReactNode) => (
     <section className={k.cd} ref={box} aria-label={label}>
+      {title ? (
+        <div className={k.cdh}>
+          <h2 className={clsx(k.h2, k.sp)}>{title}</h2>
+          {right}
+        </div>
+      ) : null}
       {body}
       {footer}
     </section>
@@ -209,6 +275,17 @@ export function Table<R>({
       </div>
     ) : null;
 
+  if (phone && card)
+    return wrap(
+      <div>
+        {data.map((r, i) => (
+          <div key={rowKey(r)} className={k.pc}>
+            {card(r, i, phoneItems(r, i), data.length > 3 && i >= data.length - 2)}
+          </div>
+        ))}
+      </div>,
+    );
+
   if (phone)
     return wrap(
       <div>
@@ -238,7 +315,11 @@ export function Table<R>({
                   </label>
                 ) : null}
                 <div className={clsx(k.w6, cols[0]!.mono && k.mo, k.pcTitle)}>{cell(cols[0]!, r)}</div>
-                {menu ? <span className={k.pcMenu}>{more(r, i, data.length > 3 && i >= data.length - 2)}</span> : null}
+                {menu || onMove ? (
+                  <span className={k.pcMenu}>
+                    {more(r, i, data.length > 3 && i >= data.length - 2, phoneItems(r, i))}
+                  </span>
+                ) : null}
               </div>
               {cols.slice(1).map((c) => (
                 <div key={c.key} className={k.pcR}>
@@ -246,6 +327,7 @@ export function Table<R>({
                   <span className={c.mono ? k.mo : undefined}>{cell(c, r)}</span>
                 </div>
               ))}
+              {primary && primary(r) ? <div className={clsx(k.row, k.pcPrimary)}>{primary(r)}</div> : null}
             </div>
           );
         })}
@@ -263,10 +345,62 @@ export function Table<R>({
             <div
               key={id}
               role="row"
-              className={clsx(k.tr, (onRow || rowHref) && k.ck, picked[id] && k.sel)}
+              className={clsx(
+                k.tr,
+                (onRow || rowHref) && k.ck,
+                picked[id] && k.sel,
+                drag === i && k.drg,
+                over === i && drag !== null && drag !== i && k.over,
+              )}
               style={{ gridTemplateColumns: f.template }}
               onClick={(e) => click(e, r)}
+              onDragOver={
+                onMove
+                  ? (e) => {
+                      e.preventDefault();
+                      setOver(i);
+                    }
+                  : undefined
+              }
+              onDrop={
+                onMove
+                  ? () => {
+                      if (drag !== null && drag !== i) onMove(drag, i);
+                      setDrag(null);
+                      setOver(null);
+                    }
+                  : undefined
+              }
             >
+              {onMove ? (
+                <span role="cell" className={k.box1}>
+                  <button
+                    type="button"
+                    className={k.grip}
+                    draggable
+                    aria-label={`Reorder row ${i + 1}. Alt plus arrow keys move it.`}
+                    title="Drag to reorder"
+                    onDragStart={() => setDrag(i)}
+                    onDragEnd={() => {
+                      setDrag(null);
+                      setOver(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (!e.altKey) return;
+                      if (e.key === 'ArrowUp' && i > 0) {
+                        e.preventDefault();
+                        onMove(i, i - 1);
+                      }
+                      if (e.key === 'ArrowDown' && i < data.length - 1) {
+                        e.preventDefault();
+                        onMove(i, i + 1);
+                      }
+                    }}
+                  >
+                    <Icon name="r2Grip" size={14} strokeWidth={2.6} />
+                  </button>
+                </span>
+              ) : null}
               {select ? (
                 <span role="cell" className={k.box1}>
                   <input
@@ -279,7 +413,11 @@ export function Table<R>({
                 </span>
               ) : null}
               {f.visible.map((c, j) => (
-                <div key={c.key} role="cell" className={clsx(k.cl, c.mono && k.mo, c.num && k.r, c.num && k.tn)}>
+                <div
+                  key={c.key}
+                  role="cell"
+                  className={clsx(k.cl, c.mono && k.mo, c.num && k.r, c.num && k.tn, c.overflow && k.ov)}
+                >
                   {j === 0 && rowHref && !c.cell ? (
                     <Link to={rowHref(r)} className={clsx(k.lk, k.el, c.mono && k.mo)}>
                       {cell(c, r)}
@@ -289,8 +427,25 @@ export function Table<R>({
                   )}
                 </div>
               ))}
-              {menu ? (
+              {hasActions ? (
                 <div role="cell" className={k.ra}>
+                  {quick ? (
+                    <span className={k.hv}>
+                      {quick(r).map((q) => (
+                        <button
+                          key={q.label}
+                          type="button"
+                          className={k.ib}
+                          aria-label={q.label}
+                          title={q.label}
+                          onClick={q.onClick}
+                        >
+                          <Icon name={q.icon} size={16} strokeWidth={1.75} />
+                        </button>
+                      ))}
+                    </span>
+                  ) : null}
+                  {primary ? primary(r) : null}
                   {more(r, i, data.length > 5 && i >= data.length - 2)}
                 </div>
               ) : null}

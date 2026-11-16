@@ -1,0 +1,93 @@
+/* The R2 detail drawer (D-160 R2-3): the mockup's modal parts (`.scrim`, `.modal`'s edge and shadow,
+   `.mh`, `.mf`) as a panel from the right. Tokens only. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--r2-scrim);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 40;
+  font: 400 var(--r2-t) / var(--r2-tl) var(--r2-font);
+  color: var(--r2-ink);
+}
+.panel {
+  max-width: 100%;
+  height: 100%;
+  background: var(--r2-sf);
+  border-left: 1px solid var(--r2-line2);
+  box-shadow: var(--r2-sh-modal);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.head {
+  padding: 16px 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--r2-line);
+  flex: none;
+}
+.titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
+}
+.title {
+  font: 600 var(--r2-sh) / 22px var(--r2-font);
+  letter-spacing: -0.005em;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.description {
+  font-size: var(--r2-m);
+  line-height: var(--r2-ml);
+  color: var(--r2-f3);
+  overflow-wrap: anywhere;
+}
+.close {
+  width: var(--r2-c);
+  height: var(--r2-c);
+  margin: -2px -8px 0 0;
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+}
+.close:hover {
+  background: var(--r2-sub);
+  color: var(--r2-ink);
+}
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.foot {
+  flex: none;
+  padding: 12px 20px;
+  border-top: 1px solid var(--r2-line);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  background: var(--r2-hov);
+}
+@media (max-width: 767px) {
+  .head,
+  .body,
+  .foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

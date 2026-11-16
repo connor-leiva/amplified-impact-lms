@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRecords, fixtureWorkspace, fixtureWorkspaceRows } from '../../data/console-fixture-records';
-import { WS } from '../../data/parity-r2';
+import { SUPPORT_WS } from '../../data/parity-r2';
 import {
   PLAN_OPTIONS,
   STATUS_OPTIONS,
@@ -19,7 +19,7 @@ describe('the Workspaces list (spec § 7.3) on R2', () => {
 
   it('prints every row as the mockup does: name and id, owner, plan, seats, status, last activity', () => {
     expect(rows.map((r) => [r.name, r.id, r.owner, r.plan, r.seats.text, r.status.label, r.last])).toEqual(
-      WS.map((w) => [w.n, w.id, w.owner, w.plan, `${w.used} of ${w.cap}`, w.st, w.last]),
+      SUPPORT_WS.map((w) => [w.n, w.id, w.owner, w.plan, `${w.used} of ${w.cap}`, w.st, w.last]),
     );
     expect(rows[0]!.href).toBe('/admin/workspaces/ws_northshore');
   });
@@ -103,7 +103,7 @@ describe('one workspace (spec § 7.3) on R2', () => {
   it('MRR: One-time for the AI Accelerator, $0 while trialing, the latest order while past due', () => {
     const r = fixtureRecords();
     const mrr = (id: string) => workspaceVM(fixtureWorkspace(r, id)!).facts.mrr;
-    expect(WS.map((w) => mrr(w.id))).toEqual(WS.map((w) => w.mrr));
+    expect(SUPPORT_WS.map((w) => mrr(w.id))).toEqual(SUPPORT_WS.map((w) => w.mrr));
     expect(workspaceVM(fixtureWorkspace(r, 'ws_copperbasin')!).plan.tier.text).toBe(
       'Cohort cap is a product rule. View only.',
     );

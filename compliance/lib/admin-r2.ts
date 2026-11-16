@@ -79,6 +79,20 @@ export interface Route {
 export const ROUTES: Partial<Record<Screen, Route>> = {
   missing: { path: '/admin/no-such-page' },
   denied: { path: '/admin/denied' },
+  // R2-2: the Build screens. The builder opens m1, as the mockup's `route.id || 'm1'` does.
+  curriculum: { path: '/admin/curriculum' },
+  builder: { path: '/admin/curriculum/m1' },
+  vault: { path: '/admin/vault' },
+  'cohorts-sessions': { path: '/admin/cohorts' },
+  announce: { path: '/admin/announcements' },
+  // R2-3a: the Overview, Learners & Teams and Tiers & Upgrades.
+  overview: { path: '/admin' },
+  learners: { path: '/admin/learners' },
+  tiers: { path: '/admin/tiers' },
+  // R2-3b: the Audit Log and Roles & Permissions. `roles-confirm` has no route: its dialog exists only
+  // through a permission write, which D11 and spec § 7.16 forbid (Needs Connor's call, D-160 R2-3b).
+  audit: { path: '/admin/audit' },
+  roles: { path: '/admin/roles' },
   // R2-1c (D-160): the Support records, on the mockup's own `WS` (the Console fixture answers with
   // them): Northshore Group is the mockup's detail record.
   workspaces: { path: '/admin/workspaces' },
@@ -88,17 +102,38 @@ export const ROUTES: Partial<Record<Screen, Route>> = {
 /**
  * The cells whose failure fails the run, as `cellId`s (`'curriculum-1280'`). A PR adds the cells for
  * the screens it builds; enforcing a cell with no route is itself an error. R2-1b: `missing` and
- * `denied` at all four widths.
+ * `denied` at all four widths; R2-2a: `curriculum` and `builder` at all four; R2-2b: `vault` and
+ * `announce` at all four, `cohorts-sessions` at 1440, 1280 and 1024; R2-3a: `overview`, `learners`
+ * and `tiers` at all four; R2-3b: `audit` at all four; R2-1c part 1: `workspaces` at all four,
+ * `workspace-detail` at 1440, 1280 and 1024.
  */
-export const ENFORCED: readonly string[] = [
-  ...WIDTHS.flatMap((w) => [`missing-${w}`, `denied-${w}`]),
-  // R2-1c (D-160): Workspaces at all four widths; Workspace at 1440, 1280 and 1024. `workspace-detail-390`
-  // is built and reported, not enforced: the mockup sets the key-facts values at 15px on a phone
-  // (`.ph .fx>div>span:last-child`), under the 16px phone floor the build keeps (BUILD-SPEC § 8), and
-  // those values are every pixel that differs.
-  ...WIDTHS.map((w) => `workspaces-${w}`),
-  ...([1440, 1280, 1024] as const).map((w) => `workspace-detail-${w}`),
-];
+export const ENFORCED: readonly string[] = WIDTHS.flatMap((w) => [
+  `missing-${w}`,
+  `denied-${w}`,
+  // R2-2a (D-160): Curriculum and the Module Builder, at all four widths.
+  `curriculum-${w}`,
+  `builder-${w}`,
+  // R2-2b (D-160): the Resource Vault and Announcements at all four widths, Cohorts & Sessions at three.
+  // cohorts-sessions-390 is not enforced: the mockup draws its key-fact values at 15px on a phone
+  // (`.ph .fx>div>span:last-child`), under the 16px phone floor, which stays (Needs Connor's call).
+  `vault-${w}`,
+  `announce-${w}`,
+  ...(w === 390 ? [] : [`cohorts-sessions-${w}`]),
+  // R2-3a (D-160): the Overview, Learners & Teams and Tiers & Upgrades, at all four widths.
+  `overview-${w}`,
+  `learners-${w}`,
+  `tiers-${w}`,
+  // R2-3b (D-160): the Audit Log at all four widths. `roles` is not enforced: the matrix is drawn
+  // read-only (D11, spec § 7.16), which costs 0.21–0.50% (Needs Connor's call); `roles-confirm` is not
+  // built, its dialog existing only through a permission write the spec forbids.
+  `audit-${w}`,
+  // R2-1c part 1 (D-160): Workspaces at all four widths; Workspace at 1440, 1280 and 1024.
+  // `workspace-detail-390` is built and reported, not enforced: the mockup sets the key-facts values at
+  // 15px on a phone (`.ph .fx>div>span:last-child`), under the 16px phone floor the build keeps
+  // (BUILD-SPEC § 8), and those values are every pixel that differs.
+  `workspaces-${w}`,
+  ...(w === 390 ? [] : [`workspace-detail-${w}`]),
+]);
 
 // ------------------------------------------------------------------------------------------------
 // The parity fixture seam (BUILD-SPEC § 6.1). Fixture mode only, never in the production bundle.

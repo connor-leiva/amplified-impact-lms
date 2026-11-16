@@ -17,6 +17,9 @@ export interface MenuItem {
   danger?: boolean;
   /** Not for this viewer: disabled, with a lock. */
   locked?: boolean;
+  /** Not available here (the mockup's `off`, R2-3): disabled, without a lock; `title` says why. */
+  disabled?: boolean;
+  title?: string;
   onSelect: () => void;
 }
 export type MenuEntry = MenuItem | 'separator';
@@ -121,7 +124,8 @@ export function Menu({ items, placement = 'below-right', trigger, label, classNa
                 key={`${i}:${it.label}`}
                 type="button"
                 role="menuitem"
-                disabled={it.locked}
+                disabled={it.locked || it.disabled}
+                title={it.title}
                 className={clsx(s.item, it.danger && s.danger)}
                 onClick={() => {
                   close(false);
