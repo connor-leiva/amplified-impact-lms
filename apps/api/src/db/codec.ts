@@ -155,7 +155,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
   ],
   teams: ['id', 'name', 'ownerId', 'seats', 'seq'],
   cohorts: ['id', 'name', 'start', 'end', 'weeks', 'status', 'capacity', 'cadence'],
-  sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom'],
+  sessions: ['id', 'cohortId', 'n', 'title', 'start', 'mins', 'zoom', 'live', 'attended', 'replay', 'views', 'movedFrom', 'replayUrl'],
   modules: [
     'id',
     'name',
@@ -184,7 +184,7 @@ export const COLUMNS_OWNED: Record<TableName, readonly string[]> = {
     'runDemo',
   ],
   progress: ['userId', 'moduleId', 'steps', 'builtAt', 'deployedAt', 'runtime', 'issue', 'lastRun'],
-  resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status', 'seq'],
+  resources: ['id', 'title', 'desc', 'cat', 'type', 'tier', 'size', 'dl', 'updated', 'exec', 'status', 'seq', 'moduleId'],
   announcements: [
     'id',
     'sessionId',
@@ -311,6 +311,7 @@ const sessionRow = (s: Session): Row => ({
   replay: s.replay,
   views: s.views,
   movedFrom: col(s.movedFrom),
+  replayUrl: col(s.replayUrl),
 });
 
 const moduleRow = (m: AIEmployee): Row => ({
@@ -355,6 +356,7 @@ const resourceRow = (r: Resource, seq: number): Row => ({
   exec: r.exec,
   status: r.status,
   seq,
+  moduleId: col(r.module),
 });
 
 /**
@@ -530,7 +532,7 @@ export function fromRows(rows: Rows): Db {
           replay: r.replay as Session['replay'],
           views: num(r.views),
         },
-        { movedFrom: r.movedFrom },
+        { movedFrom: r.movedFrom, replayUrl: r.replayUrl },
       ),
     ),
     modules: rows.modules.map((r) =>
@@ -568,20 +570,23 @@ export function fromRows(rows: Rows): Db {
     teams: rows.teams.map(
       (r): Team => ({ id: str(r.id), name: str(r.name), ownerId: str(r.ownerId), seats: num(r.seats) }),
     ),
-    resources: rows.resources.map(
-      (r): Resource => ({
-        id: str(r.id),
-        title: str(r.title),
-        desc: str(r.desc),
-        cat: str(r.cat),
-        type: str(r.type),
-        tier: r.tier as Resource['tier'],
-        size: str(r.size),
-        dl: num(r.dl),
-        updated: num(r.updated),
-        exec: r.exec as boolean,
-        status: r.status as Resource['status'],
-      }),
+    resources: rows.resources.map((r) =>
+      withOptional<Resource>(
+        {
+          id: str(r.id),
+          title: str(r.title),
+          desc: str(r.desc),
+          cat: str(r.cat),
+          type: str(r.type),
+          tier: r.tier as Resource['tier'],
+          size: str(r.size),
+          dl: num(r.dl),
+          updated: num(r.updated),
+          exec: r.exec as boolean,
+          status: r.status as Resource['status'],
+        },
+        { module: r.moduleId },
+      ),
     ),
     announcements: rows.announcements.map((r) =>
       withOptional<Announcement>(

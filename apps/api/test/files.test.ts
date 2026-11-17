@@ -266,18 +266,33 @@ describe('the 403 comes from the same source of truth the portal uses @g8', () =
     });
   }
 
-  it('refuses a staff viewer on both download routes', async () => {
+  it('refuses a staff viewer on both download routes, but the vault’s editors on its own (D-172)', async () => {
     // Tier is a learner concept and `downloadResource` itself refuses staff (`learnerOf` throws).
-    // No admin screen downloads a vault row or a skill file — `saveStoredFile` has exactly two
-    // callers, both under `routes/portal/` — so a staff bypass would be a rule nothing asks for
-    // that hands a Support-role account (`curriculum: 0`) every Team-tier object in the bucket.
-    const cookie = await app.signInAs('st1');
-
+    // D-172: the admin Resource Vault's hover Download is the one admin screen that downloads a vault
+    // row, so staff who may edit the vault (`curriculum`) get it, hidden rows included, uncounted.
+    // Everyone else on staff is still refused: a Support-role account (`curriculum: 0`) would
+    // otherwise get every Team-tier object in the bucket. Skill files stay learners' only.
+    const support = await app.signInAs('st4');
     for (const url of [resourceUrl('r4'), moduleUrl('marketing', 'listing-launch-packet.skill.json')]) {
-      const res = await getAs(url, cookie);
+      const res = await getAs(url, support);
       expect(res.statusCode).toBe(403);
       expect(res.json()).toEqual({ error: 'That action is for learners.' });
     }
+    const owner = await app.signInAs('st1');
+    const skill = await getAs(moduleUrl('marketing', 'listing-launch-packet.skill.json'), owner);
+    expect(skill.statusCode).toBe(403);
+    expect(skill.json()).toEqual({ error: 'That action is for learners.' });
+
+    const before = resource(await loadDb(), 'r4').dl;
+    const ok = await getAs(resourceUrl('r4'), owner);
+    expect(ok.statusCode).toBe(302);
+    expect(ok.headers['cache-control']).toBe('no-store');
+    expect(resource(await loadDb(), 'r4').dl).toBe(before);
+    // A hidden row: 404 for a learner, there for the vault's editor.
+    await (await testDatabase()).update(resourceTable).set({ status: 'hidden' }).where(eq(resourceTable.id, 'r1'));
+    expect((await getAs(resourceUrl('r1'), await app.signInAs('u_jamie'))).statusCode).toBe(404);
+    expect((await getAs(resourceUrl('r1'), owner)).statusCode).toBe(302);
+    expect((await getAs(resourceUrl('nope'), owner)).statusCode).toBe(404);
   });
 });
 

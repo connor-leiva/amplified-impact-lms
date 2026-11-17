@@ -114,3 +114,117 @@ test.describe('R2-gaps a: Curriculum › Duplicate and the Module Builder’s st
     await close();
   });
 });
+
+test.describe('R2-gaps b: the Resource Vault, Cohorts & Sessions and Announcements (D-172) @g9 @r2', () => {
+  test('Vault: the hover Download saves the file; Edit details changes the row and its Attached to', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/vault');
+    const row = rowOf(page, 'Standard chart of accounts');
+    await row.hover();
+    const dl = row.getByRole('button', { name: 'Download' });
+    await expect(dl).toBeVisible();
+    const saved = page.waitForEvent('download');
+    await dl.click();
+    expect((await saved).suggestedFilename()).toBe('standard-chart-of-accounts.md');
+    await expect(page.getByText('Download started')).toBeVisible();
+
+    await row.getByRole('button', { name: 'More actions' }).click();
+    const menu = page.getByRole('menu');
+    await expect(menu.getByRole('menuitem')).toHaveText(['Edit details', 'Replace file', 'Give Agent + Team access', 'Hide from learners', 'Remove from vault']);
+    await expect(menu.getByRole('menuitem', { name: 'Replace file' })).toBeDisabled();
+    await expect(menu.getByRole('menuitem', { name: 'Replace file' })).toHaveAttribute('title', 'Not available yet');
+    await expectAccessible(page);
+    await menu.getByRole('menuitem', { name: 'Edit details' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Edit details' });
+    await expect(dialog.getByLabel('Title')).toHaveValue('Standard chart of accounts');
+    await expect(dialog.getByLabel('Attached to')).toHaveValue('m10');
+    await expectAccessible(page);
+    await dialog.getByLabel('Title').fill('Standard chart of accounts v2');
+    await dialog.getByLabel('Attached to').selectOption({ label: 'Sales AI Employee' });
+    await dialog.getByRole('button', { name: 'Save changes' }).click();
+    await expect(dialog).toHaveCount(0);
+    const edited = rowOf(page, 'Standard chart of accounts v2');
+    await expect(edited).toContainText('Sales AI Employee');
+
+    // None detaches: "Attached to" reads "—".
+    await edited.getByRole('button', { name: 'More actions' }).click();
+    await page.getByRole('menuitem', { name: 'Edit details' }).click();
+    await page.getByRole('dialog', { name: 'Edit details' }).getByLabel('Attached to').selectOption({ label: 'None' });
+    await page.getByRole('dialog', { name: 'Edit details' }).getByRole('button', { name: 'Save changes' }).click();
+    await expect(rowOf(page, 'Standard chart of accounts v2')).toContainText('—');
+    await close();
+  });
+
+  test('Cohorts: Add session adds the next session in MST; Attach replay takes a past session’s link', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/cohorts');
+    await page.getByRole('button', { name: 'Add session' }).click();
+    const add = page.getByRole('dialog', { name: 'Add session' });
+    await expect(add.getByLabel('Start time (MST)')).toHaveValue('12:00');
+    await expect(add.getByLabel('Duration (minutes)')).toHaveValue('75');
+    await expectAccessible(page);
+    await add.getByRole('button', { name: 'Add session' }).click();
+    await expect(add.getByRole('alert')).toHaveText('Add a title.');
+    await add.getByLabel('Title').fill('Office Hours');
+    await add.getByLabel('Date').fill('2027-01-13');
+    await add.getByRole('button', { name: 'Add session' }).click();
+    await expect(add).toHaveCount(0);
+    const added = rowOf(page, 'Session 7 · Office Hours');
+    await expect(added).toContainText('Wed, Jan 13 · 12:00 PM MST');
+    await expect(added).toContainText('Draft');
+
+    // A session still to come: Attach replay is there, and disabled.
+    await rowOf(page, 'Session 4 ·').getByRole('button', { name: 'More actions' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Attach replay' })).toBeDisabled();
+    await page.keyboard.press('Escape');
+
+    await rowOf(page, 'Session 2 ·').getByRole('button', { name: 'More actions' }).click();
+    await expect(page.getByRole('menu').getByRole('menuitem')).toHaveText(['Edit session', 'Copy join link', 'Attach replay']);
+    await page.getByRole('menuitem', { name: 'Attach replay' }).click();
+    const attach = page.getByRole('dialog', { name: 'Attach replay' });
+    await expectAccessible(page);
+    await attach.getByLabel('Replay link for Session 2').fill('http://example.com/replay');
+    await attach.getByRole('button', { name: 'Attach replay' }).click();
+    await expect(attach.getByRole('alert')).toHaveText('Enter the replay’s https:// link.');
+    await attach.getByLabel('Replay link for Session 2').fill('https://example.com/replays/session-2');
+    await attach.getByRole('button', { name: 'Attach replay' }).click();
+    await expect(attach).toHaveCount(0);
+    await expect(page.getByText('Session 2 replay attached')).toBeVisible();
+    await close();
+  });
+
+  test('Announcements: Save draft adds a draft; Edit is for drafts and scheduled ones; Duplicate copies as a draft', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/announcements');
+    await page.getByRole('button', { name: 'New announcement' }).click();
+    const dialog = page.getByRole('dialog', { name: 'New announcement' });
+    await expect(dialog.getByRole('button', { name: 'Save draft' })).toBeDisabled();
+    await dialog.getByLabel('Title').fill('Office hours move to Thursday');
+    await dialog.getByRole('button', { name: 'Save draft' }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByText('Saved as a draft')).toBeVisible();
+    const draft = rowOf(page, 'Office hours move to Thursday');
+    await expect(draft).toContainText('Draft');
+    await expect(draft).toContainText('—');
+
+    // A sent row's Edit is drawn disabled; Duplicate copies it as a draft.
+    await rowOf(page, 'Session 2 replay is ready').getByRole('button', { name: 'More actions' }).click();
+    const menu = page.getByRole('menu');
+    await expect(menu.getByRole('menuitem')).toHaveText(['Edit', 'Duplicate']);
+    await expect(menu.getByRole('menuitem', { name: 'Edit' })).toBeDisabled();
+    await expectAccessible(page);
+    await menu.getByRole('menuitem', { name: 'Duplicate' }).click();
+    await expect(page.getByText('Duplicated as a draft')).toBeVisible();
+    await expect(rowOf(page, 'Session 2 replay is ready')).toHaveCount(2);
+    await expect(page.getByRole('row').nth(1)).toContainText('Draft');
+
+    // Edit the draft: the dialog filled in, saved as a draft again.
+    await rowOf(page, 'Office hours move to Thursday').getByRole('button', { name: 'More actions' }).click();
+    await page.getByRole('menuitem', { name: 'Edit' }).click();
+    const edit = page.getByRole('dialog', { name: 'Edit announcement' });
+    await expect(edit.getByLabel('Title')).toHaveValue('Office hours move to Thursday');
+    await expectAccessible(page);
+    await edit.getByLabel('Title').fill('Office hours moved to Thursday');
+    await edit.getByRole('button', { name: 'Save draft' }).click();
+    await expect(edit).toHaveCount(0);
+    await expect(rowOf(page, 'Office hours moved to Thursday')).toContainText('Draft');
+    await close();
+  });
+});

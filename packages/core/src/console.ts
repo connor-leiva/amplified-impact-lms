@@ -184,6 +184,12 @@ export const AUDIT_ACTIONS = [
   // D-172 R2-gaps: the Build screens' remaining controls (`admin-actions.ts`).
   'module.duplicate',
   'module.save',
+  'vault.edit',
+  'session.create',
+  'session.replay_attach',
+  'announce.create',
+  'announce.update',
+  'announce.duplicate',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

@@ -123,3 +123,77 @@ describe('Module Builder › Save, with Add step and Remove step @admin-actions'
     expect(await auditRows()).toHaveLength(0);
   });
 });
+
+describe('Resource Vault › Edit details, and Attached to @admin-actions', () => {
+  it('stores the edit and the AI Employee it is attached to, with one vault.edit row', async () => {
+    const res = await act(app, 'st1', 'editResource', {
+      id: 'r1',
+      title: 'Fair Housing Checker',
+      desc: 'Flags steering language.',
+      cat: 'MLS & Fair Housing Compliance',
+      tier: 'agent',
+      module: 'marketing',
+    });
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body)).toEqual({ toast: { msg: 'Saved', tone: 'success' } });
+    const r1 = (await loadDb()).resources.find((r) => r.id === 'r1')!;
+    expect(r1).toMatchObject({ title: 'Fair Housing Checker', desc: 'Flags steering language.', module: 'marketing' });
+    const rows = await auditRows();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ action: 'vault.edit', targetId: 'r1', after: { module: 'marketing', attachedTo: 'Marketing AI Employee' } });
+    // An Instructor may edit the vault (curriculum 1); Support may not.
+    expect((await act(app, 'st2', 'editResource', { id: 'r1', title: 'X', desc: '', cat: 'MLS & Fair Housing Compliance', tier: 'agent', module: null })).statusCode).toBe(200);
+    expect((await act(app, 'st4', 'editResource', { id: 'r1', title: 'Y', desc: '', cat: 'MLS & Fair Housing Compliance', tier: 'agent', module: null })).statusCode).toBe(403);
+    expect('module' in (await loadDb()).resources.find((r) => r.id === 'r1')!).toBe(false);
+  });
+});
+
+describe('Cohorts & Sessions › Add session and Attach replay @admin-actions', () => {
+  it('adds a session at the MST instant typed, with one session.create row', async () => {
+    const res = await act(app, 'st1', 'addSession', { cohortId: 'dec26', title: 'Office hours', date: '2026-12-22', time: '12:00', mins: '60', zoom: '' });
+    expect(res.statusCode).toBe(200);
+    const added = (await loadDb()).sessions.find((s) => s.title === 'Office hours')!;
+    expect(added).toMatchObject({ cohortId: 'dec26', n: 7, start: Date.parse('2026-12-22T12:00:00-07:00'), mins: 60, zoom: '' });
+    expect((await auditRows())[0]).toMatchObject({ action: 'session.create', targetId: added.id, targetLabel: 'Session 7 · Office hours' });
+    const bad = await act(app, 'st1', 'addSession', { cohortId: 'dec26', title: 'X', date: 'soon', time: '12:00', mins: 60, zoom: '' });
+    expect(bad.statusCode).toBe(422);
+    expect(JSON.parse(bad.body)).toEqual({ error: 'Pick a date and a start time.' });
+  });
+
+  it('attaches a replay link to a past session; a learner’s snapshot never carries it', async () => {
+    const url = 'https://example.com/replays/session-1';
+    const res = await act(app, 'st1', 'attachReplay', { sessionId: 'dec26-s1', url });
+    expect(res.statusCode).toBe(200);
+    expect((await loadDb()).sessions.find((s) => s.id === 'dec26-s1')!.replayUrl).toBe(url);
+    expect((await auditRows())[0]).toMatchObject({ action: 'session.replay_attach', targetId: 'dec26-s1', after: { replay: 'ready', replayUrl: url } });
+    const snap = await app.inject({ method: 'GET', url: '/api/snapshot', headers: { cookie: await app.signInAs('u_jamie') } });
+    expect(snap.body).not.toContain(url);
+    expect((await act(app, 'st1', 'attachReplay', { sessionId: 'dec26-s5', url })).statusCode).toBe(422);
+    expect((await act(app, 'st3', 'attachReplay', { sessionId: 'dec26-s1', url })).statusCode).toBe(403);
+  });
+});
+
+describe('Announcements: Save draft, Edit and Duplicate @admin-actions', () => {
+  const fields = { title: 'Office hours move', body: 'Thursday.', audience: 'team', inapp: true, email: true, severity: 'info', action: '' };
+
+  it('saves a draft, edits it, duplicates it; each one row, and nothing is sent', async () => {
+    const draft = await act(app, 'st1', 'saveAnnouncementDraft', fields);
+    expect(draft.statusCode).toBe(200);
+    expect(JSON.parse(draft.body)).toEqual({ toast: { msg: 'Saved as a draft', tone: 'success' } });
+    const a = (await loadDb()).announcements.find((x) => x.title === 'Office hours move')!;
+    expect(a).toMatchObject({ status: 'draft', channels: ['inapp', 'email'] });
+
+    const edit = await act(app, 'st1', 'updateAnnouncement', { ...fields, id: a.id, title: 'Office hours moved', when: 'later', at: '2026-12-11T09:00' });
+    expect(edit.statusCode).toBe(200);
+    expect((await loadDb()).announcements.find((x) => x.id === a.id)).toMatchObject({ title: 'Office hours moved', status: 'scheduled', at: Date.parse('2026-12-11T09:00:00-07:00') });
+
+    const dup = await act(app, 'st1', 'duplicateAnnouncement', { id: 'a1' });
+    expect(dup.statusCode).toBe(200);
+    const sent = await act(app, 'st1', 'updateAnnouncement', { ...fields, id: 'a1', when: 'draft' });
+    expect(sent.statusCode).toBe(422);
+    expect(JSON.parse(sent.body)).toEqual({ error: 'Sent announcements can’t be edited.' });
+
+    expect((await auditRows()).map((r) => r.action)).toEqual(['announce.create', 'announce.update', 'announce.duplicate']);
+    expect((await act(app, 'st3', 'duplicateAnnouncement', { id: 'a1' })).statusCode).toBe(403);
+  });
+});

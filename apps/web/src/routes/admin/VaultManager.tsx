@@ -9,9 +9,20 @@ import { Page } from '../../components/r2/Page';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Find, PageHead, Pill, Sel, k } from '../../components/r2/kit';
-import { useDb, useMutate } from '../../data/hooks';
-import { blankUploadForm, vaultManagerVM, vaultR2VM } from './VaultManager.vm';
-import type { VaultR2Row, VaultUploadForm } from './VaultManager.vm';
+import { useToaster } from '../../components/primitives/Toaster';
+import { saveStoredFile } from '../../data/files';
+import { useAct, useDb, useMutate } from '../../data/hooks';
+import {
+  attachOptions,
+  blankUploadForm,
+  forcesTeam,
+  vaultEditArgs,
+  vaultEditForm,
+  vaultFileOf,
+  vaultManagerVM,
+  vaultR2VM,
+} from './VaultManager.vm';
+import type { VaultEditForm, VaultR2Row, VaultUploadForm } from './VaultManager.vm';
 import s from './VaultManager.module.css';
 
 // Admin Resource Vault `/admin/vault` on the Admin redesign R2 (D-160 R2-2b): the signed-off mockup's
@@ -23,6 +34,11 @@ import s from './VaultManager.module.css';
 //     from vault after the mockup's confirm (`deleteResource`).
 //   - The filter and the Type select narrow the rows. The old Library / Executive Vault tabs are not
 //     drawn; an executive item's category still forces Team only (Needs Connor's call, D-160 R2-2b).
+//   - D-172: the row's hover Download (the mockup's quick action; on a phone, the "…"): the stored file
+//     through `/api/files/resource/:id` (staff with `curriculum`, uncounted), the reference's stand-in
+//     Blob in the fixture build. "…" › Edit details: title, description, category, tier access and
+//     Attached to (`editResource`, audited `vault.edit`). "…" › Replace file is drawn and disabled:
+//     the app has no real upload path yet (D-022), so a replacement would record bytes that never moved.
 
 const CATEGORIES: readonly [string, string][] = [
   ['MLS & Fair Housing Compliance', 'MLS & Fair Housing Compliance'],
@@ -44,7 +60,10 @@ const TYPES: readonly [string, string][] = [
 export function Component() {
   const db = useDb();
   const mutate = useMutate();
+  const act = useAct();
+  const { toast } = useToaster();
   const vm = vaultR2VM(db);
+  const [edit, setEdit] = useState<{ form: VaultEditForm; err: string } | null>(null);
 
   const [q, setQ] = useState('');
   const [type, setType] = useState('All types');
@@ -84,6 +103,43 @@ export function Component() {
     setErr('');
   }, [form, mutate]);
 
+  /** The hover Download: the stored file in http mode, the stand-in Blob in the fixture build. */
+  const download = useCallback(
+    (id: string) => {
+      const r = db.resources.find((x) => x.id === id);
+      if (!r) return;
+      if (!saveStoredFile({ kind: 'resource', id })) {
+        const f = vaultFileOf(r);
+        try {
+          const url = URL.createObjectURL(new Blob([f.body], { type: f.mime }));
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = f.name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+        } catch {
+          /* a runtime that refuses the object URL still gets the toast */
+        }
+      }
+      toast('Download started');
+    },
+    [db.resources, toast],
+  );
+
+  const openEdit = (id: string) => {
+    const r = db.resources.find((x) => x.id === id);
+    if (r) setEdit({ form: vaultEditForm(r), err: '' });
+  };
+  const setEditField = (patch: Partial<VaultEditForm>) => setEdit((e) => (e ? { form: { ...e.form, ...patch }, err: '' } : e));
+  const saveEdit = async () => {
+    if (!edit) return;
+    const out = await act('editResource', vaultEditArgs(edit.form));
+    if (out.error) setEdit((e) => (e ? { ...e, err: out.error! } : e));
+    else setEdit(null);
+  };
+
   const filtered = q !== '' || type !== 'All types';
   const rows = vm.rows.filter(
     (r) => r.title.toLowerCase().includes(q.toLowerCase()) && (type === 'All types' || r.type === type),
@@ -118,6 +174,8 @@ export function Component() {
   ];
 
   const menu = (r: VaultR2Row): MenuEntry[] => [
+    { label: 'Edit details', onSelect: () => openEdit(r.id) },
+    { label: 'Replace file', disabled: true, title: 'Not available yet', onSelect: () => {} },
     {
       label: r.tier === 'team' ? 'Give Agent + Team access' : 'Make Team only',
       onSelect: () => void run('setResourceTier', r.id),
@@ -166,6 +224,7 @@ export function Component() {
         rows={rows}
         rowKey={(r) => r.id}
         filtered={filtered}
+        quick={(r) => [{ label: 'Download', icon: 'r2Download', onClick: () => download(r.id) }]}
         menu={menu}
         empty={{
           icon: 'r2Vault',
@@ -253,6 +312,70 @@ export function Component() {
           {up.form.err ? (
             <p role="alert" className={clsx(k.p, s.err)}>
               {up.form.err}
+            </p>
+          ) : null}
+        </Modal>
+      ) : null}
+
+      {edit ? (
+        <Modal
+          title="Edit details"
+          onClose={() => setEdit(null)}
+          foot={
+            <>
+              <Button onClick={() => setEdit(null)}>Cancel</Button>
+              <Button kind="primary" disabled={!edit.form.title.trim()} onClick={() => void saveEdit()}>
+                Save changes
+              </Button>
+            </>
+          }
+        >
+          <label className={s.lab}>
+            Title
+            <input className={k.in} value={edit.form.title} onChange={(e) => setEditField({ title: e.target.value })} />
+          </label>
+          <label className={s.lab}>
+            Description
+            <input className={k.in} value={edit.form.desc} onChange={(e) => setEditField({ desc: e.target.value })} />
+          </label>
+          <div className={clsx(k.row, s.pair)}>
+            <label className={s.lab}>
+              Category
+              <Sel className={k.full} value={edit.form.cat} onChange={(e) => setEditField({ cat: e.target.value })}>
+                {CATEGORIES.map(([v, l]) => (
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
+                ))}
+              </Sel>
+            </label>
+            <label className={s.lab}>
+              Access
+              <Sel
+                className={k.full}
+                value={forcesTeam(edit.form.cat) ? 'team' : edit.form.tier}
+                disabled={forcesTeam(edit.form.cat)}
+                onChange={(e) => setEditField({ tier: e.target.value as Tier })}
+              >
+                <option value="agent">Agent + Team</option>
+                <option value="team">Team Only</option>
+              </Sel>
+            </label>
+          </div>
+          {forcesTeam(edit.form.cat) ? <p className={clsx(k.p, k.me)}>Executive categories are always Team only.</p> : null}
+          <label className={s.lab}>
+            Attached to
+            <Sel className={k.full} value={edit.form.module} onChange={(e) => setEditField({ module: e.target.value })}>
+              {attachOptions(db).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Sel>
+          </label>
+          {edit.err ? (
+            <p role="alert" className={clsx(k.p, s.err)}>
+              {edit.err}
             </p>
           ) : null}
         </Modal>

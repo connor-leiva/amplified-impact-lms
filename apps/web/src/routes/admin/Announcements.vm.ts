@@ -323,3 +323,38 @@ export const defaultScheduleMst = (ctLocal: string): string => {
   const { date, time } = toAdminLocal(t);
   return `${date}T${time}`;
 };
+
+// ================================================================================================
+// D-172 R2-gaps: Save draft, and a row's Edit (drafts and scheduled) and Duplicate.
+// ================================================================================================
+
+/** Edit is for a draft or a scheduled announcement; a sent one is history. */
+export const editable = (a: Pick<Announcement, 'status'>): boolean => a.status !== 'sent';
+
+/** The dialog filled in from a row: its fields, a scheduled one's time in MST. */
+export function announcementFormOf(a: Announcement): AnnouncementForm {
+  const { date, time } = toAdminLocal(a.at);
+  return {
+    title: a.title,
+    body: a.body,
+    audience: a.audience,
+    inapp: a.channels.includes('inapp'),
+    email: a.channels.includes('email'),
+    when: a.status === 'scheduled' ? 'later' : 'now',
+    at: a.status === 'scheduled' ? `${date}T${time}` : defaultScheduleMst(blankAnnouncementForm().at),
+    severity: a.severity,
+    action: a.action ?? '',
+  };
+}
+
+/** The dialog's fields as `saveAnnouncementDraft` and `updateAnnouncement` take them (`at` in MST). */
+export const announcementFields = (f: AnnouncementForm) => ({
+  title: f.title,
+  body: f.body,
+  audience: f.audience,
+  inapp: f.inapp,
+  email: f.email,
+  severity: f.severity,
+  action: f.action,
+  at: f.at,
+});

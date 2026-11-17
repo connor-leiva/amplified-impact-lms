@@ -16,11 +16,14 @@
 //     statuses, never an email address or anything secret (the API's `redactAuditPayload` runs too).
 
 import { produce } from 'immer';
+import { adminDay, fromAdminLocal } from './admin-build';
 import { requirePerm } from './can';
 import type { AuditAction } from './console';
-import { MutationError, saveModule } from './mutations';
+import { EXEC_CATEGORIES } from './constants';
+import { MutationError, publishReplay, saveModule } from './mutations';
 import type { Actor, Ctx, Outcome } from './mutations';
-import type { AIEmployee, Db, ModuleStatus, Step } from './types';
+import { fmt } from './time';
+import type { AIEmployee, Announcement, Cohort, Db, ModuleStatus, Resource, Session, Step, Tier } from './types';
 
 /** The one audit row a write owes: what, on which thing, and before and after where it applies. */
 export interface AdminAudit {
@@ -185,6 +188,298 @@ export function saveBuilderModule(db: Db, a: Actor, args: { draft: AIEmployee; s
 }
 
 // ================================================================================================
+// 3 · Resource Vault › Edit details (the mockup's row "…"), and "Attached to"
+// ================================================================================================
+
+const resourceOf = (db: Db, id: string): Resource => {
+  const r = db.resources.find((x) => x.id === id);
+  if (!r) throw new MutationError('not_found', `No resource ${id}`);
+  return r;
+};
+
+const resourceSummary = (db: Db, r: Resource) => ({
+  title: r.title,
+  cat: r.cat,
+  tier: r.tier,
+  module: r.module ?? null,
+  attachedTo: r.module ? (db.modules.find((m) => m.id === r.module)?.name ?? null) : null,
+});
+
+/**
+ * Edit details: a resource's title, description, category, tier access and the AI Employee it is
+ * attached to (`module`, an AI Employee's id, or null for none: the Vault's "Attached to"). The rules
+ * are `uploadResource`'s: a title is required, and an executive category is always Team only. The
+ * file, its size and its opens are not touched.
+ */
+export function editResource(
+  db: Db,
+  a: Actor,
+  args: { id: string; title: string; desc: string; cat: string; tier: Tier; module: string | null },
+  _c: Ctx,
+): AdminOutcome {
+  requirePerm(db, a, 'curriculum');
+  const r = resourceOf(db, args.id);
+  const title = (args.title || '').trim();
+  if (!title) return { db, error: 'Add a title.' };
+  if (args.module !== null) moduleOf(db, args.module);
+  const exec = EXEC_CATEGORIES.includes(args.cat);
+  const next = produce(db, (d) => {
+    const x = d.resources.find((y) => y.id === r.id)!;
+    x.title = title;
+    x.desc = (args.desc || '').trim() || r.desc;
+    x.cat = args.cat;
+    x.exec = exec;
+    x.tier = exec ? 'team' : args.tier;
+    if (args.module === null) delete x.module;
+    else x.module = args.module;
+  });
+  const after = next.resources.find((y) => y.id === r.id)!;
+  return {
+    db: next,
+    toast: { msg: 'Saved', tone: 'success' },
+    audit: {
+      action: 'vault.edit',
+      target: { type: 'resource', id: r.id, label: title },
+      before: resourceSummary(db, r),
+      after: { ...resourceSummary(next, after), descChanged: after.desc !== r.desc },
+    },
+  };
+}
+
+// ================================================================================================
+// 4 · Cohorts & Sessions › Add session, and a session's Attach replay
+// ================================================================================================
+
+const cohortOf = (db: Db, id: string): Cohort => {
+  const co = db.cohorts.find((x) => x.id === id);
+  if (!co) throw new MutationError('not_found', `No cohort ${id}`);
+  return co;
+};
+
+const sessionOf = (db: Db, id: string): Session => {
+  const s = db.sessions.find((x) => x.id === id);
+  if (!s) throw new MutationError('not_found', `No session ${id}`);
+  return s;
+};
+
+/**
+ * Add session: a session in the cohort the screen shows, numbered after its last, with Edit session's
+ * fields. The date and time are typed in MST (BUILD-SPEC § 7) and saved as that same instant. Not live,
+ * no attendance, no replay. A blank Zoom link reads "Draft" in the Zoom invite column, as a session
+ * with none does.
+ */
+export function addSession(
+  db: Db,
+  a: Actor,
+  args: { cohortId: string; title: string; date: string; time: string; mins: number | string; zoom: string },
+  c: Ctx,
+): AdminOutcome {
+  requirePerm(db, a, 'cohorts');
+  const co = cohortOf(db, args.cohortId);
+  const title = (args.title || '').trim();
+  if (!title) return { db, error: 'Add a title.' };
+  const start = fromAdminLocal(args.date, args.time);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(args.date) || !/^\d{2}:\d{2}$/.test(args.time) || Number.isNaN(start)) return { db, error: 'Pick a date and a start time.' };
+  const mins = parseInt(String(args.mins), 10);
+  if (!(mins > 0)) return { db, error: 'Enter the length in minutes.' };
+  const n = Math.max(0, ...db.sessions.filter((x) => x.cohortId === co.id).map((x) => x.n)) + 1;
+  const id = c.id('s');
+  const zoom = (args.zoom || '').trim();
+  return {
+    db: produce(db, (d) => {
+      d.sessions.push({ id, cohortId: co.id, n, title, start, mins, zoom, live: false, attended: null, replay: null, views: 0 });
+    }),
+    toast: { msg: `Session ${n} added`, tone: 'success' },
+    audit: {
+      action: 'session.create',
+      target: { type: 'session', id, label: `Session ${n} · ${title}` },
+      after: { cohortId: co.id, n, title, start, mins, zoomLink: zoom !== '' },
+    },
+  };
+}
+
+/** A replay link: an absolute `https://` URL, 2,048 characters at most. */
+export function isReplayUrl(url: string): boolean {
+  if (url.length > 2048 || !/^https:\/\/\S+$/.test(url)) return false;
+  try {
+    return new URL(url).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Attach replay: a past session's recording link. The session must have ended (not live, and past its
+ * start plus its length). It records the link (`replayUrl`), and when the replay is not published yet
+ * it publishes it exactly as Publish Replay does (`publishReplay`, unchanged: Replay "Ready", views
+ * reset, the linked AI Employee's replay length if it had none). Publish Replay stays at its step; the
+ * difference is the link. Learners' snapshots never carry the link (`scopeSnapshot`).
+ */
+export function attachReplay(db: Db, a: Actor, args: { sessionId: string; url: string }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'cohorts');
+  const sess = sessionOf(db, args.sessionId);
+  const url = (args.url || '').trim();
+  if (sess.live || sess.start + sess.mins * 60_000 > c.now) return { db, error: 'Attach a replay after the session ends.' };
+  if (!isReplayUrl(url)) return { db, error: 'Enter the replay’s https:// link.' };
+  const published = sess.replay === 'ready' ? db : publishReplay(db, a, { sessionId: sess.id }, c).db;
+  return {
+    db: produce(published, (d) => {
+      d.sessions.find((x) => x.id === sess.id)!.replayUrl = url;
+    }),
+    toast: { msg: `Session ${sess.n} replay attached`, tone: 'success' },
+    audit: {
+      action: 'session.replay_attach',
+      target: { type: 'session', id: sess.id, label: `Session ${sess.n} · ${sess.title}` },
+      before: { replay: sess.replay, replayUrl: sess.replayUrl ?? null },
+      after: { replay: 'ready', replayUrl: url },
+    },
+  };
+}
+
+// ================================================================================================
+// 5 · Announcements: Save draft, Edit (drafts and scheduled) and Duplicate
+// ================================================================================================
+//
+// The audit actions are `announce.*`, not the mockup's `announcement.create`: the Audit Log's Action
+// select lists each action group, and "announcement" would widen that select past the mockup's
+// widest option ("masquerade") and move the Audit Log's pixels. Nothing here sends: a draft is never
+// sent (learners see `sent` only, and the scheduler flips only `scheduled`), and Duplicate makes a draft.
+
+const ACTION_LABELS: Record<string, string> = { '': '', calendar: 'Update Calendar', sessions: 'Open Sessions' };
+
+/** What the dialog carries, as `sendAnnouncement` takes it; `at` is the schedule typed in MST. */
+export interface AnnouncementFields {
+  title: string;
+  body: string;
+  audience: Announcement['audience'];
+  inapp: boolean;
+  email: boolean;
+  severity?: Announcement['severity'];
+  action?: Announcement['action'] | '';
+  /** `YYYY-MM-DDTHH:MM`, MST, for a schedule. */
+  at?: string;
+}
+
+const announcementOf = (db: Db, id: string): Announcement => {
+  const an = db.announcements.find((x) => x.id === id);
+  if (!an) throw new MutationError('not_found', `No announcement ${id}`);
+  return an;
+};
+
+const channelsOf = (f: AnnouncementFields): Announcement['channels'] => [...(f.inapp ? ['inapp' as const] : []), ...(f.email ? ['email' as const] : [])];
+
+const announcementSummary = (an: Announcement) => ({ title: an.title, status: an.status, audience: an.audience, channels: an.channels, at: an.at });
+
+/** The schedule's instant from its MST `YYYY-MM-DDTHH:MM`, or `now` when it can't be read (as `sendAnnouncement`). */
+const scheduleAt = (at: string | undefined, now: number): number => {
+  const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(at ?? '');
+  const t = m ? fromAdminLocal(m[1]!, m[2]!) : NaN;
+  return Number.isNaN(t) ? now : t;
+};
+
+/** How many a send reaches, as `sendAnnouncement` counts them. */
+const reachOf = (db: Db, audience: Announcement['audience']): number => {
+  const B = db.base;
+  const users = db.users.filter((u) => u.status !== 'invited');
+  if (audience === 'agent') return B.agent + users.filter((u) => u.tier === 'agent').length;
+  if (audience === 'team') return B.teamSeats + users.filter((u) => u.tier === 'team').length;
+  if (audience === 'owners') return B.teams + db.teams.length;
+  return B.learners + users.length;
+};
+
+/** The fields as a row's content: trimmed title and body, channels, severity, the banner's action. */
+const contentOf = (f: AnnouncementFields) => {
+  const action = f.action || null;
+  return {
+    title: (f.title || '').trim(),
+    body: (f.body || '').trim(),
+    audience: f.audience,
+    channels: channelsOf(f),
+    severity: f.severity || ('info' as const),
+    action,
+    actionLabel: ACTION_LABELS[action || ''] ?? '',
+  };
+};
+
+/** New announcement › Save draft: a draft, never sent. Toast: the mockup's "Saved as a draft". */
+export function saveAnnouncementDraft(db: Db, a: Actor, args: AnnouncementFields, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'announce');
+  const content = contentOf(args);
+  if (!content.title) return { db, error: 'Add a title.' };
+  if (!content.channels.length) return { db, error: 'Pick at least one channel.' };
+  const id = c.id('a');
+  const row: Announcement = { id, ...content, status: 'draft', at: c.now, opens: null };
+  return {
+    db: produce(db, (d) => {
+      d.announcements.unshift(row);
+    }),
+    toast: { msg: 'Saved as a draft', tone: 'success' },
+    audit: { action: 'announce.create', target: { type: 'announcement', id, label: content.title }, after: announcementSummary(row) },
+  };
+}
+
+/**
+ * A row's "…" › Edit, for a draft or a scheduled announcement (a sent one is history): the dialog's
+ * fields, then Save draft (it stays, or becomes, a draft), Schedule (MST, saved as that instant; the
+ * scheduler sends it then, as it sends every scheduled one) or Send now (sent now, as `sendAnnouncement`
+ * sends). Its id and place in the list are kept.
+ */
+export function updateAnnouncement(db: Db, a: Actor, args: AnnouncementFields & { id: string; when: 'draft' | 'now' | 'later' }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'announce');
+  const an = announcementOf(db, args.id);
+  if (an.status === 'sent') throw new MutationError('invalid', 'Sent announcements can’t be edited.');
+  const content = contentOf(args);
+  if (args.when === 'draft' ? !content.title : !content.title || !content.body) {
+    return { db, error: args.when === 'draft' ? 'Add a title.' : 'Add a title and a message.' };
+  }
+  if (!content.channels.length) return { db, error: 'Pick at least one channel.' };
+  const at = args.when === 'later' ? scheduleAt(args.at, c.now) : c.now;
+  const status = args.when === 'draft' ? 'draft' : args.when === 'later' ? 'scheduled' : 'sent';
+  const next = produce(db, (d) => {
+    const x = d.announcements.find((y) => y.id === an.id)!;
+    Object.assign(x, content, { status, at, opens: status === 'sent' ? 0 : null });
+  });
+  const reach = reachOf(db, args.audience);
+  const msg =
+    status === 'draft'
+      ? 'Saved as a draft'
+      : status === 'scheduled'
+        ? `Scheduled for ${adminDay(at)}`
+        : `Sent to ${fmt.num(reach)} ${args.audience === 'owners' ? 'team owners' : 'learners'}${args.inapp ? '. The banner is live on their dashboards.' : ''}`;
+  return {
+    db: next,
+    toast: { msg, tone: 'success' },
+    audit: {
+      action: 'announce.update',
+      target: { type: 'announcement', id: an.id, label: content.title },
+      before: announcementSummary(an),
+      after: announcementSummary(next.announcements.find((y) => y.id === an.id)!),
+    },
+  };
+}
+
+/** A row's "…" › Duplicate: a copy as a draft, first in the list. Toast: the mockup's "Duplicated as a draft". */
+export function duplicateAnnouncement(db: Db, a: Actor, args: { id: string }, c: Ctx): AdminOutcome {
+  requirePerm(db, a, 'announce');
+  const an = announcementOf(db, args.id);
+  const id = c.id('a');
+  const { sessionId: _session, ...rest } = an;
+  const copy: Announcement = { ...rest, channels: [...an.channels], id, status: 'draft', at: c.now, opens: null };
+  return {
+    db: produce(db, (d) => {
+      d.announcements.unshift(copy);
+    }),
+    toast: { msg: 'Duplicated as a draft', tone: 'success' },
+    audit: {
+      action: 'announce.duplicate',
+      target: { type: 'announcement', id, label: copy.title },
+      before: { from: an.id, title: an.title, status: an.status },
+      after: announcementSummary(copy),
+    },
+  };
+}
+
+// ================================================================================================
 // The catalog
 // ================================================================================================
 
@@ -192,6 +487,12 @@ export function saveBuilderModule(db: Db, a: Actor, args: { draft: AIEmployee; s
 export const ADMIN_ACTIONS = {
   duplicateModule,
   saveBuilderModule,
+  editResource,
+  addSession,
+  attachReplay,
+  saveAnnouncementDraft,
+  updateAnnouncement,
+  duplicateAnnouncement,
 };
 
 export type AdminActionName = keyof typeof ADMIN_ACTIONS;

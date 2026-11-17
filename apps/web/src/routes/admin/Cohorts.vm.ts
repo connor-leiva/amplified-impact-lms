@@ -236,6 +236,10 @@ export interface CohortsR2Row {
   attendance: string | null;
   zoom: string;
   primary: SchedulePrimaryVM | null;
+  /** D-172: over (not live, and past its start plus its length), so Attach replay may run. */
+  ended: boolean;
+  /** D-172: the replay link Attach replay recorded, or ''. */
+  replayUrl: string;
 }
 
 export interface CohortsR2VM {
@@ -295,6 +299,8 @@ export function cohortsR2VM(db: Db, now: number, cohortId: string): CohortsR2VM 
         attendance: s.attended && base.learners ? fmt.pct(s.attended / base.learners) : null,
         zoom: s.zoom,
         primary: row?.primary ?? null,
+        ended: !s.live && now >= s.start + s.mins * 60_000,
+        replayUrl: s.replayUrl ?? '',
       };
     }),
   };
@@ -316,3 +322,12 @@ export function sessionArgsR2(id: string, f: SessionForm) {
     ? { id, ...f }
     : { id, title: f.title, date: fmt.isoDate(t), time: fmt.isoTime(t), mins: f.mins, zoom: f.zoom };
 }
+
+/**
+ * D-172: Add session's dialog, empty but for what every session of the course has: the 12:00 PM MST
+ * start (1:00 PM CT, the program's time) and 75 minutes.
+ */
+export const blankSessionFormR2 = (): SessionForm => ({ title: '', date: '', time: '12:00', mins: '75', zoom: '' });
+
+/** What `addSession` takes: the cohort on screen, and the dialog's fields as typed (MST). */
+export const addSessionArgsR2 = (cohortId: string, f: SessionForm) => ({ cohortId, title: f.title, date: f.date, time: f.time, mins: f.mins, zoom: f.zoom });
