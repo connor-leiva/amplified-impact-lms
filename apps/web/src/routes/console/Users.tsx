@@ -14,6 +14,7 @@ import { LoadError } from './LoadError';
 import { downloadCsv } from './download';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsolePages, useSettled } from './useConsoleData';
+import { useMasqueradeEntry } from './useMasqueradeEntry';
 import {
   DEFAULT_USER_FILTERS,
   ROLE_OPTIONS,
@@ -26,7 +27,8 @@ import type { UserRowVM } from './users.vm';
 
 // /admin/users on R2 (D-160 R2-1c, spec § 7.4): the mockup's `Users`. Learners by words and role, a
 // page at a time; a row opens the person. "Export selected" (Owner and Admin, `export`) downloads the
-// chosen rows as the API's CSV, and the export is an audit row. "Masquerade…" is the Masquerade PR's.
+// chosen rows as the API's CSV, and the export is an audit row. "Masquerade…" opens the reason dialog
+// (D-162 3b): Owner and Admin, a learner only.
 
 export function Component() {
   const gate = useConsoleGate('users');
@@ -39,6 +41,8 @@ export function Component() {
   const query = useMemo(() => userFiltersFor({ ...filters, q }), [filters, q]);
   const list = useConsolePages(api, (a, cursor) => a.users(query, cursor), JSON.stringify(query));
   const rows = useMemo(() => list.rows.map(userRowVM), [list.rows]);
+  const raw = useMemo(() => new Map(list.rows.map((u) => [u.id, u])), [list.rows]);
+  const entry = useMasqueradeEntry(gate.kind === 'ready' ? gate.me : null);
 
   if (gate.kind === 'hidden') return null;
   if (gate.kind === 'denied') return <Denied what={C.title} role={gate.role} />;
@@ -120,10 +124,13 @@ export function Component() {
               {C.exportSelected}
             </Button>
           )}
-          menu={(u) => [
-            { label: C.open, onSelect: () => navigate(u.href) },
-            { label: C.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} },
-          ]}
+          menu={(u) => {
+            const r = raw.get(u.key);
+            return [
+              { label: C.open, onSelect: () => navigate(u.href) },
+              ...(r ? entry.item(C.masquerade, { id: r.id, name: r.name, workspace: r.workspace }, r.kind) : []),
+            ];
+          }}
           empty={{ icon: 'r2Users', title: C.empty }}
           filtered={!isDefaultUserFilters(filters)}
           footer={
@@ -137,6 +144,7 @@ export function Component() {
           }
         />
       )}
+      {entry.dialog}
     </Page>
   );
 }

@@ -150,6 +150,30 @@ describe('Menu', () => {
     expect(menu.querySelector('hr')).not.toBeNull();
   });
 
+  it('D-164: an item drawn but unavailable is aria-disabled, focusable, and reads its reason; choosing it does nothing', () => {
+    const onPick = vi.fn();
+    render(
+      <Menu
+        label="Subscription"
+        items={[{ label: 'Change seat tier…', unavailable: 'Off until a tier change in Stripe also updates the workspace’s seats.', onSelect: onPick }]}
+        trigger={(t) => (
+          <button type="button" onClick={t.toggle} {...t.props}>
+            More
+          </button>
+        )}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'More' }));
+    const item = screen.getByRole('menuitem', { name: 'Change seat tier…' });
+    expect(item).toHaveAttribute('aria-disabled', 'true');
+    expect(item).not.toBeDisabled();
+    expect(item).toHaveAccessibleDescription('Off until a tier change in Stripe also updates the workspace’s seats.');
+    expect(item.querySelector('svg')).not.toBeNull();
+    fireEvent.click(item);
+    expect(onPick).not.toHaveBeenCalled();
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
   it('a choice runs and closes the menu', () => {
     const { trigger, onPick } = setup();
     fireEvent.click(trigger);

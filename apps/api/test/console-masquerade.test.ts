@@ -251,8 +251,13 @@ describe('Start (spec § 6) @console', () => {
 
   it('answers 403 masquerade_disabled while the flag is off (the seam defaults on)', async () => {
     expect(await masqueradeEnabled()).toBe(true);
+    // 3b: `GET /api/console/me` says so too, so the entry points can be drawn disabled.
+    const on = new Browser(await app.signInAs('st_admin'));
+    expect((await on.send('GET', CONSOLE_PATHS.me)).json()).toMatchObject({ role: 'Admin', masqueradeEnabled: true });
     await app.close();
     app = await build({ logger: false, console: { masqueradeEnabled: async () => false } });
+    const off = new Browser(await app.signInAs('st_admin'));
+    expect((await off.send('GET', CONSOLE_PATHS.me)).json()).toMatchObject({ role: 'Admin', masqueradeEnabled: false });
     const res = (await masquerade('u_jamie')).res;
     expect(res.statusCode).toBe(403);
     expect(res.json()).toEqual({ error: 'Masquerade is turned off.', code: 'masquerade_disabled' });
@@ -484,6 +489,9 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: CONSOLE_PATHS.audit },
       { method: 'POST', url: CONSOLE_PATHS.auditExport },
       { method: 'GET', url: CONSOLE_PATHS.roles },
+      // D-160 R2-3b's two-step Roles change, a write: blocked too.
+      { method: 'POST', url: CONSOLE_PATHS.rolesPreview },
+      { method: 'POST', url: CONSOLE_PATHS.roles },
       { method: 'GET', url: CONSOLE_PATHS.workspaces },
       { method: 'GET', url: '/api/console/workspaces/northline' },
       { method: 'GET', url: CONSOLE_PATHS.users },
@@ -496,6 +504,25 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'GET', url: `${CONSOLE_PATHS.search}?q=jamie` },
       { method: 'POST', url: CONSOLE_PATHS.masqueradeStart },
       { method: 'GET', url: CONSOLE_PATHS.masqueradeSessions },
+      // PR 4 (D-163): Billing's reads are paused too (D2).
+      { method: 'GET', url: CONSOLE_PATHS.billingSummary },
+      { method: 'GET', url: CONSOLE_PATHS.billingCustomers },
+      { method: 'GET', url: CONSOLE_PATHS.billingSubscriptions },
+      { method: 'GET', url: CONSOLE_PATHS.billingInvoices },
+      { method: 'GET', url: CONSOLE_PATHS.billingFailed },
+      { method: 'GET', url: CONSOLE_PATHS.billingRefunds },
+      { method: 'GET', url: CONSOLE_PATHS.billingScopes },
+      // PR 5 (D-164): the confirmed refund and void, previews included, are writes the block refuses.
+      { method: 'POST', url: CONSOLE_PATHS.billingRefundPreview },
+      { method: 'POST', url: CONSOLE_PATHS.billingRefund },
+      { method: 'POST', url: CONSOLE_PATHS.billingVoidPreview },
+      { method: 'POST', url: CONSOLE_PATHS.billingVoid },
+      // PR 6 (D-165): API & Webhooks and Scheduled Jobs, reads and writes alike.
+      { method: 'GET', url: CONSOLE_PATHS.apiEndpoints },
+      { method: 'GET', url: CONSOLE_PATHS.webhooks },
+      { method: 'POST', url: CONSOLE_PATHS.ghlRetry },
+      { method: 'GET', url: CONSOLE_PATHS.jobs },
+      { method: 'POST', url: '/api/console/jobs/session-24h/run' },
       // PR 7 (D-166): the email log and usage.
       { method: 'GET', url: CONSOLE_PATHS.emailLog },
       { method: 'GET', url: '/api/console/email/1' },
@@ -516,6 +543,29 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
     // An impersonating session cannot start another (rule 6): the Start above was refused.
     expect(await rowsOf()).toHaveLength(1);
     expect((await browser.send('GET', MASQUERADE_PATHS.current)).statusCode).toBe(200);
+  });
+
+  it('refuses Billing’s refund and void (D-164): 403 masquerade_blocked, audited with the staff member, nothing billed', async () => {
+    const { browser } = await masquerade();
+    const [row] = await rowsOf();
+    for (const path of [CONSOLE_PATHS.billingRefundPreview, CONSOLE_PATHS.billingRefund, CONSOLE_PATHS.billingVoidPreview, CONSOLE_PATHS.billingVoid]) {
+      const res = await browser.send('POST', path, { invoiceId: 'in_Team', confirmToken: 'x', reason: REASON, typed: 'in_Team' });
+      expect(res.statusCode, path).toBe(403);
+      expect(res.json()).toEqual({ error: 'Blocked while masquerading. Exit to continue.', code: 'masquerade_blocked' });
+      expect((await audits()).at(-1)).toMatchObject({
+        action: 'masquerade.blocked_action',
+        outcome: 'blocked',
+        actorSource: 'staff',
+        actorUserId: 'st_admin',
+        actorRole: 'Admin',
+        masqueradeSessionId: row!.id,
+        targetType: 'user',
+        targetId: 'u_jamie',
+        after: { tried: `POST ${path}`, path },
+      });
+    }
+    // No billing row was ever written: the block runs before the route.
+    expect((await audits()).filter((a) => a.action.startsWith('billing.'))).toEqual([]);
   });
 
   it('blocks the GET handlers that write, and lets the rest read', async () => {
