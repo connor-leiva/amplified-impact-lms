@@ -114,12 +114,11 @@ describe('the lists', () => {
       status: { label: 'Active' },
     });
     expect(rows.subscriptions.map((r) => r.id)).not.toContain('—');
-    // D-164: the gated seat-tier control is drawn on the Team Plan subscriptions only.
-    expect(rows.subscriptions.map(subscriptionVM).filter((r) => r.teamPlan).map((r) => r.plan)).toEqual([
-      'Team Plan · 41 seats',
-      'Team Plan · 16 seats',
-      'Team Plan · 16 seats',
-      'Team Plan · 16 seats',
+    // D-164: the gated seat-tier control is drawn on a Team Plan's invoices only.
+    expect(rows.invoices.map(invoiceVM).filter((r) => r.teamPlan).map((r) => r.customer)).toEqual([
+      'Northshore Group',
+      'Hale & Marlowe Realty',
+      'Fourth Meridian',
     ]);
   });
   it('invoices: the mockup’s words, MST dates, and only the actions R2-4b may take', () => {

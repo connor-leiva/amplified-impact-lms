@@ -257,18 +257,20 @@ describe('refund: preview, then execute (spec § 7.6) @console', () => {
 describe('the confirm token (spec § 7.6) @console', () => {
   it('a tampered, forged or missing token is 403 confirm_invalid, one denied row, and Stripe is never asked', async () => {
     const p = await preview('refund', { invoiceId: 'in_Team', amountCents: 100 });
-    const [v, body, sig] = p.confirmToken.split('.') as [string, string, string];
-    const claims = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as { p: { amt: number } };
+    // The Console's one confirm token (R2-3b's `confirm-token.ts`): base64url claims, a dot, the HMAC.
+    const [body, sig] = p.confirmToken.split('.') as [string, string];
+    const claims = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as { action: string; p: { amt: number } };
+    expect(claims.action).toBe('billing.refund');
     claims.p.amt = 49_700;
-    const tampered = `${v}.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.${sig}`;
+    const tampered = `${Buffer.from(JSON.stringify(claims)).toString('base64url')}.${sig}`;
     // A character in the middle: the last one carries padding bits a decoder ignores.
-    const flipped = `${v}.${body}.${sig.slice(0, 10)}${sig[10] === 'A' ? 'B' : 'A'}${sig.slice(11)}`;
+    const flipped = `${body}.${sig.slice(0, 10)}${sig[10] === 'A' ? 'B' : 'A'}${sig.slice(11)}`;
     // Five, the route's limit a minute (spec § 7).
-    for (const token of [tampered, flipped, 'v1.e30.x', undefined, 42]) {
+    for (const token of [tampered, flipped, 'e30.x', undefined, 42]) {
       const n = (await audits()).length;
       const res = await execute('refund', { confirmToken: token, reason: REASON, typed: token === tampered ? '497' : '1' });
       expect(res.statusCode, String(token)).toBe(403);
-      expect(json<{ code: string; error: string }>(res)).toEqual({ code: 'confirm_invalid', error: 'This confirmation isn’t valid. Close this and start again.' });
+      expect(json<{ code: string; error: string }>(res)).toEqual({ code: 'confirm_invalid', error: 'This confirmation isn’t valid. Start again.' });
       const rows = await audits();
       expect(rows).toHaveLength(n + 1);
       // The invoice in a token that isn't genuine is not believed.
@@ -294,16 +296,24 @@ describe('the confirm token (spec § 7.6) @console', () => {
 
   it('expires after 5 minutes: 410 confirm_expired, a denied row naming the invoice', async () => {
     const p = await preview('refund', { invoiceId: 'in_Team' });
-    at(NOW + CONFIRM_TTL_MS);
+    at(NOW + CONFIRM_TTL_MS + 1);
     const res = await execute('refund', { confirmToken: p.confirmToken, reason: REASON, typed: '497' });
     expect(res.statusCode).toBe(410);
-    expect(json<{ code: string }>(res).code).toBe('confirm_expired');
+    expect(json<{ code: string; error: string }>(res)).toEqual({ code: 'confirm_expired', error: 'This confirmation expired after 5 minutes. Start again to see the current figures.' });
     expect(await audits()).toMatchObject([{ action: 'billing.refund', outcome: 'denied', targetId: 'in_Team', after: { code: 'confirm_expired' } }]);
     expect(write.calls).toEqual([]);
-    // A second earlier, it would have gone through.
+    // Good through its last millisecond (the shared token's rule, as Roles has it).
     const q = await preview('refund', { invoiceId: 'in_Team' });
-    at(NOW + 2 * CONFIRM_TTL_MS - 1);
+    at(NOW + 2 * CONFIRM_TTL_MS + 1);
     expect((await execute('refund', { confirmToken: q.confirmToken, reason: REASON, typed: '497' })).statusCode).toBe(200);
+  });
+
+  it('a Roles & Permissions token is not a Billing one, and the other way round', async () => {
+    const p = await preview('refund', { invoiceId: 'in_Team' });
+    const roles = await post('/api/console/roles', { confirmToken: p.confirmToken });
+    expect(roles.statusCode).toBe(403);
+    expect(json<{ code: string }>(roles).code).toBe('confirm_invalid');
+    expect(write.calls).toEqual([]);
   });
 
   it('replay: a used token is 409 confirm_used and never reaches Stripe again', async () => {
@@ -575,6 +585,9 @@ describe('the consequences are what billing/webhook.ts does (spec § 7.6) @conso
     expect(result).toBe('status:active');
     expect((await state()).plans).toEqual(before.plans);
     expect((await (await db()).select({ seats: teams.seats }).from(teams).where(eq(teams.id, 't_north')))[0]!.seats).toBe(16);
+    // The control is drawn on a Team Plan's invoices (their local plan's tier), disabled.
+    const listed = json<ConsolePage<BillingInvoiceRow>>(await get(BILLING_PATHS.billingInvoices)).rows;
+    expect(Object.fromEntries(listed.map((i) => [i.id, i.seatTier]))).toMatchObject({ in_Team: 'upto15', in_Open: 'upto15', in_Acc: null, in_Legacy: null });
     // So there is no seat-tier route, and no Console file changes a subscription.
     expect((await post('/api/console/billing/seat-tier', { subscriptionId: 'sub_Team', tier: '16to40' })).statusCode).toBe(404);
     for (const f of readdirSync(new URL('../src/console/', import.meta.url))) {

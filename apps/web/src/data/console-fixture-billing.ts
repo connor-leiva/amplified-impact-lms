@@ -6,6 +6,7 @@
 
 import { COURSE_OPENS_AT } from '@ai/core/accelerator';
 import {
+  BILLING_CONFIRM_MESSAGES,
   CONFIRM_TTL_MS,
   CONSOLE_ERRORS,
   cleanReason,
@@ -69,6 +70,12 @@ const ws = (name: string) => {
   const w = SUPPORT_WS.find((x) => x.n === name);
   return w ? { teamId: w.id, name: w.n } : null;
 };
+
+/** The mockup's Team Plan workspaces' tiers, from their plan line ("Team Plan · 41 seats"). */
+function tierOfCustomer(name: string) {
+  const plan = SUPPORT_WS.find((w) => w.n === name)?.plan ?? '';
+  return seatTierOf(kindOf(plan), /· 41 seats/.test(plan) ? '16to40' : /· 16 seats/.test(plan) ? 'upto15' : null);
+}
 
 export const BILLING_SAMPLE_LABELS = {
   mrrLabel: BILLING_SAMPLE.mrrLabel,
@@ -140,7 +147,6 @@ export function fixtureBillingRows(): { [K in keyof BillingRows]: BillingRows[K]
     status: STATUS[w.st] ?? 'active',
     mrrCents: money(w.mrr),
     url: url('subscriptions', w.sub),
-    seatTier: seatTierOf(/· 41 seats/.test(w.plan) ? 'agents41' : /· 16 seats/.test(w.plan) ? 'agents16' : null),
   }));
   const invoices = INV.map((i): BillingInvoiceRow => {
     const s = INVOICE[i.st]!;
@@ -158,6 +164,7 @@ export function fixtureBillingRows(): { [K in keyof BillingRows]: BillingRows[K]
       paymentMethod: i.card,
       created: mockStamp(i.d),
       url: url('invoices', i.id),
+      seatTier: tierOfCustomer(i.c),
     };
   });
   const failed = BILLING_FAILED.map(([c, amt, reason, attempts, next], n): BillingFailedRow => ({
@@ -194,7 +201,12 @@ export function fixtureBillingRows(): { [K in keyof BillingRows]: BillingRows[K]
 export type FixtureBillingRows = ReturnType<typeof fixtureBillingRows>;
 
 const refusal = (code: keyof typeof CONSOLE_ERRORS, status: number, message?: string) =>
-  new ConsoleError(status === 404 ? 'not_found' : status === 503 ? 'stripe_scope' : 'failed', status, code, message ?? CONSOLE_ERRORS[code].message ?? code);
+  new ConsoleError(
+    status === 404 ? 'not_found' : status === 503 ? 'stripe_scope' : 'failed',
+    status,
+    code,
+    message ?? (code === 'confirm_invalid' || code === 'confirm_expired' ? BILLING_CONFIRM_MESSAGES[code] : (CONSOLE_ERRORS[code].message ?? code)),
+  );
 
 /** The workspace the mockup's invoice is for, and its plan as the webhook would find it. */
 function planOfCustomer(name: string | null) {

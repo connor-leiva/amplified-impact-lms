@@ -7,7 +7,8 @@ import { expectAccessible } from '../../lib/a11y';
  * answers both steps as the API does, with the R2 mockup's invoices, so the dialogs read the mockup's
  * `Confirm` words plus the spec's additions: the preview's consequences, a 10-character reason, the
  * amount or invoice id typed to confirm, a refusal in words with "Start again", and the mockup's toasts.
- * A Team Plan subscription's "Change seat tier…" is drawn disabled with its reason (its gate failed).
+ * A Team Plan invoice's "Change seat tier…" is drawn disabled with its reason (its gate failed).
+ * Menus only where the mockup draws one (the eye check): Invoices', not Subscriptions'.
  * The dialogs have no ref frame: no parity cell; each state passes axe (zero serious or critical).
  */
 
@@ -142,9 +143,11 @@ test.describe('Billing refund and void (D-164) @g9 @console', () => {
     await close();
   });
 
-  test('the seat tier: drawn on a Team Plan subscription, disabled, its reason in words', async ({ browser }) => {
-    const { page, close } = await openAt(browser, '/admin/billing/subscriptions');
+  test('the seat tier: drawn in a Team Plan invoice’s "…", disabled, its reason in words', async ({ browser }) => {
+    const { page, close } = await openAt(browser, '/admin/billing/invoices');
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
+    // Northshore Group's Team Plan · 41 seats invoice: its refund, then the gated tier.
+    await expect(page.getByRole('menuitem')).toHaveText([/Open customer/, /View in Stripe/, /Refund…/, /Change seat tier…/]);
     const tier = page.getByRole('menuitem', { name: 'Change seat tier…' });
     await expect(tier).toHaveAttribute('aria-disabled', 'true');
     await expect(tier).toHaveAccessibleDescription('Off until a tier change in Stripe also updates the workspace’s seats.');
@@ -156,8 +159,13 @@ test.describe('Billing refund and void (D-164) @g9 @console', () => {
     await expect(page.getByRole('menu')).toBeVisible();
     await page.keyboard.press('Escape');
     // Not on a plan with no tiers (Red Cliff's Agent Plan).
-    await rows(page).nth(2).getByRole('button', { name: 'More actions' }).click();
+    await rows(page).nth(1).getByRole('button', { name: 'More actions' }).click();
     await expect(page.getByRole('menuitem', { name: 'Change seat tier…' })).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    // And Subscriptions draws no "…" at all (the mockup's).
+    await page.getByRole('tab', { name: 'Subscriptions' }).click();
+    await expect(rows(page).first()).toBeVisible();
+    await expect(page.locator('main').getByRole('button', { name: 'More actions' })).toHaveCount(0);
     await close();
   });
 
@@ -166,9 +174,9 @@ test.describe('Billing refund and void (D-164) @g9 @console', () => {
     await choose(admin.page, 0, /Refund…/);
     await expect(dialog(admin.page)).toHaveAccessibleName('Refund $1,495.00 to Northshore Group?');
     await admin.close();
-    const support = await openAt(browser, '/admin/billing/subscriptions?console-role=Support');
+    const support = await openAt(browser, '/admin/billing/invoices?console-role=Support');
     await rows(support.page).first().getByRole('button', { name: 'More actions' }).click();
-    await expect(support.page.getByRole('menuitem', { name: /seat tier/ })).toHaveCount(0);
+    await expect(support.page.getByRole('menuitem', { name: /seat tier|Refund|Void/ })).toHaveCount(0);
     await support.close();
   });
 

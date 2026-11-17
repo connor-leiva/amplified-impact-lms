@@ -247,8 +247,6 @@ export interface SubscriptionVM extends RowBase {
   plan: string;
   mrr: string;
   status: AdminStatus;
-  /** A Team Plan subscription: the gated seat-tier control is drawn on it (D-164). */
-  teamPlan: boolean;
 }
 export const subscriptionVM = (r: BillingSubscriptionRow): SubscriptionVM => ({
   key: r.id,
@@ -259,7 +257,6 @@ export const subscriptionVM = (r: BillingSubscriptionRow): SubscriptionVM => ({
   plan: r.planLabel ?? NONE,
   mrr: mrrText(r.mrrCents),
   status: subscriptionStatusOf(r.status),
-  teamPlan: r.seatTier !== null && r.seatTier !== undefined,
 });
 
 export interface InvoiceVM extends RowBase {
@@ -277,6 +274,8 @@ export interface InvoiceVM extends RowBase {
   refundAmount: string;
   customerName: string | null;
   paymentMethod: string | null;
+  /** It bills a Team Plan: the gated seat-tier control is drawn in its "…" (D-164). */
+  teamPlan: boolean;
 }
 export const invoiceVM = (r: BillingInvoiceRow): InvoiceVM => ({
   key: r.id,
@@ -294,6 +293,7 @@ export const invoiceVM = (r: BillingInvoiceRow): InvoiceVM => ({
   refundAmount: usdCents(r.refundableCents),
   customerName: r.customerName,
   paymentMethod: r.paymentMethod,
+  teamPlan: r.seatTier !== null && r.seatTier !== undefined,
 });
 
 // --- the refund and void dialogs (D-164) ----------------------------------------------------------

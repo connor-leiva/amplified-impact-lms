@@ -354,16 +354,14 @@ export interface BillingSubscriptionRow {
   status: string;
   mrrCents: number | null;
   url: string;
-  /** A Team Plan subscription's seat tier (D-164: the gated seat-tier control is drawn on these). */
-  seatTier: TeamSeatTier | null;
 }
 
 /** The Team Plan's two tiers, as spec § 7.6's seat-tier action names them. */
 export type TeamSeatTier = 'upto15' | '16to40';
 
-/** A plan line's Team Plan tier, or null for every other line. */
-export const seatTierOf = (line: BillingLine | null): TeamSeatTier | null =>
-  line === 'agents16' ? 'upto15' : line === 'agents41' ? '16to40' : null;
+/** A local plan's Team Plan tier (its kind and option, `plans.option`), or null for every other plan. */
+export const seatTierOf = (kind: string | null | undefined, option: string | null | undefined): TeamSeatTier | null =>
+  kind === 'agents' && (option === 'upto15' || option === '16to40') ? option : null;
 
 export const INVOICE_STATUSES = ['draft', 'open', 'paid', 'void', 'uncollectible'] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
@@ -383,6 +381,11 @@ export interface BillingInvoiceRow {
   paymentMethod: string | null;
   created: number;
   url: string;
+  /**
+   * The Team Plan tier of the subscription the invoice bills, from its local plan (D-164: the gated
+   * seat-tier control is drawn in such an invoice's "…", the one row menu the mockup gives a plan).
+   */
+  seatTier: TeamSeatTier | null;
 }
 
 export interface BillingFailedRow {

@@ -306,10 +306,7 @@ describe('the billing lists (spec § 7.6, § 7’s conventions) @console', () =>
       status: 'active',
       mrrCents: 49_700,
       url: 'https://dashboard.stripe.com/test/subscriptions/sub_Team16',
-      // D-164: a Team Plan subscription names its tier (the gated seat-tier control is drawn on it).
-      seatTier: 'upto15',
     });
-    expect(page.rows.map((r) => r.seatTier)).toEqual(['upto15', '16to40', null]);
     expect(page.nextCursor).toBe('sub_AgentY');
     const next = body<ConsolePage<{ id: string; mrrCents: number | null }>>(await get(`${P.billingSubscriptions}?limit=3&cursor=sub_AgentY`));
     expect(next.rows.map((r) => r.id)).toEqual(['sub_Ins', 'sub_Trial', 'sub_TwoPay']);

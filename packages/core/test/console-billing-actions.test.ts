@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BILLING_ACTION_CAPS,
   BILLING_ACTION_PATHS,
+  BILLING_CONFIRM_MESSAGES,
   CONFIRM_TTL_MS,
   CONSOLE_ERRORS,
   SEAT_TIER_GATED,
@@ -102,6 +103,10 @@ describe('a void’s consequences (D-164)', () => {
 
 describe('the routes, codes and scopes (D-164)', () => {
   it('four routes, Owner and Admin, 5 minutes, and the codes with their sentences', () => {
+    expect(BILLING_CONFIRM_MESSAGES).toEqual({
+      confirm_invalid: 'This confirmation isn’t valid. Start again.',
+      confirm_expired: 'This confirmation expired after 5 minutes. Start again to see the current figures.',
+    });
     expect(Object.values(BILLING_ACTION_PATHS)).toEqual([
       '/api/console/billing/refund/preview',
       '/api/console/billing/refund',
@@ -122,10 +127,11 @@ describe('the routes, codes and scopes (D-164)', () => {
     expect(stripeWriteScopeMessage('Refunds')).toBe('Stripe’s restricted key can’t change Refunds. Add Write on Refunds to the key.');
   });
 
-  it('the seat tier is gated: drawn on Team Plan lines only, with its reason in words', () => {
-    expect(seatTierOf('agents16')).toBe('upto15');
-    expect(seatTierOf('agents41')).toBe('16to40');
-    expect(seatTierOf('membership')).toBeNull();
+  it('the seat tier is gated: drawn on Team Plan invoices only, with its reason in words', () => {
+    expect(seatTierOf('agents', 'upto15')).toBe('upto15');
+    expect(seatTierOf('agents', '16to40')).toBe('16to40');
+    expect(seatTierOf('membership', 'monthly')).toBeNull();
+    expect(seatTierOf(null, null)).toBeNull();
     expect(SEAT_TIER_GATED).toBe('Off until a tier change in Stripe also updates the workspace’s seats.');
   });
 });

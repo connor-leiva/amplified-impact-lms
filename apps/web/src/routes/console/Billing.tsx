@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate, useParams } from 'react-router';
-import { SEAT_TIER_GATED, consoleCan } from '@ai/core';
-import type { BillingActionResult } from '@ai/core';
+import { SEAT_TIER_GATED } from '@ai/core';
+import type { BillingActionResult, ConsoleCap } from '@ai/core';
 import { Button } from '../../components/r2/Button';
 import { Card } from '../../components/r2/Card';
 import type { MenuEntry } from '../../components/r2/Menu';
@@ -80,13 +80,12 @@ export function Component() {
   if (gate.kind === 'denied') return <Denied what={C.title} role={gate.role} />;
   if (tab === null) return <NotFound />;
   // Support reads billing and changes nothing (D3): the head says so, and the actions are hidden.
-  const canAct = gate.kind === 'ready' && consoleCan(gate.me.role, 'billing.refund');
+  // The viewer's capabilities as the server grants them (`/api/console/me`: the role, and the Owner's
+  // Roles & Permissions changes, D-160 R2-3b), so an Admin whose refund row is off sees no action.
+  const has = (cap: ConsoleCap) => gate.kind === 'ready' && gate.me.caps.includes(cap);
+  const canAct = has('billing.refund');
   const ro = gate.kind === 'ready' && !canAct;
-  const can = {
-    refund: canAct,
-    void: gate.kind === 'ready' && consoleCan(gate.me.role, 'billing.void'),
-    tier: gate.kind === 'ready' && consoleCan(gate.me.role, 'billing.seat_tier'),
-  };
+  const can = { refund: canAct, void: has('billing.void'), tier: has('billing.seat_tier') };
   const done = (r: BillingActionResult) => {
     setActing(null);
     toast(C.action.toast[r.action]);
@@ -271,10 +270,6 @@ function List({
         cell: (r) => status(r.status),
       },
     ];
-    // D-164: the spec's seat tier (D4), drawn on a Team Plan subscription and disabled with its reason:
-    // the webhook doesn't re-derive seats on a tier change, so there is no endpoint (spec § 15).
-    const tier = (r: SubscriptionVM): MenuEntry[] =>
-      can.tier && r.teamPlan ? ['separator', { label: C.menu.seatTier, unavailable: SEAT_TIER_GATED, onSelect: () => {} }] : [];
     return (
       <Table
         label={C.tabs.subscriptions}
@@ -311,6 +306,11 @@ function List({
     ];
     const actions = (r: InvoiceVM): MenuEntry[] =>
       r.refund && can.refund ? item(C.menu.refund, 'refund', r) : r.void && can.void ? item(C.menu.void, 'void', r) : [];
+    // D-164: the spec's seat tier (D4), drawn in a Team Plan invoice's "…" (the one row menu the mockup
+    // gives a plan; Subscriptions has none) and disabled with its reason: the webhook doesn't re-derive
+    // seats on a tier change, so there is no endpoint (spec § 15).
+    const tier = (r: InvoiceVM): MenuEntry[] =>
+      can.tier && r.teamPlan ? ['separator', { label: C.menu.seatTier, unavailable: SEAT_TIER_GATED, onSelect: () => {} }] : [];
     return (
       <Table
         label={C.tabs.invoices}
@@ -318,7 +318,7 @@ function List({
         rows={rows(invoiceVM)}
         rowKey={(r) => r.key}
         onRow={openRow}
-        menu={(r) => [...customer(r), ...stripe(r.stripe), ...actions(r)]}
+        menu={(r) => [...customer(r), ...stripe(r.stripe), ...actions(r), ...tier(r)]}
         {...common}
       />
     );

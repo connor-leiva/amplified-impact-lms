@@ -14,7 +14,8 @@
 // A PREVIEW reads Stripe fresh (never the 10-minute cache) and answers `{ summary, consequences,
 // confirmToken, expiresAt }`: what the action is, what `billing/webhook.ts` will then do (core's
 // `refundConsequences` / `voidConsequences`, from the same rows the webhook reads), and a token bound
-// to the action, its parameters, the staff member and an expiry 5 minutes on (`confirm.ts`). It writes
+// to the action, its parameters, the staff member and an expiry 5 minutes on: the Console's one confirm
+// token (`confirm-token.ts`, R2-3b's, which Roles & Permissions uses too). It writes
 // nothing, but it reserves the audit row's id, which a refund sends to Stripe as `console_audit_id`.
 //
 // AN EXECUTE takes that token, a reason of 10 to 500 characters (kept in the audit row, never sent to
@@ -34,6 +35,7 @@ import {
   BILLING_ACTION_CAPS,
   BILLING_ACTION_PATHS,
   BILLING_ACTION_RATE,
+  BILLING_CONFIRM_MESSAGES,
   CONFIRM_TTL_MS,
   cleanReason,
   confirmTextOf,
@@ -57,8 +59,8 @@ import { accounts, auditLog, orders, plans, teams } from '../db/schema';
 import { clock } from '../lib/clock';
 import { audit, reserveAuditId } from './audit';
 import type { AuditActor, AuditInput } from './audit';
-import { idempotencyKeyOf, signConfirm, verifyConfirm } from './confirm';
-import type { ConfirmCheck, ConfirmClaims } from './confirm';
+import { idempotencyKeyOf, signConfirm, verifyConfirm } from './confirm-token';
+import type { ConfirmClaims } from './confirm-token';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { StripeReadError, StripeScopeError } from './stripe-read';
 import type { ConsoleStripe, ReadInvoice } from './stripe-read';
@@ -102,6 +104,17 @@ export const staleAfter =
   };
 
 type Staff = Extract<AuditActor, { source: 'staff' }>;
+
+/**
+ * What a Billing confirm token carries beyond the shared three (`action` is `billing.refund` or
+ * `billing.void`, `actor` the staff member, `exp`): the parameters the preview read from Stripe, and
+ * the audit row's id it reserved, the refund's `console_audit_id`.
+ */
+interface BillingClaims extends ConfirmClaims {
+  p: Record<string, string | number | null>;
+  aid: number;
+}
+const actionOf = (a: BillingAction) => `billing.${a}` as const;
 type PlanFacts = { kind: PlanKind; seats: number; status: PlanStatus };
 
 const INVOICE_ID = /^in_[A-Za-z0-9]{1,64}$/;
@@ -224,23 +237,23 @@ export function registerBillingActionRoutes(scope: FastifyInstance, deps: Billin
   };
 
   /** A token that isn't valid, has expired or was used: one `denied` row, then the refusal. */
-  const refuse = async (req: FastifyRequest, reply: FastifyReply, action: BillingAction, actor: Staff, code: 'confirm_invalid' | 'confirm_expired' | 'confirm_used', claims?: ConfirmClaims) => {
+  const refuse = async (req: FastifyRequest, reply: FastifyReply, action: BillingAction, actor: Staff, code: 'confirm_invalid' | 'confirm_expired' | 'confirm_used', claims?: BillingClaims) => {
     await audit(req, {
-      action: `billing.${action}`,
+      action: actionOf(action),
       outcome: 'denied',
       actor,
       // Only a genuine token's invoice is believed.
       target: { type: 'invoice', id: claims ? String(claims.p.inv) : null, label: claims ? str(claims.p.who) : null },
       after: { code },
     });
-    return consoleError(reply, code);
+    return consoleError(reply, code, code === 'confirm_used' ? undefined : BILLING_CONFIRM_MESSAGES[code]);
   };
 
   /** The execute's shared front: the token, the reason, what was typed, Stripe, and the token unused. */
-  const confirmed = async (req: FastifyRequest, reply: FastifyReply, action: BillingAction): Promise<{ claims: ConfirmClaims; token: string; reason: string; actor: Staff } | FastifyReply> => {
+  const confirmed = async (req: FastifyRequest, reply: FastifyReply, action: BillingAction): Promise<{ claims: BillingClaims; token: string; reason: string; actor: Staff } | FastifyReply> => {
     const actor = staff(req);
     const b = bodyOf(req);
-    const check: ConfirmCheck = verifyConfirm(b.confirmToken, { act: action, sub: actor.userId, now: clock.now() });
+    const check = verifyConfirm<BillingClaims>(b.confirmToken, { action: actionOf(action), actor: actor.userId }, clock.now());
     if (!check.ok) return refuse(req, reply, action, actor, check.code, check.claims);
     const { claims } = check;
     const reason = cleanReason(b.reason);
@@ -280,10 +293,10 @@ export function registerBillingActionRoutes(scope: FastifyInstance, deps: Billin
       };
       if (refundEndsSeat(facts)) facts.seatsSold = await cohortSeatsSold(db);
       const who = await customerNameOf(db, inv);
-      const claims: ConfirmClaims = {
-        act: 'refund',
+      const claims: BillingClaims = {
+        action: actionOf('refund'),
+        actor: actor.userId,
         p: { inv: inv.id, ch: inv.chargeId ?? charge.id, pi: inv.paymentIntentId, amt: amount, who },
-        sub: actor.userId,
         exp: clock.now() + CONFIRM_TTL_MS,
         aid: await reserveAuditId(db),
       };
@@ -380,7 +393,7 @@ export function registerBillingActionRoutes(scope: FastifyInstance, deps: Billin
       if (!voidable(inv)) return consoleError(reply, 'invoice_not_voidable');
       const db = getDb();
       const who = await customerNameOf(db, inv);
-      const claims: ConfirmClaims = { act: 'void', p: { inv: inv.id, who }, sub: actor.userId, exp: clock.now() + CONFIRM_TTL_MS, aid: await reserveAuditId(db) };
+      const claims: BillingClaims = { action: actionOf('void'), actor: actor.userId, p: { inv: inv.id, who }, exp: clock.now() + CONFIRM_TTL_MS, aid: await reserveAuditId(db) };
       const out: BillingActionPreview = {
         action: 'void',
         summary: { invoiceId: inv.id, customerName: who, amountCents: inv.totalCents, paymentMethod: null, refund: null, confirmText: confirmTextOf('void', { amountCents: inv.totalCents, invoiceId: inv.id }) },
