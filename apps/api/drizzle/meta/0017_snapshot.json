@@ -1,5 +1,5 @@
 {
-  "id": "a089eaf3-6dfc-45c0-ab4c-a5a2f83fc92a",
+  "id": "e5dc4b32-74d1-4ae0-87d6-b948ae1aa35c",
   "prevId": "83280d5b-0bed-432b-9e4e-82c80f7ae684",
   "version": "7",
   "dialect": "postgresql",
@@ -2028,12 +2028,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
-        },
-        "module_id": {
-          "name": "module_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -2121,12 +2115,6 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": false
-        },
-        "replay_url": {
-          "name": "replay_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -2207,6 +2195,108 @@
         "skills_status": {
           "name": "skills_status",
           "value": "\"skills\".\"status\" in ('draft', 'published', 'hidden')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.staff_notes": {
+      "name": "staff_notes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_user_id": {
+          "name": "author_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delete_reason": {
+          "name": "delete_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "staff_notes_target_idx": {
+          "name": "staff_notes_target_idx",
+          "columns": [
+            {
+              "expression": "target_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "target_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "staff_notes_target_type": {
+          "name": "staff_notes_target_type",
+          "value": "\"staff_notes\".\"target_type\" in ('workspace', 'user')"
+        },
+        "staff_notes_body": {
+          "name": "staff_notes_body",
+          "value": "char_length(\"staff_notes\".\"body\") between 1 and 2000"
+        },
+        "staff_notes_deleted": {
+          "name": "staff_notes_deleted",
+          "value": "(\"staff_notes\".\"deleted_at\" is null and \"staff_notes\".\"deleted_by\" is null and \"staff_notes\".\"delete_reason\" is null) or (\"staff_notes\".\"deleted_at\" is not null and \"staff_notes\".\"deleted_by\" is not null and char_length(\"staff_notes\".\"delete_reason\") between 10 and 500)"
         }
       },
       "isRLSEnabled": false

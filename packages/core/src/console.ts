@@ -498,8 +498,12 @@ export const CONSOLE_ERRORS = {
   export_too_large: { status: 422, message: 'This export is over 10,000 rows. Narrow the filters and try again.' },
   // Spec § 5 gives this sentence; masquerade is PR 3.
   masquerade_blocked: { status: 403, message: 'Blocked while masquerading. Exit to continue.' },
+  // PR 2 (D-158): a record that isn't there, a body that isn't valid, and a reason staff must give
+  // (a note's deletion here; masquerade and billing reuse it in PRs 3 and 5).
+  not_found: { status: 404, message: 'That record doesn’t exist.' },
+  invalid_body: { status: 400, message: 'That request isn’t valid.' },
+  reason_required: { status: 422, message: 'Give a reason of 10 to 500 characters.' },
   // Later PRs (spec §§ 6-7). Their sentences are written with them.
-  reason_required: { status: 422, message: null },
   masquerade_target_staff: { status: 403, message: null },
   masquerade_active: { status: 409, message: null },
   masquerade_max_reached: { status: 409, message: null },
