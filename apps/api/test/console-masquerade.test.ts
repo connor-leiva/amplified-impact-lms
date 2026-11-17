@@ -549,6 +549,13 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
       { method: 'POST', url: '/api/console/incidents/INC-0001/ack' },
       { method: 'POST', url: '/api/console/incidents/INC-0001/resolve' },
       { method: 'POST', url: '/api/console/incidents/INC-0001/notes' },
+      // PR 9 (D-168): the Operations pages, the flag flip and Check now.
+      { method: 'GET', url: CONSOLE_PATHS.opsEnv },
+      { method: 'POST', url: '/api/console/flags/masquerade_enabled' },
+      { method: 'GET', url: CONSOLE_PATHS.integrations },
+      { method: 'POST', url: '/api/console/integrations/stripe/check' },
+      { method: 'GET', url: CONSOLE_PATHS.deploys },
+      { method: 'GET', url: CONSOLE_PATHS.dbHealth },
     ];
     // Every Console path is here or allowed.
     const covered = new Set([...probes.map((p) => p.url.split('?')[0]!), ...allowed]);
