@@ -1,5 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router';
+import type { RouteObject } from 'react-router';
 import { fixtureAdminRoutes } from './routes/console/fixtureRoutes';
+import { withStaleChunkRecovery } from './lib/StaleChunkBoundary';
 
 const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 'true';
 
@@ -28,7 +30,7 @@ const devRoutes = import.meta.env.DEV || import.meta.env.VITE_ENABLE_STATES === 
 // (§ 7.5's "does not reveal whether an account exists" holds end to end only if the UI refuses to
 // branch), and the viewer sees "Check Your Email". That is what makes the smoke checks in
 // compliance/tests/e2e/signin.spec.ts meaningful against a deployment with no fixture data.
-export const router = createBrowserRouter([
+const routes: RouteObject[] = [
   ...(devRoutes
     ? [
         { path: '/__states', lazy: () => import('./routes/__states') },
@@ -92,4 +94,10 @@ export const router = createBrowserRouter([
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
-]);
+];
+
+// D-170: every route above sits under `withStaleChunkRecovery`, two pathless routes (no path, no
+// element: every address matches and renders as before). A lazy screen whose file a deploy removed
+// reloads the page once instead of showing "Unexpected Application Error!"; any other error still
+// gets React Router's default screen, as it always has. `lib/StaleChunkBoundary.tsx` says how.
+export const router = createBrowserRouter(withStaleChunkRecovery(routes));

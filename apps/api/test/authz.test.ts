@@ -113,7 +113,8 @@
 //      public /terms and /privacy pages (`routes/legal.ts`) are classified the same way.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { can, MutationError, PERMS, seedForDatabase, STAFF_ROLES } from '@ai/core';
+import { asc, gt } from 'drizzle-orm';
+import { can, isStaffWrite, MutationError, PERMS, seedForDatabase, STAFF_AUDIT_ACTION, STAFF_ROLES } from '@ai/core';
 import type { AIEmployee, Actor, Ctx, Db, MutationArgs, MutationName, PermKey, StaffRole } from '@ai/core';
 import * as M from '@ai/core/mutations';
 import { build } from '../src/app';
@@ -122,6 +123,7 @@ import { deterministicIds } from '../src/lib/clock';
 import { resetOutbox } from '../src/email/transport';
 import { SCHEMAS } from '../src/routes/schemas';
 import { GUIDE_ALIASES, GUIDE_SLUGS } from '../src/routes/guide-list';
+import { auditLog } from '../src/db/schema';
 import { resetDatabase, testDatabase } from './helpers';
 
 /** Gate 7's instant, the one the oracle and the parity run use. */
@@ -825,6 +827,18 @@ describe('Gate 7 · the authorization matrix @g7', () => {
           const cookie = await app.signInAs(staffId);
 
           const failures: string[] = [];
+          // D-171: the audit rows each case wrote. The three staff writes write exactly one each (`ok`
+          // on a 200, `denied` on a 403); every other mutation on `/api/mutate` writes none.
+          let lastAuditId = 0;
+          const newAuditRows = async () => {
+            const rows = await (await testDatabase())
+              .select({ id: auditLog.id, action: auditLog.action, outcome: auditLog.outcome })
+              .from(auditLog)
+              .where(gt(auditLog.id, lastAuditId))
+              .orderBy(asc(auditLog.id));
+            lastAuditId = rows.at(-1)?.id ?? lastAuditId;
+            return rows.map((r) => `${r.action}:${r.outcome}`);
+          };
           for (const c of STAFF_CASES) {
             const perms = EXPECTED_PERMISSIONS[c.label]!;
             // The expectation, from core's own reader of the real `permissions` table. Nothing in
@@ -834,6 +848,11 @@ describe('Gate 7 · the authorization matrix @g7', () => {
 
             const res = await mutate(c.name, c.args, cookie);
             EXECUTED.matrix += 1;
+            const audited = await newAuditRows();
+            const auditExpected = isStaffWrite(c.name) ? [`${STAFF_AUDIT_ACTION[c.name]}:${allowed ? 'ok' : 'denied'}`] : [];
+            if (JSON.stringify(audited) !== JSON.stringify(auditExpected)) {
+              failures.push(`${role} · ${c.label}: audit rows ${JSON.stringify(audited)}, expected ${JSON.stringify(auditExpected)}`);
+            }
             if (res.statusCode !== expected) {
               failures.push(
                 `${role} · ${c.label} (needs ${perms.join(' + ')}): expected ${expected}, got ` +
