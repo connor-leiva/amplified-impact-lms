@@ -528,6 +528,10 @@ export const CONSOLE_ERRORS = {
   invoice_not_voidable: { status: 409, message: null },
   seats_in_use: { status: 409, message: null },
   stripe_permission_missing: { status: 503, message: null },
+  // PR 4 (D-163): Billing reads Stripe. With no key, the screen says "Stripe isn't connected"; a read
+  // Stripe refused for some other reason (or never answered) is a 502 the screen can retry.
+  stripe_not_connected: { status: 503, message: 'Stripe isn’t connected.' },
+  stripe_unavailable: { status: 502, message: 'Stripe didn’t answer. Nothing was changed.' },
   job_not_runnable: { status: 403, message: null },
   scheduler_busy: { status: 409, message: null },
 } as const satisfies Record<string, { status: number; message: string | null }>;

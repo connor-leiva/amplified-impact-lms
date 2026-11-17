@@ -52,6 +52,8 @@ import { audit } from './audit';
 import { consoleError, requireConsole, staffActor } from './guard';
 import { commitRoleChange, invalidateRoleGrants, previewRoleChange, roleGrants } from './roles';
 import { SUPPORT_PATHS, registerSupportRoutes } from './support-routes';
+import { BILLING_PATHS, registerBillingRoutes } from './billing';
+import type { BillingDeps } from './billing';
 import { masqueradeEnabled, registerMasqueradeRoutes } from './masquerade';
 import type { MasqueradeDeps } from './masquerade';
 
@@ -70,6 +72,8 @@ export const CONSOLE_PATHS = {
   masqueradeExtend: MASQUERADE_PATHS.extend,
   masqueradeExit: MASQUERADE_PATHS.exit,
   masqueradeSessions: MASQUERADE_PATHS.sessions,
+  // PR 4 (D-163): Billing, read-only.
+  ...BILLING_PATHS,
 } as const;
 
 /** Spec § 7: per minute, per session (the global limiter's key, `rateLimitKey`). */
@@ -80,10 +84,12 @@ export const limit = (max: number) => ({ rateLimit: { max, timeWindow: '1 minute
 /**
  * What the app hands the Console routes. PR 3a (D-162): masquerade's flag. D-160 R2-3b: the event hub's
  * `broadcast`, so a Roles change to the `PermKey` matrix wakes every client as a `/api/mutate` write
- * does. Later Console PRs add theirs (Stripe, the price cache).
+ * does. PR 4 (D-163): Billing's cached Stripe read client (null with no key), the offer's price cache and
+ * the key's mode; without them, Billing answers "Stripe isn't connected".
  */
 export interface ConsoleDeps extends Readonly<MasqueradeDeps> {
   readonly broadcast?: () => void;
+  readonly billing?: BillingDeps;
 }
 
 // --- filters -------------------------------------------------------------------------------------
@@ -206,6 +212,9 @@ const roleOfViewer = (req: FastifyRequest): string | null => {
 
 // --- the routes ----------------------------------------------------------------------------------
 
+/** A price cache with nothing in it, for a Console registered without Billing's deps. */
+const NO_PRICES = { get: async () => null, reset: () => {} };
+
 export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleDeps): Promise<void> {
   // A new app reads the stored matrix changes afresh (each test builds one against a fresh database).
   invalidateRoleGrants();
@@ -299,5 +308,6 @@ export async function registerConsoleRoutes(app: FastifyInstance, deps: ConsoleD
 
     registerSupportRoutes(scope);
     registerMasqueradeRoutes(scope, deps);
+    registerBillingRoutes(scope, deps.billing ?? { stripe: null, prices: NO_PRICES, mode: 'unset' }, { config: limit(CONSOLE_RATE.read) });
   });
 }
