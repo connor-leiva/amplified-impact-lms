@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, GLOBAL_RATE_MAX, isApiPath } from '../src/app';
 import type { App } from '../src/app';
-import { IMMUTABLE, registerStaticFiles } from '../src/static';
+import { IMMUTABLE, cacheControlFor, registerStaticFiles } from '../src/static';
 import { GUIDE_SLUGS } from '../src/routes/guide-list';
 
 const SHELL = '<!doctype html><title>Amplified Impact</title><div id="root"></div>';
@@ -147,5 +147,47 @@ describe('D-137: a limit of its own is for API routes only', () => {
     } finally {
       await a.close();
     }
+  });
+});
+
+// D-170: a tab opened before a deploy reloads once to pick up the new files (`apps/web/src/lib/
+// stale-chunk.ts`). That reload, and every fresh load, must get the CURRENT `index.html`, which names
+// the current hashed files: so the app shell is `no-cache` (checked with the server on every load)
+// wherever it is answered, and the hashed files it names keep their year. Already so since D-137;
+// held here for each way the shell is reached.
+describe('D-170: the learn app shell is no-cache wherever it is answered; hashed files keep their year', () => {
+  const LEARN_SHELL = [
+    '/',
+    '/index.html',
+    '/admin/staff',
+    '/employees/marketing?tab=replay',
+    '/sign-in?token=abc',
+    '/invite/abc123',
+  ];
+
+  it('answers index.html and every SPA deep link with Cache-Control: no-cache', async () => {
+    const a = await serve();
+    for (const url of LEARN_SHELL) {
+      for (const method of ['GET', 'HEAD'] as const) {
+        const res = await a.inject({ method, url, headers: { ...ROOM, host: 'learn.amplifiedimpact.io' } });
+        expect(res.statusCode, `${method} ${url}`).toBe(200);
+        expect(res.headers['content-type'], `${method} ${url}`).toMatch(/^text\/html/);
+        expect(res.headers['cache-control'], `${method} ${url}`).toBe('no-cache');
+        if (method === 'GET') expect(res.body, url).toBe(SHELL);
+      }
+    }
+  });
+
+  it('keeps the year-long immutable cache on the hashed files the shell names', async () => {
+    const a = await serve();
+    for (const url of ASSET_URLS) expect((await get(a, url)).headers['cache-control'], url).toBe(IMMUTABLE);
+  });
+
+  it('changes nothing else: other files, and www’s homepage, keep the headers they had', async () => {
+    expect(cacheControlFor('/srv/apps/web/dist/robots.txt')).toBe('public, max-age=0');
+    expect(cacheControlFor('/srv/apps/web/dist/downloads/guide.pdf')).toBe('public, max-age=0');
+    const a = await serve('www.amplifiedimpact.io');
+    const home = await get(a, '/', 'www.amplifiedimpact.io');
+    expect([home.statusCode, home.headers['cache-control']]).toEqual([200, 'public, max-age=300']);
   });
 });
