@@ -1,13 +1,14 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { avatarColor, fmt, nextSession } from '@ai/core';
+import { avatarColor, consoleCan, fmt, nextSession } from '@ai/core';
 
 import '../../styles/r2.css';
 import { Icon } from '../../components/Icon';
 import { Status } from '../../components/r2/Status';
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useNow, useViewer } from '../../data/hooks';
-import { fixtureConsoleRole, masqueradeActive } from '../../data/console';
+import { fixtureConsoleRole } from '../../data/console';
+import { masqueradeActive } from '../../data/masquerade';
 import { PARITY_POSSIBLE, parityR2, shellDataFrom, shellDataFromParity } from '../../data/admin-shell';
 import type { ParityR2 } from '../../data/parity-r2';
 import { SIGN_OUT_FAILED, signOut as endSession } from '../../data/session';
@@ -21,6 +22,7 @@ import { AdminChromeProvider } from './chrome';
 import { Palette } from './Palette';
 import { Sidebar, type SidebarMode } from './Sidebar';
 import { Wordmark } from './Wordmark';
+import { useOpenIncidents } from './useOpenIncidents';
 import s from './AdminShell.module.css';
 
 // The admin AppShell of the Admin redesign R2 (D-160 R2-1b, BUILD-SPEC § 4), the mockup's frame: the
@@ -38,7 +40,7 @@ import s from './AdminShell.module.css';
 //
 // THE ⌘K PALETTE (D-160 R2-1c, spec § 7.5): the top bar's "Search or jump to…", the phone's Search,
 // the 404's "Search the admin" and ⌘K / Ctrl+K open it, unless a masquerade session is running
-// (`masqueradeActive`, the Masquerade PR's seam). A record's page names itself in the breadcrumb, and
+// (`masqueradeActive`, D-162 3b's store). A record's page names itself in the breadcrumb, and
 // the R2 toast is the shell's (`chrome.ts`).
 
 const ADMIN_ROOT = '/admin';
@@ -98,9 +100,11 @@ export function AdminShell() {
   }, []);
   const role = previewRole ?? staffRole;
 
+  // D-167: the sidebar's "1 incident" from the API, once we know this is not the parity fixture.
+  const openIncidents = useOpenIncidents(parity === null && consoleCan(role, 'incidents.read'), path);
   const data = useMemo(
-    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role)),
-    [db, parity, role, staffId],
+    () => (parity ? shellDataFromParity(parity) : shellDataFrom(db, staffId, role, openIncidents)),
+    [db, openIncidents, parity, role, staffId],
   );
 
   // ---- the sidebar's form --------------------------------------------------------------------------
@@ -251,9 +255,13 @@ export function AdminShell() {
           <span aria-hidden="true">/</span>
           {trail.parent ? (
             <>
-              <Link to={trail.parent} className={s.crumbLink}>
-                {trail.page}
-              </Link>
+              {trail.parentLink === false ? (
+                <b className={s.here}>{trail.page}</b>
+              ) : (
+                <Link to={trail.parent} className={s.crumbLink}>
+                  {trail.page}
+                </Link>
+              )}
               {record ? (
                 <>
                   <span aria-hidden="true">/</span>

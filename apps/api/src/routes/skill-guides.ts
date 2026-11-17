@@ -23,6 +23,7 @@ import { getDb } from '../db/client';
 import { skills } from '../db/schema';
 import { clock } from '../lib/clock';
 import { accessOf, groupsView, opensAtFor, stateFor } from './skills';
+import { recordUsage } from '../lib/usage';
 
 export const SKILL_GUIDES_PATH = '/api/skill-guides';
 const FOR_LEARNERS = 'The skill library is for learners.';
@@ -54,6 +55,7 @@ export function registerSkillGuideRoutes(app: FastifyInstance, { guides }: Skill
     const now = clock.now();
     const state = stateFor(access.role, access.plans, row, now);
     const open = state === 'open';
+    recordUsage(req, actor.userId, 'guide_view'); // D-166: a usage count (skipped in a masquerade); it changes nothing here.
     return reply.send({
       slug: guide.slug,
       skill: guide.skill,

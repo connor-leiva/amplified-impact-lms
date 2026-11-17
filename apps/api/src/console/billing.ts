@@ -34,6 +34,7 @@ import {
   planLine,
   primaryPlan,
   refundReasonOf,
+  seatTierOf,
   stripeDashboardUrl,
   stripeScopeMessage,
   subscriptionLine,
@@ -119,22 +120,22 @@ export interface LocalRefs {
   /** A Stripe customer's workspace, by its account (or an order that names it). */
   workspaceOf: (customerId: string | null) => BillingWorkspaceRef | null;
   /** A subscription's local plan and order. */
-  planOf: (subscriptionId: string | null) => { kind: PlanKind; orderId: string } | null;
+  planOf: (subscriptionId: string | null) => { kind: PlanKind; orderId: string; option: string } | null;
   /** Every account with a Stripe customer: its workspace and its plans. */
   customers: { customerId: string; name: string; workspace: BillingWorkspaceRef; plans: { kind: PlanKind; status: PlanStatus; seats: number; createdAt: number }[] }[];
 }
 
 export async function localRefs(db: Database): Promise<LocalRefs> {
   const accts = await db.select({ id: accounts.id, teamId: accounts.teamId, name: teams.name, own: accounts.name, customer: accounts.stripeCustomerId }).from(accounts).leftJoin(teams, eq(teams.id, accounts.teamId));
-  const planRows = await db.select({ accountId: plans.accountId, kind: plans.kind, status: plans.status, seats: plans.seats, sub: plans.stripeSubscriptionId, orderId: plans.orderId, createdAt: plans.createdAt }).from(plans);
-  const orderRows = await db.select({ id: orders.id, plan: orders.plan, accountId: orders.accountId, customer: orders.stripeCustomerId, sub: orders.stripeSubscriptionId }).from(orders);
+  const planRows = await db.select({ accountId: plans.accountId, kind: plans.kind, status: plans.status, seats: plans.seats, sub: plans.stripeSubscriptionId, orderId: plans.orderId, createdAt: plans.createdAt, option: plans.option }).from(plans);
+  const orderRows = await db.select({ id: orders.id, plan: orders.plan, option: orders.option, accountId: orders.accountId, customer: orders.stripeCustomerId, sub: orders.stripeSubscriptionId }).from(orders);
   const ws = new Map(accts.map((a) => [a.id, { teamId: a.teamId, name: a.name ?? a.own }]));
   const byCustomer = new Map<string, string>();
   for (const a of accts) if (a.customer) byCustomer.set(a.customer, a.id);
   for (const o of orderRows) if (o.customer && o.accountId && !byCustomer.has(o.customer)) byCustomer.set(o.customer, o.accountId);
-  const bySub = new Map<string, { kind: PlanKind; orderId: string }>();
-  for (const o of orderRows) if (o.sub && isPlanKind(o.plan)) bySub.set(o.sub, { kind: o.plan, orderId: o.id });
-  for (const p of planRows) if (p.sub && isPlanKind(p.kind)) bySub.set(p.sub, { kind: p.kind, orderId: p.orderId });
+  const bySub = new Map<string, { kind: PlanKind; orderId: string; option: string }>();
+  for (const o of orderRows) if (o.sub && isPlanKind(o.plan)) bySub.set(o.sub, { kind: o.plan, orderId: o.id, option: o.option });
+  for (const p of planRows) if (p.sub && isPlanKind(p.kind)) bySub.set(p.sub, { kind: p.kind, orderId: p.orderId, option: p.option });
   return {
     workspaceOf: (c) => (c && byCustomer.has(c) ? (ws.get(byCustomer.get(c)!) ?? null) : null),
     planOf: (s) => (s ? (bySub.get(s) ?? null) : null),
@@ -270,6 +271,8 @@ async function invoiceRows(stripe: ConsoleStripe, refs: LocalRefs, mode: StripeM
         paymentMethod: c?.paymentMethod ?? null,
         created: i.created,
         url: stripeDashboardUrl(mode, 'invoices', i.id),
+        // D-164: the gated seat-tier control is drawn on a Team Plan's invoices.
+        seatTier: ((p) => seatTierOf(p?.kind, p?.option))(refs.planOf(i.subscriptionId)),
       };
     }),
     nextCursor: next,
@@ -374,7 +377,12 @@ function stripeRefusal(req: FastifyRequest, reply: FastifyReply, e: unknown): Fa
   throw e;
 }
 
-export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps, rate: { config: { rateLimit: { max: number; timeWindow: string } } }): void {
+/** What a confirmed write (D-164) calls afterwards: forget the cached summary, so its figures are read again. */
+export interface BillingMemo {
+  forgetSummary(): void;
+}
+
+export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps, rate: { config: { rateLimit: { max: number; timeWindow: string } } }): BillingMemo {
   const opts = { ...rate, preHandler: [requireSession, requireConsole('billing.read')] };
   // The summary itself is kept 10 minutes too, so its `asOf` says when it was read.
   let summary: { at: number; value: Promise<BillingSummary> } | null = null;
@@ -441,4 +449,10 @@ export function registerBillingRoutes(scope: FastifyInstance, deps: BillingDeps,
     }
     return scopes.value;
   });
+
+  return {
+    forgetSummary: () => {
+      summary = null;
+    },
+  };
 }

@@ -49,6 +49,17 @@ export const stripeDashboardUrl = (mode: StripeMode, kind: StripeObject, id: str
 export const stripeScopeMessage = (scope: string): string =>
   `Stripe’s restricted key can’t read ${scope}. Add Read on ${scope} to the key.`;
 
+/**
+ * The Write permissions the Console's confirmed actions need (D-164, spec § 7.6): a refund (Refunds) and
+ * a void (Invoices). Subscriptions: Write is the seat tier's, which is gated and has no endpoint.
+ */
+export const STRIPE_WRITE_SCOPES = ['Refunds', 'Invoices'] as const;
+export type StripeWriteScope = (typeof STRIPE_WRITE_SCOPES)[number];
+
+/** The sentence a missing Write permission answers with (503 `stripe_permission_missing`). */
+export const stripeWriteScopeMessage = (scope: string): string =>
+  `Stripe’s restricted key can’t change ${scope}. Add Write on ${scope} to the key.`;
+
 // ================================================================================================
 // MRR
 // ================================================================================================
@@ -345,6 +356,13 @@ export interface BillingSubscriptionRow {
   url: string;
 }
 
+/** The Team Plan's two tiers, as spec § 7.6's seat-tier action names them. */
+export type TeamSeatTier = 'upto15' | '16to40';
+
+/** A local plan's Team Plan tier (its kind and option, `plans.option`), or null for every other plan. */
+export const seatTierOf = (kind: string | null | undefined, option: string | null | undefined): TeamSeatTier | null =>
+  kind === 'agents' && (option === 'upto15' || option === '16to40') ? option : null;
+
 export const INVOICE_STATUSES = ['draft', 'open', 'paid', 'void', 'uncollectible'] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
@@ -363,6 +381,11 @@ export interface BillingInvoiceRow {
   paymentMethod: string | null;
   created: number;
   url: string;
+  /**
+   * The Team Plan tier of the subscription the invoice bills, from its local plan (D-164: the gated
+   * seat-tier control is drawn in such an invoice's "…", the one row menu the mockup gives a plan).
+   */
+  seatTier: TeamSeatTier | null;
 }
 
 export interface BillingFailedRow {

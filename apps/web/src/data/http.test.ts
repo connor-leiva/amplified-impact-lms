@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { Mock } from 'vitest';
-import { createHttpRepository, navigation } from './http';
+import { BLOCKED_MESSAGE, MASQUERADE_BLOCKED_EVENT, createHttpRepository, masqueradeRefusal, navigation, sitePath } from './http';
 
 // Phase 07 § 7.6. The API does not exist yet, which is exactly why this suite matters: it is the
 // contract the endpoints have to satisfy, written down before they are built. Every assertion here
@@ -280,5 +280,66 @@ describe('HttpRepository · the join window (§ 8.4) @g8', () => {
 
     await createHttpRepository().joinTicket('dec26/s3');
     expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/sessions/dec26%2Fs3/join');
+  });
+});
+
+// D-162 3b (spec § 6 Web): a masquerade's two refusals. 409 `masquerade_ended` goes to its redirect;
+// 403 `masquerade_blocked` opens the blocked dialog (a window event naming the attempt). 401 is
+// unchanged, above.
+describe('HttpRepository · a masquerade (D-162 3b) @g9', () => {
+  const blocked = () => {
+    const seen: (string | null)[] = [];
+    const on = (e: Event) => seen.push((e as CustomEvent<{ attempt: string | null }>).detail.attempt);
+    window.addEventListener(MASQUERADE_BLOCKED_EVENT, on);
+    return { seen, off: () => window.removeEventListener(MASQUERADE_BLOCKED_EVENT, on) };
+  };
+
+  it('a blocked write opens the blocked dialog, naming the route, and resolves like a form error', async () => {
+    const b = blocked();
+    fetchMock.mockImplementation(async () => json(403, { error: BLOCKED_MESSAGE, code: 'masquerade_blocked' }));
+    await expect(createHttpRepository().run('toggleStep', { moduleId: 'm1', step: 0 } as never)).resolves.toEqual({ error: BLOCKED_MESSAGE });
+    expect(b.seen).toEqual(['POST /api/mutate/toggleStep']);
+    b.off();
+  });
+
+  it('an ended session goes where the API says, with a full page load', async () => {
+    const assign = vi.spyOn(navigation, 'assign').mockImplementation(() => {});
+    const toSignIn = vi.spyOn(navigation, 'toSignIn').mockImplementation(() => {});
+    fetchMock.mockImplementation(async () => json(409, { error: 'This masquerade session has ended.', code: 'masquerade_ended', redirect: '/admin/users/u_1042' }));
+    await expect(createHttpRepository().snapshot()).rejects.toThrow('This masquerade session has ended.');
+    expect(assign).toHaveBeenCalledWith('/admin/users/u_1042');
+    expect(toSignIn).not.toHaveBeenCalled();
+  });
+
+  it('the join route: blocked is shut (and the dialog), ended goes back, an ordinary 409 is still shut', async () => {
+    const assign = vi.spyOn(navigation, 'assign').mockImplementation(() => {});
+    const b = blocked();
+    fetchMock.mockImplementation(async () => json(403, { error: BLOCKED_MESSAGE, code: 'masquerade_blocked' }));
+    await expect(createHttpRepository().joinTicket('dec26-s3')).resolves.toEqual({ kind: 'shut' });
+    expect(b.seen).toEqual(['GET /api/sessions/dec26-s3/join']);
+    b.off();
+    fetchMock.mockImplementation(async () => json(409, { code: 'masquerade_ended', redirect: '/admin' }));
+    await expect(createHttpRepository().joinTicket('dec26-s3')).rejects.toThrow('Masquerade ended');
+    expect(assign).toHaveBeenCalledWith('/admin');
+    fetchMock.mockImplementation(async () => json(409, { error: 'Not open yet' }));
+    await expect(createHttpRepository().joinTicket('dec26-s3')).resolves.toEqual({ kind: 'shut' });
+  });
+
+  it('a 401 is unchanged: sign in, no masquerade handling', async () => {
+    const assign = vi.spyOn(navigation, 'assign').mockImplementation(() => {});
+    const toSignIn = vi.spyOn(navigation, 'toSignIn').mockImplementation(() => {});
+    fetchMock.mockImplementation(async () => json(401, { error: 'Not signed in', code: 'masquerade_ended', redirect: '/admin' }));
+    await expect(createHttpRepository().viewer()).rejects.toThrow('Not signed in');
+    expect(toSignIn).toHaveBeenCalledTimes(1);
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it('anything else is left alone; a redirect is followed only within this site', () => {
+    const assign = vi.spyOn(navigation, 'assign').mockImplementation(() => {});
+    expect(masqueradeRefusal(403, { code: 'console_forbidden' })).toBeNull();
+    expect(masqueradeRefusal(409, { code: 'masquerade_active' })).toBeNull();
+    expect(masqueradeRefusal(409, { code: 'masquerade_ended', redirect: 'https://evil.example/' })).toBe('ended');
+    expect(assign).toHaveBeenLastCalledWith('/');
+    expect([sitePath('/admin'), sitePath('//evil.example'), sitePath('/\\evil'), sitePath(null)]).toEqual(['/admin', '/', '/', '/']);
   });
 });

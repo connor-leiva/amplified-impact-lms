@@ -118,6 +118,7 @@ describe('workspaces (spec § 7.3) @console', () => {
     expect(north).toEqual({
       teamId: 'northline',
       name: 'Northline Realty Team',
+      ownerId: 'u_alex',
       ownerName: 'Alex Morgan',
       ownerEmail: 'alex@northlinerealty.com',
       planKind: 'cohort',
@@ -418,7 +419,7 @@ describe('the users export (spec § 7.4, D6) @console', () => {
 
 // ================================================================================================
 
-describe('staff notes (spec § 7.3, migration 0016) @console', () => {
+describe('staff notes (spec § 7.3, migration 0017) @console', () => {
   const create = (targetType: string, targetId: string, text: string, who = 'st4') => post(CONSOLE_PATHS.notes, { targetType, targetId, body: text }, who);
   const list = async (targetType: string, targetId: string, who = 'st4') => body<{ rows: StaffNote[] }>(await get(`${CONSOLE_PATHS.notes}?targetType=${targetType}&targetId=${targetId}`, who)).rows;
 

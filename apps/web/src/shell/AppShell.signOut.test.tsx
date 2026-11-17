@@ -56,6 +56,13 @@ function renderAt(path: string) {
 const openProfile = () =>
   fireEvent.click(screen.queryByTitle(/· profile and settings$/) ?? screen.getByRole('button', { name: /\. Profile and settings$/ }));
 
+/**
+ * The order of each Sign Out request among the shell's calls. The admin shell also reads the sidebar's
+ * open-incident count (D-167, `useOpenIncidents`), which is no part of signing out.
+ */
+const signOuts = (): number[] =>
+  fetchMock.mock.calls.flatMap(([url], i) => (url === SIGN_OUT_ROUTE ? [fetchMock.mock.invocationCallOrder[i]!] : []));
+
 beforeEach(() => {
   resetSignOutForTests();
   state.db = seed('live');
@@ -81,10 +88,10 @@ describe('Sign Out in the shell (D-152)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sign Out' }));
 
     await waitFor(() => expect(toSignIn).toHaveBeenCalledTimes(1));
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(signOuts()).toHaveLength(1);
     expect(fetchMock).toHaveBeenCalledWith(SIGN_OUT_ROUTE, expect.objectContaining({ method: 'POST', credentials: 'include' }));
     // In that order: the server first, then the page's own memory, then away.
-    expect(fetchMock.mock.invocationCallOrder[0]).toBeLessThan(teardown.mock.invocationCallOrder[0]!);
+    expect(signOuts()[0]).toBeLessThan(teardown.mock.invocationCallOrder[0]!);
     expect(teardown.mock.invocationCallOrder[0]).toBeLessThan(toSignIn.mock.invocationCallOrder[0]!);
     // No demo toast, ever.
     expect(screen.queryByText(/\(demo\)/)).toBeNull();
@@ -110,7 +117,12 @@ describe('Sign Out in the shell (D-152)', () => {
   });
 
   it('says so and stays put when the server did not end the session, and a second try works', async () => {
-    fetchMock.mockResolvedValueOnce(answer(500));
+    let first = true;
+    fetchMock.mockImplementation(async (url: unknown) => {
+      if (url !== SIGN_OUT_ROUTE || !first) return answer(200);
+      first = false;
+      return answer(500);
+    });
     renderAt('/admin');
     openProfile();
     fireEvent.click(screen.getByRole('button', { name: 'Sign Out' }));
@@ -124,7 +136,7 @@ describe('Sign Out in the shell (D-152)', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Sign Out' }));
     await waitFor(() => expect(toSignIn).toHaveBeenCalledTimes(1));
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(signOuts()).toHaveLength(2);
   });
 });
 

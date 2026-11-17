@@ -7,8 +7,8 @@ import { expectAccessible } from '../../lib/a11y';
  * the R2 mockup's own Billing figures and records (`apps/web/src/data/console-fixture-billing.ts`), so
  * these read the mockup's words. The Summary's pixels are `pnpm parity:admin-r2`'s; these hold the
  * behaviour: the tabs at their own addresses, rows opening their workspace, "View in Stripe", the
- * locked R2-4b actions, Support's read-only view, Denied and the shared states. Every screen and state
- * passes axe (zero serious or critical).
+ * actions' places (D-164 opens them: `admin-r2-billing-actions.spec.ts`), Support's read-only view,
+ * Denied and the shared states. Every screen and state passes axe (zero serious or critical).
  */
 
 const NOW = '2026-12-10T09:30:00-07:00';
@@ -89,9 +89,9 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     await expect(rows(page)).toHaveCount(6);
     await expectAccessible(page);
 
-    // Paid: Refund… is drawn and locked until R2-4b; it changes nothing.
+    // Paid: Refund… (D-164 opens it; `admin-r2-billing-actions.spec.ts`), and no void.
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menuitem', { name: /Refund…/ })).toBeDisabled();
+    await expect(page.getByRole('menuitem', { name: /Refund…/ })).toBeEnabled();
     await expect(page.getByRole('menuitem', { name: /Void invoice…/ })).toHaveCount(0);
     // Never Stripe itself (no live calls): the Dashboard page is answered here.
     await page
@@ -102,18 +102,22 @@ test.describe('Billing on R2 (D-163) @g9 @console', () => {
     const popup = page.waitForEvent('popup');
     await page.getByRole('menuitem', { name: 'View in Stripe' }).click();
     expect((await popup).url()).toBe('https://dashboard.stripe.com/test/invoices/in_1QxT4mNs0291');
-    // Open: Void invoice… instead, locked too.
+    // Open: Void invoice… instead.
     await rows(page).nth(4).getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menuitem', { name: /Void invoice…/ })).toBeDisabled();
+    await expect(page.getByRole('menuitem', { name: /Void invoice…/ })).toBeEnabled();
+    await expect(page.getByRole('menuitem', { name: /Refund…/ })).toHaveCount(0);
     await page.keyboard.press('Escape');
     // A row opens its workspace.
     await rows(page).first().getByRole('cell').nth(1).click();
     await expect(page).toHaveURL(/\/admin\/workspaces\/ws_northshore(\?|$)/);
 
-    // Failed payments: the email log is its own PR.
+    // Failed payments: "Open email log" opens the Email Log for the customer's workspace (D-166).
     await page.goto(`${APP_BASE}/admin/billing/failed?as=admin`);
     await rows(page).first().getByRole('button', { name: 'More actions' }).click();
-    await expect(page.getByRole('menuitem', { name: 'Open email log' })).toBeDisabled();
+    await page.getByRole('menuitem', { name: 'Open email log' }).click();
+    await expect(page).toHaveURL(/\/admin\/email\?teamId=ws_tidewater&workspace=Tidewater/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Email Log' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Workspace: Tidewater Property Co.' })).toBeVisible();
     await close();
   });
 

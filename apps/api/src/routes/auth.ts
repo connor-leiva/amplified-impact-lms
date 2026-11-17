@@ -74,6 +74,7 @@ import { masqueradeSignOut } from '../auth/masquerade';
 import { groupsOf, provisionGroupMember, recordVerified } from '../billing/access-groups';
 import { selfServeAddress } from '../billing/self-serve';
 import { safeNext } from '@ai/core/landing';
+import { recordUsage } from '../lib/usage';
 
 /** § 7.5's "Rate limit: 5 per hour per email and IP", and § 9.4's repeat of it: the per-email half. */
 export const AUTH_REQUEST_MAX = 5;
@@ -329,6 +330,7 @@ export function registerAuthRoutes(app: FastifyInstance, { broadcast }: AuthRout
     const sessionId = await createSession(db, user.id, now);
     await markActive(db, user.id, now);
     reply.setCookie(SESSION_COOKIE, sessionId, sessionCookieOptions());
+    recordUsage(req, user.id, 'sign_in'); // D-166: a usage count, after the sign-in; it changes nothing here.
 
     // An accepted invite changes a `users` row, which is in every teammate's snapshot — the Team
     // Hub's seat list goes from Invited to Active without a refresh.

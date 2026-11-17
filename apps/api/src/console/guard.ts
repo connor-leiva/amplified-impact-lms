@@ -10,14 +10,18 @@
 //   staff action and would only fill the log with noise someone could generate at will.
 //
 // The capability is read from the role on the user row `requireSession` just loaded, so a role change
-// takes effect on the next request.
+// takes effect on the next request. Since D-160 R2-3b it is the EFFECTIVE capability: `CONSOLE_CAPS`
+// (the ceiling) AND NOT a row the Owner took from that role on Roles & Permissions (`consoleCanWith`,
+// the stored changes read through `roles.ts`'s cache). The Owner and anything the ceiling refuses are
+// decided without reading them.
 
 import type { FastifyReply, FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
-import { CONSOLE_ERRORS, consoleCan } from '@ai/core';
+import { CONSOLE_ERRORS, consoleCan, consoleCanWith } from '@ai/core';
 import type { ConsoleCap, ConsoleErrorCode } from '@ai/core';
 import type { SessionViewer } from '../auth';
 import { audit } from './audit';
 import type { AuditActor } from './audit';
+import { roleGrants } from './roles';
 
 /** A Console refusal: `{ error, code }` with the code's status (spec § 5). */
 export function consoleError(reply: FastifyReply, code: ConsoleErrorCode, error?: string): FastifyReply {
@@ -34,13 +38,15 @@ export function staffActor(viewer: SessionViewer): Extract<AuditActor, { source:
 const routeOf = (req: FastifyRequest): string => `${req.method} ${req.routeOptions.url ?? (req.url.split('?')[0] ?? req.url)}`;
 
 /**
- * The rule itself, for a signed-in viewer: true when they hold `cap`; otherwise the 403 is sent (and a
- * staff refusal audited) and the answer is false. A handler whose capability depends on the request
- * (a note's target, D-158) calls this directly and returns when it is false.
+ * The rule itself, for a signed-in viewer: true when they hold `cap`, the EFFECTIVE capability (D-160
+ * R2-3b: the ceiling, less any row the Owner took from that role); otherwise the 403 is sent (and a
+ * staff refusal audited) and the answer is false. `requireConsole` runs it, and a handler whose
+ * capability depends on the request (a note's target, D-158) calls it directly and returns when it is
+ * false.
  */
 export async function consoleAllows(req: FastifyRequest, reply: FastifyReply, viewer: SessionViewer, cap: ConsoleCap): Promise<boolean> {
   const staff = staffActor(viewer);
-  if (staff && consoleCan(staff.role, cap)) return true;
+  if (staff && consoleCan(staff.role, cap) && (staff.role === 'Owner' || consoleCanWith(await roleGrants(), staff.role, cap))) return true;
   if (staff) {
     await audit(req, {
       action: 'console.access_denied',

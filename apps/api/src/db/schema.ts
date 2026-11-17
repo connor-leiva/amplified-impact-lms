@@ -368,6 +368,27 @@ export const auditLog = pgTable('audit_log', {
   check('audit_log_staff_actor', sql`${t.actorSource} = 'system' or ${t.actorUserId} is not null`),
 ]);
 
+// D-160 R2-3b (Connor, Nov 16, 2026, 8:27 AM MST): the Owner's changes to the Roles & Permissions
+// matrix. `CONSOLE_CAPS` (@ai/core) stays the ceiling in code; a row here only takes a matrix row from
+// Admin or Support (`allowed` false) or records that it was given back (true), with who and when. A
+// role's effective capability is the ceiling AND NOT removed (`consoleCanWith`), so an empty table is
+// the ceiling exactly and no row can lift a role past it. Not a `Db` record, like `audit_log`; every
+// change also writes one `permission.change` audit row, in the same transaction. Not the `permissions`
+// table, which round-trips the app's `Db` and backs `/admin/staff`'s `PermKey` matrix.
+export const consoleRoleGrants = pgTable('console_role_grants', {
+  role: text('role').notNull(),
+  capability: text('capability').notNull(),
+  allowed: boolean('allowed').notNull(),
+  updatedBy: text('updated_by').notNull(),
+  updatedAt: ts('updated_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.role, t.capability] }),
+  // `EDITABLE_ROLES` and `ROLE_ROW_KEYS` in `@ai/core/console`, typed out because drizzle-kit reads
+  // this file on its own; `schema.test.ts` pins them to the constants.
+  check('console_role_grants_role', sql`${t.role} in ('Admin', 'Support')`),
+  check('console_role_grants_capability', sql`${t.capability} in ('build', 'masq', 'account', 'billview', 'refund', 'jobs', 'export', 'ops', 'staff')`),
+]);
+
 // ================================================================================================
 // THE ADMIN CONSOLE'S STAFF NOTES (D-158, spec § 7.3)
 // ================================================================================================
@@ -375,7 +396,7 @@ export const auditLog = pgTable('audit_log', {
 // or the user, and never in any snapshot (not part of a `Db` and not in the codec, like `audit_log`;
 // `test/console-support.test.ts` reads `/api/snapshot` to prove it).
 //
-// Immutable once written, and the database says so: migration 0016's trigger refuses any DELETE, and
+// Immutable once written, and the database says so: migration 0017's trigger refuses any DELETE, and
 // any UPDATE but the one that soft-deletes a note, which only sets `deleted_at`, `deleted_by` and
 // `delete_reason`, once (an Owner, with a reason: spec § 7.3). The body, its author, its target and
 // its time never change. TRUNCATE is not covered, as on `audit_log`: the test harness empties every
@@ -426,4 +447,166 @@ export const masqueradeSessions = pgTable('masquerade_sessions', {
   // An ended row says why, with one of the closed list's reasons (`MASQUERADE_END_REASONS`); a live one says nothing.
   check('masquerade_sessions_end_reason', sql`(${t.endedAt} is null and ${t.endReason} is null) or (${t.endedAt} is not null and ${t.endReason} in ('exit', 'expired', 'signed_out', 'revoked'))`),
   check('masquerade_sessions_expiry', sql`${t.expiresAt} <= ${t.hardExpiresAt}`),
+]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S OPS TELEMETRY (D-165, spec §§ 7.9-7.10)
+// ================================================================================================
+// Two observe-only tables. Neither is part of a `Db` or a snapshot, and nothing reads them but the
+// Console's API & Webhooks and Scheduled Jobs screens.
+//
+// `api_metrics`: one row per minute and route TEMPLATE (`GET /api/sessions/:id/join`, never a raw URL,
+// so no id, token or email is ever a key). `lib/api-metrics.ts` counts answers in memory and adds each
+// minute's counts here once a minute; two replicas add to the same row. `hist` is the minute's
+// latencies per bucket (`API_METRIC_BOUNDS`, then `+inf`), not cumulative. Kept 30 days (D6).
+//
+// `job_ticks`: one row per run of a scheduled loop, written by `jobs/ticks.ts`'s `recordTick` around the
+// existing call: `running` when it starts, then `succeeded`, `failed` (with a short `error_kind`, never
+// a message) or `skipped` (the scheduler lock was another runner's). `trigger` is `schedule`, or
+// `manual` for Run Now, which names the staff member. Kept 90 days (D6). Times are epoch ms.
+export const apiMetrics = pgTable('api_metrics', {
+  minute: ts('minute').notNull(),
+  route: text('route').notNull(),
+  count: integer('count').notNull(),
+  errors4xx: integer('errors_4xx').notNull(),
+  errors5xx: integer('errors_5xx').notNull(),
+  hist: jsonb('hist').$type<Record<string, number>>().notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.minute, t.route] }),
+  check('api_metrics_counts', sql`${t.count} >= 0 and ${t.errors4xx} >= 0 and ${t.errors5xx} >= 0 and ${t.errors4xx} + ${t.errors5xx} <= ${t.count}`),
+]);
+
+export const jobTicks = pgTable('job_ticks', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  job: text('job').notNull(),
+  startedAt: ts('started_at').notNull(),
+  finishedAt: ts('finished_at'),
+  status: text('status').notNull(),
+  errorKind: text('error_kind'),
+  trigger: text('trigger').notNull(),
+  actorUserId: text('actor_user_id'),
+}, (t) => [
+  index('job_ticks_job_started_idx').on(t.job, t.startedAt),
+  index('job_ticks_started_idx').on(t.startedAt),
+  // The closed lists in `@ai/core/console-ops` (`JOB_TICK_STATUSES`, `JobTrigger`), typed out because
+  // drizzle-kit reads this file on its own.
+  check('job_ticks_status', sql`${t.status} in ('running', 'succeeded', 'failed', 'skipped')`),
+  check('job_ticks_trigger', sql`${t.trigger} in ('schedule', 'manual')`),
+  // A manual run names who started it; a scheduled one names nobody.
+  check('job_ticks_actor', sql`(${t.trigger} = 'manual') = (${t.actorUserId} is not null)`),
+  // Running has no end; anything else has one.
+  check('job_ticks_finished', sql`(${t.status} = 'running') = (${t.finishedAt} is null)`),
+]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S EMAIL LOG AND USAGE COUNTS (D-166, spec §§ 7.7, 7.15)
+// ================================================================================================
+// `email_log`: one row per `send()` (email/transport.ts), written after it by `email/log.ts`, fire and
+// forget: a failed write never throws and never changes the send. The recipient, the template, the
+// subject, the provider and its message id, and what happened (`sent`, `failed`, `skipped`), with a
+// failure's kind, never its words. NEVER THE BODY: there is no column for one. `user_id` is the user
+// whose address it went to when one existed at the time, with no foreign key, so a send inside a
+// transaction that is still creating that user can never wait on it. Pruned after 180 days (D6).
+export const emailLog = pgTable('email_log', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  at: ts('at').notNull(),
+  to: text('to').notNull(),
+  userId: text('user_id'),
+  template: text('template').notNull(),
+  subject: text('subject').notNull(),
+  provider: text('provider').notNull(),
+  providerId: text('provider_id'),
+  status: text('status').notNull(),
+  errorKind: text('error_kind'),
+}, (t) => [
+  index('email_log_at_idx').on(t.at),
+  index('email_log_user_idx').on(t.userId),
+  index('email_log_template_idx').on(t.template),
+  // The closed lists in `@ai/core` (EMAIL_STATUSES, EMAIL_PROVIDERS, EMAIL_ERROR_KINDS), typed out
+  // because drizzle-kit reads this file on its own.
+  check('email_log_status', sql`${t.status} in ('sent', 'failed', 'skipped')`),
+  check('email_log_provider', sql`${t.provider} in ('resend', 'outbox', 'log')`),
+  // A failure names its kind; nothing else has one.
+  check('email_log_error_kind', sql`(${t.status} = 'failed' and ${t.errorKind} in ('invalid_recipient', 'subject', 'render', 'config', 'provider')) or (${t.status} <> 'failed' and ${t.errorKind} is null)`),
+]);
+
+// `usage_daily`: how often each learner signed in, viewed a guided setup and joined a live session,
+// per program-zone day (America/Chicago). One fire-and-forget upsert per event (`lib/usage.ts`),
+// skipped during a masquerade (spec § 6). `team_id` is the learner's team when it was counted. Pruned
+// after 400 days (D6). `lesson_play` is a kind with nothing counting it yet (D-166).
+export const usageDaily = pgTable('usage_daily', {
+  day: text('day').notNull(),
+  userId: text('user_id').notNull(),
+  teamId: text('team_id'),
+  kind: text('kind').notNull(),
+  count: integer('count').notNull().default(1),
+}, (t) => [
+  primaryKey({ columns: [t.day, t.userId, t.kind] }),
+  index('usage_daily_team_idx').on(t.teamId, t.day),
+  check('usage_daily_day', sql`${t.day} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`),
+  check('usage_daily_kind', sql`${t.kind} in ('sign_in', 'lesson_play', 'guide_view', 'session_join')`),
+  check('usage_daily_count', sql`${t.count} > 0`),
+]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S INCIDENTS (D-167, spec § 7.14)
+// ================================================================================================
+// One row per incident, `INC-0001` upward (numbered under an advisory lock, `console/incidents.ts`).
+// `fingerprint` names the auto-open rule that opened it (`job:ghl-orders`, `stripe:invoice.paid`,
+// `ghl:gave_up`, `api:5xx`), or is null when staff opened it; while an incident is unresolved its
+// fingerprint is unique, so a rule repeats on it (a `signal` event) instead of opening another. The
+// `_by` columns are staff user ids, null for the system. `incident_events` is the timeline: one row
+// per opening, repeat, acknowledgement, resolution and note, each written with its audit row.
+export const incidents = pgTable('incidents', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  severity: text('severity').notNull(),
+  status: text('status').notNull(),
+  fingerprint: text('fingerprint'),
+  openedAt: ts('opened_at').notNull(), openedBy: text('opened_by'),
+  acknowledgedAt: ts('acknowledged_at'), acknowledgedBy: text('acknowledged_by'),
+  resolvedAt: ts('resolved_at'), resolvedBy: text('resolved_by'),
+}, (t) => [
+  uniqueIndex('incidents_fingerprint_unresolved_idx').on(t.fingerprint).where(sql`${t.status} <> 'resolved'`),
+  index('incidents_status_idx').on(t.status),
+  // The closed lists in `@ai/core/console-incidents` (INCIDENT_SEVERITIES, INCIDENT_STATUSES).
+  check('incidents_severity', sql`${t.severity} in ('sev1', 'sev2', 'sev3')`),
+  check('incidents_status', sql`${t.status} in ('open', 'acknowledged', 'resolved')`),
+  check('incidents_title', sql`char_length(${t.title}) between 3 and 200`),
+  // An acknowledged or resolved incident says when; an open one has neither.
+  check('incidents_resolved', sql`(${t.status} = 'resolved') = (${t.resolvedAt} is not null)`),
+  check('incidents_acknowledged', sql`${t.status} <> 'acknowledged' or ${t.acknowledgedAt} is not null`),
+]);
+
+export const incidentEvents = pgTable('incident_events', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  incidentId: text('incident_id').notNull(),
+  at: ts('at').notNull(),
+  kind: text('kind').notNull(),
+  actorUserId: text('actor_user_id'),
+  body: text('body'),
+  link: text('link'),
+}, (t) => [
+  index('incident_events_incident_idx').on(t.incidentId, t.at),
+  check('incident_events_kind', sql`${t.kind} in ('opened', 'signal', 'acknowledged', 'resolved', 'note')`),
+  check('incident_events_body', sql`${t.body} is null or char_length(${t.body}) between 1 and 2000`),
+]);
+
+// ================================================================================================
+// THE ADMIN CONSOLE'S FLAGS (D-168, spec § 7.13, D8, D10)
+// ================================================================================================
+// The flags the Console owns: one row per key in `CONSOLE_FLAGS` (@ai/core), a closed list the CHECK
+// repeats, so a key the code doesn't know can't be stored. v1 has one, `masquerade_enabled`, on and
+// sensitive, which migration 0022 seeds. A missing row reads as the flag's default. Env switches are
+// not here: they stay in Railway and the Console only reads them (D10). Every flip is one audit row
+// (`flag.flip`, before and after). `updated_at` is `clock.now()`, epoch ms; `updated_by` the staff
+// member's id. Not part of a `Db`, never in a snapshot.
+export const consoleFlags = pgTable('console_flags', {
+  key: text('key').primaryKey(),
+  on: boolean('on').notNull(),
+  sensitive: boolean('sensitive').notNull(),
+  updatedAt: ts('updated_at'),
+  updatedBy: text('updated_by'),
+}, (t) => [
+  check('console_flags_key', sql`${t.key} in ('masquerade_enabled')`),
 ]);

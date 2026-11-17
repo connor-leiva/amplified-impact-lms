@@ -14,7 +14,7 @@
 import { describe, it, expect } from 'vitest';
 import { is, getTableColumns } from 'drizzle-orm';
 import { PgDialect, PgTable, getTableConfig } from 'drizzle-orm/pg-core';
-import { fmt, seed } from '@ai/core';
+import { EDITABLE_ROLES, ROLE_ROW_KEYS, fmt, seed } from '@ai/core';
 import * as schema from './schema';
 
 const db = seed('live');
@@ -128,6 +128,8 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     columns: ['action', 'actor_role', 'actor_source', 'actor_user_id', 'after', 'at', 'before', 'id', 'ip', 'masquerade_session_id', 'outcome', 'reason', 'request_id', 'target_id', 'target_label', 'target_type', 'user_agent'],
     gate: 9,
   },
+  // D-160 R2-3b: the Owner's changes to the Roles & Permissions matrix. Not a `Db` record, like `orders`.
+  consoleRoleGrants: { table: 'console_role_grants', columns: ['allowed', 'capability', 'role', 'updated_at', 'updated_by'], gate: 9 },
   // D-158: the Admin Console's staff notes (spec § 7.3). Not a `Db` record, like `audit_log`.
   staffNotes: {
     table: 'staff_notes',
@@ -143,6 +145,26 @@ const EXPECTED: Record<string, { table: string; columns: string[]; gate?: 7 | 8 
     ],
     gate: 9,
   },
+  // D-165: the Admin Console's ops telemetry (spec §§ 7.9-7.10). Not `Db` records, like `audit_log`.
+  apiMetrics: { table: 'api_metrics', columns: ['count', 'errors_4xx', 'errors_5xx', 'hist', 'minute', 'route'], gate: 9 },
+  jobTicks: { table: 'job_ticks', columns: ['actor_user_id', 'error_kind', 'finished_at', 'id', 'job', 'started_at', 'status', 'trigger'], gate: 9 },
+  // D-166: the Admin Console's email log (spec § 7.15), with no column for a body, and usage counts
+  // (spec § 7.7). Neither is a `Db` record, like `audit_log`.
+  emailLog: {
+    table: 'email_log',
+    columns: ['at', 'error_kind', 'id', 'provider', 'provider_id', 'status', 'subject', 'template', 'to', 'user_id'],
+    gate: 9,
+  },
+  usageDaily: { table: 'usage_daily', columns: ['count', 'day', 'kind', 'team_id', 'user_id'], gate: 9 },
+  // D-167: the Admin Console's incidents and their timelines (spec § 7.14). Not `Db` records, like `audit_log`.
+  incidents: {
+    table: 'incidents',
+    columns: ['acknowledged_at', 'acknowledged_by', 'fingerprint', 'id', 'opened_at', 'opened_by', 'resolved_at', 'resolved_by', 'severity', 'status', 'title'],
+    gate: 9,
+  },
+  incidentEvents: { table: 'incident_events', columns: ['actor_user_id', 'at', 'body', 'id', 'incident_id', 'kind', 'link'], gate: 9 },
+  // D-168: the Admin Console's own flags (spec § 7.13). Not a `Db` record, like `audit_log`.
+  consoleFlags: { table: 'console_flags', columns: ['key', 'on', 'sensitive', 'updated_at', 'updated_by'], gate: 9 },
 };
 
 describe('§7.2 schema shape @g7', () => {
@@ -325,6 +347,8 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['accessGroups', 'expiresAt'], ['accessGroups', 'createdAt'], ['accessGroupMembers', 'addedAt'], ['emailVerifications', 'verifiedAt'],
   // D-157: when a Console action happened, `clock.now()` as the audit writer stamps it.
   ['auditLog', 'at'],
+  // D-160 R2-3b: when the Owner last changed a matrix row, `clock.now()`.
+  ['consoleRoleGrants', 'updatedAt'],
   // D-158: when a staff note was written, and when it was deleted, as `clock.now()` stamps them.
   ['staffNotes', 'createdAt'],
   ['staffNotes', 'deletedAt'],
@@ -333,6 +357,19 @@ const EPOCH_COLUMNS: [string, string][] = [
   ['masqueradeSessions', 'expiresAt'],
   ['masqueradeSessions', 'hardExpiresAt'],
   ['masqueradeSessions', 'endedAt'],
+  // D-165: the minute an API metric counts, and a job tick's start and end, as `clock.now()` stamps them.
+  ['apiMetrics', 'minute'],
+  ['jobTicks', 'startedAt'],
+  ['jobTicks', 'finishedAt'],
+  // D-166: when a send was logged, as `clock.now()` stamps it.
+  ['emailLog', 'at'],
+  // D-167: when an incident opened, was acknowledged and resolved, and when each timeline line was written.
+  ['incidents', 'openedAt'],
+  ['incidents', 'acknowledgedAt'],
+  ['incidents', 'resolvedAt'],
+  ['incidentEvents', 'at'],
+  // D-168: when a Console flag was last flipped, as `clock.now()` stamps it.
+  ['consoleFlags', 'updatedAt'],
 ];
 
 /**
@@ -387,8 +424,16 @@ const INSTANT_UNIT: Record<string, { unit: 'epoch-ms' | 'timestamp'; why: string
   accessGroupMembers: { unit: 'epoch-ms', why: 'D-148: added_at is clock.now() as written; no reader converts it' },
   emailVerifications: { unit: 'epoch-ms', why: 'D-148: verified_at is clock.now() as written by claimToken; no reader converts it' },
   auditLog: { unit: 'epoch-ms', why: 'D-157: at is clock.now() as written by console/audit.ts, and fmt.* formats it in the Console' },
+  consoleRoleGrants: { unit: 'epoch-ms', why: 'D-160 R2-3b: updated_at is clock.now() as written by console/roles.ts; no reader converts it' },
   staffNotes: { unit: 'epoch-ms', why: 'D-158: created_at and deleted_at are clock.now() as written by console/notes.ts, and fmt.* formats them' },
   masqueradeSessions: { unit: 'epoch-ms', why: 'D-162: compared with clock.now() by masqueradeLive and the sweep, and counted down by the banner' },
+  apiMetrics: { unit: 'epoch-ms', why: 'D-165: a minute floored from clock.now(), read back over the last 24 hours' },
+  jobTicks: { unit: 'epoch-ms', why: 'D-165: a run’s start and end from clock.now(); the next run is the start plus an interval in ms' },
+  emailLog: { unit: 'epoch-ms', why: 'D-166: at is clock.now() as written by email/log.ts, pruned against it, and printed in MST by the R2 admin' },
+  usageDaily: { unit: 'epoch-ms', why: 'D-166: no instant at all; `day` is a program-zone calendar day, YYYY-MM-DD' },
+  incidents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each change, compared with the rules’ evidence times' },
+  incidentEvents: { unit: 'epoch-ms', why: 'D-167: clock.now() at each line; a rule repeats only on evidence newer than its last' },
+  consoleFlags: { unit: 'epoch-ms', why: 'D-168: updated_at is clock.now() as written by console/flags.ts, and fmt.* formats it' },
 };
 
 const timestampTables = Object.entries(INSTANT_UNIT)
@@ -543,6 +588,12 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   jobRuns: ['job', 'key'],
   // D-148: an address is on a group's list once. The pair is the key, so listing it twice is a no-op.
   accessGroupMembers: ['group_id', 'email'],
+  // D-160 R2-3b: one stored change per role and matrix row; a second change to the pair replaces it.
+  consoleRoleGrants: ['role', 'capability'],
+  // D-165: one row per minute and route template, which two replicas add to (`on conflict do update`).
+  apiMetrics: ['minute', 'route'],
+  // D-166: one count per learner, day and kind; each event upserts it (`on conflict … count + 1`).
+  usageDaily: ['day', 'user_id', 'kind'],
 };
 
 describe('§7.2 composite primary keys @g7', () => {
@@ -624,6 +675,25 @@ describe('unique indexes @g9', () => {
     ],
     // D-158: a record's notes are read by their target.
     staffNotes: [{ name: 'staff_notes_target_idx', unique: false, columns: ['target_type', 'target_id'] }],
+    // D-165: a job's latest ticks, and the 90-day prune by time.
+    jobTicks: [
+      { name: 'job_ticks_job_started_idx', unique: false, columns: ['job', 'started_at'] },
+      { name: 'job_ticks_started_idx', unique: false, columns: ['started_at'] },
+    ],
+    // D-166: the email log's list (newest first), a person's emails and the Template filter; usage by workspace.
+    emailLog: [
+      { name: 'email_log_at_idx', unique: false, columns: ['at'] },
+      { name: 'email_log_user_idx', unique: false, columns: ['user_id'] },
+      { name: 'email_log_template_idx', unique: false, columns: ['template'] },
+    ],
+    usageDaily: [{ name: 'usage_daily_team_idx', unique: false, columns: ['team_id', 'day'] }],
+    // D-167: one UNRESOLVED incident per fingerprint (partial: the test below pins its `where`), and
+    // the list's status filter; a timeline is read by its incident, in time order.
+    incidents: [
+      { name: 'incidents_fingerprint_unresolved_idx', unique: true, columns: ['fingerprint'] },
+      { name: 'incidents_status_idx', unique: false, columns: ['status'] },
+    ],
+    incidentEvents: [{ name: 'incident_events_incident_idx', unique: false, columns: ['incident_id', 'at'] }],
   };
 
   it('makes the masquerade index partial: only rows with no ended_at are unique @g9', () => {
@@ -640,9 +710,41 @@ describe('unique indexes @g9', () => {
     expect(indexesOf(tableOf('staffNotes'))).toEqual(LOOKUP_INDEXES.staffNotes);
   });
 
+  it('gives job ticks their two lookup indexes, none unique @g9', () => {
+    expect(indexesOf(tableOf('jobTicks'))).toEqual(LOOKUP_INDEXES.jobTicks);
+  });
+
+  it('gives the email log and usage their lookup indexes, none unique (D-166) @g9', () => {
+    expect(indexesOf(tableOf('emailLog'))).toEqual(LOOKUP_INDEXES.emailLog);
+    expect(indexesOf(tableOf('usageDaily'))).toEqual(LOOKUP_INDEXES.usageDaily);
+  });
+
+  it('keeps one unresolved incident per fingerprint, and indexes timelines by incident @g9', () => {
+    expect(indexesOf(tableOf('incidents'))).toEqual(LOOKUP_INDEXES.incidents);
+    expect(indexesOf(tableOf('incidentEvents'))).toEqual(LOOKUP_INDEXES.incidentEvents);
+    const [idx] = getTableConfig(tableOf('incidents')).indexes;
+    expect(new PgDialect().sqlToQuery(idx!.config.where!).sql).toBe(`"incidents"."status" <> 'resolved'`);
+  });
+
   it('finds no other table carrying an index @g9', () => {
     // A new index is a new rule about which rows may coexist, which is worth a line here.
     const indexed = tables.filter(([, t]) => getTableConfig(t).indexes.length > 0).map(([n]) => n);
     expect(indexed.sort()).toEqual([...Object.keys(UNIQUE_INDEXES), ...Object.keys(LOOKUP_INDEXES)].sort());
+  });
+});
+
+// ---------------------------------------------------------------------------
+// D-160 R2-3b: the Roles & Permissions changes' CHECKs are core's lists, typed out in schema.ts.
+// ---------------------------------------------------------------------------
+
+describe('console_role_grants checks @g9', () => {
+  const checksOf = (t: PgTable) =>
+    Object.fromEntries(getTableConfig(t).checks.map((c) => [c.name, String((c.value as unknown as { queryChunks: unknown[] }).queryChunks.map((q) => (typeof q === 'object' && q && 'value' in q ? (q as { value: string[] }).value.join('') : '')).join(''))]));
+
+  it('keeps the role to Admin and Support and the row to the matrix’s nine', () => {
+    const checks = checksOf(tableOf('consoleRoleGrants'));
+    expect(Object.keys(checks).sort()).toEqual(['console_role_grants_capability', 'console_role_grants_role']);
+    expect(checks.console_role_grants_role).toContain(`in (${EDITABLE_ROLES.map((r) => `'${r}'`).join(', ')})`);
+    expect(checks.console_role_grants_capability).toContain(`in (${ROLE_ROW_KEYS.map((r) => `'${r}'`).join(', ')})`);
   });
 });
