@@ -33,9 +33,9 @@ Measured at gaps-c's head `eb3e5cb` (pre-final; it carries this part unchanged, 
 | `cohorts-sessions-1024.ref.png.b64` | cohorts-sessions | 1024 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `cohorts-sessions-1024.build.png.b64` | cohorts-sessions | 1024 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `cohorts-sessions-1024.diff.png.b64` | cohorts-sessions | 1024 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
-| `cohorts-sessions-390.ref.png.b64` | cohorts-sessions | 390 | ref | 1 | 33.9020% · 2,766 px · dims OK · enforced, pass | Δ>60 3,827 px [x 29–297, y 276–510], AA 4,566 px |
-| `cohorts-sessions-390.build.png.b64` | cohorts-sessions | 390 | build | 1 | 33.9020% · 2,766 px · dims OK · enforced, pass | Δ>60 3,827 px [x 29–297, y 276–510], AA 4,566 px |
-| `cohorts-sessions-390.diff.png.b64` | cohorts-sessions | 390 | diff | 1 | 33.9020% · 2,766 px · dims OK · enforced, pass | Δ>60 3,827 px [x 29–297, y 276–510], AA 4,566 px |
+| `cohorts-sessions-390.ref.png.b64` | cohorts-sessions | 390 | ref | 1 | 0.3390% · 2,766 px · dims OK · enforced, pass | Δ>60 3,827 px [x 29–297, y 276–510], AA 4,566 px |
+| `cohorts-sessions-390.build.png.b64` | cohorts-sessions | 390 | build | 1 | 0.3390% · 2,766 px · dims OK · enforced, pass | Δ>60 3,827 px [x 29–297, y 276–510], AA 4,566 px |
+| `cohorts-sessions-390.diff.png.b64` | cohorts-sessions | 390 | diff | 1 | 0.3390% · 2,766 px · dims OK · enforced, pass | Δ>60 3,827 px [x 29–297, y 276–510], AA 4,566 px |
 | `announce-1440.ref.png.b64` | announce | 1440 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `announce-1440.build.png.b64` | announce | 1440 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `announce-1440.diff.png.b64` | announce | 1440 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
