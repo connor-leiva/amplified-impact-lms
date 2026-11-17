@@ -98,6 +98,12 @@ const ROUTES: readonly [Persona, string][] = [
   ['admin', '/admin/db?console-state=empty'],
   ['admin', '/admin/flags'],
   ['admin', '/admin/flags?console-role=Support'],
+  // System Health and the Build hub (D-169): the mockup's frame, its empty state, production's
+  // composition (Seat pressure, Recent deploys), and the hub.
+  ['admin', '/admin/health'],
+  ['admin', '/admin/health?console-state=empty'],
+  ['admin', '/admin/health?console-sample=off'],
+  ['admin', '/admin/build'],
   ['agent', '/course'],
   ['agent', '/skill-library'],
   ['agent', '/skill-library/perfect-week'],

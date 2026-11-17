@@ -693,6 +693,9 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/integrations/:id/check', methods: 'POST', guard: 'session' },
   { path: '/api/console/deploys', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/db', methods: 'GET, HEAD', guard: 'session' },
+  // Admin Console PR 10 (D-169): System Health and the Skills list. Signed in, then console.view.
+  { path: '/api/console/health', methods: 'GET, HEAD', guard: 'session' },
+  { path: '/api/console/skills', methods: 'GET, HEAD', guard: 'session' },
 ];
 
 /**
@@ -1259,6 +1262,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
             app.inject({ method: 'POST', url: '/api/console/integrations/resend/check', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' }, payload: {} }),
           '/api/console/deploys': () => app.inject({ method: 'GET', url: '/api/console/deploys' }),
           '/api/console/db': () => app.inject({ method: 'GET', url: '/api/console/db' }),
+          // Admin Console PR 10 (D-169).
+          '/api/console/health': () => app.inject({ method: 'GET', url: '/api/console/health' }),
+          '/api/console/skills': () => app.inject({ method: 'GET', url: '/api/console/skills' }),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1441,8 +1447,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // (D-163), 51 with Billing's refund and void, previews included (D-164), 56 with API & Webhooks
     // and Scheduled Jobs' five (D-165), 60 with the email log's and usage's four (D-166), 66 with
     // the incidents' six (D-167), and 72 with the flag, env, integrations, deploys and DB health's six
-    // (D-168).
-    expect(EXECUTED.unauthenticated).toBe(72);
+    // (D-168), and 74 with System Health and the Skills list (D-169).
+    expect(EXECUTED.unauthenticated).toBe(74);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1457,7 +1463,8 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 5 for masquerade's (D-162), + 7 for Billing's (D-163), + 4 for
     // its refund and void (D-164), + 5 for API & Webhooks and Scheduled Jobs (D-165), + 4 for the
     // email log's and usage's (D-166), + 6 for the incidents' (D-167) and + 6 for the flag, env,
-    // integrations, deploys and DB health's (D-168), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6);
+    // integrations, deploys and DB health's (D-168), + 2 for System Health and the Skills list (D-169),
+    // probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 5 + 4 + 6 + 6 + 2);
   });
 });

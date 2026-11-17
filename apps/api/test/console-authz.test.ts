@@ -66,7 +66,9 @@ type RouteName =
   | 'integrations'
   | 'integrationCheck'
   | 'deploys'
-  | 'dbHealth';
+  | 'dbHealth'
+  | 'health'
+  | 'skills';
 
 // PR 4 (D-163): Billing, read-only, every route `billing.read`.
 const BILLING = ['billingSummary', 'billingCustomers', 'billingSubscriptions', 'billingInvoices', 'billingFailed', 'billingRefunds', 'billingScopes'] as const;
@@ -210,6 +212,9 @@ const ROUTES: Record<RouteName, Route> = {
   integrationCheck: { path: CONSOLE_PATHS.integrationCheck, url: '/api/console/integrations/resend/check', method: 'POST', route: `POST ${CONSOLE_PATHS.integrationCheck}` },
   deploys: { path: CONSOLE_PATHS.deploys, url: CONSOLE_PATHS.deploys, method: 'GET', route: `GET ${CONSOLE_PATHS.deploys}` },
   dbHealth: { path: CONSOLE_PATHS.dbHealth, url: CONSOLE_PATHS.dbHealth, method: 'GET', route: `GET ${CONSOLE_PATHS.dbHealth}` },
+  // PR 10 (D-169): System Health and the Skills list, both console.view.
+  health: { path: CONSOLE_PATHS.health, url: CONSOLE_PATHS.health, method: 'GET', route: `GET ${CONSOLE_PATHS.health}` },
+  skills: { path: CONSOLE_PATHS.skills, url: CONSOLE_PATHS.skills, method: 'GET', route: `GET ${CONSOLE_PATHS.skills}` },
 };
 
 /** The routes whose success writes its own audit row. */
@@ -260,6 +265,7 @@ const PERSONAS: { name: string; userId: string | null; staff: boolean }[] = [
 // PR 5 (D-164): refund and void, previews included, are billing.refund and billing.void: Owner and
 // Admin. Support reads billing and changes nothing (D3).
 const ACT = (v: number) => Object.fromEntries(ACTIONS.map((a) => [a, v])) as Record<ActionRoute, number>;
+// PR 10 (D-169): Health and the Skills list are console.view: Owner, Admin and Support.
 const ALL = (v: number) => ({
   workspaces: v,
   workspace: v,
@@ -269,6 +275,8 @@ const ALL = (v: number) => ({
   notesList: v,
   notesCreate: v,
   search: v,
+  health: v,
+  skills: v,
   ...(Object.fromEntries(BILLING.map((b) => [b, v])) as Record<BillingRoute, number>),
   apiEndpoints: v,
   webhooks: v,

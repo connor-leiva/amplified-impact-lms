@@ -246,6 +246,17 @@
   min-width: 0;
   overflow-wrap: break-word;
 }
+/* `.kvs .kv` (D-169): a narrow card's pairs, each label over its value, as on a phone. */
+.kvs {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+.kvs dd {
+  margin-bottom: 10px;
+}
+.kvs dd:last-child {
+  margin-bottom: 0;
+}
 
 /* ---- tabs (`Tabs`) --------------------------------------------------------------------------------- */
 .tabs {
