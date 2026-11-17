@@ -289,6 +289,17 @@ test('/login is the same email and password screen, the address www’s Log In l
 test('/sign-in passes the axe check @g7 @smoke', async () => {
   const page = await freshPage();
   await openSignIn(page);
+  // The card rises in over 1.2s (`v2-rise`), and axe measures colours as they are painted, so a
+  // check mid-fade sees a half-transparent card and reports contrast that no settled screen has.
+  // Wait for every finite animation to finish first; the check itself is unchanged.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getComputedTiming().endTime !== Infinity)
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  );
   // Zero serious or critical violations, with only the reference's own known contrast defects
   // allowed (D-010) — the same gate every parity scenario goes through. This screen is net-new, so
   // none of those allowances should even be reachable on it.
