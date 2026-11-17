@@ -460,6 +460,19 @@ describe('Look-only: the write block (D1) and the paused Console (D2) @console',
     expect(await audits()).toHaveLength(count + 1);
   });
 
+  it('refuses the audited Build actions too (D-172), with no write and no row of their own', async () => {
+    const { browser } = await masquerade();
+    const before = await (await db()).select().from(schema.modules);
+    const n = (await audits()).length;
+    const res = await browser.send('POST', '/api/admin/actions/duplicateModule', { id: 'sales' });
+    expect(res.statusCode).toBe(403);
+    expect(res.json().code).toBe('masquerade_blocked');
+    expect(await (await db()).select().from(schema.modules)).toEqual(before);
+    const rows = await audits();
+    expect(rows).toHaveLength(n + 1);
+    expect(rows.at(-1)).toMatchObject({ action: 'masquerade.blocked_action', after: { tried: 'POST /api/admin/actions/:name' } });
+  });
+
   it('refuses public writes too: the retired checkout and the waitlist', async () => {
     const { browser } = await masquerade();
     for (const url of ['/api/checkout', '/api/ai101/waitlist', '/api/offer/waitlist', '/api/auth/request']) {
