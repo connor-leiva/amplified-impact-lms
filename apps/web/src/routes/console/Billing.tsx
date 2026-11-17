@@ -41,9 +41,11 @@ import type {
 
 // /admin/billing[/:tab] on R2 (D-163, spec § 7.6): the mockup's `Billing()`. Read-only: the Summary
 // (MRR, subscriptions, failed payments, refunds; the plan lines; the AI Accelerator with its D-154 seat
-// count and its view-only cap) and five lists from Stripe. A row opens its workspace when one matches;
-// its "…" offers "View in Stripe". The mockup's "Refund…" and "Void invoice…" are drawn and locked until
-// R2-4b (spec PR 5), and hidden for a role that can't use them (Support, spec § 7.6).
+// count and its view-only cap) and five lists from Stripe. A row opens its workspace when one matches.
+// A row's "…" is drawn only where the mockup draws one (Invoices, Failed payments; no chrome it doesn't
+// draw, the shepherd's eye check), and there it also offers "View in Stripe". The mockup's "Refund…" and
+// "Void invoice…" are drawn and locked until R2-4b (spec PR 5), and hidden for a role that can't use them
+// (Support, spec § 7.6).
 
 const stripe = (url: string | null): MenuEntry[] =>
   url ? [{ label: C.menu.stripe, onSelect: () => void window.open(url, '_blank', 'noopener') }] : [];
@@ -224,7 +226,6 @@ function List({
         rows={rows(customerVM)}
         rowKey={(r) => r.key}
         onRow={openRow}
-        menu={(r) => [...customer(r), ...stripe(r.stripe)]}
         {...common}
       />
     );
@@ -250,7 +251,6 @@ function List({
         rows={rows(subscriptionVM)}
         rowKey={(r) => r.key}
         onRow={openRow}
-        menu={(r) => [...customer(r), ...stripe(r.stripe)]}
         {...common}
       />
     );
@@ -333,16 +333,7 @@ function List({
     { key: 'amt', label: C.columns.amount, width: '96px', num: true, value: (r) => r.amount },
     { key: 'when', label: C.columns.when, width: '128px', noSort: true, value: (r) => r.at, cell: (r) => r.when },
   ];
-  return (
-    <Table
-      label={C.tabs.refunds}
-      cols={cols}
-      rows={rows(refundVM)}
-      rowKey={(r) => r.key}
-      menu={(r) => stripe(r.stripe)}
-      {...common}
-    />
-  );
+  return <Table label={C.tabs.refunds} cols={cols} rows={rows(refundVM)} rowKey={(r) => r.key} {...common} />;
 }
 
 export default Component;
