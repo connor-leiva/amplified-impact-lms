@@ -131,6 +131,7 @@ import type { Send, ZoneLookup } from './due';
 import { jobOf } from './keys';
 import type { JobName } from './keys';
 import { acceleratorLearnerIds } from '../lib/course-access';
+import { sweepMasquerades } from '../console/masquerade';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -618,7 +619,18 @@ export function startScheduler(options: StartOptions = {}): Scheduler {
   let inFlight: Promise<unknown> | null = null;
   let uninstall = (): void => {};
 
-  const tick = (): Promise<SchedulerRun> => runScheduledJobs(runOptions);
+  const tick = async (): Promise<SchedulerRun> => {
+    // D-162: the masquerade sweep (spec § 6), once per tick and in its own try/catch, so it can never
+    // cost the reminders their tick. Outside the advisory lock: it ends only rows still live, so two
+    // replicas end each one once.
+    try {
+      const swept = await sweepMasquerades(runOptions.db ?? getDb(), clock.now());
+      if (swept > 0) log.info({ swept }, 'masquerade sweep');
+    } catch (err) {
+      log.error({ err }, 'masquerade sweep failed; the next tick retries');
+    }
+    return runScheduledJobs(runOptions);
+  };
 
   const fire = (): void => {
     if (inFlight) {

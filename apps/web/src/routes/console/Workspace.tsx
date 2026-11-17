@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { adminStamp, cleanNoteBody } from '@ai/core';
 import type { StaffNote } from '@ai/core';
 import { Button } from '../../components/r2/Button';
@@ -31,17 +31,20 @@ import { Denied, NotFound } from './Denied';
 import { LoadError } from './LoadError';
 import { useConsoleGate } from './useConsoleGate';
 import { useConsoleRecord } from './useConsoleData';
+import { useMasqueradeEntry } from './useMasqueradeEntry';
 import { NONE, WORKSPACE_COPY as C, WORKSPACE_TABS, workspaceVM } from './workspaces.vm';
 import type { MemberVM, WorkspaceTab } from './workspaces.vm';
 
 // /admin/workspaces/:teamId on R2 (D-160 R2-1c, spec § 7.3): the mockup's `Workspace`. Key facts; the
 // tabs Members, Plan & entitlements, Usage, Billing and Activity; and Staff notes beside them. Billing
 // is the app's own order records (Stripe's reads are the Billing PR); Usage is counted from the Usage
-// PR on; "Masquerade as owner" is the Masquerade PR's, drawn and not yet live.
+// PR on. "Masquerade as owner" and a member's "Masquerade…" open the reason dialog (D-162 3b): Owner
+// and Admin only.
 
 export function Component() {
   const { teamId = '' } = useParams();
   const gate = useConsoleGate('workspaces');
+  const navigate = useNavigate();
   const phone = useViewportWidth() < 768;
   const { toast } = useAdminChrome();
   const api = gate.kind === 'ready' ? gate.api : null;
@@ -51,6 +54,7 @@ export function Component() {
   const [notes, setNotes] = useState<StaffNote[]>([]);
   const [draft, setDraft] = useState('');
   const [saving, setSaving] = useState(false);
+  const entry = useMasqueradeEntry(gate.kind === 'ready' ? gate.me : null);
   useRecordCrumb(vm?.title ?? null);
 
   useEffect(() => {
@@ -87,6 +91,8 @@ export function Component() {
       </Page>
     );
 
+  const team = rec.data?.team;
+  const owner = entry.state();
   const save = () => {
     const body = cleanNoteBody(draft);
     if (!api || !body) return;
@@ -108,10 +114,10 @@ export function Component() {
       label: C.members.name,
       width: 'minmax(180px,1.5fr)',
       value: (m) => m.name,
-      cell: (m) => (
+      cell: (m, f) => (
         <div className={clsx(k.row, k.nw)} style={{ gap: 10 }}>
           <Avatar initials={m.initials} />
-          <Two a={m.name} b={m.email} />
+          <Two a={m.name} b={m.email} to={f.phone ? undefined : m.href} />
         </div>
       ),
     },
@@ -149,9 +155,19 @@ export function Component() {
         title={vm.title}
         meta={<Pill status={vm.status} />}
         right={
-          <Button header icon="r2Masquerade" aria-disabled="true" title={C.masqueradeLater}>
-            {C.masquerade}
-          </Button>
+          owner.show && team?.ownerId ? (
+            <Button
+              header
+              icon="r2Masquerade"
+              disabled={owner.off !== null}
+              title={owner.off ?? undefined}
+              onClick={() =>
+                entry.open({ id: team.ownerId, name: team.ownerName ?? vm.facts.owner, workspace: team.name })
+              }
+            >
+              {C.masquerade}
+            </Button>
+          ) : undefined
         }
       />
       <Facts
@@ -173,7 +189,11 @@ export function Component() {
               cols={memberCols}
               rows={vm.members}
               rowKey={(m) => m.key}
-              menu={() => [{ label: C.members.masquerade, icon: 'r2Masquerade', locked: true, onSelect: () => {} }]}
+              onRow={(m) => navigate(m.href)}
+              menu={(m) => [
+                { label: C.members.open, onSelect: () => navigate(m.href) },
+                ...entry.item(C.members.masquerade, { id: m.key, name: m.name, workspace: vm.title }),
+              ]}
               empty={{ icon: 'r2Users', title: C.members.empty }}
             />
           ) : null}
@@ -260,6 +280,7 @@ export function Component() {
           </div>
         </Card>
       </div>
+      {entry.dialog}
     </Page>
   );
 }

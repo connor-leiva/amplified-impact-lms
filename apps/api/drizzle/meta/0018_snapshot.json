@@ -1,5 +1,5 @@
 {
-  "id": "70174b49-9248-40d1-b41b-a1d8b7bb4a10",
+  "id": "2ba5e580-9411-43be-868b-974c651942bd",
   "prevId": "e5dc4b32-74d1-4ae0-87d6-b948ae1aa35c",
   "version": "7",
   "dialect": "postgresql",
@@ -1155,6 +1155,144 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.masquerade_sessions": {
+      "name": "masquerade_sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "staff_user_id": {
+          "name": "staff_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_user_id": {
+          "name": "target_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hard_expires_at": {
+          "name": "hard_expires_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "extend_count": {
+          "name": "extend_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "ended_at": {
+          "name": "ended_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_reason": {
+          "name": "end_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "auth_session_id": {
+          "name": "auth_session_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "staff_auth_session_id": {
+          "name": "staff_auth_session_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_from": {
+          "name": "started_from",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "masquerade_sessions_one_live_idx": {
+          "name": "masquerade_sessions_one_live_idx",
+          "columns": [
+            {
+              "expression": "staff_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"masquerade_sessions\".\"ended_at\" is null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "masquerade_sessions_reason": {
+          "name": "masquerade_sessions_reason",
+          "value": "char_length(\"masquerade_sessions\".\"reason\") between 10 and 500"
+        },
+        "masquerade_sessions_not_self": {
+          "name": "masquerade_sessions_not_self",
+          "value": "\"masquerade_sessions\".\"staff_user_id\" <> \"masquerade_sessions\".\"target_user_id\""
+        },
+        "masquerade_sessions_end_reason": {
+          "name": "masquerade_sessions_end_reason",
+          "value": "(\"masquerade_sessions\".\"ended_at\" is null and \"masquerade_sessions\".\"end_reason\" is null) or (\"masquerade_sessions\".\"ended_at\" is not null and \"masquerade_sessions\".\"end_reason\" in ('exit', 'expired', 'signed_out', 'revoked'))"
+        },
+        "masquerade_sessions_expiry": {
+          "name": "masquerade_sessions_expiry",
+          "value": "\"masquerade_sessions\".\"expires_at\" <= \"masquerade_sessions\".\"hard_expires_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.modules": {
       "name": "modules",
       "schema": "",
@@ -2028,12 +2166,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
-        },
-        "module_id": {
-          "name": "module_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -2119,12 +2251,6 @@
         "moved_from": {
           "name": "moved_from",
           "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "replay_url": {
-          "name": "replay_url",
-          "type": "text",
           "primaryKey": false,
           "notNull": false
         }

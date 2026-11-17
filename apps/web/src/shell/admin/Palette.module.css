@@ -1,0 +1,66 @@
+/* The ⌘K palette (D-160 R2-1c): the mockup's `Palette`, its search row, its results (`.pal-i`) and its
+   key hints. Tokens only. */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  padding: 4px 8px 4px 16px;
+  border-bottom: 1px solid var(--r2-line);
+  height: var(--r2-pal-row);
+  color: var(--r2-f3);
+}
+.input {
+  flex: 1;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  height: 100%;
+  font-size: var(--r2-fs-15);
+  color: var(--r2-ink);
+  min-width: 0;
+}
+.input:focus-visible {
+  box-shadow: none;
+}
+.esc {
+  margin-right: 8px;
+}
+.list {
+  overflow: auto;
+  max-height: 400px;
+  padding: 6px;
+}
+.group {
+  padding: 8px 10px 4px;
+}
+.item {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  height: var(--r2-cp);
+  align-items: center;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+.item:hover {
+  background: var(--r2-sub);
+}
+.item.on,
+.item.on:hover {
+  background: var(--r2-tint);
+}
+.glyph {
+  display: flex;
+}
+.detail {
+  margin-left: auto;
+  padding-left: 12px;
+}
+.hint {
+  gap: 4px;
+}

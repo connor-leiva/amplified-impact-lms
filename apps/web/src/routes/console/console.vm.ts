@@ -9,13 +9,17 @@
 import type { ConsoleCap } from '@ai/core';
 import type { ConsoleFailure } from '../../data/console';
 
-export type ConsoleScreen = 'audit' | 'roles' | 'workspaces';
+export type ConsoleScreen = 'audit' | 'roles' | 'workspaces' | 'users' | 'search' | 'masquerade';
 
 export const CONSOLE_SCREENS: Record<ConsoleScreen, { title: string; cap: ConsoleCap; path: string }> = {
   audit: { title: 'Audit Log', cap: 'audit.read', path: '/admin/audit' },
   roles: { title: 'Roles & Permissions', cap: 'ops.read', path: '/admin/roles' },
-  // D-160 R2-1c (spec § 7.3).
+  // D-160 R2-1c (spec §§ 7.3–7.5).
   workspaces: { title: 'Workspaces', cap: 'workspaces.read', path: '/admin/workspaces' },
+  users: { title: 'Users', cap: 'users.read', path: '/admin/users' },
+  search: { title: 'Search', cap: 'console.view', path: '/admin/search' },
+  // D-162 3b (spec § 6): any Console role opens it; Support sees why it can't start one.
+  masquerade: { title: 'Masquerade', cap: 'console.view', path: '/admin/masquerade' },
 };
 
 /** The way out of Denied and the 404. */

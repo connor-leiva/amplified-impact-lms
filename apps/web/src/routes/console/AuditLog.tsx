@@ -45,6 +45,7 @@ import {
 import type { AuditFilterState, AuditR2Row, RangeKey } from './AuditLog.vm';
 import { CONSOLE_SCREENS, errorCopy } from './console.vm';
 import { Denied } from './Denied';
+import { downloadCsv } from './download';
 import { useConsoleGate } from './useConsoleGate';
 import s from './AuditLog.module.css';
 
@@ -55,18 +56,6 @@ type List =
 
 const failureOf = (e: unknown): ConsoleFailure => (e instanceof ConsoleError ? e.kind : 'failed');
 const NOT_YET = 'Not available yet';
-
-/** Hand the browser a file. A blob URL, so nothing leaves the page. */
-function download(csv: string, filename: string): void {
-  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
 
 function ExportButton({ role, busy, onClick }: { role: string | null; busy?: boolean; onClick?: () => void }) {
   return canExport(role) ? (
@@ -128,7 +117,7 @@ function AuditLog({ api, role }: { api: ConsoleApi; role: string }) {
     setExporting(true);
     try {
       const { csv, filename } = await api.exportAudit(query);
-      download(csv, filename);
+      downloadCsv(csv, filename);
       toast(AUDIT_COPY.exported, 'success');
       setAttempt((n) => n + 1);
     } catch (e) {

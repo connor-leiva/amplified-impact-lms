@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import { useNavigate } from 'react-router';
+import { userPath, workspacePath } from '@ai/core';
 
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/r2/Button';
@@ -13,6 +15,7 @@ import { Avatar, Bar, Find, KV, PageHead, Pill, Sel, Tabs, Two, k } from '../../
 import { useToaster } from '../../components/primitives/Toaster';
 import { useDb, useMutate, useNow } from '../../data/hooks';
 import { useViewportWidth } from '../../shell/hooks';
+import { useMasqueradeEntry } from '../console/useMasqueradeEntry';
 import { LEARNERS_UI, R2_TIER_FILTERS, learnerR2Details, learnersR2VM, learnersVM } from './Learners.vm';
 import type { LearnerR2Row, R2TierFilter, TeamR2Row } from './Learners.vm';
 import s from './Learners.module.css';
@@ -24,14 +27,13 @@ import s from './Learners.module.css';
 //   - A learner's row opens their details (the old drawer, now R2's): tier, team, joined, last active,
 //     each AI Employee's progress, and Upgrade to Team Tier / Move to Agent Tier (`setLearnerTier`) and
 //     Send Nudge / Resend Invite (`nudgeLearners`).
-//   - The mockup's "Open user record" and "Masquerade…" are drawn disabled: Users is R2-4 and
-//     masquerade is Console PR 3. The Teams tab's "Open workspace" likewise (Workspaces, R2-4).
+//   - "Open user record" opens the learner's User page and the Teams tab's "Open workspace" the team's
+//     Workspace (D-160 R2-1c part 2): a learner's id is their `users.id` and a team's its `teams.id`,
+//     the ids those pages take. "Masquerade…" opens the reason dialog (D-162 3b): Owner and Admin only.
 //   - The head is the mockup's exactly: no page-level "…" (D-160 R2-3a, the shepherd's eye check). The
 //     old screens' Export roster and the Needs Attention list with Nudge All have no surface the mockup
 //     draws, so they are not offered here (Needs Connor's call); each learner's nudge stays in their
 //     details drawer.
-
-const NOT_YET = 'Not available yet';
 
 function Learners() {
   const db = useDb();
@@ -39,6 +41,8 @@ function Learners() {
   const mutate = useMutate();
   const { toast } = useToaster();
   const phone = useViewportWidth() < 768;
+  const navigate = useNavigate();
+  const entry = useMasqueradeEntry();
 
   const [tab, setTab] = useState<'learners' | 'teams'>('learners');
   const [q, setQ] = useState('');
@@ -135,8 +139,8 @@ function Learners() {
 
   const learnerMenu = (u: LearnerR2Row): MenuEntry[] => [
     { label: 'Open learner details', onSelect: () => setSel(u.id) },
-    { label: 'Open user record', disabled: true, title: NOT_YET, onSelect: () => {} },
-    { label: 'Masquerade…', icon: 'r2Masquerade', disabled: true, title: NOT_YET, onSelect: () => {} },
+    { label: 'Open user record', onSelect: () => navigate(userPath(u.id)) },
+    ...entry.item('Masquerade…', { id: u.id, name: u.name, workspace: u.team }),
   ];
 
   const cohortName = db.cohorts.find((c) => c.id === 'dec26')?.name ?? db.cohorts[0]?.name ?? 'current';
@@ -186,7 +190,7 @@ function Learners() {
           cols={teamCols}
           rows={vm.teams}
           rowKey={(t) => t.id}
-          menu={() => [{ label: 'Open workspace', disabled: true, title: NOT_YET, onSelect: () => {} }]}
+          menu={(t) => [{ label: 'Open workspace', onSelect: () => navigate(workspacePath(t.id)) }]}
           empty={{ icon: 'r2Workspaces', title: 'No teams yet' }}
         />
       )}
@@ -230,6 +234,7 @@ function Learners() {
           </div>
         </Drawer>
       ) : null}
+      {entry.dialog}
     </Page>
   );
 }
