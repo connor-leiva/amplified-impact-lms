@@ -660,6 +660,12 @@ const ROUTES: { path: string; methods: string; guard: Guard }[] = [
   { path: '/api/console/billing/failed', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/billing/refunds', methods: 'GET, HEAD', guard: 'session' },
   { path: '/api/console/billing/scopes', methods: 'GET, HEAD', guard: 'session' },
+  // Admin Console PR 5 (D-164): Billing's confirmed refund and void. Signed in, then billing.refund or
+  // billing.void (`test/console-authz.test.ts`), then a confirm token (`test/console-billing-actions.test.ts`).
+  { path: '/api/console/billing/refund/preview', methods: 'POST', guard: 'session' },
+  { path: '/api/console/billing/refund', methods: 'POST', guard: 'session' },
+  { path: '/api/console/billing/void/preview', methods: 'POST', guard: 'session' },
+  { path: '/api/console/billing/void', methods: 'POST', guard: 'session' },
 ];
 
 /**
@@ -1168,6 +1174,19 @@ describe('Gate 7 · the authorization matrix @g7', () => {
               () => app.inject({ method: 'GET', url: `/api/console/billing/${x}` }),
             ]),
           ),
+          // Admin Console PR 5 (D-164).
+          ...Object.fromEntries(
+            ['refund/preview', 'refund', 'void/preview', 'void'].map((x) => [
+              `/api/console/billing/${x}`,
+              () =>
+                app.inject({
+                  method: 'POST',
+                  url: `/api/console/billing/${x}`,
+                  headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:3000' },
+                  payload: { invoiceId: 'in_Team', confirmToken: 'x', reason: 'A reason of ten or more.', typed: 'in_Team' },
+                }),
+            ]),
+          ),
         };
         expect(Object.keys(probes).sort()).toEqual(
           ROUTES.filter((r) => r.guard === 'session')
@@ -1347,8 +1366,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // with the guided setups (D-151). 25 with the Admin Console's four (D-157), 26 with the Roles
     // & Permissions preview (D-160 R2-3b; its change is a POST to `/api/console/roles`, one path), 35
     // with Console PR 2's nine (D-158), 40 with masquerade's five (D-162), 47 with Billing's seven
-    // (D-163), and 48 with the audited Build actions (D-172).
-    expect(EXECUTED.unauthenticated).toBe(48);
+    // (D-163), 51 with Billing's refund and void, previews included (D-164), and 52 with the audited
+    // Build actions (D-172).
+    expect(EXECUTED.unauthenticated).toBe(52);
     // 6, then 7 with D-028's public waitlist, then one per guide's opt-in (D-038 on: five before the
     // skill pages, D-052), each probed like the others. From `GUIDE_SLUGS`, so a new guide is counted.
     // Plus the offer's five open routes (D-073 to D-077), and D-132's five password routes.
@@ -1360,8 +1380,9 @@ describe('Gate 7 · the authorization matrix @g7', () => {
     // probed unauthenticated. And + 1 for the guided setups (D-151), probed unauthenticated. And + 4
     // for the Admin Console's routes (D-157), probed unauthenticated. And + 1 for the Roles &
     // Permissions preview (D-160 R2-3b), probed unauthenticated. And + 9 for Console PR 2's (D-158),
-    // probed unauthenticated. And + 5 for masquerade's (D-162), and + 7 for Billing's (D-163), probed
-    // unauthenticated. And + 1 for the audited Build actions (D-172), probed unauthenticated.
-    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 1);
+    // probed unauthenticated. And + 5 for masquerade's (D-162), + 7 for Billing's (D-163) and + 4 for
+    // its refund and void (D-164), probed unauthenticated. And + 1 for the audited Build actions
+    // (D-172), probed unauthenticated.
+    expect(total).toBe(185 + GUIDE_SLUGS.length + 3 + 5 + 1 + 7 + 2 + 1 + 1 + 4 + 1 + 9 + 5 + 7 + 4 + 1);
   });
 });

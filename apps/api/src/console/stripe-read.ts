@@ -150,6 +150,23 @@ export function scopedConsoleStripe(inner: ConsoleStripe): ConsoleStripe {
 export const CONSOLE_STRIPE_TTL_MS = 10 * 60_000;
 const CACHE_MAX = 500;
 
+/** Each cached client's entries, so a confirmed write (D-164) can drop the ones it made stale. */
+const MEMOS = new WeakMap<ConsoleStripe, Map<string, { at: number; value: Promise<unknown> }>>();
+
+/**
+ * Drop every cached read of `client` that `stale` names (by method and arguments), so the next read
+ * asks Stripe. D-164: after a refund or a void, the acted-on invoice's rows. A client that is not a
+ * cache has nothing to drop. The read methods themselves are unchanged.
+ */
+export function forgetConsoleStripe(client: ConsoleStripe, stale: (method: keyof ConsoleStripe, args: unknown[]) => boolean): void {
+  const memo = MEMOS.get(client);
+  if (!memo) return;
+  for (const key of [...memo.keys()]) {
+    const at = key.indexOf(':');
+    if (stale(key.slice(0, at) as keyof ConsoleStripe, JSON.parse(key.slice(at + 1)) as unknown[])) memo.delete(key);
+  }
+}
+
 /**
  * A 10-minute cache over any ConsoleStripe: one entry per method and arguments, one call in flight
  * per entry, a failure forgotten at once (never cached, never masked by an older answer).
@@ -171,7 +188,9 @@ export function cachedConsoleStripe(inner: ConsoleStripe, now: () => number, ttl
       return value;
     };
   }
-  return out as unknown as ConsoleStripe;
+  const cached = out as unknown as ConsoleStripe;
+  MEMOS.set(cached, memo);
+  return cached;
 }
 
 // --- the real client ---------------------------------------------------------------------------------

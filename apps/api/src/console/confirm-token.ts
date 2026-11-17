@@ -10,7 +10,7 @@
 // itself never signs anything else, and a confirm token can never pass as a cookie signature or the
 // other way round. A bad token is 403 `confirm_invalid`; one past its time is 410 `confirm_expired`.
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { readSessionSecret } from '../auth/secret';
 
 const LABEL = 'ai-console-confirm-v1';
@@ -33,7 +33,11 @@ export function signConfirm<T extends ConfirmClaims>(claims: T): string {
   return `${body}.${sign(body).toString('base64url')}`;
 }
 
-export type ConfirmCheck<T> = { ok: true; claims: T } | { ok: false; code: 'confirm_invalid' | 'confirm_expired' };
+/** A refusal. An expired token is genuine, so its claims come with it (D-164 audits which invoice it named). */
+export type ConfirmCheck<T> =
+  | { ok: true; claims: T }
+  | { ok: false; code: 'confirm_invalid'; claims?: undefined }
+  | { ok: false; code: 'confirm_expired'; claims: T };
 
 /**
  * The claims of a token this server signed for `action` and `actor`, unexpired at `now`. Anything
@@ -57,6 +61,12 @@ export function verifyConfirm<T extends ConfirmClaims>(token: unknown, expected:
   }
   if (!claims || typeof claims !== 'object' || claims.action !== expected.action || claims.actor !== expected.actor || typeof claims.exp !== 'number')
     return invalid;
-  if (now > claims.exp) return { ok: false, code: 'confirm_expired' };
+  if (now > claims.exp) return { ok: false, code: 'confirm_expired', claims };
   return { ok: true, claims };
 }
+
+/**
+ * Spec § 7.6 (D-164): the Stripe idempotency key of a Billing action, `console-` + sha256(token), so
+ * one confirmation can reach Stripe any number of times and change it once. Never logged or stored.
+ */
+export const idempotencyKeyOf = (token: string): string => `console-${createHash('sha256').update(token).digest('hex')}`;

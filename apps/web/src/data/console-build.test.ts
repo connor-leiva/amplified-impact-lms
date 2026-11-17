@@ -71,6 +71,10 @@ const RECORD_SENTINELS = [
   '$29 per agent, monthly',
   'card_declined: do_not_honor',
   're_3QxK5fFm70',
+  // D-164: the fixture's stand-in confirm token and its two refusal states for the dialogs.
+  'fixture-confirm',
+  'action_expired',
+  'action_scope',
 ];
 
 describe('the Console fixture is not in the http build (D-157)', () => {
@@ -85,6 +89,8 @@ describe('the Console fixture is not in the http build (D-157)', () => {
     const code = await bundle('production');
     expect(code).toContain('/api/console/audit');
     expect(code).toContain('/api/console/roles/preview');
+    // D-164: the http client asks the API for Billing's preview and execute.
+    expect(code).toContain('/api/console/billing/');
     for (const s of [...SENTINELS, ...RECORD_SENTINELS]) expect(code, s).not.toContain(s);
   }, 60_000);
 

@@ -7,6 +7,8 @@
 // `usdWhole`. Statuses are a word and a tone, never colour alone.
 
 import {
+  cleanReason,
+  typedConfirms,
   acceleratorPriceSentence,
   adminDate,
   adminStamp,
@@ -25,6 +27,8 @@ import {
 } from '@ai/core';
 import type {
   AdminStatus,
+  BillingAction,
+  BillingActionPreview,
   BillingCustomerRow,
   BillingFailedRow,
   BillingInvoiceRow,
@@ -34,6 +38,7 @@ import type {
   BillingWorkspaceRef,
   SeatBar,
 } from '@ai/core';
+import { ConsoleError } from '../../data/console';
 import type { BillingSample } from '../../data/console';
 
 export const BILLING_TABS = ['summary', 'customers', 'subscriptions', 'invoices', 'failed', 'refunds'] as const;
@@ -99,6 +104,32 @@ export const BILLING_COPY = {
     refund: 'Refund…',
     void: 'Void invoice…',
     email: 'Open email log',
+    // D-164: the spec's seat-tier action (D4), drawn and gated; its reason is core's `SEAT_TIER_GATED`.
+    seatTier: 'Change seat tier…',
+  },
+  /** The mockup's title on a guarded action during a masquerade (its `Btn`'s). */
+  blocked: 'Blocked while masquerading',
+  /** D-164: the refund and void dialogs, the mockup's `Confirm` (`refund`, `voidI`) word for word. */
+  action: {
+    refundTitle: (amount: string, customer: string) => `Refund ${amount} to ${customer}?`,
+    refundBody: (id: string, card: string | null) =>
+      `Invoice ${id}${card ? `, ${card}` : ''}. The refund is sent to Stripe and cannot be reversed from the admin.`,
+    refundCta: (amount: string) => `Refund ${amount}`,
+    voidTitle: (id: string) => `Void invoice ${id}?`,
+    voidBody: (amount: string, customer: string) => `${amount} for ${customer}. The customer will no longer be asked to pay it.`,
+    voidCta: 'Void invoice',
+    reason: 'Reason',
+    placeholder: 'Required',
+    cancel: 'Cancel',
+    toast: { refund: 'Refund sent to Stripe', void: 'Invoice voided' } as Record<BillingAction, string>,
+    // New strings (D-164), for what the spec adds to the mockup's dialog: the preview's consequences,
+    // the 10-character reason, typing to confirm, and starting again after a refusal.
+    what: 'What happens',
+    reasonHelp: 'At least 10 characters.',
+    typed: (text: string) => `Type ${text} to confirm`,
+    again: 'Start again',
+    someone: 'this customer',
+    tooMany: 'Too many requests.',
   },
   /** The disabled items' title: refund and void are R2-4b's (spec PR 5); the email log is its own PR. */
   later: 'Not available yet',
@@ -236,9 +267,15 @@ export interface InvoiceVM extends RowBase {
   status: AdminStatus;
   date: string;
   at: number;
-  /** What R2-4b may do: drawn now, locked until then (drafts: nothing). */
+  /** What staff may do (D-164): refund what is left of a paid invoice, void an open one (drafts: nothing). */
   refund: boolean;
   void: boolean;
+  /** For the dialogs: what a refund returns, and the customer and card as Stripe names them. */
+  refundAmount: string;
+  customerName: string | null;
+  paymentMethod: string | null;
+  /** It bills a Team Plan: the gated seat-tier control is drawn in its "…" (D-164). */
+  teamPlan: boolean;
 }
 export const invoiceVM = (r: BillingInvoiceRow): InvoiceVM => ({
   key: r.id,
@@ -253,7 +290,66 @@ export const invoiceVM = (r: BillingInvoiceRow): InvoiceVM => ({
   at: r.created,
   refund: invoiceRefundable(r),
   void: invoiceVoidable(r),
+  refundAmount: usdCents(r.refundableCents),
+  customerName: r.customerName,
+  paymentMethod: r.paymentMethod,
+  teamPlan: r.seatTier !== null && r.seatTier !== undefined,
 });
+
+// --- the refund and void dialogs (D-164) ----------------------------------------------------------
+
+/** The action and the invoice row it was chosen on: the dialog's words until the preview answers. */
+export interface ActionTarget {
+  action: BillingAction;
+  invoiceId: string;
+  amount: string;
+  customer: string;
+  card: string | null;
+  confirmText: string;
+}
+
+export const actionTarget = (action: BillingAction, r: InvoiceVM): ActionTarget => ({
+  action,
+  invoiceId: r.id,
+  amount: action === 'refund' ? r.refundAmount : r.amount,
+  customer: r.customerName ?? BILLING_COPY.action.someone,
+  card: r.paymentMethod,
+  confirmText: action === 'refund' ? r.refundAmount : r.id,
+});
+
+export interface ActionDialogVM {
+  title: string;
+  body: string;
+  cta: string;
+  typedLabel: string;
+  consequences: string[] | null;
+}
+
+/** The dialog's words: the row's until the preview answers, then Stripe's own figures. */
+export function actionDialogVM(t: ActionTarget, p: BillingActionPreview | null): ActionDialogVM {
+  const A = BILLING_COPY.action;
+  const amount = p ? usdCents(p.summary.amountCents) : t.amount;
+  const customer = p?.summary.customerName ?? t.customer;
+  const confirm = p?.summary.confirmText ?? t.confirmText;
+  const consequences = p ? p.consequences : null;
+  if (t.action === 'refund')
+    return { title: A.refundTitle(amount, customer), body: A.refundBody(t.invoiceId, p ? p.summary.paymentMethod : t.card), cta: A.refundCta(amount), typedLabel: A.typed(confirm), consequences };
+  return { title: A.voidTitle(t.invoiceId), body: A.voidBody(amount, customer), cta: A.voidCta, typedLabel: A.typed(confirm), consequences };
+}
+
+/** The action may be sent: the preview is in, the reason is 10 to 500 characters, and what was typed matches. */
+export const canConfirm = (action: BillingAction, reason: string, typed: string, p: BillingActionPreview | null): boolean =>
+  p !== null && cleanReason(reason) !== null && typedConfirms(action, typed, { amountCents: p.summary.amountCents, invoiceId: p.summary.invoiceId });
+
+/** Refusals after which the confirmation can't be sent again: the dialog offers "Start again" (a new preview). */
+const RESTART = new Set(['confirm_invalid', 'confirm_expired', 'confirm_used', 'refund_too_large', 'invoice_not_voidable', 'invoice_not_refundable', 'stripe_refused', 'not_found']);
+
+/** A failed preview or execute, in the dialog: the server's own sentence, and whether to start again. */
+export function actionErrorOf(e: unknown): { message: string; restart: boolean } {
+  if (!(e instanceof ConsoleError)) return { message: 'The request didn’t reach the server.', restart: false };
+  if (e.status === 429) return { message: BILLING_COPY.action.tooMany, restart: false };
+  return { message: e.message, restart: e.code !== null && RESTART.has(e.code) };
+}
 
 export interface FailedVM extends RowBase {
   customer: string;
