@@ -360,16 +360,16 @@ test.describe('the Admin Console: the grouped sidebar (D-157, PR 1d; R2 since D-
       ['Build', 'Curriculum', 'Module Builder', 'Resource Vault', 'Cohorts & Sessions', 'Announcements'],
       // D-160 R2-1c: Workspaces and Users are on in production; D-162 3b: Masquerade (`masquerade.start`).
       ['Support', 'Learners & Teams', 'Workspaces', 'Users', 'Masquerade'],
-      // D-163: Billing is on in production (billing.read: Owner, Admin, Support).
-      ['Revenue', 'Tiers & Upgrades', 'Billing'],
-      // D-165: API & Webhooks and Scheduled Jobs are on in production (Support sees both, D3).
-      ['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs'],
+      // D-163: Billing is on in production (billing.read: Owner, Admin, Support); D-166 Usage (usage.read).
+      ['Revenue', 'Tiers & Upgrades', 'Billing', 'Usage'],
+      // D-165: API & Webhooks and Scheduled Jobs are on in production (Support sees both, D3); D-166 the Email Log.
+      ['Operations', 'Audit Log', 'API & Webhooks', 'Scheduled Jobs', 'Email Log'],
       ['Access', 'Roles & Permissions', 'Staff & Roles'],
     ],
   };
   EXPECT.Admin = EXPECT.Owner!;
   EXPECT.Support = EXPECT.Owner!.map((g) => g.filter((x) => x !== 'Roles & Permissions' && x !== 'Masquerade'));
-  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Masquerade', 'Billing'].includes(x)));
+  EXPECT.Instructor = EXPECT.Owner!.filter((g) => g[0] !== 'Operations').map((g) => g.filter((x) => !['Roles & Permissions', 'Workspaces', 'Users', 'Masquerade', 'Billing', 'Usage'].includes(x)));
 
   for (const role of ['Owner', 'Admin', 'Support', 'Instructor']) {
     test(`${role} sees the Console groups their capabilities open, and the rows go where they say`, async ({ browser }) => {

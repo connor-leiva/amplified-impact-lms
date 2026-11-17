@@ -24,6 +24,7 @@ import {
   programDay,
   programDayStart,
   seatUtilization,
+  storageCapLabel,
   storageLabel,
 } from '../src/index';
 import type { EmailLogRow } from '../src/index';
@@ -139,7 +140,10 @@ describe('usage figures @console', () => {
   it('prints storage in decimal units', () => {
     expect(storageLabel(41.2e9)).toBe('41.2 GB');
     expect(storageLabel(6.6e9)).toBe('6.6 GB');
-    expect(storageLabel(250e6)).toBe('250.0 MB');
+    expect(storageLabel(0.4e9)).toBe('0.4 GB');
+    expect(storageLabel(25e6)).toBe('25.0 MB');
     expect(storageLabel(4_000)).toBe('4 KB');
+    expect(storageCapLabel(100e9)).toBe('100 GB');
+    expect(storageCapLabel(41.2e9)).toBe('41.2 GB');
   });
 });

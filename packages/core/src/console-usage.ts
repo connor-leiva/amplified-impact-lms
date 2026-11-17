@@ -276,9 +276,12 @@ export function niceCeiling(max: number): number {
   return nice * exp;
 }
 
-/** Storage as the tile prints it: "41.2 GB" (decimal gigabytes, as a bucket bills). */
+/** Storage as the tile prints it: "41.2 GB", "0.4 GB" (decimal units, as a bucket bills). */
 export function storageLabel(bytes: number): string {
-  if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)} GB`;
-  if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(1)} MB`;
+  if (bytes >= 1e8) return `${(bytes / 1e9).toFixed(1)} GB`;
+  if (bytes >= 1e5) return `${(bytes / 1e6).toFixed(1)} MB`;
   return `${Math.round(bytes / 1e3)} KB`;
 }
+
+/** A bucket's size limit, as the tile's line under the figure prints it: "100 GB". */
+export const storageCapLabel = (bytes: number): string => storageLabel(bytes).replace(/\.0 /, ' ');
