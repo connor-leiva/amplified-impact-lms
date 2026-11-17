@@ -8,10 +8,10 @@ import { Status } from '../../components/r2/Status';
 import { Table } from '../../components/r2/Table';
 import type { Column } from '../../components/r2/Table';
 import { Facts, PageHead, Two, k } from '../../components/r2/kit';
-import { DEPLOYS_COPY as C, deploysVM } from './ops.vm';
-import type { DeployRowVM } from './ops.vm';
-import { OpsFrame } from './OpsFrame';
-import s from './Ops.module.css';
+import { DEPLOYS_COPY as C, deploysVM } from './infra.vm';
+import type { DeployRowVM } from './infra.vm';
+import { InfraFrame } from './InfraFrame';
+import s from './Infra.module.css';
 
 const cols: Column<DeployRowVM>[] = [
   {
@@ -40,7 +40,7 @@ const cols: Column<DeployRowVM>[] = [
 
 export function Component() {
   return (
-    <OpsFrame screen="deploys" lines={3} head={<PageHead title={C.title} description={C.description} />} read={(a) => a.deploys()}>
+    <InfraFrame screen="deploys" lines={3} head={<PageHead title={C.title} description={C.description} />} read={(a) => a.deploys()}>
       {(d) => {
         const vm = deploysVM(d);
         return (
@@ -68,7 +68,7 @@ export function Component() {
           </>
         );
       }}
-    </OpsFrame>
+    </InfraFrame>
   );
 }
 

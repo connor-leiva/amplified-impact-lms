@@ -14,7 +14,7 @@ import { useConsoleGate } from './useConsoleGate';
 // page's body (a loading card, the error with Retry), under the page head that never waits. Denied for
 // a role without `ops.read` (Support, D3), from the gate or from the API's own 403.
 
-export function OpsFrame<T>({
+export function InfraFrame<T>({
   screen,
   head,
   read,

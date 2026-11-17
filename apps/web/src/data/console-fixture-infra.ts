@@ -1,12 +1,12 @@
 // The Console fixture's Operations pages (D-168): what Integrations, Deploys & Commits, DB Health and
 // Environment Flags read in the fixture build, as the API's own shapes, from the mockup's data
-// (`parity-r2-ops.ts`). FIXTURE ONLY: `console-fixture.ts` loads it, and the http build has neither
+// (`parity-r2-infra.ts`). FIXTURE ONLY: `console-fixture.ts` loads it, and the http build has neither
 // (`console-build.test.ts`). The one flag the Console owns flips here in memory, as the API's would.
 
 import { CONSOLE_FLAGS, INTEGRATION_NAMES, isConsoleFlagKey } from '@ai/core';
 import type { ConsoleFlagView, DbHealthView, DeployRow, DeployStatus, DeploysView, EnvPresence, IntegrationId, IntegrationStamp, IntegrationView, OpsEnv, ProbeIntegration, ProbeResult } from '@ai/core';
 import { mockStamp } from './parity-r2';
-import { DB_FIGURES, DEPLOYS, FLAGS, INTEGRATIONS, LARGEST_TABLES, MIGRATIONS, SECRETS, SLOW_QUERIES } from './parity-r2-ops';
+import { DB_FIGURES, DEPLOYS, FLAGS, INTEGRATIONS, LARGEST_TABLES, MIGRATIONS, SECRETS, SLOW_QUERIES } from './parity-r2-infra';
 
 const MB = 1024 ** 2;
 /** The mockup's full sha for its short one: the short one, padded (fiction, like the rest). */

@@ -2,8 +2,8 @@
 // production's own states from the API's.
 import { describe, expect, it } from 'vitest';
 import type { DbHealthView, DeploysView, IntegrationView, OpsEnv } from '@ai/core';
-import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from '../../data/console-fixture-ops';
-import { dbVM, deploysVM, flagsVM, flipConfirm, flipLabel, integrationCardVM, stampWords } from './ops.vm';
+import { fixtureDbHealth, fixtureDeploys, fixtureIntegrations, fixtureOps } from '../../data/console-fixture-infra';
+import { dbVM, deploysVM, flagsVM, flipConfirm, flipLabel, integrationCardVM, stampWords } from './infra.vm';
 
 const NOW = Date.parse('2026-12-10T16:30:00Z');
 

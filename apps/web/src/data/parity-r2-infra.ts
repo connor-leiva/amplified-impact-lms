@@ -1,7 +1,7 @@
 // The R2 parity fixture's Operations data (D-168, BUILD-SPEC § 6.1): the mockup's own `Integrations`
 // list (`L`), `DEPLOYS`, the `Db` page's figures and the `Flags` page's `F` and secrets, verbatim from
 // design-reference/admin-redesign-r2/AdminRedesign.jsx. FIXTURE ONLY, like `parity-r2.ts`: the Console
-// fixture (`console-fixture-ops.ts`) reads it, and the http build has neither (`console-build.test.ts`).
+// fixture (`console-fixture-infra.ts`) reads it, and the http build has neither (`console-build.test.ts`).
 //
 // Every value is fiction. The mockup's flags list (`F`) is its own: v1's only Console flag is
 // `masquerade_enabled` (spec § 7.13, D10); the other seven are drawn here, read-only, for parity, and

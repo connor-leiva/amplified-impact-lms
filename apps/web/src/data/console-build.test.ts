@@ -68,7 +68,7 @@ const RECORD_SENTINELS = [
 
 describe('the Console fixture is not in the http build (D-157)', () => {
   it('D-168: the Operations pages’ view-model prints production’s own words, and none of the mockup’s data', async () => {
-    const code = await bundle('production', '../routes/console/ops.vm.ts');
+    const code = await bundle('production', '../routes/console/infra.vm.ts');
     expect(code).toContain('Not configured');
     expect(code).toContain('www only (D-155)');
     for (const s of ['Scope 16px floor', 'zoom_recording_webhook', 'maintenance_mode', '1 hard bounce', 'GHL orders: back off on 401']) expect(code, s).not.toContain(s);

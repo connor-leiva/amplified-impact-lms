@@ -3,7 +3,7 @@
 // reveal, copy or replace, D9), and Test connection. Test connection is "Check now" for Stripe and
 // Resend only, read-only, and audited; on the other four it is drawn, as the mockup draws it, and inert
 // (Needs Connor's call). GA4 and the Meta Pixel are www's (D-155): their public ids, nothing checked.
-// Owner and Admin (`ops.read`). Markup only: the words come from ops.vm.ts.
+// Owner and Admin (`ops.read`). Markup only: the words come from infra.vm.ts.
 
 import { useState } from 'react';
 import clsx from 'clsx';
@@ -17,10 +17,10 @@ import { ConsoleError } from '../../data/console';
 import type { ConsoleApi } from '../../data/console';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { errorCopy } from './console.vm';
-import { INTEGRATIONS_COPY as C, integrationCardVM } from './ops.vm';
-import type { IntegrationCardVM } from './ops.vm';
-import { OpsFrame } from './OpsFrame';
-import s from './Ops.module.css';
+import { INTEGRATIONS_COPY as C, integrationCardVM } from './infra.vm';
+import type { IntegrationCardVM } from './infra.vm';
+import { InfraFrame } from './InfraFrame';
+import s from './Infra.module.css';
 
 function Cards({ list, api, canProbe }: { list: IntegrationView[]; api: ConsoleApi; canProbe: boolean }) {
   const { toast } = useAdminChrome();
@@ -74,9 +74,9 @@ function Cards({ list, api, canProbe }: { list: IntegrationView[]; api: ConsoleA
 
 export function Component() {
   return (
-    <OpsFrame screen="integrations" lines={8} head={<PageHead title={C.title} description={C.description} />} read={(a) => a.integrations()}>
+    <InfraFrame screen="integrations" lines={8} head={<PageHead title={C.title} description={C.description} />} read={(a) => a.integrations()}>
       {(list, { api, me }) => <Cards list={list} api={api} canProbe={consoleCan(me.role, 'integrations.probe')} />}
-    </OpsFrame>
+    </InfraFrame>
   );
 }
 

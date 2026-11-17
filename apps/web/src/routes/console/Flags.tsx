@@ -17,10 +17,10 @@ import type { ConsoleApi } from '../../data/console';
 import type { OpsEnv } from '@ai/core';
 import { useAdminChrome } from '../../shell/admin/chrome';
 import { errorCopy } from './console.vm';
-import { FLAGS_COPY as C, flagsVM, flipLabel } from './ops.vm';
-import type { FlagRowVM } from './ops.vm';
-import { OpsFrame } from './OpsFrame';
-import s from './Ops.module.css';
+import { FLAGS_COPY as C, flagsVM, flipLabel } from './infra.vm';
+import type { FlagRowVM } from './infra.vm';
+import { InfraFrame } from './InfraFrame';
+import s from './Infra.module.css';
 
 function FlagsBody({ env, api, role, reload }: { env: OpsEnv; api: ConsoleApi; role: string; reload: () => void }) {
   const { toast } = useAdminChrome();
@@ -91,14 +91,14 @@ function FlagsBody({ env, api, role, reload }: { env: OpsEnv; api: ConsoleApi; r
 
 export function Component() {
   return (
-    <OpsFrame
+    <InfraFrame
       screen="flags"
       lines={8}
       head={<PageHead title={C.title} meta={<Pill>{C.readOnly}</Pill>} description={C.description} />}
       read={(a) => a.opsEnv()}
     >
       {(env, { api, me, reload }) => <FlagsBody env={env} api={api} role={me.role} reload={reload} />}
-    </OpsFrame>
+    </InfraFrame>
   );
 }
 

@@ -10,13 +10,13 @@ import clsx from 'clsx';
 import { Card } from '../../components/r2/Card';
 import { Empty } from '../../components/r2/Empty';
 import { PageHead, Pill, Stat, k } from '../../components/r2/kit';
-import { DB_COPY as C, dbVM } from './ops.vm';
-import { OpsFrame } from './OpsFrame';
-import s from './Ops.module.css';
+import { DB_COPY as C, dbVM } from './infra.vm';
+import { InfraFrame } from './InfraFrame';
+import s from './Infra.module.css';
 
 export function Component() {
   return (
-    <OpsFrame
+    <InfraFrame
       screen="db"
       lines={8}
       head={<PageHead title={C.title} meta={<Pill>{C.readOnly}</Pill>} description={C.description} />}
@@ -72,7 +72,7 @@ export function Component() {
           </>
         );
       }}
-    </OpsFrame>
+    </InfraFrame>
   );
 }
 

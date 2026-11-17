@@ -5,7 +5,7 @@ import { expectAccessible } from '../../lib/a11y';
 /**
  * D-168 (Console PR 9, spec §§ 7.11-7.13): Integrations, Deploys & Commits, DB Health and Environment
  * Flags on R2, in the fixture build. The Console fixture answers with the mockup's data
- * (`apps/web/src/data/parity-r2-ops.ts`); the pixels are `pnpm parity:admin-r2`'s, and these hold the
+ * (`apps/web/src/data/parity-r2-infra.ts`); the pixels are `pnpm parity:admin-r2`'s, and these hold the
  * behaviour: the sidebar rows, Test connection for Stripe and Resend only (inert elsewhere), the
  * typed flip of `masquerade_enabled` for the Owner alone, Denied for Support (D3), and the production
  * empty states. Every screen and state passes axe (zero serious or critical).

@@ -7,7 +7,7 @@
 
 import {
   INTEGRATION_NAMES,
-  OPS_PATHS,
+  INFRA_PATHS,
   WWW_ONLY_INTEGRATIONS,
   adminStamp,
   bytesLabel,
@@ -323,6 +323,6 @@ export function flagsVM(e: OpsEnv, role: string | null): FlagsVM {
 /** The flip's accessible name: the flag, its state, and what pressing does. */
 export const flipLabel = (r: FlagRowVM): string => `${r.key}: ${r.status.label}. Turn ${r.flip?.to ? 'on' : 'off'}…`;
 
-export const OPS_SCREEN_PATHS = { integrations: '/admin/integrations', deploys: '/admin/deploys', db: '/admin/db', flags: '/admin/flags' } as const;
+export const INFRA_SCREEN_PATHS = { integrations: '/admin/integrations', deploys: '/admin/deploys', db: '/admin/db', flags: '/admin/flags' } as const;
 /** The API each screen reads (for the build test and the e2e). */
-export const OPS_API = OPS_PATHS;
+export const INFRA_API = INFRA_PATHS;
