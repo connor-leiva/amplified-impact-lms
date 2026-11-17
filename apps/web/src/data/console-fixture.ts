@@ -30,6 +30,7 @@ import {
   cleanSearch,
   consoleCanWith,
   consoleCapsWith,
+  isRunNowJob,
   permissionChangeSummary,
   roleRowOf,
   rolesMatrix,
@@ -63,6 +64,7 @@ import {
   fixtureWorkspaceRows,
 } from './console-fixture-records';
 import { BILLING_SAMPLE_LABELS, fixtureBillingExecute, fixtureBillingPreview, fixtureBillingRows, fixtureBillingSummary } from './console-fixture-billing';
+import { fixtureEndpoints, fixtureJobRows, fixtureJobs, fixtureRunJob, fixtureWebhookRows, fixtureWebhooks } from './console-fixture-ops';
 import { readParityR2 } from './parity-r2';
 import { parityAuditRows, parityRoleGrants } from './parity-r2-db';
 
@@ -176,6 +178,9 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
   // D-164: Billing's lists, kept so a refund or a void shows on the next read, as Stripe's would.
   const billing = fixtureBillingRows();
   let noteId = 100;
+  // D-165: the mockup's deliveries and jobs, changed by a retry or a Run Now as the API's would be.
+  let hooks = fixtureWebhookRows();
+  let jobs = fixtureJobRows();
 
   /** What the API's write would audit, so the Audit Log shows it on the next load. */
   const record = (action: AuditAction, target: AuditRow['target'], after: unknown, reason: string | null = null) => {
@@ -401,6 +406,40 @@ export function createConsoleFixture(opts: ConsoleFixtureOptions = {}): ConsoleA
         const r = billing.invoices.find((i) => i.id === out.invoiceId);
         record(`billing.${action}`, { type: 'invoice', id: out.invoiceId, label: r?.customerName ?? null }, action === 'refund' ? { amountCents: out.refund?.amountCents ?? null } : { status: 'void' }, body.reason.trim());
         return out;
+      }),
+    // D-165: API & Webhooks and Scheduled Jobs, the mockup's records.
+    apiEndpoints: () =>
+      settle(() => {
+        need('api.read');
+        const e = fixtureEndpoints(now());
+        return state === 'empty' ? { ...e, summary: { requests: 0, errorRate: null, p95Ms: null }, rows: [] } : e;
+      }),
+    webhooks: () =>
+      settle(() => {
+        need('api.read');
+        return fixtureWebhooks(state === 'empty' ? [] : hooks);
+      }),
+    retryWebhook: (kind, id) =>
+      settle(() => {
+        need('webhooks.retry');
+        const row = hooks.find((h) => h.retry?.kind === kind && h.retry.id === id);
+        if (!row) throw notFound();
+        hooks = hooks.map((h) => (h === row ? { ...h, status: 'queued', attempts: h.attempts && { ...h.attempts, n: 0 }, nextAttemptAt: null, attemptsUsed: false, retry: null } : h));
+        record('webhook.ghl_retry', { type: `ghl_${kind}`, id, label: null }, { kind, attempts: 0 });
+      }),
+    jobs: () =>
+      settle(() => {
+        need('jobs.read');
+        return fixtureJobs(state === 'empty' ? [] : jobs, now());
+      }),
+    runJob: (job) =>
+      settle(() => {
+        need('jobs.run_now');
+        if (!isRunNowJob(job)) throw new ConsoleError('forbidden', 403, 'job_not_runnable', CONSOLE_ERRORS.job_not_runnable.message);
+        const at = now();
+        jobs = fixtureRunJob(jobs, at);
+        record('job.run_now', { type: 'job', id: job, label: job }, { status: 'succeeded' });
+        return { job, status: 'succeeded' as const, startedAt: at, finishedAt: at };
       }),
     search: (q) =>
       settle(() => {

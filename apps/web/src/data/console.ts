@@ -7,8 +7,13 @@
 // constant at build time. In the http build that branch is dead, so the fixture's fictional people
 // never reach production: `console-build.test.ts` builds this module both ways and checks.
 
-import { isConsoleErrorCode } from '@ai/core';
+import { OPS_PATHS, isConsoleErrorCode, jobRunPath } from '@ai/core';
 import type {
+  ApiEndpoints,
+  ConsoleJobs,
+  ConsoleWebhooks,
+  GhlRetryKind,
+  JobRunResult,
   AuditFilters,
   AuditRow,
   BillingAction,
@@ -138,6 +143,14 @@ export interface ConsoleApi {
   billingPreview(action: BillingAction, params: { invoiceId: string }): Promise<BillingActionPreview>;
   /** The action itself: the preview's token, a reason of 10 to 500 characters, and what staff typed. */
   billingExecute(action: BillingAction, body: { confirmToken: string; reason: string; typed: string }): Promise<BillingActionResult>;
+  // PR 6 (D-165): API & Webhooks and Scheduled Jobs.
+  apiEndpoints(): Promise<ApiEndpoints>;
+  webhooks(): Promise<ConsoleWebhooks>;
+  /** The CRM sync's own reset for one GHL row (D13). */
+  retryWebhook(kind: GhlRetryKind, id: string): Promise<void>;
+  jobs(): Promise<ConsoleJobs>;
+  /** Run Now (D14): the manual tick it recorded. */
+  runJob(job: string): Promise<JobRunResult>;
 }
 
 /** Billing's lists (spec § 7.6), by the tab that shows each. */
@@ -273,6 +286,13 @@ export function createConsoleHttp(fetchImpl: typeof fetch = (...a) => fetch(...a
     billingPreview: async (action, params) =>
       json<BillingActionPreview>(await request(fetchImpl, `/api/console/billing/${action}/preview`, JSON_POST({ invoiceId: params.invoiceId }))),
     billingExecute: async (action, body) => json<BillingActionResult>(await request(fetchImpl, `/api/console/billing/${action}`, JSON_POST(body))),
+    apiEndpoints: async () => json<ApiEndpoints>(await request(fetchImpl, OPS_PATHS.apiEndpoints)),
+    webhooks: async () => json<ConsoleWebhooks>(await request(fetchImpl, OPS_PATHS.webhooks)),
+    retryWebhook: async (kind, id) => {
+      await request(fetchImpl, OPS_PATHS.ghlRetry, JSON_POST({ kind, id }));
+    },
+    jobs: async () => json<ConsoleJobs>(await request(fetchImpl, OPS_PATHS.jobs)),
+    runJob: async (job) => json<JobRunResult>(await request(fetchImpl, jobRunPath(job), JSON_POST({}))),
   };
 }
 
