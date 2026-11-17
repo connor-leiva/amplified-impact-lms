@@ -1,0 +1,69 @@
+# Review files for PR #158
+
+R2-gaps-c (D-172): the Audit Log's Export selected, and Roles & Permissions' Invite staff and Change role…. Touched screens: `audit`, `roles`, `roles-confirm` (every cell at its D-160 numbers; nothing new is enforced).
+
+Base64 text, one line per file (`base64 -w 0`). Decode with `base64 -d <file> > out.png`; a split file is joined first: `cat <file>.part1 <file>.part2 | base64 -d > out.png`.
+
+Measured at `eb3e5cb` (pre-final: gaps-c before its Build-confirm audit commit `c3f9093`, which draws nothing differently). The final head's files replace these after #153's final branch merges in.
+
+## The touched screens: ref, build and diff at four widths
+
+`ref` is the signed-off mockup (`design-reference/admin-redesign-r2/ref/`), `build` the app as `pnpm parity:admin-r2` captured it in the pinned container (`mcr.microsoft.com/playwright:v1.63.0-noble`, Chromium 153.0.8010.12, `fonts.conf`), `diff` pixelmatch's output (threshold 0.1, `includeAA: false`; red = differing pixel). The last column is the strict guard's (report-only): pixels where an RGB channel differs by more than 60, with their box, and pixelmatch 0.1 with `includeAA: true`.
+
+| file(s) | screen | width | kind | parts | cell diff (the rule) | strict (report-only) |
+|---|---|---|---|---|---|---|
+| `audit-1440.ref.png.b64` | audit | 1440 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1440.build.png.b64` | audit | 1440 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1440.diff.png.b64` | audit | 1440 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1280.ref.png.b64` | audit | 1280 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1280.build.png.b64` | audit | 1280 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1280.diff.png.b64` | audit | 1280 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1024.ref.png.b64` | audit | 1024 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1024.build.png.b64` | audit | 1024 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-1024.diff.png.b64` | audit | 1024 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-390.ref.png.b64` | audit | 390 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-390.build.png.b64` | audit | 390 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `audit-390.diff.png.b64` | audit | 390 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `roles-1440.ref.png.b64` | roles | 1440 | ref | 1 | 1.8984% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
+| `roles-1440.build.png.b64` | roles | 1440 | build | 1 | 1.8984% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
+| `roles-1440.diff.png.b64` | roles | 1440 | diff | 1 | 1.8984% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
+| `roles-1280.ref.png.b64` | roles | 1280 | ref | 1 | 2.1357% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
+| `roles-1280.build.png.b64` | roles | 1280 | build | 1 | 2.1357% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
+| `roles-1280.diff.png.b64` | roles | 1280 | diff | 1 | 2.1357% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
+| `roles-1024.ref.png.b64` | roles | 1024 | ref | 1 | 2.6696% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
+| `roles-1024.build.png.b64` | roles | 1024 | build | 1 | 2.6696% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
+| `roles-1024.diff.png.b64` | roles | 1024 | diff | 1 | 2.6696% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
+| `roles-390.ref.png.b64` | roles | 390 | ref | 1 | 4.2581% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
+| `roles-390.build.png.b64` | roles | 390 | build | 1 | 4.2581% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
+| `roles-390.diff.png.b64` | roles | 390 | diff | 1 | 4.2581% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
+| `roles-confirm-1440.ref.png.b64` | roles-confirm | 1440 | ref | 1 | 2.0293% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
+| `roles-confirm-1440.build.png.b64` | roles-confirm | 1440 | build | 1 | 2.0293% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
+| `roles-confirm-1440.diff.png.b64` | roles-confirm | 1440 | diff | 1 | 2.0293% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
+| `roles-confirm-1280.ref.png.b64` | roles-confirm | 1280 | ref | 1 | 2.2830% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
+| `roles-confirm-1280.build.png.b64` | roles-confirm | 1280 | build | 1 | 2.2830% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
+| `roles-confirm-1280.diff.png.b64` | roles-confirm | 1280 | diff | 1 | 2.2830% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
+| `roles-confirm-1024.ref.png.b64` | roles-confirm | 1024 | ref | 1 | 2.8537% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
+| `roles-confirm-1024.build.png.b64` | roles-confirm | 1024 | build | 1 | 2.8537% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
+| `roles-confirm-1024.diff.png.b64` | roles-confirm | 1024 | diff | 1 | 2.8537% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
+| `roles-confirm-390.ref.png.b64` | roles-confirm | 390 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `roles-confirm-390.build.png.b64` | roles-confirm | 390 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+| `roles-confirm-390.diff.png.b64` | roles-confirm | 390 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
+
+## Build-only frames: every new menu, dialog and state (no mockup frame)
+
+Menus and dialogs stay closed in the parity frames, so these have no ref: each is the app alone, captured in the same pinned container with the R2 renderer's fonts, at 1280 × 900 and 390 × 844 (the viewport), with the mockup's data (`?parity=r2`).
+
+| file(s) | state | width | kind | parts |
+|---|---|---|---|---|
+| `audit-export-selected-1280.build.png.b64` | audit-export-selected | 1280 | build only | 1 |
+| `audit-export-selected-390.build.png.b64` | audit-export-selected | 390 | build only | 1 |
+| `roles-invite-form-1280.build.png.b64` | roles-invite-form | 1280 | build only | 1 |
+| `roles-invite-form-390.build.png.b64` | roles-invite-form | 390 | build only | 1 |
+| `roles-invite-confirm-1280.build.png.b64` | roles-invite-confirm | 1280 | build only | 1 |
+| `roles-invite-confirm-390.build.png.b64` | roles-invite-confirm | 390 | build only | 1 |
+| `roles-staff-menu-1280.build.png.b64` | roles-staff-menu | 1280 | build only | 1 |
+| `roles-staff-menu-390.build.png.b64` | roles-staff-menu | 390 | build only | 1 |
+| `roles-change-role-form-1280.build.png.b64` | roles-change-role-form | 1280 | build only | 1 |
+| `roles-change-role-form-390.build.png.b64` | roles-change-role-form | 390 | build only | 1 |
+| `roles-change-role-confirm-1280.build.png.b64` | roles-change-role-confirm | 1280 | build only | 1 |
+| `roles-change-role-confirm-390.build.png.b64` | roles-change-role-confirm | 390 | build only | 1 |
