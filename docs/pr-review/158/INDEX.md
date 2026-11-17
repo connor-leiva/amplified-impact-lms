@@ -24,27 +24,27 @@ Measured at `eb3e5cb` (pre-final: gaps-c before its Build-confirm audit commit `
 | `audit-390.ref.png.b64` | audit | 390 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `audit-390.build.png.b64` | audit | 390 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `audit-390.diff.png.b64` | audit | 390 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
-| `roles-1440.ref.png.b64` | roles | 1440 | ref | 1 | 1.8984% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
-| `roles-1440.build.png.b64` | roles | 1440 | build | 1 | 1.8984% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
-| `roles-1440.diff.png.b64` | roles | 1440 | diff | 1 | 1.8984% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
-| `roles-1280.ref.png.b64` | roles | 1280 | ref | 1 | 2.1357% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
-| `roles-1280.build.png.b64` | roles | 1280 | build | 1 | 2.1357% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
-| `roles-1280.diff.png.b64` | roles | 1280 | diff | 1 | 2.1357% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
-| `roles-1024.ref.png.b64` | roles | 1024 | ref | 1 | 2.6696% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
-| `roles-1024.build.png.b64` | roles | 1024 | build | 1 | 2.6696% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
-| `roles-1024.diff.png.b64` | roles | 1024 | diff | 1 | 2.6696% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
-| `roles-390.ref.png.b64` | roles | 390 | ref | 1 | 4.2581% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
-| `roles-390.build.png.b64` | roles | 390 | build | 1 | 4.2581% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
-| `roles-390.diff.png.b64` | roles | 390 | diff | 1 | 4.2581% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
-| `roles-confirm-1440.ref.png.b64` | roles-confirm | 1440 | ref | 1 | 2.0293% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
-| `roles-confirm-1440.build.png.b64` | roles-confirm | 1440 | build | 1 | 2.0293% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
-| `roles-confirm-1440.diff.png.b64` | roles-confirm | 1440 | diff | 1 | 2.0293% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
-| `roles-confirm-1280.ref.png.b64` | roles-confirm | 1280 | ref | 1 | 2.2830% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
-| `roles-confirm-1280.build.png.b64` | roles-confirm | 1280 | build | 1 | 2.2830% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
-| `roles-confirm-1280.diff.png.b64` | roles-confirm | 1280 | diff | 1 | 2.2830% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
-| `roles-confirm-1024.ref.png.b64` | roles-confirm | 1024 | ref | 1 | 2.8537% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
-| `roles-confirm-1024.build.png.b64` | roles-confirm | 1024 | build | 1 | 2.8537% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
-| `roles-confirm-1024.diff.png.b64` | roles-confirm | 1024 | diff | 1 | 2.8537% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
+| `roles-1440.ref.png.b64` | roles | 1440 | ref | 1 | 0.0190% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
+| `roles-1440.build.png.b64` | roles | 1440 | build | 1 | 0.0190% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
+| `roles-1440.diff.png.b64` | roles | 1440 | diff | 1 | 0.0190% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1299–1343, y 812–827], AA 354 px |
+| `roles-1280.ref.png.b64` | roles | 1280 | ref | 1 | 0.0214% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
+| `roles-1280.build.png.b64` | roles | 1280 | build | 1 | 0.0214% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
+| `roles-1280.diff.png.b64` | roles | 1280 | diff | 1 | 0.0214% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 1139–1183, y 812–827], AA 354 px |
+| `roles-1024.ref.png.b64` | roles | 1024 | ref | 1 | 0.0267% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
+| `roles-1024.build.png.b64` | roles | 1024 | build | 1 | 0.0267% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
+| `roles-1024.diff.png.b64` | roles | 1024 | diff | 1 | 0.0267% · 272 px · dims OK · enforced, pass | Δ>60 321 px [x 891–935, y 812–827], AA 354 px |
+| `roles-390.ref.png.b64` | roles | 390 | ref | 1 | 0.0426% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
+| `roles-390.build.png.b64` | roles | 390 | build | 1 | 0.0426% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
+| `roles-390.diff.png.b64` | roles | 390 | diff | 1 | 0.0426% · 462 px · dims OK · enforced, pass | Δ>60 613 px [x 241–356, y 2255–2276], AA 641 px |
+| `roles-confirm-1440.ref.png.b64` | roles-confirm | 1440 | ref | 1 | 0.0203% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
+| `roles-confirm-1440.build.png.b64` | roles-confirm | 1440 | build | 1 | 0.0203% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
+| `roles-confirm-1440.diff.png.b64` | roles-confirm | 1440 | diff | 1 | 0.0203% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1300–1344, y 812–827], AA 340 px |
+| `roles-confirm-1280.ref.png.b64` | roles-confirm | 1280 | ref | 1 | 0.0228% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
+| `roles-confirm-1280.build.png.b64` | roles-confirm | 1280 | build | 1 | 0.0228% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
+| `roles-confirm-1280.diff.png.b64` | roles-confirm | 1280 | diff | 1 | 0.0228% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 1140–1184, y 812–827], AA 340 px |
+| `roles-confirm-1024.ref.png.b64` | roles-confirm | 1024 | ref | 1 | 0.0285% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
+| `roles-confirm-1024.build.png.b64` | roles-confirm | 1024 | build | 1 | 0.0285% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
+| `roles-confirm-1024.diff.png.b64` | roles-confirm | 1024 | diff | 1 | 0.0285% · 263 px · dims OK · enforced, pass | Δ>60 245 px [x 892–936, y 812–827], AA 340 px |
 | `roles-confirm-390.ref.png.b64` | roles-confirm | 390 | ref | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `roles-confirm-390.build.png.b64` | roles-confirm | 390 | build | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
 | `roles-confirm-390.diff.png.b64` | roles-confirm | 390 | diff | 1 | 0.0000% · 0 px · dims OK · enforced, pass | Δ>60 0 px, AA 0 px |
